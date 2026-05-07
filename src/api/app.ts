@@ -19,7 +19,10 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   await app.register(cors, {
     origin: config.frontendOrigin
       ? (origin, callback) => callback(null, !origin || origin === config.frontendOrigin)
-      : true
+      : true,
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['content-type', 'authorization'],
+    preflight: true
   });
   const store = preloadedStore ?? await createIntelligenceStore(repository);
 

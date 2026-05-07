@@ -50,6 +50,56 @@ describe('search and route API', () => {
     await app.close();
   });
 
+  it('handles CORS preflight for pulse summary with allowed origin', async () => {
+    const previous = process.env.FRONTEND_ORIGIN;
+    process.env.FRONTEND_ORIGIN = 'https://radar.example.com';
+    const app = await createApp();
+    const response = await app.inject({
+      method: 'OPTIONS',
+      url: '/v1/pulse/summary',
+      headers: {
+        origin: 'https://radar.example.com',
+        'access-control-request-method': 'GET',
+        'access-control-request-headers': 'content-type'
+      }
+    });
+
+    expect([200, 204]).toContain(response.statusCode);
+    expect(response.headers['access-control-allow-origin']).toBe('https://radar.example.com');
+    expect(response.headers['access-control-allow-methods']).toContain('GET');
+    expect(response.headers['access-control-allow-headers']).toContain('content-type');
+    await app.close();
+    if (previous === undefined) delete process.env.FRONTEND_ORIGIN;
+    else process.env.FRONTEND_ORIGIN = previous;
+  });
+
+  it('allows authorization header on admin POST route preflight', async () => {
+    const previousOrigin = process.env.FRONTEND_ORIGIN;
+    const previousAdminToken = process.env.INFOPUNKS_ADMIN_TOKEN;
+    process.env.FRONTEND_ORIGIN = 'https://radar.example.com';
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp();
+    const response = await app.inject({
+      method: 'OPTIONS',
+      url: '/v1/monitor/run',
+      headers: {
+        origin: 'https://radar.example.com',
+        'access-control-request-method': 'POST',
+        'access-control-request-headers': 'authorization'
+      }
+    });
+
+    expect([200, 204]).toContain(response.statusCode);
+    expect(response.headers['access-control-allow-origin']).toBe('https://radar.example.com');
+    expect(response.headers['access-control-allow-methods']).toContain('POST');
+    expect(response.headers['access-control-allow-headers']).toContain('authorization');
+    await app.close();
+    if (previousOrigin === undefined) delete process.env.FRONTEND_ORIGIN;
+    else process.env.FRONTEND_ORIGIN = previousOrigin;
+    if (previousAdminToken === undefined) delete process.env.INFOPUNKS_ADMIN_TOKEN;
+    else process.env.INFOPUNKS_ADMIN_TOKEN = previousAdminToken;
+  });
+
   it('protects admin Pay.sh ingestion without token gating public routes', async () => {
     const previous = process.env.INFOPUNKS_ADMIN_TOKEN;
     process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
