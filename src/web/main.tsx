@@ -406,7 +406,7 @@ function App() {
                         <input value={routeMaxPrice} onChange={(event) => setRouteMaxPrice(event.target.value)} placeholder="unknown allowed" />
                       </label>
                       <label>
-                        <span>min trust score</span>
+                        <span>Minimum trust score</span>
                         <input type="number" min={0} max={100} value={routeMinTrust} onChange={(event) => setRouteMinTrust(Number(event.target.value))} />
                       </label>
                       <label>

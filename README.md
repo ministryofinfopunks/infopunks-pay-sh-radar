@@ -69,6 +69,20 @@ Pay.sh Ecosystem
 - `POST /v1/monitor/run` admin-only with `INFOPUNKS_ADMIN_TOKEN`
 - `GET /v1/graph`
 
+Route recommendation request field naming:
+
+- Primary field: `trustThreshold`
+- Backward-compatible alias: `minTrustScore`
+- If both are present, `trustThreshold` takes precedence
+
+Example:
+
+```bash
+curl -s -X POST http://localhost:8787/v1/recommend-route \
+  -H 'content-type: application/json' \
+  -d '{"task":"find a high trust AI provider","preference":"highest_signal","trustThreshold":80}'
+```
+
 ## Data Models
 
 Core Zod schemas live in `src/schemas/entities.ts`:

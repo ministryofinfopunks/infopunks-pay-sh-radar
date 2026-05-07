@@ -28,6 +28,48 @@ describe('search and route API', () => {
     await app.close();
   });
 
+  it('applies trustThreshold as a route filter', async () => {
+    const app = await createApp();
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/recommend-route',
+      payload: { task: 'find a high trust AI provider', category: 'AI/ML', trustThreshold: 100, preference: 'balanced' }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.scoringInputs.trustThreshold).toBe(100);
+    expect(body.bestProvider).toBeNull();
+    await app.close();
+  });
+
+  it('accepts minTrustScore alias and maps it to trustThreshold', async () => {
+    const app = await createApp();
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/recommend-route',
+      payload: { task: 'find a high trust AI provider', category: 'AI/ML', minTrustScore: 100, preference: 'balanced' }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.scoringInputs.trustThreshold).toBe(100);
+    expect(body.bestProvider).toBeNull();
+    await app.close();
+  });
+
+  it('prefers trustThreshold over minTrustScore when both are provided', async () => {
+    const app = await createApp();
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/recommend-route',
+      payload: { task: 'find a high trust AI provider', category: 'AI/ML', trustThreshold: 0, minTrustScore: 100, preference: 'balanced' }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.scoringInputs.trustThreshold).toBe(0);
+    expect(body.bestProvider).toBeTruthy();
+    await app.close();
+  });
+
   it('returns health and V1 providers route', async () => {
     const app = await createApp();
     const health = await app.inject({ method: 'GET', url: '/health' });

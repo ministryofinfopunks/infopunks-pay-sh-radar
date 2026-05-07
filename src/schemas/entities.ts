@@ -20,6 +20,11 @@ export const EventTypeSchema = z.enum([
   'endpoint.updated',
   'price.changed',
   'schema.changed',
+  'provider.checked',
+  'provider.reachable',
+  'provider.degraded',
+  'provider.failed',
+  'provider.recovered',
   'endpoint.checked',
   'endpoint.recovered',
   'endpoint.degraded',
@@ -125,7 +130,15 @@ export const MonitorRunSchema = z.object({
   failedCount: z.number().int().nonnegative(),
   skippedCount: z.number().int().nonnegative(),
   errorCount: z.number().int().nonnegative(),
-  error: z.string().nullable()
+  error: z.string().nullable(),
+  mode: z.enum(['disabled', 'safe_metadata', 'endpoint_health', 'paid_execution_probe']).optional(),
+  reachableCount: z.number().int().nonnegative().optional(),
+  degradedCount: z.number().int().nonnegative().optional(),
+  skippedReasons: z.array(z.object({
+    providerId: z.string(),
+    serviceUrl: z.string().nullable(),
+    reason: z.string()
+  })).optional()
 });
 
 export const TrustAssessmentSchema = z.object({
@@ -189,11 +202,15 @@ export const RouteRecommendationRequestSchema = z.object({
   task: z.string().min(1),
   category: z.string().optional(),
   maxPrice: z.number().nonnegative().optional(),
-  trustThreshold: z.number().min(0).max(100).default(70),
+  trustThreshold: z.number().min(0).max(100).optional(),
+  minTrustScore: z.number().min(0).max(100).optional(),
   latencySensitivity: z.enum(['low', 'medium', 'high']).default('medium'),
   preference: z.enum(['cheapest', 'highest_trust', 'highest_signal', 'balanced']).default('balanced'),
   preferredProviderId: z.string().optional()
-});
+}).transform((input) => ({
+  ...input,
+  trustThreshold: input.trustThreshold ?? input.minTrustScore ?? 70
+}));
 
 export const RouteCandidateSchema = z.object({
   provider: ProviderSchema,
