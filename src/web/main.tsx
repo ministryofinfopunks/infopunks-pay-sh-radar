@@ -253,7 +253,7 @@ function App() {
         </div>
 
         <div className="provider-stack">
-          <div className="panel">
+          <div className="panel provider-directory-panel">
             <div className="panel-head">
               <div>
                 <p className="section-kicker">Catalog Index</p>
@@ -314,60 +314,62 @@ function App() {
                 <DossierStat label="risk" value={providerIntel?.risk_level ?? 'unknown'} sub="level" />
                 <DossierStat label="unknowns" value={providerIntel?.unknown_telemetry.length ?? 'unknown'} sub="telemetry fields" />
               </div>
-              <DossierSection title="Capability Brief">
-                <p>{selectedProvider.description ?? 'No provider description supplied by catalog metadata.'}</p>
-                <p><b>use_case:</b> {selectedProvider.useCase ?? 'unknown'}</p>
-                {selectedProvider.serviceUrl && <p><b>service_url:</b> <a href={selectedProvider.serviceUrl} target="_blank" rel="noreferrer">{selectedProvider.serviceUrl}</a></p>}
-                <div className="chips compact-chips">{(providerIntel?.category_tags.length ? providerIntel.category_tags : selectedProvider.tags).map((tag) => <span key={tag}>{tag}</span>)}</div>
-              </DossierSection>
-              <div className="dossier-grid">
-                <DossierSection title="Market Metadata">
-                  <KeyValues rows={[
-                    ['min_price_usd', moneyOrUnknown(selectedProvider.pricing.min)],
-                    ['max_price_usd', moneyOrUnknown(selectedProvider.pricing.max)],
-                    ['endpoint_count', selectedProvider.endpointCount],
-                    ['has_free_tier', formatNullableBoolean(selectedProvider.hasFreeTier ?? selectedProvider.status.includes('free') ? true : null)],
-                    ['has_metering', formatNullableBoolean(selectedProvider.hasMetering ?? selectedProvider.status === 'metered' ? true : null)],
-                    ['source_sha', selectedProvider.sourceSha ?? 'unknown'],
-                    ['catalog_generated_at', formatDate(selectedProvider.catalogGeneratedAt)],
-                    ['last_seen_at', formatDate(providerIntel?.last_seen_at ?? selectedProvider.lastSeenAt)]
-                  ]} />
+              <div className="dossier-body">
+                <DossierSection title="Capability Brief">
+                  <p>{selectedProvider.description ?? 'No provider description supplied by catalog metadata.'}</p>
+                  <p><b>use_case:</b> {selectedProvider.useCase ?? 'unknown'}</p>
+                  {selectedProvider.serviceUrl && <p><b>service_url:</b> <a href={selectedProvider.serviceUrl} target="_blank" rel="noreferrer">{selectedProvider.serviceUrl}</a></p>}
+                  <div className="chips compact-chips">{(providerIntel?.category_tags.length ? providerIntel.category_tags : selectedProvider.tags).map((tag) => <span key={tag}>{tag}</span>)}</div>
                 </DossierSection>
-                <DossierSection title="Trust Breakdown">
-                  <KeyValues rows={[
-                    ['metadata quality', componentValue(providerDetail?.trustAssessment?.components.metadataQuality)],
-                    ['pricing clarity', componentValue(providerDetail?.trustAssessment?.components.pricingClarity)],
-                    ['freshness', componentValue(providerDetail?.trustAssessment?.components.freshness)],
-                    ['uptime', knownState(providerDetail?.trustAssessment?.components.uptime)],
-                    ['latency', knownState(providerDetail?.trustAssessment?.components.latency)],
-                    ['response validity', knownState(providerDetail?.trustAssessment?.components.responseValidity)],
-                    ['receipt reliability', knownState(providerDetail?.trustAssessment?.components.receiptReliability)]
-                  ]} />
-                </DossierSection>
-                <DossierSection title="Signal Breakdown">
-                  <KeyValues rows={[
-                    ['category heat', componentValue(providerDetail?.signalAssessment?.components.categoryHeat)],
-                    ['ecosystem momentum', componentValue(providerDetail?.signalAssessment?.components.ecosystemMomentum)],
-                    ['metadata change velocity', componentValue(providerDetail?.signalAssessment?.components.metadataChangeVelocity)],
-                    ['social velocity', knownState(providerDetail?.signalAssessment?.components.socialVelocity)],
-                    ['onchain/liquidity resonance', knownState(providerDetail?.signalAssessment?.components.onchainLiquidityResonance)]
-                  ]} />
-                </DossierSection>
-                <DossierSection title="Unknown Telemetry">
-                  <div className="unknown-list">{(providerIntel?.unknown_telemetry.length ? providerIntel.unknown_telemetry : ['No unknown telemetry reported by current assessments.']).map((item) => <span key={item}>{item}</span>)}</div>
-                </DossierSection>
-              </div>
-              <DossierSection title="Evidence Trail">
-                <div className="evidence-trail">
-                  {(providerIntel?.recent_changes.length ? providerIntel.recent_changes : []).slice(0, 6).map((item) => <div key={item.id}>
-                    <time>{formatDate(item.observedAt)}</time>
-                    <strong>{item.type}</strong>
-                    <span>{item.summary}</span>
-                  </div>)}
-                  {providerIntel?.recent_changes.length === 0 && <p className="muted empty-state">No recent discovery, update, price, category, endpoint-count, or metadata events after initial observation.</p>}
+                <div className="dossier-grid">
+                  <DossierSection title="Market Metadata">
+                    <KeyValues rows={[
+                      ['min_price_usd', moneyOrUnknown(selectedProvider.pricing.min)],
+                      ['max_price_usd', moneyOrUnknown(selectedProvider.pricing.max)],
+                      ['endpoint_count', selectedProvider.endpointCount],
+                      ['has_free_tier', formatNullableBoolean(selectedProvider.hasFreeTier ?? selectedProvider.status.includes('free') ? true : null)],
+                      ['has_metering', formatNullableBoolean(selectedProvider.hasMetering ?? selectedProvider.status === 'metered' ? true : null)],
+                      ['source_sha', selectedProvider.sourceSha ?? 'unknown'],
+                      ['catalog_generated_at', formatDate(selectedProvider.catalogGeneratedAt)],
+                      ['last_seen_at', formatDate(providerIntel?.last_seen_at ?? selectedProvider.lastSeenAt)]
+                    ]} />
+                  </DossierSection>
+                  <DossierSection title="Trust Breakdown">
+                    <KeyValues rows={[
+                      ['metadata quality', componentValue(providerDetail?.trustAssessment?.components.metadataQuality)],
+                      ['pricing clarity', componentValue(providerDetail?.trustAssessment?.components.pricingClarity)],
+                      ['freshness', componentValue(providerDetail?.trustAssessment?.components.freshness)],
+                      ['uptime', knownState(providerDetail?.trustAssessment?.components.uptime)],
+                      ['latency', knownState(providerDetail?.trustAssessment?.components.latency)],
+                      ['response validity', knownState(providerDetail?.trustAssessment?.components.responseValidity)],
+                      ['receipt reliability', knownState(providerDetail?.trustAssessment?.components.receiptReliability)]
+                    ]} />
+                  </DossierSection>
+                  <DossierSection title="Signal Breakdown">
+                    <KeyValues rows={[
+                      ['category heat', componentValue(providerDetail?.signalAssessment?.components.categoryHeat)],
+                      ['ecosystem momentum', componentValue(providerDetail?.signalAssessment?.components.ecosystemMomentum)],
+                      ['metadata change velocity', componentValue(providerDetail?.signalAssessment?.components.metadataChangeVelocity)],
+                      ['social velocity', knownState(providerDetail?.signalAssessment?.components.socialVelocity)],
+                      ['onchain/liquidity resonance', knownState(providerDetail?.signalAssessment?.components.onchainLiquidityResonance)]
+                    ]} />
+                  </DossierSection>
+                  <DossierSection title="Unknown Telemetry">
+                    <div className="unknown-list">{(providerIntel?.unknown_telemetry.length ? providerIntel.unknown_telemetry : ['No unknown telemetry reported by current assessments.']).map((item) => <span key={item}>{item}</span>)}</div>
+                  </DossierSection>
                 </div>
-              </DossierSection>
-              <button className="execute compact" onClick={() => recommendProvider(selectedProvider)}>recommend route</button>
+                <DossierSection title="Evidence Trail">
+                  <div className="evidence-trail">
+                    {(providerIntel?.recent_changes.length ? providerIntel.recent_changes : []).slice(0, 6).map((item) => <div key={item.id}>
+                      <time>{formatDate(item.observedAt)}</time>
+                      <strong>{item.type}</strong>
+                      <span>{item.summary}</span>
+                    </div>)}
+                    {providerIntel?.recent_changes.length === 0 && <p className="muted empty-state">No recent discovery, update, price, category, endpoint-count, or metadata events after initial observation.</p>}
+                  </div>
+                </DossierSection>
+                <button className="execute compact" onClick={() => recommendProvider(selectedProvider)}>recommend route</button>
+              </div>
             </>}
           </div>
         </div>
