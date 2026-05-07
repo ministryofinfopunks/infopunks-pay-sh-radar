@@ -1,0 +1,53 @@
+import { describe, expect, it } from 'vitest';
+import { createApp } from '../src/api/app';
+
+describe('search and route API', () => {
+  it('searches providers semantically with deterministic lexical scoring', async () => {
+    const app = await createApp();
+    const response = await app.inject({ method: 'POST', url: '/v1/search', payload: { query: 'image video generation', limit: 3 } });
+    expect(response.statusCode).toBe(200);
+    expect(response.json().data[0].provider.category).toBe('Media');
+    await app.close();
+  });
+
+  it('recommends a route with reasoning, evidence, and risk notes', async () => {
+    const app = await createApp();
+    const response = await app.inject({ method: 'POST', url: '/v1/recommend-route', payload: { task: 'transcribe voice audio for an AI agent', category: 'AI/ML', maxPrice: 0.05, trustThreshold: 60, latencySensitivity: 'high' } });
+    expect(response.statusCode).toBe(200);
+    const body = response.json();
+    expect(body.data.bestProvider).toBeTruthy();
+    expect(body.data.reasoning.length).toBeGreaterThan(0);
+    expect(body.data.evidence.length).toBeGreaterThan(0);
+    expect(body.data.riskNotes.some((note: string) => note.includes('unknown') || note.includes('unavailable'))).toBe(true);
+    await app.close();
+  });
+
+  it('returns health and V1 providers route', async () => {
+    const app = await createApp();
+    const health = await app.inject({ method: 'GET', url: '/health' });
+    const providers = await app.inject({ method: 'GET', url: '/v1/providers' });
+    const events = await app.inject({ method: 'GET', url: '/v1/events/recent' });
+    expect(health.statusCode).toBe(200);
+    expect(health.json().ok).toBe(true);
+    expect(providers.json().data.length).toBeGreaterThan(0);
+    expect(events.json().data.length).toBeGreaterThan(0);
+    await app.close();
+  });
+
+  it('protects admin Pay.sh ingestion without token gating public routes', async () => {
+    const previous = process.env.INFOPUNKS_ADMIN_TOKEN;
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp();
+    const publicResponse = await app.inject({ method: 'GET', url: '/v1/providers' });
+    const blocked = await app.inject({ method: 'POST', url: '/v1/ingest/pay-sh', payload: {} });
+    const allowed = await app.inject({ method: 'POST', url: '/v1/ingest/pay-sh', headers: { authorization: 'Bearer secret' }, payload: {} });
+
+    expect(publicResponse.statusCode).toBe(200);
+    expect(blocked.statusCode).toBe(401);
+    expect(allowed.statusCode).toBe(200);
+    expect(allowed.json().data.run.status).toBe('succeeded');
+    await app.close();
+    if (previous === undefined) delete process.env.INFOPUNKS_ADMIN_TOKEN;
+    else process.env.INFOPUNKS_ADMIN_TOKEN = previous;
+  });
+});

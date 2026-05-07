@@ -1,0 +1,98 @@
+import pg from 'pg';
+import { IntelligenceRepository, IntelligenceSnapshot } from './repository';
+
+const { Pool } = pg;
+
+export class PostgresRepository implements IntelligenceRepository {
+  private pool: pg.Pool;
+
+  constructor(connectionString: string) {
+    this.pool = new Pool({ connectionString });
+  }
+
+  async loadSnapshot(): Promise<IntelligenceSnapshot | null> {
+    await this.ensureSchema();
+    const result = await this.pool.query('select snapshot from intelligence_snapshots order by created_at desc limit 1');
+    return result.rows[0]?.snapshot ?? null;
+  }
+
+  async saveSnapshot(snapshot: IntelligenceSnapshot): Promise<void> {
+    await this.ensureSchema();
+    const client = await this.pool.connect();
+    try {
+      await client.query('begin');
+      if (snapshot.events.length) {
+        await client.query('insert into infopunks_events (id, type, source, entity_type, entity_id, observed_at, payload) values ' +
+          snapshot.events.map((_, index) => `($${index * 7 + 1}, $${index * 7 + 2}, $${index * 7 + 3}, $${index * 7 + 4}, $${index * 7 + 5}, $${index * 7 + 6}, $${index * 7 + 7})`).join(',') +
+          ' on conflict (id) do nothing', snapshot.events.flatMap((event) => [event.id, event.type, event.source, event.entityType, event.entityId, event.observedAt, event.payload]));
+      }
+      for (const run of snapshot.ingestionRuns ?? []) {
+        await client.query(
+          `insert into ingestion_runs (id, started_at, finished_at, source, status, discovered_count, changed_count, error_count, error)
+           values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+           on conflict (id) do update set finished_at = excluded.finished_at, status = excluded.status, discovered_count = excluded.discovered_count, changed_count = excluded.changed_count, error_count = excluded.error_count, error = excluded.error`,
+          [run.id, run.startedAt, run.finishedAt, run.source, run.status, run.discoveredCount, run.changedCount, run.errorCount, run.error]
+        );
+      }
+      for (const run of snapshot.monitorRuns ?? []) {
+        await client.query(
+          `insert into monitor_runs (id, started_at, finished_at, source, status, checked_count, success_count, failed_count, skipped_count, error_count, error)
+           values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+           on conflict (id) do update set finished_at = excluded.finished_at, status = excluded.status, checked_count = excluded.checked_count, success_count = excluded.success_count, failed_count = excluded.failed_count, skipped_count = excluded.skipped_count, error_count = excluded.error_count, error = excluded.error`,
+          [run.id, run.startedAt, run.finishedAt, run.source, run.status, run.checkedCount, run.successCount, run.failedCount, run.skippedCount, run.errorCount, run.error]
+        );
+      }
+      await client.query('insert into intelligence_snapshots (snapshot) values ($1)', [snapshot]);
+      await client.query('commit');
+    } catch (error) {
+      await client.query('rollback');
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  private async ensureSchema() {
+    await this.pool.query(`
+      create table if not exists infopunks_events (
+        id text primary key,
+        type text not null,
+        source text not null,
+        entity_type text not null,
+        entity_id text not null,
+        observed_at timestamptz not null,
+        payload jsonb not null
+      );
+      create index if not exists infopunks_events_entity_idx on infopunks_events (entity_type, entity_id);
+      create table if not exists ingestion_runs (
+        id text primary key,
+        started_at timestamptz not null,
+        finished_at timestamptz,
+        source text not null,
+        status text not null,
+        discovered_count integer not null,
+        changed_count integer not null,
+        error_count integer not null,
+        error text
+      );
+      create table if not exists monitor_runs (
+        id text primary key,
+        started_at timestamptz not null,
+        finished_at timestamptz,
+        source text not null,
+        status text not null,
+        checked_count integer not null,
+        success_count integer not null,
+        failed_count integer not null,
+        skipped_count integer not null,
+        error_count integer not null,
+        error text
+      );
+      create table if not exists intelligence_snapshots (
+        id bigserial primary key,
+        created_at timestamptz not null default now(),
+        snapshot jsonb not null
+      );
+    `);
+  }
+}

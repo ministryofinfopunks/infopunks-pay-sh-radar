@@ -1,0 +1,37 @@
+{
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.server.json && vite build",
+    "start": "node dist/server/server.js",
+    "start:render": "npm run start",
+    "smoke:backend": "node scripts/smoke-backend.mjs",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.2.0",
+    "@vitejs/plugin-react": "latest",
+    "fastify": "^5.8.5",
+    "pg": "^8.20.0",
+    "react": "latest",
+    "react-dom": "latest",
+    "vite": "latest",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/pg": "^8.20.0",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "jsdom": "latest",
+    "tsx": "latest",
+    "typescript": "latest",
+    "vitest": "latest"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "private": true,
+  "name": "infopunks-pay-sh-radar",
+  "version": "0.1.0"
+}
