@@ -57,6 +57,23 @@ function monitorStore() {
   return recomputeAssessments(applyPayShCatalogIngestion(emptySnapshot, catalog, { observedAt: '2026-01-01T00:00:00.000Z', source: 'pay.sh:test' }).snapshot);
 }
 
+class StrictJsonRepository extends MemoryRepository {
+  public serializedSkippedReasons: string[] = [];
+
+  async saveSnapshot(snapshot: IntelligenceSnapshot) {
+    JSON.stringify(snapshot, (_key, value) => (value === undefined ? null : value));
+    for (const event of snapshot.events) {
+      JSON.stringify(event.payload, (_key, value) => (value === undefined ? null : value));
+    }
+    for (const run of snapshot.monitorRuns ?? []) {
+      const serialized = JSON.stringify(run.skippedReasons ?? [], (_key, value) => (value === undefined ? null : value));
+      if (serialized === undefined) throw new Error('json_serialization_failed');
+      this.serializedSkippedReasons.push(serialized);
+    }
+    await super.saveSnapshot(snapshot);
+  }
+}
+
 describe('endpoint monitor', () => {
   it('records a successful endpoint check with latency evidence', async () => {
     const store = monitorStore();
@@ -277,6 +294,32 @@ describe('safe metadata monitor', () => {
     expect(accepted.statusCode).toBe(200);
     expect(accepted.json().data.run).toMatchObject({ mode: 'safe_metadata', checkedCount: 0, skippedCount: 1 });
     await app.close();
+  });
+
+  it('allows manual POST /v1/monitor/run with strict JSON serialization repository behavior', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'local-admin';
+    process.env.MONITOR_MODE = 'safe_metadata';
+    const store = monitorStore();
+    const repository = new StrictJsonRepository();
+    const app = await createApp(store, repository);
+
+    const response = await app.inject({ method: 'POST', url: '/v1/monitor/run', headers: { authorization: 'Bearer local-admin' } });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().data.run).toMatchObject({ mode: 'safe_metadata', status: 'succeeded' });
+    await app.close();
+  });
+
+  it('serializes skippedReasons as valid JSON', async () => {
+    const store = monitorStore();
+    store.providers[0].serviceUrl = null;
+    const repository = new StrictJsonRepository();
+
+    await runMonitor(store, repository, { mode: 'safe_metadata' });
+
+    expect(repository.serializedSkippedReasons.length).toBeGreaterThan(0);
+    const latest = JSON.parse(repository.serializedSkippedReasons[repository.serializedSkippedReasons.length - 1]);
+    expect(latest).toEqual([{ providerId: 'monitor', serviceUrl: null, reason: 'missing_service_url' }]);
   });
 
   it('returns snake_case recent run summary fields', async () => {

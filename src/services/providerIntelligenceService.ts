@@ -274,6 +274,7 @@ function summaryForEvent(event: InfopunksEvent) {
     case 'provider.recovered':
       return 'Provider service URL recovered after prior degraded or failed reachability evidence.';
     case 'provider.degraded':
+      if (event.payload.status_code === 404) return 'Service URL responded but did not expose a healthy root page.';
       return `Provider service reachability degraded with HTTP ${event.payload.status_code ?? 'unknown'} and latency ${event.payload.response_time_ms ?? 'unknown'}ms.`;
     case 'provider.failed':
       return `Provider service reachability failed: ${event.payload.error_message ?? `HTTP ${event.payload.status_code ?? 'unknown'}`}.`;
