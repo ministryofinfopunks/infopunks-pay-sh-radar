@@ -31,7 +31,16 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   app.get('/v1/pulse', async () => ({ data: pulse(store) }));
   app.get('/v1/pulse/summary', async () => ({ data: pulseSummary(store) }));
   app.get('/v1/events/recent', async () => ({ data: [...store.events].sort((a, b) => Date.parse(b.observedAt) - Date.parse(a.observedAt)).slice(0, 100) }));
-  app.get('/v1/providers', async () => ({ data: store.providers }));
+  app.get('/v1/providers', async () => ({ data: store.providers.map((provider) => {
+    const trust = latestByAssessedAt(store.trustAssessments.filter((item) => item.entityId === provider.id));
+    const signal = latestByAssessedAt(store.signalAssessments.filter((item) => item.entityId === provider.id));
+    return {
+      ...provider,
+      latestTrustScore: trust?.score ?? null,
+      latestTrustGrade: trust?.grade ?? 'unknown',
+      latestSignalScore: signal?.score ?? null
+    };
+  }) }));
   app.get<{ Params: { id: string } }>('/v1/providers/:id', async (req, reply) => {
     const provider = findProvider(store, req.params.id);
     if (!provider) return reply.code(404).send({ error: 'provider_not_found' });
@@ -137,6 +146,10 @@ function pulse(store: IntelligenceStore) {
 
 function avg(values: number[]) {
   return values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : null;
+}
+
+function latestByAssessedAt<T extends { assessedAt: string }>(items: T[]) {
+  return [...items].sort((a, b) => Date.parse(b.assessedAt) - Date.parse(a.assessedAt))[0] ?? null;
 }
 
 function handleParsed<T>(body: unknown, schema: z.ZodSchema<T>, next: (input: T) => unknown, reply: FastifyReply) {

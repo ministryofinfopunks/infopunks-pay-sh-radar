@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 
-type Provider = { id: string; name: string; namespace: string; fqn?: string; category: string; description: string | null; endpointCount: number; endpointMetadataPartial?: boolean; pricing: { min: number | null; max: number | null; clarity: string; raw: string }; tags: string[]; status: string };
+type Provider = { id: string; name: string; title?: string; namespace: string; fqn?: string; category: string; description: string | null; useCase?: string | null; serviceUrl?: string | null; endpointCount: number; endpointMetadataPartial?: boolean; hasMetering?: boolean; hasFreeTier?: boolean; sourceSha?: string | null; catalogGeneratedAt?: string | null; pricing: { min: number | null; max: number | null; clarity: string; raw: string }; tags: string[]; status: string; lastSeenAt?: string; latestTrustScore?: number | null; latestTrustGrade?: string; latestSignalScore?: number | null };
 type Endpoint = { id: string; providerId: string; name: string; path: string | null; method: string | null; category: string; description: string | null; status: string; pricing: Provider['pricing']; lastSeenAt: string; latencyMsP50: number | null };
 type TrustAssessment = { entityId: string; score: number | null; grade: string; components: Record<string, number | null>; unknowns: string[] };
 type SignalAssessment = { entityId: string; score: number | null; narratives: string[]; components: Record<string, number | null>; unknowns: string[] };
@@ -42,6 +42,18 @@ type PulseSummary = {
 };
 
 type AppData = { providers: Provider[]; pulse: Pulse; narratives: Narrative[]; graph: { nodes: unknown[]; edges: unknown[] } };
+type RoutePreference = 'cheapest' | 'highest_trust' | 'balanced';
+type RouteResult = {
+  bestProvider: Provider | null;
+  fallbackProviders: Provider[];
+  fallbackDetails?: { provider: Provider; trustAssessment: TrustAssessment; signalAssessment: SignalAssessment; rank: number; relevance: number; riskNotes: string[] }[];
+  reasoning: string[];
+  estimatedCost: Provider['pricing'] | null;
+  trustAssessment: TrustAssessment | null;
+  signalAssessment: SignalAssessment | null;
+  riskNotes: string[];
+  preference?: RoutePreference;
+};
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 
@@ -54,10 +66,17 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
 function App() {
   const [data, setData] = useState<AppData | null>(null);
   const [selectedId, setSelectedId] = useState('stableenrich');
+  const [directoryQuery, setDirectoryQuery] = useState('');
+  const [directoryCategory, setDirectoryCategory] = useState('all');
+  const [directorySort, setDirectorySort] = useState('trust score');
   const [searchQuery, setSearchQuery] = useState('multimodal generation');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [routeTask, setRouteTask] = useState('Find a low-cost image generation route for an autonomous design agent');
-  const [routeResult, setRouteResult] = useState<any>(null);
+  const [routeCategory, setRouteCategory] = useState('all');
+  const [routeMaxPrice, setRouteMaxPrice] = useState('0.1');
+  const [routeMinTrust, setRouteMinTrust] = useState(70);
+  const [routePreference, setRoutePreference] = useState<RoutePreference>('balanced');
+  const [routeResult, setRouteResult] = useState<RouteResult | null>(null);
   const [providerDetail, setProviderDetail] = useState<ProviderDetail | null>(null);
   const [providerIntel, setProviderIntel] = useState<ProviderIntelligence | null>(null);
   const [endpointMonitors, setEndpointMonitors] = useState<Record<string, EndpointMonitor>>({});
@@ -103,6 +122,16 @@ function App() {
 
   const selectedProvider = data?.providers.find((provider) => provider.id === selectedId) ?? data?.providers[0];
   const providerLookup = useMemo(() => new Map(data?.providers.map((provider) => [provider.id, provider]) ?? []), [data]);
+  const trustLookup = useMemo(() => new Map(data?.pulse.topTrust.map((assessment) => [assessment.entityId, assessment]) ?? []), [data]);
+  const signalLookup = useMemo(() => new Map(data?.pulse.topSignal.map((assessment) => [assessment.entityId, assessment]) ?? []), [data]);
+  const categoryOptions = useMemo(() => Array.from(new Set(data?.providers.map((provider) => provider.category).filter(Boolean) ?? [])).sort(), [data]);
+  const filteredProviders = useMemo(() => {
+    const query = directoryQuery.trim().toLowerCase();
+    return [...(data?.providers ?? [])]
+      .filter((provider) => directoryCategory === 'all' || provider.category === directoryCategory)
+      .filter((provider) => !query || [provider.name, provider.id, provider.fqn, provider.category, provider.description, ...(provider.tags ?? [])].filter(Boolean).join(' ').toLowerCase().includes(query))
+      .sort((a, b) => compareProviders(a, b, directorySort, trustLookup, signalLookup));
+  }, [data, directoryCategory, directoryQuery, directorySort, signalLookup, trustLookup]);
 
   useEffect(() => {
     if (!selectedProvider) return;
@@ -119,11 +148,23 @@ function App() {
   }, [selectedProvider?.id]);
 
   function runRoute() {
-    api<{ data: any }>('/v1/recommend-route', { method: 'POST', body: JSON.stringify({ task: routeTask, trustThreshold: 70, latencySensitivity: 'medium', maxPrice: 0.1 }) }).then((res) => setRouteResult(res.data));
+    const maxPrice = routeMaxPrice.trim() === '' ? undefined : Number(routeMaxPrice);
+    api<{ data: RouteResult }>('/v1/recommend-route', {
+      method: 'POST',
+      body: JSON.stringify({
+        task: routeTask,
+        category: routeCategory === 'all' ? undefined : routeCategory,
+        trustThreshold: routeMinTrust,
+        latencySensitivity: 'medium',
+        maxPrice: Number.isFinite(maxPrice) ? maxPrice : undefined,
+        preference: routePreference
+      })
+    }).then((res) => setRouteResult(res.data));
   }
 
   function recommendProvider(provider: Provider) {
     setRouteTask(`Recommend a Pay.sh route for a task that could use ${provider.name} in ${provider.category}`);
+    setRouteCategory(provider.category || 'all');
     window.requestAnimationFrame(() => document.getElementById('route-recommender')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   }
 
@@ -186,34 +227,114 @@ function App() {
                 <p className="section-kicker">Catalog Index</p>
                 <h2>Provider Directory</h2>
               </div>
-              <small>{data.providers.length} providers</small>
+              <small>{filteredProviders.length} / {data.providers.length} providers</small>
+            </div>
+            <div className="directory-controls">
+              <input value={directoryQuery} onChange={(event) => setDirectoryQuery(event.target.value)} placeholder="filter provider, tag, FQN, category" />
+              <div className="control-row">
+                <select value={directorySort} onChange={(event) => setDirectorySort(event.target.value)} aria-label="Sort providers">
+                  <option>trust score</option>
+                  <option>signal score</option>
+                  <option>endpoint count</option>
+                  <option>category</option>
+                  <option>name</option>
+                </select>
+              </div>
+              <div className="category-chips">
+                <button className={directoryCategory === 'all' ? 'selected' : ''} onClick={() => setDirectoryCategory('all')}>all</button>
+                {categoryOptions.map((category) => <button key={category} className={directoryCategory === category ? 'selected' : ''} onClick={() => setDirectoryCategory(category)}>{category}</button>)}
+              </div>
             </div>
             <div className="directory">
-              {data.providers.map((provider) => <button key={provider.id} className={provider.id === selectedProvider?.id ? 'active row' : 'row'} onClick={() => setSelectedId(provider.id)}>
-                <span>{provider.name}</span><small>{provider.category} / {provider.endpointCount} endpoints</small>
+              {filteredProviders.map((provider) => <button key={provider.id} className={provider.id === selectedProvider?.id ? 'active row' : 'row'} onClick={() => setSelectedId(provider.id)}>
+                <span>{provider.name}</span><small>{provider.category} / {provider.endpointCount} endpoints / trust {provider.latestTrustScore ?? 'unknown'}</small>
               </button>)}
+              {!filteredProviders.length && <p className="muted empty-state">No providers match the current directory filters.</p>}
             </div>
           </div>
-          <div className="panel intelligence">
+          <div className="panel intelligence dossier">
             <div className="panel-head">
               <div>
                 <p className="section-kicker">Selected Provider</p>
-                <h2>Provider Overview</h2>
+                <h2>Provider Intelligence Dossier</h2>
               </div>
             </div>
             {selectedProvider && <>
-              <p className="eyebrow">{selectedProvider.namespace}</p>
-              <h3>{selectedProvider.name}</h3>
-              <p>{selectedProvider.description}</p>
-              <div className="chips">{selectedProvider.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
-              <div className="terminal-lines">
-                <p>category: {selectedProvider.category}</p>
-                <p>price: {formatPrice(selectedProvider.pricing)}</p>
-                <p>status: {selectedProvider.status}</p>
-                <p>last seen: {formatDate(providerIntel?.last_seen_at)}</p>
-                <p>monitor checked: {formatDate(providerIntel?.endpoint_health.last_checked_at)}</p>
-                <p>monitor latency: {formatMs(providerIntel?.endpoint_health.median_latency_ms ?? null)}</p>
+              <div className="dossier-header">
+                <div>
+                  <p className="eyebrow">{selectedProvider.namespace}</p>
+                  <h3>{selectedProvider.title ?? selectedProvider.name}</h3>
+                  <code>{selectedProvider.fqn ?? selectedProvider.id}</code>
+                </div>
+                <div className="dossier-badges">
+                  <span>{selectedProvider.category}</span>
+                  <span>{data.pulse.data_source.mode === 'live_pay_sh_catalog' ? 'live catalog' : 'fixture fallback'}</span>
+                  <span>{selectedProvider.endpointCount} endpoints</span>
+                  <span>{formatPrice(selectedProvider.pricing)}</span>
+                  <span>{selectedProvider.hasFreeTier || selectedProvider.status.includes('free') ? 'free tier' : 'no free-tier evidence'}</span>
+                  <span>{selectedProvider.hasMetering || selectedProvider.status === 'metered' ? 'metering' : 'metering unknown'}</span>
+                </div>
               </div>
+              <div className="intel-summary">
+                <DossierStat label="trust" value={providerIntel?.latest_trust_score ?? null} sub={providerDetail?.trustAssessment?.grade ?? 'grade unknown'} />
+                <DossierStat label="signal" value={providerIntel?.latest_signal_score ?? null} sub={providerDetail?.signalAssessment?.narratives[0] ?? 'narrative unknown'} />
+                <DossierStat label="coordination" value={formatNullableBoolean(providerIntel?.coordination_eligible ?? null)} sub="eligible" />
+                <DossierStat label="risk" value={providerIntel?.risk_level ?? 'unknown'} sub="level" />
+                <DossierStat label="unknowns" value={providerIntel?.unknown_telemetry.length ?? 'unknown'} sub="telemetry fields" />
+              </div>
+              <DossierSection title="Capability Brief">
+                <p>{selectedProvider.description ?? 'No provider description supplied by catalog metadata.'}</p>
+                <p><b>use_case:</b> {selectedProvider.useCase ?? 'unknown'}</p>
+                {selectedProvider.serviceUrl && <p><b>service_url:</b> <a href={selectedProvider.serviceUrl} target="_blank" rel="noreferrer">{selectedProvider.serviceUrl}</a></p>}
+                <div className="chips compact-chips">{(providerIntel?.category_tags.length ? providerIntel.category_tags : selectedProvider.tags).map((tag) => <span key={tag}>{tag}</span>)}</div>
+              </DossierSection>
+              <div className="dossier-grid">
+                <DossierSection title="Market Metadata">
+                  <KeyValues rows={[
+                    ['min_price_usd', moneyOrUnknown(selectedProvider.pricing.min)],
+                    ['max_price_usd', moneyOrUnknown(selectedProvider.pricing.max)],
+                    ['endpoint_count', selectedProvider.endpointCount],
+                    ['has_free_tier', formatNullableBoolean(selectedProvider.hasFreeTier ?? selectedProvider.status.includes('free') ? true : null)],
+                    ['has_metering', formatNullableBoolean(selectedProvider.hasMetering ?? selectedProvider.status === 'metered' ? true : null)],
+                    ['source_sha', selectedProvider.sourceSha ?? 'unknown'],
+                    ['catalog_generated_at', formatDate(selectedProvider.catalogGeneratedAt)],
+                    ['last_seen_at', formatDate(providerIntel?.last_seen_at ?? selectedProvider.lastSeenAt)]
+                  ]} />
+                </DossierSection>
+                <DossierSection title="Trust Breakdown">
+                  <KeyValues rows={[
+                    ['metadata quality', componentValue(providerDetail?.trustAssessment?.components.metadataQuality)],
+                    ['pricing clarity', componentValue(providerDetail?.trustAssessment?.components.pricingClarity)],
+                    ['freshness', componentValue(providerDetail?.trustAssessment?.components.freshness)],
+                    ['uptime', knownState(providerDetail?.trustAssessment?.components.uptime)],
+                    ['latency', knownState(providerDetail?.trustAssessment?.components.latency)],
+                    ['response validity', knownState(providerDetail?.trustAssessment?.components.responseValidity)],
+                    ['receipt reliability', knownState(providerDetail?.trustAssessment?.components.receiptReliability)]
+                  ]} />
+                </DossierSection>
+                <DossierSection title="Signal Breakdown">
+                  <KeyValues rows={[
+                    ['category heat', componentValue(providerDetail?.signalAssessment?.components.categoryHeat)],
+                    ['ecosystem momentum', componentValue(providerDetail?.signalAssessment?.components.ecosystemMomentum)],
+                    ['metadata change velocity', componentValue(providerDetail?.signalAssessment?.components.metadataChangeVelocity)],
+                    ['social velocity', knownState(providerDetail?.signalAssessment?.components.socialVelocity)],
+                    ['onchain/liquidity resonance', knownState(providerDetail?.signalAssessment?.components.onchainLiquidityResonance)]
+                  ]} />
+                </DossierSection>
+                <DossierSection title="Unknown Telemetry">
+                  <div className="unknown-list">{(providerIntel?.unknown_telemetry.length ? providerIntel.unknown_telemetry : ['No unknown telemetry reported by current assessments.']).map((item) => <span key={item}>{item}</span>)}</div>
+                </DossierSection>
+              </div>
+              <DossierSection title="Evidence Trail">
+                <div className="evidence-trail">
+                  {(providerIntel?.recent_changes.length ? providerIntel.recent_changes : []).slice(0, 6).map((item) => <div key={item.id}>
+                    <time>{formatDate(item.observedAt)}</time>
+                    <strong>{item.type}</strong>
+                    <span>{item.summary}</span>
+                  </div>)}
+                  {providerIntel?.recent_changes.length === 0 && <p className="muted empty-state">No recent discovery, update, price, category, endpoint-count, or metadata events after initial observation.</p>}
+                </div>
+              </DossierSection>
               <button className="execute compact" onClick={() => recommendProvider(selectedProvider)}>recommend route</button>
             </>}
           </div>
@@ -330,9 +451,71 @@ function App() {
       </div>
       <div className="panel" id="route-recommender">
         <h2>Route Recommender</h2>
-        <textarea value={routeTask} onChange={(event) => setRouteTask(event.target.value)} />
+        <div className="route-panel">
+          <label>
+            <span>task text</span>
+            <textarea value={routeTask} onChange={(event) => setRouteTask(event.target.value)} />
+          </label>
+          <div className="route-input-grid">
+            <label>
+              <span>category filter</span>
+              <select value={routeCategory} onChange={(event) => setRouteCategory(event.target.value)}>
+                <option value="all">all categories</option>
+                {categoryOptions.map((category) => <option value={category} key={category}>{category}</option>)}
+              </select>
+            </label>
+            <label>
+              <span>max price</span>
+              <input value={routeMaxPrice} onChange={(event) => setRouteMaxPrice(event.target.value)} placeholder="unknown allowed" />
+            </label>
+            <label>
+              <span>min trust score</span>
+              <input type="number" min={0} max={100} value={routeMinTrust} onChange={(event) => setRouteMinTrust(Number(event.target.value))} />
+            </label>
+            <label>
+              <span>preference</span>
+              <select value={routePreference} onChange={(event) => setRoutePreference(event.target.value as RoutePreference)}>
+                <option value="balanced">balanced</option>
+                <option value="cheapest">cheapest</option>
+                <option value="highest_trust">highest trust</option>
+              </select>
+            </label>
+          </div>
+        </div>
         <button className="execute" onClick={runRoute}>compute route</button>
-        {routeResult && <div className="route"><strong>{routeResult.bestProvider?.name ?? 'No route'}</strong><p>{routeResult.reasoning.join(' ')}</p><small>{routeResult.riskNotes.join(' ')}</small></div>}
+        {routeResult && <div className="route decision-output">
+          <div className="decision-head">
+            <div>
+              <span>recommended provider</span>
+              <strong>{routeResult.bestProvider?.name ?? 'No route'}</strong>
+            </div>
+            <small>{routeResult.preference ?? routePreference} decision profile</small>
+          </div>
+          {routeResult.bestProvider && <div className="intel-summary compact">
+            <DossierStat label="trust" value={routeResult.trustAssessment?.score ?? null} sub={routeResult.trustAssessment?.grade ?? 'grade unknown'} />
+            <DossierStat label="signal" value={routeResult.signalAssessment?.score ?? null} sub={routeResult.signalAssessment?.narratives[0] ?? 'narrative unknown'} />
+            <DossierStat label="price" value={formatPrice(routeResult.estimatedCost ?? routeResult.bestProvider.pricing)} sub="estimated range" />
+          </div>}
+          <DossierSection title="Rationale">
+            {routeResult.reasoning.map((line) => <p key={line}>{line}</p>)}
+          </DossierSection>
+          <DossierSection title="Fallback Providers">
+            <div className="fallback-list">
+              {(routeResult.fallbackDetails?.length ? routeResult.fallbackDetails : routeResult.fallbackProviders.map((provider) => ({ provider, trustAssessment: null, signalAssessment: null, rank: null, relevance: null, riskNotes: [] }))).map((candidate) => <div key={candidate.provider.id}>
+                <strong>{candidate.provider.name}</strong>
+                <span>trust {candidate.trustAssessment?.score ?? 'unknown'} / signal {candidate.signalAssessment?.score ?? 'unknown'} / {formatPrice(candidate.provider.pricing)}</span>
+                <small>rank {candidate.rank ?? 'unknown'} / relevance {candidate.relevance ?? 'unknown'}</small>
+              </div>)}
+              {!routeResult.fallbackProviders.length && <p className="muted empty-state">No fallback providers met the current constraints.</p>}
+            </div>
+          </DossierSection>
+          <DossierSection title="Risk Notes">
+            <div className="risk-list">{routeResult.riskNotes.map((note) => <span key={note}>{note}</span>)}</div>
+          </DossierSection>
+          <DossierSection title="Unknown Telemetry Warning">
+            <p>{routeResult.riskNotes.some((note) => /unknown|unavailable/i.test(note)) ? 'Decision contains unknown telemetry. The recommender preserves null evidence instead of estimating missing runtime behavior.' : 'No unknown telemetry warning was emitted for this route.'}</p>
+          </DossierSection>
+        </div>}
       </div>
     </section>
   </main>;
@@ -344,6 +527,18 @@ function Metric({ label, value, sub }: { label: string; value: string | number; 
 
 function PulseStat({ label, value, sub }: { label: string; value: string | number; sub: string }) {
   return <div className="pulse-stat"><span>{label}</span><strong>{value}</strong><small>{sub}</small></div>;
+}
+
+function DossierStat({ label, value, sub }: { label: string; value: string | number | null; sub: string }) {
+  return <div className="dossier-stat"><span>{label}</span><strong>{value ?? 'unknown'}</strong><small>{sub}</small></div>;
+}
+
+function DossierSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return <section className="dossier-section"><h4>{title}</h4>{children}</section>;
+}
+
+function KeyValues({ rows }: { rows: [string, React.ReactNode][] }) {
+  return <div className="key-values">{rows.map(([label, value]) => <p key={label}><b>{label}</b><span>{value}</span></p>)}</div>;
 }
 
 function Leaderboard({ title, scores, providers, kind }: { title: string; scores: any[]; providers: Map<string, Provider>; kind: string }) {
@@ -381,6 +576,10 @@ function formatPrice(price: Provider['pricing']) {
   return price.min === price.max ? `$${price.min}` : `$${price.min} - $${price.max}`;
 }
 
+function moneyOrUnknown(value: number | null | undefined) {
+  return typeof value === 'number' ? `$${value}` : 'unknown';
+}
+
 function formatDate(value: string | null | undefined) {
   return value ? new Date(value).toLocaleString() : 'unknown';
 }
@@ -398,6 +597,14 @@ function formatNullableBoolean(value: boolean | null) {
   return value ? 'yes' : 'no';
 }
 
+function componentValue(value: number | null | undefined) {
+  return typeof value === 'number' ? `${value}/100` : 'unknown';
+}
+
+function knownState(value: number | null | undefined) {
+  return typeof value === 'number' ? `known ${value}/100` : 'unknown';
+}
+
 function formatScoreDelta(delta: ScoreDelta) {
   const score = delta.score ?? 'unknown';
   if (delta.delta === null) return `${score} / prior unavailable`;
@@ -408,6 +615,14 @@ function formatScoreDelta(delta: ScoreDelta) {
 function compactCategories(categories: Record<EventCategory, number>) {
   const active = Object.entries(categories).filter(([, count]) => count > 0).map(([category, count]) => `${category}:${count}`);
   return active.length ? active.join(' / ') : 'no categorized activity';
+}
+
+function compareProviders(a: Provider, b: Provider, sort: string, trustLookup: Map<string, TrustAssessment>, signalLookup: Map<string, SignalAssessment>) {
+  if (sort === 'trust score') return (b.latestTrustScore ?? trustLookup.get(b.id)?.score ?? -1) - (a.latestTrustScore ?? trustLookup.get(a.id)?.score ?? -1) || a.name.localeCompare(b.name);
+  if (sort === 'signal score') return (b.latestSignalScore ?? signalLookup.get(b.id)?.score ?? -1) - (a.latestSignalScore ?? signalLookup.get(a.id)?.score ?? -1) || a.name.localeCompare(b.name);
+  if (sort === 'endpoint count') return b.endpointCount - a.endpointCount || a.name.localeCompare(b.name);
+  if (sort === 'category') return a.category.localeCompare(b.category) || a.name.localeCompare(b.name);
+  return a.name.localeCompare(b.name);
 }
 
 function formatDataSource(source: DataSource, providers: number, endpoints: number) {

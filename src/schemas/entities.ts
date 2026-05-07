@@ -190,7 +190,17 @@ export const RouteRecommendationRequestSchema = z.object({
   category: z.string().optional(),
   maxPrice: z.number().nonnegative().optional(),
   trustThreshold: z.number().min(0).max(100).default(70),
-  latencySensitivity: z.enum(['low', 'medium', 'high']).default('medium')
+  latencySensitivity: z.enum(['low', 'medium', 'high']).default('medium'),
+  preference: z.enum(['cheapest', 'highest_trust', 'balanced']).default('balanced')
+});
+
+export const RouteCandidateSchema = z.object({
+  provider: ProviderSchema,
+  trustAssessment: TrustAssessmentSchema,
+  signalAssessment: SignalAssessmentSchema,
+  rank: z.number(),
+  relevance: z.number(),
+  riskNotes: z.array(z.string())
 });
 
 export const RouteRecommendationSchema = z.object({
@@ -204,6 +214,8 @@ export const RouteRecommendationSchema = z.object({
   signalAssessment: SignalAssessmentSchema.nullable(),
   evidence: z.array(EvidenceSchema),
   riskNotes: z.array(z.string()),
+  fallbackDetails: z.array(RouteCandidateSchema).optional(),
+  preference: z.enum(['cheapest', 'highest_trust', 'balanced']).optional(),
   createdAt: z.string().datetime()
 });
 

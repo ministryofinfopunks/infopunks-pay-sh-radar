@@ -13,7 +13,11 @@ export function recommendRoute(input: RouteRecommendationRequest, store: Intelli
     .map((candidate) => {
       const latencyPenalty = input.latencySensitivity === 'high' && candidate.trustAssessment.components.latency === null ? 8 : 0;
       const pricePenalty = input.maxPrice && candidate.provider.pricing.min !== null ? (candidate.provider.pricing.min / Math.max(input.maxPrice, 0.0001)) * 10 : 0;
-      const rank = candidate.relevance + (candidate.trustAssessment.score ?? 0) * 0.45 + (candidate.signalAssessment.score ?? 0) * 0.25 - latencyPenalty - pricePenalty;
+      const cheapestBoost = candidate.provider.pricing.min === null ? 0 : Math.max(0, 20 - candidate.provider.pricing.min * 100);
+      const trustWeight = input.preference === 'highest_trust' ? 0.72 : input.preference === 'cheapest' ? 0.28 : 0.45;
+      const signalWeight = input.preference === 'highest_trust' ? 0.18 : input.preference === 'cheapest' ? 0.18 : 0.25;
+      const priceWeight = input.preference === 'cheapest' ? 1.4 : input.preference === 'highest_trust' ? 0.35 : 0.75;
+      const rank = candidate.relevance + (candidate.trustAssessment.score ?? 0) * trustWeight + (candidate.signalAssessment.score ?? 0) * signalWeight + cheapestBoost * priceWeight - latencyPenalty - pricePenalty;
       return { ...candidate, rank };
     })
     .sort((a, b) => b.rank - a.rank);
@@ -32,14 +36,13 @@ export function recommendRoute(input: RouteRecommendationRequest, store: Intelli
       signalAssessment: null,
       evidence: [],
       riskNotes: ['Relax trustThreshold, category, or maxPrice to expand the route set. Unknown telemetry is not guessed.'],
+      fallbackDetails: [],
+      preference: input.preference,
       createdAt
     };
   }
 
-  const riskNotes = [];
-  if (best.provider.pricing.clarity === 'range' || best.provider.pricing.clarity === 'dynamic') riskNotes.push('Price is a range or dynamic; request a Pay.sh quote before execution.');
-  if (best.trustAssessment.components.latency === null && input.latencySensitivity !== 'low') riskNotes.push('Latency is unknown because no timing events are ingested yet.');
-  for (const unknown of best.trustAssessment.unknowns) riskNotes.push(`Trust component unavailable: ${unknown}.`);
+  const riskNotes = riskNotesFor(best, input.latencySensitivity);
   if (riskNotes.length === 0) riskNotes.push('No material deterministic routing risks detected from available V1 evidence.');
 
   return {
@@ -57,6 +60,23 @@ export function recommendRoute(input: RouteRecommendationRequest, store: Intelli
     signalAssessment: best.signalAssessment,
     evidence: best.evidence,
     riskNotes,
+    fallbackDetails: candidates.slice(1, 4).map((candidate) => ({
+      provider: candidate.provider,
+      trustAssessment: candidate.trustAssessment,
+      signalAssessment: candidate.signalAssessment,
+      relevance: candidate.relevance,
+      rank: Math.round(candidate.rank * 100) / 100,
+      riskNotes: riskNotesFor(candidate, input.latencySensitivity)
+    })),
+    preference: input.preference,
     createdAt
   };
+}
+
+function riskNotesFor(candidate: ReturnType<typeof semanticSearch>[number] & { rank: number }, latencySensitivity: RouteRecommendationRequest['latencySensitivity']) {
+  const riskNotes = [];
+  if (candidate.provider.pricing.clarity === 'range' || candidate.provider.pricing.clarity === 'dynamic') riskNotes.push('Price is a range or dynamic; request a Pay.sh quote before execution.');
+  if (candidate.trustAssessment.components.latency === null && latencySensitivity !== 'low') riskNotes.push('Latency is unknown because no timing events are ingested yet.');
+  for (const unknown of candidate.trustAssessment.unknowns) riskNotes.push(`Trust component unavailable: ${unknown}.`);
+  return riskNotes;
 }
