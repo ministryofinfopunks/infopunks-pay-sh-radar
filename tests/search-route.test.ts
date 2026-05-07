@@ -12,13 +12,19 @@ describe('search and route API', () => {
 
   it('recommends a route with reasoning, evidence, and risk notes', async () => {
     const app = await createApp();
-    const response = await app.inject({ method: 'POST', url: '/v1/recommend-route', payload: { task: 'transcribe voice audio for an AI agent', category: 'AI/ML', maxPrice: 0.05, trustThreshold: 60, latencySensitivity: 'high' } });
+    const response = await app.inject({ method: 'POST', url: '/v1/recommend-route', payload: { task: 'transcribe voice audio for an AI agent', category: 'AI/ML', maxPrice: 0.05, trustThreshold: 60, latencySensitivity: 'high', preference: 'highest_signal', preferredProviderId: 'stableenrich' } });
     expect(response.statusCode).toBe(200);
     const body = response.json();
     expect(body.data.bestProvider).toBeTruthy();
     expect(body.data.reasoning.length).toBeGreaterThan(0);
     expect(body.data.evidence.length).toBeGreaterThan(0);
     expect(body.data.riskNotes.some((note: string) => note.includes('unknown') || note.includes('unavailable'))).toBe(true);
+    expect(body.data.scoringInputs).toMatchObject({ preference: 'highest_signal', source: 'LIVE PAY.SH CATALOG', preferredProviderIncluded: true });
+    expect(body.data.fallbackProviders).toBeInstanceOf(Array);
+    expect(body.data.excludedProviders).toBeInstanceOf(Array);
+    expect(body.data.unknownTelemetry).toBeInstanceOf(Array);
+    expect(body.data.rationale.length).toBeGreaterThan(0);
+    expect(typeof body.data.coordinationScore).toBe('number');
     await app.close();
   });
 

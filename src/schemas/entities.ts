@@ -191,7 +191,8 @@ export const RouteRecommendationRequestSchema = z.object({
   maxPrice: z.number().nonnegative().optional(),
   trustThreshold: z.number().min(0).max(100).default(70),
   latencySensitivity: z.enum(['low', 'medium', 'high']).default('medium'),
-  preference: z.enum(['cheapest', 'highest_trust', 'balanced']).default('balanced')
+  preference: z.enum(['cheapest', 'highest_trust', 'highest_signal', 'balanced']).default('balanced'),
+  preferredProviderId: z.string().optional()
 });
 
 export const RouteCandidateSchema = z.object({
@@ -215,7 +216,26 @@ export const RouteRecommendationSchema = z.object({
   evidence: z.array(EvidenceSchema),
   riskNotes: z.array(z.string()),
   fallbackDetails: z.array(RouteCandidateSchema).optional(),
-  preference: z.enum(['cheapest', 'highest_trust', 'balanced']).optional(),
+  scoringInputs: z.object({
+    task: z.string(),
+    category: z.string().nullable(),
+    maxPrice: z.number().nullable(),
+    trustThreshold: z.number(),
+    latencySensitivity: z.enum(['low', 'medium', 'high']),
+    preference: z.enum(['cheapest', 'highest_trust', 'highest_signal', 'balanced']),
+    preferredProviderId: z.string().nullable(),
+    preferredProviderIncluded: z.boolean(),
+    source: z.literal('LIVE PAY.SH CATALOG')
+  }).optional(),
+  excludedProviders: z.array(z.object({
+    provider: ProviderSchema,
+    reasons: z.array(z.string())
+  })).optional(),
+  unknownTelemetry: z.array(z.string()).optional(),
+  rationale: z.array(z.string()).optional(),
+  coordinationScore: z.number().nullable().optional(),
+  selectedProviderNotRecommendedReason: z.string().nullable().optional(),
+  preference: z.enum(['cheapest', 'highest_trust', 'highest_signal', 'balanced']).optional(),
   createdAt: z.string().datetime()
 });
 

@@ -55,7 +55,7 @@ type PulseSummary = {
 };
 
 type AppData = { providers: Provider[]; pulse: Pulse; narratives: Narrative[]; graph: { nodes: unknown[]; edges: unknown[] } };
-type RoutePreference = 'cheapest' | 'highest_trust' | 'balanced';
+type RoutePreference = 'cheapest' | 'highest_trust' | 'highest_signal' | 'balanced';
 type RouteResult = {
   bestProvider: Provider | null;
   fallbackProviders: Provider[];
@@ -66,6 +66,12 @@ type RouteResult = {
   signalAssessment: SignalAssessment | null;
   riskNotes: string[];
   preference?: RoutePreference;
+  scoringInputs?: { source: 'LIVE PAY.SH CATALOG'; preference: RoutePreference; preferredProviderId: string | null };
+  excludedProviders?: { provider: Provider; reasons: string[] }[];
+  unknownTelemetry?: string[];
+  rationale?: string[];
+  coordinationScore?: number | null;
+  selectedProviderNotRecommendedReason?: string | null;
 };
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
@@ -90,6 +96,9 @@ function App() {
   const [routeMinTrust, setRouteMinTrust] = useState(70);
   const [routePreference, setRoutePreference] = useState<RoutePreference>('balanced');
   const [routeResult, setRouteResult] = useState<RouteResult | null>(null);
+  const [routeStatus, setRouteStatus] = useState<'idle' | 'loading' | 'error'>('idle');
+  const [routeError, setRouteError] = useState<string | null>(null);
+  const [includeSelectedProvider, setIncludeSelectedProvider] = useState(true);
   const [providerDetail, setProviderDetail] = useState<ProviderDetail | null>(null);
   const [providerIntel, setProviderIntel] = useState<ProviderIntelligence | null>(null);
   const [endpointMonitors, setEndpointMonitors] = useState<Record<string, EndpointMonitor>>({});
@@ -164,6 +173,8 @@ function App() {
 
   function runRoute() {
     const maxPrice = routeMaxPrice.trim() === '' ? undefined : Number(routeMaxPrice);
+    setRouteStatus('loading');
+    setRouteError(null);
     api<{ data: RouteResult }>('/v1/recommend-route', {
       method: 'POST',
       body: JSON.stringify({
@@ -172,15 +183,23 @@ function App() {
         trustThreshold: routeMinTrust,
         latencySensitivity: 'medium',
         maxPrice: Number.isFinite(maxPrice) ? maxPrice : undefined,
-        preference: routePreference
+        preference: routePreference,
+        preferredProviderId: includeSelectedProvider ? selectedProvider?.id : undefined
       })
-    }).then((res) => setRouteResult(res.data));
+    }).then((res) => {
+      setRouteResult(res.data);
+      setRouteStatus('idle');
+    }).catch(() => {
+      setRouteStatus('error');
+      setRouteError('route API unavailable');
+    });
   }
 
   function recommendProvider(provider: Provider) {
     setRouteTask(`Recommend a Pay.sh route for a task that could use ${provider.name} in ${provider.category}`);
     setRouteCategory(provider.category || 'all');
-    window.requestAnimationFrame(() => document.getElementById('route-recommender')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    setIncludeSelectedProvider(true);
+    window.requestAnimationFrame(() => document.getElementById('route-decision-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
   }
 
   if (!data) return <main className="boot">INFOPUNKS//PAY.SH COGNITIVE LAYER BOOTING...</main>;
@@ -368,7 +387,51 @@ function App() {
                     {providerIntel?.recent_changes.length === 0 && <p className="muted empty-state">No recent discovery, update, price, category, endpoint-count, or metadata events after initial observation.</p>}
                   </div>
                 </DossierSection>
-                <button className="execute compact" onClick={() => recommendProvider(selectedProvider)}>recommend route</button>
+                <DossierSection title="Route Decision Panel">
+                  <div className="route-panel compact-route-panel" id="route-decision-panel">
+                    <label>
+                      <span>task text</span>
+                      <textarea value={routeTask} onChange={(event) => setRouteTask(event.target.value)} />
+                    </label>
+                    <div className="route-input-grid">
+                      <label>
+                        <span>category filter</span>
+                        <select value={routeCategory} onChange={(event) => setRouteCategory(event.target.value)}>
+                          <option value="all">all categories</option>
+                          {categoryOptions.map((category) => <option value={category} key={category}>{category}</option>)}
+                        </select>
+                      </label>
+                      <label>
+                        <span>max price</span>
+                        <input value={routeMaxPrice} onChange={(event) => setRouteMaxPrice(event.target.value)} placeholder="unknown allowed" />
+                      </label>
+                      <label>
+                        <span>min trust score</span>
+                        <input type="number" min={0} max={100} value={routeMinTrust} onChange={(event) => setRouteMinTrust(Number(event.target.value))} />
+                      </label>
+                      <label>
+                        <span>preference</span>
+                        <select value={routePreference} onChange={(event) => setRoutePreference(event.target.value as RoutePreference)}>
+                          <option value="balanced">balanced</option>
+                          <option value="highest_trust">highest trust</option>
+                          <option value="cheapest">cheapest</option>
+                          <option value="highest_signal">highest signal</option>
+                        </select>
+                      </label>
+                    </div>
+                    <label className="route-check">
+                      <input type="checkbox" checked={includeSelectedProvider} onChange={(event) => setIncludeSelectedProvider(event.target.checked)} />
+                      <span>include selected provider as preferred route input</span>
+                    </label>
+                    <div className="route-actions">
+                      <button className="execute compact" onClick={runRoute} disabled={routeStatus === 'loading'}>{routeStatus === 'loading' ? 'computing route...' : 'compute recommended route'}</button>
+                      <button className="execute compact secondary" onClick={() => recommendProvider(selectedProvider)}>seed from selected</button>
+                    </div>
+                    {routeError && <p className="route-state error">{routeError}</p>}
+                    {routeStatus === 'loading' && <p className="route-state">computing route...</p>}
+                    {routeResult && <RouteDecisionOutput routeResult={routeResult} routePreference={routePreference} selectedProvider={selectedProvider} />}
+                  </div>
+                </DossierSection>
               </div>
             </>}
           </div>
@@ -480,80 +543,10 @@ function App() {
       </div>
     </section>
 
-    <section className="grid two">
-      <div className="panel">
-        <h2>Semantic Search</h2>
-        <input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="search Pay.sh ecosystem intelligence" />
-        <div className="results">{searchResults.map((result) => <div className="result" key={result.provider.id}><strong>{result.provider.name}</strong><span>relevance {result.relevance} / trust {result.trustAssessment.score ?? 'unknown'} / signal {result.signalAssessment.score ?? 'unknown'}</span></div>)}</div>
-      </div>
-      <div className="panel" id="route-recommender">
-        <h2>Route Recommender</h2>
-        <div className="route-panel">
-          <label>
-            <span>task text</span>
-            <textarea value={routeTask} onChange={(event) => setRouteTask(event.target.value)} />
-          </label>
-          <div className="route-input-grid">
-            <label>
-              <span>category filter</span>
-              <select value={routeCategory} onChange={(event) => setRouteCategory(event.target.value)}>
-                <option value="all">all categories</option>
-                {categoryOptions.map((category) => <option value={category} key={category}>{category}</option>)}
-              </select>
-            </label>
-            <label>
-              <span>max price</span>
-              <input value={routeMaxPrice} onChange={(event) => setRouteMaxPrice(event.target.value)} placeholder="unknown allowed" />
-            </label>
-            <label>
-              <span>min trust score</span>
-              <input type="number" min={0} max={100} value={routeMinTrust} onChange={(event) => setRouteMinTrust(Number(event.target.value))} />
-            </label>
-            <label>
-              <span>preference</span>
-              <select value={routePreference} onChange={(event) => setRoutePreference(event.target.value as RoutePreference)}>
-                <option value="balanced">balanced</option>
-                <option value="cheapest">cheapest</option>
-                <option value="highest_trust">highest trust</option>
-              </select>
-            </label>
-          </div>
-        </div>
-        <button className="execute" onClick={runRoute}>compute route</button>
-        {routeResult && <div className="route decision-output">
-          <div className="decision-head">
-            <div>
-              <span>recommended provider</span>
-              <strong>{routeResult.bestProvider?.name ?? 'No route'}</strong>
-            </div>
-            <small>{routeResult.preference ?? routePreference} decision profile</small>
-          </div>
-          {routeResult.bestProvider && <div className="intel-summary compact">
-            <DossierStat label="trust" value={routeResult.trustAssessment?.score ?? null} sub={routeResult.trustAssessment?.grade ?? 'grade unknown'} />
-            <DossierStat label="signal" value={routeResult.signalAssessment?.score ?? null} sub={routeResult.signalAssessment?.narratives[0] ?? 'narrative unknown'} />
-            <DossierStat label="price" value={formatPrice(routeResult.estimatedCost ?? routeResult.bestProvider.pricing)} sub="estimated range" />
-          </div>}
-          <DossierSection title="Rationale">
-            {routeResult.reasoning.map((line) => <p key={line}>{line}</p>)}
-          </DossierSection>
-          <DossierSection title="Fallback Providers">
-            <div className="fallback-list">
-              {(routeResult.fallbackDetails?.length ? routeResult.fallbackDetails : routeResult.fallbackProviders.map((provider) => ({ provider, trustAssessment: null, signalAssessment: null, rank: null, relevance: null, riskNotes: [] }))).map((candidate) => <div key={candidate.provider.id}>
-                <strong>{candidate.provider.name}</strong>
-                <span>trust {candidate.trustAssessment?.score ?? 'unknown'} / signal {candidate.signalAssessment?.score ?? 'unknown'} / {formatPrice(candidate.provider.pricing)}</span>
-                <small>rank {candidate.rank ?? 'unknown'} / relevance {candidate.relevance ?? 'unknown'}</small>
-              </div>)}
-              {!routeResult.fallbackProviders.length && <p className="muted empty-state">No fallback providers met the current constraints.</p>}
-            </div>
-          </DossierSection>
-          <DossierSection title="Risk Notes">
-            <div className="risk-list">{routeResult.riskNotes.map((note) => <span key={note}>{note}</span>)}</div>
-          </DossierSection>
-          <DossierSection title="Unknown Telemetry Warning">
-            <p>{routeResult.riskNotes.some((note) => /unknown|unavailable/i.test(note)) ? 'Decision contains unknown telemetry. The recommender preserves null evidence instead of estimating missing runtime behavior.' : 'No unknown telemetry warning was emitted for this route.'}</p>
-          </DossierSection>
-        </div>}
-      </div>
+    <section className="panel">
+      <h2>Semantic Search</h2>
+      <input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="search Pay.sh ecosystem intelligence" />
+      <div className="results">{searchResults.map((result) => <div className="result" key={result.provider.id}><strong>{result.provider.name}</strong><span>relevance {result.relevance} / trust {result.trustAssessment.score ?? 'unknown'} / signal {result.signalAssessment.score ?? 'unknown'}</span></div>)}</div>
     </section>
   </main>;
 }
@@ -568,6 +561,56 @@ function PulseStat({ label, value, sub }: { label: string; value: string | numbe
 
 function TimingItem({ label, value }: { label: string; value: string }) {
   return <div className="timing-item"><span>{label}</span><strong>{value}</strong></div>;
+}
+
+function RouteDecisionOutput({ routeResult, routePreference, selectedProvider }: { routeResult: RouteResult; routePreference: RoutePreference; selectedProvider: Provider }) {
+  const fallbackItems = routeResult.fallbackDetails?.length
+    ? routeResult.fallbackDetails
+    : routeResult.fallbackProviders.map((provider) => ({ provider, trustAssessment: null, signalAssessment: null, rank: null, relevance: null, riskNotes: [] }));
+  const unknownTelemetry = routeResult.unknownTelemetry?.length
+    ? routeResult.unknownTelemetry
+    : routeResult.riskNotes.filter((note) => /unknown|unavailable/i.test(note));
+  const selectedMiss = routeResult.bestProvider && routeResult.bestProvider.id !== selectedProvider.id ? routeResult.selectedProviderNotRecommendedReason : null;
+
+  return <div className="route decision-output">
+    <div className="decision-head">
+      <div>
+        <span>recommended route</span>
+        <strong>{routeResult.bestProvider?.name ?? 'No route'}</strong>
+      </div>
+      <small>{routeResult.scoringInputs?.source ?? 'LIVE PAY.SH CATALOG'} / {routeResult.preference ?? routePreference} / catalog-derived recommendation</small>
+    </div>
+    {!routeResult.bestProvider && <p className="route-state warn">no route matched constraints</p>}
+    {routeResult.bestProvider && <>
+      <div className="intel-summary compact route-score-grid">
+        <DossierStat label="category" value={routeResult.bestProvider.category} sub="catalog class" />
+        <DossierStat label="trust" value={routeResult.trustAssessment?.score ?? null} sub={routeResult.trustAssessment?.grade ?? 'grade unknown'} />
+        <DossierStat label="signal" value={routeResult.signalAssessment?.score ?? null} sub={routeResult.signalAssessment?.narratives[0] ?? 'narrative unknown'} />
+        <DossierStat label="endpoints" value={routeResult.bestProvider.endpointCount} sub="catalog count" />
+        <DossierStat label="pricing" value={formatPrice(routeResult.estimatedCost ?? routeResult.bestProvider.pricing)} sub="catalog range" />
+        <DossierStat label="coordination" value={routeResult.coordinationScore ?? null} sub="trust/signal weighted" />
+      </div>
+      {selectedMiss && <p className="route-state warn">Selected provider was not top route because: {selectedMiss}</p>}
+    </>}
+    <DossierSection title="Rationale">
+      {(routeResult.rationale?.length ? routeResult.rationale : routeResult.reasoning).map((line) => <p key={line}>{line}</p>)}
+    </DossierSection>
+    <DossierSection title="Fallback Providers">
+      <div className="fallback-list">
+        {fallbackItems.map((candidate) => <div key={candidate.provider.id}>
+          <strong>{candidate.provider.name}</strong>
+          <span>trust {candidate.trustAssessment?.score ?? 'unknown'} / signal {candidate.signalAssessment?.score ?? 'unknown'} / {formatPrice(candidate.provider.pricing)}</span>
+          <small>rank {candidate.rank ?? 'unknown'} / relevance {candidate.relevance ?? 'unknown'}</small>
+        </div>)}
+        {!routeResult.fallbackProviders.length && <p className="muted empty-state">No fallback providers met the current constraints.</p>}
+      </div>
+    </DossierSection>
+    <DossierSection title="Unknown Telemetry Warning">
+      {unknownTelemetry.length
+        ? <div className="risk-list">{unknownTelemetry.map((note) => <span key={note}>{note}</span>)}</div>
+        : <p>No unknown telemetry warning was emitted for this recommended route.</p>}
+    </DossierSection>
+  </div>;
 }
 
 function DossierStat({ label, value, sub }: { label: string; value: string | number | null; sub: string }) {
