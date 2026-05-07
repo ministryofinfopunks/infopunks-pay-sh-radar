@@ -275,6 +275,7 @@ function App() {
                   <span>{event.category}</span>
                   <strong>{event.providerName ?? event.entityId}</strong>
                   <p>{event.summary}</p>
+                  <time>{formatTime(event.observedAt)}</time>
                 </div>)}
               </div>
             </div>)}

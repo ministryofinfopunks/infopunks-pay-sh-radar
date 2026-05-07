@@ -29,16 +29,18 @@ export async function runPayShIngestion(store: IntelligenceStore, repository: In
 }
 
 export function recomputeAssessments(snapshot: IntelligenceSnapshot): IntelligenceSnapshot {
-  const trustAssessments = snapshot.providers.map((provider) => computeTrustAssessment(provider, snapshot.endpoints.filter((endpoint) => endpoint.providerId === provider.id), snapshot.events));
+  const normalizedEvents = normalizeScoreEventTimestamps(snapshot.events);
+  const trustAssessments = snapshot.providers.map((provider) => computeTrustAssessment(provider, snapshot.endpoints.filter((endpoint) => endpoint.providerId === provider.id), normalizedEvents));
   const signalAssessments = snapshot.providers.map((provider) => computeSignalAssessment(provider, snapshot.providers));
   const narratives = buildNarrativeClusters(snapshot.providers, signalAssessments);
-  const events = appendScoreAssessmentEvents(snapshot.events, trustAssessments, signalAssessments);
+  const events = appendScoreAssessmentEvents(normalizedEvents, trustAssessments, signalAssessments);
   return { ...snapshot, events, trustAssessments, signalAssessments, narratives };
 }
 
 export function normalizeSnapshot(snapshot: IntelligenceSnapshot): IntelligenceSnapshot {
   const normalized = { ...emptySnapshot(), ...snapshot, ingestionRuns: snapshot.ingestionRuns ?? [], monitorRuns: snapshot.monitorRuns ?? [] };
-  return { ...normalized, events: appendScoreAssessmentEvents(normalized.events, normalized.trustAssessments, normalized.signalAssessments) };
+  const events = normalizeScoreEventTimestamps(normalized.events);
+  return { ...normalized, events: appendScoreAssessmentEvents(events, normalized.trustAssessments, normalized.signalAssessments) };
 }
 
 function replaceStore(target: IntelligenceStore, source: IntelligenceStore) {
@@ -91,10 +93,10 @@ function latestScoreEvent(events: InfopunksEvent[], entityType: 'trust_assessmen
 }
 
 function scoreEvent(entityType: 'trust_assessment' | 'signal_assessment', assessment: TrustAssessment | SignalAssessment, previous: InfopunksEvent | null): InfopunksEvent {
-  const observedAt = assessment.assessedAt;
   const previousScore = numericScore(previous?.payload.score);
   const score = assessment.score;
   const evidenceEventIds = Object.values(assessment.evidence).flat().map((item) => item.eventId).sort();
+  const observedAt = scoreObservedAt(assessment, previous);
   const payload = stableJson({
     assessmentId: assessment.id,
     entityId: assessment.entityId,
@@ -116,6 +118,35 @@ function scoreEvent(entityType: 'trust_assessment' | 'signal_assessment', assess
     observedAt,
     payload
   };
+}
+
+function scoreObservedAt(assessment: TrustAssessment | SignalAssessment, previous: InfopunksEvent | null) {
+  const evidenceTimes = Object.values(assessment.evidence)
+    .flat()
+    .map((item) => item.observedAt)
+    .filter(isValidTimestamp);
+  return latestTimestamp(evidenceTimes) ?? previous?.observedAt ?? assessment.assessedAt;
+}
+
+function normalizeScoreEventTimestamps(events: InfopunksEvent[]) {
+  const byId = new Map(events.map((event) => [event.id, event]));
+  return events.map((event) => {
+    if (event.type !== 'score_assessment_created') return event;
+    const evidenceEventIds = Array.isArray(event.payload.evidenceEventIds) ? event.payload.evidenceEventIds : [];
+    const evidenceTimes = evidenceEventIds
+      .map((id) => typeof id === 'string' ? byId.get(id)?.observedAt : null)
+      .filter((value): value is string => Boolean(value && isValidTimestamp(value)));
+    const observedAt = latestTimestamp(evidenceTimes);
+    return observedAt && observedAt !== event.observedAt ? { ...event, observedAt } : event;
+  });
+}
+
+function latestTimestamp(values: string[]) {
+  return values.sort((a, b) => Date.parse(b) - Date.parse(a))[0] ?? null;
+}
+
+function isValidTimestamp(value: string) {
+  return Number.isFinite(Date.parse(value));
 }
 
 function numericScore(value: unknown) {
