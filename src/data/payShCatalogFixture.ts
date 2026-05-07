@@ -8,6 +8,18 @@ export type PayShCatalogItem = {
   status: 'free tier' | 'metered' | 'free' | 'unknown';
   description: string;
   tags: string[];
+  fqn?: string;
+  title?: string;
+  use_case?: string | null;
+  service_url?: string | null;
+  endpoint_count?: number;
+  has_metering?: boolean;
+  has_free_tier?: boolean;
+  min_price_usd?: number | null;
+  max_price_usd?: number | null;
+  sha?: string | null;
+  catalog_generated_at?: string | null;
+  endpointMetadataPartial?: boolean;
   manifest?: Record<string, unknown> | null;
   schema?: unknown | null;
   endpointDetails?: PayShCatalogEndpointItem[];

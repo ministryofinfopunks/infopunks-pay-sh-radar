@@ -9,7 +9,7 @@ import { RouteRecommendationRequestSchema, SearchRequestSchema } from '../schema
 import { endpointHistory, findEndpoint, findProvider, providerHistory, providerIntelligence } from '../services/providerIntelligenceService';
 import { endpointMonitorSummary, isMonitorEnabled, monitorIntervalMs, monitorTimeoutMs, runEndpointMonitor } from '../services/endpointMonitorService';
 import { loadRuntimeConfig } from '../config/env';
-import { pulseSummary } from '../services/pulseService';
+import { dataSourceState, pulseSummary } from '../services/pulseService';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
 
@@ -115,7 +115,7 @@ function pulse(store: IntelligenceStore) {
   const knownSignal = store.signalAssessments.map((item) => item.score).filter((score): score is number => score !== null);
   return {
     providerCount: store.providers.length,
-    endpointCount: store.endpoints.length,
+    endpointCount: store.providers.reduce((sum, provider) => sum + provider.endpointCount, 0),
     eventCount: store.events.length,
     averageTrust: avg(knownTrust),
     averageSignal: avg(knownSignal),
@@ -130,6 +130,7 @@ function pulse(store: IntelligenceStore) {
       socialVelocity: store.signalAssessments.filter((item) => item.components.socialVelocity === null).length,
       onchainLiquidityResonance: store.signalAssessments.filter((item) => item.components.onchainLiquidityResonance === null).length
     },
+    data_source: dataSourceState(store),
     updatedAt: new Date().toISOString()
   };
 }

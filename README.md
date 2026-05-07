@@ -114,17 +114,36 @@ Signal components:
 
 The final score is a weighted average over known components only.
 
-## Pay.sh Live Ingestion
+## Pay.sh Live Catalog Ingestion
 
-Radar can ingest a live Pay.sh catalog JSON feed when `PAY_SH_CATALOG_URL` is set. If the live source is unavailable, malformed, or unset, it falls back to the bundled fixture. The fixture fallback preserves local development and test determinism.
+Radar ingests the public Pay.sh catalog first when `PAY_SH_CATALOG_URL` is set. The recommended production value is:
 
-Accepted catalog shapes are an array, `{ "data": [...] }`, `{ "providers": [...] }`, or `{ "catalog": [...] }`. Known fields are provider name, namespace, slug, category, endpoint count, price, status, description, tags, optional manifest, optional schema, and optional endpoint details. Unknown telemetry is not inferred; path, method, latency, schemas, and prices stay `null` or `unknown` unless the catalog provides them.
+```bash
+PAY_SH_CATALOG_URL=https://pay.sh/api/catalog
+```
 
-Ingestion is idempotent. Re-running the same catalog updates `lastSeenAt` in the registry but does not duplicate events. New providers and endpoints emit discovery events, and metadata diffs emit:
+If the remote catalog is unavailable or malformed, Radar falls back to the bundled fixture and exposes that state explicitly as `data_source.mode: "fixture_fallback"` on both `GET /v1/pulse` and `GET /v1/pulse/summary`. Fixture fallback preserves local development and test determinism, but it is never reported as live mode.
 
+The current live catalog shape is `{ version, generated_at, base_url, provider_count, affiliate_count, aggregator_count, providers }`. Provider fields include `fqn`, `title`, `description`, `use_case`, `category`, `service_url`, `endpoint_count`, `has_metering`, `has_free_tier`, `min_price_usd`, `max_price_usd`, and `sha`. Radar maps those fields into the existing provider, trust, signal, route recommendation, pulse, and event-spine models.
+
+Live catalog endpoint counts are treated as provider-level catalog facts. If the catalog only supplies `endpoint_count`, Radar does not invent endpoint URLs, paths, methods, latency, receipts, payment success, usage volume, or per-call activity. Endpoint rows remain available only when actual endpoint details are provided by the source.
+
+This is live catalog intelligence, not global Pay.sh transaction telemetry. Per-call Pay.sh telemetry requires official telemetry APIs, provider receipts, or routing calls through Infopunks.
+
+Legacy accepted fixture/dev catalog shapes are an array, `{ "data": [...] }`, `{ "providers": [...] }`, or `{ "catalog": [...] }`. Known fields are provider name, namespace, slug, category, endpoint count, price, status, description, tags, optional manifest, optional schema, and optional endpoint details. Unknown telemetry is not inferred; path, method, latency, schemas, and prices stay `null` or `unknown` unless the catalog provides them.
+
+Ingestion is idempotent. Re-running the same catalog updates `lastSeenAt` in the registry but does not duplicate events. Live provider diffs use `fqn` as stable identity, `sha` as the primary metadata fingerprint, and field-level comparisons for title, description, use case, category, service URL, endpoint count, pricing, metering, and free-tier state. New providers, catalog updates, removals, and diffs emit:
+
+- `catalog.ingested`
+- `provider.discovered`
+- `provider.updated`
+- `provider.removed_from_catalog`
+- `price.changed`
+- `category.changed`
+- `endpoint_count.changed`
+- `metadata.changed`
 - `manifest.updated`
 - `endpoint.updated`
-- `price.changed`
 - `schema.changed`
 
 Every run records:
@@ -153,13 +172,13 @@ To override the configured source for a single admin run:
 curl -s -X POST http://localhost:8787/v1/ingest/pay-sh \
   -H 'authorization: Bearer local-admin' \
   -H 'content-type: application/json' \
-  -d '{"catalogUrl":"https://pay.sh/catalog.json"}'
+  -d '{"catalogUrl":"https://pay.sh/api/catalog"}'
 ```
 
 Scheduled ingestion is enabled with an interval in milliseconds:
 
 ```bash
-PAY_SH_CATALOG_URL=https://pay.sh/catalog.json \
+PAY_SH_CATALOG_URL=https://pay.sh/api/catalog \
 PAY_SH_INGEST_INTERVAL_MS=300000 \
 INFOPUNKS_ADMIN_TOKEN=local-admin \
 npm run dev

@@ -65,7 +65,7 @@ export function providerIntelligence(store: IntelligenceStore, provider: Provide
     coordination_eligible: coordinationEligible(riskLevel, trust?.score ?? null),
     unknown_telemetry: Array.from(new Set([...(trust?.unknowns ?? []), ...(signal?.unknowns ?? [])])).sort(),
     recent_changes: recentChanges,
-    endpoint_count: store.endpoints.filter((endpoint) => endpoint.providerId === provider.id).length,
+    endpoint_count: provider.endpointCount,
     endpoint_health: endpointHealth,
     category_tags: Array.from(new Set([provider.category, ...provider.tags, ...(signal?.narratives ?? [])])).filter(Boolean).sort(),
     last_seen_at: provider.lastSeenAt ?? null,
@@ -108,11 +108,12 @@ function isEndpointEvent(event: InfopunksEvent, endpointId: string) {
 }
 
 function isChangeType(type: InfopunksEvent['type']) {
-  return type === 'manifest.updated' || type === 'endpoint.updated' || type === 'price.changed' || type === 'schema.changed' || type === 'endpoint.degraded' || type === 'endpoint.failed' || type === 'endpoint.recovered';
+  return type === 'provider.updated' || type === 'metadata.changed' || type === 'category.changed' || type === 'endpoint_count.changed' || type === 'manifest.updated' || type === 'endpoint.updated' || type === 'price.changed' || type === 'schema.changed' || type === 'endpoint.degraded' || type === 'endpoint.failed' || type === 'endpoint.recovered';
 }
 
 function providerEndpointHealth(store: IntelligenceStore, providerId: string): ProviderIntelligenceSummary['endpoint_health'] {
   const endpoints = store.endpoints.filter((endpoint) => endpoint.providerId === providerId);
+  const provider = store.providers.find((item) => item.id === providerId);
   const latestChecks = endpoints.map((endpoint) => latestEndpointEvent(store, endpoint.id)).filter((event): event is InfopunksEvent => Boolean(event));
   const latencies = latestChecks
     .filter((event) => event.payload.success === true && typeof event.payload.response_time_ms === 'number')
@@ -126,6 +127,7 @@ function providerEndpointHealth(store: IntelligenceStore, providerId: string): P
     else if (latest.type === 'endpoint.degraded' || latest.payload.schema_validity === false) counts.degraded += 1;
     else counts.healthy += 1;
   }
+  if (provider && provider.endpointMetadataPartial && provider.endpointCount > endpoints.length) counts.unknown += provider.endpointCount - endpoints.length;
   const failures = sortHistory(store.events.filter((event) => event.payload.providerId === providerId && event.type === 'endpoint.failed').map(historyItem)).slice(0, 5);
   const lastCheckedAt = latestChecks.map((event) => event.observedAt).sort().reverse()[0] ?? null;
   return {
@@ -184,6 +186,20 @@ function summaryForEvent(event: InfopunksEvent) {
       return 'Endpoint status observed.';
     case 'score_assessment_created':
       return 'Score assessment created.';
+    case 'provider.discovered':
+      return 'Provider discovered in live Pay.sh catalog.';
+    case 'provider.updated':
+      return 'Provider metadata changed.';
+    case 'provider.removed_from_catalog':
+      return 'Provider removed from the live Pay.sh catalog.';
+    case 'category.changed':
+      return 'Provider category changed.';
+    case 'endpoint_count.changed':
+      return 'Provider endpoint count changed.';
+    case 'metadata.changed':
+      return 'Provider metadata changed.';
+    case 'catalog.ingested':
+      return 'Pay.sh catalog ingested.';
     case 'manifest.updated':
       return 'Provider manifest changed.';
     case 'endpoint.updated':

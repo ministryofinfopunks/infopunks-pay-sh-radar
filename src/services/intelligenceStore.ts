@@ -12,16 +12,16 @@ export async function createIntelligenceStore(repository: IntelligenceRepository
   const existing = await repository.loadSnapshot();
   if (existing) return normalizeSnapshot(existing);
 
-  const { items, source } = await loadPayShCatalog();
-  const { snapshot: ingested } = applyPayShCatalogIngestion(emptySnapshot(), items, { source });
+  const { items, source, dataSource } = await loadPayShCatalog();
+  const { snapshot: ingested } = applyPayShCatalogIngestion(emptySnapshot(), items, { source, dataSource });
   const snapshot = recomputeAssessments(ingested);
   await repository.saveSnapshot(snapshot);
   return snapshot;
 }
 
 export async function runPayShIngestion(store: IntelligenceStore, repository: IntelligenceRepository, catalogUrl?: string) {
-  const { items, source, usedFixture } = await loadPayShCatalog(catalogUrl);
-  const { snapshot, run, events } = applyPayShCatalogIngestion(store, items, { source });
+  const { items, source, usedFixture, dataSource } = await loadPayShCatalog(catalogUrl);
+  const { snapshot, run, events } = applyPayShCatalogIngestion(store, items, { source, dataSource });
   const recomputed = recomputeAssessments(snapshot);
   replaceStore(store, recomputed);
   await repository.saveSnapshot(store);
@@ -50,6 +50,7 @@ function replaceStore(target: IntelligenceStore, source: IntelligenceStore) {
   target.narratives = source.narratives;
   target.ingestionRuns = source.ingestionRuns;
   target.monitorRuns = source.monitorRuns;
+  target.dataSource = source.dataSource;
 }
 
 function emptySnapshot(): IntelligenceSnapshot {

@@ -2,11 +2,12 @@ import { createHash, randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { Endpoint, Evidence, InfopunksEvent, IngestionRun, PricingModel, Provider } from '../schemas/entities';
 import { PayShCatalogEndpointItem, PayShCatalogItem, payShCatalogFixture } from '../data/payShCatalogFixture';
-import { IntelligenceSnapshot } from '../persistence/repository';
+import { DataSourceState, IntelligenceSnapshot } from '../persistence/repository';
 
 const FIXTURE_SOURCE = 'pay.sh:public-catalog-fixture';
 const LIVE_SOURCE = 'pay.sh:live-catalog';
 const CATALOG_URL = 'https://pay.sh/';
+const DEFAULT_LIVE_CATALOG_URL = 'https://pay.sh/api/catalog';
 
 const EndpointMethodSchema = z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
 const CatalogEndpointSchema = z.object({
@@ -35,10 +36,37 @@ const CatalogItemSchema = z.object({
   endpointDetails: z.array(CatalogEndpointSchema).optional()
 });
 
+const LiveProviderSchema = z.object({
+  fqn: z.string(),
+  title: z.string(),
+  description: z.string().default(''),
+  use_case: z.string().nullable().optional(),
+  category: z.string(),
+  service_url: z.string().url().nullable().optional(),
+  endpoint_count: z.number().int().nonnegative().default(0),
+  has_metering: z.boolean().default(false),
+  has_free_tier: z.boolean().default(false),
+  min_price_usd: z.number().nonnegative().nullable().optional(),
+  max_price_usd: z.number().nonnegative().nullable().optional(),
+  sha: z.string().nullable().optional()
+});
+
+const LiveCatalogSchema = z.object({
+  version: z.union([z.string(), z.number()]).optional(),
+  generated_at: z.string().nullable().optional(),
+  base_url: z.string().nullable().optional(),
+  provider_count: z.number().int().nonnegative().nullable().optional(),
+  affiliate_count: z.number().int().nonnegative().nullable().optional(),
+  aggregator_count: z.number().int().nonnegative().nullable().optional(),
+  providers: z.array(LiveProviderSchema)
+});
+
 export type PayShCatalogSourceResult = {
   items: PayShCatalogItem[];
   source: string;
   usedFixture: boolean;
+  dataSource: DataSourceState;
+  error?: string;
 };
 
 export type PayShIngestionResult = {
@@ -95,18 +123,58 @@ export function parseCatalogPrice(raw: string, entityId = 'unknown', pricingEven
 }
 
 export async function loadPayShCatalog(url = process.env.PAY_SH_CATALOG_URL): Promise<PayShCatalogSourceResult> {
-  if (!url) return { items: payShCatalogFixture, source: FIXTURE_SOURCE, usedFixture: true };
+  if (!url) return fixtureResult(null, null);
 
   try {
     const response = await fetch(url, { headers: { accept: 'application/json' } });
     if (!response.ok) throw new Error(`Pay.sh catalog returned ${response.status}`);
-    return { items: normalizePayShCatalog(await response.json()), source: `${LIVE_SOURCE}:${url}`, usedFixture: false };
-  } catch {
-    return { items: payShCatalogFixture, source: FIXTURE_SOURCE, usedFixture: true };
+    const body = await response.json();
+    const normalized = normalizePayShCatalog(body);
+    return {
+      items: normalized.items,
+      source: `${LIVE_SOURCE}:${url}`,
+      usedFixture: false,
+      dataSource: {
+        mode: 'live_pay_sh_catalog',
+        url,
+        generated_at: normalized.generatedAt,
+        provider_count: normalized.providerCount,
+        last_ingested_at: null,
+        used_fixture: false,
+        error: null
+      }
+    };
+  } catch (error) {
+    return fixtureResult(url, error instanceof Error ? error.message : String(error));
   }
 }
 
-export function normalizePayShCatalog(input: unknown): PayShCatalogItem[] {
+function fixtureResult(url: string | null, error: string | null): PayShCatalogSourceResult {
+  return {
+    items: payShCatalogFixture,
+    source: FIXTURE_SOURCE,
+    usedFixture: true,
+    error: error ?? undefined,
+    dataSource: {
+      mode: 'fixture_fallback',
+      url,
+      generated_at: null,
+      provider_count: payShCatalogFixture.length,
+      last_ingested_at: null,
+      used_fixture: true,
+      error
+    }
+  };
+}
+
+export function normalizePayShCatalog(input: unknown): { items: PayShCatalogItem[]; generatedAt: string | null; providerCount: number | null } {
+  const liveCatalog = LiveCatalogSchema.safeParse(input);
+  if (liveCatalog.success) {
+    const generatedAt = liveCatalog.data.generated_at ?? null;
+    const items = liveCatalog.data.providers.map((provider) => normalizeLiveProvider(provider, generatedAt));
+    return { items, generatedAt, providerCount: liveCatalog.data.provider_count ?? items.length };
+  }
+
   const candidates = Array.isArray(input)
     ? input
     : Array.isArray((input as { data?: unknown[] })?.data)
@@ -117,7 +185,7 @@ export function normalizePayShCatalog(input: unknown): PayShCatalogItem[] {
           ? (input as { catalog: unknown[] }).catalog
           : [];
 
-  return candidates.map((candidate) => {
+  const items = candidates.map((candidate) => {
     const raw = candidate as Record<string, unknown>;
     const endpointDetails = Array.isArray(raw.endpointDetails) ? raw.endpointDetails : Array.isArray(raw.endpoints) ? raw.endpoints : undefined;
     const endpointCount = typeof raw.endpoints === 'number' ? raw.endpoints : endpointDetails?.length ?? Number(raw.endpointCount ?? 0);
@@ -131,6 +199,68 @@ export function normalizePayShCatalog(input: unknown): PayShCatalogItem[] {
     });
     return parsed as PayShCatalogItem;
   });
+  return { items, generatedAt: null, providerCount: items.length };
+}
+
+function normalizeLiveProvider(provider: z.infer<typeof LiveProviderSchema>, catalogGeneratedAt: string | null): PayShCatalogItem {
+  const min = provider.min_price_usd ?? null;
+  const max = provider.max_price_usd ?? null;
+  return {
+    name: provider.title,
+    title: provider.title,
+    namespace: provider.fqn,
+    slug: normalizeProviderId(provider.fqn),
+    fqn: provider.fqn,
+    category: provider.category,
+    endpoints: provider.endpoint_count,
+    endpoint_count: provider.endpoint_count,
+    price: priceLabel(min, max),
+    status: provider.has_free_tier ? 'free tier' : provider.has_metering ? 'metered' : min === 0 && max === 0 ? 'free' : 'unknown',
+    description: provider.description,
+    tags: tagsForLiveProvider(provider),
+    use_case: provider.use_case ?? null,
+    service_url: provider.service_url ?? null,
+    has_metering: provider.has_metering,
+    has_free_tier: provider.has_free_tier,
+    min_price_usd: min,
+    max_price_usd: max,
+    sha: provider.sha ?? null,
+    catalog_generated_at: catalogGeneratedAt,
+    endpointMetadataPartial: true,
+    manifest: {
+      fqn: provider.fqn,
+      title: provider.title,
+      description: provider.description,
+      use_case: provider.use_case ?? null,
+      category: provider.category,
+      service_url: provider.service_url ?? null,
+      endpoint_count: provider.endpoint_count,
+      has_metering: provider.has_metering,
+      has_free_tier: provider.has_free_tier,
+      min_price_usd: min,
+      max_price_usd: max,
+      sha: provider.sha ?? null
+    }
+  };
+}
+
+function tagsForLiveProvider(provider: z.infer<typeof LiveProviderSchema>) {
+  return Array.from(new Set([
+    provider.category,
+    ...provider.fqn.split('/'),
+    ...(provider.use_case?.toLowerCase().split(/[^a-z0-9]+/).filter((word) => word.length > 3).slice(0, 6) ?? [])
+  ].filter(Boolean))).map((item) => item.toLowerCase());
+}
+
+function priceLabel(min: number | null, max: number | null) {
+  if (min === null && max === null) return 'unknown';
+  if ((min ?? max) === 0 && (max ?? min) === 0) return 'free';
+  if (min !== null && max !== null && min !== max) return `$${min} - $${max}`;
+  return `$${min ?? max}`;
+}
+
+export function normalizeProviderId(value: string) {
+  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || stableId([value]);
 }
 
 export function ingestPayShCatalog(items: PayShCatalogItem[] = payShCatalogFixture, observedAt = new Date().toISOString(), source = FIXTURE_SOURCE): { events: InfopunksEvent[]; providers: Provider[]; endpoints: Endpoint[] } {
@@ -138,7 +268,7 @@ export function ingestPayShCatalog(items: PayShCatalogItem[] = payShCatalogFixtu
   return applyPayShCatalogIngestion(empty, items, { observedAt, source }).snapshot;
 }
 
-export function applyPayShCatalogIngestion(snapshot: IntelligenceSnapshot, items: PayShCatalogItem[], options: { observedAt?: string; source?: string } = {}): PayShIngestionResult {
+export function applyPayShCatalogIngestion(snapshot: IntelligenceSnapshot, items: PayShCatalogItem[], options: { observedAt?: string; source?: string; dataSource?: DataSourceState } = {}): PayShIngestionResult {
   const observedAt = options.observedAt ?? new Date().toISOString();
   const source = options.source ?? FIXTURE_SOURCE;
   const run: IngestionRun = {
@@ -156,6 +286,15 @@ export function applyPayShCatalogIngestion(snapshot: IntelligenceSnapshot, items
   const nextEvents: InfopunksEvent[] = [];
   const providers = new Map(snapshot.providers.map((item) => [item.id, item]));
   const endpoints = new Map(snapshot.endpoints.map((item) => [item.id, item]));
+  const isLiveCatalog = source.startsWith(LIVE_SOURCE);
+  const itemProviderIds = new Set(items.map((item) => item.slug));
+
+  addNewEvents(existingEvents, nextEvents, [event(source, 'catalog.ingested', 'catalog', 'pay-sh-catalog', {
+    providerCount: items.length,
+    mode: isLiveCatalog ? 'live_pay_sh_catalog' : 'fixture_fallback',
+    generated_at: options.dataSource?.generated_at ?? items.find((item) => item.catalog_generated_at)?.catalog_generated_at ?? null,
+    used_fixture: !isLiveCatalog
+  }, observedAt)]);
 
   for (const item of items) {
     const providerId = item.slug;
@@ -171,12 +310,21 @@ export function applyPayShCatalogIngestion(snapshot: IntelligenceSnapshot, items
     const nextProvider: Provider = {
       id: providerId,
       name: item.name,
+      title: item.title ?? item.name,
+      fqn: item.fqn ?? item.namespace,
       slug: item.slug,
       namespace: item.namespace,
       category: item.category,
       description: item.description || null,
+      useCase: item.use_case ?? null,
+      serviceUrl: item.service_url ?? null,
       status: item.status,
       endpointCount: item.endpoints,
+      endpointMetadataPartial: item.endpointMetadataPartial ?? !item.endpointDetails?.length,
+      hasMetering: item.has_metering,
+      hasFreeTier: item.has_free_tier,
+      sourceSha: item.sha ?? null,
+      catalogGeneratedAt: item.catalog_generated_at ?? null,
       tags: item.tags,
       schema: item.schema ?? null,
       source: 'pay.sh',
@@ -187,8 +335,18 @@ export function applyPayShCatalogIngestion(snapshot: IntelligenceSnapshot, items
       evidence: previousProvider ? mergeEvidence(previousProvider.evidence, providerEvidence) : providerEvidence
     };
 
-    if (!previousProvider) run.discoveredCount += 1;
+    if (!previousProvider) {
+      run.discoveredCount += 1;
+      addNewEvents(existingEvents, nextEvents, [event(source, 'provider.discovered', 'provider', providerId, providerManifestFromItem(item), observedAt)]);
+    }
     addNewEvents(existingEvents, nextEvents, Object.values(providerEvents));
+    if (previousProvider && providerChanged(previousProvider, nextProvider)) {
+      addNewEvents(existingEvents, nextEvents, [event(source, 'provider.updated', 'provider', providerId, { providerId, ...diffPayload(providerDiffShape(previousProvider), providerDiffShape(nextProvider)) }, observedAt)]);
+      addNewEvents(existingEvents, nextEvents, [event(source, 'metadata.changed', 'provider', providerId, { providerId, ...diffPayload(providerDiffShape(previousProvider), providerDiffShape(nextProvider)) }, observedAt)]);
+      if (previousProvider.category !== nextProvider.category) addNewEvents(existingEvents, nextEvents, [event(source, 'category.changed', 'provider', providerId, { providerId, ...diffPayload(previousProvider.category, nextProvider.category) }, observedAt)]);
+      if (previousProvider.endpointCount !== nextProvider.endpointCount) addNewEvents(existingEvents, nextEvents, [event(source, 'endpoint_count.changed', 'provider', providerId, { providerId, ...diffPayload(previousProvider.endpointCount, nextProvider.endpointCount) }, observedAt)]);
+      run.changedCount += 1;
+    }
     if (previousProvider && fingerprint(providerManifest(previousProvider)) !== fingerprint(providerManifest(nextProvider))) {
       addNewEvents(existingEvents, nextEvents, [event(source, 'manifest.updated', 'manifest', `manifest-${providerId}`, { providerId, ...diffPayload(providerManifest(previousProvider), providerManifest(nextProvider)) }, observedAt)]);
       run.changedCount += 1;
@@ -249,14 +407,37 @@ export function applyPayShCatalogIngestion(snapshot: IntelligenceSnapshot, items
     }
   }
 
+  if (isLiveCatalog) {
+    for (const previousProvider of snapshot.providers) {
+      if (itemProviderIds.has(previousProvider.id)) continue;
+      addNewEvents(existingEvents, nextEvents, [event(source, 'provider.removed_from_catalog', 'provider', previousProvider.id, { providerId: previousProvider.id, fqn: previousProvider.fqn ?? previousProvider.namespace, name: previousProvider.name }, observedAt)]);
+      providers.delete(previousProvider.id);
+      for (const endpoint of snapshot.endpoints.filter((item) => item.providerId === previousProvider.id)) endpoints.delete(endpoint.id);
+      run.changedCount += 1;
+    }
+  }
+
   run.finishedAt = new Date().toISOString();
   run.status = 'succeeded';
+  const dataSource: DataSourceState = {
+    ...(options.dataSource ?? {
+      mode: isLiveCatalog ? 'live_pay_sh_catalog' : 'fixture_fallback',
+      url: null,
+      generated_at: null,
+      provider_count: items.length,
+      used_fixture: !isLiveCatalog,
+      error: null
+    }),
+    provider_count: options.dataSource?.provider_count ?? items.length,
+    last_ingested_at: observedAt
+  };
   const nextSnapshot = {
     ...snapshot,
     events: [...snapshot.events, ...nextEvents],
     providers: [...providers.values()],
     endpoints: [...endpoints.values()],
-    ingestionRuns: [run, ...(snapshot.ingestionRuns ?? [])].slice(0, 100)
+    ingestionRuns: [run, ...(snapshot.ingestionRuns ?? [])].slice(0, 100),
+    dataSource
   };
   return { snapshot: nextSnapshot, run, events: nextEvents };
 }
@@ -287,12 +468,21 @@ function endpointEvidence(endpointEvents: ReturnType<typeof endpointEventSet>, e
 
 function providerManifestFromItem(item: PayShCatalogItem) {
   return {
+    fqn: item.fqn ?? item.namespace,
     name: item.name,
+    title: item.title ?? item.name,
     namespace: item.namespace,
     category: item.category,
     description: item.description || null,
+    useCase: item.use_case ?? null,
+    serviceUrl: item.service_url ?? null,
     tags: item.tags,
     endpointCount: item.endpoints,
+    hasMetering: item.has_metering ?? null,
+    hasFreeTier: item.has_free_tier ?? null,
+    minPriceUsd: item.min_price_usd ?? null,
+    maxPriceUsd: item.max_price_usd ?? null,
+    sourceSha: item.sha ?? null,
     status: item.status,
     manifest: item.manifest ?? null
   };
@@ -300,14 +490,45 @@ function providerManifestFromItem(item: PayShCatalogItem) {
 
 function providerManifest(provider: Provider) {
   return {
+    fqn: provider.fqn ?? provider.namespace,
     name: provider.name,
+    title: provider.title ?? provider.name,
     namespace: provider.namespace,
     category: provider.category,
     description: provider.description,
+    useCase: provider.useCase ?? null,
+    serviceUrl: provider.serviceUrl ?? null,
     tags: provider.tags,
     endpointCount: provider.endpointCount,
+    hasMetering: provider.hasMetering ?? null,
+    hasFreeTier: provider.hasFreeTier ?? null,
+    minPriceUsd: provider.pricing.min,
+    maxPriceUsd: provider.pricing.max,
+    sourceSha: provider.sourceSha ?? null,
     status: provider.status
   };
+}
+
+function providerDiffShape(provider: Provider) {
+  return {
+    fqn: provider.fqn ?? provider.namespace,
+    title: provider.title ?? provider.name,
+    description: provider.description,
+    use_case: provider.useCase ?? null,
+    category: provider.category,
+    service_url: provider.serviceUrl ?? null,
+    endpoint_count: provider.endpointCount,
+    min_price_usd: provider.pricing.min,
+    max_price_usd: provider.pricing.max,
+    has_metering: provider.hasMetering ?? null,
+    has_free_tier: provider.hasFreeTier ?? null,
+    sha: provider.sourceSha ?? null
+  };
+}
+
+function providerChanged(previousProvider: Provider, nextProvider: Provider) {
+  if (previousProvider.sourceSha && nextProvider.sourceSha && previousProvider.sourceSha !== nextProvider.sourceSha) return true;
+  return fingerprint(providerDiffShape(previousProvider)) !== fingerprint(providerDiffShape(nextProvider));
 }
 
 function providerSchema(provider?: Provider) {
@@ -356,6 +577,8 @@ function expandEndpoints(item: PayShCatalogItem): ExpandedEndpoint[] {
     }));
   }
 
+  if (item.endpointMetadataPartial) return [];
+
   return Array.from({ length: item.endpoints }, (_, index) => ({
     id: `${item.slug}-endpoint-${index + 1}`,
     ordinal: index + 1,
@@ -388,3 +611,5 @@ function mergeEvidence(existing: Evidence[], next: Evidence[]) {
 function emptySnapshot(): IntelligenceSnapshot {
   return { events: [], providers: [], endpoints: [], trustAssessments: [], signalAssessments: [], narratives: [], ingestionRuns: [], monitorRuns: [] };
 }
+
+export { DEFAULT_LIVE_CATALOG_URL };

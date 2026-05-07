@@ -1,5 +1,15 @@
 import { Endpoint, InfopunksEvent, IngestionRun, MonitorRun, NarrativeCluster, Provider, SignalAssessment, TrustAssessment } from '../schemas/entities';
 
+export type DataSourceState = {
+  mode: 'live_pay_sh_catalog' | 'fixture_fallback';
+  url: string | null;
+  generated_at: string | null;
+  provider_count: number | null;
+  last_ingested_at: string | null;
+  used_fixture: boolean;
+  error?: string | null;
+};
+
 export type IntelligenceSnapshot = {
   events: InfopunksEvent[];
   providers: Provider[];
@@ -9,6 +19,7 @@ export type IntelligenceSnapshot = {
   narratives: NarrativeCluster[];
   ingestionRuns: IngestionRun[];
   monitorRuns: MonitorRun[];
+  dataSource?: DataSourceState;
 };
 
 export interface IntelligenceRepository {

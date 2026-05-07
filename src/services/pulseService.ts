@@ -1,5 +1,6 @@
 import { InfopunksEvent } from '../schemas/entities';
 import { IntelligenceStore } from './intelligenceStore';
+import { DataSourceState } from '../persistence/repository';
 
 export type EventCategory = 'discovery' | 'trust' | 'monitoring' | 'pricing' | 'schema' | 'signal';
 export type RollingWindow = '1h' | '24h' | '7d';
@@ -20,6 +21,7 @@ export type PulseSummary = {
   recentDegradations: PulseEvent[];
   providerActivity: Record<RollingWindow, ProviderActivity[]>;
   signalSpikes: ScoreDelta[];
+  data_source: DataSourceState;
 };
 
 export type PulseEvent = {
@@ -81,7 +83,7 @@ export function pulseSummary(store: IntelligenceStore, generatedAt = new Date().
     generatedAt,
     counters: {
       providers: store.providers.length,
-      endpoints: store.endpoints.length,
+      endpoints: providerEndpointCount(store),
       events: store.events.length,
       narratives: store.narratives.length,
       unknownTelemetry: unknownTelemetryCount(store)
@@ -92,7 +94,24 @@ export function pulseSummary(store: IntelligenceStore, generatedAt = new Date().
     signalDeltas,
     recentDegradations: pulseEvents.filter((event) => event.type === 'endpoint.degraded' || event.type === 'endpoint.failed').slice(0, 20),
     providerActivity: providerActivity(pulseEvents, generatedAt),
-    signalSpikes: signalDeltas.filter((delta) => (delta.delta ?? 0) > 0).sort((a, b) => (b.delta ?? 0) - (a.delta ?? 0)).slice(0, 10)
+    signalSpikes: signalDeltas.filter((delta) => (delta.delta ?? 0) > 0).sort((a, b) => (b.delta ?? 0) - (a.delta ?? 0)).slice(0, 10),
+    data_source: dataSourceState(store, generatedAt)
+  };
+}
+
+function providerEndpointCount(store: IntelligenceStore) {
+  return store.providers.reduce((sum, provider) => sum + provider.endpointCount, 0);
+}
+
+export function dataSourceState(store: IntelligenceStore, generatedAt = new Date().toISOString()): DataSourceState {
+  return store.dataSource ?? {
+    mode: 'fixture_fallback',
+    url: null,
+    generated_at: null,
+    provider_count: store.providers.length,
+    last_ingested_at: store.ingestionRuns[0]?.finishedAt ?? generatedAt,
+    used_fixture: true,
+    error: null
   };
 }
 
@@ -192,6 +211,13 @@ function summaryForEvent(event: InfopunksEvent) {
   if (event.type === 'endpoint.failed') return `Endpoint failed with error ${event.payload.error ?? event.payload.status_code ?? 'unknown'}.`;
   if (event.type === 'endpoint.recovered') return 'Endpoint recovered after a prior failed or degraded monitor event.';
   if (event.type === 'price.changed') return 'Pricing changed relative to the prior catalog evidence.';
+  if (event.type === 'provider.updated') return 'Provider metadata changed relative to the prior catalog evidence.';
+  if (event.type === 'provider.discovered') return 'Provider discovered in the Pay.sh catalog.';
+  if (event.type === 'provider.removed_from_catalog') return 'Provider removed from the live Pay.sh catalog.';
+  if (event.type === 'category.changed') return 'Provider category changed relative to the prior catalog evidence.';
+  if (event.type === 'endpoint_count.changed') return 'Provider endpoint count changed relative to the prior catalog evidence.';
+  if (event.type === 'metadata.changed') return 'Provider metadata fingerprint changed relative to the prior catalog evidence.';
+  if (event.type === 'catalog.ingested') return `Pay.sh catalog ingested in ${event.payload.mode ?? 'unknown'} mode.`;
   if (event.type === 'schema.changed') return 'Schema changed relative to the prior catalog evidence.';
   if (event.type === 'manifest.updated') return 'Provider manifest changed relative to prior catalog evidence.';
   if (event.type === 'endpoint.updated') return 'Endpoint metadata changed relative to prior catalog evidence.';

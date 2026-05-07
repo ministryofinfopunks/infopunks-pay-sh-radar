@@ -2,12 +2,13 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 
-type Provider = { id: string; name: string; namespace: string; category: string; description: string | null; endpointCount: number; pricing: { min: number | null; max: number | null; clarity: string; raw: string }; tags: string[]; status: string };
+type Provider = { id: string; name: string; namespace: string; fqn?: string; category: string; description: string | null; endpointCount: number; endpointMetadataPartial?: boolean; pricing: { min: number | null; max: number | null; clarity: string; raw: string }; tags: string[]; status: string };
 type Endpoint = { id: string; providerId: string; name: string; path: string | null; method: string | null; category: string; description: string | null; status: string; pricing: Provider['pricing']; lastSeenAt: string; latencyMsP50: number | null };
 type TrustAssessment = { entityId: string; score: number | null; grade: string; components: Record<string, number | null>; unknowns: string[] };
 type SignalAssessment = { entityId: string; score: number | null; narratives: string[]; components: Record<string, number | null>; unknowns: string[] };
 type Narrative = { id: string; title: string; heat: number | null; momentum: number | null; providerIds: string[]; keywords: string[]; summary: string };
-type Pulse = { providerCount: number; endpointCount: number; eventCount: number; averageTrust: number | null; averageSignal: number | null; hottestNarrative: Narrative | null; topTrust: TrustAssessment[]; topSignal: SignalAssessment[]; updatedAt: string };
+type DataSource = { mode: 'live_pay_sh_catalog' | 'fixture_fallback'; url: string | null; generated_at: string | null; provider_count: number | null; last_ingested_at: string | null; used_fixture: boolean; error?: string | null };
+type Pulse = { providerCount: number; endpointCount: number; eventCount: number; averageTrust: number | null; averageSignal: number | null; hottestNarrative: Narrative | null; topTrust: TrustAssessment[]; topSignal: SignalAssessment[]; data_source: DataSource; updatedAt: string };
 type HistoryItem = { id: string; type: string; observedAt: string; source: string; summary: string };
 type ProviderDetail = { provider: Provider; endpoints: Endpoint[]; trustAssessment: TrustAssessment | null; signalAssessment: SignalAssessment | null };
 type ProviderIntelligence = {
@@ -37,6 +38,7 @@ type PulseSummary = {
   recentDegradations: PulseEvent[];
   providerActivity: Record<'1h' | '24h' | '7d', ProviderActivity[]>;
   signalSpikes: ScoreDelta[];
+  data_source: DataSource;
 };
 
 type AppData = { providers: Provider[]; pulse: Pulse; narratives: Narrative[]; graph: { nodes: unknown[]; edges: unknown[] } };
@@ -133,6 +135,7 @@ function App() {
         <p className="eyebrow">Infopunks Intelligence Terminal</p>
         <h1>Cognitive Coordination Layer for the Pay.sh agent economy.</h1>
         <p className="copy">Pay.sh remains the provider, payment, and discovery substrate. Infopunks turns ecosystem exhaust into trust scores, signal scores, narrative maps, semantic search, and routing recommendations.</p>
+        <span className={`source-badge ${data.pulse.data_source.mode}`}>{data.pulse.data_source.mode === 'live_pay_sh_catalog' ? 'LIVE PAY.SH CATALOG' : 'FIXTURE FALLBACK'}</span>
       </div>
       <div className="ticker">
         <span>PROVIDERS {data.pulse.providerCount}</span>

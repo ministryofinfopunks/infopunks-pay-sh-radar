@@ -47,6 +47,19 @@ describe('search and route API', () => {
     expect(summary.timeline[0]).toMatchObject({ id: expect.any(String), category: expect.any(String), summary: expect.any(String) });
     expect(summary.providerActivity['24h']).toBeInstanceOf(Array);
     expect(summary.trustDeltas[0]).toMatchObject({ providerId: expect.any(String), direction: expect.any(String) });
+    expect(summary.data_source.mode).toMatch(/^(live_pay_sh_catalog|fixture_fallback)$/);
+    await app.close();
+  });
+
+  it('returns data source state on pulse and pulse summary routes', async () => {
+    const app = await createApp();
+    const pulse = await app.inject({ method: 'GET', url: '/v1/pulse' });
+    const summary = await app.inject({ method: 'GET', url: '/v1/pulse/summary' });
+
+    expect(pulse.statusCode).toBe(200);
+    expect(summary.statusCode).toBe(200);
+    expect(pulse.json().data.data_source.mode).toMatch(/^(live_pay_sh_catalog|fixture_fallback)$/);
+    expect(summary.json().data.data_source.mode).toBe(pulse.json().data.data_source.mode);
     await app.close();
   });
 
