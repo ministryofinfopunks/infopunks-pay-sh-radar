@@ -1,4 +1,4 @@
-import { InfopunksEvent } from '../schemas/entities';
+import { InfopunksEvent, IngestionRun } from '../schemas/entities';
 import { IntelligenceStore } from './intelligenceStore';
 import { DataSourceState } from '../persistence/repository';
 
@@ -7,6 +7,10 @@ export type RollingWindow = '1h' | '24h' | '7d';
 
 export type PulseSummary = {
   generatedAt: string;
+  latest_event_at: string | null;
+  latest_batch_event_count: number;
+  ingest_interval_ms: number | null;
+  latest_ingestion_run: LatestIngestionRun | null;
   counters: {
     providers: number;
     endpoints: number;
@@ -22,6 +26,17 @@ export type PulseSummary = {
   providerActivity: Record<RollingWindow, ProviderActivity[]>;
   signalSpikes: ScoreDelta[];
   data_source: DataSourceState;
+};
+
+export type LatestIngestionRun = {
+  startedAt: string;
+  finishedAt: string | null;
+  status: IngestionRun['status'];
+  discoveredCount: number;
+  changedCount: number;
+  emittedEvents: number;
+  usedFixture: boolean;
+  source: string;
 };
 
 export type PulseEvent = {
@@ -64,11 +79,14 @@ const windows: Record<RollingWindow, number> = {
   '7d': 7 * 24 * 60 * 60 * 1000
 };
 
-export function pulseSummary(store: IntelligenceStore, generatedAt = new Date().toISOString()): PulseSummary {
+export function pulseSummary(store: IntelligenceStore, generatedAt = new Date().toISOString(), ingestIntervalMs: number | null = null): PulseSummary {
   const orderedEvents = [...store.events].sort((a, b) => Date.parse(b.observedAt) - Date.parse(a.observedAt));
   const providerNames = new Map(store.providers.map((provider) => [provider.id, provider.name]));
   const pulseEvents = orderedEvents.map((event) => toPulseEvent(event, providerNames));
   const eventGroups = Object.fromEntries(categories.map((category) => [category, { count: 0, recent: [] as PulseEvent[] }])) as PulseSummary['eventGroups'];
+  const latestEventAt = pulseEvents[0]?.observedAt ?? null;
+  const dataSource = dataSourceState(store, generatedAt);
+  const latestRun = latestIngestionRun(store, dataSource);
 
   for (const event of pulseEvents) {
     const group = eventGroups[event.category];
@@ -81,6 +99,10 @@ export function pulseSummary(store: IntelligenceStore, generatedAt = new Date().
 
   return {
     generatedAt,
+    latest_event_at: latestEventAt,
+    latest_batch_event_count: latestEventAt ? pulseEvents.filter((event) => event.observedAt === latestEventAt).length : 0,
+    ingest_interval_ms: ingestIntervalMs,
+    latest_ingestion_run: latestRun,
     counters: {
       providers: store.providers.length,
       endpoints: providerEndpointCount(store),
@@ -95,7 +117,7 @@ export function pulseSummary(store: IntelligenceStore, generatedAt = new Date().
     recentDegradations: pulseEvents.filter((event) => event.type === 'endpoint.degraded' || event.type === 'endpoint.failed').slice(0, 20),
     providerActivity: providerActivity(pulseEvents, generatedAt),
     signalSpikes: signalDeltas.filter((delta) => (delta.delta ?? 0) > 0).sort((a, b) => (b.delta ?? 0) - (a.delta ?? 0)).slice(0, 10),
-    data_source: dataSourceState(store, generatedAt)
+    data_source: dataSource
   };
 }
 
@@ -193,6 +215,22 @@ function providerActivityForWindow(events: PulseEvent[], thresholdMs: number) {
 
 function unknownTelemetryCount(store: IntelligenceStore) {
   return store.trustAssessments.reduce((sum, assessment) => sum + assessment.unknowns.length, 0) + store.signalAssessments.reduce((sum, assessment) => sum + assessment.unknowns.length, 0);
+}
+
+function latestIngestionRun(store: IntelligenceStore, dataSource: DataSourceState): LatestIngestionRun | null {
+  const run = [...(store.ingestionRuns ?? [])].sort((a, b) => Date.parse(b.startedAt) - Date.parse(a.startedAt))[0];
+  if (!run) return null;
+  const emittedEvents = store.events.filter((event) => event.observedAt === run.startedAt || event.observedAt === run.finishedAt).length;
+  return {
+    startedAt: run.startedAt,
+    finishedAt: run.finishedAt,
+    status: run.status,
+    discoveredCount: run.discoveredCount,
+    changedCount: run.changedCount,
+    emittedEvents,
+    usedFixture: dataSource.used_fixture,
+    source: run.source
+  };
 }
 
 function numberOrNull(value: unknown) {

@@ -30,6 +30,19 @@ type ScoreDelta = { eventId: string; providerId: string; providerName: string; s
 type ProviderActivity = { providerId: string; providerName: string; count: number; categories: Record<EventCategory, number>; lastObservedAt: string | null };
 type PulseSummary = {
   generatedAt: string;
+  latest_event_at: string | null;
+  latest_batch_event_count: number;
+  ingest_interval_ms: number | null;
+  latest_ingestion_run: {
+    startedAt: string;
+    finishedAt: string | null;
+    status: string;
+    discoveredCount: number;
+    changedCount: number;
+    emittedEvents: number;
+    usedFixture: boolean;
+    source: string;
+  } | null;
   counters: { providers: number; endpoints: number; events: number; narratives: number; unknownTelemetry: number };
   eventGroups: Record<EventCategory, { count: number; recent: PulseEvent[] }>;
   timeline: PulseEvent[];
@@ -132,6 +145,8 @@ function App() {
       .filter((provider) => !query || [provider.name, provider.id, provider.fqn, provider.category, provider.description, ...(provider.tags ?? [])].filter(Boolean).join(' ').toLowerCase().includes(query))
       .sort((a, b) => compareProviders(a, b, directorySort, trustLookup, signalLookup));
   }, [data, directoryCategory, directoryQuery, directorySort, signalLookup, trustLookup]);
+  const timelineBatches = useMemo(() => groupTimelineByBatch(pulseSummary?.timeline ?? []), [pulseSummary?.timeline]);
+  const catalogNoChanges = Boolean(pulseSummary && pulseSummary.data_source.last_ingested_at && pulseSummary.latest_event_at && Date.parse(pulseSummary.data_source.last_ingested_at) > Date.parse(pulseSummary.latest_event_at));
 
   useEffect(() => {
     if (!selectedProvider) return;
@@ -202,19 +217,36 @@ function App() {
           <div className="panel-head">
             <div>
               <p className="section-kicker">Live Signals</p>
-              <h2>Realtime Ecosystem Pulse</h2>
+              <h2>Live Catalog Pulse</h2>
+              <p className="panel-caption">Pay.sh catalog ingests every {formatInterval(pulseSummary.ingest_interval_ms) ?? '7.5 min'} · UI polls every 15s · events emit when catalog changes are detected.</p>
             </div>
-            <small>polling / last refresh {formatDate(pulseSummary.generatedAt)}</small>
+            <small>UI refresh {formatDate(pulseSummary.generatedAt)}</small>
           </div>
+          <div className="timing-strip" aria-label="Catalog timing">
+            <TimingItem label="UI refreshed" value={formatDate(pulseSummary.generatedAt)} />
+            <TimingItem label="Catalog ingestion" value={formatDate(pulseSummary.data_source.last_ingested_at)} />
+            <TimingItem label="Pay.sh catalog generated" value={formatDate(pulseSummary.data_source.generated_at)} />
+            <TimingItem label="Source" value={sourceLabel(pulseSummary.data_source)} />
+            <TimingItem label="Latest event batch" value={pulseSummary.latest_event_at ? `${formatTime(pulseSummary.latest_event_at)} · ${pulseSummary.latest_batch_event_count} events` : 'none'} />
+          </div>
+          {catalogNoChanges && <p className="batch-notice">Latest catalog refresh completed. No provider, pricing, endpoint, or category changes detected.</p>}
           <div className="event-groups">
             {eventCategories.map((category) => <span key={category} className={`category ${category}`}>{category} {pulseSummary.eventGroups[category].count}</span>)}
           </div>
           <div className="event-feed">
-            {pulseSummary.timeline.map((event) => <div className={`feed-row ${event.category}`} key={event.id}>
-              <time>{formatTime(event.observedAt)}</time>
-              <span>{event.category}</span>
-              <strong>{event.providerName ?? event.entityId}</strong>
-              <p>{event.summary}</p>
+            {timelineBatches.map((batch) => <div className="batch-group" key={batch.observedAt}>
+              <div className="batch-head">
+                <strong>Catalog batch</strong>
+                <time>{formatTime(batch.observedAt)}</time>
+                <span>{batch.events.length} events emitted</span>
+              </div>
+              <div className="batch-rows">
+                {batch.events.map((event) => <div className={`feed-row ${event.category}`} key={event.id}>
+                  <span>{event.category}</span>
+                  <strong>{event.providerName ?? event.entityId}</strong>
+                  <p>{event.summary}</p>
+                </div>)}
+              </div>
             </div>)}
             {!pulseSummary.timeline.length && <p className="muted empty-state">No pulse events observed in the current window.</p>}
           </div>
@@ -346,13 +378,14 @@ function App() {
           <PulseStat label="Events" value={pulseSummary.counters.events} sub={`${pulseSummary.counters.unknownTelemetry} unknown telemetry fields`} />
           <PulseStat label="Providers" value={pulseSummary.counters.providers} sub={`${pulseSummary.counters.endpoints} endpoints tracked`} />
         </div>
-        <DeltaPanel title="Trust Changes" deltas={pulseSummary.trustDeltas} empty="No trust deltas beyond initial scoring." />
-        <DeltaPanel title="Signal Spikes" deltas={pulseSummary.signalSpikes} empty="No positive signal deltas observed." />
+        <DeltaPanel title="Trust Changes" caption="Latest trust events from catalog scoring batches." deltas={pulseSummary.trustDeltas} empty="No trust deltas beyond initial scoring." />
+        <DeltaPanel title="Signal Spikes" caption="Signal deltas appear only when catalog-derived signal changes." deltas={pulseSummary.signalSpikes} empty="No positive signal deltas observed." />
         <div className="panel">
           <div className="panel-head">
             <div>
               <p className="section-kicker">Windowed Telemetry</p>
               <h2>Provider Activity</h2>
+              <p className="panel-caption">Activity counts are event-spine activity, not Pay.sh transaction volume.</p>
             </div>
             <div className="window-tabs">
               {(['1h', '24h', '7d'] as const).map((windowName) => <button key={windowName} className={pulseWindow === windowName ? 'selected' : ''} onClick={() => setPulseWindow(windowName)}>{windowName}</button>)}
@@ -372,6 +405,7 @@ function App() {
             <div>
               <p className="section-kicker">Monitor Alerts</p>
               <h2>Recent Degradations</h2>
+              <p className="panel-caption">Monitor events appear only when endpoint monitoring is enabled.</p>
             </div>
           </div>
           <div className="mini-feed">
@@ -418,6 +452,7 @@ function App() {
       </div>
       <div className="panel">
         <h2>Recent Changes</h2>
+        <p className="panel-caption">Provider recent changes are catalog diff events.</p>
         <div className="timeline">
           {(providerIntel?.recent_changes.length ? providerIntel.recent_changes : []).map((item) => <div className="change" key={item.id}>
             <time>{formatDate(item.observedAt)}</time>
@@ -529,6 +564,10 @@ function PulseStat({ label, value, sub }: { label: string; value: string | numbe
   return <div className="pulse-stat"><span>{label}</span><strong>{value}</strong><small>{sub}</small></div>;
 }
 
+function TimingItem({ label, value }: { label: string; value: string }) {
+  return <div className="timing-item"><span>{label}</span><strong>{value}</strong></div>;
+}
+
 function DossierStat({ label, value, sub }: { label: string; value: string | number | null; sub: string }) {
   return <div className="dossier-stat"><span>{label}</span><strong>{value ?? 'unknown'}</strong><small>{sub}</small></div>;
 }
@@ -556,9 +595,10 @@ function AssessmentPanel({ title, score, sub, components }: { title: string; sco
 
 const eventCategories: EventCategory[] = ['discovery', 'trust', 'monitoring', 'pricing', 'schema', 'signal'];
 
-function DeltaPanel({ title, deltas, empty }: { title: string; deltas: ScoreDelta[]; empty: string }) {
+function DeltaPanel({ title, caption, deltas, empty }: { title: string; caption?: string; deltas: ScoreDelta[]; empty: string }) {
   return <div className="panel">
     <h2>{title}</h2>
+    {caption && <p className="panel-caption">{caption}</p>}
     <div className="delta-list">
       {deltas.slice(0, 6).map((delta) => <div className={`delta-row ${delta.direction}`} key={delta.eventId}>
         <strong>{delta.providerName}</strong>
@@ -588,6 +628,13 @@ function formatTime(value: string) {
   return new Date(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
+function formatInterval(value: number | null | undefined) {
+  if (!value) return null;
+  const minutes = value / 60_000;
+  if (Number.isInteger(minutes)) return `${minutes} min`;
+  return `${Number(minutes.toFixed(1))} min`;
+}
+
 function formatMs(value: number | null | undefined) {
   return typeof value === 'number' ? `${value}ms` : 'unknown';
 }
@@ -615,6 +662,20 @@ function formatScoreDelta(delta: ScoreDelta) {
 function compactCategories(categories: Record<EventCategory, number>) {
   const active = Object.entries(categories).filter(([, count]) => count > 0).map(([category, count]) => `${category}:${count}`);
   return active.length ? active.join(' / ') : 'no categorized activity';
+}
+
+function groupTimelineByBatch(events: PulseEvent[]) {
+  const groups = new Map<string, PulseEvent[]>();
+  for (const event of events) {
+    const batch = groups.get(event.observedAt) ?? [];
+    batch.push(event);
+    groups.set(event.observedAt, batch);
+  }
+  return [...groups.entries()].map(([observedAt, batchEvents]) => ({ observedAt, events: batchEvents }));
+}
+
+function sourceLabel(source: DataSource) {
+  return source.mode === 'live_pay_sh_catalog' && !source.used_fixture ? 'LIVE PAY.SH CATALOG' : 'FIXTURE FALLBACK';
 }
 
 function compareProviders(a: Provider, b: Provider, sort: string, trustLookup: Map<string, TrustAssessment>, signalLookup: Map<string, SignalAssessment>) {

@@ -47,6 +47,18 @@ describe('search and route API', () => {
     expect(summary.timeline[0]).toMatchObject({ id: expect.any(String), category: expect.any(String), summary: expect.any(String) });
     expect(summary.providerActivity['24h']).toBeInstanceOf(Array);
     expect(summary.trustDeltas[0]).toMatchObject({ providerId: expect.any(String), direction: expect.any(String) });
+    expect(summary.latest_event_at).toEqual(expect.any(String));
+    expect(summary.latest_batch_event_count).toEqual(expect.any(Number));
+    expect(summary.ingest_interval_ms === null || typeof summary.ingest_interval_ms === 'number').toBe(true);
+    expect(summary.latest_ingestion_run).toMatchObject({
+      startedAt: expect.any(String),
+      status: expect.any(String),
+      discoveredCount: expect.any(Number),
+      changedCount: expect.any(Number),
+      emittedEvents: expect.any(Number),
+      usedFixture: expect.any(Boolean),
+      source: expect.any(String)
+    });
     expect(summary.data_source.mode).toMatch(/^(live_pay_sh_catalog|fixture_fallback)$/);
     await app.close();
   });
