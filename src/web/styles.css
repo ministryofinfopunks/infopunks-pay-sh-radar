@@ -32,8 +32,41 @@ h3 { font-size: 34px; letter-spacing: -.04em; }
 .four { grid-template-columns: repeat(4, 1fr); }
 .two { grid-template-columns: 1fr 1fr; }
 .three { grid-template-columns: repeat(3, 1fr); }
+.pulse-terminal { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(360px, .65fr); gap: 16px; margin-top: 16px; align-items: start; }
+.pulse-side { display: grid; gap: 16px; }
+.panel-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
+.panel-head h2 { margin-bottom: 0; }
+.panel-head small { color: var(--muted); text-align: right; }
 .metric span, .metric small { color: var(--muted); }
 .metric strong { display: block; font-family: 'Space Grotesk', sans-serif; font-size: 26px; margin: 12px 0 6px; color: var(--text); }
+.counter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.pulse-stat { border-radius: 12px; padding: 14px; background: rgba(0,0,0,.18); border: 1px solid rgba(126,255,176,.1); }
+.pulse-stat span, .pulse-stat small { color: var(--muted); }
+.pulse-stat strong { display: block; font-family: 'Space Grotesk', sans-serif; font-size: 26px; margin: 12px 0 6px; color: var(--text); }
+.event-groups { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.category { border: 1px solid var(--line); border-radius: 999px; padding: 6px 10px; color: var(--green); font-size: 12px; text-transform: uppercase; }
+.category.monitoring, .feed-row.monitoring span { color: var(--blue); }
+.category.pricing, .feed-row.pricing span { color: var(--amber); }
+.category.trust, .feed-row.trust span { color: var(--green); }
+.category.signal, .feed-row.signal span { color: #d7a6ff; }
+.category.schema, .feed-row.schema span { color: #87f5ff; }
+.event-feed { display: grid; gap: 8px; max-height: 620px; overflow: auto; padding-right: 4px; }
+.feed-row { display: grid; grid-template-columns: 86px 94px minmax(140px, 220px) minmax(0, 1fr); gap: 10px; align-items: start; border: 1px solid rgba(126,255,176,.11); background: rgba(0,0,0,.2); border-radius: 12px; padding: 10px 12px; }
+.feed-row time, .feed-row span, .feed-row p { font-size: 12px; }
+.feed-row time { color: var(--muted); }
+.feed-row span { text-transform: uppercase; }
+.feed-row strong { overflow-wrap: anywhere; }
+.feed-row p { margin: 0; color: #b8cfbf; line-height: 1.45; overflow-wrap: anywhere; }
+.delta-list, .activity-list, .mini-feed { display: grid; gap: 8px; }
+.delta-row, .activity-row, .mini-feed div { border: 1px solid rgba(126,255,176,.11); background: rgba(126,255,176,.035); border-radius: 12px; padding: 12px; }
+.delta-row strong, .activity-row strong, .mini-feed strong { display: block; overflow-wrap: anywhere; }
+.delta-row span, .activity-row span, .mini-feed span { display: block; color: var(--green); margin-top: 4px; }
+.delta-row.down span { color: var(--red); }
+.delta-row.up span { color: var(--green); }
+.delta-row small, .activity-row small, .mini-feed small { display: block; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+.window-tabs { display: flex; gap: 6px; }
+.window-tabs button { border: 1px solid var(--line); background: rgba(126,255,176,.035); color: var(--muted); border-radius: 999px; padding: 6px 10px; cursor: pointer; }
+.window-tabs button.selected { color: #041009; background: var(--green); }
 .directory { display: grid; gap: 8px; max-height: 520px; overflow: auto; }
 .row { text-align: left; width: 100%; border: 1px solid rgba(126,255,176,.12); background: rgba(126,255,176,.035); color: var(--text); padding: 14px; border-radius: 12px; cursor: pointer; display: flex; justify-content: space-between; gap: 14px; }
 .row small { color: var(--muted); }
@@ -73,4 +106,4 @@ textarea { min-height: 118px; resize: vertical; }
 .endpoint span, .change span { display: block; color: #b8cfbf; margin-top: 6px; overflow-wrap: anywhere; }
 .endpoint small, .change time, .muted { color: var(--muted); }
 .change time { display: block; font-size: 12px; margin-bottom: 6px; }
-@media (max-width: 980px) { .hero, .two, .three, .four, .heatmap { grid-template-columns: 1fr; } h1 { font-size: 48px; } .bar { grid-template-columns: 1fr; } .execute.compact { width: 100%; } }
+@media (max-width: 980px) { .hero, .two, .three, .four, .heatmap, .pulse-terminal, .counter-grid { grid-template-columns: 1fr; } h1 { font-size: 48px; } .bar, .feed-row { grid-template-columns: 1fr; } .execute.compact { width: 100%; } .panel-head { align-items: flex-start; flex-direction: column; } .panel-head small { text-align: left; } }

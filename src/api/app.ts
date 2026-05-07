@@ -9,6 +9,7 @@ import { RouteRecommendationRequestSchema, SearchRequestSchema } from '../schema
 import { endpointHistory, findEndpoint, findProvider, providerHistory, providerIntelligence } from '../services/providerIntelligenceService';
 import { endpointMonitorSummary, isMonitorEnabled, monitorIntervalMs, monitorTimeoutMs, runEndpointMonitor } from '../services/endpointMonitorService';
 import { loadRuntimeConfig } from '../config/env';
+import { pulseSummary } from '../services/pulseService';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
 
@@ -25,6 +26,7 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   app.get('/health', async () => ({ ok: true, service: 'infopunks-pay-sh-radar', role: 'Cognitive Coordination Layer above Pay.sh', persistence: config.databaseUrl ? 'postgres' : 'memory' }));
   app.get('/version', async () => ({ service: 'infopunks-pay-sh-radar', version: config.version }));
   app.get('/v1/pulse', async () => ({ data: pulse(store) }));
+  app.get('/v1/pulse/summary', async () => ({ data: pulseSummary(store) }));
   app.get('/v1/events/recent', async () => ({ data: [...store.events].sort((a, b) => Date.parse(b.observedAt) - Date.parse(a.observedAt)).slice(0, 100) }));
   app.get('/v1/providers', async () => ({ data: store.providers }));
   app.get<{ Params: { id: string } }>('/v1/providers/:id', async (req, reply) => {

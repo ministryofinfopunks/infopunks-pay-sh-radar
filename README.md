@@ -50,6 +50,7 @@ Pay.sh Ecosystem
 - `GET /health`
 - `GET /version`
 - `GET /v1/pulse`
+- `GET /v1/pulse/summary`
 - `GET /v1/providers`
 - `GET /v1/providers/:id`
 - `GET /v1/providers/:id/history`

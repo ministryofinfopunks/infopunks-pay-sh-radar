@@ -23,6 +23,21 @@ type ProviderIntelligence = {
   last_seen_at: string | null;
 };
 type EndpointMonitor = { health: string; lastCheck: { observedAt: string; payload: Record<string, unknown> } | null; recentFailures: HistoryItem[] };
+type EventCategory = 'discovery' | 'trust' | 'monitoring' | 'pricing' | 'schema' | 'signal';
+type PulseEvent = { id: string; type: string; category: EventCategory; source: string; entityType: string; entityId: string; providerId: string | null; providerName: string | null; observedAt: string; summary: string };
+type ScoreDelta = { eventId: string; providerId: string; providerName: string; score: number | null; previousScore: number | null; delta: number | null; observedAt: string; direction: string };
+type ProviderActivity = { providerId: string; providerName: string; count: number; categories: Record<EventCategory, number>; lastObservedAt: string | null };
+type PulseSummary = {
+  generatedAt: string;
+  counters: { providers: number; endpoints: number; events: number; narratives: number; unknownTelemetry: number };
+  eventGroups: Record<EventCategory, { count: number; recent: PulseEvent[] }>;
+  timeline: PulseEvent[];
+  trustDeltas: ScoreDelta[];
+  signalDeltas: ScoreDelta[];
+  recentDegradations: PulseEvent[];
+  providerActivity: Record<'1h' | '24h' | '7d', ProviderActivity[]>;
+  signalSpikes: ScoreDelta[];
+};
 
 type AppData = { providers: Provider[]; pulse: Pulse; narratives: Narrative[]; graph: { nodes: unknown[]; edges: unknown[] } };
 
@@ -44,14 +59,39 @@ function App() {
   const [providerDetail, setProviderDetail] = useState<ProviderDetail | null>(null);
   const [providerIntel, setProviderIntel] = useState<ProviderIntelligence | null>(null);
   const [endpointMonitors, setEndpointMonitors] = useState<Record<string, EndpointMonitor>>({});
+  const [pulseSummary, setPulseSummary] = useState<PulseSummary | null>(null);
+  const [pulseWindow, setPulseWindow] = useState<'1h' | '24h' | '7d'>('24h');
 
   useEffect(() => {
     Promise.all([
       api<{ data: Provider[] }>('/v1/providers'),
       api<{ data: Pulse }>('/v1/pulse'),
       api<{ data: Narrative[] }>('/v1/narratives'),
-      api<{ data: { nodes: unknown[]; edges: unknown[] } }>('/v1/graph')
-    ]).then(([providers, pulse, narratives, graph]) => setData({ providers: providers.data, pulse: pulse.data, narratives: narratives.data, graph: graph.data }));
+      api<{ data: { nodes: unknown[]; edges: unknown[] } }>('/v1/graph'),
+      api<{ data: PulseSummary }>('/v1/pulse/summary')
+    ]).then(([providers, pulse, narratives, graph, summary]) => {
+      setData({ providers: providers.data, pulse: pulse.data, narratives: narratives.data, graph: graph.data });
+      setPulseSummary(summary.data);
+    });
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    const refresh = () => {
+      Promise.all([
+        api<{ data: Pulse }>('/v1/pulse'),
+        api<{ data: PulseSummary }>('/v1/pulse/summary')
+      ]).then(([pulse, summary]) => {
+        if (!active) return;
+        setData((current) => current ? { ...current, pulse: pulse.data } : current);
+        setPulseSummary(summary.data);
+      }).catch(() => undefined);
+    };
+    const timer = window.setInterval(refresh, 15_000);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
   }, []);
 
   useEffect(() => {
@@ -108,6 +148,57 @@ function App() {
       <Metric label="Signal Leader" value={providerLookup.get(data.pulse.topSignal[0]?.entityId)?.name ?? 'n/a'} sub={`${data.pulse.topSignal[0]?.score ?? 'unknown'}/100`} />
       <Metric label="Graph Layer" value={`${data.graph.nodes.length} nodes`} sub={`${data.graph.edges.length} deterministic edges`} />
     </section>
+
+    {pulseSummary && <section className="pulse-terminal">
+      <div className="panel pulse-feed">
+        <div className="panel-head">
+          <h2>Realtime Ecosystem Pulse</h2>
+          <small>polling / last refresh {formatDate(pulseSummary.generatedAt)}</small>
+        </div>
+        <div className="event-groups">
+          {eventCategories.map((category) => <span key={category} className={`category ${category}`}>{category} {pulseSummary.eventGroups[category].count}</span>)}
+        </div>
+        <div className="event-feed">
+          {pulseSummary.timeline.map((event) => <div className={`feed-row ${event.category}`} key={event.id}>
+            <time>{formatTime(event.observedAt)}</time>
+            <span>{event.category}</span>
+            <strong>{event.providerName ?? event.entityId}</strong>
+            <p>{event.summary}</p>
+          </div>)}
+        </div>
+      </div>
+      <div className="pulse-side">
+        <div className="panel counter-grid">
+          <PulseStat label="Events" value={pulseSummary.counters.events} sub={`${pulseSummary.counters.unknownTelemetry} unknown telemetry fields`} />
+          <PulseStat label="Providers" value={pulseSummary.counters.providers} sub={`${pulseSummary.counters.endpoints} endpoints tracked`} />
+        </div>
+        <DeltaPanel title="Trust Changes" deltas={pulseSummary.trustDeltas} empty="No trust deltas beyond initial scoring." />
+        <DeltaPanel title="Signal Spikes" deltas={pulseSummary.signalSpikes} empty="No positive signal deltas observed." />
+        <div className="panel">
+          <div className="panel-head">
+            <h2>Provider Activity</h2>
+            <div className="window-tabs">
+              {(['1h', '24h', '7d'] as const).map((windowName) => <button key={windowName} className={pulseWindow === windowName ? 'selected' : ''} onClick={() => setPulseWindow(windowName)}>{windowName}</button>)}
+            </div>
+          </div>
+          <div className="activity-list">
+            {pulseSummary.providerActivity[pulseWindow].map((item) => <div className="activity-row" key={item.providerId}>
+              <strong>{item.providerName}</strong>
+              <span>{item.count} events</span>
+              <small>{compactCategories(item.categories)}</small>
+            </div>)}
+            {!pulseSummary.providerActivity[pulseWindow].length && <p className="muted">No provider activity in this window.</p>}
+          </div>
+        </div>
+        <div className="panel">
+          <h2>Recent Degradations</h2>
+          <div className="mini-feed">
+            {pulseSummary.recentDegradations.map((event) => <div key={event.id}><strong>{event.providerName ?? event.entityId}</strong><span>{event.summary}</span><small>{formatDate(event.observedAt)}</small></div>)}
+            {!pulseSummary.recentDegradations.length && <p className="muted">No endpoint degradations observed.</p>}
+          </div>
+        </div>
+      </div>
+    </section>}
 
     <section className="grid two">
       <div className="panel">
@@ -219,6 +310,10 @@ function Metric({ label, value, sub }: { label: string; value: string | number; 
   return <div className="panel metric"><span>{label}</span><strong>{value}</strong><small>{sub}</small></div>;
 }
 
+function PulseStat({ label, value, sub }: { label: string; value: string | number; sub: string }) {
+  return <div className="pulse-stat"><span>{label}</span><strong>{value}</strong><small>{sub}</small></div>;
+}
+
 function Leaderboard({ title, scores, providers, kind }: { title: string; scores: any[]; providers: Map<string, Provider>; kind: string }) {
   return <div className="panel"><h2>{title}</h2><div className="leaderboard">{scores.map((score) => <div className="bar" key={score.entityId}><span>{providers.get(score.entityId)?.name}</span><div><i style={{ width: `${score.score ?? 0}%` }} /></div><b>{score.score ?? 'unknown'}{kind === 'trust' ? ` ${score.grade}` : ''}</b></div>)}</div></div>;
 }
@@ -232,6 +327,22 @@ function AssessmentPanel({ title, score, sub, components }: { title: string; sco
   </div>;
 }
 
+const eventCategories: EventCategory[] = ['discovery', 'trust', 'monitoring', 'pricing', 'schema', 'signal'];
+
+function DeltaPanel({ title, deltas, empty }: { title: string; deltas: ScoreDelta[]; empty: string }) {
+  return <div className="panel">
+    <h2>{title}</h2>
+    <div className="delta-list">
+      {deltas.slice(0, 6).map((delta) => <div className={`delta-row ${delta.direction}`} key={delta.eventId}>
+        <strong>{delta.providerName}</strong>
+        <span>{formatScoreDelta(delta)}</span>
+        <small>{formatDate(delta.observedAt)}</small>
+      </div>)}
+      {!deltas.length && <p className="muted">{empty}</p>}
+    </div>
+  </div>;
+}
+
 function formatPrice(price: Provider['pricing']) {
   if (price.min === null || price.max === null) return price.raw || 'unknown';
   if (price.min === 0 && price.max === 0) return 'free';
@@ -242,6 +353,10 @@ function formatDate(value: string | null | undefined) {
   return value ? new Date(value).toLocaleString() : 'unknown';
 }
 
+function formatTime(value: string) {
+  return new Date(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+
 function formatMs(value: number | null | undefined) {
   return typeof value === 'number' ? `${value}ms` : 'unknown';
 }
@@ -249,6 +364,18 @@ function formatMs(value: number | null | undefined) {
 function formatNullableBoolean(value: boolean | null) {
   if (value === null) return 'unknown';
   return value ? 'yes' : 'no';
+}
+
+function formatScoreDelta(delta: ScoreDelta) {
+  const score = delta.score ?? 'unknown';
+  if (delta.delta === null) return `${score} / prior unavailable`;
+  const prefix = delta.delta > 0 ? '+' : '';
+  return `${score} (${prefix}${delta.delta})`;
+}
+
+function compactCategories(categories: Record<EventCategory, number>) {
+  const active = Object.entries(categories).filter(([, count]) => count > 0).map(([category, count]) => `${category}:${count}`);
+  return active.length ? active.join(' / ') : 'no categorized activity';
 }
 
 createRoot(document.getElementById('root')!).render(<App />);

@@ -34,6 +34,22 @@ describe('search and route API', () => {
     await app.close();
   });
 
+  it('returns realtime pulse summary derived from event spine', async () => {
+    const app = await createApp();
+    const response = await app.inject({ method: 'GET', url: '/v1/pulse/summary' });
+    expect(response.statusCode).toBe(200);
+    const summary = response.json().data;
+    expect(summary.counters.providers).toBeGreaterThan(0);
+    expect(summary.counters.events).toBeGreaterThan(0);
+    expect(summary.eventGroups.discovery.count).toBeGreaterThan(0);
+    expect(summary.eventGroups.trust.count).toBeGreaterThan(0);
+    expect(summary.eventGroups.signal.count).toBeGreaterThan(0);
+    expect(summary.timeline[0]).toMatchObject({ id: expect.any(String), category: expect.any(String), summary: expect.any(String) });
+    expect(summary.providerActivity['24h']).toBeInstanceOf(Array);
+    expect(summary.trustDeltas[0]).toMatchObject({ providerId: expect.any(String), direction: expect.any(String) });
+    await app.close();
+  });
+
   it('protects admin Pay.sh ingestion without token gating public routes', async () => {
     const previous = process.env.INFOPUNKS_ADMIN_TOKEN;
     process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
