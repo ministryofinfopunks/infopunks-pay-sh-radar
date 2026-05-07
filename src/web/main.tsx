@@ -135,7 +135,10 @@ function App() {
         <p className="eyebrow">Infopunks Intelligence Terminal</p>
         <h1>Cognitive Coordination Layer for the Pay.sh agent economy.</h1>
         <p className="copy">Pay.sh remains the provider, payment, and discovery substrate. Infopunks turns ecosystem exhaust into trust scores, signal scores, narrative maps, semantic search, and routing recommendations.</p>
-        <span className={`source-badge ${data.pulse.data_source.mode}`}>{data.pulse.data_source.mode === 'live_pay_sh_catalog' ? 'LIVE PAY.SH CATALOG' : 'FIXTURE FALLBACK'}</span>
+        <div className="source-stack">
+          <span className={`source-badge ${data.pulse.data_source.mode}`}>{data.pulse.data_source.mode === 'live_pay_sh_catalog' ? 'LIVE PAY.SH CATALOG' : 'FIXTURE FALLBACK'}</span>
+          <small className="source-line">{formatDataSource(data.pulse.data_source, data.pulse.providerCount, data.pulse.endpointCount)}</small>
+        </div>
       </div>
       <div className="ticker">
         <span>PROVIDERS {data.pulse.providerCount}</span>
@@ -152,25 +155,72 @@ function App() {
       <Metric label="Graph Layer" value={`${data.graph.nodes.length} nodes`} sub={`${data.graph.edges.length} deterministic edges`} />
     </section>
 
-    {pulseSummary && <section className="pulse-terminal">
-      <div className="panel pulse-feed">
-        <div className="panel-head">
-          <h2>Realtime Ecosystem Pulse</h2>
-          <small>polling / last refresh {formatDate(pulseSummary.generatedAt)}</small>
+    {pulseSummary && <section className="radar-dashboard" aria-label="Radar intelligence dashboard">
+      <div className="radar-left">
+        <div className="panel pulse-feed">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Live Signals</p>
+              <h2>Realtime Ecosystem Pulse</h2>
+            </div>
+            <small>polling / last refresh {formatDate(pulseSummary.generatedAt)}</small>
+          </div>
+          <div className="event-groups">
+            {eventCategories.map((category) => <span key={category} className={`category ${category}`}>{category} {pulseSummary.eventGroups[category].count}</span>)}
+          </div>
+          <div className="event-feed">
+            {pulseSummary.timeline.map((event) => <div className={`feed-row ${event.category}`} key={event.id}>
+              <time>{formatTime(event.observedAt)}</time>
+              <span>{event.category}</span>
+              <strong>{event.providerName ?? event.entityId}</strong>
+              <p>{event.summary}</p>
+            </div>)}
+            {!pulseSummary.timeline.length && <p className="muted empty-state">No pulse events observed in the current window.</p>}
+          </div>
         </div>
-        <div className="event-groups">
-          {eventCategories.map((category) => <span key={category} className={`category ${category}`}>{category} {pulseSummary.eventGroups[category].count}</span>)}
-        </div>
-        <div className="event-feed">
-          {pulseSummary.timeline.map((event) => <div className={`feed-row ${event.category}`} key={event.id}>
-            <time>{formatTime(event.observedAt)}</time>
-            <span>{event.category}</span>
-            <strong>{event.providerName ?? event.entityId}</strong>
-            <p>{event.summary}</p>
-          </div>)}
+
+        <div className="provider-stack">
+          <div className="panel">
+            <div className="panel-head">
+              <div>
+                <p className="section-kicker">Catalog Index</p>
+                <h2>Provider Directory</h2>
+              </div>
+              <small>{data.providers.length} providers</small>
+            </div>
+            <div className="directory">
+              {data.providers.map((provider) => <button key={provider.id} className={provider.id === selectedProvider?.id ? 'active row' : 'row'} onClick={() => setSelectedId(provider.id)}>
+                <span>{provider.name}</span><small>{provider.category} / {provider.endpointCount} endpoints</small>
+              </button>)}
+            </div>
+          </div>
+          <div className="panel intelligence">
+            <div className="panel-head">
+              <div>
+                <p className="section-kicker">Selected Provider</p>
+                <h2>Provider Overview</h2>
+              </div>
+            </div>
+            {selectedProvider && <>
+              <p className="eyebrow">{selectedProvider.namespace}</p>
+              <h3>{selectedProvider.name}</h3>
+              <p>{selectedProvider.description}</p>
+              <div className="chips">{selectedProvider.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
+              <div className="terminal-lines">
+                <p>category: {selectedProvider.category}</p>
+                <p>price: {formatPrice(selectedProvider.pricing)}</p>
+                <p>status: {selectedProvider.status}</p>
+                <p>last seen: {formatDate(providerIntel?.last_seen_at)}</p>
+                <p>monitor checked: {formatDate(providerIntel?.endpoint_health.last_checked_at)}</p>
+                <p>monitor latency: {formatMs(providerIntel?.endpoint_health.median_latency_ms ?? null)}</p>
+              </div>
+              <button className="execute compact" onClick={() => recommendProvider(selectedProvider)}>recommend route</button>
+            </>}
+          </div>
         </div>
       </div>
-      <div className="pulse-side">
+
+      <aside className="pulse-side" aria-label="Realtime intelligence sidebar">
         <div className="panel counter-grid">
           <PulseStat label="Events" value={pulseSummary.counters.events} sub={`${pulseSummary.counters.unknownTelemetry} unknown telemetry fields`} />
           <PulseStat label="Providers" value={pulseSummary.counters.providers} sub={`${pulseSummary.counters.endpoints} endpoints tracked`} />
@@ -179,7 +229,10 @@ function App() {
         <DeltaPanel title="Signal Spikes" deltas={pulseSummary.signalSpikes} empty="No positive signal deltas observed." />
         <div className="panel">
           <div className="panel-head">
-            <h2>Provider Activity</h2>
+            <div>
+              <p className="section-kicker">Windowed Telemetry</p>
+              <h2>Provider Activity</h2>
+            </div>
             <div className="window-tabs">
               {(['1h', '24h', '7d'] as const).map((windowName) => <button key={windowName} className={pulseWindow === windowName ? 'selected' : ''} onClick={() => setPulseWindow(windowName)}>{windowName}</button>)}
             </div>
@@ -190,47 +243,23 @@ function App() {
               <span>{item.count} events</span>
               <small>{compactCategories(item.categories)}</small>
             </div>)}
-            {!pulseSummary.providerActivity[pulseWindow].length && <p className="muted">No provider activity in this window.</p>}
+            {!pulseSummary.providerActivity[pulseWindow].length && <p className="muted empty-state">No provider activity in this window.</p>}
           </div>
         </div>
         <div className="panel">
-          <h2>Recent Degradations</h2>
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Monitor Alerts</p>
+              <h2>Recent Degradations</h2>
+            </div>
+          </div>
           <div className="mini-feed">
             {pulseSummary.recentDegradations.map((event) => <div key={event.id}><strong>{event.providerName ?? event.entityId}</strong><span>{event.summary}</span><small>{formatDate(event.observedAt)}</small></div>)}
-            {!pulseSummary.recentDegradations.length && <p className="muted">No endpoint degradations observed.</p>}
+            {!pulseSummary.recentDegradations.length && <p className="muted empty-state">No endpoint degradations observed.</p>}
           </div>
         </div>
-      </div>
+      </aside>
     </section>}
-
-    <section className="grid two">
-      <div className="panel">
-        <h2>Provider Directory</h2>
-        <div className="directory">
-          {data.providers.map((provider) => <button key={provider.id} className={provider.id === selectedProvider?.id ? 'active row' : 'row'} onClick={() => setSelectedId(provider.id)}>
-            <span>{provider.name}</span><small>{provider.category} / {provider.endpointCount} endpoints</small>
-          </button>)}
-        </div>
-      </div>
-      <div className="panel intelligence">
-        <h2>Provider Overview</h2>
-        {selectedProvider && <>
-          <p className="eyebrow">{selectedProvider.namespace}</p>
-          <h3>{selectedProvider.name}</h3>
-          <p>{selectedProvider.description}</p>
-          <div className="chips">{selectedProvider.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
-          <div className="terminal-lines">
-            <p>category: {selectedProvider.category}</p>
-            <p>price: {formatPrice(selectedProvider.pricing)}</p>
-            <p>status: {selectedProvider.status}</p>
-            <p>last seen: {formatDate(providerIntel?.last_seen_at)}</p>
-            <p>monitor checked: {formatDate(providerIntel?.endpoint_health.last_checked_at)}</p>
-            <p>monitor latency: {formatMs(providerIntel?.endpoint_health.median_latency_ms ?? null)}</p>
-          </div>
-          <button className="execute compact" onClick={() => recommendProvider(selectedProvider)}>recommend route</button>
-        </>}
-      </div>
-    </section>
 
     <section className="grid three">
       <AssessmentPanel title="Trust Assessment" score={providerIntel?.latest_trust_score ?? null} sub={providerDetail?.trustAssessment?.grade ?? 'unknown'} components={providerDetail?.trustAssessment?.components ?? {}} />
@@ -379,6 +408,11 @@ function formatScoreDelta(delta: ScoreDelta) {
 function compactCategories(categories: Record<EventCategory, number>) {
   const active = Object.entries(categories).filter(([, count]) => count > 0).map(([category, count]) => `${category}:${count}`);
   return active.length ? active.join(' / ') : 'no categorized activity';
+}
+
+function formatDataSource(source: DataSource, providers: number, endpoints: number) {
+  const sourceUrl = source.url?.replace(/^https?:\/\//, '') ?? 'pay.sh/api/catalog';
+  return `Source: ${sourceUrl} · providers ${source.provider_count ?? providers} · endpoints ${endpoints} · last ingested ${formatDate(source.last_ingested_at ?? source.generated_at)}`;
 }
 
 createRoot(document.getElementById('root')!).render(<App />);
