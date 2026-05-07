@@ -59,15 +59,24 @@ function monitorStore() {
 
 class StrictJsonRepository extends MemoryRepository {
   public serializedSkippedReasons: string[] = [];
+  public serializedEventPayloads: string[] = [];
+  public serializedSnapshots: string[] = [];
 
   async saveSnapshot(snapshot: IntelligenceSnapshot) {
-    JSON.stringify(snapshot, (_key, value) => (value === undefined ? null : value));
+    const snapshotSerialized = JSON.stringify(snapshot, (_key, value) => (value === undefined ? null : value));
+    if (snapshotSerialized === undefined) throw new Error('json_serialization_failed_snapshot');
+    JSON.parse(snapshotSerialized);
+    this.serializedSnapshots.push(snapshotSerialized);
     for (const event of snapshot.events) {
-      JSON.stringify(event.payload, (_key, value) => (value === undefined ? null : value));
+      const serialized = JSON.stringify(event.payload, (_key, value) => (value === undefined ? null : value));
+      if (serialized === undefined) throw new Error('json_serialization_failed_event_payload');
+      JSON.parse(serialized);
+      this.serializedEventPayloads.push(serialized);
     }
     for (const run of snapshot.monitorRuns ?? []) {
       const serialized = JSON.stringify(run.skippedReasons ?? [], (_key, value) => (value === undefined ? null : value));
       if (serialized === undefined) throw new Error('json_serialization_failed');
+      JSON.parse(serialized);
       this.serializedSkippedReasons.push(serialized);
     }
     await super.saveSnapshot(snapshot);
@@ -307,6 +316,69 @@ describe('safe metadata monitor', () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.json().data.run).toMatchObject({ mode: 'safe_metadata', status: 'succeeded' });
+    expect(repository.serializedSnapshots.length).toBeGreaterThan(0);
+    expect(repository.serializedEventPayloads.length).toBeGreaterThan(0);
+    await app.close();
+  });
+
+  it('persists production-like manual monitor payload shapes as valid JSON strings', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'local-admin';
+    process.env.MONITOR_MODE = 'safe_metadata';
+    const store = monitorStore();
+    const repository = new StrictJsonRepository();
+    const app = await createApp(store, repository);
+
+    const customDate = new Date('2026-03-01T10:20:30.000Z');
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/monitor/run',
+      headers: { authorization: 'Bearer local-admin' },
+      payload: {}
+    });
+
+    let call = 0;
+    await runMonitor(store, repository, {
+      mode: 'safe_metadata',
+      fetchImpl: async () => {
+        call += 1;
+        if (call === 1) {
+          return new Response(null, { status: 204 });
+        }
+        if (call === 2) {
+          return new Response('not found', { status: 404 });
+        }
+        throw new Error('provider_unreachable');
+      }
+    });
+
+    store.events.push({
+      id: 'manual-shape-event',
+      type: 'provider.checked',
+      source: 'test',
+      entityType: 'provider',
+      entityId: store.providers[0].id,
+      observedAt: new Date().toISOString(),
+      payload: {
+        provider_reachable: { status_code: 204, checked_at: customDate, details: ['ok', undefined, null] },
+        provider_degraded: { status_code: 404, nested: [[{ keep: true }, undefined]], reason: 'status_code_404' },
+        provider_failed: { error_obj: new Error('boom'), error_string: 'boom-string' },
+        skippedReasons: [{ providerId: 'x', serviceUrl: null, reason: 'missing_service_url' }],
+        run_summary: { optionalUndefined: undefined, optionalNull: null, alreadyString: 'already-string' },
+        nested_arrays: [[1, undefined, 3], [{ when: customDate }]]
+      } as unknown as Record<string, unknown>
+    });
+    await repository.saveSnapshot(store);
+
+    expect(response.statusCode).toBe(200);
+    for (const value of repository.serializedEventPayloads) {
+      expect(() => JSON.parse(value)).not.toThrow();
+    }
+    for (const value of repository.serializedSkippedReasons) {
+      expect(() => JSON.parse(value)).not.toThrow();
+    }
+    for (const value of repository.serializedSnapshots) {
+      expect(() => JSON.parse(value)).not.toThrow();
+    }
     await app.close();
   });
 
