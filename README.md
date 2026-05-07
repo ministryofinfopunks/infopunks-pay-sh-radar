@@ -204,46 +204,76 @@ Recent events are available at:
 curl -s http://localhost:8787/v1/events/recent
 ```
 
-## Endpoint Monitoring
+## Safe Metadata Monitoring
 
-Radar can monitor known endpoints, but scheduled monitoring is disabled by default:
+Radar can collect operational telemetry without executing payable Pay.sh API calls. Scheduled monitoring is disabled by default:
 
 ```bash
 MONITOR_ENABLED=false
+MONITOR_MODE=disabled
 ```
 
-The default monitor mode is metadata/health-check only. Radar will only call URLs explicitly provided as endpoint monitor metadata, for example `schema.monitorUrl`, `schema.healthUrl`, or `schema.monitor.healthUrl`. It will not call paid endpoint paths by default.
-
-To allow direct endpoint URL checks, set both:
+Enable safe metadata monitoring with:
 
 ```bash
-MONITOR_MODE=endpoint
-MONITOR_ALLOW_PAID_ENDPOINTS=true
+MONITOR_ENABLED=true
+MONITOR_MODE=safe_metadata
+MONITOR_INTERVAL_MS=900000
+MONITOR_TIMEOUT_MS=5000
+MONITOR_MAX_PROVIDERS=100
 ```
 
-Monitor settings:
+Safe metadata mode checks provider `service_url` reachability only. It sends a `HEAD` request first and falls back to a no-body `GET` when `HEAD` is not supported. Requests use a short timeout, a small redirect limit, and `User-Agent: InfopunksPayShRadar/0.1`.
 
-- `MONITOR_ENABLED`: must be `true` to enable scheduled monitor runs
-- `MONITOR_INTERVAL_MS`: schedule interval in milliseconds, default `300000`
-- `MONITOR_TIMEOUT_MS`: per-check timeout in milliseconds, default `5000`
+Safe metadata mode does not:
+
+- call endpoint operation paths
+- append endpoint paths to `service_url`
+- send Pay.sh payment headers
+- send auth headers
+- validate paid API responses
+- prove endpoint/payment reliability
+
+Reserved future modes are:
+
+```bash
+MONITOR_MODE=endpoint_health
+MONITOR_MODE=paid_execution_probe
+```
+
+Guardrails:
+
+- invalid URLs are skipped
+- non-HTTP(S) URLs are skipped
+- localhost, loopback, private, link-local, and private DNS targets are skipped
+- URLs that look like paid operation paths are skipped
+- skipped providers record a reason on the monitor run
+- the production interval recommendation is 15 minutes
 
 Every check records canonical `InfopunksEvent` evidence:
 
-- `endpoint.checked`
-- `endpoint.recovered`
-- `endpoint.degraded`
-- `endpoint.failed`
+- `provider.checked`
+- `provider.reachable`
+- `provider.degraded`
+- `provider.failed`
+- `provider.recovered`
 
 Monitor payload evidence includes:
 
+- `provider_id`
+- `service_url`
+- `checked_at`
+- `success`
 - `status_code`
 - `response_time_ms`
-- `checked_at`
 - `error_message`
-- `success`
-- `schema_validity` when a response schema is available
+- `monitor_mode`
+- `check_type: service_url_reachability`
+- `safe_mode: true`
 
-Every monitor run records `startedAt`, `finishedAt`, `source`, `status`, `checkedCount`, `successCount`, `failedCount`, `skippedCount`, and `errorCount`.
+Trust scoring uses safe metadata evidence for service reachability, latency, and freshness only. Receipt reliability, response validity, and paid execution success remain unknown until real endpoint or receipt evidence exists.
+
+Every monitor run records `startedAt`, `finishedAt`, `source`, `status`, `mode`, `checkedCount`, `reachableCount`, `degradedCount`, `failedCount`, `skippedCount`, `errorCount`, and skipped reasons.
 
 Manual monitor runs are admin-only:
 
@@ -257,6 +287,7 @@ Recent runs and endpoint monitor evidence:
 
 ```bash
 curl -s http://localhost:8787/v1/monitor/runs/recent
+curl -s http://localhost:8787/v1/providers/stableenrich/monitor
 curl -s http://localhost:8787/v1/endpoints/stableenrich-endpoint-1/monitor
 ```
 
@@ -264,11 +295,25 @@ Scheduled monitor example:
 
 ```bash
 MONITOR_ENABLED=true \
-MONITOR_INTERVAL_MS=300000 \
+MONITOR_MODE=safe_metadata \
+MONITOR_INTERVAL_MS=900000 \
 MONITOR_TIMEOUT_MS=5000 \
+MONITOR_MAX_PROVIDERS=100 \
 INFOPUNKS_ADMIN_TOKEN=local-admin \
 npm run dev
 ```
+
+Smoke commands:
+
+```bash
+INFOPUNKS_ADMIN_TOKEN=local-admin npm run dev
+curl -s -X POST http://localhost:8787/v1/monitor/run \
+  -H 'authorization: Bearer local-admin'
+curl -s http://localhost:8787/v1/monitor/runs/recent
+curl -s http://localhost:8787/v1/pulse/summary
+```
+
+The honest limitation is that a reachable provider homepage or health-like metadata URL is only service reachability evidence. It is not evidence that a paid Pay.sh operation works, returns a valid schema, or would produce a successful payment receipt.
 
 ## Provider Intelligence Pages
 
@@ -343,8 +388,10 @@ NODE_ENV=production PORT=8787 INFOPUNKS_ADMIN_TOKEN=local-admin npm start
 | `PAY_SH_CATALOG_URL` | No | bundled fixture | Live Pay.sh catalog source. |
 | `PAY_SH_INGEST_INTERVAL_MS` | No | disabled | Positive integer enables scheduled ingestion. |
 | `MONITOR_ENABLED` | No | `false` | Set `true` to schedule monitor runs. |
-| `MONITOR_INTERVAL_MS` | No | `300000` | Monitor schedule interval when enabled. |
+| `MONITOR_MODE` | No | `disabled`, or `safe_metadata` when legacy `MONITOR_ENABLED=true` is set | Supported: `disabled`, `safe_metadata`. Reserved: `endpoint_health`, `paid_execution_probe`. |
+| `MONITOR_INTERVAL_MS` | No | `900000` | Monitor schedule interval when enabled. |
 | `MONITOR_TIMEOUT_MS` | No | `5000` | Per-check timeout. |
+| `MONITOR_MAX_PROVIDERS` | No | `100` | Maximum providers checked per safe metadata run. |
 | `FRONTEND_ORIGIN` | No | local dev open CORS | Set to the deployed frontend origin, for example `https://radar.example.com`. |
 | `VITE_API_BASE_URL` | Frontend deploy only | relative paths | Set to the deployed backend URL when frontend and backend are hosted separately. |
 

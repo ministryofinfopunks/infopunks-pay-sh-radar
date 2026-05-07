@@ -36,10 +36,10 @@ export class PostgresRepository implements IntelligenceRepository {
       }
       for (const run of snapshot.monitorRuns ?? []) {
         await client.query(
-          `insert into monitor_runs (id, started_at, finished_at, source, status, checked_count, success_count, failed_count, skipped_count, error_count, error)
-           values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-           on conflict (id) do update set finished_at = excluded.finished_at, status = excluded.status, checked_count = excluded.checked_count, success_count = excluded.success_count, failed_count = excluded.failed_count, skipped_count = excluded.skipped_count, error_count = excluded.error_count, error = excluded.error`,
-          [run.id, run.startedAt, run.finishedAt, run.source, run.status, run.checkedCount, run.successCount, run.failedCount, run.skippedCount, run.errorCount, run.error]
+          `insert into monitor_runs (id, started_at, finished_at, source, status, checked_count, success_count, failed_count, skipped_count, error_count, error, mode, reachable_count, degraded_count, skipped_reasons)
+           values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+           on conflict (id) do update set finished_at = excluded.finished_at, status = excluded.status, checked_count = excluded.checked_count, success_count = excluded.success_count, failed_count = excluded.failed_count, skipped_count = excluded.skipped_count, error_count = excluded.error_count, error = excluded.error, mode = excluded.mode, reachable_count = excluded.reachable_count, degraded_count = excluded.degraded_count, skipped_reasons = excluded.skipped_reasons`,
+          [run.id, run.startedAt, run.finishedAt, run.source, run.status, run.checkedCount, run.successCount, run.failedCount, run.skippedCount, run.errorCount, run.error, run.mode ?? null, run.reachableCount ?? null, run.degradedCount ?? null, run.skippedReasons ?? []]
         );
       }
       await client.query('insert into intelligence_snapshots (snapshot) values ($1)', [snapshot]);
@@ -73,8 +73,16 @@ export class PostgresRepository implements IntelligenceRepository {
         discovered_count integer not null,
         changed_count integer not null,
         error_count integer not null,
-        error text
+        error text,
+        mode text,
+        reachable_count integer,
+        degraded_count integer,
+        skipped_reasons jsonb not null default '[]'::jsonb
       );
+      alter table monitor_runs add column if not exists mode text;
+      alter table monitor_runs add column if not exists reachable_count integer;
+      alter table monitor_runs add column if not exists degraded_count integer;
+      alter table monitor_runs add column if not exists skipped_reasons jsonb not null default '[]'::jsonb;
       create table if not exists monitor_runs (
         id text primary key,
         started_at timestamptz not null,

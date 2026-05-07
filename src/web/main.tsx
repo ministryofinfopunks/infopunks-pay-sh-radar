@@ -20,6 +20,17 @@ type ProviderIntelligence = {
   recent_changes: HistoryItem[];
   endpoint_count: number;
   endpoint_health: { healthy: number; degraded: number; failed: number; unknown: number; last_checked_at: string | null; median_latency_ms: number | null; recent_failures: HistoryItem[] };
+  service_monitor: {
+    status: 'reachable' | 'degraded' | 'failed' | 'unknown';
+    service_url: string | null;
+    last_checked_at: string | null;
+    response_time_ms: number | null;
+    status_code: number | null;
+    monitor_mode: 'SAFE METADATA' | 'UNKNOWN';
+    check_type: string | null;
+    safe_mode: boolean;
+    explanation: string;
+  };
   category_tags: string[];
   last_seen_at: string | null;
 };
@@ -358,11 +369,26 @@ function App() {
                       ['metadata quality', componentValue(providerDetail?.trustAssessment?.components.metadataQuality)],
                       ['pricing clarity', componentValue(providerDetail?.trustAssessment?.components.pricingClarity)],
                       ['freshness', componentValue(providerDetail?.trustAssessment?.components.freshness)],
-                      ['uptime', knownState(providerDetail?.trustAssessment?.components.uptime)],
+                      ['service reachability', knownState(providerDetail?.trustAssessment?.components.uptime)],
                       ['latency', knownState(providerDetail?.trustAssessment?.components.latency)],
-                      ['response validity', knownState(providerDetail?.trustAssessment?.components.responseValidity)],
+                      ['endpoint response validity', knownState(providerDetail?.trustAssessment?.components.responseValidity)],
                       ['receipt reliability', knownState(providerDetail?.trustAssessment?.components.receiptReliability)]
                     ]} />
+                  </DossierSection>
+                  <DossierSection title="Operational Monitor">
+                    <div className="monitor-card">
+                      <div className="monitor-head">
+                        <span className="safe-badge">SAFE METADATA</span>
+                        <strong className={`service-status ${providerIntel?.service_monitor.status ?? 'unknown'}`}>{providerIntel?.service_monitor.status ?? 'unknown'}</strong>
+                      </div>
+                      <KeyValues rows={[
+                        ['last_check', formatDate(providerIntel?.service_monitor.last_checked_at ?? null)],
+                        ['latency', formatMs(providerIntel?.service_monitor.response_time_ms ?? null)],
+                        ['http_status', providerIntel?.service_monitor.status_code ?? 'unknown'],
+                        ['monitor_mode', providerIntel?.service_monitor.monitor_mode ?? 'UNKNOWN']
+                      ]} />
+                      <p className="monitor-note">{providerIntel?.service_monitor.explanation ?? 'Safe monitor checks provider service reachability only. It does not execute paid Pay.sh calls.'}</p>
+                    </div>
                   </DossierSection>
                   <DossierSection title="Signal Breakdown">
                     <KeyValues rows={[
@@ -442,6 +468,7 @@ function App() {
         <div className="panel counter-grid">
           <PulseStat label="Events" value={pulseSummary.counters.events} sub={`${pulseSummary.counters.unknownTelemetry} unknown telemetry fields`} />
           <PulseStat label="Providers" value={pulseSummary.counters.providers} sub={`${pulseSummary.counters.endpoints} endpoints tracked`} />
+          {pulseSummary.eventGroups.monitoring.count > 0 && <PulseStat label="Monitor" value={pulseSummary.eventGroups.monitoring.count} sub="safe service reachability events" />}
         </div>
         <DeltaPanel title="Trust Changes" caption="Latest trust events from catalog scoring batches." deltas={pulseSummary.trustDeltas} empty="No trust deltas beyond initial scoring." />
         <DeltaPanel title="Signal Spikes" caption="Signal deltas appear only when catalog-derived signal changes." deltas={pulseSummary.signalSpikes} empty="No positive signal deltas observed." />
@@ -470,12 +497,12 @@ function App() {
             <div>
               <p className="section-kicker">Monitor Alerts</p>
               <h2>Recent Degradations</h2>
-              <p className="panel-caption">Monitor events appear only when endpoint monitoring is enabled.</p>
+              <p className="panel-caption">Safe metadata events are service reachability signals, not API execution failures.</p>
             </div>
           </div>
           <div className="mini-feed">
             {pulseSummary.recentDegradations.map((event) => <div key={event.id}><strong>{event.providerName ?? event.entityId}</strong><span>{event.summary}</span><small>{formatDate(event.observedAt)}</small></div>)}
-            {!pulseSummary.recentDegradations.length && <p className="muted empty-state">No endpoint degradations observed.</p>}
+            {!pulseSummary.recentDegradations.length && <p className="muted empty-state">No service reachability degradations observed.</p>}
           </div>
         </div>
       </aside>

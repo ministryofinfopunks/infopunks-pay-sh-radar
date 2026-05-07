@@ -56,8 +56,18 @@ function endpointMonitorEvents(endpoints: Endpoint[], events: InfopunksEvent[]) 
     .sort((a, b) => Date.parse(a.observedAt) - Date.parse(b.observedAt));
 }
 
+function providerMonitorEvents(provider: Provider, events: InfopunksEvent[]) {
+  return events
+    .filter((event) => event.entityType === 'provider' && event.entityId === provider.id && isProviderMonitorEvent(event.type))
+    .sort((a, b) => Date.parse(a.observedAt) - Date.parse(b.observedAt));
+}
+
 function isMonitorEvent(type: InfopunksEvent['type']) {
   return type === 'endpoint.checked' || type === 'endpoint.recovered' || type === 'endpoint.degraded' || type === 'endpoint.failed';
+}
+
+function isProviderMonitorEvent(type: InfopunksEvent['type']) {
+  return type === 'provider.checked' || type === 'provider.reachable' || type === 'provider.recovered' || type === 'provider.degraded' || type === 'provider.failed';
 }
 
 function latestMonitorEventsByEndpoint(events: InfopunksEvent[]) {
@@ -71,6 +81,14 @@ function uptimeScore(events: InfopunksEvent[]) {
   if (!latestEvents.length) return null;
   const successes = latestEvents.filter((event) => event.payload.success === true).length;
   return clamp(successes / latestEvents.length * 100);
+}
+
+function serviceReachabilityScore(events: InfopunksEvent[]) {
+  const latest = events[events.length - 1];
+  if (!latest) return null;
+  if (latest.payload.success !== true || latest.type === 'provider.failed') return 0;
+  if (latest.type === 'provider.degraded' || latest.payload.status === 'degraded') return 65;
+  return 100;
 }
 
 function responseValidityScore(events: InfopunksEvent[]) {
@@ -94,14 +112,16 @@ export function computeTrustAssessment(provider: Provider, endpoints: Endpoint[]
   const pricingEvidence = provider.pricing.evidence;
   const freshnessEvidence = provider.evidence.filter((item) => item.eventType === 'pay_sh_catalog_provider_seen');
   const monitorEvents = endpointMonitorEvents(endpoints, events);
+  const serviceMonitorEvents = providerMonitorEvents(provider, events);
   const monitorEvidence = monitorEvents.map((event) => evidenceFrom(event, `Endpoint monitor ${event.type} with status ${event.payload.status_code ?? 'unknown'} in ${event.payload.response_time_ms ?? 'unknown'}ms.`));
+  const serviceMonitorEvidence = serviceMonitorEvents.map((event) => evidenceFrom(event, `Safe metadata monitor ${event.type} with service status ${event.payload.status ?? 'unknown'} and HTTP ${event.payload.status_code ?? 'unknown'} in ${event.payload.response_time_ms ?? 'unknown'}ms.`));
 
   const components: TrustAssessment['components'] = {
-    uptime: uptimeScore(monitorEvents),
+    uptime: uptimeScore(monitorEvents) ?? serviceReachabilityScore(serviceMonitorEvents),
     responseValidity: responseValidityScore(monitorEvents),
     metadataQuality: metadataQuality(provider),
     pricingClarity: pricingClarity(provider),
-    latency: latencyScore(monitorEvents),
+    latency: latencyScore(monitorEvents) ?? latencyScore(serviceMonitorEvents),
     receiptReliability: null,
     freshness: freshness(provider)
   };
@@ -109,11 +129,17 @@ export function computeTrustAssessment(provider: Provider, endpoints: Endpoint[]
   const unknowns = Object.entries(components).filter(([, value]) => value === null).map(([key]) => key);
   const score = weightedAvailableScore(components);
   const evidence: Record<string, Evidence[]> = {
-    uptime: monitorEvidence.filter((item) => item.value && typeof (item.value as Record<string, unknown>).success === 'boolean'),
+    uptime: [
+      ...monitorEvidence.filter((item) => item.value && typeof (item.value as Record<string, unknown>).success === 'boolean'),
+      ...serviceMonitorEvidence.filter((item) => item.value && (item.value as Record<string, unknown>).check_type === 'service_url_reachability')
+    ],
     responseValidity: monitorEvidence.filter((item) => item.value && typeof (item.value as Record<string, unknown>).schema_validity === 'boolean'),
     metadataQuality: metadataEvidence,
     pricingClarity: pricingEvidence,
-    latency: monitorEvidence.filter((item) => item.value && typeof (item.value as Record<string, unknown>).response_time_ms === 'number'),
+    latency: [
+      ...monitorEvidence.filter((item) => item.value && typeof (item.value as Record<string, unknown>).response_time_ms === 'number'),
+      ...serviceMonitorEvidence.filter((item) => item.value && typeof (item.value as Record<string, unknown>).response_time_ms === 'number')
+    ],
     receiptReliability: [],
     freshness: freshnessEvidence
   };
@@ -129,7 +155,7 @@ export function computeTrustAssessment(provider: Provider, endpoints: Endpoint[]
     unknowns,
     reasoning: [
       'Trust V1 is deterministic and only scores components with supporting events.',
-      'Uptime, response validity, and latency use endpoint monitor evidence when available; receipt reliability remains null until Pay.sh receipt events are ingested.',
+      'Safe metadata monitor evidence only affects service reachability and latency; response validity, receipt reliability, and paid execution success remain unknown without endpoint or receipt evidence.',
       `Available evidence produced score ${score ?? 'unknown'} over ${Object.keys(components).length - unknowns.length} known components.`
     ],
     assessedAt

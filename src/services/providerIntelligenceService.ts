@@ -28,6 +28,17 @@ export type ProviderIntelligenceSummary = {
     median_latency_ms: number | null;
     recent_failures: HistoryItem[];
   };
+  service_monitor: {
+    status: 'reachable' | 'degraded' | 'failed' | 'unknown';
+    service_url: string | null;
+    last_checked_at: string | null;
+    response_time_ms: number | null;
+    status_code: number | null;
+    monitor_mode: 'SAFE METADATA' | 'UNKNOWN';
+    check_type: string | null;
+    safe_mode: boolean;
+    explanation: string;
+  };
   category_tags: string[];
   last_seen_at: string | null;
   trust_assessment: TrustAssessment | null;
@@ -56,6 +67,7 @@ export function providerIntelligence(store: IntelligenceStore, provider: Provide
   const recentChanges = providerHistory(store, provider).filter((item) => isChangeType(item.type)).slice(0, 10);
   const riskLevel = riskLevelFromTrust(trust?.score ?? null);
   const endpointHealth = providerEndpointHealth(store, provider.id);
+  const serviceMonitor = providerServiceMonitor(store, provider);
 
   return {
     provider,
@@ -67,6 +79,7 @@ export function providerIntelligence(store: IntelligenceStore, provider: Provide
     recent_changes: recentChanges,
     endpoint_count: provider.endpointCount,
     endpoint_health: endpointHealth,
+    service_monitor: serviceMonitor,
     category_tags: Array.from(new Set([provider.category, ...provider.tags, ...(signal?.narratives ?? [])])).filter(Boolean).sort(),
     last_seen_at: provider.lastSeenAt ?? null,
     trust_assessment: trust ?? null,
@@ -108,7 +121,25 @@ function isEndpointEvent(event: InfopunksEvent, endpointId: string) {
 }
 
 function isChangeType(type: InfopunksEvent['type']) {
-  return type === 'provider.updated' || type === 'metadata.changed' || type === 'category.changed' || type === 'endpoint_count.changed' || type === 'manifest.updated' || type === 'endpoint.updated' || type === 'price.changed' || type === 'schema.changed' || type === 'endpoint.degraded' || type === 'endpoint.failed' || type === 'endpoint.recovered';
+  return type === 'provider.updated' || type === 'metadata.changed' || type === 'category.changed' || type === 'endpoint_count.changed' || type === 'manifest.updated' || type === 'endpoint.updated' || type === 'price.changed' || type === 'schema.changed' || type === 'endpoint.degraded' || type === 'endpoint.failed' || type === 'endpoint.recovered' || type === 'provider.degraded' || type === 'provider.failed' || type === 'provider.recovered';
+}
+
+function providerServiceMonitor(store: IntelligenceStore, provider: Provider): ProviderIntelligenceSummary['service_monitor'] {
+  const latest = store.events
+    .filter((event) => event.entityType === 'provider' && event.entityId === provider.id && isProviderMonitorEvent(event.type))
+    .sort((a, b) => Date.parse(b.observedAt) - Date.parse(a.observedAt) || providerEventPriority(b.type) - providerEventPriority(a.type))[0] ?? null;
+  const payload = latest?.payload ?? {};
+  return {
+    status: providerMonitorStatus(latest),
+    service_url: provider.serviceUrl ?? null,
+    last_checked_at: typeof payload.checked_at === 'string' ? payload.checked_at : latest?.observedAt ?? null,
+    response_time_ms: typeof payload.response_time_ms === 'number' ? payload.response_time_ms : null,
+    status_code: typeof payload.status_code === 'number' ? payload.status_code : null,
+    monitor_mode: payload.monitor_mode === 'safe_metadata' ? 'SAFE METADATA' : 'UNKNOWN',
+    check_type: typeof payload.check_type === 'string' ? payload.check_type : null,
+    safe_mode: payload.safe_mode === true,
+    explanation: 'Safe monitor checks provider service reachability only. It does not execute paid Pay.sh calls.'
+  };
 }
 
 function providerEndpointHealth(store: IntelligenceStore, providerId: string): ProviderIntelligenceSummary['endpoint_health'] {
@@ -148,12 +179,32 @@ function isMonitorEvent(type: InfopunksEvent['type']) {
   return type === 'endpoint.checked' || type === 'endpoint.recovered' || type === 'endpoint.degraded' || type === 'endpoint.failed';
 }
 
+function isProviderMonitorEvent(type: InfopunksEvent['type']) {
+  return type === 'provider.checked' || type === 'provider.reachable' || type === 'provider.recovered' || type === 'provider.degraded' || type === 'provider.failed';
+}
+
 function eventPriority(type: InfopunksEvent['type']) {
   if (type === 'endpoint.failed') return 4;
   if (type === 'endpoint.degraded') return 3;
   if (type === 'endpoint.recovered') return 2;
   if (type === 'endpoint.checked') return 1;
   return 0;
+}
+
+function providerEventPriority(type: InfopunksEvent['type']) {
+  if (type === 'provider.failed') return 5;
+  if (type === 'provider.degraded') return 4;
+  if (type === 'provider.recovered') return 3;
+  if (type === 'provider.reachable') return 2;
+  if (type === 'provider.checked') return 1;
+  return 0;
+}
+
+function providerMonitorStatus(event: InfopunksEvent | null): ProviderIntelligenceSummary['service_monitor']['status'] {
+  if (!event) return 'unknown';
+  if (event.payload.success !== true || event.type === 'provider.failed') return 'failed';
+  if (event.type === 'provider.degraded' || event.payload.status === 'degraded') return 'degraded';
+  return 'reachable';
 }
 
 function riskLevelFromTrust(score: number | null): ProviderIntelligenceSummary['risk_level'] {
@@ -216,5 +267,15 @@ function summaryForEvent(event: InfopunksEvent) {
       return 'Endpoint degraded based on monitor latency or response validity evidence.';
     case 'endpoint.failed':
       return `Endpoint monitor failed: ${event.payload.error_message ?? `HTTP ${event.payload.status_code ?? 'unknown'}`}.`;
+    case 'provider.checked':
+      return `Provider service reachability checked with HTTP ${event.payload.status_code ?? 'unknown'} and latency ${event.payload.response_time_ms ?? 'unknown'}ms.`;
+    case 'provider.reachable':
+      return 'Provider service URL is reachable from safe metadata monitoring.';
+    case 'provider.recovered':
+      return 'Provider service URL recovered after prior degraded or failed reachability evidence.';
+    case 'provider.degraded':
+      return `Provider service reachability degraded with HTTP ${event.payload.status_code ?? 'unknown'} and latency ${event.payload.response_time_ms ?? 'unknown'}ms.`;
+    case 'provider.failed':
+      return `Provider service reachability failed: ${event.payload.error_message ?? `HTTP ${event.payload.status_code ?? 'unknown'}`}.`;
   }
 }

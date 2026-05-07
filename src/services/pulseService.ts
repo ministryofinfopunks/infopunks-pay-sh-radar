@@ -114,7 +114,7 @@ export function pulseSummary(store: IntelligenceStore, generatedAt = new Date().
     timeline: pulseEvents.slice(0, 120),
     trustDeltas,
     signalDeltas,
-    recentDegradations: pulseEvents.filter((event) => event.type === 'endpoint.degraded' || event.type === 'endpoint.failed').slice(0, 20),
+    recentDegradations: pulseEvents.filter((event) => event.type === 'endpoint.degraded' || event.type === 'endpoint.failed' || event.type === 'provider.degraded' || event.type === 'provider.failed').slice(0, 20),
     providerActivity: providerActivity(pulseEvents, generatedAt),
     signalSpikes: signalDeltas.filter((delta) => (delta.delta ?? 0) > 0).sort((a, b) => (b.delta ?? 0) - (a.delta ?? 0)).slice(0, 10),
     data_source: dataSource
@@ -158,7 +158,7 @@ function categoryForEvent(event: InfopunksEvent): EventCategory {
   if (event.type === 'score_assessment_created') return event.entityType === 'signal_assessment' ? 'signal' : 'trust';
   if (event.type === 'pricing_observed' || event.type === 'price.changed') return 'pricing';
   if (event.type === 'pay_sh_catalog_schema_seen' || event.type === 'schema.changed') return 'schema';
-  if (event.type === 'endpoint.checked' || event.type === 'endpoint.recovered' || event.type === 'endpoint.degraded' || event.type === 'endpoint.failed' || event.type === 'endpoint_status_observed') return 'monitoring';
+  if (event.type === 'endpoint.checked' || event.type === 'endpoint.recovered' || event.type === 'endpoint.degraded' || event.type === 'endpoint.failed' || event.type === 'provider.checked' || event.type === 'provider.reachable' || event.type === 'provider.recovered' || event.type === 'provider.degraded' || event.type === 'provider.failed' || event.type === 'endpoint_status_observed') return 'monitoring';
   return 'discovery';
 }
 
@@ -248,6 +248,11 @@ function summaryForEvent(event: InfopunksEvent) {
   if (event.type === 'endpoint.degraded') return `Endpoint degraded with latency ${event.payload.response_time_ms ?? 'unknown'}ms and status ${event.payload.status_code ?? 'unknown'}.`;
   if (event.type === 'endpoint.failed') return `Endpoint failed with error ${event.payload.error ?? event.payload.status_code ?? 'unknown'}.`;
   if (event.type === 'endpoint.recovered') return 'Endpoint recovered after a prior failed or degraded monitor event.';
+  if (event.type === 'provider.checked') return `Service reachability checked with success ${event.payload.success ?? 'unknown'} and latency ${event.payload.response_time_ms ?? 'unknown'}ms.`;
+  if (event.type === 'provider.reachable') return 'Service reachability is healthy from safe metadata monitoring.';
+  if (event.type === 'provider.degraded') return `Service reachability degraded with latency ${event.payload.response_time_ms ?? 'unknown'}ms and HTTP ${event.payload.status_code ?? 'unknown'}.`;
+  if (event.type === 'provider.failed') return `Service reachability failed with error ${event.payload.error_message ?? event.payload.status_code ?? 'unknown'}.`;
+  if (event.type === 'provider.recovered') return 'Service reachability recovered after a prior failed or degraded safe metadata check.';
   if (event.type === 'price.changed') return 'Pricing changed relative to the prior catalog evidence.';
   if (event.type === 'provider.updated') return 'Provider metadata changed relative to the prior catalog evidence.';
   if (event.type === 'provider.discovered') return 'Provider discovered in the Pay.sh catalog.';

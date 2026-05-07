@@ -7,7 +7,7 @@ import { recommendRoute } from '../services/routeService';
 import { semanticSearch } from '../services/searchService';
 import { RouteRecommendationRequestSchema, SearchRequestSchema } from '../schemas/entities';
 import { endpointHistory, findEndpoint, findProvider, providerHistory, providerIntelligence } from '../services/providerIntelligenceService';
-import { endpointMonitorSummary, isMonitorEnabled, monitorIntervalMs, monitorTimeoutMs, runEndpointMonitor } from '../services/endpointMonitorService';
+import { endpointMonitorSummary, isMonitorEnabled, monitorIntervalMs, monitorMaxProviders, monitorTimeoutMs, providerMonitorSummary, runMonitor } from '../services/endpointMonitorService';
 import { loadRuntimeConfig } from '../config/env';
 import { dataSourceState, pulseSummary } from '../services/pulseService';
 
@@ -57,7 +57,12 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     return { data: providerIntelligence(store, provider) };
   });
   app.get('/v1/endpoints', async () => ({ data: store.endpoints }));
-  app.get('/v1/monitor/runs/recent', async () => ({ data: [...(store.monitorRuns ?? [])].sort((a, b) => Date.parse(b.startedAt) - Date.parse(a.startedAt)).slice(0, 20) }));
+  app.get('/v1/monitor/runs/recent', async () => ({ data: [...(store.monitorRuns ?? [])].sort((a, b) => Date.parse(b.startedAt) - Date.parse(a.startedAt)).slice(0, 20).map(monitorRunResponse) }));
+  app.get<{ Params: { id: string } }>('/v1/providers/:id/monitor', async (req, reply) => {
+    const provider = findProvider(store, req.params.id);
+    if (!provider) return reply.code(404).send({ error: 'provider_not_found' });
+    return { data: providerMonitorSummary(store, provider) };
+  });
   app.get<{ Params: { id: string } }>('/v1/endpoints/:id/monitor', async (req, reply) => {
     const endpoint = findEndpoint(store, req.params.id);
     if (!endpoint) return reply.code(404).send({ error: 'endpoint_not_found' });
@@ -82,15 +87,15 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   app.post('/v1/search', async (req, reply) => handleParsed(req.body, SearchRequestSchema, (input) => ({ data: semanticSearch(input, store) }), reply));
   app.post('/v1/recommend-route', async (req, reply) => handleParsed(req.body, RouteRecommendationRequestSchema, (input) => ({ data: recommendRoute(input, store) }), reply));
   app.post('/v1/ingest/pay-sh', async (req, reply) => {
-    if (!isAdmin(config.adminToken, req.headers.authorization, req.headers['x-infopunks-admin-token'])) return reply.code(401).send({ error: 'admin_token_required' });
+    if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'admin_token_required' });
     return handleParsed(req.body, IngestRequestSchema, async (input) => {
       const result = await runPayShIngestion(store, repository, input?.catalogUrl);
       return { data: { run: result.run, emittedEvents: result.events.length, usedFixture: result.usedFixture } };
     }, reply);
   });
   app.post('/v1/monitor/run', async (req, reply) => {
-    if (!isAdmin(config.adminToken, req.headers.authorization, req.headers['x-infopunks-admin-token'])) return reply.code(401).send({ error: 'admin_token_required' });
-    const result = await runEndpointMonitor(store, repository, { timeoutMs: monitorTimeoutMs() });
+    if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'admin_token_required' });
+    const result = await runMonitor(store, repository, { timeoutMs: monitorTimeoutMs(), maxProviders: monitorMaxProviders() });
     return { data: { run: result.run, emittedEvents: result.events.length } };
   });
   app.get('/v1/graph', async () => ({ data: { nodes: graphNodes(store), edges: graphEdges(store) } }));
@@ -105,7 +110,7 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   }
   if (isMonitorEnabled() && monitorIntervalMs() > 0) {
     const timer = setInterval(() => {
-      void runEndpointMonitor(store, repository, { timeoutMs: monitorTimeoutMs() }).catch(() => undefined);
+      void runMonitor(store, repository, { timeoutMs: monitorTimeoutMs(), maxProviders: monitorMaxProviders() }).catch(() => undefined);
     }, monitorIntervalMs());
     timer.unref();
     app.addHook('onClose', async () => clearInterval(timer));
@@ -114,9 +119,26 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   return app;
 }
 
-function isAdmin(adminToken: string | null, authorization: string | undefined, headerToken: string | string[] | undefined) {
-  const token = authorization?.replace(/^Bearer\s+/i, '') ?? (Array.isArray(headerToken) ? headerToken[0] : headerToken);
-  return Boolean(adminToken && token === adminToken);
+function isAdmin(adminToken: string | null, authorization: string | undefined) {
+  const match = authorization?.match(/^Bearer\s+(.+)$/i);
+  return Boolean(adminToken && match?.[1] === adminToken);
+}
+
+function monitorRunResponse(run: NonNullable<IntelligenceStore['monitorRuns']>[number]) {
+  const mode = run.mode ?? (run.source.includes('safe-metadata') ? 'safe_metadata' : 'endpoint_health');
+  const degradedCount = run.degradedCount ?? 0;
+  const reachableCount = run.reachableCount ?? Math.max(0, run.successCount - degradedCount);
+  return {
+    ...run,
+    mode,
+    checked_count: run.checkedCount,
+    reachable_count: reachableCount,
+    degraded_count: degradedCount,
+    failed_count: run.failedCount,
+    skipped_count: run.skippedCount,
+    started_at: run.startedAt,
+    finished_at: run.finishedAt
+  };
 }
 
 function pulse(store: IntelligenceStore) {
