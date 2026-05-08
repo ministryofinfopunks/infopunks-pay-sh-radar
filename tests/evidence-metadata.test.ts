@@ -69,24 +69,8 @@ describe('evidence audit metadata', () => {
       ingested_at: '2026-01-01T00:05:00.000Z',
       catalog_generated_at: '2026-01-01T00:00:00.000Z'
     });
-    expect(provider.evidence[0]).toMatchObject({
-      event_id: expect.any(String),
-      provider_id: 'receipt',
-      endpoint_id: null,
-      observed_at: '2026-01-01T00:05:00.000Z',
-      ingested_at: '2026-01-01T00:05:00.000Z',
-      source: 'pay.sh:test',
-      derivation_reason: expect.any(String),
-      confidence: 1
-    });
-    expect(provider.pricing).toMatchObject({
-      provider_id: 'receipt',
-      endpoint_id: null,
-      observed_at: '2026-01-01T00:05:00.000Z',
-      source: 'pay.sh:test',
-      derivation_reason: expect.any(String),
-      confidence: 1
-    });
+    expect(provider.evidence).toBeUndefined();
+    expect(provider.endpoints).toBeUndefined();
 
     const pulse = await app.inject({ method: 'GET', url: '/v1/pulse/summary' });
     const summary = pulse.json().data;

@@ -24,6 +24,8 @@ const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }
 export async function createApp(preloadedStore?: IntelligenceStore, repository: IntelligenceRepository = defaultRepository()) {
   const config = loadRuntimeConfig();
   const app = Fastify({ logger: false });
+  const ROUTE_TIMEOUT_MS = 2_500;
+  const PROVIDER_LIST_MAX = 100;
   await app.register(cors, {
     origin: config.frontendOrigin
       ? (origin, callback) => callback(null, !origin || origin === config.frontendOrigin)
@@ -41,6 +43,7 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     config.payShIngestIntervalMs,
     { includePropagation: false, includeInterpretations: true, propagationFallback: cachedPropagation }
   ).interpretations;
+  let cachedPulseDashboard = buildPulseDashboard(store, cachedInterpretations, bootstrapped);
 
   if (!preloadedStore) {
     const bootstrapStartMs = Date.now();
@@ -68,18 +71,31 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     providerCount: store.providers.length,
     endpointCount: store.endpoints.length
   }));
-  app.get('/status', async () => ({
+  app.get('/status', async () => withRouteTimeout('/status', ROUTE_TIMEOUT_MS, () => ({
     ok: true,
     catalogSource: config.payShCatalogSource,
     ingestionEnabled: config.ingestionEnabled,
     dbMode: config.databaseUrl ? 'postgres' : 'memory',
     lastIngestedAt: store.dataSource?.last_ingested_at ?? null,
     providerCount: store.providers.length,
-    endpointCount: store.endpoints.length,
-    dataSource: store.dataSource ?? null
-  }));
+    endpointCount: safeStoreEndpointCount(store),
+    catalog_status: catalogStatusFromDataSource(store.dataSource)
+  }), () => ({
+    ok: true,
+    catalogSource: config.payShCatalogSource,
+    ingestionEnabled: config.ingestionEnabled,
+    dbMode: config.databaseUrl ? 'postgres' : 'memory',
+    lastIngestedAt: store.dataSource?.last_ingested_at ?? null,
+    providerCount: store.providers.length,
+    endpointCount: safeStoreEndpointCount(store),
+    catalog_status: 'warming_up'
+  })));
   app.get('/version', async () => ({ service: 'infopunks-pay-sh-radar', version: config.version }));
-  app.get('/v1/pulse', async () => ({ data: await pulseWithTimeout(store, () => cachedInterpretations, bootstrapped) }));
+  app.get('/v1/pulse', async () => withRouteTimeout('/v1/pulse', ROUTE_TIMEOUT_MS, () => ({
+    data: pulseDashboardResponse(cachedPulseDashboard, store)
+  }), () => ({
+    data: pulseWarmingUpFallback(store, bootstrapped, 'pulse_timeout')
+  })));
   app.get('/v1/pulse/summary', async () => ({ data: pulseSummary(store, new Date().toISOString(), config.payShIngestIntervalMs, { includePropagation: false, includeInterpretations: false, propagationFallback: cachedPropagation, interpretationsFallback: cachedInterpretations }) }));
   app.get('/v1/propagation', async () => ({ data: cachedPropagation }));
   app.get<{ Params: { cluster_id: string } }>('/v1/propagation/:cluster_id', async (req, reply) => {
@@ -99,17 +115,11 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     };
   });
   app.get('/v1/events/recent', async () => ({ data: [...store.events].sort((a, b) => Date.parse(b.observedAt) - Date.parse(a.observedAt)).slice(0, 100).map((event) => ({ ...event, ...classifyEventSeverity(event, store.events) })) }));
-  app.get('/v1/providers', async () => ({ data: store.providers.map((provider) => {
-    const trust = latestByAssessedAt(store.trustAssessments.filter((item) => item.entityId === provider.id));
-    const signal = latestByAssessedAt(store.signalAssessments.filter((item) => item.entityId === provider.id));
-    return {
-      ...provider,
-      ...classifyProviderDossierSeverity(provider, trust ?? null, signal ?? null, store.events),
-      latestTrustScore: trust?.score ?? null,
-      latestTrustGrade: trust?.grade ?? 'unknown',
-      latestSignalScore: signal?.score ?? null
-    };
-  }) }));
+  app.get('/v1/providers', async () => withRouteTimeout('/v1/providers', ROUTE_TIMEOUT_MS, () => ({
+    data: lightweightProviders(store, PROVIDER_LIST_MAX)
+  }), () => ({
+    data: lightweightProviders(store, 25)
+  })));
   app.get('/v1/providers/featured', async () => ({ data: featuredProviderRotation(store, config.featuredProviderRotationMs) }));
   app.get<{ Params: { id: string } }>('/v1/providers/:id', async (req, reply) => {
     const provider = findProvider(store, req.params.id);
@@ -270,6 +280,7 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
       const interpretationStartMs = Date.now();
       cachedInterpretations = pulseSummary(store, generatedAt, config.payShIngestIntervalMs, { includePropagation: false, includeInterpretations: true, propagationFallback: cachedPropagation }).interpretations;
       logTiming('interpretation_build', interpretationStartMs);
+      cachedPulseDashboard = buildPulseDashboard(store, cachedInterpretations, bootstrapped, generatedAt);
       console.log(JSON.stringify({
         event: 'ingestion_state',
         catalogSource: config.payShCatalogSource,
@@ -281,6 +292,22 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
         catalogStatus: catalogStatusFromDataSource(store.dataSource)
       }));
     }, 0);
+  }
+
+  async function withRouteTimeout<T>(route: '/status' | '/v1/pulse' | '/v1/providers', timeoutMs: number, work: () => T | Promise<T>, fallback: () => T): Promise<T> {
+    const startedAtMs = Date.now();
+    console.log(JSON.stringify({ event: 'route_timing_start', route, started_at: new Date(startedAtMs).toISOString() }));
+    try {
+      const result = await Promise.race([
+        Promise.resolve().then(work),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('route_timeout')), timeoutMs))
+      ]);
+      console.log(JSON.stringify({ event: 'route_timing_end', route, duration_ms: Date.now() - startedAtMs, timed_out: false }));
+      return result;
+    } catch {
+      console.log(JSON.stringify({ event: 'route_timing_end', route, duration_ms: Date.now() - startedAtMs, timed_out: true }));
+      return fallback();
+    }
   }
 }
 
@@ -320,15 +347,14 @@ function monitorRunResponse(run: NonNullable<IntelligenceStore['monitorRuns']>[n
   };
 }
 
-function pulse(store: IntelligenceStore, interpretations: unknown[], bootstrapped: boolean) {
+function buildPulseDashboard(store: IntelligenceStore, interpretations: unknown[], bootstrapped: boolean, generatedAt = new Date().toISOString()) {
   const knownTrust = store.trustAssessments.map((item) => item.score).filter((score): score is number => score !== null);
   const knownSignal = store.signalAssessments.map((item) => item.score).filter((score): score is number => score !== null);
-  const pulseStartMs = Date.now();
-  const summary = pulseSummary(store);
-  logTiming('pulse_generation', pulseStartMs);
+  const endpointCount = safeStoreEndpointCount(store);
+  const endpointMetadataAvailable = endpointCount > 0;
   return {
     providerCount: store.providers.length,
-    endpointCount: store.providers.reduce((sum, provider) => sum + provider.endpointCount, 0),
+    endpointCount,
     eventCount: store.events.length,
     averageTrust: avg(knownTrust),
     averageSignal: avg(knownSignal),
@@ -347,39 +373,46 @@ function pulse(store: IntelligenceStore, interpretations: unknown[], bootstrappe
     data_source: dataSourceState(store),
     catalog_status: catalogStatusFromDataSource(store.dataSource),
     catalog_error: sanitizeCatalogError(store.dataSource?.error ?? null),
-    updatedAt: summary.generatedAt,
+    endpoint_metadata: {
+      available: endpointMetadataAvailable,
+      mode: endpointMetadataAvailable ? 'full' : 'unavailable',
+      reason: endpointMetadataAvailable ? null : 'endpoint_count_zero_or_missing'
+    },
+    updatedAt: generatedAt,
     bootstrapped
   };
 }
 
-async function pulseWithTimeout(store: IntelligenceStore, interpretations: () => unknown[], bootstrapped: boolean) {
-  const startedAt = Date.now();
-  try {
-    return await Promise.race([
-      Promise.resolve().then(() => pulse(store, interpretations(), bootstrapped)),
-      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('pulse_timeout')), 3_000))
-    ]);
-  } catch {
-    return {
-      providerCount: store.providers.length,
-      endpointCount: store.providers.reduce((sum, provider) => sum + provider.endpointCount, 0),
-      eventCount: store.events.length,
-      averageTrust: null,
-      averageSignal: null,
-      hottestNarrative: null,
-      topTrust: [],
-      topSignal: [],
-      unknownTelemetry: {},
-      interpretations: [],
-      data_source: dataSourceState(store),
-      catalog_status: catalogStatusFromDataSource(store.dataSource),
-      catalog_error: sanitizeCatalogError(store.dataSource?.error ?? 'pulse_timeout'),
-      updatedAt: new Date().toISOString(),
-      bootstrapped,
-      degraded: true,
-      duration_ms: Date.now() - startedAt
-    };
-  }
+function pulseDashboardResponse(cachedPulseDashboard: ReturnType<typeof buildPulseDashboard> | null, store: IntelligenceStore) {
+  if (cachedPulseDashboard) return cachedPulseDashboard;
+  return pulseWarmingUpFallback(store, false, 'pulse_cache_missing');
+}
+
+function pulseWarmingUpFallback(store: IntelligenceStore, bootstrapped: boolean, error: string) {
+  const endpointCount = safeStoreEndpointCount(store);
+  return {
+    providerCount: store.providers.length,
+    endpointCount,
+    eventCount: store.events.length,
+    averageTrust: null,
+    averageSignal: null,
+    hottestNarrative: null,
+    topTrust: [],
+    topSignal: [],
+    unknownTelemetry: {},
+    interpretations: [],
+    data_source: dataSourceState(store),
+    catalog_status: 'warming_up',
+    catalog_error: sanitizeCatalogError(error),
+    endpoint_metadata: {
+      available: endpointCount > 0,
+      mode: endpointCount > 0 ? 'full' : 'unavailable',
+      reason: endpointCount > 0 ? null : 'endpoint_count_zero_or_missing'
+    },
+    updatedAt: new Date().toISOString(),
+    bootstrapped,
+    warming_up: true
+  };
 }
 
 function summarizeNarrative(item: IntelligenceStore['narratives'][number] | null) {
@@ -410,6 +443,58 @@ function avg(values: number[]) {
   return values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : null;
 }
 
+function lightweightProviders(store: IntelligenceStore, maxItems: number) {
+  const trustByProvider = latestAssessmentsByProvider(store.trustAssessments);
+  const signalByProvider = latestAssessmentsByProvider(store.signalAssessments);
+  const endpointCountZero = safeStoreEndpointCount(store) === 0;
+  return store.providers.slice(0, maxItems).map((provider) => {
+    const trust = trustByProvider.get(provider.id) ?? null;
+    const signal = signalByProvider.get(provider.id) ?? null;
+    const severity = classifyProviderDossierSeverity(provider, trust, signal, store.events);
+    return {
+      id: provider.id,
+      provider_id: provider.id,
+      fqn: provider.fqn ?? provider.namespace ?? null,
+      name: provider.name,
+      category: provider.category,
+      observed_at: provider.observed_at ?? provider.observedAt ?? provider.lastSeenAt ?? null,
+      ingested_at: provider.ingested_at ?? provider.ingestedAt ?? provider.lastSeenAt ?? null,
+      catalog_generated_at: provider.catalog_generated_at ?? provider.catalogGeneratedAt ?? null,
+      trust: {
+        score: trust?.score ?? null,
+        grade: trust?.grade ?? 'unknown'
+      },
+      signal: {
+        score: signal?.score ?? null
+      },
+      severity: severity.severity,
+      risk: severity.severity_reason,
+      endpointCount: safeProviderEndpointCount(provider),
+      endpointMetadata: {
+        available: endpointCountZero ? false : !provider.endpointMetadataPartial,
+        reason: endpointCountZero ? 'endpoint_count_zero_or_missing' : provider.endpointMetadataPartial ? 'partial_from_live_catalog' : null
+      }
+    };
+  });
+}
+
+function latestAssessmentsByProvider<T extends { entityId: string; assessedAt: string }>(items: T[]) {
+  const byProvider = new Map<string, T>();
+  for (const item of items) {
+    const existing = byProvider.get(item.entityId);
+    if (!existing || Date.parse(item.assessedAt) > Date.parse(existing.assessedAt)) byProvider.set(item.entityId, item);
+  }
+  return byProvider;
+}
+
+function safeProviderEndpointCount(provider: IntelligenceStore['providers'][number]) {
+  return typeof provider.endpointCount === 'number' && Number.isFinite(provider.endpointCount) ? Math.max(0, provider.endpointCount) : 0;
+}
+
+function safeStoreEndpointCount(store: IntelligenceStore) {
+  return store.providers.reduce((sum, provider) => sum + safeProviderEndpointCount(provider), 0);
+}
+
 function copyStoreInto(target: IntelligenceStore, source: IntelligenceStore) {
   target.events = source.events;
   target.providers = source.providers;
@@ -437,10 +522,6 @@ function catalogStatusFromDataSource(dataSource: IntelligenceStore['dataSource']
 function sanitizeCatalogError(value: string | null) {
   if (!value) return null;
   return value.slice(0, 240);
-}
-
-function latestByAssessedAt<T extends { assessedAt: string }>(items: T[]) {
-  return [...items].sort((a, b) => Date.parse(b.assessedAt) - Date.parse(a.assessedAt))[0] ?? null;
 }
 
 function handleParsed<T>(body: unknown, schema: z.ZodSchema<T>, next: (input: T) => unknown, reply: FastifyReply) {
