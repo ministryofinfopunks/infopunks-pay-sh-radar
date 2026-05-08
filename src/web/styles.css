@@ -76,6 +76,7 @@ h3 { font-size: 34px; letter-spacing: -.04em; }
 .auto-rotate-control input { width: 14px; height: 14px; padding: 0; accent-color: var(--blue); }
 .auto-rotate-control small { flex: 1 1 100%; font-size: 11px; line-height: 1.25; }
 .featured-label { border: 1px solid rgba(126,255,176,.25); background: rgba(126,255,176,.07); color: var(--green); border-radius: 999px; padding: 6px 9px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; white-space: nowrap; }
+.resume-rotate { border: 1px solid rgba(126,255,176,.25); background: rgba(126,255,176,.055); color: var(--green); border-radius: 999px; padding: 6px 9px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; cursor: pointer; }
 .panel-caption { margin: 6px 0 0; color: #a9c3b1; font-size: 12px; line-height: 1.45; }
 .section-kicker { margin: 0 0 5px; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .14em; }
 .metric span, .metric small { color: var(--muted); }
