@@ -10,11 +10,28 @@ import { resolveEventObservedAt } from './eventTimestamp';
 
 export type IntelligenceStore = IntelligenceSnapshot;
 
+export function emptyIntelligenceStore(): IntelligenceStore {
+  return { events: [], providers: [], endpoints: [], trustAssessments: [], signalAssessments: [], narratives: [], ingestionRuns: [], monitorRuns: [] };
+}
+
 export async function createIntelligenceStore(repository: IntelligenceRepository = defaultRepository()): Promise<IntelligenceStore> {
   const existing = await repository.loadSnapshot();
   if (existing) return normalizeSnapshot(existing);
 
-  const { items, source, dataSource } = await loadPayShCatalog();
+  const { items, source, dataSource } = await loadPayShCatalog(undefined, {
+    catalogSource: process.env.PAYSH_CATALOG_SOURCE === 'live' ? 'live' : 'fixture',
+    allowFixtureFallback: process.env.PAYSH_ALLOW_FIXTURE_FALLBACK === 'true' || process.env.NODE_ENV !== 'production'
+  });
+  if (items.length === 0 && dataSource.mode === 'live_pay_sh_catalog' && dataSource.error) {
+    const empty = emptySnapshot();
+    empty.dataSource = {
+      ...dataSource,
+      error: dataSource.error,
+      last_ingested_at: new Date().toISOString()
+    };
+    await repository.saveSnapshot(empty);
+    return empty;
+  }
   const { snapshot: ingested } = applyPayShCatalogIngestion(emptySnapshot(), items, { source, dataSource });
   const snapshot = recomputeAssessments(ingested);
   await repository.saveSnapshot(snapshot);
@@ -22,12 +39,24 @@ export async function createIntelligenceStore(repository: IntelligenceRepository
 }
 
 export async function runPayShIngestion(store: IntelligenceStore, repository: IntelligenceRepository, catalogUrl?: string) {
-  const { items, source, usedFixture, dataSource } = await loadPayShCatalog(catalogUrl);
+  const { items, source, usedFixture, dataSource } = await loadPayShCatalog(catalogUrl, {
+    catalogSource: process.env.PAYSH_CATALOG_SOURCE === 'live' ? 'live' : 'fixture',
+    allowFixtureFallback: process.env.PAYSH_ALLOW_FIXTURE_FALLBACK === 'true' || process.env.NODE_ENV !== 'production'
+  });
+  if (items.length === 0 && dataSource.mode === 'live_pay_sh_catalog' && dataSource.error) {
+    store.dataSource = {
+      ...dataSource,
+      error: dataSource.error,
+      last_ingested_at: new Date().toISOString()
+    };
+    await repository.saveSnapshot(store);
+    return { run: null, events: [], usedFixture: false, liveFetchFailed: true };
+  }
   const { snapshot, run, events } = applyPayShCatalogIngestion(store, items, { source, dataSource });
   const recomputed = recomputeAssessments(snapshot);
   replaceStore(store, recomputed);
   await repository.saveSnapshot(store);
-  return { run, events, usedFixture };
+  return { run, events, usedFixture, liveFetchFailed: false };
 }
 
 export function recomputeAssessments(snapshot: IntelligenceSnapshot): IntelligenceSnapshot {
@@ -58,7 +87,7 @@ function replaceStore(target: IntelligenceStore, source: IntelligenceStore) {
 }
 
 function emptySnapshot(): IntelligenceSnapshot {
-  return { events: [], providers: [], endpoints: [], trustAssessments: [], signalAssessments: [], narratives: [], ingestionRuns: [], monitorRuns: [] };
+  return emptyIntelligenceStore();
 }
 
 function appendScoreAssessmentEvents(events: InfopunksEvent[], trustAssessments: TrustAssessment[], signalAssessments: SignalAssessment[]) {

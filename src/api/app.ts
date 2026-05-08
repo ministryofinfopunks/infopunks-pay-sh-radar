@@ -4,7 +4,7 @@ import { createReadStream, existsSync } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve } from 'node:path';
 import { z } from 'zod';
-import { createIntelligenceStore, defaultRepository, IntelligenceStore, runPayShIngestion } from '../services/intelligenceStore';
+import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, IntelligenceStore, runPayShIngestion } from '../services/intelligenceStore';
 import { IntelligenceRepository } from '../persistence/repository';
 import { recommendRoute } from '../services/routeService';
 import { semanticSearch } from '../services/searchService';
@@ -12,7 +12,7 @@ import { RouteRecommendationRequestSchema, SearchRequestSchema } from '../schema
 import { endpointHistory, findEndpoint, findProvider, providerHistory, providerIntelligence } from '../services/providerIntelligenceService';
 import { endpointMonitorSummary, isMonitorEnabled, monitorIntervalMs, monitorMaxProviders, monitorTimeoutMs, providerMonitorSummary, runMonitor } from '../services/endpointMonitorService';
 import { loadRuntimeConfig } from '../config/env';
-import { dataSourceState, pulseSummary } from '../services/pulseService';
+import { dataSourceState, PULSE_CAPS, pulseSummary } from '../services/pulseService';
 import { featuredProviderRotation } from '../services/featuredProviderService';
 import { classifyEventSeverity, classifyGraphSeverity, classifyNarrativeClusterSeverity, classifyProviderDossierSeverity } from '../engines/severityEngine';
 import { analyzePropagation } from '../services/propagationService';
@@ -32,15 +32,58 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     allowedHeaders: ['content-type', 'authorization'],
     preflight: true
   });
-  const store = preloadedStore ?? await createIntelligenceStore(repository);
+  const store = preloadedStore ?? emptyIntelligenceStore();
+  let bootstrapped = Boolean(preloadedStore);
+  let cachedPropagation = analyzePropagation(store);
+  let cachedInterpretations = pulseSummary(
+    store,
+    new Date().toISOString(),
+    config.payShIngestIntervalMs,
+    { includePropagation: false, includeInterpretations: true, propagationFallback: cachedPropagation }
+  ).interpretations;
 
-  app.get('/health', async () => ({ ok: true, service: 'infopunks-pay-sh-radar', role: 'Cognitive Coordination Layer above Pay.sh', persistence: config.databaseUrl ? 'postgres' : 'memory' }));
+  if (!preloadedStore) {
+    const bootstrapStartMs = Date.now();
+    void createIntelligenceStore(repository)
+      .then((loadedStore) => {
+        copyStoreInto(store, loadedStore);
+        bootstrapped = true;
+        logTiming('database_connect', bootstrapStartMs);
+        logTiming('catalog_load', bootstrapStartMs);
+        refreshBackgroundAnalytics();
+      })
+      .catch(() => undefined);
+  } else {
+    refreshBackgroundAnalytics();
+  }
+
+  app.get('/health', async () => ({
+    ok: true,
+    service: 'infopunks-pay-sh-radar',
+    role: 'Cognitive Coordination Layer above Pay.sh',
+    persistence: config.databaseUrl ? 'postgres' : 'memory',
+    catalogSource: config.payShCatalogSource,
+    ingestionEnabled: config.ingestionEnabled,
+    lastIngestedAt: store.dataSource?.last_ingested_at ?? null,
+    providerCount: store.providers.length,
+    endpointCount: store.endpoints.length
+  }));
+  app.get('/status', async () => ({
+    ok: true,
+    catalogSource: config.payShCatalogSource,
+    ingestionEnabled: config.ingestionEnabled,
+    dbMode: config.databaseUrl ? 'postgres' : 'memory',
+    lastIngestedAt: store.dataSource?.last_ingested_at ?? null,
+    providerCount: store.providers.length,
+    endpointCount: store.endpoints.length,
+    dataSource: store.dataSource ?? null
+  }));
   app.get('/version', async () => ({ service: 'infopunks-pay-sh-radar', version: config.version }));
-  app.get('/v1/pulse', async () => ({ data: pulse(store) }));
-  app.get('/v1/pulse/summary', async () => ({ data: pulseSummary(store, new Date().toISOString(), config.payShIngestIntervalMs) }));
-  app.get('/v1/propagation', async () => ({ data: analyzePropagation(store) }));
+  app.get('/v1/pulse', async () => ({ data: await pulseWithTimeout(store, () => cachedInterpretations, bootstrapped) }));
+  app.get('/v1/pulse/summary', async () => ({ data: pulseSummary(store, new Date().toISOString(), config.payShIngestIntervalMs, { includePropagation: false, includeInterpretations: false, propagationFallback: cachedPropagation, interpretationsFallback: cachedInterpretations }) }));
+  app.get('/v1/propagation', async () => ({ data: cachedPropagation }));
   app.get<{ Params: { cluster_id: string } }>('/v1/propagation/:cluster_id', async (req, reply) => {
-    const incident = resolvePropagationIncident(store, req.params.cluster_id);
+    const incident = resolvePropagationIncident(store, req.params.cluster_id, new Date().toISOString(), cachedPropagation, cachedInterpretations);
     if (!incident) return reply.code(404).send({ error: 'propagation_cluster_not_found' });
     return { data: incident };
   });
@@ -117,29 +160,31 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'admin_token_required' });
     return handleParsed(req.body, IngestRequestSchema, async (input) => {
       const result = await runPayShIngestion(store, repository, input?.catalogUrl);
-      return { data: { run: result.run, emittedEvents: result.events.length, usedFixture: result.usedFixture } };
+      refreshBackgroundAnalytics();
+      return { data: { run: result.run, emittedEvents: result.events.length, usedFixture: result.usedFixture, liveFetchFailed: result.liveFetchFailed } };
     }, reply);
   });
   app.post('/v1/monitor/run', async (req, reply) => {
     if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'admin_token_required' });
     const result = await runMonitor(store, repository, { timeoutMs: monitorTimeoutMs(), maxProviders: monitorMaxProviders() });
+    refreshBackgroundAnalytics();
     return { data: { run: result.run, emittedEvents: result.events.length } };
   });
   app.get('/v1/graph', async () => ({ data: { nodes: graphNodes(store), edges: graphEdges(store), evidence: graphReceipt(store) } }));
   app.get<{ Params: { id: string } }>('/interpretations/:id', async (req, reply) => {
-    const summary = pulseSummary(store);
+    const summary = pulseSummary(store, new Date().toISOString(), config.payShIngestIntervalMs, { includePropagation: false, includeInterpretations: false, propagationFallback: cachedPropagation, interpretationsFallback: cachedInterpretations });
     const interpretation = summary.interpretations.find((item) => item.interpretation_id === req.params.id);
     if (!interpretation) return reply.code(404).type('text/html; charset=utf-8').send(renderInterpretationNotFoundPage(req, req.params.id, summary.generatedAt));
     return reply.type('text/html; charset=utf-8').send(renderInterpretationPage(req, interpretation, summary));
   });
   app.get<{ Params: { event_id: string } }>('/v1/receipts/:event_id', async (req, reply) => {
-    const summary = pulseSummary(store);
+    const summary = pulseSummary(store, new Date().toISOString(), config.payShIngestIntervalMs, { includePropagation: false, includeInterpretations: false, propagationFallback: cachedPropagation, interpretationsFallback: cachedInterpretations });
     const event = summary.timeline.find((item) => item.id === req.params.event_id || item.event_id === req.params.event_id);
     if (!event) return reply.code(404).send({ error: 'receipt_not_found' });
 
     const providerId = event.provider_id ?? event.providerId ?? null;
     const provider = providerId ? findProvider(store, providerId) : null;
-    const propagation = analyzePropagation(store);
+    const propagation = cachedPropagation;
     const interpretations = summary.interpretations
       .filter((item) => item.supporting_event_ids.includes(event.id) || item.supporting_event_ids.includes(event.event_id ?? ''));
 
@@ -198,23 +243,45 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     });
   }
 
-  const intervalMs = config.payShIngestIntervalMs ?? 0;
+  const intervalMs = config.ingestionEnabled ? (config.payShIngestIntervalMs ?? 0) : 0;
   if (intervalMs > 0) {
     const timer = setInterval(() => {
-      void runPayShIngestion(store, repository).catch(() => undefined);
+      void runPayShIngestion(store, repository).then(() => refreshBackgroundAnalytics()).catch(() => undefined);
     }, intervalMs);
     timer.unref();
     app.addHook('onClose', async () => clearInterval(timer));
   }
   if (isMonitorEnabled() && monitorIntervalMs() > 0) {
     const timer = setInterval(() => {
-      void runMonitor(store, repository, { timeoutMs: monitorTimeoutMs(), maxProviders: monitorMaxProviders() }).catch(() => undefined);
+      void runMonitor(store, repository, { timeoutMs: monitorTimeoutMs(), maxProviders: monitorMaxProviders() }).then(() => refreshBackgroundAnalytics()).catch(() => undefined);
     }, monitorIntervalMs());
     timer.unref();
     app.addHook('onClose', async () => clearInterval(timer));
   }
 
   return app;
+
+  function refreshBackgroundAnalytics() {
+    setTimeout(() => {
+      const generatedAt = new Date().toISOString();
+      const propagationStartMs = Date.now();
+      cachedPropagation = analyzePropagation(store, generatedAt);
+      logTiming('propagation_build', propagationStartMs);
+      const interpretationStartMs = Date.now();
+      cachedInterpretations = pulseSummary(store, generatedAt, config.payShIngestIntervalMs, { includePropagation: false, includeInterpretations: true, propagationFallback: cachedPropagation }).interpretations;
+      logTiming('interpretation_build', interpretationStartMs);
+      console.log(JSON.stringify({
+        event: 'ingestion_state',
+        catalogSource: config.payShCatalogSource,
+        ingestionEnabled: config.ingestionEnabled,
+        dbMode: config.databaseUrl ? 'postgres' : 'memory',
+        providerCount: store.providers.length,
+        endpointCount: store.endpoints.length,
+        lastIngestedAt: store.dataSource?.last_ingested_at ?? null,
+        catalogStatus: catalogStatusFromDataSource(store.dataSource)
+      }));
+    }, 0);
+  }
 }
 
 function contentTypeFor(path: string) {
@@ -253,19 +320,21 @@ function monitorRunResponse(run: NonNullable<IntelligenceStore['monitorRuns']>[n
   };
 }
 
-function pulse(store: IntelligenceStore) {
+function pulse(store: IntelligenceStore, interpretations: unknown[], bootstrapped: boolean) {
   const knownTrust = store.trustAssessments.map((item) => item.score).filter((score): score is number => score !== null);
   const knownSignal = store.signalAssessments.map((item) => item.score).filter((score): score is number => score !== null);
+  const pulseStartMs = Date.now();
   const summary = pulseSummary(store);
+  logTiming('pulse_generation', pulseStartMs);
   return {
     providerCount: store.providers.length,
     endpointCount: store.providers.reduce((sum, provider) => sum + provider.endpointCount, 0),
     eventCount: store.events.length,
     averageTrust: avg(knownTrust),
     averageSignal: avg(knownSignal),
-    hottestNarrative: store.narratives[0] ?? null,
-    topTrust: [...store.trustAssessments].filter((item) => item.score !== null).sort((a, b) => (b.score ?? 0) - (a.score ?? 0)).slice(0, 5),
-    topSignal: [...store.signalAssessments].filter((item) => item.score !== null).sort((a, b) => (b.score ?? 0) - (a.score ?? 0)).slice(0, 5),
+    hottestNarrative: summarizeNarrative(store.narratives[0] ?? null),
+    topTrust: [...store.trustAssessments].filter((item) => item.score !== null).sort((a, b) => (b.score ?? 0) - (a.score ?? 0)).slice(0, 5).map((item) => summarizeAssessment(item)),
+    topSignal: [...store.signalAssessments].filter((item) => item.score !== null).sort((a, b) => (b.score ?? 0) - (a.score ?? 0)).slice(0, 5).map((item) => summarizeAssessment(item)),
     unknownTelemetry: {
       uptime: store.trustAssessments.filter((item) => item.components.uptime === null).length,
       latency: store.trustAssessments.filter((item) => item.components.latency === null).length,
@@ -274,14 +343,100 @@ function pulse(store: IntelligenceStore) {
       socialVelocity: store.signalAssessments.filter((item) => item.components.socialVelocity === null).length,
       onchainLiquidityResonance: store.signalAssessments.filter((item) => item.components.onchainLiquidityResonance === null).length
     },
-    interpretations: summary.interpretations,
+    interpretations,
     data_source: dataSourceState(store),
-    updatedAt: summary.generatedAt
+    catalog_status: catalogStatusFromDataSource(store.dataSource),
+    catalog_error: sanitizeCatalogError(store.dataSource?.error ?? null),
+    updatedAt: summary.generatedAt,
+    bootstrapped
+  };
+}
+
+async function pulseWithTimeout(store: IntelligenceStore, interpretations: () => unknown[], bootstrapped: boolean) {
+  const startedAt = Date.now();
+  try {
+    return await Promise.race([
+      Promise.resolve().then(() => pulse(store, interpretations(), bootstrapped)),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('pulse_timeout')), 3_000))
+    ]);
+  } catch {
+    return {
+      providerCount: store.providers.length,
+      endpointCount: store.providers.reduce((sum, provider) => sum + provider.endpointCount, 0),
+      eventCount: store.events.length,
+      averageTrust: null,
+      averageSignal: null,
+      hottestNarrative: null,
+      topTrust: [],
+      topSignal: [],
+      unknownTelemetry: {},
+      interpretations: [],
+      data_source: dataSourceState(store),
+      catalog_status: catalogStatusFromDataSource(store.dataSource),
+      catalog_error: sanitizeCatalogError(store.dataSource?.error ?? 'pulse_timeout'),
+      updatedAt: new Date().toISOString(),
+      bootstrapped,
+      degraded: true,
+      duration_ms: Date.now() - startedAt
+    };
+  }
+}
+
+function summarizeNarrative(item: IntelligenceStore['narratives'][number] | null) {
+  if (!item) return null;
+  return {
+    id: item.id,
+    title: item.title,
+    heat: item.heat ?? null,
+    momentum: item.momentum ?? null,
+    providerIds: [],
+    keywords: [],
+    summary: item.summary
+  };
+}
+
+function summarizeAssessment(item: IntelligenceStore['trustAssessments'][number] | IntelligenceStore['signalAssessments'][number]) {
+  const evidenceEventIds = Object.values(item.evidence).flat().map((entry) => entry.eventId).slice(0, PULSE_CAPS.maxEvidenceIdsInline);
+  return {
+    entityId: item.entityId,
+    score: item.score,
+    grade: 'grade' in item ? item.grade : undefined,
+    narratives: 'narratives' in item ? item.narratives.slice(0, 5) : undefined,
+    evidenceEventIds
   };
 }
 
 function avg(values: number[]) {
   return values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : null;
+}
+
+function copyStoreInto(target: IntelligenceStore, source: IntelligenceStore) {
+  target.events = source.events;
+  target.providers = source.providers;
+  target.endpoints = source.endpoints;
+  target.trustAssessments = source.trustAssessments;
+  target.signalAssessments = source.signalAssessments;
+  target.narratives = source.narratives;
+  target.ingestionRuns = source.ingestionRuns;
+  target.monitorRuns = source.monitorRuns;
+  target.dataSource = source.dataSource;
+}
+
+function logTiming(stage: string, startedAtMs: number) {
+  console.log(JSON.stringify({ event: 'timing', stage, duration_ms: Date.now() - startedAtMs }));
+}
+
+function catalogStatusFromDataSource(dataSource: IntelligenceStore['dataSource']) {
+  if (!dataSource) return 'warming_up';
+  if (dataSource.mode === 'live_pay_sh_catalog' && dataSource.error) return 'live_fetch_failed';
+  if (dataSource.mode === 'live_pay_sh_catalog') return 'live_ok';
+  if (dataSource.used_fixture) return 'fixture_fallback';
+  return 'unknown';
+}
+
+function sanitizeCatalogError(value: string | null) {
+  if (!value) return null;
+  return value.slice(0, 240);
 }
 
 function latestByAssessedAt<T extends { assessedAt: string }>(items: T[]) {

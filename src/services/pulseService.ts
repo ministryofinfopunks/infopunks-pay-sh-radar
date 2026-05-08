@@ -35,6 +35,13 @@ export type PulseSummary = {
   data_source: DataSourceState;
 };
 
+export type PulseSummaryOptions = {
+  includePropagation?: boolean;
+  includeInterpretations?: boolean;
+  propagationFallback?: PropagationAnalysis;
+  interpretationsFallback?: EcosystemInterpretation[];
+};
+
 export type LatestIngestionRun = {
   startedAt: string;
   finishedAt: string | null;
@@ -135,13 +142,28 @@ export type AuditReceipt = {
 };
 
 const categories: EventCategory[] = ['discovery', 'trust', 'monitoring', 'pricing', 'schema', 'signal'];
+export const PULSE_CAPS = {
+  maxPulseRows: 50,
+  maxTrustChanges: 10,
+  maxSignalChanges: 10,
+  maxProviderActivityRows: 10,
+  maxDegradationRows: 10,
+  maxEvidenceIdsInline: 10
+} as const;
 const windows: Record<RollingWindow, number> = {
   '1h': 60 * 60 * 1000,
   '24h': 24 * 60 * 60 * 1000,
   '7d': 7 * 24 * 60 * 60 * 1000
 };
 
-export function pulseSummary(store: IntelligenceStore, generatedAt = new Date().toISOString(), ingestIntervalMs: number | null = null): PulseSummary {
+export function pulseSummary(
+  store: IntelligenceStore,
+  generatedAt = new Date().toISOString(),
+  ingestIntervalMs: number | null = null,
+  options: PulseSummaryOptions = {}
+): PulseSummary {
+  const includePropagation = options.includePropagation ?? true;
+  const includeInterpretations = options.includeInterpretations ?? true;
   const orderedEvents = [...store.events].sort((a, b) => Date.parse(resolveEventObservedAt(b, b.observedAt) ?? b.observedAt) - Date.parse(resolveEventObservedAt(a, a.observedAt) ?? a.observedAt));
   const providerNames = new Map(store.providers.map((provider) => [provider.id, provider.name]));
   const pulseEvents = orderedEvents.map((event) => toPulseEvent(event, providerNames, store.events));
@@ -153,14 +175,29 @@ export function pulseSummary(store: IntelligenceStore, generatedAt = new Date().
   for (const event of pulseEvents) {
     const group = eventGroups[event.category];
     group.count += 1;
-    if (group.recent.length < 20) group.recent.push(event);
+    if (group.recent.length < PULSE_CAPS.maxPulseRows) group.recent.push(event);
   }
 
-  const trustDeltas = scoreDeltas(pulseEvents, 'trust_assessment', providerNames).slice(0, 20);
-  const signalDeltas = scoreDeltas(pulseEvents, 'signal_assessment', providerNames).slice(0, 20);
-  const recentDegradations = pulseEvents.filter((event) => event.type === 'endpoint.degraded' || event.type === 'endpoint.failed' || event.type === 'provider.degraded' || event.type === 'provider.failed').sort(compareSeverity).slice(0, 20);
-  const signalSpikes = signalDeltas.filter((delta) => (delta.delta ?? 0) > 0).sort((a, b) => (b.delta ?? 0) - (a.delta ?? 0)).slice(0, 10);
-  const propagation = analyzePropagation(store, generatedAt);
+  const trustDeltas = scoreDeltas(pulseEvents, 'trust_assessment', providerNames).slice(0, PULSE_CAPS.maxTrustChanges);
+  const signalDeltas = scoreDeltas(pulseEvents, 'signal_assessment', providerNames).slice(0, PULSE_CAPS.maxSignalChanges);
+  const recentDegradations = pulseEvents.filter((event) => event.type === 'endpoint.degraded' || event.type === 'endpoint.failed' || event.type === 'provider.degraded' || event.type === 'provider.failed').sort(compareSeverity).slice(0, PULSE_CAPS.maxDegradationRows);
+  const signalSpikes = signalDeltas.filter((delta) => (delta.delta ?? 0) > 0).sort((a, b) => (b.delta ?? 0) - (a.delta ?? 0)).slice(0, PULSE_CAPS.maxSignalChanges);
+  const propagation = includePropagation
+    ? analyzePropagation(store, generatedAt)
+    : options.propagationFallback ?? {
+      cluster_id: 'prop-unknown',
+      clusterId: 'prop-unknown',
+      propagation_state: 'unknown',
+      propagation_reason: 'Propagation analysis is computed asynchronously.',
+      affected_cluster: null,
+      affected_categories: [],
+      affected_providers: [],
+      first_observed_at: null,
+      latest_observed_at: null,
+      supporting_event_ids: [],
+      confidence: 0,
+      severity: 'unknown'
+    };
 
   return {
     generatedAt,
@@ -176,14 +213,16 @@ export function pulseSummary(store: IntelligenceStore, generatedAt = new Date().
       unknownTelemetry: unknownTelemetryCount(store)
     },
     eventGroups,
-    timeline: pulseEvents.slice(0, 120),
+    timeline: pulseEvents.slice(0, PULSE_CAPS.maxPulseRows),
     trustDeltas,
     signalDeltas,
     recentDegradations,
     propagation,
     providerActivity: providerActivity(pulseEvents, generatedAt),
     signalSpikes,
-    interpretations: interpretEcosystem({ store, events: pulseEvents, trustDeltas, signalDeltas, recentDegradations, generatedAt }),
+    interpretations: includeInterpretations
+      ? interpretEcosystem({ store, events: pulseEvents, trustDeltas, signalDeltas, recentDegradations, generatedAt })
+      : (options.interpretationsFallback ?? []),
     data_source: dataSource
   };
 }
@@ -332,7 +371,7 @@ function providerActivityForWindow(events: PulseEvent[], thresholdMs: number) {
     }
     activity.set(event.providerId, current);
   }
-  return [...activity.values()].sort((a, b) => compareSeverity(a, b) || b.count - a.count || a.providerName.localeCompare(b.providerName)).slice(0, 12);
+  return [...activity.values()].sort((a, b) => compareSeverity(a, b) || b.count - a.count || a.providerName.localeCompare(b.providerName)).slice(0, PULSE_CAPS.maxProviderActivityRows);
 }
 
 function unknownTelemetryCount(store: IntelligenceStore) {

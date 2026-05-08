@@ -35,8 +35,14 @@ export type PropagationIncident = {
   timeline: IncidentTimelineItem[];
 };
 
-export function resolvePropagationIncident(store: IntelligenceStore, clusterId: string, generatedAt = new Date().toISOString()): PropagationIncident | null {
-  const analysis = analyzePropagation(store, generatedAt);
+export function resolvePropagationIncident(
+  store: IntelligenceStore,
+  clusterId: string,
+  generatedAt = new Date().toISOString(),
+  analysisOverride = analyzePropagation(store, generatedAt),
+  interpretationsOverride?: ReturnType<typeof pulseSummary>['interpretations']
+): PropagationIncident | null {
+  const analysis = analysisOverride;
   if (analysis.cluster_id !== clusterId) return null;
 
   const providerNames = new Map(store.providers.map((provider) => [provider.id, provider.name]));
@@ -60,7 +66,17 @@ export function resolvePropagationIncident(store: IntelligenceStore, clusterId: 
       };
     });
 
-  const summary = pulseSummary(store, generatedAt);
+  const summary = pulseSummary(
+    store,
+    generatedAt,
+    null,
+    {
+      includePropagation: false,
+      includeInterpretations: false,
+      propagationFallback: analysis,
+      interpretationsFallback: interpretationsOverride ?? []
+    }
+  );
   const affectedProviderIds = new Set(analysis.affected_providers.map((provider) => provider.provider_id));
   const interpretationLinks = summary.interpretations
     .filter((item) => item.supporting_event_ids.some((id) => analysis.supporting_event_ids.includes(id))

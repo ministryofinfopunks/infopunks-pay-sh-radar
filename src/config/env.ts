@@ -8,6 +8,9 @@ export type RuntimeConfig = {
   databaseUrl: string | null;
   adminToken: string | null;
   payShCatalogUrl: string | null;
+  payShCatalogSource: 'live' | 'fixture';
+  ingestionEnabled: boolean;
+  allowFixtureFallback: boolean;
   payShIngestIntervalMs: number | null;
   monitorEnabled: boolean;
   monitorMode: 'disabled' | 'safe_metadata' | 'endpoint_health' | 'paid_execution_probe';
@@ -30,6 +33,9 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
     databaseUrl: optionalString(env.DATABASE_URL),
     adminToken: optionalString(env.INFOPUNKS_ADMIN_TOKEN),
     payShCatalogUrl: readOptionalUrl('PAY_SH_CATALOG_URL', env.PAY_SH_CATALOG_URL),
+    payShCatalogSource: readCatalogSource(env.PAYSH_CATALOG_SOURCE),
+    ingestionEnabled: readBoolean('INGESTION_ENABLED', env.INGESTION_ENABLED, true),
+    allowFixtureFallback: readBoolean('PAYSH_ALLOW_FIXTURE_FALLBACK', env.PAYSH_ALLOW_FIXTURE_FALLBACK, !isProduction),
     payShIngestIntervalMs: readOptionalPositiveInteger('PAY_SH_INGEST_INTERVAL_MS', env.PAY_SH_INGEST_INTERVAL_MS),
     monitorEnabled: readBoolean('MONITOR_ENABLED', env.MONITOR_ENABLED, false),
     monitorMode: readMonitorMode(env.MONITOR_MODE, env.MONITOR_ENABLED),
@@ -56,11 +62,17 @@ export function deploymentSummary(config: RuntimeConfig) {
     apiPort: config.port,
     monitorEnabled: config.monitorEnabled,
     monitorMode: config.monitorMode,
-    ingestionEnabled: Boolean(config.payShIngestIntervalMs && config.payShIngestIntervalMs > 0),
+    ingestionEnabled: config.ingestionEnabled,
     dbMode: config.databaseUrl ? 'postgres' : 'memory',
-    catalogSource: config.payShCatalogUrl ? 'live' : 'fixture',
+    catalogSource: config.payShCatalogSource,
     corsOrigin: config.frontendOrigin ?? 'development-open'
   };
+}
+
+function readCatalogSource(value: string | undefined): RuntimeConfig['payShCatalogSource'] {
+  if (!value) return 'fixture';
+  if (value === 'live' || value === 'fixture') return value;
+  throw new Error('PAYSH_CATALOG_SOURCE must be "live" or "fixture"');
 }
 
 function readMonitorMode(value: string | undefined, monitorEnabled: string | undefined): RuntimeConfig['monitorMode'] {

@@ -68,6 +68,7 @@ export type PayShCatalogSourceResult = {
   usedFixture: boolean;
   dataSource: DataSourceState;
   error?: string;
+  liveFetchFailed?: boolean;
 };
 
 export type PayShIngestionResult = {
@@ -189,21 +190,27 @@ export function parseCatalogPrice(raw: string, entityId = 'unknown', pricingEven
   return { ...base, min: null, max: null, currency: null, unit: null, clarity: 'unknown' };
 }
 
-export async function loadPayShCatalog(url = process.env.PAY_SH_CATALOG_URL): Promise<PayShCatalogSourceResult> {
-  if (!url) return fixtureResult(null, null);
+export async function loadPayShCatalog(
+  url = process.env.PAY_SH_CATALOG_URL,
+  options: { catalogSource?: 'live' | 'fixture'; allowFixtureFallback?: boolean } = {}
+): Promise<PayShCatalogSourceResult> {
+  const sourceMode = options.catalogSource ?? (url ? 'live' : 'fixture');
+  const allowFixtureFallback = options.allowFixtureFallback ?? true;
+  const liveUrl = url ?? DEFAULT_LIVE_CATALOG_URL;
+  if (sourceMode === 'fixture') return fixtureResult(url ?? null, null);
 
   try {
-    const response = await fetch(url, { headers: { accept: 'application/json' } });
+    const response = await fetch(liveUrl, { headers: { accept: 'application/json' } });
     if (!response.ok) throw new Error(`Pay.sh catalog returned ${response.status}`);
     const body = await response.json();
     const normalized = normalizePayShCatalog(body);
     return {
       items: normalized.items,
-      source: `${LIVE_SOURCE}:${url}`,
+      source: `${LIVE_SOURCE}:${liveUrl}`,
       usedFixture: false,
       dataSource: {
         mode: 'live_pay_sh_catalog',
-        url,
+        url: liveUrl,
         generated_at: normalized.generatedAt,
         provider_count: normalized.providerCount,
         last_ingested_at: null,
@@ -212,7 +219,26 @@ export async function loadPayShCatalog(url = process.env.PAY_SH_CATALOG_URL): Pr
       }
     };
   } catch (error) {
-    return fixtureResult(url, error instanceof Error ? error.message : String(error));
+    const message = sanitizeCatalogError(error);
+    if (!allowFixtureFallback) {
+      return {
+        items: [],
+        source: `${LIVE_SOURCE}:${liveUrl}`,
+        usedFixture: false,
+        liveFetchFailed: true,
+        error: message,
+        dataSource: {
+          mode: 'live_pay_sh_catalog',
+          url: liveUrl,
+          generated_at: null,
+          provider_count: null,
+          last_ingested_at: null,
+          used_fixture: false,
+          error: message
+        }
+      };
+    }
+    return fixtureResult(liveUrl, message);
   }
 }
 
@@ -232,6 +258,11 @@ function fixtureResult(url: string | null, error: string | null): PayShCatalogSo
       error
     }
   };
+}
+
+function sanitizeCatalogError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.slice(0, 240);
 }
 
 export function normalizePayShCatalog(input: unknown): { items: PayShCatalogItem[]; generatedAt: string | null; providerCount: number | null } {
