@@ -56,7 +56,10 @@ h3 { font-size: 34px; letter-spacing: -.04em; }
 .scope-label.provider { color: var(--blue); border-color: rgba(124,199,255,.28); background: rgba(124,199,255,.07); }
 .scoped-panel > .scope-label { grid-column: 1 / -1; margin-bottom: -2px; }
 .ecosystem-metrics { gap: 18px; }
-.ecosystem-dashboard { gap: 18px; margin-top: 18px; }
+.ecosystem-flow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 420px); gap: 18px; align-items: start; margin-top: 18px; }
+.ecosystem-canvas, .ecosystem-rail { display: grid; gap: 16px; align-content: start; min-width: 0; }
+.ecosystem-canvas > .grid { margin-top: 0; }
+.ecosystem-rail { align-self: start; }
 .zone-ecosystem > .grid:not(.ecosystem-metrics) { margin-top: 20px; }
 .zone-provider .grid { gap: 12px; margin-top: 12px; }
 .zone-provider .panel { padding: 14px; border-radius: 12px; background: linear-gradient(180deg, rgba(10,22,20,.84), rgba(3,8,7,.9)); border-color: rgba(124,199,255,.16); box-shadow: 0 0 30px rgba(124,199,255,.035), inset 0 0 18px rgba(124,199,255,.025); }
@@ -65,10 +68,6 @@ h3 { font-size: 34px; letter-spacing: -.04em; }
 .provider-ribbon strong { font-family: 'Space Grotesk', sans-serif; color: var(--text); overflow-wrap: anywhere; }
 .provider-ribbon span { color: var(--muted); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
 .provider-ribbon .service-status { font-size: 12px; }
-.radar-dashboard { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 16px; margin-top: 16px; align-items: start; }
-.radar-left { grid-column: span 8; display: grid; gap: 16px; min-width: 0; }
-.pulse-side { grid-column: span 4; }
-.pulse-side { display: grid; gap: 16px; }
 .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
 .panel-head h2 { margin-bottom: 0; }
 .panel-head small { color: var(--muted); text-align: right; }
@@ -232,5 +231,5 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 .change time { display: block; font-size: 12px; margin-bottom: 6px; }
 .empty-state { border: 1px dashed rgba(126,255,176,.18); border-radius: 12px; margin: 0; padding: 14px; background: rgba(0,0,0,.16); }
 @media (min-width: 1680px) { .shell { width: min(1760px, calc(100% - 40px)); } .event-feed { max-height: 660px; } }
-@media (max-width: 1180px) { .provider-stack { grid-template-columns: 1fr; } .feed-row { grid-template-columns: 86px minmax(120px, 170px) minmax(0, 1fr) 86px; } .timing-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } .route-input-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 980px) { .hero, .two, .three, .four, .heatmap, .radar-dashboard, .counter-grid, .intel-summary, .intel-summary.compact, .dossier-grid, .route-input-grid, .compact-route-panel .route-input-grid, .route-score-grid, .timing-strip, .provider-ribbon { grid-template-columns: 1fr !important; } .radar-left, .pulse-side { grid-column: auto; } h1 { font-size: 48px; } .bar, .feed-row, .batch-head, .key-values p { grid-template-columns: 1fr; } .key-values span { text-align: left; } .execute.compact { width: 100%; } .panel-head, .decision-head, .zone-header, .dossier-section-head { align-items: flex-start; flex-direction: column; } .panel-head small, .decision-head small, .dossier-section-head .scope-label { text-align: left; } .auto-rotate-control { justify-content: flex-start; max-width: 100%; } .auto-rotate-control small { flex-basis: auto; text-align: left; } .provider-directory-panel, .dossier, .event-feed, .activity-list, .mini-feed, .directory, .dossier-body { max-height: none; overflow: visible; } .dossier { display: grid; } .zone { padding: 14px; border-radius: 14px; } .provider-ribbon { position: static; } .provider-ribbon span { white-space: normal; } .dossier-section-head .scope-label { max-width: 100%; justify-content: flex-start; } }
+@media (max-width: 1180px) { .ecosystem-flow { grid-template-columns: minmax(0, 1fr) minmax(300px, 360px); } .provider-stack { grid-template-columns: 1fr; } .feed-row { grid-template-columns: 86px minmax(120px, 170px) minmax(0, 1fr) 86px; } .timing-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } .route-input-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 980px) { .hero, .two, .three, .four, .heatmap, .ecosystem-flow, .counter-grid, .intel-summary, .intel-summary.compact, .dossier-grid, .route-input-grid, .compact-route-panel .route-input-grid, .route-score-grid, .timing-strip, .provider-ribbon { grid-template-columns: 1fr !important; } h1 { font-size: 48px; } .bar, .feed-row, .batch-head, .key-values p { grid-template-columns: 1fr; } .key-values span { text-align: left; } .execute.compact { width: 100%; } .panel-head, .decision-head, .zone-header, .dossier-section-head { align-items: flex-start; flex-direction: column; } .panel-head small, .decision-head small, .dossier-section-head .scope-label { text-align: left; } .auto-rotate-control { justify-content: flex-start; max-width: 100%; } .auto-rotate-control small { flex-basis: auto; text-align: left; } .provider-directory-panel, .dossier, .event-feed, .activity-list, .mini-feed, .directory, .dossier-body { max-height: none; overflow: visible; } .dossier { display: grid; } .zone { padding: 14px; border-radius: 14px; } .provider-ribbon { position: static; } .provider-ribbon span { white-space: normal; } .dossier-section-head .scope-label { max-width: 100%; justify-content: flex-start; } }

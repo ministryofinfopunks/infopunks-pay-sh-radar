@@ -313,9 +313,9 @@ function App() {
         <Metric label="Graph Layer" value={`${data.graph.nodes.length} nodes`} sub={`${data.graph.edges.length} deterministic edges`} />
       </section>
 
-      {pulseSummary && <section className="radar-dashboard ecosystem-dashboard" aria-label="Radar ecosystem intelligence dashboard">
-        <div className="radar-left">
-          <div className="panel pulse-feed">
+      <section className="ecosystem-flow" aria-label="Global ecosystem intelligence flow">
+        <div className="ecosystem-canvas">
+          {pulseSummary && <section className="panel pulse-feed" aria-label="Live catalog pulse">
             <div className="panel-head">
               <div>
                 <ScopeLabel scope="GLOBAL" />
@@ -354,10 +354,32 @@ function App() {
               </div>)}
               {!pulseSummary.timeline.length && <p className="muted empty-state">No pulse events observed in the current window.</p>}
             </div>
-          </div>
+          </section>}
+
+          <section className="grid two">
+            <Leaderboard title="Trust Leaderboard" scores={data.pulse.topTrust} providers={providerLookup} kind="trust" />
+            <Leaderboard title="Signal Leaderboard" scores={data.pulse.topSignal} providers={providerLookup} kind="signal" />
+          </section>
+
+          <section className="panel">
+            <ScopeLabel scope="GLOBAL" />
+            <h2>Narrative Heatmap</h2>
+            <div className="heatmap">
+              {data.narratives.map((narrative) => <div key={narrative.id} className="heat" style={{ '--heat': `${narrative.heat ?? 0}%` } as React.CSSProperties}>
+                <strong>{narrative.title}</strong><span>heat {narrative.heat ?? 'unknown'}</span><small>{narrative.providerIds.length} providers / {narrative.keywords.join(', ')}</small>
+              </div>)}
+            </div>
+          </section>
+
+          <section className="panel">
+            <ScopeLabel scope="GLOBAL" />
+            <h2>Semantic Search</h2>
+            <input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="search Pay.sh ecosystem intelligence" />
+            <div className="results">{searchResults.map((result) => <div className="result" key={result.provider.id}><strong>{result.provider.name}</strong><span>relevance {result.relevance} / trust {result.trustAssessment.score ?? 'unknown'} / signal {result.signalAssessment.score ?? 'unknown'}</span></div>)}</div>
+          </section>
         </div>
 
-        <aside className="pulse-side" aria-label="Realtime ecosystem intelligence sidebar">
+        {pulseSummary && <aside className="ecosystem-rail" aria-label="Realtime ecosystem intelligence sidebar">
           <div className="panel counter-grid scoped-panel">
             <ScopeLabel scope="GLOBAL" />
             <PulseStat label="Events" value={pulseSummary.counters.events} sub={`${pulseSummary.counters.unknownTelemetry} unknown telemetry fields`} />
@@ -401,29 +423,7 @@ function App() {
               {!pulseSummary.recentDegradations.length && <p className="muted empty-state">No service reachability degradations observed.</p>}
             </div>
           </div>
-        </aside>
-      </section>}
-
-      <section className="grid two">
-        <Leaderboard title="Trust Leaderboard" scores={data.pulse.topTrust} providers={providerLookup} kind="trust" />
-        <Leaderboard title="Signal Leaderboard" scores={data.pulse.topSignal} providers={providerLookup} kind="signal" />
-      </section>
-
-      <section className="panel">
-        <ScopeLabel scope="GLOBAL" />
-        <h2>Narrative Heatmap</h2>
-        <div className="heatmap">
-          {data.narratives.map((narrative) => <div key={narrative.id} className="heat" style={{ '--heat': `${narrative.heat ?? 0}%` } as React.CSSProperties}>
-            <strong>{narrative.title}</strong><span>heat {narrative.heat ?? 'unknown'}</span><small>{narrative.providerIds.length} providers / {narrative.keywords.join(', ')}</small>
-          </div>)}
-        </div>
-      </section>
-
-      <section className="panel">
-        <ScopeLabel scope="GLOBAL" />
-        <h2>Semantic Search</h2>
-        <input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="search Pay.sh ecosystem intelligence" />
-        <div className="results">{searchResults.map((result) => <div className="result" key={result.provider.id}><strong>{result.provider.name}</strong><span>relevance {result.relevance} / trust {result.trustAssessment.score ?? 'unknown'} / signal {result.signalAssessment.score ?? 'unknown'}</span></div>)}</div>
+        </aside>}
       </section>
     </section>
 
