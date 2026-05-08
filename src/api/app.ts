@@ -1,5 +1,8 @@
 import cors from '@fastify/cors';
 import Fastify, { FastifyReply, FastifyRequest } from 'fastify';
+import { createReadStream, existsSync } from 'node:fs';
+import { stat } from 'node:fs/promises';
+import { extname, join, normalize, resolve } from 'node:path';
 import { z } from 'zod';
 import { createIntelligenceStore, defaultRepository, IntelligenceStore, runPayShIngestion } from '../services/intelligenceStore';
 import { IntelligenceRepository } from '../persistence/repository';
@@ -171,6 +174,29 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
       }
     };
   });
+  const clientDistDir = resolve(process.cwd(), 'dist/client');
+  const clientIndexPath = join(clientDistDir, 'index.html');
+  if (existsSync(clientIndexPath)) {
+    app.get('/*', async (req, reply) => {
+      if (req.method !== 'GET') return reply.code(404).send({ error: 'not_found' });
+      const urlPath = (req.raw.url ?? '/').split('?')[0] ?? '/';
+      if (urlPath.startsWith('/v1/') || urlPath === '/health' || urlPath === '/version') {
+        return reply.code(404).send({ error: 'not_found' });
+      }
+      const relative = urlPath === '/' ? 'index.html' : urlPath.replace(/^\/+/, '');
+      const target = normalize(join(clientDistDir, relative));
+      if (!target.startsWith(clientDistDir)) return reply.code(403).send({ error: 'forbidden' });
+      try {
+        const file = await stat(target);
+        if (file.isFile()) {
+          return reply.type(contentTypeFor(target)).send(createReadStream(target));
+        }
+      } catch {
+        // fall through to SPA index
+      }
+      return reply.type('text/html; charset=utf-8').send(createReadStream(clientIndexPath));
+    });
+  }
 
   const intervalMs = config.payShIngestIntervalMs ?? 0;
   if (intervalMs > 0) {
@@ -189,6 +215,20 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   }
 
   return app;
+}
+
+function contentTypeFor(path: string) {
+  const ext = extname(path).toLowerCase();
+  if (ext === '.js' || ext === '.mjs') return 'text/javascript; charset=utf-8';
+  if (ext === '.css') return 'text/css; charset=utf-8';
+  if (ext === '.html') return 'text/html; charset=utf-8';
+  if (ext === '.json') return 'application/json; charset=utf-8';
+  if (ext === '.svg') return 'image/svg+xml';
+  if (ext === '.png') return 'image/png';
+  if (ext === '.jpg' || ext === '.jpeg') return 'image/jpeg';
+  if (ext === '.ico') return 'image/x-icon';
+  if (ext === '.woff2') return 'font/woff2';
+  return 'application/octet-stream';
 }
 
 function isAdmin(adminToken: string | null, authorization: string | undefined) {

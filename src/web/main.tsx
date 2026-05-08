@@ -164,13 +164,30 @@ type RouteResult = {
 };
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
+const API_TIMEOUT_MS = 10_000;
 const DOSSIER_INTERACTION_HOLD_MS = 20_000;
 const ROUTE_INTERACTION_HOLD_MS = 60_000;
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, { headers: { 'Content-Type': 'application/json' }, ...init });
-  if (!response.ok) throw new Error(`${response.status} ${path}`);
-  return response.json() as Promise<T>;
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+  try {
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+      headers: { 'Content-Type': 'application/json' },
+      ...init,
+      signal: controller.signal
+    });
+    if (!response.ok) throw new Error(`${response.status} ${path}`);
+    return response.json() as Promise<T>;
+  } catch (error) {
+    const timedOut = error instanceof DOMException && error.name === 'AbortError';
+    const suffix = timedOut ? `timed out after ${API_TIMEOUT_MS}ms` : error instanceof Error ? error.message : String(error);
+    const method = init?.method ?? 'GET';
+    console.error(`[frontend-api] ${method} ${path} failed: ${suffix}`);
+    throw new Error(`${method} ${path} failed: ${suffix}`);
+  } finally {
+    window.clearTimeout(timeout);
+  }
 }
 
 function routeProviderId(pathname: string) {
@@ -534,6 +551,8 @@ function PublicReceiptPage({ eventId }: { eventId: string }) {
 function RadarApp() {
   const preferredProviderId = useMemo(() => new URLSearchParams(window.location.search).get('provider_id'), []);
   const [data, setData] = useState<AppData | null>(null);
+  const [bootError, setBootError] = useState<string | null>(null);
+  const [isBootLoading, setIsBootLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [featuredRotationEnabled, setFeaturedRotationEnabled] = useState(true);
   const [selectionMode, setSelectionMode] = useState<'auto' | 'manual'>('auto');
@@ -584,24 +603,70 @@ function RadarApp() {
 
   useEffect(() => {
     let active = true;
+    setIsBootLoading(true);
+    setBootError(null);
     Promise.all([
       api<{ data: Provider[] }>('/v1/providers'),
-      api<{ data: Pulse }>('/v1/pulse'),
-      api<{ data: Narrative[] }>('/v1/narratives'),
-      api<{ data: { nodes: unknown[]; edges: unknown[] } }>('/v1/graph'),
-      api<{ data: PulseSummary }>('/v1/pulse/summary'),
-      api<{ data: FeaturedProvider }>('/v1/providers/featured')
-    ]).then(([providers, pulse, narratives, graph, summary, featured]) => {
+      api<{ data: Pulse }>('/v1/pulse')
+    ]).then(([providers, pulse]) => {
       if (!active) return;
-      setData({ providers: providers.data, pulse: pulse.data, narratives: narratives.data, graph: graph.data });
-      setPulseSummary(summary.data);
+      setData({ providers: providers.data, pulse: pulse.data, narratives: [], graph: { nodes: [], edges: [] } });
       if (preferredProviderId && providers.data.some((provider) => provider.id === preferredProviderId)) {
         setSelectedId(preferredProviderId);
         setSelectionMode('manual');
         setFeaturedRotationEnabled(false);
       } else {
-        applyFeaturedProvider(featured.data, true);
+        setSelectedId(providers.data[0]?.id ?? null);
+        setSelectionMode('auto');
       }
+      void api<{ data: Narrative[] }>('/v1/narratives')
+        .then((narratives) => {
+          if (!active) return;
+          setData((current) => current ? { ...current, narratives: narratives.data } : current);
+        })
+        .catch(() => undefined);
+      void api<{ data: { nodes: unknown[]; edges: unknown[] } }>('/v1/graph')
+        .then((graph) => {
+          if (!active) return;
+          setData((current) => current ? { ...current, graph: graph.data } : current);
+        })
+        .catch(() => undefined);
+      void api<{ data: PulseSummary }>('/v1/pulse/summary')
+        .then((summary) => {
+          if (!active) return;
+          setPulseSummary(summary.data);
+        })
+        .catch(() => undefined);
+      void api<{ data: FeaturedProvider }>('/v1/providers/featured')
+        .then((featured) => {
+          if (!active) return;
+          applyFeaturedProvider(featured.data, true);
+        })
+        .catch(() => undefined);
+    }).catch(() => {
+      if (!active) return;
+      setData({
+        providers: [],
+        pulse: {
+          providerCount: 0,
+          endpointCount: 0,
+          eventCount: 0,
+          averageTrust: null,
+          averageSignal: null,
+          hottestNarrative: null,
+          topTrust: [],
+          topSignal: [],
+          interpretations: [],
+          data_source: { mode: 'fixture_fallback', url: null, generated_at: null, provider_count: 0, last_ingested_at: null, used_fixture: true, error: 'core_pulse_unavailable' },
+          updatedAt: new Date().toISOString()
+        },
+        narratives: [],
+        graph: { nodes: [], edges: [] }
+      });
+      setBootError('Radar degraded: unable to load live pulse');
+    }).finally(() => {
+      if (!active) return;
+      setIsBootLoading(false);
     });
     return () => {
       active = false;
@@ -774,7 +839,8 @@ function RadarApp() {
     if (editing) holdAutoRotation(DOSSIER_INTERACTION_HOLD_MS);
   }
 
-  if (!data) return <main className="boot" aria-label="Infopunks Pay.sh Radar loading state">INFOPUNKS//PAY.SH COGNITIVE LAYER BOOTING...</main>;
+  if (isBootLoading) return <main className="boot" aria-label="Infopunks Pay.sh Radar loading state">INFOPUNKS//PAY.SH COGNITIVE LAYER BOOTING...</main>;
+  if (!data) return <main className="boot" aria-label="Infopunks Pay.sh Radar loading state">BOOT FAILED</main>;
 
   const providerContextLabel = selectedProvider ? `${selectedProvider.name} / ${selectedProvider.category}`.toUpperCase() : 'PROVIDER / UNKNOWN';
 
@@ -790,6 +856,10 @@ function RadarApp() {
     <MethodologyDrawer open={methodologyOpen} onClose={() => setMethodologyOpen(false)} />
 
     <main id="terminal-content">
+    {bootError && <section className="panel" role="status" aria-live="polite">
+      <p className="route-state error">{bootError}</p>
+      <button className="execute compact secondary" type="button" onClick={() => window.location.reload()}>Retry</button>
+    </section>}
     <section className="hero panel" aria-labelledby="terminal-title">
       <div>
         <p className="eyebrow">Infopunks Intelligence Terminal</p>
@@ -1260,10 +1330,9 @@ function EcosystemInterpretationPanel({ interpretations, providerLookup }: { int
       <small>{primary.severity.toUpperCase()} / confidence {Math.round(primary.confidence * 100)}%</small>
     </div>
     <article className={`interpretation-primary ${primary.severity}`}>
-      <div>
+      <div className="interpretation-copy">
         <strong>{primary.interpretation_title}</strong>
-        <p>{primary.interpretation_summary}</p>
-        <small>{primary.interpretation_reason}</small>
+        <p className="interpretation-summary">{safeInterpretationSummary(primary.interpretation_summary)}</p>
       </div>
       <InterpretationMeta interpretation={primary} providerLookup={providerLookup} />
       <EvidenceReceiptView evidence={primary.evidence ?? primary} title="Evidence" compact />
@@ -1271,7 +1340,7 @@ function EcosystemInterpretationPanel({ interpretations, providerLookup }: { int
     {!!secondary.length && <div className="interpretation-secondary" aria-label="Secondary ecosystem interpretations">
       {secondary.map((interpretation) => <article key={interpretation.interpretation_id} className={interpretation.severity}>
         <strong>{interpretation.interpretation_title}</strong>
-        <p>{interpretation.interpretation_summary}</p>
+        <p className="interpretation-summary">{safeInterpretationSummary(interpretation.interpretation_summary)}</p>
         <InterpretationMeta interpretation={interpretation} providerLookup={providerLookup} />
         <EvidenceReceiptView evidence={interpretation.evidence ?? interpretation} title="Evidence" compact />
       </article>)}
@@ -1280,15 +1349,22 @@ function EcosystemInterpretationPanel({ interpretations, providerLookup }: { int
 }
 
 function InterpretationMeta({ interpretation, providerLookup }: { interpretation: EcosystemInterpretation; providerLookup: Map<string, Provider> }) {
-  const providerNames = interpretation.affected_providers.map((id) => providerLookup.get(id)?.name ?? id);
-  const categories = interpretation.affected_categories.length ? interpretation.affected_categories.join(', ') : 'global';
-  const providers = providerNames.length ? providerNames.join(', ') : 'none';
-  const events = interpretation.supporting_event_ids.length ? interpretation.supporting_event_ids.join(', ') : 'none';
+  const categories = interpretation.affected_categories.length ? compactList(interpretation.affected_categories, 3) : 'global';
+  const providers = interpretation.affected_providers.length;
+  const knownProviderCount = interpretation.affected_providers.filter((id) => providerLookup.has(id)).length;
+  const providerCountLabel = providers > 0
+    ? knownProviderCount === providers
+      ? `${providers} affected providers`
+      : `${providers} affected providers (${knownProviderCount} named)`
+    : 'no affected providers';
+  const events = interpretation.supporting_event_ids.length;
   return <div className="interpretation-meta">
     <span>categories: {categories}</span>
-    <span>providers: {providers}</span>
-    <span>events: {events}</span>
+    <span>providers: {providerCountLabel}</span>
+    <span>severity: {interpretation.severity}</span>
+    <span>confidence: {Math.round(interpretation.confidence * 100)}%</span>
     <span>window: {formatDate(interpretation.observed_window.started_at)} to {formatDate(interpretation.observed_window.ended_at)}</span>
+    <span>evidence: {events} supporting events</span>
   </div>;
 }
 
@@ -1760,6 +1836,20 @@ function formatScoreDelta(delta: ScoreDelta) {
 function compactCategories(categories: Record<EventCategory, number>) {
   const active = Object.entries(categories).filter(([, count]) => count > 0).map(([category, count]) => `${category}:${count}`);
   return active.length ? active.join(' / ') : 'no categorized activity';
+}
+
+function compactList(items: string[], limit: number) {
+  if (items.length <= limit) return items.join(', ');
+  const shown = items.slice(0, limit).join(', ');
+  return `${shown} +${items.length - limit} more`;
+}
+
+function safeInterpretationSummary(summary: string) {
+  if (!summary) return '';
+  return summary
+    .replace(/\b0x[a-fA-F0-9]{16,}\b/g, '[id]')
+    .replace(/\b[a-fA-F0-9]{24,}\b/g, '[id]')
+    .replace(/\b[a-zA-Z0-9_-]{28,}\b/g, '[id]');
 }
 
 function groupTimelineByBatch(events: PulseEvent[]) {
