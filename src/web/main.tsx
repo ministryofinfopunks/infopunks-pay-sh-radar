@@ -1021,6 +1021,7 @@ function RadarApp() {
 
   const providerContextLabel = selectedProvider ? `${selectedProvider.name} / ${selectedProvider.category}`.toUpperCase() : 'PROVIDER / UNKNOWN';
   const ecosystemStatus = getEcosystemStatus(data.pulse, pulseSummary);
+  const ecosystemReading = getEcosystemReading(data.pulse, pulseSummary);
 
   return <div className="shell">
     <a className="skip-link" href="#terminal-content">Skip to content</a>
@@ -1056,7 +1057,7 @@ function RadarApp() {
       </div>
     </section>
 
-    <EcosystemStatusPanel status={ecosystemStatus} pulse={data.pulse} summary={pulseSummary} selectedProvider={selectedProvider} />
+    <EcosystemStatusPanel status={ecosystemStatus} reading={ecosystemReading} pulse={data.pulse} summary={pulseSummary} selectedProvider={selectedProvider} />
 
     <section className="ecosystem-layout" aria-label="Global intelligence layout">
       <div className="ecosystem-main">
@@ -1069,6 +1070,8 @@ function RadarApp() {
             <Metric label="Signal Leader" value={providerLookup.get(data.pulse.topSignal[0]?.entityId)?.name ?? 'n/a'} sub={`${data.pulse.topSignal[0]?.score ?? 'unknown'}/100`} evidence={data.pulse.topSignal[0]} />
             <Metric label="Graph Layer" value={`${data.graph.nodes.length} nodes`} sub={`${data.graph.edges.length} deterministic edges`} evidence={data.graph.evidence ?? graphFallbackEvidence(data.graph)} />
           </section>
+
+          <SystemReadingPanel reading={ecosystemReading} />
 
           <EcosystemInterpretationPanel interpretations={ecosystemInterpretations} providerLookup={providerLookup} />
 
@@ -1132,19 +1135,26 @@ function RadarApp() {
             </div>
           </section>
 
-          <section className="panel">
+          <section className="panel semantic-search-panel">
             <ScopeLabel scope="GLOBAL" />
-            <h2>Semantic Search</h2>
-            <p className="panel-caption">Search provider metadata, trust context, and signal context without leaving the live radar surface.</p>
-            <form onSubmit={(event) => {
+            <div className="semantic-search-head">
+              <p className="section-kicker">Query the ecosystem</p>
+              <h2>Semantic Search</h2>
+              <p className="panel-caption">Ask across provider metadata, trust context, signal context, categories, endpoints, and receipts without leaving the radar surface.</p>
+            </div>
+            <form className="semantic-search-form" onSubmit={(event) => {
               event.preventDefault();
               runSearch();
             }}>
-              <input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="search Pay.sh ecosystem intelligence" aria-label="Search Pay.sh ecosystem intelligence" />
+              <label className="command-input">
+                <span>ecosystem query</span>
+                <input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Ask: which providers are degrading?" aria-label="Search Pay.sh ecosystem intelligence" />
+              </label>
               <button className="execute compact secondary" type="submit" disabled={searchStatus === 'loading'}>
                 {searchStatus === 'loading' ? 'Searching...' : 'Search'}
               </button>
             </form>
+            <p className="semantic-search-hint">Search trust, signal, categories, endpoints...</p>
             {searchError && <p className="route-state error">Semantic search unavailable: {searchError}</p>}
             <div className="results">{searchResults.filter((result) => isRecord(result) && isRecord(result.provider) && typeof result.provider.id === 'string').map((result) => <div className="result" key={result.provider.id}><strong>{result.provider.name ?? 'unknown provider'}</strong><span>relevance {result.relevance ?? 'unknown'} / trust {result.trustAssessment?.score ?? 'unknown'} / signal {result.signalAssessment?.score ?? 'unknown'}</span></div>)}</div>
           </section>
@@ -1450,7 +1460,7 @@ function RadarApp() {
       </div>
 
       {pulseSummary && <aside className="ecosystem-rail" aria-label="Realtime ecosystem intelligence sidebar">
-        <div className="panel counter-grid scoped-panel">
+        <div className="panel counter-grid scoped-panel rail-priority">
           <ScopeLabel scope="GLOBAL" />
           <PulseStat label="Events" value={pulseSummary.counters.events} sub={`${pulseSummary.counters.unknownTelemetry} unknown telemetry fields`} />
           <PulseStat label="Providers" value={pulseSummary.counters.providers} sub={`${pulseSummary.counters.endpoints} endpoints tracked`} />
@@ -1459,7 +1469,7 @@ function RadarApp() {
         <PropagationWatch propagation={pulseSummary.propagation} />
         <DeltaPanel title="Trust Changes" caption="Latest trust events from catalog scoring batches." deltas={pulseSummary.trustDeltas} empty="No trust deltas beyond initial scoring." scope="GLOBAL" />
         <DeltaPanel title="Signal Spikes" caption="Signal deltas appear only when catalog-derived signal changes." deltas={pulseSummary.signalSpikes} empty="No positive signal deltas observed." scope="GLOBAL" />
-        <div className="panel">
+        <div className="panel rail-panel">
           <div className="panel-head">
             <div>
               <ScopeLabel scope="GLOBAL" />
@@ -1481,7 +1491,7 @@ function RadarApp() {
             {!pulseSummary.providerActivity[pulseWindow].length && <p className="muted empty-state">No provider activity in this window.</p>}
           </div>
         </div>
-        <div className="panel">
+        <div className="panel rail-panel">
           <div className="panel-head">
             <div>
               <ScopeLabel scope="GLOBAL" />
@@ -1491,7 +1501,7 @@ function RadarApp() {
             </div>
           </div>
           <div className="mini-feed">
-            {sortBySeverity(pulseSummary.recentDegradations).map((event) => <div className={`severity-${normalSeverity(event.severity)}`} key={event.id}><SeverityBadge evidence={event} /><strong>{event.providerName ?? event.entityId}</strong><span>{event.summary}</span><small>{formatDate(event.observedAt)}</small><EvidenceReceiptView evidence={event} title="Evidence" compact /></div>)}
+            {sortBySeverity(pulseSummary.recentDegradations).map((event) => <div className={`severity-${normalSeverity(event.severity)}`} key={event.id}><SeverityBadge evidence={event} /><strong>{event.providerName ?? event.entityId}</strong><span>{event.summary}</span><small>{formatShortDate(event.observedAt)}</small><EvidenceReceiptView evidence={event} title="Evidence" compact /></div>)}
             {!pulseSummary.recentDegradations.length && <p className="muted empty-state">No service reachability degradations observed.</p>}
           </div>
         </div>
@@ -1499,8 +1509,14 @@ function RadarApp() {
     </section>
     </main>
     <footer className="site-footer">
-      <p>INFOPUNKS PAY.SH RADAR</p>
-      <small>Catalog-derived trust, signal, routing, and safe metadata monitoring. Unknowns stay visible.</small>
+      <div>
+        <p>INFOPUNKS PAY.SH RADAR</p>
+        <small>Catalog-derived trust, signal, routing, and safe metadata monitoring. Unknowns stay visible.</small>
+      </div>
+      <div className="footer-status" aria-label="Radar catalog source status">
+        <span>{sourceLabel(data.pulse.data_source)}</span>
+        <small>{formatDataSource(data.pulse.data_source, data.pulse.providerCount, data.pulse.endpointCount)}</small>
+      </div>
     </footer>
   </div>;
 }
@@ -1511,7 +1527,7 @@ function Metric({ label, value, sub, evidence }: { label: string; value: string 
 
 type EcosystemStatusState = 'critical' | 'warning' | 'info' | 'stable';
 
-function EcosystemStatusPanel({ status, pulse, summary, selectedProvider }: { status: { state: EcosystemStatusState; label: string; detail: string }; pulse: Pulse; summary: PulseSummary | null; selectedProvider: Provider | null }) {
+function EcosystemStatusPanel({ status, reading, pulse, summary, selectedProvider }: { status: { state: EcosystemStatusState; label: string; detail: string }; reading: string; pulse: Pulse; summary: PulseSummary | null; selectedProvider: Provider | null }) {
   const latestObserved = summary?.latest_event_at ?? summary?.generatedAt ?? pulse.updatedAt;
   const propagationState = summary?.propagation?.propagation_state ?? 'unknown';
   return <section className={`ecosystem-status-panel panel status-${status.state}`} aria-labelledby="ecosystem-status-title" role="status" aria-live="polite">
@@ -1519,6 +1535,7 @@ function EcosystemStatusPanel({ status, pulse, summary, selectedProvider }: { st
       <p className="section-kicker">Ecosystem Status</p>
       <h2 id="ecosystem-status-title">{status.label}</h2>
       <p>{status.detail}</p>
+      <p className="system-reading-inline">{reading}</p>
     </div>
     <div className="status-grid" aria-label="Current radar command metrics">
       <StatusChip label="Catalog" value={sourceLabel(pulse.data_source)} state={pulse.data_source.used_fixture ? 'warning' : 'stable'} />
@@ -1526,6 +1543,14 @@ function EcosystemStatusPanel({ status, pulse, summary, selectedProvider }: { st
       <StatusChip label="Latest Event" value={latestObserved ? formatDate(latestObserved) : 'none'} state={summary?.latest_event_at ? 'info' : 'stable'} />
       <StatusChip label="Featured Context" value={selectedProvider?.name ?? 'awaiting provider'} state={selectedProvider ? 'stable' : 'info'} />
     </div>
+  </section>;
+}
+
+function SystemReadingPanel({ reading }: { reading: string }) {
+  return <section className="panel system-reading-panel" aria-label="System reading">
+    <ScopeLabel scope="GLOBAL" />
+    <p className="section-kicker">System Reading</p>
+    <strong>{reading}</strong>
   </section>;
 }
 
@@ -1888,7 +1913,7 @@ function DeltaPanel({ title, caption, deltas, empty, scope }: { title: string; c
         <SeverityBadge evidence={delta} />
         <strong>{delta.providerName}</strong>
         <span>{formatScoreDelta(delta)}</span>
-        <small>{formatDate(delta.observedAt)}</small>
+        <small>{formatShortDate(delta.observedAt)}</small>
         <EvidenceReceiptView evidence={delta} title="Evidence" compact />
       </div>)}
       {!deltas.length && <p className="muted">{empty}</p>}
@@ -1981,6 +2006,11 @@ function formatDate(value: string | null | undefined) {
   return value ? new Date(value).toLocaleString() : 'unknown';
 }
 
+function formatShortDate(value: string | null | undefined) {
+  if (!value) return 'unknown';
+  return new Date(value).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
 function formatTime(value: string) {
   return new Date(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
@@ -2032,6 +2062,39 @@ function getEcosystemStatus(pulse: Pulse, summary: PulseSummary | null): { state
     label: 'Stable monitoring window',
     detail: 'No critical propagation or degradation surge is visible in the current radar window.'
   };
+}
+
+function getEcosystemReading(pulse: Pulse, summary: PulseSummary | null) {
+  const propagation = summary?.propagation;
+  const recentDegradations = summary?.recentDegradations.length ?? 0;
+  const signalSpikes = summary?.signalSpikes.length ?? 0;
+  const trustDeltas = summary?.trustDeltas.length ?? 0;
+  const latestBatch = summary?.latest_batch_event_count ?? 0;
+  const topTrustScore = pulse.topTrust[0]?.score ?? null;
+  const averageTrust = pulse.averageTrust ?? null;
+  const topTrustLead = typeof topTrustScore === 'number' && typeof averageTrust === 'number'
+    ? topTrustScore - averageTrust
+    : null;
+
+  if (propagation?.severity === 'critical' || propagation?.propagation_state === 'systemic') {
+    return 'System reading: ecosystem pressure is systemic in the current propagation window.';
+  }
+  if (recentDegradations > 0 && trustDeltas > 0) {
+    return 'System reading: reliability is under pressure where degradations and trust movement overlap.';
+  }
+  if (recentDegradations > 0) {
+    return 'System reading: service reachability pressure is present, but the visible signal is still localized.';
+  }
+  if (signalSpikes > 0 && latestBatch > 0) {
+    return 'System reading: signal activity is present and tied to fresh catalog movement.';
+  }
+  if (typeof topTrustLead === 'number' && topTrustLead >= 20) {
+    return 'System reading: trust remains concentrated among a small set of high-scoring providers.';
+  }
+  if (latestBatch > 0) {
+    return 'System reading: catalog movement is active, with no visible degradation surge in this window.';
+  }
+  return 'System reading: signal activity is present but not accelerating in the current window.';
 }
 
 function normalSeverity(value: unknown): Severity {
