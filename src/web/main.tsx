@@ -171,6 +171,7 @@ type RouteResult = {
 };
 type SearchResponse = { data: any[]; degraded?: boolean; reason?: string };
 type ErrorBoundaryState = { hasError: boolean };
+type NumericRange = { min: number; max: number };
 
 const API_BASE_URL = getApiBaseUrl();
 const API_TIMEOUT_MS = 10_000;
@@ -205,6 +206,13 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function asArray<T>(value: unknown): T[] {
   return Array.isArray(value) ? value as T[] : [];
+}
+
+function getSafeRange(value: unknown, fallback: NumericRange = { min: 0, max: 100 }): NumericRange {
+  if (!isRecord(value)) return fallback;
+  const min = Number.isFinite(value.min) ? Number(value.min) : fallback.min;
+  const max = Number.isFinite(value.max) ? Number(value.max) : fallback.max;
+  return { min, max };
 }
 
 function toPulse(candidate: unknown): Pulse | null {
@@ -1223,8 +1231,8 @@ function RadarApp() {
               <div className="dossier-grid">
                 <DossierSection title="Market Metadata" context={providerContextLabel}>
                   <KeyValues rows={[
-                    ['min_price_usd', moneyOrUnknown(selectedProvider.pricing.min)],
-                    ['max_price_usd', moneyOrUnknown(selectedProvider.pricing.max)],
+                    ['min_price_usd', moneyOrUnknown(getSafeRange(selectedProvider.pricing).min)],
+                    ['max_price_usd', moneyOrUnknown(getSafeRange(selectedProvider.pricing).max)],
                     ['endpoint_count', selectedProvider.endpointCount],
                     ['has_free_tier', formatNullableBoolean(selectedProvider.hasFreeTier ?? selectedProvider.status.includes('free') ? true : null)],
                     ['has_metering', formatNullableBoolean(selectedProvider.hasMetering ?? selectedProvider.status === 'metered' ? true : null)],
@@ -1897,10 +1905,20 @@ function resolveProviderEndpointRows(detail: ProviderDetail | null, intel: Provi
   return candidates.find((items): items is Endpoint[] => Array.isArray(items) && items.length > 0) ?? [];
 }
 
-function formatPrice(price: Pricing) {
-  if (price.min === null || price.max === null) return price.raw || 'unknown';
-  if (price.min === 0 && price.max === 0) return 'free';
-  return price.min === price.max ? `$${price.min}` : `$${price.min} - $${price.max}`;
+function formatPrice(price: unknown) {
+  if (!isRecord(price)) {
+    console.warn('[radar-render:pricing] malformed pricing payload, using unknown');
+    return 'unknown';
+  }
+  const safeRange = getSafeRange(price, { min: -1, max: -1 });
+  const hasNumericRange = Number.isFinite(price.min) && Number.isFinite(price.max);
+  if (!hasNumericRange) {
+    if (typeof price.raw === 'string' && price.raw.trim()) return price.raw;
+    console.warn('[radar-render:pricing] missing price range min/max, using unknown');
+    return 'unknown';
+  }
+  if (safeRange.min === 0 && safeRange.max === 0) return 'free';
+  return safeRange.min === safeRange.max ? `$${safeRange.min}` : `$${safeRange.min} - $${safeRange.max}`;
 }
 
 function moneyOrUnknown(value: number | null | undefined) {
