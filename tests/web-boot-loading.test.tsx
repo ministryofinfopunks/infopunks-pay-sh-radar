@@ -23,6 +23,15 @@ const provider = {
   latestSignalScore: 73
 };
 
+const malformedProvider = {
+  ...provider,
+  fqn: undefined,
+  category: undefined,
+  pricing: { min: null, max: null, clarity: 'unknown', raw: 'unknown', type: undefined, model: undefined },
+  tags: undefined,
+  status: undefined
+};
+
 const dataSource = {
   mode: 'live_pay_sh_catalog',
   url: 'https://pay.sh/api/catalog',
@@ -41,12 +50,14 @@ function pathOf(input: RequestInfo | URL) {
   return new URL(raw, 'http://localhost').pathname;
 }
 
-function installFetch(options: { corePulse: 'ok' | 'fail' | 'timeout'; optionalFail?: boolean; searchFail?: boolean }) {
+function installFetch(options: { corePulse: 'ok' | 'fail' | 'timeout'; optionalFail?: boolean; searchFail?: boolean; malformedProvider?: boolean; delayFeaturedProviderSelection?: boolean }) {
   const calls: string[] = [];
+  let featuredFetchCount = 0;
+  const activeProvider = options.malformedProvider ? malformedProvider : provider;
   vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
     const path = pathOf(input);
     calls.push(path);
-    if (path === '/v1/providers') return json([provider]);
+    if (path === '/v1/providers') return json([activeProvider]);
     if (path === '/v1/pulse') {
       if (options.corePulse === 'fail') return Promise.resolve(new Response(JSON.stringify({ error: 'boom' }), { status: 500 }));
       if (options.corePulse === 'timeout') {
@@ -87,10 +98,15 @@ function installFetch(options: { corePulse: 'ok' | 'fail' | 'timeout'; optionalF
       interpretations: [],
       data_source: dataSource
     });
-    if (path === '/v1/providers/featured') return options.optionalFail ? Promise.resolve(new Response('{}', { status: 500 })) : json({ providerId: provider.id, providerName: provider.name, category: provider.category, rotationWindowMs: 60000, windowStartedAt: now, nextRotationAt: now, index: 0, providerCount: 1, strategy: 'time_window_round_robin' });
-    if (path === `/v1/providers/${provider.id}`) return json({ provider, endpoints: [], trustAssessment: null, signalAssessment: null });
+    if (path === '/v1/providers/featured') {
+      featuredFetchCount += 1;
+      if (options.delayFeaturedProviderSelection && featuredFetchCount === 1) return Promise.resolve(new Response('{}', { status: 500 }));
+      if (options.optionalFail) return Promise.resolve(new Response('{}', { status: 500 }));
+      return json({ providerId: activeProvider.id, providerName: activeProvider.name, category: activeProvider.category, rotationWindowMs: 60000, windowStartedAt: now, nextRotationAt: now, index: 0, providerCount: 1, strategy: 'time_window_round_robin' });
+    }
+    if (path === `/v1/providers/${provider.id}`) return json({ provider: activeProvider, endpoints: [], trustAssessment: null, signalAssessment: null });
     if (path === `/v1/providers/${provider.id}/intelligence`) return json({
-      provider,
+      provider: activeProvider,
       latest_trust_score: 88,
       latest_signal_score: 73,
       risk_level: 'low',
@@ -224,5 +240,24 @@ describe('radar boot loading behavior', () => {
     expect(fetchState.calls).toContain('/v1/search');
     expect(container.textContent).toContain('Semantic search unavailable');
     expect(container.textContent).not.toContain('Radar degraded: unable to load live pulse');
+  });
+
+  it('malformed provider pricing metadata does not crash render', async () => {
+    const fetchState = installFetch({ corePulse: 'ok', malformedProvider: true, delayFeaturedProviderSelection: true });
+
+    await act(async () => {
+      root = createRoot(container);
+      root.render(<App />);
+    });
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(fetchState.calls).toContain('/v1/providers/featured');
+    expect(container.textContent).toContain('Infopunks Intelligence Terminal');
+    expect(container.textContent).toContain('Provider Directory');
+    expect(container.textContent).not.toContain('Radar UI degraded: rendering fallback shell');
+    expect(container.textContent).not.toContain("Cannot read properties of undefined (reading 'includes')");
   });
 });

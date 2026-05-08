@@ -3,6 +3,10 @@ import { SearchRequest } from '../schemas/entities';
 
 const MAX_SEARCH_PROVIDERS = 100;
 const MAX_SEARCH_RESULTS = 10;
+const safeString = (value: unknown, fallback = '') =>
+  typeof value === 'string' ? value : fallback;
+const safeArray = <T,>(value: unknown): T[] =>
+  Array.isArray(value) ? value as T[] : [];
 
 function tokenize(text: string) {
   return new Set(text.toLowerCase().split(/[^a-z0-9/.-]+/).filter(Boolean));
@@ -25,12 +29,12 @@ export function semanticSearch(input: SearchRequest, store: IntelligenceStore) {
   const maxResults = Math.min(input.limit, MAX_SEARCH_RESULTS);
   return store.providers
     .slice(0, MAX_SEARCH_PROVIDERS)
-    .filter((provider) => !input.category || provider.category.toLowerCase() === input.category?.toLowerCase())
+    .filter((provider) => !input.category || safeString(provider.category).toLowerCase() === safeString(input.category).toLowerCase())
     .map((provider) => {
       const trustAssessment = trustByProvider.get(provider.id);
       const signalAssessment = signalByProvider.get(provider.id);
       if (!trustAssessment || !signalAssessment) return null;
-      const haystack = `${provider.name} ${provider.namespace} ${provider.category} ${provider.description ?? ''} ${provider.tags.join(' ')}`;
+      const haystack = `${safeString(provider.name)} ${safeString(provider.namespace)} ${safeString(provider.category)} ${safeString(provider.description)} ${safeArray<string>(provider.tags).join(' ')}`;
       const lexical = lexicalScore(queryTokens, haystack);
       const relevance = lexical + (trustAssessment.score ?? 0) * 0.015 + (signalAssessment.score ?? 0) * 0.02;
       return {

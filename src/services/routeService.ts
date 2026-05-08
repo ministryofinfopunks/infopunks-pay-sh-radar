@@ -3,6 +3,9 @@ import { IntelligenceStore } from './intelligenceStore';
 import { RouteRecommendationRequest, RouteRecommendation } from '../schemas/entities';
 import { semanticSearch } from './searchService';
 
+const safeString = (value: unknown, fallback = '') =>
+  typeof value === 'string' ? value : fallback;
+
 export function recommendRoute(input: RouteRecommendationRequest, store: IntelligenceStore): RouteRecommendation {
   const searchResults = semanticSearch({ query: input.task, category: input.category, limit: 50 }, store);
   const excludedProviders = searchResults
@@ -124,7 +127,7 @@ function coordinationScoreFor(candidate: ReturnType<typeof semanticSearch>[numbe
   const endpointBreadth = Math.min(candidate.provider.endpointCount * 4, 28);
   const pricingClarity = candidate.provider.pricing.clarity === 'clear' || candidate.provider.pricing.clarity === 'free' ? 16 : candidate.provider.pricing.clarity === 'range' ? 10 : 5;
   const metering = candidate.provider.hasMetering || candidate.provider.status === 'metered' ? 12 : 0;
-  const freeTier = candidate.provider.hasFreeTier || candidate.provider.status.includes('free') ? 6 : 0;
+  const freeTier = candidate.provider.hasFreeTier || safeString(candidate.provider.status).includes('free') ? 6 : 0;
   const trust = (candidate.trustAssessment.score ?? 0) * 0.22;
   const signal = (candidate.signalAssessment.score ?? 0) * 0.16;
   return Math.round(Math.min(100, endpointBreadth + pricingClarity + metering + freeTier + trust + signal));

@@ -7,6 +7,9 @@ import { analyzePropagation, PropagationAnalysis } from './propagationService';
 import { classifyEventSeverity, classifyScoreChangeSeverity, compareSeverity, Severity } from '../engines/severityEngine';
 import { resolveEventCatalogGeneratedAt, resolveEventIngestedAt, resolveEventObservedAt } from './eventTimestamp';
 
+const safeString = (value: unknown, fallback = '') =>
+  typeof value === 'string' ? value : fallback;
+
 export type EventCategory = 'discovery' | 'trust' | 'monitoring' | 'pricing' | 'schema' | 'signal';
 export type RollingWindow = '1h' | '24h' | '7d';
 
@@ -412,7 +415,7 @@ function receiptFromEvent(event: InfopunksEvent, providerId: string | null, endp
     ingested_at: resolveEventIngestedAt(event, null),
     source: event.source,
     derivation_reason: event.derivation_reason ?? derivationReason,
-    confidence: typeof event.confidence === 'number' ? event.confidence : event.source.includes('fixture') ? 0.8 : 1,
+    confidence: typeof event.confidence === 'number' ? event.confidence : safeString(event.source).includes('fixture') ? 0.8 : 1,
     severity: event.severity,
     severity_reason: event.severity_reason,
     severity_score: event.severity_score,

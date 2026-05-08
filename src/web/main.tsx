@@ -208,6 +208,12 @@ function asArray<T>(value: unknown): T[] {
   return Array.isArray(value) ? value as T[] : [];
 }
 
+const safeString = (value: unknown, fallback = '') =>
+  typeof value === 'string' ? value : fallback;
+
+const safeArray = <T,>(value: unknown): T[] =>
+  Array.isArray(value) ? value as T[] : [];
+
 function getSafeRange(value: unknown, fallback: NumericRange = { min: 0, max: 100 }): NumericRange {
   if (!isRecord(value)) return fallback;
   const min = Number.isFinite(value.min) ? Number(value.min) : fallback.min;
@@ -837,7 +843,14 @@ function RadarApp() {
     const query = directoryQuery.trim().toLowerCase();
     return [...safeProviders]
       .filter((provider) => directoryCategory === 'all' || provider.category === directoryCategory)
-      .filter((provider) => !query || [provider.name, provider.id, provider.fqn, provider.category, provider.description, ...(provider.tags ?? [])].filter(Boolean).join(' ').toLowerCase().includes(query))
+      .filter((provider) => !query || [
+        safeString(provider.name),
+        safeString(provider.id),
+        safeString(provider.fqn),
+        safeString(provider.category),
+        safeString(provider.description),
+        ...safeArray<string>(provider.tags)
+      ].filter(Boolean).join(' ').toLowerCase().includes(query))
       .sort((a, b) => compareProviders(a, b, directorySort, trustLookup, signalLookup));
   }, [safeProviders, directoryCategory, directoryQuery, directorySort, signalLookup, trustLookup]);
   const selectedProvider = safeProviders.find((provider) => provider.id === selectedId) ?? null;
@@ -1208,7 +1221,7 @@ function RadarApp() {
                 <span>{data.pulse.data_source.mode === 'live_pay_sh_catalog' ? 'live catalog' : 'fixture fallback'}</span>
                 <span>{selectedProvider.endpointCount} endpoints</span>
                 <span>{formatPrice(selectedProvider.pricing)}</span>
-                <span>{selectedProvider.hasFreeTier || selectedProvider.status.includes('free') ? 'free tier' : 'no free-tier evidence'}</span>
+                <span>{selectedProvider.hasFreeTier || safeString(selectedProvider.status).includes('free') ? 'free tier' : 'no free-tier evidence'}</span>
                 <span>{selectedProvider.hasMetering || selectedProvider.status === 'metered' ? 'metering' : 'metering unknown'}</span>
                 <SeverityBadge evidence={providerIntel ?? selectedProvider} />
               </div>
@@ -1225,7 +1238,7 @@ function RadarApp() {
                 <p>{selectedProvider.description ?? 'No provider description supplied by catalog metadata.'}</p>
                 <p><b>use_case:</b> {selectedProvider.useCase ?? 'unknown'}</p>
                 {selectedProvider.serviceUrl && <p><b>service_url:</b> <a href={selectedProvider.serviceUrl} target="_blank" rel="noreferrer">{selectedProvider.serviceUrl}</a></p>}
-                <div className="chips compact-chips">{(providerIntel?.category_tags.length ? providerIntel.category_tags : selectedProvider.tags).map((tag) => <span key={tag}>{tag}</span>)}</div>
+                <div className="chips compact-chips">{safeArray<string>(providerIntel?.category_tags.length ? providerIntel.category_tags : selectedProvider.tags).map((tag) => <span key={tag}>{tag}</span>)}</div>
                 <EvidenceReceiptView evidence={selectedProvider} title="Evidence" />
               </DossierSection>
               <div className="dossier-grid">
@@ -1234,7 +1247,7 @@ function RadarApp() {
                     ['min_price_usd', moneyOrUnknown(getSafeRange(selectedProvider.pricing).min)],
                     ['max_price_usd', moneyOrUnknown(getSafeRange(selectedProvider.pricing).max)],
                     ['endpoint_count', selectedProvider.endpointCount],
-                    ['has_free_tier', formatNullableBoolean(selectedProvider.hasFreeTier ?? selectedProvider.status.includes('free') ? true : null)],
+                    ['has_free_tier', formatNullableBoolean(selectedProvider.hasFreeTier ?? safeString(selectedProvider.status).includes('free') ? true : null)],
                     ['has_metering', formatNullableBoolean(selectedProvider.hasMetering ?? selectedProvider.status === 'metered' ? true : null)],
                     ['source_sha', selectedProvider.sourceSha ?? 'unknown'],
                     ['catalog_generated_at', formatDate(selectedProvider.catalogGeneratedAt)],

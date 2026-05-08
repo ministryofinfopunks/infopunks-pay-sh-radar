@@ -5,6 +5,9 @@ import { classifyEventSeverity, classifyProviderDossierSeverity, Severity } from
 import { analyzePropagation, PropagationAnalysis } from './propagationService';
 import { resolveEventCatalogGeneratedAt, resolveEventIngestedAt, resolveEventObservedAt } from './eventTimestamp';
 
+const safeString = (value: unknown, fallback = '') =>
+  typeof value === 'string' ? value : fallback;
+
 export type HistoryItem = {
   id: string;
   event_id: string;
@@ -144,7 +147,7 @@ function historyItem(event: InfopunksEvent): HistoryItem {
     catalog_generated_at: resolveEventCatalogGeneratedAt(event, typeof event.payload.catalog_generated_at === 'string' ? event.payload.catalog_generated_at : null),
     ingested_at: resolveEventIngestedAt(event, null),
     derivation_reason: event.derivation_reason ?? summary,
-    confidence: typeof event.confidence === 'number' ? event.confidence : event.source.includes('fixture') ? 0.8 : 1,
+    confidence: typeof event.confidence === 'number' ? event.confidence : safeString(event.source).includes('fixture') ? 0.8 : 1,
     ...classifyEventSeverity(event, []),
     summary,
     payload: event.payload

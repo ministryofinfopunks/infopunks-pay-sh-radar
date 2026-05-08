@@ -35,6 +35,10 @@ type Candidate = Omit<EcosystemInterpretation, 'interpretation_id' | 'evidence'>
 
 const mediaTerms = ['media', 'image', 'video', 'ocr', 'vision', 'multimodal'];
 const metadataEventTypes = new Set(['metadata.changed', 'schema.changed', 'endpoint.updated', 'manifest.updated']);
+const safeString = (value: unknown, fallback = '') =>
+  typeof value === 'string' ? value : fallback;
+const safeArray = <T,>(value: unknown): T[] =>
+  Array.isArray(value) ? value as T[] : [];
 
 export function interpretEcosystem(input: InterpretationInput): EcosystemInterpretation[] {
   const providerById = new Map(input.store.providers.map((provider) => [provider.id, provider]));
@@ -203,11 +207,11 @@ export function createInterpretationId(input: Pick<EcosystemInterpretation, 'int
 }
 
 function providerMatchesTerms(provider: { category: string; name: string; description: string | null; tags: string[] }, terms: string[]) {
-  return terms.some((term) => `${provider.category} ${provider.name} ${provider.description ?? ''} ${provider.tags.join(' ')}`.toLowerCase().includes(term));
+  return terms.some((term) => `${safeString(provider.category)} ${safeString(provider.name)} ${safeString(provider.description)} ${safeArray<string>(provider.tags).join(' ')}`.toLowerCase().includes(term));
 }
 
 function eventMatchesTerms(event: PulseEvent, terms: string[]) {
-  return terms.some((term) => `${event.providerName ?? ''} ${event.entityId} ${event.summary}`.toLowerCase().includes(term));
+  return terms.some((term) => `${safeString(event.providerName)} ${safeString(event.entityId)} ${safeString(event.summary)}`.toLowerCase().includes(term));
 }
 
 function affectedCategories(providerIds: string[], providerById: Map<string, { category: string }>) {
