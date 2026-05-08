@@ -2,8 +2,9 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 
-type Provider = { id: string; name: string; title?: string; namespace: string; fqn?: string; category: string; description: string | null; useCase?: string | null; serviceUrl?: string | null; endpointCount: number; endpointMetadataPartial?: boolean; hasMetering?: boolean; hasFreeTier?: boolean; sourceSha?: string | null; catalogGeneratedAt?: string | null; pricing: { min: number | null; max: number | null; clarity: string; raw: string }; tags: string[]; status: string; lastSeenAt?: string; latestTrustScore?: number | null; latestTrustGrade?: string; latestSignalScore?: number | null };
-type Endpoint = { id: string; providerId: string; name: string; path: string | null; method: string | null; category: string; description: string | null; status: string; pricing: Provider['pricing']; lastSeenAt: string; latencyMsP50: number | null };
+type Pricing = { min: number | null; max: number | null; clarity: string; raw: string };
+type Provider = { id: string; name: string; title?: string; namespace: string; fqn?: string; category: string; description: string | null; useCase?: string | null; serviceUrl?: string | null; endpointCount: number; endpointMetadataPartial?: boolean; hasMetering?: boolean; hasFreeTier?: boolean; sourceSha?: string | null; catalogGeneratedAt?: string | null; pricing: Pricing; tags: string[]; status: string; lastSeenAt?: string; latestTrustScore?: number | null; latestTrustGrade?: string; latestSignalScore?: number | null };
+type Endpoint = { id: string; providerId: string; name: string; path: string | null; method: string | null; category: string; description: string | null; status: string; pricing: Pricing; lastSeenAt: string; latencyMsP50: number | null; routeEligible?: boolean | null };
 type TrustAssessment = { entityId: string; score: number | null; grade: string; components: Record<string, number | null>; unknowns: string[] };
 type SignalAssessment = { entityId: string; score: number | null; narratives: string[]; components: Record<string, number | null>; unknowns: string[] };
 type Narrative = { id: string; title: string; heat: number | null; momentum: number | null; providerIds: string[]; keywords: string[]; summary: string };
@@ -12,6 +13,7 @@ type Pulse = { providerCount: number; endpointCount: number; eventCount: number;
 type HistoryItem = { id: string; type: string; observedAt: string; source: string; summary: string };
 type ProviderDetail = { provider: Provider; endpoints: Endpoint[]; trustAssessment: TrustAssessment | null; signalAssessment: SignalAssessment | null };
 type ProviderIntelligence = {
+  provider?: Provider;
   latest_trust_score: number | null;
   latest_signal_score: number | null;
   risk_level: string;
@@ -33,6 +35,8 @@ type ProviderIntelligence = {
   };
   category_tags: string[];
   last_seen_at: string | null;
+  endpoints?: Endpoint[];
+  endpointList?: Endpoint[];
 };
 type EndpointMonitor = { health: string; lastCheck: { observedAt: string; payload: Record<string, unknown> } | null; recentFailures: HistoryItem[] };
 type EventCategory = 'discovery' | 'trust' | 'monitoring' | 'pricing' | 'schema' | 'signal';
@@ -176,6 +180,10 @@ function App() {
     return [...(data?.providers ?? [])].sort((a, b) => compareFeaturedProviders(a, b, trustLookup, signalLookup));
   }, [data?.providers, signalLookup, trustLookup]);
   const selectedProvider = data?.providers.find((provider) => provider.id === selectedId) ?? null;
+  const endpointRows = useMemo(() => resolveProviderEndpointRows(providerDetail, providerIntel), [providerDetail, providerIntel]);
+  const reportedEndpointCount = providerIntel?.endpoint_count ?? providerDetail?.provider.endpointCount ?? selectedProvider?.endpointCount ?? 0;
+  const endpointProvider = providerDetail?.provider ?? providerIntel?.provider ?? selectedProvider;
+  const hasPartialEndpointMetadata = reportedEndpointCount > 0 && endpointRows.length === 0;
   const nextRotationLabel = autoRotateEnabled && nextRotationAt ? formatRotationCountdown(nextRotationAt - rotationNow) : 'paused';
   const isFeaturedProvider = selectionMode === 'auto' && autoRotateEnabled;
   const timelineBatches = useMemo(() => groupTimelineByBatch(pulseSummary?.timeline ?? []), [pulseSummary?.timeline]);
@@ -218,16 +226,25 @@ function App() {
 
   useEffect(() => {
     if (!selectedProvider) return;
+    let active = true;
+    setProviderDetail(null);
+    setProviderIntel(null);
+    setEndpointMonitors({});
     Promise.all([
       api<{ data: ProviderDetail }>(`/v1/providers/${selectedProvider.id}`),
       api<{ data: ProviderIntelligence }>(`/v1/providers/${selectedProvider.id}/intelligence`)
     ]).then(([detail, intel]) => {
+      if (!active) return [];
       setProviderDetail(detail.data);
       setProviderIntel(intel.data);
       return Promise.all(detail.data.endpoints.slice(0, 40).map((endpoint) => api<{ data: EndpointMonitor }>(`/v1/endpoints/${endpoint.id}/monitor`).then((monitor) => [endpoint.id, monitor.data] as const)));
     }).then((monitors) => {
+      if (!active) return;
       setEndpointMonitors(Object.fromEntries(monitors));
     });
+    return () => {
+      active = false;
+    };
   }, [selectedProvider?.id]);
 
   function runRoute() {
@@ -646,21 +663,36 @@ function App() {
       <section className="grid two provider-analysis-grid">
         <div className="panel">
           <ScopeLabel scope="PROVIDER" context={providerContextLabel} />
-          <h2>Endpoint List</h2>
-          <div className="endpoint-list">
-            {(providerDetail?.endpoints ?? []).map((endpoint) => <div className="endpoint" key={endpoint.id}>
+          <div className="endpoint-panel-head">
+            <h2>Endpoint List</h2>
+            {hasPartialEndpointMetadata && <span className="partial-badge">LIVE CATALOG PARTIAL</span>}
+          </div>
+          <div className={`endpoint-list ${endpointRows.length ? 'has-rows' : 'compact-state'}`}>
+            {endpointRows.map((endpoint) => <div className="endpoint" key={endpoint.id}>
               {(() => {
                 const monitor = endpointMonitors[endpoint.id];
                 const payload = monitor?.lastCheck?.payload ?? {};
                 return <>
               <strong>{endpoint.name}</strong>
               <span>{endpoint.method ?? 'METHOD_UNKNOWN'} {endpoint.path ?? 'path unavailable'}</span>
-              <small>{endpoint.category} / {endpoint.status} / {formatPrice(endpoint.pricing)}</small>
+              <small>category {endpoint.category} / type {endpoint.status} / pricing {formatPrice(endpoint.pricing)}</small>
               <small>health {monitor?.health ?? 'unknown'} / checked {formatDate(monitor?.lastCheck?.observedAt)} / latency {formatMs((payload.response_time_ms as number | undefined) ?? endpoint.latencyMsP50)}</small>
+              {typeof endpoint.routeEligible === 'boolean' && <small>route eligible {formatNullableBoolean(endpoint.routeEligible)}</small>}
               {!!monitor?.recentFailures.length && <small className="failure-line">recent failure: {monitor.recentFailures[0].summary}</small>}
                 </>;
               })()}
             </div>)}
+            {!endpointRows.length && reportedEndpointCount > 0 && endpointProvider && <>
+              <p className="endpoint-state">Pay.sh catalog reports {reportedEndpointCount} endpoints for this provider. Full endpoint-level metadata is not exposed in the current catalog feed.</p>
+              <div className="endpoint synthetic">
+                <strong>Provider capability surface</strong>
+                <span>Endpoint count: {reportedEndpointCount}</span>
+                <small>Category: {endpointProvider.category}</small>
+                <small>Pricing range: {formatPrice(endpointProvider.pricing)}</small>
+                <small>Source: live Pay.sh catalog</small>
+              </div>
+            </>}
+            {!endpointRows.length && reportedEndpointCount === 0 && <p className="endpoint-state">No endpoints reported by the live Pay.sh catalog.</p>}
           </div>
         </div>
         <div className="panel">
@@ -809,7 +841,16 @@ function DeltaPanel({ title, caption, deltas, empty, scope }: { title: string; c
   </div>;
 }
 
-function formatPrice(price: Provider['pricing']) {
+function resolveProviderEndpointRows(detail: ProviderDetail | null, intel: ProviderIntelligence | null) {
+  const candidates = [
+    detail?.endpoints,
+    intel?.endpoints,
+    intel?.endpointList
+  ];
+  return candidates.find((items): items is Endpoint[] => Array.isArray(items) && items.length > 0) ?? [];
+}
+
+function formatPrice(price: Pricing) {
   if (price.min === null || price.max === null) return price.raw || 'unknown';
   if (price.min === 0 && price.max === 0) return 'free';
   return price.min === price.max ? `$${price.min}` : `$${price.min} - $${price.max}`;

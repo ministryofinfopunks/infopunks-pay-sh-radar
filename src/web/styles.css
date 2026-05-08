@@ -223,11 +223,18 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 .component-list p { display: flex; justify-content: space-between; gap: 12px; margin: 0; color: var(--muted); }
 .component-list b { color: var(--text); font-weight: 500; overflow-wrap: anywhere; }
 .component-list i { color: var(--green); font-style: normal; }
+.endpoint-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.endpoint-panel-head h2 { margin-bottom: 0; }
+.partial-badge { border: 1px solid rgba(246,208,111,.34); color: var(--amber); background: rgba(246,208,111,.075); border-radius: 999px; padding: 5px 8px; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
 .endpoint-list, .timeline { display: grid; gap: 10px; max-height: 430px; overflow: auto; }
+.endpoint-list.has-rows { max-height: clamp(260px, 36vh, 430px); padding-right: 4px; scrollbar-gutter: stable; }
+.endpoint-list.compact-state { max-height: none; overflow: visible; }
 .endpoint, .change { border: 1px solid rgba(126,255,176,.12); background: rgba(126,255,176,.035); border-radius: 12px; padding: 14px; }
+.endpoint.synthetic { border-color: rgba(246,208,111,.2); background: rgba(246,208,111,.045); }
 .endpoint strong, .change strong { display: block; font-family: 'Space Grotesk', sans-serif; }
 .endpoint span, .change span { display: block; color: #b8cfbf; margin-top: 6px; overflow-wrap: anywhere; }
 .endpoint small, .change time, .muted { color: var(--muted); }
+.endpoint-state { border: 1px dashed rgba(246,208,111,.24); border-radius: 12px; margin: 0; padding: 12px; color: var(--amber); background: rgba(246,208,111,.055); font-size: 12px; line-height: 1.45; }
 .change time { display: block; font-size: 12px; margin-bottom: 6px; }
 .empty-state { border: 1px dashed rgba(126,255,176,.18); border-radius: 12px; margin: 0; padding: 14px; background: rgba(0,0,0,.16); }
 @media (min-width: 1680px) { .shell { width: min(1760px, calc(100% - 40px)); } .event-feed { max-height: 660px; } }
