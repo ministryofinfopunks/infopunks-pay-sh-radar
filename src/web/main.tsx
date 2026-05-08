@@ -58,6 +58,9 @@ type PropagationAnalysis = {
   first_observed_at: string | null;
   latest_observed_at: string | null;
   supporting_event_ids: string[];
+  supporting_event_count?: number;
+  remaining_event_count?: number;
+  view_full_receipts_url?: string;
   confidence: number;
   severity: 'low' | 'medium' | 'high' | 'critical' | 'unknown';
 };
@@ -87,6 +90,9 @@ type EcosystemInterpretation = EvidenceReceipt & {
   affected_categories: string[];
   affected_providers: string[];
   supporting_event_ids: string[];
+  supporting_event_count?: number;
+  remaining_event_count?: number;
+  view_full_receipts_url?: string;
   confidence: number;
   severity: 'stable' | 'info' | 'watch' | 'warning' | 'critical';
   observed_window: { started_at: string | null; ended_at: string | null; event_count: number };
@@ -1357,14 +1363,16 @@ function InterpretationMeta({ interpretation, providerLookup }: { interpretation
       ? `${providers} affected providers`
       : `${providers} affected providers (${knownProviderCount} named)`
     : 'no affected providers';
-  const events = interpretation.supporting_event_ids.length;
+  const events = interpretation.supporting_event_count ?? interpretation.supporting_event_ids.length;
+  const remaining = interpretation.remaining_event_count ?? 0;
   return <div className="interpretation-meta">
     <span>categories: {categories}</span>
     <span>providers: {providerCountLabel}</span>
     <span>severity: {interpretation.severity}</span>
     <span>confidence: {Math.round(interpretation.confidence * 100)}%</span>
     <span>window: {formatDate(interpretation.observed_window.started_at)} to {formatDate(interpretation.observed_window.ended_at)}</span>
-    <span>evidence: {events} supporting events</span>
+    <span>evidence: {events} supporting events{remaining > 0 ? ` (${remaining} not shown inline)` : ''}</span>
+    {interpretation.view_full_receipts_url ? <a href={interpretation.view_full_receipts_url}>view full receipts</a> : null}
   </div>;
 }
 
@@ -1382,9 +1390,14 @@ function PropagationWatch({ propagation }: { propagation?: PropagationAnalysis |
     first_observed_at: null,
     latest_observed_at: null,
     supporting_event_ids: [],
+    supporting_event_count: 0,
+    remaining_event_count: 0,
     confidence: 0,
-    severity: 'unknown'
+    severity: 'unknown',
+    view_full_receipts_url: undefined
   } satisfies PropagationAnalysis;
+  const totalSupportingEvents = current.supporting_event_count ?? current.supporting_event_ids.length;
+  const remainingSupportingEvents = current.remaining_event_count ?? Math.max(0, totalSupportingEvents - current.supporting_event_ids.length);
   return <div className={`panel propagation-watch ${current.propagation_state}`}>
     <div className="panel-head">
       <div>
@@ -1414,10 +1427,11 @@ function PropagationWatch({ propagation }: { propagation?: PropagationAnalysis |
     <details className="receipt compact propagation-evidence">
       <summary>Evidence</summary>
       <div className="receipt-grid">
-        <p><b>supporting events</b><span>{current.supporting_event_ids.length ? current.supporting_event_ids.slice(0, 8).join(', ') : 'none'}</span></p>
+        <p><b>supporting events</b><span>{totalSupportingEvents}{remainingSupportingEvents > 0 ? ` (${remainingSupportingEvents} not shown inline)` : ''}</span></p>
         <p><b>recent degradations</b><span>monitor degradation and failure events</span></p>
         <p><b>narrative heatmap</b><span>{current.affected_cluster ?? 'no affected heatmap cluster'}</span></p>
         <p><b>graph layer</b><span>category, tag, and narrative adjacency considered</span></p>
+        <p><b>receipts</b><span>{current.view_full_receipts_url ? <a href={current.view_full_receipts_url}>view full receipts</a> : 'none'}</span></p>
       </div>
     </details>
   </div>;

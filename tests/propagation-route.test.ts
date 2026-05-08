@@ -91,6 +91,10 @@ describe('propagation incident route', () => {
     const response = await app.inject({ method: 'GET', url: `/v1/propagation/${clusterId}` });
     expect(response.statusCode).toBe(200);
     expect(response.json().data.propagation_state).toBe(listResponse.json().data.propagation_state);
+    expect(listResponse.json().data.supporting_event_ids.length).toBeLessThanOrEqual(10);
+    expect(listResponse.json().data.supporting_event_count).toBeGreaterThanOrEqual(listResponse.json().data.supporting_event_ids.length);
+    expect(listResponse.json().data.remaining_event_count).toBe(listResponse.json().data.supporting_event_count - listResponse.json().data.supporting_event_ids.length);
+    expect(listResponse.json().data.view_full_receipts_url).toBe(`/propagation/${clusterId}`);
     await app.close();
   });
 

@@ -107,6 +107,17 @@ describe('search and route API', () => {
       usedFixture: expect.any(Boolean),
       source: expect.any(String)
     });
+    expect(summary.propagation.supporting_event_ids.length).toBeLessThanOrEqual(10);
+    expect(summary.propagation.supporting_event_count).toBeGreaterThanOrEqual(summary.propagation.supporting_event_ids.length);
+    expect(summary.propagation.remaining_event_count).toBe(summary.propagation.supporting_event_count - summary.propagation.supporting_event_ids.length);
+    expect(summary.propagation.view_full_receipts_url).toBe(`/propagation/${summary.propagation.cluster_id}`);
+    if (summary.interpretations.length > 0) {
+      const interpretation = summary.interpretations[0];
+      expect(interpretation.supporting_event_ids.length).toBeLessThanOrEqual(10);
+      expect(interpretation.supporting_event_count).toBeGreaterThanOrEqual(interpretation.supporting_event_ids.length);
+      expect(interpretation.remaining_event_count).toBe(interpretation.supporting_event_count - interpretation.supporting_event_ids.length);
+      expect(interpretation.view_full_receipts_url).toBe(`/interpretations/${interpretation.interpretation_id}`);
+    }
     expect(summary.data_source.mode).toMatch(/^(live_pay_sh_catalog|fixture_fallback)$/);
     await app.close();
   });

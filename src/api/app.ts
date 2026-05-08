@@ -20,6 +20,7 @@ import { resolvePropagationIncident } from '../services/propagationIncidentServi
 import { providerReachabilitySummary, providerRootHealthSummary } from '../services/eventSummaryHelpers';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
+const MAX_INLINE_SUPPORTING_EVENT_IDS = 10;
 
 export async function createApp(preloadedStore?: IntelligenceStore, repository: IntelligenceRepository = defaultRepository()) {
   const config = loadRuntimeConfig();
@@ -96,8 +97,11 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   }), () => ({
     data: pulseWarmingUpFallback(store, bootstrapped, 'pulse_timeout')
   })));
-  app.get('/v1/pulse/summary', async () => ({ data: pulseSummary(store, new Date().toISOString(), config.payShIngestIntervalMs, { includePropagation: false, includeInterpretations: false, propagationFallback: cachedPropagation, interpretationsFallback: cachedInterpretations }) }));
-  app.get('/v1/propagation', async () => ({ data: cachedPropagation }));
+  app.get('/v1/pulse/summary', async () => {
+    const summary = pulseSummary(store, new Date().toISOString(), config.payShIngestIntervalMs, { includePropagation: false, includeInterpretations: false, propagationFallback: cachedPropagation, interpretationsFallback: cachedInterpretations });
+    return { data: compactPulseSummaryPayload(summary) };
+  });
+  app.get('/v1/propagation', async () => ({ data: compactPropagationSummary(cachedPropagation) }));
   app.get<{ Params: { cluster_id: string } }>('/v1/propagation/:cluster_id', async (req, reply) => {
     const incident = resolvePropagationIncident(store, req.params.cluster_id, new Date().toISOString(), cachedPropagation, cachedInterpretations);
     if (!incident) return reply.code(404).send({ error: 'propagation_cluster_not_found' });
@@ -369,7 +373,7 @@ function buildPulseDashboard(store: IntelligenceStore, interpretations: unknown[
       socialVelocity: store.signalAssessments.filter((item) => item.components.socialVelocity === null).length,
       onchainLiquidityResonance: store.signalAssessments.filter((item) => item.components.onchainLiquidityResonance === null).length
     },
-    interpretations,
+    interpretations: compactInterpretationsSummary(interpretations as ReturnType<typeof pulseSummary>['interpretations']),
     data_source: dataSourceState(store),
     catalog_status: catalogStatusFromDataSource(store.dataSource),
     catalog_error: sanitizeCatalogError(store.dataSource?.error ?? null),
@@ -381,6 +385,40 @@ function buildPulseDashboard(store: IntelligenceStore, interpretations: unknown[
     updatedAt: generatedAt,
     bootstrapped
   };
+}
+
+function compactPulseSummaryPayload(summary: ReturnType<typeof pulseSummary>) {
+  return {
+    ...summary,
+    propagation: compactPropagationSummary(summary.propagation),
+    interpretations: compactInterpretationsSummary(summary.interpretations)
+  };
+}
+
+function compactPropagationSummary(propagation: ReturnType<typeof pulseSummary>['propagation']) {
+  const supporting_event_count = propagation.supporting_event_ids.length;
+  const supporting_event_ids = propagation.supporting_event_ids.slice(0, MAX_INLINE_SUPPORTING_EVENT_IDS);
+  return {
+    ...propagation,
+    supporting_event_ids,
+    supporting_event_count,
+    remaining_event_count: Math.max(0, supporting_event_count - supporting_event_ids.length),
+    view_full_receipts_url: `/propagation/${encodeURIComponent(propagation.cluster_id)}`
+  };
+}
+
+function compactInterpretationsSummary(interpretations: ReturnType<typeof pulseSummary>['interpretations']) {
+  return interpretations.map((item) => {
+    const supporting_event_count = item.supporting_event_ids.length;
+    const supporting_event_ids = item.supporting_event_ids.slice(0, MAX_INLINE_SUPPORTING_EVENT_IDS);
+    return {
+      ...item,
+      supporting_event_ids,
+      supporting_event_count,
+      remaining_event_count: Math.max(0, supporting_event_count - supporting_event_ids.length),
+      view_full_receipts_url: `/interpretations/${encodeURIComponent(item.interpretation_id)}`
+    };
+  });
 }
 
 function pulseDashboardResponse(cachedPulseDashboard: ReturnType<typeof buildPulseDashboard> | null, store: IntelligenceStore) {
