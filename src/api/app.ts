@@ -40,6 +40,8 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   const PROVIDER_LIST_MAX = 100;
   const allowedOrigins = new Set(DEFAULT_ALLOWED_ORIGINS);
   if (config.frontendOrigin) allowedOrigins.add(config.frontendOrigin);
+  const corsMethodsHeader = CORS_METHODS.join(', ');
+  const corsAllowedHeadersHeader = CORS_ALLOWED_HEADERS.join(', ');
   await app.register(cors, {
     origin: (origin, callback) => callback(null, !origin || allowedOrigins.has(origin)),
     methods: CORS_METHODS,
@@ -47,6 +49,16 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     maxAge: CORS_MAX_AGE_SECONDS,
     optionsSuccessStatus: 204,
     preflight: true
+  });
+  app.addHook('onSend', async (req, reply, payload) => {
+    const origin = req.headers.origin;
+    if (!origin || !allowedOrigins.has(origin)) return payload;
+    reply.header('access-control-allow-origin', origin);
+    reply.header('access-control-allow-methods', corsMethodsHeader);
+    reply.header('access-control-allow-headers', corsAllowedHeadersHeader);
+    reply.header('access-control-max-age', String(CORS_MAX_AGE_SECONDS));
+    reply.header('vary', 'Origin');
+    return payload;
   });
   const store = preloadedStore ?? emptyIntelligenceStore();
   let bootstrapped = Boolean(preloadedStore);
