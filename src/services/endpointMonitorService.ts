@@ -4,6 +4,9 @@ import { isIP } from 'node:net';
 import { Endpoint, Evidence, InfopunksEvent, MonitorRun, Provider } from '../schemas/entities';
 import { IntelligenceRepository } from '../persistence/repository';
 import { IntelligenceStore, recomputeAssessments } from './intelligenceStore';
+import { providerReachabilitySummary, providerRootHealthSummary } from './eventSummaryHelpers';
+import { classifyEventSeverity } from '../engines/severityEngine';
+import { resolveEventObservedAt } from './eventTimestamp';
 
 export type MonitorMode = 'disabled' | 'safe_metadata' | 'endpoint_health' | 'paid_execution_probe';
 
@@ -443,11 +446,15 @@ function providerMonitorEventsForResult(provider: Provider, result: Record<strin
 }
 
 function monitorEvent(type: InfopunksEvent['type'], endpointId: string, payload: Record<string, unknown>, observedAt: string): InfopunksEvent {
-  return { id: randomUUID(), type, source: SOURCE, entityType: 'endpoint', entityId: endpointId, observedAt, payload };
+  const base = { id: randomUUID(), type, source: SOURCE, entityType: 'endpoint' as const, entityId: endpointId, observedAt, payload };
+  const severity = classifyEventSeverity(base);
+  return { ...base, ...severity, payload: { ...payload, ...severity } };
 }
 
 function providerMonitorEvent(type: InfopunksEvent['type'], providerId: string, payload: Record<string, unknown>, observedAt: string): InfopunksEvent {
-  return { id: randomUUID(), type, source: SAFE_SOURCE, entityType: 'provider', entityId: providerId, observedAt, payload };
+  const base = { id: randomUUID(), type, source: SAFE_SOURCE, entityType: 'provider' as const, entityId: providerId, observedAt, payload };
+  const severity = classifyEventSeverity(base);
+  return { ...base, ...severity, payload: { ...payload, ...severity } };
 }
 
 function latestEndpointMonitorEvent(store: IntelligenceStore, endpointId: string) {
@@ -457,7 +464,7 @@ function latestEndpointMonitorEvent(store: IntelligenceStore, endpointId: string
 function endpointMonitorEvents(store: IntelligenceStore, endpointId: string) {
   return store.events
     .filter((event) => event.entityType === 'endpoint' && event.entityId === endpointId && isMonitorEvent(event.type))
-    .sort((a, b) => Date.parse(b.observedAt) - Date.parse(a.observedAt));
+    .sort((a, b) => Date.parse(resolveEventObservedAt(b, b.observedAt) ?? b.observedAt) - Date.parse(resolveEventObservedAt(a, a.observedAt) ?? a.observedAt));
 }
 
 function latestProviderMonitorEvent(store: IntelligenceStore, providerId: string) {
@@ -467,7 +474,7 @@ function latestProviderMonitorEvent(store: IntelligenceStore, providerId: string
 function providerMonitorEvents(store: IntelligenceStore, providerId: string) {
   return store.events
     .filter((event) => event.entityType === 'provider' && event.entityId === providerId && isProviderMonitorEvent(event.type))
-    .sort((a, b) => Date.parse(b.observedAt) - Date.parse(a.observedAt) || providerEventPriority(b.type) - providerEventPriority(a.type));
+    .sort((a, b) => Date.parse(resolveEventObservedAt(b, b.observedAt) ?? b.observedAt) - Date.parse(resolveEventObservedAt(a, a.observedAt) ?? a.observedAt) || providerEventPriority(b.type) - providerEventPriority(a.type));
 }
 
 function healthFromEvent(event: InfopunksEvent | null): EndpointMonitorSummary['health'] {
@@ -489,9 +496,17 @@ function applyEndpointEvidence(store: IntelligenceStore, endpointId: string, eve
   if (!endpoint) return;
   const evidence = events.map((event): Evidence => ({
     eventId: event.id,
+    event_id: event.id,
     eventType: event.type,
+    event_type: event.type,
     source: event.source,
-    observedAt: event.observedAt,
+    observedAt: resolveEventObservedAt(event, event.observedAt) ?? event.observedAt,
+    observed_at: resolveEventObservedAt(event, event.observedAt) ?? event.observedAt,
+    providerId: typeof event.payload.providerId === 'string' ? event.payload.providerId : null,
+    provider_id: typeof event.payload.providerId === 'string' ? event.payload.providerId : null,
+    endpointId,
+    endpoint_id: endpointId,
+    ...classifyEventSeverity(event, [...store.events, ...events]),
     summary: `Monitor recorded ${event.payload.success === true ? 'successful' : 'failed'} check with latency ${event.payload.response_time_ms ?? 'unknown'}ms.`,
     value: event.payload
   }));
@@ -509,13 +524,29 @@ function applyProviderEvidence(store: IntelligenceStore, providerId: string, eve
   if (!provider) return;
   const evidence = events.map((event): Evidence => ({
     eventId: event.id,
+    event_id: event.id,
     eventType: event.type,
+    event_type: event.type,
+    providerId,
+    provider_id: providerId,
+    endpointId: null,
+    endpoint_id: null,
     source: event.source,
-    observedAt: event.observedAt,
-    summary: `Safe monitor recorded service reachability ${event.payload.status ?? 'unknown'} with latency ${event.payload.response_time_ms ?? 'unknown'}ms.`,
+    observedAt: resolveEventObservedAt(event, event.observedAt) ?? event.observedAt,
+    observed_at: resolveEventObservedAt(event, event.observedAt) ?? event.observedAt,
+    ...classifyEventSeverity(event, [...store.events, ...events]),
+    summary: providerEvidenceSummary(event),
     value: event.payload
   }));
   provider.evidence = mergeEvidence(provider.evidence, evidence);
+}
+
+function providerEvidenceSummary(event: InfopunksEvent) {
+  if (event.type === 'provider.checked' || event.type === 'provider.failed') return providerReachabilitySummary(event);
+  if (event.type === 'provider.reachable') return providerRootHealthSummary(event, 'healthy');
+  if (event.type === 'provider.degraded') return providerRootHealthSummary(event, 'degraded');
+  if (event.type === 'provider.recovered') return providerRootHealthSummary(event, 'recovered');
+  return providerRootHealthSummary(event, 'unknown');
 }
 
 function mergeEvidence(existing: Evidence[], next: Evidence[]) {

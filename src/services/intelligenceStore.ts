@@ -5,6 +5,8 @@ import { computeTrustAssessment } from '../engines/trustEngine';
 import { IntelligenceRepository, IntelligenceSnapshot, MemoryRepository } from '../persistence/repository';
 import { PostgresRepository } from '../persistence/postgresRepository';
 import { InfopunksEvent, SignalAssessment, TrustAssessment } from '../schemas/entities';
+import { classifyScoreChangeSeverity } from '../engines/severityEngine';
+import { resolveEventObservedAt } from './eventTimestamp';
 
 export type IntelligenceStore = IntelligenceSnapshot;
 
@@ -89,7 +91,7 @@ function appendScoreAssessmentEvents(events: InfopunksEvent[], trustAssessments:
 function latestScoreEvent(events: InfopunksEvent[], entityType: 'trust_assessment' | 'signal_assessment', providerId: string) {
   return events
     .filter((event) => event.type === 'score_assessment_created' && event.entityType === entityType && event.payload.entityId === providerId)
-    .sort((a, b) => Date.parse(b.observedAt) - Date.parse(a.observedAt))[0] ?? null;
+    .sort((a, b) => Date.parse(resolveEventObservedAt(b, b.observedAt) ?? b.observedAt) - Date.parse(resolveEventObservedAt(a, a.observedAt) ?? a.observedAt))[0] ?? null;
 }
 
 function scoreEvent(entityType: 'trust_assessment' | 'signal_assessment', assessment: TrustAssessment | SignalAssessment, previous: InfopunksEvent | null): InfopunksEvent {
@@ -101,6 +103,8 @@ function scoreEvent(entityType: 'trust_assessment' | 'signal_assessment', assess
     assessmentId: assessment.id,
     entityId: assessment.entityId,
     entityType: assessment.entityType,
+    providerId: assessment.providerId ?? assessment.entityId,
+    endpointId: assessment.endpointId ?? null,
     score,
     previousScore,
     delta: score !== null && previousScore !== null ? score - previousScore : null,
@@ -108,15 +112,26 @@ function scoreEvent(entityType: 'trust_assessment' | 'signal_assessment', assess
     unknowns: assessment.unknowns,
     evidenceEventIds
   }) as Record<string, unknown>;
+  const severity = classifyScoreChangeSeverity(entityType, score !== null && previousScore !== null ? score - previousScore : null, assessment.unknowns.length);
 
+  const id = stableId(['score_assessment_created', entityType, assessment.entityId, previous?.id ?? 'initial', score, evidenceEventIds, observedAt]);
   return {
-    id: stableId(['score_assessment_created', entityType, assessment.entityId, previous?.id ?? 'initial', score, evidenceEventIds, observedAt]),
+    id,
+    event_id: id,
     type: 'score_assessment_created',
     source: 'infopunks:deterministic-scoring',
     entityType,
     entityId: assessment.id,
+    provider_id: assessment.providerId ?? assessment.entityId,
+    endpoint_id: assessment.endpointId ?? null,
     observedAt,
-    payload
+    observed_at: observedAt,
+    catalog_generated_at: assessment.catalogGeneratedAt ?? null,
+    ingested_at: assessment.ingestedAt ?? observedAt,
+    derivation_reason: assessment.derivationReason ?? 'Score assessment created from deterministic evidence.',
+    confidence: assessment.confidence,
+    ...severity,
+    payload: { ...payload, ...severity }
   };
 }
 
@@ -132,12 +147,17 @@ function normalizeScoreEventTimestamps(events: InfopunksEvent[]) {
   const byId = new Map(events.map((event) => [event.id, event]));
   return events.map((event) => {
     if (event.type !== 'score_assessment_created') return event;
+    const currentObservedAt = resolveEventObservedAt(event, event.observedAt);
+    if (currentObservedAt) {
+      if (currentObservedAt === event.observedAt && event.observed_at === currentObservedAt) return event;
+      return { ...event, observedAt: currentObservedAt, observed_at: currentObservedAt };
+    }
     const evidenceEventIds = Array.isArray(event.payload.evidenceEventIds) ? event.payload.evidenceEventIds : [];
     const evidenceTimes = evidenceEventIds
-      .map((id) => typeof id === 'string' ? byId.get(id)?.observedAt : null)
+      .map((id) => typeof id === 'string' ? resolveEventObservedAt(byId.get(id), null) : null)
       .filter((value): value is string => Boolean(value && isValidTimestamp(value)));
     const observedAt = latestTimestamp(evidenceTimes);
-    return observedAt && observedAt !== event.observedAt ? { ...event, observedAt } : event;
+    return observedAt ? { ...event, observedAt, observed_at: observedAt } : event;
   });
 }
 

@@ -1,13 +1,29 @@
 import { Endpoint, InfopunksEvent, Provider, SignalAssessment, TrustAssessment } from '../schemas/entities';
 import { IntelligenceStore } from './intelligenceStore';
+import { providerReachabilitySummary, providerRootHealthSummary } from './eventSummaryHelpers';
+import { classifyEventSeverity, classifyProviderDossierSeverity, Severity } from '../engines/severityEngine';
+import { analyzePropagation, PropagationAnalysis } from './propagationService';
+import { resolveEventCatalogGeneratedAt, resolveEventIngestedAt, resolveEventObservedAt } from './eventTimestamp';
 
 export type HistoryItem = {
   id: string;
+  event_id: string;
   type: InfopunksEvent['type'];
   source: string;
   observedAt: string;
+  observed_at: string;
+  provider_id: string | null;
+  endpoint_id: string | null;
+  catalog_generated_at: string | null;
+  ingested_at: string | null;
+  derivation_reason: string;
+  confidence: number;
   summary: string;
   payload: InfopunksEvent['payload'];
+  severity: Severity;
+  severity_reason: string;
+  severity_score?: number;
+  severity_window?: string;
 };
 
 export type ProviderIntelligenceSummary = {
@@ -38,11 +54,26 @@ export type ProviderIntelligenceSummary = {
     check_type: string | null;
     safe_mode: boolean;
     explanation: string;
+    severity: Severity;
+    severity_reason: string;
+    severity_score?: number;
+    severity_window?: string;
+  };
+  propagation_context: {
+    propagation_state: PropagationAnalysis['propagation_state'];
+    severity: PropagationAnalysis['severity'];
+    affected: boolean;
+    affected_cluster: string | null;
+    propagation_reason: string;
   };
   category_tags: string[];
   last_seen_at: string | null;
   trust_assessment: TrustAssessment | null;
   signal_assessment: SignalAssessment | null;
+  severity: Severity;
+  severity_reason: string;
+  severity_score?: number;
+  severity_window?: string;
 };
 
 export function findProvider(store: IntelligenceStore, id: string) {
@@ -68,6 +99,7 @@ export function providerIntelligence(store: IntelligenceStore, provider: Provide
   const riskLevel = riskLevelFromTrust(trust?.score ?? null);
   const endpointHealth = providerEndpointHealth(store, provider.id);
   const serviceMonitor = providerServiceMonitor(store, provider);
+  const propagation = analyzePropagation(store);
 
   return {
     provider,
@@ -80,20 +112,41 @@ export function providerIntelligence(store: IntelligenceStore, provider: Provide
     endpoint_count: provider.endpointCount,
     endpoint_health: endpointHealth,
     service_monitor: serviceMonitor,
+    propagation_context: {
+      propagation_state: propagation.propagation_state,
+      severity: propagation.severity,
+      affected: propagation.affected_providers.some((item) => item.provider_id === provider.id),
+      affected_cluster: propagation.affected_cluster,
+      propagation_reason: propagation.propagation_reason
+    },
     category_tags: Array.from(new Set([provider.category, ...provider.tags, ...(signal?.narratives ?? [])])).filter(Boolean).sort(),
     last_seen_at: provider.lastSeenAt ?? null,
     trust_assessment: trust ?? null,
-    signal_assessment: signal ?? null
+    signal_assessment: signal ?? null,
+    ...classifyProviderDossierSeverity(provider, trust ?? null, signal ?? null, store.events)
   };
 }
 
 function historyItem(event: InfopunksEvent): HistoryItem {
+  const observedAt = resolveEventObservedAt(event, null) ?? event.observedAt;
+  const summary = summaryForEvent(event);
+  const providerId = providerIdForEvent(event);
+  const endpointId = endpointIdForEvent(event);
   return {
     id: event.id,
+    event_id: event.id,
     type: event.type,
     source: event.source,
-    observedAt: event.observedAt,
-    summary: summaryForEvent(event),
+    observedAt,
+    observed_at: observedAt,
+    provider_id: providerId,
+    endpoint_id: endpointId,
+    catalog_generated_at: resolveEventCatalogGeneratedAt(event, typeof event.payload.catalog_generated_at === 'string' ? event.payload.catalog_generated_at : null),
+    ingested_at: resolveEventIngestedAt(event, null),
+    derivation_reason: event.derivation_reason ?? summary,
+    confidence: typeof event.confidence === 'number' ? event.confidence : event.source.includes('fixture') ? 0.8 : 1,
+    ...classifyEventSeverity(event, []),
+    summary,
     payload: event.payload
   };
 }
@@ -120,6 +173,18 @@ function isEndpointEvent(event: InfopunksEvent, endpointId: string) {
   return event.payload.endpointId === endpointId;
 }
 
+function providerIdForEvent(event: InfopunksEvent) {
+  if (typeof event.payload.providerId === 'string') return event.payload.providerId;
+  if (event.entityType === 'provider') return event.entityId;
+  return null;
+}
+
+function endpointIdForEvent(event: InfopunksEvent) {
+  if (typeof event.payload.endpointId === 'string') return event.payload.endpointId;
+  if (event.entityType === 'endpoint') return event.entityId;
+  return null;
+}
+
 function isChangeType(type: InfopunksEvent['type']) {
   return type === 'provider.updated' || type === 'metadata.changed' || type === 'category.changed' || type === 'endpoint_count.changed' || type === 'manifest.updated' || type === 'endpoint.updated' || type === 'price.changed' || type === 'schema.changed' || type === 'endpoint.degraded' || type === 'endpoint.failed' || type === 'endpoint.recovered' || type === 'provider.degraded' || type === 'provider.failed' || type === 'provider.recovered';
 }
@@ -127,12 +192,13 @@ function isChangeType(type: InfopunksEvent['type']) {
 function providerServiceMonitor(store: IntelligenceStore, provider: Provider): ProviderIntelligenceSummary['service_monitor'] {
   const latest = store.events
     .filter((event) => event.entityType === 'provider' && event.entityId === provider.id && isProviderMonitorEvent(event.type))
-    .sort((a, b) => Date.parse(b.observedAt) - Date.parse(a.observedAt) || providerEventPriority(b.type) - providerEventPriority(a.type))[0] ?? null;
+    .sort((a, b) => Date.parse(resolveEventObservedAt(b, b.observedAt) ?? b.observedAt) - Date.parse(resolveEventObservedAt(a, a.observedAt) ?? a.observedAt) || providerEventPriority(b.type) - providerEventPriority(a.type))[0] ?? null;
   const payload = latest?.payload ?? {};
   return {
     status: providerMonitorStatus(latest),
+    ...classifyProviderDossierSeverity(provider, null, null, latest ? [latest] : []),
     service_url: provider.serviceUrl ?? null,
-    last_checked_at: typeof payload.checked_at === 'string' ? payload.checked_at : latest?.observedAt ?? null,
+    last_checked_at: typeof payload.checked_at === 'string' ? payload.checked_at : resolveEventObservedAt(latest, null),
     response_time_ms: typeof payload.response_time_ms === 'number' ? payload.response_time_ms : null,
     status_code: typeof payload.status_code === 'number' ? payload.status_code : null,
     monitor_mode: payload.monitor_mode === 'safe_metadata' ? 'SAFE METADATA' : 'UNKNOWN',
@@ -160,7 +226,7 @@ function providerEndpointHealth(store: IntelligenceStore, providerId: string): P
   }
   if (provider && provider.endpointMetadataPartial && provider.endpointCount > endpoints.length) counts.unknown += provider.endpointCount - endpoints.length;
   const failures = sortHistory(store.events.filter((event) => event.payload.providerId === providerId && event.type === 'endpoint.failed').map(historyItem)).slice(0, 5);
-  const lastCheckedAt = latestChecks.map((event) => event.observedAt).sort().reverse()[0] ?? null;
+  const lastCheckedAt = latestChecks.map((event) => resolveEventObservedAt(event, null)).filter((value): value is string => Boolean(value)).sort().reverse()[0] ?? null;
   return {
     ...counts,
     last_checked_at: lastCheckedAt,
@@ -172,7 +238,7 @@ function providerEndpointHealth(store: IntelligenceStore, providerId: string): P
 function latestEndpointEvent(store: IntelligenceStore, endpointId: string) {
   return store.events
     .filter((event) => event.entityType === 'endpoint' && event.entityId === endpointId && isMonitorEvent(event.type))
-    .sort((a, b) => Date.parse(b.observedAt) - Date.parse(a.observedAt) || eventPriority(b.type) - eventPriority(a.type))[0] ?? null;
+    .sort((a, b) => Date.parse(resolveEventObservedAt(b, b.observedAt) ?? b.observedAt) - Date.parse(resolveEventObservedAt(a, a.observedAt) ?? a.observedAt) || eventPriority(b.type) - eventPriority(a.type))[0] ?? null;
 }
 
 function isMonitorEvent(type: InfopunksEvent['type']) {
@@ -268,15 +334,14 @@ function summaryForEvent(event: InfopunksEvent) {
     case 'endpoint.failed':
       return `Endpoint monitor failed: ${event.payload.error_message ?? `HTTP ${event.payload.status_code ?? 'unknown'}`}.`;
     case 'provider.checked':
-      return `Provider service reachability checked with HTTP ${event.payload.status_code ?? 'unknown'} and latency ${event.payload.response_time_ms ?? 'unknown'}ms.`;
+      return providerReachabilitySummary(event);
     case 'provider.reachable':
-      return 'Provider service URL is reachable from safe metadata monitoring.';
+      return providerRootHealthSummary(event, 'healthy');
     case 'provider.recovered':
-      return 'Provider service URL recovered after prior degraded or failed reachability evidence.';
+      return providerRootHealthSummary(event, 'recovered');
     case 'provider.degraded':
-      if (event.payload.status_code === 404) return 'Service URL responded but did not expose a healthy root page.';
-      return `Provider service reachability degraded with HTTP ${event.payload.status_code ?? 'unknown'} and latency ${event.payload.response_time_ms ?? 'unknown'}ms.`;
+      return providerRootHealthSummary(event, 'degraded');
     case 'provider.failed':
-      return `Provider service reachability failed: ${event.payload.error_message ?? `HTTP ${event.payload.status_code ?? 'unknown'}`}.`;
+      return providerReachabilitySummary(event);
   }
 }

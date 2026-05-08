@@ -1,5 +1,13 @@
 import { z } from 'zod';
 
+export const SeveritySchema = z.enum(['critical', 'warning', 'informational', 'unknown']);
+export const SeverityMetadataSchema = z.object({
+  severity: SeveritySchema,
+  severity_reason: z.string(),
+  severity_score: z.number().optional(),
+  severity_window: z.string().optional()
+});
+
 export const EventTypeSchema = z.enum([
   'catalog.ingested',
   'provider.discovered',
@@ -33,26 +41,74 @@ export const EventTypeSchema = z.enum([
 
 export const EvidenceSchema = z.object({
   eventId: z.string(),
+  event_id: z.string().optional(),
   eventType: EventTypeSchema,
+  event_type: EventTypeSchema.optional(),
+  providerId: z.string().nullable().optional(),
+  provider_id: z.string().nullable().optional(),
+  endpointId: z.string().nullable().optional(),
+  endpoint_id: z.string().nullable().optional(),
   source: z.string(),
   observedAt: z.string().datetime(),
+  observed_at: z.string().datetime().optional(),
+  catalogGeneratedAt: z.string().datetime().nullable().optional(),
+  catalog_generated_at: z.string().datetime().nullable().optional(),
+  ingestedAt: z.string().datetime().nullable().optional(),
+  ingested_at: z.string().datetime().nullable().optional(),
+  derivationReason: z.string().optional(),
+  derivation_reason: z.string().optional(),
+  confidence: z.number().min(0).max(1).optional(),
+  severity: SeveritySchema.optional(),
+  severity_reason: z.string().optional(),
+  severity_score: z.number().optional(),
+  severity_window: z.string().optional(),
   summary: z.string(),
   value: z.unknown().optional()
 });
 
 export const InfopunksEventSchema = z.object({
   id: z.string(),
+  event_id: z.string().optional(),
   type: EventTypeSchema,
   source: z.string(),
   entityType: z.enum(['catalog', 'provider', 'endpoint', 'pricing_model', 'manifest', 'schema', 'trust_assessment', 'signal_assessment', 'narrative_cluster']),
   entityId: z.string(),
+  provider_id: z.string().nullable().optional(),
+  endpoint_id: z.string().nullable().optional(),
   observedAt: z.string().datetime(),
+  observed_at: z.string().datetime().optional(),
+  catalog_generated_at: z.string().datetime().nullable().optional(),
+  ingested_at: z.string().datetime().nullable().optional(),
+  derivation_reason: z.string().optional(),
+  confidence: z.number().min(0).max(1).optional(),
+  severity: SeveritySchema.optional(),
+  severity_reason: z.string().optional(),
+  severity_score: z.number().optional(),
+  severity_window: z.string().optional(),
   payload: z.record(z.string(), z.unknown())
 });
 
 export const PricingModelSchema = z.object({
   id: z.string(),
   entityId: z.string(),
+  providerId: z.string().nullable().optional(),
+  provider_id: z.string().nullable().optional(),
+  endpointId: z.string().nullable().optional(),
+  endpoint_id: z.string().nullable().optional(),
+  observedAt: z.string().datetime().nullable().optional(),
+  observed_at: z.string().datetime().nullable().optional(),
+  catalogGeneratedAt: z.string().datetime().nullable().optional(),
+  catalog_generated_at: z.string().datetime().nullable().optional(),
+  ingestedAt: z.string().datetime().nullable().optional(),
+  ingested_at: z.string().datetime().nullable().optional(),
+  source: z.string().optional(),
+  derivationReason: z.string().optional(),
+  derivation_reason: z.string().optional(),
+  confidence: z.number().min(0).max(1).optional(),
+  severity: SeveritySchema.optional(),
+  severity_reason: z.string().optional(),
+  severity_score: z.number().optional(),
+  severity_window: z.string().optional(),
   min: z.number().nonnegative().nullable(),
   max: z.number().nonnegative().nullable(),
   currency: z.literal('USD').nullable(),
@@ -64,6 +120,8 @@ export const PricingModelSchema = z.object({
 
 export const ProviderSchema = z.object({
   id: z.string(),
+  providerId: z.string().optional(),
+  provider_id: z.string().optional(),
   name: z.string(),
   title: z.string().optional(),
   fqn: z.string().optional(),
@@ -80,6 +138,18 @@ export const ProviderSchema = z.object({
   hasFreeTier: z.boolean().optional(),
   sourceSha: z.string().nullable().optional(),
   catalogGeneratedAt: z.string().datetime().nullable().optional(),
+  catalog_generated_at: z.string().datetime().nullable().optional(),
+  ingestedAt: z.string().datetime().nullable().optional(),
+  ingested_at: z.string().datetime().nullable().optional(),
+  observedAt: z.string().datetime().nullable().optional(),
+  observed_at: z.string().datetime().nullable().optional(),
+  derivationReason: z.string().optional(),
+  derivation_reason: z.string().optional(),
+  confidence: z.number().min(0).max(1).optional(),
+  severity: SeveritySchema.optional(),
+  severity_reason: z.string().optional(),
+  severity_score: z.number().optional(),
+  severity_window: z.string().optional(),
   tags: z.array(z.string()),
   schema: z.unknown().nullable().optional(),
   source: z.literal('pay.sh'),
@@ -93,6 +163,9 @@ export const ProviderSchema = z.object({
 export const EndpointSchema = z.object({
   id: z.string(),
   providerId: z.string(),
+  provider_id: z.string().optional(),
+  endpointId: z.string().optional(),
+  endpoint_id: z.string().optional(),
   name: z.string(),
   path: z.string().nullable(),
   method: z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']).nullable(),
@@ -102,6 +175,20 @@ export const EndpointSchema = z.object({
   status: z.enum(['available', 'degraded', 'unknown']),
   schema: z.unknown().nullable().optional(),
   latencyMsP50: z.number().int().positive().nullable(),
+  observedAt: z.string().datetime().nullable().optional(),
+  observed_at: z.string().datetime().nullable().optional(),
+  catalogGeneratedAt: z.string().datetime().nullable().optional(),
+  catalog_generated_at: z.string().datetime().nullable().optional(),
+  ingestedAt: z.string().datetime().nullable().optional(),
+  ingested_at: z.string().datetime().nullable().optional(),
+  source: z.string().optional(),
+  derivationReason: z.string().optional(),
+  derivation_reason: z.string().optional(),
+  confidence: z.number().min(0).max(1).optional(),
+  severity: SeveritySchema.optional(),
+  severity_reason: z.string().optional(),
+  severity_score: z.number().optional(),
+  severity_window: z.string().optional(),
   firstSeenAt: z.string().datetime(),
   lastSeenAt: z.string().datetime(),
   evidence: z.array(EvidenceSchema)
@@ -144,7 +231,25 @@ export const MonitorRunSchema = z.object({
 export const TrustAssessmentSchema = z.object({
   id: z.string(),
   entityId: z.string(),
+  providerId: z.string().nullable().optional(),
+  provider_id: z.string().nullable().optional(),
+  endpointId: z.string().nullable().optional(),
+  endpoint_id: z.string().nullable().optional(),
   entityType: z.enum(['provider', 'endpoint']),
+  observedAt: z.string().datetime().nullable().optional(),
+  observed_at: z.string().datetime().nullable().optional(),
+  catalogGeneratedAt: z.string().datetime().nullable().optional(),
+  catalog_generated_at: z.string().datetime().nullable().optional(),
+  ingestedAt: z.string().datetime().nullable().optional(),
+  ingested_at: z.string().datetime().nullable().optional(),
+  source: z.string().optional(),
+  derivationReason: z.string().optional(),
+  derivation_reason: z.string().optional(),
+  confidence: z.number().min(0).max(1).optional(),
+  severity: SeveritySchema.optional(),
+  severity_reason: z.string().optional(),
+  severity_score: z.number().optional(),
+  severity_window: z.string().optional(),
   score: z.number().min(0).max(100).nullable(),
   grade: z.enum(['S', 'A', 'B', 'C', 'D', 'unknown']),
   components: z.object({
@@ -165,7 +270,25 @@ export const TrustAssessmentSchema = z.object({
 export const SignalAssessmentSchema = z.object({
   id: z.string(),
   entityId: z.string(),
+  providerId: z.string().nullable().optional(),
+  provider_id: z.string().nullable().optional(),
+  endpointId: z.string().nullable().optional(),
+  endpoint_id: z.string().nullable().optional(),
   entityType: z.enum(['provider', 'endpoint', 'narrative_cluster']),
+  observedAt: z.string().datetime().nullable().optional(),
+  observed_at: z.string().datetime().nullable().optional(),
+  catalogGeneratedAt: z.string().datetime().nullable().optional(),
+  catalog_generated_at: z.string().datetime().nullable().optional(),
+  ingestedAt: z.string().datetime().nullable().optional(),
+  ingested_at: z.string().datetime().nullable().optional(),
+  source: z.string().optional(),
+  derivationReason: z.string().optional(),
+  derivation_reason: z.string().optional(),
+  confidence: z.number().min(0).max(1).optional(),
+  severity: SeveritySchema.optional(),
+  severity_reason: z.string().optional(),
+  severity_score: z.number().optional(),
+  severity_window: z.string().optional(),
   score: z.number().min(0).max(100).nullable(),
   components: z.object({
     ecosystemMomentum: z.number().min(0).max(100).nullable(),
@@ -189,6 +312,10 @@ export const NarrativeClusterSchema = z.object({
   providerIds: z.array(z.string()),
   keywords: z.array(z.string()),
   summary: z.string(),
+  severity: SeveritySchema.optional(),
+  severity_reason: z.string().optional(),
+  severity_score: z.number().optional(),
+  severity_window: z.string().optional(),
   evidence: z.array(EvidenceSchema)
 });
 
@@ -257,6 +384,8 @@ export const RouteRecommendationSchema = z.object({
 });
 
 export type Evidence = z.infer<typeof EvidenceSchema>;
+export type Severity = z.infer<typeof SeveritySchema>;
+export type SeverityMetadata = z.infer<typeof SeverityMetadataSchema>;
 export type InfopunksEvent = z.infer<typeof InfopunksEventSchema>;
 export type PricingModel = z.infer<typeof PricingModelSchema>;
 export type Provider = z.infer<typeof ProviderSchema>;

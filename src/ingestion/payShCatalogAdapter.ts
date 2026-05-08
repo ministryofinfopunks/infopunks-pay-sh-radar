@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { Endpoint, Evidence, InfopunksEvent, IngestionRun, PricingModel, Provider } from '../schemas/entities';
 import { PayShCatalogEndpointItem, PayShCatalogItem, payShCatalogFixture } from '../data/payShCatalogFixture';
 import { DataSourceState, IntelligenceSnapshot } from '../persistence/repository';
+import { classifyEventSeverity } from '../engines/severityEngine';
 
 const FIXTURE_SOURCE = 'pay.sh:public-catalog-fixture';
 const LIVE_SOURCE = 'pay.sh:live-catalog';
@@ -91,13 +92,65 @@ function fingerprint(value: unknown) {
   return stableId([stableJson(value)]);
 }
 
-function evidenceFrom(event: InfopunksEvent, summary: string, value?: unknown): Evidence {
-  return { eventId: event.id, eventType: event.type, source: event.source, observedAt: event.observedAt, summary, value };
+function evidenceFrom(event: InfopunksEvent, summary: string, value?: unknown, confidence = 1): Evidence {
+  const providerId = providerIdForEvent(event);
+  const endpointId = endpointIdForEvent(event);
+  const catalogGeneratedAt = stringOrNull(event.payload.catalog_generated_at) ?? stringOrNull((event.payload.manifest as Record<string, unknown> | undefined)?.catalog_generated_at);
+  const severity = classifyEventSeverity(event);
+  return {
+    eventId: event.id,
+    event_id: event.id,
+    eventType: event.type,
+    event_type: event.type,
+    providerId,
+    provider_id: providerId,
+    endpointId,
+    endpoint_id: endpointId,
+    source: event.source,
+    observedAt: event.observedAt,
+    observed_at: event.observedAt,
+    catalogGeneratedAt,
+    catalog_generated_at: catalogGeneratedAt,
+    ingestedAt: event.observedAt,
+    ingested_at: event.observedAt,
+    derivationReason: summary,
+    derivation_reason: summary,
+    confidence,
+    ...severity,
+    summary,
+    value
+  };
 }
 
 function event(source: string, type: InfopunksEvent['type'], entityType: InfopunksEvent['entityType'], entityId: string, payload: Record<string, unknown>, observedAt: string): InfopunksEvent {
   const stablePayload = stableJson(payload) as Record<string, unknown>;
-  return { id: stableId([source, type, entityType, entityId, stablePayload]), type, source, entityType, entityId, observedAt, payload: stablePayload };
+  const id = stableId([source, type, entityType, entityId, stablePayload]);
+  const providerId = providerIdForRawEvent(entityType, entityId, stablePayload);
+  const endpointId = endpointIdForRawEvent(entityType, entityId, stablePayload);
+  const catalogGeneratedAt = stringOrNull(stablePayload.catalog_generated_at);
+  const baseEvent = {
+    id,
+    event_id: id,
+    type,
+    source,
+    entityType,
+    entityId,
+    provider_id: providerId,
+    endpoint_id: endpointId,
+    observedAt,
+    observed_at: observedAt,
+    catalog_generated_at: catalogGeneratedAt,
+    ingested_at: observedAt,
+    derivation_reason: `Observed ${type} for ${entityType}.`,
+    confidence: source.includes('fixture') ? 0.8 : 1,
+    payload: stablePayload
+  } satisfies InfopunksEvent;
+  const severity = classifyEventSeverity(baseEvent);
+  return {
+    ...baseEvent,
+    ...severity,
+    payload: { ...stablePayload, ...severity }
+  };
 }
 
 function diffPayload(before: unknown, after: unknown) {
@@ -110,6 +163,20 @@ export function parseCatalogPrice(raw: string, entityId = 'unknown', pricingEven
   const base = {
     id: `pricing-${entityId}`,
     entityId,
+    providerId: pricingEvent ? providerIdForEvent(pricingEvent) : null,
+    provider_id: pricingEvent ? providerIdForEvent(pricingEvent) : null,
+    endpointId: pricingEvent ? endpointIdForEvent(pricingEvent) : null,
+    endpoint_id: pricingEvent ? endpointIdForEvent(pricingEvent) : null,
+    observedAt: pricingEvent?.observedAt ?? null,
+    observed_at: pricingEvent?.observedAt ?? null,
+    catalogGeneratedAt: pricingEvent ? stringOrNull(pricingEvent.payload.catalog_generated_at) : null,
+    catalog_generated_at: pricingEvent ? stringOrNull(pricingEvent.payload.catalog_generated_at) : null,
+    ingestedAt: pricingEvent?.observedAt ?? null,
+    ingested_at: pricingEvent?.observedAt ?? null,
+    source: pricingEvent?.source,
+    derivationReason: 'Parsed from Pay.sh catalog pricing field without changing score formulas.',
+    derivation_reason: 'Parsed from Pay.sh catalog pricing field without changing score formulas.',
+    confidence: pricingEvent ? (pricingEvent.source.includes('fixture') ? 0.8 : 1) : undefined,
     currency: 'USD' as const,
     unit: 'request',
     raw,
@@ -309,6 +376,8 @@ export function applyPayShCatalogIngestion(snapshot: IntelligenceSnapshot, items
     ];
     const nextProvider: Provider = {
       id: providerId,
+      providerId,
+      provider_id: providerId,
       name: item.name,
       title: item.title ?? item.name,
       fqn: item.fqn ?? item.namespace,
@@ -325,6 +394,17 @@ export function applyPayShCatalogIngestion(snapshot: IntelligenceSnapshot, items
       hasFreeTier: item.has_free_tier,
       sourceSha: item.sha ?? null,
       catalogGeneratedAt: item.catalog_generated_at ?? null,
+      catalog_generated_at: item.catalog_generated_at ?? null,
+      ingestedAt: observedAt,
+      ingested_at: observedAt,
+      observedAt,
+      observed_at: observedAt,
+      derivationReason: 'Provider dossier values are normalized from Pay.sh catalog metadata.',
+      derivation_reason: 'Provider dossier values are normalized from Pay.sh catalog metadata.',
+      confidence: isLiveCatalog ? 1 : 0.8,
+      severity: item.endpointMetadataPartial ?? !item.endpointDetails?.length ? 'warning' : 'informational',
+      severity_reason: item.endpointMetadataPartial ?? !item.endpointDetails?.length ? 'Provider has incomplete endpoint metadata in the catalog feed.' : 'Provider metadata observed without active severity signal.',
+      severity_score: item.endpointMetadataPartial ?? !item.endpointDetails?.length ? 55 : 10,
       tags: item.tags,
       schema: item.schema ?? null,
       source: 'pay.sh',
@@ -373,6 +453,9 @@ export function applyPayShCatalogIngestion(snapshot: IntelligenceSnapshot, items
       const nextEndpoint: Endpoint = {
         id: endpointId,
         providerId,
+        provider_id: providerId,
+        endpointId,
+        endpoint_id: endpointId,
         name: endpointInput.name,
         path: endpointInput.path,
         method: endpointInput.method,
@@ -382,6 +465,19 @@ export function applyPayShCatalogIngestion(snapshot: IntelligenceSnapshot, items
         status: endpointInput.status,
         schema: endpointInput.schema,
         latencyMsP50: null,
+        observedAt,
+        observed_at: observedAt,
+        catalogGeneratedAt: item.catalog_generated_at ?? null,
+        catalog_generated_at: item.catalog_generated_at ?? null,
+        ingestedAt: observedAt,
+        ingested_at: observedAt,
+        source,
+        derivationReason: endpointInput.synthetic ? 'Endpoint-level metadata is synthetic from provider endpoint count.' : 'Endpoint metadata is normalized from Pay.sh catalog endpoint details.',
+        derivation_reason: endpointInput.synthetic ? 'Endpoint-level metadata is synthetic from provider endpoint count.' : 'Endpoint metadata is normalized from Pay.sh catalog endpoint details.',
+        confidence: endpointInput.synthetic ? 0.5 : isLiveCatalog ? 1 : 0.8,
+        severity: endpointInput.synthetic || endpointInput.path === null || endpointInput.method === null ? 'warning' : 'informational',
+        severity_reason: endpointInput.synthetic || endpointInput.path === null || endpointInput.method === null ? 'Endpoint metadata is incomplete.' : 'Endpoint metadata observed without active severity signal.',
+        severity_score: endpointInput.synthetic || endpointInput.path === null || endpointInput.method === null ? 55 : 10,
         firstSeenAt: previousEndpoint?.firstSeenAt ?? observedAt,
         lastSeenAt: observedAt,
         evidence: previousEndpoint ? mergeEvidence(previousEndpoint.evidence, endpointEvidence(endpointEvents, endpointInput, endpointPricing, source)) : endpointEvidence(endpointEvents, endpointInput, endpointPricing, source)
@@ -444,18 +540,19 @@ export function applyPayShCatalogIngestion(snapshot: IntelligenceSnapshot, items
 
 function providerEventSet(item: PayShCatalogItem, source: string, observedAt: string) {
   const providerId = item.slug;
+  const catalog_generated_at = item.catalog_generated_at ?? null;
   return {
-    providerEvent: event(source, 'pay_sh_catalog_provider_seen', 'provider', providerId, item, observedAt),
-    metadataEvent: event(source, 'provider_metadata_observed', 'provider', providerId, providerManifestFromItem(item), observedAt),
+    providerEvent: event(source, 'pay_sh_catalog_provider_seen', 'provider', providerId, { ...item, providerId, catalog_generated_at }, observedAt),
+    metadataEvent: event(source, 'provider_metadata_observed', 'provider', providerId, { ...providerManifestFromItem(item), providerId, catalog_generated_at }, observedAt),
     manifestEvent: event(source, 'pay_sh_catalog_manifest_seen', 'manifest', `manifest-${providerId}`, { providerId, manifest: item.manifest ?? providerManifestFromItem(item) }, observedAt),
-    pricingEvent: event(source, 'pricing_observed', 'pricing_model', `pricing-${providerId}`, { raw: item.price, providerId }, observedAt)
+    pricingEvent: event(source, 'pricing_observed', 'pricing_model', `pricing-${providerId}`, { raw: item.price, providerId, catalog_generated_at }, observedAt)
   };
 }
 
 function endpointEventSet(providerId: string, endpointInput: ExpandedEndpoint, source: string, observedAt: string) {
   return {
     endpointEvent: event(source, 'pay_sh_catalog_endpoint_seen', 'endpoint', endpointInput.id, { providerId, ordinal: endpointInput.ordinal, category: endpointInput.category, path: endpointInput.path, method: endpointInput.method }, observedAt),
-    pricingEvent: event(source, 'pricing_observed', 'pricing_model', `pricing-${endpointInput.id}`, { raw: endpointInput.price, endpointId: endpointInput.id }, observedAt)
+    pricingEvent: event(source, 'pricing_observed', 'pricing_model', `pricing-${endpointInput.id}`, { raw: endpointInput.price, endpointId: endpointInput.id, providerId }, observedAt)
   };
 }
 
@@ -606,6 +703,31 @@ function mergeEvidence(existing: Evidence[], next: Evidence[]) {
   const evidence = new Map(existing.map((item) => [item.eventId, item]));
   for (const item of next) evidence.set(item.eventId, item);
   return [...evidence.values()];
+}
+
+function providerIdForEvent(event: InfopunksEvent) {
+  return providerIdForRawEvent(event.entityType, event.entityId, event.payload);
+}
+
+function endpointIdForEvent(event: InfopunksEvent) {
+  return endpointIdForRawEvent(event.entityType, event.entityId, event.payload);
+}
+
+function providerIdForRawEvent(entityType: InfopunksEvent['entityType'], entityId: string, payload: Record<string, unknown>) {
+  if (typeof payload.providerId === 'string') return payload.providerId;
+  if (typeof payload.entityId === 'string' && entityType !== 'endpoint') return payload.entityId;
+  if (entityType === 'provider') return entityId;
+  return null;
+}
+
+function endpointIdForRawEvent(entityType: InfopunksEvent['entityType'], entityId: string, payload: Record<string, unknown>) {
+  if (typeof payload.endpointId === 'string') return payload.endpointId;
+  if (entityType === 'endpoint') return entityId;
+  return null;
+}
+
+function stringOrNull(value: unknown) {
+  return typeof value === 'string' ? value : null;
 }
 
 function emptySnapshot(): IntelligenceSnapshot {

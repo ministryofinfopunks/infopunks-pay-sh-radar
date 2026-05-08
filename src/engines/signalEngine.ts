@@ -1,4 +1,5 @@
 import { Evidence, NarrativeCluster, Provider, SignalAssessment } from '../schemas/entities';
+import { classifyNarrativeClusterSeverity } from './severityEngine';
 
 const clamp = (value: number) => Math.max(0, Math.min(100, Math.round(value)));
 const weights: Record<keyof SignalAssessment['components'], number> = {
@@ -62,10 +63,28 @@ export function computeSignalAssessment(provider: Provider, allProviders: Provid
     onchainLiquidityResonance: []
   };
 
+  const severity = unknowns.length >= 3
+    ? { severity: 'warning' as const, severity_reason: `Signal assessment has ${unknowns.length} unknown telemetry fields.`, severity_score: unknowns.length * 10 }
+    : { severity: 'informational' as const, severity_reason: 'Signal assessment has no active critical or warning severity signal.', severity_score: 10 };
   return {
     id: `signal-${provider.id}`,
     entityId: provider.id,
+    providerId: provider.id,
+    provider_id: provider.id,
+    endpointId: null,
+    endpoint_id: null,
     entityType: 'provider',
+    observedAt: provider.lastSeenAt,
+    observed_at: provider.lastSeenAt,
+    catalogGeneratedAt: provider.catalogGeneratedAt ?? null,
+    catalog_generated_at: provider.catalogGeneratedAt ?? null,
+    ingestedAt: provider.lastSeenAt,
+    ingested_at: provider.lastSeenAt,
+    source: 'infopunks:deterministic-scoring',
+    derivationReason: 'Signal score is derived from catalog evidence and narrative metadata using the existing deterministic formula.',
+    derivation_reason: 'Signal score is derived from catalog evidence and narrative metadata using the existing deterministic formula.',
+    confidence: (Object.keys(components).length - unknowns.length) / Object.keys(components).length,
+    ...severity,
     score,
     components,
     narratives,
@@ -89,6 +108,7 @@ export function buildNarrativeClusters(providers: Provider[], signals: SignalAss
     const momentumValues = memberSignals.map((signal) => signal.components.ecosystemMomentum).filter((score): score is number => score !== null);
     const momentum = momentumValues.length ? clamp(momentumValues.reduce((sum, score) => sum + score, 0) / momentumValues.length) : null;
     const evidence = providers.filter((provider) => memberIds.includes(provider.id)).flatMap((provider) => provider.evidence).filter((item) => item.eventType === 'provider_metadata_observed');
-    return { id: title.replaceAll(' ', '-'), title, heat, momentum, providerIds: memberIds, keywords, summary: `${title} cluster tracks Pay.sh providers matching catalog metadata keywords.`, evidence };
+    const base = { id: title.replaceAll(' ', '-'), title, heat, momentum, providerIds: memberIds, keywords, summary: `${title} cluster tracks Pay.sh providers matching catalog metadata keywords.`, evidence };
+    return { ...base, ...classifyNarrativeClusterSeverity(base) };
   }).sort((a, b) => (b.heat ?? -1) - (a.heat ?? -1));
 }

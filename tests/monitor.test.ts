@@ -3,6 +3,7 @@ import { createApp } from '../src/api/app';
 import { PayShCatalogItem } from '../src/data/payShCatalogFixture';
 import { applyPayShCatalogIngestion } from '../src/ingestion/payShCatalogAdapter';
 import { MemoryRepository, IntelligenceSnapshot } from '../src/persistence/repository';
+import { InfopunksEvent } from '../src/schemas/entities';
 import { runEndpointMonitor, runMonitor } from '../src/services/endpointMonitorService';
 import { recomputeAssessments } from '../src/services/intelligenceStore';
 import { pulseSummary } from '../src/services/pulseService';
@@ -55,6 +56,18 @@ afterEach(() => {
 
 function monitorStore() {
   return recomputeAssessments(applyPayShCatalogIngestion(emptySnapshot, catalog, { observedAt: '2026-01-01T00:00:00.000Z', source: 'pay.sh:test' }).snapshot);
+}
+
+function providerEvent(type: InfopunksEvent['type'], payload: InfopunksEvent['payload'], observedAt = '2026-01-02T00:00:00.000Z'): InfopunksEvent {
+  return {
+    id: `${type}-${observedAt}`,
+    type,
+    source: 'infopunks:safe-metadata-monitor',
+    entityType: 'provider',
+    entityId: 'monitor',
+    observedAt,
+    payload: { providerId: 'monitor', checked_at: observedAt, monitor_mode: 'safe_metadata', check_type: 'service_url_reachability', safe_mode: true, ...payload }
+  };
 }
 
 class StrictJsonRepository extends MemoryRepository {
@@ -239,6 +252,27 @@ describe('safe metadata monitor', () => {
     expect(store.trustAssessments[0].components.receiptReliability).toBeNull();
   });
 
+  it('separates network reachability from degraded root health for reachable HTTP 404 providers', async () => {
+    const store = monitorStore();
+    await runMonitor(store, new MemoryRepository(), {
+      mode: 'safe_metadata',
+      fetchImpl: async () => new Response('not found', { status: 404 })
+    });
+
+    const summary = pulseSummary(store);
+    expect(summary.timeline.find((event) => event.type === 'provider.checked')?.summary).toMatch(/^Network reachable in \d+ms\.$/);
+    expect(summary.recentDegradations.find((event) => event.type === 'provider.degraded')?.summary).toBe('Root health check returned HTTP 404; classified as degraded.');
+
+    const app = await createApp(store);
+    const history = (await app.inject({ method: 'GET', url: '/v1/providers/monitor/history' })).json().data;
+    expect(history.find((event: { type: string }) => event.type === 'provider.degraded')?.summary).toBe('Root health check returned HTTP 404; classified as degraded.');
+    expect(store.providers[0].evidence.map((item) => item.summary)).toEqual(expect.arrayContaining([
+      expect.stringMatching(/^Network reachable in \d+ms\.$/),
+      'Root health check returned HTTP 404; classified as degraded.'
+    ]));
+    await app.close();
+  });
+
   it('records failed service reachability on timeout or fetch failure', async () => {
     const store = monitorStore();
     const result = await runMonitor(store, new MemoryRepository(), {
@@ -251,6 +285,34 @@ describe('safe metadata monitor', () => {
     expect(result.run).toMatchObject({ checkedCount: 1, failedCount: 1 });
     expect(result.events.map((event) => event.type)).toEqual(expect.arrayContaining(['provider.checked', 'provider.failed']));
     expect(result.events.find((event) => event.type === 'provider.failed')?.payload.error_message).toBe('timeout');
+
+    const summary = pulseSummary(store);
+    expect(summary.timeline.find((event) => event.type === 'provider.checked')?.summary).toMatch(/^Network unreachable after \d+ms: timeout\.$/);
+    expect(summary.recentDegradations.find((event) => event.type === 'provider.failed')?.summary).toMatch(/^Network unreachable after \d+ms: timeout\.$/);
+  });
+
+  it('summarizes healthy provider monitor events as reachable network plus healthy root health', async () => {
+    const store = monitorStore();
+    await runMonitor(store, new MemoryRepository(), {
+      mode: 'safe_metadata',
+      fetchImpl: async () => new Response(null, { status: 204 })
+    });
+
+    const summary = pulseSummary(store);
+    expect(summary.timeline.find((event) => event.type === 'provider.checked')?.summary).toMatch(/^Network reachable in \d+ms\.$/);
+    expect(summary.timeline.find((event) => event.type === 'provider.reachable')?.summary).toBe('Root health check returned HTTP 204; classified as healthy.');
+  });
+
+  it('summarizes unknown provider health state without success true wording', () => {
+    const store = monitorStore();
+    store.events = [
+      providerEvent('provider.checked', { response_time_ms: undefined, success: undefined, status_code: undefined }),
+      providerEvent('provider.degraded', { response_time_ms: undefined, success: true, status_code: undefined }, '2026-01-02T00:00:01.000Z')
+    ];
+
+    const summary = pulseSummary(store);
+    expect(summary.timeline.find((event) => event.type === 'provider.checked')?.summary).toBe('Network reachability unknown after unknown latency.');
+    expect(summary.recentDegradations[0].summary).toBe('Root health check returned unknown status; classified as degraded.');
   });
 
   it('skips invalid, non-http, private, and operation-like service URLs with reasons', async () => {
@@ -284,7 +346,7 @@ describe('safe metadata monitor', () => {
 
     const summary = pulseSummary(store);
     expect(summary.eventGroups.monitoring.count).toBeGreaterThan(0);
-    expect(summary.recentDegradations[0]).toMatchObject({ type: 'provider.failed', summary: expect.stringContaining('Service reachability') });
+    expect(summary.recentDegradations[0]).toMatchObject({ type: 'provider.failed', summary: expect.stringContaining('Network unreachable') });
   });
 
   it('protects manual safe monitor runs with Bearer-only admin auth', async () => {

@@ -1,4 +1,6 @@
 import { Endpoint, Evidence, InfopunksEvent, Provider, TrustAssessment } from '../schemas/entities';
+import { classifyProviderDossierSeverity } from './severityEngine';
+import { resolveEventCatalogGeneratedAt, resolveEventIngestedAt, resolveEventObservedAt } from '../services/eventTimestamp';
 
 const clamp = (value: number) => Math.max(0, Math.min(100, Math.round(value)));
 const weights: Record<keyof TrustAssessment['components'], number> = {
@@ -46,20 +48,44 @@ function freshness(provider: Provider) {
 }
 
 function evidenceFrom(event: InfopunksEvent, summary: string): Evidence {
-  return { eventId: event.id, eventType: event.type, source: event.source, observedAt: event.observedAt, summary, value: event.payload };
+  const observedAt = resolveEventObservedAt(event, null) ?? event.observedAt;
+  const providerId = typeof event.payload.providerId === 'string' ? event.payload.providerId : event.entityType === 'provider' ? event.entityId : null;
+  const endpointId = typeof event.payload.endpointId === 'string' ? event.payload.endpointId : event.entityType === 'endpoint' ? event.entityId : null;
+  return {
+    eventId: event.id,
+    event_id: event.id,
+    eventType: event.type,
+    event_type: event.type,
+    providerId,
+    provider_id: providerId,
+    endpointId,
+    endpoint_id: endpointId,
+    source: event.source,
+    observedAt,
+    observed_at: observedAt,
+    catalogGeneratedAt: resolveEventCatalogGeneratedAt(event, typeof event.payload.catalog_generated_at === 'string' ? event.payload.catalog_generated_at : null),
+    catalog_generated_at: resolveEventCatalogGeneratedAt(event, typeof event.payload.catalog_generated_at === 'string' ? event.payload.catalog_generated_at : null),
+    ingestedAt: resolveEventIngestedAt(event, null),
+    ingested_at: resolveEventIngestedAt(event, null),
+    derivationReason: summary,
+    derivation_reason: summary,
+    confidence: event.source.includes('fixture') ? 0.8 : 1,
+    summary,
+    value: event.payload
+  };
 }
 
 function endpointMonitorEvents(endpoints: Endpoint[], events: InfopunksEvent[]) {
   const endpointIds = new Set(endpoints.map((endpoint) => endpoint.id));
   return events
     .filter((event) => endpointIds.has(event.entityId) && event.entityType === 'endpoint' && isMonitorEvent(event.type))
-    .sort((a, b) => Date.parse(a.observedAt) - Date.parse(b.observedAt));
+    .sort((a, b) => Date.parse(resolveEventObservedAt(a, a.observedAt) ?? a.observedAt) - Date.parse(resolveEventObservedAt(b, b.observedAt) ?? b.observedAt));
 }
 
 function providerMonitorEvents(provider: Provider, events: InfopunksEvent[]) {
   return events
     .filter((event) => event.entityType === 'provider' && event.entityId === provider.id && isProviderMonitorEvent(event.type))
-    .sort((a, b) => Date.parse(a.observedAt) - Date.parse(b.observedAt));
+    .sort((a, b) => Date.parse(resolveEventObservedAt(a, a.observedAt) ?? a.observedAt) - Date.parse(resolveEventObservedAt(b, b.observedAt) ?? b.observedAt));
 }
 
 function isMonitorEvent(type: InfopunksEvent['type']) {
@@ -144,10 +170,26 @@ export function computeTrustAssessment(provider: Provider, endpoints: Endpoint[]
     freshness: freshnessEvidence
   };
 
+  const severity = classifyProviderDossierSeverity(provider, { score, unknowns } as TrustAssessment, null, events);
   return {
     id: `trust-${provider.id}`,
     entityId: provider.id,
+    providerId: provider.id,
+    provider_id: provider.id,
+    endpointId: null,
+    endpoint_id: null,
     entityType: 'provider',
+    observedAt: provider.lastSeenAt,
+    observed_at: provider.lastSeenAt,
+    catalogGeneratedAt: provider.catalogGeneratedAt ?? null,
+    catalog_generated_at: provider.catalogGeneratedAt ?? null,
+    ingestedAt: provider.lastSeenAt,
+    ingested_at: provider.lastSeenAt,
+    source: 'infopunks:deterministic-scoring',
+    derivationReason: 'Trust score is derived from catalog evidence and monitor evidence using the existing deterministic formula.',
+    derivation_reason: 'Trust score is derived from catalog evidence and monitor evidence using the existing deterministic formula.',
+    confidence: (Object.keys(components).length - unknowns.length) / Object.keys(components).length,
+    ...severity,
     score,
     grade: grade(score),
     components,

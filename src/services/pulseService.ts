@@ -1,6 +1,11 @@
 import { InfopunksEvent, IngestionRun } from '../schemas/entities';
 import { IntelligenceStore } from './intelligenceStore';
 import { DataSourceState } from '../persistence/repository';
+import { providerReachabilitySummary, providerRootHealthSummary } from './eventSummaryHelpers';
+import { EcosystemInterpretation, interpretEcosystem } from './interpretationService';
+import { analyzePropagation, PropagationAnalysis } from './propagationService';
+import { classifyEventSeverity, classifyScoreChangeSeverity, compareSeverity, Severity } from '../engines/severityEngine';
+import { resolveEventCatalogGeneratedAt, resolveEventIngestedAt, resolveEventObservedAt } from './eventTimestamp';
 
 export type EventCategory = 'discovery' | 'trust' | 'monitoring' | 'pricing' | 'schema' | 'signal';
 export type RollingWindow = '1h' | '24h' | '7d';
@@ -23,8 +28,10 @@ export type PulseSummary = {
   trustDeltas: ScoreDelta[];
   signalDeltas: ScoreDelta[];
   recentDegradations: PulseEvent[];
+  propagation: PropagationAnalysis;
   providerActivity: Record<RollingWindow, ProviderActivity[]>;
   signalSpikes: ScoreDelta[];
+  interpretations: EcosystemInterpretation[];
   data_source: DataSourceState;
 };
 
@@ -41,35 +48,90 @@ export type LatestIngestionRun = {
 
 export type PulseEvent = {
   id: string;
+  event_id: string;
   type: InfopunksEvent['type'];
   category: EventCategory;
   source: string;
   entityType: InfopunksEvent['entityType'];
   entityId: string;
   providerId: string | null;
+  provider_id: string | null;
   providerName: string | null;
+  endpointId: string | null;
+  endpoint_id: string | null;
   observedAt: string;
+  observed_at: string;
+  catalog_generated_at: string | null;
+  ingested_at: string | null;
+  derivation_reason: string;
+  confidence: number;
+  severity: Severity;
+  severity_reason: string;
+  severity_score?: number;
+  severity_window?: string;
   summary: string;
   payload: InfopunksEvent['payload'];
+  evidence: AuditReceipt;
 };
 
 export type ScoreDelta = {
   eventId: string;
+  event_id: string;
   providerId: string;
+  provider_id: string;
+  endpointId: string | null;
+  endpoint_id: string | null;
   providerName: string;
   score: number | null;
   previousScore: number | null;
   delta: number | null;
   observedAt: string;
+  observed_at: string;
+  catalog_generated_at: string | null;
+  ingested_at: string | null;
+  source: string;
+  derivation_reason: string;
+  confidence: number;
   direction: 'up' | 'down' | 'flat' | 'unknown';
+  severity: Severity;
+  severity_reason: string;
+  severity_score?: number;
+  severity_window?: string;
+  evidence: AuditReceipt;
 };
 
 export type ProviderActivity = {
   providerId: string;
+  provider_id: string;
   providerName: string;
   count: number;
   categories: Record<EventCategory, number>;
   lastObservedAt: string | null;
+  observed_at: string | null;
+  source: string;
+  derivation_reason: string;
+  confidence: number;
+  severity: Severity;
+  severity_reason: string;
+  severity_score?: number;
+  severity_window?: string;
+  evidence: AuditReceipt;
+};
+
+export type AuditReceipt = {
+  event_id: string | null;
+  provider_id: string | null;
+  endpoint_id: string | null;
+  observed_at: string | null;
+  catalog_generated_at: string | null;
+  ingested_at: string | null;
+  source: string;
+  derivation_reason: string;
+  confidence: number;
+  severity?: Severity;
+  severity_reason?: string;
+  severity_score?: number;
+  severity_window?: string;
 };
 
 const categories: EventCategory[] = ['discovery', 'trust', 'monitoring', 'pricing', 'schema', 'signal'];
@@ -80,9 +142,9 @@ const windows: Record<RollingWindow, number> = {
 };
 
 export function pulseSummary(store: IntelligenceStore, generatedAt = new Date().toISOString(), ingestIntervalMs: number | null = null): PulseSummary {
-  const orderedEvents = [...store.events].sort((a, b) => Date.parse(b.observedAt) - Date.parse(a.observedAt));
+  const orderedEvents = [...store.events].sort((a, b) => Date.parse(resolveEventObservedAt(b, b.observedAt) ?? b.observedAt) - Date.parse(resolveEventObservedAt(a, a.observedAt) ?? a.observedAt));
   const providerNames = new Map(store.providers.map((provider) => [provider.id, provider.name]));
-  const pulseEvents = orderedEvents.map((event) => toPulseEvent(event, providerNames));
+  const pulseEvents = orderedEvents.map((event) => toPulseEvent(event, providerNames, store.events));
   const eventGroups = Object.fromEntries(categories.map((category) => [category, { count: 0, recent: [] as PulseEvent[] }])) as PulseSummary['eventGroups'];
   const latestEventAt = pulseEvents[0]?.observedAt ?? null;
   const dataSource = dataSourceState(store, generatedAt);
@@ -96,6 +158,9 @@ export function pulseSummary(store: IntelligenceStore, generatedAt = new Date().
 
   const trustDeltas = scoreDeltas(pulseEvents, 'trust_assessment', providerNames).slice(0, 20);
   const signalDeltas = scoreDeltas(pulseEvents, 'signal_assessment', providerNames).slice(0, 20);
+  const recentDegradations = pulseEvents.filter((event) => event.type === 'endpoint.degraded' || event.type === 'endpoint.failed' || event.type === 'provider.degraded' || event.type === 'provider.failed').sort(compareSeverity).slice(0, 20);
+  const signalSpikes = signalDeltas.filter((delta) => (delta.delta ?? 0) > 0).sort((a, b) => (b.delta ?? 0) - (a.delta ?? 0)).slice(0, 10);
+  const propagation = analyzePropagation(store, generatedAt);
 
   return {
     generatedAt,
@@ -114,9 +179,11 @@ export function pulseSummary(store: IntelligenceStore, generatedAt = new Date().
     timeline: pulseEvents.slice(0, 120),
     trustDeltas,
     signalDeltas,
-    recentDegradations: pulseEvents.filter((event) => event.type === 'endpoint.degraded' || event.type === 'endpoint.failed' || event.type === 'provider.degraded' || event.type === 'provider.failed').slice(0, 20),
+    recentDegradations,
+    propagation,
     providerActivity: providerActivity(pulseEvents, generatedAt),
-    signalSpikes: signalDeltas.filter((delta) => (delta.delta ?? 0) > 0).sort((a, b) => (b.delta ?? 0) - (a.delta ?? 0)).slice(0, 10),
+    signalSpikes,
+    interpretations: interpretEcosystem({ store, events: pulseEvents, trustDeltas, signalDeltas, recentDegradations, generatedAt }),
     data_source: dataSource
   };
 }
@@ -137,20 +204,36 @@ export function dataSourceState(store: IntelligenceStore, generatedAt = new Date
   };
 }
 
-function toPulseEvent(event: InfopunksEvent, providerNames: Map<string, string>): PulseEvent {
+function toPulseEvent(event: InfopunksEvent, providerNames: Map<string, string>, relatedEvents: InfopunksEvent[]): PulseEvent {
+  const observedAt = resolveEventObservedAt(event, null) ?? event.observedAt;
   const providerId = providerIdForEvent(event);
+  const endpointId = endpointIdForEvent(event);
+  const summary = summaryForEvent(event);
+  const evidence = receiptFromEvent(event, providerId, endpointId, summary);
+  const severity = classifyEventSeverity(event, relatedEvents);
   return {
     id: event.id,
+    event_id: event.id,
     type: event.type,
     category: categoryForEvent(event),
     source: event.source,
     entityType: event.entityType,
     entityId: event.entityId,
     providerId,
+    provider_id: providerId,
     providerName: providerId ? providerNames.get(providerId) ?? providerId : null,
-    observedAt: event.observedAt,
-    summary: summaryForEvent(event),
-    payload: event.payload
+    endpointId,
+    endpoint_id: endpointId,
+    observedAt,
+    observed_at: observedAt,
+    catalog_generated_at: evidence.catalog_generated_at,
+    ingested_at: evidence.ingested_at,
+    derivation_reason: evidence.derivation_reason,
+    confidence: evidence.confidence,
+    ...severity,
+    summary,
+    payload: event.payload,
+    evidence
   };
 }
 
@@ -169,6 +252,12 @@ function providerIdForEvent(event: InfopunksEvent) {
   return null;
 }
 
+function endpointIdForEvent(event: InfopunksEvent) {
+  if (typeof event.payload.endpointId === 'string') return event.payload.endpointId;
+  if (event.entityType === 'endpoint') return event.entityId;
+  return null;
+}
+
 function scoreDeltas(events: PulseEvent[], entityType: 'trust_assessment' | 'signal_assessment', providerNames: Map<string, string>): ScoreDelta[] {
   return events
     .filter((event) => event.type === 'score_assessment_created' && event.entityType === entityType && event.providerId)
@@ -178,13 +267,25 @@ function scoreDeltas(events: PulseEvent[], entityType: 'trust_assessment' | 'sig
       const delta = numberOrNull(event.payload.delta);
       return {
         eventId: event.id,
+        event_id: event.id,
         providerId: event.providerId!,
+        provider_id: event.providerId!,
+        endpointId: event.endpointId,
+        endpoint_id: event.endpointId,
         providerName: providerNames.get(event.providerId!) ?? event.providerId!,
         score,
         previousScore,
         delta,
         observedAt: event.observedAt,
-        direction: delta === null ? 'unknown' : delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat'
+        observed_at: event.observedAt,
+        catalog_generated_at: event.catalog_generated_at,
+        ingested_at: event.ingested_at,
+        source: event.source,
+        derivation_reason: event.derivation_reason,
+        confidence: event.confidence,
+        direction: delta === null ? 'unknown' : delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat',
+        ...classifyScoreChangeSeverity(event.entityType, delta, Array.isArray(event.payload.unknowns) ? event.payload.unknowns.length : 0),
+        evidence: event.evidence
       };
     });
 }
@@ -200,17 +301,38 @@ function providerActivityForWindow(events: PulseEvent[], thresholdMs: number) {
     if (!event.providerId || Date.parse(event.observedAt) < thresholdMs) continue;
     const current = activity.get(event.providerId) ?? {
       providerId: event.providerId,
+      provider_id: event.providerId,
       providerName: event.providerName ?? event.providerId,
       count: 0,
       categories: Object.fromEntries(categories.map((category) => [category, 0])) as Record<EventCategory, number>,
-      lastObservedAt: null
+      lastObservedAt: null,
+      observed_at: null,
+      source: event.source,
+      derivation_reason: 'Provider activity is a deterministic count of event-spine observations in this time window.',
+      confidence: 1,
+      severity: event.severity,
+      severity_reason: event.severity_reason,
+      severity_score: event.severity_score,
+      severity_window: event.severity_window,
+      evidence: event.evidence
     };
     current.count += 1;
     current.categories[event.category] += 1;
     if (!current.lastObservedAt || Date.parse(event.observedAt) > Date.parse(current.lastObservedAt)) current.lastObservedAt = event.observedAt;
+    if (!current.observed_at || Date.parse(event.observedAt) > Date.parse(current.observed_at)) {
+      current.observed_at = event.observedAt;
+      current.source = event.source;
+      current.evidence = event.evidence;
+    }
+    if (compareSeverity(event, current) < 0) {
+      current.severity = event.severity;
+      current.severity_reason = event.severity_reason;
+      current.severity_score = event.severity_score;
+      current.severity_window = event.severity_window;
+    }
     activity.set(event.providerId, current);
   }
-  return [...activity.values()].sort((a, b) => b.count - a.count || a.providerName.localeCompare(b.providerName)).slice(0, 12);
+  return [...activity.values()].sort((a, b) => compareSeverity(a, b) || b.count - a.count || a.providerName.localeCompare(b.providerName)).slice(0, 12);
 }
 
 function unknownTelemetryCount(store: IntelligenceStore) {
@@ -220,7 +342,10 @@ function unknownTelemetryCount(store: IntelligenceStore) {
 function latestIngestionRun(store: IntelligenceStore, dataSource: DataSourceState): LatestIngestionRun | null {
   const run = [...(store.ingestionRuns ?? [])].sort((a, b) => Date.parse(b.startedAt) - Date.parse(a.startedAt))[0];
   if (!run) return null;
-  const emittedEvents = store.events.filter((event) => event.observedAt === run.startedAt || event.observedAt === run.finishedAt).length;
+  const emittedEvents = store.events.filter((event) => {
+    const observedAt = resolveEventObservedAt(event, event.observedAt);
+    return observedAt === run.startedAt || observedAt === run.finishedAt;
+  }).length;
   return {
     startedAt: run.startedAt,
     finishedAt: run.finishedAt,
@@ -237,6 +362,25 @@ function numberOrNull(value: unknown) {
   return typeof value === 'number' ? value : null;
 }
 
+function receiptFromEvent(event: InfopunksEvent, providerId: string | null, endpointId: string | null, derivationReason: string): AuditReceipt {
+  const observedAt = resolveEventObservedAt(event, null);
+  return {
+    event_id: event.id,
+    provider_id: providerId,
+    endpoint_id: endpointId,
+    observed_at: observedAt,
+    catalog_generated_at: resolveEventCatalogGeneratedAt(event, typeof event.payload.catalog_generated_at === 'string' ? event.payload.catalog_generated_at : null),
+    ingested_at: resolveEventIngestedAt(event, null),
+    source: event.source,
+    derivation_reason: event.derivation_reason ?? derivationReason,
+    confidence: typeof event.confidence === 'number' ? event.confidence : event.source.includes('fixture') ? 0.8 : 1,
+    severity: event.severity,
+    severity_reason: event.severity_reason,
+    severity_score: event.severity_score,
+    severity_window: event.severity_window
+  };
+}
+
 function summaryForEvent(event: InfopunksEvent) {
   if (event.type === 'score_assessment_created') {
     const score = event.payload.score ?? 'unknown';
@@ -248,11 +392,11 @@ function summaryForEvent(event: InfopunksEvent) {
   if (event.type === 'endpoint.degraded') return `Endpoint degraded with latency ${event.payload.response_time_ms ?? 'unknown'}ms and status ${event.payload.status_code ?? 'unknown'}.`;
   if (event.type === 'endpoint.failed') return `Endpoint failed with error ${event.payload.error ?? event.payload.status_code ?? 'unknown'}.`;
   if (event.type === 'endpoint.recovered') return 'Endpoint recovered after a prior failed or degraded monitor event.';
-  if (event.type === 'provider.checked') return `Service reachability checked with success ${event.payload.success ?? 'unknown'} and latency ${event.payload.response_time_ms ?? 'unknown'}ms.`;
-  if (event.type === 'provider.reachable') return 'Service reachability is healthy from safe metadata monitoring.';
-  if (event.type === 'provider.degraded') return `Service reachability degraded with latency ${event.payload.response_time_ms ?? 'unknown'}ms and HTTP ${event.payload.status_code ?? 'unknown'}.`;
-  if (event.type === 'provider.failed') return `Service reachability failed with error ${event.payload.error_message ?? event.payload.status_code ?? 'unknown'}.`;
-  if (event.type === 'provider.recovered') return 'Service reachability recovered after a prior failed or degraded safe metadata check.';
+  if (event.type === 'provider.checked') return providerReachabilitySummary(event);
+  if (event.type === 'provider.reachable') return providerRootHealthSummary(event, 'healthy');
+  if (event.type === 'provider.degraded') return providerRootHealthSummary(event, 'degraded');
+  if (event.type === 'provider.failed') return providerReachabilitySummary(event);
+  if (event.type === 'provider.recovered') return providerRootHealthSummary(event, 'recovered');
   if (event.type === 'price.changed') return 'Pricing changed relative to the prior catalog evidence.';
   if (event.type === 'provider.updated') return 'Provider metadata changed relative to the prior catalog evidence.';
   if (event.type === 'provider.discovered') return 'Provider discovered in the Pay.sh catalog.';
