@@ -41,9 +41,11 @@ function pathOf(input: RequestInfo | URL) {
   return new URL(raw, 'http://localhost').pathname;
 }
 
-function installFetch(options: { corePulse: 'ok' | 'fail' | 'timeout'; optionalFail?: boolean }) {
+function installFetch(options: { corePulse: 'ok' | 'fail' | 'timeout'; optionalFail?: boolean; searchFail?: boolean }) {
+  const calls: string[] = [];
   vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
     const path = pathOf(input);
+    calls.push(path);
     if (path === '/v1/providers') return json([provider]);
     if (path === '/v1/pulse') {
       if (options.corePulse === 'fail') return Promise.resolve(new Response(JSON.stringify({ error: 'boom' }), { status: 500 }));
@@ -101,9 +103,10 @@ function installFetch(options: { corePulse: 'ok' | 'fail' | 'timeout'; optionalF
       category_tags: [],
       last_seen_at: now
     });
-    if (path === '/v1/search') return json([]);
+    if (path === '/v1/search') return options.searchFail ? Promise.resolve(new Response(JSON.stringify({ error: 'search_timeout' }), { status: 503 })) : json([]);
     return Promise.resolve(new Response('{}', { status: 404 }));
   });
+  return { calls };
 }
 
 describe('radar boot loading behavior', () => {
@@ -124,7 +127,7 @@ describe('radar boot loading behavior', () => {
 
   it('API timeout exits boot state', async () => {
     vi.useFakeTimers();
-    installFetch({ corePulse: 'timeout' });
+    const fetchState = installFetch({ corePulse: 'timeout' });
 
     await act(async () => {
       root = createRoot(container);
@@ -140,10 +143,11 @@ describe('radar boot loading behavior', () => {
     expect(container.textContent).not.toContain('INFOPUNKS//PAY.SH COGNITIVE LAYER BOOTING...');
     expect(container.textContent).toContain('Radar degraded: unable to load live pulse');
     expect(container.textContent).toContain('Retry');
+    expect(fetchState.calls).not.toContain('/v1/search');
   });
 
   it('failed optional API still renders shell', async () => {
-    installFetch({ corePulse: 'ok', optionalFail: true });
+    const fetchState = installFetch({ corePulse: 'ok', optionalFail: true });
 
     await act(async () => {
       root = createRoot(container);
@@ -156,10 +160,11 @@ describe('radar boot loading behavior', () => {
 
     expect(container.textContent).toContain('Infopunks Intelligence Terminal');
     expect(container.textContent).toContain('Provider Directory');
+    expect(fetchState.calls).not.toContain('/v1/search');
   });
 
   it('failed core API renders degraded shell', async () => {
-    installFetch({ corePulse: 'fail' });
+    const fetchState = installFetch({ corePulse: 'fail' });
 
     await act(async () => {
       root = createRoot(container);
@@ -172,10 +177,11 @@ describe('radar boot loading behavior', () => {
 
     expect(container.textContent).toContain('Radar degraded: unable to load live pulse');
     expect(container.textContent).toContain('Infopunks Intelligence Terminal');
+    expect(fetchState.calls).not.toContain('/v1/search');
   });
 
   it('successful API renders dashboard', async () => {
-    installFetch({ corePulse: 'ok' });
+    const fetchState = installFetch({ corePulse: 'ok' });
 
     await act(async () => {
       root = createRoot(container);
@@ -188,6 +194,35 @@ describe('radar boot loading behavior', () => {
 
     expect(container.textContent).toContain('Infopunks Intelligence Terminal');
     expect(container.textContent).toContain('Cognitive Coordination Layer');
+    expect(container.textContent).not.toContain('Radar degraded: unable to load live pulse');
+    expect(fetchState.calls).not.toContain('/v1/search');
+  });
+
+  it('search failure stays local to semantic search card', async () => {
+    const fetchState = installFetch({ corePulse: 'ok', searchFail: true });
+
+    await act(async () => {
+      root = createRoot(container);
+      root.render(<App />);
+    });
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const input = container.querySelector('input[aria-label="Search Pay.sh ecosystem intelligence"]') as HTMLInputElement;
+    const form = input.closest('form') as HTMLFormElement;
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+    await act(async () => {
+      setter?.call(input, 'multimodal generation');
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(fetchState.calls).toContain('/v1/search');
+    expect(container.textContent).toContain('Semantic search unavailable');
     expect(container.textContent).not.toContain('Radar degraded: unable to load live pulse');
   });
 });

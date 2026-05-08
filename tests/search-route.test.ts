@@ -1,5 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { createApp } from '../src/api/app';
+import { semanticSearch } from '../src/services/searchService';
+import * as searchService from '../src/services/searchService';
 
 describe('search and route API', () => {
   it('searches providers semantically with deterministic lexical scoring', async () => {
@@ -8,6 +10,46 @@ describe('search and route API', () => {
     expect(response.statusCode).toBe(200);
     expect(response.json().data[0].provider.category).toBe('Media');
     await app.close();
+  });
+
+  it('returns timeout-safe degraded payload when search cannot complete', async () => {
+    const spy = vi.spyOn(searchService, 'semanticSearch').mockImplementation(() => {
+      throw new Error('search_failure');
+    });
+    const app = await createApp();
+    const response = await app.inject({ method: 'POST', url: '/v1/search', payload: { query: 'multimodal generation', limit: 3 } });
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toMatchObject({ data: [], degraded: true, reason: 'search_timeout' });
+    await app.close();
+    spy.mockRestore();
+  });
+
+  it('does not include raw evidence/event ids in searchable text', () => {
+    const store: any = {
+      providers: [{
+        id: 'p1',
+        name: 'Alpha',
+        namespace: 'alpha.ns',
+        category: 'Media',
+        description: 'Image generation provider',
+        tags: ['media'],
+        evidence: [{ eventId: 'event-secret-123' }]
+      }],
+      trustAssessments: [{
+        entityId: 'p1',
+        score: 90,
+        evidence: { metadataQuality: [{ eventId: 'event-secret-123' }] }
+      }],
+      signalAssessments: [{
+        entityId: 'p1',
+        score: 80,
+        evidence: { ecosystemMomentum: [{ eventId: 'event-secret-123' }] }
+      }]
+    };
+    const byEvidenceId = semanticSearch({ query: 'event-secret-123', limit: 10 }, store);
+    const byProviderText = semanticSearch({ query: 'image generation', limit: 10 }, store);
+    expect(byEvidenceId).toEqual([]);
+    expect(byProviderText.length).toBe(1);
   });
 
   it('recommends a route with reasoning, evidence, and risk notes', async () => {

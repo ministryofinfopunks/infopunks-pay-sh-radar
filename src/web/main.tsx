@@ -169,6 +169,7 @@ type RouteResult = {
   coordinationScore?: number | null;
   selectedProviderNotRecommendedReason?: string | null;
 };
+type SearchResponse = { data: any[]; degraded?: boolean; reason?: string };
 
 const API_BASE_URL = getApiBaseUrl();
 const API_TIMEOUT_MS = 10_000;
@@ -569,8 +570,10 @@ function RadarApp() {
   const [directoryQuery, setDirectoryQuery] = useState('');
   const [directoryCategory, setDirectoryCategory] = useState('all');
   const [directorySort, setDirectorySort] = useState('trust score');
-  const [searchQuery, setSearchQuery] = useState('multimodal generation');
+  const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchStatus, setSearchStatus] = useState<'idle' | 'loading' | 'error'>('idle');
+  const [searchError, setSearchError] = useState<string | null>(null);
   const [routeTask, setRouteTask] = useState('Find a low-cost image generation route for an autonomous design agent');
   const [routeCategory, setRouteCategory] = useState('all');
   const [routeMaxPrice, setRouteMaxPrice] = useState('0.1');
@@ -612,44 +615,35 @@ function RadarApp() {
     let active = true;
     setIsBootLoading(true);
     setBootError(null);
-    Promise.all([
-      api<{ data: Provider[] }>('/v1/providers'),
-      api<{ data: Pulse }>('/v1/pulse')
-    ]).then(([providers, pulse]) => {
+    api<{ data: Pulse }>('/v1/pulse').then((pulse) => {
       if (!active) return;
-      setData({ providers: providers.data, pulse: pulse.data, narratives: [], graph: { nodes: [], edges: [] } });
-      if (preferredProviderId && providers.data.some((provider) => provider.id === preferredProviderId)) {
-        setSelectedId(preferredProviderId);
-        setSelectionMode('manual');
-        setFeaturedRotationEnabled(false);
-      } else {
-        setSelectedId(providers.data[0]?.id ?? null);
-        setSelectionMode('auto');
-      }
-      void api<{ data: Narrative[] }>('/v1/narratives')
-        .then((narratives) => {
-          if (!active) return;
-          setData((current) => current ? { ...current, narratives: narratives.data } : current);
-        })
-        .catch(() => undefined);
-      void api<{ data: { nodes: unknown[]; edges: unknown[] } }>('/v1/graph')
-        .then((graph) => {
-          if (!active) return;
-          setData((current) => current ? { ...current, graph: graph.data } : current);
-        })
-        .catch(() => undefined);
-      void api<{ data: PulseSummary }>('/v1/pulse/summary')
-        .then((summary) => {
-          if (!active) return;
-          setPulseSummary(summary.data);
-        })
-        .catch(() => undefined);
-      void api<{ data: FeaturedProvider }>('/v1/providers/featured')
-        .then((featured) => {
-          if (!active) return;
-          applyFeaturedProvider(featured.data, true);
-        })
-        .catch(() => undefined);
+      setData({ providers: [], pulse: pulse.data, narratives: [], graph: { nodes: [], edges: [] } });
+      setSelectedId(null);
+      setSelectionMode('auto');
+      void Promise.allSettled([
+        api<{ data: Provider[] }>('/v1/providers'),
+        api<{ data: Narrative[] }>('/v1/narratives'),
+        api<{ data: { nodes: unknown[]; edges: unknown[] } }>('/v1/graph'),
+        api<{ data: PulseSummary }>('/v1/pulse/summary'),
+        api<{ data: FeaturedProvider }>('/v1/providers/featured')
+      ]).then((results) => {
+        if (!active) return;
+        const providers = results[0].status === 'fulfilled' ? results[0].value.data : [];
+        const narratives = results[1].status === 'fulfilled' ? results[1].value.data : [];
+        const graph = results[2].status === 'fulfilled' ? results[2].value.data : { nodes: [], edges: [] };
+        const summary = results[3].status === 'fulfilled' ? results[3].value.data : null;
+        const featured = results[4].status === 'fulfilled' ? results[4].value.data : null;
+        setData((current) => current ? { ...current, providers, narratives, graph } : current);
+        if (summary) setPulseSummary(summary);
+        if (featured) applyFeaturedProvider(featured, true);
+        if (preferredProviderId && providers.some((provider) => provider.id === preferredProviderId)) {
+          setSelectedId(preferredProviderId);
+          setSelectionMode('manual');
+          setFeaturedRotationEnabled(false);
+          return;
+        }
+        if (providers.length) setSelectedId((current) => current ?? providers[0].id);
+      });
     }).catch(() => {
       if (!active) return;
       setData({
@@ -700,11 +694,6 @@ function RadarApp() {
       window.clearInterval(timer);
     };
   }, []);
-
-  useEffect(() => {
-    if (!searchQuery.trim()) return;
-    api<{ data: any[] }>('/v1/search', { method: 'POST', body: JSON.stringify({ query: searchQuery, limit: 6 }) }).then((res) => setSearchResults(res.data));
-  }, [searchQuery]);
 
   const providerLookup = useMemo(() => new Map(data?.providers.map((provider) => [provider.id, provider]) ?? []), [data]);
   const trustLookup = useMemo(() => new Map(data?.pulse.topTrust.map((assessment) => [assessment.entityId, assessment]) ?? []), [data]);
@@ -800,6 +789,33 @@ function RadarApp() {
       setRouteStatus('error');
       setRouteError('route API unavailable');
     });
+  }
+
+  function runSearch() {
+    const query = searchQuery.trim();
+    if (!query) {
+      setSearchResults([]);
+      setSearchError(null);
+      setSearchStatus('idle');
+      return;
+    }
+    setSearchStatus('loading');
+    setSearchError(null);
+    void api<SearchResponse>('/v1/search', { method: 'POST', body: JSON.stringify({ query, limit: 6 }) })
+      .then((res) => {
+        setSearchResults(Array.isArray(res.data) ? res.data : []);
+        if (res.degraded) {
+          setSearchStatus('error');
+          setSearchError(res.reason ?? 'search_timeout');
+          return;
+        }
+        setSearchStatus('idle');
+      })
+      .catch(() => {
+        setSearchResults([]);
+        setSearchStatus('error');
+        setSearchError('search_unavailable');
+      });
   }
 
   function recommendProvider(provider: Provider) {
@@ -961,7 +977,16 @@ function RadarApp() {
           <section className="panel">
             <ScopeLabel scope="GLOBAL" />
             <h2>Semantic Search</h2>
-            <input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="search Pay.sh ecosystem intelligence" aria-label="Search Pay.sh ecosystem intelligence" />
+            <form onSubmit={(event) => {
+              event.preventDefault();
+              runSearch();
+            }}>
+              <input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="search Pay.sh ecosystem intelligence" aria-label="Search Pay.sh ecosystem intelligence" />
+              <button className="execute compact secondary" type="submit" disabled={searchStatus === 'loading'}>
+                {searchStatus === 'loading' ? 'Searching...' : 'Search'}
+              </button>
+            </form>
+            {searchError && <p className="route-state error">Semantic search unavailable: {searchError}</p>}
             <div className="results">{searchResults.map((result) => <div className="result" key={result.provider.id}><strong>{result.provider.name}</strong><span>relevance {result.relevance} / trust {result.trustAssessment.score ?? 'unknown'} / signal {result.signalAssessment.score ?? 'unknown'}</span></div>)}</div>
           </section>
           </div>

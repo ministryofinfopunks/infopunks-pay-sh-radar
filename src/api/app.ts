@@ -37,6 +37,7 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   const config = loadRuntimeConfig();
   const app = Fastify({ logger: false });
   const ROUTE_TIMEOUT_MS = 2_500;
+  const SEARCH_ROUTE_TIMEOUT_MS = 3_000;
   const PROVIDER_LIST_MAX = 100;
   const allowedOrigins = new Set(DEFAULT_ALLOWED_ORIGINS);
   if (config.frontendOrigin) allowedOrigins.add(config.frontendOrigin);
@@ -193,7 +194,21 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     return { data: signal };
   });
   app.get('/v1/narratives', async () => ({ data: store.narratives }));
-  app.post('/v1/search', async (req, reply) => handleParsed(req.body, SearchRequestSchema, (input) => ({ data: semanticSearch(input, store) }), reply));
+  app.post('/v1/search', async (req, reply) => handleParsed(req.body, SearchRequestSchema, async (input) => {
+    const startedAtMs = Date.now();
+    console.log(JSON.stringify({ event: 'route_timing_start', route: '/v1/search', started_at: new Date(startedAtMs).toISOString() }));
+    try {
+      const result = await Promise.race([
+        Promise.resolve().then(() => semanticSearch(input, store)),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('search_timeout')), SEARCH_ROUTE_TIMEOUT_MS))
+      ]);
+      console.log(JSON.stringify({ event: 'route_timing_end', route: '/v1/search', duration_ms: Date.now() - startedAtMs, timed_out: false }));
+      return { data: result };
+    } catch {
+      console.log(JSON.stringify({ event: 'route_timing_end', route: '/v1/search', duration_ms: Date.now() - startedAtMs, timed_out: true }));
+      return { data: [], degraded: true, reason: 'search_timeout' };
+    }
+  }, reply));
   app.post('/v1/recommend-route', async (req, reply) => handleParsed(req.body, RouteRecommendationRequestSchema, (input) => ({ data: recommendRoute(input, store) }), reply));
   app.post('/v1/ingest/pay-sh', async (req, reply) => {
     if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'admin_token_required' });
