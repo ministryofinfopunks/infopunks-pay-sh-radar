@@ -41,25 +41,30 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   const PROVIDER_LIST_MAX = 100;
   const allowedOrigins = new Set(DEFAULT_ALLOWED_ORIGINS);
   if (config.frontendOrigin) allowedOrigins.add(config.frontendOrigin);
-  const corsMethodsHeader = CORS_METHODS.join(', ');
-  const corsAllowedHeadersHeader = CORS_ALLOWED_HEADERS.join(', ');
   await app.register(cors, {
     origin: (origin, callback) => callback(null, !origin || allowedOrigins.has(origin)),
     methods: CORS_METHODS,
     allowedHeaders: CORS_ALLOWED_HEADERS,
     maxAge: CORS_MAX_AGE_SECONDS,
     optionsSuccessStatus: 204,
-    preflight: true
+    preflight: true,
+    strictPreflight: true
   });
-  app.addHook('onSend', async (req, reply, payload) => {
-    const origin = req.headers.origin;
-    if (!origin || !allowedOrigins.has(origin)) return payload;
-    reply.header('access-control-allow-origin', origin);
-    reply.header('access-control-allow-methods', corsMethodsHeader);
-    reply.header('access-control-allow-headers', corsAllowedHeadersHeader);
-    reply.header('access-control-max-age', String(CORS_MAX_AGE_SECONDS));
-    reply.header('vary', 'Origin');
-    return payload;
+  app.addHook('onRequest', async (req, _reply) => {
+    const startedAtMs = Date.now();
+    console.log(JSON.stringify({ event: 'hook_enter', hook: 'onRequest', id: req.id, method: req.method, url: req.url }));
+    console.log(JSON.stringify({ event: 'request_start', id: req.id, method: req.method, url: req.url, started_at: new Date(startedAtMs).toISOString() }));
+    console.log(JSON.stringify({ event: 'hook_exit', hook: 'onRequest', id: req.id }));
+  });
+  app.addHook('onError', async (req, reply, error) => {
+    console.log(JSON.stringify({ event: 'hook_enter', hook: 'onError', id: req.id, method: req.method, url: req.url }));
+    console.log(JSON.stringify({ event: 'request_errored', id: req.id, method: req.method, url: req.url, status_code: reply.statusCode, error: error.message }));
+    console.log(JSON.stringify({ event: 'hook_exit', hook: 'onError', id: req.id }));
+  });
+  app.addHook('onResponse', async (req, reply) => {
+    console.log(JSON.stringify({ event: 'hook_enter', hook: 'onResponse', id: req.id, method: req.method, url: req.url }));
+    console.log(JSON.stringify({ event: 'request_complete', id: req.id, method: req.method, url: req.url, status_code: reply.statusCode }));
+    console.log(JSON.stringify({ event: 'hook_exit', hook: 'onResponse', id: req.id }));
   });
   const store = preloadedStore ?? emptyIntelligenceStore();
   let bootstrapped = Boolean(preloadedStore);
@@ -123,10 +128,12 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   }), () => ({
     data: pulseWarmingUpFallback(store, bootstrapped, 'pulse_timeout')
   })));
-  app.get('/v1/pulse/summary', async () => {
+  app.get('/v1/pulse/summary', async () => withRouteTimeout('/v1/pulse/summary', ROUTE_TIMEOUT_MS, () => {
     const summary = pulseSummary(store, new Date().toISOString(), config.payShIngestIntervalMs, { includePropagation: false, includeInterpretations: false, propagationFallback: cachedPropagation, interpretationsFallback: cachedInterpretations });
     return { data: compactPulseSummaryPayload(summary) };
-  });
+  }, () => ({
+    data: compactPulseSummaryPayload(pulseSummary(store, new Date().toISOString(), config.payShIngestIntervalMs, { includePropagation: false, includeInterpretations: false, propagationFallback: cachedPropagation, interpretationsFallback: cachedInterpretations }))
+  })));
   app.get('/v1/propagation', async () => ({ data: compactPropagationSummary(cachedPropagation) }));
   app.get<{ Params: { cluster_id: string } }>('/v1/propagation/:cluster_id', async (req, reply) => {
     const incident = resolvePropagationIncident(store, req.params.cluster_id, new Date().toISOString(), cachedPropagation, cachedInterpretations);
@@ -198,10 +205,7 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     const startedAtMs = Date.now();
     console.log(JSON.stringify({ event: 'route_timing_start', route: '/v1/search', started_at: new Date(startedAtMs).toISOString() }));
     try {
-      const result = await Promise.race([
-        Promise.resolve().then(() => semanticSearch(input, store)),
-        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('search_timeout')), SEARCH_ROUTE_TIMEOUT_MS))
-      ]);
+      const result = await withTimeout(() => semanticSearch(input, store), SEARCH_ROUTE_TIMEOUT_MS, 'search_timeout');
       console.log(JSON.stringify({ event: 'route_timing_end', route: '/v1/search', duration_ms: Date.now() - startedAtMs, timed_out: false }));
       return { data: result };
     } catch {
@@ -303,14 +307,22 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
       void runPayShIngestion(store, repository).then(() => refreshBackgroundAnalytics()).catch(() => undefined);
     }, intervalMs);
     timer.unref();
-    app.addHook('onClose', async () => clearInterval(timer));
+    app.addHook('onClose', async () => {
+      console.log(JSON.stringify({ event: 'hook_enter', hook: 'onClose', source: 'ingestion_timer' }));
+      clearInterval(timer);
+      console.log(JSON.stringify({ event: 'hook_exit', hook: 'onClose', source: 'ingestion_timer' }));
+    });
   }
   if (isMonitorEnabled() && monitorIntervalMs() > 0) {
     const timer = setInterval(() => {
       void runMonitor(store, repository, { timeoutMs: monitorTimeoutMs(), maxProviders: monitorMaxProviders() }).then(() => refreshBackgroundAnalytics()).catch(() => undefined);
     }, monitorIntervalMs());
     timer.unref();
-    app.addHook('onClose', async () => clearInterval(timer));
+    app.addHook('onClose', async () => {
+      console.log(JSON.stringify({ event: 'hook_enter', hook: 'onClose', source: 'monitor_timer' }));
+      clearInterval(timer);
+      console.log(JSON.stringify({ event: 'hook_exit', hook: 'onClose', source: 'monitor_timer' }));
+    });
   }
 
   return app;
@@ -338,14 +350,11 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     }, 0);
   }
 
-  async function withRouteTimeout<T>(route: '/status' | '/v1/pulse' | '/v1/providers', timeoutMs: number, work: () => T | Promise<T>, fallback: () => T): Promise<T> {
+  async function withRouteTimeout<T>(route: '/status' | '/v1/pulse' | '/v1/providers' | '/v1/pulse/summary', timeoutMs: number, work: () => T | Promise<T>, fallback: () => T): Promise<T> {
     const startedAtMs = Date.now();
     console.log(JSON.stringify({ event: 'route_timing_start', route, started_at: new Date(startedAtMs).toISOString() }));
     try {
-      const result = await Promise.race([
-        Promise.resolve().then(work),
-        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('route_timeout')), timeoutMs))
-      ]);
+      const result = await withTimeout(work, timeoutMs, 'route_timeout');
       console.log(JSON.stringify({ event: 'route_timing_end', route, duration_ms: Date.now() - startedAtMs, timed_out: false }));
       return result;
     } catch {
@@ -353,6 +362,32 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
       return fallback();
     }
   }
+}
+
+async function withTimeout<T>(work: () => T | Promise<T>, timeoutMs: number, reason: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    let settled = false;
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      reject(new Error(reason));
+    }, timeoutMs);
+
+    Promise.resolve()
+      .then(work)
+      .then((result) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        resolve(result);
+      })
+      .catch((error) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        reject(error);
+      });
+  });
 }
 
 function contentTypeFor(path: string) {
