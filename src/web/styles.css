@@ -323,3 +323,287 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 .propagation-incident-page { display: grid; gap: 14px; }
 .propagation-incident-page .delta-row a { display: block; color: var(--blue); margin-top: 6px; text-decoration: none; }
 .propagation-incident-page .delta-row a:hover { text-decoration: underline; }
+
+/* UI polish pass: terminal depth, hierarchy, status clarity, and responsive feed behavior. */
+:root {
+  --panel-strong: rgba(13, 29, 22, .92);
+  --radius: 16px;
+  --radius-sm: 12px;
+  --shadow-panel: 0 20px 70px rgba(0,0,0,.28), 0 0 42px rgba(126,255,176,.055), inset 0 1px rgba(255,255,255,.035);
+  --transition: 160ms ease;
+}
+
+body {
+  background:
+    radial-gradient(circle at 18% -8%, rgba(126, 255, 176, 0.18), transparent 27%),
+    radial-gradient(circle at 88% 10%, rgba(124, 199, 255, 0.16), transparent 31%),
+    radial-gradient(circle at 50% 120%, rgba(246,208,111,.08), transparent 34%),
+    linear-gradient(135deg, #020403, #07120c 45%, #020403);
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(180deg, rgba(255,255,255,.025) 0, rgba(255,255,255,.025) 1px, transparent 1px, transparent 4px);
+  mix-blend-mode: overlay;
+  opacity: .34;
+}
+
+.shell { z-index: 1; }
+
+.panel {
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, var(--panel-strong), rgba(4, 10, 7, .9));
+  box-shadow: var(--shadow-panel);
+  transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition), background var(--transition);
+}
+
+.panel:hover {
+  border-color: rgba(126,255,176,.28);
+  box-shadow: 0 24px 80px rgba(0,0,0,.32), 0 0 54px rgba(126,255,176,.075), inset 0 1px rgba(255,255,255,.045);
+}
+
+.hero {
+  border-color: rgba(126,255,176,.32);
+  background: linear-gradient(135deg, rgba(16,41,29,.94), rgba(2,7,5,.93) 56%, rgba(14,23,22,.92));
+}
+
+.ticker span {
+  border-radius: 12px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.zone-helper {
+  max-width: 760px;
+  color: #b9d9c4 !important;
+  line-height: 1.55;
+}
+
+.metric { min-height: 172px; }
+.metric strong {
+  font-size: clamp(24px, 2.2vw, 34px);
+  line-height: 1.02;
+}
+.metric small { line-height: 1.45; }
+
+.ecosystem-status-panel {
+  display: grid;
+  grid-template-columns: minmax(260px, .72fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: stretch;
+  margin-top: 16px;
+  border-left-width: 4px;
+}
+.ecosystem-status-panel.status-critical { border-color: rgba(255,107,107,.56); box-shadow: 0 0 64px rgba(255,107,107,.1), inset 0 0 26px rgba(255,107,107,.04); }
+.ecosystem-status-panel.status-warning { border-color: rgba(246,208,111,.54); box-shadow: 0 0 58px rgba(246,208,111,.08), inset 0 0 24px rgba(246,208,111,.035); }
+.ecosystem-status-panel.status-info { border-color: rgba(124,199,255,.46); }
+.ecosystem-status-panel.status-stable { border-color: rgba(126,255,176,.42); }
+.status-command {
+  display: grid;
+  align-content: center;
+  gap: 7px;
+}
+.status-command h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(24px, 3.2vw, 42px);
+  line-height: 1;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+.status-command p:last-child {
+  margin: 0;
+  color: #c8e3d0;
+  line-height: 1.55;
+}
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.status-chip {
+  position: relative;
+  min-width: 0;
+  border: 1px solid rgba(126,255,176,.13);
+  border-radius: 13px;
+  padding: 12px;
+  background: rgba(0,0,0,.2);
+  overflow: hidden;
+}
+.status-chip::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--muted);
+  opacity: .9;
+}
+.status-chip.status-critical::before { background: var(--red); }
+.status-chip.status-warning::before { background: var(--amber); }
+.status-chip.status-info::before { background: var(--blue); }
+.status-chip.status-stable::before { background: var(--green); }
+.status-chip span {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.status-chip strong {
+  display: block;
+  margin-top: 8px;
+  color: var(--text);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 16px;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.category {
+  background: rgba(126,255,176,.045);
+  font-weight: 700;
+}
+
+.feed-row,
+.row,
+.endpoint,
+.change,
+.delta-row,
+.activity-row,
+.mini-feed div,
+.result,
+.route,
+.heat,
+.dossier-stat,
+.pulse-stat,
+.timing-item {
+  transition: border-color var(--transition), background var(--transition), transform var(--transition), box-shadow var(--transition);
+}
+
+.feed-row:hover,
+.endpoint:hover,
+.change:hover,
+.delta-row:hover,
+.activity-row:hover,
+.mini-feed div:hover,
+.result:hover,
+.route:hover,
+.heat:hover,
+.dossier-stat:hover,
+.pulse-stat:hover,
+.timing-item:hover {
+  border-color: rgba(126,255,176,.25);
+  background-color: rgba(126,255,176,.06);
+  transform: translateY(-1px);
+}
+
+.row:hover {
+  border-color: rgba(126,255,176,.34);
+  background: rgba(126,255,176,.08);
+  transform: translateX(2px);
+}
+
+.severity-badge {
+  padding: 5px 9px;
+  box-shadow: inset 0 0 12px rgba(255,255,255,.025);
+}
+.severity-badge::before {
+  content: '[STATE]';
+  margin-right: 5px;
+  color: currentColor;
+  opacity: .78;
+}
+
+.severity-critical { box-shadow: inset 4px 0 rgba(255,107,107,.65), 0 0 18px rgba(255,107,107,.055); }
+.severity-warning { box-shadow: inset 4px 0 rgba(246,208,111,.65), 0 0 18px rgba(246,208,111,.05); }
+.severity-informational { box-shadow: inset 4px 0 rgba(91,212,255,.55), 0 0 18px rgba(91,212,255,.045); }
+.severity-unknown { box-shadow: inset 4px 0 rgba(183,204,190,.36); }
+.severity-badge.severity-critical,
+.severity-badge.severity-warning,
+.severity-badge.severity-informational,
+.severity-badge.severity-unknown {
+  box-shadow: none;
+}
+
+.section-helper {
+  margin: 4px 0 0 !important;
+  color: var(--muted) !important;
+  font-size: 11px;
+  line-height: 1.42 !important;
+}
+
+input,
+textarea,
+select {
+  transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+}
+input:hover,
+textarea:hover,
+select:hover {
+  border-color: rgba(126,255,176,.34);
+  background: rgba(0,0,0,.42);
+}
+
+.execute {
+  transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+}
+.execute:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 0 28px rgba(126,255,176,.22);
+}
+.execute:disabled {
+  opacity: .62;
+  background-image: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.24), rgba(255,255,255,0));
+  background-size: 220% 100%;
+  animation: skeleton-scan 1.2s linear infinite;
+}
+
+.route-state:not(.error):not(.warn) {
+  background-image: linear-gradient(90deg, rgba(126,255,176,.04), rgba(126,255,176,.11), rgba(126,255,176,.04));
+  background-size: 220% 100%;
+}
+
+.empty-state {
+  color: #b9d9c4;
+  background:
+    linear-gradient(135deg, rgba(126,255,176,.04), rgba(0,0,0,.16)),
+    repeating-linear-gradient(90deg, transparent 0, transparent 9px, rgba(126,255,176,.035) 9px, rgba(126,255,176,.035) 10px);
+}
+
+@keyframes skeleton-scan {
+  from { background-position: 120% 0; }
+  to { background-position: -120% 0; }
+}
+
+@media (max-width: 980px) {
+  .ecosystem-status-panel,
+  .status-grid { grid-template-columns: 1fr !important; }
+  .ecosystem-status-panel { order: 0; }
+  .ecosystem-layout { display: flex; flex-direction: column; }
+  .ecosystem-main { order: 1; }
+  .ecosystem-rail { order: 2; width: 100%; }
+  .provider-stack { display: flex; flex-direction: column; }
+  .provider-directory-panel { order: 1; }
+  .dossier { order: 0; }
+}
+
+@media (max-width: 640px) {
+  .ecosystem-metrics { gap: 10px; }
+  .metric { min-height: 0; }
+  .feed-row {
+    padding: 12px;
+    gap: 7px;
+  }
+  .feed-row time {
+    text-align: left;
+    white-space: normal;
+  }
+  .provider-analysis-grid { gap: 10px; }
+  .status-command h2 { font-size: 26px; }
+}

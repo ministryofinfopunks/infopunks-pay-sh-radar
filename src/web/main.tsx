@@ -1020,6 +1020,7 @@ function RadarApp() {
   if (!data) return <main className="boot" aria-label="Infopunks Pay.sh Radar loading state">BOOT FAILED</main>;
 
   const providerContextLabel = selectedProvider ? `${selectedProvider.name} / ${selectedProvider.category}`.toUpperCase() : 'PROVIDER / UNKNOWN';
+  const ecosystemStatus = getEcosystemStatus(data.pulse, pulseSummary);
 
   return <div className="shell">
     <a className="skip-link" href="#terminal-content">Skip to content</a>
@@ -1055,10 +1056,12 @@ function RadarApp() {
       </div>
     </section>
 
+    <EcosystemStatusPanel status={ecosystemStatus} pulse={data.pulse} summary={pulseSummary} selectedProvider={selectedProvider} />
+
     <section className="ecosystem-layout" aria-label="Global intelligence layout">
       <div className="ecosystem-main">
         <section className="zone zone-ecosystem" aria-labelledby="ecosystem-zone-title">
-          <ZoneHeader eyebrow="ZONE A" title="ECOSYSTEM INTELLIGENCE" subtitle="Realtime machine economy observability" scope="GLOBAL" />
+          <ZoneHeader eyebrow="ZONE A" title="ECOSYSTEM INTELLIGENCE" subtitle="Realtime machine economy observability" helper="Start here: global status, interpretation, pulse feed, and cross-provider movement before drilling into a provider." scope="GLOBAL" />
 
           <section className="grid four ecosystem-metrics" aria-label="Ecosystem summary metrics">
             <Metric label="Ecosystem Pulse" value={data.pulse.hottestNarrative?.title ?? 'unknown'} sub={`heat ${data.pulse.hottestNarrative?.heat ?? 'unknown'} / momentum ${data.pulse.hottestNarrative?.momentum ?? 'unknown'}`} evidence={data.pulse.hottestNarrative as EvidenceReceipt | null} />
@@ -1076,7 +1079,7 @@ function RadarApp() {
                 <ScopeLabel scope="GLOBAL" />
                 <p className="section-kicker">Live Signals</p>
                 <h2>Live Catalog Pulse</h2>
-                <p className="panel-caption">Pay.sh catalog ingests every {formatInterval(pulseSummary.ingest_interval_ms) ?? '7.5 min'} · UI polls every 15s · events emit when catalog changes are detected.</p>
+                <p className="panel-caption">Pay.sh catalog ingests every {formatInterval(pulseSummary.ingest_interval_ms) ?? '7.5 min'} / UI polls every 15s / events emit only when catalog changes are detected.</p>
               </div>
               <small>UI refresh {formatDate(pulseSummary.generatedAt)}</small>
             </div>
@@ -1121,6 +1124,7 @@ function RadarApp() {
           <section className="panel">
             <ScopeLabel scope="GLOBAL" />
             <h2>Narrative Heatmap</h2>
+            <p className="panel-caption">Narratives group provider movement into readable market themes. Heat and severity are shown together so state is not color-only.</p>
             <div className="heatmap">
               {sortBySeverity(safeNarratives).map((narrative) => <div key={narrative.id} className={`heat severity-${normalSeverity(narrative.severity)}`} style={{ '--heat': `${narrative.heat ?? 0}%` } as React.CSSProperties}>
                 <strong>{narrative.title}</strong><SeverityBadge evidence={narrative} /><span>heat {narrative.heat ?? 'unknown'}</span><small>{narrative.providerIds.length} providers / {narrative.keywords.join(', ')}</small>
@@ -1131,6 +1135,7 @@ function RadarApp() {
           <section className="panel">
             <ScopeLabel scope="GLOBAL" />
             <h2>Semantic Search</h2>
+            <p className="panel-caption">Search provider metadata, trust context, and signal context without leaving the live radar surface.</p>
             <form onSubmit={(event) => {
               event.preventDefault();
               runSearch();
@@ -1147,7 +1152,7 @@ function RadarApp() {
         </section>
 
         <section className="zone zone-provider" aria-labelledby="provider-zone-title">
-      <ZoneHeader eyebrow="ZONE B" title="SELECTED PROVIDER DOSSIER" subtitle="Live intelligence for selected provider" scope="PROVIDER" />
+      <ZoneHeader eyebrow="ZONE B" title="SELECTED PROVIDER DOSSIER" subtitle="Live intelligence for selected provider" helper="The featured provider rotates automatically unless you select or edit. Manual interaction pauses rotation to preserve context." scope="PROVIDER" />
       {selectedProvider && <div className="provider-ribbon" aria-label="Selected provider context">
         <strong>{selectedProvider.name}</strong>
         <SeverityBadge evidence={providerIntel ?? selectedProvider} />
@@ -1164,6 +1169,7 @@ function RadarApp() {
               <ScopeLabel scope="GLOBAL" />
               <p className="section-kicker">Catalog Index</p>
               <h2>Provider Directory</h2>
+              <p className="panel-caption">Filter, sort, and select providers. Active selection drives the dossier, monitor, route, trust, and endpoint panels.</p>
             </div>
             <small>{filteredProviders.length} / {data.providers.length} providers</small>
           </div>
@@ -1196,6 +1202,7 @@ function RadarApp() {
               <ScopeLabel scope="PROVIDER" context={providerContextLabel} />
               <p className="section-kicker">Selected Provider</p>
               <h2>Provider Intelligence Dossier</h2>
+              <p className="panel-caption">Provider-level trust, signal, monitor, market metadata, and evidence receipts stay linked to the selected catalog entry.</p>
             </div>
             <div className="auto-rotate-control" aria-label="Featured provider auto-rotate control" onFocus={() => setDossierControlsEditing(true)} onBlur={(event) => {
               if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDossierControlsEditing(false);
@@ -1234,7 +1241,7 @@ function RadarApp() {
               <DossierStat label="unknowns" value={providerIntel?.unknown_telemetry.length ?? 'unknown'} sub="telemetry fields" />
             </div>
             <div className="dossier-body" onScroll={() => holdAutoRotation(DOSSIER_INTERACTION_HOLD_MS)}>
-              <DossierSection title="Capability Brief" context={providerContextLabel}>
+              <DossierSection title="Capability Brief" context={providerContextLabel} helper="Catalog-supplied description, tags, and service URL. This does not imply endpoint execution.">
                 <p>{selectedProvider.description ?? 'No provider description supplied by catalog metadata.'}</p>
                 <p><b>use_case:</b> {selectedProvider.useCase ?? 'unknown'}</p>
                 {selectedProvider.serviceUrl && <p><b>service_url:</b> <a href={selectedProvider.serviceUrl} target="_blank" rel="noreferrer">{selectedProvider.serviceUrl}</a></p>}
@@ -1242,7 +1249,7 @@ function RadarApp() {
                 <EvidenceReceiptView evidence={selectedProvider} title="Evidence" />
               </DossierSection>
               <div className="dossier-grid">
-                <DossierSection title="Market Metadata" context={providerContextLabel}>
+                <DossierSection title="Market Metadata" context={providerContextLabel} helper="Pricing and catalog freshness are preserved as reported by Pay.sh metadata.">
                   <KeyValues rows={[
                     ['min_price_usd', moneyOrUnknown(getSafeRange(selectedProvider.pricing).min)],
                     ['max_price_usd', moneyOrUnknown(getSafeRange(selectedProvider.pricing).max)],
@@ -1255,7 +1262,7 @@ function RadarApp() {
                   ]} />
                   <EvidenceReceiptView evidence={selectedProvider.pricing ?? selectedProvider} title="Receipt" />
                 </DossierSection>
-                <DossierSection title="Trust Breakdown" context={providerContextLabel}>
+                <DossierSection title="Trust Breakdown" context={providerContextLabel} helper="Component scores explain the visible trust total and unknown states.">
                   <KeyValues rows={[
                     ['metadata quality', componentValue(providerDetail?.trustAssessment?.components.metadataQuality)],
                     ['pricing clarity', componentValue(providerDetail?.trustAssessment?.components.pricingClarity)],
@@ -1266,7 +1273,7 @@ function RadarApp() {
                     ['receipt reliability', knownState(providerDetail?.trustAssessment?.components.receiptReliability)]
                   ]} />
                 </DossierSection>
-                <DossierSection title="Operational Monitor" context={providerContextLabel}>
+                <DossierSection title="Operational Monitor" context={providerContextLabel} helper="Safe metadata reachability only; paid provider calls are not executed.">
                   <div className="monitor-card">
                     <div className="monitor-head">
                       <span className="safe-badge">SAFE METADATA</span>
@@ -1282,7 +1289,7 @@ function RadarApp() {
                     <p className="monitor-note">{providerIntel?.service_monitor.explanation ?? 'Safe monitor checks provider service reachability only. It does not execute paid Pay.sh calls.'}</p>
                   </div>
                 </DossierSection>
-                <DossierSection title="Propagation Context" context={providerContextLabel}>
+                <DossierSection title="Propagation Context" context={providerContextLabel} helper="Shows whether this provider is part of the current ecosystem propagation analysis.">
                   <KeyValues rows={[
                     ['state', providerIntel?.propagation_context?.propagation_state ?? 'unknown'],
                     ['severity', providerIntel?.propagation_context?.severity ?? 'unknown'],
@@ -1291,7 +1298,7 @@ function RadarApp() {
                   ]} />
                   <p className="monitor-note">{providerIntel?.propagation_context?.propagation_reason ?? 'No propagation analysis available for this provider.'}</p>
                 </DossierSection>
-                <DossierSection title="Signal Breakdown" context={providerContextLabel}>
+                <DossierSection title="Signal Breakdown" context={providerContextLabel} helper="Narrative and metadata movement behind the visible signal score.">
                   <KeyValues rows={[
                     ['category heat', componentValue(providerDetail?.signalAssessment?.components.categoryHeat)],
                     ['ecosystem momentum', componentValue(providerDetail?.signalAssessment?.components.ecosystemMomentum)],
@@ -1300,12 +1307,12 @@ function RadarApp() {
                     ['onchain/liquidity resonance', knownState(providerDetail?.signalAssessment?.components.onchainLiquidityResonance)]
                   ]} />
                 </DossierSection>
-                <DossierSection title="Unknown Telemetry" context={providerContextLabel}>
+                <DossierSection title="Unknown Telemetry" context={providerContextLabel} helper="Unknown fields stay visible so absence of evidence is never hidden.">
                   <div className="unknown-list">{(providerIntel?.unknown_telemetry.length ? providerIntel.unknown_telemetry : ['No unknown telemetry reported by current assessments.']).map((item) => <span key={item}>{item}</span>)}</div>
                   <EvidenceReceiptView evidence={providerDetail?.trustAssessment ?? providerDetail?.signalAssessment ?? selectedProvider} title="Evidence" />
                 </DossierSection>
               </div>
-              <DossierSection title="Evidence Trail" context={providerContextLabel}>
+              <DossierSection title="Evidence Trail" context={providerContextLabel} helper="Recent catalog-diff receipts for this provider, ordered by severity.">
                 <div className="evidence-trail">
                   {sortBySeverity(providerIntel?.recent_changes.length ? providerIntel.recent_changes : []).slice(0, 6).map((item) => <div key={item.id}>
                     <time>{formatDate(item.observedAt)}</time>
@@ -1317,7 +1324,7 @@ function RadarApp() {
                   {providerIntel?.recent_changes.length === 0 && <p className="muted empty-state">No recent discovery, update, price, category, endpoint-count, or metadata events after initial observation.</p>}
                 </div>
               </DossierSection>
-              <DossierSection title="Route Decision Panel" context={providerContextLabel}>
+              <DossierSection title="Route Decision Panel" context={providerContextLabel} helper="Uses the existing route recommendation API with selected provider as optional preference input.">
                 <div className="route-panel compact-route-panel" id="route-decision-panel" onFocus={() => setRouteInputFocused(true)} onBlur={(event) => {
                   if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setRouteInputFocused(false);
                 }} onPointerDown={() => holdAutoRotation(ROUTE_INTERACTION_HOLD_MS)} onInput={() => holdAutoRotation(ROUTE_INTERACTION_HOLD_MS)}>
@@ -1502,6 +1509,33 @@ function Metric({ label, value, sub, evidence }: { label: string; value: string 
   return <div className="panel metric"><ScopeLabel scope="GLOBAL" /><span>{label}</span><strong>{value}</strong><small>{sub}</small><EvidenceReceiptView evidence={evidence} title="Evidence" compact /></div>;
 }
 
+type EcosystemStatusState = 'critical' | 'warning' | 'info' | 'stable';
+
+function EcosystemStatusPanel({ status, pulse, summary, selectedProvider }: { status: { state: EcosystemStatusState; label: string; detail: string }; pulse: Pulse; summary: PulseSummary | null; selectedProvider: Provider | null }) {
+  const latestObserved = summary?.latest_event_at ?? summary?.generatedAt ?? pulse.updatedAt;
+  const propagationState = summary?.propagation?.propagation_state ?? 'unknown';
+  return <section className={`ecosystem-status-panel panel status-${status.state}`} aria-labelledby="ecosystem-status-title" role="status" aria-live="polite">
+    <div className="status-command">
+      <p className="section-kicker">Ecosystem Status</p>
+      <h2 id="ecosystem-status-title">{status.label}</h2>
+      <p>{status.detail}</p>
+    </div>
+    <div className="status-grid" aria-label="Current radar command metrics">
+      <StatusChip label="Catalog" value={sourceLabel(pulse.data_source)} state={pulse.data_source.used_fixture ? 'warning' : 'stable'} />
+      <StatusChip label="Propagation" value={propagationState} state={status.state} />
+      <StatusChip label="Latest Event" value={latestObserved ? formatDate(latestObserved) : 'none'} state={summary?.latest_event_at ? 'info' : 'stable'} />
+      <StatusChip label="Featured Context" value={selectedProvider?.name ?? 'awaiting provider'} state={selectedProvider ? 'stable' : 'info'} />
+    </div>
+  </section>;
+}
+
+function StatusChip({ label, value, state }: { label: string; value: string; state: EcosystemStatusState }) {
+  return <div className={`status-chip status-${state}`}>
+    <span>{label}</span>
+    <strong>{value}</strong>
+  </div>;
+}
+
 function EcosystemInterpretationPanel({ interpretations, providerLookup }: { interpretations: EcosystemInterpretation[]; providerLookup: Map<string, Provider> }) {
   const safeInterpretations = Array.isArray(interpretations) ? interpretations : [];
   const primary = safeInterpretations[0] ?? null;
@@ -1513,6 +1547,7 @@ function EcosystemInterpretationPanel({ interpretations, providerLookup }: { int
         <ScopeLabel scope="GLOBAL" />
         <p className="section-kicker">Interpretation Layer</p>
         <h2 id="ecosystem-interpretation-title">Ecosystem Interpretation</h2>
+        <p className="panel-caption">Primary analyst readout from current receipts. Secondary interpretations stay quieter to preserve scan order.</p>
       </div>
       <small>{primary.severity.toUpperCase()} / confidence {Math.round(primary.confidence * 100)}%</small>
     </div>
@@ -1621,13 +1656,14 @@ function PropagationWatch({ propagation }: { propagation?: PropagationAnalysis |
   </div>;
 }
 
-function ZoneHeader({ eyebrow, title, subtitle, scope }: { eyebrow: string; title: string; subtitle: string; scope: 'GLOBAL' | 'PROVIDER' }) {
+function ZoneHeader({ eyebrow, title, subtitle, helper, scope }: { eyebrow: string; title: string; subtitle: string; helper?: string; scope: 'GLOBAL' | 'PROVIDER' }) {
   const id = scope === 'GLOBAL' ? 'ecosystem-zone-title' : 'provider-zone-title';
   return <header className="zone-header">
     <div>
       <p className="zone-eyebrow">{eyebrow}</p>
       <h2 id={id}>{title}</h2>
       <p>{subtitle}</p>
+      {helper && <p className="zone-helper">{helper}</p>}
     </div>
     <ScopeLabel scope={scope} />
   </header>;
@@ -1701,10 +1737,13 @@ function SeverityBadge({ evidence }: { evidence?: EvidenceReceipt | null }) {
   return <span className={`severity-badge severity-${severity}`} title={reason}>SEVERITY {severity.toUpperCase()}</span>;
 }
 
-function DossierSection({ title, children, context }: { title: string; children: React.ReactNode; context?: string }) {
+function DossierSection({ title, children, context, helper }: { title: string; children: React.ReactNode; context?: string; helper?: string }) {
   return <section className="dossier-section">
     <div className="dossier-section-head">
-      <h4>{title}</h4>
+      <div>
+        <h4>{title}</h4>
+        {helper && <p className="section-helper">{helper}</p>}
+      </div>
       {context && <ScopeLabel scope="PROVIDER" context={context} />}
     </div>
     {children}
@@ -1717,7 +1756,7 @@ function KeyValues({ rows }: { rows: [string, React.ReactNode][] }) {
 
 function Leaderboard({ title, scores, providers, kind }: { title: string; scores: any[]; providers: Map<string, Provider>; kind: string }) {
   const safeScores = Array.isArray(scores) ? scores : [];
-  return <div className="panel"><ScopeLabel scope="GLOBAL" /><h2>{title}</h2><div className="leaderboard">{safeScores.map((score, index) => <div className="bar" key={score.entityId ?? `${title}-${index}`}><span>{providers.get(score.entityId)?.name ?? 'unknown provider'}</span><div><i style={{ width: `${score.score ?? 0}%` }} /></div><b>{score.score ?? 'unknown'}{kind === 'trust' ? ` ${score.grade ?? '-'}` : ''}</b></div>)}</div></div>;
+  return <div className="panel"><ScopeLabel scope="GLOBAL" /><h2>{title}</h2><p className="panel-caption">{kind === 'trust' ? 'Highest trust scores from current assessments.' : 'Highest signal scores from current narratives.'}</p><div className="leaderboard">{safeScores.map((score, index) => <div className="bar" key={score.entityId ?? `${title}-${index}`}><span>{providers.get(score.entityId)?.name ?? 'unknown provider'}</span><div aria-hidden="true"><i style={{ width: `${score.score ?? 0}%` }} /></div><b>{score.score ?? 'unknown'}{kind === 'trust' ? ` ${score.grade ?? '-'}` : ''}</b></div>)}</div></div>;
 }
 
 function AssessmentPanel({ title, score, sub, components, context, evidence }: { title: string; score: number | null; sub: string; components: Record<string, number | null>; context: string; evidence?: EvidenceReceipt }) {
@@ -1959,6 +1998,40 @@ function formatMs(value: number | null | undefined) {
 
 function formatConfidence(value: number | null | undefined) {
   return typeof value === 'number' ? `${Math.round(value * 100)}%` : 'deterministic';
+}
+
+function getEcosystemStatus(pulse: Pulse, summary: PulseSummary | null): { state: EcosystemStatusState; label: string; detail: string } {
+  const propagationSeverity = summary?.propagation?.severity ?? 'unknown';
+  const propagationState = summary?.propagation?.propagation_state ?? 'unknown';
+  const recentDegradations = summary?.recentDegradations.length ?? 0;
+  if (propagationSeverity === 'critical' || propagationState === 'systemic') {
+    return {
+      state: 'critical',
+      label: 'Critical propagation watch',
+      detail: 'Systemic or critical propagation signals are present. Review propagation watch and recent degradations first.'
+    };
+  }
+  if (propagationSeverity === 'high' || propagationState === 'spreading' || pulse.data_source.used_fixture) {
+    return {
+      state: 'warning',
+      label: pulse.data_source.used_fixture ? 'Fallback data mode' : 'Elevated ecosystem watch',
+      detail: pulse.data_source.used_fixture
+        ? 'Live catalog was unavailable, so the radar is preserving the visible fixture fallback state.'
+        : 'Spreading or high-severity signals are active. Prioritize trust movement and affected providers.'
+    };
+  }
+  if (recentDegradations > 0 || (summary?.latest_batch_event_count ?? 0) > 0) {
+    return {
+      state: 'info',
+      label: 'Live catalog movement',
+      detail: 'New catalog-derived movement is present. Review pulse events, trust changes, and signal spikes.'
+    };
+  }
+  return {
+    state: 'stable',
+    label: 'Stable monitoring window',
+    detail: 'No critical propagation or degradation surge is visible in the current radar window.'
+  };
 }
 
 function normalSeverity(value: unknown): Severity {
