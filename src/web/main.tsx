@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { MethodologyDrawer } from './methodology';
+import { getApiBaseUrl } from './apiBaseUrl';
 import './styles.css';
 
 type Severity = 'critical' | 'warning' | 'informational' | 'unknown';
@@ -169,7 +170,7 @@ type RouteResult = {
   selectedProviderNotRecommendedReason?: string | null;
 };
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
+const API_BASE_URL = getApiBaseUrl();
 const API_TIMEOUT_MS = 10_000;
 const DOSSIER_INTERACTION_HOLD_MS = 20_000;
 const ROUTE_INTERACTION_HOLD_MS = 60_000;
