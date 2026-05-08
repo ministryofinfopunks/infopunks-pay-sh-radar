@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 
@@ -86,6 +86,9 @@ type RouteResult = {
 };
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
+const AUTO_ROTATE_INTERVAL_MS = 10 * 60 * 1000;
+const DOSSIER_INTERACTION_HOLD_MS = 20_000;
+const ROUTE_INTERACTION_HOLD_MS = 60_000;
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, { headers: { 'Content-Type': 'application/json' }, ...init });
@@ -95,7 +98,11 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
 
 function App() {
   const [data, setData] = useState<AppData | null>(null);
-  const [selectedId, setSelectedId] = useState('stableenrich');
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [autoRotateEnabled, setAutoRotateEnabled] = useState(true);
+  const [selectionMode, setSelectionMode] = useState<'auto' | 'manual'>('auto');
+  const [nextRotationAt, setNextRotationAt] = useState<number | null>(null);
+  const [rotationNow, setRotationNow] = useState(() => Date.now());
   const [directoryQuery, setDirectoryQuery] = useState('');
   const [directoryCategory, setDirectoryCategory] = useState('all');
   const [directorySort, setDirectorySort] = useState('trust score');
@@ -115,6 +122,7 @@ function App() {
   const [endpointMonitors, setEndpointMonitors] = useState<Record<string, EndpointMonitor>>({});
   const [pulseSummary, setPulseSummary] = useState<PulseSummary | null>(null);
   const [pulseWindow, setPulseWindow] = useState<'1h' | '24h' | '7d'>('24h');
+  const interactionHoldUntil = useRef(0);
 
   useEffect(() => {
     Promise.all([
@@ -153,7 +161,6 @@ function App() {
     api<{ data: any[] }>('/v1/search', { method: 'POST', body: JSON.stringify({ query: searchQuery, limit: 6 }) }).then((res) => setSearchResults(res.data));
   }, [searchQuery]);
 
-  const selectedProvider = data?.providers.find((provider) => provider.id === selectedId) ?? data?.providers[0];
   const providerLookup = useMemo(() => new Map(data?.providers.map((provider) => [provider.id, provider]) ?? []), [data]);
   const trustLookup = useMemo(() => new Map(data?.pulse.topTrust.map((assessment) => [assessment.entityId, assessment]) ?? []), [data]);
   const signalLookup = useMemo(() => new Map(data?.pulse.topSignal.map((assessment) => [assessment.entityId, assessment]) ?? []), [data]);
@@ -165,8 +172,49 @@ function App() {
       .filter((provider) => !query || [provider.name, provider.id, provider.fqn, provider.category, provider.description, ...(provider.tags ?? [])].filter(Boolean).join(' ').toLowerCase().includes(query))
       .sort((a, b) => compareProviders(a, b, directorySort, trustLookup, signalLookup));
   }, [data, directoryCategory, directoryQuery, directorySort, signalLookup, trustLookup]);
+  const rotationProviders = useMemo(() => {
+    return [...(data?.providers ?? [])].sort((a, b) => compareFeaturedProviders(a, b, trustLookup, signalLookup));
+  }, [data?.providers, signalLookup, trustLookup]);
+  const selectedProvider = data?.providers.find((provider) => provider.id === selectedId) ?? null;
+  const nextRotationLabel = autoRotateEnabled && nextRotationAt ? formatRotationCountdown(nextRotationAt - rotationNow) : 'paused';
+  const isFeaturedProvider = selectionMode === 'auto' && autoRotateEnabled;
   const timelineBatches = useMemo(() => groupTimelineByBatch(pulseSummary?.timeline ?? []), [pulseSummary?.timeline]);
   const catalogNoChanges = Boolean(pulseSummary && pulseSummary.data_source.last_ingested_at && pulseSummary.latest_event_at && Date.parse(pulseSummary.data_source.last_ingested_at) > Date.parse(pulseSummary.latest_event_at));
+
+  useEffect(() => {
+    if (!rotationProviders.length) return;
+    if (selectedId && providerLookup.has(selectedId)) return;
+    setSelectedId(rotationProviders[0].id);
+    setSelectionMode('auto');
+    setNextRotationAt(Date.now() + AUTO_ROTATE_INTERVAL_MS);
+  }, [providerLookup, rotationProviders, selectedId]);
+
+  useEffect(() => {
+    if (!autoRotateEnabled) {
+      setNextRotationAt(null);
+      return;
+    }
+    setNextRotationAt((current) => current ?? Date.now() + AUTO_ROTATE_INTERVAL_MS);
+  }, [autoRotateEnabled]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setRotationNow(Date.now()), 30_000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!autoRotateEnabled || !selectedProvider || !nextRotationAt || !rotationProviders.length) return;
+    if (rotationNow < nextRotationAt) return;
+    if (Date.now() < interactionHoldUntil.current) {
+      setNextRotationAt(Date.now() + 60_000);
+      return;
+    }
+    const selectedIndex = rotationProviders.findIndex((provider) => provider.id === selectedProvider.id);
+    const nextProvider = rotationProviders[(selectedIndex + 1) % rotationProviders.length] ?? rotationProviders[0];
+    setSelectedId(nextProvider.id);
+    setSelectionMode('auto');
+    setNextRotationAt(Date.now() + AUTO_ROTATE_INTERVAL_MS);
+  }, [autoRotateEnabled, nextRotationAt, rotationNow, rotationProviders, selectedProvider]);
 
   useEffect(() => {
     if (!selectedProvider) return;
@@ -211,6 +259,25 @@ function App() {
     setRouteCategory(provider.category || 'all');
     setIncludeSelectedProvider(true);
     window.requestAnimationFrame(() => document.getElementById('route-decision-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
+  }
+
+  function holdAutoRotation(durationMs: number) {
+    interactionHoldUntil.current = Math.max(interactionHoldUntil.current, Date.now() + durationMs);
+  }
+
+  function selectProviderManually(providerId: string) {
+    setSelectedId(providerId);
+    setSelectionMode('manual');
+    setAutoRotateEnabled(false);
+    setNextRotationAt(null);
+  }
+
+  function toggleAutoRotation(enabled: boolean) {
+    setAutoRotateEnabled(enabled);
+    if (enabled) {
+      setSelectionMode('auto');
+      setNextRotationAt(Date.now() + AUTO_ROTATE_INTERVAL_MS);
+    }
   }
 
   if (!data) return <main className="boot">INFOPUNKS//PAY.SH COGNITIVE LAYER BOOTING...</main>;
@@ -396,7 +463,7 @@ function App() {
             </div>
           </div>
           <div className="directory">
-            {filteredProviders.map((provider) => <button key={provider.id} className={provider.id === selectedProvider?.id ? 'active row' : 'row'} onClick={() => setSelectedId(provider.id)}>
+            {filteredProviders.map((provider) => <button key={provider.id} className={provider.id === selectedProvider?.id ? 'active row' : 'row'} onClick={() => selectProviderManually(provider.id)}>
               <span>{provider.name}</span><small>{provider.category} / {provider.endpointCount} endpoints / trust {provider.latestTrustScore ?? 'unknown'}</small>
             </button>)}
             {!filteredProviders.length && <p className="muted empty-state">No providers match the current directory filters.</p>}
@@ -408,6 +475,14 @@ function App() {
               <ScopeLabel scope="PROVIDER" context={providerContextLabel} />
               <p className="section-kicker">Selected Provider</p>
               <h2>Provider Intelligence Dossier</h2>
+            </div>
+            <div className="auto-rotate-control" aria-label="Featured provider auto-rotate control">
+              {isFeaturedProvider && <span className="featured-label">Featured provider</span>}
+              <label>
+                <input type="checkbox" checked={autoRotateEnabled} onChange={(event) => toggleAutoRotation(event.target.checked)} />
+                <span>Auto-rotate</span>
+              </label>
+              <small>Next provider in {nextRotationLabel}</small>
             </div>
           </div>
           {selectedProvider && <>
@@ -433,7 +508,7 @@ function App() {
               <DossierStat label="risk" value={providerIntel?.risk_level ?? 'unknown'} sub="level" />
               <DossierStat label="unknowns" value={providerIntel?.unknown_telemetry.length ?? 'unknown'} sub="telemetry fields" />
             </div>
-            <div className="dossier-body">
+            <div className="dossier-body" onScroll={() => holdAutoRotation(DOSSIER_INTERACTION_HOLD_MS)}>
               <DossierSection title="Capability Brief" context={providerContextLabel}>
                 <p>{selectedProvider.description ?? 'No provider description supplied by catalog metadata.'}</p>
                 <p><b>use_case:</b> {selectedProvider.useCase ?? 'unknown'}</p>
@@ -503,7 +578,7 @@ function App() {
                 </div>
               </DossierSection>
               <DossierSection title="Route Decision Panel" context={providerContextLabel}>
-                <div className="route-panel compact-route-panel" id="route-decision-panel">
+                <div className="route-panel compact-route-panel" id="route-decision-panel" onFocus={() => holdAutoRotation(ROUTE_INTERACTION_HOLD_MS)} onPointerDown={() => holdAutoRotation(ROUTE_INTERACTION_HOLD_MS)} onInput={() => holdAutoRotation(ROUTE_INTERACTION_HOLD_MS)}>
                   <label>
                     <span>task text</span>
                     <textarea value={routeTask} onChange={(event) => setRouteTask(event.target.value)} />
@@ -774,6 +849,23 @@ function componentValue(value: number | null | undefined) {
 
 function knownState(value: number | null | undefined) {
   return typeof value === 'number' ? `known ${value}/100` : 'unknown';
+}
+
+function featuredScore(provider: Provider, trustLookup: Map<string, TrustAssessment>, signalLookup: Map<string, SignalAssessment>) {
+  const trust = provider.latestTrustScore ?? trustLookup.get(provider.id)?.score ?? 0;
+  const signal = provider.latestSignalScore ?? signalLookup.get(provider.id)?.score ?? 0;
+  return (trust * 0.6) + (signal * 0.4);
+}
+
+function compareFeaturedProviders(a: Provider, b: Provider, trustLookup: Map<string, TrustAssessment>, signalLookup: Map<string, SignalAssessment>) {
+  return featuredScore(b, trustLookup, signalLookup) - featuredScore(a, trustLookup, signalLookup) || b.endpointCount - a.endpointCount || a.name.localeCompare(b.name);
+}
+
+function formatRotationCountdown(valueMs: number) {
+  if (valueMs <= 0) return '~0m';
+  const minutes = Math.ceil(valueMs / 60_000);
+  if (minutes >= 10) return '~10m';
+  return `~${minutes}m`;
 }
 
 function formatScoreDelta(delta: ScoreDelta) {
