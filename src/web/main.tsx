@@ -170,6 +170,7 @@ type RouteResult = {
   selectedProviderNotRecommendedReason?: string | null;
 };
 type SearchResponse = { data: any[]; degraded?: boolean; reason?: string };
+type ErrorBoundaryState = { hasError: boolean };
 
 const API_BASE_URL = getApiBaseUrl();
 const API_TIMEOUT_MS = 10_000;
@@ -195,6 +196,107 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
     throw new Error(`${method} ${path} failed: ${suffix}`);
   } finally {
     window.clearTimeout(timeout);
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function asArray<T>(value: unknown): T[] {
+  return Array.isArray(value) ? value as T[] : [];
+}
+
+function toPulse(candidate: unknown): Pulse | null {
+  if (!isRecord(candidate) || !isRecord(candidate.data_source)) return null;
+  return {
+    providerCount: typeof candidate.providerCount === 'number' ? candidate.providerCount : 0,
+    endpointCount: typeof candidate.endpointCount === 'number' ? candidate.endpointCount : 0,
+    eventCount: typeof candidate.eventCount === 'number' ? candidate.eventCount : 0,
+    averageTrust: typeof candidate.averageTrust === 'number' ? candidate.averageTrust : null,
+    averageSignal: typeof candidate.averageSignal === 'number' ? candidate.averageSignal : null,
+    hottestNarrative: isRecord(candidate.hottestNarrative) ? candidate.hottestNarrative as Narrative : null,
+    topTrust: asArray<TrustAssessment>(candidate.topTrust),
+    topSignal: asArray<SignalAssessment>(candidate.topSignal),
+    interpretations: asArray<EcosystemInterpretation>(candidate.interpretations),
+    data_source: {
+      mode: candidate.data_source.mode === 'live_pay_sh_catalog' ? 'live_pay_sh_catalog' : 'fixture_fallback',
+      url: typeof candidate.data_source.url === 'string' ? candidate.data_source.url : null,
+      generated_at: typeof candidate.data_source.generated_at === 'string' ? candidate.data_source.generated_at : null,
+      provider_count: typeof candidate.data_source.provider_count === 'number' ? candidate.data_source.provider_count : null,
+      last_ingested_at: typeof candidate.data_source.last_ingested_at === 'string' ? candidate.data_source.last_ingested_at : null,
+      used_fixture: Boolean(candidate.data_source.used_fixture),
+      error: typeof candidate.data_source.error === 'string' ? candidate.data_source.error : null
+    },
+    updatedAt: typeof candidate.updatedAt === 'string' ? candidate.updatedAt : new Date().toISOString()
+  };
+}
+
+function toPulseSummary(candidate: unknown): PulseSummary | null {
+  if (!isRecord(candidate) || !isRecord(candidate.data_source)) return null;
+  const eventGroupsRaw = isRecord(candidate.eventGroups) ? candidate.eventGroups : {};
+  const eventGroups = Object.fromEntries(eventCategories.map((category) => {
+    const group = isRecord(eventGroupsRaw[category]) ? eventGroupsRaw[category] : {};
+    return [category, { count: typeof group.count === 'number' ? group.count : 0, recent: asArray<PulseEvent>(group.recent) }];
+  })) as Record<EventCategory, { count: number; recent: PulseEvent[] }>;
+  const providerActivityRaw = isRecord(candidate.providerActivity) ? candidate.providerActivity : {};
+  return {
+    generatedAt: typeof candidate.generatedAt === 'string' ? candidate.generatedAt : new Date().toISOString(),
+    latest_event_at: typeof candidate.latest_event_at === 'string' ? candidate.latest_event_at : null,
+    latest_batch_event_count: typeof candidate.latest_batch_event_count === 'number' ? candidate.latest_batch_event_count : 0,
+    ingest_interval_ms: typeof candidate.ingest_interval_ms === 'number' ? candidate.ingest_interval_ms : null,
+    latest_ingestion_run: isRecord(candidate.latest_ingestion_run) ? candidate.latest_ingestion_run as PulseSummary['latest_ingestion_run'] : null,
+    counters: isRecord(candidate.counters) ? {
+      providers: typeof candidate.counters.providers === 'number' ? candidate.counters.providers : 0,
+      endpoints: typeof candidate.counters.endpoints === 'number' ? candidate.counters.endpoints : 0,
+      events: typeof candidate.counters.events === 'number' ? candidate.counters.events : 0,
+      narratives: typeof candidate.counters.narratives === 'number' ? candidate.counters.narratives : 0,
+      unknownTelemetry: typeof candidate.counters.unknownTelemetry === 'number' ? candidate.counters.unknownTelemetry : 0
+    } : { providers: 0, endpoints: 0, events: 0, narratives: 0, unknownTelemetry: 0 },
+    eventGroups,
+    timeline: asArray<PulseEvent>(candidate.timeline),
+    trustDeltas: asArray<ScoreDelta>(candidate.trustDeltas),
+    signalDeltas: asArray<ScoreDelta>(candidate.signalDeltas),
+    recentDegradations: asArray<PulseEvent>(candidate.recentDegradations),
+    propagation: isRecord(candidate.propagation) ? candidate.propagation as PropagationAnalysis : undefined as unknown as PropagationAnalysis,
+    providerActivity: {
+      '1h': asArray<ProviderActivity>(providerActivityRaw['1h']),
+      '24h': asArray<ProviderActivity>(providerActivityRaw['24h']),
+      '7d': asArray<ProviderActivity>(providerActivityRaw['7d'])
+    },
+    signalSpikes: asArray<ScoreDelta>(candidate.signalSpikes),
+    interpretations: asArray<EcosystemInterpretation>(candidate.interpretations),
+    data_source: {
+      mode: candidate.data_source.mode === 'live_pay_sh_catalog' ? 'live_pay_sh_catalog' : 'fixture_fallback',
+      url: typeof candidate.data_source.url === 'string' ? candidate.data_source.url : null,
+      generated_at: typeof candidate.data_source.generated_at === 'string' ? candidate.data_source.generated_at : null,
+      provider_count: typeof candidate.data_source.provider_count === 'number' ? candidate.data_source.provider_count : null,
+      last_ingested_at: typeof candidate.data_source.last_ingested_at === 'string' ? candidate.data_source.last_ingested_at : null,
+      used_fixture: Boolean(candidate.data_source.used_fixture),
+      error: typeof candidate.data_source.error === 'string' ? candidate.data_source.error : null
+    }
+  };
+}
+
+class AppErrorBoundary extends React.Component<{ children: React.ReactNode }, ErrorBoundaryState> {
+  state: ErrorBoundaryState = { hasError: false };
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(error: unknown) {
+    console.error('[radar-ui-error-boundary]', error);
+  }
+  retry = () => this.setState({ hasError: false });
+  render() {
+    if (this.state.hasError) {
+      return <main className="boot" aria-label="Radar fallback shell">
+        <section className="panel">
+          <h1>Radar UI degraded: rendering fallback shell</h1>
+          <button className="execute compact secondary" type="button" onClick={this.retry}>Retry</button>
+        </section>
+      </main>;
+    }
+    return this.props.children;
   }
 }
 
@@ -589,6 +691,7 @@ function RadarApp() {
   const [pulseSummary, setPulseSummary] = useState<PulseSummary | null>(null);
   const [pulseWindow, setPulseWindow] = useState<'1h' | '24h' | '7d'>('24h');
   const [methodologyOpen, setMethodologyOpen] = useState(false);
+  const refreshInFlightRef = useRef(false);
   const interactionHoldUntil = useRef(0);
   const featuredRotationEnabledRef = useRef(featuredRotationEnabled);
   const selectionModeRef = useRef(selectionMode);
@@ -607,7 +710,9 @@ function RadarApp() {
 
   function fetchFeaturedProvider() {
     return api<{ data: FeaturedProvider }>('/v1/providers/featured')
-      .then((featured) => applyFeaturedProvider(featured.data))
+      .then((featured) => {
+        if (featured?.data && typeof featured.data.nextRotationAt === 'string') applyFeaturedProvider(featured.data);
+      })
       .catch(() => undefined);
   }
 
@@ -617,7 +722,9 @@ function RadarApp() {
     setBootError(null);
     api<{ data: Pulse }>('/v1/pulse').then((pulse) => {
       if (!active) return;
-      setData({ providers: [], pulse: pulse.data, narratives: [], graph: { nodes: [], edges: [] } });
+      const safePulse = toPulse(pulse?.data);
+      if (!safePulse) throw new Error('malformed pulse payload');
+      setData({ providers: [], pulse: safePulse, narratives: [], graph: { nodes: [], edges: [] } });
       setSelectedId(null);
       setSelectionMode('auto');
       void Promise.allSettled([
@@ -628,21 +735,26 @@ function RadarApp() {
         api<{ data: FeaturedProvider }>('/v1/providers/featured')
       ]).then((results) => {
         if (!active) return;
-        const providers = results[0].status === 'fulfilled' ? results[0].value.data : [];
-        const narratives = results[1].status === 'fulfilled' ? results[1].value.data : [];
-        const graph = results[2].status === 'fulfilled' ? results[2].value.data : { nodes: [], edges: [] };
-        const summary = results[3].status === 'fulfilled' ? results[3].value.data : null;
+        const providers = results[0].status === 'fulfilled' && Array.isArray(results[0].value?.data) ? results[0].value.data : null;
+        const narratives = results[1].status === 'fulfilled' && Array.isArray(results[1].value?.data) ? results[1].value.data : null;
+        const graphRaw = results[2].status === 'fulfilled' && isRecord(results[2].value?.data) ? results[2].value.data : null;
+        const summary = results[3].status === 'fulfilled' ? toPulseSummary(results[3].value?.data) : null;
         const featured = results[4].status === 'fulfilled' ? results[4].value.data : null;
-        setData((current) => current ? { ...current, providers, narratives, graph } : current);
+        setData((current) => current ? {
+          ...current,
+          providers: providers ?? current.providers,
+          narratives: narratives ?? current.narratives,
+          graph: graphRaw && Array.isArray(graphRaw.nodes) && Array.isArray(graphRaw.edges) ? graphRaw as AppData['graph'] : current.graph
+        } : current);
         if (summary) setPulseSummary(summary);
-        if (featured) applyFeaturedProvider(featured, true);
-        if (preferredProviderId && providers.some((provider) => provider.id === preferredProviderId)) {
+        if (featured && typeof featured.nextRotationAt === 'string') applyFeaturedProvider(featured, true);
+        if (preferredProviderId && (providers ?? []).some((provider) => provider.id === preferredProviderId)) {
           setSelectedId(preferredProviderId);
           setSelectionMode('manual');
           setFeaturedRotationEnabled(false);
           return;
         }
-        if (providers.length) setSelectedId((current) => current ?? providers[0].id);
+        if (providers && providers.length) setSelectedId((current) => current ?? providers[0].id);
       });
     }).catch(() => {
       if (!active) return;
@@ -676,17 +788,27 @@ function RadarApp() {
 
   useEffect(() => {
     let active = true;
-    const refresh = () => {
-      Promise.all([
+    const refresh = async () => {
+      if (refreshInFlightRef.current) return;
+      refreshInFlightRef.current = true;
+      try {
+        const results = await Promise.allSettled([
         api<{ data: Pulse }>('/v1/pulse'),
         api<{ data: PulseSummary }>('/v1/pulse/summary'),
         api<{ data: FeaturedProvider }>('/v1/providers/featured')
-      ]).then(([pulse, summary, featured]) => {
+        ]);
         if (!active) return;
-        setData((current) => current ? { ...current, pulse: pulse.data } : current);
-        setPulseSummary(summary.data);
-        applyFeaturedProvider(featured.data);
-      }).catch(() => undefined);
+        const pulse = results[0].status === 'fulfilled' ? toPulse(results[0].value?.data) : null;
+        const summary = results[1].status === 'fulfilled' ? toPulseSummary(results[1].value?.data) : null;
+        const featured = results[2].status === 'fulfilled' ? results[2].value?.data : null;
+        if (pulse) setData((current) => current ? { ...current, pulse } : current);
+        if (summary) setPulseSummary(summary);
+        if (featured && typeof featured.nextRotationAt === 'string') applyFeaturedProvider(featured);
+      } catch {
+        // Preserve existing dashboard state on refresh failure.
+      } finally {
+        refreshInFlightRef.current = false;
+      }
     };
     const timer = window.setInterval(refresh, 15_000);
     return () => {
@@ -695,18 +817,22 @@ function RadarApp() {
     };
   }, []);
 
-  const providerLookup = useMemo(() => new Map(data?.providers.map((provider) => [provider.id, provider]) ?? []), [data]);
-  const trustLookup = useMemo(() => new Map(data?.pulse.topTrust.map((assessment) => [assessment.entityId, assessment]) ?? []), [data]);
-  const signalLookup = useMemo(() => new Map(data?.pulse.topSignal.map((assessment) => [assessment.entityId, assessment]) ?? []), [data]);
-  const categoryOptions = useMemo(() => Array.from(new Set(data?.providers.map((provider) => provider.category).filter(Boolean) ?? [])).sort(), [data]);
+  const safeProviders = useMemo(() => asArray<Provider>(data?.providers), [data?.providers]);
+  const safeTopTrust = useMemo(() => asArray<TrustAssessment>(data?.pulse.topTrust), [data?.pulse.topTrust]);
+  const safeTopSignal = useMemo(() => asArray<SignalAssessment>(data?.pulse.topSignal), [data?.pulse.topSignal]);
+  const safeNarratives = useMemo(() => asArray<Narrative>(data?.narratives), [data?.narratives]);
+  const providerLookup = useMemo(() => new Map(safeProviders.map((provider) => [provider.id, provider])), [safeProviders]);
+  const trustLookup = useMemo(() => new Map(safeTopTrust.map((assessment) => [assessment.entityId, assessment])), [safeTopTrust]);
+  const signalLookup = useMemo(() => new Map(safeTopSignal.map((assessment) => [assessment.entityId, assessment])), [safeTopSignal]);
+  const categoryOptions = useMemo(() => Array.from(new Set(safeProviders.map((provider) => provider.category).filter(Boolean))).sort(), [safeProviders]);
   const filteredProviders = useMemo(() => {
     const query = directoryQuery.trim().toLowerCase();
-    return [...(data?.providers ?? [])]
+    return [...safeProviders]
       .filter((provider) => directoryCategory === 'all' || provider.category === directoryCategory)
       .filter((provider) => !query || [provider.name, provider.id, provider.fqn, provider.category, provider.description, ...(provider.tags ?? [])].filter(Boolean).join(' ').toLowerCase().includes(query))
       .sort((a, b) => compareProviders(a, b, directorySort, trustLookup, signalLookup));
-  }, [data, directoryCategory, directoryQuery, directorySort, signalLookup, trustLookup]);
-  const selectedProvider = data?.providers.find((provider) => provider.id === selectedId) ?? null;
+  }, [safeProviders, directoryCategory, directoryQuery, directorySort, signalLookup, trustLookup]);
+  const selectedProvider = safeProviders.find((provider) => provider.id === selectedId) ?? null;
   const endpointRows = useMemo(() => resolveProviderEndpointRows(providerDetail, providerIntel), [providerDetail, providerIntel]);
   const reportedEndpointCount = providerIntel?.endpoint_count ?? providerDetail?.provider.endpointCount ?? selectedProvider?.endpointCount ?? 0;
   const endpointProvider = providerDetail?.provider ?? providerIntel?.provider ?? selectedProvider;
@@ -714,7 +840,7 @@ function RadarApp() {
   const nextRotationLabel = featuredRotationEnabled && selectionMode === 'auto' && nextRotationAt ? formatRotationCountdown(nextRotationAt - rotationNow) : 'paused';
   const isFeaturedProvider = selectionMode === 'auto' && featuredRotationEnabled && selectedProvider?.id === featuredProvider?.providerId;
   const timelineBatches = useMemo(() => groupTimelineByBatch(pulseSummary?.timeline ?? []), [pulseSummary?.timeline]);
-  const ecosystemInterpretations = pulseSummary?.interpretations ?? data?.pulse.interpretations ?? [];
+  const ecosystemInterpretations = asArray<EcosystemInterpretation>(pulseSummary?.interpretations ?? data?.pulse.interpretations);
   const catalogNoChanges = Boolean(pulseSummary && pulseSummary.data_source.last_ingested_at && pulseSummary.latest_event_at && Date.parse(pulseSummary.data_source.last_ingested_at) > Date.parse(pulseSummary.latest_event_at));
 
   useEffect(() => {
@@ -750,18 +876,25 @@ function RadarApp() {
     setProviderDetail(null);
     setProviderIntel(null);
     setEndpointMonitors({});
-    Promise.all([
+    Promise.allSettled([
       api<{ data: ProviderDetail }>(`/v1/providers/${selectedProvider.id}`),
       api<{ data: ProviderIntelligence }>(`/v1/providers/${selectedProvider.id}/intelligence`)
-    ]).then(([detail, intel]) => {
-      if (!active) return [];
-      setProviderDetail(detail.data);
-      setProviderIntel(intel.data);
-      return Promise.all(detail.data.endpoints.slice(0, 40).map((endpoint) => api<{ data: EndpointMonitor }>(`/v1/endpoints/${endpoint.id}/monitor`).then((monitor) => [endpoint.id, monitor.data] as const)));
-    }).then((monitors) => {
+    ]).then(async ([detailResult, intelResult]) => {
       if (!active) return;
-      setEndpointMonitors(Object.fromEntries(monitors));
-    });
+      const detail = detailResult.status === 'fulfilled' && detailResult.value?.data ? detailResult.value.data : null;
+      const intel = intelResult.status === 'fulfilled' && intelResult.value?.data ? intelResult.value.data : null;
+      if (detail) setProviderDetail(detail);
+      if (intel) setProviderIntel(intel);
+      const endpoints = asArray<Endpoint>(detail?.endpoints).slice(0, 40);
+      if (!endpoints.length) return;
+      const monitorResults = await Promise.allSettled(endpoints.map((endpoint) => api<{ data: EndpointMonitor }>(`/v1/endpoints/${endpoint.id}/monitor`)));
+      if (!active) return;
+      const entries: Array<[string, EndpointMonitor]> = [];
+      monitorResults.forEach((result, index) => {
+        if (result.status === 'fulfilled' && result.value?.data) entries.push([endpoints[index].id, result.value.data]);
+      });
+      setEndpointMonitors(Object.fromEntries(entries));
+    }).catch(() => undefined);
     return () => {
       active = false;
     };
@@ -960,15 +1093,15 @@ function RadarApp() {
           </section>}
 
           <section className="grid two">
-            <Leaderboard title="Trust Leaderboard" scores={data.pulse.topTrust} providers={providerLookup} kind="trust" />
-            <Leaderboard title="Signal Leaderboard" scores={data.pulse.topSignal} providers={providerLookup} kind="signal" />
+            <Leaderboard title="Trust Leaderboard" scores={safeTopTrust} providers={providerLookup} kind="trust" />
+            <Leaderboard title="Signal Leaderboard" scores={safeTopSignal} providers={providerLookup} kind="signal" />
           </section>
 
           <section className="panel">
             <ScopeLabel scope="GLOBAL" />
             <h2>Narrative Heatmap</h2>
             <div className="heatmap">
-              {sortBySeverity(data.narratives).map((narrative) => <div key={narrative.id} className={`heat severity-${normalSeverity(narrative.severity)}`} style={{ '--heat': `${narrative.heat ?? 0}%` } as React.CSSProperties}>
+              {sortBySeverity(safeNarratives).map((narrative) => <div key={narrative.id} className={`heat severity-${normalSeverity(narrative.severity)}`} style={{ '--heat': `${narrative.heat ?? 0}%` } as React.CSSProperties}>
                 <strong>{narrative.title}</strong><SeverityBadge evidence={narrative} /><span>heat {narrative.heat ?? 'unknown'}</span><small>{narrative.providerIds.length} providers / {narrative.keywords.join(', ')}</small>
               </div>)}
             </div>
@@ -987,7 +1120,7 @@ function RadarApp() {
               </button>
             </form>
             {searchError && <p className="route-state error">Semantic search unavailable: {searchError}</p>}
-            <div className="results">{searchResults.map((result) => <div className="result" key={result.provider.id}><strong>{result.provider.name}</strong><span>relevance {result.relevance} / trust {result.trustAssessment.score ?? 'unknown'} / signal {result.signalAssessment.score ?? 'unknown'}</span></div>)}</div>
+            <div className="results">{searchResults.filter((result) => isRecord(result) && isRecord(result.provider) && typeof result.provider.id === 'string').map((result) => <div className="result" key={result.provider.id}><strong>{result.provider.name ?? 'unknown provider'}</strong><span>relevance {result.relevance ?? 'unknown'} / trust {result.trustAssessment?.score ?? 'unknown'} / signal {result.signalAssessment?.score ?? 'unknown'}</span></div>)}</div>
           </section>
           </div>
         </section>
@@ -1349,8 +1482,9 @@ function Metric({ label, value, sub, evidence }: { label: string; value: string 
 }
 
 function EcosystemInterpretationPanel({ interpretations, providerLookup }: { interpretations: EcosystemInterpretation[]; providerLookup: Map<string, Provider> }) {
-  const primary = interpretations[0] ?? null;
-  const secondary = interpretations.slice(1, 5);
+  const safeInterpretations = Array.isArray(interpretations) ? interpretations : [];
+  const primary = safeInterpretations[0] ?? null;
+  const secondary = safeInterpretations.slice(1, 5);
   if (!primary) return null;
   return <section className="panel ecosystem-interpretation" aria-labelledby="ecosystem-interpretation-title">
     <div className="panel-head">
@@ -1381,15 +1515,18 @@ function EcosystemInterpretationPanel({ interpretations, providerLookup }: { int
 }
 
 function InterpretationMeta({ interpretation, providerLookup }: { interpretation: EcosystemInterpretation; providerLookup: Map<string, Provider> }) {
-  const categories = interpretation.affected_categories.length ? compactList(interpretation.affected_categories, 3) : 'global';
-  const providers = interpretation.affected_providers.length;
-  const knownProviderCount = interpretation.affected_providers.filter((id) => providerLookup.has(id)).length;
+  const affectedCategories = asArray<string>(interpretation.affected_categories);
+  const affectedProviders = asArray<string>(interpretation.affected_providers);
+  const supportingEventIds = asArray<string>(interpretation.supporting_event_ids);
+  const categories = affectedCategories.length ? compactList(affectedCategories, 3) : 'global';
+  const providers = affectedProviders.length;
+  const knownProviderCount = affectedProviders.filter((id) => providerLookup.has(id)).length;
   const providerCountLabel = providers > 0
     ? knownProviderCount === providers
       ? `${providers} affected providers`
       : `${providers} affected providers (${knownProviderCount} named)`
     : 'no affected providers';
-  const events = interpretation.supporting_event_count ?? interpretation.supporting_event_ids.length;
+  const events = interpretation.supporting_event_count ?? supportingEventIds.length;
   const remaining = interpretation.remaining_event_count ?? 0;
   return <div className="interpretation-meta">
     <span>categories: {categories}</span>
@@ -1558,7 +1695,8 @@ function KeyValues({ rows }: { rows: [string, React.ReactNode][] }) {
 }
 
 function Leaderboard({ title, scores, providers, kind }: { title: string; scores: any[]; providers: Map<string, Provider>; kind: string }) {
-  return <div className="panel"><ScopeLabel scope="GLOBAL" /><h2>{title}</h2><div className="leaderboard">{scores.map((score) => <div className="bar" key={score.entityId}><span>{providers.get(score.entityId)?.name}</span><div><i style={{ width: `${score.score ?? 0}%` }} /></div><b>{score.score ?? 'unknown'}{kind === 'trust' ? ` ${score.grade}` : ''}</b></div>)}</div></div>;
+  const safeScores = Array.isArray(scores) ? scores : [];
+  return <div className="panel"><ScopeLabel scope="GLOBAL" /><h2>{title}</h2><div className="leaderboard">{safeScores.map((score, index) => <div className="bar" key={score.entityId ?? `${title}-${index}`}><span>{providers.get(score.entityId)?.name ?? 'unknown provider'}</span><div><i style={{ width: `${score.score ?? 0}%` }} /></div><b>{score.score ?? 'unknown'}{kind === 'trust' ? ` ${score.grade ?? '-'}` : ''}</b></div>)}</div></div>;
 }
 
 function AssessmentPanel({ title, score, sub, components, context, evidence }: { title: string; score: number | null; sub: string; components: Record<string, number | null>; context: string; evidence?: EvidenceReceipt }) {
@@ -1944,4 +2082,4 @@ export function App() {
 }
 
 const rootElement = document.getElementById('root');
-if (rootElement) createRoot(rootElement).render(<App />);
+if (rootElement) createRoot(rootElement).render(<AppErrorBoundary><App /></AppErrorBoundary>);
