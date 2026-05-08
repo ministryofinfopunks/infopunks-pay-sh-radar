@@ -21,18 +21,31 @@ import { providerReachabilitySummary, providerRootHealthSummary } from '../servi
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
 const MAX_INLINE_SUPPORTING_EVENT_IDS = 10;
+const DEFAULT_ALLOWED_ORIGINS = new Set([
+  'https://radar.infopunks.fun',
+  'https://infopunks-pay-sh-radar-web.onrender.com',
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:5173'
+]);
+const CORS_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
+const CORS_ALLOWED_HEADERS = ['Content-Type', 'Authorization', 'X-Requested-With'];
+const CORS_MAX_AGE_SECONDS = 86_400;
 
 export async function createApp(preloadedStore?: IntelligenceStore, repository: IntelligenceRepository = defaultRepository()) {
   const config = loadRuntimeConfig();
   const app = Fastify({ logger: false });
   const ROUTE_TIMEOUT_MS = 2_500;
   const PROVIDER_LIST_MAX = 100;
+  const allowedOrigins = new Set(DEFAULT_ALLOWED_ORIGINS);
+  if (config.frontendOrigin) allowedOrigins.add(config.frontendOrigin);
   await app.register(cors, {
-    origin: config.frontendOrigin
-      ? (origin, callback) => callback(null, !origin || origin === config.frontendOrigin)
-      : true,
-    methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: ['content-type', 'authorization'],
+    origin: (origin, callback) => callback(null, !origin || allowedOrigins.has(origin)),
+    methods: CORS_METHODS,
+    allowedHeaders: CORS_ALLOWED_HEADERS,
+    maxAge: CORS_MAX_AGE_SECONDS,
+    optionsSuccessStatus: 204,
     preflight: true
   });
   const store = preloadedStore ?? emptyIntelligenceStore();

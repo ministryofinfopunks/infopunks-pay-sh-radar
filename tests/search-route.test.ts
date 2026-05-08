@@ -151,7 +151,7 @@ describe('search and route API', () => {
     expect([200, 204]).toContain(response.statusCode);
     expect(response.headers['access-control-allow-origin']).toBe('https://radar.example.com');
     expect(response.headers['access-control-allow-methods']).toContain('GET');
-    expect(response.headers['access-control-allow-headers']).toContain('content-type');
+    expect(response.headers['access-control-allow-headers']?.toLowerCase()).toContain('content-type');
     await app.close();
     if (previous === undefined) delete process.env.FRONTEND_ORIGIN;
     else process.env.FRONTEND_ORIGIN = previous;
@@ -176,7 +176,7 @@ describe('search and route API', () => {
     expect([200, 204]).toContain(response.statusCode);
     expect(response.headers['access-control-allow-origin']).toBe('https://radar.example.com');
     expect(response.headers['access-control-allow-methods']).toContain('POST');
-    expect(response.headers['access-control-allow-headers']).toContain('authorization');
+    expect(response.headers['access-control-allow-headers']?.toLowerCase()).toContain('authorization');
     await app.close();
     if (previousOrigin === undefined) delete process.env.FRONTEND_ORIGIN;
     else process.env.FRONTEND_ORIGIN = previousOrigin;
