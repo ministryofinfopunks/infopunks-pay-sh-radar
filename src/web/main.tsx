@@ -70,6 +70,7 @@ type PulseSummary = {
 };
 
 type AppData = { providers: Provider[]; pulse: Pulse; narratives: Narrative[]; graph: { nodes: unknown[]; edges: unknown[] } };
+type FeaturedProvider = { providerId: string | null; providerName: string | null; category: string | null; rotationWindowMs: number; windowStartedAt: string; nextRotationAt: string; index: number | null; providerCount: number; strategy: 'time_window_round_robin' };
 type RoutePreference = 'cheapest' | 'highest_trust' | 'highest_signal' | 'balanced';
 type RouteResult = {
   bestProvider: Provider | null;
@@ -90,8 +91,6 @@ type RouteResult = {
 };
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
-const configuredRotateInterval = Number(import.meta.env.VITE_PROVIDER_ROTATE_INTERVAL_MS);
-const AUTO_ROTATE_INTERVAL_MS = Number.isFinite(configuredRotateInterval) && configuredRotateInterval > 0 ? configuredRotateInterval : 10 * 60 * 1000;
 const DOSSIER_INTERACTION_HOLD_MS = 20_000;
 const ROUTE_INTERACTION_HOLD_MS = 60_000;
 
@@ -104,8 +103,9 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
 function App() {
   const [data, setData] = useState<AppData | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [autoRotateEnabled, setAutoRotateEnabled] = useState(true);
+  const [featuredRotationEnabled, setFeaturedRotationEnabled] = useState(true);
   const [selectionMode, setSelectionMode] = useState<'auto' | 'manual'>('auto');
+  const [featuredProvider, setFeaturedProvider] = useState<FeaturedProvider | null>(null);
   const [nextRotationAt, setNextRotationAt] = useState<number | null>(null);
   const [rotationNow, setRotationNow] = useState(() => Date.now());
   const [directoryQuery, setDirectoryQuery] = useState('');
@@ -128,24 +128,45 @@ function App() {
   const [pulseSummary, setPulseSummary] = useState<PulseSummary | null>(null);
   const [pulseWindow, setPulseWindow] = useState<'1h' | '24h' | '7d'>('24h');
   const interactionHoldUntil = useRef(0);
-  const autoRotateEnabledRef = useRef(autoRotateEnabled);
+  const featuredRotationEnabledRef = useRef(featuredRotationEnabled);
   const selectionModeRef = useRef(selectionMode);
-  const selectedIdRef = useRef(selectedId);
-  const filteredProvidersRef = useRef<Provider[]>([]);
   const routeInputFocusedRef = useRef(false);
   const dossierControlsEditingRef = useRef(false);
 
+  function applyFeaturedProvider(featured: FeaturedProvider, force = false) {
+    setFeaturedProvider(featured);
+    setNextRotationAt(Date.parse(featured.nextRotationAt));
+    if (!featured.providerId) return;
+    if (!force && (!featuredRotationEnabledRef.current || selectionModeRef.current !== 'auto')) return;
+    if (!force && (routeInputFocusedRef.current || dossierControlsEditingRef.current || Date.now() < interactionHoldUntil.current)) return;
+    setSelectedId(featured.providerId);
+    setSelectionMode('auto');
+  }
+
+  function fetchFeaturedProvider() {
+    return api<{ data: FeaturedProvider }>('/v1/providers/featured')
+      .then((featured) => applyFeaturedProvider(featured.data))
+      .catch(() => undefined);
+  }
+
   useEffect(() => {
+    let active = true;
     Promise.all([
       api<{ data: Provider[] }>('/v1/providers'),
       api<{ data: Pulse }>('/v1/pulse'),
       api<{ data: Narrative[] }>('/v1/narratives'),
       api<{ data: { nodes: unknown[]; edges: unknown[] } }>('/v1/graph'),
-      api<{ data: PulseSummary }>('/v1/pulse/summary')
-    ]).then(([providers, pulse, narratives, graph, summary]) => {
+      api<{ data: PulseSummary }>('/v1/pulse/summary'),
+      api<{ data: FeaturedProvider }>('/v1/providers/featured')
+    ]).then(([providers, pulse, narratives, graph, summary, featured]) => {
+      if (!active) return;
       setData({ providers: providers.data, pulse: pulse.data, narratives: narratives.data, graph: graph.data });
       setPulseSummary(summary.data);
+      applyFeaturedProvider(featured.data, true);
     });
+    return () => {
+      active = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -153,11 +174,13 @@ function App() {
     const refresh = () => {
       Promise.all([
         api<{ data: Pulse }>('/v1/pulse'),
-        api<{ data: PulseSummary }>('/v1/pulse/summary')
-      ]).then(([pulse, summary]) => {
+        api<{ data: PulseSummary }>('/v1/pulse/summary'),
+        api<{ data: FeaturedProvider }>('/v1/providers/featured')
+      ]).then(([pulse, summary, featured]) => {
         if (!active) return;
         setData((current) => current ? { ...current, pulse: pulse.data } : current);
         setPulseSummary(summary.data);
+        applyFeaturedProvider(featured.data);
       }).catch(() => undefined);
     };
     const timer = window.setInterval(refresh, 15_000);
@@ -183,78 +206,42 @@ function App() {
       .filter((provider) => !query || [provider.name, provider.id, provider.fqn, provider.category, provider.description, ...(provider.tags ?? [])].filter(Boolean).join(' ').toLowerCase().includes(query))
       .sort((a, b) => compareProviders(a, b, directorySort, trustLookup, signalLookup));
   }, [data, directoryCategory, directoryQuery, directorySort, signalLookup, trustLookup]);
-  const featuredProviders = useMemo(() => {
-    return [...(data?.providers ?? [])].sort((a, b) => compareFeaturedProviders(a, b, trustLookup, signalLookup));
-  }, [data?.providers, signalLookup, trustLookup]);
   const selectedProvider = data?.providers.find((provider) => provider.id === selectedId) ?? null;
   const endpointRows = useMemo(() => resolveProviderEndpointRows(providerDetail, providerIntel), [providerDetail, providerIntel]);
   const reportedEndpointCount = providerIntel?.endpoint_count ?? providerDetail?.provider.endpointCount ?? selectedProvider?.endpointCount ?? 0;
   const endpointProvider = providerDetail?.provider ?? providerIntel?.provider ?? selectedProvider;
   const hasPartialEndpointMetadata = reportedEndpointCount > 0 && endpointRows.length === 0;
-  const nextRotationLabel = autoRotateEnabled && selectionMode === 'auto' && nextRotationAt ? formatRotationCountdown(nextRotationAt - rotationNow) : 'paused';
-  const isFeaturedProvider = selectionMode === 'auto' && autoRotateEnabled;
+  const nextRotationLabel = featuredRotationEnabled && selectionMode === 'auto' && nextRotationAt ? formatRotationCountdown(nextRotationAt - rotationNow) : 'paused';
+  const isFeaturedProvider = selectionMode === 'auto' && featuredRotationEnabled && selectedProvider?.id === featuredProvider?.providerId;
   const timelineBatches = useMemo(() => groupTimelineByBatch(pulseSummary?.timeline ?? []), [pulseSummary?.timeline]);
   const catalogNoChanges = Boolean(pulseSummary && pulseSummary.data_source.last_ingested_at && pulseSummary.latest_event_at && Date.parse(pulseSummary.data_source.last_ingested_at) > Date.parse(pulseSummary.latest_event_at));
 
   useEffect(() => {
-    if (!featuredProviders.length) return;
-    if (selectedId && providerLookup.has(selectedId)) return;
-    setSelectedId(featuredProviders[0].id);
-    setSelectionMode('auto');
-    setNextRotationAt(Date.now() + AUTO_ROTATE_INTERVAL_MS);
-  }, [featuredProviders, providerLookup, selectedId]);
-
-  useEffect(() => {
-    autoRotateEnabledRef.current = autoRotateEnabled;
-  }, [autoRotateEnabled]);
+    featuredRotationEnabledRef.current = featuredRotationEnabled;
+  }, [featuredRotationEnabled]);
 
   useEffect(() => {
     selectionModeRef.current = selectionMode;
   }, [selectionMode]);
 
   useEffect(() => {
-    selectedIdRef.current = selectedId;
-  }, [selectedId]);
-
-  useEffect(() => {
-    filteredProvidersRef.current = filteredProviders;
-  }, [filteredProviders]);
-
-  useEffect(() => {
-    if (!autoRotateEnabled || selectionMode !== 'auto') {
+    if (!featuredRotationEnabled || selectionMode !== 'auto') {
       setNextRotationAt(null);
       return;
     }
-    setNextRotationAt((current) => current ?? Date.now() + AUTO_ROTATE_INTERVAL_MS);
-  }, [autoRotateEnabled, selectionMode]);
+    if (featuredProvider) applyFeaturedProvider(featuredProvider, true);
+  }, [featuredRotationEnabled, selectionMode, featuredProvider]);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
       const now = Date.now();
       setRotationNow(now);
-      setNextRotationAt((currentNextRotationAt) => {
-        if (!autoRotateEnabledRef.current || selectionModeRef.current !== 'auto') return currentNextRotationAt;
-        const targetRotationAt = currentNextRotationAt ?? now + AUTO_ROTATE_INTERVAL_MS;
-        if (now < targetRotationAt) return targetRotationAt;
-        if (routeInputFocusedRef.current || dossierControlsEditingRef.current || now < interactionHoldUntil.current) return now + 5_000;
-
-        const providers = filteredProvidersRef.current;
-        const currentProviderId = selectedIdRef.current;
-        if (!providers.length || !currentProviderId) return now + AUTO_ROTATE_INTERVAL_MS;
-
-        const selectedIndex = providers.findIndex((provider) => provider.id === currentProviderId);
-        const currentProviderName = selectedIndex >= 0 ? providers[selectedIndex].name : currentProviderId;
-        const nextProvider = selectedIndex >= 0 ? providers[(selectedIndex + 1) % providers.length] : providers[0];
-        if (nextProvider.id !== currentProviderId) {
-          setSelectedId(nextProvider.id);
-          setSelectionMode('auto');
-          if (import.meta.env.DEV) console.log(`Auto-rotated provider from ${currentProviderName} to ${nextProvider.name}`);
-        }
-        return now + AUTO_ROTATE_INTERVAL_MS;
-      });
+      if (featuredRotationEnabledRef.current && selectionModeRef.current === 'auto' && nextRotationAt && now >= nextRotationAt) {
+        void fetchFeaturedProvider();
+      }
     }, 1_000);
     return () => window.clearInterval(timer);
-  }, []);
+  }, [nextRotationAt]);
 
   useEffect(() => {
     if (!selectedProvider) return;
@@ -317,22 +304,24 @@ function App() {
   function selectProviderManually(providerId: string) {
     setSelectedId(providerId);
     setSelectionMode('manual');
-    setAutoRotateEnabled(false);
+    setFeaturedRotationEnabled(false);
     setNextRotationAt(null);
   }
 
   function toggleAutoRotation(enabled: boolean) {
-    setAutoRotateEnabled(enabled);
+    setFeaturedRotationEnabled(enabled);
     if (enabled) {
       setSelectionMode('auto');
-      setNextRotationAt(Date.now() + AUTO_ROTATE_INTERVAL_MS);
+      if (featuredProvider) applyFeaturedProvider(featuredProvider, true);
+      else void fetchFeaturedProvider();
     }
   }
 
   function resumeAutoRotation() {
     setSelectionMode('auto');
-    setAutoRotateEnabled(true);
-    setNextRotationAt(Date.now() + AUTO_ROTATE_INTERVAL_MS);
+    setFeaturedRotationEnabled(true);
+    if (featuredProvider) applyFeaturedProvider(featuredProvider, true);
+    else void fetchFeaturedProvider();
   }
 
   function setRouteInputFocused(focused: boolean) {
@@ -546,10 +535,10 @@ function App() {
             }} onPointerDown={() => setDossierControlsEditing(true)} onPointerUp={() => setDossierControlsEditing(false)}>
               {isFeaturedProvider && <span className="featured-label">Featured provider</span>}
               <label>
-                <input type="checkbox" checked={autoRotateEnabled} onChange={(event) => toggleAutoRotation(event.target.checked)} />
-                <span>Auto-rotate</span>
+                <input type="checkbox" checked={featuredRotationEnabled} onChange={(event) => toggleAutoRotation(event.target.checked)} />
+                <span>Featured rotation</span>
               </label>
-              {selectionMode === 'manual' && <button className="resume-rotate" onClick={resumeAutoRotation}>Resume auto-rotate</button>}
+              {selectionMode === 'manual' && <button className="resume-rotate" onClick={resumeAutoRotation}>Resume featured rotation</button>}
               <small>{selectionMode === 'manual' ? 'Paused by manual selection' : `Next provider in ${nextRotationLabel}`}</small>
             </div>
           </div>
@@ -943,16 +932,6 @@ function componentValue(value: number | null | undefined) {
 
 function knownState(value: number | null | undefined) {
   return typeof value === 'number' ? `known ${value}/100` : 'unknown';
-}
-
-function featuredScore(provider: Provider, trustLookup: Map<string, TrustAssessment>, signalLookup: Map<string, SignalAssessment>) {
-  const trust = provider.latestTrustScore ?? trustLookup.get(provider.id)?.score ?? 0;
-  const signal = provider.latestSignalScore ?? signalLookup.get(provider.id)?.score ?? 0;
-  return (trust * 0.6) + (signal * 0.4);
-}
-
-function compareFeaturedProviders(a: Provider, b: Provider, trustLookup: Map<string, TrustAssessment>, signalLookup: Map<string, SignalAssessment>) {
-  return featuredScore(b, trustLookup, signalLookup) - featuredScore(a, trustLookup, signalLookup) || b.endpointCount - a.endpointCount || a.name.localeCompare(b.name);
 }
 
 function formatRotationCountdown(valueMs: number) {

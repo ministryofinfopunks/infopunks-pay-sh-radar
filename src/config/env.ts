@@ -14,6 +14,7 @@ export type RuntimeConfig = {
   monitorIntervalMs: number | null;
   monitorTimeoutMs: number | null;
   monitorMaxProviders: number | null;
+  featuredProviderRotationMs: number;
   frontendOrigin: string | null;
   version: string;
 };
@@ -35,6 +36,7 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
     monitorIntervalMs: readOptionalPositiveInteger('MONITOR_INTERVAL_MS', env.MONITOR_INTERVAL_MS),
     monitorTimeoutMs: readOptionalPositiveInteger('MONITOR_TIMEOUT_MS', env.MONITOR_TIMEOUT_MS),
     monitorMaxProviders: readOptionalPositiveInteger('MONITOR_MAX_PROVIDERS', env.MONITOR_MAX_PROVIDERS),
+    featuredProviderRotationMs: readPositiveInteger('FEATURED_PROVIDER_ROTATION_MS', env.FEATURED_PROVIDER_ROTATION_MS, 10 * 60 * 1000),
     frontendOrigin: readOptionalUrl('FRONTEND_ORIGIN', env.FRONTEND_ORIGIN),
     version: env.APP_VERSION ?? packageVersion()
   };
@@ -88,6 +90,14 @@ function readBoolean(name: string, value: string | undefined, defaultValue: bool
 
 function readOptionalPositiveInteger(name: string, value: string | undefined) {
   if (!value) return null;
+  return readPositiveInteger(name, value);
+}
+
+function readPositiveInteger(name: string, value: string | undefined, defaultValue?: number) {
+  if (!value) {
+    if (defaultValue !== undefined) return defaultValue;
+    throw new Error(`${name} must be a positive integer`);
+  }
   const parsed = Number(value);
   if (!Number.isInteger(parsed) || parsed <= 0) {
     throw new Error(`${name} must be a positive integer`);

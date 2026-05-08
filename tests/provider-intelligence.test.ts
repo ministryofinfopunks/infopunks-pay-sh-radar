@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../src/api/app';
 import { PayShCatalogItem } from '../src/data/payShCatalogFixture';
 import { applyPayShCatalogIngestion } from '../src/ingestion/payShCatalogAdapter';
@@ -50,11 +50,25 @@ const changedCatalog: PayShCatalogItem[] = [{
   }]
 }];
 
+const rotationCatalog: PayShCatalogItem[] = [
+  { ...catalog[0], name: 'Beta API', namespace: 'pay/beta', slug: 'beta', tags: ['beta', 'lookup'] },
+  { ...catalog[0], name: 'Alpha API', namespace: 'pay/alpha', slug: 'alpha', tags: ['alpha', 'lookup'] },
+  { ...catalog[0], name: 'Gamma API', namespace: 'pay/gamma', slug: 'gamma', tags: ['gamma', 'lookup'] }
+];
+
 function changedStore() {
   const first = applyPayShCatalogIngestion(emptySnapshot, catalog, { observedAt: '2026-01-01T00:00:00.000Z', source: 'pay.sh:test' });
   const second = applyPayShCatalogIngestion(first.snapshot, changedCatalog, { observedAt: '2026-01-02T00:00:00.000Z', source: 'pay.sh:test' });
   return recomputeAssessments(second.snapshot);
 }
+
+function rotationStore() {
+  return recomputeAssessments(applyPayShCatalogIngestion(emptySnapshot, rotationCatalog, { observedAt: '2026-01-01T00:00:00.000Z', source: 'pay.sh:test' }).snapshot);
+}
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 describe('provider intelligence API', () => {
   it('returns provider history ordered newest first', async () => {
@@ -122,6 +136,66 @@ describe('provider intelligence API', () => {
       risk_level: 'unknown',
       coordination_eligible: null,
       recent_changes: []
+    });
+    await app.close();
+  });
+
+  it('returns the same featured provider inside the same rotation window', async () => {
+    vi.useFakeTimers({ now: new Date('1970-01-01T00:00:01.000Z') });
+    const app = await createApp(rotationStore());
+
+    const first = await app.inject({ method: 'GET', url: '/v1/providers/featured' });
+    vi.setSystemTime(new Date('1970-01-01T00:09:59.000Z'));
+    const second = await app.inject({ method: 'GET', url: '/v1/providers/featured' });
+
+    expect(first.statusCode).toBe(200);
+    expect(first.json().data.providerId).toBe('alpha');
+    expect(second.json().data.providerId).toBe('alpha');
+    expect(second.json().data.providerCount).toBe(3);
+    await app.close();
+  });
+
+  it('returns the next featured provider in the next rotation window', async () => {
+    vi.useFakeTimers({ now: new Date('1970-01-01T00:00:00.000Z') });
+    const app = await createApp(rotationStore());
+
+    const first = await app.inject({ method: 'GET', url: '/v1/providers/featured' });
+    vi.setSystemTime(new Date('1970-01-01T00:10:00.000Z'));
+    const second = await app.inject({ method: 'GET', url: '/v1/providers/featured' });
+
+    expect(first.json().data).toMatchObject({ providerId: 'alpha', index: 0, providerCount: 3, rotationWindowMs: 600000, strategy: 'time_window_round_robin' });
+    expect(second.json().data).toMatchObject({ providerId: 'beta', index: 1, providerCount: 3, rotationWindowMs: 600000, strategy: 'time_window_round_robin' });
+    await app.close();
+  });
+
+  it('keeps featured provider stable across repeated refreshes in one window', async () => {
+    vi.useFakeTimers({ now: new Date('1970-01-01T00:12:00.000Z') });
+    const app = await createApp(rotationStore());
+
+    const refreshOne = await app.inject({ method: 'GET', url: '/v1/providers/featured' });
+    const refreshTwo = await app.inject({ method: 'GET', url: '/v1/providers/featured' });
+
+    expect(refreshOne.json().data.providerId).toBe('beta');
+    expect(refreshTwo.json().data.providerId).toBe('beta');
+    expect(refreshTwo.json().data.nextRotationAt).toBe('1970-01-01T00:20:00.000Z');
+    await app.close();
+  });
+
+  it('handles an empty provider list safely for featured rotation', async () => {
+    vi.useFakeTimers({ now: new Date('1970-01-01T00:00:00.000Z') });
+    const app = await createApp(recomputeAssessments(emptySnapshot));
+
+    const response = await app.inject({ method: 'GET', url: '/v1/providers/featured' });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().data).toMatchObject({
+      providerId: null,
+      providerName: null,
+      category: null,
+      index: null,
+      providerCount: 0,
+      rotationWindowMs: 600000,
+      strategy: 'time_window_round_robin'
     });
     await app.close();
   });

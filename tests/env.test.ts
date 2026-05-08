@@ -9,12 +9,14 @@ describe('runtime environment config', () => {
     expect(config.monitorEnabled).toBe(false);
     expect(config.monitorMode).toBe('disabled');
     expect(config.databaseUrl).toBeNull();
+    expect(config.featuredProviderRotationMs).toBe(600000);
   });
 
   it('supports explicit safe metadata monitor mode and legacy enabled compatibility', () => {
     expect(loadRuntimeConfig({ MONITOR_MODE: 'safe_metadata' }).monitorMode).toBe('safe_metadata');
     expect(loadRuntimeConfig({ MONITOR_ENABLED: 'true' }).monitorMode).toBe('safe_metadata');
     expect(loadRuntimeConfig({ MONITOR_MAX_PROVIDERS: '10' }).monitorMaxProviders).toBe(10);
+    expect(loadRuntimeConfig({ FEATURED_PROVIDER_ROTATION_MS: '30000' }).featuredProviderRotationMs).toBe(30000);
   });
 
   it('requires production port and admin token', () => {
@@ -29,6 +31,7 @@ describe('runtime environment config', () => {
     expect(() => loadRuntimeConfig({ MONITOR_MODE: 'endpoint' })).toThrow('MONITOR_MODE');
     expect(() => loadRuntimeConfig({ MONITOR_MAX_PROVIDERS: '0' })).toThrow('MONITOR_MAX_PROVIDERS');
     expect(() => loadRuntimeConfig({ PAY_SH_INGEST_INTERVAL_MS: '0' })).toThrow('PAY_SH_INGEST_INTERVAL_MS');
+    expect(() => loadRuntimeConfig({ FEATURED_PROVIDER_ROTATION_MS: '0' })).toThrow('FEATURED_PROVIDER_ROTATION_MS');
     expect(() => loadRuntimeConfig({ FRONTEND_ORIGIN: 'not-a-url' })).toThrow('FRONTEND_ORIGIN');
   });
 

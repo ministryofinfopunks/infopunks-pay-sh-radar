@@ -10,6 +10,7 @@ import { endpointHistory, findEndpoint, findProvider, providerHistory, providerI
 import { endpointMonitorSummary, isMonitorEnabled, monitorIntervalMs, monitorMaxProviders, monitorTimeoutMs, providerMonitorSummary, runMonitor } from '../services/endpointMonitorService';
 import { loadRuntimeConfig } from '../config/env';
 import { dataSourceState, pulseSummary } from '../services/pulseService';
+import { featuredProviderRotation } from '../services/featuredProviderService';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
 
@@ -41,6 +42,7 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
       latestSignalScore: signal?.score ?? null
     };
   }) }));
+  app.get('/v1/providers/featured', async () => ({ data: featuredProviderRotation(store, config.featuredProviderRotationMs) }));
   app.get<{ Params: { id: string } }>('/v1/providers/:id', async (req, reply) => {
     const provider = findProvider(store, req.params.id);
     if (!provider) return reply.code(404).send({ error: 'provider_not_found' });
