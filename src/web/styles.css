@@ -1472,3 +1472,382 @@ select:hover {
     font-size: clamp(30px, 10.5vw, 40px);
   }
 }
+
+/* Mobile component refinement: collapse remaining nested desktop layouts into a readable feed. */
+@media (max-width: 768px) {
+  .shell > *,
+  #terminal-content > *,
+  .zone > *,
+  .panel > *,
+  .dossier > *,
+  .dossier-body > *,
+  .ecosystem-canvas > *,
+  .ecosystem-rail > *,
+  .provider-stack > *,
+  .provider-analysis-grid > *,
+  .public-provider-page > *,
+  .propagation-incident-page > * {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .grid,
+  .ecosystem-metrics,
+  .ecosystem-layout,
+  .ecosystem-status-panel,
+  .status-grid,
+  .ecosystem-canvas,
+  .ecosystem-rail,
+  .provider-stack,
+  .provider-analysis-grid,
+  .counter-grid,
+  .timing-strip,
+  .heatmap,
+  .leaderboard,
+  .dossier-grid,
+  .intel-summary,
+  .intel-summary.compact,
+  .route-score-grid,
+  .route-input-grid,
+  .compact-route-panel .route-input-grid,
+  .interpretation-primary,
+  .interpretation-secondary,
+  .provider-ribbon,
+  .batch-head,
+  .feed-row,
+  .key-values p,
+  .receipt-grid p,
+  .bar,
+  .component-list p,
+  .propagation-state,
+  .methodology-section dl div {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .ecosystem-layout,
+  .ecosystem-canvas,
+  .ecosystem-rail,
+  .provider-stack,
+  .provider-analysis-grid,
+  .dossier-body,
+  .dossier-grid,
+  .endpoint-list,
+  .timeline,
+  .event-feed,
+  .batch-rows,
+  .delta-list,
+  .activity-list,
+  .mini-feed,
+  .leaderboard,
+  .heatmap,
+  .results,
+  .fallback-list,
+  .evidence-trail {
+    gap: 14px;
+  }
+
+  .hero {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .ticker {
+    grid-template-columns: repeat(2, minmax(150px, 1fr)) !important;
+    align-self: auto;
+  }
+
+  .ticker span,
+  .metric span,
+  .pulse-stat span,
+  .dossier-stat span,
+  .status-chip span,
+  .timing-item span,
+  .bar b,
+  .scope-label,
+  .source-badge,
+  .featured-label,
+  .resume-rotate,
+  .category,
+  .severity-label,
+  .severity-badge,
+  .partial-badge,
+  .safe-badge,
+  .service-status,
+  .command-input span,
+  .route-panel label,
+  .window-tabs button,
+  .category-chips button {
+    white-space: nowrap;
+    word-break: keep-all;
+    overflow-wrap: normal;
+  }
+
+  .source-line,
+  .copy,
+  .panel-caption,
+  .zone-helper,
+  .section-helper,
+  .monitor-note,
+  .route-state,
+  .empty-state,
+  .interpretation-summary,
+  .feed-row p,
+  .endpoint span,
+  .change span,
+  .receipt-note,
+  .system-reading-inline,
+  .system-reading-panel strong {
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+
+  .status-grid {
+    gap: 12px;
+  }
+
+  .status-chip {
+    min-height: auto;
+  }
+
+  .status-chip strong,
+  .status-command p:last-child,
+  .system-reading-inline,
+  .system-reading-panel strong {
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+
+  .ecosystem-rail {
+    display: grid;
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  .ecosystem-rail > .panel,
+  .provider-directory-panel,
+  .dossier,
+  .provider-analysis-grid > .panel,
+  .pulse-feed,
+  .semantic-search-panel,
+  .ecosystem-interpretation,
+  .system-reading-panel,
+  .propagation-watch {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .heat {
+    min-height: 150px;
+  }
+
+  .heat strong,
+  .heat span,
+  .heat small {
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+
+  .bar {
+    align-items: stretch;
+  }
+
+  .bar div {
+    width: 100%;
+  }
+
+  .provider-ribbon {
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .provider-ribbon strong {
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+
+  .provider-ribbon span {
+    justify-self: start;
+  }
+
+  .dossier {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .dossier-header,
+  .dossier-body,
+  .dossier-section,
+  .monitor-card,
+  .route-panel,
+  .route-panel label,
+  .route-input-grid,
+  .decision-output,
+  .endpoint,
+  .change {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .dossier-badges,
+  .chips,
+  .unknown-list,
+  .risk-list,
+  .event-groups,
+  .route-actions,
+  .public-actions,
+  .window-tabs,
+  .category-chips,
+  .monitor-head,
+  .component-list p {
+    display: flex;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+
+  .monitor-head,
+  .route-actions {
+    align-items: flex-start;
+  }
+
+  .dossier-badges span,
+  .chips span,
+  .unknown-list span,
+  .risk-list span,
+  .category,
+  .severity-badge {
+    max-width: 100%;
+  }
+
+  .unknown-list span,
+  .risk-list span,
+  .source-line,
+  .dossier-header code,
+  .receipt-grid span,
+  .receipt-grid b,
+  .key-values span,
+  .key-values b,
+  .fallback-list span,
+  .fallback-list strong,
+  .evidence-trail span,
+  .evidence-trail strong,
+  .endpoint small,
+  .failure-line,
+  .methodology-code-block,
+  code,
+  pre {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .event-feed,
+  .batch-group,
+  .batch-rows,
+  .feed-row,
+  .receipt,
+  .receipt-grid,
+  .key-values,
+  .endpoint-list,
+  .timeline {
+    overflow-x: visible;
+  }
+
+  .feed-row span,
+  .feed-row strong,
+  .feed-row p,
+  .feed-row time,
+  .batch-head strong,
+  .batch-head span,
+  .batch-head time {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .feed-row time,
+  .batch-head time,
+  .batch-head span {
+    white-space: normal;
+  }
+
+  .receipt summary {
+    white-space: nowrap;
+    word-break: keep-all;
+  }
+
+  .receipt-grid {
+    gap: 7px;
+  }
+
+  .key-values p,
+  .receipt-grid p,
+  .component-list p {
+    gap: 4px;
+  }
+
+  .key-values span,
+  .receipt-grid span,
+  .component-list i {
+    text-align: left;
+  }
+
+  .semantic-search-form .execute,
+  .route-actions .execute,
+  .public-actions .execute {
+    width: 100%;
+  }
+
+  .route-panel {
+    overflow: hidden;
+  }
+
+  .route-panel label,
+  .route-panel input,
+  .route-panel textarea,
+  .route-panel select,
+  .route-check,
+  .route-actions,
+  .route-actions .execute {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .route-panel label {
+    white-space: normal;
+  }
+
+  .route-panel label > span,
+  .route-check span {
+    max-width: 100%;
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+}
+
+@media (max-width: 480px) {
+  .ticker,
+  .status-grid,
+  .ecosystem-metrics,
+  .intel-summary,
+  .intel-summary.compact {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .ticker span,
+  .status-chip,
+  .metric,
+  .pulse-stat,
+  .dossier-stat,
+  .timing-item {
+    padding-inline: 12px;
+  }
+
+  .dossier-badges span,
+  .chips span,
+  .unknown-list span,
+  .risk-list span,
+  .category {
+    white-space: normal;
+  }
+}
