@@ -378,6 +378,7 @@ export const PreflightResponseSchema = z.object({
     category: z.string(),
     capabilities: z.array(z.string()).optional(),
     capabilityMatchScore: z.number().int().nonnegative().optional(),
+    policyNotes: z.array(z.string()).optional(),
     trustScore: z.number().nullable(),
     signalScore: z.number().nullable(),
     latencyMs: z.number().nullable(),

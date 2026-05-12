@@ -7,6 +7,7 @@ type Candidate = {
   provider: Provider;
   capabilities: CapabilityTag[];
   capabilityMatchScore: number;
+  policyNotes: string[];
   trustScore: number | null;
   signalScore: number | null;
   latencyMs: number | null;
@@ -50,6 +51,8 @@ const CATEGORY_ALIASES: Record<string, string[]> = {
 
 const MARKET_DATA_CAPABILITIES: CapabilityTag[] = ['market_data', 'pricing'];
 const MARKET_DATA_CATEGORY_BRIDGE = ['payments', 'payment', 'finance', 'fintech', 'crypto', 'data', 'analytics', 'enrichment'];
+const DEX_TRENDING_CAPABILITIES: CapabilityTag[] = ['dex_pools', 'trending'];
+const LATENCY_UNKNOWN_POLICY_NOTE = 'latency_unknown_allowed_for_specific_capability_match';
 
 export function runPreflight(input: PreflightRequest, store: IntelligenceStore): PreflightResponse {
   const sourceState = dataSourceState(store);
@@ -63,6 +66,7 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
   const capabilityInference = requiredCapabilitiesForIntent(input.intent);
   const requiredCapabilities = capabilityInference.requiredCapabilities;
   const shouldMatchCapabilities = requiredCapabilities.length > 0;
+  const isHighSpecificityDexTrendingIntent = isDexTrendingIntent(requiredCapabilities);
   for (const candidate of candidates) {
     candidate.capabilityMatchScore = capabilityMatchScore(candidate.capabilities, requiredCapabilities);
   }
@@ -242,7 +246,18 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
     const reasons: string[] = [];
     if (candidate.trustScore === null || candidate.trustScore < minTrustScore) reasons.push(`trust_score_below_min:${candidate.trustScore ?? 'unknown'}<${minTrustScore}`);
     if (candidate.degraded) reasons.push('active_degradation');
-    if (maxLatencyMs !== null && (candidate.latencyMs === null || candidate.latencyMs > maxLatencyMs)) reasons.push(`latency_exceeds_max:${candidate.latencyMs ?? 'unknown'}>${maxLatencyMs}`);
+    if (maxLatencyMs !== null) {
+      const allowsUnknownLatency = allowsUnknownLatencyForSpecificDexTrendingMatch(candidate, requiredCapabilities);
+      if (candidate.latencyMs === null) {
+        if (allowsUnknownLatency) {
+          candidate.policyNotes.push(LATENCY_UNKNOWN_POLICY_NOTE);
+        } else {
+          reasons.push(`latency_exceeds_max:${candidate.latencyMs ?? 'unknown'}>${maxLatencyMs}`);
+        }
+      } else if (candidate.latencyMs > maxLatencyMs) {
+        reasons.push(`latency_exceeds_max:${candidate.latencyMs}>${maxLatencyMs}`);
+      }
+    }
     if (maxCostUsd !== null && (candidate.minCostUsd === null || candidate.minCostUsd > maxCostUsd)) reasons.push(`cost_exceeds_max:${candidate.minCostUsd ?? 'unknown'}>${maxCostUsd}`);
     if (reasons.length > 0) {
       rejectedProviders.push({ providerId: candidate.provider.id, reasons });
@@ -258,8 +273,9 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
   accepted.sort((a, b) =>
     compareNumbersDesc(a.capabilityMatchScore, b.capabilityMatchScore)
     || compareNumbersDesc(a.signalScore, b.signalScore)
-    || compareNumbersAsc(a.latencyMs, b.latencyMs)
-    || compareNumbersDesc(a.trustScore, b.trustScore)
+    || (isHighSpecificityDexTrendingIntent
+      ? (compareNumbersDesc(a.trustScore, b.trustScore) || compareNumbersAsc(a.latencyMs, b.latencyMs))
+      : (compareNumbersAsc(a.latencyMs, b.latencyMs) || compareNumbersDesc(a.trustScore, b.trustScore)))
     || a.provider.id.localeCompare(b.provider.id));
 
   const selected = accepted[0] ?? null;
@@ -287,6 +303,7 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
       category: selected.provider.category,
       capabilities: selected.capabilities,
       capabilityMatchScore: selected.capabilityMatchScore,
+      policyNotes: selected.policyNotes.length > 0 ? selected.policyNotes : undefined,
       trustScore: selected.trustScore,
       signalScore: selected.signalScore,
       latencyMs: selected.latencyMs,
@@ -339,6 +356,7 @@ function toCandidate(provider: Provider, store: IntelligenceStore): Candidate {
     provider,
     capabilities: inferProviderCapabilities(provider, store),
     capabilityMatchScore: 0,
+    policyNotes: [],
     trustScore: trust?.score ?? null,
     signalScore: signal?.score ?? null,
     latencyMs: latestLatency,
@@ -362,7 +380,12 @@ function inferProviderCapabilities(provider: Provider, store: IntelligenceStore)
   addIf('settlement', [/\bsettle(ment|ments|d|s)?\b/, /\bpayout\b/]);
   addIf('market_data', [/\bmarket\b/, /\btoken\b/, /\bcoingecko\b/, /\bquote\b/, /\bexchange\s*rate\b/, /\bprice\s*feed\b/]);
   addIf('pricing', [/\bprice\b/, /\bpricing\b/, /\bquote\b/, /\brate\b/, /\bcoingecko\b/]);
-  addIf('dex_pools', [/\bonchain\b/, /\bdex\b/, /\bpool\b/, /\bpools\b/, /\btrending\s*pools\b/, /\bgeckoterminal\b/]);
+  const stableCryptoDexTerms = [/\bdex\b/, /\bpool\b/, /\bpools\b/, /\bgeckoterminal\b/, /\bonchain\s+pools\b/];
+  if (provider.id === 'stablecrypto' || safe(provider.name).toLowerCase() === 'stablecrypto') {
+    addIf('dex_pools', stableCryptoDexTerms);
+  } else {
+    addIf('dex_pools', [/\bonchain\b/, /\bdex\b/, /\bpool\b/, /\bpools\b/, /\btrending\s*pools\b/, /\bgeckoterminal\b/]);
+  }
   addIf('trending', [/\btrending\b/, /\btrend(?:ing)?\b/, /\btop\b/, /\bhot\b/]);
   addIf('enrichment', [/\benrich(ment)?\b/, /\bverify\b/]);
   addIf('messaging', [/\bemail\b/, /\bmessage\b/, /\bsms\b/, /\bmail\b/]);
@@ -557,4 +580,14 @@ function aliasesForCategory(requestedCategory: string, requiredCapabilities: Cap
     if (aliases.includes(requestedCategory)) return new Set(CATEGORY_ALIASES[canonical]);
   }
   return new Set([requestedCategory]);
+}
+
+function isDexTrendingIntent(requiredCapabilities: CapabilityTag[]) {
+  return DEX_TRENDING_CAPABILITIES.some((capability) => requiredCapabilities.includes(capability));
+}
+
+function allowsUnknownLatencyForSpecificDexTrendingMatch(candidate: Candidate, requiredCapabilities: CapabilityTag[]) {
+  if (!isDexTrendingIntent(requiredCapabilities)) return false;
+  if (candidate.capabilityMatchScore < 2) return false;
+  return DEX_TRENDING_CAPABILITIES.some((capability) => candidate.capabilities.includes(capability));
 }

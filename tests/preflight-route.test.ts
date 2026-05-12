@@ -192,15 +192,6 @@ function preflightStoreWithDexPoolsProvider() {
         ? { ...item, score: 100 }
         : item
   );
-  store.events.push({
-    id: 'paysponge-checked',
-    type: 'provider.checked',
-    source: 'infopunks:safe-metadata-monitor',
-    entityType: 'provider',
-    entityId: 'paysponge-coingecko',
-    observedAt: '2026-01-03T00:00:30.000Z',
-    payload: { providerId: 'paysponge-coingecko', response_time_ms: 220, success: true }
-  });
   return store;
 }
 
@@ -337,12 +328,39 @@ describe('preflight API', () => {
     expect(body.selectedProviderDetails).toMatchObject({
       providerId: 'paysponge-coingecko',
       capabilities: expect.arrayContaining(['market_data', 'pricing', 'dex_pools', 'trending']),
-      capabilityMatchScore: 3
+      capabilityMatchScore: 3,
+      policyNotes: expect.arrayContaining(['latency_unknown_allowed_for_specific_capability_match'])
     });
     expect(body.consideredProvidersRejected).toEqual(expect.arrayContaining([
       expect.objectContaining({
         providerId: 'stablecrypto',
         reasons: expect.arrayContaining(['lower_capability_match_score:1<3'])
+      })
+    ]));
+    await app.close();
+  });
+
+  it('unknown latency generic market_data provider is rejected for market-data intent without dex/trending exception', async () => {
+    const app = await createApp(preflightStoreWithDexPoolsProvider());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'get crypto market data',
+        category: 'finance',
+        candidateProviders: ['paysponge-coingecko'],
+        constraints: { minTrustScore: 0, maxLatencyMs: 3000, maxCostUsd: 0.05 },
+        debug: true
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.decision).toBe('route_blocked');
+    expect(body.blockReason).toBe('all_candidates_rejected_by_policy');
+    expect(body.rejectedProviders).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        providerId: 'paysponge-coingecko',
+        reasons: expect.arrayContaining(['latency_exceeds_max:unknown>3000'])
       })
     ]));
     await app.close();
