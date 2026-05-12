@@ -133,7 +133,7 @@ function pulseSummary(recentDegraded = false) {
   };
 }
 
-function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknown[]; degraded?: boolean } = {}) {
+function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknown[]; degraded?: boolean; readiness?: Record<string, unknown> } = {}) {
   vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
     const path = pathOf(input);
     if (path === '/v1/pulse') return json({ providerCount: 1, endpointCount: options.endpoints?.length ?? 0, eventCount: 1, averageTrust: 86, averageSignal: 74, hottestNarrative: null, topTrust: [], topSignal: [], data_source: { mode: 'live_pay_sh_catalog', url: 'https://pay.sh/api/catalog', generated_at: observedAt, provider_count: 1, last_ingested_at: observedAt, used_fixture: false }, updatedAt: observedAt });
@@ -160,7 +160,7 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
       last_seen_at: observedAt
     });
     if (path === '/v1/endpoints/ep-lookup/monitor') return json({ health: 'reachable', lastCheck: { observedAt, payload: {} }, recentFailures: [] });
-    if (path === '/v1/radar/superiority-readiness') return json({
+    if (path === '/v1/radar/superiority-readiness') return json(options.readiness ?? {
       generated_at: observedAt,
       executable_provider_mappings_count: 1,
       categories_with_at_least_two_executable_mappings: [],
@@ -278,6 +278,9 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Preflight');
     expect(container.textContent).toContain('Routing intelligence for the Pay.sh agent economy.');
     expect(container.textContent).toContain('Ask Radar where an agent should route before spending.');
+    expect(container.textContent).toContain('No preflight decision yet.');
+    expect(container.textContent).toContain('Provider/Endpoint Comparison Engine');
+    expect(container.textContent).toContain('Compare');
 
     const example = Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Find SOL price route') as HTMLButtonElement | undefined;
     expect(example).toBeTruthy();
@@ -297,5 +300,44 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Accepted candidate');
     expect(container.textContent).toContain('/v1/radar/preflight');
     expect(container.textContent).toContain('Superiority Proof Readiness');
+  });
+
+  it('renders export intelligence with readable copy and preserved routes', async () => {
+    installFetch({ endpoints: [normalizedEndpoint], detailEndpoints: [endpoint] });
+    root = await renderApp(container);
+
+    const exportPanel = container.querySelector('.radar-export-panel') as HTMLElement | null;
+    expect(exportPanel).not.toBeNull();
+    expect(exportPanel!.textContent).toContain('Safe JSON Exports');
+    expect(exportPanel!.textContent).toContain('Open read-only export routes. These do not execute paid Pay.sh APIs.');
+    expect(exportPanel!.querySelectorAll('.export-actions button')).toHaveLength(4);
+  });
+
+  it('summarizes long superiority readiness arrays before revealing full details', async () => {
+    const metadataOnly = Array.from({ length: 14 }, (_, index) => `provider-${index + 1}`);
+    installFetch({
+      endpoints: [normalizedEndpoint],
+      detailEndpoints: [endpoint],
+      readiness: {
+        generated_at: observedAt,
+        executable_provider_mappings_count: 0,
+        categories_with_at_least_two_executable_mappings: ['finance', 'ocr', 'data'],
+        categories_not_ready_for_comparison: ['payments', 'search', 'maps', 'documents', 'media', 'crypto', 'identity', 'email', 'sms', 'voice', 'storage', 'analytics', 'translation'],
+        providers_with_proven_paid_execution: [],
+        providers_with_only_catalog_metadata: metadataOnly,
+        next_mappings_needed: metadataOnly.map((providerId) => `${providerId}: +1 executable mapping(s)`)
+      }
+    });
+    root = await renderApp(container);
+
+    expect(container.textContent).toContain('No executable provider mappings detected yet.');
+    expect(container.textContent).toContain('Superiority requires at least two executable provider mappings in the same benchmark category.');
+    expect(container.textContent).toContain('+ 4 more');
+    expect(container.textContent).toContain('catalog metadata only providers');
+
+    const details = Array.from(container.querySelectorAll('.compact-chip-details')).find((node) => node.textContent?.includes('provider-14')) as HTMLDetailsElement | undefined;
+    expect(details).toBeTruthy();
+    details!.open = true;
+    expect(details!.textContent).toContain('provider-14');
   });
 });

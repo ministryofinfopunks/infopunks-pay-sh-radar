@@ -1864,20 +1864,28 @@ function ComparisonPanel({
     ? providers.map((provider) => ({ id: provider.id, label: provider.name }))
     : endpoints.map((endpoint) => ({ id: endpoint.endpoint_id, label: `${endpoint.provider_name ?? endpoint.provider_id} / ${endpoint.endpoint_name ?? endpoint.endpoint_id}` })).slice(0, 50);
   return <section className="panel" id="compare" aria-label="Provider endpoint comparison engine">
-    <ScopeLabel scope="GLOBAL" />
-    <h2>Provider/Endpoint Comparison Engine</h2>
-    <div className="route-input-grid">
-      <select value={mode} onChange={(event) => {
-        onModeChange(event.target.value === 'endpoint' ? 'endpoint' : 'provider');
-        onSelectionChange([]);
-      }}>
-        <option value="provider">provider</option>
-        <option value="endpoint">endpoint</option>
-      </select>
-      <select multiple value={selectedIds} onChange={(event) => onSelectionChange(Array.from(event.currentTarget.selectedOptions).map((item) => item.value).slice(0, 3))} aria-label="Comparison selection">
-        {options.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
-      </select>
-      <button className="execute compact secondary" type="button" onClick={() => onCompare(selectedIds, mode)} disabled={selectedIds.length < 2}>Compare</button>
+    <div className="phase3-panel-head">
+      <ScopeLabel scope="GLOBAL" />
+      <h2>Provider/Endpoint Comparison Engine</h2>
+    </div>
+    <div className="comparison-controls">
+      <label>
+        <span>mode</span>
+        <select value={mode} onChange={(event) => {
+          onModeChange(event.target.value === 'endpoint' ? 'endpoint' : 'provider');
+          onSelectionChange([]);
+        }}>
+          <option value="provider">provider</option>
+          <option value="endpoint">endpoint</option>
+        </select>
+      </label>
+      <label>
+        <span>select 2-3</span>
+        <select multiple value={selectedIds} onChange={(event) => onSelectionChange(Array.from(event.currentTarget.selectedOptions).map((item) => item.value).slice(0, 3))} aria-label="Comparison selection">
+          {options.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
+        </select>
+      </label>
+      <button className="execute compact secondary comparison-submit" type="button" onClick={() => onCompare(selectedIds, mode)} disabled={selectedIds.length < 2}>Compare</button>
     </div>
     {result && <div className="endpoint-list has-rows">{result.rows.map((row) => <div className="endpoint" key={row.id}>
       <strong>{row.name}</strong>
@@ -1894,19 +1902,28 @@ function SuperiorityReadinessPanel({ readiness }: { readiness: RadarSuperiorityR
     : readiness.categories_with_at_least_two_executable_mappings.length
       ? 'Comparison-ready categories exist, but superiority still requires benchmark evidence.'
       : 'Superiority evidence not yet available.';
-  return <section className="panel" aria-label="Superiority Proof Readiness panel">
-    <ScopeLabel scope="GLOBAL" />
-    <h2>Superiority Proof Readiness</h2>
-    <p>{statement}</p>
+  return <section className="panel superiority-readiness" aria-label="Superiority Proof Readiness panel">
+    <div className="phase3-panel-head">
+      <ScopeLabel scope="GLOBAL" />
+      <h2>Superiority Proof Readiness</h2>
+    </div>
+    <p className="route-state">{statement}</p>
+    <p className="panel-caption">Superiority requires at least two executable provider mappings in the same benchmark category.</p>
     {!readiness && <p className="muted">Readiness data unavailable.</p>}
-    {readiness && <KeyValues rows={[
-      ['executable provider mappings', readiness.executable_provider_mappings_count],
-      ['ready categories', readiness.categories_with_at_least_two_executable_mappings.join(', ') || 'none'],
-      ['not ready categories', readiness.categories_not_ready_for_comparison.join(', ') || 'none'],
-      ['proven paid execution providers', readiness.providers_with_proven_paid_execution.join(', ') || 'missing'],
-      ['catalog metadata only providers', readiness.providers_with_only_catalog_metadata.join(', ') || 'none'],
-      ['next mappings needed', readiness.next_mappings_needed.join(' | ') || 'none']
-    ]} />}
+    {readiness && <>
+      {readiness.executable_provider_mappings_count === 0 && <p className="route-state warn">No executable provider mappings detected yet.</p>}
+      <div className="readiness-metric">
+        <span>executable provider mappings</span>
+        <strong>{readiness.executable_provider_mappings_count}</strong>
+      </div>
+      <div className="readiness-list-grid">
+        <CompactChipList title="ready categories" items={readiness.categories_with_at_least_two_executable_mappings} emptyLabel="none" />
+        <CompactChipList title="not ready categories" items={readiness.categories_not_ready_for_comparison} emptyLabel="none" />
+        <CompactChipList title="proven paid execution providers" items={readiness.providers_with_proven_paid_execution} emptyLabel="missing" />
+        <CompactChipList title="catalog metadata only providers" items={readiness.providers_with_only_catalog_metadata} emptyLabel="none" />
+        <CompactChipList title="next mappings needed" items={readiness.next_mappings_needed} emptyLabel="none" wide />
+      </div>
+    </>}
   </section>;
 }
 
@@ -1937,6 +1954,29 @@ function EmptyState({ title, body }: { title: string; body: string }) {
   </div>;
 }
 
+function CompactChipList({ title, items, emptyLabel, limit = 10, wide = false }: { title: string; items: string[]; emptyLabel: string; limit?: number; wide?: boolean }) {
+  const visible = items.slice(0, limit);
+  const hiddenCount = Math.max(0, items.length - visible.length);
+  return <section className={wide ? 'compact-chip-list wide' : 'compact-chip-list'}>
+    <div className="compact-chip-list-head">
+      <strong>{title}</strong>
+      <span>{items.length}</span>
+    </div>
+    {items.length === 0
+      ? <p>{emptyLabel}</p>
+      : <div className="compact-chip-wrap">
+        {visible.map((item) => <span key={item}>{item}</span>)}
+        {hiddenCount > 0 && <span className="more-chip">+ {hiddenCount} more</span>}
+      </div>}
+    {hiddenCount > 0 && <details className="compact-chip-details">
+      <summary>View full list</summary>
+      <div className="compact-chip-wrap full">
+        {items.map((item) => <span key={item}>{item}</span>)}
+      </div>
+    </details>}
+  </section>;
+}
+
 function CopyButton({ value, label }: { value: string; label: string }) {
   const [state, setState] = useState<'idle' | 'copied' | 'failed'>('idle');
   async function copy() {
@@ -1955,8 +1995,8 @@ function RadarExportPanel() {
     ['/v1/radar/routes/candidates', 'Export Route Candidates JSON']
   ] as const;
   return <section className="panel radar-export-panel" aria-label="Radar JSON exports">
-    <ScopeLabel scope="GLOBAL" />
-    <div>
+    <div className="radar-export-copy">
+      <ScopeLabel scope="GLOBAL" />
       <p className="section-kicker">Safe JSON Exports</p>
       <h2>Export Intelligence</h2>
       <p className="panel-caption">Open read-only export routes. These do not execute paid Pay.sh APIs.</p>

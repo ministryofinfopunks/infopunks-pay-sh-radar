@@ -18,7 +18,12 @@ function storeWithProviders() {
     method: 'GET',
     path: index === 0 ? '/price/sol' : '/price/token',
     status: 'available',
-    pricing: { min: index === 0 ? 0.001 : 0.02, max: index === 0 ? 0.001 : 0.02, raw: index === 0 ? '$0.001' : '$0.02' }
+    pricing: {
+      ...endpoint.pricing,
+      min: index === 0 ? 0.001 : 0.02,
+      max: index === 0 ? 0.001 : 0.02,
+      raw: index === 0 ? '$0.001' : '$0.02'
+    }
   }));
   store.trustAssessments = store.trustAssessments.map((item) => item.entityId === 'alpha' ? { ...item, score: 92 } : { ...item, score: 60 });
   store.signalAssessments = store.signalAssessments.map((item) => item.entityId === 'alpha' ? { ...item, score: 88 } : { ...item, score: 65 });
