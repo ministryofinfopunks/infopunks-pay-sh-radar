@@ -152,6 +152,58 @@ function preflightStore() {
   return store;
 }
 
+function preflightStoreWithDexPoolsProvider() {
+  const base = preflightStore();
+  const dexCatalog: PayShCatalogItem[] = [
+    {
+      name: 'PaySponge CoinGecko',
+      namespace: 'finance/paysponge-coingecko',
+      slug: 'paysponge-coingecko',
+      category: 'Finance',
+      endpoints: 1,
+      price: '$0.002',
+      status: 'metered',
+      description: 'CoinGecko onchain DEX pools and GeckoTerminal trending pools for Solana.',
+      tags: ['coingecko', 'onchain', 'dex', 'pool', 'pools', 'trending', 'geckoterminal', 'market data']
+    }
+  ];
+  const ingested = applyPayShCatalogIngestion(base, dexCatalog, { observedAt: '2026-01-03T00:00:00.000Z', source: 'pay.sh:test' }).snapshot;
+  const store = recomputeAssessments(ingested);
+  store.dataSource = {
+    mode: 'live_pay_sh_catalog',
+    url: 'https://pay.sh/api/catalog',
+    generated_at: '2026-01-03T00:00:00.000Z',
+    provider_count: 5,
+    last_ingested_at: '2026-01-03T00:00:00.000Z',
+    used_fixture: false,
+    error: null
+  };
+  store.trustAssessments = store.trustAssessments.map((item) =>
+    item.entityId === 'paysponge-coingecko'
+      ? { ...item, score: 95 }
+      : item.entityId === 'stablecrypto'
+        ? { ...item, score: 99 }
+        : item
+  );
+  store.signalAssessments = store.signalAssessments.map((item) =>
+    item.entityId === 'paysponge-coingecko'
+      ? { ...item, score: 85 }
+      : item.entityId === 'stablecrypto'
+        ? { ...item, score: 100 }
+        : item
+  );
+  store.events.push({
+    id: 'paysponge-checked',
+    type: 'provider.checked',
+    source: 'infopunks:safe-metadata-monitor',
+    entityType: 'provider',
+    entityId: 'paysponge-coingecko',
+    observedAt: '2026-01-03T00:00:30.000Z',
+    payload: { providerId: 'paysponge-coingecko', response_time_ms: 220, success: true }
+  });
+  return store;
+}
+
 describe('preflight API', () => {
   it('returns route_approved when at least one candidate passes policy', async () => {
     const app = await createApp(preflightStore());
@@ -261,6 +313,66 @@ describe('preflight API', () => {
     expect(body.capabilityMatch).toBe(true);
     expect(body.requiredCapabilities).toEqual(['market_data', 'pricing']);
     expect(body.capabilityInferenceReason).toBe('market_data_intent_from_get_market_data');
+    await app.close();
+  });
+
+  it('trending Solana DEX pools prefers paysponge-coingecko over generic market_data provider', async () => {
+    const app = await createApp(preflightStoreWithDexPoolsProvider());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'get trending Solana DEX pools',
+        category: 'finance',
+        constraints: { minTrustScore: 70, maxLatencyMs: 3000, maxCostUsd: 0.05 },
+        debug: true
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.decision).toBe('route_approved');
+    expect(body.selectedProvider).toBe('paysponge-coingecko');
+    expect(body.requiredCapabilities).toEqual(['dex_pools', 'trending', 'market_data']);
+    expect(body.capabilityInferenceReason).toBe('dex_pools_intent_from_trending_pools');
+    expect(body.selectedProviderDetails).toMatchObject({
+      providerId: 'paysponge-coingecko',
+      capabilities: expect.arrayContaining(['market_data', 'pricing', 'dex_pools', 'trending']),
+      capabilityMatchScore: 3
+    });
+    expect(body.consideredProvidersRejected).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        providerId: 'stablecrypto',
+        reasons: expect.arrayContaining(['lower_capability_match_score:1<3'])
+      })
+    ]));
+    await app.close();
+  });
+
+  it('get crypto market data may still select StableCrypto when dex pools provider exists', async () => {
+    const app = await createApp(preflightStoreWithDexPoolsProvider());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: { intent: 'get crypto market data', category: 'finance', constraints: { minTrustScore: 0 } }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.decision).toBe('route_approved');
+    expect(body.selectedProvider).toBe('stablecrypto');
+    await app.close();
+  });
+
+  it('get token price may select simple market_data provider over dex pools provider', async () => {
+    const app = await createApp(preflightStoreWithDexPoolsProvider());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: { intent: 'get token price', category: 'finance', constraints: { minTrustScore: 0 } }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.decision).toBe('route_approved');
+    expect(body.selectedProvider).toBe('stablecrypto');
     await app.close();
   });
 

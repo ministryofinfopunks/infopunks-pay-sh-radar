@@ -6,6 +6,7 @@ import { dataSourceState } from './pulseService';
 type Candidate = {
   provider: Provider;
   capabilities: CapabilityTag[];
+  capabilityMatchScore: number;
   trustScore: number | null;
   signalScore: number | null;
   latencyMs: number | null;
@@ -30,7 +31,9 @@ type CapabilityTag =
   | 'analytics'
   | 'storage'
   | 'compute'
-  | 'ai_inference';
+  | 'ai_inference'
+  | 'dex_pools'
+  | 'trending';
 
 const DEFAULT_MIN_TRUST_SCORE = 70;
 const MAX_REJECTED_PROVIDERS_IN_RESPONSE = 25;
@@ -60,6 +63,9 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
   const capabilityInference = requiredCapabilitiesForIntent(input.intent);
   const requiredCapabilities = capabilityInference.requiredCapabilities;
   const shouldMatchCapabilities = requiredCapabilities.length > 0;
+  for (const candidate of candidates) {
+    candidate.capabilityMatchScore = capabilityMatchScore(candidate.capabilities, requiredCapabilities);
+  }
 
   const minTrustScore = input.constraints?.minTrustScore ?? DEFAULT_MIN_TRUST_SCORE;
   const maxLatencyMs = input.constraints?.maxLatencyMs ?? null;
@@ -250,12 +256,24 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
   }
 
   accepted.sort((a, b) =>
-    compareNumbersDesc(a.signalScore, b.signalScore)
+    compareNumbersDesc(a.capabilityMatchScore, b.capabilityMatchScore)
+    || compareNumbersDesc(a.signalScore, b.signalScore)
     || compareNumbersAsc(a.latencyMs, b.latencyMs)
     || compareNumbersDesc(a.trustScore, b.trustScore)
     || a.provider.id.localeCompare(b.provider.id));
 
   const selected = accepted[0] ?? null;
+  if (selected) {
+    for (const candidate of accepted) {
+      if (candidate.provider.id === selected.provider.id) continue;
+      consideredProvidersRejected.push({
+        providerId: candidate.provider.id,
+        category: candidate.provider.category,
+        capabilities: candidate.capabilities,
+        reasons: [`lower_capability_match_score:${candidate.capabilityMatchScore}<${selected.capabilityMatchScore}`]
+      });
+    }
+  }
   const rejectedViewFinal = rejectedProvidersForResponse(rejectedProviders, Boolean(input.debug));
   const consideredRejectedViewFinal = consideredProvidersRejectedForResponse(consideredProvidersRejected, Boolean(input.debug));
   const rejectionSummaryFinal = buildRejectionSummary(rejectedProviders);
@@ -268,6 +286,7 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
       name: selected.provider.name,
       category: selected.provider.category,
       capabilities: selected.capabilities,
+      capabilityMatchScore: selected.capabilityMatchScore,
       trustScore: selected.trustScore,
       signalScore: selected.signalScore,
       latencyMs: selected.latencyMs,
@@ -319,6 +338,7 @@ function toCandidate(provider: Provider, store: IntelligenceStore): Candidate {
   return {
     provider,
     capabilities: inferProviderCapabilities(provider, store),
+    capabilityMatchScore: 0,
     trustScore: trust?.score ?? null,
     signalScore: signal?.score ?? null,
     latencyMs: latestLatency,
@@ -341,7 +361,9 @@ function inferProviderCapabilities(provider: Provider, store: IntelligenceStore)
   addIf('payment', [/\bpayout\b/, /\btransfer\b/, /\bcheckout\b/, /\bpay(able|ing)?\b/]);
   addIf('settlement', [/\bsettle(ment|ments|d|s)?\b/, /\bpayout\b/]);
   addIf('market_data', [/\bmarket\b/, /\btoken\b/, /\bcoingecko\b/, /\bquote\b/, /\bexchange\s*rate\b/, /\bprice\s*feed\b/]);
-  addIf('pricing', [/\bprice\b/, /\bpricing\b/, /\bquote\b/, /\brate\b/]);
+  addIf('pricing', [/\bprice\b/, /\bpricing\b/, /\bquote\b/, /\brate\b/, /\bcoingecko\b/]);
+  addIf('dex_pools', [/\bonchain\b/, /\bdex\b/, /\bpool\b/, /\bpools\b/, /\btrending\s*pools\b/, /\bgeckoterminal\b/]);
+  addIf('trending', [/\btrending\b/, /\btrend(?:ing)?\b/, /\btop\b/, /\bhot\b/]);
   addIf('enrichment', [/\benrich(ment)?\b/, /\bverify\b/]);
   addIf('messaging', [/\bemail\b/, /\bmessage\b/, /\bsms\b/, /\bmail\b/]);
   addIf('media_generation', [/\bimage\b/, /\bvideo\b/, /\bgenerate\b/, /\bgeneration\b/, /\bmedia\b/]);
@@ -358,6 +380,7 @@ function requiredCapabilitiesForIntent(intent: string): CapabilityInference {
   const text = safe(intent).toLowerCase();
   const hasAny = (patterns: RegExp[]) => patterns.some((pattern) => pattern.test(text));
 
+  const dexPoolsPatterns = [/\btrending\b/, /\bpools?\b/, /\bdex\b/, /\bonchain\b/, /\bgeckoterminal\b/, /\bsolana\s+dex\s+pools\b/];
   const marketDataVerbs = [/\bget\b/, /\bfetch\b/, /\bretrieve\b/, /\blookup\b/, /\blook up\b/, /\bcheck\b/];
   const marketDataObjects = [/\bmarket\b/, /\bprice\b/, /\btoken\b/, /\bquote\b/, /\bcrypto\b/, /\bcoingecko\b/];
 
@@ -368,6 +391,13 @@ function requiredCapabilitiesForIntent(intent: string): CapabilityInference {
   const messagingPatterns = [/\bemail\b/, /\bmessage\b/, /\bsend email\b/];
   const mediaPatterns = [/\bgenerate\b.*\bimage\b/, /\bcreate\b.*\bimage\b/, /\bgenerate\b.*\bmedia\b/, /\bcreate\b.*\bmedia\b/, /\bimage\b/, /\bmedia\b/];
   const searchPatterns = [/\bsearch\b/, /\bresearch\b/, /\banswer\b/];
+
+  if (hasAny(dexPoolsPatterns)) {
+    return {
+      requiredCapabilities: ['dex_pools', 'trending', 'market_data'],
+      capabilityInferenceReason: 'dex_pools_intent_from_trending_pools'
+    };
+  }
 
   if (hasAny(marketDataVerbs) && hasAny(marketDataObjects)) {
     return {
@@ -410,6 +440,11 @@ function requiredCapabilitiesForIntent(intent: string): CapabilityInference {
 function hasAnyCapability(providerCapabilities: CapabilityTag[], requiredCapabilities: CapabilityTag[]) {
   if (requiredCapabilities.length === 0) return true;
   return requiredCapabilities.some((capability) => providerCapabilities.includes(capability));
+}
+
+function capabilityMatchScore(providerCapabilities: CapabilityTag[], requiredCapabilities: CapabilityTag[]) {
+  if (requiredCapabilities.length === 0) return 0;
+  return requiredCapabilities.filter((capability) => providerCapabilities.includes(capability)).length;
 }
 
 function rejectedProvidersForResponse(
