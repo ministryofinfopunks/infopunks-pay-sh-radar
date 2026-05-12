@@ -362,7 +362,19 @@ export const PreflightRejectionSchema = z.object({
 export const PreflightResponseSchema = z.object({
   decision: PreflightDecisionSchema,
   selectedProvider: z.string().nullable(),
+  selectedProviderDetails: z.object({
+    providerId: z.string(),
+    name: z.string(),
+    category: z.string(),
+    trustScore: z.number().nullable(),
+    signalScore: z.number().nullable(),
+    latencyMs: z.number().nullable(),
+    costUsd: z.number().nullable(),
+    degradationFlag: z.boolean()
+  }).nullable().optional(),
   rejectedProviders: z.array(PreflightRejectionSchema),
+  categoryMatch: z.boolean().optional(),
+  fallbackCategoryUsed: z.boolean().optional(),
   candidateCount: z.number().int().nonnegative(),
   routingPolicy: z.object({
     intent: z.string(),
