@@ -195,6 +195,45 @@ function preflightStoreWithDexPoolsProvider() {
   return store;
 }
 
+function preflightStoreWithQuicknodeRpcProvider() {
+  const base = preflightStore();
+  const rpcCatalog: PayShCatalogItem[] = [
+    {
+      name: 'QuickNode RPC',
+      namespace: 'quicknode/rpc',
+      slug: 'quicknode-rpc',
+      category: 'Compute',
+      endpoints: 1,
+      price: '$0.001',
+      status: 'metered',
+      description: 'QuickNode JSON-RPC blockchain node for solana-mainnet and ethereum-mainnet on-chain state.',
+      tags: ['quicknode', 'rpc', 'json-rpc', 'solana-mainnet', 'ethereum-mainnet', 'blockchain', 'node']
+    }
+  ];
+  const ingested = applyPayShCatalogIngestion(base, rpcCatalog, { observedAt: '2026-01-04T00:00:00.000Z', source: 'pay.sh:test' }).snapshot;
+  const store = recomputeAssessments(ingested);
+  store.dataSource = {
+    mode: 'live_pay_sh_catalog',
+    url: 'https://pay.sh/api/catalog',
+    generated_at: '2026-01-04T00:00:00.000Z',
+    provider_count: 5,
+    last_ingested_at: '2026-01-04T00:00:00.000Z',
+    used_fixture: false,
+    error: null
+  };
+  store.trustAssessments = store.trustAssessments.map((item) =>
+    item.entityId === 'quicknode-rpc'
+      ? { ...item, score: 97 }
+      : item
+  );
+  store.signalAssessments = store.signalAssessments.map((item) =>
+    item.entityId === 'quicknode-rpc'
+      ? { ...item, score: 96 }
+      : item
+  );
+  return store;
+}
+
 describe('preflight API', () => {
   it('returns route_approved when at least one candidate passes policy', async () => {
     const app = await createApp(preflightStore());
@@ -687,6 +726,71 @@ describe('preflight API', () => {
     expect(response.statusCode).toBe(200);
     expect(response.json().data.request).toBeTruthy();
     expect(response.json().data.response).toBeTruthy();
+    await app.close();
+  });
+
+  it('check Solana mainnet RPC health prefers quicknode-rpc when available', async () => {
+    const app = await createApp(preflightStoreWithQuicknodeRpcProvider());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'check Solana mainnet RPC health',
+        category: 'compute',
+        constraints: { minTrustScore: 70, maxLatencyMs: 5000, maxCostUsd: 0.05 },
+        debug: true
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.decision).toBe('route_approved');
+    expect(body.selectedProvider).toBe('quicknode-rpc');
+    expect(body.requiredCapabilities).toEqual(['rpc', 'blockchain', 'solana', 'onchain', 'compute']);
+    expect(body.capabilityInferenceReason).toBe('rpc_intent_from_blockchain_rpc');
+    expect(body.selectedProviderDetails).toMatchObject({
+      providerId: 'quicknode-rpc',
+      capabilities: expect.arrayContaining(['rpc', 'blockchain', 'solana', 'onchain', 'compute']),
+      capabilityMatchScore: 5,
+      policyNotes: expect.arrayContaining(['latency_unknown_allowed_for_specific_capability_match'])
+    });
+    await app.close();
+  });
+
+  it('generic compute intent does not automatically select QuickNode unless capability fit is strongest', async () => {
+    const app = await createApp(preflightStoreWithQuicknodeRpcProvider());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'run compute job',
+        constraints: { minTrustScore: 0, maxLatencyMs: 5000, maxCostUsd: 0.05 }
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.decision).toBe('route_approved');
+    expect(body.selectedProvider).not.toBe('quicknode-rpc');
+    expect(body.requiredCapabilities).toEqual([]);
+    expect(body.capabilityInferenceReason).toBeNull();
+    await app.close();
+  });
+
+  it('simple market-data intent does not select QuickNode', async () => {
+    const app = await createApp(preflightStoreWithQuicknodeRpcProvider());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'get crypto market data',
+        category: 'finance',
+        constraints: { minTrustScore: 0, maxLatencyMs: 5000, maxCostUsd: 0.05 }
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.decision).toBe('route_approved');
+    expect(body.selectedProvider).toBe('stablecrypto');
+    expect(body.requiredCapabilities).toEqual(['market_data', 'pricing']);
     await app.close();
   });
 });

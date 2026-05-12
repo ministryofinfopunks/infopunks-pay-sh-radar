@@ -34,7 +34,11 @@ type CapabilityTag =
   | 'compute'
   | 'ai_inference'
   | 'dex_pools'
-  | 'trending';
+  | 'trending'
+  | 'rpc'
+  | 'blockchain'
+  | 'solana'
+  | 'onchain';
 
 const DEFAULT_MIN_TRUST_SCORE = 70;
 const MAX_REJECTED_PROVIDERS_IN_RESPONSE = 25;
@@ -52,6 +56,7 @@ const CATEGORY_ALIASES: Record<string, string[]> = {
 const MARKET_DATA_CAPABILITIES: CapabilityTag[] = ['market_data', 'pricing'];
 const MARKET_DATA_CATEGORY_BRIDGE = ['payments', 'payment', 'finance', 'fintech', 'crypto', 'data', 'analytics', 'enrichment'];
 const DEX_TRENDING_CAPABILITIES: CapabilityTag[] = ['dex_pools', 'trending'];
+const RPC_BLOCKCHAIN_SOLANA_CAPABILITIES: CapabilityTag[] = ['rpc', 'blockchain', 'solana'];
 const LATENCY_UNKNOWN_POLICY_NOTE = 'latency_unknown_allowed_for_specific_capability_match';
 
 export function runPreflight(input: PreflightRequest, store: IntelligenceStore): PreflightResponse {
@@ -247,7 +252,7 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
     if (candidate.trustScore === null || candidate.trustScore < minTrustScore) reasons.push(`trust_score_below_min:${candidate.trustScore ?? 'unknown'}<${minTrustScore}`);
     if (candidate.degraded) reasons.push('active_degradation');
     if (maxLatencyMs !== null) {
-      const allowsUnknownLatency = allowsUnknownLatencyForSpecificDexTrendingMatch(candidate, requiredCapabilities);
+      const allowsUnknownLatency = allowsUnknownLatencyForSpecificCapabilityMatch(candidate, requiredCapabilities);
       if (candidate.latencyMs === null) {
         if (allowsUnknownLatency) {
           candidate.policyNotes.push(LATENCY_UNKNOWN_POLICY_NOTE);
@@ -272,6 +277,11 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
 
   accepted.sort((a, b) =>
     compareNumbersDesc(a.capabilityMatchScore, b.capabilityMatchScore)
+    || (isRpcIntent(requiredCapabilities)
+      ? (compareNumbersDesc(rpcSpecificityScore(a), rpcSpecificityScore(b))
+        || compareNumbersDesc(a.trustScore, b.trustScore)
+        || compareNumbersAsc(a.latencyMs, b.latencyMs))
+      : 0)
     || compareNumbersDesc(a.signalScore, b.signalScore)
     || (isHighSpecificityDexTrendingIntent
       ? (compareNumbersDesc(a.trustScore, b.trustScore) || compareNumbersAsc(a.latencyMs, b.latencyMs))
@@ -395,6 +405,18 @@ function inferProviderCapabilities(provider: Provider, store: IntelligenceStore)
   addIf('storage', [/\bstorage\b/, /\bstore\b/, /\bobject\b/, /\bblob\b/]);
   addIf('compute', [/\bcompute\b/, /\bexecute\b/, /\brun\b/, /\bjob\b/]);
   addIf('ai_inference', [/\bai\b/, /\bllm\b/, /\binference\b/, /\bmodel\b/, /\banswer\b/, /\bgenerate text\b/]);
+  addIf('rpc', [/\brpc\b/, /\bjson[\s-]?rpc\b/]);
+  addIf('blockchain', [/\bblockchain\b/, /\bon-?chain\b/, /\bsolana\b/, /\bethereum\b/, /\bmainnet\b/, /\bnode\b/]);
+  addIf('onchain', [/\bon-?chain\b/, /\bonchain\b/, /\bstate\b/]);
+  addIf('solana', [/\bsolana\b/, /\bsolana-mainnet\b/]);
+
+  if (provider.id === 'quicknode-rpc') {
+    inferred.add('rpc');
+    inferred.add('blockchain');
+    inferred.add('compute');
+    inferred.add('onchain');
+    inferred.add('solana');
+  }
 
   return Array.from(inferred).sort();
 }
@@ -402,6 +424,7 @@ function inferProviderCapabilities(provider: Provider, store: IntelligenceStore)
 function requiredCapabilitiesForIntent(intent: string): CapabilityInference {
   const text = safe(intent).toLowerCase();
   const hasAny = (patterns: RegExp[]) => patterns.some((pattern) => pattern.test(text));
+  const hasAll = (patterns: RegExp[]) => patterns.every((pattern) => pattern.test(text));
 
   const dexPoolsPatterns = [/\btrending\b/, /\bpools?\b/, /\bdex\b/, /\bonchain\b/, /\bgeckoterminal\b/, /\bsolana\s+dex\s+pools\b/];
   const marketDataVerbs = [/\bget\b/, /\bfetch\b/, /\bretrieve\b/, /\blookup\b/, /\blook up\b/, /\bcheck\b/];
@@ -414,6 +437,15 @@ function requiredCapabilitiesForIntent(intent: string): CapabilityInference {
   const messagingPatterns = [/\bemail\b/, /\bmessage\b/, /\bsend email\b/];
   const mediaPatterns = [/\bgenerate\b.*\bimage\b/, /\bcreate\b.*\bimage\b/, /\bgenerate\b.*\bmedia\b/, /\bcreate\b.*\bmedia\b/, /\bimage\b/, /\bmedia\b/];
   const searchPatterns = [/\bsearch\b/, /\bresearch\b/, /\banswer\b/];
+  const rpcIntentPatterns = [/\brpc\b/, /\bblockchain\s+rpc\b/, /\bon-?chain\s+state\b/, /\bjson[\s-]?rpc\b/, /\bgetbalance\b/, /\bgethealth\b/];
+  const solanaMainnetPatterns = [/\bsolana\s+mainnet\b/, /\bsolana-mainnet\b/];
+
+  if (hasAny(rpcIntentPatterns) || hasAll([/\bsolana\b/, /\bmainnet\b/]) || hasAny(solanaMainnetPatterns)) {
+    return {
+      requiredCapabilities: ['rpc', 'blockchain', 'solana', 'onchain', 'compute'],
+      capabilityInferenceReason: 'rpc_intent_from_blockchain_rpc'
+    };
+  }
 
   if (hasAny(dexPoolsPatterns)) {
     return {
@@ -586,8 +618,26 @@ function isDexTrendingIntent(requiredCapabilities: CapabilityTag[]) {
   return DEX_TRENDING_CAPABILITIES.some((capability) => requiredCapabilities.includes(capability));
 }
 
-function allowsUnknownLatencyForSpecificDexTrendingMatch(candidate: Candidate, requiredCapabilities: CapabilityTag[]) {
-  if (!isDexTrendingIntent(requiredCapabilities)) return false;
-  if (candidate.capabilityMatchScore < 2) return false;
-  return DEX_TRENDING_CAPABILITIES.some((capability) => candidate.capabilities.includes(capability));
+function isRpcIntent(requiredCapabilities: CapabilityTag[]) {
+  return RPC_BLOCKCHAIN_SOLANA_CAPABILITIES.every((capability) => requiredCapabilities.includes(capability));
+}
+
+function rpcSpecificityScore(candidate: Candidate) {
+  let score = 0;
+  if (candidate.capabilities.includes('rpc')) score += 1;
+  if (candidate.capabilities.includes('blockchain')) score += 1;
+  if (candidate.capabilities.includes('solana')) score += 1;
+  return score;
+}
+
+function allowsUnknownLatencyForSpecificCapabilityMatch(candidate: Candidate, requiredCapabilities: CapabilityTag[]) {
+  if (isDexTrendingIntent(requiredCapabilities)) {
+    if (candidate.capabilityMatchScore < 2) return false;
+    return DEX_TRENDING_CAPABILITIES.some((capability) => candidate.capabilities.includes(capability));
+  }
+  if (isRpcIntent(requiredCapabilities)) {
+    if (candidate.capabilityMatchScore < 3) return false;
+    return RPC_BLOCKCHAIN_SOLANA_CAPABILITIES.every((capability) => candidate.capabilities.includes(capability));
+  }
+  return false;
 }
