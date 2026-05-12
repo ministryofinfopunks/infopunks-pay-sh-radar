@@ -146,6 +146,8 @@ No black-box score is emitted without supporting evidence.
 - `GET /v1/signal/:entity_id`
 - `POST /v1/search`
 - `POST /v1/recommend-route`
+- `POST /v1/preflight`
+- `GET /v1/preflight/schema`
 
 ---
 
@@ -187,6 +189,35 @@ Backward-compatible alias:
 ```
 
 If both are present, `trustThreshold` takes precedence.
+
+---
+
+# Preflight Example
+
+```bash
+curl -s -X POST http://localhost:8787/v1/preflight \
+  -H 'content-type: application/json' \
+  -d '{
+    "intent":"agent checkout settlement",
+    "category":"Payments",
+    "constraints":{
+      "minTrustScore":80,
+      "maxLatencyMs":400,
+      "maxCostUsd":0.05
+    },
+    "candidateProviders":["alpha","beta"]
+  }'
+```
+
+The response includes:
+
+- `decision` (`route_approved` or `route_blocked`)
+- `selectedProvider`
+- `rejectedProviders` with deterministic reason codes
+- `candidateCount`
+- `routingPolicy`
+- `generatedAt`
+- `dataMode` and `source` so clients can distinguish `live`, `cached`, or `fallback` intelligence
 
 ---
 

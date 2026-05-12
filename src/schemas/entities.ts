@@ -339,6 +339,55 @@ export const RouteRecommendationRequestSchema = z.object({
   trustThreshold: input.trustThreshold ?? input.minTrustScore ?? 70
 }));
 
+export const PreflightConstraintsSchema = z.object({
+  minTrustScore: z.number().min(0).max(100).optional(),
+  maxLatencyMs: z.number().int().positive().optional(),
+  maxCostUsd: z.number().nonnegative().optional()
+}).optional();
+
+export const PreflightRequestSchema = z.object({
+  intent: z.string().min(1),
+  category: z.string().optional(),
+  constraints: PreflightConstraintsSchema,
+  candidateProviders: z.array(z.string().min(1)).optional()
+});
+
+export const PreflightDecisionSchema = z.enum(['route_approved', 'route_blocked']);
+
+export const PreflightRejectionSchema = z.object({
+  providerId: z.string(),
+  reasons: z.array(z.string())
+});
+
+export const PreflightResponseSchema = z.object({
+  decision: PreflightDecisionSchema,
+  selectedProvider: z.string().nullable(),
+  rejectedProviders: z.array(PreflightRejectionSchema),
+  candidateCount: z.number().int().nonnegative(),
+  routingPolicy: z.object({
+    intent: z.string(),
+    category: z.string().nullable(),
+    constraints: z.object({
+      minTrustScore: z.number().min(0).max(100),
+      maxLatencyMs: z.number().int().positive().nullable(),
+      maxCostUsd: z.number().nonnegative().nullable()
+    }),
+    tieBreaker: z.literal('lower_latency_ms'),
+    priorityOrder: z.array(z.string())
+  }),
+  generatedAt: z.string().datetime(),
+  dataMode: z.enum(['live', 'cached', 'fallback']),
+  source: z.object({
+    mode: z.enum(['live_pay_sh_catalog', 'fixture_fallback']),
+    url: z.string().nullable(),
+    generatedAt: z.string().datetime().nullable(),
+    lastIngestedAt: z.string().datetime().nullable(),
+    providerCount: z.number().int().nonnegative(),
+    usedFixture: z.boolean(),
+    error: z.string().nullable()
+  })
+});
+
 export const RouteCandidateSchema = z.object({
   provider: ProviderSchema,
   trustAssessment: TrustAssessmentSchema,
@@ -398,3 +447,5 @@ export type NarrativeCluster = z.infer<typeof NarrativeClusterSchema>;
 export type RouteRecommendation = z.infer<typeof RouteRecommendationSchema>;
 export type SearchRequest = z.infer<typeof SearchRequestSchema>;
 export type RouteRecommendationRequest = z.infer<typeof RouteRecommendationRequestSchema>;
+export type PreflightRequest = z.infer<typeof PreflightRequestSchema>;
+export type PreflightResponse = z.infer<typeof PreflightResponseSchema>;

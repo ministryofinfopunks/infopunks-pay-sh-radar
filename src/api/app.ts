@@ -8,7 +8,7 @@ import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, Int
 import { IntelligenceRepository } from '../persistence/repository';
 import { recommendRoute } from '../services/routeService';
 import { semanticSearch } from '../services/searchService';
-import { RouteRecommendationRequestSchema, SearchRequestSchema } from '../schemas/entities';
+import { PreflightRequestSchema, PreflightResponseSchema, RouteRecommendationRequestSchema, SearchRequestSchema } from '../schemas/entities';
 import { endpointHistory, findEndpoint, findProvider, providerHistory, providerIntelligence } from '../services/providerIntelligenceService';
 import { endpointMonitorSummary, isMonitorEnabled, monitorIntervalMs, monitorMaxProviders, monitorTimeoutMs, providerMonitorSummary, runMonitor } from '../services/endpointMonitorService';
 import { loadRuntimeConfig } from '../config/env';
@@ -18,6 +18,7 @@ import { classifyEventSeverity, classifyGraphSeverity, classifyNarrativeClusterS
 import { analyzePropagation } from '../services/propagationService';
 import { resolvePropagationIncident } from '../services/propagationIncidentService';
 import { providerReachabilitySummary, providerRootHealthSummary } from '../services/eventSummaryHelpers';
+import { runPreflight } from '../services/preflightService';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
 const MAX_INLINE_SUPPORTING_EVENT_IDS = 10;
@@ -214,6 +215,25 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     }
   }, reply));
   app.post('/v1/recommend-route', async (req, reply) => handleParsed(req.body, RouteRecommendationRequestSchema, (input) => ({ data: recommendRoute(input, store) }), reply));
+  app.post('/v1/preflight', async (req, reply) => handleParsed(req.body, PreflightRequestSchema, (input) => ({ data: runPreflight(input, store) }), reply));
+  app.get('/v1/preflight/schema', async () => ({
+    data: {
+      request: z.toJSONSchema(PreflightRequestSchema),
+      response: z.toJSONSchema(PreflightResponseSchema),
+      example: {
+        request: {
+          intent: 'prepay route selection for settlement',
+          category: 'Payments',
+          constraints: { minTrustScore: 80, maxLatencyMs: 500, maxCostUsd: 0.05 },
+          candidateProviders: ['alpha', 'beta']
+        },
+        response: {
+          decision: 'route_approved',
+          selectedProvider: 'alpha'
+        }
+      }
+    }
+  }));
   app.post('/v1/ingest/pay-sh', async (req, reply) => {
     if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'admin_token_required' });
     return handleParsed(req.body, IngestRequestSchema, async (input) => {
