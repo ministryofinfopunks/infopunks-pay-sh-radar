@@ -19,6 +19,7 @@ import { analyzePropagation } from '../services/propagationService';
 import { resolvePropagationIncident } from '../services/propagationIncidentService';
 import { providerReachabilitySummary, providerRootHealthSummary } from '../services/eventSummaryHelpers';
 import { runPreflight } from '../services/preflightService';
+import { buildRadarExportSnapshot, safeJsonExport } from '../services/radarExportService';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
 const MAX_INLINE_SUPPORTING_EVENT_IDS = 10;
@@ -175,6 +176,56 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     return { data: providerIntelligence(store, provider) };
   });
   app.get('/v1/endpoints', async () => ({ data: store.endpoints }));
+  app.get('/v1/radar/scored-catalog', async () => {
+    const snapshot = buildRadarExportSnapshot(store);
+    return {
+      data: safeJsonExport({
+        generated_at: snapshot.generated_at,
+        source: snapshot.source,
+        counts: {
+          providers: snapshot.providers.length,
+          endpoints: snapshot.endpoints.length
+        },
+        providers: snapshot.providers,
+        endpoints: snapshot.endpoints
+      })
+    };
+  });
+  app.get('/v1/radar/providers', async () => {
+    const snapshot = buildRadarExportSnapshot(store);
+    return {
+      data: safeJsonExport({
+        generated_at: snapshot.generated_at,
+        source: snapshot.source,
+        count: snapshot.providers.length,
+        providers: snapshot.providers
+      })
+    };
+  });
+  app.get('/v1/radar/endpoints', async () => {
+    const snapshot = buildRadarExportSnapshot(store);
+    return {
+      data: safeJsonExport({
+        generated_at: snapshot.generated_at,
+        source: snapshot.source,
+        count: snapshot.endpoints.length,
+        endpoints: snapshot.endpoints
+      })
+    };
+  });
+  app.get('/v1/radar/routes/candidates', async () => {
+    const snapshot = buildRadarExportSnapshot(store);
+    return {
+      data: safeJsonExport({
+        generated_at: snapshot.generated_at,
+        source: snapshot.source,
+        count: snapshot.route_candidates.count,
+        total_endpoints: snapshot.route_candidates.total_endpoints,
+        grouped_by_category: snapshot.route_candidates.by_category,
+        grouped_by_provider: snapshot.route_candidates.by_provider
+      })
+    };
+  });
   app.get('/v1/monitor/runs/recent', async () => ({ data: [...(store.monitorRuns ?? [])].sort((a, b) => Date.parse(b.startedAt) - Date.parse(a.startedAt)).slice(0, 20).map(monitorRunResponse) }));
   app.get<{ Params: { id: string } }>('/v1/providers/:id/monitor', async (req, reply) => {
     const provider = findProvider(store, req.params.id);

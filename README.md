@@ -140,6 +140,21 @@ No black-box score is emitted without supporting evidence.
 
 ---
 
+## Radar Exports (Read-Only)
+
+- `GET /v1/radar/scored-catalog`
+  Returns the current scored catalog snapshot with provider and normalized endpoint intelligence.
+- `GET /v1/radar/providers`
+  Returns provider-level intelligence records only.
+- `GET /v1/radar/endpoints`
+  Returns normalized endpoint-level intelligence records.
+- `GET /v1/radar/routes/candidates`
+  Returns route-eligible endpoint/provider candidates grouped by category and provider.
+
+These export routes are read-only JSON views. They do not execute paid Pay.sh APIs.
+
+---
+
 ## Intelligence
 
 - `GET /v1/trust/:entity_id`

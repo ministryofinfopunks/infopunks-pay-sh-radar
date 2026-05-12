@@ -8,7 +8,34 @@ type Severity = 'critical' | 'warning' | 'informational' | 'unknown';
 type EvidenceReceipt = { event_id?: string | null; eventId?: string | null; provider_id?: string | null; providerId?: string | null; endpoint_id?: string | null; endpointId?: string | null; observed_at?: string | null; observedAt?: string | null; catalog_generated_at?: string | null; catalogGeneratedAt?: string | null; ingested_at?: string | null; ingestedAt?: string | null; source?: string | null; derivation_reason?: string | null; derivationReason?: string | null; confidence?: number | null; severity?: Severity | string | null; severity_reason?: string | null; severityReason?: string | null; severity_score?: number | null; severityScore?: number | null; severity_window?: string | null; severityWindow?: string | null; summary?: string | null; evidence?: EvidenceReceipt | EvidenceReceipt[] | Record<string, EvidenceReceipt[]> | null };
 type Pricing = EvidenceReceipt & { min: number | null; max: number | null; clarity: string; raw: string };
 type Provider = EvidenceReceipt & { id: string; name: string; title?: string; namespace: string; fqn?: string; category: string; description: string | null; useCase?: string | null; serviceUrl?: string | null; endpointCount: number; endpointMetadataPartial?: boolean; hasMetering?: boolean; hasFreeTier?: boolean; sourceSha?: string | null; catalogGeneratedAt?: string | null; pricing: Pricing; tags: string[]; status: string; lastSeenAt?: string; latestTrustScore?: number | null; latestTrustGrade?: string; latestSignalScore?: number | null };
-type Endpoint = EvidenceReceipt & { id: string; providerId: string; name: string; path: string | null; method: string | null; category: string; description: string | null; status: string; pricing: Pricing; lastSeenAt: string; latencyMsP50: number | null; routeEligible?: boolean | null };
+type Endpoint = EvidenceReceipt & { id: string; providerId: string; name: string; path: string | null; method: string | null; category: string; description: string | null; status: string; pricing: Pricing; lastSeenAt: string; latencyMsP50: number | null; routeEligible?: boolean | null; schema?: unknown };
+type NormalizedEndpointRecord = {
+  endpoint_id: string;
+  endpoint_name: string | null;
+  provider_id: string;
+  provider_name: string | null;
+  category: string | null;
+  method: string | null;
+  path: string | null;
+  url: string | null;
+  description: string | null;
+  pricing: unknown;
+  input_schema: unknown;
+  output_schema: unknown;
+  catalog_observed_at: string | null;
+  catalog_generated_at: string | null;
+  provider_trust_score: number | null;
+  provider_signal_score: number | null;
+  provider_grade: string | null;
+  reachability_status: 'reachable' | 'degraded' | 'failed' | 'unknown';
+  degradation_status: 'degraded' | 'healthy' | 'unknown';
+  route_eligibility: boolean | null;
+  route_rejection_reasons: string[];
+  metadata_quality_score: number | null;
+  pricing_clarity_score: number | null;
+  source: string | null;
+};
+type EndpointFilter = 'all' | 'route_eligible' | 'mapping_incomplete' | 'degraded' | 'priced' | 'unknown_pricing';
 type TrustAssessment = EvidenceReceipt & { entityId: string; score: number | null; grade: string; components: Record<string, number | null>; unknowns: string[] };
 type SignalAssessment = EvidenceReceipt & { entityId: string; score: number | null; narratives: string[]; components: Record<string, number | null>; unknowns: string[] };
 type Narrative = EvidenceReceipt & { id: string; title: string; heat: number | null; momentum: number | null; providerIds: string[]; keywords: string[]; summary: string };
@@ -168,6 +195,37 @@ type RouteResult = {
   rationale?: string[];
   coordinationScore?: number | null;
   selectedProviderNotRecommendedReason?: string | null;
+};
+type PreflightResult = {
+  decision: 'route_approved' | 'route_blocked';
+  blockReason: 'no_candidates' | 'no_category_match' | 'no_capability_match' | 'all_candidates_rejected_by_policy' | null;
+  selectedProvider: string | null;
+  selectedProviderDetails?: {
+    providerId: string;
+    name: string;
+    category: string;
+    capabilities?: string[];
+    trustScore: number | null;
+    signalScore: number | null;
+    latencyMs: number | null;
+    costUsd: number | null;
+    degradationFlag: boolean;
+  } | null;
+  rejectedProviders: { providerId: string; reasons: string[] }[];
+  consideredProvidersRejected?: { providerId: string; category: string; capabilities: string[]; reasons: string[] }[];
+  rejectedProviderCount?: number;
+  rejectedProvidersTruncated?: boolean;
+  candidateCount: number;
+  consideredProviderCount: number;
+  routingPolicy: {
+    intent: string;
+    category: string | null;
+    constraints: { minTrustScore: number; maxLatencyMs: number | null; maxCostUsd: number | null };
+    tieBreaker: string;
+    priorityOrder: string[];
+  };
+  generatedAt: string;
+  dataMode: 'live' | 'cached' | 'fallback';
 };
 type SearchResponse = { data: any[]; degraded?: boolean; reason?: string };
 type ErrorBoundaryState = { hasError: boolean };
@@ -699,8 +757,18 @@ function RadarApp() {
   const [routeStatus, setRouteStatus] = useState<'idle' | 'loading' | 'error'>('idle');
   const [routeError, setRouteError] = useState<string | null>(null);
   const [includeSelectedProvider, setIncludeSelectedProvider] = useState(true);
+  const [preflightIntent, setPreflightIntent] = useState('Ask Radar where an agent should route before spending.');
+  const [preflightCategory, setPreflightCategory] = useState('all');
+  const [preflightMinTrust, setPreflightMinTrust] = useState('80');
+  const [preflightMaxLatency, setPreflightMaxLatency] = useState('');
+  const [preflightMaxCost, setPreflightMaxCost] = useState('');
+  const [preflightResult, setPreflightResult] = useState<PreflightResult | null>(null);
+  const [preflightStatus, setPreflightStatus] = useState<'idle' | 'loading' | 'error'>('idle');
+  const [preflightError, setPreflightError] = useState<string | null>(null);
   const [providerDetail, setProviderDetail] = useState<ProviderDetail | null>(null);
   const [providerIntel, setProviderIntel] = useState<ProviderIntelligence | null>(null);
+  const [radarEndpoints, setRadarEndpoints] = useState<NormalizedEndpointRecord[]>([]);
+  const [endpointFilter, setEndpointFilter] = useState<EndpointFilter>('all');
   const [endpointMonitors, setEndpointMonitors] = useState<Record<string, EndpointMonitor>>({});
   const [pulseSummary, setPulseSummary] = useState<PulseSummary | null>(null);
   const [pulseWindow, setPulseWindow] = useState<'1h' | '24h' | '7d'>('24h');
@@ -746,7 +814,8 @@ function RadarApp() {
         api<{ data: Narrative[] }>('/v1/narratives'),
         api<{ data: { nodes: unknown[]; edges: unknown[] } }>('/v1/graph'),
         api<{ data: PulseSummary }>('/v1/pulse/summary'),
-        api<{ data: FeaturedProvider }>('/v1/providers/featured')
+        api<{ data: FeaturedProvider }>('/v1/providers/featured'),
+        api<{ data: { endpoints?: NormalizedEndpointRecord[] } }>('/v1/radar/endpoints')
       ]).then((results) => {
         if (!active) return;
         const providers = results[0].status === 'fulfilled' && Array.isArray(results[0].value?.data) ? results[0].value.data : null;
@@ -754,6 +823,7 @@ function RadarApp() {
         const graphRaw = results[2].status === 'fulfilled' && isRecord(results[2].value?.data) ? results[2].value.data : null;
         const summary = results[3].status === 'fulfilled' ? toPulseSummary(results[3].value?.data) : null;
         const featured = results[4].status === 'fulfilled' ? results[4].value.data : null;
+        const normalizedEndpoints = results[5].status === 'fulfilled' && Array.isArray(results[5].value?.data?.endpoints) ? results[5].value.data.endpoints : null;
         setData((current) => current ? {
           ...current,
           providers: providers ?? current.providers,
@@ -761,6 +831,7 @@ function RadarApp() {
           graph: graphRaw && Array.isArray(graphRaw.nodes) && Array.isArray(graphRaw.edges) ? graphRaw as AppData['graph'] : current.graph
         } : current);
         if (summary) setPulseSummary(summary);
+        if (normalizedEndpoints) setRadarEndpoints(normalizedEndpoints);
         if (featured && typeof featured.nextRotationAt === 'string') applyFeaturedProvider(featured, true);
         if (preferredProviderId && (providers ?? []).some((provider) => provider.id === preferredProviderId)) {
           setSelectedId(preferredProviderId);
@@ -855,8 +926,11 @@ function RadarApp() {
   }, [safeProviders, directoryCategory, directoryQuery, directorySort, signalLookup, trustLookup]);
   const selectedProvider = safeProviders.find((provider) => provider.id === selectedId) ?? null;
   const endpointRows = useMemo(() => resolveProviderEndpointRows(providerDetail, providerIntel), [providerDetail, providerIntel]);
-  const reportedEndpointCount = providerIntel?.endpoint_count ?? providerDetail?.provider.endpointCount ?? selectedProvider?.endpointCount ?? 0;
   const endpointProvider = providerDetail?.provider ?? providerIntel?.provider ?? selectedProvider;
+  const normalizedEndpointRows = useMemo(() => radarEndpoints.filter((endpoint) => endpoint.provider_id === selectedProvider?.id), [radarEndpoints, selectedProvider?.id]);
+  const endpointIntelligenceRows = useMemo(() => buildEndpointIntelligenceRows(endpointRows, normalizedEndpointRows, endpointProvider), [endpointRows, normalizedEndpointRows, endpointProvider]);
+  const visibleEndpointIntelligenceRows = useMemo(() => filterEndpointIntelligenceRows(endpointIntelligenceRows, endpointFilter), [endpointIntelligenceRows, endpointFilter]);
+  const reportedEndpointCount = providerIntel?.endpoint_count ?? providerDetail?.provider.endpointCount ?? selectedProvider?.endpointCount ?? 0;
   const hasPartialEndpointMetadata = reportedEndpointCount > 0 && endpointRows.length === 0;
   const nextRotationLabel = featuredRotationEnabled && selectionMode === 'auto' && nextRotationAt ? formatRotationCountdown(nextRotationAt - rotationNow) : 'paused';
   const isFeaturedProvider = selectionMode === 'auto' && featuredRotationEnabled && selectedProvider?.id === featuredProvider?.providerId;
@@ -972,6 +1046,49 @@ function RadarApp() {
       });
   }
 
+  function preflightPayload() {
+    const minTrust = numberOrUndefined(preflightMinTrust);
+    const maxLatency = numberOrUndefined(preflightMaxLatency);
+    const maxCost = numberOrUndefined(preflightMaxCost);
+    return {
+      intent: preflightIntent.trim(),
+      category: preflightCategory === 'all' ? undefined : preflightCategory,
+      constraints: {
+        minTrustScore: minTrust,
+        maxLatencyMs: maxLatency,
+        maxCostUsd: maxCost
+      }
+    };
+  }
+
+  function runPreflightCheck() {
+    const payload = preflightPayload();
+    if (!payload.intent) {
+      setPreflightStatus('error');
+      setPreflightError('preflight intent required');
+      return;
+    }
+    setPreflightStatus('loading');
+    setPreflightError(null);
+    void api<{ data: PreflightResult }>('/v1/preflight', { method: 'POST', body: JSON.stringify(payload) })
+      .then((res) => {
+        setPreflightResult(res.data);
+        setPreflightStatus('idle');
+      })
+      .catch(() => {
+        setPreflightStatus('error');
+        setPreflightError('preflight route unavailable');
+      });
+  }
+
+  function applyPreflightExample(example: { intent: string; category?: string; minTrust?: string; maxCost?: string }) {
+    setPreflightIntent(example.intent);
+    setPreflightCategory(example.category ?? 'all');
+    setPreflightMinTrust(example.minTrust ?? '80');
+    setPreflightMaxCost(example.maxCost ?? '');
+    setPreflightMaxLatency('');
+  }
+
   function recommendProvider(provider: Provider) {
     setRouteTask(`Recommend a Pay.sh route for a task that could use ${provider.name} in ${provider.category}`);
     setRouteCategory(provider.category || 'all');
@@ -1022,11 +1139,24 @@ function RadarApp() {
   const providerContextLabel = selectedProvider ? `${selectedProvider.name} / ${selectedProvider.category}`.toUpperCase() : 'PROVIDER / UNKNOWN';
   const ecosystemStatus = getEcosystemStatus(data.pulse, pulseSummary);
   const ecosystemReading = getEcosystemReading(data.pulse, pulseSummary);
+  const providerDegradation = providerDegradationInfo(selectedProvider, providerIntel);
 
   return <div className="shell">
     <a className="skip-link" href="#terminal-content">Skip to content</a>
     <header className="site-header">
       <nav className="global-toolbar" aria-label="Global controls">
+        <a className="nav-brand" href="#terminal-content" aria-label="Infopunks Pay.sh Radar home">
+          <span>Infopunks</span>
+          <strong>Pay.sh Radar</strong>
+        </a>
+        <div className="terminal-nav" aria-label="Radar zones">
+          <a href="#global-pulse">Global Pulse</a>
+          <a href="#providers">Providers</a>
+          <a href="#endpoints">Endpoints</a>
+          <a href="#preflight">Preflight</a>
+          <a href="#compare">Compare</a>
+          <a href="#dossier">Dossier</a>
+        </div>
         <button className="methodology-trigger" type="button" onClick={() => setMethodologyOpen(true)} aria-label="Open methodology drawer">
           Methodology
         </button>
@@ -1039,24 +1169,28 @@ function RadarApp() {
       <p className="route-state error">{bootError}</p>
       <button className="execute compact secondary" type="button" onClick={() => window.location.reload()}>Retry</button>
     </section>}
-    <section className="hero panel" aria-labelledby="terminal-title">
+    <section className="hero panel mission-control" aria-labelledby="terminal-title">
       <div>
         <p className="eyebrow">Infopunks Intelligence Terminal</p>
         <h1 id="terminal-title">Cognitive Coordination Layer for the Pay.sh agent economy.</h1>
-        <p className="copy">Pay.sh remains the provider, payment, and discovery substrate. Infopunks turns ecosystem exhaust into trust scores, signal scores, narrative maps, semantic search, and routing recommendations.</p>
+        <p className="mission-subtitle">Routing intelligence for the Pay.sh agent economy.</p>
+        <p className="copy">Pay.sh lets agents pay. Infopunks tells them who to trust before they do.</p>
         <div className="source-stack">
           <span className={`source-badge ${data.pulse.data_source.mode}`}>{data.pulse.data_source.mode === 'live_pay_sh_catalog' ? 'LIVE PAY.SH CATALOG' : 'FIXTURE FALLBACK'}</span>
           <small className="source-line">{formatDataSource(data.pulse.data_source, data.pulse.providerCount, data.pulse.endpointCount)}</small>
         </div>
       </div>
-      <div className="ticker">
-        <span>PROVIDERS {data.pulse.providerCount}</span>
-        <span>ENDPOINTS {data.pulse.endpointCount}</span>
-        <span>AVG TRUST {data.pulse.averageTrust ?? 'unknown'}</span>
-        <span>AVG SIGNAL {data.pulse.averageSignal ?? 'unknown'}</span>
+      <div className="ticker mission-metrics" aria-label="Live radar stats">
+        <ControlStripMetric label="Providers" value={data.pulse.providerCount} />
+        <ControlStripMetric label="Endpoints" value={data.pulse.endpointCount} />
+        <ControlStripMetric label="Avg Trust" value={data.pulse.averageTrust ?? 'unknown'} />
+        <ControlStripMetric label="Avg Signal" value={data.pulse.averageSignal ?? 'unknown'} />
+        <ControlStripMetric label="Last Catalog Sync" value={formatShortDate(data.pulse.data_source.last_ingested_at ?? data.pulse.data_source.generated_at)} />
+        <ControlStripMetric label="Monitoring Mode" value="Safe metadata" />
       </div>
     </section>
 
+    <div id="global-pulse" className="anchor-target" />
     <EcosystemStatusPanel status={ecosystemStatus} reading={ecosystemReading} pulse={data.pulse} summary={pulseSummary} selectedProvider={selectedProvider} />
 
     <section className="ecosystem-layout" aria-label="Global intelligence layout">
@@ -1072,6 +1206,8 @@ function RadarApp() {
           </section>
 
           <SystemReadingPanel reading={ecosystemReading} />
+
+          <RadarExportPanel />
 
           <EcosystemInterpretationPanel interpretations={ecosystemInterpretations} providerLookup={providerLookup} />
 
@@ -1119,7 +1255,7 @@ function RadarApp() {
             </div>
           </section>}
 
-          <section className="grid two">
+          <section className="grid two" id="compare">
             <Leaderboard title="Trust Leaderboard" scores={safeTopTrust} providers={providerLookup} kind="trust" />
             <Leaderboard title="Signal Leaderboard" scores={safeTopSignal} providers={providerLookup} kind="signal" />
           </section>
@@ -1158,10 +1294,29 @@ function RadarApp() {
             {searchError && <p className="route-state error">Semantic search unavailable: {searchError}</p>}
             <div className="results">{searchResults.filter((result) => isRecord(result) && isRecord(result.provider) && typeof result.provider.id === 'string').map((result) => <div className="result" key={result.provider.id}><strong>{result.provider.name ?? 'unknown provider'}</strong><span>relevance {result.relevance ?? 'unknown'} / trust {result.trustAssessment?.score ?? 'unknown'} / signal {result.signalAssessment?.score ?? 'unknown'}</span></div>)}</div>
           </section>
+          <PreflightConsole
+            intent={preflightIntent}
+            category={preflightCategory}
+            minTrust={preflightMinTrust}
+            maxLatency={preflightMaxLatency}
+            maxCost={preflightMaxCost}
+            categories={categoryOptions}
+            result={preflightResult}
+            status={preflightStatus}
+            error={preflightError}
+            onIntentChange={setPreflightIntent}
+            onCategoryChange={setPreflightCategory}
+            onMinTrustChange={setPreflightMinTrust}
+            onMaxLatencyChange={setPreflightMaxLatency}
+            onMaxCostChange={setPreflightMaxCost}
+            onRun={runPreflightCheck}
+            onExample={applyPreflightExample}
+            curl={preflightCurl(preflightPayload())}
+          />
           </div>
         </section>
 
-        <section className="zone zone-provider" aria-labelledby="provider-zone-title">
+        <section className="zone zone-provider" id="dossier" aria-labelledby="provider-zone-title">
       <ZoneHeader eyebrow="ZONE B" title="SELECTED PROVIDER DOSSIER" subtitle="Live intelligence for selected provider" helper="The featured provider rotates automatically unless you select or edit. Manual interaction pauses rotation to preserve context." scope="PROVIDER" />
       {selectedProvider && <div className="provider-ribbon" aria-label="Selected provider context">
         <strong>{selectedProvider.name}</strong>
@@ -1173,7 +1328,7 @@ function RadarApp() {
       </div>}
 
       <div className="provider-stack">
-        <div className="panel provider-directory-panel">
+        <div className="panel provider-directory-panel" id="providers">
           <div className="panel-head">
             <div>
               <ScopeLabel scope="GLOBAL" />
@@ -1250,6 +1405,7 @@ function RadarApp() {
               <DossierStat label="risk" value={riskLabel(providerIntel?.risk_level ?? 'unknown')} sub="level" />
               <DossierStat label="unknowns" value={providerIntel?.unknown_telemetry.length ?? 'unknown'} sub="telemetry fields" />
             </div>
+            {providerDegradation.degraded && <ProviderDegradedWarning info={providerDegradation} />}
             <div className="dossier-body" onScroll={() => holdAutoRotation(DOSSIER_INTERACTION_HOLD_MS)}>
               <DossierSection title="Capability Brief" context={providerContextLabel} helper="Catalog-supplied description, tags, and service URL. This does not imply endpoint execution.">
                 <p>{selectedProvider.description ?? 'No provider description supplied by catalog metadata.'}</p>
@@ -1333,6 +1489,18 @@ function RadarApp() {
                   </div>)}
                   {providerIntel?.recent_changes.length === 0 && <p className="muted empty-state">No recent discovery, update, price, category, endpoint-count, or metadata events after initial observation.</p>}
                 </div>
+              </DossierSection>
+              <DossierSection title="Endpoint Intelligence" context={providerContextLabel} helper="Normalized endpoint metadata from safe radar export routes. Rows remain visible even when degraded or incomplete.">
+                <div id="endpoints" className="anchor-target" />
+                <EndpointIntelligenceSection
+                  rows={visibleEndpointIntelligenceRows}
+                  allRows={endpointIntelligenceRows}
+                  filter={endpointFilter}
+                  onFilterChange={setEndpointFilter}
+                  provider={endpointProvider}
+                  endpointMonitors={endpointMonitors}
+                  reportedEndpointCount={reportedEndpointCount}
+                />
               </DossierSection>
               <DossierSection title="Route Decision Panel" context={providerContextLabel} helper="Uses the existing route recommendation API with selected provider as optional preference input.">
                 <div className="route-panel compact-route-panel" id="route-decision-panel" onFocus={() => setRouteInputFocused(true)} onBlur={(event) => {
@@ -1554,6 +1722,345 @@ function SystemReadingPanel({ reading }: { reading: string }) {
   </section>;
 }
 
+function ControlStripMetric({ label, value }: { label: string; value: string | number }) {
+  return <span className="control-metric">
+    <small>{label}</small>
+    <strong>{value}</strong>
+  </span>;
+}
+
+function PreflightConsole({
+  intent,
+  category,
+  minTrust,
+  maxLatency,
+  maxCost,
+  categories,
+  result,
+  status,
+  error,
+  onIntentChange,
+  onCategoryChange,
+  onMinTrustChange,
+  onMaxLatencyChange,
+  onMaxCostChange,
+  onRun,
+  onExample,
+  curl
+}: {
+  intent: string;
+  category: string;
+  minTrust: string;
+  maxLatency: string;
+  maxCost: string;
+  categories: string[];
+  result: PreflightResult | null;
+  status: 'idle' | 'loading' | 'error';
+  error: string | null;
+  onIntentChange: (value: string) => void;
+  onCategoryChange: (value: string) => void;
+  onMinTrustChange: (value: string) => void;
+  onMaxLatencyChange: (value: string) => void;
+  onMaxCostChange: (value: string) => void;
+  onRun: () => void;
+  onExample: (example: { intent: string; category?: string; minTrust?: string; maxCost?: string }) => void;
+  curl: string;
+}) {
+  const examples = [
+    { label: 'Find SOL price route', intent: 'Find a SOL price route before an agent pays.', category: 'Payments', minTrust: '75' },
+    { label: 'Find high-trust finance endpoint', intent: 'Find a high-trust finance endpoint for market data.', category: 'Payments', minTrust: '90' },
+    { label: 'Find OCR provider', intent: 'Find an OCR provider for document extraction.', category: 'OCR', minTrust: '80' },
+    { label: 'Avoid degraded routes', intent: 'Route around degraded providers for a payment-adjacent task.', category: 'all', minTrust: '80' }
+  ];
+  return <section className="panel preflight-console" id="preflight" aria-labelledby="preflight-title">
+    <div className="panel-head">
+      <div>
+        <ScopeLabel scope="GLOBAL" />
+        <p className="section-kicker">Agent Routing Guard</p>
+        <h2 id="preflight-title">Agent Preflight</h2>
+        <p className="panel-caption">Ask Radar where an agent should route before spending. This checks catalog intelligence only and does not execute paid APIs.</p>
+      </div>
+      <StatusPill state={result?.decision === 'route_approved' ? 'healthy' : result?.decision === 'route_blocked' ? 'critical' : status === 'error' ? 'watch' : 'unknown'} />
+    </div>
+    <div className="preflight-examples" aria-label="Preflight examples">
+      {examples.map((example) => <button key={example.label} type="button" onClick={() => onExample(example)}>{example.label}</button>)}
+    </div>
+    <div className="preflight-form">
+      <label className="command-input">
+        <span>agent intent</span>
+        <textarea value={intent} onChange={(event) => onIntentChange(event.target.value)} aria-label="Agent preflight intent" placeholder="Ask Radar where an agent should route before spending." />
+      </label>
+      <div className="preflight-controls">
+        <label>
+          <span>category</span>
+          <select value={category} onChange={(event) => onCategoryChange(event.target.value)} aria-label="Preflight category">
+            <option value="all">all categories</option>
+            {categories.map((item) => <option key={item} value={item}>{item}</option>)}
+          </select>
+        </label>
+        <label>
+          <span>min trust</span>
+          <input value={minTrust} onChange={(event) => onMinTrustChange(event.target.value)} inputMode="numeric" aria-label="Preflight minimum trust score" />
+        </label>
+        <label>
+          <span>max latency ms</span>
+          <input value={maxLatency} onChange={(event) => onMaxLatencyChange(event.target.value)} inputMode="numeric" placeholder="unknown allowed" aria-label="Preflight max latency milliseconds" />
+        </label>
+        <label>
+          <span>max cost usd</span>
+          <input value={maxCost} onChange={(event) => onMaxCostChange(event.target.value)} inputMode="decimal" placeholder="unknown allowed" aria-label="Preflight max cost USD" />
+        </label>
+      </div>
+      <button className="execute compact" type="button" onClick={onRun} disabled={status === 'loading'}>{status === 'loading' ? 'Checking route...' : 'Run preflight'}</button>
+    </div>
+    {error && <p className="route-state error">{error}</p>}
+    {!result && status !== 'loading' && !error && <EmptyState title="No preflight decision yet." body="Ask Radar where an agent should route before spending." />}
+    {status === 'loading' && <div className="preflight-skeleton" aria-label="Preflight loading"><span /><span /><span /></div>}
+    {result && <PreflightResultView result={result} curl={curl} />}
+  </section>;
+}
+
+function PreflightResultView({ result, curl }: { result: PreflightResult; curl: string }) {
+  const approved = result.decision === 'route_approved';
+  const selected = result.selectedProviderDetails;
+  return <div className="preflight-result">
+    <SeverityBanner
+      state={approved ? 'healthy' : 'critical'}
+      title={approved ? 'Route approved' : 'Preflight cannot recommend a route yet'}
+      body={approved ? `${selected?.name ?? result.selectedProvider ?? 'Selected provider'} passed current policy.` : preflightBlockMessage(result.blockReason)}
+    />
+    <div className="preflight-result-grid">
+      <div className="preflight-candidate accepted">
+        <strong>{selected?.name ?? result.selectedProvider ?? 'No accepted provider'}</strong>
+        <span>{approved ? 'Accepted candidate' : 'No accepted candidate'}</span>
+        <KeyValues rows={[
+          ['provider_id', selected?.providerId ?? result.selectedProvider ?? 'none'],
+          ['category', selected?.category ?? result.routingPolicy.category ?? 'unknown'],
+          ['trust', selected?.trustScore ?? 'unknown'],
+          ['signal', selected?.signalScore ?? 'unknown'],
+          ['latency', formatMs(selected?.latencyMs ?? null)],
+          ['cost', moneyOrUnknown(selected?.costUsd ?? null)]
+        ]} />
+      </div>
+      <div className="preflight-candidate rejected">
+        <strong>Rejected candidates</strong>
+        <span>{result.rejectedProviderCount ?? result.rejectedProviders.length} rejected{result.rejectedProvidersTruncated ? ' (truncated)' : ''}</span>
+        <div className="preflight-rejections">
+          {result.rejectedProviders.slice(0, 5).map((item) => <p key={item.providerId}><b>{item.providerId}</b><span>{item.reasons.join(', ')}</span></p>)}
+          {!result.rejectedProviders.length && <p>No rejected providers under current policy.</p>}
+        </div>
+      </div>
+    </div>
+    <details className="preflight-json">
+      <summary>Raw preflight response</summary>
+      <pre>{JSON.stringify(result, null, 2)}</pre>
+    </details>
+    <div className="curl-block">
+      <div>
+        <strong>curl</strong>
+        <CopyButton value={curl} label="Copy curl" />
+      </div>
+      <pre>{curl}</pre>
+    </div>
+  </div>;
+}
+
+function StatusPill({ state }: { state: 'healthy' | 'watch' | 'degraded' | 'critical' | 'unknown' }) {
+  const labels = {
+    healthy: 'Healthy',
+    watch: 'Watch',
+    degraded: 'Degraded',
+    critical: 'Critical',
+    unknown: 'Unknown'
+  };
+  return <span className={`status-pill ${state}`} aria-label={`Status ${labels[state]}`}>{labels[state]}</span>;
+}
+
+function SeverityBanner({ state, title, body }: { state: 'healthy' | 'watch' | 'degraded' | 'critical' | 'unknown'; title: string; body: string }) {
+  return <div className={`severity-banner ${state}`} role={state === 'critical' ? 'alert' : 'status'}>
+    <StatusPill state={state} />
+    <strong>{title}</strong>
+    <span>{state === 'critical' ? 'Not recommended for routing.' : routeImplicationForState(state)}</span>
+    <p>{body}</p>
+  </div>;
+}
+
+function EmptyState({ title, body }: { title: string; body: string }) {
+  return <div className="empty-state polished-empty">
+    <strong>{title}</strong>
+    <span>{body}</span>
+  </div>;
+}
+
+function CopyButton({ value, label }: { value: string; label: string }) {
+  const [state, setState] = useState<'idle' | 'copied' | 'failed'>('idle');
+  async function copy() {
+    const copied = await copyText(value);
+    setState(copied ? 'copied' : 'failed');
+    window.setTimeout(() => setState('idle'), 1400);
+  }
+  return <button className="copy-chip" type="button" onClick={copy}>{state === 'copied' ? 'Copied' : state === 'failed' ? 'Copy failed' : label}</button>;
+}
+
+function RadarExportPanel() {
+  const routes = [
+    ['/v1/radar/scored-catalog', 'Export Scored Catalog JSON'],
+    ['/v1/radar/providers', 'Export Providers JSON'],
+    ['/v1/radar/endpoints', 'Export Endpoints JSON'],
+    ['/v1/radar/routes/candidates', 'Export Route Candidates JSON']
+  ] as const;
+  return <section className="panel radar-export-panel" aria-label="Radar JSON exports">
+    <ScopeLabel scope="GLOBAL" />
+    <div>
+      <p className="section-kicker">Safe JSON Exports</p>
+      <h2>Export Intelligence</h2>
+      <p className="panel-caption">Open read-only export routes. These do not execute paid Pay.sh APIs.</p>
+    </div>
+    <div className="export-actions">
+      {routes.map(([path, label]) => <button key={path} type="button" className="execute compact secondary" onClick={() => openExportRoute(path)}>
+        {label}
+      </button>)}
+    </div>
+  </section>;
+}
+
+function ProviderDegradedWarning({ info }: { info: ReturnType<typeof providerDegradationInfo> }) {
+  return <section className="degraded-warning" aria-label="Provider degraded warning">
+    <strong>Provider degraded warning</strong>
+    <span>not recommended for routing</span>
+    <p>{info.reason}</p>
+    <small>last seen healthy: {formatDate(info.lastHealthyAt)}</small>
+  </section>;
+}
+
+function EndpointIntelligenceSection({
+  rows,
+  allRows,
+  filter,
+  onFilterChange,
+  provider,
+  endpointMonitors,
+  reportedEndpointCount
+}: {
+  rows: EndpointIntelligenceRow[];
+  allRows: EndpointIntelligenceRow[];
+  filter: EndpointFilter;
+  onFilterChange: (filter: EndpointFilter) => void;
+  provider: Provider | null;
+  endpointMonitors: Record<string, EndpointMonitor>;
+  reportedEndpointCount: number;
+}) {
+  const [copyState, setCopyState] = useState<Record<string, 'json' | 'curl' | 'failed'>>({});
+  const filters: Array<[EndpointFilter, string]> = [
+    ['all', 'all'],
+    ['route_eligible', 'route eligible'],
+    ['mapping_incomplete', 'mapping incomplete'],
+    ['degraded', 'degraded'],
+    ['priced', 'priced'],
+    ['unknown_pricing', 'unknown pricing']
+  ];
+
+  async function copyEndpoint(key: string, value: string, state: 'json' | 'curl') {
+    const copied = await copyText(value);
+    setCopyState((current) => ({ ...current, [key]: copied ? state : 'failed' }));
+    window.setTimeout(() => setCopyState((current) => {
+      const next = { ...current };
+      delete next[key];
+      return next;
+    }), 1600);
+  }
+
+  return <div className="endpoint-intelligence">
+    <div className="endpoint-filter-tabs" role="group" aria-label="Filter endpoint intelligence">
+      {filters.map(([value, label]) => <button key={value} type="button" className={filter === value ? 'selected' : ''} aria-pressed={filter === value} onClick={() => onFilterChange(value)}>{label}</button>)}
+    </div>
+    {!allRows.length && reportedEndpointCount > 0 && <p className="endpoint-state">Mapping incomplete. Pay.sh catalog reports {reportedEndpointCount} endpoints, but endpoint-level mappings are not available in the current payload.</p>}
+    {!allRows.length && reportedEndpointCount === 0 && <p className="endpoint-state">No endpoints reported by the live Pay.sh catalog.</p>}
+    {!!allRows.length && !rows.length && <p className="endpoint-state">No endpoints match this filter.</p>}
+    <div className="endpoint-intelligence-list">
+      {rows.map((row) => {
+        const endpoint = row.normalized;
+        const monitor = endpointMonitors[endpoint.endpoint_id];
+        const curl = buildCurlCommand(endpoint);
+        const json = JSON.stringify(endpoint, null, 2);
+        const copyKey = endpoint.endpoint_id;
+        return <details className={`endpoint-intelligence-card ${isEndpointDegraded(row, monitor) ? 'degraded' : ''}`} key={endpoint.endpoint_id}>
+          <summary>
+            <span className="endpoint-title">
+              <strong>{endpoint.endpoint_name ?? row.raw?.name ?? 'Unnamed endpoint'}</strong>
+              <small>{endpoint.method ?? 'METHOD_UNKNOWN'} {endpoint.url ?? endpoint.path ?? 'path unavailable'}</small>
+            </span>
+            <span className="endpoint-tags">
+              <b>{endpoint.category ?? 'category unknown'}</b>
+              <b>{pricingSummary(endpoint.pricing)}</b>
+              <b>{routeEligibilityLabel(endpoint.route_eligibility)}</b>
+              <b>{statusLabel(endpoint.reachability_status)}</b>
+            </span>
+          </summary>
+          <div className="endpoint-card-body">
+            <div className="endpoint-flags">
+              {isEndpointMappingIncomplete(row) && <span>Mapping incomplete</span>}
+              {isEndpointCatalogMetadataIncomplete(row) && <span>Catalog metadata incomplete</span>}
+              {endpoint.route_eligibility === false && <span>not recommended for routing</span>}
+              {endpoint.route_rejection_reasons.map((reason) => <span key={reason}>{reason}</span>)}
+            </div>
+            <KeyValues rows={[
+              ['endpoint_id', endpoint.endpoint_id],
+              ['method', endpoint.method ?? 'unknown'],
+              ['path', endpoint.path ?? 'unknown'],
+              ['url', endpoint.url ?? 'unknown'],
+              ['catalog_observed_at', formatDate(endpoint.catalog_observed_at)],
+              ['catalog_generated_at', formatDate(endpoint.catalog_generated_at)],
+              ['health', statusLabel(monitor?.health ?? endpoint.reachability_status)],
+              ['last_monitor_check', formatDate(monitor?.lastCheck?.observedAt)]
+            ]} />
+            <div className="endpoint-copy-actions">
+              <button className="execute compact secondary" type="button" onClick={() => copyEndpoint(copyKey, json, 'json')}>
+                {copyState[copyKey] === 'json' ? 'Copied JSON' : copyState[copyKey] === 'failed' ? 'Copy failed' : 'Copy JSON'}
+              </button>
+              {curl.command
+                ? <button className="execute compact secondary" type="button" onClick={() => copyEndpoint(`${copyKey}:curl`, curl.command!, 'curl')}>
+                  {copyState[`${copyKey}:curl`] === 'curl' ? 'Copied curl' : copyState[`${copyKey}:curl`] === 'failed' ? 'Copy failed' : 'Copy curl'}
+                </button>
+                : <span className="curl-unavailable">curl unavailable: endpoint mapping incomplete</span>}
+            </div>
+            <div className="endpoint-json-grid">
+              <JsonPanel title="Normalized Endpoint JSON" value={endpoint} />
+              <JsonPanel title="Input Schema" value={endpoint.input_schema} />
+              <JsonPanel title="Output Schema" value={endpoint.output_schema} />
+              <JsonPanel title="Pricing Payload" value={endpoint.pricing} />
+              <JsonPanel title="Route Eligibility Evidence" value={{
+                route_eligibility: endpoint.route_eligibility,
+                route_rejection_reasons: endpoint.route_rejection_reasons,
+                reachability_status: endpoint.reachability_status,
+                degradation_status: endpoint.degradation_status
+              }} />
+              <JsonPanel title="Provider Trust / Signal Context" value={{
+                provider_id: endpoint.provider_id,
+                provider_name: endpoint.provider_name ?? provider?.name ?? null,
+                provider_trust_score: endpoint.provider_trust_score,
+                provider_signal_score: endpoint.provider_signal_score,
+                provider_grade: endpoint.provider_grade,
+                metadata_quality_score: endpoint.metadata_quality_score,
+                pricing_clarity_score: endpoint.pricing_clarity_score,
+                source: endpoint.source
+              }} />
+            </div>
+          </div>
+        </details>;
+      })}
+    </div>
+  </div>;
+}
+
+function JsonPanel({ title, value }: { title: string; value: unknown }) {
+  const empty = value === null || value === undefined || (typeof value === 'object' && !Array.isArray(value) && Object.keys(value as Record<string, unknown>).length === 0);
+  return <div className="endpoint-json-panel">
+    <strong>{title}</strong>
+    <pre>{empty ? 'unavailable' : JSON.stringify(value, null, 2)}</pre>
+  </div>;
+}
+
 function StatusChip({ label, value, state }: { label: string; value: string; state: EcosystemStatusState }) {
   return <div className={`status-chip status-${state}`}>
     <span>{label}</span>
@@ -1759,7 +2266,21 @@ function DossierStat({ label, value, sub }: { label: string; value: string | num
 function SeverityBadge({ evidence }: { evidence?: EvidenceReceipt | null }) {
   const severity = normalSeverity(evidence?.severity);
   const reason = evidence?.severity_reason ?? evidence?.severityReason ?? 'severity unknown';
-  return <span className={`severity-badge severity-${severity}`} title={reason}>SEVERITY {severity.toUpperCase()}</span>;
+  const state = severity === 'critical'
+    ? 'Critical'
+    : severity === 'warning'
+      ? 'Watch'
+      : severity === 'informational'
+        ? 'Healthy'
+        : 'Unknown';
+  const implication = severity === 'critical'
+    ? 'Not recommended for routing.'
+    : severity === 'warning'
+      ? 'Inspect before routing.'
+      : severity === 'informational'
+        ? 'No active warning.'
+        : 'Evidence incomplete.';
+  return <span className={`severity-badge severity-${severity}`} title={`${reason} ${implication}`}>{state}</span>;
 }
 
 function DossierSection({ title, children, context, helper }: { title: string; children: React.ReactNode; context?: string; helper?: string }) {
@@ -1973,6 +2494,11 @@ function firstNestedEvidence(evidence: EvidenceReceipt['evidence']): EvidenceRec
   return firstList?.[0] ?? null;
 }
 
+type EndpointIntelligenceRow = {
+  normalized: NormalizedEndpointRecord;
+  raw: Endpoint | null;
+};
+
 function resolveProviderEndpointRows(detail: ProviderDetail | null, intel: ProviderIntelligence | null) {
   const candidates = [
     detail?.endpoints,
@@ -1980,6 +2506,205 @@ function resolveProviderEndpointRows(detail: ProviderDetail | null, intel: Provi
     intel?.endpointList
   ];
   return candidates.find((items): items is Endpoint[] => Array.isArray(items) && items.length > 0) ?? [];
+}
+
+function buildEndpointIntelligenceRows(rawEndpoints: Endpoint[], normalizedEndpoints: NormalizedEndpointRecord[], provider: Provider | null): EndpointIntelligenceRow[] {
+  const rawById = new Map(rawEndpoints.map((endpoint) => [endpoint.id, endpoint]));
+  const normalizedRows = normalizedEndpoints.map((endpoint) => ({
+    normalized: normalizeEndpointExportShape(endpoint),
+    raw: rawById.get(endpoint.endpoint_id) ?? null
+  }));
+  const normalizedIds = new Set(normalizedRows.map((row) => row.normalized.endpoint_id));
+  const rawFallbackRows = rawEndpoints
+    .filter((endpoint) => !normalizedIds.has(endpoint.id))
+    .map((endpoint) => ({ normalized: endpointFallbackExport(endpoint, provider), raw: endpoint }));
+  return [...normalizedRows, ...rawFallbackRows];
+}
+
+function normalizeEndpointExportShape(endpoint: NormalizedEndpointRecord): NormalizedEndpointRecord {
+  return {
+    endpoint_id: endpoint.endpoint_id,
+    endpoint_name: endpoint.endpoint_name ?? null,
+    provider_id: endpoint.provider_id,
+    provider_name: endpoint.provider_name ?? null,
+    category: endpoint.category ?? null,
+    method: endpoint.method ?? null,
+    path: endpoint.path ?? null,
+    url: endpoint.url ?? null,
+    description: endpoint.description ?? null,
+    pricing: endpoint.pricing ?? null,
+    input_schema: endpoint.input_schema ?? null,
+    output_schema: endpoint.output_schema ?? null,
+    catalog_observed_at: endpoint.catalog_observed_at ?? null,
+    catalog_generated_at: endpoint.catalog_generated_at ?? null,
+    provider_trust_score: endpoint.provider_trust_score ?? null,
+    provider_signal_score: endpoint.provider_signal_score ?? null,
+    provider_grade: endpoint.provider_grade ?? null,
+    reachability_status: endpoint.reachability_status ?? 'unknown',
+    degradation_status: endpoint.degradation_status ?? 'unknown',
+    route_eligibility: typeof endpoint.route_eligibility === 'boolean' ? endpoint.route_eligibility : null,
+    route_rejection_reasons: Array.isArray(endpoint.route_rejection_reasons) ? endpoint.route_rejection_reasons : [],
+    metadata_quality_score: endpoint.metadata_quality_score ?? null,
+    pricing_clarity_score: endpoint.pricing_clarity_score ?? null,
+    source: endpoint.source ?? null
+  };
+}
+
+function endpointFallbackExport(endpoint: Endpoint, provider: Provider | null): NormalizedEndpointRecord {
+  const schema = isRecord(endpoint.schema) ? endpoint.schema : null;
+  const inputSchema = schema ? schema.input ?? schema.request ?? schema.params ?? null : null;
+  const outputSchema = schema ? schema.output ?? schema.response ?? schema.result ?? null : null;
+  const rejectionReasons = [
+    !endpoint.method ? 'endpoint_method_unknown' : null,
+    !endpoint.path ? 'endpoint_path_unknown' : null,
+    endpoint.status === 'degraded' ? 'endpoint_degraded' : null
+  ].filter((item): item is string => Boolean(item));
+  return {
+    endpoint_id: endpoint.id,
+    endpoint_name: endpoint.name ?? null,
+    provider_id: endpoint.providerId,
+    provider_name: provider?.name ?? null,
+    category: endpoint.category ?? provider?.category ?? null,
+    method: endpoint.method ?? null,
+    path: endpoint.path ?? null,
+    url: buildDisplayEndpointUrl(provider?.serviceUrl ?? null, endpoint.path ?? null),
+    description: endpoint.description ?? null,
+    pricing: endpoint.pricing ?? null,
+    input_schema: inputSchema,
+    output_schema: outputSchema,
+    catalog_observed_at: resolveObservedAt(endpoint) ?? endpoint.lastSeenAt ?? null,
+    catalog_generated_at: endpoint.catalog_generated_at ?? endpoint.catalogGeneratedAt ?? provider?.catalogGeneratedAt ?? null,
+    provider_trust_score: provider?.latestTrustScore ?? null,
+    provider_signal_score: provider?.latestSignalScore ?? null,
+    provider_grade: provider?.latestTrustGrade ?? null,
+    reachability_status: 'unknown',
+    degradation_status: endpoint.status === 'degraded' ? 'degraded' : endpoint.status === 'available' ? 'healthy' : 'unknown',
+    route_eligibility: typeof endpoint.routeEligible === 'boolean' ? endpoint.routeEligible : null,
+    route_rejection_reasons: rejectionReasons,
+    metadata_quality_score: null,
+    pricing_clarity_score: null,
+    source: endpoint.source ?? provider?.source ?? null
+  };
+}
+
+function filterEndpointIntelligenceRows(rows: EndpointIntelligenceRow[], filter: EndpointFilter) {
+  if (filter === 'route_eligible') return rows.filter((row) => row.normalized.route_eligibility === true);
+  if (filter === 'mapping_incomplete') return rows.filter(isEndpointMappingIncomplete);
+  if (filter === 'degraded') return rows.filter((row) => isEndpointDegraded(row, null));
+  if (filter === 'priced') return rows.filter((row) => hasKnownPricing(row.normalized.pricing));
+  if (filter === 'unknown_pricing') return rows.filter((row) => !hasKnownPricing(row.normalized.pricing));
+  return rows;
+}
+
+function isEndpointMappingIncomplete(row: EndpointIntelligenceRow) {
+  return !row.normalized.method || (!row.normalized.path && !row.normalized.url);
+}
+
+function isEndpointCatalogMetadataIncomplete(row: EndpointIntelligenceRow) {
+  const endpoint = row.normalized;
+  return !endpoint.endpoint_name || !endpoint.category || !endpoint.catalog_observed_at || !hasKnownPricing(endpoint.pricing);
+}
+
+function isEndpointDegraded(row: EndpointIntelligenceRow, monitor: EndpointMonitor | null) {
+  const status = `${row.normalized.reachability_status} ${row.normalized.degradation_status} ${row.raw?.status ?? ''} ${monitor?.health ?? ''}`;
+  return /degraded|failed|failure|down|error/i.test(status);
+}
+
+function hasKnownPricing(pricing: unknown) {
+  if (!isRecord(pricing)) return typeof pricing === 'string' && pricing.trim() !== '' && pricing !== 'unknown';
+  if (typeof pricing.raw === 'string' && pricing.raw.trim() && pricing.raw !== 'unknown') return true;
+  return typeof pricing.min === 'number' || typeof pricing.max === 'number';
+}
+
+function pricingSummary(pricing: unknown) {
+  if (!isRecord(pricing)) return typeof pricing === 'string' && pricing.trim() ? pricing : 'pricing unknown';
+  if (typeof pricing.raw === 'string' && pricing.raw.trim()) return pricing.raw;
+  const min = typeof pricing.min === 'number' ? pricing.min : null;
+  const max = typeof pricing.max === 'number' ? pricing.max : null;
+  if (min === null && max === null) return 'pricing unknown';
+  if (min === 0 && max === 0) return 'free';
+  if (min !== null && max !== null) return min === max ? `$${min}` : `$${min} - $${max}`;
+  return `$${min ?? max}`;
+}
+
+function routeEligibilityLabel(value: boolean | null) {
+  if (value === true) return 'route eligible';
+  if (value === false) return 'route blocked';
+  return 'route unknown';
+}
+
+function buildDisplayEndpointUrl(serviceUrl: string | null, path: string | null) {
+  if (!serviceUrl || !path) return null;
+  try {
+    return new URL(path, serviceUrl.endsWith('/') ? serviceUrl : `${serviceUrl}/`).toString();
+  } catch {
+    return null;
+  }
+}
+
+function buildCurlCommand(endpoint: NormalizedEndpointRecord): { command: string | null } {
+  const method = endpoint.method?.trim().toUpperCase() ?? null;
+  const target = endpoint.url ?? endpoint.path;
+  if (!method || !target) return { command: null };
+  if (['GET', 'DELETE', 'HEAD', 'OPTIONS'].includes(method)) {
+    return { command: `curl -X ${method} '${escapeShellSingleQuoted(target)}'` };
+  }
+  const exampleBody = extractExampleBody(endpoint.input_schema);
+  if (exampleBody === null) return { command: null };
+  return { command: `curl -X ${method} '${escapeShellSingleQuoted(target)}' -H 'Content-Type: application/json' --data '${escapeShellSingleQuoted(JSON.stringify(exampleBody))}'` };
+}
+
+function extractExampleBody(schema: unknown): unknown | null {
+  if (!isRecord(schema)) return null;
+  if ('example' in schema) return schema.example;
+  if (Array.isArray(schema.examples) && schema.examples.length > 0) return schema.examples[0];
+  return null;
+}
+
+function escapeShellSingleQuoted(value: string) {
+  return value.replace(/'/g, `'\\''`);
+}
+
+function providerDegradationInfo(provider: Provider | null, intel: ProviderIntelligence | null) {
+  const changes = asArray<HistoryItem>(intel?.recent_changes);
+  const degradedEvents = changes.filter((event) => event.type === 'provider.degraded' || event.type === 'provider.failed');
+  const healthyEvent = changes.find((event) => event.type === 'provider.reachable' || event.type === 'provider.recovered');
+  const serviceStatus = intel?.service_monitor.status ?? 'unknown';
+  const providerRecord = isRecord(provider) ? provider as Record<string, unknown> : null;
+  const providerFlags = Boolean(providerRecord?.degraded) || Boolean(providerRecord?.failed);
+  const degraded = providerFlags || degradedEvents.length > 0 || /degraded|failed/i.test(serviceStatus);
+  const reason = degradedEvents[0]?.summary ?? intel?.service_monitor.explanation ?? 'Provider has degraded or failed reachability evidence.';
+  return {
+    degraded,
+    reason,
+    lastHealthyAt: healthyEvent?.observedAt ?? (/reachable/i.test(serviceStatus) ? intel?.service_monitor.last_checked_at ?? null : null)
+  };
+}
+
+async function copyText(value: string) {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(value);
+      return true;
+    }
+    const input = document.createElement('textarea');
+    input.value = value;
+    input.setAttribute('readonly', '');
+    input.style.position = 'fixed';
+    input.style.opacity = '0';
+    document.body.appendChild(input);
+    input.select();
+    const copied = document.execCommand('copy');
+    input.remove();
+    return copied;
+  } catch {
+    return false;
+  }
+}
+
+function openExportRoute(path: string) {
+  const url = `${API_BASE_URL}${path}`;
+  window.open(url, '_blank', 'noopener,noreferrer');
 }
 
 function formatPrice(price: unknown) {
@@ -2122,6 +2847,39 @@ function severityLabel(receipt: EvidenceReceipt) {
 function formatNullableBoolean(value: boolean | null) {
   if (value === null) return 'unknown';
   return value ? 'yes' : 'no';
+}
+
+function numberOrUndefined(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  const numeric = Number(trimmed);
+  return Number.isFinite(numeric) ? numeric : undefined;
+}
+
+function preflightCurl(payload: { intent: string; category?: string; constraints?: Record<string, unknown> }) {
+  const cleanConstraints = Object.fromEntries(Object.entries(payload.constraints ?? {}).filter(([, value]) => value !== undefined));
+  const body = {
+    intent: payload.intent.trim() || 'Ask Radar where an agent should route before spending.',
+    ...(payload.category ? { category: payload.category } : {}),
+    ...(Object.keys(cleanConstraints).length ? { constraints: cleanConstraints } : {})
+  };
+  return `curl -s -X POST ${API_BASE_URL}/v1/preflight \\\n  -H 'Content-Type: application/json' \\\n  --data '${escapeShellSingleQuoted(JSON.stringify(body))}'`;
+}
+
+function preflightBlockMessage(reason: PreflightResult['blockReason']) {
+  if (reason === 'no_candidates') return 'No candidate providers are available in the current catalog window.';
+  if (reason === 'no_category_match') return 'No provider matched the requested category.';
+  if (reason === 'no_capability_match') return 'Candidate providers did not match the inferred capability requirement.';
+  if (reason === 'all_candidates_rejected_by_policy') return 'All candidates were rejected by trust, degradation, latency, or cost policy.';
+  return 'Preflight has insufficient evidence to recommend a route.';
+}
+
+function routeImplicationForState(state: 'healthy' | 'watch' | 'degraded' | 'critical' | 'unknown') {
+  if (state === 'healthy') return 'Route may proceed under current policy.';
+  if (state === 'watch') return 'Route with caution; inspect evidence first.';
+  if (state === 'degraded') return 'Prefer fallback route when available.';
+  if (state === 'critical') return 'Not recommended for routing.';
+  return 'Evidence incomplete; do not treat as failure.';
 }
 
 function resolveObservedAt(value: { observed_at?: unknown; observedAt?: unknown; timestamp?: unknown; created_at?: unknown } | null | undefined) {
