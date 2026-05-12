@@ -349,10 +349,12 @@ export const PreflightRequestSchema = z.object({
   intent: z.string().min(1),
   category: z.string().optional(),
   constraints: PreflightConstraintsSchema,
-  candidateProviders: z.array(z.string().min(1)).optional()
+  candidateProviders: z.array(z.string().min(1)).optional(),
+  debug: z.boolean().optional()
 });
 
 export const PreflightDecisionSchema = z.enum(['route_approved', 'route_blocked']);
+export const PreflightBlockReasonSchema = z.enum(['no_candidates', 'no_category_match', 'no_capability_match', 'all_candidates_rejected_by_policy']);
 
 export const PreflightRejectionSchema = z.object({
   providerId: z.string(),
@@ -361,21 +363,28 @@ export const PreflightRejectionSchema = z.object({
 
 export const PreflightResponseSchema = z.object({
   decision: PreflightDecisionSchema,
+  blockReason: PreflightBlockReasonSchema.nullable(),
   selectedProvider: z.string().nullable(),
   selectedProviderDetails: z.object({
     providerId: z.string(),
     name: z.string(),
     category: z.string(),
+    capabilities: z.array(z.string()).optional(),
     trustScore: z.number().nullable(),
     signalScore: z.number().nullable(),
     latencyMs: z.number().nullable(),
     costUsd: z.number().nullable(),
     degradationFlag: z.boolean()
   }).nullable().optional(),
+  capabilityMatch: z.boolean().optional(),
+  requiredCapabilities: z.array(z.string()).optional(),
   rejectedProviders: z.array(PreflightRejectionSchema),
+  rejectedProviderCount: z.number().int().nonnegative().optional(),
+  rejectedProvidersTruncated: z.boolean().optional(),
   categoryMatch: z.boolean().optional(),
   fallbackCategoryUsed: z.boolean().optional(),
   candidateCount: z.number().int().nonnegative(),
+  consideredProviderCount: z.number().int().nonnegative(),
   routingPolicy: z.object({
     intent: z.string(),
     category: z.string().nullable(),

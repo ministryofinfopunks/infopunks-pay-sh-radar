@@ -5,6 +5,7 @@ import { dataSourceState } from './pulseService';
 
 type Candidate = {
   provider: Provider;
+  capabilities: CapabilityTag[];
   trustScore: number | null;
   signalScore: number | null;
   latencyMs: number | null;
@@ -12,7 +13,23 @@ type Candidate = {
   degraded: boolean;
 };
 
+type CapabilityTag =
+  | 'payment'
+  | 'settlement'
+  | 'market_data'
+  | 'pricing'
+  | 'enrichment'
+  | 'messaging'
+  | 'media_generation'
+  | 'search'
+  | 'analytics'
+  | 'storage'
+  | 'compute'
+  | 'ai_inference';
+
 const DEFAULT_MIN_TRUST_SCORE = 70;
+const MAX_REJECTED_PROVIDERS_IN_RESPONSE = 25;
+const PRE_FLIGHT_PRIORITY_ORDER = ['category_match', 'capability_match', 'min_trust_score', 'active_degradation', 'max_latency_ms', 'max_cost_usd', 'higher_signal_score', 'lower_latency_ms'];
 
 const CATEGORY_ALIASES: Record<string, string[]> = {
   payments: ['payments', 'payment', 'finance', 'fintech', 'crypto', 'settlement'],
@@ -31,6 +48,8 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
     ? requested.map((id) => byProvider.get(id)).filter((provider): provider is Provider => Boolean(provider))
     : store.providers;
   const candidates = baseProviders.map((provider) => toCandidate(provider, store));
+  const requiredCapabilities = requiredCapabilitiesForIntent(input.intent);
+  const shouldMatchCapabilities = requiredCapabilities.length > 0;
 
   const minTrustScore = input.constraints?.minTrustScore ?? DEFAULT_MIN_TRUST_SCORE;
   const maxLatencyMs = input.constraints?.maxLatencyMs ?? null;
@@ -41,6 +60,7 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
 
   const rejectedProviders: PreflightResponse['rejectedProviders'] = [];
   const categoryMatchedCandidates: Candidate[] = [];
+  const capabilityMatchedCandidates: Candidate[] = [];
 
   for (const candidate of candidates) {
     if (categoryAliases && !categoryAliases.has(normalizeCategory(candidate.provider.category))) {
@@ -54,21 +74,115 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
   }
 
   const categoryMatch = categoryAliases ? categoryMatchedCandidates.length > 0 : true;
-  if (!categoryMatch) {
+  const capabilityRejectedByProvider = new Map<string, string[]>();
+  for (const candidate of categoryMatchedCandidates) {
+    if (!shouldMatchCapabilities || hasAnyCapability(candidate.capabilities, requiredCapabilities)) {
+      capabilityMatchedCandidates.push(candidate);
+      continue;
+    }
+    const providerCapability = candidate.capabilities[0] ?? 'none';
+    capabilityRejectedByProvider.set(candidate.provider.id, requiredCapabilities.map((required) => `capability_mismatch:${providerCapability}!=${required}`));
+  }
+
+  const capabilityMatch = shouldMatchCapabilities ? capabilityMatchedCandidates.length > 0 : true;
+  if (shouldMatchCapabilities) {
+    for (const [providerId, reasons] of capabilityRejectedByProvider) rejectedProviders.push({ providerId, reasons });
+  }
+  const rejectedView = rejectedProvidersForResponse(rejectedProviders, Boolean(input.debug));
+
+  if (candidates.length === 0) {
     return {
       decision: 'route_blocked',
+      blockReason: 'no_candidates',
       selectedProvider: null,
       selectedProviderDetails: null,
-      rejectedProviders,
-      categoryMatch: false,
+      rejectedProviders: rejectedView.rejectedProviders,
+      rejectedProviderCount: rejectedView.rejectedProviderCount,
+      rejectedProvidersTruncated: rejectedView.rejectedProvidersTruncated,
+      categoryMatch,
+      capabilityMatch,
+      requiredCapabilities,
       fallbackCategoryUsed: false,
       candidateCount: candidates.length,
+      consideredProviderCount: categoryMatchedCandidates.length,
       routingPolicy: {
         intent: input.intent,
         category: input.category ?? null,
         constraints: { minTrustScore, maxLatencyMs, maxCostUsd },
         tieBreaker: 'lower_latency_ms',
-        priorityOrder: ['category_match', 'min_trust_score', 'active_degradation', 'max_latency_ms', 'max_cost_usd', 'higher_signal_score', 'lower_latency_ms']
+        priorityOrder: PRE_FLIGHT_PRIORITY_ORDER
+      },
+      generatedAt,
+      dataMode: dataModeForSource(sourceState, store.providers.length),
+      source: {
+        mode: sourceState.mode,
+        url: sourceState.url,
+        generatedAt: sourceState.generated_at,
+        lastIngestedAt: sourceState.last_ingested_at,
+        providerCount: sourceState.provider_count ?? store.providers.length,
+        usedFixture: sourceState.used_fixture,
+        error: sourceState.error ?? null
+      }
+    };
+  }
+
+  if (!categoryMatch) {
+    return {
+      decision: 'route_blocked',
+      blockReason: 'no_category_match',
+      selectedProvider: null,
+      selectedProviderDetails: null,
+      rejectedProviders: rejectedView.rejectedProviders,
+      rejectedProviderCount: rejectedView.rejectedProviderCount,
+      rejectedProvidersTruncated: rejectedView.rejectedProvidersTruncated,
+      categoryMatch: false,
+      capabilityMatch,
+      requiredCapabilities,
+      fallbackCategoryUsed: false,
+      candidateCount: candidates.length,
+      consideredProviderCount: categoryMatchedCandidates.length,
+      routingPolicy: {
+        intent: input.intent,
+        category: input.category ?? null,
+        constraints: { minTrustScore, maxLatencyMs, maxCostUsd },
+        tieBreaker: 'lower_latency_ms',
+        priorityOrder: PRE_FLIGHT_PRIORITY_ORDER
+      },
+      generatedAt,
+      dataMode: dataModeForSource(sourceState, store.providers.length),
+      source: {
+        mode: sourceState.mode,
+        url: sourceState.url,
+        generatedAt: sourceState.generated_at,
+        lastIngestedAt: sourceState.last_ingested_at,
+        providerCount: sourceState.provider_count ?? store.providers.length,
+        usedFixture: sourceState.used_fixture,
+        error: sourceState.error ?? null
+      }
+    };
+  }
+
+  if (!capabilityMatch) {
+    return {
+      decision: 'route_blocked',
+      blockReason: 'no_capability_match',
+      selectedProvider: null,
+      selectedProviderDetails: null,
+      rejectedProviders: rejectedView.rejectedProviders,
+      rejectedProviderCount: rejectedView.rejectedProviderCount,
+      rejectedProvidersTruncated: rejectedView.rejectedProvidersTruncated,
+      categoryMatch,
+      capabilityMatch: false,
+      requiredCapabilities,
+      fallbackCategoryUsed: false,
+      candidateCount: candidates.length,
+      consideredProviderCount: categoryMatchedCandidates.length,
+      routingPolicy: {
+        intent: input.intent,
+        category: input.category ?? null,
+        constraints: { minTrustScore, maxLatencyMs, maxCostUsd },
+        tieBreaker: 'lower_latency_ms',
+        priorityOrder: PRE_FLIGHT_PRIORITY_ORDER
       },
       generatedAt,
       dataMode: dataModeForSource(sourceState, store.providers.length),
@@ -85,7 +199,7 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
   }
 
   const accepted: Candidate[] = [];
-  for (const candidate of categoryMatchedCandidates) {
+  for (const candidate of capabilityMatchedCandidates) {
     const reasons: string[] = [];
     if (candidate.trustScore === null || candidate.trustScore < minTrustScore) reasons.push(`trust_score_below_min:${candidate.trustScore ?? 'unknown'}<${minTrustScore}`);
     if (candidate.degraded) reasons.push('active_degradation');
@@ -102,29 +216,37 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
     || a.provider.id.localeCompare(b.provider.id));
 
   const selected = accepted[0] ?? null;
+  const rejectedViewFinal = rejectedProvidersForResponse(rejectedProviders, Boolean(input.debug));
   return {
     decision: selected ? 'route_approved' : 'route_blocked',
+    blockReason: selected ? null : 'all_candidates_rejected_by_policy',
     selectedProvider: selected?.provider.id ?? null,
     selectedProviderDetails: selected ? {
       providerId: selected.provider.id,
       name: selected.provider.name,
       category: selected.provider.category,
+      capabilities: selected.capabilities,
       trustScore: selected.trustScore,
       signalScore: selected.signalScore,
       latencyMs: selected.latencyMs,
       costUsd: selected.minCostUsd,
       degradationFlag: selected.degraded
     } : null,
-    rejectedProviders,
+    rejectedProviders: rejectedViewFinal.rejectedProviders,
+    rejectedProviderCount: rejectedViewFinal.rejectedProviderCount,
+    rejectedProvidersTruncated: rejectedViewFinal.rejectedProvidersTruncated,
     categoryMatch,
+    capabilityMatch,
+    requiredCapabilities,
     fallbackCategoryUsed: false,
     candidateCount: candidates.length,
+    consideredProviderCount: categoryMatchedCandidates.length,
     routingPolicy: {
       intent: input.intent,
       category: input.category ?? null,
       constraints: { minTrustScore, maxLatencyMs, maxCostUsd },
       tieBreaker: 'lower_latency_ms',
-      priorityOrder: ['category_match', 'min_trust_score', 'active_degradation', 'max_latency_ms', 'max_cost_usd', 'higher_signal_score', 'lower_latency_ms']
+      priorityOrder: PRE_FLIGHT_PRIORITY_ORDER
     },
     generatedAt,
     dataMode: dataModeForSource(sourceState, store.providers.length),
@@ -151,12 +273,87 @@ function toCandidate(provider: Provider, store: IntelligenceStore): Candidate {
   const degraded = latestHealth ? latestHealth.type === 'provider.degraded' || latestHealth.type === 'provider.failed' : false;
   return {
     provider,
+    capabilities: inferProviderCapabilities(provider, store),
     trustScore: trust?.score ?? null,
     signalScore: signal?.score ?? null,
     latencyMs: latestLatency,
     minCostUsd: provider.pricing.min,
     degraded
   };
+}
+
+function inferProviderCapabilities(provider: Provider, store: IntelligenceStore): CapabilityTag[] {
+  const endpointTokens = store.endpoints
+    .filter((endpoint) => endpoint.providerId === provider.id)
+    .map((endpoint) => `${safe(endpoint.name)} ${safe(endpoint.path)} ${safe(endpoint.description)} ${safe(endpoint.category)}`);
+  const searchable = `${safe(provider.id)} ${safe(provider.name)} ${safe(provider.category)} ${safe(provider.description)} ${provider.tags.map(safe).join(' ')} ${endpointTokens.join(' ')}`.toLowerCase();
+  const inferred = new Set<CapabilityTag>();
+
+  const addIf = (capability: CapabilityTag, patterns: RegExp[]) => {
+    if (patterns.some((pattern) => pattern.test(searchable))) inferred.add(capability);
+  };
+
+  addIf('payment', [/\bpay(ment|ments|out|able|ing)?\b/, /\btransfer\b/, /\bcheckout\b/, /\bfinance\b/, /\bfintech\b/]);
+  addIf('settlement', [/\bsettle(ment|ments|d|s)?\b/, /\bpayout\b/]);
+  addIf('market_data', [/\bmarket\b/, /\btoken\b/, /\bcoingecko\b/, /\bquote\b/, /\bexchange\s*rate\b/, /\bprice\s*feed\b/]);
+  addIf('pricing', [/\bprice\b/, /\bpricing\b/, /\bquote\b/, /\brate\b/]);
+  addIf('enrichment', [/\benrich(ment)?\b/, /\bverify\b/]);
+  addIf('messaging', [/\bemail\b/, /\bmessage\b/, /\bsms\b/, /\bmail\b/]);
+  addIf('media_generation', [/\bimage\b/, /\bvideo\b/, /\bgenerate\b/, /\bgeneration\b/, /\bmedia\b/]);
+  addIf('search', [/\bsearch\b/, /\bresearch\b/, /\bfind\b/, /\bquery\b/]);
+  addIf('analytics', [/\banalytics?\b/, /\binsight\b/, /\bmetrics?\b/]);
+  addIf('storage', [/\bstorage\b/, /\bstore\b/, /\bobject\b/, /\bblob\b/]);
+  addIf('compute', [/\bcompute\b/, /\bexecute\b/, /\brun\b/, /\bjob\b/]);
+  addIf('ai_inference', [/\bai\b/, /\bllm\b/, /\binference\b/, /\bmodel\b/, /\banswer\b/, /\bgenerate text\b/]);
+
+  return Array.from(inferred).sort();
+}
+
+function requiredCapabilitiesForIntent(intent: string): CapabilityTag[] {
+  const text = safe(intent).toLowerCase();
+  const required = new Set<CapabilityTag>();
+  if (/\bpayout\b|\bpay\b|\btransfer\b|\bsettle\b|\bsettlement\b|\bpayment\b|\bpayments\b/.test(text)) {
+    required.add('payment');
+    required.add('settlement');
+  }
+  if (/\bprice\b|\bmarket\b|\btoken\b|\bcoingecko\b|\bquote\b/.test(text)) {
+    required.add('market_data');
+    required.add('pricing');
+  }
+  if (/\bemail\b|\bmessage\b|\bsend email\b/.test(text)) required.add('messaging');
+  if (/\bimage\b|\bgenerate image\b/.test(text)) required.add('media_generation');
+  if (/\bsearch\b|\bresearch\b|\banswer\b/.test(text)) {
+    required.add('search');
+    required.add('ai_inference');
+  }
+  return Array.from(required);
+}
+
+function hasAnyCapability(providerCapabilities: CapabilityTag[], requiredCapabilities: CapabilityTag[]) {
+  if (requiredCapabilities.length === 0) return true;
+  return requiredCapabilities.every((capability) => providerCapabilities.includes(capability));
+}
+
+function rejectedProvidersForResponse(
+  rejectedProviders: PreflightResponse['rejectedProviders'],
+  debug: boolean
+) {
+  if (debug) {
+    return {
+      rejectedProviders,
+      rejectedProviderCount: rejectedProviders.length,
+      rejectedProvidersTruncated: false
+    };
+  }
+  return {
+    rejectedProviders: rejectedProviders.slice(0, MAX_REJECTED_PROVIDERS_IN_RESPONSE),
+    rejectedProviderCount: rejectedProviders.length,
+    rejectedProvidersTruncated: rejectedProviders.length > MAX_REJECTED_PROVIDERS_IN_RESPONSE
+  };
+}
+
+function safe(value: string | null | undefined) {
+  return (value ?? '').trim();
 }
 
 function latestForProvider<T extends { entityId: string; assessedAt: string }>(items: T[], providerId: string) {

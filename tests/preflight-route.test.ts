@@ -26,8 +26,8 @@ const catalog: PayShCatalogItem[] = [
     endpoints: 1,
     price: '$0.01',
     status: 'metered',
-    description: 'Alpha test provider.',
-    tags: ['alpha', 'payments']
+    description: 'Alpha settlement and payout provider for payment routing.',
+    tags: ['alpha', 'payments', 'settlement', 'payout']
   },
   {
     name: 'Beta API',
@@ -37,8 +37,19 @@ const catalog: PayShCatalogItem[] = [
     endpoints: 1,
     price: '$0.08',
     status: 'metered',
-    description: 'Beta test provider.',
-    tags: ['beta', 'payments']
+    description: 'Beta settlement provider.',
+    tags: ['beta', 'payments', 'settlement']
+  },
+  {
+    name: 'StableCrypto',
+    namespace: 'finance/stablecrypto',
+    slug: 'stablecrypto',
+    category: 'Payments',
+    endpoints: 2,
+    price: '$0.001',
+    status: 'metered',
+    description: 'Crypto market data and token pricing quotes for trading pairs.',
+    tags: ['market', 'token', 'coingecko', 'pricing']
   },
   {
     name: 'OCR Vision API',
@@ -60,15 +71,27 @@ function preflightStore() {
     mode: 'live_pay_sh_catalog',
     url: 'https://pay.sh/api/catalog',
     generated_at: '2026-01-01T00:00:00.000Z',
-    provider_count: 3,
+    provider_count: 4,
     last_ingested_at: '2026-01-01T00:00:00.000Z',
     used_fixture: false,
     error: null
   };
   store.trustAssessments = store.trustAssessments.map((item) =>
-    item.entityId === 'alpha' ? { ...item, score: 92 } : item.entityId === 'ocr' ? { ...item, score: 99 } : { ...item, score: 65 });
+    item.entityId === 'alpha'
+      ? { ...item, score: 92 }
+      : item.entityId === 'stablecrypto'
+        ? { ...item, score: 99 }
+        : item.entityId === 'ocr'
+          ? { ...item, score: 99 }
+          : { ...item, score: 65 });
   store.signalAssessments = store.signalAssessments.map((item) =>
-    item.entityId === 'alpha' ? { ...item, score: 88 } : item.entityId === 'ocr' ? { ...item, score: 100 } : { ...item, score: 91 });
+    item.entityId === 'alpha'
+      ? { ...item, score: 88 }
+      : item.entityId === 'stablecrypto'
+        ? { ...item, score: 100 }
+        : item.entityId === 'ocr'
+          ? { ...item, score: 100 }
+          : { ...item, score: 91 });
   const providerEvents: InfopunksEvent[] = [
     {
       id: 'alpha-checked',
@@ -131,6 +154,7 @@ describe('preflight API', () => {
     expect(response.statusCode).toBe(200);
     expect(response.json().data).toMatchObject({
       decision: 'route_approved',
+      blockReason: null,
       selectedProvider: 'alpha',
       selectedProviderDetails: {
         providerId: 'alpha',
@@ -138,7 +162,8 @@ describe('preflight API', () => {
       },
       categoryMatch: true,
       fallbackCategoryUsed: false,
-      candidateCount: 3,
+      candidateCount: 4,
+      consideredProviderCount: 3,
       dataMode: 'live'
     });
     await app.close();
@@ -153,8 +178,9 @@ describe('preflight API', () => {
     });
     expect(response.statusCode).toBe(200);
     expect(response.json().data.decision).toBe('route_blocked');
+    expect(response.json().data.blockReason).toBe('all_candidates_rejected_by_policy');
     expect(response.json().data.selectedProvider).toBeNull();
-    expect(response.json().data.rejectedProviders.length).toBe(3);
+    expect(response.json().data.rejectedProviders.length).toBe(4);
     await app.close();
   });
 
@@ -168,7 +194,9 @@ describe('preflight API', () => {
     expect(response.statusCode).toBe(200);
     const body = response.json().data;
     expect(body.candidateCount).toBe(1);
+    expect(body.consideredProviderCount).toBe(1);
     expect(body.decision).toBe('route_blocked');
+    expect(body.blockReason).toBe('all_candidates_rejected_by_policy');
     expect(body.rejectedProviders[0].providerId).toBe('beta');
     await app.close();
   });
@@ -182,15 +210,16 @@ describe('preflight API', () => {
     });
     expect(response.statusCode).toBe(200);
     const body = response.json().data;
+    expect(body.blockReason).toBeNull();
     expect(body.routingPolicy.constraints.minTrustScore).toBe(70);
     expect(body.routingPolicy.constraints.maxLatencyMs).toBeNull();
     expect(body.routingPolicy.constraints.maxCostUsd).toBeNull();
     expect(body.decision).toBe('route_approved');
-    expect(body.selectedProvider).toBe('ocr');
+    expect(body.selectedProvider).toBe('alpha');
     await app.close();
   });
 
-  it('does not select OCR providers for payments intent/category', async () => {
+  it('payout request does not select market_data providers when payment capabilities exist', async () => {
     const app = await createApp(preflightStore());
     const response = await app.inject({
       method: 'POST',
@@ -200,9 +229,44 @@ describe('preflight API', () => {
     expect(response.statusCode).toBe(200);
     const body = response.json().data;
     expect(body.decision).toBe('route_approved');
-    expect(body.selectedProvider).not.toBe('ocr');
+    expect(body.selectedProvider).toBe('alpha');
     expect(body.rejectedProviders).toEqual(expect.arrayContaining([
-      expect.objectContaining({ providerId: 'ocr', reasons: expect.arrayContaining(['category_mismatch:ocr!=payments']) })
+      expect.objectContaining({ providerId: 'stablecrypto', reasons: expect.arrayContaining(['capability_mismatch:market_data!=payment']) })
+    ]));
+    await app.close();
+  });
+
+  it('market data intent may select StableCrypto', async () => {
+    const app = await createApp(preflightStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: { intent: 'fetch token market quote', category: 'payments', constraints: { minTrustScore: 0 } }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.decision).toBe('route_approved');
+    expect(body.selectedProvider).toBe('stablecrypto');
+    expect(body.capabilityMatch).toBe(true);
+    expect(body.requiredCapabilities).toEqual(expect.arrayContaining(['market_data', 'pricing']));
+    await app.close();
+  });
+
+  it('returns route_blocked with no_capability_match when category matches but capabilities do not', async () => {
+    const app = await createApp(preflightStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: { intent: 'send email receipt', category: 'payments', constraints: { minTrustScore: 0 } }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.decision).toBe('route_blocked');
+    expect(body.blockReason).toBe('no_capability_match');
+    expect(body.capabilityMatch).toBe(false);
+    expect(body.requiredCapabilities).toEqual(['messaging']);
+    expect(body.rejectedProviders).toEqual(expect.arrayContaining([
+      expect.objectContaining({ providerId: 'alpha', reasons: expect.arrayContaining(['capability_mismatch:payment!=messaging']) })
     ]));
     await app.close();
   });
@@ -234,14 +298,129 @@ describe('preflight API', () => {
     expect(response.statusCode).toBe(200);
     const body = response.json().data;
     expect(body.decision).toBe('route_blocked');
+    expect(body.blockReason).toBe('no_category_match');
     expect(body.selectedProvider).toBeNull();
     expect(body.categoryMatch).toBe(false);
     expect(body.fallbackCategoryUsed).toBe(false);
     expect(body.rejectedProviders).toEqual(expect.arrayContaining([
       expect.objectContaining({ providerId: 'alpha', reasons: expect.arrayContaining(['category_mismatch:payments!=speech']) }),
       expect.objectContaining({ providerId: 'beta', reasons: expect.arrayContaining(['category_mismatch:payments!=speech']) }),
+      expect.objectContaining({ providerId: 'stablecrypto', reasons: expect.arrayContaining(['category_mismatch:payments!=speech']) }),
       expect.objectContaining({ providerId: 'ocr', reasons: expect.arrayContaining(['category_mismatch:ocr!=speech']) })
     ]));
+    await app.close();
+  });
+
+  it('returns blockReason=no_category_match when category filter excludes all providers', async () => {
+    const app = await createApp(preflightStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: { intent: 'voice assistant prompt', category: 'speech', constraints: { minTrustScore: 0 } }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.decision).toBe('route_blocked');
+    expect(body.blockReason).toBe('no_category_match');
+    await app.close();
+  });
+
+  it('returns route_blocked with explicit no_candidates reason instead of unexplained empty rejection set', async () => {
+    const app = await createApp(preflightStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: { intent: 'checkout settlement', candidateProviders: ['does-not-exist-1', 'does-not-exist-2'], constraints: { minTrustScore: 0 } }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.decision).toBe('route_blocked');
+    expect(body.blockReason).toBe('no_candidates');
+    expect(body.candidateCount).toBe(0);
+    expect(body.consideredProviderCount).toBe(0);
+    expect(body.selectedProvider).toBeNull();
+    expect(body.rejectedProviders).toEqual([]);
+    await app.close();
+  });
+
+  it('truncates rejectedProviders to 25 and exposes counts when many providers are rejected', async () => {
+    const manyCatalog: PayShCatalogItem[] = Array.from({ length: 30 }, (_, n) => ({
+      name: `Bulk Pay ${n + 1}`,
+      namespace: `pay/bulk-${n + 1}`,
+      slug: `bulk-${n + 1}`,
+      category: 'Payments',
+      endpoints: 1,
+      price: '$0.01',
+      status: 'metered',
+      description: `Bulk provider ${n + 1}.`,
+      tags: ['payments']
+    }));
+    const ingested = applyPayShCatalogIngestion(emptySnapshot, manyCatalog, { observedAt: '2026-01-01T00:00:00.000Z', source: 'pay.sh:test' }).snapshot;
+    const store = recomputeAssessments(ingested);
+    store.trustAssessments = store.trustAssessments.map((item) => ({ ...item, score: 10 }));
+    store.signalAssessments = store.signalAssessments.map((item) => ({ ...item, score: 50 }));
+    store.dataSource = {
+      mode: 'live_pay_sh_catalog',
+      url: 'https://pay.sh/api/catalog',
+      generated_at: '2026-01-01T00:00:00.000Z',
+      provider_count: 30,
+      last_ingested_at: '2026-01-01T00:00:00.000Z',
+      used_fixture: false,
+      error: null
+    };
+
+    const app = await createApp(store);
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: { intent: 'provider selection benchmark', category: 'payments', constraints: { minTrustScore: 95 } }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.decision).toBe('route_blocked');
+    expect(body.blockReason).toBe('all_candidates_rejected_by_policy');
+    expect(body.rejectedProviderCount).toBe(30);
+    expect(body.rejectedProvidersTruncated).toBe(true);
+    expect(body.rejectedProviders).toHaveLength(25);
+    expect(body.consideredProviderCount).toBe(30);
+    await app.close();
+  });
+
+  it('returns full rejectedProviders list when debug=true', async () => {
+    const manyCatalog: PayShCatalogItem[] = Array.from({ length: 30 }, (_, n) => ({
+      name: `Bulk Pay ${n + 1}`,
+      namespace: `pay/bulk-${n + 1}`,
+      slug: `bulk-${n + 1}`,
+      category: 'Payments',
+      endpoints: 1,
+      price: '$0.01',
+      status: 'metered',
+      description: `Bulk provider ${n + 1}.`,
+      tags: ['payments']
+    }));
+    const ingested = applyPayShCatalogIngestion(emptySnapshot, manyCatalog, { observedAt: '2026-01-01T00:00:00.000Z', source: 'pay.sh:test' }).snapshot;
+    const store = recomputeAssessments(ingested);
+    store.trustAssessments = store.trustAssessments.map((item) => ({ ...item, score: 10 }));
+    store.dataSource = {
+      mode: 'live_pay_sh_catalog',
+      url: 'https://pay.sh/api/catalog',
+      generated_at: '2026-01-01T00:00:00.000Z',
+      provider_count: 30,
+      last_ingested_at: '2026-01-01T00:00:00.000Z',
+      used_fixture: false,
+      error: null
+    };
+    const app = await createApp(store);
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: { intent: 'provider selection benchmark', category: 'payments', constraints: { minTrustScore: 95 }, debug: true }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.rejectedProviderCount).toBe(30);
+    expect(body.rejectedProvidersTruncated).toBe(false);
+    expect(body.rejectedProviders).toHaveLength(30);
     await app.close();
   });
 
