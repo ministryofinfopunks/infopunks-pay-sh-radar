@@ -13,6 +13,11 @@ type Candidate = {
   degraded: boolean;
 };
 
+type CapabilityInference = {
+  requiredCapabilities: CapabilityTag[];
+  capabilityInferenceReason: string | null;
+};
+
 type CapabilityTag =
   | 'payment'
   | 'settlement'
@@ -29,6 +34,7 @@ type CapabilityTag =
 
 const DEFAULT_MIN_TRUST_SCORE = 70;
 const MAX_REJECTED_PROVIDERS_IN_RESPONSE = 25;
+const MAX_CONSIDERED_PROVIDERS_REJECTED_IN_RESPONSE = 10;
 const PRE_FLIGHT_PRIORITY_ORDER = ['category_match', 'capability_match', 'min_trust_score', 'active_degradation', 'max_latency_ms', 'max_cost_usd', 'higher_signal_score', 'lower_latency_ms'];
 
 const CATEGORY_ALIASES: Record<string, string[]> = {
@@ -39,6 +45,9 @@ const CATEGORY_ALIASES: Record<string, string[]> = {
   speech: ['speech', 'voice', 'audio']
 };
 
+const MARKET_DATA_CAPABILITIES: CapabilityTag[] = ['market_data', 'pricing'];
+const MARKET_DATA_CATEGORY_BRIDGE = ['payments', 'payment', 'finance', 'fintech', 'crypto', 'data', 'analytics', 'enrichment'];
+
 export function runPreflight(input: PreflightRequest, store: IntelligenceStore): PreflightResponse {
   const sourceState = dataSourceState(store);
   const generatedAt = new Date().toISOString();
@@ -48,7 +57,8 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
     ? requested.map((id) => byProvider.get(id)).filter((provider): provider is Provider => Boolean(provider))
     : store.providers;
   const candidates = baseProviders.map((provider) => toCandidate(provider, store));
-  const requiredCapabilities = requiredCapabilitiesForIntent(input.intent);
+  const capabilityInference = requiredCapabilitiesForIntent(input.intent);
+  const requiredCapabilities = capabilityInference.requiredCapabilities;
   const shouldMatchCapabilities = requiredCapabilities.length > 0;
 
   const minTrustScore = input.constraints?.minTrustScore ?? DEFAULT_MIN_TRUST_SCORE;
@@ -56,9 +66,10 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
   const maxCostUsd = input.constraints?.maxCostUsd ?? null;
 
   const categoryToken = normalizeCategory(input.category);
-  const categoryAliases = categoryToken ? aliasesForCategory(categoryToken) : null;
+  const categoryAliases = categoryToken ? aliasesForCategory(categoryToken, requiredCapabilities) : null;
 
   const rejectedProviders: PreflightResponse['rejectedProviders'] = [];
+  const consideredProvidersRejected: NonNullable<PreflightResponse['consideredProvidersRejected']> = [];
   const categoryMatchedCandidates: Candidate[] = [];
   const capabilityMatchedCandidates: Candidate[] = [];
 
@@ -86,9 +97,22 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
 
   const capabilityMatch = shouldMatchCapabilities ? capabilityMatchedCandidates.length > 0 : true;
   if (shouldMatchCapabilities) {
-    for (const [providerId, reasons] of capabilityRejectedByProvider) rejectedProviders.push({ providerId, reasons });
+    for (const [providerId, reasons] of capabilityRejectedByProvider) {
+      rejectedProviders.push({ providerId, reasons });
+      const candidate = categoryMatchedCandidates.find((item) => item.provider.id === providerId);
+      if (candidate) {
+        consideredProvidersRejected.push({
+          providerId,
+          category: candidate.provider.category,
+          capabilities: candidate.capabilities,
+          reasons
+        });
+      }
+    }
   }
   const rejectedView = rejectedProvidersForResponse(rejectedProviders, Boolean(input.debug));
+  const consideredRejectedView = consideredProvidersRejectedForResponse(consideredProvidersRejected, Boolean(input.debug));
+  const rejectionSummary = buildRejectionSummary(rejectedProviders);
 
   if (candidates.length === 0) {
     return {
@@ -97,11 +121,14 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
       selectedProvider: null,
       selectedProviderDetails: null,
       rejectedProviders: rejectedView.rejectedProviders,
+      rejectionSummary,
+      consideredProvidersRejected: consideredRejectedView,
       rejectedProviderCount: rejectedView.rejectedProviderCount,
       rejectedProvidersTruncated: rejectedView.rejectedProvidersTruncated,
       categoryMatch,
       capabilityMatch,
       requiredCapabilities,
+      capabilityInferenceReason: capabilityInference.capabilityInferenceReason,
       fallbackCategoryUsed: false,
       candidateCount: candidates.length,
       consideredProviderCount: categoryMatchedCandidates.length,
@@ -133,11 +160,14 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
       selectedProvider: null,
       selectedProviderDetails: null,
       rejectedProviders: rejectedView.rejectedProviders,
+      rejectionSummary,
+      consideredProvidersRejected: consideredRejectedView,
       rejectedProviderCount: rejectedView.rejectedProviderCount,
       rejectedProvidersTruncated: rejectedView.rejectedProvidersTruncated,
       categoryMatch: false,
       capabilityMatch,
       requiredCapabilities,
+      capabilityInferenceReason: capabilityInference.capabilityInferenceReason,
       fallbackCategoryUsed: false,
       candidateCount: candidates.length,
       consideredProviderCount: categoryMatchedCandidates.length,
@@ -169,11 +199,14 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
       selectedProvider: null,
       selectedProviderDetails: null,
       rejectedProviders: rejectedView.rejectedProviders,
+      rejectionSummary,
+      consideredProvidersRejected: consideredRejectedView,
       rejectedProviderCount: rejectedView.rejectedProviderCount,
       rejectedProvidersTruncated: rejectedView.rejectedProvidersTruncated,
       categoryMatch,
       capabilityMatch: false,
       requiredCapabilities,
+      capabilityInferenceReason: capabilityInference.capabilityInferenceReason,
       fallbackCategoryUsed: false,
       candidateCount: candidates.length,
       consideredProviderCount: categoryMatchedCandidates.length,
@@ -205,8 +238,15 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
     if (candidate.degraded) reasons.push('active_degradation');
     if (maxLatencyMs !== null && (candidate.latencyMs === null || candidate.latencyMs > maxLatencyMs)) reasons.push(`latency_exceeds_max:${candidate.latencyMs ?? 'unknown'}>${maxLatencyMs}`);
     if (maxCostUsd !== null && (candidate.minCostUsd === null || candidate.minCostUsd > maxCostUsd)) reasons.push(`cost_exceeds_max:${candidate.minCostUsd ?? 'unknown'}>${maxCostUsd}`);
-    if (reasons.length > 0) rejectedProviders.push({ providerId: candidate.provider.id, reasons });
-    else accepted.push(candidate);
+    if (reasons.length > 0) {
+      rejectedProviders.push({ providerId: candidate.provider.id, reasons });
+      consideredProvidersRejected.push({
+        providerId: candidate.provider.id,
+        category: candidate.provider.category,
+        capabilities: candidate.capabilities,
+        reasons
+      });
+    } else accepted.push(candidate);
   }
 
   accepted.sort((a, b) =>
@@ -217,6 +257,8 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
 
   const selected = accepted[0] ?? null;
   const rejectedViewFinal = rejectedProvidersForResponse(rejectedProviders, Boolean(input.debug));
+  const consideredRejectedViewFinal = consideredProvidersRejectedForResponse(consideredProvidersRejected, Boolean(input.debug));
+  const rejectionSummaryFinal = buildRejectionSummary(rejectedProviders);
   return {
     decision: selected ? 'route_approved' : 'route_blocked',
     blockReason: selected ? null : 'all_candidates_rejected_by_policy',
@@ -233,11 +275,14 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
       degradationFlag: selected.degraded
     } : null,
     rejectedProviders: rejectedViewFinal.rejectedProviders,
+    rejectionSummary: rejectionSummaryFinal,
+    consideredProvidersRejected: consideredRejectedViewFinal,
     rejectedProviderCount: rejectedViewFinal.rejectedProviderCount,
     rejectedProvidersTruncated: rejectedViewFinal.rejectedProvidersTruncated,
     categoryMatch,
     capabilityMatch,
     requiredCapabilities,
+    capabilityInferenceReason: capabilityInference.capabilityInferenceReason,
     fallbackCategoryUsed: false,
     candidateCount: candidates.length,
     consideredProviderCount: categoryMatchedCandidates.length,
@@ -293,7 +338,7 @@ function inferProviderCapabilities(provider: Provider, store: IntelligenceStore)
     if (patterns.some((pattern) => pattern.test(searchable))) inferred.add(capability);
   };
 
-  addIf('payment', [/\bpay(ment|ments|out|able|ing)?\b/, /\btransfer\b/, /\bcheckout\b/, /\bfinance\b/, /\bfintech\b/]);
+  addIf('payment', [/\bpayout\b/, /\btransfer\b/, /\bcheckout\b/, /\bpay(able|ing)?\b/]);
   addIf('settlement', [/\bsettle(ment|ments|d|s)?\b/, /\bpayout\b/]);
   addIf('market_data', [/\bmarket\b/, /\btoken\b/, /\bcoingecko\b/, /\bquote\b/, /\bexchange\s*rate\b/, /\bprice\s*feed\b/]);
   addIf('pricing', [/\bprice\b/, /\bpricing\b/, /\bquote\b/, /\brate\b/]);
@@ -309,29 +354,62 @@ function inferProviderCapabilities(provider: Provider, store: IntelligenceStore)
   return Array.from(inferred).sort();
 }
 
-function requiredCapabilitiesForIntent(intent: string): CapabilityTag[] {
+function requiredCapabilitiesForIntent(intent: string): CapabilityInference {
   const text = safe(intent).toLowerCase();
-  const required = new Set<CapabilityTag>();
-  if (/\bpayout\b|\bpay\b|\btransfer\b|\bsettle\b|\bsettlement\b|\bpayment\b|\bpayments\b/.test(text)) {
-    required.add('payment');
-    required.add('settlement');
+  const hasAny = (patterns: RegExp[]) => patterns.some((pattern) => pattern.test(text));
+
+  const marketDataVerbs = [/\bget\b/, /\bfetch\b/, /\bretrieve\b/, /\blookup\b/, /\blook up\b/, /\bcheck\b/];
+  const marketDataObjects = [/\bmarket\b/, /\bprice\b/, /\btoken\b/, /\bquote\b/, /\bcrypto\b/, /\bcoingecko\b/];
+
+  const paymentVerbs = [/\bsend\b/, /\bexecute\b/, /\bmake\b/, /\bprocess\b/, /\bsettle\b/, /\btransfer\b/, /\bpayout\b/, /\bpay\b/, /\bcheckout\b/];
+  const paymentObjects = [/\bpayment\b/, /\bpayments\b/, /\bsettlement\b/, /\bpayout\b/, /\btransfer\b/, /\bcheckout\b/];
+  const paymentPhrase = /\btoken payment\b/;
+
+  const messagingPatterns = [/\bemail\b/, /\bmessage\b/, /\bsend email\b/];
+  const mediaPatterns = [/\bgenerate\b.*\bimage\b/, /\bcreate\b.*\bimage\b/, /\bgenerate\b.*\bmedia\b/, /\bcreate\b.*\bmedia\b/, /\bimage\b/, /\bmedia\b/];
+  const searchPatterns = [/\bsearch\b/, /\bresearch\b/, /\banswer\b/];
+
+  if (hasAny(marketDataVerbs) && hasAny(marketDataObjects)) {
+    return {
+      requiredCapabilities: ['market_data', 'pricing'],
+      capabilityInferenceReason: 'market_data_intent_from_get_market_data'
+    };
   }
-  if (/\bprice\b|\bmarket\b|\btoken\b|\bcoingecko\b|\bquote\b/.test(text)) {
-    required.add('market_data');
-    required.add('pricing');
+
+  if ((hasAny(paymentVerbs) && hasAny(paymentObjects)) || paymentPhrase.test(text)) {
+    return {
+      requiredCapabilities: ['payment', 'settlement'],
+      capabilityInferenceReason: 'payment_intent_from_execute_payment'
+    };
   }
-  if (/\bemail\b|\bmessage\b|\bsend email\b/.test(text)) required.add('messaging');
-  if (/\bimage\b|\bgenerate image\b/.test(text)) required.add('media_generation');
-  if (/\bsearch\b|\bresearch\b|\banswer\b/.test(text)) {
-    required.add('search');
-    required.add('ai_inference');
+
+  if (hasAny(messagingPatterns)) {
+    return {
+      requiredCapabilities: ['messaging'],
+      capabilityInferenceReason: 'messaging_intent_from_send_email'
+    };
   }
-  return Array.from(required);
+
+  if (hasAny(mediaPatterns)) {
+    return {
+      requiredCapabilities: ['media_generation'],
+      capabilityInferenceReason: 'media_generation_intent_from_generate_image'
+    };
+  }
+
+  if (hasAny(searchPatterns)) {
+    return {
+      requiredCapabilities: ['search', 'ai_inference'],
+      capabilityInferenceReason: 'search_intent_from_search_research_answer'
+    };
+  }
+
+  return { requiredCapabilities: [], capabilityInferenceReason: null };
 }
 
 function hasAnyCapability(providerCapabilities: CapabilityTag[], requiredCapabilities: CapabilityTag[]) {
   if (requiredCapabilities.length === 0) return true;
-  return requiredCapabilities.every((capability) => providerCapabilities.includes(capability));
+  return requiredCapabilities.some((capability) => providerCapabilities.includes(capability));
 }
 
 function rejectedProvidersForResponse(
@@ -349,6 +427,39 @@ function rejectedProvidersForResponse(
     rejectedProviders: rejectedProviders.slice(0, MAX_REJECTED_PROVIDERS_IN_RESPONSE),
     rejectedProviderCount: rejectedProviders.length,
     rejectedProvidersTruncated: rejectedProviders.length > MAX_REJECTED_PROVIDERS_IN_RESPONSE
+  };
+}
+
+function consideredProvidersRejectedForResponse(
+  consideredProvidersRejected: NonNullable<PreflightResponse['consideredProvidersRejected']>,
+  debug: boolean
+) {
+  if (debug) return consideredProvidersRejected;
+  return consideredProvidersRejected.slice(0, MAX_CONSIDERED_PROVIDERS_REJECTED_IN_RESPONSE);
+}
+
+function buildRejectionSummary(rejectedProviders: PreflightResponse['rejectedProviders']) {
+  let categoryMismatchCount = 0;
+  let capabilityMismatchCount = 0;
+  let policyRejectedCount = 0;
+  for (const item of rejectedProviders) {
+    const hasCategoryMismatch = item.reasons.some((reason) => reason.startsWith('category_mismatch:'));
+    const hasCapabilityMismatch = item.reasons.some((reason) => reason.startsWith('capability_mismatch:'));
+    if (hasCategoryMismatch) {
+      categoryMismatchCount += 1;
+      continue;
+    }
+    if (hasCapabilityMismatch) {
+      capabilityMismatchCount += 1;
+      continue;
+    }
+    policyRejectedCount += 1;
+  }
+  return {
+    totalRejectedCount: rejectedProviders.length,
+    categoryMismatchCount,
+    capabilityMismatchCount,
+    policyRejectedCount
   };
 }
 
@@ -402,7 +513,10 @@ function normalizeCategory(value: string | undefined | null) {
     .replace(/^_+|_+$/g, '');
 }
 
-function aliasesForCategory(requestedCategory: string) {
+function aliasesForCategory(requestedCategory: string, requiredCapabilities: CapabilityTag[]) {
+  if (hasAnyCapability(requiredCapabilities, MARKET_DATA_CAPABILITIES) && MARKET_DATA_CATEGORY_BRIDGE.includes(requestedCategory)) {
+    return new Set(MARKET_DATA_CATEGORY_BRIDGE);
+  }
   if (CATEGORY_ALIASES[requestedCategory]) return new Set(CATEGORY_ALIASES[requestedCategory]);
   for (const [canonical, aliases] of Object.entries(CATEGORY_ALIASES)) {
     if (aliases.includes(requestedCategory)) return new Set(CATEGORY_ALIASES[canonical]);

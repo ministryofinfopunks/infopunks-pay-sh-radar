@@ -130,6 +130,15 @@ function preflightStore() {
       payload: { providerId: 'beta', response_time_ms: 700, success: false }
     },
     {
+      id: 'stablecrypto-checked',
+      type: 'provider.checked',
+      source: 'infopunks:safe-metadata-monitor',
+      entityType: 'provider',
+      entityId: 'stablecrypto',
+      observedAt: '2026-01-02T00:02:30.000Z',
+      payload: { providerId: 'stablecrypto', response_time_ms: 180, success: true }
+    },
+    {
       id: 'ocr-checked',
       type: 'provider.checked',
       source: 'infopunks:safe-metadata-monitor',
@@ -230,25 +239,130 @@ describe('preflight API', () => {
     const body = response.json().data;
     expect(body.decision).toBe('route_approved');
     expect(body.selectedProvider).toBe('alpha');
+    expect(body.requiredCapabilities).toEqual(['payment', 'settlement']);
+    expect(body.capabilityInferenceReason).toBe('payment_intent_from_execute_payment');
     expect(body.rejectedProviders).toEqual(expect.arrayContaining([
       expect.objectContaining({ providerId: 'stablecrypto', reasons: expect.arrayContaining(['capability_mismatch:market_data!=payment']) })
     ]));
     await app.close();
   });
 
-  it('market data intent may select StableCrypto', async () => {
+  it('market data intent with payment-decision context may select StableCrypto', async () => {
     const app = await createApp(preflightStore());
     const response = await app.inject({
       method: 'POST',
       url: '/v1/preflight',
-      payload: { intent: 'fetch token market quote', category: 'payments', constraints: { minTrustScore: 0 } }
+      payload: { intent: 'get crypto market data before a payment decision', category: 'payments', constraints: { minTrustScore: 0 } }
     });
     expect(response.statusCode).toBe(200);
     const body = response.json().data;
     expect(body.decision).toBe('route_approved');
     expect(body.selectedProvider).toBe('stablecrypto');
     expect(body.capabilityMatch).toBe(true);
-    expect(body.requiredCapabilities).toEqual(expect.arrayContaining(['market_data', 'pricing']));
+    expect(body.requiredCapabilities).toEqual(['market_data', 'pricing']);
+    expect(body.capabilityInferenceReason).toBe('market_data_intent_from_get_market_data');
+    await app.close();
+  });
+
+  it('get token price selects market_data/pricing provider', async () => {
+    const app = await createApp(preflightStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: { intent: 'get token price', category: 'payments', constraints: { minTrustScore: 0 } }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.decision).toBe('route_approved');
+    expect(body.selectedProvider).toBe('stablecrypto');
+    expect(body.requiredCapabilities).toEqual(['market_data', 'pricing']);
+    expect(body.capabilityInferenceReason).toBe('market_data_intent_from_get_market_data');
+    await app.close();
+  });
+
+  it('market data intent accepts category=finance and still selects market data provider', async () => {
+    const app = await createApp(preflightStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'get crypto market data',
+        category: 'finance',
+        constraints: { minTrustScore: 70, maxLatencyMs: 1000, maxCostUsd: 0.01 }
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.decision).toBe('route_approved');
+    expect(body.selectedProvider).toBe('stablecrypto');
+    expect(body.requiredCapabilities).toEqual(['market_data', 'pricing']);
+    await app.close();
+  });
+
+  it('market data intent accepts category=data and still selects market data provider', async () => {
+    const app = await createApp(preflightStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'get crypto market data',
+        category: 'data',
+        constraints: { minTrustScore: 70, maxLatencyMs: 1000, maxCostUsd: 0.01 }
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.decision).toBe('route_approved');
+    expect(body.selectedProvider).toBe('stablecrypto');
+    expect(body.requiredCapabilities).toEqual(['market_data', 'pricing']);
+    await app.close();
+  });
+
+  it('select provider for a payout request blocks when no payment providers are in candidate set', async () => {
+    const app = await createApp(preflightStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'select provider for a payout request',
+        category: 'payments',
+        candidateProviders: ['stablecrypto'],
+        constraints: { minTrustScore: 0 }
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.decision).toBe('route_blocked');
+    expect(body.blockReason).toBe('no_capability_match');
+    expect(body.requiredCapabilities).toEqual(['payment', 'settlement']);
+    expect(body.capabilityInferenceReason).toBe('payment_intent_from_execute_payment');
+    expect(body.consideredProvidersRejected).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        providerId: 'stablecrypto',
+        category: 'Payments',
+        reasons: expect.arrayContaining(['capability_mismatch:market_data!=payment'])
+      })
+    ]));
+    expect(body.rejectionSummary).toMatchObject({
+      totalRejectedCount: 1,
+      categoryMismatchCount: 0,
+      capabilityMismatchCount: 1,
+      policyRejectedCount: 0
+    });
+    await app.close();
+  });
+
+  it('execute token payment requires payment/settlement', async () => {
+    const app = await createApp(preflightStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: { intent: 'execute token payment', category: 'payments', constraints: { minTrustScore: 0 } }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.requiredCapabilities).toEqual(['payment', 'settlement']);
+    expect(body.capabilityInferenceReason).toBe('payment_intent_from_execute_payment');
     await app.close();
   });
 
@@ -265,6 +379,19 @@ describe('preflight API', () => {
     expect(body.blockReason).toBe('no_capability_match');
     expect(body.capabilityMatch).toBe(false);
     expect(body.requiredCapabilities).toEqual(['messaging']);
+    expect(body.capabilityInferenceReason).toBe('messaging_intent_from_send_email');
+    expect(body.consideredProvidersRejected).toEqual(expect.arrayContaining([
+      expect.objectContaining({ providerId: 'alpha', category: 'Payments' }),
+      expect.objectContaining({ providerId: 'beta', category: 'Payments' }),
+      expect.objectContaining({ providerId: 'stablecrypto', category: 'Payments' })
+    ]));
+    expect(body.consideredProvidersRejected).toHaveLength(3);
+    expect(body.rejectionSummary).toMatchObject({
+      totalRejectedCount: 4,
+      categoryMismatchCount: 1,
+      capabilityMismatchCount: 3,
+      policyRejectedCount: 0
+    });
     expect(body.rejectedProviders).toEqual(expect.arrayContaining([
       expect.objectContaining({ providerId: 'alpha', reasons: expect.arrayContaining(['capability_mismatch:payment!=messaging']) })
     ]));

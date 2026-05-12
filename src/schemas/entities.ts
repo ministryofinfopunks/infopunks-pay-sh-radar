@@ -361,6 +361,13 @@ export const PreflightRejectionSchema = z.object({
   reasons: z.array(z.string())
 });
 
+export const PreflightConsideredProviderRejectionSchema = z.object({
+  providerId: z.string(),
+  category: z.string(),
+  capabilities: z.array(z.string()),
+  reasons: z.array(z.string())
+});
+
 export const PreflightResponseSchema = z.object({
   decision: PreflightDecisionSchema,
   blockReason: PreflightBlockReasonSchema.nullable(),
@@ -378,7 +385,15 @@ export const PreflightResponseSchema = z.object({
   }).nullable().optional(),
   capabilityMatch: z.boolean().optional(),
   requiredCapabilities: z.array(z.string()).optional(),
+  capabilityInferenceReason: z.string().nullable().optional(),
   rejectedProviders: z.array(PreflightRejectionSchema),
+  rejectionSummary: z.object({
+    totalRejectedCount: z.number().int().nonnegative(),
+    categoryMismatchCount: z.number().int().nonnegative(),
+    capabilityMismatchCount: z.number().int().nonnegative(),
+    policyRejectedCount: z.number().int().nonnegative()
+  }).optional(),
+  consideredProvidersRejected: z.array(PreflightConsideredProviderRejectionSchema).optional(),
   rejectedProviderCount: z.number().int().nonnegative().optional(),
   rejectedProvidersTruncated: z.boolean().optional(),
   categoryMatch: z.boolean().optional(),
