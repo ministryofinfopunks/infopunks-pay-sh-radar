@@ -8,7 +8,16 @@ import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, Int
 import { IntelligenceRepository } from '../persistence/repository';
 import { recommendRoute } from '../services/routeService';
 import { semanticSearch } from '../services/searchService';
-import { PreflightRequestSchema, PreflightResponseSchema, RouteRecommendationRequestSchema, SearchRequestSchema } from '../schemas/entities';
+import {
+  PreflightRequestSchema,
+  PreflightResponseSchema,
+  RadarComparisonRequestSchema,
+  RadarPreflightRequestSchema,
+  RadarPreflightResponseSchema,
+  RadarSuperiorityReadinessSchema,
+  RouteRecommendationRequestSchema,
+  SearchRequestSchema
+} from '../schemas/entities';
 import { endpointHistory, findEndpoint, findProvider, providerHistory, providerIntelligence } from '../services/providerIntelligenceService';
 import { endpointMonitorSummary, isMonitorEnabled, monitorIntervalMs, monitorMaxProviders, monitorTimeoutMs, providerMonitorSummary, runMonitor } from '../services/endpointMonitorService';
 import { loadRuntimeConfig } from '../config/env';
@@ -20,6 +29,7 @@ import { resolvePropagationIncident } from '../services/propagationIncidentServi
 import { providerReachabilitySummary, providerRootHealthSummary } from '../services/eventSummaryHelpers';
 import { runPreflight } from '../services/preflightService';
 import { buildRadarExportSnapshot, safeJsonExport } from '../services/radarExportService';
+import { buildSuperiorityReadiness, runRadarComparison, runRadarPreflight } from '../services/radarRouteIntelligenceService';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
 const MAX_INLINE_SUPPORTING_EVENT_IDS = 10;
@@ -226,6 +236,15 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
       })
     };
   });
+  app.post('/v1/radar/preflight', async (req, reply) => handleParsed(req.body, RadarPreflightRequestSchema, (input) => ({
+    data: safeJsonExport(RadarPreflightResponseSchema.parse(runRadarPreflight(input, store)))
+  }), reply));
+  app.post('/v1/radar/compare', async (req, reply) => handleParsed(req.body, RadarComparisonRequestSchema, (input) => ({
+    data: safeJsonExport(runRadarComparison(input, store))
+  }), reply));
+  app.get('/v1/radar/superiority-readiness', async () => ({
+    data: safeJsonExport(RadarSuperiorityReadinessSchema.parse(buildSuperiorityReadiness(store)))
+  }));
   app.get('/v1/monitor/runs/recent', async () => ({ data: [...(store.monitorRuns ?? [])].sort((a, b) => Date.parse(b.startedAt) - Date.parse(a.startedAt)).slice(0, 20).map(monitorRunResponse) }));
   app.get<{ Params: { id: string } }>('/v1/providers/:id/monitor', async (req, reply) => {
     const provider = findProvider(store, req.params.id);

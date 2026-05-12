@@ -150,6 +150,12 @@ No black-box score is emitted without supporting evidence.
   Returns normalized endpoint-level intelligence records.
 - `GET /v1/radar/routes/candidates`
   Returns route-eligible endpoint/provider candidates grouped by category and provider.
+- `POST /v1/radar/preflight`
+  Runs safe agent preflight route intelligence from catalog-derived evidence only.
+- `POST /v1/radar/compare`
+  Compares 2-3 providers or endpoints across route-readiness metrics.
+- `GET /v1/radar/superiority-readiness`
+  Returns route superiority proof readiness indicators.
 
 These export routes are read-only JSON views. They do not execute paid Pay.sh APIs.
 
@@ -233,6 +239,67 @@ The response includes:
 - `routingPolicy`
 - `generatedAt`
 - `dataMode` and `source` so clients can distinguish `live`, `cached`, or `fallback` intelligence
+
+---
+
+# Agent Preflight (Radar)
+
+`POST /v1/radar/preflight`
+
+Input shape:
+
+```json
+{
+  "intent": "get SOL price",
+  "category": "finance",
+  "constraints": {
+    "min_trust": 80,
+    "prefer_reachable": true,
+    "require_pricing": true,
+    "max_price_usd": 0.01
+  }
+}
+```
+
+Example curl:
+
+```bash
+curl -s -X POST http://localhost:8787/v1/radar/preflight \
+  -H 'content-type: application/json' \
+  -d '{
+    "intent":"get SOL price",
+    "category":"finance",
+    "constraints":{
+      "min_trust":80,
+      "prefer_reachable":true,
+      "require_pricing":true,
+      "max_price_usd":0.01
+    }
+  }'
+```
+
+Output shape:
+
+```json
+{
+  "generated_at": "2026-05-12T00:00:00.000Z",
+  "source": "infopunks-pay-sh-radar",
+  "input": {},
+  "recommended_route": {},
+  "accepted_candidates": [],
+  "rejected_candidates": [],
+  "warnings": [],
+  "superiority_evidence_available": false
+}
+```
+
+`superiority_evidence_available` is `true` only when there are at least two executable mappings in the same category and benchmark-ready comparison conditions exist.
+
+If only one executable mapping exists, Radar should be interpreted as:
+
+`Repeatability evidence available. Superiority evidence not yet available.`
+
+Radar does not execute paid APIs in this mode. It ranks and rejects using safe metadata, trust/signal intelligence, reachability, pricing clarity, and mapping completeness only.
 
 ---
 

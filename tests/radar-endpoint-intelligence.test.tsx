@@ -160,20 +160,26 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
       last_seen_at: observedAt
     });
     if (path === '/v1/endpoints/ep-lookup/monitor') return json({ health: 'reachable', lastCheck: { observedAt, payload: {} }, recentFailures: [] });
-    if (path === '/v1/preflight') return json({
-      decision: 'route_approved',
-      blockReason: null,
-      selectedProvider: 'alpha',
-      selectedProviderDetails: { providerId: 'alpha', name: 'Alpha Data', category: 'data', capabilities: ['market_data'], trustScore: 86, signalScore: 74, latencyMs: null, costUsd: 0.01, degradationFlag: false },
-      rejectedProviders: [],
-      rejectedProviderCount: 0,
-      rejectedProvidersTruncated: false,
-      candidateCount: 1,
-      consideredProviderCount: 1,
-      routingPolicy: { intent: 'Find a high-trust finance endpoint for market data.', category: 'data', constraints: { minTrustScore: 80, maxLatencyMs: null, maxCostUsd: null }, tieBreaker: 'lower_latency_ms', priorityOrder: ['min_trust_score'] },
-      generatedAt: observedAt,
-      dataMode: 'live'
+    if (path === '/v1/radar/superiority-readiness') return json({
+      generated_at: observedAt,
+      executable_provider_mappings_count: 1,
+      categories_with_at_least_two_executable_mappings: [],
+      categories_not_ready_for_comparison: ['data'],
+      providers_with_proven_paid_execution: [],
+      providers_with_only_catalog_metadata: ['alpha'],
+      next_mappings_needed: ['data: +1 executable mapping(s)']
     });
+    if (path === '/v1/radar/preflight') return json({
+      generated_at: observedAt,
+      source: 'infopunks-pay-sh-radar',
+      input: { intent: 'get SOL price', category: 'data', constraints: { min_trust: 80 } },
+      recommended_route: { provider_id: 'alpha', provider_name: 'Alpha Data', endpoint_id: 'ep-lookup', endpoint_name: 'Lookup', trust_score: 86, signal_score: 74, route_eligibility: true, confidence: 90, reasons: ['mapping_complete'], rejection_reasons: [], mapping_status: 'complete', reachability_status: 'reachable', pricing_status: 'clear', last_seen_healthy: observedAt },
+      accepted_candidates: [],
+      rejected_candidates: [],
+      warnings: [],
+      superiority_evidence_available: false
+    });
+    if (path === '/v1/radar/compare') return json({ generated_at: observedAt, mode: 'provider', rows: [{ id: 'alpha', type: 'provider', name: 'Alpha Data', trust_score: 86, signal_score: 74, endpoint_count: 2, mapped_endpoint_count: 2, route_eligible_endpoint_count: 1, degradation_count: 0, pricing_clarity: 95, metadata_quality: 90, reachability: 'reachable', last_observed: observedAt, last_seen_healthy: observedAt, route_recommendation: 'route_eligible', rejection_reasons: [] }] });
     return Promise.resolve(new Response('{}', { status: 404 }));
   });
 }
@@ -273,13 +279,13 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Routing intelligence for the Pay.sh agent economy.');
     expect(container.textContent).toContain('Ask Radar where an agent should route before spending.');
 
-    const example = Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Find high-trust finance endpoint') as HTMLButtonElement | undefined;
+    const example = Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Find SOL price route') as HTMLButtonElement | undefined;
     expect(example).toBeTruthy();
     await act(async () => {
       example!.click();
     });
 
-    const run = Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Run preflight') as HTMLButtonElement | undefined;
+    const run = Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Run Preflight') as HTMLButtonElement | undefined;
     expect(run).toBeTruthy();
     await act(async () => {
       run!.click();
@@ -287,8 +293,9 @@ describe('radar endpoint intelligence UI', () => {
       await Promise.resolve();
     });
 
-    expect(container.textContent).toContain('Route approved');
+    expect(container.textContent).toContain('Route candidate found');
     expect(container.textContent).toContain('Accepted candidate');
-    expect(container.textContent).toContain('/v1/preflight');
+    expect(container.textContent).toContain('/v1/radar/preflight');
+    expect(container.textContent).toContain('Superiority Proof Readiness');
   });
 });

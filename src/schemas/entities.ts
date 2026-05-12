@@ -426,6 +426,88 @@ export const PreflightResponseSchema = z.object({
   })
 });
 
+export const RadarPreflightConstraintsSchema = z.object({
+  min_trust: z.number().min(0).max(100).optional(),
+  prefer_reachable: z.boolean().optional(),
+  require_pricing: z.boolean().optional(),
+  max_price_usd: z.number().nonnegative().optional(),
+  allow_failed: z.boolean().optional()
+}).optional();
+
+export const RadarPreflightRequestSchema = z.object({
+  intent: z.string().min(1),
+  category: z.string().optional(),
+  constraints: RadarPreflightConstraintsSchema
+});
+
+export const RadarRouteCandidateSchema = z.object({
+  provider_id: z.string(),
+  provider_name: z.string().nullable(),
+  endpoint_id: z.string(),
+  endpoint_name: z.string().nullable(),
+  trust_score: z.number().nullable(),
+  signal_score: z.number().nullable(),
+  route_eligibility: z.boolean(),
+  confidence: z.number().min(0).max(100),
+  reasons: z.array(z.string()),
+  rejection_reasons: z.array(z.string()),
+  mapping_status: z.enum(['complete', 'missing']),
+  reachability_status: z.enum(['reachable', 'degraded', 'failed', 'unknown']),
+  pricing_status: z.enum(['clear', 'missing']),
+  last_seen_healthy: z.string().datetime().nullable().optional()
+});
+
+export const RadarPreflightResponseSchema = z.object({
+  generated_at: z.string().datetime(),
+  source: z.literal('infopunks-pay-sh-radar'),
+  input: RadarPreflightRequestSchema,
+  recommended_route: RadarRouteCandidateSchema.nullable(),
+  accepted_candidates: z.array(RadarRouteCandidateSchema),
+  rejected_candidates: z.array(RadarRouteCandidateSchema),
+  warnings: z.array(z.string()),
+  superiority_evidence_available: z.boolean()
+});
+
+export const RadarComparisonRequestSchema = z.object({
+  mode: z.enum(['provider', 'endpoint']).default('provider'),
+  ids: z.array(z.string().min(1)).min(2).max(3)
+});
+
+export const RadarComparisonRowSchema = z.object({
+  id: z.string(),
+  type: z.enum(['provider', 'endpoint']),
+  name: z.string(),
+  trust_score: z.number().nullable(),
+  signal_score: z.number().nullable(),
+  endpoint_count: z.number().int().nonnegative(),
+  mapped_endpoint_count: z.number().int().nonnegative(),
+  route_eligible_endpoint_count: z.number().int().nonnegative(),
+  degradation_count: z.number().int().nonnegative(),
+  pricing_clarity: z.number().nullable(),
+  metadata_quality: z.number().nullable(),
+  reachability: z.enum(['reachable', 'degraded', 'failed', 'unknown']),
+  last_observed: z.string().datetime().nullable(),
+  last_seen_healthy: z.string().datetime().nullable(),
+  route_recommendation: z.enum(['route_eligible', 'not_recommended']),
+  rejection_reasons: z.array(z.string())
+});
+
+export const RadarComparisonResponseSchema = z.object({
+  generated_at: z.string().datetime(),
+  mode: z.enum(['provider', 'endpoint']),
+  rows: z.array(RadarComparisonRowSchema)
+});
+
+export const RadarSuperiorityReadinessSchema = z.object({
+  generated_at: z.string().datetime(),
+  executable_provider_mappings_count: z.number().int().nonnegative(),
+  categories_with_at_least_two_executable_mappings: z.array(z.string()),
+  categories_not_ready_for_comparison: z.array(z.string()),
+  providers_with_proven_paid_execution: z.array(z.string()),
+  providers_with_only_catalog_metadata: z.array(z.string()),
+  next_mappings_needed: z.array(z.string())
+});
+
 export const RouteCandidateSchema = z.object({
   provider: ProviderSchema,
   trustAssessment: TrustAssessmentSchema,
@@ -487,3 +569,8 @@ export type SearchRequest = z.infer<typeof SearchRequestSchema>;
 export type RouteRecommendationRequest = z.infer<typeof RouteRecommendationRequestSchema>;
 export type PreflightRequest = z.infer<typeof PreflightRequestSchema>;
 export type PreflightResponse = z.infer<typeof PreflightResponseSchema>;
+export type RadarPreflightRequest = z.infer<typeof RadarPreflightRequestSchema>;
+export type RadarPreflightResponse = z.infer<typeof RadarPreflightResponseSchema>;
+export type RadarComparisonRequest = z.infer<typeof RadarComparisonRequestSchema>;
+export type RadarComparisonResponse = z.infer<typeof RadarComparisonResponseSchema>;
+export type RadarSuperiorityReadiness = z.infer<typeof RadarSuperiorityReadinessSchema>;

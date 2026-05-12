@@ -196,36 +196,59 @@ type RouteResult = {
   coordinationScore?: number | null;
   selectedProviderNotRecommendedReason?: string | null;
 };
+type RadarPreflightCandidate = {
+  provider_id: string;
+  provider_name: string | null;
+  endpoint_id: string;
+  endpoint_name: string | null;
+  trust_score: number | null;
+  signal_score: number | null;
+  route_eligibility: boolean;
+  confidence: number;
+  reasons: string[];
+  rejection_reasons: string[];
+  mapping_status: 'complete' | 'missing';
+  reachability_status: 'reachable' | 'degraded' | 'failed' | 'unknown';
+  pricing_status: 'clear' | 'missing';
+  last_seen_healthy?: string | null;
+};
 type PreflightResult = {
-  decision: 'route_approved' | 'route_blocked';
-  blockReason: 'no_candidates' | 'no_category_match' | 'no_capability_match' | 'all_candidates_rejected_by_policy' | null;
-  selectedProvider: string | null;
-  selectedProviderDetails?: {
-    providerId: string;
-    name: string;
-    category: string;
-    capabilities?: string[];
-    trustScore: number | null;
-    signalScore: number | null;
-    latencyMs: number | null;
-    costUsd: number | null;
-    degradationFlag: boolean;
-  } | null;
-  rejectedProviders: { providerId: string; reasons: string[] }[];
-  consideredProvidersRejected?: { providerId: string; category: string; capabilities: string[]; reasons: string[] }[];
-  rejectedProviderCount?: number;
-  rejectedProvidersTruncated?: boolean;
-  candidateCount: number;
-  consideredProviderCount: number;
-  routingPolicy: {
-    intent: string;
-    category: string | null;
-    constraints: { minTrustScore: number; maxLatencyMs: number | null; maxCostUsd: number | null };
-    tieBreaker: string;
-    priorityOrder: string[];
-  };
-  generatedAt: string;
-  dataMode: 'live' | 'cached' | 'fallback';
+  generated_at: string;
+  source: string;
+  input: Record<string, unknown>;
+  recommended_route: RadarPreflightCandidate | null;
+  accepted_candidates: RadarPreflightCandidate[];
+  rejected_candidates: RadarPreflightCandidate[];
+  warnings: string[];
+  superiority_evidence_available: boolean;
+};
+type RadarComparisonRow = {
+  id: string;
+  type: 'provider' | 'endpoint';
+  name: string;
+  trust_score: number | null;
+  signal_score: number | null;
+  endpoint_count: number;
+  mapped_endpoint_count: number;
+  route_eligible_endpoint_count: number;
+  degradation_count: number;
+  pricing_clarity: number | null;
+  metadata_quality: number | null;
+  reachability: 'reachable' | 'degraded' | 'failed' | 'unknown';
+  last_observed: string | null;
+  last_seen_healthy: string | null;
+  route_recommendation: 'route_eligible' | 'not_recommended';
+  rejection_reasons: string[];
+};
+type RadarComparisonResult = { generated_at: string; mode: 'provider' | 'endpoint'; rows: RadarComparisonRow[] };
+type RadarSuperiorityReadiness = {
+  generated_at: string;
+  executable_provider_mappings_count: number;
+  categories_with_at_least_two_executable_mappings: string[];
+  categories_not_ready_for_comparison: string[];
+  providers_with_proven_paid_execution: string[];
+  providers_with_only_catalog_metadata: string[];
+  next_mappings_needed: string[];
 };
 type SearchResponse = { data: any[]; degraded?: boolean; reason?: string };
 type ErrorBoundaryState = { hasError: boolean };
@@ -757,14 +780,14 @@ function RadarApp() {
   const [routeStatus, setRouteStatus] = useState<'idle' | 'loading' | 'error'>('idle');
   const [routeError, setRouteError] = useState<string | null>(null);
   const [includeSelectedProvider, setIncludeSelectedProvider] = useState(true);
-  const [preflightIntent, setPreflightIntent] = useState('Ask Radar where an agent should route before spending.');
-  const [preflightCategory, setPreflightCategory] = useState('all');
-  const [preflightMinTrust, setPreflightMinTrust] = useState('80');
-  const [preflightMaxLatency, setPreflightMaxLatency] = useState('');
-  const [preflightMaxCost, setPreflightMaxCost] = useState('');
+  const [preflightJsonInput, setPreflightJsonInput] = useState(`{\n  \"intent\": \"get SOL price\",\n  \"category\": \"finance\",\n  \"constraints\": {\n    \"min_trust\": 80,\n    \"prefer_reachable\": true,\n    \"require_pricing\": true,\n    \"max_price_usd\": 0.01\n  }\n}`);
   const [preflightResult, setPreflightResult] = useState<PreflightResult | null>(null);
   const [preflightStatus, setPreflightStatus] = useState<'idle' | 'loading' | 'error'>('idle');
   const [preflightError, setPreflightError] = useState<string | null>(null);
+  const [compareMode, setCompareMode] = useState<'provider' | 'endpoint'>('provider');
+  const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [compareResult, setCompareResult] = useState<RadarComparisonResult | null>(null);
+  const [readiness, setReadiness] = useState<RadarSuperiorityReadiness | null>(null);
   const [providerDetail, setProviderDetail] = useState<ProviderDetail | null>(null);
   const [providerIntel, setProviderIntel] = useState<ProviderIntelligence | null>(null);
   const [radarEndpoints, setRadarEndpoints] = useState<NormalizedEndpointRecord[]>([]);
@@ -815,7 +838,8 @@ function RadarApp() {
         api<{ data: { nodes: unknown[]; edges: unknown[] } }>('/v1/graph'),
         api<{ data: PulseSummary }>('/v1/pulse/summary'),
         api<{ data: FeaturedProvider }>('/v1/providers/featured'),
-        api<{ data: { endpoints?: NormalizedEndpointRecord[] } }>('/v1/radar/endpoints')
+        api<{ data: { endpoints?: NormalizedEndpointRecord[] } }>('/v1/radar/endpoints'),
+        api<{ data: RadarSuperiorityReadiness }>('/v1/radar/superiority-readiness')
       ]).then((results) => {
         if (!active) return;
         const providers = results[0].status === 'fulfilled' && Array.isArray(results[0].value?.data) ? results[0].value.data : null;
@@ -824,6 +848,7 @@ function RadarApp() {
         const summary = results[3].status === 'fulfilled' ? toPulseSummary(results[3].value?.data) : null;
         const featured = results[4].status === 'fulfilled' ? results[4].value.data : null;
         const normalizedEndpoints = results[5].status === 'fulfilled' && Array.isArray(results[5].value?.data?.endpoints) ? results[5].value.data.endpoints : null;
+        const readinessPayload = results[6].status === 'fulfilled' ? results[6].value?.data ?? null : null;
         setData((current) => current ? {
           ...current,
           providers: providers ?? current.providers,
@@ -832,6 +857,7 @@ function RadarApp() {
         } : current);
         if (summary) setPulseSummary(summary);
         if (normalizedEndpoints) setRadarEndpoints(normalizedEndpoints);
+        if (readinessPayload) setReadiness(readinessPayload);
         if (featured && typeof featured.nextRotationAt === 'string') applyFeaturedProvider(featured, true);
         if (preferredProviderId && (providers ?? []).some((provider) => provider.id === preferredProviderId)) {
           setSelectedId(preferredProviderId);
@@ -1046,31 +1072,23 @@ function RadarApp() {
       });
   }
 
-  function preflightPayload() {
-    const minTrust = numberOrUndefined(preflightMinTrust);
-    const maxLatency = numberOrUndefined(preflightMaxLatency);
-    const maxCost = numberOrUndefined(preflightMaxCost);
-    return {
-      intent: preflightIntent.trim(),
-      category: preflightCategory === 'all' ? undefined : preflightCategory,
-      constraints: {
-        minTrustScore: minTrust,
-        maxLatencyMs: maxLatency,
-        maxCostUsd: maxCost
-      }
-    };
-  }
-
   function runPreflightCheck() {
-    const payload = preflightPayload();
-    if (!payload.intent) {
+    let payload: Record<string, unknown>;
+    try {
+      payload = JSON.parse(preflightJsonInput) as Record<string, unknown>;
+    } catch {
+      setPreflightStatus('error');
+      setPreflightError('malformed JSON input');
+      return;
+    }
+    if (typeof payload.intent !== 'string' || !payload.intent.trim()) {
       setPreflightStatus('error');
       setPreflightError('preflight intent required');
       return;
     }
     setPreflightStatus('loading');
     setPreflightError(null);
-    void api<{ data: PreflightResult }>('/v1/preflight', { method: 'POST', body: JSON.stringify(payload) })
+    void api<{ data: PreflightResult }>('/v1/radar/preflight', { method: 'POST', body: JSON.stringify(payload) })
       .then((res) => {
         setPreflightResult(res.data);
         setPreflightStatus('idle');
@@ -1081,12 +1099,15 @@ function RadarApp() {
       });
   }
 
-  function applyPreflightExample(example: { intent: string; category?: string; minTrust?: string; maxCost?: string }) {
-    setPreflightIntent(example.intent);
-    setPreflightCategory(example.category ?? 'all');
-    setPreflightMinTrust(example.minTrust ?? '80');
-    setPreflightMaxCost(example.maxCost ?? '');
-    setPreflightMaxLatency('');
+  function applyPreflightExample(example: Record<string, unknown>) {
+    setPreflightJsonInput(JSON.stringify(example, null, 2));
+  }
+
+  function runComparison(ids: string[], mode: 'provider' | 'endpoint') {
+    if (ids.length < 2) return;
+    void api<{ data: RadarComparisonResult }>('/v1/radar/compare', { method: 'POST', body: JSON.stringify({ mode, ids }) })
+      .then((res) => setCompareResult(res.data))
+      .catch(() => undefined);
   }
 
   function recommendProvider(provider: Provider) {
@@ -1255,7 +1276,7 @@ function RadarApp() {
             </div>
           </section>}
 
-          <section className="grid two" id="compare">
+          <section className="grid two">
             <Leaderboard title="Trust Leaderboard" scores={safeTopTrust} providers={providerLookup} kind="trust" />
             <Leaderboard title="Signal Leaderboard" scores={safeTopSignal} providers={providerLookup} kind="signal" />
           </section>
@@ -1295,24 +1316,17 @@ function RadarApp() {
             <div className="results">{searchResults.filter((result) => isRecord(result) && isRecord(result.provider) && typeof result.provider.id === 'string').map((result) => <div className="result" key={result.provider.id}><strong>{result.provider.name ?? 'unknown provider'}</strong><span>relevance {result.relevance ?? 'unknown'} / trust {result.trustAssessment?.score ?? 'unknown'} / signal {result.signalAssessment?.score ?? 'unknown'}</span></div>)}</div>
           </section>
           <PreflightConsole
-            intent={preflightIntent}
-            category={preflightCategory}
-            minTrust={preflightMinTrust}
-            maxLatency={preflightMaxLatency}
-            maxCost={preflightMaxCost}
-            categories={categoryOptions}
+            input={preflightJsonInput}
             result={preflightResult}
             status={preflightStatus}
             error={preflightError}
-            onIntentChange={setPreflightIntent}
-            onCategoryChange={setPreflightCategory}
-            onMinTrustChange={setPreflightMinTrust}
-            onMaxLatencyChange={setPreflightMaxLatency}
-            onMaxCostChange={setPreflightMaxCost}
+            onInputChange={setPreflightJsonInput}
             onRun={runPreflightCheck}
             onExample={applyPreflightExample}
-            curl={preflightCurl(preflightPayload())}
+            curl={preflightCurlFromText(preflightJsonInput)}
           />
+          <ComparisonPanel providers={safeProviders} endpoints={radarEndpoints} mode={compareMode} selectedIds={compareIds} onModeChange={setCompareMode} onSelectionChange={setCompareIds} result={compareResult} onCompare={runComparison} />
+          <SuperiorityReadinessPanel readiness={readiness} />
           </div>
         </section>
 
@@ -1730,47 +1744,31 @@ function ControlStripMetric({ label, value }: { label: string; value: string | n
 }
 
 function PreflightConsole({
-  intent,
-  category,
-  minTrust,
-  maxLatency,
-  maxCost,
-  categories,
+  input,
   result,
   status,
   error,
-  onIntentChange,
-  onCategoryChange,
-  onMinTrustChange,
-  onMaxLatencyChange,
-  onMaxCostChange,
+  onInputChange,
   onRun,
   onExample,
   curl
 }: {
-  intent: string;
-  category: string;
-  minTrust: string;
-  maxLatency: string;
-  maxCost: string;
-  categories: string[];
+  input: string;
   result: PreflightResult | null;
   status: 'idle' | 'loading' | 'error';
   error: string | null;
-  onIntentChange: (value: string) => void;
-  onCategoryChange: (value: string) => void;
-  onMinTrustChange: (value: string) => void;
-  onMaxLatencyChange: (value: string) => void;
-  onMaxCostChange: (value: string) => void;
+  onInputChange: (value: string) => void;
   onRun: () => void;
-  onExample: (example: { intent: string; category?: string; minTrust?: string; maxCost?: string }) => void;
+  onExample: (example: Record<string, unknown>) => void;
   curl: string;
 }) {
   const examples = [
-    { label: 'Find SOL price route', intent: 'Find a SOL price route before an agent pays.', category: 'Payments', minTrust: '75' },
-    { label: 'Find high-trust finance endpoint', intent: 'Find a high-trust finance endpoint for market data.', category: 'Payments', minTrust: '90' },
-    { label: 'Find OCR provider', intent: 'Find an OCR provider for document extraction.', category: 'OCR', minTrust: '80' },
-    { label: 'Avoid degraded routes', intent: 'Route around degraded providers for a payment-adjacent task.', category: 'all', minTrust: '80' }
+    { label: 'Find SOL price route', body: { intent: 'get SOL price', category: 'finance', constraints: { min_trust: 80, prefer_reachable: true, require_pricing: true, max_price_usd: 0.01 } } },
+    { label: 'Find token price route', body: { intent: 'get token price', category: 'finance', constraints: { min_trust: 75, prefer_reachable: true } } },
+    { label: 'Find OCR route', body: { intent: 'extract text from image', category: 'OCR', constraints: { min_trust: 80, require_pricing: true } } },
+    { label: 'Find low-cost data route', body: { intent: 'fetch market data cheaply', category: 'finance', constraints: { max_price_usd: 0.005, require_pricing: true } } },
+    { label: 'Find high-trust provider', body: { intent: 'high trust provider for agent task', constraints: { min_trust: 90 } } },
+    { label: 'Find route-eligible finance endpoint', body: { intent: 'find route-eligible finance endpoint', category: 'finance', constraints: { min_trust: 80, prefer_reachable: true } } }
   ];
   return <section className="panel preflight-console" id="preflight" aria-labelledby="preflight-title">
     <div className="panel-head">
@@ -1780,38 +1778,17 @@ function PreflightConsole({
         <h2 id="preflight-title">Agent Preflight</h2>
         <p className="panel-caption">Ask Radar where an agent should route before spending. This checks catalog intelligence only and does not execute paid APIs.</p>
       </div>
-      <StatusPill state={result?.decision === 'route_approved' ? 'healthy' : result?.decision === 'route_blocked' ? 'critical' : status === 'error' ? 'watch' : 'unknown'} />
+      <StatusPill state={result?.recommended_route ? 'healthy' : result ? 'critical' : status === 'error' ? 'watch' : 'unknown'} />
     </div>
     <div className="preflight-examples" aria-label="Preflight examples">
-      {examples.map((example) => <button key={example.label} type="button" onClick={() => onExample(example)}>{example.label}</button>)}
+      {examples.map((example) => <button key={example.label} type="button" onClick={() => onExample(example.body)}>{example.label}</button>)}
     </div>
     <div className="preflight-form">
       <label className="command-input">
-        <span>agent intent</span>
-        <textarea value={intent} onChange={(event) => onIntentChange(event.target.value)} aria-label="Agent preflight intent" placeholder="Ask Radar where an agent should route before spending." />
+        <span>preflight JSON input</span>
+        <textarea value={input} onChange={(event) => onInputChange(event.target.value)} aria-label="Agent preflight JSON input" placeholder="Enter JSON payload for preflight." />
       </label>
-      <div className="preflight-controls">
-        <label>
-          <span>category</span>
-          <select value={category} onChange={(event) => onCategoryChange(event.target.value)} aria-label="Preflight category">
-            <option value="all">all categories</option>
-            {categories.map((item) => <option key={item} value={item}>{item}</option>)}
-          </select>
-        </label>
-        <label>
-          <span>min trust</span>
-          <input value={minTrust} onChange={(event) => onMinTrustChange(event.target.value)} inputMode="numeric" aria-label="Preflight minimum trust score" />
-        </label>
-        <label>
-          <span>max latency ms</span>
-          <input value={maxLatency} onChange={(event) => onMaxLatencyChange(event.target.value)} inputMode="numeric" placeholder="unknown allowed" aria-label="Preflight max latency milliseconds" />
-        </label>
-        <label>
-          <span>max cost usd</span>
-          <input value={maxCost} onChange={(event) => onMaxCostChange(event.target.value)} inputMode="decimal" placeholder="unknown allowed" aria-label="Preflight max cost USD" />
-        </label>
-      </div>
-      <button className="execute compact" type="button" onClick={onRun} disabled={status === 'loading'}>{status === 'loading' ? 'Checking route...' : 'Run preflight'}</button>
+      <button className="execute compact" type="button" onClick={onRun} disabled={status === 'loading'}>{status === 'loading' ? 'Checking route...' : 'Run Preflight'}</button>
     </div>
     {error && <p className="route-state error">{error}</p>}
     {!result && status !== 'loading' && !error && <EmptyState title="No preflight decision yet." body="Ask Radar where an agent should route before spending." />}
@@ -1821,33 +1798,32 @@ function PreflightConsole({
 }
 
 function PreflightResultView({ result, curl }: { result: PreflightResult; curl: string }) {
-  const approved = result.decision === 'route_approved';
-  const selected = result.selectedProviderDetails;
+  const selected = result.recommended_route;
   return <div className="preflight-result">
     <SeverityBanner
-      state={approved ? 'healthy' : 'critical'}
-      title={approved ? 'Route approved' : 'Preflight cannot recommend a route yet'}
-      body={approved ? `${selected?.name ?? result.selectedProvider ?? 'Selected provider'} passed current policy.` : preflightBlockMessage(result.blockReason)}
+      state={selected ? 'healthy' : 'critical'}
+      title={selected ? 'Route candidate found' : 'Preflight cannot recommend a route yet'}
+      body={selected ? `${selected.provider_name ?? selected.provider_id} accepted under current constraints.` : 'Preflight has insufficient evidence to recommend a route.'}
     />
     <div className="preflight-result-grid">
       <div className="preflight-candidate accepted">
-        <strong>{selected?.name ?? result.selectedProvider ?? 'No accepted provider'}</strong>
-        <span>{approved ? 'Accepted candidate' : 'No accepted candidate'}</span>
+        <strong>{selected?.provider_name ?? selected?.provider_id ?? 'No accepted provider'}</strong>
+        <span>{selected ? 'Accepted candidate' : 'No accepted candidate'}</span>
         <KeyValues rows={[
-          ['provider_id', selected?.providerId ?? result.selectedProvider ?? 'none'],
-          ['category', selected?.category ?? result.routingPolicy.category ?? 'unknown'],
-          ['trust', selected?.trustScore ?? 'unknown'],
-          ['signal', selected?.signalScore ?? 'unknown'],
-          ['latency', formatMs(selected?.latencyMs ?? null)],
-          ['cost', moneyOrUnknown(selected?.costUsd ?? null)]
+          ['provider_id', selected?.provider_id ?? 'none'],
+          ['endpoint_id', selected?.endpoint_id ?? 'none'],
+          ['trust', selected?.trust_score ?? 'unknown'],
+          ['signal', selected?.signal_score ?? 'unknown'],
+          ['mapping', selected?.mapping_status ?? 'unknown'],
+          ['reachability', selected?.reachability_status ?? 'unknown']
         ]} />
       </div>
       <div className="preflight-candidate rejected">
         <strong>Rejected candidates</strong>
-        <span>{result.rejectedProviderCount ?? result.rejectedProviders.length} rejected{result.rejectedProvidersTruncated ? ' (truncated)' : ''}</span>
+        <span>{result.rejected_candidates.length} rejected</span>
         <div className="preflight-rejections">
-          {result.rejectedProviders.slice(0, 5).map((item) => <p key={item.providerId}><b>{item.providerId}</b><span>{item.reasons.join(', ')}</span></p>)}
-          {!result.rejectedProviders.length && <p>No rejected providers under current policy.</p>}
+          {result.rejected_candidates.slice(0, 5).map((item) => <p key={`${item.provider_id}:${item.endpoint_id}`}><b>{item.provider_id}</b><span>{item.rejection_reasons.join(', ') || 'no rejection reasons reported'}</span></p>)}
+          {!result.rejected_candidates.length && <p>No rejected providers under current policy.</p>}
         </div>
       </div>
     </div>
@@ -1863,6 +1839,75 @@ function PreflightResultView({ result, curl }: { result: PreflightResult; curl: 
       <pre>{curl}</pre>
     </div>
   </div>;
+}
+
+function ComparisonPanel({
+  providers,
+  endpoints,
+  mode,
+  selectedIds,
+  onModeChange,
+  onSelectionChange,
+  result,
+  onCompare
+}: {
+  providers: Provider[];
+  endpoints: NormalizedEndpointRecord[];
+  mode: 'provider' | 'endpoint';
+  selectedIds: string[];
+  onModeChange: (value: 'provider' | 'endpoint') => void;
+  onSelectionChange: (value: string[]) => void;
+  result: RadarComparisonResult | null;
+  onCompare: (ids: string[], mode: 'provider' | 'endpoint') => void;
+}) {
+  const options = mode === 'provider'
+    ? providers.map((provider) => ({ id: provider.id, label: provider.name }))
+    : endpoints.map((endpoint) => ({ id: endpoint.endpoint_id, label: `${endpoint.provider_name ?? endpoint.provider_id} / ${endpoint.endpoint_name ?? endpoint.endpoint_id}` })).slice(0, 50);
+  return <section className="panel" id="compare" aria-label="Provider endpoint comparison engine">
+    <ScopeLabel scope="GLOBAL" />
+    <h2>Provider/Endpoint Comparison Engine</h2>
+    <div className="route-input-grid">
+      <select value={mode} onChange={(event) => {
+        onModeChange(event.target.value === 'endpoint' ? 'endpoint' : 'provider');
+        onSelectionChange([]);
+      }}>
+        <option value="provider">provider</option>
+        <option value="endpoint">endpoint</option>
+      </select>
+      <select multiple value={selectedIds} onChange={(event) => onSelectionChange(Array.from(event.currentTarget.selectedOptions).map((item) => item.value).slice(0, 3))} aria-label="Comparison selection">
+        {options.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
+      </select>
+      <button className="execute compact secondary" type="button" onClick={() => onCompare(selectedIds, mode)} disabled={selectedIds.length < 2}>Compare</button>
+    </div>
+    {result && <div className="endpoint-list has-rows">{result.rows.map((row) => <div className="endpoint" key={row.id}>
+      <strong>{row.name}</strong>
+      <small>trust {row.trust_score ?? 'unknown'} / signal {row.signal_score ?? 'unknown'} / mapped {row.mapped_endpoint_count}/{row.endpoint_count}</small>
+      <small>route eligible {row.route_eligible_endpoint_count} / degraded {row.degradation_count} / reachability {row.reachability}</small>
+      <small>recommendation {row.route_recommendation} / rejection reasons {row.rejection_reasons.join(', ') || 'none'}</small>
+    </div>)}</div>}
+  </section>;
+}
+
+function SuperiorityReadinessPanel({ readiness }: { readiness: RadarSuperiorityReadiness | null }) {
+  const statement = !readiness || readiness.executable_provider_mappings_count <= 1
+    ? 'Repeatability evidence available. Superiority evidence not yet available.'
+    : readiness.categories_with_at_least_two_executable_mappings.length
+      ? 'Comparison-ready categories exist, but superiority still requires benchmark evidence.'
+      : 'Superiority evidence not yet available.';
+  return <section className="panel" aria-label="Superiority Proof Readiness panel">
+    <ScopeLabel scope="GLOBAL" />
+    <h2>Superiority Proof Readiness</h2>
+    <p>{statement}</p>
+    {!readiness && <p className="muted">Readiness data unavailable.</p>}
+    {readiness && <KeyValues rows={[
+      ['executable provider mappings', readiness.executable_provider_mappings_count],
+      ['ready categories', readiness.categories_with_at_least_two_executable_mappings.join(', ') || 'none'],
+      ['not ready categories', readiness.categories_not_ready_for_comparison.join(', ') || 'none'],
+      ['proven paid execution providers', readiness.providers_with_proven_paid_execution.join(', ') || 'missing'],
+      ['catalog metadata only providers', readiness.providers_with_only_catalog_metadata.join(', ') || 'none'],
+      ['next mappings needed', readiness.next_mappings_needed.join(' | ') || 'none']
+    ]} />}
+  </section>;
 }
 
 function StatusPill({ state }: { state: 'healthy' | 'watch' | 'degraded' | 'critical' | 'unknown' }) {
@@ -2849,29 +2894,23 @@ function formatNullableBoolean(value: boolean | null) {
   return value ? 'yes' : 'no';
 }
 
-function numberOrUndefined(value: string) {
-  const trimmed = value.trim();
-  if (!trimmed) return undefined;
-  const numeric = Number(trimmed);
-  return Number.isFinite(numeric) ? numeric : undefined;
+function preflightCurlFromText(input: string) {
+  const body = safePreflightJson(input);
+  return `curl -s -X POST ${API_BASE_URL}/v1/radar/preflight \\\n  -H 'Content-Type: application/json' \\\n  --data '${escapeShellSingleQuoted(JSON.stringify(body))}'`;
 }
 
-function preflightCurl(payload: { intent: string; category?: string; constraints?: Record<string, unknown> }) {
-  const cleanConstraints = Object.fromEntries(Object.entries(payload.constraints ?? {}).filter(([, value]) => value !== undefined));
-  const body = {
-    intent: payload.intent.trim() || 'Ask Radar where an agent should route before spending.',
-    ...(payload.category ? { category: payload.category } : {}),
-    ...(Object.keys(cleanConstraints).length ? { constraints: cleanConstraints } : {})
+function safePreflightJson(input: string) {
+  try {
+    const parsed = JSON.parse(input);
+    if (isRecord(parsed)) return parsed;
+  } catch {
+    // ignored
+  }
+  return {
+    intent: 'get SOL price',
+    category: 'finance',
+    constraints: { min_trust: 80, prefer_reachable: true, require_pricing: true, max_price_usd: 0.01 }
   };
-  return `curl -s -X POST ${API_BASE_URL}/v1/preflight \\\n  -H 'Content-Type: application/json' \\\n  --data '${escapeShellSingleQuoted(JSON.stringify(body))}'`;
-}
-
-function preflightBlockMessage(reason: PreflightResult['blockReason']) {
-  if (reason === 'no_candidates') return 'No candidate providers are available in the current catalog window.';
-  if (reason === 'no_category_match') return 'No provider matched the requested category.';
-  if (reason === 'no_capability_match') return 'Candidate providers did not match the inferred capability requirement.';
-  if (reason === 'all_candidates_rejected_by_policy') return 'All candidates were rejected by trust, degradation, latency, or cost policy.';
-  return 'Preflight has insufficient evidence to recommend a route.';
 }
 
 function routeImplicationForState(state: 'healthy' | 'watch' | 'degraded' | 'critical' | 'unknown') {
