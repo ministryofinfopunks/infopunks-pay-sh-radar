@@ -431,7 +431,8 @@ export const RadarPreflightConstraintsSchema = z.object({
   prefer_reachable: z.boolean().optional(),
   require_pricing: z.boolean().optional(),
   max_price_usd: z.number().nonnegative().optional(),
-  allow_failed: z.boolean().optional()
+  allow_failed: z.boolean().optional(),
+  allow_risky_routes: z.boolean().optional()
 }).optional();
 
 export const RadarPreflightRequestSchema = z.object({
@@ -455,6 +456,24 @@ export const RadarRouteCandidateSchema = z.object({
   reachability_status: z.enum(['reachable', 'degraded', 'failed', 'unknown']),
   pricing_status: z.enum(['clear', 'missing']),
   last_seen_healthy: z.string().datetime().nullable().optional(),
+  predictive_risk: z.object({
+    predictive_risk_score: z.number().min(0).max(100),
+    predictive_risk_level: z.enum(['low', 'watch', 'elevated', 'critical', 'unknown']),
+    history_available: z.boolean(),
+    sample_count: z.number().int().nonnegative(),
+    explanation: z.string(),
+    evidence: z.array(z.string()),
+    warnings: z.array(z.string()),
+    recommended_action: z.enum(['route normally', 'route with caution', 'required fallback route', 'not recommended for routing', 'insufficient history']),
+    top_anomaly: z.object({
+      anomaly_type: z.string(),
+      severity: z.enum(['low', 'medium', 'high', 'critical']),
+      confidence: z.enum(['low', 'medium', 'high']),
+      explanation: z.string(),
+      evidence: z.array(z.string()).optional(),
+      detected_at: z.string().datetime()
+    }).nullable()
+  }).optional(),
   trend_context: z.object({
     trust_trend: z.enum(['improving', 'stable', 'degrading', 'unknown']),
     signal_trend: z.enum(['improving', 'stable', 'degrading', 'unknown']),
@@ -500,6 +519,17 @@ export const RadarComparisonRowSchema = z.object({
   reachability: z.enum(['reachable', 'degraded', 'failed', 'unknown']),
   last_observed: z.string().datetime().nullable(),
   last_seen_healthy: z.string().datetime().nullable(),
+  predictive_risk_level: z.enum(['low', 'watch', 'elevated', 'critical', 'unknown']).optional(),
+  predictive_risk_score: z.number().min(0).max(100).optional(),
+  recommended_action: z.enum(['route normally', 'route with caution', 'required fallback route', 'not recommended for routing', 'insufficient history']).optional(),
+  top_anomaly: z.object({
+    anomaly_type: z.string(),
+    severity: z.enum(['low', 'medium', 'high', 'critical']),
+    confidence: z.enum(['low', 'medium', 'high']),
+    explanation: z.string(),
+    evidence: z.array(z.string()).optional(),
+    detected_at: z.string().datetime()
+  }).nullable().optional(),
   route_recommendation: z.enum(['route_eligible', 'not_recommended']),
   rejection_reasons: z.array(z.string())
 });
@@ -518,6 +548,85 @@ export const RadarSuperiorityReadinessSchema = z.object({
   providers_with_proven_paid_execution: z.array(z.string()),
   providers_with_only_catalog_metadata: z.array(z.string()),
   next_mappings_needed: z.array(z.string())
+});
+
+export const RadarRiskAnomalySchema = z.object({
+  anomaly_type: z.enum([
+    'sudden_trust_drop',
+    'sudden_signal_spike',
+    'repeated_degradation',
+    'repeated_failed_metadata_check',
+    'latency_spike',
+    'route_eligibility_flip',
+    'pricing_metadata_disappeared',
+    'metadata_quality_decline',
+    'catalog_metadata_churn',
+    'stale_catalog_source',
+    'critical_current_state'
+  ]),
+  severity: z.enum(['low', 'medium', 'high', 'critical']),
+  confidence: z.enum(['low', 'medium', 'high']),
+  explanation: z.string(),
+  evidence: z.array(z.string()),
+  detected_at: z.string().datetime()
+});
+
+export const RadarRiskResponseSchema = z.object({
+  generated_at: z.string().datetime(),
+  subject_type: z.enum(['provider', 'endpoint', 'ecosystem']),
+  subject_id: z.string(),
+  risk_score: z.number().min(0).max(100),
+  risk_level: z.enum(['low', 'watch', 'elevated', 'critical', 'unknown']),
+  history_available: z.boolean(),
+  sample_count: z.number().int().nonnegative(),
+  explanation: z.string().optional(),
+  anomalies: z.array(RadarRiskAnomalySchema),
+  evidence: z.array(z.string()),
+  warnings: z.array(z.string()),
+  recommended_action: z.enum(['route normally', 'route with caution', 'required fallback route', 'not recommended for routing', 'insufficient history'])
+});
+
+export const RadarEcosystemRiskSummarySchema = RadarRiskResponseSchema.extend({
+  subject_type: z.literal('ecosystem'),
+  subject_id: z.literal('ecosystem'),
+  summary: z.object({
+    providers_by_risk_level: z.object({
+      low: z.number().int().nonnegative(),
+      watch: z.number().int().nonnegative(),
+      elevated: z.number().int().nonnegative(),
+      critical: z.number().int().nonnegative(),
+      unknown: z.number().int().nonnegative()
+    }),
+    top_anomalies: z.array(z.object({
+      anomaly_type: RadarRiskAnomalySchema.shape.anomaly_type,
+      count: z.number().int().nonnegative()
+    })),
+    categories_most_affected: z.array(z.object({
+      category: z.string(),
+      provider_count: z.number().int().nonnegative()
+    })),
+    recent_critical_events: z.array(z.object({
+      event_id: z.string(),
+      type: EventTypeSchema,
+      provider_id: z.string().nullable(),
+      endpoint_id: z.string().nullable(),
+      observed_at: z.string().datetime()
+    })),
+    stale_catalog_warning: z.string().nullable(),
+    anomaly_watch: z.array(z.object({
+      subject_type: z.enum(['provider', 'endpoint']),
+      provider_id: z.string().nullable(),
+      endpoint_id: z.string().nullable(),
+      anomaly_type: RadarRiskAnomalySchema.shape.anomaly_type,
+      severity: z.enum(['low', 'medium', 'high', 'critical']),
+      confidence: z.enum(['low', 'medium', 'high']),
+      explanation: z.string(),
+      detected_at: z.string().datetime(),
+      recommended_action: z.enum(['route normally', 'route with caution', 'required fallback route', 'not recommended for routing', 'insufficient history']),
+      route_implication: z.string(),
+      evidence: z.array(z.string())
+    }))
+  })
 });
 
 export const RouteCandidateSchema = z.object({
@@ -586,3 +695,6 @@ export type RadarPreflightResponse = z.infer<typeof RadarPreflightResponseSchema
 export type RadarComparisonRequest = z.infer<typeof RadarComparisonRequestSchema>;
 export type RadarComparisonResponse = z.infer<typeof RadarComparisonResponseSchema>;
 export type RadarSuperiorityReadiness = z.infer<typeof RadarSuperiorityReadinessSchema>;
+export type RadarRiskAnomaly = z.infer<typeof RadarRiskAnomalySchema>;
+export type RadarRiskResponse = z.infer<typeof RadarRiskResponseSchema>;
+export type RadarEcosystemRiskSummary = z.infer<typeof RadarEcosystemRiskSummarySchema>;

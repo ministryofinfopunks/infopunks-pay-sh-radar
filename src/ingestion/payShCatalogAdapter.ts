@@ -197,13 +197,14 @@ export async function loadPayShCatalog(
   const sourceMode = options.catalogSource ?? (url ? 'live' : 'fixture');
   const allowFixtureFallback = options.allowFixtureFallback ?? true;
   const liveUrl = url ?? DEFAULT_LIVE_CATALOG_URL;
-  if (sourceMode === 'fixture') return fixtureResult(url ?? null, null);
+  if (sourceMode === 'fixture') return fixtureResult(url ?? null, 'bootstrap_not_called');
 
   try {
     const response = await fetch(liveUrl, { headers: { accept: 'application/json' } });
     if (!response.ok) throw new Error(`Pay.sh catalog returned ${response.status}`);
     const body = await response.json();
     const normalized = normalizePayShCatalog(body);
+    if (normalized.items.length === 0) throw new Error('live_catalog_empty_provider_array');
     return {
       items: normalized.items,
       source: `${LIVE_SOURCE}:${liveUrl}`,
@@ -219,7 +220,7 @@ export async function loadPayShCatalog(
       }
     };
   } catch (error) {
-    const message = sanitizeCatalogError(error);
+    const message = normalizeCatalogErrorCode(error);
     if (!allowFixtureFallback) {
       return {
         items: [],
@@ -243,11 +244,12 @@ export async function loadPayShCatalog(
 }
 
 function fixtureResult(url: string | null, error: string | null): PayShCatalogSourceResult {
+  const resolvedError = error ?? 'pulse_state_inconsistent';
   return {
     items: payShCatalogFixture,
     source: FIXTURE_SOURCE,
     usedFixture: true,
-    error: error ?? undefined,
+    error: resolvedError,
     dataSource: {
       mode: 'fixture_fallback',
       url,
@@ -255,7 +257,7 @@ function fixtureResult(url: string | null, error: string | null): PayShCatalogSo
       provider_count: payShCatalogFixture.length,
       last_ingested_at: null,
       used_fixture: true,
-      error
+      error: resolvedError
     }
   };
 }
@@ -263,6 +265,13 @@ function fixtureResult(url: string | null, error: string | null): PayShCatalogSo
 function sanitizeCatalogError(error: unknown) {
   const message = error instanceof Error ? error.message : String(error);
   return message.slice(0, 240);
+}
+
+function normalizeCatalogErrorCode(error: unknown) {
+  const message = sanitizeCatalogError(error);
+  if (message === 'live_catalog_empty_provider_array') return message;
+  if (message.startsWith('Pay.sh catalog returned')) return 'live_catalog_fetch_failed';
+  return 'live_catalog_parse_failed';
 }
 
 export function normalizePayShCatalog(input: unknown): { items: PayShCatalogItem[]; generatedAt: string | null; providerCount: number | null } {

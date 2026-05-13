@@ -158,6 +158,7 @@ const windows: Record<RollingWindow, number> = {
   '24h': 24 * 60 * 60 * 1000,
   '7d': 7 * 24 * 60 * 60 * 1000
 };
+const PAYSH_CATALOG_URL = 'https://pay.sh/api/catalog';
 
 export function pulseSummary(
   store: IntelligenceStore,
@@ -235,15 +236,78 @@ function providerEndpointCount(store: IntelligenceStore) {
 }
 
 export function dataSourceState(store: IntelligenceStore, generatedAt = new Date().toISOString()): DataSourceState {
-  return store.dataSource ?? {
+  const providerCount = store.providers.length;
+  const providerGeneratedAt = latestProviderGeneratedAt(store);
+  const providerIngestedAt = latestProviderIngestedAt(store);
+  const existing = store.dataSource;
+  const hasLiveCatalogState = providerCount > 0 && hasLiveCatalogEvidence(store);
+
+  if (hasLiveCatalogState) {
+    return {
+      mode: 'live_pay_sh_catalog',
+      url: PAYSH_CATALOG_URL,
+      generated_at: existing?.generated_at ?? providerGeneratedAt,
+      provider_count: providerCount,
+      last_ingested_at: providerIngestedAt ?? existing?.last_ingested_at ?? store.ingestionRuns[0]?.finishedAt ?? generatedAt,
+      used_fixture: false,
+      error: null
+    };
+  }
+
+  if (existing) {
+    return {
+      ...existing,
+      provider_count: providerCount,
+      generated_at: existing.generated_at ?? providerGeneratedAt,
+      last_ingested_at: existing.last_ingested_at ?? providerIngestedAt ?? store.ingestionRuns[0]?.finishedAt ?? generatedAt,
+      error: existing.used_fixture ? (existing.error ?? 'pulse_state_inconsistent') : (existing.error ?? null)
+    };
+  }
+
+  return {
     mode: 'fixture_fallback',
     url: null,
     generated_at: null,
-    provider_count: store.providers.length,
+    provider_count: providerCount,
     last_ingested_at: store.ingestionRuns[0]?.finishedAt ?? generatedAt,
     used_fixture: true,
-    error: null
+    error: 'bootstrap_not_called'
   };
+}
+
+function hasLiveCatalogEvidence(store: IntelligenceStore) {
+  if (store.dataSource?.mode === 'live_pay_sh_catalog') return true;
+  if (store.dataSource?.url === PAYSH_CATALOG_URL && store.dataSource.used_fixture === false) return true;
+  if (store.ingestionRuns.some((run) => run.source.startsWith('pay.sh:live-catalog'))) return true;
+  if (store.events.some((event) => event.source.startsWith('pay.sh:live-catalog'))) return true;
+  if (store.events.some((event) => event.type === 'catalog.ingested' && event.payload.mode === 'live_pay_sh_catalog')) return true;
+  if (store.providers.some((provider) => typeof provider.sourceSha === 'string' && provider.sourceSha.length > 0)) return true;
+  if (store.providers.some((provider) => provider.endpointMetadataPartial === true && typeof provider.fqn === 'string' && provider.fqn.length > 0)) return true;
+  return false;
+}
+
+function latestProviderGeneratedAt(store: IntelligenceStore) {
+  return store.providers
+    .map((provider) => safeStringTimestamp(provider.catalog_generated_at) ?? safeStringTimestamp(provider.catalogGeneratedAt))
+    .filter((value): value is string => Boolean(value))
+    .sort((a, b) => Date.parse(b) - Date.parse(a))[0] ?? null;
+}
+
+function latestProviderIngestedAt(store: IntelligenceStore) {
+  const byIngestedAt = store.providers
+    .map((provider) => safeStringTimestamp(provider.ingested_at) ?? safeStringTimestamp(provider.ingestedAt))
+    .filter((value): value is string => Boolean(value))
+    .sort((a, b) => Date.parse(b) - Date.parse(a))[0] ?? null;
+  if (byIngestedAt) return byIngestedAt;
+  return store.providers
+    .map((provider) => safeStringTimestamp(provider.observed_at) ?? safeStringTimestamp(provider.observedAt) ?? safeStringTimestamp(provider.lastSeenAt))
+    .filter((value): value is string => Boolean(value))
+    .sort((a, b) => Date.parse(b) - Date.parse(a))[0] ?? null;
+}
+
+function safeStringTimestamp(value: unknown) {
+  if (typeof value !== 'string') return null;
+  return Number.isFinite(Date.parse(value)) ? value : null;
 }
 
 function toPulseEvent(event: InfopunksEvent, providerNames: Map<string, string>, relatedEvents: InfopunksEvent[]): PulseEvent {

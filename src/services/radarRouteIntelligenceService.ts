@@ -2,6 +2,7 @@ import { RadarPreflightRequest, RadarPreflightResponse, RadarComparisonRequest, 
 import { IntelligenceStore } from './intelligenceStore';
 import { buildRadarExportSnapshot, NormalizedEndpointRecord } from './radarExportService';
 import { trendContextForProvider } from './radarHistoryService';
+import { buildEndpointRiskAssessment, buildProviderRiskAssessment, RiskLevel } from './radarRiskService';
 
 export function runRadarPreflight(input: RadarPreflightRequest, store: IntelligenceStore): RadarPreflightResponse {
   const snapshot = buildRadarExportSnapshot(store);
@@ -9,9 +10,10 @@ export function runRadarPreflight(input: RadarPreflightRequest, store: Intellige
   const signalByProvider = new Map(store.signalAssessments.map((item) => [item.entityId, item.score]));
   const category = input.category?.trim() || null;
   const constraints = input.constraints ?? {};
+  const allowRiskyRoutes = constraints.allow_risky_routes === true;
   const categoryCandidates = snapshot.endpoints.filter((endpoint) => !category || (endpoint.category ?? '').toLowerCase() === category.toLowerCase());
 
-  const allCandidates = categoryCandidates.map((endpoint) => scoreCandidate(endpoint, trustByProvider.get(endpoint.provider_id) ?? null, signalByProvider.get(endpoint.provider_id) ?? null, constraints, store));
+  const allCandidates = categoryCandidates.map((endpoint) => scoreCandidate(endpoint, trustByProvider.get(endpoint.provider_id) ?? null, signalByProvider.get(endpoint.provider_id) ?? null, constraints, store, allowRiskyRoutes));
   allCandidates.sort((a, b) => b.confidence - a.confidence);
 
   const accepted = allCandidates.filter((candidate) => candidate.route_eligibility);
@@ -30,7 +32,10 @@ export function runRadarPreflight(input: RadarPreflightRequest, store: Intellige
     recommended_route: recommended,
     accepted_candidates: accepted,
     rejected_candidates: rejected,
-    warnings: category ? [] : ['missing_category'],
+    warnings: [
+      ...(category ? [] : ['missing_category']),
+      ...Array.from(new Set(allCandidates.flatMap((candidate) => candidate.risk_warnings ?? [])))
+    ],
     superiority_evidence_available: executableInCategory
   };
 }
@@ -48,6 +53,7 @@ export function runRadarComparison(input: RadarComparisonRequest, store: Intelli
         const mapped = endpoints.filter((endpoint) => Boolean(endpoint.method) && Boolean(endpoint.path));
         const routeEligible = endpoints.filter((endpoint) => endpoint.route_eligibility);
         const degraded = endpoints.filter((endpoint) => endpoint.degradation_status === 'degraded' || endpoint.reachability_status !== 'reachable');
+        const providerRisk = buildProviderRiskAssessment(store, provider.provider_id);
         return {
           id: provider.provider_id,
           type: 'provider' as const,
@@ -63,6 +69,17 @@ export function runRadarComparison(input: RadarComparisonRequest, store: Intelli
           reachability: provider.reachability_status,
           last_observed: provider.catalog_observed_at,
           last_seen_healthy: lastSeenHealthy(store, provider.provider_id),
+          predictive_risk_level: providerRisk?.predictive_risk_level ?? 'unknown',
+          predictive_risk_score: providerRisk?.predictive_risk_score ?? 50,
+          recommended_action: providerRisk?.recommended_action ?? 'insufficient history',
+          top_anomaly: providerRisk?.anomalies[0] ? {
+            anomaly_type: providerRisk.anomalies[0].anomaly_type,
+            severity: providerRisk.anomalies[0].severity,
+            confidence: providerRisk.anomalies[0].confidence,
+            explanation: providerRisk.anomalies[0].explanation,
+            evidence: providerRisk.anomalies[0].evidence,
+            detected_at: providerRisk.anomalies[0].detected_at
+          } : null,
           route_recommendation: (routeEligible.length > 0 && provider.reachability_status === 'reachable' ? 'route_eligible' : 'not_recommended') as 'route_eligible' | 'not_recommended',
           rejection_reasons: routeEligible.length > 0 ? [] : collectTopReasons(endpoints)
         };
@@ -72,7 +89,9 @@ export function runRadarComparison(input: RadarComparisonRequest, store: Intelli
 
   const rows = snapshot.endpoints
     .filter((endpoint) => ids.has(endpoint.endpoint_id))
-    .map((endpoint) => ({
+    .map((endpoint) => {
+      const endpointRisk = buildEndpointRiskAssessment(store, endpoint.endpoint_id);
+      return {
       id: endpoint.endpoint_id,
       type: 'endpoint' as const,
       name: endpoint.endpoint_name ?? endpoint.endpoint_id,
@@ -87,9 +106,21 @@ export function runRadarComparison(input: RadarComparisonRequest, store: Intelli
       reachability: endpoint.reachability_status,
       last_observed: endpoint.catalog_observed_at,
       last_seen_healthy: lastSeenHealthy(store, endpoint.provider_id),
+      predictive_risk_level: endpointRisk?.predictive_risk_level ?? 'unknown',
+      predictive_risk_score: endpointRisk?.predictive_risk_score ?? 50,
+      recommended_action: endpointRisk?.recommended_action ?? 'insufficient history',
+      top_anomaly: endpointRisk?.anomalies[0] ? {
+        anomaly_type: endpointRisk.anomalies[0].anomaly_type,
+        severity: endpointRisk.anomalies[0].severity,
+        confidence: endpointRisk.anomalies[0].confidence,
+        explanation: endpointRisk.anomalies[0].explanation,
+        evidence: endpointRisk.anomalies[0].evidence,
+        detected_at: endpointRisk.anomalies[0].detected_at
+      } : null,
       route_recommendation: (endpoint.route_eligibility ? 'route_eligible' : 'not_recommended') as 'route_eligible' | 'not_recommended',
       rejection_reasons: endpoint.route_eligibility ? [] : endpoint.route_rejection_reasons
-    }));
+      };
+    });
 
   return { generated_at: new Date().toISOString(), mode, rows };
 }
@@ -138,13 +169,22 @@ export function buildSuperiorityReadiness(store: IntelligenceStore): RadarSuperi
   };
 }
 
-function scoreCandidate(endpoint: NormalizedEndpointRecord, trustScore: number | null, signalScore: number | null, constraints: RadarPreflightRequest['constraints'], store: IntelligenceStore) {
+function scoreCandidate(
+  endpoint: NormalizedEndpointRecord,
+  trustScore: number | null,
+  signalScore: number | null,
+  constraints: RadarPreflightRequest['constraints'],
+  store: IntelligenceStore,
+  allowRiskyRoutes: boolean
+) {
   const rejection: string[] = [];
   const reasons: string[] = [];
+  const riskWarnings: string[] = [];
   const pricing = parsePricing(endpoint.pricing);
   const mappingComplete = Boolean(endpoint.method) && Boolean(endpoint.path);
   const pricingKnown = pricing !== null;
   const reachable = endpoint.reachability_status === 'reachable';
+  const predictiveRisk = buildEndpointRiskAssessment(store, endpoint.endpoint_id);
 
   if (!mappingComplete) rejection.push('mapping_incomplete');
   if (endpoint.reachability_status === 'failed') rejection.push('provider_failed_not_recommended_for_routing');
@@ -158,6 +198,19 @@ function scoreCandidate(endpoint: NormalizedEndpointRecord, trustScore: number |
   if (constraints?.prefer_reachable && !reachable) rejection.push('not_reachable_under_preference');
   const trendContext = trendContextForProvider(store, endpoint.provider_id);
 
+  if (predictiveRisk) {
+    if (predictiveRisk.predictive_risk_level === 'critical') {
+      if (!allowRiskyRoutes) rejection.push('critical_predictive_risk_not_recommended_for_routing');
+      else riskWarnings.push('critical_predictive_risk_allowed_by_override');
+    } else if (predictiveRisk.predictive_risk_level === 'elevated') {
+      riskWarnings.push('elevated_predictive_risk_route_with_fallback');
+    } else if (predictiveRisk.predictive_risk_level === 'watch') {
+      riskWarnings.push('watch_predictive_risk_monitor_before_routing');
+    } else if (predictiveRisk.predictive_risk_level === 'unknown') {
+      riskWarnings.push('unknown_predictive_risk_insufficient_history');
+    }
+  }
+
   if (trustScore !== null) reasons.push(`trust=${trustScore}`);
   if (signalScore !== null) reasons.push(`signal=${signalScore}`);
   reasons.push(mappingComplete ? 'mapping_complete' : 'mapping_incomplete');
@@ -170,6 +223,8 @@ function scoreCandidate(endpoint: NormalizedEndpointRecord, trustScore: number |
   const reachabilityWeight = endpoint.reachability_status === 'reachable' ? 100 : endpoint.reachability_status === 'degraded' ? 30 : 0;
   const pricingWeight = pricingKnown ? 100 : 40;
   const confidenceRaw = Math.round((trustWeight * 0.3) + (signalWeight * 0.25) + (mappingWeight * 0.2) + (reachabilityWeight * 0.15) + (pricingWeight * 0.1));
+  const riskPenalty = riskConfidencePenalty(predictiveRisk?.predictive_risk_level ?? 'unknown');
+  const confidence = Math.max(0, Math.min(100, confidenceRaw - riskPenalty));
 
   return {
     provider_id: endpoint.provider_id,
@@ -179,12 +234,31 @@ function scoreCandidate(endpoint: NormalizedEndpointRecord, trustScore: number |
     trust_score: trustScore,
     signal_score: signalScore,
     route_eligibility: rejection.length === 0,
-    confidence: Math.max(0, Math.min(100, confidenceRaw)),
+    confidence,
     reasons,
     rejection_reasons: rejection.length ? rejection : [],
     mapping_status: mappingComplete ? 'complete' as const : 'missing' as const,
     reachability_status: endpoint.reachability_status,
     pricing_status: pricingKnown ? 'clear' as const : 'missing' as const,
+    predictive_risk: predictiveRisk ? {
+      predictive_risk_score: predictiveRisk.predictive_risk_score,
+      predictive_risk_level: predictiveRisk.predictive_risk_level,
+      history_available: predictiveRisk.history_available,
+      sample_count: predictiveRisk.sample_count,
+      explanation: predictiveRisk.explanation,
+      evidence: predictiveRisk.evidence.slice(0, 6),
+      warnings: predictiveRisk.warnings,
+      recommended_action: predictiveRisk.recommended_action,
+      top_anomaly: predictiveRisk.anomalies[0] ? {
+        anomaly_type: predictiveRisk.anomalies[0].anomaly_type,
+        severity: predictiveRisk.anomalies[0].severity,
+        confidence: predictiveRisk.anomalies[0].confidence,
+        explanation: predictiveRisk.anomalies[0].explanation,
+        evidence: predictiveRisk.anomalies[0].evidence,
+        detected_at: predictiveRisk.anomalies[0].detected_at
+      } : null
+    } : undefined,
+    risk_warnings: riskWarnings,
     last_seen_healthy: trendContext.last_seen_healthy_at ?? lastSeenHealthyForEndpoint(endpoint),
     trend_context: trendContext
   };
@@ -196,6 +270,13 @@ function parsePricing(pricing: unknown): number | null {
   const min = typeof shape.min === 'number' ? shape.min : null;
   const max = typeof shape.max === 'number' ? shape.max : null;
   return min ?? max;
+}
+
+function riskConfidencePenalty(level: RiskLevel) {
+  if (level === 'critical') return 30;
+  if (level === 'elevated') return 16;
+  if (level === 'watch') return 8;
+  return 0;
 }
 
 function lastSeenHealthy(store: IntelligenceStore, providerId: string): string | null {

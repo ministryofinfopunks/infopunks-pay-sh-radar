@@ -12,8 +12,10 @@ import {
   PreflightRequestSchema,
   PreflightResponseSchema,
   RadarComparisonRequestSchema,
+  RadarEcosystemRiskSummarySchema,
   RadarPreflightRequestSchema,
   RadarPreflightResponseSchema,
+  RadarRiskResponseSchema,
   RadarSuperiorityReadinessSchema,
   RouteRecommendationRequestSchema,
   SearchRequestSchema
@@ -31,6 +33,7 @@ import { runPreflight } from '../services/preflightService';
 import { buildRadarExportSnapshot, safeJsonExport } from '../services/radarExportService';
 import { buildSuperiorityReadiness, runRadarComparison, runRadarPreflight } from '../services/radarRouteIntelligenceService';
 import { buildEcosystemHistory, buildEndpointHistory, buildProviderHistory, normalizeHistoryWindow } from '../services/radarHistoryService';
+import { buildEcosystemRiskSummary, buildEndpointRiskAssessment, buildProviderRiskAssessment } from '../services/radarRiskService';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
 const MAX_INLINE_SUPPORTING_EVENT_IDS = 10;
@@ -143,9 +146,16 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   })));
   app.get('/v1/pulse/summary', async () => withRouteTimeout('/v1/pulse/summary', ROUTE_TIMEOUT_MS, () => {
     const summary = pulseSummary(store, new Date().toISOString(), config.payShIngestIntervalMs, { includePropagation: false, includeInterpretations: false, propagationFallback: cachedPropagation, interpretationsFallback: cachedInterpretations });
+    const pulse = pulseDashboardResponse(cachedPulseDashboard, store);
+    summary.data_source = { ...summary.data_source, mode: pulse.data_source.mode };
     return { data: compactPulseSummaryPayload(summary) };
   }, () => ({
-    data: compactPulseSummaryPayload(pulseSummary(store, new Date().toISOString(), config.payShIngestIntervalMs, { includePropagation: false, includeInterpretations: false, propagationFallback: cachedPropagation, interpretationsFallback: cachedInterpretations }))
+    data: (() => {
+      const summary = pulseSummary(store, new Date().toISOString(), config.payShIngestIntervalMs, { includePropagation: false, includeInterpretations: false, propagationFallback: cachedPropagation, interpretationsFallback: cachedInterpretations });
+      const pulse = pulseDashboardResponse(cachedPulseDashboard, store);
+      summary.data_source = { ...summary.data_source, mode: pulse.data_source.mode };
+      return compactPulseSummaryPayload(summary);
+    })()
   })));
   app.get('/v1/propagation', async () => ({ data: compactPropagationSummary(cachedPropagation) }));
   app.get<{ Params: { cluster_id: string } }>('/v1/propagation/:cluster_id', async (req, reply) => {
@@ -220,6 +230,7 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
         generated_at: snapshot.generated_at,
         source: snapshot.source,
         count: snapshot.endpoints.length,
+        endpoint_metadata: endpointMetadataState(store),
         endpoints: snapshot.endpoints
       })
     };
@@ -250,6 +261,65 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   app.get<{ Querystring: { window?: string } }>('/v1/radar/history/ecosystem', async (req) => ({
     data: safeJsonExport(buildEcosystemHistory(store, normalizeHistoryWindow(req.query.window)))
   }));
+  app.get<{ Params: { provider_id: string } }>('/v1/radar/risk/providers/:provider_id', async (req, reply) => {
+    const risk = buildProviderRiskAssessment(store, req.params.provider_id);
+    if (!risk) return reply.code(404).send({ error: 'provider_not_found' });
+    return {
+      data: safeJsonExport(RadarRiskResponseSchema.parse({
+        generated_at: risk.generated_at,
+        subject_type: risk.subject_type,
+        subject_id: risk.subject_id,
+        risk_score: risk.predictive_risk_score,
+        risk_level: risk.predictive_risk_level,
+        history_available: risk.history_available,
+        sample_count: risk.sample_count,
+        explanation: risk.explanation,
+        anomalies: risk.anomalies,
+        evidence: risk.evidence,
+        warnings: risk.warnings,
+        recommended_action: risk.recommended_action
+      }))
+    };
+  });
+  app.get<{ Params: { endpoint_id: string } }>('/v1/radar/risk/endpoints/:endpoint_id', async (req, reply) => {
+    const risk = buildEndpointRiskAssessment(store, req.params.endpoint_id);
+    if (!risk) return reply.code(404).send({ error: 'endpoint_not_found' });
+    return {
+      data: safeJsonExport(RadarRiskResponseSchema.parse({
+        generated_at: risk.generated_at,
+        subject_type: risk.subject_type,
+        subject_id: risk.subject_id,
+        risk_score: risk.predictive_risk_score,
+        risk_level: risk.predictive_risk_level,
+        history_available: risk.history_available,
+        sample_count: risk.sample_count,
+        explanation: risk.explanation,
+        anomalies: risk.anomalies,
+        evidence: risk.evidence,
+        warnings: risk.warnings,
+        recommended_action: risk.recommended_action
+      }))
+    };
+  });
+  app.get('/v1/radar/risk/ecosystem', async () => {
+    const risk = buildEcosystemRiskSummary(store);
+    return {
+      data: safeJsonExport(RadarEcosystemRiskSummarySchema.parse({
+        generated_at: risk.generated_at,
+        subject_type: risk.subject_type,
+        subject_id: risk.subject_id,
+        risk_score: risk.risk_score,
+        risk_level: risk.risk_level,
+        history_available: risk.history_available,
+        sample_count: risk.sample_count,
+        anomalies: risk.anomalies,
+        evidence: risk.evidence,
+        warnings: risk.warnings,
+        recommended_action: risk.recommended_action,
+        summary: risk.summary
+      }))
+    };
+  });
   app.post('/v1/radar/preflight', async (req, reply) => handleParsed(req.body, RadarPreflightRequestSchema, (input) => ({
     data: safeJsonExport(RadarPreflightResponseSchema.parse(runRadarPreflight(input, store)))
   }), reply));
@@ -533,8 +603,10 @@ function monitorRunResponse(run: NonNullable<IntelligenceStore['monitorRuns']>[n
 function buildPulseDashboard(store: IntelligenceStore, interpretations: unknown[], bootstrapped: boolean, generatedAt = new Date().toISOString()) {
   const knownTrust = store.trustAssessments.map((item) => item.score).filter((score): score is number => score !== null);
   const knownSignal = store.signalAssessments.map((item) => item.score).filter((score): score is number => score !== null);
+  const dataSource = dataSourceState(store, generatedAt);
   const endpointCount = safeStoreEndpointCount(store);
-  const endpointMetadataAvailable = endpointCount > 0;
+  const endpointMetadata = endpointMetadataState(store);
+  const effectiveBootstrapped = bootstrapped || store.providers.length > 0;
   return {
     providerCount: store.providers.length,
     endpointCount,
@@ -553,16 +625,12 @@ function buildPulseDashboard(store: IntelligenceStore, interpretations: unknown[
       onchainLiquidityResonance: store.signalAssessments.filter((item) => item.components.onchainLiquidityResonance === null).length
     },
     interpretations: compactInterpretationsSummary(interpretations as ReturnType<typeof pulseSummary>['interpretations']),
-    data_source: dataSourceState(store),
-    catalog_status: catalogStatusFromDataSource(store.dataSource),
-    catalog_error: sanitizeCatalogError(store.dataSource?.error ?? null),
-    endpoint_metadata: {
-      available: endpointMetadataAvailable,
-      mode: endpointMetadataAvailable ? 'full' : 'unavailable',
-      reason: endpointMetadataAvailable ? null : 'endpoint_count_zero_or_missing'
-    },
+    data_source: dataSource,
+    catalog_status: pulseCatalogStatusFromDataSource(dataSource, store.providers.length, effectiveBootstrapped),
+    catalog_error: sanitizeCatalogError(dataSource.error ?? null),
+    endpoint_metadata: endpointMetadata,
     updatedAt: generatedAt,
-    bootstrapped
+    bootstrapped: effectiveBootstrapped
   };
 }
 
@@ -606,7 +674,12 @@ function pulseDashboardResponse(cachedPulseDashboard: ReturnType<typeof buildPul
 }
 
 function pulseWarmingUpFallback(store: IntelligenceStore, bootstrapped: boolean, error: string) {
+  const dataSource = dataSourceState(store);
   const endpointCount = safeStoreEndpointCount(store);
+  const endpointMetadata = endpointMetadataState(store);
+  const effectiveBootstrapped = bootstrapped || store.providers.length > 0;
+  const status = pulseCatalogStatusFromDataSource(dataSource, store.providers.length, effectiveBootstrapped);
+  const catalogError = dataSource.mode === 'live_pay_sh_catalog' ? null : sanitizeCatalogError(error);
   return {
     providerCount: store.providers.length,
     endpointCount,
@@ -618,17 +691,13 @@ function pulseWarmingUpFallback(store: IntelligenceStore, bootstrapped: boolean,
     topSignal: [],
     unknownTelemetry: {},
     interpretations: [],
-    data_source: dataSourceState(store),
-    catalog_status: 'warming_up',
-    catalog_error: sanitizeCatalogError(error),
-    endpoint_metadata: {
-      available: endpointCount > 0,
-      mode: endpointCount > 0 ? 'full' : 'unavailable',
-      reason: endpointCount > 0 ? null : 'endpoint_count_zero_or_missing'
-    },
+    data_source: dataSource,
+    catalog_status: status,
+    catalog_error: catalogError,
+    endpoint_metadata: endpointMetadata,
     updatedAt: new Date().toISOString(),
-    bootstrapped,
-    warming_up: true
+    bootstrapped: effectiveBootstrapped,
+    warming_up: status === 'warming_up'
   };
 }
 
@@ -734,6 +803,36 @@ function catalogStatusFromDataSource(dataSource: IntelligenceStore['dataSource']
   if (dataSource.mode === 'live_pay_sh_catalog') return 'live_ok';
   if (dataSource.used_fixture) return 'fixture_fallback';
   return 'unknown';
+}
+
+function pulseCatalogStatusFromDataSource(dataSource: ReturnType<typeof dataSourceState>, providerCount: number, bootstrapped: boolean) {
+  if (dataSource.mode === 'live_pay_sh_catalog' && !dataSource.error) return 'live';
+  if (providerCount > 0) return 'ready';
+  if (dataSource.mode === 'live_pay_sh_catalog' && dataSource.error) return 'live_fetch_failed';
+  if (dataSource.used_fixture) return 'fixture_fallback';
+  return bootstrapped ? 'ready' : 'warming_up';
+}
+
+function endpointMetadataState(store: IntelligenceStore) {
+  if (store.endpoints.length > 0) {
+    return {
+      available: true,
+      mode: 'full',
+      reason: null
+    };
+  }
+  if (store.providers.length > 0) {
+    return {
+      available: false,
+      mode: 'provider_level_counts_only',
+      reason: 'live_pay_sh_catalog_does_not_include_endpoint_detail'
+    };
+  }
+  return {
+    available: false,
+    mode: 'unavailable',
+    reason: 'endpoint_count_zero_or_missing'
+  };
 }
 
 function sanitizeCatalogError(value: string | null) {

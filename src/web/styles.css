@@ -2417,6 +2417,30 @@ body::after { opacity: .18; }
   font-weight: 800;
 }
 
+.risk-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border: 1px solid rgba(203,255,221,.14);
+  border-radius: 999px;
+  padding: 5px 9px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .03em;
+}
+
+.risk-badge.compact { padding: 3px 7px; font-size: 10px; }
+.risk-badge.risk-low { color: var(--ok); border-color: rgba(157,255,194,.24); background: rgba(157,255,194,.055); }
+.risk-badge.risk-watch { color: var(--watch); border-color: rgba(242,207,122,.28); background: rgba(242,207,122,.06); }
+.risk-badge.risk-elevated { color: #ffb870; border-color: rgba(255,184,112,.3); background: rgba(255,184,112,.08); }
+.risk-badge.risk-critical { color: var(--danger); border-color: rgba(255,125,125,.34); background: rgba(255,125,125,.07); }
+.risk-badge.risk-unknown { color: var(--text-dim); border-color: rgba(203,255,221,.12); background: rgba(203,255,221,.035); }
+
+.anomaly-watch { display: grid; gap: 10px; }
+.anomaly-card.risk-critical { border-color: rgba(255,125,125,.34); }
+.anomaly-card.risk-high { border-color: rgba(255,184,112,.3); }
+.anomaly-card.risk-medium { border-color: rgba(242,207,122,.28); }
+
 .ecosystem-status-panel {
   border-color: rgba(203,255,221,.18);
   background: linear-gradient(135deg, rgba(126,255,176,.07), rgba(3,8,6,.78));

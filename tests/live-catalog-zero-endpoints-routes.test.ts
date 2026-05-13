@@ -131,8 +131,8 @@ describe('live catalog zero-endpoint route behavior', () => {
     expect(pulseBody.endpointCount).toBe(0);
     expect(pulseBody.endpoint_metadata).toMatchObject({
       available: false,
-      mode: 'unavailable',
-      reason: 'endpoint_count_zero_or_missing'
+      mode: 'provider_level_counts_only',
+      reason: 'live_pay_sh_catalog_does_not_include_endpoint_detail'
     });
     expect(Array.isArray(pulseBody.topTrust)).toBe(true);
     expect(Array.isArray(pulseBody.topSignal)).toBe(true);

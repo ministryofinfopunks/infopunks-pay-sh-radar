@@ -214,6 +214,7 @@ type RadarPreflightCandidate = {
   reachability_status: 'reachable' | 'degraded' | 'failed' | 'unknown';
   pricing_status: 'clear' | 'missing';
   last_seen_healthy?: string | null;
+  predictive_risk?: RadarRiskContext;
   trend_context?: TrendContext;
 };
 type PreflightResult = {
@@ -241,6 +242,10 @@ type RadarComparisonRow = {
   reachability: 'reachable' | 'degraded' | 'failed' | 'unknown';
   last_observed: string | null;
   last_seen_healthy: string | null;
+  predictive_risk_level?: RiskLevel;
+  predictive_risk_score?: number;
+  recommended_action?: RiskRecommendation;
+  top_anomaly?: RadarRiskAnomaly | null;
   route_recommendation: 'route_eligible' | 'not_recommended';
   rejection_reasons: string[];
 };
@@ -255,6 +260,65 @@ type RadarSuperiorityReadiness = {
   next_mappings_needed: string[];
 };
 type TrendDirection = 'improving' | 'stable' | 'degrading' | 'unknown';
+type RiskLevel = 'low' | 'watch' | 'elevated' | 'critical' | 'unknown';
+type RiskRecommendation = 'route normally' | 'route with caution' | 'required fallback route' | 'not recommended for routing' | 'insufficient history';
+type RadarRiskAnomaly = {
+  anomaly_type: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  confidence: 'low' | 'medium' | 'high';
+  explanation: string;
+  evidence: string[];
+  detected_at: string;
+};
+type RadarRiskContext = {
+  predictive_risk_score: number;
+  predictive_risk_level: RiskLevel;
+  history_available: boolean;
+  sample_count: number;
+  explanation: string;
+  evidence: string[];
+  warnings: string[];
+  recommended_action: RiskRecommendation;
+  top_anomaly: RadarRiskAnomaly | null;
+};
+type RadarRiskResponse = {
+  generated_at: string;
+  subject_type: 'provider' | 'endpoint' | 'ecosystem';
+  subject_id: string;
+  risk_score: number;
+  risk_level: RiskLevel;
+  history_available: boolean;
+  sample_count: number;
+  explanation?: string;
+  anomalies: RadarRiskAnomaly[];
+  evidence: string[];
+  warnings: string[];
+  recommended_action: RiskRecommendation;
+};
+type RadarEcosystemRiskSummary = RadarRiskResponse & {
+  subject_type: 'ecosystem';
+  subject_id: 'ecosystem';
+  summary: {
+    providers_by_risk_level: Record<RiskLevel, number>;
+    top_anomalies: Array<{ anomaly_type: string; count: number }>;
+    categories_most_affected: Array<{ category: string; provider_count: number }>;
+    recent_critical_events: Array<{ event_id: string; type: string; provider_id: string | null; endpoint_id: string | null; observed_at: string }>;
+    stale_catalog_warning: string | null;
+    anomaly_watch: Array<{
+      subject_type: 'provider' | 'endpoint';
+      provider_id: string | null;
+      endpoint_id: string | null;
+      anomaly_type: string;
+      severity: 'low' | 'medium' | 'high' | 'critical';
+      confidence: 'low' | 'medium' | 'high';
+      explanation: string;
+      detected_at: string;
+      recommended_action: RiskRecommendation;
+      route_implication: string;
+      evidence: string[];
+    }>;
+  };
+};
 type TrendContext = {
   trust_trend: TrendDirection;
   signal_trend: TrendDirection;
@@ -851,6 +915,10 @@ function RadarApp() {
   const [pulseSummary, setPulseSummary] = useState<PulseSummary | null>(null);
   const [providerHistory, setProviderHistory] = useState<RadarProviderHistory | null>(null);
   const [ecosystemHistory, setEcosystemHistory] = useState<RadarEcosystemHistory | null>(null);
+  const [ecosystemRisk, setEcosystemRisk] = useState<RadarEcosystemRiskSummary | null>(null);
+  const [providerRisk, setProviderRisk] = useState<RadarRiskResponse | null>(null);
+  const [providerRiskById, setProviderRiskById] = useState<Record<string, RadarRiskResponse>>({});
+  const [endpointRiskById, setEndpointRiskById] = useState<Record<string, RadarRiskResponse>>({});
   const [pulseWindow, setPulseWindow] = useState<'1h' | '24h' | '7d'>('24h');
   const [methodologyOpen, setMethodologyOpen] = useState(false);
   const refreshInFlightRef = useRef(false);
@@ -897,7 +965,8 @@ function RadarApp() {
         api<{ data: FeaturedProvider }>('/v1/providers/featured'),
         api<{ data: { endpoints?: NormalizedEndpointRecord[] } }>('/v1/radar/endpoints'),
         api<{ data: RadarSuperiorityReadiness }>('/v1/radar/superiority-readiness'),
-        api<{ data: RadarEcosystemHistory }>('/v1/radar/history/ecosystem?window=24h')
+        api<{ data: RadarEcosystemHistory }>('/v1/radar/history/ecosystem?window=24h'),
+        api<{ data: RadarEcosystemRiskSummary }>('/v1/radar/risk/ecosystem')
       ]).then((results) => {
         if (!active) return;
         const providers = results[0].status === 'fulfilled' && Array.isArray(results[0].value?.data) ? results[0].value.data : null;
@@ -908,6 +977,7 @@ function RadarApp() {
         const normalizedEndpoints = results[5].status === 'fulfilled' && Array.isArray(results[5].value?.data?.endpoints) ? results[5].value.data.endpoints : null;
         const readinessPayload = results[6].status === 'fulfilled' ? results[6].value?.data ?? null : null;
         const ecosystemHistoryPayload = results[7].status === 'fulfilled' ? results[7].value?.data ?? null : null;
+        const ecosystemRiskPayload = results[8].status === 'fulfilled' ? results[8].value?.data ?? null : null;
         setData((current) => current ? {
           ...current,
           providers: providers ?? current.providers,
@@ -918,7 +988,39 @@ function RadarApp() {
         if (normalizedEndpoints) setRadarEndpoints(normalizedEndpoints);
         if (readinessPayload) setReadiness(readinessPayload);
         if (ecosystemHistoryPayload) setEcosystemHistory(ecosystemHistoryPayload);
+        if (ecosystemRiskPayload) setEcosystemRisk(ecosystemRiskPayload);
+        if (ecosystemRiskPayload?.summary?.anomaly_watch) {
+          const providerRiskHints: Record<string, RadarRiskResponse> = {};
+          for (const item of ecosystemRiskPayload.summary.anomaly_watch) {
+            if (!item.provider_id || providerRiskHints[item.provider_id]) continue;
+            providerRiskHints[item.provider_id] = {
+              generated_at: ecosystemRiskPayload.generated_at,
+              subject_type: 'provider',
+              subject_id: item.provider_id,
+              risk_score: ecosystemRiskPayload.risk_score,
+              risk_level: item.severity === 'critical' ? 'critical' : item.severity === 'high' ? 'elevated' : 'watch',
+              history_available: true,
+              sample_count: 0,
+              anomalies: [],
+              evidence: [],
+              warnings: [],
+              recommended_action: item.recommended_action
+            };
+          }
+          setProviderRiskById((current) => ({ ...providerRiskHints, ...current }));
+        }
         if (featured && typeof featured.nextRotationAt === 'string') applyFeaturedProvider(featured, true);
+        if (providers?.length) {
+          void Promise.allSettled(providers.slice(0, 120).map((provider) => api<{ data: RadarRiskResponse }>(`/v1/radar/risk/providers/${provider.id}`)))
+            .then((riskResults) => {
+              if (!active) return;
+              const mapped: Record<string, RadarRiskResponse> = {};
+              for (const result of riskResults) {
+                if (result.status === 'fulfilled' && result.value?.data?.subject_id) mapped[result.value.data.subject_id] = result.value.data;
+              }
+              if (Object.keys(mapped).length) setProviderRiskById((current) => ({ ...current, ...mapped }));
+            });
+        }
         if (preferredProviderId && (providers ?? []).some((provider) => provider.id === preferredProviderId)) {
           setSelectedId(preferredProviderId);
           setSelectionMode('manual');
@@ -966,15 +1068,18 @@ function RadarApp() {
         const results = await Promise.allSettled([
         api<{ data: Pulse }>('/v1/pulse'),
         api<{ data: PulseSummary }>('/v1/pulse/summary'),
-        api<{ data: FeaturedProvider }>('/v1/providers/featured')
+        api<{ data: FeaturedProvider }>('/v1/providers/featured'),
+        api<{ data: RadarEcosystemRiskSummary }>('/v1/radar/risk/ecosystem')
         ]);
         if (!active) return;
         const pulse = results[0].status === 'fulfilled' ? toPulse(results[0].value?.data) : null;
         const summary = results[1].status === 'fulfilled' ? toPulseSummary(results[1].value?.data) : null;
         const featured = results[2].status === 'fulfilled' ? results[2].value?.data : null;
+        const risk = results[3].status === 'fulfilled' ? results[3].value?.data : null;
         if (pulse) setData((current) => current ? { ...current, pulse } : current);
         if (summary) setPulseSummary(summary);
         if (featured && typeof featured.nextRotationAt === 'string') applyFeaturedProvider(featured);
+        if (risk) setEcosystemRisk(risk);
       } catch {
         // Preserve existing dashboard state on refresh failure.
       } finally {
@@ -1073,28 +1178,44 @@ function RadarApp() {
     setProviderDetail(null);
     setProviderIntel(null);
     setProviderHistory(null);
+    setProviderRisk(null);
     setEndpointMonitors({});
+    setEndpointRiskById({});
     Promise.allSettled([
       api<{ data: ProviderDetail }>(`/v1/providers/${selectedProvider.id}`),
       api<{ data: ProviderIntelligence }>(`/v1/providers/${selectedProvider.id}/intelligence`),
-      api<{ data: RadarProviderHistory }>(`/v1/radar/history/providers/${selectedProvider.id}?window=24h`)
-    ]).then(async ([detailResult, intelResult, historyResult]) => {
+      api<{ data: RadarProviderHistory }>(`/v1/radar/history/providers/${selectedProvider.id}?window=24h`),
+      api<{ data: RadarRiskResponse }>(`/v1/radar/risk/providers/${selectedProvider.id}`)
+    ]).then(async ([detailResult, intelResult, historyResult, riskResult]) => {
       if (!active) return;
       const detail = detailResult.status === 'fulfilled' && detailResult.value?.data ? detailResult.value.data : null;
       const intel = intelResult.status === 'fulfilled' && intelResult.value?.data ? intelResult.value.data : null;
       const history = historyResult.status === 'fulfilled' && historyResult.value?.data ? historyResult.value.data : null;
+      const risk = riskResult.status === 'fulfilled' && riskResult.value?.data ? riskResult.value.data : null;
       if (detail) setProviderDetail(detail);
       if (intel) setProviderIntel(intel);
       if (history) setProviderHistory(history);
+      if (risk) {
+        setProviderRisk(risk);
+        setProviderRiskById((current) => ({ ...current, [risk.subject_id]: risk }));
+      }
       const endpoints = asArray<Endpoint>(detail?.endpoints).slice(0, 40);
       if (!endpoints.length) return;
-      const monitorResults = await Promise.allSettled(endpoints.map((endpoint) => api<{ data: EndpointMonitor }>(`/v1/endpoints/${endpoint.id}/monitor`)));
+      const [monitorResults, endpointRiskResults] = await Promise.all([
+        Promise.allSettled(endpoints.map((endpoint) => api<{ data: EndpointMonitor }>(`/v1/endpoints/${endpoint.id}/monitor`))),
+        Promise.allSettled(endpoints.map((endpoint) => api<{ data: RadarRiskResponse }>(`/v1/radar/risk/endpoints/${endpoint.id}`)))
+      ]);
       if (!active) return;
       const entries: Array<[string, EndpointMonitor]> = [];
       monitorResults.forEach((result, index) => {
         if (result.status === 'fulfilled' && result.value?.data) entries.push([endpoints[index].id, result.value.data]);
       });
       setEndpointMonitors(Object.fromEntries(entries));
+      const endpointRisks: Record<string, RadarRiskResponse> = {};
+      endpointRiskResults.forEach((result, index) => {
+        if (result.status === 'fulfilled' && result.value?.data) endpointRisks[endpoints[index].id] = result.value.data;
+      });
+      setEndpointRiskById(endpointRisks);
     }).catch(() => undefined);
     return () => {
       active = false;
@@ -1386,8 +1507,8 @@ function RadarApp() {
           </CollapsibleSection>}
 
           <section id="leaderboards" className="grid two">
-            <Leaderboard title="Trust Leaderboard" scores={safeTopTrust} providers={providerLookup} kind="trust" />
-            <Leaderboard title="Signal Leaderboard" scores={safeTopSignal} providers={providerLookup} kind="signal" />
+            <Leaderboard title="Trust Leaderboard" scores={safeTopTrust} providers={providerLookup} kind="trust" providerRiskById={providerRiskById} />
+            <Leaderboard title="Signal Leaderboard" scores={safeTopSignal} providers={providerLookup} kind="signal" providerRiskById={providerRiskById} />
           </section>
 
           <CollapsibleSection className="panel" title="Narrative Heatmap" caption="Narratives group provider movement into readable market themes. Heat and severity are shown together so state is not color-only." scope="GLOBAL">
@@ -1480,7 +1601,7 @@ function RadarApp() {
           </div>
           <div className="directory">
             {filteredProviders.map((provider) => <button key={provider.id} type="button" aria-pressed={provider.id === selectedProvider?.id} className={provider.id === selectedProvider?.id ? 'active row' : 'row'} onClick={() => selectProviderManually(provider.id)}>
-              <span>{provider.name}</span><SeverityBadge evidence={provider} /><small>{provider.category} / {provider.endpointCount} endpoints / trust {provider.latestTrustScore ?? 'unknown'}</small>
+              <span>{provider.name}</span><SeverityBadge evidence={provider} /><PredictiveRiskBadge risk={toRiskContext(providerRiskById[provider.id])} compact /><small>{provider.category} / {provider.endpointCount} endpoints / trust {provider.latestTrustScore ?? 'unknown'}</small>
             </button>)}
             {!filteredProviders.length && <p className="muted empty-state">No providers match the current directory filters.</p>}
           </div>
@@ -1520,13 +1641,14 @@ function RadarApp() {
                 <span>{selectedProvider.hasFreeTier || safeString(selectedProvider.status).includes('free') ? 'free tier' : 'no free-tier evidence'}</span>
                 <span>{selectedProvider.hasMetering || selectedProvider.status === 'metered' ? 'metering' : 'metering unknown'}</span>
                 <SeverityBadge evidence={providerIntel ?? selectedProvider} />
+                <PredictiveRiskBadge risk={toRiskContext(providerRisk)} />
               </div>
             </div>
             <div className="intel-summary">
               <DossierStat label="trust" value={providerIntel?.latest_trust_score ?? null} sub={providerDetail?.trustAssessment?.grade ?? 'grade unknown'} history={providerHistory?.series.trust_score} delta={providerHistory?.deltas.trust_delta_24h ?? null} />
               <DossierStat label="signal" value={providerIntel?.latest_signal_score ?? null} sub={providerDetail?.signalAssessment?.narratives[0] ?? 'narrative unknown'} history={providerHistory?.series.signal_score} delta={providerHistory?.deltas.signal_delta_24h ?? null} />
               <DossierStat label="coordination" value={formatNullableBoolean(providerIntel?.coordination_eligible ?? null)} sub="eligible" />
-              <DossierStat label="risk" value={riskLabel(providerIntel?.risk_level ?? 'unknown')} sub="level" />
+              <DossierStat label="risk" value={riskBadgeLabel(toRiskContext(providerRisk)?.predictive_risk_level ?? 'unknown')} sub={toRiskContext(providerRisk)?.recommended_action ?? 'advisory'} />
               <DossierStat label="unknowns" value={providerIntel?.unknown_telemetry.length ?? 'unknown'} sub="telemetry fields" />
             </div>
             {providerDegradation.degraded && <ProviderDegradedWarning info={providerDegradation} />}
@@ -1630,6 +1752,7 @@ function RadarApp() {
                   onSortChange={setEndpointSort}
                   provider={endpointProvider}
                   endpointMonitors={endpointMonitors}
+                  endpointRisks={endpointRiskById}
                   reportedEndpointCount={reportedEndpointCount}
                 />
               </DossierSection>
@@ -1713,9 +1836,11 @@ function RadarApp() {
             {endpointRows.map((endpoint) => <div className="endpoint" key={endpoint.id}>
               {(() => {
                 const monitor = endpointMonitors[endpoint.id];
+                const risk = endpointRiskById[endpoint.id];
                 const payload = monitor?.lastCheck?.payload ?? {};
                 return <>
               <strong>{endpoint.name}</strong>
+              <PredictiveRiskBadge risk={toRiskContext(risk)} compact />
               <span>{endpoint.method ?? 'METHOD_UNKNOWN'} {endpoint.path ?? 'path unavailable'}</span>
               <small>category {endpoint.category} / type {endpoint.status} / pricing {formatPrice(endpoint.pricing)}</small>
               <small>health {statusLabel(monitor?.health ?? 'unknown')} / checked {formatDate(monitor?.lastCheck?.observedAt)} / latency {formatMs((payload.response_time_ms as number | undefined) ?? endpoint.latencyMsP50)}</small>
@@ -1766,6 +1891,7 @@ function RadarApp() {
           {pulseSummary.eventGroups.monitoring.count > 0 && <PulseStat label="Monitor" value={pulseSummary.eventGroups.monitoring.count} sub="safe service reachability events" />}
         </div>
         <PropagationWatch propagation={pulseSummary.propagation} />
+        <AnomalyWatchPanel ecosystemRisk={ecosystemRisk} />
         <DeltaPanel title="Trust Changes" caption="Latest trust events from catalog scoring batches." deltas={pulseSummary.trustDeltas} empty="No trust deltas beyond initial scoring." scope="GLOBAL" />
         <DeltaPanel title="Signal Spikes" caption="Signal deltas appear only when catalog-derived signal changes." deltas={pulseSummary.signalSpikes} empty="No positive signal deltas observed." scope="GLOBAL" />
         <div className="panel rail-panel">
@@ -1971,6 +2097,7 @@ function PreflightResultView({ result, curl }: { result: PreflightResult; curl: 
       <div className="preflight-candidate accepted">
         <strong>{selected?.provider_name ?? selected?.provider_id ?? 'No accepted provider'}</strong>
         <span>{selected ? 'Accepted candidate' : 'No accepted candidate'}</span>
+        {selected && <PredictiveRiskBadge risk={selected.predictive_risk ?? null} />}
         <KeyValues rows={[
           ['provider_id', selected?.provider_id ?? 'none'],
           ['endpoint_id', selected?.endpoint_id ?? 'none'],
@@ -1978,6 +2105,8 @@ function PreflightResultView({ result, curl }: { result: PreflightResult; curl: 
           ['signal', selected?.signal_score ?? 'unknown'],
           ['mapping', selected?.mapping_status ?? 'unknown'],
           ['reachability', selected?.reachability_status ?? 'unknown'],
+          ['predictive_risk', riskBadgeLabel(selected?.predictive_risk?.predictive_risk_level ?? 'unknown')],
+          ['risk_action', selected?.predictive_risk?.recommended_action ?? 'insufficient history'],
           ['trust_trend', selected?.trend_context?.trust_trend ?? 'unknown'],
           ['degradation_trend', selected?.trend_context?.degradation_trend ?? 'unknown'],
           ['last_seen_healthy', formatDate(selected?.trend_context?.last_seen_healthy_at ?? selected?.last_seen_healthy ?? null)]
@@ -1988,7 +2117,7 @@ function PreflightResultView({ result, curl }: { result: PreflightResult; curl: 
         <strong>Rejected candidates</strong>
         <span>{result.rejected_candidates.length} rejected</span>
         <div className="preflight-rejections">
-          {result.rejected_candidates.slice(0, 5).map((item) => <p key={`${item.provider_id}:${item.endpoint_id}`}><b>{item.provider_id}</b><span>{item.rejection_reasons.join(', ') || 'no rejection reasons reported'}</span></p>)}
+          {result.rejected_candidates.slice(0, 5).map((item) => <p key={`${item.provider_id}:${item.endpoint_id}`}><b>{item.provider_id}</b><span>{riskBadgeLabel(item.predictive_risk?.predictive_risk_level ?? 'unknown')} · {item.rejection_reasons.join(', ') || 'no rejection reasons reported'}</span></p>)}
           {!result.rejected_candidates.length && <p>No rejected providers under current policy.</p>}
         </div>
       </div>
@@ -2079,9 +2208,11 @@ function ComparisonPanel({
     </div>}
     {result && <div className="endpoint-list has-rows comparison-results">{visibleRows.map((row) => <div className={`endpoint ${row.route_recommendation === 'not_recommended' || row.degradation_count > 0 ? 'degraded-card' : ''}`} key={row.id}>
       <strong>{row.name}</strong>
+      <PredictiveRiskBadge risk={toRiskContextFromRow(row)} compact />
       <small>trust {row.trust_score ?? 'unknown'} / signal {row.signal_score ?? 'unknown'} / mapped {row.mapped_endpoint_count}/{row.endpoint_count}</small>
       <small>route eligible {row.route_eligible_endpoint_count} / degraded {row.degradation_count} / reachability {row.reachability}</small>
-      <small>recommendation {row.route_recommendation} / rejection reasons {row.rejection_reasons.join(', ') || 'none'}</small>
+      <small>recommendation {row.route_recommendation} / risk action {row.recommended_action ?? 'insufficient history'} / rejection reasons {row.rejection_reasons.join(', ') || 'none'}</small>
+      {row.top_anomaly && <small>top anomaly {row.top_anomaly.anomaly_type} ({row.top_anomaly.severity}, {row.top_anomaly.confidence})</small>}
       {(row.route_recommendation === 'not_recommended' || row.degradation_count > 0) && <small className="failure-line">Route implication: Not recommended for routing. Last seen healthy: {formatDate(row.last_seen_healthy)}</small>}
     </div>)}
     {!visibleRows.length && <p className="muted empty-state">No comparison rows match the current filters.</p>}</div>}
@@ -2131,6 +2262,15 @@ function StatusPill({ state }: { state: 'healthy' | 'watch' | 'degraded' | 'crit
     unknown: 'Unknown'
   };
   return <span className={`status-pill ${state}`} aria-label={`Status ${labels[state]}`}>{labels[state]}</span>;
+}
+
+function PredictiveRiskBadge({ risk, compact = false }: { risk: RadarRiskContext | null; compact?: boolean }) {
+  const level = risk?.predictive_risk_level ?? 'unknown';
+  const label = riskBadgeLabel(level);
+  const implication = riskRouteImplication(level);
+  return <span className={`risk-badge risk-${level} ${compact ? 'compact' : ''}`} title={`${label}. ${implication}`}>
+    {label}
+  </span>;
 }
 
 function SeverityBanner({ state, title, body }: { state: 'healthy' | 'watch' | 'degraded' | 'critical' | 'unknown'; title: string; body: string }) {
@@ -2224,6 +2364,7 @@ function EndpointIntelligenceSection({
   onSortChange,
   provider,
   endpointMonitors,
+  endpointRisks,
   reportedEndpointCount
 }: {
   rows: EndpointIntelligenceRow[];
@@ -2236,6 +2377,7 @@ function EndpointIntelligenceSection({
   onSortChange: (value: EndpointSort) => void;
   provider: Provider | null;
   endpointMonitors: Record<string, EndpointMonitor>;
+  endpointRisks: Record<string, RadarRiskResponse>;
   reportedEndpointCount: number;
 }) {
   const [copyState, setCopyState] = useState<Record<string, 'json' | 'curl' | 'failed'>>({});
@@ -2281,6 +2423,7 @@ function EndpointIntelligenceSection({
       {visibleRows.map((row) => {
         const endpoint = row.normalized;
         const monitor = endpointMonitors[endpoint.endpoint_id];
+        const endpointRisk = endpointRisks[endpoint.endpoint_id];
         const curl = buildCurlCommand(endpoint);
         const json = JSON.stringify(endpoint, null, 2);
         const copyKey = endpoint.endpoint_id;
@@ -2295,6 +2438,7 @@ function EndpointIntelligenceSection({
               <b>{pricingSummary(endpoint.pricing)}</b>
               <b>{routeEligibilityLabel(endpoint.route_eligibility)}</b>
               <b>{statusLabel(endpoint.reachability_status)}</b>
+              <PredictiveRiskBadge risk={toRiskContext(endpointRisk)} compact />
             </span>
           </summary>
           <div className="endpoint-card-body">
@@ -2312,8 +2456,10 @@ function EndpointIntelligenceSection({
               ['catalog_observed_at', formatDate(endpoint.catalog_observed_at)],
               ['catalog_generated_at', formatDate(endpoint.catalog_generated_at)],
               ['health', statusLabel(monitor?.health ?? endpoint.reachability_status)],
-              ['last_monitor_check', formatDate(monitor?.lastCheck?.observedAt)]
+              ['last_monitor_check', formatDate(monitor?.lastCheck?.observedAt)],
+              ['predictive_risk', riskBadgeLabel(toRiskContext(endpointRisk)?.predictive_risk_level ?? 'unknown')]
             ]} />
+            {endpointRisk && <p className="route-state">{toRiskContext(endpointRisk)?.recommended_action ?? 'insufficient history'}.</p>}
             <div className="endpoint-copy-actions">
               <button className="execute compact secondary" type="button" onClick={() => copyEndpoint(copyKey, json, 'json')}>
                 {copyState[copyKey] === 'json' ? 'Copied JSON' : copyState[copyKey] === 'failed' ? 'Copy failed' : 'Copy JSON'}
@@ -2488,6 +2634,59 @@ function PropagationWatch({ propagation }: { propagation?: PropagationAnalysis |
   </div>;
 }
 
+function AnomalyWatchPanel({ ecosystemRisk }: { ecosystemRisk: RadarEcosystemRiskSummary | null }) {
+  const watch = ecosystemRisk?.summary?.anomaly_watch ?? [];
+  return <section className="panel anomaly-watch" aria-label="Anomaly Watch panel">
+    <div className="panel-head">
+      <div>
+        <ScopeLabel scope="GLOBAL" />
+        <p className="section-kicker">Predictive Risk</p>
+        <h2>Anomaly Watch</h2>
+        <p className="panel-caption">Advisory anomalies from historical snapshots, monitor runs, and event logs. No paid APIs are executed.</p>
+      </div>
+      <PredictiveRiskBadge risk={toRiskContext(ecosystemRisk)} />
+    </div>
+    {ecosystemRisk?.summary?.stale_catalog_warning && <p className="route-state warn">{ecosystemRisk.summary.stale_catalog_warning}</p>}
+    {!!ecosystemRisk && <div className="chips compact-chips">
+      <span>low {ecosystemRisk.summary.providers_by_risk_level.low}</span>
+      <span>watch {ecosystemRisk.summary.providers_by_risk_level.watch}</span>
+      <span>elevated {ecosystemRisk.summary.providers_by_risk_level.elevated}</span>
+      <span>critical {ecosystemRisk.summary.providers_by_risk_level.critical}</span>
+      <span>unknown {ecosystemRisk.summary.providers_by_risk_level.unknown}</span>
+    </div>}
+    {!watch.length && <p className="muted empty-state">No active anomaly watch entries.</p>}
+    <div className="endpoint-list has-rows">
+      {watch.slice(0, 10).map((item) => <details className={`endpoint-intelligence-card anomaly-card risk-${item.severity}`} key={`${item.subject_type}:${item.provider_id ?? 'none'}:${item.endpoint_id ?? 'none'}:${item.anomaly_type}:${item.detected_at}`}>
+        <summary>
+          <span className="endpoint-title">
+            <strong>{item.provider_id ?? 'unknown provider'}{item.endpoint_id ? ` / ${item.endpoint_id}` : ''}</strong>
+            <small>{item.anomaly_type}</small>
+          </span>
+          <span className="endpoint-tags">
+            <b>{item.severity}</b>
+            <b>{item.confidence}</b>
+            <b>{item.route_implication}</b>
+          </span>
+        </summary>
+        <div className="endpoint-card-body">
+          <p>{item.explanation}</p>
+          <KeyValues rows={[
+            ['subject_type', item.subject_type],
+            ['provider', item.provider_id ?? 'unknown'],
+            ['endpoint', item.endpoint_id ?? 'n/a'],
+            ['detected_at', formatDate(item.detected_at)],
+            ['recommended_action', item.recommended_action]
+          ]} />
+          <details className="preflight-json">
+            <summary>Evidence</summary>
+            <pre>{JSON.stringify(item.evidence, null, 2)}</pre>
+          </details>
+        </div>
+      </details>)}
+    </div>
+  </section>;
+}
+
 function ZoneHeader({ eyebrow, title, subtitle, helper, scope }: { eyebrow: string; title: string; subtitle: string; helper?: string; scope: 'GLOBAL' | 'PROVIDER' }) {
   const id = scope === 'GLOBAL' ? 'ecosystem-zone-title' : 'provider-zone-title';
   return <header className="zone-header">
@@ -2656,7 +2855,7 @@ function KeyValues({ rows }: { rows: [string, React.ReactNode][] }) {
   return <div className="key-values">{rows.map(([label, value]) => <p key={label}><b>{label}</b><span>{value}</span></p>)}</div>;
 }
 
-function Leaderboard({ title, scores, providers, kind }: { title: string; scores: any[]; providers: Map<string, Provider>; kind: string }) {
+function Leaderboard({ title, scores, providers, kind, providerRiskById }: { title: string; scores: any[]; providers: Map<string, Provider>; kind: string; providerRiskById: Record<string, RadarRiskResponse> }) {
   const safeScores = Array.isArray(scores) ? scores : [];
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<'score' | 'name'>('score');
@@ -2677,7 +2876,7 @@ function Leaderboard({ title, scores, providers, kind }: { title: string; scores
         <option value="name">provider name</option>
       </select>
     </div>
-    <div className="leaderboard">{visibleScores.map((score, index) => <div className="bar" key={score.entityId ?? `${title}-${index}`}><span>{providers.get(score.entityId)?.name ?? 'unknown provider'}</span><div aria-hidden="true"><i style={{ width: `${score.score ?? 0}%` }} /></div><b>{score.score ?? 'unknown'}{kind === 'trust' ? ` ${score.grade ?? '-'}` : ''}</b></div>)}</div>
+    <div className="leaderboard">{visibleScores.map((score, index) => <div className="bar" key={score.entityId ?? `${title}-${index}`}><span>{providers.get(score.entityId)?.name ?? 'unknown provider'}</span><PredictiveRiskBadge risk={toRiskContext(providerRiskById[String(score.entityId ?? '')])} compact /><div aria-hidden="true"><i style={{ width: `${score.score ?? 0}%` }} /></div><b>{score.score ?? 'unknown'}{kind === 'trust' ? ` ${score.grade ?? '-'}` : ''}</b></div>)}</div>
     {!visibleScores.length && <p className="muted empty-state">No providers match the leaderboard filter.</p>}
   </CollapsibleSection>;
 }
@@ -3350,6 +3549,52 @@ function statusLabel(status: string) {
   if (/degraded|slow/i.test(status)) return `[DEGRADED] ${status}`;
   if (/failed|failure|down|error/i.test(status)) return `[FAILED] ${status}`;
   return `[?] ${status || 'unknown'}`;
+}
+
+function toRiskContext(risk: RadarRiskResponse | RadarEcosystemRiskSummary | null | undefined): RadarRiskContext | null {
+  if (!risk) return null;
+  return {
+    predictive_risk_score: risk.risk_score,
+    predictive_risk_level: risk.risk_level,
+    history_available: risk.history_available,
+    sample_count: risk.sample_count,
+    explanation: risk.explanation ?? '',
+    evidence: risk.evidence,
+    warnings: risk.warnings,
+    recommended_action: risk.recommended_action,
+    top_anomaly: risk.anomalies[0] ?? null
+  };
+}
+
+function toRiskContextFromRow(row: RadarComparisonRow): RadarRiskContext | null {
+  if (typeof row.predictive_risk_score !== 'number' || !row.predictive_risk_level) return null;
+  return {
+    predictive_risk_score: row.predictive_risk_score,
+    predictive_risk_level: row.predictive_risk_level,
+    history_available: true,
+    sample_count: 0,
+    explanation: row.top_anomaly?.explanation ?? '',
+    evidence: row.top_anomaly?.evidence ?? [],
+    warnings: [],
+    recommended_action: row.recommended_action ?? 'insufficient history',
+    top_anomaly: row.top_anomaly ?? null
+  };
+}
+
+function riskBadgeLabel(level: RiskLevel) {
+  if (level === 'low') return 'Low Risk';
+  if (level === 'watch') return 'Watch';
+  if (level === 'elevated') return 'Elevated Risk';
+  if (level === 'critical') return 'Critical Risk';
+  return 'Unknown Risk';
+}
+
+function riskRouteImplication(level: RiskLevel) {
+  if (level === 'critical') return 'Not recommended for routing.';
+  if (level === 'elevated') return 'Route with fallback.';
+  if (level === 'watch') return 'Monitor before routing.';
+  if (level === 'unknown') return 'Insufficient history.';
+  return 'Route normally.';
 }
 
 function riskLabel(risk: string) {

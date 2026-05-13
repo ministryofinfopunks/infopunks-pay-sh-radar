@@ -150,6 +150,12 @@ No black-box score is emitted without supporting evidence.
   Returns normalized endpoint-level intelligence records.
 - `GET /v1/radar/routes/candidates`
   Returns route-eligible endpoint/provider candidates grouped by category and provider.
+- `GET /v1/radar/risk/providers/:provider_id`
+  Returns advisory predictive risk + explainable anomalies for one provider.
+- `GET /v1/radar/risk/endpoints/:endpoint_id`
+  Returns advisory predictive risk + explainable anomalies for one endpoint.
+- `GET /v1/radar/risk/ecosystem`
+  Returns compact ecosystem risk summary (counts, top anomalies, affected categories, recent critical events, anomaly watch).
 - `POST /v1/radar/preflight`
   Runs safe agent preflight route intelligence from catalog-derived evidence only.
 - `POST /v1/radar/compare`
@@ -300,6 +306,41 @@ If only one executable mapping exists, Radar should be interpreted as:
 `Repeatability evidence available. Superiority evidence not yet available.`
 
 Radar does not execute paid APIs in this mode. It ranks and rejects using safe metadata, trust/signal intelligence, reachability, pricing clarity, and mapping completeness only.
+
+Radar preflight also includes additive `predictive_risk` context per candidate. This context is heuristic/advisory:
+
+- `critical` risk is rejected by default unless `constraints.allow_risky_routes=true`
+- `elevated` risk reduces confidence and recommends fallback routing
+- `watch` risk adds caution/monitor guidance
+- `unknown` risk warns about insufficient history but does not auto-reject
+
+## Predictive Risk Model (Advisory)
+
+Radar predictive risk is explainable and additive. It does **not** replace trust/signal formulas and does **not** claim certainty.
+
+Risk levels:
+
+- `low`
+- `watch`
+- `elevated`
+- `critical`
+- `unknown` (insufficient history unless current critical evidence exists)
+
+Implemented anomaly types:
+
+- `sudden_trust_drop`
+- `sudden_signal_spike`
+- `repeated_degradation`
+- `repeated_failed_metadata_check`
+- `latency_spike`
+- `route_eligibility_flip`
+- `pricing_metadata_disappeared`
+- `metadata_quality_decline`
+- `catalog_metadata_churn`
+- `stale_catalog_source`
+- `critical_current_state`
+
+All risk routes are read-only and safe. Radar does not execute paid Pay.sh APIs for predictive risk checks.
 
 ---
 

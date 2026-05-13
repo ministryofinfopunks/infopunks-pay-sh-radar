@@ -153,6 +153,40 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
       deltas: { average_trust_delta_24h: 6, average_signal_delta_24h: 4, degradation_delta_24h: 0, trend_direction: 'improving' },
       warnings: []
     });
+    if (path === '/v1/radar/risk/ecosystem') return json({
+      generated_at: observedAt,
+      subject_type: 'ecosystem',
+      subject_id: 'ecosystem',
+      risk_score: options.degraded ? 84 : 32,
+      risk_level: options.degraded ? 'elevated' : 'watch',
+      history_available: true,
+      sample_count: 4,
+      explanation: 'Advisory ecosystem risk summary.',
+      anomalies: options.degraded ? [{ anomaly_type: 'critical_current_state', severity: 'critical', confidence: 'high', explanation: 'Critical provider state present.', evidence: ['provider.failed'], detected_at: observedAt }] : [],
+      evidence: ['providers=1'],
+      warnings: [],
+      recommended_action: options.degraded ? 'required fallback route' : 'route with caution',
+      summary: {
+        providers_by_risk_level: { low: 0, watch: options.degraded ? 0 : 1, elevated: options.degraded ? 1 : 0, critical: 0, unknown: 0 },
+        top_anomalies: [{ anomaly_type: options.degraded ? 'critical_current_state' : 'sudden_signal_spike', count: 1 }],
+        categories_most_affected: [{ category: 'data', provider_count: 1 }],
+        recent_critical_events: options.degraded ? [{ event_id: 'evt-critical', type: 'provider.failed', provider_id: 'alpha', endpoint_id: null, observed_at: observedAt }] : [],
+        stale_catalog_warning: null,
+        anomaly_watch: [{
+          subject_type: 'provider',
+          provider_id: 'alpha',
+          endpoint_id: null,
+          anomaly_type: options.degraded ? 'critical_current_state' : 'sudden_signal_spike',
+          severity: options.degraded ? 'critical' : 'medium',
+          confidence: 'high',
+          explanation: options.degraded ? 'Provider is currently failed.' : 'Signal increased quickly.',
+          detected_at: observedAt,
+          recommended_action: options.degraded ? 'not recommended for routing' : 'route with caution',
+          route_implication: options.degraded ? 'Not recommended for routing.' : 'Monitor before routing.',
+          evidence: ['test-evidence']
+        }]
+      }
+    });
     if (path === '/v1/radar/history/providers/alpha') return json(options.degraded ? {
       generated_at: observedAt,
       window: '24h',
@@ -175,6 +209,20 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
       warnings: []
     });
     if (path === '/v1/providers/alpha') return json({ provider, endpoints: options.detailEndpoints ?? [], trustAssessment: { entityId: 'alpha', score: 86, grade: 'A', components: {}, unknowns: [] }, signalAssessment: { entityId: 'alpha', score: 74, narratives: ['data'], components: {}, unknowns: [] } });
+    if (path === '/v1/radar/risk/providers/alpha') return json({
+      generated_at: observedAt,
+      subject_type: 'provider',
+      subject_id: 'alpha',
+      risk_score: options.degraded ? 92 : 28,
+      risk_level: options.degraded ? 'critical' : 'low',
+      history_available: true,
+      sample_count: 3,
+      explanation: options.degraded ? 'Current critical state.' : 'Low advisory risk.',
+      anomalies: options.degraded ? [{ anomaly_type: 'critical_current_state', severity: 'critical', confidence: 'high', explanation: 'Provider failed.', evidence: ['provider.failed'], detected_at: observedAt }] : [],
+      evidence: ['provider=alpha'],
+      warnings: [],
+      recommended_action: options.degraded ? 'not recommended for routing' : 'route normally'
+    });
     if (path === '/v1/providers/alpha/intelligence') return json({
       ...receipt,
       provider,
@@ -191,6 +239,34 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
       last_seen_at: observedAt
     });
     if (path === '/v1/endpoints/ep-lookup/monitor') return json({ health: 'reachable', lastCheck: { observedAt, payload: {} }, recentFailures: [] });
+    if (path === '/v1/radar/risk/endpoints/ep-lookup') return json({
+      generated_at: observedAt,
+      subject_type: 'endpoint',
+      subject_id: 'ep-lookup',
+      risk_score: options.degraded ? 80 : 34,
+      risk_level: options.degraded ? 'elevated' : 'watch',
+      history_available: true,
+      sample_count: 3,
+      explanation: 'Endpoint advisory risk.',
+      anomalies: options.degraded ? [{ anomaly_type: 'repeated_degradation', severity: 'high', confidence: 'high', explanation: 'Repeated failures.', evidence: ['endpoint.failed'], detected_at: observedAt }] : [],
+      evidence: ['endpoint=ep-lookup'],
+      warnings: [],
+      recommended_action: options.degraded ? 'required fallback route' : 'route with caution'
+    });
+    if (path === '/v1/radar/risk/endpoints/ep-incomplete') return json({
+      generated_at: observedAt,
+      subject_type: 'endpoint',
+      subject_id: 'ep-incomplete',
+      risk_score: 50,
+      risk_level: 'unknown',
+      history_available: false,
+      sample_count: 1,
+      explanation: 'Insufficient history.',
+      anomalies: [],
+      evidence: ['insufficient history'],
+      warnings: ['insufficient_history'],
+      recommended_action: 'insufficient history'
+    });
     if (path === '/v1/radar/superiority-readiness') return json(options.readiness ?? {
       generated_at: observedAt,
       executable_provider_mappings_count: 1,
@@ -204,13 +280,13 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
       generated_at: observedAt,
       source: 'infopunks-pay-sh-radar',
       input: { intent: 'get SOL price', category: 'data', constraints: { min_trust: 80 } },
-      recommended_route: { provider_id: 'alpha', provider_name: 'Alpha Data', endpoint_id: 'ep-lookup', endpoint_name: 'Lookup', trust_score: 86, signal_score: 74, route_eligibility: true, confidence: 90, reasons: ['mapping_complete'], rejection_reasons: [], mapping_status: 'complete', reachability_status: 'reachable', pricing_status: 'clear', last_seen_healthy: observedAt, trend_context: { trust_trend: 'improving', signal_trend: 'stable', degradation_trend: 'stable', trust_delta_24h: 6, signal_delta_24h: 0, latency_delta_24h: null, degradation_delta_24h: 0, route_eligibility_changed: false, last_seen_healthy_at: observedAt, warning: null } },
+      recommended_route: { provider_id: 'alpha', provider_name: 'Alpha Data', endpoint_id: 'ep-lookup', endpoint_name: 'Lookup', trust_score: 86, signal_score: 74, route_eligibility: true, confidence: 90, reasons: ['mapping_complete'], rejection_reasons: [], mapping_status: 'complete', reachability_status: 'reachable', pricing_status: 'clear', predictive_risk: { predictive_risk_score: 34, predictive_risk_level: 'watch', history_available: true, sample_count: 3, explanation: 'Watch advisory.', evidence: ['signal spike'], warnings: [], recommended_action: 'route with caution', top_anomaly: { anomaly_type: 'sudden_signal_spike', severity: 'medium', confidence: 'high', explanation: 'Signal jumped quickly.', evidence: ['signal_delta_24h=16'], detected_at: observedAt } }, last_seen_healthy: observedAt, trend_context: { trust_trend: 'improving', signal_trend: 'stable', degradation_trend: 'stable', trust_delta_24h: 6, signal_delta_24h: 0, latency_delta_24h: null, degradation_delta_24h: 0, route_eligibility_changed: false, last_seen_healthy_at: observedAt, warning: null } },
       accepted_candidates: [],
       rejected_candidates: [],
       warnings: [],
       superiority_evidence_available: false
     });
-    if (path === '/v1/radar/compare') return json({ generated_at: observedAt, mode: 'provider', rows: [{ id: 'alpha', type: 'provider', name: 'Alpha Data', trust_score: 86, signal_score: 74, endpoint_count: 2, mapped_endpoint_count: 2, route_eligible_endpoint_count: 1, degradation_count: 0, pricing_clarity: 95, metadata_quality: 90, reachability: 'reachable', last_observed: observedAt, last_seen_healthy: observedAt, route_recommendation: 'route_eligible', rejection_reasons: [] }] });
+    if (path === '/v1/radar/compare') return json({ generated_at: observedAt, mode: 'provider', rows: [{ id: 'alpha', type: 'provider', name: 'Alpha Data', trust_score: 86, signal_score: 74, endpoint_count: 2, mapped_endpoint_count: 2, route_eligible_endpoint_count: 1, degradation_count: 0, pricing_clarity: 95, metadata_quality: 90, reachability: 'reachable', last_observed: observedAt, last_seen_healthy: observedAt, predictive_risk_level: 'watch', predictive_risk_score: 34, recommended_action: 'route with caution', top_anomaly: { anomaly_type: 'sudden_signal_spike', severity: 'medium', confidence: 'high', explanation: 'Signal jump.', evidence: ['signal_delta_24h=16'], detected_at: observedAt }, route_recommendation: 'route_eligible', rejection_reasons: [] }] });
     if (path === '/v1/search') {
       const body = typeof init?.body === 'string' ? JSON.parse(init.body) : {};
       const query = String(body.query ?? '');
@@ -495,5 +571,30 @@ describe('radar endpoint intelligence UI', () => {
     expect(details).toBeTruthy();
     details!.open = true;
     expect(details!.textContent).toContain('provider-14');
+  });
+
+  it('renders predictive risk badges in preflight and comparison surfaces', async () => {
+    installFetch({ endpoints: [normalizedEndpoint], detailEndpoints: [endpoint] });
+    root = await renderApp(container);
+
+    const preflightRun = Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Run Preflight') as HTMLButtonElement | undefined;
+    expect(preflightRun).toBeTruthy();
+    await act(async () => {
+      preflightRun!.click();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(container.textContent).toContain('Watch');
+    expect(container.textContent).toContain('route with caution');
+  });
+
+  it('renders Anomaly Watch panel with advisory entries', async () => {
+    installFetch({ endpoints: [normalizedEndpoint], detailEndpoints: [endpoint], degraded: true });
+    root = await renderApp(container);
+
+    expect(container.textContent).toContain('Anomaly Watch');
+    expect(container.textContent).toContain('critical_current_state');
+    expect(container.textContent).toContain('Not recommended for routing.');
   });
 });
