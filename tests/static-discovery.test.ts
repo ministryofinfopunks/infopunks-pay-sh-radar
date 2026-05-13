@@ -1,7 +1,8 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 import { describe, expect, it } from 'vitest';
 
 const readProjectFile = (path: string) => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
+const projectFileUrl = (path: string) => new URL(`../${path}`, import.meta.url);
 
 describe('static public discovery metadata', () => {
   it('exposes crawler and social metadata in the HTML shell', async () => {
@@ -45,5 +46,15 @@ describe('static public discovery metadata', () => {
     expect(wellKnown.openapi).toBe('https://radar.infopunks.fun/openapi.json');
     expect(wellKnown.safety).toBe('safe_metadata_only_no_paid_api_execution');
     expect(wellKnown.capabilities).toContain('agent_preflight');
+  });
+
+  it('publishes the Open Graph image referenced by social metadata', async () => {
+    const image = await readFile(projectFileUrl('public/og-radar.png'));
+    const imageStats = await stat(projectFileUrl('public/og-radar.png'));
+
+    expect(imageStats.isFile()).toBe(true);
+    expect(image.subarray(0, 8)).toEqual(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+    expect(image.readUInt32BE(16)).toBe(1200);
+    expect(image.readUInt32BE(20)).toBe(630);
   });
 });
