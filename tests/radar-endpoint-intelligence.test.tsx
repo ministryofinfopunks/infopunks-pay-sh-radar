@@ -134,7 +134,7 @@ function pulseSummary(recentDegraded = false) {
 }
 
 function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknown[]; degraded?: boolean; readiness?: Record<string, unknown> } = {}) {
-  vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+  vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
     const path = pathOf(input);
     if (path === '/v1/pulse') return json({ providerCount: 1, endpointCount: options.endpoints?.length ?? 0, eventCount: 1, averageTrust: 86, averageSignal: 74, hottestNarrative: null, topTrust: [], topSignal: [], data_source: { mode: 'live_pay_sh_catalog', url: 'https://pay.sh/api/catalog', generated_at: observedAt, provider_count: 1, last_ingested_at: observedAt, used_fixture: false }, updatedAt: observedAt });
     if (path === '/v1/providers') return json([provider]);
@@ -143,6 +143,37 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
     if (path === '/v1/pulse/summary') return json(pulseSummary(options.degraded));
     if (path === '/v1/providers/featured') return json({ providerId: 'alpha', providerName: 'Alpha Data', category: 'data', rotationWindowMs: 60000, windowStartedAt: observedAt, nextRotationAt: '2026-05-08T10:01:00.000Z', index: 0, providerCount: 1, strategy: 'time_window_round_robin' });
     if (path === '/v1/radar/endpoints') return json({ generated_at: observedAt, source: {}, count: options.endpoints?.length ?? 0, endpoints: options.endpoints ?? [] });
+    if (path === '/v1/radar/history/ecosystem') return json({
+      generated_at: observedAt,
+      window: '24h',
+      sample_count: 2,
+      history_available: true,
+      reason: null,
+      series: { average_trust: [{ at: '2026-05-08T09:00:00.000Z', value: 80 }, { at: observedAt, value: 86 }], average_signal: [{ at: '2026-05-08T09:00:00.000Z', value: 70 }, { at: observedAt, value: 74 }], degradation_count: [] },
+      deltas: { average_trust_delta_24h: 6, average_signal_delta_24h: 4, degradation_delta_24h: 0, trend_direction: 'improving' },
+      warnings: []
+    });
+    if (path === '/v1/radar/history/providers/alpha') return json(options.degraded ? {
+      generated_at: observedAt,
+      window: '24h',
+      sample_count: 0,
+      history_available: false,
+      reason: 'No historical snapshots available yet',
+      series: { trust_score: [], signal_score: [], degradation_count: [], latency_ms: [], reachability: [], metadata_quality: [], pricing_clarity: [] },
+      deltas: { trust_delta_24h: null, signal_delta_24h: null, latency_delta_24h: null, degradation_delta_24h: null, route_eligibility_changed: null, trend_direction: 'unknown' },
+      last_known_good: { last_seen_healthy_at: null, last_degraded_at: observedAt, last_failed_at: observedAt, current_health_state: 'failed', health_state_reason: 'test degraded' },
+      warnings: ['history warming up']
+    } : {
+      generated_at: observedAt,
+      window: '24h',
+      sample_count: 2,
+      history_available: true,
+      reason: null,
+      series: { trust_score: [{ at: '2026-05-08T09:00:00.000Z', value: 80 }, { at: observedAt, value: 86 }], signal_score: [{ at: '2026-05-08T09:00:00.000Z', value: 70 }, { at: observedAt, value: 74 }], degradation_count: [{ at: observedAt, value: 0 }], latency_ms: [], reachability: [], metadata_quality: [], pricing_clarity: [] },
+      deltas: { trust_delta_24h: 6, signal_delta_24h: 4, latency_delta_24h: null, degradation_delta_24h: 0, route_eligibility_changed: false, trend_direction: 'improving' },
+      last_known_good: { last_seen_healthy_at: observedAt, last_degraded_at: null, last_failed_at: null, current_health_state: 'reachable', health_state_reason: 'test reachable' },
+      warnings: []
+    });
     if (path === '/v1/providers/alpha') return json({ provider, endpoints: options.detailEndpoints ?? [], trustAssessment: { entityId: 'alpha', score: 86, grade: 'A', components: {}, unknowns: [] }, signalAssessment: { entityId: 'alpha', score: 74, narratives: ['data'], components: {}, unknowns: [] } });
     if (path === '/v1/providers/alpha/intelligence') return json({
       ...receipt,
@@ -173,13 +204,18 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
       generated_at: observedAt,
       source: 'infopunks-pay-sh-radar',
       input: { intent: 'get SOL price', category: 'data', constraints: { min_trust: 80 } },
-      recommended_route: { provider_id: 'alpha', provider_name: 'Alpha Data', endpoint_id: 'ep-lookup', endpoint_name: 'Lookup', trust_score: 86, signal_score: 74, route_eligibility: true, confidence: 90, reasons: ['mapping_complete'], rejection_reasons: [], mapping_status: 'complete', reachability_status: 'reachable', pricing_status: 'clear', last_seen_healthy: observedAt },
+      recommended_route: { provider_id: 'alpha', provider_name: 'Alpha Data', endpoint_id: 'ep-lookup', endpoint_name: 'Lookup', trust_score: 86, signal_score: 74, route_eligibility: true, confidence: 90, reasons: ['mapping_complete'], rejection_reasons: [], mapping_status: 'complete', reachability_status: 'reachable', pricing_status: 'clear', last_seen_healthy: observedAt, trend_context: { trust_trend: 'improving', signal_trend: 'stable', degradation_trend: 'stable', trust_delta_24h: 6, signal_delta_24h: 0, latency_delta_24h: null, degradation_delta_24h: 0, route_eligibility_changed: false, last_seen_healthy_at: observedAt, warning: null } },
       accepted_candidates: [],
       rejected_candidates: [],
       warnings: [],
       superiority_evidence_available: false
     });
     if (path === '/v1/radar/compare') return json({ generated_at: observedAt, mode: 'provider', rows: [{ id: 'alpha', type: 'provider', name: 'Alpha Data', trust_score: 86, signal_score: 74, endpoint_count: 2, mapped_endpoint_count: 2, route_eligible_endpoint_count: 1, degradation_count: 0, pricing_clarity: 95, metadata_quality: 90, reachability: 'reachable', last_observed: observedAt, last_seen_healthy: observedAt, route_recommendation: 'route_eligible', rejection_reasons: [] }] });
+    if (path === '/v1/search') {
+      const body = typeof init?.body === 'string' ? JSON.parse(init.body) : {};
+      const query = String(body.query ?? '');
+      return json(query.includes('metadata incomplete') ? [] : [{ provider, relevance: 0.91, trustAssessment: { score: 86 }, signalAssessment: { score: 74 } }]);
+    }
     return Promise.resolve(new Response('{}', { status: 404 }));
   });
 }
@@ -196,6 +232,17 @@ async function renderApp(container: HTMLElement) {
     await Promise.resolve();
   });
   return root!;
+}
+
+function sectionByHeading(container: HTMLElement, heading: string) {
+  const title = Array.from(container.querySelectorAll('h2,h4')).find((node) => node.textContent === heading);
+  return title?.closest('.dossier-section, .collapsible-section, .panel') as HTMLElement | undefined;
+}
+
+function setInputValue(input: HTMLInputElement, value: string) {
+  const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+  setter?.call(input, value);
+  input.dispatchEvent(new Event('input', { bubbles: true }));
 }
 
 describe('radar endpoint intelligence UI', () => {
@@ -275,6 +322,9 @@ describe('radar endpoint intelligence UI', () => {
     root = await renderApp(container);
 
     expect(container.textContent).toContain('Global Pulse');
+    expect(container.textContent).toContain('Leaderboards');
+    expect(container.textContent).toContain('Directory');
+    expect(container.textContent).toContain('Events');
     expect(container.textContent).toContain('Preflight');
     expect(container.textContent).toContain('Routing intelligence for the Pay.sh agent economy.');
     expect(container.textContent).toContain('Ask Radar where an agent should route before spending.');
@@ -298,8 +348,114 @@ describe('radar endpoint intelligence UI', () => {
 
     expect(container.textContent).toContain('Route candidate found');
     expect(container.textContent).toContain('Accepted candidate');
+    expect(container.textContent).toContain('trust_trend');
+    expect(container.textContent).toContain('last_seen_healthy');
     expect(container.textContent).toContain('/v1/radar/preflight');
     expect(container.textContent).toContain('Superiority Proof Readiness');
+  });
+
+  it('renders radar freshness timestamps with precise live-state labels', async () => {
+    installFetch({ endpoints: [normalizedEndpoint], detailEndpoints: [endpoint] });
+    root = await renderApp(container);
+
+    expect(container.textContent).toContain('Radar Freshness');
+    expect(container.textContent).toContain('Latest Ingested Catalog');
+    expect(container.textContent).toContain('catalog_generated_at');
+    expect(container.textContent).toContain('Safe Metadata Monitor');
+  });
+
+  it('renders reliability history sparklines when history exists', async () => {
+    installFetch({ endpoints: [normalizedEndpoint], detailEndpoints: [endpoint] });
+    root = await renderApp(container);
+
+    expect(container.textContent).toContain('Reliability History');
+    expect(container.textContent).toContain('Trust improving over 24h');
+    expect(container.querySelector('.sparkline svg')).toBeTruthy();
+  });
+
+  it('renders UI history unavailable state without fake sparklines', async () => {
+    installFetch({ endpoints: [normalizedEndpoint], detailEndpoints: [endpoint], degraded: true });
+    root = await renderApp(container);
+
+    const historyPanel = sectionByHeading(container, 'Reliability History');
+    expect(historyPanel?.textContent).toContain('History warming up.');
+    expect(historyPanel?.textContent).toContain('No historical snapshots available yet');
+  });
+
+  it('semantic search chips populate and run the query', async () => {
+    installFetch({ endpoints: [normalizedEndpoint], detailEndpoints: [endpoint] });
+    root = await renderApp(container);
+
+    const chip = Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'high trust finance APIs') as HTMLButtonElement | undefined;
+    expect(chip).toBeTruthy();
+    await act(async () => {
+      chip!.click();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const input = container.querySelector('input[aria-label="Search Pay.sh ecosystem intelligence"]') as HTMLInputElement | null;
+    expect(input?.value).toBe('high trust finance APIs');
+    expect(container.textContent).toContain('relevance 0.91');
+  });
+
+  it('shows the improved semantic search empty state', async () => {
+    installFetch({ endpoints: [normalizedEndpoint], detailEndpoints: [endpoint] });
+    root = await renderApp(container);
+
+    const chip = Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'metadata incomplete providers') as HTMLButtonElement | undefined;
+    await act(async () => {
+      chip!.click();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(container.textContent).toContain('No matching providers.');
+    expect(container.textContent).toContain('Try a category, provider name, endpoint type, or task intent.');
+  });
+
+  it('provider directory filtering keeps local results client-side', async () => {
+    installFetch({ endpoints: [normalizedEndpoint], detailEndpoints: [endpoint] });
+    root = await renderApp(container);
+
+    const input = container.querySelector('input[aria-label="Filter providers by name tag FQN or category"]') as HTMLInputElement | null;
+    expect(input).not.toBeNull();
+    await act(async () => {
+      setInputValue(input!, 'no-match-provider');
+    });
+
+    expect(container.textContent).toContain('No providers match the current directory filters.');
+  });
+
+  it('endpoint intelligence query filtering works on available endpoint rows', async () => {
+    installFetch({ endpoints: [normalizedEndpoint, incompleteEndpoint], detailEndpoints: [endpoint] });
+    root = await renderApp(container);
+
+    const input = container.querySelector('input[aria-label="Filter endpoints by name provider path or category"]') as HTMLInputElement | null;
+    expect(input).not.toBeNull();
+    await act(async () => {
+      setInputValue(input!, 'ep-incomplete');
+    });
+
+    const endpointPanel = sectionByHeading(container, 'Endpoint Intelligence');
+    expect(endpointPanel?.textContent).toContain('ep-incomplete');
+    expect(endpointPanel?.textContent).not.toContain('ep-lookup');
+  });
+
+  it('collapsible sections render open and closed state', async () => {
+    installFetch({ endpoints: [normalizedEndpoint], detailEndpoints: [endpoint] });
+    root = await renderApp(container);
+
+    const heatmap = sectionByHeading(container, 'Narrative Heatmap');
+    expect(heatmap).toBeTruthy();
+    const toggle = heatmap!.querySelector('button[aria-expanded="true"]') as HTMLButtonElement | null;
+    expect(toggle).not.toBeNull();
+    await act(async () => {
+      toggle!.click();
+    });
+
+    expect(toggle!.getAttribute('aria-expanded')).toBe('false');
+    expect(heatmap!.className).toContain('is-collapsed');
   });
 
   it('renders export intelligence with readable copy and preserved routes', async () => {

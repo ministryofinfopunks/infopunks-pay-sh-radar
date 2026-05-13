@@ -1,6 +1,7 @@
 import { RadarPreflightRequest, RadarPreflightResponse, RadarComparisonRequest, RadarComparisonResponse, RadarSuperiorityReadiness } from '../schemas/entities';
 import { IntelligenceStore } from './intelligenceStore';
 import { buildRadarExportSnapshot, NormalizedEndpointRecord } from './radarExportService';
+import { trendContextForProvider } from './radarHistoryService';
 
 export function runRadarPreflight(input: RadarPreflightRequest, store: IntelligenceStore): RadarPreflightResponse {
   const snapshot = buildRadarExportSnapshot(store);
@@ -10,7 +11,7 @@ export function runRadarPreflight(input: RadarPreflightRequest, store: Intellige
   const constraints = input.constraints ?? {};
   const categoryCandidates = snapshot.endpoints.filter((endpoint) => !category || (endpoint.category ?? '').toLowerCase() === category.toLowerCase());
 
-  const allCandidates = categoryCandidates.map((endpoint) => scoreCandidate(endpoint, trustByProvider.get(endpoint.provider_id) ?? null, signalByProvider.get(endpoint.provider_id) ?? null, constraints));
+  const allCandidates = categoryCandidates.map((endpoint) => scoreCandidate(endpoint, trustByProvider.get(endpoint.provider_id) ?? null, signalByProvider.get(endpoint.provider_id) ?? null, constraints, store));
   allCandidates.sort((a, b) => b.confidence - a.confidence);
 
   const accepted = allCandidates.filter((candidate) => candidate.route_eligibility);
@@ -137,7 +138,7 @@ export function buildSuperiorityReadiness(store: IntelligenceStore): RadarSuperi
   };
 }
 
-function scoreCandidate(endpoint: NormalizedEndpointRecord, trustScore: number | null, signalScore: number | null, constraints: RadarPreflightRequest['constraints']) {
+function scoreCandidate(endpoint: NormalizedEndpointRecord, trustScore: number | null, signalScore: number | null, constraints: RadarPreflightRequest['constraints'], store: IntelligenceStore) {
   const rejection: string[] = [];
   const reasons: string[] = [];
   const pricing = parsePricing(endpoint.pricing);
@@ -155,6 +156,7 @@ function scoreCandidate(endpoint: NormalizedEndpointRecord, trustScore: number |
   if (constraints?.require_pricing && !pricingKnown) rejection.push('pricing_missing');
   if (typeof constraints?.max_price_usd === 'number' && pricingKnown && pricing > constraints.max_price_usd) rejection.push('price_above_max_price_usd');
   if (constraints?.prefer_reachable && !reachable) rejection.push('not_reachable_under_preference');
+  const trendContext = trendContextForProvider(store, endpoint.provider_id);
 
   if (trustScore !== null) reasons.push(`trust=${trustScore}`);
   if (signalScore !== null) reasons.push(`signal=${signalScore}`);
@@ -183,7 +185,8 @@ function scoreCandidate(endpoint: NormalizedEndpointRecord, trustScore: number |
     mapping_status: mappingComplete ? 'complete' as const : 'missing' as const,
     reachability_status: endpoint.reachability_status,
     pricing_status: pricingKnown ? 'clear' as const : 'missing' as const,
-    last_seen_healthy: lastSeenHealthyForEndpoint(endpoint)
+    last_seen_healthy: trendContext.last_seen_healthy_at ?? lastSeenHealthyForEndpoint(endpoint),
+    trend_context: trendContext
   };
 }
 

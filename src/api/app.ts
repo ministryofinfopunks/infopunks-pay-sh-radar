@@ -30,6 +30,7 @@ import { providerReachabilitySummary, providerRootHealthSummary } from '../servi
 import { runPreflight } from '../services/preflightService';
 import { buildRadarExportSnapshot, safeJsonExport } from '../services/radarExportService';
 import { buildSuperiorityReadiness, runRadarComparison, runRadarPreflight } from '../services/radarRouteIntelligenceService';
+import { buildEcosystemHistory, buildEndpointHistory, buildProviderHistory, normalizeHistoryWindow } from '../services/radarHistoryService';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
 const MAX_INLINE_SUPPORTING_EVENT_IDS = 10;
@@ -236,6 +237,19 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
       })
     };
   });
+  app.get<{ Params: { provider_id: string }; Querystring: { window?: string } }>('/v1/radar/history/providers/:provider_id', async (req, reply) => {
+    const history = buildProviderHistory(store, req.params.provider_id, normalizeHistoryWindow(req.query.window));
+    if (!history) return reply.code(404).send({ error: 'provider_not_found' });
+    return { data: safeJsonExport(history) };
+  });
+  app.get<{ Params: { endpoint_id: string }; Querystring: { window?: string } }>('/v1/radar/history/endpoints/:endpoint_id', async (req, reply) => {
+    const history = buildEndpointHistory(store, req.params.endpoint_id, normalizeHistoryWindow(req.query.window));
+    if (!history) return reply.code(404).send({ error: 'endpoint_not_found' });
+    return { data: safeJsonExport(history) };
+  });
+  app.get<{ Querystring: { window?: string } }>('/v1/radar/history/ecosystem', async (req) => ({
+    data: safeJsonExport(buildEcosystemHistory(store, normalizeHistoryWindow(req.query.window)))
+  }));
   app.post('/v1/radar/preflight', async (req, reply) => handleParsed(req.body, RadarPreflightRequestSchema, (input) => ({
     data: safeJsonExport(RadarPreflightResponseSchema.parse(runRadarPreflight(input, store)))
   }), reply));

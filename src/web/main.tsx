@@ -36,6 +36,9 @@ type NormalizedEndpointRecord = {
   source: string | null;
 };
 type EndpointFilter = 'all' | 'route_eligible' | 'mapping_incomplete' | 'degraded' | 'priced' | 'unknown_pricing';
+type EndpointSort = 'route eligibility' | 'metadata quality' | 'pricing clarity' | 'reachability' | 'last observed' | 'name';
+type EventFilter = 'all' | 'healthy' | 'watch' | 'degraded' | 'critical' | 'unknown';
+type EventSort = 'last observed' | 'severity' | 'provider';
 type TrustAssessment = EvidenceReceipt & { entityId: string; score: number | null; grade: string; components: Record<string, number | null>; unknowns: string[] };
 type SignalAssessment = EvidenceReceipt & { entityId: string; score: number | null; narratives: string[]; components: Record<string, number | null>; unknowns: string[] };
 type Narrative = EvidenceReceipt & { id: string; title: string; heat: number | null; momentum: number | null; providerIds: string[]; keywords: string[]; summary: string };
@@ -211,6 +214,7 @@ type RadarPreflightCandidate = {
   reachability_status: 'reachable' | 'degraded' | 'failed' | 'unknown';
   pricing_status: 'clear' | 'missing';
   last_seen_healthy?: string | null;
+  trend_context?: TrendContext;
 };
 type PreflightResult = {
   generated_at: string;
@@ -249,6 +253,52 @@ type RadarSuperiorityReadiness = {
   providers_with_proven_paid_execution: string[];
   providers_with_only_catalog_metadata: string[];
   next_mappings_needed: string[];
+};
+type TrendDirection = 'improving' | 'stable' | 'degrading' | 'unknown';
+type TrendContext = {
+  trust_trend: TrendDirection;
+  signal_trend: TrendDirection;
+  degradation_trend: TrendDirection;
+  trust_delta_24h: number | null;
+  signal_delta_24h: number | null;
+  latency_delta_24h: number | null;
+  degradation_delta_24h: number | null;
+  route_eligibility_changed: boolean | null;
+  last_seen_healthy_at: string | null;
+  warning: string | null;
+};
+type HistoryPoint = { at: string; value: number | string | boolean | null };
+type RadarProviderHistory = {
+  generated_at: string;
+  window: '24h' | '48h' | '7d';
+  sample_count: number;
+  history_available: boolean;
+  reason: string | null;
+  series: Record<string, HistoryPoint[]>;
+  deltas: {
+    trust_delta_24h: number | null;
+    signal_delta_24h: number | null;
+    latency_delta_24h: number | null;
+    degradation_delta_24h: number | null;
+    route_eligibility_changed: boolean | null;
+    trend_direction: TrendDirection;
+  };
+  last_known_good?: {
+    last_seen_healthy_at: string | null;
+    last_degraded_at: string | null;
+    last_failed_at: string | null;
+    current_health_state: string;
+    health_state_reason: string;
+  };
+  warnings: string[];
+};
+type RadarEcosystemHistory = Omit<RadarProviderHistory, 'last_known_good' | 'deltas'> & {
+  deltas: {
+    average_trust_delta_24h: number | null;
+    average_signal_delta_24h: number | null;
+    degradation_delta_24h: number | null;
+    trend_direction: TrendDirection;
+  };
 };
 type SearchResponse = { data: any[]; degraded?: boolean; reason?: string };
 type ErrorBoundaryState = { hasError: boolean };
@@ -792,8 +842,15 @@ function RadarApp() {
   const [providerIntel, setProviderIntel] = useState<ProviderIntelligence | null>(null);
   const [radarEndpoints, setRadarEndpoints] = useState<NormalizedEndpointRecord[]>([]);
   const [endpointFilter, setEndpointFilter] = useState<EndpointFilter>('all');
+  const [endpointQuery, setEndpointQuery] = useState('');
+  const [endpointSort, setEndpointSort] = useState<EndpointSort>('route eligibility');
+  const [eventFilter, setEventFilter] = useState<EventFilter>('all');
+  const [eventSort, setEventSort] = useState<EventSort>('severity');
+  const [activeSection, setActiveSection] = useState('global-pulse');
   const [endpointMonitors, setEndpointMonitors] = useState<Record<string, EndpointMonitor>>({});
   const [pulseSummary, setPulseSummary] = useState<PulseSummary | null>(null);
+  const [providerHistory, setProviderHistory] = useState<RadarProviderHistory | null>(null);
+  const [ecosystemHistory, setEcosystemHistory] = useState<RadarEcosystemHistory | null>(null);
   const [pulseWindow, setPulseWindow] = useState<'1h' | '24h' | '7d'>('24h');
   const [methodologyOpen, setMethodologyOpen] = useState(false);
   const refreshInFlightRef = useRef(false);
@@ -839,7 +896,8 @@ function RadarApp() {
         api<{ data: PulseSummary }>('/v1/pulse/summary'),
         api<{ data: FeaturedProvider }>('/v1/providers/featured'),
         api<{ data: { endpoints?: NormalizedEndpointRecord[] } }>('/v1/radar/endpoints'),
-        api<{ data: RadarSuperiorityReadiness }>('/v1/radar/superiority-readiness')
+        api<{ data: RadarSuperiorityReadiness }>('/v1/radar/superiority-readiness'),
+        api<{ data: RadarEcosystemHistory }>('/v1/radar/history/ecosystem?window=24h')
       ]).then((results) => {
         if (!active) return;
         const providers = results[0].status === 'fulfilled' && Array.isArray(results[0].value?.data) ? results[0].value.data : null;
@@ -849,6 +907,7 @@ function RadarApp() {
         const featured = results[4].status === 'fulfilled' ? results[4].value.data : null;
         const normalizedEndpoints = results[5].status === 'fulfilled' && Array.isArray(results[5].value?.data?.endpoints) ? results[5].value.data.endpoints : null;
         const readinessPayload = results[6].status === 'fulfilled' ? results[6].value?.data ?? null : null;
+        const ecosystemHistoryPayload = results[7].status === 'fulfilled' ? results[7].value?.data ?? null : null;
         setData((current) => current ? {
           ...current,
           providers: providers ?? current.providers,
@@ -858,6 +917,7 @@ function RadarApp() {
         if (summary) setPulseSummary(summary);
         if (normalizedEndpoints) setRadarEndpoints(normalizedEndpoints);
         if (readinessPayload) setReadiness(readinessPayload);
+        if (ecosystemHistoryPayload) setEcosystemHistory(ecosystemHistoryPayload);
         if (featured && typeof featured.nextRotationAt === 'string') applyFeaturedProvider(featured, true);
         if (preferredProviderId && (providers ?? []).some((provider) => provider.id === preferredProviderId)) {
           setSelectedId(preferredProviderId);
@@ -960,9 +1020,25 @@ function RadarApp() {
   const hasPartialEndpointMetadata = reportedEndpointCount > 0 && endpointRows.length === 0;
   const nextRotationLabel = featuredRotationEnabled && selectionMode === 'auto' && nextRotationAt ? formatRotationCountdown(nextRotationAt - rotationNow) : 'paused';
   const isFeaturedProvider = selectionMode === 'auto' && featuredRotationEnabled && selectedProvider?.id === featuredProvider?.providerId;
-  const timelineBatches = useMemo(() => groupTimelineByBatch(pulseSummary?.timeline ?? []), [pulseSummary?.timeline]);
+  const filteredTimelineBatches = useMemo(() => {
+    const visibleEvents = filterAndSortEvents(pulseSummary?.timeline ?? [], eventFilter, eventSort);
+    return groupTimelineByBatch(visibleEvents);
+  }, [eventFilter, eventSort, pulseSummary?.timeline]);
   const ecosystemInterpretations = asArray<EcosystemInterpretation>(pulseSummary?.interpretations ?? data?.pulse.interpretations);
   const catalogNoChanges = Boolean(pulseSummary && pulseSummary.data_source.last_ingested_at && pulseSummary.latest_event_at && Date.parse(pulseSummary.data_source.last_ingested_at) > Date.parse(pulseSummary.latest_event_at));
+
+  useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') return;
+    const ids = ['global-pulse', 'leaderboards', 'providers', 'endpoints', 'preflight', 'compare', 'dossier', 'events'];
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (visible?.target.id) setActiveSection(visible.target.id);
+    }, { rootMargin: '-18% 0px -68% 0px', threshold: [0.01, 0.2, 0.55] });
+    ids.map((id) => document.getElementById(id)).filter((node): node is HTMLElement => Boolean(node)).forEach((node) => observer.observe(node));
+    return () => observer.disconnect();
+  }, [data, pulseSummary]);
 
   useEffect(() => {
     featuredRotationEnabledRef.current = featuredRotationEnabled;
@@ -996,16 +1072,20 @@ function RadarApp() {
     let active = true;
     setProviderDetail(null);
     setProviderIntel(null);
+    setProviderHistory(null);
     setEndpointMonitors({});
     Promise.allSettled([
       api<{ data: ProviderDetail }>(`/v1/providers/${selectedProvider.id}`),
-      api<{ data: ProviderIntelligence }>(`/v1/providers/${selectedProvider.id}/intelligence`)
-    ]).then(async ([detailResult, intelResult]) => {
+      api<{ data: ProviderIntelligence }>(`/v1/providers/${selectedProvider.id}/intelligence`),
+      api<{ data: RadarProviderHistory }>(`/v1/radar/history/providers/${selectedProvider.id}?window=24h`)
+    ]).then(async ([detailResult, intelResult, historyResult]) => {
       if (!active) return;
       const detail = detailResult.status === 'fulfilled' && detailResult.value?.data ? detailResult.value.data : null;
       const intel = intelResult.status === 'fulfilled' && intelResult.value?.data ? intelResult.value.data : null;
+      const history = historyResult.status === 'fulfilled' && historyResult.value?.data ? historyResult.value.data : null;
       if (detail) setProviderDetail(detail);
       if (intel) setProviderIntel(intel);
+      if (history) setProviderHistory(history);
       const endpoints = asArray<Endpoint>(detail?.endpoints).slice(0, 40);
       if (!endpoints.length) return;
       const monitorResults = await Promise.allSettled(endpoints.map((endpoint) => api<{ data: EndpointMonitor }>(`/v1/endpoints/${endpoint.id}/monitor`)));
@@ -1047,6 +1127,10 @@ function RadarApp() {
 
   function runSearch() {
     const query = searchQuery.trim();
+    runSearchForQuery(query);
+  }
+
+  function runSearchForQuery(query: string) {
     if (!query) {
       setSearchResults([]);
       setSearchError(null);
@@ -1070,6 +1154,11 @@ function RadarApp() {
         setSearchStatus('error');
         setSearchError('search_unavailable');
       });
+  }
+
+  function applySemanticSearchExample(query: string) {
+    setSearchQuery(query);
+    runSearchForQuery(query);
   }
 
   function runPreflightCheck() {
@@ -1171,12 +1260,16 @@ function RadarApp() {
           <strong>Pay.sh Radar</strong>
         </a>
         <div className="terminal-nav" aria-label="Radar zones">
-          <a href="#global-pulse">Global Pulse</a>
-          <a href="#providers">Providers</a>
-          <a href="#endpoints">Endpoints</a>
-          <a href="#preflight">Preflight</a>
-          <a href="#compare">Compare</a>
-          <a href="#dossier">Dossier</a>
+          {[
+            ['global-pulse', 'Global Pulse'],
+            ['leaderboards', 'Leaderboards'],
+            ['providers', 'Directory'],
+            ['endpoints', 'Endpoints'],
+            ['preflight', 'Preflight'],
+            ['compare', 'Compare'],
+            ['dossier', 'Dossier'],
+            ['events', 'Events']
+          ].map(([id, label]) => <a key={id} href={`#${id}`} className={activeSection === id ? 'active' : ''} aria-current={activeSection === id ? 'location' : undefined}>{label}</a>)}
         </div>
         <button className="methodology-trigger" type="button" onClick={() => setMethodologyOpen(true)} aria-label="Open methodology drawer">
           Methodology
@@ -1204,8 +1297,8 @@ function RadarApp() {
       <div className="ticker mission-metrics" aria-label="Live radar stats">
         <ControlStripMetric label="Providers" value={data.pulse.providerCount} />
         <ControlStripMetric label="Endpoints" value={data.pulse.endpointCount} />
-        <ControlStripMetric label="Avg Trust" value={data.pulse.averageTrust ?? 'unknown'} />
-        <ControlStripMetric label="Avg Signal" value={data.pulse.averageSignal ?? 'unknown'} />
+        <ControlStripMetric label="Avg Trust" value={data.pulse.averageTrust ?? 'unknown'} history={ecosystemHistory?.series.average_trust} delta={ecosystemHistory?.deltas.average_trust_delta_24h ?? null} />
+        <ControlStripMetric label="Avg Signal" value={data.pulse.averageSignal ?? 'unknown'} history={ecosystemHistory?.series.average_signal} delta={ecosystemHistory?.deltas.average_signal_delta_24h ?? null} />
         <ControlStripMetric label="Last Catalog Sync" value={formatShortDate(data.pulse.data_source.last_ingested_at ?? data.pulse.data_source.generated_at)} />
         <ControlStripMetric label="Monitoring Mode" value="Safe metadata" />
       </div>
@@ -1228,18 +1321,19 @@ function RadarApp() {
 
           <SystemReadingPanel reading={ecosystemReading} />
 
+          <RadarFreshness pulse={data.pulse} summary={pulseSummary} />
+
           <RadarExportPanel />
 
           <EcosystemInterpretationPanel interpretations={ecosystemInterpretations} providerLookup={providerLookup} />
 
           <div className="ecosystem-canvas">
-          {pulseSummary && <section className="panel pulse-feed" aria-label="Live catalog pulse">
+          {pulseSummary && <CollapsibleSection id="events" className="panel pulse-feed" title="Live Catalog Pulse" kicker="Current Scored Snapshot" scope="GLOBAL" caption={`Pay.sh catalog ingests every ${formatInterval(pulseSummary.ingest_interval_ms) ?? '7.5 min'} / UI polls every 15s / events emit only when catalog changes are detected.`}>
             <div className="panel-head">
               <div>
-                <ScopeLabel scope="GLOBAL" />
-                <p className="section-kicker">Live Signals</p>
-                <h2>Live Catalog Pulse</h2>
-                <p className="panel-caption">Pay.sh catalog ingests every {formatInterval(pulseSummary.ingest_interval_ms) ?? '7.5 min'} / UI polls every 15s / events emit only when catalog changes are detected.</p>
+                <p className="section-kicker">Safe Metadata Monitor</p>
+                <h2>Events / Degradations</h2>
+                <p className="panel-caption">Filtered event spine from the latest ingested catalog. No paid provider APIs are executed.</p>
               </div>
               <small>UI refresh {formatDate(pulseSummary.generatedAt)}</small>
             </div>
@@ -1254,8 +1348,23 @@ function RadarApp() {
             <div className="event-groups" aria-label="Catalog event categories">
               {eventCategories.map((category) => <span key={category} className={`category ${category}`}>{eventCategoryIcon(category)} {category} {pulseSummary.eventGroups[category].count}</span>)}
             </div>
+            <div className="table-controls event-controls" aria-label="Filter and sort events">
+              <label><span>state filter</span><select value={eventFilter} onChange={(event) => setEventFilter(event.target.value as EventFilter)}>
+                <option value="all">all states</option>
+                <option value="critical">critical</option>
+                <option value="degraded">degraded</option>
+                <option value="watch">watch</option>
+                <option value="healthy">healthy</option>
+                <option value="unknown">unknown</option>
+              </select></label>
+              <label><span>sort</span><select value={eventSort} onChange={(event) => setEventSort(event.target.value as EventSort)}>
+                <option value="severity">severity</option>
+                <option value="last observed">last observed</option>
+                <option value="provider">provider</option>
+              </select></label>
+            </div>
             <div className="event-feed">
-              {timelineBatches.map((batch) => <div className="batch-group" key={batch.observedAt}>
+              {filteredTimelineBatches.map((batch) => <div className="batch-group" key={batch.observedAt}>
                 <div className="batch-head">
                   <strong>Catalog batch</strong>
                   <time>{formatTime(batch.observedAt)}</time>
@@ -1266,31 +1375,28 @@ function RadarApp() {
                     <span>{eventCategoryIcon(event.category)} {event.category}</span>
                     <SeverityBadge evidence={event} />
                     <strong>{event.providerName ?? event.entityId}</strong>
-                    <p>{event.summary}</p>
+                    <p>{event.summary}{isCriticalOrDegradedEvent(event) ? ' Route implication: Not recommended for routing.' : ''}</p>
                     <time>{formatTime(event.observedAt)}</time>
                     <EvidenceReceiptView evidence={event} title="Receipt" compact />
                   </div>)}
                 </div>
               </div>)}
-              {!pulseSummary.timeline.length && <p className="muted empty-state">No pulse events observed in the current window.</p>}
+              {!filteredTimelineBatches.length && <p className="muted empty-state">No events match the current state filter.</p>}
             </div>
-          </section>}
+          </CollapsibleSection>}
 
-          <section className="grid two">
+          <section id="leaderboards" className="grid two">
             <Leaderboard title="Trust Leaderboard" scores={safeTopTrust} providers={providerLookup} kind="trust" />
             <Leaderboard title="Signal Leaderboard" scores={safeTopSignal} providers={providerLookup} kind="signal" />
           </section>
 
-          <section className="panel">
-            <ScopeLabel scope="GLOBAL" />
-            <h2>Narrative Heatmap</h2>
-            <p className="panel-caption">Narratives group provider movement into readable market themes. Heat and severity are shown together so state is not color-only.</p>
+          <CollapsibleSection className="panel" title="Narrative Heatmap" caption="Narratives group provider movement into readable market themes. Heat and severity are shown together so state is not color-only." scope="GLOBAL">
             <div className="heatmap">
               {sortBySeverity(safeNarratives).map((narrative) => <div key={narrative.id} className={`heat severity-${normalSeverity(narrative.severity)}`} style={{ '--heat': `${narrative.heat ?? 0}%` } as React.CSSProperties}>
                 <strong>{narrative.title}</strong><SeverityBadge evidence={narrative} /><span>heat {narrative.heat ?? 'unknown'}</span><small>{narrative.providerIds.length} providers / {narrative.keywords.join(', ')}</small>
               </div>)}
             </div>
-          </section>
+          </CollapsibleSection>
 
           <section className="panel semantic-search-panel">
             <ScopeLabel scope="GLOBAL" />
@@ -1311,9 +1417,13 @@ function RadarApp() {
                 {searchStatus === 'loading' ? 'Searching...' : 'Search'}
               </button>
             </form>
-            <p className="semantic-search-hint">Search trust, signal, categories, endpoints...</p>
+            <p className="semantic-search-hint">Search by category, provider name, endpoint type, route intent, degradation state, price clarity, or metadata completeness.</p>
+            <div className="example-chips" aria-label="Semantic search examples">
+              {['high trust finance APIs', 'degraded OCR providers', 'SOL price endpoints', 'low-cost data endpoints', 'providers with clear pricing', 'route eligible endpoints', 'machine media providers', 'metadata incomplete providers'].map((query) => <button key={query} type="button" onClick={() => applySemanticSearchExample(query)}>{query}</button>)}
+            </div>
             {searchError && <p className="route-state error">Semantic search unavailable: {searchError}</p>}
             <div className="results">{searchResults.filter((result) => isRecord(result) && isRecord(result.provider) && typeof result.provider.id === 'string').map((result) => <div className="result" key={result.provider.id}><strong>{result.provider.name ?? 'unknown provider'}</strong><span>relevance {result.relevance ?? 'unknown'} / trust {result.trustAssessment?.score ?? 'unknown'} / signal {result.signalAssessment?.score ?? 'unknown'}</span></div>)}</div>
+            {searchQuery.trim() && searchStatus === 'idle' && !searchResults.length && <EmptyState title="No matching providers." body="Try a category, provider name, endpoint type, or task intent." />}
           </section>
           <PreflightConsole
             input={preflightJsonInput}
@@ -1413,8 +1523,8 @@ function RadarApp() {
               </div>
             </div>
             <div className="intel-summary">
-              <DossierStat label="trust" value={providerIntel?.latest_trust_score ?? null} sub={providerDetail?.trustAssessment?.grade ?? 'grade unknown'} />
-              <DossierStat label="signal" value={providerIntel?.latest_signal_score ?? null} sub={providerDetail?.signalAssessment?.narratives[0] ?? 'narrative unknown'} />
+              <DossierStat label="trust" value={providerIntel?.latest_trust_score ?? null} sub={providerDetail?.trustAssessment?.grade ?? 'grade unknown'} history={providerHistory?.series.trust_score} delta={providerHistory?.deltas.trust_delta_24h ?? null} />
+              <DossierStat label="signal" value={providerIntel?.latest_signal_score ?? null} sub={providerDetail?.signalAssessment?.narratives[0] ?? 'narrative unknown'} history={providerHistory?.series.signal_score} delta={providerHistory?.deltas.signal_delta_24h ?? null} />
               <DossierStat label="coordination" value={formatNullableBoolean(providerIntel?.coordination_eligible ?? null)} sub="eligible" />
               <DossierStat label="risk" value={riskLabel(providerIntel?.risk_level ?? 'unknown')} sub="level" />
               <DossierStat label="unknowns" value={providerIntel?.unknown_telemetry.length ?? 'unknown'} sub="telemetry fields" />
@@ -1504,6 +1614,9 @@ function RadarApp() {
                   {providerIntel?.recent_changes.length === 0 && <p className="muted empty-state">No recent discovery, update, price, category, endpoint-count, or metadata events after initial observation.</p>}
                 </div>
               </DossierSection>
+              <DossierSection title="Reliability History" context={providerContextLabel} helper="Historical trend memory from stored score, monitor, and degradation events. No paid APIs are executed.">
+                <ReliabilityHistoryPanel history={providerHistory} />
+              </DossierSection>
               <DossierSection title="Endpoint Intelligence" context={providerContextLabel} helper="Normalized endpoint metadata from safe radar export routes. Rows remain visible even when degraded or incomplete.">
                 <div id="endpoints" className="anchor-target" />
                 <EndpointIntelligenceSection
@@ -1511,6 +1624,10 @@ function RadarApp() {
                   allRows={endpointIntelligenceRows}
                   filter={endpointFilter}
                   onFilterChange={setEndpointFilter}
+                  query={endpointQuery}
+                  onQueryChange={setEndpointQuery}
+                  sort={endpointSort}
+                  onSortChange={setEndpointSort}
                   provider={endpointProvider}
                   endpointMonitors={endpointMonitors}
                   reportedEndpointCount={reportedEndpointCount}
@@ -1683,7 +1800,7 @@ function RadarApp() {
             </div>
           </div>
           <div className="mini-feed">
-            {sortBySeverity(pulseSummary.recentDegradations).map((event) => <div className={`severity-${normalSeverity(event.severity)}`} key={event.id}><SeverityBadge evidence={event} /><strong>{event.providerName ?? event.entityId}</strong><span>{event.summary}</span><small>{formatShortDate(event.observedAt)}</small><EvidenceReceiptView evidence={event} title="Evidence" compact /></div>)}
+            {sortBySeverity(pulseSummary.recentDegradations).map((event) => <div className={`severity-${normalSeverity(event.severity)} degraded-card`} key={event.id}><SeverityBadge evidence={event} /><strong>{event.providerName ?? event.entityId}</strong><span>{event.summary}</span><small>Route implication: Not recommended for routing.</small><small>last seen healthy: {formatDate(null)}</small><small>{formatShortDate(event.observedAt)}</small><EvidenceReceiptView evidence={event} title="Evidence" compact /></div>)}
             {!pulseSummary.recentDegradations.length && <p className="muted empty-state">No service reachability degradations observed.</p>}
           </div>
         </div>
@@ -1701,6 +1818,50 @@ function RadarApp() {
       </div>
     </footer>
   </div>;
+}
+
+function CollapsibleSection({ id, title, kicker, caption, scope, className = 'panel', defaultOpen = true, children }: { id?: string; title: string; kicker?: string; caption?: string; scope?: 'GLOBAL' | 'PROVIDER'; className?: string; defaultOpen?: boolean; children: React.ReactNode }) {
+  const [open, setOpen] = useState(defaultOpen);
+  return <section id={id} className={`collapsible-section ${className} ${open ? 'is-open' : 'is-collapsed'}`} aria-labelledby={id ? `${id}-title` : undefined}>
+    <div className="collapsible-head">
+      <div>
+        {scope && <ScopeLabel scope={scope} />}
+        {kicker && <p className="section-kicker">{kicker}</p>}
+        <h2 id={id ? `${id}-title` : undefined}>{title}</h2>
+        {caption && <p className="panel-caption">{caption}</p>}
+      </div>
+      <button className="collapse-toggle" type="button" aria-expanded={open} onClick={() => setOpen((current) => !current)}>
+        {open ? 'Collapse' : 'Expand'}
+      </button>
+    </div>
+    {open && <div className="collapsible-body">{children}</div>}
+  </section>;
+}
+
+function RadarFreshness({ pulse, summary }: { pulse: Pulse; summary: PulseSummary | null }) {
+  const catalogGeneratedAt = summary?.data_source.generated_at ?? pulse.data_source.generated_at ?? null;
+  const catalogIngestedAt = summary?.data_source.last_ingested_at ?? pulse.data_source.last_ingested_at ?? null;
+  const radarUpdatedAt = summary?.generatedAt ?? pulse.updatedAt ?? null;
+  const lastMonitorRunAt = summary?.latest_event_at ?? null;
+  const nextRefreshIn = summary?.ingest_interval_ms ? formatInterval(summary.ingest_interval_ms) : null;
+  const stale = Boolean(catalogGeneratedAt && Date.now() - Date.parse(catalogGeneratedAt) > 24 * 60 * 60 * 1000);
+  return <section className="panel radar-freshness" aria-label="Radar Freshness">
+    <div>
+      <ScopeLabel scope="GLOBAL" />
+      <p className="section-kicker">Latest Ingested Catalog</p>
+      <h2>Radar Freshness</h2>
+      <p className="panel-caption">Timestamp clarity for catalog source, monitor checks, and the current scored snapshot.</p>
+    </div>
+    <div className="freshness-grid">
+      <TimingItem label="catalog_generated_at" value={formatDate(catalogGeneratedAt)} />
+      <TimingItem label="catalog_ingested_at" value={formatDate(catalogIngestedAt)} />
+      <TimingItem label="radar_updated_at" value={formatDate(radarUpdatedAt)} />
+      <TimingItem label="last_monitor_run_at" value={formatDate(lastMonitorRunAt)} />
+      <TimingItem label="next_refresh_in" value={nextRefreshIn ?? 'unavailable'} />
+      <TimingItem label="data_source" value={sourceLabel(summary?.data_source ?? pulse.data_source)} />
+    </div>
+    {stale && <p className="route-state warn">Catalog source may be stale. Scores reflect latest ingested catalog, not real-time paid execution.</p>}
+  </section>;
 }
 
 function Metric({ label, value, sub, evidence }: { label: string; value: string | number; sub: string; evidence?: EvidenceReceipt | null }) {
@@ -1736,10 +1897,11 @@ function SystemReadingPanel({ reading }: { reading: string }) {
   </section>;
 }
 
-function ControlStripMetric({ label, value }: { label: string; value: string | number }) {
+function ControlStripMetric({ label, value, history, delta }: { label: string; value: string | number; history?: HistoryPoint[]; delta?: number | null }) {
   return <span className="control-metric">
     <small>{label}</small>
     <strong>{value}</strong>
+    {history && <HistorySparkline points={history} delta={delta ?? null} compact />}
   </span>;
 }
 
@@ -1815,8 +1977,12 @@ function PreflightResultView({ result, curl }: { result: PreflightResult; curl: 
           ['trust', selected?.trust_score ?? 'unknown'],
           ['signal', selected?.signal_score ?? 'unknown'],
           ['mapping', selected?.mapping_status ?? 'unknown'],
-          ['reachability', selected?.reachability_status ?? 'unknown']
+          ['reachability', selected?.reachability_status ?? 'unknown'],
+          ['trust_trend', selected?.trend_context?.trust_trend ?? 'unknown'],
+          ['degradation_trend', selected?.trend_context?.degradation_trend ?? 'unknown'],
+          ['last_seen_healthy', formatDate(selected?.trend_context?.last_seen_healthy_at ?? selected?.last_seen_healthy ?? null)]
         ]} />
+        {selected?.trend_context?.warning && <p className="route-state warn">{selected.trend_context.warning}</p>}
       </div>
       <div className="preflight-candidate rejected">
         <strong>Rejected candidates</strong>
@@ -1860,9 +2026,13 @@ function ComparisonPanel({
   result: RadarComparisonResult | null;
   onCompare: (ids: string[], mode: 'provider' | 'endpoint') => void;
 }) {
+  const [resultFilter, setResultFilter] = useState<'all' | 'route eligible' | 'not recommended' | 'degraded' | 'pricing known' | 'pricing unknown'>('all');
+  const [resultQuery, setResultQuery] = useState('');
+  const [resultSort, setResultSort] = useState<'trust score' | 'signal score' | 'endpoint count' | 'degradation count' | 'pricing clarity' | 'metadata quality' | 'last observed'>('trust score');
   const options = mode === 'provider'
     ? providers.map((provider) => ({ id: provider.id, label: provider.name }))
     : endpoints.map((endpoint) => ({ id: endpoint.endpoint_id, label: `${endpoint.provider_name ?? endpoint.provider_id} / ${endpoint.endpoint_name ?? endpoint.endpoint_id}` })).slice(0, 50);
+  const visibleRows = result ? sortComparisonRows(filterComparisonRows(result.rows, resultQuery, resultFilter), resultSort) : [];
   return <section className="panel" id="compare" aria-label="Provider endpoint comparison engine">
     <div className="phase3-panel-head">
       <ScopeLabel scope="GLOBAL" />
@@ -1887,12 +2057,34 @@ function ComparisonPanel({
       </label>
       <button className="execute compact secondary comparison-submit" type="button" onClick={() => onCompare(selectedIds, mode)} disabled={selectedIds.length < 2}>Compare</button>
     </div>
-    {result && <div className="endpoint-list has-rows">{result.rows.map((row) => <div className="endpoint" key={row.id}>
+    {result && <div className="table-controls comparison-result-controls" aria-label="Filter and sort comparison results">
+      <input value={resultQuery} onChange={(event) => setResultQuery(event.target.value)} placeholder="filter comparison result" aria-label="Filter comparison results" />
+      <select value={resultFilter} onChange={(event) => setResultFilter(event.target.value as typeof resultFilter)} aria-label="Filter comparison route state">
+        <option value="all">all rows</option>
+        <option value="route eligible">route eligible</option>
+        <option value="not recommended">not recommended</option>
+        <option value="degraded">degraded</option>
+        <option value="pricing known">pricing known</option>
+        <option value="pricing unknown">pricing unknown</option>
+      </select>
+      <select value={resultSort} onChange={(event) => setResultSort(event.target.value as typeof resultSort)} aria-label="Sort comparison results">
+        <option>trust score</option>
+        <option>signal score</option>
+        <option>endpoint count</option>
+        <option>degradation count</option>
+        <option>pricing clarity</option>
+        <option>metadata quality</option>
+        <option>last observed</option>
+      </select>
+    </div>}
+    {result && <div className="endpoint-list has-rows comparison-results">{visibleRows.map((row) => <div className={`endpoint ${row.route_recommendation === 'not_recommended' || row.degradation_count > 0 ? 'degraded-card' : ''}`} key={row.id}>
       <strong>{row.name}</strong>
       <small>trust {row.trust_score ?? 'unknown'} / signal {row.signal_score ?? 'unknown'} / mapped {row.mapped_endpoint_count}/{row.endpoint_count}</small>
       <small>route eligible {row.route_eligible_endpoint_count} / degraded {row.degradation_count} / reachability {row.reachability}</small>
       <small>recommendation {row.route_recommendation} / rejection reasons {row.rejection_reasons.join(', ') || 'none'}</small>
-    </div>)}</div>}
+      {(row.route_recommendation === 'not_recommended' || row.degradation_count > 0) && <small className="failure-line">Route implication: Not recommended for routing. Last seen healthy: {formatDate(row.last_seen_healthy)}</small>}
+    </div>)}
+    {!visibleRows.length && <p className="muted empty-state">No comparison rows match the current filters.</p>}</div>}
   </section>;
 }
 
@@ -1916,6 +2108,8 @@ function SuperiorityReadinessPanel({ readiness }: { readiness: RadarSuperiorityR
         <span>executable provider mappings</span>
         <strong>{readiness.executable_provider_mappings_count}</strong>
       </div>
+      <details className="superiority-details">
+        <summary>Superiority Proof Details</summary>
       <div className="readiness-list-grid">
         <CompactChipList title="ready categories" items={readiness.categories_with_at_least_two_executable_mappings} emptyLabel="none" />
         <CompactChipList title="not ready categories" items={readiness.categories_not_ready_for_comparison} emptyLabel="none" />
@@ -1923,6 +2117,7 @@ function SuperiorityReadinessPanel({ readiness }: { readiness: RadarSuperiorityR
         <CompactChipList title="catalog metadata only providers" items={readiness.providers_with_only_catalog_metadata} emptyLabel="none" />
         <CompactChipList title="next mappings needed" items={readiness.next_mappings_needed} emptyLabel="none" wide />
       </div>
+      </details>
     </>}
   </section>;
 }
@@ -2023,6 +2218,10 @@ function EndpointIntelligenceSection({
   allRows,
   filter,
   onFilterChange,
+  query,
+  onQueryChange,
+  sort,
+  onSortChange,
   provider,
   endpointMonitors,
   reportedEndpointCount
@@ -2031,6 +2230,10 @@ function EndpointIntelligenceSection({
   allRows: EndpointIntelligenceRow[];
   filter: EndpointFilter;
   onFilterChange: (filter: EndpointFilter) => void;
+  query: string;
+  onQueryChange: (value: string) => void;
+  sort: EndpointSort;
+  onSortChange: (value: EndpointSort) => void;
   provider: Provider | null;
   endpointMonitors: Record<string, EndpointMonitor>;
   reportedEndpointCount: number;
@@ -2044,6 +2247,7 @@ function EndpointIntelligenceSection({
     ['priced', 'priced'],
     ['unknown_pricing', 'unknown pricing']
   ];
+  const visibleRows = sortEndpointRows(filterEndpointRowsByQuery(rows, query), sort);
 
   async function copyEndpoint(key: string, value: string, state: 'json' | 'curl') {
     const copied = await copyText(value);
@@ -2056,14 +2260,25 @@ function EndpointIntelligenceSection({
   }
 
   return <div className="endpoint-intelligence">
+    <div className="table-controls endpoint-table-controls" aria-label="Filter and sort endpoint intelligence">
+      <input value={query} onChange={(event) => onQueryChange(event.target.value)} placeholder="filter endpoint, provider, path, category" aria-label="Filter endpoints by name provider path or category" />
+      <select value={sort} onChange={(event) => onSortChange(event.target.value as EndpointSort)} aria-label="Sort endpoint intelligence">
+        <option>route eligibility</option>
+        <option>metadata quality</option>
+        <option>pricing clarity</option>
+        <option>reachability</option>
+        <option>last observed</option>
+        <option>name</option>
+      </select>
+    </div>
     <div className="endpoint-filter-tabs" role="group" aria-label="Filter endpoint intelligence">
       {filters.map(([value, label]) => <button key={value} type="button" className={filter === value ? 'selected' : ''} aria-pressed={filter === value} onClick={() => onFilterChange(value)}>{label}</button>)}
     </div>
     {!allRows.length && reportedEndpointCount > 0 && <p className="endpoint-state">Mapping incomplete. Pay.sh catalog reports {reportedEndpointCount} endpoints, but endpoint-level mappings are not available in the current payload.</p>}
     {!allRows.length && reportedEndpointCount === 0 && <p className="endpoint-state">No endpoints reported by the live Pay.sh catalog.</p>}
-    {!!allRows.length && !rows.length && <p className="endpoint-state">No endpoints match this filter.</p>}
+    {!!allRows.length && !visibleRows.length && <p className="endpoint-state">No endpoints match this filter.</p>}
     <div className="endpoint-intelligence-list">
-      {rows.map((row) => {
+      {visibleRows.map((row) => {
         const endpoint = row.normalized;
         const monitor = endpointMonitors[endpoint.endpoint_id];
         const curl = buildCurlCommand(endpoint);
@@ -2344,8 +2559,59 @@ function RouteDecisionOutput({ routeResult, routePreference, selectedProvider }:
   </div>;
 }
 
-function DossierStat({ label, value, sub }: { label: string; value: string | number | null; sub: string }) {
-  return <div className="dossier-stat"><span>{label}</span><strong>{value ?? 'unknown'}</strong><small>{sub}</small></div>;
+function DossierStat({ label, value, sub, history, delta }: { label: string; value: string | number | null; sub: string; history?: HistoryPoint[]; delta?: number | null }) {
+  return <div className="dossier-stat"><span>{label}</span><strong>{value ?? 'unknown'}</strong><small>{sub}</small>{history && <HistorySparkline points={history} delta={delta ?? null} compact />}</div>;
+}
+
+function HistorySparkline({ points, delta, compact = false }: { points?: HistoryPoint[]; delta?: number | null; compact?: boolean }) {
+  const numeric = (points ?? []).filter((point): point is { at: string; value: number } => typeof point.value === 'number');
+  if (numeric.length < 2) return <small className="sparkline-empty">history warming up</small>;
+  const values = numeric.map((point) => point.value);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = max - min || 1;
+  const path = numeric.map((point, index) => {
+    const x = numeric.length === 1 ? 0 : (index / (numeric.length - 1)) * 100;
+    const y = 30 - (((point.value - min) / range) * 28 + 1);
+    return `${index === 0 ? 'M' : 'L'}${x.toFixed(2)},${y.toFixed(2)}`;
+  }).join(' ');
+  const direction = delta === null || delta === undefined ? 'unknown' : Math.abs(delta) < 1 ? 'stable' : delta > 0 ? 'up' : 'down';
+  return <span className={`sparkline ${compact ? 'compact' : ''} ${direction}`} aria-label={`Trend ${direction}${typeof delta === 'number' ? ` delta ${delta}` : ''}`}>
+    <svg viewBox="0 0 100 32" role="img" aria-hidden="true" focusable="false">
+      <path d={path} />
+    </svg>
+    <b>{typeof delta === 'number' ? `${delta > 0 ? '+' : ''}${delta}` : 'warming up'}</b>
+  </span>;
+}
+
+function ReliabilityHistoryPanel({ history }: { history: RadarProviderHistory | null }) {
+  if (!history) return <EmptyState title="History warming up." body="No provider history payload is available yet." />;
+  if (!history.history_available) return <EmptyState title="History warming up." body={history.reason ?? 'No historical snapshots available yet'} />;
+  const interpretation = providerHistoryInterpretation(history);
+  return <div className="reliability-history">
+    <div className="history-grid">
+      <div><span>trust trend</span><HistorySparkline points={history.series.trust_score} delta={history.deltas.trust_delta_24h} /></div>
+      <div><span>signal trend</span><HistorySparkline points={history.series.signal_score} delta={history.deltas.signal_delta_24h} /></div>
+      <div><span>degradations</span><HistorySparkline points={history.series.degradation_count} delta={history.deltas.degradation_delta_24h} /></div>
+    </div>
+    <KeyValues rows={[
+      ['last_seen_healthy', formatDate(history.last_known_good?.last_seen_healthy_at)],
+      ['last_degraded', formatDate(history.last_known_good?.last_degraded_at)],
+      ['last_failed', formatDate(history.last_known_good?.last_failed_at)],
+      ['current_health_state', history.last_known_good?.current_health_state ?? 'unknown'],
+      ['trend_direction', history.deltas.trend_direction]
+    ]} />
+    <p className="route-state">{interpretation}</p>
+  </div>;
+}
+
+function providerHistoryInterpretation(history: RadarProviderHistory) {
+  const trust = history.deltas.trust_delta_24h === null ? 'Trust history warming up' : Math.abs(history.deltas.trust_delta_24h) < 1 ? 'Trust stable over 24h' : history.deltas.trust_delta_24h > 0 ? 'Trust improving over 24h' : 'Trust degrading over 24h';
+  const degradation = history.deltas.degradation_delta_24h === null || history.deltas.degradation_delta_24h === 0
+    ? 'No new metadata degradation detected'
+    : `${history.deltas.degradation_delta_24h} net metadata degradation event${Math.abs(history.deltas.degradation_delta_24h) === 1 ? '' : 's'} detected`;
+  const route = history.deltas.route_eligibility_changed === null ? 'Route eligibility change unknown' : history.deltas.route_eligibility_changed ? 'Route eligibility changed recently' : 'Route eligibility unchanged';
+  return `${trust}. ${degradation}. ${route}.`;
 }
 
 function SeverityBadge({ evidence }: { evidence?: EvidenceReceipt | null }) {
@@ -2369,15 +2635,20 @@ function SeverityBadge({ evidence }: { evidence?: EvidenceReceipt | null }) {
 }
 
 function DossierSection({ title, children, context, helper }: { title: string; children: React.ReactNode; context?: string; helper?: string }) {
+  const defaultOpen = !/raw|diagnostic|unknown telemetry warning/i.test(title);
+  const [open, setOpen] = useState(defaultOpen);
   return <section className="dossier-section">
     <div className="dossier-section-head">
       <div>
         <h4>{title}</h4>
         {helper && <p className="section-helper">{helper}</p>}
       </div>
-      {context && <ScopeLabel scope="PROVIDER" context={context} />}
+      <div className="dossier-section-actions">
+        {context && <ScopeLabel scope="PROVIDER" context={context} />}
+        <button className="collapse-toggle compact" type="button" aria-expanded={open} onClick={() => setOpen((current) => !current)}>{open ? 'Collapse' : 'Expand'}</button>
+      </div>
     </div>
-    {children}
+    {open && children}
   </section>;
 }
 
@@ -2387,7 +2658,28 @@ function KeyValues({ rows }: { rows: [string, React.ReactNode][] }) {
 
 function Leaderboard({ title, scores, providers, kind }: { title: string; scores: any[]; providers: Map<string, Provider>; kind: string }) {
   const safeScores = Array.isArray(scores) ? scores : [];
-  return <div className="panel"><ScopeLabel scope="GLOBAL" /><h2>{title}</h2><p className="panel-caption">{kind === 'trust' ? 'Highest trust scores from current assessments.' : 'Highest signal scores from current narratives.'}</p><div className="leaderboard">{safeScores.map((score, index) => <div className="bar" key={score.entityId ?? `${title}-${index}`}><span>{providers.get(score.entityId)?.name ?? 'unknown provider'}</span><div aria-hidden="true"><i style={{ width: `${score.score ?? 0}%` }} /></div><b>{score.score ?? 'unknown'}{kind === 'trust' ? ` ${score.grade ?? '-'}` : ''}</b></div>)}</div></div>;
+  const [query, setQuery] = useState('');
+  const [sort, setSort] = useState<'score' | 'name'>('score');
+  const visibleScores = [...safeScores]
+    .filter((score) => {
+      const provider = providers.get(score.entityId);
+      const haystack = `${provider?.name ?? ''} ${provider?.category ?? ''} ${provider?.id ?? score.entityId ?? ''}`.toLowerCase();
+      return !query.trim() || haystack.includes(query.trim().toLowerCase());
+    })
+    .sort((a, b) => sort === 'name'
+      ? (providers.get(a.entityId)?.name ?? a.entityId ?? '').localeCompare(providers.get(b.entityId)?.name ?? b.entityId ?? '')
+      : (b.score ?? -1) - (a.score ?? -1));
+  return <CollapsibleSection className="panel" title={title} scope="GLOBAL" caption={kind === 'trust' ? 'Highest trust scores from current assessments.' : 'Highest signal scores from current narratives.'}>
+    <div className="table-controls leaderboard-controls">
+      <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="filter provider or category" aria-label={`Filter ${title}`} />
+      <select value={sort} onChange={(event) => setSort(event.target.value === 'name' ? 'name' : 'score')} aria-label={`Sort ${title}`}>
+        <option value="score">{kind} score</option>
+        <option value="name">provider name</option>
+      </select>
+    </div>
+    <div className="leaderboard">{visibleScores.map((score, index) => <div className="bar" key={score.entityId ?? `${title}-${index}`}><span>{providers.get(score.entityId)?.name ?? 'unknown provider'}</span><div aria-hidden="true"><i style={{ width: `${score.score ?? 0}%` }} /></div><b>{score.score ?? 'unknown'}{kind === 'trust' ? ` ${score.grade ?? '-'}` : ''}</b></div>)}</div>
+    {!visibleScores.length && <p className="muted empty-state">No providers match the leaderboard filter.</p>}
+  </CollapsibleSection>;
 }
 
 function AssessmentPanel({ title, score, sub, components, context, evidence }: { title: string; score: number | null; sub: string; components: Record<string, number | null>; context: string; evidence?: EvidenceReceipt }) {
@@ -2681,6 +2973,42 @@ function filterEndpointIntelligenceRows(rows: EndpointIntelligenceRow[], filter:
   return rows;
 }
 
+function filterEndpointRowsByQuery(rows: EndpointIntelligenceRow[], query: string) {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return rows;
+  return rows.filter((row) => {
+    const endpoint = row.normalized;
+    return [
+      endpoint.endpoint_id,
+      endpoint.endpoint_name,
+      endpoint.provider_id,
+      endpoint.provider_name,
+      endpoint.category,
+      endpoint.method,
+      endpoint.path,
+      endpoint.url,
+      endpoint.description,
+      endpoint.reachability_status,
+      endpoint.degradation_status,
+      ...endpoint.route_rejection_reasons
+    ].filter(Boolean).join(' ').toLowerCase().includes(needle);
+  });
+}
+
+function sortEndpointRows(rows: EndpointIntelligenceRow[], sort: EndpointSort) {
+  const reachabilityRank = (value: string) => /failed/i.test(value) ? 0 : /degraded/i.test(value) ? 1 : /unknown/i.test(value) ? 2 : 3;
+  return [...rows].sort((a, b) => {
+    const endpointA = a.normalized;
+    const endpointB = b.normalized;
+    if (sort === 'route eligibility') return Number(endpointB.route_eligibility === true) - Number(endpointA.route_eligibility === true) || (endpointA.endpoint_name ?? endpointA.endpoint_id).localeCompare(endpointB.endpoint_name ?? endpointB.endpoint_id);
+    if (sort === 'metadata quality') return (endpointB.metadata_quality_score ?? -1) - (endpointA.metadata_quality_score ?? -1);
+    if (sort === 'pricing clarity') return (endpointB.pricing_clarity_score ?? -1) - (endpointA.pricing_clarity_score ?? -1);
+    if (sort === 'reachability') return reachabilityRank(endpointA.reachability_status) - reachabilityRank(endpointB.reachability_status);
+    if (sort === 'last observed') return Date.parse(endpointB.catalog_observed_at ?? endpointB.catalog_generated_at ?? '') - Date.parse(endpointA.catalog_observed_at ?? endpointA.catalog_generated_at ?? '');
+    return (endpointA.endpoint_name ?? endpointA.endpoint_id).localeCompare(endpointB.endpoint_name ?? endpointB.endpoint_id);
+  });
+}
+
 function isEndpointMappingIncomplete(row: EndpointIntelligenceRow) {
   return !row.normalized.method || (!row.normalized.path && !row.normalized.url);
 }
@@ -2921,6 +3249,56 @@ function severityRank(value: unknown) {
 
 function sortBySeverity<T extends EvidenceReceipt>(items: T[]) {
   return [...items].sort((a, b) => severityRank(a.severity) - severityRank(b.severity) || ((b.severity_score ?? b.severityScore ?? 0) - (a.severity_score ?? a.severityScore ?? 0)));
+}
+
+function isCriticalOrDegradedEvent(event: PulseEvent | HistoryItem | EvidenceReceipt) {
+  const type = 'type' in event ? String(event.type ?? '') : '';
+  const severity = normalSeverity(event.severity);
+  return severity === 'critical' || /provider\.(degraded|failed)|endpoint\.(degraded|failed)|failed|degraded/i.test(type);
+}
+
+function eventFilterState(event: PulseEvent): EventFilter {
+  const severity = normalSeverity(event.severity);
+  if (severity === 'critical' || /failed|critical/i.test(`${event.type} ${event.summary}`)) return 'critical';
+  if (/degraded/i.test(`${event.type} ${event.summary}`)) return 'degraded';
+  if (severity === 'warning') return 'watch';
+  if (severity === 'informational') return 'healthy';
+  return 'unknown';
+}
+
+function filterAndSortEvents(events: PulseEvent[], filter: EventFilter, sort: EventSort) {
+  const filtered = filter === 'all' ? events : events.filter((event) => eventFilterState(event) === filter);
+  return [...filtered].sort((a, b) => {
+    if (sort === 'severity') return severityRank(a.severity) - severityRank(b.severity) || Date.parse(b.observedAt) - Date.parse(a.observedAt);
+    if (sort === 'provider') return (a.providerName ?? a.entityId).localeCompare(b.providerName ?? b.entityId) || Date.parse(b.observedAt) - Date.parse(a.observedAt);
+    return Date.parse(b.observedAt) - Date.parse(a.observedAt);
+  });
+}
+
+function filterComparisonRows(rows: RadarComparisonRow[], query: string, filter: 'all' | 'route eligible' | 'not recommended' | 'degraded' | 'pricing known' | 'pricing unknown') {
+  const needle = query.trim().toLowerCase();
+  return rows.filter((row) => {
+    const queryMatch = !needle || [row.id, row.name, row.type, row.reachability, row.route_recommendation, ...row.rejection_reasons].join(' ').toLowerCase().includes(needle);
+    if (!queryMatch) return false;
+    if (filter === 'route eligible') return row.route_recommendation === 'route_eligible';
+    if (filter === 'not recommended') return row.route_recommendation === 'not_recommended';
+    if (filter === 'degraded') return row.degradation_count > 0 || row.reachability === 'degraded' || row.reachability === 'failed';
+    if (filter === 'pricing known') return row.pricing_clarity !== null;
+    if (filter === 'pricing unknown') return row.pricing_clarity === null;
+    return true;
+  });
+}
+
+function sortComparisonRows(rows: RadarComparisonRow[], sort: 'trust score' | 'signal score' | 'endpoint count' | 'degradation count' | 'pricing clarity' | 'metadata quality' | 'last observed') {
+  return [...rows].sort((a, b) => {
+    if (sort === 'trust score') return (b.trust_score ?? -1) - (a.trust_score ?? -1);
+    if (sort === 'signal score') return (b.signal_score ?? -1) - (a.signal_score ?? -1);
+    if (sort === 'endpoint count') return b.endpoint_count - a.endpoint_count;
+    if (sort === 'degradation count') return b.degradation_count - a.degradation_count;
+    if (sort === 'pricing clarity') return (b.pricing_clarity ?? -1) - (a.pricing_clarity ?? -1);
+    if (sort === 'metadata quality') return (b.metadata_quality ?? -1) - (a.metadata_quality ?? -1);
+    return Date.parse(b.last_observed ?? '') - Date.parse(a.last_observed ?? '');
+  });
 }
 
 function severityLabel(receipt: EvidenceReceipt) {

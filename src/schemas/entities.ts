@@ -454,7 +454,19 @@ export const RadarRouteCandidateSchema = z.object({
   mapping_status: z.enum(['complete', 'missing']),
   reachability_status: z.enum(['reachable', 'degraded', 'failed', 'unknown']),
   pricing_status: z.enum(['clear', 'missing']),
-  last_seen_healthy: z.string().datetime().nullable().optional()
+  last_seen_healthy: z.string().datetime().nullable().optional(),
+  trend_context: z.object({
+    trust_trend: z.enum(['improving', 'stable', 'degrading', 'unknown']),
+    signal_trend: z.enum(['improving', 'stable', 'degrading', 'unknown']),
+    degradation_trend: z.enum(['improving', 'stable', 'degrading', 'unknown']),
+    trust_delta_24h: z.number().nullable(),
+    signal_delta_24h: z.number().nullable(),
+    latency_delta_24h: z.number().nullable(),
+    degradation_delta_24h: z.number().nullable(),
+    route_eligibility_changed: z.boolean().nullable(),
+    last_seen_healthy_at: z.string().datetime().nullable(),
+    warning: z.string().nullable()
+  }).optional()
 });
 
 export const RadarPreflightResponseSchema = z.object({
