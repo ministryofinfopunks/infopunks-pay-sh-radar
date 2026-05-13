@@ -1,0 +1,17 @@
+# Infopunks Pay.sh Radar
+
+Infopunks Pay.sh Radar is an intelligence terminal for the Pay.sh agent economy on Solana. It tracks safe public metadata about providers, endpoints, route candidates, trust, signal, predictive risk, anomaly intelligence, cost/performance intelligence, agent preflight, batch preflight, and benchmark readiness.
+
+Radar uses safe metadata only and does not execute paid Pay.sh APIs. Route intelligence and preflight output are advisory signals for agent operators and developers.
+
+OpenAPI: https://radar.infopunks.fun/openapi.json
+
+Key public routes:
+- https://radar.infopunks.fun/openapi.json
+- https://radar.infopunks.fun/v1/radar/providers
+- https://radar.infopunks.fun/v1/radar/endpoints
+- https://radar.infopunks.fun/v1/radar/routes/candidates
+- https://radar.infopunks.fun/v1/radar/preflight
+- https://radar.infopunks.fun/v1/radar/preflight/batch
+- https://radar.infopunks.fun/v1/radar/benchmark-readiness
+- https://radar.infopunks.fun/v1/radar/risk/ecosystem

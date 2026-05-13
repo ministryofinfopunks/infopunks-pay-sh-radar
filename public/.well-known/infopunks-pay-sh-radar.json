@@ -1,0 +1,21 @@
+{
+  "name": "Infopunks Pay.sh Radar",
+  "description": "Intelligence terminal for the Pay.sh agent economy on Solana.",
+  "url": "https://radar.infopunks.fun/",
+  "openapi": "https://radar.infopunks.fun/openapi.json",
+  "safety": "safe_metadata_only_no_paid_api_execution",
+  "capabilities": [
+    "provider_intelligence",
+    "endpoint_intelligence",
+    "trust_scoring",
+    "signal_scoring",
+    "predictive_risk",
+    "anomaly_watch",
+    "cost_performance_intelligence",
+    "agent_preflight",
+    "batch_preflight",
+    "benchmark_readiness",
+    "csv_exports",
+    "json_exports"
+  ]
+}
