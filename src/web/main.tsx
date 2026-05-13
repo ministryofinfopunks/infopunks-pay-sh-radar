@@ -720,11 +720,11 @@ function PublicProviderPage({ providerId }: { providerId: string }) {
 
       <section className="panel">
         <div className="intel-summary">
-          <DossierStat label="trust" value={providerIntel.latest_trust_score} sub={providerDetail.trustAssessment?.grade ?? 'grade unknown'} />
-          <DossierStat label="signal" value={providerIntel.latest_signal_score} sub={providerDetail.signalAssessment?.narratives?.[0] ?? 'narrative unknown'} />
-          <DossierStat label="severity" value={normalSeverity(providerIntel.severity).toUpperCase()} sub={providerIntel.severity_reason ?? 'severity state'} />
-          <DossierStat label="risk" value={providerIntel.risk_level} sub="risk level" />
-          <DossierStat label="coordination" value={formatNullableBoolean(providerIntel.coordination_eligible)} sub="eligibility" />
+          <DossierStat label="Trust" value={providerIntel.latest_trust_score} sub={providerDetail.trustAssessment?.grade ?? 'grade unknown'} />
+          <DossierStat label="Signal" value={providerIntel.latest_signal_score} sub={providerDetail.signalAssessment?.narratives?.[0] ?? 'narrative unknown'} />
+          <DossierStat label="Severity" value={normalSeverity(providerIntel.severity).toUpperCase()} sub={providerIntel.severity_reason ?? 'severity state'} />
+          <DossierStat label="Risk" value={providerIntel.risk_level} sub="risk level" />
+          <DossierStat label="Coord." value={formatNullableBoolean(providerIntel.coordination_eligible)} sub="eligibility" />
         </div>
       </section>
 
@@ -1484,21 +1484,23 @@ function RadarApp() {
             ['events', 'Events']
           ].map(([id, label]) => <a key={id} href={`#${id}`} className={activeSection === id ? 'active' : ''} aria-current={activeSection === id ? 'location' : undefined}>{label}</a>)}
         </div>
-        <button className={`methodology-trigger ${agentMode ? 'active' : ''}`} type="button" aria-pressed={agentMode} onClick={() => setAgentMode((value) => !value)}>
-          Agent Mode
-        </button>
-        <button className="methodology-trigger" type="button" onClick={() => setCommandPaletteOpen(true)} aria-label="Open command palette">
-          Cmd+K
-        </button>
-        <a className="methodology-trigger api-docs-link" href={toApiUrl(API_BASE_URL, OPENAPI_PATH)} target="_blank" rel="noreferrer">
-          API Docs
-        </a>
-        <button className="methodology-trigger" type="button" onClick={() => setDensityMode((value) => value === 'comfortable' ? 'dense' : 'comfortable')} aria-label="Toggle terminal density">
-          {densityMode === 'comfortable' ? 'Terminal Comfortable' : 'Terminal Dense'}
-        </button>
-        <button className="methodology-trigger" type="button" onClick={() => setMethodologyOpen(true)} aria-label="Open methodology drawer">
-          Methodology
-        </button>
+        <div className="terminal-actions" aria-label="Utility actions">
+          <button className="methodology-trigger command-trigger" type="button" onClick={() => setCommandPaletteOpen(true)} aria-label="Open command palette">
+            Cmd+K
+          </button>
+          <a className="methodology-trigger api-docs-link" href={toApiUrl(API_BASE_URL, OPENAPI_PATH)} target="_blank" rel="noreferrer">
+            API Docs
+          </a>
+          <button className={`methodology-trigger ${agentMode ? 'active' : ''}`} type="button" aria-pressed={agentMode} onClick={() => setAgentMode((value) => !value)}>
+            Agent Mode
+          </button>
+          <button className="methodology-trigger density-trigger" type="button" onClick={() => setDensityMode((value) => value === 'comfortable' ? 'dense' : 'comfortable')} aria-label="Toggle terminal density">
+            {densityMode === 'comfortable' ? 'Terminal Comfortable' : 'Terminal Dense'}
+          </button>
+          <button className="methodology-trigger methodology-link" type="button" onClick={() => setMethodologyOpen(true)} aria-label="Open methodology drawer">
+            Methodology
+          </button>
+        </div>
       </nav>
     </header>
     <CommandPalette open={commandPaletteOpen} commands={commandActions} onClose={() => setCommandPaletteOpen(false)} />
@@ -1524,10 +1526,10 @@ function RadarApp() {
       <div className="ticker mission-metrics" aria-label="Live radar stats">
         <ControlStripMetric label="Providers" value={data.pulse.providerCount} />
         <ControlStripMetric label="Endpoints" value={data.pulse.endpointCount} />
-        <ControlStripMetric label="Avg Trust" value={data.pulse.averageTrust ?? 'unknown'} history={ecosystemHistory?.series.average_trust} delta={ecosystemHistory?.deltas.average_trust_delta_24h ?? null} />
-        <ControlStripMetric label="Avg Signal" value={data.pulse.averageSignal ?? 'unknown'} history={ecosystemHistory?.series.average_signal} delta={ecosystemHistory?.deltas.average_signal_delta_24h ?? null} />
-        <ControlStripMetric label="Last Catalog Sync" value={formatShortDate(data.pulse.data_source.last_ingested_at ?? data.pulse.data_source.generated_at)} />
+        <ControlStripMetric label="Avg Trust" value={data.pulse.averageTrust ?? 'unknown'} />
+        <ControlStripMetric label="Avg Signal" value={data.pulse.averageSignal ?? 'unknown'} />
         <ControlStripMetric label="Monitoring Mode" value="Safe metadata" />
+        <ControlStripMetric label="Freshness" value={formatShortDate(data.pulse.data_source.last_ingested_at ?? data.pulse.data_source.generated_at)} />
       </div>
     </section>}
 
@@ -1754,11 +1756,11 @@ function RadarApp() {
               </div>
             </div>
             <div className="intel-summary">
-              <DossierStat label="trust" value={providerIntel?.latest_trust_score ?? null} sub={providerDetail?.trustAssessment?.grade ?? 'grade unknown'} history={providerHistory?.series.trust_score} delta={providerHistory?.deltas.trust_delta_24h ?? null} />
-              <DossierStat label="signal" value={providerIntel?.latest_signal_score ?? null} sub={providerDetail?.signalAssessment?.narratives[0] ?? 'narrative unknown'} history={providerHistory?.series.signal_score} delta={providerHistory?.deltas.signal_delta_24h ?? null} />
-              <DossierStat label="coordination" value={formatNullableBoolean(providerIntel?.coordination_eligible ?? null)} sub="eligible" />
-              <DossierStat label="risk" value={riskBadgeLabel(toRiskContext(providerRisk)?.predictive_risk_level ?? 'unknown')} sub={toRiskContext(providerRisk)?.recommended_action ?? 'advisory'} />
-              <DossierStat label="unknowns" value={providerIntel?.unknown_telemetry.length ?? 'unknown'} sub="telemetry fields" />
+              <DossierStat label="Trust" value={providerIntel?.latest_trust_score ?? null} sub={providerDetail?.trustAssessment?.grade ?? 'grade unknown'} history={providerHistory?.series.trust_score} delta={providerHistory?.deltas.trust_delta_24h ?? null} />
+              <DossierStat label="Signal" value={providerIntel?.latest_signal_score ?? null} sub={providerDetail?.signalAssessment?.narratives[0] ?? 'narrative unknown'} history={providerHistory?.series.signal_score} delta={providerHistory?.deltas.signal_delta_24h ?? null} />
+              <DossierStat label="Coord." value={formatNullableBoolean(providerIntel?.coordination_eligible ?? null)} sub="eligible" />
+              <DossierStat label="Risk" value={riskBadgeLabel(toRiskContext(providerRisk)?.predictive_risk_level ?? 'unknown')} sub={toRiskContext(providerRisk)?.recommended_action ?? 'advisory'} />
+              <DossierStat label="Unknowns" value={providerIntel?.unknown_telemetry.length ?? 'unknown'} sub="telemetry fields" />
             </div>
             {providerDegradation.degraded && <ProviderDegradedWarning info={providerDegradation} />}
             <div className="dossier-body" onScroll={() => holdAutoRotation(DOSSIER_INTERACTION_HOLD_MS)}>
@@ -2617,34 +2619,52 @@ function CopyButton({ value, label }: { value: string; label: string }) {
 }
 
 function RadarExportPanel() {
-  const routes = [
+  const jsonRoutes = [
     ['/v1/radar/scored-catalog', 'Export Scored Catalog JSON'],
     ['/v1/radar/providers', 'Export Providers JSON'],
     ['/v1/radar/endpoints', 'Export Endpoints JSON'],
-    ['/v1/radar/routes/candidates', 'Export Route Candidates JSON'],
+    ['/v1/radar/routes/candidates', 'Export Route Candidates JSON']
+  ] as const;
+  const csvRoutes = [
     ['/v1/radar/export/providers.csv', 'Export Providers CSV'],
     ['/v1/radar/export/endpoints.csv', 'Export Endpoints CSV'],
     ['/v1/radar/export/route-candidates.csv', 'Export Route Candidates CSV'],
     ['/v1/radar/export/degradations.csv', 'Export Degradations CSV']
   ] as const;
-  return <section className="panel radar-export-panel" aria-label="Radar JSON exports">
-    <div className="radar-export-copy">
-      <ScopeLabel scope="GLOBAL" />
-      <p className="section-kicker">Safe JSON Exports</p>
-      <h2>Export Intelligence</h2>
-      <p className="panel-caption">Open read-only export routes. These do not execute paid Pay.sh APIs.</p>
+  const routeGroups = [
+    ['JSON exports', jsonRoutes],
+    ['CSV exports', csvRoutes]
+  ] as const;
+  return <section className="panel radar-export-panel" aria-label="Radar exports">
+    <div className="radar-export-head">
+      <div className="radar-export-copy">
+        <ScopeLabel scope="GLOBAL" />
+        <p className="section-kicker">Read-only export routes</p>
+        <h2>Export Intelligence</h2>
+        <p className="panel-caption">Open machine-readable radar outputs. These do not execute paid Pay.sh APIs.</p>
+      </div>
       <div className="panel-actions compact-actions">
         <a className="copy-chip" href={toApiUrl(API_BASE_URL, OPENAPI_PATH)} target="_blank" rel="noreferrer">API Docs</a>
         <CopyButton value={toApiUrl(API_BASE_URL, OPENAPI_PATH)} label="Copy OpenAPI URL" />
       </div>
     </div>
-    <div className="export-actions">
-      {routes.map(([path, label]) => <button key={path} type="button" className="execute compact secondary" onClick={() => openExportRoute(path)}>
-        {label}
-      </button>)}
-    </div>
-    <div className="export-copy-actions" aria-label="Copy export API URLs">
-      {routes.map(([path, label]) => <CopyButton key={path} value={toApiUrl(API_BASE_URL, path)} label={`Copy ${label.replace(/^Export /, '').replace(/ (JSON|CSV)$/, '')} URL`} />)}
+    <div className="export-groups">
+      {routeGroups.map(([title, routes]) => <section className="export-group" key={title} aria-label={title}>
+        <div className="export-group-head">
+          <h3>{title}</h3>
+          <details className="export-copy-details">
+            <summary>Copy links</summary>
+            <div className="export-copy-actions" aria-label={`Copy ${title} API URLs`}>
+              {routes.map(([path, label]) => <CopyButton key={path} value={toApiUrl(API_BASE_URL, path)} label={`Copy ${label.replace(/^Export /, '').replace(/ (JSON|CSV)$/, '')} URL`} />)}
+            </div>
+          </details>
+        </div>
+        <div className="export-actions">
+          {routes.map(([path, label]) => <button key={path} type="button" className="execute compact secondary" onClick={() => openExportRoute(path)}>
+            {label}
+          </button>)}
+        </div>
+      </section>)}
     </div>
   </section>;
 }
@@ -3056,12 +3076,12 @@ function RouteDecisionOutput({ routeResult, routePreference, selectedProvider }:
     {!routeResult.bestProvider && <p className="route-state warn">no route matched constraints</p>}
     {routeResult.bestProvider && <>
       <div className="intel-summary compact route-score-grid">
-        <DossierStat label="category" value={routeResult.bestProvider.category} sub="catalog class" />
-        <DossierStat label="trust" value={routeResult.trustAssessment?.score ?? null} sub={routeResult.trustAssessment?.grade ?? 'grade unknown'} />
-        <DossierStat label="signal" value={routeResult.signalAssessment?.score ?? null} sub={routeResult.signalAssessment?.narratives[0] ?? 'narrative unknown'} />
-        <DossierStat label="endpoints" value={routeResult.bestProvider.endpointCount} sub="catalog count" />
-        <DossierStat label="pricing" value={formatPrice(routeResult.estimatedCost ?? routeResult.bestProvider.pricing)} sub="catalog range" />
-        <DossierStat label="coordination" value={routeResult.coordinationScore ?? null} sub="trust/signal weighted" />
+        <DossierStat label="Category" value={routeResult.bestProvider.category} sub="catalog class" />
+        <DossierStat label="Trust" value={routeResult.trustAssessment?.score ?? null} sub={routeResult.trustAssessment?.grade ?? 'grade unknown'} />
+        <DossierStat label="Signal" value={routeResult.signalAssessment?.score ?? null} sub={routeResult.signalAssessment?.narratives[0] ?? 'narrative unknown'} />
+        <DossierStat label="Endpoints" value={routeResult.bestProvider.endpointCount} sub="catalog count" />
+        <DossierStat label="Pricing" value={formatPrice(routeResult.estimatedCost ?? routeResult.bestProvider.pricing)} sub="catalog range" />
+        <DossierStat label="Coord." value={routeResult.coordinationScore ?? null} sub="trust/signal weighted" />
       </div>
       {selectedMiss && <p className="route-state warn">Selected provider was not top route because: {selectedMiss}</p>}
     </>}

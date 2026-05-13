@@ -564,9 +564,14 @@ describe('radar endpoint intelligence UI', () => {
 
     const exportPanel = container.querySelector('.radar-export-panel') as HTMLElement | null;
     expect(exportPanel).not.toBeNull();
-    expect(exportPanel!.textContent).toContain('Safe JSON Exports');
-    expect(exportPanel!.textContent).toContain('Open read-only export routes. These do not execute paid Pay.sh APIs.');
+    expect(exportPanel!.textContent).toContain('Read-only export routes');
+    expect(exportPanel!.textContent).toContain('Open machine-readable radar outputs. These do not execute paid Pay.sh APIs.');
+    expect(exportPanel!.textContent).toContain('JSON exports');
+    expect(exportPanel!.textContent).toContain('CSV exports');
+    expect(exportPanel!.querySelectorAll('.export-group')).toHaveLength(2);
     expect(exportPanel!.querySelectorAll('.export-actions button')).toHaveLength(8);
+    expect(exportPanel!.querySelectorAll('.export-copy-details')).toHaveLength(2);
+    expect(exportPanel!.querySelector('button[aria-label="Copy OpenAPI URL"]')).not.toBeNull();
     expect(exportPanel!.textContent).toContain('Export Providers CSV');
     expect(exportPanel!.textContent).toContain('Export Endpoints CSV');
     expect(exportPanel!.textContent).toContain('Export Route Candidates CSV');
