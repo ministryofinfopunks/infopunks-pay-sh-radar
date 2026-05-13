@@ -1,44 +1,46 @@
-import { describe, expect, it, vi } from 'vitest';
-import { PRODUCTION_API_BASE_URL_FALLBACK, resolveApiBaseUrl } from '../src/web/apiBaseUrl';
+import { describe, expect, it } from 'vitest';
+import { resolveApiBaseUrl, toApiUrl } from '../src/web/apiBaseUrl';
 
 describe('resolveApiBaseUrl', () => {
-  it('uses env var in production when set', () => {
-    const warn = vi.fn();
+  it('returns relative-path mode when env var is unset', () => {
     const result = resolveApiBaseUrl({
-      mode: 'production',
-      envApiBaseUrl: 'https://api.example.com',
-      locationOrigin: 'https://app.example.com',
-      warn: { warn }
+      envApiBaseUrl: ''
+    });
+
+    expect(result).toBe('');
+  });
+
+  it('uses configured absolute API base URL when set', () => {
+    const result = resolveApiBaseUrl({
+      envApiBaseUrl: 'https://api.example.com'
     });
 
     expect(result).toBe('https://api.example.com');
-    expect(warn).not.toHaveBeenCalled();
   });
 
-  it('uses backend fallback in production when env var missing', () => {
-    const warn = vi.fn();
+  it('trims trailing slash on configured base URL', () => {
     const result = resolveApiBaseUrl({
-      mode: 'production',
-      envApiBaseUrl: '',
-      locationOrigin: 'https://app.example.com',
-      warn: { warn }
+      envApiBaseUrl: 'https://api.example.com///'
     });
 
-    expect(result).toBe(PRODUCTION_API_BASE_URL_FALLBACK);
-    expect(warn).toHaveBeenCalledOnce();
-    expect(warn.mock.calls[0]?.[0]).toContain('VITE_API_BASE_URL is missing in production');
+    expect(result).toBe('https://api.example.com');
+  });
+});
+
+describe('toApiUrl', () => {
+  it('keeps relative API path when base URL is unset', () => {
+    expect(toApiUrl('', '/v1/pulse')).toBe('/v1/pulse');
   });
 
-  it('keeps local development behavior', () => {
-    const warn = vi.fn();
-    const result = resolveApiBaseUrl({
-      mode: 'development',
-      envApiBaseUrl: '',
-      locationOrigin: 'http://localhost:5173',
-      warn: { warn }
-    });
+  it('builds absolute API URL when base URL is set', () => {
+    expect(toApiUrl('https://infopunks-pay-sh-radar.onrender.com', '/v1/pulse'))
+      .toBe('https://infopunks-pay-sh-radar.onrender.com/v1/pulse');
+  });
 
-    expect(result).toBe('http://localhost:5173');
-    expect(warn).not.toHaveBeenCalled();
+  it('avoids duplicate slashes between base URL and path', () => {
+    expect(toApiUrl(resolveApiBaseUrl({ envApiBaseUrl: 'https://api.example.com/' }), '/v1/pulse'))
+      .toBe('https://api.example.com/v1/pulse');
+    expect(toApiUrl('https://api.example.com', 'v1/pulse'))
+      .toBe('https://api.example.com/v1/pulse');
   });
 });

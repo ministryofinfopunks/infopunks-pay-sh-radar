@@ -505,6 +505,20 @@ MONITOR_INTERVAL_MS=900000
 
 # Deployment
 
+## Split Mode (Static Frontend + Backend API)
+
+- Static frontend: `https://radar.infopunks.fun`
+- Backend API: `https://infopunks-pay-sh-radar.onrender.com`
+- Required static frontend environment variable:
+
+```env
+VITE_API_BASE_URL=https://infopunks-pay-sh-radar.onrender.com
+```
+
+In split mode, the frontend must call the backend API URL directly instead of relative `/v1/*` paths.
+
+---
+
 ## Render Backend
 
 Recommended runtime:

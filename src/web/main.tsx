@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { MethodologyDrawer } from './methodology';
-import { getApiBaseUrl } from './apiBaseUrl';
+import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import './styles.css';
 
 type Severity = 'critical' | 'warning' | 'informational' | 'unknown';
@@ -377,11 +377,16 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), API_TIMEOUT_MS);
   try {
-    const response = await fetch(`${API_BASE_URL}${path}`, {
+    const url = toApiUrl(API_BASE_URL, path);
+    const response = await fetch(url, {
       headers: { 'Content-Type': 'application/json' },
       ...init,
       signal: controller.signal
     });
+    const contentType = response.headers?.get?.('content-type')?.toLowerCase() ?? '';
+    if (path === '/v1/pulse' && (response.status === 404 || contentType.includes('text/html'))) {
+      console.error('Radar API unavailable from frontend. In split-mode deployments, set VITE_API_BASE_URL to the backend API URL.');
+    }
     if (!response.ok) throw new Error(`${response.status} ${path}`);
     return response.json() as Promise<T>;
   } catch (error) {
@@ -3315,7 +3320,7 @@ async function copyText(value: string) {
 }
 
 function openExportRoute(path: string) {
-  const url = `${API_BASE_URL}${path}`;
+  const url = toApiUrl(API_BASE_URL, path);
   window.open(url, '_blank', 'noopener,noreferrer');
 }
 
@@ -3513,7 +3518,7 @@ function formatNullableBoolean(value: boolean | null) {
 
 function preflightCurlFromText(input: string) {
   const body = safePreflightJson(input);
-  return `curl -s -X POST ${API_BASE_URL}/v1/radar/preflight \\\n  -H 'Content-Type: application/json' \\\n  --data '${escapeShellSingleQuoted(JSON.stringify(body))}'`;
+  return `curl -s -X POST ${toApiUrl(API_BASE_URL, '/v1/radar/preflight')} \\\n  -H 'Content-Type: application/json' \\\n  --data '${escapeShellSingleQuoted(JSON.stringify(body))}'`;
 }
 
 function safePreflightJson(input: string) {
