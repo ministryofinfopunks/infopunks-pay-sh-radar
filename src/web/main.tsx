@@ -2311,7 +2311,7 @@ function PreflightConsole({
         <h2 id="preflight-title">Agent Preflight</h2>
         <p className="panel-caption">Ask Radar where an agent should route before spending. This checks catalog intelligence only and does not execute paid APIs.</p>
       </div>
-      <div className="panel-actions">
+      <div className="panel-actions preflight-header-actions" aria-label="Agent preflight API actions">
         <a className="copy-chip" href={toApiUrl(API_BASE_URL, OPENAPI_PATH)} target="_blank" rel="noreferrer">API Docs</a>
         <CopyButton value={toApiUrl(API_BASE_URL, '/v1/radar/preflight')} label="Copy API URL" />
         <StatusPill state={result?.recommended_route ? 'healthy' : result ? 'critical' : status === 'error' ? 'watch' : 'unknown'} />
@@ -2321,16 +2321,18 @@ function PreflightConsole({
       {examples.map((example) => <button key={example.label} type="button" onClick={() => onExample(example.body)}>{example.label}</button>)}
     </div>
     <div className="preflight-form">
-      <label className="command-input">
+      <label className="command-input preflight-editor">
         <span>preflight JSON input</span>
         <textarea value={input} onChange={(event) => onInputChange(event.target.value)} aria-label="Agent preflight JSON input" placeholder="Enter JSON payload for preflight." />
       </label>
-      <button className="execute compact" type="button" onClick={onRun} disabled={status === 'loading'}>{status === 'loading' ? 'Checking route...' : 'Run Preflight'}</button>
+      <div className="preflight-action-row">
+        <details className="preflight-json preflight-batch-hint">
+          <summary>Batch preflight hint</summary>
+          <SafeCodeBlock value={`POST /v1/radar/preflight/batch\n{\n  "queries":[{"id":"sol-price","intent":"get SOL price","category":"finance","constraints":{"min_trust":80,"prefer_reachable":true}}]\n}`} label="Batch preflight example" />
+        </details>
+        <button className="execute compact" type="button" onClick={onRun} disabled={status === 'loading'}>{status === 'loading' ? 'Checking route...' : 'Run Preflight'}</button>
+      </div>
     </div>
-    <details className="preflight-json">
-      <summary>Batch preflight hint</summary>
-      <SafeCodeBlock value={`POST /v1/radar/preflight/batch\n{\n  "queries":[{"id":"sol-price","intent":"get SOL price","category":"finance","constraints":{"min_trust":80,"prefer_reachable":true}}]\n}`} label="Batch preflight example" />
-    </details>
     {error && <p className="route-state error">{error}</p>}
     {!result && status !== 'loading' && !error && <EmptyState title="No preflight decision yet." body="Ask Radar where an agent should route before spending." />}
     {status === 'loading' && <div className="preflight-skeleton" aria-label="Preflight loading"><span /><span /><span /></div>}
@@ -2416,6 +2418,13 @@ function ComparisonPanel({
     ? providers.map((provider) => ({ id: provider.id, label: provider.name }))
     : endpoints.map((endpoint) => ({ id: endpoint.endpoint_id, label: `${endpoint.provider_name ?? endpoint.provider_id} / ${endpoint.endpoint_name ?? endpoint.endpoint_id}` })).slice(0, 50);
   const visibleRows = result ? sortComparisonRows(filterComparisonRows(result.rows, resultQuery, resultFilter), resultSort) : [];
+  const toggleComparisonSelection = (id: string, checked: boolean) => {
+    if (checked) {
+      onSelectionChange(selectedIds.includes(id) ? selectedIds : [...selectedIds, id].slice(0, 3));
+      return;
+    }
+    onSelectionChange(selectedIds.filter((selectedId) => selectedId !== id));
+  };
   return <section className="panel" id="compare" aria-label="Provider endpoint comparison engine">
     <div className="phase3-panel-head">
       <ScopeLabel scope="GLOBAL" />
@@ -2432,12 +2441,24 @@ function ComparisonPanel({
           <option value="endpoint">endpoint</option>
         </select>
       </label>
-      <label>
-        <span>select 2-3</span>
-        <select multiple value={selectedIds} onChange={(event) => onSelectionChange(Array.from(event.currentTarget.selectedOptions).map((item) => item.value).slice(0, 3))} aria-label="Comparison selection">
-          {options.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
-        </select>
-      </label>
+      <fieldset className="comparison-picker" aria-label="Comparison selection">
+        <legend>select 2-3</legend>
+        <div className="comparison-option-list">
+          {options.map((option) => {
+            const checked = selectedIds.includes(option.id);
+            return <label className={checked ? 'comparison-option selected' : 'comparison-option'} key={option.id}>
+              <input
+                type="checkbox"
+                value={option.id}
+                checked={checked}
+                disabled={!checked && selectedIds.length >= 3}
+                onChange={(event) => toggleComparisonSelection(option.id, event.currentTarget.checked)}
+              />
+              <span>{option.label}</span>
+            </label>;
+          })}
+        </div>
+      </fieldset>
       <button className="execute compact secondary comparison-submit" type="button" onClick={() => onCompare(selectedIds, mode)} disabled={selectedIds.length < 2}>Compare</button>
     </div>
     {result && <div className="table-controls comparison-result-controls" aria-label="Filter and sort comparison results">
