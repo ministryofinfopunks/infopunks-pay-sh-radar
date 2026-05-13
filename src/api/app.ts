@@ -39,6 +39,7 @@ import { buildEcosystemHistory, buildEndpointHistory, buildProviderHistory, norm
 import { buildEcosystemRiskSummary, buildEndpointRiskAssessment, buildProviderRiskAssessment } from '../services/radarRiskService';
 import { DEFAULT_LIVE_CATALOG_URL } from '../ingestion/payShCatalogAdapter';
 import { degradationsCsv, endpointsCsv, providersCsv, routeCandidatesCsv } from '../services/radarCsvService';
+import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
 const MAX_INLINE_SUPPORTING_EVENT_IDS = 10;
@@ -130,6 +131,7 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     providerCount: store.providers.length,
     endpointCount: store.endpoints.length
   }));
+  app.get('/openapi.json', async () => createOpenApiSpec(config.version));
   app.get('/status', async () => withRouteTimeout('/status', ROUTE_TIMEOUT_MS, () => ({
     ok: true,
     catalogSource: config.payShCatalogSource,
@@ -497,7 +499,7 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     app.get('/*', async (req, reply) => {
       if (req.method !== 'GET') return reply.code(404).send({ error: 'not_found' });
       const urlPath = (req.raw.url ?? '/').split('?')[0] ?? '/';
-      if (urlPath.startsWith('/v1/') || urlPath === '/health' || urlPath === '/version') {
+      if (urlPath.startsWith('/v1/') || urlPath === '/health' || urlPath === '/version' || urlPath === '/status' || urlPath === '/openapi.json') {
         return reply.code(404).send({ error: 'not_found' });
       }
       const relative = urlPath === '/' ? 'index.html' : urlPath.replace(/^\/+/, '');

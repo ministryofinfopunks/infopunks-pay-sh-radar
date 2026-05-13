@@ -396,6 +396,14 @@ const API_BASE_URL = getApiBaseUrl();
 const API_TIMEOUT_MS = 10_000;
 const DOSSIER_INTERACTION_HOLD_MS = 20_000;
 const ROUTE_INTERACTION_HOLD_MS = 60_000;
+const OPENAPI_PATH = '/openapi.json';
+type DensityMode = 'comfortable' | 'dense';
+type CommandPaletteAction = {
+  id: string;
+  label: string;
+  hint: string;
+  run: () => void;
+};
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const controller = new AbortController();
@@ -951,6 +959,9 @@ function RadarApp() {
   const [endpointRiskById, setEndpointRiskById] = useState<Record<string, RadarRiskResponse>>({});
   const [pulseWindow, setPulseWindow] = useState<'1h' | '24h' | '7d'>('24h');
   const [methodologyOpen, setMethodologyOpen] = useState(false);
+  const [agentMode, setAgentMode] = useState(false);
+  const [densityMode, setDensityMode] = useState<DensityMode>('comfortable');
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const refreshInFlightRef = useRef(false);
   const interactionHoldUntil = useRef(0);
   const featuredRotationEnabledRef = useRef(featuredRotationEnabled);
@@ -1167,7 +1178,7 @@ function RadarApp() {
 
   useEffect(() => {
     if (typeof IntersectionObserver === 'undefined') return;
-    const ids = ['global-pulse', 'leaderboards', 'providers', 'endpoints', 'preflight', 'compare', 'dossier', 'events'];
+    const ids = ['global-pulse', 'leaderboards', 'providers', 'endpoints', 'preflight', 'compare', 'cost-performance', 'benchmark-readiness', 'dossier', 'events'];
     const observer = new IntersectionObserver((entries) => {
       const visible = entries
         .filter((entry) => entry.isIntersecting)
@@ -1254,6 +1265,17 @@ function RadarApp() {
       active = false;
     };
   }, [selectedProvider?.id]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const isShortcut = (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k';
+      if (!isShortcut) return;
+      event.preventDefault();
+      setCommandPaletteOpen(true);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   function runRoute() {
     const maxPrice = routeMaxPrice.trim() === '' ? undefined : Number(routeMaxPrice);
@@ -1387,6 +1409,43 @@ function RadarApp() {
     else void fetchFeaturedProvider();
   }
 
+  function scrollToPanel(id: string) {
+    window.requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  }
+
+  function focusSemanticSearch() {
+    setAgentMode(false);
+    window.requestAnimationFrame(() => {
+      const input = document.getElementById('semantic-search-input') as HTMLInputElement | null;
+      input?.focus();
+      input?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }
+
+  function openApiDocs() {
+    openExportRoute(OPENAPI_PATH);
+  }
+
+  const commandActions = useMemo<CommandPaletteAction[]>(() => [
+    { id: 'focus-search', label: 'Focus Semantic Search', hint: 'Jump to ecosystem search input', run: focusSemanticSearch },
+    { id: 'open-preflight', label: 'Open Agent Preflight', hint: 'Jump to agent preflight panel', run: () => scrollToPanel('preflight') },
+    { id: 'open-compare', label: 'Open Compare', hint: 'Jump to provider/endpoint comparison', run: () => scrollToPanel('compare') },
+    { id: 'open-cost', label: 'Open Cost / Performance', hint: 'Jump to cost and performance intelligence', run: () => scrollToPanel('cost-performance') },
+    { id: 'open-benchmark', label: 'Open Benchmark Readiness', hint: 'Jump to benchmark readiness', run: () => scrollToPanel('benchmark-readiness') },
+    { id: 'open-api-docs', label: 'Open API Docs', hint: OPENAPI_PATH, run: openApiDocs },
+    { id: 'export-providers-json', label: 'Export Providers JSON', hint: '/v1/radar/providers', run: () => openExportRoute('/v1/radar/providers') },
+    { id: 'export-endpoints-json', label: 'Export Endpoints JSON', hint: '/v1/radar/endpoints', run: () => openExportRoute('/v1/radar/endpoints') },
+    { id: 'export-providers-csv', label: 'Export Providers CSV', hint: '/v1/radar/export/providers.csv', run: () => openExportRoute('/v1/radar/export/providers.csv') },
+    { id: 'export-endpoints-csv', label: 'Export Endpoints CSV', hint: '/v1/radar/export/endpoints.csv', run: () => openExportRoute('/v1/radar/export/endpoints.csv') },
+    { id: 'toggle-agent-mode', label: 'Toggle Agent Mode', hint: agentMode ? 'Return to full terminal' : 'Show agent-native surfaces only', run: () => setAgentMode((value) => !value) },
+    { id: 'jump-degradations', label: 'Jump to Degradations', hint: 'Jump to recent safe metadata degradations', run: () => scrollToPanel('recent-degradations') },
+    { id: 'jump-dossier', label: 'Jump to Selected Dossier', hint: 'Jump to current provider dossier', run: () => {
+      setAgentMode(false);
+      scrollToPanel('dossier');
+    } },
+    { id: 'jump-anomaly-watch', label: 'Jump to Anomaly Watch', hint: 'Jump to predictive anomaly watch', run: () => scrollToPanel('anomaly-watch') }
+  ], [agentMode]);
+
   function setRouteInputFocused(focused: boolean) {
     routeInputFocusedRef.current = focused;
     if (focused) holdAutoRotation(ROUTE_INTERACTION_HOLD_MS);
@@ -1405,7 +1464,7 @@ function RadarApp() {
   const ecosystemReading = getEcosystemReading(data.pulse, pulseSummary);
   const providerDegradation = providerDegradationInfo(selectedProvider, providerIntel);
 
-  return <div className="shell">
+  return <div className={`shell ${agentMode ? 'agent-mode-shell' : ''} density-${densityMode}`}>
     <a className="skip-link" href="#terminal-content">Skip to content</a>
     <header className="site-header">
       <nav className="global-toolbar" aria-label="Global controls">
@@ -1425,11 +1484,24 @@ function RadarApp() {
             ['events', 'Events']
           ].map(([id, label]) => <a key={id} href={`#${id}`} className={activeSection === id ? 'active' : ''} aria-current={activeSection === id ? 'location' : undefined}>{label}</a>)}
         </div>
+        <button className={`methodology-trigger ${agentMode ? 'active' : ''}`} type="button" aria-pressed={agentMode} onClick={() => setAgentMode((value) => !value)}>
+          Agent Mode
+        </button>
+        <button className="methodology-trigger" type="button" onClick={() => setCommandPaletteOpen(true)} aria-label="Open command palette">
+          Cmd+K
+        </button>
+        <a className="methodology-trigger api-docs-link" href={toApiUrl(API_BASE_URL, OPENAPI_PATH)} target="_blank" rel="noreferrer">
+          API Docs
+        </a>
+        <button className="methodology-trigger" type="button" onClick={() => setDensityMode((value) => value === 'comfortable' ? 'dense' : 'comfortable')} aria-label="Toggle terminal density">
+          {densityMode === 'comfortable' ? 'Terminal Comfortable' : 'Terminal Dense'}
+        </button>
         <button className="methodology-trigger" type="button" onClick={() => setMethodologyOpen(true)} aria-label="Open methodology drawer">
           Methodology
         </button>
       </nav>
     </header>
+    <CommandPalette open={commandPaletteOpen} commands={commandActions} onClose={() => setCommandPaletteOpen(false)} />
     <MethodologyDrawer open={methodologyOpen} onClose={() => setMethodologyOpen(false)} />
 
     <main id="terminal-content">
@@ -1437,7 +1509,8 @@ function RadarApp() {
       <p className="route-state error">{bootError}</p>
       <button className="execute compact secondary" type="button" onClick={() => window.location.reload()}>Retry</button>
     </section>}
-    <section className="hero panel mission-control" aria-labelledby="terminal-title">
+    {agentMode && <AgentModeBanner onExit={() => setAgentMode(false)} onOpenApiDocs={openApiDocs} />}
+    {!agentMode && <section className="hero panel mission-control" aria-labelledby="terminal-title">
       <div>
         <p className="eyebrow">Infopunks Intelligence Terminal</p>
         <h1 id="terminal-title">Cognitive Coordination Layer for the Pay.sh agent economy.</h1>
@@ -1456,7 +1529,7 @@ function RadarApp() {
         <ControlStripMetric label="Last Catalog Sync" value={formatShortDate(data.pulse.data_source.last_ingested_at ?? data.pulse.data_source.generated_at)} />
         <ControlStripMetric label="Monitoring Mode" value="Safe metadata" />
       </div>
-    </section>
+    </section>}
 
     <div id="global-pulse" className="anchor-target" />
     <EcosystemStatusPanel status={ecosystemStatus} reading={ecosystemReading} pulse={data.pulse} summary={pulseSummary} selectedProvider={selectedProvider} />
@@ -1466,23 +1539,23 @@ function RadarApp() {
         <section className="zone zone-ecosystem" aria-labelledby="ecosystem-zone-title">
           <ZoneHeader eyebrow="ZONE A" title="ECOSYSTEM INTELLIGENCE" subtitle="Realtime machine economy observability" helper="Start here: global status, interpretation, pulse feed, and cross-provider movement before drilling into a provider." scope="GLOBAL" />
 
-          <section className="grid four ecosystem-metrics" aria-label="Ecosystem summary metrics">
+          {!agentMode && <section className="grid four ecosystem-metrics" aria-label="Ecosystem summary metrics">
             <Metric label="Ecosystem Pulse" value={data.pulse.hottestNarrative?.title ?? 'unknown'} sub={`heat ${data.pulse.hottestNarrative?.heat ?? 'unknown'} / momentum ${data.pulse.hottestNarrative?.momentum ?? 'unknown'}`} evidence={data.pulse.hottestNarrative as EvidenceReceipt | null} />
             <Metric label="Trust Leader" value={providerLookup.get(data.pulse.topTrust[0]?.entityId)?.name ?? 'n/a'} sub={`${data.pulse.topTrust[0]?.score ?? 'unknown'}/100 grade ${data.pulse.topTrust[0]?.grade ?? '-'}`} evidence={data.pulse.topTrust[0]} />
             <Metric label="Signal Leader" value={providerLookup.get(data.pulse.topSignal[0]?.entityId)?.name ?? 'n/a'} sub={`${data.pulse.topSignal[0]?.score ?? 'unknown'}/100`} evidence={data.pulse.topSignal[0]} />
             <Metric label="Graph Layer" value={`${data.graph.nodes.length} nodes`} sub={`${data.graph.edges.length} deterministic edges`} evidence={data.graph.evidence ?? graphFallbackEvidence(data.graph)} />
-          </section>
+          </section>}
 
-          <SystemReadingPanel reading={ecosystemReading} />
+          {!agentMode && <SystemReadingPanel reading={ecosystemReading} />}
 
-          <RadarFreshness pulse={data.pulse} summary={pulseSummary} />
+          {!agentMode && <RadarFreshness pulse={data.pulse} summary={pulseSummary} />}
 
           <RadarExportPanel />
 
-          <EcosystemInterpretationPanel interpretations={ecosystemInterpretations} providerLookup={providerLookup} />
+          {!agentMode && <EcosystemInterpretationPanel interpretations={ecosystemInterpretations} providerLookup={providerLookup} />}
 
           <div className="ecosystem-canvas">
-          {pulseSummary && <CollapsibleSection id="events" className="panel pulse-feed" title="Live Catalog Pulse" kicker="Current Scored Snapshot" scope="GLOBAL" caption={`Pay.sh catalog ingests every ${formatInterval(pulseSummary.ingest_interval_ms) ?? '7.5 min'} / UI polls every 15s / events emit only when catalog changes are detected.`}>
+          {!agentMode && pulseSummary && <CollapsibleSection id="events" className="panel pulse-feed" title="Live Catalog Pulse" kicker="Current Scored Snapshot" scope="GLOBAL" caption={`Pay.sh catalog ingests every ${formatInterval(pulseSummary.ingest_interval_ms) ?? '7.5 min'} / UI polls every 15s / events emit only when catalog changes are detected.`}>
             <div className="panel-head">
               <div>
                 <p className="section-kicker">Safe Metadata Monitor</p>
@@ -1539,20 +1612,20 @@ function RadarApp() {
             </div>
           </CollapsibleSection>}
 
-          <section id="leaderboards" className="grid two">
+          {!agentMode && <section id="leaderboards" className="grid two">
             <Leaderboard title="Trust Leaderboard" scores={safeTopTrust} providers={providerLookup} kind="trust" providerRiskById={providerRiskById} />
             <Leaderboard title="Signal Leaderboard" scores={safeTopSignal} providers={providerLookup} kind="signal" providerRiskById={providerRiskById} />
-          </section>
+          </section>}
 
-          <CollapsibleSection className="panel" title="Narrative Heatmap" caption="Narratives group provider movement into readable market themes. Heat and severity are shown together so state is not color-only." scope="GLOBAL">
+          {!agentMode && <CollapsibleSection className="panel narrative-heatmap-panel" title="Narrative Heatmap" caption="Narratives group provider movement into readable market themes. Heat and severity are shown together so state is not color-only." scope="GLOBAL">
             <div className="heatmap">
               {sortBySeverity(safeNarratives).map((narrative) => <div key={narrative.id} className={`heat severity-${normalSeverity(narrative.severity)}`} style={{ '--heat': `${narrative.heat ?? 0}%` } as React.CSSProperties}>
                 <strong>{narrative.title}</strong><SeverityBadge evidence={narrative} /><span>heat {narrative.heat ?? 'unknown'}</span><small>{narrative.providerIds.length} providers / {narrative.keywords.join(', ')}</small>
               </div>)}
             </div>
-          </CollapsibleSection>
+          </CollapsibleSection>}
 
-          <section className="panel semantic-search-panel">
+          {!agentMode && <section className="panel semantic-search-panel">
             <ScopeLabel scope="GLOBAL" />
             <div className="semantic-search-head">
               <p className="section-kicker">Query the ecosystem</p>
@@ -1565,7 +1638,7 @@ function RadarApp() {
             }}>
               <label className="command-input">
                 <span>ecosystem query</span>
-                <input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Ask: which providers are degrading?" aria-label="Search Pay.sh ecosystem intelligence" />
+                <input id="semantic-search-input" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Ask: which providers are degrading?" aria-label="Search Pay.sh ecosystem intelligence" />
               </label>
               <button className="execute compact secondary" type="submit" disabled={searchStatus === 'loading'}>
                 {searchStatus === 'loading' ? 'Searching...' : 'Search'}
@@ -1578,7 +1651,7 @@ function RadarApp() {
             {searchError && <p className="route-state error">Semantic search unavailable: {searchError}</p>}
             <div className="results">{searchResults.filter((result) => isRecord(result) && isRecord(result.provider) && typeof result.provider.id === 'string').map((result) => <div className="result" key={result.provider.id}><strong>{result.provider.name ?? 'unknown provider'}</strong><span>relevance {result.relevance ?? 'unknown'} / trust {result.trustAssessment?.score ?? 'unknown'} / signal {result.signalAssessment?.score ?? 'unknown'}</span></div>)}</div>
             {searchQuery.trim() && searchStatus === 'idle' && !searchResults.length && <EmptyState title="No matching providers." body="Try a category, provider name, endpoint type, or task intent." />}
-          </section>
+          </section>}
           <PreflightConsole
             input={preflightJsonInput}
             result={preflightResult}
@@ -1596,7 +1669,7 @@ function RadarApp() {
           </div>
         </section>
 
-        <section className="zone zone-provider" id="dossier" aria-labelledby="provider-zone-title">
+        {!agentMode && <section className="zone zone-provider" id="dossier" aria-labelledby="provider-zone-title">
       <ZoneHeader eyebrow="ZONE B" title="SELECTED PROVIDER DOSSIER" subtitle="Live intelligence for selected provider" helper="The featured provider rotates automatically unless you select or edit. Manual interaction pauses rotation to preserve context." scope="PROVIDER" />
       {selectedProvider && <div className="provider-ribbon" aria-label="Selected provider context">
         <strong>{selectedProvider.name}</strong>
@@ -1915,21 +1988,21 @@ function RadarApp() {
           </div>
         </div>
       </section>
-        </section>
+        </section>}
       </div>
 
       {pulseSummary && <aside className="ecosystem-rail" aria-label="Realtime ecosystem intelligence sidebar">
-        <div className="panel counter-grid scoped-panel rail-priority">
+        {!agentMode && <div className="panel counter-grid scoped-panel rail-priority">
           <ScopeLabel scope="GLOBAL" />
           <PulseStat label="Events" value={pulseSummary.counters.events} sub={`${pulseSummary.counters.unknownTelemetry} unknown telemetry fields`} />
           <PulseStat label="Providers" value={pulseSummary.counters.providers} sub={`${pulseSummary.counters.endpoints} endpoints tracked`} />
           {pulseSummary.eventGroups.monitoring.count > 0 && <PulseStat label="Monitor" value={pulseSummary.eventGroups.monitoring.count} sub="safe service reachability events" />}
-        </div>
-        <PropagationWatch propagation={pulseSummary.propagation} />
+        </div>}
+        {!agentMode && <PropagationWatch propagation={pulseSummary.propagation} />}
         <AnomalyWatchPanel ecosystemRisk={ecosystemRisk} />
-        <DeltaPanel title="Trust Changes" caption="Latest trust events from catalog scoring batches." deltas={pulseSummary.trustDeltas} empty="No trust deltas beyond initial scoring." scope="GLOBAL" />
-        <DeltaPanel title="Signal Spikes" caption="Signal deltas appear only when catalog-derived signal changes." deltas={pulseSummary.signalSpikes} empty="No positive signal deltas observed." scope="GLOBAL" />
-        <div className="panel rail-panel">
+        {!agentMode && <DeltaPanel title="Trust Changes" caption="Latest trust events from catalog scoring batches." deltas={pulseSummary.trustDeltas} empty="No trust deltas beyond initial scoring." scope="GLOBAL" />}
+        {!agentMode && <DeltaPanel title="Signal Spikes" caption="Signal deltas appear only when catalog-derived signal changes." deltas={pulseSummary.signalSpikes} empty="No positive signal deltas observed." scope="GLOBAL" />}
+        {!agentMode && <div className="panel rail-panel">
           <div className="panel-head">
             <div>
               <ScopeLabel scope="GLOBAL" />
@@ -1950,8 +2023,8 @@ function RadarApp() {
             </div>)}
             {!pulseSummary.providerActivity[pulseWindow].length && <p className="muted empty-state">No provider activity in this window.</p>}
           </div>
-        </div>
-        <div className="panel rail-panel">
+        </div>}
+        <div className="panel rail-panel" id="recent-degradations">
           <div className="panel-head">
             <div>
               <ScopeLabel scope="GLOBAL" />
@@ -2058,6 +2131,104 @@ function SystemReadingPanel({ reading }: { reading: string }) {
   </section>;
 }
 
+function AgentModeBanner({ onExit, onOpenApiDocs }: { onExit: () => void; onOpenApiDocs: () => void }) {
+  return <section className="panel agent-mode-banner" aria-label="Agent Mode">
+    <div>
+      <ScopeLabel scope="GLOBAL" />
+      <p className="section-kicker">Agent Mode</p>
+      <h2>Machine-actionable routing surface</h2>
+      <p className="panel-caption">Agent Mode removes narrative panels and shows only routing intelligence.</p>
+    </div>
+    <div className="agent-mode-actions">
+      <button className="execute compact secondary" type="button" onClick={onOpenApiDocs}>API Docs</button>
+      <CopyButton value={toApiUrl(API_BASE_URL, OPENAPI_PATH)} label="Copy OpenAPI URL" />
+      <button className="execute compact" type="button" onClick={onExit}>Full Terminal</button>
+    </div>
+  </section>;
+}
+
+function CommandPalette({ open, commands, onClose }: { open: boolean; commands: CommandPaletteAction[]; onClose: () => void }) {
+  const [query, setQuery] = useState('');
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const filtered = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    if (!needle) return commands;
+    return commands.filter((command) => `${command.label} ${command.hint}`.toLowerCase().includes(needle));
+  }, [commands, query]);
+
+  useEffect(() => {
+    if (!open) return;
+    setQuery('');
+    setSelectedIndex(0);
+    window.requestAnimationFrame(() => inputRef.current?.focus());
+  }, [open]);
+
+  useEffect(() => {
+    setSelectedIndex(0);
+  }, [query]);
+
+  if (!open) return null;
+
+  function activate(command: CommandPaletteAction) {
+    command.run();
+    onClose();
+  }
+
+  return <div className="command-palette-backdrop" role="presentation" onMouseDown={(event) => {
+    if (event.target === event.currentTarget) onClose();
+  }}>
+    <section className="command-palette" role="dialog" aria-modal="true" aria-label="Command palette">
+      <label>
+        <span>Command</span>
+        <input
+          ref={inputRef}
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') {
+              event.preventDefault();
+              onClose();
+              return;
+            }
+            if (event.key === 'ArrowDown') {
+              event.preventDefault();
+              setSelectedIndex((index) => Math.min(index + 1, Math.max(0, filtered.length - 1)));
+              return;
+            }
+            if (event.key === 'ArrowUp') {
+              event.preventDefault();
+              setSelectedIndex((index) => Math.max(index - 1, 0));
+              return;
+            }
+            if (event.key === 'Enter' && filtered[selectedIndex]) {
+              event.preventDefault();
+              activate(filtered[selectedIndex]);
+            }
+          }}
+          placeholder="Search commands"
+          aria-label="Search commands"
+        />
+      </label>
+      <div className="command-list" role="listbox" aria-label="Commands">
+        {filtered.map((command, index) => <button
+          key={command.id}
+          type="button"
+          role="option"
+          aria-selected={index === selectedIndex}
+          className={index === selectedIndex ? 'selected' : ''}
+          onMouseEnter={() => setSelectedIndex(index)}
+          onClick={() => activate(command)}
+        >
+          <strong>{command.label}</strong>
+          <span>{command.hint}</span>
+        </button>)}
+        {!filtered.length && <p className="muted empty-state">No commands match.</p>}
+      </div>
+    </section>
+  </div>;
+}
+
 function ControlStripMetric({ label, value, history, delta }: { label: string; value: string | number; history?: HistoryPoint[]; delta?: number | null }) {
   return <span className="control-metric">
     <small>{label}</small>
@@ -2101,7 +2272,11 @@ function PreflightConsole({
         <h2 id="preflight-title">Agent Preflight</h2>
         <p className="panel-caption">Ask Radar where an agent should route before spending. This checks catalog intelligence only and does not execute paid APIs.</p>
       </div>
-      <StatusPill state={result?.recommended_route ? 'healthy' : result ? 'critical' : status === 'error' ? 'watch' : 'unknown'} />
+      <div className="panel-actions">
+        <a className="copy-chip" href={toApiUrl(API_BASE_URL, OPENAPI_PATH)} target="_blank" rel="noreferrer">API Docs</a>
+        <CopyButton value={toApiUrl(API_BASE_URL, '/v1/radar/preflight')} label="Copy API URL" />
+        <StatusPill state={result?.recommended_route ? 'healthy' : result ? 'critical' : status === 'error' ? 'watch' : 'unknown'} />
+      </div>
     </div>
     <div className="preflight-examples" aria-label="Preflight examples">
       {examples.map((example) => <button key={example.label} type="button" onClick={() => onExample(example.body)}>{example.label}</button>)}
@@ -2163,6 +2338,7 @@ function PreflightResultView({ result, curl }: { result: PreflightResult; curl: 
     </div>
     <details className="preflight-json">
       <summary>Raw preflight response</summary>
+      <CopyButton value={JSON.stringify(result, null, 2)} label="Copy JSON" />
       <pre>{JSON.stringify(result, null, 2)}</pre>
     </details>
     <div className="curl-block">
@@ -2314,7 +2490,7 @@ function CostPerformancePanel({
     const benchmark = readinessByCategory.get((endpoint.category ?? 'unknown').toLowerCase());
     return { endpoint, est, conf, value, benchmark };
   });
-  return <section className="panel" aria-label="Cost and performance intelligence">
+  return <section className="panel" id="cost-performance" aria-label="Cost and performance intelligence">
     <div className="phase3-panel-head">
       <ScopeLabel scope="GLOBAL" />
       <h2>Cost / Performance Intelligence</h2>
@@ -2417,17 +2593,24 @@ function RadarExportPanel() {
       <p className="section-kicker">Safe JSON Exports</p>
       <h2>Export Intelligence</h2>
       <p className="panel-caption">Open read-only export routes. These do not execute paid Pay.sh APIs.</p>
+      <div className="panel-actions compact-actions">
+        <a className="copy-chip" href={toApiUrl(API_BASE_URL, OPENAPI_PATH)} target="_blank" rel="noreferrer">API Docs</a>
+        <CopyButton value={toApiUrl(API_BASE_URL, OPENAPI_PATH)} label="Copy OpenAPI URL" />
+      </div>
     </div>
     <div className="export-actions">
       {routes.map(([path, label]) => <button key={path} type="button" className="execute compact secondary" onClick={() => openExportRoute(path)}>
         {label}
       </button>)}
     </div>
+    <div className="export-copy-actions" aria-label="Copy export API URLs">
+      {routes.map(([path, label]) => <CopyButton key={path} value={toApiUrl(API_BASE_URL, path)} label={`Copy ${label.replace(/^Export /, '').replace(/ (JSON|CSV)$/, '')} URL`} />)}
+    </div>
   </section>;
 }
 
 function BenchmarkReadinessPanel({ readiness }: { readiness: RadarBenchmarkReadiness | null }) {
-  return <section className="panel superiority-readiness" aria-label="Benchmark Readiness panel">
+  return <section className="panel superiority-readiness" id="benchmark-readiness" aria-label="Benchmark Readiness panel">
     <div className="phase3-panel-head">
       <ScopeLabel scope="GLOBAL" />
       <h2>Benchmark Readiness</h2>
@@ -2735,7 +2918,7 @@ function PropagationWatch({ propagation }: { propagation?: PropagationAnalysis |
 
 function AnomalyWatchPanel({ ecosystemRisk }: { ecosystemRisk: RadarEcosystemRiskSummary | null }) {
   const watch = ecosystemRisk?.summary?.anomaly_watch ?? [];
-  return <section className="panel anomaly-watch" aria-label="Anomaly Watch panel">
+  return <section className="panel anomaly-watch" id="anomaly-watch" aria-label="Anomaly Watch panel">
     <div className="panel-head">
       <div>
         <ScopeLabel scope="GLOBAL" />

@@ -110,6 +110,43 @@ No black-box score is emitted without supporting evidence.
 
 # API Overview
 
+## Machine Discovery
+
+- `GET /openapi.json`
+  Returns the OpenAPI 3.1 description for implemented public Radar routes.
+
+The OpenAPI spec is intended for builders and agents. It documents request/response shapes, examples, CSV export routes, risk/history routes, readiness routes, and the safe-metadata/no-paid-execution constraint.
+
+Radar does not execute paid Pay.sh provider APIs from these routes. It exposes catalog-derived intelligence, safe metadata reachability signals, event history, advisory risk, and export surfaces only.
+
+## Agent-First UI
+
+- `Agent Mode`
+  Top-level toggle that removes narrative panels and shows routing/action surfaces: Agent Preflight, batch preflight hint, accepted/rejected candidates, risk warnings, cost/performance context, benchmark readiness, exports, API Docs, Copy JSON, and Copy curl.
+- `Cmd+K` on macOS or `Ctrl+K` elsewhere
+  Opens the command palette.
+- `API Docs`
+  Visible in the top nav, Export Intelligence panel, Agent Preflight panel, and Agent Mode banner. It opens `/openapi.json`.
+- `Terminal Comfortable` / `Terminal Dense`
+  Optional density toggle for changing card padding, chip density, and row spacing without changing backend behavior.
+
+Command palette actions include:
+
+- Focus Semantic Search
+- Open Agent Preflight
+- Open Compare
+- Open Cost / Performance
+- Open Benchmark Readiness
+- Open API Docs
+- Export Providers JSON
+- Export Endpoints JSON
+- Export Providers CSV
+- Export Endpoints CSV
+- Toggle Agent Mode
+- Jump to Degradations
+- Jump to Selected Dossier
+- Jump to Anomaly Watch
+
 ## Ecosystem
 
 - `GET /health`
