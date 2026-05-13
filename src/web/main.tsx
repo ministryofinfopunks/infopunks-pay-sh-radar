@@ -242,6 +242,9 @@ type RadarComparisonRow = {
   reachability: 'reachable' | 'degraded' | 'failed' | 'unknown';
   last_observed: string | null;
   last_seen_healthy: string | null;
+  last_verified_at?: string | null;
+  verified_mapping_count?: number;
+  mapping_source?: 'none' | 'catalog' | 'verified' | 'catalog_and_verified';
   predictive_risk_level?: RiskLevel;
   predictive_risk_score?: number;
   recommended_action?: RiskRecommendation;
@@ -2392,7 +2395,7 @@ function PreflightResultView({ result, curl }: { result: PreflightResult; curl: 
   </div>;
 }
 
-function ComparisonPanel({
+export function ComparisonPanel({
   providers,
   endpoints,
   mode,
@@ -2482,15 +2485,23 @@ function ComparisonPanel({
       </select>
     </div>}
     {!result && <EmptyState title="No comparison selected." body="Select two or three providers or endpoints, then run Compare." />}
-    {result && <div className="endpoint-list has-rows comparison-results">{visibleRows.map((row) => <div className={`endpoint ${row.route_recommendation === 'not_recommended' || row.degradation_count > 0 ? 'degraded-card' : ''}`} key={row.id}>
+    {result && <div className="endpoint-list has-rows comparison-results">{visibleRows.map((row) => {
+      const routeState = comparisonRouteState(row);
+      return <div className={`endpoint ${routeState.tone === 'degraded' ? 'degraded-card' : ''}`} key={row.id}>
       <strong>{row.name}</strong>
-      <PredictiveRiskBadge risk={toRiskContextFromRow(row)} compact />
-      <small>trust {row.trust_score ?? 'unknown'} / signal {row.signal_score ?? 'unknown'} / mapped {row.mapped_endpoint_count}/{row.endpoint_count}</small>
-      <small>route eligible {row.route_eligible_endpoint_count} / degraded {row.degradation_count} / reachability {row.reachability}</small>
-      <small>recommendation {row.route_recommendation} / risk action {row.recommended_action ?? 'insufficient history'} / rejection reasons {row.rejection_reasons.join(', ') || 'none'}</small>
+      <div className="dossier-badges">
+        <span className={`risk-badge ${routeBadgeRiskClass(routeState.tone)} compact`}>{routeState.badge}</span>
+        <PredictiveRiskBadge risk={toRiskContextFromRow(row)} compact />
+      </div>
+      <small>trust {row.trust_score ?? 'unknown'} / signal {row.signal_score ?? 'unknown'} / mapped {row.mapped_endpoint_count}/{row.endpoint_count} / route eligible {row.route_eligible_endpoint_count} / degraded {row.degradation_count} / reachability {row.reachability}</small>
+      <small>Route status: {routeState.status}.</small>
+      <small>Mapping source: {row.mapping_source ?? 'unknown'}.</small>
+      <small>Route implication: {routeState.implication}</small>
+      <small>Last seen healthy: {routeState.lastSeenHealthy}.</small>
+      {row.rejection_reasons.length > 0 && <small>Rejection reasons: {row.rejection_reasons.join(', ')}</small>}
       {row.top_anomaly && <small>top anomaly {row.top_anomaly.anomaly_type} ({row.top_anomaly.severity}, {row.top_anomaly.confidence})</small>}
-      {(row.route_recommendation === 'not_recommended' || row.degradation_count > 0) && <small className="failure-line">Route implication: Not recommended for routing. Last seen healthy: {formatDate(row.last_seen_healthy)}</small>}
-    </div>)}
+    </div>;
+    })}
     {!visibleRows.length && <p className="muted empty-state">No comparison rows match the current filters.</p>}</div>}
   </section>;
 }
@@ -3855,6 +3866,83 @@ function filterComparisonRows(rows: RadarComparisonRow[], query: string, filter:
     if (filter === 'pricing unknown') return row.pricing_clarity === null;
     return true;
   });
+}
+
+type ComparisonRouteState = {
+  badge: 'VERIFIED ROUTE' | 'CATALOG ONLY' | 'INTERMITTENT' | 'DEGRADED';
+  tone: 'verified' | 'catalog' | 'intermittent' | 'degraded';
+  status: string;
+  implication: string;
+  lastSeenHealthy: string;
+};
+
+function routeBadgeRiskClass(tone: ComparisonRouteState['tone']) {
+  if (tone === 'verified') return 'risk-low';
+  if (tone === 'catalog') return 'risk-watch';
+  if (tone === 'intermittent') return 'risk-elevated';
+  return 'risk-critical';
+}
+
+function comparisonRouteState(row: RadarComparisonRow): ComparisonRouteState {
+  const mappingSource = row.mapping_source ?? (row.mapped_endpoint_count > 0 ? 'catalog' : 'none');
+  const hasVerifiedMapping = mappingSource === 'verified' || mappingSource === 'catalog_and_verified';
+  const catalogOnly = mappingSource === 'none' || row.mapped_endpoint_count === 0;
+  const hasIntermittentSignal = [mappingSource, row.reachability, row.route_recommendation, ...row.rejection_reasons]
+    .some((value) => String(value ?? '').toLowerCase().includes('intermittent'));
+  const degraded = row.degradation_count > 0
+    || row.reachability === 'degraded'
+    || row.reachability === 'failed'
+    || (row.route_recommendation === 'not_recommended' && !catalogOnly && hasVerifiedMapping);
+
+  if (catalogOnly) {
+    return {
+      badge: 'CATALOG ONLY',
+      tone: 'catalog',
+      status: 'Catalog only',
+      implication: 'Radar has discovered this provider, but no executable endpoint mapping has been verified yet.',
+      lastSeenHealthy: 'not yet verified'
+    };
+  }
+
+  if (degraded) {
+    return {
+      badge: 'DEGRADED',
+      tone: 'degraded',
+      status: 'Degraded',
+      implication: 'Mapped route exists, but current health or reachability is degraded.',
+      lastSeenHealthy: formatDate(row.last_seen_healthy ?? row.last_verified_at ?? null)
+    };
+  }
+
+  // TODO: There is no dedicated intermittent status field in comparison rows yet.
+  // Keep detection conservative and only classify as intermittent when a source field explicitly says so.
+  if (hasVerifiedMapping && hasIntermittentSignal) {
+    return {
+      badge: 'INTERMITTENT',
+      tone: 'intermittent',
+      status: 'Intermittent',
+      implication: 'Previously executable, but not recommended for default routing until it passes fresh checks.',
+      lastSeenHealthy: formatDate(row.last_seen_healthy ?? row.last_verified_at ?? null)
+    };
+  }
+
+  if (hasVerifiedMapping && row.route_eligible_endpoint_count > 0 && row.route_recommendation === 'route_eligible') {
+    return {
+      badge: 'VERIFIED ROUTE',
+      tone: 'verified',
+      status: 'Verified route',
+      implication: 'Eligible for routing based on verified execution history.',
+      lastSeenHealthy: formatDate(row.last_seen_healthy ?? row.last_verified_at ?? null)
+    };
+  }
+
+  return {
+    badge: 'DEGRADED',
+    tone: 'degraded',
+    status: 'Degraded',
+    implication: 'Mapped route exists, but current health or reachability is degraded.',
+    lastSeenHealthy: formatDate(row.last_seen_healthy ?? row.last_verified_at ?? null)
+  };
 }
 
 function sortComparisonRows(rows: RadarComparisonRow[], sort: 'trust score' | 'signal score' | 'endpoint count' | 'degradation count' | 'pricing clarity' | 'metadata quality' | 'last observed') {
