@@ -13,6 +13,9 @@ import {
   PreflightResponseSchema,
   RadarComparisonRequestSchema,
   RadarEcosystemRiskSummarySchema,
+  RadarBatchPreflightRequestSchema,
+  RadarBatchPreflightResponseSchema,
+  RadarBenchmarkReadinessSchema,
   RadarPreflightRequestSchema,
   RadarPreflightResponseSchema,
   RadarRiskResponseSchema,
@@ -31,10 +34,11 @@ import { resolvePropagationIncident } from '../services/propagationIncidentServi
 import { providerReachabilitySummary, providerRootHealthSummary } from '../services/eventSummaryHelpers';
 import { runPreflight } from '../services/preflightService';
 import { buildRadarExportSnapshot, safeJsonExport } from '../services/radarExportService';
-import { buildSuperiorityReadiness, runRadarComparison, runRadarPreflight } from '../services/radarRouteIntelligenceService';
+import { buildBenchmarkReadiness, buildSuperiorityReadiness, runRadarComparison, runRadarPreflight, runRadarPreflightBatch } from '../services/radarRouteIntelligenceService';
 import { buildEcosystemHistory, buildEndpointHistory, buildProviderHistory, normalizeHistoryWindow } from '../services/radarHistoryService';
 import { buildEcosystemRiskSummary, buildEndpointRiskAssessment, buildProviderRiskAssessment } from '../services/radarRiskService';
 import { DEFAULT_LIVE_CATALOG_URL } from '../ingestion/payShCatalogAdapter';
+import { degradationsCsv, endpointsCsv, providersCsv, routeCandidatesCsv } from '../services/radarCsvService';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
 const MAX_INLINE_SUPPORTING_EVENT_IDS = 10;
@@ -262,6 +266,22 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
       })
     };
   });
+  app.get('/v1/radar/export/providers.csv', async (_req, reply) => {
+    reply.type('text/csv; charset=utf-8');
+    return providersCsv(store);
+  });
+  app.get('/v1/radar/export/endpoints.csv', async (_req, reply) => {
+    reply.type('text/csv; charset=utf-8');
+    return endpointsCsv(store);
+  });
+  app.get('/v1/radar/export/route-candidates.csv', async (_req, reply) => {
+    reply.type('text/csv; charset=utf-8');
+    return routeCandidatesCsv(store);
+  });
+  app.get('/v1/radar/export/degradations.csv', async (_req, reply) => {
+    reply.type('text/csv; charset=utf-8');
+    return degradationsCsv(store);
+  });
   app.get<{ Params: { provider_id: string }; Querystring: { window?: string } }>('/v1/radar/history/providers/:provider_id', async (req, reply) => {
     const history = buildProviderHistory(store, req.params.provider_id, normalizeHistoryWindow(req.query.window));
     if (!history) return reply.code(404).send({ error: 'provider_not_found' });
@@ -337,11 +357,17 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   app.post('/v1/radar/preflight', async (req, reply) => handleParsed(req.body, RadarPreflightRequestSchema, (input) => ({
     data: safeJsonExport(RadarPreflightResponseSchema.parse(runRadarPreflight(input, store)))
   }), reply));
+  app.post('/v1/radar/preflight/batch', async (req, reply) => handleParsed(req.body, RadarBatchPreflightRequestSchema, (input) => ({
+    data: safeJsonExport(RadarBatchPreflightResponseSchema.parse(runRadarPreflightBatch(input, store)))
+  }), reply));
   app.post('/v1/radar/compare', async (req, reply) => handleParsed(req.body, RadarComparisonRequestSchema, (input) => ({
     data: safeJsonExport(runRadarComparison(input, store))
   }), reply));
   app.get('/v1/radar/superiority-readiness', async () => ({
     data: safeJsonExport(RadarSuperiorityReadinessSchema.parse(buildSuperiorityReadiness(store)))
+  }));
+  app.get('/v1/radar/benchmark-readiness', async () => ({
+    data: safeJsonExport(RadarBenchmarkReadinessSchema.parse(buildBenchmarkReadiness(store)))
   }));
   app.get('/v1/monitor/runs/recent', async () => ({ data: [...(store.monitorRuns ?? [])].sort((a, b) => Date.parse(b.startedAt) - Date.parse(a.startedAt)).slice(0, 20).map(monitorRunResponse) }));
   app.get<{ Params: { id: string } }>('/v1/providers/:id/monitor', async (req, reply) => {

@@ -276,6 +276,29 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
       providers_with_only_catalog_metadata: ['alpha'],
       next_mappings_needed: ['data: +1 executable mapping(s)']
     });
+    if (path === '/v1/radar/benchmark-readiness') return json({
+      generated_at: observedAt,
+      source: 'infopunks-pay-sh-radar',
+      categories: [{
+        category: 'data',
+        executable_mapping_count: 1,
+        comparable_provider_count: 1,
+        pricing_known_count: 1,
+        history_available_count: 1,
+        risk_known_count: 1,
+        benchmark_ready: false,
+        superiority_ready: false,
+        missing_requirements: ['need_at_least_two_executable_mappings'],
+        recommended_next_mapping: 'data: +1 executable mapping(s)',
+        metadata_only_warning: 'Catalog-estimated metadata is not execution-proven.'
+      }],
+      benchmark_ready_categories: [],
+      superiority_ready_categories: [],
+      not_ready_categories: ['data'],
+      missing_requirements: ['need_at_least_two_executable_mappings'],
+      recommended_next_mappings: ['data: +1 executable mapping(s)'],
+      metadata_only_warning: 'Catalog-estimated is not execution-proven.'
+    });
     if (path === '/v1/radar/preflight') return json({
       generated_at: observedAt,
       source: 'infopunks-pay-sh-radar',
@@ -542,7 +565,11 @@ describe('radar endpoint intelligence UI', () => {
     expect(exportPanel).not.toBeNull();
     expect(exportPanel!.textContent).toContain('Safe JSON Exports');
     expect(exportPanel!.textContent).toContain('Open read-only export routes. These do not execute paid Pay.sh APIs.');
-    expect(exportPanel!.querySelectorAll('.export-actions button')).toHaveLength(4);
+    expect(exportPanel!.querySelectorAll('.export-actions button')).toHaveLength(8);
+    expect(exportPanel!.textContent).toContain('Export Providers CSV');
+    expect(exportPanel!.textContent).toContain('Export Endpoints CSV');
+    expect(exportPanel!.textContent).toContain('Export Route Candidates CSV');
+    expect(exportPanel!.textContent).toContain('Export Degradations CSV');
   });
 
   it('summarizes long superiority readiness arrays before revealing full details', async () => {
@@ -564,6 +591,8 @@ describe('radar endpoint intelligence UI', () => {
 
     expect(container.textContent).toContain('No executable provider mappings detected yet.');
     expect(container.textContent).toContain('Superiority requires at least two executable provider mappings in the same benchmark category.');
+    expect(container.textContent).toContain('Benchmark Readiness');
+    expect(container.textContent).toContain('Catalog-estimated');
     expect(container.textContent).toContain('+ 4 more');
     expect(container.textContent).toContain('catalog metadata only providers');
 

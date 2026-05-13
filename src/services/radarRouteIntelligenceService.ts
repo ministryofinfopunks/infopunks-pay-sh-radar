@@ -1,4 +1,14 @@
-import { RadarPreflightRequest, RadarPreflightResponse, RadarComparisonRequest, RadarComparisonResponse, RadarSuperiorityReadiness } from '../schemas/entities';
+import {
+  RadarPreflightRequest,
+  RadarPreflightResponse,
+  RadarComparisonRequest,
+  RadarComparisonResponse,
+  RadarSuperiorityReadiness,
+  RadarBatchPreflightRequest,
+  RadarBatchPreflightResponse,
+  RadarBenchmarkReadiness
+} from '../schemas/entities';
+import { RadarPreflightRequestSchema } from '../schemas/entities';
 import { IntelligenceStore } from './intelligenceStore';
 import { buildRadarExportSnapshot, NormalizedEndpointRecord } from './radarExportService';
 import { trendContextForProvider } from './radarHistoryService';
@@ -37,6 +47,36 @@ export function runRadarPreflight(input: RadarPreflightRequest, store: Intellige
       ...Array.from(new Set(allCandidates.flatMap((candidate) => candidate.risk_warnings ?? [])))
     ],
     superiority_evidence_available: executableInCategory
+  };
+}
+
+export function runRadarPreflightBatch(input: RadarBatchPreflightRequest, store: IntelligenceStore): RadarBatchPreflightResponse {
+  const generatedAt = new Date().toISOString();
+  const results = input.queries.map((query, index) => {
+    const parsed = RadarPreflightRequestSchema.safeParse(query);
+    const queryId = parsed.success && parsed.data.id ? parsed.data.id : (query && typeof query === 'object' && typeof (query as Record<string, unknown>).id === 'string' ? ((query as Record<string, unknown>).id as string) : null);
+    const id = queryId?.trim() || `query-${index + 1}`;
+    if (!parsed.success) return { id, ok: false, warnings: [], error: 'malformed_query' };
+    try {
+      const result = runRadarPreflight(parsed.data, store);
+      return {
+        id,
+        ok: true,
+        recommended_route: result.recommended_route,
+        accepted_candidates: result.accepted_candidates,
+        rejected_candidates: result.rejected_candidates,
+        warnings: result.warnings
+      };
+    } catch {
+      return { id, ok: false, warnings: [], error: 'preflight_failed' };
+    }
+  });
+  return {
+    generated_at: generatedAt,
+    source: 'infopunks-pay-sh-radar',
+    count: results.length,
+    results,
+    warnings: []
   };
 }
 
@@ -166,6 +206,100 @@ export function buildSuperiorityReadiness(store: IntelligenceStore): RadarSuperi
     providers_with_proven_paid_execution: providersWithProof,
     providers_with_only_catalog_metadata: providersCatalogOnly,
     next_mappings_needed: buildNextMappingsNeeded(snapshot.endpoints)
+  };
+}
+
+export function buildBenchmarkReadiness(store: IntelligenceStore): RadarBenchmarkReadiness {
+  const snapshot = buildRadarExportSnapshot(store);
+  const providerIdsWithProof = new Set(
+    store.events
+      .filter((event) => event.payload && typeof event.payload === 'object' && (event.payload as Record<string, unknown>).proven_paid_execution === true)
+      .map((event) => event.provider_id ?? (typeof event.payload.providerId === 'string' ? event.payload.providerId : null))
+      .filter((id): id is string => Boolean(id))
+  );
+  const categories = new Map<string, NormalizedEndpointRecord[]>();
+  for (const endpoint of snapshot.endpoints) {
+    const category = (endpoint.category ?? 'unknown').toLowerCase();
+    if (!categories.has(category)) categories.set(category, []);
+    categories.get(category)?.push(endpoint);
+  }
+  const rows = Array.from(categories.entries()).map(([category, endpoints]) => {
+    const executable = endpoints.filter((item) => item.route_eligibility && Boolean(item.method) && Boolean(item.path));
+    const executableProviders = new Set(executable.map((item) => item.provider_id));
+    const pricingKnownCount = endpoints.filter((item) => pricingKnown(item.pricing)).length;
+    const historyCount = endpoints.filter((item) => hasHistory(store, item.provider_id, item.endpoint_id)).length;
+    const riskKnownCount = endpoints.filter((item) => buildEndpointRiskAssessment(store, item.endpoint_id)?.predictive_risk_level !== 'unknown').length;
+    const benchmarkReady = executableProviders.size >= 2 && executable.length >= 2;
+    const superiorityReady = benchmarkReady && Array.from(executableProviders).filter((providerId) => providerIdsWithProof.has(providerId)).length >= 2;
+    const missing: string[] = [];
+    if (executableProviders.size < 2) missing.push('need_at_least_two_executable_mappings');
+    if (pricingKnownCount < 2) missing.push('pricing_unknown_for_comparison');
+    if (!superiorityReady) missing.push('execution_evidence_missing_for_superiority');
+    return {
+      category,
+      executable_mapping_count: executable.length,
+      comparable_provider_count: executableProviders.size,
+      pricing_known_count: pricingKnownCount,
+      history_available_count: historyCount,
+      risk_known_count: riskKnownCount,
+      benchmark_ready: benchmarkReady,
+      superiority_ready: superiorityReady,
+      missing_requirements: missing,
+      recommended_next_mapping: `${category}: +${Math.max(0, 2 - executableProviders.size)} executable mapping(s)`,
+      metadata_only_warning: superiorityReady ? null : 'Catalog-estimated metadata is not execution-proven.'
+    };
+  }).sort((a, b) => a.category.localeCompare(b.category));
+  return {
+    generated_at: new Date().toISOString(),
+    source: 'infopunks-pay-sh-radar',
+    categories: rows,
+    benchmark_ready_categories: rows.filter((row) => row.benchmark_ready).map((row) => row.category),
+    superiority_ready_categories: rows.filter((row) => row.superiority_ready).map((row) => row.category),
+    not_ready_categories: rows.filter((row) => !row.benchmark_ready).map((row) => row.category),
+    missing_requirements: Array.from(new Set(rows.flatMap((row) => row.missing_requirements))),
+    recommended_next_mappings: rows.map((row) => row.recommended_next_mapping),
+    metadata_only_warning: 'Catalog-estimated is not execution-proven.'
+  };
+}
+
+export function deriveCostPerformanceFields(endpoint: NormalizedEndpointRecord) {
+  const normalized = normalizePricingForValue(endpoint.pricing);
+  const min = normalized.min;
+  const max = normalized.max;
+  const known = typeof min === 'number' || typeof max === 'number';
+  const estimateMin = min ?? max ?? null;
+  const estimateMax = max ?? min ?? null;
+  const spread = typeof estimateMin === 'number' && typeof estimateMax === 'number' ? Math.abs(estimateMax - estimateMin) : null;
+  const confidence = !known
+    ? 'unknown'
+    : spread !== null && spread > 0.5 * Math.max(estimateMax ?? 0, 0.0001)
+      ? 'low'
+      : normalized.clarity === 'clear'
+        ? 'high'
+        : 'medium';
+  const trustPerDollar = endpoint.provider_trust_score !== null && typeof estimateMax === 'number' && estimateMax > 0 ? round2(endpoint.provider_trust_score / estimateMax) : null;
+  const signalPerDollar = endpoint.provider_signal_score !== null && typeof estimateMax === 'number' && estimateMax > 0 ? round2(endpoint.provider_signal_score / estimateMax) : null;
+  const routeValueScore = endpoint.route_eligibility && confidence !== 'unknown' && typeof trustPerDollar === 'number' && typeof signalPerDollar === 'number'
+    ? Math.max(0, Math.min(100, Math.round((Math.min(100, trustPerDollar) * 0.55) + (Math.min(100, signalPerDollar) * 0.45))))
+    : null;
+  return {
+    pricing_known: known,
+    estimated_min_price: estimateMin,
+    estimated_max_price: estimateMax,
+    pricing_unit: normalized.unit ?? null,
+    pricing_source: 'catalog_estimated',
+    pricing_confidence: confidence as 'unknown' | 'low' | 'medium' | 'high',
+    price_description: normalized.raw ?? (known ? 'Catalog-estimated pricing' : 'Pricing unknown from catalog'),
+    trust_per_estimated_dollar: trustPerDollar,
+    signal_per_estimated_dollar: signalPerDollar,
+    route_value_score: routeValueScore,
+    value_score_reason: !known
+      ? 'pricing_unknown'
+      : !endpoint.route_eligibility
+        ? 'route_not_eligible'
+        : confidence === 'low'
+          ? 'low_confidence_catalog_estimate'
+          : 'catalog_estimated'
   };
 }
 
@@ -308,4 +442,29 @@ function buildNextMappingsNeeded(endpoints: NormalizedEndpointRecord[]) {
     if (providers.size < 2) needed.push(`${category}: +${2 - providers.size} executable mapping(s)`);
   }
   return needed.sort();
+}
+
+function pricingKnown(pricing: unknown) {
+  const parsed = normalizePricingForValue(pricing);
+  return typeof parsed.min === 'number' || typeof parsed.max === 'number';
+}
+
+function hasHistory(store: IntelligenceStore, providerId: string, endpointId: string) {
+  return store.events.some((event) => event.provider_id === providerId || event.endpoint_id === endpointId || event.entityId === providerId || event.entityId === endpointId);
+}
+
+function normalizePricingForValue(pricing: unknown) {
+  if (!pricing || typeof pricing !== 'object' || Array.isArray(pricing)) return { min: null as number | null, max: null as number | null, unit: null as string | null, raw: null as string | null, clarity: null as string | null };
+  const shape = pricing as Record<string, unknown>;
+  return {
+    min: typeof shape.min === 'number' && Number.isFinite(shape.min) ? shape.min : null,
+    max: typeof shape.max === 'number' && Number.isFinite(shape.max) ? shape.max : null,
+    unit: typeof shape.unit === 'string' ? shape.unit : null,
+    raw: typeof shape.raw === 'string' ? shape.raw : null,
+    clarity: typeof shape.clarity === 'string' ? shape.clarity : null
+  };
+}
+
+function round2(value: number) {
+  return Math.round(value * 100) / 100;
 }

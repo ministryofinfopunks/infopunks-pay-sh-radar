@@ -259,6 +259,30 @@ type RadarSuperiorityReadiness = {
   providers_with_only_catalog_metadata: string[];
   next_mappings_needed: string[];
 };
+type RadarBenchmarkCategory = {
+  category: string;
+  executable_mapping_count: number;
+  comparable_provider_count: number;
+  pricing_known_count: number;
+  history_available_count: number;
+  risk_known_count: number;
+  benchmark_ready: boolean;
+  superiority_ready: boolean;
+  missing_requirements: string[];
+  recommended_next_mapping: string;
+  metadata_only_warning: string | null;
+};
+type RadarBenchmarkReadiness = {
+  generated_at: string;
+  source: string;
+  categories: RadarBenchmarkCategory[];
+  benchmark_ready_categories: string[];
+  superiority_ready_categories: string[];
+  not_ready_categories: string[];
+  missing_requirements: string[];
+  recommended_next_mappings: string[];
+  metadata_only_warning: string;
+};
 type TrendDirection = 'improving' | 'stable' | 'degrading' | 'unknown';
 type RiskLevel = 'low' | 'watch' | 'elevated' | 'critical' | 'unknown';
 type RiskRecommendation = 'route normally' | 'route with caution' | 'required fallback route' | 'not recommended for routing' | 'insufficient history';
@@ -907,6 +931,7 @@ function RadarApp() {
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [compareResult, setCompareResult] = useState<RadarComparisonResult | null>(null);
   const [readiness, setReadiness] = useState<RadarSuperiorityReadiness | null>(null);
+  const [benchmarkReadiness, setBenchmarkReadiness] = useState<RadarBenchmarkReadiness | null>(null);
   const [providerDetail, setProviderDetail] = useState<ProviderDetail | null>(null);
   const [providerIntel, setProviderIntel] = useState<ProviderIntelligence | null>(null);
   const [radarEndpoints, setRadarEndpoints] = useState<NormalizedEndpointRecord[]>([]);
@@ -970,6 +995,7 @@ function RadarApp() {
         api<{ data: FeaturedProvider }>('/v1/providers/featured'),
         api<{ data: { endpoints?: NormalizedEndpointRecord[] } }>('/v1/radar/endpoints'),
         api<{ data: RadarSuperiorityReadiness }>('/v1/radar/superiority-readiness'),
+        api<{ data: RadarBenchmarkReadiness }>('/v1/radar/benchmark-readiness'),
         api<{ data: RadarEcosystemHistory }>('/v1/radar/history/ecosystem?window=24h'),
         api<{ data: RadarEcosystemRiskSummary }>('/v1/radar/risk/ecosystem')
       ]).then((results) => {
@@ -981,8 +1007,9 @@ function RadarApp() {
         const featured = results[4].status === 'fulfilled' ? results[4].value.data : null;
         const normalizedEndpoints = results[5].status === 'fulfilled' && Array.isArray(results[5].value?.data?.endpoints) ? results[5].value.data.endpoints : null;
         const readinessPayload = results[6].status === 'fulfilled' ? results[6].value?.data ?? null : null;
-        const ecosystemHistoryPayload = results[7].status === 'fulfilled' ? results[7].value?.data ?? null : null;
-        const ecosystemRiskPayload = results[8].status === 'fulfilled' ? results[8].value?.data ?? null : null;
+        const benchmarkReadinessPayload = results[7].status === 'fulfilled' ? results[7].value?.data ?? null : null;
+        const ecosystemHistoryPayload = results[8].status === 'fulfilled' ? results[8].value?.data ?? null : null;
+        const ecosystemRiskPayload = results[9].status === 'fulfilled' ? results[9].value?.data ?? null : null;
         setData((current) => current ? {
           ...current,
           providers: providers ?? current.providers,
@@ -992,6 +1019,7 @@ function RadarApp() {
         if (summary) setPulseSummary(summary);
         if (normalizedEndpoints) setRadarEndpoints(normalizedEndpoints);
         if (readinessPayload) setReadiness(readinessPayload);
+        if (benchmarkReadinessPayload) setBenchmarkReadiness(benchmarkReadinessPayload);
         if (ecosystemHistoryPayload) setEcosystemHistory(ecosystemHistoryPayload);
         if (ecosystemRiskPayload) setEcosystemRisk(ecosystemRiskPayload);
         if (ecosystemRiskPayload?.summary?.anomaly_watch) {
@@ -1562,6 +1590,8 @@ function RadarApp() {
             curl={preflightCurlFromText(preflightJsonInput)}
           />
           <ComparisonPanel providers={safeProviders} endpoints={radarEndpoints} mode={compareMode} selectedIds={compareIds} onModeChange={setCompareMode} onSelectionChange={setCompareIds} result={compareResult} onCompare={runComparison} />
+          <CostPerformancePanel endpoints={radarEndpoints} providerRiskById={providerRiskById} benchmarkReadiness={benchmarkReadiness} />
+          <BenchmarkReadinessPanel readiness={benchmarkReadiness} />
           <SuperiorityReadinessPanel readiness={readiness} />
           </div>
         </section>
@@ -2083,6 +2113,10 @@ function PreflightConsole({
       </label>
       <button className="execute compact" type="button" onClick={onRun} disabled={status === 'loading'}>{status === 'loading' ? 'Checking route...' : 'Run Preflight'}</button>
     </div>
+    <details className="preflight-json">
+      <summary>Batch preflight hint</summary>
+      <pre>{`POST /v1/radar/preflight/batch\n{\n  "queries":[{"id":"sol-price","intent":"get SOL price","category":"finance","constraints":{"min_trust":80,"prefer_reachable":true}}]\n}`}</pre>
+    </details>
     {error && <p className="route-state error">{error}</p>}
     {!result && status !== 'loading' && !error && <EmptyState title="No preflight decision yet." body="Ask Radar where an agent should route before spending." />}
     {status === 'loading' && <div className="preflight-skeleton" aria-label="Preflight loading"><span /><span /><span /></div>}
@@ -2258,6 +2292,45 @@ function SuperiorityReadinessPanel({ readiness }: { readiness: RadarSuperiorityR
   </section>;
 }
 
+function CostPerformancePanel({
+  endpoints,
+  providerRiskById,
+  benchmarkReadiness
+}: {
+  endpoints: NormalizedEndpointRecord[];
+  providerRiskById: Record<string, RadarRiskResponse>;
+  benchmarkReadiness: RadarBenchmarkReadiness | null;
+}) {
+  const readinessByCategory = new Map((benchmarkReadiness?.categories ?? []).map((item) => [item.category.toLowerCase(), item]));
+  const rows = endpoints.slice(0, 30).map((endpoint) => {
+    const pricing = endpoint.pricing && typeof endpoint.pricing === 'object' ? endpoint.pricing as Record<string, unknown> : {};
+    const min = typeof pricing.min === 'number' ? pricing.min : null;
+    const max = typeof pricing.max === 'number' ? pricing.max : null;
+    const known = min !== null || max !== null;
+    const est = known ? `${min ?? max} - ${max ?? min}` : 'Pricing unknown from catalog';
+    const conf = !known ? 'unknown' : (min !== null && max !== null && max > min * 2 ? 'low' : 'medium');
+    const priceMax = (max ?? min ?? null);
+    const value = endpoint.route_eligibility && endpoint.provider_trust_score !== null && typeof priceMax === 'number' && priceMax > 0 ? Math.min(100, Math.round(endpoint.provider_trust_score / priceMax)) : null;
+    const benchmark = readinessByCategory.get((endpoint.category ?? 'unknown').toLowerCase());
+    return { endpoint, est, conf, value, benchmark };
+  });
+  return <section className="panel" aria-label="Cost and performance intelligence">
+    <div className="phase3-panel-head">
+      <ScopeLabel scope="GLOBAL" />
+      <h2>Cost / Performance Intelligence</h2>
+    </div>
+    <div className="endpoint-list has-rows comparison-results">
+      {rows.map(({ endpoint, est, conf, value, benchmark }) => <div key={endpoint.endpoint_id} className={`endpoint ${endpoint.route_eligibility ? '' : 'degraded-card'}`}>
+        <strong>{endpoint.provider_name ?? endpoint.provider_id} / {endpoint.endpoint_name ?? endpoint.endpoint_id}</strong>
+        <small>category {endpoint.category ?? 'unknown'} / trust {endpoint.provider_trust_score ?? 'unknown'} / signal {endpoint.provider_signal_score ?? 'unknown'}</small>
+        <small>risk {providerRiskById[endpoint.provider_id]?.risk_level ?? 'unknown'} / route status {endpoint.route_eligibility ? 'route_eligible' : 'not_recommended'} / benchmark {benchmark?.benchmark_ready ? 'ready' : 'not ready'}</small>
+        <small>estimated price {est} / pricing confidence {conf === 'low' ? 'Low-confidence catalog estimate' : conf}</small>
+        <small>route value score {value ?? 'unknown'} {conf === 'unknown' ? '/ Pricing unknown from catalog' : ''}</small>
+      </div>)}
+    </div>
+  </section>;
+}
+
 function StatusPill({ state }: { state: 'healthy' | 'watch' | 'degraded' | 'critical' | 'unknown' }) {
   const labels = {
     healthy: 'Healthy',
@@ -2332,7 +2405,11 @@ function RadarExportPanel() {
     ['/v1/radar/scored-catalog', 'Export Scored Catalog JSON'],
     ['/v1/radar/providers', 'Export Providers JSON'],
     ['/v1/radar/endpoints', 'Export Endpoints JSON'],
-    ['/v1/radar/routes/candidates', 'Export Route Candidates JSON']
+    ['/v1/radar/routes/candidates', 'Export Route Candidates JSON'],
+    ['/v1/radar/export/providers.csv', 'Export Providers CSV'],
+    ['/v1/radar/export/endpoints.csv', 'Export Endpoints CSV'],
+    ['/v1/radar/export/route-candidates.csv', 'Export Route Candidates CSV'],
+    ['/v1/radar/export/degradations.csv', 'Export Degradations CSV']
   ] as const;
   return <section className="panel radar-export-panel" aria-label="Radar JSON exports">
     <div className="radar-export-copy">
@@ -2346,6 +2423,23 @@ function RadarExportPanel() {
         {label}
       </button>)}
     </div>
+  </section>;
+}
+
+function BenchmarkReadinessPanel({ readiness }: { readiness: RadarBenchmarkReadiness | null }) {
+  return <section className="panel superiority-readiness" aria-label="Benchmark Readiness panel">
+    <div className="phase3-panel-head">
+      <ScopeLabel scope="GLOBAL" />
+      <h2>Benchmark Readiness</h2>
+    </div>
+    <p className="panel-caption">"Benchmark ready" means routes are comparable. "Superiority ready" requires stronger execution evidence. "Catalog-estimated" is not execution-proven.</p>
+    {!readiness && <p className="muted">Benchmark readiness data unavailable.</p>}
+    {readiness && <div className="readiness-list-grid">
+      <CompactChipList title="ready categories" items={readiness.benchmark_ready_categories} emptyLabel="none" />
+      <CompactChipList title="not ready categories" items={readiness.not_ready_categories} emptyLabel="none" />
+      <CompactChipList title="superiority ready categories" items={readiness.superiority_ready_categories} emptyLabel="none" />
+      <CompactChipList title="next mappings needed" items={readiness.recommended_next_mappings} emptyLabel="none" wide />
+    </div>}
   </section>;
 }
 

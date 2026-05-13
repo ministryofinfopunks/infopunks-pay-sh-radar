@@ -162,8 +162,29 @@ No black-box score is emitted without supporting evidence.
   Compares 2-3 providers or endpoints across route-readiness metrics.
 - `GET /v1/radar/superiority-readiness`
   Returns route superiority proof readiness indicators.
+- `GET /v1/radar/benchmark-readiness`
+  Returns benchmark readiness by category/task with benchmark-ready vs superiority-ready split.
+- `POST /v1/radar/preflight/batch`
+  Runs multiple safe preflight checks in one request (max 25) with per-query success/error.
+- `GET /v1/radar/export/providers.csv`
+- `GET /v1/radar/export/endpoints.csv`
+- `GET /v1/radar/export/route-candidates.csv`
+- `GET /v1/radar/export/degradations.csv`
+  Read-only CSV exports with normalized safe fields only.
 
 These export routes are read-only JSON views. They do not execute paid Pay.sh APIs.
+CSV routes are also read-only and do not execute paid Pay.sh APIs.
+
+Cost/performance fields are catalog-estimated unless execution evidence exists:
+- `pricing_known`, `estimated_min_price`, `estimated_max_price`, `pricing_unit`, `pricing_source`
+- `pricing_confidence`: `unknown | low | medium | high`
+- `price_description`, `trust_per_estimated_dollar`, `signal_per_estimated_dollar`
+- `route_value_score`, `value_score_reason`
+
+Rules:
+- Unknown pricing stays unknown (`pricing_known=false`).
+- Broad ranges (example `$0-$100`) are low-confidence catalog estimates.
+- Superiority is never claimed from catalog metadata only.
 
 ---
 

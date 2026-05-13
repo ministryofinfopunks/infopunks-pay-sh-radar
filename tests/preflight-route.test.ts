@@ -793,4 +793,36 @@ describe('preflight API', () => {
     expect(body.requiredCapabilities).toEqual(['market_data', 'pricing']);
     await app.close();
   });
+
+  it('supports radar batch preflight success and partial failures', async () => {
+    const app = await createApp(preflightStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/radar/preflight/batch',
+      payload: {
+        queries: [
+          { id: 'sol-price', intent: 'get SOL price', category: 'finance', constraints: { min_trust: 80, prefer_reachable: true } },
+          { id: 'bad', category: 'finance' }
+        ]
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.count).toBe(2);
+    expect(body.results.find((item: any) => item.id === 'sol-price')?.ok).toBe(true);
+    expect(body.results.find((item: any) => item.id === 'bad')?.ok).toBe(false);
+    await app.close();
+  });
+
+  it('enforces radar batch preflight size limit', async () => {
+    const app = await createApp(preflightStore());
+    const queries = Array.from({ length: 26 }, (_, i) => ({ id: `q-${i + 1}`, intent: 'get SOL price', category: 'finance' }));
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/radar/preflight/batch',
+      payload: { queries }
+    });
+    expect(response.statusCode).toBe(400);
+    await app.close();
+  });
 });

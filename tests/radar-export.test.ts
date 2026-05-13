@@ -167,4 +167,53 @@ describe('radar exports', () => {
 
     await app.close();
   });
+
+  it('serves providers and endpoints CSV exports with csv content type', async () => {
+    const app = await createApp(storeFromCatalog(completeCatalog));
+    const providersCsv = await app.inject({ method: 'GET', url: '/v1/radar/export/providers.csv' });
+    const endpointsCsv = await app.inject({ method: 'GET', url: '/v1/radar/export/endpoints.csv' });
+    expect(providersCsv.statusCode).toBe(200);
+    expect(providersCsv.headers['content-type']).toContain('text/csv');
+    expect(providersCsv.body).toContain('provider_id');
+    expect(endpointsCsv.statusCode).toBe(200);
+    expect(endpointsCsv.headers['content-type']).toContain('text/csv');
+    expect(endpointsCsv.body).toContain('endpoint_id');
+    await app.close();
+  });
+
+  it('escapes commas quotes and newlines in CSV rows', async () => {
+    const store = storeFromCatalog(completeCatalog);
+    store.providers[0].name = 'Alpha, "API"\nLine';
+    const app = await createApp(store);
+    const response = await app.inject({ method: 'GET', url: '/v1/radar/export/providers.csv' });
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toContain('"Alpha, ""API""\nLine"');
+    await app.close();
+  });
+
+  it('includes route candidates and degradations CSV exports', async () => {
+    const store = storeFromCatalog(completeCatalog);
+    store.events.push({
+      id: 'evt-degraded',
+      type: 'provider.degraded',
+      source: 'safe_metadata',
+      entityType: 'provider',
+      entityId: 'alpha',
+      provider_id: 'alpha',
+      endpoint_id: null,
+      observedAt: '2026-01-02T00:00:00.000Z',
+      observed_at: '2026-01-02T00:00:00.000Z',
+      catalog_generated_at: null,
+      ingested_at: '2026-01-02T00:00:00.000Z',
+      payload: { providerId: 'alpha', summary: null }
+    } as any);
+    const app = await createApp(store);
+    const routes = await app.inject({ method: 'GET', url: '/v1/radar/export/route-candidates.csv' });
+    const degradations = await app.inject({ method: 'GET', url: '/v1/radar/export/degradations.csv' });
+    expect(routes.statusCode).toBe(200);
+    expect(routes.body).toContain('route_value_score');
+    expect(degradations.statusCode).toBe(200);
+    expect(degradations.body).toContain('evt-degraded');
+    await app.close();
+  });
 });

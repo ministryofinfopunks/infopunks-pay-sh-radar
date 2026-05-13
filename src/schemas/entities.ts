@@ -437,8 +437,13 @@ export const RadarPreflightConstraintsSchema = z.object({
 
 export const RadarPreflightRequestSchema = z.object({
   intent: z.string().min(1),
+  id: z.string().min(1).optional(),
   category: z.string().optional(),
   constraints: RadarPreflightConstraintsSchema
+});
+
+export const RadarBatchPreflightRequestSchema = z.object({
+  queries: z.array(z.unknown()).min(1).max(25)
 });
 
 export const RadarRouteCandidateSchema = z.object({
@@ -499,6 +504,24 @@ export const RadarPreflightResponseSchema = z.object({
   superiority_evidence_available: z.boolean()
 });
 
+export const RadarBatchPreflightResultSchema = z.object({
+  id: z.string(),
+  ok: z.boolean(),
+  recommended_route: RadarRouteCandidateSchema.nullable().optional(),
+  accepted_candidates: z.array(RadarRouteCandidateSchema).optional(),
+  rejected_candidates: z.array(RadarRouteCandidateSchema).optional(),
+  warnings: z.array(z.string()),
+  error: z.string().optional()
+});
+
+export const RadarBatchPreflightResponseSchema = z.object({
+  generated_at: z.string().datetime(),
+  source: z.literal('infopunks-pay-sh-radar'),
+  count: z.number().int().nonnegative(),
+  results: z.array(RadarBatchPreflightResultSchema),
+  warnings: z.array(z.string())
+});
+
 export const RadarComparisonRequestSchema = z.object({
   mode: z.enum(['provider', 'endpoint']).default('provider'),
   ids: z.array(z.string().min(1)).min(2).max(3)
@@ -548,6 +571,32 @@ export const RadarSuperiorityReadinessSchema = z.object({
   providers_with_proven_paid_execution: z.array(z.string()),
   providers_with_only_catalog_metadata: z.array(z.string()),
   next_mappings_needed: z.array(z.string())
+});
+
+export const RadarBenchmarkCategorySchema = z.object({
+  category: z.string(),
+  executable_mapping_count: z.number().int().nonnegative(),
+  comparable_provider_count: z.number().int().nonnegative(),
+  pricing_known_count: z.number().int().nonnegative(),
+  history_available_count: z.number().int().nonnegative(),
+  risk_known_count: z.number().int().nonnegative(),
+  benchmark_ready: z.boolean(),
+  superiority_ready: z.boolean(),
+  missing_requirements: z.array(z.string()),
+  recommended_next_mapping: z.string(),
+  metadata_only_warning: z.string().nullable()
+});
+
+export const RadarBenchmarkReadinessSchema = z.object({
+  generated_at: z.string().datetime(),
+  source: z.literal('infopunks-pay-sh-radar'),
+  categories: z.array(RadarBenchmarkCategorySchema),
+  benchmark_ready_categories: z.array(z.string()),
+  superiority_ready_categories: z.array(z.string()),
+  not_ready_categories: z.array(z.string()),
+  missing_requirements: z.array(z.string()),
+  recommended_next_mappings: z.array(z.string()),
+  metadata_only_warning: z.string()
 });
 
 export const RadarRiskAnomalySchema = z.object({
@@ -692,9 +741,12 @@ export type PreflightRequest = z.infer<typeof PreflightRequestSchema>;
 export type PreflightResponse = z.infer<typeof PreflightResponseSchema>;
 export type RadarPreflightRequest = z.infer<typeof RadarPreflightRequestSchema>;
 export type RadarPreflightResponse = z.infer<typeof RadarPreflightResponseSchema>;
+export type RadarBatchPreflightRequest = z.infer<typeof RadarBatchPreflightRequestSchema>;
+export type RadarBatchPreflightResponse = z.infer<typeof RadarBatchPreflightResponseSchema>;
 export type RadarComparisonRequest = z.infer<typeof RadarComparisonRequestSchema>;
 export type RadarComparisonResponse = z.infer<typeof RadarComparisonResponseSchema>;
 export type RadarSuperiorityReadiness = z.infer<typeof RadarSuperiorityReadinessSchema>;
+export type RadarBenchmarkReadiness = z.infer<typeof RadarBenchmarkReadinessSchema>;
 export type RadarRiskAnomaly = z.infer<typeof RadarRiskAnomalySchema>;
 export type RadarRiskResponse = z.infer<typeof RadarRiskResponseSchema>;
 export type RadarEcosystemRiskSummary = z.infer<typeof RadarEcosystemRiskSummarySchema>;
