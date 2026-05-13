@@ -523,7 +523,8 @@ describe('radar endpoint intelligence UI', () => {
       setInputValue(input!, 'no-match-provider');
     });
 
-    expect(container.textContent).toContain('No providers match the current directory filters.');
+    expect(container.textContent).toContain('No providers found.');
+    expect(container.textContent).toContain('Adjust the search, category filter, or sort order.');
   });
 
   it('endpoint intelligence query filtering works on available endpoint rows', async () => {

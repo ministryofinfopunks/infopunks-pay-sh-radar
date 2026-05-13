@@ -182,6 +182,10 @@ describe('web accessibility landmarks', () => {
     expect(container.querySelector('[role="group"][aria-label="Filter providers by category"]')).not.toBeNull();
     expect(container.querySelector('input[aria-label="Toggle featured provider rotation"]')).not.toBeNull();
     expect(container.querySelector('textarea[aria-label="Route task text"]')).not.toBeNull();
+    expect(container.querySelector('textarea[aria-label="Agent preflight JSON input"]')).not.toBeNull();
+    expect(container.querySelector('button[aria-label="Copy API URL"]')).not.toBeNull();
+    expect(container.querySelector('button[aria-label="Copy OpenAPI URL"]')).not.toBeNull();
+    expect(container.querySelector('.safe-code-block[aria-label="Batch preflight example"]')).not.toBeNull();
     expect(container.textContent).toContain('[OK] reachable');
   });
 });

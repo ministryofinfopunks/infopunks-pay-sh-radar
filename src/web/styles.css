@@ -788,16 +788,23 @@ body::after {
   letter-spacing: .08em;
 }
 
-.endpoint-json-panel pre {
+.endpoint-json-panel pre,
+.safe-code-block {
   max-width: 100%;
   max-height: 280px;
   margin: 0;
   overflow: auto;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
+  white-space: pre;
+  overflow-wrap: normal;
   color: #cfe9d8;
   font-size: 11.5px;
   line-height: 1.45;
+}
+
+.safe-code-block {
+  min-width: 0;
+  border-radius: 10px;
+  scrollbar-gutter: stable;
 }
 
 .semantic-search-panel {
@@ -2684,7 +2691,8 @@ body::after { opacity: .18; }
 }
 
 .preflight-json pre,
-.curl-block pre {
+.curl-block pre,
+.safe-code-block {
   max-width: 100%;
   max-height: 320px;
   margin: 0;
@@ -3218,10 +3226,15 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 .endpoint-title small,
 .endpoint span,
 .key-values span,
-.receipt-grid span,
+.receipt-grid span { overflow-wrap: anywhere; word-break: break-word; }
+
 .curl-block pre,
 .preflight-json pre,
-.endpoint-json-panel pre { overflow-wrap: anywhere; word-break: break-word; }
+.endpoint-json-panel pre,
+.safe-code-block {
+  overflow-wrap: normal;
+  word-break: normal;
+}
 
 @media (max-width: 1080px) {
   .freshness-grid,
@@ -3317,4 +3330,132 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 @media (max-width: 768px) {
   .history-grid { grid-template-columns: minmax(0, 1fr); }
   .sparkline { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Phase 9 hardening: mobile containment, command palette accessibility, and safe code scrolling. */
+.command-palette:focus {
+  outline: none;
+}
+
+.copy-chip[aria-live="polite"] {
+  min-width: 118px;
+}
+
+.dossier-badges .copy-chip,
+.endpoint-copy-actions .copy-chip {
+  min-height: 40px;
+}
+
+@media (max-width: 768px) {
+  .command-palette-backdrop {
+    align-items: start;
+    place-items: start center;
+    padding: calc(10px + env(safe-area-inset-top)) 10px 10px;
+    overflow: auto;
+  }
+
+  .command-palette {
+    width: min(100%, 440px);
+    max-height: calc(100dvh - 20px - env(safe-area-inset-top));
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    overflow: hidden;
+  }
+
+  .command-list {
+    max-height: none;
+    min-height: 0;
+  }
+
+  .command-list button {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 52px;
+    gap: 4px;
+  }
+
+  .command-list button strong,
+  .command-list button span {
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+
+  .agent-mode-shell .ecosystem-layout {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .agent-mode-banner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .agent-mode-actions,
+  .panel-actions,
+  .endpoint-copy-actions,
+  .export-copy-actions {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .agent-mode-actions .execute,
+  .agent-mode-actions .copy-chip,
+  .panel-actions .copy-chip,
+  .endpoint-copy-actions .execute,
+  .endpoint-copy-actions .copy-chip,
+  .export-copy-actions .copy-chip {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .comparison-results,
+  .endpoint-intelligence-list,
+  .endpoint-json-grid,
+  .preflight-result-grid,
+  .readiness-list-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    overflow-x: hidden;
+  }
+
+  .safe-code-block,
+  .preflight-json pre,
+  .curl-block pre,
+  .endpoint-json-panel pre,
+  .methodology-code-block {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+    white-space: pre;
+    word-break: normal;
+    overflow-wrap: normal;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .preflight-json summary,
+  .curl-block > div {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .preflight-json .copy-chip,
+  .curl-block .copy-chip {
+    width: 100%;
+    min-height: 44px;
+    margin: 0;
+  }
+
+  .comparison-controls select[multiple] {
+    min-height: 148px;
+  }
+
+  .endpoint-tags b,
+  .endpoint-flags span,
+  .compact-chip-wrap span,
+  .risk-badge,
+  .status-pill {
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+
+  .anchor-target {
+    top: -136px;
+  }
 }

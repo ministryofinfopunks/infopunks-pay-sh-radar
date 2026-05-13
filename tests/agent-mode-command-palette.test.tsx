@@ -148,6 +148,7 @@ describe('agent mode and command palette', () => {
     await act(async () => {
       window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true }));
       await Promise.resolve();
+      await new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()));
     });
 
     expect(container.querySelector('[role="dialog"][aria-label="Command palette"]')).not.toBeNull();
@@ -157,12 +158,32 @@ describe('agent mode and command palette', () => {
 
     const input = container.querySelector('input[aria-label="Search commands"]');
     expect(input).not.toBeNull();
+    expect(document.activeElement).toBe(input);
+    expect(input?.getAttribute('aria-controls')).toBe('command-palette-list');
+    expect(input?.getAttribute('aria-activedescendant')).toBe('command-focus-search');
+    expect(container.querySelector('#command-focus-search')?.getAttribute('aria-label')).toContain('Focus Semantic Search');
     await act(async () => {
       input!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
       await Promise.resolve();
     });
 
     expect(container.querySelector('[role="dialog"][aria-label="Command palette"]')).toBeNull();
+  });
+
+  it('renders mobile-safe actionable Agent Mode sections and accessible copy/code controls', async () => {
+    root = await renderApp(container);
+
+    clickButton(container, 'Agent Mode');
+
+    for (const text of ['Export Intelligence', 'Agent Preflight', 'Provider/Endpoint Comparison Engine', 'Cost / Performance Intelligence', 'Benchmark Readiness', 'Superiority Proof Readiness', 'Anomaly Watch']) {
+      expect(container.textContent).toContain(text);
+    }
+
+    expect(container.querySelector('button[aria-label="Copy OpenAPI URL"]')).not.toBeNull();
+    expect(container.querySelector('button[aria-label="Copy API URL"]')).not.toBeNull();
+    expect(container.querySelector('.safe-code-block[aria-label="Batch preflight example"]')).not.toBeNull();
+    expect(container.textContent).toContain('No comparison selected.');
+    expect(container.textContent).toContain('No anomalies detected.');
   });
 
   it('command palette includes expected commands and can toggle Agent Mode', async () => {

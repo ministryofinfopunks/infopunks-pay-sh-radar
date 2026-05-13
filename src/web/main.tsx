@@ -894,10 +894,10 @@ function PublicReceiptPage({ eventId }: { eventId: string }) {
 
       <section className="grid two">
         <DossierSection title="Structured Event Summary">
-          <pre className="methodology-code-block">{JSON.stringify(receipt.summary, null, 2)}</pre>
+          <SafeCodeBlock value={JSON.stringify(receipt.summary, null, 2)} label="Structured event summary JSON" />
         </DossierSection>
         <DossierSection title="Raw Event Summary">
-          <pre className="methodology-code-block">{receipt.raw_summary}</pre>
+          <SafeCodeBlock value={receipt.raw_summary} label="Raw event summary" />
         </DossierSection>
       </section>
     </main>
@@ -1343,12 +1343,12 @@ function RadarApp() {
       payload = JSON.parse(preflightJsonInput) as Record<string, unknown>;
     } catch {
       setPreflightStatus('error');
-      setPreflightError('malformed JSON input');
+      setPreflightError('Malformed preflight input. Fix JSON syntax and try again.');
       return;
     }
     if (typeof payload.intent !== 'string' || !payload.intent.trim()) {
       setPreflightStatus('error');
-      setPreflightError('preflight intent required');
+      setPreflightError('Malformed preflight input. Add a non-empty intent field and try again.');
       return;
     }
     setPreflightStatus('loading');
@@ -1711,7 +1711,7 @@ function RadarApp() {
             {filteredProviders.map((provider) => <button key={provider.id} type="button" aria-pressed={provider.id === selectedProvider?.id} className={provider.id === selectedProvider?.id ? 'active row' : 'row'} onClick={() => selectProviderManually(provider.id)}>
               <span>{provider.name}</span><SeverityBadge evidence={provider} /><PredictiveRiskBadge risk={toRiskContext(providerRiskById[provider.id])} compact /><small>{provider.category} / {provider.endpointCount} endpoints / trust {provider.latestTrustScore ?? 'unknown'}</small>
             </button>)}
-            {!filteredProviders.length && <p className="muted empty-state">No providers match the current directory filters.</p>}
+            {!filteredProviders.length && <EmptyState title="No providers found." body="Adjust the search, category filter, or sort order." />}
           </div>
         </div>
         <div className="panel intelligence dossier">
@@ -1750,6 +1750,7 @@ function RadarApp() {
                 <span>{selectedProvider.hasMetering || selectedProvider.status === 'metered' ? 'metering' : 'metering unknown'}</span>
                 <SeverityBadge evidence={providerIntel ?? selectedProvider} />
                 <PredictiveRiskBadge risk={toRiskContext(providerRisk)} />
+                <CopyButton value={selectedProvider.id} label="Copy provider id" />
               </div>
             </div>
             <div className="intel-summary">
@@ -1969,7 +1970,7 @@ function RadarApp() {
                 <EvidenceReceiptView evidence={endpointProvider} title="Evidence" compact />
               </div>
             </>}
-            {!endpointRows.length && reportedEndpointCount === 0 && <p className="endpoint-state">No endpoints reported by the live Pay.sh catalog.</p>}
+            {!endpointRows.length && reportedEndpointCount === 0 && <EmptyState title="No endpoints found." body="The selected provider has no endpoint rows in the current catalog." />}
           </div>
         </div>
         <div className="panel">
@@ -2035,7 +2036,7 @@ function RadarApp() {
           </div>
           <div className="mini-feed">
             {sortBySeverity(pulseSummary.recentDegradations).map((event) => <div className={`severity-${normalSeverity(event.severity)} degraded-card`} key={event.id}><SeverityBadge evidence={event} /><strong>{event.providerName ?? event.entityId}</strong><span>{event.summary}</span><small>Route implication: Not recommended for routing.</small><small>last seen healthy: {formatDate(null)}</small><small>{formatShortDate(event.observedAt)}</small><EvidenceReceiptView evidence={event} title="Evidence" compact /></div>)}
-            {!pulseSummary.recentDegradations.length && <p className="muted empty-state">No service reachability degradations observed.</p>}
+            {!pulseSummary.recentDegradations.length && <EmptyState title="No degradations detected." body="Safe metadata monitors have not reported recent reachability degradation." />}
           </div>
         </div>
       </aside>}
@@ -2151,6 +2152,8 @@ function CommandPalette({ open, commands, onClose }: { open: boolean; commands: 
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
     if (!needle) return commands;
@@ -2159,10 +2162,40 @@ function CommandPalette({ open, commands, onClose }: { open: boolean; commands: 
 
   useEffect(() => {
     if (!open) return;
+    previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setQuery('');
     setSelectedIndex(0);
     window.requestAnimationFrame(() => inputRef.current?.focus());
+    return () => {
+      previousFocusRef.current?.focus?.();
+    };
   }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const nodes = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])') ?? [])
+        .filter((node) => !node.hasAttribute('disabled') && node.getAttribute('aria-hidden') !== 'true');
+      if (!nodes.length) return;
+      const first = nodes[0];
+      const last = nodes[nodes.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [onClose, open]);
 
   useEffect(() => {
     setSelectedIndex(0);
@@ -2178,7 +2211,7 @@ function CommandPalette({ open, commands, onClose }: { open: boolean; commands: 
   return <div className="command-palette-backdrop" role="presentation" onMouseDown={(event) => {
     if (event.target === event.currentTarget) onClose();
   }}>
-    <section className="command-palette" role="dialog" aria-modal="true" aria-label="Command palette">
+    <section className="command-palette" role="dialog" aria-modal="true" aria-label="Command palette" ref={dialogRef}>
       <label>
         <span>Command</span>
         <input
@@ -2208,14 +2241,18 @@ function CommandPalette({ open, commands, onClose }: { open: boolean; commands: 
           }}
           placeholder="Search commands"
           aria-label="Search commands"
+          aria-controls="command-palette-list"
+          aria-activedescendant={filtered[selectedIndex] ? `command-${filtered[selectedIndex].id}` : undefined}
         />
       </label>
-      <div className="command-list" role="listbox" aria-label="Commands">
+      <div className="command-list" id="command-palette-list" role="listbox" aria-label="Commands">
         {filtered.map((command, index) => <button
           key={command.id}
+          id={`command-${command.id}`}
           type="button"
           role="option"
           aria-selected={index === selectedIndex}
+          aria-label={`${command.label}. ${command.hint}`}
           className={index === selectedIndex ? 'selected' : ''}
           onMouseEnter={() => setSelectedIndex(index)}
           onClick={() => activate(command)}
@@ -2290,7 +2327,7 @@ function PreflightConsole({
     </div>
     <details className="preflight-json">
       <summary>Batch preflight hint</summary>
-      <pre>{`POST /v1/radar/preflight/batch\n{\n  "queries":[{"id":"sol-price","intent":"get SOL price","category":"finance","constraints":{"min_trust":80,"prefer_reachable":true}}]\n}`}</pre>
+      <SafeCodeBlock value={`POST /v1/radar/preflight/batch\n{\n  "queries":[{"id":"sol-price","intent":"get SOL price","category":"finance","constraints":{"min_trust":80,"prefer_reachable":true}}]\n}`} label="Batch preflight example" />
     </details>
     {error && <p className="route-state error">{error}</p>}
     {!result && status !== 'loading' && !error && <EmptyState title="No preflight decision yet." body="Ask Radar where an agent should route before spending." />}
@@ -2339,14 +2376,14 @@ function PreflightResultView({ result, curl }: { result: PreflightResult; curl: 
     <details className="preflight-json">
       <summary>Raw preflight response</summary>
       <CopyButton value={JSON.stringify(result, null, 2)} label="Copy JSON" />
-      <pre>{JSON.stringify(result, null, 2)}</pre>
+      <SafeCodeBlock value={JSON.stringify(result, null, 2)} label="Raw preflight JSON response" />
     </details>
     <div className="curl-block">
       <div>
         <strong>curl</strong>
         <CopyButton value={curl} label="Copy curl" />
       </div>
-      <pre>{curl}</pre>
+      <SafeCodeBlock value={curl} label="Preflight curl command" />
     </div>
   </div>;
 }
@@ -2421,6 +2458,7 @@ function ComparisonPanel({
         <option>last observed</option>
       </select>
     </div>}
+    {!result && <EmptyState title="No comparison selected." body="Select two or three providers or endpoints, then run Compare." />}
     {result && <div className="endpoint-list has-rows comparison-results">{visibleRows.map((row) => <div className={`endpoint ${row.route_recommendation === 'not_recommended' || row.degradation_count > 0 ? 'degraded-card' : ''}`} key={row.id}>
       <strong>{row.name}</strong>
       <PredictiveRiskBadge risk={toRiskContextFromRow(row)} compact />
@@ -2447,9 +2485,9 @@ function SuperiorityReadinessPanel({ readiness }: { readiness: RadarSuperiorityR
     </div>
     <p className="route-state">{statement}</p>
     <p className="panel-caption">Superiority requires at least two executable provider mappings in the same benchmark category.</p>
-    {!readiness && <p className="muted">Readiness data unavailable.</p>}
+    {!readiness && <EmptyState title="Benchmark not ready." body="Readiness data is unavailable. Refresh once catalog history loads." />}
     {readiness && <>
-      {readiness.executable_provider_mappings_count === 0 && <p className="route-state warn">No executable provider mappings detected yet.</p>}
+      {readiness.executable_provider_mappings_count === 0 && <p className="route-state warn">No executable provider mappings detected yet. Add comparable mappings before claiming superiority.</p>}
       <div className="readiness-metric">
         <span>executable provider mappings</span>
         <strong>{readiness.executable_provider_mappings_count}</strong>
@@ -2503,6 +2541,7 @@ function CostPerformancePanel({
         <small>estimated price {est} / pricing confidence {conf === 'low' ? 'Low-confidence catalog estimate' : conf}</small>
         <small>route value score {value ?? 'unknown'} {conf === 'unknown' ? '/ Pricing unknown from catalog' : ''}</small>
       </div>)}
+      {!rows.length && <EmptyState title="Pricing unknown." body="No endpoint cost records are available yet. Load endpoint exports or check catalog freshness." />}
     </div>
   </section>;
 }
@@ -2537,7 +2576,7 @@ function SeverityBanner({ state, title, body }: { state: 'healthy' | 'watch' | '
 }
 
 function EmptyState({ title, body }: { title: string; body: string }) {
-  return <div className="empty-state polished-empty">
+  return <div className="empty-state polished-empty" role="status">
     <strong>{title}</strong>
     <span>{body}</span>
   </div>;
@@ -2573,7 +2612,8 @@ function CopyButton({ value, label }: { value: string; label: string }) {
     setState(copied ? 'copied' : 'failed');
     window.setTimeout(() => setState('idle'), 1400);
   }
-  return <button className="copy-chip" type="button" onClick={copy}>{state === 'copied' ? 'Copied' : state === 'failed' ? 'Copy failed' : label}</button>;
+  const visibleLabel = state === 'copied' ? 'Copied' : state === 'failed' ? 'Failed to copy' : label;
+  return <button className="copy-chip" type="button" onClick={copy} aria-label={label} aria-live="polite">{visibleLabel}</button>;
 }
 
 function RadarExportPanel() {
@@ -2616,7 +2656,7 @@ function BenchmarkReadinessPanel({ readiness }: { readiness: RadarBenchmarkReadi
       <h2>Benchmark Readiness</h2>
     </div>
     <p className="panel-caption">"Benchmark ready" means routes are comparable. "Superiority ready" requires stronger execution evidence. "Catalog-estimated" is not execution-proven.</p>
-    {!readiness && <p className="muted">Benchmark readiness data unavailable.</p>}
+    {!readiness && <EmptyState title="Benchmark not ready." body="Readiness data is unavailable. Refresh once catalog history loads." />}
     {readiness && <div className="readiness-list-grid">
       <CompactChipList title="ready categories" items={readiness.benchmark_ready_categories} emptyLabel="none" />
       <CompactChipList title="not ready categories" items={readiness.not_ready_categories} emptyLabel="none" />
@@ -2699,8 +2739,8 @@ function EndpointIntelligenceSection({
       {filters.map(([value, label]) => <button key={value} type="button" className={filter === value ? 'selected' : ''} aria-pressed={filter === value} onClick={() => onFilterChange(value)}>{label}</button>)}
     </div>
     {!allRows.length && reportedEndpointCount > 0 && <p className="endpoint-state">Mapping incomplete. Pay.sh catalog reports {reportedEndpointCount} endpoints, but endpoint-level mappings are not available in the current payload.</p>}
-    {!allRows.length && reportedEndpointCount === 0 && <p className="endpoint-state">No endpoints reported by the live Pay.sh catalog.</p>}
-    {!!allRows.length && !visibleRows.length && <p className="endpoint-state">No endpoints match this filter.</p>}
+    {!allRows.length && reportedEndpointCount === 0 && <EmptyState title="No endpoints found." body="The live catalog reports no endpoints for this provider." />}
+    {!!allRows.length && !visibleRows.length && <EmptyState title="No endpoints found." body="Adjust the endpoint search, filter, or sort order." />}
     <div className="endpoint-intelligence-list">
       {visibleRows.map((row) => {
         const endpoint = row.normalized;
@@ -2744,13 +2784,15 @@ function EndpointIntelligenceSection({
             {endpointRisk && <p className="route-state">{toRiskContext(endpointRisk)?.recommended_action ?? 'insufficient history'}.</p>}
             <div className="endpoint-copy-actions">
               <button className="execute compact secondary" type="button" onClick={() => copyEndpoint(copyKey, json, 'json')}>
-                {copyState[copyKey] === 'json' ? 'Copied JSON' : copyState[copyKey] === 'failed' ? 'Copy failed' : 'Copy JSON'}
+                {copyState[copyKey] === 'json' ? 'Copied' : copyState[copyKey] === 'failed' ? 'Failed to copy' : 'Copy JSON'}
               </button>
               {curl.command
                 ? <button className="execute compact secondary" type="button" onClick={() => copyEndpoint(`${copyKey}:curl`, curl.command!, 'curl')}>
-                  {copyState[`${copyKey}:curl`] === 'curl' ? 'Copied curl' : copyState[`${copyKey}:curl`] === 'failed' ? 'Copy failed' : 'Copy curl'}
+                  {copyState[`${copyKey}:curl`] === 'curl' ? 'Copied' : copyState[`${copyKey}:curl`] === 'failed' ? 'Failed to copy' : 'Copy curl'}
                 </button>
                 : <span className="curl-unavailable">curl unavailable: endpoint mapping incomplete</span>}
+              <CopyButton value={endpoint.endpoint_id} label="Copy endpoint id" />
+              <CopyButton value={endpoint.provider_id} label="Copy provider id" />
             </div>
             <div className="endpoint-json-grid">
               <JsonPanel title="Normalized Endpoint JSON" value={endpoint} />
@@ -2785,8 +2827,12 @@ function JsonPanel({ title, value }: { title: string; value: unknown }) {
   const empty = value === null || value === undefined || (typeof value === 'object' && !Array.isArray(value) && Object.keys(value as Record<string, unknown>).length === 0);
   return <div className="endpoint-json-panel">
     <strong>{title}</strong>
-    <pre>{empty ? 'unavailable' : JSON.stringify(value, null, 2)}</pre>
+    <SafeCodeBlock value={empty ? 'unavailable' : JSON.stringify(value, null, 2)} label={title} />
   </div>;
+}
+
+function SafeCodeBlock({ value, label }: { value: string; label: string }) {
+  return <pre className="safe-code-block" tabIndex={0} aria-label={label}>{value}</pre>;
 }
 
 function StatusChip({ label, value, state }: { label: string; value: string; state: EcosystemStatusState }) {
@@ -2936,7 +2982,7 @@ function AnomalyWatchPanel({ ecosystemRisk }: { ecosystemRisk: RadarEcosystemRis
       <span>critical {ecosystemRisk.summary.providers_by_risk_level.critical}</span>
       <span>unknown {ecosystemRisk.summary.providers_by_risk_level.unknown}</span>
     </div>}
-    {!watch.length && <p className="muted empty-state">No active anomaly watch entries.</p>}
+    {!watch.length && <EmptyState title="No anomalies detected." body="No current predictive-risk anomaly requires attention." />}
     <div className="endpoint-list has-rows">
       {watch.slice(0, 10).map((item) => <details className={`endpoint-intelligence-card anomaly-card risk-${item.severity}`} key={`${item.subject_type}:${item.provider_id ?? 'none'}:${item.endpoint_id ?? 'none'}:${item.anomaly_type}:${item.detected_at}`}>
         <summary>
@@ -2961,7 +3007,7 @@ function AnomalyWatchPanel({ ecosystemRisk }: { ecosystemRisk: RadarEcosystemRis
           ]} />
           <details className="preflight-json">
             <summary>Evidence</summary>
-            <pre>{JSON.stringify(item.evidence, null, 2)}</pre>
+            <SafeCodeBlock value={JSON.stringify(item.evidence, null, 2)} label="Anomaly evidence JSON" />
           </details>
         </div>
       </details>)}
