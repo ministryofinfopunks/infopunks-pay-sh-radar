@@ -39,9 +39,21 @@ export async function createIntelligenceStore(repository: IntelligenceRepository
 }
 
 export async function runPayShIngestion(store: IntelligenceStore, repository: IntelligenceRepository, catalogUrl?: string) {
-  const { items, source, usedFixture, dataSource } = await loadPayShCatalog(catalogUrl, {
-    catalogSource: process.env.PAYSH_CATALOG_SOURCE === 'live' ? 'live' : 'fixture',
-    allowFixtureFallback: process.env.PAYSH_ALLOW_FIXTURE_FALLBACK === 'true' || process.env.NODE_ENV !== 'production'
+  return runPayShIngestionWithOptions(store, repository, { catalogUrl });
+}
+
+export async function runPayShIngestionWithOptions(
+  store: IntelligenceStore,
+  repository: IntelligenceRepository,
+  options: {
+    catalogUrl?: string;
+    catalogSource?: 'live' | 'fixture';
+    allowFixtureFallback?: boolean;
+  } = {}
+) {
+  const { items, source, usedFixture, dataSource } = await loadPayShCatalog(options.catalogUrl, {
+    catalogSource: options.catalogSource ?? (process.env.PAYSH_CATALOG_SOURCE === 'live' ? 'live' : 'fixture'),
+    allowFixtureFallback: options.allowFixtureFallback ?? (process.env.PAYSH_ALLOW_FIXTURE_FALLBACK === 'true' || process.env.NODE_ENV !== 'production')
   });
   if (items.length === 0 && dataSource.mode === 'live_pay_sh_catalog' && dataSource.error) {
     store.dataSource = {

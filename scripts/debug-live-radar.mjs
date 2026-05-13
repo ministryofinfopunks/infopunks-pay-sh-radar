@@ -36,6 +36,9 @@ async function main() {
   console.log(`API /v1/pulse data.bootstrapped: ${pulseData.bootstrapped ?? false}`);
   console.log(`API /v1/pulse data.catalog_status: ${pulseData.catalog_status ?? 'unknown'}`);
   console.log(`API /v1/pulse data.data_source: ${JSON.stringify(pulseData.data_source ?? null)}`);
+  if (pulseData?.data_source?.error === 'bootstrap_not_called') {
+    console.log('Bootstrap was not invoked. Check server startup and lazy route bootstrap wiring.');
+  }
   console.log(`API /v1/radar/endpoints data.endpoint_metadata: ${JSON.stringify(radarEndpointsData.endpoint_metadata ?? null)}`);
   console.log(`API /v1/radar/endpoints data.endpoints length: ${Array.isArray(radarEndpointsData.endpoints) ? radarEndpointsData.endpoints.length : 0}`);
 }

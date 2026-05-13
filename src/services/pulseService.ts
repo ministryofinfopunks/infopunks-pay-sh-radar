@@ -271,7 +271,7 @@ export function dataSourceState(store: IntelligenceStore, generatedAt = new Date
     provider_count: providerCount,
     last_ingested_at: store.ingestionRuns[0]?.finishedAt ?? generatedAt,
     used_fixture: true,
-    error: 'bootstrap_not_called'
+    error: 'pulse_state_inconsistent'
   };
 }
 

@@ -4,7 +4,7 @@ import { createReadStream, existsSync } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve } from 'node:path';
 import { z } from 'zod';
-import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, IntelligenceStore, runPayShIngestion } from '../services/intelligenceStore';
+import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, IntelligenceStore, runPayShIngestion, runPayShIngestionWithOptions } from '../services/intelligenceStore';
 import { IntelligenceRepository } from '../persistence/repository';
 import { recommendRoute } from '../services/routeService';
 import { semanticSearch } from '../services/searchService';
@@ -34,6 +34,7 @@ import { buildRadarExportSnapshot, safeJsonExport } from '../services/radarExpor
 import { buildSuperiorityReadiness, runRadarComparison, runRadarPreflight } from '../services/radarRouteIntelligenceService';
 import { buildEcosystemHistory, buildEndpointHistory, buildProviderHistory, normalizeHistoryWindow } from '../services/radarHistoryService';
 import { buildEcosystemRiskSummary, buildEndpointRiskAssessment, buildProviderRiskAssessment } from '../services/radarRiskService';
+import { DEFAULT_LIVE_CATALOG_URL } from '../ingestion/payShCatalogAdapter';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
 const MAX_INLINE_SUPPORTING_EVENT_IDS = 10;
@@ -84,6 +85,11 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   });
   const store = preloadedStore ?? emptyIntelligenceStore();
   let bootstrapped = Boolean(preloadedStore);
+  const liveBootstrapEnabled = process.env.PAYSH_BOOTSTRAP_ENABLED === 'true'
+    || (process.env.PAYSH_BOOTSTRAP_ENABLED !== 'false' && process.env.NODE_ENV !== 'test');
+  const liveCatalogUrl = config.payShCatalogUrl ?? DEFAULT_LIVE_CATALOG_URL;
+  let startupLoadPromise: Promise<void> | null = null;
+  let liveBootstrapPromise: Promise<void> | null = null;
   let cachedPropagation = analyzePropagation(store);
   let cachedInterpretations = pulseSummary(
     store,
@@ -95,15 +101,16 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
 
   if (!preloadedStore) {
     const bootstrapStartMs = Date.now();
-    void createIntelligenceStore(repository)
+    startupLoadPromise = createIntelligenceStore(repository)
       .then((loadedStore) => {
         copyStoreInto(store, loadedStore);
-        bootstrapped = true;
+        bootstrapped = Boolean(loadedStore.providers.length > 0);
         logTiming('database_connect', bootstrapStartMs);
         logTiming('catalog_load', bootstrapStartMs);
         refreshBackgroundAnalytics();
       })
       .catch(() => undefined);
+    void ensureLiveBootstrap('startup');
   } else {
     refreshBackgroundAnalytics();
   }
@@ -139,20 +146,23 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     catalog_status: 'warming_up'
   })));
   app.get('/version', async () => ({ service: 'infopunks-pay-sh-radar', version: config.version }));
-  app.get('/v1/pulse', async () => withRouteTimeout('/v1/pulse', ROUTE_TIMEOUT_MS, () => ({
-    data: pulseDashboardResponse(cachedPulseDashboard, store)
-  }), () => ({
-    data: pulseWarmingUpFallback(store, bootstrapped, 'pulse_timeout')
-  })));
+  app.get('/v1/pulse', async () => {
+    await ensureLiveBootstrap('route:/v1/pulse');
+    return withRouteTimeout('/v1/pulse', ROUTE_TIMEOUT_MS, () => ({
+      data: buildPulseDashboard(store, cachedInterpretations, bootstrapped || store.providers.length > 0)
+    }), () => ({
+      data: pulseWarmingUpFallback(store, bootstrapped, 'pulse_timeout')
+    }));
+  });
   app.get('/v1/pulse/summary', async () => withRouteTimeout('/v1/pulse/summary', ROUTE_TIMEOUT_MS, () => {
     const summary = pulseSummary(store, new Date().toISOString(), config.payShIngestIntervalMs, { includePropagation: false, includeInterpretations: false, propagationFallback: cachedPropagation, interpretationsFallback: cachedInterpretations });
-    const pulse = pulseDashboardResponse(cachedPulseDashboard, store);
+    const pulse = buildPulseDashboard(store, cachedInterpretations, bootstrapped || store.providers.length > 0);
     summary.data_source = { ...summary.data_source, mode: pulse.data_source.mode };
     return { data: compactPulseSummaryPayload(summary) };
   }, () => ({
     data: (() => {
       const summary = pulseSummary(store, new Date().toISOString(), config.payShIngestIntervalMs, { includePropagation: false, includeInterpretations: false, propagationFallback: cachedPropagation, interpretationsFallback: cachedInterpretations });
-      const pulse = pulseDashboardResponse(cachedPulseDashboard, store);
+      const pulse = buildPulseDashboard(store, cachedInterpretations, bootstrapped || store.providers.length > 0);
       summary.data_source = { ...summary.data_source, mode: pulse.data_source.mode };
       return compactPulseSummaryPayload(summary);
     })()
@@ -175,11 +185,14 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     };
   });
   app.get('/v1/events/recent', async () => ({ data: [...store.events].sort((a, b) => Date.parse(b.observedAt) - Date.parse(a.observedAt)).slice(0, 100).map((event) => ({ ...event, ...classifyEventSeverity(event, store.events) })) }));
-  app.get('/v1/providers', async () => withRouteTimeout('/v1/providers', ROUTE_TIMEOUT_MS, () => ({
-    data: lightweightProviders(store, PROVIDER_LIST_MAX)
-  }), () => ({
-    data: lightweightProviders(store, 25)
-  })));
+  app.get('/v1/providers', async () => {
+    await ensureLiveBootstrap('route:/v1/providers');
+    return withRouteTimeout('/v1/providers', ROUTE_TIMEOUT_MS, () => ({
+      data: lightweightProviders(store, PROVIDER_LIST_MAX)
+    }), () => ({
+      data: lightweightProviders(store, 25)
+    }));
+  });
   app.get('/v1/providers/featured', async () => ({ data: featuredProviderRotation(store, config.featuredProviderRotationMs) }));
   app.get<{ Params: { id: string } }>('/v1/providers/:id', async (req, reply) => {
     const provider = findProvider(store, req.params.id);
@@ -224,6 +237,7 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     };
   });
   app.get('/v1/radar/endpoints', async () => {
+    await ensureLiveBootstrap('route:/v1/radar/endpoints');
     const snapshot = buildRadarExportSnapshot(store);
     return {
       data: safeJsonExport({
@@ -524,6 +538,72 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     }, 0);
   }
 
+  async function ensureLiveBootstrap(reason: 'startup' | 'route:/v1/pulse' | 'route:/v1/providers' | 'route:/v1/radar/endpoints') {
+    if (startupLoadPromise) await startupLoadPromise;
+    if (isLiveBootstrapSatisfied(store)) {
+      bootstrapped = true;
+      return;
+    }
+    if (!liveBootstrapEnabled) {
+      if (!store.dataSource || store.dataSource.error === null) {
+        store.dataSource = {
+          mode: 'fixture_fallback',
+          url: liveCatalogUrl,
+          generated_at: null,
+          provider_count: store.providers.length,
+          last_ingested_at: new Date().toISOString(),
+          used_fixture: true,
+          error: 'bootstrap_not_called'
+        };
+      }
+      bootstrapped = store.providers.length > 0;
+      return;
+    }
+    if (liveBootstrapPromise) {
+      await liveBootstrapPromise;
+      return;
+    }
+
+    liveBootstrapPromise = (async () => {
+      console.log('[radar-bootstrap] starting live Pay.sh catalog bootstrap');
+      const result = await runPayShIngestionWithOptions(store, repository, {
+        catalogUrl: liveCatalogUrl,
+        catalogSource: 'live',
+        allowFixtureFallback: false
+      });
+      const endpointCount = safeStoreEndpointCount(store);
+      if (result.liveFetchFailed || !store.providers.length || store.dataSource?.mode !== 'live_pay_sh_catalog' || store.dataSource?.used_fixture) {
+        const failureReason = store.dataSource?.error ?? 'pulse_state_inconsistent';
+        throw new Error(failureReason);
+      }
+      bootstrapped = true;
+      refreshBackgroundAnalytics();
+      console.log(`[radar-bootstrap] live catalog bootstrap succeeded provider_count=${store.providers.length} endpoint_count=${endpointCount}`);
+    })()
+      .catch((error) => {
+        const reasonLabel = error instanceof Error ? error.message : String(error);
+        console.log(`[radar-bootstrap] live catalog bootstrap failed reason=${reasonLabel}`);
+        bootstrapped = store.providers.length > 0;
+        if (!store.providers.length) {
+          store.dataSource = {
+            mode: 'fixture_fallback',
+            url: liveCatalogUrl,
+            generated_at: null,
+            provider_count: 0,
+            last_ingested_at: new Date().toISOString(),
+            used_fixture: true,
+            error: store.dataSource?.error ?? reasonLabel
+          };
+        }
+        refreshBackgroundAnalytics();
+      })
+      .finally(() => {
+        liveBootstrapPromise = null;
+      });
+
+    await liveBootstrapPromise;
+  }
+
   async function withRouteTimeout<T>(route: '/status' | '/v1/pulse' | '/v1/providers' | '/v1/pulse/summary', timeoutMs: number, work: () => T | Promise<T>, fallback: () => T): Promise<T> {
     const startedAtMs = Date.now();
     console.log(JSON.stringify({ event: 'route_timing_start', route, started_at: new Date(startedAtMs).toISOString() }));
@@ -689,7 +769,14 @@ function pulseWarmingUpFallback(store: IntelligenceStore, bootstrapped: boolean,
     hottestNarrative: null,
     topTrust: [],
     topSignal: [],
-    unknownTelemetry: {},
+    unknownTelemetry: {
+      uptime: 0,
+      latency: 0,
+      responseValidity: 0,
+      receiptReliability: 0,
+      socialVelocity: 0,
+      onchainLiquidityResonance: 0
+    },
     interpretations: [],
     data_source: dataSource,
     catalog_status: status,
@@ -833,6 +920,12 @@ function endpointMetadataState(store: IntelligenceStore) {
     mode: 'unavailable',
     reason: 'endpoint_count_zero_or_missing'
   };
+}
+
+function isLiveBootstrapSatisfied(store: IntelligenceStore) {
+  return store.providers.length > 0
+    && store.dataSource?.mode === 'live_pay_sh_catalog'
+    && store.dataSource?.used_fixture === false;
 }
 
 function sanitizeCatalogError(value: string | null) {
