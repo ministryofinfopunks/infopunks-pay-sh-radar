@@ -61,6 +61,28 @@ const catalog: PayShCatalogItem[] = [
     status: 'metered',
     description: 'OCR test provider.',
     tags: ['ocr', 'image']
+  },
+  {
+    name: 'PaySponge Perplexity',
+    namespace: 'paysponge/perplexity',
+    slug: 'paysponge-perplexity',
+    category: 'AI/ML',
+    endpoints: 1,
+    price: '$0.01',
+    status: 'metered',
+    description: 'Live web research answers with citations for latest events and market shifts.',
+    tags: ['research', 'web_search', 'search', 'citations', 'cited_answer', 'answer', 'live_research', 'grounded_answer', 'ai_ml']
+  },
+  {
+    name: 'Google Places API',
+    namespace: 'solana-foundation/google-places',
+    slug: 'solana-foundation-google-places',
+    category: 'Data',
+    endpoints: 1,
+    price: '$0.005',
+    status: 'metered',
+    description: 'Search places and nearby points of interest with geocoded results.',
+    tags: ['places', 'location', 'maps', 'search']
   }
 ];
 
@@ -71,7 +93,7 @@ function preflightStore() {
     mode: 'live_pay_sh_catalog',
     url: 'https://pay.sh/api/catalog',
     generated_at: '2026-01-01T00:00:00.000Z',
-    provider_count: 4,
+    provider_count: 6,
     last_ingested_at: '2026-01-01T00:00:00.000Z',
     used_fixture: false,
     error: null
@@ -83,6 +105,10 @@ function preflightStore() {
         ? { ...item, score: 99 }
         : item.entityId === 'ocr'
           ? { ...item, score: 99 }
+          : item.entityId === 'paysponge-perplexity'
+            ? { ...item, score: 93 }
+            : item.entityId === 'solana-foundation-google-places'
+              ? { ...item, score: 94 }
           : { ...item, score: 65 });
   store.signalAssessments = store.signalAssessments.map((item) =>
     item.entityId === 'alpha'
@@ -91,6 +117,10 @@ function preflightStore() {
         ? { ...item, score: 100 }
         : item.entityId === 'ocr'
           ? { ...item, score: 100 }
+          : item.entityId === 'paysponge-perplexity'
+            ? { ...item, score: 97 }
+            : item.entityId === 'solana-foundation-google-places'
+              ? { ...item, score: 95 }
           : { ...item, score: 91 });
   const providerEvents: InfopunksEvent[] = [
     {
@@ -146,6 +176,24 @@ function preflightStore() {
       entityId: 'ocr',
       observedAt: '2026-01-02T00:03:00.000Z',
       payload: { providerId: 'ocr', response_time_ms: 90, success: true }
+    },
+    {
+      id: 'perplexity-checked',
+      type: 'provider.checked',
+      source: 'infopunks:safe-metadata-monitor',
+      entityType: 'provider',
+      entityId: 'paysponge-perplexity',
+      observedAt: '2026-01-02T00:03:30.000Z',
+      payload: { providerId: 'paysponge-perplexity', response_time_ms: 240, success: true }
+    },
+    {
+      id: 'places-checked',
+      type: 'provider.checked',
+      source: 'infopunks:safe-metadata-monitor',
+      entityType: 'provider',
+      entityId: 'solana-foundation-google-places',
+      observedAt: '2026-01-02T00:04:00.000Z',
+      payload: { providerId: 'solana-foundation-google-places', response_time_ms: 180, success: true }
     }
   ];
   store.events.push(...providerEvents);
@@ -173,7 +221,7 @@ function preflightStoreWithDexPoolsProvider() {
     mode: 'live_pay_sh_catalog',
     url: 'https://pay.sh/api/catalog',
     generated_at: '2026-01-03T00:00:00.000Z',
-    provider_count: 5,
+    provider_count: 6,
     last_ingested_at: '2026-01-03T00:00:00.000Z',
     used_fixture: false,
     error: null
@@ -216,7 +264,7 @@ function preflightStoreWithQuicknodeRpcProvider() {
     mode: 'live_pay_sh_catalog',
     url: 'https://pay.sh/api/catalog',
     generated_at: '2026-01-04T00:00:00.000Z',
-    provider_count: 5,
+    provider_count: 6,
     last_ingested_at: '2026-01-04T00:00:00.000Z',
     used_fixture: false,
     error: null
@@ -253,7 +301,7 @@ describe('preflight API', () => {
       },
       categoryMatch: true,
       fallbackCategoryUsed: false,
-      candidateCount: 4,
+      candidateCount: 6,
       consideredProviderCount: 3,
       dataMode: 'live'
     });
@@ -271,7 +319,7 @@ describe('preflight API', () => {
     expect(response.json().data.decision).toBe('route_blocked');
     expect(response.json().data.blockReason).toBe('all_candidates_rejected_by_policy');
     expect(response.json().data.selectedProvider).toBeNull();
-    expect(response.json().data.rejectedProviders.length).toBe(4);
+    expect(response.json().data.rejectedProviders.length).toBe(6);
     await app.close();
   });
 
@@ -556,8 +604,8 @@ describe('preflight API', () => {
     ]));
     expect(body.consideredProvidersRejected).toHaveLength(3);
     expect(body.rejectionSummary).toMatchObject({
-      totalRejectedCount: 4,
-      categoryMismatchCount: 1,
+      totalRejectedCount: 6,
+      categoryMismatchCount: 3,
       capabilityMismatchCount: 3,
       policyRejectedCount: 0
     });
@@ -791,6 +839,72 @@ describe('preflight API', () => {
     expect(body.decision).toBe('route_approved');
     expect(body.selectedProvider).toBe('stablecrypto');
     expect(body.requiredCapabilities).toEqual(['market_data', 'pricing']);
+    await app.close();
+  });
+
+  it('research latest Solana agent payments routes to PaySponge Perplexity with research_answer capabilities', async () => {
+    const app = await createApp(preflightStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'research latest Solana agent payments',
+        category: 'ai_ml',
+        constraints: { minTrustScore: 70, maxLatencyMs: 3000, maxCostUsd: 0.05 },
+        debug: true
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.decision).toBe('route_approved');
+    expect(body.selectedProvider).toBe('paysponge-perplexity');
+    expect(body.blockReason).toBeNull();
+    expect(body.requiredCapabilities).toEqual(['research', 'web_search', 'citations', 'answer', 'ai_ml', 'research_answer']);
+    expect(body.selectedProviderDetails).toMatchObject({
+      providerId: 'paysponge-perplexity',
+      capabilities: expect.arrayContaining(['research', 'web_search', 'search', 'citations', 'cited_answer', 'answer', 'live_research', 'grounded_answer', 'ai_ml', 'research_answer'])
+    });
+    await app.close();
+  });
+
+  it('candidateProviders normalization matches Perplexity aliases and avoids no_candidates for research_answer', async () => {
+    const app = await createApp(preflightStore());
+    const aliases = ['paysponge/perplexity', 'paysponge-perplexity', 'PaySponge Perplexity'];
+    for (const candidateProvider of aliases) {
+      const response = await app.inject({
+        method: 'POST',
+        url: '/v1/preflight',
+        payload: {
+          intent: 'research latest Solana agent payments',
+          category: 'ai_ml',
+          candidateProviders: [candidateProvider],
+          constraints: { minTrustScore: 70, maxLatencyMs: 3000, maxCostUsd: 0.05 }
+        }
+      });
+      expect(response.statusCode).toBe(200);
+      const body = response.json().data;
+      expect(body.blockReason).not.toBe('no_candidates');
+      expect(body.decision).toBe('route_approved');
+      expect(body.selectedProvider).toBe('paysponge-perplexity');
+    }
+    await app.close();
+  });
+
+  it('places search routes to Google Places provider', async () => {
+    const app = await createApp(preflightStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'places search near me',
+        category: 'data',
+        constraints: { minTrustScore: 70, maxLatencyMs: 3000, maxCostUsd: 0.05 }
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.decision).toBe('route_approved');
+    expect(body.selectedProvider).toBe('solana-foundation-google-places');
     await app.close();
   });
 

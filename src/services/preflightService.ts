@@ -38,7 +38,16 @@ type CapabilityTag =
   | 'rpc'
   | 'blockchain'
   | 'solana'
-  | 'onchain';
+  | 'onchain'
+  | 'research'
+  | 'web_search'
+  | 'citations'
+  | 'cited_answer'
+  | 'answer'
+  | 'live_research'
+  | 'grounded_answer'
+  | 'ai_ml'
+  | 'research_answer';
 
 const DEFAULT_MIN_TRUST_SCORE = 70;
 const MAX_REJECTED_PROVIDERS_IN_RESPONSE = 25;
@@ -57,6 +66,8 @@ const MARKET_DATA_CAPABILITIES: CapabilityTag[] = ['market_data', 'pricing'];
 const MARKET_DATA_CATEGORY_BRIDGE = ['payments', 'payment', 'finance', 'fintech', 'crypto', 'data', 'analytics', 'enrichment'];
 const DEX_TRENDING_CAPABILITIES: CapabilityTag[] = ['dex_pools', 'trending'];
 const RPC_BLOCKCHAIN_SOLANA_CAPABILITIES: CapabilityTag[] = ['rpc', 'blockchain', 'solana'];
+const RESEARCH_ANSWER_CAPABILITIES: CapabilityTag[] = ['research', 'web_search', 'citations', 'answer', 'ai_ml', 'research_answer'];
+const PLACES_SEARCH_CAPABILITIES: CapabilityTag[] = ['search', 'enrichment'];
 const LATENCY_UNKNOWN_POLICY_NOTE = 'latency_unknown_allowed_for_specific_capability_match';
 
 export function runPreflight(input: PreflightRequest, store: IntelligenceStore): PreflightResponse {
@@ -64,8 +75,11 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
   const generatedAt = new Date().toISOString();
   const byProvider = new Map(store.providers.map((provider) => [provider.id, provider]));
   const requested = input.candidateProviders?.map((id) => id.trim()).filter(Boolean);
+  const providerByAnyKey = buildProviderLookupByAnyKey(store.providers);
   const baseProviders = requested?.length
-    ? requested.map((id) => byProvider.get(id)).filter((provider): provider is Provider => Boolean(provider))
+    ? requested
+      .map((id) => byProvider.get(id) ?? providerByAnyKey.get(normalizeProviderLookupKey(id)) ?? null)
+      .filter((provider): provider is Provider => Boolean(provider))
     : store.providers;
   const candidates = baseProviders.map((provider) => toCandidate(provider, store));
   const capabilityInference = requiredCapabilitiesForIntent(input.intent);
@@ -401,6 +415,15 @@ function inferProviderCapabilities(provider: Provider, store: IntelligenceStore)
   addIf('messaging', [/\bemail\b/, /\bmessage\b/, /\bsms\b/, /\bmail\b/]);
   addIf('media_generation', [/\bimage\b/, /\bvideo\b/, /\bgenerate\b/, /\bgeneration\b/, /\bmedia\b/]);
   addIf('search', [/\bsearch\b/, /\bresearch\b/, /\bfind\b/, /\bquery\b/]);
+  addIf('research', [/\bresearch\b/, /\blatest\b/, /\bcurrent\b/, /\brecent\b/]);
+  addIf('web_search', [/\bweb\s*search\b/, /\bsearch\b/, /\bgoogle\b/, /\bperplexity\b/]);
+  addIf('citations', [/\bcitation\b/, /\bcitations\b/, /\bsources?\b/, /\breference(?:s)?\b/]);
+  addIf('cited_answer', [/\bcited\b/, /\bcitation\b/, /\bcitations\b/]);
+  addIf('answer', [/\banswer\b/, /\banswers\b/, /\brespond\b/]);
+  addIf('live_research', [/\blive\b/, /\breal[\s-]?time\b/, /\blatest\b/, /\bbreaking\b/]);
+  addIf('grounded_answer', [/\bgrounded\b/, /\bgrounded_answer\b/, /\bcitation\b/, /\bsource-backed\b/, /\bfact\b/]);
+  addIf('research_answer', [/\bresearch\b/, /\banswer\b/, /\bcitation\b/]);
+  addIf('ai_ml', [/\bai\b/, /\bml\b/, /\bllm\b/, /\bmodel\b/, /\binference\b/]);
   addIf('analytics', [/\banalytics?\b/, /\binsight\b/, /\bmetrics?\b/]);
   addIf('storage', [/\bstorage\b/, /\bstore\b/, /\bobject\b/, /\bblob\b/]);
   addIf('compute', [/\bcompute\b/, /\bexecute\b/, /\brun\b/, /\bjob\b/]);
@@ -416,6 +439,12 @@ function inferProviderCapabilities(provider: Provider, store: IntelligenceStore)
     inferred.add('compute');
     inferred.add('onchain');
     inferred.add('solana');
+  }
+
+  if (isPaySpongePerplexityProvider(provider)) {
+    for (const capability of RESEARCH_ANSWER_CAPABILITIES) inferred.add(capability);
+    inferred.add('search');
+    inferred.add('ai_inference');
   }
 
   return Array.from(inferred).sort();
@@ -437,6 +466,7 @@ function requiredCapabilitiesForIntent(intent: string): CapabilityInference {
   const messagingPatterns = [/\bemail\b/, /\bmessage\b/, /\bsend email\b/];
   const mediaPatterns = [/\bgenerate\b.*\bimage\b/, /\bcreate\b.*\bimage\b/, /\bgenerate\b.*\bmedia\b/, /\bcreate\b.*\bmedia\b/, /\bimage\b/, /\bmedia\b/];
   const searchPatterns = [/\bsearch\b/, /\bresearch\b/, /\banswer\b/];
+  const placesSearchPatterns = [/\bplaces?\b/, /\bnearby\b/, /\blocation\b/, /\bmaps?\b/, /\baddress\b/, /\bpoi\b/];
   const rpcIntentPatterns = [/\brpc\b/, /\bblockchain\s+rpc\b/, /\bon-?chain\s+state\b/, /\bjson[\s-]?rpc\b/, /\bgetbalance\b/, /\bgethealth\b/];
   const solanaMainnetPatterns = [/\bsolana\s+mainnet\b/, /\bsolana-mainnet\b/];
 
@@ -482,9 +512,16 @@ function requiredCapabilitiesForIntent(intent: string): CapabilityInference {
     };
   }
 
+  if (hasAny(placesSearchPatterns) && hasAny([/\bsearch\b/, /\bfind\b/, /\blookup\b/])) {
+    return {
+      requiredCapabilities: PLACES_SEARCH_CAPABILITIES,
+      capabilityInferenceReason: 'places_search_intent_from_location_query'
+    };
+  }
+
   if (hasAny(searchPatterns)) {
     return {
-      requiredCapabilities: ['search', 'ai_inference'],
+      requiredCapabilities: ['research', 'web_search', 'citations', 'answer', 'ai_ml', 'research_answer'],
       capabilityInferenceReason: 'search_intent_from_search_research_answer'
     };
   }
@@ -618,6 +655,33 @@ function isDexTrendingIntent(requiredCapabilities: CapabilityTag[]) {
   return DEX_TRENDING_CAPABILITIES.some((capability) => requiredCapabilities.includes(capability));
 }
 
+function buildProviderLookupByAnyKey(providers: Provider[]) {
+  const lookup = new Map<string, Provider>();
+  for (const provider of providers) {
+    for (const key of providerLookupKeys(provider)) {
+      if (!lookup.has(key)) lookup.set(key, provider);
+    }
+  }
+  return lookup;
+}
+
+function providerLookupKeys(provider: Provider) {
+  const raw = [provider.id, provider.slug, provider.name, provider.fqn, provider.namespace];
+  return Array.from(new Set(raw.map((item) => normalizeProviderLookupKey(item)).filter(Boolean)));
+}
+
+function normalizeProviderLookupKey(value: string | null | undefined) {
+  if (!value) return '';
+  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+function isPaySpongePerplexityProvider(provider: Provider) {
+  const keys = providerLookupKeys(provider);
+  return keys.includes('paysponge-perplexity')
+    || keys.includes('paysponge-perplexity-search')
+    || keys.includes('paysponge-perplexity-ai');
+}
+
 function isRpcIntent(requiredCapabilities: CapabilityTag[]) {
   return RPC_BLOCKCHAIN_SOLANA_CAPABILITIES.every((capability) => requiredCapabilities.includes(capability));
 }
@@ -638,6 +702,10 @@ function allowsUnknownLatencyForSpecificCapabilityMatch(candidate: Candidate, re
   if (isRpcIntent(requiredCapabilities)) {
     if (candidate.capabilityMatchScore < 3) return false;
     return RPC_BLOCKCHAIN_SOLANA_CAPABILITIES.every((capability) => candidate.capabilities.includes(capability));
+  }
+  if (RESEARCH_ANSWER_CAPABILITIES.some((capability) => requiredCapabilities.includes(capability))) {
+    if (candidate.capabilityMatchScore < 4) return false;
+    return ['research', 'web_search', 'citations', 'answer'].every((capability) => candidate.capabilities.includes(capability as CapabilityTag));
   }
   return false;
 }
