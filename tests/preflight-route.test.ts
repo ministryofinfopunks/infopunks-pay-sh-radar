@@ -83,6 +83,17 @@ const catalog: PayShCatalogItem[] = [
     status: 'metered',
     description: 'Search places and nearby points of interest with geocoded results.',
     tags: ['places', 'location', 'maps', 'search']
+  },
+  {
+    name: 'Alibaba Embeddings',
+    namespace: 'solana-foundation/alibaba/embeddings',
+    slug: 'solana-foundation-alibaba-embeddings',
+    category: 'AI/ML',
+    endpoints: 1,
+    price: '$0.003',
+    status: 'metered',
+    description: 'Embedding and vector similarity endpoints for semantic retrieval.',
+    tags: ['embeddings', 'vector', 'search', 'ai_inference', 'ai_ml']
   }
 ];
 
@@ -93,7 +104,7 @@ function preflightStore() {
     mode: 'live_pay_sh_catalog',
     url: 'https://pay.sh/api/catalog',
     generated_at: '2026-01-01T00:00:00.000Z',
-    provider_count: 6,
+    provider_count: 7,
     last_ingested_at: '2026-01-01T00:00:00.000Z',
     used_fixture: false,
     error: null
@@ -109,6 +120,8 @@ function preflightStore() {
             ? { ...item, score: 93 }
             : item.entityId === 'solana-foundation-google-places'
               ? { ...item, score: 94 }
+              : item.entityId === 'solana-foundation-alibaba-embeddings'
+                ? { ...item, score: 99 }
           : { ...item, score: 65 });
   store.signalAssessments = store.signalAssessments.map((item) =>
     item.entityId === 'alpha'
@@ -121,6 +134,8 @@ function preflightStore() {
             ? { ...item, score: 97 }
             : item.entityId === 'solana-foundation-google-places'
               ? { ...item, score: 95 }
+              : item.entityId === 'solana-foundation-alibaba-embeddings'
+                ? { ...item, score: 99 }
           : { ...item, score: 91 });
   const providerEvents: InfopunksEvent[] = [
     {
@@ -194,6 +209,15 @@ function preflightStore() {
       entityId: 'solana-foundation-google-places',
       observedAt: '2026-01-02T00:04:00.000Z',
       payload: { providerId: 'solana-foundation-google-places', response_time_ms: 180, success: true }
+    },
+    {
+      id: 'alibaba-checked',
+      type: 'provider.checked',
+      source: 'infopunks:safe-metadata-monitor',
+      entityType: 'provider',
+      entityId: 'solana-foundation-alibaba-embeddings',
+      observedAt: '2026-01-02T00:04:15.000Z',
+      payload: { providerId: 'solana-foundation-alibaba-embeddings', response_time_ms: 110, success: true }
     }
   ];
   store.events.push(...providerEvents);
@@ -301,7 +325,7 @@ describe('preflight API', () => {
       },
       categoryMatch: true,
       fallbackCategoryUsed: false,
-      candidateCount: 6,
+      candidateCount: 7,
       consideredProviderCount: 3,
       dataMode: 'live'
     });
@@ -319,7 +343,7 @@ describe('preflight API', () => {
     expect(response.json().data.decision).toBe('route_blocked');
     expect(response.json().data.blockReason).toBe('all_candidates_rejected_by_policy');
     expect(response.json().data.selectedProvider).toBeNull();
-    expect(response.json().data.rejectedProviders.length).toBe(6);
+    expect(response.json().data.rejectedProviders.length).toBe(7);
     await app.close();
   });
 
@@ -604,8 +628,8 @@ describe('preflight API', () => {
     ]));
     expect(body.consideredProvidersRejected).toHaveLength(3);
     expect(body.rejectionSummary).toMatchObject({
-      totalRejectedCount: 6,
-      categoryMismatchCount: 3,
+      totalRejectedCount: 7,
+      categoryMismatchCount: 4,
       capabilityMismatchCount: 3,
       policyRejectedCount: 0
     });
@@ -859,11 +883,33 @@ describe('preflight API', () => {
     expect(body.decision).toBe('route_approved');
     expect(body.selectedProvider).toBe('paysponge-perplexity');
     expect(body.blockReason).toBeNull();
-    expect(body.requiredCapabilities).toEqual(['research', 'web_search', 'citations', 'answer', 'ai_ml', 'research_answer']);
+    expect(body.requiredCapabilities).toEqual(['research_answer', 'cited_answer', 'grounded_answer', 'web_search', 'citations', 'live_research']);
     expect(body.selectedProviderDetails).toMatchObject({
       providerId: 'paysponge-perplexity',
       capabilities: expect.arrayContaining(['research', 'web_search', 'search', 'citations', 'cited_answer', 'answer', 'live_research', 'grounded_answer', 'ai_ml', 'research_answer'])
     });
+    expect(body.selectedProvider).not.toBe('solana-foundation-alibaba-embeddings');
+    await app.close();
+  });
+
+  it('embeddings provider is ranked below or rejected for research_answer intent', async () => {
+    const app = await createApp(preflightStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'research latest Solana agent payments',
+        category: 'ai_ml',
+        constraints: { minTrustScore: 70, maxLatencyMs: 3000, maxCostUsd: 0.05 },
+        debug: true
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    const rejectedAlibaba = body.consideredProvidersRejected.find((item: any) => item.providerId === 'solana-foundation-alibaba-embeddings');
+    expect(body.selectedProvider).toBe('paysponge-perplexity');
+    expect(rejectedAlibaba).toBeTruthy();
+    expect(rejectedAlibaba.reasons.join(',')).toMatch(/embedding_provider_without_research_answer|lower_capability_match_score/);
     await app.close();
   });
 
@@ -905,6 +951,25 @@ describe('preflight API', () => {
     const body = response.json().data;
     expect(body.decision).toBe('route_approved');
     expect(body.selectedProvider).toBe('solana-foundation-google-places');
+    await app.close();
+  });
+
+  it('generic search intent can still route to non-research search providers', async () => {
+    const app = await createApp(preflightStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'search embeddings index',
+        category: 'ai_ml',
+        constraints: { minTrustScore: 70, maxLatencyMs: 3000, maxCostUsd: 0.05 }
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.requiredCapabilities).toEqual(['search', 'ai_inference']);
+    expect(body.decision).toBe('route_approved');
+    expect(['paysponge-perplexity', 'solana-foundation-alibaba-embeddings']).toContain(body.selectedProvider);
     await app.close();
   });
 

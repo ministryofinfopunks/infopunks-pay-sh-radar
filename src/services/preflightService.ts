@@ -66,7 +66,8 @@ const MARKET_DATA_CAPABILITIES: CapabilityTag[] = ['market_data', 'pricing'];
 const MARKET_DATA_CATEGORY_BRIDGE = ['payments', 'payment', 'finance', 'fintech', 'crypto', 'data', 'analytics', 'enrichment'];
 const DEX_TRENDING_CAPABILITIES: CapabilityTag[] = ['dex_pools', 'trending'];
 const RPC_BLOCKCHAIN_SOLANA_CAPABILITIES: CapabilityTag[] = ['rpc', 'blockchain', 'solana'];
-const RESEARCH_ANSWER_CAPABILITIES: CapabilityTag[] = ['research', 'web_search', 'citations', 'answer', 'ai_ml', 'research_answer'];
+const RESEARCH_ANSWER_CAPABILITIES: CapabilityTag[] = ['research_answer', 'cited_answer', 'grounded_answer', 'web_search', 'citations', 'live_research', 'answer', 'search', 'ai_ml'];
+const RESEARCH_ANSWER_REQUIRED_CAPABILITIES: CapabilityTag[] = ['research_answer', 'cited_answer', 'grounded_answer', 'web_search', 'citations', 'live_research'];
 const PLACES_SEARCH_CAPABILITIES: CapabilityTag[] = ['search', 'enrichment'];
 const LATENCY_UNKNOWN_POLICY_NOTE = 'latency_unknown_allowed_for_specific_capability_match';
 
@@ -86,6 +87,7 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
   const requiredCapabilities = capabilityInference.requiredCapabilities;
   const shouldMatchCapabilities = requiredCapabilities.length > 0;
   const isHighSpecificityDexTrendingIntent = isDexTrendingIntent(requiredCapabilities);
+  const isResearchAnswerIntent = isResearchAnswerIntentCapabilities(requiredCapabilities);
   for (const candidate of candidates) {
     candidate.capabilityMatchScore = capabilityMatchScore(candidate.capabilities, requiredCapabilities);
   }
@@ -116,6 +118,10 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
   const categoryMatch = categoryAliases ? categoryMatchedCandidates.length > 0 : true;
   const capabilityRejectedByProvider = new Map<string, string[]>();
   for (const candidate of categoryMatchedCandidates) {
+    if (isResearchAnswerIntent && isEmbeddingOnlyProviderForResearchAnswer(candidate)) {
+      capabilityRejectedByProvider.set(candidate.provider.id, ['capability_mismatch:embedding_provider_without_research_answer']);
+      continue;
+    }
     if (!shouldMatchCapabilities || hasAnyCapability(candidate.capabilities, requiredCapabilities)) {
       capabilityMatchedCandidates.push(candidate);
       continue;
@@ -291,6 +297,12 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
 
   accepted.sort((a, b) =>
     compareNumbersDesc(a.capabilityMatchScore, b.capabilityMatchScore)
+    || (isResearchAnswerIntent
+      ? (compareNumbersDesc(researchAnswerSpecificityScore(a), researchAnswerSpecificityScore(b))
+        || compareNumbersDesc(a.signalScore, b.signalScore)
+        || compareNumbersDesc(a.trustScore, b.trustScore)
+        || compareNumbersAsc(a.latencyMs, b.latencyMs))
+      : 0)
     || (isRpcIntent(requiredCapabilities)
       ? (compareNumbersDesc(rpcSpecificityScore(a), rpcSpecificityScore(b))
         || compareNumbersDesc(a.trustScore, b.trustScore)
@@ -445,6 +457,14 @@ function inferProviderCapabilities(provider: Provider, store: IntelligenceStore)
     for (const capability of RESEARCH_ANSWER_CAPABILITIES) inferred.add(capability);
     inferred.add('search');
     inferred.add('ai_inference');
+    inferred.add('web_search');
+    inferred.add('citations');
+    inferred.add('cited_answer');
+    inferred.add('grounded_answer');
+    inferred.add('research_answer');
+    inferred.add('live_research');
+    inferred.add('answer');
+    inferred.add('ai_ml');
   }
 
   return Array.from(inferred).sort();
@@ -466,6 +486,7 @@ function requiredCapabilitiesForIntent(intent: string): CapabilityInference {
   const messagingPatterns = [/\bemail\b/, /\bmessage\b/, /\bsend email\b/];
   const mediaPatterns = [/\bgenerate\b.*\bimage\b/, /\bcreate\b.*\bimage\b/, /\bgenerate\b.*\bmedia\b/, /\bcreate\b.*\bmedia\b/, /\bimage\b/, /\bmedia\b/];
   const searchPatterns = [/\bsearch\b/, /\bresearch\b/, /\banswer\b/];
+  const researchAnswerIntentPatterns = [/\bresearch\b/, /\blatest\b/, /\bcurrent\b/, /\brecent\b/, /\bcitations?\b/, /\bcited\b/, /\bgrounded\b/, /\banswer\b/];
   const placesSearchPatterns = [/\bplaces?\b/, /\bnearby\b/, /\blocation\b/, /\bmaps?\b/, /\baddress\b/, /\bpoi\b/];
   const rpcIntentPatterns = [/\brpc\b/, /\bblockchain\s+rpc\b/, /\bon-?chain\s+state\b/, /\bjson[\s-]?rpc\b/, /\bgetbalance\b/, /\bgethealth\b/];
   const solanaMainnetPatterns = [/\bsolana\s+mainnet\b/, /\bsolana-mainnet\b/];
@@ -519,10 +540,17 @@ function requiredCapabilitiesForIntent(intent: string): CapabilityInference {
     };
   }
 
+  if (hasAny(searchPatterns) && hasAny(researchAnswerIntentPatterns)) {
+    return {
+      requiredCapabilities: RESEARCH_ANSWER_REQUIRED_CAPABILITIES,
+      capabilityInferenceReason: 'research_answer_intent_from_search_research_answer'
+    };
+  }
+
   if (hasAny(searchPatterns)) {
     return {
-      requiredCapabilities: ['research', 'web_search', 'citations', 'answer', 'ai_ml', 'research_answer'],
-      capabilityInferenceReason: 'search_intent_from_search_research_answer'
+      requiredCapabilities: ['search', 'ai_inference'],
+      capabilityInferenceReason: 'search_intent_from_search_query'
     };
   }
 
@@ -682,6 +710,17 @@ function isPaySpongePerplexityProvider(provider: Provider) {
     || keys.includes('paysponge-perplexity-ai');
 }
 
+function isResearchAnswerIntentCapabilities(requiredCapabilities: CapabilityTag[]) {
+  return requiredCapabilities.some((capability) => RESEARCH_ANSWER_REQUIRED_CAPABILITIES.includes(capability));
+}
+
+function isEmbeddingOnlyProviderForResearchAnswer(candidate: Candidate) {
+  const searchable = `${safe(candidate.provider.id)} ${safe(candidate.provider.name)} ${safe(candidate.provider.namespace)} ${safe(candidate.provider.description)} ${candidate.provider.tags.join(' ')}`.toLowerCase();
+  const embeddingLike = /\bembeddings?\b|\bvector\b/.test(searchable);
+  if (!embeddingLike) return false;
+  return !RESEARCH_ANSWER_REQUIRED_CAPABILITIES.some((capability) => candidate.capabilities.includes(capability));
+}
+
 function isRpcIntent(requiredCapabilities: CapabilityTag[]) {
   return RPC_BLOCKCHAIN_SOLANA_CAPABILITIES.every((capability) => requiredCapabilities.includes(capability));
 }
@@ -703,9 +742,23 @@ function allowsUnknownLatencyForSpecificCapabilityMatch(candidate: Candidate, re
     if (candidate.capabilityMatchScore < 3) return false;
     return RPC_BLOCKCHAIN_SOLANA_CAPABILITIES.every((capability) => candidate.capabilities.includes(capability));
   }
-  if (RESEARCH_ANSWER_CAPABILITIES.some((capability) => requiredCapabilities.includes(capability))) {
+  if (isResearchAnswerIntentCapabilities(requiredCapabilities)) {
     if (candidate.capabilityMatchScore < 4) return false;
-    return ['research', 'web_search', 'citations', 'answer'].every((capability) => candidate.capabilities.includes(capability as CapabilityTag));
+    return ['research_answer', 'web_search', 'citations'].every((capability) => candidate.capabilities.includes(capability as CapabilityTag));
   }
   return false;
+}
+
+function researchAnswerSpecificityScore(candidate: Candidate) {
+  let score = 0;
+  if (candidate.capabilities.includes('research_answer')) score += 5;
+  if (candidate.capabilities.includes('cited_answer')) score += 4;
+  if (candidate.capabilities.includes('grounded_answer')) score += 4;
+  if (candidate.capabilities.includes('web_search')) score += 3;
+  if (candidate.capabilities.includes('citations')) score += 3;
+  if (candidate.capabilities.includes('live_research')) score += 2;
+  if (candidate.capabilities.includes('answer')) score += 1;
+  if (candidate.capabilities.includes('search')) score += 1;
+  if (isEmbeddingOnlyProviderForResearchAnswer(candidate)) score -= 10;
+  return score;
 }
