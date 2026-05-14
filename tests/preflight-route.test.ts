@@ -5,6 +5,7 @@ import { applyPayShCatalogIngestion } from '../src/ingestion/payShCatalogAdapter
 import { IntelligenceSnapshot } from '../src/persistence/repository';
 import { InfopunksEvent } from '../src/schemas/entities';
 import { recomputeAssessments } from '../src/services/intelligenceStore';
+import { isPerplexityProvider } from '../src/services/preflightService';
 
 const emptySnapshot: IntelligenceSnapshot = {
   events: [],
@@ -331,6 +332,22 @@ function preflightStoreWithQuicknodeRpcProvider() {
 }
 
 describe('preflight API', () => {
+  it('isPerplexityProvider detects providerId paysponge-perplexity', () => {
+    expect(isPerplexityProvider({ id: 'paysponge-perplexity', slug: 'paysponge-perplexity', name: 'Any', namespace: 'x', fqn: 'x', serviceUrl: null } as any)).toBe(true);
+  });
+
+  it('isPerplexityProvider detects providerId paysponge/perplexity', () => {
+    expect(isPerplexityProvider({ id: 'paysponge/perplexity', slug: 'paysponge-perplexity', name: 'Any', namespace: 'x', fqn: 'x', serviceUrl: null } as any)).toBe(true);
+  });
+
+  it('isPerplexityProvider detects name Perplexity AI API', () => {
+    expect(isPerplexityProvider({ id: 'provider-x', slug: 'provider-x', name: 'Perplexity AI API', namespace: 'x', fqn: 'x', serviceUrl: null } as any)).toBe(true);
+  });
+
+  it('isPerplexityProvider detects serviceUrl pplx.x402.paysponge.com', () => {
+    expect(isPerplexityProvider({ id: 'provider-x', slug: 'provider-x', name: 'Any', namespace: 'x', fqn: 'x', serviceUrl: 'https://pplx.x402.paysponge.com' } as any)).toBe(true);
+  });
+
   it('returns route_approved when at least one candidate passes policy', async () => {
     const app = await createApp(preflightStore());
     const response = await app.inject({
@@ -914,6 +931,59 @@ describe('preflight API', () => {
     });
     expect(body.selectedProvider).not.toBe('solana-foundation-google-vision');
     expect(body.selectedProvider).not.toBe('solana-foundation-alibaba-embeddings');
+    await app.close();
+  });
+
+  it('Perplexity enriched capabilities include full research-answer set for serviceUrl-only detection', async () => {
+    const serviceUrlCatalog: PayShCatalogItem[] = [{
+      name: 'Perplexity AI API',
+      namespace: 'research/pplx-provider',
+      slug: 'research-pplx-provider',
+      category: 'AI/ML',
+      endpoints: 1,
+      price: '$0.01',
+      status: 'metered',
+      description: 'General AI provider.',
+      tags: ['ai_ml'],
+      service_url: 'https://pplx.x402.paysponge.com'
+    }];
+    const ingested = applyPayShCatalogIngestion(emptySnapshot, serviceUrlCatalog, { observedAt: '2026-01-01T00:00:00.000Z', source: 'pay.sh:test' }).snapshot;
+    const store = recomputeAssessments(ingested);
+    store.dataSource = {
+      mode: 'live_pay_sh_catalog',
+      url: 'https://pay.sh/api/catalog',
+      generated_at: '2026-01-01T00:00:00.000Z',
+      provider_count: 1,
+      last_ingested_at: '2026-01-01T00:00:00.000Z',
+      used_fixture: false,
+      error: null
+    };
+    store.trustAssessments = store.trustAssessments.map((item) => ({ ...item, score: 90 }));
+    store.signalAssessments = store.signalAssessments.map((item) => ({ ...item, score: 90 }));
+    store.events.push({
+      id: 'pplx-checked',
+      type: 'provider.checked',
+      source: 'infopunks:safe-metadata-monitor',
+      entityType: 'provider',
+      entityId: 'research-pplx-provider',
+      observedAt: '2026-01-02T00:00:00.000Z',
+      payload: { providerId: 'research-pplx-provider', response_time_ms: 200, success: true }
+    });
+
+    const app = await createApp(store);
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'research latest Solana agent payments',
+        category: 'ai_ml',
+        constraints: { minTrustScore: 70, maxLatencyMs: 3000, maxCostUsd: 0.05 },
+        debug: true
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const capabilities = response.json().data.selectedProviderDetails.capabilities as string[];
+    expect(capabilities).toEqual(expect.arrayContaining(['research_answer', 'cited_answer', 'grounded_answer', 'web_search', 'citations', 'live_research', 'search', 'answer', 'ai_ml', 'research']));
     await app.close();
   });
 

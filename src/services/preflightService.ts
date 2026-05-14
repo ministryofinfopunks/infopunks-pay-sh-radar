@@ -466,7 +466,7 @@ function inferProviderCapabilities(provider: Provider, store: IntelligenceStore)
     inferred.add('solana');
   }
 
-  if (isPaySpongePerplexityProvider(provider)) {
+  if (isPerplexityProvider(provider)) {
     for (const capability of RESEARCH_ANSWER_CAPABILITIES) inferred.add(capability);
     inferred.add('research');
     inferred.add('search');
@@ -728,7 +728,7 @@ function buildProviderLookupByAnyKey(providers: Provider[]) {
 }
 
 function providerLookupKeys(provider: Provider) {
-  const raw = [provider.id, provider.slug, provider.name, provider.fqn, provider.namespace];
+  const raw = [provider.id, provider.slug, provider.name, provider.fqn, provider.namespace, provider.serviceUrl ?? null];
   return Array.from(new Set(raw.map((item) => normalizeProviderLookupKey(item)).filter(Boolean)));
 }
 
@@ -737,14 +737,12 @@ function normalizeProviderLookupKey(value: string | null | undefined) {
   return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 }
 
-function isPaySpongePerplexityProvider(provider: Provider) {
-  const keys = providerLookupKeys(provider);
-  return keys.includes('paysponge-perplexity')
-    || keys.includes('paysponge-perplexity-search')
-    || keys.includes('paysponge-perplexity-ai')
-    || keys.includes('paysponge-perplexity-pplx')
-    || keys.includes('pplx')
-    || keys.includes('perplexity');
+export function isPerplexityProvider(provider: Provider) {
+  const searchable = `${safe(provider.id)} ${safe(provider.slug)} ${safe(provider.name)} ${safe(provider.namespace)} ${safe(provider.fqn)} ${safe(provider.serviceUrl)}`.toLowerCase();
+  return searchable.includes('perplexity')
+    || searchable.includes('paysponge-perplexity')
+    || searchable.includes('paysponge/perplexity')
+    || searchable.includes('pplx');
 }
 
 function isGoogleVisionProvider(provider: Provider) {
