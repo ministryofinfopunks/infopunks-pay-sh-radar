@@ -106,6 +106,30 @@ const catalog: PayShCatalogItem[] = [
     status: 'metered',
     description: 'Embedding and vector similarity endpoints for semantic retrieval.',
     tags: ['embeddings', 'vector', 'search', 'ai_inference', 'ai_ml']
+  },
+  {
+    name: 'Textbelt SMS Status Check',
+    namespace: 'paysponge/textbelt',
+    slug: 'paysponge-textbelt',
+    category: 'Messaging',
+    endpoints: 1,
+    price: '$0.001',
+    status: 'metered',
+    description: 'Check SMS delivery status for sent text messages.',
+    tags: ['sms', 'text', 'status', 'delivery', 'messaging'],
+    service_url: 'https://api.paysponge.com/x402/purchase/svc_d6kszbre4qwg5n4n4/status/test-harness-123'
+  },
+  {
+    name: 'AgentMail',
+    namespace: 'agentmail/email',
+    slug: 'agentmail-email',
+    category: 'Messaging',
+    endpoints: 1,
+    price: '$0.002',
+    status: 'metered',
+    description: 'Create and read dedicated email inboxes for agent message workflows.',
+    tags: ['email', 'inbox', 'read', 'message', 'retrieve', 'messaging'],
+    service_url: 'https://x402.api.agentmail.to'
   }
 ];
 
@@ -116,7 +140,7 @@ function preflightStore() {
     mode: 'live_pay_sh_catalog',
     url: 'https://pay.sh/api/catalog',
     generated_at: '2026-01-01T00:00:00.000Z',
-    provider_count: 8,
+    provider_count: 10,
     last_ingested_at: '2026-01-01T00:00:00.000Z',
     used_fixture: false,
     error: null
@@ -136,6 +160,10 @@ function preflightStore() {
                 ? { ...item, score: 96 }
               : item.entityId === 'solana-foundation-alibaba-embeddings'
                 ? { ...item, score: 99 }
+              : item.entityId === 'paysponge-textbelt'
+                ? { ...item, score: 91 }
+                : item.entityId === 'agentmail-email'
+                  ? { ...item, score: 90 }
           : { ...item, score: 65 });
   store.signalAssessments = store.signalAssessments.map((item) =>
     item.entityId === 'alpha'
@@ -152,6 +180,10 @@ function preflightStore() {
                 ? { ...item, score: 96 }
               : item.entityId === 'solana-foundation-alibaba-embeddings'
                 ? { ...item, score: 99 }
+              : item.entityId === 'paysponge-textbelt'
+                ? { ...item, score: 92 }
+                : item.entityId === 'agentmail-email'
+                  ? { ...item, score: 93 }
           : { ...item, score: 91 });
   const providerEvents: InfopunksEvent[] = [
     {
@@ -243,6 +275,24 @@ function preflightStore() {
       entityId: 'solana-foundation-google-vision',
       observedAt: '2026-01-02T00:04:30.000Z',
       payload: { providerId: 'solana-foundation-google-vision', response_time_ms: 130, success: true }
+    },
+    {
+      id: 'textbelt-checked',
+      type: 'provider.checked',
+      source: 'infopunks:safe-metadata-monitor',
+      entityType: 'provider',
+      entityId: 'paysponge-textbelt',
+      observedAt: '2026-01-02T00:04:40.000Z',
+      payload: { providerId: 'paysponge-textbelt', response_time_ms: 170, success: true }
+    },
+    {
+      id: 'agentmail-checked',
+      type: 'provider.checked',
+      source: 'infopunks:safe-metadata-monitor',
+      entityType: 'provider',
+      entityId: 'agentmail-email',
+      observedAt: '2026-01-02T00:04:45.000Z',
+      payload: { providerId: 'agentmail-email', response_time_ms: 160, success: true }
     }
   ];
   store.events.push(...providerEvents);
@@ -372,7 +422,7 @@ describe('preflight API', () => {
       },
       categoryMatch: true,
       fallbackCategoryUsed: false,
-      candidateCount: 8,
+      candidateCount: 10,
       consideredProviderCount: 3,
       dataMode: 'live'
     });
@@ -390,7 +440,7 @@ describe('preflight API', () => {
     expect(response.json().data.decision).toBe('route_blocked');
     expect(response.json().data.blockReason).toBe('all_candidates_rejected_by_policy');
     expect(response.json().data.selectedProvider).toBeNull();
-    expect(response.json().data.rejectedProviders.length).toBe(8);
+    expect(response.json().data.rejectedProviders.length).toBe(10);
     await app.close();
   });
 
@@ -675,14 +725,108 @@ describe('preflight API', () => {
     ]));
     expect(body.consideredProvidersRejected).toHaveLength(3);
     expect(body.rejectionSummary).toMatchObject({
-      totalRejectedCount: 8,
-      categoryMismatchCount: 5,
+      totalRejectedCount: 10,
+      categoryMismatchCount: 7,
       capabilityMismatchCount: 3,
       policyRejectedCount: 0
     });
     expect(body.rejectedProviders).toEqual(expect.arrayContaining([
       expect.objectContaining({ providerId: 'alpha', reasons: expect.arrayContaining(['capability_mismatch:payment!=messaging']) })
     ]));
+    await app.close();
+  });
+
+  it('routes messaging_status intent to Textbelt and not AgentMail', async () => {
+    const app = await createApp(preflightStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: { intent: 'check SMS delivery status', category: 'messaging', constraints: { minTrustScore: 0 }, debug: true }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.decision).toBe('route_approved');
+    expect(body.selectedProvider).toBe('paysponge-textbelt');
+    expect(body.selectedProvider).not.toBe('agentmail-email');
+    expect(body.requiredCapabilities).toEqual(['sms_status', 'sms', 'text', 'status', 'delivery', 'messaging']);
+    expect(body.capabilityInferenceReason).toBe('sms_status_intent_from_check_sms_delivery_status');
+    await app.close();
+  });
+
+  it('rejects AgentMail for sms_status intent', async () => {
+    const app = await createApp(preflightStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'messaging_status',
+        category: 'messaging',
+        candidateProviders: ['agentmail-email', 'paysponge-textbelt'],
+        constraints: { minTrustScore: 0 },
+        debug: true
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.selectedProvider).toBe('paysponge-textbelt');
+    expect(body.rejectedProviders).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        providerId: 'agentmail-email',
+        reasons: expect.arrayContaining(['capability_mismatch:email_inbox_provider_without_sms_status'])
+      })
+    ]));
+    await app.close();
+  });
+
+  it('Textbelt capability enrichment includes sms_status and delivery primitives', async () => {
+    const app = await createApp(preflightStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'check SMS delivery status',
+        category: 'messaging',
+        candidateProviders: ['paysponge-textbelt'],
+        constraints: { minTrustScore: 0 },
+        debug: true
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const capabilities = response.json().data.selectedProviderDetails.capabilities;
+    expect(capabilities).toEqual(expect.arrayContaining(['sms_status', 'sms', 'text', 'status', 'delivery', 'messaging']));
+    await app.close();
+  });
+
+  it('AgentMail capability enrichment does not include sms_status or sms', async () => {
+    const app = await createApp(preflightStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'send email receipt',
+        category: 'messaging',
+        candidateProviders: ['agentmail-email'],
+        constraints: { minTrustScore: 0 },
+        debug: true
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const capabilities: string[] = response.json().data.selectedProviderDetails.capabilities;
+    expect(capabilities).toEqual(expect.arrayContaining(['email', 'inbox', 'read', 'message', 'retrieve', 'messaging']));
+    expect(capabilities).not.toContain('sms_status');
+    expect(capabilities).not.toContain('sms');
+    await app.close();
+  });
+
+  it('email/inbox intent still routes to AgentMail', async () => {
+    const app = await createApp(preflightStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: { intent: 'read email inbox messages', category: 'messaging', constraints: { minTrustScore: 0 }, debug: true }
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.json().data.selectedProvider).toBe('agentmail-email');
     await app.close();
   });
 

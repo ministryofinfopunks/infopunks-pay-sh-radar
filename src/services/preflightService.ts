@@ -61,7 +61,17 @@ type CapabilityTag =
   | 'text_detection'
   | 'safe_search'
   | 'logo_detection'
-  | 'landmark_detection';
+  | 'landmark_detection'
+  | 'sms_status'
+  | 'sms'
+  | 'text'
+  | 'status'
+  | 'delivery'
+  | 'email'
+  | 'inbox'
+  | 'read'
+  | 'message'
+  | 'retrieve';
 
 const DEFAULT_MIN_TRUST_SCORE = 70;
 const MAX_REJECTED_PROVIDERS_IN_RESPONSE = 25;
@@ -84,6 +94,7 @@ const RESEARCH_ANSWER_CAPABILITIES: CapabilityTag[] = ['research_answer', 'cited
 const RESEARCH_ANSWER_REQUIRED_CAPABILITIES: CapabilityTag[] = ['research_answer', 'cited_answer', 'grounded_answer', 'web_search', 'citations', 'live_research'];
 const PLACES_SEARCH_CAPABILITIES: CapabilityTag[] = ['search', 'enrichment'];
 const VISION_ANALYSIS_CAPABILITIES: CapabilityTag[] = ['vision', 'image_labels', 'image_analysis', 'ocr', 'text_detection', 'safe_search', 'logo_detection', 'landmark_detection', 'ai_ml'];
+const SMS_STATUS_CAPABILITIES: CapabilityTag[] = ['sms_status', 'sms', 'text', 'status', 'delivery', 'messaging'];
 const LATENCY_UNKNOWN_POLICY_NOTE = 'latency_unknown_allowed_for_specific_capability_match';
 const VERIFIED_ROUTE_EFFECTIVE_TRUST_FLOOR_NOTE = 'harness_verified_route_effective_trust_floor';
 const VERIFIED_ROUTE_EFFECTIVE_TRUST_FLOOR = 70;
@@ -159,6 +170,10 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
     }
     if (isResearchAnswerIntent && isNonResearchSpecializedProviderForResearchAnswer(candidate)) {
       capabilityRejectedByProvider.set(candidate.provider.id, ['capability_mismatch:non_research_specialized_provider']);
+      continue;
+    }
+    if (isSmsStatusIntent(requiredCapabilities) && isEmailInboxOnlyProvider(candidate)) {
+      capabilityRejectedByProvider.set(candidate.provider.id, ['capability_mismatch:email_inbox_provider_without_sms_status']);
       continue;
     }
     if (!shouldMatchCapabilities || hasAnyCapability(candidate.capabilities, requiredCapabilities)) {
@@ -484,6 +499,15 @@ function inferProviderCapabilities(provider: Provider, store: IntelligenceStore)
   addIf('trending', [/\btrending\b/, /\btrend(?:ing)?\b/, /\btop\b/, /\bhot\b/]);
   addIf('enrichment', [/\benrich(ment)?\b/, /\bverify\b/]);
   addIf('messaging', [/\bemail\b/, /\bmessage\b/, /\bsms\b/, /\bmail\b/]);
+  addIf('email', [/\bemail\b/, /\bmail\b/]);
+  addIf('inbox', [/\binbox\b/]);
+  addIf('read', [/\bread\b/]);
+  addIf('message', [/\bmessage\b/]);
+  addIf('retrieve', [/\bretrieve\b/]);
+  addIf('sms', [/\bsms\b/, /\btext\b/]);
+  addIf('text', [/\btext\b/, /\btextbelt\b/]);
+  addIf('status', [/\bstatus\b/]);
+  addIf('delivery', [/\bdelivery\b/, /\bdelivered\b/]);
   addIf('media_generation', [/\bimage\b/, /\bvideo\b/, /\bgenerate\b/, /\bgeneration\b/, /\bmedia\b/]);
   addIf('search', [/\bsearch\b/, /\bfind\b/, /\bquery\b/]);
   addIf('ai_ml', [/\bai\b/, /\bml\b/, /\bllm\b/, /\bmodel\b/, /\binference\b/]);
@@ -539,6 +563,10 @@ function inferProviderCapabilities(provider: Provider, store: IntelligenceStore)
     inferred.delete('answer');
   }
 
+  if (isTextbeltProvider(provider)) {
+    for (const capability of SMS_STATUS_CAPABILITIES) inferred.add(capability);
+  }
+
   return Array.from(inferred).sort();
 }
 
@@ -556,6 +584,7 @@ function requiredCapabilitiesForIntent(intent: string): CapabilityInference {
   const paymentPhrase = /\btoken payment\b/;
 
   const messagingPatterns = [/\bemail\b/, /\bmessage\b/, /\bsend email\b/];
+  const smsStatusPatterns = [/\bmessaging_status\b/, /\bsms\b/, /\btext\b/, /\btextbelt\b/, /\bdelivery status\b/, /\bsms delivery status\b/];
   const mediaPatterns = [/\bgenerate\b.*\bimage\b/, /\bcreate\b.*\bimage\b/, /\bgenerate\b.*\bmedia\b/, /\bcreate\b.*\bmedia\b/, /\bimage\b/, /\bmedia\b/];
   const visionPatterns = [/\bimage labels?\b/, /\bvision\b/, /\bimage analysis\b/, /\btext detection\b/, /\bocr\b/, /\blogo detection\b/, /\blandmark detection\b/];
   const searchPatterns = [/\bsearch\b/, /\bresearch\b/, /\banswer\b/];
@@ -563,6 +592,13 @@ function requiredCapabilitiesForIntent(intent: string): CapabilityInference {
   const placesSearchPatterns = [/\bplaces?\b/, /\bnearby\b/, /\blocation\b/, /\bmaps?\b/, /\baddress\b/, /\bpoi\b/];
   const rpcIntentPatterns = [/\brpc\b/, /\bblockchain\s+rpc\b/, /\bon-?chain\s+state\b/, /\bjson[\s-]?rpc\b/, /\bgetbalance\b/, /\bgethealth\b/];
   const solanaMainnetPatterns = [/\bsolana\s+mainnet\b/, /\bsolana-mainnet\b/];
+
+  if (hasAny(smsStatusPatterns) && hasAny([/\bstatus\b/, /\bcheck\b/, /\bdelivery\b/, /\btrack\b/, /\bverify\b/, /\bmessaging_status\b/])) {
+    return {
+      requiredCapabilities: SMS_STATUS_CAPABILITIES,
+      capabilityInferenceReason: 'sms_status_intent_from_check_sms_delivery_status'
+    };
+  }
 
   if (hasAny(rpcIntentPatterns) || hasAll([/\bsolana\b/, /\bmainnet\b/]) || hasAny(solanaMainnetPatterns)) {
     return {
@@ -800,8 +836,30 @@ function isGoogleVisionProvider(provider: Provider) {
     || searchable.includes('vision.googleapis.com');
 }
 
+function isTextbeltProvider(provider: Provider) {
+  const keys = providerLookupKeys(provider);
+  const searchable = `${safe(provider.id)} ${safe(provider.slug)} ${safe(provider.name)} ${safe(provider.namespace)} ${safe(provider.fqn)} ${safe(provider.serviceUrl)}`.toLowerCase();
+  return keys.includes('paysponge-textbelt')
+    || searchable.includes('textbelt')
+    || searchable.includes('paysponge/textbelt')
+    || searchable.includes('paysponge-textbelt');
+}
+
 function isResearchAnswerIntentCapabilities(requiredCapabilities: CapabilityTag[]) {
   return requiredCapabilities.some((capability) => RESEARCH_ANSWER_REQUIRED_CAPABILITIES.includes(capability));
+}
+
+function isSmsStatusIntent(requiredCapabilities: CapabilityTag[]) {
+  return requiredCapabilities.includes('sms_status') || requiredCapabilities.includes('sms');
+}
+
+function isEmailInboxOnlyProvider(candidate: Candidate) {
+  const hasSms = candidate.capabilities.includes('sms') || candidate.capabilities.includes('sms_status');
+  if (hasSms) return false;
+  const emailLike = candidate.capabilities.includes('email') || candidate.capabilities.includes('inbox') || candidate.capabilities.includes('messaging');
+  const searchable = `${safe(candidate.provider.id)} ${safe(candidate.provider.name)} ${safe(candidate.provider.namespace)} ${safe(candidate.provider.fqn)} ${safe(candidate.provider.serviceUrl)} ${safe(candidate.provider.description)} ${candidate.provider.tags.join(' ')}`.toLowerCase();
+  const smsLike = /\bsms\b|\btextbelt\b|\btext\s+message\b/.test(searchable);
+  return emailLike && !smsLike;
 }
 
 function isEmbeddingOnlyProviderForResearchAnswer(candidate: Candidate) {
