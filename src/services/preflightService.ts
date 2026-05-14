@@ -8,7 +8,13 @@ type Candidate = {
   capabilities: CapabilityTag[];
   capabilityMatchScore: number;
   policyNotes: string[];
+  verifiedRoute: boolean;
+  verificationSource: string | null;
+  verificationStatus: string | null;
+  verificationFqn: string | null;
+  verificationOutputShape: string | null;
   trustScore: number | null;
+  effectiveTrustScore: number | null;
   signalScore: number | null;
   latencyMs: number | null;
   minCostUsd: number | null;
@@ -79,6 +85,26 @@ const RESEARCH_ANSWER_REQUIRED_CAPABILITIES: CapabilityTag[] = ['research_answer
 const PLACES_SEARCH_CAPABILITIES: CapabilityTag[] = ['search', 'enrichment'];
 const VISION_ANALYSIS_CAPABILITIES: CapabilityTag[] = ['vision', 'image_labels', 'image_analysis', 'ocr', 'text_detection', 'safe_search', 'logo_detection', 'landmark_detection', 'ai_ml'];
 const LATENCY_UNKNOWN_POLICY_NOTE = 'latency_unknown_allowed_for_specific_capability_match';
+const VERIFIED_ROUTE_EFFECTIVE_TRUST_FLOOR_NOTE = 'harness_verified_route_effective_trust_floor';
+const VERIFIED_ROUTE_EFFECTIVE_TRUST_FLOOR = 70;
+
+type VerifiedRouteOverlay = {
+  providerId: string;
+  fqn: string;
+  outputShape: string;
+  status: 'verified_pay_cli_success';
+  verificationSource: string;
+  verifiedRoute: true;
+};
+
+const VERIFIED_ROUTE_OVERLAYS: VerifiedRouteOverlay[] = [{
+  providerId: 'paysponge-perplexity',
+  fqn: 'paysponge/perplexity',
+  outputShape: 'research_answer',
+  status: 'verified_pay_cli_success',
+  verificationSource: 'infopunks-pay-sh-agent-harness',
+  verifiedRoute: true
+}];
 
 export function runPreflight(input: PreflightRequest, store: IntelligenceStore): PreflightResponse {
   const sourceState = dataSourceState(store);
@@ -282,7 +308,7 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
   const accepted: Candidate[] = [];
   for (const candidate of capabilityMatchedCandidates) {
     const reasons: string[] = [];
-    if (candidate.trustScore === null || candidate.trustScore < minTrustScore) reasons.push(`trust_score_below_min:${candidate.trustScore ?? 'unknown'}<${minTrustScore}`);
+    if (candidate.effectiveTrustScore === null || candidate.effectiveTrustScore < minTrustScore) reasons.push(`trust_score_below_min:${candidate.effectiveTrustScore ?? 'unknown'}<${minTrustScore}`);
     if (candidate.degraded) reasons.push('active_degradation');
     if (maxLatencyMs !== null) {
       const allowsUnknownLatency = allowsUnknownLatencyForSpecificCapabilityMatch(candidate, requiredCapabilities);
@@ -313,18 +339,18 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
     || (isResearchAnswerIntent
       ? (compareNumbersDesc(researchAnswerSpecificityScore(a), researchAnswerSpecificityScore(b))
         || compareNumbersDesc(a.signalScore, b.signalScore)
-        || compareNumbersDesc(a.trustScore, b.trustScore)
+        || compareNumbersDesc(a.effectiveTrustScore, b.effectiveTrustScore)
         || compareNumbersAsc(a.latencyMs, b.latencyMs))
       : 0)
     || (isRpcIntent(requiredCapabilities)
       ? (compareNumbersDesc(rpcSpecificityScore(a), rpcSpecificityScore(b))
-        || compareNumbersDesc(a.trustScore, b.trustScore)
+        || compareNumbersDesc(a.effectiveTrustScore, b.effectiveTrustScore)
         || compareNumbersAsc(a.latencyMs, b.latencyMs))
       : 0)
     || compareNumbersDesc(a.signalScore, b.signalScore)
     || (isHighSpecificityDexTrendingIntent
-      ? (compareNumbersDesc(a.trustScore, b.trustScore) || compareNumbersAsc(a.latencyMs, b.latencyMs))
-      : (compareNumbersAsc(a.latencyMs, b.latencyMs) || compareNumbersDesc(a.trustScore, b.trustScore)))
+      ? (compareNumbersDesc(a.effectiveTrustScore, b.effectiveTrustScore) || compareNumbersAsc(a.latencyMs, b.latencyMs))
+      : (compareNumbersAsc(a.latencyMs, b.latencyMs) || compareNumbersDesc(a.effectiveTrustScore, b.effectiveTrustScore)))
     || a.provider.id.localeCompare(b.provider.id));
 
   const selected = accepted[0] ?? null;
@@ -354,6 +380,13 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
       capabilityMatchScore: selected.capabilityMatchScore,
       policyNotes: selected.policyNotes.length > 0 ? selected.policyNotes : undefined,
       trustScore: selected.trustScore,
+      originalTrustScore: selected.trustScore,
+      effectiveTrustScore: selected.effectiveTrustScore,
+      verifiedRoute: selected.verifiedRoute,
+      verificationSource: selected.verificationSource ?? undefined,
+      verificationStatus: selected.verificationStatus ?? undefined,
+      verificationFqn: selected.verificationFqn ?? undefined,
+      verificationOutputShape: selected.verificationOutputShape ?? undefined,
       signalScore: selected.signalScore,
       latencyMs: selected.latencyMs,
       costUsd: selected.minCostUsd,
@@ -401,12 +434,25 @@ function toCandidate(provider: Provider, store: IntelligenceStore): Candidate {
   const latestHealth = providerEvents[0] ?? null;
   const latestLatency = latestNumericLatency(providerEvents);
   const degraded = latestHealth ? latestHealth.type === 'provider.degraded' || latestHealth.type === 'provider.failed' : false;
+  const routeOverlay = verifiedRouteOverlayForProvider(provider);
+  const baseTrustScore = trust?.score ?? null;
+  const effectiveTrustScore = effectiveTrustScoreForProvider(baseTrustScore, routeOverlay, degraded);
+  const policyNotes: string[] = [];
+  if (baseTrustScore !== null && effectiveTrustScore !== null && effectiveTrustScore > baseTrustScore) {
+    policyNotes.push(VERIFIED_ROUTE_EFFECTIVE_TRUST_FLOOR_NOTE);
+  }
   return {
     provider,
     capabilities: inferProviderCapabilities(provider, store),
     capabilityMatchScore: 0,
-    policyNotes: [],
-    trustScore: trust?.score ?? null,
+    policyNotes,
+    verifiedRoute: routeOverlay?.verifiedRoute ?? false,
+    verificationSource: routeOverlay?.verificationSource ?? null,
+    verificationStatus: routeOverlay?.status ?? null,
+    verificationFqn: routeOverlay?.fqn ?? null,
+    verificationOutputShape: routeOverlay?.outputShape ?? null,
+    trustScore: baseTrustScore,
+    effectiveTrustScore,
     signalScore: signal?.score ?? null,
     latencyMs: latestLatency,
     minCostUsd: provider.pricing.min,
@@ -813,4 +859,24 @@ function researchAnswerSpecificityScore(candidate: Candidate) {
   if (isEmbeddingOnlyProviderForResearchAnswer(candidate)) score -= 10;
   if (isNonResearchSpecializedProviderForResearchAnswer(candidate)) score -= 10;
   return score;
+}
+
+function verifiedRouteOverlayForProvider(provider: Provider) {
+  const keys = providerLookupKeys(provider);
+  return VERIFIED_ROUTE_OVERLAYS.find((overlay) =>
+    keys.includes(normalizeProviderLookupKey(overlay.providerId))
+    || keys.includes(normalizeProviderLookupKey(overlay.fqn))
+  ) ?? null;
+}
+
+function effectiveTrustScoreForProvider(
+  trustScore: number | null,
+  overlay: VerifiedRouteOverlay | null,
+  degraded: boolean
+) {
+  if (trustScore === null) return null;
+  if (!overlay) return trustScore;
+  if (degraded) return trustScore;
+  if (!overlay.verifiedRoute || overlay.status !== 'verified_pay_cli_success') return trustScore;
+  return Math.max(trustScore, VERIFIED_ROUTE_EFFECTIVE_TRUST_FLOOR);
 }

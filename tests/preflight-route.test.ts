@@ -331,6 +331,12 @@ function preflightStoreWithQuicknodeRpcProvider() {
   return store;
 }
 
+function setProviderTrust(store: ReturnType<typeof preflightStore>, providerId: string, score: number) {
+  store.trustAssessments = store.trustAssessments.map((item) =>
+    item.entityId === providerId ? { ...item, score } : item
+  );
+}
+
 describe('preflight API', () => {
   it('isPerplexityProvider detects providerId paysponge-perplexity', () => {
     expect(isPerplexityProvider({ id: 'paysponge-perplexity', slug: 'paysponge-perplexity', name: 'Any', namespace: 'x', fqn: 'x', serviceUrl: null } as any)).toBe(true);
@@ -934,6 +940,179 @@ describe('preflight API', () => {
     await app.close();
   });
 
+  it('Perplexity trust 68 passes minTrustScore 70 when verifiedRoute=true', async () => {
+    const store = preflightStore();
+    setProviderTrust(store, 'paysponge-perplexity', 68);
+    setProviderTrust(store, 'solana-foundation-alibaba-embeddings', 65);
+    const app = await createApp(store);
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'research latest Solana agent payments',
+        category: 'ai_ml',
+        constraints: { minTrustScore: 70, maxLatencyMs: 3000, maxCostUsd: 0.05 },
+        debug: true
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.decision).toBe('route_approved');
+    expect(body.selectedProvider).toBe('paysponge-perplexity');
+    expect(body.selectedProviderDetails).toMatchObject({
+      providerId: 'paysponge-perplexity',
+      verifiedRoute: true,
+      verificationSource: 'infopunks-pay-sh-agent-harness',
+      trustScore: 68,
+      originalTrustScore: 68,
+      effectiveTrustScore: 70
+    });
+    expect(body.selectedProviderDetails.policyNotes).toEqual(expect.arrayContaining(['harness_verified_route_effective_trust_floor']));
+    await app.close();
+  });
+
+  it('Perplexity trust 68 fails minTrustScore 70 when verifiedRoute=false', async () => {
+    const store = preflightStore();
+    const unverifiedProviderId = 'research-provider-x';
+    setProviderTrust(store, 'paysponge-perplexity', 68);
+    store.providers = store.providers.map((provider) =>
+      provider.id === 'paysponge-perplexity'
+        ? {
+          ...provider,
+          id: unverifiedProviderId,
+          name: 'Perplexity Mirror',
+          namespace: 'research/provider-x',
+          fqn: 'research/provider-x',
+          slug: 'research-provider-x',
+          serviceUrl: 'https://mirror-perplexity.example.com'
+        }
+        : provider
+    );
+    store.trustAssessments = store.trustAssessments.map((item) =>
+      item.entityId === 'paysponge-perplexity' ? { ...item, entityId: unverifiedProviderId } : item
+    );
+    store.signalAssessments = store.signalAssessments.map((item) =>
+      item.entityId === 'paysponge-perplexity' ? { ...item, entityId: unverifiedProviderId } : item
+    );
+    store.events = store.events.map((event) =>
+      event.entityType === 'provider' && event.entityId === 'paysponge-perplexity'
+        ? {
+          ...event,
+          entityId: unverifiedProviderId,
+          payload: { ...event.payload, providerId: unverifiedProviderId }
+        }
+        : event
+    );
+    const app = await createApp(store);
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'research latest Solana agent payments',
+        category: 'ai_ml',
+        candidateProviders: [unverifiedProviderId],
+        constraints: { minTrustScore: 70, maxLatencyMs: 3000, maxCostUsd: 0.05 },
+        debug: true
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.decision).toBe('route_blocked');
+    expect(body.blockReason).toBe('all_candidates_rejected_by_policy');
+    expect(body.rejectedProviders).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        providerId: unverifiedProviderId,
+        reasons: expect.arrayContaining(['trust_score_below_min:68<70'])
+      })
+    ]));
+    await app.close();
+  });
+
+  it('unverified low-trust provider remains rejected at default trust floor', async () => {
+    const store = preflightStore();
+    setProviderTrust(store, 'solana-foundation-google-places', 68);
+    const app = await createApp(store);
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'places search near me',
+        category: 'data',
+        candidateProviders: ['solana-foundation-google-places'],
+        constraints: { minTrustScore: 70, maxLatencyMs: 3000, maxCostUsd: 0.05 },
+        debug: true
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.decision).toBe('route_blocked');
+    expect(body.rejectedProviders).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        providerId: 'solana-foundation-google-places',
+        reasons: expect.arrayContaining(['trust_score_below_min:68<70'])
+      })
+    ]));
+    await app.close();
+  });
+
+  it('explicit degradation still rejects verified route', async () => {
+    const store = preflightStore();
+    setProviderTrust(store, 'paysponge-perplexity', 68);
+    store.events.push({
+      id: 'perplexity-degraded',
+      type: 'provider.degraded',
+      source: 'infopunks:safe-metadata-monitor',
+      entityType: 'provider',
+      entityId: 'paysponge-perplexity',
+      observedAt: '2026-01-03T00:00:00.000Z',
+      payload: { providerId: 'paysponge-perplexity', response_time_ms: 9999, success: false }
+    });
+    const app = await createApp(store);
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'research latest Solana agent payments',
+        category: 'ai_ml',
+        candidateProviders: ['paysponge-perplexity'],
+        constraints: { minTrustScore: 70, maxLatencyMs: 3000, maxCostUsd: 0.05 },
+        debug: true
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.decision).toBe('route_blocked');
+    expect(body.rejectedProviders).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        providerId: 'paysponge-perplexity',
+        reasons: expect.arrayContaining(['trust_score_below_min:68<70', 'active_degradation'])
+      })
+    ]));
+    await app.close();
+  });
+
+  it('selectedProviderDetails exposes original/effective trust and policy notes for verified route', async () => {
+    const store = preflightStore();
+    setProviderTrust(store, 'paysponge-perplexity', 68);
+    const app = await createApp(store);
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'research latest Solana agent payments',
+        category: 'ai_ml',
+        constraints: { minTrustScore: 70, maxLatencyMs: 3000, maxCostUsd: 0.05 },
+        debug: true
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const details = response.json().data.selectedProviderDetails;
+    expect(details.originalTrustScore).toBe(68);
+    expect(details.effectiveTrustScore).toBe(70);
+    expect(details.policyNotes).toEqual(expect.arrayContaining(['harness_verified_route_effective_trust_floor']));
+    await app.close();
+  });
+
   it('Perplexity enriched capabilities include full research-answer set for serviceUrl-only detection', async () => {
     const serviceUrlCatalog: PayShCatalogItem[] = [{
       name: 'Perplexity AI API',
@@ -1086,6 +1265,60 @@ describe('preflight API', () => {
     const body = response.json().data;
     expect(body.decision).toBe('route_approved');
     expect(body.selectedProvider).toBe('solana-foundation-google-places');
+    await app.close();
+  });
+
+  it('existing regression routes still pass for dex/rpc/places/vision', async () => {
+    const dexApp = await createApp(preflightStoreWithDexPoolsProvider());
+    const dexResponse = await dexApp.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'get trending Solana DEX pools',
+        category: 'finance',
+        constraints: { minTrustScore: 70, maxLatencyMs: 3000, maxCostUsd: 0.05 }
+      }
+    });
+    expect(dexResponse.statusCode).toBe(200);
+    expect(dexResponse.json().data.selectedProvider).toBe('paysponge-coingecko');
+    await dexApp.close();
+
+    const app = await createApp(preflightStoreWithQuicknodeRpcProvider());
+    const rpcResponse = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'check Solana mainnet RPC health',
+        category: 'compute',
+        constraints: { minTrustScore: 70, maxLatencyMs: 5000, maxCostUsd: 0.05 }
+      }
+    });
+    expect(rpcResponse.statusCode).toBe(200);
+    expect(rpcResponse.json().data.selectedProvider).toBe('quicknode-rpc');
+
+    const placesResponse = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'places search near me',
+        category: 'data',
+        constraints: { minTrustScore: 70, maxLatencyMs: 3000, maxCostUsd: 0.05 }
+      }
+    });
+    expect(placesResponse.statusCode).toBe(200);
+    expect(placesResponse.json().data.selectedProvider).toBe('solana-foundation-google-places');
+
+    const visionResponse = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'run image labels and text detection',
+        category: 'ai_ml',
+        constraints: { minTrustScore: 70, maxLatencyMs: 3000, maxCostUsd: 0.05 }
+      }
+    });
+    expect(visionResponse.statusCode).toBe(200);
+    expect(visionResponse.json().data.selectedProvider).toBe('solana-foundation-google-vision');
     await app.close();
   });
 
