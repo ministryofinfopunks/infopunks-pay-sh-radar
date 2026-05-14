@@ -85,6 +85,17 @@ const catalog: PayShCatalogItem[] = [
     tags: ['places', 'location', 'maps', 'search']
   },
   {
+    name: 'Cloud Vision API',
+    namespace: 'solana-foundation/google/vision',
+    slug: 'solana-foundation-google-vision',
+    category: 'AI/ML',
+    endpoints: 1,
+    price: '$0.004',
+    status: 'metered',
+    description: 'Image analysis API for labels, OCR text detection, safe-search, logos, and landmarks.',
+    tags: ['vision', 'image_labels', 'image_analysis', 'ocr', 'text_detection', 'safe_search', 'logo_detection', 'landmark_detection', 'ai_ml']
+  },
+  {
     name: 'Alibaba Embeddings',
     namespace: 'solana-foundation/alibaba/embeddings',
     slug: 'solana-foundation-alibaba-embeddings',
@@ -104,7 +115,7 @@ function preflightStore() {
     mode: 'live_pay_sh_catalog',
     url: 'https://pay.sh/api/catalog',
     generated_at: '2026-01-01T00:00:00.000Z',
-    provider_count: 7,
+    provider_count: 8,
     last_ingested_at: '2026-01-01T00:00:00.000Z',
     used_fixture: false,
     error: null
@@ -120,6 +131,8 @@ function preflightStore() {
             ? { ...item, score: 93 }
             : item.entityId === 'solana-foundation-google-places'
               ? { ...item, score: 94 }
+              : item.entityId === 'solana-foundation-google-vision'
+                ? { ...item, score: 96 }
               : item.entityId === 'solana-foundation-alibaba-embeddings'
                 ? { ...item, score: 99 }
           : { ...item, score: 65 });
@@ -134,6 +147,8 @@ function preflightStore() {
             ? { ...item, score: 97 }
             : item.entityId === 'solana-foundation-google-places'
               ? { ...item, score: 95 }
+              : item.entityId === 'solana-foundation-google-vision'
+                ? { ...item, score: 96 }
               : item.entityId === 'solana-foundation-alibaba-embeddings'
                 ? { ...item, score: 99 }
           : { ...item, score: 91 });
@@ -218,6 +233,15 @@ function preflightStore() {
       entityId: 'solana-foundation-alibaba-embeddings',
       observedAt: '2026-01-02T00:04:15.000Z',
       payload: { providerId: 'solana-foundation-alibaba-embeddings', response_time_ms: 110, success: true }
+    },
+    {
+      id: 'vision-checked',
+      type: 'provider.checked',
+      source: 'infopunks:safe-metadata-monitor',
+      entityType: 'provider',
+      entityId: 'solana-foundation-google-vision',
+      observedAt: '2026-01-02T00:04:30.000Z',
+      payload: { providerId: 'solana-foundation-google-vision', response_time_ms: 130, success: true }
     }
   ];
   store.events.push(...providerEvents);
@@ -325,7 +349,7 @@ describe('preflight API', () => {
       },
       categoryMatch: true,
       fallbackCategoryUsed: false,
-      candidateCount: 7,
+      candidateCount: 8,
       consideredProviderCount: 3,
       dataMode: 'live'
     });
@@ -343,7 +367,7 @@ describe('preflight API', () => {
     expect(response.json().data.decision).toBe('route_blocked');
     expect(response.json().data.blockReason).toBe('all_candidates_rejected_by_policy');
     expect(response.json().data.selectedProvider).toBeNull();
-    expect(response.json().data.rejectedProviders.length).toBe(7);
+    expect(response.json().data.rejectedProviders.length).toBe(8);
     await app.close();
   });
 
@@ -628,8 +652,8 @@ describe('preflight API', () => {
     ]));
     expect(body.consideredProvidersRejected).toHaveLength(3);
     expect(body.rejectionSummary).toMatchObject({
-      totalRejectedCount: 7,
-      categoryMismatchCount: 4,
+      totalRejectedCount: 8,
+      categoryMismatchCount: 5,
       capabilityMismatchCount: 3,
       policyRejectedCount: 0
     });
@@ -888,7 +912,48 @@ describe('preflight API', () => {
       providerId: 'paysponge-perplexity',
       capabilities: expect.arrayContaining(['research', 'web_search', 'search', 'citations', 'cited_answer', 'answer', 'live_research', 'grounded_answer', 'ai_ml', 'research_answer'])
     });
+    expect(body.selectedProvider).not.toBe('solana-foundation-google-vision');
     expect(body.selectedProvider).not.toBe('solana-foundation-alibaba-embeddings');
+    await app.close();
+  });
+
+  it('Cloud Vision capability enrichment excludes research-answer capabilities', async () => {
+    const app = await createApp(preflightStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'image labels and logo detection',
+        category: 'ai_ml',
+        candidateProviders: ['solana-foundation-google-vision'],
+        constraints: { minTrustScore: 70, maxLatencyMs: 3000, maxCostUsd: 0.05 },
+        debug: true
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const capabilities = response.json().data.selectedProviderDetails.capabilities as string[];
+    expect(capabilities).toEqual(expect.arrayContaining(['vision', 'image_labels', 'image_analysis', 'ocr', 'text_detection', 'safe_search', 'logo_detection', 'landmark_detection', 'ai_ml']));
+    expect(capabilities).not.toEqual(expect.arrayContaining(['citations', 'web_search', 'research_answer', 'grounded_answer', 'cited_answer', 'live_research']));
+    await app.close();
+  });
+
+  it('image label intent routes to Google Vision', async () => {
+    const app = await createApp(preflightStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'run image labels and text detection',
+        category: 'ai_ml',
+        constraints: { minTrustScore: 70, maxLatencyMs: 3000, maxCostUsd: 0.05 },
+        debug: true
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.decision).toBe('route_approved');
+    expect(body.selectedProvider).toBe('solana-foundation-google-vision');
+    expect(body.requiredCapabilities).toEqual(['vision', 'image_labels', 'image_analysis']);
     await app.close();
   });
 
