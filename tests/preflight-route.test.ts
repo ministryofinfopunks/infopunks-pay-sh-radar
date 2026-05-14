@@ -5,7 +5,7 @@ import { applyPayShCatalogIngestion } from '../src/ingestion/payShCatalogAdapter
 import { IntelligenceSnapshot } from '../src/persistence/repository';
 import { InfopunksEvent } from '../src/schemas/entities';
 import { recomputeAssessments } from '../src/services/intelligenceStore';
-import { isPerplexityProvider } from '../src/services/preflightService';
+import { isPerplexityProvider, isTextbeltProvider } from '../src/services/preflightService';
 
 const emptySnapshot: IntelligenceSnapshot = {
   events: [],
@@ -404,6 +404,21 @@ describe('preflight API', () => {
     expect(isPerplexityProvider({ id: 'provider-x', slug: 'provider-x', name: 'Any', namespace: 'x', fqn: 'x', serviceUrl: 'https://pplx.x402.paysponge.com' } as any)).toBe(true);
   });
 
+  it('isTextbeltProvider detects id', () => {
+    expect(isTextbeltProvider({ id: 'paysponge-textbelt', slug: 'x', name: 'Any', namespace: 'x', fqn: 'x', serviceUrl: null } as any)).toBe(true);
+  });
+
+  it('isTextbeltProvider detects provider_id/providerId aliases', () => {
+    expect(isTextbeltProvider({ id: 'x', slug: 'x', name: 'Any', namespace: 'x', fqn: 'x', provider_id: 'paysponge-textbelt', serviceUrl: null } as any)).toBe(true);
+    expect(isTextbeltProvider({ id: 'x', slug: 'x', name: 'Any', namespace: 'x', fqn: 'x', providerId: 'paysponge/textbelt', serviceUrl: null } as any)).toBe(true);
+  });
+
+  it('isTextbeltProvider detects fqn/name/serviceUrl/url/harness service id variants', () => {
+    expect(isTextbeltProvider({ id: 'x', slug: 'x', name: 'Textbelt SMS API', namespace: 'x', fqn: 'paysponge/textbelt', serviceUrl: null } as any)).toBe(true);
+    expect(isTextbeltProvider({ id: 'x', slug: 'x', name: 'Any', namespace: 'x', fqn: 'x', serviceUrl: 'https://api.paysponge.com/x402/purchase/svc_d6kszbre4qwg5n4n4/status/test-harness-123' } as any)).toBe(true);
+    expect(isTextbeltProvider({ id: 'x', slug: 'x', name: 'Any', namespace: 'x', fqn: 'x', url: 'https://api.paysponge.com/x402/purchase/svc_d6kszbre4qwg5n4n4/status/test-harness-123', serviceUrl: null } as any)).toBe(true);
+  });
+
   it('returns route_approved when at least one candidate passes policy', async () => {
     const app = await createApp(preflightStore());
     const response = await app.inject({
@@ -753,6 +768,20 @@ describe('preflight API', () => {
     await app.close();
   });
 
+  it('routes "message status" intent to Textbelt with sms_status capability inference', async () => {
+    const app = await createApp(preflightStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: { intent: 'check message status', category: 'messaging', constraints: { minTrustScore: 0 }, debug: true }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.selectedProvider).toBe('paysponge-textbelt');
+    expect(body.requiredCapabilities).toEqual(['sms_status', 'sms', 'text', 'status', 'delivery', 'messaging']);
+    await app.close();
+  });
+
   it('rejects AgentMail for sms_status intent', async () => {
     const app = await createApp(preflightStore());
     const response = await app.inject({
@@ -794,6 +823,37 @@ describe('preflight API', () => {
     expect(response.statusCode).toBe(200);
     const capabilities = response.json().data.selectedProviderDetails.capabilities;
     expect(capabilities).toEqual(expect.arrayContaining(['sms_status', 'sms', 'text', 'status', 'delivery', 'messaging']));
+    await app.close();
+  });
+
+  it('verified Textbelt route is not rejected when endpoint metadata is partial', async () => {
+    const store = preflightStore();
+    store.providers = store.providers.map((provider) =>
+      provider.id === 'paysponge-textbelt'
+        ? { ...provider, endpointMetadataPartial: true }
+        : provider
+    );
+    store.events = store.events.filter((event) => !(event.entityType === 'provider' && event.entityId === 'paysponge-textbelt'));
+    const app = await createApp(store);
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/preflight',
+      payload: {
+        intent: 'check SMS delivery status',
+        category: 'messaging',
+        candidateProviders: ['paysponge-textbelt'],
+        constraints: { minTrustScore: 70, maxLatencyMs: 3000, maxCostUsd: 0.05 },
+        debug: true
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.decision).toBe('route_approved');
+    expect(body.selectedProvider).toBe('paysponge-textbelt');
+    expect(body.selectedProviderDetails.policyNotes).toEqual(expect.arrayContaining([
+      'harness_verified_route_overrides_partial_endpoint_metadata',
+      'latency_unknown_allowed_for_specific_capability_match'
+    ]));
     await app.close();
   });
 

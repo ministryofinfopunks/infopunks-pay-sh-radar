@@ -97,6 +97,7 @@ const VISION_ANALYSIS_CAPABILITIES: CapabilityTag[] = ['vision', 'image_labels',
 const SMS_STATUS_CAPABILITIES: CapabilityTag[] = ['sms_status', 'sms', 'text', 'status', 'delivery', 'messaging'];
 const LATENCY_UNKNOWN_POLICY_NOTE = 'latency_unknown_allowed_for_specific_capability_match';
 const VERIFIED_ROUTE_EFFECTIVE_TRUST_FLOOR_NOTE = 'harness_verified_route_effective_trust_floor';
+const VERIFIED_ROUTE_PARTIAL_ENDPOINT_METADATA_OVERRIDE_NOTE = 'harness_verified_route_overrides_partial_endpoint_metadata';
 const VERIFIED_ROUTE_EFFECTIVE_TRUST_FLOOR = 70;
 
 type VerifiedRouteOverlay = {
@@ -106,6 +107,8 @@ type VerifiedRouteOverlay = {
   status: 'verified_pay_cli_success';
   verificationSource: string;
   verifiedRoute: true;
+  endpoint?: string;
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 };
 
 const VERIFIED_ROUTE_OVERLAYS: VerifiedRouteOverlay[] = [{
@@ -115,6 +118,15 @@ const VERIFIED_ROUTE_OVERLAYS: VerifiedRouteOverlay[] = [{
   status: 'verified_pay_cli_success',
   verificationSource: 'infopunks-pay-sh-agent-harness',
   verifiedRoute: true
+}, {
+  providerId: 'paysponge-textbelt',
+  fqn: 'paysponge/textbelt',
+  outputShape: 'sms_status',
+  status: 'verified_pay_cli_success',
+  verificationSource: 'infopunks-pay-sh-agent-harness',
+  verifiedRoute: true,
+  endpoint: 'https://api.paysponge.com/x402/purchase/svc_d6kszbre4qwg5n4n4/status/test-harness-123',
+  method: 'GET'
 }];
 
 export function runPreflight(input: PreflightRequest, store: IntelligenceStore): PreflightResponse {
@@ -327,8 +339,12 @@ export function runPreflight(input: PreflightRequest, store: IntelligenceStore):
     if (candidate.degraded) reasons.push('active_degradation');
     if (maxLatencyMs !== null) {
       const allowsUnknownLatency = allowsUnknownLatencyForSpecificCapabilityMatch(candidate, requiredCapabilities);
+      const allowsUnknownLatencyViaVerifiedSms = isSmsStatusIntent(requiredCapabilities)
+        && candidate.verifiedRoute
+        && candidate.verificationStatus === 'verified_pay_cli_success'
+        && candidate.capabilities.includes('sms_status');
       if (candidate.latencyMs === null) {
-        if (allowsUnknownLatency) {
+        if (allowsUnknownLatency || allowsUnknownLatencyViaVerifiedSms) {
           candidate.policyNotes.push(LATENCY_UNKNOWN_POLICY_NOTE);
         } else {
           reasons.push(`latency_exceeds_max:${candidate.latencyMs ?? 'unknown'}>${maxLatencyMs}`);
@@ -456,6 +472,9 @@ function toCandidate(provider: Provider, store: IntelligenceStore): Candidate {
   if (baseTrustScore !== null && effectiveTrustScore !== null && effectiveTrustScore > baseTrustScore) {
     policyNotes.push(VERIFIED_ROUTE_EFFECTIVE_TRUST_FLOOR_NOTE);
   }
+  if (provider.endpointMetadataPartial && routeOverlay?.verifiedRoute && routeOverlay.status === 'verified_pay_cli_success') {
+    policyNotes.push(VERIFIED_ROUTE_PARTIAL_ENDPOINT_METADATA_OVERRIDE_NOTE);
+  }
   return {
     provider,
     capabilities: inferProviderCapabilities(provider, store),
@@ -566,6 +585,12 @@ function inferProviderCapabilities(provider: Provider, store: IntelligenceStore)
   if (isTextbeltProvider(provider)) {
     for (const capability of SMS_STATUS_CAPABILITIES) inferred.add(capability);
   }
+  if (isAgentMailProvider(provider)) {
+    inferred.delete('sms_status');
+    inferred.delete('sms');
+    inferred.delete('text');
+    inferred.delete('delivery');
+  }
 
   return Array.from(inferred).sort();
 }
@@ -584,7 +609,7 @@ function requiredCapabilitiesForIntent(intent: string): CapabilityInference {
   const paymentPhrase = /\btoken payment\b/;
 
   const messagingPatterns = [/\bemail\b/, /\bmessage\b/, /\bsend email\b/];
-  const smsStatusPatterns = [/\bmessaging_status\b/, /\bsms\b/, /\btext\b/, /\btextbelt\b/, /\bdelivery status\b/, /\bsms delivery status\b/];
+  const smsStatusPatterns = [/\bmessaging_status\b/, /\bsms\b/, /\btext\b/, /\btext message\b/, /\btextbelt\b/, /\bdelivery status\b/, /\bsms delivery status\b/, /\bsms status\b/, /\bmessage status\b/];
   const mediaPatterns = [/\bgenerate\b.*\bimage\b/, /\bcreate\b.*\bimage\b/, /\bgenerate\b.*\bmedia\b/, /\bcreate\b.*\bmedia\b/, /\bimage\b/, /\bmedia\b/];
   const visionPatterns = [/\bimage labels?\b/, /\bvision\b/, /\bimage analysis\b/, /\btext detection\b/, /\bocr\b/, /\blogo detection\b/, /\blandmark detection\b/];
   const searchPatterns = [/\bsearch\b/, /\bresearch\b/, /\banswer\b/];
@@ -836,13 +861,36 @@ function isGoogleVisionProvider(provider: Provider) {
     || searchable.includes('vision.googleapis.com');
 }
 
-function isTextbeltProvider(provider: Provider) {
-  const keys = providerLookupKeys(provider);
-  const searchable = `${safe(provider.id)} ${safe(provider.slug)} ${safe(provider.name)} ${safe(provider.namespace)} ${safe(provider.fqn)} ${safe(provider.serviceUrl)}`.toLowerCase();
-  return keys.includes('paysponge-textbelt')
-    || searchable.includes('textbelt')
+export function isTextbeltProvider(provider: Provider) {
+  const anyProvider = provider as Provider & {
+    providerId?: string;
+    provider_id?: string;
+    serviceUrl?: string | null;
+    url?: string | null;
+  };
+  const rawFields = [
+    provider.id,
+    provider.slug,
+    provider.name,
+    provider.fqn,
+    provider.namespace,
+    provider.serviceUrl ?? null,
+    anyProvider.providerId ?? null,
+    anyProvider.provider_id ?? null,
+    anyProvider.url ?? null
+  ];
+  const searchable = rawFields.map((value) => safe(value)).join(' ').toLowerCase();
+  return searchable.includes('textbelt')
+    || searchable.includes('paysponge-textbelt')
     || searchable.includes('paysponge/textbelt')
-    || searchable.includes('paysponge-textbelt');
+    || searchable.includes('svc_d6kszbre4qwg5n4n4');
+}
+
+function isAgentMailProvider(provider: Provider) {
+  const searchable = `${safe(provider.id)} ${safe(provider.slug)} ${safe(provider.name)} ${safe(provider.namespace)} ${safe(provider.fqn)} ${safe(provider.serviceUrl)}`.toLowerCase();
+  return searchable.includes('agentmail')
+    || searchable.includes('agentmail-email')
+    || searchable.includes('agentmail/email');
 }
 
 function isResearchAnswerIntentCapabilities(requiredCapabilities: CapabilityTag[]) {
