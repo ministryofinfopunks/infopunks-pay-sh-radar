@@ -3026,7 +3026,7 @@ function RadarExportPanel() {
 
 function BenchmarkReadinessPanel({ readiness }: { readiness: RadarBenchmarkReadiness | null }) {
   const oneProvenRow = readiness?.categories.find((row) => row.proven_execution_count === 1 && !row.benchmark_ready) ?? null;
-  const candidateRow = readiness?.categories.find((row) => row.candidate_mapping_count > 0 && !row.benchmark_ready) ?? null;
+  const twoProvenRow = readiness?.categories.find((row) => row.proven_execution_count >= 2 && row.benchmark_ready) ?? null;
   return <section className="panel superiority-readiness" id="benchmark-readiness" aria-label="Benchmark Readiness panel">
     <div className="phase3-panel-head">
       <ScopeLabel scope="GLOBAL" />
@@ -3042,7 +3042,8 @@ function BenchmarkReadinessPanel({ readiness }: { readiness: RadarBenchmarkReadi
       <CompactChipList title="mapped benchmark intents" items={readiness.categories.map((row) => `${row.category}/${row.benchmark_intent}`)} emptyLabel="none" wide />
       <CompactChipList title="mapping ladder state" items={readiness.categories.flatMap((row) => row.mapping_ladder)} emptyLabel="none" wide />
       {oneProvenRow && <p className="panel-caption">One proven route exists. Add one comparable route to unlock benchmark readiness.</p>}
-      {candidateRow && <p className="panel-caption">Candidate comparable route found. Verify endpoint path/method/body before benchmark readiness unlocks.</p>}
+      {twoProvenRow && <p className="panel-caption">Two proven executable routes exist. Benchmark comparison can begin.</p>}
+      {twoProvenRow && <p className="panel-caption">No route winner is claimed until normalized head-to-head metrics are recorded.</p>}
     </div>}
   </section>;
 }

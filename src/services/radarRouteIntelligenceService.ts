@@ -276,9 +276,11 @@ export function buildBenchmarkReadiness(store: IntelligenceStore): RadarBenchmar
     if (!superiorityReady) missing.push('need_at_least_two_proven_execution_mappings_for_same_intent');
 
     const mappingLadder = entries.map((entry) => `${entry.provider_name}: ${entry.mapping_status}/${entry.execution_evidence_status}`);
-    const recommendedNext = candidateMappings.length > 0 && !benchmarkReady
-      ? 'verify PaySponge CoinGecko endpoint path/method/body and execution evidence'
-      : `${category}/${benchmark_intent}: add ${Math.max(0, 2 - executableMappings.length)} comparable executable mapping`;
+    const recommendedNext = superiorityReady
+      ? `${category}/${benchmark_intent}: record normalized head-to-head benchmark metrics`
+      : candidateMappings.length > 0 && !benchmarkReady
+        ? 'verify candidate comparable endpoint mapping and paid execution evidence'
+        : `${category}/${benchmark_intent}: add ${Math.max(0, 2 - executableMappings.length)} comparable executable mapping`;
 
     return {
       category,

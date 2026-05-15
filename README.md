@@ -223,6 +223,13 @@ Rules:
 - Broad ranges (example `$0-$100`) are low-confidence catalog estimates.
 - Superiority is never claimed from catalog metadata only.
 
+Benchmark Readiness note:
+- StableCrypto SOL price route is proven.
+- PaySponge CoinGecko SOL pool search route is proven.
+- Benchmark-ready category: `finance/data` with intent `get SOL price`.
+- No superiority winner is claimed yet.
+- Next step: record normalized head-to-head benchmark metrics.
+
 ---
 
 ## Intelligence

@@ -46,17 +46,17 @@ describe('phase7 intelligence', () => {
     expect(typeof perf.route_value_score).toBe('number');
   });
 
-  it('one proven mapping does not mark benchmark ready and recommends one comparable next mapping', () => {
+  it('two proven mappings mark benchmark and superiority ready and recommend normalized comparison metrics', () => {
     const readiness = buildBenchmarkReadiness(emptyIntelligenceStore());
     const sol = readiness.categories.find((row) => row.benchmark_intent === 'get SOL price');
     expect(sol).toBeTruthy();
-    expect(sol?.benchmark_ready).toBe(false);
-    expect(sol?.superiority_ready).toBe(false);
-    expect(sol?.candidate_mapping_count).toBe(1);
-    expect(sol?.proven_execution_count).toBe(1);
-    expect(sol?.recommended_next_mapping).toBe('verify PaySponge CoinGecko endpoint path/method/body and execution evidence');
+    expect(sol?.benchmark_ready).toBe(true);
+    expect(sol?.superiority_ready).toBe(true);
+    expect(sol?.candidate_mapping_count).toBe(0);
+    expect(sol?.proven_execution_count).toBe(2);
+    expect(sol?.recommended_next_mapping).toBe('finance/data/get SOL price: record normalized head-to-head benchmark metrics');
     expect(sol?.mapping_ladder).toContain('StableCrypto: verified/proven');
-    expect(sol?.mapping_ladder).toContain('CoinGecko Onchain DEX API: candidate/unproven');
+    expect(sol?.mapping_ladder).toContain('CoinGecko Onchain DEX API: verified/proven');
   });
 
   it('candidate mappings do not count as proven execution', () => {
@@ -172,9 +172,9 @@ describe('phase7 intelligence', () => {
     const sol = payload.categories.find((row) => row.benchmark_intent === 'get SOL price');
     expect(sol).toBeTruthy();
     expect(sol?.category).toBe('finance/data');
-    expect(sol?.executable_mapping_count).toBe(1);
-    expect(sol?.candidate_mapping_count).toBe(1);
-    expect(sol?.proven_execution_count).toBe(1);
+    expect(sol?.executable_mapping_count).toBe(2);
+    expect(sol?.candidate_mapping_count).toBe(0);
+    expect(sol?.proven_execution_count).toBe(2);
     await app.close();
   });
 

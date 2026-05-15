@@ -70,14 +70,16 @@ const defaultVerifiedRouteMappingRegistry: VerifiedRouteMappingRecord[] = [
     provider_name: 'CoinGecko Onchain DEX API',
     category: 'finance/data',
     benchmark_intent: 'get SOL price',
-    endpoint_url: 'https://pro-api.coingecko.com/api/v3/x402/onchain',
-    method: null,
-    request_shape_example: null,
-    response_shape_example: null,
-    mapping_status: 'candidate',
-    execution_evidence_status: 'unproven',
-    proof_source: 'catalog',
-    notes: 'Candidate comparable SOL/token price route from Pay.sh catalog. Exact endpoint path, method, body, and paid execution still need verification.'
+    endpoint_url: 'https://pro-api.coingecko.com/api/v3/x402/onchain/search/pools?query=SOL',
+    method: 'GET',
+    request_shape_example: { query: 'SOL' },
+    response_shape_example: { data: [{ attributes: { name: 'SOL / USDC', base_token_price_usd: 0, quote_token_price_usd: 0 } }] },
+    mapping_status: 'verified',
+    execution_evidence_status: 'proven',
+    proof_source: 'infopunks-pay-sh-agent-harness',
+    proof_reference: 'live-proofs/paysponge-coingecko-paid-execution-2026-05-15.md',
+    verified_at: '2026-05-15',
+    notes: 'Paid x402 execution succeeded. Returns SOL pool market data. Comparable benchmark intent is get SOL price, but output normalization is still required before declaring a winner.'
   }
 ];
 let verifiedRouteMappingRegistry: VerifiedRouteMappingRecord[] = [...defaultVerifiedRouteMappingRegistry];
