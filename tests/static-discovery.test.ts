@@ -16,11 +16,18 @@ describe('static public discovery metadata', () => {
     expect(html).toContain('property="og:description"');
     expect(html).toContain('property="og:type" content="website"');
     expect(html).toContain('property="og:url" content="https://radar.infopunks.fun/"');
-    expect(html).toContain('property="og:image" content="/og-radar.png"');
+    expect(html).toContain('rel="icon" href="/favicon.ico" sizes="any"');
+    expect(html).toContain('rel="icon" href="/favicon.svg" type="image/svg+xml"');
+    expect(html).toContain('rel="apple-touch-icon" href="/apple-touch-icon.png"');
+    expect(html).toContain('rel="manifest" href="/site.webmanifest"');
+    expect(html).toContain('property="og:image" content="https://radar.infopunks.fun/og-radar.png"');
+    expect(html).toContain('property="og:image:width" content="1200"');
+    expect(html).toContain('property="og:image:height" content="630"');
+    expect(html).toContain('property="og:image:alt"');
     expect(html).toContain('name="twitter:card" content="summary_large_image"');
     expect(html).toContain('name="twitter:title"');
     expect(html).toContain('name="twitter:description"');
-    expect(html).toContain('name="twitter:image" content="/og-radar.png"');
+    expect(html).toContain('name="twitter:image" content="https://radar.infopunks.fun/og-radar.png"');
     expect(html).toContain('type="application/ld+json"');
     expect(html).toContain('"@type": "SoftwareApplication"');
     expect(html).toContain('<noscript>');
@@ -48,13 +55,40 @@ describe('static public discovery metadata', () => {
     expect(wellKnown.capabilities).toContain('agent_preflight');
   });
 
-  it('publishes the Open Graph image referenced by social metadata', async () => {
+  it('publishes social preview, favicon, and manifest assets', async () => {
     const image = await readFile(projectFileUrl('public/og-radar.png'));
     const imageStats = await stat(projectFileUrl('public/og-radar.png'));
+    const faviconIco = await readFile(projectFileUrl('public/favicon.ico'));
+    const faviconSvg = await readFile(projectFileUrl('public/favicon.svg'), 'utf8');
+    const appleTouchIcon = await readFile(projectFileUrl('public/apple-touch-icon.png'));
+    const icon192 = await readFile(projectFileUrl('public/icon-192.png'));
+    const icon512 = await readFile(projectFileUrl('public/icon-512.png'));
+    const manifest = JSON.parse(await readProjectFile('public/site.webmanifest'));
 
     expect(imageStats.isFile()).toBe(true);
     expect(image.subarray(0, 8)).toEqual(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
     expect(image.readUInt32BE(16)).toBe(1200);
     expect(image.readUInt32BE(20)).toBe(630);
+    expect(faviconIco.subarray(0, 4)).toEqual(Buffer.from([0x00, 0x00, 0x01, 0x00]));
+    expect(faviconSvg).toContain('<svg');
+    expect(faviconSvg).toContain('#06140f');
+    expect(appleTouchIcon.subarray(0, 8)).toEqual(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+    expect(appleTouchIcon.readUInt32BE(16)).toBe(180);
+    expect(appleTouchIcon.readUInt32BE(20)).toBe(180);
+    expect(icon192.subarray(0, 8)).toEqual(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+    expect(icon192.readUInt32BE(16)).toBe(192);
+    expect(icon192.readUInt32BE(20)).toBe(192);
+    expect(icon512.subarray(0, 8)).toEqual(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+    expect(icon512.readUInt32BE(16)).toBe(512);
+    expect(icon512.readUInt32BE(20)).toBe(512);
+    expect(manifest.name).toBe('Infopunks Pay.sh Radar');
+    expect(manifest.short_name).toBe('Radar');
+    expect(manifest.theme_color).toBe('#06140f');
+    expect(manifest.background_color).toBe('#06140f');
+    expect(manifest.display).toBe('standalone');
+    expect(manifest.icons).toEqual([
+      { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ]);
   });
 });
