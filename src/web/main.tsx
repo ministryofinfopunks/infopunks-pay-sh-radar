@@ -1170,6 +1170,32 @@ function RadarApp() {
   const visibleEndpointIntelligenceRows = useMemo(() => filterEndpointIntelligenceRows(endpointIntelligenceRows, endpointFilter), [endpointIntelligenceRows, endpointFilter]);
   const reportedEndpointCount = providerIntel?.endpoint_count ?? providerDetail?.provider.endpointCount ?? selectedProvider?.endpointCount ?? 0;
   const hasPartialEndpointMetadata = reportedEndpointCount > 0 && endpointRows.length === 0;
+  const selectedRouteContext = useMemo(() => {
+    if (!selectedProvider) return null;
+    const riskContext = toRiskContext(providerRisk);
+    const routeEligibleCount = endpointIntelligenceRows.filter((row) => row.normalized.route_eligibility === true).length;
+    const routeBlockedCount = endpointIntelligenceRows.filter((row) => row.normalized.route_eligibility === false).length;
+    const mappingState = endpointIntelligenceRows.length
+      ? `${endpointIntelligenceRows.length} mapped`
+      : reportedEndpointCount > 0
+        ? `${reportedEndpointCount} reported / mapping incomplete`
+        : 'no endpoint mapping';
+    const routeState = providerIntel?.coordination_eligible === true || routeEligibleCount > 0
+      ? 'eligible signal'
+      : routeBlockedCount > 0
+        ? 'blocked by endpoint evidence'
+        : 'eligibility unknown';
+    const pricingState = getSafeRange(selectedProvider.pricing).min !== null || getSafeRange(selectedProvider.pricing).max !== null
+      ? formatPrice(selectedProvider.pricing)
+      : 'pricing unknown';
+    return {
+      provider: selectedProvider.name,
+      risk: riskBadgeLabel(riskContext?.predictive_risk_level ?? 'unknown'),
+      routeState,
+      mappingState,
+      pricingState
+    };
+  }, [endpointIntelligenceRows, providerIntel?.coordination_eligible, providerRisk, reportedEndpointCount, selectedProvider]);
   const nextRotationLabel = featuredRotationEnabled && selectionMode === 'auto' && nextRotationAt ? formatRotationCountdown(nextRotationAt - rotationNow) : 'paused';
   const isFeaturedProvider = selectionMode === 'auto' && featuredRotationEnabled && selectedProvider?.id === featuredProvider?.providerId;
   const filteredTimelineBatches = useMemo(() => {
@@ -1714,7 +1740,7 @@ function RadarApp() {
           </div>
           <div className="directory">
             {filteredProviders.map((provider) => <button key={provider.id} type="button" aria-pressed={provider.id === selectedProvider?.id} className={provider.id === selectedProvider?.id ? 'active row' : 'row'} onClick={() => selectProviderManually(provider.id)}>
-              <span>{provider.name}</span><SeverityBadge evidence={provider} /><PredictiveRiskBadge risk={toRiskContext(providerRiskById[provider.id])} compact /><small>{provider.category} / {provider.endpointCount} endpoints / trust {provider.latestTrustScore ?? 'unknown'}</small>
+              <span>{provider.name}</span><ProviderDirectoryStateBadge provider={provider} risk={toRiskContext(providerRiskById[provider.id])} /><small>{provider.category} / {provider.endpointCount} endpoints / trust {provider.latestTrustScore ?? 'unknown'}</small>
             </button>)}
             {!filteredProviders.length && <EmptyState title="No providers found." body="Adjust the search, category filter, or sort order." />}
           </div>
@@ -1767,113 +1793,24 @@ function RadarApp() {
             </div>
             {providerDegradation.degraded && <ProviderDegradedWarning info={providerDegradation} />}
             <div className="dossier-body" onScroll={() => holdAutoRotation(DOSSIER_INTERACTION_HOLD_MS)}>
-              <DossierSection title="Capability Brief" context={providerContextLabel} helper="Catalog-supplied description, tags, and service URL. This does not imply endpoint execution.">
+              <DossierSection title="Capability Brief" tier="tier-2" context={providerContextLabel} helper="Catalog-supplied description, tags, and service URL. This does not imply endpoint execution.">
                 <p>{selectedProvider.description ?? 'No provider description supplied by catalog metadata.'}</p>
                 <p><b>use_case:</b> {selectedProvider.useCase ?? 'unknown'}</p>
                 {selectedProvider.serviceUrl && <p><b>service_url:</b> <a href={selectedProvider.serviceUrl} target="_blank" rel="noreferrer">{selectedProvider.serviceUrl}</a></p>}
                 <div className="chips compact-chips">{safeArray<string>(providerIntel?.category_tags.length ? providerIntel.category_tags : selectedProvider.tags).map((tag) => <span key={tag}>{tag}</span>)}</div>
                 <EvidenceReceiptView evidence={selectedProvider} title="Evidence" />
               </DossierSection>
-              <div className="dossier-grid">
-                <DossierSection title="Market Metadata" context={providerContextLabel} helper="Pricing and catalog freshness are preserved as reported by Pay.sh metadata.">
-                  <KeyValues rows={[
-                    ['min_price_usd', moneyOrUnknown(getSafeRange(selectedProvider.pricing).min)],
-                    ['max_price_usd', moneyOrUnknown(getSafeRange(selectedProvider.pricing).max)],
-                    ['endpoint_count', selectedProvider.endpointCount],
-                    ['has_free_tier', formatNullableBoolean(selectedProvider.hasFreeTier ?? safeString(selectedProvider.status).includes('free') ? true : null)],
-                    ['has_metering', formatNullableBoolean(selectedProvider.hasMetering ?? selectedProvider.status === 'metered' ? true : null)],
-                    ['source_sha', selectedProvider.sourceSha ?? 'unknown'],
-                    ['catalog_generated_at', formatDate(selectedProvider.catalogGeneratedAt)],
-                    ['last_seen_at', formatDate(providerIntel?.last_seen_at ?? selectedProvider.lastSeenAt)]
-                  ]} />
-                  <EvidenceReceiptView evidence={selectedProvider.pricing ?? selectedProvider} title="Receipt" />
-                </DossierSection>
-                <DossierSection title="Trust Breakdown" context={providerContextLabel} helper="Component scores explain the visible trust total and unknown states.">
-                  <KeyValues rows={[
-                    ['metadata quality', componentValue(providerDetail?.trustAssessment?.components.metadataQuality)],
-                    ['pricing clarity', componentValue(providerDetail?.trustAssessment?.components.pricingClarity)],
-                    ['freshness', componentValue(providerDetail?.trustAssessment?.components.freshness)],
-                    ['service reachability', knownState(providerDetail?.trustAssessment?.components.uptime)],
-                    ['latency', knownState(providerDetail?.trustAssessment?.components.latency)],
-                    ['endpoint response validity', knownState(providerDetail?.trustAssessment?.components.responseValidity)],
-                    ['receipt reliability', knownState(providerDetail?.trustAssessment?.components.receiptReliability)]
-                  ]} />
-                </DossierSection>
-                <DossierSection title="Operational Monitor" context={providerContextLabel} helper="Safe metadata reachability only; paid provider calls are not executed.">
-                  <div className="monitor-card">
-                    <div className="monitor-head">
-                      <span className="safe-badge">SAFE METADATA</span>
-                      <SeverityBadge evidence={providerIntel?.service_monitor} />
-                      <strong className={`service-status ${providerIntel?.service_monitor.status ?? 'unknown'}`}>{statusLabel(providerIntel?.service_monitor.status ?? 'unknown')}</strong>
-                    </div>
-                    <KeyValues rows={[
-                      ['last_check', formatDate(providerIntel?.service_monitor.last_checked_at ?? null)],
-                      ['latency', formatMs(providerIntel?.service_monitor.response_time_ms ?? null)],
-                      ['http_status', providerIntel?.service_monitor.status_code ?? 'unknown'],
-                      ['monitor_mode', providerIntel?.service_monitor.monitor_mode ?? 'UNKNOWN']
-                    ]} />
-                    <p className="monitor-note">{providerIntel?.service_monitor.explanation ?? 'Safe monitor checks provider service reachability only. It does not execute paid Pay.sh calls.'}</p>
-                  </div>
-                </DossierSection>
-                <DossierSection title="Propagation Context" context={providerContextLabel} helper="Shows whether this provider is part of the current ecosystem propagation analysis.">
-                  <KeyValues rows={[
-                    ['state', providerIntel?.propagation_context?.propagation_state ?? 'unknown'],
-                    ['severity', providerIntel?.propagation_context?.severity ?? 'unknown'],
-                    ['provider affected', formatNullableBoolean(providerIntel?.propagation_context?.affected ?? null)],
-                    ['cluster', providerIntel?.propagation_context?.affected_cluster ?? 'none']
-                  ]} />
-                  <p className="monitor-note">{providerIntel?.propagation_context?.propagation_reason ?? 'No propagation analysis available for this provider.'}</p>
-                </DossierSection>
-                <DossierSection title="Signal Breakdown" context={providerContextLabel} helper="Narrative and metadata movement behind the visible signal score.">
-                  <KeyValues rows={[
-                    ['category heat', componentValue(providerDetail?.signalAssessment?.components.categoryHeat)],
-                    ['ecosystem momentum', componentValue(providerDetail?.signalAssessment?.components.ecosystemMomentum)],
-                    ['metadata change velocity', componentValue(providerDetail?.signalAssessment?.components.metadataChangeVelocity)],
-                    ['social velocity', knownState(providerDetail?.signalAssessment?.components.socialVelocity)],
-                    ['onchain/liquidity resonance', knownState(providerDetail?.signalAssessment?.components.onchainLiquidityResonance)]
-                  ]} />
-                </DossierSection>
-                <DossierSection title="Unknown Telemetry" context={providerContextLabel} helper="Unknown fields stay visible so absence of evidence is never hidden.">
-                  <div className="unknown-list">{(providerIntel?.unknown_telemetry.length ? providerIntel.unknown_telemetry : ['No unknown telemetry reported by current assessments.']).map((item) => <span key={item}>{item}</span>)}</div>
-                  <EvidenceReceiptView evidence={providerDetail?.trustAssessment ?? providerDetail?.signalAssessment ?? selectedProvider} title="Evidence" />
-                </DossierSection>
-              </div>
-              <DossierSection title="Evidence Trail" context={providerContextLabel} helper="Recent catalog-diff receipts for this provider, ordered by severity.">
-                <div className="evidence-trail">
-                  {sortBySeverity(providerIntel?.recent_changes.length ? providerIntel.recent_changes : []).slice(0, 6).map((item) => <div key={item.id}>
-                    <time>{formatDate(item.observedAt)}</time>
-                    <SeverityBadge evidence={item} />
-                    <strong>{item.type}</strong>
-                    <span>{item.summary}</span>
-                    <EvidenceReceiptView evidence={item} title="Receipt" compact />
-                  </div>)}
-                  {providerIntel?.recent_changes.length === 0 && <p className="muted empty-state">No recent discovery, update, price, category, endpoint-count, or metadata events after initial observation.</p>}
-                </div>
-              </DossierSection>
-              <DossierSection title="Reliability History" context={providerContextLabel} helper="Historical trend memory from stored score, monitor, and degradation events. No paid APIs are executed.">
-                <ReliabilityHistoryPanel history={providerHistory} />
-              </DossierSection>
-              <DossierSection title="Endpoint Intelligence" context={providerContextLabel} helper="Normalized endpoint metadata from safe radar export routes. Rows remain visible even when degraded or incomplete.">
-                <div id="endpoints" className="anchor-target" />
-                <EndpointIntelligenceSection
-                  rows={visibleEndpointIntelligenceRows}
-                  allRows={endpointIntelligenceRows}
-                  filter={endpointFilter}
-                  onFilterChange={setEndpointFilter}
-                  query={endpointQuery}
-                  onQueryChange={setEndpointQuery}
-                  sort={endpointSort}
-                  onSortChange={setEndpointSort}
-                  provider={endpointProvider}
-                  endpointMonitors={endpointMonitors}
-                  endpointRisks={endpointRiskById}
-                  reportedEndpointCount={reportedEndpointCount}
-                />
-              </DossierSection>
-              <DossierSection title="Route Decision Panel" context={providerContextLabel} helper="Uses the existing route recommendation API with selected provider as optional preference input.">
+              <DossierSection title="Route Decision Panel" tier="tier-2" className="route-decision-section" context={providerContextLabel} helper="Uses the existing route recommendation API with selected provider as optional preference input.">
                 <div className="route-panel compact-route-panel" id="route-decision-panel" onFocus={() => setRouteInputFocused(true)} onBlur={(event) => {
                   if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setRouteInputFocused(false);
                 }} onPointerDown={() => holdAutoRotation(ROUTE_INTERACTION_HOLD_MS)} onInput={() => holdAutoRotation(ROUTE_INTERACTION_HOLD_MS)}>
+                  {selectedRouteContext && <div className="route-context-summary" aria-label="Selected provider route context">
+                    <span><b>selected</b>{selectedRouteContext.provider}</span>
+                    <span><b>risk</b>{selectedRouteContext.risk}</span>
+                    <span><b>route</b>{selectedRouteContext.routeState}</span>
+                    <span><b>mapping</b>{selectedRouteContext.mappingState}</span>
+                    <span><b>pricing</b>{selectedRouteContext.pricingState}</span>
+                  </div>}
                   <label>
                     <span>task text</span>
                     <textarea value={routeTask} aria-label="Route task text" onChange={(event) => setRouteTask(event.target.value)} />
@@ -1909,13 +1846,109 @@ function RadarApp() {
                     <span>include selected provider as preferred route input</span>
                   </label>
                   <div className="route-actions">
-                    <button className="execute compact" type="button" onClick={runRoute} disabled={routeStatus === 'loading'}>{routeStatus === 'loading' ? 'computing route...' : 'compute recommended route'}</button>
-                    <button className="execute compact secondary" type="button" onClick={() => recommendProvider(selectedProvider)}>seed from selected</button>
+                    <button className="execute compact route-primary-action" type="button" onClick={runRoute} disabled={routeStatus === 'loading'}>{routeStatus === 'loading' ? 'computing route...' : 'compute recommended route'}</button>
+                    <button className="execute compact secondary route-secondary-action" type="button" onClick={() => recommendProvider(selectedProvider)}>seed from selected</button>
                   </div>
                   {routeError && <p className="route-state error">{routeError}</p>}
                   {routeStatus === 'loading' && <p className="route-state">computing route...</p>}
                   {routeResult && <RouteDecisionOutput routeResult={routeResult} routePreference={routePreference} selectedProvider={selectedProvider} />}
                 </div>
+              </DossierSection>
+              <div className="dossier-grid">
+                <DossierSection title="Market Metadata" tier="tier-3" context={providerContextLabel} helper="Pricing and catalog freshness are preserved as reported by Pay.sh metadata.">
+                  <KeyValues rows={[
+                    ['min_price_usd', moneyOrUnknown(getSafeRange(selectedProvider.pricing).min)],
+                    ['max_price_usd', moneyOrUnknown(getSafeRange(selectedProvider.pricing).max)],
+                    ['endpoint_count', selectedProvider.endpointCount],
+                    ['has_free_tier', formatNullableBoolean(selectedProvider.hasFreeTier ?? safeString(selectedProvider.status).includes('free') ? true : null)],
+                    ['has_metering', formatNullableBoolean(selectedProvider.hasMetering ?? selectedProvider.status === 'metered' ? true : null)],
+                    ['source_sha', selectedProvider.sourceSha ?? 'unknown'],
+                    ['catalog_generated_at', formatDate(selectedProvider.catalogGeneratedAt)],
+                    ['last_seen_at', formatDate(providerIntel?.last_seen_at ?? selectedProvider.lastSeenAt)]
+                  ]} />
+                  <EvidenceReceiptView evidence={selectedProvider.pricing ?? selectedProvider} title="Receipt" />
+                </DossierSection>
+                <DossierSection title="Trust Breakdown" tier="tier-2" context={providerContextLabel} helper="Component scores explain the visible trust total and unknown states.">
+                  <KeyValues rows={[
+                    ['metadata quality', componentValue(providerDetail?.trustAssessment?.components.metadataQuality)],
+                    ['pricing clarity', componentValue(providerDetail?.trustAssessment?.components.pricingClarity)],
+                    ['freshness', componentValue(providerDetail?.trustAssessment?.components.freshness)],
+                    ['service reachability', knownState(providerDetail?.trustAssessment?.components.uptime)],
+                    ['latency', knownState(providerDetail?.trustAssessment?.components.latency)],
+                    ['endpoint response validity', knownState(providerDetail?.trustAssessment?.components.responseValidity)],
+                    ['receipt reliability', knownState(providerDetail?.trustAssessment?.components.receiptReliability)]
+                  ]} />
+                </DossierSection>
+                <DossierSection title="Operational Monitor" tier="tier-2" context={providerContextLabel} helper="Safe metadata reachability only; paid provider calls are not executed.">
+                  <div className="monitor-card">
+                    <div className="monitor-head">
+                      <span className="safe-badge">SAFE METADATA</span>
+                      <SeverityBadge evidence={providerIntel?.service_monitor} />
+                      <strong className={`service-status ${providerIntel?.service_monitor.status ?? 'unknown'}`}>{statusLabel(providerIntel?.service_monitor.status ?? 'unknown')}</strong>
+                    </div>
+                    <KeyValues rows={[
+                      ['last_check', formatDate(providerIntel?.service_monitor.last_checked_at ?? null)],
+                      ['latency', formatMs(providerIntel?.service_monitor.response_time_ms ?? null)],
+                      ['http_status', providerIntel?.service_monitor.status_code ?? 'unknown'],
+                      ['monitor_mode', providerIntel?.service_monitor.monitor_mode ?? 'UNKNOWN']
+                    ]} />
+                    <p className="monitor-note">{providerIntel?.service_monitor.explanation ?? 'Safe monitor checks provider service reachability only. It does not execute paid Pay.sh calls.'}</p>
+                  </div>
+                </DossierSection>
+                <DossierSection title="Propagation Context" tier="tier-3" context={providerContextLabel} helper="Shows whether this provider is part of the current ecosystem propagation analysis.">
+                  <KeyValues rows={[
+                    ['state', providerIntel?.propagation_context?.propagation_state ?? 'unknown'],
+                    ['severity', providerIntel?.propagation_context?.severity ?? 'unknown'],
+                    ['provider affected', formatNullableBoolean(providerIntel?.propagation_context?.affected ?? null)],
+                    ['cluster', providerIntel?.propagation_context?.affected_cluster ?? 'none']
+                  ]} />
+                  <p className="monitor-note">{providerIntel?.propagation_context?.propagation_reason ?? 'No propagation analysis available for this provider.'}</p>
+                </DossierSection>
+                <DossierSection title="Signal Breakdown" tier="tier-3" context={providerContextLabel} helper="Narrative and metadata movement behind the visible signal score.">
+                  <KeyValues rows={[
+                    ['category heat', componentValue(providerDetail?.signalAssessment?.components.categoryHeat)],
+                    ['ecosystem momentum', componentValue(providerDetail?.signalAssessment?.components.ecosystemMomentum)],
+                    ['metadata change velocity', componentValue(providerDetail?.signalAssessment?.components.metadataChangeVelocity)],
+                    ['social velocity', knownState(providerDetail?.signalAssessment?.components.socialVelocity)],
+                    ['onchain/liquidity resonance', knownState(providerDetail?.signalAssessment?.components.onchainLiquidityResonance)]
+                  ]} />
+                </DossierSection>
+                <DossierSection title="Unknown Telemetry" tier="tier-3" context={providerContextLabel} helper="Unknown fields stay visible so absence of evidence is never hidden.">
+                  <div className="unknown-list">{(providerIntel?.unknown_telemetry.length ? providerIntel.unknown_telemetry : ['No unknown telemetry reported by current assessments.']).map((item) => <span key={item}>{item}</span>)}</div>
+                  <EvidenceReceiptView evidence={providerDetail?.trustAssessment ?? providerDetail?.signalAssessment ?? selectedProvider} title="Evidence" />
+                </DossierSection>
+              </div>
+              <DossierSection title="Evidence Trail" tier="tier-4" context={providerContextLabel} helper="Recent catalog-diff receipts for this provider, ordered by severity.">
+                <div className="evidence-trail">
+                  {sortBySeverity(providerIntel?.recent_changes.length ? providerIntel.recent_changes : []).slice(0, 6).map((item) => <div key={item.id}>
+                    <time>{formatDate(item.observedAt)}</time>
+                    <SeverityBadge evidence={item} />
+                    <strong>{item.type}</strong>
+                    <span>{item.summary}</span>
+                    <EvidenceReceiptView evidence={item} title="Receipt" compact />
+                  </div>)}
+                  {providerIntel?.recent_changes.length === 0 && <p className="muted empty-state">No recent discovery, update, price, category, endpoint-count, or metadata events after initial observation.</p>}
+                </div>
+              </DossierSection>
+              <DossierSection title="Reliability History" tier="tier-2" context={providerContextLabel} helper="Historical trend memory from stored score, monitor, and degradation events. No paid APIs are executed.">
+                <ReliabilityHistoryPanel history={providerHistory} />
+              </DossierSection>
+              <DossierSection title="Endpoint Intelligence" tier="tier-2" context={providerContextLabel} helper="Normalized endpoint metadata from safe radar export routes. Rows remain visible even when degraded or incomplete.">
+                <div id="endpoints" className="anchor-target" />
+                <EndpointIntelligenceSection
+                  rows={visibleEndpointIntelligenceRows}
+                  allRows={endpointIntelligenceRows}
+                  filter={endpointFilter}
+                  onFilterChange={setEndpointFilter}
+                  query={endpointQuery}
+                  onQueryChange={setEndpointQuery}
+                  sort={endpointSort}
+                  onSortChange={setEndpointSort}
+                  provider={endpointProvider}
+                  endpointMonitors={endpointMonitors}
+                  endpointRisks={endpointRiskById}
+                  reportedEndpointCount={reportedEndpointCount}
+                />
               </DossierSection>
             </div>
           </>}
@@ -3213,10 +3246,44 @@ function SeverityBadge({ evidence }: { evidence?: EvidenceReceipt | null }) {
   return <span className={`severity-badge severity-${severity}`} title={`${reason} ${implication}`}>{state}</span>;
 }
 
-function DossierSection({ title, children, context, helper }: { title: string; children: React.ReactNode; context?: string; helper?: string }) {
+function ProviderDirectoryStateBadge({ provider, risk }: { provider: Provider; risk: RadarRiskContext | null }) {
+  const severity = normalSeverity(provider.severity);
+  const riskLevel = risk?.predictive_risk_level ?? 'unknown';
+  const severityLabel = severity === 'critical'
+    ? 'Critical'
+    : severity === 'warning'
+      ? 'Watch'
+      : severity === 'informational'
+        ? 'Healthy'
+        : 'Unknown';
+  const state = riskLevel === 'critical' || severity === 'critical'
+    ? 'critical'
+    : riskLevel === 'elevated'
+      ? 'elevated'
+      : riskLevel === 'watch' || severity === 'warning'
+        ? 'watch'
+        : riskLevel === 'low' || severity === 'informational'
+          ? 'low'
+          : 'unknown';
+  const label = state === 'critical'
+    ? 'Critical'
+    : state === 'elevated'
+      ? 'Elevated'
+      : state === 'watch'
+        ? 'Watch'
+        : state === 'low'
+          ? 'Clear'
+          : 'Unknown';
+  const title = `${severityLabel} severity. ${riskBadgeLabel(riskLevel)}. ${riskRouteImplication(riskLevel)}`;
+  return <span className={`directory-state-badge state-${state}`} title={title} aria-label={`Provider state ${title}`}>{label}</span>;
+}
+
+type DossierSectionTier = 'tier-1' | 'tier-2' | 'tier-3' | 'tier-4';
+
+function DossierSection({ title, children, context, helper, tier = 'tier-2', className = '' }: { title: string; children: React.ReactNode; context?: string; helper?: string; tier?: DossierSectionTier; className?: string }) {
   const defaultOpen = !/raw|diagnostic|unknown telemetry warning/i.test(title);
   const [open, setOpen] = useState(defaultOpen);
-  return <section className="dossier-section">
+  return <section className={`dossier-section ${tier} ${className}`.trim()}>
     <div className="dossier-section-head">
       <div>
         <h4>{title}</h4>
