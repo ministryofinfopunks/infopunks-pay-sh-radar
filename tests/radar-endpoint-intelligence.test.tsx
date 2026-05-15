@@ -133,7 +133,23 @@ function pulseSummary(recentDegraded = false) {
   };
 }
 
-function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknown[]; degraded?: boolean; readiness?: Record<string, unknown> } = {}) {
+function anomalyWatchItems(count: number) {
+  return Array.from({ length: count }, (_, index) => ({
+    subject_type: 'provider',
+    provider_id: 'alpha',
+    endpoint_id: null,
+    anomaly_type: `critical_current_state_${index + 1}`,
+    severity: 'critical',
+    confidence: index === count - 1 ? 'medium' : 'high',
+    explanation: `Provider critical state ${index + 1}.`,
+    detected_at: new Date(Date.parse(observedAt) - index * 60_000).toISOString(),
+    recommended_action: 'not recommended for routing',
+    route_implication: 'Not recommended for routing.',
+    evidence: [`test-evidence-${index + 1}`]
+  }));
+}
+
+function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknown[]; degraded?: boolean; readiness?: Record<string, unknown>; anomalyWatch?: ReturnType<typeof anomalyWatchItems> } = {}) {
   vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
     const path = pathOf(input);
     if (path === '/v1/pulse') return json({ providerCount: 1, endpointCount: options.endpoints?.length ?? 0, eventCount: 1, averageTrust: 86, averageSignal: 74, hottestNarrative: null, topTrust: [], topSignal: [], data_source: { mode: 'live_pay_sh_catalog', url: 'https://pay.sh/api/catalog', generated_at: observedAt, provider_count: 1, last_ingested_at: observedAt, used_fixture: false }, updatedAt: observedAt });
@@ -153,6 +169,19 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
       deltas: { average_trust_delta_24h: 6, average_signal_delta_24h: 4, degradation_delta_24h: 0, trend_direction: 'improving' },
       warnings: []
     });
+    const watch = options.anomalyWatch ?? [{
+      subject_type: 'provider',
+      provider_id: 'alpha',
+      endpoint_id: null,
+      anomaly_type: options.degraded ? 'critical_current_state' : 'sudden_signal_spike',
+      severity: options.degraded ? 'critical' : 'medium',
+      confidence: 'high',
+      explanation: options.degraded ? 'Provider is currently failed.' : 'Signal increased quickly.',
+      detected_at: observedAt,
+      recommended_action: options.degraded ? 'not recommended for routing' : 'route with caution',
+      route_implication: options.degraded ? 'Not recommended for routing.' : 'Monitor before routing.',
+      evidence: ['test-evidence']
+    }];
     if (path === '/v1/radar/risk/ecosystem') return json({
       generated_at: observedAt,
       subject_type: 'ecosystem',
@@ -167,24 +196,12 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
       warnings: [],
       recommended_action: options.degraded ? 'required fallback route' : 'route with caution',
       summary: {
-        providers_by_risk_level: { low: 0, watch: options.degraded ? 0 : 1, elevated: options.degraded ? 1 : 0, critical: 0, unknown: 0 },
+        providers_by_risk_level: { low: 0, watch: options.degraded ? 0 : 1, elevated: options.degraded ? 0 : 0, critical: options.degraded || options.anomalyWatch ? 1 : 0, unknown: 0 },
         top_anomalies: [{ anomaly_type: options.degraded ? 'critical_current_state' : 'sudden_signal_spike', count: 1 }],
         categories_most_affected: [{ category: 'data', provider_count: 1 }],
         recent_critical_events: options.degraded ? [{ event_id: 'evt-critical', type: 'provider.failed', provider_id: 'alpha', endpoint_id: null, observed_at: observedAt }] : [],
         stale_catalog_warning: null,
-        anomaly_watch: [{
-          subject_type: 'provider',
-          provider_id: 'alpha',
-          endpoint_id: null,
-          anomaly_type: options.degraded ? 'critical_current_state' : 'sudden_signal_spike',
-          severity: options.degraded ? 'critical' : 'medium',
-          confidence: 'high',
-          explanation: options.degraded ? 'Provider is currently failed.' : 'Signal increased quickly.',
-          detected_at: observedAt,
-          recommended_action: options.degraded ? 'not recommended for routing' : 'route with caution',
-          route_implication: options.degraded ? 'Not recommended for routing.' : 'Monitor before routing.',
-          evidence: ['test-evidence']
-        }]
+        anomaly_watch: watch
       }
     });
     if (path === '/v1/radar/history/providers/alpha') return json(options.degraded ? {
@@ -629,7 +646,32 @@ describe('radar endpoint intelligence UI', () => {
     root = await renderApp(container);
 
     expect(container.textContent).toContain('Anomaly Watch');
+    expect(container.querySelector('[aria-label="Predictive risk summary counts"]')?.textContent).toContain('critical1');
+    expect(container.textContent).toContain('Alpha Data');
     expect(container.textContent).toContain('critical_current_state');
-    expect(container.textContent).toContain('Not recommended for routing.');
+    expect(container.textContent).toContain('Not recommended for routing');
+  });
+
+  it('summarizes long critical anomaly lists until expanded', async () => {
+    installFetch({ endpoints: [normalizedEndpoint], detailEndpoints: [endpoint], degraded: true, anomalyWatch: anomalyWatchItems(9) });
+    root = await renderApp(container);
+
+    expect(container.textContent).toContain('critical_current_state_1');
+    expect(container.textContent).toContain('critical_current_state_6');
+    expect(container.textContent).not.toContain('critical_current_state_7');
+    expect(container.textContent).toContain('View all anomalies (9)');
+    expect(container.querySelector('.anomaly-list')?.getAttribute('aria-label')).toBe('Top predictive risk anomalies');
+
+    const toggle = Array.from(container.querySelectorAll('button')).find((button) => button.textContent?.includes('View all anomalies')) as HTMLButtonElement | undefined;
+    expect(toggle).toBeTruthy();
+    await act(async () => {
+      toggle!.click();
+      await Promise.resolve();
+    });
+
+    expect(container.textContent).toContain('critical_current_state_9');
+    expect(container.textContent).toContain('Show top anomalies');
+    expect(toggle!.getAttribute('aria-expanded')).toBe('true');
+    expect(container.querySelector('.anomaly-list')?.getAttribute('aria-label')).toBe('All predictive risk anomalies');
   });
 });

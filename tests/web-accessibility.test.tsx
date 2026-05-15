@@ -128,6 +128,22 @@ describe('web accessibility landmarks', () => {
         data_source: dataSource
       });
       if (path === '/v1/providers/featured') return json({ providerId: provider.id, providerName: provider.name, category: provider.category, rotationWindowMs: 60000, windowStartedAt: now, nextRotationAt: now, index: 0, providerCount: 1, strategy: 'time_window_round_robin' });
+      if (path === '/v1/radar/endpoints') return json({ generated_at: now, source: {}, count: 1, endpoints: [] });
+      if (path === '/v1/radar/risk/ecosystem') return json({
+        generated_at: now,
+        subject_type: 'ecosystem',
+        subject_id: 'ecosystem',
+        risk_score: 12,
+        risk_level: 'low',
+        history_available: true,
+        sample_count: 1,
+        explanation: 'No current predictive risk pressure.',
+        anomalies: [],
+        evidence: [],
+        warnings: [],
+        recommended_action: 'route normally',
+        summary: { providers_by_risk_level: { low: 1, watch: 0, elevated: 0, critical: 0, unknown: 0 }, top_anomalies: [], categories_most_affected: [], recent_critical_events: [], stale_catalog_warning: null, anomaly_watch: [] }
+      });
       if (path === `/v1/providers/${provider.id}`) return json({ provider, endpoints: [endpoint], trustAssessment, signalAssessment });
       if (path === `/v1/providers/${provider.id}/intelligence`) return json({
         provider,
@@ -173,6 +189,8 @@ describe('web accessibility landmarks', () => {
     expect(container.querySelector('footer')).not.toBeNull();
     expect(container.querySelector('nav[aria-label="Global controls"]')).not.toBeNull();
     expect(container.querySelector('aside[aria-label="Realtime ecosystem intelligence sidebar"]')).not.toBeNull();
+    expect(container.querySelector('section[aria-label="Anomaly Watch panel"]')).not.toBeNull();
+    expect(container.querySelector('[aria-label="Predictive risk summary counts"]')?.textContent).toContain('low1');
     expect(container.querySelector('section[aria-labelledby="ecosystem-zone-title"]')).not.toBeNull();
     expect(container.querySelector('section[aria-labelledby="provider-zone-title"]')).not.toBeNull();
 

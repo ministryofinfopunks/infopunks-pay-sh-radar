@@ -2038,7 +2038,7 @@ function RadarApp() {
           {pulseSummary.eventGroups.monitoring.count > 0 && <PulseStat label="Monitor" value={pulseSummary.eventGroups.monitoring.count} sub="safe service reachability events" />}
         </div>}
         {!agentMode && <PropagationWatch propagation={pulseSummary.propagation} />}
-        <AnomalyWatchPanel ecosystemRisk={ecosystemRisk} />
+        <AnomalyWatchPanel ecosystemRisk={ecosystemRisk} providers={safeProviders} endpoints={radarEndpoints} />
         {!agentMode && <DeltaPanel title="Trust Changes" caption="Latest trust events from catalog scoring batches." deltas={pulseSummary.trustDeltas} empty="No trust deltas beyond initial scoring." scope="GLOBAL" />}
         {!agentMode && <DeltaPanel title="Signal Spikes" caption="Signal deltas appear only when catalog-derived signal changes." deltas={pulseSummary.signalSpikes} empty="No positive signal deltas observed." scope="GLOBAL" />}
         {!agentMode && <div className="panel rail-panel">
@@ -3047,8 +3047,18 @@ function PropagationWatch({ propagation }: { propagation?: PropagationAnalysis |
   </div>;
 }
 
-function AnomalyWatchPanel({ ecosystemRisk }: { ecosystemRisk: RadarEcosystemRiskSummary | null }) {
+const ANOMALY_PREVIEW_LIMIT = 6;
+
+type AnomalyWatchItem = RadarEcosystemRiskSummary['summary']['anomaly_watch'][number];
+
+function AnomalyWatchPanel({ ecosystemRisk, providers, endpoints }: { ecosystemRisk: RadarEcosystemRiskSummary | null; providers: Provider[]; endpoints: NormalizedEndpointRecord[] }) {
   const watch = ecosystemRisk?.summary?.anomaly_watch ?? [];
+  const [showAll, setShowAll] = useState(false);
+  const providerNames = useMemo(() => new Map(providers.map((provider) => [provider.id, provider.name])), [providers]);
+  const endpointNames = useMemo(() => new Map(endpoints.map((endpoint) => [endpoint.endpoint_id, endpoint])), [endpoints]);
+  const sortedWatch = useMemo(() => sortAnomalyWatchItems(watch), [watch]);
+  const visibleWatch = showAll ? sortedWatch : sortedWatch.slice(0, ANOMALY_PREVIEW_LIMIT);
+  const hiddenCount = Math.max(sortedWatch.length - visibleWatch.length, 0);
   return <section className="panel anomaly-watch" id="anomaly-watch" aria-label="Anomaly Watch panel">
     <div className="panel-head">
       <div>
@@ -3060,43 +3070,62 @@ function AnomalyWatchPanel({ ecosystemRisk }: { ecosystemRisk: RadarEcosystemRis
       <PredictiveRiskBadge risk={toRiskContext(ecosystemRisk)} />
     </div>
     {ecosystemRisk?.summary?.stale_catalog_warning && <p className="route-state warn">{ecosystemRisk.summary.stale_catalog_warning}</p>}
-    {!!ecosystemRisk && <div className="chips compact-chips">
-      <span>low {ecosystemRisk.summary.providers_by_risk_level.low}</span>
-      <span>watch {ecosystemRisk.summary.providers_by_risk_level.watch}</span>
-      <span>elevated {ecosystemRisk.summary.providers_by_risk_level.elevated}</span>
-      <span>critical {ecosystemRisk.summary.providers_by_risk_level.critical}</span>
-      <span>unknown {ecosystemRisk.summary.providers_by_risk_level.unknown}</span>
+    {!!ecosystemRisk && <div className="anomaly-summary" aria-label="Predictive risk summary counts">
+      <span aria-label={`low ${ecosystemRisk.summary.providers_by_risk_level.low}`}><b>low</b>{ecosystemRisk.summary.providers_by_risk_level.low}</span>
+      <span aria-label={`watch ${ecosystemRisk.summary.providers_by_risk_level.watch}`}><b>watch</b>{ecosystemRisk.summary.providers_by_risk_level.watch}</span>
+      <span aria-label={`elevated ${ecosystemRisk.summary.providers_by_risk_level.elevated}`}><b>elevated</b>{ecosystemRisk.summary.providers_by_risk_level.elevated}</span>
+      <span aria-label={`critical ${ecosystemRisk.summary.providers_by_risk_level.critical}`}><b>critical</b>{ecosystemRisk.summary.providers_by_risk_level.critical}</span>
+      <span aria-label={`unknown ${ecosystemRisk.summary.providers_by_risk_level.unknown}`}><b>unknown</b>{ecosystemRisk.summary.providers_by_risk_level.unknown}</span>
     </div>}
     {!watch.length && <EmptyState title="No anomalies detected." body="No current predictive-risk anomaly requires attention." />}
-    <div className="endpoint-list has-rows">
-      {watch.slice(0, 10).map((item) => <details className={`endpoint-intelligence-card anomaly-card risk-${item.severity}`} key={`${item.subject_type}:${item.provider_id ?? 'none'}:${item.endpoint_id ?? 'none'}:${item.anomaly_type}:${item.detected_at}`}>
-        <summary>
-          <span className="endpoint-title">
-            <strong>{item.provider_id ?? 'unknown provider'}{item.endpoint_id ? ` / ${item.endpoint_id}` : ''}</strong>
-            <small>{item.anomaly_type}</small>
-          </span>
-          <span className="endpoint-tags">
-            <b>{item.severity}</b>
-            <b>{item.confidence}</b>
-            <b>{item.route_implication}</b>
-          </span>
-        </summary>
-        <div className="endpoint-card-body">
-          <p>{item.explanation}</p>
-          <KeyValues rows={[
-            ['subject_type', item.subject_type],
-            ['provider', item.provider_id ?? 'unknown'],
-            ['endpoint', item.endpoint_id ?? 'n/a'],
-            ['detected_at', formatDate(item.detected_at)],
-            ['recommended_action', item.recommended_action]
-          ]} />
-          <details className="preflight-json">
-            <summary>Evidence</summary>
-            <SafeCodeBlock value={JSON.stringify(item.evidence, null, 2)} label="Anomaly evidence JSON" />
-          </details>
-        </div>
-      </details>)}
-    </div>
+    {!!watch.length && <>
+      <div id="anomaly-watch-list" className={`anomaly-list ${showAll ? 'expanded' : ''}`} aria-label={showAll ? 'All predictive risk anomalies' : 'Top predictive risk anomalies'}>
+        {visibleWatch.map((item) => {
+          const endpoint = item.endpoint_id ? endpointNames.get(item.endpoint_id) : null;
+          const providerName = endpoint?.provider_name ?? (item.provider_id ? providerNames.get(item.provider_id) : null) ?? item.provider_id ?? 'unknown provider';
+          const endpointName = endpoint?.endpoint_name ?? item.endpoint_id ?? null;
+          const title = endpointName ? `${providerName} / ${endpointName}` : providerName;
+          return <details className={`anomaly-card risk-${item.severity}`} key={`${item.subject_type}:${item.provider_id ?? 'none'}:${item.endpoint_id ?? 'none'}:${item.anomaly_type}:${item.detected_at}`}>
+            <summary className="anomaly-row">
+              <span className="anomaly-main">
+                <strong>{title}</strong>
+                <small>{item.anomaly_type}</small>
+                <span>{item.explanation}</span>
+              </span>
+              <span className="anomaly-meta" aria-label={`Severity ${item.severity}, confidence ${item.confidence}`}>
+                <b className={`anomaly-pill severity-${item.severity}`}>{item.severity}</b>
+                <b className="anomaly-pill">{item.confidence} confidence</b>
+                <small className={item.severity === 'critical' ? 'route-critical' : undefined}>{normalizeRouteImplication(item.route_implication)}</small>
+              </span>
+            </summary>
+            <div className="anomaly-details">
+              <KeyValues rows={[
+                ['subject_type', item.subject_type],
+                ['provider', providerName],
+                ['provider_id', item.provider_id ?? 'unknown'],
+                ['endpoint', endpointName ?? 'n/a'],
+                ['detected_at', formatDate(item.detected_at)],
+                ['recommended_action', item.recommended_action]
+              ]} />
+              <details className="preflight-json">
+                <summary>Evidence</summary>
+                <SafeCodeBlock value={JSON.stringify(item.evidence, null, 2)} label="Anomaly evidence JSON" />
+              </details>
+            </div>
+          </details>;
+        })}
+      </div>
+      {sortedWatch.length > ANOMALY_PREVIEW_LIMIT && <button
+        className="anomaly-toggle"
+        type="button"
+        aria-expanded={showAll}
+        aria-controls="anomaly-watch-list"
+        onClick={() => setShowAll((value) => !value)}
+      >
+        {showAll ? 'Show top anomalies' : `View all anomalies (${sortedWatch.length})`}
+        {!showAll && hiddenCount > 0 ? <span>{hiddenCount} more hidden</span> : null}
+      </button>}
+    </>}
   </section>;
 }
 
@@ -4119,6 +4148,28 @@ function riskRouteImplication(level: RiskLevel) {
   if (level === 'watch') return 'Monitor before routing.';
   if (level === 'unknown') return 'Insufficient history.';
   return 'Route normally.';
+}
+
+function normalizeRouteImplication(value: string) {
+  return value.replace(/\.$/, '').toLowerCase() === 'not recommended for routing'
+    ? 'Not recommended for routing'
+    : value;
+}
+
+function sortAnomalyWatchItems(items: AnomalyWatchItem[]) {
+  const severityPriority: Record<AnomalyWatchItem['severity'], number> = { critical: 0, high: 1, medium: 2, low: 3 };
+  const confidencePriority: Record<AnomalyWatchItem['confidence'], number> = { high: 0, medium: 1, low: 2 };
+  return [...items].sort((a, b) => (
+    severityPriority[a.severity] - severityPriority[b.severity]
+    || confidencePriority[a.confidence] - confidencePriority[b.confidence]
+    || anomalyTimestamp(b.detected_at) - anomalyTimestamp(a.detected_at)
+    || a.anomaly_type.localeCompare(b.anomaly_type)
+  ));
+}
+
+function anomalyTimestamp(value: string | null | undefined) {
+  const timestamp = Date.parse(value || '');
+  return Number.isFinite(timestamp) ? timestamp : 0;
 }
 
 function riskLabel(risk: string) {
