@@ -614,7 +614,7 @@ describe('radar endpoint intelligence UI', () => {
     root = await renderApp(container);
 
     expect(container.textContent).toContain('No executable provider mappings detected yet.');
-    expect(container.textContent).toContain('Superiority requires at least two executable provider mappings in the same benchmark category.');
+    expect(container.textContent).toContain('Superiority readiness requires at least two proven executable mappings for the same benchmark intent.');
     expect(container.textContent).toContain('Benchmark Readiness');
     expect(container.textContent).toContain('Catalog-estimated');
     expect(container.textContent).toContain('Two proven executable routes exist. Benchmark comparison can begin.');

@@ -216,7 +216,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     requestBody: jsonRequest({ $ref: '#/components/schemas/ComparisonRequest' }, { mode: 'provider', ids: ['alpha', 'beta'] }),
     responses: envelopedResponses({ $ref: '#/components/schemas/ComparisonResponse' }, { generated_at: '2026-05-13T00:00:00.000Z', mode: 'provider', rows: [] })
   });
-  add('get', '/v1/radar/superiority-readiness', radarGet('Radar Readiness', 'Get superiority proof readiness', 'Returns whether Radar has enough evidence to support superiority claims. Catalog metadata alone is never treated as proof of paid execution.', { $ref: '#/components/schemas/SuperiorityReadinessResponse' }, { executable_provider_mappings_count: 0, providers_with_proven_paid_execution: [] }));
+  add('get', '/v1/radar/superiority-readiness', radarGet('Radar Readiness', 'Get superiority proof readiness', 'Returns whether Radar has enough registry-backed proven evidence to start superiority benchmarking. This indicates readiness to compare, not a superiority winner claim.', { $ref: '#/components/schemas/SuperiorityReadinessResponse' }, { executable_provider_mappings_count: 0, providers_with_proven_paid_execution: [], winner_claimed: false }));
   add('get', '/v1/radar/benchmark-readiness', radarGet('Radar Readiness', 'Get benchmark readiness', 'Returns category-level benchmark readiness and superiority readiness splits.', { $ref: '#/components/schemas/BenchmarkReadinessResponse' }, { benchmark_ready_categories: [], superiority_ready_categories: [] }));
 
   add('get', '/v1/radar/history/providers/{provider_id}', radarHistoryPath('provider_id', 'Provider history'));
@@ -536,7 +536,10 @@ function componentSchemas(): Record<string, JsonSchema> {
       categories_not_ready_for_comparison: arrayOf(stringSchema()),
       providers_with_proven_paid_execution: arrayOf(stringSchema()),
       providers_with_only_catalog_metadata: arrayOf(stringSchema()),
-      next_mappings_needed: arrayOf(stringSchema())
+      next_mappings_needed: arrayOf(stringSchema()),
+      winner_claimed: booleanSchema(),
+      next_step: stringSchema(),
+      readiness_note: stringSchema()
     }),
     CostPerformanceFields: costPerformanceFields,
     CsvExportDescription: objectSchema({

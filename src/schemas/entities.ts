@@ -580,7 +580,10 @@ export const RadarSuperiorityReadinessSchema = z.object({
   categories_not_ready_for_comparison: z.array(z.string()),
   providers_with_proven_paid_execution: z.array(z.string()),
   providers_with_only_catalog_metadata: z.array(z.string()),
-  next_mappings_needed: z.array(z.string())
+  next_mappings_needed: z.array(z.string()),
+  winner_claimed: z.boolean().optional(),
+  next_step: z.string().optional(),
+  readiness_note: z.string().optional()
 });
 
 export const RadarBenchmarkCategorySchema = z.object({

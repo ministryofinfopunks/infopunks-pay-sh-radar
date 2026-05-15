@@ -198,7 +198,7 @@ Command palette actions include:
 - `POST /v1/radar/compare`
   Compares 2-3 providers or endpoints across route-readiness metrics.
 - `GET /v1/radar/superiority-readiness`
-  Returns route superiority proof readiness indicators.
+  Returns route superiority benchmark readiness indicators from verified/proven registry mappings. Readiness means comparison can begin, not that a superiority winner is claimed.
 - `GET /v1/radar/benchmark-readiness`
   Returns benchmark readiness by category/task with benchmark-ready vs superiority-ready split.
 - `POST /v1/radar/preflight/batch`

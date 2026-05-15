@@ -178,8 +178,36 @@ describe('phase7 intelligence', () => {
     await app.close();
   });
 
-  it('superiority readiness legacy route remains conservative without injected execution events', () => {
-    const legacy = buildSuperiorityReadiness(emptyIntelligenceStore());
-    expect(legacy.providers_with_proven_paid_execution).toHaveLength(0);
+  it('superiority readiness uses registry-backed proven mappings and does not claim a winner', async () => {
+    const readiness = buildSuperiorityReadiness(emptyIntelligenceStore());
+    expect(readiness.executable_provider_mappings_count).toBe(2);
+    expect(readiness.categories_with_at_least_two_executable_mappings).toContain('finance/data');
+    expect(readiness.categories_not_ready_for_comparison).not.toContain('finance/data');
+    expect(readiness.providers_with_proven_paid_execution).toContain('merit-systems-stablecrypto-market-data');
+    expect(readiness.providers_with_proven_paid_execution).toContain('paysponge-coingecko');
+    expect(readiness.providers_with_only_catalog_metadata).not.toContain('merit-systems-stablecrypto-market-data');
+    expect(readiness.providers_with_only_catalog_metadata).not.toContain('paysponge-coingecko');
+    expect(readiness.next_mappings_needed).toContain('finance/data/get SOL price: record normalized head-to-head benchmark metrics');
+    expect(readiness.winner_claimed).toBe(false);
+
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({ method: 'GET', url: '/v1/radar/superiority-readiness' });
+    expect(response.statusCode).toBe(200);
+    const payload = response.json().data as ReturnType<typeof buildSuperiorityReadiness>;
+    expect(payload.executable_provider_mappings_count).toBe(2);
+    expect(payload.categories_with_at_least_two_executable_mappings).toContain('finance/data');
+    expect(payload.providers_with_proven_paid_execution).toContain('merit-systems-stablecrypto-market-data');
+    expect(payload.providers_with_proven_paid_execution).toContain('paysponge-coingecko');
+    expect(payload.winner_claimed).toBe(false);
+    await app.close();
+  });
+
+  it('benchmark and superiority readiness agree on registry-backed readiness for SOL benchmark intent', () => {
+    const benchmark = buildBenchmarkReadiness(emptyIntelligenceStore());
+    const superiority = buildSuperiorityReadiness(emptyIntelligenceStore());
+    const sol = benchmark.categories.find((row) => row.category === 'finance/data' && row.benchmark_intent === 'get SOL price');
+    expect(sol?.benchmark_ready).toBe(true);
+    expect(sol?.superiority_ready).toBe(true);
+    expect(superiority.categories_with_at_least_two_executable_mappings).toContain('finance/data');
   });
 });

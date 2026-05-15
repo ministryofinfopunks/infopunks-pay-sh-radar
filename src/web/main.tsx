@@ -261,6 +261,9 @@ type RadarSuperiorityReadiness = {
   providers_with_proven_paid_execution: string[];
   providers_with_only_catalog_metadata: string[];
   next_mappings_needed: string[];
+  winner_claimed?: boolean;
+  next_step?: string;
+  readiness_note?: string;
 };
 type RadarBenchmarkCategory = {
   category: string;
@@ -2833,7 +2836,7 @@ function SuperiorityReadinessPanel({ readiness }: { readiness: RadarSuperiorityR
   const statement = !readiness || readiness.executable_provider_mappings_count <= 1
     ? 'Repeatability evidence available. Superiority evidence not yet available.'
     : readiness.categories_with_at_least_two_executable_mappings.length
-      ? 'Comparison-ready categories exist, but superiority still requires benchmark evidence.'
+      ? 'Two proven executable routes exist. Head-to-head benchmark comparison can begin.'
       : 'Superiority evidence not yet available.';
   return <section className="panel superiority-readiness" aria-label="Superiority Proof Readiness panel">
     <div className="phase3-panel-head">
@@ -2841,7 +2844,8 @@ function SuperiorityReadinessPanel({ readiness }: { readiness: RadarSuperiorityR
       <h2>Superiority Proof Readiness</h2>
     </div>
     <p className="route-state">{statement}</p>
-    <p className="panel-caption">Superiority requires at least two executable provider mappings in the same benchmark category.</p>
+    <p className="panel-caption">Superiority readiness requires at least two proven executable mappings for the same benchmark intent.</p>
+    {readiness && <p className="panel-caption">No route winner is claimed until normalized metrics are recorded.</p>}
     {!readiness && <EmptyState title="Benchmark not ready." body="Readiness data is unavailable. Refresh once catalog history loads." />}
     {readiness && <>
       {readiness.executable_provider_mappings_count === 0 && <p className="route-state warn">No executable provider mappings detected yet. Add comparable mappings before claiming superiority.</p>}

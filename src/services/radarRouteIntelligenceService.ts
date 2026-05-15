@@ -210,45 +210,55 @@ export function runRadarComparison(input: RadarComparisonRequest, store: Intelli
 
 export function buildSuperiorityReadiness(store: IntelligenceStore): RadarSuperiorityReadiness {
   const snapshot = buildRadarExportSnapshot(store);
-  const executable = snapshot.endpoints.filter((endpoint) => endpoint.route_eligibility && Boolean(endpoint.method) && Boolean(endpoint.path));
-  const byCategory = new Map<string, Set<string>>();
-  for (const endpoint of executable) {
-    const category = endpoint.category ?? 'unknown';
-    if (!byCategory.has(category)) byCategory.set(category, new Set());
-    byCategory.get(category)?.add(endpoint.provider_id);
+  const registry = listRouteMappings();
+  const groups = new Map<string, VerifiedRouteMappingRecord[]>();
+  for (const mapping of registry) {
+    const key = `${mapping.category.toLowerCase()}||${mapping.benchmark_intent.toLowerCase()}`;
+    const entries = groups.get(key) ?? [];
+    entries.push(mapping);
+    groups.set(key, entries);
   }
 
-  const categoriesReady: string[] = [];
-  const categoriesNotReady: string[] = [];
-  for (const provider of snapshot.providers) {
-    const category = provider.category ?? 'unknown';
-    const providers = byCategory.get(category) ?? new Set<string>();
-    if (providers.size >= 2) {
-      if (!categoriesReady.includes(category)) categoriesReady.push(category);
-    } else if (!categoriesNotReady.includes(category)) {
-      categoriesNotReady.push(category);
+  const categoriesReady = new Set<string>();
+  const categoriesNotReady = new Set<string>();
+  const providersWithProof = new Set<string>();
+  const nextMappingsNeeded = new Set<string>();
+  let executableMappingCount = 0;
+
+  for (const entries of groups.values()) {
+    const exemplar = entries[0];
+    const category = exemplar.category.toLowerCase();
+    const benchmarkIntent = exemplar.benchmark_intent;
+    const executableMappings = entries.filter((entry) => entry.mapping_status === 'verified');
+    const provenMappings = entries.filter((entry) => entry.execution_evidence_status === 'proven');
+    executableMappingCount += executableMappings.length;
+    provenMappings.forEach((entry) => providersWithProof.add(entry.provider_id));
+    if (executableMappings.length >= 2) {
+      categoriesReady.add(category);
+      nextMappingsNeeded.add(`${category}/${benchmarkIntent}: record normalized head-to-head benchmark metrics`);
+    } else {
+      categoriesNotReady.add(category);
+      nextMappingsNeeded.add(`${category}/${benchmarkIntent}: add ${Math.max(0, 2 - executableMappings.length)} comparable executable mapping`);
     }
   }
 
-  const providersWithProof = Array.from(new Set(
-    store.events
-      .filter((event) => event.payload && typeof event.payload === 'object' && (event.payload as Record<string, unknown>).proven_paid_execution === true)
-      .map((event) => event.provider_id ?? (typeof event.payload.providerId === 'string' ? event.payload.providerId : null))
-      .filter((id): id is string => Boolean(id))
-  ));
+  for (const category of categoriesReady) categoriesNotReady.delete(category);
 
   const providersCatalogOnly = snapshot.providers
     .map((provider) => provider.provider_id)
-    .filter((id) => !providersWithProof.includes(id));
+    .filter((id) => !providersWithProof.has(id));
 
   return {
     generated_at: new Date().toISOString(),
-    executable_provider_mappings_count: executable.length,
-    categories_with_at_least_two_executable_mappings: categoriesReady.sort(),
-    categories_not_ready_for_comparison: categoriesNotReady.sort(),
-    providers_with_proven_paid_execution: providersWithProof,
+    executable_provider_mappings_count: executableMappingCount,
+    categories_with_at_least_two_executable_mappings: Array.from(categoriesReady).sort(),
+    categories_not_ready_for_comparison: Array.from(categoriesNotReady).sort(),
+    providers_with_proven_paid_execution: Array.from(providersWithProof).sort(),
     providers_with_only_catalog_metadata: providersCatalogOnly,
-    next_mappings_needed: buildNextMappingsNeeded(snapshot.endpoints)
+    next_mappings_needed: Array.from(nextMappingsNeeded).sort(),
+    winner_claimed: false,
+    next_step: 'record normalized head-to-head benchmark metrics',
+    readiness_note: 'Two proven routes exist. This means readiness for comparison, not a superiority winner.'
   };
 }
 
@@ -477,21 +487,6 @@ function collectTopReasons(endpoints: NormalizedEndpointRecord[], mappingSource:
   const unique = Array.from(new Set(reasons));
   if (!unique.length && mappingSource === 'none') return ['no_verified_endpoint_mapping_or_successful_execution'];
   return unique.slice(0, 5);
-}
-
-function buildNextMappingsNeeded(endpoints: NormalizedEndpointRecord[]) {
-  const byCategory = new Map<string, Set<string>>();
-  for (const endpoint of endpoints) {
-    const category = endpoint.category ?? 'unknown';
-    const set = byCategory.get(category) ?? new Set<string>();
-    if (endpoint.method && endpoint.path && endpoint.route_eligibility) set.add(endpoint.provider_id);
-    byCategory.set(category, set);
-  }
-  const needed: string[] = [];
-  for (const [category, providers] of byCategory.entries()) {
-    if (providers.size < 2) needed.push(`${category}: +${2 - providers.size} executable mapping(s)`);
-  }
-  return needed.sort();
 }
 
 function pricingKnown(pricing: unknown) {
