@@ -219,7 +219,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   add('get', '/v1/radar/superiority-readiness', radarGet('Radar Readiness', 'Get superiority proof readiness', 'Returns whether Radar has enough registry-backed proven evidence to start superiority benchmarking. This indicates readiness to compare, not a superiority winner claim.', { $ref: '#/components/schemas/SuperiorityReadinessResponse' }, { executable_provider_mappings_count: 0, providers_with_proven_paid_execution: [], winner_claimed: false }));
   add('get', '/v1/radar/benchmark-readiness', radarGet('Radar Readiness', 'Get benchmark readiness', 'Returns category-level benchmark readiness and superiority readiness splits.', { $ref: '#/components/schemas/BenchmarkReadinessResponse' }, { benchmark_ready_categories: [], superiority_ready_categories: [] }));
   add('get', '/v1/radar/benchmarks', radarGet('Radar Readiness', 'Get head-to-head benchmark registry', 'Returns recorded head-to-head benchmark scaffolds. A benchmark row can be metrics-pending and never implies a winner claim.', { $ref: '#/components/schemas/BenchmarkRegistryResponse' }, { benchmarks: [] }));
-  add('get', '/v1/radar/benchmarks/finance-data-sol-price', radarGet('Radar Readiness', 'Get SOL price benchmark scaffold', 'Returns the finance/data get SOL price head-to-head benchmark scaffold with proof references and pending-metrics state.', { $ref: '#/components/schemas/BenchmarkDetailResponse' }, { benchmark_id: 'finance-data-sol-price', winner_claimed: false, benchmark_recorded: false }));
+  add('get', '/v1/radar/benchmarks/finance-data-sol-price', radarGet('Radar Readiness', 'Get SOL price benchmark scaffold', 'Returns the finance/data get SOL price head-to-head benchmark scaffold with recorded normalized evidence. benchmark_recorded=true means normalized evidence has been recorded, not that a winner is claimed. status_code may be null in pay_cli mode and status_evidence explains proof basis.', { $ref: '#/components/schemas/BenchmarkDetailResponse' }, { benchmark_id: 'finance-data-sol-price', winner_claimed: false, benchmark_recorded: true }));
 
   add('get', '/v1/radar/history/providers/{provider_id}', radarHistoryPath('provider_id', 'Provider history'));
   add('get', '/v1/radar/history/endpoints/{endpoint_id}', radarHistoryPath('endpoint_id', 'Endpoint history'));
@@ -535,11 +535,17 @@ function componentSchemas(): Record<string, JsonSchema> {
       provider_id: stringSchema(),
       route_id: stringSchema(),
       execution_status: enumSchema(['verified', 'proven']),
+      success: booleanSchema(),
       latency_ms: { oneOf: [integerSchema(), { type: 'null' }] },
       paid_execution_proven: booleanSchema(),
       proof_reference: stringSchema(),
       normalized_output_available: booleanSchema(),
       extracted_price_usd: { oneOf: [{ type: 'number', minimum: 0 }, { type: 'null' }] },
+      extraction_path: { oneOf: [stringSchema(), { type: 'null' }] },
+      execution_transport: stringSchema(),
+      cli_exit_code: { oneOf: [integerSchema(), { type: 'null' }] },
+      status_code: { oneOf: [integerSchema(), { type: 'null' }] },
+      status_evidence: stringSchema(),
       output_shape: { oneOf: [freeformObject(), { type: 'null' }] },
       normalization_confidence: enumSchema(['unknown', 'low', 'medium', 'high']),
       freshness_timestamp: { oneOf: [dateTimeSchema(), { type: 'null' }] },

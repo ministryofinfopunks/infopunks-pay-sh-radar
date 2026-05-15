@@ -204,10 +204,12 @@ Command palette actions include:
 - `GET /v1/radar/benchmarks`
   Returns head-to-head benchmark registry records (including metrics-pending scaffolds).
 - `GET /v1/radar/benchmarks/finance-data-sol-price`
-  Returns the SOL price benchmark scaffold with proven route proof references. This is not a winner claim.
-  `output_shape` is a schema example, not extracted metric data.
-  `extracted_price_usd` remains `null` until normalized extraction is recorded.
-  `benchmark_recorded` remains `false` until normalized head-to-head metrics exist.
+  Returns the SOL price benchmark record with artifact-backed normalized evidence. This is not a winner claim.
+  `benchmark_recorded=true` means normalized evidence has been recorded.
+  `winner_claimed=false` means no route superiority result is claimed yet.
+  `status_code` can be `null` in `pay_cli` mode.
+  `status_evidence` explains proof basis when HTTP status is not exposed.
+  `extracted_price_usd` is artifact-backed benchmark evidence, not live-refreshed by Radar.
 - `POST /v1/radar/preflight/batch`
   Runs multiple safe preflight checks in one request (max 25) with per-query success/error.
 - `GET /v1/radar/export/providers.csv`

@@ -293,11 +293,17 @@ type RadarBenchmarkRouteMetric = {
   provider_id: string;
   route_id: string;
   execution_status: 'verified' | 'proven';
+  success?: boolean;
   latency_ms: number | null;
   paid_execution_proven: boolean;
   proof_reference: string;
   normalized_output_available: boolean;
   extracted_price_usd: number | null;
+  extraction_path?: string | null;
+  execution_transport?: string;
+  cli_exit_code?: number | null;
+  status_code?: number | null;
+  status_evidence?: string;
   output_shape: Record<string, unknown> | null;
   normalization_confidence: 'unknown' | 'low' | 'medium' | 'high';
   freshness_timestamp: string | null;
@@ -3099,13 +3105,16 @@ function HeadToHeadBenchmarkPanel({ registry }: { registry: RadarBenchmarkRegist
     {benchmark && <>
       <p className="panel-caption">{benchmark.category}/{benchmark.benchmark_intent}</p>
       <p className="panel-caption">Two proven executable routes exist. Head-to-head benchmark comparison can begin.</p>
-      <p className="panel-caption">Output shapes shown are schema examples. Normalized prices are pending.</p>
-      <p className="panel-caption">No route winner is claimed until normalized metrics are recorded.</p>
+      <p className="panel-caption">{benchmark.benchmark_recorded ? 'Live benchmark recorded.' : 'Output shapes shown are schema examples. Normalized prices are pending.'}</p>
+      <p className="panel-caption">No route winner is claimed.</p>
+      <p className="panel-caption">HTTP status was not exposed by pay_cli; success is supported by CLI exit code 0 and parsed response body.</p>
+      {benchmark.benchmark_recorded && <p className="panel-caption">Price difference recorded. No winner claimed.</p>}
       {!benchmark.benchmark_recorded && <p className="route-state warn">Metrics pending. Next step: {benchmark.next_step}.</p>}
       <div className="readiness-list-grid">
         <CompactChipList title="proven routes" items={benchmark.routes.map((route) => route.provider_id)} emptyLabel="missing" />
         <CompactChipList title="proof references" items={benchmark.routes.map((route) => route.proof_reference)} emptyLabel="missing" wide />
         <CompactChipList title="normalization state" items={benchmark.routes.map((route) => `${route.provider_id}: ${route.normalized_output_available ? 'normalized' : 'metrics pending'}`)} emptyLabel="missing" wide />
+        <CompactChipList title="status evidence" items={benchmark.routes.map((route) => `${route.provider_id}: ${route.status_evidence ?? 'missing status evidence'}`)} emptyLabel="missing" wide />
       </div>
     </>}
   </section>;

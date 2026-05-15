@@ -323,38 +323,50 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
         benchmark_id: 'finance-data-sol-price',
         category: 'finance/data',
         benchmark_intent: 'get SOL price',
-        benchmark_recorded: false,
+        benchmark_recorded: true,
         winner_claimed: false,
-        next_step: 'run normalized head-to-head metric extraction',
-        readiness_note: 'Two proven routes exist. This is readiness for comparison, not a superiority winner.',
+        next_step: 'define normalized winner criteria before claiming route superiority',
+        readiness_note: 'Live normalized benchmark evidence exists. No winner is claimed.',
         routes: [
           {
             provider_id: 'merit-systems-stablecrypto-market-data',
             route_id: 'merit-systems-stablecrypto-market-data:POST:https://stablecrypto.dev/api/coingecko/price',
             execution_status: 'proven',
-            latency_ms: null,
+            success: true,
+            latency_ms: 7489,
             paid_execution_proven: true,
-            proof_reference: 'stablecrypto-sol-price-post-2026-05',
-            normalized_output_available: false,
-            extracted_price_usd: null,
+            proof_reference: 'live-proofs/stablecrypto-harness-pay-cli-2026-05-12.md',
+            normalized_output_available: true,
+            extracted_price_usd: 89.54,
+            extraction_path: 'solana.usd',
+            execution_transport: 'pay_cli',
+            cli_exit_code: 0,
+            status_code: null,
+            status_evidence: 'pay_cli exit code 0 and parsed response body',
             output_shape: { solana: { usd: '<price_usd>' } },
-            normalization_confidence: 'unknown',
-            freshness_timestamp: null,
-            comparison_notes: 'Metrics pending. Normalized head-to-head extraction has not been recorded yet.'
+            normalization_confidence: 'high',
+            freshness_timestamp: '2026-05-15T19:28:03.083Z',
+            comparison_notes: 'Live benchmark recorded. Price difference recorded. No winner claimed.'
           },
           {
             provider_id: 'paysponge-coingecko',
             route_id: 'paysponge-coingecko:GET:https://pro-api.coingecko.com/api/v3/x402/onchain/search/pools?query=SOL',
             execution_status: 'proven',
-            latency_ms: null,
+            success: true,
+            latency_ms: 8172,
             paid_execution_proven: true,
             proof_reference: 'live-proofs/paysponge-coingecko-paid-execution-2026-05-15.md',
-            normalized_output_available: false,
-            extracted_price_usd: null,
+            normalized_output_available: true,
+            extracted_price_usd: 89.74079922757187,
+            extraction_path: 'data[sol_usdc].attributes.base_token_price_usd',
+            execution_transport: 'pay_cli',
+            cli_exit_code: 0,
+            status_code: null,
+            status_evidence: 'pay_cli exit code 0 and parsed response body',
             output_shape: { data: [{ attributes: { name: 'SOL / USDC', base_token_price_usd: '<base_token_price_usd>', quote_token_price_usd: '<quote_token_price_usd>' } }] },
-            normalization_confidence: 'unknown',
-            freshness_timestamp: '2026-05-15T00:00:00.000Z',
-            comparison_notes: 'Metrics pending. Normalized head-to-head extraction has not been recorded yet.'
+            normalization_confidence: 'high',
+            freshness_timestamp: '2026-05-15T19:28:03.083Z',
+            comparison_notes: 'Live benchmark recorded. Price difference recorded. No winner claimed.'
           }
         ]
       }]
@@ -660,13 +672,15 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Superiority readiness requires at least two proven executable mappings for the same benchmark intent.');
     expect(container.textContent).toContain('Benchmark Readiness');
     expect(container.textContent).toContain('Head-to-Head Benchmark');
-    expect(container.textContent).toContain('Metrics pending.');
-    expect(container.textContent).toContain('Output shapes shown are schema examples. Normalized prices are pending.');
-    expect(container.textContent).toContain('stablecrypto-sol-price-post-2026-05');
+    expect(container.textContent).toContain('Live benchmark recorded.');
+    expect(container.textContent).toContain('live-proofs/stablecrypto-harness-pay-cli-2026-05-12.md');
+    expect(container.textContent).toContain('HTTP status was not exposed by pay_cli; success is supported by CLI exit code 0 and parsed response body.');
+    expect(container.textContent).toContain('Price difference recorded. No winner claimed.');
     expect(container.textContent).toContain('live-proofs/paysponge-coingecko-paid-execution-2026-05-15.md');
     expect(container.textContent).toContain('Catalog-estimated');
     expect(container.textContent).toContain('Two proven executable routes exist. Benchmark comparison can begin.');
-    expect(container.textContent).toContain('No route winner is claimed until normalized head-to-head metrics are recorded.');
+    expect(container.textContent).toContain('No route winner is claimed.');
+    expect(container.textContent).not.toContain('HTTP 200');
     expect(container.textContent).toContain('StableCrypto: verified/proven');
     expect(container.textContent).toContain('CoinGecko Onchain DEX API: verified/proven');
     expect(container.textContent).toContain('finance/data/get SOL price');

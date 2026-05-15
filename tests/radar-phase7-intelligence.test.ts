@@ -211,7 +211,7 @@ describe('phase7 intelligence', () => {
     expect(superiority.categories_with_at_least_two_executable_mappings).toContain('finance/data');
   });
 
-  it('benchmark routes expose SOL head-to-head scaffold with proof references and no winner claim', async () => {
+  it('benchmark routes expose recorded SOL benchmark evidence with no winner claim', async () => {
     const app = await createApp(emptyIntelligenceStore());
     const listResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks' });
     expect(listResponse.statusCode).toBe(200);
@@ -219,21 +219,31 @@ describe('phase7 intelligence', () => {
     const sol = listPayload.benchmarks.find((row: any) => row.benchmark_id === 'finance-data-sol-price');
     expect(sol).toBeTruthy();
     expect(sol.winner_claimed).toBe(false);
-    expect(sol.benchmark_recorded).toBe(false);
+    expect(sol.benchmark_recorded).toBe(true);
     expect(sol.routes.map((item: any) => item.provider_id)).toEqual(expect.arrayContaining([
       'merit-systems-stablecrypto-market-data',
       'paysponge-coingecko'
     ]));
     expect(sol.routes.map((item: any) => item.proof_reference)).toEqual(expect.arrayContaining([
-      'stablecrypto-sol-price-post-2026-05',
+      'live-proofs/stablecrypto-harness-pay-cli-2026-05-12.md',
       'live-proofs/paysponge-coingecko-paid-execution-2026-05-15.md'
     ]));
     const stable = sol.routes.find((item: any) => item.provider_id === 'merit-systems-stablecrypto-market-data');
     const paysponge = sol.routes.find((item: any) => item.provider_id === 'paysponge-coingecko');
-    expect(stable.extracted_price_usd).toBeNull();
-    expect(paysponge.extracted_price_usd).toBeNull();
-    expect(stable.normalized_output_available).toBe(false);
-    expect(paysponge.normalized_output_available).toBe(false);
+    expect(stable.success).toBe(true);
+    expect(paysponge.success).toBe(true);
+    expect(stable.latency_ms).toBe(7489);
+    expect(paysponge.latency_ms).toBe(8172);
+    expect(stable.extracted_price_usd).toBe(89.54);
+    expect(paysponge.extracted_price_usd).toBe(89.74079922757187);
+    expect(stable.status_code).toBeNull();
+    expect(paysponge.status_code).toBeNull();
+    expect(stable.status_evidence).toBe('pay_cli exit code 0 and parsed response body');
+    expect(paysponge.status_evidence).toBe('pay_cli exit code 0 and parsed response body');
+    expect(stable.normalized_output_available).toBe(true);
+    expect(paysponge.normalized_output_available).toBe(true);
+    expect(stable.extraction_path).toBe('solana.usd');
+    expect(paysponge.extraction_path).toBe('data[sol_usdc].attributes.base_token_price_usd');
     expect(stable.output_shape.solana.usd).toBe('<price_usd>');
     expect(paysponge.output_shape.data[0].attributes.base_token_price_usd).toBe('<base_token_price_usd>');
     expect(paysponge.output_shape.data[0].attributes.quote_token_price_usd).toBe('<quote_token_price_usd>');
@@ -244,6 +254,7 @@ describe('phase7 intelligence', () => {
     const detailResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks/finance-data-sol-price' });
     expect(detailResponse.statusCode).toBe(200);
     expect(detailResponse.json().data.winner_claimed).toBe(false);
+    expect(detailResponse.json().data.benchmark_recorded).toBe(true);
     await app.close();
   });
 });
