@@ -297,23 +297,22 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
       generated_at: observedAt,
       source: 'infopunks-pay-sh-radar',
       categories: [{
-        category: 'data',
+        category: 'finance/data',
+        benchmark_intent: 'get SOL price',
         executable_mapping_count: 1,
-        comparable_provider_count: 1,
-        pricing_known_count: 1,
-        history_available_count: 1,
-        risk_known_count: 1,
+        candidate_mapping_count: 0,
+        proven_execution_count: 1,
         benchmark_ready: false,
         superiority_ready: false,
-        missing_requirements: ['need_at_least_two_executable_mappings'],
-        recommended_next_mapping: 'data: +1 executable mapping(s)',
+        missing_requirements: ['need_at_least_two_executable_mappings_for_same_intent'],
+        recommended_next_mapping: 'finance/data/get SOL price: add 1 comparable executable mapping',
         metadata_only_warning: 'Catalog-estimated metadata is not execution-proven.'
       }],
       benchmark_ready_categories: [],
       superiority_ready_categories: [],
-      not_ready_categories: ['data'],
-      missing_requirements: ['need_at_least_two_executable_mappings'],
-      recommended_next_mappings: ['data: +1 executable mapping(s)'],
+      not_ready_categories: ['finance/data'],
+      missing_requirements: ['need_at_least_two_executable_mappings_for_same_intent'],
+      recommended_next_mappings: ['finance/data/get SOL price: add 1 comparable executable mapping'],
       metadata_only_warning: 'Catalog-estimated is not execution-proven.'
     });
     if (path === '/v1/radar/preflight') return json({
@@ -617,6 +616,8 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Superiority requires at least two executable provider mappings in the same benchmark category.');
     expect(container.textContent).toContain('Benchmark Readiness');
     expect(container.textContent).toContain('Catalog-estimated');
+    expect(container.textContent).toContain('One proven route exists. Add one comparable route to unlock benchmark readiness.');
+    expect(container.textContent).toContain('finance/data/get SOL price');
     expect(container.textContent).toContain('+ 4 more');
     expect(container.textContent).toContain('catalog metadata only providers');
 

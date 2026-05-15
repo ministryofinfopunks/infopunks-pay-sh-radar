@@ -264,11 +264,10 @@ type RadarSuperiorityReadiness = {
 };
 type RadarBenchmarkCategory = {
   category: string;
+  benchmark_intent: string;
   executable_mapping_count: number;
-  comparable_provider_count: number;
-  pricing_known_count: number;
-  history_available_count: number;
-  risk_known_count: number;
+  candidate_mapping_count: number;
+  proven_execution_count: number;
   benchmark_ready: boolean;
   superiority_ready: boolean;
   missing_requirements: string[];
@@ -3025,6 +3024,7 @@ function RadarExportPanel() {
 }
 
 function BenchmarkReadinessPanel({ readiness }: { readiness: RadarBenchmarkReadiness | null }) {
+  const oneProvenRow = readiness?.categories.find((row) => row.proven_execution_count === 1 && !row.benchmark_ready) ?? null;
   return <section className="panel superiority-readiness" id="benchmark-readiness" aria-label="Benchmark Readiness panel">
     <div className="phase3-panel-head">
       <ScopeLabel scope="GLOBAL" />
@@ -3037,6 +3037,8 @@ function BenchmarkReadinessPanel({ readiness }: { readiness: RadarBenchmarkReadi
       <CompactChipList title="not ready categories" items={readiness.not_ready_categories} emptyLabel="none" />
       <CompactChipList title="superiority ready categories" items={readiness.superiority_ready_categories} emptyLabel="none" />
       <CompactChipList title="next mappings needed" items={readiness.recommended_next_mappings} emptyLabel="none" wide />
+      <CompactChipList title="mapped benchmark intents" items={readiness.categories.map((row) => `${row.category}/${row.benchmark_intent}`)} emptyLabel="none" wide />
+      {oneProvenRow && <p className="panel-caption">One proven route exists. Add one comparable route to unlock benchmark readiness.</p>}
     </div>}
   </section>;
 }

@@ -16,10 +16,12 @@ import { buildEndpointRiskAssessment, buildProviderRiskAssessment, RiskLevel } f
 import {
   endpointPathFromUrl,
   getVerifiedMappingsForProvider,
+  listRouteMappings,
   latestVerifiedAt,
   normalizeEndpointPath,
   type MappingSource,
-  type ProviderEndpointMappingRecord
+  type ProviderEndpointMappingRecord,
+  type VerifiedRouteMappingRecord
 } from './providerEndpointMap';
 
 export function runRadarPreflight(input: RadarPreflightRequest, store: IntelligenceStore): RadarPreflightResponse {
@@ -251,45 +253,42 @@ export function buildSuperiorityReadiness(store: IntelligenceStore): RadarSuperi
 }
 
 export function buildBenchmarkReadiness(store: IntelligenceStore): RadarBenchmarkReadiness {
-  const snapshot = buildRadarExportSnapshot(store);
-  const providerIdsWithProof = new Set(
-    store.events
-      .filter((event) => event.payload && typeof event.payload === 'object' && (event.payload as Record<string, unknown>).proven_paid_execution === true)
-      .map((event) => event.provider_id ?? (typeof event.payload.providerId === 'string' ? event.payload.providerId : null))
-      .filter((id): id is string => Boolean(id))
-  );
-  const categories = new Map<string, NormalizedEndpointRecord[]>();
-  for (const endpoint of snapshot.endpoints) {
-    const category = (endpoint.category ?? 'unknown').toLowerCase();
-    if (!categories.has(category)) categories.set(category, []);
-    categories.get(category)?.push(endpoint);
+  const registry = listRouteMappings();
+  const groups = new Map<string, VerifiedRouteMappingRecord[]>();
+  for (const mapping of registry) {
+    const key = `${mapping.category.toLowerCase()}||${mapping.benchmark_intent.toLowerCase()}`;
+    const entries = groups.get(key) ?? [];
+    entries.push(mapping);
+    groups.set(key, entries);
   }
-  const rows = Array.from(categories.entries()).map(([category, endpoints]) => {
-    const executable = endpoints.filter((item) => item.route_eligibility && Boolean(item.method) && Boolean(item.path));
-    const executableProviders = new Set(executable.map((item) => item.provider_id));
-    const pricingKnownCount = endpoints.filter((item) => pricingKnown(item.pricing)).length;
-    const historyCount = endpoints.filter((item) => hasHistory(store, item.provider_id, item.endpoint_id)).length;
-    const riskKnownCount = endpoints.filter((item) => buildEndpointRiskAssessment(store, item.endpoint_id)?.predictive_risk_level !== 'unknown').length;
-    const benchmarkReady = executableProviders.size >= 2 && executable.length >= 2;
-    const superiorityReady = benchmarkReady && Array.from(executableProviders).filter((providerId) => providerIdsWithProof.has(providerId)).length >= 2;
+
+  const rows = Array.from(groups.values()).map((entries) => {
+    const exemplar = entries[0];
+    const category = exemplar.category.toLowerCase();
+    const benchmark_intent = exemplar.benchmark_intent;
+    const executableMappings = entries.filter((entry) => entry.mapping_status === 'verified');
+    const candidateMappings = entries.filter((entry) => entry.mapping_status === 'candidate');
+    const provenMappings = entries.filter((entry) => entry.execution_evidence_status === 'proven');
+    const benchmarkReady = executableMappings.length >= 2;
+    const superiorityReady = provenMappings.length >= 2;
     const missing: string[] = [];
-    if (executableProviders.size < 2) missing.push('need_at_least_two_executable_mappings');
-    if (pricingKnownCount < 2) missing.push('pricing_unknown_for_comparison');
-    if (!superiorityReady) missing.push('execution_evidence_missing_for_superiority');
+    if (!benchmarkReady) missing.push('need_at_least_two_executable_mappings_for_same_intent');
+    if (!superiorityReady) missing.push('need_at_least_two_proven_execution_mappings_for_same_intent');
+
     return {
       category,
-      executable_mapping_count: executable.length,
-      comparable_provider_count: executableProviders.size,
-      pricing_known_count: pricingKnownCount,
-      history_available_count: historyCount,
-      risk_known_count: riskKnownCount,
+      benchmark_intent,
+      executable_mapping_count: executableMappings.length,
+      candidate_mapping_count: candidateMappings.length,
+      proven_execution_count: provenMappings.length,
       benchmark_ready: benchmarkReady,
       superiority_ready: superiorityReady,
       missing_requirements: missing,
-      recommended_next_mapping: `${category}: +${Math.max(0, 2 - executableProviders.size)} executable mapping(s)`,
+      recommended_next_mapping: `${category}/${benchmark_intent}: add ${Math.max(0, 2 - executableMappings.length)} comparable executable mapping`,
       metadata_only_warning: superiorityReady ? null : 'Catalog-estimated metadata is not execution-proven.'
     };
-  }).sort((a, b) => a.category.localeCompare(b.category));
+  }).sort((a, b) => `${a.category}:${a.benchmark_intent}`.localeCompare(`${b.category}:${b.benchmark_intent}`));
+
   return {
     generated_at: new Date().toISOString(),
     source: 'infopunks-pay-sh-radar',

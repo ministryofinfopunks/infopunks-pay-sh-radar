@@ -1,4 +1,6 @@
-type MappingStatus = 'verified_pay_cli_success';
+type LegacyMappingStatus = 'verified_pay_cli_success';
+export type MappingStatus = 'verified' | 'candidate' | 'catalog_only';
+export type ExecutionEvidenceStatus = 'proven' | 'unproven' | 'unknown';
 
 export type ProviderEndpointMappingRecord = {
   providerId: string;
@@ -6,8 +8,25 @@ export type ProviderEndpointMappingRecord = {
   endpoint: string;
   endpointAliases?: string[];
   endpointId?: string;
-  status: MappingStatus;
+  status: LegacyMappingStatus;
   verifiedAt?: string | null;
+};
+
+export type VerifiedRouteMappingRecord = {
+  provider_id: string;
+  provider_name: string;
+  category: string;
+  benchmark_intent: string;
+  endpoint_url: string;
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+  request_shape_example: Record<string, unknown>;
+  response_shape_example?: Record<string, unknown>;
+  mapping_status: MappingStatus;
+  execution_evidence_status: ExecutionEvidenceStatus;
+  proof_source: string;
+  proof_reference?: string;
+  verified_at?: string;
+  notes: string;
 };
 
 export type ProviderEndpointMatchInput = {
@@ -29,6 +48,33 @@ const providerEndpointMap: ProviderEndpointMappingRecord[] = [
     status: 'verified_pay_cli_success'
   }
 ];
+
+const defaultVerifiedRouteMappingRegistry: VerifiedRouteMappingRecord[] = [
+  {
+    provider_id: 'merit-systems-stablecrypto-market-data',
+    provider_name: 'StableCrypto',
+    category: 'finance/data',
+    benchmark_intent: 'get SOL price',
+    endpoint_url: 'https://stablecrypto.dev/api/coingecko/price',
+    method: 'POST',
+    request_shape_example: { ids: ['solana'], vs_currencies: ['usd'] },
+    response_shape_example: { solana: { usd: 0 } },
+    mapping_status: 'verified',
+    execution_evidence_status: 'proven',
+    proof_source: 'pay_cli',
+    proof_reference: 'stablecrypto-sol-price-post-2026-05',
+    notes: 'Known successful executable mapping from Pay CLI. Catalog-estimated evidence remains separate.'
+  }
+];
+let verifiedRouteMappingRegistry: VerifiedRouteMappingRecord[] = [...defaultVerifiedRouteMappingRegistry];
+
+export function listRouteMappings() {
+  return [...verifiedRouteMappingRegistry];
+}
+
+export function setRouteMappingsForTest(mappings: VerifiedRouteMappingRecord[] | null) {
+  verifiedRouteMappingRegistry = mappings ? [...mappings] : [...defaultVerifiedRouteMappingRegistry];
+}
 
 export function getVerifiedMappingsForProvider(input: ProviderEndpointMatchInput): ProviderEndpointMappingRecord[] {
   const keys = providerKeys(input);

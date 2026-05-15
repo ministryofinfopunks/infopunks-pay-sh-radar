@@ -370,11 +370,10 @@ function componentSchemas(): Record<string, JsonSchema> {
   });
   const benchmarkCategory = objectSchema({
     category: stringSchema(),
+    benchmark_intent: stringSchema(),
     executable_mapping_count: integerSchema(),
-    comparable_provider_count: integerSchema(),
-    pricing_known_count: integerSchema(),
-    history_available_count: integerSchema(),
-    risk_known_count: integerSchema(),
+    candidate_mapping_count: integerSchema(),
+    proven_execution_count: integerSchema(),
     benchmark_ready: booleanSchema(),
     superiority_ready: booleanSchema(),
     missing_requirements: arrayOf(stringSchema()),

@@ -585,11 +585,10 @@ export const RadarSuperiorityReadinessSchema = z.object({
 
 export const RadarBenchmarkCategorySchema = z.object({
   category: z.string(),
+  benchmark_intent: z.string(),
   executable_mapping_count: z.number().int().nonnegative(),
-  comparable_provider_count: z.number().int().nonnegative(),
-  pricing_known_count: z.number().int().nonnegative(),
-  history_available_count: z.number().int().nonnegative(),
-  risk_known_count: z.number().int().nonnegative(),
+  candidate_mapping_count: z.number().int().nonnegative(),
+  proven_execution_count: z.number().int().nonnegative(),
   benchmark_ready: z.boolean(),
   superiority_ready: z.boolean(),
   missing_requirements: z.array(z.string()),

@@ -1,4 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
+import { createApp } from '../src/api/app';
+import { setRouteMappingsForTest } from '../src/services/providerEndpointMap';
 import { applyPayShCatalogIngestion } from '../src/ingestion/payShCatalogAdapter';
 import { emptyIntelligenceStore, recomputeAssessments } from '../src/services/intelligenceStore';
 import { buildRadarExportSnapshot } from '../src/services/radarExportService';
@@ -11,6 +13,10 @@ function store(catalog: PayShCatalogItem[]) {
 }
 
 describe('phase7 intelligence', () => {
+  afterEach(() => {
+    setRouteMappingsForTest(null);
+  });
+
   it('pricing unknown normalization remains unknown', () => {
     const s = store([{ name: 'A', namespace: 'a/a', slug: 'a', category: 'Finance', endpoints: 1, price: 'unknown', status: 'unknown', description: 'x', tags: ['x'] }]);
     const endpoint = buildRadarExportSnapshot(s).endpoints[0];
@@ -40,28 +46,136 @@ describe('phase7 intelligence', () => {
     expect(typeof perf.route_value_score).toBe('number');
   });
 
-  it('benchmark readiness false with one mapping and true with two comparable mappings', () => {
-    const one = store([{ name: 'A', namespace: 'a/a', slug: 'a', category: 'Finance', endpoints: 1, price: '$0.01', status: 'metered', description: 'x', tags: ['x'] }]);
-    const oneReadiness = buildBenchmarkReadiness(one);
-    expect(oneReadiness.benchmark_ready_categories).toHaveLength(0);
-
-    const two = store([
-      { name: 'A', namespace: 'a/a', slug: 'a', category: 'Finance', endpoints: 1, price: '$0.01', status: 'metered', description: 'x', tags: ['x'], endpointDetails: [{ name: 'quote', method: 'GET', path: '/quote', category: 'Finance', description: 'quote', price: '$0.01', status: 'available', schema: null }] },
-      { name: 'B', namespace: 'b/b', slug: 'b', category: 'Finance', endpoints: 1, price: '$0.02', status: 'metered', description: 'x', tags: ['x'], endpointDetails: [{ name: 'quote', method: 'GET', path: '/quote', category: 'Finance', description: 'quote', price: '$0.02', status: 'available', schema: null }] }
-    ]);
-    two.trustAssessments = two.trustAssessments.map((item) => ({ ...item, score: 90, grade: 'A' }));
-    const twoReadiness = buildBenchmarkReadiness(two);
-    expect(twoReadiness.benchmark_ready_categories).toContain('finance');
+  it('one proven mapping does not mark benchmark ready and recommends one comparable next mapping', () => {
+    const readiness = buildBenchmarkReadiness(emptyIntelligenceStore());
+    const sol = readiness.categories.find((row) => row.benchmark_intent === 'get SOL price');
+    expect(sol).toBeTruthy();
+    expect(sol?.benchmark_ready).toBe(false);
+    expect(sol?.superiority_ready).toBe(false);
+    expect(sol?.proven_execution_count).toBe(1);
+    expect(sol?.recommended_next_mapping).toBe('finance/data/get SOL price: add 1 comparable executable mapping');
   });
 
-  it('superiority readiness remains false without execution evidence', () => {
-    const s = store([
-      { name: 'A', namespace: 'a/a', slug: 'a', category: 'Finance', endpoints: 1, price: '$0.01', status: 'metered', description: 'x', tags: ['x'] },
-      { name: 'B', namespace: 'b/b', slug: 'b', category: 'Finance', endpoints: 1, price: '$0.02', status: 'metered', description: 'x', tags: ['x'] }
+  it('candidate mappings do not count as proven execution', () => {
+    setRouteMappingsForTest([
+      {
+        provider_id: 'merit-systems-stablecrypto-market-data',
+        provider_name: 'StableCrypto',
+        category: 'finance/data',
+        benchmark_intent: 'get SOL price',
+        endpoint_url: 'https://stablecrypto.dev/api/coingecko/price',
+        method: 'POST',
+        request_shape_example: { ids: ['solana'], vs_currencies: ['usd'] },
+        mapping_status: 'verified',
+        execution_evidence_status: 'proven',
+        proof_source: 'pay_cli',
+        notes: 'proven'
+      },
+      {
+        provider_id: 'candidate-sol-feed',
+        provider_name: 'Candidate SOL Feed',
+        category: 'finance/data',
+        benchmark_intent: 'get SOL price',
+        endpoint_url: 'https://candidate.dev/sol/price',
+        method: 'POST',
+        request_shape_example: { ids: ['solana'], vs_currencies: ['usd'] },
+        mapping_status: 'candidate',
+        execution_evidence_status: 'unproven',
+        proof_source: 'catalog_review',
+        notes: 'candidate'
+      }
     ]);
-    const readiness = buildBenchmarkReadiness(s);
-    expect(readiness.superiority_ready_categories).toHaveLength(0);
-    const legacy = buildSuperiorityReadiness(s);
+    const readiness = buildBenchmarkReadiness(emptyIntelligenceStore());
+    const sol = readiness.categories.find((row) => row.benchmark_intent === 'get SOL price');
+    expect(sol?.candidate_mapping_count).toBe(1);
+    expect(sol?.proven_execution_count).toBe(1);
+    expect(sol?.benchmark_ready).toBe(false);
+  });
+
+  it('two verified mappings for same intent mark benchmark ready', () => {
+    setRouteMappingsForTest([
+      {
+        provider_id: 'p1',
+        provider_name: 'P1',
+        category: 'finance/data',
+        benchmark_intent: 'get SOL price',
+        endpoint_url: 'https://p1.dev/sol',
+        method: 'POST',
+        request_shape_example: { ids: ['solana'], vs_currencies: ['usd'] },
+        mapping_status: 'verified',
+        execution_evidence_status: 'proven',
+        proof_source: 'pay_cli',
+        notes: 'proven'
+      },
+      {
+        provider_id: 'p2',
+        provider_name: 'P2',
+        category: 'finance/data',
+        benchmark_intent: 'get SOL price',
+        endpoint_url: 'https://p2.dev/sol',
+        method: 'POST',
+        request_shape_example: { ids: ['solana'], vs_currencies: ['usd'] },
+        mapping_status: 'verified',
+        execution_evidence_status: 'unproven',
+        proof_source: 'manual',
+        notes: 'verified but not proven'
+      }
+    ]);
+    const readiness = buildBenchmarkReadiness(emptyIntelligenceStore());
+    const sol = readiness.categories.find((row) => row.benchmark_intent === 'get SOL price');
+    expect(sol?.benchmark_ready).toBe(true);
+    expect(sol?.superiority_ready).toBe(false);
+  });
+
+  it('two proven mappings for same intent mark superiority ready', () => {
+    setRouteMappingsForTest([
+      {
+        provider_id: 'p1',
+        provider_name: 'P1',
+        category: 'finance/data',
+        benchmark_intent: 'get SOL price',
+        endpoint_url: 'https://p1.dev/sol',
+        method: 'POST',
+        request_shape_example: { ids: ['solana'], vs_currencies: ['usd'] },
+        mapping_status: 'verified',
+        execution_evidence_status: 'proven',
+        proof_source: 'pay_cli',
+        notes: 'proven'
+      },
+      {
+        provider_id: 'p2',
+        provider_name: 'P2',
+        category: 'finance/data',
+        benchmark_intent: 'get SOL price',
+        endpoint_url: 'https://p2.dev/sol',
+        method: 'POST',
+        request_shape_example: { ids: ['solana'], vs_currencies: ['usd'] },
+        mapping_status: 'verified',
+        execution_evidence_status: 'proven',
+        proof_source: 'pay_cli',
+        notes: 'proven'
+      }
+    ]);
+    const readiness = buildBenchmarkReadiness(emptyIntelligenceStore());
+    const sol = readiness.categories.find((row) => row.benchmark_intent === 'get SOL price');
+    expect(sol?.superiority_ready).toBe(true);
+  });
+
+  it('benchmark-readiness API includes StableCrypto mapping intent and counts', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-readiness' });
+    expect(response.statusCode).toBe(200);
+    const payload = response.json().data as ReturnType<typeof buildBenchmarkReadiness>;
+    const sol = payload.categories.find((row) => row.benchmark_intent === 'get SOL price');
+    expect(sol).toBeTruthy();
+    expect(sol?.category).toBe('finance/data');
+    expect(sol?.executable_mapping_count).toBe(1);
+    expect(sol?.proven_execution_count).toBe(1);
+    await app.close();
+  });
+
+  it('superiority readiness legacy route remains conservative without injected execution events', () => {
+    const legacy = buildSuperiorityReadiness(emptyIntelligenceStore());
     expect(legacy.providers_with_proven_paid_execution).toHaveLength(0);
   });
 });
