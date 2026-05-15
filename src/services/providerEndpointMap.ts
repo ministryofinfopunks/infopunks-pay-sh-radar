@@ -18,9 +18,9 @@ export type VerifiedRouteMappingRecord = {
   category: string;
   benchmark_intent: string;
   endpoint_url: string;
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-  request_shape_example: Record<string, unknown>;
-  response_shape_example?: Record<string, unknown>;
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | null;
+  request_shape_example: Record<string, unknown> | null;
+  response_shape_example?: Record<string, unknown> | null;
   mapping_status: MappingStatus;
   execution_evidence_status: ExecutionEvidenceStatus;
   proof_source: string;
@@ -64,6 +64,20 @@ const defaultVerifiedRouteMappingRegistry: VerifiedRouteMappingRecord[] = [
     proof_source: 'pay_cli',
     proof_reference: 'stablecrypto-sol-price-post-2026-05',
     notes: 'Known successful executable mapping from Pay CLI. Catalog-estimated evidence remains separate.'
+  },
+  {
+    provider_id: 'paysponge-coingecko',
+    provider_name: 'CoinGecko Onchain DEX API',
+    category: 'finance/data',
+    benchmark_intent: 'get SOL price',
+    endpoint_url: 'https://pro-api.coingecko.com/api/v3/x402/onchain',
+    method: null,
+    request_shape_example: null,
+    response_shape_example: null,
+    mapping_status: 'candidate',
+    execution_evidence_status: 'unproven',
+    proof_source: 'catalog',
+    notes: 'Candidate comparable SOL/token price route from Pay.sh catalog. Exact endpoint path, method, body, and paid execution still need verification.'
   }
 ];
 let verifiedRouteMappingRegistry: VerifiedRouteMappingRecord[] = [...defaultVerifiedRouteMappingRegistry];

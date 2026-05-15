@@ -275,6 +275,11 @@ export function buildBenchmarkReadiness(store: IntelligenceStore): RadarBenchmar
     if (!benchmarkReady) missing.push('need_at_least_two_executable_mappings_for_same_intent');
     if (!superiorityReady) missing.push('need_at_least_two_proven_execution_mappings_for_same_intent');
 
+    const mappingLadder = entries.map((entry) => `${entry.provider_name}: ${entry.mapping_status}/${entry.execution_evidence_status}`);
+    const recommendedNext = candidateMappings.length > 0 && !benchmarkReady
+      ? 'verify PaySponge CoinGecko endpoint path/method/body and execution evidence'
+      : `${category}/${benchmark_intent}: add ${Math.max(0, 2 - executableMappings.length)} comparable executable mapping`;
+
     return {
       category,
       benchmark_intent,
@@ -284,7 +289,8 @@ export function buildBenchmarkReadiness(store: IntelligenceStore): RadarBenchmar
       benchmark_ready: benchmarkReady,
       superiority_ready: superiorityReady,
       missing_requirements: missing,
-      recommended_next_mapping: `${category}/${benchmark_intent}: add ${Math.max(0, 2 - executableMappings.length)} comparable executable mapping`,
+      recommended_next_mapping: recommendedNext,
+      mapping_ladder: mappingLadder,
       metadata_only_warning: superiorityReady ? null : 'Catalog-estimated metadata is not execution-proven.'
     };
   }).sort((a, b) => `${a.category}:${a.benchmark_intent}`.localeCompare(`${b.category}:${b.benchmark_intent}`));

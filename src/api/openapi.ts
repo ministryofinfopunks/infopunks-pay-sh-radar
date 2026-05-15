@@ -378,6 +378,7 @@ function componentSchemas(): Record<string, JsonSchema> {
     superiority_ready: booleanSchema(),
     missing_requirements: arrayOf(stringSchema()),
     recommended_next_mapping: stringSchema(),
+    mapping_ladder: arrayOf(stringSchema()),
     metadata_only_warning: nullableString()
   });
 

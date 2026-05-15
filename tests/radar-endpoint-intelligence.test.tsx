@@ -300,19 +300,20 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
         category: 'finance/data',
         benchmark_intent: 'get SOL price',
         executable_mapping_count: 1,
-        candidate_mapping_count: 0,
+        candidate_mapping_count: 1,
         proven_execution_count: 1,
         benchmark_ready: false,
         superiority_ready: false,
         missing_requirements: ['need_at_least_two_executable_mappings_for_same_intent'],
-        recommended_next_mapping: 'finance/data/get SOL price: add 1 comparable executable mapping',
+        recommended_next_mapping: 'verify PaySponge CoinGecko endpoint path/method/body and execution evidence',
+        mapping_ladder: ['StableCrypto: verified/proven', 'CoinGecko Onchain DEX API: candidate/unproven'],
         metadata_only_warning: 'Catalog-estimated metadata is not execution-proven.'
       }],
       benchmark_ready_categories: [],
       superiority_ready_categories: [],
       not_ready_categories: ['finance/data'],
       missing_requirements: ['need_at_least_two_executable_mappings_for_same_intent'],
-      recommended_next_mappings: ['finance/data/get SOL price: add 1 comparable executable mapping'],
+      recommended_next_mappings: ['verify PaySponge CoinGecko endpoint path/method/body and execution evidence'],
       metadata_only_warning: 'Catalog-estimated is not execution-proven.'
     });
     if (path === '/v1/radar/preflight') return json({
@@ -617,6 +618,9 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Benchmark Readiness');
     expect(container.textContent).toContain('Catalog-estimated');
     expect(container.textContent).toContain('One proven route exists. Add one comparable route to unlock benchmark readiness.');
+    expect(container.textContent).toContain('Candidate comparable route found. Verify endpoint path/method/body before benchmark readiness unlocks.');
+    expect(container.textContent).toContain('StableCrypto: verified/proven');
+    expect(container.textContent).toContain('CoinGecko Onchain DEX API: candidate/unproven');
     expect(container.textContent).toContain('finance/data/get SOL price');
     expect(container.textContent).toContain('+ 4 more');
     expect(container.textContent).toContain('catalog metadata only providers');

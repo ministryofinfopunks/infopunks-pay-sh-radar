@@ -52,8 +52,11 @@ describe('phase7 intelligence', () => {
     expect(sol).toBeTruthy();
     expect(sol?.benchmark_ready).toBe(false);
     expect(sol?.superiority_ready).toBe(false);
+    expect(sol?.candidate_mapping_count).toBe(1);
     expect(sol?.proven_execution_count).toBe(1);
-    expect(sol?.recommended_next_mapping).toBe('finance/data/get SOL price: add 1 comparable executable mapping');
+    expect(sol?.recommended_next_mapping).toBe('verify PaySponge CoinGecko endpoint path/method/body and execution evidence');
+    expect(sol?.mapping_ladder).toContain('StableCrypto: verified/proven');
+    expect(sol?.mapping_ladder).toContain('CoinGecko Onchain DEX API: candidate/unproven');
   });
 
   it('candidate mappings do not count as proven execution', () => {
@@ -170,6 +173,7 @@ describe('phase7 intelligence', () => {
     expect(sol).toBeTruthy();
     expect(sol?.category).toBe('finance/data');
     expect(sol?.executable_mapping_count).toBe(1);
+    expect(sol?.candidate_mapping_count).toBe(1);
     expect(sol?.proven_execution_count).toBe(1);
     await app.close();
   });

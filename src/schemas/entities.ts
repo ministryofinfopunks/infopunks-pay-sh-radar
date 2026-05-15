@@ -593,6 +593,7 @@ export const RadarBenchmarkCategorySchema = z.object({
   superiority_ready: z.boolean(),
   missing_requirements: z.array(z.string()),
   recommended_next_mapping: z.string(),
+  mapping_ladder: z.array(z.string()),
   metadata_only_warning: z.string().nullable()
 });
 
