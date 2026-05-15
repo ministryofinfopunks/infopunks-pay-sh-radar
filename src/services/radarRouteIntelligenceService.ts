@@ -13,6 +13,14 @@ import { IntelligenceStore } from './intelligenceStore';
 import { buildRadarExportSnapshot, NormalizedEndpointRecord } from './radarExportService';
 import { trendContextForProvider } from './radarHistoryService';
 import { buildEndpointRiskAssessment, buildProviderRiskAssessment, RiskLevel } from './radarRiskService';
+import {
+  endpointPathFromUrl,
+  getVerifiedMappingsForProvider,
+  latestVerifiedAt,
+  normalizeEndpointPath,
+  type MappingSource,
+  type ProviderEndpointMappingRecord
+} from './providerEndpointMap';
 
 export function runRadarPreflight(input: RadarPreflightRequest, store: IntelligenceStore): RadarPreflightResponse {
   const snapshot = buildRadarExportSnapshot(store);
@@ -89,26 +97,43 @@ export function runRadarComparison(input: RadarComparisonRequest, store: Intelli
     const rows = snapshot.providers
       .filter((provider) => ids.has(provider.provider_id))
       .map((provider) => {
+        const sourceProvider = store.providers.find((item) => item.id === provider.provider_id) ?? null;
         const endpoints = snapshot.endpoints.filter((endpoint) => endpoint.provider_id === provider.provider_id);
         const mapped = endpoints.filter((endpoint) => Boolean(endpoint.method) && Boolean(endpoint.path));
         const routeEligible = endpoints.filter((endpoint) => endpoint.route_eligibility);
+        const verifiedMappings = getVerifiedMappingsForProvider({
+          providerId: provider.provider_id,
+          providerName: provider.provider_name,
+          providerSlug: sourceProvider?.slug ?? null,
+          providerNamespace: sourceProvider?.namespace ?? null,
+          providerFqn: sourceProvider?.fqn ?? null
+        });
+        const mappedEndpointCount = dedupeMappedEndpointCount(mapped, verifiedMappings);
+        const routeEligibleEndpointCount = dedupeRouteEligibleEndpointCount(routeEligible, verifiedMappings);
         const degraded = endpoints.filter((endpoint) => endpoint.degradation_status === 'degraded' || endpoint.reachability_status !== 'reachable');
         const providerRisk = buildProviderRiskAssessment(store, provider.provider_id);
+        const lastVerifiedAt = latestVerifiedAt(verifiedMappings);
+        const mappingSource = resolveMappingSource(mapped.length > 0, verifiedMappings.length > 0);
+        const routeReady = routeEligibleEndpointCount > 0 && provider.reachability_status !== 'failed' && provider.reachability_status !== 'degraded';
+        const endpointCount = Math.max(endpoints.length, mappedEndpointCount);
         return {
           id: provider.provider_id,
           type: 'provider' as const,
           name: provider.provider_name ?? provider.provider_id,
           trust_score: provider.provider_trust_score,
           signal_score: provider.provider_signal_score,
-          endpoint_count: endpoints.length,
-          mapped_endpoint_count: mapped.length,
-          route_eligible_endpoint_count: routeEligible.length,
+          endpoint_count: endpointCount,
+          mapped_endpoint_count: mappedEndpointCount,
+          route_eligible_endpoint_count: routeEligibleEndpointCount,
           degradation_count: degraded.length,
           pricing_clarity: provider.pricing_clarity_score,
           metadata_quality: provider.metadata_quality_score,
           reachability: provider.reachability_status,
           last_observed: provider.catalog_observed_at,
-          last_seen_healthy: lastSeenHealthy(store, provider.provider_id),
+          last_seen_healthy: lastSeenHealthy(store, provider.provider_id) ?? lastVerifiedAt,
+          last_verified_at: lastVerifiedAt,
+          verified_mapping_count: verifiedMappings.length,
+          mapping_source: mappingSource,
           predictive_risk_level: providerRisk?.predictive_risk_level ?? 'unknown',
           predictive_risk_score: providerRisk?.predictive_risk_score ?? 50,
           recommended_action: providerRisk?.recommended_action ?? 'insufficient history',
@@ -120,8 +145,8 @@ export function runRadarComparison(input: RadarComparisonRequest, store: Intelli
             evidence: providerRisk.anomalies[0].evidence,
             detected_at: providerRisk.anomalies[0].detected_at
           } : null,
-          route_recommendation: (routeEligible.length > 0 && provider.reachability_status === 'reachable' ? 'route_eligible' : 'not_recommended') as 'route_eligible' | 'not_recommended',
-          rejection_reasons: routeEligible.length > 0 ? [] : collectTopReasons(endpoints)
+          route_recommendation: (routeReady ? 'route_eligible' : 'not_recommended') as 'route_eligible' | 'not_recommended',
+          rejection_reasons: routeReady ? [] : collectTopReasons(endpoints, mappingSource)
         };
       });
     return { generated_at: new Date().toISOString(), mode, rows };
@@ -131,6 +156,19 @@ export function runRadarComparison(input: RadarComparisonRequest, store: Intelli
     .filter((endpoint) => ids.has(endpoint.endpoint_id))
     .map((endpoint) => {
       const endpointRisk = buildEndpointRiskAssessment(store, endpoint.endpoint_id);
+      const sourceProvider = store.providers.find((item) => item.id === endpoint.provider_id) ?? null;
+      const verifiedMappings = getVerifiedMappingsForProvider({
+        providerId: endpoint.provider_id,
+        providerName: endpoint.provider_name,
+        providerSlug: sourceProvider?.slug ?? null,
+        providerNamespace: sourceProvider?.namespace ?? null,
+        providerFqn: sourceProvider?.fqn ?? null
+      }).filter((item) => mappingMatchesEndpoint(item, endpoint));
+      const hasCatalogMapping = Boolean(endpoint.method) && Boolean(endpoint.path);
+      const mappingSource = resolveMappingSource(hasCatalogMapping, verifiedMappings.length > 0);
+      const mappedEndpointCount = hasCatalogMapping || verifiedMappings.length > 0 ? 1 : 0;
+      const routeEligibleEndpointCount = endpoint.route_eligibility || verifiedMappings.length > 0 ? 1 : 0;
+      const lastVerifiedAt = latestVerifiedAt(verifiedMappings);
       return {
       id: endpoint.endpoint_id,
       type: 'endpoint' as const,
@@ -138,14 +176,17 @@ export function runRadarComparison(input: RadarComparisonRequest, store: Intelli
       trust_score: endpoint.provider_trust_score,
       signal_score: endpoint.provider_signal_score,
       endpoint_count: 1,
-      mapped_endpoint_count: Boolean(endpoint.method) && Boolean(endpoint.path) ? 1 : 0,
-      route_eligible_endpoint_count: endpoint.route_eligibility ? 1 : 0,
+      mapped_endpoint_count: mappedEndpointCount,
+      route_eligible_endpoint_count: routeEligibleEndpointCount,
       degradation_count: endpoint.degradation_status === 'degraded' ? 1 : 0,
       pricing_clarity: endpoint.pricing_clarity_score,
       metadata_quality: endpoint.metadata_quality_score,
       reachability: endpoint.reachability_status,
       last_observed: endpoint.catalog_observed_at,
-      last_seen_healthy: lastSeenHealthy(store, endpoint.provider_id),
+      last_seen_healthy: lastSeenHealthy(store, endpoint.provider_id) ?? lastVerifiedAt,
+      last_verified_at: lastVerifiedAt,
+      verified_mapping_count: verifiedMappings.length,
+      mapping_source: mappingSource,
       predictive_risk_level: endpointRisk?.predictive_risk_level ?? 'unknown',
       predictive_risk_score: endpointRisk?.predictive_risk_score ?? 50,
       recommended_action: endpointRisk?.recommended_action ?? 'insufficient history',
@@ -157,8 +198,8 @@ export function runRadarComparison(input: RadarComparisonRequest, store: Intelli
         evidence: endpointRisk.anomalies[0].evidence,
         detected_at: endpointRisk.anomalies[0].detected_at
       } : null,
-      route_recommendation: (endpoint.route_eligibility ? 'route_eligible' : 'not_recommended') as 'route_eligible' | 'not_recommended',
-      rejection_reasons: endpoint.route_eligibility ? [] : endpoint.route_rejection_reasons
+      route_recommendation: ((endpoint.route_eligibility || verifiedMappings.length > 0) ? 'route_eligible' : 'not_recommended') as 'route_eligible' | 'not_recommended',
+      rejection_reasons: endpoint.route_eligibility || verifiedMappings.length > 0 ? [] : endpoint.route_rejection_reasons
       };
     });
 
@@ -424,9 +465,11 @@ function lastSeenHealthyForEndpoint(_endpoint: NormalizedEndpointRecord): string
   return null;
 }
 
-function collectTopReasons(endpoints: NormalizedEndpointRecord[]) {
+function collectTopReasons(endpoints: NormalizedEndpointRecord[], mappingSource: MappingSource) {
   const reasons = endpoints.flatMap((endpoint) => endpoint.route_rejection_reasons);
-  return Array.from(new Set(reasons)).slice(0, 5);
+  const unique = Array.from(new Set(reasons));
+  if (!unique.length && mappingSource === 'none') return ['no_verified_endpoint_mapping_or_successful_execution'];
+  return unique.slice(0, 5);
 }
 
 function buildNextMappingsNeeded(endpoints: NormalizedEndpointRecord[]) {
@@ -467,4 +510,47 @@ function normalizePricingForValue(pricing: unknown) {
 
 function round2(value: number) {
   return Math.round(value * 100) / 100;
+}
+
+function resolveMappingSource(hasCatalogMapping: boolean, hasVerifiedMapping: boolean): MappingSource {
+  if (hasCatalogMapping && hasVerifiedMapping) return 'catalog_and_verified';
+  if (hasVerifiedMapping) return 'verified';
+  if (hasCatalogMapping) return 'catalog';
+  return 'none';
+}
+
+function dedupeMappedEndpointCount(catalogMapped: NormalizedEndpointRecord[], verifiedMappings: ProviderEndpointMappingRecord[]) {
+  const keys = new Set<string>();
+  for (const endpoint of catalogMapped) {
+    const key = normalizeEndpointPath(endpoint.path);
+    if (key) keys.add(key);
+  }
+  for (const mapping of verifiedMappings) {
+    const key = endpointPathFromUrl(mapping.endpoint);
+    if (key) keys.add(key);
+  }
+  return keys.size;
+}
+
+function dedupeRouteEligibleEndpointCount(routeEligible: NormalizedEndpointRecord[], verifiedMappings: ProviderEndpointMappingRecord[]) {
+  const keys = new Set<string>();
+  for (const endpoint of routeEligible) {
+    const key = normalizeEndpointPath(endpoint.path);
+    if (key) keys.add(key);
+  }
+  for (const mapping of verifiedMappings) {
+    const key = endpointPathFromUrl(mapping.endpoint);
+    if (key) keys.add(key);
+  }
+  return keys.size;
+}
+
+function mappingMatchesEndpoint(mapping: ProviderEndpointMappingRecord, endpoint: NormalizedEndpointRecord) {
+  const endpointPath = normalizeEndpointPath(endpoint.path);
+  if (!endpointPath) return false;
+  const mappingPaths = [
+    endpointPathFromUrl(mapping.endpoint),
+    ...(mapping.endpointAliases ?? []).map((item) => normalizeEndpointPath(item))
+  ].filter((item): item is string => Boolean(item));
+  return mappingPaths.includes(endpointPath);
 }
