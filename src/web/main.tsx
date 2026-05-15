@@ -394,22 +394,27 @@ type RadarEcosystemHistory = Omit<RadarProviderHistory, 'last_known_good' | 'del
 type SearchResponse = { data: any[]; degraded?: boolean; reason?: string };
 type ErrorBoundaryState = { hasError: boolean };
 type NumericRange = { min: number; max: number };
-type ApiErrorType = 'network_error' | 'timeout' | 'http_error' | 'html_response' | 'invalid_json' | 'invalid_shape';
+type ApiErrorType = 'cors_or_fetch_failed' | 'network_error' | 'timeout' | 'http_error' | 'html_response' | 'invalid_json' | 'invalid_shape';
+type StartupDiagnosticFinalState = 'active_failure' | 'recovered' | 'ignored_secondary_failure';
 type StartupDiagnostic = {
   endpoint: string;
   request_url: string;
   method: string;
+  attempt: number;
   status_code: number | null;
   content_type: string | null;
   error_type: ApiErrorType;
   is_critical: boolean;
   last_attempt_at: string;
+  recovered_at: string | null;
+  final_state: StartupDiagnosticFinalState;
   used_content_type_on_get: boolean;
   fix_hint: string;
 };
 
 const API_BASE_URL = getApiBaseUrl();
-const API_TIMEOUT_MS = 10_000;
+const API_TIMEOUT_MS = 8_000;
+const CRITICAL_PULSE_TIMEOUT_MS = 10_000;
 const DOSSIER_INTERACTION_HOLD_MS = 20_000;
 const ROUTE_INTERACTION_HOLD_MS = 60_000;
 const OPENAPI_PATH = '/openapi.json';
@@ -421,7 +426,9 @@ type CommandPaletteAction = {
   run: () => void;
 };
 
+const TIMEOUT_FIX_HINT = 'Request timed out before a response was received. Possible causes: backend cold start, slow API response, network delay, browser request queueing, or client timeout. Check Network details for CORS/preflight only if OPTIONS or GET is blocked.';
 const CORS_FIX_HINT = 'Browser may have blocked the request during CORS/preflight. Ensure GET requests do not send Content-Type and backend handles OPTIONS.';
+const GENERIC_FIX_HINT = 'Request failed before a usable response was parsed. Check Network and response details.';
 
 class ApiRequestError extends Error {
   readonly diagnostic: StartupDiagnostic;
@@ -433,20 +440,32 @@ class ApiRequestError extends Error {
   }
 }
 
+function resolveFixHint(input: Pick<StartupDiagnostic, 'error_type' | 'used_content_type_on_get' | 'method'>) {
+  if (input.error_type === 'timeout') return TIMEOUT_FIX_HINT;
+  if (input.error_type === 'cors_or_fetch_failed') return CORS_FIX_HINT;
+  if ((input.method === 'GET' || input.method === 'HEAD') && input.used_content_type_on_get) return CORS_FIX_HINT;
+  return GENERIC_FIX_HINT;
+}
+
 function withDefaultFixHint(input: Partial<StartupDiagnostic> & Pick<StartupDiagnostic, 'endpoint' | 'request_url' | 'method' | 'error_type' | 'is_critical'>): StartupDiagnostic {
+  const usedContentType = input.used_content_type_on_get ?? false;
   return {
+    attempt: 1,
     status_code: null,
     content_type: null,
-    used_content_type_on_get: false,
+    used_content_type_on_get: usedContentType,
     last_attempt_at: new Date().toISOString(),
-    fix_hint: CORS_FIX_HINT,
+    recovered_at: null,
+    final_state: 'active_failure',
+    fix_hint: resolveFixHint({ error_type: input.error_type, method: input.method, used_content_type_on_get: usedContentType }),
     ...input
   };
 }
 
-async function api<T>(path: string, init?: RequestInit): Promise<T> {
+async function api<T>(path: string, init?: RequestInit, timeoutOverrideMs?: number): Promise<T> {
   const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+  const timeoutMs = timeoutOverrideMs ?? API_TIMEOUT_MS;
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
   try {
     const url = toApiUrl(API_BASE_URL, path);
     const method = (init?.method ?? 'GET').toUpperCase();
@@ -511,19 +530,48 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
     if (error instanceof ApiRequestError) throw error;
     const method = (init?.method ?? 'GET').toUpperCase();
     const timedOut = error instanceof DOMException && error.name === 'AbortError';
-    const suffix = timedOut ? `timed out after ${API_TIMEOUT_MS}ms` : error instanceof Error ? error.message : String(error);
+    const suffix = timedOut ? `timed out after ${timeoutMs}ms` : error instanceof Error ? error.message : String(error);
     const url = toApiUrl(API_BASE_URL, path);
     console.error(`[frontend-api] ${method} ${path} failed: ${suffix}`);
     throw new ApiRequestError(`${method} ${path} failed: ${suffix}`, withDefaultFixHint({
       endpoint: path,
       request_url: url,
       method,
-      error_type: timedOut ? 'timeout' : 'network_error',
+      error_type: timedOut ? 'timeout' : 'cors_or_fetch_failed',
       is_critical: path === '/v1/pulse'
     }));
   } finally {
     window.clearTimeout(timeout);
   }
+}
+
+function diagnosticKey(item: Pick<StartupDiagnostic, 'endpoint' | 'method' | 'is_critical'>) {
+  return `${item.endpoint}::${item.method}::${item.is_critical ? 'critical' : 'secondary'}`;
+}
+
+function mergeStartupDiagnostics(current: StartupDiagnostic[], failures: StartupDiagnostic[], recoveredEndpoints: string[] = []) {
+  const now = new Date().toISOString();
+  const byKey = new Map(current.map((item) => [diagnosticKey(item), item]));
+  for (const endpoint of recoveredEndpoints) {
+    for (const [key, item] of byKey.entries()) {
+      if (item.endpoint !== endpoint) continue;
+      if (item.final_state !== 'active_failure') continue;
+      byKey.set(key, { ...item, final_state: 'recovered', recovered_at: now, fix_hint: resolveFixHint(item) });
+    }
+  }
+  for (const failure of failures) {
+    const key = diagnosticKey(failure);
+    const existing = byKey.get(key);
+    const attempt = existing ? existing.attempt + 1 : 1;
+    byKey.set(key, {
+      ...failure,
+      attempt,
+      final_state: 'active_failure',
+      recovered_at: null,
+      fix_hint: resolveFixHint(failure)
+    });
+  }
+  return Array.from(byKey.values()).sort((a, b) => Date.parse(b.last_attempt_at) - Date.parse(a.last_attempt_at)).slice(0, 40);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -1091,7 +1139,7 @@ function RadarApp() {
     setBootError(null);
     setSecondaryLoadWarning(null);
     setStartupDiagnostics([]);
-    api<{ data: Pulse }>('/v1/pulse').then((pulse) => {
+    api<{ data: Pulse }>('/v1/pulse', undefined, CRITICAL_PULSE_TIMEOUT_MS).then((pulse) => {
       if (!active) return;
       const safePulse = toPulse(pulse?.data);
       if (!safePulse) {
@@ -1144,10 +1192,23 @@ function RadarApp() {
           });
           return [result.reason instanceof ApiRequestError ? result.reason.diagnostic : fallback];
         });
+        const recovered = [
+          results[0].status === 'fulfilled' ? '/v1/providers' : null,
+          results[1].status === 'fulfilled' ? '/v1/narratives' : null,
+          results[2].status === 'fulfilled' ? '/v1/graph' : null,
+          results[3].status === 'fulfilled' ? '/v1/pulse/summary' : null,
+          results[4].status === 'fulfilled' ? '/v1/providers/featured' : null,
+          results[5].status === 'fulfilled' ? '/v1/radar/endpoints' : null,
+          results[6].status === 'fulfilled' ? '/v1/radar/superiority-readiness' : null,
+          results[7].status === 'fulfilled' ? '/v1/radar/benchmark-readiness' : null,
+          results[8].status === 'fulfilled' ? '/v1/radar/history/ecosystem?window=24h' : null,
+          results[9].status === 'fulfilled' ? '/v1/radar/risk/ecosystem' : null
+        ].filter(Boolean) as string[];
         if (diagnostics.length) {
-          setStartupDiagnostics((current) => [...diagnostics, ...current].slice(0, 20));
+          setStartupDiagnostics((current) => mergeStartupDiagnostics(current, diagnostics, ['/v1/pulse', ...recovered]));
           setSecondaryLoadWarning('Radar live. Some enrichment panels failed to load.');
         } else {
+          setStartupDiagnostics((current) => mergeStartupDiagnostics(current, [], ['/v1/pulse', ...recovered]));
           setSecondaryLoadWarning(null);
         }
         const providers = results[0].status === 'fulfilled' && Array.isArray(results[0].value?.data) ? results[0].value.data : null;
@@ -1221,7 +1282,7 @@ function RadarApp() {
         error_type: 'network_error',
         is_critical: true
       });
-      setStartupDiagnostics((current) => [diagnostic, ...current].slice(0, 20));
+      setStartupDiagnostics((current) => mergeStartupDiagnostics(current, [diagnostic]));
       if (lastGoodPulseRef.current) {
         setData((current) => current ? { ...current, pulse: lastGoodPulseRef.current as Pulse } : {
           providers: [],
@@ -1229,7 +1290,7 @@ function RadarApp() {
           narratives: [],
           graph: { nodes: [], edges: [] }
         });
-        setSecondaryLoadWarning('Radar live. Some enrichment panels failed to load.');
+        setSecondaryLoadWarning('Radar stale: showing last successful live data.');
         setBootError(null);
         return;
       }
@@ -1267,7 +1328,7 @@ function RadarApp() {
       if (refreshInFlightRef.current) return;
       refreshInFlightRef.current = true;
       try {
-        const pulseResult = await api<{ data: Pulse }>('/v1/pulse');
+        const pulseResult = await api<{ data: Pulse }>('/v1/pulse', undefined, CRITICAL_PULSE_TIMEOUT_MS);
         const pulse = toPulse(pulseResult?.data);
         if (!pulse) {
           throw new ApiRequestError('invalid pulse shape', withDefaultFixHint({
@@ -1300,10 +1361,16 @@ function RadarApp() {
           });
           return [result.reason instanceof ApiRequestError ? result.reason.diagnostic : fallback];
         });
+        const recovered = [
+          results[0].status === 'fulfilled' ? '/v1/pulse/summary' : null,
+          results[1].status === 'fulfilled' ? '/v1/providers/featured' : null,
+          results[2].status === 'fulfilled' ? '/v1/radar/risk/ecosystem' : null
+        ].filter(Boolean) as string[];
         if (diagnostics.length) {
-          setStartupDiagnostics((current) => [...diagnostics, ...current].slice(0, 20));
+          setStartupDiagnostics((current) => mergeStartupDiagnostics(current, diagnostics, ['/v1/pulse', ...recovered]));
           setSecondaryLoadWarning('Radar live. Some enrichment panels failed to load.');
         } else {
+          setStartupDiagnostics((current) => mergeStartupDiagnostics(current, [], ['/v1/pulse', ...recovered]));
           setSecondaryLoadWarning(null);
         }
         const summary = results[0].status === 'fulfilled' ? toPulseSummary(results[0].value?.data) : null;
@@ -1321,10 +1388,10 @@ function RadarApp() {
           error_type: 'network_error',
           is_critical: true
         });
-        setStartupDiagnostics((current) => [diagnostic, ...current].slice(0, 20));
+        setStartupDiagnostics((current) => mergeStartupDiagnostics(current, [diagnostic]));
         if (lastGoodPulseRef.current) {
           setData((current) => current ? { ...current, pulse: lastGoodPulseRef.current as Pulse } : current);
-          setSecondaryLoadWarning('Radar live. Some enrichment panels failed to load.');
+          setSecondaryLoadWarning('Radar stale: showing last successful live data.');
         } else {
           setBootError('Radar degraded: unable to load live pulse');
         }
@@ -1362,6 +1429,9 @@ function RadarApp() {
       .sort((a, b) => compareProviders(a, b, directorySort, trustLookup, signalLookup));
   }, [safeProviders, directoryCategory, directoryQuery, directorySort, signalLookup, trustLookup]);
   const selectedProvider = safeProviders.find((provider) => provider.id === selectedId) ?? null;
+  const activeCriticalFailure = startupDiagnostics.find((item) => item.is_critical && item.final_state === 'active_failure');
+  const activeSecondaryFailures = startupDiagnostics.filter((item) => !item.is_critical && item.final_state === 'active_failure');
+  const recoveredCritical = startupDiagnostics.find((item) => item.is_critical && item.final_state === 'recovered');
   const endpointRows = useMemo(() => resolveProviderEndpointRows(providerDetail, providerIntel), [providerDetail, providerIntel]);
   const endpointProvider = providerDetail?.provider ?? providerIntel?.provider ?? selectedProvider;
   const normalizedEndpointRows = useMemo(() => radarEndpoints.filter((endpoint) => endpoint.provider_id === selectedProvider?.id), [radarEndpoints, selectedProvider?.id]);
@@ -1739,14 +1809,26 @@ function RadarApp() {
       <p className="route-state error">{bootError}</p>
       <button className="execute compact secondary" type="button" onClick={() => window.location.reload()}>Retry</button>
     </section>}
-    {secondaryLoadWarning && <section className="panel" role="status" aria-live="polite">
+    {!bootError && secondaryLoadWarning && <section className="panel" role="status" aria-live="polite">
       <p className="route-state warn">{secondaryLoadWarning}</p>
-      {!!startupDiagnostics.length && <details>
-        <summary>Startup diagnostics</summary>
-        {startupDiagnostics.slice(0, 8).map((item, index) => <p key={`${item.endpoint}-${item.last_attempt_at}-${index}`}>
-          {item.is_critical ? '[critical]' : '[secondary]'} {item.endpoint} · {item.error_type} · status {item.status_code ?? 'n/a'} · {item.fix_hint}
-        </p>)}
-      </details>}
+    </section>}
+    {!!startupDiagnostics.length && <section className="panel" role="status" aria-live="polite">
+      {agentMode && !activeCriticalFailure && <p className="route-state warn">Live with partial enrichment</p>}
+      {recoveredCritical && !activeCriticalFailure && <p className="route-state">Startup recovered after retry.</p>}
+      <details>
+        <summary>Developer diagnostics</summary>
+        {(agentMode ? startupDiagnostics : startupDiagnostics.filter((item) => item.final_state === 'active_failure' || item.final_state === 'recovered')).slice(0, 10).map((item) => {
+          const recovered = item.final_state === 'recovered';
+          const recoveredCopy = recovered ? `, recovered on attempt ${item.attempt + 1}` : '';
+          return <details key={`${item.endpoint}-${item.method}-${item.is_critical ? 'critical' : 'secondary'}`}>
+            <summary>{item.endpoint} ({item.is_critical ? 'critical' : 'secondary'}) · {item.error_type} · final {item.final_state} · attempts {item.attempt}{recoveredCopy}</summary>
+            <p>status {item.status_code ?? 'n/a'} · last_attempt_at {item.last_attempt_at}</p>
+            <p>request_url {item.request_url} · method {item.method} · content_type {item.content_type ?? 'n/a'}</p>
+            <p>{item.fix_hint}</p>
+          </details>;
+        })}
+      </details>
+      {!agentMode && activeSecondaryFailures.length > 0 && <p className="route-state warn">Radar live. Some enrichment panels failed to load.</p>}
     </section>}
     {agentMode && <AgentModeBanner onExit={() => setAgentMode(false)} onOpenApiDocs={openApiDocs} />}
     {!agentMode && <section className="hero panel mission-control" aria-labelledby="terminal-title">

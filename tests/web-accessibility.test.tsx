@@ -129,6 +129,36 @@ describe('web accessibility landmarks', () => {
       });
       if (path === '/v1/providers/featured') return json({ providerId: provider.id, providerName: provider.name, category: provider.category, rotationWindowMs: 60000, windowStartedAt: now, nextRotationAt: now, index: 0, providerCount: 1, strategy: 'time_window_round_robin' });
       if (path === '/v1/radar/endpoints') return json({ generated_at: now, source: {}, count: 1, endpoints: [] });
+      if (path === '/v1/radar/superiority-readiness') return json({
+        generated_at: now,
+        executable_provider_mappings_count: 1,
+        categories_with_at_least_two_executable_mappings: [],
+        categories_not_ready_for_comparison: [],
+        providers_with_proven_paid_execution: [],
+        providers_with_only_catalog_metadata: [provider.id],
+        next_mappings_needed: []
+      });
+      if (path === '/v1/radar/benchmark-readiness') return json({
+        generated_at: now,
+        source: 'test',
+        categories: [],
+        benchmark_ready_categories: [],
+        superiority_ready_categories: [],
+        not_ready_categories: [],
+        missing_requirements: [],
+        recommended_next_mappings: [],
+        metadata_only_warning: ''
+      });
+      if (path === '/v1/radar/history/ecosystem') return json({
+        generated_at: now,
+        window: '24h',
+        sample_count: 1,
+        history_available: true,
+        reason: null,
+        series: {},
+        deltas: { average_trust_delta_24h: 0, average_signal_delta_24h: 0, degradation_delta_24h: 0, trend_direction: 'stable' },
+        warnings: []
+      });
       if (path === '/v1/radar/risk/ecosystem') return json({
         generated_at: now,
         subject_type: 'ecosystem',
@@ -205,5 +235,6 @@ describe('web accessibility landmarks', () => {
     expect(container.querySelector('button[aria-label="Copy OpenAPI URL"]')).not.toBeNull();
     expect(container.querySelector('.safe-code-block[aria-label="Batch preflight example"]')).not.toBeNull();
     expect(container.textContent).toContain('[OK] reachable');
+    expect(container.textContent).not.toContain('Developer diagnostics');
   });
 });

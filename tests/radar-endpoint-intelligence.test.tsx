@@ -383,6 +383,7 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Endpoint Intelligence');
     expect(container.textContent).toContain('Lookup');
     expect(container.textContent).toContain('route eligible');
+    expect(container.textContent).not.toContain('Developer diagnostics');
   });
 
   it('renders selected provider with no endpoint rows without hiding the provider', async () => {

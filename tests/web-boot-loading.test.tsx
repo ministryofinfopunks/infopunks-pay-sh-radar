@@ -50,7 +50,7 @@ function pathOf(input: RequestInfo | URL) {
   return new URL(raw, 'http://localhost').pathname;
 }
 
-function installFetch(options: { corePulse: 'ok' | 'fail' | 'timeout'; optionalFail?: boolean; searchFail?: boolean; malformedProvider?: boolean; delayFeaturedProviderSelection?: boolean }) {
+function installFetch(options: { corePulse: 'ok' | 'fail' | 'timeout'; optionalFail?: boolean; searchFail?: boolean; malformedProvider?: boolean; delayFeaturedProviderSelection?: boolean; pulseTimeoutAttempts?: number; summaryFailAttempts?: number; fetchFailureMode?: 'cors_or_fetch_failed' }) {
   const calls: string[] = [];
   const requestInits: { path: string; init?: RequestInit }[] = [];
   let featuredFetchCount = 0;
@@ -64,12 +64,18 @@ function installFetch(options: { corePulse: 'ok' | 'fail' | 'timeout'; optionalF
     if (path === '/v1/pulse') {
       pulseCallCount += 1;
       if (options.optionalFail && pulseCallCount > 1) return Promise.resolve(new Response(JSON.stringify({ error: 'refresh down' }), { status: 503 }));
+      if (options.pulseTimeoutAttempts && pulseCallCount <= options.pulseTimeoutAttempts) {
+        return new Promise((_resolve, reject) => {
+          init?.signal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')), { once: true });
+        });
+      }
       if (options.corePulse === 'fail') return Promise.resolve(new Response(JSON.stringify({ error: 'boom' }), { status: 500 }));
       if (options.corePulse === 'timeout') {
         return new Promise((_resolve, reject) => {
           init?.signal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')), { once: true });
         });
       }
+      if (options.fetchFailureMode === 'cors_or_fetch_failed') return Promise.reject(new TypeError('Failed to fetch'));
       return json({
         providerCount: 1,
         endpointCount: 0,
@@ -85,7 +91,11 @@ function installFetch(options: { corePulse: 'ok' | 'fail' | 'timeout'; optionalF
     }
     if (path === '/v1/narratives') return options.optionalFail ? Promise.resolve(new Response('{}', { status: 500 })) : json([]);
     if (path === '/v1/graph') return options.optionalFail ? Promise.resolve(new Response('{}', { status: 500 })) : json({ nodes: [], edges: [] });
-    if (path === '/v1/pulse/summary') return options.optionalFail ? Promise.resolve(new Response(JSON.stringify({ error: 'summary_failed' }), { status: 500, headers: { 'Content-Type': 'application/json' } })) : json({
+    if (path === '/v1/pulse/summary') {
+      if (options.summaryFailAttempts && featuredFetchCount < options.summaryFailAttempts) {
+        return Promise.resolve(new Response(JSON.stringify({ error: 'summary_failed' }), { status: 500, headers: { 'Content-Type': 'application/json' } }));
+      }
+      return options.optionalFail ? Promise.resolve(new Response(JSON.stringify({ error: 'summary_failed' }), { status: 500, headers: { 'Content-Type': 'application/json' } })) : json({
       generatedAt: now,
       latest_event_at: now,
       latest_batch_event_count: 1,
@@ -102,7 +112,8 @@ function installFetch(options: { corePulse: 'ok' | 'fail' | 'timeout'; optionalF
       signalSpikes: [],
       interpretations: [],
       data_source: dataSource
-    });
+      });
+    }
     if (path === '/v1/providers/featured') {
       featuredFetchCount += 1;
       if (options.delayFeaturedProviderSelection && featuredFetchCount === 1) return Promise.resolve(new Response('{}', { status: 500 }));
@@ -188,7 +199,8 @@ describe('radar boot loading behavior', () => {
     expect(container.textContent).toContain('Infopunks Intelligence Terminal');
     expect(container.textContent).toContain('Provider Directory');
     expect(container.textContent).toContain('Radar live. Some enrichment panels failed to load.');
-    expect(container.textContent).toContain('Ensure GET requests do not send Content-Type and backend handles OPTIONS.');
+    expect(container.textContent).toContain('Developer diagnostics');
+    expect(container.textContent).not.toContain('Browser may have blocked the request during CORS/preflight');
     expect(fetchState.calls).not.toContain('/v1/search');
   });
 
@@ -341,6 +353,72 @@ describe('radar boot loading behavior', () => {
 
     expect(container.textContent).toContain('Providers1');
     expect(container.textContent).toContain('Endpoints0');
-    expect(container.textContent).toContain('Some enrichment panels failed to load.');
+    expect(container.textContent).toContain('Radar stale: showing last successful live data.');
+  });
+
+  it('timeout diagnostic uses timeout-specific hint and not CORS hint', async () => {
+    vi.useFakeTimers();
+    installFetch({ corePulse: 'timeout' });
+    await act(async () => {
+      root = createRoot(container);
+      root.render(<App />);
+    });
+    await act(async () => {
+      vi.advanceTimersByTime(10_100);
+      await Promise.resolve();
+    });
+    expect(container.textContent).toContain('Request timed out before a response was received.');
+    expect(container.textContent).not.toContain('Browser may have blocked the request during CORS/preflight');
+  });
+
+  it('CORS/fetch failures use CORS hint', async () => {
+    installFetch({ corePulse: 'ok', fetchFailureMode: 'cors_or_fetch_failed' });
+    await act(async () => {
+      root = createRoot(container);
+      root.render(<App />);
+    });
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    expect(container.textContent).toContain('Browser may have blocked the request during CORS/preflight');
+  });
+
+  it('deduplicates repeated pulse failures and marks recovery', async () => {
+    vi.useFakeTimers();
+    installFetch({ corePulse: 'ok', pulseTimeoutAttempts: 1 });
+    await act(async () => {
+      root = createRoot(container);
+      root.render(<App />);
+    });
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+      vi.advanceTimersByTime(25_100);
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    expect(container.textContent).toContain('Startup recovered after retry.');
+    const diagnosticsText = container.textContent ?? '';
+    expect(diagnosticsText.match(/\/v1\/pulse/g)?.length ?? 0).toBeLessThan(4);
+    expect(container.textContent).not.toContain('Radar degraded: unable to load live pulse');
+  });
+
+  it('agent mode shows compact startup status with partial enrichment', async () => {
+    installFetch({ corePulse: 'ok', optionalFail: true });
+    await act(async () => {
+      root = createRoot(container);
+      root.render(<App />);
+    });
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    const toggle = Array.from(container.querySelectorAll('button')).find((button) => button.textContent?.includes('Agent Mode'));
+    await act(async () => {
+      toggle?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      await Promise.resolve();
+    });
+    expect(container.textContent).toContain('Live with partial enrichment');
   });
 });
