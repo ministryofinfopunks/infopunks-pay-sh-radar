@@ -205,6 +205,9 @@ Command palette actions include:
   Returns head-to-head benchmark registry records (including metrics-pending scaffolds).
 - `GET /v1/radar/benchmarks/finance-data-sol-price`
   Returns the SOL price benchmark scaffold with proven route proof references. This is not a winner claim.
+  `output_shape` is a schema example, not extracted metric data.
+  `extracted_price_usd` remains `null` until normalized extraction is recorded.
+  `benchmark_recorded` remains `false` until normalized head-to-head metrics exist.
 - `POST /v1/radar/preflight/batch`
   Runs multiple safe preflight checks in one request (max 25) with per-query success/error.
 - `GET /v1/radar/export/providers.csv`

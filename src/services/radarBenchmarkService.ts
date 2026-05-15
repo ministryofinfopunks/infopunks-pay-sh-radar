@@ -33,7 +33,7 @@ function buildSolPriceBenchmark(): RadarBenchmarkDetail {
       proof_reference: entry.proof_reference ?? entry.proof_source,
       normalized_output_available: false,
       extracted_price_usd: null,
-      output_shape: entry.response_shape_example ?? null,
+      output_shape: sanitizeOutputShapeExample(entry.provider_id, entry.response_shape_example ?? null),
       normalization_confidence: 'unknown' as const,
       freshness_timestamp: toIsoTimestamp(entry.verified_at),
       comparison_notes: PENDING_NOTE
@@ -55,4 +55,38 @@ function toIsoTimestamp(value: string | undefined) {
   if (!value) return null;
   const timestamp = value.includes('T') ? value : `${value}T00:00:00.000Z`;
   return Number.isFinite(Date.parse(timestamp)) ? timestamp : null;
+}
+
+function sanitizeOutputShapeExample(providerId: string, shape: Record<string, unknown> | null): Record<string, unknown> | null {
+  if (!shape) return null;
+  if (providerId === 'merit-systems-stablecrypto-market-data') {
+    return {
+      solana: {
+        usd: '<price_usd>'
+      }
+    };
+  }
+  if (providerId === 'paysponge-coingecko') {
+    return {
+      data: [
+        {
+          attributes: {
+            name: 'SOL / USDC',
+            base_token_price_usd: '<base_token_price_usd>',
+            quote_token_price_usd: '<quote_token_price_usd>'
+          }
+        }
+      ]
+    };
+  }
+  return replaceNumericLeaves(shape) as Record<string, unknown>;
+}
+
+function replaceNumericLeaves(value: unknown): unknown {
+  if (typeof value === 'number') return '<number>';
+  if (Array.isArray(value)) return value.map((item) => replaceNumericLeaves(item));
+  if (!value || typeof value !== 'object') return value;
+  const mapped: Record<string, unknown> = {};
+  for (const [key, nested] of Object.entries(value as Record<string, unknown>)) mapped[key] = replaceNumericLeaves(nested);
+  return mapped;
 }

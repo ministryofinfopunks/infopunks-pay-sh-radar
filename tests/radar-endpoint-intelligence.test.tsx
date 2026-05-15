@@ -337,7 +337,7 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
             proof_reference: 'stablecrypto-sol-price-post-2026-05',
             normalized_output_available: false,
             extracted_price_usd: null,
-            output_shape: { solana: { usd: 0 } },
+            output_shape: { solana: { usd: '<price_usd>' } },
             normalization_confidence: 'unknown',
             freshness_timestamp: null,
             comparison_notes: 'Metrics pending. Normalized head-to-head extraction has not been recorded yet.'
@@ -351,7 +351,7 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
             proof_reference: 'live-proofs/paysponge-coingecko-paid-execution-2026-05-15.md',
             normalized_output_available: false,
             extracted_price_usd: null,
-            output_shape: { data: [{ attributes: { base_token_price_usd: 0 } }] },
+            output_shape: { data: [{ attributes: { name: 'SOL / USDC', base_token_price_usd: '<base_token_price_usd>', quote_token_price_usd: '<quote_token_price_usd>' } }] },
             normalization_confidence: 'unknown',
             freshness_timestamp: '2026-05-15T00:00:00.000Z',
             comparison_notes: 'Metrics pending. Normalized head-to-head extraction has not been recorded yet.'
@@ -661,6 +661,7 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Benchmark Readiness');
     expect(container.textContent).toContain('Head-to-Head Benchmark');
     expect(container.textContent).toContain('Metrics pending.');
+    expect(container.textContent).toContain('Output shapes shown are schema examples. Normalized prices are pending.');
     expect(container.textContent).toContain('stablecrypto-sol-price-post-2026-05');
     expect(container.textContent).toContain('live-proofs/paysponge-coingecko-paid-execution-2026-05-15.md');
     expect(container.textContent).toContain('Catalog-estimated');

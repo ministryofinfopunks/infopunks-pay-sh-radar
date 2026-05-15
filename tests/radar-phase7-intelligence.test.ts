@@ -228,6 +228,18 @@ describe('phase7 intelligence', () => {
       'stablecrypto-sol-price-post-2026-05',
       'live-proofs/paysponge-coingecko-paid-execution-2026-05-15.md'
     ]));
+    const stable = sol.routes.find((item: any) => item.provider_id === 'merit-systems-stablecrypto-market-data');
+    const paysponge = sol.routes.find((item: any) => item.provider_id === 'paysponge-coingecko');
+    expect(stable.extracted_price_usd).toBeNull();
+    expect(paysponge.extracted_price_usd).toBeNull();
+    expect(stable.normalized_output_available).toBe(false);
+    expect(paysponge.normalized_output_available).toBe(false);
+    expect(stable.output_shape.solana.usd).toBe('<price_usd>');
+    expect(paysponge.output_shape.data[0].attributes.base_token_price_usd).toBe('<base_token_price_usd>');
+    expect(paysponge.output_shape.data[0].attributes.quote_token_price_usd).toBe('<quote_token_price_usd>');
+    expect(stable.output_shape.solana.usd).not.toBe(0);
+    expect(paysponge.output_shape.data[0].attributes.base_token_price_usd).not.toBe(0);
+    expect(paysponge.output_shape.data[0].attributes.quote_token_price_usd).not.toBe(0);
 
     const detailResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks/finance-data-sol-price' });
     expect(detailResponse.statusCode).toBe(200);

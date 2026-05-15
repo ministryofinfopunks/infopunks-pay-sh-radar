@@ -3099,6 +3099,7 @@ function HeadToHeadBenchmarkPanel({ registry }: { registry: RadarBenchmarkRegist
     {benchmark && <>
       <p className="panel-caption">{benchmark.category}/{benchmark.benchmark_intent}</p>
       <p className="panel-caption">Two proven executable routes exist. Head-to-head benchmark comparison can begin.</p>
+      <p className="panel-caption">Output shapes shown are schema examples. Normalized prices are pending.</p>
       <p className="panel-caption">No route winner is claimed until normalized metrics are recorded.</p>
       {!benchmark.benchmark_recorded && <p className="route-state warn">Metrics pending. Next step: {benchmark.next_step}.</p>}
       <div className="readiness-list-grid">
