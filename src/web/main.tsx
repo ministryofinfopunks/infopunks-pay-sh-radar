@@ -394,6 +394,19 @@ type RadarEcosystemHistory = Omit<RadarProviderHistory, 'last_known_good' | 'del
 type SearchResponse = { data: any[]; degraded?: boolean; reason?: string };
 type ErrorBoundaryState = { hasError: boolean };
 type NumericRange = { min: number; max: number };
+type ApiErrorType = 'network_error' | 'timeout' | 'http_error' | 'html_response' | 'invalid_json' | 'invalid_shape';
+type StartupDiagnostic = {
+  endpoint: string;
+  request_url: string;
+  method: string;
+  status_code: number | null;
+  content_type: string | null;
+  error_type: ApiErrorType;
+  is_critical: boolean;
+  last_attempt_at: string;
+  used_content_type_on_get: boolean;
+  fix_hint: string;
+};
 
 const API_BASE_URL = getApiBaseUrl();
 const API_TIMEOUT_MS = 10_000;
@@ -408,13 +421,47 @@ type CommandPaletteAction = {
   run: () => void;
 };
 
+const CORS_FIX_HINT = 'Browser may have blocked the request during CORS/preflight. Ensure GET requests do not send Content-Type and backend handles OPTIONS.';
+
+class ApiRequestError extends Error {
+  readonly diagnostic: StartupDiagnostic;
+
+  constructor(message: string, diagnostic: StartupDiagnostic) {
+    super(message);
+    this.name = 'ApiRequestError';
+    this.diagnostic = diagnostic;
+  }
+}
+
+function withDefaultFixHint(input: Partial<StartupDiagnostic> & Pick<StartupDiagnostic, 'endpoint' | 'request_url' | 'method' | 'error_type' | 'is_critical'>): StartupDiagnostic {
+  return {
+    status_code: null,
+    content_type: null,
+    used_content_type_on_get: false,
+    last_attempt_at: new Date().toISOString(),
+    fix_hint: CORS_FIX_HINT,
+    ...input
+  };
+}
+
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), API_TIMEOUT_MS);
   try {
     const url = toApiUrl(API_BASE_URL, path);
+    const method = (init?.method ?? 'GET').toUpperCase();
+    const sourceHeaders = new Headers(init?.headers ?? {});
+    const usedContentTypeOnGet = (method === 'GET' || method === 'HEAD') && sourceHeaders.has('Content-Type');
+    if (method === 'GET' || method === 'HEAD') {
+      sourceHeaders.delete('Content-Type');
+      if (!sourceHeaders.has('Accept')) sourceHeaders.set('Accept', 'application/json');
+    } else if (!sourceHeaders.has('Accept')) {
+      sourceHeaders.set('Accept', 'application/json');
+      const hasJsonBody = init?.body != null;
+      if (hasJsonBody && !sourceHeaders.has('Content-Type')) sourceHeaders.set('Content-Type', 'application/json');
+    }
     const response = await fetch(url, {
-      headers: { 'Content-Type': 'application/json' },
+      headers: sourceHeaders,
       ...init,
       signal: controller.signal
     });
@@ -422,14 +469,58 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
     if (path === '/v1/pulse' && (response.status === 404 || contentType.includes('text/html'))) {
       console.error('Radar API unavailable from frontend. In split-mode deployments, set VITE_API_BASE_URL to the backend API URL.');
     }
-    if (!response.ok) throw new Error(`${response.status} ${path}`);
-    return response.json() as Promise<T>;
+    if (!response.ok) {
+      throw new ApiRequestError(`${response.status} ${path}`, withDefaultFixHint({
+        endpoint: path,
+        request_url: url,
+        method,
+        error_type: 'http_error',
+        is_critical: path === '/v1/pulse',
+        status_code: response.status,
+        content_type: contentType,
+        used_content_type_on_get: usedContentTypeOnGet
+      }));
+    }
+    if (contentType.includes('text/html')) {
+      throw new ApiRequestError(`Unexpected HTML response for ${path}`, withDefaultFixHint({
+        endpoint: path,
+        request_url: url,
+        method,
+        error_type: 'html_response',
+        is_critical: path === '/v1/pulse',
+        status_code: response.status,
+        content_type: contentType,
+        used_content_type_on_get: usedContentTypeOnGet
+      }));
+    }
+    try {
+      return await response.json() as T;
+    } catch {
+      throw new ApiRequestError(`Invalid JSON from ${path}`, withDefaultFixHint({
+        endpoint: path,
+        request_url: url,
+        method,
+        error_type: 'invalid_json',
+        is_critical: path === '/v1/pulse',
+        status_code: response.status,
+        content_type: contentType,
+        used_content_type_on_get: usedContentTypeOnGet
+      }));
+    }
   } catch (error) {
+    if (error instanceof ApiRequestError) throw error;
+    const method = (init?.method ?? 'GET').toUpperCase();
     const timedOut = error instanceof DOMException && error.name === 'AbortError';
     const suffix = timedOut ? `timed out after ${API_TIMEOUT_MS}ms` : error instanceof Error ? error.message : String(error);
-    const method = init?.method ?? 'GET';
+    const url = toApiUrl(API_BASE_URL, path);
     console.error(`[frontend-api] ${method} ${path} failed: ${suffix}`);
-    throw new Error(`${method} ${path} failed: ${suffix}`);
+    throw new ApiRequestError(`${method} ${path} failed: ${suffix}`, withDefaultFixHint({
+      endpoint: path,
+      request_url: url,
+      method,
+      error_type: timedOut ? 'timeout' : 'network_error',
+      is_critical: path === '/v1/pulse'
+    }));
   } finally {
     window.clearTimeout(timeout);
   }
@@ -458,9 +549,10 @@ function getSafeRange(value: unknown, fallback: NumericRange = { min: 0, max: 10
 
 function toPulse(candidate: unknown): Pulse | null {
   if (!isRecord(candidate) || !isRecord(candidate.data_source)) return null;
+  if (typeof candidate.providerCount !== 'number' || typeof candidate.endpointCount !== 'number') return null;
   return {
-    providerCount: typeof candidate.providerCount === 'number' ? candidate.providerCount : 0,
-    endpointCount: typeof candidate.endpointCount === 'number' ? candidate.endpointCount : 0,
+    providerCount: candidate.providerCount,
+    endpointCount: candidate.endpointCount,
     eventCount: typeof candidate.eventCount === 'number' ? candidate.eventCount : 0,
     averageTrust: typeof candidate.averageTrust === 'number' ? candidate.averageTrust : null,
     averageSignal: typeof candidate.averageSignal === 'number' ? candidate.averageSignal : null,
@@ -911,6 +1003,8 @@ function RadarApp() {
   const preferredProviderId = useMemo(() => new URLSearchParams(window.location.search).get('provider_id'), []);
   const [data, setData] = useState<AppData | null>(null);
   const [bootError, setBootError] = useState<string | null>(null);
+  const [secondaryLoadWarning, setSecondaryLoadWarning] = useState<string | null>(null);
+  const [startupDiagnostics, setStartupDiagnostics] = useState<StartupDiagnostic[]>([]);
   const [isBootLoading, setIsBootLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [featuredRotationEnabled, setFeaturedRotationEnabled] = useState(true);
@@ -971,6 +1065,7 @@ function RadarApp() {
   const selectionModeRef = useRef(selectionMode);
   const routeInputFocusedRef = useRef(false);
   const dossierControlsEditingRef = useRef(false);
+  const lastGoodPulseRef = useRef<Pulse | null>(null);
 
   function applyFeaturedProvider(featured: FeaturedProvider, force = false) {
     setFeaturedProvider(featured);
@@ -994,10 +1089,21 @@ function RadarApp() {
     let active = true;
     setIsBootLoading(true);
     setBootError(null);
+    setSecondaryLoadWarning(null);
+    setStartupDiagnostics([]);
     api<{ data: Pulse }>('/v1/pulse').then((pulse) => {
       if (!active) return;
       const safePulse = toPulse(pulse?.data);
-      if (!safePulse) throw new Error('malformed pulse payload');
+      if (!safePulse) {
+        throw new ApiRequestError('invalid pulse shape', withDefaultFixHint({
+          endpoint: '/v1/pulse',
+          request_url: toApiUrl(API_BASE_URL, '/v1/pulse'),
+          method: 'GET',
+          error_type: 'invalid_shape',
+          is_critical: true
+        }));
+      }
+      lastGoodPulseRef.current = safePulse;
       setData({ providers: [], pulse: safePulse, narratives: [], graph: { nodes: [], edges: [] } });
       setSelectedId(null);
       setSelectionMode('auto');
@@ -1014,6 +1120,36 @@ function RadarApp() {
         api<{ data: RadarEcosystemRiskSummary }>('/v1/radar/risk/ecosystem')
       ]).then((results) => {
         if (!active) return;
+        const diagnostics = results.flatMap((result, index) => {
+          if (result.status === 'fulfilled') return [];
+          const endpointByIndex = [
+            '/v1/providers',
+            '/v1/narratives',
+            '/v1/graph',
+            '/v1/pulse/summary',
+            '/v1/providers/featured',
+            '/v1/radar/endpoints',
+            '/v1/radar/superiority-readiness',
+            '/v1/radar/benchmark-readiness',
+            '/v1/radar/history/ecosystem?window=24h',
+            '/v1/radar/risk/ecosystem'
+          ];
+          const endpoint = endpointByIndex[index] ?? 'unknown';
+          const fallback = withDefaultFixHint({
+            endpoint,
+            request_url: toApiUrl(API_BASE_URL, endpoint),
+            method: 'GET',
+            error_type: 'network_error',
+            is_critical: false
+          });
+          return [result.reason instanceof ApiRequestError ? result.reason.diagnostic : fallback];
+        });
+        if (diagnostics.length) {
+          setStartupDiagnostics((current) => [...diagnostics, ...current].slice(0, 20));
+          setSecondaryLoadWarning('Radar live. Some enrichment panels failed to load.');
+        } else {
+          setSecondaryLoadWarning(null);
+        }
         const providers = results[0].status === 'fulfilled' && Array.isArray(results[0].value?.data) ? results[0].value.data : null;
         const narratives = results[1].status === 'fulfilled' && Array.isArray(results[1].value?.data) ? results[1].value.data : null;
         const graphRaw = results[2].status === 'fulfilled' && isRecord(results[2].value?.data) ? results[2].value.data : null;
@@ -1076,8 +1212,27 @@ function RadarApp() {
         }
         if (providers && providers.length) setSelectedId((current) => current ?? providers[0].id);
       });
-    }).catch(() => {
+    }).catch((error: unknown) => {
       if (!active) return;
+      const diagnostic = error instanceof ApiRequestError ? error.diagnostic : withDefaultFixHint({
+        endpoint: '/v1/pulse',
+        request_url: toApiUrl(API_BASE_URL, '/v1/pulse'),
+        method: 'GET',
+        error_type: 'network_error',
+        is_critical: true
+      });
+      setStartupDiagnostics((current) => [diagnostic, ...current].slice(0, 20));
+      if (lastGoodPulseRef.current) {
+        setData((current) => current ? { ...current, pulse: lastGoodPulseRef.current as Pulse } : {
+          providers: [],
+          pulse: lastGoodPulseRef.current as Pulse,
+          narratives: [],
+          graph: { nodes: [], edges: [] }
+        });
+        setSecondaryLoadWarning('Radar live. Some enrichment panels failed to load.');
+        setBootError(null);
+        return;
+      }
       setData({
         providers: [],
         pulse: {
@@ -1112,23 +1267,67 @@ function RadarApp() {
       if (refreshInFlightRef.current) return;
       refreshInFlightRef.current = true;
       try {
+        const pulseResult = await api<{ data: Pulse }>('/v1/pulse');
+        const pulse = toPulse(pulseResult?.data);
+        if (!pulse) {
+          throw new ApiRequestError('invalid pulse shape', withDefaultFixHint({
+            endpoint: '/v1/pulse',
+            request_url: toApiUrl(API_BASE_URL, '/v1/pulse'),
+            method: 'GET',
+            error_type: 'invalid_shape',
+            is_critical: true
+          }));
+        }
+        lastGoodPulseRef.current = pulse;
+        setData((current) => current ? { ...current, pulse } : current);
+        setBootError(null);
         const results = await Promise.allSettled([
-        api<{ data: Pulse }>('/v1/pulse'),
-        api<{ data: PulseSummary }>('/v1/pulse/summary'),
-        api<{ data: FeaturedProvider }>('/v1/providers/featured'),
-        api<{ data: RadarEcosystemRiskSummary }>('/v1/radar/risk/ecosystem')
+          api<{ data: PulseSummary }>('/v1/pulse/summary'),
+          api<{ data: FeaturedProvider }>('/v1/providers/featured'),
+          api<{ data: RadarEcosystemRiskSummary }>('/v1/radar/risk/ecosystem')
         ]);
         if (!active) return;
-        const pulse = results[0].status === 'fulfilled' ? toPulse(results[0].value?.data) : null;
-        const summary = results[1].status === 'fulfilled' ? toPulseSummary(results[1].value?.data) : null;
-        const featured = results[2].status === 'fulfilled' ? results[2].value?.data : null;
-        const risk = results[3].status === 'fulfilled' ? results[3].value?.data : null;
-        if (pulse) setData((current) => current ? { ...current, pulse } : current);
+        const diagnostics = results.flatMap((result, index) => {
+          if (result.status === 'fulfilled') return [];
+          const endpoints = ['/v1/pulse/summary', '/v1/providers/featured', '/v1/radar/risk/ecosystem'];
+          const endpoint = endpoints[index];
+          const fallback = withDefaultFixHint({
+            endpoint,
+            request_url: toApiUrl(API_BASE_URL, endpoint),
+            method: 'GET',
+            error_type: 'network_error',
+            is_critical: false
+          });
+          return [result.reason instanceof ApiRequestError ? result.reason.diagnostic : fallback];
+        });
+        if (diagnostics.length) {
+          setStartupDiagnostics((current) => [...diagnostics, ...current].slice(0, 20));
+          setSecondaryLoadWarning('Radar live. Some enrichment panels failed to load.');
+        } else {
+          setSecondaryLoadWarning(null);
+        }
+        const summary = results[0].status === 'fulfilled' ? toPulseSummary(results[0].value?.data) : null;
+        const featured = results[1].status === 'fulfilled' ? results[1].value?.data : null;
+        const risk = results[2].status === 'fulfilled' ? results[2].value?.data : null;
         if (summary) setPulseSummary(summary);
         if (featured && typeof featured.nextRotationAt === 'string') applyFeaturedProvider(featured);
         if (risk) setEcosystemRisk(risk);
-      } catch {
-        // Preserve existing dashboard state on refresh failure.
+      } catch (error) {
+        if (!active) return;
+        const diagnostic = error instanceof ApiRequestError ? error.diagnostic : withDefaultFixHint({
+          endpoint: '/v1/pulse',
+          request_url: toApiUrl(API_BASE_URL, '/v1/pulse'),
+          method: 'GET',
+          error_type: 'network_error',
+          is_critical: true
+        });
+        setStartupDiagnostics((current) => [diagnostic, ...current].slice(0, 20));
+        if (lastGoodPulseRef.current) {
+          setData((current) => current ? { ...current, pulse: lastGoodPulseRef.current as Pulse } : current);
+          setSecondaryLoadWarning('Radar live. Some enrichment panels failed to load.');
+        } else {
+          setBootError('Radar degraded: unable to load live pulse');
+        }
       } finally {
         refreshInFlightRef.current = false;
       }
@@ -1539,6 +1738,15 @@ function RadarApp() {
     {bootError && <section className="panel" role="status" aria-live="polite">
       <p className="route-state error">{bootError}</p>
       <button className="execute compact secondary" type="button" onClick={() => window.location.reload()}>Retry</button>
+    </section>}
+    {secondaryLoadWarning && <section className="panel" role="status" aria-live="polite">
+      <p className="route-state warn">{secondaryLoadWarning}</p>
+      {!!startupDiagnostics.length && <details>
+        <summary>Startup diagnostics</summary>
+        {startupDiagnostics.slice(0, 8).map((item, index) => <p key={`${item.endpoint}-${item.last_attempt_at}-${index}`}>
+          {item.is_critical ? '[critical]' : '[secondary]'} {item.endpoint} · {item.error_type} · status {item.status_code ?? 'n/a'} · {item.fix_hint}
+        </p>)}
+      </details>}
     </section>}
     {agentMode && <AgentModeBanner onExit={() => setAgentMode(false)} onOpenApiDocs={openApiDocs} />}
     {!agentMode && <section className="hero panel mission-control" aria-labelledby="terminal-title">

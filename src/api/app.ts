@@ -129,7 +129,7 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     ingestionEnabled: config.ingestionEnabled,
     lastIngestedAt: store.dataSource?.last_ingested_at ?? null,
     providerCount: store.providers.length,
-    endpointCount: store.endpoints.length
+    endpointCount: safeStoreEndpointCount(store)
   }));
   app.get('/openapi.json', async () => createOpenApiSpec(config.version));
   app.get('/status', async () => withRouteTimeout('/status', ROUTE_TIMEOUT_MS, () => ({

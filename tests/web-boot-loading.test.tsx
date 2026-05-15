@@ -52,13 +52,18 @@ function pathOf(input: RequestInfo | URL) {
 
 function installFetch(options: { corePulse: 'ok' | 'fail' | 'timeout'; optionalFail?: boolean; searchFail?: boolean; malformedProvider?: boolean; delayFeaturedProviderSelection?: boolean }) {
   const calls: string[] = [];
+  const requestInits: { path: string; init?: RequestInit }[] = [];
   let featuredFetchCount = 0;
+  let pulseCallCount = 0;
   const activeProvider = options.malformedProvider ? malformedProvider : provider;
   vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
     const path = pathOf(input);
     calls.push(path);
+    requestInits.push({ path, init });
     if (path === '/v1/providers') return json([activeProvider]);
     if (path === '/v1/pulse') {
+      pulseCallCount += 1;
+      if (options.optionalFail && pulseCallCount > 1) return Promise.resolve(new Response(JSON.stringify({ error: 'refresh down' }), { status: 503 }));
       if (options.corePulse === 'fail') return Promise.resolve(new Response(JSON.stringify({ error: 'boom' }), { status: 500 }));
       if (options.corePulse === 'timeout') {
         return new Promise((_resolve, reject) => {
@@ -80,7 +85,7 @@ function installFetch(options: { corePulse: 'ok' | 'fail' | 'timeout'; optionalF
     }
     if (path === '/v1/narratives') return options.optionalFail ? Promise.resolve(new Response('{}', { status: 500 })) : json([]);
     if (path === '/v1/graph') return options.optionalFail ? Promise.resolve(new Response('{}', { status: 500 })) : json({ nodes: [], edges: [] });
-    if (path === '/v1/pulse/summary') return options.optionalFail ? Promise.resolve(new Response('{}', { status: 500 })) : json({
+    if (path === '/v1/pulse/summary') return options.optionalFail ? Promise.resolve(new Response(JSON.stringify({ error: 'summary_failed' }), { status: 500, headers: { 'Content-Type': 'application/json' } })) : json({
       generatedAt: now,
       latest_event_at: now,
       latest_batch_event_count: 1,
@@ -104,6 +109,7 @@ function installFetch(options: { corePulse: 'ok' | 'fail' | 'timeout'; optionalF
       if (options.optionalFail) return Promise.resolve(new Response('{}', { status: 500 }));
       return json({ providerId: activeProvider.id, providerName: activeProvider.name, category: activeProvider.category, rotationWindowMs: 60000, windowStartedAt: now, nextRotationAt: now, index: 0, providerCount: 1, strategy: 'time_window_round_robin' });
     }
+    if (path === '/v1/radar/risk/ecosystem' && options.optionalFail) return Promise.resolve(new Response(JSON.stringify({ error: 'ecosystem_failed' }), { status: 500, headers: { 'Content-Type': 'application/json' } }));
     if (path === `/v1/providers/${provider.id}`) return json({ provider: activeProvider, endpoints: [], trustAssessment: null, signalAssessment: null });
     if (path === `/v1/providers/${provider.id}/intelligence`) return json({
       provider: activeProvider,
@@ -122,7 +128,12 @@ function installFetch(options: { corePulse: 'ok' | 'fail' | 'timeout'; optionalF
     if (path === '/v1/search') return options.searchFail ? Promise.resolve(new Response(JSON.stringify({ error: 'search_timeout' }), { status: 503 })) : json([]);
     return Promise.resolve(new Response('{}', { status: 404 }));
   });
-  return { calls };
+  return { calls, requestInits };
+}
+
+function getHeaderFromInit(init: RequestInit | undefined, name: string) {
+  const headers = new Headers(init?.headers ?? {});
+  return headers.get(name);
 }
 
 describe('radar boot loading behavior', () => {
@@ -176,6 +187,8 @@ describe('radar boot loading behavior', () => {
 
     expect(container.textContent).toContain('Infopunks Intelligence Terminal');
     expect(container.textContent).toContain('Provider Directory');
+    expect(container.textContent).toContain('Radar live. Some enrichment panels failed to load.');
+    expect(container.textContent).toContain('Ensure GET requests do not send Content-Type and backend handles OPTIONS.');
     expect(fetchState.calls).not.toContain('/v1/search');
   });
 
@@ -259,5 +272,75 @@ describe('radar boot loading behavior', () => {
     expect(container.textContent).toContain('Provider Directory');
     expect(container.textContent).not.toContain('Radar UI degraded: rendering fallback shell');
     expect(container.textContent).not.toContain("Cannot read properties of undefined (reading 'includes')");
+  });
+
+  it('GET requests use Accept and do not send Content-Type', async () => {
+    const fetchState = installFetch({ corePulse: 'ok' });
+
+    await act(async () => {
+      root = createRoot(container);
+      root.render(<App />);
+    });
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const pulseInit = fetchState.requestInits.find((item) => item.path === '/v1/pulse')?.init;
+    expect(getHeaderFromInit(pulseInit, 'Accept')).toBe('application/json');
+    expect(getHeaderFromInit(pulseInit, 'Content-Type')).toBeNull();
+  });
+
+  it('POST requests keep JSON Content-Type', async () => {
+    const fetchState = installFetch({ corePulse: 'ok' });
+
+    await act(async () => {
+      root = createRoot(container);
+      root.render(<App />);
+    });
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const input = container.querySelector('input[aria-label="Search Pay.sh ecosystem intelligence"]') as HTMLInputElement;
+    const form = input.closest('form') as HTMLFormElement;
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+    await act(async () => {
+      setter?.call(input, 'provider trust');
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      await Promise.resolve();
+    });
+
+    const searchInit = fetchState.requestInits.find((item) => item.path === '/v1/search')?.init;
+    expect(getHeaderFromInit(searchInit, 'Accept')).toBe('application/json');
+    expect(getHeaderFromInit(searchInit, 'Content-Type')).toBe('application/json');
+  });
+
+  it('preserves last live pulse when refresh pulse fails', async () => {
+    vi.useFakeTimers();
+    installFetch({ corePulse: 'ok', optionalFail: true });
+
+    await act(async () => {
+      root = createRoot(container);
+      root.render(<App />);
+    });
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    expect(container.textContent).toContain('Providers1');
+    expect(container.textContent).toContain('Endpoints0');
+
+    await act(async () => {
+      vi.advanceTimersByTime(15_100);
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(container.textContent).toContain('Providers1');
+    expect(container.textContent).toContain('Endpoints0');
+    expect(container.textContent).toContain('Some enrichment panels failed to load.');
   });
 });
