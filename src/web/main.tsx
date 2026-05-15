@@ -289,6 +289,35 @@ type RadarBenchmarkReadiness = {
   recommended_next_mappings: string[];
   metadata_only_warning: string;
 };
+type RadarBenchmarkRouteMetric = {
+  provider_id: string;
+  route_id: string;
+  execution_status: 'verified' | 'proven';
+  latency_ms: number | null;
+  paid_execution_proven: boolean;
+  proof_reference: string;
+  normalized_output_available: boolean;
+  extracted_price_usd: number | null;
+  output_shape: Record<string, unknown> | null;
+  normalization_confidence: 'unknown' | 'low' | 'medium' | 'high';
+  freshness_timestamp: string | null;
+  comparison_notes: string;
+};
+type RadarBenchmarkDetail = {
+  benchmark_id: string;
+  category: string;
+  benchmark_intent: string;
+  benchmark_recorded: boolean;
+  winner_claimed: boolean;
+  next_step: string;
+  readiness_note: string;
+  routes: RadarBenchmarkRouteMetric[];
+};
+type RadarBenchmarkRegistry = {
+  generated_at: string;
+  source: string;
+  benchmarks: RadarBenchmarkDetail[];
+};
 type TrendDirection = 'improving' | 'stable' | 'degrading' | 'unknown';
 type RiskLevel = 'low' | 'watch' | 'elevated' | 'critical' | 'unknown';
 type RiskRecommendation = 'route normally' | 'route with caution' | 'required fallback route' | 'not recommended for routing' | 'insufficient history';
@@ -1088,6 +1117,7 @@ function RadarApp() {
   const [compareResult, setCompareResult] = useState<RadarComparisonResult | null>(null);
   const [readiness, setReadiness] = useState<RadarSuperiorityReadiness | null>(null);
   const [benchmarkReadiness, setBenchmarkReadiness] = useState<RadarBenchmarkReadiness | null>(null);
+  const [benchmarkRegistry, setBenchmarkRegistry] = useState<RadarBenchmarkRegistry | null>(null);
   const [providerDetail, setProviderDetail] = useState<ProviderDetail | null>(null);
   const [providerIntel, setProviderIntel] = useState<ProviderIntelligence | null>(null);
   const [radarEndpoints, setRadarEndpoints] = useState<NormalizedEndpointRecord[]>([]);
@@ -1167,6 +1197,7 @@ function RadarApp() {
         api<{ data: { endpoints?: NormalizedEndpointRecord[] } }>('/v1/radar/endpoints'),
         api<{ data: RadarSuperiorityReadiness }>('/v1/radar/superiority-readiness'),
         api<{ data: RadarBenchmarkReadiness }>('/v1/radar/benchmark-readiness'),
+        api<{ data: RadarBenchmarkRegistry }>('/v1/radar/benchmarks'),
         api<{ data: RadarEcosystemHistory }>('/v1/radar/history/ecosystem?window=24h'),
         api<{ data: RadarEcosystemRiskSummary }>('/v1/radar/risk/ecosystem')
       ]).then((results) => {
@@ -1182,6 +1213,7 @@ function RadarApp() {
             '/v1/radar/endpoints',
             '/v1/radar/superiority-readiness',
             '/v1/radar/benchmark-readiness',
+            '/v1/radar/benchmarks',
             '/v1/radar/history/ecosystem?window=24h',
             '/v1/radar/risk/ecosystem'
           ];
@@ -1204,8 +1236,9 @@ function RadarApp() {
           results[5].status === 'fulfilled' ? '/v1/radar/endpoints' : null,
           results[6].status === 'fulfilled' ? '/v1/radar/superiority-readiness' : null,
           results[7].status === 'fulfilled' ? '/v1/radar/benchmark-readiness' : null,
-          results[8].status === 'fulfilled' ? '/v1/radar/history/ecosystem?window=24h' : null,
-          results[9].status === 'fulfilled' ? '/v1/radar/risk/ecosystem' : null
+          results[8].status === 'fulfilled' ? '/v1/radar/benchmarks' : null,
+          results[9].status === 'fulfilled' ? '/v1/radar/history/ecosystem?window=24h' : null,
+          results[10].status === 'fulfilled' ? '/v1/radar/risk/ecosystem' : null
         ].filter(Boolean) as string[];
         if (diagnostics.length) {
           setStartupDiagnostics((current) => mergeStartupDiagnostics(current, diagnostics, ['/v1/pulse', ...recovered]));
@@ -1222,8 +1255,9 @@ function RadarApp() {
         const normalizedEndpoints = results[5].status === 'fulfilled' && Array.isArray(results[5].value?.data?.endpoints) ? results[5].value.data.endpoints : null;
         const readinessPayload = results[6].status === 'fulfilled' ? results[6].value?.data ?? null : null;
         const benchmarkReadinessPayload = results[7].status === 'fulfilled' ? results[7].value?.data ?? null : null;
-        const ecosystemHistoryPayload = results[8].status === 'fulfilled' ? results[8].value?.data ?? null : null;
-        const ecosystemRiskPayload = results[9].status === 'fulfilled' ? results[9].value?.data ?? null : null;
+        const benchmarkRegistryPayload = results[8].status === 'fulfilled' ? results[8].value?.data ?? null : null;
+        const ecosystemHistoryPayload = results[9].status === 'fulfilled' ? results[9].value?.data ?? null : null;
+        const ecosystemRiskPayload = results[10].status === 'fulfilled' ? results[10].value?.data ?? null : null;
         setData((current) => current ? {
           ...current,
           providers: providers ?? current.providers,
@@ -1234,6 +1268,7 @@ function RadarApp() {
         if (normalizedEndpoints) setRadarEndpoints(normalizedEndpoints);
         if (readinessPayload) setReadiness(readinessPayload);
         if (benchmarkReadinessPayload) setBenchmarkReadiness(benchmarkReadinessPayload);
+        if (benchmarkRegistryPayload) setBenchmarkRegistry(benchmarkRegistryPayload);
         if (ecosystemHistoryPayload) setEcosystemHistory(ecosystemHistoryPayload);
         if (ecosystemRiskPayload) setEcosystemRisk(ecosystemRiskPayload);
         if (ecosystemRiskPayload?.summary?.anomaly_watch) {
@@ -1989,6 +2024,7 @@ function RadarApp() {
           <ComparisonPanel providers={safeProviders} endpoints={radarEndpoints} mode={compareMode} selectedIds={compareIds} onModeChange={setCompareMode} onSelectionChange={setCompareIds} result={compareResult} onCompare={runComparison} />
           <CostPerformancePanel endpoints={radarEndpoints} providerRiskById={providerRiskById} benchmarkReadiness={benchmarkReadiness} />
           <BenchmarkReadinessPanel readiness={benchmarkReadiness} />
+          <HeadToHeadBenchmarkPanel registry={benchmarkRegistry} />
           <SuperiorityReadinessPanel readiness={readiness} />
           </div>
         </section>
@@ -3049,6 +3085,28 @@ function BenchmarkReadinessPanel({ readiness }: { readiness: RadarBenchmarkReadi
       {twoProvenRow && <p className="panel-caption">Two proven executable routes exist. Benchmark comparison can begin.</p>}
       {twoProvenRow && <p className="panel-caption">No route winner is claimed until normalized head-to-head metrics are recorded.</p>}
     </div>}
+  </section>;
+}
+
+function HeadToHeadBenchmarkPanel({ registry }: { registry: RadarBenchmarkRegistry | null }) {
+  const benchmark = registry?.benchmarks.find((row) => row.benchmark_id === 'finance-data-sol-price') ?? null;
+  return <section className="panel superiority-readiness" aria-label="Head-to-Head Benchmark panel">
+    <div className="phase3-panel-head">
+      <ScopeLabel scope="GLOBAL" />
+      <h2>Head-to-Head Benchmark</h2>
+    </div>
+    {!benchmark && <EmptyState title="Benchmark pending." body="Head-to-head benchmark data is unavailable." />}
+    {benchmark && <>
+      <p className="panel-caption">{benchmark.category}/{benchmark.benchmark_intent}</p>
+      <p className="panel-caption">Two proven executable routes exist. Head-to-head benchmark comparison can begin.</p>
+      <p className="panel-caption">No route winner is claimed until normalized metrics are recorded.</p>
+      {!benchmark.benchmark_recorded && <p className="route-state warn">Metrics pending. Next step: {benchmark.next_step}.</p>}
+      <div className="readiness-list-grid">
+        <CompactChipList title="proven routes" items={benchmark.routes.map((route) => route.provider_id)} emptyLabel="missing" />
+        <CompactChipList title="proof references" items={benchmark.routes.map((route) => route.proof_reference)} emptyLabel="missing" wide />
+        <CompactChipList title="normalization state" items={benchmark.routes.map((route) => `${route.provider_id}: ${route.normalized_output_available ? 'normalized' : 'metrics pending'}`)} emptyLabel="missing" wide />
+      </div>
+    </>}
   </section>;
 }
 

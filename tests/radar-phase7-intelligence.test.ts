@@ -210,4 +210,28 @@ describe('phase7 intelligence', () => {
     expect(sol?.superiority_ready).toBe(true);
     expect(superiority.categories_with_at_least_two_executable_mappings).toContain('finance/data');
   });
+
+  it('benchmark routes expose SOL head-to-head scaffold with proof references and no winner claim', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+    const listResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks' });
+    expect(listResponse.statusCode).toBe(200);
+    const listPayload = listResponse.json().data;
+    const sol = listPayload.benchmarks.find((row: any) => row.benchmark_id === 'finance-data-sol-price');
+    expect(sol).toBeTruthy();
+    expect(sol.winner_claimed).toBe(false);
+    expect(sol.benchmark_recorded).toBe(false);
+    expect(sol.routes.map((item: any) => item.provider_id)).toEqual(expect.arrayContaining([
+      'merit-systems-stablecrypto-market-data',
+      'paysponge-coingecko'
+    ]));
+    expect(sol.routes.map((item: any) => item.proof_reference)).toEqual(expect.arrayContaining([
+      'stablecrypto-sol-price-post-2026-05',
+      'live-proofs/paysponge-coingecko-paid-execution-2026-05-15.md'
+    ]));
+
+    const detailResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks/finance-data-sol-price' });
+    expect(detailResponse.statusCode).toBe(200);
+    expect(detailResponse.json().data.winner_claimed).toBe(false);
+    await app.close();
+  });
 });

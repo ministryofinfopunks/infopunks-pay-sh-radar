@@ -316,6 +316,49 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
       recommended_next_mappings: ['finance/data/get SOL price: record normalized head-to-head benchmark metrics'],
       metadata_only_warning: 'Catalog-estimated is not execution-proven.'
     });
+    if (path === '/v1/radar/benchmarks') return json({
+      generated_at: observedAt,
+      source: 'infopunks-pay-sh-radar',
+      benchmarks: [{
+        benchmark_id: 'finance-data-sol-price',
+        category: 'finance/data',
+        benchmark_intent: 'get SOL price',
+        benchmark_recorded: false,
+        winner_claimed: false,
+        next_step: 'run normalized head-to-head metric extraction',
+        readiness_note: 'Two proven routes exist. This is readiness for comparison, not a superiority winner.',
+        routes: [
+          {
+            provider_id: 'merit-systems-stablecrypto-market-data',
+            route_id: 'merit-systems-stablecrypto-market-data:POST:https://stablecrypto.dev/api/coingecko/price',
+            execution_status: 'proven',
+            latency_ms: null,
+            paid_execution_proven: true,
+            proof_reference: 'stablecrypto-sol-price-post-2026-05',
+            normalized_output_available: false,
+            extracted_price_usd: null,
+            output_shape: { solana: { usd: 0 } },
+            normalization_confidence: 'unknown',
+            freshness_timestamp: null,
+            comparison_notes: 'Metrics pending. Normalized head-to-head extraction has not been recorded yet.'
+          },
+          {
+            provider_id: 'paysponge-coingecko',
+            route_id: 'paysponge-coingecko:GET:https://pro-api.coingecko.com/api/v3/x402/onchain/search/pools?query=SOL',
+            execution_status: 'proven',
+            latency_ms: null,
+            paid_execution_proven: true,
+            proof_reference: 'live-proofs/paysponge-coingecko-paid-execution-2026-05-15.md',
+            normalized_output_available: false,
+            extracted_price_usd: null,
+            output_shape: { data: [{ attributes: { base_token_price_usd: 0 } }] },
+            normalization_confidence: 'unknown',
+            freshness_timestamp: '2026-05-15T00:00:00.000Z',
+            comparison_notes: 'Metrics pending. Normalized head-to-head extraction has not been recorded yet.'
+          }
+        ]
+      }]
+    });
     if (path === '/v1/radar/preflight') return json({
       generated_at: observedAt,
       source: 'infopunks-pay-sh-radar',
@@ -616,6 +659,10 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('No executable provider mappings detected yet.');
     expect(container.textContent).toContain('Superiority readiness requires at least two proven executable mappings for the same benchmark intent.');
     expect(container.textContent).toContain('Benchmark Readiness');
+    expect(container.textContent).toContain('Head-to-Head Benchmark');
+    expect(container.textContent).toContain('Metrics pending.');
+    expect(container.textContent).toContain('stablecrypto-sol-price-post-2026-05');
+    expect(container.textContent).toContain('live-proofs/paysponge-coingecko-paid-execution-2026-05-15.md');
     expect(container.textContent).toContain('Catalog-estimated');
     expect(container.textContent).toContain('Two proven executable routes exist. Benchmark comparison can begin.');
     expect(container.textContent).toContain('No route winner is claimed until normalized head-to-head metrics are recorded.');

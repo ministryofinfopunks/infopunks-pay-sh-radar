@@ -149,6 +149,11 @@ describe('web accessibility landmarks', () => {
         recommended_next_mappings: [],
         metadata_only_warning: ''
       });
+      if (path === '/v1/radar/benchmarks') return json({
+        generated_at: now,
+        source: 'infopunks-pay-sh-radar',
+        benchmarks: []
+      });
       if (path === '/v1/radar/history/ecosystem') return json({
         generated_at: now,
         window: '24h',

@@ -16,6 +16,8 @@ import {
   RadarBatchPreflightRequestSchema,
   RadarBatchPreflightResponseSchema,
   RadarBenchmarkReadinessSchema,
+  RadarBenchmarkListSchema,
+  RadarBenchmarkDetailSchema,
   RadarPreflightRequestSchema,
   RadarPreflightResponseSchema,
   RadarRiskResponseSchema,
@@ -35,6 +37,7 @@ import { providerReachabilitySummary, providerRootHealthSummary } from '../servi
 import { runPreflight } from '../services/preflightService';
 import { buildRadarExportSnapshot, safeJsonExport } from '../services/radarExportService';
 import { buildBenchmarkReadiness, buildSuperiorityReadiness, runRadarComparison, runRadarPreflight, runRadarPreflightBatch } from '../services/radarRouteIntelligenceService';
+import { buildRadarBenchmarkById, buildRadarBenchmarks } from '../services/radarBenchmarkService';
 import { buildEcosystemHistory, buildEndpointHistory, buildProviderHistory, normalizeHistoryWindow } from '../services/radarHistoryService';
 import { buildEcosystemRiskSummary, buildEndpointRiskAssessment, buildProviderRiskAssessment } from '../services/radarRiskService';
 import { DEFAULT_LIVE_CATALOG_URL } from '../ingestion/payShCatalogAdapter';
@@ -371,6 +374,16 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   app.get('/v1/radar/benchmark-readiness', async () => ({
     data: safeJsonExport(RadarBenchmarkReadinessSchema.parse(buildBenchmarkReadiness(store)))
   }));
+  app.get('/v1/radar/benchmarks', async () => ({
+    data: safeJsonExport(RadarBenchmarkListSchema.parse(buildRadarBenchmarks()))
+  }));
+  app.get('/v1/radar/benchmarks/finance-data-sol-price', async (_req, reply) => {
+    const benchmark = buildRadarBenchmarkById('finance-data-sol-price');
+    if (!benchmark) return reply.code(404).send({ error: 'benchmark_not_found' });
+    return {
+      data: safeJsonExport(RadarBenchmarkDetailSchema.parse(benchmark))
+    };
+  });
   app.get('/v1/monitor/runs/recent', async () => ({ data: [...(store.monitorRuns ?? [])].sort((a, b) => Date.parse(b.startedAt) - Date.parse(a.startedAt)).slice(0, 20).map(monitorRunResponse) }));
   app.get<{ Params: { id: string } }>('/v1/providers/:id/monitor', async (req, reply) => {
     const provider = findProvider(store, req.params.id);

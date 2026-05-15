@@ -612,6 +612,38 @@ export const RadarBenchmarkReadinessSchema = z.object({
   metadata_only_warning: z.string()
 });
 
+export const RadarBenchmarkRouteMetricSchema = z.object({
+  provider_id: z.string(),
+  route_id: z.string(),
+  execution_status: z.enum(['verified', 'proven']),
+  latency_ms: z.number().int().positive().nullable(),
+  paid_execution_proven: z.boolean(),
+  proof_reference: z.string(),
+  normalized_output_available: z.boolean(),
+  extracted_price_usd: z.number().nonnegative().nullable(),
+  output_shape: z.record(z.string(), z.unknown()).nullable(),
+  normalization_confidence: z.enum(['unknown', 'low', 'medium', 'high']),
+  freshness_timestamp: z.string().datetime().nullable(),
+  comparison_notes: z.string()
+});
+
+export const RadarBenchmarkDetailSchema = z.object({
+  benchmark_id: z.string(),
+  category: z.string(),
+  benchmark_intent: z.string(),
+  benchmark_recorded: z.boolean(),
+  winner_claimed: z.boolean(),
+  next_step: z.string(),
+  readiness_note: z.string(),
+  routes: z.array(RadarBenchmarkRouteMetricSchema)
+});
+
+export const RadarBenchmarkListSchema = z.object({
+  generated_at: z.string().datetime(),
+  source: z.literal('infopunks-pay-sh-radar'),
+  benchmarks: z.array(RadarBenchmarkDetailSchema)
+});
+
 export const RadarRiskAnomalySchema = z.object({
   anomaly_type: z.enum([
     'sudden_trust_drop',
@@ -760,6 +792,9 @@ export type RadarComparisonRequest = z.infer<typeof RadarComparisonRequestSchema
 export type RadarComparisonResponse = z.infer<typeof RadarComparisonResponseSchema>;
 export type RadarSuperiorityReadiness = z.infer<typeof RadarSuperiorityReadinessSchema>;
 export type RadarBenchmarkReadiness = z.infer<typeof RadarBenchmarkReadinessSchema>;
+export type RadarBenchmarkRouteMetric = z.infer<typeof RadarBenchmarkRouteMetricSchema>;
+export type RadarBenchmarkDetail = z.infer<typeof RadarBenchmarkDetailSchema>;
+export type RadarBenchmarkList = z.infer<typeof RadarBenchmarkListSchema>;
 export type RadarRiskAnomaly = z.infer<typeof RadarRiskAnomalySchema>;
 export type RadarRiskResponse = z.infer<typeof RadarRiskResponseSchema>;
 export type RadarEcosystemRiskSummary = z.infer<typeof RadarEcosystemRiskSummarySchema>;

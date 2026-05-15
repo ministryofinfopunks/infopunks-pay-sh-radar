@@ -201,6 +201,10 @@ Command palette actions include:
   Returns route superiority benchmark readiness indicators from verified/proven registry mappings. Readiness means comparison can begin, not that a superiority winner is claimed.
 - `GET /v1/radar/benchmark-readiness`
   Returns benchmark readiness by category/task with benchmark-ready vs superiority-ready split.
+- `GET /v1/radar/benchmarks`
+  Returns head-to-head benchmark registry records (including metrics-pending scaffolds).
+- `GET /v1/radar/benchmarks/finance-data-sol-price`
+  Returns the SOL price benchmark scaffold with proven route proof references. This is not a winner claim.
 - `POST /v1/radar/preflight/batch`
   Runs multiple safe preflight checks in one request (max 25) with per-query success/error.
 - `GET /v1/radar/export/providers.csv`
