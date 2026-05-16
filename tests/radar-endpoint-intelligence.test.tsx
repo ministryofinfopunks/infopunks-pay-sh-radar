@@ -628,8 +628,11 @@ describe('radar endpoint intelligence UI', () => {
     installFetch({ endpoints: [normalizedEndpoint], detailEndpoints: [endpoint] });
     root = await renderApp(container);
 
-    expect(container.textContent).toContain('Global Pulse');
-    expect(container.textContent).toContain('Leaderboards');
+    const primaryNav = container.querySelector('[aria-label="Primary radar zones"]');
+    expect(primaryNav?.textContent).toContain('Pulse');
+    expect(primaryNav?.textContent).toContain('Benchmarks');
+    expect(primaryNav?.textContent).toContain('Mappings');
+    expect(primaryNav?.textContent).not.toContain('Agent Benchmark API');
     expect(container.textContent).toContain('Directory');
     expect(container.textContent).toContain('Events');
     expect(container.textContent).toContain('Preflight');
@@ -809,8 +812,9 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Head-to-Head Benchmark');
     expect(container.textContent).toContain('Five-run benchmark recorded.');
     expect(container.textContent).toContain('5 / 5 required benchmark runs recorded.');
-    expect(container.textContent).toContain('Winner status: no clear winner.');
+    expect(container.textContent).toContain('Winner status: no_clear_winner.');
     expect(container.textContent).toContain('Winner claimed: no.');
+    expect(container.textContent).toContain('winner_claimed false');
     expect(container.textContent).toContain('Five-run benchmark recorded. Both routes succeeded. No winner is claimed until scoring thresholds are finalized.');
     expect(container.textContent).toContain('live-proofs/stablecrypto-harness-pay-cli-2026-05-12.md');
     expect(container.textContent).toContain('HTTP status was not exposed by pay_cli; success is supported by CLI exit code 0 and parsed response body.');
@@ -844,7 +848,7 @@ describe('radar endpoint intelligence UI', () => {
 
     expect(container.textContent).toContain('Route Mapping Registry');
     expect(container.textContent).toContain('Catalog-only is not execution proof.');
-    expect(container.textContent).toContain('Proven does not automatically mean best.');
+    expect(container.textContent).toContain('Proven does not mean best.');
     expect(container.textContent).toContain('StableCrypto');
     expect(container.textContent).toContain('paysponge-coingecko');
     expect(container.textContent).toContain('verified');

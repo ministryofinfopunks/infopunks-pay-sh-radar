@@ -2171,35 +2171,39 @@ function RadarApp() {
           <span>Infopunks</span>
           <strong>Pay.sh Radar</strong>
         </a>
-        <div className="terminal-nav" aria-label="Radar zones">
+        <div className="terminal-nav" aria-label="Primary radar zones">
           {[
-            ['global-pulse', 'Global Pulse'],
-            ['leaderboards', 'Leaderboards'],
+            ['global-pulse', 'Pulse'],
             ['providers', 'Directory'],
-            ['endpoints', 'Endpoints'],
+            ['benchmark-readiness', 'Benchmarks'],
+            ['route-mapping-registry', 'Mappings'],
             ['preflight', 'Preflight'],
             ['compare', 'Compare'],
-            ['agent-benchmark-api', 'Agent Benchmark API'],
-            ['dossier', 'Dossier'],
-            ['events', 'Events']
+            ['dossier', 'Dossier']
           ].map(([id, label]) => <a key={id} href={`#${id}`} className={activeSection === id ? 'active' : ''} aria-current={activeSection === id ? 'location' : undefined}>{label}</a>)}
         </div>
         <div className="terminal-actions" aria-label="Utility actions">
+          <span className="terminal-action-cluster" aria-label="Docs">
+            <a className="methodology-trigger api-docs-link" href={toApiUrl(API_BASE_URL, OPENAPI_PATH)} target="_blank" rel="noreferrer">
+              API Docs
+            </a>
+            <a className="methodology-trigger" href="#agent-benchmark-api">Agent Benchmark API</a>
+            <button className="methodology-trigger methodology-link" type="button" onClick={() => setMethodologyOpen(true)} aria-label="Open methodology drawer">
+              Methodology
+            </button>
+            <a className="methodology-trigger methodology-link" href="#events">Events</a>
+          </span>
+          <span className="terminal-action-cluster" aria-label="Tools">
           <button className="methodology-trigger command-trigger" type="button" onClick={() => setCommandPaletteOpen(true)} aria-label="Open command palette">
             Cmd+K
           </button>
-          <a className="methodology-trigger api-docs-link" href={toApiUrl(API_BASE_URL, OPENAPI_PATH)} target="_blank" rel="noreferrer">
-            API Docs
-          </a>
           <button className={`methodology-trigger ${agentMode ? 'active' : ''}`} type="button" aria-pressed={agentMode} onClick={() => setAgentMode((value) => !value)}>
             Agent Mode
           </button>
           <button className="methodology-trigger density-trigger" type="button" onClick={() => setDensityMode((value) => value === 'comfortable' ? 'dense' : 'comfortable')} aria-label="Toggle terminal density">
             {densityMode === 'comfortable' ? 'Terminal Comfortable' : 'Terminal Dense'}
           </button>
-          <button className="methodology-trigger methodology-link" type="button" onClick={() => setMethodologyOpen(true)} aria-label="Open methodology drawer">
-            Methodology
-          </button>
+          </span>
         </div>
       </nav>
     </header>
@@ -3478,7 +3482,6 @@ function HeadToHeadBenchmarkPanel({ registry, loading }: { registry: RadarBenchm
   const policy = benchmark?.winner_policy;
   const completedRuns = policy?.completed_runs ?? 0;
   const requiredRuns = policy?.required_runs ?? 0;
-  const winnerStatusLabel = benchmark?.winner_status?.replaceAll('_', ' ') ?? 'not evaluated';
   return <section className="panel superiority-readiness" aria-label="Head-to-Head Benchmark panel">
     <div className="phase3-panel-head">
       <ScopeLabel scope="GLOBAL" />
@@ -3487,24 +3490,51 @@ function HeadToHeadBenchmarkPanel({ registry, loading }: { registry: RadarBenchm
     {!benchmark && loading && <EmptyState title="Enrichment delayed" body="Benchmark data delayed" />}
     {!benchmark && !loading && <EmptyState title="Panel data unavailable" body="Benchmark data delayed" />}
     {benchmark && <>
-      <p className="panel-caption">{benchmark.category}/{benchmark.benchmark_intent}</p>
+      <div className="benchmark-summary-card">
+        <div>
+          <p className="section-kicker">{benchmark.category} · {benchmark.benchmark_intent}</p>
+          <strong>{completedRuns} / {requiredRuns} runs recorded</strong>
+        </div>
+        <span className="route-state">winner_status {benchmark.winner_status ?? 'not_evaluated'}</span>
+        <span className="route-state">winner_claimed {String(benchmark.winner_claimed)}</span>
+        <a className="copy-chip" href="/benchmarks/finance-data-sol-price">Open proof page</a>
+      </div>
       <p className="panel-caption">Two proven executable routes exist. Head-to-head benchmark comparison can begin.</p>
       <p className="panel-caption">{benchmark.benchmark_recorded ? 'Five-run benchmark recorded.' : 'Output shapes shown are schema examples. Normalized prices are pending.'}</p>
       {policy && <p className="panel-caption">{completedRuns} / {requiredRuns} required benchmark runs recorded.</p>}
-      <p className="panel-caption">Winner status: {winnerStatusLabel}.</p>
+      <p className="panel-caption">Winner status: {benchmark.winner_status ?? 'not_evaluated'}.</p>
       <p className="panel-caption">Winner claimed: {benchmark.winner_claimed ? 'yes.' : 'no.'}</p>
-      <p className="panel-caption"><a href="/benchmarks/finance-data-sol-price">Open public benchmark proof page</a></p>
       {policy?.winner_rationale && <p className="panel-caption">{policy.winner_rationale}</p>}
       <p className="panel-caption">Five-run benchmark recorded. Both routes succeeded. No winner is claimed until scoring thresholds are finalized.</p>
-      <p className="panel-caption">HTTP status was not exposed by pay_cli; success is supported by CLI exit code 0 and parsed response body.</p>
       {benchmark.benchmark_recorded && <p className="panel-caption">Price difference recorded. No winner claimed.</p>}
       {!benchmark.benchmark_recorded && <p className="route-state warn">Metrics pending. Next step: {benchmark.next_step}.</p>}
+      <div className="benchmark-route-grid">
+        {benchmark.routes.map((route) => <section key={route.route_id} className="benchmark-route-card">
+          <div className="compact-chip-list-head">
+            <strong>{benchmarkRouteLabel(route)}</strong>
+            <span>{route.execution_status}</span>
+          </div>
+          <div className="benchmark-metric-grid">
+            <BenchmarkMetricTile label="success rate" value={formatBenchmarkMetric(route.success_rate, 'percent')} />
+            <BenchmarkMetricTile label="median latency" value={formatBenchmarkMetric(route.median_latency_ms, 'ms')} />
+            <BenchmarkMetricTile label="p95 latency" value={formatBenchmarkMetric(route.p95_latency_ms, 'ms')} />
+            <BenchmarkMetricTile label="average price" value={formatBenchmarkMetric(route.average_price_usd, 'usd')} />
+            <BenchmarkMetricTile label="variance" value={formatBenchmarkMetric(route.price_variance_percent, 'percentRaw')} />
+          </div>
+          <div className="compact-chip-wrap">
+            <span>{route.proof_reference}</span>
+            <span>{route.normalized_output_available ? 'normalized' : 'metrics pending'}</span>
+            <span>{route.completed_runs ?? 'n/a'} completed</span>
+            <span>{route.failed_runs ?? 'n/a'} failed</span>
+          </div>
+          <details className="compact-chip-details">
+            <summary>Status evidence</summary>
+            <p>{route.status_evidence ?? 'missing status evidence'}</p>
+            <p>HTTP status was not exposed by pay_cli; success is supported by CLI exit code 0 and parsed response body.</p>
+          </details>
+        </section>)}
+      </div>
       <div className="readiness-list-grid">
-        <CompactChipList title="proven routes" items={benchmark.routes.map((route) => route.provider_id)} emptyLabel="missing" />
-        <CompactChipList title="proof references" items={benchmark.routes.map((route) => route.proof_reference)} emptyLabel="missing" wide />
-        <CompactChipList title="normalization state" items={benchmark.routes.map((route) => `${route.provider_id}: ${route.normalized_output_available ? 'normalized' : 'metrics pending'}`)} emptyLabel="missing" wide />
-        <CompactChipList title="status evidence" items={benchmark.routes.map((route) => `${route.provider_id}: ${route.status_evidence ?? 'missing status evidence'}`)} emptyLabel="missing" wide />
-        <CompactChipList title="aggregate metrics" items={benchmark.routes.map((route) => `${route.provider_id}: success_rate=${route.success_rate ?? 'n/a'}, median_latency_ms=${route.median_latency_ms ?? 'n/a'}, p95_latency_ms=${route.p95_latency_ms ?? 'n/a'}, average_price_usd=${route.average_price_usd ?? 'n/a'}, min_price_usd=${route.min_price_usd ?? 'n/a'}, max_price_usd=${route.max_price_usd ?? 'n/a'}, price_variance_percent=${route.price_variance_percent ?? 'n/a'}, completed_runs=${route.completed_runs ?? 'n/a'}, failed_runs=${route.failed_runs ?? 'n/a'}`)} emptyLabel="missing" wide />
         {policy && <CompactChipList title="winner criteria" items={[
           `minimum ${policy.required_successful_runs_per_route} successful runs per route`,
           `compare ${policy.latency_metric} latency`,
@@ -3515,6 +3545,21 @@ function HeadToHeadBenchmarkPanel({ registry, loading }: { registry: RadarBenchm
       </div>
     </>}
   </section>;
+}
+
+function BenchmarkMetricTile({ label, value }: { label: string; value: string }) {
+  return <div className="benchmark-metric-tile">
+    <span>{label}</span>
+    <strong>{value}</strong>
+  </div>;
+}
+
+function formatBenchmarkMetric(value: number | null | undefined, mode: 'percent' | 'percentRaw' | 'ms' | 'usd') {
+  if (value === null || value === undefined) return 'n/a';
+  if (mode === 'percent') return `${Math.round(value * 100)}%`;
+  if (mode === 'percentRaw') return `${value}%`;
+  if (mode === 'ms') return `${value} ms`;
+  return `$${value}`;
 }
 
 function RouteMappingRegistryPanel({
@@ -3548,14 +3593,12 @@ function RouteMappingRegistryPanel({
     return true;
   });
 
-  return <section className="panel superiority-readiness" aria-label="Route Mapping Registry panel">
+  return <section className="panel superiority-readiness" id="route-mapping-registry" aria-label="Route Mapping Registry panel">
     <ScopeLabel scope="GLOBAL" />
     <p className="section-kicker">Execution Mapping Ladder</p>
     <h2>Route Mapping Registry</h2>
     <p className="panel-caption">Catalog-only is not execution proof.</p>
-    <p className="panel-caption">Verified means endpoint path/method/body are known.</p>
-    <p className="panel-caption">Proven means execution evidence exists.</p>
-    <p className="panel-caption">Proven does not automatically mean best.</p>
+    <p className="panel-caption">Verified means path/method/body known. Proven means execution evidence exists. Proven does not mean best.</p>
     <div className="control-row">
       <label><span>status</span><select aria-label="Route mapping status filter" value={statusFilter} onChange={(event) => onStatusFilterChange(event.target.value as RouteMappingStatusFilter)}>
         <option value="all">all</option>
@@ -3573,22 +3616,25 @@ function RouteMappingRegistryPanel({
         {intentOptions.map((intent) => <option key={intent} value={intent}>{intent}</option>)}
       </select></label>
     </div>
-    <div className="readiness-list-grid">
-      {filtered.map((row) => <section key={`${row.provider_id}:${row.endpoint_url}`} className="compact-chip-list wide">
-        <h3>
-          <strong>{row.provider_name}</strong>
+    <div className="mapping-card-grid">
+      {filtered.map((row) => <section key={`${row.provider_id}:${row.endpoint_url}`} className="mapping-card">
+        <div className="mapping-card-head">
+          <h3>{row.provider_name}</h3>
           <span className={routeMappingBadgeClass(row.mapping_status)}>{row.mapping_status}</span>
           <span className={routeMappingBadgeClass(row.execution_evidence_status)}>{row.execution_evidence_status}</span>
-        </h3>
+        </div>
+        <div className="mapping-meta-row">
+          <span>{row.category}</span>
+          <span>{row.benchmark_intent}</span>
+          <code>{row.method ?? 'unknown'} {row.endpoint_url}</code>
+        </div>
         <p>provider_id: {row.provider_id}</p>
-        <p>category: {row.category}</p>
-        <p>benchmark_intent: {row.benchmark_intent}</p>
-        <p>endpoint_url: {row.endpoint_url}</p>
-        <p>method: {row.method ?? 'unknown'}</p>
-        <p>proof_source: {row.proof_source}</p>
-        <p>proof_reference: {row.proof_reference ?? 'none'}</p>
+        <p>proof: {row.proof_source} · {row.proof_reference ?? 'none'}</p>
         <p>verified_at: {row.verified_at ?? 'unknown'}</p>
-        <p>notes: {row.notes}</p>
+        <details className="compact-chip-details">
+          <summary>Notes</summary>
+          <p>{row.notes}</p>
+        </details>
       </section>)}
       {!filtered.length && <EmptyState title="No mappings match filters." body="Adjust status, category, or intent filters." />}
     </div>
@@ -3611,20 +3657,23 @@ function MappingTargetsPanel({ registry }: { registry: RadarMappingTargetRegistr
   }
   const categories = Array.from(grouped.keys()).sort();
 
-  return <section className="panel superiority-readiness" aria-label="Mapping Targets panel">
+  return <section className="panel superiority-readiness" id="mapping-targets" aria-label="Mapping Targets panel">
     <ScopeLabel scope="GLOBAL" />
     <p className="section-kicker">Mapping Quest Board</p>
     <h2>Mapping Targets</h2>
     <p className="panel-caption">These targets are planning prompts, not verified routes.</p>
-    <div className="readiness-list-grid">
-      {categories.map((category) => <section key={category} className="compact-chip-list wide">
+    <div className="mapping-target-board">
+      {categories.map((category) => <section key={category} className="mapping-target-category">
         <h3><strong>{category}</strong></h3>
-        {(grouped.get(category) ?? []).map((target) => <div key={`${target.category}:${target.benchmark_intent}`}>
-          <p><b>{target.benchmark_intent}</b> <span className={mappingTargetBadgeClass(target.current_state)}>{target.current_state}</span></p>
-          <p>next step: {target.needed_next_step}</p>
-          <p>why it matters: {target.why_it_matters}</p>
-          <p>readiness blocker: {target.readiness_blocker}</p>
-          <p>suggested provider candidates: {(target.suggested_provider_candidates ?? []).length ? target.suggested_provider_candidates?.join(', ') : 'No candidate selected yet. Needs catalog review.'}</p>
+        {(grouped.get(category) ?? []).map((target) => <div className="mapping-target-card" key={`${target.category}:${target.benchmark_intent}`}>
+          <div className="mapping-card-head">
+            <h4>{target.benchmark_intent}</h4>
+            <span className={mappingTargetBadgeClass(target.current_state)}>{target.current_state}</span>
+          </div>
+          <p><b>Next step</b>{target.needed_next_step}</p>
+          <p><b>Readiness blocker</b>{target.readiness_blocker}</p>
+          <p><b>Why it matters</b>{target.why_it_matters}</p>
+          <p><b>Suggested candidates</b>{(target.suggested_provider_candidates ?? []).length ? target.suggested_provider_candidates?.join(', ') : 'No candidate selected yet. Needs catalog review.'}</p>
         </div>)}
       </section>)}
       {!categories.length && <EmptyState title="No mapping targets available." body="Planning targets are currently unavailable." />}
@@ -3675,15 +3724,15 @@ function AgentBenchmarkApiPanel() {
         <a className="copy-chip" href={toApiUrl(API_BASE_URL, OPENAPI_PATH)} target="_blank" rel="noreferrer">API Docs</a>
       </div>
     </div>
-    <div className="export-groups">
+    <div className="export-groups compact-benchmark-api">
       <section className="export-group" aria-label="Agent benchmark endpoints">
         <div className="export-group-head">
           <h3>Endpoints</h3>
         </div>
-        <div className="preflight-rejections">
-          <p><b>GET /v1/radar/benchmarks</b><span>Benchmark registry and winner summary flags.</span></p>
-          <p><b>GET /v1/radar/benchmarks/finance-data-sol-price</b><span>Detailed SOL benchmark scaffold and normalized route metrics.</span></p>
-          <p><b>GET /openapi.json</b><span>Full OpenAPI document for generated clients/agents.</span></p>
+        <div className="endpoint-card-grid">
+          <p><b>GET /v1/radar/benchmarks</b><span>Registry and winner flags.</span></p>
+          <p><b>GET /v1/radar/benchmarks/finance-data-sol-price</b><span>SOL benchmark metrics.</span></p>
+          <p><b>GET /openapi.json</b><span>OpenAPI for agents.</span></p>
         </div>
       </section>
       <section className="export-group" aria-label="Agent benchmark curl examples">
@@ -3703,13 +3752,16 @@ function AgentBenchmarkApiPanel() {
         <div className="export-group-head">
           <h3>Example response snippet</h3>
         </div>
-        <SafeCodeBlock value={benchmarkSnippet} label="Benchmark response example snippet" />
+        <details className="compact-chip-details">
+          <summary>View contained response example</summary>
+          <SafeCodeBlock value={benchmarkSnippet} label="Benchmark response example snippet" />
+        </details>
       </section>
       <section className="export-group" aria-label="Agent benchmark interpretation guidance">
         <div className="export-group-head">
           <h3>Agent interpretation guidance</h3>
         </div>
-        <div className="preflight-rejections">
+        <div className="endpoint-card-grid">
           <p><b>winner_claimed=false</b><span>Do not treat route as winner.</span></p>
           <p><b>winner_status=no_clear_winner</b><span>Use benchmark as evidence, not final routing authority.</span></p>
           <p><b>benchmark_recorded=true</b><span>Normalized metrics exist.</span></p>
