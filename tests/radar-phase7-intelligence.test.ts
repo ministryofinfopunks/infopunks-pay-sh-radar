@@ -282,6 +282,21 @@ describe('phase7 intelligence', () => {
     expect(detailResponse.json().data.winner_status).toBe('no_clear_winner');
     expect(detailResponse.json().data.winner_policy.completed_runs).toBe(5);
     expect(detailResponse.json().data.winner_policy.required_runs).toBe(5);
+
+    const historyResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks/finance-data-sol-price/history' });
+    expect(historyResponse.statusCode).toBe(200);
+    const history = historyResponse.json().data;
+    expect(history.benchmark_id).toBe('finance-data-sol-price');
+    expect(history.entries.length).toBeGreaterThanOrEqual(2);
+    const singleRun = history.entries.find((entry: any) => entry.run_count === 1);
+    const fiveRun = history.entries.find((entry: any) => entry.run_count === 5);
+    expect(singleRun).toBeTruthy();
+    expect(singleRun.benchmark_recorded).toBe(true);
+    expect(singleRun.winner_claimed).toBe(false);
+    expect(fiveRun).toBeTruthy();
+    expect(fiveRun.benchmark_recorded).toBe(true);
+    expect(fiveRun.winner_status).toBe('no_clear_winner');
+    expect(fiveRun.winner_claimed).toBe(false);
     await app.close();
   });
 });

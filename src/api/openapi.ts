@@ -220,6 +220,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   add('get', '/v1/radar/benchmark-readiness', radarGet('Radar Readiness', 'Get benchmark readiness', 'Returns category-level benchmark readiness and superiority readiness splits.', { $ref: '#/components/schemas/BenchmarkReadinessResponse' }, { benchmark_ready_categories: [], superiority_ready_categories: [] }));
   add('get', '/v1/radar/benchmarks', radarGet('Radar Readiness', 'Get head-to-head benchmark registry', 'Returns recorded head-to-head benchmark scaffolds. A benchmark row can be metrics-pending and never implies a winner claim.', { $ref: '#/components/schemas/BenchmarkRegistryResponse' }, { benchmarks: [] }));
   add('get', '/v1/radar/benchmarks/finance-data-sol-price', radarGet('Radar Readiness', 'Get SOL price benchmark scaffold', 'Returns the finance/data get SOL price head-to-head benchmark scaffold with recorded normalized evidence. benchmark_recorded=true means normalized evidence has been recorded, not that a winner is claimed. winner_status=no_clear_winner means run criteria were met but no route winner is claimed. status_code may be null in pay_cli mode and status_evidence explains proof basis.', { $ref: '#/components/schemas/BenchmarkDetailResponse' }, { benchmark_id: 'finance-data-sol-price', winner_claimed: false, benchmark_recorded: true, winner_status: 'no_clear_winner' }));
+  add('get', '/v1/radar/benchmarks/finance-data-sol-price/history', radarGet('Radar Readiness', 'Get SOL price benchmark history timeline', 'Returns additive read-only benchmark timeline entries derived from known benchmark artifacts. Entries are evidence snapshots and do not imply a winner claim.', { $ref: '#/components/schemas/BenchmarkHistoryResponse' }, { benchmark_id: 'finance-data-sol-price', entries: [{ run_count: 1, benchmark_recorded: true, winner_claimed: false }, { run_count: 5, benchmark_recorded: true, winner_status: 'no_clear_winner', winner_claimed: false }] }));
 
   add('get', '/v1/radar/history/providers/{provider_id}', radarHistoryPath('provider_id', 'Provider history'));
   add('get', '/v1/radar/history/endpoints/{endpoint_id}', radarHistoryPath('endpoint_id', 'Endpoint history'));
@@ -601,6 +602,23 @@ function componentSchemas(): Record<string, JsonSchema> {
       next_step: stringSchema(),
       readiness_note: stringSchema(),
       routes: arrayOf({ $ref: '#/components/schemas/BenchmarkRouteMetric' })
+    }),
+    BenchmarkHistoryEntry: objectSchema({
+      benchmark_id: stringSchema(),
+      recorded_at: dateTimeSchema(),
+      run_count: integerSchema(),
+      benchmark_recorded: booleanSchema(),
+      winner_claimed: booleanSchema(),
+      winner_status: benchmarkWinnerStatus,
+      note: stringSchema(),
+      proof_reference: stringSchema(),
+      routes: arrayOf({ $ref: '#/components/schemas/BenchmarkRouteMetric' })
+    }),
+    BenchmarkHistoryResponse: objectSchema({
+      generated_at: dateTimeSchema(),
+      source: { const: 'infopunks-pay-sh-radar' },
+      benchmark_id: stringSchema(),
+      entries: arrayOf({ $ref: '#/components/schemas/BenchmarkHistoryEntry' })
     }),
     BenchmarkRegistryResponse: objectSchema({
       generated_at: dateTimeSchema(),

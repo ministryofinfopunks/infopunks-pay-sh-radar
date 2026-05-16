@@ -357,6 +357,23 @@ type RadarBenchmarkRegistry = {
   source: string;
   benchmarks: RadarBenchmarkDetail[];
 };
+type BenchmarkHistoryEntry = {
+  benchmark_id: string;
+  recorded_at: string;
+  run_count: number;
+  benchmark_recorded: boolean;
+  winner_claimed: boolean;
+  winner_status?: 'not_evaluated' | 'insufficient_runs' | 'no_clear_winner' | 'provisional_winner' | 'winner_claimed';
+  note: string;
+  proof_reference: string;
+  routes: RadarBenchmarkRouteMetric[];
+};
+type RadarBenchmarkHistory = {
+  generated_at: string;
+  source: string;
+  benchmark_id: string;
+  entries: BenchmarkHistoryEntry[];
+};
 type TrendDirection = 'improving' | 'stable' | 'degrading' | 'unknown';
 type RiskLevel = 'low' | 'watch' | 'elevated' | 'critical' | 'unknown';
 type RiskRecommendation = 'route normally' | 'route with caution' | 'required fallback route' | 'not recommended for routing' | 'insufficient history';
@@ -907,7 +924,7 @@ function benchmarkRouteLabel(route: RadarBenchmarkRouteMetric) {
   return route.provider_id;
 }
 
-function BenchmarkProofContent({ benchmark }: { benchmark: RadarBenchmarkDetail }) {
+function BenchmarkProofContent({ benchmark, history }: { benchmark: RadarBenchmarkDetail; history: RadarBenchmarkHistory | null }) {
   const policy = benchmark.winner_policy;
   const winnerStatusLabel = benchmark.winner_status?.replaceAll('_', ' ') ?? 'not evaluated';
   return <>
@@ -958,6 +975,29 @@ function BenchmarkProofContent({ benchmark }: { benchmark: RadarBenchmarkDetail 
           <p>status_evidence: {route.status_evidence ?? 'missing status evidence'}</p>
         </section>)}
       </div>
+    </section>
+    <section className="panel">
+      <h2>Benchmark History</h2>
+      <p className="panel-caption">Timeline entries are read-only evidence snapshots. No route winner is claimed.</p>
+      {!history && <p className="panel-caption">History unavailable.</p>}
+      {!!history && <div className="readiness-list-grid">
+        {history.entries.map((entry) => {
+          const entryWinnerStatus = entry.winner_status?.replaceAll('_', ' ') ?? 'not evaluated';
+          return <section key={`${entry.benchmark_id}:${entry.recorded_at}:${entry.run_count}`} className="compact-chip-list wide">
+            <div className="compact-chip-list-head">
+              <strong>{new Date(entry.recorded_at).toISOString().slice(0, 10)}</strong>
+              <span>{entry.run_count} run{entry.run_count === 1 ? '' : 's'}</span>
+            </div>
+            <p>proof_reference: {entry.proof_reference}</p>
+            <p>benchmark_recorded: {String(entry.benchmark_recorded)}</p>
+            <p>winner_status: {entryWinnerStatus}</p>
+            <p>winner_claimed: {String(entry.winner_claimed)}</p>
+            <p>note: {entry.note}</p>
+            {!entry.routes.length && <p>route aggregate highlights: pending aggregate metrics in known artifact.</p>}
+            {entry.routes.map((route) => <p key={route.route_id}>route aggregate highlights: {benchmarkRouteLabel(route)} success_rate={route.success_rate ?? 'n/a'}, median_latency_ms={route.median_latency_ms ?? 'n/a'}, average_price_usd={route.average_price_usd ?? 'n/a'}</p>)}
+          </section>;
+        })}
+      </div>}
     </section>
   </>;
 }
@@ -1014,11 +1054,13 @@ function PublicBenchmarksIndexPage() {
 
 function PublicBenchmarkProofPage({ benchmarkId }: { benchmarkId: string }) {
   const [benchmark, setBenchmark] = useState<RadarBenchmarkDetail | null>(null);
+  const [history, setHistory] = useState<RadarBenchmarkHistory | null>(null);
   const [missing, setMissing] = useState(false);
   useEffect(() => {
     let active = true;
     setMissing(false);
     setBenchmark(null);
+    setHistory(null);
     api<{ data: RadarBenchmarkRegistry }>('/v1/radar/benchmarks')
       .then((response) => {
         if (!active) return;
@@ -1030,6 +1072,15 @@ function PublicBenchmarkProofPage({ benchmarkId }: { benchmarkId: string }) {
         }
         setBenchmark(match);
         updateBenchmarkPageMetadata(match, benchmarkId, false);
+        api<{ data: RadarBenchmarkHistory }>(`/v1/radar/benchmarks/${encodeURIComponent(benchmarkId)}/history`)
+          .then((historyResponse) => {
+            if (!active) return;
+            setHistory(historyResponse.data);
+          })
+          .catch(() => {
+            if (!active) return;
+            setHistory(null);
+          });
       })
       .catch(() => {
         if (!active) return;
@@ -1043,7 +1094,7 @@ function PublicBenchmarkProofPage({ benchmarkId }: { benchmarkId: string }) {
 
   if (missing) return <main className="boot" aria-label="Benchmark not found"><section className="panel public-provider-page"><h1>Benchmark Not Found</h1><p className="copy">No benchmark exists for <code>{benchmarkId}</code> in the current dataset.</p></section></main>;
   if (!benchmark) return <main className="boot" aria-label="Benchmark loading">LOADING BENCHMARK PROOF...</main>;
-  return <div className="shell public-provider-shell"><main className="public-provider-page" aria-label="Public benchmark proof page"><BenchmarkProofContent benchmark={benchmark} /></main></div>;
+  return <div className="shell public-provider-shell"><main className="public-provider-page" aria-label="Public benchmark proof page"><BenchmarkProofContent benchmark={benchmark} history={history} /></main></div>;
 }
 
 function PublicProviderPage({ providerId }: { providerId: string }) {

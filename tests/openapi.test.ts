@@ -35,6 +35,7 @@ describe('openapi discovery', () => {
     expect(spec.paths['/v1/radar/history/endpoints/{endpoint_id}']?.get).toBeTruthy();
     expect(spec.paths['/v1/radar/history/ecosystem']?.get).toBeTruthy();
     expect(spec.paths['/v1/radar/benchmark-readiness']?.get).toBeTruthy();
+    expect(spec.paths['/v1/radar/benchmarks/finance-data-sol-price/history']?.get).toBeTruthy();
     expect(spec.components.schemas.BenchmarkRouteMetric.properties.status_code).toBeTruthy();
     expect(spec.components.schemas.BenchmarkRouteMetric.properties.status_evidence).toBeTruthy();
     expect(spec.components.schemas.BenchmarkRouteMetric.properties.execution_transport).toBeTruthy();

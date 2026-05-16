@@ -1,4 +1,4 @@
-import { RadarBenchmarkDetail, RadarBenchmarkList } from '../schemas/entities';
+import { BenchmarkHistoryEntry, RadarBenchmarkDetail, RadarBenchmarkHistory, RadarBenchmarkList, RadarBenchmarkRouteMetric } from '../schemas/entities';
 import { listRouteMappings } from './providerEndpointMap';
 
 const SOL_PRICE_BENCHMARK_ID = 'finance-data-sol-price';
@@ -22,11 +22,44 @@ export function buildRadarBenchmarkById(id: string): RadarBenchmarkDetail | null
   return buildSolPriceBenchmark();
 }
 
+export function buildRadarBenchmarkHistoryById(id: string): RadarBenchmarkHistory | null {
+  if (id !== SOL_PRICE_BENCHMARK_ID) return null;
+  const fiveRunBenchmark = buildSolPriceBenchmark();
+  return {
+    generated_at: BENCHMARK_EVIDENCE_AT,
+    source: 'infopunks-pay-sh-radar',
+    benchmark_id: SOL_PRICE_BENCHMARK_ID,
+    entries: [
+      {
+        benchmark_id: SOL_PRICE_BENCHMARK_ID,
+        recorded_at: '2026-05-15T00:00:00.000Z',
+        run_count: 1,
+        benchmark_recorded: true,
+        winner_claimed: false,
+        note: 'first live normalized single-run benchmark',
+        proof_reference: 'live-proofs/paysponge-coingecko-paid-execution-2026-05-15.md',
+        routes: []
+      },
+      {
+        benchmark_id: SOL_PRICE_BENCHMARK_ID,
+        recorded_at: BENCHMARK_EVIDENCE_AT,
+        run_count: 5,
+        benchmark_recorded: true,
+        winner_status: 'no_clear_winner',
+        winner_claimed: false,
+        note: 'Five-run benchmark recorded. Both routes succeeded. No winner is claimed until scoring thresholds are finalized.',
+        proof_reference: BENCHMARK_PROOF_REFERENCE,
+        routes: fiveRunBenchmark.routes
+      }
+    ]
+  };
+}
+
 function buildSolPriceBenchmark(): RadarBenchmarkDetail {
   const routes = listRouteMappings()
     .filter((entry) => entry.category.toLowerCase() === SOL_PRICE_CATEGORY && entry.benchmark_intent.toLowerCase() === SOL_PRICE_INTENT)
     .filter((entry) => entry.mapping_status === 'verified')
-    .map((entry) => {
+    .map((entry): RadarBenchmarkRouteMetric => {
       const isStable = entry.provider_id === 'merit-systems-stablecrypto-market-data';
       const isPaySponge = entry.provider_id === 'paysponge-coingecko';
       return {
@@ -61,7 +94,7 @@ function buildSolPriceBenchmark(): RadarBenchmarkDetail {
       normalization_confidence: (isStable || isPaySponge ? 'high' : 'unknown') as 'unknown' | 'low' | 'medium' | 'high',
       freshness_timestamp: BENCHMARK_EVIDENCE_AT,
       comparison_notes: 'Five-run benchmark recorded. Both routes succeeded. No winner is claimed until scoring thresholds are finalized.'
-    };
+      };
     });
 
   return {

@@ -687,6 +687,25 @@ export const RadarBenchmarkDetailSchema = z.object({
   routes: z.array(RadarBenchmarkRouteMetricSchema)
 });
 
+export const BenchmarkHistoryEntrySchema = z.object({
+  benchmark_id: z.string(),
+  recorded_at: z.string().datetime(),
+  run_count: z.number().int().positive(),
+  benchmark_recorded: z.boolean(),
+  winner_claimed: z.boolean(),
+  winner_status: RadarBenchmarkWinnerStatusSchema.optional(),
+  note: z.string(),
+  proof_reference: z.string(),
+  routes: z.array(RadarBenchmarkRouteMetricSchema)
+});
+
+export const RadarBenchmarkHistorySchema = z.object({
+  generated_at: z.string().datetime(),
+  source: z.literal('infopunks-pay-sh-radar'),
+  benchmark_id: z.string(),
+  entries: z.array(BenchmarkHistoryEntrySchema)
+});
+
 export const RadarBenchmarkListSchema = z.object({
   generated_at: z.string().datetime(),
   source: z.literal('infopunks-pay-sh-radar'),
@@ -843,6 +862,8 @@ export type RadarSuperiorityReadiness = z.infer<typeof RadarSuperiorityReadiness
 export type RadarBenchmarkReadiness = z.infer<typeof RadarBenchmarkReadinessSchema>;
 export type RadarBenchmarkRouteMetric = z.infer<typeof RadarBenchmarkRouteMetricSchema>;
 export type RadarBenchmarkDetail = z.infer<typeof RadarBenchmarkDetailSchema>;
+export type BenchmarkHistoryEntry = z.infer<typeof BenchmarkHistoryEntrySchema>;
+export type RadarBenchmarkHistory = z.infer<typeof RadarBenchmarkHistorySchema>;
 export type RadarBenchmarkList = z.infer<typeof RadarBenchmarkListSchema>;
 export type RadarRiskAnomaly = z.infer<typeof RadarRiskAnomalySchema>;
 export type RadarRiskResponse = z.infer<typeof RadarRiskResponseSchema>;

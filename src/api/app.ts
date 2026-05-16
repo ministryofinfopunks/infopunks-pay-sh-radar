@@ -18,6 +18,7 @@ import {
   RadarBenchmarkReadinessSchema,
   RadarBenchmarkListSchema,
   RadarBenchmarkDetailSchema,
+  RadarBenchmarkHistorySchema,
   RadarPreflightRequestSchema,
   RadarPreflightResponseSchema,
   RadarRiskResponseSchema,
@@ -37,7 +38,7 @@ import { providerReachabilitySummary, providerRootHealthSummary } from '../servi
 import { runPreflight } from '../services/preflightService';
 import { buildRadarExportSnapshot, safeJsonExport } from '../services/radarExportService';
 import { buildBenchmarkReadiness, buildSuperiorityReadiness, runRadarComparison, runRadarPreflight, runRadarPreflightBatch } from '../services/radarRouteIntelligenceService';
-import { buildRadarBenchmarkById, buildRadarBenchmarks } from '../services/radarBenchmarkService';
+import { buildRadarBenchmarkById, buildRadarBenchmarkHistoryById, buildRadarBenchmarks } from '../services/radarBenchmarkService';
 import { buildEcosystemHistory, buildEndpointHistory, buildProviderHistory, normalizeHistoryWindow } from '../services/radarHistoryService';
 import { buildEcosystemRiskSummary, buildEndpointRiskAssessment, buildProviderRiskAssessment } from '../services/radarRiskService';
 import { createResponseCache } from '../services/responseCache';
@@ -452,6 +453,13 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     if (!benchmark) return reply.code(404).send({ error: 'benchmark_not_found' });
     return {
       data: safeJsonExport(RadarBenchmarkDetailSchema.parse(benchmark))
+    };
+  });
+  app.get('/v1/radar/benchmarks/finance-data-sol-price/history', async (_req, reply) => {
+    const history = buildRadarBenchmarkHistoryById('finance-data-sol-price');
+    if (!history) return reply.code(404).send({ error: 'benchmark_not_found' });
+    return {
+      data: safeJsonExport(RadarBenchmarkHistorySchema.parse(history))
     };
   });
   app.get('/v1/monitor/runs/recent', async () => ({ data: [...(store.monitorRuns ?? [])].sort((a, b) => Date.parse(b.startedAt) - Date.parse(a.startedAt)).slice(0, 20).map(monitorRunResponse) }));

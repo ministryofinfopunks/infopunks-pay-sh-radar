@@ -98,6 +98,83 @@ function installFetchMock() {
         ]
       }]
     });
+    if (path === '/v1/radar/benchmarks/finance-data-sol-price/history') return json({
+      generated_at: observedAt,
+      source: 'infopunks-pay-sh-radar',
+      benchmark_id: 'finance-data-sol-price',
+      entries: [
+        {
+          benchmark_id: 'finance-data-sol-price',
+          recorded_at: '2026-05-15T00:00:00.000Z',
+          run_count: 1,
+          benchmark_recorded: true,
+          winner_claimed: false,
+          note: 'first live normalized single-run benchmark',
+          proof_reference: 'live-proofs/paysponge-coingecko-paid-execution-2026-05-15.md',
+          routes: []
+        },
+        {
+          benchmark_id: 'finance-data-sol-price',
+          recorded_at: '2026-05-16T07:42:42.271Z',
+          run_count: 5,
+          benchmark_recorded: true,
+          winner_status: 'no_clear_winner',
+          winner_claimed: false,
+          note: 'Five-run benchmark recorded. Both routes succeeded. No winner is claimed until scoring thresholds are finalized.',
+          proof_reference: 'live-proofs/finance-data-sol-price-benchmark-runs-2026-05-16.md',
+          routes: [
+            {
+              provider_id: 'merit-systems-stablecrypto-market-data',
+              route_id: 'stable',
+              execution_status: 'proven',
+              latency_ms: 5691,
+              paid_execution_proven: true,
+              proof_reference: 'live-proofs/stablecrypto-harness-pay-cli-2026-05-12.md',
+              normalized_output_available: true,
+              extracted_price_usd: 87.57,
+              success_rate: 1,
+              median_latency_ms: 5691,
+              p95_latency_ms: 6469,
+              average_price_usd: 87.57,
+              min_price_usd: 87.57,
+              max_price_usd: 87.57,
+              price_variance_percent: 0,
+              completed_runs: 5,
+              failed_runs: 0,
+              status_evidence: 'pay_cli exit code 0 and parsed response body',
+              output_shape: null,
+              normalization_confidence: 'high',
+              freshness_timestamp: observedAt,
+              comparison_notes: 'no winner claim'
+            },
+            {
+              provider_id: 'paysponge-coingecko',
+              route_id: 'paysponge',
+              execution_status: 'proven',
+              latency_ms: 7761,
+              paid_execution_proven: true,
+              proof_reference: 'live-proofs/paysponge-coingecko-paid-execution-2026-05-15.md',
+              normalized_output_available: true,
+              extracted_price_usd: 87.5,
+              success_rate: 1,
+              median_latency_ms: 7761,
+              p95_latency_ms: 7946,
+              average_price_usd: 87.5039,
+              min_price_usd: 87.5,
+              max_price_usd: 87.506,
+              price_variance_percent: 0.0033,
+              completed_runs: 5,
+              failed_runs: 0,
+              status_evidence: 'pay_cli exit code 0 and parsed response body',
+              output_shape: null,
+              normalization_confidence: 'high',
+              freshness_timestamp: observedAt,
+              comparison_notes: 'no winner claim'
+            }
+          ]
+        }
+      ]
+    });
     return Promise.resolve(new Response('{}', { status: 404 }));
   });
 }
@@ -168,6 +245,13 @@ describe('public benchmark proof pages', () => {
     expect(text).toContain('live-proofs/stablecrypto-harness-pay-cli-2026-05-12.md');
     expect(text).toContain('live-proofs/paysponge-coingecko-paid-execution-2026-05-15.md');
     expect(text).toContain('status_evidence: pay_cli exit code 0 and parsed response body');
+    expect(text).toContain('Benchmark History');
+    expect(text).toContain('2026-05-15');
+    expect(text).toContain('1 run');
+    expect(text).toContain('first live normalized single-run benchmark');
+    expect(text).toContain('2026-05-16');
+    expect(text).toContain('5 runs');
+    expect(text).toContain('winner_status: no clear winner');
     expect(text).not.toContain('StableCrypto wins');
     expect(text).not.toContain('PaySponge CoinGecko wins');
     expect(text).not.toContain('StableCrypto beats');
