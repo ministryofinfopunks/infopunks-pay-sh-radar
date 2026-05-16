@@ -802,6 +802,20 @@ function routePropagationId(pathname: string) {
   }
 }
 
+function routeBenchmarkId(pathname: string) {
+  const match = pathname.match(/^\/benchmarks\/([^/]+)\/?$/);
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+}
+
+function isBenchmarkIndexRoute(pathname: string) {
+  return /^\/benchmarks\/?$/.test(pathname);
+}
+
 function setMetaTag(attr: 'property' | 'name', key: string, content: string) {
   let node = document.head.querySelector(`meta[${attr}="${key}"]`) as HTMLMetaElement | null;
   if (!node) {
@@ -861,6 +875,175 @@ function updatePropagationPageMetadata(incident: PropagationIncident | null, clu
   setMetaTag('name', 'twitter:card', 'summary_large_image');
   setMetaTag('name', 'twitter:title', title);
   setMetaTag('name', 'twitter:description', desc);
+}
+
+function updateBenchmarkPageMetadata(benchmark: RadarBenchmarkDetail | null, benchmarkId: string | null, missing = false) {
+  const isIndex = !benchmarkId;
+  const title = isIndex
+    ? 'Benchmarks | Infopunks Pay.sh Radar'
+    : missing
+      ? 'Benchmark Not Found | Infopunks Pay.sh Radar'
+      : `${benchmarkId} Benchmark Proof | Infopunks Pay.sh Radar`;
+  const desc = isIndex
+    ? 'Public benchmark registry pages with proof references and normalized aggregate metrics.'
+    : missing
+      ? `No benchmark exists for ${benchmarkId} in the current dataset.`
+      : `${benchmark?.category ?? 'unknown category'} / ${benchmark?.benchmark_intent ?? 'unknown intent'}. No route winner is claimed.`;
+  document.title = title;
+  setMetaTag('name', 'description', desc);
+  setMetaTag('property', 'og:type', 'article');
+  setMetaTag('property', 'og:title', title);
+  setMetaTag('property', 'og:description', desc);
+  setMetaTag('property', 'og:url', window.location.href);
+  setMetaTag('name', 'twitter:card', 'summary_large_image');
+  setMetaTag('name', 'twitter:title', title);
+  setMetaTag('name', 'twitter:description', desc);
+}
+
+function benchmarkRouteLabel(route: RadarBenchmarkRouteMetric) {
+  const id = route.provider_id.toLowerCase();
+  if (id.includes('stablecrypto')) return 'StableCrypto';
+  if (id.includes('paysponge') || id.includes('coingecko')) return 'PaySponge CoinGecko';
+  return route.provider_id;
+}
+
+function BenchmarkProofContent({ benchmark }: { benchmark: RadarBenchmarkDetail }) {
+  const policy = benchmark.winner_policy;
+  const winnerStatusLabel = benchmark.winner_status?.replaceAll('_', ' ') ?? 'not evaluated';
+  return <>
+    <section className="panel">
+      <p className="eyebrow">Infopunks Pay.sh Radar</p>
+      <h1>Benchmark Proof: {benchmark.benchmark_id}</h1>
+      <p className="panel-caption">No route winner is claimed.</p>
+      <p className="panel-caption"><a href="/benchmarks">View all benchmarks</a></p>
+    </section>
+    <section className="panel">
+      <div className="readiness-list-grid">
+        <CompactChipList title="benchmark fields" items={[
+          `benchmark_id: ${benchmark.benchmark_id}`,
+          `intent: ${benchmark.benchmark_intent}`,
+          `category: ${benchmark.category}`,
+          `benchmark_recorded: ${String(benchmark.benchmark_recorded)}`,
+          `winner_status: ${winnerStatusLabel}`,
+          `winner_claimed: ${String(benchmark.winner_claimed)}`
+        ]} emptyLabel="missing" wide />
+        {policy && <CompactChipList title="winner policy summary" items={[
+          `policy: ${policy.policy_id}@${policy.policy_version}`,
+          `required_successful_runs_per_route: ${policy.required_successful_runs_per_route}`,
+          `minimum_success_rate: ${Math.round(policy.minimum_success_rate * 100)}%`,
+          `allowed_price_variance_percent: ${policy.allowed_price_variance_percent}`,
+          `latency_metric: ${policy.latency_metric}`,
+          `required_confidence: ${policy.required_confidence.join('/')}`
+        ]} emptyLabel="missing" wide />}
+      </div>
+    </section>
+    <section className="panel">
+      <h2>Route Cards</h2>
+      <p className="panel-caption">No route winner is claimed.</p>
+      <div className="readiness-list-grid">
+        {benchmark.routes.map((route) => <section key={route.route_id} className="compact-chip-list wide">
+          <div className="compact-chip-list-head">
+            <strong>{benchmarkRouteLabel(route)}</strong>
+            <span>{route.execution_status}</span>
+          </div>
+          <p>provider_id: {route.provider_id}</p>
+          <p>success_rate: {route.success_rate ?? 'n/a'}</p>
+          <p>median_latency_ms: {route.median_latency_ms ?? 'n/a'}</p>
+          <p>p95_latency_ms: {route.p95_latency_ms ?? 'n/a'}</p>
+          <p>average_price_usd: {route.average_price_usd ?? 'n/a'}</p>
+          <p>price_variance_percent: {route.price_variance_percent ?? 'n/a'}</p>
+          <p>completed_runs: {route.completed_runs ?? 'n/a'}</p>
+          <p>failed_runs: {route.failed_runs ?? 'n/a'}</p>
+          <p>proof_reference: {route.proof_reference}</p>
+          <p>status_evidence: {route.status_evidence ?? 'missing status evidence'}</p>
+        </section>)}
+      </div>
+    </section>
+  </>;
+}
+
+function PublicBenchmarksIndexPage() {
+  const [registry, setRegistry] = useState<RadarBenchmarkRegistry | null>(null);
+  const [error, setError] = useState(false);
+  useEffect(() => {
+    let active = true;
+    setError(false);
+    setRegistry(null);
+    api<{ data: RadarBenchmarkRegistry }>('/v1/radar/benchmarks')
+      .then((response) => {
+        if (!active) return;
+        setRegistry(response.data);
+        updateBenchmarkPageMetadata(null, null, false);
+      })
+      .catch(() => {
+        if (!active) return;
+        setError(true);
+        updateBenchmarkPageMetadata(null, null, true);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (error) return <main className="boot" aria-label="Benchmarks unavailable"><section className="panel public-provider-page"><h1>Benchmarks Unavailable</h1><p className="copy">Benchmark data delayed.</p></section></main>;
+  if (!registry) return <main className="boot" aria-label="Benchmarks loading">LOADING BENCHMARKS...</main>;
+  return <div className="shell public-provider-shell">
+    <main className="public-provider-page" aria-label="Public benchmark registry">
+      <section className="panel">
+        <p className="eyebrow">Infopunks Pay.sh Radar</p>
+        <h1>Public Benchmarks</h1>
+        <p className="panel-caption">No route winner is claimed.</p>
+      </section>
+      <section className="panel">
+        <div className="readiness-list-grid">
+          {registry.benchmarks.map((benchmark) => <section key={benchmark.benchmark_id} className="compact-chip-list wide">
+            <div className="compact-chip-list-head">
+              <strong>{benchmark.benchmark_id}</strong>
+              <span>{benchmark.winner_status?.replaceAll('_', ' ') ?? 'not evaluated'}</span>
+            </div>
+            <p>{benchmark.category} / {benchmark.benchmark_intent}</p>
+            <p>winner_claimed: {String(benchmark.winner_claimed)}</p>
+            <p><a href={`/benchmarks/${encodeURIComponent(benchmark.benchmark_id)}`}>Open proof page</a></p>
+          </section>)}
+          {!registry.benchmarks.length && <EmptyState title="No benchmarks found." body="Benchmark registry is currently empty." />}
+        </div>
+      </section>
+    </main>
+  </div>;
+}
+
+function PublicBenchmarkProofPage({ benchmarkId }: { benchmarkId: string }) {
+  const [benchmark, setBenchmark] = useState<RadarBenchmarkDetail | null>(null);
+  const [missing, setMissing] = useState(false);
+  useEffect(() => {
+    let active = true;
+    setMissing(false);
+    setBenchmark(null);
+    api<{ data: RadarBenchmarkRegistry }>('/v1/radar/benchmarks')
+      .then((response) => {
+        if (!active) return;
+        const match = response.data.benchmarks.find((item) => item.benchmark_id === benchmarkId) ?? null;
+        if (!match) {
+          setMissing(true);
+          updateBenchmarkPageMetadata(null, benchmarkId, true);
+          return;
+        }
+        setBenchmark(match);
+        updateBenchmarkPageMetadata(match, benchmarkId, false);
+      })
+      .catch(() => {
+        if (!active) return;
+        setMissing(true);
+        updateBenchmarkPageMetadata(null, benchmarkId, true);
+      });
+    return () => {
+      active = false;
+    };
+  }, [benchmarkId]);
+
+  if (missing) return <main className="boot" aria-label="Benchmark not found"><section className="panel public-provider-page"><h1>Benchmark Not Found</h1><p className="copy">No benchmark exists for <code>{benchmarkId}</code> in the current dataset.</p></section></main>;
+  if (!benchmark) return <main className="boot" aria-label="Benchmark loading">LOADING BENCHMARK PROOF...</main>;
+  return <div className="shell public-provider-shell"><main className="public-provider-page" aria-label="Public benchmark proof page"><BenchmarkProofContent benchmark={benchmark} /></main></div>;
 }
 
 function PublicProviderPage({ providerId }: { providerId: string }) {
@@ -3199,6 +3382,7 @@ function HeadToHeadBenchmarkPanel({ registry, loading }: { registry: RadarBenchm
       {policy && <p className="panel-caption">{completedRuns} / {requiredRuns} required benchmark runs recorded.</p>}
       <p className="panel-caption">Winner status: {winnerStatusLabel}.</p>
       <p className="panel-caption">Winner claimed: {benchmark.winner_claimed ? 'yes.' : 'no.'}</p>
+      <p className="panel-caption"><a href="/benchmarks/finance-data-sol-price">Open public benchmark proof page</a></p>
       {policy?.winner_rationale && <p className="panel-caption">{policy.winner_rationale}</p>}
       <p className="panel-caption">Five-run benchmark recorded. Both routes succeeded. No winner is claimed until scoring thresholds are finalized.</p>
       <p className="panel-caption">HTTP status was not exposed by pay_cli; success is supported by CLI exit code 0 and parsed response body.</p>
@@ -4766,6 +4950,9 @@ export function App() {
   if (propagationId) return <PropagationIncidentPage clusterId={propagationId} />;
   const receiptId = routeReceiptId(window.location.pathname);
   if (receiptId) return <PublicReceiptPage eventId={receiptId} />;
+  const benchmarkId = routeBenchmarkId(window.location.pathname);
+  if (benchmarkId) return <PublicBenchmarkProofPage benchmarkId={benchmarkId} />;
+  if (isBenchmarkIndexRoute(window.location.pathname)) return <PublicBenchmarksIndexPage />;
   const providerId = routeProviderId(window.location.pathname);
   if (providerId) return <PublicProviderPage providerId={providerId} />;
   return <RadarApp />;
