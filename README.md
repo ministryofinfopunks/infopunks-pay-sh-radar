@@ -209,11 +209,14 @@ Command palette actions include:
   `winner_claimed=false` means no route superiority result is claimed yet.
   `winner_status` can be `not_evaluated | insufficient_runs | no_clear_winner | provisional_winner | winner_claimed`.
   `winner_policy` defines proof-before-claims criteria (minimum runs, success rate, confidence, latency metric, and scoring weights).
-  One run is not enough for superiority; with `completed_runs=1` and `required_runs=5`, status remains `insufficient_runs`.
+  Five runs per route can satisfy run-count criteria while still resulting in `no_clear_winner` until scoring thresholds are finalized.
   Winner evaluation can legitimately end with `no_clear_winner`.
+  `winner_rationale` explains why a winner is not claimed after policy evaluation.
   `status_code` can be `null` in `pay_cli` mode.
   `status_evidence` explains proof basis when HTTP status is not exposed.
   `extracted_price_usd` is artifact-backed benchmark evidence, not live-refreshed by Radar.
+  Route rows may include aggregate fields:
+  `success_rate`, `median_latency_ms`, `p95_latency_ms`, `average_price_usd`, `min_price_usd`, `max_price_usd`, `price_variance_percent`, `completed_runs`, `failed_runs`.
 - `POST /v1/radar/preflight/batch`
   Runs multiple safe preflight checks in one request (max 25) with per-query success/error.
 - `GET /v1/radar/export/providers.csv`
@@ -241,8 +244,8 @@ Benchmark Readiness note:
 - PaySponge CoinGecko SOL pool search route is proven.
 - Benchmark-ready category: `finance/data` with intent `get SOL price`.
 - No superiority winner is claimed yet.
-- Winner claim requires policy criteria, not just one recorded run.
-- Next step: run 4 more benchmark rounds before winner evaluation.
+- Five-run benchmark evidence is recorded with no clear winner.
+- Next step: define scoring thresholds before declaring a route winner.
 
 ---
 

@@ -46,15 +46,19 @@ describe('radar secondary route caching safety', () => {
     expect(sol).toBeTruthy();
     expect(sol.winner_claimed).toBe(false);
     expect(sol.benchmark_recorded).toBe(true);
-    expect(sol.winner_status).toBe('insufficient_runs');
-    expect(sol.winner_policy.completed_runs).toBe(1);
+    expect(sol.winner_status).toBe('no_clear_winner');
+    expect(sol.winner_policy.completed_runs).toBe(5);
     expect(sol.winner_policy.required_runs).toBe(5);
     const stable = sol.routes.find((item: any) => item.provider_id === 'merit-systems-stablecrypto-market-data');
     const paysponge = sol.routes.find((item: any) => item.provider_id === 'paysponge-coingecko');
-    expect(stable.latency_ms).toBe(7489);
-    expect(stable.extracted_price_usd).toBe(89.54);
-    expect(paysponge.latency_ms).toBe(8172);
-    expect(paysponge.extracted_price_usd).toBe(89.74079922757187);
+    expect(stable.latency_ms).toBe(5691);
+    expect(stable.extracted_price_usd).toBe(87.57);
+    expect(stable.success_rate).toBe(1);
+    expect(stable.median_latency_ms).toBe(5691);
+    expect(paysponge.latency_ms).toBe(7761);
+    expect(paysponge.extracted_price_usd).toBe(87.50392093173244);
+    expect(paysponge.success_rate).toBe(1);
+    expect(paysponge.p95_latency_ms).toBe(7946);
     expect(durationMs).toBeLessThan(300);
 
     await app.close();

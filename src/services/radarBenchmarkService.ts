@@ -4,8 +4,8 @@ import { listRouteMappings } from './providerEndpointMap';
 const SOL_PRICE_BENCHMARK_ID = 'finance-data-sol-price';
 const SOL_PRICE_CATEGORY = 'finance/data';
 const SOL_PRICE_INTENT = 'get sol price';
-const BENCHMARK_EVIDENCE_AT = '2026-05-15T19:28:03.083Z';
-const BENCHMARK_PROOF_REFERENCE = 'live-proofs/finance-data-sol-price-benchmark-2026-05-15.md';
+const BENCHMARK_EVIDENCE_AT = '2026-05-16T07:42:42.271Z';
+const BENCHMARK_PROOF_REFERENCE = 'live-proofs/finance-data-sol-price-benchmark-runs-2026-05-16.md';
 const PAY_CLI_STATUS_EVIDENCE = 'pay_cli exit code 0 and parsed response body';
 
 export function buildRadarBenchmarks(): RadarBenchmarkList {
@@ -34,7 +34,7 @@ function buildSolPriceBenchmark(): RadarBenchmarkDetail {
       route_id: `${entry.provider_id}:${entry.method ?? 'UNKNOWN'}:${entry.endpoint_url}`,
       execution_status: (entry.execution_evidence_status === 'proven' ? 'proven' : 'verified') as 'verified' | 'proven',
       success: true,
-      latency_ms: isStable ? 7489 : isPaySponge ? 8172 : null,
+      latency_ms: isStable ? 5691 : isPaySponge ? 7761 : null,
       paid_execution_proven: entry.execution_evidence_status === 'proven',
       proof_reference: isStable
         ? 'live-proofs/stablecrypto-harness-pay-cli-2026-05-12.md'
@@ -42,8 +42,17 @@ function buildSolPriceBenchmark(): RadarBenchmarkDetail {
           ? 'live-proofs/paysponge-coingecko-paid-execution-2026-05-15.md'
           : BENCHMARK_PROOF_REFERENCE,
       normalized_output_available: true,
-      extracted_price_usd: isStable ? 89.54 : isPaySponge ? 89.74079922757187 : null,
+      extracted_price_usd: isStable ? 87.57 : isPaySponge ? 87.50392093173244 : null,
       extraction_path: isStable ? 'solana.usd' : isPaySponge ? 'data[sol_usdc].attributes.base_token_price_usd' : null,
+      success_rate: isStable || isPaySponge ? 1 : null,
+      median_latency_ms: isStable ? 5691 : isPaySponge ? 7761 : null,
+      p95_latency_ms: isStable ? 6469 : isPaySponge ? 7946 : null,
+      average_price_usd: isStable ? 87.57 : isPaySponge ? 87.50392093173244 : null,
+      min_price_usd: isStable ? 87.57 : isPaySponge ? 87.50332626375734 : null,
+      max_price_usd: isStable ? 87.57 : isPaySponge ? 87.50629960363277 : null,
+      price_variance_percent: isStable ? 0 : isPaySponge ? 0.0033979504504081403 : null,
+      completed_runs: isStable || isPaySponge ? 5 : null,
+      failed_runs: isStable || isPaySponge ? 0 : null,
       execution_transport: 'pay_cli' as const,
       cli_exit_code: 0,
       status_code: null,
@@ -51,7 +60,7 @@ function buildSolPriceBenchmark(): RadarBenchmarkDetail {
       output_shape: sanitizeOutputShapeExample(entry.provider_id, entry.response_shape_example ?? null),
       normalization_confidence: (isStable || isPaySponge ? 'high' : 'unknown') as 'unknown' | 'low' | 'medium' | 'high',
       freshness_timestamp: BENCHMARK_EVIDENCE_AT,
-      comparison_notes: 'Live benchmark recorded. Price difference recorded. No winner claimed.'
+      comparison_notes: 'Five-run benchmark recorded. Both routes succeeded. No winner is claimed until scoring thresholds are finalized.'
     };
     });
 
@@ -61,7 +70,7 @@ function buildSolPriceBenchmark(): RadarBenchmarkDetail {
     benchmark_intent: 'get SOL price',
     benchmark_recorded: true,
     winner_claimed: false,
-    winner_status: 'insufficient_runs',
+    winner_status: 'no_clear_winner',
     winner_policy: {
       policy_id: 'sol-price-v0.1',
       policy_version: '0.1',
@@ -78,14 +87,15 @@ function buildSolPriceBenchmark(): RadarBenchmarkDetail {
         cost_clarity: 0.05,
         freshness: 0.05
       },
-      winner_status: 'insufficient_runs',
+      winner_status: 'no_clear_winner',
       winner_claimed: false,
-      completed_runs: 1,
+      winner_rationale: 'Required run count met. Both routes succeeded 5/5 with high confidence. No winner claimed because scoring thresholds have not been finalized.',
+      completed_runs: 5,
       required_runs: 5,
-      next_step: 'run 4 more benchmark rounds before winner evaluation'
+      next_step: 'define scoring thresholds before declaring a route winner'
     },
-    next_step: 'run 4 more benchmark rounds before winner evaluation',
-    readiness_note: 'Live normalized benchmark evidence exists. No winner is claimed.',
+    next_step: 'define scoring thresholds before declaring a route winner',
+    readiness_note: 'Five-run normalized benchmark evidence exists. No route winner is claimed.',
     routes
   };
 }

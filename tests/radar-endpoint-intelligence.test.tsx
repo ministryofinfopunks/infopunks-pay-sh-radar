@@ -325,7 +325,7 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
         benchmark_intent: 'get SOL price',
         benchmark_recorded: true,
         winner_claimed: false,
-        winner_status: 'insufficient_runs',
+        winner_status: 'no_clear_winner',
         winner_policy: {
           policy_id: 'sol-price-v0.1',
           policy_version: '0.1',
@@ -342,54 +342,73 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
             cost_clarity: 0.05,
             freshness: 0.05
           },
-          winner_status: 'insufficient_runs',
+          winner_status: 'no_clear_winner',
           winner_claimed: false,
-          completed_runs: 1,
+          winner_rationale: 'Required run count met. Both routes succeeded 5/5 with high confidence. No winner claimed because scoring thresholds have not been finalized.',
+          completed_runs: 5,
           required_runs: 5,
-          next_step: 'run 4 more benchmark rounds before winner evaluation'
+          next_step: 'define scoring thresholds before declaring a route winner'
         },
-        next_step: 'run 4 more benchmark rounds before winner evaluation',
-        readiness_note: 'Live normalized benchmark evidence exists. No winner is claimed.',
+        next_step: 'define scoring thresholds before declaring a route winner',
+        readiness_note: 'Five-run normalized benchmark evidence exists. No route winner is claimed.',
         routes: [
           {
             provider_id: 'merit-systems-stablecrypto-market-data',
             route_id: 'merit-systems-stablecrypto-market-data:POST:https://stablecrypto.dev/api/coingecko/price',
             execution_status: 'proven',
             success: true,
-            latency_ms: 7489,
+            latency_ms: 5691,
             paid_execution_proven: true,
             proof_reference: 'live-proofs/stablecrypto-harness-pay-cli-2026-05-12.md',
             normalized_output_available: true,
-            extracted_price_usd: 89.54,
+            extracted_price_usd: 87.57,
             extraction_path: 'solana.usd',
+            success_rate: 1,
+            median_latency_ms: 5691,
+            p95_latency_ms: 6469,
+            average_price_usd: 87.57,
+            min_price_usd: 87.57,
+            max_price_usd: 87.57,
+            price_variance_percent: 0,
+            completed_runs: 5,
+            failed_runs: 0,
             execution_transport: 'pay_cli',
             cli_exit_code: 0,
             status_code: null,
             status_evidence: 'pay_cli exit code 0 and parsed response body',
             output_shape: { solana: { usd: '<price_usd>' } },
             normalization_confidence: 'high',
-            freshness_timestamp: '2026-05-15T19:28:03.083Z',
-            comparison_notes: 'Live benchmark recorded. Price difference recorded. No winner claimed.'
+            freshness_timestamp: '2026-05-16T07:42:42.271Z',
+            comparison_notes: 'Five-run benchmark recorded. Both routes succeeded. No winner is claimed until scoring thresholds are finalized.'
           },
           {
             provider_id: 'paysponge-coingecko',
             route_id: 'paysponge-coingecko:GET:https://pro-api.coingecko.com/api/v3/x402/onchain/search/pools?query=SOL',
             execution_status: 'proven',
             success: true,
-            latency_ms: 8172,
+            latency_ms: 7761,
             paid_execution_proven: true,
             proof_reference: 'live-proofs/paysponge-coingecko-paid-execution-2026-05-15.md',
             normalized_output_available: true,
-            extracted_price_usd: 89.74079922757187,
+            extracted_price_usd: 87.50392093173244,
             extraction_path: 'data[sol_usdc].attributes.base_token_price_usd',
+            success_rate: 1,
+            median_latency_ms: 7761,
+            p95_latency_ms: 7946,
+            average_price_usd: 87.50392093173244,
+            min_price_usd: 87.50332626375734,
+            max_price_usd: 87.50629960363277,
+            price_variance_percent: 0.0033979504504081403,
+            completed_runs: 5,
+            failed_runs: 0,
             execution_transport: 'pay_cli',
             cli_exit_code: 0,
             status_code: null,
             status_evidence: 'pay_cli exit code 0 and parsed response body',
             output_shape: { data: [{ attributes: { name: 'SOL / USDC', base_token_price_usd: '<base_token_price_usd>', quote_token_price_usd: '<quote_token_price_usd>' } }] },
             normalization_confidence: 'high',
-            freshness_timestamp: '2026-05-15T19:28:03.083Z',
-            comparison_notes: 'Live benchmark recorded. Price difference recorded. No winner claimed.'
+            freshness_timestamp: '2026-05-16T07:42:42.271Z',
+            comparison_notes: 'Five-run benchmark recorded. Both routes succeeded. No winner is claimed until scoring thresholds are finalized.'
           }
         ]
       }]
@@ -695,11 +714,11 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Superiority readiness requires at least two proven executable mappings for the same benchmark intent.');
     expect(container.textContent).toContain('Benchmark Readiness');
     expect(container.textContent).toContain('Head-to-Head Benchmark');
-    expect(container.textContent).toContain('Live benchmark recorded.');
-    expect(container.textContent).toContain('Winner criteria not met yet.');
-    expect(container.textContent).toContain('1 / 5 required benchmark runs recorded.');
+    expect(container.textContent).toContain('Five-run benchmark recorded.');
+    expect(container.textContent).toContain('5 / 5 required benchmark runs recorded.');
+    expect(container.textContent).toContain('Winner status: no clear winner.');
     expect(container.textContent).toContain('Winner claimed: no.');
-    expect(container.textContent).toContain('Next: run 4 more benchmark rounds.');
+    expect(container.textContent).toContain('Five-run benchmark recorded. Both routes succeeded. No winner is claimed until scoring thresholds are finalized.');
     expect(container.textContent).toContain('live-proofs/stablecrypto-harness-pay-cli-2026-05-12.md');
     expect(container.textContent).toContain('HTTP status was not exposed by pay_cli; success is supported by CLI exit code 0 and parsed response body.');
     expect(container.textContent).toContain('Price difference recorded. No winner claimed.');

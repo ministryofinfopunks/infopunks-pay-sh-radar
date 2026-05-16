@@ -300,6 +300,15 @@ type RadarBenchmarkRouteMetric = {
   normalized_output_available: boolean;
   extracted_price_usd: number | null;
   extraction_path?: string | null;
+  success_rate?: number | null;
+  median_latency_ms?: number | null;
+  p95_latency_ms?: number | null;
+  average_price_usd?: number | null;
+  min_price_usd?: number | null;
+  max_price_usd?: number | null;
+  price_variance_percent?: number | null;
+  completed_runs?: number | null;
+  failed_runs?: number | null;
   execution_transport?: string;
   cli_exit_code?: number | null;
   status_code?: number | null;
@@ -334,6 +343,7 @@ type RadarBenchmarkDetail = {
     };
     winner_status: 'not_evaluated' | 'insufficient_runs' | 'no_clear_winner' | 'provisional_winner' | 'winner_claimed';
     winner_claimed: boolean;
+    winner_rationale?: string;
     completed_runs: number;
     required_runs: number;
     next_step: string;
@@ -3174,7 +3184,7 @@ function HeadToHeadBenchmarkPanel({ registry, loading }: { registry: RadarBenchm
   const policy = benchmark?.winner_policy;
   const completedRuns = policy?.completed_runs ?? 0;
   const requiredRuns = policy?.required_runs ?? 0;
-  const remainingRuns = Math.max(requiredRuns - completedRuns, 0);
+  const winnerStatusLabel = benchmark?.winner_status?.replaceAll('_', ' ') ?? 'not evaluated';
   return <section className="panel superiority-readiness" aria-label="Head-to-Head Benchmark panel">
     <div className="phase3-panel-head">
       <ScopeLabel scope="GLOBAL" />
@@ -3185,11 +3195,12 @@ function HeadToHeadBenchmarkPanel({ registry, loading }: { registry: RadarBenchm
     {benchmark && <>
       <p className="panel-caption">{benchmark.category}/{benchmark.benchmark_intent}</p>
       <p className="panel-caption">Two proven executable routes exist. Head-to-head benchmark comparison can begin.</p>
-      <p className="panel-caption">{benchmark.benchmark_recorded ? 'Live benchmark recorded.' : 'Output shapes shown are schema examples. Normalized prices are pending.'}</p>
-      <p className="panel-caption">Winner criteria not met yet.</p>
+      <p className="panel-caption">{benchmark.benchmark_recorded ? 'Five-run benchmark recorded.' : 'Output shapes shown are schema examples. Normalized prices are pending.'}</p>
       {policy && <p className="panel-caption">{completedRuns} / {requiredRuns} required benchmark runs recorded.</p>}
+      <p className="panel-caption">Winner status: {winnerStatusLabel}.</p>
       <p className="panel-caption">Winner claimed: {benchmark.winner_claimed ? 'yes.' : 'no.'}</p>
-      {policy && <p className="panel-caption">Next: run {remainingRuns} more benchmark rounds.</p>}
+      {policy?.winner_rationale && <p className="panel-caption">{policy.winner_rationale}</p>}
+      <p className="panel-caption">Five-run benchmark recorded. Both routes succeeded. No winner is claimed until scoring thresholds are finalized.</p>
       <p className="panel-caption">HTTP status was not exposed by pay_cli; success is supported by CLI exit code 0 and parsed response body.</p>
       {benchmark.benchmark_recorded && <p className="panel-caption">Price difference recorded. No winner claimed.</p>}
       {!benchmark.benchmark_recorded && <p className="route-state warn">Metrics pending. Next step: {benchmark.next_step}.</p>}
@@ -3198,6 +3209,7 @@ function HeadToHeadBenchmarkPanel({ registry, loading }: { registry: RadarBenchm
         <CompactChipList title="proof references" items={benchmark.routes.map((route) => route.proof_reference)} emptyLabel="missing" wide />
         <CompactChipList title="normalization state" items={benchmark.routes.map((route) => `${route.provider_id}: ${route.normalized_output_available ? 'normalized' : 'metrics pending'}`)} emptyLabel="missing" wide />
         <CompactChipList title="status evidence" items={benchmark.routes.map((route) => `${route.provider_id}: ${route.status_evidence ?? 'missing status evidence'}`)} emptyLabel="missing" wide />
+        <CompactChipList title="aggregate metrics" items={benchmark.routes.map((route) => `${route.provider_id}: success_rate=${route.success_rate ?? 'n/a'}, median_latency_ms=${route.median_latency_ms ?? 'n/a'}, p95_latency_ms=${route.p95_latency_ms ?? 'n/a'}, average_price_usd=${route.average_price_usd ?? 'n/a'}, min_price_usd=${route.min_price_usd ?? 'n/a'}, max_price_usd=${route.max_price_usd ?? 'n/a'}, price_variance_percent=${route.price_variance_percent ?? 'n/a'}, completed_runs=${route.completed_runs ?? 'n/a'}, failed_runs=${route.failed_runs ?? 'n/a'}`)} emptyLabel="missing" wide />
         {policy && <CompactChipList title="winner criteria" items={[
           `minimum ${policy.required_successful_runs_per_route} successful runs per route`,
           `compare ${policy.latency_metric} latency`,
