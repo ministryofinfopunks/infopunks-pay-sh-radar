@@ -291,7 +291,8 @@ describe('public benchmark proof pages', () => {
     });
 
     const text = container.textContent ?? '';
-    expect(text).toContain('Benchmark Proof: finance-data-token-search');
+    expect(text).toContain('Benchmark Scaffold: finance-data-token-search');
+    expect(text).not.toContain('Benchmark Proof: finance-data-token-search');
     expect(text).toContain('Benchmark scaffold');
     expect(text).toContain('Comparable proven routes are not yet recorded.');
     expect(text).toContain('Winner claimed: no.');

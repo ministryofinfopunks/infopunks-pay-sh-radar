@@ -968,7 +968,7 @@ function BenchmarkProofContent({ benchmark, history }: { benchmark: RadarBenchma
   return <>
     <section className="panel">
       <p className="eyebrow">Infopunks Pay.sh Radar</p>
-      <h1>Benchmark Proof: {benchmark.benchmark_id}</h1>
+      <h1>{benchmark.benchmark_recorded ? 'Benchmark Proof' : 'Benchmark Scaffold'}: {benchmark.benchmark_id}</h1>
       <p className="panel-caption">No route winner is claimed.</p>
       <p className="panel-caption"><a href="/benchmarks">View all benchmarks</a></p>
     </section>
