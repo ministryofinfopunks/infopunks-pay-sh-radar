@@ -44,6 +44,7 @@ import { buildEcosystemRiskSummary, buildEndpointRiskAssessment, buildProviderRi
 import { createResponseCache } from '../services/responseCache';
 import { DEFAULT_LIVE_CATALOG_URL } from '../ingestion/payShCatalogAdapter';
 import { degradationsCsv, endpointsCsv, providersCsv, routeCandidatesCsv } from '../services/radarCsvService';
+import { listRouteMappings } from '../services/providerEndpointMap';
 import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
@@ -291,6 +292,14 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
       })
     };
   });
+  app.get('/v1/radar/mappings', async () => ({
+    data: safeJsonExport({
+      generated_at: new Date().toISOString(),
+      source: 'infopunks-pay-sh-radar',
+      count: listRouteMappings().length,
+      mappings: listRouteMappings()
+    })
+  }));
   app.get('/v1/radar/export/providers.csv', async (_req, reply) => {
     reply.type('text/csv; charset=utf-8');
     return providersCsv(store);

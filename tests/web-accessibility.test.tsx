@@ -154,6 +154,41 @@ describe('web accessibility landmarks', () => {
         source: 'infopunks-pay-sh-radar',
         benchmarks: []
       });
+      if (path === '/v1/radar/mappings') return json({
+        generated_at: now,
+        source: 'infopunks-pay-sh-radar',
+        count: 2,
+        mappings: [
+          {
+            provider_name: 'StableCrypto',
+            provider_id: 'merit-systems-stablecrypto-market-data',
+            category: 'finance/data',
+            benchmark_intent: 'get SOL price',
+            endpoint_url: 'https://stablecrypto.dev/api/coingecko/price',
+            method: 'POST',
+            mapping_status: 'verified',
+            execution_evidence_status: 'proven',
+            proof_source: 'pay_cli',
+            proof_reference: 'stablecrypto-sol-price-post-2026-05',
+            verified_at: '2026-05-15',
+            notes: 'Known successful executable mapping from Pay CLI.'
+          },
+          {
+            provider_name: 'CoinGecko Onchain DEX API',
+            provider_id: 'paysponge-coingecko',
+            category: 'finance/data',
+            benchmark_intent: 'get SOL price',
+            endpoint_url: 'https://pro-api.coingecko.com/api/v3/x402/onchain/search/pools?query=SOL',
+            method: 'GET',
+            mapping_status: 'verified',
+            execution_evidence_status: 'proven',
+            proof_source: 'infopunks-pay-sh-agent-harness',
+            proof_reference: 'live-proofs/paysponge-coingecko-paid-execution-2026-05-15.md',
+            verified_at: '2026-05-15',
+            notes: 'Paid x402 execution succeeded.'
+          }
+        ]
+      });
       if (path === '/v1/radar/history/ecosystem') return json({
         generated_at: now,
         window: '24h',

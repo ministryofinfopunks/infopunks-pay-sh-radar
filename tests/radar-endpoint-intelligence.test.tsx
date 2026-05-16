@@ -413,6 +413,41 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
         ]
       }]
     });
+    if (path === '/v1/radar/mappings') return json({
+      generated_at: observedAt,
+      source: 'infopunks-pay-sh-radar',
+      count: 2,
+      mappings: [
+        {
+          provider_name: 'StableCrypto',
+          provider_id: 'merit-systems-stablecrypto-market-data',
+          category: 'finance/data',
+          benchmark_intent: 'get SOL price',
+          endpoint_url: 'https://stablecrypto.dev/api/coingecko/price',
+          method: 'POST',
+          mapping_status: 'verified',
+          execution_evidence_status: 'proven',
+          proof_source: 'pay_cli',
+          proof_reference: 'stablecrypto-sol-price-post-2026-05',
+          verified_at: '2026-05-15',
+          notes: 'Known successful executable mapping from Pay CLI.'
+        },
+        {
+          provider_name: 'CoinGecko Onchain DEX API',
+          provider_id: 'paysponge-coingecko',
+          category: 'finance/data',
+          benchmark_intent: 'get SOL price',
+          endpoint_url: 'https://pro-api.coingecko.com/api/v3/x402/onchain/search/pools?query=SOL',
+          method: 'GET',
+          mapping_status: 'verified',
+          execution_evidence_status: 'proven',
+          proof_source: 'infopunks-pay-sh-agent-harness',
+          proof_reference: 'live-proofs/paysponge-coingecko-paid-execution-2026-05-15.md',
+          verified_at: '2026-05-15',
+          notes: 'Paid x402 execution succeeded.'
+        }
+      ]
+    });
     if (path === '/v1/radar/preflight') return json({
       generated_at: observedAt,
       source: 'infopunks-pay-sh-radar',
@@ -456,6 +491,12 @@ function setInputValue(input: HTMLInputElement, value: string) {
   const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
   setter?.call(input, value);
   input.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+function setSelectValue(select: HTMLSelectElement, value: string) {
+  const setter = Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype, 'value')?.set;
+  setter?.call(select, value);
+  select.dispatchEvent(new Event('change', { bubbles: true }));
 }
 
 describe('radar endpoint intelligence UI', () => {
@@ -743,6 +784,40 @@ describe('radar endpoint intelligence UI', () => {
     expect(details).toBeTruthy();
     details!.open = true;
     expect(details!.textContent).toContain('provider-14');
+  });
+
+  it('renders route mapping registry rows, badges, and explanatory copy', async () => {
+    installFetch({ endpoints: [normalizedEndpoint], detailEndpoints: [endpoint] });
+    root = await renderApp(container);
+
+    expect(container.textContent).toContain('Route Mapping Registry');
+    expect(container.textContent).toContain('Catalog-only is not execution proof.');
+    expect(container.textContent).toContain('Proven does not automatically mean best.');
+    expect(container.textContent).toContain('StableCrypto');
+    expect(container.textContent).toContain('paysponge-coingecko');
+    expect(container.textContent).toContain('verified');
+    expect(container.textContent).toContain('proven');
+  });
+
+  it('route mapping registry filters do not crash', async () => {
+    installFetch({ endpoints: [normalizedEndpoint], detailEndpoints: [endpoint] });
+    root = await renderApp(container);
+
+    const status = container.querySelector('select[aria-label="Route mapping status filter"]') as HTMLSelectElement | null;
+    const category = container.querySelector('select[aria-label="Route mapping category filter"]') as HTMLSelectElement | null;
+    const intent = container.querySelector('select[aria-label="Route mapping intent filter"]') as HTMLSelectElement | null;
+    expect(status).not.toBeNull();
+    expect(category).not.toBeNull();
+    expect(intent).not.toBeNull();
+
+    await act(async () => {
+      setSelectValue(status!, 'proven');
+      setSelectValue(category!, 'finance/data');
+      setSelectValue(intent!, 'get SOL price');
+    });
+
+    expect(container.textContent).toContain('StableCrypto');
+    expect(container.textContent).toContain('CoinGecko Onchain DEX API');
   });
 
   it('renders predictive risk badges in preflight and comparison surfaces', async () => {

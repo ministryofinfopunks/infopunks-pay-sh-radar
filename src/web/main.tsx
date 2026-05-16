@@ -289,6 +289,27 @@ type RadarBenchmarkReadiness = {
   recommended_next_mappings: string[];
   metadata_only_warning: string;
 };
+type RouteMappingStatusFilter = 'all' | 'candidate' | 'verified' | 'proven' | 'unproven';
+type RadarRouteMapping = {
+  provider_name: string;
+  provider_id: string;
+  category: string;
+  benchmark_intent: string;
+  endpoint_url: string;
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | null;
+  mapping_status: 'candidate' | 'verified' | 'catalog_only';
+  execution_evidence_status: 'proven' | 'unproven' | 'unknown';
+  proof_source: string;
+  proof_reference?: string;
+  verified_at?: string;
+  notes: string;
+};
+type RadarRouteMappingRegistry = {
+  generated_at: string;
+  source: string;
+  count: number;
+  mappings: RadarRouteMapping[];
+};
 type RadarBenchmarkRouteMetric = {
   provider_id: string;
   route_id: string;
@@ -1408,6 +1429,10 @@ function RadarApp() {
   const [readiness, setReadiness] = useState<RadarSuperiorityReadiness | null>(null);
   const [benchmarkReadiness, setBenchmarkReadiness] = useState<RadarBenchmarkReadiness | null>(null);
   const [benchmarkRegistry, setBenchmarkRegistry] = useState<RadarBenchmarkRegistry | null>(null);
+  const [routeMappingRegistry, setRouteMappingRegistry] = useState<RadarRouteMappingRegistry | null>(null);
+  const [routeMappingStatusFilter, setRouteMappingStatusFilter] = useState<RouteMappingStatusFilter>('all');
+  const [routeMappingCategoryFilter, setRouteMappingCategoryFilter] = useState('all');
+  const [routeMappingIntentFilter, setRouteMappingIntentFilter] = useState('all');
   const [providerDetail, setProviderDetail] = useState<ProviderDetail | null>(null);
   const [providerIntel, setProviderIntel] = useState<ProviderIntelligence | null>(null);
   const [radarEndpoints, setRadarEndpoints] = useState<NormalizedEndpointRecord[]>([]);
@@ -1560,10 +1585,11 @@ function RadarApp() {
           setSecondaryLoadWarning('Showing last successful enrichment snapshot.');
         }
 
-        const stage3Endpoints = ['/v1/radar/superiority-readiness', '/v1/radar/benchmarks', '/v1/radar/history/ecosystem?window=24h', '/v1/radar/risk/ecosystem'];
+        const stage3Endpoints = ['/v1/radar/superiority-readiness', '/v1/radar/benchmarks', '/v1/radar/mappings', '/v1/radar/history/ecosystem?window=24h', '/v1/radar/risk/ecosystem'];
         const stage3 = await Promise.allSettled([
           api<{ data: RadarSuperiorityReadiness }>('/v1/radar/superiority-readiness', undefined, SECONDARY_TIMEOUT_MS),
           api<{ data: RadarBenchmarkRegistry }>('/v1/radar/benchmarks', undefined, SECONDARY_TIMEOUT_MS),
+          api<{ data: RadarRouteMappingRegistry }>('/v1/radar/mappings', undefined, SECONDARY_TIMEOUT_MS),
           api<{ data: RadarEcosystemHistory }>('/v1/radar/history/ecosystem?window=24h', undefined, SECONDARY_TIMEOUT_MS),
           api<{ data: RadarEcosystemRiskSummary }>('/v1/radar/risk/ecosystem', undefined, SECONDARY_TIMEOUT_MS)
         ]);
@@ -1571,10 +1597,12 @@ function RadarApp() {
         applyDiagnostics(stage3 as PromiseSettledResult<unknown>[], stage3Endpoints);
         const readinessPayload = stage3[0].status === 'fulfilled' ? stage3[0].value?.data ?? null : null;
         const benchmarkRegistryPayload = stage3[1].status === 'fulfilled' ? stage3[1].value?.data ?? null : null;
-        const ecosystemHistoryPayload = stage3[2].status === 'fulfilled' ? stage3[2].value?.data ?? null : null;
-        const ecosystemRiskPayload = stage3[3].status === 'fulfilled' ? stage3[3].value?.data ?? null : null;
+        const routeMappingRegistryPayload = stage3[2].status === 'fulfilled' ? stage3[2].value?.data ?? null : null;
+        const ecosystemHistoryPayload = stage3[3].status === 'fulfilled' ? stage3[3].value?.data ?? null : null;
+        const ecosystemRiskPayload = stage3[4].status === 'fulfilled' ? stage3[4].value?.data ?? null : null;
         if (readinessPayload) setReadiness(readinessPayload);
         if (benchmarkRegistryPayload) setBenchmarkRegistry(benchmarkRegistryPayload);
+        if (routeMappingRegistryPayload) setRouteMappingRegistry(routeMappingRegistryPayload);
         if (ecosystemHistoryPayload) {
           setEcosystemHistory(ecosystemHistoryPayload);
           setEcosystemHistoryLoading(false);
@@ -2347,6 +2375,15 @@ function RadarApp() {
           <CostPerformancePanel endpoints={radarEndpoints} providerRiskById={providerRiskById} benchmarkReadiness={benchmarkReadiness} loading={radarEndpointsLoading} />
           <BenchmarkReadinessPanel readiness={benchmarkReadiness} loading={benchmarkReadinessLoading} />
           <HeadToHeadBenchmarkPanel registry={benchmarkRegistry} loading={benchmarkReadinessLoading} />
+          <RouteMappingRegistryPanel
+            registry={routeMappingRegistry}
+            statusFilter={routeMappingStatusFilter}
+            onStatusFilterChange={setRouteMappingStatusFilter}
+            categoryFilter={routeMappingCategoryFilter}
+            onCategoryFilterChange={setRouteMappingCategoryFilter}
+            intentFilter={routeMappingIntentFilter}
+            onIntentFilterChange={setRouteMappingIntentFilter}
+          />
           <AgentBenchmarkApiPanel />
           <SuperiorityReadinessPanel readiness={readiness} />
           </div>
@@ -3458,6 +3495,91 @@ function HeadToHeadBenchmarkPanel({ registry, loading }: { registry: RadarBenchm
       </div>
     </>}
   </section>;
+}
+
+function RouteMappingRegistryPanel({
+  registry,
+  statusFilter,
+  onStatusFilterChange,
+  categoryFilter,
+  onCategoryFilterChange,
+  intentFilter,
+  onIntentFilterChange
+}: {
+  registry: RadarRouteMappingRegistry | null;
+  statusFilter: RouteMappingStatusFilter;
+  onStatusFilterChange: (value: RouteMappingStatusFilter) => void;
+  categoryFilter: string;
+  onCategoryFilterChange: (value: string) => void;
+  intentFilter: string;
+  onIntentFilterChange: (value: string) => void;
+}) {
+  const mappings = registry?.mappings ?? [];
+  const categoryOptions = Array.from(new Set(mappings.map((row) => row.category).filter(Boolean))).sort();
+  const intentOptions = Array.from(new Set(mappings.map((row) => row.benchmark_intent).filter(Boolean))).sort();
+  const filtered = mappings.filter((row) => {
+    if (categoryFilter !== 'all' && row.category !== categoryFilter) return false;
+    if (intentFilter !== 'all' && row.benchmark_intent !== intentFilter) return false;
+    if (statusFilter === 'all') return true;
+    if (statusFilter === 'candidate') return row.mapping_status === 'candidate';
+    if (statusFilter === 'verified') return row.mapping_status === 'verified';
+    if (statusFilter === 'proven') return row.execution_evidence_status === 'proven';
+    if (statusFilter === 'unproven') return row.execution_evidence_status === 'unproven';
+    return true;
+  });
+
+  return <section className="panel superiority-readiness" aria-label="Route Mapping Registry panel">
+    <ScopeLabel scope="GLOBAL" />
+    <p className="section-kicker">Execution Mapping Ladder</p>
+    <h2>Route Mapping Registry</h2>
+    <p className="panel-caption">Catalog-only is not execution proof.</p>
+    <p className="panel-caption">Verified means endpoint path/method/body are known.</p>
+    <p className="panel-caption">Proven means execution evidence exists.</p>
+    <p className="panel-caption">Proven does not automatically mean best.</p>
+    <div className="control-row">
+      <label><span>status</span><select aria-label="Route mapping status filter" value={statusFilter} onChange={(event) => onStatusFilterChange(event.target.value as RouteMappingStatusFilter)}>
+        <option value="all">all</option>
+        <option value="candidate">candidate</option>
+        <option value="verified">verified</option>
+        <option value="proven">proven</option>
+        <option value="unproven">unproven</option>
+      </select></label>
+      <label><span>category</span><select aria-label="Route mapping category filter" value={categoryFilter} onChange={(event) => onCategoryFilterChange(event.target.value)}>
+        <option value="all">all</option>
+        {categoryOptions.map((category) => <option key={category} value={category}>{category}</option>)}
+      </select></label>
+      <label><span>intent</span><select aria-label="Route mapping intent filter" value={intentFilter} onChange={(event) => onIntentFilterChange(event.target.value)}>
+        <option value="all">all</option>
+        {intentOptions.map((intent) => <option key={intent} value={intent}>{intent}</option>)}
+      </select></label>
+    </div>
+    <div className="readiness-list-grid">
+      {filtered.map((row) => <section key={`${row.provider_id}:${row.endpoint_url}`} className="compact-chip-list wide">
+        <h3>
+          <strong>{row.provider_name}</strong>
+          <span className={routeMappingBadgeClass(row.mapping_status)}>{row.mapping_status}</span>
+          <span className={routeMappingBadgeClass(row.execution_evidence_status)}>{row.execution_evidence_status}</span>
+        </h3>
+        <p>provider_id: {row.provider_id}</p>
+        <p>category: {row.category}</p>
+        <p>benchmark_intent: {row.benchmark_intent}</p>
+        <p>endpoint_url: {row.endpoint_url}</p>
+        <p>method: {row.method ?? 'unknown'}</p>
+        <p>proof_source: {row.proof_source}</p>
+        <p>proof_reference: {row.proof_reference ?? 'none'}</p>
+        <p>verified_at: {row.verified_at ?? 'unknown'}</p>
+        <p>notes: {row.notes}</p>
+      </section>)}
+      {!filtered.length && <EmptyState title="No mappings match filters." body="Adjust status, category, or intent filters." />}
+    </div>
+  </section>;
+}
+
+function routeMappingBadgeClass(status: RadarRouteMapping['mapping_status'] | RadarRouteMapping['execution_evidence_status']) {
+  if (status === 'proven' || status === 'verified') return 'route-state ok';
+  if (status === 'candidate') return 'route-state warn';
+  if (status === 'unproven' || status === 'catalog_only' || status === 'unknown') return 'route-state';
+  return 'route-state';
 }
 
 function AgentBenchmarkApiPanel() {
