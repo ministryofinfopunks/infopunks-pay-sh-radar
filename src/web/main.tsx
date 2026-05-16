@@ -3624,7 +3624,7 @@ function MappingTargetsPanel({ registry }: { registry: RadarMappingTargetRegistr
           <p>next step: {target.needed_next_step}</p>
           <p>why it matters: {target.why_it_matters}</p>
           <p>readiness blocker: {target.readiness_blocker}</p>
-          <p>suggested provider candidates: {(target.suggested_provider_candidates ?? []).length ? target.suggested_provider_candidates?.join(', ') : 'none listed'}</p>
+          <p>suggested provider candidates: {(target.suggested_provider_candidates ?? []).length ? target.suggested_provider_candidates?.join(', ') : 'No candidate selected yet. Needs catalog review.'}</p>
         </div>)}
       </section>)}
       {!categories.length && <EmptyState title="No mapping targets available." body="Planning targets are currently unavailable." />}

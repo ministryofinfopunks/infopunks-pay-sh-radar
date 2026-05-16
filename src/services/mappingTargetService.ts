@@ -37,7 +37,7 @@ const mappingTargets: MappingTarget[] = [
     benchmark_intent: 'OCR comparison',
     current_state: 'needs_two_comparable_mappings',
     needed_next_step: 'Record two comparable verified mappings for OCR extraction with matching benchmark intent.',
-    suggested_provider_candidates: ['OCR API candidate A', 'OCR API candidate B'],
+    suggested_provider_candidates: [],
     why_it_matters: 'OCR benchmarking requires comparable extraction tasks to score quality and latency fairly.',
     readiness_blocker: 'Fewer than two comparable mappings are available for this category/intent.'
   },
@@ -46,7 +46,7 @@ const mappingTargets: MappingTarget[] = [
     benchmark_intent: 'SMS/send message',
     current_state: 'needs_candidate',
     needed_next_step: 'Add initial candidate mapping(s) for SMS send-message workflow.',
-    suggested_provider_candidates: ['SMS provider candidate A', 'SMS provider candidate B'],
+    suggested_provider_candidates: [],
     why_it_matters: 'Messaging routes are high-impact for agent notifications and recovery loops.',
     readiness_blocker: 'No candidate mapping rows are currently tracked for messaging send intent.'
   },
@@ -55,7 +55,7 @@ const mappingTargets: MappingTarget[] = [
     benchmark_intent: 'knowledge/search answer',
     current_state: 'needs_candidate',
     needed_next_step: 'Add first candidate mapping for answer-oriented search response.',
-    suggested_provider_candidates: ['Search provider candidate A', 'Search provider candidate B'],
+    suggested_provider_candidates: [],
     why_it_matters: 'Search answer benchmarks improve route quality for research and decision-support tasks.',
     readiness_blocker: 'No candidate mapping exists for this search benchmark intent.'
   }
