@@ -42,10 +42,10 @@ export type BenchmarkArtifactRecord = {
 };
 
 const SOL_FIVE_RUN_ARTIFACT: BenchmarkArtifactRecord = {
-  artifact_id: 'finance-data-sol-price-runs-2026-05-16',
+  artifact_id: 'finance-data-sol-price-benchmark-runs-2026-05-16',
   benchmark_id: 'finance-data-sol-price',
   generated_at: '2026-05-16T07:42:42.271Z',
-  source_repo: 'https://github.com/infopunks/infopunks-pay-sh-intelligence-terminal',
+  source_repo: 'https://github.com/ministryofinfopunks/infopunks-pay-sh-agent-harness',
   artifact_path: 'live-proofs/finance-data-sol-price-benchmark-runs-2026-05-16.md',
   total_runs: 5,
   winner_claimed: false,
@@ -81,7 +81,7 @@ const SOL_FIVE_RUN_ARTIFACT: BenchmarkArtifactRecord = {
     },
     {
       provider_id: 'paysponge-coingecko',
-      route_id: 'paysponge-coingecko:POST:https://api.coingecko.com/api/v3/onchain/simple/networks/solana/token_price/JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN',
+      route_id: 'paysponge-coingecko:GET:https://pro-api.coingecko.com/api/v3/x402/onchain/search/pools?query=SOL',
       execution_status: 'proven',
       success: true,
       latency_ms: 7761,
@@ -118,13 +118,17 @@ const SOL_FIVE_RUN_ARTIFACT: BenchmarkArtifactRecord = {
 };
 
 const REGISTRY: BenchmarkArtifactRecord[] = [SOL_FIVE_RUN_ARTIFACT];
+const LEGACY_ARTIFACT_ID_ALIASES: Record<string, string> = {
+  'finance-data-sol-price-runs-2026-05-16': 'finance-data-sol-price-benchmark-runs-2026-05-16'
+};
 
 export function listBenchmarkArtifacts(): BenchmarkArtifactRecord[] {
   return REGISTRY;
 }
 
 export function getBenchmarkArtifactById(artifactId: string): BenchmarkArtifactRecord | null {
-  return REGISTRY.find((artifact) => artifact.artifact_id === artifactId) ?? null;
+  const canonicalId = LEGACY_ARTIFACT_ID_ALIASES[artifactId] ?? artifactId;
+  return REGISTRY.find((artifact) => artifact.artifact_id === canonicalId) ?? null;
 }
 
 export function getLatestBenchmarkArtifact(benchmarkId: string): BenchmarkArtifactRecord | null {

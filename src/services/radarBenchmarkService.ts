@@ -1,6 +1,6 @@
 import { BenchmarkHistoryEntry, RadarBenchmarkDetail, RadarBenchmarkHistory, RadarBenchmarkList, RadarBenchmarkRouteMetric } from '../schemas/entities';
 import { listRouteMappings } from './providerEndpointMap';
-import { getLatestBenchmarkArtifact, listBenchmarkArtifacts } from '../data/benchmarkArtifacts';
+import { getBenchmarkArtifactById, getLatestBenchmarkArtifact, listBenchmarkArtifacts } from '../data/benchmarkArtifacts';
 
 const SOL_PRICE_BENCHMARK_ID = 'finance-data-sol-price';
 const SOL_PRICE_CATEGORY = 'finance/data';
@@ -101,7 +101,7 @@ export function listBenchmarkArtifactMetadata(): BenchmarkArtifactSafeMetadata[]
 }
 
 export function getBenchmarkArtifactMetadataById(id: string): BenchmarkArtifactSafeMetadata | null {
-  const artifact = listBenchmarkArtifacts().find((item) => item.artifact_id === id) ?? null;
+  const artifact = getBenchmarkArtifactById(id);
   if (!artifact) return null;
   return { ...artifact };
 }
@@ -115,7 +115,7 @@ function buildSolPriceBenchmark(): RadarBenchmarkDetail {
       const routeArtifact = latestArtifact?.routes.find((route) => route.provider_id === entry.provider_id);
       return {
       provider_id: entry.provider_id,
-      route_id: `${entry.provider_id}:${entry.method ?? 'UNKNOWN'}:${entry.endpoint_url}`,
+      route_id: routeArtifact?.route_id ?? `${entry.provider_id}:${entry.method ?? 'UNKNOWN'}:${entry.endpoint_url}`,
       execution_status: (entry.execution_evidence_status === 'proven' ? 'proven' : 'verified') as 'verified' | 'proven',
       success: routeArtifact?.success ?? true,
       latency_ms: routeArtifact?.latency_ms ?? null,
