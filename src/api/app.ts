@@ -40,6 +40,7 @@ import { buildBenchmarkReadiness, buildSuperiorityReadiness, runRadarComparison,
 import { buildRadarBenchmarkById, buildRadarBenchmarks } from '../services/radarBenchmarkService';
 import { buildEcosystemHistory, buildEndpointHistory, buildProviderHistory, normalizeHistoryWindow } from '../services/radarHistoryService';
 import { buildEcosystemRiskSummary, buildEndpointRiskAssessment, buildProviderRiskAssessment } from '../services/radarRiskService';
+import { createResponseCache } from '../services/responseCache';
 import { DEFAULT_LIVE_CATALOG_URL } from '../ingestion/payShCatalogAdapter';
 import { degradationsCsv, endpointsCsv, providersCsv, routeCandidatesCsv } from '../services/radarCsvService';
 import { createOpenApiSpec } from './openapi';
@@ -63,7 +64,14 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   const app = Fastify({ logger: false });
   const ROUTE_TIMEOUT_MS = 2_500;
   const SEARCH_ROUTE_TIMEOUT_MS = 3_000;
+  const RADAR_BENCHMARKS_TTL_MS = 5 * 60 * 1000;
+  const RADAR_ENDPOINTS_TTL_MS = 2 * 60 * 1000;
+  const RADAR_ECOSYSTEM_RISK_TTL_MS = 2 * 60 * 1000;
+  const RADAR_ECOSYSTEM_HISTORY_TTL_MS = 2 * 60 * 1000;
+  const RADAR_ECOSYSTEM_RISK_TIMEOUT_MS = 1_200;
+  const RADAR_ECOSYSTEM_HISTORY_TIMEOUT_MS = 1_200;
   const PROVIDER_LIST_MAX = 100;
+  const responseCache = createResponseCache();
   const allowedOrigins = new Set(DEFAULT_ALLOWED_ORIGINS);
   if (config.frontendOrigin) allowedOrigins.add(config.frontendOrigin);
   await app.register(cors, {
@@ -246,15 +254,26 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     };
   });
   app.get('/v1/radar/endpoints', async () => {
+    const startedAtMs = Date.now();
     await ensureLiveBootstrap('route:/v1/radar/endpoints');
-    const snapshot = buildRadarExportSnapshot(store);
-    return {
-      data: safeJsonExport({
+    const cached = await responseCache.getOrSet('radar:endpoints', RADAR_ENDPOINTS_TTL_MS, () => {
+      const snapshot = buildRadarExportSnapshot(store);
+      return {
         generated_at: snapshot.generated_at,
         source: snapshot.source,
         count: snapshot.endpoints.length,
         endpoint_metadata: endpointMetadataState(store),
         endpoints: snapshot.endpoints
+      };
+    });
+    logRadarRouteTiming('/v1/radar/endpoints', Date.now() - startedAtMs, cached.metadata.hit, 'ok');
+    return {
+      data: safeJsonExport({
+        generated_at: cached.value.generated_at,
+        source: cached.value.source,
+        count: cached.value.count,
+        endpoint_metadata: cached.value.endpoint_metadata,
+        endpoints: cached.value.endpoints
       })
     };
   });
@@ -297,9 +316,27 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     if (!history) return reply.code(404).send({ error: 'endpoint_not_found' });
     return { data: safeJsonExport(history) };
   });
-  app.get<{ Querystring: { window?: string } }>('/v1/radar/history/ecosystem', async (req) => ({
-    data: safeJsonExport(buildEcosystemHistory(store, normalizeHistoryWindow(req.query.window)))
-  }));
+  app.get<{ Querystring: { window?: string } }>('/v1/radar/history/ecosystem', async (req) => {
+    const startedAtMs = Date.now();
+    const windowName = normalizeHistoryWindow(req.query.window);
+    const cacheKey = `radar:history:ecosystem:${windowName}`;
+    try {
+      const cached = await responseCache.getOrSet(cacheKey, RADAR_ECOSYSTEM_HISTORY_TTL_MS, async () => withTimeout(
+        () => buildEcosystemHistory(store, windowName),
+        RADAR_ECOSYSTEM_HISTORY_TIMEOUT_MS,
+        'ecosystem_history_timeout'
+      ));
+      logRadarRouteTiming('/v1/radar/history/ecosystem', Date.now() - startedAtMs, cached.metadata.hit, cached.metadata.stale ? 'stale_ok' : 'ok');
+      return { data: safeJsonExport(cached.value) };
+    } catch {
+      const fallback = buildEcosystemHistory(store, windowName);
+      fallback.history_available = false;
+      fallback.reason = 'History enrichment is warming up.';
+      fallback.warnings = Array.from(new Set([...fallback.warnings, 'history warming up']));
+      logRadarRouteTiming('/v1/radar/history/ecosystem', Date.now() - startedAtMs, false, 'warming_up');
+      return { data: safeJsonExport(fallback) };
+    }
+  });
   app.get<{ Params: { provider_id: string } }>('/v1/radar/risk/providers/:provider_id', async (req, reply) => {
     const risk = buildProviderRiskAssessment(store, req.params.provider_id);
     if (!risk) return reply.code(404).send({ error: 'provider_not_found' });
@@ -341,23 +378,53 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     };
   });
   app.get('/v1/radar/risk/ecosystem', async () => {
-    const risk = buildEcosystemRiskSummary(store);
-    return {
-      data: safeJsonExport(RadarEcosystemRiskSummarySchema.parse({
-        generated_at: risk.generated_at,
-        subject_type: risk.subject_type,
-        subject_id: risk.subject_id,
-        risk_score: risk.risk_score,
-        risk_level: risk.risk_level,
-        history_available: risk.history_available,
-        sample_count: risk.sample_count,
-        anomalies: risk.anomalies,
-        evidence: risk.evidence,
-        warnings: risk.warnings,
-        recommended_action: risk.recommended_action,
-        summary: risk.summary
-      }))
-    };
+    const startedAtMs = Date.now();
+    try {
+      const cached = await responseCache.getOrSet('radar:risk:ecosystem', RADAR_ECOSYSTEM_RISK_TTL_MS, async () => {
+        const risk = await withTimeout(() => buildEcosystemRiskSummary(store), RADAR_ECOSYSTEM_RISK_TIMEOUT_MS, 'ecosystem_risk_timeout');
+        return RadarEcosystemRiskSummarySchema.parse({
+          generated_at: risk.generated_at,
+          subject_type: risk.subject_type,
+          subject_id: risk.subject_id,
+          risk_score: risk.risk_score,
+          risk_level: risk.risk_level,
+          history_available: risk.history_available,
+          sample_count: risk.sample_count,
+          anomalies: risk.anomalies,
+          evidence: risk.evidence,
+          warnings: risk.warnings,
+          recommended_action: risk.recommended_action,
+          summary: risk.summary
+        });
+      });
+      logRadarRouteTiming('/v1/radar/risk/ecosystem', Date.now() - startedAtMs, cached.metadata.hit, cached.metadata.stale ? 'stale_ok' : 'ok');
+      return { data: safeJsonExport(cached.value) };
+    } catch {
+      const fallback = RadarEcosystemRiskSummarySchema.parse({
+        generated_at: new Date().toISOString(),
+        subject_type: 'ecosystem',
+        subject_id: 'ecosystem',
+        risk_score: 50,
+        risk_level: 'unknown',
+        history_available: false,
+        sample_count: 0,
+        explanation: 'Risk enrichment is warming up.',
+        anomalies: [],
+        evidence: ['Risk enrichment is warming up.'],
+        warnings: ['risk warming up'],
+        recommended_action: 'insufficient history',
+        summary: {
+          providers_by_risk_level: { low: 0, watch: 0, elevated: 0, critical: 0, unknown: 0 },
+          top_anomalies: [],
+          categories_most_affected: [],
+          recent_critical_events: [],
+          stale_catalog_warning: null,
+          anomaly_watch: []
+        }
+      });
+      logRadarRouteTiming('/v1/radar/risk/ecosystem', Date.now() - startedAtMs, false, 'warming_up');
+      return { data: safeJsonExport(fallback) };
+    }
   });
   app.post('/v1/radar/preflight', async (req, reply) => handleParsed(req.body, RadarPreflightRequestSchema, (input) => ({
     data: safeJsonExport(RadarPreflightResponseSchema.parse(runRadarPreflight(input, store)))
@@ -374,9 +441,12 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   app.get('/v1/radar/benchmark-readiness', async () => ({
     data: safeJsonExport(RadarBenchmarkReadinessSchema.parse(buildBenchmarkReadiness(store)))
   }));
-  app.get('/v1/radar/benchmarks', async () => ({
-    data: safeJsonExport(RadarBenchmarkListSchema.parse(buildRadarBenchmarks()))
-  }));
+  app.get('/v1/radar/benchmarks', async () => {
+    const startedAtMs = Date.now();
+    const cached = await responseCache.getOrSet('radar:benchmarks', RADAR_BENCHMARKS_TTL_MS, () => RadarBenchmarkListSchema.parse(buildRadarBenchmarks()));
+    logRadarRouteTiming('/v1/radar/benchmarks', Date.now() - startedAtMs, cached.metadata.hit, cached.metadata.stale ? 'stale_ok' : 'ok');
+    return { data: safeJsonExport(cached.value) };
+  });
   app.get('/v1/radar/benchmarks/finance-data-sol-price', async (_req, reply) => {
     const benchmark = buildRadarBenchmarkById('finance-data-sol-price');
     if (!benchmark) return reply.code(404).send({ error: 'benchmark_not_found' });
@@ -683,6 +753,10 @@ async function withTimeout<T>(work: () => T | Promise<T>, timeoutMs: number, rea
         reject(error);
       });
   });
+}
+
+function logRadarRouteTiming(route: '/v1/radar/benchmarks' | '/v1/radar/endpoints' | '/v1/radar/risk/ecosystem' | '/v1/radar/history/ecosystem', durationMs: number, cacheHit: boolean, status: 'ok' | 'stale_ok' | 'warming_up') {
+  console.log(JSON.stringify({ event: 'radar_route_timing', route, duration_ms: durationMs, cache_hit: cacheHit, status }));
 }
 
 function contentTypeFor(path: string) {
