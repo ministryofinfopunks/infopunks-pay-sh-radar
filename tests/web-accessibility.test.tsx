@@ -189,6 +189,18 @@ describe('web accessibility landmarks', () => {
           }
         ]
       });
+      if (path === '/v1/radar/mapping-targets') return json({
+        generated_at: now,
+        source: 'infopunks-pay-sh-radar',
+        count: 5,
+        targets: [
+          { category: 'finance/data', benchmark_intent: 'token metadata', current_state: 'needs_candidate', needed_next_step: 'Add at least one candidate route mapping row for token metadata retrieval.', suggested_provider_candidates: ['CoinGecko Onchain DEX API', 'StableCrypto'], why_it_matters: 'Token metadata is needed for normalization before comparisons.', readiness_blocker: 'No candidate mapping exists yet for this benchmark intent.' },
+          { category: 'finance/data', benchmark_intent: 'token search', current_state: 'needs_verified_route', needed_next_step: 'Promote a candidate token-search mapping to a verified route.', suggested_provider_candidates: ['CoinGecko Onchain DEX API'], why_it_matters: 'Search intent supports benchmark input shaping.', readiness_blocker: 'No verified executable mapping is recorded.' },
+          { category: 'ai_ml/data', benchmark_intent: 'OCR comparison', current_state: 'needs_two_comparable_mappings', needed_next_step: 'Record two comparable verified OCR mappings.', suggested_provider_candidates: ['OCR API candidate A', 'OCR API candidate B'], why_it_matters: 'OCR benchmarking needs comparable workloads.', readiness_blocker: 'Fewer than two comparable mappings are available.' },
+          { category: 'messaging', benchmark_intent: 'SMS/send message', current_state: 'needs_candidate', needed_next_step: 'Add initial SMS send candidate mappings.', suggested_provider_candidates: ['SMS provider candidate A', 'SMS provider candidate B'], why_it_matters: 'Messaging routes support agent notifications.', readiness_blocker: 'No candidate mapping rows are tracked yet.' },
+          { category: 'search', benchmark_intent: 'knowledge/search answer', current_state: 'needs_candidate', needed_next_step: 'Add first candidate mapping for answer-oriented search.', suggested_provider_candidates: ['Search provider candidate A', 'Search provider candidate B'], why_it_matters: 'Search answer benchmarks improve route quality.', readiness_blocker: 'No candidate mapping exists for this search intent.' }
+        ]
+      });
       if (path === '/v1/radar/history/ecosystem') return json({
         generated_at: now,
         window: '24h',

@@ -448,6 +448,58 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
         }
       ]
     });
+    if (path === '/v1/radar/mapping-targets') return json({
+      generated_at: observedAt,
+      source: 'infopunks-pay-sh-radar',
+      count: 5,
+      targets: [
+        {
+          category: 'finance/data',
+          benchmark_intent: 'token metadata',
+          current_state: 'needs_candidate',
+          needed_next_step: 'Add at least one candidate route mapping row for token metadata retrieval.',
+          suggested_provider_candidates: ['CoinGecko Onchain DEX API', 'StableCrypto'],
+          why_it_matters: 'Token metadata is needed to normalize symbols/contracts before cross-provider benchmark comparisons.',
+          readiness_blocker: 'No candidate mapping exists yet for this benchmark intent.'
+        },
+        {
+          category: 'finance/data',
+          benchmark_intent: 'token search',
+          current_state: 'needs_verified_route',
+          needed_next_step: 'Promote a candidate token-search mapping to a verified route with known method/path/body.',
+          suggested_provider_candidates: ['CoinGecko Onchain DEX API'],
+          why_it_matters: 'Search intent is a common pre-route step for symbol resolution and benchmark input shaping.',
+          readiness_blocker: 'A candidate exists conceptually, but no verified executable mapping is recorded.'
+        },
+        {
+          category: 'ai_ml/data',
+          benchmark_intent: 'OCR comparison',
+          current_state: 'needs_two_comparable_mappings',
+          needed_next_step: 'Record two comparable verified mappings for OCR extraction with matching benchmark intent.',
+          suggested_provider_candidates: ['OCR API candidate A', 'OCR API candidate B'],
+          why_it_matters: 'OCR benchmarking requires comparable extraction tasks to score quality and latency fairly.',
+          readiness_blocker: 'Fewer than two comparable mappings are available for this category/intent.'
+        },
+        {
+          category: 'messaging',
+          benchmark_intent: 'SMS/send message',
+          current_state: 'needs_candidate',
+          needed_next_step: 'Add initial candidate mapping(s) for SMS send-message workflow.',
+          suggested_provider_candidates: ['SMS provider candidate A', 'SMS provider candidate B'],
+          why_it_matters: 'Messaging routes are high-impact for agent notifications and recovery loops.',
+          readiness_blocker: 'No candidate mapping rows are currently tracked for messaging send intent.'
+        },
+        {
+          category: 'search',
+          benchmark_intent: 'knowledge/search answer',
+          current_state: 'needs_candidate',
+          needed_next_step: 'Add first candidate mapping for answer-oriented search response.',
+          suggested_provider_candidates: ['Search provider candidate A', 'Search provider candidate B'],
+          why_it_matters: 'Search answer benchmarks improve route quality for research and decision-support tasks.',
+          readiness_blocker: 'No candidate mapping exists for this search benchmark intent.'
+        }
+      ]
+    });
     if (path === '/v1/radar/preflight') return json({
       generated_at: observedAt,
       source: 'infopunks-pay-sh-radar',
@@ -818,6 +870,18 @@ describe('radar endpoint intelligence UI', () => {
 
     expect(container.textContent).toContain('StableCrypto');
     expect(container.textContent).toContain('CoinGecko Onchain DEX API');
+  });
+
+  it('renders mapping targets as planning-only prompts', async () => {
+    installFetch({ endpoints: [normalizedEndpoint], detailEndpoints: [endpoint] });
+    root = await renderApp(container);
+
+    expect(container.textContent).toContain('Mapping Targets');
+    expect(container.textContent).toContain('These targets are planning prompts, not verified routes.');
+    expect(container.textContent).toContain('token metadata');
+    expect(container.textContent).toContain('needs_candidate');
+    expect(container.textContent).toContain('needs_verified_route');
+    expect(container.textContent).toContain('needs_two_comparable_mappings');
   });
 
   it('renders predictive risk badges in preflight and comparison surfaces', async () => {

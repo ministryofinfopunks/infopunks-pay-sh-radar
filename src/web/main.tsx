@@ -310,6 +310,21 @@ type RadarRouteMappingRegistry = {
   count: number;
   mappings: RadarRouteMapping[];
 };
+type RadarMappingTarget = {
+  category: string;
+  benchmark_intent: string;
+  current_state: 'needs_candidate' | 'needs_verified_route' | 'needs_two_comparable_mappings';
+  needed_next_step: string;
+  suggested_provider_candidates?: string[];
+  why_it_matters: string;
+  readiness_blocker: string;
+};
+type RadarMappingTargetRegistry = {
+  generated_at: string;
+  source: string;
+  count: number;
+  targets: RadarMappingTarget[];
+};
 type RadarBenchmarkRouteMetric = {
   provider_id: string;
   route_id: string;
@@ -1430,6 +1445,7 @@ function RadarApp() {
   const [benchmarkReadiness, setBenchmarkReadiness] = useState<RadarBenchmarkReadiness | null>(null);
   const [benchmarkRegistry, setBenchmarkRegistry] = useState<RadarBenchmarkRegistry | null>(null);
   const [routeMappingRegistry, setRouteMappingRegistry] = useState<RadarRouteMappingRegistry | null>(null);
+  const [mappingTargetRegistry, setMappingTargetRegistry] = useState<RadarMappingTargetRegistry | null>(null);
   const [routeMappingStatusFilter, setRouteMappingStatusFilter] = useState<RouteMappingStatusFilter>('all');
   const [routeMappingCategoryFilter, setRouteMappingCategoryFilter] = useState('all');
   const [routeMappingIntentFilter, setRouteMappingIntentFilter] = useState('all');
@@ -1585,11 +1601,12 @@ function RadarApp() {
           setSecondaryLoadWarning('Showing last successful enrichment snapshot.');
         }
 
-        const stage3Endpoints = ['/v1/radar/superiority-readiness', '/v1/radar/benchmarks', '/v1/radar/mappings', '/v1/radar/history/ecosystem?window=24h', '/v1/radar/risk/ecosystem'];
+        const stage3Endpoints = ['/v1/radar/superiority-readiness', '/v1/radar/benchmarks', '/v1/radar/mappings', '/v1/radar/mapping-targets', '/v1/radar/history/ecosystem?window=24h', '/v1/radar/risk/ecosystem'];
         const stage3 = await Promise.allSettled([
           api<{ data: RadarSuperiorityReadiness }>('/v1/radar/superiority-readiness', undefined, SECONDARY_TIMEOUT_MS),
           api<{ data: RadarBenchmarkRegistry }>('/v1/radar/benchmarks', undefined, SECONDARY_TIMEOUT_MS),
           api<{ data: RadarRouteMappingRegistry }>('/v1/radar/mappings', undefined, SECONDARY_TIMEOUT_MS),
+          api<{ data: RadarMappingTargetRegistry }>('/v1/radar/mapping-targets', undefined, SECONDARY_TIMEOUT_MS),
           api<{ data: RadarEcosystemHistory }>('/v1/radar/history/ecosystem?window=24h', undefined, SECONDARY_TIMEOUT_MS),
           api<{ data: RadarEcosystemRiskSummary }>('/v1/radar/risk/ecosystem', undefined, SECONDARY_TIMEOUT_MS)
         ]);
@@ -1598,11 +1615,13 @@ function RadarApp() {
         const readinessPayload = stage3[0].status === 'fulfilled' ? stage3[0].value?.data ?? null : null;
         const benchmarkRegistryPayload = stage3[1].status === 'fulfilled' ? stage3[1].value?.data ?? null : null;
         const routeMappingRegistryPayload = stage3[2].status === 'fulfilled' ? stage3[2].value?.data ?? null : null;
-        const ecosystemHistoryPayload = stage3[3].status === 'fulfilled' ? stage3[3].value?.data ?? null : null;
-        const ecosystemRiskPayload = stage3[4].status === 'fulfilled' ? stage3[4].value?.data ?? null : null;
+        const mappingTargetRegistryPayload = stage3[3].status === 'fulfilled' ? stage3[3].value?.data ?? null : null;
+        const ecosystemHistoryPayload = stage3[4].status === 'fulfilled' ? stage3[4].value?.data ?? null : null;
+        const ecosystemRiskPayload = stage3[5].status === 'fulfilled' ? stage3[5].value?.data ?? null : null;
         if (readinessPayload) setReadiness(readinessPayload);
         if (benchmarkRegistryPayload) setBenchmarkRegistry(benchmarkRegistryPayload);
         if (routeMappingRegistryPayload) setRouteMappingRegistry(routeMappingRegistryPayload);
+        if (mappingTargetRegistryPayload) setMappingTargetRegistry(mappingTargetRegistryPayload);
         if (ecosystemHistoryPayload) {
           setEcosystemHistory(ecosystemHistoryPayload);
           setEcosystemHistoryLoading(false);
@@ -2384,6 +2403,7 @@ function RadarApp() {
             intentFilter={routeMappingIntentFilter}
             onIntentFilterChange={setRouteMappingIntentFilter}
           />
+          <MappingTargetsPanel registry={mappingTargetRegistry} />
           <AgentBenchmarkApiPanel />
           <SuperiorityReadinessPanel readiness={readiness} />
           </div>
@@ -3579,6 +3599,42 @@ function routeMappingBadgeClass(status: RadarRouteMapping['mapping_status'] | Ra
   if (status === 'proven' || status === 'verified') return 'route-state ok';
   if (status === 'candidate') return 'route-state warn';
   if (status === 'unproven' || status === 'catalog_only' || status === 'unknown') return 'route-state';
+  return 'route-state';
+}
+
+function MappingTargetsPanel({ registry }: { registry: RadarMappingTargetRegistry | null }) {
+  const grouped = new Map<string, RadarMappingTarget[]>();
+  for (const target of registry?.targets ?? []) {
+    const rows = grouped.get(target.category) ?? [];
+    rows.push(target);
+    grouped.set(target.category, rows);
+  }
+  const categories = Array.from(grouped.keys()).sort();
+
+  return <section className="panel superiority-readiness" aria-label="Mapping Targets panel">
+    <ScopeLabel scope="GLOBAL" />
+    <p className="section-kicker">Mapping Quest Board</p>
+    <h2>Mapping Targets</h2>
+    <p className="panel-caption">These targets are planning prompts, not verified routes.</p>
+    <div className="readiness-list-grid">
+      {categories.map((category) => <section key={category} className="compact-chip-list wide">
+        <h3><strong>{category}</strong></h3>
+        {(grouped.get(category) ?? []).map((target) => <div key={`${target.category}:${target.benchmark_intent}`}>
+          <p><b>{target.benchmark_intent}</b> <span className={mappingTargetBadgeClass(target.current_state)}>{target.current_state}</span></p>
+          <p>next step: {target.needed_next_step}</p>
+          <p>why it matters: {target.why_it_matters}</p>
+          <p>readiness blocker: {target.readiness_blocker}</p>
+          <p>suggested provider candidates: {(target.suggested_provider_candidates ?? []).length ? target.suggested_provider_candidates?.join(', ') : 'none listed'}</p>
+        </div>)}
+      </section>)}
+      {!categories.length && <EmptyState title="No mapping targets available." body="Planning targets are currently unavailable." />}
+    </div>
+  </section>;
+}
+
+function mappingTargetBadgeClass(state: RadarMappingTarget['current_state']) {
+  if (state === 'needs_verified_route') return 'route-state warn';
+  if (state === 'needs_two_comparable_mappings') return 'route-state';
   return 'route-state';
 }
 

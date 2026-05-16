@@ -200,6 +200,12 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     count: integerSchema(),
     mappings: arrayOf(freeformObject())
   }), { count: 2, mappings: [{ provider_name: 'StableCrypto', mapping_status: 'verified', execution_evidence_status: 'proven' }] }));
+  add('get', '/v1/radar/mapping-targets', radarGet('Radar', 'Get mapping targets quest board', 'Returns read-only planning targets for future mapping coverage. Targets are planning prompts and not verified routes.', objectSchema({
+    generated_at: stringSchema(),
+    source: stringSchema(),
+    count: integerSchema(),
+    targets: arrayOf(freeformObject())
+  }), { count: 5, targets: [{ category: 'finance/data', benchmark_intent: 'token metadata', current_state: 'needs_candidate' }] }));
 
   add('post', '/v1/radar/preflight', {
     tags: ['Radar Agent'],
