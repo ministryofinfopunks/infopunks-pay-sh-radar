@@ -198,11 +198,12 @@ describe('radar boot loading behavior', () => {
 
     expect(container.textContent).toContain('Infopunks Intelligence Terminal');
     expect(container.textContent).toContain('Provider Directory');
-    expect(container.textContent).toContain('Radar live. Some enrichment panels are still loading.');
-    expect(container.textContent).toContain('Developer diagnostics');
+    expect(container.textContent).toContain('Radar live. Some enrichment panels are delayed.');
+    expect(container.textContent).toContain('Open Developer diagnostics');
+    const diagnosticsSummary = Array.from(container.querySelectorAll('summary')).find((item) => item.textContent?.includes('Developer diagnostics'));
+    expect(diagnosticsSummary).toBeUndefined();
     expect(container.textContent).toContain('Benchmark data delayed');
-    const diagnostics = Array.from(container.querySelectorAll('details')).find((item) => item.querySelector('summary')?.textContent?.includes('Developer diagnostics'));
-    expect(diagnostics?.open).toBe(false);
+    expect(container.textContent).toContain('Endpoint intelligence loading');
     expect(container.textContent).not.toContain('Browser may have blocked the request during CORS/preflight');
     expect(fetchState.calls).not.toContain('/v1/search');
   });
@@ -370,6 +371,11 @@ describe('radar boot loading behavior', () => {
       vi.advanceTimersByTime(10_100);
       await Promise.resolve();
     });
+    const open = Array.from(container.querySelectorAll('button')).find((button) => button.textContent?.includes('Open Developer diagnostics'));
+    await act(async () => {
+      open?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      await Promise.resolve();
+    });
     expect(container.textContent).toContain('Request timed out before a response was received.');
     expect(container.textContent).not.toContain('Browser may have blocked the request during CORS/preflight');
   });
@@ -382,6 +388,11 @@ describe('radar boot loading behavior', () => {
     });
     await act(async () => {
       await Promise.resolve();
+      await Promise.resolve();
+    });
+    const open = Array.from(container.querySelectorAll('button')).find((button) => button.textContent?.includes('Open Developer diagnostics'));
+    await act(async () => {
+      open?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
       await Promise.resolve();
     });
     expect(container.textContent).toContain('Browser may have blocked the request during CORS/preflight');
@@ -399,6 +410,11 @@ describe('radar boot loading behavior', () => {
       await Promise.resolve();
       vi.advanceTimersByTime(25_100);
       await Promise.resolve();
+      await Promise.resolve();
+    });
+    const open = Array.from(container.querySelectorAll('button')).find((button) => button.textContent?.includes('Open Developer diagnostics'));
+    await act(async () => {
+      open?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
       await Promise.resolve();
     });
     expect(container.textContent).toContain('Startup recovered after retry.');
@@ -422,7 +438,8 @@ describe('radar boot loading behavior', () => {
       toggle?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
       await Promise.resolve();
     });
-    expect(container.textContent).toContain('Live with partial enrichment');
+    expect(container.textContent).toContain('Open Developer diagnostics');
+    expect(container.textContent).not.toContain('Radar degraded: unable to load live pulse');
   });
 
   it('debug query opens developer diagnostics by default', async () => {
@@ -439,5 +456,29 @@ describe('radar boot loading behavior', () => {
     const diagnostics = Array.from(container.querySelectorAll('details')).find((item) => item.querySelector('summary')?.textContent?.includes('Developer diagnostics'));
     expect(diagnostics?.open).toBe(true);
     window.history.replaceState({}, '', '/');
+  });
+
+  it('opens developer diagnostics only after explicit user action', async () => {
+    installFetch({ corePulse: 'ok', optionalFail: true });
+    await act(async () => {
+      root = createRoot(container);
+      root.render(<App />);
+    });
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(container.textContent).toContain('Open Developer diagnostics');
+    const diagnosticsSummary = Array.from(container.querySelectorAll('summary')).find((item) => item.textContent?.includes('Developer diagnostics'));
+    expect(diagnosticsSummary).toBeUndefined();
+
+    const open = Array.from(container.querySelectorAll('button')).find((button) => button.textContent?.includes('Open Developer diagnostics'));
+    await act(async () => {
+      open?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      await Promise.resolve();
+    });
+
+    expect(container.textContent).toContain('Developer diagnostics');
   });
 });

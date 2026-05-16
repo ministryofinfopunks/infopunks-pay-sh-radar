@@ -1107,6 +1107,7 @@ function RadarApp() {
   const [benchmarkReadinessLoading, setBenchmarkReadinessLoading] = useState(false);
   const [radarEndpointsLoading, setRadarEndpointsLoading] = useState(false);
   const [ecosystemRiskLoading, setEcosystemRiskLoading] = useState(false);
+  const [ecosystemHistoryLoading, setEcosystemHistoryLoading] = useState(false);
   const [isBootLoading, setIsBootLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [featuredRotationEnabled, setFeaturedRotationEnabled] = useState(true);
@@ -1227,6 +1228,7 @@ function RadarApp() {
         setBenchmarkReadinessLoading(true);
         setRadarEndpointsLoading(true);
         setEcosystemRiskLoading(true);
+        setEcosystemHistoryLoading(true);
         const applyDiagnostics = (results: PromiseSettledResult<unknown>[], endpoints: string[]) => {
           const diagnostics = results.flatMap((result, index) => {
             if (result.status === 'fulfilled') return [];
@@ -1242,7 +1244,7 @@ function RadarApp() {
           });
           const recovered = results.flatMap((result, index) => result.status === 'fulfilled' ? [endpoints[index]] : []);
           setStartupDiagnostics((current) => mergeStartupDiagnostics(current, diagnostics, ['/v1/pulse', ...recovered]));
-          if (diagnostics.length) setSecondaryLoadWarning('Radar live. Some enrichment panels are still loading.');
+          if (diagnostics.length) setSecondaryLoadWarning('Radar live. Some enrichment panels are delayed.');
         };
 
         const stage1Endpoints = ['/v1/providers', '/v1/pulse/summary', '/v1/providers/featured', '/v1/radar/benchmark-readiness'];
@@ -1306,10 +1308,15 @@ function RadarApp() {
         const ecosystemRiskPayload = stage3[3].status === 'fulfilled' ? stage3[3].value?.data ?? null : null;
         if (readinessPayload) setReadiness(readinessPayload);
         if (benchmarkRegistryPayload) setBenchmarkRegistry(benchmarkRegistryPayload);
-        if (ecosystemHistoryPayload) setEcosystemHistory(ecosystemHistoryPayload);
-        if (ecosystemRiskPayload) setEcosystemRisk(ecosystemRiskPayload);
+        if (ecosystemHistoryPayload) {
+          setEcosystemHistory(ecosystemHistoryPayload);
+          setEcosystemHistoryLoading(false);
+        }
+        if (ecosystemRiskPayload) {
+          setEcosystemRisk(ecosystemRiskPayload);
+          setEcosystemRiskLoading(false);
+        }
         if (!ecosystemRiskPayload && ecosystemRisk) setSecondaryLoadWarning('Showing last successful enrichment snapshot.');
-        setEcosystemRiskLoading(false);
         setSecondaryLoadWarning((current) => current ?? null);
         if (ecosystemRiskPayload?.summary?.anomaly_watch) {
           const providerRiskHints: Record<string, RadarRiskResponse> = {};
@@ -1447,7 +1454,7 @@ function RadarApp() {
         ].filter(Boolean) as string[];
         if (diagnostics.length) {
           setStartupDiagnostics((current) => mergeStartupDiagnostics(current, diagnostics, ['/v1/pulse', ...recovered]));
-          setSecondaryLoadWarning('Radar live. Some enrichment panels are still loading.');
+          setSecondaryLoadWarning('Radar live. Some enrichment panels are delayed.');
         } else {
           setStartupDiagnostics((current) => mergeStartupDiagnostics(current, [], ['/v1/pulse', ...recovered]));
           setSecondaryLoadWarning(null);
@@ -1891,7 +1898,7 @@ function RadarApp() {
     {!bootError && secondaryLoadWarning && <section className="panel" role="status" aria-live="polite">
       <p className="route-state warn">{secondaryLoadWarning}</p>
     </section>}
-    {!!startupDiagnostics.length && <section className="panel" role="status" aria-live="polite">
+    {!!startupDiagnostics.length && (showDeveloperDiagnostics || debugDiagnosticsEnabled()) && <section className="panel" role="status" aria-live="polite">
       {agentMode && !activeCriticalFailure && <p className="route-state warn">Live with partial enrichment</p>}
       {recoveredCritical && !activeCriticalFailure && <p className="route-state">Startup recovered after retry.</p>}
       <details open={showDeveloperDiagnostics} onToggle={(event) => setShowDeveloperDiagnostics((event.currentTarget as HTMLDetailsElement).open)}>
@@ -1908,6 +1915,11 @@ function RadarApp() {
         })}
       </details>
       {!agentMode && activeSecondaryFailures.length > 0 && <p className="route-state warn">Enrichment delayed</p>}
+    </section>}
+    {!!startupDiagnostics.length && !showDeveloperDiagnostics && !debugDiagnosticsEnabled() && <section className="panel" role="status" aria-live="polite">
+      <button className="execute compact secondary" type="button" onClick={() => setShowDeveloperDiagnostics(true)}>
+        Open Developer diagnostics
+      </button>
     </section>}
     {agentMode && <AgentModeBanner onExit={() => setAgentMode(false)} onOpenApiDocs={openApiDocs} />}
     {!agentMode && <section className="hero panel mission-control" aria-labelledby="terminal-title">
@@ -2409,6 +2421,7 @@ function RadarApp() {
         </div>}
         {!agentMode && <PropagationWatch propagation={pulseSummary.propagation} />}
         <AnomalyWatchPanel ecosystemRisk={ecosystemRisk} providers={safeProviders} endpoints={radarEndpoints} loading={ecosystemRiskLoading} />
+        <HistoryEnrichmentPanel history={ecosystemHistory} loading={ecosystemHistoryLoading} />
         {!agentMode && <DeltaPanel title="Trust Changes" caption="Latest trust events from catalog scoring batches." deltas={pulseSummary.trustDeltas} empty="No trust deltas beyond initial scoring." scope="GLOBAL" />}
         {!agentMode && <DeltaPanel title="Signal Spikes" caption="Signal deltas appear only when catalog-derived signal changes." deltas={pulseSummary.signalSpikes} empty="No positive signal deltas observed." scope="GLOBAL" />}
         {!agentMode && <div className="panel rail-panel">
@@ -3486,7 +3499,7 @@ function AnomalyWatchPanel({ ecosystemRisk, providers, endpoints, loading }: { e
       <span aria-label={`critical ${ecosystemRisk.summary.providers_by_risk_level.critical}`}><b>critical</b>{ecosystemRisk.summary.providers_by_risk_level.critical}</span>
       <span aria-label={`unknown ${ecosystemRisk.summary.providers_by_risk_level.unknown}`}><b>unknown</b>{ecosystemRisk.summary.providers_by_risk_level.unknown}</span>
     </div>}
-    {!watch.length && loading && <EmptyState title="Risk enrichment unavailable" body="Enrichment delayed" />}
+    {!watch.length && loading && <EmptyState title="Risk enrichment delayed" body="Risk enrichment delayed" />}
     {!watch.length && !loading && <EmptyState title="No anomalies detected." body="No current predictive-risk anomaly requires attention." />}
     {!!watch.length && <>
       <div id="anomaly-watch-list" className={`anomaly-list ${showAll ? 'expanded' : ''}`} aria-label={showAll ? 'All predictive risk anomalies' : 'Top predictive risk anomalies'}>
@@ -3536,6 +3549,22 @@ function AnomalyWatchPanel({ ecosystemRisk, providers, endpoints, loading }: { e
         {!showAll && hiddenCount > 0 ? <span>{hiddenCount} more hidden</span> : null}
       </button>}
     </>}
+  </section>;
+}
+
+function HistoryEnrichmentPanel({ history, loading }: { history: RadarEcosystemHistory | null; loading: boolean }) {
+  if (history) return null;
+  return <section className="panel rail-panel" aria-label="History enrichment status">
+    <div className="panel-head">
+      <div>
+        <ScopeLabel scope="GLOBAL" />
+        <p className="section-kicker">Historical Trends</p>
+        <h2>Ecosystem History</h2>
+      </div>
+    </div>
+    {loading
+      ? <EmptyState title="History enrichment delayed" body="History enrichment delayed" />
+      : <EmptyState title="History enrichment delayed" body="History enrichment delayed" />}
   </section>;
 }
 
