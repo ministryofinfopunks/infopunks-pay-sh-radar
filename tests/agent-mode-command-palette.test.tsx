@@ -182,9 +182,28 @@ describe('agent mode and command palette', () => {
 
     expect(container.querySelector('button[aria-label="Copy OpenAPI URL"]')).not.toBeNull();
     expect(container.querySelector('button[aria-label="Copy API URL"]')).not.toBeNull();
+    expect(container.querySelector('button[aria-label="Copy curl /v1/radar/benchmarks"]')).not.toBeNull();
+    expect(container.querySelector('button[aria-label="Copy curl /v1/radar/benchmarks/finance-data-sol-price"]')).not.toBeNull();
+    expect(container.querySelector('button[aria-label="Copy curl /openapi.json"]')).not.toBeNull();
     expect(container.querySelector('.safe-code-block[aria-label="Batch preflight example"]')).not.toBeNull();
     expect(container.textContent).toContain('No comparison selected.');
     expect(container.textContent).toContain('No anomalies detected.');
+  });
+
+  it('renders agent benchmark API endpoints, curl examples, and interpretation guidance', async () => {
+    root = await renderApp(container);
+
+    expect(container.textContent).toContain('Agent Benchmark API');
+    expect(container.textContent).toContain('GET /v1/radar/benchmarks');
+    expect(container.textContent).toContain('GET /v1/radar/benchmarks/finance-data-sol-price');
+    expect(container.textContent).toContain('GET /openapi.json');
+    expect(container.textContent).toContain('/v1/radar/benchmarks');
+    expect(container.textContent).toContain('/v1/radar/benchmarks/finance-data-sol-price');
+    expect(container.textContent).toContain('/openapi.json');
+    expect(container.textContent).toContain('winner_claimed=false');
+    expect(container.textContent).toContain('Do not treat route as winner.');
+    expect(container.textContent).toContain('status_code may be null in pay_cli mode');
+    expect(container.textContent).toContain('Use status_evidence.');
   });
 
   it('command palette includes expected commands and can toggle Agent Mode', async () => {
@@ -195,7 +214,7 @@ describe('agent mode and command palette', () => {
       await Promise.resolve();
     });
 
-    for (const label of ['Open Compare', 'Open Cost / Performance', 'Open Benchmark Readiness', 'Open API Docs', 'Toggle Agent Mode', 'Jump to Degradations', 'Jump to Selected Dossier', 'Jump to Anomaly Watch']) {
+    for (const label of ['Open Compare', 'Open Cost / Performance', 'Open Benchmark Readiness', 'Open Agent Benchmark API', 'Open API Docs', 'Toggle Agent Mode', 'Jump to Degradations', 'Jump to Selected Dossier', 'Jump to Anomaly Watch']) {
       expect(container.textContent).toContain(label);
     }
 

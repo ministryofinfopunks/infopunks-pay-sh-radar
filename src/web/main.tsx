@@ -2032,6 +2032,7 @@ function RadarApp() {
     { id: 'open-compare', label: 'Open Compare', hint: 'Jump to provider/endpoint comparison', run: () => scrollToPanel('compare') },
     { id: 'open-cost', label: 'Open Cost / Performance', hint: 'Jump to cost and performance intelligence', run: () => scrollToPanel('cost-performance') },
     { id: 'open-benchmark', label: 'Open Benchmark Readiness', hint: 'Jump to benchmark readiness', run: () => scrollToPanel('benchmark-readiness') },
+    { id: 'open-agent-benchmark-api', label: 'Open Agent Benchmark API', hint: 'Jump to benchmark API docs and examples', run: () => scrollToPanel('agent-benchmark-api') },
     { id: 'open-api-docs', label: 'Open API Docs', hint: OPENAPI_PATH, run: openApiDocs },
     { id: 'export-providers-json', label: 'Export Providers JSON', hint: '/v1/radar/providers', run: () => openExportRoute('/v1/radar/providers') },
     { id: 'export-endpoints-json', label: 'Export Endpoints JSON', hint: '/v1/radar/endpoints', run: () => openExportRoute('/v1/radar/endpoints') },
@@ -2080,6 +2081,7 @@ function RadarApp() {
             ['endpoints', 'Endpoints'],
             ['preflight', 'Preflight'],
             ['compare', 'Compare'],
+            ['agent-benchmark-api', 'Agent Benchmark API'],
             ['dossier', 'Dossier'],
             ['events', 'Events']
           ].map(([id, label]) => <a key={id} href={`#${id}`} className={activeSection === id ? 'active' : ''} aria-current={activeSection === id ? 'location' : undefined}>{label}</a>)}
@@ -2294,6 +2296,7 @@ function RadarApp() {
           <CostPerformancePanel endpoints={radarEndpoints} providerRiskById={providerRiskById} benchmarkReadiness={benchmarkReadiness} loading={radarEndpointsLoading} />
           <BenchmarkReadinessPanel readiness={benchmarkReadiness} loading={benchmarkReadinessLoading} />
           <HeadToHeadBenchmarkPanel registry={benchmarkRegistry} loading={benchmarkReadinessLoading} />
+          <AgentBenchmarkApiPanel />
           <SuperiorityReadinessPanel readiness={readiness} />
           </div>
         </section>
@@ -3403,6 +3406,88 @@ function HeadToHeadBenchmarkPanel({ registry, loading }: { registry: RadarBenchm
         ]} emptyLabel="missing" wide />}
       </div>
     </>}
+  </section>;
+}
+
+function AgentBenchmarkApiPanel() {
+  const benchmarkRegistryCurl = `curl -s ${toApiUrl(API_BASE_URL, '/v1/radar/benchmarks')}`;
+  const benchmarkDetailCurl = `curl -s ${toApiUrl(API_BASE_URL, '/v1/radar/benchmarks/finance-data-sol-price')}`;
+  const openApiCurl = `curl -s ${toApiUrl(API_BASE_URL, OPENAPI_PATH)}`;
+  const benchmarkSnippet = `{
+  "benchmark_id": "finance-data-sol-price",
+  "benchmark_recorded": true,
+  "winner_status": "no_clear_winner",
+  "winner_claimed": false,
+  "winner_policy": {
+    "policy_id": "sol-price-v0.1",
+    "completed_runs": 5,
+    "required_runs": 5
+  },
+  "routes": [
+    {
+      "provider_id": "merit-systems-stablecrypto-market-data",
+      "success_rate": 1,
+      "median_latency_ms": 5691,
+      "average_price_usd": 87.57,
+      "status_code": null,
+      "status_evidence": "pay_cli exit code 0 and parsed response body"
+    }
+  ]
+}`;
+  return <section className="panel radar-export-panel" id="agent-benchmark-api" aria-label="Agent benchmark API">
+    <div className="radar-export-head">
+      <div className="radar-export-copy">
+        <ScopeLabel scope="GLOBAL" />
+        <p className="section-kicker">Agent-friendly benchmark docs</p>
+        <h2>Agent Benchmark API</h2>
+        <p className="panel-caption">Read-only benchmark endpoints and interpretation guidance for routing agents/builders. This section does not execute paid APIs.</p>
+      </div>
+      <div className="panel-actions compact-actions">
+        <a className="copy-chip" href={toApiUrl(API_BASE_URL, OPENAPI_PATH)} target="_blank" rel="noreferrer">API Docs</a>
+      </div>
+    </div>
+    <div className="export-groups">
+      <section className="export-group" aria-label="Agent benchmark endpoints">
+        <div className="export-group-head">
+          <h3>Endpoints</h3>
+        </div>
+        <div className="preflight-rejections">
+          <p><b>GET /v1/radar/benchmarks</b><span>Benchmark registry and winner summary flags.</span></p>
+          <p><b>GET /v1/radar/benchmarks/finance-data-sol-price</b><span>Detailed SOL benchmark scaffold and normalized route metrics.</span></p>
+          <p><b>GET /openapi.json</b><span>Full OpenAPI document for generated clients/agents.</span></p>
+        </div>
+      </section>
+      <section className="export-group" aria-label="Agent benchmark curl examples">
+        <div className="export-group-head">
+          <h3>Copyable curl examples</h3>
+        </div>
+        <div className="export-copy-actions" aria-label="Copy benchmark curl examples">
+          <CopyButton value={benchmarkRegistryCurl} label="Copy curl /v1/radar/benchmarks" />
+          <CopyButton value={benchmarkDetailCurl} label="Copy curl /v1/radar/benchmarks/finance-data-sol-price" />
+          <CopyButton value={openApiCurl} label="Copy curl /openapi.json" />
+        </div>
+        <SafeCodeBlock value={benchmarkRegistryCurl} label="curl /v1/radar/benchmarks" />
+        <SafeCodeBlock value={benchmarkDetailCurl} label="curl /v1/radar/benchmarks/finance-data-sol-price" />
+        <SafeCodeBlock value={openApiCurl} label="curl /openapi.json" />
+      </section>
+      <section className="export-group" aria-label="Agent benchmark response snippet">
+        <div className="export-group-head">
+          <h3>Example response snippet</h3>
+        </div>
+        <SafeCodeBlock value={benchmarkSnippet} label="Benchmark response example snippet" />
+      </section>
+      <section className="export-group" aria-label="Agent benchmark interpretation guidance">
+        <div className="export-group-head">
+          <h3>Agent interpretation guidance</h3>
+        </div>
+        <div className="preflight-rejections">
+          <p><b>winner_claimed=false</b><span>Do not treat route as winner.</span></p>
+          <p><b>winner_status=no_clear_winner</b><span>Use benchmark as evidence, not final routing authority.</span></p>
+          <p><b>benchmark_recorded=true</b><span>Normalized metrics exist.</span></p>
+          <p><b>status_code may be null in pay_cli mode</b><span>Use status_evidence.</span></p>
+        </div>
+      </section>
+    </div>
   </section>;
 }
 
