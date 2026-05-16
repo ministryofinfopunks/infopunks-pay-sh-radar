@@ -198,8 +198,11 @@ describe('radar boot loading behavior', () => {
 
     expect(container.textContent).toContain('Infopunks Intelligence Terminal');
     expect(container.textContent).toContain('Provider Directory');
-    expect(container.textContent).toContain('Radar live. Some enrichment panels failed to load.');
+    expect(container.textContent).toContain('Radar live. Some enrichment panels are still loading.');
     expect(container.textContent).toContain('Developer diagnostics');
+    expect(container.textContent).toContain('Benchmark data delayed');
+    const diagnostics = Array.from(container.querySelectorAll('details')).find((item) => item.querySelector('summary')?.textContent?.includes('Developer diagnostics'));
+    expect(diagnostics?.open).toBe(false);
     expect(container.textContent).not.toContain('Browser may have blocked the request during CORS/preflight');
     expect(fetchState.calls).not.toContain('/v1/search');
   });
@@ -353,7 +356,7 @@ describe('radar boot loading behavior', () => {
 
     expect(container.textContent).toContain('Providers1');
     expect(container.textContent).toContain('Endpoints0');
-    expect(container.textContent).toContain('Radar stale: showing last successful live data.');
+    expect(container.textContent).toContain('Showing last successful enrichment snapshot.');
   });
 
   it('timeout diagnostic uses timeout-specific hint and not CORS hint', async () => {
@@ -420,5 +423,21 @@ describe('radar boot loading behavior', () => {
       await Promise.resolve();
     });
     expect(container.textContent).toContain('Live with partial enrichment');
+  });
+
+  it('debug query opens developer diagnostics by default', async () => {
+    window.history.replaceState({}, '', '/?debug=true');
+    installFetch({ corePulse: 'ok', optionalFail: true });
+    await act(async () => {
+      root = createRoot(container);
+      root.render(<App />);
+    });
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    const diagnostics = Array.from(container.querySelectorAll('details')).find((item) => item.querySelector('summary')?.textContent?.includes('Developer diagnostics'));
+    expect(diagnostics?.open).toBe(true);
+    window.history.replaceState({}, '', '/');
   });
 });

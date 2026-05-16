@@ -452,6 +452,7 @@ type StartupDiagnostic = {
 
 const API_BASE_URL = getApiBaseUrl();
 const API_TIMEOUT_MS = 8_000;
+const SECONDARY_TIMEOUT_MS = 12_000;
 const CRITICAL_PULSE_TIMEOUT_MS = 10_000;
 const DOSSIER_INTERACTION_HOLD_MS = 20_000;
 const ROUTE_INTERACTION_HOLD_MS = 60_000;
@@ -610,6 +611,17 @@ function mergeStartupDiagnostics(current: StartupDiagnostic[], failures: Startup
     });
   }
   return Array.from(byKey.values()).sort((a, b) => Date.parse(b.last_attempt_at) - Date.parse(a.last_attempt_at)).slice(0, 40);
+}
+
+function debugDiagnosticsEnabled() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('debug') === 'true') return true;
+    const flag = window.localStorage.getItem('radar_debug') ?? window.localStorage.getItem('debug');
+    return flag === 'true' || flag === '1' || flag === 'on';
+  } catch {
+    return false;
+  }
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -1091,6 +1103,10 @@ function RadarApp() {
   const [bootError, setBootError] = useState<string | null>(null);
   const [secondaryLoadWarning, setSecondaryLoadWarning] = useState<string | null>(null);
   const [startupDiagnostics, setStartupDiagnostics] = useState<StartupDiagnostic[]>([]);
+  const [showDeveloperDiagnostics, setShowDeveloperDiagnostics] = useState<boolean>(() => debugDiagnosticsEnabled());
+  const [benchmarkReadinessLoading, setBenchmarkReadinessLoading] = useState(false);
+  const [radarEndpointsLoading, setRadarEndpointsLoading] = useState(false);
+  const [ecosystemRiskLoading, setEcosystemRiskLoading] = useState(false);
   const [isBootLoading, setIsBootLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [featuredRotationEnabled, setFeaturedRotationEnabled] = useState(true);
@@ -1194,89 +1210,107 @@ function RadarApp() {
       setData({ providers: [], pulse: safePulse, narratives: [], graph: { nodes: [], edges: [] } });
       setSelectedId(null);
       setSelectionMode('auto');
-      void Promise.allSettled([
-        api<{ data: Provider[] }>('/v1/providers'),
-        api<{ data: Narrative[] }>('/v1/narratives'),
-        api<{ data: { nodes: unknown[]; edges: unknown[] } }>('/v1/graph'),
-        api<{ data: PulseSummary }>('/v1/pulse/summary'),
-        api<{ data: FeaturedProvider }>('/v1/providers/featured'),
-        api<{ data: { endpoints?: NormalizedEndpointRecord[] } }>('/v1/radar/endpoints'),
-        api<{ data: RadarSuperiorityReadiness }>('/v1/radar/superiority-readiness'),
-        api<{ data: RadarBenchmarkReadiness }>('/v1/radar/benchmark-readiness'),
-        api<{ data: RadarBenchmarkRegistry }>('/v1/radar/benchmarks'),
-        api<{ data: RadarEcosystemHistory }>('/v1/radar/history/ecosystem?window=24h'),
-        api<{ data: RadarEcosystemRiskSummary }>('/v1/radar/risk/ecosystem')
-      ]).then((results) => {
-        if (!active) return;
-        const diagnostics = results.flatMap((result, index) => {
-          if (result.status === 'fulfilled') return [];
-          const endpointByIndex = [
-            '/v1/providers',
-            '/v1/narratives',
-            '/v1/graph',
-            '/v1/pulse/summary',
-            '/v1/providers/featured',
-            '/v1/radar/endpoints',
-            '/v1/radar/superiority-readiness',
-            '/v1/radar/benchmark-readiness',
-            '/v1/radar/benchmarks',
-            '/v1/radar/history/ecosystem?window=24h',
-            '/v1/radar/risk/ecosystem'
-          ];
-          const endpoint = endpointByIndex[index] ?? 'unknown';
-          const fallback = withDefaultFixHint({
-            endpoint,
-            request_url: toApiUrl(API_BASE_URL, endpoint),
-            method: 'GET',
-            error_type: 'network_error',
-            is_critical: false
+      const endpointByIndex = [
+        '/v1/providers',
+        '/v1/narratives',
+        '/v1/graph',
+        '/v1/pulse/summary',
+        '/v1/providers/featured',
+        '/v1/radar/endpoints',
+        '/v1/radar/superiority-readiness',
+        '/v1/radar/benchmark-readiness',
+        '/v1/radar/benchmarks',
+        '/v1/radar/history/ecosystem?window=24h',
+        '/v1/radar/risk/ecosystem'
+      ];
+      const stageLoad = async () => {
+        setBenchmarkReadinessLoading(true);
+        setRadarEndpointsLoading(true);
+        setEcosystemRiskLoading(true);
+        const applyDiagnostics = (results: PromiseSettledResult<unknown>[], endpoints: string[]) => {
+          const diagnostics = results.flatMap((result, index) => {
+            if (result.status === 'fulfilled') return [];
+            const endpoint = endpoints[index] ?? 'unknown';
+            const fallback = withDefaultFixHint({
+              endpoint,
+              request_url: toApiUrl(API_BASE_URL, endpoint),
+              method: 'GET',
+              error_type: 'network_error',
+              is_critical: false
+            });
+            return [result.reason instanceof ApiRequestError ? result.reason.diagnostic : fallback];
           });
-          return [result.reason instanceof ApiRequestError ? result.reason.diagnostic : fallback];
-        });
-        const recovered = [
-          results[0].status === 'fulfilled' ? '/v1/providers' : null,
-          results[1].status === 'fulfilled' ? '/v1/narratives' : null,
-          results[2].status === 'fulfilled' ? '/v1/graph' : null,
-          results[3].status === 'fulfilled' ? '/v1/pulse/summary' : null,
-          results[4].status === 'fulfilled' ? '/v1/providers/featured' : null,
-          results[5].status === 'fulfilled' ? '/v1/radar/endpoints' : null,
-          results[6].status === 'fulfilled' ? '/v1/radar/superiority-readiness' : null,
-          results[7].status === 'fulfilled' ? '/v1/radar/benchmark-readiness' : null,
-          results[8].status === 'fulfilled' ? '/v1/radar/benchmarks' : null,
-          results[9].status === 'fulfilled' ? '/v1/radar/history/ecosystem?window=24h' : null,
-          results[10].status === 'fulfilled' ? '/v1/radar/risk/ecosystem' : null
-        ].filter(Boolean) as string[];
-        if (diagnostics.length) {
+          const recovered = results.flatMap((result, index) => result.status === 'fulfilled' ? [endpoints[index]] : []);
           setStartupDiagnostics((current) => mergeStartupDiagnostics(current, diagnostics, ['/v1/pulse', ...recovered]));
-          setSecondaryLoadWarning('Radar live. Some enrichment panels failed to load.');
-        } else {
-          setStartupDiagnostics((current) => mergeStartupDiagnostics(current, [], ['/v1/pulse', ...recovered]));
-          setSecondaryLoadWarning(null);
+          if (diagnostics.length) setSecondaryLoadWarning('Radar live. Some enrichment panels are still loading.');
+        };
+
+        const stage1Endpoints = ['/v1/providers', '/v1/pulse/summary', '/v1/providers/featured', '/v1/radar/benchmark-readiness'];
+        const stage1 = await Promise.allSettled([
+          api<{ data: Provider[] }>('/v1/providers', undefined, SECONDARY_TIMEOUT_MS),
+          api<{ data: PulseSummary }>('/v1/pulse/summary', undefined, SECONDARY_TIMEOUT_MS),
+          api<{ data: FeaturedProvider }>('/v1/providers/featured', undefined, SECONDARY_TIMEOUT_MS),
+          api<{ data: RadarBenchmarkReadiness }>('/v1/radar/benchmark-readiness', undefined, SECONDARY_TIMEOUT_MS)
+        ]);
+        if (!active) return;
+        applyDiagnostics(stage1 as PromiseSettledResult<unknown>[], stage1Endpoints);
+        const providers = stage1[0].status === 'fulfilled' && Array.isArray(stage1[0].value?.data) ? stage1[0].value.data : null;
+        const summary = stage1[1].status === 'fulfilled' ? toPulseSummary(stage1[1].value?.data) : null;
+        const featured = stage1[2].status === 'fulfilled' ? stage1[2].value.data : null;
+        const benchmarkReadinessPayload = stage1[3].status === 'fulfilled' ? stage1[3].value?.data ?? null : null;
+        setData((current) => current ? { ...current, providers: providers ?? current.providers } : current);
+        if (summary) setPulseSummary(summary);
+        if (benchmarkReadinessPayload) {
+          setBenchmarkReadiness(benchmarkReadinessPayload);
+          setBenchmarkReadinessLoading(false);
+        } else if (benchmarkReadiness) {
+          setSecondaryLoadWarning('Showing last successful enrichment snapshot.');
         }
-        const providers = results[0].status === 'fulfilled' && Array.isArray(results[0].value?.data) ? results[0].value.data : null;
-        const narratives = results[1].status === 'fulfilled' && Array.isArray(results[1].value?.data) ? results[1].value.data : null;
-        const graphRaw = results[2].status === 'fulfilled' && isRecord(results[2].value?.data) ? results[2].value.data : null;
-        const summary = results[3].status === 'fulfilled' ? toPulseSummary(results[3].value?.data) : null;
-        const featured = results[4].status === 'fulfilled' ? results[4].value.data : null;
-        const normalizedEndpoints = results[5].status === 'fulfilled' && Array.isArray(results[5].value?.data?.endpoints) ? results[5].value.data.endpoints : null;
-        const readinessPayload = results[6].status === 'fulfilled' ? results[6].value?.data ?? null : null;
-        const benchmarkReadinessPayload = results[7].status === 'fulfilled' ? results[7].value?.data ?? null : null;
-        const benchmarkRegistryPayload = results[8].status === 'fulfilled' ? results[8].value?.data ?? null : null;
-        const ecosystemHistoryPayload = results[9].status === 'fulfilled' ? results[9].value?.data ?? null : null;
-        const ecosystemRiskPayload = results[10].status === 'fulfilled' ? results[10].value?.data ?? null : null;
+        if (featured && typeof featured.nextRotationAt === 'string') applyFeaturedProvider(featured, true);
+
+        const stage2Endpoints = ['/v1/narratives', '/v1/graph', '/v1/radar/endpoints'];
+        const stage2 = await Promise.allSettled([
+          api<{ data: Narrative[] }>('/v1/narratives', undefined, SECONDARY_TIMEOUT_MS),
+          api<{ data: { nodes: unknown[]; edges: unknown[] } }>('/v1/graph', undefined, SECONDARY_TIMEOUT_MS),
+          api<{ data: { endpoints?: NormalizedEndpointRecord[] } }>('/v1/radar/endpoints', undefined, SECONDARY_TIMEOUT_MS)
+        ]);
+        if (!active) return;
+        applyDiagnostics(stage2 as PromiseSettledResult<unknown>[], stage2Endpoints);
+        const narratives = stage2[0].status === 'fulfilled' && Array.isArray(stage2[0].value?.data) ? stage2[0].value.data : null;
+        const graphRaw = stage2[1].status === 'fulfilled' && isRecord(stage2[1].value?.data) ? stage2[1].value.data : null;
+        const normalizedEndpoints = stage2[2].status === 'fulfilled' && Array.isArray(stage2[2].value?.data?.endpoints) ? stage2[2].value.data.endpoints : null;
         setData((current) => current ? {
           ...current,
-          providers: providers ?? current.providers,
           narratives: narratives ?? current.narratives,
           graph: graphRaw && Array.isArray(graphRaw.nodes) && Array.isArray(graphRaw.edges) ? graphRaw as AppData['graph'] : current.graph
         } : current);
-        if (summary) setPulseSummary(summary);
-        if (normalizedEndpoints) setRadarEndpoints(normalizedEndpoints);
+        if (normalizedEndpoints) {
+          setRadarEndpoints(normalizedEndpoints);
+          setRadarEndpointsLoading(false);
+        } else if (radarEndpoints.length) {
+          setSecondaryLoadWarning('Showing last successful enrichment snapshot.');
+        }
+
+        const stage3Endpoints = ['/v1/radar/superiority-readiness', '/v1/radar/benchmarks', '/v1/radar/history/ecosystem?window=24h', '/v1/radar/risk/ecosystem'];
+        const stage3 = await Promise.allSettled([
+          api<{ data: RadarSuperiorityReadiness }>('/v1/radar/superiority-readiness', undefined, SECONDARY_TIMEOUT_MS),
+          api<{ data: RadarBenchmarkRegistry }>('/v1/radar/benchmarks', undefined, SECONDARY_TIMEOUT_MS),
+          api<{ data: RadarEcosystemHistory }>('/v1/radar/history/ecosystem?window=24h', undefined, SECONDARY_TIMEOUT_MS),
+          api<{ data: RadarEcosystemRiskSummary }>('/v1/radar/risk/ecosystem', undefined, SECONDARY_TIMEOUT_MS)
+        ]);
+        if (!active) return;
+        applyDiagnostics(stage3 as PromiseSettledResult<unknown>[], stage3Endpoints);
+        const readinessPayload = stage3[0].status === 'fulfilled' ? stage3[0].value?.data ?? null : null;
+        const benchmarkRegistryPayload = stage3[1].status === 'fulfilled' ? stage3[1].value?.data ?? null : null;
+        const ecosystemHistoryPayload = stage3[2].status === 'fulfilled' ? stage3[2].value?.data ?? null : null;
+        const ecosystemRiskPayload = stage3[3].status === 'fulfilled' ? stage3[3].value?.data ?? null : null;
         if (readinessPayload) setReadiness(readinessPayload);
-        if (benchmarkReadinessPayload) setBenchmarkReadiness(benchmarkReadinessPayload);
         if (benchmarkRegistryPayload) setBenchmarkRegistry(benchmarkRegistryPayload);
         if (ecosystemHistoryPayload) setEcosystemHistory(ecosystemHistoryPayload);
         if (ecosystemRiskPayload) setEcosystemRisk(ecosystemRiskPayload);
+        if (!ecosystemRiskPayload && ecosystemRisk) setSecondaryLoadWarning('Showing last successful enrichment snapshot.');
+        setEcosystemRiskLoading(false);
+        setSecondaryLoadWarning((current) => current ?? null);
         if (ecosystemRiskPayload?.summary?.anomaly_watch) {
           const providerRiskHints: Record<string, RadarRiskResponse> = {};
           for (const item of ecosystemRiskPayload.summary.anomaly_watch) {
@@ -1299,7 +1333,7 @@ function RadarApp() {
         }
         if (featured && typeof featured.nextRotationAt === 'string') applyFeaturedProvider(featured, true);
         if (providers?.length) {
-          void Promise.allSettled(providers.slice(0, 120).map((provider) => api<{ data: RadarRiskResponse }>(`/v1/radar/risk/providers/${provider.id}`)))
+          void Promise.allSettled(providers.slice(0, 120).map((provider) => api<{ data: RadarRiskResponse }>(`/v1/radar/risk/providers/${provider.id}`, undefined, SECONDARY_TIMEOUT_MS)))
             .then((riskResults) => {
               if (!active) return;
               const mapped: Record<string, RadarRiskResponse> = {};
@@ -1316,7 +1350,8 @@ function RadarApp() {
           return;
         }
         if (providers && providers.length) setSelectedId((current) => current ?? providers[0].id);
-      });
+      };
+      void stageLoad();
     }).catch((error: unknown) => {
       if (!active) return;
       const diagnostic = error instanceof ApiRequestError ? error.diagnostic : withDefaultFixHint({
@@ -1334,7 +1369,7 @@ function RadarApp() {
           narratives: [],
           graph: { nodes: [], edges: [] }
         });
-        setSecondaryLoadWarning('Radar stale: showing last successful live data.');
+        setSecondaryLoadWarning('Showing last successful enrichment snapshot.');
         setBootError(null);
         return;
       }
@@ -1387,9 +1422,9 @@ function RadarApp() {
         setData((current) => current ? { ...current, pulse } : current);
         setBootError(null);
         const results = await Promise.allSettled([
-          api<{ data: PulseSummary }>('/v1/pulse/summary'),
-          api<{ data: FeaturedProvider }>('/v1/providers/featured'),
-          api<{ data: RadarEcosystemRiskSummary }>('/v1/radar/risk/ecosystem')
+          api<{ data: PulseSummary }>('/v1/pulse/summary', undefined, SECONDARY_TIMEOUT_MS),
+          api<{ data: FeaturedProvider }>('/v1/providers/featured', undefined, SECONDARY_TIMEOUT_MS),
+          api<{ data: RadarEcosystemRiskSummary }>('/v1/radar/risk/ecosystem', undefined, SECONDARY_TIMEOUT_MS)
         ]);
         if (!active) return;
         const diagnostics = results.flatMap((result, index) => {
@@ -1412,7 +1447,7 @@ function RadarApp() {
         ].filter(Boolean) as string[];
         if (diagnostics.length) {
           setStartupDiagnostics((current) => mergeStartupDiagnostics(current, diagnostics, ['/v1/pulse', ...recovered]));
-          setSecondaryLoadWarning('Radar live. Some enrichment panels failed to load.');
+          setSecondaryLoadWarning('Radar live. Some enrichment panels are still loading.');
         } else {
           setStartupDiagnostics((current) => mergeStartupDiagnostics(current, [], ['/v1/pulse', ...recovered]));
           setSecondaryLoadWarning(null);
@@ -1435,7 +1470,7 @@ function RadarApp() {
         setStartupDiagnostics((current) => mergeStartupDiagnostics(current, [diagnostic]));
         if (lastGoodPulseRef.current) {
           setData((current) => current ? { ...current, pulse: lastGoodPulseRef.current as Pulse } : current);
-          setSecondaryLoadWarning('Radar stale: showing last successful live data.');
+          setSecondaryLoadWarning('Showing last successful enrichment snapshot.');
         } else {
           setBootError('Radar degraded: unable to load live pulse');
         }
@@ -1859,7 +1894,7 @@ function RadarApp() {
     {!!startupDiagnostics.length && <section className="panel" role="status" aria-live="polite">
       {agentMode && !activeCriticalFailure && <p className="route-state warn">Live with partial enrichment</p>}
       {recoveredCritical && !activeCriticalFailure && <p className="route-state">Startup recovered after retry.</p>}
-      <details>
+      <details open={showDeveloperDiagnostics} onToggle={(event) => setShowDeveloperDiagnostics((event.currentTarget as HTMLDetailsElement).open)}>
         <summary>Developer diagnostics</summary>
         {(agentMode ? startupDiagnostics : startupDiagnostics.filter((item) => item.final_state === 'active_failure' || item.final_state === 'recovered')).slice(0, 10).map((item) => {
           const recovered = item.final_state === 'recovered';
@@ -1872,7 +1907,7 @@ function RadarApp() {
           </details>;
         })}
       </details>
-      {!agentMode && activeSecondaryFailures.length > 0 && <p className="route-state warn">Radar live. Some enrichment panels failed to load.</p>}
+      {!agentMode && activeSecondaryFailures.length > 0 && <p className="route-state warn">Enrichment delayed</p>}
     </section>}
     {agentMode && <AgentModeBanner onExit={() => setAgentMode(false)} onOpenApiDocs={openApiDocs} />}
     {!agentMode && <section className="hero panel mission-control" aria-labelledby="terminal-title">
@@ -2028,9 +2063,9 @@ function RadarApp() {
             curl={preflightCurlFromText(preflightJsonInput)}
           />
           <ComparisonPanel providers={safeProviders} endpoints={radarEndpoints} mode={compareMode} selectedIds={compareIds} onModeChange={setCompareMode} onSelectionChange={setCompareIds} result={compareResult} onCompare={runComparison} />
-          <CostPerformancePanel endpoints={radarEndpoints} providerRiskById={providerRiskById} benchmarkReadiness={benchmarkReadiness} />
-          <BenchmarkReadinessPanel readiness={benchmarkReadiness} />
-          <HeadToHeadBenchmarkPanel registry={benchmarkRegistry} />
+          <CostPerformancePanel endpoints={radarEndpoints} providerRiskById={providerRiskById} benchmarkReadiness={benchmarkReadiness} loading={radarEndpointsLoading} />
+          <BenchmarkReadinessPanel readiness={benchmarkReadiness} loading={benchmarkReadinessLoading} />
+          <HeadToHeadBenchmarkPanel registry={benchmarkRegistry} loading={benchmarkReadinessLoading} />
           <SuperiorityReadinessPanel readiness={readiness} />
           </div>
         </section>
@@ -2373,7 +2408,7 @@ function RadarApp() {
           {pulseSummary.eventGroups.monitoring.count > 0 && <PulseStat label="Monitor" value={pulseSummary.eventGroups.monitoring.count} sub="safe service reachability events" />}
         </div>}
         {!agentMode && <PropagationWatch propagation={pulseSummary.propagation} />}
-        <AnomalyWatchPanel ecosystemRisk={ecosystemRisk} providers={safeProviders} endpoints={radarEndpoints} />
+        <AnomalyWatchPanel ecosystemRisk={ecosystemRisk} providers={safeProviders} endpoints={radarEndpoints} loading={ecosystemRiskLoading} />
         {!agentMode && <DeltaPanel title="Trust Changes" caption="Latest trust events from catalog scoring batches." deltas={pulseSummary.trustDeltas} empty="No trust deltas beyond initial scoring." scope="GLOBAL" />}
         {!agentMode && <DeltaPanel title="Signal Spikes" caption="Signal deltas appear only when catalog-derived signal changes." deltas={pulseSummary.signalSpikes} empty="No positive signal deltas observed." scope="GLOBAL" />}
         {!agentMode && <div className="panel rail-panel">
@@ -2912,11 +2947,13 @@ function SuperiorityReadinessPanel({ readiness }: { readiness: RadarSuperiorityR
 function CostPerformancePanel({
   endpoints,
   providerRiskById,
-  benchmarkReadiness
+  benchmarkReadiness,
+  loading
 }: {
   endpoints: NormalizedEndpointRecord[];
   providerRiskById: Record<string, RadarRiskResponse>;
   benchmarkReadiness: RadarBenchmarkReadiness | null;
+  loading: boolean;
 }) {
   const readinessByCategory = new Map((benchmarkReadiness?.categories ?? []).map((item) => [item.category.toLowerCase(), item]));
   const rows = endpoints.slice(0, 30).map((endpoint) => {
@@ -2944,7 +2981,8 @@ function CostPerformancePanel({
         <small>estimated price {est} / pricing confidence {conf === 'low' ? 'Low-confidence catalog estimate' : conf}</small>
         <small>route value score {value ?? 'unknown'} {conf === 'unknown' ? '/ Pricing unknown from catalog' : ''}</small>
       </div>)}
-      {!rows.length && <EmptyState title="Pricing unknown." body="No endpoint cost records are available yet. Load endpoint exports or check catalog freshness." />}
+      {!rows.length && loading && <EmptyState title="Endpoint intelligence loading" body="Enrichment delayed" />}
+      {!rows.length && !loading && <EmptyState title="Panel data unavailable" body="Benchmark data delayed" />}
     </div>
   </section>;
 }
@@ -3070,7 +3108,7 @@ function RadarExportPanel() {
   </section>;
 }
 
-function BenchmarkReadinessPanel({ readiness }: { readiness: RadarBenchmarkReadiness | null }) {
+function BenchmarkReadinessPanel({ readiness, loading }: { readiness: RadarBenchmarkReadiness | null; loading: boolean }) {
   const oneProvenRow = readiness?.categories.find((row) => row.proven_execution_count === 1 && !row.benchmark_ready) ?? null;
   const twoProvenRow = readiness?.categories.find((row) => row.proven_execution_count >= 2 && row.benchmark_ready) ?? null;
   return <section className="panel superiority-readiness" id="benchmark-readiness" aria-label="Benchmark Readiness panel">
@@ -3079,7 +3117,8 @@ function BenchmarkReadinessPanel({ readiness }: { readiness: RadarBenchmarkReadi
       <h2>Benchmark Readiness</h2>
     </div>
     <p className="panel-caption">"Benchmark ready" means routes are comparable. "Superiority ready" requires stronger execution evidence. "Catalog-estimated" is not execution-proven.</p>
-    {!readiness && <EmptyState title="Benchmark not ready." body="Readiness data is unavailable. Refresh once catalog history loads." />}
+    {!readiness && loading && <EmptyState title="Enrichment delayed" body="Benchmark data delayed" />}
+    {!readiness && !loading && <EmptyState title="Panel data unavailable" body="Benchmark data delayed" />}
     {readiness && <div className="readiness-list-grid">
       <CompactChipList title="ready categories" items={readiness.benchmark_ready_categories} emptyLabel="none" />
       <CompactChipList title="not ready categories" items={readiness.not_ready_categories} emptyLabel="none" />
@@ -3094,14 +3133,15 @@ function BenchmarkReadinessPanel({ readiness }: { readiness: RadarBenchmarkReadi
   </section>;
 }
 
-function HeadToHeadBenchmarkPanel({ registry }: { registry: RadarBenchmarkRegistry | null }) {
+function HeadToHeadBenchmarkPanel({ registry, loading }: { registry: RadarBenchmarkRegistry | null; loading: boolean }) {
   const benchmark = registry?.benchmarks.find((row) => row.benchmark_id === 'finance-data-sol-price') ?? null;
   return <section className="panel superiority-readiness" aria-label="Head-to-Head Benchmark panel">
     <div className="phase3-panel-head">
       <ScopeLabel scope="GLOBAL" />
       <h2>Head-to-Head Benchmark</h2>
     </div>
-    {!benchmark && <EmptyState title="Benchmark pending." body="Head-to-head benchmark data is unavailable." />}
+    {!benchmark && loading && <EmptyState title="Enrichment delayed" body="Benchmark data delayed" />}
+    {!benchmark && !loading && <EmptyState title="Panel data unavailable" body="Benchmark data delayed" />}
     {benchmark && <>
       <p className="panel-caption">{benchmark.category}/{benchmark.benchmark_intent}</p>
       <p className="panel-caption">Two proven executable routes exist. Head-to-head benchmark comparison can begin.</p>
@@ -3420,7 +3460,7 @@ const ANOMALY_PREVIEW_LIMIT = 6;
 
 type AnomalyWatchItem = RadarEcosystemRiskSummary['summary']['anomaly_watch'][number];
 
-function AnomalyWatchPanel({ ecosystemRisk, providers, endpoints }: { ecosystemRisk: RadarEcosystemRiskSummary | null; providers: Provider[]; endpoints: NormalizedEndpointRecord[] }) {
+function AnomalyWatchPanel({ ecosystemRisk, providers, endpoints, loading }: { ecosystemRisk: RadarEcosystemRiskSummary | null; providers: Provider[]; endpoints: NormalizedEndpointRecord[]; loading: boolean }) {
   const watch = ecosystemRisk?.summary?.anomaly_watch ?? [];
   const [showAll, setShowAll] = useState(false);
   const providerNames = useMemo(() => new Map(providers.map((provider) => [provider.id, provider.name])), [providers]);
@@ -3446,7 +3486,8 @@ function AnomalyWatchPanel({ ecosystemRisk, providers, endpoints }: { ecosystemR
       <span aria-label={`critical ${ecosystemRisk.summary.providers_by_risk_level.critical}`}><b>critical</b>{ecosystemRisk.summary.providers_by_risk_level.critical}</span>
       <span aria-label={`unknown ${ecosystemRisk.summary.providers_by_risk_level.unknown}`}><b>unknown</b>{ecosystemRisk.summary.providers_by_risk_level.unknown}</span>
     </div>}
-    {!watch.length && <EmptyState title="No anomalies detected." body="No current predictive-risk anomaly requires attention." />}
+    {!watch.length && loading && <EmptyState title="Risk enrichment unavailable" body="Enrichment delayed" />}
+    {!watch.length && !loading && <EmptyState title="No anomalies detected." body="No current predictive-risk anomaly requires attention." />}
     {!!watch.length && <>
       <div id="anomaly-watch-list" className={`anomaly-list ${showAll ? 'expanded' : ''}`} aria-label={showAll ? 'All predictive risk anomalies' : 'Top predictive risk anomalies'}>
         {visibleWatch.map((item) => {
