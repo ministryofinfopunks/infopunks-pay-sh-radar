@@ -22,14 +22,15 @@ function installFetchMock() {
     if (path === '/v1/radar/benchmarks') return json({
       generated_at: observedAt,
       source: 'infopunks-pay-sh-radar',
-      benchmarks: [{
-        benchmark_id: 'finance-data-sol-price',
-        category: 'finance/data',
-        benchmark_intent: 'get SOL price',
-        benchmark_recorded: true,
-        winner_claimed: false,
-        winner_status: 'no_clear_winner',
-        winner_policy: {
+      benchmarks: [
+        {
+          benchmark_id: 'finance-data-sol-price',
+          category: 'finance/data',
+          benchmark_intent: 'get SOL price',
+          benchmark_recorded: true,
+          winner_claimed: false,
+          winner_status: 'no_clear_winner',
+          winner_policy: {
           policy_id: 'sol-price-v0.1',
           policy_version: '0.1',
           required_successful_runs_per_route: 5,
@@ -46,8 +47,8 @@ function installFetchMock() {
         },
         next_step: 'define scoring thresholds before declaring a route winner',
         readiness_note: 'Five-run normalized benchmark evidence exists. No route winner is claimed.',
-        routes: [
-          {
+          routes: [
+            {
             provider_id: 'merit-systems-stablecrypto-market-data',
             route_id: 'stable',
             execution_status: 'proven',
@@ -70,8 +71,8 @@ function installFetchMock() {
             normalization_confidence: 'high',
             freshness_timestamp: observedAt,
             comparison_notes: 'no winner claim'
-          },
-          {
+            },
+            {
             provider_id: 'paysponge-coingecko',
             route_id: 'paysponge',
             execution_status: 'proven',
@@ -94,9 +95,21 @@ function installFetchMock() {
             normalization_confidence: 'high',
             freshness_timestamp: observedAt,
             comparison_notes: 'no winner claim'
-          }
-        ]
-      }]
+            }
+          ]
+        },
+        {
+          benchmark_id: 'finance-data-token-search',
+          category: 'finance/data',
+          benchmark_intent: 'token search',
+          benchmark_recorded: false,
+          winner_claimed: false,
+          winner_status: 'not_evaluated',
+          next_step: 'verify comparable token-search route mappings before benchmarking',
+          readiness_note: 'Benchmark scaffold exists. Comparable proven routes are not yet recorded.',
+          routes: []
+        }
+      ]
     });
     if (path === '/v1/radar/benchmarks/finance-data-sol-price/history') return json({
       generated_at: observedAt,
@@ -210,9 +223,15 @@ describe('public benchmark proof pages', () => {
 
     expect(container.textContent).toContain('Public Benchmarks');
     expect(container.textContent).toContain('finance-data-sol-price');
+    expect(container.textContent).toContain('finance-data-token-search');
+    expect(container.textContent).toContain('Planning');
+    expect(container.textContent).toContain('Not evaluated');
+    expect(container.textContent).toContain('No proof recorded');
     expect(container.textContent).toContain('winner_claimed: false');
     const link = container.querySelector('a[href="/benchmarks/finance-data-sol-price"]');
     expect(link).not.toBeNull();
+    const scaffoldLink = container.querySelector('a[href="/benchmarks/finance-data-token-search"]');
+    expect(scaffoldLink).not.toBeNull();
   });
 
   it('renders benchmark proof details and non-crowning language', async () => {
@@ -256,5 +275,34 @@ describe('public benchmark proof pages', () => {
     expect(text).not.toContain('PaySponge CoinGecko wins');
     expect(text).not.toContain('StableCrypto beats');
     expect(text).not.toContain('PaySponge CoinGecko beats');
+  });
+
+  it('renders token-search scaffold without route proof claims', async () => {
+    window.history.pushState({}, '', '/benchmarks/finance-data-token-search');
+    installFetchMock();
+
+    await act(async () => {
+      root = createRoot(container);
+      root.render(<App />);
+    });
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const text = container.textContent ?? '';
+    expect(text).toContain('Benchmark Proof: finance-data-token-search');
+    expect(text).toContain('Benchmark scaffold');
+    expect(text).toContain('Comparable proven routes are not yet recorded.');
+    expect(text).toContain('Winner claimed: no.');
+    expect(text).toContain('Status: not evaluated.');
+    expect(text).toContain('Next: verify comparable token-search route mappings before benchmarking.');
+    expect(text).toContain('No proven route evidence recorded yet.');
+    expect(text).toContain('No artifact exists until benchmark evidence is recorded.');
+    expect(text).toContain('Mapping target: finance/data token search');
+    expect(text).not.toContain('success_rate: 1');
+    expect(text).not.toContain('median_latency_ms: 5691');
+    expect(text).not.toContain('StableCrypto wins');
+    expect(text).not.toContain('PaySponge CoinGecko wins');
   });
 });

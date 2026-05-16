@@ -468,15 +468,15 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     logRadarRouteTiming('/v1/radar/benchmarks', Date.now() - startedAtMs, cached.metadata.hit, cached.metadata.stale ? 'stale_ok' : 'ok');
     return { data: safeJsonExport(cached.value) };
   });
-  app.get('/v1/radar/benchmarks/finance-data-sol-price', async (_req, reply) => {
-    const benchmark = buildRadarBenchmarkById('finance-data-sol-price');
+  app.get<{ Params: { benchmark_id: string } }>('/v1/radar/benchmarks/:benchmark_id', async (req, reply) => {
+    const benchmark = buildRadarBenchmarkById(req.params.benchmark_id);
     if (!benchmark) return reply.code(404).send({ error: 'benchmark_not_found' });
     return {
       data: safeJsonExport(RadarBenchmarkDetailSchema.parse(benchmark))
     };
   });
-  app.get('/v1/radar/benchmarks/finance-data-sol-price/history', async (_req, reply) => {
-    const history = buildRadarBenchmarkHistoryById('finance-data-sol-price');
+  app.get<{ Params: { benchmark_id: string } }>('/v1/radar/benchmarks/:benchmark_id/history', async (req, reply) => {
+    const history = buildRadarBenchmarkHistoryById(req.params.benchmark_id);
     if (!history) return reply.code(404).send({ error: 'benchmark_not_found' });
     return {
       data: safeJsonExport(RadarBenchmarkHistorySchema.parse(history))

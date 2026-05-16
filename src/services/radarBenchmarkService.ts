@@ -5,6 +5,7 @@ import { getBenchmarkArtifactById, getLatestBenchmarkArtifact, listBenchmarkArti
 const SOL_PRICE_BENCHMARK_ID = 'finance-data-sol-price';
 const SOL_PRICE_CATEGORY = 'finance/data';
 const SOL_PRICE_INTENT = 'get sol price';
+const TOKEN_SEARCH_BENCHMARK_ID = 'finance-data-token-search';
 const BENCHMARK_EVIDENCE_AT = '2026-05-16T07:42:42.271Z';
 const BENCHMARK_PROOF_REFERENCE = 'live-proofs/finance-data-sol-price-benchmark-runs-2026-05-16.md';
 
@@ -50,17 +51,17 @@ export type BenchmarkArtifactSafeMetadata = {
 };
 
 export function buildRadarBenchmarks(): RadarBenchmarkList {
-  const benchmark = buildSolPriceBenchmark();
   return {
     generated_at: BENCHMARK_EVIDENCE_AT,
     source: 'infopunks-pay-sh-radar',
-    benchmarks: [benchmark]
+    benchmarks: [buildSolPriceBenchmark(), buildTokenSearchBenchmark()]
   };
 }
 
 export function buildRadarBenchmarkById(id: string): RadarBenchmarkDetail | null {
-  if (id !== SOL_PRICE_BENCHMARK_ID) return null;
-  return buildSolPriceBenchmark();
+  if (id === SOL_PRICE_BENCHMARK_ID) return buildSolPriceBenchmark();
+  if (id === TOKEN_SEARCH_BENCHMARK_ID) return buildTokenSearchBenchmark();
+  return null;
 }
 
 export function buildRadarBenchmarkHistoryById(id: string): RadarBenchmarkHistory | null {
@@ -177,6 +178,20 @@ function buildSolPriceBenchmark(): RadarBenchmarkDetail {
     next_step: 'define scoring thresholds before declaring a route winner',
     readiness_note: 'Five-run normalized benchmark evidence exists. No route winner is claimed.',
     routes
+  };
+}
+
+function buildTokenSearchBenchmark(): RadarBenchmarkDetail {
+  return {
+    benchmark_id: TOKEN_SEARCH_BENCHMARK_ID,
+    category: 'finance/data',
+    benchmark_intent: 'token search',
+    benchmark_recorded: false,
+    winner_claimed: false,
+    winner_status: 'not_evaluated',
+    next_step: 'verify comparable token-search route mappings before benchmarking',
+    readiness_note: 'Benchmark scaffold exists. Comparable proven routes are not yet recorded.',
+    routes: []
   };
 }
 

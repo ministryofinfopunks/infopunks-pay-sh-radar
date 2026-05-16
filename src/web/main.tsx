@@ -963,6 +963,8 @@ function benchmarkRouteLabel(route: RadarBenchmarkRouteMetric) {
 function BenchmarkProofContent({ benchmark, history }: { benchmark: RadarBenchmarkDetail; history: RadarBenchmarkHistory | null }) {
   const policy = benchmark.winner_policy;
   const winnerStatusLabel = benchmark.winner_status?.replaceAll('_', ' ') ?? 'not evaluated';
+  const isPlanningScaffold = !benchmark.benchmark_recorded && benchmark.winner_status === 'not_evaluated';
+  const hasTokenSearchMappingTarget = benchmark.category === 'finance/data' && benchmark.benchmark_intent === 'token search';
   return <>
     <section className="panel">
       <p className="eyebrow">Infopunks Pay.sh Radar</p>
@@ -989,10 +991,23 @@ function BenchmarkProofContent({ benchmark, history }: { benchmark: RadarBenchma
           `required_confidence: ${policy.required_confidence.join('/')}`
         ]} emptyLabel="missing" wide />}
       </div>
+      {isPlanningScaffold && <div className="compact-chip-list wide">
+        <div className="compact-chip-list-head">
+          <strong>Benchmark scaffold</strong>
+          <span>Planning</span>
+        </div>
+        <p>Comparable proven routes are not yet recorded.</p>
+        <p>Winner claimed: no.</p>
+        <p>Status: not evaluated.</p>
+        <p>Next: {benchmark.next_step}.</p>
+        <p>No artifact exists until benchmark evidence is recorded.</p>
+        {hasTokenSearchMappingTarget && <p><a href="/#mapping-targets">Mapping target: finance/data token search</a> remains planning-only until route mappings are verified.</p>}
+      </div>}
     </section>
     <section className="panel">
       <h2>Route Cards</h2>
       <p className="panel-caption">No route winner is claimed.</p>
+      {!benchmark.routes.length && <EmptyState title="No proven route evidence recorded yet." body="No route metric cards are shown until comparable route evidence exists." />}
       <div className="readiness-list-grid">
         {benchmark.routes.map((route) => <section key={route.route_id} className="compact-chip-list wide">
           <div className="compact-chip-list-head">
@@ -1078,6 +1093,8 @@ function PublicBenchmarksIndexPage() {
               <span>{benchmark.winner_status?.replaceAll('_', ' ') ?? 'not evaluated'}</span>
             </div>
             <p>{benchmark.category} / {benchmark.benchmark_intent}</p>
+            <p>{benchmark.benchmark_recorded ? 'Recorded benchmark' : 'Planning'}</p>
+            {!benchmark.benchmark_recorded && <p>Not evaluated · No proof recorded</p>}
             <p>winner_claimed: {String(benchmark.winner_claimed)}</p>
             <p><a href={`/benchmarks/${encodeURIComponent(benchmark.benchmark_id)}`}>Open proof page</a></p>
           </section>)}
@@ -3478,38 +3495,55 @@ function BenchmarkReadinessPanel({ readiness, loading }: { readiness: RadarBench
 }
 
 function HeadToHeadBenchmarkPanel({ registry, loading }: { registry: RadarBenchmarkRegistry | null; loading: boolean }) {
-  const benchmark = registry?.benchmarks.find((row) => row.benchmark_id === 'finance-data-sol-price') ?? null;
-  const policy = benchmark?.winner_policy;
-  const completedRuns = policy?.completed_runs ?? 0;
-  const requiredRuns = policy?.required_runs ?? 0;
+  const benchmarks = registry?.benchmarks ?? [];
+  const benchmark = benchmarks.find((row) => row.benchmark_id === 'finance-data-sol-price') ?? null;
+  const hasBenchmarks = benchmarks.length > 0;
   return <section className="panel superiority-readiness" aria-label="Head-to-Head Benchmark panel">
     <div className="phase3-panel-head">
       <ScopeLabel scope="GLOBAL" />
       <h2>Head-to-Head Benchmark</h2>
     </div>
-    {!benchmark && loading && <EmptyState title="Enrichment delayed" body="Benchmark data delayed" />}
-    {!benchmark && !loading && <EmptyState title="Panel data unavailable" body="Benchmark data delayed" />}
-    {benchmark && <>
-      <div className="benchmark-summary-card">
-        <div>
-          <p className="section-kicker">{benchmark.category} · {benchmark.benchmark_intent}</p>
-          <strong>{completedRuns} / {requiredRuns} runs recorded</strong>
-        </div>
-        <span className="route-state">winner_status {benchmark.winner_status ?? 'not_evaluated'}</span>
-        <span className="route-state">winner_claimed {String(benchmark.winner_claimed)}</span>
-        <a className="copy-chip" href="/benchmarks/finance-data-sol-price">Open proof page</a>
+    {!hasBenchmarks && loading && <EmptyState title="Enrichment delayed" body="Benchmark data delayed" />}
+    {!hasBenchmarks && !loading && <EmptyState title="Panel data unavailable" body="Benchmark data delayed" />}
+    {hasBenchmarks && <>
+      <div className="readiness-list-grid">
+        {benchmarks.map((lane) => {
+          const lanePolicy = lane.winner_policy;
+          const laneCompletedRuns = lanePolicy?.completed_runs ?? 0;
+          const laneRequiredRuns = lanePolicy?.required_runs ?? 0;
+          return <div key={lane.benchmark_id} className="benchmark-summary-card">
+            <div>
+              <p className="section-kicker">{lane.category} · {lane.benchmark_intent}</p>
+              <strong>{lane.benchmark_recorded ? `${laneCompletedRuns} / ${laneRequiredRuns} runs recorded` : 'Benchmark scaffold'}</strong>
+            </div>
+            <span className={lane.benchmark_recorded ? 'route-state ok' : 'route-state warn'}>{lane.benchmark_recorded ? 'Recorded benchmark' : 'Planning'}</span>
+            <span className="route-state">winner_status {lane.winner_status ?? 'not_evaluated'}</span>
+            <span className="route-state">winner_claimed {String(lane.winner_claimed)}</span>
+            {!lane.benchmark_recorded && <span className="route-state">No proof recorded</span>}
+            <a className="copy-chip" href={`/benchmarks/${encodeURIComponent(lane.benchmark_id)}`}>Open proof page</a>
+          </div>;
+        })}
       </div>
-      <p className="panel-caption">Two proven executable routes exist. Head-to-head benchmark comparison can begin.</p>
-      <p className="panel-caption">{benchmark.benchmark_recorded ? 'Five-run benchmark recorded.' : 'Output shapes shown are schema examples. Normalized prices are pending.'}</p>
-      {policy && <p className="panel-caption">{completedRuns} / {requiredRuns} required benchmark runs recorded.</p>}
-      <p className="panel-caption">Winner status: {benchmark.winner_status ?? 'not_evaluated'}.</p>
-      <p className="panel-caption">Winner claimed: {benchmark.winner_claimed ? 'yes.' : 'no.'}</p>
-      {policy?.winner_rationale && <p className="panel-caption">{policy.winner_rationale}</p>}
-      <p className="panel-caption">Five-run benchmark recorded. Both routes succeeded. No winner is claimed until scoring thresholds are finalized.</p>
-      {benchmark.benchmark_recorded && <p className="panel-caption">Price difference recorded. No winner claimed.</p>}
-      {!benchmark.benchmark_recorded && <p className="route-state warn">Metrics pending. Next step: {benchmark.next_step}.</p>}
+      {benchmark && <>
+        {(() => {
+          const policy = benchmark.winner_policy;
+          const completedRuns = policy?.completed_runs ?? 0;
+          const requiredRuns = policy?.required_runs ?? 0;
+          return <>
+            <p className="panel-caption">Two proven executable routes exist. Head-to-head benchmark comparison can begin.</p>
+            <p className="panel-caption">{benchmark.benchmark_recorded ? 'Five-run benchmark recorded.' : 'Output shapes shown are schema examples. Normalized prices are pending.'}</p>
+            {policy && <p className="panel-caption">{completedRuns} / {requiredRuns} required benchmark runs recorded.</p>}
+            <p className="panel-caption">Winner status: {benchmark.winner_status ?? 'not_evaluated'}.</p>
+            <p className="panel-caption">Winner claimed: {benchmark.winner_claimed ? 'yes.' : 'no.'}</p>
+            {policy?.winner_rationale && <p className="panel-caption">{policy.winner_rationale}</p>}
+            <p className="panel-caption">Five-run benchmark recorded. Both routes succeeded. No winner is claimed until scoring thresholds are finalized.</p>
+            {benchmark.benchmark_recorded && <p className="panel-caption">Price difference recorded. No winner claimed.</p>}
+            {!benchmark.benchmark_recorded && <p className="route-state warn">Metrics pending. Next step: {benchmark.next_step}.</p>}
+          </>;
+        })()}
+      </>}
       <div className="benchmark-route-grid">
-        {benchmark.routes.map((route) => <section key={route.route_id} className="benchmark-route-card">
+        {(benchmark?.routes ?? []).map((route) => <section key={route.route_id} className="benchmark-route-card">
           <div className="compact-chip-list-head">
             <strong>{benchmarkRouteLabel(route)}</strong>
             <span>{route.execution_status}</span>
@@ -3535,11 +3569,11 @@ function HeadToHeadBenchmarkPanel({ registry, loading }: { registry: RadarBenchm
         </section>)}
       </div>
       <div className="readiness-list-grid">
-        {policy && <CompactChipList title="winner criteria" items={[
-          `minimum ${policy.required_successful_runs_per_route} successful runs per route`,
-          `compare ${policy.latency_metric} latency`,
-          `require success rate >= ${Math.round(policy.minimum_success_rate * 100)}%`,
-          `require ${policy.required_confidence.join('/')} normalization confidence`,
+        {benchmark?.winner_policy && <CompactChipList title="winner criteria" items={[
+          `minimum ${benchmark.winner_policy.required_successful_runs_per_route} successful runs per route`,
+          `compare ${benchmark.winner_policy.latency_metric} latency`,
+          `require success rate >= ${Math.round(benchmark.winner_policy.minimum_success_rate * 100)}%`,
+          `require ${benchmark.winner_policy.required_confidence.join('/')} normalization confidence`,
           'allow no-clear-winner outcome'
         ]} emptyLabel="missing" wide />}
       </div>
@@ -3690,6 +3724,7 @@ function mappingTargetBadgeClass(state: RadarMappingTarget['current_state']) {
 function AgentBenchmarkApiPanel() {
   const benchmarkRegistryCurl = `curl -s ${toApiUrl(API_BASE_URL, '/v1/radar/benchmarks')}`;
   const benchmarkDetailCurl = `curl -s ${toApiUrl(API_BASE_URL, '/v1/radar/benchmarks/finance-data-sol-price')}`;
+  const tokenSearchBenchmarkCurl = `curl -s ${toApiUrl(API_BASE_URL, '/v1/radar/benchmarks/finance-data-token-search')}`;
   const openApiCurl = `curl -s ${toApiUrl(API_BASE_URL, OPENAPI_PATH)}`;
   const benchmarkSnippet = `{
   "benchmark_id": "finance-data-sol-price",
@@ -3732,6 +3767,7 @@ function AgentBenchmarkApiPanel() {
         <div className="endpoint-card-grid">
           <p><b>GET /v1/radar/benchmarks</b><span>Registry and winner flags.</span></p>
           <p><b>GET /v1/radar/benchmarks/finance-data-sol-price</b><span>SOL benchmark metrics.</span></p>
+          <p><b>GET /v1/radar/benchmarks/finance-data-token-search</b><span>Planning scaffold with no recorded proof.</span></p>
           <p><b>GET /openapi.json</b><span>OpenAPI for agents.</span></p>
         </div>
       </section>
@@ -3742,10 +3778,12 @@ function AgentBenchmarkApiPanel() {
         <div className="export-copy-actions" aria-label="Copy benchmark curl examples">
           <CopyButton value={benchmarkRegistryCurl} label="Copy curl /v1/radar/benchmarks" />
           <CopyButton value={benchmarkDetailCurl} label="Copy curl /v1/radar/benchmarks/finance-data-sol-price" />
+          <CopyButton value={tokenSearchBenchmarkCurl} label="Copy curl /v1/radar/benchmarks/finance-data-token-search" />
           <CopyButton value={openApiCurl} label="Copy curl /openapi.json" />
         </div>
         <SafeCodeBlock value={benchmarkRegistryCurl} label="curl /v1/radar/benchmarks" />
         <SafeCodeBlock value={benchmarkDetailCurl} label="curl /v1/radar/benchmarks/finance-data-sol-price" />
+        <SafeCodeBlock value={tokenSearchBenchmarkCurl} label="curl /v1/radar/benchmarks/finance-data-token-search" />
         <SafeCodeBlock value={openApiCurl} label="curl /openapi.json" />
       </section>
       <section className="export-group" aria-label="Agent benchmark response snippet">
@@ -3765,6 +3803,9 @@ function AgentBenchmarkApiPanel() {
           <p><b>winner_claimed=false</b><span>Do not treat route as winner.</span></p>
           <p><b>winner_status=no_clear_winner</b><span>Use benchmark as evidence, not final routing authority.</span></p>
           <p><b>benchmark_recorded=true</b><span>Normalized metrics exist.</span></p>
+          <p><b>benchmark_recorded=false</b><span>No normalized benchmark evidence exists yet.</span></p>
+          <p><b>winner_status=not_evaluated</b><span>Agents must not use it as routing proof.</span></p>
+          <p><b>routes=[]</b><span>No comparable proven routes are recorded.</span></p>
           <p><b>status_code may be null in pay_cli mode</b><span>Use status_evidence.</span></p>
         </div>
       </section>

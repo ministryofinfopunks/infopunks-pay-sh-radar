@@ -411,6 +411,16 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
             comparison_notes: 'Five-run benchmark recorded. Both routes succeeded. No winner is claimed until scoring thresholds are finalized.'
           }
         ]
+      }, {
+        benchmark_id: 'finance-data-token-search',
+        category: 'finance/data',
+        benchmark_intent: 'token search',
+        benchmark_recorded: false,
+        winner_claimed: false,
+        winner_status: 'not_evaluated',
+        next_step: 'verify comparable token-search route mappings before benchmarking',
+        readiness_note: 'Benchmark scaffold exists. Comparable proven routes are not yet recorded.',
+        routes: []
       }]
     });
     if (path === '/v1/radar/mappings') return json({
@@ -812,6 +822,11 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Head-to-Head Benchmark');
     expect(container.textContent).toContain('Five-run benchmark recorded.');
     expect(container.textContent).toContain('5 / 5 required benchmark runs recorded.');
+    expect(container.textContent).toContain('finance-data-token-search');
+    expect(container.textContent).toContain('Benchmark scaffold');
+    expect(container.textContent).toContain('Planning');
+    expect(container.textContent).toContain('winner_status not_evaluated');
+    expect(container.textContent).toContain('No proof recorded');
     expect(container.textContent).toContain('Winner status: no_clear_winner.');
     expect(container.textContent).toContain('Winner claimed: no.');
     expect(container.textContent).toContain('winner_claimed false');
@@ -827,6 +842,10 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('require success rate >= 80%');
     expect(container.textContent).toContain('require high/medium normalization confidence');
     expect(container.textContent).toContain('allow no-clear-winner outcome');
+    expect(container.textContent).toContain('GET /v1/radar/benchmarks/finance-data-token-search');
+    expect(container.textContent).toContain('benchmark_recorded=false');
+    expect(container.textContent).toContain('winner_status=not_evaluated');
+    expect(container.textContent).toContain('routes=[]');
     expect(container.textContent).not.toContain('StableCrypto is winning');
     expect(container.textContent).not.toContain('PaySponge is winning');
     expect(container.textContent).not.toContain('HTTP 200');

@@ -205,6 +205,8 @@ Command palette actions include:
   Returns head-to-head benchmark registry records (including metrics-pending scaffolds).
 - `GET /v1/radar/benchmarks/finance-data-sol-price`
   Returns the SOL price benchmark record with artifact-backed normalized evidence. This is not a winner claim.
+- `GET /v1/radar/benchmarks/finance-data-token-search`
+  Returns the finance/data token-search benchmark scaffold only. `benchmark_recorded=false` means no normalized benchmark evidence exists yet. `winner_status=not_evaluated` means agents must not use it as routing proof. `routes=[]` means no comparable proven routes are recorded.
   `benchmark_recorded=true` means normalized evidence has been recorded.
   `winner_claimed=false` means no route superiority result is claimed yet.
   `winner_status` can be `not_evaluated | insufficient_runs | no_clear_winner | provisional_winner | winner_claimed`.

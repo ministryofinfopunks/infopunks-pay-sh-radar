@@ -28,7 +28,10 @@ describe('benchmark artifact registry', () => {
   });
 
   it('benchmark service consumes artifact metrics and preserves prior benchmark values', () => {
-    const sol = buildRadarBenchmarks().benchmarks.find((row) => row.benchmark_id === 'finance-data-sol-price');
+    const benchmarks = buildRadarBenchmarks().benchmarks;
+    const sol = benchmarks.find((row) => row.benchmark_id === 'finance-data-sol-price');
+    const tokenSearch = benchmarks.find((row) => row.benchmark_id === 'finance-data-token-search');
+    expect(benchmarks.map((row) => row.benchmark_id)).toEqual(['finance-data-sol-price', 'finance-data-token-search']);
     expect(sol).toBeTruthy();
     const stable = sol?.routes.find((item) => item.provider_id === 'merit-systems-stablecrypto-market-data');
     const paysponge = sol?.routes.find((item) => item.provider_id === 'paysponge-coingecko');
@@ -40,6 +43,18 @@ describe('benchmark artifact registry', () => {
     expect(paysponge?.average_price_usd).toBe(87.50392093173244);
     expect(sol?.winner_status).toBe('no_clear_winner');
     expect(sol?.winner_claimed).toBe(false);
+    expect(sol?.benchmark_recorded).toBe(true);
+    expect(tokenSearch).toMatchObject({
+      benchmark_id: 'finance-data-token-search',
+      category: 'finance/data',
+      benchmark_intent: 'token search',
+      benchmark_recorded: false,
+      winner_status: 'not_evaluated',
+      winner_claimed: false,
+      readiness_note: 'Benchmark scaffold exists. Comparable proven routes are not yet recorded.',
+      next_step: 'verify comparable token-search route mappings before benchmarking',
+      routes: []
+    });
   });
 
   it('artifact endpoints return safe metadata only and do not expose raw proof contents', async () => {
@@ -70,12 +85,32 @@ describe('benchmark artifact registry', () => {
     expect(legacyResponse.statusCode).toBe(200);
     expect(legacyResponse.json().data.artifact_id).toBe(CANONICAL_ID);
 
+    const benchmarkListResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks' });
+    expect(benchmarkListResponse.statusCode).toBe(200);
+    expect(benchmarkListResponse.json().data.benchmarks.map((row: { benchmark_id: string }) => row.benchmark_id)).toContain('finance-data-token-search');
+
     const benchmarkResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks/finance-data-sol-price' });
     expect(benchmarkResponse.statusCode).toBe(200);
     const benchmark = benchmarkResponse.json().data;
     const benchmarkPaysponge = benchmark.routes.find((route: { provider_id: string }) => route.provider_id === 'paysponge-coingecko');
     expect(benchmarkPaysponge.route_id).toBe(PAYSPONGE_ROUTE_ID);
 
+    const tokenSearchResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks/finance-data-token-search' });
+    expect(tokenSearchResponse.statusCode).toBe(200);
+    expect(tokenSearchResponse.json().data).toMatchObject({
+      benchmark_id: 'finance-data-token-search',
+      benchmark_recorded: false,
+      winner_status: 'not_evaluated',
+      winner_claimed: false,
+      routes: []
+    });
+
     await app.close();
+  });
+
+  it('does not create a fake token-search benchmark artifact', () => {
+    const artifacts = listBenchmarkArtifacts();
+    expect(artifacts.some((row) => row.benchmark_id === 'finance-data-token-search')).toBe(false);
+    expect(JSON.stringify(artifacts)).not.toContain('finance-data-token-search');
   });
 });
