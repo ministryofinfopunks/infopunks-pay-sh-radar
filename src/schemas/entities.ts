@@ -633,12 +633,45 @@ export const RadarBenchmarkRouteMetricSchema = z.object({
   comparison_notes: z.string()
 });
 
+export const RadarBenchmarkWinnerStatusSchema = z.enum([
+  'not_evaluated',
+  'insufficient_runs',
+  'no_clear_winner',
+  'provisional_winner',
+  'winner_claimed'
+]);
+
+export const RadarBenchmarkWinnerPolicySchema = z.object({
+  policy_id: z.string(),
+  policy_version: z.string(),
+  required_successful_runs_per_route: z.number().int().positive(),
+  minimum_success_rate: z.number().min(0).max(1),
+  allowed_price_variance_percent: z.number().nonnegative(),
+  latency_metric: z.enum(['median']),
+  required_confidence: z.array(z.enum(['high', 'medium'])).min(1),
+  scoring_weights: z.object({
+    reliability: z.number().min(0).max(1),
+    latency: z.number().min(0).max(1),
+    normalization_confidence: z.number().min(0).max(1),
+    price_consistency: z.number().min(0).max(1),
+    cost_clarity: z.number().min(0).max(1),
+    freshness: z.number().min(0).max(1)
+  }),
+  winner_status: RadarBenchmarkWinnerStatusSchema,
+  winner_claimed: z.boolean(),
+  completed_runs: z.number().int().nonnegative(),
+  required_runs: z.number().int().positive(),
+  next_step: z.string()
+});
+
 export const RadarBenchmarkDetailSchema = z.object({
   benchmark_id: z.string(),
   category: z.string(),
   benchmark_intent: z.string(),
   benchmark_recorded: z.boolean(),
   winner_claimed: z.boolean(),
+  winner_status: RadarBenchmarkWinnerStatusSchema.optional(),
+  winner_policy: RadarBenchmarkWinnerPolicySchema.optional(),
   next_step: z.string(),
   readiness_note: z.string(),
   routes: z.array(RadarBenchmarkRouteMetricSchema)

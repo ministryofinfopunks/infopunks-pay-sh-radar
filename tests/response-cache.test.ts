@@ -46,6 +46,9 @@ describe('radar secondary route caching safety', () => {
     expect(sol).toBeTruthy();
     expect(sol.winner_claimed).toBe(false);
     expect(sol.benchmark_recorded).toBe(true);
+    expect(sol.winner_status).toBe('insufficient_runs');
+    expect(sol.winner_policy.completed_runs).toBe(1);
+    expect(sol.winner_policy.required_runs).toBe(5);
     const stable = sol.routes.find((item: any) => item.provider_id === 'merit-systems-stablecrypto-market-data');
     const paysponge = sol.routes.find((item: any) => item.provider_id === 'paysponge-coingecko');
     expect(stable.latency_ms).toBe(7489);

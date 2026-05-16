@@ -315,6 +315,29 @@ type RadarBenchmarkDetail = {
   benchmark_intent: string;
   benchmark_recorded: boolean;
   winner_claimed: boolean;
+  winner_status?: 'not_evaluated' | 'insufficient_runs' | 'no_clear_winner' | 'provisional_winner' | 'winner_claimed';
+  winner_policy?: {
+    policy_id: string;
+    policy_version: string;
+    required_successful_runs_per_route: number;
+    minimum_success_rate: number;
+    allowed_price_variance_percent: number;
+    latency_metric: 'median';
+    required_confidence: Array<'high' | 'medium'>;
+    scoring_weights: {
+      reliability: number;
+      latency: number;
+      normalization_confidence: number;
+      price_consistency: number;
+      cost_clarity: number;
+      freshness: number;
+    };
+    winner_status: 'not_evaluated' | 'insufficient_runs' | 'no_clear_winner' | 'provisional_winner' | 'winner_claimed';
+    winner_claimed: boolean;
+    completed_runs: number;
+    required_runs: number;
+    next_step: string;
+  };
   next_step: string;
   readiness_note: string;
   routes: RadarBenchmarkRouteMetric[];
@@ -3148,6 +3171,10 @@ function BenchmarkReadinessPanel({ readiness, loading }: { readiness: RadarBench
 
 function HeadToHeadBenchmarkPanel({ registry, loading }: { registry: RadarBenchmarkRegistry | null; loading: boolean }) {
   const benchmark = registry?.benchmarks.find((row) => row.benchmark_id === 'finance-data-sol-price') ?? null;
+  const policy = benchmark?.winner_policy;
+  const completedRuns = policy?.completed_runs ?? 0;
+  const requiredRuns = policy?.required_runs ?? 0;
+  const remainingRuns = Math.max(requiredRuns - completedRuns, 0);
   return <section className="panel superiority-readiness" aria-label="Head-to-Head Benchmark panel">
     <div className="phase3-panel-head">
       <ScopeLabel scope="GLOBAL" />
@@ -3159,7 +3186,10 @@ function HeadToHeadBenchmarkPanel({ registry, loading }: { registry: RadarBenchm
       <p className="panel-caption">{benchmark.category}/{benchmark.benchmark_intent}</p>
       <p className="panel-caption">Two proven executable routes exist. Head-to-head benchmark comparison can begin.</p>
       <p className="panel-caption">{benchmark.benchmark_recorded ? 'Live benchmark recorded.' : 'Output shapes shown are schema examples. Normalized prices are pending.'}</p>
-      <p className="panel-caption">No route winner is claimed.</p>
+      <p className="panel-caption">Winner criteria not met yet.</p>
+      {policy && <p className="panel-caption">{completedRuns} / {requiredRuns} required benchmark runs recorded.</p>}
+      <p className="panel-caption">Winner claimed: {benchmark.winner_claimed ? 'yes.' : 'no.'}</p>
+      {policy && <p className="panel-caption">Next: run {remainingRuns} more benchmark rounds.</p>}
       <p className="panel-caption">HTTP status was not exposed by pay_cli; success is supported by CLI exit code 0 and parsed response body.</p>
       {benchmark.benchmark_recorded && <p className="panel-caption">Price difference recorded. No winner claimed.</p>}
       {!benchmark.benchmark_recorded && <p className="route-state warn">Metrics pending. Next step: {benchmark.next_step}.</p>}
@@ -3168,6 +3198,13 @@ function HeadToHeadBenchmarkPanel({ registry, loading }: { registry: RadarBenchm
         <CompactChipList title="proof references" items={benchmark.routes.map((route) => route.proof_reference)} emptyLabel="missing" wide />
         <CompactChipList title="normalization state" items={benchmark.routes.map((route) => `${route.provider_id}: ${route.normalized_output_available ? 'normalized' : 'metrics pending'}`)} emptyLabel="missing" wide />
         <CompactChipList title="status evidence" items={benchmark.routes.map((route) => `${route.provider_id}: ${route.status_evidence ?? 'missing status evidence'}`)} emptyLabel="missing" wide />
+        {policy && <CompactChipList title="winner criteria" items={[
+          `minimum ${policy.required_successful_runs_per_route} successful runs per route`,
+          `compare ${policy.latency_metric} latency`,
+          `require success rate >= ${Math.round(policy.minimum_success_rate * 100)}%`,
+          `require ${policy.required_confidence.join('/')} normalization confidence`,
+          'allow no-clear-winner outcome'
+        ]} emptyLabel="missing" wide />}
       </div>
     </>}
   </section>;

@@ -325,7 +325,30 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
         benchmark_intent: 'get SOL price',
         benchmark_recorded: true,
         winner_claimed: false,
-        next_step: 'define normalized winner criteria before claiming route superiority',
+        winner_status: 'insufficient_runs',
+        winner_policy: {
+          policy_id: 'sol-price-v0.1',
+          policy_version: '0.1',
+          required_successful_runs_per_route: 5,
+          minimum_success_rate: 0.8,
+          allowed_price_variance_percent: 1.0,
+          latency_metric: 'median',
+          required_confidence: ['high', 'medium'],
+          scoring_weights: {
+            reliability: 0.4,
+            latency: 0.25,
+            normalization_confidence: 0.15,
+            price_consistency: 0.1,
+            cost_clarity: 0.05,
+            freshness: 0.05
+          },
+          winner_status: 'insufficient_runs',
+          winner_claimed: false,
+          completed_runs: 1,
+          required_runs: 5,
+          next_step: 'run 4 more benchmark rounds before winner evaluation'
+        },
+        next_step: 'run 4 more benchmark rounds before winner evaluation',
         readiness_note: 'Live normalized benchmark evidence exists. No winner is claimed.',
         routes: [
           {
@@ -673,13 +696,23 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Benchmark Readiness');
     expect(container.textContent).toContain('Head-to-Head Benchmark');
     expect(container.textContent).toContain('Live benchmark recorded.');
+    expect(container.textContent).toContain('Winner criteria not met yet.');
+    expect(container.textContent).toContain('1 / 5 required benchmark runs recorded.');
+    expect(container.textContent).toContain('Winner claimed: no.');
+    expect(container.textContent).toContain('Next: run 4 more benchmark rounds.');
     expect(container.textContent).toContain('live-proofs/stablecrypto-harness-pay-cli-2026-05-12.md');
     expect(container.textContent).toContain('HTTP status was not exposed by pay_cli; success is supported by CLI exit code 0 and parsed response body.');
     expect(container.textContent).toContain('Price difference recorded. No winner claimed.');
     expect(container.textContent).toContain('live-proofs/paysponge-coingecko-paid-execution-2026-05-15.md');
     expect(container.textContent).toContain('Catalog-estimated');
     expect(container.textContent).toContain('Two proven executable routes exist. Benchmark comparison can begin.');
-    expect(container.textContent).toContain('No route winner is claimed.');
+    expect(container.textContent).toContain('minimum 5 successful runs per route');
+    expect(container.textContent).toContain('compare median latency');
+    expect(container.textContent).toContain('require success rate >= 80%');
+    expect(container.textContent).toContain('require high/medium normalization confidence');
+    expect(container.textContent).toContain('allow no-clear-winner outcome');
+    expect(container.textContent).not.toContain('StableCrypto is winning');
+    expect(container.textContent).not.toContain('PaySponge is winning');
     expect(container.textContent).not.toContain('HTTP 200');
     expect(container.textContent).toContain('StableCrypto: verified/proven');
     expect(container.textContent).toContain('CoinGecko Onchain DEX API: verified/proven');

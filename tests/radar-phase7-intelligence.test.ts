@@ -220,6 +220,12 @@ describe('phase7 intelligence', () => {
     expect(sol).toBeTruthy();
     expect(sol.winner_claimed).toBe(false);
     expect(sol.benchmark_recorded).toBe(true);
+    expect(sol.winner_status).toBe('insufficient_runs');
+    expect(sol.winner_policy).toBeTruthy();
+    expect(sol.winner_policy.completed_runs).toBe(1);
+    expect(sol.winner_policy.required_runs).toBe(5);
+    expect(sol.winner_policy.winner_status).toBe('insufficient_runs');
+    expect(sol.winner_policy.winner_claimed).toBe(false);
     expect(sol.routes.map((item: any) => item.provider_id)).toEqual(expect.arrayContaining([
       'merit-systems-stablecrypto-market-data',
       'paysponge-coingecko'
@@ -255,6 +261,9 @@ describe('phase7 intelligence', () => {
     expect(detailResponse.statusCode).toBe(200);
     expect(detailResponse.json().data.winner_claimed).toBe(false);
     expect(detailResponse.json().data.benchmark_recorded).toBe(true);
+    expect(detailResponse.json().data.winner_status).toBe('insufficient_runs');
+    expect(detailResponse.json().data.winner_policy.completed_runs).toBe(1);
+    expect(detailResponse.json().data.winner_policy.required_runs).toBe(5);
     await app.close();
   });
 });

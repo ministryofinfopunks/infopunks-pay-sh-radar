@@ -207,6 +207,10 @@ Command palette actions include:
   Returns the SOL price benchmark record with artifact-backed normalized evidence. This is not a winner claim.
   `benchmark_recorded=true` means normalized evidence has been recorded.
   `winner_claimed=false` means no route superiority result is claimed yet.
+  `winner_status` can be `not_evaluated | insufficient_runs | no_clear_winner | provisional_winner | winner_claimed`.
+  `winner_policy` defines proof-before-claims criteria (minimum runs, success rate, confidence, latency metric, and scoring weights).
+  One run is not enough for superiority; with `completed_runs=1` and `required_runs=5`, status remains `insufficient_runs`.
+  Winner evaluation can legitimately end with `no_clear_winner`.
   `status_code` can be `null` in `pay_cli` mode.
   `status_evidence` explains proof basis when HTTP status is not exposed.
   `extracted_price_usd` is artifact-backed benchmark evidence, not live-refreshed by Radar.
@@ -237,7 +241,8 @@ Benchmark Readiness note:
 - PaySponge CoinGecko SOL pool search route is proven.
 - Benchmark-ready category: `finance/data` with intent `get SOL price`.
 - No superiority winner is claimed yet.
-- Next step: record normalized head-to-head benchmark metrics.
+- Winner claim requires policy criteria, not just one recorded run.
+- Next step: run 4 more benchmark rounds before winner evaluation.
 
 ---
 

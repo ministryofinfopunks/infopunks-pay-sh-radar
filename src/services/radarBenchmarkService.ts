@@ -61,7 +61,30 @@ function buildSolPriceBenchmark(): RadarBenchmarkDetail {
     benchmark_intent: 'get SOL price',
     benchmark_recorded: true,
     winner_claimed: false,
-    next_step: 'define normalized winner criteria before claiming route superiority',
+    winner_status: 'insufficient_runs',
+    winner_policy: {
+      policy_id: 'sol-price-v0.1',
+      policy_version: '0.1',
+      required_successful_runs_per_route: 5,
+      minimum_success_rate: 0.8,
+      allowed_price_variance_percent: 1.0,
+      latency_metric: 'median',
+      required_confidence: ['high', 'medium'],
+      scoring_weights: {
+        reliability: 0.4,
+        latency: 0.25,
+        normalization_confidence: 0.15,
+        price_consistency: 0.1,
+        cost_clarity: 0.05,
+        freshness: 0.05
+      },
+      winner_status: 'insufficient_runs',
+      winner_claimed: false,
+      completed_runs: 1,
+      required_runs: 5,
+      next_step: 'run 4 more benchmark rounds before winner evaluation'
+    },
+    next_step: 'run 4 more benchmark rounds before winner evaluation',
     readiness_note: 'Live normalized benchmark evidence exists. No winner is claimed.',
     routes
   };

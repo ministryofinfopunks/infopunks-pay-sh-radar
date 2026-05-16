@@ -219,7 +219,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   add('get', '/v1/radar/superiority-readiness', radarGet('Radar Readiness', 'Get superiority proof readiness', 'Returns whether Radar has enough registry-backed proven evidence to start superiority benchmarking. This indicates readiness to compare, not a superiority winner claim.', { $ref: '#/components/schemas/SuperiorityReadinessResponse' }, { executable_provider_mappings_count: 0, providers_with_proven_paid_execution: [], winner_claimed: false }));
   add('get', '/v1/radar/benchmark-readiness', radarGet('Radar Readiness', 'Get benchmark readiness', 'Returns category-level benchmark readiness and superiority readiness splits.', { $ref: '#/components/schemas/BenchmarkReadinessResponse' }, { benchmark_ready_categories: [], superiority_ready_categories: [] }));
   add('get', '/v1/radar/benchmarks', radarGet('Radar Readiness', 'Get head-to-head benchmark registry', 'Returns recorded head-to-head benchmark scaffolds. A benchmark row can be metrics-pending and never implies a winner claim.', { $ref: '#/components/schemas/BenchmarkRegistryResponse' }, { benchmarks: [] }));
-  add('get', '/v1/radar/benchmarks/finance-data-sol-price', radarGet('Radar Readiness', 'Get SOL price benchmark scaffold', 'Returns the finance/data get SOL price head-to-head benchmark scaffold with recorded normalized evidence. benchmark_recorded=true means normalized evidence has been recorded, not that a winner is claimed. status_code may be null in pay_cli mode and status_evidence explains proof basis.', { $ref: '#/components/schemas/BenchmarkDetailResponse' }, { benchmark_id: 'finance-data-sol-price', winner_claimed: false, benchmark_recorded: true }));
+  add('get', '/v1/radar/benchmarks/finance-data-sol-price', radarGet('Radar Readiness', 'Get SOL price benchmark scaffold', 'Returns the finance/data get SOL price head-to-head benchmark scaffold with recorded normalized evidence. benchmark_recorded=true means normalized evidence has been recorded, not that a winner is claimed. winner_status=insufficient_runs means proof criteria are not yet met. status_code may be null in pay_cli mode and status_evidence explains proof basis.', { $ref: '#/components/schemas/BenchmarkDetailResponse' }, { benchmark_id: 'finance-data-sol-price', winner_claimed: false, benchmark_recorded: true, winner_status: 'insufficient_runs' }));
 
   add('get', '/v1/radar/history/providers/{provider_id}', radarHistoryPath('provider_id', 'Provider history'));
   add('get', '/v1/radar/history/endpoints/{endpoint_id}', radarHistoryPath('endpoint_id', 'Endpoint history'));
@@ -382,6 +382,35 @@ function componentSchemas(): Record<string, JsonSchema> {
     recommended_next_mapping: stringSchema(),
     mapping_ladder: arrayOf(stringSchema()),
     metadata_only_warning: nullableString()
+  });
+  const benchmarkWinnerStatus = enumSchema([
+    'not_evaluated',
+    'insufficient_runs',
+    'no_clear_winner',
+    'provisional_winner',
+    'winner_claimed'
+  ]);
+  const benchmarkWinnerPolicy = objectSchema({
+    policy_id: stringSchema(),
+    policy_version: stringSchema(),
+    required_successful_runs_per_route: integerSchema(),
+    minimum_success_rate: { type: 'number', minimum: 0, maximum: 1 },
+    allowed_price_variance_percent: { type: 'number', minimum: 0 },
+    latency_metric: enumSchema(['median']),
+    required_confidence: arrayOf(enumSchema(['high', 'medium'])),
+    scoring_weights: objectSchema({
+      reliability: { type: 'number', minimum: 0, maximum: 1 },
+      latency: { type: 'number', minimum: 0, maximum: 1 },
+      normalization_confidence: { type: 'number', minimum: 0, maximum: 1 },
+      price_consistency: { type: 'number', minimum: 0, maximum: 1 },
+      cost_clarity: { type: 'number', minimum: 0, maximum: 1 },
+      freshness: { type: 'number', minimum: 0, maximum: 1 }
+    }),
+    winner_status: benchmarkWinnerStatus,
+    winner_claimed: booleanSchema(),
+    completed_runs: integerSchema(),
+    required_runs: integerSchema(),
+    next_step: stringSchema()
   });
 
   return {
@@ -557,6 +586,8 @@ function componentSchemas(): Record<string, JsonSchema> {
       benchmark_intent: stringSchema(),
       benchmark_recorded: booleanSchema(),
       winner_claimed: booleanSchema(),
+      winner_status: benchmarkWinnerStatus,
+      winner_policy: benchmarkWinnerPolicy,
       next_step: stringSchema(),
       readiness_note: stringSchema(),
       routes: arrayOf({ $ref: '#/components/schemas/BenchmarkRouteMetric' })
