@@ -712,6 +712,55 @@ export const RadarBenchmarkListSchema = z.object({
   benchmarks: z.array(RadarBenchmarkDetailSchema)
 });
 
+export const RadarBenchmarkArtifactRouteSchema = z.object({
+  provider_id: z.string(),
+  route_id: z.string(),
+  execution_status: z.enum(['verified', 'proven']),
+  success: z.boolean(),
+  latency_ms: z.number().int().positive().nullable(),
+  paid_execution_proven: z.boolean(),
+  proof_reference: z.string(),
+  normalized_output_available: z.boolean(),
+  extracted_price_usd: z.number().nonnegative().nullable(),
+  extraction_path: z.string().nullable(),
+  success_rate: z.number().min(0).max(1).nullable(),
+  median_latency_ms: z.number().int().positive().nullable(),
+  p95_latency_ms: z.number().int().positive().nullable(),
+  average_price_usd: z.number().nonnegative().nullable(),
+  min_price_usd: z.number().nonnegative().nullable(),
+  max_price_usd: z.number().nonnegative().nullable(),
+  price_variance_percent: z.number().nonnegative().nullable(),
+  completed_runs: z.number().int().nonnegative().nullable(),
+  failed_runs: z.number().int().nonnegative().nullable(),
+  execution_transport: z.literal('pay_cli'),
+  cli_exit_code: z.number().int().nullable(),
+  status_code: z.number().int().nullable(),
+  status_evidence: z.string(),
+  normalization_confidence: z.enum(['unknown', 'low', 'medium', 'high']),
+  freshness_timestamp: z.string().datetime().nullable(),
+  comparison_notes: z.string()
+});
+
+export const RadarBenchmarkArtifactSchema = z.object({
+  artifact_id: z.string(),
+  benchmark_id: z.string(),
+  generated_at: z.string().datetime(),
+  source_repo: z.string().url(),
+  artifact_path: z.string(),
+  total_runs: z.number().int().nonnegative(),
+  winner_claimed: z.boolean(),
+  winner_status: RadarBenchmarkWinnerStatusSchema,
+  routes: z.array(RadarBenchmarkArtifactRouteSchema),
+  aggregate_metrics: z.record(z.string(), z.unknown()),
+  notes: z.string()
+});
+
+export const RadarBenchmarkArtifactListSchema = z.object({
+  generated_at: z.string().datetime(),
+  source: z.literal('infopunks-pay-sh-radar'),
+  artifacts: z.array(RadarBenchmarkArtifactSchema)
+});
+
 export const RadarRiskAnomalySchema = z.object({
   anomaly_type: z.enum([
     'sudden_trust_drop',
@@ -865,6 +914,9 @@ export type RadarBenchmarkDetail = z.infer<typeof RadarBenchmarkDetailSchema>;
 export type BenchmarkHistoryEntry = z.infer<typeof BenchmarkHistoryEntrySchema>;
 export type RadarBenchmarkHistory = z.infer<typeof RadarBenchmarkHistorySchema>;
 export type RadarBenchmarkList = z.infer<typeof RadarBenchmarkListSchema>;
+export type RadarBenchmarkWinnerStatus = z.infer<typeof RadarBenchmarkWinnerStatusSchema>;
+export type RadarBenchmarkArtifact = z.infer<typeof RadarBenchmarkArtifactSchema>;
+export type RadarBenchmarkArtifactList = z.infer<typeof RadarBenchmarkArtifactListSchema>;
 export type RadarRiskAnomaly = z.infer<typeof RadarRiskAnomalySchema>;
 export type RadarRiskResponse = z.infer<typeof RadarRiskResponseSchema>;
 export type RadarEcosystemRiskSummary = z.infer<typeof RadarEcosystemRiskSummarySchema>;

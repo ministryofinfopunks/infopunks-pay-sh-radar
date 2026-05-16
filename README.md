@@ -217,6 +217,12 @@ Command palette actions include:
   `extracted_price_usd` is artifact-backed benchmark evidence, not live-refreshed by Radar.
   Route rows may include aggregate fields:
   `success_rate`, `median_latency_ms`, `p95_latency_ms`, `average_price_usd`, `min_price_usd`, `max_price_usd`, `price_variance_percent`, `completed_runs`, `failed_runs`.
+- `GET /v1/radar/benchmark-artifacts`
+  Returns curated/imported benchmark artifact metadata records used by Radar benchmark summaries.
+- `GET /v1/radar/benchmark-artifacts/:artifact_id`
+  Returns one curated/imported benchmark artifact metadata record.
+  Raw proof contents are not served.
+  Radar does not execute paid APIs from artifact routes.
 - `POST /v1/radar/preflight/batch`
   Runs multiple safe preflight checks in one request (max 25) with per-query success/error.
 - `GET /v1/radar/export/providers.csv`

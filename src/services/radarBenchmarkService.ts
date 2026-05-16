@@ -1,12 +1,53 @@
 import { BenchmarkHistoryEntry, RadarBenchmarkDetail, RadarBenchmarkHistory, RadarBenchmarkList, RadarBenchmarkRouteMetric } from '../schemas/entities';
 import { listRouteMappings } from './providerEndpointMap';
+import { getLatestBenchmarkArtifact, listBenchmarkArtifacts } from '../data/benchmarkArtifacts';
 
 const SOL_PRICE_BENCHMARK_ID = 'finance-data-sol-price';
 const SOL_PRICE_CATEGORY = 'finance/data';
 const SOL_PRICE_INTENT = 'get sol price';
 const BENCHMARK_EVIDENCE_AT = '2026-05-16T07:42:42.271Z';
 const BENCHMARK_PROOF_REFERENCE = 'live-proofs/finance-data-sol-price-benchmark-runs-2026-05-16.md';
-const PAY_CLI_STATUS_EVIDENCE = 'pay_cli exit code 0 and parsed response body';
+
+export type BenchmarkArtifactSafeMetadata = {
+  artifact_id: string;
+  benchmark_id: string;
+  generated_at: string;
+  source_repo: string;
+  artifact_path: string;
+  total_runs: number;
+  winner_claimed: boolean;
+  winner_status: 'not_evaluated' | 'insufficient_runs' | 'no_clear_winner' | 'provisional_winner' | 'winner_claimed';
+  routes: Array<{
+    provider_id: string;
+    route_id: string;
+    execution_status: 'verified' | 'proven';
+    success: boolean;
+    latency_ms: number | null;
+    paid_execution_proven: boolean;
+    proof_reference: string;
+    normalized_output_available: boolean;
+    extracted_price_usd: number | null;
+    extraction_path: string | null;
+    success_rate: number | null;
+    median_latency_ms: number | null;
+    p95_latency_ms: number | null;
+    average_price_usd: number | null;
+    min_price_usd: number | null;
+    max_price_usd: number | null;
+    price_variance_percent: number | null;
+    completed_runs: number | null;
+    failed_runs: number | null;
+    execution_transport: 'pay_cli';
+    cli_exit_code: number | null;
+    status_code: number | null;
+    status_evidence: string;
+    normalization_confidence: 'unknown' | 'low' | 'medium' | 'high';
+    freshness_timestamp: string | null;
+    comparison_notes: string;
+  }>;
+  aggregate_metrics: Record<string, unknown>;
+  notes: string;
+};
 
 export function buildRadarBenchmarks(): RadarBenchmarkList {
   const benchmark = buildSolPriceBenchmark();
@@ -55,45 +96,51 @@ export function buildRadarBenchmarkHistoryById(id: string): RadarBenchmarkHistor
   };
 }
 
+export function listBenchmarkArtifactMetadata(): BenchmarkArtifactSafeMetadata[] {
+  return listBenchmarkArtifacts().map((artifact) => ({ ...artifact }));
+}
+
+export function getBenchmarkArtifactMetadataById(id: string): BenchmarkArtifactSafeMetadata | null {
+  const artifact = listBenchmarkArtifacts().find((item) => item.artifact_id === id) ?? null;
+  if (!artifact) return null;
+  return { ...artifact };
+}
+
 function buildSolPriceBenchmark(): RadarBenchmarkDetail {
+  const latestArtifact = getLatestBenchmarkArtifact(SOL_PRICE_BENCHMARK_ID);
   const routes = listRouteMappings()
     .filter((entry) => entry.category.toLowerCase() === SOL_PRICE_CATEGORY && entry.benchmark_intent.toLowerCase() === SOL_PRICE_INTENT)
     .filter((entry) => entry.mapping_status === 'verified')
     .map((entry): RadarBenchmarkRouteMetric => {
-      const isStable = entry.provider_id === 'merit-systems-stablecrypto-market-data';
-      const isPaySponge = entry.provider_id === 'paysponge-coingecko';
+      const routeArtifact = latestArtifact?.routes.find((route) => route.provider_id === entry.provider_id);
       return {
       provider_id: entry.provider_id,
       route_id: `${entry.provider_id}:${entry.method ?? 'UNKNOWN'}:${entry.endpoint_url}`,
       execution_status: (entry.execution_evidence_status === 'proven' ? 'proven' : 'verified') as 'verified' | 'proven',
-      success: true,
-      latency_ms: isStable ? 5691 : isPaySponge ? 7761 : null,
+      success: routeArtifact?.success ?? true,
+      latency_ms: routeArtifact?.latency_ms ?? null,
       paid_execution_proven: entry.execution_evidence_status === 'proven',
-      proof_reference: isStable
-        ? 'live-proofs/stablecrypto-harness-pay-cli-2026-05-12.md'
-        : isPaySponge
-          ? 'live-proofs/paysponge-coingecko-paid-execution-2026-05-15.md'
-          : BENCHMARK_PROOF_REFERENCE,
-      normalized_output_available: true,
-      extracted_price_usd: isStable ? 87.57 : isPaySponge ? 87.50392093173244 : null,
-      extraction_path: isStable ? 'solana.usd' : isPaySponge ? 'data[sol_usdc].attributes.base_token_price_usd' : null,
-      success_rate: isStable || isPaySponge ? 1 : null,
-      median_latency_ms: isStable ? 5691 : isPaySponge ? 7761 : null,
-      p95_latency_ms: isStable ? 6469 : isPaySponge ? 7946 : null,
-      average_price_usd: isStable ? 87.57 : isPaySponge ? 87.50392093173244 : null,
-      min_price_usd: isStable ? 87.57 : isPaySponge ? 87.50332626375734 : null,
-      max_price_usd: isStable ? 87.57 : isPaySponge ? 87.50629960363277 : null,
-      price_variance_percent: isStable ? 0 : isPaySponge ? 0.0033979504504081403 : null,
-      completed_runs: isStable || isPaySponge ? 5 : null,
-      failed_runs: isStable || isPaySponge ? 0 : null,
+      proof_reference: routeArtifact?.proof_reference ?? BENCHMARK_PROOF_REFERENCE,
+      normalized_output_available: routeArtifact?.normalized_output_available ?? true,
+      extracted_price_usd: routeArtifact?.extracted_price_usd ?? null,
+      extraction_path: routeArtifact?.extraction_path ?? null,
+      success_rate: routeArtifact?.success_rate ?? null,
+      median_latency_ms: routeArtifact?.median_latency_ms ?? null,
+      p95_latency_ms: routeArtifact?.p95_latency_ms ?? null,
+      average_price_usd: routeArtifact?.average_price_usd ?? null,
+      min_price_usd: routeArtifact?.min_price_usd ?? null,
+      max_price_usd: routeArtifact?.max_price_usd ?? null,
+      price_variance_percent: routeArtifact?.price_variance_percent ?? null,
+      completed_runs: routeArtifact?.completed_runs ?? null,
+      failed_runs: routeArtifact?.failed_runs ?? null,
       execution_transport: 'pay_cli' as const,
-      cli_exit_code: 0,
-      status_code: null,
-      status_evidence: PAY_CLI_STATUS_EVIDENCE,
+      cli_exit_code: routeArtifact?.cli_exit_code ?? 0,
+      status_code: routeArtifact?.status_code ?? null,
+      status_evidence: routeArtifact?.status_evidence ?? 'pay_cli exit code 0 and parsed response body',
       output_shape: sanitizeOutputShapeExample(entry.provider_id, entry.response_shape_example ?? null),
-      normalization_confidence: (isStable || isPaySponge ? 'high' : 'unknown') as 'unknown' | 'low' | 'medium' | 'high',
-      freshness_timestamp: BENCHMARK_EVIDENCE_AT,
-      comparison_notes: 'Five-run benchmark recorded. Both routes succeeded. No winner is claimed until scoring thresholds are finalized.'
+      normalization_confidence: (routeArtifact?.normalization_confidence ?? 'unknown') as 'unknown' | 'low' | 'medium' | 'high',
+      freshness_timestamp: routeArtifact?.freshness_timestamp ?? BENCHMARK_EVIDENCE_AT,
+      comparison_notes: routeArtifact?.comparison_notes ?? 'Five-run benchmark recorded. Both routes succeeded. No winner is claimed until scoring thresholds are finalized.'
       };
     });
 

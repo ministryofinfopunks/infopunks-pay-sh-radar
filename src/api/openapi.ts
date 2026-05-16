@@ -233,6 +233,14 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   add('get', '/v1/radar/benchmarks', radarGet('Radar Readiness', 'Get head-to-head benchmark registry', 'Returns recorded head-to-head benchmark scaffolds. A benchmark row can be metrics-pending and never implies a winner claim.', { $ref: '#/components/schemas/BenchmarkRegistryResponse' }, { benchmarks: [] }));
   add('get', '/v1/radar/benchmarks/finance-data-sol-price', radarGet('Radar Readiness', 'Get SOL price benchmark scaffold', 'Returns the finance/data get SOL price head-to-head benchmark scaffold with recorded normalized evidence. benchmark_recorded=true means normalized evidence has been recorded, not that a winner is claimed. winner_status=no_clear_winner means run criteria were met but no route winner is claimed. status_code may be null in pay_cli mode and status_evidence explains proof basis.', { $ref: '#/components/schemas/BenchmarkDetailResponse' }, { benchmark_id: 'finance-data-sol-price', winner_claimed: false, benchmark_recorded: true, winner_status: 'no_clear_winner' }));
   add('get', '/v1/radar/benchmarks/finance-data-sol-price/history', radarGet('Radar Readiness', 'Get SOL price benchmark history timeline', 'Returns additive read-only benchmark timeline entries derived from known benchmark artifacts. Entries are evidence snapshots and do not imply a winner claim.', { $ref: '#/components/schemas/BenchmarkHistoryResponse' }, { benchmark_id: 'finance-data-sol-price', entries: [{ run_count: 1, benchmark_recorded: true, winner_claimed: false }, { run_count: 5, benchmark_recorded: true, winner_status: 'no_clear_winner', winner_claimed: false }] }));
+  add('get', '/v1/radar/benchmark-artifacts', radarGet('Radar Readiness', 'List benchmark artifacts', 'Returns curated/imported benchmark evidence records used to build benchmark summaries. Raw proof files are not served, and Radar does not execute paid APIs from this route.', { $ref: '#/components/schemas/BenchmarkArtifactRegistryResponse' }, { artifacts: [] }));
+  add('get', '/v1/radar/benchmark-artifacts/{artifact_id}', {
+    tags: ['Radar Readiness'],
+    summary: 'Get benchmark artifact metadata',
+    description: `${SAFE_METADATA_NOTE} Returns safe benchmark artifact metadata for one artifact. Raw proof contents are not exposed. Artifacts are curated/imported evidence records and this route does not execute paid APIs.`,
+    parameters: [pathParam('artifact_id', 'Benchmark artifact identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/BenchmarkArtifactResponse' }, { artifact_id: 'finance-data-sol-price-runs-2026-05-16', benchmark_id: 'finance-data-sol-price' }, 'benchmark_artifact_not_found')
+  });
 
   add('get', '/v1/radar/history/providers/{provider_id}', radarHistoryPath('provider_id', 'Provider history'));
   add('get', '/v1/radar/history/endpoints/{endpoint_id}', radarHistoryPath('endpoint_id', 'Endpoint history'));
@@ -636,6 +644,52 @@ function componentSchemas(): Record<string, JsonSchema> {
       generated_at: dateTimeSchema(),
       source: { const: 'infopunks-pay-sh-radar' },
       benchmarks: arrayOf({ $ref: '#/components/schemas/BenchmarkDetailResponse' })
+    }),
+    BenchmarkArtifactRoute: objectSchema({
+      provider_id: stringSchema(),
+      route_id: stringSchema(),
+      execution_status: enumSchema(['verified', 'proven']),
+      success: booleanSchema(),
+      latency_ms: { oneOf: [integerSchema(), { type: 'null' }] },
+      paid_execution_proven: booleanSchema(),
+      proof_reference: stringSchema(),
+      normalized_output_available: booleanSchema(),
+      extracted_price_usd: { oneOf: [{ type: 'number', minimum: 0 }, { type: 'null' }] },
+      extraction_path: { oneOf: [stringSchema(), { type: 'null' }] },
+      success_rate: { oneOf: [{ type: 'number', minimum: 0, maximum: 1 }, { type: 'null' }] },
+      median_latency_ms: { oneOf: [integerSchema(), { type: 'null' }] },
+      p95_latency_ms: { oneOf: [integerSchema(), { type: 'null' }] },
+      average_price_usd: { oneOf: [{ type: 'number', minimum: 0 }, { type: 'null' }] },
+      min_price_usd: { oneOf: [{ type: 'number', minimum: 0 }, { type: 'null' }] },
+      max_price_usd: { oneOf: [{ type: 'number', minimum: 0 }, { type: 'null' }] },
+      price_variance_percent: { oneOf: [{ type: 'number', minimum: 0 }, { type: 'null' }] },
+      completed_runs: { oneOf: [integerSchema(), { type: 'null' }] },
+      failed_runs: { oneOf: [integerSchema(), { type: 'null' }] },
+      execution_transport: { const: 'pay_cli' },
+      cli_exit_code: { oneOf: [integerSchema(), { type: 'null' }] },
+      status_code: { oneOf: [integerSchema(), { type: 'null' }] },
+      status_evidence: stringSchema(),
+      normalization_confidence: enumSchema(['unknown', 'low', 'medium', 'high']),
+      freshness_timestamp: { oneOf: [dateTimeSchema(), { type: 'null' }] },
+      comparison_notes: stringSchema()
+    }),
+    BenchmarkArtifactResponse: objectSchema({
+      artifact_id: stringSchema(),
+      benchmark_id: stringSchema(),
+      generated_at: dateTimeSchema(),
+      source_repo: stringSchema(),
+      artifact_path: stringSchema(),
+      total_runs: integerSchema(),
+      winner_claimed: booleanSchema(),
+      winner_status: benchmarkWinnerStatus,
+      routes: arrayOf({ $ref: '#/components/schemas/BenchmarkArtifactRoute' }),
+      aggregate_metrics: freeformObject(),
+      notes: stringSchema()
+    }),
+    BenchmarkArtifactRegistryResponse: objectSchema({
+      generated_at: dateTimeSchema(),
+      source: { const: 'infopunks-pay-sh-radar' },
+      artifacts: arrayOf({ $ref: '#/components/schemas/BenchmarkArtifactResponse' })
     }),
     SuperiorityReadinessResponse: objectSchema({
       generated_at: dateTimeSchema(),
