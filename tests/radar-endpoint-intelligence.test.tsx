@@ -418,8 +418,8 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
         benchmark_recorded: false,
         winner_claimed: false,
         winner_status: 'not_evaluated',
-        next_step: 'run paid execution only when ready to produce proven evidence',
-        readiness_note: 'Verified route semantics exist, but paid execution proof is not recorded yet. Not benchmark-ready. No winner claimed.',
+        next_step: 'add and prove a second comparable token-search route',
+        readiness_note: 'One proven token-search route exists. A second comparable proven route is required before benchmark readiness. No winner claimed.',
         routes: []
       }]
     });
@@ -450,11 +450,11 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
           endpoint_url: 'https://pro-api.coingecko.com/api/v3/x402/onchain/search/pools?query=SOL',
           method: 'GET',
           mapping_status: 'verified',
-          execution_evidence_status: 'unproven',
+          execution_evidence_status: 'proven',
           proof_source: 'infopunks-pay-sh-agent-harness',
-          proof_reference: 'live-proofs/paysponge-coingecko-token-search-verified-unproven-2026-05-17.md',
+          proof_reference: 'live-proofs/paysponge-coingecko-token-search-paid-execution-2026-05-17.md',
           verified_at: '2026-05-17',
-          notes: 'Endpoint path, method, request shape, token-search intent, and unpaid 402 challenge verified. Paid execution not attempted. Not benchmark-ready.'
+          notes: 'Paid execution succeeded for token-search route. One proven route exists. Need a second comparable proven route before benchmark readiness. No route winner claimed.'
         },
         {
           provider_name: 'CoinGecko Onchain DEX API',
@@ -489,11 +489,11 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
         {
           category: 'finance/data',
           benchmark_intent: 'token search',
-          current_state: 'verified_mapping_found',
-          needed_next_step: 'Run paid execution only when ready to produce proven evidence.',
+          current_state: 'one_proven_mapping_found',
+          needed_next_step: 'Add and prove a second comparable token-search route.',
           suggested_provider_candidates: ['CoinGecko Onchain DEX API'],
           why_it_matters: 'Search intent is a common pre-route step for symbol resolution and benchmark input shaping.',
-          readiness_blocker: 'Verified route exists, but paid execution proof is not recorded.'
+          readiness_blocker: 'One proven route exists, but benchmark readiness requires two comparable proven routes.'
         },
         {
           category: 'ai_ml/data',
@@ -917,7 +917,7 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('These targets are planning prompts, not verified routes.');
     expect(container.textContent).toContain('token metadata');
     expect(container.textContent).toContain('needs_candidate');
-    expect(container.textContent).toContain('verified_mapping_found');
+    expect(container.textContent).toContain('one_proven_mapping_found');
     expect(container.textContent).toContain('needs_two_comparable_mappings');
     expect(container.textContent).toContain('No candidate selected yet.');
     expect(container.textContent).toContain('Needs catalog review.');

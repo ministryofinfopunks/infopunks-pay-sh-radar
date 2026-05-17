@@ -3,6 +3,7 @@ export type MappingTargetState =
   | 'needs_verified_route'
   | 'candidate_mapping_found'
   | 'verified_mapping_found'
+  | 'one_proven_mapping_found'
   | 'needs_two_comparable_mappings';
 
 export type MappingTarget = {
@@ -28,11 +29,11 @@ const mappingTargets: MappingTarget[] = [
   {
     category: 'finance/data',
     benchmark_intent: 'token search',
-    current_state: 'verified_mapping_found',
-    needed_next_step: 'Run paid execution only when ready to produce proven evidence.',
+    current_state: 'one_proven_mapping_found',
+    needed_next_step: 'Add and prove a second comparable token-search route.',
     suggested_provider_candidates: ['CoinGecko Onchain DEX API'],
     why_it_matters: 'Search intent is a common pre-route step for symbol resolution and benchmark input shaping.',
-    readiness_blocker: 'Verified route exists, but paid execution proof is not recorded.'
+    readiness_blocker: 'One proven route exists, but benchmark readiness requires two comparable proven routes.'
   },
   {
     category: 'ai_ml/data',
