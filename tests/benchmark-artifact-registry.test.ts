@@ -51,7 +51,7 @@ describe('benchmark artifact registry', () => {
       benchmark_recorded: false,
       winner_status: 'not_evaluated',
       winner_claimed: false,
-      readiness_note: 'Benchmark scaffold exists. Comparable proven routes are not yet recorded.',
+      readiness_note: 'Candidate mapping exists, but no proven route evidence is recorded yet. Candidate only. Not benchmark-ready. No winner claimed.',
       next_step: 'verify comparable token-search route mappings before benchmarking',
       routes: []
     });

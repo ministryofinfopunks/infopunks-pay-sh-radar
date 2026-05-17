@@ -295,6 +295,7 @@ describe('public benchmark proof pages', () => {
     expect(text).not.toContain('Benchmark Proof: finance-data-token-search');
     expect(text).toContain('Benchmark scaffold');
     expect(text).toContain('Comparable proven routes are not yet recorded.');
+    expect(text).toContain('Candidate only. Not benchmark-ready. No winner claimed.');
     expect(text).toContain('Winner claimed: no.');
     expect(text).toContain('Status: not evaluated.');
     expect(text).toContain('Next: verify comparable token-search route mappings before benchmarking.');

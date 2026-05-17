@@ -313,7 +313,7 @@ type RadarRouteMappingRegistry = {
 type RadarMappingTarget = {
   category: string;
   benchmark_intent: string;
-  current_state: 'needs_candidate' | 'needs_verified_route' | 'needs_two_comparable_mappings';
+  current_state: 'needs_candidate' | 'needs_verified_route' | 'candidate_mapping_found' | 'needs_two_comparable_mappings';
   needed_next_step: string;
   suggested_provider_candidates?: string[];
   why_it_matters: string;
@@ -997,11 +997,12 @@ function BenchmarkProofContent({ benchmark, history }: { benchmark: RadarBenchma
           <span>Planning</span>
         </div>
         <p>Comparable proven routes are not yet recorded.</p>
+        <p>Candidate only. Not benchmark-ready. No winner claimed.</p>
         <p>Winner claimed: no.</p>
         <p>Status: not evaluated.</p>
         <p>Next: {benchmark.next_step}.</p>
         <p>No artifact exists until benchmark evidence is recorded.</p>
-        {hasTokenSearchMappingTarget && <p><a href="/#mapping-targets">Mapping target: finance/data token search</a> remains planning-only until route mappings are verified.</p>}
+        {hasTokenSearchMappingTarget && <p><a href="/#mapping-targets">Mapping target: finance/data token search</a> remains candidate-only until execution evidence is proven.</p>}
       </div>}
     </section>
     <section className="panel">
@@ -3716,7 +3717,7 @@ function MappingTargetsPanel({ registry }: { registry: RadarMappingTargetRegistr
 }
 
 function mappingTargetBadgeClass(state: RadarMappingTarget['current_state']) {
-  if (state === 'needs_verified_route') return 'route-state warn';
+  if (state === 'needs_verified_route' || state === 'candidate_mapping_found') return 'route-state warn';
   if (state === 'needs_two_comparable_mappings') return 'route-state';
   return 'route-state';
 }

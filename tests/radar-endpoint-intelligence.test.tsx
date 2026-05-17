@@ -446,6 +446,20 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
           provider_name: 'CoinGecko Onchain DEX API',
           provider_id: 'paysponge-coingecko',
           category: 'finance/data',
+          benchmark_intent: 'token search',
+          endpoint_url: 'https://pro-api.coingecko.com/api/v3/x402/onchain/search/pools?query=SOL',
+          method: 'GET',
+          mapping_status: 'candidate',
+          execution_evidence_status: 'unproven',
+          proof_source: 'infopunks-pay-sh-agent-harness',
+          proof_reference: 'live-proofs/paysponge-coingecko-token-search-probe-2026-05-17.md',
+          verified_at: null,
+          notes: 'Unpaid 402 challenge observed. Paid execution not attempted. Candidate evidence only.'
+        },
+        {
+          provider_name: 'CoinGecko Onchain DEX API',
+          provider_id: 'paysponge-coingecko',
+          category: 'finance/data',
           benchmark_intent: 'get SOL price',
           endpoint_url: 'https://pro-api.coingecko.com/api/v3/x402/onchain/search/pools?query=SOL',
           method: 'GET',
@@ -475,11 +489,11 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
         {
           category: 'finance/data',
           benchmark_intent: 'token search',
-          current_state: 'needs_verified_route',
-          needed_next_step: 'Promote a candidate token-search mapping to a verified route with known method/path/body.',
+          current_state: 'candidate_mapping_found',
+          needed_next_step: 'Verify endpoint/method/response shape and run paid execution only when ready.',
           suggested_provider_candidates: ['CoinGecko Onchain DEX API'],
           why_it_matters: 'Search intent is a common pre-route step for symbol resolution and benchmark input shaping.',
-          readiness_blocker: 'A candidate exists conceptually, but no verified executable mapping is recorded.'
+          readiness_blocker: 'Candidate route exists, but paid execution proof is not recorded.'
         },
         {
           category: 'ai_ml/data',
@@ -903,7 +917,7 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('These targets are planning prompts, not verified routes.');
     expect(container.textContent).toContain('token metadata');
     expect(container.textContent).toContain('needs_candidate');
-    expect(container.textContent).toContain('needs_verified_route');
+    expect(container.textContent).toContain('candidate_mapping_found');
     expect(container.textContent).toContain('needs_two_comparable_mappings');
     expect(container.textContent).toContain('No candidate selected yet.');
     expect(container.textContent).toContain('Needs catalog review.');

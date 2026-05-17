@@ -190,7 +190,7 @@ function buildTokenSearchBenchmark(): RadarBenchmarkDetail {
     winner_claimed: false,
     winner_status: 'not_evaluated',
     next_step: 'verify comparable token-search route mappings before benchmarking',
-    readiness_note: 'Benchmark scaffold exists. Comparable proven routes are not yet recorded.',
+    readiness_note: 'Candidate mapping exists, but no proven route evidence is recorded yet. Candidate only. Not benchmark-ready. No winner claimed.',
     routes: []
   };
 }
