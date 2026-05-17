@@ -230,6 +230,48 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   });
   add('get', '/v1/radar/superiority-readiness', radarGet('Radar Readiness', 'Get superiority proof readiness', 'Returns whether Radar has enough registry-backed proven evidence to start superiority benchmarking. This indicates readiness to compare, not a superiority winner claim.', { $ref: '#/components/schemas/SuperiorityReadinessResponse' }, { executable_provider_mappings_count: 0, providers_with_proven_paid_execution: [], winner_claimed: false }));
   add('get', '/v1/radar/benchmark-readiness', radarGet('Radar Readiness', 'Get benchmark readiness', 'Returns category-level benchmark readiness and superiority readiness splits.', { $ref: '#/components/schemas/BenchmarkReadinessResponse' }, { benchmark_ready_categories: [], superiority_ready_categories: [] }));
+  add('get', '/v1/radar/benchmark-summary', radarGet(
+    'Radar Readiness',
+    'Get compact agent benchmark summary',
+    'Returns lightweight agent-readable benchmark state without route-level metrics. Agents can use this endpoint for basic benchmark discovery, winner-claim interpretation, and artifact IDs before deciding whether to fetch full benchmark details. winner_claimed=false means no route winner should be inferred; winner_status=no_clear_winner means evidence exists but scoring thresholds do not crown a route.',
+    { $ref: '#/components/schemas/BenchmarkSummaryResponse' },
+    {
+      generated_at: '2026-05-16T07:42:42.271Z',
+      source: 'infopunks-pay-sh-radar',
+      recorded_benchmarks: 2,
+      total_benchmarks: 2,
+      winner_claimed: false,
+      benchmarks: [
+        {
+          benchmark_id: 'finance-data-sol-price',
+          category: 'finance/data',
+          benchmark_intent: 'get SOL price',
+          status: 'recorded',
+          benchmark_recorded: true,
+          winner_status: 'no_clear_winner',
+          winner_claimed: false,
+          routes_count: 2,
+          artifact_id: 'finance-data-sol-price-benchmark-runs-2026-05-16'
+        },
+        {
+          benchmark_id: 'finance-data-token-search',
+          category: 'finance/data',
+          benchmark_intent: 'token search',
+          status: 'recorded',
+          benchmark_recorded: true,
+          winner_status: 'no_clear_winner',
+          winner_claimed: false,
+          routes_count: 2,
+          artifact_id: 'finance-data-token-search-benchmark-runs-2026-05-17'
+        }
+      ],
+      agent_guidance: [
+        'winner_claimed=false means no route winner should be inferred.',
+        'winner_status=no_clear_winner means evidence exists but scoring thresholds do not crown a route.',
+        'Use full benchmark endpoints for route-level metrics.'
+      ]
+    }
+  ));
   add('get', '/v1/radar/benchmarks', radarGet('Radar Readiness', 'Get head-to-head benchmark registry', 'Returns recorded head-to-head benchmark scaffolds. A benchmark row can be metrics-pending and never implies a winner claim.', { $ref: '#/components/schemas/BenchmarkRegistryResponse' }, { benchmarks: [] }));
   add('get', '/v1/radar/benchmarks/finance-data-sol-price', radarGet('Radar Readiness', 'Get SOL price benchmark scaffold', 'Returns the finance/data get SOL price head-to-head benchmark scaffold with recorded normalized evidence. benchmark_recorded=true means normalized evidence has been recorded, not that a winner is claimed. winner_status=no_clear_winner means run criteria were met but no route winner is claimed. status_code may be null in pay_cli mode and status_evidence explains proof basis.', { $ref: '#/components/schemas/BenchmarkDetailResponse' }, { benchmark_id: 'finance-data-sol-price', winner_claimed: false, benchmark_recorded: true, winner_status: 'no_clear_winner' }));
   add('get', '/v1/radar/benchmarks/finance-data-token-search', radarGet('Radar Readiness', 'Get token-search benchmark scaffold', 'Returns the finance/data token-search planning scaffold. benchmark_recorded=false means no normalized benchmark evidence exists yet. winner_status=not_evaluated means agents must not use it as routing proof. routes=[] means no comparable benchmark runs are recorded as benchmark evidence, even when proven mappings exist.', { $ref: '#/components/schemas/BenchmarkDetailResponse' }, { benchmark_id: 'finance-data-token-search', winner_claimed: false, benchmark_recorded: false, winner_status: 'not_evaluated', routes: [] }));
@@ -646,6 +688,26 @@ function componentSchemas(): Record<string, JsonSchema> {
       generated_at: dateTimeSchema(),
       source: { const: 'infopunks-pay-sh-radar' },
       benchmarks: arrayOf({ $ref: '#/components/schemas/BenchmarkDetailResponse' })
+    }),
+    BenchmarkSummaryRow: objectSchema({
+      benchmark_id: stringSchema(),
+      category: stringSchema(),
+      benchmark_intent: stringSchema(),
+      status: enumSchema(['recorded', 'planning']),
+      benchmark_recorded: booleanSchema(),
+      winner_status: benchmarkWinnerStatus,
+      winner_claimed: booleanSchema(),
+      routes_count: integerSchema(),
+      artifact_id: { oneOf: [stringSchema(), { type: 'null' }] }
+    }),
+    BenchmarkSummaryResponse: objectSchema({
+      generated_at: dateTimeSchema(),
+      source: { const: 'infopunks-pay-sh-radar' },
+      recorded_benchmarks: integerSchema(),
+      total_benchmarks: integerSchema(),
+      winner_claimed: booleanSchema(),
+      benchmarks: arrayOf({ $ref: '#/components/schemas/BenchmarkSummaryRow' }),
+      agent_guidance: arrayOf(stringSchema())
     }),
     BenchmarkArtifactRoute: objectSchema({
       provider_id: stringSchema(),

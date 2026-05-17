@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createApp } from '../src/api/app';
 import { listBenchmarkArtifacts } from '../src/data/benchmarkArtifacts';
-import { buildRadarBenchmarks } from '../src/services/radarBenchmarkService';
+import { buildRadarBenchmarks, buildRadarBenchmarkSummary } from '../src/services/radarBenchmarkService';
 import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
 
 describe('benchmark artifact registry', () => {
@@ -61,6 +61,41 @@ describe('benchmark artifact registry', () => {
     expect(tokenSearchPaysponge?.p95_latency_ms).toBe(10545);
   });
 
+  it('builds compact agent benchmark summary from existing benchmark records', () => {
+    const summary = buildRadarBenchmarkSummary();
+    expect(summary.recorded_benchmarks).toBe(2);
+    expect(summary.total_benchmarks).toBe(2);
+    expect(summary.winner_claimed).toBe(false);
+    expect(summary.agent_guidance).toEqual([
+      'winner_claimed=false means no route winner should be inferred.',
+      'winner_status=no_clear_winner means evidence exists but scoring thresholds do not crown a route.',
+      'Use full benchmark endpoints for route-level metrics.'
+    ]);
+
+    const sol = summary.benchmarks.find((row) => row.benchmark_id === 'finance-data-sol-price');
+    const tokenSearch = summary.benchmarks.find((row) => row.benchmark_id === 'finance-data-token-search');
+    expect(sol).toMatchObject({
+      category: 'finance/data',
+      benchmark_intent: 'get SOL price',
+      status: 'recorded',
+      benchmark_recorded: true,
+      winner_status: 'no_clear_winner',
+      winner_claimed: false,
+      routes_count: 2,
+      artifact_id: CANONICAL_ID
+    });
+    expect(tokenSearch).toMatchObject({
+      category: 'finance/data',
+      benchmark_intent: 'token search',
+      status: 'recorded',
+      benchmark_recorded: true,
+      winner_status: 'no_clear_winner',
+      winner_claimed: false,
+      routes_count: 2,
+      artifact_id: TOKEN_SEARCH_CANONICAL_ID
+    });
+  });
+
   it('artifact endpoints return safe metadata only and do not expose raw proof contents', async () => {
     const app = await createApp(emptyIntelligenceStore());
     const listResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-artifacts' });
@@ -92,6 +127,22 @@ describe('benchmark artifact registry', () => {
     const benchmarkListResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks' });
     expect(benchmarkListResponse.statusCode).toBe(200);
     expect(benchmarkListResponse.json().data.benchmarks.map((row: { benchmark_id: string }) => row.benchmark_id)).toContain('finance-data-token-search');
+    expect(benchmarkListResponse.json().data.benchmarks[0]).toHaveProperty('routes');
+    expect(benchmarkListResponse.json().data.benchmarks[0].routes[0]).toHaveProperty('median_latency_ms');
+
+    const summaryResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-summary' });
+    expect(summaryResponse.statusCode).toBe(200);
+    const summary = summaryResponse.json().data;
+    expect(summary.recorded_benchmarks).toBe(2);
+    expect(summary.total_benchmarks).toBe(2);
+    expect(summary.winner_claimed).toBe(false);
+    expect(summary.benchmarks.map((row: { benchmark_id: string }) => row.benchmark_id)).toEqual(['finance-data-sol-price', 'finance-data-token-search']);
+    expect(summary.benchmarks.every((row: { routes_count: number }) => row.routes_count === 2)).toBe(true);
+    expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-sol-price').artifact_id).toBe(CANONICAL_ID);
+    expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-token-search').artifact_id).toBe(TOKEN_SEARCH_CANONICAL_ID);
+    expect(summary.benchmarks[0]).not.toHaveProperty('routes');
+    expect(summary.benchmarks[0]).not.toHaveProperty('median_latency_ms');
+    expect(summary.benchmarks[0]).not.toHaveProperty('success_rate');
 
     const benchmarkResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks/finance-data-sol-price' });
     expect(benchmarkResponse.statusCode).toBe(200);

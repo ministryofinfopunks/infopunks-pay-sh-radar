@@ -3772,6 +3772,7 @@ function mappingTargetBadgeClass(state: RadarMappingTarget['current_state']) {
 }
 
 function AgentBenchmarkApiPanel() {
+  const benchmarkSummaryCurl = 'curl https://infopunks-pay-sh-radar.onrender.com/v1/radar/benchmark-summary';
   const benchmarkRegistryCurl = `curl -s ${toApiUrl(API_BASE_URL, '/v1/radar/benchmarks')}`;
   const benchmarkDetailCurl = `curl -s ${toApiUrl(API_BASE_URL, '/v1/radar/benchmarks/finance-data-sol-price')}`;
   const tokenSearchBenchmarkCurl = `curl -s ${toApiUrl(API_BASE_URL, '/v1/radar/benchmarks/finance-data-token-search')}`;
@@ -3815,9 +3816,10 @@ function AgentBenchmarkApiPanel() {
           <h3>Endpoints</h3>
         </div>
         <div className="endpoint-card-grid">
+          <p><b>GET /v1/radar/benchmark-summary</b><span>Compact agent route for benchmark state, artifact IDs, route counts, and interpretation guidance.</span></p>
           <p><b>GET /v1/radar/benchmarks</b><span>Registry and winner flags.</span></p>
           <p><b>GET /v1/radar/benchmarks/finance-data-sol-price</b><span>SOL benchmark metrics.</span></p>
-          <p><b>GET /v1/radar/benchmarks/finance-data-token-search</b><span>Planning scaffold with no recorded proof.</span></p>
+          <p><b>GET /v1/radar/benchmarks/finance-data-token-search</b><span>Token-search benchmark metrics.</span></p>
           <p><b>GET /openapi.json</b><span>OpenAPI for agents.</span></p>
         </div>
       </section>
@@ -3826,11 +3828,13 @@ function AgentBenchmarkApiPanel() {
           <h3>Copyable curl examples</h3>
         </div>
         <div className="export-copy-actions" aria-label="Copy benchmark curl examples">
+          <CopyButton value={benchmarkSummaryCurl} label="Copy curl /v1/radar/benchmark-summary" />
           <CopyButton value={benchmarkRegistryCurl} label="Copy curl /v1/radar/benchmarks" />
           <CopyButton value={benchmarkDetailCurl} label="Copy curl /v1/radar/benchmarks/finance-data-sol-price" />
           <CopyButton value={tokenSearchBenchmarkCurl} label="Copy curl /v1/radar/benchmarks/finance-data-token-search" />
           <CopyButton value={openApiCurl} label="Copy curl /openapi.json" />
         </div>
+        <SafeCodeBlock value={benchmarkSummaryCurl} label="curl /v1/radar/benchmark-summary" />
         <SafeCodeBlock value={benchmarkRegistryCurl} label="curl /v1/radar/benchmarks" />
         <SafeCodeBlock value={benchmarkDetailCurl} label="curl /v1/radar/benchmarks/finance-data-sol-price" />
         <SafeCodeBlock value={tokenSearchBenchmarkCurl} label="curl /v1/radar/benchmarks/finance-data-token-search" />
@@ -3850,12 +3854,10 @@ function AgentBenchmarkApiPanel() {
           <h3>Agent interpretation guidance</h3>
         </div>
         <div className="endpoint-card-grid">
+          <p><b>benchmark-summary</b><span>Use this compact agent route when route-level metrics are not needed.</span></p>
           <p><b>winner_claimed=false</b><span>Do not treat route as winner.</span></p>
           <p><b>winner_status=no_clear_winner</b><span>Use benchmark as evidence, not final routing authority.</span></p>
           <p><b>benchmark_recorded=true</b><span>Normalized metrics exist.</span></p>
-          <p><b>benchmark_recorded=false</b><span>No normalized benchmark evidence exists yet.</span></p>
-          <p><b>winner_status=not_evaluated</b><span>Agents must not use it as routing proof.</span></p>
-          <p><b>routes=[]</b><span>No comparable proven routes are recorded.</span></p>
           <p><b>status_code may be null in pay_cli mode</b><span>Use status_evidence.</span></p>
         </div>
       </section>

@@ -16,6 +16,7 @@ import {
   RadarBatchPreflightRequestSchema,
   RadarBatchPreflightResponseSchema,
   RadarBenchmarkReadinessSchema,
+  RadarBenchmarkSummarySchema,
   RadarBenchmarkListSchema,
   RadarBenchmarkDetailSchema,
   RadarBenchmarkHistorySchema,
@@ -40,7 +41,7 @@ import { providerReachabilitySummary, providerRootHealthSummary } from '../servi
 import { runPreflight } from '../services/preflightService';
 import { buildRadarExportSnapshot, safeJsonExport } from '../services/radarExportService';
 import { buildBenchmarkReadiness, buildSuperiorityReadiness, runRadarComparison, runRadarPreflight, runRadarPreflightBatch } from '../services/radarRouteIntelligenceService';
-import { buildRadarBenchmarkById, buildRadarBenchmarkHistoryById, buildRadarBenchmarks, getBenchmarkArtifactMetadataById, listBenchmarkArtifactMetadata } from '../services/radarBenchmarkService';
+import { buildRadarBenchmarkById, buildRadarBenchmarkHistoryById, buildRadarBenchmarks, buildRadarBenchmarkSummary, getBenchmarkArtifactMetadataById, listBenchmarkArtifactMetadata } from '../services/radarBenchmarkService';
 import { buildEcosystemHistory, buildEndpointHistory, buildProviderHistory, normalizeHistoryWindow } from '../services/radarHistoryService';
 import { buildEcosystemRiskSummary, buildEndpointRiskAssessment, buildProviderRiskAssessment } from '../services/radarRiskService';
 import { createResponseCache } from '../services/responseCache';
@@ -476,6 +477,12 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   app.get('/v1/radar/benchmark-readiness', async () => ({
     data: safeJsonExport(RadarBenchmarkReadinessSchema.parse(buildBenchmarkReadiness(store)))
   }));
+  app.get('/v1/radar/benchmark-summary', async () => {
+    const startedAtMs = Date.now();
+    const cached = await responseCache.getOrSet('radar:benchmark-summary', RADAR_BENCHMARKS_TTL_MS, () => RadarBenchmarkSummarySchema.parse(buildRadarBenchmarkSummary()));
+    logRadarRouteTiming('/v1/radar/benchmark-summary', Date.now() - startedAtMs, cached.metadata.hit, cached.metadata.stale ? 'stale_ok' : 'ok');
+    return { data: safeJsonExport(cached.value) };
+  });
   app.get('/v1/radar/benchmarks', async () => {
     const startedAtMs = Date.now();
     const cached = await responseCache.getOrSet('radar:benchmarks', RADAR_BENCHMARKS_TTL_MS, () => RadarBenchmarkListSchema.parse(buildRadarBenchmarks()));
@@ -839,7 +846,7 @@ async function withTimeout<T>(work: () => T | Promise<T>, timeoutMs: number, rea
   });
 }
 
-function logRadarRouteTiming(route: '/v1/radar/benchmarks' | '/v1/radar/endpoints' | '/v1/radar/risk/ecosystem' | '/v1/radar/history/ecosystem', durationMs: number, cacheHit: boolean, status: 'ok' | 'stale_ok' | 'warming_up') {
+function logRadarRouteTiming(route: '/v1/radar/benchmark-summary' | '/v1/radar/benchmarks' | '/v1/radar/endpoints' | '/v1/radar/risk/ecosystem' | '/v1/radar/history/ecosystem', durationMs: number, cacheHit: boolean, status: 'ok' | 'stale_ok' | 'warming_up') {
   console.log(JSON.stringify({ event: 'radar_route_timing', route, duration_ms: durationMs, cache_hit: cacheHit, status }));
 }
 

@@ -1,4 +1,4 @@
-import { BenchmarkHistoryEntry, RadarBenchmarkDetail, RadarBenchmarkHistory, RadarBenchmarkList, RadarBenchmarkRouteMetric } from '../schemas/entities';
+import { BenchmarkHistoryEntry, RadarBenchmarkDetail, RadarBenchmarkHistory, RadarBenchmarkList, RadarBenchmarkRouteMetric, RadarBenchmarkSummary } from '../schemas/entities';
 import { listRouteMappings } from './providerEndpointMap';
 import { getBenchmarkArtifactById, getLatestBenchmarkArtifact, listBenchmarkArtifacts } from '../data/benchmarkArtifacts';
 
@@ -57,6 +57,38 @@ export function buildRadarBenchmarks(): RadarBenchmarkList {
     generated_at: BENCHMARK_EVIDENCE_AT,
     source: 'infopunks-pay-sh-radar',
     benchmarks: [buildSolPriceBenchmark(), buildTokenSearchBenchmark()]
+  };
+}
+
+export function buildRadarBenchmarkSummary(): RadarBenchmarkSummary {
+  const registry = buildRadarBenchmarks();
+  const benchmarks = registry.benchmarks.map((benchmark) => {
+    const latestArtifact = getLatestBenchmarkArtifact(benchmark.benchmark_id);
+    return {
+      benchmark_id: benchmark.benchmark_id,
+      category: benchmark.category,
+      benchmark_intent: benchmark.benchmark_intent,
+      status: benchmark.benchmark_recorded ? 'recorded' as const : 'planning' as const,
+      benchmark_recorded: benchmark.benchmark_recorded,
+      winner_status: benchmark.winner_status ?? 'not_evaluated',
+      winner_claimed: benchmark.winner_claimed,
+      routes_count: benchmark.routes.length,
+      artifact_id: latestArtifact?.artifact_id ?? null
+    };
+  });
+
+  return {
+    generated_at: registry.generated_at,
+    source: registry.source,
+    recorded_benchmarks: benchmarks.filter((benchmark) => benchmark.benchmark_recorded).length,
+    total_benchmarks: benchmarks.length,
+    winner_claimed: benchmarks.some((benchmark) => benchmark.winner_claimed),
+    benchmarks,
+    agent_guidance: [
+      'winner_claimed=false means no route winner should be inferred.',
+      'winner_status=no_clear_winner means evidence exists but scoring thresholds do not crown a route.',
+      'Use full benchmark endpoints for route-level metrics.'
+    ]
   };
 }
 

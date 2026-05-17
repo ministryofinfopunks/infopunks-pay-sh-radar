@@ -184,6 +184,7 @@ describe('agent mode and command palette', () => {
 
     expect(container.querySelector('button[aria-label="Copy OpenAPI URL"]')).not.toBeNull();
     expect(container.querySelector('button[aria-label="Copy API URL"]')).not.toBeNull();
+    expect(container.querySelector('button[aria-label="Copy curl /v1/radar/benchmark-summary"]')).not.toBeNull();
     expect(container.querySelector('button[aria-label="Copy curl /v1/radar/benchmarks"]')).not.toBeNull();
     expect(container.querySelector('button[aria-label="Copy curl /v1/radar/benchmarks/finance-data-sol-price"]')).not.toBeNull();
     expect(container.querySelector('button[aria-label="Copy curl /openapi.json"]')).not.toBeNull();
@@ -196,9 +197,12 @@ describe('agent mode and command palette', () => {
     root = await renderApp(container);
 
     expect(container.textContent).toContain('Agent Benchmark API');
+    expect(container.textContent).toContain('GET /v1/radar/benchmark-summary');
     expect(container.textContent).toContain('GET /v1/radar/benchmarks');
     expect(container.textContent).toContain('GET /v1/radar/benchmarks/finance-data-sol-price');
     expect(container.textContent).toContain('GET /openapi.json');
+    expect(container.textContent).toContain('curl https://infopunks-pay-sh-radar.onrender.com/v1/radar/benchmark-summary');
+    expect(container.textContent).toContain('compact agent route');
     expect(container.textContent).toContain('/v1/radar/benchmarks');
     expect(container.textContent).toContain('/v1/radar/benchmarks/finance-data-sol-price');
     expect(container.textContent).toContain('/openapi.json');

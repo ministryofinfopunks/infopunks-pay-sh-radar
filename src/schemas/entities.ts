@@ -712,6 +712,28 @@ export const RadarBenchmarkListSchema = z.object({
   benchmarks: z.array(RadarBenchmarkDetailSchema)
 });
 
+export const RadarBenchmarkSummaryRowSchema = z.object({
+  benchmark_id: z.string(),
+  category: z.string(),
+  benchmark_intent: z.string(),
+  status: z.enum(['recorded', 'planning']),
+  benchmark_recorded: z.boolean(),
+  winner_status: RadarBenchmarkWinnerStatusSchema,
+  winner_claimed: z.boolean(),
+  routes_count: z.number().int().nonnegative(),
+  artifact_id: z.string().nullable()
+});
+
+export const RadarBenchmarkSummarySchema = z.object({
+  generated_at: z.string().datetime(),
+  source: z.literal('infopunks-pay-sh-radar'),
+  recorded_benchmarks: z.number().int().nonnegative(),
+  total_benchmarks: z.number().int().nonnegative(),
+  winner_claimed: z.boolean(),
+  benchmarks: z.array(RadarBenchmarkSummaryRowSchema),
+  agent_guidance: z.array(z.string())
+});
+
 export const RadarBenchmarkArtifactRouteSchema = z.object({
   provider_id: z.string(),
   route_id: z.string(),
@@ -914,6 +936,7 @@ export type RadarBenchmarkDetail = z.infer<typeof RadarBenchmarkDetailSchema>;
 export type BenchmarkHistoryEntry = z.infer<typeof BenchmarkHistoryEntrySchema>;
 export type RadarBenchmarkHistory = z.infer<typeof RadarBenchmarkHistorySchema>;
 export type RadarBenchmarkList = z.infer<typeof RadarBenchmarkListSchema>;
+export type RadarBenchmarkSummary = z.infer<typeof RadarBenchmarkSummarySchema>;
 export type RadarBenchmarkWinnerStatus = z.infer<typeof RadarBenchmarkWinnerStatusSchema>;
 export type RadarBenchmarkArtifact = z.infer<typeof RadarBenchmarkArtifactSchema>;
 export type RadarBenchmarkArtifactList = z.infer<typeof RadarBenchmarkArtifactListSchema>;
