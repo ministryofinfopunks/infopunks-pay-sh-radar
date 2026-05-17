@@ -313,7 +313,7 @@ type RadarRouteMappingRegistry = {
 type RadarMappingTarget = {
   category: string;
   benchmark_intent: string;
-  current_state: 'needs_candidate' | 'needs_verified_route' | 'verified_mapping_found' | 'needs_two_comparable_mappings';
+  current_state: 'needs_candidate' | 'needs_verified_route' | 'verified_mapping_found' | 'one_proven_mapping_found' | 'needs_two_comparable_mappings';
   needed_next_step: string;
   suggested_provider_candidates?: string[];
   why_it_matters: string;
@@ -996,20 +996,20 @@ function BenchmarkProofContent({ benchmark, history }: { benchmark: RadarBenchma
           <strong>Benchmark scaffold</strong>
           <span>Planning</span>
         </div>
-        <p>Verified route semantics exist.</p>
-        <p>No paid execution proof recorded yet.</p>
+        <p>One proven route exists.</p>
+        <p>Need a second comparable proven route before benchmarking.</p>
         <p>Not benchmark-ready. No winner claimed.</p>
         <p>Winner claimed: no.</p>
         <p>Status: not evaluated.</p>
         <p>Next: {benchmark.next_step}.</p>
         <p>No artifact exists until benchmark evidence is recorded.</p>
-        {hasTokenSearchMappingTarget && <p><a href="/#mapping-targets">Mapping target: finance/data token search</a> remains candidate-only until execution evidence is proven.</p>}
+        {hasTokenSearchMappingTarget && <p><a href="/#mapping-targets">Mapping target: finance/data token search</a> has one proven route but still requires a second comparable proven route.</p>}
       </div>}
     </section>
     <section className="panel">
       <h2>Route Cards</h2>
       <p className="panel-caption">No route winner is claimed.</p>
-      {!benchmark.routes.length && <EmptyState title="No proven route evidence recorded yet." body="No route metric cards are shown until comparable route evidence exists." />}
+      {!benchmark.routes.length && <EmptyState title="One proven route exists. Benchmark is still unrecorded." body="Route metric cards are shown only after comparable route evidence exists." />}
       <div className="readiness-list-grid">
         {benchmark.routes.map((route) => <section key={route.route_id} className="compact-chip-list wide">
           <div className="compact-chip-list-head">
@@ -3719,7 +3719,7 @@ function MappingTargetsPanel({ registry }: { registry: RadarMappingTargetRegistr
 }
 
 function mappingTargetBadgeClass(state: RadarMappingTarget['current_state']) {
-  if (state === 'needs_verified_route' || state === 'verified_mapping_found') return 'route-state warn';
+  if (state === 'needs_verified_route' || state === 'verified_mapping_found' || state === 'one_proven_mapping_found') return 'route-state warn';
   if (state === 'needs_two_comparable_mappings') return 'route-state';
   return 'route-state';
 }

@@ -3,7 +3,7 @@ import { createApp } from '../src/api/app';
 import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
 
 describe('radar mappings route', () => {
-  it('returns StableCrypto proven mapping and PaySponge verified/unproven token-search mapping', async () => {
+  it('returns StableCrypto proven mapping and PaySponge verified/proven token-search mapping', async () => {
     const app = await createApp(emptyIntelligenceStore());
     const response = await app.inject({ method: 'GET', url: '/v1/radar/mappings' });
 
@@ -15,8 +15,8 @@ describe('radar mappings route', () => {
       row.provider_id === 'paysponge-coingecko'
       && row.benchmark_intent === 'token search'
       && row.mapping_status === 'verified'
-      && row.execution_evidence_status === 'unproven'
-      && row.proof_reference === 'live-proofs/paysponge-coingecko-token-search-verified-unproven-2026-05-17.md'
+      && row.execution_evidence_status === 'proven'
+      && row.proof_reference === 'live-proofs/paysponge-coingecko-token-search-paid-execution-2026-05-17.md'
     )).toBe(true);
 
     await app.close();

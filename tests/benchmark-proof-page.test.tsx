@@ -105,8 +105,8 @@ function installFetchMock() {
           benchmark_recorded: false,
           winner_claimed: false,
           winner_status: 'not_evaluated',
-          next_step: 'run paid execution only when ready to produce proven evidence',
-          readiness_note: 'Verified route semantics exist, but paid execution proof is not recorded yet. Not benchmark-ready. No winner claimed.',
+          next_step: 'add and prove a second comparable token-search route',
+          readiness_note: 'One proven token-search route exists. A second comparable proven route is required before benchmark readiness. No winner claimed.',
           routes: []
         }
       ]
@@ -294,13 +294,13 @@ describe('public benchmark proof pages', () => {
     expect(text).toContain('Benchmark Scaffold: finance-data-token-search');
     expect(text).not.toContain('Benchmark Proof: finance-data-token-search');
     expect(text).toContain('Benchmark scaffold');
-    expect(text).toContain('Verified route semantics exist.');
-    expect(text).toContain('No paid execution proof recorded yet.');
+    expect(text).toContain('One proven route exists.');
+    expect(text).toContain('Need a second comparable proven route before benchmarking.');
     expect(text).toContain('Not benchmark-ready. No winner claimed.');
     expect(text).toContain('Winner claimed: no.');
     expect(text).toContain('Status: not evaluated.');
-    expect(text).toContain('Next: run paid execution only when ready to produce proven evidence.');
-    expect(text).toContain('No proven route evidence recorded yet.');
+    expect(text).toContain('Next: add and prove a second comparable token-search route.');
+    expect(text).toContain('One proven route exists. Benchmark is still unrecorded.');
     expect(text).toContain('No artifact exists until benchmark evidence is recorded.');
     expect(text).toContain('Mapping target: finance/data token search');
     expect(text).not.toContain('success_rate: 1');
