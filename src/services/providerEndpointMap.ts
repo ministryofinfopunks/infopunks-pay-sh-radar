@@ -74,11 +74,11 @@ const defaultVerifiedRouteMappingRegistry: VerifiedRouteMappingRecord[] = [
     method: 'POST',
     request_shape_example: { query: 'SOL' },
     mapping_status: 'verified',
-    execution_evidence_status: 'unproven',
+    execution_evidence_status: 'proven',
     proof_source: 'infopunks-pay-sh-agent-harness',
-    proof_reference: 'live-proofs/stablecrypto-token-search-verified-unproven-2026-05-17.md',
+    proof_reference: 'live-proofs/stablecrypto-token-search-paid-execution-2026-05-17.md',
     verified_at: '2026-05-17',
-    notes: 'Endpoint path, POST method, query request shape, token-search intent, and unpaid 402 challenge verified. Paid execution not attempted. Not benchmark-ready.'
+    notes: 'Paid execution succeeded for StableCrypto token-search route. Two proven token-search routes now exist. Ready for normalized benchmark run. No route winner claimed.'
   },
   {
     provider_id: 'paysponge-coingecko',
@@ -93,7 +93,7 @@ const defaultVerifiedRouteMappingRegistry: VerifiedRouteMappingRecord[] = [
     proof_source: 'infopunks-pay-sh-agent-harness',
     proof_reference: 'live-proofs/paysponge-coingecko-token-search-paid-execution-2026-05-17.md',
     verified_at: '2026-05-17',
-    notes: 'Paid execution succeeded for token-search route. One proven route exists. Need a second comparable proven route before benchmark readiness. No route winner claimed.'
+    notes: 'Paid execution succeeded for token-search route. Two proven token-search routes now exist. Ready for normalized benchmark run. No route winner claimed.'
   },
   {
     provider_id: 'paysponge-coingecko',

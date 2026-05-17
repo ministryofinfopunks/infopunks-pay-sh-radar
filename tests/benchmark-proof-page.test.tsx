@@ -105,8 +105,8 @@ function installFetchMock() {
           benchmark_recorded: false,
           winner_claimed: false,
           winner_status: 'not_evaluated',
-          next_step: 'run paid execution for StableCrypto token-search route',
-          readiness_note: 'One proven route and one verified/unproven route exist. StableCrypto still needs paid execution proof before token-search can become benchmark-ready. No winner claimed.',
+          next_step: 'run normalized token-search benchmark',
+          readiness_note: 'Two proven token-search routes exist. Token-search is ready for a normalized benchmark run. No winner claimed.',
           routes: []
         }
       ]
@@ -294,13 +294,13 @@ describe('public benchmark proof pages', () => {
     expect(text).toContain('Benchmark Scaffold: finance-data-token-search');
     expect(text).not.toContain('Benchmark Proof: finance-data-token-search');
     expect(text).toContain('Benchmark scaffold');
-    expect(text).toContain('One proven route and one verified/unproven route exist.');
-    expect(text).toContain('StableCrypto still needs paid execution proof before token-search can become benchmark-ready.');
-    expect(text).toContain('Not benchmark-ready. No winner claimed.');
+    expect(text).toContain('Two proven routes exist.');
+    expect(text).toContain('Token-search is ready for a normalized benchmark run.');
+    expect(text).toContain('Benchmark not yet recorded. No winner claimed.');
     expect(text).toContain('Winner claimed: no.');
     expect(text).toContain('Status: not evaluated.');
-    expect(text).toContain('Next: run paid execution for StableCrypto token-search route.');
-    expect(text).toContain('One proven route and one verified route exist. Benchmark is still unrecorded.');
+    expect(text).toContain('Next: run normalized token-search benchmark.');
+    expect(text).toContain('Two proven routes exist. Benchmark is still unrecorded.');
     expect(text).toContain('No artifact exists until benchmark evidence is recorded.');
     expect(text).toContain('Mapping target: finance/data token search');
     expect(text).not.toContain('success_rate: 1');
