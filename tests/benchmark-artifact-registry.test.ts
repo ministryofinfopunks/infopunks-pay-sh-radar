@@ -7,6 +7,7 @@ import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
 describe('benchmark artifact registry', () => {
   const CANONICAL_ID = 'finance-data-sol-price-benchmark-runs-2026-05-16';
   const LEGACY_ID = 'finance-data-sol-price-runs-2026-05-16';
+  const TOKEN_SEARCH_CANONICAL_ID = 'finance-data-token-search-benchmark-runs-2026-05-17';
   const PAYSPONGE_ROUTE_ID = 'paysponge-coingecko:GET:https://pro-api.coingecko.com/api/v3/x402/onchain/search/pools?query=SOL';
 
   it('includes five-run SOL benchmark artifact', () => {
@@ -48,13 +49,16 @@ describe('benchmark artifact registry', () => {
       benchmark_id: 'finance-data-token-search',
       category: 'finance/data',
       benchmark_intent: 'token search',
-      benchmark_recorded: false,
-      winner_status: 'not_evaluated',
+      benchmark_recorded: true,
+      winner_status: 'no_clear_winner',
       winner_claimed: false,
-      readiness_note: 'Two proven token-search routes exist. Token-search is ready for a normalized benchmark run. No winner claimed.',
-      next_step: 'run normalized token-search benchmark',
-      routes: []
+      readiness_note: 'Five-run normalized benchmark evidence exists. No route winner is claimed.',
+      next_step: 'define scoring thresholds before declaring a route winner'
     });
+    expect(tokenSearch?.routes.length).toBe(2);
+    const tokenSearchPaysponge = tokenSearch?.routes.find((item) => item.provider_id === 'paysponge-coingecko');
+    expect(tokenSearchPaysponge?.median_latency_ms).toBe(8533);
+    expect(tokenSearchPaysponge?.p95_latency_ms).toBe(10545);
   });
 
   it('artifact endpoints return safe metadata only and do not expose raw proof contents', async () => {
@@ -99,18 +103,24 @@ describe('benchmark artifact registry', () => {
     expect(tokenSearchResponse.statusCode).toBe(200);
     expect(tokenSearchResponse.json().data).toMatchObject({
       benchmark_id: 'finance-data-token-search',
-      benchmark_recorded: false,
-      winner_status: 'not_evaluated',
-      winner_claimed: false,
-      routes: []
+      benchmark_recorded: true,
+      winner_status: 'no_clear_winner',
+      winner_claimed: false
     });
+    expect((tokenSearchResponse.json().data.routes as unknown[]).length).toBe(2);
 
     await app.close();
   });
 
-  it('does not create a fake token-search benchmark artifact', () => {
+  it('registers the token-search benchmark artifact', () => {
     const artifacts = listBenchmarkArtifacts();
-    expect(artifacts.some((row) => row.benchmark_id === 'finance-data-token-search')).toBe(false);
-    expect(JSON.stringify(artifacts)).not.toContain('finance-data-token-search');
+    const tokenSearch = artifacts.find((row) => row.artifact_id === TOKEN_SEARCH_CANONICAL_ID);
+    expect(tokenSearch).toBeTruthy();
+    expect(tokenSearch?.benchmark_id).toBe('finance-data-token-search');
+    expect(tokenSearch?.artifact_path).toBe('live-proofs/finance-data-token-search-benchmark-runs-2026-05-17.md');
+    expect(tokenSearch?.source_repo).toBe('https://github.com/ministryofinfopunks/infopunks-pay-sh-agent-harness');
+    expect(tokenSearch?.total_runs).toBe(5);
+    expect(tokenSearch?.winner_status).toBe('no_clear_winner');
+    expect(tokenSearch?.winner_claimed).toBe(false);
   });
 });
