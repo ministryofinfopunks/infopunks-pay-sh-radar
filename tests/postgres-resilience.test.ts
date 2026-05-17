@@ -29,6 +29,20 @@ class FailingRepository implements IntelligenceRepository {
   }
 }
 
+class UndefinedDiagnosticsRepository implements IntelligenceRepository {
+  async loadSnapshot(): Promise<IntelligenceSnapshot | null> {
+    return emptySnapshot();
+  }
+
+  async saveSnapshot(): Promise<void> {
+    return;
+  }
+
+  getDbStatus(): 'ok' | 'degraded' | 'unavailable' {
+    throw new Error('db diagnostics missing');
+  }
+}
+
 afterEach(() => {
   vi.restoreAllMocks();
   vi.useRealTimers();
@@ -97,6 +111,29 @@ describe('postgres resilience', () => {
     expect(health.statusCode).toBe(200);
     expect(health.json().ok).toBe(true);
     expect(logSpy.mock.calls.some((call) => String(call[0]).includes('"event":"ingestion_db_write_failed"'))).toBe(true);
+
+    await app.close();
+  });
+
+  it('keeps /health 200 with safe db fallbacks when diagnostics are undefined and benchmark routes still respond', async () => {
+    process.env.DATABASE_URL = 'postgres://example:test@localhost:5432/test';
+    process.env.PAYSH_BOOTSTRAP_ENABLED = 'false';
+    const app = await createApp(emptySnapshot(), new UndefinedDiagnosticsRepository() as unknown as IntelligenceRepository);
+
+    const health = await app.inject({ method: 'GET', url: '/health' });
+    expect(health.statusCode).toBe(200);
+    expect(health.json().ok).toBe(true);
+    expect(['degraded', 'unavailable', 'ok']).toContain(health.json().db_status);
+    expect(['degraded', 'unavailable', 'ok']).toContain(health.json().dbStatus);
+    expect(health.json().persistence_mode).toBe('postgres');
+    expect(health.json().persistence).toBe('postgres');
+
+    const benchmarks = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks' });
+    expect(benchmarks.statusCode).toBe(200);
+    const benchmarkSummary = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-summary' });
+    expect(benchmarkSummary.statusCode).toBe(200);
+    const benchmarkHistory = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history' });
+    expect(benchmarkHistory.statusCode).toBe(200);
 
     await app.close();
   });

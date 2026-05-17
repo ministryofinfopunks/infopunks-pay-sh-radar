@@ -69,6 +69,7 @@ const CORS_MAX_AGE_SECONDS = 86_400;
 export async function createApp(preloadedStore?: IntelligenceStore, repository: IntelligenceRepository = defaultRepository()) {
   const config = loadRuntimeConfig();
   const app = Fastify({ logger: false });
+  const persistenceMode: 'postgres' | 'memory' = config.databaseUrl ? 'postgres' : 'memory';
   const ROUTE_TIMEOUT_MS = 2_500;
   const SEARCH_ROUTE_TIMEOUT_MS = 3_000;
   const RADAR_BENCHMARKS_TTL_MS = 5 * 60 * 1000;
@@ -107,11 +108,27 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     console.log(JSON.stringify({ event: 'hook_exit', hook: 'onResponse', id: req.id }));
   });
   const store = preloadedStore ?? emptyIntelligenceStore();
-  const repositoryDbStatus = () => {
-    if (!('getDbStatus' in repository)) return null;
-    const getDbStatus = (repository as IntelligenceRepository & { getDbStatus?: () => 'ok' | 'degraded' | 'unavailable' }).getDbStatus;
-    return typeof getDbStatus === 'function' ? getDbStatus() : null;
+  const repositoryDbStatus = (): 'ok' | 'degraded' | 'unavailable' | null => {
+    try {
+      const getDbStatus = (repository as IntelligenceRepository & { getDbStatus?: () => 'ok' | 'degraded' | 'unavailable' }).getDbStatus;
+      if (typeof getDbStatus !== 'function') return null;
+      const status = getDbStatus?.();
+      return status === 'ok' || status === 'degraded' || status === 'unavailable' ? status : null;
+    } catch {
+      return null;
+    }
   };
+  const dbStatusWithFallback = (): 'ok' | 'degraded' | 'unavailable' => {
+    const status = repositoryDbStatus();
+    if (status) return status;
+    return persistenceMode === 'postgres' ? 'degraded' : 'unavailable';
+  };
+  const healthDbDiagnostics = () => ({
+    persistence: persistenceMode,
+    persistence_mode: persistenceMode,
+    dbStatus: dbStatusWithFallback(),
+    db_status: dbStatusWithFallback()
+  });
   let bootstrapped = Boolean(preloadedStore);
   const liveBootstrapEnabled = process.env.PAYSH_BOOTSTRAP_ENABLED === 'true'
     || (process.env.PAYSH_BOOTSTRAP_ENABLED !== 'false' && process.env.NODE_ENV !== 'test');
@@ -154,12 +171,9 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     ok: true,
     service: 'infopunks-pay-sh-radar',
     role: 'Cognitive Coordination Layer above Pay.sh',
-    persistence: config.databaseUrl ? 'postgres' : 'memory',
-    persistence_mode: config.databaseUrl ? 'postgres' : 'memory',
+    ...healthDbDiagnostics(),
     catalogSource: config.payShCatalogSource,
     ingestionEnabled: config.ingestionEnabled,
-    ...(config.databaseUrl ? { dbStatus: repositoryDbStatus() ?? 'degraded' } : {}),
-    ...(config.databaseUrl ? { db_status: repositoryDbStatus() ?? 'degraded' } : {}),
     lastIngestedAt: store.dataSource?.last_ingested_at ?? null,
     providerCount: store.providers.length,
     endpointCount: safeStoreEndpointCount(store)
@@ -169,8 +183,8 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     ok: true,
     catalogSource: config.payShCatalogSource,
     ingestionEnabled: config.ingestionEnabled,
-    dbMode: config.databaseUrl ? 'postgres' : 'memory',
-    ...(config.databaseUrl ? { dbStatus: repositoryDbStatus() ?? 'degraded' } : {}),
+    dbMode: persistenceMode,
+    dbStatus: dbStatusWithFallback(),
     lastIngestedAt: store.dataSource?.last_ingested_at ?? null,
     providerCount: store.providers.length,
     endpointCount: safeStoreEndpointCount(store),
@@ -179,8 +193,8 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     ok: true,
     catalogSource: config.payShCatalogSource,
     ingestionEnabled: config.ingestionEnabled,
-    dbMode: config.databaseUrl ? 'postgres' : 'memory',
-    ...(config.databaseUrl ? { dbStatus: repositoryDbStatus() ?? 'degraded' } : {}),
+    dbMode: persistenceMode,
+    dbStatus: dbStatusWithFallback(),
     lastIngestedAt: store.dataSource?.last_ingested_at ?? null,
     providerCount: store.providers.length,
     endpointCount: safeStoreEndpointCount(store),
