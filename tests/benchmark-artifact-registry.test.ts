@@ -51,8 +51,8 @@ describe('benchmark artifact registry', () => {
       benchmark_recorded: false,
       winner_status: 'not_evaluated',
       winner_claimed: false,
-      readiness_note: 'Candidate mapping exists, but no proven route evidence is recorded yet. Candidate only. Not benchmark-ready. No winner claimed.',
-      next_step: 'verify comparable token-search route mappings before benchmarking',
+      readiness_note: 'Verified route semantics exist, but paid execution proof is not recorded yet. Not benchmark-ready. No winner claimed.',
+      next_step: 'run paid execution only when ready to produce proven evidence',
       routes: []
     });
   });

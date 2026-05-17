@@ -199,7 +199,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     source: stringSchema(),
     count: integerSchema(),
     mappings: arrayOf(freeformObject())
-  }), { count: 3, mappings: [{ provider_name: 'StableCrypto', mapping_status: 'verified', execution_evidence_status: 'proven' }, { provider_name: 'CoinGecko Onchain DEX API', benchmark_intent: 'token search', mapping_status: 'candidate', execution_evidence_status: 'unproven' }] }));
+  }), { count: 3, mappings: [{ provider_name: 'StableCrypto', mapping_status: 'verified', execution_evidence_status: 'proven' }, { provider_name: 'CoinGecko Onchain DEX API', benchmark_intent: 'token search', mapping_status: 'verified', execution_evidence_status: 'unproven' }] }));
   add('get', '/v1/radar/mapping-targets', radarGet('Radar', 'Get mapping targets quest board', 'Returns read-only planning targets for future mapping coverage. Targets are planning prompts and not verified routes.', objectSchema({
     generated_at: stringSchema(),
     source: stringSchema(),

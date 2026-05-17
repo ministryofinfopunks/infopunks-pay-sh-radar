@@ -313,7 +313,7 @@ type RadarRouteMappingRegistry = {
 type RadarMappingTarget = {
   category: string;
   benchmark_intent: string;
-  current_state: 'needs_candidate' | 'needs_verified_route' | 'candidate_mapping_found' | 'needs_two_comparable_mappings';
+  current_state: 'needs_candidate' | 'needs_verified_route' | 'verified_mapping_found' | 'needs_two_comparable_mappings';
   needed_next_step: string;
   suggested_provider_candidates?: string[];
   why_it_matters: string;
@@ -996,8 +996,9 @@ function BenchmarkProofContent({ benchmark, history }: { benchmark: RadarBenchma
           <strong>Benchmark scaffold</strong>
           <span>Planning</span>
         </div>
-        <p>Comparable proven routes are not yet recorded.</p>
-        <p>Candidate only. Not benchmark-ready. No winner claimed.</p>
+        <p>Verified route semantics exist.</p>
+        <p>No paid execution proof recorded yet.</p>
+        <p>Not benchmark-ready. No winner claimed.</p>
         <p>Winner claimed: no.</p>
         <p>Status: not evaluated.</p>
         <p>Next: {benchmark.next_step}.</p>
@@ -3621,7 +3622,7 @@ function RouteMappingRegistryPanel({
     if (categoryFilter !== 'all' && row.category !== categoryFilter) return false;
     if (intentFilter !== 'all' && row.benchmark_intent !== intentFilter) return false;
     if (statusFilter === 'all') return true;
-    if (statusFilter === 'candidate') return row.mapping_status === 'candidate';
+    if (statusFilter === 'candidate') return row.mapping_status === 'verified';
     if (statusFilter === 'verified') return row.mapping_status === 'verified';
     if (statusFilter === 'proven') return row.execution_evidence_status === 'proven';
     if (statusFilter === 'unproven') return row.execution_evidence_status === 'unproven';
@@ -3634,6 +3635,7 @@ function RouteMappingRegistryPanel({
     <h2>Route Mapping Registry</h2>
     <p className="panel-caption">Catalog-only is not execution proof.</p>
     <p className="panel-caption">Verified means path/method/body known. Proven means execution evidence exists. Proven does not mean best.</p>
+    <p className="panel-caption">Verified / unproven routes are not benchmark-ready, and paid execution is not recorded.</p>
     <div className="control-row">
       <label><span>status</span><select aria-label="Route mapping status filter" value={statusFilter} onChange={(event) => onStatusFilterChange(event.target.value as RouteMappingStatusFilter)}>
         <option value="all">all</option>
@@ -3717,7 +3719,7 @@ function MappingTargetsPanel({ registry }: { registry: RadarMappingTargetRegistr
 }
 
 function mappingTargetBadgeClass(state: RadarMappingTarget['current_state']) {
-  if (state === 'needs_verified_route' || state === 'candidate_mapping_found') return 'route-state warn';
+  if (state === 'needs_verified_route' || state === 'verified_mapping_found') return 'route-state warn';
   if (state === 'needs_two_comparable_mappings') return 'route-state';
   return 'route-state';
 }

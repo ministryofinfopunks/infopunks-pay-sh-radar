@@ -73,11 +73,12 @@ const defaultVerifiedRouteMappingRegistry: VerifiedRouteMappingRecord[] = [
     endpoint_url: 'https://pro-api.coingecko.com/api/v3/x402/onchain/search/pools?query=SOL',
     method: 'GET',
     request_shape_example: { query: 'SOL' },
-    mapping_status: 'candidate',
+    mapping_status: 'verified',
     execution_evidence_status: 'unproven',
     proof_source: 'infopunks-pay-sh-agent-harness',
-    proof_reference: 'live-proofs/paysponge-coingecko-token-search-probe-2026-05-17.md',
-    notes: 'Unpaid 402 challenge observed. Paid execution not attempted. Candidate evidence only.'
+    proof_reference: 'live-proofs/paysponge-coingecko-token-search-verified-unproven-2026-05-17.md',
+    verified_at: '2026-05-17',
+    notes: 'Endpoint path, method, request shape, token-search intent, and unpaid 402 challenge verified. Paid execution not attempted. Not benchmark-ready.'
   },
   {
     provider_id: 'paysponge-coingecko',

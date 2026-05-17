@@ -180,7 +180,7 @@ describe('phase7 intelligence', () => {
 
   it('superiority readiness uses registry-backed proven mappings and does not claim a winner', async () => {
     const readiness = buildSuperiorityReadiness(emptyIntelligenceStore());
-    expect(readiness.executable_provider_mappings_count).toBe(2);
+    expect(readiness.executable_provider_mappings_count).toBe(3);
     expect(readiness.categories_with_at_least_two_executable_mappings).toContain('finance/data');
     expect(readiness.categories_not_ready_for_comparison).not.toContain('finance/data');
     expect(readiness.providers_with_proven_paid_execution).toContain('merit-systems-stablecrypto-market-data');
@@ -194,7 +194,7 @@ describe('phase7 intelligence', () => {
     const response = await app.inject({ method: 'GET', url: '/v1/radar/superiority-readiness' });
     expect(response.statusCode).toBe(200);
     const payload = response.json().data as ReturnType<typeof buildSuperiorityReadiness>;
-    expect(payload.executable_provider_mappings_count).toBe(2);
+    expect(payload.executable_provider_mappings_count).toBe(3);
     expect(payload.categories_with_at_least_two_executable_mappings).toContain('finance/data');
     expect(payload.providers_with_proven_paid_execution).toContain('merit-systems-stablecrypto-market-data');
     expect(payload.providers_with_proven_paid_execution).toContain('paysponge-coingecko');
