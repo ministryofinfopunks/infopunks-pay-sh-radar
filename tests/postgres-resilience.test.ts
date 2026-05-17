@@ -59,6 +59,24 @@ describe('postgres resilience', () => {
     const pulse = await app.inject({ method: 'GET', url: '/v1/pulse' });
     expect(pulse.statusCode).toBe(200);
     expect(pulse.json().data).toBeTruthy();
+    expect(health.json().db_status === 'degraded' || health.json().db_status === 'unavailable').toBe(true);
+    expect(health.json().persistence_mode).toBe('postgres');
+
+    const benchmarks = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks' });
+    expect(benchmarks.statusCode).toBe(200);
+    expect(Array.isArray(benchmarks.json().data.benchmarks)).toBe(true);
+
+    const summary = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-summary' });
+    expect(summary.statusCode).toBe(200);
+    expect(summary.json().data).toBeTruthy();
+
+    const artifacts = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-artifacts' });
+    expect(artifacts.statusCode).toBe(200);
+    expect(Array.isArray(artifacts.json().data.artifacts)).toBe(true);
+
+    const mappings = await app.inject({ method: 'GET', url: '/v1/radar/mappings' });
+    expect(mappings.statusCode).toBe(200);
+    expect(Array.isArray(mappings.json().data.mappings)).toBe(true);
 
     await app.close();
   });
@@ -69,13 +87,16 @@ describe('postgres resilience', () => {
     process.env.PAY_SH_INGEST_INTERVAL_MS = '5';
     process.env.PAYSH_BOOTSTRAP_ENABLED = 'false';
 
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     const app = await createApp(emptySnapshot(), new FailingRepository());
     vi.advanceTimersByTime(20);
+    await Promise.resolve();
     await Promise.resolve();
 
     const health = await app.inject({ method: 'GET', url: '/health' });
     expect(health.statusCode).toBe(200);
     expect(health.json().ok).toBe(true);
+    expect(logSpy.mock.calls.some((call) => String(call[0]).includes('"event":"ingestion_db_write_failed"'))).toBe(true);
 
     await app.close();
   });

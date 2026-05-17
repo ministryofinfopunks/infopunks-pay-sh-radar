@@ -20,6 +20,7 @@ import {
   RadarBenchmarkListSchema,
   RadarBenchmarkDetailSchema,
   RadarBenchmarkHistorySchema,
+  RadarBenchmarkHistoryAggregateSchema,
   RadarBenchmarkArtifactListSchema,
   RadarBenchmarkArtifactSchema,
   RadarPreflightRequestSchema,
@@ -41,7 +42,7 @@ import { providerReachabilitySummary, providerRootHealthSummary } from '../servi
 import { runPreflight } from '../services/preflightService';
 import { buildRadarExportSnapshot, safeJsonExport } from '../services/radarExportService';
 import { buildBenchmarkReadiness, buildSuperiorityReadiness, runRadarComparison, runRadarPreflight, runRadarPreflightBatch } from '../services/radarRouteIntelligenceService';
-import { buildRadarBenchmarkById, buildRadarBenchmarkHistoryById, buildRadarBenchmarks, buildRadarBenchmarkSummary, getBenchmarkArtifactMetadataById, listBenchmarkArtifactMetadata } from '../services/radarBenchmarkService';
+import { buildRadarBenchmarkById, buildRadarBenchmarkHistoryAggregate, buildRadarBenchmarkHistoryById, buildRadarBenchmarks, buildRadarBenchmarkSummary, getBenchmarkArtifactMetadataById, listBenchmarkArtifactMetadata } from '../services/radarBenchmarkService';
 import { buildEcosystemHistory, buildEndpointHistory, buildProviderHistory, normalizeHistoryWindow } from '../services/radarHistoryService';
 import { buildEcosystemRiskSummary, buildEndpointRiskAssessment, buildProviderRiskAssessment } from '../services/radarRiskService';
 import { createResponseCache } from '../services/responseCache';
@@ -137,6 +138,7 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
         refreshBackgroundAnalytics();
       })
       .catch((error) => {
+        logDbDegraded('startup_load', classifyBootstrapFailure(error), error);
         console.log(JSON.stringify({
           event: 'startup_load_failed',
           code: errorCode(error),
@@ -153,9 +155,11 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     service: 'infopunks-pay-sh-radar',
     role: 'Cognitive Coordination Layer above Pay.sh',
     persistence: config.databaseUrl ? 'postgres' : 'memory',
+    persistence_mode: config.databaseUrl ? 'postgres' : 'memory',
     catalogSource: config.payShCatalogSource,
     ingestionEnabled: config.ingestionEnabled,
     ...(config.databaseUrl ? { dbStatus: repositoryDbStatus() ?? 'degraded' } : {}),
+    ...(config.databaseUrl ? { db_status: repositoryDbStatus() ?? 'degraded' } : {}),
     lastIngestedAt: store.dataSource?.last_ingested_at ?? null,
     providerCount: store.providers.length,
     endpointCount: safeStoreEndpointCount(store)
@@ -503,6 +507,9 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
       data: safeJsonExport(RadarBenchmarkHistorySchema.parse(history))
     };
   });
+  app.get('/v1/radar/benchmark-history', async () => ({
+    data: safeJsonExport(RadarBenchmarkHistoryAggregateSchema.parse(buildRadarBenchmarkHistoryAggregate()))
+  }));
   app.get('/v1/radar/benchmark-artifacts', async () => ({
     data: safeJsonExport(RadarBenchmarkArtifactListSchema.parse({
       generated_at: new Date().toISOString(),
@@ -669,6 +676,14 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
       void runPayShIngestion(store, repository)
         .then(() => refreshBackgroundAnalytics())
         .catch((error) => {
+          logDbDegraded('ingestion_scheduler', classifyBootstrapFailure(error), error);
+          console.log(JSON.stringify({
+            event: 'ingestion_db_write_failed',
+            stage: 'ingestion_scheduler',
+            reason: classifyBootstrapFailure(error),
+            code: errorCode(error),
+            message: errorMessage(error)
+          }));
           console.log(JSON.stringify({
             event: 'ingestion_job_failed',
             code: errorCode(error),
@@ -688,6 +703,7 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
       void runMonitor(store, repository, { timeoutMs: monitorTimeoutMs(), maxProviders: monitorMaxProviders() })
         .then(() => refreshBackgroundAnalytics())
         .catch((error) => {
+          logDbDegraded('monitor_scheduler', classifyBootstrapFailure(error), error);
           console.log(JSON.stringify({
             event: 'monitor_job_failed',
             code: errorCode(error),
@@ -765,6 +781,7 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
         });
       } catch (error) {
         const reason = classifyBootstrapFailure(error);
+        logDbDegraded('live_bootstrap', reason, error);
         console.log(JSON.stringify({
           event: 'live_bootstrap_db_failure',
           reason,
@@ -889,6 +906,16 @@ function classifyBootstrapFailure(error: unknown): string {
   if (message.includes('timeout')) return 'db_timeout';
   if (message.includes('pool') || message.includes('closed')) return 'db_pool_closed';
   return 'db_unavailable';
+}
+
+function logDbDegraded(stage: string, reason: string, error: unknown) {
+  console.log(JSON.stringify({
+    event: 'db_degraded',
+    stage,
+    reason,
+    code: errorCode(error),
+    message: errorMessage(error)
+  }));
 }
 
 function monitorRunResponse(run: NonNullable<IntelligenceStore['monitorRuns']>[number]) {

@@ -18,9 +18,9 @@ export class PostgresRepository implements IntelligenceRepository {
   constructor(connectionString: string) {
     this.pool = new Pool({ connectionString });
     this.pool.on('error', (error) => {
-      this.dbStatus = connectionErrorStatus(error);
+      this.markDbStatus(connectionErrorStatus(error), 'pool_error', error);
       console.log(JSON.stringify({
-        event: 'postgres_pool_error',
+        event: 'db_connection_error',
         status: this.dbStatus,
         code: pgErrorCode(error),
         message: pgErrorMessage(error)
@@ -32,10 +32,10 @@ export class PostgresRepository implements IntelligenceRepository {
     try {
       await this.ensureSchema();
       const result = await this.pool.query('select snapshot from intelligence_snapshots order by created_at desc limit 1');
-      this.dbStatus = 'ok';
+      this.markDbStatus('ok', 'load_snapshot');
       return result.rows[0]?.snapshot ?? null;
     } catch (error) {
-      this.dbStatus = connectionErrorStatus(error);
+      this.markDbStatus(connectionErrorStatus(error), 'load_snapshot', error);
       throw error;
     }
   }
@@ -44,7 +44,7 @@ export class PostgresRepository implements IntelligenceRepository {
     try {
       await this.ensureSchema();
     } catch (error) {
-      this.dbStatus = connectionErrorStatus(error);
+      this.markDbStatus(connectionErrorStatus(error), 'save_snapshot:ensure_schema', error);
       throw error;
     }
 
@@ -121,9 +121,9 @@ export class PostgresRepository implements IntelligenceRepository {
         throw error;
       }
       await client.query('commit');
-      this.dbStatus = 'ok';
+      this.markDbStatus('ok', 'save_snapshot:commit');
     } catch (error) {
-      this.dbStatus = connectionErrorStatus(error);
+      this.markDbStatus(connectionErrorStatus(error), 'save_snapshot', error);
       if (client) {
         try {
           await client.query('rollback');
@@ -204,6 +204,31 @@ export class PostgresRepository implements IntelligenceRepository {
       );
     `);
   }
+
+  private markDbStatus(nextStatus: 'ok' | 'degraded' | 'unavailable', stage: string, error?: unknown) {
+    const previousStatus = this.dbStatus;
+    this.dbStatus = nextStatus;
+    if (nextStatus === 'ok' && previousStatus !== 'ok') {
+      console.log(JSON.stringify({
+        event: 'db_recovered',
+        stage,
+        previous_status: previousStatus,
+        status: nextStatus
+      }));
+      return;
+    }
+    if (nextStatus !== 'ok' && previousStatus !== nextStatus) {
+      console.log(JSON.stringify({
+        event: 'db_degraded',
+        stage,
+        reason: classifyDbReason(error),
+        previous_status: previousStatus,
+        status: nextStatus,
+        code: pgErrorCode(error),
+        message: pgErrorMessage(error)
+      }));
+    }
+  }
 }
 
 function connectionErrorStatus(error: unknown): 'degraded' | 'unavailable' {
@@ -224,4 +249,15 @@ function pgErrorMessage(error: unknown): string {
   if (!error || typeof error !== 'object' || !('message' in error)) return String(error ?? '');
   const message = (error as { message?: unknown }).message;
   return typeof message === 'string' ? message : String(message ?? '');
+}
+
+function classifyDbReason(error: unknown): string {
+  const code = pgErrorCode(error);
+  if (code === 'ECONNREFUSED') return 'db_connection_refused';
+  if (code === '57P01') return 'db_terminated';
+  const message = pgErrorMessage(error).toLowerCase();
+  if (message.includes('connection terminated unexpectedly')) return 'db_connection_terminated';
+  if (message.includes('timeout')) return 'db_timeout';
+  if (message.includes('pool') || message.includes('closed')) return 'db_pool_closed';
+  return 'db_unavailable';
 }
