@@ -3654,7 +3654,15 @@ function RouteMappingRegistryPanel({
       </select></label>
     </div>
     <div className="mapping-card-grid">
-      {filtered.map((row) => <section key={`${row.provider_id}:${row.endpoint_url}`} className="mapping-card">
+      {filtered.map((row, index) => {
+        const mappingKeyBase = [
+          row.provider_id || 'unknown-provider',
+          row.benchmark_intent || 'unknown-intent',
+          row.method || 'unknown-method',
+          row.endpoint_url || 'unknown-endpoint'
+        ].join(':');
+        const mappingKey = mappingKeyBase.includes('unknown-') ? `${mappingKeyBase}:${index}` : mappingKeyBase;
+        return <section key={mappingKey} className="mapping-card">
         <div className="mapping-card-head">
           <h3>{row.provider_name}</h3>
           <span className={routeMappingBadgeClass(row.mapping_status)}>{row.mapping_status}</span>
@@ -3672,7 +3680,8 @@ function RouteMappingRegistryPanel({
           <summary>Notes</summary>
           <p>{row.notes}</p>
         </details>
-      </section>)}
+      </section>;
+      })}
       {!filtered.length && <EmptyState title="No mappings match filters." body="Adjust status, category, or intent filters." />}
     </div>
   </section>;
