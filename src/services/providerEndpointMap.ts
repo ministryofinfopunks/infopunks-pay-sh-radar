@@ -66,6 +66,21 @@ const defaultVerifiedRouteMappingRegistry: VerifiedRouteMappingRecord[] = [
     notes: 'Known successful executable mapping from Pay CLI. Catalog-estimated evidence remains separate.'
   },
   {
+    provider_id: 'merit-systems-stablecrypto-market-data',
+    provider_name: 'StableCrypto',
+    category: 'finance/data',
+    benchmark_intent: 'token search',
+    endpoint_url: 'https://stablecrypto.dev/api/coingecko/onchain/search',
+    method: 'POST',
+    request_shape_example: { query: 'SOL' },
+    mapping_status: 'verified',
+    execution_evidence_status: 'unproven',
+    proof_source: 'infopunks-pay-sh-agent-harness',
+    proof_reference: 'live-proofs/stablecrypto-token-search-verified-unproven-2026-05-17.md',
+    verified_at: '2026-05-17',
+    notes: 'Endpoint path, POST method, query request shape, token-search intent, and unpaid 402 challenge verified. Paid execution not attempted. Not benchmark-ready.'
+  },
+  {
     provider_id: 'paysponge-coingecko',
     provider_name: 'CoinGecko Onchain DEX API',
     category: 'finance/data',

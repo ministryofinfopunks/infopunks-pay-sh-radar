@@ -189,8 +189,8 @@ function buildTokenSearchBenchmark(): RadarBenchmarkDetail {
     benchmark_recorded: false,
     winner_claimed: false,
     winner_status: 'not_evaluated',
-    next_step: 'add and prove a second comparable token-search route',
-    readiness_note: 'One proven token-search route exists. A second comparable proven route is required before benchmark readiness. No winner claimed.',
+    next_step: 'run paid execution for StableCrypto token-search route',
+    readiness_note: 'One proven route and one verified/unproven route exist. StableCrypto still needs paid execution proof before token-search can become benchmark-ready. No winner claimed.',
     routes: []
   };
 }

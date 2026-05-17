@@ -105,8 +105,8 @@ function installFetchMock() {
           benchmark_recorded: false,
           winner_claimed: false,
           winner_status: 'not_evaluated',
-          next_step: 'add and prove a second comparable token-search route',
-          readiness_note: 'One proven token-search route exists. A second comparable proven route is required before benchmark readiness. No winner claimed.',
+          next_step: 'run paid execution for StableCrypto token-search route',
+          readiness_note: 'One proven route and one verified/unproven route exist. StableCrypto still needs paid execution proof before token-search can become benchmark-ready. No winner claimed.',
           routes: []
         }
       ]
@@ -294,13 +294,13 @@ describe('public benchmark proof pages', () => {
     expect(text).toContain('Benchmark Scaffold: finance-data-token-search');
     expect(text).not.toContain('Benchmark Proof: finance-data-token-search');
     expect(text).toContain('Benchmark scaffold');
-    expect(text).toContain('One proven route exists.');
-    expect(text).toContain('Need a second comparable proven route before benchmarking.');
+    expect(text).toContain('One proven route and one verified/unproven route exist.');
+    expect(text).toContain('StableCrypto still needs paid execution proof before token-search can become benchmark-ready.');
     expect(text).toContain('Not benchmark-ready. No winner claimed.');
     expect(text).toContain('Winner claimed: no.');
     expect(text).toContain('Status: not evaluated.');
-    expect(text).toContain('Next: add and prove a second comparable token-search route.');
-    expect(text).toContain('One proven route exists. Benchmark is still unrecorded.');
+    expect(text).toContain('Next: run paid execution for StableCrypto token-search route.');
+    expect(text).toContain('One proven route and one verified route exist. Benchmark is still unrecorded.');
     expect(text).toContain('No artifact exists until benchmark evidence is recorded.');
     expect(text).toContain('Mapping target: finance/data token search');
     expect(text).not.toContain('success_rate: 1');

@@ -279,10 +279,10 @@ export function buildBenchmarkReadiness(store: IntelligenceStore): RadarBenchmar
     const executableMappings = entries.filter((entry) => entry.mapping_status === 'verified');
     const candidateMappings = entries.filter((entry) => entry.mapping_status === 'candidate');
     const provenMappings = entries.filter((entry) => entry.execution_evidence_status === 'proven');
-    const benchmarkReady = executableMappings.length >= 2;
+    const benchmarkReady = provenMappings.length >= 2;
     const superiorityReady = provenMappings.length >= 2;
     const missing: string[] = [];
-    if (!benchmarkReady) missing.push('need_at_least_two_executable_mappings_for_same_intent');
+    if (!benchmarkReady) missing.push('need_at_least_two_proven_execution_mappings_for_same_intent');
     if (!superiorityReady) missing.push('need_at_least_two_proven_execution_mappings_for_same_intent');
 
     const mappingLadder = entries.map((entry) => `${entry.provider_name}: ${entry.mapping_status}/${entry.execution_evidence_status}`);
@@ -290,7 +290,7 @@ export function buildBenchmarkReadiness(store: IntelligenceStore): RadarBenchmar
       ? `${category}/${benchmark_intent}: record normalized head-to-head benchmark metrics`
       : candidateMappings.length > 0 && !benchmarkReady
         ? 'verify candidate comparable endpoint mapping and paid execution evidence'
-        : `${category}/${benchmark_intent}: add ${Math.max(0, 2 - executableMappings.length)} comparable executable mapping`;
+        : `${category}/${benchmark_intent}: add ${Math.max(0, 2 - provenMappings.length)} comparable proven mapping`;
 
     return {
       category,
