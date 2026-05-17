@@ -985,6 +985,7 @@ function benchmarkRouteLabel(route: RadarBenchmarkRouteMetric) {
 function publicBenchmarkTitle(benchmark: Pick<RadarBenchmarkDetail, 'benchmark_id' | 'benchmark_intent'>) {
   if (benchmark.benchmark_id === 'finance-data-sol-price') return 'SOL price';
   if (benchmark.benchmark_id === 'finance-data-token-search') return 'Token search';
+  if (benchmark.benchmark_id === 'finance-data-token-metadata') return 'Token metadata';
   return benchmark.benchmark_intent;
 }
 
@@ -1033,8 +1034,7 @@ function BenchmarkProofContent({ benchmark, history }: { benchmark: RadarBenchma
           <strong>Benchmark scaffold</strong>
           <span>Planning</span>
         </div>
-        <p>Two proven routes exist.</p>
-        <p>Token-search is ready for a normalized benchmark run.</p>
+        <p>No proven route evidence recorded yet.</p>
         <p>Benchmark not yet recorded. No winner claimed.</p>
         <p>Winner claimed: no.</p>
         <p>Status: not evaluated.</p>
@@ -1046,7 +1046,7 @@ function BenchmarkProofContent({ benchmark, history }: { benchmark: RadarBenchma
     <section className="panel">
       <h2>Route Cards</h2>
       <p className="panel-caption">No route winner is claimed.</p>
-      {!benchmark.routes.length && <EmptyState title="Two proven routes exist. Benchmark is still unrecorded." body="Route metric cards are shown only after normalized benchmark evidence is recorded." />}
+      {!benchmark.routes.length && <EmptyState title="No proven route evidence recorded yet." body="Route metric cards are shown only after normalized benchmark evidence is recorded." />}
       <div className="readiness-list-grid">
         {benchmark.routes.map((route) => <section key={route.route_id} className="compact-chip-list wide">
           <div className="compact-chip-list-head">

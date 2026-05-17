@@ -11,6 +11,10 @@ describe('radar mapping targets route', () => {
     const body = response.json().data;
     expect(body.count).toBe(5);
     expect(body.targets.some((row: any) => row.category === 'finance/data' && row.benchmark_intent === 'token metadata' && row.current_state === 'needs_candidate')).toBe(true);
+    const tokenMetadata = body.targets.find((row: any) => row.category === 'finance/data' && row.benchmark_intent === 'token metadata');
+    expect(tokenMetadata.needed_next_step).toBe('add first candidate token metadata route mapping');
+    expect(tokenMetadata.readiness_blocker).toBe('no candidate mapping exists yet');
+    expect(tokenMetadata.suggested_provider_candidates).toEqual(['CoinGecko Onchain DEX API', 'StableCrypto']);
     expect(body.targets.some((row: any) => row.category === 'finance/data' && row.benchmark_intent === 'token search' && row.current_state === 'benchmark_ready')).toBe(true);
     expect(body.targets.some((row: any) => row.category === 'ai_ml/data' && row.current_state === 'needs_two_comparable_mappings')).toBe(true);
     expect(JSON.stringify(body.targets)).not.toContain('candidate A');

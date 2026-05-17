@@ -32,7 +32,8 @@ describe('benchmark artifact registry', () => {
     const benchmarks = buildRadarBenchmarks().benchmarks;
     const sol = benchmarks.find((row) => row.benchmark_id === 'finance-data-sol-price');
     const tokenSearch = benchmarks.find((row) => row.benchmark_id === 'finance-data-token-search');
-    expect(benchmarks.map((row) => row.benchmark_id)).toEqual(['finance-data-sol-price', 'finance-data-token-search']);
+    const tokenMetadata = benchmarks.find((row) => row.benchmark_id === 'finance-data-token-metadata');
+    expect(benchmarks.map((row) => row.benchmark_id)).toEqual(['finance-data-sol-price', 'finance-data-token-search', 'finance-data-token-metadata']);
     expect(sol).toBeTruthy();
     const stable = sol?.routes.find((item) => item.provider_id === 'merit-systems-stablecrypto-market-data');
     const paysponge = sol?.routes.find((item) => item.provider_id === 'paysponge-coingecko');
@@ -59,12 +60,23 @@ describe('benchmark artifact registry', () => {
     const tokenSearchPaysponge = tokenSearch?.routes.find((item) => item.provider_id === 'paysponge-coingecko');
     expect(tokenSearchPaysponge?.median_latency_ms).toBe(8533);
     expect(tokenSearchPaysponge?.p95_latency_ms).toBe(10545);
+    expect(tokenMetadata).toMatchObject({
+      benchmark_id: 'finance-data-token-metadata',
+      category: 'finance/data',
+      benchmark_intent: 'token metadata',
+      benchmark_recorded: false,
+      winner_status: 'not_evaluated',
+      winner_claimed: false,
+      next_step: 'discover comparable token metadata route mappings',
+      readiness_note: 'Benchmark scaffold exists. Comparable proven token metadata routes are not yet recorded.'
+    });
+    expect(tokenMetadata?.routes).toEqual([]);
   });
 
   it('builds compact agent benchmark summary from existing benchmark records', () => {
     const summary = buildRadarBenchmarkSummary();
     expect(summary.recorded_benchmarks).toBe(2);
-    expect(summary.total_benchmarks).toBe(2);
+    expect(summary.total_benchmarks).toBe(3);
     expect(summary.winner_claimed).toBe(false);
     expect(summary.agent_guidance).toEqual([
       'winner_claimed=false means no route winner should be inferred.',
@@ -74,6 +86,7 @@ describe('benchmark artifact registry', () => {
 
     const sol = summary.benchmarks.find((row) => row.benchmark_id === 'finance-data-sol-price');
     const tokenSearch = summary.benchmarks.find((row) => row.benchmark_id === 'finance-data-token-search');
+    const tokenMetadata = summary.benchmarks.find((row) => row.benchmark_id === 'finance-data-token-metadata');
     expect(sol).toMatchObject({
       category: 'finance/data',
       benchmark_intent: 'get SOL price',
@@ -93,6 +106,16 @@ describe('benchmark artifact registry', () => {
       winner_claimed: false,
       routes_count: 2,
       artifact_id: TOKEN_SEARCH_CANONICAL_ID
+    });
+    expect(tokenMetadata).toMatchObject({
+      category: 'finance/data',
+      benchmark_intent: 'token metadata',
+      status: 'planning',
+      benchmark_recorded: false,
+      winner_status: 'not_evaluated',
+      winner_claimed: false,
+      routes_count: 0,
+      artifact_id: null
     });
   });
 
@@ -134,10 +157,12 @@ describe('benchmark artifact registry', () => {
     expect(summaryResponse.statusCode).toBe(200);
     const summary = summaryResponse.json().data;
     expect(summary.recorded_benchmarks).toBe(2);
-    expect(summary.total_benchmarks).toBe(2);
+    expect(summary.total_benchmarks).toBe(3);
     expect(summary.winner_claimed).toBe(false);
-    expect(summary.benchmarks.map((row: { benchmark_id: string }) => row.benchmark_id)).toEqual(['finance-data-sol-price', 'finance-data-token-search']);
-    expect(summary.benchmarks.every((row: { routes_count: number }) => row.routes_count === 2)).toBe(true);
+    expect(summary.benchmarks.map((row: { benchmark_id: string }) => row.benchmark_id)).toEqual(['finance-data-sol-price', 'finance-data-token-search', 'finance-data-token-metadata']);
+    expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-sol-price').routes_count).toBe(2);
+    expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-token-search').routes_count).toBe(2);
+    expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-token-metadata').routes_count).toBe(0);
     expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-sol-price').artifact_id).toBe(CANONICAL_ID);
     expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-token-search').artifact_id).toBe(TOKEN_SEARCH_CANONICAL_ID);
     expect(summary.benchmarks[0]).not.toHaveProperty('routes');
@@ -159,6 +184,16 @@ describe('benchmark artifact registry', () => {
       winner_claimed: false
     });
     expect((tokenSearchResponse.json().data.routes as unknown[]).length).toBe(2);
+
+    const tokenMetadataResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks/finance-data-token-metadata' });
+    expect(tokenMetadataResponse.statusCode).toBe(200);
+    expect(tokenMetadataResponse.json().data).toMatchObject({
+      benchmark_id: 'finance-data-token-metadata',
+      benchmark_recorded: false,
+      winner_status: 'not_evaluated',
+      winner_claimed: false
+    });
+    expect(tokenMetadataResponse.json().data.routes).toEqual([]);
 
     const solHistoryResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks/finance-data-sol-price/history' });
     expect(solHistoryResponse.statusCode).toBe(200);
@@ -190,6 +225,7 @@ describe('benchmark artifact registry', () => {
     const aggregateHistory = aggregateHistoryResponse.json().data;
     expect(aggregateHistory.benchmarks.length).toBe(2);
     expect(aggregateHistory.benchmarks.every((row: { winner_claimed: boolean }) => row.winner_claimed === false)).toBe(true);
+    expect(artifacts.some((row) => row.benchmark_id === 'finance-data-token-metadata')).toBe(false);
 
     await app.close();
   });

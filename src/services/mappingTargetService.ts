@@ -23,10 +23,10 @@ const mappingTargets: MappingTarget[] = [
     category: 'finance/data',
     benchmark_intent: 'token metadata',
     current_state: 'needs_candidate',
-    needed_next_step: 'Add at least one candidate route mapping row for token metadata retrieval.',
+    needed_next_step: 'add first candidate token metadata route mapping',
     suggested_provider_candidates: ['CoinGecko Onchain DEX API', 'StableCrypto'],
     why_it_matters: 'Token metadata is needed to normalize symbols/contracts before cross-provider benchmark comparisons.',
-    readiness_blocker: 'No candidate mapping exists yet for this benchmark intent.'
+    readiness_blocker: 'no candidate mapping exists yet'
   },
   {
     category: 'finance/data',

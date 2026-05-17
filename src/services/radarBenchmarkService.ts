@@ -8,6 +8,9 @@ const SOL_PRICE_INTENT = 'get sol price';
 const TOKEN_SEARCH_BENCHMARK_ID = 'finance-data-token-search';
 const TOKEN_SEARCH_CATEGORY = 'finance/data';
 const TOKEN_SEARCH_INTENT = 'token search';
+const TOKEN_METADATA_BENCHMARK_ID = 'finance-data-token-metadata';
+const TOKEN_METADATA_CATEGORY = 'finance/data';
+const TOKEN_METADATA_INTENT = 'token metadata';
 const BENCHMARK_EVIDENCE_AT = '2026-05-16T07:42:42.271Z';
 const BENCHMARK_PROOF_REFERENCE = 'live-proofs/finance-data-sol-price-benchmark-runs-2026-05-16.md';
 
@@ -56,7 +59,7 @@ export function buildRadarBenchmarks(): RadarBenchmarkList {
   return {
     generated_at: BENCHMARK_EVIDENCE_AT,
     source: 'infopunks-pay-sh-radar',
-    benchmarks: [buildSolPriceBenchmark(), buildTokenSearchBenchmark()]
+    benchmarks: [buildSolPriceBenchmark(), buildTokenSearchBenchmark(), buildTokenMetadataBenchmark()]
   };
 }
 
@@ -95,6 +98,7 @@ export function buildRadarBenchmarkSummary(): RadarBenchmarkSummary {
 export function buildRadarBenchmarkById(id: string): RadarBenchmarkDetail | null {
   if (id === SOL_PRICE_BENCHMARK_ID) return buildSolPriceBenchmark();
   if (id === TOKEN_SEARCH_BENCHMARK_ID) return buildTokenSearchBenchmark();
+  if (id === TOKEN_METADATA_BENCHMARK_ID) return buildTokenMetadataBenchmark();
   return null;
 }
 
@@ -343,6 +347,20 @@ function buildTokenSearchBenchmark(): RadarBenchmarkDetail {
       ? 'Five-run normalized benchmark evidence exists. No route winner is claimed.'
       : 'Two proven token-search routes exist. Token-search is ready for a normalized benchmark run. No winner claimed.',
     routes: benchmarkRecorded ? routes : []
+  };
+}
+
+function buildTokenMetadataBenchmark(): RadarBenchmarkDetail {
+  return {
+    benchmark_id: TOKEN_METADATA_BENCHMARK_ID,
+    category: TOKEN_METADATA_CATEGORY,
+    benchmark_intent: TOKEN_METADATA_INTENT,
+    benchmark_recorded: false,
+    winner_claimed: false,
+    winner_status: 'not_evaluated',
+    next_step: 'discover comparable token metadata route mappings',
+    readiness_note: 'Benchmark scaffold exists. Comparable proven token metadata routes are not yet recorded.',
+    routes: []
   };
 }
 
