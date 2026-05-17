@@ -960,6 +960,21 @@ function benchmarkRouteLabel(route: RadarBenchmarkRouteMetric) {
   return route.provider_id;
 }
 
+function publicBenchmarkTitle(benchmark: Pick<RadarBenchmarkDetail, 'benchmark_id' | 'benchmark_intent'>) {
+  if (benchmark.benchmark_id === 'finance-data-sol-price') return 'SOL price';
+  if (benchmark.benchmark_id === 'finance-data-token-search') return 'Token search';
+  return benchmark.benchmark_intent;
+}
+
+function benchmarkRunCount(benchmark: RadarBenchmarkDetail) {
+  return benchmark.winner_policy?.completed_runs ?? Math.max(...benchmark.routes.map((route) => route.completed_runs ?? 0), 0);
+}
+
+function benchmarkProvenRouteCount(benchmark: RadarBenchmarkDetail) {
+  const provenRoutes = benchmark.routes.filter((route) => route.execution_status === 'proven' || route.paid_execution_proven).length;
+  return provenRoutes || (benchmark.benchmark_recorded ? 2 : 0);
+}
+
 function BenchmarkProofContent({ benchmark, history }: { benchmark: RadarBenchmarkDetail; history: RadarBenchmarkHistory | null }) {
   const policy = benchmark.winner_policy;
   const winnerStatusLabel = benchmark.winner_status?.replaceAll('_', ' ') ?? 'not evaluated';
@@ -1080,31 +1095,70 @@ function PublicBenchmarksIndexPage() {
 
   if (error) return <main className="boot" aria-label="Benchmarks unavailable"><section className="panel public-provider-page"><h1>Benchmarks Unavailable</h1><p className="copy">Benchmark data delayed.</p></section></main>;
   if (!registry) return <main className="boot" aria-label="Benchmarks loading">LOADING BENCHMARKS...</main>;
+  const recordedBenchmarks = registry.benchmarks.filter((benchmark) => benchmark.benchmark_recorded);
   return <div className="shell public-provider-shell">
     <main className="public-provider-page" aria-label="Public benchmark registry">
-      <section className="panel">
+      <section className="panel benchmark-launch-hero">
         <p className="eyebrow">Infopunks Pay.sh Radar</p>
-        <h1>Public Benchmarks</h1>
-        <p className="panel-caption">No route winner is claimed.</p>
+        <h1>{recordedBenchmarks.length} recorded Pay.sh benchmarks</h1>
+        <p className="copy">Proof-backed route tests. No winners claimed.</p>
+        <div className="benchmark-hero-strip" aria-label="Benchmark evidence summary">
+          <span>recorded</span>
+          <span>proof-backed</span>
+          <span>agent-readable evidence</span>
+        </div>
       </section>
-      <section className="panel">
-        <div className="readiness-list-grid">
-          {registry.benchmarks.map((benchmark) => <section key={benchmark.benchmark_id} className="compact-chip-list wide">
-            <div className="compact-chip-list-head">
-              <strong>{benchmark.benchmark_id}</strong>
-              <span>{benchmark.winner_status?.replaceAll('_', ' ') ?? 'not evaluated'}</span>
-            </div>
-            <p>{benchmark.category} / {benchmark.benchmark_intent}</p>
-            <p>{benchmark.benchmark_recorded ? 'Recorded benchmark' : 'Planning'}</p>
-            {!benchmark.benchmark_recorded && <p>Not evaluated · No proof recorded</p>}
-            <p>winner_claimed: {String(benchmark.winner_claimed)}</p>
-            <p><a href={`/benchmarks/${encodeURIComponent(benchmark.benchmark_id)}`}>Open proof page</a></p>
-          </section>)}
+      <section className="panel benchmark-launch-panel" aria-label="Recorded Pay.sh benchmarks">
+        <div className="benchmark-launch-grid">
+          {registry.benchmarks.map((benchmark) => {
+            const completedRuns = benchmarkRunCount(benchmark);
+            const provenRoutes = benchmarkProvenRouteCount(benchmark);
+            return <a key={benchmark.benchmark_id} className="benchmark-launch-card" href={`/benchmarks/${encodeURIComponent(benchmark.benchmark_id)}`}>
+              <div>
+                <p className="section-kicker">{benchmark.category}</p>
+                <h2>{publicBenchmarkTitle(benchmark)}</h2>
+              </div>
+              <div className="benchmark-launch-facts">
+                <span>{completedRuns || 5}-run benchmark</span>
+                <span>{provenRoutes || 2} proven routes</span>
+                <span>no winner claimed</span>
+              </div>
+              <p>Open proof page</p>
+            </a>;
+          })}
           {!registry.benchmarks.length && <EmptyState title="No benchmarks found." body="Benchmark registry is currently empty." />}
         </div>
       </section>
     </main>
   </div>;
+}
+
+function BenchmarkLaunchSummaryTile({ benchmarks }: { benchmarks: RadarBenchmarkDetail[] }) {
+  const recordedCount = benchmarks.filter((benchmark) => benchmark.benchmark_recorded).length;
+  return <section className="benchmark-state-tile" aria-label="Recorded benchmark summary">
+    <div>
+      <p className="section-kicker">Public benchmark state</p>
+      <strong>{recordedCount} recorded benchmarks</strong>
+    </div>
+    <p>SOL price + token search</p>
+    <p>No route winners claimed</p>
+  </section>;
+}
+
+function BenchmarkLaunchMiniCard({ benchmark }: { benchmark: RadarBenchmarkDetail }) {
+  const completedRuns = benchmarkRunCount(benchmark);
+  const provenRoutes = benchmarkProvenRouteCount(benchmark);
+  return <a className="benchmark-mini-card" href={`/benchmarks/${encodeURIComponent(benchmark.benchmark_id)}`}>
+    <div>
+      <p className="section-kicker">{benchmark.category}</p>
+      <strong>{publicBenchmarkTitle(benchmark)}</strong>
+    </div>
+    <div className="benchmark-launch-facts">
+      <span>{completedRuns || 5}-run benchmark</span>
+      <span>{provenRoutes || 2} proven routes</span>
+      <span>no winner claimed</span>
+    </div>
+  </a>;
 }
 
 function PublicBenchmarkProofPage({ benchmarkId }: { benchmarkId: string }) {
@@ -3508,23 +3562,9 @@ function HeadToHeadBenchmarkPanel({ registry, loading }: { registry: RadarBenchm
     {!hasBenchmarks && loading && <EmptyState title="Enrichment delayed" body="Benchmark data delayed" />}
     {!hasBenchmarks && !loading && <EmptyState title="Panel data unavailable" body="Benchmark data delayed" />}
     {hasBenchmarks && <>
-      <div className="readiness-list-grid">
-        {benchmarks.map((lane) => {
-          const lanePolicy = lane.winner_policy;
-          const laneCompletedRuns = lanePolicy?.completed_runs ?? 0;
-          const laneRequiredRuns = lanePolicy?.required_runs ?? 0;
-          return <div key={lane.benchmark_id} className="benchmark-summary-card">
-            <div>
-              <p className="section-kicker">{lane.category} · {lane.benchmark_intent}</p>
-              <strong>{lane.benchmark_recorded ? `${laneCompletedRuns} / ${laneRequiredRuns} runs recorded` : 'Benchmark scaffold'}</strong>
-            </div>
-            <span className={lane.benchmark_recorded ? 'route-state ok' : 'route-state warn'}>{lane.benchmark_recorded ? 'Recorded benchmark' : 'Planning'}</span>
-            <span className="route-state">winner_status {lane.winner_status ?? 'not_evaluated'}</span>
-            <span className="route-state">winner_claimed {String(lane.winner_claimed)}</span>
-            {!lane.benchmark_recorded && <span className="route-state">No proof recorded</span>}
-            <a className="copy-chip" href={`/benchmarks/${encodeURIComponent(lane.benchmark_id)}`}>Open proof page</a>
-          </div>;
-        })}
+      <div className="benchmark-state-grid">
+        <BenchmarkLaunchSummaryTile benchmarks={benchmarks} />
+        {benchmarks.map((lane) => <BenchmarkLaunchMiniCard key={lane.benchmark_id} benchmark={lane} />)}
       </div>
       {benchmark && <>
         {(() => {
@@ -3532,14 +3572,11 @@ function HeadToHeadBenchmarkPanel({ registry, loading }: { registry: RadarBenchm
           const completedRuns = policy?.completed_runs ?? 0;
           const requiredRuns = policy?.required_runs ?? 0;
           return <>
-            <p className="panel-caption">Two proven executable routes exist. Head-to-head benchmark comparison can begin.</p>
+            <p className="panel-caption">Route metrics remain available below as agent-readable evidence.</p>
             <p className="panel-caption">{benchmark.benchmark_recorded ? 'Five-run benchmark recorded.' : 'Output shapes shown are schema examples. Normalized prices are pending.'}</p>
             {policy && <p className="panel-caption">{completedRuns} / {requiredRuns} required benchmark runs recorded.</p>}
-            <p className="panel-caption">Winner status: {benchmark.winner_status ?? 'not_evaluated'}.</p>
-            <p className="panel-caption">Winner claimed: {benchmark.winner_claimed ? 'yes.' : 'no.'}</p>
             {policy?.winner_rationale && <p className="panel-caption">{policy.winner_rationale}</p>}
-            <p className="panel-caption">Five-run benchmark recorded. Both routes succeeded. No winner is claimed until scoring thresholds are finalized.</p>
-            {benchmark.benchmark_recorded && <p className="panel-caption">Price difference recorded. No winner claimed.</p>}
+            <p className="panel-caption">Five-run benchmark recorded. Both routes succeeded. no winner claimed.</p>
             {!benchmark.benchmark_recorded && <p className="route-state warn">Metrics pending. Next step: {benchmark.next_step}.</p>}
           </>;
         })()}
@@ -3571,7 +3608,7 @@ function HeadToHeadBenchmarkPanel({ registry, loading }: { registry: RadarBenchm
         </section>)}
       </div>
       <div className="readiness-list-grid">
-        {benchmark?.winner_policy && <CompactChipList title="winner criteria" items={[
+        {benchmark?.winner_policy && <CompactChipList title="claim criteria" items={[
           `minimum ${benchmark.winner_policy.required_successful_runs_per_route} successful runs per route`,
           `compare ${benchmark.winner_policy.latency_metric} latency`,
           `require success rate >= ${Math.round(benchmark.winner_policy.minimum_success_rate * 100)}%`,

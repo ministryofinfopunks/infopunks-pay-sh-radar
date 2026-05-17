@@ -102,12 +102,76 @@ function installFetchMock() {
           benchmark_id: 'finance-data-token-search',
           category: 'finance/data',
           benchmark_intent: 'token search',
-          benchmark_recorded: false,
+          benchmark_recorded: true,
           winner_claimed: false,
-          winner_status: 'not_evaluated',
-          next_step: 'run normalized token-search benchmark',
-          readiness_note: 'Two proven token-search routes exist. Token-search is ready for a normalized benchmark run. No winner claimed.',
-          routes: []
+          winner_status: 'no_clear_winner',
+          winner_policy: {
+            policy_id: 'token-search-v0.1',
+            policy_version: '0.1',
+            required_successful_runs_per_route: 5,
+            minimum_success_rate: 0.8,
+            allowed_price_variance_percent: 1,
+            latency_metric: 'median',
+            required_confidence: ['high', 'medium'],
+            scoring_weights: { reliability: 0.4, latency: 0.25, normalization_confidence: 0.15, price_consistency: 0.1, cost_clarity: 0.05, freshness: 0.05 },
+            winner_status: 'no_clear_winner',
+            winner_claimed: false,
+            completed_runs: 5,
+            required_runs: 5,
+            next_step: 'define scoring thresholds before declaring a route winner'
+          },
+          next_step: 'define scoring thresholds before declaring a route winner',
+          readiness_note: 'Five-run normalized benchmark evidence exists. No route winner is claimed.',
+          routes: [
+            {
+              provider_id: 'merit-systems-stablecrypto-market-data',
+              route_id: 'stable-token-search',
+              execution_status: 'proven',
+              latency_ms: 7048,
+              paid_execution_proven: true,
+              proof_reference: 'live-proofs/stablecrypto-token-search-paid-execution-2026-05-17.md',
+              normalized_output_available: true,
+              extracted_price_usd: null,
+              success_rate: 1,
+              median_latency_ms: 7048,
+              p95_latency_ms: 9946,
+              average_price_usd: null,
+              min_price_usd: null,
+              max_price_usd: null,
+              price_variance_percent: null,
+              completed_runs: 5,
+              failed_runs: 0,
+              status_evidence: 'pay_cli exit code 0 and parsed response body',
+              output_shape: null,
+              normalization_confidence: 'high',
+              freshness_timestamp: observedAt,
+              comparison_notes: 'no winner claim'
+            },
+            {
+              provider_id: 'paysponge-coingecko',
+              route_id: 'paysponge-token-search',
+              execution_status: 'proven',
+              latency_ms: 8533,
+              paid_execution_proven: true,
+              proof_reference: 'live-proofs/paysponge-coingecko-token-search-paid-execution-2026-05-17.md',
+              normalized_output_available: true,
+              extracted_price_usd: null,
+              success_rate: 1,
+              median_latency_ms: 8533,
+              p95_latency_ms: 10545,
+              average_price_usd: null,
+              min_price_usd: null,
+              max_price_usd: null,
+              price_variance_percent: null,
+              completed_runs: 5,
+              failed_runs: 0,
+              status_evidence: 'pay_cli exit code 0 and parsed response body',
+              output_shape: null,
+              normalization_confidence: 'high',
+              freshness_timestamp: observedAt,
+              comparison_notes: 'no winner claim'
+            }
+          ]
         }
       ]
     });
@@ -221,13 +285,14 @@ describe('public benchmark proof pages', () => {
       await Promise.resolve();
     });
 
-    expect(container.textContent).toContain('Public Benchmarks');
-    expect(container.textContent).toContain('finance-data-sol-price');
-    expect(container.textContent).toContain('finance-data-token-search');
-    expect(container.textContent).toContain('Planning');
-    expect(container.textContent).toContain('Not evaluated');
-    expect(container.textContent).toContain('No proof recorded');
-    expect(container.textContent).toContain('winner_claimed: false');
+    const text = container.textContent ?? '';
+    expect(text).toContain('2 recorded Pay.sh benchmarks');
+    expect(text).toContain('Proof-backed route tests. No winners claimed.');
+    expect(text).toContain('SOL price');
+    expect(text).toContain('Token search');
+    expect(text.match(/5-run benchmark/g)).toHaveLength(2);
+    expect(text.match(/no winner claimed/g)).toHaveLength(2);
+    expect(text).not.toMatch(/best route|superior|superiority|winning/i);
     const link = container.querySelector('a[href="/benchmarks/finance-data-sol-price"]');
     expect(link).not.toBeNull();
     const scaffoldLink = container.querySelector('a[href="/benchmarks/finance-data-token-search"]');
@@ -277,7 +342,7 @@ describe('public benchmark proof pages', () => {
     expect(text).not.toContain('PaySponge CoinGecko beats');
   });
 
-  it('renders token-search scaffold without route proof claims', async () => {
+  it('renders token-search recorded proof without route claim language', async () => {
     window.history.pushState({}, '', '/benchmarks/finance-data-token-search');
     installFetchMock();
 
@@ -291,21 +356,19 @@ describe('public benchmark proof pages', () => {
     });
 
     const text = container.textContent ?? '';
-    expect(text).toContain('Benchmark Scaffold: finance-data-token-search');
-    expect(text).not.toContain('Benchmark Proof: finance-data-token-search');
-    expect(text).toContain('Benchmark scaffold');
-    expect(text).toContain('Two proven routes exist.');
-    expect(text).toContain('Token-search is ready for a normalized benchmark run.');
-    expect(text).toContain('Benchmark not yet recorded. No winner claimed.');
-    expect(text).toContain('Winner claimed: no.');
-    expect(text).toContain('Status: not evaluated.');
-    expect(text).toContain('Next: run normalized token-search benchmark.');
-    expect(text).toContain('Two proven routes exist. Benchmark is still unrecorded.');
-    expect(text).toContain('No artifact exists until benchmark evidence is recorded.');
-    expect(text).toContain('Mapping target: finance/data token search');
-    expect(text).not.toContain('success_rate: 1');
-    expect(text).not.toContain('median_latency_ms: 5691');
+    expect(text).toContain('Benchmark Proof: finance-data-token-search');
+    expect(text).not.toContain('Benchmark Scaffold: finance-data-token-search');
+    expect(text).toContain('benchmark_recorded: true');
+    expect(text).toContain('winner_status: no clear winner');
+    expect(text).toContain('No route winner is claimed.');
+    expect(text).toContain('StableCrypto');
+    expect(text).toContain('PaySponge CoinGecko');
+    expect(text).toContain('success_rate: 1');
+    expect(text).toContain('median_latency_ms: 7048');
+    expect(text).toContain('live-proofs/stablecrypto-token-search-paid-execution-2026-05-17.md');
+    expect(text).toContain('live-proofs/paysponge-coingecko-token-search-paid-execution-2026-05-17.md');
     expect(text).not.toContain('StableCrypto wins');
     expect(text).not.toContain('PaySponge CoinGecko wins');
+    expect(text).not.toMatch(/best route|superior|superiority|winning/i);
   });
 });

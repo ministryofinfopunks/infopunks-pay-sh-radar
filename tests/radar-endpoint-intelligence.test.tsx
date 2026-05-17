@@ -415,12 +415,94 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
         benchmark_id: 'finance-data-token-search',
         category: 'finance/data',
         benchmark_intent: 'token search',
-        benchmark_recorded: false,
+        benchmark_recorded: true,
         winner_claimed: false,
-        winner_status: 'not_evaluated',
-        next_step: 'run normalized token-search benchmark',
-        readiness_note: 'Two proven token-search routes exist. Token-search is ready for a normalized benchmark run. No winner claimed.',
-        routes: []
+        winner_status: 'no_clear_winner',
+        winner_policy: {
+          policy_id: 'token-search-v0.1',
+          policy_version: '0.1',
+          required_successful_runs_per_route: 5,
+          minimum_success_rate: 0.8,
+          allowed_price_variance_percent: 1.0,
+          latency_metric: 'median',
+          required_confidence: ['high', 'medium'],
+          scoring_weights: {
+            reliability: 0.4,
+            latency: 0.25,
+            normalization_confidence: 0.15,
+            price_consistency: 0.1,
+            cost_clarity: 0.05,
+            freshness: 0.05
+          },
+          winner_status: 'no_clear_winner',
+          winner_claimed: false,
+          winner_rationale: 'Required run count met. Both routes succeeded 5/5 with high confidence. No winner claimed because scoring thresholds have not been finalized.',
+          completed_runs: 5,
+          required_runs: 5,
+          next_step: 'define scoring thresholds before declaring a route winner'
+        },
+        next_step: 'define scoring thresholds before declaring a route winner',
+        readiness_note: 'Five-run normalized benchmark evidence exists. No route winner is claimed.',
+        routes: [
+          {
+            provider_id: 'merit-systems-stablecrypto-market-data',
+            route_id: 'merit-systems-stablecrypto-market-data:POST:https://stablecrypto.dev/api/coingecko/onchain/search',
+            execution_status: 'proven',
+            success: true,
+            latency_ms: 7048,
+            paid_execution_proven: true,
+            proof_reference: 'live-proofs/stablecrypto-token-search-paid-execution-2026-05-17.md',
+            normalized_output_available: true,
+            extracted_price_usd: null,
+            extraction_path: 'data[].attributes',
+            success_rate: 1,
+            median_latency_ms: 7048,
+            p95_latency_ms: 9946,
+            average_price_usd: null,
+            min_price_usd: null,
+            max_price_usd: null,
+            price_variance_percent: null,
+            completed_runs: 5,
+            failed_runs: 0,
+            execution_transport: 'pay_cli',
+            cli_exit_code: 0,
+            status_code: null,
+            status_evidence: 'pay_cli exit code 0 and parsed response body',
+            output_shape: null,
+            normalization_confidence: 'high',
+            freshness_timestamp: '2026-05-17T02:39:22.786Z',
+            comparison_notes: 'Token-search benchmark recorded. No route winner is claimed. Scoring thresholds are not finalized.'
+          },
+          {
+            provider_id: 'paysponge-coingecko',
+            route_id: 'paysponge-coingecko:GET:https://pro-api.coingecko.com/api/v3/x402/onchain/search/pools?query=SOL',
+            execution_status: 'proven',
+            success: true,
+            latency_ms: 8533,
+            paid_execution_proven: true,
+            proof_reference: 'live-proofs/paysponge-coingecko-token-search-paid-execution-2026-05-17.md',
+            normalized_output_available: true,
+            extracted_price_usd: null,
+            extraction_path: 'data[].attributes',
+            success_rate: 1,
+            median_latency_ms: 8533,
+            p95_latency_ms: 10545,
+            average_price_usd: null,
+            min_price_usd: null,
+            max_price_usd: null,
+            price_variance_percent: null,
+            completed_runs: 5,
+            failed_runs: 0,
+            execution_transport: 'pay_cli',
+            cli_exit_code: 0,
+            status_code: null,
+            status_evidence: 'pay_cli exit code 0 and parsed response body',
+            output_shape: null,
+            normalization_confidence: 'high',
+            freshness_timestamp: '2026-05-17T02:39:22.786Z',
+            comparison_notes: 'Token-search benchmark recorded. No route winner is claimed. Scoring thresholds are not finalized.'
+          }
+        ]
       }]
     });
     if (path === '/v1/radar/mappings') return json({
@@ -848,20 +930,19 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Superiority readiness requires at least two proven executable mappings for the same benchmark intent.');
     expect(container.textContent).toContain('Benchmark Readiness');
     expect(container.textContent).toContain('Head-to-Head Benchmark');
+    expect(container.textContent).toContain('2 recorded benchmarks');
+    expect(container.textContent).toContain('SOL price + token search');
+    expect(container.textContent).toContain('No route winners claimed');
+    expect(container.textContent).toContain('SOL price');
+    expect(container.textContent).toContain('Token search');
+    expect(container.textContent).toContain('agent-readable evidence');
     expect(container.textContent).toContain('Five-run benchmark recorded.');
     expect(container.textContent).toContain('5 / 5 required benchmark runs recorded.');
-    expect(container.textContent).toContain('finance-data-token-search');
-    expect(container.textContent).toContain('Benchmark scaffold');
-    expect(container.textContent).toContain('Planning');
-    expect(container.textContent).toContain('winner_status not_evaluated');
-    expect(container.textContent).toContain('No proof recorded');
-    expect(container.textContent).toContain('Winner status: no_clear_winner.');
-    expect(container.textContent).toContain('Winner claimed: no.');
-    expect(container.textContent).toContain('winner_claimed false');
-    expect(container.textContent).toContain('Five-run benchmark recorded. Both routes succeeded. No winner is claimed until scoring thresholds are finalized.');
+    expect(container.textContent).toContain('5-run benchmark');
+    expect(container.textContent).toContain('2 proven routes');
+    expect(container.textContent).toContain('Five-run benchmark recorded. Both routes succeeded. no winner claimed.');
     expect(container.textContent).toContain('live-proofs/stablecrypto-harness-pay-cli-2026-05-12.md');
     expect(container.textContent).toContain('HTTP status was not exposed by pay_cli; success is supported by CLI exit code 0 and parsed response body.');
-    expect(container.textContent).toContain('Price difference recorded. No winner claimed.');
     expect(container.textContent).toContain('live-proofs/paysponge-coingecko-paid-execution-2026-05-15.md');
     expect(container.textContent).toContain('Catalog-estimated');
     expect(container.textContent).toContain('Two proven executable routes exist. Benchmark comparison can begin.');
@@ -871,11 +952,11 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('require high/medium normalization confidence');
     expect(container.textContent).toContain('allow no-clear-winner outcome');
     expect(container.textContent).toContain('GET /v1/radar/benchmarks/finance-data-token-search');
-    expect(container.textContent).toContain('benchmark_recorded=false');
-    expect(container.textContent).toContain('winner_status=not_evaluated');
-    expect(container.textContent).toContain('routes=[]');
+    expect(container.textContent).toContain('benchmark_recorded=true');
+    expect(container.textContent).toContain('winner_status=no_clear_winner');
     expect(container.textContent).not.toContain('StableCrypto is winning');
     expect(container.textContent).not.toContain('PaySponge is winning');
+    expect(container.textContent).not.toMatch(/best route|superior route/i);
     expect(container.textContent).not.toContain('HTTP 200');
     expect(container.textContent).toContain('StableCrypto: verified/proven');
     expect(container.textContent).toContain('CoinGecko Onchain DEX API: verified/proven');
