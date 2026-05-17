@@ -13,21 +13,44 @@ type JsonContext = {
 
 export class PostgresRepository implements IntelligenceRepository {
   private pool: pg.Pool;
+  private dbStatus: 'ok' | 'degraded' | 'unavailable' = 'ok';
 
   constructor(connectionString: string) {
     this.pool = new Pool({ connectionString });
+    this.pool.on('error', (error) => {
+      this.dbStatus = connectionErrorStatus(error);
+      console.log(JSON.stringify({
+        event: 'postgres_pool_error',
+        status: this.dbStatus,
+        code: pgErrorCode(error),
+        message: pgErrorMessage(error)
+      }));
+    });
   }
 
   async loadSnapshot(): Promise<IntelligenceSnapshot | null> {
-    await this.ensureSchema();
-    const result = await this.pool.query('select snapshot from intelligence_snapshots order by created_at desc limit 1');
-    return result.rows[0]?.snapshot ?? null;
+    try {
+      await this.ensureSchema();
+      const result = await this.pool.query('select snapshot from intelligence_snapshots order by created_at desc limit 1');
+      this.dbStatus = 'ok';
+      return result.rows[0]?.snapshot ?? null;
+    } catch (error) {
+      this.dbStatus = connectionErrorStatus(error);
+      throw error;
+    }
   }
 
   async saveSnapshot(snapshot: IntelligenceSnapshot): Promise<void> {
-    await this.ensureSchema();
-    const client = await this.pool.connect();
     try {
+      await this.ensureSchema();
+    } catch (error) {
+      this.dbStatus = connectionErrorStatus(error);
+      throw error;
+    }
+
+    let client: pg.PoolClient | null = null;
+    try {
+      client = await this.pool.connect();
       await client.query('begin');
       if (snapshot.events.length) {
         const contexts: JsonContext[] = [];
@@ -92,18 +115,34 @@ export class PostgresRepository implements IntelligenceRepository {
       }
       const snapshotContext: JsonContext = { operation: 'insert', table: 'intelligence_snapshots', column: 'snapshot', value: snapshot };
       try {
-        await client.query('insert into intelligence_snapshots (snapshot) values ($1::jsonb)', [safeJsonbParam(snapshot, { operation: 'insert', table: 'intelligence_snapshots', column: 'snapshot' })]);
+      await client.query('insert into intelligence_snapshots (snapshot) values ($1::jsonb)', [safeJsonbParam(snapshot, { operation: 'insert', table: 'intelligence_snapshots', column: 'snapshot' })]);
       } catch (error) {
         this.log22p02(error, [snapshotContext]);
         throw error;
       }
       await client.query('commit');
+      this.dbStatus = 'ok';
     } catch (error) {
-      await client.query('rollback');
+      this.dbStatus = connectionErrorStatus(error);
+      if (client) {
+        try {
+          await client.query('rollback');
+        } catch (rollbackError) {
+          console.log(JSON.stringify({
+            event: 'postgres_rollback_failed',
+            code: pgErrorCode(rollbackError),
+            message: pgErrorMessage(rollbackError)
+          }));
+        }
+      }
       throw error;
     } finally {
-      client.release();
+      client?.release();
     }
+  }
+
+  getDbStatus(): 'ok' | 'degraded' | 'unavailable' {
+    return this.dbStatus;
   }
 
   private log22p02(error: unknown, contexts: JsonContext[]) {
@@ -165,4 +204,24 @@ export class PostgresRepository implements IntelligenceRepository {
       );
     `);
   }
+}
+
+function connectionErrorStatus(error: unknown): 'degraded' | 'unavailable' {
+  const code = pgErrorCode(error);
+  if (code === 'ECONNREFUSED' || code === '57P01') return 'unavailable';
+  const message = pgErrorMessage(error).toLowerCase();
+  if (message.includes('connection terminated unexpectedly') || message.includes('timeout') || message.includes('pool') || message.includes('closed')) return 'unavailable';
+  return 'degraded';
+}
+
+function pgErrorCode(error: unknown): string | null {
+  if (!error || typeof error !== 'object' || !('code' in error)) return null;
+  const code = (error as { code?: unknown }).code;
+  return typeof code === 'string' ? code : null;
+}
+
+function pgErrorMessage(error: unknown): string {
+  if (!error || typeof error !== 'object' || !('message' in error)) return String(error ?? '');
+  const message = (error as { message?: unknown }).message;
+  return typeof message === 'string' ? message : String(message ?? '');
 }

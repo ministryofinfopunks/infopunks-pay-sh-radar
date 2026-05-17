@@ -449,6 +449,7 @@ function componentSchemas(): Record<string, JsonSchema> {
       persistence: stringSchema(),
       catalogSource: stringSchema(),
       ingestionEnabled: booleanSchema(),
+      dbStatus: enumSchema(['ok', 'degraded', 'unavailable']),
       lastIngestedAt: nullableString(),
       providerCount: integerSchema(),
       endpointCount: integerSchema()

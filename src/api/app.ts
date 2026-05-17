@@ -105,6 +105,11 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     console.log(JSON.stringify({ event: 'hook_exit', hook: 'onResponse', id: req.id }));
   });
   const store = preloadedStore ?? emptyIntelligenceStore();
+  const repositoryDbStatus = () => {
+    if (!('getDbStatus' in repository)) return null;
+    const getDbStatus = (repository as IntelligenceRepository & { getDbStatus?: () => 'ok' | 'degraded' | 'unavailable' }).getDbStatus;
+    return typeof getDbStatus === 'function' ? getDbStatus() : null;
+  };
   let bootstrapped = Boolean(preloadedStore);
   const liveBootstrapEnabled = process.env.PAYSH_BOOTSTRAP_ENABLED === 'true'
     || (process.env.PAYSH_BOOTSTRAP_ENABLED !== 'false' && process.env.NODE_ENV !== 'test');
@@ -130,7 +135,13 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
         logTiming('catalog_load', bootstrapStartMs);
         refreshBackgroundAnalytics();
       })
-      .catch(() => undefined);
+      .catch((error) => {
+        console.log(JSON.stringify({
+          event: 'startup_load_failed',
+          code: errorCode(error),
+          message: errorMessage(error)
+        }));
+      });
     void ensureLiveBootstrap('startup');
   } else {
     refreshBackgroundAnalytics();
@@ -143,6 +154,7 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     persistence: config.databaseUrl ? 'postgres' : 'memory',
     catalogSource: config.payShCatalogSource,
     ingestionEnabled: config.ingestionEnabled,
+    ...(config.databaseUrl ? { dbStatus: repositoryDbStatus() ?? 'degraded' } : {}),
     lastIngestedAt: store.dataSource?.last_ingested_at ?? null,
     providerCount: store.providers.length,
     endpointCount: safeStoreEndpointCount(store)
@@ -153,6 +165,7 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     catalogSource: config.payShCatalogSource,
     ingestionEnabled: config.ingestionEnabled,
     dbMode: config.databaseUrl ? 'postgres' : 'memory',
+    ...(config.databaseUrl ? { dbStatus: repositoryDbStatus() ?? 'degraded' } : {}),
     lastIngestedAt: store.dataSource?.last_ingested_at ?? null,
     providerCount: store.providers.length,
     endpointCount: safeStoreEndpointCount(store),
@@ -162,6 +175,7 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     catalogSource: config.payShCatalogSource,
     ingestionEnabled: config.ingestionEnabled,
     dbMode: config.databaseUrl ? 'postgres' : 'memory',
+    ...(config.databaseUrl ? { dbStatus: repositoryDbStatus() ?? 'degraded' } : {}),
     lastIngestedAt: store.dataSource?.last_ingested_at ?? null,
     providerCount: store.providers.length,
     endpointCount: safeStoreEndpointCount(store),
@@ -645,7 +659,15 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   const intervalMs = config.ingestionEnabled ? (config.payShIngestIntervalMs ?? 0) : 0;
   if (intervalMs > 0) {
     const timer = setInterval(() => {
-      void runPayShIngestion(store, repository).then(() => refreshBackgroundAnalytics()).catch(() => undefined);
+      void runPayShIngestion(store, repository)
+        .then(() => refreshBackgroundAnalytics())
+        .catch((error) => {
+          console.log(JSON.stringify({
+            event: 'ingestion_job_failed',
+            code: errorCode(error),
+            message: errorMessage(error)
+          }));
+        });
     }, intervalMs);
     timer.unref();
     app.addHook('onClose', async () => {
@@ -656,7 +678,15 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   }
   if (isMonitorEnabled() && monitorIntervalMs() > 0) {
     const timer = setInterval(() => {
-      void runMonitor(store, repository, { timeoutMs: monitorTimeoutMs(), maxProviders: monitorMaxProviders() }).then(() => refreshBackgroundAnalytics()).catch(() => undefined);
+      void runMonitor(store, repository, { timeoutMs: monitorTimeoutMs(), maxProviders: monitorMaxProviders() })
+        .then(() => refreshBackgroundAnalytics())
+        .catch((error) => {
+          console.log(JSON.stringify({
+            event: 'monitor_job_failed',
+            code: errorCode(error),
+            message: errorMessage(error)
+          }));
+        });
     }, monitorIntervalMs());
     timer.unref();
     app.addHook('onClose', async () => {
@@ -719,11 +749,23 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
 
     liveBootstrapPromise = (async () => {
       console.log('[radar-bootstrap] starting live Pay.sh catalog bootstrap');
-      const result = await runPayShIngestionWithOptions(store, repository, {
-        catalogUrl: liveCatalogUrl,
-        catalogSource: 'live',
-        allowFixtureFallback: false
-      });
+      let result: Awaited<ReturnType<typeof runPayShIngestionWithOptions>>;
+      try {
+        result = await runPayShIngestionWithOptions(store, repository, {
+          catalogUrl: liveCatalogUrl,
+          catalogSource: 'live',
+          allowFixtureFallback: false
+        });
+      } catch (error) {
+        const reason = classifyBootstrapFailure(error);
+        console.log(JSON.stringify({
+          event: 'live_bootstrap_db_failure',
+          reason,
+          code: errorCode(error),
+          message: errorMessage(error)
+        }));
+        throw new Error(reason);
+      }
       const endpointCount = safeStoreEndpointCount(store);
       if (result.liveFetchFailed || !store.providers.length || store.dataSource?.mode !== 'live_pay_sh_catalog' || store.dataSource?.used_fixture) {
         const failureReason = store.dataSource?.error ?? 'pulse_state_inconsistent';
@@ -818,6 +860,28 @@ function contentTypeFor(path: string) {
 function isAdmin(adminToken: string | null, authorization: string | undefined) {
   const match = authorization?.match(/^Bearer\s+(.+)$/i);
   return Boolean(adminToken && match?.[1] === adminToken);
+}
+
+function errorCode(error: unknown): string | null {
+  if (!error || typeof error !== 'object' || !('code' in error)) return null;
+  const code = (error as { code?: unknown }).code;
+  return typeof code === 'string' ? code : null;
+}
+
+function errorMessage(error: unknown): string {
+  if (!error || typeof error !== 'object' || !('message' in error)) return String(error ?? '');
+  const message = (error as { message?: unknown }).message;
+  return typeof message === 'string' ? message : String(message ?? '');
+}
+
+function classifyBootstrapFailure(error: unknown): string {
+  const code = errorCode(error);
+  if (code === 'ECONNREFUSED') return 'db_connection_refused';
+  const message = errorMessage(error).toLowerCase();
+  if (message.includes('connection terminated unexpectedly')) return 'db_connection_terminated';
+  if (message.includes('timeout')) return 'db_timeout';
+  if (message.includes('pool') || message.includes('closed')) return 'db_pool_closed';
+  return 'db_unavailable';
 }
 
 function monitorRunResponse(run: NonNullable<IntelligenceStore['monitorRuns']>[number]) {
