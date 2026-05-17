@@ -1,4 +1,4 @@
-import { BenchmarkHistoryEntry, RadarBenchmarkDetail, RadarBenchmarkHistory, RadarBenchmarkList, RadarBenchmarkRouteMetric, RadarBenchmarkSummary } from '../schemas/entities';
+import { BenchmarkHistoryEntry, RadarBenchmarkDetail, RadarBenchmarkHistory, RadarBenchmarkHistoryAggregate, RadarBenchmarkList, RadarBenchmarkRouteMetric, RadarBenchmarkSummary } from '../schemas/entities';
 import { listRouteMappings } from './providerEndpointMap';
 import { getBenchmarkArtifactById, getLatestBenchmarkArtifact, listBenchmarkArtifacts } from '../data/benchmarkArtifacts';
 
@@ -99,35 +99,112 @@ export function buildRadarBenchmarkById(id: string): RadarBenchmarkDetail | null
 }
 
 export function buildRadarBenchmarkHistoryById(id: string): RadarBenchmarkHistory | null {
-  if (id !== SOL_PRICE_BENCHMARK_ID) return null;
-  const fiveRunBenchmark = buildSolPriceBenchmark();
+  const benchmark = buildRadarBenchmarkById(id);
+  if (!benchmark) return null;
+  const artifacts = listBenchmarkArtifacts()
+    .filter((artifact) => artifact.benchmark_id === id)
+    .sort((a, b) => Date.parse(a.generated_at) - Date.parse(b.generated_at));
+  if (!artifacts.length) {
+    return {
+      generated_at: new Date().toISOString(),
+      source: 'infopunks-pay-sh-radar',
+      benchmark_id: id,
+      entries: []
+    };
+  }
+  const latestArtifact = artifacts[artifacts.length - 1];
+  const entries: BenchmarkHistoryEntry[] = artifacts.map((artifact) => ({
+    benchmark_id: artifact.benchmark_id,
+    recorded_at: artifact.generated_at,
+    run_count: artifact.total_runs,
+    benchmark_recorded: artifact.aggregate_metrics?.benchmark_recorded === true,
+    winner_claimed: artifact.winner_claimed,
+    winner_status: artifact.winner_status,
+    note: artifact.notes,
+    proof_reference: artifact.artifact_path,
+    routes: artifact.routes.map((route) => ({
+      provider_id: route.provider_id,
+      route_id: route.route_id,
+      execution_status: route.execution_status,
+      success: route.success,
+      latency_ms: route.latency_ms,
+      paid_execution_proven: route.paid_execution_proven,
+      proof_reference: route.proof_reference,
+      normalized_output_available: route.normalized_output_available,
+      extracted_price_usd: route.extracted_price_usd,
+      extraction_path: route.extraction_path,
+      success_rate: route.success_rate,
+      median_latency_ms: route.median_latency_ms,
+      p95_latency_ms: route.p95_latency_ms,
+      average_price_usd: route.average_price_usd,
+      min_price_usd: route.min_price_usd,
+      max_price_usd: route.max_price_usd,
+      price_variance_percent: route.price_variance_percent,
+      completed_runs: route.completed_runs,
+      failed_runs: route.failed_runs,
+      execution_transport: route.execution_transport,
+      cli_exit_code: route.cli_exit_code,
+      status_code: route.status_code,
+      status_evidence: route.status_evidence,
+      output_shape: null,
+      normalization_confidence: route.normalization_confidence,
+      freshness_timestamp: route.freshness_timestamp,
+      comparison_notes: route.comparison_notes
+    }))
+  }));
+
   return {
-    generated_at: BENCHMARK_EVIDENCE_AT,
+    generated_at: new Date().toISOString(),
     source: 'infopunks-pay-sh-radar',
-    benchmark_id: SOL_PRICE_BENCHMARK_ID,
-    entries: [
-      {
-        benchmark_id: SOL_PRICE_BENCHMARK_ID,
-        recorded_at: '2026-05-15T00:00:00.000Z',
-        run_count: 1,
-        benchmark_recorded: true,
-        winner_claimed: false,
-        note: 'first live normalized single-run benchmark',
-        proof_reference: 'live-proofs/paysponge-coingecko-paid-execution-2026-05-15.md',
-        routes: []
+    benchmark_id: id,
+    entries,
+    first_recorded_at: artifacts[0].generated_at,
+    latest_recorded_at: latestArtifact.generated_at,
+    artifact_count: artifacts.length,
+    latest_artifact_id: latestArtifact.artifact_id,
+    total_recorded_runs: artifacts.reduce((sum, artifact) => sum + artifact.total_runs, 0),
+    routes_count: latestArtifact.routes.length,
+    winner_status: latestArtifact.winner_status,
+    winner_claimed: latestArtifact.winner_claimed,
+    route_summaries: latestArtifact.routes.map((route) => ({
+      provider_id: route.provider_id,
+      route_id: route.route_id,
+      latency_summary: {
+        latest_latency_ms: route.latency_ms,
+        median_latency_ms: route.median_latency_ms,
+        p95_latency_ms: route.p95_latency_ms
       },
-      {
-        benchmark_id: SOL_PRICE_BENCHMARK_ID,
-        recorded_at: BENCHMARK_EVIDENCE_AT,
-        run_count: 5,
-        benchmark_recorded: true,
-        winner_status: 'no_clear_winner',
-        winner_claimed: false,
-        note: 'Five-run benchmark recorded. Both routes succeeded. No winner is claimed until scoring thresholds are finalized.',
-        proof_reference: BENCHMARK_PROOF_REFERENCE,
-        routes: fiveRunBenchmark.routes
+      reliability_summary: {
+        success_rate: route.success_rate,
+        completed_runs: route.completed_runs,
+        failed_runs: route.failed_runs
       }
-    ]
+    }))
+  };
+}
+
+export function buildRadarBenchmarkHistoryAggregate(): RadarBenchmarkHistoryAggregate {
+  const benchmarkIds = buildRadarBenchmarks().benchmarks.map((row) => row.benchmark_id);
+  const benchmarks = benchmarkIds
+    .map((benchmarkId) => buildRadarBenchmarkHistoryById(benchmarkId))
+    .filter((item): item is RadarBenchmarkHistory => !!item && !!item.first_recorded_at && !!item.latest_recorded_at && !!item.latest_artifact_id)
+    .map((item) => ({
+      benchmark_id: item.benchmark_id,
+      first_recorded_at: item.first_recorded_at as string,
+      latest_recorded_at: item.latest_recorded_at as string,
+      artifact_count: item.artifact_count ?? 0,
+      latest_artifact_id: item.latest_artifact_id as string,
+      total_recorded_runs: item.total_recorded_runs ?? 0,
+      routes_count: item.routes_count ?? 0,
+      winner_status: item.winner_status ?? 'not_evaluated',
+      winner_claimed: item.winner_claimed ?? false,
+      route_summaries: item.route_summaries ?? []
+    }));
+
+  return {
+    generated_at: new Date().toISOString(),
+    source: 'infopunks-pay-sh-radar',
+    benchmarks
   };
 }
 

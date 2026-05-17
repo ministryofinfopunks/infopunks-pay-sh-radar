@@ -699,11 +699,52 @@ export const BenchmarkHistoryEntrySchema = z.object({
   routes: z.array(RadarBenchmarkRouteMetricSchema)
 });
 
+export const RadarBenchmarkRouteSummarySchema = z.object({
+  provider_id: z.string(),
+  route_id: z.string(),
+  latency_summary: z.object({
+    latest_latency_ms: z.number().int().positive().nullable(),
+    median_latency_ms: z.number().int().positive().nullable(),
+    p95_latency_ms: z.number().int().positive().nullable()
+  }),
+  reliability_summary: z.object({
+    success_rate: z.number().min(0).max(1).nullable(),
+    completed_runs: z.number().int().nonnegative().nullable(),
+    failed_runs: z.number().int().nonnegative().nullable()
+  })
+});
+
 export const RadarBenchmarkHistorySchema = z.object({
   generated_at: z.string().datetime(),
   source: z.literal('infopunks-pay-sh-radar'),
   benchmark_id: z.string(),
-  entries: z.array(BenchmarkHistoryEntrySchema)
+  entries: z.array(BenchmarkHistoryEntrySchema),
+  first_recorded_at: z.string().datetime().optional(),
+  latest_recorded_at: z.string().datetime().optional(),
+  artifact_count: z.number().int().nonnegative().optional(),
+  latest_artifact_id: z.string().optional(),
+  total_recorded_runs: z.number().int().nonnegative().optional(),
+  routes_count: z.number().int().nonnegative().optional(),
+  winner_status: RadarBenchmarkWinnerStatusSchema.optional(),
+  winner_claimed: z.boolean().optional(),
+  route_summaries: z.array(RadarBenchmarkRouteSummarySchema).optional()
+});
+
+export const RadarBenchmarkHistoryAggregateSchema = z.object({
+  generated_at: z.string().datetime(),
+  source: z.literal('infopunks-pay-sh-radar'),
+  benchmarks: z.array(z.object({
+    benchmark_id: z.string(),
+    first_recorded_at: z.string().datetime(),
+    latest_recorded_at: z.string().datetime(),
+    artifact_count: z.number().int().nonnegative(),
+    latest_artifact_id: z.string(),
+    total_recorded_runs: z.number().int().nonnegative(),
+    routes_count: z.number().int().nonnegative(),
+    winner_status: RadarBenchmarkWinnerStatusSchema,
+    winner_claimed: z.boolean(),
+    route_summaries: z.array(RadarBenchmarkRouteSummarySchema)
+  }))
 });
 
 export const RadarBenchmarkListSchema = z.object({
@@ -935,6 +976,7 @@ export type RadarBenchmarkRouteMetric = z.infer<typeof RadarBenchmarkRouteMetric
 export type RadarBenchmarkDetail = z.infer<typeof RadarBenchmarkDetailSchema>;
 export type BenchmarkHistoryEntry = z.infer<typeof BenchmarkHistoryEntrySchema>;
 export type RadarBenchmarkHistory = z.infer<typeof RadarBenchmarkHistorySchema>;
+export type RadarBenchmarkHistoryAggregate = z.infer<typeof RadarBenchmarkHistoryAggregateSchema>;
 export type RadarBenchmarkList = z.infer<typeof RadarBenchmarkListSchema>;
 export type RadarBenchmarkSummary = z.infer<typeof RadarBenchmarkSummarySchema>;
 export type RadarBenchmarkWinnerStatus = z.infer<typeof RadarBenchmarkWinnerStatusSchema>;

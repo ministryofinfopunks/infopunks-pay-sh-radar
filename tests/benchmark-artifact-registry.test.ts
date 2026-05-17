@@ -160,6 +160,37 @@ describe('benchmark artifact registry', () => {
     });
     expect((tokenSearchResponse.json().data.routes as unknown[]).length).toBe(2);
 
+    const solHistoryResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks/finance-data-sol-price/history' });
+    expect(solHistoryResponse.statusCode).toBe(200);
+    const solHistory = solHistoryResponse.json().data;
+    expect(solHistory.benchmark_id).toBe('finance-data-sol-price');
+    expect(solHistory.entries.length).toBe(1);
+    expect(solHistory.entries[0].run_count).toBe(5);
+    expect(solHistory.entries[0].proof_reference).toBe('live-proofs/finance-data-sol-price-benchmark-runs-2026-05-16.md');
+    expect(solHistory.entries.some((entry: { run_count: number }) => entry.run_count === 1)).toBe(false);
+    expect(solHistory.winner_claimed).toBe(false);
+    expect(solHistory.latest_artifact_id).toBe(CANONICAL_ID);
+    expect(solHistory.routes_count).toBe(2);
+    expect(solHistory.route_summaries.length).toBe(2);
+
+    const tokenSearchHistoryResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks/finance-data-token-search/history' });
+    expect(tokenSearchHistoryResponse.statusCode).toBe(200);
+    const tokenSearchHistory = tokenSearchHistoryResponse.json().data;
+    expect(tokenSearchHistory.benchmark_id).toBe('finance-data-token-search');
+    expect(tokenSearchHistory.entries.length).toBe(1);
+    expect(tokenSearchHistory.entries[0].run_count).toBe(5);
+    expect(tokenSearchHistory.entries[0].proof_reference).toBe('live-proofs/finance-data-token-search-benchmark-runs-2026-05-17.md');
+    expect(tokenSearchHistory.winner_claimed).toBe(false);
+    expect(tokenSearchHistory.latest_artifact_id).toBe(TOKEN_SEARCH_CANONICAL_ID);
+    expect(tokenSearchHistory.routes_count).toBe(2);
+    expect(tokenSearchHistory.route_summaries.length).toBe(2);
+
+    const aggregateHistoryResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history' });
+    expect(aggregateHistoryResponse.statusCode).toBe(200);
+    const aggregateHistory = aggregateHistoryResponse.json().data;
+    expect(aggregateHistory.benchmarks.length).toBe(2);
+    expect(aggregateHistory.benchmarks.every((row: { winner_claimed: boolean }) => row.winner_claimed === false)).toBe(true);
+
     await app.close();
   });
 

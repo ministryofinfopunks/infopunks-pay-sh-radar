@@ -288,16 +288,14 @@ describe('phase7 intelligence', () => {
     const history = historyResponse.json().data;
     expect(history.benchmark_id).toBe('finance-data-sol-price');
     expect(history.entries.length).toBeGreaterThanOrEqual(1);
-    const singleRun = history.entries.find((entry: any) => entry.run_count === 1);
     const fiveRun = history.entries.find((entry: any) => entry.run_count === 5);
-    if (singleRun) {
-      expect(singleRun.benchmark_recorded).toBe(true);
-      expect(singleRun.winner_claimed).toBe(false);
-    }
+    expect(history.entries.find((entry: any) => entry.run_count === 1)).toBeFalsy();
     expect(fiveRun).toBeTruthy();
     expect(fiveRun.benchmark_recorded).toBe(true);
     expect(fiveRun.winner_status).toBe('no_clear_winner');
     expect(fiveRun.winner_claimed).toBe(false);
+    expect(history.latest_artifact_id).toBe('finance-data-sol-price-benchmark-runs-2026-05-16');
+    expect(history.winner_claimed).toBe(false);
     await app.close();
   });
 });

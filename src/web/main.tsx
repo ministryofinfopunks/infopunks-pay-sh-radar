@@ -409,6 +409,28 @@ type RadarBenchmarkHistory = {
   source: string;
   benchmark_id: string;
   entries: BenchmarkHistoryEntry[];
+  first_recorded_at?: string;
+  latest_recorded_at?: string;
+  artifact_count?: number;
+  latest_artifact_id?: string;
+  total_recorded_runs?: number;
+  routes_count?: number;
+  winner_status?: 'not_evaluated' | 'insufficient_runs' | 'no_clear_winner' | 'provisional_winner' | 'winner_claimed';
+  winner_claimed?: boolean;
+  route_summaries?: Array<{
+    provider_id: string;
+    route_id: string;
+    latency_summary: {
+      latest_latency_ms: number | null;
+      median_latency_ms: number | null;
+      p95_latency_ms: number | null;
+    };
+    reliability_summary: {
+      success_rate: number | null;
+      completed_runs: number | null;
+      failed_runs: number | null;
+    };
+  }>;
 };
 type TrendDirection = 'improving' | 'stable' | 'degrading' | 'unknown';
 type RiskLevel = 'low' | 'watch' | 'elevated' | 'critical' | 'unknown';
@@ -1048,6 +1070,18 @@ function BenchmarkProofContent({ benchmark, history }: { benchmark: RadarBenchma
       <h2>Benchmark History</h2>
       <p className="panel-caption">Timeline entries are read-only evidence snapshots. No route winner is claimed.</p>
       {!history && <p className="panel-caption">History unavailable.</p>}
+      {!!history && <div className="compact-chip-list wide" style={{ marginBottom: 16 }}>
+        <div className="compact-chip-list-head">
+          <strong>History</strong>
+          <span>Artifact-backed</span>
+        </div>
+        <p>first_recorded_at: {history.first_recorded_at ?? 'n/a'}</p>
+        <p>latest_recorded_at: {history.latest_recorded_at ?? 'n/a'}</p>
+        <p>total_recorded_runs: {history.total_recorded_runs ?? 'n/a'}</p>
+        <p>artifact_count: {history.artifact_count ?? 'n/a'}</p>
+        <p>latest_artifact_id: {history.latest_artifact_id ?? 'n/a'}</p>
+        <p>winner_claimed: {String(history.winner_claimed ?? false)}</p>
+      </div>}
       {!!history && <div className="readiness-list-grid">
         {history.entries.map((entry) => {
           const entryWinnerStatus = entry.winner_status?.replaceAll('_', ' ') ?? 'not evaluated';

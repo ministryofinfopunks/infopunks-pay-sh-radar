@@ -219,6 +219,11 @@ Command palette actions include:
   `extracted_price_usd` is artifact-backed benchmark evidence, not live-refreshed by Radar.
   Route rows may include aggregate fields:
   `success_rate`, `median_latency_ms`, `p95_latency_ms`, `average_price_usd`, `min_price_usd`, `max_price_usd`, `price_variance_percent`, `completed_runs`, `failed_runs`.
+- `GET /v1/radar/benchmarks/:benchmark_id/history`
+  Returns artifact-backed history timeline entries plus additive rollup fields:
+  `first_recorded_at`, `latest_recorded_at`, `artifact_count`, `latest_artifact_id`, `total_recorded_runs`, `routes_count`, `winner_status`, `winner_claimed`, `route_summaries`.
+- `GET /v1/radar/benchmark-history`
+  Returns aggregate artifact-backed history rollups across all known benchmarks.
 - `GET /v1/radar/benchmark-artifacts`
   Returns curated/imported benchmark artifact metadata records used by Radar benchmark summaries.
 - `GET /v1/radar/benchmark-artifacts/:artifact_id`
