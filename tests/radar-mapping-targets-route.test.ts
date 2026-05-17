@@ -11,7 +11,7 @@ describe('radar mapping targets route', () => {
     const body = response.json().data;
     expect(body.count).toBe(5);
     expect(body.targets.some((row: any) => row.category === 'finance/data' && row.benchmark_intent === 'token metadata' && row.current_state === 'needs_candidate')).toBe(true);
-    expect(body.targets.some((row: any) => row.category === 'finance/data' && row.benchmark_intent === 'token search' && row.current_state === 'second_verified_mapping_found')).toBe(true);
+    expect(body.targets.some((row: any) => row.category === 'finance/data' && row.benchmark_intent === 'token search' && row.current_state === 'benchmark_ready')).toBe(true);
     expect(body.targets.some((row: any) => row.category === 'ai_ml/data' && row.current_state === 'needs_two_comparable_mappings')).toBe(true);
     expect(JSON.stringify(body.targets)).not.toContain('candidate A');
     expect(JSON.stringify(body.targets)).not.toContain('candidate B');
@@ -28,8 +28,8 @@ describe('radar mapping targets route', () => {
     expect(readiness.categories.some((row: any) => row.category === 'finance/data' && row.benchmark_intent === 'get SOL price')).toBe(true);
     const tokenSearch = readiness.categories.find((row: any) => row.category === 'finance/data' && row.benchmark_intent === 'token search');
     expect(tokenSearch).toBeTruthy();
-    expect(tokenSearch.benchmark_ready).toBe(false);
-    expect(tokenSearch.superiority_ready).toBe(false);
+    expect(tokenSearch.benchmark_ready).toBe(true);
+    expect(tokenSearch.superiority_ready).toBe(true);
 
     await app.close();
   });

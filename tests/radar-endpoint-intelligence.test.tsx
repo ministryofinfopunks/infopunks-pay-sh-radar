@@ -418,8 +418,8 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
         benchmark_recorded: false,
         winner_claimed: false,
         winner_status: 'not_evaluated',
-        next_step: 'run paid execution for StableCrypto token-search route',
-        readiness_note: 'One proven route and one verified/unproven route exist. StableCrypto still needs paid execution proof before token-search can become benchmark-ready. No winner claimed.',
+        next_step: 'run normalized token-search benchmark',
+        readiness_note: 'Two proven token-search routes exist. Token-search is ready for a normalized benchmark run. No winner claimed.',
         routes: []
       }]
     });
@@ -450,11 +450,11 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
           endpoint_url: 'https://stablecrypto.dev/api/coingecko/onchain/search',
           method: 'POST',
           mapping_status: 'verified',
-          execution_evidence_status: 'unproven',
+          execution_evidence_status: 'proven',
           proof_source: 'infopunks-pay-sh-agent-harness',
-          proof_reference: 'live-proofs/stablecrypto-token-search-verified-unproven-2026-05-17.md',
+          proof_reference: 'live-proofs/stablecrypto-token-search-paid-execution-2026-05-17.md',
           verified_at: '2026-05-17',
-          notes: 'Endpoint path, POST method, query request shape, token-search intent, and unpaid 402 challenge verified. Paid execution not attempted. Not benchmark-ready.'
+          notes: 'Paid execution succeeded for StableCrypto token-search route. Two proven token-search routes now exist. Ready for normalized benchmark run. No route winner claimed.'
         },
         {
           provider_name: 'CoinGecko Onchain DEX API',
@@ -468,7 +468,7 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
           proof_source: 'infopunks-pay-sh-agent-harness',
           proof_reference: 'live-proofs/paysponge-coingecko-token-search-paid-execution-2026-05-17.md',
           verified_at: '2026-05-17',
-          notes: 'Paid execution succeeded for token-search route. One proven route exists. Need a second comparable proven route before benchmark readiness. No route winner claimed.'
+          notes: 'Paid execution succeeded for token-search route. Two proven token-search routes now exist. Ready for normalized benchmark run. No route winner claimed.'
         },
         {
           provider_name: 'CoinGecko Onchain DEX API',
@@ -503,11 +503,11 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
         {
           category: 'finance/data',
           benchmark_intent: 'token search',
-          current_state: 'second_verified_mapping_found',
-          needed_next_step: 'Run paid execution for StableCrypto token-search route.',
+          current_state: 'benchmark_ready',
+          needed_next_step: 'Run normalized token-search benchmark.',
           suggested_provider_candidates: ['CoinGecko Onchain DEX API', 'StableCrypto'],
           why_it_matters: 'Search intent is a common pre-route step for symbol resolution and benchmark input shaping.',
-          readiness_blocker: 'PaySponge has proven execution, but StableCrypto is verified/unproven. Benchmark readiness requires two comparable proven routes.'
+          readiness_blocker: 'None; two comparable proven routes exist, but benchmark has not been recorded yet.'
         },
         {
           category: 'ai_ml/data',
@@ -931,7 +931,7 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('These targets are planning prompts, not verified routes.');
     expect(container.textContent).toContain('token metadata');
     expect(container.textContent).toContain('needs_candidate');
-    expect(container.textContent).toContain('second_verified_mapping_found');
+    expect(container.textContent).toContain('benchmark_ready');
     expect(container.textContent).toContain('needs_two_comparable_mappings');
     expect(container.textContent).toContain('No candidate selected yet.');
     expect(container.textContent).toContain('Needs catalog review.');

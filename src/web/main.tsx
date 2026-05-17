@@ -313,7 +313,7 @@ type RadarRouteMappingRegistry = {
 type RadarMappingTarget = {
   category: string;
   benchmark_intent: string;
-  current_state: 'needs_candidate' | 'needs_verified_route' | 'verified_mapping_found' | 'second_verified_mapping_found' | 'one_proven_mapping_found' | 'needs_two_comparable_mappings';
+  current_state: 'needs_candidate' | 'needs_verified_route' | 'verified_mapping_found' | 'second_verified_mapping_found' | 'one_proven_mapping_found' | 'benchmark_ready' | 'needs_two_comparable_mappings';
   needed_next_step: string;
   suggested_provider_candidates?: string[];
   why_it_matters: string;
@@ -996,20 +996,20 @@ function BenchmarkProofContent({ benchmark, history }: { benchmark: RadarBenchma
           <strong>Benchmark scaffold</strong>
           <span>Planning</span>
         </div>
-        <p>One proven route and one verified/unproven route exist.</p>
-        <p>StableCrypto still needs paid execution proof before token-search can become benchmark-ready.</p>
-        <p>Not benchmark-ready. No winner claimed.</p>
+        <p>Two proven routes exist.</p>
+        <p>Token-search is ready for a normalized benchmark run.</p>
+        <p>Benchmark not yet recorded. No winner claimed.</p>
         <p>Winner claimed: no.</p>
         <p>Status: not evaluated.</p>
         <p>Next: {benchmark.next_step}.</p>
         <p>No artifact exists until benchmark evidence is recorded.</p>
-        {hasTokenSearchMappingTarget && <p><a href="/#mapping-targets">Mapping target: finance/data token search</a> has one proven route and one verified route; StableCrypto still needs paid execution proof before benchmarking.</p>}
+        {hasTokenSearchMappingTarget && <p><a href="/#mapping-targets">Mapping target: finance/data token search</a> is benchmark-ready with two proven routes; normalized benchmark evidence is still pending.</p>}
       </div>}
     </section>
     <section className="panel">
       <h2>Route Cards</h2>
       <p className="panel-caption">No route winner is claimed.</p>
-      {!benchmark.routes.length && <EmptyState title="One proven route and one verified route exist. Benchmark is still unrecorded." body="Route metric cards are shown only after comparable route evidence exists." />}
+      {!benchmark.routes.length && <EmptyState title="Two proven routes exist. Benchmark is still unrecorded." body="Route metric cards are shown only after normalized benchmark evidence is recorded." />}
       <div className="readiness-list-grid">
         {benchmark.routes.map((route) => <section key={route.route_id} className="compact-chip-list wide">
           <div className="compact-chip-list-head">
@@ -3635,7 +3635,7 @@ function RouteMappingRegistryPanel({
     <h2>Route Mapping Registry</h2>
     <p className="panel-caption">Catalog-only is not execution proof.</p>
     <p className="panel-caption">Verified means path/method/body known. Proven means execution evidence exists. Proven does not mean best.</p>
-    <p className="panel-caption">Verified / unproven routes are not benchmark-ready, and paid execution is not recorded.</p>
+    <p className="panel-caption">Verified / unproven routes are not benchmark-ready until paid execution is recorded.</p>
     <div className="control-row">
       <label><span>status</span><select aria-label="Route mapping status filter" value={statusFilter} onChange={(event) => onStatusFilterChange(event.target.value as RouteMappingStatusFilter)}>
         <option value="all">all</option>
@@ -3719,6 +3719,7 @@ function MappingTargetsPanel({ registry }: { registry: RadarMappingTargetRegistr
 }
 
 function mappingTargetBadgeClass(state: RadarMappingTarget['current_state']) {
+  if (state === 'benchmark_ready') return 'route-state ok';
   if (state === 'needs_verified_route' || state === 'verified_mapping_found' || state === 'second_verified_mapping_found' || state === 'one_proven_mapping_found') return 'route-state warn';
   if (state === 'needs_two_comparable_mappings') return 'route-state';
   return 'route-state';

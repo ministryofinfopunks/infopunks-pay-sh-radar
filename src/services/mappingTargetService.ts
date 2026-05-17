@@ -5,6 +5,7 @@ export type MappingTargetState =
   | 'verified_mapping_found'
   | 'second_verified_mapping_found'
   | 'one_proven_mapping_found'
+  | 'benchmark_ready'
   | 'needs_two_comparable_mappings';
 
 export type MappingTarget = {
@@ -30,11 +31,11 @@ const mappingTargets: MappingTarget[] = [
   {
     category: 'finance/data',
     benchmark_intent: 'token search',
-    current_state: 'second_verified_mapping_found',
-    needed_next_step: 'Run paid execution for StableCrypto token-search route.',
+    current_state: 'benchmark_ready',
+    needed_next_step: 'Run normalized token-search benchmark.',
     suggested_provider_candidates: ['CoinGecko Onchain DEX API', 'StableCrypto'],
     why_it_matters: 'Search intent is a common pre-route step for symbol resolution and benchmark input shaping.',
-    readiness_blocker: 'PaySponge has proven execution, but StableCrypto is verified/unproven. Benchmark readiness requires two comparable proven routes.'
+    readiness_blocker: 'None; two comparable proven routes exist, but benchmark has not been recorded yet.'
   },
   {
     category: 'ai_ml/data',
