@@ -1099,11 +1099,15 @@ function AgentBenchmarkSummaryDemoBox({ compact = false }: { compact?: boolean }
     };
   }, []);
 
+  const proofStateLine = summary
+    ? `${summary.recorded_benchmarks} recorded benchmarks · ${summary.proven_routes} proven paid routes · ${summary.winner_claimed ? 1 : 0} winner claims`
+    : null;
+
   return <section className={`panel agent-evidence-demo${compact ? ' compact' : ''}`} aria-label="Agent Evidence benchmark summary demo">
     <div className="compact-chip-list-head">
       <div>
         <p className="section-kicker">Agent Evidence demo</p>
-        <h2>Live Benchmark Summary</h2>
+        <h2>Agent Evidence Demo</h2>
       </div>
       <code>GET /v1/radar/benchmark-summary</code>
     </div>
@@ -1114,6 +1118,7 @@ function AgentBenchmarkSummaryDemoBox({ compact = false }: { compact?: boolean }
     </div>
     {error && <p className="route-state warn">Benchmark summary unavailable. Static benchmark proof pages remain available.</p>}
     {!error && !summary && <p className="route-state">Loading live benchmark summary...</p>}
+    {summary && <p className="route-state"><b>Current proof state:</b> {proofStateLine}</p>}
     {summary && <SafeCodeBlock value={JSON.stringify(summary, null, 2)} label="Live GET /v1/radar/benchmark-summary JSON" />}
   </section>;
 }

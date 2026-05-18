@@ -328,6 +328,11 @@ describe('public benchmark proof pages', () => {
 
     const text = container.textContent ?? '';
     expect(text).toContain('Pay.sh Benchmark Evidence');
+    expect(text).toContain('Agent Evidence Demo');
+    expect(text).toContain('Current proof state:');
+    expect(text).toContain('2 recorded benchmarks');
+    expect(text).toContain('4 proven paid routes');
+    expect(text).toContain('0 winner claims');
     expect(text).toContain('2 recorded benchmarks. 4 proven paid routes. 10 normalized benchmark runs. 0 winner claims.');
     expect(text).toContain('GET /v1/radar/benchmark-summary');
     expect(text).toContain('"recorded_benchmarks": 2');
