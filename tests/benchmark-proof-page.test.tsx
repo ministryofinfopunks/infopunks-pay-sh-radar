@@ -16,9 +16,49 @@ function pathOf(input: RequestInfo | URL) {
   return new URL(raw, 'http://localhost').pathname;
 }
 
-function installFetchMock() {
+function benchmarkSummary() {
+  return {
+    generated_at: observedAt,
+    source: 'infopunks-pay-sh-radar',
+    recorded_benchmarks: 2,
+    winner_claimed: false,
+    total_recorded_runs: 10,
+    proven_routes: 4,
+    benchmarks: [
+      {
+        benchmark_id: 'finance-data-sol-price',
+        label: 'SOL Price',
+        status: 'recorded',
+        winner_status: 'no_clear_winner',
+        winner_claimed: false,
+        routes_count: 2,
+        recorded_runs: 5
+      },
+      {
+        benchmark_id: 'finance-data-token-search',
+        label: 'Token Search',
+        status: 'recorded',
+        winner_status: 'no_clear_winner',
+        winner_claimed: false,
+        routes_count: 2,
+        recorded_runs: 5
+      }
+    ],
+    agent_guidance: [
+      'winner_claimed=false means no route winner should be inferred.',
+      'winner_status=no_clear_winner means evidence exists but scoring thresholds do not crown a route.',
+      'Use full benchmark endpoints for route-level metrics.'
+    ]
+  };
+}
+
+function installFetchMock(options: { benchmarkSummaryFails?: boolean } = {}) {
   vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
     const path = pathOf(input);
+    if (path === '/v1/radar/benchmark-summary') {
+      if (options.benchmarkSummaryFails) return Promise.resolve(new Response(JSON.stringify({ error: 'summary delayed' }), { status: 503, headers: { 'Content-Type': 'application/json' } }));
+      return json(benchmarkSummary());
+    }
     if (path === '/v1/radar/benchmarks') return json({
       generated_at: observedAt,
       source: 'infopunks-pay-sh-radar',
@@ -288,16 +328,43 @@ describe('public benchmark proof pages', () => {
     const text = container.textContent ?? '';
     expect(text).toContain('Pay.sh Benchmark Evidence');
     expect(text).toContain('2 recorded benchmarks. 4 proven paid routes. 10 normalized benchmark runs. 0 winner claims.');
+    expect(text).toContain('GET /v1/radar/benchmark-summary');
+    expect(text).toContain('"recorded_benchmarks": 2');
+    expect(text).toContain('"routes_count": 2');
+    expect(text).toContain('"recorded_runs": 5');
+    expect(text).toContain('winner_claimed=falsemeans agents should not infer a best route.');
+    expect(text).toContain('routes_countshows comparable proven routes per benchmark.');
+    expect(text).toContain('recorded_runsshows normalized benchmark evidence.');
     expect(text).toContain('SOL Price');
     expect(text).toContain('Token Search');
     expect(text.match(/5-run benchmark/g)).toHaveLength(2);
     expect(text.match(/no winner claimed/g)).toHaveLength(2);
     expect(text).toContain('Radar does not infer route superiority.');
-    expect(text).not.toMatch(/best route|winning/i);
+    expect(text).not.toMatch(/winning/i);
     const link = container.querySelector('a[href="/benchmarks/finance-data-sol-price"]');
     expect(link).not.toBeNull();
     const scaffoldLink = container.querySelector('a[href="/benchmarks/finance-data-token-search"]');
     expect(scaffoldLink).not.toBeNull();
+  });
+
+  it('keeps benchmark proof links visible when live benchmark summary is degraded', async () => {
+    window.history.pushState({}, '', '/benchmarks');
+    installFetchMock({ benchmarkSummaryFails: true });
+
+    await act(async () => {
+      root = createRoot(container);
+      root.render(<App />);
+    });
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const text = container.textContent ?? '';
+    expect(text).toContain('Benchmark summary unavailable. Static benchmark proof pages remain available.');
+    expect(text).toContain('SOL Price');
+    expect(text).toContain('Token Search');
+    expect(container.querySelector('a[href="/benchmarks/finance-data-sol-price"]')).not.toBeNull();
   });
 
   it('renders benchmark proof details and non-crowning language', async () => {

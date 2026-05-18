@@ -393,6 +393,25 @@ type RadarBenchmarkRegistry = {
   source: string;
   benchmarks: RadarBenchmarkDetail[];
 };
+type RadarBenchmarkSummaryRow = {
+  benchmark_id: string;
+  label: string;
+  status: 'recorded';
+  winner_status: 'not_evaluated' | 'insufficient_runs' | 'no_clear_winner' | 'provisional_winner' | 'winner_claimed';
+  winner_claimed: boolean;
+  routes_count: number;
+  recorded_runs: number;
+};
+type RadarBenchmarkSummary = {
+  generated_at: string;
+  source: string;
+  recorded_benchmarks: number;
+  winner_claimed: boolean;
+  total_recorded_runs: number;
+  proven_routes: number;
+  benchmarks: RadarBenchmarkSummaryRow[];
+  agent_guidance: string[];
+};
 type BenchmarkHistoryEntry = {
   benchmark_id: string;
   recorded_at: string;
@@ -1036,6 +1055,46 @@ function ProofMetricsStrip({ summary }: { summary: PublicProofSummary }) {
   </div>;
 }
 
+function AgentBenchmarkSummaryDemoBox({ compact = false }: { compact?: boolean }) {
+  const [summary, setSummary] = useState<RadarBenchmarkSummary | null>(null);
+  const [error, setError] = useState(false);
+  useEffect(() => {
+    let active = true;
+    setError(false);
+    setSummary(null);
+    api<{ data: RadarBenchmarkSummary }>('/v1/radar/benchmark-summary')
+      .then((response) => {
+        if (!active) return;
+        setSummary(response.data);
+      })
+      .catch(() => {
+        if (!active) return;
+        setError(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  return <section className={`panel agent-evidence-demo${compact ? ' compact' : ''}`} aria-label="Agent Evidence benchmark summary demo">
+    <div className="compact-chip-list-head">
+      <div>
+        <p className="section-kicker">Agent Evidence demo</p>
+        <h2>Live Benchmark Summary</h2>
+      </div>
+      <code>GET /v1/radar/benchmark-summary</code>
+    </div>
+    <div className="agent-evidence-copy">
+      <p><b>winner_claimed=false</b><span>means agents should not infer a best route.</span></p>
+      <p><b>routes_count</b><span>shows comparable proven routes per benchmark.</span></p>
+      <p><b>recorded_runs</b><span>shows normalized benchmark evidence.</span></p>
+    </div>
+    {error && <p className="route-state warn">Benchmark summary unavailable. Static benchmark proof pages remain available.</p>}
+    {!error && !summary && <p className="route-state">Loading live benchmark summary...</p>}
+    {summary && <SafeCodeBlock value={JSON.stringify(summary, null, 2)} label="Live GET /v1/radar/benchmark-summary JSON" />}
+  </section>;
+}
+
 function BenchmarkProofContent({ benchmark, history }: { benchmark: RadarBenchmarkDetail; history: RadarBenchmarkHistory | null }) {
   const policy = benchmark.winner_policy;
   const winnerStatusLabel = benchmark.winner_status?.replaceAll('_', ' ') ?? 'not evaluated';
@@ -1181,6 +1240,7 @@ function PublicBenchmarksIndexPage() {
           <span>no route superiority inferred</span>
         </div>
       </section>
+      <AgentBenchmarkSummaryDemoBox />
       <section className="panel benchmark-launch-panel" aria-label="Recorded Pay.sh benchmarks">
         <p className="panel-caption benchmark-caveat">Proven means paid execution succeeded. Benchmark recorded means normalized evidence exists. No winner claimed means Radar does not infer route superiority.</p>
         <div className="benchmark-launch-grid">
