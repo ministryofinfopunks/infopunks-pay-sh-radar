@@ -83,18 +83,18 @@ async function run(): Promise<void> {
       const winnerClaimed = summaryData.winner_claimed;
 
       assertCondition(
-        'benchmark-summary recorded_benchmarks >= 2',
-        recordedBenchmarks !== null && recordedBenchmarks >= 2,
+        'benchmark-summary recorded_benchmarks >= 3',
+        recordedBenchmarks !== null && recordedBenchmarks >= 3,
         `recorded_benchmarks=${String(summaryData.recorded_benchmarks)}`
       );
       assertCondition(
-        'benchmark-summary total_recorded_runs >= 10',
-        totalRecordedRuns !== null && totalRecordedRuns >= 10,
+        'benchmark-summary total_recorded_runs >= 15',
+        totalRecordedRuns !== null && totalRecordedRuns >= 15,
         `total_recorded_runs=${String(summaryData.total_recorded_runs)}`
       );
       assertCondition(
-        'benchmark-summary proven_routes >= 4',
-        provenRoutes !== null && provenRoutes >= 4,
+        'benchmark-summary proven_routes >= 6',
+        provenRoutes !== null && provenRoutes >= 6,
         `proven_routes=${String(summaryData.proven_routes)}`
       );
       assertCondition(
@@ -123,18 +123,18 @@ async function run(): Promise<void> {
       const winnerClaimed = historyData.winner_claimed;
 
       assertCondition(
-        'benchmark-history history_count >= 2',
-        historyCount !== null && historyCount >= 2,
+        'benchmark-history history_count >= 3',
+        historyCount !== null && historyCount >= 3,
         `history_count=${String(historyData.history_count)}`
       );
       assertCondition(
-        'benchmark-history total_artifacts >= 2',
-        totalArtifacts !== null && totalArtifacts >= 2,
+        'benchmark-history total_artifacts >= 3',
+        totalArtifacts !== null && totalArtifacts >= 3,
         `total_artifacts=${String(historyData.total_artifacts)}`
       );
       assertCondition(
-        'benchmark-history total_recorded_runs >= 10',
-        totalRecordedRuns !== null && totalRecordedRuns >= 10,
+        'benchmark-history total_recorded_runs >= 15',
+        totalRecordedRuns !== null && totalRecordedRuns >= 15,
         `total_recorded_runs=${String(historyData.total_recorded_runs)}`
       );
       assertCondition(
