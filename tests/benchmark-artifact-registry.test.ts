@@ -9,6 +9,7 @@ describe('benchmark artifact registry', () => {
   const LEGACY_ID = 'finance-data-sol-price-runs-2026-05-16';
   const TOKEN_SEARCH_CANONICAL_ID = 'finance-data-token-search-benchmark-runs-2026-05-17';
   const TOKEN_METADATA_CANONICAL_ID = 'finance-data-token-metadata-benchmark-runs-2026-05-18';
+  const TOKEN_METADATA_CANONICAL_ID_NEW = 'finance-data-token-metadata-benchmark-runs-2026-05-19';
   const PAYSPONGE_ROUTE_ID = 'paysponge-coingecko:GET:https://pro-api.coingecko.com/api/v3/x402/onchain/search/pools?query=SOL';
   const TOKEN_METADATA_PAYSPONGE_ROUTE_ID = 'paysponge-coingecko:GET:/x402/onchain/networks/solana/tokens/So11111111111111111111111111111111111111112';
   const TOKEN_METADATA_STABLE_ROUTE_ID = 'merit-systems-stablecrypto-market-data:POST:/api/coingecko/coin';
@@ -72,10 +73,10 @@ describe('benchmark artifact registry', () => {
       winner_claimed: false,
       next_step: 'define scoring thresholds before declaring a route winner'
     });
-    expect(tokenMetadata?.readiness_note).toContain('PaySponge canonical_network_match_rate=0.0');
+    expect(tokenMetadata?.readiness_note).not.toContain('canonical_network_match_rate=0.0');
     expect(tokenMetadata?.routes.length).toBe(2);
     const tokenMetadataPaysponge = tokenMetadata?.routes.find((item) => item.provider_id === 'paysponge-coingecko');
-    expect(tokenMetadataPaysponge?.status_evidence).toContain('canonical_network_match_rate=0.0');
+    expect(tokenMetadataPaysponge?.status_evidence).toBe('pay_cli exit code 0 and parsed response body');
   });
 
   it('builds compact agent benchmark summary from existing benchmark records', () => {
@@ -83,7 +84,7 @@ describe('benchmark artifact registry', () => {
     expect(summary.recorded_benchmarks).toBe(3);
     expect(summary.total_benchmarks).toBe(3);
     expect(summary.winner_claimed).toBe(false);
-    expect(summary.total_recorded_runs).toBe(15);
+    expect(summary.total_recorded_runs).toBe(20);
     expect(summary.proven_routes).toBe(6);
     expect(summary.agent_guidance).toEqual([
       'winner_claimed=false means no route winner should be inferred.',
@@ -161,7 +162,7 @@ describe('benchmark artifact registry', () => {
     expect(summary.recorded_benchmarks).toBe(3);
     expect(summary.total_benchmarks).toBe(3);
     expect(summary.winner_claimed).toBe(false);
-    expect(summary.total_recorded_runs).toBe(15);
+    expect(summary.total_recorded_runs).toBe(20);
     expect(summary.proven_routes).toBe(6);
     expect(summary.benchmarks.map((row: { benchmark_id: string }) => row.benchmark_id)).toEqual(['finance-data-sol-price', 'finance-data-token-search', 'finance-data-token-metadata']);
     expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-sol-price').routes_count).toBe(2);
@@ -199,7 +200,7 @@ describe('benchmark artifact registry', () => {
     });
     expect((tokenMetadataResponse.json().data.routes as Array<{ provider_id: string; status_evidence: string }>).length).toBe(2);
     const tokenMetadataPaysponge = tokenMetadataResponse.json().data.routes.find((route: { provider_id: string }) => route.provider_id === 'paysponge-coingecko');
-    expect(tokenMetadataPaysponge.status_evidence).toContain('canonical_network_match_rate=0.0');
+    expect(tokenMetadataPaysponge.status_evidence).toBe('pay_cli exit code 0 and parsed response body');
 
     const solHistoryResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks/finance-data-sol-price/history' });
     expect(solHistoryResponse.statusCode).toBe(200);
@@ -230,8 +231,8 @@ describe('benchmark artifact registry', () => {
     expect(aggregateHistoryResponse.statusCode).toBe(200);
     const aggregateHistory = aggregateHistoryResponse.json().data;
     expect(aggregateHistory.history_count).toBe(3);
-    expect(aggregateHistory.total_artifacts).toBe(3);
-    expect(aggregateHistory.total_recorded_runs).toBe(15);
+    expect(aggregateHistory.total_artifacts).toBe(4);
+    expect(aggregateHistory.total_recorded_runs).toBe(20);
     expect(aggregateHistory.winner_claimed).toBe(false);
     expect(aggregateHistory.benchmarks.length).toBe(3);
     expect(aggregateHistory.benchmarks.map((row: { benchmark_id: string }) => row.benchmark_id)).toEqual([
@@ -240,7 +241,9 @@ describe('benchmark artifact registry', () => {
       'finance-data-token-metadata'
     ]);
     expect(aggregateHistory.benchmarks.every((row: { winner_claimed: boolean }) => row.winner_claimed === false)).toBe(true);
-    expect(aggregateHistory.benchmarks.every((row: { artifact_count: number }) => row.artifact_count === 1)).toBe(true);
+    expect(aggregateHistory.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-sol-price')?.artifact_count).toBe(1);
+    expect(aggregateHistory.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-token-search')?.artifact_count).toBe(1);
+    expect(aggregateHistory.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-token-metadata')?.artifact_count).toBe(2);
     expect(aggregateHistory.benchmarks.every((row: { latest_artifact_id: string | null }) => typeof row.latest_artifact_id === 'string' && row.latest_artifact_id.length > 0)).toBe(true);
 
     const solHistoryV2Response = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history/finance-data-sol-price' });
@@ -282,7 +285,7 @@ describe('benchmark artifact registry', () => {
       benchmark_id: 'finance-data-token-metadata',
       label: 'Token metadata',
       route_count: 2,
-      artifact_count: 1,
+      artifact_count: 2,
       winner_claimed: false
     });
     expect(tokenMetadataRouteHistory.routes.map((route: { route_id: string }) => route.route_id).sort()).toEqual([
@@ -290,19 +293,18 @@ describe('benchmark artifact registry', () => {
       TOKEN_METADATA_PAYSPONGE_ROUTE_ID
     ].sort());
     const tokenMetadataPayspongeHistory = tokenMetadataRouteHistory.routes.find((route: { route_id: string }) => route.route_id === TOKEN_METADATA_PAYSPONGE_ROUTE_ID);
-    expect(tokenMetadataPayspongeHistory.latest_artifact_id).toBe(TOKEN_METADATA_CANONICAL_ID);
+    expect(tokenMetadataPayspongeHistory.latest_artifact_id).toBe(TOKEN_METADATA_CANONICAL_ID_NEW);
     expect(tokenMetadataPayspongeHistory.latest_success_count).toBe(5);
     expect(tokenMetadataPayspongeHistory.latest_failure_count).toBe(0);
-    expect(tokenMetadataPayspongeHistory.latest_median_latency_ms).toBe(5827);
-    expect(tokenMetadataPayspongeHistory.latest_p95_latency_ms).toBe(10307);
+    expect(tokenMetadataPayspongeHistory.latest_median_latency_ms).toBe(5430);
+    expect(tokenMetadataPayspongeHistory.latest_p95_latency_ms).toBe(5730);
     expect(tokenMetadataPayspongeHistory.latest_detection_rate).toBe(1);
     expect(tokenMetadataPayspongeHistory.winner_claimed).toBe(false);
-    expect(tokenMetadataPayspongeHistory.evidence_health).toBe('caveated');
-    expect(tokenMetadataPayspongeHistory.caveats).toContain('canonical_network_match_rate=0.0 preserved from benchmark artifact');
+    expect(tokenMetadataPayspongeHistory.evidence_health).toBe('recorded');
     expect(tokenMetadataPayspongeHistory.caveat_objects).toEqual(expect.arrayContaining([
-      expect.objectContaining({ code: 'canonical_network_mismatch', severity: 'warning', value: 0 }),
       expect.objectContaining({ code: 'pay_cli_status_hidden', severity: 'info', evidence_field: 'status_code', value: null })
     ]));
+    expect(tokenMetadataPayspongeHistory.caveat_objects.some((row: { code: string }) => row.code === 'canonical_network_mismatch')).toBe(false);
     const tokenMetadataStableHistory = tokenMetadataRouteHistory.routes.find((route: { route_id: string }) => route.route_id === TOKEN_METADATA_STABLE_ROUTE_ID);
     expect(tokenMetadataStableHistory.evidence_health).toBe('recorded');
     expect(tokenMetadataStableHistory.caveat_objects.some((row: { code: string; severity: string }) => row.code === 'pay_cli_status_hidden' && row.severity === 'info')).toBe(true);
@@ -314,31 +316,29 @@ describe('benchmark artifact registry', () => {
       benchmark_id: 'finance-data-token-metadata',
       route_id: TOKEN_METADATA_PAYSPONGE_ROUTE_ID,
       provider_id: 'paysponge-coingecko',
-      artifact_count: 1,
+      artifact_count: 2,
       winner_claimed: false,
-      evidence_health: 'caveated'
+      evidence_health: 'recorded'
     });
-    expect(tokenMetadataRouteDetail.timeline.length).toBe(1);
-    expect(tokenMetadataRouteDetail.timeline[0]).toMatchObject({
-      artifact_id: TOKEN_METADATA_CANONICAL_ID,
+    expect(tokenMetadataRouteDetail.timeline.length).toBe(2);
+    const oldTimelineEntry = tokenMetadataRouteDetail.timeline.find((entry: { artifact_id: string }) => entry.artifact_id === TOKEN_METADATA_CANONICAL_ID);
+    const latestTimelineEntry = tokenMetadataRouteDetail.timeline.find((entry: { artifact_id: string }) => entry.artifact_id === TOKEN_METADATA_CANONICAL_ID_NEW);
+    expect(oldTimelineEntry).toBeTruthy();
+    expect(oldTimelineEntry.metrics.canonical_network_match_rate).toBe(0);
+    expect(oldTimelineEntry.caveats).toContain('canonical_network_match_rate=0.0 preserved from benchmark artifact');
+    expect(latestTimelineEntry).toMatchObject({
+      artifact_id: TOKEN_METADATA_CANONICAL_ID_NEW,
       success_count: 5,
       failure_count: 0,
-      median_latency_ms: 5827,
-      p95_latency_ms: 10307,
+      median_latency_ms: 5430,
+      p95_latency_ms: 5730,
       status_code: null,
-      status_evidence: 'pay_cli exit code 0 and parsed response body; canonical_network_match_rate=0.0',
+      status_evidence: 'pay_cli exit code 0 and parsed response body',
       winner_status: 'no_clear_winner',
       winner_claimed: false,
-      evidence_health: 'caveated'
+      evidence_health: 'recorded'
     });
-    expect(tokenMetadataRouteDetail.timeline[0].metrics.canonical_network_match_rate).toBe(0);
-    expect(tokenMetadataRouteDetail.timeline[0].caveats).toContain('canonical_network_match_rate=0.0 preserved from benchmark artifact');
-    expect(tokenMetadataRouteDetail.timeline[0].caveat_objects).toEqual(expect.arrayContaining([
-      expect.objectContaining({
-        code: 'canonical_network_mismatch',
-        severity: 'warning',
-        value: 0
-      }),
+    expect(latestTimelineEntry.caveat_objects).toEqual(expect.arrayContaining([
       expect.objectContaining({
         code: 'pay_cli_status_hidden',
         severity: 'info',
@@ -346,6 +346,7 @@ describe('benchmark artifact registry', () => {
         value: null
       })
     ]));
+    expect(latestTimelineEntry.caveat_objects.some((row: { code: string }) => row.code === 'canonical_network_mismatch')).toBe(false);
 
     const stableTokenMetadataRouteDetailResponse = await app.inject({
       method: 'GET',
@@ -389,15 +390,22 @@ describe('benchmark artifact registry', () => {
     expect(tokenSearch?.winner_claimed).toBe(false);
   });
 
-  it('registers the token-metadata benchmark artifact with PaySponge network-match caveat', () => {
+  it('registers both token-metadata benchmark artifacts and preserves older PaySponge caveat', () => {
     const artifacts = listBenchmarkArtifacts();
     const tokenMetadata = artifacts.find((row) => row.artifact_id === TOKEN_METADATA_CANONICAL_ID);
+    const tokenMetadataNew = artifacts.find((row) => row.artifact_id === TOKEN_METADATA_CANONICAL_ID_NEW);
     expect(tokenMetadata).toBeTruthy();
+    expect(tokenMetadataNew).toBeTruthy();
     expect(tokenMetadata?.benchmark_id).toBe('finance-data-token-metadata');
     expect(tokenMetadata?.artifact_path).toBe('live-proofs/finance-data-token-metadata-benchmark-runs-2026-05-18.md');
+    expect(tokenMetadataNew?.artifact_path).toBe('live-proofs/finance-data-token-metadata-benchmark-runs-2026-05-19.md');
     expect(tokenMetadata?.winner_status).toBe('no_clear_winner');
+    expect(tokenMetadataNew?.winner_status).toBe('no_clear_winner');
     expect(tokenMetadata?.winner_claimed).toBe(false);
+    expect(tokenMetadataNew?.winner_claimed).toBe(false);
     const paysponge = tokenMetadata?.routes.find((route) => route.provider_id === 'paysponge-coingecko');
+    const payspongeNew = tokenMetadataNew?.routes.find((route) => route.provider_id === 'paysponge-coingecko');
     expect(paysponge?.status_evidence).toContain('canonical_network_match_rate=0.0');
+    expect(payspongeNew?.status_evidence).toBe('pay_cli exit code 0 and parsed response body');
   });
 });

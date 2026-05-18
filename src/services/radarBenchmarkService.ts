@@ -100,6 +100,10 @@ export function buildRadarBenchmarkSummary(): RadarBenchmarkSummary {
     };
   });
   const benchmarks = recordedBenchmarkEntries.map((entry) => entry.summary);
+  const recordedBenchmarkIds = new Set(benchmarks.map((benchmark) => benchmark.benchmark_id));
+  const totalRecordedRuns = listBenchmarkArtifacts()
+    .filter((artifact) => recordedBenchmarkIds.has(artifact.benchmark_id))
+    .reduce((total, artifact) => total + artifact.total_runs, 0);
 
   return {
     generated_at: registry.generated_at,
@@ -107,7 +111,7 @@ export function buildRadarBenchmarkSummary(): RadarBenchmarkSummary {
     recorded_benchmarks: benchmarks.length,
     total_benchmarks: totalBenchmarks,
     winner_claimed: benchmarks.some((benchmark) => benchmark.winner_claimed),
-    total_recorded_runs: benchmarks.reduce((total, benchmark) => total + benchmark.recorded_runs, 0),
+    total_recorded_runs: totalRecordedRuns,
     proven_routes: recordedBenchmarkEntries.reduce((total, entry) => total + entry.proven_routes_count, 0),
     benchmarks,
     agent_guidance: [
@@ -722,7 +726,7 @@ function buildTokenMetadataBenchmark(): RadarBenchmarkDetail {
     winner_status: latestArtifact?.winner_status ?? 'not_evaluated',
     next_step: benchmarkRecorded ? 'define scoring thresholds before declaring a route winner' : 'run normalized token-metadata benchmark',
     readiness_note: benchmarkRecorded
-      ? 'Five-run normalized benchmark evidence exists. No route winner is claimed. Caveat: PaySponge canonical_network_match_rate=0.0.'
+      ? 'Five-run normalized benchmark evidence exists. No route winner is claimed.'
       : 'Candidate token metadata mappings exist, but endpoint/method/request-shape verification is not recorded yet. Not benchmark-ready. No winner claimed.',
     routes: benchmarkRecorded ? (artifactRoutes.length ? artifactRoutes : mappedRoutes) : []
   };

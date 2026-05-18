@@ -281,7 +281,106 @@ const TOKEN_METADATA_FIVE_RUN_ARTIFACT: BenchmarkArtifactRecord = {
   notes: 'Curated/imported benchmark evidence record. Raw proof content is not served by Radar APIs.'
 };
 
-const REGISTRY: BenchmarkArtifactRecord[] = [SOL_FIVE_RUN_ARTIFACT, TOKEN_SEARCH_FIVE_RUN_ARTIFACT, TOKEN_METADATA_FIVE_RUN_ARTIFACT];
+const TOKEN_METADATA_FIVE_RUN_ARTIFACT_2026_05_19: BenchmarkArtifactRecord = {
+  artifact_id: 'finance-data-token-metadata-benchmark-runs-2026-05-19',
+  benchmark_id: 'finance-data-token-metadata',
+  generated_at: '2026-05-19T07:18:00.000Z',
+  source_repo: 'https://github.com/ministryofinfopunks/infopunks-pay-sh-agent-harness',
+  artifact_path: 'live-proofs/finance-data-token-metadata-benchmark-runs-2026-05-19.md',
+  total_runs: 5,
+  winner_claimed: false,
+  winner_status: 'no_clear_winner',
+  routes: [
+    {
+      provider_id: 'paysponge-coingecko',
+      route_id: 'paysponge-coingecko:GET:/x402/onchain/networks/solana/tokens/So11111111111111111111111111111111111111112',
+      execution_status: 'proven',
+      success: true,
+      latency_ms: 5430,
+      paid_execution_proven: true,
+      proof_reference: 'live-proofs/finance-data-token-metadata-benchmark-runs-2026-05-19.md',
+      normalized_output_available: true,
+      extracted_price_usd: null,
+      extraction_path: null,
+      success_rate: 1,
+      median_latency_ms: 5430,
+      p95_latency_ms: 5730,
+      average_price_usd: null,
+      min_price_usd: null,
+      max_price_usd: null,
+      price_variance_percent: null,
+      completed_runs: 5,
+      failed_runs: 0,
+      execution_transport: 'pay_cli',
+      cli_exit_code: 0,
+      status_code: null,
+      status_evidence: 'pay_cli exit code 0 and parsed response body',
+      normalization_confidence: 'high',
+      freshness_timestamp: '2026-05-19T07:18:00.000Z',
+      comparison_notes: 'Token-metadata benchmark recorded. route_context_inferred_network.'
+    },
+    {
+      provider_id: 'merit-systems-stablecrypto-market-data',
+      route_id: 'merit-systems-stablecrypto-market-data:POST:/api/coingecko/coin',
+      execution_status: 'proven',
+      success: true,
+      latency_ms: 4760,
+      paid_execution_proven: true,
+      proof_reference: 'live-proofs/finance-data-token-metadata-benchmark-runs-2026-05-19.md',
+      normalized_output_available: true,
+      extracted_price_usd: null,
+      extraction_path: null,
+      success_rate: 1,
+      median_latency_ms: 4760,
+      p95_latency_ms: 5360,
+      average_price_usd: null,
+      min_price_usd: null,
+      max_price_usd: null,
+      price_variance_percent: null,
+      completed_runs: 5,
+      failed_runs: 0,
+      execution_transport: 'pay_cli',
+      cli_exit_code: 0,
+      status_code: null,
+      status_evidence: 'pay_cli exit code 0 and parsed response body',
+      normalization_confidence: 'high',
+      freshness_timestamp: '2026-05-19T07:18:00.000Z',
+      comparison_notes: 'Token-metadata benchmark recorded. No route winner is claimed.'
+    }
+  ],
+  aggregate_metrics: {
+    benchmark_recorded: true,
+    required_runs: 5,
+    completed_runs: 5,
+    route_inputs: {
+      paysponge_coingecko: 'GET /x402/onchain/networks/solana/tokens/So11111111111111111111111111111111111111112',
+      merit_systems_stablecrypto_market_data: 'POST /api/coingecko/coin {"id":"wrapped-solana"}'
+    },
+    normalized_metadata_detection_rate: 1,
+    canonical_address_match_rate: 1,
+    canonical_network_match_rate: {
+      paysponge_coingecko: 1,
+      merit_systems_stablecrypto_market_data: 1
+    },
+    canonical_decimals_match_rate: 1,
+    network_source: {
+      paysponge_coingecko: 'route_context',
+      merit_systems_stablecrypto_market_data: 'payload'
+    },
+    network_source_distribution: {
+      paysponge_coingecko: { route_context: 5 },
+      merit_systems_stablecrypto_market_data: { payload: 5 }
+    }
+  },
+  notes: 'Curated/imported benchmark evidence record. Raw proof content is not served by Radar APIs. route_context_inferred_network'
+};
+
+const REGISTRY: BenchmarkArtifactRecord[] = [
+  SOL_FIVE_RUN_ARTIFACT,
+  TOKEN_SEARCH_FIVE_RUN_ARTIFACT,
+  TOKEN_METADATA_FIVE_RUN_ARTIFACT,
+  TOKEN_METADATA_FIVE_RUN_ARTIFACT_2026_05_19
+];
 const LEGACY_ARTIFACT_ID_ALIASES: Record<string, string> = {
   'finance-data-sol-price-runs-2026-05-16': 'finance-data-sol-price-benchmark-runs-2026-05-16'
 };

@@ -23,7 +23,7 @@ function benchmarkSummary() {
     recorded_benchmarks: 3,
     total_benchmarks: 3,
     winner_claimed: false,
-    total_recorded_runs: 15,
+    total_recorded_runs: 20,
     proven_routes: 6,
     benchmarks: [
       {
@@ -69,6 +69,19 @@ function installFetchMock(options: { benchmarkSummaryFails?: boolean } = {}) {
       if (options.benchmarkSummaryFails) return Promise.resolve(new Response(JSON.stringify({ error: 'summary delayed' }), { status: 503, headers: { 'Content-Type': 'application/json' } }));
       return json(benchmarkSummary());
     }
+    if (path === '/v1/radar/benchmark-history') return json({
+      generated_at: observedAt,
+      source: 'infopunks-pay-sh-radar',
+      history_count: 3,
+      total_artifacts: 4,
+      total_recorded_runs: 20,
+      winner_claimed: false,
+      benchmarks: [
+        { benchmark_id: 'finance-data-sol-price', label: 'SOL price', status: 'recorded', artifact_count: 1, total_recorded_runs: 5, routes_count: 2, winner_status: 'no_clear_winner', winner_claimed: false },
+        { benchmark_id: 'finance-data-token-search', label: 'Token search', status: 'recorded', artifact_count: 1, total_recorded_runs: 5, routes_count: 2, winner_status: 'no_clear_winner', winner_claimed: false },
+        { benchmark_id: 'finance-data-token-metadata', label: 'Token metadata', status: 'recorded', artifact_count: 2, total_recorded_runs: 10, routes_count: 2, winner_status: 'no_clear_winner', winner_claimed: false }
+      ]
+    });
     if (path === '/v1/radar/benchmarks') return json({
       generated_at: observedAt,
       source: 'infopunks-pay-sh-radar',
@@ -231,7 +244,7 @@ function installFetchMock(options: { benchmarkSummaryFails?: boolean } = {}) {
           winner_claimed: false,
           winner_status: 'no_clear_winner',
           next_step: 'define scoring thresholds before declaring a route winner',
-          readiness_note: 'Five-run normalized benchmark evidence exists. No route winner is claimed. Caveat: PaySponge canonical_network_match_rate=0.0.',
+          readiness_note: 'Five-run normalized benchmark evidence exists. No route winner is claimed.',
           routes: [
             {
               provider_id: 'paysponge-coingecko',
@@ -251,7 +264,7 @@ function installFetchMock(options: { benchmarkSummaryFails?: boolean } = {}) {
               price_variance_percent: null,
               completed_runs: 5,
               failed_runs: 0,
-              status_evidence: 'pay_cli exit code 0 and parsed response body; canonical_network_match_rate=0.0',
+              status_evidence: 'pay_cli exit code 0 and parsed response body',
               output_shape: null,
               normalization_confidence: 'high',
               freshness_timestamp: observedAt,
@@ -443,7 +456,7 @@ describe('public benchmark proof pages', () => {
     expect(text).toContain('Radar records benchmark evidence for Pay.sh routes before agents spend.');
     expect(text).toContain('Agent Evidence Demo');
     expect(text).toContain('3 recorded benchmarks');
-    expect(text).toContain('3 benchmark artifacts');
+    expect(text).toContain('4 benchmark artifacts');
     expect(text).toContain('15 recorded runs');
     expect(text).toContain('6 proven paid routes');
     expect(text).toContain('0 winners claimed');
@@ -464,7 +477,6 @@ describe('public benchmark proof pages', () => {
     expect(text).toContain('winner_claimedfalse means agents should not infer a winner.');
     expect(text).toContain('route_id may contain slashes or colons. URL-encode route_id before calling the detail endpoint.');
     expect(text).toContain('canonical_network_mismatch');
-    expect(text).toContain('PaySponge canonical_network_match_rate=0.0');
     expect(text.match(/best route/gi)).toHaveLength(1);
     expect(text).not.toMatch(/fastest route|safest route|recommended route/i);
     expect(text).toContain('SOL Price');
