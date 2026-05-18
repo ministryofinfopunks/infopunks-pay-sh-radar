@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../src/api/app';
+import { FastifyInstance } from 'fastify';
 import { PayShCatalogItem } from '../src/data/payShCatalogFixture';
 import { applyPayShCatalogIngestion } from '../src/ingestion/payShCatalogAdapter';
 import { MemoryRepository, IntelligenceSnapshot } from '../src/persistence/repository';
@@ -45,7 +46,16 @@ const catalog: PayShCatalogItem[] = [{
   }]
 }];
 
-afterEach(() => {
+const openApps: FastifyInstance[] = [];
+
+async function createTestApp(store = monitorStore(), repository = new MemoryRepository()) {
+  const app = await createApp(store, repository);
+  openApps.push(app);
+  return app;
+}
+
+afterEach(async () => {
+  await Promise.allSettled(openApps.splice(0).map((app) => app.close()));
   delete process.env.INFOPUNKS_ADMIN_TOKEN;
   delete process.env.MONITOR_ENABLED;
   delete process.env.MONITOR_MODE;
@@ -153,7 +163,7 @@ describe('endpoint monitor', () => {
     process.env.INFOPUNKS_ADMIN_TOKEN = 'local-admin';
     const store = monitorStore();
     store.endpoints[0].schema = null;
-    const app = await createApp(store, new MemoryRepository());
+    const app = await createTestApp(store, new MemoryRepository());
 
     const rejected = await app.inject({ method: 'POST', url: '/v1/monitor/run' });
     const accepted = await app.inject({ method: 'POST', url: '/v1/monitor/run', headers: { authorization: 'Bearer local-admin' } });
@@ -161,19 +171,17 @@ describe('endpoint monitor', () => {
     expect(rejected.statusCode).toBe(401);
     expect(accepted.statusCode).toBe(200);
     expect(accepted.json().data.run.status).toBe('succeeded');
-    await app.close();
   });
 
   it('does not schedule monitor runs unless MONITOR_ENABLED=true', async () => {
     process.env.MONITOR_ENABLED = 'false';
     process.env.MONITOR_INTERVAL_MS = '10';
     const store = monitorStore();
-    const app = await createApp(store, new MemoryRepository());
+    const app = await createTestApp(store, new MemoryRepository());
 
     await new Promise((resolve) => setTimeout(resolve, 35));
 
     expect(store.monitorRuns).toHaveLength(0);
-    await app.close();
   });
 
   it('schedules monitor runs when enabled', async () => {
@@ -182,12 +190,11 @@ describe('endpoint monitor', () => {
     process.env.MONITOR_TIMEOUT_MS = '500';
     const store = monitorStore();
     store.providers[0].serviceUrl = 'http://127.0.0.1:8787/health';
-    const app = await createApp(store, new MemoryRepository());
+    const app = await createTestApp(store, new MemoryRepository());
 
     await vi.waitFor(() => expect(store.monitorRuns.length).toBeGreaterThan(0), { timeout: 500 });
 
     expect(store.monitorRuns[0]).toMatchObject({ mode: 'safe_metadata', checkedCount: 0, skippedCount: 1 });
-    await app.close();
   });
 });
 
@@ -263,14 +270,13 @@ describe('safe metadata monitor', () => {
     expect(summary.timeline.find((event) => event.type === 'provider.checked')?.summary).toMatch(/^Network reachable in \d+ms\.$/);
     expect(summary.recentDegradations.find((event) => event.type === 'provider.degraded')?.summary).toBe('Root health check returned HTTP 404; classified as degraded.');
 
-    const app = await createApp(store);
+    const app = await createTestApp(store);
     const history = (await app.inject({ method: 'GET', url: '/v1/providers/monitor/history' })).json().data;
     expect(history.find((event: { type: string }) => event.type === 'provider.degraded')?.summary).toBe('Root health check returned HTTP 404; classified as degraded.');
     expect(store.providers[0].evidence.map((item) => item.summary)).toEqual(expect.arrayContaining([
       expect.stringMatching(/^Network reachable in \d+ms\.$/),
       'Root health check returned HTTP 404; classified as degraded.'
     ]));
-    await app.close();
   });
 
   it('records failed service reachability on timeout or fetch failure', async () => {
@@ -354,7 +360,7 @@ describe('safe metadata monitor', () => {
     process.env.MONITOR_MODE = 'safe_metadata';
     const store = monitorStore();
     store.providers[0].serviceUrl = null;
-    const app = await createApp(store, new MemoryRepository());
+    const app = await createTestApp(store, new MemoryRepository());
 
     const rejected = await app.inject({ method: 'POST', url: '/v1/monitor/run' });
     const rejectedLegacyHeader = await app.inject({ method: 'POST', url: '/v1/monitor/run', headers: { 'x-infopunks-admin-token': 'local-admin' } });
@@ -364,7 +370,6 @@ describe('safe metadata monitor', () => {
     expect(rejectedLegacyHeader.statusCode).toBe(401);
     expect(accepted.statusCode).toBe(200);
     expect(accepted.json().data.run).toMatchObject({ mode: 'safe_metadata', checkedCount: 0, skippedCount: 1 });
-    await app.close();
   });
 
   it('allows manual POST /v1/monitor/run with strict JSON serialization repository behavior', async () => {
@@ -372,7 +377,8 @@ describe('safe metadata monitor', () => {
     process.env.MONITOR_MODE = 'safe_metadata';
     const store = monitorStore();
     const repository = new StrictJsonRepository();
-    const app = await createApp(store, repository);
+    store.providers[0].serviceUrl = null;
+    const app = await createTestApp(store, repository);
 
     const response = await app.inject({ method: 'POST', url: '/v1/monitor/run', headers: { authorization: 'Bearer local-admin' } });
 
@@ -380,7 +386,6 @@ describe('safe metadata monitor', () => {
     expect(response.json().data.run).toMatchObject({ mode: 'safe_metadata', status: 'succeeded' });
     expect(repository.serializedSnapshots.length).toBeGreaterThan(0);
     expect(repository.serializedEventPayloads.length).toBeGreaterThan(0);
-    await app.close();
   });
 
   it('persists production-like manual monitor payload shapes as valid JSON strings', async () => {
@@ -388,7 +393,8 @@ describe('safe metadata monitor', () => {
     process.env.MONITOR_MODE = 'safe_metadata';
     const store = monitorStore();
     const repository = new StrictJsonRepository();
-    const app = await createApp(store, repository);
+    store.providers[0].serviceUrl = null;
+    const app = await createTestApp(store, repository);
 
     const customDate = new Date('2026-03-01T10:20:30.000Z');
     const response = await app.inject({
@@ -441,7 +447,6 @@ describe('safe metadata monitor', () => {
     for (const value of repository.serializedSnapshots) {
       expect(() => JSON.parse(value)).not.toThrow();
     }
-    await app.close();
   });
 
   it('serializes skippedReasons as valid JSON', async () => {
@@ -462,7 +467,7 @@ describe('safe metadata monitor', () => {
       mode: 'safe_metadata',
       fetchImpl: async () => new Response(null, { status: 204 })
     });
-    const app = await createApp(store, new MemoryRepository());
+    const app = await createTestApp(store, new MemoryRepository());
     const response = await app.inject({ method: 'GET', url: '/v1/monitor/runs/recent' });
 
     expect(response.json().data[0]).toMatchObject({
@@ -475,6 +480,5 @@ describe('safe metadata monitor', () => {
       started_at: expect.any(String),
       finished_at: expect.any(String)
     });
-    await app.close();
   });
 });
