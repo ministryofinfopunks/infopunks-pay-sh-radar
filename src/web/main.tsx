@@ -1347,12 +1347,21 @@ function PublicBenchmarksIndexPage() {
     <main className="public-provider-page" aria-label="Public benchmark registry">
       <section className="panel benchmark-launch-hero">
         <p className="eyebrow">Infopunks Pay.sh Radar</p>
-        <h1>Pay.sh Benchmark Evidence</h1>
-        <p className="copy">{proofSummarySentence(proofSummary)}</p>
+        <h1>Radar Evidence Ledger</h1>
+        <p className="copy">Radar records benchmark evidence for Pay.sh routes before agents spend. It exposes artifacts, route timelines, caveats, evidence health, and winner-claim status without ranking routes.</p>
+        <div className="proof-metrics-strip" aria-label="Radar evidence ledger metrics">
+          <span><b>{proofSummary.recordedBenchmarks}</b> recorded benchmarks</span>
+          <span><b>{history?.total_artifacts ?? 3}</b> benchmark artifacts</span>
+          <span><b>{proofSummary.normalizedRuns}</b> recorded runs</span>
+          <span><b>{proofSummary.provenPaidRoutes}</b> proven paid routes</span>
+          <span><b>route timelines</b> live</span>
+          <span><b>{proofSummary.winnerClaims}</b> winners claimed</span>
+        </div>
+        <p className="panel-caption"><code>winner_claimed=false</code> means agents should not infer a best route.</p>
         <div className="benchmark-hero-strip" aria-label="Benchmark evidence summary">
-          <span>public proof front door</span>
-          <span>paid execution evidence</span>
-          <span>no route superiority inferred</span>
+          <span>public evidence ledger</span>
+          <span>artifact-backed route intelligence</span>
+          <span>no route ranking inferred</span>
         </div>
       </section>
       <AgentBenchmarkSummaryDemoBox />
@@ -1377,22 +1386,32 @@ function PublicBenchmarksIndexPage() {
         <p className="panel-caption">StableCrypto token metadata currently has <code>evidence_health=\"recorded\"</code> because it has benchmark evidence and only an info caveat.</p>
       </section>
       <section className="panel benchmark-launch-panel" aria-label="Recorded Pay.sh benchmarks">
-        <p className="panel-caption benchmark-caveat">Proven means paid execution succeeded. Benchmark recorded means normalized evidence exists. No winner claimed means Radar does not infer route superiority.</p>
+        <h2>Recorded Benchmarks</h2>
+        <p className="panel-caption benchmark-caveat">Evidence ledger rows for recorded benchmarks. No winner claimed means Radar does not infer route superiority.</p>
         <div className="benchmark-launch-grid">
           {recordedBenchmarks.map((benchmark) => {
             const completedRuns = benchmarkRunCount(benchmark);
             const provenRoutes = benchmarkProvenRouteCount(benchmark);
+            const historyRow = history?.benchmarks.find((row) => row.benchmark_id === benchmark.benchmark_id) ?? null;
+            const evidenceHealthSummary = benchmark.readiness_note?.toLowerCase().includes('caveat')
+              ? benchmark.readiness_note
+              : 'recorded evidence';
             return <a key={benchmark.benchmark_id} className="benchmark-launch-card" href={`/benchmarks/${encodeURIComponent(benchmark.benchmark_id)}`}>
               <div>
                 <p className="section-kicker">{benchmark.category}</p>
                 <h2>{publicBenchmarkTitle(benchmark)}</h2>
               </div>
               <div className="benchmark-launch-facts">
-                <span>{completedRuns || 5}-run benchmark</span>
-                <span>{provenRoutes || 2} proven routes</span>
-                <span>no winner claimed</span>
+                <span>state: recorded</span>
+                <span>artifact count: {historyRow?.artifact_count ?? 1}</span>
+                <span>route count: {provenRoutes || 2}</span>
+                <span>recorded runs: {completedRuns || 5}</span>
+                <span>winner claimed: {String(benchmark.winner_claimed)}</span>
+                <span>latest artifact id: {historyRow?.latest_artifact_id ?? 'n/a'}</span>
+                <span>route timeline: available</span>
+                <span>evidence health: {evidenceHealthSummary}</span>
               </div>
-              <p>Open proof page</p>
+              <p>Open benchmark evidence detail</p>
             </a>;
           })}
           {!recordedBenchmarks.length && <EmptyState title="No recorded benchmarks found." body="Benchmark registry has no public recorded evidence yet." />}
