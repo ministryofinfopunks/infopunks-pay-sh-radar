@@ -1,4 +1,6 @@
 const DEFAULT_BASE_URL = 'https://infopunks-pay-sh-radar.onrender.com';
+const RETRY_ATTEMPTS = 3;
+const RETRY_DELAY_MS = 500;
 
 const baseUrl = (process.env.RADAR_VERIFY_BASE_URL ?? DEFAULT_BASE_URL).replace(/\/$/, '');
 
@@ -22,11 +24,35 @@ function assertCondition(name: string, condition: boolean, detail: string): void
   fail(name, detail);
 }
 
-async function getJson(path: string): Promise<{ status: number; body: unknown }> {
-  const url = `${baseUrl}${path}`;
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
 
+async function fetchWithRetry(path: string): Promise<Response> {
+  const url = `${baseUrl}${path}`;
+  let lastError: Error | null = null;
+
+  for (let attempt = 1; attempt <= RETRY_ATTEMPTS; attempt += 1) {
+    try {
+      return await fetch(url, { headers: { accept: 'application/json' } });
+    } catch (error) {
+      lastError = error as Error;
+      if (attempt < RETRY_ATTEMPTS) {
+        await sleep(RETRY_DELAY_MS);
+      }
+    }
+  }
+
+  throw new Error(
+    `${path} request failed after ${RETRY_ATTEMPTS} attempts: ${lastError?.message ?? 'unknown error'}`
+  );
+}
+
+async function getJson(path: string): Promise<{ status: number; body: unknown }> {
   try {
-    const response = await fetch(url, { headers: { accept: 'application/json' } });
+    const response = await fetchWithRetry(path);
     const body = await response.json();
     return { status: response.status, body };
   } catch (error) {
@@ -35,10 +61,8 @@ async function getJson(path: string): Promise<{ status: number; body: unknown }>
 }
 
 async function getText(path: string): Promise<{ status: number; body: string }> {
-  const url = `${baseUrl}${path}`;
-
   try {
-    const response = await fetch(url, { headers: { accept: 'application/json' } });
+    const response = await fetchWithRetry(path);
     const body = await response.text();
     return { status: response.status, body };
   } catch (error) {
