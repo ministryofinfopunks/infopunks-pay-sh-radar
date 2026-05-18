@@ -57,6 +57,10 @@ function asNumber(value: unknown): number | null {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
+function asArray(value: unknown): unknown[] | null {
+  return Array.isArray(value) ? value : null;
+}
+
 async function run(): Promise<void> {
   console.log(`Verifying Radar production proof surfaces at ${baseUrl}`);
 
@@ -170,6 +174,94 @@ async function run(): Promise<void> {
   }
 
   try {
+    const routeHistory = await getJson('/v1/radar/benchmark-history/finance-data-token-metadata/routes');
+    assertCondition(
+      'GET /v1/radar/benchmark-history/finance-data-token-metadata/routes status',
+      routeHistory.status === 200,
+      `status=${routeHistory.status}`
+    );
+
+    const routeHistoryObject = asObject(routeHistory.body);
+    const routeHistoryData = asObject(routeHistoryObject?.data);
+
+    if (!routeHistoryData) {
+      fail('benchmark-history token-metadata routes payload', 'missing object at data');
+    } else {
+      const routeCount = asNumber(routeHistoryData.route_count);
+      const artifactCount = asNumber(routeHistoryData.artifact_count);
+      const winnerClaimed = routeHistoryData.winner_claimed;
+      const routes = asArray(routeHistoryData.routes);
+      const routeObjects = routes?.map((route) => asObject(route)).filter((route): route is Record<string, unknown> => route !== null) ?? [];
+      const payspongeRoute = routeObjects.find((route) => route.provider_id === 'paysponge-coingecko') ?? null;
+      const meritRoute = routeObjects.find((route) => route.provider_id === 'merit-systems-stablecrypto-market-data') ?? null;
+      const payspongeCaveats = asArray(payspongeRoute?.caveats);
+      const payspongeRouteId = typeof payspongeRoute?.route_id === 'string' ? payspongeRoute.route_id : null;
+
+      assertCondition(
+        'benchmark-history token-metadata routes route_count >= 2',
+        routeCount !== null && routeCount >= 2,
+        `route_count=${String(routeHistoryData.route_count)}`
+      );
+      assertCondition(
+        'benchmark-history token-metadata routes artifact_count >= 1',
+        artifactCount !== null && artifactCount >= 1,
+        `artifact_count=${String(routeHistoryData.artifact_count)}`
+      );
+      assertCondition(
+        'benchmark-history token-metadata routes winner_claimed === false',
+        winnerClaimed === false,
+        `winner_claimed=${String(winnerClaimed)}`
+      );
+      assertCondition(
+        'benchmark-history token-metadata routes include paysponge-coingecko',
+        payspongeRoute !== null,
+        `provider_ids=${routeObjects.map((route) => String(route.provider_id)).join(',')}`
+      );
+      assertCondition(
+        'benchmark-history token-metadata routes include merit-systems-stablecrypto-market-data',
+        meritRoute !== null,
+        `provider_ids=${routeObjects.map((route) => String(route.provider_id)).join(',')}`
+      );
+      assertCondition(
+        'benchmark-history token-metadata paysponge caveat preserves canonical_network_match_rate=0.0',
+        payspongeCaveats?.includes('canonical_network_match_rate=0.0 preserved from benchmark artifact') === true,
+        `caveats=${JSON.stringify(payspongeCaveats ?? [])}`
+      );
+
+      if (payspongeRouteId) {
+        const encodedRouteId = encodeURIComponent(payspongeRouteId);
+        const routeDetail = await getJson(`/v1/radar/benchmark-history/finance-data-token-metadata/routes/${encodedRouteId}`);
+        assertCondition(
+          'GET /v1/radar/benchmark-history/finance-data-token-metadata/routes/{paysponge_route_id} status',
+          routeDetail.status === 200,
+          `status=${routeDetail.status}`
+        );
+
+        const routeDetailObject = asObject(routeDetail.body);
+        const routeDetailData = asObject(routeDetailObject?.data);
+        const timeline = asArray(routeDetailData?.timeline);
+        const latestEntry = timeline ? asObject(timeline[timeline.length - 1]) : null;
+        const latestMetrics = asObject(latestEntry?.metrics);
+
+        assertCondition(
+          'benchmark-history token-metadata paysponge timeline length >= 1',
+          timeline !== null && timeline.length >= 1,
+          `timeline_length=${String(timeline?.length ?? 0)}`
+        );
+        assertCondition(
+          'benchmark-history token-metadata paysponge latest canonical_network_match_rate === 0',
+          latestMetrics?.canonical_network_match_rate === 0,
+          `canonical_network_match_rate=${String(latestMetrics?.canonical_network_match_rate)}`
+        );
+      } else {
+        fail('benchmark-history token-metadata paysponge route detail', 'missing string route_id');
+      }
+    }
+  } catch (error) {
+    fail('GET /v1/radar/benchmark-history/finance-data-token-metadata/routes request', (error as Error).message);
+  }
+
+  try {
     const openapi = await getText('/openapi.json');
     assertCondition('GET /openapi.json status', openapi.status === 200, `status=${openapi.status}`);
 
@@ -186,6 +278,16 @@ async function run(): Promise<void> {
     assertCondition(
       'openapi includes /v1/radar/benchmark-history/{benchmark_id}',
       openapi.body.includes('/v1/radar/benchmark-history/{benchmark_id}'),
+      'path present in document'
+    );
+    assertCondition(
+      'openapi includes /v1/radar/benchmark-history/{benchmark_id}/routes',
+      openapi.body.includes('/v1/radar/benchmark-history/{benchmark_id}/routes'),
+      'path present in document'
+    );
+    assertCondition(
+      'openapi includes /v1/radar/benchmark-history/{benchmark_id}/routes/{route_id}',
+      openapi.body.includes('/v1/radar/benchmark-history/{benchmark_id}/routes/{route_id}'),
       'path present in document'
     );
   } catch (error) {
