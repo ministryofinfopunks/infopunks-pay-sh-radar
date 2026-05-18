@@ -20,11 +20,11 @@ function benchmarkSummary() {
   return {
     generated_at: observedAt,
     source: 'infopunks-pay-sh-radar',
-    recorded_benchmarks: 2,
+    recorded_benchmarks: 3,
     total_benchmarks: 3,
     winner_claimed: false,
-    total_recorded_runs: 10,
-    proven_routes: 4,
+    total_recorded_runs: 15,
+    proven_routes: 6,
     benchmarks: [
       {
         benchmark_id: 'finance-data-sol-price',
@@ -38,6 +38,15 @@ function benchmarkSummary() {
       {
         benchmark_id: 'finance-data-token-search',
         label: 'Token Search',
+        status: 'recorded',
+        winner_status: 'no_clear_winner',
+        winner_claimed: false,
+        routes_count: 2,
+        recorded_runs: 5
+      },
+      {
+        benchmark_id: 'finance-data-token-metadata',
+        label: 'Token Metadata',
         status: 'recorded',
         winner_status: 'no_clear_winner',
         winner_claimed: false,
@@ -218,12 +227,61 @@ function installFetchMock(options: { benchmarkSummaryFails?: boolean } = {}) {
           benchmark_id: 'finance-data-token-metadata',
           category: 'finance/data',
           benchmark_intent: 'token metadata',
-          benchmark_recorded: false,
+          benchmark_recorded: true,
           winner_claimed: false,
-          winner_status: 'not_evaluated',
-          next_step: 'verify endpoint/method/request shape for token metadata candidates',
-          readiness_note: 'Candidate token metadata mappings exist, but endpoint/method/request-shape verification is not recorded yet. Not benchmark-ready. No winner claimed.',
-          routes: []
+          winner_status: 'no_clear_winner',
+          next_step: 'define scoring thresholds before declaring a route winner',
+          readiness_note: 'Five-run normalized benchmark evidence exists. No route winner is claimed. Caveat: PaySponge canonical_network_match_rate=0.0.',
+          routes: [
+            {
+              provider_id: 'paysponge-coingecko',
+              route_id: 'paysponge-token-metadata',
+              execution_status: 'proven',
+              latency_ms: 5827,
+              paid_execution_proven: true,
+              proof_reference: 'live-proofs/finance-data-token-metadata-benchmark-runs-2026-05-18.md',
+              normalized_output_available: true,
+              extracted_price_usd: null,
+              success_rate: 1,
+              median_latency_ms: 5827,
+              p95_latency_ms: 10307,
+              average_price_usd: null,
+              min_price_usd: null,
+              max_price_usd: null,
+              price_variance_percent: null,
+              completed_runs: 5,
+              failed_runs: 0,
+              status_evidence: 'pay_cli exit code 0 and parsed response body; canonical_network_match_rate=0.0',
+              output_shape: null,
+              normalization_confidence: 'high',
+              freshness_timestamp: observedAt,
+              comparison_notes: 'no winner claim'
+            },
+            {
+              provider_id: 'merit-systems-stablecrypto-market-data',
+              route_id: 'stable-token-metadata',
+              execution_status: 'proven',
+              latency_ms: 4982,
+              paid_execution_proven: true,
+              proof_reference: 'live-proofs/finance-data-token-metadata-benchmark-runs-2026-05-18.md',
+              normalized_output_available: true,
+              extracted_price_usd: null,
+              success_rate: 1,
+              median_latency_ms: 4982,
+              p95_latency_ms: 5107,
+              average_price_usd: null,
+              min_price_usd: null,
+              max_price_usd: null,
+              price_variance_percent: null,
+              completed_runs: 5,
+              failed_runs: 0,
+              status_evidence: 'pay_cli exit code 0 and parsed response body',
+              output_shape: null,
+              normalization_confidence: 'high',
+              freshness_timestamp: observedAt,
+              comparison_notes: 'no winner claim'
+            }
+          ]
         }
       ]
     });
@@ -341,12 +399,12 @@ describe('public benchmark proof pages', () => {
     expect(text).toContain('Pay.sh Benchmark Evidence');
     expect(text).toContain('Agent Evidence Demo');
     expect(text).toContain('Current proof state:');
-    expect(text).toContain('2 recorded benchmarks');
-    expect(text).toContain('4 proven paid routes');
+    expect(text).toContain('3 recorded benchmarks');
+    expect(text).toContain('6 proven paid routes');
     expect(text).toContain('0 winner claims');
-    expect(text).toContain('2 recorded benchmarks. 4 proven paid routes. 10 normalized benchmark runs. 0 winner claims.');
+    expect(text).toContain('3 recorded benchmarks. 6 proven paid routes. 15 normalized benchmark runs. 0 winner claims.');
     expect(text).toContain('GET /v1/radar/benchmark-summary');
-    expect(text).toContain('"recorded_benchmarks": 2');
+    expect(text).toContain('"recorded_benchmarks": 3');
     expect(text).toContain('"routes_count": 2');
     expect(text).toContain('"recorded_runs": 5');
     expect(text).toContain('winner_claimed=falsemeans agents should not infer a best route.');
@@ -355,21 +413,17 @@ describe('public benchmark proof pages', () => {
     expect(text).toContain('SOL Price');
     expect(text).toContain('Token Search');
     expect(text).toContain('Token Metadata');
-    expect(text).toContain('Benchmark Scaffold');
-    expect(text).toContain('Planned lane. No proven routes or recorded artifacts yet.');
-    expect(text).toContain('routes: 0');
-    expect(text).toContain('artifacts: 0');
-    expect(text).toContain('winner claimed: false');
-    expect(text.match(/5-run benchmark/g)).toHaveLength(2);
-    expect(text.match(/no winner claimed/g)).toHaveLength(2);
+    expect(text).not.toContain('Planned lane. No proven routes or recorded artifacts yet.');
+    expect(text.match(/5-run benchmark/g)).toHaveLength(3);
+    expect(text.match(/no winner claimed/g)).toHaveLength(3);
     expect(text).toContain('Radar does not infer route superiority.');
     expect(text).not.toMatch(/winning/i);
     const link = container.querySelector('a[href="/benchmarks/finance-data-sol-price"]');
     expect(link).not.toBeNull();
     const scaffoldLink = container.querySelector('a[href="/benchmarks/finance-data-token-search"]');
     expect(scaffoldLink).not.toBeNull();
-    const plannedLink = container.querySelector('a[href="/benchmarks/finance-data-token-metadata"]');
-    expect(plannedLink).not.toBeNull();
+    const metadataLink = container.querySelector('a[href="/benchmarks/finance-data-token-metadata"]');
+    expect(metadataLink).not.toBeNull();
   });
 
   it('keeps benchmark proof links visible when live benchmark summary is degraded', async () => {

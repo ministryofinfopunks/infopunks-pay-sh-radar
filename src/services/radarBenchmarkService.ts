@@ -437,16 +437,85 @@ function buildTokenSearchBenchmark(): RadarBenchmarkDetail {
 }
 
 function buildTokenMetadataBenchmark(): RadarBenchmarkDetail {
+  const latestArtifact = getLatestBenchmarkArtifact(TOKEN_METADATA_BENCHMARK_ID);
+  const benchmarkRecorded = latestArtifact?.aggregate_metrics?.benchmark_recorded === true;
+  const mappedRoutes = listRouteMappings()
+    .filter((entry) => entry.category.toLowerCase() === TOKEN_METADATA_CATEGORY && entry.benchmark_intent.toLowerCase() === TOKEN_METADATA_INTENT)
+    .filter((entry) => entry.mapping_status === 'verified')
+    .map((entry): RadarBenchmarkRouteMetric => {
+      const routeArtifact = latestArtifact?.routes.find((route) => route.provider_id === entry.provider_id);
+      return {
+        provider_id: entry.provider_id,
+        route_id: routeArtifact?.route_id ?? `${entry.provider_id}:${entry.method ?? 'UNKNOWN'}:${entry.endpoint_url}`,
+        execution_status: (entry.execution_evidence_status === 'proven' ? 'proven' : 'verified') as 'verified' | 'proven',
+        success: routeArtifact?.success ?? true,
+        latency_ms: routeArtifact?.latency_ms ?? null,
+        paid_execution_proven: entry.execution_evidence_status === 'proven',
+        proof_reference: routeArtifact?.proof_reference ?? 'live-proofs/finance-data-token-metadata-benchmark-runs-2026-05-18.md',
+        normalized_output_available: routeArtifact?.normalized_output_available ?? benchmarkRecorded,
+        extracted_price_usd: routeArtifact?.extracted_price_usd ?? null,
+        extraction_path: routeArtifact?.extraction_path ?? null,
+        success_rate: routeArtifact?.success_rate ?? null,
+        median_latency_ms: routeArtifact?.median_latency_ms ?? null,
+        p95_latency_ms: routeArtifact?.p95_latency_ms ?? null,
+        average_price_usd: routeArtifact?.average_price_usd ?? null,
+        min_price_usd: routeArtifact?.min_price_usd ?? null,
+        max_price_usd: routeArtifact?.max_price_usd ?? null,
+        price_variance_percent: routeArtifact?.price_variance_percent ?? null,
+        completed_runs: routeArtifact?.completed_runs ?? null,
+        failed_runs: routeArtifact?.failed_runs ?? null,
+        execution_transport: 'pay_cli' as const,
+        cli_exit_code: routeArtifact?.cli_exit_code ?? 0,
+        status_code: routeArtifact?.status_code ?? null,
+        status_evidence: routeArtifact?.status_evidence ?? 'pay_cli exit code 0 and parsed response body',
+        output_shape: sanitizeOutputShapeExample(entry.provider_id, entry.response_shape_example ?? null),
+        normalization_confidence: (routeArtifact?.normalization_confidence ?? 'unknown') as 'unknown' | 'low' | 'medium' | 'high',
+        freshness_timestamp: routeArtifact?.freshness_timestamp ?? latestArtifact?.generated_at ?? null,
+        comparison_notes: routeArtifact?.comparison_notes ?? 'Token-metadata benchmark recorded. No route winner is claimed.'
+      };
+    });
+  const artifactRoutes: RadarBenchmarkRouteMetric[] = (latestArtifact?.routes ?? []).map((route) => ({
+    provider_id: route.provider_id,
+    route_id: route.route_id,
+    execution_status: route.execution_status,
+    success: route.success,
+    latency_ms: route.latency_ms,
+    paid_execution_proven: route.paid_execution_proven,
+    proof_reference: route.proof_reference,
+    normalized_output_available: route.normalized_output_available,
+    extracted_price_usd: route.extracted_price_usd,
+    extraction_path: route.extraction_path,
+    success_rate: route.success_rate,
+    median_latency_ms: route.median_latency_ms,
+    p95_latency_ms: route.p95_latency_ms,
+    average_price_usd: route.average_price_usd,
+    min_price_usd: route.min_price_usd,
+    max_price_usd: route.max_price_usd,
+    price_variance_percent: route.price_variance_percent,
+    completed_runs: route.completed_runs,
+    failed_runs: route.failed_runs,
+    execution_transport: route.execution_transport,
+    cli_exit_code: route.cli_exit_code,
+    status_code: route.status_code,
+    status_evidence: route.status_evidence,
+    output_shape: null,
+    normalization_confidence: route.normalization_confidence,
+    freshness_timestamp: route.freshness_timestamp,
+    comparison_notes: route.comparison_notes
+  }));
+
   return {
     benchmark_id: TOKEN_METADATA_BENCHMARK_ID,
     category: TOKEN_METADATA_CATEGORY,
     benchmark_intent: TOKEN_METADATA_INTENT,
-    benchmark_recorded: false,
+    benchmark_recorded: benchmarkRecorded,
     winner_claimed: false,
-    winner_status: 'not_evaluated',
-    next_step: 'verify endpoint/method/request shape for token metadata candidates',
-    readiness_note: 'Candidate token metadata mappings exist, but endpoint/method/request-shape verification is not recorded yet. Not benchmark-ready. No winner claimed.',
-    routes: []
+    winner_status: latestArtifact?.winner_status ?? 'not_evaluated',
+    next_step: benchmarkRecorded ? 'define scoring thresholds before declaring a route winner' : 'run normalized token-metadata benchmark',
+    readiness_note: benchmarkRecorded
+      ? 'Five-run normalized benchmark evidence exists. No route winner is claimed. Caveat: PaySponge canonical_network_match_rate=0.0.'
+      : 'Candidate token metadata mappings exist, but endpoint/method/request-shape verification is not recorded yet. Not benchmark-ready. No winner claimed.',
+    routes: benchmarkRecorded ? (artifactRoutes.length ? artifactRoutes : mappedRoutes) : []
   };
 }
 

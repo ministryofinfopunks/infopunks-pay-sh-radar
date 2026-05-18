@@ -1048,9 +1048,9 @@ type PublicProofSummary = {
 };
 
 const PUBLIC_PROOF_BASELINE: PublicProofSummary = {
-  recordedBenchmarks: 2,
-  provenPaidRoutes: 4,
-  normalizedRuns: 10,
+  recordedBenchmarks: 3,
+  provenPaidRoutes: 6,
+  normalizedRuns: 15,
   winnerClaims: 0
 };
 
@@ -1355,7 +1355,7 @@ function BenchmarkLaunchSummaryTile({ benchmarks }: { benchmarks: RadarBenchmark
       <p className="section-kicker">Public benchmark state</p>
       <strong>{recordedCount} recorded benchmarks</strong>
     </div>
-    <p>SOL Price + Token Search</p>
+    <p>SOL Price + Token Search + Token Metadata</p>
     <p>No route winners claimed</p>
   </section>;
 }
