@@ -406,6 +406,7 @@ type RadarBenchmarkSummary = {
   generated_at: string;
   source: string;
   recorded_benchmarks: number;
+  total_benchmarks: number;
   winner_claimed: boolean;
   total_recorded_runs: number;
   proven_routes: number;

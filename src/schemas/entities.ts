@@ -767,6 +767,7 @@ export const RadarBenchmarkSummarySchema = z.object({
   generated_at: z.string().datetime(),
   source: z.literal('infopunks-pay-sh-radar'),
   recorded_benchmarks: z.number().int().nonnegative(),
+  total_benchmarks: z.number().int().nonnegative(),
   winner_claimed: z.boolean(),
   total_recorded_runs: z.number().int().nonnegative(),
   proven_routes: z.number().int().nonnegative(),

@@ -21,6 +21,7 @@ function benchmarkSummary() {
     generated_at: observedAt,
     source: 'infopunks-pay-sh-radar',
     recorded_benchmarks: 2,
+    total_benchmarks: 3,
     winner_claimed: false,
     total_recorded_runs: 10,
     proven_routes: 4,

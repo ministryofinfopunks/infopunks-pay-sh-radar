@@ -65,6 +65,7 @@ export function buildRadarBenchmarks(): RadarBenchmarkList {
 
 export function buildRadarBenchmarkSummary(): RadarBenchmarkSummary {
   const registry = buildRadarBenchmarks();
+  const totalBenchmarks = Number.isFinite(registry.benchmarks.length) ? registry.benchmarks.length : 0;
   const recordedBenchmarkEntries = registry.benchmarks.flatMap((benchmark) => {
     const latestArtifact = getLatestBenchmarkArtifact(benchmark.benchmark_id);
     const benchmarkRecorded = benchmark.benchmark_recorded && latestArtifact?.aggregate_metrics?.benchmark_recorded === true;
@@ -88,6 +89,7 @@ export function buildRadarBenchmarkSummary(): RadarBenchmarkSummary {
     generated_at: registry.generated_at,
     source: registry.source,
     recorded_benchmarks: benchmarks.length,
+    total_benchmarks: totalBenchmarks,
     winner_claimed: benchmarks.some((benchmark) => benchmark.winner_claimed),
     total_recorded_runs: benchmarks.reduce((total, benchmark) => total + benchmark.recorded_runs, 0),
     proven_routes: recordedBenchmarkEntries.reduce((total, entry) => total + entry.proven_routes_count, 0),

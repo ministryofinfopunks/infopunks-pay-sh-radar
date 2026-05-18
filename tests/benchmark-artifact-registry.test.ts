@@ -76,6 +76,7 @@ describe('benchmark artifact registry', () => {
   it('builds compact agent benchmark summary from existing benchmark records', () => {
     const summary = buildRadarBenchmarkSummary();
     expect(summary.recorded_benchmarks).toBe(2);
+    expect(summary.total_benchmarks).toBe(3);
     expect(summary.winner_claimed).toBe(false);
     expect(summary.total_recorded_runs).toBe(10);
     expect(summary.proven_routes).toBe(4);
@@ -144,6 +145,7 @@ describe('benchmark artifact registry', () => {
     expect(summaryResponse.statusCode).toBe(200);
     const summary = summaryResponse.json().data;
     expect(summary.recorded_benchmarks).toBe(2);
+    expect(summary.total_benchmarks).toBe(3);
     expect(summary.winner_claimed).toBe(false);
     expect(summary.total_recorded_runs).toBe(10);
     expect(summary.proven_routes).toBe(4);
