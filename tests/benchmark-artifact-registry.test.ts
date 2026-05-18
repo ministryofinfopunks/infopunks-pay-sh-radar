@@ -298,6 +298,10 @@ describe('benchmark artifact registry', () => {
     expect(tokenMetadataPayspongeHistory.latest_detection_rate).toBe(1);
     expect(tokenMetadataPayspongeHistory.winner_claimed).toBe(false);
     expect(tokenMetadataPayspongeHistory.caveats).toContain('canonical_network_match_rate=0.0 preserved from benchmark artifact');
+    expect(tokenMetadataPayspongeHistory.caveat_objects).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: 'canonical_network_mismatch', severity: 'warning', value: 0 }),
+      expect.objectContaining({ code: 'pay_cli_status_hidden', severity: 'info', evidence_field: 'status_code', value: null })
+    ]));
 
     const tokenMetadataRouteDetailResponse = await app.inject({ method: 'GET', url: `/v1/radar/benchmark-history/finance-data-token-metadata/routes/${encodeURIComponent(TOKEN_METADATA_PAYSPONGE_ROUTE_ID)}` });
     expect(tokenMetadataRouteDetailResponse.statusCode).toBe(200);
@@ -323,6 +327,28 @@ describe('benchmark artifact registry', () => {
     });
     expect(tokenMetadataRouteDetail.timeline[0].metrics.canonical_network_match_rate).toBe(0);
     expect(tokenMetadataRouteDetail.timeline[0].caveats).toContain('canonical_network_match_rate=0.0 preserved from benchmark artifact');
+    expect(tokenMetadataRouteDetail.timeline[0].caveat_objects).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        code: 'canonical_network_mismatch',
+        severity: 'warning',
+        value: 0
+      }),
+      expect.objectContaining({
+        code: 'pay_cli_status_hidden',
+        severity: 'info',
+        evidence_field: 'status_code',
+        value: null
+      })
+    ]));
+
+    const stableTokenMetadataRouteDetailResponse = await app.inject({
+      method: 'GET',
+      url: `/v1/radar/benchmark-history/finance-data-token-metadata/routes/${encodeURIComponent(TOKEN_METADATA_STABLE_ROUTE_ID)}`
+    });
+    expect(stableTokenMetadataRouteDetailResponse.statusCode).toBe(200);
+    const stableTokenMetadataRouteDetail = stableTokenMetadataRouteDetailResponse.json().data;
+    expect(stableTokenMetadataRouteDetail.winner_claimed).toBe(false);
+    expect(stableTokenMetadataRouteDetail.timeline[0].caveat_objects.some((row: { code: string }) => row.code === 'canonical_network_mismatch')).toBe(false);
 
     const missingRouteBenchmarkResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history/unknown-benchmark/routes' });
     expect(missingRouteBenchmarkResponse.statusCode).toBe(404);

@@ -794,6 +794,32 @@ export const RadarBenchmarkHistoryV2DetailSchema = z.object({
   winner_claimed: z.boolean()
 });
 
+export const RadarEvidenceCaveatCodeSchema = z.enum([
+  'status_code_unavailable',
+  'pay_cli_status_hidden',
+  'canonical_network_mismatch',
+  'canonical_address_mismatch',
+  'canonical_decimals_mismatch',
+  'metadata_semantics_partial',
+  'non_metadata_payload',
+  'price_only_response',
+  'pool_only_response',
+  'search_only_response',
+  'balance_only_response',
+  'allowance_only_response',
+  'route_not_found',
+  'payment_required_confirmed_only',
+  'paid_payload_unobserved'
+]);
+
+export const RadarEvidenceCaveatSchema = z.object({
+  code: RadarEvidenceCaveatCodeSchema,
+  severity: z.enum(['info', 'warning', 'critical']),
+  message: z.string(),
+  evidence_field: z.string().nullable(),
+  value: z.union([z.string(), z.number(), z.boolean(), z.null()])
+});
+
 export const RadarBenchmarkRouteHistorySummarySchema = z.object({
   route_id: z.string(),
   provider_id: z.string(),
@@ -809,7 +835,8 @@ export const RadarBenchmarkRouteHistorySummarySchema = z.object({
   latest_detection_rate: z.number().min(0).max(1).nullable(),
   winner_status: RadarBenchmarkWinnerStatusSchema,
   winner_claimed: z.boolean(),
-  caveats: z.array(z.string())
+  caveats: z.array(z.string()),
+  caveat_objects: z.array(RadarEvidenceCaveatSchema)
 });
 
 export const RadarBenchmarkRouteHistoryAggregateSchema = z.object({
@@ -833,7 +860,8 @@ export const RadarBenchmarkRouteHistoryTimelineEntrySchema = z.object({
   winner_status: RadarBenchmarkWinnerStatusSchema,
   winner_claimed: z.boolean(),
   metrics: z.record(z.string(), z.number().nullable()),
-  caveats: z.array(z.string())
+  caveats: z.array(z.string()),
+  caveat_objects: z.array(RadarEvidenceCaveatSchema)
 });
 
 export const RadarBenchmarkRouteHistoryDetailSchema = z.object({
@@ -1081,6 +1109,7 @@ export type RadarBenchmarkHistoryV2Aggregate = z.infer<typeof RadarBenchmarkHist
 export type RadarBenchmarkHistoryV2Detail = z.infer<typeof RadarBenchmarkHistoryV2DetailSchema>;
 export type RadarBenchmarkRouteHistoryAggregate = z.infer<typeof RadarBenchmarkRouteHistoryAggregateSchema>;
 export type RadarBenchmarkRouteHistoryDetail = z.infer<typeof RadarBenchmarkRouteHistoryDetailSchema>;
+export type RadarEvidenceCaveat = z.infer<typeof RadarEvidenceCaveatSchema>;
 export type RadarBenchmarkList = z.infer<typeof RadarBenchmarkListSchema>;
 export type RadarBenchmarkSummary = z.infer<typeof RadarBenchmarkSummarySchema>;
 export type RadarBenchmarkWinnerStatus = z.infer<typeof RadarBenchmarkWinnerStatusSchema>;

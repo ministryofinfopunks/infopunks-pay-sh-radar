@@ -6,6 +6,7 @@ import {
   RadarBenchmarkHistoryV2Aggregate,
   RadarBenchmarkHistoryV2Detail,
   RadarBenchmarkHistoryV2Row,
+  RadarEvidenceCaveat,
   RadarBenchmarkRouteHistoryAggregate,
   RadarBenchmarkRouteHistoryDetail,
   RadarBenchmarkList,
@@ -323,7 +324,8 @@ export function buildRadarBenchmarkRouteHistoryByBenchmarkId(id: string): RadarB
       latest_detection_rate: routeDetectionRate(latest.artifact, latest.route),
       winner_status: latest.artifact.winner_status,
       winner_claimed: latest.artifact.winner_claimed === true,
-      caveats: routeCaveats(latest.artifact, latest.route)
+      caveats: routeCaveats(latest.artifact, latest.route),
+      caveat_objects: routeCaveatObjects(latest.artifact, latest.route)
     };
   });
   return {
@@ -362,7 +364,8 @@ export function buildRadarBenchmarkRouteHistoryDetail(id: string, routeId: strin
       winner_status: artifact.winner_status,
       winner_claimed: artifact.winner_claimed === true,
       metrics: routeHistoryMetrics(artifact, route),
-      caveats: routeCaveats(artifact, route)
+      caveats: routeCaveats(artifact, route),
+      caveat_objects: routeCaveatObjects(artifact, route)
     }))
   };
 }
@@ -421,6 +424,31 @@ function routeCaveats(artifact: BenchmarkArtifactRecord, route: BenchmarkArtifac
   const canonicalNetworkMatchRate = resolveRouteMetric(artifact.aggregate_metrics.canonical_network_match_rate, route.provider_id);
   if (canonicalNetworkMatchRate === 0) caveats.push('canonical_network_match_rate=0.0 preserved from benchmark artifact');
   return caveats;
+}
+
+function routeCaveatObjects(artifact: BenchmarkArtifactRecord, route: BenchmarkArtifactRoute): RadarEvidenceCaveat[] {
+  const caveatObjects: RadarEvidenceCaveat[] = [];
+  const canonicalNetworkMatchRate = resolveRouteMetric(artifact.aggregate_metrics.canonical_network_match_rate, route.provider_id);
+  if (canonicalNetworkMatchRate === 0) {
+    caveatObjects.push({
+      code: 'canonical_network_mismatch',
+      severity: 'warning',
+      message: 'canonical_network_match_rate remained 0.0 in benchmark artifact metrics.',
+      evidence_field: 'metrics.canonical_network_match_rate',
+      value: 0
+    });
+  }
+  const statusEvidenceReferencesPayCli = route.status_evidence.toLowerCase().includes('pay_cli');
+  if (route.status_code === null && statusEvidenceReferencesPayCli) {
+    caveatObjects.push({
+      code: 'pay_cli_status_hidden',
+      severity: 'info',
+      message: 'HTTP status is unavailable in pay_cli evidence mode; inspect status_evidence for proof context.',
+      evidence_field: 'status_code',
+      value: null
+    });
+  }
+  return caveatObjects;
 }
 
 export function listBenchmarkArtifactMetadata(): BenchmarkArtifactSafeMetadata[] {
