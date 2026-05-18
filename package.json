@@ -6,7 +6,8 @@
     "start:render": "npm run start",
     "smoke:backend": "node scripts/smoke-backend.mjs",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "verify:production": "tsx scripts/verify-production.ts"
   },
   "dependencies": {
     "@fastify/cors": "^11.2.0",

@@ -680,6 +680,29 @@ npm run build
 
 ---
 
+# Production Verification
+
+Run production proof-surface verification:
+
+```bash
+npm run verify:production
+```
+
+Override base URL (staging/local):
+
+```bash
+RADAR_VERIFY_BASE_URL=https://your-endpoint.example.com npm run verify:production
+RADAR_VERIFY_BASE_URL=http://localhost:8787 npm run verify:production
+```
+
+Default base URL:
+
+```text
+https://infopunks-pay-sh-radar.onrender.com
+```
+
+---
+
 # Local Smoke Commands
 
 ## Health
