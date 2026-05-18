@@ -65,27 +65,32 @@ export function buildRadarBenchmarks(): RadarBenchmarkList {
 
 export function buildRadarBenchmarkSummary(): RadarBenchmarkSummary {
   const registry = buildRadarBenchmarks();
-  const benchmarks = registry.benchmarks.map((benchmark) => {
+  const recordedBenchmarkEntries = registry.benchmarks.flatMap((benchmark) => {
     const latestArtifact = getLatestBenchmarkArtifact(benchmark.benchmark_id);
+    const benchmarkRecorded = benchmark.benchmark_recorded && latestArtifact?.aggregate_metrics?.benchmark_recorded === true;
+    if (!benchmarkRecorded) return [];
     return {
-      benchmark_id: benchmark.benchmark_id,
-      category: benchmark.category,
-      benchmark_intent: benchmark.benchmark_intent,
-      status: benchmark.benchmark_recorded ? 'recorded' as const : 'planning' as const,
-      benchmark_recorded: benchmark.benchmark_recorded,
-      winner_status: benchmark.winner_status ?? 'not_evaluated',
-      winner_claimed: benchmark.winner_claimed,
-      routes_count: benchmark.routes.length,
-      artifact_id: latestArtifact?.artifact_id ?? null
+      summary: {
+        benchmark_id: benchmark.benchmark_id,
+        label: benchmarkSummaryLabel(benchmark.benchmark_intent),
+        status: 'recorded' as const,
+        winner_status: latestArtifact.winner_status,
+        winner_claimed: latestArtifact.winner_claimed === true,
+        routes_count: latestArtifact.routes.length,
+        recorded_runs: latestArtifact.total_runs
+      },
+      proven_routes_count: latestArtifact.routes.filter((route) => route.execution_status === 'proven' || route.paid_execution_proven).length,
     };
   });
+  const benchmarks = recordedBenchmarkEntries.map((entry) => entry.summary);
 
   return {
     generated_at: registry.generated_at,
     source: registry.source,
-    recorded_benchmarks: benchmarks.filter((benchmark) => benchmark.benchmark_recorded).length,
-    total_benchmarks: benchmarks.length,
+    recorded_benchmarks: benchmarks.length,
     winner_claimed: benchmarks.some((benchmark) => benchmark.winner_claimed),
+    total_recorded_runs: benchmarks.reduce((total, benchmark) => total + benchmark.recorded_runs, 0),
+    proven_routes: recordedBenchmarkEntries.reduce((total, entry) => total + entry.proven_routes_count, 0),
     benchmarks,
     agent_guidance: [
       'winner_claimed=false means no route winner should be inferred.',
@@ -93,6 +98,11 @@ export function buildRadarBenchmarkSummary(): RadarBenchmarkSummary {
       'Use full benchmark endpoints for route-level metrics.'
     ]
   };
+}
+
+function benchmarkSummaryLabel(benchmarkIntent: string): string {
+  const label = benchmarkIntent.replace(/^get\s+/i, '');
+  return `${label.charAt(0).toUpperCase()}${label.slice(1)}`;
 }
 
 export function buildRadarBenchmarkById(id: string): RadarBenchmarkDetail | null {

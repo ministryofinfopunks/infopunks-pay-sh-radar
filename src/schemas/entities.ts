@@ -755,22 +755,21 @@ export const RadarBenchmarkListSchema = z.object({
 
 export const RadarBenchmarkSummaryRowSchema = z.object({
   benchmark_id: z.string(),
-  category: z.string(),
-  benchmark_intent: z.string(),
-  status: z.enum(['recorded', 'planning']),
-  benchmark_recorded: z.boolean(),
+  label: z.string(),
+  status: z.literal('recorded'),
   winner_status: RadarBenchmarkWinnerStatusSchema,
   winner_claimed: z.boolean(),
   routes_count: z.number().int().nonnegative(),
-  artifact_id: z.string().nullable()
+  recorded_runs: z.number().int().nonnegative()
 });
 
 export const RadarBenchmarkSummarySchema = z.object({
   generated_at: z.string().datetime(),
   source: z.literal('infopunks-pay-sh-radar'),
   recorded_benchmarks: z.number().int().nonnegative(),
-  total_benchmarks: z.number().int().nonnegative(),
   winner_claimed: z.boolean(),
+  total_recorded_runs: z.number().int().nonnegative(),
+  proven_routes: z.number().int().nonnegative(),
   benchmarks: z.array(RadarBenchmarkSummaryRowSchema),
   agent_guidance: z.array(z.string())
 });

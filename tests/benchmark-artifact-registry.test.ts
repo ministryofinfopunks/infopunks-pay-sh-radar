@@ -76,8 +76,9 @@ describe('benchmark artifact registry', () => {
   it('builds compact agent benchmark summary from existing benchmark records', () => {
     const summary = buildRadarBenchmarkSummary();
     expect(summary.recorded_benchmarks).toBe(2);
-    expect(summary.total_benchmarks).toBe(3);
     expect(summary.winner_claimed).toBe(false);
+    expect(summary.total_recorded_runs).toBe(10);
+    expect(summary.proven_routes).toBe(4);
     expect(summary.agent_guidance).toEqual([
       'winner_claimed=false means no route winner should be inferred.',
       'winner_status=no_clear_winner means evidence exists but scoring thresholds do not crown a route.',
@@ -86,36 +87,22 @@ describe('benchmark artifact registry', () => {
 
     const sol = summary.benchmarks.find((row) => row.benchmark_id === 'finance-data-sol-price');
     const tokenSearch = summary.benchmarks.find((row) => row.benchmark_id === 'finance-data-token-search');
-    const tokenMetadata = summary.benchmarks.find((row) => row.benchmark_id === 'finance-data-token-metadata');
+    expect(summary.benchmarks.map((row) => row.benchmark_id)).toEqual(['finance-data-sol-price', 'finance-data-token-search']);
     expect(sol).toMatchObject({
-      category: 'finance/data',
-      benchmark_intent: 'get SOL price',
+      label: 'SOL price',
       status: 'recorded',
-      benchmark_recorded: true,
       winner_status: 'no_clear_winner',
       winner_claimed: false,
       routes_count: 2,
-      artifact_id: CANONICAL_ID
+      recorded_runs: 5
     });
     expect(tokenSearch).toMatchObject({
-      category: 'finance/data',
-      benchmark_intent: 'token search',
+      label: 'Token search',
       status: 'recorded',
-      benchmark_recorded: true,
       winner_status: 'no_clear_winner',
       winner_claimed: false,
       routes_count: 2,
-      artifact_id: TOKEN_SEARCH_CANONICAL_ID
-    });
-    expect(tokenMetadata).toMatchObject({
-      category: 'finance/data',
-      benchmark_intent: 'token metadata',
-      status: 'planning',
-      benchmark_recorded: false,
-      winner_status: 'not_evaluated',
-      winner_claimed: false,
-      routes_count: 0,
-      artifact_id: null
+      recorded_runs: 5
     });
   });
 
@@ -157,14 +144,14 @@ describe('benchmark artifact registry', () => {
     expect(summaryResponse.statusCode).toBe(200);
     const summary = summaryResponse.json().data;
     expect(summary.recorded_benchmarks).toBe(2);
-    expect(summary.total_benchmarks).toBe(3);
     expect(summary.winner_claimed).toBe(false);
-    expect(summary.benchmarks.map((row: { benchmark_id: string }) => row.benchmark_id)).toEqual(['finance-data-sol-price', 'finance-data-token-search', 'finance-data-token-metadata']);
+    expect(summary.total_recorded_runs).toBe(10);
+    expect(summary.proven_routes).toBe(4);
+    expect(summary.benchmarks.map((row: { benchmark_id: string }) => row.benchmark_id)).toEqual(['finance-data-sol-price', 'finance-data-token-search']);
     expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-sol-price').routes_count).toBe(2);
     expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-token-search').routes_count).toBe(2);
-    expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-token-metadata').routes_count).toBe(0);
-    expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-sol-price').artifact_id).toBe(CANONICAL_ID);
-    expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-token-search').artifact_id).toBe(TOKEN_SEARCH_CANONICAL_ID);
+    expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-sol-price').recorded_runs).toBe(5);
+    expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-token-search').recorded_runs).toBe(5);
     expect(summary.benchmarks[0]).not.toHaveProperty('routes');
     expect(summary.benchmarks[0]).not.toHaveProperty('median_latency_ms');
     expect(summary.benchmarks[0]).not.toHaveProperty('success_rate');

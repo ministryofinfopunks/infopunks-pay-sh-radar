@@ -239,41 +239,27 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       generated_at: '2026-05-16T07:42:42.271Z',
       source: 'infopunks-pay-sh-radar',
       recorded_benchmarks: 2,
-      total_benchmarks: 3,
       winner_claimed: false,
+      total_recorded_runs: 10,
+      proven_routes: 4,
       benchmarks: [
         {
           benchmark_id: 'finance-data-sol-price',
-          category: 'finance/data',
-          benchmark_intent: 'get SOL price',
+          label: 'SOL price',
           status: 'recorded',
-          benchmark_recorded: true,
           winner_status: 'no_clear_winner',
           winner_claimed: false,
           routes_count: 2,
-          artifact_id: 'finance-data-sol-price-benchmark-runs-2026-05-16'
+          recorded_runs: 5
         },
         {
           benchmark_id: 'finance-data-token-search',
-          category: 'finance/data',
-          benchmark_intent: 'token search',
+          label: 'Token search',
           status: 'recorded',
-          benchmark_recorded: true,
           winner_status: 'no_clear_winner',
           winner_claimed: false,
           routes_count: 2,
-          artifact_id: 'finance-data-token-search-benchmark-runs-2026-05-17'
-        },
-        {
-          benchmark_id: 'finance-data-token-metadata',
-          category: 'finance/data',
-          benchmark_intent: 'token metadata',
-          status: 'planning',
-          benchmark_recorded: false,
-          winner_status: 'not_evaluated',
-          winner_claimed: false,
-          routes_count: 0,
-          artifact_id: null
+          recorded_runs: 5
         }
       ],
       agent_guidance: [
@@ -743,21 +729,20 @@ function componentSchemas(): Record<string, JsonSchema> {
     }),
     BenchmarkSummaryRow: objectSchema({
       benchmark_id: stringSchema(),
-      category: stringSchema(),
-      benchmark_intent: stringSchema(),
-      status: enumSchema(['recorded', 'planning']),
-      benchmark_recorded: booleanSchema(),
+      label: stringSchema(),
+      status: { const: 'recorded' },
       winner_status: benchmarkWinnerStatus,
       winner_claimed: booleanSchema(),
       routes_count: integerSchema(),
-      artifact_id: { oneOf: [stringSchema(), { type: 'null' }] }
+      recorded_runs: integerSchema()
     }),
     BenchmarkSummaryResponse: objectSchema({
       generated_at: dateTimeSchema(),
       source: { const: 'infopunks-pay-sh-radar' },
       recorded_benchmarks: integerSchema(),
-      total_benchmarks: integerSchema(),
       winner_claimed: booleanSchema(),
+      total_recorded_runs: integerSchema(),
+      proven_routes: integerSchema(),
       benchmarks: arrayOf({ $ref: '#/components/schemas/BenchmarkSummaryRow' }),
       agent_guidance: arrayOf(stringSchema())
     }),
