@@ -196,6 +196,21 @@ async function run(): Promise<void> {
       const meritRoute = routeObjects.find((route) => route.provider_id === 'merit-systems-stablecrypto-market-data') ?? null;
       const payspongeCaveats = asArray(payspongeRoute?.caveats);
       const payspongeRouteId = typeof payspongeRoute?.route_id === 'string' ? payspongeRoute.route_id : null;
+      const meritRouteId = typeof meritRoute?.route_id === 'string' ? meritRoute.route_id : null;
+      const payspongeEvidenceHealth = payspongeRoute?.evidence_health;
+      const meritEvidenceHealth = meritRoute?.evidence_health;
+      const payspongeCaveatObjects = asArray(payspongeRoute?.caveat_objects) ?? [];
+      const meritCaveatObjects = asArray(meritRoute?.caveat_objects) ?? [];
+      const payspongeCaveatCodes = payspongeCaveatObjects
+        .map((caveatObject) => asObject(caveatObject))
+        .filter((caveatObject): caveatObject is Record<string, unknown> => caveatObject !== null)
+        .map((caveatObject) => caveatObject.code)
+        .filter((code): code is string => typeof code === 'string');
+      const meritCaveatCodes = meritCaveatObjects
+        .map((caveatObject) => asObject(caveatObject))
+        .filter((caveatObject): caveatObject is Record<string, unknown> => caveatObject !== null)
+        .map((caveatObject) => caveatObject.code)
+        .filter((code): code is string => typeof code === 'string');
 
       assertCondition(
         'benchmark-history token-metadata routes route_count >= 2',
@@ -223,6 +238,26 @@ async function run(): Promise<void> {
         `provider_ids=${routeObjects.map((route) => String(route.provider_id)).join(',')}`
       );
       assertCondition(
+        'benchmark-history token-metadata paysponge evidence_health === caveated',
+        payspongeEvidenceHealth === 'caveated',
+        `evidence_health=${String(payspongeEvidenceHealth)}`
+      );
+      assertCondition(
+        'benchmark-history token-metadata stablecrypto evidence_health === recorded',
+        meritEvidenceHealth === 'recorded',
+        `evidence_health=${String(meritEvidenceHealth)}`
+      );
+      assertCondition(
+        'benchmark-history token-metadata paysponge caveat_objects include canonical_network_mismatch',
+        payspongeCaveatCodes.includes('canonical_network_mismatch'),
+        `caveat_codes=${JSON.stringify(payspongeCaveatCodes)}`
+      );
+      assertCondition(
+        'benchmark-history token-metadata stablecrypto not downgraded to caveated',
+        meritEvidenceHealth !== 'caveated',
+        `evidence_health=${String(meritEvidenceHealth)} caveat_codes=${JSON.stringify(meritCaveatCodes)}`
+      );
+      assertCondition(
         'benchmark-history token-metadata paysponge caveat preserves canonical_network_match_rate=0.0',
         payspongeCaveats?.includes('canonical_network_match_rate=0.0 preserved from benchmark artifact') === true,
         `caveats=${JSON.stringify(payspongeCaveats ?? [])}`
@@ -239,9 +274,11 @@ async function run(): Promise<void> {
 
         const routeDetailObject = asObject(routeDetail.body);
         const routeDetailData = asObject(routeDetailObject?.data);
+        const routeDetailEvidenceHealth = routeDetailData?.evidence_health;
         const timeline = asArray(routeDetailData?.timeline);
         const latestEntry = timeline ? asObject(timeline[timeline.length - 1]) : null;
         const latestMetrics = asObject(latestEntry?.metrics);
+        const latestEvidenceHealth = latestEntry?.evidence_health;
 
         assertCondition(
           'benchmark-history token-metadata paysponge timeline length >= 1',
@@ -249,12 +286,47 @@ async function run(): Promise<void> {
           `timeline_length=${String(timeline?.length ?? 0)}`
         );
         assertCondition(
+          'benchmark-history token-metadata paysponge route detail evidence_health === caveated',
+          routeDetailEvidenceHealth === 'caveated',
+          `evidence_health=${String(routeDetailEvidenceHealth)}`
+        );
+        if (latestEntry && Object.prototype.hasOwnProperty.call(latestEntry, 'evidence_health')) {
+          assertCondition(
+            'benchmark-history token-metadata paysponge latest timeline evidence_health === caveated',
+            latestEvidenceHealth === 'caveated',
+            `evidence_health=${String(latestEvidenceHealth)}`
+          );
+        } else {
+          pass('benchmark-history token-metadata paysponge latest timeline evidence_health field optional', 'field missing');
+        }
+        assertCondition(
           'benchmark-history token-metadata paysponge latest canonical_network_match_rate === 0',
           latestMetrics?.canonical_network_match_rate === 0,
           `canonical_network_match_rate=${String(latestMetrics?.canonical_network_match_rate)}`
         );
       } else {
         fail('benchmark-history token-metadata paysponge route detail', 'missing string route_id');
+      }
+
+      if (meritRouteId) {
+        const encodedRouteId = encodeURIComponent(meritRouteId);
+        const stableCryptoRouteDetail = await getJson(`/v1/radar/benchmark-history/finance-data-token-metadata/routes/${encodedRouteId}`);
+        assertCondition(
+          'GET /v1/radar/benchmark-history/finance-data-token-metadata/routes/{stablecrypto_route_id} status',
+          stableCryptoRouteDetail.status === 200,
+          `status=${stableCryptoRouteDetail.status}`
+        );
+
+        const stableCryptoRouteDetailObject = asObject(stableCryptoRouteDetail.body);
+        const stableCryptoRouteDetailData = asObject(stableCryptoRouteDetailObject?.data);
+        const stableCryptoEvidenceHealth = stableCryptoRouteDetailData?.evidence_health;
+        assertCondition(
+          'benchmark-history token-metadata stablecrypto route detail evidence_health === recorded',
+          stableCryptoEvidenceHealth === 'recorded',
+          `evidence_health=${String(stableCryptoEvidenceHealth)}`
+        );
+      } else {
+        fail('benchmark-history token-metadata stablecrypto route detail', 'missing string route_id');
       }
     }
   } catch (error) {
