@@ -794,6 +794,58 @@ export const RadarBenchmarkHistoryV2DetailSchema = z.object({
   winner_claimed: z.boolean()
 });
 
+export const RadarBenchmarkRouteHistorySummarySchema = z.object({
+  route_id: z.string(),
+  provider_id: z.string(),
+  label: z.string(),
+  artifact_count: z.number().int().nonnegative(),
+  first_recorded_at: z.string().datetime(),
+  latest_recorded_at: z.string().datetime(),
+  latest_artifact_id: z.string(),
+  latest_success_count: z.number().int().nonnegative().nullable(),
+  latest_failure_count: z.number().int().nonnegative().nullable(),
+  latest_median_latency_ms: z.number().int().positive().nullable(),
+  latest_p95_latency_ms: z.number().int().positive().nullable(),
+  latest_detection_rate: z.number().min(0).max(1).nullable(),
+  winner_status: RadarBenchmarkWinnerStatusSchema,
+  winner_claimed: z.boolean(),
+  caveats: z.array(z.string())
+});
+
+export const RadarBenchmarkRouteHistoryAggregateSchema = z.object({
+  benchmark_id: z.string(),
+  label: z.string(),
+  route_count: z.number().int().nonnegative(),
+  artifact_count: z.number().int().nonnegative(),
+  winner_claimed: z.boolean(),
+  routes: z.array(RadarBenchmarkRouteHistorySummarySchema)
+});
+
+export const RadarBenchmarkRouteHistoryTimelineEntrySchema = z.object({
+  artifact_id: z.string(),
+  recorded_at: z.string().datetime(),
+  success_count: z.number().int().nonnegative().nullable(),
+  failure_count: z.number().int().nonnegative().nullable(),
+  median_latency_ms: z.number().int().positive().nullable(),
+  p95_latency_ms: z.number().int().positive().nullable(),
+  status_code: z.number().int().nullable(),
+  status_evidence: z.string(),
+  winner_status: RadarBenchmarkWinnerStatusSchema,
+  winner_claimed: z.boolean(),
+  metrics: z.record(z.string(), z.number().nullable()),
+  caveats: z.array(z.string())
+});
+
+export const RadarBenchmarkRouteHistoryDetailSchema = z.object({
+  benchmark_id: z.string(),
+  route_id: z.string(),
+  provider_id: z.string(),
+  label: z.string(),
+  artifact_count: z.number().int().nonnegative(),
+  winner_claimed: z.boolean(),
+  timeline: z.array(RadarBenchmarkRouteHistoryTimelineEntrySchema)
+});
+
 export const RadarBenchmarkListSchema = z.object({
   generated_at: z.string().datetime(),
   source: z.literal('infopunks-pay-sh-radar'),
@@ -1027,6 +1079,8 @@ export type RadarBenchmarkHistoryAggregate = z.infer<typeof RadarBenchmarkHistor
 export type RadarBenchmarkHistoryV2Row = z.infer<typeof RadarBenchmarkHistoryV2RowSchema>;
 export type RadarBenchmarkHistoryV2Aggregate = z.infer<typeof RadarBenchmarkHistoryV2AggregateSchema>;
 export type RadarBenchmarkHistoryV2Detail = z.infer<typeof RadarBenchmarkHistoryV2DetailSchema>;
+export type RadarBenchmarkRouteHistoryAggregate = z.infer<typeof RadarBenchmarkRouteHistoryAggregateSchema>;
+export type RadarBenchmarkRouteHistoryDetail = z.infer<typeof RadarBenchmarkRouteHistoryDetailSchema>;
 export type RadarBenchmarkList = z.infer<typeof RadarBenchmarkListSchema>;
 export type RadarBenchmarkSummary = z.infer<typeof RadarBenchmarkSummarySchema>;
 export type RadarBenchmarkWinnerStatus = z.infer<typeof RadarBenchmarkWinnerStatusSchema>;

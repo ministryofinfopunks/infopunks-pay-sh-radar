@@ -43,6 +43,8 @@ describe('openapi discovery', () => {
     expect(spec.paths['/v1/radar/benchmarks/finance-data-sol-price/history']?.get).toBeTruthy();
     expect(spec.paths['/v1/radar/benchmark-history']?.get).toBeTruthy();
     expect(spec.paths['/v1/radar/benchmark-history/{benchmark_id}']?.get).toBeTruthy();
+    expect(spec.paths['/v1/radar/benchmark-history/{benchmark_id}/routes']?.get).toBeTruthy();
+    expect(spec.paths['/v1/radar/benchmark-history/{benchmark_id}/routes/{route_id}']?.get).toBeTruthy();
     expect(spec.paths['/v1/radar/benchmark-artifacts']?.get).toBeTruthy();
     expect(spec.paths['/v1/radar/benchmark-artifacts/{artifact_id}']?.get).toBeTruthy();
     expect(spec.components.schemas.BenchmarkRouteMetric.properties.status_code).toBeTruthy();
@@ -51,6 +53,8 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.BenchmarkSummaryResponse).toBeTruthy();
     expect(spec.components.schemas.BenchmarkHistoryV2AggregateResponse).toBeTruthy();
     expect(spec.components.schemas.BenchmarkHistoryV2DetailResponse).toBeTruthy();
+    expect(spec.components.schemas.BenchmarkRouteHistoryAggregateResponse).toBeTruthy();
+    expect(spec.components.schemas.BenchmarkRouteHistoryDetailResponse).toBeTruthy();
     expect(spec.components.schemas.BenchmarkSummaryResponse.properties.benchmarks.items.$ref).toBe('#/components/schemas/BenchmarkSummaryRow');
     expect(JSON.stringify(spec.paths['/v1/radar/benchmark-summary'])).toContain('compact agent benchmark summary');
     expect(JSON.stringify(spec.paths['/v1/radar/benchmark-summary'])).toContain('Use full benchmark endpoints for route-level metrics.');

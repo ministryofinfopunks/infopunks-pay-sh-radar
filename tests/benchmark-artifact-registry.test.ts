@@ -10,6 +10,8 @@ describe('benchmark artifact registry', () => {
   const TOKEN_SEARCH_CANONICAL_ID = 'finance-data-token-search-benchmark-runs-2026-05-17';
   const TOKEN_METADATA_CANONICAL_ID = 'finance-data-token-metadata-benchmark-runs-2026-05-18';
   const PAYSPONGE_ROUTE_ID = 'paysponge-coingecko:GET:https://pro-api.coingecko.com/api/v3/x402/onchain/search/pools?query=SOL';
+  const TOKEN_METADATA_PAYSPONGE_ROUTE_ID = 'paysponge-coingecko:GET:/x402/onchain/networks/solana/tokens/So11111111111111111111111111111111111111112';
+  const TOKEN_METADATA_STABLE_ROUTE_ID = 'merit-systems-stablecrypto-market-data:POST:/api/coingecko/coin';
 
   it('includes five-run SOL benchmark artifact', () => {
     const artifact = listBenchmarkArtifacts().find((row) => row.artifact_id === CANONICAL_ID);
@@ -272,6 +274,63 @@ describe('benchmark artifact registry', () => {
     });
     expect(tokenSearchHistoryV2.artifacts.length).toBe(1);
     expect(tokenSearchHistoryV2.artifacts[0].recorded_runs).toBe(5);
+
+    const tokenMetadataRouteHistoryResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history/finance-data-token-metadata/routes' });
+    expect(tokenMetadataRouteHistoryResponse.statusCode).toBe(200);
+    const tokenMetadataRouteHistory = tokenMetadataRouteHistoryResponse.json().data;
+    expect(tokenMetadataRouteHistory).toMatchObject({
+      benchmark_id: 'finance-data-token-metadata',
+      label: 'Token metadata',
+      route_count: 2,
+      artifact_count: 1,
+      winner_claimed: false
+    });
+    expect(tokenMetadataRouteHistory.routes.map((route: { route_id: string }) => route.route_id).sort()).toEqual([
+      TOKEN_METADATA_STABLE_ROUTE_ID,
+      TOKEN_METADATA_PAYSPONGE_ROUTE_ID
+    ].sort());
+    const tokenMetadataPayspongeHistory = tokenMetadataRouteHistory.routes.find((route: { route_id: string }) => route.route_id === TOKEN_METADATA_PAYSPONGE_ROUTE_ID);
+    expect(tokenMetadataPayspongeHistory.latest_artifact_id).toBe(TOKEN_METADATA_CANONICAL_ID);
+    expect(tokenMetadataPayspongeHistory.latest_success_count).toBe(5);
+    expect(tokenMetadataPayspongeHistory.latest_failure_count).toBe(0);
+    expect(tokenMetadataPayspongeHistory.latest_median_latency_ms).toBe(5827);
+    expect(tokenMetadataPayspongeHistory.latest_p95_latency_ms).toBe(10307);
+    expect(tokenMetadataPayspongeHistory.latest_detection_rate).toBe(1);
+    expect(tokenMetadataPayspongeHistory.winner_claimed).toBe(false);
+    expect(tokenMetadataPayspongeHistory.caveats).toContain('canonical_network_match_rate=0.0 preserved from benchmark artifact');
+
+    const tokenMetadataRouteDetailResponse = await app.inject({ method: 'GET', url: `/v1/radar/benchmark-history/finance-data-token-metadata/routes/${encodeURIComponent(TOKEN_METADATA_PAYSPONGE_ROUTE_ID)}` });
+    expect(tokenMetadataRouteDetailResponse.statusCode).toBe(200);
+    const tokenMetadataRouteDetail = tokenMetadataRouteDetailResponse.json().data;
+    expect(tokenMetadataRouteDetail).toMatchObject({
+      benchmark_id: 'finance-data-token-metadata',
+      route_id: TOKEN_METADATA_PAYSPONGE_ROUTE_ID,
+      provider_id: 'paysponge-coingecko',
+      artifact_count: 1,
+      winner_claimed: false
+    });
+    expect(tokenMetadataRouteDetail.timeline.length).toBe(1);
+    expect(tokenMetadataRouteDetail.timeline[0]).toMatchObject({
+      artifact_id: TOKEN_METADATA_CANONICAL_ID,
+      success_count: 5,
+      failure_count: 0,
+      median_latency_ms: 5827,
+      p95_latency_ms: 10307,
+      status_code: null,
+      status_evidence: 'pay_cli exit code 0 and parsed response body; canonical_network_match_rate=0.0',
+      winner_status: 'no_clear_winner',
+      winner_claimed: false
+    });
+    expect(tokenMetadataRouteDetail.timeline[0].metrics.canonical_network_match_rate).toBe(0);
+    expect(tokenMetadataRouteDetail.timeline[0].caveats).toContain('canonical_network_match_rate=0.0 preserved from benchmark artifact');
+
+    const missingRouteBenchmarkResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history/unknown-benchmark/routes' });
+    expect(missingRouteBenchmarkResponse.statusCode).toBe(404);
+    expect(missingRouteBenchmarkResponse.json()).toEqual({ error: 'benchmark_not_found' });
+
+    const missingRouteResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history/finance-data-token-metadata/routes/unknown-route' });
+    expect(missingRouteResponse.statusCode).toBe(404);
+    expect(missingRouteResponse.json()).toEqual({ error: 'route_not_found' });
 
     const missingHistoryV2Response = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history/unknown-benchmark' });
     expect(missingHistoryV2Response.statusCode).toBe(404);

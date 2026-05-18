@@ -362,6 +362,49 @@ function installFetchMock(options: { benchmarkSummaryFails?: boolean } = {}) {
         }
       ]
     });
+    if (path === '/v1/radar/benchmark-history/finance-data-sol-price/routes') return json({
+      benchmark_id: 'finance-data-sol-price',
+      label: 'SOL Price',
+      route_count: 2,
+      artifact_count: 1,
+      winner_claimed: false,
+      routes: [
+        {
+          route_id: 'stable',
+          provider_id: 'merit-systems-stablecrypto-market-data',
+          label: 'merit systems stablecrypto market data',
+          artifact_count: 1,
+          first_recorded_at: '2026-05-16T07:42:42.271Z',
+          latest_recorded_at: '2026-05-16T07:42:42.271Z',
+          latest_artifact_id: 'finance-data-sol-price-benchmark-runs-2026-05-16',
+          latest_success_count: 5,
+          latest_failure_count: 0,
+          latest_median_latency_ms: 5691,
+          latest_p95_latency_ms: 6469,
+          latest_detection_rate: 1,
+          winner_status: 'no_clear_winner',
+          winner_claimed: false,
+          caveats: []
+        },
+        {
+          route_id: 'paysponge',
+          provider_id: 'paysponge-coingecko',
+          label: 'paysponge coingecko',
+          artifact_count: 1,
+          first_recorded_at: '2026-05-16T07:42:42.271Z',
+          latest_recorded_at: '2026-05-16T07:42:42.271Z',
+          latest_artifact_id: 'finance-data-sol-price-benchmark-runs-2026-05-16',
+          latest_success_count: 5,
+          latest_failure_count: 0,
+          latest_median_latency_ms: 7761,
+          latest_p95_latency_ms: 7946,
+          latest_detection_rate: 1,
+          winner_status: 'no_clear_winner',
+          winner_claimed: false,
+          caveats: []
+        }
+      ]
+    });
     return Promise.resolve(new Response('{}', { status: 404 }));
   });
 }
@@ -476,6 +519,10 @@ describe('public benchmark proof pages', () => {
     expect(text).toContain('live-proofs/stablecrypto-harness-pay-cli-2026-05-12.md');
     expect(text).toContain('live-proofs/paysponge-coingecko-paid-execution-2026-05-15.md');
     expect(text).toContain('status_evidence: pay_cli exit code 0 and parsed response body');
+    expect(text).toContain('Route Evidence Timeline');
+    expect(text).toContain('route_count: 2');
+    expect(text).toContain('latest_artifact_id: finance-data-sol-price-benchmark-runs-2026-05-16');
+    expect(text).toContain('latest_detection_rate: 1');
     expect(text).toContain('Benchmark History');
     expect(text).toContain('2026-05-15');
     expect(text).toContain('1 run');

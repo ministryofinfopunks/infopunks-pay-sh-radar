@@ -474,6 +474,31 @@ type RadarBenchmarkHistoryV2Aggregate = {
   winner_claimed: boolean;
   benchmarks: RadarBenchmarkHistoryV2Row[];
 };
+type RadarBenchmarkRouteHistorySummary = {
+  route_id: string;
+  provider_id: string;
+  label: string;
+  artifact_count: number;
+  first_recorded_at: string;
+  latest_recorded_at: string;
+  latest_artifact_id: string;
+  latest_success_count: number | null;
+  latest_failure_count: number | null;
+  latest_median_latency_ms: number | null;
+  latest_p95_latency_ms: number | null;
+  latest_detection_rate: number | null;
+  winner_status: 'not_evaluated' | 'insufficient_runs' | 'no_clear_winner' | 'provisional_winner' | 'winner_claimed';
+  winner_claimed: boolean;
+  caveats: string[];
+};
+type RadarBenchmarkRouteHistoryAggregate = {
+  benchmark_id: string;
+  label: string;
+  route_count: number;
+  artifact_count: number;
+  winner_claimed: boolean;
+  routes: RadarBenchmarkRouteHistorySummary[];
+};
 type TrendDirection = 'improving' | 'stable' | 'degrading' | 'unknown';
 type RiskLevel = 'low' | 'watch' | 'elevated' | 'critical' | 'unknown';
 type RiskRecommendation = 'route normally' | 'route with caution' | 'required fallback route' | 'not recommended for routing' | 'insufficient history';
@@ -1123,7 +1148,7 @@ function AgentBenchmarkSummaryDemoBox({ compact = false }: { compact?: boolean }
   </section>;
 }
 
-function BenchmarkProofContent({ benchmark, history }: { benchmark: RadarBenchmarkDetail; history: RadarBenchmarkHistory | null }) {
+function BenchmarkProofContent({ benchmark, history, routeHistory }: { benchmark: RadarBenchmarkDetail; history: RadarBenchmarkHistory | null; routeHistory: RadarBenchmarkRouteHistoryAggregate | null }) {
   const policy = benchmark.winner_policy;
   const winnerStatusLabel = benchmark.winner_status?.replaceAll('_', ' ') ?? 'not evaluated';
   const isPlanningScaffold = !benchmark.benchmark_recorded && benchmark.winner_status === 'not_evaluated';
@@ -1190,6 +1215,40 @@ function BenchmarkProofContent({ benchmark, history }: { benchmark: RadarBenchma
           <p>status_evidence: {route.status_evidence ?? 'missing status evidence'}</p>
         </section>)}
       </div>
+    </section>
+    <section className="panel">
+      <h2>Route Evidence Timeline</h2>
+      <p className="panel-caption">Route-level evidence is derived from benchmark artifacts. Raw proofs are not exposed and no route winner is inferred.</p>
+      {!routeHistory && <p className="panel-caption">Route timeline unavailable.</p>}
+      {!!routeHistory && <div className="compact-chip-list wide" style={{ marginBottom: 16 }}>
+        <div className="compact-chip-list-head">
+          <strong>{routeHistory.label}</strong>
+          <span>route_count: {routeHistory.route_count}</span>
+        </div>
+        <p>artifact_count: {routeHistory.artifact_count}</p>
+        <p>winner_claimed: {String(routeHistory.winner_claimed)}</p>
+      </div>}
+      {!!routeHistory && <div className="readiness-list-grid">
+        {routeHistory.routes.map((route) => <section key={route.route_id} className="compact-chip-list wide">
+          <div className="compact-chip-list-head">
+            <strong>{route.label}</strong>
+            <span>{route.artifact_count} artifact{route.artifact_count === 1 ? '' : 's'}</span>
+          </div>
+          <p>route_id: {route.route_id}</p>
+          <p>provider_id: {route.provider_id}</p>
+          <p>first_recorded_at: {route.first_recorded_at}</p>
+          <p>latest_recorded_at: {route.latest_recorded_at}</p>
+          <p>latest_artifact_id: {route.latest_artifact_id}</p>
+          <p>latest_success_count: {route.latest_success_count ?? 'n/a'}</p>
+          <p>latest_failure_count: {route.latest_failure_count ?? 'n/a'}</p>
+          <p>latest_median_latency_ms: {route.latest_median_latency_ms ?? 'n/a'}</p>
+          <p>latest_p95_latency_ms: {route.latest_p95_latency_ms ?? 'n/a'}</p>
+          <p>latest_detection_rate: {route.latest_detection_rate ?? 'n/a'}</p>
+          <p>winner_status: {route.winner_status.replaceAll('_', ' ')}</p>
+          <p>winner_claimed: {String(route.winner_claimed)}</p>
+          {route.caveats.length ? route.caveats.map((caveat) => <p key={caveat}>caveat: {caveat}</p>) : <p>caveats: none</p>}
+        </section>)}
+      </div>}
     </section>
     <section className="panel">
       <h2>Benchmark History</h2>
@@ -1379,12 +1438,14 @@ function BenchmarkLaunchMiniCard({ benchmark }: { benchmark: RadarBenchmarkDetai
 function PublicBenchmarkProofPage({ benchmarkId }: { benchmarkId: string }) {
   const [benchmark, setBenchmark] = useState<RadarBenchmarkDetail | null>(null);
   const [history, setHistory] = useState<RadarBenchmarkHistory | null>(null);
+  const [routeHistory, setRouteHistory] = useState<RadarBenchmarkRouteHistoryAggregate | null>(null);
   const [missing, setMissing] = useState(false);
   useEffect(() => {
     let active = true;
     setMissing(false);
     setBenchmark(null);
     setHistory(null);
+    setRouteHistory(null);
     api<{ data: RadarBenchmarkRegistry }>('/v1/radar/benchmarks')
       .then((response) => {
         if (!active) return;
@@ -1405,6 +1466,15 @@ function PublicBenchmarkProofPage({ benchmarkId }: { benchmarkId: string }) {
             if (!active) return;
             setHistory(null);
           });
+        api<{ data: RadarBenchmarkRouteHistoryAggregate }>(`/v1/radar/benchmark-history/${encodeURIComponent(benchmarkId)}/routes`)
+          .then((routeHistoryResponse) => {
+            if (!active) return;
+            setRouteHistory(routeHistoryResponse.data);
+          })
+          .catch(() => {
+            if (!active) return;
+            setRouteHistory(null);
+          });
       })
       .catch(() => {
         if (!active) return;
@@ -1418,7 +1488,7 @@ function PublicBenchmarkProofPage({ benchmarkId }: { benchmarkId: string }) {
 
   if (missing) return <main className="boot" aria-label="Benchmark not found"><section className="panel public-provider-page"><h1>Benchmark Not Found</h1><p className="copy">No benchmark exists for <code>{benchmarkId}</code> in the current dataset.</p></section></main>;
   if (!benchmark) return <main className="boot" aria-label="Benchmark loading">LOADING BENCHMARK PROOF...</main>;
-  return <div className="shell public-provider-shell"><main className="public-provider-page" aria-label="Public benchmark proof page"><BenchmarkProofContent benchmark={benchmark} history={history} /></main></div>;
+  return <div className="shell public-provider-shell"><main className="public-provider-page" aria-label="Public benchmark proof page"><BenchmarkProofContent benchmark={benchmark} history={history} routeHistory={routeHistory} /></main></div>;
 }
 
 function PublicProviderPage({ providerId }: { providerId: string }) {

@@ -22,6 +22,8 @@ import {
   RadarBenchmarkHistorySchema,
   RadarBenchmarkHistoryV2AggregateSchema,
   RadarBenchmarkHistoryV2DetailSchema,
+  RadarBenchmarkRouteHistoryAggregateSchema,
+  RadarBenchmarkRouteHistoryDetailSchema,
   RadarBenchmarkArtifactListSchema,
   RadarBenchmarkArtifactSchema,
   RadarPreflightRequestSchema,
@@ -46,6 +48,8 @@ import { buildBenchmarkReadiness, buildSuperiorityReadiness, runRadarComparison,
 import {
   buildRadarBenchmarkById,
   buildRadarBenchmarkHistoryById,
+  buildRadarBenchmarkRouteHistoryByBenchmarkId,
+  buildRadarBenchmarkRouteHistoryDetail,
   buildRadarBenchmarkHistoryV2Aggregate,
   buildRadarBenchmarkHistoryV2ById,
   buildRadarBenchmarks,
@@ -539,6 +543,24 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     if (!history) return reply.code(404).send({ error: 'benchmark_not_found' });
     return {
       data: safeJsonExport(RadarBenchmarkHistoryV2DetailSchema.parse(history))
+    };
+  });
+  app.get<{ Params: { benchmark_id: string } }>('/v1/radar/benchmark-history/:benchmark_id/routes', async (req, reply) => {
+    const history = buildRadarBenchmarkRouteHistoryByBenchmarkId(req.params.benchmark_id);
+    if (!history) return reply.code(404).send({ error: 'benchmark_not_found' });
+    return {
+      data: safeJsonExport(RadarBenchmarkRouteHistoryAggregateSchema.parse(history))
+    };
+  });
+  app.get<{ Params: { benchmark_id: string; '*': string } }>('/v1/radar/benchmark-history/:benchmark_id/routes/*', async (req, reply) => {
+    const routeId = decodeURIComponent(req.params['*']);
+    const history = buildRadarBenchmarkRouteHistoryDetail(req.params.benchmark_id, routeId);
+    if (!history) {
+      const benchmark = buildRadarBenchmarkById(req.params.benchmark_id);
+      return reply.code(404).send({ error: benchmark ? 'route_not_found' : 'benchmark_not_found' });
+    }
+    return {
+      data: safeJsonExport(RadarBenchmarkRouteHistoryDetailSchema.parse(history))
     };
   });
   app.get('/v1/radar/benchmark-artifacts', async () => ({

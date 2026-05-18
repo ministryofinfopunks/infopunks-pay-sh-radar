@@ -6,12 +6,14 @@ import {
   RadarBenchmarkHistoryV2Aggregate,
   RadarBenchmarkHistoryV2Detail,
   RadarBenchmarkHistoryV2Row,
+  RadarBenchmarkRouteHistoryAggregate,
+  RadarBenchmarkRouteHistoryDetail,
   RadarBenchmarkList,
   RadarBenchmarkRouteMetric,
   RadarBenchmarkSummary
 } from '../schemas/entities';
 import { listRouteMappings } from './providerEndpointMap';
-import { getBenchmarkArtifactById, getLatestBenchmarkArtifact, listBenchmarkArtifacts } from '../data/benchmarkArtifacts';
+import { BenchmarkArtifactRecord, BenchmarkArtifactRoute, getBenchmarkArtifactById, getLatestBenchmarkArtifact, listBenchmarkArtifacts } from '../data/benchmarkArtifacts';
 
 const SOL_PRICE_BENCHMARK_ID = 'finance-data-sol-price';
 const SOL_PRICE_CATEGORY = 'finance/data';
@@ -296,6 +298,129 @@ export function buildRadarBenchmarkHistoryV2Aggregate(): RadarBenchmarkHistoryV2
     winner_claimed: rows.some((row) => row.winner_claimed),
     benchmarks: rows
   };
+}
+
+export function buildRadarBenchmarkRouteHistoryByBenchmarkId(id: string): RadarBenchmarkRouteHistoryAggregate | null {
+  const benchmark = buildRadarBenchmarkById(id);
+  if (!benchmark) return null;
+  const artifacts = benchmarkArtifactsByRecordedAt(id);
+  const routeIds = [...new Set(artifacts.flatMap((artifact) => artifact.routes.map((route) => route.route_id)))];
+  const routes = routeIds.map((routeId) => {
+    const routeTimeline = routeTimelineForRoute(artifacts, routeId);
+    const latest = routeTimeline[routeTimeline.length - 1];
+    return {
+      route_id: routeId,
+      provider_id: latest.route.provider_id,
+      label: routeHistoryLabel(latest.route),
+      artifact_count: routeTimeline.length,
+      first_recorded_at: routeTimeline[0].artifact.generated_at,
+      latest_recorded_at: latest.artifact.generated_at,
+      latest_artifact_id: latest.artifact.artifact_id,
+      latest_success_count: latest.route.completed_runs,
+      latest_failure_count: latest.route.failed_runs,
+      latest_median_latency_ms: latest.route.median_latency_ms,
+      latest_p95_latency_ms: latest.route.p95_latency_ms,
+      latest_detection_rate: routeDetectionRate(latest.artifact, latest.route),
+      winner_status: latest.artifact.winner_status,
+      winner_claimed: latest.artifact.winner_claimed === true,
+      caveats: routeCaveats(latest.artifact, latest.route)
+    };
+  });
+  return {
+    benchmark_id: id,
+    label: benchmarkHistoryV2Label(benchmark),
+    route_count: routes.length,
+    artifact_count: artifacts.length,
+    winner_claimed: artifacts.some((artifact) => artifact.winner_claimed === true),
+    routes
+  };
+}
+
+export function buildRadarBenchmarkRouteHistoryDetail(id: string, routeId: string): RadarBenchmarkRouteHistoryDetail | null {
+  const aggregate = buildRadarBenchmarkRouteHistoryByBenchmarkId(id);
+  if (!aggregate) return null;
+  const artifacts = benchmarkArtifactsByRecordedAt(id);
+  const routeTimeline = routeTimelineForRoute(artifacts, routeId);
+  if (!routeTimeline.length) return null;
+  const firstRoute = routeTimeline[0].route;
+  return {
+    benchmark_id: id,
+    route_id: routeId,
+    provider_id: firstRoute.provider_id,
+    label: routeHistoryLabel(firstRoute),
+    artifact_count: routeTimeline.length,
+    winner_claimed: routeTimeline.some(({ artifact }) => artifact.winner_claimed === true),
+    timeline: routeTimeline.map(({ artifact, route }) => ({
+      artifact_id: artifact.artifact_id,
+      recorded_at: artifact.generated_at,
+      success_count: route.completed_runs,
+      failure_count: route.failed_runs,
+      median_latency_ms: route.median_latency_ms,
+      p95_latency_ms: route.p95_latency_ms,
+      status_code: route.status_code,
+      status_evidence: route.status_evidence,
+      winner_status: artifact.winner_status,
+      winner_claimed: artifact.winner_claimed === true,
+      metrics: routeHistoryMetrics(artifact, route),
+      caveats: routeCaveats(artifact, route)
+    }))
+  };
+}
+
+function benchmarkArtifactsByRecordedAt(benchmarkId: string): BenchmarkArtifactRecord[] {
+  return listBenchmarkArtifacts()
+    .filter((artifact) => artifact.benchmark_id === benchmarkId)
+    .sort((a, b) => Date.parse(a.generated_at) - Date.parse(b.generated_at));
+}
+
+function routeTimelineForRoute(artifacts: BenchmarkArtifactRecord[], routeId: string) {
+  return artifacts.flatMap((artifact) => {
+    const route = artifact.routes.find((item) => item.route_id === routeId);
+    return route ? [{ artifact, route }] : [];
+  });
+}
+
+function routeHistoryLabel(route: BenchmarkArtifactRoute): string {
+  return route.provider_id.replaceAll('-', ' ');
+}
+
+function routeDetectionRate(artifact: BenchmarkArtifactRecord, route: BenchmarkArtifactRoute): number | null {
+  const metrics = routeHistoryMetrics(artifact, route);
+  return metrics.normalized_metadata_detection_rate ?? metrics.token_search_detection_rate ?? route.success_rate;
+}
+
+function routeHistoryMetrics(artifact: BenchmarkArtifactRecord, route: BenchmarkArtifactRoute): Record<string, number | null> {
+  const metricNames = [
+    'normalized_metadata_detection_rate',
+    'token_search_detection_rate',
+    'canonical_address_match_rate',
+    'canonical_network_match_rate',
+    'canonical_decimals_match_rate'
+  ];
+  return Object.fromEntries(metricNames.flatMap((metricName) => {
+    const value = resolveRouteMetric(artifact.aggregate_metrics[metricName], route.provider_id);
+    return value === undefined ? [] : [[metricName, value]];
+  }));
+}
+
+function resolveRouteMetric(value: unknown, providerId: string): number | null | undefined {
+  if (typeof value === 'number') return value;
+  if (value === null) return null;
+  if (!value || typeof value !== 'object') return undefined;
+  const providerMetric = (value as Record<string, unknown>)[providerMetricKey(providerId)];
+  if (typeof providerMetric === 'number') return providerMetric;
+  return providerMetric === null ? null : undefined;
+}
+
+function providerMetricKey(providerId: string): string {
+  return providerId.replaceAll('-', '_');
+}
+
+function routeCaveats(artifact: BenchmarkArtifactRecord, route: BenchmarkArtifactRoute): string[] {
+  const caveats: string[] = [];
+  const canonicalNetworkMatchRate = resolveRouteMetric(artifact.aggregate_metrics.canonical_network_match_rate, route.provider_id);
+  if (canonicalNetworkMatchRate === 0) caveats.push('canonical_network_match_rate=0.0 preserved from benchmark artifact');
+  return caveats;
 }
 
 export function listBenchmarkArtifactMetadata(): BenchmarkArtifactSafeMetadata[] {
