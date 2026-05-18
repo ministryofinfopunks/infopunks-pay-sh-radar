@@ -452,6 +452,28 @@ type RadarBenchmarkHistory = {
     };
   }>;
 };
+type RadarBenchmarkHistoryV2Row = {
+  benchmark_id: string;
+  label: string;
+  status: 'recorded' | 'planned';
+  first_recorded_at: string | null;
+  latest_recorded_at: string | null;
+  artifact_count: number;
+  latest_artifact_id: string | null;
+  total_recorded_runs: number;
+  routes_count: number;
+  winner_status: 'not_evaluated' | 'insufficient_runs' | 'no_clear_winner' | 'provisional_winner' | 'winner_claimed';
+  winner_claimed: boolean;
+};
+type RadarBenchmarkHistoryV2Aggregate = {
+  generated_at: string;
+  source: string;
+  history_count: number;
+  total_artifacts: number;
+  total_recorded_runs: number;
+  winner_claimed: boolean;
+  benchmarks: RadarBenchmarkHistoryV2Row[];
+};
 type TrendDirection = 'improving' | 'stable' | 'degrading' | 'unknown';
 type RiskLevel = 'low' | 'watch' | 'elevated' | 'critical' | 'unknown';
 type RiskRecommendation = 'route normally' | 'route with caution' | 'required fallback route' | 'not recommended for routing' | 'insufficient history';
@@ -1204,11 +1226,13 @@ function BenchmarkProofContent({ benchmark, history }: { benchmark: RadarBenchma
 
 function PublicBenchmarksIndexPage() {
   const [registry, setRegistry] = useState<RadarBenchmarkRegistry | null>(null);
+  const [history, setHistory] = useState<RadarBenchmarkHistoryV2Aggregate | null>(null);
   const [error, setError] = useState(false);
   useEffect(() => {
     let active = true;
     setError(false);
     setRegistry(null);
+    setHistory(null);
     api<{ data: RadarBenchmarkRegistry }>('/v1/radar/benchmarks')
       .then((response) => {
         if (!active) return;
@@ -1219,6 +1243,15 @@ function PublicBenchmarksIndexPage() {
         if (!active) return;
         setError(true);
         updateBenchmarkPageMetadata(null, null, true);
+      });
+    api<{ data: RadarBenchmarkHistoryV2Aggregate }>('/v1/radar/benchmark-history')
+      .then((response) => {
+        if (!active) return;
+        setHistory(response.data);
+      })
+      .catch(() => {
+        if (!active) return;
+        setHistory(null);
       });
     return () => {
       active = false;
@@ -1262,6 +1295,27 @@ function PublicBenchmarksIndexPage() {
             </a>;
           })}
           {!recordedBenchmarks.length && <EmptyState title="No recorded benchmarks found." body="Benchmark registry has no public recorded evidence yet." />}
+        </div>
+      </section>
+      <section className="panel benchmark-launch-panel" aria-label="Benchmark History">
+        <h2>Benchmark History</h2>
+        <p className="panel-caption">Artifact-backed evidence timeline. No raw proofs exposed.</p>
+        <div className="benchmark-launch-grid">
+          {(history?.benchmarks ?? []).filter((row) => row.status === 'recorded').map((row) => <article key={row.benchmark_id} className="benchmark-launch-card">
+            <div>
+              <p className="section-kicker">{row.benchmark_id}</p>
+              <h2>{row.label}</h2>
+            </div>
+            <div className="benchmark-launch-facts">
+              <span>first recorded: {row.first_recorded_at ? new Date(row.first_recorded_at).toISOString().slice(0, 10) : 'n/a'}</span>
+              <span>latest recorded: {row.latest_recorded_at ? new Date(row.latest_recorded_at).toISOString().slice(0, 10) : 'n/a'}</span>
+              <span>artifact count: {row.artifact_count}</span>
+              <span>total runs: {row.total_recorded_runs}</span>
+              <span>winner claimed: {String(row.winner_claimed)}</span>
+            </div>
+          </article>)}
+          {!!history && !history.benchmarks.filter((row) => row.status === 'recorded').length && <EmptyState title="No benchmark history found." body="No recorded benchmark artifacts are available yet." />}
+          {!history && <EmptyState title="Benchmark history unavailable." body="History data delayed." />}
         </div>
       </section>
     </main>

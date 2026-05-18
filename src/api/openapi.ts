@@ -275,7 +275,14 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   add('get', '/v1/radar/benchmarks/finance-data-token-search', radarGet('Radar Readiness', 'Get token-search benchmark scaffold', 'Returns the finance/data token-search benchmark with recorded normalized evidence. winner_status=no_clear_winner means no route winner is claimed.', { $ref: '#/components/schemas/BenchmarkDetailResponse' }, { benchmark_id: 'finance-data-token-search', winner_claimed: false, benchmark_recorded: true, winner_status: 'no_clear_winner' }));
   add('get', '/v1/radar/benchmarks/finance-data-token-metadata', radarGet('Radar Readiness', 'Get token-metadata benchmark scaffold', 'Returns the finance/data token-metadata planning scaffold. benchmark_recorded=false means no normalized benchmark evidence exists yet. winner_status=not_evaluated means agents must not use it as routing proof. routes=[] means no comparable proven routes are recorded as benchmark evidence yet.', { $ref: '#/components/schemas/BenchmarkDetailResponse' }, { benchmark_id: 'finance-data-token-metadata', winner_claimed: false, benchmark_recorded: false, winner_status: 'not_evaluated', routes: [] }));
   add('get', '/v1/radar/benchmarks/finance-data-sol-price/history', radarGet('Radar Readiness', 'Get SOL price benchmark history timeline', 'Returns additive read-only benchmark timeline entries derived from known benchmark artifacts. Entries are evidence snapshots and do not imply a winner claim.', { $ref: '#/components/schemas/BenchmarkHistoryResponse' }, { benchmark_id: 'finance-data-sol-price', artifact_count: 1, latest_artifact_id: 'finance-data-sol-price-benchmark-runs-2026-05-16', winner_claimed: false, entries: [{ run_count: 5, benchmark_recorded: true, winner_status: 'no_clear_winner', winner_claimed: false }] }));
-  add('get', '/v1/radar/benchmark-history', radarGet('Radar Readiness', 'Get aggregate benchmark history', 'Returns artifact-backed benchmark history rollups for all known benchmarks. No winner claim is implied.', { $ref: '#/components/schemas/BenchmarkHistoryAggregateResponse' }, { benchmarks: [{ benchmark_id: 'finance-data-sol-price', winner_claimed: false }] }));
+  add('get', '/v1/radar/benchmark-history', radarGet('Radar Readiness', 'Get aggregate benchmark history', 'Returns compact artifact-backed benchmark history rollups for recorded benchmarks. No raw proof contents are exposed and no winner claim is implied.', { $ref: '#/components/schemas/BenchmarkHistoryV2AggregateResponse' }, { history_count: 2, total_artifacts: 2, total_recorded_runs: 10, winner_claimed: false, benchmarks: [{ benchmark_id: 'finance-data-sol-price', winner_claimed: false }] }));
+  add('get', '/v1/radar/benchmark-history/{benchmark_id}', {
+    tags: ['Radar Readiness'],
+    summary: 'Get benchmark history by benchmark id',
+    description: `${SAFE_METADATA_NOTE} Returns compact metadata-only benchmark history for one benchmark id. Artifacts are evidence records only; raw proof contents are not exposed.`,
+    parameters: [pathParam('benchmark_id', 'Benchmark identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/BenchmarkHistoryV2DetailResponse' }, { benchmark_id: 'finance-data-sol-price', label: 'SOL price', status: 'recorded', artifact_count: 1, total_recorded_runs: 5, winner_claimed: false }, 'benchmark_not_found')
+  });
   add('get', '/v1/radar/benchmark-artifacts', radarGet('Radar Readiness', 'List benchmark artifacts', 'Returns curated/imported benchmark evidence records used to build benchmark summaries. Raw proof files are not served, and Radar does not execute paid APIs from this route.', { $ref: '#/components/schemas/BenchmarkArtifactRegistryResponse' }, { artifacts: [] }));
   add('get', '/v1/radar/benchmark-artifacts/{artifact_id}', {
     tags: ['Radar Readiness'],
@@ -722,6 +729,49 @@ function componentSchemas(): Record<string, JsonSchema> {
         winner_claimed: booleanSchema(),
         route_summaries: arrayOf({ $ref: '#/components/schemas/BenchmarkRouteSummary' })
       }))
+    }),
+    BenchmarkHistoryV2Artifact: objectSchema({
+      artifact_id: stringSchema(),
+      recorded_at: dateTimeSchema(),
+      recorded_runs: integerSchema(),
+      routes_count: integerSchema(),
+      winner_status: benchmarkWinnerStatus,
+      winner_claimed: booleanSchema()
+    }),
+    BenchmarkHistoryV2Row: objectSchema({
+      benchmark_id: stringSchema(),
+      label: stringSchema(),
+      status: enumSchema(['recorded', 'planned']),
+      first_recorded_at: { oneOf: [dateTimeSchema(), { type: 'null' }] },
+      latest_recorded_at: { oneOf: [dateTimeSchema(), { type: 'null' }] },
+      artifact_count: integerSchema(),
+      latest_artifact_id: { oneOf: [stringSchema(), { type: 'null' }] },
+      total_recorded_runs: integerSchema(),
+      routes_count: integerSchema(),
+      winner_status: benchmarkWinnerStatus,
+      winner_claimed: booleanSchema()
+    }),
+    BenchmarkHistoryV2AggregateResponse: objectSchema({
+      generated_at: dateTimeSchema(),
+      source: { const: 'infopunks-pay-sh-radar' },
+      history_count: integerSchema(),
+      total_artifacts: integerSchema(),
+      total_recorded_runs: integerSchema(),
+      winner_claimed: booleanSchema(),
+      benchmarks: arrayOf({ $ref: '#/components/schemas/BenchmarkHistoryV2Row' })
+    }),
+    BenchmarkHistoryV2DetailResponse: objectSchema({
+      benchmark_id: stringSchema(),
+      label: stringSchema(),
+      status: enumSchema(['recorded', 'planned']),
+      first_recorded_at: { oneOf: [dateTimeSchema(), { type: 'null' }] },
+      latest_recorded_at: { oneOf: [dateTimeSchema(), { type: 'null' }] },
+      artifact_count: integerSchema(),
+      artifacts: arrayOf({ $ref: '#/components/schemas/BenchmarkHistoryV2Artifact' }),
+      total_recorded_runs: integerSchema(),
+      routes_count: integerSchema(),
+      winner_status: benchmarkWinnerStatus,
+      winner_claimed: booleanSchema()
     }),
     BenchmarkRegistryResponse: objectSchema({
       generated_at: dateTimeSchema(),

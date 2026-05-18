@@ -747,6 +747,53 @@ export const RadarBenchmarkHistoryAggregateSchema = z.object({
   }))
 });
 
+export const RadarBenchmarkHistoryV2ArtifactSchema = z.object({
+  artifact_id: z.string(),
+  recorded_at: z.string().datetime(),
+  recorded_runs: z.number().int().nonnegative(),
+  routes_count: z.number().int().nonnegative(),
+  winner_status: RadarBenchmarkWinnerStatusSchema,
+  winner_claimed: z.boolean()
+});
+
+export const RadarBenchmarkHistoryV2RowSchema = z.object({
+  benchmark_id: z.string(),
+  label: z.string(),
+  status: z.enum(['recorded', 'planned']),
+  first_recorded_at: z.string().datetime().nullable(),
+  latest_recorded_at: z.string().datetime().nullable(),
+  artifact_count: z.number().int().nonnegative(),
+  latest_artifact_id: z.string().nullable(),
+  total_recorded_runs: z.number().int().nonnegative(),
+  routes_count: z.number().int().nonnegative(),
+  winner_status: RadarBenchmarkWinnerStatusSchema,
+  winner_claimed: z.boolean()
+});
+
+export const RadarBenchmarkHistoryV2AggregateSchema = z.object({
+  generated_at: z.string().datetime(),
+  source: z.literal('infopunks-pay-sh-radar'),
+  history_count: z.number().int().nonnegative(),
+  total_artifacts: z.number().int().nonnegative(),
+  total_recorded_runs: z.number().int().nonnegative(),
+  winner_claimed: z.boolean(),
+  benchmarks: z.array(RadarBenchmarkHistoryV2RowSchema)
+});
+
+export const RadarBenchmarkHistoryV2DetailSchema = z.object({
+  benchmark_id: z.string(),
+  label: z.string(),
+  status: z.enum(['recorded', 'planned']),
+  first_recorded_at: z.string().datetime().nullable(),
+  latest_recorded_at: z.string().datetime().nullable(),
+  artifact_count: z.number().int().nonnegative(),
+  artifacts: z.array(RadarBenchmarkHistoryV2ArtifactSchema),
+  total_recorded_runs: z.number().int().nonnegative(),
+  routes_count: z.number().int().nonnegative(),
+  winner_status: RadarBenchmarkWinnerStatusSchema,
+  winner_claimed: z.boolean()
+});
+
 export const RadarBenchmarkListSchema = z.object({
   generated_at: z.string().datetime(),
   source: z.literal('infopunks-pay-sh-radar'),
@@ -977,6 +1024,9 @@ export type RadarBenchmarkDetail = z.infer<typeof RadarBenchmarkDetailSchema>;
 export type BenchmarkHistoryEntry = z.infer<typeof BenchmarkHistoryEntrySchema>;
 export type RadarBenchmarkHistory = z.infer<typeof RadarBenchmarkHistorySchema>;
 export type RadarBenchmarkHistoryAggregate = z.infer<typeof RadarBenchmarkHistoryAggregateSchema>;
+export type RadarBenchmarkHistoryV2Row = z.infer<typeof RadarBenchmarkHistoryV2RowSchema>;
+export type RadarBenchmarkHistoryV2Aggregate = z.infer<typeof RadarBenchmarkHistoryV2AggregateSchema>;
+export type RadarBenchmarkHistoryV2Detail = z.infer<typeof RadarBenchmarkHistoryV2DetailSchema>;
 export type RadarBenchmarkList = z.infer<typeof RadarBenchmarkListSchema>;
 export type RadarBenchmarkSummary = z.infer<typeof RadarBenchmarkSummarySchema>;
 export type RadarBenchmarkWinnerStatus = z.infer<typeof RadarBenchmarkWinnerStatusSchema>;

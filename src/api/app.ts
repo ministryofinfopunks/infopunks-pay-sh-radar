@@ -20,7 +20,8 @@ import {
   RadarBenchmarkListSchema,
   RadarBenchmarkDetailSchema,
   RadarBenchmarkHistorySchema,
-  RadarBenchmarkHistoryAggregateSchema,
+  RadarBenchmarkHistoryV2AggregateSchema,
+  RadarBenchmarkHistoryV2DetailSchema,
   RadarBenchmarkArtifactListSchema,
   RadarBenchmarkArtifactSchema,
   RadarPreflightRequestSchema,
@@ -42,7 +43,16 @@ import { providerReachabilitySummary, providerRootHealthSummary } from '../servi
 import { runPreflight } from '../services/preflightService';
 import { buildRadarExportSnapshot, safeJsonExport } from '../services/radarExportService';
 import { buildBenchmarkReadiness, buildSuperiorityReadiness, runRadarComparison, runRadarPreflight, runRadarPreflightBatch } from '../services/radarRouteIntelligenceService';
-import { buildRadarBenchmarkById, buildRadarBenchmarkHistoryAggregate, buildRadarBenchmarkHistoryById, buildRadarBenchmarks, buildRadarBenchmarkSummary, getBenchmarkArtifactMetadataById, listBenchmarkArtifactMetadata } from '../services/radarBenchmarkService';
+import {
+  buildRadarBenchmarkById,
+  buildRadarBenchmarkHistoryById,
+  buildRadarBenchmarkHistoryV2Aggregate,
+  buildRadarBenchmarkHistoryV2ById,
+  buildRadarBenchmarks,
+  buildRadarBenchmarkSummary,
+  getBenchmarkArtifactMetadataById,
+  listBenchmarkArtifactMetadata
+} from '../services/radarBenchmarkService';
 import { buildEcosystemHistory, buildEndpointHistory, buildProviderHistory, normalizeHistoryWindow } from '../services/radarHistoryService';
 import { buildEcosystemRiskSummary, buildEndpointRiskAssessment, buildProviderRiskAssessment } from '../services/radarRiskService';
 import { createResponseCache } from '../services/responseCache';
@@ -522,8 +532,15 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     };
   });
   app.get('/v1/radar/benchmark-history', async () => ({
-    data: safeJsonExport(RadarBenchmarkHistoryAggregateSchema.parse(buildRadarBenchmarkHistoryAggregate()))
+    data: safeJsonExport(RadarBenchmarkHistoryV2AggregateSchema.parse(buildRadarBenchmarkHistoryV2Aggregate()))
   }));
+  app.get<{ Params: { benchmark_id: string } }>('/v1/radar/benchmark-history/:benchmark_id', async (req, reply) => {
+    const history = buildRadarBenchmarkHistoryV2ById(req.params.benchmark_id);
+    if (!history) return reply.code(404).send({ error: 'benchmark_not_found' });
+    return {
+      data: safeJsonExport(RadarBenchmarkHistoryV2DetailSchema.parse(history))
+    };
+  });
   app.get('/v1/radar/benchmark-artifacts', async () => ({
     data: safeJsonExport(RadarBenchmarkArtifactListSchema.parse({
       generated_at: new Date().toISOString(),

@@ -1,4 +1,15 @@
-import { BenchmarkHistoryEntry, RadarBenchmarkDetail, RadarBenchmarkHistory, RadarBenchmarkHistoryAggregate, RadarBenchmarkList, RadarBenchmarkRouteMetric, RadarBenchmarkSummary } from '../schemas/entities';
+import {
+  BenchmarkHistoryEntry,
+  RadarBenchmarkDetail,
+  RadarBenchmarkHistory,
+  RadarBenchmarkHistoryAggregate,
+  RadarBenchmarkHistoryV2Aggregate,
+  RadarBenchmarkHistoryV2Detail,
+  RadarBenchmarkHistoryV2Row,
+  RadarBenchmarkList,
+  RadarBenchmarkRouteMetric,
+  RadarBenchmarkSummary
+} from '../schemas/entities';
 import { listRouteMappings } from './providerEndpointMap';
 import { getBenchmarkArtifactById, getLatestBenchmarkArtifact, listBenchmarkArtifacts } from '../data/benchmarkArtifacts';
 
@@ -221,6 +232,69 @@ export function buildRadarBenchmarkHistoryAggregate(): RadarBenchmarkHistoryAggr
     generated_at: new Date().toISOString(),
     source: 'infopunks-pay-sh-radar',
     benchmarks
+  };
+}
+
+function benchmarkHistoryV2Label(benchmark: RadarBenchmarkDetail): string {
+  return benchmarkSummaryLabel(benchmark.benchmark_intent);
+}
+
+export function buildRadarBenchmarkHistoryV2ById(id: string): RadarBenchmarkHistoryV2Detail | null {
+  const benchmark = buildRadarBenchmarkById(id);
+  if (!benchmark) return null;
+  const artifacts = listBenchmarkArtifacts()
+    .filter((artifact) => artifact.benchmark_id === id)
+    .sort((a, b) => Date.parse(a.generated_at) - Date.parse(b.generated_at));
+  const latestArtifact = artifacts[artifacts.length - 1] ?? null;
+  const artifactRows = artifacts.map((artifact) => ({
+    artifact_id: artifact.artifact_id,
+    recorded_at: artifact.generated_at,
+    recorded_runs: artifact.total_runs,
+    routes_count: artifact.routes.length,
+    winner_status: artifact.winner_status,
+    winner_claimed: artifact.winner_claimed
+  }));
+  return {
+    benchmark_id: id,
+    label: benchmarkHistoryV2Label(benchmark),
+    status: artifacts.length > 0 ? 'recorded' : 'planned',
+    first_recorded_at: artifacts[0]?.generated_at ?? null,
+    latest_recorded_at: latestArtifact?.generated_at ?? null,
+    artifact_count: artifacts.length,
+    artifacts: artifactRows,
+    total_recorded_runs: artifacts.reduce((sum, artifact) => sum + artifact.total_runs, 0),
+    routes_count: latestArtifact?.routes.length ?? 0,
+    winner_status: latestArtifact?.winner_status ?? benchmark.winner_status ?? 'not_evaluated',
+    winner_claimed: latestArtifact?.winner_claimed ?? benchmark.winner_claimed ?? false
+  };
+}
+
+export function buildRadarBenchmarkHistoryV2Aggregate(): RadarBenchmarkHistoryV2Aggregate {
+  const rows: RadarBenchmarkHistoryV2Row[] = buildRadarBenchmarks().benchmarks
+    .map((benchmark) => buildRadarBenchmarkHistoryV2ById(benchmark.benchmark_id))
+    .filter((row): row is RadarBenchmarkHistoryV2Detail => !!row)
+    .filter((row) => row.artifact_count > 0)
+    .map((row) => ({
+      benchmark_id: row.benchmark_id,
+      label: row.label,
+      status: row.status,
+      first_recorded_at: row.first_recorded_at,
+      latest_recorded_at: row.latest_recorded_at,
+      artifact_count: row.artifact_count,
+      latest_artifact_id: row.artifacts[row.artifacts.length - 1]?.artifact_id ?? null,
+      total_recorded_runs: row.total_recorded_runs,
+      routes_count: row.routes_count,
+      winner_status: row.winner_status,
+      winner_claimed: row.winner_claimed
+    }));
+  return {
+    generated_at: new Date().toISOString(),
+    source: 'infopunks-pay-sh-radar',
+    history_count: rows.length,
+    total_artifacts: rows.reduce((sum, row) => sum + row.artifact_count, 0),
+    total_recorded_runs: rows.reduce((sum, row) => sum + row.total_recorded_runs, 0),
+    winner_claimed: rows.some((row) => row.winner_claimed),
+    benchmarks: rows
   };
 }
 

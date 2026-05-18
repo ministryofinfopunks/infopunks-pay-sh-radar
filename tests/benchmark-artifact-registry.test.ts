@@ -212,8 +212,54 @@ describe('benchmark artifact registry', () => {
     const aggregateHistoryResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history' });
     expect(aggregateHistoryResponse.statusCode).toBe(200);
     const aggregateHistory = aggregateHistoryResponse.json().data;
+    expect(aggregateHistory.history_count).toBe(2);
+    expect(aggregateHistory.total_artifacts).toBe(2);
+    expect(aggregateHistory.total_recorded_runs).toBe(10);
+    expect(aggregateHistory.winner_claimed).toBe(false);
     expect(aggregateHistory.benchmarks.length).toBe(2);
+    expect(aggregateHistory.benchmarks.map((row: { benchmark_id: string }) => row.benchmark_id)).toEqual([
+      'finance-data-sol-price',
+      'finance-data-token-search'
+    ]);
     expect(aggregateHistory.benchmarks.every((row: { winner_claimed: boolean }) => row.winner_claimed === false)).toBe(true);
+    expect(aggregateHistory.benchmarks.every((row: { artifact_count: number }) => row.artifact_count === 1)).toBe(true);
+    expect(aggregateHistory.benchmarks.every((row: { latest_artifact_id: string | null }) => typeof row.latest_artifact_id === 'string' && row.latest_artifact_id.length > 0)).toBe(true);
+
+    const solHistoryV2Response = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history/finance-data-sol-price' });
+    expect(solHistoryV2Response.statusCode).toBe(200);
+    const solHistoryV2 = solHistoryV2Response.json().data;
+    expect(solHistoryV2).toMatchObject({
+      benchmark_id: 'finance-data-sol-price',
+      label: 'SOL price',
+      status: 'recorded',
+      artifact_count: 1,
+      total_recorded_runs: 5,
+      routes_count: 2,
+      winner_status: 'no_clear_winner',
+      winner_claimed: false
+    });
+    expect(solHistoryV2.artifacts.length).toBe(1);
+    expect(solHistoryV2.artifacts[0].recorded_runs).toBe(5);
+
+    const tokenSearchHistoryV2Response = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history/finance-data-token-search' });
+    expect(tokenSearchHistoryV2Response.statusCode).toBe(200);
+    const tokenSearchHistoryV2 = tokenSearchHistoryV2Response.json().data;
+    expect(tokenSearchHistoryV2).toMatchObject({
+      benchmark_id: 'finance-data-token-search',
+      label: 'Token search',
+      status: 'recorded',
+      artifact_count: 1,
+      total_recorded_runs: 5,
+      routes_count: 2,
+      winner_status: 'no_clear_winner',
+      winner_claimed: false
+    });
+    expect(tokenSearchHistoryV2.artifacts.length).toBe(1);
+    expect(tokenSearchHistoryV2.artifacts[0].recorded_runs).toBe(5);
+
+    const missingHistoryV2Response = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history/unknown-benchmark' });
+    expect(missingHistoryV2Response.statusCode).toBe(404);
+    expect(missingHistoryV2Response.json()).toEqual({ error: 'benchmark_not_found' });
     expect(artifacts.some((row) => row.benchmark_id === 'finance-data-token-metadata')).toBe(false);
 
     await app.close();
