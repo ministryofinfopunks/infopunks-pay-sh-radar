@@ -1137,7 +1137,7 @@ function AgentBenchmarkSummaryDemoBox({ compact = false }: { compact?: boolean }
       <code>GET /v1/radar/benchmark-summary</code>
     </div>
     <div className="agent-evidence-copy">
-      <p><b>winner_claimed=false</b><span>means agents should not infer a best route.</span></p>
+      <p><b>winner_claimed=false</b><span>means agents should not infer route superiority.</span></p>
       <p><b>routes_count</b><span>shows comparable proven routes per benchmark.</span></p>
       <p><b>recorded_runs</b><span>shows normalized benchmark evidence.</span></p>
     </div>
@@ -1327,6 +1327,22 @@ function PublicBenchmarksIndexPage() {
   const recordedBenchmarks = registry.benchmarks.filter((benchmark) => benchmark.benchmark_recorded);
   const plannedBenchmarks = registry.benchmarks.filter((benchmark) => !benchmark.benchmark_recorded);
   const proofSummary = publicProofSummary(registry);
+  const routeTimelineAggregateEndpoint = 'GET /v1/radar/benchmark-history/finance-data-token-metadata/routes';
+  const routeTimelineDetailEndpoint = 'GET /v1/radar/benchmark-history/finance-data-token-metadata/routes/{route_id}';
+  const routeTimelineSnippet = `{
+  "route_id": "paysponge-coingecko:GET:/x402/...",
+  "evidence_health": "caveated",
+  "latest_success_count": 5,
+  "latest_median_latency_ms": 5827,
+  "latest_detection_rate": 1,
+  "winner_claimed": false,
+  "caveat_objects": [
+    {
+      "code": "canonical_network_mismatch",
+      "severity": "warning"
+    }
+  ]
+}`;
   return <div className="shell public-provider-shell">
     <main className="public-provider-page" aria-label="Public benchmark registry">
       <section className="panel benchmark-launch-hero">
@@ -1340,6 +1356,26 @@ function PublicBenchmarksIndexPage() {
         </div>
       </section>
       <AgentBenchmarkSummaryDemoBox />
+      <section className="panel benchmark-launch-panel" aria-label="Agent route timeline API">
+        <h2>Agent Route Timeline API</h2>
+        <p className="panel-caption">Agents can inspect route-level benchmark evidence before routing through Pay.sh. Radar exposes evidence health, caveats, latest benchmark metrics, artifact references, and winner-claim status without ranking routes.</p>
+        <p className="panel-caption">Agents should ask: what evidence exists, how fresh is it, what caveats apply, was a winner claimed, and which artifact recorded this. Radar answers those questions without ranking routes.</p>
+        <div className="endpoint-card-grid">
+          <p><b>{routeTimelineAggregateEndpoint}</b><span>Route-level timeline rollup for one benchmark.</span></p>
+          <p><b>{routeTimelineDetailEndpoint}</b><span>Evidence timeline for one route across artifacts.</span></p>
+          <p><b>route_id encoding</b><span><code>route_id</code> may contain slashes or colons. URL-encode <code>route_id</code> before calling the detail endpoint.</span></p>
+        </div>
+        <div className="endpoint-card-grid">
+          <p><b>evidence_health</b><span>recorded | caveated | stale | degraded | unverified | scaffold</span></p>
+          <p><b>caveat_objects</b><span>Machine-readable caveats with <code>code</code>, <code>severity</code>, <code>message</code>, <code>evidence_field</code>, and <code>value</code>.</span></p>
+          <p><b>winner_claimed</b><span><code>false</code> means agents should not infer a winner.</span></p>
+          <p><b>status_evidence</b><span>Explains proof context when HTTP status is unavailable, especially <code>pay_cli</code> mode.</span></p>
+          <p><b>latest_artifact_id</b><span>The benchmark artifact backing the latest route evidence.</span></p>
+          <p><b>timeline</b><span>Route-level evidence history across benchmark artifacts.</span></p>
+        </div>
+        <SafeCodeBlock value={routeTimelineSnippet} label="Route timeline evidence snippet" />
+        <p className="panel-caption">StableCrypto token metadata currently has <code>evidence_health=\"recorded\"</code> because it has benchmark evidence and only an info caveat.</p>
+      </section>
       <section className="panel benchmark-launch-panel" aria-label="Recorded Pay.sh benchmarks">
         <p className="panel-caption benchmark-caveat">Proven means paid execution succeeded. Benchmark recorded means normalized evidence exists. No winner claimed means Radar does not infer route superiority.</p>
         <div className="benchmark-launch-grid">
