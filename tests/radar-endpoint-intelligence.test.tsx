@@ -508,7 +508,7 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
     if (path === '/v1/radar/mappings') return json({
       generated_at: observedAt,
       source: 'infopunks-pay-sh-radar',
-      count: 4,
+      count: 6,
       mappings: [
         {
           provider_name: 'StableCrypto',
@@ -537,6 +537,34 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
           proof_reference: 'live-proofs/stablecrypto-token-search-paid-execution-2026-05-17.md',
           verified_at: '2026-05-17',
           notes: 'Paid execution succeeded for StableCrypto token-search route. Two proven token-search routes now exist. Ready for normalized benchmark run. No route winner claimed.'
+        },
+        {
+          provider_name: 'CoinGecko Onchain DEX API',
+          provider_id: 'paysponge-coingecko',
+          category: 'finance/data',
+          benchmark_intent: 'token metadata',
+          endpoint_url: 'https://pro-api.coingecko.com/api/v3/x402/onchain/tokens/{network}/{address}',
+          method: 'GET',
+          mapping_status: 'candidate',
+          execution_evidence_status: 'unproven',
+          proof_source: 'infopunks-pay-sh-agent-harness',
+          proof_reference: 'live-proofs/token-metadata-provider-research-2026-05-18.md',
+          verified_at: undefined,
+          notes: 'Candidate only. Token metadata semantics need endpoint/method/request-shape verification. Not benchmark-ready. No winner claimed.'
+        },
+        {
+          provider_name: 'StableCrypto',
+          provider_id: 'merit-systems-stablecrypto-market-data',
+          category: 'finance/data',
+          benchmark_intent: 'token metadata',
+          endpoint_url: 'https://stablecrypto.dev/api/coingecko/onchain/tokens/{network}/{address}',
+          method: 'GET',
+          mapping_status: 'candidate',
+          execution_evidence_status: 'unproven',
+          proof_source: 'infopunks-pay-sh-agent-harness',
+          proof_reference: 'live-proofs/token-metadata-provider-research-2026-05-18.md',
+          verified_at: undefined,
+          notes: 'Candidate only. Token metadata semantics need endpoint/method/request-shape verification. Not benchmark-ready. No winner claimed.'
         },
         {
           provider_name: 'CoinGecko Onchain DEX API',
@@ -576,11 +604,11 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
         {
           category: 'finance/data',
           benchmark_intent: 'token metadata',
-          current_state: 'needs_candidate',
-          needed_next_step: 'Add at least one candidate route mapping row for token metadata retrieval.',
+          current_state: 'candidate_mapping_found',
+          needed_next_step: 'verify endpoint/method/request shape for token metadata candidates',
           suggested_provider_candidates: ['CoinGecko Onchain DEX API', 'StableCrypto'],
           why_it_matters: 'Token metadata is needed to normalize symbols/contracts before cross-provider benchmark comparisons.',
-          readiness_blocker: 'No candidate mapping exists yet for this benchmark intent.'
+          readiness_blocker: 'candidate mappings exist, but no verified/proven token metadata route evidence is recorded'
         },
         {
           category: 'finance/data',
@@ -1012,7 +1040,7 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Mapping Targets');
     expect(container.textContent).toContain('These targets are planning prompts, not verified routes.');
     expect(container.textContent).toContain('token metadata');
-    expect(container.textContent).toContain('needs_candidate');
+    expect(container.textContent).toContain('candidate_mapping_found');
     expect(container.textContent).toContain('benchmark_ready');
     expect(container.textContent).toContain('needs_two_comparable_mappings');
     expect(container.textContent).toContain('No candidate selected yet.');

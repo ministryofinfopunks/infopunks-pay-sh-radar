@@ -368,8 +368,8 @@ function buildTokenMetadataBenchmark(): RadarBenchmarkDetail {
     benchmark_recorded: false,
     winner_claimed: false,
     winner_status: 'not_evaluated',
-    next_step: 'discover comparable token metadata route mappings',
-    readiness_note: 'Benchmark scaffold exists. Comparable proven token metadata routes are not yet recorded.',
+    next_step: 'verify endpoint/method/request shape for token metadata candidates',
+    readiness_note: 'Candidate token metadata mappings exist, but endpoint/method/request-shape verification is not recorded yet. Not benchmark-ready. No winner claimed.',
     routes: []
   };
 }

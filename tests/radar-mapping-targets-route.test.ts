@@ -10,10 +10,10 @@ describe('radar mapping targets route', () => {
     expect(response.statusCode).toBe(200);
     const body = response.json().data;
     expect(body.count).toBe(5);
-    expect(body.targets.some((row: any) => row.category === 'finance/data' && row.benchmark_intent === 'token metadata' && row.current_state === 'needs_candidate')).toBe(true);
+    expect(body.targets.some((row: any) => row.category === 'finance/data' && row.benchmark_intent === 'token metadata' && row.current_state === 'candidate_mapping_found')).toBe(true);
     const tokenMetadata = body.targets.find((row: any) => row.category === 'finance/data' && row.benchmark_intent === 'token metadata');
-    expect(tokenMetadata.needed_next_step).toBe('add first candidate token metadata route mapping');
-    expect(tokenMetadata.readiness_blocker).toBe('no candidate mapping exists yet');
+    expect(tokenMetadata.needed_next_step).toBe('verify endpoint/method/request shape for token metadata candidates');
+    expect(tokenMetadata.readiness_blocker).toBe('candidate mappings exist, but no verified/proven token metadata route evidence is recorded');
     expect(tokenMetadata.suggested_provider_candidates).toEqual(['CoinGecko Onchain DEX API', 'StableCrypto']);
     expect(body.targets.some((row: any) => row.category === 'finance/data' && row.benchmark_intent === 'token search' && row.current_state === 'benchmark_ready')).toBe(true);
     expect(body.targets.some((row: any) => row.category === 'ai_ml/data' && row.current_state === 'needs_two_comparable_mappings')).toBe(true);

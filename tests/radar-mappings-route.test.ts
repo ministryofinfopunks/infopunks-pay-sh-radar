@@ -24,6 +24,20 @@ describe('radar mappings route', () => {
       && row.execution_evidence_status === 'proven'
       && row.proof_reference === 'live-proofs/paysponge-coingecko-token-search-paid-execution-2026-05-17.md'
     )).toBe(true);
+    expect(body.mappings.some((row: any) =>
+      row.provider_id === 'paysponge-coingecko'
+      && row.benchmark_intent === 'token metadata'
+      && row.mapping_status === 'candidate'
+      && row.execution_evidence_status === 'unproven'
+      && row.proof_reference === 'live-proofs/token-metadata-provider-research-2026-05-18.md'
+    )).toBe(true);
+    expect(body.mappings.some((row: any) =>
+      row.provider_id === 'merit-systems-stablecrypto-market-data'
+      && row.benchmark_intent === 'token metadata'
+      && row.mapping_status === 'candidate'
+      && row.execution_evidence_status === 'unproven'
+      && row.proof_reference === 'live-proofs/token-metadata-provider-research-2026-05-18.md'
+    )).toBe(true);
 
     await app.close();
   });

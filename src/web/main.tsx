@@ -313,7 +313,7 @@ type RadarRouteMappingRegistry = {
 type RadarMappingTarget = {
   category: string;
   benchmark_intent: string;
-  current_state: 'needs_candidate' | 'needs_verified_route' | 'verified_mapping_found' | 'second_verified_mapping_found' | 'one_proven_mapping_found' | 'benchmark_ready' | 'needs_two_comparable_mappings';
+  current_state: 'needs_candidate' | 'needs_verified_route' | 'candidate_mapping_found' | 'verified_mapping_found' | 'second_verified_mapping_found' | 'one_proven_mapping_found' | 'benchmark_ready' | 'needs_two_comparable_mappings';
   needed_next_step: string;
   suggested_provider_candidates?: string[];
   why_it_matters: string;

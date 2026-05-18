@@ -205,7 +205,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     source: stringSchema(),
     count: integerSchema(),
     targets: arrayOf(freeformObject())
-  }), { count: 5, targets: [{ category: 'finance/data', benchmark_intent: 'token metadata', current_state: 'needs_candidate' }] }));
+  }), { count: 5, targets: [{ category: 'finance/data', benchmark_intent: 'token metadata', current_state: 'candidate_mapping_found' }] }));
 
   add('post', '/v1/radar/preflight', {
     tags: ['Radar Agent'],
