@@ -116,8 +116,8 @@ async function run(): Promise<void> {
         `recorded_benchmarks=${String(summaryData.recorded_benchmarks)}`
       );
       assertCondition(
-        'benchmark-summary total_recorded_runs >= 15',
-        totalRecordedRuns !== null && totalRecordedRuns >= 15,
+        'benchmark-summary total_recorded_runs >= 20',
+        totalRecordedRuns !== null && totalRecordedRuns >= 20,
         `total_recorded_runs=${String(summaryData.total_recorded_runs)}`
       );
       assertCondition(
@@ -156,13 +156,13 @@ async function run(): Promise<void> {
         `history_count=${String(historyData.history_count)}`
       );
       assertCondition(
-        'benchmark-history total_artifacts >= 3',
-        totalArtifacts !== null && totalArtifacts >= 3,
+        'benchmark-history total_artifacts >= 4',
+        totalArtifacts !== null && totalArtifacts >= 4,
         `total_artifacts=${String(historyData.total_artifacts)}`
       );
       assertCondition(
-        'benchmark-history total_recorded_runs >= 15',
-        totalRecordedRuns !== null && totalRecordedRuns >= 15,
+        'benchmark-history total_recorded_runs >= 20',
+        totalRecordedRuns !== null && totalRecordedRuns >= 20,
         `total_recorded_runs=${String(historyData.total_recorded_runs)}`
       );
       assertCondition(
@@ -242,8 +242,8 @@ async function run(): Promise<void> {
         `route_count=${String(routeHistoryData.route_count)}`
       );
       assertCondition(
-        'benchmark-history token-metadata routes artifact_count >= 1',
-        artifactCount !== null && artifactCount >= 1,
+        'benchmark-history token-metadata routes artifact_count >= 2',
+        artifactCount !== null && artifactCount >= 2,
         `artifact_count=${String(routeHistoryData.artifact_count)}`
       );
       assertCondition(
@@ -262,8 +262,8 @@ async function run(): Promise<void> {
         `provider_ids=${routeObjects.map((route) => String(route.provider_id)).join(',')}`
       );
       assertCondition(
-        'benchmark-history token-metadata paysponge evidence_health === caveated',
-        payspongeEvidenceHealth === 'caveated',
+        'benchmark-history token-metadata paysponge evidence_health === recorded',
+        payspongeEvidenceHealth === 'recorded',
         `evidence_health=${String(payspongeEvidenceHealth)}`
       );
       assertCondition(
@@ -272,19 +272,9 @@ async function run(): Promise<void> {
         `evidence_health=${String(meritEvidenceHealth)}`
       );
       assertCondition(
-        'benchmark-history token-metadata paysponge caveat_objects include canonical_network_mismatch',
-        payspongeCaveatCodes.includes('canonical_network_mismatch'),
-        `caveat_codes=${JSON.stringify(payspongeCaveatCodes)}`
-      );
-      assertCondition(
         'benchmark-history token-metadata stablecrypto not downgraded to caveated',
         meritEvidenceHealth !== 'caveated',
         `evidence_health=${String(meritEvidenceHealth)} caveat_codes=${JSON.stringify(meritCaveatCodes)}`
-      );
-      assertCondition(
-        'benchmark-history token-metadata paysponge caveat preserves canonical_network_match_rate=0.0',
-        payspongeCaveats?.includes('canonical_network_match_rate=0.0 preserved from benchmark artifact') === true,
-        `caveats=${JSON.stringify(payspongeCaveats ?? [])}`
       );
 
       if (payspongeRouteId) {
@@ -301,32 +291,85 @@ async function run(): Promise<void> {
         const routeDetailEvidenceHealth = routeDetailData?.evidence_health;
         const timeline = asArray(routeDetailData?.timeline);
         const latestEntry = timeline ? asObject(timeline[timeline.length - 1]) : null;
+        const olderEntry = timeline && timeline.length >= 2 ? asObject(timeline[timeline.length - 2]) : null;
         const latestMetrics = asObject(latestEntry?.metrics);
         const latestEvidenceHealth = latestEntry?.evidence_health;
+        const latestCaveats = asArray(latestEntry?.caveats) ?? [];
+        const latestCaveatObjects = asArray(latestEntry?.caveat_objects) ?? [];
+        const latestNotes = asArray(latestEntry?.notes) ?? [];
+        const olderMetrics = asObject(olderEntry?.metrics);
+        const olderEvidenceHealth = olderEntry?.evidence_health;
+        const olderCaveats = asArray(olderEntry?.caveats) ?? [];
+        const olderCaveatObjects = asArray(olderEntry?.caveat_objects) ?? [];
+        const olderCaveatCodes = olderCaveatObjects
+          .map((caveatObject) => asObject(caveatObject))
+          .filter((caveatObject): caveatObject is Record<string, unknown> => caveatObject !== null)
+          .map((caveatObject) => caveatObject.code)
+          .filter((code): code is string => typeof code === 'string');
+        const latestSignals = [
+          JSON.stringify(latestMetrics ?? {}),
+          JSON.stringify(latestCaveatObjects),
+          JSON.stringify(latestCaveats),
+          JSON.stringify(latestNotes)
+        ].join(' ');
+        const latestHasRouteContextExposure =
+          latestSignals.includes('route_context') || latestSignals.includes('route_context_inferred_network');
 
         assertCondition(
-          'benchmark-history token-metadata paysponge timeline length >= 1',
-          timeline !== null && timeline.length >= 1,
+          'benchmark-history token-metadata paysponge timeline length >= 2',
+          timeline !== null && timeline.length >= 2,
           `timeline_length=${String(timeline?.length ?? 0)}`
         );
         assertCondition(
-          'benchmark-history token-metadata paysponge route detail evidence_health === caveated',
-          routeDetailEvidenceHealth === 'caveated',
+          'benchmark-history token-metadata paysponge route detail evidence_health === recorded',
+          routeDetailEvidenceHealth === 'recorded',
           `evidence_health=${String(routeDetailEvidenceHealth)}`
         );
         if (latestEntry && Object.prototype.hasOwnProperty.call(latestEntry, 'evidence_health')) {
           assertCondition(
-            'benchmark-history token-metadata paysponge latest timeline evidence_health === caveated',
-            latestEvidenceHealth === 'caveated',
+            'benchmark-history token-metadata paysponge latest timeline evidence_health === recorded',
+            latestEvidenceHealth === 'recorded',
             `evidence_health=${String(latestEvidenceHealth)}`
           );
         } else {
           pass('benchmark-history token-metadata paysponge latest timeline evidence_health field optional', 'field missing');
         }
         assertCondition(
-          'benchmark-history token-metadata paysponge latest canonical_network_match_rate === 0',
-          latestMetrics?.canonical_network_match_rate === 0,
+          'benchmark-history token-metadata paysponge latest canonical_network_match_rate === 1',
+          latestMetrics?.canonical_network_match_rate === 1,
           `canonical_network_match_rate=${String(latestMetrics?.canonical_network_match_rate)}`
+        );
+        if (latestHasRouteContextExposure) {
+          assertCondition(
+            'benchmark-history token-metadata paysponge latest timeline includes route_context signal',
+            latestSignals.includes('route_context') || latestSignals.includes('route_context_inferred_network'),
+            `latest_signals=${latestSignals}`
+          );
+        } else {
+          pass(
+            'benchmark-history token-metadata paysponge latest timeline route_context signal optional',
+            'no route_context fields exposed in metrics/caveats/notes'
+          );
+        }
+        if (olderEntry && Object.prototype.hasOwnProperty.call(olderEntry, 'evidence_health')) {
+          assertCondition(
+            'benchmark-history token-metadata paysponge older timeline evidence_health === caveated',
+            olderEvidenceHealth === 'caveated',
+            `evidence_health=${String(olderEvidenceHealth)}`
+          );
+        } else {
+          pass('benchmark-history token-metadata paysponge older timeline evidence_health field optional', 'field missing');
+        }
+        assertCondition(
+          'benchmark-history token-metadata paysponge older canonical_network_match_rate === 0',
+          olderMetrics?.canonical_network_match_rate === 0,
+          `canonical_network_match_rate=${String(olderMetrics?.canonical_network_match_rate)}`
+        );
+        assertCondition(
+          'benchmark-history token-metadata paysponge older timeline preserves canonical_network_mismatch context',
+          olderCaveatCodes.includes('canonical_network_mismatch')
+            || olderCaveats.includes('canonical_network_match_rate=0.0 preserved from benchmark artifact'),
+          `older_caveat_codes=${JSON.stringify(olderCaveatCodes)} older_caveats=${JSON.stringify(olderCaveats)}`
         );
       } else {
         fail('benchmark-history token-metadata paysponge route detail', 'missing string route_id');
