@@ -213,6 +213,17 @@ function installFetchMock(options: { benchmarkSummaryFails?: boolean } = {}) {
               comparison_notes: 'no winner claim'
             }
           ]
+        },
+        {
+          benchmark_id: 'finance-data-token-metadata',
+          category: 'finance/data',
+          benchmark_intent: 'token metadata',
+          benchmark_recorded: false,
+          winner_claimed: false,
+          winner_status: 'not_evaluated',
+          next_step: 'verify endpoint/method/request shape for token metadata candidates',
+          readiness_note: 'Candidate token metadata mappings exist, but endpoint/method/request-shape verification is not recorded yet. Not benchmark-ready. No winner claimed.',
+          routes: []
         }
       ]
     });
@@ -343,6 +354,12 @@ describe('public benchmark proof pages', () => {
     expect(text).toContain('recorded_runsshows normalized benchmark evidence.');
     expect(text).toContain('SOL Price');
     expect(text).toContain('Token Search');
+    expect(text).toContain('Token Metadata');
+    expect(text).toContain('Benchmark Scaffold');
+    expect(text).toContain('Planned lane. No proven routes or recorded artifacts yet.');
+    expect(text).toContain('routes: 0');
+    expect(text).toContain('artifacts: 0');
+    expect(text).toContain('winner claimed: false');
     expect(text.match(/5-run benchmark/g)).toHaveLength(2);
     expect(text.match(/no winner claimed/g)).toHaveLength(2);
     expect(text).toContain('Radar does not infer route superiority.');
@@ -351,6 +368,8 @@ describe('public benchmark proof pages', () => {
     expect(link).not.toBeNull();
     const scaffoldLink = container.querySelector('a[href="/benchmarks/finance-data-token-search"]');
     expect(scaffoldLink).not.toBeNull();
+    const plannedLink = container.querySelector('a[href="/benchmarks/finance-data-token-metadata"]');
+    expect(plannedLink).not.toBeNull();
   });
 
   it('keeps benchmark proof links visible when live benchmark summary is degraded', async () => {

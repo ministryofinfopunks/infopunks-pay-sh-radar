@@ -1266,6 +1266,7 @@ function PublicBenchmarksIndexPage() {
   if (error) return <main className="boot" aria-label="Benchmarks unavailable"><section className="panel public-provider-page"><h1>Benchmarks Unavailable</h1><p className="copy">Benchmark data delayed.</p></section></main>;
   if (!registry) return <main className="boot" aria-label="Benchmarks loading">LOADING BENCHMARKS...</main>;
   const recordedBenchmarks = registry.benchmarks.filter((benchmark) => benchmark.benchmark_recorded);
+  const plannedBenchmarks = registry.benchmarks.filter((benchmark) => !benchmark.benchmark_recorded);
   const proofSummary = publicProofSummary(registry);
   return <div className="shell public-provider-shell">
     <main className="public-provider-page" aria-label="Public benchmark registry">
@@ -1300,6 +1301,26 @@ function PublicBenchmarksIndexPage() {
             </a>;
           })}
           {!recordedBenchmarks.length && <EmptyState title="No recorded benchmarks found." body="Benchmark registry has no public recorded evidence yet." />}
+        </div>
+      </section>
+      <section className="panel benchmark-launch-panel" aria-label="Planned benchmark scaffolds">
+        <h2>Benchmark Scaffolds</h2>
+        <p className="panel-caption">Planned lanes. No proven routes or recorded artifacts yet.</p>
+        <div className="benchmark-launch-grid">
+          {plannedBenchmarks.map((benchmark) => <a key={benchmark.benchmark_id} className="benchmark-launch-card" href={`/benchmarks/${encodeURIComponent(benchmark.benchmark_id)}`}>
+            <div>
+              <p className="section-kicker">{benchmark.category}</p>
+              <h2>{publicBenchmarkTitle(benchmark)}</h2>
+            </div>
+            <div className="benchmark-launch-facts">
+              <span>Benchmark Scaffold</span>
+              <span>routes: {benchmark.routes.length}</span>
+              <span>artifacts: 0</span>
+              <span>winner claimed: {String(benchmark.winner_claimed)}</span>
+            </div>
+            <p>Planned lane. No proven routes or recorded artifacts yet.</p>
+          </a>)}
+          {!plannedBenchmarks.length && <EmptyState title="No planned benchmark scaffolds." body="All benchmark lanes currently have recorded evidence." />}
         </div>
       </section>
       <section className="panel benchmark-launch-panel" aria-label="Benchmark History">
