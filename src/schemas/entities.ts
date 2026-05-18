@@ -820,6 +820,15 @@ export const RadarEvidenceCaveatSchema = z.object({
   value: z.union([z.string(), z.number(), z.boolean(), z.null()])
 });
 
+export const RadarEvidenceHealthSchema = z.enum([
+  'recorded',
+  'caveated',
+  'stale',
+  'degraded',
+  'unverified',
+  'scaffold'
+]);
+
 export const RadarBenchmarkRouteHistorySummarySchema = z.object({
   route_id: z.string(),
   provider_id: z.string(),
@@ -835,6 +844,7 @@ export const RadarBenchmarkRouteHistorySummarySchema = z.object({
   latest_detection_rate: z.number().min(0).max(1).nullable(),
   winner_status: RadarBenchmarkWinnerStatusSchema,
   winner_claimed: z.boolean(),
+  evidence_health: RadarEvidenceHealthSchema,
   caveats: z.array(z.string()),
   caveat_objects: z.array(RadarEvidenceCaveatSchema)
 });
@@ -859,6 +869,7 @@ export const RadarBenchmarkRouteHistoryTimelineEntrySchema = z.object({
   status_evidence: z.string(),
   winner_status: RadarBenchmarkWinnerStatusSchema,
   winner_claimed: z.boolean(),
+  evidence_health: RadarEvidenceHealthSchema,
   metrics: z.record(z.string(), z.number().nullable()),
   caveats: z.array(z.string()),
   caveat_objects: z.array(RadarEvidenceCaveatSchema)
@@ -871,6 +882,7 @@ export const RadarBenchmarkRouteHistoryDetailSchema = z.object({
   label: z.string(),
   artifact_count: z.number().int().nonnegative(),
   winner_claimed: z.boolean(),
+  evidence_health: RadarEvidenceHealthSchema,
   timeline: z.array(RadarBenchmarkRouteHistoryTimelineEntrySchema)
 });
 

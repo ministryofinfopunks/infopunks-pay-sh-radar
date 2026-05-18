@@ -55,6 +55,10 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.BenchmarkHistoryV2DetailResponse).toBeTruthy();
     expect(spec.components.schemas.BenchmarkRouteHistoryAggregateResponse).toBeTruthy();
     expect(spec.components.schemas.BenchmarkRouteHistoryDetailResponse).toBeTruthy();
+    expect(spec.components.schemas.EvidenceHealth).toEqual({ type: 'string', enum: ['recorded', 'caveated', 'stale', 'degraded', 'unverified', 'scaffold'] });
+    expect(spec.components.schemas.BenchmarkRouteHistorySummary.properties.evidence_health.$ref).toBe('#/components/schemas/EvidenceHealth');
+    expect(spec.components.schemas.BenchmarkRouteHistoryTimelineEntry.properties.evidence_health.$ref).toBe('#/components/schemas/EvidenceHealth');
+    expect(spec.components.schemas.BenchmarkRouteHistoryDetailResponse.properties.evidence_health.$ref).toBe('#/components/schemas/EvidenceHealth');
     expect(spec.components.schemas.BenchmarkSummaryResponse.properties.benchmarks.items.$ref).toBe('#/components/schemas/BenchmarkSummaryRow');
     expect(JSON.stringify(spec.paths['/v1/radar/benchmark-summary'])).toContain('compact agent benchmark summary');
     expect(JSON.stringify(spec.paths['/v1/radar/benchmark-summary'])).toContain('Use full benchmark endpoints for route-level metrics.');

@@ -27,6 +27,8 @@ const TOKEN_METADATA_CATEGORY = 'finance/data';
 const TOKEN_METADATA_INTENT = 'token metadata';
 const BENCHMARK_EVIDENCE_AT = '2026-05-16T07:42:42.271Z';
 const BENCHMARK_PROOF_REFERENCE = 'live-proofs/finance-data-sol-price-benchmark-runs-2026-05-16.md';
+const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+type EvidenceHealth = 'recorded' | 'caveated' | 'stale' | 'degraded' | 'unverified' | 'scaffold';
 
 export type BenchmarkArtifactSafeMetadata = {
   artifact_id: string;
@@ -309,6 +311,7 @@ export function buildRadarBenchmarkRouteHistoryByBenchmarkId(id: string): RadarB
   const routes = routeIds.map((routeId) => {
     const routeTimeline = routeTimelineForRoute(artifacts, routeId);
     const latest = routeTimeline[routeTimeline.length - 1];
+    const caveatObjects = routeCaveatObjects(latest.artifact, latest.route);
     return {
       route_id: routeId,
       provider_id: latest.route.provider_id,
@@ -324,8 +327,15 @@ export function buildRadarBenchmarkRouteHistoryByBenchmarkId(id: string): RadarB
       latest_detection_rate: routeDetectionRate(latest.artifact, latest.route),
       winner_status: latest.artifact.winner_status,
       winner_claimed: latest.artifact.winner_claimed === true,
+      evidence_health: resolveEvidenceHealth({
+        benchmarkId: id,
+        artifact: latest.artifact,
+        route: latest.route,
+        latestRecordedAt: latest.artifact.generated_at,
+        caveatObjects
+      }),
       caveats: routeCaveats(latest.artifact, latest.route),
-      caveat_objects: routeCaveatObjects(latest.artifact, latest.route)
+      caveat_objects: caveatObjects
     };
   });
   return {
@@ -345,6 +355,8 @@ export function buildRadarBenchmarkRouteHistoryDetail(id: string, routeId: strin
   const routeTimeline = routeTimelineForRoute(artifacts, routeId);
   if (!routeTimeline.length) return null;
   const firstRoute = routeTimeline[0].route;
+  const latestTimeline = routeTimeline[routeTimeline.length - 1];
+  const latestCaveatObjects = routeCaveatObjects(latestTimeline.artifact, latestTimeline.route);
   return {
     benchmark_id: id,
     route_id: routeId,
@@ -352,21 +364,38 @@ export function buildRadarBenchmarkRouteHistoryDetail(id: string, routeId: strin
     label: routeHistoryLabel(firstRoute),
     artifact_count: routeTimeline.length,
     winner_claimed: routeTimeline.some(({ artifact }) => artifact.winner_claimed === true),
-    timeline: routeTimeline.map(({ artifact, route }) => ({
-      artifact_id: artifact.artifact_id,
-      recorded_at: artifact.generated_at,
-      success_count: route.completed_runs,
-      failure_count: route.failed_runs,
-      median_latency_ms: route.median_latency_ms,
-      p95_latency_ms: route.p95_latency_ms,
-      status_code: route.status_code,
-      status_evidence: route.status_evidence,
-      winner_status: artifact.winner_status,
-      winner_claimed: artifact.winner_claimed === true,
-      metrics: routeHistoryMetrics(artifact, route),
-      caveats: routeCaveats(artifact, route),
-      caveat_objects: routeCaveatObjects(artifact, route)
-    }))
+    evidence_health: resolveEvidenceHealth({
+      benchmarkId: id,
+      artifact: latestTimeline.artifact,
+      route: latestTimeline.route,
+      latestRecordedAt: latestTimeline.artifact.generated_at,
+      caveatObjects: latestCaveatObjects
+    }),
+    timeline: routeTimeline.map(({ artifact, route }) => {
+      const caveatObjects = routeCaveatObjects(artifact, route);
+      return {
+        artifact_id: artifact.artifact_id,
+        recorded_at: artifact.generated_at,
+        success_count: route.completed_runs,
+        failure_count: route.failed_runs,
+        median_latency_ms: route.median_latency_ms,
+        p95_latency_ms: route.p95_latency_ms,
+        status_code: route.status_code,
+        status_evidence: route.status_evidence,
+        winner_status: artifact.winner_status,
+        winner_claimed: artifact.winner_claimed === true,
+        evidence_health: resolveEvidenceHealth({
+          benchmarkId: id,
+          artifact,
+          route,
+          latestRecordedAt: artifact.generated_at,
+          caveatObjects
+        }),
+        metrics: routeHistoryMetrics(artifact, route),
+        caveats: routeCaveats(artifact, route),
+        caveat_objects: caveatObjects
+      };
+    })
   };
 }
 
@@ -449,6 +478,33 @@ function routeCaveatObjects(artifact: BenchmarkArtifactRecord, route: BenchmarkA
     });
   }
   return caveatObjects;
+}
+
+function resolveEvidenceHealth(params: {
+  benchmarkId: string;
+  artifact: BenchmarkArtifactRecord | null;
+  route: BenchmarkArtifactRoute | null;
+  latestRecordedAt: string | null;
+  caveatObjects: RadarEvidenceCaveat[];
+}): EvidenceHealth {
+  const { benchmarkId, artifact, route, latestRecordedAt, caveatObjects } = params;
+  const benchmark = buildRadarBenchmarkById(benchmarkId);
+
+  if (!benchmark || benchmark.benchmark_recorded !== true || !artifact || !latestRecordedAt) return 'scaffold';
+  if (!route || (route.execution_status !== 'proven' && route.paid_execution_proven !== true)) return 'unverified';
+
+  const hasCriticalCaveat = caveatObjects.some((row) => row.severity === 'critical');
+  const latestFailureCount = route.failed_runs;
+  const latestSuccessCount = route.completed_runs;
+  if (hasCriticalCaveat || (typeof latestFailureCount === 'number' && latestFailureCount > 0) || latestSuccessCount === 0) return 'degraded';
+
+  const hasWarningCaveat = caveatObjects.some((row) => row.severity === 'warning');
+  if (hasWarningCaveat) return 'caveated';
+
+  const recordedAtMs = Date.parse(latestRecordedAt);
+  if (Number.isFinite(recordedAtMs) && (Date.now() - recordedAtMs) > THIRTY_DAYS_MS) return 'stale';
+
+  return 'recorded';
 }
 
 export function listBenchmarkArtifactMetadata(): BenchmarkArtifactSafeMetadata[] {

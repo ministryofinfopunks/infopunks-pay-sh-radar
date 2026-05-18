@@ -297,11 +297,15 @@ describe('benchmark artifact registry', () => {
     expect(tokenMetadataPayspongeHistory.latest_p95_latency_ms).toBe(10307);
     expect(tokenMetadataPayspongeHistory.latest_detection_rate).toBe(1);
     expect(tokenMetadataPayspongeHistory.winner_claimed).toBe(false);
+    expect(tokenMetadataPayspongeHistory.evidence_health).toBe('caveated');
     expect(tokenMetadataPayspongeHistory.caveats).toContain('canonical_network_match_rate=0.0 preserved from benchmark artifact');
     expect(tokenMetadataPayspongeHistory.caveat_objects).toEqual(expect.arrayContaining([
       expect.objectContaining({ code: 'canonical_network_mismatch', severity: 'warning', value: 0 }),
       expect.objectContaining({ code: 'pay_cli_status_hidden', severity: 'info', evidence_field: 'status_code', value: null })
     ]));
+    const tokenMetadataStableHistory = tokenMetadataRouteHistory.routes.find((route: { route_id: string }) => route.route_id === TOKEN_METADATA_STABLE_ROUTE_ID);
+    expect(tokenMetadataStableHistory.evidence_health).toBe('recorded');
+    expect(tokenMetadataStableHistory.caveat_objects.some((row: { code: string; severity: string }) => row.code === 'pay_cli_status_hidden' && row.severity === 'info')).toBe(true);
 
     const tokenMetadataRouteDetailResponse = await app.inject({ method: 'GET', url: `/v1/radar/benchmark-history/finance-data-token-metadata/routes/${encodeURIComponent(TOKEN_METADATA_PAYSPONGE_ROUTE_ID)}` });
     expect(tokenMetadataRouteDetailResponse.statusCode).toBe(200);
@@ -311,7 +315,8 @@ describe('benchmark artifact registry', () => {
       route_id: TOKEN_METADATA_PAYSPONGE_ROUTE_ID,
       provider_id: 'paysponge-coingecko',
       artifact_count: 1,
-      winner_claimed: false
+      winner_claimed: false,
+      evidence_health: 'caveated'
     });
     expect(tokenMetadataRouteDetail.timeline.length).toBe(1);
     expect(tokenMetadataRouteDetail.timeline[0]).toMatchObject({
@@ -323,7 +328,8 @@ describe('benchmark artifact registry', () => {
       status_code: null,
       status_evidence: 'pay_cli exit code 0 and parsed response body; canonical_network_match_rate=0.0',
       winner_status: 'no_clear_winner',
-      winner_claimed: false
+      winner_claimed: false,
+      evidence_health: 'caveated'
     });
     expect(tokenMetadataRouteDetail.timeline[0].metrics.canonical_network_match_rate).toBe(0);
     expect(tokenMetadataRouteDetail.timeline[0].caveats).toContain('canonical_network_match_rate=0.0 preserved from benchmark artifact');
@@ -348,7 +354,12 @@ describe('benchmark artifact registry', () => {
     expect(stableTokenMetadataRouteDetailResponse.statusCode).toBe(200);
     const stableTokenMetadataRouteDetail = stableTokenMetadataRouteDetailResponse.json().data;
     expect(stableTokenMetadataRouteDetail.winner_claimed).toBe(false);
+    expect(stableTokenMetadataRouteDetail.evidence_health).toBe('recorded');
+    expect(stableTokenMetadataRouteDetail.timeline[0].evidence_health).toBe('recorded');
     expect(stableTokenMetadataRouteDetail.timeline[0].caveat_objects.some((row: { code: string }) => row.code === 'canonical_network_mismatch')).toBe(false);
+    expect(stableTokenMetadataRouteDetail.timeline[0].caveat_objects.some((row: { code: string; severity: string }) => row.code === 'pay_cli_status_hidden' && row.severity === 'warning')).toBe(false);
+    expect(tokenMetadataRouteHistory.winner_claimed).toBe(false);
+    expect(tokenMetadataRouteHistory.routes.some((row: { winner_claimed: boolean }) => row.winner_claimed)).toBe(false);
 
     const missingRouteBenchmarkResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history/unknown-benchmark/routes' });
     expect(missingRouteBenchmarkResponse.statusCode).toBe(404);

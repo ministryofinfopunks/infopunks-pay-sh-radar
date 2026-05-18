@@ -297,14 +297,14 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     summary: 'Get benchmark route history aggregate',
     description: `${SAFE_METADATA_NOTE} Returns route-level artifact timelines for one benchmark without exposing raw proofs. Evidence is grouped by route and winner_claimed remains false unless explicitly present in artifact data.`,
     parameters: [pathParam('benchmark_id', 'Benchmark identifier.')],
-    responses: envelopedResponses({ $ref: '#/components/schemas/BenchmarkRouteHistoryAggregateResponse' }, { benchmark_id: 'finance-data-token-metadata', route_count: 2, artifact_count: 1, winner_claimed: false, routes: [{ route_id: 'paysponge-coingecko:GET:/x402/onchain/networks/solana/tokens/So11111111111111111111111111111111111111112', provider_id: 'paysponge-coingecko', artifact_count: 1, latest_detection_rate: 1, winner_status: 'no_clear_winner', winner_claimed: false, caveats: ['canonical_network_match_rate=0.0 preserved from benchmark artifact'], caveat_objects: [{ code: 'canonical_network_mismatch', severity: 'warning', message: 'canonical_network_match_rate remained 0.0 in benchmark artifact metrics.', evidence_field: 'metrics.canonical_network_match_rate', value: 0 }, { code: 'pay_cli_status_hidden', severity: 'info', message: 'HTTP status is unavailable in pay_cli evidence mode; inspect status_evidence for proof context.', evidence_field: 'status_code', value: null }] }] }, 'benchmark_not_found')
+    responses: envelopedResponses({ $ref: '#/components/schemas/BenchmarkRouteHistoryAggregateResponse' }, { benchmark_id: 'finance-data-token-metadata', route_count: 2, artifact_count: 1, winner_claimed: false, routes: [{ route_id: 'paysponge-coingecko:GET:/x402/onchain/networks/solana/tokens/So11111111111111111111111111111111111111112', provider_id: 'paysponge-coingecko', artifact_count: 1, latest_detection_rate: 1, winner_status: 'no_clear_winner', winner_claimed: false, evidence_health: 'caveated', caveats: ['canonical_network_match_rate=0.0 preserved from benchmark artifact'], caveat_objects: [{ code: 'canonical_network_mismatch', severity: 'warning', message: 'canonical_network_match_rate remained 0.0 in benchmark artifact metrics.', evidence_field: 'metrics.canonical_network_match_rate', value: 0 }, { code: 'pay_cli_status_hidden', severity: 'info', message: 'HTTP status is unavailable in pay_cli evidence mode; inspect status_evidence for proof context.', evidence_field: 'status_code', value: null }] }] }, 'benchmark_not_found')
   });
   add('get', '/v1/radar/benchmark-history/{benchmark_id}/routes/{route_id}', {
     tags: ['Radar Readiness'],
     summary: 'Get benchmark route history timeline',
     description: `${SAFE_METADATA_NOTE} Returns the artifact-backed evidence timeline for one benchmark route. Raw proof contents are not exposed and Radar does not infer route winners.`,
     parameters: [pathParam('benchmark_id', 'Benchmark identifier.'), pathParam('route_id', 'Route identifier.')],
-    responses: envelopedResponses({ $ref: '#/components/schemas/BenchmarkRouteHistoryDetailResponse' }, { benchmark_id: 'finance-data-token-metadata', route_id: 'paysponge-coingecko:GET:/x402/onchain/networks/solana/tokens/So11111111111111111111111111111111111111112', artifact_count: 1, winner_claimed: false, timeline: [{ artifact_id: 'finance-data-token-metadata-benchmark-runs-2026-05-18', success_count: 5, failure_count: 0, median_latency_ms: 5827, p95_latency_ms: 10307, status_code: null, winner_status: 'no_clear_winner', winner_claimed: false, metrics: { canonical_network_match_rate: 0 }, caveats: ['canonical_network_match_rate=0.0 preserved from benchmark artifact'], caveat_objects: [{ code: 'canonical_network_mismatch', severity: 'warning', message: 'canonical_network_match_rate remained 0.0 in benchmark artifact metrics.', evidence_field: 'metrics.canonical_network_match_rate', value: 0 }, { code: 'pay_cli_status_hidden', severity: 'info', message: 'HTTP status is unavailable in pay_cli evidence mode; inspect status_evidence for proof context.', evidence_field: 'status_code', value: null }] }] }, 'route_not_found')
+    responses: envelopedResponses({ $ref: '#/components/schemas/BenchmarkRouteHistoryDetailResponse' }, { benchmark_id: 'finance-data-token-metadata', route_id: 'paysponge-coingecko:GET:/x402/onchain/networks/solana/tokens/So11111111111111111111111111111111111111112', artifact_count: 1, winner_claimed: false, evidence_health: 'caveated', timeline: [{ artifact_id: 'finance-data-token-metadata-benchmark-runs-2026-05-18', success_count: 5, failure_count: 0, median_latency_ms: 5827, p95_latency_ms: 10307, status_code: null, winner_status: 'no_clear_winner', winner_claimed: false, evidence_health: 'caveated', metrics: { canonical_network_match_rate: 0 }, caveats: ['canonical_network_match_rate=0.0 preserved from benchmark artifact'], caveat_objects: [{ code: 'canonical_network_mismatch', severity: 'warning', message: 'canonical_network_match_rate remained 0.0 in benchmark artifact metrics.', evidence_field: 'metrics.canonical_network_match_rate', value: 0 }, { code: 'pay_cli_status_hidden', severity: 'info', message: 'HTTP status is unavailable in pay_cli evidence mode; inspect status_evidence for proof context.', evidence_field: 'status_code', value: null }] }] }, 'route_not_found')
   });
   add('get', '/v1/radar/benchmark-artifacts', radarGet('Radar Readiness', 'List benchmark artifacts', 'Returns curated/imported benchmark evidence records used to build benchmark summaries. Raw proof files are not served, and Radar does not execute paid APIs from this route.', { $ref: '#/components/schemas/BenchmarkArtifactRegistryResponse' }, { artifacts: [] }));
   add('get', '/v1/radar/benchmark-artifacts/{artifact_id}', {
@@ -819,6 +819,14 @@ function componentSchemas(): Record<string, JsonSchema> {
       evidence_field: { oneOf: [stringSchema(), { type: 'null' }] },
       value: { oneOf: [stringSchema(), { type: 'number' }, booleanSchema(), { type: 'null' }] }
     }),
+    EvidenceHealth: enumSchema([
+      'recorded',
+      'caveated',
+      'stale',
+      'degraded',
+      'unverified',
+      'scaffold'
+    ]),
     BenchmarkRouteHistorySummary: objectSchema({
       route_id: stringSchema(),
       provider_id: stringSchema(),
@@ -834,6 +842,7 @@ function componentSchemas(): Record<string, JsonSchema> {
       latest_detection_rate: { oneOf: [{ type: 'number', minimum: 0, maximum: 1 }, { type: 'null' }] },
       winner_status: benchmarkWinnerStatus,
       winner_claimed: booleanSchema(),
+      evidence_health: { $ref: '#/components/schemas/EvidenceHealth' },
       caveats: arrayOf(stringSchema()),
       caveat_objects: arrayOf({ $ref: '#/components/schemas/EvidenceCaveat' })
     }),
@@ -856,6 +865,7 @@ function componentSchemas(): Record<string, JsonSchema> {
       status_evidence: stringSchema(),
       winner_status: benchmarkWinnerStatus,
       winner_claimed: booleanSchema(),
+      evidence_health: { $ref: '#/components/schemas/EvidenceHealth' },
       metrics: { type: 'object', additionalProperties: { oneOf: [{ type: 'number' }, { type: 'null' }] } },
       caveats: arrayOf(stringSchema()),
       caveat_objects: arrayOf({ $ref: '#/components/schemas/EvidenceCaveat' })
@@ -867,6 +877,7 @@ function componentSchemas(): Record<string, JsonSchema> {
       label: stringSchema(),
       artifact_count: integerSchema(),
       winner_claimed: booleanSchema(),
+      evidence_health: { $ref: '#/components/schemas/EvidenceHealth' },
       timeline: arrayOf({ $ref: '#/components/schemas/BenchmarkRouteHistoryTimelineEntry' })
     }),
     BenchmarkRegistryResponse: objectSchema({
