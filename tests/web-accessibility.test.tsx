@@ -270,9 +270,9 @@ describe('web accessibility landmarks', () => {
     expect(container.querySelector('main#terminal-content')).not.toBeNull();
     expect(container.querySelector('footer')).not.toBeNull();
     expect(container.querySelector('nav[aria-label="Global controls"]')).not.toBeNull();
-    expect(container.querySelector('aside[aria-label="Realtime ecosystem intelligence sidebar"]')).not.toBeNull();
+    expect(container.querySelector('aside[aria-label="Catalog-backed ecosystem intelligence sidebar"]')).not.toBeNull();
     expect(container.querySelector('section[aria-label="Anomaly Watch panel"]')).not.toBeNull();
-    expect(container.querySelector('[aria-label="Predictive risk summary counts"]')?.textContent).toContain('low1');
+    expect(container.querySelector('[aria-label="Advisory risk summary counts"]')?.textContent).toContain('low1');
     expect(container.querySelector('section[aria-labelledby="ecosystem-zone-title"]')).not.toBeNull();
     expect(container.querySelector('section[aria-labelledby="provider-zone-title"]')).not.toBeNull();
 

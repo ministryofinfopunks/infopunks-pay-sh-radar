@@ -286,13 +286,14 @@ describe('public benchmark proof pages', () => {
     });
 
     const text = container.textContent ?? '';
-    expect(text).toContain('2 recorded Pay.sh benchmarks');
-    expect(text).toContain('Proof-backed route tests. No winners claimed.');
-    expect(text).toContain('SOL price');
-    expect(text).toContain('Token search');
+    expect(text).toContain('Pay.sh Benchmark Evidence');
+    expect(text).toContain('2 recorded benchmarks. 4 proven paid routes. 10 normalized benchmark runs. 0 winner claims.');
+    expect(text).toContain('SOL Price');
+    expect(text).toContain('Token Search');
     expect(text.match(/5-run benchmark/g)).toHaveLength(2);
     expect(text.match(/no winner claimed/g)).toHaveLength(2);
-    expect(text).not.toMatch(/best route|superior|superiority|winning/i);
+    expect(text).toContain('Radar does not infer route superiority.');
+    expect(text).not.toMatch(/best route|winning/i);
     const link = container.querySelector('a[href="/benchmarks/finance-data-sol-price"]');
     expect(link).not.toBeNull();
     const scaffoldLink = container.querySelector('a[href="/benchmarks/finance-data-token-search"]');

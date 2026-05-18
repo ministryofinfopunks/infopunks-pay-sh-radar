@@ -355,6 +355,14 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
   font-size: 12px;
   line-height: 1.2;
 }
+.benchmark-caveat {
+  margin: 0 0 14px;
+  border: 1px solid rgba(246,208,111,.18);
+  border-radius: 12px;
+  padding: 10px 12px;
+  color: #d9c894;
+  background: rgba(246,208,111,.055);
+}
 .benchmark-launch-grid,
 .benchmark-state-grid {
   display: grid;
@@ -2440,6 +2448,62 @@ body::after { opacity: .18; }
   line-height: 1.55;
 }
 
+.proof-metrics-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 16px 0 12px;
+}
+
+.proof-metrics-strip span {
+  display: grid;
+  gap: 4px;
+  min-height: 62px;
+  border: 1px solid rgba(203,255,221,.14);
+  border-radius: 12px;
+  padding: 10px;
+  color: var(--muted);
+  background: rgba(0,0,0,.18);
+  font-size: 11px;
+  line-height: 1.25;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.proof-metrics-strip b {
+  color: var(--text);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px;
+  line-height: .95;
+}
+
+.orientation-panel {
+  display: grid;
+  gap: 5px;
+  width: min(100%, 680px);
+  margin: 0 0 14px;
+  border: 1px solid rgba(124,199,255,.16);
+  border-left-color: rgba(126,255,176,.3);
+  border-radius: 12px;
+  padding: 11px 12px;
+  background: linear-gradient(90deg, rgba(126,255,176,.06), rgba(124,199,255,.04));
+}
+
+.orientation-panel strong {
+  color: var(--green);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.orientation-panel p {
+  margin: 0;
+  color: #b9d9c4;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 .mission-metrics {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
@@ -3570,6 +3634,7 @@ body::after { opacity: .18; }
   .mission-control { padding: 16px; }
   .mission-control h1 { font-size: clamp(34px, 10vw, 48px); }
   .mission-metrics,
+  .proof-metrics-strip,
   .preflight-controls,
   .severity-banner {
     grid-template-columns: minmax(0, 1fr) !important;

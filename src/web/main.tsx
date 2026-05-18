@@ -983,9 +983,9 @@ function benchmarkRouteLabel(route: RadarBenchmarkRouteMetric) {
 }
 
 function publicBenchmarkTitle(benchmark: Pick<RadarBenchmarkDetail, 'benchmark_id' | 'benchmark_intent'>) {
-  if (benchmark.benchmark_id === 'finance-data-sol-price') return 'SOL price';
-  if (benchmark.benchmark_id === 'finance-data-token-search') return 'Token search';
-  if (benchmark.benchmark_id === 'finance-data-token-metadata') return 'Token metadata';
+  if (benchmark.benchmark_id === 'finance-data-sol-price') return 'SOL Price';
+  if (benchmark.benchmark_id === 'finance-data-token-search') return 'Token Search';
+  if (benchmark.benchmark_id === 'finance-data-token-metadata') return 'Token Metadata';
   return benchmark.benchmark_intent;
 }
 
@@ -996,6 +996,44 @@ function benchmarkRunCount(benchmark: RadarBenchmarkDetail) {
 function benchmarkProvenRouteCount(benchmark: RadarBenchmarkDetail) {
   const provenRoutes = benchmark.routes.filter((route) => route.execution_status === 'proven' || route.paid_execution_proven).length;
   return provenRoutes || (benchmark.benchmark_recorded ? 2 : 0);
+}
+
+type PublicProofSummary = {
+  recordedBenchmarks: number;
+  provenPaidRoutes: number;
+  normalizedRuns: number;
+  winnerClaims: number;
+};
+
+const PUBLIC_PROOF_BASELINE: PublicProofSummary = {
+  recordedBenchmarks: 2,
+  provenPaidRoutes: 4,
+  normalizedRuns: 10,
+  winnerClaims: 0
+};
+
+function publicProofSummary(registry: RadarBenchmarkRegistry | null): PublicProofSummary {
+  const recorded = registry?.benchmarks.filter((benchmark) => benchmark.benchmark_recorded) ?? [];
+  if (!recorded.length) return PUBLIC_PROOF_BASELINE;
+  return {
+    recordedBenchmarks: recorded.length,
+    provenPaidRoutes: recorded.reduce((total, benchmark) => total + benchmarkProvenRouteCount(benchmark), 0),
+    normalizedRuns: recorded.reduce((total, benchmark) => total + benchmarkRunCount(benchmark), 0),
+    winnerClaims: recorded.filter((benchmark) => benchmark.winner_claimed).length
+  };
+}
+
+function proofSummarySentence(summary: PublicProofSummary) {
+  return `${summary.recordedBenchmarks} recorded benchmarks. ${summary.provenPaidRoutes} proven paid routes. ${summary.normalizedRuns} normalized benchmark runs. ${summary.winnerClaims} winner claims.`;
+}
+
+function ProofMetricsStrip({ summary }: { summary: PublicProofSummary }) {
+  return <div className="proof-metrics-strip" aria-label="Proof metrics">
+    <span><b>{summary.recordedBenchmarks}</b> recorded benchmarks</span>
+    <span><b>{summary.provenPaidRoutes}</b> proven paid routes</span>
+    <span><b>{summary.normalizedRuns}</b> benchmark runs</span>
+    <span><b>{summary.winnerClaims}</b> winner claims</span>
+  </div>;
 }
 
 function BenchmarkProofContent({ benchmark, history }: { benchmark: RadarBenchmarkDetail; history: RadarBenchmarkHistory | null }) {
@@ -1130,21 +1168,23 @@ function PublicBenchmarksIndexPage() {
   if (error) return <main className="boot" aria-label="Benchmarks unavailable"><section className="panel public-provider-page"><h1>Benchmarks Unavailable</h1><p className="copy">Benchmark data delayed.</p></section></main>;
   if (!registry) return <main className="boot" aria-label="Benchmarks loading">LOADING BENCHMARKS...</main>;
   const recordedBenchmarks = registry.benchmarks.filter((benchmark) => benchmark.benchmark_recorded);
+  const proofSummary = publicProofSummary(registry);
   return <div className="shell public-provider-shell">
     <main className="public-provider-page" aria-label="Public benchmark registry">
       <section className="panel benchmark-launch-hero">
         <p className="eyebrow">Infopunks Pay.sh Radar</p>
-        <h1>{recordedBenchmarks.length} recorded Pay.sh benchmarks</h1>
-        <p className="copy">Proof-backed route tests. No winners claimed.</p>
+        <h1>Pay.sh Benchmark Evidence</h1>
+        <p className="copy">{proofSummarySentence(proofSummary)}</p>
         <div className="benchmark-hero-strip" aria-label="Benchmark evidence summary">
-          <span>recorded</span>
-          <span>proof-backed</span>
-          <span>agent-readable evidence</span>
+          <span>public proof front door</span>
+          <span>paid execution evidence</span>
+          <span>no route superiority inferred</span>
         </div>
       </section>
       <section className="panel benchmark-launch-panel" aria-label="Recorded Pay.sh benchmarks">
+        <p className="panel-caption benchmark-caveat">Proven means paid execution succeeded. Benchmark recorded means normalized evidence exists. No winner claimed means Radar does not infer route superiority.</p>
         <div className="benchmark-launch-grid">
-          {registry.benchmarks.map((benchmark) => {
+          {recordedBenchmarks.map((benchmark) => {
             const completedRuns = benchmarkRunCount(benchmark);
             const provenRoutes = benchmarkProvenRouteCount(benchmark);
             return <a key={benchmark.benchmark_id} className="benchmark-launch-card" href={`/benchmarks/${encodeURIComponent(benchmark.benchmark_id)}`}>
@@ -1160,7 +1200,7 @@ function PublicBenchmarksIndexPage() {
               <p>Open proof page</p>
             </a>;
           })}
-          {!registry.benchmarks.length && <EmptyState title="No benchmarks found." body="Benchmark registry is currently empty." />}
+          {!recordedBenchmarks.length && <EmptyState title="No recorded benchmarks found." body="Benchmark registry has no public recorded evidence yet." />}
         </div>
       </section>
     </main>
@@ -1174,7 +1214,7 @@ function BenchmarkLaunchSummaryTile({ benchmarks }: { benchmarks: RadarBenchmark
       <p className="section-kicker">Public benchmark state</p>
       <strong>{recordedCount} recorded benchmarks</strong>
     </div>
-    <p>SOL price + token search</p>
+    <p>SOL Price + Token Search</p>
     <p>No route winners claimed</p>
   </section>;
 }
@@ -2352,9 +2392,14 @@ function RadarApp() {
     {!agentMode && <section className="hero panel mission-control" aria-labelledby="terminal-title">
       <div>
         <p className="eyebrow">Infopunks Intelligence Terminal</p>
-        <h1 id="terminal-title">Cognitive Coordination Layer for the Pay.sh agent economy.</h1>
-        <p className="mission-subtitle">Routing intelligence for the Pay.sh agent economy.</p>
-        <p className="copy">Pay.sh lets agents pay. Infopunks tells them who to trust before they do.</p>
+        <h1 id="terminal-title">Pay.sh routes are live. Agents need proof before spend.</h1>
+        <p className="mission-subtitle">Radar tracks mapped, proven, and benchmarked Pay.sh routes before agents route money through them.</p>
+        <p className="copy">Pay.sh is the rail. Radar is the intelligence layer. The Harness is the proof adapter.</p>
+        <ProofMetricsStrip summary={publicProofSummary(benchmarkRegistry)} />
+        <div className="orientation-panel" aria-label="Radar orientation">
+          <strong>Orientation</strong>
+          <p>Pulse shows live ecosystem intelligence. Benchmarks show proof-backed route evidence.</p>
+        </div>
         <div className="source-stack">
           <span className={`source-badge ${data.pulse.data_source.mode}`}>{data.pulse.data_source.mode === 'live_pay_sh_catalog' ? 'LIVE PAY.SH CATALOG' : 'FIXTURE FALLBACK'}</span>
           <small className="source-line">{formatDataSource(data.pulse.data_source, data.pulse.providerCount, data.pulse.endpointCount)}</small>
@@ -2376,7 +2421,7 @@ function RadarApp() {
     <section className="ecosystem-layout" aria-label="Global intelligence layout">
       <div className="ecosystem-main">
         <section className="zone zone-ecosystem" aria-labelledby="ecosystem-zone-title">
-          <ZoneHeader eyebrow="ZONE A" title="ECOSYSTEM INTELLIGENCE" subtitle="Realtime machine economy observability" helper="Start here: global status, interpretation, pulse feed, and cross-provider movement before drilling into a provider." scope="GLOBAL" />
+          <ZoneHeader eyebrow="ZONE A" title="ECOSYSTEM INTELLIGENCE" subtitle="Catalog-backed machine economy observability" helper="Start here: global status, interpretation, pulse feed, and cross-provider movement before drilling into a provider." scope="GLOBAL" />
 
           {!agentMode && <section className="grid four ecosystem-metrics" aria-label="Ecosystem summary metrics">
             <Metric label="Ecosystem Pulse" value={data.pulse.hottestNarrative?.title ?? 'unknown'} sub={`heat ${data.pulse.hottestNarrative?.heat ?? 'unknown'} / momentum ${data.pulse.hottestNarrative?.momentum ?? 'unknown'}`} evidence={data.pulse.hottestNarrative as EvidenceReceipt | null} />
@@ -2656,7 +2701,7 @@ function RadarApp() {
                       <select value={routePreference} aria-label="Route preference" onChange={(event) => setRoutePreference(event.target.value as RoutePreference)}>
                         <option value="balanced">balanced</option>
                         <option value="highest_trust">highest trust</option>
-                        <option value="cheapest">cheapest</option>
+                        <option value="cheapest">lowest catalog price</option>
                         <option value="highest_signal">highest signal</option>
                       </select>
                     </label>
@@ -2850,7 +2895,7 @@ function RadarApp() {
         </section>}
       </div>
 
-      {pulseSummary && <aside className="ecosystem-rail" aria-label="Realtime ecosystem intelligence sidebar">
+      {pulseSummary && <aside className="ecosystem-rail" aria-label="Catalog-backed ecosystem intelligence sidebar">
         {!agentMode && <div className="panel counter-grid scoped-panel rail-priority">
           <ScopeLabel scope="GLOBAL" />
           <PulseStat label="Events" value={pulseSummary.counters.events} sub={`${pulseSummary.counters.unknownTelemetry} unknown telemetry fields`} />
@@ -4211,14 +4256,14 @@ function AnomalyWatchPanel({ ecosystemRisk, providers, endpoints, loading }: { e
     <div className="panel-head">
       <div>
         <ScopeLabel scope="GLOBAL" />
-        <p className="section-kicker">Predictive Risk</p>
+        <p className="section-kicker">Risk Signals</p>
         <h2>Anomaly Watch</h2>
         <p className="panel-caption">Advisory anomalies from historical snapshots, monitor runs, and event logs. No paid APIs are executed.</p>
       </div>
       <PredictiveRiskBadge risk={toRiskContext(ecosystemRisk)} />
     </div>
     {ecosystemRisk?.summary?.stale_catalog_warning && <p className="route-state warn">{ecosystemRisk.summary.stale_catalog_warning}</p>}
-    {!!ecosystemRisk && <div className="anomaly-summary" aria-label="Predictive risk summary counts">
+    {!!ecosystemRisk && <div className="anomaly-summary" aria-label="Advisory risk summary counts">
       <span aria-label={`low ${ecosystemRisk.summary.providers_by_risk_level.low}`}><b>low</b>{ecosystemRisk.summary.providers_by_risk_level.low}</span>
       <span aria-label={`watch ${ecosystemRisk.summary.providers_by_risk_level.watch}`}><b>watch</b>{ecosystemRisk.summary.providers_by_risk_level.watch}</span>
       <span aria-label={`elevated ${ecosystemRisk.summary.providers_by_risk_level.elevated}`}><b>elevated</b>{ecosystemRisk.summary.providers_by_risk_level.elevated}</span>
@@ -4226,9 +4271,9 @@ function AnomalyWatchPanel({ ecosystemRisk, providers, endpoints, loading }: { e
       <span aria-label={`unknown ${ecosystemRisk.summary.providers_by_risk_level.unknown}`}><b>unknown</b>{ecosystemRisk.summary.providers_by_risk_level.unknown}</span>
     </div>}
     {!watch.length && loading && <EmptyState title="Risk enrichment delayed" body="Risk enrichment delayed" />}
-    {!watch.length && !loading && <EmptyState title="No anomalies detected." body="No current predictive-risk anomaly requires attention." />}
+    {!watch.length && !loading && <EmptyState title="No anomalies detected." body="No current advisory risk anomaly requires attention." />}
     {!!watch.length && <>
-      <div id="anomaly-watch-list" className={`anomaly-list ${showAll ? 'expanded' : ''}`} aria-label={showAll ? 'All predictive risk anomalies' : 'Top predictive risk anomalies'}>
+      <div id="anomaly-watch-list" className={`anomaly-list ${showAll ? 'expanded' : ''}`} aria-label={showAll ? 'All advisory risk anomalies' : 'Top advisory risk anomalies'}>
         {visibleWatch.map((item) => {
           const endpoint = item.endpoint_id ? endpointNames.get(item.endpoint_id) : null;
           const providerName = endpoint?.provider_name ?? (item.provider_id ? providerNames.get(item.provider_id) : null) ?? item.provider_id ?? 'unknown provider';

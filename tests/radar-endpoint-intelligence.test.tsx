@@ -756,7 +756,8 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Directory');
     expect(container.textContent).toContain('Events');
     expect(container.textContent).toContain('Preflight');
-    expect(container.textContent).toContain('Routing intelligence for the Pay.sh agent economy.');
+    expect(container.textContent).toContain('Pay.sh routes are live. Agents need proof before spend.');
+    expect(container.textContent).toContain('Radar tracks mapped, proven, and benchmarked Pay.sh routes before agents route money through them.');
     expect(container.textContent).toContain('Ask Radar where an agent should route before spending.');
     expect(container.textContent).toContain('No preflight decision yet.');
     expect(container.textContent).toContain('Provider/Endpoint Comparison Engine');
@@ -931,10 +932,10 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Benchmark Readiness');
     expect(container.textContent).toContain('Head-to-Head Benchmark');
     expect(container.textContent).toContain('2 recorded benchmarks');
-    expect(container.textContent).toContain('SOL price + token search');
+    expect(container.textContent).toContain('SOL Price + Token Search');
     expect(container.textContent).toContain('No route winners claimed');
-    expect(container.textContent).toContain('SOL price');
-    expect(container.textContent).toContain('Token search');
+    expect(container.textContent).toContain('SOL Price');
+    expect(container.textContent).toContain('Token Search');
     expect(container.textContent).toContain('agent-readable evidence');
     expect(container.textContent).toContain('Five-run benchmark recorded.');
     expect(container.textContent).toContain('5 / 5 required benchmark runs recorded.');
@@ -1043,7 +1044,7 @@ describe('radar endpoint intelligence UI', () => {
     root = await renderApp(container);
 
     expect(container.textContent).toContain('Anomaly Watch');
-    expect(container.querySelector('[aria-label="Predictive risk summary counts"]')?.textContent).toContain('critical1');
+    expect(container.querySelector('[aria-label="Advisory risk summary counts"]')?.textContent).toContain('critical1');
     expect(container.textContent).toContain('Alpha Data');
     expect(container.textContent).toContain('critical_current_state');
     expect(container.textContent).toContain('Not recommended for routing');
@@ -1057,7 +1058,7 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('critical_current_state_6');
     expect(container.textContent).not.toContain('critical_current_state_7');
     expect(container.textContent).toContain('View all anomalies (9)');
-    expect(container.querySelector('.anomaly-list')?.getAttribute('aria-label')).toBe('Top predictive risk anomalies');
+    expect(container.querySelector('.anomaly-list')?.getAttribute('aria-label')).toBe('Top advisory risk anomalies');
 
     const toggle = Array.from(container.querySelectorAll('button')).find((button) => button.textContent?.includes('View all anomalies')) as HTMLButtonElement | undefined;
     expect(toggle).toBeTruthy();
@@ -1069,6 +1070,6 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('critical_current_state_9');
     expect(container.textContent).toContain('Show top anomalies');
     expect(toggle!.getAttribute('aria-expanded')).toBe('true');
-    expect(container.querySelector('.anomaly-list')?.getAttribute('aria-label')).toBe('All predictive risk anomalies');
+    expect(container.querySelector('.anomaly-list')?.getAttribute('aria-label')).toBe('All advisory risk anomalies');
   });
 });
