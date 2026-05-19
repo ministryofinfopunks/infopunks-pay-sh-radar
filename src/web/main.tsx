@@ -490,7 +490,9 @@ type RadarBenchmarkRouteHistorySummary = {
   latest_detection_rate: number | null;
   winner_status: 'not_evaluated' | 'insufficient_runs' | 'no_clear_winner' | 'provisional_winner' | 'winner_claimed';
   winner_claimed: boolean;
+  evidence_health: 'recorded' | 'caveated' | 'stale' | 'degraded' | 'unverified' | 'scaffold';
   caveats: string[];
+  caveat_objects: Array<{ code: string; severity: 'info' | 'warning' | 'critical'; message: string; evidence_field: string | null; value: string | number | boolean | null }>;
 };
 type RadarBenchmarkRouteHistoryAggregate = {
   benchmark_id: string;
@@ -1028,7 +1030,7 @@ function updateBenchmarkPageMetadata(benchmark: RadarBenchmarkDetail | null, ben
       ? 'Benchmark Not Found | Infopunks Pay.sh Radar'
       : `${benchmarkId} Benchmark Proof | Infopunks Pay.sh Radar`;
   const desc = isIndex
-    ? 'Infopunks Pay.sh Radar is an evidence ledger for Pay.sh agent routes, exposing recorded benchmarks, artifacts, route timelines, structured caveats, evidence_health, and no winner claims before agents spend.'
+    ? 'Infopunks Pay.sh Radar is an evidence ledger for Pay.sh agent routes, exposing recorded benchmarks, artifacts, route timelines, structured caveats, evidence health, and no-winner benchmark status before agents spend.'
     : missing
       ? `No benchmark exists for ${benchmarkId} in the current dataset.`
       : `${benchmark?.category ?? 'unknown category'} / ${benchmark?.benchmark_intent ?? 'unknown intent'}. No route winner is claimed.`;
@@ -1045,9 +1047,18 @@ function updateBenchmarkPageMetadata(benchmark: RadarBenchmarkDetail | null, ben
 
 function benchmarkRouteLabel(route: RadarBenchmarkRouteMetric) {
   const id = route.provider_id.toLowerCase();
+  if (id === 'stableenrich-exa-search') return 'StableEnrich Exa Search';
+  if (id === 'perplexity-search') return 'Perplexity Search';
   if (id.includes('stablecrypto')) return 'StableCrypto';
   if (id.includes('paysponge') || id.includes('coingecko')) return 'PaySponge CoinGecko';
   return route.provider_id;
+}
+
+function routeInfoCaveatNote(route: RadarBenchmarkRouteHistorySummary) {
+  if (route.evidence_health !== 'recorded') return null;
+  const hasPayCliStatusHidden = route.caveat_objects.some((caveat) => caveat.code === 'pay_cli_status_hidden');
+  if (!hasPayCliStatusHidden) return null;
+  return 'Recorded with info caveat: HTTP status hidden by pay_cli mode.';
 }
 
 function publicBenchmarkTitle(benchmark: Pick<RadarBenchmarkDetail, 'benchmark_id' | 'benchmark_intent'>) {
@@ -1324,6 +1335,7 @@ function BenchmarkProofContent({ benchmark, history, routeHistory }: { benchmark
           <p>latest_detection_rate: {route.latest_detection_rate ?? 'n/a'}</p>
           <p>winner_status: {route.winner_status.replaceAll('_', ' ')}</p>
           <p>winner_claimed: {String(route.winner_claimed)}</p>
+          {routeInfoCaveatNote(route) && <p>info: {routeInfoCaveatNote(route)}</p>}
           {route.caveats.length ? route.caveats.map((caveat) => <p key={caveat}>caveat: {caveat}</p>) : <p>caveats: none</p>}
         </section>)}
       </div>}
@@ -1508,7 +1520,6 @@ function PublicBenchmarksIndexPage() {
           {!plannedBenchmarks.length && <EmptyState title="No planned benchmark scaffolds." body="All benchmark lanes currently have recorded evidence." />}
         </div>
       </section>
-      <AgentBenchmarkSummaryDemoBox />
       <section className="panel benchmark-launch-panel" aria-label="Agent route timeline API">
         <h2>Agent Route Timeline API</h2>
         <p className="panel-caption">Agents can inspect route-level benchmark evidence before routing through Pay.sh. Radar exposes evidence health, caveats, latest benchmark metrics, artifact references, and winner-claim status without crowning routes.</p>
@@ -1532,7 +1543,7 @@ function PublicBenchmarksIndexPage() {
           <summary>View route timeline response example</summary>
           <SafeCodeBlock value={routeTimelineSnippet} label="Route timeline evidence snippet" />
         </details>
-        <p className="panel-caption">StableCrypto token metadata currently has <code>evidence_health=\"recorded\"</code> because it has benchmark evidence and only an info caveat.</p>
+        <p className="panel-caption">Recorded with info caveat: HTTP status hidden by pay_cli mode.</p>
       </section>
       <section className="panel benchmark-launch-panel" aria-label="Benchmark History">
         <h2>Benchmark History</h2>
@@ -1555,6 +1566,7 @@ function PublicBenchmarksIndexPage() {
           {!history && <EmptyState title="Benchmark history unavailable." body="History data delayed." />}
         </div>
       </section>
+      <AgentBenchmarkSummaryDemoBox compact />
     </main>
   </div>;
 }
@@ -2757,6 +2769,7 @@ function RadarApp() {
     {!agentMode && <section className="hero panel mission-control" aria-labelledby="terminal-title">
       <div>
         <p className="eyebrow">Infopunks Intelligence Terminal</p>
+        <p className="eyebrow">Radar Evidence Ledger</p>
         <h1 id="terminal-title">Pay.sh routes are live. Agents need proof before spend.</h1>
         <p className="mission-subtitle">Radar tracks mapped, proven, and benchmarked Pay.sh routes before agents route money through them.</p>
         <p className="copy">Pay.sh is the spend rail. Radar is the evidence ledger. The Harness is the proof adapter.</p>
@@ -4005,6 +4018,7 @@ function HeadToHeadBenchmarkPanel({ registry, loading }: { registry: RadarBenchm
     {!hasBenchmarks && loading && <EmptyState title="Enrichment delayed" body="Benchmark data delayed" />}
     {!hasBenchmarks && !loading && <EmptyState title="Panel data unavailable" body="Benchmark data delayed" />}
     {hasBenchmarks && <>
+      <p className="route-state">Radar records what graduated and what did not.</p>
       <p className="panel-caption">Recorded means paid route evidence exists. Scaffold means the lane was explored but did not meet the hard bar.</p>
       <div className="readiness-list-grid">
         <section className="compact-chip-list wide" aria-label="Recorded benchmark lanes">
@@ -4026,6 +4040,8 @@ function HeadToHeadBenchmarkPanel({ registry, loading }: { registry: RadarBenchm
           <div className="compact-chip-wrap">
             <span>Exa + Perplexity</span>
             <span>{latestRunCount} recorded route-runs</span>
+            <span>5 runs / route</span>
+            <span>2 proven paid routes</span>
             <span>evidence_health: recorded</span>
             <span>winner_claimed=false</span>
           </div>

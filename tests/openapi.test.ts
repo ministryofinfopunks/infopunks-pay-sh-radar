@@ -38,6 +38,7 @@ describe('openapi discovery', () => {
     expect(spec.paths['/v1/radar/mapping-targets']?.get).toBeTruthy();
     expect(spec.paths['/v1/radar/benchmark-readiness']?.get).toBeTruthy();
     expect(spec.paths['/v1/radar/benchmark-summary']?.get).toBeTruthy();
+    expect(spec.paths['/v1/radar/superiority-readiness']?.get).toBeTruthy();
     expect(spec.paths['/v1/radar/benchmarks/finance-data-token-search']?.get).toBeTruthy();
     expect(spec.paths['/v1/radar/benchmarks/finance-data-token-metadata']?.get).toBeTruthy();
     expect(spec.paths['/v1/radar/benchmarks/communications-email-delivery']?.get).toBeTruthy();
@@ -63,8 +64,17 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.BenchmarkRouteHistoryTimelineEntry.properties.evidence_health.$ref).toBe('#/components/schemas/EvidenceHealth');
     expect(spec.components.schemas.BenchmarkRouteHistoryDetailResponse.properties.evidence_health.$ref).toBe('#/components/schemas/EvidenceHealth');
     expect(spec.components.schemas.BenchmarkSummaryResponse.properties.benchmarks.items.$ref).toBe('#/components/schemas/BenchmarkSummaryRow');
+    expect(spec.components.schemas.BenchmarkSummaryResponse.properties.total_artifacts).toBeTruthy();
+    expect(spec.components.schemas.BenchmarkSummaryResponse.properties.latest_recorded_at).toBeTruthy();
+    expect(spec.components.schemas.BenchmarkSummaryRow.properties.description).toBeTruthy();
     expect(JSON.stringify(spec.paths['/v1/radar/benchmark-summary'])).toContain('compact agent benchmark summary');
     expect(JSON.stringify(spec.paths['/v1/radar/benchmark-summary'])).toContain('Use full benchmark endpoints for route-level metrics.');
+    expect(JSON.stringify(spec.paths['/v1/radar/benchmark-summary'])).toContain('"label":"Web Search Results"');
+    expect(JSON.stringify(spec.paths['/v1/radar/benchmark-summary'])).toContain('"recorded_runs":10');
+    expect(JSON.stringify(spec.paths['/v1/radar/benchmark-summary'])).toContain('Search the web for the same query and return normalized search results.');
+    expect(JSON.stringify(spec.paths['/v1/radar/superiority-readiness'])).toContain('Get comparison readiness');
+    expect(JSON.stringify(spec.paths['/v1/radar/superiority-readiness'])).not.toContain('Superiority Proof');
+    expect(JSON.stringify(spec)).not.toContain('Get superiority proof readiness');
 
     await app.close();
   });

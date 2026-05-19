@@ -145,12 +145,20 @@ describe('benchmark artifact registry', () => {
   });
 
   it('builds compact agent benchmark summary from existing benchmark records', () => {
+    const before = Date.now();
     const summary = buildRadarBenchmarkSummary();
+    const after = Date.now();
+    const generatedAtMs = Date.parse(summary.generated_at);
     expect(summary.recorded_benchmarks).toBe(4);
     expect(summary.total_benchmarks).toBe(7);
     expect(summary.winner_claimed).toBe(false);
     expect(summary.total_recorded_runs).toBe(30);
     expect(summary.proven_routes).toBe(8);
+    expect(summary.total_artifacts).toBe(5);
+    expect(summary.latest_recorded_at).toBe('2026-05-19T09:30:00.000Z');
+    expect(Number.isFinite(generatedAtMs)).toBe(true);
+    expect(generatedAtMs).toBeGreaterThanOrEqual(before - 2_000);
+    expect(generatedAtMs).toBeLessThanOrEqual(after + 2_000);
     expect(summary.agent_guidance).toEqual([
       'winner_claimed=false means no route winner should be inferred.',
       'winner_status=no_clear_winner means evidence exists but scoring thresholds do not crown a route.',
@@ -187,7 +195,8 @@ describe('benchmark artifact registry', () => {
     });
     const dataWebSearch = summary.benchmarks.find((row) => row.benchmark_id === DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID);
     expect(dataWebSearch).toMatchObject({
-      label: 'Search the web for the same query and return normalized search results',
+      label: 'Web Search Results',
+      description: 'Search the web for the same query and return normalized search results.',
       status: 'recorded',
       winner_status: 'no_clear_winner',
       winner_claimed: false,
@@ -238,6 +247,8 @@ describe('benchmark artifact registry', () => {
     expect(summary.winner_claimed).toBe(false);
     expect(summary.total_recorded_runs).toBe(30);
     expect(summary.proven_routes).toBe(8);
+    expect(summary.total_artifacts).toBe(5);
+    expect(summary.latest_recorded_at).toBe('2026-05-19T09:30:00.000Z');
     expect(summary.benchmarks.map((row: { benchmark_id: string }) => row.benchmark_id)).toEqual(['finance-data-sol-price', 'finance-data-token-search', 'finance-data-token-metadata', 'data-web-search-results']);
     expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-sol-price').routes_count).toBe(2);
     expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-token-search').routes_count).toBe(2);
@@ -245,6 +256,10 @@ describe('benchmark artifact registry', () => {
     expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-token-search').recorded_runs).toBe(5);
     expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-token-metadata').recorded_runs).toBe(5);
     expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'data-web-search-results').recorded_runs).toBe(10);
+    const webSearchSummary = summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'data-web-search-results');
+    expect(webSearchSummary?.label).toBe('Web Search Results');
+    expect(webSearchSummary?.description).toBe('Search the web for the same query and return normalized search results.');
+    expect(summary.winner_claimed).toBe(false);
     expect(summary.benchmarks[0]).not.toHaveProperty('routes');
     expect(summary.benchmarks[0]).not.toHaveProperty('median_latency_ms');
     expect(summary.benchmarks[0]).not.toHaveProperty('success_rate');
@@ -495,14 +510,19 @@ describe('benchmark artifact registry', () => {
       artifact_count: 1,
       winner_claimed: false
     });
-    const dataWebRouteIds = dataWebSearchResultsRouteHistoryAggregateResponse.json().data.routes.map((route: { route_id: string }) => route.route_id).sort();
+    const dataWebRoutes = dataWebSearchResultsRouteHistoryAggregateResponse.json().data.routes as Array<{ route_id: string; label: string }>;
+    const dataWebRouteIds = dataWebRoutes.map((route) => route.route_id).sort();
     expect(dataWebRouteIds).toEqual([DATA_WEB_SEARCH_RESULTS_STABLEENRICH_ROUTE_ID, DATA_WEB_SEARCH_RESULTS_PERPLEXITY_ROUTE_ID].sort());
+    expect(dataWebRoutes.find((route) => route.route_id === DATA_WEB_SEARCH_RESULTS_STABLEENRICH_ROUTE_ID)?.label).toBe('StableEnrich Exa Search');
+    expect(dataWebRoutes.find((route) => route.route_id === DATA_WEB_SEARCH_RESULTS_PERPLEXITY_ROUTE_ID)?.label).toBe('Perplexity Search');
     const dataWebStableDetailResponse = await app.inject({
       method: 'GET',
       url: `/v1/radar/benchmark-history/data-web-search-results/routes/${encodeURIComponent(DATA_WEB_SEARCH_RESULTS_STABLEENRICH_ROUTE_ID)}`
     });
     expect(dataWebStableDetailResponse.statusCode).toBe(200);
     expect(dataWebStableDetailResponse.json().data.evidence_health).toBe('recorded');
+    expect(dataWebStableDetailResponse.json().data.label).toBe('StableEnrich Exa Search');
+    expect(dataWebStableDetailResponse.json().data.route_id).toBe(DATA_WEB_SEARCH_RESULTS_STABLEENRICH_ROUTE_ID);
     expect(dataWebStableDetailResponse.json().data.timeline[0].caveat_objects.some((row: { code: string }) => row.code === 'pay_cli_status_hidden')).toBe(true);
     const dataWebPerplexityDetailResponse = await app.inject({
       method: 'GET',
@@ -510,6 +530,8 @@ describe('benchmark artifact registry', () => {
     });
     expect(dataWebPerplexityDetailResponse.statusCode).toBe(200);
     expect(dataWebPerplexityDetailResponse.json().data.evidence_health).toBe('recorded');
+    expect(dataWebPerplexityDetailResponse.json().data.label).toBe('Perplexity Search');
+    expect(dataWebPerplexityDetailResponse.json().data.route_id).toBe(DATA_WEB_SEARCH_RESULTS_PERPLEXITY_ROUTE_ID);
 
     const tokenMetadataRouteHistoryResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history/finance-data-token-metadata/routes' });
     expect(tokenMetadataRouteHistoryResponse.statusCode).toBe(200);

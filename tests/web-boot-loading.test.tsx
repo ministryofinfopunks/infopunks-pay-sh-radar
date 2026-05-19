@@ -238,6 +238,7 @@ describe('radar boot loading behavior', () => {
     });
 
     expect(container.textContent).toContain('Infopunks Intelligence Terminal');
+    expect(container.textContent).toContain('Radar Evidence Ledger');
     expect(container.textContent).toContain('Pay.sh routes are live. Agents need proof before spend.');
     expect(container.textContent).not.toContain('Radar degraded: unable to load live pulse');
     expect(fetchState.calls).not.toContain('/v1/search');

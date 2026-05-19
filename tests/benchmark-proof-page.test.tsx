@@ -574,6 +574,7 @@ describe('public benchmark proof pages', () => {
     expect(text).toContain('0 winner claims');
     expect(text.indexOf('Recorded Benchmark Lanes')).toBeLessThan(text.indexOf('Agent Evidence Demo'));
     expect(text.indexOf('Explored, Not Promoted')).toBeLessThan(text.indexOf('Agent Evidence Demo'));
+    expect(text.indexOf('Agent Route Timeline API')).toBeLessThan(text.indexOf('Agent Evidence Demo'));
     expect(text).toContain('Recorded means paid route evidence exists. It does not mean a winner was crowned.');
     expect(text).toContain('Scaffold means the lane was explored but did not meet the hard bar.');
     expect(text).toContain('Radar does not rewrite uncertainty. It records it, fixes it, and shows the delta.');
@@ -595,6 +596,7 @@ describe('public benchmark proof pages', () => {
     expect(text).toContain('winner_claimedfalse means agents should not infer a winner.');
     expect(text).toContain('route_id may contain slashes or colons. URL-encode route_id before calling the detail endpoint.');
     expect(text).toContain('canonical_network_mismatch');
+    expect(text).toContain('Recorded with info caveat: HTTP status hidden by pay_cli mode.');
     expect(text).not.toMatch(/fastest route|safest route|recommended route/i);
     expect(text).toContain('SOL Price');
     expect(text).toContain('Token Search');
@@ -620,7 +622,7 @@ describe('public benchmark proof pages', () => {
     expect(text.match(/winner_claimed=false/g)?.length ?? 0).toBeGreaterThanOrEqual(4);
     expect(text).toContain('Radar does not infer a route winner.');
     expect(text).not.toMatch(/winning/i);
-    expect(text).not.toMatch(/best route|top route/i);
+    expect(text).not.toMatch(/best route|top route|winner route|loser route|superiority proof/i);
     const link = container.querySelector('a[href="/benchmarks/finance-data-sol-price"]');
     expect(link).not.toBeNull();
     const scaffoldLink = container.querySelector('a[href="/benchmarks/finance-data-token-search"]');

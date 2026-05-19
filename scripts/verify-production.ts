@@ -120,23 +120,23 @@ async function run(): Promise<void> {
       const anyBenchmarkWinnerClaimed = benchmarkRows.some((row) => row.winner_claimed === true);
 
       assertCondition(
-        'benchmark-summary recorded_benchmarks >= 4',
-        recordedBenchmarks !== null && recordedBenchmarks >= 4,
+        'benchmark-summary recorded_benchmarks === 4',
+        recordedBenchmarks === 4,
         `recorded_benchmarks=${String(summaryData.recorded_benchmarks)}`
       );
       assertCondition(
-        'benchmark-summary total_recorded_runs >= 30',
-        totalRecordedRuns !== null && totalRecordedRuns >= 30,
+        'benchmark-summary total_recorded_runs === 30',
+        totalRecordedRuns === 30,
         `total_recorded_runs=${String(summaryData.total_recorded_runs)}`
       );
       assertCondition(
-        'benchmark-summary proven_routes >= 8',
-        provenRoutes !== null && provenRoutes >= 8,
+        'benchmark-summary proven_routes === 8',
+        provenRoutes === 8,
         `proven_routes=${String(summaryData.proven_routes)}`
       );
       assertCondition(
-        'benchmark-summary total_artifacts >= 5 (or equivalent field omitted)',
-        totalArtifacts === null || totalArtifacts >= 5,
+        'benchmark-summary total_artifacts === 5',
+        totalArtifacts === 5,
         `total_artifacts=${String(summaryData.total_artifacts)}`
       );
       assertCondition(
@@ -165,18 +165,18 @@ async function run(): Promise<void> {
       const winnerClaimed = historyData.winner_claimed;
 
       assertCondition(
-        'benchmark-history history_count >= 4',
-        historyCount !== null && historyCount >= 4,
+        'benchmark-history history_count === 4',
+        historyCount === 4,
         `history_count=${String(historyData.history_count)}`
       );
       assertCondition(
-        'benchmark-history total_artifacts >= 5',
-        totalArtifacts !== null && totalArtifacts >= 5,
+        'benchmark-history total_artifacts === 5',
+        totalArtifacts === 5,
         `total_artifacts=${String(historyData.total_artifacts)}`
       );
       assertCondition(
-        'benchmark-history total_recorded_runs >= 30',
-        totalRecordedRuns !== null && totalRecordedRuns >= 30,
+        'benchmark-history total_recorded_runs === 30',
+        totalRecordedRuns === 30,
         `total_recorded_runs=${String(historyData.total_recorded_runs)}`
       );
       assertCondition(

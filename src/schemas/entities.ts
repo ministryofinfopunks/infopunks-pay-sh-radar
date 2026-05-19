@@ -895,6 +895,7 @@ export const RadarBenchmarkListSchema = z.object({
 export const RadarBenchmarkSummaryRowSchema = z.object({
   benchmark_id: z.string(),
   label: z.string(),
+  description: z.string().optional(),
   status: z.literal('recorded'),
   winner_status: RadarBenchmarkWinnerStatusSchema,
   winner_claimed: z.boolean(),
@@ -905,6 +906,8 @@ export const RadarBenchmarkSummaryRowSchema = z.object({
 export const RadarBenchmarkSummarySchema = z.object({
   generated_at: z.string().datetime(),
   source: z.literal('infopunks-pay-sh-radar'),
+  latest_recorded_at: z.string().datetime().nullable(),
+  total_artifacts: z.number().int().nonnegative(),
   recorded_benchmarks: z.number().int().nonnegative(),
   total_benchmarks: z.number().int().nonnegative(),
   winner_claimed: z.boolean(),

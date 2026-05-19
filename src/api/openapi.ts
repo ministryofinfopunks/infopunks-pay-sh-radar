@@ -228,7 +228,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     requestBody: jsonRequest({ $ref: '#/components/schemas/ComparisonRequest' }, { mode: 'provider', ids: ['alpha', 'beta'] }),
     responses: envelopedResponses({ $ref: '#/components/schemas/ComparisonResponse' }, { generated_at: '2026-05-13T00:00:00.000Z', mode: 'provider', rows: [] })
   });
-  add('get', '/v1/radar/superiority-readiness', radarGet('Radar Readiness', 'Get superiority proof readiness', 'Returns whether Radar has enough registry-backed proven evidence to start superiority benchmarking. This indicates readiness to compare, not a superiority winner claim.', { $ref: '#/components/schemas/SuperiorityReadinessResponse' }, { executable_provider_mappings_count: 0, providers_with_proven_paid_execution: [], winner_claimed: false }));
+  add('get', '/v1/radar/superiority-readiness', radarGet('Radar Readiness', 'Get comparison readiness', 'Returns whether Radar has enough registry-backed proven evidence to compare recorded metrics. This indicates readiness to compare, not a route winner claim.', { $ref: '#/components/schemas/SuperiorityReadinessResponse' }, { executable_provider_mappings_count: 0, providers_with_proven_paid_execution: [], winner_claimed: false }));
   add('get', '/v1/radar/benchmark-readiness', radarGet('Radar Readiness', 'Get benchmark readiness', 'Returns category-level benchmark readiness and superiority readiness splits.', { $ref: '#/components/schemas/BenchmarkReadinessResponse' }, { benchmark_ready_categories: [], superiority_ready_categories: [] }));
   add('get', '/v1/radar/benchmark-summary', radarGet(
     'Radar Readiness',
@@ -236,8 +236,10 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     'Returns lightweight agent-readable benchmark state without route-level metrics. Agents can use this endpoint for basic benchmark discovery, winner-claim interpretation, and artifact IDs before deciding whether to fetch full benchmark details. winner_claimed=false means no route winner should be inferred; winner_status=no_clear_winner means evidence exists but scoring thresholds do not crown a route.',
     { $ref: '#/components/schemas/BenchmarkSummaryResponse' },
     {
-      generated_at: '2026-05-18T07:18:00.000Z',
+      generated_at: '2026-05-19T10:00:00.000Z',
       source: 'infopunks-pay-sh-radar',
+      latest_recorded_at: '2026-05-19T09:30:00.000Z',
+      total_artifacts: 5,
       recorded_benchmarks: 4,
       total_benchmarks: 7,
       winner_claimed: false,
@@ -273,12 +275,13 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
         },
         {
           benchmark_id: 'data-web-search-results',
-          label: 'Search the web for the same query and return normalized search results',
+          label: 'Web Search Results',
+          description: 'Search the web for the same query and return normalized search results.',
           status: 'recorded',
           winner_status: 'no_clear_winner',
           winner_claimed: false,
           routes_count: 2,
-          recorded_runs: 5
+          recorded_runs: 10
         }
       ],
       agent_guidance: [
@@ -901,6 +904,7 @@ function componentSchemas(): Record<string, JsonSchema> {
     BenchmarkSummaryRow: objectSchema({
       benchmark_id: stringSchema(),
       label: stringSchema(),
+      description: stringSchema(),
       status: { const: 'recorded' },
       winner_status: benchmarkWinnerStatus,
       winner_claimed: booleanSchema(),
@@ -910,6 +914,8 @@ function componentSchemas(): Record<string, JsonSchema> {
     BenchmarkSummaryResponse: objectSchema({
       generated_at: dateTimeSchema(),
       source: { const: 'infopunks-pay-sh-radar' },
+      latest_recorded_at: { oneOf: [dateTimeSchema(), { type: 'null' }] },
+      total_artifacts: integerSchema(),
       recorded_benchmarks: integerSchema(),
       total_benchmarks: integerSchema(),
       winner_claimed: booleanSchema(),

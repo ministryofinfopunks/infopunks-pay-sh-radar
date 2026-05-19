@@ -981,6 +981,7 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Token Metadata');
     expect(container.textContent).toContain('Web Search Results');
     expect(container.textContent).toContain('Recorded means paid route evidence exists. Scaffold means the lane was explored but did not meet the hard bar.');
+    expect(container.textContent).toContain('Radar records what graduated and what did not.');
     expect(container.textContent).toContain('Latest Recorded Benchmark');
     expect(container.textContent).toContain('Exa + Perplexity');
     expect(container.textContent).toContain('10 recorded route-runs');
@@ -1015,7 +1016,7 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).not.toContain('Superiority Proof Readiness');
     expect(container.textContent).toContain('Comparison Policy');
     expect(container.textContent).toContain('Radar can compare recorded metrics. Radar does not crown winners until scoring criteria are finalized. No benchmark currently claims a winner.');
-    expect(container.textContent).not.toMatch(/best route|top route|superior route|loser route/i);
+    expect(container.textContent).not.toMatch(/best route|top route|superior route|winner route|loser route|ranking authority/i);
     expect(container.textContent).not.toContain('HTTP 200');
     expect(container.textContent).toContain('StableCrypto: verified/proven');
     expect(container.textContent).toContain('CoinGecko Onchain DEX API: verified/proven');

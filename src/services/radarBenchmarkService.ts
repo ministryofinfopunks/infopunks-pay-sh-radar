@@ -101,6 +101,7 @@ export function buildRadarBenchmarks(): RadarBenchmarkList {
 
 export function buildRadarBenchmarkSummary(): RadarBenchmarkSummary {
   const registry = buildRadarBenchmarks();
+  const generatedAt = new Date().toISOString();
   const totalBenchmarks = Number.isFinite(registry.benchmarks.length) ? registry.benchmarks.length : 0;
   const recordedBenchmarkEntries = registry.benchmarks.flatMap((benchmark) => {
     const latestArtifact = getLatestBenchmarkArtifact(benchmark.benchmark_id);
@@ -109,7 +110,8 @@ export function buildRadarBenchmarkSummary(): RadarBenchmarkSummary {
     return {
       summary: {
         benchmark_id: benchmark.benchmark_id,
-        label: benchmarkSummaryLabel(benchmark.benchmark_intent),
+        label: benchmarkSummaryLabel(benchmark.benchmark_id, benchmark.benchmark_intent),
+        description: benchmarkSummaryDescription(benchmark.benchmark_id),
         status: 'recorded' as const,
         winner_status: latestArtifact.winner_status,
         winner_claimed: latestArtifact.winner_claimed === true,
@@ -121,13 +123,20 @@ export function buildRadarBenchmarkSummary(): RadarBenchmarkSummary {
   });
   const benchmarks = recordedBenchmarkEntries.map((entry) => entry.summary);
   const recordedBenchmarkIds = new Set(benchmarks.map((benchmark) => benchmark.benchmark_id));
-  const totalRecordedRuns = listBenchmarkArtifacts()
-    .filter((artifact) => recordedBenchmarkIds.has(artifact.benchmark_id))
+  const recordedArtifacts = listBenchmarkArtifacts().filter((artifact) => recordedBenchmarkIds.has(artifact.benchmark_id));
+  const totalRecordedRuns = recordedArtifacts
     .reduce((total, artifact) => total + artifact.total_runs, 0);
+  const latestRecordedAt = recordedArtifacts.length
+    ? recordedArtifacts.reduce((latest, artifact) => (
+      Date.parse(artifact.generated_at) > Date.parse(latest) ? artifact.generated_at : latest
+    ), recordedArtifacts[0].generated_at)
+    : null;
 
   return {
-    generated_at: registry.generated_at,
+    generated_at: generatedAt,
     source: registry.source,
+    latest_recorded_at: latestRecordedAt,
+    total_artifacts: recordedArtifacts.length,
     recorded_benchmarks: benchmarks.length,
     total_benchmarks: totalBenchmarks,
     winner_claimed: benchmarks.some((benchmark) => benchmark.winner_claimed),
@@ -142,9 +151,17 @@ export function buildRadarBenchmarkSummary(): RadarBenchmarkSummary {
   };
 }
 
-function benchmarkSummaryLabel(benchmarkIntent: string): string {
+function benchmarkSummaryLabel(benchmarkId: string, benchmarkIntent: string): string {
+  if (benchmarkId === DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID) return 'Web Search Results';
   const label = benchmarkIntent.replace(/^get\s+/i, '');
   return `${label.charAt(0).toUpperCase()}${label.slice(1)}`;
+}
+
+function benchmarkSummaryDescription(benchmarkId: string): string | undefined {
+  if (benchmarkId === DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID) {
+    return 'Search the web for the same query and return normalized search results.';
+  }
+  return undefined;
 }
 
 export function buildRadarBenchmarkById(id: string): RadarBenchmarkDetail | null {
@@ -269,7 +286,7 @@ export function buildRadarBenchmarkHistoryAggregate(): RadarBenchmarkHistoryAggr
 }
 
 function benchmarkHistoryV2Label(benchmark: RadarBenchmarkDetail): string {
-  return benchmarkSummaryLabel(benchmark.benchmark_intent);
+  return benchmarkSummaryLabel(benchmark.benchmark_id, benchmark.benchmark_intent);
 }
 
 export function buildRadarBenchmarkHistoryV2ById(id: string): RadarBenchmarkHistoryV2Detail | null {
@@ -441,6 +458,8 @@ function routeTimelineForRoute(artifacts: BenchmarkArtifactRecord[], routeId: st
 }
 
 function routeHistoryLabel(route: BenchmarkArtifactRoute): string {
+  if (route.route_id === 'stableenrich-exa-search:POST:/api/exa/search') return 'StableEnrich Exa Search';
+  if (route.route_id === 'perplexity-search:POST:/api/search') return 'Perplexity Search';
   return route.provider_id.replaceAll('-', ' ');
 }
 
