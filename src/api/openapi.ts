@@ -286,6 +286,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
         {
           benchmark_id: 'document-ocr-text-extraction',
           label: 'Document OCR Text Extraction',
+          description: 'Extract text from the same simple document/image fixture.',
           status: 'recorded',
           winner_status: 'no_clear_winner',
           winner_claimed: false,

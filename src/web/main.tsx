@@ -1047,6 +1047,8 @@ function updateBenchmarkPageMetadata(benchmark: RadarBenchmarkDetail | null, ben
 
 function benchmarkRouteLabel(route: RadarBenchmarkRouteMetric) {
   const id = route.provider_id.toLowerCase();
+  if (route.route_id === 'paysponge-reducto:POST:/parse') return 'PaySponge Reducto';
+  if (route.route_id === 'google-vision:POST:/v1/images:annotate') return 'Google Vision OCR';
   if (id === 'stableenrich-exa-search') return 'StableEnrich Exa Search';
   if (id === 'perplexity-search') return 'Perplexity Search';
   if (id.includes('stablecrypto')) return 'StableCrypto';
@@ -1055,9 +1057,10 @@ function benchmarkRouteLabel(route: RadarBenchmarkRouteMetric) {
 }
 
 function routeInfoCaveatNote(route: RadarBenchmarkRouteHistorySummary) {
-  if (route.evidence_health !== 'recorded') return null;
-  const hasPayCliStatusHidden = route.caveat_objects.some((caveat) => caveat.code === 'pay_cli_status_hidden');
-  if (!hasPayCliStatusHidden) return null;
+  const caveatObjects = route.caveat_objects ?? [];
+  const hasPayCliStatusHidden = caveatObjects.some((caveat) => caveat.code === 'pay_cli_status_hidden');
+  const hasStatusCodeUnavailable = caveatObjects.some((caveat) => caveat.code === 'status_code_unavailable');
+  if (!hasPayCliStatusHidden && !hasStatusCodeUnavailable) return null;
   return 'Recorded with info caveat: HTTP status hidden by pay_cli mode.';
 }
 
@@ -1077,6 +1080,7 @@ const RECORDED_BENCHMARK_LANES = [
   { benchmark_id: 'finance-data-sol-price', label: 'SOL Price', category: 'finance/data' },
   { benchmark_id: 'finance-data-token-search', label: 'Token Search', category: 'finance/data' },
   { benchmark_id: 'finance-data-token-metadata', label: 'Token Metadata', category: 'finance/data' },
+  { benchmark_id: 'document-ocr-text-extraction', label: 'Document OCR Text Extraction', category: 'document/ai' },
   { benchmark_id: 'data-web-search-results', label: 'Web Search Results', category: 'data/web' }
 ] as const;
 

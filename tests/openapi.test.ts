@@ -73,8 +73,10 @@ describe('openapi discovery', () => {
     expect(JSON.stringify(spec.paths['/v1/radar/benchmark-summary'])).toContain('compact agent benchmark summary');
     expect(JSON.stringify(spec.paths['/v1/radar/benchmark-summary'])).toContain('Use full benchmark endpoints for route-level metrics.');
     expect(JSON.stringify(spec.paths['/v1/radar/benchmark-summary'])).toContain('"label":"Web Search Results"');
+    expect(JSON.stringify(spec.paths['/v1/radar/benchmark-summary'])).toContain('"label":"Document OCR Text Extraction"');
     expect(JSON.stringify(spec.paths['/v1/radar/benchmark-summary'])).toContain('"recorded_runs":10');
     expect(JSON.stringify(spec.paths['/v1/radar/benchmark-summary'])).toContain('Search the web for the same query and return normalized search results.');
+    expect(JSON.stringify(spec.paths['/v1/radar/benchmark-summary'])).toContain('Extract text from the same simple document/image fixture.');
     expect(JSON.stringify(spec.paths['/v1/radar/superiority-readiness'])).toContain('Get comparison readiness');
     expect(JSON.stringify(spec.paths['/v1/radar/superiority-readiness'])).not.toContain('Superiority Proof');
     expect(JSON.stringify(spec)).not.toContain('Get superiority proof readiness');

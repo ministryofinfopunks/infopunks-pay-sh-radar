@@ -229,12 +229,12 @@ async function run(): Promise<void> {
       const latestArtifacts = asArray(ledgerData.latest_artifacts) ?? [];
       assertCondition(
         'evidence-ledger recorded_lanes count === 5',
-        recordedLanes.length === 4,
+        recordedLanes.length === 5,
         `recorded_lanes=${String(recordedLanes.length)}`
       );
       assertCondition(
         'evidence-ledger scaffold_lanes count === 3',
-        scaffoldLanes.length === 4,
+        scaffoldLanes.length === 3,
         `scaffold_lanes=${String(scaffoldLanes.length)}`
       );
       assertCondition(

@@ -273,8 +273,11 @@ describe('benchmark artifact registry', () => {
     expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'data-web-search-results').recorded_runs).toBe(10);
     expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'document-ocr-text-extraction').recorded_runs).toBe(10);
     const webSearchSummary = summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'data-web-search-results');
+    const ocrSummary = summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === DOCUMENT_OCR_TEXT_EXTRACTION_BENCHMARK_ID);
     expect(webSearchSummary?.label).toBe('Web Search Results');
     expect(webSearchSummary?.description).toBe('Search the web for the same query and return normalized search results.');
+    expect(ocrSummary?.label).toBe('Document OCR Text Extraction');
+    expect(ocrSummary?.description).toBe('Extract text from the same simple document/image fixture.');
     expect(summary.winner_claimed).toBe(false);
     expect(summary.benchmarks[0]).not.toHaveProperty('routes');
     expect(summary.benchmarks[0]).not.toHaveProperty('median_latency_ms');
@@ -539,8 +542,10 @@ describe('benchmark artifact registry', () => {
       artifact_count: 1,
       winner_claimed: false
     });
-    const documentOcrRoutes = documentOcrTextExtractionRouteHistoryAggregateResponse.json().data.routes as Array<{ route_id: string; evidence_health: string; latest_artifact_id: string; caveat_objects: Array<{ code: string }> }>;
+    const documentOcrRoutes = documentOcrTextExtractionRouteHistoryAggregateResponse.json().data.routes as Array<{ route_id: string; label: string; evidence_health: string; latest_artifact_id: string; caveat_objects: Array<{ code: string }> }>;
     expect(documentOcrRoutes.map((route) => route.route_id).sort()).toEqual([DOCUMENT_OCR_REDUCTO_ROUTE_ID, DOCUMENT_OCR_GOOGLE_VISION_ROUTE_ID].sort());
+    expect(documentOcrRoutes.find((route) => route.route_id === DOCUMENT_OCR_REDUCTO_ROUTE_ID)?.label).toBe('PaySponge Reducto');
+    expect(documentOcrRoutes.find((route) => route.route_id === DOCUMENT_OCR_GOOGLE_VISION_ROUTE_ID)?.label).toBe('Google Vision OCR');
     expect(documentOcrRoutes.every((route) => route.evidence_health === 'caveated')).toBe(true);
     expect(documentOcrRoutes.every((route) => route.latest_artifact_id === DOCUMENT_OCR_CANONICAL_ID)).toBe(true);
     expect(documentOcrRoutes.every((route) => route.caveat_objects.some((caveat) => caveat.code === 'status_code_unavailable'))).toBe(true);

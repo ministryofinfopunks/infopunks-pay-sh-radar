@@ -321,6 +321,7 @@ export function buildRadarEvidenceLedger(): RadarEvidenceLedger {
 
 function benchmarkSummaryLabel(benchmarkId: string, benchmarkIntent: string): string {
   if (benchmarkId === DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID) return 'Web Search Results';
+  if (benchmarkId === DOCUMENT_OCR_TEXT_EXTRACTION_BENCHMARK_ID) return 'Document OCR Text Extraction';
   const label = benchmarkIntent.replace(/^get\s+/i, '');
   return `${label.charAt(0).toUpperCase()}${label.slice(1)}`;
 }
@@ -328,6 +329,9 @@ function benchmarkSummaryLabel(benchmarkId: string, benchmarkIntent: string): st
 function benchmarkSummaryDescription(benchmarkId: string): string | undefined {
   if (benchmarkId === DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID) {
     return 'Search the web for the same query and return normalized search results.';
+  }
+  if (benchmarkId === DOCUMENT_OCR_TEXT_EXTRACTION_BENCHMARK_ID) {
+    return 'Extract text from the same simple document/image fixture.';
   }
   return undefined;
 }
@@ -629,6 +633,8 @@ function routeTimelineForRoute(artifacts: BenchmarkArtifactRecord[], routeId: st
 function routeHistoryLabel(route: BenchmarkArtifactRoute): string {
   if (route.route_id === 'stableenrich-exa-search:POST:/api/exa/search') return 'StableEnrich Exa Search';
   if (route.route_id === 'perplexity-search:POST:/api/search') return 'Perplexity Search';
+  if (route.route_id === 'paysponge-reducto:POST:/parse') return 'PaySponge Reducto';
+  if (route.route_id === 'google-vision:POST:/v1/images:annotate') return 'Google Vision OCR';
   return route.provider_id.replaceAll('-', ' ');
 }
 
