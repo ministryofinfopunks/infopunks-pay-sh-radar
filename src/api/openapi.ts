@@ -205,7 +205,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     source: stringSchema(),
     count: integerSchema(),
     targets: arrayOf(freeformObject())
-  }), { count: 5, targets: [{ category: 'finance/data', benchmark_intent: 'token metadata', current_state: 'candidate_mapping_found' }] }));
+  }), { count: 9, targets: [{ category: 'solana-infra', benchmark_intent: 'account balance', current_state: 'needs_two_comparable_mappings' }] }));
 
   add('post', '/v1/radar/preflight', {
     tags: ['Radar Agent'],
@@ -238,11 +238,11 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     {
       generated_at: '2026-05-18T07:18:00.000Z',
       source: 'infopunks-pay-sh-radar',
-      recorded_benchmarks: 3,
-      total_benchmarks: 3,
+      recorded_benchmarks: 4,
+      total_benchmarks: 7,
       winner_claimed: false,
-      total_recorded_runs: 20,
-      proven_routes: 6,
+      total_recorded_runs: 30,
+      proven_routes: 8,
       benchmarks: [
         {
           benchmark_id: 'finance-data-sol-price',
@@ -270,6 +270,15 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
           winner_claimed: false,
           routes_count: 2,
           recorded_runs: 5
+        },
+        {
+          benchmark_id: 'data-web-search-results',
+          label: 'Search the web for the same query and return normalized search results',
+          status: 'recorded',
+          winner_status: 'no_clear_winner',
+          winner_claimed: false,
+          routes_count: 2,
+          recorded_runs: 5
         }
       ],
       agent_guidance: [
@@ -283,8 +292,12 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   add('get', '/v1/radar/benchmarks/finance-data-sol-price', radarGet('Radar Readiness', 'Get SOL price benchmark scaffold', 'Returns the finance/data get SOL price head-to-head benchmark scaffold with recorded normalized evidence. benchmark_recorded=true means normalized evidence has been recorded, not that a winner is claimed. winner_status=no_clear_winner means run criteria were met but no route winner is claimed. status_code may be null in pay_cli mode and status_evidence explains proof basis.', { $ref: '#/components/schemas/BenchmarkDetailResponse' }, { benchmark_id: 'finance-data-sol-price', winner_claimed: false, benchmark_recorded: true, winner_status: 'no_clear_winner' }));
   add('get', '/v1/radar/benchmarks/finance-data-token-search', radarGet('Radar Readiness', 'Get token-search benchmark scaffold', 'Returns the finance/data token-search benchmark with recorded normalized evidence. winner_status=no_clear_winner means no route winner is claimed.', { $ref: '#/components/schemas/BenchmarkDetailResponse' }, { benchmark_id: 'finance-data-token-search', winner_claimed: false, benchmark_recorded: true, winner_status: 'no_clear_winner' }));
   add('get', '/v1/radar/benchmarks/finance-data-token-metadata', radarGet('Radar Readiness', 'Get token-metadata benchmark scaffold', 'Returns the finance/data token-metadata benchmark with recorded normalized evidence. winner_status=no_clear_winner means no route winner is claimed.', { $ref: '#/components/schemas/BenchmarkDetailResponse' }, { benchmark_id: 'finance-data-token-metadata', winner_claimed: false, benchmark_recorded: true, winner_status: 'no_clear_winner' }));
+  add('get', '/v1/radar/benchmarks/communications-email-delivery', radarGet('Radar Readiness', 'Get communications email-delivery benchmark scaffold', 'Returns the communications email-delivery Benchmark Scaffold. benchmark_recorded=false means no five-run artifact is recorded and no route winner can be inferred.', { $ref: '#/components/schemas/BenchmarkDetailResponse' }, { benchmark_id: 'communications-email-delivery', winner_claimed: false, benchmark_recorded: false, winner_status: 'not_evaluated', routes: [] }));
+  add('get', '/v1/radar/benchmarks/solana-infra-account-balance', radarGet('Radar Readiness', 'Get Solana account balance benchmark scaffold', 'Returns the solana-infra account-balance Benchmark Scaffold. benchmark_recorded=false means no five-run artifact is recorded and no route winner can be inferred.', { $ref: '#/components/schemas/BenchmarkDetailResponse' }, { benchmark_id: 'solana-infra-account-balance', category: 'solana-infra', benchmark_intent: 'fetch native SOL balance for the same public Solana address', winner_claimed: false, benchmark_recorded: false, winner_status: 'not_evaluated', routes: [] }));
+  add('get', '/v1/radar/benchmarks/social-data-reddit-post-search', radarGet('Radar Readiness', 'Get social-data Reddit post search benchmark scaffold', 'Returns the social-data Reddit post search Benchmark Scaffold. benchmark_recorded=false means no five-run artifact is recorded and no route winner can be inferred.', { $ref: '#/components/schemas/BenchmarkDetailResponse' }, { benchmark_id: 'social-data-reddit-post-search', category: 'social-data', benchmark_intent: 'search Reddit posts for the same keyword query', winner_claimed: false, benchmark_recorded: false, winner_status: 'not_evaluated', routes: [] }));
+  add('get', '/v1/radar/benchmarks/data-web-search-results', radarGet('Radar Readiness', 'Get web-search results benchmark', 'Returns the web-search results benchmark with recorded normalized evidence. winner_status=no_clear_winner means no route winner is claimed.', { $ref: '#/components/schemas/BenchmarkDetailResponse' }, { benchmark_id: 'data-web-search-results', category: 'web-search', benchmark_intent: 'search the web for the same query and return normalized search results', winner_claimed: false, benchmark_recorded: true, winner_status: 'no_clear_winner' }));
   add('get', '/v1/radar/benchmarks/finance-data-sol-price/history', radarGet('Radar Readiness', 'Get SOL price benchmark history timeline', 'Returns additive read-only benchmark timeline entries derived from known benchmark artifacts. Entries are evidence snapshots and do not imply a winner claim.', { $ref: '#/components/schemas/BenchmarkHistoryResponse' }, { benchmark_id: 'finance-data-sol-price', artifact_count: 1, latest_artifact_id: 'finance-data-sol-price-benchmark-runs-2026-05-16', winner_claimed: false, entries: [{ run_count: 5, benchmark_recorded: true, winner_status: 'no_clear_winner', winner_claimed: false }] }));
-  add('get', '/v1/radar/benchmark-history', radarGet('Radar Readiness', 'Get aggregate benchmark history', 'Returns compact artifact-backed benchmark history rollups for recorded benchmarks. No raw proof contents are exposed and no winner claim is implied.', { $ref: '#/components/schemas/BenchmarkHistoryV2AggregateResponse' }, { history_count: 3, total_artifacts: 4, total_recorded_runs: 20, winner_claimed: false, benchmarks: [{ benchmark_id: 'finance-data-sol-price', winner_claimed: false }] }));
+  add('get', '/v1/radar/benchmark-history', radarGet('Radar Readiness', 'Get aggregate benchmark history', 'Returns compact artifact-backed benchmark history rollups for recorded benchmarks. No raw proof contents are exposed and no winner claim is implied.', { $ref: '#/components/schemas/BenchmarkHistoryV2AggregateResponse' }, { history_count: 4, total_artifacts: 5, total_recorded_runs: 30, winner_claimed: false, benchmarks: [{ benchmark_id: 'finance-data-sol-price', winner_claimed: false }] }));
   add('get', '/v1/radar/benchmark-history/{benchmark_id}', {
     tags: ['Radar Readiness'],
     summary: 'Get benchmark history by benchmark id',

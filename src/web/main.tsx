@@ -1053,6 +1053,10 @@ function publicBenchmarkTitle(benchmark: Pick<RadarBenchmarkDetail, 'benchmark_i
   if (benchmark.benchmark_id === 'finance-data-sol-price') return 'SOL Price';
   if (benchmark.benchmark_id === 'finance-data-token-search') return 'Token Search';
   if (benchmark.benchmark_id === 'finance-data-token-metadata') return 'Token Metadata';
+  if (benchmark.benchmark_id === 'communications-email-delivery') return 'Communications Email Delivery';
+  if (benchmark.benchmark_id === 'solana-infra-account-balance') return 'Solana Account Balance';
+  if (benchmark.benchmark_id === 'social-data-reddit-post-search') return 'Reddit Post Search';
+  if (benchmark.benchmark_id === 'data-web-search-results') return 'Web Search Results';
   return benchmark.benchmark_intent;
 }
 

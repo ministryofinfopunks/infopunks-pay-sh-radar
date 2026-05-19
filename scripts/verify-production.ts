@@ -85,6 +85,10 @@ function asArray(value: unknown): unknown[] | null {
   return Array.isArray(value) ? value : null;
 }
 
+function asBoolean(value: unknown): boolean | null {
+  return typeof value === 'boolean' ? value : null;
+}
+
 async function run(): Promise<void> {
   console.log(`Verifying Radar production proof surfaces at ${baseUrl}`);
 
@@ -109,26 +113,36 @@ async function run(): Promise<void> {
       const totalRecordedRuns = asNumber(summaryData.total_recorded_runs);
       const provenRoutes = asNumber(summaryData.proven_routes);
       const winnerClaimed = summaryData.winner_claimed;
+      const totalArtifacts = asNumber(summaryData.total_artifacts);
+      const benchmarkRows = asArray(summaryData.benchmarks)
+        ?.map((row) => asObject(row))
+        .filter((row): row is Record<string, unknown> => row !== null) ?? [];
+      const anyBenchmarkWinnerClaimed = benchmarkRows.some((row) => row.winner_claimed === true);
 
       assertCondition(
-        'benchmark-summary recorded_benchmarks >= 3',
-        recordedBenchmarks !== null && recordedBenchmarks >= 3,
+        'benchmark-summary recorded_benchmarks >= 4',
+        recordedBenchmarks !== null && recordedBenchmarks >= 4,
         `recorded_benchmarks=${String(summaryData.recorded_benchmarks)}`
       );
       assertCondition(
-        'benchmark-summary total_recorded_runs >= 20',
-        totalRecordedRuns !== null && totalRecordedRuns >= 20,
+        'benchmark-summary total_recorded_runs >= 30',
+        totalRecordedRuns !== null && totalRecordedRuns >= 30,
         `total_recorded_runs=${String(summaryData.total_recorded_runs)}`
       );
       assertCondition(
-        'benchmark-summary proven_routes >= 6',
-        provenRoutes !== null && provenRoutes >= 6,
+        'benchmark-summary proven_routes >= 8',
+        provenRoutes !== null && provenRoutes >= 8,
         `proven_routes=${String(summaryData.proven_routes)}`
       );
       assertCondition(
-        'benchmark-summary winner_claimed === false',
-        winnerClaimed === false,
-        `winner_claimed=${String(winnerClaimed)}`
+        'benchmark-summary total_artifacts >= 5 (or equivalent field omitted)',
+        totalArtifacts === null || totalArtifacts >= 5,
+        `total_artifacts=${String(summaryData.total_artifacts)}`
+      );
+      assertCondition(
+        'benchmark-summary winner_claimed globally false OR no benchmark winner_claimed=true',
+        winnerClaimed === false || !anyBenchmarkWinnerClaimed,
+        `winner_claimed=${String(winnerClaimed)} any_benchmark_winner_claimed=${String(anyBenchmarkWinnerClaimed)}`
       );
     }
   } catch (error) {
@@ -151,18 +165,18 @@ async function run(): Promise<void> {
       const winnerClaimed = historyData.winner_claimed;
 
       assertCondition(
-        'benchmark-history history_count >= 3',
-        historyCount !== null && historyCount >= 3,
+        'benchmark-history history_count >= 4',
+        historyCount !== null && historyCount >= 4,
         `history_count=${String(historyData.history_count)}`
       );
       assertCondition(
-        'benchmark-history total_artifacts >= 4',
-        totalArtifacts !== null && totalArtifacts >= 4,
+        'benchmark-history total_artifacts >= 5',
+        totalArtifacts !== null && totalArtifacts >= 5,
         `total_artifacts=${String(historyData.total_artifacts)}`
       );
       assertCondition(
-        'benchmark-history total_recorded_runs >= 20',
-        totalRecordedRuns !== null && totalRecordedRuns >= 20,
+        'benchmark-history total_recorded_runs >= 30',
+        totalRecordedRuns !== null && totalRecordedRuns >= 30,
         `total_recorded_runs=${String(historyData.total_recorded_runs)}`
       );
       assertCondition(
@@ -195,6 +209,148 @@ async function run(): Promise<void> {
     );
   } catch (error) {
     fail('GET /v1/radar/benchmark-history/finance-data-token-search request', (error as Error).message);
+  }
+
+  try {
+    const tokenMetadata = await getJson('/v1/radar/benchmark-history/finance-data-token-metadata');
+    assertCondition(
+      'GET /v1/radar/benchmark-history/finance-data-token-metadata status',
+      tokenMetadata.status === 200,
+      `status=${tokenMetadata.status}`
+    );
+  } catch (error) {
+    fail('GET /v1/radar/benchmark-history/finance-data-token-metadata request', (error as Error).message);
+  }
+
+  try {
+    const webSearchDetail = await getJson('/v1/radar/benchmark-history/data-web-search-results');
+    assertCondition(
+      'GET /v1/radar/benchmark-history/data-web-search-results status',
+      webSearchDetail.status === 200,
+      `status=${webSearchDetail.status}`
+    );
+    const webSearchObject = asObject(webSearchDetail.body);
+    const webSearchData = asObject(webSearchObject?.data);
+    if (!webSearchData) {
+      fail('benchmark-history data-web-search-results payload', 'missing object at data');
+    } else {
+      const status = webSearchData.status;
+      const artifactCount = asNumber(webSearchData.artifact_count);
+      const winnerClaimed = asBoolean(webSearchData.winner_claimed);
+      const winnerStatus = webSearchData.winner_status;
+      const artifacts = asArray(webSearchData.artifacts);
+      const artifactObjects = artifacts?.map((row) => asObject(row)).filter((row): row is Record<string, unknown> => row !== null) ?? [];
+      const latestArtifactId = typeof artifactObjects[artifactObjects.length - 1]?.artifact_id === 'string'
+        ? artifactObjects[artifactObjects.length - 1].artifact_id
+        : null;
+
+      assertCondition(
+        'benchmark-history data-web-search-results recorded state',
+        status === 'recorded',
+        `status=${String(status)}`
+      );
+      assertCondition(
+        'benchmark-history data-web-search-results artifact_count >= 1',
+        artifactCount !== null && artifactCount >= 1,
+        `artifact_count=${String(webSearchData.artifact_count)}`
+      );
+      assertCondition(
+        'benchmark-history data-web-search-results latest artifact id matches',
+        latestArtifactId === 'data-web-search-results-benchmark-runs-2026-05-19',
+        `latest_artifact_id=${String(latestArtifactId)}`
+      );
+      assertCondition(
+        'benchmark-history data-web-search-results winner_claimed === false',
+        winnerClaimed === false,
+        `winner_claimed=${String(webSearchData.winner_claimed)}`
+      );
+      assertCondition(
+        'benchmark-history data-web-search-results winner_status === no_clear_winner',
+        winnerStatus === 'no_clear_winner',
+        `winner_status=${String(winnerStatus)}`
+      );
+    }
+  } catch (error) {
+    fail('GET /v1/radar/benchmark-history/data-web-search-results request', (error as Error).message);
+  }
+
+  try {
+    const webSearchRoutes = await getJson('/v1/radar/benchmark-history/data-web-search-results/routes');
+    assertCondition(
+      'GET /v1/radar/benchmark-history/data-web-search-results/routes status',
+      webSearchRoutes.status === 200,
+      `status=${webSearchRoutes.status}`
+    );
+    const routesObject = asObject(webSearchRoutes.body);
+    const routesData = asObject(routesObject?.data);
+    if (!routesData) {
+      fail('benchmark-history data-web-search-results routes payload', 'missing object at data');
+    } else {
+      const routeCount = asNumber(routesData.route_count);
+      const routes = asArray(routesData.routes);
+      const routeObjects = routes?.map((row) => asObject(row)).filter((row): row is Record<string, unknown> => row !== null) ?? [];
+      const exaRoute = routeObjects.find((row) => row.route_id === 'stableenrich-exa-search:POST:/api/exa/search') ?? null;
+      const perplexityRoute = routeObjects.find((row) => row.route_id === 'perplexity-search:POST:/api/search') ?? null;
+
+      assertCondition(
+        'benchmark-history data-web-search-results route_count === 2',
+        routeCount === 2,
+        `route_count=${String(routesData.route_count)}`
+      );
+      assertCondition(
+        'benchmark-history data-web-search-results includes Exa route',
+        exaRoute !== null,
+        `route_ids=${routeObjects.map((route) => String(route.route_id)).join(',')}`
+      );
+      assertCondition(
+        'benchmark-history data-web-search-results includes Perplexity route',
+        perplexityRoute !== null,
+        `route_ids=${routeObjects.map((route) => String(route.route_id)).join(',')}`
+      );
+
+      for (const route of routeObjects) {
+        const routeId = typeof route.route_id === 'string' ? route.route_id : '<unknown>';
+        assertCondition(
+          `benchmark-history data-web-search-results ${routeId} exposes evidence_health`,
+          typeof route.evidence_health === 'string' && route.evidence_health.length > 0,
+          `evidence_health=${String(route.evidence_health)}`
+        );
+        assertCondition(
+          `benchmark-history data-web-search-results ${routeId} exposes latest_artifact_id`,
+          typeof route.latest_artifact_id === 'string' && route.latest_artifact_id.length > 0,
+          `latest_artifact_id=${String(route.latest_artifact_id)}`
+        );
+
+        if (typeof route.route_id === 'string') {
+          const detail = await getJson(`/v1/radar/benchmark-history/data-web-search-results/routes/${encodeURIComponent(route.route_id)}`);
+          assertCondition(
+            `GET /v1/radar/benchmark-history/data-web-search-results/routes/{${routeId}} status`,
+            detail.status === 200,
+            `status=${detail.status}`
+          );
+          const detailObject = asObject(detail.body);
+          const detailData = asObject(detailObject?.data);
+          const timeline = asArray(detailData?.timeline);
+          assertCondition(
+            `benchmark-history data-web-search-results ${routeId} timeline length >= 1`,
+            timeline !== null && timeline.length >= 1,
+            `timeline_length=${String(timeline?.length ?? 0)}`
+          );
+          const latestTimeline = timeline && timeline.length ? asObject(timeline[timeline.length - 1]) : null;
+          const caveats = asArray(latestTimeline?.caveats) ?? [];
+          const caveatObjects = asArray(latestTimeline?.caveat_objects);
+          if (caveats.length > 0) {
+            assertCondition(
+              `benchmark-history data-web-search-results ${routeId} caveat_objects present when caveats exist`,
+              caveatObjects !== null,
+              `caveats=${JSON.stringify(caveats)} caveat_objects=${String(caveatObjects)}`
+            );
+          }
+        }
+      }
+    }
+  } catch (error) {
+    fail('GET /v1/radar/benchmark-history/data-web-search-results/routes request', (error as Error).message);
   }
 
   try {
@@ -407,6 +563,11 @@ async function run(): Promise<void> {
     assertCondition(
       'openapi includes /v1/radar/benchmark-summary',
       openapi.body.includes('/v1/radar/benchmark-summary'),
+      'path present in document'
+    );
+    assertCondition(
+      'openapi includes /v1/radar/benchmark-artifacts',
+      openapi.body.includes('/v1/radar/benchmark-artifacts'),
       'path present in document'
     );
     assertCondition(

@@ -375,11 +375,93 @@ const TOKEN_METADATA_FIVE_RUN_ARTIFACT_2026_05_19: BenchmarkArtifactRecord = {
   notes: 'Curated/imported benchmark evidence record. Raw proof content is not served by Radar APIs. route_context_inferred_network'
 };
 
+const DATA_WEB_SEARCH_RESULTS_FIVE_RUN_ARTIFACT_2026_05_19: BenchmarkArtifactRecord = {
+  artifact_id: 'data-web-search-results-benchmark-runs-2026-05-19',
+  benchmark_id: 'data-web-search-results',
+  generated_at: '2026-05-19T09:30:00.000Z',
+  source_repo: 'https://github.com/ministryofinfopunks/infopunks-pay-sh-agent-harness',
+  artifact_path: 'live-proofs/data-web-search-results-benchmark-runs-2026-05-19.md',
+  total_runs: 10,
+  winner_claimed: false,
+  winner_status: 'no_clear_winner',
+  routes: [
+    {
+      provider_id: 'stableenrich-exa-search',
+      route_id: 'stableenrich-exa-search:POST:/api/exa/search',
+      execution_status: 'proven',
+      success: true,
+      latency_ms: 4962,
+      paid_execution_proven: true,
+      proof_reference: 'live-proofs/data-web-search-results-paid-routes-2026-05-19.md',
+      normalized_output_available: true,
+      extracted_price_usd: null,
+      extraction_path: null,
+      success_rate: 1,
+      median_latency_ms: 4962,
+      p95_latency_ms: 5411,
+      average_price_usd: null,
+      min_price_usd: null,
+      max_price_usd: null,
+      price_variance_percent: null,
+      completed_runs: 5,
+      failed_runs: 0,
+      execution_transport: 'pay_cli',
+      cli_exit_code: 0,
+      status_code: null,
+      status_evidence: 'pay_cli exit code 0 and parsed response body',
+      normalization_confidence: 'high',
+      freshness_timestamp: '2026-05-19T09:30:00.000Z',
+      comparison_notes: 'Web-search results benchmark recorded. No route winner is claimed.'
+    },
+    {
+      provider_id: 'perplexity-search',
+      route_id: 'perplexity-search:POST:/api/search',
+      execution_status: 'proven',
+      success: true,
+      latency_ms: 5229,
+      paid_execution_proven: true,
+      proof_reference: 'live-proofs/data-web-search-results-paid-routes-2026-05-19.md',
+      normalized_output_available: true,
+      extracted_price_usd: null,
+      extraction_path: null,
+      success_rate: 1,
+      median_latency_ms: 5229,
+      p95_latency_ms: 5988,
+      average_price_usd: null,
+      min_price_usd: null,
+      max_price_usd: null,
+      price_variance_percent: null,
+      completed_runs: 5,
+      failed_runs: 0,
+      execution_transport: 'pay_cli',
+      cli_exit_code: 0,
+      status_code: null,
+      status_evidence: 'pay_cli exit code 0 and parsed response body',
+      normalization_confidence: 'high',
+      freshness_timestamp: '2026-05-19T09:30:00.000Z',
+      comparison_notes: 'Web-search results benchmark recorded. No route winner is claimed.'
+    }
+  ],
+  aggregate_metrics: {
+    benchmark_recorded: true,
+    required_runs: 5,
+    completed_runs: 5,
+    canonical_input: {
+      query: 'x402 agent payments',
+      limit: 5
+    },
+    normalized_result_count_rate: 1,
+    canonical_query_match_rate: 1
+  },
+  notes: 'Curated/imported benchmark evidence record. Raw proof content is not served by Radar APIs.'
+};
+
 const REGISTRY: BenchmarkArtifactRecord[] = [
   SOL_FIVE_RUN_ARTIFACT,
   TOKEN_SEARCH_FIVE_RUN_ARTIFACT,
   TOKEN_METADATA_FIVE_RUN_ARTIFACT,
-  TOKEN_METADATA_FIVE_RUN_ARTIFACT_2026_05_19
+  TOKEN_METADATA_FIVE_RUN_ARTIFACT_2026_05_19,
+  DATA_WEB_SEARCH_RESULTS_FIVE_RUN_ARTIFACT_2026_05_19
 ];
 const LEGACY_ARTIFACT_ID_ALIASES: Record<string, string> = {
   'finance-data-sol-price-runs-2026-05-16': 'finance-data-sol-price-benchmark-runs-2026-05-16'

@@ -25,6 +25,18 @@ const TOKEN_SEARCH_INTENT = 'token search';
 const TOKEN_METADATA_BENCHMARK_ID = 'finance-data-token-metadata';
 const TOKEN_METADATA_CATEGORY = 'finance/data';
 const TOKEN_METADATA_INTENT = 'token metadata';
+const COMMUNICATIONS_EMAIL_DELIVERY_BENCHMARK_ID = 'communications-email-delivery';
+const COMMUNICATIONS_EMAIL_DELIVERY_CATEGORY = 'communications';
+const COMMUNICATIONS_EMAIL_DELIVERY_INTENT = 'send or queue canonical plain-text email';
+const SOLANA_INFRA_ACCOUNT_BALANCE_BENCHMARK_ID = 'solana-infra-account-balance';
+const SOLANA_INFRA_ACCOUNT_BALANCE_CATEGORY = 'solana-infra';
+const SOLANA_INFRA_ACCOUNT_BALANCE_INTENT = 'fetch native SOL balance for the same public Solana address';
+const SOCIAL_DATA_REDDIT_POST_SEARCH_BENCHMARK_ID = 'social-data-reddit-post-search';
+const SOCIAL_DATA_REDDIT_POST_SEARCH_CATEGORY = 'social-data';
+const SOCIAL_DATA_REDDIT_POST_SEARCH_INTENT = 'search Reddit posts for the same keyword query';
+const DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID = 'data-web-search-results';
+const DATA_WEB_SEARCH_RESULTS_CATEGORY = 'web-search';
+const DATA_WEB_SEARCH_RESULTS_INTENT = 'search the web for the same query and return normalized search results';
 const BENCHMARK_EVIDENCE_AT = '2026-05-16T07:42:42.271Z';
 const BENCHMARK_PROOF_REFERENCE = 'live-proofs/finance-data-sol-price-benchmark-runs-2026-05-16.md';
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
@@ -75,7 +87,15 @@ export function buildRadarBenchmarks(): RadarBenchmarkList {
   return {
     generated_at: BENCHMARK_EVIDENCE_AT,
     source: 'infopunks-pay-sh-radar',
-    benchmarks: [buildSolPriceBenchmark(), buildTokenSearchBenchmark(), buildTokenMetadataBenchmark()]
+    benchmarks: [
+      buildSolPriceBenchmark(),
+      buildTokenSearchBenchmark(),
+      buildTokenMetadataBenchmark(),
+      buildCommunicationsEmailDeliveryBenchmark(),
+      buildSolanaInfraAccountBalanceBenchmark(),
+      buildSocialDataRedditPostSearchBenchmark(),
+      buildDataWebSearchResultsBenchmark()
+    ]
   };
 }
 
@@ -131,6 +151,10 @@ export function buildRadarBenchmarkById(id: string): RadarBenchmarkDetail | null
   if (id === SOL_PRICE_BENCHMARK_ID) return buildSolPriceBenchmark();
   if (id === TOKEN_SEARCH_BENCHMARK_ID) return buildTokenSearchBenchmark();
   if (id === TOKEN_METADATA_BENCHMARK_ID) return buildTokenMetadataBenchmark();
+  if (id === COMMUNICATIONS_EMAIL_DELIVERY_BENCHMARK_ID) return buildCommunicationsEmailDeliveryBenchmark();
+  if (id === SOLANA_INFRA_ACCOUNT_BALANCE_BENCHMARK_ID) return buildSolanaInfraAccountBalanceBenchmark();
+  if (id === SOCIAL_DATA_REDDIT_POST_SEARCH_BENCHMARK_ID) return buildSocialDataRedditPostSearchBenchmark();
+  if (id === DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID) return buildDataWebSearchResultsBenchmark();
   return null;
 }
 
@@ -729,6 +753,95 @@ function buildTokenMetadataBenchmark(): RadarBenchmarkDetail {
       ? 'Five-run normalized benchmark evidence exists. No route winner is claimed.'
       : 'Candidate token metadata mappings exist, but endpoint/method/request-shape verification is not recorded yet. Not benchmark-ready. No winner claimed.',
     routes: benchmarkRecorded ? (artifactRoutes.length ? artifactRoutes : mappedRoutes) : []
+  };
+}
+
+function buildCommunicationsEmailDeliveryBenchmark(): RadarBenchmarkDetail {
+  return {
+    benchmark_id: COMMUNICATIONS_EMAIL_DELIVERY_BENCHMARK_ID,
+    category: COMMUNICATIONS_EMAIL_DELIVERY_CATEGORY,
+    benchmark_intent: COMMUNICATIONS_EMAIL_DELIVERY_INTENT,
+    benchmark_recorded: false,
+    winner_claimed: false,
+    winner_status: 'not_evaluated',
+    next_step: 'pay-prove two comparable communications send routes, then record a five-run benchmark artifact',
+    readiness_note: 'Benchmark Scaffold. StableEmail paid execution succeeded with accepted send semantics (route_state=verified/proven, evidence_health=caveated). AgentMail verifier is implemented/tested but second route remains blocked until AGENTMAIL_INBOX_ID and inbox ownership are configured for a real paid run. Second-route catalog search found no alternate comparable outbound provider. Promotion is blocked until a second comparable paid-proven route and one five-run artifact exist.',
+    routes: []
+  };
+}
+
+function buildSolanaInfraAccountBalanceBenchmark(): RadarBenchmarkDetail {
+  return {
+    benchmark_id: SOLANA_INFRA_ACCOUNT_BALANCE_BENCHMARK_ID,
+    category: SOLANA_INFRA_ACCOUNT_BALANCE_CATEGORY,
+    benchmark_intent: SOLANA_INFRA_ACCOUNT_BALANCE_INTENT,
+    benchmark_recorded: false,
+    winner_claimed: false,
+    winner_status: 'not_evaluated',
+    next_step: 're-run QuickNode paid verifier in a compatible runtime and find a second comparable paid-proven native SOL balance/lamports route for the same canonical address, then record a five-run benchmark artifact',
+    readiness_note: 'Benchmark Scaffold. Canonical input: {"network":"solana","address":"known public Solana wallet address"}. Harness evidence identifies QuickNode Solana Mainnet JSON-RPC as the strongest candidate; unpaid probes confirmed HTTP 402 payment-challenge behavior for getBalance/getAccountInfo. Normalizer, structured caveats, and evidence_health derivation are implemented in Harness, and a QuickNode paid verifier exists, but paid execution failed in the current runtime so QuickNode remains candidate/unproven with evidence_health=unverified. Second-route search found no comparable native SOL balance/lamports route in the current Pay catalog snapshot. stablecrypto.dev/api/alchemy/node/rpc was evaluated and rejected as comparable because its published contract is Ethereum-oriented and Solana lamports semantics were not proven. Promotion remains blocked until two comparable paid-proven routes return native SOL balance/account lamports for the same canonical address and a five-run artifact exists.',
+    routes: []
+  };
+}
+
+function buildSocialDataRedditPostSearchBenchmark(): RadarBenchmarkDetail {
+  return {
+    benchmark_id: SOCIAL_DATA_REDDIT_POST_SEARCH_BENCHMARK_ID,
+    category: SOCIAL_DATA_REDDIT_POST_SEARCH_CATEGORY,
+    benchmark_intent: SOCIAL_DATA_REDDIT_POST_SEARCH_INTENT,
+    benchmark_recorded: false,
+    winner_claimed: false,
+    winner_status: 'not_evaluated',
+    next_step: 'keep StableEnrich as paid-proven (verified/proven, evidence_health=caveated), establish recognizable Reddit post semantics for StableSocial via paid execution, then record one five-run artifact after two comparable paid-proven routes exist',
+    readiness_note: 'Benchmark Scaffold. Canonical input: {"query":"x402","limit":5}. StableEnrich Reddit Search paid execution succeeded and is route_state=verified/proven with evidence_health=caveated; recognizable Reddit posts were returned for query "x402". StableSocial Reddit Search method is confirmed POST; unpaid variants A-F returned HTTP 402 payment-required, and paid diagnostic retry variant A executed successfully, but route_state remains candidate/unproven because recognizable Reddit post semantics were not established. The lane currently has only one paid-proven route and no five-run benchmark artifact. Promotion remains blocked until two comparable paid-proven routes exist for the canonical query and one five-run artifact is recorded.',
+    routes: []
+  };
+}
+
+function buildDataWebSearchResultsBenchmark(): RadarBenchmarkDetail {
+  const latestArtifact = getLatestBenchmarkArtifact(DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID);
+  const benchmarkRecorded = latestArtifact?.aggregate_metrics?.benchmark_recorded === true;
+  const routes: RadarBenchmarkRouteMetric[] = (latestArtifact?.routes ?? []).map((route) => ({
+    provider_id: route.provider_id,
+    route_id: route.route_id,
+    execution_status: route.execution_status,
+    success: route.success,
+    latency_ms: route.latency_ms,
+    paid_execution_proven: route.paid_execution_proven,
+    proof_reference: route.proof_reference,
+    normalized_output_available: route.normalized_output_available,
+    extracted_price_usd: route.extracted_price_usd,
+    extraction_path: route.extraction_path,
+    success_rate: route.success_rate,
+    median_latency_ms: route.median_latency_ms,
+    p95_latency_ms: route.p95_latency_ms,
+    average_price_usd: route.average_price_usd,
+    min_price_usd: route.min_price_usd,
+    max_price_usd: route.max_price_usd,
+    price_variance_percent: route.price_variance_percent,
+    completed_runs: route.completed_runs,
+    failed_runs: route.failed_runs,
+    execution_transport: route.execution_transport,
+    cli_exit_code: route.cli_exit_code,
+    status_code: route.status_code,
+    status_evidence: route.status_evidence,
+    output_shape: null,
+    normalization_confidence: route.normalization_confidence,
+    freshness_timestamp: route.freshness_timestamp,
+    comparison_notes: route.comparison_notes
+  }));
+  return {
+    benchmark_id: DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID,
+    category: DATA_WEB_SEARCH_RESULTS_CATEGORY,
+    benchmark_intent: DATA_WEB_SEARCH_RESULTS_INTENT,
+    benchmark_recorded: benchmarkRecorded,
+    winner_claimed: false,
+    winner_status: latestArtifact?.winner_status ?? 'not_evaluated',
+    next_step: benchmarkRecorded ? 'define scoring thresholds before declaring a route winner' : 'pay-prove at least two comparable web-search routes on canonical input {"query":"x402 agent payments","limit":5}, then record one five-run benchmark artifact',
+    readiness_note: benchmarkRecorded
+      ? 'Five-run normalized benchmark evidence exists. No route winner is claimed.'
+      : 'Benchmark Scaffold. Canonical input: {"query":"x402 agent payments","limit":5}. Candidate routes: StableEnrich Exa Search, StableEnrich Firecrawl Search, and Perplexity Search. Unpaid probes confirmed HTTP 402 payment-challenge behavior and method-correct POST request shape for all three routes. Promotion remains blocked until at least two comparable routes are paid-proven on the same canonical query and one five-run artifact exists.',
+    routes
   };
 }
 

@@ -10,6 +10,13 @@ describe('benchmark artifact registry', () => {
   const TOKEN_SEARCH_CANONICAL_ID = 'finance-data-token-search-benchmark-runs-2026-05-17';
   const TOKEN_METADATA_CANONICAL_ID = 'finance-data-token-metadata-benchmark-runs-2026-05-18';
   const TOKEN_METADATA_CANONICAL_ID_NEW = 'finance-data-token-metadata-benchmark-runs-2026-05-19';
+  const COMMUNICATIONS_EMAIL_DELIVERY_BENCHMARK_ID = 'communications-email-delivery';
+  const SOLANA_INFRA_ACCOUNT_BALANCE_BENCHMARK_ID = 'solana-infra-account-balance';
+  const SOCIAL_DATA_REDDIT_POST_SEARCH_BENCHMARK_ID = 'social-data-reddit-post-search';
+  const DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID = 'data-web-search-results';
+  const DATA_WEB_SEARCH_RESULTS_CANONICAL_ID = 'data-web-search-results-benchmark-runs-2026-05-19';
+  const DATA_WEB_SEARCH_RESULTS_STABLEENRICH_ROUTE_ID = 'stableenrich-exa-search:POST:/api/exa/search';
+  const DATA_WEB_SEARCH_RESULTS_PERPLEXITY_ROUTE_ID = 'perplexity-search:POST:/api/search';
   const PAYSPONGE_ROUTE_ID = 'paysponge-coingecko:GET:https://pro-api.coingecko.com/api/v3/x402/onchain/search/pools?query=SOL';
   const TOKEN_METADATA_PAYSPONGE_ROUTE_ID = 'paysponge-coingecko:GET:/x402/onchain/networks/solana/tokens/So11111111111111111111111111111111111111112';
   const TOKEN_METADATA_STABLE_ROUTE_ID = 'merit-systems-stablecrypto-market-data:POST:/api/coingecko/coin';
@@ -37,7 +44,19 @@ describe('benchmark artifact registry', () => {
     const sol = benchmarks.find((row) => row.benchmark_id === 'finance-data-sol-price');
     const tokenSearch = benchmarks.find((row) => row.benchmark_id === 'finance-data-token-search');
     const tokenMetadata = benchmarks.find((row) => row.benchmark_id === 'finance-data-token-metadata');
-    expect(benchmarks.map((row) => row.benchmark_id)).toEqual(['finance-data-sol-price', 'finance-data-token-search', 'finance-data-token-metadata']);
+    const communicationsEmailDelivery = benchmarks.find((row) => row.benchmark_id === COMMUNICATIONS_EMAIL_DELIVERY_BENCHMARK_ID);
+    const solanaInfraAccountBalance = benchmarks.find((row) => row.benchmark_id === SOLANA_INFRA_ACCOUNT_BALANCE_BENCHMARK_ID);
+    const socialDataRedditPostSearch = benchmarks.find((row) => row.benchmark_id === SOCIAL_DATA_REDDIT_POST_SEARCH_BENCHMARK_ID);
+    const dataWebSearchResults = benchmarks.find((row) => row.benchmark_id === DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID);
+    expect(benchmarks.map((row) => row.benchmark_id)).toEqual([
+      'finance-data-sol-price',
+      'finance-data-token-search',
+      'finance-data-token-metadata',
+      COMMUNICATIONS_EMAIL_DELIVERY_BENCHMARK_ID,
+      SOLANA_INFRA_ACCOUNT_BALANCE_BENCHMARK_ID,
+      SOCIAL_DATA_REDDIT_POST_SEARCH_BENCHMARK_ID,
+      DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID
+    ]);
     expect(sol).toBeTruthy();
     const stable = sol?.routes.find((item) => item.provider_id === 'merit-systems-stablecrypto-market-data');
     const paysponge = sol?.routes.find((item) => item.provider_id === 'paysponge-coingecko');
@@ -77,15 +96,61 @@ describe('benchmark artifact registry', () => {
     expect(tokenMetadata?.routes.length).toBe(2);
     const tokenMetadataPaysponge = tokenMetadata?.routes.find((item) => item.provider_id === 'paysponge-coingecko');
     expect(tokenMetadataPaysponge?.status_evidence).toBe('pay_cli exit code 0 and parsed response body');
+    expect(communicationsEmailDelivery).toMatchObject({
+      benchmark_id: COMMUNICATIONS_EMAIL_DELIVERY_BENCHMARK_ID,
+      category: 'communications',
+      benchmark_recorded: false,
+      winner_claimed: false,
+      winner_status: 'not_evaluated'
+    });
+    expect(communicationsEmailDelivery?.routes).toEqual([]);
+    expect(communicationsEmailDelivery?.readiness_note).toContain('Benchmark Scaffold');
+    expect(solanaInfraAccountBalance).toMatchObject({
+      benchmark_id: SOLANA_INFRA_ACCOUNT_BALANCE_BENCHMARK_ID,
+      category: 'solana-infra',
+      benchmark_recorded: false,
+      winner_claimed: false,
+      winner_status: 'not_evaluated'
+    });
+    expect(solanaInfraAccountBalance?.readiness_note).toContain('Benchmark Scaffold');
+    expect(solanaInfraAccountBalance?.readiness_note).toContain('QuickNode');
+    expect(solanaInfraAccountBalance?.readiness_note).toContain('evidence_health=unverified');
+    expect(solanaInfraAccountBalance?.routes).toEqual([]);
+    expect(socialDataRedditPostSearch).toMatchObject({
+      benchmark_id: SOCIAL_DATA_REDDIT_POST_SEARCH_BENCHMARK_ID,
+      category: 'social-data',
+      benchmark_recorded: false,
+      winner_claimed: false,
+      winner_status: 'not_evaluated'
+    });
+    expect(socialDataRedditPostSearch?.readiness_note).toContain('Benchmark Scaffold');
+    expect(socialDataRedditPostSearch?.readiness_note).toContain('"query":"x402"');
+    expect(socialDataRedditPostSearch?.readiness_note).toContain('route_state=verified/proven');
+    expect(socialDataRedditPostSearch?.readiness_note).toContain('evidence_health=caveated');
+    expect(socialDataRedditPostSearch?.readiness_note).toContain('unpaid variants A-F returned HTTP 402');
+    expect(socialDataRedditPostSearch?.readiness_note).toContain('paid diagnostic retry variant A executed successfully');
+    expect(socialDataRedditPostSearch?.readiness_note).toContain('candidate/unproven');
+    expect(socialDataRedditPostSearch?.readiness_note).toContain('only one paid-proven route');
+    expect(socialDataRedditPostSearch?.routes).toEqual([]);
+    expect(dataWebSearchResults).toMatchObject({
+      benchmark_id: DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID,
+      category: 'web-search',
+      benchmark_recorded: true,
+      winner_claimed: false,
+      winner_status: 'no_clear_winner'
+    });
+    expect(dataWebSearchResults?.next_step).toBe('define scoring thresholds before declaring a route winner');
+    expect(dataWebSearchResults?.readiness_note).toBe('Five-run normalized benchmark evidence exists. No route winner is claimed.');
+    expect(dataWebSearchResults?.routes.length).toBe(2);
   });
 
   it('builds compact agent benchmark summary from existing benchmark records', () => {
     const summary = buildRadarBenchmarkSummary();
-    expect(summary.recorded_benchmarks).toBe(3);
-    expect(summary.total_benchmarks).toBe(3);
+    expect(summary.recorded_benchmarks).toBe(4);
+    expect(summary.total_benchmarks).toBe(7);
     expect(summary.winner_claimed).toBe(false);
-    expect(summary.total_recorded_runs).toBe(20);
-    expect(summary.proven_routes).toBe(6);
+    expect(summary.total_recorded_runs).toBe(30);
+    expect(summary.proven_routes).toBe(8);
     expect(summary.agent_guidance).toEqual([
       'winner_claimed=false means no route winner should be inferred.',
       'winner_status=no_clear_winner means evidence exists but scoring thresholds do not crown a route.',
@@ -95,7 +160,7 @@ describe('benchmark artifact registry', () => {
     const sol = summary.benchmarks.find((row) => row.benchmark_id === 'finance-data-sol-price');
     const tokenSearch = summary.benchmarks.find((row) => row.benchmark_id === 'finance-data-token-search');
     const tokenMetadata = summary.benchmarks.find((row) => row.benchmark_id === 'finance-data-token-metadata');
-    expect(summary.benchmarks.map((row) => row.benchmark_id)).toEqual(['finance-data-sol-price', 'finance-data-token-search', 'finance-data-token-metadata']);
+    expect(summary.benchmarks.map((row) => row.benchmark_id)).toEqual(['finance-data-sol-price', 'finance-data-token-search', 'finance-data-token-metadata', 'data-web-search-results']);
     expect(sol).toMatchObject({
       label: 'SOL price',
       status: 'recorded',
@@ -119,6 +184,15 @@ describe('benchmark artifact registry', () => {
       winner_claimed: false,
       routes_count: 2,
       recorded_runs: 5
+    });
+    const dataWebSearch = summary.benchmarks.find((row) => row.benchmark_id === DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID);
+    expect(dataWebSearch).toMatchObject({
+      label: 'Search the web for the same query and return normalized search results',
+      status: 'recorded',
+      winner_status: 'no_clear_winner',
+      winner_claimed: false,
+      routes_count: 2,
+      recorded_runs: 10
     });
   });
 
@@ -159,17 +233,18 @@ describe('benchmark artifact registry', () => {
     const summaryResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-summary' });
     expect(summaryResponse.statusCode).toBe(200);
     const summary = summaryResponse.json().data;
-    expect(summary.recorded_benchmarks).toBe(3);
-    expect(summary.total_benchmarks).toBe(3);
+    expect(summary.recorded_benchmarks).toBe(4);
+    expect(summary.total_benchmarks).toBe(7);
     expect(summary.winner_claimed).toBe(false);
-    expect(summary.total_recorded_runs).toBe(20);
-    expect(summary.proven_routes).toBe(6);
-    expect(summary.benchmarks.map((row: { benchmark_id: string }) => row.benchmark_id)).toEqual(['finance-data-sol-price', 'finance-data-token-search', 'finance-data-token-metadata']);
+    expect(summary.total_recorded_runs).toBe(30);
+    expect(summary.proven_routes).toBe(8);
+    expect(summary.benchmarks.map((row: { benchmark_id: string }) => row.benchmark_id)).toEqual(['finance-data-sol-price', 'finance-data-token-search', 'finance-data-token-metadata', 'data-web-search-results']);
     expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-sol-price').routes_count).toBe(2);
     expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-token-search').routes_count).toBe(2);
     expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-sol-price').recorded_runs).toBe(5);
     expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-token-search').recorded_runs).toBe(5);
     expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-token-metadata').recorded_runs).toBe(5);
+    expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'data-web-search-results').recorded_runs).toBe(10);
     expect(summary.benchmarks[0]).not.toHaveProperty('routes');
     expect(summary.benchmarks[0]).not.toHaveProperty('median_latency_ms');
     expect(summary.benchmarks[0]).not.toHaveProperty('success_rate');
@@ -202,6 +277,50 @@ describe('benchmark artifact registry', () => {
     const tokenMetadataPaysponge = tokenMetadataResponse.json().data.routes.find((route: { provider_id: string }) => route.provider_id === 'paysponge-coingecko');
     expect(tokenMetadataPaysponge.status_evidence).toBe('pay_cli exit code 0 and parsed response body');
 
+    const communicationsEmailDeliveryResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks/communications-email-delivery' });
+    expect(communicationsEmailDeliveryResponse.statusCode).toBe(200);
+    expect(communicationsEmailDeliveryResponse.json().data).toMatchObject({
+      benchmark_id: COMMUNICATIONS_EMAIL_DELIVERY_BENCHMARK_ID,
+      category: 'communications',
+      benchmark_recorded: false,
+      winner_status: 'not_evaluated',
+      winner_claimed: false,
+      readiness_note: expect.stringContaining('Benchmark Scaffold')
+    });
+    expect((communicationsEmailDeliveryResponse.json().data.routes as unknown[]).length).toBe(0);
+    const solanaInfraAccountBalanceResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks/solana-infra-account-balance' });
+    expect(solanaInfraAccountBalanceResponse.statusCode).toBe(200);
+    expect(solanaInfraAccountBalanceResponse.json().data).toMatchObject({
+      benchmark_id: SOLANA_INFRA_ACCOUNT_BALANCE_BENCHMARK_ID,
+      category: 'solana-infra',
+      benchmark_recorded: false,
+      winner_status: 'not_evaluated',
+      winner_claimed: false
+    });
+    expect(solanaInfraAccountBalanceResponse.json().data.readiness_note).toContain('QuickNode');
+    expect(solanaInfraAccountBalanceResponse.json().data.readiness_note).toContain('evidence_health=unverified');
+    expect((solanaInfraAccountBalanceResponse.json().data.routes as unknown[]).length).toBe(0);
+    const socialDataRedditPostSearchResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks/social-data-reddit-post-search' });
+    expect(socialDataRedditPostSearchResponse.statusCode).toBe(200);
+    expect(socialDataRedditPostSearchResponse.json().data).toMatchObject({
+      benchmark_id: SOCIAL_DATA_REDDIT_POST_SEARCH_BENCHMARK_ID,
+      category: 'social-data',
+      benchmark_recorded: false,
+      winner_status: 'not_evaluated',
+      winner_claimed: false
+    });
+    expect((socialDataRedditPostSearchResponse.json().data.routes as unknown[]).length).toBe(0);
+    const dataWebSearchResultsResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks/data-web-search-results' });
+    expect(dataWebSearchResultsResponse.statusCode).toBe(200);
+    expect(dataWebSearchResultsResponse.json().data).toMatchObject({
+      benchmark_id: DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID,
+      category: 'web-search',
+      benchmark_recorded: true,
+      winner_status: 'no_clear_winner',
+      winner_claimed: false
+    });
+    expect((dataWebSearchResultsResponse.json().data.routes as unknown[]).length).toBe(2);
+
     const solHistoryResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks/finance-data-sol-price/history' });
     expect(solHistoryResponse.statusCode).toBe(200);
     const solHistory = solHistoryResponse.json().data;
@@ -230,20 +349,22 @@ describe('benchmark artifact registry', () => {
     const aggregateHistoryResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history' });
     expect(aggregateHistoryResponse.statusCode).toBe(200);
     const aggregateHistory = aggregateHistoryResponse.json().data;
-    expect(aggregateHistory.history_count).toBe(3);
-    expect(aggregateHistory.total_artifacts).toBe(4);
-    expect(aggregateHistory.total_recorded_runs).toBe(20);
+    expect(aggregateHistory.history_count).toBe(4);
+    expect(aggregateHistory.total_artifacts).toBe(5);
+    expect(aggregateHistory.total_recorded_runs).toBe(30);
     expect(aggregateHistory.winner_claimed).toBe(false);
-    expect(aggregateHistory.benchmarks.length).toBe(3);
+    expect(aggregateHistory.benchmarks.length).toBe(4);
     expect(aggregateHistory.benchmarks.map((row: { benchmark_id: string }) => row.benchmark_id)).toEqual([
       'finance-data-sol-price',
       'finance-data-token-search',
-      'finance-data-token-metadata'
+      'finance-data-token-metadata',
+      'data-web-search-results'
     ]);
     expect(aggregateHistory.benchmarks.every((row: { winner_claimed: boolean }) => row.winner_claimed === false)).toBe(true);
     expect(aggregateHistory.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-sol-price')?.artifact_count).toBe(1);
     expect(aggregateHistory.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-token-search')?.artifact_count).toBe(1);
     expect(aggregateHistory.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-token-metadata')?.artifact_count).toBe(2);
+    expect(aggregateHistory.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'data-web-search-results')?.artifact_count).toBe(1);
     expect(aggregateHistory.benchmarks.every((row: { latest_artifact_id: string | null }) => typeof row.latest_artifact_id === 'string' && row.latest_artifact_id.length > 0)).toBe(true);
 
     const solHistoryV2Response = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history/finance-data-sol-price' });
@@ -277,6 +398,118 @@ describe('benchmark artifact registry', () => {
     });
     expect(tokenSearchHistoryV2.artifacts.length).toBe(1);
     expect(tokenSearchHistoryV2.artifacts[0].recorded_runs).toBe(5);
+
+    const communicationsEmailDeliveryHistoryV2Response = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history/communications-email-delivery' });
+    expect(communicationsEmailDeliveryHistoryV2Response.statusCode).toBe(200);
+    const communicationsEmailDeliveryHistoryV2 = communicationsEmailDeliveryHistoryV2Response.json().data;
+    expect(communicationsEmailDeliveryHistoryV2).toMatchObject({
+      benchmark_id: COMMUNICATIONS_EMAIL_DELIVERY_BENCHMARK_ID,
+      label: 'Send or queue canonical plain-text email',
+      status: 'planned',
+      artifact_count: 0,
+      total_recorded_runs: 0,
+      routes_count: 0,
+      winner_status: 'not_evaluated',
+      winner_claimed: false
+    });
+    expect(communicationsEmailDeliveryHistoryV2.artifacts).toEqual([]);
+
+    const communicationsEmailDeliveryRouteHistoryAggregateResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history/communications-email-delivery/routes' });
+    expect(communicationsEmailDeliveryRouteHistoryAggregateResponse.statusCode).toBe(200);
+    expect(communicationsEmailDeliveryRouteHistoryAggregateResponse.json().data).toMatchObject({
+      benchmark_id: COMMUNICATIONS_EMAIL_DELIVERY_BENCHMARK_ID,
+      route_count: 0,
+      artifact_count: 0,
+      winner_claimed: false,
+      routes: []
+    });
+
+    const communicationsEmailDeliveryRouteHistoryMissingRouteResponse = await app.inject({
+      method: 'GET',
+      url: '/v1/radar/benchmark-history/communications-email-delivery/routes/unknown-route'
+    });
+    expect(communicationsEmailDeliveryRouteHistoryMissingRouteResponse.statusCode).toBe(404);
+    expect(communicationsEmailDeliveryRouteHistoryMissingRouteResponse.json()).toEqual({ error: 'route_not_found' });
+    const solanaInfraAccountBalanceHistoryV2Response = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history/solana-infra-account-balance' });
+    expect(solanaInfraAccountBalanceHistoryV2Response.statusCode).toBe(200);
+    expect(solanaInfraAccountBalanceHistoryV2Response.json().data).toMatchObject({
+      benchmark_id: SOLANA_INFRA_ACCOUNT_BALANCE_BENCHMARK_ID,
+      status: 'planned',
+      artifact_count: 0,
+      total_recorded_runs: 0,
+      routes_count: 0,
+      winner_status: 'not_evaluated',
+      winner_claimed: false
+    });
+    const solanaInfraAccountBalanceRouteHistoryAggregateResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history/solana-infra-account-balance/routes' });
+    expect(solanaInfraAccountBalanceRouteHistoryAggregateResponse.statusCode).toBe(200);
+    expect(solanaInfraAccountBalanceRouteHistoryAggregateResponse.json().data).toMatchObject({
+      benchmark_id: SOLANA_INFRA_ACCOUNT_BALANCE_BENCHMARK_ID,
+      route_count: 0,
+      artifact_count: 0,
+      winner_claimed: false,
+      routes: []
+    });
+    const socialDataRedditPostSearchHistoryV2Response = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history/social-data-reddit-post-search' });
+    expect(socialDataRedditPostSearchHistoryV2Response.statusCode).toBe(200);
+    expect(socialDataRedditPostSearchHistoryV2Response.json().data).toMatchObject({
+      benchmark_id: SOCIAL_DATA_REDDIT_POST_SEARCH_BENCHMARK_ID,
+      status: 'planned',
+      artifact_count: 0,
+      total_recorded_runs: 0,
+      routes_count: 0,
+      winner_status: 'not_evaluated',
+      winner_claimed: false
+    });
+    const socialDataRedditPostSearchRouteHistoryAggregateResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history/social-data-reddit-post-search/routes' });
+    expect(socialDataRedditPostSearchRouteHistoryAggregateResponse.statusCode).toBe(200);
+    expect(socialDataRedditPostSearchRouteHistoryAggregateResponse.json().data).toMatchObject({
+      benchmark_id: SOCIAL_DATA_REDDIT_POST_SEARCH_BENCHMARK_ID,
+      route_count: 0,
+      artifact_count: 0,
+      winner_claimed: false,
+      routes: []
+    });
+    const socialDataRedditPostSearchRouteHistoryMissingRouteResponse = await app.inject({
+      method: 'GET',
+      url: '/v1/radar/benchmark-history/social-data-reddit-post-search/routes/unknown-route'
+    });
+    expect(socialDataRedditPostSearchRouteHistoryMissingRouteResponse.statusCode).toBe(404);
+    expect(socialDataRedditPostSearchRouteHistoryMissingRouteResponse.json()).toEqual({ error: 'route_not_found' });
+    const dataWebSearchResultsHistoryV2Response = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history/data-web-search-results' });
+    expect(dataWebSearchResultsHistoryV2Response.statusCode).toBe(200);
+    expect(dataWebSearchResultsHistoryV2Response.json().data).toMatchObject({
+      benchmark_id: DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID,
+      status: 'recorded',
+      artifact_count: 1,
+      total_recorded_runs: 10,
+      routes_count: 2,
+      winner_status: 'no_clear_winner',
+      winner_claimed: false
+    });
+    const dataWebSearchResultsRouteHistoryAggregateResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history/data-web-search-results/routes' });
+    expect(dataWebSearchResultsRouteHistoryAggregateResponse.statusCode).toBe(200);
+    expect(dataWebSearchResultsRouteHistoryAggregateResponse.json().data).toMatchObject({
+      benchmark_id: DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID,
+      route_count: 2,
+      artifact_count: 1,
+      winner_claimed: false
+    });
+    const dataWebRouteIds = dataWebSearchResultsRouteHistoryAggregateResponse.json().data.routes.map((route: { route_id: string }) => route.route_id).sort();
+    expect(dataWebRouteIds).toEqual([DATA_WEB_SEARCH_RESULTS_STABLEENRICH_ROUTE_ID, DATA_WEB_SEARCH_RESULTS_PERPLEXITY_ROUTE_ID].sort());
+    const dataWebStableDetailResponse = await app.inject({
+      method: 'GET',
+      url: `/v1/radar/benchmark-history/data-web-search-results/routes/${encodeURIComponent(DATA_WEB_SEARCH_RESULTS_STABLEENRICH_ROUTE_ID)}`
+    });
+    expect(dataWebStableDetailResponse.statusCode).toBe(200);
+    expect(dataWebStableDetailResponse.json().data.evidence_health).toBe('recorded');
+    expect(dataWebStableDetailResponse.json().data.timeline[0].caveat_objects.some((row: { code: string }) => row.code === 'pay_cli_status_hidden')).toBe(true);
+    const dataWebPerplexityDetailResponse = await app.inject({
+      method: 'GET',
+      url: `/v1/radar/benchmark-history/data-web-search-results/routes/${encodeURIComponent(DATA_WEB_SEARCH_RESULTS_PERPLEXITY_ROUTE_ID)}`
+    });
+    expect(dataWebPerplexityDetailResponse.statusCode).toBe(200);
+    expect(dataWebPerplexityDetailResponse.json().data.evidence_health).toBe('recorded');
 
     const tokenMetadataRouteHistoryResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history/finance-data-token-metadata/routes' });
     expect(tokenMetadataRouteHistoryResponse.statusCode).toBe(200);
@@ -407,5 +640,17 @@ describe('benchmark artifact registry', () => {
     const payspongeNew = tokenMetadataNew?.routes.find((route) => route.provider_id === 'paysponge-coingecko');
     expect(paysponge?.status_evidence).toContain('canonical_network_match_rate=0.0');
     expect(payspongeNew?.status_evidence).toBe('pay_cli exit code 0 and parsed response body');
+  });
+
+  it('registers the web-search benchmark artifact', () => {
+    const artifacts = listBenchmarkArtifacts();
+    const webSearch = artifacts.find((row) => row.artifact_id === DATA_WEB_SEARCH_RESULTS_CANONICAL_ID);
+    expect(webSearch).toBeTruthy();
+    expect(webSearch?.benchmark_id).toBe(DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID);
+    expect(webSearch?.artifact_path).toBe('live-proofs/data-web-search-results-benchmark-runs-2026-05-19.md');
+    expect(webSearch?.total_runs).toBe(10);
+    expect(webSearch?.winner_status).toBe('no_clear_winner');
+    expect(webSearch?.winner_claimed).toBe(false);
+    expect(webSearch?.routes.length).toBe(2);
   });
 });

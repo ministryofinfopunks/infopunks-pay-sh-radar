@@ -20,11 +20,11 @@ function benchmarkSummary() {
   return {
     generated_at: observedAt,
     source: 'infopunks-pay-sh-radar',
-    recorded_benchmarks: 3,
-    total_benchmarks: 3,
+    recorded_benchmarks: 4,
+    total_benchmarks: 7,
     winner_claimed: false,
-    total_recorded_runs: 20,
-    proven_routes: 6,
+    total_recorded_runs: 30,
+    proven_routes: 8,
     benchmarks: [
       {
         benchmark_id: 'finance-data-sol-price',
@@ -52,6 +52,15 @@ function benchmarkSummary() {
         winner_claimed: false,
         routes_count: 2,
         recorded_runs: 5
+      },
+      {
+        benchmark_id: 'data-web-search-results',
+        label: 'Web Search Results',
+        status: 'recorded',
+        winner_status: 'no_clear_winner',
+        winner_claimed: false,
+        routes_count: 2,
+        recorded_runs: 10
       }
     ],
     agent_guidance: [
@@ -72,14 +81,15 @@ function installFetchMock(options: { benchmarkSummaryFails?: boolean } = {}) {
     if (path === '/v1/radar/benchmark-history') return json({
       generated_at: observedAt,
       source: 'infopunks-pay-sh-radar',
-      history_count: 3,
-      total_artifacts: 4,
-      total_recorded_runs: 20,
+      history_count: 4,
+      total_artifacts: 5,
+      total_recorded_runs: 30,
       winner_claimed: false,
       benchmarks: [
         { benchmark_id: 'finance-data-sol-price', label: 'SOL price', status: 'recorded', artifact_count: 1, total_recorded_runs: 5, routes_count: 2, winner_status: 'no_clear_winner', winner_claimed: false },
         { benchmark_id: 'finance-data-token-search', label: 'Token search', status: 'recorded', artifact_count: 1, total_recorded_runs: 5, routes_count: 2, winner_status: 'no_clear_winner', winner_claimed: false },
-        { benchmark_id: 'finance-data-token-metadata', label: 'Token metadata', status: 'recorded', artifact_count: 2, total_recorded_runs: 10, routes_count: 2, winner_status: 'no_clear_winner', winner_claimed: false }
+        { benchmark_id: 'finance-data-token-metadata', label: 'Token metadata', status: 'recorded', artifact_count: 2, total_recorded_runs: 10, routes_count: 2, winner_status: 'no_clear_winner', winner_claimed: false },
+        { benchmark_id: 'data-web-search-results', label: 'Web search results', status: 'recorded', artifact_count: 1, total_recorded_runs: 10, routes_count: 2, winner_status: 'no_clear_winner', winner_claimed: false }
       ]
     });
     if (path === '/v1/radar/benchmarks') return json({
@@ -295,6 +305,66 @@ function installFetchMock(options: { benchmarkSummaryFails?: boolean } = {}) {
               comparison_notes: 'no winner claim'
             }
           ]
+        },
+        {
+          benchmark_id: 'data-web-search-results',
+          category: 'web-search',
+          benchmark_intent: 'search the web for the same query and return normalized search results',
+          benchmark_recorded: true,
+          winner_claimed: false,
+          winner_status: 'no_clear_winner',
+          next_step: 'define scoring thresholds before declaring a route winner',
+          readiness_note: 'Five-run normalized benchmark evidence exists. No route winner is claimed.',
+          routes: [
+            {
+              provider_id: 'stableenrich-exa-search',
+              route_id: 'stableenrich-exa-search:POST:/api/exa/search',
+              execution_status: 'proven',
+              latency_ms: 4962,
+              paid_execution_proven: true,
+              proof_reference: 'live-proofs/data-web-search-results-paid-routes-2026-05-19.md',
+              normalized_output_available: true,
+              extracted_price_usd: null,
+              success_rate: 1,
+              median_latency_ms: 4962,
+              p95_latency_ms: 5411,
+              average_price_usd: null,
+              min_price_usd: null,
+              max_price_usd: null,
+              price_variance_percent: null,
+              completed_runs: 5,
+              failed_runs: 0,
+              status_evidence: 'pay_cli exit code 0 and parsed response body',
+              output_shape: null,
+              normalization_confidence: 'high',
+              freshness_timestamp: observedAt,
+              comparison_notes: 'no winner claim'
+            },
+            {
+              provider_id: 'perplexity-search',
+              route_id: 'perplexity-search:POST:/api/search',
+              execution_status: 'proven',
+              latency_ms: 5229,
+              paid_execution_proven: true,
+              proof_reference: 'live-proofs/data-web-search-results-paid-routes-2026-05-19.md',
+              normalized_output_available: true,
+              extracted_price_usd: null,
+              success_rate: 1,
+              median_latency_ms: 5229,
+              p95_latency_ms: 5988,
+              average_price_usd: null,
+              min_price_usd: null,
+              max_price_usd: null,
+              price_variance_percent: null,
+              completed_runs: 5,
+              failed_runs: 0,
+              status_evidence: 'pay_cli exit code 0 and parsed response body',
+              output_shape: null,
+              normalization_confidence: 'high',
+              freshness_timestamp: observedAt,
+              comparison_notes: 'no winner claim'
+            }
+          ]
         }
       ]
     });
@@ -455,15 +525,15 @@ describe('public benchmark proof pages', () => {
     expect(text).toContain('Radar Evidence Ledger');
     expect(text).toContain('Radar records benchmark evidence for Pay.sh routes before agents spend.');
     expect(text).toContain('Agent Evidence Demo');
-    expect(text).toContain('3 recorded benchmarks');
-    expect(text).toContain('4 benchmark artifacts');
-    expect(text).toContain('15 recorded runs');
-    expect(text).toContain('6 proven paid routes');
+    expect(text).toContain('4 recorded benchmarks');
+    expect(text).toContain('5 benchmark artifacts');
+    expect(text).toContain('20 recorded runs');
+    expect(text).toContain('8 proven paid routes');
     expect(text).toContain('0 winners claimed');
     expect(text).toContain('route timelines live');
     expect(text).toContain('route timeline: available');
     expect(text).toContain('GET /v1/radar/benchmark-summary');
-    expect(text).toContain('"recorded_benchmarks": 3');
+    expect(text).toContain('"recorded_benchmarks": 4');
     expect(text).toContain('"routes_count": 2');
     expect(text).toContain('"recorded_runs": 5');
     expect(text).toContain('winner_claimed=false means agents should not infer a best route.');
@@ -482,9 +552,10 @@ describe('public benchmark proof pages', () => {
     expect(text).toContain('SOL Price');
     expect(text).toContain('Token Search');
     expect(text).toContain('Token Metadata');
+    expect(text).toContain('Web Search Results');
     expect(text).not.toContain('Planned lane. No proven routes or recorded artifacts yet.');
-    expect(text.match(/state: recorded/g)?.length ?? 0).toBeGreaterThanOrEqual(3);
-    expect(text.match(/winner claimed: false/g)?.length ?? 0).toBeGreaterThanOrEqual(3);
+    expect(text.match(/state: recorded/g)?.length ?? 0).toBeGreaterThanOrEqual(4);
+    expect(text.match(/winner claimed: false/g)?.length ?? 0).toBeGreaterThanOrEqual(4);
     expect(text).toContain('Radar does not infer route superiority.');
     expect(text).not.toMatch(/winning/i);
     const link = container.querySelector('a[href="/benchmarks/finance-data-sol-price"]');

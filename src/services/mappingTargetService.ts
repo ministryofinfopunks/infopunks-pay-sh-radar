@@ -20,6 +20,24 @@ export type MappingTarget = {
 
 const mappingTargets: MappingTarget[] = [
   {
+    category: 'solana-infra',
+    benchmark_intent: 'account balance',
+    current_state: 'needs_two_comparable_mappings',
+    needed_next_step: 'Benchmark Scaffold: re-run QuickNode paid verifier in a compatible runtime and secure a second comparable paid-proven route that returns native SOL balance/account lamports for the same canonical address, then record one five-run benchmark artifact.',
+    suggested_provider_candidates: ['QuickNode Solana Mainnet JSON-RPC'],
+    why_it_matters: 'Infrastructure-grade account-balance retrieval is a core Solana primitive and validates non-finance route reliability.',
+    readiness_blocker: 'QuickNode is the strongest candidate and unpaid probes confirmed HTTP 402 for getBalance/getAccountInfo, with normalizer/caveats/evidence-health derivation and paid verifier implemented in Harness, but the current paid execution failed so QuickNode remains unproven (evidence_health=unverified). No comparable second native SOL balance/lamports route is available in the current Pay catalog snapshot; stablecrypto.dev/api/alchemy/node/rpc was rejected as comparable because its published contract is Ethereum-oriented and Solana lamports semantics were not proven.'
+  },
+  {
+    category: 'communications',
+    benchmark_intent: 'email delivery',
+    current_state: 'candidate_mapping_found',
+    needed_next_step: 'Keep scaffold lane: preserve StableEmail as paid-executed verified/proven with caveated evidence, then prove a second comparable paid route and record a five-run benchmark artifact.',
+    suggested_provider_candidates: ['AgentMail', 'StableEmail'],
+    why_it_matters: 'Email delivery routes provide a high-value communications fallback for agent notifications and operational workflows.',
+    readiness_blocker: 'StableEmail is paid-proven with caveated evidence; AgentMail verifier is ready but blocked by AGENTMAIL_INBOX_ID/inbox ownership configuration, no alternate comparable outbound provider is currently found, and no five-run artifact is recorded.'
+  },
+  {
     category: 'finance/data',
     benchmark_intent: 'token metadata',
     current_state: 'candidate_mapping_found',
@@ -36,6 +54,15 @@ const mappingTargets: MappingTarget[] = [
     suggested_provider_candidates: ['CoinGecko Onchain DEX API', 'StableCrypto'],
     why_it_matters: 'Search intent is a common pre-route step for symbol resolution and benchmark input shaping.',
     readiness_blocker: 'None; two comparable proven routes exist, but benchmark has not been recorded yet.'
+  },
+  {
+    category: 'social-data',
+    benchmark_intent: 'reddit post search',
+    current_state: 'needs_two_comparable_mappings',
+    needed_next_step: 'Benchmark Scaffold: keep StableEnrich locked as paid-proven (verified/proven, evidence_health=caveated), establish recognizable Reddit post semantics for StableSocial through comparable paid execution on canonical input {"query":"x402","limit":5}, then record one five-run benchmark artifact.',
+    suggested_provider_candidates: ['StableEnrich Reddit Search', 'StableSocial Reddit Search'],
+    why_it_matters: 'Reddit post search expands social-data coverage for trend and community-signal workflows.',
+    readiness_blocker: 'Only one comparable paid-proven route exists today: StableEnrich is paid-proven and returns recognizable Reddit posts, while StableSocial remains candidate/unproven despite POST confirmation, unpaid 402 behavior (variants A-F), and one successful paid diagnostic retry (variant A) because recognizable Reddit post semantics were not established. No five-run artifact exists.'
   },
   {
     category: 'ai_ml/data',
@@ -63,6 +90,15 @@ const mappingTargets: MappingTarget[] = [
     suggested_provider_candidates: [],
     why_it_matters: 'Search answer benchmarks improve route quality for research and decision-support tasks.',
     readiness_blocker: 'No candidate mapping exists for this search benchmark intent.'
+  },
+  {
+    category: 'web-search',
+    benchmark_intent: 'web search results',
+    current_state: 'benchmark_ready',
+    needed_next_step: 'Recorded benchmark is available. Keep winner_claimed=false and define scoring thresholds before any winner policy is enabled.',
+    suggested_provider_candidates: ['StableEnrich Exa Search', 'Perplexity Search'],
+    why_it_matters: 'Normalized web-search result benchmarking improves route quality for broad discovery and retrieval workflows.',
+    readiness_blocker: 'None; two comparable paid-proven routes are recorded with a five-run benchmark artifact. No winner is claimed.'
   }
 ];
 
