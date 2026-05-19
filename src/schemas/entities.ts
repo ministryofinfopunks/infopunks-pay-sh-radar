@@ -917,6 +917,86 @@ export const RadarBenchmarkSummarySchema = z.object({
   agent_guidance: z.array(z.string())
 });
 
+export const RadarEvidenceLedgerRecordedLaneSchema = z.object({
+  benchmark_id: z.string(),
+  label: z.string(),
+  description: z.string().optional(),
+  status: z.literal('recorded'),
+  artifact_count: z.number().int().nonnegative(),
+  recorded_runs: z.number().int().nonnegative(),
+  routes_count: z.number().int().nonnegative(),
+  proven_routes_count: z.number().int().nonnegative().optional(),
+  winner_status: RadarBenchmarkWinnerStatusSchema,
+  winner_claimed: z.boolean(),
+  latest_artifact_id: z.string().nullable(),
+  latest_recorded_at: z.string().datetime().nullable(),
+  evidence_health_summary: z.object({
+    recorded: z.number().int().nonnegative(),
+    caveated: z.number().int().nonnegative(),
+    stale: z.number().int().nonnegative(),
+    degraded: z.number().int().nonnegative(),
+    unverified: z.number().int().nonnegative(),
+    scaffold: z.number().int().nonnegative()
+  }).optional(),
+  routes_endpoint: z.string()
+});
+
+export const RadarEvidenceLedgerScaffoldLaneSchema = z.object({
+  benchmark_id: z.string(),
+  label: z.string(),
+  status: z.literal('scaffold'),
+  promotion_status: z.enum(['blocked', 'pending']),
+  why_not_promoted: z.array(z.string()),
+  missing_requirements: z.array(z.string()),
+  known_evidence: z.array(z.string()).optional()
+});
+
+export const RadarEvidenceLedgerLatestArtifactSchema = z.object({
+  artifact_id: z.string(),
+  benchmark_id: z.string(),
+  label: z.string(),
+  recorded_at: z.string().datetime(),
+  recorded_runs: z.number().int().nonnegative(),
+  routes_count: z.number().int().nonnegative(),
+  winner_claimed: z.boolean(),
+  winner_status: RadarBenchmarkWinnerStatusSchema
+});
+
+export const RadarEvidenceLedgerRouteEntrypointSchema = z.object({
+  benchmark_id: z.string(),
+  routes_endpoint: z.string(),
+  route_detail_note: z.string()
+});
+
+export const RadarEvidenceLedgerSchema = z.object({
+  generated_at: z.string().datetime(),
+  source: z.literal('infopunks-pay-sh-radar'),
+  ledger_state: z.object({
+    recorded_benchmarks: z.number().int().nonnegative(),
+    total_benchmarks: z.number().int().nonnegative(),
+    total_artifacts: z.number().int().nonnegative(),
+    total_recorded_runs: z.number().int().nonnegative(),
+    proven_routes: z.number().int().nonnegative(),
+    winner_claimed: z.boolean(),
+    latest_recorded_at: z.string().datetime().nullable()
+  }),
+  doctrine: z.object({
+    spend_rail: z.literal('Pay.sh'),
+    evidence_ledger: z.literal('Radar'),
+    proof_adapter: z.literal('Agent Harness'),
+    summary: z.string()
+  }),
+  agent_guidance: z.array(z.string()),
+  recorded_lanes: z.array(RadarEvidenceLedgerRecordedLaneSchema),
+  scaffold_lanes: z.array(RadarEvidenceLedgerScaffoldLaneSchema),
+  latest_artifacts: z.array(RadarEvidenceLedgerLatestArtifactSchema),
+  route_timeline_entrypoints: z.array(RadarEvidenceLedgerRouteEntrypointSchema),
+  caveat_summary: z.object({
+    policy: z.string(),
+    common_codes: z.array(z.string())
+  })
+});
+
 export const RadarBenchmarkArtifactRouteSchema = z.object({
   provider_id: z.string(),
   route_id: z.string(),
@@ -1127,6 +1207,7 @@ export type RadarBenchmarkRouteHistoryDetail = z.infer<typeof RadarBenchmarkRout
 export type RadarEvidenceCaveat = z.infer<typeof RadarEvidenceCaveatSchema>;
 export type RadarBenchmarkList = z.infer<typeof RadarBenchmarkListSchema>;
 export type RadarBenchmarkSummary = z.infer<typeof RadarBenchmarkSummarySchema>;
+export type RadarEvidenceLedger = z.infer<typeof RadarEvidenceLedgerSchema>;
 export type RadarBenchmarkWinnerStatus = z.infer<typeof RadarBenchmarkWinnerStatusSchema>;
 export type RadarBenchmarkArtifact = z.infer<typeof RadarBenchmarkArtifactSchema>;
 export type RadarBenchmarkArtifactList = z.infer<typeof RadarBenchmarkArtifactListSchema>;

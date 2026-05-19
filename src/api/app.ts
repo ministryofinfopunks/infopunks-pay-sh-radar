@@ -17,6 +17,7 @@ import {
   RadarBatchPreflightResponseSchema,
   RadarBenchmarkReadinessSchema,
   RadarBenchmarkSummarySchema,
+  RadarEvidenceLedgerSchema,
   RadarBenchmarkListSchema,
   RadarBenchmarkDetailSchema,
   RadarBenchmarkHistorySchema,
@@ -54,6 +55,7 @@ import {
   buildRadarBenchmarkHistoryV2ById,
   buildRadarBenchmarks,
   buildRadarBenchmarkSummary,
+  buildRadarEvidenceLedger,
   getBenchmarkArtifactMetadataById,
   listBenchmarkArtifactMetadata
 } from '../services/radarBenchmarkService';
@@ -515,6 +517,9 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     logRadarRouteTiming('/v1/radar/benchmark-summary', Date.now() - startedAtMs, cached.metadata.hit, cached.metadata.stale ? 'stale_ok' : 'ok');
     return { data: safeJsonExport(cached.value) };
   });
+  app.get('/v1/radar/evidence-ledger', async () => ({
+    data: safeJsonExport(RadarEvidenceLedgerSchema.parse(buildRadarEvidenceLedger()))
+  }));
   app.get('/v1/radar/benchmarks', async () => {
     const startedAtMs = Date.now();
     const cached = await responseCache.getOrSet('radar:benchmarks', RADAR_BENCHMARKS_TTL_MS, () => RadarBenchmarkListSchema.parse(buildRadarBenchmarks()));

@@ -190,6 +190,88 @@ async function run(): Promise<void> {
   }
 
   try {
+    const ledger = await getJson('/v1/radar/evidence-ledger');
+    assertCondition('GET /v1/radar/evidence-ledger status', ledger.status === 200, `status=${ledger.status}`);
+    const ledgerObject = asObject(ledger.body);
+    const ledgerData = asObject(ledgerObject?.data);
+    const ledgerState = asObject(ledgerData?.ledger_state);
+    if (!ledgerData || !ledgerState) {
+      fail('evidence-ledger payload', 'missing object at data.ledger_state');
+    } else {
+      assertCondition(
+        'evidence-ledger recorded_benchmarks === 4',
+        asNumber(ledgerState.recorded_benchmarks) === 4,
+        `recorded_benchmarks=${String(ledgerState.recorded_benchmarks)}`
+      );
+      assertCondition(
+        'evidence-ledger total_artifacts === 5',
+        asNumber(ledgerState.total_artifacts) === 5,
+        `total_artifacts=${String(ledgerState.total_artifacts)}`
+      );
+      assertCondition(
+        'evidence-ledger total_recorded_runs === 30',
+        asNumber(ledgerState.total_recorded_runs) === 30,
+        `total_recorded_runs=${String(ledgerState.total_recorded_runs)}`
+      );
+      assertCondition(
+        'evidence-ledger proven_routes === 8',
+        asNumber(ledgerState.proven_routes) === 8,
+        `proven_routes=${String(ledgerState.proven_routes)}`
+      );
+      assertCondition(
+        'evidence-ledger winner_claimed === false',
+        asBoolean(ledgerState.winner_claimed) === false,
+        `winner_claimed=${String(ledgerState.winner_claimed)}`
+      );
+
+      const recordedLanes = asArray(ledgerData.recorded_lanes) ?? [];
+      const scaffoldLanes = asArray(ledgerData.scaffold_lanes) ?? [];
+      const latestArtifacts = asArray(ledgerData.latest_artifacts) ?? [];
+      assertCondition(
+        'evidence-ledger recorded_lanes count === 4',
+        recordedLanes.length === 4,
+        `recorded_lanes=${String(recordedLanes.length)}`
+      );
+      assertCondition(
+        'evidence-ledger scaffold_lanes count === 3',
+        scaffoldLanes.length === 3,
+        `scaffold_lanes=${String(scaffoldLanes.length)}`
+      );
+      assertCondition(
+        'evidence-ledger latest_artifacts include data-web-search-results-benchmark-runs-2026-05-19',
+        latestArtifacts.some((row) => asObject(row)?.artifact_id === 'data-web-search-results-benchmark-runs-2026-05-19'),
+        `artifact_ids=${latestArtifacts.map((row) => String(asObject(row)?.artifact_id)).join(',')}`
+      );
+      const latestByBenchmarkId = new Map(latestArtifacts
+        .map((row) => asObject(row))
+        .filter((row): row is Record<string, unknown> => !!row)
+        .map((row) => [String(row.benchmark_id ?? ''), row]));
+      const webSearchLatest = latestByBenchmarkId.get('data-web-search-results');
+      const tokenMetadataLatest = latestByBenchmarkId.get('finance-data-token-metadata');
+      assertCondition(
+        'evidence-ledger latest_artifacts data-web-search-results recorded_runs === 10',
+        asNumber(webSearchLatest?.recorded_runs) === 10,
+        `recorded_runs=${String(webSearchLatest?.recorded_runs)}`
+      );
+      assertCondition(
+        'evidence-ledger latest_artifacts finance-data-token-metadata recorded_runs === 5',
+        asNumber(tokenMetadataLatest?.recorded_runs) === 5,
+        `recorded_runs=${String(tokenMetadataLatest?.recorded_runs)}`
+      );
+
+      const ledgerText = JSON.stringify(ledgerData).toLowerCase();
+      const disallowedPhrases = ['best route', 'top route', 'winner route', 'loser route', 'ranking authority', 'guaranteed trust', 'superiority proof'];
+      assertCondition(
+        'evidence-ledger has no route winner claims',
+        disallowedPhrases.every((phrase) => !ledgerText.includes(phrase)),
+        'response text excludes disallowed winner/ranking language'
+      );
+    }
+  } catch (error) {
+    fail('GET /v1/radar/evidence-ledger request', (error as Error).message);
+  }
+
+  try {
     const solPrice = await getJson('/v1/radar/benchmark-history/finance-data-sol-price');
     assertCondition(
       'GET /v1/radar/benchmark-history/finance-data-sol-price status',
@@ -588,6 +670,11 @@ async function run(): Promise<void> {
     assertCondition(
       'openapi includes /v1/radar/benchmark-history/{benchmark_id}/routes/{route_id}',
       openapi.body.includes('/v1/radar/benchmark-history/{benchmark_id}/routes/{route_id}'),
+      'path present in document'
+    );
+    assertCondition(
+      'openapi includes /v1/radar/evidence-ledger',
+      openapi.body.includes('/v1/radar/evidence-ledger'),
       'path present in document'
     );
   } catch (error) {

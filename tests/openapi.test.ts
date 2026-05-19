@@ -38,6 +38,7 @@ describe('openapi discovery', () => {
     expect(spec.paths['/v1/radar/mapping-targets']?.get).toBeTruthy();
     expect(spec.paths['/v1/radar/benchmark-readiness']?.get).toBeTruthy();
     expect(spec.paths['/v1/radar/benchmark-summary']?.get).toBeTruthy();
+    expect(spec.paths['/v1/radar/evidence-ledger']?.get).toBeTruthy();
     expect(spec.paths['/v1/radar/superiority-readiness']?.get).toBeTruthy();
     expect(spec.paths['/v1/radar/benchmarks/finance-data-token-search']?.get).toBeTruthy();
     expect(spec.paths['/v1/radar/benchmarks/finance-data-token-metadata']?.get).toBeTruthy();
@@ -55,6 +56,7 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.BenchmarkRouteMetric.properties.status_evidence).toBeTruthy();
     expect(spec.components.schemas.BenchmarkRouteMetric.properties.execution_transport).toBeTruthy();
     expect(spec.components.schemas.BenchmarkSummaryResponse).toBeTruthy();
+    expect(spec.components.schemas.EvidenceLedgerResponse).toBeTruthy();
     expect(spec.components.schemas.BenchmarkHistoryV2AggregateResponse).toBeTruthy();
     expect(spec.components.schemas.BenchmarkHistoryV2DetailResponse).toBeTruthy();
     expect(spec.components.schemas.BenchmarkRouteHistoryAggregateResponse).toBeTruthy();

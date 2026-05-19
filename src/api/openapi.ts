@@ -291,6 +291,25 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       ]
     }
   ));
+  add('get', '/v1/radar/evidence-ledger', radarGet(
+    'Radar Readiness',
+    'Get agent-readable evidence ledger',
+    'Returns the compact evidence-ledger state agents can inspect before spending through Pay.sh. Includes recorded lanes, scaffold lanes, artifacts, route timeline entrypoints, caveat summaries, and no-winner guidance.',
+    { $ref: '#/components/schemas/EvidenceLedgerResponse' },
+    {
+      generated_at: '2026-05-19T10:00:00.000Z',
+      source: 'infopunks-pay-sh-radar',
+      ledger_state: {
+        recorded_benchmarks: 4,
+        total_benchmarks: 7,
+        total_artifacts: 5,
+        total_recorded_runs: 30,
+        proven_routes: 8,
+        winner_claimed: false,
+        latest_recorded_at: '2026-05-19T09:30:00.000Z'
+      }
+    }
+  ));
   add('get', '/v1/radar/benchmarks', radarGet('Radar Readiness', 'Get head-to-head benchmark registry', 'Returns recorded head-to-head benchmark scaffolds. A benchmark row can be metrics-pending and never implies a winner claim.', { $ref: '#/components/schemas/BenchmarkRegistryResponse' }, { benchmarks: [] }));
   add('get', '/v1/radar/benchmarks/finance-data-sol-price', radarGet('Radar Readiness', 'Get SOL price benchmark scaffold', 'Returns the finance/data get SOL price head-to-head benchmark scaffold with recorded normalized evidence. benchmark_recorded=true means normalized evidence has been recorded, not that a winner is claimed. winner_status=no_clear_winner means run criteria were met but no route winner is claimed. status_code may be null in pay_cli mode and status_evidence explains proof basis.', { $ref: '#/components/schemas/BenchmarkDetailResponse' }, { benchmark_id: 'finance-data-sol-price', winner_claimed: false, benchmark_recorded: true, winner_status: 'no_clear_winner' }));
   add('get', '/v1/radar/benchmarks/finance-data-token-search', radarGet('Radar Readiness', 'Get token-search benchmark scaffold', 'Returns the finance/data token-search benchmark with recorded normalized evidence. winner_status=no_clear_winner means no route winner is claimed.', { $ref: '#/components/schemas/BenchmarkDetailResponse' }, { benchmark_id: 'finance-data-token-search', winner_claimed: false, benchmark_recorded: true, winner_status: 'no_clear_winner' }));
@@ -923,6 +942,81 @@ function componentSchemas(): Record<string, JsonSchema> {
       proven_routes: integerSchema(),
       benchmarks: arrayOf({ $ref: '#/components/schemas/BenchmarkSummaryRow' }),
       agent_guidance: arrayOf(stringSchema())
+    }),
+    EvidenceLedgerRecordedLane: objectSchema({
+      benchmark_id: stringSchema(),
+      label: stringSchema(),
+      description: stringSchema(),
+      status: { const: 'recorded' },
+      artifact_count: integerSchema(),
+      recorded_runs: integerSchema(),
+      routes_count: integerSchema(),
+      proven_routes_count: integerSchema(),
+      winner_status: benchmarkWinnerStatus,
+      winner_claimed: booleanSchema(),
+      latest_artifact_id: { oneOf: [stringSchema(), { type: 'null' }] },
+      latest_recorded_at: { oneOf: [dateTimeSchema(), { type: 'null' }] },
+      evidence_health_summary: objectSchema({
+        recorded: integerSchema(),
+        caveated: integerSchema(),
+        stale: integerSchema(),
+        degraded: integerSchema(),
+        unverified: integerSchema(),
+        scaffold: integerSchema()
+      }),
+      routes_endpoint: stringSchema()
+    }),
+    EvidenceLedgerScaffoldLane: objectSchema({
+      benchmark_id: stringSchema(),
+      label: stringSchema(),
+      status: { const: 'scaffold' },
+      promotion_status: enumSchema(['blocked', 'pending']),
+      why_not_promoted: arrayOf(stringSchema()),
+      missing_requirements: arrayOf(stringSchema()),
+      known_evidence: arrayOf(stringSchema())
+    }),
+    EvidenceLedgerLatestArtifact: objectSchema({
+      artifact_id: stringSchema(),
+      benchmark_id: stringSchema(),
+      label: stringSchema(),
+      recorded_at: dateTimeSchema(),
+      recorded_runs: integerSchema(),
+      routes_count: integerSchema(),
+      winner_claimed: booleanSchema(),
+      winner_status: benchmarkWinnerStatus
+    }),
+    EvidenceLedgerRouteEntrypoint: objectSchema({
+      benchmark_id: stringSchema(),
+      routes_endpoint: stringSchema(),
+      route_detail_note: stringSchema()
+    }),
+    EvidenceLedgerResponse: objectSchema({
+      generated_at: dateTimeSchema(),
+      source: { const: 'infopunks-pay-sh-radar' },
+      ledger_state: objectSchema({
+        recorded_benchmarks: integerSchema(),
+        total_benchmarks: integerSchema(),
+        total_artifacts: integerSchema(),
+        total_recorded_runs: integerSchema(),
+        proven_routes: integerSchema(),
+        winner_claimed: booleanSchema(),
+        latest_recorded_at: { oneOf: [dateTimeSchema(), { type: 'null' }] }
+      }),
+      doctrine: objectSchema({
+        spend_rail: { const: 'Pay.sh' },
+        evidence_ledger: { const: 'Radar' },
+        proof_adapter: { const: 'Agent Harness' },
+        summary: stringSchema()
+      }),
+      agent_guidance: arrayOf(stringSchema()),
+      recorded_lanes: arrayOf({ $ref: '#/components/schemas/EvidenceLedgerRecordedLane' }),
+      scaffold_lanes: arrayOf({ $ref: '#/components/schemas/EvidenceLedgerScaffoldLane' }),
+      latest_artifacts: arrayOf({ $ref: '#/components/schemas/EvidenceLedgerLatestArtifact' }),
+      route_timeline_entrypoints: arrayOf({ $ref: '#/components/schemas/EvidenceLedgerRouteEntrypoint' }),
+      caveat_summary: objectSchema({
+        policy: stringSchema(),
+        common_codes: arrayOf(stringSchema())
+      })
     }),
     BenchmarkArtifactRoute: objectSchema({
       provider_id: stringSchema(),

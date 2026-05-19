@@ -11,7 +11,8 @@ import {
   RadarBenchmarkRouteHistoryDetail,
   RadarBenchmarkList,
   RadarBenchmarkRouteMetric,
-  RadarBenchmarkSummary
+  RadarBenchmarkSummary,
+  RadarEvidenceLedger
 } from '../schemas/entities';
 import { listRouteMappings } from './providerEndpointMap';
 import { BenchmarkArtifactRecord, BenchmarkArtifactRoute, getBenchmarkArtifactById, getLatestBenchmarkArtifact, listBenchmarkArtifacts } from '../data/benchmarkArtifacts';
@@ -148,6 +149,169 @@ export function buildRadarBenchmarkSummary(): RadarBenchmarkSummary {
       'winner_status=no_clear_winner means evidence exists but scoring thresholds do not crown a route.',
       'Use full benchmark endpoints for route-level metrics.'
     ]
+  };
+}
+
+export function buildRadarEvidenceLedger(): RadarEvidenceLedger {
+  const summary = buildRadarBenchmarkSummary();
+  const history = buildRadarBenchmarkHistoryV2Aggregate();
+  const caveatTotals = {
+    recorded: 0,
+    caveated: 0,
+    stale: 0,
+    degraded: 0,
+    unverified: 0,
+    scaffold: 0
+  };
+
+  const recordedLanes = summary.benchmarks.map((row) => {
+    const detail = buildRadarBenchmarkHistoryV2ById(row.benchmark_id);
+    const routeAggregate = buildRadarBenchmarkRouteHistoryByBenchmarkId(row.benchmark_id);
+    const latestArtifact = getLatestBenchmarkArtifact(row.benchmark_id);
+    const evidenceHealth = {
+      recorded: 0,
+      caveated: 0,
+      stale: 0,
+      degraded: 0,
+      unverified: 0,
+      scaffold: 0
+    };
+    for (const route of routeAggregate?.routes ?? []) {
+      evidenceHealth[route.evidence_health] += 1;
+      caveatTotals[route.evidence_health] += 1;
+    }
+    return {
+      benchmark_id: row.benchmark_id,
+      label: row.label,
+      ...(row.description ? { description: row.description } : {}),
+      status: 'recorded' as const,
+      artifact_count: detail?.artifact_count ?? 0,
+      recorded_runs: detail?.total_recorded_runs ?? row.recorded_runs,
+      routes_count: detail?.routes_count ?? row.routes_count,
+      proven_routes_count: latestArtifact?.routes.filter((route) => route.execution_status === 'proven' || route.paid_execution_proven === true).length ?? 0,
+      winner_status: row.winner_status,
+      winner_claimed: row.winner_claimed,
+      latest_artifact_id: detail?.artifacts[detail.artifacts.length - 1]?.artifact_id ?? null,
+      latest_recorded_at: detail?.latest_recorded_at ?? null,
+      evidence_health_summary: evidenceHealth,
+      routes_endpoint: `/v1/radar/benchmark-history/${row.benchmark_id}/routes`
+    };
+  });
+
+  const scaffoldLanes = [
+    {
+      benchmark_id: 'communications-email-delivery',
+      label: 'Communications Email Delivery',
+      status: 'scaffold' as const,
+      promotion_status: 'blocked' as const,
+      why_not_promoted: [
+        'StableEmail paid-executed and caveated.',
+        'AgentMail blocked / no second comparable route.',
+        'No benchmark artifact exists.'
+      ],
+      missing_requirements: ['second comparable paid-proven route', '5-run benchmark artifact'],
+      known_evidence: [
+        'StableEmail verified/proven with caveats preserved.',
+        'AgentMail path blocked during comparable proof phase.'
+      ]
+    },
+    {
+      benchmark_id: 'solana-infra-account-balance',
+      label: 'Solana Infra Account Balance',
+      status: 'scaffold' as const,
+      promotion_status: 'blocked' as const,
+      why_not_promoted: [
+        'QuickNode unpaid 402 confirmed.',
+        'QuickNode paid run failed.',
+        'No second comparable route.',
+        'No benchmark artifact exists.'
+      ],
+      missing_requirements: ['second comparable paid-proven route', '5-run benchmark artifact'],
+      known_evidence: [
+        'QuickNode unpaid behavior confirmed with 402.',
+        'Paid proof did not complete benchmark-grade execution.'
+      ]
+    },
+    {
+      benchmark_id: 'social-data-reddit-post-search',
+      label: 'Social Data Reddit Post Search',
+      status: 'scaffold' as const,
+      promotion_status: 'blocked' as const,
+      why_not_promoted: [
+        'StableEnrich paid-proven but caveated.',
+        'StableSocial paid-compatible but semantic proof failed.',
+        'No second paid-proven comparable route.',
+        'No benchmark artifact exists.'
+      ],
+      missing_requirements: ['second comparable paid-proven route', '5-run benchmark artifact'],
+      known_evidence: [
+        'StableEnrich paid path preserved with caveats.',
+        'StableSocial semantic proof did not satisfy comparable benchmark bar.'
+      ]
+    }
+  ];
+
+  const latestArtifacts = [...history.benchmarks]
+    .sort((a, b) => Date.parse(b.latest_recorded_at ?? '') - Date.parse(a.latest_recorded_at ?? ''))
+    .map((row) => {
+      const latestArtifact = row.latest_artifact_id ? getBenchmarkArtifactById(row.latest_artifact_id) : getLatestBenchmarkArtifact(row.benchmark_id);
+      return {
+        artifact_id: latestArtifact?.artifact_id ?? row.latest_artifact_id ?? '',
+        benchmark_id: row.benchmark_id,
+        label: row.label,
+        recorded_at: latestArtifact?.generated_at ?? row.latest_recorded_at ?? new Date(0).toISOString(),
+        recorded_runs: latestArtifact?.total_runs ?? 0,
+        routes_count: latestArtifact?.routes.length ?? row.routes_count,
+        winner_claimed: latestArtifact?.winner_claimed ?? row.winner_claimed,
+        winner_status: latestArtifact?.winner_status ?? row.winner_status
+      };
+    })
+    .filter((row) => row.artifact_id && row.recorded_at !== new Date(0).toISOString());
+
+  return {
+    generated_at: new Date().toISOString(),
+    source: 'infopunks-pay-sh-radar',
+    ledger_state: {
+      recorded_benchmarks: summary.recorded_benchmarks,
+      total_benchmarks: summary.total_benchmarks,
+      total_artifacts: summary.total_artifacts,
+      total_recorded_runs: summary.total_recorded_runs,
+      proven_routes: summary.proven_routes,
+      winner_claimed: summary.winner_claimed,
+      latest_recorded_at: summary.latest_recorded_at
+    },
+    doctrine: {
+      spend_rail: 'Pay.sh',
+      evidence_ledger: 'Radar',
+      proof_adapter: 'Agent Harness',
+      summary: 'Radar records evidence before agents spend. It preserves caveats, route timelines, artifacts, and no-winner benchmark state.'
+    },
+    agent_guidance: [
+      'winner_claimed=false means no route winner should be inferred.',
+      'Recorded benchmarks mean paid route evidence exists.',
+      'Scaffold lanes were explored but did not meet the hard bar for benchmark recording.',
+      'Use route timelines and caveat_objects before selecting a route.',
+      'Radar does not execute paid APIs. The Agent Harness generates paid proof artifacts.'
+    ],
+    recorded_lanes: recordedLanes,
+    scaffold_lanes: scaffoldLanes,
+    latest_artifacts: latestArtifacts,
+    route_timeline_entrypoints: summary.benchmarks.map((row) => ({
+      benchmark_id: row.benchmark_id,
+      routes_endpoint: `/v1/radar/benchmark-history/${row.benchmark_id}/routes`,
+      route_detail_note: 'URL-encode route_id when calling route detail endpoints.'
+    })),
+    caveat_summary: {
+      policy: 'Caveats are preserved and should be inspected before route selection.',
+      common_codes: [
+        'pay_cli_status_hidden',
+        'canonical_network_mismatch',
+        'metadata_semantics_partial',
+        'no_posts_returned',
+        'reddit_search_semantics_partial',
+        'native_balance_missing'
+      ]
+    }
   };
 }
 

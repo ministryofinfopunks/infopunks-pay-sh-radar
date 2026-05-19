@@ -229,6 +229,8 @@ Command palette actions include:
   Returns route superiority benchmark readiness indicators from verified/proven registry mappings. Readiness means comparison can begin, not that a superiority winner is claimed.
 - `GET /v1/radar/benchmark-readiness`
   Returns benchmark readiness by category/task with benchmark-ready vs superiority-ready split.
+- `GET /v1/radar/evidence-ledger`
+  Returns the compact agent-facing ledger endpoint for pre-spend inspection.
 - `GET /v1/radar/benchmarks`
   Returns head-to-head benchmark registry records (including metrics-pending scaffolds).
 - `GET /v1/radar/benchmarks/finance-data-sol-price`
