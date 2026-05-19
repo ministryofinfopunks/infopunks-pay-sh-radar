@@ -792,6 +792,11 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('30 recorded route-runs');
     expect(container.textContent).toContain('8 proven paid routes');
     expect(container.textContent).toContain('0 winner claims');
+    const proofMetricText = container.querySelector('[aria-label="Proof metrics"]')?.textContent ?? '';
+    expect(proofMetricText.indexOf('4 recorded benchmarks')).toBeLessThan(proofMetricText.indexOf('8 proven paid routes'));
+    expect(proofMetricText.indexOf('8 proven paid routes')).toBeLessThan(proofMetricText.indexOf('30 recorded route-runs'));
+    expect(proofMetricText.indexOf('30 recorded route-runs')).toBeLessThan(proofMetricText.indexOf('5 artifacts'));
+    expect(proofMetricText.indexOf('5 artifacts')).toBeLessThan(proofMetricText.indexOf('0 winner claims'));
     expect(container.textContent).toContain('Recorded means paid evidence exists');
     expect(container.textContent).toContain('Pulse shows live ecosystem intelligence. Benchmarks show artifact-backed route evidence.');
     expect(container.textContent).toContain('Ask Radar where an agent should route before spending.');
@@ -818,7 +823,7 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('trust_trend');
     expect(container.textContent).toContain('last_seen_healthy');
     expect(container.textContent).toContain('/v1/radar/preflight');
-    expect(container.textContent).toContain('Comparison Readiness');
+    expect(container.textContent).toContain('Comparison Policy');
   });
 
   it('renders radar freshness timestamps with precise live-state labels', async () => {
@@ -967,19 +972,22 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Recorded evidence exists for four benchmark lanes. No route winner is claimed until scoring criteria are finalized.');
     expect(container.textContent).toContain('Benchmark Readiness');
     expect(container.textContent).toContain('Evidence Ledger Snapshot');
+    expect((container.textContent ?? '').indexOf('Evidence Ledger Snapshot')).toBeLessThan((container.textContent ?? '').indexOf('Propagation Watch'));
     expect(container.textContent).toContain('4 recorded benchmarks');
     expect(container.textContent).toContain('SOL Price + Token Search + Token Metadata + Web Search Results');
-    expect(container.textContent).toContain('No route winners claimed');
+    expect(container.textContent).toContain('No winner claims');
     expect(container.textContent).toContain('SOL Price');
     expect(container.textContent).toContain('Token Search');
     expect(container.textContent).toContain('Token Metadata');
     expect(container.textContent).toContain('Web Search Results');
-    expect(container.textContent).toContain('agent-readable evidence');
-    expect(container.textContent).toContain('Five-run benchmark recorded.');
-    expect(container.textContent).toContain('5 / 5 required benchmark runs recorded.');
-    expect(container.textContent).toContain('5 recorded route-runs');
+    expect(container.textContent).toContain('Recorded means paid route evidence exists. Scaffold means the lane was explored but did not meet the hard bar.');
+    expect(container.textContent).toContain('Latest Recorded Benchmark');
+    expect(container.textContent).toContain('Exa + Perplexity');
+    expect(container.textContent).toContain('10 recorded route-runs');
+    expect(container.textContent).toContain('evidence_health: recorded');
+    expect(container.textContent).toContain('winner_claimed=false');
+    expect(container.textContent).toContain('5 runs / route');
     expect(container.textContent).toContain('2 proven paid routes');
-    expect(container.textContent).toContain('Five-run benchmark recorded. Both routes succeeded. no winner claimed.');
     expect(container.textContent).toContain('Explored, Not Promoted');
     expect(container.textContent).toContain('Communications Email Delivery');
     expect(container.textContent).toContain('StableEmail paid-executed and caveated');
@@ -994,16 +1002,8 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).not.toMatch(/Communications Email Delivery[\s\S]*5-run benchmark/);
     expect(container.textContent).not.toMatch(/Solana Account Balance[\s\S]*2 proven routes/);
     expect(container.textContent).not.toMatch(/Reddit Post Search[\s\S]*5-run benchmark/);
-    expect(container.textContent).toContain('live-proofs/stablecrypto-harness-pay-cli-2026-05-12.md');
-    expect(container.textContent).toContain('HTTP status was not exposed by pay_cli; success is supported by CLI exit code 0 and parsed response body.');
-    expect(container.textContent).toContain('live-proofs/paysponge-coingecko-paid-execution-2026-05-15.md');
     expect(container.textContent).toContain('Catalog-estimated');
     expect(container.textContent).toContain('Four benchmark lanes now have recorded artifact-backed evidence. Three explored lanes remain scaffolded because they did not meet the hard bar.');
-    expect(container.textContent).toContain('minimum 5 successful runs per route');
-    expect(container.textContent).toContain('compare median latency');
-    expect(container.textContent).toContain('require success rate >= 80%');
-    expect(container.textContent).toContain('require high/medium normalization confidence');
-    expect(container.textContent).toContain('allow no-clear-winner outcome');
     expect(container.textContent).toContain('GET /v1/radar/benchmarks/finance-data-token-search');
     expect(container.textContent).toContain('benchmark_recorded=true');
     expect(container.textContent).toContain('winner_status=no_clear_winner');
@@ -1013,7 +1013,9 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).not.toContain('StableCrypto is winning');
     expect(container.textContent).not.toContain('PaySponge is winning');
     expect(container.textContent).not.toContain('Superiority Proof Readiness');
-    expect(container.textContent).not.toMatch(/best route|top route|superior route/i);
+    expect(container.textContent).toContain('Comparison Policy');
+    expect(container.textContent).toContain('Radar can compare recorded metrics. Radar does not crown winners until scoring criteria are finalized. No benchmark currently claims a winner.');
+    expect(container.textContent).not.toMatch(/best route|top route|superior route|loser route/i);
     expect(container.textContent).not.toContain('HTTP 200');
     expect(container.textContent).toContain('StableCrypto: verified/proven');
     expect(container.textContent).toContain('CoinGecko Onchain DEX API: verified/proven');
@@ -1031,9 +1033,9 @@ describe('radar endpoint intelligence UI', () => {
     installFetch({ endpoints: [normalizedEndpoint], detailEndpoints: [endpoint] });
     root = await renderApp(container);
 
-    expect(container.textContent).toContain('Route Mapping Registry');
+    expect(container.textContent).toContain('Route Evidence Registry');
     expect(container.textContent).toContain('Catalog-only is not execution proof.');
-    expect(container.textContent).toContain('Proven does not mean best.');
+    expect(container.textContent).toContain('It is not a recommendation.');
     expect(container.textContent).toContain('StableCrypto');
     expect(container.textContent).toContain('paysponge-coingecko');
     expect(container.textContent).toContain('verified');
@@ -1067,16 +1069,16 @@ describe('radar endpoint intelligence UI', () => {
 
     expect(container.textContent).toContain('Mapping Targets');
     expect(container.textContent).toContain('Recorded lanes are completed evidence-ledger entries. Scaffold lanes are planning prompts, not recorded benchmark targets.');
-    expect(container.textContent).toContain('Completed / Recorded');
+    expect(container.textContent).toContain('Recorded');
     expect(container.textContent).toContain('Token Search');
     expect(container.textContent).toContain('Token Metadata');
     expect(container.textContent).toContain('Web Search Results');
     expect(container.textContent).toContain('evidence ledger recorded');
-    expect(container.textContent).toContain('Scaffold / Blocked');
+    expect(container.textContent).toContain('Blocked');
     expect(container.textContent).toContain('Communications Email Delivery');
     expect(container.textContent).toContain('Solana Account Balance');
     expect(container.textContent).toContain('Reddit Post Search');
-    expect(container.textContent).toContain('Needs Candidate');
+    expect(container.textContent).toContain('Needs candidate');
     expect(container.textContent).toContain('OCR comparison');
     expect(container.textContent).toContain('SMS/send message');
     expect(container.textContent).toContain('Knowledge/search answer');

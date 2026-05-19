@@ -178,7 +178,7 @@ describe('agent mode and command palette', () => {
 
     clickButton(container, 'Agent Mode');
 
-    for (const text of ['Export Intelligence', 'Agent Preflight', 'Provider/Endpoint Comparison Engine', 'Cost / Performance Intelligence', 'Benchmark Readiness', 'Superiority Proof Readiness', 'Anomaly Watch']) {
+    for (const text of ['Export Intelligence', 'Agent Preflight', 'Provider/Endpoint Comparison Engine', 'Cost / Performance Intelligence', 'Benchmark Readiness', 'Comparison Policy', 'Anomaly Watch']) {
       expect(container.textContent).toContain(text);
     }
 

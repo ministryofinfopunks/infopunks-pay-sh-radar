@@ -8,8 +8,10 @@ describe('static public discovery metadata', () => {
   it('exposes crawler and social metadata in the HTML shell', async () => {
     const html = await readProjectFile('index.html');
 
-    expect(html).toContain('<title>Infopunks Pay.sh Radar | Intelligence Terminal for Solana Agent Payments</title>');
+    expect(html).toContain('<title>Infopunks Pay.sh Radar | Evidence Ledger for Pay.sh Agent Routes</title>');
     expect(html).toContain('name="description"');
+    expect(html).toContain('Infopunks Pay.sh Radar is an evidence ledger for Pay.sh agent routes');
+    expect(html).toContain('recorded benchmarks, artifacts, route timelines, structured caveats, evidence_health');
     expect(html).toContain('rel="canonical" href="https://radar.infopunks.fun/"');
     expect(html).toContain('name="robots" content="index,follow"');
     expect(html).toContain('property="og:title"');

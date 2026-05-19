@@ -571,7 +571,9 @@ describe('public benchmark proof pages', () => {
     expect(text).toContain('5 artifacts');
     expect(text).toContain('30 recorded route-runs');
     expect(text).toContain('8 proven paid routes');
-    expect(text).toContain('0 winners claimed');
+    expect(text).toContain('0 winner claims');
+    expect(text.indexOf('Recorded Benchmark Lanes')).toBeLessThan(text.indexOf('Agent Evidence Demo'));
+    expect(text.indexOf('Explored, Not Promoted')).toBeLessThan(text.indexOf('Agent Evidence Demo'));
     expect(text).toContain('Recorded means paid route evidence exists. It does not mean a winner was crowned.');
     expect(text).toContain('Scaffold means the lane was explored but did not meet the hard bar.');
     expect(text).toContain('Radar does not rewrite uncertainty. It records it, fixes it, and shows the delta.');
@@ -582,7 +584,7 @@ describe('public benchmark proof pages', () => {
     expect(text).toContain('"total_artifacts": 5');
     expect(text).toContain('"routes_count": 2');
     expect(text).toContain('"recorded_runs": 5');
-    expect(text).toContain('winner_claimed=false and winner_status=no_clear_winner mean Radar shows evidence without route superiority claims.');
+    expect(text).toContain('winner_claimed=false and winner_status=no_clear_winner mean Radar shows evidence without route winner claims.');
     expect(text).toContain('routes_countshows comparable proven routes per benchmark.');
     expect(text).toContain('recorded_runsshows recorded route-run evidence.');
     expect(text).toContain('Agent Route Timeline API');
@@ -599,7 +601,7 @@ describe('public benchmark proof pages', () => {
     expect(text).toContain('Token Metadata');
     expect(text).toContain('Web Search Results');
     expect(text).toContain('data-web-search-results');
-    expect(text).toContain('Scaffold Lanes');
+    expect(text).toContain('Explored, Not Promoted');
     expect(text).toContain('Communications Email Delivery');
     expect(text).toContain('Solana Account Balance');
     expect(text).toContain('Reddit Post Search');
@@ -612,9 +614,11 @@ describe('public benchmark proof pages', () => {
     expect(text).toContain('no second paid-proven comparable route');
     expect(text).toContain('winner_status: no_clear_winner');
     expect(text).toContain('winner_claimed=false');
+    expect(text).toContain('10 recorded route-runs');
+    expect(text).toContain('5 runs / route');
     expect(text.match(/state: recorded/g)?.length ?? 0).toBeGreaterThanOrEqual(4);
-    expect(text.match(/winner claimed: false/g)?.length ?? 0).toBeGreaterThanOrEqual(4);
-    expect(text).toContain('Radar does not infer route superiority.');
+    expect(text.match(/winner_claimed=false/g)?.length ?? 0).toBeGreaterThanOrEqual(4);
+    expect(text).toContain('Radar does not infer a route winner.');
     expect(text).not.toMatch(/winning/i);
     expect(text).not.toMatch(/best route|top route/i);
     const link = container.querySelector('a[href="/benchmarks/finance-data-sol-price"]');
