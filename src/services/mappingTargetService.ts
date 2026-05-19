@@ -65,13 +65,13 @@ const mappingTargets: MappingTarget[] = [
     readiness_blocker: 'Only one comparable paid-proven route exists today: StableEnrich is paid-proven and returns recognizable Reddit posts, while StableSocial remains candidate/unproven despite POST confirmation, unpaid 402 behavior (variants A-F), and one successful paid diagnostic retry (variant A) because recognizable Reddit post semantics were not established. No five-run artifact exists.'
   },
   {
-    category: 'ai_ml/data',
-    benchmark_intent: 'OCR comparison',
+    category: 'document-ai',
+    benchmark_intent: 'document OCR text extraction',
     current_state: 'needs_two_comparable_mappings',
-    needed_next_step: 'Record two comparable verified mappings for OCR extraction with matching benchmark intent.',
-    suggested_provider_candidates: [],
-    why_it_matters: 'OCR benchmarking requires comparable extraction tasks to score quality and latency fairly.',
-    readiness_blocker: 'Fewer than two comparable mappings are available for this category/intent.'
+    needed_next_step: 'Benchmark Scaffold: publish a stable public OCR fixture, then paid-prove Reducto and Google Vision image OCR against the same fixture and record one five-run artifact.',
+    suggested_provider_candidates: ['PaySponge Reducto /parse', 'Google Vision /v1/images:annotate'],
+    why_it_matters: 'Document OCR benchmarks validate extraction fidelity and latency for fixture-based document intelligence workflows.',
+    readiness_blocker: 'Fixture hosting is still blocked and neither OCR route is paid-proven on the same fixture yet; unpaid probes confirmed 402 payment-challenge behavior for both. /v1/files:annotate is not the primary comparable path due to stricter GCS-only input constraints.'
   },
   {
     category: 'messaging',

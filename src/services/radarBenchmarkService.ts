@@ -35,6 +35,9 @@ const SOLANA_INFRA_ACCOUNT_BALANCE_INTENT = 'fetch native SOL balance for the sa
 const SOCIAL_DATA_REDDIT_POST_SEARCH_BENCHMARK_ID = 'social-data-reddit-post-search';
 const SOCIAL_DATA_REDDIT_POST_SEARCH_CATEGORY = 'social-data';
 const SOCIAL_DATA_REDDIT_POST_SEARCH_INTENT = 'search Reddit posts for the same keyword query';
+const DOCUMENT_OCR_TEXT_EXTRACTION_BENCHMARK_ID = 'document-ocr-text-extraction';
+const DOCUMENT_OCR_TEXT_EXTRACTION_CATEGORY = 'document-ai';
+const DOCUMENT_OCR_TEXT_EXTRACTION_INTENT = 'extract text from the same simple document/image fixture';
 const DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID = 'data-web-search-results';
 const DATA_WEB_SEARCH_RESULTS_CATEGORY = 'web-search';
 const DATA_WEB_SEARCH_RESULTS_INTENT = 'search the web for the same query and return normalized search results';
@@ -95,6 +98,7 @@ export function buildRadarBenchmarks(): RadarBenchmarkList {
       buildCommunicationsEmailDeliveryBenchmark(),
       buildSolanaInfraAccountBalanceBenchmark(),
       buildSocialDataRedditPostSearchBenchmark(),
+      buildDocumentOcrTextExtractionBenchmark(),
       buildDataWebSearchResultsBenchmark()
     ]
   };
@@ -248,6 +252,29 @@ export function buildRadarEvidenceLedger(): RadarEvidenceLedger {
         'StableEnrich paid path preserved with caveats.',
         'StableSocial semantic proof did not satisfy comparable benchmark bar.'
       ]
+    },
+    {
+      benchmark_id: 'document-ocr-text-extraction',
+      label: 'Document OCR Text Extraction',
+      status: 'scaffold' as const,
+      promotion_status: 'blocked' as const,
+      why_not_promoted: [
+        'Fixture-hosting blocker remains open for a stable public OCR fixture.',
+        'Reducto and Google Vision image OCR routes are unpaid-probed only (402), not paid-proven on the same fixture.',
+        'No benchmark artifact exists.'
+      ],
+      missing_requirements: [
+        'stable public OCR fixture',
+        'two comparable paid-proven OCR routes on the same fixture',
+        'normalizer/caveats/evidence_health',
+        '5-run benchmark artifact'
+      ],
+      known_evidence: [
+        'PaySponge Reducto /parse unpaid probe returned 402 payment challenge.',
+        'Google Vision /v1/images:annotate unpaid probe returned 402 payment challenge.',
+        'Google Vision /v1/files:annotate requires GCS and is not primary comparable route.',
+        'Expected fixture text: INFOPUNKS RADAR; EVIDENCE BEFORE SPEND; OCR BENCHMARK 001.'
+      ]
     }
   ];
 
@@ -335,6 +362,7 @@ export function buildRadarBenchmarkById(id: string): RadarBenchmarkDetail | null
   if (id === COMMUNICATIONS_EMAIL_DELIVERY_BENCHMARK_ID) return buildCommunicationsEmailDeliveryBenchmark();
   if (id === SOLANA_INFRA_ACCOUNT_BALANCE_BENCHMARK_ID) return buildSolanaInfraAccountBalanceBenchmark();
   if (id === SOCIAL_DATA_REDDIT_POST_SEARCH_BENCHMARK_ID) return buildSocialDataRedditPostSearchBenchmark();
+  if (id === DOCUMENT_OCR_TEXT_EXTRACTION_BENCHMARK_ID) return buildDocumentOcrTextExtractionBenchmark();
   if (id === DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID) return buildDataWebSearchResultsBenchmark();
   return null;
 }
@@ -977,6 +1005,20 @@ function buildSocialDataRedditPostSearchBenchmark(): RadarBenchmarkDetail {
     winner_status: 'not_evaluated',
     next_step: 'keep StableEnrich as paid-proven (verified/proven, evidence_health=caveated), establish recognizable Reddit post semantics for StableSocial via paid execution, then record one five-run artifact after two comparable paid-proven routes exist',
     readiness_note: 'Benchmark Scaffold. Canonical input: {"query":"x402","limit":5}. StableEnrich Reddit Search paid execution succeeded and is route_state=verified/proven with evidence_health=caveated; recognizable Reddit posts were returned for query "x402". StableSocial Reddit Search method is confirmed POST; unpaid variants A-F returned HTTP 402 payment-required, and paid diagnostic retry variant A executed successfully, but route_state remains candidate/unproven because recognizable Reddit post semantics were not established. The lane currently has only one paid-proven route and no five-run benchmark artifact. Promotion remains blocked until two comparable paid-proven routes exist for the canonical query and one five-run artifact is recorded.',
+    routes: []
+  };
+}
+
+function buildDocumentOcrTextExtractionBenchmark(): RadarBenchmarkDetail {
+  return {
+    benchmark_id: DOCUMENT_OCR_TEXT_EXTRACTION_BENCHMARK_ID,
+    category: DOCUMENT_OCR_TEXT_EXTRACTION_CATEGORY,
+    benchmark_intent: DOCUMENT_OCR_TEXT_EXTRACTION_INTENT,
+    benchmark_recorded: false,
+    winner_claimed: false,
+    winner_status: 'not_evaluated',
+    next_step: 'host a stable public OCR fixture, then paid-prove Reducto and Google Vision image OCR against the same fixture before recording one five-run benchmark artifact',
+    readiness_note: 'Benchmark Scaffold. Canonical expected text: "INFOPUNKS RADAR", "EVIDENCE BEFORE SPEND", "OCR BENCHMARK 001". Candidate routes: PaySponge Reducto OCR/document parsing and Google Cloud Vision image text detection. Unpaid probes confirmed 402 payment-challenge behavior on both candidate routes. Google Vision file OCR (/v1/files:annotate) is stricter and not the primary comparable path because non-GCS URLs returned INVALID_ARGUMENT. Promotion remains blocked until a stable public OCR fixture exists, both routes are paid-proven against the same fixture, normalizer/caveats/evidence_health are present, and one five-run benchmark artifact is recorded.',
     routes: []
   };
 }

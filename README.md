@@ -260,6 +260,11 @@ Command palette actions include:
   `first_recorded_at`, `latest_recorded_at`, `artifact_count`, `latest_artifact_id`, `total_recorded_runs`, `routes_count`, `winner_status`, `winner_claimed`, `route_summaries`.
 - `GET /v1/radar/benchmark-history`
   Returns aggregate artifact-backed history rollups across all known benchmarks.
+- OCR fixtures:
+  [https://radar.infopunks.fun/fixtures/ocr-benchmark-001.svg](https://radar.infopunks.fun/fixtures/ocr-benchmark-001.svg)
+  [https://radar.infopunks.fun/fixtures/ocr-benchmark-001.png](https://radar.infopunks.fun/fixtures/ocr-benchmark-001.png)
+  Purpose: Canonical fixture for `document-ocr-text-extraction` benchmark.
+  Preferred for paid OCR route verification: PNG fixture.
 - `GET /v1/radar/benchmark-artifacts`
   Returns curated/imported benchmark artifact metadata records used by Radar benchmark summaries.
 - `GET /v1/radar/benchmark-artifacts/:artifact_id`

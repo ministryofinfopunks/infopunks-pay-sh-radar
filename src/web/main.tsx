@@ -1068,6 +1068,7 @@ function publicBenchmarkTitle(benchmark: Pick<RadarBenchmarkDetail, 'benchmark_i
   if (benchmark.benchmark_id === 'communications-email-delivery') return 'Communications Email Delivery';
   if (benchmark.benchmark_id === 'solana-infra-account-balance') return 'Solana Account Balance';
   if (benchmark.benchmark_id === 'social-data-reddit-post-search') return 'Reddit Post Search';
+  if (benchmark.benchmark_id === 'document-ocr-text-extraction') return 'Document OCR Text Extraction';
   if (benchmark.benchmark_id === 'data-web-search-results') return 'Web Search Results';
   return benchmark.benchmark_intent;
 }
@@ -1184,6 +1185,11 @@ function scaffoldPromotionReasons(benchmarkId: string) {
     'StableEnrich paid-proven but caveated',
     'StableSocial paid-compatible but semantic proof failed',
     'no second paid-proven comparable route',
+    'no benchmark artifact'
+  ];
+  if (benchmarkId === 'document-ocr-text-extraction') return [
+    'fixture hosting blocker still open',
+    'Reducto and Google Vision probes are unpaid-only (402)',
     'no benchmark artifact'
   ];
   return ['no benchmark artifact'];

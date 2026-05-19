@@ -30,7 +30,7 @@ describe('radar mapping targets route', () => {
     expect(socialData.readiness_blocker).toContain('Only one comparable paid-proven route exists today');
     expect(socialData.readiness_blocker).toContain('variants A-F');
     expect(socialData.readiness_blocker).toContain('candidate/unproven');
-    expect(body.targets.some((row: any) => row.category === 'ai_ml/data' && row.current_state === 'needs_two_comparable_mappings')).toBe(true);
+    expect(body.targets.some((row: any) => row.category === 'document-ai' && row.benchmark_intent === 'document OCR text extraction' && row.current_state === 'needs_two_comparable_mappings')).toBe(true);
     expect(JSON.stringify(body.targets)).not.toContain('candidate A');
     expect(JSON.stringify(body.targets)).not.toContain('candidate B');
     expect(body.targets.some((row: any) => row.category === 'finance/data' && Array.isArray(row.suggested_provider_candidates) && row.suggested_provider_candidates.includes('StableCrypto'))).toBe(true);

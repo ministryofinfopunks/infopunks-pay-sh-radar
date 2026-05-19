@@ -24,7 +24,7 @@ describe('radar evidence ledger', () => {
     const data = response.json().data;
     expect(data.ledger_state).toEqual({
       recorded_benchmarks: 4,
-      total_benchmarks: 7,
+      total_benchmarks: 8,
       total_artifacts: 5,
       total_recorded_runs: 30,
       proven_routes: 8,
@@ -50,7 +50,8 @@ describe('radar evidence ledger', () => {
     expect(scaffoldLaneIds).toEqual([
       'communications-email-delivery',
       'solana-infra-account-balance',
-      'social-data-reddit-post-search'
+      'social-data-reddit-post-search',
+      'document-ocr-text-extraction'
     ]);
     expect(data.scaffold_lanes.every((row: { why_not_promoted: unknown[]; missing_requirements: unknown[] }) => row.why_not_promoted.length > 0 && row.missing_requirements.length > 0)).toBe(true);
 

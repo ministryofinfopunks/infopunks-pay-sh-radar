@@ -27,7 +27,7 @@ describe('verify-production release invariants', () => {
     expect(script).toContain('evidence-ledger proven_routes === 8');
     expect(script).toContain('evidence-ledger winner_claimed === false');
     expect(script).toContain('evidence-ledger recorded_lanes count === 4');
-    expect(script).toContain('evidence-ledger scaffold_lanes count === 3');
+    expect(script).toContain('evidence-ledger scaffold_lanes count === 4');
     expect(script).toContain('evidence-ledger latest_artifacts data-web-search-results recorded_runs === 10');
     expect(script).toContain('evidence-ledger latest_artifacts finance-data-token-metadata recorded_runs === 5');
     expect(script).toContain('openapi includes /v1/radar/evidence-ledger');
