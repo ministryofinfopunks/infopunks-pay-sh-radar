@@ -67,11 +67,11 @@ const mappingTargets: MappingTarget[] = [
   {
     category: 'document-ai',
     benchmark_intent: 'document OCR text extraction',
-    current_state: 'needs_two_comparable_mappings',
-    needed_next_step: 'Benchmark Scaffold: publish a stable public OCR fixture, then paid-prove Reducto and Google Vision image OCR against the same fixture and record one five-run artifact.',
+    current_state: 'benchmark_ready',
+    needed_next_step: 'Recorded benchmark is available. Keep winner_claimed=false and winner_status=no_clear_winner until scoring thresholds are explicitly defined.',
     suggested_provider_candidates: ['PaySponge Reducto /parse', 'Google Vision /v1/images:annotate'],
     why_it_matters: 'Document OCR benchmarks validate extraction fidelity and latency for fixture-based document intelligence workflows.',
-    readiness_blocker: 'Fixture hosting is still blocked and neither OCR route is paid-proven on the same fixture yet; unpaid probes confirmed 402 payment-challenge behavior for both. /v1/files:annotate is not the primary comparable path due to stricter GCS-only input constraints.'
+    readiness_blocker: 'None; two comparable paid-proven OCR routes are recorded with a five-run benchmark artifact. No winner is claimed.'
   },
   {
     category: 'messaging',

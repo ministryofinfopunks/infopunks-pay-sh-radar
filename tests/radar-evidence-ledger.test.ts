@@ -23,13 +23,13 @@ describe('radar evidence ledger', () => {
 
     const data = response.json().data;
     expect(data.ledger_state).toEqual({
-      recorded_benchmarks: 4,
+      recorded_benchmarks: 5,
       total_benchmarks: 8,
-      total_artifacts: 5,
-      total_recorded_runs: 30,
-      proven_routes: 8,
+      total_artifacts: 6,
+      total_recorded_runs: 40,
+      proven_routes: 10,
       winner_claimed: false,
-      latest_recorded_at: '2026-05-19T09:30:00.000Z'
+      latest_recorded_at: '2026-05-19T11:00:00.000Z'
     });
     expect(data.doctrine).toMatchObject({
       spend_rail: 'Pay.sh',
@@ -42,20 +42,17 @@ describe('radar evidence ledger', () => {
       'finance-data-sol-price',
       'finance-data-token-search',
       'finance-data-token-metadata',
+      'document-ocr-text-extraction',
       'data-web-search-results'
     ]);
     expect(data.recorded_lanes.find((row: { benchmark_id: string }) => row.benchmark_id === 'data-web-search-results')?.label).toBe('Web Search Results');
 
     const scaffoldLaneIds = data.scaffold_lanes.map((row: { benchmark_id: string }) => row.benchmark_id);
-    expect(scaffoldLaneIds).toEqual([
-      'communications-email-delivery',
-      'solana-infra-account-balance',
-      'social-data-reddit-post-search',
-      'document-ocr-text-extraction'
-    ]);
+    expect(scaffoldLaneIds).toEqual(['communications-email-delivery', 'solana-infra-account-balance', 'social-data-reddit-post-search']);
     expect(data.scaffold_lanes.every((row: { why_not_promoted: unknown[]; missing_requirements: unknown[] }) => row.why_not_promoted.length > 0 && row.missing_requirements.length > 0)).toBe(true);
 
     expect(data.latest_artifacts.some((row: { artifact_id: string }) => row.artifact_id === 'data-web-search-results-benchmark-runs-2026-05-19')).toBe(true);
+    expect(data.latest_artifacts.some((row: { artifact_id: string }) => row.artifact_id === 'document-ocr-text-extraction-benchmark-runs-2026-05-19')).toBe(true);
     const latestByBenchmarkId = new Map<string, { benchmark_id: string; artifact_id: string; recorded_runs: number }>(
       data.latest_artifacts.map((row: {
         benchmark_id: string;
@@ -67,6 +64,7 @@ describe('radar evidence ledger', () => {
     expect(latestByBenchmarkId.get('finance-data-token-metadata')?.recorded_runs).toBe(5);
     expect(latestByBenchmarkId.get('data-web-search-results')?.artifact_id).toBe('data-web-search-results-benchmark-runs-2026-05-19');
     expect(latestByBenchmarkId.get('data-web-search-results')?.recorded_runs).toBe(10);
+    expect(latestByBenchmarkId.get('document-ocr-text-extraction')?.recorded_runs).toBe(10);
 
     const recordedLaneRuns = new Map(
       data.recorded_lanes.map((row: { benchmark_id: string; recorded_runs: number }) => [row.benchmark_id, row.recorded_runs])
@@ -99,7 +97,7 @@ describe('radar evidence ledger', () => {
     const app = await createApp(undefined, new DegradedRepository());
     const response = await app.inject({ method: 'GET', url: '/v1/radar/evidence-ledger' });
     expect(response.statusCode).toBe(200);
-    expect(response.json().data.ledger_state.recorded_benchmarks).toBe(4);
+    expect(response.json().data.ledger_state.recorded_benchmarks).toBe(5);
     expect(response.json().data.ledger_state.winner_claimed).toBe(false);
     await app.close();
     delete process.env.DATABASE_URL;

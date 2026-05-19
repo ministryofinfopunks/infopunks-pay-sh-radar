@@ -456,12 +456,116 @@ const DATA_WEB_SEARCH_RESULTS_FIVE_RUN_ARTIFACT_2026_05_19: BenchmarkArtifactRec
   notes: 'Curated/imported benchmark evidence record. Raw proof content is not served by Radar APIs.'
 };
 
+const DOCUMENT_OCR_TEXT_EXTRACTION_BENCHMARK_ARTIFACT_2026_05_19: BenchmarkArtifactRecord = {
+  artifact_id: 'document-ocr-text-extraction-benchmark-runs-2026-05-19',
+  benchmark_id: 'document-ocr-text-extraction',
+  generated_at: '2026-05-19T11:00:00.000Z',
+  source_repo: 'https://github.com/ministryofinfopunks/infopunks-pay-sh-agent-harness',
+  artifact_path: 'live-proofs/document-ocr-text-extraction-benchmark-runs-2026-05-19.md',
+  total_runs: 10,
+  winner_claimed: false,
+  winner_status: 'no_clear_winner',
+  routes: [
+    {
+      provider_id: 'paysponge-reducto',
+      route_id: 'paysponge-reducto:POST:/parse',
+      execution_status: 'proven',
+      success: true,
+      latency_ms: 4610,
+      paid_execution_proven: true,
+      proof_reference: 'live-proofs/document-ocr-text-extraction-paid-routes-2026-05-19.md',
+      normalized_output_available: true,
+      extracted_price_usd: null,
+      extraction_path: null,
+      success_rate: 1,
+      median_latency_ms: 4610,
+      p95_latency_ms: 5480,
+      average_price_usd: null,
+      min_price_usd: null,
+      max_price_usd: null,
+      price_variance_percent: null,
+      completed_runs: 5,
+      failed_runs: 0,
+      execution_transport: 'pay_cli',
+      cli_exit_code: 0,
+      status_code: null,
+      status_evidence: 'pay_cli hidden status; exit code 0 and parsed response body',
+      normalization_confidence: 'high',
+      freshness_timestamp: '2026-05-19T11:00:00.000Z',
+      comparison_notes: 'OCR benchmark recorded. No route winner is claimed.'
+    },
+    {
+      provider_id: 'google-vision',
+      route_id: 'google-vision:POST:/v1/images:annotate',
+      execution_status: 'proven',
+      success: true,
+      latency_ms: 4330,
+      paid_execution_proven: true,
+      proof_reference: 'live-proofs/document-ocr-text-extraction-paid-routes-2026-05-19.md',
+      normalized_output_available: true,
+      extracted_price_usd: null,
+      extraction_path: null,
+      success_rate: 1,
+      median_latency_ms: 4330,
+      p95_latency_ms: 5120,
+      average_price_usd: null,
+      min_price_usd: null,
+      max_price_usd: null,
+      price_variance_percent: null,
+      completed_runs: 5,
+      failed_runs: 0,
+      execution_transport: 'pay_cli',
+      cli_exit_code: 0,
+      status_code: null,
+      status_evidence: 'pay_cli hidden status; exit code 0 and parsed response body',
+      normalization_confidence: 'high',
+      freshness_timestamp: '2026-05-19T11:00:00.000Z',
+      comparison_notes: 'OCR benchmark recorded. No route winner is claimed.'
+    }
+  ],
+  aggregate_metrics: {
+    benchmark_recorded: true,
+    required_runs: 5,
+    completed_runs: 5,
+    routes_count: 2,
+    canonical_input: {
+      document_url: 'https://radar.infopunks.fun/fixtures/ocr-benchmark-001.png',
+      expected_text_fragments: ['INFOPUNKS RADAR', 'EVIDENCE BEFORE SPEND', 'OCR BENCHMARK 001']
+    },
+    status_evidence_mode: 'pay_cli_hidden_status',
+    expected_fragment_match_rate_avg: {
+      paysponge_reducto: 1,
+      google_vision: 1
+    },
+    ocr_success_rate: {
+      paysponge_reducto: 1,
+      google_vision: 1
+    },
+    attempted_runs: {
+      paysponge_reducto: 5,
+      google_vision: 5
+    },
+    successful_runs: {
+      paysponge_reducto: 5,
+      google_vision: 5
+    },
+    evidence_health: {
+      paysponge_reducto: 'caveated',
+      google_vision: 'caveated'
+    },
+    winner_claimed: false,
+    winner_status: 'no_clear_winner'
+  },
+  notes: 'Curated/imported benchmark evidence record. Raw proof content is not served by Radar APIs.'
+};
+
 const REGISTRY: BenchmarkArtifactRecord[] = [
   SOL_FIVE_RUN_ARTIFACT,
   TOKEN_SEARCH_FIVE_RUN_ARTIFACT,
   TOKEN_METADATA_FIVE_RUN_ARTIFACT,
   TOKEN_METADATA_FIVE_RUN_ARTIFACT_2026_05_19,
-  DATA_WEB_SEARCH_RESULTS_FIVE_RUN_ARTIFACT_2026_05_19
+  DATA_WEB_SEARCH_RESULTS_FIVE_RUN_ARTIFACT_2026_05_19,
+  DOCUMENT_OCR_TEXT_EXTRACTION_BENCHMARK_ARTIFACT_2026_05_19
 ];
 const LEGACY_ARTIFACT_ID_ALIASES: Record<string, string> = {
   'finance-data-sol-price-runs-2026-05-16': 'finance-data-sol-price-benchmark-runs-2026-05-16'

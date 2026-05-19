@@ -16,6 +16,9 @@ describe('benchmark artifact registry', () => {
   const DOCUMENT_OCR_TEXT_EXTRACTION_BENCHMARK_ID = 'document-ocr-text-extraction';
   const DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID = 'data-web-search-results';
   const DATA_WEB_SEARCH_RESULTS_CANONICAL_ID = 'data-web-search-results-benchmark-runs-2026-05-19';
+  const DOCUMENT_OCR_CANONICAL_ID = 'document-ocr-text-extraction-benchmark-runs-2026-05-19';
+  const DOCUMENT_OCR_REDUCTO_ROUTE_ID = 'paysponge-reducto:POST:/parse';
+  const DOCUMENT_OCR_GOOGLE_VISION_ROUTE_ID = 'google-vision:POST:/v1/images:annotate';
   const DATA_WEB_SEARCH_RESULTS_STABLEENRICH_ROUTE_ID = 'stableenrich-exa-search:POST:/api/exa/search';
   const DATA_WEB_SEARCH_RESULTS_PERPLEXITY_ROUTE_ID = 'perplexity-search:POST:/api/search';
   const PAYSPONGE_ROUTE_ID = 'paysponge-coingecko:GET:https://pro-api.coingecko.com/api/v3/x402/onchain/search/pools?query=SOL';
@@ -138,15 +141,12 @@ describe('benchmark artifact registry', () => {
     expect(documentOcrTextExtraction).toMatchObject({
       benchmark_id: DOCUMENT_OCR_TEXT_EXTRACTION_BENCHMARK_ID,
       category: 'document-ai',
-      benchmark_recorded: false,
+      benchmark_recorded: true,
       winner_claimed: false,
-      winner_status: 'not_evaluated'
+      winner_status: 'no_clear_winner'
     });
-    expect(documentOcrTextExtraction?.readiness_note).toContain('Benchmark Scaffold');
-    expect(documentOcrTextExtraction?.readiness_note).toContain('INFOPUNKS RADAR');
-    expect(documentOcrTextExtraction?.readiness_note).toContain('EVIDENCE BEFORE SPEND');
-    expect(documentOcrTextExtraction?.readiness_note).toContain('OCR BENCHMARK 001');
-    expect(documentOcrTextExtraction?.routes).toEqual([]);
+    expect(documentOcrTextExtraction?.readiness_note).toBe('Five-run normalized benchmark evidence exists. No route winner is claimed.');
+    expect(documentOcrTextExtraction?.routes.length).toBe(2);
     expect(dataWebSearchResults).toMatchObject({
       benchmark_id: DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID,
       category: 'web-search',
@@ -164,13 +164,13 @@ describe('benchmark artifact registry', () => {
     const summary = buildRadarBenchmarkSummary();
     const after = Date.now();
     const generatedAtMs = Date.parse(summary.generated_at);
-    expect(summary.recorded_benchmarks).toBe(4);
+    expect(summary.recorded_benchmarks).toBe(5);
     expect(summary.total_benchmarks).toBe(8);
     expect(summary.winner_claimed).toBe(false);
-    expect(summary.total_recorded_runs).toBe(30);
-    expect(summary.proven_routes).toBe(8);
-    expect(summary.total_artifacts).toBe(5);
-    expect(summary.latest_recorded_at).toBe('2026-05-19T09:30:00.000Z');
+    expect(summary.total_recorded_runs).toBe(40);
+    expect(summary.proven_routes).toBe(10);
+    expect(summary.total_artifacts).toBe(6);
+    expect(summary.latest_recorded_at).toBe('2026-05-19T11:00:00.000Z');
     expect(Number.isFinite(generatedAtMs)).toBe(true);
     expect(generatedAtMs).toBeGreaterThanOrEqual(before - 2_000);
     expect(generatedAtMs).toBeLessThanOrEqual(after + 2_000);
@@ -183,7 +183,7 @@ describe('benchmark artifact registry', () => {
     const sol = summary.benchmarks.find((row) => row.benchmark_id === 'finance-data-sol-price');
     const tokenSearch = summary.benchmarks.find((row) => row.benchmark_id === 'finance-data-token-search');
     const tokenMetadata = summary.benchmarks.find((row) => row.benchmark_id === 'finance-data-token-metadata');
-    expect(summary.benchmarks.map((row) => row.benchmark_id)).toEqual(['finance-data-sol-price', 'finance-data-token-search', 'finance-data-token-metadata', 'data-web-search-results']);
+    expect(summary.benchmarks.map((row) => row.benchmark_id)).toEqual(['finance-data-sol-price', 'finance-data-token-search', 'finance-data-token-metadata', 'document-ocr-text-extraction', 'data-web-search-results']);
     expect(sol).toMatchObject({
       label: 'SOL price',
       status: 'recorded',
@@ -257,20 +257,21 @@ describe('benchmark artifact registry', () => {
     const summaryResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-summary' });
     expect(summaryResponse.statusCode).toBe(200);
     const summary = summaryResponse.json().data;
-    expect(summary.recorded_benchmarks).toBe(4);
+    expect(summary.recorded_benchmarks).toBe(5);
     expect(summary.total_benchmarks).toBe(8);
     expect(summary.winner_claimed).toBe(false);
-    expect(summary.total_recorded_runs).toBe(30);
-    expect(summary.proven_routes).toBe(8);
-    expect(summary.total_artifacts).toBe(5);
-    expect(summary.latest_recorded_at).toBe('2026-05-19T09:30:00.000Z');
-    expect(summary.benchmarks.map((row: { benchmark_id: string }) => row.benchmark_id)).toEqual(['finance-data-sol-price', 'finance-data-token-search', 'finance-data-token-metadata', 'data-web-search-results']);
+    expect(summary.total_recorded_runs).toBe(40);
+    expect(summary.proven_routes).toBe(10);
+    expect(summary.total_artifacts).toBe(6);
+    expect(summary.latest_recorded_at).toBe('2026-05-19T11:00:00.000Z');
+    expect(summary.benchmarks.map((row: { benchmark_id: string }) => row.benchmark_id)).toEqual(['finance-data-sol-price', 'finance-data-token-search', 'finance-data-token-metadata', 'document-ocr-text-extraction', 'data-web-search-results']);
     expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-sol-price').routes_count).toBe(2);
     expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-token-search').routes_count).toBe(2);
     expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-sol-price').recorded_runs).toBe(5);
     expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-token-search').recorded_runs).toBe(5);
     expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-token-metadata').recorded_runs).toBe(5);
     expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'data-web-search-results').recorded_runs).toBe(10);
+    expect(summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'document-ocr-text-extraction').recorded_runs).toBe(10);
     const webSearchSummary = summary.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'data-web-search-results');
     expect(webSearchSummary?.label).toBe('Web Search Results');
     expect(webSearchSummary?.description).toBe('Search the web for the same query and return normalized search results.');
@@ -345,12 +346,12 @@ describe('benchmark artifact registry', () => {
     expect(documentOcrTextExtractionResponse.json().data).toMatchObject({
       benchmark_id: DOCUMENT_OCR_TEXT_EXTRACTION_BENCHMARK_ID,
       category: 'document-ai',
-      benchmark_recorded: false,
-      winner_status: 'not_evaluated',
+      benchmark_recorded: true,
+      winner_status: 'no_clear_winner',
       winner_claimed: false
     });
-    expect(documentOcrTextExtractionResponse.json().data.readiness_note).toContain('Benchmark Scaffold');
-    expect((documentOcrTextExtractionResponse.json().data.routes as unknown[]).length).toBe(0);
+    expect(documentOcrTextExtractionResponse.json().data.readiness_note).toBe('Five-run normalized benchmark evidence exists. No route winner is claimed.');
+    expect((documentOcrTextExtractionResponse.json().data.routes as unknown[]).length).toBe(2);
     const dataWebSearchResultsResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks/data-web-search-results' });
     expect(dataWebSearchResultsResponse.statusCode).toBe(200);
     expect(dataWebSearchResultsResponse.json().data).toMatchObject({
@@ -390,15 +391,16 @@ describe('benchmark artifact registry', () => {
     const aggregateHistoryResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history' });
     expect(aggregateHistoryResponse.statusCode).toBe(200);
     const aggregateHistory = aggregateHistoryResponse.json().data;
-    expect(aggregateHistory.history_count).toBe(4);
-    expect(aggregateHistory.total_artifacts).toBe(5);
-    expect(aggregateHistory.total_recorded_runs).toBe(30);
+    expect(aggregateHistory.history_count).toBe(5);
+    expect(aggregateHistory.total_artifacts).toBe(6);
+    expect(aggregateHistory.total_recorded_runs).toBe(40);
     expect(aggregateHistory.winner_claimed).toBe(false);
-    expect(aggregateHistory.benchmarks.length).toBe(4);
+    expect(aggregateHistory.benchmarks.length).toBe(5);
     expect(aggregateHistory.benchmarks.map((row: { benchmark_id: string }) => row.benchmark_id)).toEqual([
       'finance-data-sol-price',
       'finance-data-token-search',
       'finance-data-token-metadata',
+      'document-ocr-text-extraction',
       'data-web-search-results'
     ]);
     expect(aggregateHistory.benchmarks.every((row: { winner_claimed: boolean }) => row.winner_claimed === false)).toBe(true);
@@ -406,6 +408,7 @@ describe('benchmark artifact registry', () => {
     expect(aggregateHistory.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-token-search')?.artifact_count).toBe(1);
     expect(aggregateHistory.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-token-metadata')?.artifact_count).toBe(2);
     expect(aggregateHistory.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'data-web-search-results')?.artifact_count).toBe(1);
+    expect(aggregateHistory.benchmarks.find((row: { benchmark_id: string }) => row.benchmark_id === 'document-ocr-text-extraction')?.artifact_count).toBe(1);
     expect(aggregateHistory.benchmarks.every((row: { latest_artifact_id: string | null }) => typeof row.latest_artifact_id === 'string' && row.latest_artifact_id.length > 0)).toBe(true);
 
     const solHistoryV2Response = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history/finance-data-sol-price' });
@@ -521,22 +524,26 @@ describe('benchmark artifact registry', () => {
     expect(documentOcrTextExtractionHistoryV2Response.statusCode).toBe(200);
     expect(documentOcrTextExtractionHistoryV2Response.json().data).toMatchObject({
       benchmark_id: DOCUMENT_OCR_TEXT_EXTRACTION_BENCHMARK_ID,
-      status: 'planned',
-      artifact_count: 0,
-      total_recorded_runs: 0,
-      routes_count: 0,
-      winner_status: 'not_evaluated',
+      status: 'recorded',
+      artifact_count: 1,
+      total_recorded_runs: 10,
+      routes_count: 2,
+      winner_status: 'no_clear_winner',
       winner_claimed: false
     });
     const documentOcrTextExtractionRouteHistoryAggregateResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history/document-ocr-text-extraction/routes' });
     expect(documentOcrTextExtractionRouteHistoryAggregateResponse.statusCode).toBe(200);
     expect(documentOcrTextExtractionRouteHistoryAggregateResponse.json().data).toMatchObject({
       benchmark_id: DOCUMENT_OCR_TEXT_EXTRACTION_BENCHMARK_ID,
-      route_count: 0,
-      artifact_count: 0,
-      winner_claimed: false,
-      routes: []
+      route_count: 2,
+      artifact_count: 1,
+      winner_claimed: false
     });
+    const documentOcrRoutes = documentOcrTextExtractionRouteHistoryAggregateResponse.json().data.routes as Array<{ route_id: string; evidence_health: string; latest_artifact_id: string; caveat_objects: Array<{ code: string }> }>;
+    expect(documentOcrRoutes.map((route) => route.route_id).sort()).toEqual([DOCUMENT_OCR_REDUCTO_ROUTE_ID, DOCUMENT_OCR_GOOGLE_VISION_ROUTE_ID].sort());
+    expect(documentOcrRoutes.every((route) => route.evidence_health === 'caveated')).toBe(true);
+    expect(documentOcrRoutes.every((route) => route.latest_artifact_id === DOCUMENT_OCR_CANONICAL_ID)).toBe(true);
+    expect(documentOcrRoutes.every((route) => route.caveat_objects.some((caveat) => caveat.code === 'status_code_unavailable'))).toBe(true);
     const dataWebSearchResultsHistoryV2Response = await app.inject({ method: 'GET', url: '/v1/radar/benchmark-history/data-web-search-results' });
     expect(dataWebSearchResultsHistoryV2Response.statusCode).toBe(200);
     expect(dataWebSearchResultsHistoryV2Response.json().data).toMatchObject({

@@ -253,29 +253,6 @@ export function buildRadarEvidenceLedger(): RadarEvidenceLedger {
         'StableSocial semantic proof did not satisfy comparable benchmark bar.'
       ]
     },
-    {
-      benchmark_id: 'document-ocr-text-extraction',
-      label: 'Document OCR Text Extraction',
-      status: 'scaffold' as const,
-      promotion_status: 'blocked' as const,
-      why_not_promoted: [
-        'Fixture-hosting blocker remains open for a stable public OCR fixture.',
-        'Reducto and Google Vision image OCR routes are unpaid-probed only (402), not paid-proven on the same fixture.',
-        'No benchmark artifact exists.'
-      ],
-      missing_requirements: [
-        'stable public OCR fixture',
-        'two comparable paid-proven OCR routes on the same fixture',
-        'normalizer/caveats/evidence_health',
-        '5-run benchmark artifact'
-      ],
-      known_evidence: [
-        'PaySponge Reducto /parse unpaid probe returned 402 payment challenge.',
-        'Google Vision /v1/images:annotate unpaid probe returned 402 payment challenge.',
-        'Google Vision /v1/files:annotate requires GCS and is not primary comparable route.',
-        'Expected fixture text: INFOPUNKS RADAR; EVIDENCE BEFORE SPEND; OCR BENCHMARK 001.'
-      ]
-    }
   ];
 
   const latestArtifacts = [...history.benchmarks]
@@ -664,6 +641,8 @@ function routeHistoryMetrics(artifact: BenchmarkArtifactRecord, route: Benchmark
   const metricNames = [
     'normalized_metadata_detection_rate',
     'token_search_detection_rate',
+    'ocr_success_rate',
+    'expected_fragment_match_rate_avg',
     'canonical_address_match_rate',
     'canonical_network_match_rate',
     'canonical_decimals_match_rate'
@@ -691,6 +670,9 @@ function routeCaveats(artifact: BenchmarkArtifactRecord, route: BenchmarkArtifac
   const caveats: string[] = [];
   const canonicalNetworkMatchRate = resolveRouteMetric(artifact.aggregate_metrics.canonical_network_match_rate, route.provider_id);
   if (canonicalNetworkMatchRate === 0) caveats.push('canonical_network_match_rate=0.0 preserved from benchmark artifact');
+  if (artifact.benchmark_id === DOCUMENT_OCR_TEXT_EXTRACTION_BENCHMARK_ID && route.status_code === null) {
+    caveats.push('status_code_unavailable');
+  }
   return caveats;
 }
 
@@ -712,6 +694,15 @@ function routeCaveatObjects(artifact: BenchmarkArtifactRecord, route: BenchmarkA
       code: 'pay_cli_status_hidden',
       severity: 'info',
       message: 'HTTP status is unavailable in pay_cli evidence mode; inspect status_evidence for proof context.',
+      evidence_field: 'status_code',
+      value: null
+    });
+  }
+  if (artifact.benchmark_id === DOCUMENT_OCR_TEXT_EXTRACTION_BENCHMARK_ID && route.status_code === null) {
+    caveatObjects.push({
+      code: 'status_code_unavailable',
+      severity: 'warning',
+      message: 'status_code is unavailable for this OCR benchmark run in pay_cli hidden status mode.',
       evidence_field: 'status_code',
       value: null
     });
@@ -1010,16 +1001,49 @@ function buildSocialDataRedditPostSearchBenchmark(): RadarBenchmarkDetail {
 }
 
 function buildDocumentOcrTextExtractionBenchmark(): RadarBenchmarkDetail {
+  const latestArtifact = getLatestBenchmarkArtifact(DOCUMENT_OCR_TEXT_EXTRACTION_BENCHMARK_ID);
+  const benchmarkRecorded = latestArtifact?.aggregate_metrics?.benchmark_recorded === true;
+  const routes: RadarBenchmarkRouteMetric[] = (latestArtifact?.routes ?? []).map((route) => ({
+    provider_id: route.provider_id,
+    route_id: route.route_id,
+    execution_status: route.execution_status,
+    success: route.success,
+    latency_ms: route.latency_ms,
+    paid_execution_proven: route.paid_execution_proven,
+    proof_reference: route.proof_reference,
+    normalized_output_available: route.normalized_output_available,
+    extracted_price_usd: route.extracted_price_usd,
+    extraction_path: route.extraction_path,
+    success_rate: route.success_rate,
+    median_latency_ms: route.median_latency_ms,
+    p95_latency_ms: route.p95_latency_ms,
+    average_price_usd: route.average_price_usd,
+    min_price_usd: route.min_price_usd,
+    max_price_usd: route.max_price_usd,
+    price_variance_percent: route.price_variance_percent,
+    completed_runs: route.completed_runs,
+    failed_runs: route.failed_runs,
+    execution_transport: route.execution_transport,
+    cli_exit_code: route.cli_exit_code,
+    status_code: route.status_code,
+    status_evidence: route.status_evidence,
+    output_shape: null,
+    normalization_confidence: route.normalization_confidence,
+    freshness_timestamp: route.freshness_timestamp,
+    comparison_notes: route.comparison_notes
+  }));
   return {
     benchmark_id: DOCUMENT_OCR_TEXT_EXTRACTION_BENCHMARK_ID,
     category: DOCUMENT_OCR_TEXT_EXTRACTION_CATEGORY,
     benchmark_intent: DOCUMENT_OCR_TEXT_EXTRACTION_INTENT,
-    benchmark_recorded: false,
+    benchmark_recorded: benchmarkRecorded,
     winner_claimed: false,
-    winner_status: 'not_evaluated',
-    next_step: 'host a stable public OCR fixture, then paid-prove Reducto and Google Vision image OCR against the same fixture before recording one five-run benchmark artifact',
-    readiness_note: 'Benchmark Scaffold. Canonical expected text: "INFOPUNKS RADAR", "EVIDENCE BEFORE SPEND", "OCR BENCHMARK 001". Candidate routes: PaySponge Reducto OCR/document parsing and Google Cloud Vision image text detection. Unpaid probes confirmed 402 payment-challenge behavior on both candidate routes. Google Vision file OCR (/v1/files:annotate) is stricter and not the primary comparable path because non-GCS URLs returned INVALID_ARGUMENT. Promotion remains blocked until a stable public OCR fixture exists, both routes are paid-proven against the same fixture, normalizer/caveats/evidence_health are present, and one five-run benchmark artifact is recorded.',
-    routes: []
+    winner_status: latestArtifact?.winner_status ?? 'not_evaluated',
+    next_step: benchmarkRecorded ? 'define scoring thresholds before declaring a route winner' : 'host a stable public OCR fixture, then paid-prove Reducto and Google Vision image OCR against the same fixture before recording one five-run benchmark artifact',
+    readiness_note: benchmarkRecorded
+      ? 'Five-run normalized benchmark evidence exists. No route winner is claimed.'
+      : 'Benchmark Scaffold. Canonical expected text: "INFOPUNKS RADAR", "EVIDENCE BEFORE SPEND", "OCR BENCHMARK 001". Candidate routes: PaySponge Reducto OCR/document parsing and Google Cloud Vision image text detection. Unpaid probes confirmed 402 payment-challenge behavior on both candidate routes. Google Vision file OCR (/v1/files:annotate) is stricter and not the primary comparable path because non-GCS URLs returned INVALID_ARGUMENT. Promotion remains blocked until a stable public OCR fixture exists, both routes are paid-proven against the same fixture, normalizer/caveats/evidence_health are present, and one five-run benchmark artifact is recorded.',
+    routes
   };
 }
 

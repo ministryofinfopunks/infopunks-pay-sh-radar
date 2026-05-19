@@ -120,23 +120,23 @@ async function run(): Promise<void> {
       const anyBenchmarkWinnerClaimed = benchmarkRows.some((row) => row.winner_claimed === true);
 
       assertCondition(
-        'benchmark-summary recorded_benchmarks === 4',
-        recordedBenchmarks === 4,
+        'benchmark-summary recorded_benchmarks === 5',
+        recordedBenchmarks === 5,
         `recorded_benchmarks=${String(summaryData.recorded_benchmarks)}`
       );
       assertCondition(
-        'benchmark-summary total_recorded_runs === 30',
-        totalRecordedRuns === 30,
+        'benchmark-summary total_recorded_runs === 40',
+        totalRecordedRuns === 40,
         `total_recorded_runs=${String(summaryData.total_recorded_runs)}`
       );
       assertCondition(
-        'benchmark-summary proven_routes === 8',
-        provenRoutes === 8,
+        'benchmark-summary proven_routes === 10',
+        provenRoutes === 10,
         `proven_routes=${String(summaryData.proven_routes)}`
       );
       assertCondition(
-        'benchmark-summary total_artifacts === 5',
-        totalArtifacts === 5,
+        'benchmark-summary total_artifacts === 6',
+        totalArtifacts === 6,
         `total_artifacts=${String(summaryData.total_artifacts)}`
       );
       assertCondition(
@@ -165,18 +165,18 @@ async function run(): Promise<void> {
       const winnerClaimed = historyData.winner_claimed;
 
       assertCondition(
-        'benchmark-history history_count === 4',
-        historyCount === 4,
+        'benchmark-history history_count === 5',
+        historyCount === 5,
         `history_count=${String(historyData.history_count)}`
       );
       assertCondition(
-        'benchmark-history total_artifacts === 5',
-        totalArtifacts === 5,
+        'benchmark-history total_artifacts === 6',
+        totalArtifacts === 6,
         `total_artifacts=${String(historyData.total_artifacts)}`
       );
       assertCondition(
-        'benchmark-history total_recorded_runs === 30',
-        totalRecordedRuns === 30,
+        'benchmark-history total_recorded_runs === 40',
+        totalRecordedRuns === 40,
         `total_recorded_runs=${String(historyData.total_recorded_runs)}`
       );
       assertCondition(
@@ -199,23 +199,23 @@ async function run(): Promise<void> {
       fail('evidence-ledger payload', 'missing object at data.ledger_state');
     } else {
       assertCondition(
-        'evidence-ledger recorded_benchmarks === 4',
-        asNumber(ledgerState.recorded_benchmarks) === 4,
+        'evidence-ledger recorded_benchmarks === 5',
+        asNumber(ledgerState.recorded_benchmarks) === 5,
         `recorded_benchmarks=${String(ledgerState.recorded_benchmarks)}`
       );
       assertCondition(
-        'evidence-ledger total_artifacts === 5',
-        asNumber(ledgerState.total_artifacts) === 5,
+        'evidence-ledger total_artifacts === 6',
+        asNumber(ledgerState.total_artifacts) === 6,
         `total_artifacts=${String(ledgerState.total_artifacts)}`
       );
       assertCondition(
-        'evidence-ledger total_recorded_runs === 30',
-        asNumber(ledgerState.total_recorded_runs) === 30,
+        'evidence-ledger total_recorded_runs === 40',
+        asNumber(ledgerState.total_recorded_runs) === 40,
         `total_recorded_runs=${String(ledgerState.total_recorded_runs)}`
       );
       assertCondition(
-        'evidence-ledger proven_routes === 8',
-        asNumber(ledgerState.proven_routes) === 8,
+        'evidence-ledger proven_routes === 10',
+        asNumber(ledgerState.proven_routes) === 10,
         `proven_routes=${String(ledgerState.proven_routes)}`
       );
       assertCondition(
@@ -228,18 +228,23 @@ async function run(): Promise<void> {
       const scaffoldLanes = asArray(ledgerData.scaffold_lanes) ?? [];
       const latestArtifacts = asArray(ledgerData.latest_artifacts) ?? [];
       assertCondition(
-        'evidence-ledger recorded_lanes count === 4',
+        'evidence-ledger recorded_lanes count === 5',
         recordedLanes.length === 4,
         `recorded_lanes=${String(recordedLanes.length)}`
       );
       assertCondition(
         'evidence-ledger scaffold_lanes count === 3',
-        scaffoldLanes.length === 3,
+        scaffoldLanes.length === 4,
         `scaffold_lanes=${String(scaffoldLanes.length)}`
       );
       assertCondition(
         'evidence-ledger latest_artifacts include data-web-search-results-benchmark-runs-2026-05-19',
         latestArtifacts.some((row) => asObject(row)?.artifact_id === 'data-web-search-results-benchmark-runs-2026-05-19'),
+        `artifact_ids=${latestArtifacts.map((row) => String(asObject(row)?.artifact_id)).join(',')}`
+      );
+      assertCondition(
+        'evidence-ledger latest_artifacts include document-ocr-text-extraction-benchmark-runs-2026-05-19',
+        latestArtifacts.some((row) => asObject(row)?.artifact_id === 'document-ocr-text-extraction-benchmark-runs-2026-05-19'),
         `artifact_ids=${latestArtifacts.map((row) => String(asObject(row)?.artifact_id)).join(',')}`
       );
       const latestByBenchmarkId = new Map(latestArtifacts
@@ -248,6 +253,7 @@ async function run(): Promise<void> {
         .map((row) => [String(row.benchmark_id ?? ''), row]));
       const webSearchLatest = latestByBenchmarkId.get('data-web-search-results');
       const tokenMetadataLatest = latestByBenchmarkId.get('finance-data-token-metadata');
+      const ocrLatest = latestByBenchmarkId.get('document-ocr-text-extraction');
       assertCondition(
         'evidence-ledger latest_artifacts data-web-search-results recorded_runs === 10',
         asNumber(webSearchLatest?.recorded_runs) === 10,
@@ -257,6 +263,11 @@ async function run(): Promise<void> {
         'evidence-ledger latest_artifacts finance-data-token-metadata recorded_runs === 5',
         asNumber(tokenMetadataLatest?.recorded_runs) === 5,
         `recorded_runs=${String(tokenMetadataLatest?.recorded_runs)}`
+      );
+      assertCondition(
+        'evidence-ledger latest_artifacts document-ocr-text-extraction recorded_runs === 10',
+        asNumber(ocrLatest?.recorded_runs) === 10,
+        `recorded_runs=${String(ocrLatest?.recorded_runs)}`
       );
 
       const ledgerText = JSON.stringify(ledgerData).toLowerCase();
@@ -433,6 +444,67 @@ async function run(): Promise<void> {
     }
   } catch (error) {
     fail('GET /v1/radar/benchmark-history/data-web-search-results/routes request', (error as Error).message);
+  }
+
+  try {
+    const ocrDetail = await getJson('/v1/radar/benchmark-history/document-ocr-text-extraction');
+    assertCondition(
+      'GET /v1/radar/benchmark-history/document-ocr-text-extraction status',
+      ocrDetail.status === 200,
+      `status=${ocrDetail.status}`
+    );
+  } catch (error) {
+    fail('GET /v1/radar/benchmark-history/document-ocr-text-extraction request', (error as Error).message);
+  }
+
+  try {
+    const ocrRoutes = await getJson('/v1/radar/benchmark-history/document-ocr-text-extraction/routes');
+    assertCondition(
+      'GET /v1/radar/benchmark-history/document-ocr-text-extraction/routes status',
+      ocrRoutes.status === 200,
+      `status=${ocrRoutes.status}`
+    );
+    const routesObject = asObject(ocrRoutes.body);
+    const routesData = asObject(routesObject?.data);
+    const routeCount = asNumber(routesData?.route_count);
+    const routes = asArray(routesData?.routes) ?? [];
+    assertCondition(
+      'OCR route timeline has 2 routes',
+      routeCount === 2,
+      `route_count=${String(routesData?.route_count)}`
+    );
+    for (const row of routes) {
+      const route = asObject(row);
+      const routeId = typeof route?.route_id === 'string' ? route.route_id : '<unknown>';
+      assertCondition(
+        `OCR route ${routeId} exposes evidence_health`,
+        typeof route?.evidence_health === 'string' && route.evidence_health.length > 0,
+        `evidence_health=${String(route?.evidence_health)}`
+      );
+      assertCondition(
+        `OCR route ${routeId} exposes latest_artifact_id`,
+        typeof route?.latest_artifact_id === 'string' && route.latest_artifact_id.length > 0,
+        `latest_artifact_id=${String(route?.latest_artifact_id)}`
+      );
+      if (typeof route?.route_id === 'string') {
+        const detail = await getJson(`/v1/radar/benchmark-history/document-ocr-text-extraction/routes/${encodeURIComponent(route.route_id)}`);
+        assertCondition(
+          `GET /v1/radar/benchmark-history/document-ocr-text-extraction/routes/{${routeId}} status`,
+          detail.status === 200,
+          `status=${detail.status}`
+        );
+        const detailObject = asObject(detail.body);
+        const detailData = asObject(detailObject?.data);
+        const timeline = asArray(detailData?.timeline);
+        assertCondition(
+          `OCR route ${routeId} timeline length >= 1`,
+          timeline !== null && timeline.length >= 1,
+          `timeline_length=${String(timeline?.length ?? 0)}`
+        );
+      }
+    }
+  } catch (error) {
+    fail('GET /v1/radar/benchmark-history/document-ocr-text-extraction/routes request', (error as Error).message);
   }
 
   try {

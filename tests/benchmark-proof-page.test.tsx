@@ -20,12 +20,12 @@ function benchmarkSummary() {
   return {
     generated_at: observedAt,
     source: 'infopunks-pay-sh-radar',
-    recorded_benchmarks: 4,
-    total_benchmarks: 7,
-    total_artifacts: 5,
+    recorded_benchmarks: 5,
+    total_benchmarks: 8,
+    total_artifacts: 6,
     winner_claimed: false,
-    total_recorded_runs: 30,
-    proven_routes: 8,
+    total_recorded_runs: 40,
+    proven_routes: 10,
     benchmarks: [
       {
         benchmark_id: 'finance-data-sol-price',
@@ -62,6 +62,15 @@ function benchmarkSummary() {
         winner_claimed: false,
         routes_count: 2,
         recorded_runs: 10
+      },
+      {
+        benchmark_id: 'document-ocr-text-extraction',
+        label: 'Document OCR Text Extraction',
+        status: 'recorded',
+        winner_status: 'no_clear_winner',
+        winner_claimed: false,
+        routes_count: 2,
+        recorded_runs: 10
       }
     ],
     agent_guidance: [
@@ -82,15 +91,16 @@ function installFetchMock(options: { benchmarkSummaryFails?: boolean } = {}) {
     if (path === '/v1/radar/benchmark-history') return json({
       generated_at: observedAt,
       source: 'infopunks-pay-sh-radar',
-      history_count: 4,
-      total_artifacts: 5,
-      total_recorded_runs: 30,
+      history_count: 5,
+      total_artifacts: 6,
+      total_recorded_runs: 40,
       winner_claimed: false,
       benchmarks: [
         { benchmark_id: 'finance-data-sol-price', label: 'SOL price', status: 'recorded', artifact_count: 1, total_recorded_runs: 5, routes_count: 2, winner_status: 'no_clear_winner', winner_claimed: false },
         { benchmark_id: 'finance-data-token-search', label: 'Token search', status: 'recorded', artifact_count: 1, total_recorded_runs: 5, routes_count: 2, winner_status: 'no_clear_winner', winner_claimed: false },
         { benchmark_id: 'finance-data-token-metadata', label: 'Token metadata', status: 'recorded', artifact_count: 2, total_recorded_runs: 10, routes_count: 2, winner_status: 'no_clear_winner', winner_claimed: false },
-        { benchmark_id: 'data-web-search-results', label: 'Web search results', status: 'recorded', artifact_count: 1, total_recorded_runs: 10, routes_count: 2, winner_status: 'no_clear_winner', winner_claimed: false }
+        { benchmark_id: 'data-web-search-results', label: 'Web search results', status: 'recorded', artifact_count: 1, total_recorded_runs: 10, routes_count: 2, winner_status: 'no_clear_winner', winner_claimed: false },
+        { benchmark_id: 'document-ocr-text-extraction', label: 'Document OCR Text Extraction', status: 'recorded', artifact_count: 1, total_recorded_runs: 10, routes_count: 2, winner_status: 'no_clear_winner', winner_claimed: false }
       ]
     });
     if (path === '/v1/radar/benchmarks') return json({
@@ -567,10 +577,10 @@ describe('public benchmark proof pages', () => {
     expect(text).toContain('Radar Evidence Ledger');
     expect(text).toContain('Radar records benchmark evidence for Pay.sh routes before agents spend.');
     expect(text).toContain('Agent Evidence Demo');
-    expect(text).toContain('4 recorded benchmarks');
-    expect(text).toContain('5 artifacts');
-    expect(text).toContain('30 recorded route-runs');
-    expect(text).toContain('8 proven paid routes');
+    expect(text).toContain('5 recorded benchmarks');
+    expect(text).toContain('6 artifacts');
+    expect(text).toContain('40 recorded route-runs');
+    expect(text).toContain('10 proven paid routes');
     expect(text).toContain('0 winner claims');
     expect(text.indexOf('Recorded Benchmark Lanes')).toBeLessThan(text.indexOf('Agent Evidence Demo'));
     expect(text.indexOf('Explored, Not Promoted')).toBeLessThan(text.indexOf('Agent Evidence Demo'));
@@ -581,8 +591,8 @@ describe('public benchmark proof pages', () => {
     expect(text).toContain('route timeline: available');
     expect(text).toContain('GET /v1/radar/benchmark-summary');
     expect(text).toContain('GET /v1/radar/benchmark-history');
-    expect(text).toContain('"recorded_benchmarks": 4');
-    expect(text).toContain('"total_artifacts": 5');
+    expect(text).toContain('"recorded_benchmarks": 5');
+    expect(text).toContain('"total_artifacts": 6');
     expect(text).toContain('"routes_count": 2');
     expect(text).toContain('"recorded_runs": 5');
     expect(text).toContain('winner_claimed=false and winner_status=no_clear_winner mean Radar shows evidence without route winner claims.');
