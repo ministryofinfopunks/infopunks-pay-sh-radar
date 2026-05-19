@@ -503,6 +503,75 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
             comparison_notes: 'Token-search benchmark recorded. No route winner is claimed. Scoring thresholds are not finalized.'
           }
         ]
+      }, {
+        benchmark_id: 'document-ocr-text-extraction',
+        category: 'document-ai',
+        benchmark_intent: 'document OCR text extraction',
+        benchmark_recorded: true,
+        winner_claimed: false,
+        winner_status: 'no_clear_winner',
+        next_step: 'define scoring thresholds before declaring a route winner',
+        readiness_note: 'Recorded benchmark with caveats preserved.',
+        routes: [
+          {
+            provider_id: 'paysponge-reducto',
+            route_id: 'paysponge-reducto:POST:/parse',
+            execution_status: 'proven',
+            success: true,
+            latency_ms: 6000,
+            paid_execution_proven: true,
+            proof_reference: 'live-proofs/document-ocr-text-extraction-benchmark-runs-2026-05-19.md',
+            normalized_output_available: true,
+            extracted_price_usd: null,
+            extraction_path: null,
+            success_rate: 1,
+            median_latency_ms: 6000,
+            p95_latency_ms: 7000,
+            average_price_usd: null,
+            min_price_usd: null,
+            max_price_usd: null,
+            price_variance_percent: null,
+            completed_runs: 5,
+            failed_runs: 0,
+            execution_transport: 'pay_cli',
+            cli_exit_code: 0,
+            status_code: null,
+            status_evidence: 'pay_cli exit code 0 and parsed response body',
+            output_shape: null,
+            normalization_confidence: 'high',
+            freshness_timestamp: '2026-05-19T00:00:00.000Z',
+            comparison_notes: 'Recorded with caveat_objects preserved.'
+          },
+          {
+            provider_id: 'google-vision',
+            route_id: 'google-vision:POST:/v1/images:annotate',
+            execution_status: 'proven',
+            success: true,
+            latency_ms: 6200,
+            paid_execution_proven: true,
+            proof_reference: 'live-proofs/document-ocr-text-extraction-benchmark-runs-2026-05-19.md',
+            normalized_output_available: true,
+            extracted_price_usd: null,
+            extraction_path: null,
+            success_rate: 1,
+            median_latency_ms: 6200,
+            p95_latency_ms: 7100,
+            average_price_usd: null,
+            min_price_usd: null,
+            max_price_usd: null,
+            price_variance_percent: null,
+            completed_runs: 5,
+            failed_runs: 0,
+            execution_transport: 'pay_cli',
+            cli_exit_code: 0,
+            status_code: null,
+            status_evidence: 'pay_cli exit code 0 and parsed response body',
+            output_shape: null,
+            normalization_confidence: 'high',
+            freshness_timestamp: '2026-05-19T00:00:00.000Z',
+            comparison_notes: 'Recorded with caveat_objects preserved.'
+          }
+        ]
       }]
     });
     if (path === '/v1/radar/mappings') return json({
@@ -648,6 +717,34 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
         }
       ]
     });
+    if (path === '/v1/radar/evidence-ledger') return json({
+      generated_at: observedAt,
+      source: 'infopunks-pay-sh-radar',
+      ledger_state: {
+        recorded_benchmarks: 5,
+        total_benchmarks: 8,
+        total_artifacts: 6,
+        total_recorded_runs: 40,
+        proven_routes: 10,
+        winner_claimed: false,
+        latest_recorded_at: '2026-05-19T00:00:00.000Z'
+      },
+      recorded_lanes: [
+        { benchmark_id: 'finance-data-sol-price', label: 'SOL Price', status: 'recorded', artifact_count: 1, recorded_runs: 10, routes_count: 2, proven_routes_count: 2, winner_claimed: false, latest_recorded_at: observedAt },
+        { benchmark_id: 'finance-data-token-search', label: 'Token Search', status: 'recorded', artifact_count: 1, recorded_runs: 10, routes_count: 2, proven_routes_count: 2, winner_claimed: false, latest_recorded_at: observedAt },
+        { benchmark_id: 'finance-data-token-metadata', label: 'Token Metadata', status: 'recorded', artifact_count: 1, recorded_runs: 10, routes_count: 2, proven_routes_count: 2, winner_claimed: false, latest_recorded_at: observedAt },
+        { benchmark_id: 'data-web-search-results', label: 'Web Search Results', status: 'recorded', artifact_count: 1, recorded_runs: 10, routes_count: 2, proven_routes_count: 2, winner_claimed: false, latest_recorded_at: observedAt },
+        { benchmark_id: 'document-ocr-text-extraction', label: 'Document OCR Text Extraction', status: 'recorded', artifact_count: 2, recorded_runs: 10, routes_count: 2, proven_routes_count: 2, winner_claimed: false, latest_recorded_at: '2026-05-19T00:00:00.000Z' }
+      ],
+      scaffold_lanes: [
+        { benchmark_id: 'communications-email-delivery', label: 'Communications Email Delivery', status: 'scaffold', why_not_promoted: ['StableEmail paid-executed and caveated', 'AgentMail blocked / no second comparable route', 'no benchmark artifact'] },
+        { benchmark_id: 'solana-infra-account-balance', label: 'Solana Account Balance', status: 'scaffold', why_not_promoted: ['QuickNode unpaid 402 confirmed', 'paid run failed', 'no second comparable route', 'no benchmark artifact'] },
+        { benchmark_id: 'social-data-reddit-post-search', label: 'Reddit Post Search', status: 'scaffold', why_not_promoted: ['StableEnrich paid-proven and caveated', 'StableSocial paid-compatible but semantic proof failed', 'no second paid-proven comparable route', 'no benchmark artifact'] }
+      ],
+      latest_artifacts: [
+        { artifact_id: 'document-ocr-text-extraction-benchmark-runs-2026-05-19', benchmark_id: 'document-ocr-text-extraction', label: 'Document OCR Text Extraction', recorded_at: '2026-05-19T00:00:00.000Z', recorded_runs: 10, routes_count: 2, winner_claimed: false }
+      ]
+    });
     if (path === '/v1/radar/preflight') return json({
       generated_at: observedAt,
       source: 'infopunks-pay-sh-radar',
@@ -787,16 +884,16 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Pay.sh routes are live. Agents need proof before spend.');
     expect(container.textContent).toContain('Radar tracks mapped, proven, and benchmarked Pay.sh routes before agents route money through them.');
     expect(container.textContent).toContain('Pay.sh is the spend rail. Radar is the evidence ledger. The Harness is the proof adapter.');
-    expect(container.textContent).toContain('4 recorded benchmarks');
-    expect(container.textContent).toContain('5 artifacts');
-    expect(container.textContent).toContain('30 recorded route-runs');
-    expect(container.textContent).toContain('8 proven paid routes');
+    expect(container.textContent).toContain('5 recorded benchmarks');
+    expect(container.textContent).toContain('6 artifacts');
+    expect(container.textContent).toContain('40 recorded route-runs');
+    expect(container.textContent).toContain('10 proven paid routes');
     expect(container.textContent).toContain('0 winner claims');
     const proofMetricText = container.querySelector('[aria-label="Proof metrics"]')?.textContent ?? '';
-    expect(proofMetricText.indexOf('4 recorded benchmarks')).toBeLessThan(proofMetricText.indexOf('8 proven paid routes'));
-    expect(proofMetricText.indexOf('8 proven paid routes')).toBeLessThan(proofMetricText.indexOf('30 recorded route-runs'));
-    expect(proofMetricText.indexOf('30 recorded route-runs')).toBeLessThan(proofMetricText.indexOf('5 artifacts'));
-    expect(proofMetricText.indexOf('5 artifacts')).toBeLessThan(proofMetricText.indexOf('0 winner claims'));
+    expect(proofMetricText.indexOf('5 recorded benchmarks')).toBeLessThan(proofMetricText.indexOf('10 proven paid routes'));
+    expect(proofMetricText.indexOf('10 proven paid routes')).toBeLessThan(proofMetricText.indexOf('40 recorded route-runs'));
+    expect(proofMetricText.indexOf('40 recorded route-runs')).toBeLessThan(proofMetricText.indexOf('6 artifacts'));
+    expect(proofMetricText.indexOf('6 artifacts')).toBeLessThan(proofMetricText.indexOf('0 winner claims'));
     expect(container.textContent).toContain('Recorded means paid evidence exists');
     expect(container.textContent).toContain('Pulse shows live ecosystem intelligence. Benchmarks show artifact-backed route evidence.');
     expect(container.textContent).toContain('Ask Radar where an agent should route before spending.');
@@ -969,12 +1066,12 @@ describe('radar endpoint intelligence UI', () => {
     root = await renderApp(container);
 
     expect(container.textContent).toContain('No executable provider mappings detected yet.');
-    expect(container.textContent).toContain('Recorded evidence exists for four benchmark lanes. No route winner is claimed until scoring criteria are finalized.');
+    expect(container.textContent).toContain('Benchmark Readiness');
     expect(container.textContent).toContain('Benchmark Readiness');
     expect(container.textContent).toContain('Evidence Ledger Snapshot');
     expect((container.textContent ?? '').indexOf('Evidence Ledger Snapshot')).toBeLessThan((container.textContent ?? '').indexOf('Propagation Watch'));
-    expect(container.textContent).toContain('4 recorded benchmarks');
-    expect(container.textContent).toContain('SOL Price + Token Search + Token Metadata + Web Search Results');
+    expect(container.textContent).toContain('5 recorded benchmarks');
+    expect(container.textContent).toContain('SOL Price + Token Search + Token Metadata + Web Search Results + Document OCR Text Extraction');
     expect(container.textContent).toContain('No winner claims');
     expect(container.textContent).toContain('SOL Price');
     expect(container.textContent).toContain('Token Search');
@@ -983,9 +1080,9 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Recorded means paid route evidence exists. Scaffold means the lane was explored but did not meet the hard bar.');
     expect(container.textContent).toContain('Radar records what graduated and what did not.');
     expect(container.textContent).toContain('Latest Recorded Benchmark');
-    expect(container.textContent).toContain('Exa + Perplexity');
+    expect(container.textContent).toContain('Document OCR Text Extraction');
     expect(container.textContent).toContain('10 recorded route-runs');
-    expect(container.textContent).toContain('evidence_health: recorded');
+    expect(container.textContent).toContain('evidence_health: caveated');
     expect(container.textContent).toContain('winner_claimed=false');
     expect(container.textContent).toContain('5 runs / route');
     expect(container.textContent).toContain('2 proven paid routes');
@@ -1004,7 +1101,7 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).not.toMatch(/Solana Account Balance[\s\S]*2 proven routes/);
     expect(container.textContent).not.toMatch(/Reddit Post Search[\s\S]*5-run benchmark/);
     expect(container.textContent).toContain('Catalog-estimated');
-    expect(container.textContent).toContain('Four benchmark lanes now have recorded artifact-backed evidence. Three explored lanes remain scaffolded because they did not meet the hard bar.');
+    expect(container.textContent).toContain('GET /v1/radar/evidence-ledger');
     expect(container.textContent).toContain('GET /v1/radar/benchmarks/finance-data-token-search');
     expect(container.textContent).toContain('benchmark_recorded=true');
     expect(container.textContent).toContain('winner_status=no_clear_winner');
@@ -1016,7 +1113,7 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).not.toContain('Superiority Proof Readiness');
     expect(container.textContent).toContain('Comparison Policy');
     expect(container.textContent).toContain('Radar can compare recorded metrics. Radar does not crown winners until scoring criteria are finalized. No benchmark currently claims a winner.');
-    expect(container.textContent).not.toMatch(/best route|top route|superior route|winner route|loser route|ranking authority/i);
+    expect(container.textContent).not.toMatch(/best route|top route|superior route|winner route|loser route|ranking authority|guaranteed trust|superiority proof/i);
     expect(container.textContent).not.toContain('HTTP 200');
     expect(container.textContent).toContain('StableCrypto: verified/proven');
     expect(container.textContent).toContain('CoinGecko Onchain DEX API: verified/proven');
@@ -1074,13 +1171,14 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Token Search');
     expect(container.textContent).toContain('Token Metadata');
     expect(container.textContent).toContain('Web Search Results');
+    expect(container.textContent).toContain('Document OCR Text Extraction');
     expect(container.textContent).toContain('evidence ledger recorded');
     expect(container.textContent).toContain('Blocked');
     expect(container.textContent).toContain('Communications Email Delivery');
     expect(container.textContent).toContain('Solana Account Balance');
     expect(container.textContent).toContain('Reddit Post Search');
     expect(container.textContent).toContain('Needs candidate');
-    expect(container.textContent).toContain('OCR comparison');
+    expect(container.textContent).not.toContain('OCR comparison');
     expect(container.textContent).toContain('SMS/send message');
     expect(container.textContent).toContain('Knowledge/search answer');
     expect(container.textContent).not.toContain('candidate_mapping_found');

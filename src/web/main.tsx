@@ -502,6 +502,46 @@ type RadarBenchmarkRouteHistoryAggregate = {
   winner_claimed: boolean;
   routes: RadarBenchmarkRouteHistorySummary[];
 };
+type RadarEvidenceLedgerRecordedLane = {
+  benchmark_id: string;
+  label: string;
+  status: 'recorded';
+  artifact_count: number;
+  recorded_runs: number;
+  routes_count: number;
+  proven_routes_count: number;
+  winner_claimed: boolean;
+  latest_recorded_at: string | null;
+};
+type RadarEvidenceLedgerScaffoldLane = {
+  benchmark_id: string;
+  label: string;
+  status: 'scaffold';
+  why_not_promoted: string[];
+};
+type RadarEvidenceLedgerLatestArtifact = {
+  artifact_id: string;
+  benchmark_id: string;
+  label: string;
+  recorded_at: string;
+  recorded_runs: number;
+  routes_count: number;
+  winner_claimed: boolean;
+};
+type RadarEvidenceLedger = {
+  ledger_state: {
+    recorded_benchmarks: number;
+    total_benchmarks: number;
+    total_artifacts: number;
+    total_recorded_runs: number;
+    proven_routes: number;
+    winner_claimed: boolean;
+    latest_recorded_at: string | null;
+  };
+  recorded_lanes: RadarEvidenceLedgerRecordedLane[];
+  scaffold_lanes: RadarEvidenceLedgerScaffoldLane[];
+  latest_artifacts: RadarEvidenceLedgerLatestArtifact[];
+};
 type TrendDirection = 'improving' | 'stable' | 'degrading' | 'unknown';
 type RiskLevel = 'low' | 'watch' | 'elevated' | 'critical' | 'unknown';
 type RiskRecommendation = 'route normally' | 'route with caution' | 'required fallback route' | 'not recommended for routing' | 'insufficient history';
@@ -1073,47 +1113,8 @@ function publicBenchmarkTitle(benchmark: Pick<RadarBenchmarkDetail, 'benchmark_i
   if (benchmark.benchmark_id === 'social-data-reddit-post-search') return 'Reddit Post Search';
   if (benchmark.benchmark_id === 'document-ocr-text-extraction') return 'Document OCR Text Extraction';
   if (benchmark.benchmark_id === 'data-web-search-results') return 'Web Search Results';
-  return benchmark.benchmark_intent;
+  return `${benchmark.benchmark_intent.charAt(0).toUpperCase()}${benchmark.benchmark_intent.slice(1)}`;
 }
-
-const RECORDED_BENCHMARK_LANES = [
-  { benchmark_id: 'finance-data-sol-price', label: 'SOL Price', category: 'finance/data' },
-  { benchmark_id: 'finance-data-token-search', label: 'Token Search', category: 'finance/data' },
-  { benchmark_id: 'finance-data-token-metadata', label: 'Token Metadata', category: 'finance/data' },
-  { benchmark_id: 'document-ocr-text-extraction', label: 'Document OCR Text Extraction', category: 'document/ai' },
-  { benchmark_id: 'data-web-search-results', label: 'Web Search Results', category: 'data/web' }
-] as const;
-
-const RECORDED_BENCHMARK_IDS: Set<string> = new Set(RECORDED_BENCHMARK_LANES.map((lane) => lane.benchmark_id));
-
-const EXPLORED_NOT_PROMOTED_LANES = [
-  {
-    label: 'Communications Email Delivery',
-    reasons: [
-      'StableEmail paid-executed and caveated',
-      'AgentMail blocked / no second comparable route',
-      'no benchmark artifact'
-    ]
-  },
-  {
-    label: 'Solana Account Balance',
-    reasons: [
-      'QuickNode unpaid 402 confirmed',
-      'paid run failed',
-      'no second comparable route',
-      'no benchmark artifact'
-    ]
-  },
-  {
-    label: 'Reddit Post Search',
-    reasons: [
-      'StableEnrich paid-proven and caveated',
-      'StableSocial paid-compatible but semantic proof failed',
-      'no second paid-proven comparable route',
-      'no benchmark artifact'
-    ]
-  }
-] as const;
 
 function benchmarkRunCount(benchmark: RadarBenchmarkDetail) {
   return benchmark.winner_policy?.completed_runs ?? Math.max(...benchmark.routes.map((route) => route.completed_runs ?? 0), 0);
@@ -1140,21 +1141,30 @@ type PublicProofSummary = {
 };
 
 const PUBLIC_PROOF_BASELINE: PublicProofSummary = {
-  recordedBenchmarks: 4,
-  artifacts: 5,
-  provenPaidRoutes: 8,
-  recordedRouteRuns: 30,
+  recordedBenchmarks: 5,
+  artifacts: 6,
+  provenPaidRoutes: 10,
+  recordedRouteRuns: 40,
   winnerClaims: 0
 };
 
-function publicProofSummary(registry: RadarBenchmarkRegistry | null): PublicProofSummary {
+function publicProofSummary(registry: RadarBenchmarkRegistry | null, evidenceLedger: RadarEvidenceLedger | null): PublicProofSummary {
+  if (evidenceLedger) {
+    return {
+      recordedBenchmarks: evidenceLedger.ledger_state.recorded_benchmarks,
+      artifacts: evidenceLedger.ledger_state.total_artifacts,
+      provenPaidRoutes: evidenceLedger.ledger_state.proven_routes,
+      recordedRouteRuns: evidenceLedger.ledger_state.total_recorded_runs,
+      winnerClaims: evidenceLedger.ledger_state.winner_claimed ? 1 : 0
+    };
+  }
   const recorded = registry?.benchmarks.filter((benchmark) => benchmark.benchmark_recorded) ?? [];
-  if (!recorded.length) return PUBLIC_PROOF_BASELINE;
+  if (!recorded.length) return { ...PUBLIC_PROOF_BASELINE };
   return {
-    recordedBenchmarks: Math.max(recorded.length, PUBLIC_PROOF_BASELINE.recordedBenchmarks),
+    recordedBenchmarks: recorded.length,
     artifacts: PUBLIC_PROOF_BASELINE.artifacts,
-    provenPaidRoutes: Math.max(recorded.reduce((total, benchmark) => total + benchmarkProvenRouteCount(benchmark), 0), PUBLIC_PROOF_BASELINE.provenPaidRoutes),
-    recordedRouteRuns: Math.max(recorded.reduce((total, benchmark) => total + benchmarkRunCount(benchmark), 0), PUBLIC_PROOF_BASELINE.recordedRouteRuns),
+    provenPaidRoutes: recorded.reduce((total, benchmark) => total + benchmarkProvenRouteCount(benchmark), 0),
+    recordedRouteRuns: recorded.reduce((total, benchmark) => total + benchmarkRunCount(benchmark), 0),
     winnerClaims: recorded.filter((benchmark) => benchmark.winner_claimed).length
   };
 }
@@ -1391,6 +1401,7 @@ function BenchmarkProofContent({ benchmark, history, routeHistory }: { benchmark
 function PublicBenchmarksIndexPage() {
   const [registry, setRegistry] = useState<RadarBenchmarkRegistry | null>(null);
   const [history, setHistory] = useState<RadarBenchmarkHistoryV2Aggregate | null>(null);
+  const [evidenceLedger, setEvidenceLedger] = useState<RadarEvidenceLedger | null>(null);
   const [error, setError] = useState(false);
   useEffect(() => {
     let active = true;
@@ -1417,6 +1428,15 @@ function PublicBenchmarksIndexPage() {
         if (!active) return;
         setHistory(null);
       });
+    api<{ data: RadarEvidenceLedger }>('/v1/radar/evidence-ledger')
+      .then((response) => {
+        if (!active) return;
+        setEvidenceLedger(response.data);
+      })
+      .catch(() => {
+        if (!active) return;
+        setEvidenceLedger(null);
+      });
     return () => {
       active = false;
     };
@@ -1426,7 +1446,7 @@ function PublicBenchmarksIndexPage() {
   if (!registry) return <main className="boot" aria-label="Benchmarks loading">LOADING BENCHMARKS...</main>;
   const recordedBenchmarks = registry.benchmarks.filter((benchmark) => benchmark.benchmark_recorded);
   const plannedBenchmarks = registry.benchmarks.filter((benchmark) => !benchmark.benchmark_recorded);
-  const proofSummary = publicProofSummary(registry);
+  const proofSummary = publicProofSummary(registry, evidenceLedger);
   const routeTimelineAggregateEndpoint = 'GET /v1/radar/benchmark-history/finance-data-token-metadata/routes';
   const routeTimelineDetailEndpoint = 'GET /v1/radar/benchmark-history/finance-data-token-metadata/routes/{route_id}';
   const routeTimelineSnippet = `{
@@ -1452,8 +1472,8 @@ function PublicBenchmarksIndexPage() {
         <div className="proof-metrics-strip" aria-label="Radar evidence ledger metrics">
           <span><b>{proofSummary.recordedBenchmarks}</b> recorded benchmarks</span>
           <span><b>{proofSummary.provenPaidRoutes}</b> proven paid routes</span>
-          <span><b>{history?.total_recorded_runs ?? proofSummary.recordedRouteRuns}</b> recorded route-runs</span>
-          <span><b>{history?.total_artifacts ?? proofSummary.artifacts}</b> artifacts</span>
+          <span><b>{evidenceLedger?.ledger_state.total_recorded_runs ?? history?.total_recorded_runs ?? proofSummary.recordedRouteRuns}</b> recorded route-runs</span>
+          <span><b>{evidenceLedger?.ledger_state.total_artifacts ?? history?.total_artifacts ?? proofSummary.artifacts}</b> artifacts</span>
           <span><b>{proofSummary.winnerClaims}</b> winner claims</span>
         </div>
         <p className="panel-caption">Recorded means paid route evidence exists. It does not mean a winner was crowned.</p>
@@ -1535,6 +1555,7 @@ function PublicBenchmarksIndexPage() {
         <p className="panel-caption">Agents can inspect route-level benchmark evidence before routing through Pay.sh. Radar exposes evidence health, caveats, latest benchmark metrics, artifact references, and winner-claim status without crowning routes.</p>
         <p className="panel-caption">Agents should ask: what evidence exists, how fresh is it, what caveats apply, was a winner claimed, and which artifact recorded this. Radar answers those questions without crowning routes.</p>
         <div className="endpoint-card-grid">
+          <p><b>GET /v1/radar/evidence-ledger</b><span>Compact agent-readable evidence ledger before spend.</span></p>
           <p><b>GET /v1/radar/benchmark-summary</b><span>Compact proof state for recorded benchmarks, proven paid routes, recorded route-runs, artifacts, and no winner claims.</span></p>
           <p><b>GET /v1/radar/benchmark-history</b><span>Aggregate artifact-backed route evidence ledger.</span></p>
           <p><b>{routeTimelineAggregateEndpoint}</b><span>Route-level timeline rollup for one benchmark.</span></p>
@@ -1581,26 +1602,26 @@ function PublicBenchmarksIndexPage() {
   </div>;
 }
 
-function BenchmarkLaunchSummaryTile({ benchmarks }: { benchmarks: RadarBenchmarkDetail[] }) {
-  const recordedCount = Math.max(benchmarks.filter((benchmark) => benchmark.benchmark_recorded).length, PUBLIC_PROOF_BASELINE.recordedBenchmarks);
+function BenchmarkLaunchSummaryTile({ lanes }: { lanes: RadarEvidenceLedgerRecordedLane[] }) {
+  const recordedCount = lanes.length;
   return <section className="benchmark-state-tile" aria-label="Recorded benchmark summary">
     <div>
       <p className="section-kicker">Public benchmark state</p>
       <strong>{recordedCount} recorded benchmarks</strong>
     </div>
-    <p>SOL Price + Token Search + Token Metadata + Web Search Results</p>
+    <p>{lanes.map((lane) => lane.label).join(' + ')}</p>
     <p>No winner claims</p>
   </section>;
 }
 
-function BenchmarkLaunchMiniCard({ benchmark, lane }: { benchmark: RadarBenchmarkDetail | null; lane: typeof RECORDED_BENCHMARK_LANES[number] }) {
-  const completedRuns = publicRecordedRouteRunCount(benchmark, lane.benchmark_id === 'data-web-search-results' ? 10 : 5);
-  const provenRoutes = benchmark ? benchmarkProvenRouteCount(benchmark) : 2;
-  const runLabel = lane.benchmark_id === 'data-web-search-results' ? `${completedRuns} recorded route-runs` : `${completedRuns} runs / route`;
+function BenchmarkLaunchMiniCard({ benchmark, lane }: { benchmark: RadarBenchmarkDetail | null; lane: RadarEvidenceLedgerRecordedLane }) {
+  const completedRuns = lane.recorded_runs || publicRecordedRouteRunCount(benchmark, 5);
+  const provenRoutes = lane.proven_routes_count || (benchmark ? benchmarkProvenRouteCount(benchmark) : 0);
+  const runLabel = completedRuns >= 10 ? `${completedRuns} recorded route-runs` : `${Math.max(1, Math.round(completedRuns / Math.max(1, lane.routes_count)))} runs / route`;
   const href = `/benchmarks/${encodeURIComponent(benchmark?.benchmark_id ?? lane.benchmark_id)}`;
   return <a className="benchmark-mini-card" href={href}>
     <div>
-      <p className="section-kicker">{benchmark?.category ?? lane.category}</p>
+      <p className="section-kicker">{benchmark?.category ?? 'benchmark'}</p>
       <strong>{benchmark ? publicBenchmarkTitle(benchmark) : lane.label}</strong>
     </div>
     <div className="benchmark-launch-facts">
@@ -1978,6 +1999,7 @@ function RadarApp() {
   const [readiness, setReadiness] = useState<RadarSuperiorityReadiness | null>(null);
   const [benchmarkReadiness, setBenchmarkReadiness] = useState<RadarBenchmarkReadiness | null>(null);
   const [benchmarkRegistry, setBenchmarkRegistry] = useState<RadarBenchmarkRegistry | null>(null);
+  const [evidenceLedger, setEvidenceLedger] = useState<RadarEvidenceLedger | null>(null);
   const [routeMappingRegistry, setRouteMappingRegistry] = useState<RadarRouteMappingRegistry | null>(null);
   const [mappingTargetRegistry, setMappingTargetRegistry] = useState<RadarMappingTargetRegistry | null>(null);
   const [routeMappingStatusFilter, setRouteMappingStatusFilter] = useState<RouteMappingStatusFilter>('all');
@@ -2135,15 +2157,15 @@ function RadarApp() {
           setSecondaryLoadWarning('Showing last successful enrichment snapshot.');
         }
 
-        const stage3Endpoints = ['/v1/radar/superiority-readiness', '/v1/radar/benchmarks', '/v1/radar/mappings', '/v1/radar/mapping-targets', '/v1/radar/history/ecosystem?window=24h', '/v1/radar/risk/ecosystem'];
-        const stage3 = await Promise.allSettled([
-          api<{ data: RadarSuperiorityReadiness }>('/v1/radar/superiority-readiness', undefined, SECONDARY_TIMEOUT_MS),
-          api<{ data: RadarBenchmarkRegistry }>('/v1/radar/benchmarks', undefined, SECONDARY_TIMEOUT_MS),
-          api<{ data: RadarRouteMappingRegistry }>('/v1/radar/mappings', undefined, SECONDARY_TIMEOUT_MS),
-          api<{ data: RadarMappingTargetRegistry }>('/v1/radar/mapping-targets', undefined, SECONDARY_TIMEOUT_MS),
-          api<{ data: RadarEcosystemHistory }>('/v1/radar/history/ecosystem?window=24h', undefined, SECONDARY_TIMEOUT_MS),
-          api<{ data: RadarEcosystemRiskSummary }>('/v1/radar/risk/ecosystem', undefined, SECONDARY_TIMEOUT_MS)
-        ]);
+      const stage3Endpoints = ['/v1/radar/superiority-readiness', '/v1/radar/benchmarks', '/v1/radar/mappings', '/v1/radar/mapping-targets', '/v1/radar/history/ecosystem?window=24h', '/v1/radar/risk/ecosystem'];
+      const stage3 = await Promise.allSettled([
+        api<{ data: RadarSuperiorityReadiness }>('/v1/radar/superiority-readiness', undefined, SECONDARY_TIMEOUT_MS),
+        api<{ data: RadarBenchmarkRegistry }>('/v1/radar/benchmarks', undefined, SECONDARY_TIMEOUT_MS),
+        api<{ data: RadarRouteMappingRegistry }>('/v1/radar/mappings', undefined, SECONDARY_TIMEOUT_MS),
+        api<{ data: RadarMappingTargetRegistry }>('/v1/radar/mapping-targets', undefined, SECONDARY_TIMEOUT_MS),
+        api<{ data: RadarEcosystemHistory }>('/v1/radar/history/ecosystem?window=24h', undefined, SECONDARY_TIMEOUT_MS),
+        api<{ data: RadarEcosystemRiskSummary }>('/v1/radar/risk/ecosystem', undefined, SECONDARY_TIMEOUT_MS)
+      ]);
         if (!active) return;
         applyDiagnostics(stage3 as PromiseSettledResult<unknown>[], stage3Endpoints);
         const readinessPayload = stage3[0].status === 'fulfilled' ? stage3[0].value?.data ?? null : null;
@@ -2187,6 +2209,15 @@ function RadarApp() {
           setProviderRiskById((current) => ({ ...providerRiskHints, ...current }));
         }
         if (featured && typeof featured.nextRotationAt === 'string') applyFeaturedProvider(featured, true);
+        api<{ data: RadarEvidenceLedger }>('/v1/radar/evidence-ledger', undefined, SECONDARY_TIMEOUT_MS)
+          .then((response) => {
+            if (!active) return;
+            setEvidenceLedger(response.data);
+          })
+          .catch(() => {
+            if (!active) return;
+            setEvidenceLedger(null);
+          });
         if (providers?.length) {
           void Promise.allSettled(providers.slice(0, 120).map((provider) => api<{ data: RadarRiskResponse }>(`/v1/radar/risk/providers/${provider.id}`, undefined, SECONDARY_TIMEOUT_MS)))
             .then((riskResults) => {
@@ -2783,7 +2814,7 @@ function RadarApp() {
         <h1 id="terminal-title">Pay.sh routes are live. Agents need proof before spend.</h1>
         <p className="mission-subtitle">Radar tracks mapped, proven, and benchmarked Pay.sh routes before agents route money through them.</p>
         <p className="copy">Pay.sh is the spend rail. Radar is the evidence ledger. The Harness is the proof adapter.</p>
-        <ProofMetricsStrip summary={publicProofSummary(benchmarkRegistry)} />
+        <ProofMetricsStrip summary={publicProofSummary(benchmarkRegistry, evidenceLedger)} />
         <p className="panel-caption">Recorded means paid evidence exists. No winner means Radar refuses to infer superiority without criteria.</p>
         <div className="orientation-panel" aria-label="Radar orientation">
           <strong>Orientation</strong>
@@ -2804,7 +2835,7 @@ function RadarApp() {
       </div>
     </section>}
 
-    {!agentMode && <HeadToHeadBenchmarkPanel registry={benchmarkRegistry} loading={benchmarkReadinessLoading} />}
+    {!agentMode && <HeadToHeadBenchmarkPanel registry={benchmarkRegistry} evidenceLedger={evidenceLedger} loading={benchmarkReadinessLoading} />}
 
     <div id="global-pulse" className="anchor-target" />
     <EcosystemStatusPanel status={ecosystemStatus} reading={ecosystemReading} pulse={data.pulse} summary={pulseSummary} selectedProvider={selectedProvider} />
@@ -2949,7 +2980,7 @@ function RadarApp() {
             intentFilter={routeMappingIntentFilter}
             onIntentFilterChange={setRouteMappingIntentFilter}
           />
-          <MappingTargetsPanel registry={mappingTargetRegistry} />
+          <MappingTargetsPanel registry={mappingTargetRegistry} evidenceLedger={evidenceLedger} />
           <AgentBenchmarkApiPanel />
           <SuperiorityReadinessPanel readiness={readiness} />
           </div>
@@ -4008,18 +4039,24 @@ function BenchmarkReadinessPanel({ readiness, loading }: { readiness: RadarBench
       <CompactChipList title="mapped benchmark intents" items={readiness.categories.map((row) => `${row.category}/${row.benchmark_intent}`)} emptyLabel="none" wide />
       <CompactChipList title="mapping ladder state" items={readiness.categories.flatMap((row) => row.mapping_ladder)} emptyLabel="none" wide />
       {oneProvenRow && <p className="panel-caption">One proven route exists. Add one comparable route to unlock benchmark readiness.</p>}
-      {twoProvenRow && <p className="panel-caption">Four benchmark lanes now have recorded artifact-backed evidence. Three explored lanes remain scaffolded because they did not meet the hard bar.</p>}
+      {twoProvenRow && <p className="panel-caption">Recorded benchmark lanes now have artifact-backed evidence. Explored lanes remain scaffolded when they do not meet the hard bar.</p>}
       {twoProvenRow && <p className="panel-caption">No route winner is claimed until normalized criteria are finalized.</p>}
     </div>}
   </section>;
 }
 
-function HeadToHeadBenchmarkPanel({ registry, loading }: { registry: RadarBenchmarkRegistry | null; loading: boolean }) {
-  const benchmarks = (registry?.benchmarks ?? []).filter((row) => row.benchmark_recorded && RECORDED_BENCHMARK_IDS.has(row.benchmark_id));
+function HeadToHeadBenchmarkPanel({ registry, evidenceLedger, loading }: { registry: RadarBenchmarkRegistry | null; evidenceLedger: RadarEvidenceLedger | null; loading: boolean }) {
+  const benchmarks = (registry?.benchmarks ?? []).filter((row) => row.benchmark_recorded);
   const benchmarkById = new Map(benchmarks.map((row) => [row.benchmark_id, row]));
-  const latestBenchmark = benchmarkById.get('data-web-search-results') ?? null;
-  const hasBenchmarks = benchmarks.length > 0 || RECORDED_BENCHMARK_LANES.length > 0;
-  const latestRunCount = publicRecordedRouteRunCount(latestBenchmark, 10);
+  const recordedLanes = evidenceLedger?.recorded_lanes ?? [];
+  const scaffoldLanes = evidenceLedger?.scaffold_lanes ?? [];
+  const latestArtifact = [...(evidenceLedger?.latest_artifacts ?? [])]
+    .sort((a, b) => Date.parse(b.recorded_at) - Date.parse(a.recorded_at))[0] ?? null;
+  const latestBenchmark = latestArtifact ? benchmarkById.get(latestArtifact.benchmark_id) ?? null : null;
+  const latestRouteLabels = latestBenchmark ? latestBenchmark.routes.map((route) => benchmarkRouteLabel(route)).join(' + ') : '';
+  const latestRunsPerRoute = latestArtifact?.routes_count ? Math.round(latestArtifact.recorded_runs / latestArtifact.routes_count) : 0;
+  const latestEvidenceHealth = latestBenchmark?.routes.some((route) => route.comparison_notes?.toLowerCase().includes('caveat')) ? 'caveated' : 'recorded';
+  const hasBenchmarks = recordedLanes.length > 0;
   return <section className="panel superiority-readiness" aria-label="Evidence Ledger Snapshot panel">
     <div className="phase3-panel-head">
       <ScopeLabel scope="GLOBAL" />
@@ -4034,11 +4071,11 @@ function HeadToHeadBenchmarkPanel({ registry, loading }: { registry: RadarBenchm
         <section className="compact-chip-list wide" aria-label="Recorded benchmark lanes">
           <div className="compact-chip-list-head">
             <strong>Recorded</strong>
-            <span>{RECORDED_BENCHMARK_LANES.length}</span>
+            <span>{recordedLanes.length}</span>
           </div>
           <div className="benchmark-state-grid">
-            <BenchmarkLaunchSummaryTile benchmarks={benchmarks} />
-            {RECORDED_BENCHMARK_LANES.map((lane) => <BenchmarkLaunchMiniCard key={lane.benchmark_id} lane={lane} benchmark={benchmarkById.get(lane.benchmark_id) ?? null} />)}
+            <BenchmarkLaunchSummaryTile lanes={recordedLanes} />
+            {recordedLanes.map((lane) => <BenchmarkLaunchMiniCard key={lane.benchmark_id} lane={lane} benchmark={benchmarkById.get(lane.benchmark_id) ?? null} />)}
           </div>
         </section>
         <section className="compact-chip-list wide" aria-label="Latest Recorded Benchmark">
@@ -4046,31 +4083,31 @@ function HeadToHeadBenchmarkPanel({ registry, loading }: { registry: RadarBenchm
             <strong>Latest Recorded Benchmark</strong>
             <span>recorded</span>
           </div>
-          <h3>Web Search Results</h3>
+          <h3>{latestArtifact?.label ?? 'n/a'}</h3>
           <div className="compact-chip-wrap">
-            <span>Exa + Perplexity</span>
-            <span>{latestRunCount} recorded route-runs</span>
-            <span>5 runs / route</span>
-            <span>2 proven paid routes</span>
-            <span>evidence_health: recorded</span>
-            <span>winner_claimed=false</span>
+            {latestRouteLabels && <span>{latestRouteLabels}</span>}
+            <span>{latestArtifact?.recorded_runs ?? 0} recorded route-runs</span>
+            <span>{latestRunsPerRoute || 0} runs / route</span>
+            <span>{latestArtifact?.routes_count ?? 0} proven paid routes</span>
+            <span>evidence_health: {latestEvidenceHealth}</span>
+            <span>winner_claimed={String(latestArtifact?.winner_claimed ?? false)}</span>
           </div>
         </section>
       </div>
-      <p className="panel-caption">Recorded evidence exists for four benchmark lanes. No route winner is claimed until scoring criteria are finalized.</p>
+      <p className="panel-caption">Recorded evidence exists for benchmark lanes. No route winner is claimed until scoring criteria are finalized.</p>
       <section className="explored-lanes" aria-label="Explored, Not Promoted">
         <div className="phase3-panel-head compact">
           <ScopeLabel scope="GLOBAL" />
           <h3>Explored, Not Promoted</h3>
         </div>
         <div className="readiness-list-grid">
-          {EXPLORED_NOT_PROMOTED_LANES.map((lane) => <section className="compact-chip-list" key={lane.label}>
+          {scaffoldLanes.map((lane) => <section className="compact-chip-list" key={lane.label}>
             <div className="compact-chip-list-head">
               <strong>{lane.label}</strong>
               <span>scaffold</span>
             </div>
             <div className="compact-chip-wrap">
-              {lane.reasons.map((reason) => <span key={reason}>{reason}</span>)}
+              {lane.why_not_promoted.map((reason) => <span key={reason}>{reason}</span>)}
             </div>
           </section>)}
         </div>
@@ -4193,26 +4230,34 @@ function routeMappingBadgeClass(status: RadarRouteMapping['mapping_status'] | Ra
   return 'route-state';
 }
 
-function MappingTargetsPanel({ registry }: { registry: RadarMappingTargetRegistry | null }) {
-  void registry;
+function MappingTargetsPanel({ registry, evidenceLedger }: { registry: RadarMappingTargetRegistry | null; evidenceLedger: RadarEvidenceLedger | null }) {
+  const recordedTargets = (evidenceLedger?.recorded_lanes ?? []).map((lane) => lane.label);
+  const blockedTargets = (evidenceLedger?.scaffold_lanes ?? []).map((lane) => lane.label);
+  const blockedIntents = new Set((evidenceLedger?.scaffold_lanes ?? []).map((lane) => lane.benchmark_id));
+  const recordedIntents = new Set((evidenceLedger?.recorded_lanes ?? []).map((lane) => lane.benchmark_id));
+  const needsCandidateTargets = (registry?.targets ?? [])
+    .filter((row) => row.current_state === 'needs_candidate')
+    .filter((row) => !recordedIntents.has(normalizeBenchmarkId(row.category, row.benchmark_intent)))
+    .filter((row) => !blockedIntents.has(normalizeBenchmarkId(row.category, row.benchmark_intent)))
+    .map((row) => publicBenchmarkTitle({ benchmark_id: normalizeBenchmarkId(row.category, row.benchmark_intent), benchmark_intent: row.benchmark_intent }));
   const groups = [
     {
       title: 'Recorded',
       state: 'Recorded',
       tone: 'route-state ok',
-      targets: ['Token Search', 'Token Metadata', 'Web Search Results']
+      targets: recordedTargets
     },
     {
       title: 'Blocked',
       state: 'Blocked',
       tone: 'route-state warn',
-      targets: ['Communications Email Delivery', 'Solana Account Balance', 'Reddit Post Search']
+      targets: blockedTargets
     },
     {
       title: 'Needs candidate',
       state: 'Needs candidate',
       tone: 'route-state',
-      targets: ['OCR comparison', 'SMS/send message', 'Knowledge/search answer']
+      targets: needsCandidateTargets
     }
   ];
 
@@ -4245,7 +4290,20 @@ function mappingTargetBadgeClass(state: RadarMappingTarget['current_state']) {
   return 'route-state';
 }
 
+function normalizeBenchmarkId(category: string, intent: string) {
+  if (category === 'communications' && intent === 'email delivery') return 'communications-email-delivery';
+  if (category === 'solana-infra' && intent === 'account balance') return 'solana-infra-account-balance';
+  if (category === 'social-data' && intent === 'reddit post search') return 'social-data-reddit-post-search';
+  if (category === 'document-ai' && intent === 'document OCR text extraction') return 'document-ocr-text-extraction';
+  if (category === 'web-search' && intent === 'web search results') return 'data-web-search-results';
+  if (category === 'finance/data' && intent === 'token search') return 'finance-data-token-search';
+  if (category === 'finance/data' && intent === 'token metadata') return 'finance-data-token-metadata';
+  if (category === 'finance/data' && intent === 'get SOL price') return 'finance-data-sol-price';
+  return `${category}-${intent}`.replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '').toLowerCase();
+}
+
 function AgentBenchmarkApiPanel() {
+  const evidenceLedgerCurl = `curl -s ${toApiUrl(API_BASE_URL, '/v1/radar/evidence-ledger')}`;
   const benchmarkSummaryCurl = 'curl https://infopunks-pay-sh-radar.onrender.com/v1/radar/benchmark-summary';
   const benchmarkHistoryCurl = `curl -s ${toApiUrl(API_BASE_URL, '/v1/radar/benchmark-history')}`;
   const benchmarkRouteTimelineCurl = `curl -s ${toApiUrl(API_BASE_URL, '/v1/radar/benchmark-history/finance-data-token-metadata/routes')}`;
@@ -4293,6 +4351,7 @@ function AgentBenchmarkApiPanel() {
           <h3>Endpoints</h3>
         </div>
         <div className="endpoint-card-grid">
+          <p><b>GET /v1/radar/evidence-ledger</b><span>Compact agent-readable evidence ledger before spend.</span></p>
           <p><b>GET /v1/radar/benchmark-summary</b><span>Compact agent route for benchmark state, artifact IDs, route counts, and interpretation guidance.</span></p>
           <p><b>GET /v1/radar/benchmark-history</b><span>Aggregate evidence ledger for recorded benchmarks.</span></p>
           <p><b>GET /v1/radar/benchmark-history/:benchmark_id/routes</b><span>Route timelines for one recorded benchmark.</span></p>
@@ -4308,6 +4367,7 @@ function AgentBenchmarkApiPanel() {
           <h3>Copyable curl examples</h3>
         </div>
         <div className="export-copy-actions" aria-label="Copy benchmark curl examples">
+          <CopyButton value={evidenceLedgerCurl} label="Copy curl /v1/radar/evidence-ledger" />
           <CopyButton value={benchmarkSummaryCurl} label="Copy curl /v1/radar/benchmark-summary" />
           <CopyButton value={benchmarkHistoryCurl} label="Copy curl /v1/radar/benchmark-history" />
           <CopyButton value={benchmarkRouteTimelineCurl} label="Copy curl benchmark route timelines" />
@@ -4317,6 +4377,7 @@ function AgentBenchmarkApiPanel() {
           <CopyButton value={tokenSearchBenchmarkCurl} label="Copy curl /v1/radar/benchmarks/finance-data-token-search" />
           <CopyButton value={openApiCurl} label="Copy curl /openapi.json" />
         </div>
+        <SafeCodeBlock value={evidenceLedgerCurl} label="curl /v1/radar/evidence-ledger" />
         <SafeCodeBlock value={benchmarkSummaryCurl} label="curl /v1/radar/benchmark-summary" />
         <SafeCodeBlock value={benchmarkHistoryCurl} label="curl /v1/radar/benchmark-history" />
         <SafeCodeBlock value={benchmarkRouteTimelineCurl} label="curl benchmark route timelines" />
