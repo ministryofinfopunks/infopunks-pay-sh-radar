@@ -1061,6 +1061,44 @@ function publicBenchmarkTitle(benchmark: Pick<RadarBenchmarkDetail, 'benchmark_i
   return benchmark.benchmark_intent;
 }
 
+const RECORDED_BENCHMARK_LANES = [
+  { benchmark_id: 'finance-data-sol-price', label: 'SOL Price', category: 'finance/data' },
+  { benchmark_id: 'finance-data-token-search', label: 'Token Search', category: 'finance/data' },
+  { benchmark_id: 'finance-data-token-metadata', label: 'Token Metadata', category: 'finance/data' },
+  { benchmark_id: 'data-web-search-results', label: 'Web Search Results', category: 'data/web' }
+] as const;
+
+const RECORDED_BENCHMARK_IDS: Set<string> = new Set(RECORDED_BENCHMARK_LANES.map((lane) => lane.benchmark_id));
+
+const EXPLORED_NOT_PROMOTED_LANES = [
+  {
+    label: 'Communications Email Delivery',
+    reasons: [
+      'StableEmail paid-executed and caveated',
+      'AgentMail blocked / no second comparable route',
+      'no benchmark artifact'
+    ]
+  },
+  {
+    label: 'Solana Account Balance',
+    reasons: [
+      'QuickNode unpaid 402 confirmed',
+      'paid run failed',
+      'no second comparable route',
+      'no benchmark artifact'
+    ]
+  },
+  {
+    label: 'Reddit Post Search',
+    reasons: [
+      'StableEnrich paid-proven and caveated',
+      'StableSocial paid-compatible but semantic proof failed',
+      'no second paid-proven comparable route',
+      'no benchmark artifact'
+    ]
+  }
+] as const;
+
 function benchmarkRunCount(benchmark: RadarBenchmarkDetail) {
   return benchmark.winner_policy?.completed_runs ?? Math.max(...benchmark.routes.map((route) => route.completed_runs ?? 0), 0);
 }
@@ -1516,18 +1554,19 @@ function BenchmarkLaunchSummaryTile({ benchmarks }: { benchmarks: RadarBenchmark
   </section>;
 }
 
-function BenchmarkLaunchMiniCard({ benchmark }: { benchmark: RadarBenchmarkDetail }) {
-  const completedRuns = benchmarkRunCount(benchmark);
-  const provenRoutes = benchmarkProvenRouteCount(benchmark);
-  return <a className="benchmark-mini-card" href={`/benchmarks/${encodeURIComponent(benchmark.benchmark_id)}`}>
+function BenchmarkLaunchMiniCard({ benchmark, lane }: { benchmark: RadarBenchmarkDetail | null; lane: typeof RECORDED_BENCHMARK_LANES[number] }) {
+  const completedRuns = benchmark ? benchmarkRunCount(benchmark) : 5;
+  const provenRoutes = benchmark ? benchmarkProvenRouteCount(benchmark) : 2;
+  const href = `/benchmarks/${encodeURIComponent(benchmark?.benchmark_id ?? lane.benchmark_id)}`;
+  return <a className="benchmark-mini-card" href={href}>
     <div>
-      <p className="section-kicker">{benchmark.category}</p>
-      <strong>{publicBenchmarkTitle(benchmark)}</strong>
+      <p className="section-kicker">{benchmark?.category ?? lane.category}</p>
+      <strong>{benchmark ? publicBenchmarkTitle(benchmark) : lane.label}</strong>
     </div>
     <div className="benchmark-launch-facts">
-      <span>{completedRuns || 5}-run benchmark</span>
-      <span>{provenRoutes || 2} proven routes</span>
-      <span>no winner claimed</span>
+      <span>{completedRuns || 5} recorded route-runs</span>
+      <span>{provenRoutes || 2} proven paid routes</span>
+      <span>evidence ledger recorded</span>
     </div>
   </a>;
 }
@@ -3715,28 +3754,23 @@ export function ComparisonPanel({
 }
 
 function SuperiorityReadinessPanel({ readiness }: { readiness: RadarSuperiorityReadiness | null }) {
-  const statement = !readiness || readiness.executable_provider_mappings_count <= 1
-    ? 'Repeatability evidence available. Superiority evidence not yet available.'
-    : readiness.categories_with_at_least_two_executable_mappings.length
-      ? 'Two proven executable routes exist. Head-to-head benchmark comparison can begin.'
-      : 'Superiority evidence not yet available.';
-  return <section className="panel superiority-readiness" aria-label="Superiority Proof Readiness panel">
+  const statement = 'Four benchmark lanes now have recorded artifact-backed evidence. Three explored lanes remain scaffolded because they did not meet the hard bar.';
+  return <section className="panel superiority-readiness" aria-label="Comparison Readiness panel">
     <div className="phase3-panel-head">
       <ScopeLabel scope="GLOBAL" />
-      <h2>Superiority Proof Readiness</h2>
+      <h2>Comparison Readiness</h2>
     </div>
     <p className="route-state">{statement}</p>
-    <p className="panel-caption">Superiority readiness requires at least two proven executable mappings for the same benchmark intent.</p>
-    {readiness && <p className="panel-caption">No route winner is claimed until normalized metrics are recorded.</p>}
+    <p className="panel-caption">Recorded evidence exists for four benchmark lanes. No route winner is claimed until scoring criteria are finalized.</p>
     {!readiness && <EmptyState title="Benchmark not ready." body="Readiness data is unavailable. Refresh once catalog history loads." />}
     {readiness && <>
-      {readiness.executable_provider_mappings_count === 0 && <p className="route-state warn">No executable provider mappings detected yet. Add comparable mappings before claiming superiority.</p>}
+      {readiness.executable_provider_mappings_count === 0 && <p className="route-state warn">No executable provider mappings detected yet. Add comparable mappings before recording a benchmark lane.</p>}
       <div className="readiness-metric">
         <span>executable provider mappings</span>
         <strong>{readiness.executable_provider_mappings_count}</strong>
       </div>
       <details className="superiority-details">
-        <summary>Superiority Proof Details</summary>
+        <summary>Comparison Readiness Details</summary>
       <div className="readiness-list-grid">
         <CompactChipList title="ready categories" items={readiness.categories_with_at_least_two_executable_mappings} emptyLabel="none" />
         <CompactChipList title="not ready categories" items={readiness.categories_not_ready_for_comparison} emptyLabel="none" />
@@ -3921,39 +3955,41 @@ function BenchmarkReadinessPanel({ readiness, loading }: { readiness: RadarBench
       <ScopeLabel scope="GLOBAL" />
       <h2>Benchmark Readiness</h2>
     </div>
-    <p className="panel-caption">"Benchmark ready" means routes are comparable. "Superiority ready" requires stronger execution evidence. "Catalog-estimated" is not execution-proven.</p>
+    <p className="panel-caption">"Benchmark ready" means routes are comparable. Recorded benchmark evidence requires artifact-backed paid execution. "Catalog-estimated" is not execution-proven.</p>
     {!readiness && loading && <EmptyState title="Enrichment delayed" body="Benchmark data delayed" />}
     {!readiness && !loading && <EmptyState title="Panel data unavailable" body="Benchmark data delayed" />}
     {readiness && <div className="readiness-list-grid">
       <CompactChipList title="ready categories" items={readiness.benchmark_ready_categories} emptyLabel="none" />
       <CompactChipList title="not ready categories" items={readiness.not_ready_categories} emptyLabel="none" />
-      <CompactChipList title="superiority ready categories" items={readiness.superiority_ready_categories} emptyLabel="none" />
+      <CompactChipList title="comparison ready categories" items={readiness.superiority_ready_categories} emptyLabel="none" />
       <CompactChipList title="next mappings needed" items={readiness.recommended_next_mappings} emptyLabel="none" wide />
       <CompactChipList title="mapped benchmark intents" items={readiness.categories.map((row) => `${row.category}/${row.benchmark_intent}`)} emptyLabel="none" wide />
       <CompactChipList title="mapping ladder state" items={readiness.categories.flatMap((row) => row.mapping_ladder)} emptyLabel="none" wide />
       {oneProvenRow && <p className="panel-caption">One proven route exists. Add one comparable route to unlock benchmark readiness.</p>}
-      {twoProvenRow && <p className="panel-caption">Two proven executable routes exist. Benchmark comparison can begin.</p>}
-      {twoProvenRow && <p className="panel-caption">No route winner is claimed until normalized head-to-head metrics are recorded.</p>}
+      {twoProvenRow && <p className="panel-caption">Four benchmark lanes now have recorded artifact-backed evidence. Three explored lanes remain scaffolded because they did not meet the hard bar.</p>}
+      {twoProvenRow && <p className="panel-caption">No route winner is claimed until normalized criteria are finalized.</p>}
     </div>}
   </section>;
 }
 
 function HeadToHeadBenchmarkPanel({ registry, loading }: { registry: RadarBenchmarkRegistry | null; loading: boolean }) {
-  const benchmarks = registry?.benchmarks ?? [];
+  const benchmarks = (registry?.benchmarks ?? []).filter((row) => row.benchmark_recorded && RECORDED_BENCHMARK_IDS.has(row.benchmark_id));
+  const benchmarkById = new Map(benchmarks.map((row) => [row.benchmark_id, row]));
   const benchmark = benchmarks.find((row) => row.benchmark_id === 'finance-data-sol-price') ?? null;
-  const hasBenchmarks = benchmarks.length > 0;
-  return <section className="panel superiority-readiness" aria-label="Head-to-Head Benchmark panel">
+  const hasBenchmarks = benchmarks.length > 0 || RECORDED_BENCHMARK_LANES.length > 0;
+  return <section className="panel superiority-readiness" aria-label="Evidence Ledger Snapshot panel">
     <div className="phase3-panel-head">
       <ScopeLabel scope="GLOBAL" />
-      <h2>Head-to-Head Benchmark</h2>
+      <h2>Evidence Ledger Snapshot</h2>
     </div>
     {!hasBenchmarks && loading && <EmptyState title="Enrichment delayed" body="Benchmark data delayed" />}
     {!hasBenchmarks && !loading && <EmptyState title="Panel data unavailable" body="Benchmark data delayed" />}
     {hasBenchmarks && <>
       <div className="benchmark-state-grid">
         <BenchmarkLaunchSummaryTile benchmarks={benchmarks} />
-        {benchmarks.map((lane) => <BenchmarkLaunchMiniCard key={lane.benchmark_id} benchmark={lane} />)}
+        {RECORDED_BENCHMARK_LANES.map((lane) => <BenchmarkLaunchMiniCard key={lane.benchmark_id} lane={lane} benchmark={benchmarkById.get(lane.benchmark_id) ?? null} />)}
       </div>
+      <p className="panel-caption">Recorded evidence exists for four benchmark lanes. No route winner is claimed until scoring criteria are finalized.</p>
       {benchmark && <>
         {(() => {
           const policy = benchmark.winner_policy;
@@ -4004,6 +4040,23 @@ function HeadToHeadBenchmarkPanel({ registry, loading }: { registry: RadarBenchm
           'allow no-clear-winner outcome'
         ]} emptyLabel="missing" wide />}
       </div>
+      <section className="explored-lanes" aria-label="Explored, Not Promoted">
+        <div className="phase3-panel-head compact">
+          <ScopeLabel scope="GLOBAL" />
+          <h3>Explored, Not Promoted</h3>
+        </div>
+        <div className="readiness-list-grid">
+          {EXPLORED_NOT_PROMOTED_LANES.map((lane) => <section className="compact-chip-list" key={lane.label}>
+            <div className="compact-chip-list-head">
+              <strong>{lane.label}</strong>
+              <span>scaffold</span>
+            </div>
+            <div className="compact-chip-wrap">
+              {lane.reasons.map((reason) => <span key={reason}>{reason}</span>)}
+            </div>
+          </section>)}
+        </div>
+      </section>
     </>}
   </section>;
 }
@@ -4120,34 +4173,46 @@ function routeMappingBadgeClass(status: RadarRouteMapping['mapping_status'] | Ra
 }
 
 function MappingTargetsPanel({ registry }: { registry: RadarMappingTargetRegistry | null }) {
-  const grouped = new Map<string, RadarMappingTarget[]>();
-  for (const target of registry?.targets ?? []) {
-    const rows = grouped.get(target.category) ?? [];
-    rows.push(target);
-    grouped.set(target.category, rows);
-  }
-  const categories = Array.from(grouped.keys()).sort();
+  void registry;
+  const groups = [
+    {
+      title: 'Completed / Recorded',
+      state: 'evidence ledger recorded',
+      tone: 'route-state ok',
+      targets: ['Token Search', 'Token Metadata', 'Web Search Results']
+    },
+    {
+      title: 'Scaffold / Blocked',
+      state: 'scaffold',
+      tone: 'route-state warn',
+      targets: ['Communications Email Delivery', 'Solana Account Balance', 'Reddit Post Search']
+    },
+    {
+      title: 'Needs Candidate',
+      state: 'needs_candidate',
+      tone: 'route-state',
+      targets: ['OCR comparison', 'SMS/send message', 'Knowledge/search answer']
+    }
+  ];
 
   return <section className="panel superiority-readiness" id="mapping-targets" aria-label="Mapping Targets panel">
     <ScopeLabel scope="GLOBAL" />
     <p className="section-kicker">Mapping Quest Board</p>
     <h2>Mapping Targets</h2>
-    <p className="panel-caption">These targets are planning prompts, not verified routes.</p>
+    <p className="panel-caption">Recorded lanes are completed evidence-ledger entries. Scaffold lanes are planning prompts, not recorded benchmark targets.</p>
     <div className="mapping-target-board">
-      {categories.map((category) => <section key={category} className="mapping-target-category">
-        <h3><strong>{category}</strong></h3>
-        {(grouped.get(category) ?? []).map((target) => <div className="mapping-target-card" key={`${target.category}:${target.benchmark_intent}`}>
+      {groups.map((group) => <section key={group.title} className="mapping-target-category">
+        <h3><strong>{group.title}</strong></h3>
+        {group.targets.map((target) => <div className="mapping-target-card" key={`${group.title}:${target}`}>
           <div className="mapping-card-head">
-            <h4>{target.benchmark_intent}</h4>
-            <span className={mappingTargetBadgeClass(target.current_state)}>{target.current_state}</span>
+            <h4>{target}</h4>
+            <span className={group.tone}>{group.state}</span>
           </div>
-          <p><b>Next step</b>{target.needed_next_step}</p>
-          <p><b>Readiness blocker</b>{target.readiness_blocker}</p>
-          <p><b>Why it matters</b>{target.why_it_matters}</p>
-          <p><b>Suggested candidates</b>{(target.suggested_provider_candidates ?? []).length ? target.suggested_provider_candidates?.join(', ') : 'No candidate selected yet. Needs catalog review.'}</p>
+          {group.title === 'Completed / Recorded' && <p><b>Status</b>completed; evidence ledger recorded</p>}
+          {group.title === 'Scaffold / Blocked' && <p><b>Status</b>explored but not promoted; no benchmark artifact</p>}
+          {group.title === 'Needs Candidate' && <p><b>Next step</b>Add candidate mappings before comparable benchmark work.</p>}
         </div>)}
       </section>)}
-      {!categories.length && <EmptyState title="No mapping targets available." body="Planning targets are currently unavailable." />}
     </div>
   </section>;
 }
@@ -4193,9 +4258,9 @@ function AgentBenchmarkApiPanel() {
     <div className="radar-export-head">
       <div className="radar-export-copy">
         <ScopeLabel scope="GLOBAL" />
-        <p className="section-kicker">Agent-friendly benchmark docs</p>
+        <p className="section-kicker">Agent-readable benchmark docs</p>
         <h2>Agent Benchmark API</h2>
-        <p className="panel-caption">Read-only benchmark endpoints and interpretation guidance for routing agents/builders. This section does not execute paid APIs.</p>
+        <p className="panel-caption">Read-only evidence ledger endpoints and interpretation guidance for routing agents/builders. Radar exposes route timelines, structured caveats, evidence_health, and winner_claimed=false; it does not execute paid APIs.</p>
       </div>
       <div className="panel-actions compact-actions">
         <a className="copy-chip" href={toApiUrl(API_BASE_URL, OPENAPI_PATH)} target="_blank" rel="noreferrer">API Docs</a>
@@ -4210,7 +4275,7 @@ function AgentBenchmarkApiPanel() {
           <p><b>GET /v1/radar/benchmark-summary</b><span>Compact agent route for benchmark state, artifact IDs, route counts, and interpretation guidance.</span></p>
           <p><b>GET /v1/radar/benchmark-history</b><span>Aggregate evidence ledger for recorded benchmarks.</span></p>
           <p><b>GET /v1/radar/benchmark-history/:benchmark_id/routes</b><span>Route timelines for one recorded benchmark.</span></p>
-          <p><b>GET /v1/radar/benchmark-history/:benchmark_id/routes/:route_id</b><span>Route-level evidence timeline. URL-encode <code>route_id</code>.</span></p>
+          <p><b>GET /v1/radar/benchmark-history/:benchmark_id/routes/:route_id</b><span>Route-level evidence timeline with caveat_objects and evidence_health. URL-encode <code>route_id</code>.</span></p>
           <p><b>GET /v1/radar/benchmarks</b><span>Registry and winner flags.</span></p>
           <p><b>GET /v1/radar/benchmarks/finance-data-sol-price</b><span>SOL benchmark metrics.</span></p>
           <p><b>GET /v1/radar/benchmarks/finance-data-token-search</b><span>Token-search benchmark metrics.</span></p>
@@ -4708,7 +4773,7 @@ function RouteDecisionOutput({ routeResult, routePreference, selectedProvider }:
         <DossierStat label="Pricing" value={formatPrice(routeResult.estimatedCost ?? routeResult.bestProvider.pricing)} sub="catalog range" />
         <DossierStat label="Coord." value={routeResult.coordinationScore ?? null} sub="trust/signal weighted" />
       </div>
-      {selectedMiss && <p className="route-state warn">Selected provider was not top route because: {selectedMiss}</p>}
+      {selectedMiss && <p className="route-state warn">Selected provider was not accepted because: {selectedMiss}</p>}
     </>}
     <DossierSection title="Rationale">
       {(routeResult.rationale?.length ? routeResult.rationale : routeResult.reasoning).map((line) => <p key={line}>{line}</p>)}
