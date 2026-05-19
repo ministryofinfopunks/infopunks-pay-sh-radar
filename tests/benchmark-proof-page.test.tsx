@@ -22,6 +22,7 @@ function benchmarkSummary() {
     source: 'infopunks-pay-sh-radar',
     recorded_benchmarks: 4,
     total_benchmarks: 7,
+    total_artifacts: 5,
     winner_claimed: false,
     total_recorded_runs: 30,
     proven_routes: 8,
@@ -365,6 +366,47 @@ function installFetchMock(options: { benchmarkSummaryFails?: boolean } = {}) {
               comparison_notes: 'no winner claim'
             }
           ]
+        },
+        {
+          benchmark_id: 'communications-email-delivery',
+          category: 'communications',
+          benchmark_intent: 'email delivery',
+          benchmark_recorded: false,
+          winner_claimed: false,
+          winner_status: 'not_evaluated',
+          next_step: 'resolve AgentMail blockage and record comparable artifact',
+          readiness_note: 'StableEmail paid-executed, verified/proven but caveated. AgentMail blocked / no second comparable route. No benchmark artifact.',
+          routes: [
+            { provider_id: 'stableemail', route_id: 'stableemail:POST:/send', execution_status: 'proven', paid_execution_proven: true },
+            { provider_id: 'agentmail', route_id: 'agentmail:POST:/send', execution_status: 'blocked', paid_execution_proven: false }
+          ]
+        },
+        {
+          benchmark_id: 'solana-infra-account-balance',
+          category: 'solana/infra',
+          benchmark_intent: 'account balance',
+          benchmark_recorded: false,
+          winner_claimed: false,
+          winner_status: 'not_evaluated',
+          next_step: 'complete paid run and find a second comparable route',
+          readiness_note: 'QuickNode unpaid 402 confirmed. Paid run failed. No second comparable route. No benchmark artifact.',
+          routes: [
+            { provider_id: 'quicknode', route_id: 'quicknode:POST:/solana/balance', execution_status: 'blocked', paid_execution_proven: false }
+          ]
+        },
+        {
+          benchmark_id: 'social-data-reddit-post-search',
+          category: 'social/data',
+          benchmark_intent: 'reddit post search',
+          benchmark_recorded: false,
+          winner_claimed: false,
+          winner_status: 'not_evaluated',
+          next_step: 'prove a second comparable semantic route and record artifact',
+          readiness_note: 'StableEnrich paid-proven but caveated. StableSocial paid-compatible but semantic proof failed. No second paid-proven comparable route. No benchmark artifact.',
+          routes: [
+            { provider_id: 'stableenrich', route_id: 'stableenrich:POST:/reddit/search', execution_status: 'proven', paid_execution_proven: true },
+            { provider_id: 'stablesocial', route_id: 'stablesocial:POST:/reddit/search', execution_status: 'blocked', paid_execution_proven: false }
+          ]
         }
       ]
     });
@@ -526,19 +568,23 @@ describe('public benchmark proof pages', () => {
     expect(text).toContain('Radar records benchmark evidence for Pay.sh routes before agents spend.');
     expect(text).toContain('Agent Evidence Demo');
     expect(text).toContain('4 recorded benchmarks');
-    expect(text).toContain('5 benchmark artifacts');
-    expect(text).toContain('20 recorded runs');
+    expect(text).toContain('5 artifacts');
+    expect(text).toContain('30 recorded route-runs');
     expect(text).toContain('8 proven paid routes');
     expect(text).toContain('0 winners claimed');
-    expect(text).toContain('route timelines live');
+    expect(text).toContain('Recorded means paid route evidence exists. It does not mean a winner was crowned.');
+    expect(text).toContain('Scaffold means the lane was explored but did not meet the hard bar.');
+    expect(text).toContain('Radar does not rewrite uncertainty. It records it, fixes it, and shows the delta.');
     expect(text).toContain('route timeline: available');
     expect(text).toContain('GET /v1/radar/benchmark-summary');
+    expect(text).toContain('GET /v1/radar/benchmark-history');
     expect(text).toContain('"recorded_benchmarks": 4');
+    expect(text).toContain('"total_artifacts": 5');
     expect(text).toContain('"routes_count": 2');
     expect(text).toContain('"recorded_runs": 5');
-    expect(text).toContain('winner_claimed=false means agents should not infer a best route.');
+    expect(text).toContain('winner_claimed=false and winner_status=no_clear_winner mean Radar shows evidence without route superiority claims.');
     expect(text).toContain('routes_countshows comparable proven routes per benchmark.');
-    expect(text).toContain('recorded_runsshows normalized benchmark evidence.');
+    expect(text).toContain('recorded_runsshows recorded route-run evidence.');
     expect(text).toContain('Agent Route Timeline API');
     expect(text).toContain('GET /v1/radar/benchmark-history/finance-data-token-metadata/routes');
     expect(text).toContain('GET /v1/radar/benchmark-history/finance-data-token-metadata/routes/{route_id}');
@@ -547,17 +593,30 @@ describe('public benchmark proof pages', () => {
     expect(text).toContain('winner_claimedfalse means agents should not infer a winner.');
     expect(text).toContain('route_id may contain slashes or colons. URL-encode route_id before calling the detail endpoint.');
     expect(text).toContain('canonical_network_mismatch');
-    expect(text.match(/best route/gi)).toHaveLength(1);
     expect(text).not.toMatch(/fastest route|safest route|recommended route/i);
     expect(text).toContain('SOL Price');
     expect(text).toContain('Token Search');
     expect(text).toContain('Token Metadata');
     expect(text).toContain('Web Search Results');
-    expect(text).not.toContain('Planned lane. No proven routes or recorded artifacts yet.');
+    expect(text).toContain('data-web-search-results');
+    expect(text).toContain('Scaffold Lanes');
+    expect(text).toContain('Communications Email Delivery');
+    expect(text).toContain('Solana Account Balance');
+    expect(text).toContain('Reddit Post Search');
+    expect(text).toContain('StableEmail paid-executed, verified/proven but caveated');
+    expect(text).toContain('AgentMail blocked / no second comparable route');
+    expect(text).toContain('QuickNode unpaid 402 confirmed');
+    expect(text).toContain('paid run failed');
+    expect(text).toContain('StableEnrich paid-proven but caveated');
+    expect(text).toContain('StableSocial paid-compatible but semantic proof failed');
+    expect(text).toContain('no second paid-proven comparable route');
+    expect(text).toContain('winner_status: no_clear_winner');
+    expect(text).toContain('winner_claimed=false');
     expect(text.match(/state: recorded/g)?.length ?? 0).toBeGreaterThanOrEqual(4);
     expect(text.match(/winner claimed: false/g)?.length ?? 0).toBeGreaterThanOrEqual(4);
     expect(text).toContain('Radar does not infer route superiority.');
     expect(text).not.toMatch(/winning/i);
+    expect(text).not.toMatch(/best route|top route/i);
     const link = container.querySelector('a[href="/benchmarks/finance-data-sol-price"]');
     expect(link).not.toBeNull();
     const scaffoldLink = container.querySelector('a[href="/benchmarks/finance-data-token-search"]');

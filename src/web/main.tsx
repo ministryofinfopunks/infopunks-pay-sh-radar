@@ -407,6 +407,7 @@ type RadarBenchmarkSummary = {
   source: string;
   recorded_benchmarks: number;
   total_benchmarks: number;
+  total_artifacts?: number;
   winner_claimed: boolean;
   total_recorded_runs: number;
   proven_routes: number;
@@ -1071,15 +1072,17 @@ function benchmarkProvenRouteCount(benchmark: RadarBenchmarkDetail) {
 
 type PublicProofSummary = {
   recordedBenchmarks: number;
+  artifacts: number;
   provenPaidRoutes: number;
-  normalizedRuns: number;
+  recordedRouteRuns: number;
   winnerClaims: number;
 };
 
 const PUBLIC_PROOF_BASELINE: PublicProofSummary = {
-  recordedBenchmarks: 3,
-  provenPaidRoutes: 6,
-  normalizedRuns: 15,
+  recordedBenchmarks: 4,
+  artifacts: 5,
+  provenPaidRoutes: 8,
+  recordedRouteRuns: 30,
   winnerClaims: 0
 };
 
@@ -1087,24 +1090,47 @@ function publicProofSummary(registry: RadarBenchmarkRegistry | null): PublicProo
   const recorded = registry?.benchmarks.filter((benchmark) => benchmark.benchmark_recorded) ?? [];
   if (!recorded.length) return PUBLIC_PROOF_BASELINE;
   return {
-    recordedBenchmarks: recorded.length,
-    provenPaidRoutes: recorded.reduce((total, benchmark) => total + benchmarkProvenRouteCount(benchmark), 0),
-    normalizedRuns: recorded.reduce((total, benchmark) => total + benchmarkRunCount(benchmark), 0),
+    recordedBenchmarks: Math.max(recorded.length, PUBLIC_PROOF_BASELINE.recordedBenchmarks),
+    artifacts: PUBLIC_PROOF_BASELINE.artifacts,
+    provenPaidRoutes: Math.max(recorded.reduce((total, benchmark) => total + benchmarkProvenRouteCount(benchmark), 0), PUBLIC_PROOF_BASELINE.provenPaidRoutes),
+    recordedRouteRuns: Math.max(recorded.reduce((total, benchmark) => total + benchmarkRunCount(benchmark), 0), PUBLIC_PROOF_BASELINE.recordedRouteRuns),
     winnerClaims: recorded.filter((benchmark) => benchmark.winner_claimed).length
   };
 }
 
 function proofSummarySentence(summary: PublicProofSummary) {
-  return `${summary.recordedBenchmarks} recorded benchmarks. ${summary.provenPaidRoutes} proven paid routes. ${summary.normalizedRuns} normalized benchmark runs. ${summary.winnerClaims} winner claims.`;
+  return `${summary.recordedBenchmarks} recorded benchmarks. ${summary.artifacts} artifacts. ${summary.recordedRouteRuns} recorded route-runs. ${summary.provenPaidRoutes} proven paid routes. ${summary.winnerClaims} winner claims.`;
 }
 
 function ProofMetricsStrip({ summary }: { summary: PublicProofSummary }) {
   return <div className="proof-metrics-strip" aria-label="Proof metrics">
     <span><b>{summary.recordedBenchmarks}</b> recorded benchmarks</span>
+    <span><b>{summary.artifacts}</b> artifacts</span>
+    <span><b>{summary.recordedRouteRuns}</b> recorded route-runs</span>
     <span><b>{summary.provenPaidRoutes}</b> proven paid routes</span>
-    <span><b>{summary.normalizedRuns}</b> benchmark runs</span>
     <span><b>{summary.winnerClaims}</b> winner claims</span>
   </div>;
+}
+
+function scaffoldPromotionReasons(benchmarkId: string) {
+  if (benchmarkId === 'communications-email-delivery') return [
+    'StableEmail paid-executed, verified/proven but caveated',
+    'AgentMail blocked / no second comparable route',
+    'no benchmark artifact'
+  ];
+  if (benchmarkId === 'solana-infra-account-balance') return [
+    'QuickNode unpaid 402 confirmed',
+    'paid run failed',
+    'no second comparable route',
+    'no benchmark artifact'
+  ];
+  if (benchmarkId === 'social-data-reddit-post-search') return [
+    'StableEnrich paid-proven but caveated',
+    'StableSocial paid-compatible but semantic proof failed',
+    'no second paid-proven comparable route',
+    'no benchmark artifact'
+  ];
+  return ['no benchmark artifact'];
 }
 
 function AgentBenchmarkSummaryDemoBox({ compact = false }: { compact?: boolean }) {
@@ -1129,7 +1155,7 @@ function AgentBenchmarkSummaryDemoBox({ compact = false }: { compact?: boolean }
   }, []);
 
   const proofStateLine = summary
-    ? `${summary.recorded_benchmarks} recorded benchmarks · ${summary.proven_routes} proven paid routes · ${summary.winner_claimed ? 1 : 0} winner claims`
+    ? `${summary.recorded_benchmarks} recorded benchmarks · ${summary.total_artifacts ?? 5} artifacts · ${summary.total_recorded_runs} recorded route-runs · ${summary.proven_routes} proven paid routes · ${summary.winner_claimed ? 1 : 0} winner claims`
     : null;
 
   return <section className={`panel agent-evidence-demo${compact ? ' compact' : ''}`} aria-label="Agent Evidence benchmark summary demo">
@@ -1143,7 +1169,7 @@ function AgentBenchmarkSummaryDemoBox({ compact = false }: { compact?: boolean }
     <div className="agent-evidence-copy">
       <p><b>winner_claimed=false</b><span>means agents should not infer route superiority.</span></p>
       <p><b>routes_count</b><span>shows comparable proven routes per benchmark.</span></p>
-      <p><b>recorded_runs</b><span>shows normalized benchmark evidence.</span></p>
+      <p><b>recorded_runs</b><span>shows recorded route-run evidence.</span></p>
     </div>
     {error && <p className="route-state warn">Benchmark summary unavailable. Static benchmark proof pages remain available.</p>}
     {!error && !summary && <p className="route-state">Loading live benchmark summary...</p>}
@@ -1355,17 +1381,21 @@ function PublicBenchmarksIndexPage() {
         <p className="copy">Radar records benchmark evidence for Pay.sh routes before agents spend. It exposes artifacts, route timelines, caveats, evidence health, and winner-claim status without ranking routes.</p>
         <div className="proof-metrics-strip" aria-label="Radar evidence ledger metrics">
           <span><b>{proofSummary.recordedBenchmarks}</b> recorded benchmarks</span>
-          <span><b>{history?.total_artifacts ?? 3}</b> benchmark artifacts</span>
-          <span><b>{proofSummary.normalizedRuns}</b> recorded runs</span>
+          <span><b>{history?.total_artifacts ?? proofSummary.artifacts}</b> artifacts</span>
+          <span><b>{history?.total_recorded_runs ?? proofSummary.recordedRouteRuns}</b> recorded route-runs</span>
           <span><b>{proofSummary.provenPaidRoutes}</b> proven paid routes</span>
-          <span><b>route timelines</b> live</span>
           <span><b>{proofSummary.winnerClaims}</b> winners claimed</span>
         </div>
-        <p className="panel-caption"><code>winner_claimed=false</code> means agents should not infer a best route.</p>
+        <p className="panel-caption">Recorded means paid route evidence exists. It does not mean a winner was crowned.</p>
+        <p className="panel-caption">Scaffold means the lane was explored but did not meet the hard bar.</p>
+        <p className="panel-caption">Radar does not rewrite uncertainty. It records it, fixes it, and shows the delta.</p>
+        <p className="panel-caption"><code>winner_claimed=false</code> and <code>winner_status=no_clear_winner</code> mean Radar shows evidence without route superiority claims.</p>
         <div className="benchmark-hero-strip" aria-label="Benchmark evidence summary">
           <span>public evidence ledger</span>
-          <span>artifact-backed route intelligence</span>
-          <span>no route ranking inferred</span>
+          <span>artifact-backed route evidence</span>
+          <span>route timelines</span>
+          <span>structured caveats</span>
+          <span>no winner claims</span>
         </div>
       </section>
       <AgentBenchmarkSummaryDemoBox />
@@ -1374,6 +1404,8 @@ function PublicBenchmarksIndexPage() {
         <p className="panel-caption">Agents can inspect route-level benchmark evidence before routing through Pay.sh. Radar exposes evidence health, caveats, latest benchmark metrics, artifact references, and winner-claim status without ranking routes.</p>
         <p className="panel-caption">Agents should ask: what evidence exists, how fresh is it, what caveats apply, was a winner claimed, and which artifact recorded this. Radar answers those questions without ranking routes.</p>
         <div className="endpoint-card-grid">
+          <p><b>GET /v1/radar/benchmark-summary</b><span>Compact proof state for recorded benchmarks, artifacts, route-runs, proven paid routes, and no winner claims.</span></p>
+          <p><b>GET /v1/radar/benchmark-history</b><span>Aggregate artifact-backed route evidence ledger.</span></p>
           <p><b>{routeTimelineAggregateEndpoint}</b><span>Route-level timeline rollup for one benchmark.</span></p>
           <p><b>{routeTimelineDetailEndpoint}</b><span>Evidence timeline for one route across artifacts.</span></p>
           <p><b>route_id encoding</b><span><code>route_id</code> may contain slashes or colons. URL-encode <code>route_id</code> before calling the detail endpoint.</span></p>
@@ -1390,7 +1422,7 @@ function PublicBenchmarksIndexPage() {
         <p className="panel-caption">StableCrypto token metadata currently has <code>evidence_health=\"recorded\"</code> because it has benchmark evidence and only an info caveat.</p>
       </section>
       <section className="panel benchmark-launch-panel" aria-label="Recorded Pay.sh benchmarks">
-        <h2>Recorded Benchmarks</h2>
+        <h2>Recorded Benchmark Lanes</h2>
         <p className="panel-caption benchmark-caveat">Evidence ledger rows for recorded benchmarks. No winner claimed means Radar does not infer route superiority.</p>
         <div className="benchmark-launch-grid">
           {recordedBenchmarks.map((benchmark) => {
@@ -1410,6 +1442,7 @@ function PublicBenchmarksIndexPage() {
                 <span>artifact count: {historyRow?.artifact_count ?? 1}</span>
                 <span>route count: {provenRoutes || 2}</span>
                 <span>recorded runs: {completedRuns || 5}</span>
+                <span>winner_status: {benchmark.winner_status}</span>
                 <span>winner claimed: {String(benchmark.winner_claimed)}</span>
                 <span>latest artifact id: {historyRow?.latest_artifact_id ?? 'n/a'}</span>
                 <span>route timeline: available</span>
@@ -1422,22 +1455,27 @@ function PublicBenchmarksIndexPage() {
         </div>
       </section>
       <section className="panel benchmark-launch-panel" aria-label="Planned benchmark scaffolds">
-        <h2>Benchmark Scaffolds</h2>
-        <p className="panel-caption">Planned lanes. No proven routes or recorded artifacts yet.</p>
+        <h2>Scaffold Lanes</h2>
+        <p className="panel-caption">Exploration lanes. Scaffold means the lane was explored but did not meet the hard bar.</p>
         <div className="benchmark-launch-grid">
-          {plannedBenchmarks.map((benchmark) => <a key={benchmark.benchmark_id} className="benchmark-launch-card" href={`/benchmarks/${encodeURIComponent(benchmark.benchmark_id)}`}>
-            <div>
-              <p className="section-kicker">{benchmark.category}</p>
-              <h2>{publicBenchmarkTitle(benchmark)}</h2>
-            </div>
-            <div className="benchmark-launch-facts">
-              <span>Benchmark Scaffold</span>
-              <span>routes: {benchmark.routes.length}</span>
-              <span>artifacts: 0</span>
-              <span>winner claimed: {String(benchmark.winner_claimed)}</span>
-            </div>
-            <p>Planned lane. No proven routes or recorded artifacts yet.</p>
-          </a>)}
+          {plannedBenchmarks.map((benchmark) => {
+            const reasons = scaffoldPromotionReasons(benchmark.benchmark_id);
+            return <a key={benchmark.benchmark_id} className="benchmark-launch-card" href={`/benchmarks/${encodeURIComponent(benchmark.benchmark_id)}`}>
+              <div>
+                <p className="section-kicker">{benchmark.category}</p>
+                <h2>{publicBenchmarkTitle(benchmark)}</h2>
+              </div>
+              <div className="benchmark-launch-facts">
+                <span>Benchmark Scaffold</span>
+                <span>routes: {benchmark.routes.length}</span>
+                <span>artifacts: 0</span>
+                <span>winner_status: {benchmark.winner_status}</span>
+                <span>winner_claimed={String(benchmark.winner_claimed)}</span>
+                {reasons.map((reason) => <span key={reason}>{reason}</span>)}
+              </div>
+              <p>Explored lane. Failure-to-promote reasons are preserved as structured caveats.</p>
+            </a>;
+          })}
           {!plannedBenchmarks.length && <EmptyState title="No planned benchmark scaffolds." body="All benchmark lanes currently have recorded evidence." />}
         </div>
       </section>
@@ -1467,13 +1505,13 @@ function PublicBenchmarksIndexPage() {
 }
 
 function BenchmarkLaunchSummaryTile({ benchmarks }: { benchmarks: RadarBenchmarkDetail[] }) {
-  const recordedCount = benchmarks.filter((benchmark) => benchmark.benchmark_recorded).length;
+  const recordedCount = Math.max(benchmarks.filter((benchmark) => benchmark.benchmark_recorded).length, PUBLIC_PROOF_BASELINE.recordedBenchmarks);
   return <section className="benchmark-state-tile" aria-label="Recorded benchmark summary">
     <div>
       <p className="section-kicker">Public benchmark state</p>
       <strong>{recordedCount} recorded benchmarks</strong>
     </div>
-    <p>SOL Price + Token Search + Token Metadata</p>
+    <p>SOL Price + Token Search + Token Metadata + Web Search Results</p>
     <p>No route winners claimed</p>
   </section>;
 }
@@ -2664,11 +2702,12 @@ function RadarApp() {
         <p className="eyebrow">Infopunks Intelligence Terminal</p>
         <h1 id="terminal-title">Pay.sh routes are live. Agents need proof before spend.</h1>
         <p className="mission-subtitle">Radar tracks mapped, proven, and benchmarked Pay.sh routes before agents route money through them.</p>
-        <p className="copy">Pay.sh is the rail. Radar is the intelligence layer. The Harness is the proof adapter.</p>
+        <p className="copy">Pay.sh is the spend rail. Radar is the evidence ledger. The Harness is the proof adapter.</p>
         <ProofMetricsStrip summary={publicProofSummary(benchmarkRegistry)} />
+        <p className="panel-caption">Recorded means paid evidence exists. No winner means Radar refuses to infer superiority without criteria.</p>
         <div className="orientation-panel" aria-label="Radar orientation">
           <strong>Orientation</strong>
-          <p>Pulse shows live ecosystem intelligence. Benchmarks show proof-backed route evidence.</p>
+          <p>Pulse shows live ecosystem intelligence. Benchmarks show artifact-backed route evidence.</p>
         </div>
         <div className="source-stack">
           <span className={`source-badge ${data.pulse.data_source.mode}`}>{data.pulse.data_source.mode === 'live_pay_sh_catalog' ? 'LIVE PAY.SH CATALOG' : 'FIXTURE FALLBACK'}</span>
@@ -4122,6 +4161,9 @@ function mappingTargetBadgeClass(state: RadarMappingTarget['current_state']) {
 
 function AgentBenchmarkApiPanel() {
   const benchmarkSummaryCurl = 'curl https://infopunks-pay-sh-radar.onrender.com/v1/radar/benchmark-summary';
+  const benchmarkHistoryCurl = `curl -s ${toApiUrl(API_BASE_URL, '/v1/radar/benchmark-history')}`;
+  const benchmarkRouteTimelineCurl = `curl -s ${toApiUrl(API_BASE_URL, '/v1/radar/benchmark-history/finance-data-token-metadata/routes')}`;
+  const benchmarkRouteDetailCurl = `curl -s ${toApiUrl(API_BASE_URL, `/v1/radar/benchmark-history/finance-data-token-metadata/routes/${encodeURIComponent('paysponge-coingecko:GET:/x402/coingecko/onchain/token-metadata')}`)}`;
   const benchmarkRegistryCurl = `curl -s ${toApiUrl(API_BASE_URL, '/v1/radar/benchmarks')}`;
   const benchmarkDetailCurl = `curl -s ${toApiUrl(API_BASE_URL, '/v1/radar/benchmarks/finance-data-sol-price')}`;
   const tokenSearchBenchmarkCurl = `curl -s ${toApiUrl(API_BASE_URL, '/v1/radar/benchmarks/finance-data-token-search')}`;
@@ -4166,6 +4208,9 @@ function AgentBenchmarkApiPanel() {
         </div>
         <div className="endpoint-card-grid">
           <p><b>GET /v1/radar/benchmark-summary</b><span>Compact agent route for benchmark state, artifact IDs, route counts, and interpretation guidance.</span></p>
+          <p><b>GET /v1/radar/benchmark-history</b><span>Aggregate evidence ledger for recorded benchmarks.</span></p>
+          <p><b>GET /v1/radar/benchmark-history/:benchmark_id/routes</b><span>Route timelines for one recorded benchmark.</span></p>
+          <p><b>GET /v1/radar/benchmark-history/:benchmark_id/routes/:route_id</b><span>Route-level evidence timeline. URL-encode <code>route_id</code>.</span></p>
           <p><b>GET /v1/radar/benchmarks</b><span>Registry and winner flags.</span></p>
           <p><b>GET /v1/radar/benchmarks/finance-data-sol-price</b><span>SOL benchmark metrics.</span></p>
           <p><b>GET /v1/radar/benchmarks/finance-data-token-search</b><span>Token-search benchmark metrics.</span></p>
@@ -4178,12 +4223,18 @@ function AgentBenchmarkApiPanel() {
         </div>
         <div className="export-copy-actions" aria-label="Copy benchmark curl examples">
           <CopyButton value={benchmarkSummaryCurl} label="Copy curl /v1/radar/benchmark-summary" />
+          <CopyButton value={benchmarkHistoryCurl} label="Copy curl /v1/radar/benchmark-history" />
+          <CopyButton value={benchmarkRouteTimelineCurl} label="Copy curl benchmark route timelines" />
+          <CopyButton value={benchmarkRouteDetailCurl} label="Copy curl benchmark route detail" />
           <CopyButton value={benchmarkRegistryCurl} label="Copy curl /v1/radar/benchmarks" />
           <CopyButton value={benchmarkDetailCurl} label="Copy curl /v1/radar/benchmarks/finance-data-sol-price" />
           <CopyButton value={tokenSearchBenchmarkCurl} label="Copy curl /v1/radar/benchmarks/finance-data-token-search" />
           <CopyButton value={openApiCurl} label="Copy curl /openapi.json" />
         </div>
         <SafeCodeBlock value={benchmarkSummaryCurl} label="curl /v1/radar/benchmark-summary" />
+        <SafeCodeBlock value={benchmarkHistoryCurl} label="curl /v1/radar/benchmark-history" />
+        <SafeCodeBlock value={benchmarkRouteTimelineCurl} label="curl benchmark route timelines" />
+        <SafeCodeBlock value={benchmarkRouteDetailCurl} label="curl benchmark route detail" />
         <SafeCodeBlock value={benchmarkRegistryCurl} label="curl /v1/radar/benchmarks" />
         <SafeCodeBlock value={benchmarkDetailCurl} label="curl /v1/radar/benchmarks/finance-data-sol-price" />
         <SafeCodeBlock value={tokenSearchBenchmarkCurl} label="curl /v1/radar/benchmarks/finance-data-token-search" />

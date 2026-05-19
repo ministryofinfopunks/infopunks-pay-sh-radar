@@ -2501,7 +2501,7 @@ body::after { opacity: .18; }
 
 .proof-metrics-strip {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 8px;
   margin: 16px 0 12px;
 }

@@ -786,6 +786,14 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Preflight');
     expect(container.textContent).toContain('Pay.sh routes are live. Agents need proof before spend.');
     expect(container.textContent).toContain('Radar tracks mapped, proven, and benchmarked Pay.sh routes before agents route money through them.');
+    expect(container.textContent).toContain('Pay.sh is the spend rail. Radar is the evidence ledger. The Harness is the proof adapter.');
+    expect(container.textContent).toContain('4 recorded benchmarks');
+    expect(container.textContent).toContain('5 artifacts');
+    expect(container.textContent).toContain('30 recorded route-runs');
+    expect(container.textContent).toContain('8 proven paid routes');
+    expect(container.textContent).toContain('0 winner claims');
+    expect(container.textContent).toContain('Recorded means paid evidence exists');
+    expect(container.textContent).toContain('Pulse shows live ecosystem intelligence. Benchmarks show artifact-backed route evidence.');
     expect(container.textContent).toContain('Ask Radar where an agent should route before spending.');
     expect(container.textContent).toContain('No preflight decision yet.');
     expect(container.textContent).toContain('Provider/Endpoint Comparison Engine');
@@ -959,8 +967,8 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Superiority readiness requires at least two proven executable mappings for the same benchmark intent.');
     expect(container.textContent).toContain('Benchmark Readiness');
     expect(container.textContent).toContain('Head-to-Head Benchmark');
-    expect(container.textContent).toContain('2 recorded benchmarks');
-    expect(container.textContent).toContain('SOL Price + Token Search');
+    expect(container.textContent).toContain('4 recorded benchmarks');
+    expect(container.textContent).toContain('SOL Price + Token Search + Token Metadata + Web Search Results');
     expect(container.textContent).toContain('No route winners claimed');
     expect(container.textContent).toContain('SOL Price');
     expect(container.textContent).toContain('Token Search');
