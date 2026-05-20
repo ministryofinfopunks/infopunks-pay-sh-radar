@@ -233,8 +233,8 @@ async function run(): Promise<void> {
         `recorded_lanes=${String(recordedLanes.length)}`
       );
       assertCondition(
-        'evidence-ledger scaffold_lanes count === 3',
-        scaffoldLanes.length === 3,
+        'evidence-ledger scaffold_lanes count === 4',
+        scaffoldLanes.length === 4,
         `scaffold_lanes=${String(scaffoldLanes.length)}`
       );
       assertCondition(

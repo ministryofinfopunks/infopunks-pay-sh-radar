@@ -21,7 +21,7 @@ function benchmarkSummary() {
     generated_at: observedAt,
     source: 'infopunks-pay-sh-radar',
     recorded_benchmarks: 5,
-    total_benchmarks: 8,
+    total_benchmarks: 9,
     total_artifacts: 6,
     winner_claimed: false,
     total_recorded_runs: 40,
@@ -417,6 +417,17 @@ function installFetchMock(options: { benchmarkSummaryFails?: boolean } = {}) {
             { provider_id: 'stableenrich', route_id: 'stableenrich:POST:/reddit/search', execution_status: 'proven', paid_execution_proven: true },
             { provider_id: 'stablesocial', route_id: 'stablesocial:POST:/reddit/search', execution_status: 'blocked', paid_execution_proven: false }
           ]
+        },
+        {
+          benchmark_id: 'maps-place-search-results',
+          category: 'maps',
+          benchmark_intent: 'search for the same local/place query and return normalized place candidates',
+          benchmark_recorded: false,
+          winner_claimed: false,
+          winner_status: 'not_evaluated',
+          next_step: 'define lane normalizer/caveats/evidence_health and paid-prove two comparable routes before recording artifact',
+          readiness_note: 'Benchmark Scaffold. No benchmark artifact.',
+          routes: []
         }
       ]
     });

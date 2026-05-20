@@ -99,6 +99,15 @@ const mappingTargets: MappingTarget[] = [
     suggested_provider_candidates: ['StableEnrich Exa Search', 'Perplexity Search'],
     why_it_matters: 'Normalized web-search result benchmarking improves route quality for broad discovery and retrieval workflows.',
     readiness_blocker: 'None; two comparable paid-proven routes are recorded with a five-run benchmark artifact. No winner is claimed.'
+  },
+  {
+    category: 'maps',
+    benchmark_intent: 'place search results',
+    current_state: 'needs_two_comparable_mappings',
+    needed_next_step: 'Benchmark Scaffold: finalize lane-specific normalizer/caveats/evidence_health, then paid-prove solana-foundation/google/places and merit-systems/stableenrich/enrichment on canonical input {"query":"coffee near Union Square San Francisco","location":"Union Square, San Francisco, CA","limit":5}, then record one five-run benchmark artifact.',
+    suggested_provider_candidates: ['solana-foundation/google/places', 'merit-systems/stableenrich/enrichment'],
+    why_it_matters: 'Maps place-search benchmarking improves local discovery route quality for geospatial agent workflows.',
+    readiness_blocker: 'Scaffold only: comparable candidates are identified from Harness readiness research, but lane-specific normalizer/caveats/evidence_health are not finalized, no two comparable paid-proven routes are recorded on the same canonical input, and no five-run benchmark artifact exists.'
   }
 ];
 

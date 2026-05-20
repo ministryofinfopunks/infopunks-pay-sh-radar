@@ -13,6 +13,7 @@ describe('benchmark artifact registry', () => {
   const COMMUNICATIONS_EMAIL_DELIVERY_BENCHMARK_ID = 'communications-email-delivery';
   const SOLANA_INFRA_ACCOUNT_BALANCE_BENCHMARK_ID = 'solana-infra-account-balance';
   const SOCIAL_DATA_REDDIT_POST_SEARCH_BENCHMARK_ID = 'social-data-reddit-post-search';
+  const MAPS_PLACE_SEARCH_RESULTS_BENCHMARK_ID = 'maps-place-search-results';
   const DOCUMENT_OCR_TEXT_EXTRACTION_BENCHMARK_ID = 'document-ocr-text-extraction';
   const DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID = 'data-web-search-results';
   const DATA_WEB_SEARCH_RESULTS_CANONICAL_ID = 'data-web-search-results-benchmark-runs-2026-05-19';
@@ -51,6 +52,7 @@ describe('benchmark artifact registry', () => {
     const communicationsEmailDelivery = benchmarks.find((row) => row.benchmark_id === COMMUNICATIONS_EMAIL_DELIVERY_BENCHMARK_ID);
     const solanaInfraAccountBalance = benchmarks.find((row) => row.benchmark_id === SOLANA_INFRA_ACCOUNT_BALANCE_BENCHMARK_ID);
     const socialDataRedditPostSearch = benchmarks.find((row) => row.benchmark_id === SOCIAL_DATA_REDDIT_POST_SEARCH_BENCHMARK_ID);
+    const mapsPlaceSearchResults = benchmarks.find((row) => row.benchmark_id === MAPS_PLACE_SEARCH_RESULTS_BENCHMARK_ID);
     const documentOcrTextExtraction = benchmarks.find((row) => row.benchmark_id === DOCUMENT_OCR_TEXT_EXTRACTION_BENCHMARK_ID);
     const dataWebSearchResults = benchmarks.find((row) => row.benchmark_id === DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID);
     expect(benchmarks.map((row) => row.benchmark_id)).toEqual([
@@ -61,7 +63,8 @@ describe('benchmark artifact registry', () => {
       SOLANA_INFRA_ACCOUNT_BALANCE_BENCHMARK_ID,
       SOCIAL_DATA_REDDIT_POST_SEARCH_BENCHMARK_ID,
       DOCUMENT_OCR_TEXT_EXTRACTION_BENCHMARK_ID,
-      DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID
+      DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID,
+      MAPS_PLACE_SEARCH_RESULTS_BENCHMARK_ID
     ]);
     expect(sol).toBeTruthy();
     const stable = sol?.routes.find((item) => item.provider_id === 'merit-systems-stablecrypto-market-data');
@@ -138,6 +141,15 @@ describe('benchmark artifact registry', () => {
     expect(socialDataRedditPostSearch?.readiness_note).toContain('candidate/unproven');
     expect(socialDataRedditPostSearch?.readiness_note).toContain('only one paid-proven route');
     expect(socialDataRedditPostSearch?.routes).toEqual([]);
+    expect(mapsPlaceSearchResults).toMatchObject({
+      benchmark_id: MAPS_PLACE_SEARCH_RESULTS_BENCHMARK_ID,
+      category: 'maps',
+      benchmark_recorded: false,
+      winner_claimed: false,
+      winner_status: 'not_evaluated'
+    });
+    expect(mapsPlaceSearchResults?.routes).toEqual([]);
+    expect(mapsPlaceSearchResults?.readiness_note).toContain('Benchmark Scaffold');
     expect(documentOcrTextExtraction).toMatchObject({
       benchmark_id: DOCUMENT_OCR_TEXT_EXTRACTION_BENCHMARK_ID,
       category: 'document-ai',
@@ -165,7 +177,7 @@ describe('benchmark artifact registry', () => {
     const after = Date.now();
     const generatedAtMs = Date.parse(summary.generated_at);
     expect(summary.recorded_benchmarks).toBe(5);
-    expect(summary.total_benchmarks).toBe(8);
+    expect(summary.total_benchmarks).toBe(9);
     expect(summary.winner_claimed).toBe(false);
     expect(summary.total_recorded_runs).toBe(40);
     expect(summary.proven_routes).toBe(10);
@@ -258,7 +270,7 @@ describe('benchmark artifact registry', () => {
     expect(summaryResponse.statusCode).toBe(200);
     const summary = summaryResponse.json().data;
     expect(summary.recorded_benchmarks).toBe(5);
-    expect(summary.total_benchmarks).toBe(8);
+    expect(summary.total_benchmarks).toBe(9);
     expect(summary.winner_claimed).toBe(false);
     expect(summary.total_recorded_runs).toBe(40);
     expect(summary.proven_routes).toBe(10);
@@ -344,6 +356,16 @@ describe('benchmark artifact registry', () => {
       winner_claimed: false
     });
     expect((socialDataRedditPostSearchResponse.json().data.routes as unknown[]).length).toBe(0);
+    const mapsPlaceSearchResultsResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks/maps-place-search-results' });
+    expect(mapsPlaceSearchResultsResponse.statusCode).toBe(200);
+    expect(mapsPlaceSearchResultsResponse.json().data).toMatchObject({
+      benchmark_id: MAPS_PLACE_SEARCH_RESULTS_BENCHMARK_ID,
+      category: 'maps',
+      benchmark_recorded: false,
+      winner_status: 'not_evaluated',
+      winner_claimed: false
+    });
+    expect((mapsPlaceSearchResultsResponse.json().data.routes as unknown[]).length).toBe(0);
     const documentOcrTextExtractionResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks/document-ocr-text-extraction' });
     expect(documentOcrTextExtractionResponse.statusCode).toBe(200);
     expect(documentOcrTextExtractionResponse.json().data).toMatchObject({

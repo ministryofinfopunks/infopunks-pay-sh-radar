@@ -9,7 +9,7 @@ describe('radar mapping targets route', () => {
 
     expect(response.statusCode).toBe(200);
     const body = response.json().data;
-    expect(body.count).toBe(9);
+    expect(body.count).toBe(10);
     expect(body.targets.some((row: any) => row.category === 'solana-infra' && row.benchmark_intent === 'account balance' && row.current_state === 'needs_two_comparable_mappings')).toBe(true);
     const solanaInfra = body.targets.find((row: any) => row.category === 'solana-infra' && row.benchmark_intent === 'account balance');
     expect(solanaInfra.suggested_provider_candidates).toEqual(['QuickNode Solana Mainnet JSON-RPC']);
@@ -39,6 +39,7 @@ describe('radar mapping targets route', () => {
     expect(webSearch.suggested_provider_candidates).toEqual(['StableEnrich Exa Search', 'Perplexity Search']);
     expect(webSearch.needed_next_step).toContain('Recorded benchmark is available');
     expect(webSearch.readiness_blocker).toContain('No winner is claimed');
+    expect(body.targets.some((row: any) => row.category === 'maps' && row.benchmark_intent === 'place search results' && row.current_state === 'needs_two_comparable_mappings')).toBe(true);
 
     await app.close();
   });

@@ -24,7 +24,7 @@ describe('radar evidence ledger', () => {
     const data = response.json().data;
     expect(data.ledger_state).toEqual({
       recorded_benchmarks: 5,
-      total_benchmarks: 8,
+      total_benchmarks: 9,
       total_artifacts: 6,
       total_recorded_runs: 40,
       proven_routes: 10,
@@ -48,7 +48,7 @@ describe('radar evidence ledger', () => {
     expect(data.recorded_lanes.find((row: { benchmark_id: string }) => row.benchmark_id === 'data-web-search-results')?.label).toBe('Web Search Results');
 
     const scaffoldLaneIds = data.scaffold_lanes.map((row: { benchmark_id: string }) => row.benchmark_id);
-    expect(scaffoldLaneIds).toEqual(['communications-email-delivery', 'solana-infra-account-balance', 'social-data-reddit-post-search']);
+    expect(scaffoldLaneIds).toEqual(['communications-email-delivery', 'solana-infra-account-balance', 'social-data-reddit-post-search', 'maps-place-search-results']);
     expect(data.scaffold_lanes.every((row: { why_not_promoted: unknown[]; missing_requirements: unknown[] }) => row.why_not_promoted.length > 0 && row.missing_requirements.length > 0)).toBe(true);
 
     expect(data.latest_artifacts.some((row: { artifact_id: string }) => row.artifact_id === 'data-web-search-results-benchmark-runs-2026-05-19')).toBe(true);

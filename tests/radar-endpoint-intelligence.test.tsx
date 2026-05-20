@@ -722,7 +722,7 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
       source: 'infopunks-pay-sh-radar',
       ledger_state: {
         recorded_benchmarks: 5,
-        total_benchmarks: 8,
+        total_benchmarks: 9,
         total_artifacts: 6,
         total_recorded_runs: 40,
         proven_routes: 10,
@@ -739,7 +739,8 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
       scaffold_lanes: [
         { benchmark_id: 'communications-email-delivery', label: 'Communications Email Delivery', status: 'scaffold', why_not_promoted: ['StableEmail paid-executed and caveated', 'AgentMail blocked / no second comparable route', 'no benchmark artifact'] },
         { benchmark_id: 'solana-infra-account-balance', label: 'Solana Account Balance', status: 'scaffold', why_not_promoted: ['QuickNode unpaid 402 confirmed', 'paid run failed', 'no second comparable route', 'no benchmark artifact'] },
-        { benchmark_id: 'social-data-reddit-post-search', label: 'Reddit Post Search', status: 'scaffold', why_not_promoted: ['StableEnrich paid-proven and caveated', 'StableSocial paid-compatible but semantic proof failed', 'no second paid-proven comparable route', 'no benchmark artifact'] }
+        { benchmark_id: 'social-data-reddit-post-search', label: 'Reddit Post Search', status: 'scaffold', why_not_promoted: ['StableEnrich paid-proven and caveated', 'StableSocial paid-compatible but semantic proof failed', 'no second paid-proven comparable route', 'no benchmark artifact'] },
+        { benchmark_id: 'maps-place-search-results', label: 'Maps Place Search Results', status: 'scaffold', why_not_promoted: ['lane-specific normalizer/caveats/evidence_health missing', 'two comparable paid-proven routes not yet recorded', 'no benchmark artifact'] }
       ],
       latest_artifacts: [
         { artifact_id: 'document-ocr-text-extraction-benchmark-runs-2026-05-19', benchmark_id: 'document-ocr-text-extraction', label: 'Document OCR Text Extraction', recorded_at: '2026-05-19T00:00:00.000Z', recorded_runs: 10, routes_count: 2, winner_claimed: false }

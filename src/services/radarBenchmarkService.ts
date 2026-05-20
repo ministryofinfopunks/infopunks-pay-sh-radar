@@ -41,6 +41,9 @@ const DOCUMENT_OCR_TEXT_EXTRACTION_INTENT = 'extract text from the same simple d
 const DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID = 'data-web-search-results';
 const DATA_WEB_SEARCH_RESULTS_CATEGORY = 'web-search';
 const DATA_WEB_SEARCH_RESULTS_INTENT = 'search the web for the same query and return normalized search results';
+const MAPS_PLACE_SEARCH_RESULTS_BENCHMARK_ID = 'maps-place-search-results';
+const MAPS_PLACE_SEARCH_RESULTS_CATEGORY = 'maps';
+const MAPS_PLACE_SEARCH_RESULTS_INTENT = 'search for the same local/place query and return normalized place candidates';
 const BENCHMARK_EVIDENCE_AT = '2026-05-16T07:42:42.271Z';
 const BENCHMARK_PROOF_REFERENCE = 'live-proofs/finance-data-sol-price-benchmark-runs-2026-05-16.md';
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
@@ -99,7 +102,8 @@ export function buildRadarBenchmarks(): RadarBenchmarkList {
       buildSolanaInfraAccountBalanceBenchmark(),
       buildSocialDataRedditPostSearchBenchmark(),
       buildDocumentOcrTextExtractionBenchmark(),
-      buildDataWebSearchResultsBenchmark()
+      buildDataWebSearchResultsBenchmark(),
+      buildMapsPlaceSearchResultsBenchmark()
     ]
   };
 }
@@ -253,6 +257,22 @@ export function buildRadarEvidenceLedger(): RadarEvidenceLedger {
         'StableSocial semantic proof did not satisfy comparable benchmark bar.'
       ]
     },
+    {
+      benchmark_id: 'maps-place-search-results',
+      label: 'Maps Place Search Results',
+      status: 'scaffold' as const,
+      promotion_status: 'blocked' as const,
+      why_not_promoted: [
+        'Lane-specific normalizer/caveats/evidence_health not defined.',
+        'No two comparable paid-proven routes for canonical place-search input.',
+        'No benchmark artifact exists.'
+      ],
+      missing_requirements: ['lane-specific normalizer/caveats/evidence_health', 'two comparable paid-proven routes', '5-run benchmark artifact'],
+      known_evidence: [
+        'Comparable candidates identified: solana-foundation/google/places and merit-systems/stableenrich/enrichment.',
+        'Unpaid research confirms plausible payment-gated place-search routes.'
+      ]
+    }
   ];
 
   const latestArtifacts = [...history.benchmarks]
@@ -345,6 +365,7 @@ export function buildRadarBenchmarkById(id: string): RadarBenchmarkDetail | null
   if (id === SOCIAL_DATA_REDDIT_POST_SEARCH_BENCHMARK_ID) return buildSocialDataRedditPostSearchBenchmark();
   if (id === DOCUMENT_OCR_TEXT_EXTRACTION_BENCHMARK_ID) return buildDocumentOcrTextExtractionBenchmark();
   if (id === DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID) return buildDataWebSearchResultsBenchmark();
+  if (id === MAPS_PLACE_SEARCH_RESULTS_BENCHMARK_ID) return buildMapsPlaceSearchResultsBenchmark();
   return null;
 }
 
@@ -1097,6 +1118,20 @@ function buildDataWebSearchResultsBenchmark(): RadarBenchmarkDetail {
       ? 'Five-run normalized benchmark evidence exists. No route winner is claimed.'
       : 'Benchmark Scaffold. Canonical input: {"query":"x402 agent payments","limit":5}. Candidate routes: StableEnrich Exa Search, StableEnrich Firecrawl Search, and Perplexity Search. Unpaid probes confirmed HTTP 402 payment-challenge behavior and method-correct POST request shape for all three routes. Promotion remains blocked until at least two comparable routes are paid-proven on the same canonical query and one five-run artifact exists.',
     routes
+  };
+}
+
+function buildMapsPlaceSearchResultsBenchmark(): RadarBenchmarkDetail {
+  return {
+    benchmark_id: MAPS_PLACE_SEARCH_RESULTS_BENCHMARK_ID,
+    category: MAPS_PLACE_SEARCH_RESULTS_CATEGORY,
+    benchmark_intent: MAPS_PLACE_SEARCH_RESULTS_INTENT,
+    benchmark_recorded: false,
+    winner_claimed: false,
+    winner_status: 'not_evaluated',
+    next_step: 'add lane-specific normalizer/caveats/evidence_health, then paid-prove two comparable routes on canonical input {"query":"coffee near Union Square San Francisco","location":"Union Square, San Francisco, CA","limit":5} and record one five-run benchmark artifact',
+    readiness_note: 'Benchmark Scaffold. Fresh maps/local-discovery lane. Canonical input: {"query":"coffee near Union Square San Francisco","location":"Union Square, San Francisco, CA","limit":5}. Comparable candidates selected from Agent Harness readiness note: solana-foundation/google/places and merit-systems/stableenrich/enrichment. Unpaid research confirmed plausible payment-gated place-search routes; promotion remains blocked until lane-specific normalizer/caveats/evidence_health are defined, both comparable routes are paid-proven on the same canonical input, and one five-run benchmark artifact exists.',
+    routes: []
   };
 }
 
