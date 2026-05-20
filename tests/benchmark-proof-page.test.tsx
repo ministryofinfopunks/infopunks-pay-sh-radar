@@ -425,8 +425,8 @@ function installFetchMock(options: { benchmarkSummaryFails?: boolean } = {}) {
           benchmark_recorded: false,
           winner_claimed: false,
           winner_status: 'not_evaluated',
-          next_step: 'repair Google Places request shape or find another comparable place-search route before recording artifact',
-          readiness_note: 'StableEnrich paid-executed recognizable place candidates but degraded (missing names/addresses/coordinates and location unconfirmed). Google Places paid-executed but returned zero recognizable place candidates. No second paid-proven comparable route. No benchmark artifact.',
+          next_step: 'find another comparable place-search provider route, or revisit Google Places only if provider schema/output changes before recording artifact',
+          readiness_note: 'StableEnrich paid-executed recognizable place candidates but degraded (missing names/addresses/coordinates and location unconfirmed). Google Places paid-executed and one paid diagnostic retry (includedType=cafe) still returned zero recognizable place candidates. No second paid-proven comparable route. No benchmark artifact.',
           routes: []
         }
       ]

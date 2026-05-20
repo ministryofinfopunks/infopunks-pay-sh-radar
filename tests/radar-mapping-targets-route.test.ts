@@ -42,9 +42,9 @@ describe('radar mapping targets route', () => {
     expect(body.targets.some((row: any) => row.category === 'maps' && row.benchmark_intent === 'place search results' && row.current_state === 'needs_two_comparable_mappings')).toBe(true);
     const maps = body.targets.find((row: any) => row.category === 'maps' && row.benchmark_intent === 'place search results');
     expect(maps.needed_next_step).toContain('Benchmark Scaffold');
-    expect(maps.needed_next_step).toContain('repair Google Places request shape or find another comparable place-search route');
+    expect(maps.needed_next_step).toContain('find another comparable place-search provider route or revisit Google Places only if provider schema/output changes');
     expect(maps.readiness_blocker).toContain('StableEnrich Google Maps Text Search is paid-proven');
-    expect(maps.readiness_blocker).toContain('Google Places SearchText paid execution returned zero recognizable place candidates');
+    expect(maps.readiness_blocker).toContain('Google Places SearchText paid execution and one paid diagnostic retry (includedType=cafe) still returned zero recognizable place candidates');
     expect(maps.readiness_blocker).toContain('no five-run benchmark artifact exists');
 
     await app.close();

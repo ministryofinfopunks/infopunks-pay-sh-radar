@@ -53,7 +53,7 @@ describe('radar evidence ledger', () => {
     const mapsLane = data.scaffold_lanes.find((row: { benchmark_id: string }) => row.benchmark_id === 'maps-place-search-results');
     expect(mapsLane?.why_not_promoted).toEqual([
       'StableEnrich paid-executed and paid-proven recognizable place-search candidates, but evidence is degraded: names/addresses/coordinates missing and location not confirmed.',
-      'Google Places paid-executed but returned zero recognizable place candidates.',
+      'Google Places paid-executed and later received one paid diagnostic retry with includedType=cafe, but still returned zero recognizable place candidates.',
       'No second paid-proven comparable place-search route yet.',
       'No benchmark artifact exists.'
     ]);

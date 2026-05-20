@@ -1204,7 +1204,7 @@ function scaffoldPromotionReasons(benchmarkId: string) {
   ];
   if (benchmarkId === 'maps-place-search-results') return [
     'StableEnrich paid-proven but degraded (missing names/addresses/coordinates, location unconfirmed)',
-    'Google Places paid-executed but returned zero recognizable place candidates',
+    'Google Places paid-executed and one paid diagnostic retry (includedType=cafe) still returned zero recognizable place candidates',
     'no second paid-proven comparable route',
     'no benchmark artifact'
   ];
