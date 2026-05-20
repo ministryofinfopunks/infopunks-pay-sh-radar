@@ -1203,8 +1203,9 @@ function scaffoldPromotionReasons(benchmarkId: string) {
     'no benchmark artifact'
   ];
   if (benchmarkId === 'maps-place-search-results') return [
-    'lane-specific normalizer/caveats/evidence_health missing',
-    'two comparable paid-proven routes not yet recorded',
+    'StableEnrich paid-proven but degraded (missing names/addresses/coordinates, location unconfirmed)',
+    'Google Places paid-executed but returned zero recognizable place candidates',
+    'no second paid-proven comparable route',
     'no benchmark artifact'
   ];
   if (benchmarkId === 'document-ocr-text-extraction') return [

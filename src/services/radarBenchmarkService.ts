@@ -263,14 +263,16 @@ export function buildRadarEvidenceLedger(): RadarEvidenceLedger {
       status: 'scaffold' as const,
       promotion_status: 'blocked' as const,
       why_not_promoted: [
-        'Lane-specific normalizer/caveats/evidence_health not defined.',
-        'No two comparable paid-proven routes for canonical place-search input.',
+        'StableEnrich paid-executed and paid-proven recognizable place-search candidates, but evidence is degraded: names/addresses/coordinates missing and location not confirmed.',
+        'Google Places paid-executed but returned zero recognizable place candidates.',
+        'No second paid-proven comparable place-search route yet.',
         'No benchmark artifact exists.'
       ],
-      missing_requirements: ['lane-specific normalizer/caveats/evidence_health', 'two comparable paid-proven routes', '5-run benchmark artifact'],
+      missing_requirements: ['second comparable paid-proven route', '5-run benchmark artifact'],
       known_evidence: [
-        'Comparable candidates identified: solana-foundation/google/places and merit-systems/stableenrich/enrichment.',
-        'Unpaid research confirms plausible payment-gated place-search routes.'
+        'StableEnrich Google Maps Text Search paid execution succeeded with result_count=5 and recognizable place-search semantics, but evidence_health is degraded (missing place names/addresses/coordinates and location confirmation failed).',
+        'Google Places SearchText paid execution succeeded but returned result_count=0 with no recognizable place candidates.',
+        'Canonical input: {"query":"coffee near Union Square San Francisco","location":"Union Square, San Francisco, CA","limit":5}.'
       ]
     }
   ];
@@ -1129,8 +1131,8 @@ function buildMapsPlaceSearchResultsBenchmark(): RadarBenchmarkDetail {
     benchmark_recorded: false,
     winner_claimed: false,
     winner_status: 'not_evaluated',
-    next_step: 'add lane-specific normalizer/caveats/evidence_health, then paid-prove two comparable routes on canonical input {"query":"coffee near Union Square San Francisco","location":"Union Square, San Francisco, CA","limit":5} and record one five-run benchmark artifact',
-    readiness_note: 'Benchmark Scaffold. Fresh maps/local-discovery lane. Canonical input: {"query":"coffee near Union Square San Francisco","location":"Union Square, San Francisco, CA","limit":5}. Comparable candidates selected from Agent Harness readiness note: solana-foundation/google/places and merit-systems/stableenrich/enrichment. Unpaid research confirmed plausible payment-gated place-search routes; promotion remains blocked until lane-specific normalizer/caveats/evidence_health are defined, both comparable routes are paid-proven on the same canonical input, and one five-run benchmark artifact exists.',
+    next_step: 'repair Google Places request shape or find another comparable place-search route, then record one five-run benchmark artifact after two comparable paid-proven routes exist on canonical input {"query":"coffee near Union Square San Francisco","location":"Union Square, San Francisco, CA","limit":5}',
+    readiness_note: 'Benchmark Scaffold. Canonical input: {"query":"coffee near Union Square San Francisco","location":"Union Square, San Francisco, CA","limit":5}. StableEnrich Google Maps Text Search paid execution succeeded and returned recognizable place candidates, but evidence_health is degraded because place names/addresses/coordinates are missing and location confirmation failed. Google Places SearchText paid execution also succeeded but returned zero recognizable place candidates. Only one comparable route is paid-proven for recognizable place-search semantics, no second paid-proven comparable route exists yet, and no five-run benchmark artifact exists.',
     routes: []
   };
 }

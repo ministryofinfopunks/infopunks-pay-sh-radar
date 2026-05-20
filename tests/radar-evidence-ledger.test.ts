@@ -50,6 +50,13 @@ describe('radar evidence ledger', () => {
     const scaffoldLaneIds = data.scaffold_lanes.map((row: { benchmark_id: string }) => row.benchmark_id);
     expect(scaffoldLaneIds).toEqual(['communications-email-delivery', 'solana-infra-account-balance', 'social-data-reddit-post-search', 'maps-place-search-results']);
     expect(data.scaffold_lanes.every((row: { why_not_promoted: unknown[]; missing_requirements: unknown[] }) => row.why_not_promoted.length > 0 && row.missing_requirements.length > 0)).toBe(true);
+    const mapsLane = data.scaffold_lanes.find((row: { benchmark_id: string }) => row.benchmark_id === 'maps-place-search-results');
+    expect(mapsLane?.why_not_promoted).toEqual([
+      'StableEnrich paid-executed and paid-proven recognizable place-search candidates, but evidence is degraded: names/addresses/coordinates missing and location not confirmed.',
+      'Google Places paid-executed but returned zero recognizable place candidates.',
+      'No second paid-proven comparable place-search route yet.',
+      'No benchmark artifact exists.'
+    ]);
 
     expect(data.latest_artifacts.some((row: { artifact_id: string }) => row.artifact_id === 'data-web-search-results-benchmark-runs-2026-05-19')).toBe(true);
     expect(data.latest_artifacts.some((row: { artifact_id: string }) => row.artifact_id === 'document-ocr-text-extraction-benchmark-runs-2026-05-19')).toBe(true);

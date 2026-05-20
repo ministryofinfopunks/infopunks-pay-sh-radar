@@ -366,6 +366,11 @@ describe('benchmark artifact registry', () => {
       winner_claimed: false
     });
     expect((mapsPlaceSearchResultsResponse.json().data.routes as unknown[]).length).toBe(0);
+    expect(mapsPlaceSearchResultsResponse.json().data.readiness_note).toContain('StableEnrich Google Maps Text Search paid execution succeeded and returned recognizable place candidates, but evidence_health is degraded');
+    expect(mapsPlaceSearchResultsResponse.json().data.readiness_note).toContain('Google Places SearchText paid execution also succeeded but returned zero recognizable place candidates');
+    expect(mapsPlaceSearchResultsResponse.json().data.readiness_note).toContain('no second paid-proven comparable route exists yet');
+    expect(mapsPlaceSearchResultsResponse.json().data.readiness_note).toContain('no five-run benchmark artifact exists');
+    expect(mapsPlaceSearchResultsResponse.json().data.next_step).toContain('repair Google Places request shape or find another comparable place-search route');
     const documentOcrTextExtractionResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks/document-ocr-text-extraction' });
     expect(documentOcrTextExtractionResponse.statusCode).toBe(200);
     expect(documentOcrTextExtractionResponse.json().data).toMatchObject({
