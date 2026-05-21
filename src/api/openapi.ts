@@ -343,6 +343,29 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       winner_claimed: false
     }
   ));
+  add('get', '/v1/radar/bundles', radarGet(
+    'Radar Agent',
+    'List read-only bundle registry',
+    'Returns read-only bundle recipes for agent planning. Radar does not execute paid APIs from this endpoint. winner_claimed=false for every bundle and execution boundaries are advisory only.',
+    { $ref: '#/components/schemas/BundleRegistryResponse' },
+    {
+      generated_at: '2026-05-21T00:00:00.000Z',
+      source: 'infopunks-pay-sh-radar',
+      count: 3,
+      bundles: [
+        { bundle_id: 'morning-briefing', label: 'Morning Briefing', status: 'recipe_scaffold', winner_claimed: false },
+        { bundle_id: 'market-research', label: 'Market Research', status: 'research_only_pending_billing_review', winner_claimed: false },
+        { bundle_id: 'talent-market-scanner', label: 'Talent Market Scanner', status: 'recipe_scaffold', winner_claimed: false }
+      ]
+    }
+  ));
+  add('get', '/v1/radar/bundles/{bundle_id}', {
+    tags: ['Radar Agent'],
+    summary: 'Get bundle by id',
+    description: 'Returns one read-only bundle registry record with execution boundaries and evidence references. This route never executes paid APIs.',
+    parameters: [pathParam('bundle_id', 'Bundle identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/BundleResponse' }, { bundle_id: 'morning-briefing', status: 'recipe_scaffold', winner_claimed: false }, 'bundle_not_found')
+  });
   add('get', '/v1/radar/benchmarks', radarGet('Radar Readiness', 'Get head-to-head benchmark registry', 'Returns recorded head-to-head benchmark scaffolds. A benchmark row can be metrics-pending and never implies a winner claim.', { $ref: '#/components/schemas/BenchmarkRegistryResponse' }, { benchmarks: [] }));
   add('get', '/v1/radar/benchmarks/finance-data-sol-price', radarGet('Radar Readiness', 'Get SOL price benchmark scaffold', 'Returns the finance/data get SOL price head-to-head benchmark scaffold with recorded normalized evidence. benchmark_recorded=true means normalized evidence has been recorded, not that a winner is claimed. winner_status=no_clear_winner means run criteria were met but no route winner is claimed. status_code may be null in pay_cli mode and status_evidence explains proof basis.', { $ref: '#/components/schemas/BenchmarkDetailResponse' }, { benchmark_id: 'finance-data-sol-price', winner_claimed: false, benchmark_recorded: true, winner_status: 'no_clear_winner' }));
   add('get', '/v1/radar/benchmarks/finance-data-token-search', radarGet('Radar Readiness', 'Get token-search benchmark scaffold', 'Returns the finance/data token-search benchmark with recorded normalized evidence. winner_status=no_clear_winner means no route winner is claimed.', { $ref: '#/components/schemas/BenchmarkDetailResponse' }, { benchmark_id: 'finance-data-token-search', winner_claimed: false, benchmark_recorded: true, winner_status: 'no_clear_winner' }));
@@ -1087,6 +1110,44 @@ function componentSchemas(): Record<string, JsonSchema> {
       recommended_agent_action: stringSchema(),
       agent_guidance: arrayOf(stringSchema()),
       winner_claimed: booleanSchema()
+    }),
+    BundleStatus: { type: 'string', enum: ['recipe_scaffold', 'partially_supported', 'research_only_pending_billing_review', 'execution_ready', 'recorded'] },
+    BundleExecutionBoundary: { type: 'string', enum: ['clean_402', 'paid_proven', 'billing_unclear', 'billable_probe_observed', 'blocked'] },
+    BundleStepEvidenceHealth: { type: 'string', enum: ['recorded', 'caveated', 'scaffold'] },
+    BundleStep: objectSchema({
+      step_id: stringSchema(),
+      label: stringSchema(),
+      intent: stringSchema(),
+      candidate_routes: arrayOf(stringSchema()),
+      evidence_dependencies: arrayOf(stringSchema()),
+      evidence_health: { $ref: '#/components/schemas/BundleStepEvidenceHealth' },
+      execution_boundary: { $ref: '#/components/schemas/BundleExecutionBoundary' },
+      known_caveats: arrayOf(stringSchema())
+    }),
+    BundleEvidenceReference: objectSchema({
+      benchmark_id: stringSchema(),
+      lane_status: { type: 'string', enum: ['recorded', 'scaffold', 'unknown'] }
+    }),
+    BundleResponse: objectSchema({
+      bundle_id: stringSchema(),
+      label: stringSchema(),
+      status: { $ref: '#/components/schemas/BundleStatus' },
+      summary: stringSchema(),
+      input_schema: freeformObject(),
+      output_shape: freeformObject(),
+      steps: arrayOf({ $ref: '#/components/schemas/BundleStep' }),
+      evidence_dependencies: arrayOf(stringSchema()),
+      evidence_references: arrayOf({ $ref: '#/components/schemas/BundleEvidenceReference' }),
+      estimated_cost_usd: stringSchema(),
+      known_caveats: arrayOf(stringSchema()),
+      winner_claimed: booleanSchema(),
+      recommended_agent_action: stringSchema()
+    }),
+    BundleRegistryResponse: objectSchema({
+      generated_at: dateTimeSchema(),
+      source: stringSchema(),
+      count: integerSchema(),
+      bundles: arrayOf({ $ref: '#/components/schemas/BundleResponse' })
     }),
     BenchmarkArtifactRoute: objectSchema({
       provider_id: stringSchema(),

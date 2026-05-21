@@ -19,6 +19,8 @@ import {
   RadarBenchmarkSummarySchema,
   RadarEvidenceLedgerSchema,
   RadarEvidenceLedgerBriefSchema,
+  RadarBundleListSchema,
+  RadarBundleSchema,
   RadarBenchmarkListSchema,
   RadarBenchmarkDetailSchema,
   RadarBenchmarkHistorySchema,
@@ -61,6 +63,7 @@ import {
   getBenchmarkArtifactMetadataById,
   listBenchmarkArtifactMetadata
 } from '../services/radarBenchmarkService';
+import { getRadarBundleById, listRadarBundles } from '../services/radarBundleRegistryService';
 import { buildEcosystemHistory, buildEndpointHistory, buildProviderHistory, normalizeHistoryWindow } from '../services/radarHistoryService';
 import { buildEcosystemRiskSummary, buildEndpointRiskAssessment, buildProviderRiskAssessment } from '../services/radarRiskService';
 import { createResponseCache } from '../services/responseCache';
@@ -525,6 +528,16 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   app.get('/v1/radar/evidence-ledger/brief', async () => ({
     data: safeJsonExport(RadarEvidenceLedgerBriefSchema.parse(buildRadarEvidenceLedgerBrief()))
   }));
+  app.get('/v1/radar/bundles', async () => ({
+    data: safeJsonExport(RadarBundleListSchema.parse(listRadarBundles()))
+  }));
+  app.get<{ Params: { bundle_id: string } }>('/v1/radar/bundles/:bundle_id', async (req, reply) => {
+    const bundle = getRadarBundleById(req.params.bundle_id);
+    if (!bundle) return reply.code(404).send({ error: 'bundle_not_found' });
+    return {
+      data: safeJsonExport(RadarBundleSchema.parse(bundle))
+    };
+  });
   app.get('/v1/radar/benchmarks', async () => {
     const startedAtMs = Date.now();
     const cached = await responseCache.getOrSet('radar:benchmarks', RADAR_BENCHMARKS_TTL_MS, () => RadarBenchmarkListSchema.parse(buildRadarBenchmarks()));

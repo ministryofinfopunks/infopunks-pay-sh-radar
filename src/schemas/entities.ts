@@ -1031,6 +1031,63 @@ export const RadarEvidenceLedgerBriefSchema = z.object({
   winner_claimed: z.boolean()
 });
 
+export const RadarBundleStatusSchema = z.enum([
+  'recipe_scaffold',
+  'partially_supported',
+  'research_only_pending_billing_review',
+  'execution_ready',
+  'recorded'
+]);
+
+export const RadarBundleExecutionBoundarySchema = z.enum([
+  'clean_402',
+  'paid_proven',
+  'billing_unclear',
+  'billable_probe_observed',
+  'blocked'
+]);
+
+export const RadarBundleStepEvidenceHealthSchema = z.enum(['recorded', 'caveated', 'scaffold']);
+
+export const RadarBundleStepSchema = z.object({
+  step_id: z.string(),
+  label: z.string(),
+  intent: z.string(),
+  candidate_routes: z.array(z.string()),
+  evidence_dependencies: z.array(z.string()),
+  evidence_health: RadarBundleStepEvidenceHealthSchema,
+  execution_boundary: RadarBundleExecutionBoundarySchema,
+  known_caveats: z.array(z.string())
+});
+
+export const RadarBundleEvidenceReferenceSchema = z.object({
+  benchmark_id: z.string(),
+  lane_status: z.enum(['recorded', 'scaffold', 'unknown'])
+});
+
+export const RadarBundleSchema = z.object({
+  bundle_id: z.string(),
+  label: z.string(),
+  status: RadarBundleStatusSchema,
+  summary: z.string(),
+  input_schema: z.record(z.string(), z.unknown()),
+  output_shape: z.record(z.string(), z.unknown()),
+  steps: z.array(RadarBundleStepSchema),
+  evidence_dependencies: z.array(z.string()),
+  evidence_references: z.array(RadarBundleEvidenceReferenceSchema),
+  estimated_cost_usd: z.string(),
+  known_caveats: z.array(z.string()),
+  winner_claimed: z.boolean(),
+  recommended_agent_action: z.string()
+});
+
+export const RadarBundleListSchema = z.object({
+  generated_at: z.string().datetime(),
+  source: z.literal('infopunks-pay-sh-radar'),
+  count: z.number().int().nonnegative(),
+  bundles: z.array(RadarBundleSchema)
+});
+
 export const RadarBenchmarkArtifactRouteSchema = z.object({
   provider_id: z.string(),
   route_id: z.string(),
@@ -1249,3 +1306,10 @@ export type RadarBenchmarkArtifactList = z.infer<typeof RadarBenchmarkArtifactLi
 export type RadarRiskAnomaly = z.infer<typeof RadarRiskAnomalySchema>;
 export type RadarRiskResponse = z.infer<typeof RadarRiskResponseSchema>;
 export type RadarEcosystemRiskSummary = z.infer<typeof RadarEcosystemRiskSummarySchema>;
+export type RadarBundleStatus = z.infer<typeof RadarBundleStatusSchema>;
+export type RadarBundleExecutionBoundary = z.infer<typeof RadarBundleExecutionBoundarySchema>;
+export type RadarBundleStepEvidenceHealth = z.infer<typeof RadarBundleStepEvidenceHealthSchema>;
+export type RadarBundleStep = z.infer<typeof RadarBundleStepSchema>;
+export type RadarBundleEvidenceReference = z.infer<typeof RadarBundleEvidenceReferenceSchema>;
+export type RadarBundle = z.infer<typeof RadarBundleSchema>;
+export type RadarBundleList = z.infer<typeof RadarBundleListSchema>;
