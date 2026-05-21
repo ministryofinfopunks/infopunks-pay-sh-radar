@@ -44,6 +44,9 @@ const DATA_WEB_SEARCH_RESULTS_INTENT = 'search the web for the same query and re
 const MAPS_PLACE_SEARCH_RESULTS_BENCHMARK_ID = 'maps-place-search-results';
 const MAPS_PLACE_SEARCH_RESULTS_CATEGORY = 'maps';
 const MAPS_PLACE_SEARCH_RESULTS_INTENT = 'search for the same local/place query and return normalized place candidates';
+const AUDIO_SPEECH_TRANSCRIPTION_BENCHMARK_ID = 'audio-speech-transcription';
+const AUDIO_SPEECH_TRANSCRIPTION_CATEGORY = 'audio-ai';
+const AUDIO_SPEECH_TRANSCRIPTION_INTENT = 'transcribe the same short audio fixture into normalized text';
 const BENCHMARK_EVIDENCE_AT = '2026-05-16T07:42:42.271Z';
 const BENCHMARK_PROOF_REFERENCE = 'live-proofs/finance-data-sol-price-benchmark-runs-2026-05-16.md';
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
@@ -103,7 +106,8 @@ export function buildRadarBenchmarks(): RadarBenchmarkList {
       buildSocialDataRedditPostSearchBenchmark(),
       buildDocumentOcrTextExtractionBenchmark(),
       buildDataWebSearchResultsBenchmark(),
-      buildMapsPlaceSearchResultsBenchmark()
+      buildMapsPlaceSearchResultsBenchmark(),
+      buildAudioSpeechTranscriptionBenchmark()
     ]
   };
 }
@@ -274,6 +278,29 @@ export function buildRadarEvidenceLedger(): RadarEvidenceLedger {
         'Google Places SearchText paid execution succeeded; a paid diagnostic retry (selected_paid_retry_variant=textQuery+maxResultCount+includedType, includedType=cafe, paid_retry_count=1) also succeeded, but both returned result_count=0 with no recognizable place candidates.',
         'Canonical input: {"query":"coffee near Union Square San Francisco","location":"Union Square, San Francisco, CA","limit":5}.'
       ]
+    },
+    {
+      benchmark_id: AUDIO_SPEECH_TRANSCRIPTION_BENCHMARK_ID,
+      label: 'Audio Speech Transcription',
+      status: 'scaffold' as const,
+      promotion_status: 'blocked' as const,
+      why_not_promoted: [
+        'Stable public canonical audio fixture is not yet confirmed live and retrievable.',
+        'Lane-specific normalizer, structured caveats, and evidence_health policy are not finalized.',
+        'No two comparable paid-proven transcription routes exist on the same canonical audio fixture.',
+        'No five-run benchmark artifact exists.'
+      ],
+      missing_requirements: [
+        'stable public canonical audio fixture',
+        'lane-specific normalizer/caveats/evidence_health policy',
+        'two comparable paid-proven routes on canonical fixture',
+        '5-run benchmark artifact'
+      ],
+      known_evidence: [
+        'Readiness note marked recommended_state=scaffold_ready on 2026-05-21.',
+        'Research identified multiple plausible payment-gated transcription candidates for comparable route testing.',
+        'Canonical phrase: INFOPUNKS RADAR / EVIDENCE BEFORE SPEND / AUDIO BENCHMARK 001.'
+      ]
     }
   ];
 
@@ -355,6 +382,9 @@ function benchmarkSummaryDescription(benchmarkId: string): string | undefined {
   if (benchmarkId === DOCUMENT_OCR_TEXT_EXTRACTION_BENCHMARK_ID) {
     return 'Extract text from the same simple document/image fixture.';
   }
+  if (benchmarkId === AUDIO_SPEECH_TRANSCRIPTION_BENCHMARK_ID) {
+    return 'Transcribe the same short audio fixture into normalized text.';
+  }
   return undefined;
 }
 
@@ -368,6 +398,7 @@ export function buildRadarBenchmarkById(id: string): RadarBenchmarkDetail | null
   if (id === DOCUMENT_OCR_TEXT_EXTRACTION_BENCHMARK_ID) return buildDocumentOcrTextExtractionBenchmark();
   if (id === DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID) return buildDataWebSearchResultsBenchmark();
   if (id === MAPS_PLACE_SEARCH_RESULTS_BENCHMARK_ID) return buildMapsPlaceSearchResultsBenchmark();
+  if (id === AUDIO_SPEECH_TRANSCRIPTION_BENCHMARK_ID) return buildAudioSpeechTranscriptionBenchmark();
   return null;
 }
 
@@ -1133,6 +1164,20 @@ function buildMapsPlaceSearchResultsBenchmark(): RadarBenchmarkDetail {
     winner_status: 'not_evaluated',
     next_step: 'find another comparable place-search provider route, or revisit Google Places only if provider schema/output changes; then record one five-run benchmark artifact after two comparable paid-proven routes exist on canonical input {"query":"coffee near Union Square San Francisco","location":"Union Square, San Francisco, CA","limit":5}',
     readiness_note: 'Benchmark Scaffold. Canonical input: {"query":"coffee near Union Square San Francisco","location":"Union Square, San Francisco, CA","limit":5}. StableEnrich Google Maps Text Search paid execution succeeded and returned recognizable place candidates, but evidence_health is degraded because place names/addresses/coordinates are missing and location confirmation failed. Google Places SearchText paid execution succeeded and later received one paid diagnostic retry with includedType=cafe, but still returned zero recognizable place candidates. Only one comparable route is paid-proven for recognizable place-search semantics, no second paid-proven comparable route exists yet, and no five-run benchmark artifact exists.',
+    routes: []
+  };
+}
+
+function buildAudioSpeechTranscriptionBenchmark(): RadarBenchmarkDetail {
+  return {
+    benchmark_id: AUDIO_SPEECH_TRANSCRIPTION_BENCHMARK_ID,
+    category: AUDIO_SPEECH_TRANSCRIPTION_CATEGORY,
+    benchmark_intent: AUDIO_SPEECH_TRANSCRIPTION_INTENT,
+    benchmark_recorded: false,
+    winner_claimed: false,
+    winner_status: 'not_evaluated',
+    next_step: 'publish one stable public canonical audio fixture, finalize lane-specific normalization/caveats/evidence_health policy, paid-prove two comparable transcription routes against the same fixture, then record one five-run benchmark artifact',
+    readiness_note: 'Benchmark Scaffold. Fresh audio-ai lane for comparable speech-to-text route testing. Canonical phrase: "INFOPUNKS RADAR", "EVIDENCE BEFORE SPEND", "AUDIO BENCHMARK 001". Canonical fixture plan: https://radar.infopunks.fun/fixtures/audio-benchmark-001.wav (fallback: https://radar.infopunks.fun/fixtures/audio-benchmark-001.mp3). Research/readiness in Agent Harness identified comparable payment-gated candidates and recommended_state=scaffold_ready, but promotion is blocked until fixture stability is confirmed, lane-specific normalizer/caveats/evidence_health are finalized, two candidate routes are paid-proven on the same fixture, and one five-run artifact exists.',
     routes: []
   };
 }

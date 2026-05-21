@@ -29,6 +29,15 @@ const mappingTargets: MappingTarget[] = [
     readiness_blocker: 'QuickNode is the strongest candidate and unpaid probes confirmed HTTP 402 for getBalance/getAccountInfo, with normalizer/caveats/evidence-health derivation and paid verifier implemented in Harness, but the current paid execution failed so QuickNode remains unproven (evidence_health=unverified). No comparable second native SOL balance/lamports route is available in the current Pay catalog snapshot; stablecrypto.dev/api/alchemy/node/rpc was rejected as comparable because its published contract is Ethereum-oriented and Solana lamports semantics were not proven.'
   },
   {
+    category: 'audio-ai',
+    benchmark_intent: 'audio speech transcription',
+    current_state: 'needs_two_comparable_mappings',
+    needed_next_step: 'Benchmark Scaffold: publish a stable canonical audio fixture, then paid-prove two comparable speech-to-text routes on the same fixture and record one five-run benchmark artifact.',
+    suggested_provider_candidates: ['solana-foundation/google/speech', 'solana-foundation/alibaba/speech', 'solana-foundation/alibaba/intelligentspeechinteraction'],
+    why_it_matters: 'Audio transcription routes expand multimodal agent capability for voice and spoken-content workflows.',
+    readiness_blocker: 'Scaffold readiness is confirmed, but promotion is blocked until canonical fixture hosting is stable, lane-specific normalizer/caveats/evidence_health policy is finalized, two comparable paid-proven routes are recorded on the same fixture, and one five-run artifact exists.'
+  },
+  {
     category: 'communications',
     benchmark_intent: 'email delivery',
     current_state: 'candidate_mapping_found',

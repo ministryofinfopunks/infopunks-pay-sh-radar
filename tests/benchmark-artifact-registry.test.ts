@@ -64,7 +64,8 @@ describe('benchmark artifact registry', () => {
       SOCIAL_DATA_REDDIT_POST_SEARCH_BENCHMARK_ID,
       DOCUMENT_OCR_TEXT_EXTRACTION_BENCHMARK_ID,
       DATA_WEB_SEARCH_RESULTS_BENCHMARK_ID,
-      MAPS_PLACE_SEARCH_RESULTS_BENCHMARK_ID
+      MAPS_PLACE_SEARCH_RESULTS_BENCHMARK_ID,
+      'audio-speech-transcription'
     ]);
     expect(sol).toBeTruthy();
     const stable = sol?.routes.find((item) => item.provider_id === 'merit-systems-stablecrypto-market-data');
@@ -177,7 +178,7 @@ describe('benchmark artifact registry', () => {
     const after = Date.now();
     const generatedAtMs = Date.parse(summary.generated_at);
     expect(summary.recorded_benchmarks).toBe(5);
-    expect(summary.total_benchmarks).toBe(9);
+    expect(summary.total_benchmarks).toBe(10);
     expect(summary.winner_claimed).toBe(false);
     expect(summary.total_recorded_runs).toBe(40);
     expect(summary.proven_routes).toBe(10);
@@ -270,7 +271,7 @@ describe('benchmark artifact registry', () => {
     expect(summaryResponse.statusCode).toBe(200);
     const summary = summaryResponse.json().data;
     expect(summary.recorded_benchmarks).toBe(5);
-    expect(summary.total_benchmarks).toBe(9);
+    expect(summary.total_benchmarks).toBe(10);
     expect(summary.winner_claimed).toBe(false);
     expect(summary.total_recorded_runs).toBe(40);
     expect(summary.proven_routes).toBe(10);
@@ -371,6 +372,18 @@ describe('benchmark artifact registry', () => {
     expect(mapsPlaceSearchResultsResponse.json().data.readiness_note).toContain('no second paid-proven comparable route exists yet');
     expect(mapsPlaceSearchResultsResponse.json().data.readiness_note).toContain('no five-run benchmark artifact exists');
     expect(mapsPlaceSearchResultsResponse.json().data.next_step).toContain('find another comparable place-search provider route, or revisit Google Places only if provider schema/output changes');
+    const audioSpeechTranscriptionResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks/audio-speech-transcription' });
+    expect(audioSpeechTranscriptionResponse.statusCode).toBe(200);
+    expect(audioSpeechTranscriptionResponse.json().data).toMatchObject({
+      benchmark_id: 'audio-speech-transcription',
+      category: 'audio-ai',
+      benchmark_recorded: false,
+      winner_status: 'not_evaluated',
+      winner_claimed: false
+    });
+    expect((audioSpeechTranscriptionResponse.json().data.routes as unknown[]).length).toBe(0);
+    expect(audioSpeechTranscriptionResponse.json().data.readiness_note).toContain('recommended_state=scaffold_ready');
+    expect(audioSpeechTranscriptionResponse.json().data.readiness_note).toContain('AUDIO BENCHMARK 001');
     const documentOcrTextExtractionResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks/document-ocr-text-extraction' });
     expect(documentOcrTextExtractionResponse.statusCode).toBe(200);
     expect(documentOcrTextExtractionResponse.json().data).toMatchObject({

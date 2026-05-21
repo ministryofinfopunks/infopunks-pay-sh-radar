@@ -29,8 +29,8 @@ describe('verify-production release invariants', () => {
     expect(script).toContain('evidence-ledger recorded_lanes count === 5');
     expect(script).toContain('recordedLanes.length === 5');
     expect(script).not.toContain('recordedLanes.length === 4');
-    expect(script).toContain('evidence-ledger scaffold_lanes count === 4');
-    expect(script).toContain('scaffoldLanes.length === 4');
+    expect(script).toContain('evidence-ledger scaffold_lanes count === 5');
+    expect(script).toContain('scaffoldLanes.length === 5');
     expect(script).not.toContain('scaffoldLanes.length === 3');
     expect(script).toContain('`recorded_lanes=${String(recordedLanes.length)}`');
     expect(script).toContain('`scaffold_lanes=${String(scaffoldLanes.length)}`');

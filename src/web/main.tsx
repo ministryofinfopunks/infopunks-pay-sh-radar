@@ -1114,6 +1114,7 @@ function publicBenchmarkTitle(benchmark: Pick<RadarBenchmarkDetail, 'benchmark_i
   if (benchmark.benchmark_id === 'document-ocr-text-extraction') return 'Document OCR Text Extraction';
   if (benchmark.benchmark_id === 'data-web-search-results') return 'Web Search Results';
   if (benchmark.benchmark_id === 'maps-place-search-results') return 'Maps Place Search Results';
+  if (benchmark.benchmark_id === 'audio-speech-transcription') return 'Audio Speech Transcription';
   return `${benchmark.benchmark_intent.charAt(0).toUpperCase()}${benchmark.benchmark_intent.slice(1)}`;
 }
 
@@ -1211,6 +1212,12 @@ function scaffoldPromotionReasons(benchmarkId: string) {
   if (benchmarkId === 'document-ocr-text-extraction') return [
     'fixture hosting blocker still open',
     'Reducto and Google Vision probes are unpaid-only (402)',
+    'no benchmark artifact'
+  ];
+  if (benchmarkId === 'audio-speech-transcription') return [
+    'canonical audio fixture not yet confirmed stable and retrievable',
+    'normalizer/caveats/evidence_health policy for audio lane not finalized',
+    'no two comparable paid-proven routes on same fixture',
     'no benchmark artifact'
   ];
   return ['no benchmark artifact'];
@@ -4304,6 +4311,7 @@ function normalizeBenchmarkId(category: string, intent: string) {
   if (category === 'document-ai' && intent === 'document OCR text extraction') return 'document-ocr-text-extraction';
   if (category === 'web-search' && intent === 'web search results') return 'data-web-search-results';
   if (category === 'maps' && intent === 'place search results') return 'maps-place-search-results';
+  if (category === 'audio-ai' && intent === 'audio speech transcription') return 'audio-speech-transcription';
   if (category === 'finance/data' && intent === 'token search') return 'finance-data-token-search';
   if (category === 'finance/data' && intent === 'token metadata') return 'finance-data-token-metadata';
   if (category === 'finance/data' && intent === 'get SOL price') return 'finance-data-sol-price';

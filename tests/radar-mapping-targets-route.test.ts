@@ -9,7 +9,8 @@ describe('radar mapping targets route', () => {
 
     expect(response.statusCode).toBe(200);
     const body = response.json().data;
-    expect(body.count).toBe(10);
+    expect(body.count).toBe(11);
+    expect(body.targets.some((row: any) => row.category === 'audio-ai' && row.benchmark_intent === 'audio speech transcription' && row.current_state === 'needs_two_comparable_mappings')).toBe(true);
     expect(body.targets.some((row: any) => row.category === 'solana-infra' && row.benchmark_intent === 'account balance' && row.current_state === 'needs_two_comparable_mappings')).toBe(true);
     const solanaInfra = body.targets.find((row: any) => row.category === 'solana-infra' && row.benchmark_intent === 'account balance');
     expect(solanaInfra.suggested_provider_candidates).toEqual(['QuickNode Solana Mainnet JSON-RPC']);
