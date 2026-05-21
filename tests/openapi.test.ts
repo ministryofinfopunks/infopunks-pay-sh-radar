@@ -42,6 +42,8 @@ describe('openapi discovery', () => {
     expect(spec.paths['/v1/radar/evidence-ledger/brief']?.get).toBeTruthy();
     expect(spec.paths['/v1/radar/bundles']?.get).toBeTruthy();
     expect(spec.paths['/v1/radar/bundles/{bundle_id}']?.get).toBeTruthy();
+    expect(spec.paths['/v1/radar/bundles/{bundle_id}/runs']?.get).toBeTruthy();
+    expect(spec.paths['/v1/radar/bundles/{bundle_id}/runs/{run_id}']?.get).toBeTruthy();
     expect(spec.paths['/v1/radar/bundles/{bundle_id}/plan']?.post).toBeTruthy();
     expect(spec.paths['/v1/radar/superiority-readiness']?.get).toBeTruthy();
     expect(spec.paths['/v1/radar/benchmarks/finance-data-token-search']?.get).toBeTruthy();
@@ -68,6 +70,9 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.BundleResponse).toBeTruthy();
     expect(spec.components.schemas.BundlePlanRequest).toBeTruthy();
     expect(spec.components.schemas.BundlePlanResponse).toBeTruthy();
+    expect(spec.components.schemas.BundleRunSummary).toBeTruthy();
+    expect(spec.components.schemas.BundleRunDetail).toBeTruthy();
+    expect(spec.components.schemas.BundleRunListResponse).toBeTruthy();
     expect(spec.components.schemas.BundleStep.properties.execution_boundary.$ref).toBe('#/components/schemas/BundleExecutionBoundary');
     expect(spec.components.schemas.EvidenceLedgerBriefRecordedLane.properties.latest_artifact_recorded_runs).toBeTruthy();
     expect(spec.components.schemas.EvidenceLedgerBriefRecordedLane.properties.total_recorded_runs).toBeTruthy();

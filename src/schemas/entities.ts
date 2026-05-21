@@ -1165,6 +1165,112 @@ export const RadarBundlePlanResponseSchema = z.object({
   winner_claimed: z.literal(false)
 });
 
+export const BundleRunStatusSchema = z.enum(['controlled_live_run']);
+
+export const BundleRunExecutionModeSchema = z.enum(['pay_cli']);
+
+export const BundleRunFinalStateSchema = z.enum(['executed_with_review_required_skipped']);
+
+export const BundleRunStepExecutionSchema = z.object({
+  step_id: z.string(),
+  execution_boundary: RadarBundleExecutionBoundarySchema,
+  success: z.boolean(),
+  status_code: z.number().int().nullable(),
+  status_evidence: z.string(),
+  observed_cost_usd: z.number().nonnegative().nullable(),
+  normalized_output_preview: z.record(z.string(), z.unknown()),
+  source_count: z.number().int().nonnegative()
+});
+
+export const BundleRunSkippedStepSchema = z.object({
+  step_id: z.string(),
+  plan_status: z.literal('review_required'),
+  execution_boundary: RadarBundleExecutionBoundarySchema,
+  reason: z.string()
+});
+
+export const BundleRunBlockedStepSchema = z.object({
+  step_id: z.string(),
+  plan_status: z.literal('blocked').optional(),
+  execution_boundary: RadarBundleExecutionBoundarySchema.optional(),
+  reason: z.string()
+});
+
+export const BundleRunSourceMapItemSchema = z.object({
+  label: z.string(),
+  url: z.string().url()
+});
+
+export const BundleRunCaveatObjectSchema = z.object({
+  code: z.enum(['status_code_unavailable', 'observed_cost_unavailable', 'source_map_empty']),
+  severity: z.enum(['warning']),
+  affects_core_semantics: z.boolean(),
+  detail: z.string()
+});
+
+export const BundleRunSummarySchema = z.object({
+  run_id: z.string(),
+  status: BundleRunStatusSchema,
+  evidence_health: z.literal('caveated'),
+  generated_at: z.string().datetime(),
+  execution_mode: BundleRunExecutionModeSchema,
+  final_bundle_state: BundleRunFinalStateSchema,
+  estimated_cost_usd: z.string(),
+  observed_cost_usd: z.number().nonnegative().nullable(),
+  executed_step_count: z.number().int().nonnegative(),
+  skipped_step_count: z.number().int().nonnegative(),
+  blocked_step_count: z.number().int().nonnegative(),
+  source_count: z.number().int().nonnegative(),
+  winner_claimed: z.literal(false)
+});
+
+export const BundleRunDetailSchema = z.object({
+  run_id: z.string(),
+  bundle_id: z.literal('morning-briefing'),
+  status: BundleRunStatusSchema,
+  evidence_health: z.literal('caveated'),
+  winner_claimed: z.literal(false),
+  generated_at: z.string().datetime(),
+  execution_mode: BundleRunExecutionModeSchema,
+  live_execution_enabled: z.literal(true),
+  final_bundle_state: BundleRunFinalStateSchema,
+  estimated_cost_usd: z.string(),
+  observed_cost_usd: z.number().nonnegative().nullable(),
+  radar_plan_endpoint: z.string().url(),
+  canonical_request: z.object({
+    topic: z.string(),
+    constraints: z.object({
+      max_cost_usd: z.number().nonnegative(),
+      allow_billing_unclear: z.boolean(),
+      allow_scaffold_routes: z.boolean()
+    })
+  }),
+  route_plan_summary: z.object({
+    total: z.number().int().nonnegative(),
+    included: z.number().int().nonnegative(),
+    review_required: z.number().int().nonnegative(),
+    blocked: z.number().int().nonnegative(),
+    clean_402: z.number().int().nonnegative(),
+    paid_proven: z.number().int().nonnegative(),
+    billing_unclear: z.number().int().nonnegative(),
+    billable_probe_observed: z.number().int().nonnegative()
+  }),
+  executed_steps: z.array(BundleRunStepExecutionSchema),
+  skipped_steps: z.array(BundleRunSkippedStepSchema),
+  blocked_steps: z.array(BundleRunBlockedStepSchema),
+  source_map: z.array(BundleRunSourceMapItemSchema),
+  caveat_objects: z.array(BundleRunCaveatObjectSchema),
+  recommended_next_action: z.string()
+});
+
+export const BundleRunListResponseSchema = z.object({
+  bundle_id: z.literal('morning-briefing'),
+  count: z.number().int().nonnegative(),
+  runs: z.array(BundleRunSummarySchema),
+  winner_claimed: z.literal(false),
+  agent_guidance: z.array(z.string())
+});
+
 export const RadarBenchmarkArtifactRouteSchema = z.object({
   provider_id: z.string(),
   route_id: z.string(),
@@ -1397,3 +1503,14 @@ export type RadarBundlePlanBlockedReason = z.infer<typeof RadarBundlePlanBlocked
 export type RadarBundlePlanStep = z.infer<typeof RadarBundlePlanStepSchema>;
 export type RadarBundlePlanBlockedStep = z.infer<typeof RadarBundlePlanBlockedStepSchema>;
 export type RadarBundlePlanResponse = z.infer<typeof RadarBundlePlanResponseSchema>;
+export type BundleRunStatus = z.infer<typeof BundleRunStatusSchema>;
+export type BundleRunExecutionMode = z.infer<typeof BundleRunExecutionModeSchema>;
+export type BundleRunFinalState = z.infer<typeof BundleRunFinalStateSchema>;
+export type RadarBundleRunStepExecution = z.infer<typeof BundleRunStepExecutionSchema>;
+export type RadarBundleRunSkippedStep = z.infer<typeof BundleRunSkippedStepSchema>;
+export type RadarBundleRunBlockedStep = z.infer<typeof BundleRunBlockedStepSchema>;
+export type RadarBundleRunSourceMapItem = z.infer<typeof BundleRunSourceMapItemSchema>;
+export type RadarBundleRunCaveatObject = z.infer<typeof BundleRunCaveatObjectSchema>;
+export type RadarBundleRunSummary = z.infer<typeof BundleRunSummarySchema>;
+export type RadarBundleRunDetail = z.infer<typeof BundleRunDetailSchema>;
+export type RadarBundleRunListResponse = z.infer<typeof BundleRunListResponseSchema>;

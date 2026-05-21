@@ -21,6 +21,8 @@ import {
   RadarEvidenceLedgerBriefSchema,
   RadarBundleListSchema,
   RadarBundleSchema,
+  BundleRunListResponseSchema,
+  BundleRunDetailSchema,
   RadarBundlePlanRequestSchema,
   RadarBundlePlanResponseSchema,
   RadarBenchmarkListSchema,
@@ -66,6 +68,7 @@ import {
   listBenchmarkArtifactMetadata
 } from '../services/radarBenchmarkService';
 import { buildRadarBundlePlan, getRadarBundleById, listRadarBundles } from '../services/radarBundleRegistryService';
+import { getRadarBundleRunById, listRadarBundleRuns } from '../services/radarBundleRunLedgerService';
 import { buildEcosystemHistory, buildEndpointHistory, buildProviderHistory, normalizeHistoryWindow } from '../services/radarHistoryService';
 import { buildEcosystemRiskSummary, buildEndpointRiskAssessment, buildProviderRiskAssessment } from '../services/radarRiskService';
 import { createResponseCache } from '../services/responseCache';
@@ -538,6 +541,22 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     if (!bundle) return reply.code(404).send({ error: 'bundle_not_found' });
     return {
       data: safeJsonExport(RadarBundleSchema.parse(bundle))
+    };
+  });
+  app.get<{ Params: { bundle_id: string } }>('/v1/radar/bundles/:bundle_id/runs', async (req, reply) => {
+    const runs = listRadarBundleRuns(req.params.bundle_id);
+    if (!runs) return reply.code(404).send({ error: 'bundle_not_found' });
+    return {
+      data: safeJsonExport(BundleRunListResponseSchema.parse(runs))
+    };
+  });
+  app.get<{ Params: { bundle_id: string; run_id: string } }>('/v1/radar/bundles/:bundle_id/runs/:run_id', async (req, reply) => {
+    const bundleRuns = listRadarBundleRuns(req.params.bundle_id);
+    if (!bundleRuns) return reply.code(404).send({ error: 'bundle_not_found' });
+    const run = getRadarBundleRunById(req.params.bundle_id, req.params.run_id);
+    if (!run) return reply.code(404).send({ error: 'bundle_run_not_found' });
+    return {
+      data: safeJsonExport(BundleRunDetailSchema.parse(run))
     };
   });
   app.post<{ Params: { bundle_id: string } }>('/v1/radar/bundles/:bundle_id/plan', async (req, reply) => handleParsed(req.body, RadarBundlePlanRequestSchema, (input) => {

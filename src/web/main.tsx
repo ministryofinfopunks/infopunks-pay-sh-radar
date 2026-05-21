@@ -4559,6 +4559,8 @@ function AgentBenchmarkApiPanel() {
           <p><b>GET /v1/radar/benchmarks/finance-data-token-search</b><span>Token-search benchmark metrics.</span></p>
           <p><b>GET /v1/radar/bundles</b><span>Read-only bundle registry for non-executing spend recipes.</span></p>
           <p><b>GET /v1/radar/bundles/:bundle_id</b><span>Bundle registry detail with execution boundaries and evidence references.</span></p>
+          <p><b>GET /v1/radar/bundles/:bundle_id/runs</b><span>Bundle Run Ledger summary for controlled live run Harness proof records.</span></p>
+          <p><b>GET /v1/radar/bundles/:bundle_id/runs/:run_id</b><span>Bundle Run Ledger detail for one caveated controlled live run record.</span></p>
           <p><b>POST /v1/radar/bundles/:bundle_id/plan</b><span>Maps intent and constraints to included, review-required, and blocked steps without executing paid APIs.</span></p>
           <p><b>GET /openapi.json</b><span>OpenAPI for agents.</span></p>
         </div>
@@ -4568,6 +4570,7 @@ function AgentBenchmarkApiPanel() {
           <h3>Bundle Planner</h3>
         </div>
         <p className="panel-caption">Bundles are non-executing spend recipes. Bundle plans map intent and constraints to included, review-required, and blocked steps. Radar does not execute paid APIs for bundle plans, Harness execution comes later, and winner_claimed=false remains the rule.</p>
+        <p className="panel-caption">Morning Briefing has one caveated controlled live Harness run: 3 executed clean steps · 2 review-required skipped · 0 blocked · winner_claimed=false.</p>
         {bundlePlannerStatus === 'loading' && <div className="preflight-skeleton" aria-label="Bundle planner loading"><span /><span /><span /></div>}
         {bundlePlannerStatus === 'error' && <EmptyState title="Bundle planner examples unavailable." body="Planner examples are documentation-only previews. Retry when bundle plan APIs are reachable." />}
         <div className="endpoint-card-grid bundle-planner-card-grid">

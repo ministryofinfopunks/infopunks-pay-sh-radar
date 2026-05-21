@@ -53,6 +53,59 @@ describe('radar bundle registry', () => {
     await app.close();
   });
 
+  it('serves morning-briefing bundle run ledger summary and detail as read-only Harness proof', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+    const originalFetch = globalThis.fetch;
+    const fetchSpy = vi.fn(async () => {
+      throw new Error('fetch should not be called by bundle run ledger');
+    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (globalThis as any).fetch = fetchSpy;
+    try {
+      const listResponse = await app.inject({ method: 'GET', url: '/v1/radar/bundles/morning-briefing/runs' });
+      expect(listResponse.statusCode).toBe(200);
+      const list = listResponse.json().data;
+      expect(list.count).toBe(1);
+      expect(list.runs).toHaveLength(1);
+      expect(list.winner_claimed).toBe(false);
+      expect(list.runs[0].status).toBe('controlled_live_run');
+      expect(list.runs[0].evidence_health).toBe('caveated');
+      expect(list.runs[0].winner_claimed).toBe(false);
+      expect(list.runs[0].executed_step_count).toBe(3);
+      expect(list.runs[0].skipped_step_count).toBe(2);
+      expect(list.runs[0].blocked_step_count).toBe(0);
+      expect(list.runs[0].source_count).toBe(9);
+      expect(list.runs[0].observed_cost_usd).toBeNull();
+      expect(fetchSpy).not.toHaveBeenCalled();
+
+      const detailResponse = await app.inject({ method: 'GET', url: '/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-075521-pay-cli' });
+      expect(detailResponse.statusCode).toBe(200);
+      const detail = detailResponse.json().data;
+      expect(detail.executed_steps).toHaveLength(3);
+      expect(detail.executed_steps.map((step: { step_id: string }) => step.step_id)).toEqual(expect.arrayContaining(['world_news_search', 'ai_news_search', 'crypto_market_scan']));
+      expect(detail.skipped_steps.map((step: { step_id: string }) => step.step_id)).toEqual(expect.arrayContaining(['top_story_selection', 'deep_dive_synthesis']));
+      expect(detail.caveat_objects.map((item: { code: string }) => item.code)).toEqual(expect.arrayContaining(['status_code_unavailable', 'observed_cost_unavailable']));
+      expect(detail.source_map).toHaveLength(9);
+      expect(fetchSpy).not.toHaveBeenCalled();
+    } finally {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (globalThis as any).fetch = originalFetch;
+      await app.close();
+    }
+  });
+
+  it('returns bundle_run_not_found for unknown run id and bundle_not_found for unknown runs bundle', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+    const unknownRun = await app.inject({ method: 'GET', url: '/v1/radar/bundles/morning-briefing/runs/unknown' });
+    expect(unknownRun.statusCode).toBe(404);
+    expect(unknownRun.json().error).toBe('bundle_run_not_found');
+
+    const unknownBundleRuns = await app.inject({ method: 'GET', url: '/v1/radar/bundles/unknown/runs' });
+    expect(unknownBundleRuns.statusCode).toBe(404);
+    expect(unknownBundleRuns.json().error).toBe('bundle_not_found');
+    await app.close();
+  });
+
   it('builds a non-executing route plan for morning-briefing and preserves constraints behavior', async () => {
     const app = await createApp(emptyIntelligenceStore());
     const originalFetch = globalThis.fetch;

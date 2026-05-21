@@ -366,6 +366,20 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     parameters: [pathParam('bundle_id', 'Bundle identifier.')],
     responses: envelopedResponses({ $ref: '#/components/schemas/BundleResponse' }, { bundle_id: 'morning-briefing', status: 'recipe_scaffold', winner_claimed: false }, 'bundle_not_found')
   });
+  add('get', '/v1/radar/bundles/{bundle_id}/runs', {
+    tags: ['Radar Agent'],
+    summary: 'List bundle run ledger records',
+    description: 'Returns read-only controlled live run ledger summaries for curated Harness proof records. Radar does not execute paid APIs and does not execute Harness from this route.',
+    parameters: [pathParam('bundle_id', 'Bundle identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/BundleRunListResponse' }, { bundle_id: 'morning-briefing', count: 1, winner_claimed: false, runs: [{ run_id: 'morning-briefing-run-2026-05-21-075521-pay-cli', status: 'controlled_live_run', evidence_health: 'caveated' }] }, 'bundle_not_found')
+  });
+  add('get', '/v1/radar/bundles/{bundle_id}/runs/{run_id}', {
+    tags: ['Radar Agent'],
+    summary: 'Get bundle run ledger record by id',
+    description: 'Returns one full read-only controlled live run detail from curated Harness proof metadata. Includes caveated execution detail and skipped review-required steps.',
+    parameters: [pathParam('bundle_id', 'Bundle identifier.'), pathParam('run_id', 'Bundle run identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/BundleRunDetail' }, { run_id: 'morning-briefing-run-2026-05-21-075521-pay-cli', bundle_id: 'morning-briefing', status: 'controlled_live_run', evidence_health: 'caveated', winner_claimed: false }, 'bundle_run_not_found')
+  });
   add('post', '/v1/radar/bundles/{bundle_id}/plan', {
     tags: ['Radar Agent'],
     summary: 'Build non-executing bundle route plan',
@@ -1220,6 +1234,85 @@ function componentSchemas(): Record<string, JsonSchema> {
       estimated_cost_usd: stringSchema(),
       recommended_agent_action: stringSchema(),
       winner_claimed: { const: false }
+    }),
+    BundleRunStatus: enumSchema(['controlled_live_run']),
+    BundleRunExecutionMode: enumSchema(['pay_cli']),
+    BundleRunFinalState: enumSchema(['executed_with_review_required_skipped']),
+    BundleRunStepExecution: objectSchema({
+      step_id: stringSchema(),
+      execution_boundary: { $ref: '#/components/schemas/BundleExecutionBoundary' },
+      success: booleanSchema(),
+      status_code: { oneOf: [integerSchema(), { type: 'null' }] },
+      status_evidence: stringSchema(),
+      observed_cost_usd: { oneOf: [{ type: 'number', minimum: 0 }, { type: 'null' }] },
+      normalized_output_preview: freeformObject(),
+      source_count: integerSchema()
+    }),
+    BundleRunSkippedStep: objectSchema({
+      step_id: stringSchema(),
+      plan_status: { const: 'review_required' },
+      execution_boundary: { $ref: '#/components/schemas/BundleExecutionBoundary' },
+      reason: stringSchema()
+    }),
+    BundleRunBlockedStep: objectSchema({
+      step_id: stringSchema(),
+      plan_status: { oneOf: [{ const: 'blocked' }, { type: 'null' }] },
+      execution_boundary: { oneOf: [{ $ref: '#/components/schemas/BundleExecutionBoundary' }, { type: 'null' }] },
+      reason: stringSchema()
+    }),
+    BundleRunSourceMapItem: objectSchema({
+      label: stringSchema(),
+      url: stringSchema()
+    }),
+    BundleRunCaveatObject: objectSchema({
+      code: enumSchema(['status_code_unavailable', 'observed_cost_unavailable', 'source_map_empty']),
+      severity: { const: 'warning' },
+      affects_core_semantics: booleanSchema(),
+      detail: stringSchema()
+    }),
+    BundleRunSummary: objectSchema({
+      run_id: stringSchema(),
+      status: { $ref: '#/components/schemas/BundleRunStatus' },
+      evidence_health: { const: 'caveated' },
+      generated_at: dateTimeSchema(),
+      execution_mode: { $ref: '#/components/schemas/BundleRunExecutionMode' },
+      final_bundle_state: { $ref: '#/components/schemas/BundleRunFinalState' },
+      estimated_cost_usd: stringSchema(),
+      observed_cost_usd: { oneOf: [{ type: 'number', minimum: 0 }, { type: 'null' }] },
+      executed_step_count: integerSchema(),
+      skipped_step_count: integerSchema(),
+      blocked_step_count: integerSchema(),
+      source_count: integerSchema(),
+      winner_claimed: { const: false }
+    }),
+    BundleRunDetail: objectSchema({
+      run_id: stringSchema(),
+      bundle_id: { const: 'morning-briefing' },
+      status: { $ref: '#/components/schemas/BundleRunStatus' },
+      evidence_health: { const: 'caveated' },
+      winner_claimed: { const: false },
+      generated_at: dateTimeSchema(),
+      execution_mode: { $ref: '#/components/schemas/BundleRunExecutionMode' },
+      live_execution_enabled: { const: true },
+      final_bundle_state: { $ref: '#/components/schemas/BundleRunFinalState' },
+      estimated_cost_usd: stringSchema(),
+      observed_cost_usd: { oneOf: [{ type: 'number', minimum: 0 }, { type: 'null' }] },
+      radar_plan_endpoint: stringSchema(),
+      canonical_request: freeformObject(),
+      route_plan_summary: freeformObject(),
+      executed_steps: arrayOf({ $ref: '#/components/schemas/BundleRunStepExecution' }),
+      skipped_steps: arrayOf({ $ref: '#/components/schemas/BundleRunSkippedStep' }),
+      blocked_steps: arrayOf({ $ref: '#/components/schemas/BundleRunBlockedStep' }),
+      source_map: arrayOf({ $ref: '#/components/schemas/BundleRunSourceMapItem' }),
+      caveat_objects: arrayOf({ $ref: '#/components/schemas/BundleRunCaveatObject' }),
+      recommended_next_action: stringSchema()
+    }),
+    BundleRunListResponse: objectSchema({
+      bundle_id: { const: 'morning-briefing' },
+      count: integerSchema(),
+      runs: arrayOf({ $ref: '#/components/schemas/BundleRunSummary' }),
+      winner_claimed: { const: false },
+      agent_guidance: arrayOf(stringSchema())
     }),
     BenchmarkArtifactRoute: objectSchema({
       provider_id: stringSchema(),

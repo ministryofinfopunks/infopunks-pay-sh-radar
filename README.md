@@ -226,6 +226,10 @@ Command palette actions include:
   Returns a read-only bundle registry for agent spend recipes with execution boundaries and evidence references. Radar does not execute paid APIs from this route.
 - `GET /v1/radar/bundles/:bundle_id`
   Returns one bundle registry record by bundle id (`morning-briefing`, `market-research`, `talent-market-scanner`).
+- `GET /v1/radar/bundles/:bundle_id/runs`
+  Returns a read-only Bundle Run Ledger summary for controlled live run Harness proof records. Radar does not execute paid APIs and does not mark bundles recorded.
+- `GET /v1/radar/bundles/:bundle_id/runs/:run_id`
+  Returns full read-only Bundle Run Ledger detail for one controlled live run Harness proof record, including caveated execution facts and skipped review-required steps.
 - `POST /v1/radar/bundles/:bundle_id/plan`
   Bundle Planner (non-executing). Returns an evidence-aware route plan derived from Bundle Registry + Evidence Ledger metadata before spend. Harness execution comes later.
 - `GET /v1/radar/benchmarks`
