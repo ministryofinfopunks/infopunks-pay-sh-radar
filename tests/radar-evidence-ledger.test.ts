@@ -58,10 +58,15 @@ describe('radar evidence ledger', () => {
       'No benchmark artifact exists.'
     ]);
     const audioLane = data.scaffold_lanes.find((row: { benchmark_id: string }) => row.benchmark_id === 'audio-speech-transcription');
+    expect(audioLane?.why_not_promoted).toEqual([
+      'Google Speech paid-executed and received one shape diagnostic paid retry; transcript semantics still not proven.',
+      'Alibaba Speech paid-executed and received one shape diagnostic paid retry; transcript semantics still not proven.',
+      'Both routes remain candidate/unproven with degraded evidence.',
+      'No benchmark artifact exists.'
+    ]);
     expect(audioLane?.missing_requirements).toEqual([
-      'stable public canonical audio fixture',
-      'lane-specific normalizer/caveats/evidence_health policy',
-      'two comparable paid-proven routes on canonical fixture',
+      'route schema/output change or different comparable transcription provider',
+      'two comparable paid-proven routes with transcript semantics proven on canonical fixture',
       '5-run benchmark artifact'
     ]);
 

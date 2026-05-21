@@ -382,8 +382,16 @@ describe('benchmark artifact registry', () => {
       winner_claimed: false
     });
     expect((audioSpeechTranscriptionResponse.json().data.routes as unknown[]).length).toBe(0);
-    expect(audioSpeechTranscriptionResponse.json().data.readiness_note).toContain('recommended_state=scaffold_ready');
+    expect(audioSpeechTranscriptionResponse.json().data.readiness_note).toContain('Google Speech paid execution succeeded and received one shape diagnostic paid retry, but transcript semantics were still not proven');
+    expect(audioSpeechTranscriptionResponse.json().data.readiness_note).toContain('Alibaba Speech paid execution succeeded and received one shape diagnostic paid retry, but transcript semantics were still not proven');
+    expect(audioSpeechTranscriptionResponse.json().data.readiness_note).toContain('candidate/unproven');
+    expect(audioSpeechTranscriptionResponse.json().data.readiness_note).toContain('No benchmark artifact exists');
     expect(audioSpeechTranscriptionResponse.json().data.readiness_note).toContain('AUDIO BENCHMARK 001');
+    expect(audioSpeechTranscriptionResponse.json().data.next_step).toContain('park lane until route schema/output changes');
+    expect(audioSpeechTranscriptionResponse.json().data.next_step).toContain('different comparable transcription provider appears');
+    expect(audioSpeechTranscriptionResponse.json().data.readiness_note.toLowerCase()).not.toContain('best');
+    expect(audioSpeechTranscriptionResponse.json().data.readiness_note.toLowerCase()).not.toContain('top');
+    expect(audioSpeechTranscriptionResponse.json().data.readiness_note.toLowerCase()).not.toContain('superiority');
     const documentOcrTextExtractionResponse = await app.inject({ method: 'GET', url: '/v1/radar/benchmarks/document-ocr-text-extraction' });
     expect(documentOcrTextExtractionResponse.statusCode).toBe(200);
     expect(documentOcrTextExtractionResponse.json().data).toMatchObject({

@@ -11,6 +11,13 @@ describe('radar mapping targets route', () => {
     const body = response.json().data;
     expect(body.count).toBe(11);
     expect(body.targets.some((row: any) => row.category === 'audio-ai' && row.benchmark_intent === 'audio speech transcription' && row.current_state === 'needs_two_comparable_mappings')).toBe(true);
+    const audio = body.targets.find((row: any) => row.category === 'audio-ai' && row.benchmark_intent === 'audio speech transcription');
+    expect(audio.needed_next_step).toContain('park lane until route schema/output changes');
+    expect(audio.needed_next_step).toContain('different comparable transcription provider appears');
+    expect(audio.readiness_blocker).toContain('received one shape diagnostic paid retry');
+    expect(audio.readiness_blocker).toContain('Google Speech remains candidate/unproven with degraded evidence');
+    expect(audio.readiness_blocker).toContain('Alibaba Speech remains candidate/unproven with degraded evidence');
+    expect(audio.readiness_blocker).toContain('No benchmark artifact exists');
     expect(body.targets.some((row: any) => row.category === 'solana-infra' && row.benchmark_intent === 'account balance' && row.current_state === 'needs_two_comparable_mappings')).toBe(true);
     const solanaInfra = body.targets.find((row: any) => row.category === 'solana-infra' && row.benchmark_intent === 'account balance');
     expect(solanaInfra.suggested_provider_candidates).toEqual(['QuickNode Solana Mainnet JSON-RPC']);

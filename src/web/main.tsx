@@ -1215,9 +1215,9 @@ function scaffoldPromotionReasons(benchmarkId: string) {
     'no benchmark artifact'
   ];
   if (benchmarkId === 'audio-speech-transcription') return [
-    'canonical audio fixture not yet confirmed stable and retrievable',
-    'normalizer/caveats/evidence_health policy for audio lane not finalized',
-    'no two comparable paid-proven routes on same fixture',
+    'Google Speech paid-executed and received one shape diagnostic paid retry; transcript semantics still not proven',
+    'Alibaba Speech paid-executed and received one shape diagnostic paid retry; transcript semantics still not proven',
+    'both routes remain candidate/unproven with degraded evidence',
     'no benchmark artifact'
   ];
   return ['no benchmark artifact'];

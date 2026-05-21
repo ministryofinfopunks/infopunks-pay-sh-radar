@@ -32,10 +32,10 @@ const mappingTargets: MappingTarget[] = [
     category: 'audio-ai',
     benchmark_intent: 'audio speech transcription',
     current_state: 'needs_two_comparable_mappings',
-    needed_next_step: 'Benchmark Scaffold: publish a stable canonical audio fixture, then paid-prove two comparable speech-to-text routes on the same fixture and record one five-run benchmark artifact.',
+    needed_next_step: 'Benchmark Scaffold: park lane until route schema/output changes allow transcript semantics proof or a different comparable transcription provider appears, then paid-prove two comparable speech-to-text routes on the same fixture and record one five-run benchmark artifact.',
     suggested_provider_candidates: ['solana-foundation/google/speech', 'solana-foundation/alibaba/speech', 'solana-foundation/alibaba/intelligentspeechinteraction'],
     why_it_matters: 'Audio transcription routes expand multimodal agent capability for voice and spoken-content workflows.',
-    readiness_blocker: 'Scaffold readiness is confirmed, but promotion is blocked until canonical fixture hosting is stable, lane-specific normalizer/caveats/evidence_health policy is finalized, two comparable paid-proven routes are recorded on the same fixture, and one five-run artifact exists.'
+    readiness_blocker: 'Both comparable routes paid-executed on canonical fixture https://radar.infopunks.fun/fixtures/audio-benchmark-001.wav (HTTP 200, audio/x-wav, WAV PCM 16-bit mono 22050 Hz, 224258 bytes), and each received one shape diagnostic paid retry, but transcript semantics for canonical phrase were still not proven: Google Speech remains candidate/unproven with degraded evidence and Alibaba Speech remains candidate/unproven with degraded evidence. No benchmark artifact exists.'
   },
   {
     category: 'communications',

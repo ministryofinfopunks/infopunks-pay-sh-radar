@@ -722,7 +722,7 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
       source: 'infopunks-pay-sh-radar',
       ledger_state: {
         recorded_benchmarks: 5,
-        total_benchmarks: 9,
+        total_benchmarks: 10,
         total_artifacts: 6,
         total_recorded_runs: 40,
         proven_routes: 10,
@@ -740,7 +740,8 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
         { benchmark_id: 'communications-email-delivery', label: 'Communications Email Delivery', status: 'scaffold', why_not_promoted: ['StableEmail paid-executed and caveated', 'AgentMail blocked / no second comparable route', 'no benchmark artifact'] },
         { benchmark_id: 'solana-infra-account-balance', label: 'Solana Account Balance', status: 'scaffold', why_not_promoted: ['QuickNode unpaid 402 confirmed', 'paid run failed', 'no second comparable route', 'no benchmark artifact'] },
         { benchmark_id: 'social-data-reddit-post-search', label: 'Reddit Post Search', status: 'scaffold', why_not_promoted: ['StableEnrich paid-proven and caveated', 'StableSocial paid-compatible but semantic proof failed', 'no second paid-proven comparable route', 'no benchmark artifact'] },
-        { benchmark_id: 'maps-place-search-results', label: 'Maps Place Search Results', status: 'scaffold', why_not_promoted: ['StableEnrich paid-proven but degraded (missing names/addresses/coordinates, location unconfirmed)', 'Google Places paid-executed and one paid diagnostic retry (includedType=cafe) still returned zero recognizable place candidates', 'no second paid-proven comparable route', 'no benchmark artifact'] }
+        { benchmark_id: 'maps-place-search-results', label: 'Maps Place Search Results', status: 'scaffold', why_not_promoted: ['StableEnrich paid-proven but degraded (missing names/addresses/coordinates, location unconfirmed)', 'Google Places paid-executed and one paid diagnostic retry (includedType=cafe) still returned zero recognizable place candidates', 'no second paid-proven comparable route', 'no benchmark artifact'] },
+        { benchmark_id: 'audio-speech-transcription', label: 'Audio Speech Transcription', status: 'scaffold', why_not_promoted: ['Google Speech paid-executed and received one shape diagnostic paid retry; transcript semantics still not proven', 'Alibaba Speech paid-executed and received one shape diagnostic paid retry; transcript semantics still not proven', 'both routes remain candidate/unproven with degraded evidence', 'no benchmark artifact'] }
       ],
       latest_artifacts: [
         { artifact_id: 'document-ocr-text-extraction-benchmark-runs-2026-05-19', benchmark_id: 'document-ocr-text-extraction', label: 'Document OCR Text Extraction', recorded_at: '2026-05-19T00:00:00.000Z', recorded_runs: 10, routes_count: 2, winner_claimed: false }
@@ -1101,6 +1102,9 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Maps Place Search Results');
     expect(container.textContent).toContain('StableEnrich paid-proven but degraded (missing names/addresses/coordinates, location unconfirmed)');
     expect(container.textContent).toContain('Google Places paid-executed and one paid diagnostic retry (includedType=cafe) still returned zero recognizable place candidates');
+    expect(container.textContent).toContain('Audio Speech Transcription');
+    expect(container.textContent).toContain('Google Speech paid-executed and received one shape diagnostic paid retry; transcript semantics still not proven');
+    expect(container.textContent).toContain('Alibaba Speech paid-executed and received one shape diagnostic paid retry; transcript semantics still not proven');
     expect(container.textContent).not.toMatch(/Communications Email Delivery[\s\S]*5-run benchmark/);
     expect(container.textContent).not.toMatch(/Solana Account Balance[\s\S]*2 proven routes/);
     expect(container.textContent).not.toMatch(/Reddit Post Search[\s\S]*5-run benchmark/);

@@ -285,20 +285,19 @@ export function buildRadarEvidenceLedger(): RadarEvidenceLedger {
       status: 'scaffold' as const,
       promotion_status: 'blocked' as const,
       why_not_promoted: [
-        'Stable public canonical audio fixture is not yet confirmed live and retrievable.',
-        'Lane-specific normalizer, structured caveats, and evidence_health policy are not finalized.',
-        'No two comparable paid-proven transcription routes exist on the same canonical audio fixture.',
-        'No five-run benchmark artifact exists.'
+        'Google Speech paid-executed and received one shape diagnostic paid retry; transcript semantics still not proven.',
+        'Alibaba Speech paid-executed and received one shape diagnostic paid retry; transcript semantics still not proven.',
+        'Both routes remain candidate/unproven with degraded evidence.',
+        'No benchmark artifact exists.'
       ],
       missing_requirements: [
-        'stable public canonical audio fixture',
-        'lane-specific normalizer/caveats/evidence_health policy',
-        'two comparable paid-proven routes on canonical fixture',
+        'route schema/output change or different comparable transcription provider',
+        'two comparable paid-proven routes with transcript semantics proven on canonical fixture',
         '5-run benchmark artifact'
       ],
       known_evidence: [
-        'Readiness note marked recommended_state=scaffold_ready on 2026-05-21.',
-        'Research identified multiple plausible payment-gated transcription candidates for comparable route testing.',
+        'Canonical fixture observed live (HTTP 200, content-type audio/x-wav, WAV PCM 16-bit mono 22050 Hz, 224258 bytes).',
+        'Google Speech and Alibaba Speech paid execution both succeeded on 2026-05-21 and each received one shape diagnostic paid retry, but transcript semantics were still not proven for canonical phrase.',
         'Canonical phrase: INFOPUNKS RADAR / EVIDENCE BEFORE SPEND / AUDIO BENCHMARK 001.'
       ]
     }
@@ -1176,8 +1175,8 @@ function buildAudioSpeechTranscriptionBenchmark(): RadarBenchmarkDetail {
     benchmark_recorded: false,
     winner_claimed: false,
     winner_status: 'not_evaluated',
-    next_step: 'publish one stable public canonical audio fixture, finalize lane-specific normalization/caveats/evidence_health policy, paid-prove two comparable transcription routes against the same fixture, then record one five-run benchmark artifact',
-    readiness_note: 'Benchmark Scaffold. Fresh audio-ai lane for comparable speech-to-text route testing. Canonical phrase: "INFOPUNKS RADAR", "EVIDENCE BEFORE SPEND", "AUDIO BENCHMARK 001". Canonical fixture plan: https://radar.infopunks.fun/fixtures/audio-benchmark-001.wav (fallback: https://radar.infopunks.fun/fixtures/audio-benchmark-001.mp3). Research/readiness in Agent Harness identified comparable payment-gated candidates and recommended_state=scaffold_ready, but promotion is blocked until fixture stability is confirmed, lane-specific normalizer/caveats/evidence_health are finalized, two candidate routes are paid-proven on the same fixture, and one five-run artifact exists.',
+    next_step: 'park lane until route schema/output changes allow transcript semantics proof, or a different comparable transcription provider appears; then record one five-run benchmark artifact after two comparable paid-proven routes exist',
+    readiness_note: 'Benchmark Scaffold. Canonical fixture: https://radar.infopunks.fun/fixtures/audio-benchmark-001.wav (HTTP 200, content-type audio/x-wav, WAV PCM 16-bit mono 22050 Hz, size 224258 bytes). Canonical phrase: "INFOPUNKS RADAR", "EVIDENCE BEFORE SPEND", "AUDIO BENCHMARK 001". Google Speech paid execution succeeded and received one shape diagnostic paid retry, but transcript semantics were still not proven; route_state remains candidate/unproven with evidence_health=degraded. Alibaba Speech paid execution succeeded and received one shape diagnostic paid retry, but transcript semantics were still not proven; route_state remains candidate/unproven with evidence_health=degraded. No benchmark artifact exists and winner_claimed remains false.',
     routes: []
   };
 }
