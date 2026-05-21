@@ -3177,6 +3177,14 @@ function RadarApp() {
                 <CopyButton value={selectedProvider.id} label="Copy provider id" />
               </div>
             </div>
+            <div className="dossier-summary-strip" aria-label="Selected provider summary strip">
+              <span><b>Provider</b>{selectedProvider.name}</span>
+              <span><b>State</b>{statusLabel(providerIntel?.service_monitor.status ?? selectedProvider.status ?? 'unknown')}</span>
+              <span><b>Trust</b>{providerIntel?.latest_trust_score ?? 'unknown'}</span>
+              <span><b>Signal</b>{providerIntel?.latest_signal_score ?? 'unknown'}</span>
+              <span><b>Risk</b>{riskBadgeLabel(toRiskContext(providerRisk)?.predictive_risk_level ?? 'unknown')}</span>
+              <span><b>Route/action</b>{toRiskContext(providerRisk)?.recommended_action ?? selectedRouteContext?.routeState ?? 'inspect evidence first'}</span>
+            </div>
             <div className="intel-summary">
               <DossierStat label="Trust" value={providerIntel?.latest_trust_score ?? null} sub={providerDetail?.trustAssessment?.grade ?? 'grade unknown'} history={providerHistory?.series.trust_score} delta={providerHistory?.deltas.trust_delta_24h ?? null} />
               <DossierStat label="Signal" value={providerIntel?.latest_signal_score ?? null} sub={providerDetail?.signalAssessment?.narratives[0] ?? 'narrative unknown'} history={providerHistory?.series.signal_score} delta={providerHistory?.deltas.signal_delta_24h ?? null} />
@@ -4699,8 +4707,14 @@ function AgentBenchmarkApiPanel() {
         {bundleRunStatus === 'loading' && <div className="preflight-skeleton" aria-label="Bundle run ledger loading"><span /><span /><span /></div>}
         {bundleRunStatus === 'error' && <p className="route-state warn">Bundle Run Ledger unavailable</p>}
         {bundleRunStatus === 'ready' && bundleRunSummary && bundleRunDetail && <div className="bundle-run-ledger-card">
-          <div className="agent-chip-row run-summary-chips" aria-label="Bundle Run Ledger summary chips">
+          <div className="bundle-receipt-head">
+            <div>
+              <p className="section-kicker">Compact proof receipt</p>
+              <strong>Morning Briefing controlled Harness run</strong>
+            </div>
             <span>{bundleRunSummary.status}</span>
+          </div>
+          <div className="agent-chip-row run-summary-chips proof-receipt-metrics" aria-label="Bundle Run Ledger summary chips">
             <span>{bundleRunSummary.evidence_health}</span>
             <span>{bundleRunSummary.executed_step_count} executed</span>
             <span>{bundleRunSummary.skipped_step_count} skipped</span>
@@ -5012,6 +5026,7 @@ function PropagationWatch({ propagation }: { propagation?: PropagationAnalysis |
         <p className="section-kicker">Contagion Watch</p>
         <h2>Propagation Watch</h2>
         <p className="panel-caption">Deterministic read across degradations, trust drops, unknown telemetry, narratives, and graph adjacency.</p>
+        <p className="propagation-clarifier">Propagation Watch reflects catalog/provider health signals, not Radar execution failure.</p>
       </div>
       <span className={`severity-label ${current.severity}`}>severity {current.severity}</span>
     </div>

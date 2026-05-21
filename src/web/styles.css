@@ -5527,6 +5527,173 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
   text-transform: uppercase;
 }
 
+/* Public launch hierarchy pass: reduce card-wall density without removing proof detail. */
+.superiority-readiness[aria-label="Evidence Ledger Snapshot panel"] {
+  margin: 34px 0 42px;
+  padding: clamp(18px, 2.4vw, 28px);
+}
+
+.superiority-readiness[aria-label="Evidence Ledger Snapshot panel"] > .readiness-list-grid {
+  margin-top: 22px;
+}
+
+.superiority-readiness[aria-label="Evidence Ledger Snapshot panel"] .compact-chip-list.wide {
+  border-color: rgba(203,255,221,.095);
+  background:
+    linear-gradient(180deg, rgba(203,255,221,.035), rgba(0,0,0,.12)),
+    rgba(3,9,7,.62);
+}
+
+.explored-lanes {
+  margin-top: 36px;
+  border-top: 1px solid rgba(203,255,221,.12);
+  padding-top: 28px;
+}
+
+.explored-lanes .phase3-panel-head {
+  margin-bottom: 18px;
+}
+
+.agent-api-panel {
+  margin-top: 34px;
+  padding: clamp(18px, 2.4vw, 28px);
+}
+
+.agent-api-stack {
+  gap: clamp(30px, 4vw, 46px);
+}
+
+.agent-api-surface,
+.agent-story-panel {
+  border-color: rgba(203,255,221,.085);
+}
+
+.agent-api-surface {
+  background:
+    linear-gradient(120deg, rgba(124,199,255,.045), transparent 38%),
+    rgba(0,0,0,.12);
+}
+
+.bundle-planner-group {
+  margin-top: 4px;
+}
+
+.bundle-run-ledger-group {
+  max-width: 980px;
+  justify-self: center;
+  width: 100%;
+  border-color: rgba(203,255,221,.07);
+  background:
+    linear-gradient(180deg, rgba(203,255,221,.026), rgba(0,0,0,.14)),
+    rgba(2,6,5,.62);
+}
+
+.agent-examples-drawer {
+  max-width: 1040px;
+  justify-self: center;
+  width: 100%;
+}
+
+.agent-examples-drawer .safe-code-block {
+  max-height: 220px;
+}
+
+.bundle-receipt-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+  border-bottom: 1px solid rgba(203,255,221,.08);
+  padding-bottom: 10px;
+}
+
+.bundle-receipt-head strong {
+  display: block;
+  color: var(--text-strong);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(18px, 2vw, 24px);
+  line-height: 1.1;
+}
+
+.bundle-receipt-head > span {
+  border: 1px solid rgba(124,199,255,.24);
+  border-radius: 999px;
+  padding: 5px 9px;
+  color: var(--blue);
+  background: rgba(124,199,255,.06);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .075em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.proof-receipt-metrics {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px !important;
+}
+
+.proof-receipt-metrics > span {
+  width: auto;
+  justify-content: center;
+  min-height: 30px;
+  border-radius: 9px;
+  background: rgba(203,255,221,.04);
+}
+
+.bundle-run-ledger-card {
+  padding: 13px;
+}
+
+.bundle-run-subgrid p {
+  background: rgba(0,0,0,.1);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.propagation-clarifier {
+  margin: 8px 0 0;
+  border: 1px solid rgba(124,199,255,.16);
+  border-radius: 10px;
+  padding: 8px 10px;
+  color: #b9d9c4;
+  background: rgba(124,199,255,.045);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.dossier-summary-strip {
+  display: grid;
+  grid-template-columns: minmax(180px, 1.35fr) repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  flex: 0 0 auto;
+  border: 1px solid rgba(124,199,255,.16);
+  border-left-color: rgba(126,255,176,.34);
+  border-radius: 14px;
+  padding: 10px;
+  background:
+    linear-gradient(90deg, rgba(126,255,176,.055), rgba(124,199,255,.035)),
+    rgba(0,0,0,.16);
+}
+
+.dossier-summary-strip span {
+  min-width: 0;
+  color: var(--text-soft);
+  font-size: 12px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.dossier-summary-strip b {
+  display: block;
+  margin-bottom: 4px;
+  color: rgba(168,195,177,.86);
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
 .route-decision-section textarea,
 .route-decision-section input,
 .route-decision-section select {
@@ -5609,6 +5776,11 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .proof-receipt-metrics,
+  .dossier-summary-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .dossier-header {
     padding: 14px;
   }
@@ -5648,6 +5820,15 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
   }
 
   .route-context-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .bundle-receipt-head {
+    display: grid;
+  }
+
+  .proof-receipt-metrics,
+  .dossier-summary-strip {
     grid-template-columns: 1fr;
   }
 

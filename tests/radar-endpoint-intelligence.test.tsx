@@ -1014,10 +1014,20 @@ describe('radar endpoint intelligence UI', () => {
     expect(proofMetricText.indexOf('6 artifacts')).toBeLessThan(proofMetricText.indexOf('0 winner claims'));
     expect(container.textContent).toContain('Recorded means paid evidence exists');
     expect(container.textContent).toContain('Pulse shows live ecosystem intelligence. Benchmarks show artifact-backed route evidence.');
+    expect(container.textContent).toContain('Propagation Watch reflects catalog/provider health signals, not Radar execution failure.');
     expect(container.textContent).toContain('Ask Radar where an agent should route before spending.');
     expect(container.textContent).toContain('No preflight decision yet.');
     expect(container.textContent).toContain('Provider/Endpoint Comparison Engine');
     expect(container.textContent).toContain('Compare');
+    const dossierSummary = container.querySelector('[aria-label="Selected provider summary strip"]');
+    expect(dossierSummary).toBeTruthy();
+    expect(dossierSummary?.textContent).toContain('Provider');
+    expect(dossierSummary?.textContent).toContain('Alpha Data');
+    expect(dossierSummary?.textContent).toContain('State');
+    expect(dossierSummary?.textContent).toContain('Trust');
+    expect(dossierSummary?.textContent).toContain('Signal');
+    expect(dossierSummary?.textContent).toContain('Risk');
+    expect(dossierSummary?.textContent).toContain('Route/action');
 
     const example = Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Find SOL price route') as HTMLButtonElement | undefined;
     expect(example).toBeTruthy();
@@ -1266,6 +1276,7 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Bundle runs are Harness proof records, not benchmark claims.');
     expect(container.textContent).toContain('Radar does not execute paid APIs from this surface.');
     expect(container.textContent).toContain('controlled_live_run');
+    expect(container.textContent).toContain('Morning Briefing controlled Harness run');
     expect(container.textContent).toContain('caveated');
     expect(container.textContent).toContain('3 executed');
     expect(container.textContent).toContain('2 skipped');
