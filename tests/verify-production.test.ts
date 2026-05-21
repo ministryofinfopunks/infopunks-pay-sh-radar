@@ -26,6 +26,11 @@ describe('verify-production release invariants', () => {
     expect(script).toContain('evidence-ledger recorded_benchmarks === 5');
     expect(script).toContain('evidence-ledger total_artifacts === 6');
     expect(script).toContain('evidence-ledger total_recorded_runs === 40');
+    expect(script).toContain('evidence-ledger brief total_recorded_runs === 40');
+    expect(script).toContain('evidence-ledger brief finance-data-token-metadata latest_artifact_recorded_runs === 5');
+    expect(script).toContain('evidence-ledger brief finance-data-token-metadata total_recorded_runs === 10');
+    expect(script).toContain('evidence-ledger brief data-web-search-results latest_artifact_recorded_runs === 10');
+    expect(script).toContain('evidence-ledger brief document-ocr-text-extraction latest_artifact_recorded_runs === 10');
     expect(script).toContain('evidence-ledger proven_routes === 10');
     expect(script).toContain('evidence-ledger winner_claimed === false');
     expect(script).toContain('evidence-ledger recorded_lanes count === 5');
@@ -44,6 +49,7 @@ describe('verify-production release invariants', () => {
     expect(script).toContain('benchmark-summary winner_claimed globally false OR no benchmark winner_claimed=true');
     expect(script).toContain('evidence-ledger winner_claimed === false');
     expect(script).toContain("const disallowedPhrases = ['best route', 'top route', 'winner route', 'loser route', 'ranking authority', 'guaranteed trust', 'superiority proof'];");
+    expect(script).toContain('evidence-ledger brief has no route winner claims');
     expect(script).toContain('openapi includes /v1/radar/evidence-ledger');
     expect(script).not.toContain('total_artifacts >= 5 (or equivalent field omitted)');
   });
