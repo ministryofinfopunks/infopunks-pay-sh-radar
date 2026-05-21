@@ -81,6 +81,69 @@ function installFetch() {
     if (path === '/v1/radar/mapping-targets') return json({ generated_at: now, source: 'infopunks-pay-sh-radar', count: 0, targets: [] });
     if (path === '/v1/radar/history/ecosystem') return json({ generated_at: now, window: '24h', sample_count: 0, history_available: false, reason: 'warming up', series: {}, deltas: { average_trust_delta_24h: null, average_signal_delta_24h: null, degradation_delta_24h: null, trend_direction: 'unknown' }, warnings: [] });
     if (path === '/v1/radar/risk/ecosystem') return json({ generated_at: now, subject_type: 'ecosystem', subject_id: 'ecosystem', risk_score: 0, risk_level: 'unknown', history_available: false, sample_count: 0, explanation: 'warming up', anomalies: [], evidence: [], warnings: [], recommended_action: 'insufficient history', summary: { providers_by_risk_level: { low: 0, watch: 0, elevated: 0, critical: 0, unknown: 0 }, top_anomalies: [], categories_most_affected: [], recent_critical_events: [], stale_catalog_warning: null, anomaly_watch: [] } });
+    if (path === '/v1/radar/bundles/morning-briefing/plan') return json({
+      bundle_id: 'morning-briefing',
+      label: 'Morning Briefing',
+      status: 'recipe_scaffold',
+      topic: 'AI, crypto, world news',
+      focus: null,
+      region: null,
+      language: null,
+      constraints: { max_cost_usd: 0.05, allow_billing_unclear: false, allow_billable_probe_observed: false, allow_scaffold_routes: false, require_recorded_evidence: false },
+      route_plan: [
+        { step_id: 'world_news_search', label: 'World News Search', intent: 'Search and summarize current world news.', plan_status: 'included', evidence_dependencies: ['data-web-search-results'], evidence_health: 'recorded', execution_boundary: 'clean_402', reason: 'included', next_action: 'inspect benchmark history before execution' },
+        { step_id: 'ai_news_search', label: 'AI News Search', intent: 'Search and summarize current AI news.', plan_status: 'included', evidence_dependencies: ['data-web-search-results'], evidence_health: 'recorded', execution_boundary: 'clean_402', reason: 'included', next_action: 'inspect benchmark history before execution' },
+        { step_id: 'crypto_market_scan', label: 'Crypto Market Scan', intent: 'Pull token discovery, metadata, and SOL price context for briefing.', plan_status: 'included', evidence_dependencies: ['finance-data-sol-price'], evidence_health: 'recorded', execution_boundary: 'clean_402', reason: 'included', next_action: 'inspect benchmark history before execution' },
+        { step_id: 'top_story_selection', label: 'Top Story Selection', intent: 'Select one top story for deeper analysis using prior evidence.', plan_status: 'review_required', evidence_dependencies: ['data-web-search-results'], evidence_health: 'recorded', execution_boundary: 'billing_unclear', reason: 'review required', next_action: 'inspect benchmark history before execution' },
+        { step_id: 'deep_dive_synthesis', label: 'Deep Dive Synthesis', intent: 'Synthesize briefing findings into an agent-ready deep dive.', plan_status: 'review_required', evidence_dependencies: ['data-web-search-results'], evidence_health: 'recorded', execution_boundary: 'billing_unclear', reason: 'review required', next_action: 'inspect benchmark history before execution' }
+      ],
+      blocked_steps: [],
+      execution_boundary_summary: { clean_402: 3, paid_proven: 0, billing_unclear: 2, billable_probe_observed: 0, blocked: 0 },
+      evidence_summary: { recorded: 5, caveated: 0, scaffold: 0, unknown: 0 },
+      estimated_cost_usd: '0.02-0.05',
+      recommended_agent_action: 'Inspect route plan, execution boundaries, and evidence dependencies before spend.',
+      winner_claimed: false
+    });
+    if (path === '/v1/radar/bundles/market-research/plan') return json({
+      bundle_id: 'market-research',
+      label: 'Market Research',
+      status: 'research_only_pending_billing_review',
+      topic: 'Circle Internet Group',
+      focus: null,
+      region: null,
+      language: null,
+      constraints: { max_cost_usd: 0.1, allow_billing_unclear: false, allow_billable_probe_observed: false, allow_scaffold_routes: false, require_recorded_evidence: false },
+      route_plan: [
+        { step_id: 'web_research', label: 'Web Research', intent: 'Collect and normalize public web research results for the topic.', plan_status: 'blocked', evidence_dependencies: ['data-web-search-results'], evidence_health: 'recorded', execution_boundary: 'billable_probe_observed', reason: 'blocked', next_action: 'inspect benchmark history before execution' },
+        { step_id: 'entity_enrichment', label: 'Entity Enrichment', intent: 'Resolve entity metadata and identity context where available.', plan_status: 'review_required', evidence_dependencies: ['finance-data-token-search'], evidence_health: 'recorded', execution_boundary: 'billing_unclear', reason: 'review required', next_action: 'inspect benchmark history before execution' }
+      ],
+      blocked_steps: [{ step_id: 'web_research', reason: 'billable_probe_observed_not_allowed' }],
+      execution_boundary_summary: { clean_402: 0, paid_proven: 0, billing_unclear: 1, billable_probe_observed: 1, blocked: 1 },
+      evidence_summary: { recorded: 2, caveated: 0, scaffold: 0, unknown: 0 },
+      estimated_cost_usd: '0.05-0.20',
+      recommended_agent_action: 'Inspect route plan, execution boundaries, and evidence dependencies before spend.',
+      winner_claimed: false
+    });
+    if (path === '/v1/radar/bundles/talent-market-scanner/plan') return json({
+      bundle_id: 'talent-market-scanner',
+      label: 'Talent Market Scanner',
+      status: 'recipe_scaffold',
+      topic: 'AI engineer',
+      focus: null,
+      region: null,
+      language: null,
+      constraints: { max_cost_usd: 0.05, allow_billing_unclear: false, allow_billable_probe_observed: false, allow_scaffold_routes: false, require_recorded_evidence: false },
+      route_plan: [
+        { step_id: 'role_search', label: 'Role Search', intent: 'Search role demand signals across public hiring sources.', plan_status: 'blocked', evidence_dependencies: [], evidence_health: 'scaffold', execution_boundary: 'blocked', reason: 'blocked', next_action: 'inspect benchmark history before execution' },
+        { step_id: 'company_enrichment', label: 'Company Enrichment', intent: 'Enrich target companies with publicly visible hiring context.', plan_status: 'blocked', evidence_dependencies: [], evidence_health: 'scaffold', execution_boundary: 'blocked', reason: 'blocked', next_action: 'inspect benchmark history before execution' }
+      ],
+      blocked_steps: [{ step_id: 'role_search', reason: 'scaffold_not_allowed' }, { step_id: 'company_enrichment', reason: 'scaffold_not_allowed' }],
+      execution_boundary_summary: { clean_402: 0, paid_proven: 0, billing_unclear: 0, billable_probe_observed: 0, blocked: 2 },
+      evidence_summary: { recorded: 0, caveated: 0, scaffold: 2, unknown: 0 },
+      estimated_cost_usd: '0.03-0.12',
+      recommended_agent_action: 'Inspect route plan, execution boundaries, and evidence dependencies before spend.',
+      winner_claimed: false
+    });
     if (path === '/v1/search') return json([]);
     return Promise.resolve(new Response('{}', { status: 404 }));
   });
@@ -197,11 +260,25 @@ describe('agent mode and command palette', () => {
     root = await renderApp(container);
 
     expect(container.textContent).toContain('Agent Benchmark API');
+    expect(container.textContent).toContain('Bundle Planner');
+    expect(container.textContent).toContain('Bundles are non-executing spend recipes.');
+    expect(container.textContent).toContain('Radar does not execute paid APIs for bundle plans');
+    expect(container.textContent).toContain('Harness execution comes later');
     expect(container.textContent).toContain('GET /v1/radar/benchmark-summary');
+    expect(container.textContent).toContain('POST /v1/radar/bundles/:bundle_id/plan');
     expect(container.textContent).toContain('GET /v1/radar/benchmarks');
     expect(container.textContent).toContain('GET /v1/radar/benchmarks/finance-data-sol-price');
     expect(container.textContent).toContain('GET /openapi.json');
     expect(container.textContent).toContain('curl https://infopunks-pay-sh-radar.onrender.com/v1/radar/benchmark-summary');
+    expect(container.textContent).toContain('curl -s https://infopunks-pay-sh-radar.onrender.com/v1/radar/bundles/morning-briefing/plan');
+    expect(container.textContent).toContain('curl -s https://infopunks-pay-sh-radar.onrender.com/v1/radar/bundles/market-research/plan');
+    expect(container.textContent).toContain('curl -s https://infopunks-pay-sh-radar.onrender.com/v1/radar/bundles/talent-market-scanner/plan');
+    expect(container.textContent).toContain('Morning Briefing');
+    expect(container.textContent).toContain('Market Research');
+    expect(container.textContent).toContain('Talent Market Scanner');
+    expect(container.textContent).toContain('3 included / 2 review-required / 0 blocked / 0 winner claims');
+    expect(container.textContent).toMatch(/billable-probe steps blocked under strict constraints|billing-boundary review required/);
+    expect(container.textContent).toContain('job, salary, and hiring primitives not yet recorded');
     expect(container.textContent).toContain('compact agent route');
     expect(container.textContent).toContain('/v1/radar/benchmarks');
     expect(container.textContent).toContain('/v1/radar/benchmarks/finance-data-sol-price');
@@ -210,6 +287,7 @@ describe('agent mode and command palette', () => {
     expect(container.textContent).toContain('Do not treat route as winner.');
     expect(container.textContent).toContain('status_code may be null in pay_cli mode');
     expect(container.textContent).toContain('Use status_evidence.');
+    expect(container.textContent).not.toMatch(/best route|top route|winner route|loser route|superiority proof|ranking authority|guaranteed trust/i);
   });
 
   it('command palette includes expected commands and can toggle Agent Mode', async () => {

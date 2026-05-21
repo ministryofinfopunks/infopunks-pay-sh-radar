@@ -245,6 +245,56 @@ Command palette actions include:
   `winner_status` can be `not_evaluated | insufficient_runs | no_clear_winner | provisional_winner | winner_claimed`.
   `winner_policy` defines proof-before-claims criteria (minimum runs, success rate, confidence, latency metric, and scoring weights).
   Five runs per route can satisfy run-count criteria while still resulting in `no_clear_winner` until scoring thresholds are finalized.
+
+## Bundle Planner Examples
+
+Bundle Planner is documentation and planning only. It derives route-plan output from the read-only Bundle Registry and Evidence Ledger metadata. Radar does not execute paid APIs here, does not call Pay.sh, and does not add Harness execution from these examples.
+
+Morning Briefing:
+
+```bash
+curl -s https://infopunks-pay-sh-radar.onrender.com/v1/radar/bundles/morning-briefing/plan \
+  -H "content-type: application/json" \
+  -d '{
+    "topic": "AI, crypto, world news",
+    "constraints": {
+      "max_cost_usd": 0.05,
+      "allow_billing_unclear": false,
+      "allow_scaffold_routes": false
+    }
+  }' | jq '.data'
+```
+
+Market Research:
+
+```bash
+curl -s https://infopunks-pay-sh-radar.onrender.com/v1/radar/bundles/market-research/plan \
+  -H "content-type: application/json" \
+  -d '{
+    "topic": "Circle Internet Group",
+    "constraints": {
+      "max_cost_usd": 0.10,
+      "allow_billing_unclear": false,
+      "allow_billable_probe_observed": false,
+      "allow_scaffold_routes": false
+    }
+  }' | jq '.data.blocked_steps'
+```
+
+Talent Market Scanner:
+
+```bash
+curl -s https://infopunks-pay-sh-radar.onrender.com/v1/radar/bundles/talent-market-scanner/plan \
+  -H "content-type: application/json" \
+  -d '{
+    "topic": "AI engineer",
+    "constraints": {
+      "max_cost_usd": 0.05,
+      "allow_billing_unclear": false,
+      "allow_scaffold_routes": false
+    }
+  }' | jq '.data'
+```
   Winner evaluation can legitimately end with `no_clear_winner`.
   `winner_rationale` explains why a winner is not claimed after policy evaluation.
   `status_code` can be `null` in `pay_cli` mode.

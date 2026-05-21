@@ -63,6 +63,20 @@ describe('static public discovery metadata', () => {
     expect(wellKnown.capabilities).toContain('agent_preflight');
   });
 
+  it('documents all three bundle planner curl examples in the README', async () => {
+    const readme = await readProjectFile('README.md');
+
+    expect(readme).toContain('curl -s https://infopunks-pay-sh-radar.onrender.com/v1/radar/bundles/morning-briefing/plan \\');
+    expect(readme).toContain('"topic": "AI, crypto, world news"');
+    expect(readme).toContain('curl -s https://infopunks-pay-sh-radar.onrender.com/v1/radar/bundles/market-research/plan \\');
+    expect(readme).toContain('"topic": "Circle Internet Group"');
+    expect(readme).toContain('allow_billable_probe_observed');
+    expect(readme).toContain('curl -s https://infopunks-pay-sh-radar.onrender.com/v1/radar/bundles/talent-market-scanner/plan \\');
+    expect(readme).toContain('"topic": "AI engineer"');
+    expect(readme).toContain('Radar does not execute paid APIs here');
+    expect(readme).not.toMatch(/best route|top route|winner route|loser route|superiority proof|ranking authority|guaranteed trust/i);
+  });
+
   it('publishes social preview, favicon, and manifest assets', async () => {
     const image = await readFile(projectFileUrl('public/og-radar.png'));
     const imageStats = await stat(projectFileUrl('public/og-radar.png'));

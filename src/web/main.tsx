@@ -289,6 +289,55 @@ type RadarBenchmarkReadiness = {
   recommended_next_mappings: string[];
   metadata_only_warning: string;
 };
+type RadarBundlePlanStep = {
+  step_id: string;
+  label: string;
+  intent: string;
+  plan_status: 'included' | 'blocked' | 'review_required';
+  evidence_dependencies: string[];
+  evidence_health: 'recorded' | 'caveated' | 'scaffold';
+  execution_boundary: 'clean_402' | 'paid_proven' | 'billing_unclear' | 'billable_probe_observed' | 'blocked';
+  reason: string;
+  next_action: string;
+};
+type RadarBundlePlanBlockedStep = {
+  step_id: string;
+  reason: 'billing_unclear_not_allowed' | 'scaffold_not_allowed' | 'billable_probe_observed_not_allowed' | 'missing_recorded_evidence';
+};
+type RadarBundlePlanResponse = {
+  bundle_id: string;
+  label: string;
+  status: 'recipe_scaffold' | 'partially_supported' | 'research_only_pending_billing_review' | 'execution_ready' | 'recorded';
+  topic: string;
+  focus: string | null;
+  region: string | null;
+  language: string | null;
+  constraints: {
+    max_cost_usd: number | null;
+    allow_billing_unclear: boolean;
+    allow_billable_probe_observed: boolean;
+    allow_scaffold_routes: boolean;
+    require_recorded_evidence: boolean;
+  };
+  route_plan: RadarBundlePlanStep[];
+  blocked_steps: RadarBundlePlanBlockedStep[];
+  execution_boundary_summary: {
+    clean_402: number;
+    paid_proven: number;
+    billing_unclear: number;
+    billable_probe_observed: number;
+    blocked: number;
+  };
+  evidence_summary: {
+    recorded: number;
+    caveated: number;
+    scaffold: number;
+    unknown: number;
+  };
+  estimated_cost_usd: string;
+  recommended_agent_action: string;
+  winner_claimed: false;
+};
 type RouteMappingStatusFilter = 'all' | 'candidate' | 'verified' | 'proven' | 'unproven';
 type RadarRouteMapping = {
   provider_name: string;
@@ -4330,6 +4379,95 @@ function normalizeBenchmarkId(category: string, intent: string) {
   return `${category}-${intent}`.replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '').toLowerCase();
 }
 
+const morningBriefingPlannerCurl = `curl -s https://infopunks-pay-sh-radar.onrender.com/v1/radar/bundles/morning-briefing/plan \\
+  -H "content-type: application/json" \\
+  -d '{
+    "topic": "AI, crypto, world news",
+    "constraints": {
+      "max_cost_usd": 0.05,
+      "allow_billing_unclear": false,
+      "allow_scaffold_routes": false
+    }
+  }' | jq '.data'`;
+
+const marketResearchPlannerCurl = `curl -s https://infopunks-pay-sh-radar.onrender.com/v1/radar/bundles/market-research/plan \\
+  -H "content-type: application/json" \\
+  -d '{
+    "topic": "Circle Internet Group",
+    "constraints": {
+      "max_cost_usd": 0.10,
+      "allow_billing_unclear": false,
+      "allow_billable_probe_observed": false,
+      "allow_scaffold_routes": false
+    }
+  }' | jq '.data.blocked_steps'`;
+
+const talentMarketScannerPlannerCurl = `curl -s https://infopunks-pay-sh-radar.onrender.com/v1/radar/bundles/talent-market-scanner/plan \\
+  -H "content-type: application/json" \\
+  -d '{
+    "topic": "AI engineer",
+    "constraints": {
+      "max_cost_usd": 0.05,
+      "allow_billing_unclear": false,
+      "allow_scaffold_routes": false
+    }
+  }' | jq '.data'`;
+
+const bundlePlannerExamples = [
+  {
+    bundleId: 'morning-briefing',
+    title: 'Morning Briefing',
+    topic: 'AI, crypto, world news',
+    payload: {
+      topic: 'AI, crypto, world news',
+      constraints: {
+        max_cost_usd: 0.05,
+        allow_billing_unclear: false,
+        allow_scaffold_routes: false
+      }
+    },
+    curl: morningBriefingPlannerCurl
+  },
+  {
+    bundleId: 'market-research',
+    title: 'Market Research',
+    topic: 'Circle Internet Group',
+    payload: {
+      topic: 'Circle Internet Group',
+      constraints: {
+        max_cost_usd: 0.10,
+        allow_billing_unclear: false,
+        allow_billable_probe_observed: false,
+        allow_scaffold_routes: false
+      }
+    },
+    curl: marketResearchPlannerCurl
+  },
+  {
+    bundleId: 'talent-market-scanner',
+    title: 'Talent Market Scanner',
+    topic: 'AI engineer',
+    payload: {
+      topic: 'AI engineer',
+      constraints: {
+        max_cost_usd: 0.05,
+        allow_billing_unclear: false,
+        allow_scaffold_routes: false
+      }
+    },
+    curl: talentMarketScannerPlannerCurl
+  }
+] as const;
+
+function countBundlePlanStatuses(plan: RadarBundlePlanResponse | null) {
+  if (!plan) return { included: 0, reviewRequired: 0, blocked: 0 };
+  return {
+    included: plan.route_plan.filter((step) => step.plan_status === 'included').length,
+    reviewRequired: plan.route_plan.filter((step) => step.plan_status === 'review_required').length,
+    blocked: plan.route_plan.filter((step) => step.plan_status === 'blocked').length
+  };
+}
+
 function AgentBenchmarkApiPanel() {
   const evidenceLedgerCurl = `curl -s ${toApiUrl(API_BASE_URL, '/v1/radar/evidence-ledger')}`;
   const benchmarkSummaryCurl = 'curl https://infopunks-pay-sh-radar.onrender.com/v1/radar/benchmark-summary';
@@ -4361,6 +4499,33 @@ function AgentBenchmarkApiPanel() {
     }
   ]
 }`;
+  const [bundlePlans, setBundlePlans] = useState<Record<string, RadarBundlePlanResponse | null>>({});
+  const [bundlePlannerStatus, setBundlePlannerStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
+
+  useEffect(() => {
+    let cancelled = false;
+    setBundlePlannerStatus('loading');
+    Promise.all(bundlePlannerExamples.map(async (example) => {
+      const response = await api<{ data: RadarBundlePlanResponse }>(`/v1/radar/bundles/${example.bundleId}/plan`, {
+        method: 'POST',
+        body: JSON.stringify(example.payload)
+      });
+      return [example.bundleId, response.data] as const;
+    }))
+      .then((entries) => {
+        if (cancelled) return;
+        setBundlePlans(Object.fromEntries(entries));
+        setBundlePlannerStatus('ready');
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setBundlePlannerStatus('error');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return <section className="panel radar-export-panel" id="agent-benchmark-api" aria-label="Agent benchmark API">
     <div className="radar-export-head">
       <div className="radar-export-copy">
@@ -4387,7 +4552,43 @@ function AgentBenchmarkApiPanel() {
           <p><b>GET /v1/radar/benchmarks</b><span>Registry and winner flags.</span></p>
           <p><b>GET /v1/radar/benchmarks/finance-data-sol-price</b><span>SOL benchmark metrics.</span></p>
           <p><b>GET /v1/radar/benchmarks/finance-data-token-search</b><span>Token-search benchmark metrics.</span></p>
+          <p><b>GET /v1/radar/bundles</b><span>Read-only bundle registry for non-executing spend recipes.</span></p>
+          <p><b>GET /v1/radar/bundles/:bundle_id</b><span>Bundle registry detail with execution boundaries and evidence references.</span></p>
+          <p><b>POST /v1/radar/bundles/:bundle_id/plan</b><span>Maps intent and constraints to included, review-required, and blocked steps without executing paid APIs.</span></p>
           <p><b>GET /openapi.json</b><span>OpenAPI for agents.</span></p>
+        </div>
+      </section>
+      <section className="export-group" aria-label="Bundle planner examples">
+        <div className="export-group-head">
+          <h3>Bundle Planner</h3>
+        </div>
+        <p className="panel-caption">Bundles are non-executing spend recipes. Bundle plans map intent and constraints to included, review-required, and blocked steps. Radar does not execute paid APIs for bundle plans, Harness execution comes later, and winner_claimed=false remains the rule.</p>
+        {bundlePlannerStatus === 'loading' && <div className="preflight-skeleton" aria-label="Bundle planner loading"><span /><span /><span /></div>}
+        {bundlePlannerStatus === 'error' && <EmptyState title="Bundle planner examples unavailable." body="Planner examples are documentation-only previews. Retry when bundle plan APIs are reachable." />}
+        <div className="endpoint-card-grid bundle-planner-card-grid">
+          {bundlePlannerExamples.map((example) => {
+            const plan = bundlePlans[example.bundleId] ?? null;
+            const counts = countBundlePlanStatuses(plan);
+            const winnerClaims = plan?.winner_claimed ? 1 : 0;
+            const marketHasBillableProbeBlocked = plan?.blocked_steps.some((step) => step.reason === 'billable_probe_observed_not_allowed') ?? false;
+            const marketNeedsBillingReview = plan?.route_plan.some((step) => step.execution_boundary === 'billing_unclear' && step.plan_status !== 'included') ?? false;
+            return <div className="bundle-plan-card" key={example.bundleId}>
+              <p className="bundle-plan-title"><b>{example.title}</b><span>topic: {example.topic}</span></p>
+              {example.bundleId === 'morning-briefing' && <>
+                <p><b>Expected summary</b><span>{counts.included} included / {counts.reviewRequired} review-required / {counts.blocked} blocked / {winnerClaims} winner claims</span></p>
+                <p><b>Planner meaning</b><span>Cleanest first Harness candidate later, not executed now.</span></p>
+              </>}
+              {example.bundleId === 'market-research' && <>
+                <p><b>Expected summary</b><span>{marketHasBillableProbeBlocked ? 'billable-probe steps blocked under strict constraints' : 'billable-probe constraints pending'}; {marketNeedsBillingReview ? 'billing-boundary review required' : 'billing-boundary review pending'}; {plan?.status ?? 'research_only_pending_billing_review'}</span></p>
+                <p><b>Status</b><span>{plan?.status ?? 'research_only_pending_billing_review'}</span></p>
+              </>}
+              {example.bundleId === 'talent-market-scanner' && <>
+                <p><b>Expected summary</b><span>{counts.blocked} blocked under default constraints; job, salary, and hiring primitives not yet recorded.</span></p>
+                <p><b>Status</b><span>{plan?.status ?? 'recipe_scaffold'}</span></p>
+              </>}
+              <p><b>Execution rule</b><span>Documentation and planning only. Radar does not execute paid APIs here.</span></p>
+            </div>;
+          })}
         </div>
       </section>
       <section className="export-group" aria-label="Agent benchmark curl examples">
@@ -4403,6 +4604,9 @@ function AgentBenchmarkApiPanel() {
           <CopyButton value={benchmarkRegistryCurl} label="Copy curl /v1/radar/benchmarks" />
           <CopyButton value={benchmarkDetailCurl} label="Copy curl /v1/radar/benchmarks/finance-data-sol-price" />
           <CopyButton value={tokenSearchBenchmarkCurl} label="Copy curl /v1/radar/benchmarks/finance-data-token-search" />
+          <CopyButton value={morningBriefingPlannerCurl} label="Copy curl morning briefing bundle planner" />
+          <CopyButton value={marketResearchPlannerCurl} label="Copy curl market research bundle planner" />
+          <CopyButton value={talentMarketScannerPlannerCurl} label="Copy curl talent market scanner bundle planner" />
           <CopyButton value={openApiCurl} label="Copy curl /openapi.json" />
         </div>
         <SafeCodeBlock value={evidenceLedgerCurl} label="curl /v1/radar/evidence-ledger" />
@@ -4413,6 +4617,9 @@ function AgentBenchmarkApiPanel() {
         <SafeCodeBlock value={benchmarkRegistryCurl} label="curl /v1/radar/benchmarks" />
         <SafeCodeBlock value={benchmarkDetailCurl} label="curl /v1/radar/benchmarks/finance-data-sol-price" />
         <SafeCodeBlock value={tokenSearchBenchmarkCurl} label="curl /v1/radar/benchmarks/finance-data-token-search" />
+        <SafeCodeBlock value={morningBriefingPlannerCurl} label="curl morning briefing bundle planner" />
+        <SafeCodeBlock value={marketResearchPlannerCurl} label="curl market research bundle planner" />
+        <SafeCodeBlock value={talentMarketScannerPlannerCurl} label="curl talent market scanner bundle planner" />
         <SafeCodeBlock value={openApiCurl} label="curl /openapi.json" />
       </section>
       <section className="export-group" aria-label="Agent benchmark response snippet">
@@ -4434,6 +4641,7 @@ function AgentBenchmarkApiPanel() {
           <p><b>winner_status=no_clear_winner</b><span>Use benchmark as evidence, not final routing authority.</span></p>
           <p><b>benchmark_recorded=true</b><span>Normalized metrics exist.</span></p>
           <p><b>status_code may be null in pay_cli mode</b><span>Use status_evidence.</span></p>
+          <p><b>bundle plans</b><span>Non-executing spend recipes only. Review included, review-required, and blocked steps before any later Harness execution.</span></p>
         </div>
       </section>
     </div>
