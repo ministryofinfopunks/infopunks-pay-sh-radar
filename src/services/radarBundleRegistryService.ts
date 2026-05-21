@@ -1,4 +1,14 @@
-import { RadarBundle, RadarBundleList, RadarBundleStepEvidenceHealth, RadarBundleExecutionBoundary } from '../schemas/entities';
+import {
+  RadarBundle,
+  RadarBundleList,
+  RadarBundleStepEvidenceHealth,
+  RadarBundleExecutionBoundary,
+  RadarBundlePlanBlockedReason,
+  RadarBundlePlanConstraints,
+  RadarBundlePlanRequest,
+  RadarBundlePlanResponse,
+  RadarBundlePlanStepStatus
+} from '../schemas/entities';
 import { buildRadarEvidenceLedger } from './radarBenchmarkService';
 
 type EvidenceLaneStatus = 'recorded' | 'scaffold' | 'unknown';
@@ -312,4 +322,103 @@ export function listRadarBundles(): RadarBundleList {
 export function getRadarBundleById(bundleId: string): RadarBundle | null {
   const registry = listRadarBundles();
   return registry.bundles.find((bundle) => bundle.bundle_id === bundleId) ?? null;
+}
+
+const DEFAULT_PLAN_CONSTRAINTS: Required<Omit<RadarBundlePlanConstraints, 'max_cost_usd'>> & { max_cost_usd: number | null } = {
+  max_cost_usd: null,
+  allow_billing_unclear: false,
+  allow_billable_probe_observed: false,
+  allow_scaffold_routes: false,
+  require_recorded_evidence: false
+};
+
+function normalizePlanConstraints(constraints: RadarBundlePlanRequest['constraints']) {
+  return {
+    max_cost_usd: constraints?.max_cost_usd ?? DEFAULT_PLAN_CONSTRAINTS.max_cost_usd,
+    allow_billing_unclear: constraints?.allow_billing_unclear ?? DEFAULT_PLAN_CONSTRAINTS.allow_billing_unclear,
+    allow_billable_probe_observed: constraints?.allow_billable_probe_observed ?? DEFAULT_PLAN_CONSTRAINTS.allow_billable_probe_observed,
+    allow_scaffold_routes: constraints?.allow_scaffold_routes ?? DEFAULT_PLAN_CONSTRAINTS.allow_scaffold_routes,
+    require_recorded_evidence: constraints?.require_recorded_evidence ?? DEFAULT_PLAN_CONSTRAINTS.require_recorded_evidence
+  };
+}
+
+export function buildRadarBundlePlan(bundleId: string, input: RadarBundlePlanRequest): RadarBundlePlanResponse | null {
+  const bundle = getRadarBundleById(bundleId);
+  if (!bundle) return null;
+
+  const constraints = normalizePlanConstraints(input.constraints);
+  const blocked_steps: RadarBundlePlanResponse['blocked_steps'] = [];
+
+  const route_plan = bundle.steps.map((step) => {
+    const blockedReasons: RadarBundlePlanBlockedReason[] = [];
+    let plan_status: RadarBundlePlanStepStatus = 'included';
+    let reason = 'Step passes supplied constraints with recorded bundle metadata.';
+
+    if (step.execution_boundary === 'billable_probe_observed' && !constraints.allow_billable_probe_observed) {
+      blockedReasons.push('billable_probe_observed_not_allowed');
+    }
+    if (step.evidence_health === 'scaffold' && !constraints.allow_scaffold_routes) {
+      blockedReasons.push('scaffold_not_allowed');
+    }
+    if (constraints.require_recorded_evidence && step.evidence_health !== 'recorded') {
+      blockedReasons.push('missing_recorded_evidence');
+    }
+    if (step.execution_boundary === 'billing_unclear' && !constraints.allow_billing_unclear) {
+      plan_status = 'review_required';
+      reason = 'Step requires billing-boundary review before execution under current constraints.';
+    }
+    if (step.execution_boundary === 'blocked' && !constraints.allow_scaffold_routes) {
+      blockedReasons.push('scaffold_not_allowed');
+    }
+
+    if (blockedReasons.length > 0) {
+      plan_status = 'blocked';
+      reason = `Step blocked by constraints: ${blockedReasons.join(', ')}`;
+      for (const blockedReason of blockedReasons) blocked_steps.push({ step_id: step.step_id, reason: blockedReason });
+    }
+
+    return {
+      step_id: step.step_id,
+      label: step.label,
+      intent: step.intent,
+      plan_status,
+      evidence_dependencies: step.evidence_dependencies,
+      evidence_health: step.evidence_health,
+      execution_boundary: step.execution_boundary,
+      reason,
+      next_action: 'inspect benchmark history before execution'
+    };
+  });
+
+  const execution_boundary_summary = {
+    clean_402: route_plan.filter((step) => step.execution_boundary === 'clean_402').length,
+    paid_proven: route_plan.filter((step) => step.execution_boundary === 'paid_proven').length,
+    billing_unclear: route_plan.filter((step) => step.execution_boundary === 'billing_unclear').length,
+    billable_probe_observed: route_plan.filter((step) => step.execution_boundary === 'billable_probe_observed').length,
+    blocked: route_plan.filter((step) => step.plan_status === 'blocked').length
+  };
+  const evidence_summary = {
+    recorded: route_plan.filter((step) => step.evidence_health === 'recorded').length,
+    caveated: route_plan.filter((step) => step.evidence_health === 'caveated').length,
+    scaffold: route_plan.filter((step) => step.evidence_health === 'scaffold').length,
+    unknown: 0
+  };
+
+  return {
+    bundle_id: bundle.bundle_id,
+    label: bundle.label,
+    status: bundle.status,
+    topic: input.topic,
+    focus: input.focus ?? null,
+    region: input.region ?? null,
+    language: input.language ?? null,
+    constraints,
+    route_plan,
+    blocked_steps,
+    execution_boundary_summary,
+    evidence_summary,
+    estimated_cost_usd: bundle.estimated_cost_usd,
+    recommended_agent_action: bundle.recommended_agent_action,
+    winner_claimed: false
+  };
 }

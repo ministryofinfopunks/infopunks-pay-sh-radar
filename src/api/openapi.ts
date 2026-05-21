@@ -366,6 +366,14 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     parameters: [pathParam('bundle_id', 'Bundle identifier.')],
     responses: envelopedResponses({ $ref: '#/components/schemas/BundleResponse' }, { bundle_id: 'morning-briefing', status: 'recipe_scaffold', winner_claimed: false }, 'bundle_not_found')
   });
+  add('post', '/v1/radar/bundles/{bundle_id}/plan', {
+    tags: ['Radar Agent'],
+    summary: 'Build non-executing bundle route plan',
+    description: 'Derives an evidence-aware route plan from read-only bundle registry and evidence metadata before spend. This route does not execute routes and does not execute paid APIs.',
+    parameters: [pathParam('bundle_id', 'Bundle identifier.')],
+    requestBody: jsonRequest({ $ref: '#/components/schemas/BundlePlanRequest' }, { topic: 'AI, crypto, world news', constraints: { max_cost_usd: 0.05, allow_billing_unclear: false, allow_scaffold_routes: false } }),
+    responses: envelopedResponses({ $ref: '#/components/schemas/BundlePlanResponse' }, { bundle_id: 'morning-briefing', status: 'recipe_scaffold', topic: 'AI, crypto, world news', winner_claimed: false }, 'bundle_not_found')
+  });
   add('get', '/v1/radar/benchmarks', radarGet('Radar Readiness', 'Get head-to-head benchmark registry', 'Returns recorded head-to-head benchmark scaffolds. A benchmark row can be metrics-pending and never implies a winner claim.', { $ref: '#/components/schemas/BenchmarkRegistryResponse' }, { benchmarks: [] }));
   add('get', '/v1/radar/benchmarks/finance-data-sol-price', radarGet('Radar Readiness', 'Get SOL price benchmark scaffold', 'Returns the finance/data get SOL price head-to-head benchmark scaffold with recorded normalized evidence. benchmark_recorded=true means normalized evidence has been recorded, not that a winner is claimed. winner_status=no_clear_winner means run criteria were met but no route winner is claimed. status_code may be null in pay_cli mode and status_evidence explains proof basis.', { $ref: '#/components/schemas/BenchmarkDetailResponse' }, { benchmark_id: 'finance-data-sol-price', winner_claimed: false, benchmark_recorded: true, winner_status: 'no_clear_winner' }));
   add('get', '/v1/radar/benchmarks/finance-data-token-search', radarGet('Radar Readiness', 'Get token-search benchmark scaffold', 'Returns the finance/data token-search benchmark with recorded normalized evidence. winner_status=no_clear_winner means no route winner is claimed.', { $ref: '#/components/schemas/BenchmarkDetailResponse' }, { benchmark_id: 'finance-data-token-search', winner_claimed: false, benchmark_recorded: true, winner_status: 'no_clear_winner' }));
@@ -1148,6 +1156,70 @@ function componentSchemas(): Record<string, JsonSchema> {
       source: stringSchema(),
       count: integerSchema(),
       bundles: arrayOf({ $ref: '#/components/schemas/BundleResponse' })
+    }),
+    BundlePlanConstraints: objectSchema({
+      max_cost_usd: { oneOf: [{ type: 'number', minimum: 0 }, { type: 'null' }] },
+      allow_billing_unclear: booleanSchema(),
+      allow_billable_probe_observed: booleanSchema(),
+      allow_scaffold_routes: booleanSchema(),
+      require_recorded_evidence: booleanSchema()
+    }),
+    BundlePlanRequest: objectSchema({
+      topic: stringSchema(),
+      focus: nullableString(),
+      region: nullableString(),
+      language: nullableString(),
+      constraints: { $ref: '#/components/schemas/BundlePlanConstraints' }
+    }, ['topic']),
+    BundlePlanStepStatus: enumSchema(['included', 'blocked', 'review_required']),
+    BundlePlanBlockedReason: enumSchema([
+      'billing_unclear_not_allowed',
+      'scaffold_not_allowed',
+      'billable_probe_observed_not_allowed',
+      'missing_recorded_evidence'
+    ]),
+    BundlePlanStep: objectSchema({
+      step_id: stringSchema(),
+      label: stringSchema(),
+      intent: stringSchema(),
+      plan_status: { $ref: '#/components/schemas/BundlePlanStepStatus' },
+      evidence_dependencies: arrayOf(stringSchema()),
+      evidence_health: { $ref: '#/components/schemas/BundleStepEvidenceHealth' },
+      execution_boundary: { $ref: '#/components/schemas/BundleExecutionBoundary' },
+      reason: stringSchema(),
+      next_action: stringSchema()
+    }),
+    BundlePlanBlockedStep: objectSchema({
+      step_id: stringSchema(),
+      reason: { $ref: '#/components/schemas/BundlePlanBlockedReason' }
+    }),
+    BundlePlanResponse: objectSchema({
+      bundle_id: stringSchema(),
+      label: stringSchema(),
+      status: { $ref: '#/components/schemas/BundleStatus' },
+      topic: stringSchema(),
+      focus: nullableString(),
+      region: nullableString(),
+      language: nullableString(),
+      constraints: { $ref: '#/components/schemas/BundlePlanConstraints' },
+      route_plan: arrayOf({ $ref: '#/components/schemas/BundlePlanStep' }),
+      blocked_steps: arrayOf({ $ref: '#/components/schemas/BundlePlanBlockedStep' }),
+      execution_boundary_summary: objectSchema({
+        clean_402: integerSchema(),
+        paid_proven: integerSchema(),
+        billing_unclear: integerSchema(),
+        billable_probe_observed: integerSchema(),
+        blocked: integerSchema()
+      }),
+      evidence_summary: objectSchema({
+        recorded: integerSchema(),
+        caveated: integerSchema(),
+        scaffold: integerSchema(),
+        unknown: integerSchema()
+      }),
+      estimated_cost_usd: stringSchema(),
+      recommended_agent_action: stringSchema(),
+      winner_claimed: { const: false }
     }),
     BenchmarkArtifactRoute: objectSchema({
       provider_id: stringSchema(),

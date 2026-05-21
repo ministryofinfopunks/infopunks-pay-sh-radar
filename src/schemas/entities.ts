@@ -1088,6 +1088,83 @@ export const RadarBundleListSchema = z.object({
   bundles: z.array(RadarBundleSchema)
 });
 
+export const RadarBundlePlanConstraintsSchema = z.object({
+  max_cost_usd: z.number().nonnegative().nullable().optional(),
+  allow_billing_unclear: z.boolean().optional(),
+  allow_billable_probe_observed: z.boolean().optional(),
+  allow_scaffold_routes: z.boolean().optional(),
+  require_recorded_evidence: z.boolean().optional()
+});
+
+export const RadarBundlePlanRequestSchema = z.object({
+  topic: z.string(),
+  focus: z.string().nullable().optional(),
+  region: z.string().nullable().optional(),
+  language: z.string().nullable().optional(),
+  constraints: RadarBundlePlanConstraintsSchema.optional()
+});
+
+export const RadarBundlePlanStepStatusSchema = z.enum(['included', 'blocked', 'review_required']);
+
+export const RadarBundlePlanBlockedReasonSchema = z.enum([
+  'billing_unclear_not_allowed',
+  'scaffold_not_allowed',
+  'billable_probe_observed_not_allowed',
+  'missing_recorded_evidence'
+]);
+
+export const RadarBundlePlanStepSchema = z.object({
+  step_id: z.string(),
+  label: z.string(),
+  intent: z.string(),
+  plan_status: RadarBundlePlanStepStatusSchema,
+  evidence_dependencies: z.array(z.string()),
+  evidence_health: RadarBundleStepEvidenceHealthSchema,
+  execution_boundary: RadarBundleExecutionBoundarySchema,
+  reason: z.string(),
+  next_action: z.string()
+});
+
+export const RadarBundlePlanBlockedStepSchema = z.object({
+  step_id: z.string(),
+  reason: RadarBundlePlanBlockedReasonSchema
+});
+
+export const RadarBundlePlanResponseSchema = z.object({
+  bundle_id: z.string(),
+  label: z.string(),
+  status: RadarBundleStatusSchema,
+  topic: z.string(),
+  focus: z.string().nullable(),
+  region: z.string().nullable(),
+  language: z.string().nullable(),
+  constraints: z.object({
+    max_cost_usd: z.number().nonnegative().nullable(),
+    allow_billing_unclear: z.boolean(),
+    allow_billable_probe_observed: z.boolean(),
+    allow_scaffold_routes: z.boolean(),
+    require_recorded_evidence: z.boolean()
+  }),
+  route_plan: z.array(RadarBundlePlanStepSchema),
+  blocked_steps: z.array(RadarBundlePlanBlockedStepSchema),
+  execution_boundary_summary: z.object({
+    clean_402: z.number().int().nonnegative(),
+    paid_proven: z.number().int().nonnegative(),
+    billing_unclear: z.number().int().nonnegative(),
+    billable_probe_observed: z.number().int().nonnegative(),
+    blocked: z.number().int().nonnegative()
+  }),
+  evidence_summary: z.object({
+    recorded: z.number().int().nonnegative(),
+    caveated: z.number().int().nonnegative(),
+    scaffold: z.number().int().nonnegative(),
+    unknown: z.number().int().nonnegative()
+  }),
+  estimated_cost_usd: z.string(),
+  recommended_agent_action: z.string(),
+  winner_claimed: z.literal(false)
+});
+
 export const RadarBenchmarkArtifactRouteSchema = z.object({
   provider_id: z.string(),
   route_id: z.string(),
@@ -1313,3 +1390,10 @@ export type RadarBundleStep = z.infer<typeof RadarBundleStepSchema>;
 export type RadarBundleEvidenceReference = z.infer<typeof RadarBundleEvidenceReferenceSchema>;
 export type RadarBundle = z.infer<typeof RadarBundleSchema>;
 export type RadarBundleList = z.infer<typeof RadarBundleListSchema>;
+export type RadarBundlePlanConstraints = z.infer<typeof RadarBundlePlanConstraintsSchema>;
+export type RadarBundlePlanRequest = z.infer<typeof RadarBundlePlanRequestSchema>;
+export type RadarBundlePlanStepStatus = z.infer<typeof RadarBundlePlanStepStatusSchema>;
+export type RadarBundlePlanBlockedReason = z.infer<typeof RadarBundlePlanBlockedReasonSchema>;
+export type RadarBundlePlanStep = z.infer<typeof RadarBundlePlanStepSchema>;
+export type RadarBundlePlanBlockedStep = z.infer<typeof RadarBundlePlanBlockedStepSchema>;
+export type RadarBundlePlanResponse = z.infer<typeof RadarBundlePlanResponseSchema>;
