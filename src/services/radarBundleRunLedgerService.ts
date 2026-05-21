@@ -3,12 +3,12 @@ import { RadarBundleRunDetail, RadarBundleRunListResponse, RadarBundleRunSummary
 const SOURCE_BUNDLE_ID = 'morning-briefing';
 
 const MORNING_BRIEFING_RUN_DETAIL: RadarBundleRunDetail = {
-  run_id: 'morning-briefing-run-2026-05-21-075521-pay-cli',
+  run_id: 'morning-briefing-run-2026-05-21-084556-pay-cli',
   bundle_id: 'morning-briefing',
   status: 'controlled_live_run',
   evidence_health: 'caveated',
   winner_claimed: false,
-  generated_at: '2026-05-21T07:55:21.600Z',
+  generated_at: '2026-05-21T08:45:56.919Z',
   execution_mode: 'pay_cli',
   live_execution_enabled: true,
   final_bundle_state: 'executed_with_review_required_skipped',
@@ -44,6 +44,11 @@ const MORNING_BRIEFING_RUN_DETAIL: RadarBundleRunDetail = {
       normalized_output_preview: {
         title: 'World News | Latest Top Stories - Reuters',
         url: 'https://www.reuters.com/world/',
+        snippet: null,
+        source: null,
+        published_at: null,
+        answer: null,
+        citations: [],
         results_count: 5
       },
       source_count: 5
@@ -58,9 +63,14 @@ const MORNING_BRIEFING_RUN_DETAIL: RadarBundleRunDetail = {
       normalized_output_preview: {
         title: 'AI News | Latest AI News, Analysis & Events',
         url: 'https://www.artificialintelligence-news.com',
-        results_count: 4
+        snippet: 'The UK and Canada have signed a landmark agreement to collaborate on the computing power needed to advance AI research and development. ... Quantum AI is the next frontier in the evolution of artificial intelligence, harnessing the power of quantum mechanics to propel capabilities beyond current limits. ... A new open-source toolkit from Microsoft focuses on runtime security to force strict governance onto enterprise AI agents.',
+        source: null,
+        published_at: null,
+        answer: null,
+        citations: [],
+        results_count: 5
       },
-      source_count: 4
+      source_count: 5
     },
     {
       step_id: 'crypto_market_scan',
@@ -70,9 +80,12 @@ const MORNING_BRIEFING_RUN_DETAIL: RadarBundleRunDetail = {
       status_evidence: 'pay_cli_exit_0_status_unavailable',
       observed_cost_usd: null,
       normalized_output_preview: {
+        symbol: null,
         price: 86.3233427074135,
         token: 'SOL / ZEC',
+        network: null,
         address: 'nep141:sol.omft.near___nep141:zec.omft.near',
+        metadata: null,
         result_count: 20,
         route_output_shape: ['data']
       },
@@ -103,7 +116,8 @@ const MORNING_BRIEFING_RUN_DETAIL: RadarBundleRunDetail = {
     { label: 'AI News | Latest AI News, Analysis & Events', url: 'https://www.artificialintelligence-news.com' },
     { label: 'Artificial intelligence | MIT News | Massachusetts Institute of ...', url: 'https://news.mit.edu/topic/artificial-intelligence2' },
     { label: 'AI News & Artificial Intelligence | TechCrunch', url: 'https://techcrunch.com/category/artificial-intelligence/' },
-    { label: 'Official Google AI news and updates', url: 'https://blog.google/innovation-and-ai/technology/ai/' }
+    { label: 'Official Google AI news and updates', url: 'https://blog.google/innovation-and-ai/technology/ai/' },
+    { label: 'Crescendo AI', url: 'https://www.crescendo.ai/' }
   ],
   caveat_objects: [
     {

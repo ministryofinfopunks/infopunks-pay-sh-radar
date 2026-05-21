@@ -745,10 +745,10 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
       bundle_id: 'morning-briefing',
       count: 1,
       runs: [{
-        run_id: 'morning-briefing-run-2026-05-21-075521-pay-cli',
+        run_id: 'morning-briefing-run-2026-05-21-084556-pay-cli',
         status: 'controlled_live_run',
         evidence_health: 'caveated',
-        generated_at: '2026-05-21T07:55:21.600Z',
+        generated_at: '2026-05-21T08:45:56.919Z',
         execution_mode: 'pay_cli',
         final_bundle_state: 'executed_with_review_required_skipped',
         estimated_cost_usd: '0.02-0.05',
@@ -756,19 +756,19 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
         executed_step_count: 3,
         skipped_step_count: 2,
         blocked_step_count: 0,
-        source_count: 9,
+        source_count: 10,
         winner_claimed: false
       }],
       winner_claimed: false,
       agent_guidance: ['Bundle runs are Harness proof records, not benchmark claims.']
     });
-    if (path === '/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-075521-pay-cli') return json({
-      run_id: 'morning-briefing-run-2026-05-21-075521-pay-cli',
+    if (path === '/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli') return json({
+      run_id: 'morning-briefing-run-2026-05-21-084556-pay-cli',
       bundle_id: 'morning-briefing',
       status: 'controlled_live_run',
       evidence_health: 'caveated',
       winner_claimed: false,
-      generated_at: '2026-05-21T07:55:21.600Z',
+      generated_at: '2026-05-21T08:45:56.919Z',
       execution_mode: 'pay_cli',
       final_bundle_state: 'executed_with_review_required_skipped',
       estimated_cost_usd: '0.02-0.05',
@@ -779,7 +779,8 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
       source_map: [
         { label: 'World News | Latest Top Stories - Reuters', url: 'https://www.reuters.com/world/' },
         { label: 'World | Latest News & Updates - BBC', url: 'https://www.bbc.com/news/world' },
-        { label: 'Top & Breaking World News Today | AP News', url: 'https://apnews.com/world-news' }
+        { label: 'Top & Breaking World News Today | AP News', url: 'https://apnews.com/world-news' },
+        { label: 'Crescendo AI', url: 'https://www.crescendo.ai/' }
       ],
       caveat_objects: [{ code: 'status_code_unavailable' }, { code: 'observed_cost_unavailable' }, { code: 'source_map_empty' }]
     });
@@ -1269,7 +1270,7 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('3 executed');
     expect(container.textContent).toContain('2 skipped');
     expect(container.textContent).toContain('0 blocked');
-    expect(container.textContent).toContain('9 sources');
+    expect(container.textContent).toContain('10 sources');
     expect(container.textContent).toContain('observed cost unavailable');
     expect(container.textContent).toContain('winner_claimed=false');
     expect(container.textContent).toContain('world_news_search');

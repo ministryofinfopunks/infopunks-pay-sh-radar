@@ -70,22 +70,40 @@ describe('radar bundle registry', () => {
       expect(list.winner_claimed).toBe(false);
       expect(list.runs[0].status).toBe('controlled_live_run');
       expect(list.runs[0].evidence_health).toBe('caveated');
+      expect(list.runs[0].run_id).toBe('morning-briefing-run-2026-05-21-084556-pay-cli');
+      expect(list.runs[0].generated_at).toBe('2026-05-21T08:45:56.919Z');
       expect(list.runs[0].winner_claimed).toBe(false);
       expect(list.runs[0].executed_step_count).toBe(3);
       expect(list.runs[0].skipped_step_count).toBe(2);
       expect(list.runs[0].blocked_step_count).toBe(0);
-      expect(list.runs[0].source_count).toBe(9);
+      expect(list.runs[0].source_count).toBe(10);
       expect(list.runs[0].observed_cost_usd).toBeNull();
       expect(fetchSpy).not.toHaveBeenCalled();
 
-      const detailResponse = await app.inject({ method: 'GET', url: '/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-075521-pay-cli' });
+      const detailResponse = await app.inject({ method: 'GET', url: '/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli' });
       expect(detailResponse.statusCode).toBe(200);
       const detail = detailResponse.json().data;
+      expect(detail.run_id).toBe('morning-briefing-run-2026-05-21-084556-pay-cli');
+      expect(detail.generated_at).toBe('2026-05-21T08:45:56.919Z');
+      expect(detail.status).toBe('controlled_live_run');
+      expect(detail.evidence_health).toBe('caveated');
+      expect(detail.winner_claimed).toBe(false);
       expect(detail.executed_steps).toHaveLength(3);
       expect(detail.executed_steps.map((step: { step_id: string }) => step.step_id)).toEqual(expect.arrayContaining(['world_news_search', 'ai_news_search', 'crypto_market_scan']));
       expect(detail.skipped_steps.map((step: { step_id: string }) => step.step_id)).toEqual(expect.arrayContaining(['top_story_selection', 'deep_dive_synthesis']));
       expect(detail.caveat_objects.map((item: { code: string }) => item.code)).toEqual(expect.arrayContaining(['status_code_unavailable', 'observed_cost_unavailable']));
-      expect(detail.source_map).toHaveLength(9);
+      expect(detail.source_map).toHaveLength(10);
+      expect(detail.source_map.some((source: { label: string }) => source.label === 'Crescendo AI')).toBe(true);
+      const aiStep = detail.executed_steps.find((step: { step_id: string }) => step.step_id === 'ai_news_search');
+      expect(aiStep?.normalized_output_preview?.results_count).toBe(5);
+      const cryptoStep = detail.executed_steps.find((step: { step_id: string }) => step.step_id === 'crypto_market_scan');
+      expect(cryptoStep?.normalized_output_preview?.price).toBe(86.3233427074135);
+      expect(cryptoStep?.normalized_output_preview?.token).toBe('SOL / ZEC');
+      const serialized = JSON.stringify({ list, detail }).toLowerCase();
+      expect(serialized).not.toContain('recorded bundle');
+      for (const phrase of ['winner route', 'loser route', 'best route', 'top route', 'superiority']) {
+        expect(serialized).not.toContain(phrase);
+      }
       expect(fetchSpy).not.toHaveBeenCalled();
     } finally {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

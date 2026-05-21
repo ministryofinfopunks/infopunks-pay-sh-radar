@@ -371,14 +371,14 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     summary: 'List bundle run ledger records',
     description: 'Returns read-only controlled live run ledger summaries for curated Harness proof records. Radar does not execute paid APIs and does not execute Harness from this route.',
     parameters: [pathParam('bundle_id', 'Bundle identifier.')],
-    responses: envelopedResponses({ $ref: '#/components/schemas/BundleRunListResponse' }, { bundle_id: 'morning-briefing', count: 1, winner_claimed: false, runs: [{ run_id: 'morning-briefing-run-2026-05-21-075521-pay-cli', status: 'controlled_live_run', evidence_health: 'caveated' }] }, 'bundle_not_found')
+    responses: envelopedResponses({ $ref: '#/components/schemas/BundleRunListResponse' }, { bundle_id: 'morning-briefing', count: 1, winner_claimed: false, runs: [{ run_id: 'morning-briefing-run-2026-05-21-084556-pay-cli', status: 'controlled_live_run', evidence_health: 'caveated' }] }, 'bundle_not_found')
   });
   add('get', '/v1/radar/bundles/{bundle_id}/runs/{run_id}', {
     tags: ['Radar Agent'],
     summary: 'Get bundle run ledger record by id',
     description: 'Returns one full read-only controlled live run detail from curated Harness proof metadata. Includes caveated execution detail and skipped review-required steps.',
     parameters: [pathParam('bundle_id', 'Bundle identifier.'), pathParam('run_id', 'Bundle run identifier.')],
-    responses: envelopedResponses({ $ref: '#/components/schemas/BundleRunDetail' }, { run_id: 'morning-briefing-run-2026-05-21-075521-pay-cli', bundle_id: 'morning-briefing', status: 'controlled_live_run', evidence_health: 'caveated', winner_claimed: false }, 'bundle_run_not_found')
+    responses: envelopedResponses({ $ref: '#/components/schemas/BundleRunDetail' }, { run_id: 'morning-briefing-run-2026-05-21-084556-pay-cli', bundle_id: 'morning-briefing', status: 'controlled_live_run', evidence_health: 'caveated', winner_claimed: false }, 'bundle_run_not_found')
   });
   add('post', '/v1/radar/bundles/{bundle_id}/plan', {
     tags: ['Radar Agent'],
