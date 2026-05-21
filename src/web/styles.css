@@ -3619,6 +3619,10 @@ body::after { opacity: .18; }
   grid-column: 1 / -1;
 }
 
+.bundle-run-ledger-group {
+  grid-column: 1 / -1;
+}
+
 .bundle-planner-card-grid {
   grid-template-columns: minmax(0, 1fr);
 }
@@ -3629,6 +3633,23 @@ body::after { opacity: .18; }
 
 .bundle-plan-card .bundle-plan-title {
   padding-bottom: 4px;
+}
+
+.bundle-run-ledger-card {
+  display: grid;
+  gap: 7px;
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px solid rgba(203,255,221,.09);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(203,255,221,.03), rgba(0,0,0,.12));
+}
+
+.bundle-run-ledger-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .preflight-skeleton {

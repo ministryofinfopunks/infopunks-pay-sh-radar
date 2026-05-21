@@ -149,7 +149,7 @@ function anomalyWatchItems(count: number) {
   }));
 }
 
-function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknown[]; degraded?: boolean; readiness?: Record<string, unknown>; anomalyWatch?: ReturnType<typeof anomalyWatchItems>; evidenceLedger?: unknown; evidenceLedgerUnavailable?: boolean } = {}) {
+function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknown[]; degraded?: boolean; readiness?: Record<string, unknown>; anomalyWatch?: ReturnType<typeof anomalyWatchItems>; evidenceLedger?: unknown; evidenceLedgerUnavailable?: boolean; bundleRunLedgerUnavailable?: boolean } = {}) {
   vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
     const path = pathOf(input);
     if (path === '/v1/pulse') return json({ providerCount: 1, endpointCount: options.endpoints?.length ?? 0, eventCount: 1, averageTrust: 86, averageSignal: 74, hottestNarrative: null, topTrust: [], topSignal: [], data_source: { mode: 'live_pay_sh_catalog', url: 'https://pay.sh/api/catalog', generated_at: observedAt, provider_count: 1, last_ingested_at: observedAt, used_fixture: false }, updatedAt: observedAt });
@@ -740,6 +740,49 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
       recommended_agent_action: 'Inspect route plan, execution boundaries, and evidence dependencies before spend.',
       winner_claimed: false
     });
+    if (options.bundleRunLedgerUnavailable && path === '/v1/radar/bundles/morning-briefing/runs') return Promise.resolve(new Response('{}', { status: 503 }));
+    if (path === '/v1/radar/bundles/morning-briefing/runs') return json({
+      bundle_id: 'morning-briefing',
+      count: 1,
+      runs: [{
+        run_id: 'morning-briefing-run-2026-05-21-075521-pay-cli',
+        status: 'controlled_live_run',
+        evidence_health: 'caveated',
+        generated_at: '2026-05-21T07:55:21.600Z',
+        execution_mode: 'pay_cli',
+        final_bundle_state: 'executed_with_review_required_skipped',
+        estimated_cost_usd: '0.02-0.05',
+        observed_cost_usd: null,
+        executed_step_count: 3,
+        skipped_step_count: 2,
+        blocked_step_count: 0,
+        source_count: 9,
+        winner_claimed: false
+      }],
+      winner_claimed: false,
+      agent_guidance: ['Bundle runs are Harness proof records, not benchmark claims.']
+    });
+    if (path === '/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-075521-pay-cli') return json({
+      run_id: 'morning-briefing-run-2026-05-21-075521-pay-cli',
+      bundle_id: 'morning-briefing',
+      status: 'controlled_live_run',
+      evidence_health: 'caveated',
+      winner_claimed: false,
+      generated_at: '2026-05-21T07:55:21.600Z',
+      execution_mode: 'pay_cli',
+      final_bundle_state: 'executed_with_review_required_skipped',
+      estimated_cost_usd: '0.02-0.05',
+      observed_cost_usd: null,
+      executed_steps: [{ step_id: 'world_news_search' }, { step_id: 'ai_news_search' }, { step_id: 'crypto_market_scan' }],
+      skipped_steps: [{ step_id: 'top_story_selection' }, { step_id: 'deep_dive_synthesis' }],
+      blocked_steps: [],
+      source_map: [
+        { label: 'World News | Latest Top Stories - Reuters', url: 'https://www.reuters.com/world/' },
+        { label: 'World | Latest News & Updates - BBC', url: 'https://www.bbc.com/news/world' },
+        { label: 'Top & Breaking World News Today | AP News', url: 'https://apnews.com/world-news' }
+      ],
+      caveat_objects: [{ code: 'status_code_unavailable' }, { code: 'observed_cost_unavailable' }, { code: 'source_map_empty' }]
+    });
     if (path === '/v1/radar/bundles/market-research/plan') return json({
       bundle_id: 'market-research',
       label: 'Market Research',
@@ -1209,6 +1252,27 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Radar does not execute paid APIs; it records proof artifacts returned later by the Harness.');
     expect(container.textContent).toContain('Harness execution comes later.');
     expect(container.textContent).toContain('3 included / 2 review-required / 0 blocked / winner_claimed=false');
+    expect(container.textContent).toContain('Bundle Run Ledger');
+    expect(container.textContent).toContain('Morning Briefing has one caveated controlled live Harness run.');
+    expect(container.textContent).toContain('Bundle runs are Harness proof records, not benchmark claims.');
+    expect(container.textContent).toContain('Radar does not execute paid APIs from this surface.');
+    expect(container.textContent).toContain('controlled_live_run');
+    expect(container.textContent).toContain('caveated');
+    expect(container.textContent).toContain('3 executed');
+    expect(container.textContent).toContain('2 skipped');
+    expect(container.textContent).toContain('0 blocked');
+    expect(container.textContent).toContain('9 sources');
+    expect(container.textContent).toContain('observed cost unavailable');
+    expect(container.textContent).toContain('winner_claimed=false');
+    expect(container.textContent).toContain('world_news_search');
+    expect(container.textContent).toContain('ai_news_search');
+    expect(container.textContent).toContain('crypto_market_scan');
+    expect(container.textContent).toContain('top_story_selection');
+    expect(container.textContent).toContain('deep_dive_synthesis');
+    expect(container.textContent).toContain('status_code_unavailable');
+    expect(container.textContent).toContain('observed_cost_unavailable');
+    expect(container.textContent).toContain('source_map_empty');
+    expect(container.textContent).toContain('This run is caveated because observed cost and pay_cli HTTP status were unavailable, and one executed step had an empty source map.');
     expect(container.textContent).toContain('Cleanest future Harness candidate, but not execution-ready until review-required billing boundaries are cleared.');
     expect(container.textContent).toContain('0 included / 4 review-required / 2 blocked');
     expect(container.textContent).toContain('Two billable-probe steps are blocked under strict constraints; remaining steps require billing-boundary review.');
@@ -1230,6 +1294,12 @@ describe('radar endpoint intelligence UI', () => {
     expect(details).toBeTruthy();
     details!.open = true;
     expect(details!.textContent).toContain('provider-14');
+  });
+
+  it('shows Bundle Run Ledger unavailable fallback when runs endpoint fails', async () => {
+    installFetch({ endpoints: [normalizedEndpoint], detailEndpoints: [endpoint], bundleRunLedgerUnavailable: true });
+    root = await renderApp(container);
+    expect(container.textContent).toContain('Bundle Run Ledger unavailable');
   });
 
   it('derives homepage recorded and scaffold lane ratio from evidence ledger lane arrays', async () => {

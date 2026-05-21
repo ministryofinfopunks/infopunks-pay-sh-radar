@@ -338,6 +338,45 @@ type RadarBundlePlanResponse = {
   recommended_agent_action: string;
   winner_claimed: false;
 };
+type RadarBundleRunSummary = {
+  run_id: string;
+  status: 'controlled_live_run';
+  evidence_health: 'recorded' | 'caveated' | 'scaffold';
+  generated_at: string;
+  execution_mode: 'pay_cli';
+  final_bundle_state: 'executed_with_review_required_skipped';
+  estimated_cost_usd: string;
+  observed_cost_usd: number | null;
+  executed_step_count: number;
+  skipped_step_count: number;
+  blocked_step_count: number;
+  source_count: number;
+  winner_claimed: boolean;
+};
+type RadarBundleRunListResponse = {
+  bundle_id: 'morning-briefing';
+  count: number;
+  runs: RadarBundleRunSummary[];
+  winner_claimed: false;
+  agent_guidance: string[];
+};
+type RadarBundleRunDetail = {
+  run_id: string;
+  bundle_id: 'morning-briefing';
+  status: 'controlled_live_run';
+  evidence_health: 'recorded' | 'caveated' | 'scaffold';
+  winner_claimed: boolean;
+  generated_at: string;
+  execution_mode: 'pay_cli';
+  final_bundle_state: 'executed_with_review_required_skipped';
+  estimated_cost_usd: string;
+  observed_cost_usd: number | null;
+  executed_steps: Array<{ step_id: string }>;
+  skipped_steps: Array<{ step_id: string }>;
+  blocked_steps: Array<{ step_id: string }>;
+  source_map: Array<{ label: string; url: string }>;
+  caveat_objects: Array<{ code: string }>;
+};
 type RouteMappingStatusFilter = 'all' | 'candidate' | 'verified' | 'proven' | 'unproven';
 type RadarRouteMapping = {
   provider_name: string;
@@ -4481,6 +4520,10 @@ function AgentBenchmarkApiPanel() {
   const benchmarkDetailCurl = `curl -s ${toApiUrl(PUBLIC_API_HOST, '/v1/radar/benchmarks/finance-data-sol-price')}`;
   const tokenSearchBenchmarkCurl = `curl -s ${toApiUrl(PUBLIC_API_HOST, '/v1/radar/benchmarks/finance-data-token-search')}`;
   const openApiCurl = `curl -s ${toApiUrl(PUBLIC_API_HOST, OPENAPI_PATH)}`;
+  const morningBriefingRunsCurl = `curl -s ${toApiUrl(PUBLIC_API_HOST, '/v1/radar/bundles/morning-briefing/runs')} | jq '.data'`;
+  const [bundleRunStatus, setBundleRunStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
+  const [bundleRunSummary, setBundleRunSummary] = useState<RadarBundleRunSummary | null>(null);
+  const [bundleRunDetail, setBundleRunDetail] = useState<RadarBundleRunDetail | null>(null);
   const benchmarkSnippet = `{
   "benchmark_id": "finance-data-sol-price",
   "benchmark_recorded": true,
@@ -4523,6 +4566,32 @@ function AgentBenchmarkApiPanel() {
       .catch(() => {
         if (cancelled) return;
         setBundlePlannerStatus('error');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    setBundleRunStatus('loading');
+    api<{ data: RadarBundleRunListResponse }>('/v1/radar/bundles/morning-briefing/runs')
+      .then(async (response) => {
+        if (cancelled) return;
+        const latestRun = response.data.runs[0] ?? null;
+        setBundleRunSummary(latestRun);
+        if (!latestRun) {
+          setBundleRunStatus('error');
+          return;
+        }
+        const detailResponse = await api<{ data: RadarBundleRunDetail }>(`/v1/radar/bundles/morning-briefing/runs/${encodeURIComponent(latestRun.run_id)}`);
+        if (cancelled) return;
+        setBundleRunDetail(detailResponse.data);
+        setBundleRunStatus('ready');
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setBundleRunStatus('error');
       });
     return () => {
       cancelled = true;
@@ -4594,6 +4663,26 @@ function AgentBenchmarkApiPanel() {
           })}
         </div>
       </section>
+      <section className="export-group bundle-run-ledger-group" aria-label="Bundle run ledger">
+        <div className="export-group-head">
+          <h3>Bundle Run Ledger</h3>
+        </div>
+        <p className="panel-caption">Bundle runs are Harness proof records, not benchmark claims.</p>
+        <p className="panel-caption">Radar does not execute paid APIs from this surface.</p>
+        <p className="panel-caption">Morning Briefing has one caveated controlled live Harness run.</p>
+        {bundleRunStatus === 'loading' && <div className="preflight-skeleton" aria-label="Bundle run ledger loading"><span /><span /><span /></div>}
+        {bundleRunStatus === 'error' && <p className="route-state warn">Bundle Run Ledger unavailable</p>}
+        {bundleRunStatus === 'ready' && bundleRunSummary && bundleRunDetail && <div className="bundle-run-ledger-card">
+          <p><b>Run summary</b><span>{bundleRunSummary.status} · {bundleRunSummary.evidence_health} · {bundleRunSummary.executed_step_count} executed · {bundleRunSummary.skipped_step_count} skipped · {bundleRunSummary.blocked_step_count} blocked · {bundleRunSummary.source_count} sources · {bundleRunSummary.observed_cost_usd == null ? 'observed cost unavailable' : `$${bundleRunSummary.observed_cost_usd.toFixed(2)}`} · winner_claimed={String(bundleRunSummary.winner_claimed)}</span></p>
+          <p><b>Required note</b><span>winner_claimed=false</span></p>
+          <p><b>Run detail endpoint</b><span><code>GET /v1/radar/bundles/morning-briefing/runs/{bundleRunSummary.run_id}</code></span></p>
+          <p><b>Executed steps</b><span>{bundleRunDetail.executed_steps.map((step) => step.step_id).join(' · ')}</span></p>
+          <p><b>Skipped review-required steps</b><span>{bundleRunDetail.skipped_steps.map((step) => step.step_id).join(' · ')}</span></p>
+          <p><b>Caveats</b><span>{bundleRunDetail.caveat_objects.map((caveat) => caveat.code).join(' · ')}</span></p>
+          <p><b>Caveat context</b><span>This run is caveated because observed cost and pay_cli HTTP status were unavailable, and one executed step had an empty source map.</span></p>
+          <p><b>Sources</b><span>{bundleRunDetail.source_map.length} sources; {bundleRunDetail.source_map.slice(0, 3).map((source) => `${source.label} (${source.url})`).join(' · ')}</span></p>
+        </div>}
+      </section>
       <section className="export-group" aria-label="Agent benchmark curl examples">
         <div className="export-group-head">
           <h3>Copyable curl examples</h3>
@@ -4611,6 +4700,7 @@ function AgentBenchmarkApiPanel() {
           <CopyButton value={morningBriefingPlannerCurl} label="Copy curl morning briefing bundle planner" />
           <CopyButton value={marketResearchPlannerCurl} label="Copy curl market research bundle planner" />
           <CopyButton value={talentMarketScannerPlannerCurl} label="Copy curl talent market scanner bundle planner" />
+          <CopyButton value={morningBriefingRunsCurl} label="Copy curl morning briefing bundle run ledger" />
           <CopyButton value={openApiCurl} label="Copy curl /openapi.json" />
         </div>
         <SafeCodeBlock value={evidenceLedgerCurl} label="curl /v1/radar/evidence-ledger" />
@@ -4625,6 +4715,7 @@ function AgentBenchmarkApiPanel() {
         <SafeCodeBlock value={morningBriefingPlannerCurl} label="curl morning briefing bundle planner" />
         <SafeCodeBlock value={marketResearchPlannerCurl} label="curl market research bundle planner" />
         <SafeCodeBlock value={talentMarketScannerPlannerCurl} label="curl talent market scanner bundle planner" />
+        <SafeCodeBlock value={morningBriefingRunsCurl} label="curl morning briefing bundle run ledger" />
         <SafeCodeBlock value={openApiCurl} label="curl /openapi.json" />
       </section>
       <section className="export-group" aria-label="Agent benchmark response snippet">
