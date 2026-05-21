@@ -972,6 +972,8 @@ export const RadarEvidenceLedgerBriefRecordedLaneSchema = z.object({
   benchmark_id: z.string(),
   label: z.string(),
   latest_artifact_id: z.string().nullable(),
+  latest_artifact_recorded_runs: z.number().int().nonnegative(),
+  total_recorded_runs: z.number().int().nonnegative(),
   recorded_runs: z.number().int().nonnegative(),
   routes_count: z.number().int().nonnegative(),
   winner_claimed: z.boolean(),

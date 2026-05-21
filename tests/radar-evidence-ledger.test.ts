@@ -36,6 +36,12 @@ describe('radar evidence ledger', () => {
     });
     expect(data.recorded_lanes).toHaveLength(5);
     expect(data.scaffold_lanes).toHaveLength(5);
+    const latestRunsByBenchmarkId = new Map<string, number>(
+      fullData.latest_artifacts.map((artifact: {
+        benchmark_id: string;
+        recorded_runs: number;
+      }) => [artifact.benchmark_id, artifact.recorded_runs] as const)
+    );
     expect(data.recorded_lanes).toEqual(fullData.recorded_lanes.map((lane: {
       benchmark_id: string;
       label: string;
@@ -48,11 +54,19 @@ describe('radar evidence ledger', () => {
       benchmark_id: lane.benchmark_id,
       label: lane.label,
       latest_artifact_id: lane.latest_artifact_id,
-      recorded_runs: lane.recorded_runs,
+      latest_artifact_recorded_runs: latestRunsByBenchmarkId.get(lane.benchmark_id) ?? lane.recorded_runs,
+      total_recorded_runs: lane.recorded_runs,
+      recorded_runs: latestRunsByBenchmarkId.get(lane.benchmark_id) ?? lane.recorded_runs,
       routes_count: lane.routes_count,
       winner_claimed: lane.winner_claimed,
       winner_status: lane.winner_status
     })));
+    const financeTokenMetadataLane = data.recorded_lanes.find((row: { benchmark_id: string }) => row.benchmark_id === 'finance-data-token-metadata');
+    expect(financeTokenMetadataLane?.latest_artifact_recorded_runs).toBe(5);
+    expect(financeTokenMetadataLane?.total_recorded_runs).toBe(10);
+    expect(financeTokenMetadataLane?.recorded_runs).toBe(5);
+    expect(data.recorded_lanes.find((row: { benchmark_id: string }) => row.benchmark_id === 'data-web-search-results')?.latest_artifact_recorded_runs).toBe(10);
+    expect(data.recorded_lanes.find((row: { benchmark_id: string }) => row.benchmark_id === 'document-ocr-text-extraction')?.latest_artifact_recorded_runs).toBe(10);
     expect(data.scaffold_lanes).toEqual(fullData.scaffold_lanes.map((lane: {
       benchmark_id: string;
       label: string;

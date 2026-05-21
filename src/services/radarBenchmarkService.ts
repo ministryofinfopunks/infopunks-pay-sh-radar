@@ -371,21 +371,29 @@ export function buildRadarEvidenceLedger(): RadarEvidenceLedger {
 
 export function buildRadarEvidenceLedgerBrief(): RadarEvidenceLedgerBrief {
   const ledger = buildRadarEvidenceLedger();
+  const latestArtifactRunsByBenchmarkId = new Map(
+    ledger.latest_artifacts.map((artifact) => [artifact.benchmark_id, artifact.recorded_runs])
+  );
 
   return {
     ledger_state: {
       ...ledger.ledger_state,
       scaffold_lanes: ledger.scaffold_lanes.length
     },
-    recorded_lanes: ledger.recorded_lanes.map((lane) => ({
-      benchmark_id: lane.benchmark_id,
-      label: lane.label,
-      latest_artifact_id: lane.latest_artifact_id,
-      recorded_runs: lane.recorded_runs,
-      routes_count: lane.routes_count,
-      winner_claimed: lane.winner_claimed,
-      winner_status: lane.winner_status
-    })),
+    recorded_lanes: ledger.recorded_lanes.map((lane) => {
+      const latestArtifactRecordedRuns = latestArtifactRunsByBenchmarkId.get(lane.benchmark_id) ?? lane.recorded_runs;
+      return {
+        benchmark_id: lane.benchmark_id,
+        label: lane.label,
+        latest_artifact_id: lane.latest_artifact_id,
+        latest_artifact_recorded_runs: latestArtifactRecordedRuns,
+        total_recorded_runs: lane.recorded_runs,
+        recorded_runs: latestArtifactRecordedRuns,
+        routes_count: lane.routes_count,
+        winner_claimed: lane.winner_claimed,
+        winner_status: lane.winner_status
+      };
+    }),
     scaffold_lanes: ledger.scaffold_lanes.map((lane) => ({
       benchmark_id: lane.benchmark_id,
       label: lane.label,

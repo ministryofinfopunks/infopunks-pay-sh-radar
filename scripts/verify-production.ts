@@ -290,6 +290,56 @@ async function run(): Promise<void> {
     const ledgerBrief = await getJson('/v1/radar/evidence-ledger/brief');
     if (ledgerBrief.status === 200) {
       pass('GET /v1/radar/evidence-ledger/brief status', `status=${ledgerBrief.status}`);
+      const ledgerBriefObject = asObject(ledgerBrief.body);
+      const ledgerBriefData = asObject(ledgerBriefObject?.data);
+      if (!ledgerBriefData) {
+        fail('evidence-ledger brief payload', 'missing object at data');
+      } else {
+        const ledgerBriefState = asObject(ledgerBriefData.ledger_state);
+        const recordedLanes = asArray(ledgerBriefData.recorded_lanes) ?? [];
+        assertCondition(
+          'evidence-ledger brief total_recorded_runs === 40',
+          asNumber(ledgerBriefState?.total_recorded_runs) === 40,
+          `total_recorded_runs=${String(ledgerBriefState?.total_recorded_runs)}`
+        );
+
+        const briefByBenchmarkId = new Map(recordedLanes
+          .map((row) => asObject(row))
+          .filter((row): row is Record<string, unknown> => !!row)
+          .map((row) => [String(row.benchmark_id ?? ''), row]));
+        const tokenMetadataBrief = briefByBenchmarkId.get('finance-data-token-metadata');
+        const webSearchBrief = briefByBenchmarkId.get('data-web-search-results');
+        const ocrBrief = briefByBenchmarkId.get('document-ocr-text-extraction');
+
+        assertCondition(
+          'evidence-ledger brief finance-data-token-metadata latest_artifact_recorded_runs === 5',
+          asNumber(tokenMetadataBrief?.latest_artifact_recorded_runs) === 5,
+          `latest_artifact_recorded_runs=${String(tokenMetadataBrief?.latest_artifact_recorded_runs)}`
+        );
+        assertCondition(
+          'evidence-ledger brief finance-data-token-metadata total_recorded_runs === 10',
+          asNumber(tokenMetadataBrief?.total_recorded_runs) === 10,
+          `total_recorded_runs=${String(tokenMetadataBrief?.total_recorded_runs)}`
+        );
+        assertCondition(
+          'evidence-ledger brief data-web-search-results latest_artifact_recorded_runs === 10',
+          asNumber(webSearchBrief?.latest_artifact_recorded_runs) === 10,
+          `latest_artifact_recorded_runs=${String(webSearchBrief?.latest_artifact_recorded_runs)}`
+        );
+        assertCondition(
+          'evidence-ledger brief document-ocr-text-extraction latest_artifact_recorded_runs === 10',
+          asNumber(ocrBrief?.latest_artifact_recorded_runs) === 10,
+          `latest_artifact_recorded_runs=${String(ocrBrief?.latest_artifact_recorded_runs)}`
+        );
+
+        const ledgerBriefText = JSON.stringify(ledgerBriefData).toLowerCase();
+        const disallowedPhrases = ['best route', 'top route', 'winner route', 'loser route', 'ranking authority', 'guaranteed trust', 'superiority proof'];
+        assertCondition(
+          'evidence-ledger brief has no route winner claims',
+          disallowedPhrases.every((phrase) => !ledgerBriefText.includes(phrase)),
+          'response text excludes disallowed winner/ranking language'
+        );
+      }
     } else {
       warn('GET /v1/radar/evidence-ledger/brief status', `status=${ledgerBrief.status}; likely deployment lag for the new brief endpoint`);
     }

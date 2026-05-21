@@ -61,6 +61,8 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.BenchmarkSummaryResponse).toBeTruthy();
     expect(spec.components.schemas.EvidenceLedgerResponse).toBeTruthy();
     expect(spec.components.schemas.EvidenceLedgerBriefResponse).toBeTruthy();
+    expect(spec.components.schemas.EvidenceLedgerBriefRecordedLane.properties.latest_artifact_recorded_runs).toBeTruthy();
+    expect(spec.components.schemas.EvidenceLedgerBriefRecordedLane.properties.total_recorded_runs).toBeTruthy();
     expect(spec.components.schemas.BenchmarkHistoryV2AggregateResponse).toBeTruthy();
     expect(spec.components.schemas.BenchmarkHistoryV2DetailResponse).toBeTruthy();
     expect(spec.components.schemas.BenchmarkRouteHistoryAggregateResponse).toBeTruthy();

@@ -336,7 +336,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
         winner_claimed: false,
         latest_recorded_at: '2026-05-19T09:30:00.000Z'
       },
-      recorded_lanes: [{ benchmark_id: 'document-ocr-text-extraction', label: 'Document OCR Text Extraction', latest_artifact_id: 'document-ocr-text-extraction-benchmark-runs-example', recorded_runs: 1, routes_count: 1, winner_claimed: false, winner_status: 'no_clear_winner' }],
+      recorded_lanes: [{ benchmark_id: 'document-ocr-text-extraction', label: 'Document OCR Text Extraction', latest_artifact_id: 'document-ocr-text-extraction-benchmark-runs-example', latest_artifact_recorded_runs: 10, total_recorded_runs: 10, recorded_runs: 10, routes_count: 1, winner_claimed: false, winner_status: 'no_clear_winner' }],
       scaffold_lanes: [{ benchmark_id: 'audio-speech-transcription', label: 'Audio Speech Transcription', reason: 'Comparable paid evidence is not yet sufficient for a recorded lane.', next_step: 'record comparable paid-proven evidence before relying on the lane' }],
       recommended_agent_action: 'Inspect the relevant benchmark history and route timeline before spend.',
       agent_guidance: ['Recorded lanes contain artifact-backed route evidence.', 'Scaffold lanes preserve blocked or insufficient comparable paid evidence.'],
@@ -1015,6 +1015,8 @@ function componentSchemas(): Record<string, JsonSchema> {
       benchmark_id: stringSchema(),
       label: stringSchema(),
       latest_artifact_id: { oneOf: [stringSchema(), { type: 'null' }] },
+      latest_artifact_recorded_runs: integerSchema(),
+      total_recorded_runs: integerSchema(),
       recorded_runs: integerSchema(),
       routes_count: integerSchema(),
       winner_claimed: booleanSchema(),
