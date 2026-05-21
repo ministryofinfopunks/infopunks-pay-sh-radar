@@ -4503,27 +4503,9 @@ function countBundlePlanStatuses(plan: RadarBundlePlanResponse | null) {
   };
 }
 
-function formatExecutionBoundarySummary(plan: RadarBundlePlanResponse | null) {
-  if (!plan) return 'Harness execution comes later after billing and scaffold boundaries are reviewed.';
-  const summary = plan.execution_boundary_summary;
-  return `clean_402=${summary.clean_402} / paid_proven=${summary.paid_proven} / billing_unclear=${summary.billing_unclear} / billable_probe_observed=${summary.billable_probe_observed} / blocked=${summary.blocked}. Harness execution comes later.`;
-}
-
 function AgentBenchmarkApiPanel() {
   const evidenceLedgerCurl = `curl -s ${toApiUrl(PUBLIC_API_HOST, '/v1/radar/evidence-ledger')}`;
   const evidenceLedgerBriefCurl = `curl -s ${toApiUrl(PUBLIC_API_HOST, '/v1/radar/evidence-ledger/brief')} | jq '.data'`;
-  const benchmarkSummaryCurl = 'curl https://infopunks-pay-sh-radar.onrender.com/v1/radar/benchmark-summary';
-  const benchmarkHistoryCurl = `curl -s ${toApiUrl(PUBLIC_API_HOST, '/v1/radar/benchmark-history')}`;
-  const benchmarkRouteTimelineCurl = `curl -s ${toApiUrl(PUBLIC_API_HOST, '/v1/radar/benchmark-history/finance-data-token-metadata/routes')}`;
-  const benchmarkRouteDetailCurl = `curl -s ${toApiUrl(PUBLIC_API_HOST, `/v1/radar/benchmark-history/finance-data-token-metadata/routes/${encodeURIComponent('paysponge-coingecko:GET:/x402/coingecko/onchain/token-metadata')}`)}`;
-  const benchmarkRegistryCurl = `curl -s ${toApiUrl(PUBLIC_API_HOST, '/v1/radar/benchmarks')}`;
-  const benchmarkDetailCurl = `curl -s ${toApiUrl(PUBLIC_API_HOST, '/v1/radar/benchmarks/finance-data-sol-price')}`;
-  const tokenSearchBenchmarkCurl = `curl -s ${toApiUrl(PUBLIC_API_HOST, '/v1/radar/benchmarks/finance-data-token-search')}`;
-  const openApiCurl = `curl -s ${toApiUrl(PUBLIC_API_HOST, OPENAPI_PATH)}`;
-  const morningBriefingRunsCurl = `curl -s ${toApiUrl(PUBLIC_API_HOST, '/v1/radar/bundles/morning-briefing/runs')} | jq '.data'`;
-  const [bundleRunStatus, setBundleRunStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
-  const [bundleRunSummary, setBundleRunSummary] = useState<RadarBundleRunSummary | null>(null);
-  const [bundleRunDetail, setBundleRunDetail] = useState<RadarBundleRunDetail | null>(null);
   const benchmarkSnippet = `{
   "benchmark_id": "finance-data-sol-price",
   "benchmark_recorded": true,
@@ -4545,8 +4527,56 @@ function AgentBenchmarkApiPanel() {
     }
   ]
 }`;
+  const morningBriefingRunsCurl = `curl -s ${toApiUrl(PUBLIC_API_HOST, '/v1/radar/bundles/morning-briefing/runs')} | jq '.data'`;
+  const openApiCurl = `curl -s ${toApiUrl(PUBLIC_API_HOST, OPENAPI_PATH)}`;
+  const curlExamples = [
+    { label: 'Evidence Ledger', value: evidenceLedgerCurl },
+    { label: 'Evidence Brief', value: evidenceLedgerBriefCurl },
+    { label: 'Morning Briefing Plan', value: morningBriefingPlannerCurl },
+    { label: 'Market Research Plan', value: marketResearchPlannerCurl },
+    { label: 'Talent Scanner Plan', value: talentMarketScannerPlannerCurl },
+    { label: 'Morning Briefing Run Ledger', value: morningBriefingRunsCurl },
+    { label: 'OpenAPI', value: openApiCurl }
+  ] as const;
+  const [activeCurlIndex, setActiveCurlIndex] = useState(0);
+  const activeCurl = curlExamples[activeCurlIndex] ?? curlExamples[0];
+  const [bundleRunStatus, setBundleRunStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
+  const [bundleRunSummary, setBundleRunSummary] = useState<RadarBundleRunSummary | null>(null);
+  const [bundleRunDetail, setBundleRunDetail] = useState<RadarBundleRunDetail | null>(null);
   const [bundlePlans, setBundlePlans] = useState<Record<string, RadarBundlePlanResponse | null>>({});
   const [bundlePlannerStatus, setBundlePlannerStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
+  const endpointGroups = [
+    {
+      title: 'Evidence',
+      endpoints: [
+        ['GET', '/v1/radar/evidence-ledger', 'Agent-readable evidence before spend.'],
+        ['GET', '/v1/radar/evidence-ledger/brief', 'Compact preflight memory from the Evidence Ledger.'],
+        ['GET', '/v1/radar/benchmark-summary', 'Benchmark state and interpretation summary.'],
+        ['GET', '/v1/radar/benchmark-history', 'Recorded benchmark history and evidence.']
+      ]
+    },
+    {
+      title: 'Bundles',
+      endpoints: [
+        ['GET', '/v1/radar/bundles', 'Read-only bundle registry.'],
+        ['GET', '/v1/radar/bundles/:bundle_id', 'Bundle detail with evidence boundaries.'],
+        ['POST', '/v1/radar/bundles/:bundle_id/plan', 'Plan included, review-required, and blocked steps.']
+      ]
+    },
+    {
+      title: 'Runs',
+      endpoints: [
+        ['GET', '/v1/radar/bundles/:bundle_id/runs', 'Bundle Run Ledger summaries.'],
+        ['GET', '/v1/radar/bundles/:bundle_id/runs/:run_id', 'One Harness proof record.']
+      ]
+    },
+    {
+      title: 'Docs',
+      endpoints: [
+        ['GET', '/openapi.json', 'OpenAPI for agents.']
+      ]
+    }
+  ] as const;
 
   useEffect(() => {
     let cancelled = false;
@@ -4598,146 +4628,120 @@ function AgentBenchmarkApiPanel() {
     };
   }, []);
 
-  return <section className="panel radar-export-panel" id="agent-benchmark-api" aria-label="Agent benchmark API">
+  return <section className="panel radar-export-panel agent-api-panel" id="agent-benchmark-api" aria-label="Agent benchmark API">
     <div className="radar-export-head">
       <div className="radar-export-copy">
         <ScopeLabel scope="GLOBAL" />
-        <p className="section-kicker">Agent-readable benchmark docs</p>
+        <p className="section-kicker">Agent API Surface</p>
         <h2>Agent Benchmark API</h2>
-        <p className="panel-caption">Read-only evidence ledger endpoints and interpretation guidance for routing agents/builders. Radar exposes route timelines, structured caveats, evidence_health, and winner_claimed=false; it does not execute paid APIs.</p>
-        <p className="panel-caption"><b>API host:</b> https://infopunks-pay-sh-radar.onrender.com. The public UI lives at radar.infopunks.fun; copyable API calls target the API host.</p>
+        <p className="panel-caption">Read-only evidence and planning endpoints for agents. Radar exposes evidence, plans, and Harness proof records; it does not execute paid APIs.</p>
+        <p className="panel-caption api-host-line"><b>API host:</b> https://infopunks-pay-sh-radar.onrender.com. The public UI lives at radar.infopunks.fun; copyable API calls target the API host.</p>
       </div>
       <div className="panel-actions compact-actions">
         <a className="copy-chip" href={toApiUrl(API_BASE_URL, OPENAPI_PATH)} target="_blank" rel="noreferrer">API Docs</a>
       </div>
     </div>
-    <div className="export-groups compact-benchmark-api">
-      <section className="export-group" aria-label="Agent benchmark endpoints">
-        <div className="export-group-head">
-          <h3>Endpoints</h3>
-        </div>
-        <div className="endpoint-card-grid">
-          <p><b>GET /v1/radar/evidence-ledger</b><span>Compact agent-readable evidence ledger before spend.</span></p>
-          <p><b>GET /v1/radar/evidence-ledger/brief</b><span>Compact agent preflight memory derived from the full Evidence Ledger.</span></p>
-          <p><b>GET /v1/radar/benchmark-summary</b><span>Compact agent route for benchmark state, artifact IDs, route counts, and interpretation guidance.</span></p>
-          <p><b>GET /v1/radar/benchmark-history</b><span>Aggregate evidence ledger for recorded benchmarks.</span></p>
-          <p><b>GET /v1/radar/benchmark-history/:benchmark_id/routes</b><span>Route timelines for one recorded benchmark.</span></p>
-          <p><b>GET /v1/radar/benchmark-history/:benchmark_id/routes/:route_id</b><span>Route-level evidence timeline with caveat_objects and evidence_health. URL-encode <code>route_id</code>.</span></p>
-          <p><b>GET /v1/radar/benchmarks</b><span>Registry and winner flags.</span></p>
-          <p><b>GET /v1/radar/benchmarks/finance-data-sol-price</b><span>SOL benchmark metrics.</span></p>
-          <p><b>GET /v1/radar/benchmarks/finance-data-token-search</b><span>Token-search benchmark metrics.</span></p>
-          <p><b>GET /v1/radar/bundles</b><span>Read-only bundle registry for non-executing spend recipes.</span></p>
-          <p><b>GET /v1/radar/bundles/:bundle_id</b><span>Bundle registry detail with execution boundaries and evidence references.</span></p>
-          <p><b>GET /v1/radar/bundles/:bundle_id/runs</b><span>Bundle Run Ledger summary for controlled live run Harness proof records.</span></p>
-          <p><b>GET /v1/radar/bundles/:bundle_id/runs/:run_id</b><span>Bundle Run Ledger detail for one caveated controlled live run record.</span></p>
-          <p><b>POST /v1/radar/bundles/:bundle_id/plan</b><span>Maps intent and constraints to included, review-required, and blocked steps without executing paid APIs.</span></p>
-          <p><b>GET /openapi.json</b><span>OpenAPI for agents.</span></p>
-        </div>
+
+    <div className="agent-api-stack">
+      <section className="agent-api-surface" aria-label="Agent API Surface endpoint groups">
+        {endpointGroups.map((group) => <div className="agent-endpoint-group" key={group.title}>
+          <h3>{group.title}</h3>
+          <div className="agent-endpoint-list">
+            {group.endpoints.map(([method, path, description]) => <p className="agent-endpoint-row" key={`${method}:${path}`}>
+              <span className={`method-chip method-${method.toLowerCase()}`}>{method}</span>
+              <code> {path}</code>
+              <span>{description}</span>
+            </p>)}
+          </div>
+        </div>)}
       </section>
-      <section className="export-group bundle-planner-group" aria-label="Bundle planner examples">
+
+      <section className="agent-story-panel bundle-planner-group" aria-label="Bundle planner examples">
         <div className="export-group-head">
           <h3>Bundle Planner</h3>
         </div>
-        <p className="panel-caption">Bundles are non-executing spend recipes. Bundle plans map intent and constraints to included, review-required, and blocked steps. Radar does not execute paid APIs for bundle plans, Harness execution comes later, and winner_claimed=false remains the rule.</p>
-        <p className="panel-caption">Morning Briefing has one caveated controlled live Harness run: 3 executed clean steps · 2 review-required skipped · 0 blocked · winner_claimed=false.</p>
+        <p className="panel-caption">Bundles are non-executing spend recipes. Plans map intent and constraints to included, review-required, and blocked steps. Radar does not execute paid APIs from bundle plans.</p>
         {bundlePlannerStatus === 'loading' && <div className="preflight-skeleton" aria-label="Bundle planner loading"><span /><span /><span /></div>}
         {bundlePlannerStatus === 'error' && <EmptyState title="Bundle planner examples unavailable." body="Planner examples are documentation-only previews. Retry when bundle plan APIs are reachable." />}
-        <div className="endpoint-card-grid bundle-planner-card-grid">
+        <div className="bundle-planner-card-grid">
           {bundlePlannerExamples.map((example) => {
             const plan = bundlePlans[example.bundleId] ?? null;
             const counts = countBundlePlanStatuses(plan);
-            return <div className="bundle-plan-card" key={example.bundleId}>
+            const boundary = plan?.execution_boundary_summary;
+            return <article className="bundle-plan-card" key={example.bundleId}>
               <p className="bundle-plan-title"><b>Bundle</b><span>{example.title} / topic: {example.topic}</span></p>
+              <p><b>Planner result</b><span className="agent-chip-row"><span>{counts.included} included</span> · <span>{counts.reviewRequired} review-required</span> · <span>{counts.blocked} blocked</span>{example.bundleId === 'morning-briefing' && <> · <span>winner_claimed={String(plan?.winner_claimed ?? false)}</span></>}</span></p>
               {example.bundleId === 'morning-briefing' && <>
-                <p><b>Planner result</b><span>{counts.included} included / {counts.reviewRequired} review-required / {counts.blocked} blocked / winner_claimed={String(plan?.winner_claimed ?? false)}. Cleanest future Harness candidate, but not execution-ready until review-required billing boundaries are cleared.</span></p>
+                <p><b>Execution boundary</b><span className="agent-chip-row"><span>clean_402={boundary?.clean_402 ?? 0}</span><span>billing_unclear={boundary?.billing_unclear ?? 0}</span><span>billable_probe_observed={boundary?.billable_probe_observed ?? 0}</span></span></p>
+                <p><b>Radar action</b><span>Plan only. Cleanest future Harness candidate, but not execution-ready until review-required billing boundaries are cleared.</span></p>
               </>}
               {example.bundleId === 'market-research' && <>
-                <p><b>Planner result</b><span>{counts.included} included / {counts.reviewRequired} review-required / {counts.blocked} blocked. Two billable-probe steps are blocked under strict constraints; remaining steps require billing-boundary review.</span></p>
+                <p><b>Execution boundary</b><span className="agent-chip-row"><span>clean_402={boundary?.clean_402 ?? 0}</span><span>billing_unclear={boundary?.billing_unclear ?? 0}</span><span>billable_probe_observed={boundary?.billable_probe_observed ?? 0}</span><span>blocked={boundary?.blocked ?? 0}</span></span></p>
+                <p><b>Radar action</b><span>Two billable-probe steps are blocked under strict constraints; remaining steps require billing-boundary review.</span></p>
               </>}
               {example.bundleId === 'talent-market-scanner' && <>
-                <p><b>Planner result</b><span>{counts.included} included / {counts.reviewRequired} review-required / {counts.blocked} blocked. Job, salary, and hiring primitives are not yet recorded.</span></p>
+                <p><b>Execution boundary</b><span className="agent-chip-row"><span>clean_402={boundary?.clean_402 ?? 0}</span><span>billing_unclear={boundary?.billing_unclear ?? 0}</span><span>blocked={boundary?.blocked ?? counts.blocked}</span></span></p>
+                <p><b>Radar action</b><span>Job, salary, and hiring primitives are not yet recorded.</span></p>
               </>}
-              <p><b>Execution boundary</b><span>{formatExecutionBoundarySummary(plan)}</span></p>
-              <p><b>Radar action</b><span>Plan only. Radar does not execute paid APIs; it records proof artifacts returned later by the Harness.</span></p>
-            </div>;
+            </article>;
           })}
         </div>
       </section>
-      <section className="export-group bundle-run-ledger-group" aria-label="Bundle run ledger">
+
+      <section className="agent-story-panel bundle-run-ledger-group" aria-label="Bundle run ledger">
         <div className="export-group-head">
           <h3>Bundle Run Ledger</h3>
         </div>
         <p className="panel-caption">Bundle runs are Harness proof records, not benchmark claims.</p>
         <p className="panel-caption">Radar does not execute paid APIs from this surface.</p>
-        <p className="panel-caption">Morning Briefing has one caveated controlled live Harness run.</p>
+        <p className="panel-caption">This run is caveated because observed cost and pay_cli HTTP status were unavailable, and one executed step had an empty source map.</p>
+        <p className="panel-caption"><b>winner_claimed=false</b></p>
         {bundleRunStatus === 'loading' && <div className="preflight-skeleton" aria-label="Bundle run ledger loading"><span /><span /><span /></div>}
         {bundleRunStatus === 'error' && <p className="route-state warn">Bundle Run Ledger unavailable</p>}
         {bundleRunStatus === 'ready' && bundleRunSummary && bundleRunDetail && <div className="bundle-run-ledger-card">
-          <p><b>Run summary</b><span>{bundleRunSummary.status} · {bundleRunSummary.evidence_health} · {bundleRunSummary.executed_step_count} executed · {bundleRunSummary.skipped_step_count} skipped · {bundleRunSummary.blocked_step_count} blocked · {bundleRunSummary.source_count} sources · {bundleRunSummary.observed_cost_usd == null ? 'observed cost unavailable' : `$${bundleRunSummary.observed_cost_usd.toFixed(2)}`} · winner_claimed={String(bundleRunSummary.winner_claimed)}</span></p>
-          <p><b>Required note</b><span>winner_claimed=false</span></p>
-          <p><b>Run detail endpoint</b><span><code>GET /v1/radar/bundles/morning-briefing/runs/{bundleRunSummary.run_id}</code></span></p>
-          <p><b>Executed steps</b><span>{bundleRunDetail.executed_steps.map((step) => step.step_id).join(' · ')}</span></p>
-          <p><b>Skipped review-required steps</b><span>{bundleRunDetail.skipped_steps.map((step) => step.step_id).join(' · ')}</span></p>
-          <p><b>Caveats</b><span>{bundleRunDetail.caveat_objects.map((caveat) => caveat.code).join(' · ')}</span></p>
-          <p><b>Caveat context</b><span>This run is caveated because observed cost and pay_cli HTTP status were unavailable, and one executed step had an empty source map.</span></p>
-          <p><b>Sources</b><span>{bundleRunDetail.source_map.length} sources; {bundleRunDetail.source_map.slice(0, 3).map((source) => `${source.label} (${source.url})`).join(' · ')}</span></p>
+          <div className="agent-chip-row run-summary-chips" aria-label="Bundle Run Ledger summary chips">
+            <span>{bundleRunSummary.status}</span>
+            <span>{bundleRunSummary.evidence_health}</span>
+            <span>{bundleRunSummary.executed_step_count} executed</span>
+            <span>{bundleRunSummary.skipped_step_count} skipped</span>
+            <span>{bundleRunSummary.blocked_step_count} blocked</span>
+            <span>{bundleRunSummary.source_count} sources</span>
+            <span>{bundleRunSummary.observed_cost_usd == null ? 'observed cost unavailable' : `$${bundleRunSummary.observed_cost_usd.toFixed(2)}`}</span>
+            <span>winner_claimed={String(bundleRunSummary.winner_claimed)}</span>
+          </div>
+          <div className="bundle-run-subgrid">
+            <p><b>Executed steps</b><span>{bundleRunDetail.executed_steps.map((step) => step.step_id).join(' · ')}</span></p>
+            <p><b>Skipped review-required</b><span>{bundleRunDetail.skipped_steps.map((step) => step.step_id).join(' · ')}</span></p>
+            <p><b>Caveats</b><span>{bundleRunDetail.caveat_objects.map((caveat) => caveat.code).join(' · ')}</span></p>
+            <p><b>Sources</b><span>{bundleRunSummary.source_count} sources; {bundleRunDetail.source_map.slice(0, 5).map((source) => source.label).join(' · ')}</span></p>
+          </div>
         </div>}
       </section>
-      <section className="export-group" aria-label="Agent benchmark curl examples">
+
+      <details className="agent-story-panel agent-examples-drawer" aria-label="Agent benchmark curl examples">
+        <summary>Copyable curl examples</summary>
+        <div className="example-picker" aria-label="Copy benchmark curl examples">
+          {curlExamples.map((example, index) => <button className={`copy-chip ${index === activeCurlIndex ? 'selected' : ''}`} type="button" key={example.label} onClick={() => setActiveCurlIndex(index)}>{example.label}</button>)}
+        </div>
+        <CopyButton value={activeCurl.value} label={`Copy ${activeCurl.label}`} />
+        <SafeCodeBlock value={activeCurl.value} label={`${activeCurl.label} curl example`} />
+      </details>
+
+      <details className="agent-story-panel agent-examples-drawer" aria-label="Agent benchmark response snippet">
+        <summary>Example response snippet</summary>
+        <SafeCodeBlock value={benchmarkSnippet || 'Select an example to preview a response.'} label="Benchmark response example snippet" />
+      </details>
+
+      <section className="agent-story-panel" aria-label="Agent benchmark interpretation guidance">
         <div className="export-group-head">
-          <h3>Copyable curl examples</h3>
+          <h3>Agent Interpretation Guidance</h3>
         </div>
-        <div className="export-copy-actions" aria-label="Copy benchmark curl examples">
-          <CopyButton value={evidenceLedgerCurl} label="Copy curl /v1/radar/evidence-ledger" />
-          <CopyButton value={evidenceLedgerBriefCurl} label="Copy curl /v1/radar/evidence-ledger/brief" />
-          <CopyButton value={benchmarkSummaryCurl} label="Copy curl /v1/radar/benchmark-summary" />
-          <CopyButton value={benchmarkHistoryCurl} label="Copy curl /v1/radar/benchmark-history" />
-          <CopyButton value={benchmarkRouteTimelineCurl} label="Copy curl benchmark route timelines" />
-          <CopyButton value={benchmarkRouteDetailCurl} label="Copy curl benchmark route detail" />
-          <CopyButton value={benchmarkRegistryCurl} label="Copy curl /v1/radar/benchmarks" />
-          <CopyButton value={benchmarkDetailCurl} label="Copy curl /v1/radar/benchmarks/finance-data-sol-price" />
-          <CopyButton value={tokenSearchBenchmarkCurl} label="Copy curl /v1/radar/benchmarks/finance-data-token-search" />
-          <CopyButton value={morningBriefingPlannerCurl} label="Copy curl morning briefing bundle planner" />
-          <CopyButton value={marketResearchPlannerCurl} label="Copy curl market research bundle planner" />
-          <CopyButton value={talentMarketScannerPlannerCurl} label="Copy curl talent market scanner bundle planner" />
-          <CopyButton value={morningBriefingRunsCurl} label="Copy curl morning briefing bundle run ledger" />
-          <CopyButton value={openApiCurl} label="Copy curl /openapi.json" />
-        </div>
-        <SafeCodeBlock value={evidenceLedgerCurl} label="curl /v1/radar/evidence-ledger" />
-        <SafeCodeBlock value={evidenceLedgerBriefCurl} label="curl /v1/radar/evidence-ledger/brief" />
-        <SafeCodeBlock value={benchmarkSummaryCurl} label="curl /v1/radar/benchmark-summary" />
-        <SafeCodeBlock value={benchmarkHistoryCurl} label="curl /v1/radar/benchmark-history" />
-        <SafeCodeBlock value={benchmarkRouteTimelineCurl} label="curl benchmark route timelines" />
-        <SafeCodeBlock value={benchmarkRouteDetailCurl} label="curl benchmark route detail" />
-        <SafeCodeBlock value={benchmarkRegistryCurl} label="curl /v1/radar/benchmarks" />
-        <SafeCodeBlock value={benchmarkDetailCurl} label="curl /v1/radar/benchmarks/finance-data-sol-price" />
-        <SafeCodeBlock value={tokenSearchBenchmarkCurl} label="curl /v1/radar/benchmarks/finance-data-token-search" />
-        <SafeCodeBlock value={morningBriefingPlannerCurl} label="curl morning briefing bundle planner" />
-        <SafeCodeBlock value={marketResearchPlannerCurl} label="curl market research bundle planner" />
-        <SafeCodeBlock value={talentMarketScannerPlannerCurl} label="curl talent market scanner bundle planner" />
-        <SafeCodeBlock value={morningBriefingRunsCurl} label="curl morning briefing bundle run ledger" />
-        <SafeCodeBlock value={openApiCurl} label="curl /openapi.json" />
-      </section>
-      <section className="export-group" aria-label="Agent benchmark response snippet">
-        <div className="export-group-head">
-          <h3>Example response snippet</h3>
-        </div>
-        <details className="compact-chip-details">
-          <summary>View contained response example</summary>
-          <SafeCodeBlock value={benchmarkSnippet} label="Benchmark response example snippet" />
-        </details>
-      </section>
-      <section className="export-group" aria-label="Agent benchmark interpretation guidance">
-        <div className="export-group-head">
-          <h3>Agent interpretation guidance</h3>
-        </div>
-        <div className="endpoint-card-grid">
-          <p><b>benchmark-summary</b><span>Use this compact agent route when route-level metrics are not needed.</span></p>
+        <div className="endpoint-card-grid guidance-card-grid">
+          <p><b>benchmark-summary</b><span>Use when route metrics are not needed.</span></p>
           <p><b>winner_claimed=false</b><span>Do not treat route as winner.</span></p>
-          <p><b>winner_status=no_clear_winner</b><span>Use benchmark as evidence, not final routing authority.</span></p>
-          <p><b>benchmark_recorded=true</b><span>Normalized metrics exist.</span></p>
+          <p><b>bundle plans</b><span>Non-executing spend recipes only.</span></p>
+          <p><b>bundle runs</b><span>Harness proof records, not benchmark claims.</span></p>
           <p><b>status_code may be null in pay_cli mode</b><span>Use status_evidence.</span></p>
-          <p><b>bundle plans</b><span>Non-executing spend recipes only. Review included, review-required, and blocked steps before any later Harness execution.</span></p>
         </div>
       </section>
     </div>

@@ -818,11 +818,14 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
       constraints: { max_cost_usd: 0.05, allow_billing_unclear: false, allow_billable_probe_observed: false, allow_scaffold_routes: false, require_recorded_evidence: false },
       route_plan: [
         { step_id: 'role_search', label: 'Role Search', intent: 'Search role demand signals across public hiring sources.', plan_status: 'blocked', evidence_dependencies: [], evidence_health: 'scaffold', execution_boundary: 'blocked', reason: 'blocked', next_action: 'inspect benchmark history before execution' },
-        { step_id: 'company_enrichment', label: 'Company Enrichment', intent: 'Enrich target companies with publicly visible hiring context.', plan_status: 'blocked', evidence_dependencies: [], evidence_health: 'scaffold', execution_boundary: 'blocked', reason: 'blocked', next_action: 'inspect benchmark history before execution' }
+        { step_id: 'company_enrichment', label: 'Company Enrichment', intent: 'Enrich target companies with publicly visible hiring context.', plan_status: 'blocked', evidence_dependencies: [], evidence_health: 'scaffold', execution_boundary: 'blocked', reason: 'blocked', next_action: 'inspect benchmark history before execution' },
+        { step_id: 'salary_scan', label: 'Salary Scan', intent: 'Collect salary context for comparable roles.', plan_status: 'blocked', evidence_dependencies: [], evidence_health: 'scaffold', execution_boundary: 'blocked', reason: 'blocked', next_action: 'inspect benchmark history before execution' },
+        { step_id: 'hiring_signal_review', label: 'Hiring Signal Review', intent: 'Review hiring velocity and role demand signals.', plan_status: 'blocked', evidence_dependencies: [], evidence_health: 'scaffold', execution_boundary: 'blocked', reason: 'blocked', next_action: 'inspect benchmark history before execution' },
+        { step_id: 'candidate_source_map', label: 'Candidate Source Map', intent: 'Map candidate source coverage.', plan_status: 'blocked', evidence_dependencies: [], evidence_health: 'scaffold', execution_boundary: 'blocked', reason: 'blocked', next_action: 'inspect benchmark history before execution' }
       ],
-      blocked_steps: [{ step_id: 'role_search', reason: 'scaffold_not_allowed' }, { step_id: 'company_enrichment', reason: 'scaffold_not_allowed' }],
-      execution_boundary_summary: { clean_402: 0, paid_proven: 0, billing_unclear: 0, billable_probe_observed: 0, blocked: 2 },
-      evidence_summary: { recorded: 0, caveated: 0, scaffold: 2, unknown: 0 },
+      blocked_steps: [{ step_id: 'role_search', reason: 'scaffold_not_allowed' }, { step_id: 'company_enrichment', reason: 'scaffold_not_allowed' }, { step_id: 'salary_scan', reason: 'scaffold_not_allowed' }, { step_id: 'hiring_signal_review', reason: 'scaffold_not_allowed' }, { step_id: 'candidate_source_map', reason: 'scaffold_not_allowed' }],
+      execution_boundary_summary: { clean_402: 0, paid_proven: 0, billing_unclear: 0, billable_probe_observed: 0, blocked: 5 },
+      evidence_summary: { recorded: 0, caveated: 0, scaffold: 5, unknown: 0 },
       estimated_cost_usd: '0.03-0.12',
       recommended_agent_action: 'Inspect route plan, execution boundaries, and evidence dependencies before spend.',
       winner_claimed: false
@@ -1238,22 +1241,27 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).not.toMatch(/Reddit Post Search[\s\S]*5-run benchmark/);
     expect(container.textContent).not.toMatch(/Maps Place Search Results[\s\S]*5-run benchmark/);
     expect(container.textContent).toContain('Catalog-estimated');
+    expect(container.textContent).toContain('Agent API Surface');
     expect(container.textContent).toContain('GET /v1/radar/evidence-ledger');
     expect(container.textContent).toContain('GET /v1/radar/evidence-ledger/brief');
-    expect(container.textContent).toContain('Compact agent preflight memory derived from the full Evidence Ledger.');
+    expect(container.textContent).toContain('GET /v1/radar/benchmark-summary');
+    expect(container.textContent).toContain('GET /v1/radar/benchmark-history');
+    expect(container.textContent).toContain('GET /v1/radar/bundles');
+    expect(container.textContent).toContain('GET /v1/radar/bundles/:bundle_id');
+    expect(container.textContent).toContain('POST /v1/radar/bundles/:bundle_id/plan');
+    expect(container.textContent).toContain('GET /v1/radar/bundles/:bundle_id/runs');
+    expect(container.textContent).toContain('GET /v1/radar/bundles/:bundle_id/runs/:run_id');
+    expect(container.textContent).toContain('GET /openapi.json');
+    for (const group of ['Evidence', 'Bundles', 'Runs', 'Docs']) {
+      expect(container.textContent).toContain(group);
+    }
+    expect(container.textContent).toContain('Compact preflight memory from the Evidence Ledger.');
     expect(container.textContent).toContain('API host: https://infopunks-pay-sh-radar.onrender.com. The public UI lives at radar.infopunks.fun; copyable API calls target the API host.');
-    expect(container.textContent).toContain('GET /v1/radar/benchmarks/finance-data-token-search');
-    expect(container.textContent).toContain('benchmark_recorded=true');
-    expect(container.textContent).toContain('winner_status=no_clear_winner');
-    expect(container.textContent).toContain('Agent-readable benchmark docs');
-    expect(container.textContent).toContain('Radar exposes route timelines, structured caveats, evidence_health, and winner_claimed=false; it does not execute paid APIs.');
-    expect(container.textContent).toContain('curl -s https://infopunks-pay-sh-radar.onrender.com/v1/radar/evidence-ledger/brief | jq \'.data\'');
-    expect(container.textContent).toContain('| jq \'.data | {status,winner_claimed,execution_boundary_summary, route_plan: [.route_plan[] | {step_id,plan_status,execution_boundary,next_action}]}\'');
-    expect(container.textContent).toContain('Radar does not execute paid APIs; it records proof artifacts returned later by the Harness.');
-    expect(container.textContent).toContain('Harness execution comes later.');
-    expect(container.textContent).toContain('3 included / 2 review-required / 0 blocked / winner_claimed=false');
+    expect(container.textContent).toContain('Read-only evidence and planning endpoints for agents. Radar exposes evidence, plans, and Harness proof records; it does not execute paid APIs.');
+    expect(container.querySelectorAll('.bundle-plan-card')).toHaveLength(3);
+    expect(container.textContent).toContain('Bundles are non-executing spend recipes. Plans map intent and constraints to included, review-required, and blocked steps. Radar does not execute paid APIs from bundle plans.');
+    expect(container.textContent).toContain('3 included · 2 review-required · 0 blocked · winner_claimed=false');
     expect(container.textContent).toContain('Bundle Run Ledger');
-    expect(container.textContent).toContain('Morning Briefing has one caveated controlled live Harness run.');
     expect(container.textContent).toContain('Bundle runs are Harness proof records, not benchmark claims.');
     expect(container.textContent).toContain('Radar does not execute paid APIs from this surface.');
     expect(container.textContent).toContain('controlled_live_run');
@@ -1274,15 +1282,32 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('source_map_empty');
     expect(container.textContent).toContain('This run is caveated because observed cost and pay_cli HTTP status were unavailable, and one executed step had an empty source map.');
     expect(container.textContent).toContain('Cleanest future Harness candidate, but not execution-ready until review-required billing boundaries are cleared.');
-    expect(container.textContent).toContain('0 included / 4 review-required / 2 blocked');
+    expect(container.textContent).toContain('0 included · 4 review-required · 2 blocked');
     expect(container.textContent).toContain('Two billable-probe steps are blocked under strict constraints; remaining steps require billing-boundary review.');
-    expect(container.textContent).toContain('caveat_objects and evidence_health');
+    expect(container.textContent).toContain('0 included · 0 review-required · 5 blocked');
+    expect(container.textContent).toContain('Job, salary, and hiring primitives are not yet recorded.');
+    const curlDrawer = container.querySelector('.agent-examples-drawer[aria-label="Agent benchmark curl examples"]') as HTMLDetailsElement | null;
+    expect(curlDrawer).toBeTruthy();
+    expect(curlDrawer!.open).toBe(false);
+    expect(curlDrawer!.textContent).toContain('Copyable curl examples');
+    for (const label of ['Evidence Ledger', 'Evidence Brief', 'Morning Briefing Plan', 'Market Research Plan', 'Talent Scanner Plan', 'Morning Briefing Run Ledger', 'OpenAPI']) {
+      expect(curlDrawer!.textContent).toContain(label);
+    }
+    const responseDrawer = container.querySelector('.agent-examples-drawer[aria-label="Agent benchmark response snippet"]') as HTMLDetailsElement | null;
+    expect(responseDrawer).toBeTruthy();
+    expect(responseDrawer!.open).toBe(false);
+    expect(container.textContent).toContain('Agent Interpretation Guidance');
+    expect(container.textContent).toContain('bundle plans');
+    expect(container.textContent).toContain('bundle runs');
     expect(container.textContent).not.toContain('StableCrypto is winning');
     expect(container.textContent).not.toContain('PaySponge is winning');
     expect(container.textContent).not.toContain('Superiority Proof Readiness');
     expect(container.textContent).toContain('Comparison Policy');
+    expect(container.textContent).toContain('Recorded benchmark lanes have artifact-backed evidence. Explored lanes remain scaffolded when they do not meet the hard bar.');
+    expect(container.textContent).not.toContain('Four benchmark lanes');
+    expect(container.textContent).not.toContain('Three explored lanes');
     expect(container.textContent).toContain('Radar can compare recorded metrics. Radar does not crown winners until scoring criteria are finalized. No benchmark currently claims a winner.');
-    expect(container.textContent).not.toMatch(/best route|top route|winner route|loser route|ranking authority|guaranteed trust|safest provider|superiority proof/i);
+    expect(container.textContent).not.toMatch(/best route|top route|winner route|loser route|ranking authority|guaranteed trust|safest provider|superiority proof|recorded bundle|production briefing/i);
     expect(container.textContent).not.toContain('HTTP 200');
     expect(container.textContent).toContain('StableCrypto: verified/proven');
     expect(container.textContent).toContain('CoinGecko Onchain DEX API: verified/proven');
