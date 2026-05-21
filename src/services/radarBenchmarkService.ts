@@ -342,6 +342,7 @@ export function buildRadarEvidenceLedger(): RadarEvidenceLedger {
       'winner_claimed=false means no route winner should be inferred.',
       'Recorded benchmarks mean paid route evidence exists.',
       'Scaffold lanes were explored but did not meet the hard bar for benchmark recording.',
+      'Recorded lanes contain artifact-backed evidence. Scaffold lanes preserve blocked or insufficient evidence.',
       'Use route timelines and caveat_objects before selecting a route.',
       'Radar does not execute paid APIs. The Agent Harness generates paid proof artifacts.'
     ],

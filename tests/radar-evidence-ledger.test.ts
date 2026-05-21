@@ -93,6 +93,7 @@ describe('radar evidence ledger', () => {
 
     expect(data.route_timeline_entrypoints.some((row: { benchmark_id: string; route_detail_note: string }) => row.benchmark_id === 'data-web-search-results' && row.route_detail_note.includes('URL-encode route_id'))).toBe(true);
     expect(data.caveat_summary).toBeTruthy();
+    expect(data.agent_guidance).toContain('Recorded lanes contain artifact-backed evidence. Scaffold lanes preserve blocked or insufficient evidence.');
 
     expect(data.ledger_state.winner_claimed).toBe(false);
     expect(data.recorded_lanes.every((row: { winner_claimed: boolean }) => row.winner_claimed === false)).toBe(true);
@@ -105,6 +106,7 @@ describe('radar evidence ledger', () => {
     expect(serialized).not.toContain('loser route');
     expect(serialized).not.toContain('ranking authority');
     expect(serialized).not.toContain('guaranteed trust');
+    expect(serialized).not.toContain('safest provider');
     expect(serialized).not.toContain('superiority proof');
 
     await app.close();

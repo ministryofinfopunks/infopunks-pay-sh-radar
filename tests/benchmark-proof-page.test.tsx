@@ -81,6 +81,39 @@ function benchmarkSummary() {
   };
 }
 
+function evidenceLedger() {
+  return {
+    generated_at: observedAt,
+    source: 'infopunks-pay-sh-radar',
+    ledger_state: {
+      recorded_benchmarks: 5,
+      total_benchmarks: 10,
+      total_artifacts: 6,
+      total_recorded_runs: 40,
+      proven_routes: 10,
+      winner_claimed: false,
+      latest_recorded_at: observedAt
+    },
+    recorded_lanes: [
+      { benchmark_id: 'finance-data-sol-price', label: 'SOL Price', status: 'recorded', artifact_count: 1, recorded_runs: 10, routes_count: 2, proven_routes_count: 2, winner_claimed: false, latest_recorded_at: observedAt },
+      { benchmark_id: 'finance-data-token-search', label: 'Token Search', status: 'recorded', artifact_count: 1, recorded_runs: 10, routes_count: 2, proven_routes_count: 2, winner_claimed: false, latest_recorded_at: observedAt },
+      { benchmark_id: 'finance-data-token-metadata', label: 'Token Metadata', status: 'recorded', artifact_count: 1, recorded_runs: 10, routes_count: 2, proven_routes_count: 2, winner_claimed: false, latest_recorded_at: observedAt },
+      { benchmark_id: 'data-web-search-results', label: 'Web Search Results', status: 'recorded', artifact_count: 1, recorded_runs: 10, routes_count: 2, proven_routes_count: 2, winner_claimed: false, latest_recorded_at: observedAt },
+      { benchmark_id: 'document-ocr-text-extraction', label: 'Document OCR Text Extraction', status: 'recorded', artifact_count: 2, recorded_runs: 10, routes_count: 2, proven_routes_count: 2, winner_claimed: false, latest_recorded_at: observedAt }
+    ],
+    scaffold_lanes: [
+      { benchmark_id: 'communications-email-delivery', label: 'Communications Email Delivery', status: 'scaffold', why_not_promoted: ['AgentMail blocked / no second comparable route'] },
+      { benchmark_id: 'solana-infra-account-balance', label: 'Solana Account Balance', status: 'scaffold', why_not_promoted: ['paid run failed'] },
+      { benchmark_id: 'social-data-reddit-post-search', label: 'Reddit Post Search', status: 'scaffold', why_not_promoted: ['no second paid-proven comparable route'] },
+      { benchmark_id: 'maps-place-search-results', label: 'Maps Place Search Results', status: 'scaffold', why_not_promoted: ['zero recognizable place candidates'] },
+      { benchmark_id: 'audio-speech-transcription', label: 'Audio Speech Transcription', status: 'scaffold', why_not_promoted: ['transcript semantics still not proven'] }
+    ],
+    latest_artifacts: [
+      { artifact_id: 'document-ocr-text-extraction-benchmark-runs-2026-05-19', benchmark_id: 'document-ocr-text-extraction', label: 'Document OCR Text Extraction', recorded_at: observedAt, recorded_runs: 10, routes_count: 2, winner_claimed: false }
+    ]
+  };
+}
+
 function installFetchMock(options: { benchmarkSummaryFails?: boolean } = {}) {
   vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
     const path = pathOf(input);
@@ -88,6 +121,7 @@ function installFetchMock(options: { benchmarkSummaryFails?: boolean } = {}) {
       if (options.benchmarkSummaryFails) return Promise.resolve(new Response(JSON.stringify({ error: 'summary delayed' }), { status: 503, headers: { 'Content-Type': 'application/json' } }));
       return json(benchmarkSummary());
     }
+    if (path === '/v1/radar/evidence-ledger') return json(evidenceLedger());
     if (path === '/v1/radar/benchmark-history') return json({
       generated_at: observedAt,
       source: 'infopunks-pay-sh-radar',
@@ -593,11 +627,12 @@ describe('public benchmark proof pages', () => {
     expect(text).toContain('40 recorded route-runs');
     expect(text).toContain('10 proven paid routes');
     expect(text).toContain('0 winner claims');
+    expect(text).toContain('5 recorded lanes · 5 explored lanes · 0 winner claims');
     expect(text.indexOf('Recorded Benchmark Lanes')).toBeLessThan(text.indexOf('Agent Evidence Demo'));
     expect(text.indexOf('Explored, Not Promoted')).toBeLessThan(text.indexOf('Agent Evidence Demo'));
     expect(text.indexOf('Agent Route Timeline API')).toBeLessThan(text.indexOf('Agent Evidence Demo'));
     expect(text).toContain('Recorded means paid route evidence exists. It does not mean a winner was crowned.');
-    expect(text).toContain('Scaffold means the lane was explored but did not meet the hard bar.');
+    expect(text).toContain('Scaffold lanes are not failed benchmarks. They are lanes where Radar found insufficient comparable paid evidence.');
     expect(text).toContain('Radar does not rewrite uncertainty. It records it, fixes it, and shows the delta.');
     expect(text).toContain('route timeline: available');
     expect(text).toContain('GET /v1/radar/benchmark-summary');
@@ -607,7 +642,9 @@ describe('public benchmark proof pages', () => {
     expect(text).toContain('"routes_count": 2');
     expect(text).toContain('"recorded_runs": 5');
     expect(text).toContain('winner_claimed=false and winner_status=no_clear_winner mean Radar shows evidence without route winner claims.');
+    expect(text).toContain('Recorded lanes contain artifact-backed evidence. Scaffold lanes preserve blocked or insufficient evidence.');
     expect(text).toContain('routes_countshows comparable proven routes per benchmark.');
+    expect(text).not.toMatch(/best route|top route|winner route|loser route|superiority proof|ranking authority|guaranteed trust|safest provider/i);
     expect(text).toContain('recorded_runsshows recorded route-run evidence.');
     expect(text).toContain('Agent Route Timeline API');
     expect(text).toContain('GET /v1/radar/benchmark-history/finance-data-token-metadata/routes');

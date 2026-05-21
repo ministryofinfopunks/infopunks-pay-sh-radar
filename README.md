@@ -7,31 +7,20 @@ It tracks providers, monitors service health, scores trust and ecosystem activit
 Pay.sh handles payments and discovery.  
 Infopunks Radar adds intelligence, monitoring, and coordination on top.
 
-## Current Radar Evidence Ledger State
+## Current Evidence Ledger State
 
-Current production checkpoint:
-
-- 4 recorded benchmarks
-- 5 artifacts
-- 30 recorded route-runs
-- 8 proven paid routes
-- 3 explored but not promoted lanes
+- 5 recorded benchmarks
+- 5 explored scaffold lanes
+- 6 artifacts
+- 40 recorded route-runs
+- 10 proven paid routes
 - 0 winner claims
 
-Recorded:
+Recorded lanes contain artifact-backed route evidence.
 
-- SOL Price
-- Token Search
-- Token Metadata
-- Web Search Results
+Scaffold lanes are not failed benchmarks. They are lanes where Radar found insufficient comparable paid evidence.
 
-Explored, Not Promoted:
-
-- Communications Email Delivery
-- Solana Account Balance
-- Reddit Post Search
-
-Recorded means paid route evidence exists. Explored, Not Promoted means the lane was investigated but did not meet the hard bar for benchmark recording. Radar does not claim route winners without explicit scoring criteria.
+`GET /v1/radar/evidence-ledger` is the core agent-facing endpoint for inspecting the ledger before spend.
 
 Pay.sh is the spend rail. Radar is the evidence ledger. The Harness is the proof adapter.
 

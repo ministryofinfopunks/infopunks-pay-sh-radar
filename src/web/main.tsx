@@ -1175,6 +1175,12 @@ function proofSummarySentence(summary: PublicProofSummary) {
   return `${summary.recordedBenchmarks} recorded benchmarks. ${summary.provenPaidRoutes} proven paid routes. ${summary.recordedRouteRuns} recorded route-runs. ${summary.artifacts} artifacts. ${summary.winnerClaims} winner claims.`;
 }
 
+function evidenceLedgerLaneRatio(evidenceLedger: RadarEvidenceLedger | null) {
+  if (!evidenceLedger) return null;
+  const winnerClaims = evidenceLedger.ledger_state.winner_claimed ? 1 : 0;
+  return `${evidenceLedger.recorded_lanes.length} recorded lanes · ${evidenceLedger.scaffold_lanes.length} explored lanes · ${winnerClaims} winner claims`;
+}
+
 function ProofMetricsStrip({ summary }: { summary: PublicProofSummary }) {
   return <div className="proof-metrics-strip" aria-label="Proof metrics">
     <span><b>{summary.recordedBenchmarks}</b> recorded benchmarks</span>
@@ -1461,6 +1467,7 @@ function PublicBenchmarksIndexPage() {
   const recordedBenchmarks = registry.benchmarks.filter((benchmark) => benchmark.benchmark_recorded);
   const plannedBenchmarks = registry.benchmarks.filter((benchmark) => !benchmark.benchmark_recorded);
   const proofSummary = publicProofSummary(registry, evidenceLedger);
+  const ledgerLaneRatio = evidenceLedgerLaneRatio(evidenceLedger);
   const routeTimelineAggregateEndpoint = 'GET /v1/radar/benchmark-history/finance-data-token-metadata/routes';
   const routeTimelineDetailEndpoint = 'GET /v1/radar/benchmark-history/finance-data-token-metadata/routes/{route_id}';
   const routeTimelineSnippet = `{
@@ -1482,6 +1489,7 @@ function PublicBenchmarksIndexPage() {
       <section className="panel benchmark-launch-hero">
         <p className="eyebrow">Infopunks Pay.sh Radar</p>
         <h1>Radar Evidence Ledger</h1>
+        {ledgerLaneRatio && <p className="panel-caption">{ledgerLaneRatio}</p>}
         <p className="copy">Radar records benchmark evidence for Pay.sh routes before agents spend. It exposes artifacts, route timelines, caveats, evidence health, and winner-claim status without crowning routes.</p>
         <div className="proof-metrics-strip" aria-label="Radar evidence ledger metrics">
           <span><b>{proofSummary.recordedBenchmarks}</b> recorded benchmarks</span>
@@ -1491,7 +1499,7 @@ function PublicBenchmarksIndexPage() {
           <span><b>{proofSummary.winnerClaims}</b> winner claims</span>
         </div>
         <p className="panel-caption">Recorded means paid route evidence exists. It does not mean a winner was crowned.</p>
-        <p className="panel-caption">Scaffold means the lane was explored but did not meet the hard bar.</p>
+        <p className="panel-caption">Scaffold lanes are not failed benchmarks. They are lanes where Radar found insufficient comparable paid evidence.</p>
         <p className="panel-caption">Radar does not rewrite uncertainty. It records it, fixes it, and shows the delta.</p>
         <p className="panel-caption"><code>winner_claimed=false</code> and <code>winner_status=no_clear_winner</code> mean Radar shows evidence without route winner claims.</p>
         <div className="benchmark-hero-strip" aria-label="Benchmark evidence summary">
@@ -1541,7 +1549,7 @@ function PublicBenchmarksIndexPage() {
       </section>
       <section className="panel benchmark-launch-panel" aria-label="Planned benchmark scaffolds">
         <h2>Explored, Not Promoted</h2>
-        <p className="panel-caption">Exploration lanes. Scaffold means the lane was explored but did not meet the hard bar.</p>
+        <p className="panel-caption">Scaffold lanes are not failed benchmarks. They are lanes where Radar found insufficient comparable paid evidence.</p>
         <div className="benchmark-launch-grid">
           {plannedBenchmarks.map((benchmark) => {
             const reasons = scaffoldPromotionReasons(benchmark.benchmark_id);
@@ -1578,6 +1586,7 @@ function PublicBenchmarksIndexPage() {
         </div>
         <div className="endpoint-card-grid">
           <p><b>evidence_health</b><span>recorded | caveated | stale | degraded | unverified | scaffold</span></p>
+          <p><b>recorded/scaffold lanes</b><span>Recorded lanes contain artifact-backed evidence. Scaffold lanes preserve blocked or insufficient evidence.</span></p>
           <p><b>caveat_objects</b><span>Machine-readable caveats with <code>code</code>, <code>severity</code>, <code>message</code>, <code>evidence_field</code>, and <code>value</code>.</span></p>
           <p><b>winner_claimed</b><span><code>false</code> means agents should not infer a winner.</span></p>
           <p><b>status_evidence</b><span>Explains proof context when HTTP status is unavailable, especially <code>pay_cli</code> mode.</span></p>
@@ -4071,16 +4080,19 @@ function HeadToHeadBenchmarkPanel({ registry, evidenceLedger, loading }: { regis
   const latestRunsPerRoute = latestArtifact?.routes_count ? Math.round(latestArtifact.recorded_runs / latestArtifact.routes_count) : 0;
   const latestEvidenceHealth = latestBenchmark?.routes.some((route) => route.comparison_notes?.toLowerCase().includes('caveat')) ? 'caveated' : 'recorded';
   const hasBenchmarks = recordedLanes.length > 0;
+  const ledgerLaneRatio = evidenceLedgerLaneRatio(evidenceLedger);
   return <section className="panel superiority-readiness" aria-label="Evidence Ledger Snapshot panel">
     <div className="phase3-panel-head">
       <ScopeLabel scope="GLOBAL" />
       <h2>Evidence Ledger Snapshot</h2>
     </div>
+    {ledgerLaneRatio && <p className="panel-caption">{ledgerLaneRatio}</p>}
     {!hasBenchmarks && loading && <EmptyState title="Enrichment delayed" body="Benchmark data delayed" />}
     {!hasBenchmarks && !loading && <EmptyState title="Panel data unavailable" body="Benchmark data delayed" />}
     {hasBenchmarks && <>
       <p className="route-state">Radar records what graduated and what did not.</p>
       <p className="panel-caption">Recorded means paid route evidence exists. Scaffold means the lane was explored but did not meet the hard bar.</p>
+      <p className="panel-caption">Scaffold lanes are not failed benchmarks. They are lanes where Radar found insufficient comparable paid evidence.</p>
       <div className="readiness-list-grid">
         <section className="compact-chip-list wide" aria-label="Recorded benchmark lanes">
           <div className="compact-chip-list-head">

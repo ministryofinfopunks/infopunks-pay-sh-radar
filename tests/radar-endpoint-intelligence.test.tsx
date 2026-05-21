@@ -149,7 +149,7 @@ function anomalyWatchItems(count: number) {
   }));
 }
 
-function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknown[]; degraded?: boolean; readiness?: Record<string, unknown>; anomalyWatch?: ReturnType<typeof anomalyWatchItems> } = {}) {
+function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknown[]; degraded?: boolean; readiness?: Record<string, unknown>; anomalyWatch?: ReturnType<typeof anomalyWatchItems>; evidenceLedger?: unknown } = {}) {
   vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
     const path = pathOf(input);
     if (path === '/v1/pulse') return json({ providerCount: 1, endpointCount: options.endpoints?.length ?? 0, eventCount: 1, averageTrust: 86, averageSignal: 74, hottestNarrative: null, topTrust: [], topSignal: [], data_source: { mode: 'live_pay_sh_catalog', url: 'https://pay.sh/api/catalog', generated_at: observedAt, provider_count: 1, last_ingested_at: observedAt, used_fixture: false }, updatedAt: observedAt });
@@ -717,7 +717,7 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
         }
       ]
     });
-    if (path === '/v1/radar/evidence-ledger') return json({
+    if (path === '/v1/radar/evidence-ledger') return json(options.evidenceLedger ?? {
       generated_at: observedAt,
       source: 'infopunks-pay-sh-radar',
       ledger_state: {
@@ -1072,6 +1072,7 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Benchmark Readiness');
     expect(container.textContent).toContain('Evidence Ledger Snapshot');
     expect((container.textContent ?? '').indexOf('Evidence Ledger Snapshot')).toBeLessThan((container.textContent ?? '').indexOf('Propagation Watch'));
+    expect(container.textContent).toContain('5 recorded lanes · 5 explored lanes · 0 winner claims');
     expect(container.textContent).toContain('5 recorded benchmarks');
     expect(container.textContent).toContain('SOL Price + Token Search + Token Metadata + Web Search Results + Document OCR Text Extraction');
     expect(container.textContent).toContain('No winner claims');
@@ -1080,6 +1081,7 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Token Metadata');
     expect(container.textContent).toContain('Web Search Results');
     expect(container.textContent).toContain('Recorded means paid route evidence exists. Scaffold means the lane was explored but did not meet the hard bar.');
+    expect(container.textContent).toContain('Scaffold lanes are not failed benchmarks. They are lanes where Radar found insufficient comparable paid evidence.');
     expect(container.textContent).toContain('Radar records what graduated and what did not.');
     expect(container.textContent).toContain('Latest Recorded Benchmark');
     expect(container.textContent).toContain('Document OCR Text Extraction');
@@ -1122,7 +1124,7 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).not.toContain('Superiority Proof Readiness');
     expect(container.textContent).toContain('Comparison Policy');
     expect(container.textContent).toContain('Radar can compare recorded metrics. Radar does not crown winners until scoring criteria are finalized. No benchmark currently claims a winner.');
-    expect(container.textContent).not.toMatch(/best route|top route|superior route|winner route|loser route|ranking authority|guaranteed trust|superiority proof/i);
+    expect(container.textContent).not.toMatch(/best route|top route|winner route|loser route|ranking authority|guaranteed trust|safest provider|superiority proof/i);
     expect(container.textContent).not.toContain('HTTP 200');
     expect(container.textContent).toContain('StableCrypto: verified/proven');
     expect(container.textContent).toContain('CoinGecko Onchain DEX API: verified/proven');
@@ -1134,6 +1136,38 @@ describe('radar endpoint intelligence UI', () => {
     expect(details).toBeTruthy();
     details!.open = true;
     expect(details!.textContent).toContain('provider-14');
+  });
+
+  it('derives homepage recorded and scaffold lane ratio from evidence ledger lane arrays', async () => {
+    installFetch({
+      endpoints: [normalizedEndpoint],
+      detailEndpoints: [endpoint],
+      evidenceLedger: {
+        generated_at: observedAt,
+        source: 'infopunks-pay-sh-radar',
+        ledger_state: {
+          recorded_benchmarks: 5,
+          total_benchmarks: 10,
+          total_artifacts: 6,
+          total_recorded_runs: 40,
+          proven_routes: 10,
+          winner_claimed: false,
+          latest_recorded_at: observedAt
+        },
+        recorded_lanes: [
+          { benchmark_id: 'finance-data-sol-price', label: 'SOL Price', status: 'recorded', artifact_count: 1, recorded_runs: 10, routes_count: 2, proven_routes_count: 2, winner_claimed: false, latest_recorded_at: observedAt },
+          { benchmark_id: 'finance-data-token-search', label: 'Token Search', status: 'recorded', artifact_count: 1, recorded_runs: 10, routes_count: 2, proven_routes_count: 2, winner_claimed: false, latest_recorded_at: observedAt }
+        ],
+        scaffold_lanes: [
+          { benchmark_id: 'communications-email-delivery', label: 'Communications Email Delivery', status: 'scaffold', why_not_promoted: ['no second comparable route'] }
+        ],
+        latest_artifacts: []
+      }
+    });
+    root = await renderApp(container);
+
+    expect(container.textContent).toContain('2 recorded lanes · 1 explored lanes · 0 winner claims');
+    expect(container.textContent).not.toContain('5 recorded lanes · 5 explored lanes · 0 winner claims');
   });
 
   it('renders route mapping registry rows, badges, and explanatory copy', async () => {
