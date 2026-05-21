@@ -12,7 +12,8 @@ import {
   RadarBenchmarkList,
   RadarBenchmarkRouteMetric,
   RadarBenchmarkSummary,
-  RadarEvidenceLedger
+  RadarEvidenceLedger,
+  RadarEvidenceLedgerBrief
 } from '../schemas/entities';
 import { listRouteMappings } from './providerEndpointMap';
 import { BenchmarkArtifactRecord, BenchmarkArtifactRoute, getBenchmarkArtifactById, getLatestBenchmarkArtifact, listBenchmarkArtifacts } from '../data/benchmarkArtifacts';
@@ -365,6 +366,40 @@ export function buildRadarEvidenceLedger(): RadarEvidenceLedger {
         'native_balance_missing'
       ]
     }
+  };
+}
+
+export function buildRadarEvidenceLedgerBrief(): RadarEvidenceLedgerBrief {
+  const ledger = buildRadarEvidenceLedger();
+
+  return {
+    ledger_state: {
+      ...ledger.ledger_state,
+      scaffold_lanes: ledger.scaffold_lanes.length
+    },
+    recorded_lanes: ledger.recorded_lanes.map((lane) => ({
+      benchmark_id: lane.benchmark_id,
+      label: lane.label,
+      latest_artifact_id: lane.latest_artifact_id,
+      recorded_runs: lane.recorded_runs,
+      routes_count: lane.routes_count,
+      winner_claimed: lane.winner_claimed,
+      winner_status: lane.winner_status
+    })),
+    scaffold_lanes: ledger.scaffold_lanes.map((lane) => ({
+      benchmark_id: lane.benchmark_id,
+      label: lane.label,
+      reason: lane.why_not_promoted[0] ?? 'Benchmark lane is not recorded.',
+      next_step: lane.missing_requirements[0] ?? 'Inspect benchmark details before spend.'
+    })),
+    recommended_agent_action: 'Inspect the relevant benchmark history and route timeline before spend.',
+    agent_guidance: [
+      'Recorded lanes contain artifact-backed route evidence.',
+      'Scaffold lanes preserve blocked or insufficient comparable paid evidence.',
+      'winner_claimed=false means no route winner should be inferred.',
+      'Agents should inspect route-level caveats before spending.'
+    ],
+    winner_claimed: ledger.ledger_state.winner_claimed
   };
 }
 

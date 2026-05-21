@@ -18,6 +18,7 @@ import {
   RadarBenchmarkReadinessSchema,
   RadarBenchmarkSummarySchema,
   RadarEvidenceLedgerSchema,
+  RadarEvidenceLedgerBriefSchema,
   RadarBenchmarkListSchema,
   RadarBenchmarkDetailSchema,
   RadarBenchmarkHistorySchema,
@@ -56,6 +57,7 @@ import {
   buildRadarBenchmarks,
   buildRadarBenchmarkSummary,
   buildRadarEvidenceLedger,
+  buildRadarEvidenceLedgerBrief,
   getBenchmarkArtifactMetadataById,
   listBenchmarkArtifactMetadata
 } from '../services/radarBenchmarkService';
@@ -519,6 +521,9 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   });
   app.get('/v1/radar/evidence-ledger', async () => ({
     data: safeJsonExport(RadarEvidenceLedgerSchema.parse(buildRadarEvidenceLedger()))
+  }));
+  app.get('/v1/radar/evidence-ledger/brief', async () => ({
+    data: safeJsonExport(RadarEvidenceLedgerBriefSchema.parse(buildRadarEvidenceLedgerBrief()))
   }));
   app.get('/v1/radar/benchmarks', async () => {
     const startedAtMs = Date.now();

@@ -15,6 +15,10 @@ function fail(name: string, detail: string): void {
   console.error(`FAIL ${name} - ${detail}`);
 }
 
+function warn(name: string, detail: string): void {
+  console.warn(`WARN ${name} - ${detail}`);
+}
+
 function assertCondition(name: string, condition: boolean, detail: string): void {
   if (condition) {
     pass(name, detail);
@@ -280,6 +284,17 @@ async function run(): Promise<void> {
     }
   } catch (error) {
     fail('GET /v1/radar/evidence-ledger request', (error as Error).message);
+  }
+
+  try {
+    const ledgerBrief = await getJson('/v1/radar/evidence-ledger/brief');
+    if (ledgerBrief.status === 200) {
+      pass('GET /v1/radar/evidence-ledger/brief status', `status=${ledgerBrief.status}`);
+    } else {
+      warn('GET /v1/radar/evidence-ledger/brief status', `status=${ledgerBrief.status}; likely deployment lag for the new brief endpoint`);
+    }
+  } catch (error) {
+    warn('GET /v1/radar/evidence-ledger/brief request', `${(error as Error).message}; likely deployment lag for the new brief endpoint`);
   }
 
   try {

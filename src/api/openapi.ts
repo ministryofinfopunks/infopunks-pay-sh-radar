@@ -320,6 +320,29 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       }
     }
   ));
+  add('get', '/v1/radar/evidence-ledger/brief', radarGet(
+    'Radar Readiness',
+    'Get compact evidence ledger brief',
+    'Returns a compact agent-readable brief derived from the evidence ledger. Includes lane counts and lane-level summaries only; full route timelines and raw artifact bodies are excluded.',
+    { $ref: '#/components/schemas/EvidenceLedgerBriefResponse' },
+    {
+      ledger_state: {
+        recorded_benchmarks: 1,
+        total_benchmarks: 2,
+        total_artifacts: 1,
+        total_recorded_runs: 10,
+        proven_routes: 2,
+        scaffold_lanes: 1,
+        winner_claimed: false,
+        latest_recorded_at: '2026-05-19T09:30:00.000Z'
+      },
+      recorded_lanes: [{ benchmark_id: 'document-ocr-text-extraction', label: 'Document OCR Text Extraction', latest_artifact_id: 'document-ocr-text-extraction-benchmark-runs-example', recorded_runs: 1, routes_count: 1, winner_claimed: false, winner_status: 'no_clear_winner' }],
+      scaffold_lanes: [{ benchmark_id: 'audio-speech-transcription', label: 'Audio Speech Transcription', reason: 'Comparable paid evidence is not yet sufficient for a recorded lane.', next_step: 'record comparable paid-proven evidence before relying on the lane' }],
+      recommended_agent_action: 'Inspect the relevant benchmark history and route timeline before spend.',
+      agent_guidance: ['Recorded lanes contain artifact-backed route evidence.', 'Scaffold lanes preserve blocked or insufficient comparable paid evidence.'],
+      winner_claimed: false
+    }
+  ));
   add('get', '/v1/radar/benchmarks', radarGet('Radar Readiness', 'Get head-to-head benchmark registry', 'Returns recorded head-to-head benchmark scaffolds. A benchmark row can be metrics-pending and never implies a winner claim.', { $ref: '#/components/schemas/BenchmarkRegistryResponse' }, { benchmarks: [] }));
   add('get', '/v1/radar/benchmarks/finance-data-sol-price', radarGet('Radar Readiness', 'Get SOL price benchmark scaffold', 'Returns the finance/data get SOL price head-to-head benchmark scaffold with recorded normalized evidence. benchmark_recorded=true means normalized evidence has been recorded, not that a winner is claimed. winner_status=no_clear_winner means run criteria were met but no route winner is claimed. status_code may be null in pay_cli mode and status_evidence explains proof basis.', { $ref: '#/components/schemas/BenchmarkDetailResponse' }, { benchmark_id: 'finance-data-sol-price', winner_claimed: false, benchmark_recorded: true, winner_status: 'no_clear_winner' }));
   add('get', '/v1/radar/benchmarks/finance-data-token-search', radarGet('Radar Readiness', 'Get token-search benchmark scaffold', 'Returns the finance/data token-search benchmark with recorded normalized evidence. winner_status=no_clear_winner means no route winner is claimed.', { $ref: '#/components/schemas/BenchmarkDetailResponse' }, { benchmark_id: 'finance-data-token-search', winner_claimed: false, benchmark_recorded: true, winner_status: 'no_clear_winner' }));
@@ -988,6 +1011,21 @@ function componentSchemas(): Record<string, JsonSchema> {
       missing_requirements: arrayOf(stringSchema()),
       known_evidence: arrayOf(stringSchema())
     }),
+    EvidenceLedgerBriefRecordedLane: objectSchema({
+      benchmark_id: stringSchema(),
+      label: stringSchema(),
+      latest_artifact_id: { oneOf: [stringSchema(), { type: 'null' }] },
+      recorded_runs: integerSchema(),
+      routes_count: integerSchema(),
+      winner_claimed: booleanSchema(),
+      winner_status: benchmarkWinnerStatus
+    }),
+    EvidenceLedgerBriefScaffoldLane: objectSchema({
+      benchmark_id: stringSchema(),
+      label: stringSchema(),
+      reason: stringSchema(),
+      next_step: stringSchema()
+    }),
     EvidenceLedgerLatestArtifact: objectSchema({
       artifact_id: stringSchema(),
       benchmark_id: stringSchema(),
@@ -1030,6 +1068,23 @@ function componentSchemas(): Record<string, JsonSchema> {
         policy: stringSchema(),
         common_codes: arrayOf(stringSchema())
       })
+    }),
+    EvidenceLedgerBriefResponse: objectSchema({
+      ledger_state: objectSchema({
+        recorded_benchmarks: integerSchema(),
+        total_benchmarks: integerSchema(),
+        total_artifacts: integerSchema(),
+        total_recorded_runs: integerSchema(),
+        proven_routes: integerSchema(),
+        scaffold_lanes: integerSchema(),
+        winner_claimed: booleanSchema(),
+        latest_recorded_at: { oneOf: [dateTimeSchema(), { type: 'null' }] }
+      }),
+      recorded_lanes: arrayOf({ $ref: '#/components/schemas/EvidenceLedgerBriefRecordedLane' }),
+      scaffold_lanes: arrayOf({ $ref: '#/components/schemas/EvidenceLedgerBriefScaffoldLane' }),
+      recommended_agent_action: stringSchema(),
+      agent_guidance: arrayOf(stringSchema()),
+      winner_claimed: booleanSchema()
     }),
     BenchmarkArtifactRoute: objectSchema({
       provider_id: stringSchema(),

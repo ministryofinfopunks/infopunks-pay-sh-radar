@@ -21,6 +21,8 @@ describe('verify-production release invariants', () => {
     expect(script).toContain('benchmark-history total_recorded_runs === 40');
     expect(script).toContain('benchmark-history winner_claimed === false');
     expect(script).toContain('GET /v1/radar/evidence-ledger status');
+    expect(script).toContain('GET /v1/radar/evidence-ledger/brief status');
+    expect(script).toContain('likely deployment lag for the new brief endpoint');
     expect(script).toContain('evidence-ledger recorded_benchmarks === 5');
     expect(script).toContain('evidence-ledger total_artifacts === 6');
     expect(script).toContain('evidence-ledger total_recorded_runs === 40');

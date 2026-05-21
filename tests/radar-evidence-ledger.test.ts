@@ -16,6 +16,81 @@ class DegradedRepository implements IntelligenceRepository {
 }
 
 describe('radar evidence ledger', () => {
+  it('returns compact evidence ledger brief derived from canonical ledger without full timelines or raw artifacts', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+    const fullResponse = await app.inject({ method: 'GET', url: '/v1/radar/evidence-ledger' });
+    const response = await app.inject({ method: 'GET', url: '/v1/radar/evidence-ledger/brief' });
+    expect(response.statusCode).toBe(200);
+
+    const fullData = fullResponse.json().data;
+    const data = response.json().data;
+    expect(data.ledger_state).toEqual({
+      recorded_benchmarks: 5,
+      total_benchmarks: 10,
+      total_artifacts: 6,
+      total_recorded_runs: 40,
+      proven_routes: 10,
+      winner_claimed: false,
+      latest_recorded_at: '2026-05-19T11:00:00.000Z',
+      scaffold_lanes: 5
+    });
+    expect(data.recorded_lanes).toHaveLength(5);
+    expect(data.scaffold_lanes).toHaveLength(5);
+    expect(data.recorded_lanes).toEqual(fullData.recorded_lanes.map((lane: {
+      benchmark_id: string;
+      label: string;
+      latest_artifact_id: string | null;
+      recorded_runs: number;
+      routes_count: number;
+      winner_claimed: boolean;
+      winner_status: string;
+    }) => ({
+      benchmark_id: lane.benchmark_id,
+      label: lane.label,
+      latest_artifact_id: lane.latest_artifact_id,
+      recorded_runs: lane.recorded_runs,
+      routes_count: lane.routes_count,
+      winner_claimed: lane.winner_claimed,
+      winner_status: lane.winner_status
+    })));
+    expect(data.scaffold_lanes).toEqual(fullData.scaffold_lanes.map((lane: {
+      benchmark_id: string;
+      label: string;
+      why_not_promoted: string[];
+      missing_requirements: string[];
+    }) => ({
+      benchmark_id: lane.benchmark_id,
+      label: lane.label,
+      reason: lane.why_not_promoted[0],
+      next_step: lane.missing_requirements[0]
+    })));
+
+    expect(data.recorded_lanes.some((row: { label: string }) => row.label === 'Document OCR Text Extraction')).toBe(true);
+    const scaffoldLaneIds = data.scaffold_lanes.map((row: { benchmark_id: string }) => row.benchmark_id);
+    expect(scaffoldLaneIds).toContain('audio-speech-transcription');
+    expect(scaffoldLaneIds).toContain('maps-place-search-results');
+    expect(data.recommended_agent_action).toBe('Inspect the relevant benchmark history and route timeline before spend.');
+    expect(data.agent_guidance).toContain('Recorded lanes contain artifact-backed route evidence.');
+    expect(data.agent_guidance).toContain('Scaffold lanes preserve blocked or insufficient comparable paid evidence.');
+    expect(data.winner_claimed).toBe(false);
+
+    expect(data).not.toHaveProperty('route_timeline_entrypoints');
+    expect(data).not.toHaveProperty('latest_artifacts');
+    expect(data).not.toHaveProperty('caveat_summary');
+    const serialized = JSON.stringify(data).toLowerCase();
+    expect(serialized).not.toContain('"timeline"');
+    expect(serialized).not.toContain('proof_reference');
+    expect(serialized).not.toContain('artifact_path');
+    expect(serialized).not.toContain('aggregate_metrics');
+    for (const phrase of ['best route', 'top route', 'winner route', 'loser route', 'superiority proof', 'ranking authority', 'guaranteed trust']) {
+      expect(serialized).not.toContain(phrase);
+    }
+
+    expect(fullData.route_timeline_entrypoints).toHaveLength(5);
+    expect(fullData.recommended_agent_action).toBeUndefined();
+    await app.close();
+  });
+
   it('returns compact agent-readable evidence ledger with exact invariants and no winner claims', async () => {
     const app = await createApp(emptyIntelligenceStore());
     const response = await app.inject({ method: 'GET', url: '/v1/radar/evidence-ledger' });
