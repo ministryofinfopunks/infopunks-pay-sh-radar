@@ -174,7 +174,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     summary: 'Recommend route',
     description: `${SAFE_METADATA_NOTE} Legacy route recommendation based on trust, signal, category, price, and preference inputs.`,
     requestBody: jsonRequest({ $ref: '#/components/schemas/RouteRecommendationRequest' }, { task: 'find a high trust payments provider', preference: 'balanced', trustThreshold: 80 }),
-    responses: envelopedResponses('RouteRecommendationResponse', { bestProvider: { id: 'alpha' }, reasoning: ['highest trust'] })
+    responses: envelopedResponses('RouteRecommendationResponse', { bestProvider: { id: 'alpha' }, reasoning: ['trust-prioritized'] })
   });
   add('post', '/v1/preflight', {
     tags: ['Routing'],

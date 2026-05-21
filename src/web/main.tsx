@@ -718,6 +718,7 @@ type StartupDiagnostic = {
 };
 
 const API_BASE_URL = getApiBaseUrl();
+const PUBLIC_API_HOST = 'https://infopunks-pay-sh-radar.onrender.com';
 const API_TIMEOUT_MS = 8_000;
 const SECONDARY_TIMEOUT_MS = 12_000;
 const CRITICAL_PULSE_TIMEOUT_MS = 10_000;
@@ -1191,15 +1192,7 @@ type PublicProofSummary = {
   winnerClaims: number;
 };
 
-const PUBLIC_PROOF_BASELINE: PublicProofSummary = {
-  recordedBenchmarks: 5,
-  artifacts: 6,
-  provenPaidRoutes: 10,
-  recordedRouteRuns: 40,
-  winnerClaims: 0
-};
-
-function publicProofSummary(registry: RadarBenchmarkRegistry | null, evidenceLedger: RadarEvidenceLedger | null): PublicProofSummary {
+function publicProofSummary(evidenceLedger: RadarEvidenceLedger | null): PublicProofSummary | null {
   if (evidenceLedger) {
     return {
       recordedBenchmarks: evidenceLedger.ledger_state.recorded_benchmarks,
@@ -1209,15 +1202,7 @@ function publicProofSummary(registry: RadarBenchmarkRegistry | null, evidenceLed
       winnerClaims: evidenceLedger.ledger_state.winner_claimed ? 1 : 0
     };
   }
-  const recorded = registry?.benchmarks.filter((benchmark) => benchmark.benchmark_recorded) ?? [];
-  if (!recorded.length) return { ...PUBLIC_PROOF_BASELINE };
-  return {
-    recordedBenchmarks: recorded.length,
-    artifacts: PUBLIC_PROOF_BASELINE.artifacts,
-    provenPaidRoutes: recorded.reduce((total, benchmark) => total + benchmarkProvenRouteCount(benchmark), 0),
-    recordedRouteRuns: recorded.reduce((total, benchmark) => total + benchmarkRunCount(benchmark), 0),
-    winnerClaims: recorded.filter((benchmark) => benchmark.winner_claimed).length
-  };
+  return null;
 }
 
 function proofSummarySentence(summary: PublicProofSummary) {
@@ -1230,7 +1215,12 @@ function evidenceLedgerLaneRatio(evidenceLedger: RadarEvidenceLedger | null) {
   return `${evidenceLedger.recorded_lanes.length} recorded lanes · ${evidenceLedger.scaffold_lanes.length} explored lanes · ${winnerClaims} winner claims`;
 }
 
-function ProofMetricsStrip({ summary }: { summary: PublicProofSummary }) {
+function ProofMetricsStrip({ summary }: { summary: PublicProofSummary | null }) {
+  if (!summary) {
+    return <div className="proof-metrics-strip unavailable" aria-label="Proof metrics">
+      <span><b>Evidence Ledger unavailable</b>canonical proof metrics unavailable</span>
+    </div>;
+  }
   return <div className="proof-metrics-strip" aria-label="Proof metrics">
     <span><b>{summary.recordedBenchmarks}</b> recorded benchmarks</span>
     <span><b>{summary.provenPaidRoutes}</b> proven paid routes</span>
@@ -1515,7 +1505,7 @@ function PublicBenchmarksIndexPage() {
   if (!registry) return <main className="boot" aria-label="Benchmarks loading">LOADING BENCHMARKS...</main>;
   const recordedBenchmarks = registry.benchmarks.filter((benchmark) => benchmark.benchmark_recorded);
   const plannedBenchmarks = registry.benchmarks.filter((benchmark) => !benchmark.benchmark_recorded);
-  const proofSummary = publicProofSummary(registry, evidenceLedger);
+  const proofSummary = publicProofSummary(evidenceLedger);
   const ledgerLaneRatio = evidenceLedgerLaneRatio(evidenceLedger);
   const routeTimelineAggregateEndpoint = 'GET /v1/radar/benchmark-history/finance-data-token-metadata/routes';
   const routeTimelineDetailEndpoint = 'GET /v1/radar/benchmark-history/finance-data-token-metadata/routes/{route_id}';
@@ -1540,13 +1530,17 @@ function PublicBenchmarksIndexPage() {
         <h1>Radar Evidence Ledger</h1>
         {ledgerLaneRatio && <p className="panel-caption">{ledgerLaneRatio}</p>}
         <p className="copy">Radar records benchmark evidence for Pay.sh routes before agents spend. It exposes artifacts, route timelines, caveats, evidence health, and winner-claim status without crowning routes.</p>
-        <div className="proof-metrics-strip" aria-label="Radar evidence ledger metrics">
-          <span><b>{proofSummary.recordedBenchmarks}</b> recorded benchmarks</span>
-          <span><b>{proofSummary.provenPaidRoutes}</b> proven paid routes</span>
-          <span><b>{evidenceLedger?.ledger_state.total_recorded_runs ?? history?.total_recorded_runs ?? proofSummary.recordedRouteRuns}</b> recorded route-runs</span>
-          <span><b>{evidenceLedger?.ledger_state.total_artifacts ?? history?.total_artifacts ?? proofSummary.artifacts}</b> artifacts</span>
-          <span><b>{proofSummary.winnerClaims}</b> winner claims</span>
-        </div>
+        {proofSummary
+          ? <div className="proof-metrics-strip" aria-label="Radar evidence ledger metrics">
+            <span><b>{proofSummary.recordedBenchmarks}</b> recorded benchmarks</span>
+            <span><b>{proofSummary.provenPaidRoutes}</b> proven paid routes</span>
+            <span><b>{history?.total_recorded_runs ?? proofSummary.recordedRouteRuns}</b> recorded route-runs</span>
+            <span><b>{history?.total_artifacts ?? proofSummary.artifacts}</b> artifacts</span>
+            <span><b>{proofSummary.winnerClaims}</b> winner claims</span>
+          </div>
+          : <div className="proof-metrics-strip unavailable" aria-label="Radar evidence ledger metrics">
+            <span><b>Evidence Ledger unavailable</b>canonical proof metrics unavailable</span>
+          </div>}
         <p className="panel-caption">Recorded means paid route evidence exists. It does not mean a winner was crowned.</p>
         <p className="panel-caption">Scaffold lanes are not failed benchmarks. They are lanes where Radar found insufficient comparable paid evidence.</p>
         <p className="panel-caption">Radar does not rewrite uncertainty. It records it, fixes it, and shows the delta.</p>
@@ -1564,12 +1558,13 @@ function PublicBenchmarksIndexPage() {
         <p className="panel-caption benchmark-caveat">Evidence ledger rows for recorded benchmarks. No winner claimed means Radar does not infer a route winner.</p>
         <div className="benchmark-launch-grid">
           {recordedBenchmarks.map((benchmark) => {
-            const completedRuns = publicRecordedRouteRunCount(benchmark, 5);
-            const provenRoutes = benchmarkProvenRouteCount(benchmark);
             const historyRow = history?.benchmarks.find((row) => row.benchmark_id === benchmark.benchmark_id) ?? null;
+            const ledgerRow = evidenceLedger?.recorded_lanes.find((lane) => lane.benchmark_id === benchmark.benchmark_id) ?? null;
+            const completedRuns = historyRow?.total_recorded_runs ?? ledgerRow?.recorded_runs ?? null;
+            const provenRoutes = ledgerRow?.proven_routes_count ?? null;
             const runLabel = benchmark.benchmark_id === 'data-web-search-results'
-              ? `${Math.max(historyRow?.total_recorded_runs ?? 0, completedRuns, 10)} recorded route-runs`
-              : `${completedRuns || 5} runs / route`;
+              ? (completedRuns !== null ? `${completedRuns} recorded route-runs` : 'recorded route-runs unavailable')
+              : (completedRuns !== null ? `${completedRuns} recorded route-runs` : 'recorded route-runs unavailable');
             const evidenceHealthSummary = benchmark.readiness_note?.toLowerCase().includes('caveat')
               ? benchmark.readiness_note
               : 'recorded evidence';
@@ -1580,8 +1575,8 @@ function PublicBenchmarksIndexPage() {
               </div>
               <div className="benchmark-launch-facts">
                 <span>state: recorded</span>
-                <span>artifact count: {historyRow?.artifact_count ?? 1}</span>
-                <span>{provenRoutes || 2} proven paid routes</span>
+                <span>artifact count: {historyRow?.artifact_count ?? ledgerRow?.artifact_count ?? 'unavailable'}</span>
+                <span>{provenRoutes !== null ? `${provenRoutes} proven paid routes` : 'proven paid routes unavailable'}</span>
                 <span>{runLabel}</span>
                 <span>recorded evidence</span>
                 <span>winner_status: {benchmark.winner_status}</span>
@@ -2886,7 +2881,8 @@ function RadarApp() {
         <h1 id="terminal-title">Pay.sh routes are live. Agents need proof before spend.</h1>
         <p className="mission-subtitle">Radar tracks mapped, proven, and benchmarked Pay.sh routes before agents route money through them.</p>
         <p className="copy">Pay.sh is the spend rail. Radar is the evidence ledger. The Harness is the proof adapter.</p>
-        <ProofMetricsStrip summary={publicProofSummary(benchmarkRegistry, evidenceLedger)} />
+        <p className="copy">Agents inspect the Evidence Ledger or Brief, request a non-executing Bundle Plan, then a Harness may execute later and return proof artifacts for Radar to record.</p>
+        <ProofMetricsStrip summary={publicProofSummary(evidenceLedger)} />
         <p className="panel-caption">Recorded means paid evidence exists. No winner means Radar refuses to infer superiority without criteria.</p>
         <div className="orientation-panel" aria-label="Radar orientation">
           <strong>Orientation</strong>
@@ -3193,9 +3189,9 @@ function RadarApp() {
                       <span>preference</span>
                       <select value={routePreference} aria-label="Route preference" onChange={(event) => setRoutePreference(event.target.value as RoutePreference)}>
                         <option value="balanced">balanced</option>
-                        <option value="highest_trust">highest trust</option>
+                        <option value="highest_trust">trust-prioritized</option>
                         <option value="cheapest">lowest catalog price</option>
-                        <option value="highest_signal">highest signal</option>
+                        <option value="highest_signal">signal-prioritized</option>
                       </select>
                     </label>
                   </div>
@@ -3204,7 +3200,7 @@ function RadarApp() {
                     <span>include selected provider as preferred route input</span>
                   </label>
                   <div className="route-actions">
-                    <button className="execute compact route-primary-action" type="button" onClick={runRoute} disabled={routeStatus === 'loading'}>{routeStatus === 'loading' ? 'computing route...' : 'compute recommended route'}</button>
+                    <button className="execute compact route-primary-action" type="button" onClick={runRoute} disabled={routeStatus === 'loading'}>{routeStatus === 'loading' ? 'computing route...' : 'compute catalog-derived candidate'}</button>
                     <button className="execute compact secondary route-secondary-action" type="button" onClick={() => recommendProvider(selectedProvider)}>seed from selected</button>
                   </div>
                   {routeError && <p className="route-state error">{routeError}</p>}
@@ -3899,7 +3895,7 @@ export function ComparisonPanel({
 }
 
 function SuperiorityReadinessPanel({ readiness }: { readiness: RadarSuperiorityReadiness | null }) {
-  const statement = 'Four benchmark lanes now have recorded artifact-backed evidence. Three explored lanes remain scaffolded because they did not meet the hard bar.';
+  const statement = 'Recorded benchmark lanes have artifact-backed evidence. Explored lanes remain scaffolded when they do not meet the hard bar.';
   return <section className="panel superiority-readiness" aria-label="Comparison Policy panel">
     <div className="phase3-panel-head">
       <ScopeLabel scope="GLOBAL" />
@@ -4411,7 +4407,7 @@ const talentMarketScannerPlannerCurl = `curl -s https://infopunks-pay-sh-radar.o
       "allow_billing_unclear": false,
       "allow_scaffold_routes": false
     }
-  }' | jq '.data'`;
+  }' | jq '.data | {status,winner_claimed,execution_boundary_summary, route_plan: [.route_plan[] | {step_id,plan_status,execution_boundary,next_action}]}'`;
 
 const bundlePlannerExamples = [
   {
@@ -4468,16 +4464,23 @@ function countBundlePlanStatuses(plan: RadarBundlePlanResponse | null) {
   };
 }
 
+function formatExecutionBoundarySummary(plan: RadarBundlePlanResponse | null) {
+  if (!plan) return 'Harness execution comes later after billing and scaffold boundaries are reviewed.';
+  const summary = plan.execution_boundary_summary;
+  return `clean_402=${summary.clean_402} / paid_proven=${summary.paid_proven} / billing_unclear=${summary.billing_unclear} / billable_probe_observed=${summary.billable_probe_observed} / blocked=${summary.blocked}. Harness execution comes later.`;
+}
+
 function AgentBenchmarkApiPanel() {
-  const evidenceLedgerCurl = `curl -s ${toApiUrl(API_BASE_URL, '/v1/radar/evidence-ledger')}`;
+  const evidenceLedgerCurl = `curl -s ${toApiUrl(PUBLIC_API_HOST, '/v1/radar/evidence-ledger')}`;
+  const evidenceLedgerBriefCurl = `curl -s ${toApiUrl(PUBLIC_API_HOST, '/v1/radar/evidence-ledger/brief')} | jq '.data'`;
   const benchmarkSummaryCurl = 'curl https://infopunks-pay-sh-radar.onrender.com/v1/radar/benchmark-summary';
-  const benchmarkHistoryCurl = `curl -s ${toApiUrl(API_BASE_URL, '/v1/radar/benchmark-history')}`;
-  const benchmarkRouteTimelineCurl = `curl -s ${toApiUrl(API_BASE_URL, '/v1/radar/benchmark-history/finance-data-token-metadata/routes')}`;
-  const benchmarkRouteDetailCurl = `curl -s ${toApiUrl(API_BASE_URL, `/v1/radar/benchmark-history/finance-data-token-metadata/routes/${encodeURIComponent('paysponge-coingecko:GET:/x402/coingecko/onchain/token-metadata')}`)}`;
-  const benchmarkRegistryCurl = `curl -s ${toApiUrl(API_BASE_URL, '/v1/radar/benchmarks')}`;
-  const benchmarkDetailCurl = `curl -s ${toApiUrl(API_BASE_URL, '/v1/radar/benchmarks/finance-data-sol-price')}`;
-  const tokenSearchBenchmarkCurl = `curl -s ${toApiUrl(API_BASE_URL, '/v1/radar/benchmarks/finance-data-token-search')}`;
-  const openApiCurl = `curl -s ${toApiUrl(API_BASE_URL, OPENAPI_PATH)}`;
+  const benchmarkHistoryCurl = `curl -s ${toApiUrl(PUBLIC_API_HOST, '/v1/radar/benchmark-history')}`;
+  const benchmarkRouteTimelineCurl = `curl -s ${toApiUrl(PUBLIC_API_HOST, '/v1/radar/benchmark-history/finance-data-token-metadata/routes')}`;
+  const benchmarkRouteDetailCurl = `curl -s ${toApiUrl(PUBLIC_API_HOST, `/v1/radar/benchmark-history/finance-data-token-metadata/routes/${encodeURIComponent('paysponge-coingecko:GET:/x402/coingecko/onchain/token-metadata')}`)}`;
+  const benchmarkRegistryCurl = `curl -s ${toApiUrl(PUBLIC_API_HOST, '/v1/radar/benchmarks')}`;
+  const benchmarkDetailCurl = `curl -s ${toApiUrl(PUBLIC_API_HOST, '/v1/radar/benchmarks/finance-data-sol-price')}`;
+  const tokenSearchBenchmarkCurl = `curl -s ${toApiUrl(PUBLIC_API_HOST, '/v1/radar/benchmarks/finance-data-token-search')}`;
+  const openApiCurl = `curl -s ${toApiUrl(PUBLIC_API_HOST, OPENAPI_PATH)}`;
   const benchmarkSnippet = `{
   "benchmark_id": "finance-data-sol-price",
   "benchmark_recorded": true,
@@ -4533,6 +4536,7 @@ function AgentBenchmarkApiPanel() {
         <p className="section-kicker">Agent-readable benchmark docs</p>
         <h2>Agent Benchmark API</h2>
         <p className="panel-caption">Read-only evidence ledger endpoints and interpretation guidance for routing agents/builders. Radar exposes route timelines, structured caveats, evidence_health, and winner_claimed=false; it does not execute paid APIs.</p>
+        <p className="panel-caption"><b>API host:</b> https://infopunks-pay-sh-radar.onrender.com. The public UI lives at radar.infopunks.fun; copyable API calls target the API host.</p>
       </div>
       <div className="panel-actions compact-actions">
         <a className="copy-chip" href={toApiUrl(API_BASE_URL, OPENAPI_PATH)} target="_blank" rel="noreferrer">API Docs</a>
@@ -4545,6 +4549,7 @@ function AgentBenchmarkApiPanel() {
         </div>
         <div className="endpoint-card-grid">
           <p><b>GET /v1/radar/evidence-ledger</b><span>Compact agent-readable evidence ledger before spend.</span></p>
+          <p><b>GET /v1/radar/evidence-ledger/brief</b><span>Compact agent preflight memory derived from the full Evidence Ledger.</span></p>
           <p><b>GET /v1/radar/benchmark-summary</b><span>Compact agent route for benchmark state, artifact IDs, route counts, and interpretation guidance.</span></p>
           <p><b>GET /v1/radar/benchmark-history</b><span>Aggregate evidence ledger for recorded benchmarks.</span></p>
           <p><b>GET /v1/radar/benchmark-history/:benchmark_id/routes</b><span>Route timelines for one recorded benchmark.</span></p>
@@ -4558,7 +4563,7 @@ function AgentBenchmarkApiPanel() {
           <p><b>GET /openapi.json</b><span>OpenAPI for agents.</span></p>
         </div>
       </section>
-      <section className="export-group" aria-label="Bundle planner examples">
+      <section className="export-group bundle-planner-group" aria-label="Bundle planner examples">
         <div className="export-group-head">
           <h3>Bundle Planner</h3>
         </div>
@@ -4569,24 +4574,19 @@ function AgentBenchmarkApiPanel() {
           {bundlePlannerExamples.map((example) => {
             const plan = bundlePlans[example.bundleId] ?? null;
             const counts = countBundlePlanStatuses(plan);
-            const winnerClaims = plan?.winner_claimed ? 1 : 0;
-            const marketHasBillableProbeBlocked = plan?.blocked_steps.some((step) => step.reason === 'billable_probe_observed_not_allowed') ?? false;
-            const marketNeedsBillingReview = plan?.route_plan.some((step) => step.execution_boundary === 'billing_unclear' && step.plan_status !== 'included') ?? false;
             return <div className="bundle-plan-card" key={example.bundleId}>
-              <p className="bundle-plan-title"><b>{example.title}</b><span>topic: {example.topic}</span></p>
+              <p className="bundle-plan-title"><b>Bundle</b><span>{example.title} / topic: {example.topic}</span></p>
               {example.bundleId === 'morning-briefing' && <>
-                <p><b>Expected summary</b><span>{counts.included} included / {counts.reviewRequired} review-required / {counts.blocked} blocked / {winnerClaims} winner claims</span></p>
-                <p><b>Planner meaning</b><span>Cleanest first Harness candidate later, not executed now.</span></p>
+                <p><b>Planner result</b><span>{counts.included} included / {counts.reviewRequired} review-required / {counts.blocked} blocked / winner_claimed={String(plan?.winner_claimed ?? false)}. Cleanest future Harness candidate, but not execution-ready until review-required billing boundaries are cleared.</span></p>
               </>}
               {example.bundleId === 'market-research' && <>
-                <p><b>Expected summary</b><span>{marketHasBillableProbeBlocked ? 'billable-probe steps blocked under strict constraints' : 'billable-probe constraints pending'}; {marketNeedsBillingReview ? 'billing-boundary review required' : 'billing-boundary review pending'}; {plan?.status ?? 'research_only_pending_billing_review'}</span></p>
-                <p><b>Status</b><span>{plan?.status ?? 'research_only_pending_billing_review'}</span></p>
+                <p><b>Planner result</b><span>{counts.included} included / {counts.reviewRequired} review-required / {counts.blocked} blocked. Two billable-probe steps are blocked under strict constraints; remaining steps require billing-boundary review.</span></p>
               </>}
               {example.bundleId === 'talent-market-scanner' && <>
-                <p><b>Expected summary</b><span>{counts.blocked} blocked under default constraints; job, salary, and hiring primitives not yet recorded.</span></p>
-                <p><b>Status</b><span>{plan?.status ?? 'recipe_scaffold'}</span></p>
+                <p><b>Planner result</b><span>{counts.included} included / {counts.reviewRequired} review-required / {counts.blocked} blocked. Job, salary, and hiring primitives are not yet recorded.</span></p>
               </>}
-              <p><b>Execution rule</b><span>Documentation and planning only. Radar does not execute paid APIs here.</span></p>
+              <p><b>Execution boundary</b><span>{formatExecutionBoundarySummary(plan)}</span></p>
+              <p><b>Radar action</b><span>Plan only. Radar does not execute paid APIs; it records proof artifacts returned later by the Harness.</span></p>
             </div>;
           })}
         </div>
@@ -4597,6 +4597,7 @@ function AgentBenchmarkApiPanel() {
         </div>
         <div className="export-copy-actions" aria-label="Copy benchmark curl examples">
           <CopyButton value={evidenceLedgerCurl} label="Copy curl /v1/radar/evidence-ledger" />
+          <CopyButton value={evidenceLedgerBriefCurl} label="Copy curl /v1/radar/evidence-ledger/brief" />
           <CopyButton value={benchmarkSummaryCurl} label="Copy curl /v1/radar/benchmark-summary" />
           <CopyButton value={benchmarkHistoryCurl} label="Copy curl /v1/radar/benchmark-history" />
           <CopyButton value={benchmarkRouteTimelineCurl} label="Copy curl benchmark route timelines" />
@@ -4610,6 +4611,7 @@ function AgentBenchmarkApiPanel() {
           <CopyButton value={openApiCurl} label="Copy curl /openapi.json" />
         </div>
         <SafeCodeBlock value={evidenceLedgerCurl} label="curl /v1/radar/evidence-ledger" />
+        <SafeCodeBlock value={evidenceLedgerBriefCurl} label="curl /v1/radar/evidence-ledger/brief" />
         <SafeCodeBlock value={benchmarkSummaryCurl} label="curl /v1/radar/benchmark-summary" />
         <SafeCodeBlock value={benchmarkHistoryCurl} label="curl /v1/radar/benchmark-history" />
         <SafeCodeBlock value={benchmarkRouteTimelineCurl} label="curl benchmark route timelines" />
@@ -5076,7 +5078,7 @@ function RouteDecisionOutput({ routeResult, routePreference, selectedProvider }:
   return <div className="route decision-output">
     <div className="decision-head">
       <div>
-        <span>recommended route</span>
+        <span>catalog-derived candidate</span>
         <strong>{routeResult.bestProvider?.name ?? 'No route'}</strong>
       </div>
       <small>{routeResult.scoringInputs?.source ?? 'LIVE PAY.SH CATALOG'} / {routeResult.preference ?? routePreference} / catalog-derived recommendation</small>
@@ -5109,7 +5111,7 @@ function RouteDecisionOutput({ routeResult, routePreference, selectedProvider }:
     <DossierSection title="Unknown Telemetry Warning">
       {unknownTelemetry.length
         ? <div className="risk-list">{unknownTelemetry.map((note) => <span key={note}>{note}</span>)}</div>
-        : <p>No unknown telemetry warning was emitted for this recommended route.</p>}
+        : <p>No unknown telemetry warning was emitted for this catalog-derived candidate.</p>}
     </DossierSection>
   </div>;
 }

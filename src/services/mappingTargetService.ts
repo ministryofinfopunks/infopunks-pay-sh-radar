@@ -26,7 +26,7 @@ const mappingTargets: MappingTarget[] = [
     needed_next_step: 'Benchmark Scaffold: re-run QuickNode paid verifier in a compatible runtime and secure a second comparable paid-proven route that returns native SOL balance/account lamports for the same canonical address, then record one five-run benchmark artifact.',
     suggested_provider_candidates: ['QuickNode Solana Mainnet JSON-RPC'],
     why_it_matters: 'Infrastructure-grade account-balance retrieval is a core Solana primitive and validates non-finance route reliability.',
-    readiness_blocker: 'QuickNode is the strongest candidate and unpaid probes confirmed HTTP 402 for getBalance/getAccountInfo, with normalizer/caveats/evidence-health derivation and paid verifier implemented in Harness, but the current paid execution failed so QuickNode remains unproven (evidence_health=unverified). No comparable second native SOL balance/lamports route is available in the current Pay catalog snapshot; stablecrypto.dev/api/alchemy/node/rpc was rejected as comparable because its published contract is Ethereum-oriented and Solana lamports semantics were not proven.'
+    readiness_blocker: 'QuickNode is the candidate route from safe metadata and unpaid probes confirmed HTTP 402 for getBalance/getAccountInfo, with normalizer/caveats/evidence-health derivation and paid verifier implemented in Harness, but the current paid execution failed so QuickNode remains unproven (evidence_health=unverified). No comparable second native SOL balance/lamports route is available in the current Pay catalog snapshot; stablecrypto.dev/api/alchemy/node/rpc was rejected as comparable because its published contract is Ethereum-oriented and Solana lamports semantics were not proven.'
   },
   {
     category: 'audio-ai',

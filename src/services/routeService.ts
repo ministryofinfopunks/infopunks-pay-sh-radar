@@ -83,7 +83,7 @@ export function recommendRoute(input: RouteRecommendationRequest, store: Intelli
     riskNotes: riskNotesFor(candidate, input.latencySensitivity)
   }));
   const rationale = [
-    `${best.provider.name} is the recommended route because it has the strongest catalog-derived score for the selected preference.`,
+    `${best.provider.name} is the catalog-derived candidate because it has the strongest catalog-derived score for the selected preference.`,
     `The ranking is trust/signal weighted and uses semantic relevance, price constraints, endpoint breadth, and coordination evidence from the live catalog.`
   ];
   const unknownTelemetry = Array.from(new Set([...best.trustAssessment.unknowns, ...best.signalAssessment.unknowns, ...riskNotes.filter((note) => /unknown|unavailable/i.test(note))])).sort();
@@ -96,7 +96,7 @@ export function recommendRoute(input: RouteRecommendationRequest, store: Intelli
     reasoning: [
       `${best.provider.name} ranked highest after semantic fit, evidence-backed trust, evidence-backed signal, price constraints, and latency-sensitivity penalties.`,
       `Trust ${best.trustAssessment.score}/100 and signal ${best.signalAssessment.score}/100 exceeded requested threshold ${input.trustThreshold}.`,
-      'Pay.sh remains the provider, payment, and discovery substrate; Infopunks only returns a catalog-derived recommended route.'
+      'Pay.sh remains the provider, payment, and discovery substrate; Infopunks only returns a catalog-derived candidate.'
     ],
     estimatedCost: best.provider.pricing,
     trustAssessment: best.trustAssessment,

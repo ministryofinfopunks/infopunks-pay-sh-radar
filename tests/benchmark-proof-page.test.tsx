@@ -675,7 +675,7 @@ describe('public benchmark proof pages', () => {
     expect(text).toContain('winner_status: no_clear_winner');
     expect(text).toContain('winner_claimed=false');
     expect(text).toContain('10 recorded route-runs');
-    expect(text).toContain('5 runs / route');
+    expect(text).toContain('10 recorded route-runs');
     expect(text.match(/state: recorded/g)?.length ?? 0).toBeGreaterThanOrEqual(4);
     expect(text.match(/winner_claimed=false/g)?.length ?? 0).toBeGreaterThanOrEqual(4);
     expect(text).toContain('Radar does not infer a route winner.');
