@@ -265,6 +265,16 @@ Command palette actions include:
   [https://radar.infopunks.fun/fixtures/ocr-benchmark-001.png](https://radar.infopunks.fun/fixtures/ocr-benchmark-001.png)
   Purpose: Canonical fixture for `document-ocr-text-extraction` benchmark.
   Preferred for paid OCR route verification: PNG fixture.
+- Audio fixture:
+  [https://radar.infopunks.fun/fixtures/audio-benchmark-001.wav](https://radar.infopunks.fun/fixtures/audio-benchmark-001.wav)
+  Purpose: Canonical fixture for `audio-speech-transcription` benchmark.
+  Expected transcript fragments:
+  `INFOPUNKS RADAR`
+  `EVIDENCE BEFORE SPEND`
+  `AUDIO BENCHMARK 001`
+  Speech recognizers may transcribe `001` as `zero zero one`; future normalization should accept both:
+  `AUDIO BENCHMARK 001`
+  `AUDIO BENCHMARK ZERO ZERO ONE`
 - `GET /v1/radar/benchmark-artifacts`
   Returns curated/imported benchmark artifact metadata records used by Radar benchmark summaries.
 - `GET /v1/radar/benchmark-artifacts/:artifact_id`
