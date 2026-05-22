@@ -236,6 +236,25 @@ function installMachineMarketFetch() {
       provider_request_ids: ['RID-1'],
       caveats: ['This is a repeatability artifact, not a benchmark.']
     });
+    if (path === '/v1/machine-execution/alibaba-machine-translation-general/benchmark-readiness') return json({
+      route_id: 'solana-foundation/alibaba/machinetranslation',
+      route_name: 'Alibaba Machine Translation General',
+      service_id: 'alibaba-machine-translation-general',
+      fqn: 'solana-foundation/alibaba/machinetranslation',
+      source_market: 'pay.sh',
+      chain: 'solana',
+      generated_at: '2026-05-22T00:00:00.000Z',
+      current_evidence_stage: 'execution-tested',
+      benchmark_readiness_status: 'criteria-defined',
+      benchmark_ready: false,
+      criteria: [],
+      satisfied_criteria_count: 0,
+      total_criteria_count: 0,
+      missing_criteria: [],
+      benchmark_artifact_schema: { benchmark_id: 'string', route_id: 'solana-foundation/alibaba/machinetranslation', prompt_family: 'machines-should-not-spend-blind.translation.general', run_count: 1, success_rate: 1, latency_ms: { min: 1000, median: 1000, max: 1000 }, payment_evidence_policy: 'payment_claimed=false unless explicit payment evidence exists', comparison_routes: [], winner_claimed: false, winner_criteria: 'Requires comparable routes, explicit scoring rules, and recorded benchmark artifact.', caveats: ['Schema preview only. This is not a recorded benchmark artifact.'], receipt_ids: ['mrx_exec_20260522000000000_0002'] },
+      caveats: ['Benchmark-ready criteria define the gate for a future benchmark. No benchmark has been run.'],
+      claims: { benchmark_claimed: false, winner_claimed: false, payment_claimed: false, benchmark_recorded: false }
+    });
     return Promise.resolve(new Response('{}', { status: 404 }));
   });
 }
@@ -335,6 +354,9 @@ describe('machine market page', () => {
     expect(pageText).toContain('manual');
     expect(pageText).toContain('repeatabilityinsufficient_runs');
     expect(pageText).toContain('benchmark claimfalse');
+    expect(pageText).toContain('benchmark readinesscriteria-defined');
+    expect(pageText).toContain('benchmark recordedfalse');
+    expect(pageText).toContain('winner claimedfalse');
     expect(pageText).toContain('repeatability successful runs1 successful receipts');
     expect(pageText).toContain('recorded success rate100%');
     expect(pageText).toContain('View repeatability artifact');

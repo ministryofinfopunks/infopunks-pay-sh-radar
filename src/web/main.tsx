@@ -219,6 +219,17 @@ type AlibabaMachineExecutionRepeatabilityArtifact = {
   output_summaries: string[];
   provider_request_ids: string[];
   receipt_ids: string[];
+  receipt_rows?: {
+    receipt_id: string;
+    provider_request_id: string | null;
+    latency_ms: number | null;
+    created_at: string;
+    output_preview: string | null;
+    execution_status: MachinePreflightReceipt['execution_status'];
+    execution_occurred: boolean;
+    payment_occurred: boolean;
+    evidence_stage: string | null;
+  }[];
   payment_occurred_any: boolean;
   payment_claimed: false;
   benchmark_claimed: false;
@@ -227,6 +238,43 @@ type AlibabaMachineExecutionRepeatabilityArtifact = {
   repeatability_status: 'insufficient_runs' | 'repeatability-recorded';
   remaining_successful_runs_needed: number;
   caveats: string[];
+};
+type AlibabaMachineExecutionBenchmarkReadinessArtifact = {
+  route_id: string;
+  route_name: string;
+  service_id: 'alibaba-machine-translation-general';
+  fqn: 'solana-foundation/alibaba/machinetranslation';
+  source_market: 'pay.sh';
+  chain: 'solana';
+  generated_at: string;
+  current_evidence_stage: 'execution-tested' | 'repeatability-recorded';
+  benchmark_readiness_status: 'criteria-defined' | 'single-route-repeatability-ready' | 'comparison-not-ready';
+  benchmark_ready: boolean;
+  criteria: Array<{ id: string; required: number | boolean | string; actual: number | boolean | string; satisfied: boolean }>;
+  satisfied_criteria_count: number;
+  total_criteria_count: number;
+  missing_criteria: string[];
+  benchmark_artifact_schema: {
+    benchmark_id: string;
+    route_id: string;
+    prompt_family: string;
+    run_count: number;
+    success_rate: number;
+    latency_ms: { min: number | null; median: number | null; max: number | null };
+    payment_evidence_policy: string;
+    comparison_routes: string[];
+    winner_claimed: boolean;
+    winner_criteria: string;
+    caveats: string[];
+    receipt_ids: string[];
+  };
+  caveats: string[];
+  claims: {
+    benchmark_claimed: false;
+    winner_claimed: false;
+    payment_claimed: false;
+    benchmark_recorded: false;
+  };
 };
 type MachineDossier = {
   machine_id: string;
@@ -2085,6 +2133,7 @@ function MachineMarketPage() {
   const [latestAnyTransExecutionReceipt, setLatestAnyTransExecutionReceipt] = useState<MachinePreflightReceipt | null>(null);
   const [latestMachineTranslationGeneralExecutionReceipt, setLatestMachineTranslationGeneralExecutionReceipt] = useState<MachinePreflightReceipt | null>(null);
   const [machineTranslationGeneralRepeatability, setMachineTranslationGeneralRepeatability] = useState<AlibabaMachineExecutionRepeatabilityArtifact | null>(null);
+  const [machineTranslationGeneralBenchmarkReadiness, setMachineTranslationGeneralBenchmarkReadiness] = useState<AlibabaMachineExecutionBenchmarkReadinessArtifact | null>(null);
   const [coverageLoading, setCoverageLoading] = useState(false);
   const [coverageRunning, setCoverageRunning] = useState(false);
   const [coverageError, setCoverageError] = useState<string | null>(null);
@@ -2108,8 +2157,9 @@ function MachineMarketPage() {
       api<{ data: MachineMarketSummary }>('/v1/machine-market/summary'),
       api<{ data: { runs: MachinePreflightCoverageRun[] } }>('/v1/machine-preflight/coverage-runs/recent?limit=1').catch(() => null),
       api<{ data: { receipts: MachinePreflightReceipt[] } }>('/v1/machine-preflight/receipts/recent?limit=25').catch(() => null),
-      api<{ data: AlibabaMachineExecutionRepeatabilityArtifact }>('/v1/machine-execution/alibaba-machine-translation-general/repeatability').catch(() => null)
-    ]).then(([servicesResponse, summaryResponse, latestRunResponse, latestExecutionResponse, repeatabilityResponse]) => {
+      api<{ data: AlibabaMachineExecutionRepeatabilityArtifact }>('/v1/machine-execution/alibaba-machine-translation-general/repeatability').catch(() => null),
+      api<{ data: AlibabaMachineExecutionBenchmarkReadinessArtifact }>('/v1/machine-execution/alibaba-machine-translation-general/benchmark-readiness').catch(() => null)
+    ]).then(([servicesResponse, summaryResponse, latestRunResponse, latestExecutionResponse, repeatabilityResponse, benchmarkReadinessResponse]) => {
       if (cancelled) return;
       setServices(servicesResponse.data.services);
       setSummary(summaryResponse.data);
@@ -2121,6 +2171,7 @@ function MachineMarketPage() {
       setLatestAnyTransExecutionReceipt(anyTransExecution);
       setLatestMachineTranslationGeneralExecutionReceipt(machineTranslationGeneralExecution);
       setMachineTranslationGeneralRepeatability(repeatabilityResponse?.data ?? null);
+      setMachineTranslationGeneralBenchmarkReadiness(benchmarkReadinessResponse?.data ?? null);
       setLoading(false);
     }).catch((err) => {
       if (cancelled) return;
@@ -2196,7 +2247,7 @@ function MachineMarketPage() {
       </section>
       <EvidenceLadder services={services} />
       <CoveragePanel latestRun={latestCoverageRun} loading={coverageLoading || loading} running={coverageRunning} error={coverageError} onRun={runCoveragePreflight} />
-      <FirstExecutionCard anyTransReceipt={latestAnyTransExecutionReceipt} machineTranslationGeneralReceipt={latestMachineTranslationGeneralExecutionReceipt} repeatability={machineTranslationGeneralRepeatability} />
+      <FirstExecutionCard anyTransReceipt={latestAnyTransExecutionReceipt} machineTranslationGeneralReceipt={latestMachineTranslationGeneralExecutionReceipt} repeatability={machineTranslationGeneralRepeatability} benchmarkReadiness={machineTranslationGeneralBenchmarkReadiness} />
       <Filters filters={filters} onChange={setFilters} />
       {loading && <section className="panel" role="status" aria-live="polite"><p className="route-state">Loading Machine Market services...</p></section>}
       {error && !loading && <section className="panel" role="alert"><p className="route-state error">Machine Market API unavailable: {error}</p><p className="panel-caption">No local fixture data is shown on this page.</p></section>}
@@ -2212,11 +2263,13 @@ function MachineMarketPage() {
 function FirstExecutionCard({
   anyTransReceipt,
   machineTranslationGeneralReceipt,
-  repeatability
+  repeatability,
+  benchmarkReadiness
 }: {
   anyTransReceipt: MachinePreflightReceipt | null;
   machineTranslationGeneralReceipt: MachinePreflightReceipt | null;
   repeatability: AlibabaMachineExecutionRepeatabilityArtifact | null;
+  benchmarkReadiness: AlibabaMachineExecutionBenchmarkReadinessArtifact | null;
 }) {
   const preflightStatus = machineTranslationGeneralReceipt?.decision ?? 'not_attempted';
   const executionStatus = machineTranslationGeneralReceipt?.execution_status ?? 'not_attempted';
@@ -2256,6 +2309,9 @@ function FirstExecutionCard({
       <p><span>repeatability</span><small>{repeatabilityLabel}</small></p>
       <p><span>repeatability successful runs</span><small>{repeatability?.successful_receipts ?? 0} successful receipts</small></p>
       <p><span>recorded success rate</span><small>{recordedSuccessRate}</small></p>
+      <p><span>benchmark readiness</span><small>{benchmarkReadiness?.benchmark_readiness_status ?? 'criteria-defined'}</small></p>
+      <p><span>benchmark recorded</span><small>{String(benchmarkReadiness?.claims.benchmark_recorded ?? false)}</small></p>
+      <p><span>winner claimed</span><small>{String(benchmarkReadiness?.claims.winner_claimed ?? false)}</small></p>
       <p><span>benchmark claim</span><small>false</small></p>
       <p><span>caveats</span><small>{caveats.join(' ')}</small></p>
     </div>
@@ -2265,6 +2321,7 @@ function FirstExecutionCard({
 function AlibabaMachineExecutionDetailPage() {
   const [receipt, setReceipt] = useState<MachinePreflightReceipt | null>(null);
   const [repeatability, setRepeatability] = useState<AlibabaMachineExecutionRepeatabilityArtifact | null>(null);
+  const [benchmarkReadiness, setBenchmarkReadiness] = useState<AlibabaMachineExecutionBenchmarkReadinessArtifact | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -2276,9 +2333,10 @@ function AlibabaMachineExecutionDetailPage() {
     setError(null);
     Promise.all([
       api<{ data: { receipts: MachinePreflightReceipt[] } }>('/v1/machine-preflight/receipts/recent?service_id=alibaba-machine-translation-general&limit=25'),
-      api<{ data: AlibabaMachineExecutionRepeatabilityArtifact }>('/v1/machine-execution/alibaba-machine-translation-general/repeatability').catch(() => null)
+      api<{ data: AlibabaMachineExecutionRepeatabilityArtifact }>('/v1/machine-execution/alibaba-machine-translation-general/repeatability').catch(() => null),
+      api<{ data: AlibabaMachineExecutionBenchmarkReadinessArtifact }>('/v1/machine-execution/alibaba-machine-translation-general/benchmark-readiness').catch(() => null)
     ])
-      .then(([response, repeatabilityResponse]) => {
+      .then(([response, repeatabilityResponse, benchmarkReadinessResponse]) => {
         if (cancelled) return;
         const receipts = response.data.receipts.filter((row) =>
           row.receipt_type === 'machine_execution'
@@ -2287,6 +2345,7 @@ function AlibabaMachineExecutionDetailPage() {
         const latestSuccessful = receipts.find((row) => row.execution_status === 'succeeded') ?? null;
         setReceipt(latestSuccessful ?? receipts[0] ?? null);
         setRepeatability(repeatabilityResponse?.data ?? null);
+        setBenchmarkReadiness(benchmarkReadinessResponse?.data ?? null);
         setLoading(false);
       })
       .catch((err) => {
@@ -2403,12 +2462,12 @@ function AlibabaMachineExecutionDetailPage() {
                 <span role="columnheader">created_at</span>
                 <span role="columnheader">output preview</span>
               </div>
-              {repeatability.receipt_ids.map((receiptId, index) => <div key={receiptId} className="machine-receipt-row" role="row">
-                <span role="cell">{receiptId}</span>
-                <span role="cell">{repeatability.provider_request_ids[index] ?? 'unknown'}</span>
-                <span role="cell">{formatLatencySeconds(receipt?.execution_latency_ms ?? null)}</span>
-                <span role="cell">{receipt?.created_at ? formatMachineTimestamp(receipt.created_at) : 'unknown'}</span>
-                <span role="cell">{repeatability.output_summaries[0] ?? 'No output preview.'}</span>
+              {buildRepeatabilityReceiptRows(repeatability, receipt).map((row) => <div key={row.receipt_id} className="machine-receipt-row" role="row">
+                <span role="cell">{row.receipt_id}</span>
+                <span role="cell">{row.provider_request_id ?? 'unknown'}</span>
+                <span role="cell">{formatLatencySeconds(row.latency_ms)}</span>
+                <span role="cell">{row.created_at ? formatMachineTimestamp(row.created_at) : 'unknown'}</span>
+                <span role="cell">{row.output_preview ?? 'No output preview.'}</span>
               </div>)}
             </div>
           </section>
@@ -2423,6 +2482,48 @@ function AlibabaMachineExecutionDetailPage() {
           {repeatability.repeatability_status === 'insufficient_runs'
             ? <p className="panel-caption">Progress: {repeatability.successful_receipts} / 3 successful receipts. Run {repeatability.remaining_successful_runs_needed} more successful executions with the same prompt family.</p>
             : <p className="panel-caption">Repeatability recorded across {repeatability.successful_receipts} successful executions.</p>}
+        </section>}
+        {benchmarkReadiness && <section className="panel" aria-label="Benchmark-Ready Criteria">
+          <div className="panel-head"><div><p className="section-kicker">Benchmark Readiness</p><h2>Benchmark-Ready Criteria</h2></div></div>
+          <p className="panel-caption">Benchmark-ready criteria define the gate for a future benchmark. No benchmark has been run.</p>
+          <div className="chips compact-chips">
+            <span>status: {benchmarkReadiness.benchmark_readiness_status}</span>
+            <span>benchmark-recorded: inactive</span>
+            <span>winner-claimed: {String(benchmarkReadiness.claims.winner_claimed)}</span>
+          </div>
+          <div className="machine-usage-list">
+            <p><span>readiness summary</span><small>{benchmarkReadiness.satisfied_criteria_count} / {benchmarkReadiness.total_criteria_count} criteria satisfied</small></p>
+            <p><span>benchmark ready</span><small>{String(benchmarkReadiness.benchmark_ready)}</small></p>
+            <p><span>benchmark claimed</span><small>{String(benchmarkReadiness.claims.benchmark_claimed)}</small></p>
+            <p><span>winner claimed</span><small>{String(benchmarkReadiness.claims.winner_claimed)}</small></p>
+          </div>
+          <section aria-label="Benchmark criteria checklist">
+            <div className="panel-head"><div><p className="section-kicker">Criteria</p><h3>Checklist</h3></div></div>
+            <div className="machine-receipt-table" role="table" aria-label="Benchmark readiness criteria">
+              <div className="machine-receipt-row machine-receipt-header" role="row">
+                <span role="columnheader">criterion</span>
+                <span role="columnheader">required</span>
+                <span role="columnheader">actual</span>
+                <span role="columnheader">satisfied</span>
+              </div>
+              {benchmarkReadiness.criteria.map((row) => <div key={row.id} className="machine-receipt-row" role="row">
+                <span role="cell">{row.id}</span>
+                <span role="cell">{String(row.required)}</span>
+                <span role="cell">{String(row.actual)}</span>
+                <span role="cell">{String(row.satisfied)}</span>
+              </div>)}
+            </div>
+          </section>
+          <section className="panel" aria-label="Missing benchmark criteria">
+            <div className="panel-head"><div><p className="section-kicker">Missing Criteria</p><h3>Unmet gates</h3></div></div>
+            <p className="panel-caption">{benchmarkReadiness.missing_criteria.length ? benchmarkReadiness.missing_criteria.join(', ') : 'none'}</p>
+            <p className="panel-caption">comparison-not-ready</p>
+          </section>
+          <section className="panel" aria-label="Future benchmark schema preview">
+            <div className="panel-head"><div><p className="section-kicker">Schema Preview</p><h3>Future benchmark artifact schema</h3></div></div>
+            <pre className="methodology-code-block"><code>{JSON.stringify(benchmarkReadiness.benchmark_artifact_schema, null, 2)}</code></pre>
+            <p className="panel-caption">Schema definition only. This is not a recorded benchmark.</p>
+          </section>
         </section>}
       </>}
       <section className="panel" aria-label="Evidence caveats">
@@ -2844,7 +2945,7 @@ function normalizeTemplateId(policyId: string) {
 }
 
 function MachineMethodologyNote() {
-  return <p className="machine-methodology-note"><a href="/#methodology">Methodology: Machine Economy evidence ladder</a> Repeatability-recorded means the same route has produced multiple successful execution receipts under the same prompt family. It is not a benchmark and does not compare providers.</p>;
+  return <p className="machine-methodology-note"><a href="/#methodology">Methodology: Machine Economy evidence ladder</a> Repeatability-recorded means the same route has produced multiple successful execution receipts under the same prompt family. It is not a benchmark and does not compare providers. Benchmark-ready criteria define the minimum evidence required before a benchmark can be recorded. Criteria definition is not a benchmark.</p>;
 }
 
 type MachineReceiptFiltersState = {
@@ -7311,6 +7412,24 @@ function formatMs(value: number | null | undefined) {
 
 function formatRepeatabilitySuccessRate(value: number | null | undefined) {
   return typeof value === 'number' ? `${Math.round(value * 100)}%` : 'unknown';
+}
+
+function buildRepeatabilityReceiptRows(
+  repeatability: AlibabaMachineExecutionRepeatabilityArtifact,
+  latestReceipt: MachinePreflightReceipt | null
+) {
+  if (repeatability.receipt_rows?.length) return repeatability.receipt_rows;
+  return repeatability.receipt_ids.map((receiptId, index) => ({
+    receipt_id: receiptId,
+    provider_request_id: repeatability.provider_request_ids[index] ?? null,
+    latency_ms: latestReceipt?.execution_latency_ms ?? null,
+    created_at: latestReceipt?.created_at ?? '',
+    output_preview: repeatability.output_summaries[0] ?? null,
+    execution_status: latestReceipt?.execution_status ?? 'not_attempted',
+    execution_occurred: latestReceipt?.execution_occurred ?? false,
+    payment_occurred: latestReceipt?.payment_occurred ?? false,
+    evidence_stage: latestReceipt?.evidence_stage ?? null
+  }));
 }
 
 function formatLatencySeconds(value: number | null | undefined) {

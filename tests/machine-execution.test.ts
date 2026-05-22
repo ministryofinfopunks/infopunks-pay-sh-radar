@@ -539,6 +539,19 @@ describe('machine execution anytrans translation route', () => {
     expect(data.evidence_stage).toBe('execution-tested');
     expect(data.successful_receipts).toBe(1);
     expect(data.remaining_successful_runs_needed).toBe(2);
+    expect(data.receipt_rows).toHaveLength(data.successful_receipts);
+    expect(data.receipt_rows[0]).toMatchObject({
+      receipt_id: expect.any(String),
+      provider_request_id: 'RID-1',
+      latency_ms: 1000,
+      created_at: expect.any(String),
+      output_preview: 'Las máquinas no deberían gastar a ciegas.',
+      execution_status: 'succeeded',
+      execution_occurred: true,
+      payment_occurred: false,
+      evidence_stage: 'execution-tested'
+    });
+    expect(data.receipt_rows[0].execution_response_summary).toBeUndefined();
     expect(data.payment_claimed).toBe(false);
     expect(data.benchmark_claimed).toBe(false);
     expect(data.winner_claimed).toBe(false);
@@ -598,6 +611,13 @@ describe('machine execution anytrans translation route', () => {
     const response = await app.inject({ method: 'GET', url: '/v1/machine-execution/alibaba-machine-translation-general/repeatability' });
     expect(response.statusCode).toBe(200);
     const data = response.json().data;
+    const receiptRows = data.receipt_rows as Array<{
+      receipt_id: string;
+      provider_request_id: string | null;
+      latency_ms: number | null;
+      created_at: string;
+      output_preview: string | null;
+    }>;
     expect(data.repeatability_status).toBe('repeatability-recorded');
     expect(data.evidence_stage).toBe('repeatability-recorded');
     expect(data.successful_receipts).toBe(3);
@@ -606,10 +626,87 @@ describe('machine execution anytrans translation route', () => {
     expect(data.success_rate).toBe(0.75);
     expect(data.latency_ms).toEqual({ min: 1000, median: 2000, max: 4000 });
     expect(data.provider_request_ids).toEqual(['RID-3', 'RID-2', 'RID-1']);
+    expect(receiptRows).toHaveLength(data.successful_receipts);
+    expect(receiptRows.map((row) => row.receipt_id)).toEqual(data.receipt_ids);
+    expect(receiptRows.map((row) => row.provider_request_id)).toEqual(data.provider_request_ids);
+    expect(receiptRows.every((row) => typeof row.latency_ms === 'number')).toBe(true);
+    expect(receiptRows.every((row) => typeof row.created_at === 'string')).toBe(true);
+    expect(receiptRows.every((row) => typeof row.output_preview === 'string')).toBe(true);
+    expect(receiptRows.some((row) => 'execution_response_summary' in row)).toBe(false);
     expect(data.payment_claimed).toBe(false);
     expect(data.benchmark_claimed).toBe(false);
     expect(data.winner_claimed).toBe(false);
     expect(data.caveats.join(' ')).toContain('This is a repeatability artifact, not a benchmark.');
+    await app.close();
+  });
+
+  it('benchmark readiness API returns criteria and keeps benchmark/winner/payment claims false', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    for (const [idx, latency] of [1000, 2000, 4000].entries()) {
+      await app.inject({
+        method: 'POST',
+        url: '/v1/machine-execution/machine-translation-general/artifacts',
+        headers: { authorization: 'Bearer secret' },
+        payload: {
+          machine_id: payload.machine_id,
+          service_id: 'alibaba-machine-translation-general',
+          fqn: 'solana-foundation/alibaba/machinetranslation',
+          source_market: 'pay.sh',
+          chain: 'solana',
+          execution_status: 'succeeded',
+          execution_occurred: true,
+          payment_occurred: false,
+          payment_evidence: null,
+          execution_started_at: `2026-05-22T00:00:0${idx}.000Z`,
+          execution_completed_at: `2026-05-22T00:00:1${idx}.000Z`,
+          execution_latency_ms: latency,
+          request_summary: { text: payload.text },
+          response_summary: { translated_text_preview: 'Las máquinas no deberían gastar a ciegas.', provider_request_id: `RID-${idx + 1}` },
+          executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'pay_cli', version: '1.0.0' }
+        }
+      });
+    }
+    await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/machine-translation-general/artifacts',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: payload.machine_id,
+        service_id: 'alibaba-machine-translation-general',
+        fqn: 'solana-foundation/alibaba/machinetranslation',
+        source_market: 'pay.sh',
+        chain: 'solana',
+        execution_status: 'failed',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-22T00:00:20.000Z',
+        execution_completed_at: '2026-05-22T00:00:21.000Z',
+        execution_latency_ms: 7000,
+        request_summary: { text: payload.text },
+        response_summary: { error: 'upstream unavailable' },
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'pay_cli', version: '1.0.0' }
+      }
+    });
+
+    const response = await app.inject({ method: 'GET', url: '/v1/machine-execution/alibaba-machine-translation-general/benchmark-readiness' });
+    expect(response.statusCode).toBe(200);
+    const data = response.json().data;
+    expect(data.benchmark_readiness_status).toBe('single-route-repeatability-ready');
+    expect(data.benchmark_ready).toBe(false);
+    expect(data.criteria.length).toBeGreaterThan(0);
+    expect(data.criteria.find((row: any) => row.id === 'minimum_successful_receipts')?.satisfied).toBe(true);
+    expect(data.criteria.find((row: any) => row.id === 'maximum_failure_rate')?.actual).toBe(0.25);
+    expect(data.criteria.find((row: any) => row.id === 'maximum_failure_rate')?.satisfied).toBe(false);
+    expect(data.criteria.find((row: any) => row.id === 'latency_reporting_present')?.satisfied).toBe(true);
+    expect(data.criteria.find((row: any) => row.id === 'payment_policy_defined')?.satisfied).toBe(true);
+    expect(data.criteria.find((row: any) => row.id === 'comparison_policy_defined')?.actual).toContain('no comparison route exists yet');
+    expect(data.claims.benchmark_claimed).toBe(false);
+    expect(data.claims.winner_claimed).toBe(false);
+    expect(data.claims.payment_claimed).toBe(false);
+    expect(data.claims.benchmark_recorded).toBe(false);
+    expect(data.benchmark_artifact_schema).toBeTruthy();
     await app.close();
   });
 });

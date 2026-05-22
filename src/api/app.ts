@@ -91,6 +91,7 @@ import {
 } from '../services/machinePreflightService';
 import { createMachineReceiptStorageMetadata, JsonlMachinePreflightReceiptStorageAdapter, MemoryMachinePreflightReceiptStorageAdapter, PostgresMachinePreflightReceiptStorageAdapter, type MachinePreflightReceiptStorageAdapter } from '../services/machinePreflightReceiptStorage';
 import {
+  buildAlibabaMachineTranslationGeneralBenchmarkReadinessArtifact,
   buildAlibabaMachineTranslationGeneralRepeatabilityArtifact,
   deprecatedCloudTranslationExecutionResponse,
   ingestAlibabaMachineTranslationGeneralArtifact,
@@ -707,6 +708,15 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   });
   app.get('/v1/machine-execution/alibaba-machine-translation-general/repeatability', async () => {
     const artifact = await buildAlibabaMachineTranslationGeneralRepeatabilityArtifact();
+    return {
+      data: safeJsonExport({
+        ...artifact,
+        storage: machineReceiptStorage
+      })
+    };
+  });
+  app.get('/v1/machine-execution/alibaba-machine-translation-general/benchmark-readiness', async () => {
+    const artifact = await buildAlibabaMachineTranslationGeneralBenchmarkReadinessArtifact(machineReceiptStorage.durable);
     return {
       data: safeJsonExport({
         ...artifact,

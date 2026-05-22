@@ -36,7 +36,29 @@ function installFetch(receipts: any[], repeatability: any = null) {
         latency_ms: { min: null, median: null, max: null },
         receipt_ids: [],
         provider_request_ids: [],
+        receipt_rows: [],
         caveats: []
+      });
+    }
+    if (path === '/v1/machine-execution/alibaba-machine-translation-general/benchmark-readiness') {
+      return json({
+        route_id: 'solana-foundation/alibaba/machinetranslation',
+        route_name: 'Alibaba Machine Translation General',
+        service_id: 'alibaba-machine-translation-general',
+        fqn: 'solana-foundation/alibaba/machinetranslation',
+        source_market: 'pay.sh',
+        chain: 'solana',
+        generated_at: '2026-05-22T18:31:01.415Z',
+        current_evidence_stage: 'repeatability-recorded',
+        benchmark_readiness_status: 'criteria-defined',
+        benchmark_ready: false,
+        criteria: [{ id: 'minimum_successful_receipts', required: 3, actual: 1, satisfied: false }],
+        satisfied_criteria_count: 0,
+        total_criteria_count: 1,
+        missing_criteria: ['minimum_successful_receipts'],
+        benchmark_artifact_schema: { benchmark_id: 'string', route_id: 'solana-foundation/alibaba/machinetranslation', prompt_family: 'machines-should-not-spend-blind.translation.general', run_count: 1, success_rate: 1, latency_ms: { min: 1000, median: 1000, max: 1000 }, payment_evidence_policy: 'payment_claimed=false unless explicit payment evidence exists', comparison_routes: [], winner_claimed: false, winner_criteria: 'Requires comparable routes, explicit scoring rules, and recorded benchmark artifact.', caveats: ['Schema preview only. This is not a recorded benchmark artifact.'], receipt_ids: ['mrx_exec_1'] },
+        caveats: ['Benchmark-ready criteria define the gate for a future benchmark. No benchmark has been run.'],
+        claims: { benchmark_claimed: false, winner_claimed: false, payment_claimed: false, benchmark_recorded: false }
       });
     }
     return Promise.resolve(new Response('{}', { status: 404 }));
@@ -129,6 +151,17 @@ describe('machine execution detail page', () => {
       latency_ms: { min: 1000, median: 1000, max: 1000 },
       receipt_ids: ['mrx_exec_20260522183100415_0001'],
       provider_request_ids: ['630BC2E5-AA27-5E84-ABB2-0BFE100BBD9F'],
+      receipt_rows: [{
+        receipt_id: 'mrx_exec_20260522183100415_0001',
+        provider_request_id: '630BC2E5-AA27-5E84-ABB2-0BFE100BBD9F',
+        latency_ms: 1000,
+        created_at: '2026-05-22T18:31:01.415Z',
+        output_preview: 'Las máquinas no deberían gastar a ciegas.',
+        execution_status: 'succeeded',
+        execution_occurred: true,
+        payment_occurred: false,
+        evidence_stage: 'execution-tested'
+      }],
       caveats: ['This is a repeatability artifact, not a benchmark.']
     });
     root = await renderPage(container);
@@ -163,6 +196,9 @@ describe('machine execution detail page', () => {
     expect(text).toContain('Coverage → Execution-tested → Repeatability-recorded → Benchmark-ready, inactive → Benchmark-recorded, inactive');
     expect(text).toContain('Output summaries are safe excerpts from durable execution receipts.');
     expect(text).toContain('Progress: 1 / 3 successful receipts. Run 2 more successful executions with the same prompt family.');
+    expect(text).toContain('Benchmark-Ready Criteria');
+    expect(text).toContain('benchmark-recorded: inactive');
+    expect(text).toContain('No benchmark has been run.');
   });
 
   it('renders empty state when no receipt exists', async () => {
@@ -229,10 +265,94 @@ describe('machine execution detail page', () => {
       latency_ms: { min: 1000, median: 1200, max: 2000 },
       receipt_ids: ['mrx_exec_1', 'mrx_exec_2', 'mrx_exec_3'],
       provider_request_ids: ['RID-1', 'RID-2', 'RID-3'],
+      receipt_rows: [
+        { receipt_id: 'mrx_exec_1', provider_request_id: 'RID-1', latency_ms: 1000, created_at: '2026-05-22T18:31:01.415Z', output_preview: 'Las máquinas no deberían gastar a ciegas.', execution_status: 'succeeded', execution_occurred: true, payment_occurred: false, evidence_stage: 'execution-tested' },
+        { receipt_id: 'mrx_exec_2', provider_request_id: 'RID-2', latency_ms: 1200, created_at: '2026-05-22T18:31:02.415Z', output_preview: 'Las máquinas no deberían gastar a ciegas.', execution_status: 'succeeded', execution_occurred: true, payment_occurred: false, evidence_stage: 'execution-tested' },
+        { receipt_id: 'mrx_exec_3', provider_request_id: 'RID-3', latency_ms: 2000, created_at: '2026-05-22T18:31:03.415Z', output_preview: 'Las máquinas no deberían gastar a ciegas.', execution_status: 'succeeded', execution_occurred: true, payment_occurred: false, evidence_stage: 'execution-tested' }
+      ],
       caveats: ['This is a repeatability artifact, not a benchmark.']
     });
     root = await renderPage(container);
     expect(container.textContent).toContain('Repeatability recorded across 3 successful executions.');
     expect(container.textContent).toContain('status: repeatability-recorded');
+  });
+
+  it('prefers receipt_rows values over fallback arrays', async () => {
+    installFetch([{
+      receipt_id: 'mrx_exec_seed',
+      receipt_type: 'machine_execution',
+      demo_mode: false,
+      execution_occurred: true,
+      payment_occurred: false,
+      execution_status: 'succeeded',
+      execution_service_id: 'alibaba-machine-translation-general',
+      execution_provider: 'Alibaba Cloud',
+      execution_started_at: '2026-05-22T18:31:00.415Z',
+      execution_completed_at: '2026-05-22T18:31:01.415Z',
+      execution_latency_ms: 999,
+      execution_request_summary: '{"text":"Machines should not spend blind."}',
+      execution_response_summary: '{"translated_text_preview":"seed","provider_request_id":"seed"}',
+      execution_error: null,
+      execution_executor_name: 'infopunks-pay-sh-agent-harness',
+      execution_executor_version: '1.0.0',
+      execution_executor_mode: 'pay_cli',
+      payment_evidence: null,
+      preflight_receipt_id: 'mrx_seed',
+      execution_run_id: 'mxr_seed',
+      machine_id: 'did:peaq:machine-translation-prod-smoke',
+      policy_id: 'field-maintenance-bot',
+      intent: 'external alibaba machine translation general execution artifact ingest',
+      requested_category: 'translation',
+      selected_service_id: 'alibaba-machine-translation-general',
+      selected_service_name: 'Alibaba Machine Translation General',
+      source_market: 'pay.sh',
+      chain: 'solana',
+      decision: 'allow',
+      reason: 'ok',
+      policy_checks: [],
+      violations: [],
+      review_reasons: [],
+      caveats: [],
+      max_cost_usd: null,
+      evidence_stage: 'execution-tested',
+      evidence_health: 'scaffold',
+      phase_scope: 'phase_2_pay_sh_robotic_sh',
+      created_at: '2026-05-22T18:31:01.415Z'
+    }], {
+      artifact_id: 'mrx_repeatability_alibaba_machine_translation_general_20260522',
+      repeatability_status: 'insufficient_runs',
+      successful_receipts: 1,
+      failed_receipts: 0,
+      payment_claimed: false,
+      benchmark_claimed: false,
+      winner_claimed: false,
+      input_summary: ['Machines should not spend blind.'],
+      output_summaries: ['FALLBACK_OUTPUT'],
+      remaining_successful_runs_needed: 2,
+      success_rate: 1,
+      latency_ms: { min: 1000, median: 1000, max: 1000 },
+      receipt_ids: ['FALLBACK_RECEIPT'],
+      provider_request_ids: ['FALLBACK_PROVIDER_ID'],
+      receipt_rows: [{
+        receipt_id: 'ROW_RECEIPT',
+        provider_request_id: 'ROW_PROVIDER_ID',
+        latency_ms: 4321,
+        created_at: '2026-05-22T18:31:01.415Z',
+        output_preview: 'ROW_OUTPUT',
+        execution_status: 'succeeded',
+        execution_occurred: true,
+        payment_occurred: false,
+        evidence_stage: 'execution-tested'
+      }],
+      caveats: []
+    });
+    root = await renderPage(container);
+    const text = container.textContent ?? '';
+    expect(text).toContain('ROW_RECEIPT');
+    expect(text).toContain('ROW_PROVIDER_ID');
+    expect(text).toContain('4.32s');
+    expect(text).toContain('ROW_OUTPUT');
+    expect(text).not.toContain('FALLBACK_RECEIPT');
+    expect(text).not.toContain('FALLBACK_PROVIDER_ID');
   });
 });

@@ -116,6 +116,17 @@ export type AlibabaMachineTranslationGeneralRepeatabilityArtifact = {
   output_summaries: string[];
   provider_request_ids: string[];
   receipt_ids: string[];
+  receipt_rows: {
+    receipt_id: string;
+    provider_request_id: string | null;
+    latency_ms: number | null;
+    created_at: string;
+    output_preview: string | null;
+    execution_status: MachinePreflightReceipt['execution_status'];
+    execution_occurred: boolean;
+    payment_occurred: boolean;
+    evidence_stage: string | null;
+  }[];
   payment_occurred_any: boolean;
   payment_claimed: false;
   benchmark_claimed: false;
@@ -124,6 +135,58 @@ export type AlibabaMachineTranslationGeneralRepeatabilityArtifact = {
   repeatability_status: 'insufficient_runs' | 'repeatability-recorded';
   remaining_successful_runs_needed: number;
   caveats: string[];
+};
+
+export type AlibabaMachineTranslationGeneralBenchmarkReadinessArtifact = {
+  route_id: 'solana-foundation/alibaba/machinetranslation';
+  route_name: 'Alibaba Machine Translation General';
+  service_id: 'alibaba-machine-translation-general';
+  fqn: 'solana-foundation/alibaba/machinetranslation';
+  source_market: 'pay.sh';
+  chain: 'solana';
+  generated_at: string;
+  current_evidence_stage: 'execution-tested' | 'repeatability-recorded';
+  benchmark_readiness_status: 'criteria-defined' | 'single-route-repeatability-ready' | 'comparison-not-ready';
+  benchmark_ready: boolean;
+  criteria: Array<{
+    id:
+    | 'minimum_successful_receipts'
+    | 'maximum_failure_rate'
+    | 'same_prompt_family'
+    | 'latency_reporting_present'
+    | 'durable_receipts_present'
+    | 'payment_policy_defined'
+    | 'comparison_policy_defined'
+    | 'winner_claim_policy_defined'
+    | 'artifact_schema_defined';
+    required: number | boolean | string;
+    actual: number | boolean | string;
+    satisfied: boolean;
+  }>;
+  satisfied_criteria_count: number;
+  total_criteria_count: number;
+  missing_criteria: string[];
+  benchmark_artifact_schema: {
+    benchmark_id: string;
+    route_id: string;
+    prompt_family: string;
+    run_count: number;
+    success_rate: number;
+    latency_ms: { min: number | null; median: number | null; max: number | null };
+    payment_evidence_policy: string;
+    comparison_routes: string[];
+    winner_claimed: boolean;
+    winner_criteria: string;
+    caveats: string[];
+    receipt_ids: string[];
+  };
+  caveats: string[];
+  claims: {
+    benchmark_claimed: false;
+    winner_claimed: false;
+    payment_claimed: false;
+    benchmark_recorded: false;
+  };
 };
 
 type TranslationAdapterResult = {
@@ -486,6 +549,20 @@ export async function buildAlibabaMachineTranslationGeneralRepeatabilityArtifact
     .map((row) => readSummaryValue(row, ['translated_text_preview', 'translatedTextPreview', 'Translated']))
     .filter((value): value is string => typeof value === 'string' && value.length > 0)
     .slice(0, 5));
+  const receiptRows = successful.map((row) => {
+    const responseSummary = safeParseSummary(row.execution_response_summary);
+    return {
+      receipt_id: row.receipt_id,
+      provider_request_id: readSummaryValue(responseSummary, ['provider_request_id', 'providerRequestId', 'RequestId']),
+      latency_ms: row.execution_latency_ms,
+      created_at: row.created_at,
+      output_preview: readSummaryValue(responseSummary, ['translated_text_preview', 'translatedTextPreview', 'Translated']),
+      execution_status: row.execution_status,
+      execution_occurred: row.execution_occurred,
+      payment_occurred: row.payment_occurred,
+      evidence_stage: row.evidence_stage
+    };
+  });
   const successfulReceipts = successful.length;
   const receiptCount = executionReceipts.length;
   const remaining = Math.max(0, 3 - successfulReceipts);
@@ -515,6 +592,7 @@ export async function buildAlibabaMachineTranslationGeneralRepeatabilityArtifact
     output_summaries: outputSummaries,
     provider_request_ids: providerRequestIds,
     receipt_ids: successful.map((row) => row.receipt_id),
+    receipt_rows: receiptRows,
     payment_occurred_any: executionReceipts.some((row) => row.payment_occurred),
     payment_claimed: false,
     benchmark_claimed: false,
@@ -530,6 +608,124 @@ export async function buildAlibabaMachineTranslationGeneralRepeatabilityArtifact
       'This does not imply the full robotic.sh market is execution-tested.',
       ...(remaining > 0 ? [`${remaining} more successful execution receipt(s) are needed to record repeatability.`] : [])
     ]
+  };
+}
+
+export async function buildAlibabaMachineTranslationGeneralBenchmarkReadinessArtifact(
+  durableReceiptsPresent: boolean
+): Promise<AlibabaMachineTranslationGeneralBenchmarkReadinessArtifact> {
+  const repeatability = await buildAlibabaMachineTranslationGeneralRepeatabilityArtifact();
+  const failureRate = repeatability.receipt_count > 0 ? repeatability.failed_receipts / repeatability.receipt_count : 1;
+  const latencyReportingPresent = repeatability.latency_ms.min != null && repeatability.latency_ms.median != null && repeatability.latency_ms.max != null;
+  const promptFamilyPresent = typeof repeatability.prompt_family === 'string' && repeatability.prompt_family.trim().length > 0;
+
+  const criteria: AlibabaMachineTranslationGeneralBenchmarkReadinessArtifact['criteria'] = [
+    {
+      id: 'minimum_successful_receipts',
+      required: 3,
+      actual: repeatability.successful_receipts,
+      satisfied: repeatability.successful_receipts >= 3
+    },
+    {
+      id: 'maximum_failure_rate',
+      required: '<=0.1',
+      actual: Number(failureRate.toFixed(4)),
+      satisfied: failureRate <= 0.1
+    },
+    {
+      id: 'same_prompt_family',
+      required: true,
+      actual: promptFamilyPresent ? repeatability.prompt_family : false,
+      satisfied: promptFamilyPresent
+    },
+    {
+      id: 'latency_reporting_present',
+      required: 'min,median,max',
+      actual: latencyReportingPresent ? 'min,median,max' : 'missing',
+      satisfied: latencyReportingPresent
+    },
+    {
+      id: 'durable_receipts_present',
+      required: true,
+      actual: durableReceiptsPresent,
+      satisfied: durableReceiptsPresent
+    },
+    {
+      id: 'payment_policy_defined',
+      required: 'explicit',
+      actual: 'payment_claimed=false unless evidence exists',
+      satisfied: true
+    },
+    {
+      id: 'comparison_policy_defined',
+      required: 'no comparison until at least two comparable routes exist',
+      actual: 'no comparison route exists yet',
+      satisfied: true
+    },
+    {
+      id: 'winner_claim_policy_defined',
+      required: 'no winner without explicit benchmark criteria and comparable routes',
+      actual: 'winner_claimed=false',
+      satisfied: true
+    },
+    {
+      id: 'artifact_schema_defined',
+      required: true,
+      actual: true,
+      satisfied: true
+    }
+  ];
+
+  const missingCriteria = criteria.filter((criterion) => !criterion.satisfied).map((criterion) => criterion.id);
+  const status: AlibabaMachineTranslationGeneralBenchmarkReadinessArtifact['benchmark_readiness_status'] = repeatability.successful_receipts >= 3
+    ? 'single-route-repeatability-ready'
+    : 'criteria-defined';
+
+  return {
+    route_id: ALIBABA_MACHINE_TRANSLATION_GENERAL_META.fqn,
+    route_name: 'Alibaba Machine Translation General',
+    service_id: ALIBABA_MACHINE_TRANSLATION_GENERAL_META.service_id,
+    fqn: ALIBABA_MACHINE_TRANSLATION_GENERAL_META.fqn,
+    source_market: ALIBABA_MACHINE_TRANSLATION_GENERAL_META.source_market,
+    chain: ALIBABA_MACHINE_TRANSLATION_GENERAL_META.chain,
+    generated_at: new Date().toISOString(),
+    current_evidence_stage: repeatability.evidence_stage,
+    benchmark_readiness_status: status,
+    benchmark_ready: false,
+    criteria,
+    satisfied_criteria_count: criteria.filter((criterion) => criterion.satisfied).length,
+    total_criteria_count: criteria.length,
+    missing_criteria: missingCriteria,
+    benchmark_artifact_schema: {
+      benchmark_id: 'string',
+      route_id: ALIBABA_MACHINE_TRANSLATION_GENERAL_META.fqn,
+      prompt_family: repeatability.prompt_family,
+      run_count: repeatability.successful_receipts,
+      success_rate: repeatability.success_rate,
+      latency_ms: repeatability.latency_ms,
+      payment_evidence_policy: 'payment_claimed=false unless explicit payment evidence exists',
+      comparison_routes: [],
+      winner_claimed: false,
+      winner_criteria: 'Requires comparable routes, explicit scoring rules, and recorded benchmark artifact.',
+      caveats: [
+        'Schema preview only. This is not a recorded benchmark artifact.'
+      ],
+      receipt_ids: repeatability.receipt_ids
+    },
+    caveats: [
+      'Benchmark-ready criteria define the gate for a future benchmark. No benchmark has been run.',
+      'benchmark-ready criteria defined; benchmark-recorded remains inactive.',
+      'No route comparison has been run.',
+      'No winner is claimed.',
+      'Payment is not claimed without explicit payment evidence.',
+      'This does not imply the full robotic.sh market is execution-tested.'
+    ],
+    claims: {
+      benchmark_claimed: false,
+      winner_claimed: false,
+      payment_claimed: false,
+      benchmark_recorded: false
+    }
   };
 }
 
