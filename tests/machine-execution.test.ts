@@ -21,6 +21,9 @@ describe('machine execution anytrans translation route', () => {
     delete process.env.MACHINE_EXECUTION_ENABLED;
     delete process.env.PAY_SH_TRANSLATION_URL;
     delete process.env.PAY_SH_TRANSLATION_AUTH_MODE;
+    delete process.env.PAY_SH_TRANSLATION_PAYMENT_HEADER;
+    delete process.env.PAY_SH_TRANSLATION_PAYMENT_VALUE;
+    delete process.env.PAY_SH_TRANSLATION_TIMEOUT_MS;
     await clearMachinePreflightReceiptsForTests();
   });
 
@@ -45,7 +48,7 @@ describe('machine execution anytrans translation route', () => {
     await app.close();
   });
 
-  it('AnyTrans route runs preflight first and fails closed when x402 config is missing', async () => {
+  it('fails closed when MACHINE_EXECUTION_ENABLED is not true', async () => {
     const app = await createApp(emptyIntelligenceStore());
     const response = await app.inject({ method: 'POST', url: '/v1/machine-execution/translation', payload });
     expect(response.statusCode).toBe(200);
@@ -58,7 +61,7 @@ describe('machine execution anytrans translation route', () => {
     expect(body.execution_occurred).toBe(false);
     expect(body.payment_occurred).toBe(false);
     expect(body.evidence_stage_after).toBe('policy-mapped');
-    expect(body.caveats.join(' ')).toContain('Runnable Pay.sh endpoint identified, but server-side x402 execution is not configured.');
+    expect(body.caveats.join(' ')).toContain('Machine execution is disabled.');
 
     const recent = await app.inject({ method: 'GET', url: '/v1/machine-preflight/receipts/recent?limit=20' });
     const receipts = recent.json().data.receipts;
@@ -66,7 +69,33 @@ describe('machine execution anytrans translation route', () => {
     const execution = receipts.find((row: any) => row.receipt_id === body.execution_receipt_id);
     expect(preflight?.receipt_type).toBe('machine_preflight');
     expect(execution?.receipt_type).toBe('machine_execution');
-    expect(execution?.execution_error).toBe('x402_not_configured');
+    expect(execution?.execution_error).toBe('execution_disabled');
+    await app.close();
+  });
+
+  it('fails closed when PAY_SH_TRANSLATION_URL is missing', async () => {
+    process.env.MACHINE_EXECUTION_ENABLED = 'true';
+    process.env.PAY_SH_TRANSLATION_AUTH_MODE = 'x402';
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({ method: 'POST', url: '/v1/machine-execution/translation', payload });
+    const body = response.json().data;
+    expect(body.execution_status).toBe('failed');
+    expect(body.execution_occurred).toBe(false);
+    expect(body.evidence_stage_after).toBe('policy-mapped');
+    expect(body.caveats.join(' ')).toContain('AnyTrans execution URL is not configured.');
+    await app.close();
+  });
+
+  it('fails closed in x402 mode without server-side x402 execution implementation', async () => {
+    process.env.MACHINE_EXECUTION_ENABLED = 'true';
+    process.env.PAY_SH_TRANSLATION_URL = 'https://anytrans.alibaba.gateway-402.com/anytrans/translate/text';
+    process.env.PAY_SH_TRANSLATION_AUTH_MODE = 'x402';
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({ method: 'POST', url: '/v1/machine-execution/translation', payload });
+    const body = response.json().data;
+    expect(body.execution_status).toBe('failed');
+    expect(body.execution_occurred).toBe(false);
+    expect(body.caveats.join(' ')).toContain('Runnable Pay.sh endpoint identified, but server-side x402 execution is not configured.');
     await app.close();
   });
 
@@ -90,6 +119,8 @@ describe('machine execution anytrans translation route', () => {
     process.env.MACHINE_EXECUTION_ENABLED = 'true';
     process.env.PAY_SH_TRANSLATION_URL = 'https://anytrans.alibaba.gateway-402.com/anytrans/translate/text';
     process.env.PAY_SH_TRANSLATION_AUTH_MODE = 'x402';
+    process.env.PAY_SH_TRANSLATION_PAYMENT_HEADER = 'X-PAYMENT';
+    process.env.PAY_SH_TRANSLATION_PAYMENT_VALUE = 'proof-token';
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ translated_text: 'Las máquinas no deberían gastar a ciegas.' }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
@@ -101,6 +132,7 @@ describe('machine execution anytrans translation route', () => {
     const body = response.json().data;
     expect(body.execution_status).toBe('succeeded');
     expect(body.execution_occurred).toBe(true);
+    expect(body.execution_receipt_id).toMatch(/^mrx_exec_/);
     expect(body.payment_occurred).toBe(false);
     expect(body.payment_evidence).toBeNull();
     expect(body.evidence_stage_after).toBe('execution-tested');
@@ -113,6 +145,8 @@ describe('machine execution anytrans translation route', () => {
     process.env.MACHINE_EXECUTION_ENABLED = 'true';
     process.env.PAY_SH_TRANSLATION_URL = 'https://anytrans.alibaba.gateway-402.com/anytrans/translate/text';
     process.env.PAY_SH_TRANSLATION_AUTH_MODE = 'x402';
+    process.env.PAY_SH_TRANSLATION_PAYMENT_HEADER = 'X-PAYMENT';
+    process.env.PAY_SH_TRANSLATION_PAYMENT_VALUE = 'proof-token';
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ translated_text: 'x' }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
@@ -126,6 +160,44 @@ describe('machine execution anytrans translation route', () => {
     const cloudTranslation = rows.find((service: any) => service.id === 'cloud-translation');
     expect(cloudTranslation?.evidence_stage).not.toBe('execution-tested');
     expect(rows.some((service: any) => service.id !== 'anytrans' && service.evidence_stage === 'execution-tested')).toBe(false);
+    await app.close();
+  });
+
+  it('records attempted execution with 402 challenge but no payment claim', async () => {
+    process.env.MACHINE_EXECUTION_ENABLED = 'true';
+    process.env.PAY_SH_TRANSLATION_URL = 'https://anytrans.alibaba.gateway-402.com/anytrans/translate/text';
+    process.env.PAY_SH_TRANSLATION_AUTH_MODE = 'http_direct';
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ challenge: 'payment_required' }), {
+      status: 402,
+      headers: { 'Content-Type': 'application/json' }
+    }));
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({ method: 'POST', url: '/v1/machine-execution/translation', payload });
+    const body = response.json().data;
+    expect(body.execution_status).toBe('failed');
+    expect(body.execution_occurred).toBe(true);
+    expect(body.payment_occurred).toBe(false);
+    expect(body.evidence_stage_after).toBe('policy-mapped');
+    expect(body.caveats.join(' ')).toContain('Pay.sh payment challenge received; payment settlement was not completed by this server.');
+    await app.close();
+  });
+
+  it('records failed execution receipt on non-2xx response', async () => {
+    process.env.MACHINE_EXECUTION_ENABLED = 'true';
+    process.env.PAY_SH_TRANSLATION_URL = 'https://anytrans.alibaba.gateway-402.com/anytrans/translate/text';
+    process.env.PAY_SH_TRANSLATION_AUTH_MODE = 'http_direct';
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ error: 'upstream unavailable' }), {
+      status: 503,
+      headers: { 'Content-Type': 'application/json' }
+    }));
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({ method: 'POST', url: '/v1/machine-execution/translation', payload });
+    const body = response.json().data;
+    expect(body.execution_status).toBe('failed');
+    expect(body.execution_occurred).toBe(true);
+    expect(body.execution_receipt_id).toMatch(/^mrx_exec_/);
+    expect(body.payment_occurred).toBe(false);
+    expect(body.evidence_stage_after).toBe('policy-mapped');
     await app.close();
   });
 });

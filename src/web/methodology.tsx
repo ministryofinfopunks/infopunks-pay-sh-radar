@@ -133,7 +133,7 @@ const machineMethodologyBlocks: MachineMethodologyBlock[] = [
     rows: [
       'Machine receipts are decision receipts by default.',
       'They record Radar’s preflight decision: allow, deny, or review.',
-      'Execution-tested means a real service call occurred and an execution receipt was recorded.',
+      'Execution-tested means a real external service call succeeded and a durable execution receipt exists. A failed closed execution gate, 402 challenge, or missing server-side x402 configuration does not count as execution-tested.',
       'Execution-tested does not imply benchmarked, best, cheapest, or payment-confirmed unless those artifacts exist.',
       'They are not payment receipts unless explicitly marked as payment receipts.',
       'execution-tested remains inactive until a real recorded service call occurs.',

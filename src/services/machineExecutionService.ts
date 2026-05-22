@@ -40,7 +40,10 @@ type TranslationAdapterResult = {
   payment_evidence: string | null;
   execution_response_summary: string | null;
   execution_error: string | null;
+  caveats: string[];
 };
+
+type TranslationExecutionMode = 'disabled' | 'http_direct' | 'x402_server' | 'mock_test';
 
 const ANYTRANS_META = {
   service_id: 'anytrans' as const,
@@ -161,10 +164,8 @@ export async function runTranslationExecutionRoute(input: TranslationExecutionRe
     review_reasons: [],
     caveats: [
       ...REQUIRED_CAVEATS,
+      ...adapterResult.caveats,
       ...(adapterResult.payment_occurred && !adapterResult.payment_evidence ? ['Pay.sh call attempted but payment proof is unavailable.'] : []),
-      ...(adapterResult.execution_error === 'x402_not_configured'
-        ? ['Runnable Pay.sh endpoint identified, but server-side x402 execution is not configured.']
-        : []),
       ...(adapterResult.execution_error?.startsWith('service_error_') ? ['AnyTrans service returned a non-success response.'] : [])
     ],
     max_cost_usd: input.max_cost_usd,
@@ -187,31 +188,76 @@ export async function runTranslationExecutionRoute(input: TranslationExecutionRe
 }
 
 async function executeAnyTransAdapter(input: TranslationExecutionRequest): Promise<TranslationAdapterResult> {
-  if (
-    process.env.MACHINE_EXECUTION_ENABLED !== 'true'
-    || !process.env.PAY_SH_TRANSLATION_URL
-    || process.env.PAY_SH_TRANSLATION_AUTH_MODE !== 'x402'
-  ) {
+  const mode = resolveTranslationExecutionMode();
+  if (mode === 'disabled') {
     return {
       execution_status: 'failed',
       execution_occurred: false,
       payment_occurred: false,
       payment_evidence: null,
       execution_response_summary: null,
-      execution_error: 'x402_not_configured'
+      execution_error: 'execution_disabled',
+      caveats: ['Machine execution is disabled.']
+    };
+  }
+  if (!process.env.PAY_SH_TRANSLATION_URL) {
+    return {
+      execution_status: 'failed',
+      execution_occurred: false,
+      payment_occurred: false,
+      payment_evidence: null,
+      execution_response_summary: null,
+      execution_error: 'url_not_configured',
+      caveats: ['AnyTrans execution URL is not configured.']
+    };
+  }
+  if (mode === 'x402_server' && !isX402ServerExecutionImplemented()) {
+    return {
+      execution_status: 'failed',
+      execution_occurred: false,
+      payment_occurred: false,
+      payment_evidence: null,
+      execution_response_summary: null,
+      execution_error: 'x402_not_configured',
+      caveats: ['Runnable Pay.sh endpoint identified, but server-side x402 execution is not configured.']
     };
   }
 
-  const response = await fetch(process.env.PAY_SH_TRANSLATION_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      text: input.text,
-      source_language: input.source_language,
-      target_language: input.target_language,
-      max_cost_usd: input.max_cost_usd
-    })
-  });
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (process.env.PAY_SH_TRANSLATION_AUTH_HEADER && process.env.PAY_SH_TRANSLATION_AUTH_TOKEN) {
+    headers[process.env.PAY_SH_TRANSLATION_AUTH_HEADER] = process.env.PAY_SH_TRANSLATION_AUTH_TOKEN;
+  }
+  if (process.env.PAY_SH_TRANSLATION_PAYMENT_HEADER && process.env.PAY_SH_TRANSLATION_PAYMENT_VALUE) {
+    headers[process.env.PAY_SH_TRANSLATION_PAYMENT_HEADER] = process.env.PAY_SH_TRANSLATION_PAYMENT_VALUE;
+  }
+
+  const timeoutMs = Number(process.env.PAY_SH_TRANSLATION_TIMEOUT_MS ?? 15000);
+  const signal = Number.isFinite(timeoutMs) && timeoutMs > 0 ? AbortSignal.timeout(timeoutMs) : undefined;
+
+  let response: Response;
+  try {
+    response = await fetch(process.env.PAY_SH_TRANSLATION_URL, {
+      method: 'POST',
+      headers,
+      signal,
+      body: JSON.stringify({
+        text: input.text,
+        source_language: input.source_language,
+        target_language: input.target_language,
+        max_cost_usd: input.max_cost_usd
+      })
+    });
+  } catch {
+    return {
+      execution_status: 'failed',
+      execution_occurred: true,
+      payment_occurred: false,
+      payment_evidence: null,
+      execution_response_summary: null,
+      execution_error: 'service_request_failed',
+      caveats: ['AnyTrans service request failed before a successful response was received.']
+    };
+  }
 
   let payload: unknown = null;
   try {
@@ -221,13 +267,25 @@ async function executeAnyTransAdapter(input: TranslationExecutionRequest): Promi
   }
 
   if (!response.ok) {
+    if (response.status === 402) {
+      return {
+        execution_status: 'failed',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_response_summary: payload ? JSON.stringify(payload).slice(0, 320) : null,
+        execution_error: 'payment_challenge_402',
+        caveats: ['Pay.sh payment challenge received; payment settlement was not completed by this server.']
+      };
+    }
     return {
       execution_status: 'failed',
       execution_occurred: true,
       payment_occurred: false,
       payment_evidence: null,
       execution_response_summary: payload ? JSON.stringify(payload).slice(0, 320) : null,
-      execution_error: `service_error_${response.status}`
+      execution_error: `service_error_${response.status}`,
+      caveats: []
     };
   }
 
@@ -238,8 +296,23 @@ async function executeAnyTransAdapter(input: TranslationExecutionRequest): Promi
     payment_occurred: false,
     payment_evidence: null,
     execution_response_summary: summary,
-    execution_error: summary ? null : 'response_summary_missing'
+    execution_error: summary ? null : 'response_summary_missing',
+    caveats: summary ? [] : ['Execution response summary is missing; execution-tested is not claimed.']
   };
+}
+
+function resolveTranslationExecutionMode(): TranslationExecutionMode {
+  if (process.env.MACHINE_EXECUTION_ENABLED !== 'true') return 'disabled';
+  const mode = process.env.PAY_SH_TRANSLATION_AUTH_MODE?.toLowerCase();
+  if (mode === 'http_direct') return 'http_direct';
+  if (mode === 'x402') return 'x402_server';
+  if (mode === 'mock_test') return 'mock_test';
+  return 'disabled';
+}
+
+function isX402ServerExecutionImplemented() {
+  return process.env.PAY_SH_TRANSLATION_PAYMENT_HEADER === 'X-PAYMENT'
+    && Boolean(process.env.PAY_SH_TRANSLATION_PAYMENT_VALUE);
 }
 
 let executionReceiptSequence = 0;

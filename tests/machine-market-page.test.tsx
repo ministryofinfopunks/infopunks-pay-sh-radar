@@ -221,4 +221,12 @@ describe('machine market page', () => {
     expect(tableText).not.toContain('proven');
     expect(tableText).not.toContain('winner');
   });
+
+  it('labels the card as AnyTrans execution candidate without overclaiming execution-tested', async () => {
+    root = await renderPage(container);
+    const pageText = container.textContent ?? '';
+    expect(pageText).toContain('AnyTrans Execution Candidate');
+    expect(pageText).toContain('AnyTrans is the first runnable translation execution candidate.');
+    expect(pageText).not.toContain('First Execution-Tested Route');
+  });
 });

@@ -2177,16 +2177,18 @@ function FirstExecutionCard({ receipt }: { receipt: MachinePreflightReceipt | nu
     'No winner is claimed.',
     'Payment receipt is not claimed unless payment evidence is present.'
   ];
-  return <section className="panel machine-market-caveat" aria-label="First Execution-Tested Route">
+  return <section className="panel machine-market-caveat" aria-label="AnyTrans Execution Candidate">
     <div className="panel-head">
       <div>
-        <p className="section-kicker">First Execution-Tested Route</p>
-        <h2>First Execution-Tested Route</h2>
+        <p className="section-kicker">AnyTrans Execution Candidate</p>
+        <h2>AnyTrans Execution Candidate</h2>
       </div>
     </div>
-    <p>Alibaba Cloud AnyTrans is the first runnable candidate for controlled translation execution testing. Execution-tested applies only after a real service call succeeds and an execution receipt is recorded.</p>
+    <p>AnyTrans is the first runnable translation execution candidate. It becomes execution-tested only after a real successful service call records an execution receipt.</p>
     <div className="machine-usage-list">
-      <p><span>service</span><small>Alibaba Cloud AnyTrans</small></p>
+      <p><span>candidate</span><small>Alibaba Cloud AnyTrans</small></p>
+      <p><span>endpoint</span><small>POST anytrans/translate/text</small></p>
+      <p><span>current status</span><small>{executionStatus === 'succeeded' ? 'succeeded' : executionStatus === 'failed' ? 'failed' : receipt ? 'configured' : 'fail-closed'}</small></p>
       <p><span>preflight status</span><small>{preflightStatus}</small></p>
       <p><span>execution status</span><small>{executionStatus}</small></p>
       <p><span>payment status</span><small>{paymentStatus}</small></p>
