@@ -2222,7 +2222,8 @@ function FirstExecutionCard({
   const executionStatus = machineTranslationGeneralReceipt?.execution_status ?? 'not_attempted';
   const paymentStatus = machineTranslationGeneralReceipt?.payment_occurred ? 'payment_observed' : 'not_confirmed';
   const evidenceStage = machineTranslationGeneralReceipt?.evidence_stage ?? 'policy-mapped';
-  const repeatabilityLabel = repeatability?.repeatability_status === 'repeatability-recorded' ? 'recorded' : 'insufficient';
+  const repeatabilityLabel = repeatability?.repeatability_status === 'repeatability-recorded' ? 'repeatability-recorded' : 'insufficient_runs';
+  const recordedSuccessRate = typeof repeatability?.success_rate === 'number' ? `${Math.round(repeatability.success_rate * 100)}%` : '0%';
   const caveats = machineTranslationGeneralReceipt?.caveats?.length ? machineTranslationGeneralReceipt.caveats : [
     'Execution-tested applies only to Alibaba Machine Translation General after Radar records the successful execution receipt.',
     'This is not a benchmark artifact.',
@@ -2238,7 +2239,7 @@ function FirstExecutionCard({
     </div>
     <p>AnyTrans remains attempted-recorded and workspace blocked. Machine Translation General is the first successful execution candidate only after Radar records a durable machine_execution receipt.</p>
     <p><b>Execution-tested applies only to Alibaba Machine Translation General after Radar records the successful execution receipt.</b></p>
-    <p><a href="/machine-execution/alibaba-machine-translation-general">Open execution detail page for Alibaba Machine Translation General.</a></p>
+    <p><a href="/machine-execution/alibaba-machine-translation-general">View repeatability artifact</a></p>
     <div className="machine-usage-list">
       <p><span>AnyTrans status</span><small>{anyTransReceipt ? 'attempted-recorded / workspace blocked' : 'attempted-recorded / workspace blocked'}</small></p>
       <p><span>AnyTrans latest receipt</span><small>{anyTransReceipt?.receipt_id ?? 'none'}</small></p>
@@ -2253,7 +2254,8 @@ function FirstExecutionCard({
       <p><span>evidence stage</span><small>{evidenceStage}</small></p>
       <p><span>latest execution receipt</span><small>{machineTranslationGeneralReceipt?.receipt_id ?? 'none'}</small></p>
       <p><span>repeatability</span><small>{repeatabilityLabel}</small></p>
-      <p><span>repeatability successful runs</span><small>{repeatability?.successful_receipts ?? 0} / 3 required</small></p>
+      <p><span>repeatability successful runs</span><small>{repeatability?.successful_receipts ?? 0} successful receipts</small></p>
+      <p><span>recorded success rate</span><small>{recordedSuccessRate}</small></p>
       <p><span>benchmark claim</span><small>false</small></p>
       <p><span>caveats</span><small>{caveats.join(' ')}</small></p>
     </div>
@@ -2369,31 +2371,68 @@ function AlibabaMachineExecutionDetailPage() {
           <div className="panel-head"><div><p className="section-kicker">Payment Status</p><h2>payment_occurred={String(receipt.payment_occurred)}</h2></div></div>
           <p className="panel-caption">Payment is not claimed because no explicit payment evidence was recorded.</p>
         </section>
-        {repeatability && <section className="panel" aria-label="Repeatability">
-          <div className="panel-head"><div><p className="section-kicker">Repeatability</p><h2>{repeatability.repeatability_status}</h2></div></div>
-          <div className="machine-usage-list">
-            <p><span>successful run count</span><small>{repeatability.successful_receipts}</small></p>
-            <p><span>required count</span><small>3</small></p>
-            <p><span>repeatability status</span><small>{repeatability.repeatability_status}</small></p>
-            <p><span>success rate</span><small>{repeatability.success_rate}</small></p>
-            <p><span>latency range</span><small>{formatMs(repeatability.latency_ms.min)} / {formatMs(repeatability.latency_ms.median)} / {formatMs(repeatability.latency_ms.max)}</small></p>
-            <p><span>receipt ids</span><small>{repeatability.receipt_ids.join(', ') || 'none'}</small></p>
-            <p><span>provider request ids</span><small>{repeatability.provider_request_ids.join(', ') || 'none'}</small></p>
-            <p><span>caveats</span><small>{repeatability.caveats.join(' ')}</small></p>
+        {repeatability && <section className="panel" aria-label="Machine Execution Repeatability Artifact">
+          <div className="panel-head"><div><p className="section-kicker">Repeatability</p><h2>Machine Execution Repeatability Artifact</h2></div></div>
+          <p className="panel-caption">Same route. Same prompt family. Multiple successful execution receipts.</p>
+          <div className="chips compact-chips">
+            <span>status: {repeatability.repeatability_status}</span>
+            <span>artifact: {repeatability.artifact_id}</span>
           </div>
+          <div className="machine-usage-list">
+            <p><span>successful executions</span><small>{repeatability.successful_receipts}</small></p>
+            <p><span>failed executions</span><small>{repeatability.failed_receipts}</small></p>
+            <p><span>success rate</span><small>{formatRepeatabilitySuccessRate(repeatability.success_rate)}</small></p>
+            <p><span>latency range</span><small>{formatLatencyRangeSeconds(repeatability.latency_ms.min, repeatability.latency_ms.max)}</small></p>
+            <p><span>median latency</span><small>{formatLatencySeconds(repeatability.latency_ms.median)}</small></p>
+            <p><span>durable storage</span><small>Postgres</small></p>
+            <p><span>payment claimed</span><small>{String(repeatability.payment_claimed)}</small></p>
+            <p><span>benchmark claimed</span><small>{String(repeatability.benchmark_claimed)}</small></p>
+            <p><span>winner claimed</span><small>{String(repeatability.winner_claimed)}</small></p>
+          </div>
+          <div className="machine-usage-list">
+            <p><span>proof chain</span><small>Coverage → Execution-tested → Repeatability-recorded → <span className="repeatability-muted-stage">Benchmark-ready, inactive</span> → <span className="repeatability-muted-stage">Benchmark-recorded, inactive</span></small></p>
+          </div>
+          <p className="panel-caption">Repeatability-recorded means this route has produced multiple successful execution receipts under the same prompt family. It is not a benchmark.</p>
+          <section aria-label="Repeatability receipt list">
+            <div className="panel-head"><div><p className="section-kicker">Receipts</p><h3>Execution receipt excerpts</h3></div></div>
+            <div className="machine-receipt-table" role="table" aria-label="Repeatability receipts">
+              <div className="machine-receipt-row machine-receipt-header" role="row">
+                <span role="columnheader">receipt id</span>
+                <span role="columnheader">provider request id</span>
+                <span role="columnheader">latency</span>
+                <span role="columnheader">created_at</span>
+                <span role="columnheader">output preview</span>
+              </div>
+              {repeatability.receipt_ids.map((receiptId, index) => <div key={receiptId} className="machine-receipt-row" role="row">
+                <span role="cell">{receiptId}</span>
+                <span role="cell">{repeatability.provider_request_ids[index] ?? 'unknown'}</span>
+                <span role="cell">{formatLatencySeconds(receipt?.execution_latency_ms ?? null)}</span>
+                <span role="cell">{receipt?.created_at ? formatMachineTimestamp(receipt.created_at) : 'unknown'}</span>
+                <span role="cell">{repeatability.output_summaries[0] ?? 'No output preview.'}</span>
+              </div>)}
+            </div>
+          </section>
+          <section className="panel" aria-label="Repeatability input output">
+            <div className="panel-head"><div><p className="section-kicker">Input / Output</p><h3>Safe excerpt panel</h3></div></div>
+            <div className="machine-usage-list">
+              <p><span>Input</span><small>{`"${repeatability.input_summary[0] ?? inputPreview}"`}</small></p>
+              <p><span>Output</span><small>{`"${repeatability.output_summaries[0] ?? translatedPreview}"`}</small></p>
+            </div>
+            <p className="panel-caption">Output summaries are safe excerpts from durable execution receipts.</p>
+          </section>
           {repeatability.repeatability_status === 'insufficient_runs'
-            ? <p className="panel-caption">Repeatability not recorded yet. Run {repeatability.remaining_successful_runs_needed} more successful executions with the same prompt family.</p>
+            ? <p className="panel-caption">Progress: {repeatability.successful_receipts} / 3 successful receipts. Run {repeatability.remaining_successful_runs_needed} more successful executions with the same prompt family.</p>
             : <p className="panel-caption">Repeatability recorded across {repeatability.successful_receipts} successful executions.</p>}
         </section>}
       </>}
       <section className="panel" aria-label="Evidence caveats">
-        <div className="panel-head"><div><p className="section-kicker">Evidence Caveats</p><h2>Execution evidence boundaries</h2></div></div>
+        <div className="panel-head"><div><p className="section-kicker">Evidence Caveats</p><h2>Repeatability artifact caveats</h2></div></div>
         <ul className="machine-caveat-list">
-          <li>This is an execution-tested route, not a benchmark artifact.</li>
+          <li>This is a repeatability artifact, not a benchmark.</li>
           <li>No winner is claimed.</li>
           <li>Payment is not claimed without explicit payment evidence.</li>
-          <li>Repeatability has not been established yet.</li>
-          <li>Execution-tested applies only to this route, not the full robotic.sh market.</li>
+          <li>Repeatability applies only to Alibaba Machine Translation General.</li>
+          <li>This does not imply the full robotic.sh market is execution-tested.</li>
         </ul>
       </section>
       <section className="panel" aria-label="AnyTrans relationship">
@@ -4170,7 +4209,7 @@ function RadarApp() {
     { id: 'open-machine-market', label: 'Open Machine Market', hint: '/machine-market', run: () => openMachineRoute('/machine-market') },
     { id: 'run-machine-preflight', label: 'Run Machine Preflight', hint: '/machine-preflight', run: () => openMachineRoute('/machine-preflight') },
     { id: 'view-machine-receipts', label: 'View Machine Receipts', hint: '/machine-receipts', run: () => openMachineRoute('/machine-receipts') },
-    { id: 'view-alibaba-execution-detail', label: 'View Alibaba Execution Detail', hint: '/machine-execution/alibaba-machine-translation-general', run: () => openMachineRoute('/machine-execution/alibaba-machine-translation-general') },
+    { id: 'view-machine-translation-repeatability-artifact', label: 'View Machine Translation Repeatability Artifact', hint: '/machine-execution/alibaba-machine-translation-general', run: () => openMachineRoute('/machine-execution/alibaba-machine-translation-general') },
     { id: 'search-machine-dossier', label: 'Search Machine Dossier', hint: 'Open receipts and select a machine_id', run: () => openMachineRoute('/machine-receipts') },
     { id: 'export-providers-json', label: 'Export Providers JSON', hint: '/v1/radar/providers', run: () => openExportRoute('/v1/radar/providers') },
     { id: 'export-endpoints-json', label: 'Export Endpoints JSON', hint: '/v1/radar/endpoints', run: () => openExportRoute('/v1/radar/endpoints') },
@@ -7268,6 +7307,19 @@ function formatInterval(value: number | null | undefined) {
 
 function formatMs(value: number | null | undefined) {
   return typeof value === 'number' ? `${value}ms` : 'unknown';
+}
+
+function formatRepeatabilitySuccessRate(value: number | null | undefined) {
+  return typeof value === 'number' ? `${Math.round(value * 100)}%` : 'unknown';
+}
+
+function formatLatencySeconds(value: number | null | undefined) {
+  return typeof value === 'number' ? `${(value / 1000).toFixed(2)}s` : 'unknown';
+}
+
+function formatLatencyRangeSeconds(min: number | null | undefined, max: number | null | undefined) {
+  if (typeof min !== 'number' || typeof max !== 'number') return 'unknown';
+  return `${(min / 1000).toFixed(2)}s–${(max / 1000).toFixed(2)}s`;
 }
 
 function formatConfidence(value: number | null | undefined) {

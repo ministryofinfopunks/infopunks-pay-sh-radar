@@ -609,6 +609,7 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 .machine-usage-list p { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; margin: 0; border: 1px solid rgba(126,255,176,.1); border-radius: 10px; padding: 9px 10px; background: rgba(0,0,0,.18); }
 .machine-usage-list span { color: #c8e3d0; overflow-wrap: anywhere; }
 .machine-usage-list b { color: var(--green); }
+.repeatability-muted-stage { color: var(--muted); opacity: .78; }
 .evidence-counts { margin-top: 14px; }
 
 @media (max-width: 1180px) {

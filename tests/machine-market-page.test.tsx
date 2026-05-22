@@ -220,8 +220,15 @@ function installMachineMarketFetch() {
       }]
     });
     if (path === '/v1/machine-execution/alibaba-machine-translation-general/repeatability') return json({
+      artifact_id: 'mrx_repeatability_alibaba_machine_translation_general_20260522',
       repeatability_status: 'insufficient_runs',
       successful_receipts: 1,
+      failed_receipts: 0,
+      payment_claimed: false,
+      benchmark_claimed: false,
+      winner_claimed: false,
+      input_summary: ['Machines should not spend blind.'],
+      output_summaries: ['Las máquinas no deberían gastar a ciegas.'],
       remaining_successful_runs_needed: 2,
       success_rate: 1,
       latency_ms: { min: 1000, median: 1000, max: 1000 },
@@ -326,8 +333,10 @@ describe('machine market page', () => {
     expect(pageText).toContain('Execution-tested applies only to Alibaba Machine Translation General after Radar records the successful execution receipt.');
     expect(pageText).toContain('infopunks-pay-sh-agent-harness');
     expect(pageText).toContain('manual');
-    expect(pageText).toContain('repeatability');
+    expect(pageText).toContain('repeatabilityinsufficient_runs');
     expect(pageText).toContain('benchmark claimfalse');
-    expect(container.querySelector('a[href="/machine-execution/alibaba-machine-translation-general"]')).not.toBeNull();
+    expect(pageText).toContain('repeatability successful runs1 successful receipts');
+    expect(pageText).toContain('recorded success rate100%');
+    expect(pageText).toContain('View repeatability artifact');
   });
 });

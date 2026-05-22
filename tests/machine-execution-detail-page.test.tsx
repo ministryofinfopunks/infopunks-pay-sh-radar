@@ -23,8 +23,15 @@ function installFetch(receipts: any[], repeatability: any = null) {
     }
     if (path === '/v1/machine-execution/alibaba-machine-translation-general/repeatability') {
       return json(repeatability ?? {
+        artifact_id: 'mrx_repeatability_alibaba_machine_translation_general_20260522',
         repeatability_status: 'insufficient_runs',
+        failed_receipts: 0,
         successful_receipts: 0,
+        payment_claimed: false,
+        benchmark_claimed: false,
+        winner_claimed: false,
+        input_summary: ['Machines should not spend blind.'],
+        output_summaries: ['Las máquinas no deberían gastar a ciegas.'],
         success_rate: 0,
         latency_ms: { min: null, median: null, max: null },
         receipt_ids: [],
@@ -108,8 +115,15 @@ describe('machine execution detail page', () => {
       phase_scope: 'phase_2_pay_sh_robotic_sh',
       created_at: '2026-05-22T18:31:01.415Z'
     }], {
+      artifact_id: 'mrx_repeatability_alibaba_machine_translation_general_20260522',
       repeatability_status: 'insufficient_runs',
       successful_receipts: 1,
+      failed_receipts: 0,
+      payment_claimed: false,
+      benchmark_claimed: false,
+      winner_claimed: false,
+      input_summary: ['Machines should not spend blind.'],
+      output_summaries: ['Las máquinas no deberían gastar a ciegas.'],
       remaining_successful_runs_needed: 2,
       success_rate: 1,
       latency_ms: { min: 1000, median: 1000, max: 1000 },
@@ -129,13 +143,26 @@ describe('machine execution detail page', () => {
     expect(text).toContain('pay_cli');
     expect(text).toContain('payment_occurred=false');
     expect(text).toContain('Payment is not claimed because no explicit payment evidence was recorded.');
-    expect(text).toContain('This is an execution-tested route, not a benchmark artifact.');
+    expect(text).toContain('Machine Execution Repeatability Artifact');
+    expect(text).toContain('artifact: mrx_repeatability_alibaba_machine_translation_general_20260522');
     expect(text).toContain('No winner is claimed.');
+    expect(text).toContain('This is a repeatability artifact, not a benchmark.');
     expect(text).toContain('Payment is not claimed without explicit payment evidence.');
-    expect(text).toContain('Execution-tested applies only to this route, not the full robotic.sh market.');
+    expect(text).toContain('Repeatability applies only to Alibaba Machine Translation General.');
+    expect(text).toContain('This does not imply the full robotic.sh market is execution-tested.');
     expect(text).toContain('AnyTrans remains attempted-recorded and blocked by provider workspace authorization.');
-    expect(text).toContain('Repeatability not recorded yet. Run 2 more successful executions with the same prompt family.');
-    expect(text).toContain('repeatability statusinsufficient_runs');
+    expect(text).toContain('status: insufficient_runs');
+    expect(text).toContain('successful executions1');
+    expect(text).toContain('failed executions0');
+    expect(text).toContain('success rate100%');
+    expect(text).toContain('latency range1.00s–1.00s');
+    expect(text).toContain('median latency1.00s');
+    expect(text).toContain('payment claimedfalse');
+    expect(text).toContain('benchmark claimedfalse');
+    expect(text).toContain('winner claimedfalse');
+    expect(text).toContain('Coverage → Execution-tested → Repeatability-recorded → Benchmark-ready, inactive → Benchmark-recorded, inactive');
+    expect(text).toContain('Output summaries are safe excerpts from durable execution receipts.');
+    expect(text).toContain('Progress: 1 / 3 successful receipts. Run 2 more successful executions with the same prompt family.');
   });
 
   it('renders empty state when no receipt exists', async () => {
@@ -188,8 +215,15 @@ describe('machine execution detail page', () => {
       phase_scope: 'phase_2_pay_sh_robotic_sh',
       created_at: '2026-05-22T18:31:01.415Z'
     }], {
+      artifact_id: 'mrx_repeatability_alibaba_machine_translation_general_20260522',
       repeatability_status: 'repeatability-recorded',
       successful_receipts: 3,
+      failed_receipts: 0,
+      payment_claimed: false,
+      benchmark_claimed: false,
+      winner_claimed: false,
+      input_summary: ['Machines should not spend blind.'],
+      output_summaries: ['Las máquinas no deberían gastar a ciegas.'],
       remaining_successful_runs_needed: 0,
       success_rate: 0.75,
       latency_ms: { min: 1000, median: 1200, max: 2000 },
@@ -199,6 +233,6 @@ describe('machine execution detail page', () => {
     });
     root = await renderPage(container);
     expect(container.textContent).toContain('Repeatability recorded across 3 successful executions.');
-    expect(container.textContent).toContain('repeatability statusrepeatability-recorded');
+    expect(container.textContent).toContain('status: repeatability-recorded');
   });
 });
