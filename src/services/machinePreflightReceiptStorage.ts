@@ -249,7 +249,7 @@ function filterAndSort(receipts: MachinePreflightReceipt[], filters: MachinePref
   return receipts
     .filter((receipt) => !filters.decision || receipt.decision === filters.decision)
     .filter((receipt) => !filters.machine_id || receipt.machine_id === filters.machine_id)
-    .filter((receipt) => !filters.service_id || receipt.selected_service_id === filters.service_id)
+    .filter((receipt) => !filters.service_id || receipt.selected_service_id === filters.service_id || receipt.execution_service_id === filters.service_id)
     .filter((receipt) => !filters.source_market || receipt.source_market === filters.source_market)
     .filter((receipt) => !filters.chain || receipt.chain === filters.chain)
     .sort((left, right) => Date.parse(right.created_at) - Date.parse(left.created_at) || right.receipt_id.localeCompare(left.receipt_id))

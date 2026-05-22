@@ -86,7 +86,7 @@ export const methodologySections: MethodologySection[] = [
     inputs: 'Coverage: 12 listed robotic.sh services from the observed snapshot. Phase 2 scope: Pay.sh + robotic.sh. Agentic.Market/Base entries appear as source metadata where present in robotic.sh.',
     calculation: 'Services are listed, classified, and policy-mapped when their category, source market, chain, machine use case, and policy risk are present. Preflight evaluates whether a machine should spend before any service call occurs.',
     window: 'Reflects the current static Machine Economy registry and Radar-observed machine preflight receipts.',
-    limitations: 'Preflight is not execution. Receipts are decision receipts unless explicitly marked as payment receipts. Radar makes no benchmark claims without recorded artifacts.'
+    limitations: 'Preflight is not execution. Receipts are decision receipts unless explicitly marked as execution or payment receipts. Radar makes no benchmark claims without recorded artifacts.'
   }
 ];
 
@@ -133,6 +133,8 @@ const machineMethodologyBlocks: MachineMethodologyBlock[] = [
     rows: [
       'Machine receipts are decision receipts by default.',
       'They record Radar’s preflight decision: allow, deny, or review.',
+      'Execution-tested means a real service call occurred and an execution receipt was recorded.',
+      'Execution-tested does not imply benchmarked, best, cheapest, or payment-confirmed unless those artifacts exist.',
       'They are not payment receipts unless explicitly marked as payment receipts.',
       'execution-tested remains inactive until a real recorded service call occurs.',
       'benchmark-recorded remains inactive until repeatable benchmark artifacts exist.'

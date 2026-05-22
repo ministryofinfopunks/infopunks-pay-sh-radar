@@ -126,6 +126,7 @@ const MachineExecutionCloudTranslationRequestSchema = z.object({
   source_language: z.string().min(2),
   target_language: z.string().min(2),
   max_cost_usd: z.number().positive(),
+  minimum_evidence_stage: z.enum(['policy-mapped', 'preflight-ready', 'execution-tested', 'receipt-recorded', 'benchmark-recorded']).optional(),
   human_approved: z.boolean().optional()
 });
 const MAX_INLINE_SUPPORTING_EVENT_IDS = 10;

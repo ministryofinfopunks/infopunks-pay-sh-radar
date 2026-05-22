@@ -151,11 +151,23 @@ type MachinePreflightResult = {
 };
 type MachinePreflightReceipt = {
   receipt_id: string;
-  receipt_type: 'machine_preflight';
+  receipt_type: 'machine_preflight' | 'machine_execution';
   coverage_run_id?: string | null;
   demo_mode: boolean;
-  execution_occurred: false;
-  payment_occurred: false;
+  execution_occurred: boolean;
+  payment_occurred: boolean;
+  execution_status: 'not_attempted' | 'attempted' | 'succeeded' | 'failed';
+  execution_service_id: string | null;
+  execution_provider: string | null;
+  execution_started_at: string | null;
+  execution_completed_at: string | null;
+  execution_latency_ms: number | null;
+  execution_request_summary: string | null;
+  execution_response_summary: string | null;
+  execution_error: string | null;
+  payment_evidence: string | null;
+  preflight_receipt_id: string | null;
+  execution_run_id: string | null;
   machine_id: string;
   policy_id: string | null;
   intent: string;
@@ -2035,6 +2047,7 @@ function MachineMarketPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedService, setSelectedService] = useState<MachineMarketService | null>(null);
   const [latestCoverageRun, setLatestCoverageRun] = useState<MachinePreflightCoverageRun | null>(null);
+  const [latestCloudExecutionReceipt, setLatestCloudExecutionReceipt] = useState<MachinePreflightReceipt | null>(null);
   const [coverageLoading, setCoverageLoading] = useState(false);
   const [coverageRunning, setCoverageRunning] = useState(false);
   const [coverageError, setCoverageError] = useState<string | null>(null);
@@ -2056,13 +2069,16 @@ function MachineMarketPage() {
     Promise.all([
       api<{ data: { services: MachineMarketService[] } }>('/v1/machine-market/services'),
       api<{ data: MachineMarketSummary }>('/v1/machine-market/summary'),
-      api<{ data: { runs: MachinePreflightCoverageRun[] } }>('/v1/machine-preflight/coverage-runs/recent?limit=1').catch(() => null)
-    ]).then(([servicesResponse, summaryResponse, latestRunResponse]) => {
+      api<{ data: { runs: MachinePreflightCoverageRun[] } }>('/v1/machine-preflight/coverage-runs/recent?limit=1').catch(() => null),
+      api<{ data: { receipts: MachinePreflightReceipt[] } }>('/v1/machine-preflight/receipts/recent?service_id=cloud-translation&limit=10').catch(() => null)
+    ]).then(([servicesResponse, summaryResponse, latestRunResponse, latestCloudExecutionResponse]) => {
       if (cancelled) return;
       setServices(servicesResponse.data.services);
       setSummary(summaryResponse.data);
       setSelectedService(servicesResponse.data.services[0] ?? null);
       setLatestCoverageRun(latestRunResponse?.data.runs?.[0] ?? null);
+      const cloudExecution = latestCloudExecutionResponse?.data.receipts?.find((receipt) => receipt.receipt_type === 'machine_execution') ?? null;
+      setLatestCloudExecutionReceipt(cloudExecution);
       setLoading(false);
     }).catch((err) => {
       if (cancelled) return;
@@ -2137,6 +2153,7 @@ function MachineMarketPage() {
       </section>
       <EvidenceLadder services={services} />
       <CoveragePanel latestRun={latestCoverageRun} loading={coverageLoading || loading} running={coverageRunning} error={coverageError} onRun={runCoveragePreflight} />
+      <FirstExecutionCard receipt={latestCloudExecutionReceipt} />
       <Filters filters={filters} onChange={setFilters} />
       {loading && <section className="panel" role="status" aria-live="polite"><p className="route-state">Loading Machine Market services...</p></section>}
       {error && !loading && <section className="panel" role="alert"><p className="route-state error">Machine Market API unavailable: {error}</p><p className="panel-caption">No local fixture data is shown on this page.</p></section>}
@@ -2147,6 +2164,37 @@ function MachineMarketPage() {
       </section>}
     </main>
   </div>;
+}
+
+function FirstExecutionCard({ receipt }: { receipt: MachinePreflightReceipt | null }) {
+  const preflightStatus = receipt?.decision ?? 'not_attempted';
+  const executionStatus = receipt?.execution_status ?? 'not_attempted';
+  const paymentStatus = receipt?.payment_occurred ? 'payment_observed' : 'not_confirmed';
+  const evidenceStage = receipt?.evidence_stage ?? 'policy-mapped';
+  const caveats = receipt?.caveats?.length ? receipt.caveats : [
+    'Execution-tested applies only to Cloud Translation.',
+    'This is not a benchmark artifact.',
+    'No winner is claimed.',
+    'Payment receipt is not claimed unless payment evidence is present.'
+  ];
+  return <section className="panel machine-market-caveat" aria-label="First Execution-Tested Route">
+    <div className="panel-head">
+      <div>
+        <p className="section-kicker">First Execution-Tested Route</p>
+        <h2>First Execution-Tested Route</h2>
+      </div>
+    </div>
+    <p>Cloud Translation is the first candidate for controlled execution testing. Execution-tested applies only after a real service call succeeds and an execution receipt is recorded.</p>
+    <div className="machine-usage-list">
+      <p><span>service</span><small>Cloud Translation</small></p>
+      <p><span>preflight status</span><small>{preflightStatus}</small></p>
+      <p><span>execution status</span><small>{executionStatus}</small></p>
+      <p><span>payment status</span><small>{paymentStatus}</small></p>
+      <p><span>evidence stage</span><small>{evidenceStage}</small></p>
+      <p><span>latest execution receipt</span><small>{receipt?.receipt_id ?? 'none'}</small></p>
+      <p><span>caveats</span><small>{caveats.join(' ')}</small></p>
+    </div>
+  </section>;
 }
 
 function CoveragePanel({
