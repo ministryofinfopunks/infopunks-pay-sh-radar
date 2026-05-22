@@ -45,6 +45,13 @@ describe('MethodologyDrawer', () => {
     for (const label of ['What it means', 'Inputs used', 'Calculation summary', 'Time window', 'Known limitations']) {
       expect(document.body.textContent).toContain(label);
     }
+
+    expect(document.body.textContent).toContain('Machine Economy');
+    expect(document.body.textContent).toContain('Coverage: 12 listed robotic.sh services from the observed snapshot.');
+    expect(document.body.textContent).toContain('Phase 2 scope: Pay.sh + robotic.sh.');
+    expect(document.body.textContent).toContain('Preflight is not execution.');
+    expect(document.body.textContent).toContain('Receipts are decision receipts unless explicitly marked as payment receipts.');
+    expect(document.body.textContent).toContain('Radar makes no benchmark claims without recorded artifacts.');
   });
 
   it('closes on Escape', () => {

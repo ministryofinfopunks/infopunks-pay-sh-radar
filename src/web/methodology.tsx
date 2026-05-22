@@ -73,6 +73,14 @@ export const methodologySections: MethodologySection[] = [
     calculation: 'Infopunks lists monitoring events that indicate degraded or failed service reachability.',
     window: 'Shows the most recent degradation events available in the current pulse summary.',
     limitations: 'These checks do not execute paid API calls. A degradation means reachability looked concerning, not that every provider function failed.'
+  },
+  {
+    title: 'Machine Economy',
+    meaning: 'A Radar module for machine-economy intelligence: observed service mapping, bounded authority policies, preflight decisions, and decision receipts.',
+    inputs: 'Coverage: 12 listed robotic.sh services from the observed snapshot. Phase 2 scope: Pay.sh + robotic.sh. Agentic.Market/Base entries appear as source metadata where present in robotic.sh.',
+    calculation: 'Services are listed, classified, and policy-mapped when their category, source market, chain, machine use case, and policy risk are present. Preflight evaluates whether a machine should spend before any service call occurs.',
+    window: 'Reflects the current static Machine Economy registry and Radar-observed machine preflight receipts.',
+    limitations: 'Preflight is not execution. Receipts are decision receipts unless explicitly marked as payment receipts. Radar makes no benchmark claims without recorded artifacts.'
   }
 ];
 

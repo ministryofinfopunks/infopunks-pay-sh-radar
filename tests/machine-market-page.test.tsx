@@ -1,0 +1,174 @@
+// @vitest-environment jsdom
+import React from 'react';
+import { act } from 'react';
+import { createRoot, type Root } from 'react-dom/client';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { App } from '../src/web/main';
+
+const serviceNames = [
+  'QVAC',
+  'Generative Language',
+  'BigQuery',
+  'Document AI',
+  'Stableupload',
+  'Cloud Translation',
+  'Claude',
+  'ChatGPT',
+  '2Captcha',
+  'Firecrawl',
+  'Wolfram Alpha',
+  'Exa'
+];
+
+function service(name: string, overrides: Record<string, unknown> = {}) {
+  const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  return {
+    id,
+    name,
+    provider: name === 'QVAC' ? 'Tether' : name === 'ChatGPT' ? 'OpenAI' : name === 'Claude' ? 'Anthropic' : name,
+    category: 'web',
+    market_type: 'digital',
+    source_market: 'agentic.market',
+    chain: 'base',
+    status: 'ready',
+    price_display: '$0.001',
+    description: `${name} service metadata.`,
+    machine_use_case: `${name} machine use case.`,
+    evidence_health: 'scaffold',
+    evidence_stage: 'policy-mapped',
+    policy_risk: `${name} requires spend policy.`,
+    caveats: ['Static robotic.sh service mirror for Phase 2 only.'],
+    observed_source: 'robotic.sh',
+    observed_at: '2026-05-22T00:00:00.000Z',
+    phase_scope: 'phase_2_pay_sh_robotic_sh',
+    ...overrides
+  };
+}
+
+const services = [
+  service('QVAC', { category: 'compute', market_type: 'all-compatible', source_market: 'robotic.sh', chain: 'peaq', status: 'setup', price_display: '$0.01 / sec' }),
+  service('Generative Language', { category: 'inference', source_market: 'pay.sh', chain: 'solana', price_display: 'Per endpoint', provider: 'Google' }),
+  service('BigQuery', { source_market: 'pay.sh', chain: 'solana', price_display: '$0.001', provider: 'Google' }),
+  service('Document AI', { category: 'vision', source_market: 'pay.sh', chain: 'solana', price_display: 'Per endpoint', provider: 'Google' }),
+  service('Stableupload', { category: 'storage', source_market: 'pay.sh', chain: 'solana', price_display: '$0.02', provider: 'Stableupload' }),
+  service('Cloud Translation', { category: 'translation', source_market: 'pay.sh', chain: 'solana', price_display: 'Per endpoint', provider: 'Google' }),
+  service('Claude', { category: 'inference' }),
+  service('ChatGPT', { category: 'inference' }),
+  service('2Captcha'),
+  service('Firecrawl'),
+  service('Wolfram Alpha', { category: 'inference', provider: 'Wolfram Research' }),
+  service('Exa')
+];
+
+function json(data: unknown, status = 200) {
+  return Promise.resolve(new Response(JSON.stringify({ data }), { status, headers: { 'Content-Type': 'application/json' } }));
+}
+
+function pathOf(input: RequestInfo | URL) {
+  const raw = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+  return new URL(raw, 'http://localhost').pathname;
+}
+
+function installMachineMarketFetch() {
+  vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+    const path = pathOf(input);
+    if (path === '/v1/machine-market/services') return json({ count: 12, services });
+    if (path === '/v1/machine-market/summary') return json({
+      total_services: 12,
+      categories: { compute: 1, inference: 4, web: 4, vision: 1, storage: 1, translation: 1 },
+      source_markets: { 'pay.sh': 5, 'agentic.market': 6, 'robotic.sh': 1 },
+      chains: { solana: 5, base: 6, peaq: 1 },
+      ready_count: 11,
+      setup_count: 1,
+      evidence_stage_counts: { 'policy-mapped': 12 },
+      phase_scope: 'phase_2_pay_sh_robotic_sh',
+      positioning: {
+        module: 'A new Radar module for machine-economy intelligence.',
+        terminal: 'Same terminal. New species of spender.',
+        market_policy: 'robotic.sh gives machines a market. Infopunks gives machine spending policy, evidence, and receipts.',
+        spend_policy: 'Machines should not spend blind.',
+        radar_role: 'Radar is the intelligence layer for autonomous spend across agents and machines.'
+      }
+    });
+    return Promise.resolve(new Response('{}', { status: 404 }));
+  });
+}
+
+async function renderPage(container: HTMLDivElement) {
+  let root!: Root;
+  await act(async () => {
+    root = createRoot(container);
+    root.render(<App />);
+  });
+  await act(async () => {
+    await Promise.resolve();
+    await Promise.resolve();
+  });
+  return root;
+}
+
+describe('machine market page', () => {
+  let root: Root;
+  let container: HTMLDivElement;
+
+  beforeEach(() => {
+    window.history.pushState({}, '', '/machine-market');
+    container = document.createElement('div');
+    document.body.append(container);
+    installMachineMarketFetch();
+  });
+
+  afterEach(() => {
+    act(() => root?.unmount());
+    container.remove();
+    vi.restoreAllMocks();
+    window.history.pushState({}, '', '/');
+  });
+
+  it('renders /machine-market with all 12 services', async () => {
+    root = await renderPage(container);
+
+    expect(container.textContent).toContain('Machine Market');
+    expect(container.textContent).toContain('12 listed services mapped from robotic.sh for Phase 2 machine-economy intelligence.');
+    for (const name of serviceNames) expect(container.textContent).toContain(name);
+  });
+
+  it('filters visible services by source market', async () => {
+    root = await renderPage(container);
+    const select = container.querySelector('select[aria-label="Source market"]') as HTMLSelectElement;
+
+    await act(async () => {
+      select.value = 'pay.sh';
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    expect(container.textContent).toContain('5 visible services');
+    expect(container.querySelector('[aria-label="Machine services"]')?.textContent).toContain('BigQuery');
+  });
+
+  it('shows evidence ladder and caveat copy', async () => {
+    root = await renderPage(container);
+
+    expect(container.querySelector('[aria-label="Evidence ladder"]')?.textContent).toContain('listed');
+    expect(container.querySelector('[aria-label="Evidence ladder"]')?.textContent).toContain('preflight-ready');
+    expect(container.textContent).toContain('Coverage refers to the 12 services visible in the observed robotic.sh market snapshot. Execution evidence is tracked separately.');
+    expect(container.querySelector('a[href="/#methodology"]')?.textContent).toBe('Methodology: Machine Economy evidence ladder');
+  });
+
+  it('does not mark service rows as execution-tested or benchmark-recorded by default', async () => {
+    root = await renderPage(container);
+    const tableText = container.querySelector('[aria-label="Machine services"]')?.textContent ?? '';
+
+    expect(tableText).not.toContain('execution-tested');
+    expect(tableText).not.toContain('benchmark-recorded');
+  });
+
+  it('guards overclaim terms in service registry when stage is policy-mapped', async () => {
+    root = await renderPage(container);
+    const tableText = container.querySelector('[aria-label="Machine services"]')?.textContent ?? '';
+
+    expect(tableText).not.toContain('executed');
+    expect(tableText).not.toContain('proven');
+    expect(tableText).not.toContain('winner');
+  });
+});

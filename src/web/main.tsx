@@ -2,6 +2,14 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { MethodologyDrawer } from './methodology';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
+import {
+  canClaimBenchmarkRecorded,
+  canClaimExecutionTested,
+  canClaimReceiptRecorded,
+  formatEvidenceStage,
+  getEvidenceStageDescription,
+  MACHINE_EVIDENCE_STAGES
+} from '../services/machineEvidenceService';
 import './styles.css';
 
 type Severity = 'critical' | 'warning' | 'informational' | 'unknown';
@@ -43,6 +51,162 @@ type TrustAssessment = EvidenceReceipt & { entityId: string; score: number | nul
 type SignalAssessment = EvidenceReceipt & { entityId: string; score: number | null; narratives: string[]; components: Record<string, number | null>; unknowns: string[] };
 type Narrative = EvidenceReceipt & { id: string; title: string; heat: number | null; momentum: number | null; providerIds: string[]; keywords: string[]; summary: string };
 type DataSource = { mode: 'live_pay_sh_catalog' | 'fixture_fallback'; url: string | null; generated_at: string | null; provider_count: number | null; last_ingested_at: string | null; used_fixture: boolean; error?: string | null };
+type MachineMarketCategory = 'compute' | 'inference' | 'web' | 'vision' | 'storage' | 'translation';
+type MachineMarketType = 'digital' | 'physical' | 'all-compatible';
+type MachineMarketSource = 'robotic.sh' | 'pay.sh' | 'agentic.market';
+type MachineMarketChain = 'solana' | 'base' | 'peaq' | 'omnichain';
+type MachineMarketStatus = 'ready' | 'setup';
+type MachineMarketEvidenceStage = 'listed' | 'classified' | 'policy-mapped' | 'preflight-ready' | 'execution-tested' | 'receipt-recorded' | 'benchmark-recorded';
+type MachineMarketService = {
+  id: string;
+  name: string;
+  provider: string;
+  category: MachineMarketCategory;
+  market_type: MachineMarketType;
+  source_market: MachineMarketSource;
+  chain: MachineMarketChain;
+  status: MachineMarketStatus;
+  price_display: string;
+  description: string;
+  machine_use_case: string;
+  evidence_health: 'scaffold' | 'listed';
+  evidence_stage: MachineMarketEvidenceStage;
+  policy_risk: string;
+  caveats: string[];
+  observed_source: 'robotic.sh';
+  observed_at: string;
+  phase_scope: 'phase_2_pay_sh_robotic_sh';
+};
+type MachineMarketSummary = {
+  total_services: number;
+  categories: Record<string, number>;
+  source_markets: Record<string, number>;
+  chains: Record<string, number>;
+  ready_count: number;
+  setup_count: number;
+  evidence_stage_counts: Record<string, number>;
+  phase_scope: string;
+  positioning: {
+    module: string;
+    terminal: string;
+    market_policy: string;
+    spend_policy: string;
+    radar_role: string;
+  };
+};
+type MachinePolicy = {
+  id: string;
+  name: string;
+  description: string;
+  machine_id: string;
+  owner_label: string;
+  daily_budget_usd: number;
+  per_call_budget_usd: number;
+  allowed_categories: MachineMarketCategory[];
+  blocked_categories: MachineMarketCategory[];
+  allowed_source_markets: MachineMarketSource[];
+  blocked_source_markets: MachineMarketSource[];
+  allowed_chains: MachineMarketChain[];
+  blocked_chains: MachineMarketChain[];
+  allowed_services: string[];
+  blocked_services: string[];
+  approval_required_above_usd: number;
+  minimum_evidence_stage: MachineMarketEvidenceStage;
+  minimum_evidence_health: 'scaffold' | 'listed';
+  risk_tolerance: 'low' | 'medium' | 'high';
+  receipt_required: boolean;
+  human_review_required_for: string[];
+  created_at: string;
+  updated_at: string;
+  status: 'active' | 'draft' | 'paused';
+};
+type MachinePolicyCheck = { id: string; label: string; status: 'pass' | 'fail' | 'review'; detail: string };
+type MachinePreflightResult = {
+  decision: 'allow' | 'deny' | 'review';
+  recommended_service: {
+    id: string;
+    name: string;
+    provider: string;
+    category: MachineMarketCategory;
+    source_market: MachineMarketSource;
+    chain: MachineMarketChain;
+    status: string;
+    price_display: string;
+    evidence_stage: string;
+    evidence_health: string;
+    policy_risk: string;
+  } | null;
+  source_market: MachineMarketSource | null;
+  chain: MachineMarketChain | null;
+  reason: string;
+  policy_checks: MachinePolicyCheck[];
+  violations: string[];
+  review_reasons: string[];
+  caveats: string[];
+  evidence_stage: string | null;
+  evidence_health: string | null;
+  receipt_id: string;
+  receipt_required: boolean;
+  phase_scope: 'phase_2_pay_sh_robotic_sh';
+};
+type MachinePreflightReceipt = {
+  receipt_id: string;
+  receipt_type: 'machine_preflight';
+  machine_id: string;
+  policy_id: string | null;
+  intent: string;
+  requested_category: string;
+  selected_service_id: string | null;
+  selected_service_name: string | null;
+  source_market: MachineMarketSource | null;
+  chain: MachineMarketChain | null;
+  decision: 'allow' | 'deny' | 'review';
+  reason: string;
+  policy_checks: MachinePolicyCheck[];
+  violations: string[];
+  review_reasons: string[];
+  caveats: string[];
+  max_cost_usd: number | null;
+  evidence_stage: string | null;
+  evidence_health: string | null;
+  phase_scope: 'phase_2_pay_sh_robotic_sh';
+  created_at: string;
+  selected_service?: MachinePreflightResult['recommended_service'];
+  policy_summary?: Pick<MachinePolicy, 'id' | 'name' | 'description' | 'risk_tolerance' | 'receipt_required' | 'minimum_evidence_stage' | 'status'> | null;
+};
+type MachineDossier = {
+  machine_id: string;
+  phase_scope: 'phase_2_pay_sh_robotic_sh';
+  status: 'observed' | 'no_activity';
+  suggested_next_action: string | null;
+  summary: {
+    total_receipts: number;
+    allow_count: number;
+    deny_count: number;
+    review_count: number;
+    unique_services: number;
+    unique_categories: number;
+    unique_source_markets: number;
+    latest_activity_at: string | null;
+  };
+  policy_profile: {
+    active_policy_id: string | null;
+    policy_name: string | null;
+    risk_tolerance: string | null;
+    daily_budget_usd: number | null;
+    per_call_budget_usd: number | null;
+    allowed_categories: string[];
+    allowed_source_markets: string[];
+    allowed_chains: string[];
+  };
+  service_usage: { service_id: string; service_name: string; count: number }[];
+  category_usage: { category: string; count: number }[];
+  market_usage: { source_market: string; count: number }[];
+  chain_usage: { chain: string; count: number }[];
+  recent_receipts: MachinePreflightReceipt[];
+  caveats: string[];
+  evidence_summary: { highest_stage_seen: string; stage_counts: Record<string, number> };
+};
 type Pulse = { providerCount: number; endpointCount: number; eventCount: number; averageTrust: number | null; averageSignal: number | null; hottestNarrative: Narrative | null; topTrust: TrustAssessment[]; topSignal: SignalAssessment[]; interpretations?: EcosystemInterpretation[]; data_source: DataSource; updatedAt: string };
 type HistoryItem = EvidenceReceipt & { id: string; type: string; observedAt: string; source: string; summary: string };
 type ProviderDetail = { provider: Provider; endpoints: Endpoint[]; trustAssessment: TrustAssessment | null; signalAssessment: SignalAssessment | null };
@@ -1090,6 +1254,28 @@ function isBenchmarkIndexRoute(pathname: string) {
   return /^\/benchmarks\/?$/.test(pathname);
 }
 
+function isMachineMarketRoute(pathname: string) {
+  return /^\/machine-market\/?$/.test(pathname);
+}
+
+function isMachinePreflightRoute(pathname: string) {
+  return /^\/machine-preflight\/?$/.test(pathname);
+}
+
+function isMachineReceiptsRoute(pathname: string) {
+  return /^\/machine-receipts\/?$/.test(pathname);
+}
+
+function routeMachineDossierId(pathname: string) {
+  const match = pathname.match(/^\/machine-dossier\/([^/]+)\/?$/);
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+}
+
 function setMetaTag(attr: 'property' | 'name', key: string, content: string) {
   let node = document.head.querySelector(`meta[${attr}="${key}"]`) as HTMLMetaElement | null;
   if (!node) {
@@ -1794,6 +1980,778 @@ function PublicBenchmarkProofPage({ benchmarkId }: { benchmarkId: string }) {
   return <div className="shell public-provider-shell"><main className="public-provider-page" aria-label="Public benchmark proof page"><BenchmarkProofContent benchmark={benchmark} history={history} routeHistory={routeHistory} /></main></div>;
 }
 
+const MACHINE_MARKET_STAGES: MachineMarketEvidenceStage[] = [...MACHINE_EVIDENCE_STAGES];
+const MACHINE_MARKET_CATEGORIES: MachineMarketCategory[] = ['compute', 'inference', 'web', 'vision', 'storage', 'translation'];
+const MACHINE_MARKET_SOURCES: MachineMarketSource[] = ['pay.sh', 'robotic.sh', 'agentic.market'];
+const MACHINE_MARKET_CHAINS: MachineMarketChain[] = ['solana', 'base', 'peaq', 'omnichain'];
+
+type MachineMarketFilters = {
+  marketType: 'all' | MachineMarketType;
+  category: 'all' | MachineMarketCategory;
+  sourceMarket: 'all' | MachineMarketSource;
+  chain: 'all' | MachineMarketChain;
+  evidenceStage: 'all' | MachineMarketEvidenceStage;
+  status: 'all' | MachineMarketStatus;
+};
+
+function MachineMarketPage() {
+  const [services, setServices] = useState<MachineMarketService[]>([]);
+  const [summary, setSummary] = useState<MachineMarketSummary | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedService, setSelectedService] = useState<MachineMarketService | null>(null);
+  const [filters, setFilters] = useState<MachineMarketFilters>({
+    marketType: 'all',
+    category: 'all',
+    sourceMarket: 'all',
+    chain: 'all',
+    evidenceStage: 'all',
+    status: 'all'
+  });
+
+  useEffect(() => {
+    document.title = 'Machine Market | Infopunks Pay.sh Radar';
+    setMetaTag('name', 'description', 'Machine Economy module for robotic.sh service policy, evidence, and receipt intelligence inside Infopunks Radar.');
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    Promise.all([
+      api<{ data: { services: MachineMarketService[] } }>('/v1/machine-market/services'),
+      api<{ data: MachineMarketSummary }>('/v1/machine-market/summary')
+    ]).then(([servicesResponse, summaryResponse]) => {
+      if (cancelled) return;
+      setServices(servicesResponse.data.services);
+      setSummary(summaryResponse.data);
+      setSelectedService(servicesResponse.data.services[0] ?? null);
+      setLoading(false);
+    }).catch((err) => {
+      if (cancelled) return;
+      setError(err instanceof Error ? err.message : 'machine market API unavailable');
+      setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const visibleServices = useMemo(() => services.filter((service) =>
+    (filters.marketType === 'all' || service.market_type === filters.marketType)
+    && (filters.category === 'all' || service.category === filters.category)
+    && (filters.sourceMarket === 'all' || service.source_market === filters.sourceMarket)
+    && (filters.chain === 'all' || service.chain === filters.chain)
+    && (filters.evidenceStage === 'all' || service.evidence_stage === filters.evidenceStage)
+    && (filters.status === 'all' || service.status === filters.status)
+  ), [filters, services]);
+
+  return <div className="shell machine-market-shell">
+    <a className="skip-link" href="#machine-market-content">Skip to content</a>
+    <header className="site-header">
+      <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Market navigation">
+        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home">
+          <span>Infopunks</span>
+          <strong>Pay.sh Radar</strong>
+        </a>
+        <div className="terminal-nav" aria-label="Machine Economy navigation">
+          <a className="active" href="/machine-market" aria-current="page">Machine Economy</a>
+          <a href="/machine-preflight">Machine Preflight</a>
+          <a href="/machine-receipts">Machine Receipts</a>
+          <a href="/">Radar Terminal</a>
+          <a href="/benchmarks">Benchmarks</a>
+        </div>
+      </nav>
+    </header>
+    <main id="machine-market-content" className="machine-market-page" aria-label="Machine Market">
+      <MachineMarketHero />
+      <MachineMarketSummaryCards summary={summary} loading={loading} serviceCount={services.length} />
+      <section className="panel machine-market-caveat" aria-label="Coverage caveat">
+        <p>Infopunks Radar mapped the entire listed robotic.sh machine-service market.</p>
+        <p>Coverage refers to the 12 services visible in the observed robotic.sh market snapshot. Execution evidence is tracked separately.</p>
+        <MachineMethodologyNote />
+      </section>
+      <EvidenceLadder services={services} />
+      <Filters filters={filters} onChange={setFilters} />
+      {loading && <section className="panel" role="status" aria-live="polite"><p className="route-state">Loading Machine Market services...</p></section>}
+      {error && !loading && <section className="panel" role="alert"><p className="route-state error">Machine Market API unavailable: {error}</p><p className="panel-caption">No local fixture data is shown on this page.</p></section>}
+      {!loading && !error && services.length === 0 && <section className="panel"><EmptyState title="No machine services found." body="The Machine Market registry returned no services." /></section>}
+      {!loading && !error && services.length > 0 && <section className="machine-market-grid">
+        <MachineServiceTable services={visibleServices} selectedId={selectedService?.id ?? null} onSelect={setSelectedService} />
+        <MachineServiceCard service={selectedService} />
+      </section>}
+    </main>
+  </div>;
+}
+
+function MachineMarketHero() {
+  return <section className="panel hero machine-market-hero">
+    <div>
+      <p className="eyebrow">Machine Economy</p>
+      <h1>Machine Market</h1>
+      <p className="copy">robotic.sh gives machines a market. Infopunks gives machine spending policy, evidence, and receipts.</p>
+      <p className="panel-caption">12 listed services mapped from robotic.sh for Phase 2 machine-economy intelligence.</p>
+    </div>
+    <div className="ticker" aria-label="Machine Market principles">
+      <span>Same terminal</span>
+      <span>New species of spender</span>
+      <span>Machines should not spend blind</span>
+    </div>
+  </section>;
+}
+
+function MachineMarketSummaryCards({ summary, loading, serviceCount }: { summary: MachineMarketSummary | null; loading: boolean; serviceCount: number }) {
+  const total = summary?.total_services ?? serviceCount;
+  return <section className="grid four machine-market-summary" aria-label="Machine Market summary">
+    <article className="panel metric"><span>Total Services</span><strong>{loading && !total ? '...' : total}</strong><small>listed robotic.sh snapshot</small></article>
+    <article className="panel metric"><span>Ready</span><strong>{summary?.ready_count ?? '-'}</strong><small>metadata status only</small></article>
+    <article className="panel metric"><span>Setup</span><strong>{summary?.setup_count ?? '-'}</strong><small>needs setup before preflight</small></article>
+    <article className="panel metric"><span>Phase Scope</span><strong>Phase 2</strong><small>{summary?.phase_scope ?? 'phase_2_pay_sh_robotic_sh'}</small></article>
+  </section>;
+}
+
+function MachineEvidenceStageTag({ stage }: { stage: string | null | undefined }) {
+  return <span className="machine-badge evidence" title={getEvidenceStageDescription(stage)}>{formatEvidenceStage(stage)}</span>;
+}
+
+function MachineEvidenceClaims({ serviceOrReceipt }: { serviceOrReceipt: { evidence_stage?: string | null } | null | undefined }) {
+  const stage = serviceOrReceipt?.evidence_stage ?? null;
+  const execution = canClaimExecutionTested(serviceOrReceipt) ? 'execution-tested claim: allowed' : 'execution-tested claim: not yet';
+  const receipt = canClaimReceiptRecorded(serviceOrReceipt) ? 'receipt-recorded claim: allowed' : 'receipt-recorded claim: not yet';
+  const benchmark = canClaimBenchmarkRecorded(serviceOrReceipt) ? 'benchmark-recorded claim: allowed' : 'benchmark-recorded claim: not yet';
+  return <small>{formatEvidenceStage(stage)} · {execution} · {receipt} · {benchmark}</small>;
+}
+
+function EvidenceLadder({ services }: { services: MachineMarketService[] }) {
+  const activeStages = new Set(services.map((service) => service.evidence_stage));
+  return <section className="panel evidence-ladder-panel" aria-label="Evidence ladder">
+    <div className="panel-head">
+      <div>
+        <p className="section-kicker">Evidence Ladder</p>
+        <h2>Listed to receipts</h2>
+      </div>
+      <small>Execution-tested, receipt-recorded, and benchmark-recorded remain inactive unless evidence exists.</small>
+    </div>
+    <div className="evidence-ladder">
+      {MACHINE_MARKET_STAGES.map((stage, index) => <React.Fragment key={stage}>
+        <span className={activeStages.has(stage) ? 'active' : 'future'} title={getEvidenceStageDescription(stage)}>{formatEvidenceStage(stage)}</span>
+        {index < MACHINE_MARKET_STAGES.length - 1 && <b aria-hidden="true">-&gt;</b>}
+      </React.Fragment>)}
+    </div>
+    <div className="machine-usage-list evidence-counts">
+      {MACHINE_MARKET_STAGES.map((stage) => <p key={stage}><span>{formatEvidenceStage(stage)}</span><small>{getEvidenceStageDescription(stage)}</small></p>)}
+    </div>
+  </section>;
+}
+
+function Filters({ filters, onChange }: { filters: MachineMarketFilters; onChange: (filters: MachineMarketFilters) => void }) {
+  const update = <K extends keyof MachineMarketFilters>(key: K, value: MachineMarketFilters[K]) => onChange({ ...filters, [key]: value });
+  return <section className="panel machine-market-filters" aria-label="Machine Market filters">
+    <FilterSelect label="Market type" value={filters.marketType} values={['all', 'digital', 'physical']} onChange={(value) => update('marketType', value as MachineMarketFilters['marketType'])} />
+    <FilterSelect label="Category" value={filters.category} values={['all', ...MACHINE_MARKET_CATEGORIES]} onChange={(value) => update('category', value as MachineMarketFilters['category'])} />
+    <FilterSelect label="Source market" value={filters.sourceMarket} values={['all', ...MACHINE_MARKET_SOURCES]} onChange={(value) => update('sourceMarket', value as MachineMarketFilters['sourceMarket'])} />
+    <FilterSelect label="Chain" value={filters.chain} values={['all', ...MACHINE_MARKET_CHAINS]} onChange={(value) => update('chain', value as MachineMarketFilters['chain'])} />
+    <FilterSelect label="Evidence stage" value={filters.evidenceStage} values={['all', ...MACHINE_MARKET_STAGES]} onChange={(value) => update('evidenceStage', value as MachineMarketFilters['evidenceStage'])} />
+    <FilterSelect label="Status" value={filters.status} values={['all', 'ready', 'setup']} onChange={(value) => update('status', value as MachineMarketFilters['status'])} />
+  </section>;
+}
+
+function FilterSelect({ label, value, values, onChange }: { label: string; value: string; values: string[]; onChange: (value: string) => void }) {
+  return <label>
+    <span>{label}</span>
+    <select aria-label={label} value={value} onChange={(event) => onChange(event.target.value)}>
+      {values.map((item) => <option key={item} value={item}>{item}</option>)}
+    </select>
+  </label>;
+}
+
+function MachineServiceTable({ services, selectedId, onSelect }: { services: MachineMarketService[]; selectedId: string | null; onSelect: (service: MachineMarketService) => void }) {
+  return <section className="panel machine-service-table-panel" aria-label="Machine services">
+    <div className="panel-head">
+      <div>
+        <p className="section-kicker">Service Registry</p>
+        <h2>{services.length} visible services</h2>
+      </div>
+      <small>Agentic.Market/Base rows are source metadata from robotic.sh, not the Phase 2 build priority.</small>
+    </div>
+    {!services.length && <EmptyState title="No services match these filters." body="Adjust filters to view the robotic.sh service mirror." />}
+    {!!services.length && <div className="machine-service-table" role="table" aria-label="Machine Market service table">
+      <div className="machine-service-row head" role="row">
+        {['service', 'category', 'market', 'chain', 'status', 'evidence', 'risk', 'price'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
+      </div>
+      {services.map((service) => <div key={service.id} className={`machine-service-row ${selectedId === service.id ? 'selected' : ''}`} role="row">
+        <span role="cell"><button className="machine-service-select" type="button" onClick={() => onSelect(service)}><strong>{service.name}</strong><small>{service.provider}</small></button></span>
+        <span role="cell" className="machine-badge">{service.category}</span>
+        <span role="cell" className="machine-badge source">{service.source_market}</span>
+        <span role="cell" className="machine-badge chain">{service.chain}</span>
+        <span role="cell" className={`machine-badge status ${service.status}`}>{service.status}</span>
+        <span role="cell"><MachineEvidenceStageTag stage={service.evidence_stage} /></span>
+        <span role="cell" className="machine-policy-risk">{service.policy_risk}</span>
+        <span role="cell">{service.price_display}</span>
+      </div>)}
+    </div>}
+  </section>;
+}
+
+function MachineServiceCard({ service }: { service: MachineMarketService | null }) {
+  if (!service) return <aside className="panel machine-service-card"><EmptyState title="No service selected." body="Select a service to view its policy profile." /></aside>;
+  return <aside className="panel machine-service-card" aria-label="Service policy profile">
+    <div className="panel-head">
+      <div>
+        <p className="section-kicker">Policy Profile</p>
+        <h2>{service.name}</h2>
+      </div>
+      <span className={`machine-badge status ${service.status}`}>{service.status}</span>
+    </div>
+    <p className="copy">{service.description}</p>
+    <div className="dossier-badges">
+      <span>{service.provider}</span>
+      <span>{service.category}</span>
+      <span>{service.source_market}</span>
+      <span>{service.chain}</span>
+      <span>{formatEvidenceStage(service.evidence_stage)}</span>
+    </div>
+    <div className="key-values machine-service-profile">
+      <p><b>market_type</b><span>{service.market_type}</span></p>
+      <p><b>price</b><span>{service.price_display}</span></p>
+      <p><b>evidence_health</b><span>{service.evidence_health}</span></p>
+      <p><b>observed_source</b><span>{service.observed_source}</span></p>
+      <p><b>observed_at</b><span>{formatMachineTimestamp(service.observed_at)}</span></p>
+    </div>
+    <section className="dossier-section">
+      <h4>Machine use case</h4>
+      <p>{service.machine_use_case}</p>
+    </section>
+    <section className="dossier-section">
+      <h4>Policy risk</h4>
+      <p>{service.policy_risk}</p>
+    </section>
+    <section className="dossier-section">
+      <h4>Evidence stage</h4>
+      <p>{getEvidenceStageDescription(service.evidence_stage)}</p>
+      <MachineEvidenceClaims serviceOrReceipt={service} />
+    </section>
+    <section className="dossier-section">
+      <h4>Caveats</h4>
+      <ul className="machine-caveat-list">
+        {service.caveats.map((caveat) => <li key={caveat}>{caveat}</li>)}
+      </ul>
+    </section>
+  </aside>;
+}
+
+type MachinePreflightFormState = {
+  machine_id: string;
+  intent: string;
+  category: MachineMarketCategory;
+  max_cost_usd: string;
+  allowed_markets: MachineMarketSource[];
+  allowed_chains: MachineMarketChain[];
+  risk_tolerance: 'low' | 'medium' | 'high';
+  requires_receipt: boolean;
+  policy_id: string;
+};
+
+const MACHINE_PREFLIGHT_EXAMPLES: Array<{ label: string; state: Partial<MachinePreflightFormState> }> = [
+  { label: 'Delivery bot parses invoice', state: { machine_id: 'did:peaq:delivery-bot-01', intent: 'parse an invoice image into structured fields', category: 'vision', max_cost_usd: '0.05', allowed_markets: ['pay.sh'], allowed_chains: ['solana'], risk_tolerance: 'low', policy_id: 'delivery-robot' } },
+  { label: 'Field bot translates customer note', state: { machine_id: 'did:peaq:field-bot-04', intent: 'translate customer note for field maintenance', category: 'translation', max_cost_usd: '0.20', allowed_markets: ['pay.sh'], allowed_chains: ['solana'], risk_tolerance: 'medium', policy_id: 'field-maintenance-bot' } },
+  { label: 'Research agent searches web', state: { machine_id: 'did:peaq:research-agent-02', intent: 'search web for market evidence', category: 'web', max_cost_usd: '0.25', allowed_markets: ['agentic.market'], allowed_chains: ['base'], risk_tolerance: 'medium', policy_id: 'autonomous-research-agent' } },
+  { label: 'Sensor uploads media', state: { machine_id: 'did:peaq:sensor-12', intent: 'upload media evidence from field sensor', category: 'storage', max_cost_usd: '0.03', allowed_markets: ['pay.sh'], allowed_chains: ['solana'], risk_tolerance: 'low', policy_id: 'depin-sensor' } }
+];
+
+function MachinePreflightPage() {
+  const [templates, setTemplates] = useState<MachinePolicy[]>([]);
+  const [templatesError, setTemplatesError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [result, setResult] = useState<MachinePreflightResult | null>(null);
+  const [form, setForm] = useState<MachinePreflightFormState>({
+    machine_id: 'did:peaq:delivery-bot-01',
+    intent: 'parse an invoice image into structured fields',
+    category: 'vision',
+    max_cost_usd: '0.05',
+    allowed_markets: ['pay.sh'],
+    allowed_chains: ['solana'],
+    risk_tolerance: 'low',
+    requires_receipt: true,
+    policy_id: 'delivery-robot'
+  });
+
+  useEffect(() => {
+    document.title = 'Machine Preflight | Infopunks Pay.sh Radar';
+    setMetaTag('name', 'description', 'Simulate bounded machine spending decisions before service execution.');
+    let cancelled = false;
+    api<{ data: { templates: MachinePolicy[] } }>('/v1/machine-policies/templates')
+      .then((response) => {
+        if (!cancelled) setTemplates(response.data.templates);
+      })
+      .catch((error) => {
+        if (!cancelled) setTemplatesError(error instanceof Error ? error.message : 'policy templates unavailable');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const selectedTemplateId = normalizeTemplateId(form.policy_id);
+  const selectedTemplate = templates.find((template) => template.id === selectedTemplateId) ?? null;
+
+  const updateForm = <K extends keyof MachinePreflightFormState>(key: K, value: MachinePreflightFormState[K]) => setForm((current) => ({ ...current, [key]: value }));
+  const applyTemplate = (policyId: string) => {
+    const normalizedPolicyId = normalizeTemplateId(policyId);
+    const template = templates.find((item) => item.id === normalizedPolicyId);
+    setForm((current) => ({
+      ...current,
+      policy_id: normalizedPolicyId,
+      category: template?.allowed_categories[0] ?? current.category,
+      max_cost_usd: template ? String(template.per_call_budget_usd) : current.max_cost_usd,
+      allowed_markets: template?.allowed_source_markets.length ? [...template.allowed_source_markets] : current.allowed_markets,
+      allowed_chains: template?.allowed_chains.length ? [...template.allowed_chains] : current.allowed_chains,
+      risk_tolerance: template?.risk_tolerance ?? current.risk_tolerance,
+      requires_receipt: template?.receipt_required ?? current.requires_receipt
+    }));
+  };
+
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setSubmitting(true);
+    setSubmitError(null);
+    setResult(null);
+    try {
+      const payload = {
+        machine_id: form.machine_id,
+        intent: form.intent,
+        category: form.category,
+        max_cost_usd: form.max_cost_usd === '' ? undefined : Number(form.max_cost_usd),
+        allowed_markets: form.allowed_markets,
+        allowed_chains: form.allowed_chains,
+        risk_tolerance: form.risk_tolerance,
+        requires_receipt: form.requires_receipt,
+        policy_id: selectedTemplateId || undefined
+      };
+      const response = await api<{ data: MachinePreflightResult }>('/v1/machine-preflight', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+      setResult(response.data);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : 'machine preflight unavailable');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return <div className="shell machine-market-shell">
+    <a className="skip-link" href="#machine-preflight-content">Skip to content</a>
+    <header className="site-header">
+      <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Preflight navigation">
+        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <div className="terminal-nav" aria-label="Machine Economy navigation">
+          <a href="/machine-market">Machine Economy</a>
+          <a className="active" href="/machine-preflight" aria-current="page">Machine Preflight</a>
+          <a href="/machine-receipts">Machine Receipts</a>
+          <a href="/">Radar Terminal</a>
+        </div>
+      </nav>
+    </header>
+    <main id="machine-preflight-content" className="machine-market-page machine-preflight-page" aria-label="Machine Preflight">
+      <section className="panel hero machine-market-hero">
+        <div>
+          <p className="eyebrow">Bounded Authority</p>
+          <h1>Machine Preflight</h1>
+          <p className="copy">Before a machine spends, Radar checks policy, route fit, evidence, and caveats.</p>
+          <p className="panel-caption">Preflight is not execution. Radar records whether a machine SHOULD spend before any service call occurs.</p>
+        </div>
+        <div className="ticker" aria-label="Machine Preflight principles">
+          <span>Same terminal</span>
+          <span>New species of spender</span>
+          <span>Policy before spend</span>
+        </div>
+      </section>
+      <section className="panel machine-quick-examples" aria-label="Quick examples">
+        <div className="panel-head"><div><p className="section-kicker">Quick Examples</p><h2>Load a bounded spend scenario</h2></div></div>
+        <div className="category-chips">
+          {MACHINE_PREFLIGHT_EXAMPLES.map((example) => <button key={example.label} type="button" onClick={() => setForm((current) => ({ ...current, ...example.state, policy_id: normalizeTemplateId(example.state.policy_id ?? ''), requires_receipt: example.state.requires_receipt ?? true }))}>{example.label}</button>)}
+        </div>
+      </section>
+      <MachineMethodologyNote />
+      <section className="machine-preflight-layout">
+        <form className="panel machine-preflight-form" aria-label="Machine preflight form" onSubmit={submit}>
+          <div className="panel-head"><div><p className="section-kicker">Decision Request</p><h2>Machine spend preflight</h2></div><small>No service call occurs.</small></div>
+          <label><span>machine_id</span><input aria-label="machine_id" value={form.machine_id} onChange={(event) => updateForm('machine_id', event.target.value)} required /></label>
+          <label><span>intent</span><textarea aria-label="intent" value={form.intent} onChange={(event) => updateForm('intent', event.target.value)} required /></label>
+          <div className="machine-preflight-form-grid">
+            <FilterSelect label="category" value={form.category} values={MACHINE_MARKET_CATEGORIES} onChange={(value) => updateForm('category', value as MachineMarketCategory)} />
+            <label><span>max_cost_usd</span><input aria-label="max_cost_usd" type="number" min="0" step="0.001" value={form.max_cost_usd} onChange={(event) => updateForm('max_cost_usd', event.target.value)} /></label>
+            <FilterSelect label="risk_tolerance" value={form.risk_tolerance} values={['low', 'medium', 'high']} onChange={(value) => updateForm('risk_tolerance', value as MachinePreflightFormState['risk_tolerance'])} />
+            <label><span>policy template</span><select aria-label="policy template" value={selectedTemplateId} onChange={(event) => applyTemplate(event.target.value)}><option value="">Ephemeral policy</option>{templates.map((template) => <option key={template.id} value={template.id}>{template.name}</option>)}</select></label>
+          </div>
+          <MultiSelect label="allowed_markets" values={MACHINE_MARKET_SOURCES} selected={form.allowed_markets} onChange={(values) => updateForm('allowed_markets', values)} />
+          <MultiSelect label="allowed_chains" values={MACHINE_MARKET_CHAINS} selected={form.allowed_chains} onChange={(values) => updateForm('allowed_chains', values)} />
+          <label className="machine-checkbox"><input aria-label="requires_receipt" type="checkbox" checked={form.requires_receipt} onChange={(event) => updateForm('requires_receipt', event.target.checked)} /> <span>requires_receipt</span></label>
+          <button className="execute" type="submit" disabled={submitting}>{submitting ? 'Checking...' : 'Run Machine Preflight'}</button>
+          {templatesError && <p className="route-state warn">Policy templates unavailable: {templatesError}</p>}
+          {submitError && <p className="route-state error">Machine preflight unavailable: {submitError}</p>}
+        </form>
+        <aside className="panel machine-policy-summary" aria-label="Policy summary">
+          <div className="panel-head"><div><p className="section-kicker">Policy Template</p><h2>{selectedTemplate?.name ?? 'Ephemeral policy'}</h2></div></div>
+          {selectedTemplate ? <details open>
+            <summary>{selectedTemplate.description}</summary>
+            <div className="key-values machine-service-profile">
+              <p><b>daily_budget_usd</b><span>${selectedTemplate.daily_budget_usd}</span></p>
+              <p><b>per_call_budget_usd</b><span>${selectedTemplate.per_call_budget_usd}</span></p>
+              <p><b>allowed_categories</b><span>{selectedTemplate.allowed_categories.join(', ') || 'none'}</span></p>
+              <p><b>allowed_markets</b><span>{selectedTemplate.allowed_source_markets.join(', ') || 'request-defined'}</span></p>
+              <p><b>allowed_chains</b><span>{selectedTemplate.allowed_chains.join(', ') || 'request-defined'}</span></p>
+              <p><b>minimum_evidence</b><span>{selectedTemplate.minimum_evidence_stage}</span></p>
+              <p><b>risk_tolerance</b><span>{selectedTemplate.risk_tolerance}</span></p>
+              <p><b>receipt_required</b><span>{String(selectedTemplate.receipt_required)}</span></p>
+            </div>
+          </details> : <p className="copy">Request constraints will form an ephemeral policy for this preflight only.</p>}
+        </aside>
+      </section>
+      {result && <MachinePreflightResultPanel result={result} />}
+    </main>
+  </div>;
+}
+
+function MultiSelect<T extends string>({ label, values, selected, onChange }: { label: string; values: T[]; selected: T[]; onChange: (values: T[]) => void }) {
+  const toggle = (value: T) => onChange(selected.includes(value) ? selected.filter((item) => item !== value) : [...selected, value]);
+  return <fieldset className="machine-multi-select" aria-label={label}>
+    <legend>{label}</legend>
+    {values.map((value) => <label key={value}><input type="checkbox" checked={selected.includes(value)} onChange={() => toggle(value)} /> <span>{value}</span></label>)}
+  </fieldset>;
+}
+
+function MachinePreflightResultPanel({ result }: { result: MachinePreflightResult }) {
+  return <section className={`panel machine-preflight-result ${result.decision}`} aria-label="Machine preflight result">
+    <div className="machine-clearance-head">
+      <div><p className="section-kicker">Control Tower Clearance</p><h2>Decision: <span className={`decision-badge ${result.decision}`}>{result.decision}</span></h2></div>
+      <strong>{result.receipt_id}</strong>
+    </div>
+    <div className="machine-clearance-grid">
+      <div><span>recommended service</span><strong>{result.recommended_service?.name ?? 'none'}</strong></div>
+      <div><span>source market</span><strong>{result.source_market ?? 'none'}</strong></div>
+      <div><span>chain</span><strong>{result.chain ?? 'none'}</strong></div>
+      <div><span>evidence</span><strong>{formatEvidenceStage(result.evidence_stage)} / {result.evidence_health ?? 'none'}</strong></div>
+    </div>
+    <MachineEvidenceClaims serviceOrReceipt={{ evidence_stage: result.evidence_stage }} />
+    <p className="copy">{result.reason}</p>
+    <details open><summary>Policy checks</summary><div className="machine-check-list">{result.policy_checks.map((check) => <p key={check.id}><b className={check.status}>{check.status}</b><span>{check.label}: {check.detail}</span></p>)}</div></details>
+    {!!result.violations.length && <section className="dossier-section"><h4>Violations</h4><ul className="machine-caveat-list">{result.violations.map((item) => <li key={item}>{item}</li>)}</ul></section>}
+    {!!result.review_reasons.length && <section className="dossier-section"><h4>Review reasons</h4><ul className="machine-caveat-list">{result.review_reasons.map((item) => <li key={item}>{item}</li>)}</ul></section>}
+    <section className="dossier-section"><h4>Caveats</h4><ul className="machine-caveat-list">{result.caveats.map((item) => <li key={item}>{item}</li>)}</ul></section>
+  </section>;
+}
+
+function normalizeTemplateId(policyId: string) {
+  return policyId.replace(/^template[_:-]/, '').replaceAll('_', '-');
+}
+
+function MachineMethodologyNote() {
+  return <p className="machine-methodology-note"><a href="/#methodology">Methodology: Machine Economy evidence ladder</a></p>;
+}
+
+type MachineReceiptFiltersState = {
+  decision: 'all' | 'allow' | 'deny' | 'review';
+  machine_id: string;
+  service_id: string;
+  source_market: 'all' | MachineMarketSource;
+  chain: 'all' | MachineMarketChain;
+};
+
+function MachineReceiptsPage() {
+  const [receipts, setReceipts] = useState<MachinePreflightReceipt[]>([]);
+  const [selectedReceipt, setSelectedReceipt] = useState<MachinePreflightReceipt | null>(null);
+  const [rawOpen, setRawOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState<MachineReceiptFiltersState>({ decision: 'all', machine_id: '', service_id: '', source_market: 'all', chain: 'all' });
+
+  const loadReceipts = React.useCallback(() => {
+    setLoading(true);
+    setError(null);
+    const query = new URLSearchParams();
+    if (filters.decision !== 'all') query.set('decision', filters.decision);
+    if (filters.machine_id.trim()) query.set('machine_id', filters.machine_id.trim());
+    if (filters.service_id.trim()) query.set('service_id', filters.service_id.trim());
+    if (filters.source_market !== 'all') query.set('source_market', filters.source_market);
+    if (filters.chain !== 'all') query.set('chain', filters.chain);
+    query.set('limit', '50');
+    api<{ data: { receipts: MachinePreflightReceipt[] } }>(`/v1/machine-preflight/receipts/recent?${query.toString()}`)
+      .then((response) => setReceipts(response.data.receipts))
+      .catch((err) => setError(err instanceof Error ? err.message : 'machine receipts unavailable'))
+      .finally(() => setLoading(false));
+  }, [filters]);
+
+  useEffect(() => {
+    document.title = 'Machine Receipts | Infopunks Pay.sh Radar';
+    setMetaTag('name', 'description', 'Machine preflight decision receipt memory for bounded machine spend.');
+  }, []);
+
+  useEffect(() => {
+    loadReceipts();
+  }, [loadReceipts]);
+
+  const openReceipt = (receiptId: string) => {
+    api<{ data: { receipt: MachinePreflightReceipt } }>(`/v1/machine-preflight/receipts/${encodeURIComponent(receiptId)}`)
+      .then((response) => {
+        setSelectedReceipt(response.data.receipt);
+        setRawOpen(false);
+      })
+      .catch(() => {
+        const fallback = receipts.find((receipt) => receipt.receipt_id === receiptId) ?? null;
+        setSelectedReceipt(fallback);
+      });
+  };
+
+  return <div className="shell machine-market-shell">
+    <a className="skip-link" href="#machine-receipts-content">Skip to content</a>
+    <header className="site-header">
+      <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Receipts navigation">
+        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <div className="terminal-nav" aria-label="Machine Economy navigation">
+          <a href="/machine-market">Machine Economy</a>
+          <a href="/machine-preflight">Machine Preflight</a>
+          <a className="active" href="/machine-receipts" aria-current="page">Machine Receipts</a>
+          <a href="/">Radar Terminal</a>
+        </div>
+      </nav>
+    </header>
+    <main id="machine-receipts-content" className="machine-market-page machine-receipts-page" aria-label="Machine Receipts">
+      <section className="panel hero machine-market-hero">
+        <div>
+          <p className="eyebrow">Proof Memory</p>
+          <h1>Machine Receipts</h1>
+          <p className="copy">Machines with wallets need witnesses.</p>
+          <p className="panel-caption">Receipts record the boundary between permission and action. Denied attempts matter. They prove autonomy is bounded.</p>
+        </div>
+        <div className="ticker" aria-label="Machine Receipts principles">
+          <span>Decision receipts</span>
+          <span>Not payment receipts</span>
+          <span>Preflight before action</span>
+        </div>
+      </section>
+      <MachineMethodologyNote />
+      <ReceiptsSummaryCards receipts={receipts} />
+      <ReceiptFilters filters={filters} onChange={setFilters} />
+      {loading && <section className="panel" role="status"><p className="route-state">Loading machine receipts...</p></section>}
+      {error && <section className="panel" role="alert"><p className="route-state error">Machine receipts unavailable: {error}</p></section>}
+      {!loading && !error && receipts.length === 0 && <section className="panel machine-receipts-empty">
+        <EmptyState title="No machine receipts yet." body="Run a preflight decision to create the first receipt." />
+        <a className="execute compact secondary" href="/machine-preflight">Open Machine Preflight</a>
+      </section>}
+      {!loading && !error && receipts.length > 0 && <section className="machine-receipts-layout">
+        <ReceiptsTimeline receipts={receipts} onSelect={openReceipt} />
+        <ReceiptDetailDrawer receipt={selectedReceipt ?? receipts[0]} rawOpen={rawOpen} onRawToggle={() => setRawOpen((value) => !value)} />
+      </section>}
+    </main>
+  </div>;
+}
+
+function ReceiptsSummaryCards({ receipts }: { receipts: MachinePreflightReceipt[] }) {
+  const uniqueMachines = new Set(receipts.map((receipt) => receipt.machine_id)).size;
+  const marketCounts = receipts.reduce<Record<string, number>>((counts, receipt) => {
+    if (receipt.source_market) counts[receipt.source_market] = (counts[receipt.source_market] ?? 0) + 1;
+    return counts;
+  }, {});
+  const topMarket = Object.entries(marketCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'none';
+  return <section className="grid four machine-market-summary machine-receipts-summary" aria-label="Machine receipt summary">
+    <article className="panel metric"><span>Total receipts</span><strong>{receipts.length}</strong><small>decision receipts</small></article>
+    <article className="panel metric"><span>Allowed</span><strong>{receipts.filter((receipt) => receipt.decision === 'allow').length}</strong><small>permission before action</small></article>
+    <article className="panel metric"><span>Denied</span><strong>{receipts.filter((receipt) => receipt.decision === 'deny').length}</strong><small>bounded autonomy proof</small></article>
+    <article className="panel metric"><span>Review</span><strong>{receipts.filter((receipt) => receipt.decision === 'review').length}</strong><small>human checkpoint</small></article>
+    <article className="panel metric"><span>Unique machines</span><strong>{uniqueMachines}</strong><small>machine identities</small></article>
+    <article className="panel metric"><span>Top source market</span><strong>{topMarket}</strong><small>preflight metadata</small></article>
+    <article className="panel metric"><span>Latest receipt</span><strong>{receipts[0] ? formatMachineTimestamp(receipts[0].created_at) : 'none'}</strong><small>newest first</small></article>
+  </section>;
+}
+
+function ReceiptFilters({ filters, onChange }: { filters: MachineReceiptFiltersState; onChange: (filters: MachineReceiptFiltersState) => void }) {
+  const update = <K extends keyof MachineReceiptFiltersState>(key: K, value: MachineReceiptFiltersState[K]) => onChange({ ...filters, [key]: value });
+  return <section className="panel machine-market-filters machine-receipt-filters" aria-label="Receipt filters">
+    <FilterSelect label="decision" value={filters.decision} values={['all', 'allow', 'deny', 'review']} onChange={(value) => update('decision', value as MachineReceiptFiltersState['decision'])} />
+    <label><span>machine_id</span><input aria-label="machine_id filter" value={filters.machine_id} onChange={(event) => update('machine_id', event.target.value)} /></label>
+    <label><span>service_id</span><input aria-label="service_id filter" value={filters.service_id} onChange={(event) => update('service_id', event.target.value)} /></label>
+    <FilterSelect label="source_market" value={filters.source_market} values={['all', ...MACHINE_MARKET_SOURCES]} onChange={(value) => update('source_market', value as MachineReceiptFiltersState['source_market'])} />
+    <FilterSelect label="chain" value={filters.chain} values={['all', ...MACHINE_MARKET_CHAINS]} onChange={(value) => update('chain', value as MachineReceiptFiltersState['chain'])} />
+  </section>;
+}
+
+function ReceiptsTimeline({ receipts, onSelect }: { receipts: MachinePreflightReceipt[]; onSelect: (receiptId: string) => void }) {
+  return <section className="panel machine-receipts-timeline" aria-label="Receipts timeline">
+    <div className="panel-head"><div><p className="section-kicker">Receipt Timeline</p><h2>{receipts.length} decision receipts</h2></div><small>Denied and review receipts are successful governance records.</small></div>
+    <div className="machine-receipt-table" role="table" aria-label="Machine receipt timeline table">
+      <div className="machine-receipt-row head" role="row">
+        {['timestamp', 'decision', 'machine_id', 'intent', 'selected service', 'source market', 'chain', 'evidence stage', 'receipt id', ''].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
+      </div>
+      {receipts.map((receipt) => <div key={receipt.receipt_id} className={`machine-receipt-row ${receipt.decision}`} role="row">
+        <span role="cell">{formatMachineTimestamp(receipt.created_at)}</span>
+        <span role="cell" className={`decision-badge ${receipt.decision}`}>{receipt.decision}</span>
+        <span role="cell"><a className="machine-id-link" href={`/machine-dossier/${encodeURIComponent(receipt.machine_id)}`}>{receipt.machine_id}</a></span>
+        <span role="cell">{receipt.intent}</span>
+        <span role="cell">{receipt.selected_service_name ?? 'none'}</span>
+        <span role="cell">{receipt.source_market ?? 'none'}</span>
+        <span role="cell">{receipt.chain ?? 'none'}</span>
+        <span role="cell"><MachineEvidenceStageTag stage={receipt.evidence_stage} /></span>
+        <span role="cell">{receipt.receipt_id}</span>
+        <span role="cell"><button className="execute compact secondary" type="button" onClick={() => onSelect(receipt.receipt_id)}>View details</button></span>
+      </div>)}
+    </div>
+  </section>;
+}
+
+function ReceiptDetailDrawer({ receipt, rawOpen, onRawToggle }: { receipt: MachinePreflightReceipt; rawOpen: boolean; onRawToggle: () => void }) {
+  const checksPassed = receipt.policy_checks.filter((check) => check.status === 'pass').length;
+  return <aside className={`panel machine-receipt-detail ${receipt.decision}`} aria-label="Receipt detail drawer">
+    <div className="panel-head"><div><p className="section-kicker">Receipt Detail</p><h2><span className={`decision-badge ${receipt.decision}`}>{receipt.decision}</span> {receipt.receipt_id}</h2></div></div>
+    <p className="copy">{receipt.reason}</p>
+    <div className="machine-receipt-priority">
+      <div><span>decision</span><strong className={`decision-badge ${receipt.decision}`}>{receipt.decision}</strong></div>
+      <div><span>selected service</span><strong>{receipt.selected_service_name ?? 'none'}</strong></div>
+      <div><span>source market / chain</span><strong>{receipt.source_market ?? 'none'} / {receipt.chain ?? 'none'}</strong></div>
+      <div><span>execution_occurred</span><strong>false</strong></div>
+      <div><span>payment_occurred</span><strong>false</strong></div>
+      <div><span>evidence stage / health</span><strong>{formatEvidenceStage(receipt.evidence_stage)} / {receipt.evidence_health ?? 'none'}</strong></div>
+    </div>
+    <div className="key-values machine-service-profile">
+      <p><b>machine_id</b><span>{receipt.machine_id}</span></p>
+      <p><b>selected_service</b><span>{receipt.selected_service_name ?? 'none'}</span></p>
+      <p><b>source_market</b><span>{receipt.source_market ?? 'none'}</span></p>
+      <p><b>chain</b><span>{receipt.chain ?? 'none'}</span></p>
+      <p><b>evidence</b><span>{formatEvidenceStage(receipt.evidence_stage)} / {receipt.evidence_health ?? 'none'}</span></p>
+      <p><b>phase_scope</b><span>{receipt.phase_scope}</span></p>
+    </div>
+    <MachineEvidenceClaims serviceOrReceipt={receipt} />
+    <section className="machine-check-summary" aria-label="Policy check summary">
+      <span><b>{checksPassed}</b> checks passed</span>
+      <span><b>{receipt.violations.length}</b> violations</span>
+      <span><b>{receipt.review_reasons.length}</b> review reasons</span>
+      <span><b>{receipt.caveats.length}</b> caveats</span>
+    </section>
+    <details><summary>Show policy checks</summary><div className="machine-check-list">{receipt.policy_checks.map((check) => <p key={check.id}><b className={check.status}>{check.status}</b><span>{check.label}: {check.detail}</span></p>)}</div></details>
+    {!!receipt.violations.length && <section className="dossier-section"><h4>Violations</h4><ul className="machine-caveat-list">{receipt.violations.map((item) => <li key={item}>{item}</li>)}</ul></section>}
+    {!!receipt.review_reasons.length && <section className="dossier-section"><h4>Review reasons</h4><ul className="machine-caveat-list">{receipt.review_reasons.map((item) => <li key={item}>{item}</li>)}</ul></section>}
+    <section className="dossier-section"><h4>Caveats</h4><ul className="machine-caveat-list">{receipt.caveats.map((item) => <li key={item}>{item}</li>)}</ul></section>
+    <button className="execute compact secondary" type="button" onClick={onRawToggle}>{rawOpen ? 'Hide raw JSON' : 'Show raw JSON'}</button>
+    {rawOpen && <SafeCodeBlock value={JSON.stringify(receipt, null, 2)} label="Machine receipt raw JSON" />}
+  </aside>;
+}
+
+function MachineDossierPage({ machineId }: { machineId: string }) {
+  const [dossier, setDossier] = useState<MachineDossier | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.title = `${machineId} Machine Dossier | Infopunks Pay.sh Radar`;
+    setMetaTag('name', 'description', 'Radar-observed machine behavior memory based on policies, preflight decisions, and receipts.');
+    setLoading(true);
+    setError(null);
+    api<{ data: MachineDossier }>(`/v1/machine-dossier/${encodeURIComponent(machineId)}`)
+      .then((response) => setDossier(response.data))
+      .catch((err) => setError(err instanceof Error ? err.message : 'machine dossier unavailable'))
+      .finally(() => setLoading(false));
+  }, [machineId]);
+
+  return <div className="shell machine-market-shell">
+    <a className="skip-link" href="#machine-dossier-content">Skip to content</a>
+    <header className="site-header">
+      <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Dossier navigation">
+        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <div className="terminal-nav" aria-label="Machine Economy navigation">
+          <a href="/machine-market">Machine Economy</a>
+          <a href="/machine-preflight">Machine Preflight</a>
+          <a href="/machine-receipts">Machine Receipts</a>
+          <a className="active" href={`/machine-dossier/${encodeURIComponent(machineId)}`} aria-current="page">Machine Dossier</a>
+        </div>
+      </nav>
+    </header>
+    <main id="machine-dossier-content" className="machine-market-page machine-dossier-page" aria-label="Machine Dossier">
+      <section className="panel hero machine-market-hero">
+        <div>
+          <p className="eyebrow">Machine Dossier</p>
+          <h1>{machineId}</h1>
+          <p className="copy">peaqOS identity gives the machine an address. Infopunks gives the machine behavioral memory.</p>
+          <p className="panel-caption">Machine dossiers summarize what a machine was allowed to do, what it attempted, and what Radar recorded.</p>
+        </div>
+        <div className="ticker" aria-label="Machine dossier status">
+          <span>{dossier?.status ?? 'loading'}</span>
+          <span>{dossier?.phase_scope ?? 'phase_2_pay_sh_robotic_sh'}</span>
+          <span>{dossier?.summary.latest_activity_at ? formatMachineTimestamp(dossier.summary.latest_activity_at) : 'no activity'}</span>
+        </div>
+      </section>
+      <MachineMethodologyNote />
+      {loading && <section className="panel" role="status"><p className="route-state">Loading machine dossier...</p></section>}
+      {error && <section className="panel" role="alert"><p className="route-state error">Machine dossier unavailable: {error}</p></section>}
+      {dossier && <>
+        {dossier.status === 'no_activity' && <section className="panel machine-receipts-empty"><EmptyState title="No Radar-observed activity." body={dossier.suggested_next_action ?? 'Run preflight to create the first receipt.'} /><a className="execute compact secondary" href="/machine-preflight">Open Machine Preflight</a></section>}
+        <section className="machine-dossier-layout">
+          <MachineAuthorityCard dossier={dossier} />
+          <MachineDossierSummary dossier={dossier} />
+        </section>
+        <section className="machine-dossier-layout">
+          <UsageMaps dossier={dossier} />
+          <DossierEvidenceSummary dossier={dossier} />
+        </section>
+        <section className="panel machine-receipts-timeline" aria-label="Machine dossier recent receipts">
+          <div className="panel-head"><div><p className="section-kicker">Recent Receipts</p><h2>{dossier.recent_receipts.length} Radar-observed receipts</h2></div></div>
+          {dossier.recent_receipts.length ? <ReceiptsTimeline receipts={dossier.recent_receipts} onSelect={() => undefined} /> : <EmptyState title="No receipts for this machine." body="Run a preflight decision to start its behavioral memory." />}
+        </section>
+        <section className="panel"><h2>Caveats</h2><ul className="machine-caveat-list">{dossier.caveats.map((caveat) => <li key={caveat}>{caveat}</li>)}</ul></section>
+      </>}
+    </main>
+  </div>;
+}
+
+function MachineAuthorityCard({ dossier }: { dossier: MachineDossier }) {
+  return <section className="panel machine-policy-summary" aria-label="Machine authority card">
+    <div className="panel-head"><div><p className="section-kicker">Machine Authority</p><h2>{dossier.policy_profile.policy_name ?? 'No active policy observed'}</h2></div></div>
+    <div className="key-values machine-service-profile">
+      <p><b>active_policy_id</b><span>{dossier.policy_profile.active_policy_id ?? 'none'}</span></p>
+      <p><b>risk_tolerance</b><span>{dossier.policy_profile.risk_tolerance ?? 'unknown'}</span></p>
+      <p><b>daily_budget_usd</b><span>{dossier.policy_profile.daily_budget_usd ?? 'unknown'}</span></p>
+      <p><b>per_call_budget_usd</b><span>{dossier.policy_profile.per_call_budget_usd ?? 'unknown'}</span></p>
+      <p><b>allowed_categories</b><span>{dossier.policy_profile.allowed_categories.join(', ') || 'unknown'}</span></p>
+      <p><b>allowed_markets</b><span>{dossier.policy_profile.allowed_source_markets.join(', ') || 'request-defined'}</span></p>
+      <p><b>allowed_chains</b><span>{dossier.policy_profile.allowed_chains.join(', ') || 'request-defined'}</span></p>
+    </div>
+  </section>;
+}
+
+function MachineDossierSummary({ dossier }: { dossier: MachineDossier }) {
+  return <section className="grid three machine-dossier-summary" aria-label="Machine dossier decision summary">
+    <article className="panel metric"><span>Total receipts</span><strong>{dossier.summary.total_receipts}</strong><small>Radar-observed</small></article>
+    <article className="panel metric"><span>Allowed</span><strong>{dossier.summary.allow_count}</strong><small>permission before action</small></article>
+    <article className="panel metric"><span>Denied</span><strong>{dossier.summary.deny_count}</strong><small>bounded attempts</small></article>
+    <article className="panel metric"><span>Review</span><strong>{dossier.summary.review_count}</strong><small>human checkpoint</small></article>
+    <article className="panel metric"><span>Unique services</span><strong>{dossier.summary.unique_services}</strong><small>service routes</small></article>
+    <article className="panel metric"><span>Unique markets</span><strong>{dossier.summary.unique_source_markets}</strong><small>source markets</small></article>
+  </section>;
+}
+
+function UsageMaps({ dossier }: { dossier: MachineDossier }) {
+  return <section className="panel machine-usage-maps" aria-label="Machine usage maps">
+    <div className="panel-head"><div><p className="section-kicker">Usage Maps</p><h2>What Radar saw</h2></div></div>
+    <UsageList title="Service usage" rows={dossier.service_usage.map((row) => [row.service_name, row.count])} />
+    <UsageList title="Category usage" rows={dossier.category_usage.map((row) => [row.category, row.count])} />
+    <UsageList title="Market usage" rows={dossier.market_usage.map((row) => [row.source_market, row.count])} />
+    <UsageList title="Chain usage" rows={dossier.chain_usage.map((row) => [row.chain, row.count])} />
+  </section>;
+}
+
+function UsageList({ title, rows }: { title: string; rows: Array<[string, number]> }) {
+  return <section className="dossier-section"><h4>{title}</h4>{rows.length ? <div className="machine-usage-list">{rows.map(([label, count]) => <p key={label}><span>{label}</span><b>{count}</b></p>)}</div> : <p>none observed</p>}</section>;
+}
+
+function DossierEvidenceSummary({ dossier }: { dossier: MachineDossier }) {
+  const highest = dossier.evidence_summary.highest_stage_seen;
+  return <section className="panel evidence-ladder-panel" aria-label="Machine dossier evidence summary">
+    <div className="panel-head"><div><p className="section-kicker">Evidence Summary</p><h2>Highest observed: {formatEvidenceStage(highest)}</h2></div></div>
+    <div className="evidence-ladder">{MACHINE_MARKET_STAGES.map((stage, index) => <React.Fragment key={stage}><span className={stage === highest || (dossier.evidence_summary.stage_counts[stage] ?? 0) > 0 ? 'active' : 'future'} title={getEvidenceStageDescription(stage)}>{formatEvidenceStage(stage)}</span>{index < MACHINE_MARKET_STAGES.length - 1 && <b aria-hidden="true">-&gt;</b>}</React.Fragment>)}</div>
+    <div className="machine-usage-list evidence-counts">{Object.entries(dossier.evidence_summary.stage_counts).map(([stage, count]) => <p key={stage}><span>{formatEvidenceStage(stage)}</span><b>{count}</b></p>)}</div>
+    <p className="panel-caption">{getEvidenceStageDescription(highest)}</p>
+    <MachineEvidenceClaims serviceOrReceipt={{ evidence_stage: highest }} />
+  </section>;
+}
+
 function PublicProviderPage({ providerId }: { providerId: string }) {
   const [providerDetail, setProviderDetail] = useState<ProviderDetail | null>(null);
   const [providerIntel, setProviderIntel] = useState<ProviderIntelligence | null>(null);
@@ -2133,6 +3091,8 @@ function RadarApp() {
   const [agentMode, setAgentMode] = useState(false);
   const [densityMode, setDensityMode] = useState<DensityMode>('comfortable');
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [machineMenuOpen, setMachineMenuOpen] = useState(false);
+  const machineMenuRef = useRef<HTMLDetailsElement | null>(null);
   const refreshInFlightRef = useRef(false);
   const interactionHoldUntil = useRef(0);
   const featuredRotationEnabledRef = useRef(featuredRotationEnabled);
@@ -2158,6 +3118,16 @@ function RadarApp() {
       })
       .catch(() => undefined);
   }
+
+  useEffect(() => {
+    if (window.location.hash === '#methodology') setMethodologyOpen(true);
+
+    const handleHashChange = () => {
+      if (window.location.hash === '#methodology') setMethodologyOpen(true);
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -2477,6 +3447,23 @@ function RadarApp() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!machineMenuOpen) return;
+    const onPointerDown = (event: MouseEvent) => {
+      if (!machineMenuRef.current) return;
+      if (!machineMenuRef.current.contains(event.target as Node)) setMachineMenuOpen(false);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMachineMenuOpen(false);
+    };
+    window.addEventListener('mousedown', onPointerDown);
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('mousedown', onPointerDown);
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [machineMenuOpen]);
+
   const safeProviders = useMemo(() => asArray<Provider>(data?.providers), [data?.providers]);
   const safeTopTrust = useMemo(() => asArray<TrustAssessment>(data?.pulse.topTrust), [data?.pulse.topTrust]);
   const safeTopSignal = useMemo(() => asArray<SignalAssessment>(data?.pulse.topSignal), [data?.pulse.topSignal]);
@@ -2795,6 +3782,10 @@ function RadarApp() {
     openExportRoute(OPENAPI_PATH);
   }
 
+  function openMachineRoute(path: string) {
+    window.open(path, '_self');
+  }
+
   const commandActions = useMemo<CommandPaletteAction[]>(() => [
     { id: 'focus-search', label: 'Focus Semantic Search', hint: 'Jump to ecosystem search input', run: focusSemanticSearch },
     { id: 'open-preflight', label: 'Open Agent Preflight', hint: 'Jump to agent preflight panel', run: () => scrollToPanel('preflight') },
@@ -2803,6 +3794,10 @@ function RadarApp() {
     { id: 'open-benchmark', label: 'Open Benchmark Readiness', hint: 'Jump to benchmark readiness', run: () => scrollToPanel('benchmark-readiness') },
     { id: 'open-agent-benchmark-api', label: 'Open Agent Benchmark API', hint: 'Jump to benchmark API docs and examples', run: () => scrollToPanel('agent-benchmark-api') },
     { id: 'open-api-docs', label: 'Open API Docs', hint: OPENAPI_PATH, run: openApiDocs },
+    { id: 'open-machine-market', label: 'Open Machine Market', hint: '/machine-market', run: () => openMachineRoute('/machine-market') },
+    { id: 'run-machine-preflight', label: 'Run Machine Preflight', hint: '/machine-preflight', run: () => openMachineRoute('/machine-preflight') },
+    { id: 'view-machine-receipts', label: 'View Machine Receipts', hint: '/machine-receipts', run: () => openMachineRoute('/machine-receipts') },
+    { id: 'search-machine-dossier', label: 'Search Machine Dossier', hint: 'Open receipts and select a machine_id', run: () => openMachineRoute('/machine-receipts') },
     { id: 'export-providers-json', label: 'Export Providers JSON', hint: '/v1/radar/providers', run: () => openExportRoute('/v1/radar/providers') },
     { id: 'export-endpoints-json', label: 'Export Endpoints JSON', hint: '/v1/radar/endpoints', run: () => openExportRoute('/v1/radar/endpoints') },
     { id: 'export-providers-csv', label: 'Export Providers CSV', hint: '/v1/radar/export/providers.csv', run: () => openExportRoute('/v1/radar/export/providers.csv') },
@@ -2864,6 +3859,22 @@ function RadarApp() {
             </button>
             <a className="methodology-trigger methodology-link" href="#events">Events</a>
           </span>
+          <details
+            ref={machineMenuRef}
+            className={`terminal-action-cluster machine-economy-cluster ${machineMenuOpen ? 'open' : ''}`}
+            aria-label="Machine Economy menu"
+            open={machineMenuOpen}
+            onToggle={(event) => setMachineMenuOpen((event.currentTarget as HTMLDetailsElement).open)}
+          >
+            <summary className="methodology-trigger methodology-link machine-economy-trigger">
+              Machine Economy
+            </summary>
+            <div className="machine-economy-menu" role="menu" aria-label="Machine Economy routes">
+              <a className="methodology-trigger methodology-link" role="menuitem" href="/machine-market">Market</a>
+              <a className="methodology-trigger methodology-link" role="menuitem" href="/machine-preflight">Preflight</a>
+              <a className="methodology-trigger methodology-link" role="menuitem" href="/machine-receipts">Receipts</a>
+            </div>
+          </details>
           <span className="terminal-action-cluster" aria-label="Tools">
           <button className="methodology-trigger command-trigger" type="button" onClick={() => setCommandPaletteOpen(true)} aria-label="Open command palette">
             Cmd+K
@@ -2940,6 +3951,16 @@ function RadarApp() {
         <ControlStripMetric label="Monitoring Mode" value="Safe metadata" />
         <ControlStripMetric label="Freshness" value={formatShortDate(data.pulse.data_source.last_ingested_at ?? data.pulse.data_source.generated_at)} />
       </div>
+    </section>}
+
+    {!agentMode && <section className="panel machine-module-card" aria-label="Machine Economy Module">
+      <div>
+        <p className="section-kicker">New Radar Module</p>
+        <h2>Machine Economy Module</h2>
+        <p>Radar now maps the robotic.sh machine-service market: 12 listed services, bounded authority policies, preflight decisions, and machine receipts.</p>
+        <small>Same terminal. New species of spender.</small>
+      </div>
+      <a className="execute compact secondary" href="/machine-market">Open Machine Market</a>
     </section>}
 
     {!agentMode && <HeadToHeadBenchmarkPanel registry={benchmarkRegistry} evidenceLedger={evidenceLedger} loading={benchmarkReadinessLoading} />}
@@ -3486,6 +4507,7 @@ function RadarApp() {
       <div>
         <p>INFOPUNKS PAY.SH RADAR</p>
         <small>Catalog-derived trust, signal, routing, and safe metadata monitoring. Unknowns stay visible.</small>
+        <small>Machine Economy is an observed module for bounded authority, preflight decisions, and decision receipts.</small>
       </div>
       <div className="footer-status" aria-label="Radar catalog source status">
         <span>{sourceLabel(data.pulse.data_source)}</span>
@@ -5848,6 +6870,11 @@ function formatDate(value: string | null | undefined) {
   return value ? new Date(value).toLocaleString() : 'unknown';
 }
 
+function formatMachineTimestamp(value: string | null | undefined) {
+  if (!value) return 'unknown';
+  return new Date(value).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+}
+
 function formatShortDate(value: string | null | undefined) {
   if (!value) return 'unknown';
   return new Date(value).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -6310,6 +7337,11 @@ export function App() {
   const benchmarkId = routeBenchmarkId(window.location.pathname);
   if (benchmarkId) return <PublicBenchmarkProofPage benchmarkId={benchmarkId} />;
   if (isBenchmarkIndexRoute(window.location.pathname)) return <PublicBenchmarksIndexPage />;
+  if (isMachineMarketRoute(window.location.pathname)) return <MachineMarketPage />;
+  if (isMachinePreflightRoute(window.location.pathname)) return <MachinePreflightPage />;
+  if (isMachineReceiptsRoute(window.location.pathname)) return <MachineReceiptsPage />;
+  const machineDossierId = routeMachineDossierId(window.location.pathname);
+  if (machineDossierId) return <MachineDossierPage machineId={machineDossierId} />;
   const providerId = routeProviderId(window.location.pathname);
   if (providerId) return <PublicProviderPage providerId={providerId} />;
   return <RadarApp />;
