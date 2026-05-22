@@ -133,7 +133,9 @@ const machineMethodologyBlocks: MachineMethodologyBlock[] = [
     rows: [
       'Machine receipts are decision receipts by default.',
       'They record Radar’s preflight decision: allow, deny, or review.',
-      'They are not payment receipts unless explicitly marked as payment receipts.'
+      'They are not payment receipts unless explicitly marked as payment receipts.',
+      'execution-tested remains inactive until a real recorded service call occurs.',
+      'benchmark-recorded remains inactive until repeatable benchmark artifacts exist.'
     ]
   },
   {

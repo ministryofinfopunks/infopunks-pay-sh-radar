@@ -224,6 +224,20 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     responses: envelopedResponses({ $ref: '#/components/schemas/MachinePreflightResponse' }, { decision: 'allow', recommended_service: { id: 'document-ai', name: 'Document AI' }, receipt_id: 'mrx_20260522000000000_0001' })
   });
   add('get', '/v1/machine-preflight/receipts/recent', radarGet('Machine Economy', 'List recent machine preflight receipts', 'Returns newest machine preflight decision receipts first. Receipts are decision records only; no payment or provider execution is implied.', { $ref: '#/components/schemas/MachinePreflightReceiptListResponse' }, { count: 1, receipts: [{ receipt_id: 'mrx_20260522000000000_0001', decision: 'allow', receipt_type: 'machine_preflight' }] }));
+  add('post', '/v1/machine-preflight/coverage-run', {
+    tags: ['Machine Economy'],
+    summary: 'Run machine preflight coverage',
+    description: `${SAFE_METADATA_NOTE} Evaluates all listed robotic.sh services through the internal machine preflight path and records decision receipts only.`,
+    responses: envelopedResponses({ $ref: '#/components/schemas/MachinePreflightCoverageRun' }, { run_id: 'mcr_20260522000000000_0001', services_total: 12, receipts_recorded: 12, execution_occurred: false, payment_occurred: false })
+  });
+  add('get', '/v1/machine-preflight/coverage-runs/recent', radarGet('Machine Economy', 'List recent machine preflight coverage runs', 'Returns recent machine preflight coverage runs. Coverage runs record decision receipts only.', { $ref: '#/components/schemas/MachinePreflightCoverageRunListResponse' }, { count: 1, runs: [{ run_id: 'mcr_20260522000000000_0001', services_total: 12, receipts_recorded: 12 }] }));
+  add('get', '/v1/machine-preflight/coverage-runs/{run_id}', {
+    tags: ['Machine Economy'],
+    summary: 'Get machine preflight coverage run detail',
+    description: `${SAFE_METADATA_NOTE} Returns one coverage run detail by run_id.`,
+    parameters: [pathParam('run_id', 'Machine preflight coverage run identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/MachinePreflightCoverageRun' }, { run_id: 'mcr_20260522000000000_0001', services_total: 12, receipts_recorded: 12 }, 'machine_preflight_coverage_run_not_found')
+  });
 
   add('post', '/v1/radar/preflight', {
     tags: ['Radar Agent'],
@@ -1553,6 +1567,7 @@ function componentSchemas(): Record<string, JsonSchema> {
     MachinePreflightReceipt: objectSchema({
       receipt_id: stringSchema(),
       receipt_type: { const: 'machine_preflight' },
+      coverage_run_id: nullableString(),
       demo_mode: booleanSchema(),
       execution_occurred: { const: false },
       payment_occurred: { const: false },
@@ -1582,6 +1597,37 @@ function componentSchemas(): Record<string, JsonSchema> {
       module: { const: 'machine-economy' },
       count: integerSchema(),
       receipts: arrayOf({ $ref: '#/components/schemas/MachinePreflightReceipt' })
+    }),
+    MachinePreflightCoverageServiceResult: objectSchema({
+      service_id: stringSchema(),
+      service_name: stringSchema(),
+      decision: enumSchema(['allow', 'deny', 'review']),
+      receipt_id: stringSchema(),
+      execution_occurred: { const: false },
+      payment_occurred: { const: false }
+    }),
+    MachinePreflightCoverageRun: objectSchema({
+      run_id: stringSchema(),
+      generated_at: dateTimeSchema(),
+      services_total: integerSchema(),
+      preflight_evaluated: integerSchema(),
+      receipts_recorded: integerSchema(),
+      allow_count: integerSchema(),
+      review_count: integerSchema(),
+      deny_count: integerSchema(),
+      execution_occurred: { const: false },
+      payment_occurred: { const: false },
+      phase_scope: { const: 'phase_2_pay_sh_robotic_sh' },
+      storage: freeformObject(),
+      caveats: arrayOf(stringSchema()),
+      service_results: arrayOf({ $ref: '#/components/schemas/MachinePreflightCoverageServiceResult' })
+    }),
+    MachinePreflightCoverageRunListResponse: objectSchema({
+      generated_at: dateTimeSchema(),
+      source: { const: 'infopunks-pay-sh-radar' },
+      module: { const: 'machine-economy' },
+      count: integerSchema(),
+      runs: arrayOf({ $ref: '#/components/schemas/MachinePreflightCoverageRun' })
     })
   }
 }

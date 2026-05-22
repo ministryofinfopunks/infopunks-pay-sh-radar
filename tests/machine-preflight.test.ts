@@ -173,6 +173,45 @@ describe('machine preflight API', () => {
     await app.close();
   });
 
+  it('coverage run evaluates all 12 services and records decision receipts only', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+    const run = await app.inject({ method: 'POST', url: '/v1/machine-preflight/coverage-run' });
+
+    expect(run.statusCode).toBe(200);
+    const body = run.json().data;
+    expect(body.services_total).toBe(12);
+    expect(body.preflight_evaluated).toBe(12);
+    expect(body.receipts_recorded).toBe(12);
+    expect(body.execution_occurred).toBe(false);
+    expect(body.payment_occurred).toBe(false);
+    expect(body.phase_scope).toBe('phase_2_pay_sh_robotic_sh');
+    expect(body.caveats).toContain('Coverage run records decision receipts only.');
+    expect(body.caveats).toContain('No service execution occurred.');
+    expect(body.caveats).toContain('No Pay.sh, robotic.sh, or Agentic.Market call was made.');
+    expect(body.caveats).toContain('No payment occurred.');
+    expect(body.caveats).toContain('This is not a benchmark artifact.');
+    expect(body.service_results).toHaveLength(12);
+
+    const recentRuns = await app.inject({ method: 'GET', url: '/v1/machine-preflight/coverage-runs/recent?limit=1' });
+    expect(recentRuns.statusCode).toBe(200);
+    expect(recentRuns.json().data.runs).toHaveLength(1);
+    const runId = recentRuns.json().data.runs[0].run_id;
+    const detail = await app.inject({ method: 'GET', url: `/v1/machine-preflight/coverage-runs/${runId}` });
+    expect(detail.statusCode).toBe(200);
+    expect(detail.json().data.services_total).toBe(12);
+
+    const receipts = await app.inject({ method: 'GET', url: '/v1/machine-preflight/receipts/recent?limit=25' });
+    expect(receipts.statusCode).toBe(200);
+    const coverageReceipts = receipts.json().data.receipts.filter((receipt: any) => receipt.coverage_run_id === runId);
+    expect(coverageReceipts).toHaveLength(12);
+    expect(coverageReceipts.every((receipt: any) => receipt.receipt_type === 'machine_preflight')).toBe(true);
+    expect(coverageReceipts.every((receipt: any) => receipt.execution_occurred === false)).toBe(true);
+    expect(coverageReceipts.every((receipt: any) => receipt.payment_occurred === false)).toBe(true);
+    expect(coverageReceipts.some((receipt: any) => /service execution|payment receipt|benchmark|winner/i.test(receipt.reason))).toBe(false);
+
+    await app.close();
+  });
+
   it('returns empty and observed machine dossiers', async () => {
     const app = await createApp(emptyIntelligenceStore());
 

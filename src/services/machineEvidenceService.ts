@@ -15,9 +15,9 @@ const EVIDENCE_STAGE_DESCRIPTION: Record<MachineMarketEvidenceStage, string> = {
   classified: 'Service has category, source market, and chain metadata.',
   'policy-mapped': 'Service has a machine use case, policy risk, and caveats.',
   'preflight-ready': 'Service can be evaluated by Radar\'s machine preflight policy engine.',
-  'execution-tested': 'Service has been called in a recorded test.',
-  'receipt-recorded': 'A decision or execution receipt has been recorded.',
-  'benchmark-recorded': 'A benchmark artifact exists with repeatable run data.'
+  'execution-tested': 'Service execution-tested remains inactive until a real recorded service call occurs.',
+  'receipt-recorded': 'Receipt-recorded means a decision receipt unless explicitly marked as execution or payment receipt.',
+  'benchmark-recorded': 'Benchmark-recorded remains inactive until repeatable benchmark artifacts exist.'
 };
 
 export function evidenceStageRank(stage: string | null | undefined): number {

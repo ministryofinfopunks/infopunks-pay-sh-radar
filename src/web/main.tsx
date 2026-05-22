@@ -152,6 +152,7 @@ type MachinePreflightResult = {
 type MachinePreflightReceipt = {
   receipt_id: string;
   receipt_type: 'machine_preflight';
+  coverage_run_id?: string | null;
   demo_mode: boolean;
   execution_occurred: false;
   payment_occurred: false;
@@ -216,6 +217,29 @@ type MachineDossier = {
   recent_receipts: MachinePreflightReceipt[];
   caveats: string[];
   evidence_summary: { highest_stage_seen: string; stage_counts: Record<string, number> };
+};
+type MachinePreflightCoverageServiceResult = {
+  service_id: string;
+  service_name: string;
+  decision: 'allow' | 'deny' | 'review';
+  receipt_id: string;
+  execution_occurred: false;
+  payment_occurred: false;
+};
+type MachinePreflightCoverageRun = {
+  run_id: string;
+  generated_at: string;
+  services_total: number;
+  preflight_evaluated: number;
+  receipts_recorded: number;
+  allow_count: number;
+  review_count: number;
+  deny_count: number;
+  execution_occurred: false;
+  payment_occurred: false;
+  storage?: MachineReceiptStorage;
+  caveats: string[];
+  service_results: MachinePreflightCoverageServiceResult[];
 };
 type Pulse = { providerCount: number; endpointCount: number; eventCount: number; averageTrust: number | null; averageSignal: number | null; hottestNarrative: Narrative | null; topTrust: TrustAssessment[]; topSignal: SignalAssessment[]; interpretations?: EcosystemInterpretation[]; data_source: DataSource; updatedAt: string };
 type HistoryItem = EvidenceReceipt & { id: string; type: string; observedAt: string; source: string; summary: string };
@@ -2010,6 +2034,10 @@ function MachineMarketPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedService, setSelectedService] = useState<MachineMarketService | null>(null);
+  const [latestCoverageRun, setLatestCoverageRun] = useState<MachinePreflightCoverageRun | null>(null);
+  const [coverageLoading, setCoverageLoading] = useState(false);
+  const [coverageRunning, setCoverageRunning] = useState(false);
+  const [coverageError, setCoverageError] = useState<string | null>(null);
   const [filters, setFilters] = useState<MachineMarketFilters>({
     marketType: 'all',
     category: 'all',
@@ -2027,12 +2055,14 @@ function MachineMarketPage() {
     setError(null);
     Promise.all([
       api<{ data: { services: MachineMarketService[] } }>('/v1/machine-market/services'),
-      api<{ data: MachineMarketSummary }>('/v1/machine-market/summary')
-    ]).then(([servicesResponse, summaryResponse]) => {
+      api<{ data: MachineMarketSummary }>('/v1/machine-market/summary'),
+      api<{ data: { runs: MachinePreflightCoverageRun[] } }>('/v1/machine-preflight/coverage-runs/recent?limit=1').catch(() => null)
+    ]).then(([servicesResponse, summaryResponse, latestRunResponse]) => {
       if (cancelled) return;
       setServices(servicesResponse.data.services);
       setSummary(summaryResponse.data);
       setSelectedService(servicesResponse.data.services[0] ?? null);
+      setLatestCoverageRun(latestRunResponse?.data.runs?.[0] ?? null);
       setLoading(false);
     }).catch((err) => {
       if (cancelled) return;
@@ -2052,6 +2082,33 @@ function MachineMarketPage() {
     && (filters.evidenceStage === 'all' || service.evidence_stage === filters.evidenceStage)
     && (filters.status === 'all' || service.status === filters.status)
   ), [filters, services]);
+
+  const refreshLatestCoverageRun = async () => {
+    setCoverageLoading(true);
+    setCoverageError(null);
+    try {
+      const response = await api<{ data: { runs: MachinePreflightCoverageRun[] } }>('/v1/machine-preflight/coverage-runs/recent?limit=1');
+      setLatestCoverageRun(response.data.runs[0] ?? null);
+    } catch (error) {
+      setCoverageError(error instanceof Error ? error.message : 'coverage run unavailable');
+    } finally {
+      setCoverageLoading(false);
+    }
+  };
+
+  const runCoveragePreflight = async () => {
+    setCoverageRunning(true);
+    setCoverageError(null);
+    try {
+      const response = await api<{ data: MachinePreflightCoverageRun }>('/v1/machine-preflight/coverage-run', { method: 'POST' });
+      setLatestCoverageRun(response.data);
+      void refreshLatestCoverageRun();
+    } catch (error) {
+      setCoverageError(error instanceof Error ? error.message : 'coverage run failed');
+    } finally {
+      setCoverageRunning(false);
+    }
+  };
 
   return <div className="shell machine-market-shell">
     <a className="skip-link" href="#machine-market-content">Skip to content</a>
@@ -2079,6 +2136,7 @@ function MachineMarketPage() {
         <MachineMethodologyNote />
       </section>
       <EvidenceLadder services={services} />
+      <CoveragePanel latestRun={latestCoverageRun} loading={coverageLoading || loading} running={coverageRunning} error={coverageError} onRun={runCoveragePreflight} />
       <Filters filters={filters} onChange={setFilters} />
       {loading && <section className="panel" role="status" aria-live="polite"><p className="route-state">Loading Machine Market services...</p></section>}
       {error && !loading && <section className="panel" role="alert"><p className="route-state error">Machine Market API unavailable: {error}</p><p className="panel-caption">No local fixture data is shown on this page.</p></section>}
@@ -2089,6 +2147,41 @@ function MachineMarketPage() {
       </section>}
     </main>
   </div>;
+}
+
+function CoveragePanel({
+  latestRun,
+  loading,
+  running,
+  error,
+  onRun
+}: {
+  latestRun: MachinePreflightCoverageRun | null;
+  loading: boolean;
+  running: boolean;
+  error: string | null;
+  onRun: () => void;
+}) {
+  return <section className="panel machine-market-caveat" aria-label="Preflight Coverage">
+    <div className="panel-head">
+      <div>
+        <p className="section-kicker">Preflight Coverage</p>
+        <h2>Preflight Coverage</h2>
+      </div>
+      <button className="execute compact" type="button" onClick={onRun} disabled={running}>{running ? 'Running...' : 'Run Coverage Preflight'}</button>
+    </div>
+    <p>Evaluate the full listed robotic.sh service market through bounded-authority preflight and record durable decision receipts.</p>
+    {loading && !latestRun && <p className="panel-caption">Loading latest coverage run...</p>}
+    {error && <p className="route-state error">{error}</p>}
+    {latestRun && <div className="machine-usage-list">
+      <p><span>Latest run</span><small>{latestRun.run_id} · {formatMachineTimestamp(latestRun.generated_at)}</small></p>
+      <p><span>Services evaluated</span><small>{latestRun.preflight_evaluated} / {latestRun.services_total}</small></p>
+      <p><span>Decisions</span><small>allow {latestRun.allow_count} · review {latestRun.review_count} · deny {latestRun.deny_count}</small></p>
+      <p><span>Receipts recorded</span><small>{latestRun.receipts_recorded}</small></p>
+      <p><span>Storage adapter</span><small>{latestRun.storage?.adapter ?? 'unknown'}</small></p>
+      <p><span>Caveats</span><small>{latestRun.caveats.join(' ')}</small></p>
+    </div>}
+  </section>;
 }
 
 function MachineMarketHero() {

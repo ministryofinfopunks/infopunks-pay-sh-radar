@@ -17,7 +17,12 @@ import {
   getMachinePolicyTemplateById
 } from './machinePolicyService';
 import { evidenceStageRank } from './machineEvidenceService';
-import { MachinePreflightReceiptStorageAdapter, MemoryMachinePreflightReceiptStorageAdapter } from './machinePreflightReceiptStorage';
+import {
+  JsonlMachinePreflightReceiptStorageAdapter,
+  MachinePreflightReceiptStorageAdapter,
+  MemoryMachinePreflightReceiptStorageAdapter,
+  PostgresMachinePreflightReceiptStorageAdapter
+} from './machinePreflightReceiptStorage';
 
 export type MachinePreflightDecision = 'allow' | 'deny' | 'review';
 
@@ -51,6 +56,7 @@ export type MachinePreflightServiceSummary = {
 export type MachinePreflightReceipt = {
   receipt_id: string;
   receipt_type: 'machine_preflight';
+  coverage_run_id?: string | null;
   demo_mode: boolean;
   execution_occurred: false;
   payment_occurred: false;
@@ -143,7 +149,38 @@ export type MachineDossier = {
   };
 };
 
+export type MachinePreflightCoverageServiceResult = {
+  service_id: string;
+  service_name: string;
+  decision: MachinePreflightDecision;
+  receipt_id: string;
+  execution_occurred: false;
+  payment_occurred: false;
+};
+
+export type MachinePreflightCoverageRun = {
+  run_id: string;
+  generated_at: string;
+  services_total: number;
+  preflight_evaluated: number;
+  receipts_recorded: number;
+  allow_count: number;
+  review_count: number;
+  deny_count: number;
+  execution_occurred: false;
+  payment_occurred: false;
+  phase_scope: typeof MACHINE_MARKET_PHASE_SCOPE;
+  storage: {
+    adapter: 'jsonl' | 'postgres' | 'memory';
+    mode: 'durable' | 'memory' | 'test';
+    durable: boolean;
+  };
+  caveats: string[];
+  service_results: MachinePreflightCoverageServiceResult[];
+};
+
 let receiptSequence = 0;
+let coverageRunSequence = 0;
 let demoSeedEnabled = process.env.MACHINE_DEMO_SEED === 'true';
 let demoSeeded = false;
 let storageAdapter: MachinePreflightReceiptStorageAdapter = new MemoryMachinePreflightReceiptStorageAdapter();
@@ -240,7 +277,8 @@ export async function runMachinePreflight(request: MachinePreflightRequest): Pro
       evaluation: null,
       decision: 'deny',
       reason: `No robotic.sh service is listed for requested category ${request.category}.`,
-      createdAt
+      createdAt,
+      coverageRunId: null
     }));
   }
 
@@ -263,8 +301,94 @@ export async function runMachinePreflight(request: MachinePreflightRequest): Pro
     evaluation: selected.evaluation,
     decision,
     reason: machinePreflightReason(decision, selected.service, selected.evaluation),
-    createdAt
+    createdAt,
+    coverageRunId: null
   }));
+}
+
+export async function runMachinePreflightCoverageRun(): Promise<MachinePreflightCoverageRun> {
+  await ensureMachineDemoReceiptsSeeded();
+  const generatedAt = new Date().toISOString();
+  const runId = nextCoverageRunId(generatedAt);
+  const services = listMachineMarketServices();
+  const serviceResults: MachinePreflightCoverageServiceResult[] = [];
+  let allowCount = 0;
+  let reviewCount = 0;
+  let denyCount = 0;
+
+  for (const service of services) {
+    const request = buildCoverageRequestForService(service);
+    const policy = buildPolicyForRequest(request, generatedAt);
+    const evaluation = evaluateMachinePolicy(service, policy, {
+      machine_id: request.machine_id,
+      requested_cost_usd: request.max_cost_usd ?? policy.per_call_budget_usd,
+      receipt_required: request.requires_receipt ?? true,
+      purpose: request.intent
+    });
+    const decision: MachinePreflightDecision = evaluation.status === 'pass' ? 'allow' : evaluation.status === 'review' ? 'review' : 'deny';
+    if (decision === 'allow') allowCount += 1;
+    if (decision === 'review') reviewCount += 1;
+    if (decision === 'deny') denyCount += 1;
+    const receipt = await recordReceipt({
+      request,
+      policy,
+      service,
+      evaluation,
+      decision,
+      reason: machinePreflightReason(decision, service, evaluation),
+      createdAt: generatedAt,
+      coverageRunId: runId
+    });
+    serviceResults.push({
+      service_id: service.id,
+      service_name: service.name,
+      decision,
+      receipt_id: receipt.receipt_id,
+      execution_occurred: false,
+      payment_occurred: false
+    });
+  }
+
+  return {
+    run_id: runId,
+    generated_at: generatedAt,
+    services_total: services.length,
+    preflight_evaluated: services.length,
+    receipts_recorded: serviceResults.length,
+    allow_count: allowCount,
+    review_count: reviewCount,
+    deny_count: denyCount,
+    execution_occurred: false,
+    payment_occurred: false,
+    phase_scope: MACHINE_MARKET_PHASE_SCOPE,
+    storage: inferStorageMetadata(),
+    caveats: coverageRunCaveats(),
+    service_results: serviceResults
+  };
+}
+
+export async function listRecentMachinePreflightCoverageRuns(limit = 10): Promise<MachinePreflightCoverageRun[]> {
+  await ensureMachineDemoReceiptsSeeded();
+  const receipts = await storageAdapter.listMachinePreflightReceipts({ limit: 1000 });
+  const runsById = new Map<string, MachinePreflightReceipt[]>();
+  for (const receipt of receipts) {
+    if (!receipt.coverage_run_id) continue;
+    const rows = runsById.get(receipt.coverage_run_id) ?? [];
+    rows.push(receipt);
+    runsById.set(receipt.coverage_run_id, rows);
+  }
+  return [...runsById.entries()]
+    .map(([runId, runReceipts]) => summarizeCoverageRun(runId, runReceipts))
+    .sort((left, right) => Date.parse(right.generated_at) - Date.parse(left.generated_at) || right.run_id.localeCompare(left.run_id))
+    .slice(0, Math.max(1, Math.min(limit, 25)));
+}
+
+export async function getMachinePreflightCoverageRunById(runId: string): Promise<MachinePreflightCoverageRun | null> {
+  await ensureMachineDemoReceiptsSeeded();
+  const receipts = await storageAdapter.listMachinePreflightReceipts({ limit: 2000 });
+  const runReceipts = receipts.filter((receipt) => receipt.coverage_run_id === runId);
+  if (!runReceipts.length) return null;
+  return summarizeCoverageRun(runId, runReceipts);
 }
 
 export async function listRecentMachinePreflightReceipts(filters: MachinePreflightReceiptFilters = {}): Promise<MachinePreflightReceipt[]> {
@@ -349,6 +473,7 @@ export async function buildMachineDossier(machineId: string): Promise<MachineDos
 
 export async function clearMachinePreflightReceiptsForTests() {
   receiptSequence = 0;
+  coverageRunSequence = 0;
   demoSeeded = false;
   demoSeedEnabled = false;
   if (storageAdapter.clearForTests) await storageAdapter.clearForTests();
@@ -456,10 +581,12 @@ async function recordReceipt(input: {
   decision: MachinePreflightDecision;
   reason: string;
   createdAt: string;
+  coverageRunId: string | null;
 }) {
   const receipt: MachinePreflightReceipt = {
     receipt_id: nextReceiptId(input.createdAt),
     receipt_type: 'machine_preflight',
+    coverage_run_id: input.coverageRunId,
     demo_mode: false,
     execution_occurred: false,
     payment_occurred: false,
@@ -539,6 +666,87 @@ function nextReceiptId(createdAt: string) {
   receiptSequence += 1;
   const compactTimestamp = createdAt.replace(/[^0-9]/g, '').slice(0, 17);
   return `mrx_${compactTimestamp}_${receiptSequence.toString().padStart(4, '0')}`;
+}
+
+function nextCoverageRunId(createdAt: string) {
+  coverageRunSequence += 1;
+  const compactTimestamp = createdAt.replace(/[^0-9]/g, '').slice(0, 17);
+  return `mcr_${compactTimestamp}_${coverageRunSequence.toString().padStart(4, '0')}`;
+}
+
+function buildCoverageRequestForService(service: MachineMarketService): MachinePreflightRequest {
+  const policy = policyTemplateForCategory(service.category);
+  return {
+    machine_id: `did:peaq:coverage-${service.id}`,
+    intent: `coverage preflight for ${service.name}`,
+    category: service.category,
+    max_cost_usd: 0,
+    allowed_markets: [service.source_market],
+    allowed_chains: [service.chain],
+    risk_tolerance: policy?.risk_tolerance ?? 'medium',
+    requires_receipt: true,
+    policy_id: policy?.id,
+    minimum_evidence_stage: policy?.minimum_evidence_stage
+  };
+}
+
+function policyTemplateForCategory(category: MachineMarketCategory): MachinePolicy | null {
+  const templates = [
+    'delivery-robot',
+    'warehouse-camera',
+    'autonomous-research-agent',
+    'depin-sensor',
+    'field-maintenance-bot'
+  ].map((id) => getMachinePolicyTemplateById(id)).filter((item): item is MachinePolicy => Boolean(item));
+  return templates.find((template) => template.allowed_categories.includes(category)) ?? null;
+}
+
+function summarizeCoverageRun(runId: string, receipts: MachinePreflightReceipt[]): MachinePreflightCoverageRun {
+  const sorted = [...receipts].sort((left, right) => Date.parse(left.created_at) - Date.parse(right.created_at) || left.receipt_id.localeCompare(right.receipt_id));
+  const serviceResults = sorted.map((receipt) => ({
+    service_id: receipt.selected_service_id ?? 'unknown',
+    service_name: receipt.selected_service_name ?? 'Unknown',
+    decision: receipt.decision,
+    receipt_id: receipt.receipt_id,
+    execution_occurred: false as const,
+    payment_occurred: false as const
+  }));
+  return {
+    run_id: runId,
+    generated_at: sorted[0]?.created_at ?? new Date().toISOString(),
+    services_total: serviceResults.length,
+    preflight_evaluated: serviceResults.length,
+    receipts_recorded: serviceResults.length,
+    allow_count: sorted.filter((receipt) => receipt.decision === 'allow').length,
+    review_count: sorted.filter((receipt) => receipt.decision === 'review').length,
+    deny_count: sorted.filter((receipt) => receipt.decision === 'deny').length,
+    execution_occurred: false,
+    payment_occurred: false,
+    phase_scope: MACHINE_MARKET_PHASE_SCOPE,
+    storage: inferStorageMetadata(),
+    caveats: coverageRunCaveats(),
+    service_results: serviceResults
+  };
+}
+
+function inferStorageMetadata() {
+  const adapter = storageAdapter instanceof PostgresMachinePreflightReceiptStorageAdapter
+    ? 'postgres'
+    : storageAdapter instanceof JsonlMachinePreflightReceiptStorageAdapter
+      ? 'jsonl'
+      : 'memory';
+  const mode = process.env.NODE_ENV === 'test' ? 'test' : adapter === 'memory' ? 'memory' : 'durable';
+  return { adapter, mode, durable: mode === 'durable' } as const;
+}
+
+function coverageRunCaveats() {
+  return [
+    'Coverage run records decision receipts only.',
+    'No service execution occurred.',
+    'No Pay.sh, robotic.sh, or Agentic.Market call was made.',
+    'No payment occurred.',
+    'This is not a benchmark artifact.'
+  ];
 }
 
 function copyReceipt(receipt: MachinePreflightReceipt): MachinePreflightReceipt {

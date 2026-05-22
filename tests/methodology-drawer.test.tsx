@@ -55,8 +55,10 @@ describe('MethodologyDrawer', () => {
     expect(document.body.textContent).toContain('Machine receipts are decision receipts by default.');
     expect(document.body.textContent).toContain('They record Radar’s preflight decision: allow, deny, or review.');
     expect(document.body.textContent).toContain('They are not payment receipts unless explicitly marked as payment receipts.');
+    expect(document.body.textContent).toContain('execution-tested remains inactive until a real recorded service call occurs');
+    expect(document.body.textContent).toContain('benchmark-recorded remains inactive until repeatable benchmark artifacts exist');
     expect(document.body.textContent).toContain('listed: Service was observed in the robotic.sh market snapshot.');
-    expect(document.body.textContent).toContain('benchmark-recorded: A benchmark artifact exists with repeatable run data.');
+    expect(document.body.textContent).toContain('benchmark-recorded: Benchmark-recorded remains inactive until repeatable benchmark artifacts exist.');
     expect(document.body.textContent).toContain('no live service execution unless marked execution-tested');
     expect(document.body.textContent).toContain('no winner claim without criteria');
     expect(document.body.textContent).toContain('no live peaqOS identity verification unless integrated');

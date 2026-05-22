@@ -78,7 +78,17 @@ import { listRouteMappings } from '../services/providerEndpointMap';
 import { listMappingTargets } from '../services/mappingTargetService';
 import { MACHINE_MARKET_PHASE_SCOPE, buildMachineMarketSummary, listMachineMarketServices } from '../services/machineMarketService';
 import { getMachinePolicyTemplateById, listMachinePolicyTemplates } from '../services/machinePolicyService';
-import { buildMachineDossier, configureMachineDemoSeed, configureMachinePreflightReceiptStorage, getMachinePreflightReceiptById, listRecentMachinePreflightReceipts, runMachinePreflight } from '../services/machinePreflightService';
+import {
+  buildMachineDossier,
+  configureMachineDemoSeed,
+  configureMachinePreflightReceiptStorage,
+  getMachinePreflightCoverageRunById,
+  getMachinePreflightReceiptById,
+  listRecentMachinePreflightCoverageRuns,
+  listRecentMachinePreflightReceipts,
+  runMachinePreflight,
+  runMachinePreflightCoverageRun
+} from '../services/machinePreflightService';
 import { createMachineReceiptStorageMetadata, JsonlMachinePreflightReceiptStorageAdapter, MemoryMachinePreflightReceiptStorageAdapter, PostgresMachinePreflightReceiptStorageAdapter, type MachinePreflightReceiptStorageAdapter } from '../services/machinePreflightReceiptStorage';
 import { createOpenApiSpec } from './openapi';
 
@@ -102,6 +112,9 @@ const MachineReceiptQuerySchema = z.object({
   source_market: z.enum(['robotic.sh', 'pay.sh', 'agentic.market']).optional(),
   chain: z.enum(['solana', 'base', 'peaq', 'omnichain']).optional(),
   limit: z.coerce.number().int().positive().max(100).optional()
+});
+const MachineCoverageRunQuerySchema = z.object({
+  limit: z.coerce.number().int().positive().max(25).optional()
 });
 const MAX_INLINE_SUPPORTING_EVENT_IDS = 10;
 const DEFAULT_ALLOWED_ORIGINS = new Set([
@@ -506,6 +519,39 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
       storage: machineReceiptStorage
     })
   }));
+  app.post('/v1/machine-preflight/coverage-run', async () => ({
+    data: safeJsonExport({
+      ...await runMachinePreflightCoverageRun(),
+      storage: machineReceiptStorage
+    })
+  }));
+  app.get<{ Querystring: { limit?: string } }>('/v1/machine-preflight/coverage-runs/recent', async (req, reply) => {
+    const parsed = MachineCoverageRunQuerySchema.safeParse(req.query);
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_machine_coverage_run_query', phase_scope: MACHINE_MARKET_PHASE_SCOPE, details: parsed.error.flatten() });
+    const runs = await listRecentMachinePreflightCoverageRuns(parsed.data.limit);
+    return {
+      data: safeJsonExport({
+        generated_at: new Date().toISOString(),
+        source: 'infopunks-pay-sh-radar',
+        module: 'machine-economy',
+        phase_scope: MACHINE_MARKET_PHASE_SCOPE,
+        storage: machineReceiptStorage,
+        count: runs.length,
+        runs
+      })
+    };
+  });
+  app.get<{ Params: { run_id: string } }>('/v1/machine-preflight/coverage-runs/:run_id', async (req, reply) => {
+    const run = await getMachinePreflightCoverageRunById(req.params.run_id);
+    if (!run) return reply.code(404).send({ error: 'machine_preflight_coverage_run_not_found', phase_scope: MACHINE_MARKET_PHASE_SCOPE });
+    return {
+      data: safeJsonExport({
+        ...run,
+        phase_scope: MACHINE_MARKET_PHASE_SCOPE,
+        storage: machineReceiptStorage
+      })
+    };
+  });
   app.post('/v1/machine-preflight', async (req, reply) => {
     const parsed = MachinePreflightRequestSchema.safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_machine_preflight_request', phase_scope: MACHINE_MARKET_PHASE_SCOPE, details: parsed.error.flatten() });

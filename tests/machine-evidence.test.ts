@@ -33,8 +33,8 @@ describe('machine evidence semantics', () => {
     expect(getEvidenceStageDescription('classified')).toBe('Service has category, source market, and chain metadata.');
     expect(getEvidenceStageDescription('policy-mapped')).toBe('Service has a machine use case, policy risk, and caveats.');
     expect(getEvidenceStageDescription('preflight-ready')).toBe("Service can be evaluated by Radar's machine preflight policy engine.");
-    expect(getEvidenceStageDescription('execution-tested')).toBe('Service has been called in a recorded test.');
-    expect(getEvidenceStageDescription('receipt-recorded')).toBe('A decision or execution receipt has been recorded.');
-    expect(getEvidenceStageDescription('benchmark-recorded')).toBe('A benchmark artifact exists with repeatable run data.');
+    expect(getEvidenceStageDescription('execution-tested')).toBe('Service execution-tested remains inactive until a real recorded service call occurs.');
+    expect(getEvidenceStageDescription('receipt-recorded')).toBe('Receipt-recorded means a decision receipt unless explicitly marked as execution or payment receipt.');
+    expect(getEvidenceStageDescription('benchmark-recorded')).toBe('Benchmark-recorded remains inactive until repeatable benchmark artifacts exist.');
   });
 });

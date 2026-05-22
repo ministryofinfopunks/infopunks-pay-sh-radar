@@ -90,6 +90,51 @@ function installMachineMarketFetch() {
         radar_role: 'Radar is the intelligence layer for autonomous spend across agents and machines.'
       }
     });
+    if (path === '/v1/machine-preflight/coverage-runs/recent') return json({
+      count: 1,
+      runs: [{
+        run_id: 'mcr_20260522000000000_0001',
+        generated_at: '2026-05-22T00:10:00.000Z',
+        services_total: 12,
+        preflight_evaluated: 12,
+        receipts_recorded: 12,
+        allow_count: 6,
+        review_count: 4,
+        deny_count: 2,
+        execution_occurred: false,
+        payment_occurred: false,
+        storage: { adapter: 'memory', mode: 'test', durable: false },
+        caveats: [
+          'Coverage run records decision receipts only.',
+          'No service execution occurred.',
+          'No Pay.sh, robotic.sh, or Agentic.Market call was made.',
+          'No payment occurred.',
+          'This is not a benchmark artifact.'
+        ],
+        service_results: []
+      }]
+    });
+    if (path === '/v1/machine-preflight/coverage-run') return json({
+      run_id: 'mcr_20260522000000000_0002',
+      generated_at: '2026-05-22T00:11:00.000Z',
+      services_total: 12,
+      preflight_evaluated: 12,
+      receipts_recorded: 12,
+      allow_count: 7,
+      review_count: 3,
+      deny_count: 2,
+      execution_occurred: false,
+      payment_occurred: false,
+      storage: { adapter: 'memory', mode: 'test', durable: false },
+      caveats: [
+        'Coverage run records decision receipts only.',
+        'No service execution occurred.',
+        'No Pay.sh, robotic.sh, or Agentic.Market call was made.',
+        'No payment occurred.',
+        'This is not a benchmark artifact.'
+      ],
+      service_results: []
+    });
     return Promise.resolve(new Response('{}', { status: 404 }));
   });
 }
@@ -152,6 +197,11 @@ describe('machine market page', () => {
     expect(container.querySelector('[aria-label="Evidence ladder"]')?.textContent).toContain('listed');
     expect(container.querySelector('[aria-label="Evidence ladder"]')?.textContent).toContain('preflight-ready');
     expect(container.textContent).toContain('Coverage refers to the 12 services visible in the observed robotic.sh market snapshot. Execution evidence is tracked separately.');
+    expect(container.textContent).toContain('Preflight Coverage');
+    expect(container.textContent).toContain('Run Coverage Preflight');
+    expect(container.textContent).toContain('Services evaluated12 / 12');
+    expect(container.textContent).toContain('Receipts recorded12');
+    expect(container.textContent).toContain('No Pay.sh, robotic.sh, or Agentic.Market call was made.');
     expect(container.querySelector('a[href="/#methodology"]')?.textContent).toBe('Methodology: Machine Economy evidence ladder');
   });
 
