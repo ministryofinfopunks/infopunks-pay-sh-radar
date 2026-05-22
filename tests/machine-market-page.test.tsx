@@ -295,6 +295,7 @@ describe('machine market page', () => {
 
     expect(container.textContent).toContain('Machine Market');
     expect(container.textContent).toContain('12 listed services mapped from robotic.sh for Phase 2 machine-economy intelligence.');
+    expect(container.querySelector('[aria-label="12-Service Market Cohort"]')?.textContent).toContain('12 robotic.sh services mapped');
     expect(container.querySelector('.machine-market-caveat a[href="/machine-execution-shortlist"]')?.textContent).toContain('View execution shortlist');
     expect(container.querySelector('[aria-label="Machine Market Mission Control"]')?.textContent).toContain('Machine Market Mission Control');
     for (const name of serviceNames) expect(container.textContent).toContain(name);
@@ -335,25 +336,42 @@ describe('machine market page', () => {
     expect(container.querySelector('a[href="/#methodology"]')?.textContent).toBe('Methodology: Machine Economy evidence ladder');
   });
 
-  it('renders mission control with top candidate, proof plan, shortlist, and operational chips', async () => {
+  it('renders cohort command center with next controlled action, proof plan, shortlist, and operational chips', async () => {
     root = await renderPage(container);
+
+    const cohort = container.querySelector('[aria-label="12-Service Market Cohort"]');
+    expect(cohort?.textContent).toContain('12 services mapped');
+    expect(cohort?.textContent).toContain('6 allow');
+    expect(cohort?.textContent).toContain('4 review');
+    expect(cohort?.textContent).toContain('2 deny');
+    expect(cohort?.textContent).toContain('0 execution claims');
+    expect(cohort?.textContent).toContain('QVAC');
+    expect(cohort?.textContent).toContain('Cloud Translation');
+    expect(cohort?.textContent).toContain('policy-mapped');
+    expect(cohort?.textContent).toContain('proof-plan-ready');
+    expect(cohort?.textContent).toContain('not_attempted');
+    expect(cohort?.textContent).toContain('Machines should not spend blind');
 
     const missionControl = container.querySelector('[aria-label="Machine Market Mission Control"]');
     expect(missionControl?.textContent).toContain('Coverage complete / proof planning active');
     expect(missionControl?.textContent).toContain('12 / 12 services evaluated');
     expect(missionControl?.textContent).toContain('allow 6 / review 4 / deny 2');
+    expect(missionControl?.textContent).toContain('Next controlled action');
     expect(missionControl?.textContent).toContain('Cloud Translation');
-    expect(missionControl?.textContent).toContain('Plan execution, do not claim execution.');
-    expect(missionControl?.textContent).toContain('no robotic.sh-listed service has execution success claimed unless Radar holds a service-specific execution receipt');
-    expect(missionControl?.textContent).toContain('Pay.sh execution candidates remain separate from the robotic.sh visible service mirror');
-    expect(missionControl?.querySelector('a[href="/machine-execution-plan/cloud-translation"]')?.textContent).toContain('Open top candidate proof plan');
+    expect(missionControl?.textContent).toContain('current proof-plan candidate');
+    expect(missionControl?.textContent).toContain('planning-only');
+    expect(missionControl?.textContent).toContain('not execution-tested');
+    expect(missionControl?.textContent).toContain('not a winner claim');
+    expect(missionControl?.textContent).toContain('Planning only. No execution claim. No benchmark claim.');
+    expect(missionControl?.textContent).toContain('Pay.sh execution routes are tracked separately from the robotic.sh visible service mirror');
+    expect(missionControl?.querySelector('a[href="/machine-execution-plan/cloud-translation"]')?.textContent).toContain('Open controlled proof plan');
     expect(missionControl?.querySelector('a[href="/machine-execution-shortlist"]')?.textContent).toContain('View execution shortlist');
 
     const heroChips = container.querySelector('[aria-label="Machine Market principles"]')?.textContent ?? '';
-    expect(heroChips).toContain('Coverage complete');
-    expect(heroChips).toContain('12 / 12 evaluated');
-    expect(heroChips).toContain('Planning only');
-    expect(heroChips).toContain('Next: Cloud Translation');
+    expect(heroChips).toContain('12 services mapped');
+    expect(heroChips).toContain('Policy / evidence state');
+    expect(heroChips).toContain('Readiness ranked');
+    expect(heroChips).toContain('Machines should not spend blind');
   });
 
   it('shows selected service execution planning actions', async () => {

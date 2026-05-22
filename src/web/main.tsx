@@ -2270,6 +2270,7 @@ function MachineMarketPage() {
     <main id="machine-market-content" className="machine-market-page" aria-label="Machine Market">
       <MachineMarketHero />
       <MachineMarketSummaryCards summary={summary} loading={loading} serviceCount={services.length} />
+      <MachineMarketCohort services={services} candidates={executionCandidates} latestRun={latestCoverageRun} loading={loading} />
       <MachineMarketMissionControl
         serviceCount={services.length}
         latestRun={latestCoverageRun}
@@ -2313,7 +2314,7 @@ function MachineMarketMissionControl({
   const decisionSummary = latestRun
     ? `allow ${latestRun.allow_count} / review ${latestRun.review_count} / deny ${latestRun.deny_count}`
     : 'allow / review / deny pending latest coverage run';
-  const topCandidateName = topCandidate?.service.name ?? 'No candidate selected';
+  const topCandidateName = topCandidate?.service.name ?? 'No proof-plan candidate selected';
   const topCandidateId = topCandidate?.service.id ?? null;
 
   return <section className="panel machine-mission-control" aria-label="Machine Market Mission Control">
@@ -2322,7 +2323,7 @@ function MachineMarketMissionControl({
         <p className="section-kicker">Mission Control</p>
         <h2>Machine Market Mission Control</h2>
       </div>
-      <span className="machine-badge evidence">planning only</span>
+      <span className="machine-badge evidence">0 execution claims</span>
     </div>
     <div className="machine-mission-grid">
       <article>
@@ -2338,22 +2339,93 @@ function MachineMarketMissionControl({
         <strong>{decisionSummary}</strong>
       </article>
       <article>
-        <span>Top execution candidate</span>
+        <span>Next controlled action</span>
         <strong>{topCandidateName}</strong>
-        {topCandidate && <small>{topCandidate.candidate_tier} · {topCandidate.recommendation}</small>}
+        {topCandidate && <small>current proof-plan candidate · planning-only · not execution-tested · not a winner claim</small>}
       </article>
     </div>
     <div className="machine-mission-next">
       <div>
-        <span>Radar recommendation</span>
-        <strong>Plan execution, do not claim execution.</strong>
-        <p>Strict execution caveat: no robotic.sh-listed service has execution success claimed unless Radar holds a service-specific execution receipt. Pay.sh execution candidates remain separate from the robotic.sh visible service mirror.</p>
+        <span>Next Controlled Action</span>
+        <strong>{topCandidate ? `${topCandidate.service.name} proof plan ready` : 'Proof planning awaits cohort evidence'}</strong>
+        <p>Planning only. No execution claim. No benchmark claim. Pay.sh execution routes are tracked separately from the robotic.sh visible service mirror.</p>
       </div>
       <div className="machine-mission-actions">
-        {topCandidateId && <a className="execute compact" href={`/machine-execution-plan/${encodeURIComponent(topCandidateId)}`}>Open top candidate proof plan</a>}
+        {topCandidateId && <a className="execute compact" href={`/machine-execution-plan/${encodeURIComponent(topCandidateId)}`}>Open controlled proof plan</a>}
         <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a>
       </div>
     </div>
+  </section>;
+}
+
+function MachineMarketCohort({
+  services,
+  candidates,
+  latestRun,
+  loading
+}: {
+  services: MachineMarketService[];
+  candidates: MachineExecutionCandidateScore[];
+  latestRun: MachinePreflightCoverageRun | null;
+  loading: boolean;
+}) {
+  const candidateByServiceId = new Map(candidates.map((candidate) => [candidate.service.id, candidate]));
+  const allowCount = latestRun?.allow_count ?? candidates.filter((candidate) => candidate.latest_policy_decision === 'allow').length;
+  const reviewCount = latestRun?.review_count ?? candidates.filter((candidate) => candidate.latest_policy_decision === 'review').length;
+  const denyCount = latestRun?.deny_count ?? candidates.filter((candidate) => candidate.latest_policy_decision === 'deny').length;
+  const executionClaims = candidates.filter((candidate) => candidate.execution_status !== 'not_attempted').length;
+
+  return <section className="panel machine-market-cohort" aria-label="12-Service Market Cohort">
+    <div className="panel-head">
+      <div>
+        <p className="section-kicker">12-Service Market Cohort</p>
+        <h2>12 robotic.sh services mapped</h2>
+      </div>
+      <div className="machine-cohort-counts" aria-label="Cohort status summary">
+        <span>12 services mapped</span>
+        <span>{allowCount} allow</span>
+        <span>{reviewCount} review</span>
+        <span>{denyCount} deny</span>
+        <span>{executionClaims} execution claims</span>
+      </div>
+    </div>
+    <p className="panel-caption">Radar gives every visible service policy state, evidence state, readiness rank, and a proof path before spend. Machines should not spend blind.</p>
+    <div className="machine-market-flow" aria-label="Machine market flow">
+      {['Listed', 'Classified', 'Policy-Mapped', 'Shortlisted', 'Proof-Planned', 'Receipt-Recorded'].map((step, index) => <React.Fragment key={step}>
+        <span>{step}</span>
+        {index < 5 && <b aria-hidden="true">-&gt;</b>}
+      </React.Fragment>)}
+    </div>
+    {loading && !services.length && <p className="route-state">Loading 12-service market cohort...</p>}
+    {!!services.length && <div className="machine-cohort-grid">
+      {services.map((service) => {
+        const candidate = candidateByServiceId.get(service.id) ?? null;
+        const policyDecision = candidate?.latest_policy_decision ?? 'not recorded';
+        const riskWatch = policyDecision === 'review' || policyDecision === 'deny' || candidate?.candidate_tier === 'not_ready' || candidate?.candidate_tier === 'review_required';
+        const proofPlanReady = Boolean(candidate && candidate.recommendation !== 'avoid_for_now');
+        const badges = [
+          formatEvidenceStage(service.evidence_stage),
+          policyDecision,
+          riskWatch ? 'risk-watch' : null,
+          proofPlanReady ? 'proof-plan-ready' : null,
+          candidate?.execution_status ?? 'not_attempted'
+        ].filter((item): item is string => Boolean(item));
+        return <article className="machine-cohort-card" key={service.id}>
+          <div>
+            <strong>{service.name}</strong>
+            <small>{service.category} · {service.status}</small>
+          </div>
+          <div className="machine-cohort-meta">
+            <span><b>policy</b>{policyDecision}</span>
+            <span><b>execution</b>{candidate?.execution_status ?? 'not_attempted'}</span>
+            <span><b>readiness</b>{candidate?.candidate_tier ?? service.status}</span>
+          </div>
+          <div className="machine-cohort-badges">
+            {badges.map((badge) => <span className={`machine-status-badge ${badge.replace(/[^a-z0-9-]/gi, '-').toLowerCase()}`} key={badge}>{badge}</span>)}
+          </div>
+        </article>;
+      })}
+    </div>}
   </section>;
 }
 
@@ -2682,14 +2754,14 @@ function MachineMarketHero() {
     <div>
       <p className="eyebrow">Machine Economy</p>
       <h1>Machine Market</h1>
-      <p className="copy">robotic.sh gives machines a market. Infopunks gives machine spending policy, evidence, and receipts.</p>
+      <p className="copy">robotic.sh gives machines a market. Radar gives every service policy, evidence, and a proof path before spend.</p>
       <p className="panel-caption">12 listed services mapped from robotic.sh for Phase 2 machine-economy intelligence.</p>
     </div>
     <div className="ticker" aria-label="Machine Market principles">
-      <span>Coverage complete</span>
-      <span>12 / 12 evaluated</span>
-      <span>Planning only</span>
-      <span>Next: Cloud Translation</span>
+      <span>12 services mapped</span>
+      <span>Policy / evidence state</span>
+      <span>Readiness ranked</span>
+      <span>Machines should not spend blind</span>
     </div>
   </section>;
 }
