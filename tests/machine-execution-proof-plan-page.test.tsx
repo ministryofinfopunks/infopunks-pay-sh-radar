@@ -1,0 +1,210 @@
+// @vitest-environment jsdom
+import React from 'react';
+import { act } from 'react';
+import { createRoot, type Root } from 'react-dom/client';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { App } from '../src/web/main';
+
+function service(name: string, overrides: Record<string, unknown> = {}) {
+  const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  return {
+    id,
+    name,
+    provider: name === 'Cloud Translation' ? 'Google' : name,
+    category: name === 'Cloud Translation' ? 'translation' : 'web',
+    market_type: 'digital',
+    source_market: 'pay.sh',
+    chain: 'solana',
+    status: 'ready',
+    price_display: 'Per endpoint',
+    description: `${name} service metadata.`,
+    machine_use_case: `${name} machine use case.`,
+    evidence_health: 'scaffold',
+    evidence_stage: 'policy-mapped',
+    policy_risk: `${name} requires spend policy.`,
+    caveats: ['Static robotic.sh service mirror for Phase 2 only.'],
+    observed_source: 'robotic.sh',
+    observed_at: '2026-05-22T00:00:00.000Z',
+    phase_scope: 'phase_2_pay_sh_robotic_sh',
+    ...overrides
+  };
+}
+
+const services = [
+  service('Cloud Translation'),
+  service('QVAC', { id: 'qvac', source_market: 'robotic.sh', chain: 'peaq', status: 'setup', category: 'compute' })
+];
+
+const receipts = [{
+  receipt_id: 'mrx_cloud_translation_001',
+  receipt_type: 'machine_preflight',
+  coverage_run_id: 'mcr_coverage_001',
+  demo_mode: false,
+  execution_occurred: false,
+  payment_occurred: false,
+  execution_status: 'not_attempted',
+  execution_service_id: null,
+  execution_provider: null,
+  execution_started_at: null,
+  execution_completed_at: null,
+  execution_latency_ms: null,
+  execution_request_summary: null,
+  execution_response_summary: null,
+  execution_error: null,
+  payment_evidence: null,
+  preflight_receipt_id: null,
+  execution_run_id: null,
+  machine_id: 'did:peaq:field-bot-07',
+  policy_id: 'field-maintenance-bot',
+  intent: 'translate customer delivery note',
+  requested_category: 'translation',
+  selected_service_id: 'cloud-translation',
+  selected_service_name: 'Cloud Translation',
+  source_market: 'pay.sh',
+  chain: 'solana',
+  decision: 'allow',
+  reason: 'translation task matched an allowed Pay.sh route',
+  policy_checks: [],
+  violations: [],
+  review_reasons: [],
+  caveats: ['Coverage run records decision receipts only.'],
+  max_cost_usd: 0.05,
+  evidence_stage: 'policy-mapped',
+  evidence_health: 'scaffold',
+  phase_scope: 'phase_2_pay_sh_robotic_sh',
+  created_at: '2026-05-22T00:00:00.000Z'
+}];
+
+function json(data: unknown, status = 200) {
+  return Promise.resolve(new Response(JSON.stringify({ data }), { status, headers: { 'Content-Type': 'application/json' } }));
+}
+
+function pathOf(input: RequestInfo | URL) {
+  const raw = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+  return new URL(raw, 'http://localhost').pathname;
+}
+
+function installFetch(options: { missingEvidence?: boolean } = {}) {
+  vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+    const path = pathOf(input);
+    if (path === '/v1/machine-market/services') return json({ count: services.length, services });
+    if (path === '/v1/machine-preflight/receipts/recent') {
+      if (options.missingEvidence) return Promise.resolve(new Response('{}', { status: 404 }));
+      return json({ count: receipts.length, receipts });
+    }
+    if (path === '/v1/machine-preflight/coverage-runs/recent') {
+      if (options.missingEvidence) return Promise.resolve(new Response('{}', { status: 404 }));
+      return json({
+        count: 1,
+        runs: [{
+          run_id: 'mcr_coverage_001',
+          generated_at: '2026-05-22T00:10:00.000Z',
+          services_total: 2,
+          preflight_evaluated: 2,
+          receipts_recorded: 2,
+          allow_count: 1,
+          review_count: 1,
+          deny_count: 0,
+          execution_occurred: false,
+          payment_occurred: false,
+          phase_scope: 'phase_2_pay_sh_robotic_sh',
+          storage: { adapter: 'memory', mode: 'test', durable: false },
+          caveats: ['Coverage run records decision receipts only.'],
+          service_results: [{ service_id: 'cloud-translation', service_name: 'Cloud Translation', decision: 'allow', receipt_id: 'mrx_cloud_translation_001', execution_occurred: false, payment_occurred: false }]
+        }]
+      });
+    }
+    return Promise.resolve(new Response('{}', { status: 404 }));
+  });
+}
+
+async function renderPath(container: HTMLDivElement, path: string) {
+  window.history.pushState({}, '', path);
+  let root!: Root;
+  await act(async () => {
+    root = createRoot(container);
+    root.render(<App />);
+  });
+  await act(async () => {
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+  });
+  return root;
+}
+
+describe('machine execution proof plan page', () => {
+  let root: Root;
+  let container: HTMLDivElement;
+
+  beforeEach(() => {
+    container = document.createElement('div');
+    document.body.append(container);
+  });
+
+  afterEach(() => {
+    act(() => root?.unmount());
+    container.remove();
+    vi.restoreAllMocks();
+    window.history.pushState({}, '', '/');
+  });
+
+  it('renders proof plan for known service with candidate score/tier/recommendation', async () => {
+    installFetch();
+    root = await renderPath(container, '/machine-execution-plan/cloud-translation');
+
+    const text = container.textContent ?? '';
+    expect(text).toContain('Candidate Execution Proof Plan');
+    expect(text).toContain('Cloud Translation');
+    expect(text).toContain('overall_candidate_score');
+    expect(text).toContain('candidate_tier');
+    expect(text).toContain('recommendation');
+    expect(text).toContain('latest policy decision');
+  });
+
+  it('shows checklist, translation safe input, and success/failure criteria', async () => {
+    installFetch();
+    root = await renderPath(container, '/machine-execution-plan/cloud-translation');
+
+    const checklist = container.querySelector('[aria-label="Pre-execution checklist"]')?.textContent ?? '';
+    const safeInput = container.querySelector('[aria-label="Safe test input"]')?.textContent ?? '';
+    const criteria = container.querySelector('[aria-label="Success and failure criteria"]')?.textContent ?? '';
+
+    expect(checklist).toContain('catalog identity verified');
+    expect(checklist).toContain('latest preflight receipt available');
+    expect(safeInput).toContain('hello machine market');
+    expect(safeInput).toContain('Spanish');
+    expect(criteria).toContain('Success criteria');
+    expect(criteria).toContain('Failure criteria');
+    expect(criteria).toContain('receipt is recorded');
+    expect(criteria).toContain('no durable receipt');
+  });
+
+  it('does not claim execution success', async () => {
+    installFetch();
+    root = await renderPath(container, '/machine-execution-plan/cloud-translation');
+
+    const text = container.textContent ?? '';
+    expect(text).toContain('Planning only: no service execution is performed from this page, and no execution success is claimed.');
+    expect(text).not.toContain('execution succeeded');
+    expect(text).not.toContain('benchmark winner');
+  });
+
+  it('shows unknown service state with backlink', async () => {
+    installFetch();
+    root = await renderPath(container, '/machine-execution-plan/not-in-mirror');
+
+    expect(container.textContent).toContain('Execution proof plan not found.');
+    const shortlistLinks = [...container.querySelectorAll('a[href="/machine-execution-shortlist"]')];
+    expect(shortlistLinks.some((link) => (link.textContent ?? '').includes('Back to execution shortlist'))).toBe(true);
+  });
+
+  it('does not crash when preflight/coverage data is missing', async () => {
+    installFetch({ missingEvidence: true });
+    root = await renderPath(container, '/machine-execution-plan/cloud-translation');
+
+    const text = container.textContent ?? '';
+    expect(text).toContain('Candidate Execution Proof Plan');
+    expect(text).toContain('not recorded');
+  });
+});

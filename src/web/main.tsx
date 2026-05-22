@@ -1383,6 +1383,10 @@ function isMachineMarketRoute(pathname: string) {
   return /^\/machine-market\/?$/.test(pathname);
 }
 
+function isMachineExecutionShortlistRoute(pathname: string) {
+  return /^\/machine-execution-shortlist\/?$/.test(pathname);
+}
+
 function isMachinePreflightRoute(pathname: string) {
   return /^\/machine-preflight\/?$/.test(pathname);
 }
@@ -1397,6 +1401,26 @@ function isAlibabaMachineExecutionRoute(pathname: string) {
 
 function routeMachineDossierId(pathname: string) {
   const match = pathname.match(/^\/machine-dossier\/([^/]+)\/?$/);
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+}
+
+function routeMachineServiceId(pathname: string) {
+  const match = pathname.match(/^\/machine-service\/([^/]+)\/?$/);
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+}
+
+function routeMachineExecutionPlanServiceId(pathname: string) {
+  const match = pathname.match(/^\/machine-execution-plan\/([^/]+)\/?$/);
   if (!match) return null;
   try {
     return decodeURIComponent(match[1]);
@@ -2229,6 +2253,7 @@ function MachineMarketPage() {
         </a>
         <div className="terminal-nav" aria-label="Machine Economy navigation">
           <a className="active" href="/machine-market" aria-current="page">Machine Economy</a>
+          <a href="/machine-execution-shortlist">Execution Shortlist</a>
           <a href="/machine-preflight">Machine Preflight</a>
           <a href="/machine-receipts">Machine Receipts</a>
           <a href="/machine-execution/alibaba-machine-translation-general">Execution Detail</a>
@@ -2243,6 +2268,7 @@ function MachineMarketPage() {
       <section className="panel machine-market-caveat" aria-label="Coverage caveat">
         <p>Infopunks Radar mapped the entire listed robotic.sh machine-service market.</p>
         <p>Coverage refers to the 12 services visible in the observed robotic.sh market snapshot. Execution evidence is tracked separately.</p>
+        <p><a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a></p>
         <MachineMethodologyNote />
       </section>
       <EvidenceLadder services={services} />
@@ -2375,6 +2401,7 @@ function AlibabaMachineExecutionDetailPage() {
         </a>
         <div className="terminal-nav" aria-label="Machine Economy navigation">
           <a href="/machine-market">Machine Economy</a>
+          <a href="/machine-execution-shortlist">Execution Shortlist</a>
           <a href="/machine-preflight">Machine Preflight</a>
           <a href="/machine-receipts">Machine Receipts</a>
           <a className="active" href="/machine-execution/alibaba-machine-translation-general" aria-current="page">Execution Detail</a>
@@ -2672,7 +2699,7 @@ function MachineServiceTable({ services, selectedId, onSelect }: { services: Mac
     {!services.length && <EmptyState title="No services match these filters." body="Adjust filters to view the robotic.sh service mirror." />}
     {!!services.length && <div className="machine-service-table" role="table" aria-label="Machine Market service table">
       <div className="machine-service-row head" role="row">
-        {['service', 'category', 'market', 'chain', 'status', 'evidence', 'risk', 'price'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
+        {['service', 'category', 'market', 'chain', 'status', 'evidence', 'risk', 'price', 'dossier'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
       </div>
       {services.map((service) => <div key={service.id} className={`machine-service-row ${selectedId === service.id ? 'selected' : ''}`} role="row">
         <span role="cell"><button className="machine-service-select" type="button" onClick={() => onSelect(service)}><strong>{service.name}</strong><small>{service.provider}</small></button></span>
@@ -2683,6 +2710,7 @@ function MachineServiceTable({ services, selectedId, onSelect }: { services: Mac
         <span role="cell"><MachineEvidenceStageTag stage={service.evidence_stage} /></span>
         <span role="cell" className="machine-policy-risk">{service.policy_risk}</span>
         <span role="cell">{service.price_display}</span>
+        <span role="cell"><a className="execute compact secondary" href={`/machine-service/${encodeURIComponent(service.id)}`}>View service dossier</a></span>
       </div>)}
     </div>}
   </section>;
@@ -2726,6 +2754,7 @@ function MachineServiceCard({ service }: { service: MachineMarketService | null 
       <p>{getEvidenceStageDescription(service.evidence_stage)}</p>
       <MachineEvidenceClaims serviceOrReceipt={service} />
     </section>
+    <a className="execute compact secondary" href={`/machine-service/${encodeURIComponent(service.id)}`}>View service dossier</a>
     <section className="dossier-section">
       <h4>Caveats</h4>
       <ul className="machine-caveat-list">
@@ -2733,6 +2762,645 @@ function MachineServiceCard({ service }: { service: MachineMarketService | null 
       </ul>
     </section>
   </aside>;
+}
+
+const PAY_SH_SERVICE_SEPARATION_NOTE = 'Pay.sh execution candidates are tracked separately from the robotic.sh visible service mirror. Alibaba Machine Translation General is the first execution-tested Pay.sh route; it is not counted as one of the 12 visible robotic.sh services unless robotic.sh lists it.';
+
+type MachineExecutionCandidateTier = 'strong_candidate' | 'possible_candidate' | 'review_required' | 'not_ready';
+type MachineExecutionCandidateRecommendation = 'next_execution_candidate' | 'monitor' | 'needs_review' | 'avoid_for_now';
+type MachineExecutionCandidateScore = {
+  service: MachineMarketService;
+  policy_safety_score: number;
+  execution_readiness_score: number;
+  auth_friction_score: number;
+  machine_relevance_score: number;
+  input_output_clarity_score: number;
+  catalog_confidence_score: number;
+  evidence_health_score: number;
+  overall_candidate_score: number;
+  candidate_tier: MachineExecutionCandidateTier;
+  recommendation: MachineExecutionCandidateRecommendation;
+  latest_policy_decision: 'allow' | 'deny' | 'review' | 'not recorded';
+  latest_receipt_id: string | null;
+  execution_status: 'not_attempted' | 'attempted-recorded' | 'execution-tested' | 'repeatability-recorded';
+  positive_reasons: string[];
+  blocking_reasons: string[];
+};
+
+function MachineExecutionShortlistPage() {
+  const [services, setServices] = useState<MachineMarketService[]>([]);
+  const [receipts, setReceipts] = useState<MachinePreflightReceipt[]>([]);
+  const [coverageRun, setCoverageRun] = useState<MachinePreflightCoverageRun | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.title = 'Robotic.sh Execution Shortlist | Infopunks Pay.sh Radar';
+    setMetaTag('name', 'description', 'Evidence-based shortlist for future robotic.sh-visible machine service execution candidates.');
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    Promise.all([
+      api<{ data: { services: MachineMarketService[] } }>('/v1/machine-market/services'),
+      api<{ data: { receipts: MachinePreflightReceipt[] } }>('/v1/machine-preflight/receipts/recent?limit=100').catch(() => null),
+      api<{ data: { runs: MachinePreflightCoverageRun[] } }>('/v1/machine-preflight/coverage-runs/recent?limit=1').catch(() => null)
+    ]).then(([servicesResponse, receiptsResponse, coverageResponse]) => {
+      if (cancelled) return;
+      setServices(servicesResponse.data.services);
+      setReceipts(receiptsResponse?.data.receipts ?? []);
+      setCoverageRun(coverageResponse?.data.runs?.[0] ?? null);
+      setLoading(false);
+    }).catch((err) => {
+      if (cancelled) return;
+      setError(err instanceof Error ? err.message : 'execution shortlist unavailable');
+      setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const candidates = useMemo(() => buildMachineExecutionShortlist(services, receipts, coverageRun), [services, receipts, coverageRun]);
+  const topCandidate = candidates[0] ?? null;
+
+  return <div className="shell machine-market-shell">
+    <a className="skip-link" href="#machine-shortlist-content">Skip to content</a>
+    <header className="site-header">
+      <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Execution Shortlist navigation">
+        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <div className="terminal-nav" aria-label="Machine Economy navigation">
+          <a href="/machine-market">Machine Economy</a>
+          <a className="active" href="/machine-execution-shortlist" aria-current="page">Execution Shortlist</a>
+          <a href="/machine-preflight">Machine Preflight</a>
+          <a href="/machine-receipts">Machine Receipts</a>
+          <a href="/machine-execution/alibaba-machine-translation-general">Execution Detail</a>
+          <a href="/">Radar Terminal</a>
+        </div>
+      </nav>
+    </header>
+    <main id="machine-shortlist-content" className="machine-market-page machine-shortlist-page" aria-label="Robotic.sh Execution Candidate Shortlist">
+      <section className="panel hero machine-market-hero">
+        <div>
+          <p className="eyebrow">Robotic.sh Execution Candidate Shortlist</p>
+          <h1>Execution Shortlist</h1>
+          <p className="copy">Evidence-based candidate ranking for future execution attempts across the 12 robotic.sh-visible services.</p>
+          <p className="panel-caption">Candidate ranking evaluates readiness for future execution. It is not a payment, benchmark, provider-quality, or winner claim.</p>
+        </div>
+        <div className="ticker" aria-label="Shortlist principles">
+          <span>Candidate language only</span>
+          <span>No new execution</span>
+          <span>Coverage is not execution</span>
+        </div>
+      </section>
+      {loading && <section className="panel" role="status"><p className="route-state">Loading execution shortlist...</p></section>}
+      {error && <section className="panel" role="alert"><p className="route-state error">Execution shortlist unavailable: {error}</p></section>}
+      {!loading && !error && <>
+        <section className="panel machine-market-caveat" aria-label="Pay.sh separation note">
+          <p>{PAY_SH_SERVICE_SEPARATION_NOTE}</p>
+        </section>
+        <TopExecutionCandidatePanel candidate={topCandidate} />
+        <MachineExecutionShortlistMethodology />
+        <section className="panel machine-service-table-panel" aria-label="Execution candidate ranking">
+          <div className="panel-head">
+            <div><p className="section-kicker">Candidate Ranking</p><h2>{candidates.length} robotic.sh-visible services</h2></div>
+            <small>Sorted by deterministic candidate score, then service_id.</small>
+          </div>
+          {!candidates.length && <EmptyState title="No services found." body="The machine-market registry returned no visible robotic.sh services." />}
+          {!!candidates.length && <div className="machine-service-table machine-shortlist-table" role="table" aria-label="Robotic.sh execution candidate table">
+            <div className="machine-service-row machine-shortlist-row head" role="row">
+              {['service', 'provider', 'category', 'market', 'chain', 'latest policy', 'evidence', 'execution', 'tier', 'score', 'recommendation', 'reasons', 'dossier'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
+            </div>
+            {candidates.map((candidate) => <MachineExecutionCandidateRow key={candidate.service.id} candidate={candidate} />)}
+          </div>}
+        </section>
+      </>}
+    </main>
+  </div>;
+}
+
+function TopExecutionCandidatePanel({ candidate }: { candidate: MachineExecutionCandidateScore | null }) {
+  return <section className="panel machine-policy-summary" aria-label="Top execution candidate">
+    <div className="panel-head"><div><p className="section-kicker">Top Candidate</p><h2>{candidate?.service.name ?? 'No candidate available'}</h2></div></div>
+    {!candidate && <EmptyState title="No top candidate." body="Radar needs the visible service registry before it can compute a shortlist." />}
+    {candidate && <>
+      <p>Radar recommends this as the clearest next execution candidate among the 12 robotic.sh-visible services. This is not an execution claim.</p>
+      <div className="machine-usage-list">
+        <p><span>safest next robotic.sh-listed candidate</span><small>{candidate.service.name} / {candidate.service.id}</small></p>
+        <p><span>why selected</span><small>{candidate.positive_reasons.join(' ')}</small></p>
+        <p><span>why not execution-proven</span><small>{candidate.execution_status === 'not_attempted' ? 'No execution receipt is recorded for this robotic.sh-listed service.' : `Execution status is ${candidate.execution_status}; inspect service-specific receipts before any claim.`}</small></p>
+        <p><span>evidence needed before execution</span><small>Fresh allow preflight, explicit operator approval, route/auth readiness, request/response schema, cost ceiling, and durable execution receipt storage.</small></p>
+        <p><span>latest receipt/preflight reference</span><small>{candidate.latest_receipt_id ?? 'not recorded'}</small></p>
+        <p><span>candidate tier</span><small>{candidate.candidate_tier}</small></p>
+        <p><span>overall candidate score</span><small>{candidate.overall_candidate_score}</small></p>
+        <p><span>proof planning</span><small><a className="execute compact secondary" href={`/machine-execution-plan/${encodeURIComponent(candidate.service.id)}`}>View proof plan</a></small></p>
+      </div>
+    </>}
+  </section>;
+}
+
+function MachineExecutionShortlistMethodology() {
+  return <section className="panel evidence-ladder-panel" aria-label="Shortlist methodology">
+    <div className="panel-head"><div><p className="section-kicker">Methodology</p><h2>Deterministic scoring model</h2></div></div>
+    <p>Shortlist ranking evaluates readiness for future execution. It does not imply payment success, provider quality, or benchmark superiority.</p>
+    <div className="machine-usage-list">
+      <p><span>policy_safety_score</span><small>Latest allow/review/deny decision from service-specific preflight or coverage, with penalties for blocked/setup-sensitive risks.</small></p>
+      <p><span>execution_readiness_score</span><small>Catalog readiness and service-specific execution receipt status. Missing execution remains not_attempted.</small></p>
+      <p><span>auth_friction_score</span><small>Lower friction for ready Pay.sh metadata, higher friction for setup-stage or sensitive web services.</small></p>
+      <p><span>machine_relevance_score</span><small>Category and use-case fit for machine tasks, reduced for sensitive or abuse-prone use cases.</small></p>
+      <p><span>input_output_clarity_score</span><small>Deterministic preference for services with clear request/response boundaries such as translation, storage, document parsing, and data queries.</small></p>
+      <p><span>catalog_confidence_score</span><small>Completeness of provider, price, status, source market, chain, and robotic.sh observation metadata.</small></p>
+      <p><span>evidence_health_score</span><small>Evidence health plus coverage/preflight receipt presence. Missing data is marked not recorded and reduces confidence.</small></p>
+    </div>
+  </section>;
+}
+
+function MachineExecutionCandidateRow({ candidate }: { candidate: MachineExecutionCandidateScore }) {
+  const service = candidate.service;
+  return <div className="machine-service-row machine-shortlist-row" role="row">
+    <span role="cell"><strong>{service.name}</strong><small>{service.id}</small></span>
+    <span role="cell">{service.provider}</span>
+    <span role="cell" className="machine-badge">{service.category}</span>
+    <span role="cell" className="machine-badge source">{service.source_market}</span>
+    <span role="cell" className="machine-badge chain">{service.chain}</span>
+    <span role="cell">{candidate.latest_policy_decision}</span>
+    <span role="cell"><MachineEvidenceStageTag stage={service.evidence_stage} /> <small>{service.evidence_health}</small></span>
+    <span role="cell">{candidate.execution_status}</span>
+    <span role="cell">{candidate.candidate_tier}</span>
+    <span role="cell"><b>{candidate.overall_candidate_score}</b></span>
+    <span role="cell">{candidate.recommendation}</span>
+    <span role="cell"><small>Positive: {candidate.positive_reasons.slice(0, 2).join(' ')} Blocking: {candidate.blocking_reasons.slice(0, 2).join(' ') || 'none recorded'}</small></span>
+    <span role="cell"><a className="execute compact secondary" href={`/machine-service/${encodeURIComponent(service.id)}`}>View service dossier</a> <a className="execute compact secondary" href={`/machine-execution-plan/${encodeURIComponent(service.id)}`}>View proof plan</a></span>
+  </div>;
+}
+
+type ExecutionPlanChecklistItem = {
+  id: string;
+  label: string;
+  status: 'ready' | 'missing' | 'review_required' | 'not_applicable';
+  reason: string;
+};
+
+function buildExecutionPlanChecklist(
+  service: MachineMarketService | null,
+  candidate: MachineExecutionCandidateScore | null,
+  latestPreflight: MachinePreflightReceipt | null,
+  latestExecution: MachinePreflightReceipt | null
+): ExecutionPlanChecklistItem[] {
+  const translationService = service?.category === 'translation' || /translation/i.test(service?.name ?? '');
+  const knownService = Boolean(service);
+  const policyDecision = candidate?.latest_policy_decision ?? 'not recorded';
+  const executionRecorded = Boolean(latestExecution);
+  return [
+    { id: 'catalog-identity-verified', label: 'catalog identity verified', status: knownService ? 'ready' : 'missing', reason: knownService ? 'Service exists in current machine-market mirror.' : 'Service is not present in mirrored registry.' },
+    { id: 'visible-mirror-belongs', label: 'service belongs to robotic.sh visible mirror', status: service?.observed_source === 'robotic.sh' ? 'ready' : 'missing', reason: service?.observed_source === 'robotic.sh' ? 'Observed source is robotic.sh.' : 'Observed source is missing or non-robotic.sh.' },
+    { id: 'policy-decision-recorded', label: 'policy decision recorded', status: policyDecision === 'allow' ? 'ready' : policyDecision === 'review' ? 'review_required' : policyDecision === 'deny' ? 'missing' : 'missing', reason: `Latest policy decision is ${policyDecision}.` },
+    { id: 'latest-preflight-receipt-available', label: 'latest preflight receipt available', status: latestPreflight ? 'ready' : 'missing', reason: latestPreflight ? `Using receipt ${latestPreflight.receipt_id}.` : 'No service-specific preflight receipt is recorded yet.' },
+    { id: 'io-shape-understood', label: 'input/output shape understood', status: service?.category === 'translation' || service?.category === 'vision' || service?.category === 'storage' ? 'ready' : knownService ? 'review_required' : 'missing', reason: knownService ? `${service?.category} category has ${service?.category === 'translation' || service?.category === 'vision' || service?.category === 'storage' ? 'clearer' : 'partial'} schema expectations.` : 'No known service category.' },
+    { id: 'safe-test-input-selected', label: 'safe test input selected', status: translationService ? 'ready' : 'missing', reason: translationService ? 'Safe default translation prompt is defined for planning.' : 'No deterministic safe input template defined for this category yet.' },
+    { id: 'expected-output-semantics-defined', label: 'expected output semantics defined', status: translationService ? 'ready' : knownService ? 'review_required' : 'missing', reason: translationService ? 'Semantic translation class is defined.' : 'Output semantic class needs service-specific definition.' },
+    { id: 'payment-auth-known', label: 'payment/auth requirements known', status: knownService ? 'review_required' : 'missing', reason: knownService ? 'Source-market metadata exists; runtime auth/payment proof still required at execution time.' : 'No source-market metadata available.' },
+    { id: 'receipt-schema-ready', label: 'execution receipt schema ready', status: 'ready', reason: 'Machine execution receipt schema is already defined in Radar.' },
+    { id: 'caveats-prepared', label: 'caveats prepared', status: service?.caveats.length ? 'ready' : 'review_required', reason: service?.caveats.length ? `${service.caveats.length} caveat(s) are already cataloged.` : 'Service caveats should be prepared before execution.' },
+    { id: 'existing-execution-receipt', label: 'existing service execution receipt', status: executionRecorded ? 'not_applicable' : 'missing', reason: executionRecorded ? 'A service execution receipt already exists; this page still remains planning-only.' : 'No service-specific execution receipt is currently recorded.' }
+  ];
+}
+
+function buildMachineExecutionShortlist(
+  services: MachineMarketService[],
+  receipts: MachinePreflightReceipt[],
+  coverageRun: MachinePreflightCoverageRun | null
+): MachineExecutionCandidateScore[] {
+  return services.map((service) => scoreMachineExecutionCandidate(service, receipts, coverageRun))
+    .sort((a, b) => b.overall_candidate_score - a.overall_candidate_score || a.service.id.localeCompare(b.service.id));
+}
+
+function scoreMachineExecutionCandidate(
+  service: MachineMarketService,
+  receipts: MachinePreflightReceipt[],
+  coverageRun: MachinePreflightCoverageRun | null
+): MachineExecutionCandidateScore {
+  const serviceReceipts = receipts.filter((receipt) => receipt.selected_service_id === service.id || receipt.execution_service_id === service.id);
+  const latestPreflight = serviceReceipts.find((receipt) => receipt.receipt_type === 'machine_preflight') ?? null;
+  const latestExecution = serviceReceipts.find((receipt) => receipt.receipt_type === 'machine_execution' && receipt.execution_service_id === service.id) ?? null;
+  const coverageDecision = coverageRun?.service_results.find((row) => row.service_id === service.id) ?? null;
+  const latestPolicyDecision = latestPreflight?.decision ?? coverageDecision?.decision ?? 'not recorded';
+  const executionStatus = getServiceExecutionStatus(latestExecution);
+  const riskText = service.policy_risk.toLowerCase();
+  const caveatText = service.caveats.join(' ').toLowerCase();
+  const sensitive = /captcha|blocked|violate|abuse|sensitive|regulated|safety-critical/.test(`${riskText} ${caveatText}`);
+  const setup = service.status === 'setup';
+
+  const policy_safety_score = clampScore((latestPolicyDecision === 'allow' ? 92 : latestPolicyDecision === 'review' ? 56 : latestPolicyDecision === 'deny' ? 12 : 42) - (sensitive ? 18 : 0) - (setup ? 12 : 0));
+  const execution_readiness_score = clampScore((service.status === 'ready' ? 76 : 34) + (executionStatus === 'execution-tested' ? 18 : executionStatus === 'attempted-recorded' ? 4 : 0));
+  const auth_friction_score = clampScore((service.source_market === 'pay.sh' ? 80 : service.source_market === 'agentic.market' ? 62 : 48) - (setup ? 22 : 0) - (sensitive ? 12 : 0));
+  const machine_relevance_score = clampScore(({ translation: 90, vision: 84, storage: 80, web: 66, inference: 62, compute: 58 } as Record<MachineMarketCategory, number>)[service.category] - (/captcha/.test(riskText) ? 36 : 0));
+  const input_output_clarity_score = clampScore(({ translation: 90, storage: 84, vision: 80, web: 64, inference: 58, compute: 52 } as Record<MachineMarketCategory, number>)[service.category] + (service.price_display && service.price_display !== 'Per endpoint' ? 4 : 0));
+  const catalog_confidence_score = clampScore(48 + (service.provider ? 10 : 0) + (service.price_display ? 10 : 0) + (service.source_market ? 10 : 0) + (service.chain ? 10 : 0) + (service.observed_source === 'robotic.sh' ? 8 : 0) - (setup ? 8 : 0));
+  const evidence_health_score = clampScore((service.evidence_health === 'listed' ? 70 : 56) + (coverageDecision ? 16 : 0) + (latestPreflight ? 20 : 0) - (!coverageRun ? 12 : 0));
+  const overall_candidate_score = Math.round((policy_safety_score * 0.22) + (execution_readiness_score * 0.16) + (auth_friction_score * 0.14) + (machine_relevance_score * 0.16) + (input_output_clarity_score * 0.12) + (catalog_confidence_score * 0.10) + (evidence_health_score * 0.10));
+  const candidate_tier = overall_candidate_score >= 78 && latestPolicyDecision !== 'deny' && !setup && !sensitive ? 'strong_candidate' : overall_candidate_score >= 64 && latestPolicyDecision !== 'deny' ? 'possible_candidate' : latestPolicyDecision === 'deny' || sensitive ? 'not_ready' : 'review_required';
+  const recommendation = candidate_tier === 'strong_candidate' ? 'next_execution_candidate' : candidate_tier === 'possible_candidate' ? 'monitor' : candidate_tier === 'review_required' ? 'needs_review' : 'avoid_for_now';
+  const positive_reasons = [
+    latestPolicyDecision === 'allow' ? 'Latest policy evidence allows this service.' : latestPolicyDecision === 'not recorded' ? 'No service-specific preflight decision is recorded yet.' : `Latest policy evidence is ${latestPolicyDecision}.`,
+    service.status === 'ready' ? 'Catalog status is ready.' : 'Catalog status is setup.',
+    `${service.category} has ${input_output_clarity_score >= 80 ? 'clear' : 'moderate'} input/output boundaries.`,
+    coverageDecision ? `Coverage receipt ${coverageDecision.receipt_id} exists.` : 'Coverage decision is not recorded.'
+  ];
+  const blocking_reasons = [
+    setup ? 'Setup-stage service requires readiness review.' : null,
+    sensitive ? 'Policy risk indicates sensitive or blocked use.' : null,
+    latestPolicyDecision === 'deny' ? 'Latest policy decision is deny.' : null,
+    latestPolicyDecision === 'review' ? 'Latest policy decision requires review.' : null,
+    latestPolicyDecision === 'not recorded' ? 'No preflight/coverage decision recorded.' : null,
+    !latestExecution ? 'No execution receipt recorded for this robotic.sh-listed service.' : null
+  ].filter((item): item is string => Boolean(item));
+
+  return {
+    service,
+    policy_safety_score,
+    execution_readiness_score,
+    auth_friction_score,
+    machine_relevance_score,
+    input_output_clarity_score,
+    catalog_confidence_score,
+    evidence_health_score,
+    overall_candidate_score,
+    candidate_tier,
+    recommendation,
+    latest_policy_decision: latestPolicyDecision,
+    latest_receipt_id: latestPreflight?.receipt_id ?? coverageDecision?.receipt_id ?? null,
+    execution_status: executionStatus,
+    positive_reasons,
+    blocking_reasons
+  };
+}
+
+function clampScore(value: number) {
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
+function MachineExecutionProofPlanPage({ serviceId }: { serviceId: string }) {
+  const [services, setServices] = useState<MachineMarketService[]>([]);
+  const [receipts, setReceipts] = useState<MachinePreflightReceipt[]>([]);
+  const [coverageRun, setCoverageRun] = useState<MachinePreflightCoverageRun | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.title = `${serviceId} Execution Proof Plan | Infopunks Pay.sh Radar`;
+    setMetaTag('name', 'description', 'Read-only proof planning checklist and evidence targets before any robotic.sh-visible service execution attempt.');
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    Promise.all([
+      api<{ data: { services: MachineMarketService[] } }>('/v1/machine-market/services'),
+      api<{ data: { receipts: MachinePreflightReceipt[] } }>(`/v1/machine-preflight/receipts/recent?service_id=${encodeURIComponent(serviceId)}&limit=25`).catch(() => null),
+      api<{ data: { runs: MachinePreflightCoverageRun[] } }>('/v1/machine-preflight/coverage-runs/recent?limit=1').catch(() => null)
+    ]).then(([servicesResponse, receiptsResponse, coverageResponse]) => {
+      if (cancelled) return;
+      setServices(servicesResponse.data.services);
+      setReceipts(receiptsResponse?.data.receipts ?? []);
+      setCoverageRun(coverageResponse?.data.runs?.[0] ?? null);
+      setLoading(false);
+    }).catch((err) => {
+      if (cancelled) return;
+      setError(err instanceof Error ? err.message : 'execution proof plan unavailable');
+      setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [serviceId]);
+
+  const service = services.find((item) => item.id === serviceId) ?? null;
+  const candidateScore = service ? scoreMachineExecutionCandidate(service, receipts, coverageRun) : null;
+  const serviceReceipts = receipts.filter((receipt) => receipt.selected_service_id === serviceId || receipt.execution_service_id === serviceId);
+  const latestPreflight = serviceReceipts.find((receipt) => receipt.receipt_type === 'machine_preflight') ?? null;
+  const latestExecution = serviceReceipts.find((receipt) => receipt.receipt_type === 'machine_execution' && receipt.execution_service_id === serviceId) ?? null;
+  const latestPolicyDecision = candidateScore?.latest_policy_decision ?? 'not recorded';
+  const executionStatus = latestExecution ? getServiceExecutionStatus(latestExecution) : 'not_attempted';
+  const safeToPlan = Boolean(service && candidateScore && candidateScore.recommendation !== 'avoid_for_now');
+  const requiresReview = !service || !candidateScore || candidateScore.recommendation === 'needs_review' || latestPolicyDecision === 'review' || latestPolicyDecision === 'not recorded';
+  const checklist = buildExecutionPlanChecklist(service, candidateScore, latestPreflight, latestExecution);
+  const isTranslation = service?.category === 'translation' || /translation/i.test(service?.name ?? '');
+
+  return <div className="shell machine-market-shell">
+    <a className="skip-link" href="#machine-execution-plan-content">Skip to content</a>
+    <header className="site-header">
+      <nav className="global-toolbar machine-market-toolbar" aria-label="Execution proof plan navigation">
+        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <div className="terminal-nav" aria-label="Machine Economy navigation">
+          <a href="/machine-market">Machine Economy</a>
+          <a href="/machine-execution-shortlist">Execution Shortlist</a>
+          <a href="/machine-preflight">Machine Preflight</a>
+          <a href="/machine-receipts">Machine Receipts</a>
+          <a className="active" href={`/machine-execution-plan/${encodeURIComponent(serviceId)}`} aria-current="page">Execution Proof Plan</a>
+        </div>
+      </nav>
+    </header>
+    <main id="machine-execution-plan-content" className="machine-market-page machine-dossier-page" aria-label="Machine Execution Proof Plan">
+      {loading && <section className="panel" role="status"><p className="route-state">Loading execution proof plan...</p></section>}
+      {error && <section className="panel" role="alert"><p className="route-state error">Execution proof plan unavailable: {error}</p></section>}
+      {!loading && !error && !service && <section className="panel machine-receipts-empty" aria-label="Unknown machine service">
+        <EmptyState title="Execution proof plan not found." body="This service_id is not in the current robotic.sh visible service mirror." />
+        <a className="execute compact secondary" href="/machine-execution-shortlist">Back to execution shortlist</a>
+      </section>}
+      {!loading && !error && service && <>
+        <section className="panel hero machine-market-hero">
+          <div>
+            <p className="eyebrow">Candidate Execution Proof Plan</p>
+            <h1>{service.name}</h1>
+            <p className="copy">Read-only future proof planning for service_id {service.id}. This page defines evidence requirements before any execution attempt.</p>
+          </div>
+          <div className="ticker" aria-label="Execution proof planning state">
+            <span>{service.source_market}</span>
+            <span>{service.chain}</span>
+            <span>{candidateScore?.recommendation ?? 'not scored'}</span>
+          </div>
+        </section>
+        <section className="panel machine-market-caveat" aria-label="Execution proof planning caveat">
+          <p>Planning only: no service execution is performed from this page, and no execution success is claimed.</p>
+          <p>{PAY_SH_SERVICE_SEPARATION_NOTE}</p>
+        </section>
+        <section className="machine-dossier-layout">
+          <section className="panel machine-policy-summary" aria-label="Execution candidate identity">
+            <div className="panel-head"><div><p className="section-kicker">Candidate Identity</p><h2>{service.name}</h2></div></div>
+            <div className="key-values machine-service-profile">
+              <p><b>service name</b><span>{service.name}</span></p>
+              <p><b>service_id</b><span>{service.id}</span></p>
+              <p><b>provider</b><span>{service.provider}</span></p>
+              <p><b>category</b><span>{service.category}</span></p>
+              <p><b>source_market</b><span>{service.source_market}</span></p>
+              <p><b>chain</b><span>{service.chain}</span></p>
+              <p><b>candidate_tier</b><span>{candidateScore?.candidate_tier ?? 'not recorded'}</span></p>
+              <p><b>recommendation</b><span>{candidateScore?.recommendation ?? 'not recorded'}</span></p>
+              <p><b>overall_candidate_score</b><span>{candidateScore?.overall_candidate_score ?? 'not recorded'}</span></p>
+              <p><b>latest policy decision</b><span>{latestPolicyDecision}</span></p>
+              <p><b>evidence_stage</b><span>{service.evidence_stage}</span></p>
+              <p><b>evidence_health</b><span>{service.evidence_health}</span></p>
+              <p><b>execution_status</b><span>{executionStatus}</span></p>
+            </div>
+          </section>
+          <section className="panel machine-policy-summary" aria-label="Readiness rationale">
+            <div className="panel-head"><div><p className="section-kicker">Readiness Rationale</p><h2>{safeToPlan ? 'Safe to plan with controls' : 'Not safe to plan yet'}</h2></div></div>
+            <div className="machine-usage-list">
+              <p><span>shortlist rationale</span><small>{candidateScore ? `Shortlist score ${candidateScore.overall_candidate_score} and tier ${candidateScore.candidate_tier}.` : 'No shortlist score is recorded for this service yet.'}</small></p>
+              <p><span>top positive reasons</span><small>{candidateScore?.positive_reasons.slice(0, 3).join(' ') ?? 'none recorded'}</small></p>
+              <p><span>top blocking reasons</span><small>{candidateScore?.blocking_reasons.slice(0, 3).join(' ') || 'none recorded'}</small></p>
+              <p><span>currently safe to plan execution</span><small>{safeToPlan ? 'yes, as future planning only with policy and receipt controls' : 'no, additional policy/readiness evidence is required first'}</small></p>
+              <p><span>requires review</span><small>{requiresReview ? 'yes' : 'no'}</small></p>
+            </div>
+          </section>
+        </section>
+        <section className="panel machine-policy-summary" aria-label="Pre-execution checklist">
+          <div className="panel-head"><div><p className="section-kicker">Pre-Execution Checklist</p><h2>Deterministic gating items</h2></div></div>
+          <div className="machine-check-list">
+            {checklist.map((item) => <p key={item.id}><b className={item.status}>{item.status}</b><span>{item.label}: {item.reason}</span></p>)}
+          </div>
+        </section>
+        <section className="machine-dossier-layout">
+          <section className="panel machine-policy-summary" aria-label="Safe test input">
+            <div className="panel-head"><div><p className="section-kicker">Safe Test Input</p><h2>Future execution input seed</h2></div></div>
+            {isTranslation ? <div className="machine-usage-list">
+              <p><span>input</span><small>hello machine market</small></p>
+              <p><span>target</span><small>Spanish (fallback: French)</small></p>
+              <p><span>expected semantic output</span><small>A natural translation of the phrase, not exact-string enforced unless the provider guarantees deterministic output.</small></p>
+            </div> : <p className="copy">No safe default test input has been defined for this service yet.</p>}
+          </section>
+          <section className="panel machine-policy-summary" aria-label="Success and failure criteria">
+            <div className="panel-head"><div><p className="section-kicker">Criteria</p><h2>Success and failure gates</h2></div></div>
+            <section className="dossier-section"><h4>Success criteria</h4><ul className="machine-caveat-list">
+              <li>request completes through the intended execution rail</li>
+              <li>receipt is recorded</li>
+              <li>service response is parseable</li>
+              <li>output matches expected semantic class</li>
+              <li>payment/auth status is recorded if available</li>
+              <li>caveats are preserved</li>
+            </ul></section>
+            <section className="dossier-section"><h4>Failure criteria</h4><ul className="machine-caveat-list">
+              <li>service cannot be reached</li>
+              <li>auth/payment blocker</li>
+              <li>malformed response</li>
+              <li>unsafe output</li>
+              <li>no durable receipt</li>
+              <li>service identity mismatch</li>
+            </ul></section>
+          </section>
+        </section>
+        <section className="panel machine-policy-summary" aria-label="Evidence to collect">
+          <div className="panel-head"><div><p className="section-kicker">Evidence Objects</p><h2>Required after execution attempt</h2></div></div>
+          <ul className="machine-caveat-list">
+            <li>execution receipt id</li>
+            <li>route/source used</li>
+            <li>request timestamp</li>
+            <li>response timestamp</li>
+            <li>payment/auth status</li>
+            <li>normalized output summary</li>
+            <li>caveats</li>
+            <li>evidence_health update</li>
+          </ul>
+        </section>
+      </>}
+    </main>
+  </div>;
+}
+
+function MachineServiceDossierPage({ serviceId }: { serviceId: string }) {
+  const [services, setServices] = useState<MachineMarketService[]>([]);
+  const [receipts, setReceipts] = useState<MachinePreflightReceipt[]>([]);
+  const [coverageRun, setCoverageRun] = useState<MachinePreflightCoverageRun | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.title = `${serviceId} Service Dossier | Infopunks Pay.sh Radar`;
+    setMetaTag('name', 'description', 'Machine service dossier for robotic.sh visible catalog coverage, policy readiness, and receipt evidence.');
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    Promise.all([
+      api<{ data: { services: MachineMarketService[] } }>('/v1/machine-market/services'),
+      api<{ data: { receipts: MachinePreflightReceipt[] } }>(`/v1/machine-preflight/receipts/recent?service_id=${encodeURIComponent(serviceId)}&limit=25`).catch(() => null),
+      api<{ data: { runs: MachinePreflightCoverageRun[] } }>('/v1/machine-preflight/coverage-runs/recent?limit=1').catch(() => null)
+    ]).then(([servicesResponse, receiptsResponse, coverageResponse]) => {
+      if (cancelled) return;
+      setServices(servicesResponse.data.services);
+      setReceipts(receiptsResponse?.data.receipts ?? []);
+      setCoverageRun(coverageResponse?.data.runs?.[0] ?? null);
+      setLoading(false);
+    }).catch((err) => {
+      if (cancelled) return;
+      setError(err instanceof Error ? err.message : 'machine service dossier unavailable');
+      setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [serviceId]);
+
+  const service = services.find((item) => item.id === serviceId) ?? null;
+  const serviceIndex = service ? services.findIndex((item) => item.id === service.id) : -1;
+  const serviceReceipts = receipts.filter((receipt) => receipt.selected_service_id === serviceId || receipt.execution_service_id === serviceId);
+  const preflightReceipts = serviceReceipts.filter((receipt) => receipt.receipt_type === 'machine_preflight');
+  const executionReceipts = serviceReceipts.filter((receipt) => receipt.receipt_type === 'machine_execution' && receipt.execution_service_id === serviceId);
+  const latestPreflight = preflightReceipts[0] ?? serviceReceipts.find((receipt) => receipt.receipt_type === 'machine_preflight') ?? null;
+  const latestExecution = executionReceipts[0] ?? null;
+  const coverageDecision = coverageRun?.service_results.find((row) => row.service_id === serviceId) ?? null;
+  const executionStatus = getServiceExecutionStatus(latestExecution);
+  const policyStatus = latestPreflight?.decision ?? coverageDecision?.decision ?? null;
+  const candidateScore = service ? scoreMachineExecutionCandidate(service, receipts, coverageRun) : null;
+
+  return <div className="shell machine-market-shell">
+    <a className="skip-link" href="#machine-service-content">Skip to content</a>
+    <header className="site-header">
+      <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Service Dossier navigation">
+        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <div className="terminal-nav" aria-label="Machine Economy navigation">
+          <a href="/machine-market">Machine Economy</a>
+          <a href="/machine-preflight">Machine Preflight</a>
+          <a href="/machine-receipts">Machine Receipts</a>
+          <a href="/machine-execution/alibaba-machine-translation-general">Execution Detail</a>
+          <a className="active" href={`/machine-service/${encodeURIComponent(serviceId)}`} aria-current="page">Service Dossier</a>
+        </div>
+      </nav>
+    </header>
+    <main id="machine-service-content" className="machine-market-page machine-dossier-page machine-service-dossier-page" aria-label="Machine Service Dossier">
+      {loading && <section className="panel" role="status"><p className="route-state">Loading machine service dossier...</p></section>}
+      {error && <section className="panel" role="alert"><p className="route-state error">Machine service dossier unavailable: {error}</p></section>}
+      {!loading && !error && !service && <section className="panel machine-receipts-empty" aria-label="Unknown machine service">
+        <EmptyState title="Machine service not found." body="This service is not in the current robotic.sh visible service mirror." />
+        <p className="panel-caption">{PAY_SH_SERVICE_SEPARATION_NOTE}</p>
+        <a className="execute compact secondary" href="/machine-market">Back to Machine Market</a>
+      </section>}
+      {!loading && !error && service && <>
+        <section className="panel hero machine-market-hero machine-service-dossier-hero">
+          <div>
+            <p className="eyebrow">Machine Service Dossier</p>
+            <h1>{service.name}</h1>
+            <p className="copy">{service.description}</p>
+            <p className="panel-caption">Dossier for service_id {service.id}. Coverage-recorded means catalog and policy evidence only; it is not execution-tested evidence.</p>
+          </div>
+          <div className="ticker" aria-label="Machine service dossier status">
+            <span>{service.source_market}</span>
+            <span>{service.chain}</span>
+            <span>{policyStatus ? `latest decision: ${policyStatus}` : 'no preflight receipt'}</span>
+          </div>
+        </section>
+        <section className="panel machine-market-caveat" aria-label="Pay.sh separation note">
+          <p>{PAY_SH_SERVICE_SEPARATION_NOTE}</p>
+          <p><a className="execute compact secondary" href="/machine-execution-shortlist">Back to execution shortlist</a></p>
+          <p><a className="execute compact secondary" href={`/machine-execution-plan/${encodeURIComponent(service.id)}`}>View execution proof plan</a></p>
+          {candidateScore && <p className="panel-caption">Current shortlist tier: {candidateScore.candidate_tier} · score {candidateScore.overall_candidate_score} · recommendation {candidateScore.recommendation}</p>}
+        </section>
+        <section className="machine-dossier-layout">
+          <MachineServiceIdentity service={service} position={serviceIndex + 1} total={services.length} />
+          <MachineServicePolicyReadiness service={service} latestPreflight={latestPreflight} coverageDecision={coverageDecision} />
+        </section>
+        <section className="machine-dossier-layout">
+          <MachineServiceExecutionStatus service={service} status={executionStatus} latestExecution={latestExecution} />
+          <MachineServiceEvidenceNotes service={service} />
+        </section>
+      </>}
+    </main>
+  </div>;
+}
+
+function MachineServiceIdentity({ service, position, total }: { service: MachineMarketService; position: number; total: number }) {
+  return <section className="panel machine-policy-summary" aria-label="Service identity">
+    <div className="panel-head"><div><p className="section-kicker">Catalog Identity</p><h2>{service.name}</h2></div><span className={`machine-badge status ${service.status}`}>{service.status}</span></div>
+    <div className="key-values machine-service-profile">
+      <p><b>service_id</b><span>{service.id}</span></p>
+      <p><b>provider</b><span>{service.provider}</span></p>
+      <p><b>provider_id</b><span>not recorded</span></p>
+      <p><b>category</b><span>{service.category}</span></p>
+      <p><b>source_market</b><span>{service.source_market}</span></p>
+      <p><b>chain</b><span>{service.chain}</span></p>
+      <p><b>status</b><span>{service.status}</span></p>
+      <p><b>price_display</b><span>{service.price_display}</span></p>
+      <p><b>evidence_stage</b><span>{formatEvidenceStage(service.evidence_stage)}</span></p>
+      <p><b>evidence_health</b><span>{service.evidence_health}</span></p>
+      <p><b>policy_risk</b><span>{service.policy_risk}</span></p>
+      <p><b>robotic.sh catalog position</b><span>{position} / {total}</span></p>
+      <p><b>12-service visible mirror</b><span>yes</span></p>
+      <p><b>Phase 2 scope</b><span>{service.phase_scope}</span></p>
+    </div>
+    <section className="dossier-section"><h4>Machine use case</h4><p>{service.machine_use_case}</p></section>
+  </section>;
+}
+
+function MachineServicePolicyReadiness({
+  service,
+  latestPreflight,
+  coverageDecision
+}: {
+  service: MachineMarketService;
+  latestPreflight: MachinePreflightReceipt | null;
+  coverageDecision: MachinePreflightCoverageServiceResult | null;
+}) {
+  const latestDecision = latestPreflight?.decision ?? coverageDecision?.decision ?? null;
+  const policyFit = latestDecision === 'allow' ? 'safe under recorded policy receipt' : latestDecision === 'review' ? 'review-required under recorded policy receipt' : latestDecision === 'deny' ? 'blocked under recorded policy receipt' : 'not yet decided by preflight receipt';
+  return <section className="panel machine-policy-summary" aria-label="Policy and readiness">
+    <div className="panel-head"><div><p className="section-kicker">Policy and Readiness</p><h2>{latestDecision ?? 'No preflight decision'}</h2></div></div>
+    <div className="machine-usage-list">
+      <p><span>default policy fit</span><small>{policyFit}</small></p>
+      <p><span>policy risk level</span><small>{service.policy_risk}</small></p>
+      <p><span>risk tolerance notes</span><small>Use bounded authority, receipt-required preflight, and human review for setup, sensitive web, or safety-critical outputs.</small></p>
+      <p><span>latest coverage decision</span><small>{coverageDecision?.decision ?? 'none recorded'}</small></p>
+      <p><span>latest preflight receipt id</span><small>{latestPreflight?.receipt_id ?? 'none recorded'}</small></p>
+      <p><span>latest decision</span><small>{latestDecision ?? 'none recorded'}</small></p>
+      <p><span>Radar assessment</span><small>{describeServiceSafety(latestDecision)}</small></p>
+    </div>
+    {!latestPreflight && <p className="panel-caption">No preflight decision receipt recorded for this service yet.</p>}
+    {!!latestPreflight?.review_reasons.length && <section className="dossier-section"><h4>Review reasons</h4><ul className="machine-caveat-list">{latestPreflight.review_reasons.map((item) => <li key={item}>{item}</li>)}</ul></section>}
+    {!!latestPreflight?.violations.length && <section className="dossier-section"><h4>Violations</h4><ul className="machine-caveat-list">{latestPreflight.violations.map((item) => <li key={item}>{item}</li>)}</ul></section>}
+  </section>;
+}
+
+function MachineServiceExecutionStatus({
+  service,
+  status,
+  latestExecution
+}: {
+  service: MachineMarketService;
+  status: 'not_attempted' | 'attempted-recorded' | 'execution-tested' | 'repeatability-recorded';
+  latestExecution: MachinePreflightReceipt | null;
+}) {
+  return <section className="panel machine-policy-summary" aria-label="Execution status">
+    <div className="panel-head"><div><p className="section-kicker">Execution Status</p><h2>{status}</h2></div></div>
+    <p className="panel-caption">Execution evidence is service-specific. Catalog coverage and preflight decisions do not create execution-tested status.</p>
+    {!latestExecution && <p className="route-state">No execution receipt recorded for this robotic.sh-listed service yet.</p>}
+    {latestExecution && <div className="machine-usage-list">
+      <p><span>latest execution receipt id</span><small>{latestExecution.receipt_id}</small></p>
+      <p><span>payment status</span><small>{latestExecution.payment_occurred ? 'payment_observed' : 'payment_not_confirmed'}</small></p>
+      <p><span>route/source</span><small>{latestExecution.source_market ?? service.source_market} / {latestExecution.chain ?? service.chain}</small></p>
+      <p><span>execution status</span><small>{latestExecution.execution_status}</small></p>
+      <p><span>evidence health</span><small>{latestExecution.evidence_health ?? service.evidence_health}</small></p>
+      <p><span>caveats</span><small>{latestExecution.caveats.length ? latestExecution.caveats.join(' ') : 'No execution caveats recorded.'}</small></p>
+    </div>}
+  </section>;
+}
+
+function MachineServiceEvidenceNotes({ service }: { service: MachineMarketService }) {
+  return <section className="panel evidence-ladder-panel" aria-label="Service evidence health">
+    <div className="panel-head"><div><p className="section-kicker">Evidence Health</p><h2>{formatEvidenceStage(service.evidence_stage)} / {service.evidence_health}</h2></div></div>
+    <p>{getEvidenceStageDescription(service.evidence_stage)}</p>
+    <MachineEvidenceClaims serviceOrReceipt={service} />
+    <section className="dossier-section"><h4>Caveats</h4><ul className="machine-caveat-list">{service.caveats.map((caveat) => <li key={caveat}>{caveat}</li>)}</ul></section>
+  </section>;
+}
+
+function getServiceExecutionStatus(receipt: MachinePreflightReceipt | null): 'not_attempted' | 'attempted-recorded' | 'execution-tested' | 'repeatability-recorded' {
+  if (!receipt) return 'not_attempted';
+  if (receipt.execution_status === 'succeeded' && receipt.evidence_stage === 'repeatability-recorded') return 'repeatability-recorded';
+  if (receipt.execution_status === 'succeeded' && canClaimExecutionTested(receipt)) return 'execution-tested';
+  return 'attempted-recorded';
+}
+
+function describeServiceSafety(decision: 'allow' | 'review' | 'deny' | null): string {
+  if (decision === 'allow') return 'Radar currently considers this service safe only within the recorded policy envelope.';
+  if (decision === 'review') return 'Radar requires human review before this service can be used by a machine.';
+  if (decision === 'deny') return 'Radar blocks this service under the recorded policy constraints.';
+  return 'Radar has catalog coverage only; no preflight receipt has recorded allow, review, or deny for this service.';
 }
 
 type MachinePreflightFormState = {
@@ -4308,6 +4976,8 @@ function RadarApp() {
     { id: 'open-agent-benchmark-api', label: 'Open Agent Benchmark API', hint: 'Jump to benchmark API docs and examples', run: () => scrollToPanel('agent-benchmark-api') },
     { id: 'open-api-docs', label: 'Open API Docs', hint: OPENAPI_PATH, run: openApiDocs },
     { id: 'open-machine-market', label: 'Open Machine Market', hint: '/machine-market', run: () => openMachineRoute('/machine-market') },
+    { id: 'open-machine-service-dossier', label: 'Open Machine Service Dossier', hint: 'Open /machine-market and choose View service dossier', run: () => openMachineRoute('/machine-market') },
+    { id: 'open-robotic-sh-execution-shortlist', label: 'Open Robotic.sh Execution Shortlist', hint: '/machine-execution-shortlist', run: () => openMachineRoute('/machine-execution-shortlist') },
     { id: 'run-machine-preflight', label: 'Run Machine Preflight', hint: '/machine-preflight', run: () => openMachineRoute('/machine-preflight') },
     { id: 'view-machine-receipts', label: 'View Machine Receipts', hint: '/machine-receipts', run: () => openMachineRoute('/machine-receipts') },
     { id: 'view-machine-translation-repeatability-artifact', label: 'View Machine Translation Repeatability Artifact', hint: '/machine-execution/alibaba-machine-translation-general', run: () => openMachineRoute('/machine-execution/alibaba-machine-translation-general') },
@@ -7884,9 +8554,14 @@ export function App() {
   if (benchmarkId) return <PublicBenchmarkProofPage benchmarkId={benchmarkId} />;
   if (isBenchmarkIndexRoute(window.location.pathname)) return <PublicBenchmarksIndexPage />;
   if (isMachineMarketRoute(window.location.pathname)) return <MachineMarketPage />;
+  if (isMachineExecutionShortlistRoute(window.location.pathname)) return <MachineExecutionShortlistPage />;
+  const machineExecutionPlanServiceId = routeMachineExecutionPlanServiceId(window.location.pathname);
+  if (machineExecutionPlanServiceId) return <MachineExecutionProofPlanPage serviceId={machineExecutionPlanServiceId} />;
   if (isMachinePreflightRoute(window.location.pathname)) return <MachinePreflightPage />;
   if (isMachineReceiptsRoute(window.location.pathname)) return <MachineReceiptsPage />;
   if (isAlibabaMachineExecutionRoute(window.location.pathname)) return <AlibabaMachineExecutionDetailPage />;
+  const machineServiceId = routeMachineServiceId(window.location.pathname);
+  if (machineServiceId) return <MachineServiceDossierPage serviceId={machineServiceId} />;
   const machineDossierId = routeMachineDossierId(window.location.pathname);
   if (machineDossierId) return <MachineDossierPage machineId={machineDossierId} />;
   const providerId = routeProviderId(window.location.pathname);

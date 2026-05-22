@@ -295,7 +295,15 @@ describe('machine market page', () => {
 
     expect(container.textContent).toContain('Machine Market');
     expect(container.textContent).toContain('12 listed services mapped from robotic.sh for Phase 2 machine-economy intelligence.');
+    expect(container.querySelector('.machine-market-caveat a[href="/machine-execution-shortlist"]')?.textContent).toContain('View execution shortlist');
     for (const name of serviceNames) expect(container.textContent).toContain(name);
+  });
+
+  it('links service rows and cards to service dossiers', async () => {
+    root = await renderPage(container);
+
+    expect(container.querySelector('a[href="/machine-service/qvac"]')?.textContent).toBe('View service dossier');
+    expect(container.querySelector('a[href="/machine-service/cloud-translation"]')?.textContent).toBe('View service dossier');
   });
 
   it('filters visible services by source market', async () => {
