@@ -316,5 +316,6 @@ describe('machine market page', () => {
     expect(pageText).toContain('Execution-tested applies only to Alibaba Machine Translation General after Radar records the successful execution receipt.');
     expect(pageText).toContain('infopunks-pay-sh-agent-harness');
     expect(pageText).toContain('manual');
+    expect(container.querySelector('a[href="/machine-execution/alibaba-machine-translation-general"]')).not.toBeNull();
   });
 });

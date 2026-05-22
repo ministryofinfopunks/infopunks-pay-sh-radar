@@ -497,6 +497,7 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 .propagation-incident-page .delta-row a:hover { text-decoration: underline; }
 
 .machine-market-page { display: grid; gap: 18px; }
+.machine-execution-hero::after { content: 'EXECUTION-TESTED ROUTE'; }
 .machine-market-toolbar { justify-content: space-between; pointer-events: auto; }
 .machine-market-hero::after { content: 'POLICY -> EVIDENCE -> RECEIPTS'; }
 .machine-market-caveat { display: grid; gap: 8px; }

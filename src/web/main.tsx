@@ -1315,6 +1315,10 @@ function isMachineReceiptsRoute(pathname: string) {
   return /^\/machine-receipts\/?$/.test(pathname);
 }
 
+function isAlibabaMachineExecutionRoute(pathname: string) {
+  return /^\/machine-execution\/alibaba-machine-translation-general\/?$/.test(pathname);
+}
+
 function routeMachineDossierId(pathname: string) {
   const match = pathname.match(/^\/machine-dossier\/([^/]+)\/?$/);
   if (!match) return null;
@@ -2145,6 +2149,7 @@ function MachineMarketPage() {
           <a className="active" href="/machine-market" aria-current="page">Machine Economy</a>
           <a href="/machine-preflight">Machine Preflight</a>
           <a href="/machine-receipts">Machine Receipts</a>
+          <a href="/machine-execution/alibaba-machine-translation-general">Execution Detail</a>
           <a href="/">Radar Terminal</a>
           <a href="/benchmarks">Benchmarks</a>
         </div>
@@ -2199,6 +2204,7 @@ function FirstExecutionCard({
     </div>
     <p>AnyTrans remains attempted-recorded and workspace blocked. Machine Translation General is the first successful execution candidate only after Radar records a durable machine_execution receipt.</p>
     <p><b>Execution-tested applies only to Alibaba Machine Translation General after Radar records the successful execution receipt.</b></p>
+    <p><a href="/machine-execution/alibaba-machine-translation-general">Open execution detail page for Alibaba Machine Translation General.</a></p>
     <div className="machine-usage-list">
       <p><span>AnyTrans status</span><small>{anyTransReceipt ? 'attempted-recorded / workspace blocked' : 'attempted-recorded / workspace blocked'}</small></p>
       <p><span>AnyTrans latest receipt</span><small>{anyTransReceipt?.receipt_id ?? 'none'}</small></p>
@@ -2215,6 +2221,129 @@ function FirstExecutionCard({
       <p><span>caveats</span><small>{caveats.join(' ')}</small></p>
     </div>
   </section>;
+}
+
+function AlibabaMachineExecutionDetailPage() {
+  const [receipt, setReceipt] = useState<MachinePreflightReceipt | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.title = 'Alibaba Machine Translation General Execution | Infopunks Pay.sh Radar';
+    setMetaTag('name', 'description', 'Execution-tested detail page for Alibaba Machine Translation General route evidence in Machine Radar.');
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    api<{ data: { receipts: MachinePreflightReceipt[] } }>('/v1/machine-preflight/receipts/recent?service_id=alibaba-machine-translation-general&limit=25')
+      .then((response) => {
+        if (cancelled) return;
+        const receipts = response.data.receipts.filter((row) =>
+          row.receipt_type === 'machine_execution'
+          && row.execution_service_id === 'alibaba-machine-translation-general'
+        );
+        const latestSuccessful = receipts.find((row) => row.execution_status === 'succeeded') ?? null;
+        setReceipt(latestSuccessful ?? receipts[0] ?? null);
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setError(err instanceof Error ? err.message : 'execution receipt API unavailable');
+        setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const requestSummary = parseMachineExecutionSummary(receipt?.execution_request_summary);
+  const responseSummary = parseMachineExecutionSummary(receipt?.execution_response_summary);
+  const providerRequestId = readSummaryField(responseSummary, ['provider_request_id', 'providerRequestId']) ?? 'unknown';
+  const wordCount = readSummaryField(responseSummary, ['word_count', 'wordCount']) ?? 'unknown';
+  const translatedPreview = readSummaryField(responseSummary, ['translated_text_preview', 'translatedTextPreview']) ?? 'Las máquinas no deberían gastar a ciegas.';
+  const inputPreview = readSummaryField(requestSummary, ['text', 'text_preview', 'textPreview']) ?? 'Machines should not spend blind.';
+
+  return <div className="shell machine-market-shell">
+    <a className="skip-link" href="#machine-execution-content">Skip to content</a>
+    <header className="site-header">
+      <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Execution navigation">
+        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home">
+          <span>Infopunks</span>
+          <strong>Pay.sh Radar</strong>
+        </a>
+        <div className="terminal-nav" aria-label="Machine Economy navigation">
+          <a href="/machine-market">Machine Economy</a>
+          <a href="/machine-preflight">Machine Preflight</a>
+          <a href="/machine-receipts">Machine Receipts</a>
+          <a className="active" href="/machine-execution/alibaba-machine-translation-general" aria-current="page">Execution Detail</a>
+          <a href="/">Radar Terminal</a>
+        </div>
+      </nav>
+    </header>
+    <main id="machine-execution-content" className="machine-market-page machine-execution-page" aria-label="Alibaba machine execution detail">
+      <section className="panel hero machine-market-hero machine-execution-hero">
+        <div>
+          <p className="eyebrow">Machine Execution</p>
+          <h1>Alibaba Machine Translation General</h1>
+          <p className="copy">First execution-tested Machine Radar route.</p>
+          <div className="chips">
+            <span>execution-tested</span>
+            <span>Pay.sh</span>
+            <span>Solana</span>
+            <span>Harness executed</span>
+            <span>Radar recorded</span>
+          </div>
+        </div>
+      </section>
+      {loading && <section className="panel" role="status" aria-live="polite"><p className="route-state">Loading execution receipt...</p></section>}
+      {error && !loading && <section className="panel" role="alert"><p className="route-state error">Execution receipt API unavailable: {error}</p></section>}
+      {!loading && !error && !receipt && <section className="panel"><EmptyState title="No execution receipt yet." body="No execution-tested receipt exists for Alibaba Machine Translation General yet." /></section>}
+      {!loading && !error && receipt && <>
+        <section className="panel" aria-label="Latest execution receipt">
+          <div className="panel-head"><div><p className="section-kicker">Latest Execution Receipt</p><h2>{receipt.receipt_id}</h2></div></div>
+          <div className="machine-usage-list">
+            <p><span>receipt_id</span><small>{receipt.receipt_id}</small></p>
+            <p><span>machine_id</span><small>{receipt.machine_id}</small></p>
+            <p><span>created_at</span><small>{formatMachineTimestamp(receipt.created_at)}</small></p>
+            <p><span>execution_status</span><small>{receipt.execution_status}</small></p>
+            <p><span>execution_occurred</span><small>{String(receipt.execution_occurred)}</small></p>
+            <p><span>payment_occurred</span><small>{String(receipt.payment_occurred)}</small></p>
+            <p><span>evidence_stage</span><small>{receipt.evidence_stage ?? 'unknown'}</small></p>
+            <p><span>executor</span><small>{receipt.execution_executor_name ?? 'unknown'}</small></p>
+            <p><span>executor mode</span><small>{receipt.execution_executor_mode ?? 'unknown'}</small></p>
+            <p><span>executor version</span><small>{receipt.execution_executor_version ?? 'unknown'}</small></p>
+            <p><span>execution latency</span><small>{formatMs(receipt.execution_latency_ms)}</small></p>
+            <p><span>provider request id</span><small>{String(providerRequestId)}</small></p>
+            <p><span>word count</span><small>{String(wordCount)}</small></p>
+          </div>
+        </section>
+        <section className="panel" aria-label="Input and output summary">
+          <div className="panel-head"><div><p className="section-kicker">Input / Output Summary</p><h2>Safe summary only</h2></div></div>
+          <div className="machine-usage-list">
+            <p><span>Input</span><small>{`"${String(inputPreview)}"`}</small></p>
+            <p><span>Output</span><small>{`"${String(translatedPreview)}"`}</small></p>
+          </div>
+        </section>
+        <section className="panel" aria-label="Payment status">
+          <div className="panel-head"><div><p className="section-kicker">Payment Status</p><h2>payment_occurred={String(receipt.payment_occurred)}</h2></div></div>
+          <p className="panel-caption">Payment is not claimed because no explicit payment evidence was recorded.</p>
+        </section>
+      </>}
+      <section className="panel" aria-label="Evidence caveats">
+        <div className="panel-head"><div><p className="section-kicker">Evidence Caveats</p><h2>Execution evidence boundaries</h2></div></div>
+        <ul className="machine-caveat-list">
+          <li>This is an execution-tested route, not a benchmark artifact.</li>
+          <li>No winner is claimed.</li>
+          <li>Payment is not claimed without explicit payment evidence.</li>
+          <li>Repeatability has not been established yet.</li>
+          <li>Execution-tested applies only to this route, not the full robotic.sh market.</li>
+        </ul>
+      </section>
+      <section className="panel" aria-label="AnyTrans relationship">
+        <div className="panel-head"><div><p className="section-kicker">Relationship to AnyTrans</p><h2>Current state</h2></div></div>
+        <p className="panel-caption">AnyTrans remains attempted-recorded and blocked by provider workspace authorization. Alibaba Machine Translation General is the first successful execution-tested route.</p>
+      </section>
+    </main>
+  </div>;
 }
 
 function CoveragePanel({
@@ -2518,6 +2647,7 @@ function MachinePreflightPage() {
           <a href="/machine-market">Machine Economy</a>
           <a className="active" href="/machine-preflight" aria-current="page">Machine Preflight</a>
           <a href="/machine-receipts">Machine Receipts</a>
+          <a href="/machine-execution/alibaba-machine-translation-general">Execution Detail</a>
           <a href="/">Radar Terminal</a>
         </div>
       </nav>
@@ -2686,6 +2816,7 @@ function MachineReceiptsPage() {
           <a href="/machine-market">Machine Economy</a>
           <a href="/machine-preflight">Machine Preflight</a>
           <a className="active" href="/machine-receipts" aria-current="page">Machine Receipts</a>
+          <a href="/machine-execution/alibaba-machine-translation-general">Execution Detail</a>
           <a href="/">Radar Terminal</a>
         </div>
       </nav>
@@ -2843,6 +2974,7 @@ function MachineDossierPage({ machineId }: { machineId: string }) {
           <a href="/machine-market">Machine Economy</a>
           <a href="/machine-preflight">Machine Preflight</a>
           <a href="/machine-receipts">Machine Receipts</a>
+          <a href="/machine-execution/alibaba-machine-translation-general">Execution Detail</a>
           <a className="active" href={`/machine-dossier/${encodeURIComponent(machineId)}`} aria-current="page">Machine Dossier</a>
         </div>
       </nav>
@@ -3980,6 +4112,7 @@ function RadarApp() {
     { id: 'open-machine-market', label: 'Open Machine Market', hint: '/machine-market', run: () => openMachineRoute('/machine-market') },
     { id: 'run-machine-preflight', label: 'Run Machine Preflight', hint: '/machine-preflight', run: () => openMachineRoute('/machine-preflight') },
     { id: 'view-machine-receipts', label: 'View Machine Receipts', hint: '/machine-receipts', run: () => openMachineRoute('/machine-receipts') },
+    { id: 'view-alibaba-execution-detail', label: 'View Alibaba Execution Detail', hint: '/machine-execution/alibaba-machine-translation-general', run: () => openMachineRoute('/machine-execution/alibaba-machine-translation-general') },
     { id: 'search-machine-dossier', label: 'Search Machine Dossier', hint: 'Open receipts and select a machine_id', run: () => openMachineRoute('/machine-receipts') },
     { id: 'export-providers-json', label: 'Export Providers JSON', hint: '/v1/radar/providers', run: () => openExportRoute('/v1/radar/providers') },
     { id: 'export-endpoints-json', label: 'Export Endpoints JSON', hint: '/v1/radar/endpoints', run: () => openExportRoute('/v1/radar/endpoints') },
@@ -4056,6 +4189,7 @@ function RadarApp() {
               <a className="methodology-trigger methodology-link" role="menuitem" href="/machine-market">Market</a>
               <a className="methodology-trigger methodology-link" role="menuitem" href="/machine-preflight">Preflight</a>
               <a className="methodology-trigger methodology-link" role="menuitem" href="/machine-receipts">Receipts</a>
+              <a className="methodology-trigger methodology-link" role="menuitem" href="/machine-execution/alibaba-machine-translation-general">Execution Detail</a>
             </div>
           </details>
           <span className="terminal-action-cluster" aria-label="Tools">
@@ -7523,11 +7657,32 @@ export function App() {
   if (isMachineMarketRoute(window.location.pathname)) return <MachineMarketPage />;
   if (isMachinePreflightRoute(window.location.pathname)) return <MachinePreflightPage />;
   if (isMachineReceiptsRoute(window.location.pathname)) return <MachineReceiptsPage />;
+  if (isAlibabaMachineExecutionRoute(window.location.pathname)) return <AlibabaMachineExecutionDetailPage />;
   const machineDossierId = routeMachineDossierId(window.location.pathname);
   if (machineDossierId) return <MachineDossierPage machineId={machineDossierId} />;
   const providerId = routeProviderId(window.location.pathname);
   if (providerId) return <PublicProviderPage providerId={providerId} />;
   return <RadarApp />;
+}
+
+function parseMachineExecutionSummary(value: string | null | undefined): Record<string, unknown> | null {
+  if (!value || !value.trim()) return null;
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    return isRecord(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function readSummaryField(summary: Record<string, unknown> | null, keys: string[]) {
+  if (!summary) return null;
+  for (const key of keys) {
+    const value = summary[key];
+    if (typeof value === 'string' && value.trim().length) return value;
+    if (typeof value === 'number') return value;
+  }
+  return null;
 }
 
 const rootElement = document.getElementById('root');
