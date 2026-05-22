@@ -78,7 +78,8 @@ import { listRouteMappings } from '../services/providerEndpointMap';
 import { listMappingTargets } from '../services/mappingTargetService';
 import { MACHINE_MARKET_PHASE_SCOPE, buildMachineMarketSummary, listMachineMarketServices } from '../services/machineMarketService';
 import { getMachinePolicyTemplateById, listMachinePolicyTemplates } from '../services/machinePolicyService';
-import { buildMachineDossier, configureMachineDemoSeed, getMachinePreflightReceiptById, listRecentMachinePreflightReceipts, runMachinePreflight } from '../services/machinePreflightService';
+import { buildMachineDossier, configureMachineDemoSeed, configureMachinePreflightReceiptStorage, getMachinePreflightReceiptById, listRecentMachinePreflightReceipts, runMachinePreflight } from '../services/machinePreflightService';
+import { createMachineReceiptStorageMetadata, JsonlMachinePreflightReceiptStorageAdapter, MemoryMachinePreflightReceiptStorageAdapter, PostgresMachinePreflightReceiptStorageAdapter, type MachinePreflightReceiptStorageAdapter } from '../services/machinePreflightReceiptStorage';
 import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
@@ -128,11 +129,21 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   const RADAR_ECOSYSTEM_RISK_TIMEOUT_MS = 1_200;
   const RADAR_ECOSYSTEM_HISTORY_TIMEOUT_MS = 1_200;
   const PROVIDER_LIST_MAX = 100;
-  const machineReceiptStorage = {
-    mode: 'memory',
-    limitation: 'Machine preflight receipts are held in process memory in this development build; they reset when the server restarts.',
-    demo_seed_enabled: config.machineDemoSeed
-  } as const;
+  const machineReceiptAdapter: MachinePreflightReceiptStorageAdapter = process.env.NODE_ENV === 'test'
+    ? new MemoryMachinePreflightReceiptStorageAdapter()
+    : config.databaseUrl
+      ? new PostgresMachinePreflightReceiptStorageAdapter(config.databaseUrl)
+      : new JsonlMachinePreflightReceiptStorageAdapter({
+          filePath: process.env.MACHINE_RECEIPTS_JSONL_PATH ?? join(process.cwd(), '.data', 'machine-preflight-receipts.jsonl')
+        });
+  configureMachinePreflightReceiptStorage(machineReceiptAdapter);
+  const machineReceiptStorage = createMachineReceiptStorageMetadata({
+    env: config.env,
+    adapter: process.env.NODE_ENV === 'test' ? 'memory' : config.databaseUrl ? 'postgres' : 'jsonl',
+    durable: process.env.NODE_ENV !== 'test',
+    limitation: process.env.NODE_ENV === 'test' ? 'Machine preflight receipts use isolated in-memory test storage.' : undefined,
+    demoSeedEnabled: config.machineDemoSeed
+  });
   configureMachineDemoSeed(config.machineDemoSeed);
   const responseCache = createResponseCache();
   const allowedOrigins = new Set(DEFAULT_ALLOWED_ORIGINS);
@@ -447,7 +458,7 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   app.get<{ Querystring: { decision?: string; machine_id?: string; service_id?: string; source_market?: string; chain?: string; limit?: string } }>('/v1/machine-preflight/receipts/recent', async (req, reply) => {
     const parsed = MachineReceiptQuerySchema.safeParse(req.query);
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_machine_receipt_query', phase_scope: MACHINE_MARKET_PHASE_SCOPE, details: parsed.error.flatten() });
-    const receipts = listRecentMachinePreflightReceipts(parsed.data);
+    const receipts = await listRecentMachinePreflightReceipts(parsed.data);
     return { data: safeJsonExport({
       generated_at: new Date().toISOString(),
       source: 'infopunks-pay-sh-radar',
@@ -459,7 +470,7 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     }) };
   });
   app.get<{ Params: { receipt_id: string } }>('/v1/machine-preflight/receipts/:receipt_id', async (req, reply) => {
-    const receipt = getMachinePreflightReceiptById(req.params.receipt_id);
+    const receipt = await getMachinePreflightReceiptById(req.params.receipt_id);
     if (!receipt) return reply.code(404).send({ error: 'machine_preflight_receipt_not_found', phase_scope: MACHINE_MARKET_PHASE_SCOPE });
     return { data: safeJsonExport({
       generated_at: new Date().toISOString(),
@@ -471,15 +482,18 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     }) };
   });
   app.get<{ Params: { machine_id: string } }>('/v1/machine-dossier/:machine_id', async (req) => ({
-    data: safeJsonExport(buildMachineDossier(decodeURIComponent(req.params.machine_id)))
+    data: safeJsonExport(await buildMachineDossier(decodeURIComponent(req.params.machine_id)))
   }));
   app.post('/v1/machine-preflight', async (req, reply) => {
     const parsed = MachinePreflightRequestSchema.safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_machine_preflight_request', phase_scope: MACHINE_MARKET_PHASE_SCOPE, details: parsed.error.flatten() });
     return { data: safeJsonExport({
-      ...runMachinePreflight(parsed.data),
+      ...await runMachinePreflight(parsed.data),
       storage: machineReceiptStorage
     }) };
+  });
+  app.addHook('onClose', async () => {
+    if (machineReceiptAdapter.close) await machineReceiptAdapter.close();
   });
   app.get('/v1/radar/export/providers.csv', async (_req, reply) => {
     reply.type('text/csv; charset=utf-8');

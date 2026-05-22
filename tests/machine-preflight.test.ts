@@ -2,6 +2,9 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { createApp } from '../src/api/app';
 import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
 import { clearMachinePreflightReceiptsForTests } from '../src/services/machinePreflightService';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
 
 const deliveryVisionRequest = {
   machine_id: 'did:peaq:delivery-bot-01',
@@ -25,9 +28,9 @@ async function postPreflight(payload: Record<string, unknown>) {
 describe('machine preflight API', () => {
   const envSnapshot = { ...process.env };
 
-  beforeEach(() => {
+  beforeEach(async () => {
     process.env = { ...envSnapshot, NODE_ENV: 'test' };
-    clearMachinePreflightReceiptsForTests();
+    await clearMachinePreflightReceiptsForTests();
   });
 
   it('allows delivery robot vision request and selects Document AI', async () => {
@@ -37,8 +40,9 @@ describe('machine preflight API', () => {
     const body = response.json().data;
     expect(body.decision).toBe('allow');
     expect(body.phase_scope).toBe('phase_2_pay_sh_robotic_sh');
-    expect(body.storage.mode).toBe('memory');
-    expect(body.storage.limitation).toContain('reset when the server restarts');
+    expect(body.storage.mode).toBe('test');
+    expect(body.storage.adapter).toBe('memory');
+    expect(body.storage.durable).toBe(false);
     expect(body.recommended_service.name).toBe('Document AI');
     expect(body.source_market).toBe('pay.sh');
     expect(body.chain).toBe('solana');
@@ -127,7 +131,7 @@ describe('machine preflight API', () => {
     expect(review.json().data.receipt_id).toMatch(/^mrx_/);
     expect(recent.statusCode).toBe(200);
     expect(recent.json().data.phase_scope).toBe('phase_2_pay_sh_robotic_sh');
-    expect(recent.json().data.storage.mode).toBe('memory');
+    expect(recent.json().data.storage.mode).toBe('test');
     expect(recent.json().data.receipts.map((receipt: any) => receipt.decision).sort()).toEqual(['allow', 'deny', 'review']);
 
     await app.close();
@@ -162,7 +166,7 @@ describe('machine preflight API', () => {
     const detail = await app.inject({ method: 'GET', url: `/v1/machine-preflight/receipts/${allow.json().data.receipt_id}` });
     expect(detail.statusCode).toBe(200);
     expect(detail.json().data.phase_scope).toBe('phase_2_pay_sh_robotic_sh');
-    expect(detail.json().data.storage.mode).toBe('memory');
+    expect(detail.json().data.storage.mode).toBe('test');
     expect(detail.json().data.receipt.selected_service.name).toBe('Document AI');
     expect(detail.json().data.receipt.policy_summary.name).toBe('Delivery Robot');
 
@@ -233,5 +237,56 @@ describe('machine preflight API', () => {
     expect(dossier.json().data.caveats).toContain('This dossier includes demo preflight receipts. It does not verify physical-world machine activity.');
 
     await app.close();
+  });
+
+  it('persists allow/deny/review receipts across adapter re-instantiation in durable mode', async () => {
+    const tempDir = mkdtempSync(join(tmpdir(), 'machine-preflight-'));
+    const filePath = join(tempDir, 'receipts.jsonl');
+    process.env.NODE_ENV = 'development';
+    process.env.MACHINE_DEMO_SEED = 'false';
+    process.env.MACHINE_RECEIPTS_JSONL_PATH = filePath;
+
+    const app1 = await createApp(emptyIntelligenceStore());
+    const allow = await app1.inject({ method: 'POST', url: '/v1/machine-preflight', payload: deliveryVisionRequest });
+    const deny = await app1.inject({ method: 'POST', url: '/v1/machine-preflight', payload: { ...deliveryVisionRequest, allowed_chains: ['base'] } });
+    const review = await app1.inject({ method: 'POST', url: '/v1/machine-preflight', payload: { ...deliveryVisionRequest, minimum_evidence_stage: 'preflight-ready' } });
+    await app1.close();
+
+    const app2 = await createApp(emptyIntelligenceStore());
+    const recent = await app2.inject({ method: 'GET', url: '/v1/machine-preflight/receipts/recent' });
+    expect(recent.json().data.storage.mode).toBe('durable');
+    expect(recent.json().data.storage.adapter).toBe('jsonl');
+    expect(recent.json().data.storage.durable).toBe(true);
+    expect(recent.json().data.receipts.map((r: any) => r.decision).sort()).toEqual(['allow', 'deny', 'review']);
+
+    const detail = await app2.inject({ method: 'GET', url: `/v1/machine-preflight/receipts/${allow.json().data.receipt_id}` });
+    expect(detail.statusCode).toBe(200);
+    const dossier = await app2.inject({ method: 'GET', url: `/v1/machine-dossier/${encodeURIComponent(deliveryVisionRequest.machine_id)}` });
+    expect(dossier.json().data.summary.total_receipts).toBe(3);
+
+    expect([allow.json().data.receipt_id, deny.json().data.receipt_id, review.json().data.receipt_id]).toContain(detail.json().data.receipt.receipt_id);
+
+    await app2.close();
+    rmSync(tempDir, { recursive: true, force: true });
+  });
+
+  it('does not duplicate durable demo seed records across adapter re-instantiation', async () => {
+    const tempDir = mkdtempSync(join(tmpdir(), 'machine-preflight-demo-'));
+    const filePath = join(tempDir, 'receipts.jsonl');
+    process.env.NODE_ENV = 'development';
+    process.env.MACHINE_DEMO_SEED = 'true';
+    process.env.MACHINE_RECEIPTS_JSONL_PATH = filePath;
+
+    const app1 = await createApp(emptyIntelligenceStore());
+    const recent1 = await app1.inject({ method: 'GET', url: '/v1/machine-preflight/receipts/recent' });
+    expect(recent1.json().data.receipts).toHaveLength(5);
+    await app1.close();
+
+    const app2 = await createApp(emptyIntelligenceStore());
+    const recent2 = await app2.inject({ method: 'GET', url: '/v1/machine-preflight/receipts/recent' });
+    expect(recent2.json().data.receipts).toHaveLength(5);
+    await app2.close();
+
+    rmSync(tempDir, { recursive: true, force: true });
   });
 });

@@ -17,6 +17,7 @@ import {
   getMachinePolicyTemplateById
 } from './machinePolicyService';
 import { evidenceStageRank } from './machineEvidenceService';
+import { MachinePreflightReceiptStorageAdapter, MemoryMachinePreflightReceiptStorageAdapter } from './machinePreflightReceiptStorage';
 
 export type MachinePreflightDecision = 'allow' | 'deny' | 'review';
 
@@ -143,11 +144,9 @@ export type MachineDossier = {
 };
 
 let receiptSequence = 0;
-// Development ledger: machine preflight receipts are intentionally process-local
-// until the project adds a storage adapter for durable machine decision receipts.
-const receipts: MachinePreflightReceipt[] = [];
 let demoSeedEnabled = process.env.MACHINE_DEMO_SEED === 'true';
 let demoSeeded = false;
+let storageAdapter: MachinePreflightReceiptStorageAdapter = new MemoryMachinePreflightReceiptStorageAdapter();
 
 type MachineDemoSeedInput = {
   machine_id: string;
@@ -219,8 +218,13 @@ const demoSeedInputs: MachineDemoSeedInput[] = [
   }
 ];
 
-export function runMachinePreflight(request: MachinePreflightRequest): MachinePreflightResponse {
-  ensureMachineDemoReceiptsSeeded();
+export function configureMachinePreflightReceiptStorage(adapter: MachinePreflightReceiptStorageAdapter) {
+  storageAdapter = adapter;
+  demoSeeded = false;
+}
+
+export async function runMachinePreflight(request: MachinePreflightRequest): Promise<MachinePreflightResponse> {
+  await ensureMachineDemoReceiptsSeeded();
   const createdAt = new Date().toISOString();
   const policy = buildPolicyForRequest(request, createdAt);
   const requestedCost = request.max_cost_usd ?? policy.per_call_budget_usd;
@@ -229,7 +233,7 @@ export function runMachinePreflight(request: MachinePreflightRequest): MachinePr
     .sort((left, right) => compareCandidate(left, right, request));
 
   if (candidates.length === 0) {
-    return responseFromReceipt(recordReceipt({
+    return responseFromReceipt(await recordReceipt({
       request,
       policy,
       service: null,
@@ -252,7 +256,7 @@ export function runMachinePreflight(request: MachinePreflightRequest): MachinePr
   const selected = evaluated[0];
   const decision = selected.evaluation.status === 'pass' ? 'allow' : selected.evaluation.status === 'review' ? 'review' : 'deny';
 
-  return responseFromReceipt(recordReceipt({
+  return responseFromReceipt(await recordReceipt({
     request,
     policy,
     service: selected.service,
@@ -263,23 +267,14 @@ export function runMachinePreflight(request: MachinePreflightRequest): MachinePr
   }));
 }
 
-export function listRecentMachinePreflightReceipts(filters: MachinePreflightReceiptFilters = {}): MachinePreflightReceipt[] {
-  ensureMachineDemoReceiptsSeeded();
-  const limit = Math.max(1, Math.min(filters.limit ?? 25, 100));
-  return [...receipts]
-    .filter((receipt) => !filters.decision || receipt.decision === filters.decision)
-    .filter((receipt) => !filters.machine_id || receipt.machine_id === filters.machine_id)
-    .filter((receipt) => !filters.service_id || receipt.selected_service_id === filters.service_id)
-    .filter((receipt) => !filters.source_market || receipt.source_market === filters.source_market)
-    .filter((receipt) => !filters.chain || receipt.chain === filters.chain)
-    .sort((left, right) => Date.parse(right.created_at) - Date.parse(left.created_at) || right.receipt_id.localeCompare(left.receipt_id))
-    .slice(0, limit)
-    .map(copyReceipt);
+export async function listRecentMachinePreflightReceipts(filters: MachinePreflightReceiptFilters = {}): Promise<MachinePreflightReceipt[]> {
+  await ensureMachineDemoReceiptsSeeded();
+  return storageAdapter.listMachinePreflightReceipts(filters);
 }
 
-export function getMachinePreflightReceiptById(receiptId: string): MachinePreflightReceiptDetail | null {
-  ensureMachineDemoReceiptsSeeded();
-  const receipt = receipts.find((item) => item.receipt_id === receiptId);
+export async function getMachinePreflightReceiptById(receiptId: string): Promise<MachinePreflightReceiptDetail | null> {
+  await ensureMachineDemoReceiptsSeeded();
+  const receipt = await storageAdapter.getMachinePreflightReceipt(receiptId);
   if (!receipt) return null;
   const service = receipt.selected_service_id ? serviceById(receipt.selected_service_id) : null;
   const policy = receipt.policy_id ? getMachinePolicyTemplateById(receipt.policy_id) : null;
@@ -298,9 +293,10 @@ export function getMachinePreflightReceiptById(receiptId: string): MachinePrefli
   };
 }
 
-export function buildMachineDossier(machineId: string): MachineDossier {
-  ensureMachineDemoReceiptsSeeded();
-  const machineReceipts = listRecentMachinePreflightReceipts({ machine_id: machineId, limit: 100 });
+export async function buildMachineDossier(machineId: string): Promise<MachineDossier> {
+  await ensureMachineDemoReceiptsSeeded();
+  const machineReceipts = (await storageAdapter.listMachineReceiptsByMachine(machineId))
+    .sort((left, right) => Date.parse(right.created_at) - Date.parse(left.created_at) || right.receipt_id.localeCompare(left.receipt_id));
   const latest = machineReceipts[0] ?? null;
   const policy = latest?.policy_id ? getMachinePolicyTemplateById(latest.policy_id) : null;
   const stages = machineReceipts.map((receipt) => receipt.evidence_stage).filter((stage): stage is string => Boolean(stage));
@@ -351,11 +347,12 @@ export function buildMachineDossier(machineId: string): MachineDossier {
   };
 }
 
-export function clearMachinePreflightReceiptsForTests() {
-  receipts.splice(0, receipts.length);
+export async function clearMachinePreflightReceiptsForTests() {
   receiptSequence = 0;
   demoSeeded = false;
   demoSeedEnabled = false;
+  if (storageAdapter.clearForTests) await storageAdapter.clearForTests();
+  storageAdapter = new MemoryMachinePreflightReceiptStorageAdapter();
 }
 
 export function setMachineDemoSeedEnabledForTests(enabled: boolean) {
@@ -451,7 +448,7 @@ function machinePreflightReason(decision: MachinePreflightDecision, service: Mac
   return `${service.name} is denied for this machine preflight. ${evaluation.explanation}`;
 }
 
-function recordReceipt(input: {
+async function recordReceipt(input: {
   request: MachinePreflightRequest;
   policy: MachinePolicy;
   service: MachineMarketService | null;
@@ -490,7 +487,7 @@ function recordReceipt(input: {
     phase_scope: MACHINE_MARKET_PHASE_SCOPE,
     created_at: input.createdAt
   };
-  receipts.push(receipt);
+  await storageAdapter.appendMachinePreflightReceipt(receipt);
   return copyReceipt(receipt);
 }
 
@@ -554,18 +551,16 @@ function copyReceipt(receipt: MachinePreflightReceipt): MachinePreflightReceipt 
   };
 }
 
-function ensureMachineDemoReceiptsSeeded() {
+async function ensureMachineDemoReceiptsSeeded() {
   if (!demoSeedEnabled || demoSeeded) return;
-  const seen = new Set(receipts.map((receipt) => receipt.receipt_id));
   const baseMs = Date.parse('2026-05-22T00:00:00.000Z');
+  const receipts: MachinePreflightReceipt[] = [];
   for (let i = 0; i < demoSeedInputs.length; i += 1) {
     const seed = demoSeedInputs[i];
-    const receiptId = `mrx_demo_${seed.machine_id.replace(/[^a-z0-9]+/gi, '_').toLowerCase()}`;
-    if (seen.has(receiptId) || receipts.some((receipt) => receipt.machine_id === seed.machine_id && receipt.intent === seed.intent && receipt.demo_mode)) continue;
     const service = serviceById(seed.selected_service_id);
     const createdAt = new Date(baseMs + i * 60_000).toISOString();
     receipts.push({
-      receipt_id: receiptId,
+      receipt_id: `mrx_demo_${seed.machine_id.replace(/[^a-z0-9]+/gi, '_').toLowerCase()}`,
       receipt_type: 'machine_preflight',
       demo_mode: true,
       execution_occurred: false,
@@ -595,8 +590,8 @@ function ensureMachineDemoReceiptsSeeded() {
       phase_scope: MACHINE_MARKET_PHASE_SCOPE,
       created_at: createdAt
     });
-    seen.add(receiptId);
   }
+  await storageAdapter.seedMachineDemoReceiptsIfEnabled(receipts);
   demoSeeded = true;
 }
 
