@@ -90,6 +90,7 @@ import {
   runMachinePreflightCoverageRun
 } from '../services/machinePreflightService';
 import { createMachineReceiptStorageMetadata, JsonlMachinePreflightReceiptStorageAdapter, MemoryMachinePreflightReceiptStorageAdapter, PostgresMachinePreflightReceiptStorageAdapter, type MachinePreflightReceiptStorageAdapter } from '../services/machinePreflightReceiptStorage';
+import { runCloudTranslationExecutionRoute } from '../services/machineExecutionService';
 import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
@@ -102,6 +103,7 @@ const MachinePreflightRequestSchema = z.object({
   allowed_chains: z.array(z.enum(['solana', 'base', 'peaq', 'omnichain'])).optional(),
   risk_tolerance: z.enum(['low', 'medium', 'high']).default('medium'),
   requires_receipt: z.boolean().default(true),
+  human_approved: z.boolean().optional(),
   policy_id: z.string().min(1).optional(),
   minimum_evidence_stage: z.enum(['listed', 'classified', 'policy-mapped', 'preflight-ready', 'execution-tested', 'receipt-recorded', 'benchmark-recorded']).optional()
 });
@@ -115,6 +117,16 @@ const MachineReceiptQuerySchema = z.object({
 });
 const MachineCoverageRunQuerySchema = z.object({
   limit: z.coerce.number().int().positive().max(25).optional()
+});
+const MachineExecutionCloudTranslationRequestSchema = z.object({
+  machine_id: z.string().min(1),
+  policy_id: z.string().min(1),
+  service_id: z.string().optional(),
+  text: z.string().min(1),
+  source_language: z.string().min(2),
+  target_language: z.string().min(2),
+  max_cost_usd: z.number().positive(),
+  human_approved: z.boolean().optional()
 });
 const MAX_INLINE_SUPPORTING_EVENT_IDS = 10;
 const DEFAULT_ALLOWED_ORIGINS = new Set([
@@ -559,6 +571,25 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
       ...await runMachinePreflight(parsed.data),
       storage: machineReceiptStorage
     }) };
+  });
+  app.post('/v1/machine-execution/cloud-translation', async (req, reply) => {
+    const parsed = MachineExecutionCloudTranslationRequestSchema.safeParse(req.body);
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_machine_execution_request', phase_scope: MACHINE_MARKET_PHASE_SCOPE, details: parsed.error.flatten() });
+    if (parsed.data.service_id && parsed.data.service_id !== 'cloud-translation') {
+      return reply.code(400).send({
+        error: 'unsupported_service_execution',
+        phase_scope: MACHINE_MARKET_PHASE_SCOPE,
+        supported_service_id: 'cloud-translation'
+      });
+    }
+    const result = await runCloudTranslationExecutionRoute(parsed.data);
+    return {
+      data: safeJsonExport({
+        ...result,
+        phase_scope: MACHINE_MARKET_PHASE_SCOPE,
+        storage: machineReceiptStorage
+      })
+    };
   });
   app.addHook('onClose', async () => {
     if (machineReceiptAdapter.close) await machineReceiptAdapter.close();

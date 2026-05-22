@@ -1532,6 +1532,7 @@ function componentSchemas(): Record<string, JsonSchema> {
       allowed_chains: arrayOf(enumSchema(['solana', 'base', 'peaq', 'omnichain'])),
       risk_tolerance: enumSchema(['low', 'medium', 'high']),
       requires_receipt: booleanSchema(),
+      human_approved: booleanSchema(),
       policy_id: stringSchema(),
       minimum_evidence_stage: enumSchema(['listed', 'classified', 'policy-mapped', 'preflight-ready', 'execution-tested', 'receipt-recorded', 'benchmark-recorded'])
     }, ['machine_id', 'intent', 'category']),

@@ -191,6 +191,13 @@ describe('machine preflight API', () => {
     expect(body.caveats).toContain('No payment occurred.');
     expect(body.caveats).toContain('This is not a benchmark artifact.');
     expect(body.service_results).toHaveLength(12);
+    const qvac = body.service_results.find((row: any) => row.service_id === 'qvac');
+    const captcha = body.service_results.find((row: any) => row.service_id === '2captcha');
+    expect(qvac?.decision).toBe('review');
+    expect(captcha?.decision).toBe('deny');
+    expect(body.review_count).toBeGreaterThanOrEqual(1);
+    expect(body.service_results.every((row: any) => row.execution_occurred === false)).toBe(true);
+    expect(body.service_results.every((row: any) => row.payment_occurred === false)).toBe(true);
 
     const recentRuns = await app.inject({ method: 'GET', url: '/v1/machine-preflight/coverage-runs/recent?limit=1' });
     expect(recentRuns.statusCode).toBe(200);
@@ -199,6 +206,8 @@ describe('machine preflight API', () => {
     const detail = await app.inject({ method: 'GET', url: `/v1/machine-preflight/coverage-runs/${runId}` });
     expect(detail.statusCode).toBe(200);
     expect(detail.json().data.services_total).toBe(12);
+    expect(detail.json().data.service_results.find((row: any) => row.service_id === 'qvac')?.decision).toBe('review');
+    expect(detail.json().data.service_results.find((row: any) => row.service_id === '2captcha')?.decision).toBe('deny');
 
     const receipts = await app.inject({ method: 'GET', url: '/v1/machine-preflight/receipts/recent?limit=25' });
     expect(receipts.statusCode).toBe(200);
@@ -207,6 +216,9 @@ describe('machine preflight API', () => {
     expect(coverageReceipts.every((receipt: any) => receipt.receipt_type === 'machine_preflight')).toBe(true);
     expect(coverageReceipts.every((receipt: any) => receipt.execution_occurred === false)).toBe(true);
     expect(coverageReceipts.every((receipt: any) => receipt.payment_occurred === false)).toBe(true);
+    expect(coverageReceipts.find((receipt: any) => receipt.selected_service_id === 'qvac')?.decision).toBe('review');
+    expect(coverageReceipts.find((receipt: any) => receipt.selected_service_id === 'qvac')?.reason).toBe('Setup-stage service requires review before execution.');
+    expect(coverageReceipts.find((receipt: any) => receipt.selected_service_id === '2captcha')?.decision).toBe('deny');
     expect(coverageReceipts.some((receipt: any) => /service execution|payment receipt|benchmark|winner/i.test(receipt.reason))).toBe(false);
 
     await app.close();

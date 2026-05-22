@@ -37,6 +37,7 @@ export type MachinePreflightRequest = {
   requires_receipt?: boolean;
   policy_id?: string;
   minimum_evidence_stage?: MachineMarketEvidenceStage;
+  human_approved?: boolean;
 };
 
 export type MachinePreflightServiceSummary = {
@@ -55,11 +56,23 @@ export type MachinePreflightServiceSummary = {
 
 export type MachinePreflightReceipt = {
   receipt_id: string;
-  receipt_type: 'machine_preflight';
+  receipt_type: 'machine_preflight' | 'machine_execution';
   coverage_run_id?: string | null;
   demo_mode: boolean;
-  execution_occurred: false;
-  payment_occurred: false;
+  execution_occurred: boolean;
+  payment_occurred: boolean;
+  execution_status: 'not_attempted' | 'attempted' | 'succeeded' | 'failed';
+  execution_service_id: string | null;
+  execution_provider: string | null;
+  execution_started_at: string | null;
+  execution_completed_at: string | null;
+  execution_latency_ms: number | null;
+  execution_request_summary: string | null;
+  execution_response_summary: string | null;
+  execution_error: string | null;
+  payment_evidence: string | null;
+  preflight_receipt_id: string | null;
+  execution_run_id: string | null;
   machine_id: string;
   policy_id: string | null;
   intent: string;
@@ -288,7 +301,8 @@ export async function runMachinePreflight(request: MachinePreflightRequest): Pro
       machine_id: request.machine_id,
       requested_cost_usd: requestedCost,
       receipt_required: request.requires_receipt ?? true,
-      purpose: request.intent
+      purpose: request.intent,
+      human_approved: request.human_approved
     })
   }));
   const selected = evaluated[0];
@@ -323,7 +337,8 @@ export async function runMachinePreflightCoverageRun(): Promise<MachinePreflight
       machine_id: request.machine_id,
       requested_cost_usd: request.max_cost_usd ?? policy.per_call_budget_usd,
       receipt_required: request.requires_receipt ?? true,
-      purpose: request.intent
+      purpose: request.intent,
+      human_approved: request.human_approved
     });
     const decision: MachinePreflightDecision = evaluation.status === 'pass' ? 'allow' : evaluation.status === 'review' ? 'review' : 'deny';
     if (decision === 'allow') allowCount += 1;
@@ -394,6 +409,12 @@ export async function getMachinePreflightCoverageRunById(runId: string): Promise
 export async function listRecentMachinePreflightReceipts(filters: MachinePreflightReceiptFilters = {}): Promise<MachinePreflightReceipt[]> {
   await ensureMachineDemoReceiptsSeeded();
   return storageAdapter.listMachinePreflightReceipts(filters);
+}
+
+export async function appendMachineReceipt(receipt: MachinePreflightReceipt): Promise<MachinePreflightReceipt> {
+  await ensureMachineDemoReceiptsSeeded();
+  await storageAdapter.appendMachinePreflightReceipt(receipt);
+  return copyReceipt(receipt);
 }
 
 export async function getMachinePreflightReceiptById(receiptId: string): Promise<MachinePreflightReceiptDetail | null> {
@@ -569,6 +590,9 @@ function policyRiskRank(service: MachineMarketService) {
 
 function machinePreflightReason(decision: MachinePreflightDecision, service: MachineMarketService, evaluation: MachinePolicyEvaluation) {
   if (decision === 'allow') return `${service.name} is the recommended preflight route. ${evaluation.explanation}`;
+  if (decision === 'review' && service.status === 'setup' && evaluation.review_reasons.includes('setup_stage_requires_review')) {
+    return 'Setup-stage service requires review before execution.';
+  }
   if (decision === 'review') return `${service.name} requires human review before machine spend. ${evaluation.explanation}`;
   return `${service.name} is denied for this machine preflight. ${evaluation.explanation}`;
 }
@@ -590,6 +614,18 @@ async function recordReceipt(input: {
     demo_mode: false,
     execution_occurred: false,
     payment_occurred: false,
+    execution_status: 'not_attempted',
+    execution_service_id: null,
+    execution_provider: null,
+    execution_started_at: null,
+    execution_completed_at: null,
+    execution_latency_ms: null,
+    execution_request_summary: null,
+    execution_response_summary: null,
+    execution_error: null,
+    payment_evidence: null,
+    preflight_receipt_id: null,
+    execution_run_id: null,
     machine_id: input.request.machine_id,
     policy_id: input.request.policy_id ?? input.policy.id,
     intent: input.request.intent,
@@ -773,6 +809,18 @@ async function ensureMachineDemoReceiptsSeeded() {
       demo_mode: true,
       execution_occurred: false,
       payment_occurred: false,
+      execution_status: 'not_attempted',
+      execution_service_id: null,
+      execution_provider: null,
+      execution_started_at: null,
+      execution_completed_at: null,
+      execution_latency_ms: null,
+      execution_request_summary: null,
+      execution_response_summary: null,
+      execution_error: null,
+      payment_evidence: null,
+      preflight_receipt_id: null,
+      execution_run_id: null,
       machine_id: seed.machine_id,
       policy_id: null,
       intent: seed.intent,

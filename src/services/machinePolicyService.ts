@@ -44,6 +44,7 @@ export type MachinePolicyPreflightRequest = {
   requested_cost_usd: number;
   receipt_required?: boolean;
   purpose?: string;
+  human_approved?: boolean;
 };
 
 export type MachinePolicyCheck = {
@@ -252,6 +253,16 @@ export function evaluateMachinePolicy(service: MachineMarketService, policy: Mac
     'risk tolerance compatible',
     isHighPolicyRisk(service) && policy.risk_tolerance === 'low' ? 'review' : 'pass',
     `${policy.risk_tolerance} tolerance for policy risk: ${service.policy_risk}`
+  );
+  addCheck(
+    'setup_stage_requires_review',
+    'setup stage requires review',
+    service.status === 'setup' && request.human_approved !== true ? 'review' : 'pass',
+    service.status === 'setup'
+      ? request.human_approved === true
+        ? 'setup-stage service has explicit human approval override'
+        : 'setup-stage service requires review before execution'
+      : 'service status is ready'
   );
   addCheck(
     'approval_threshold_respected',

@@ -114,4 +114,18 @@ describe('machine policy templates and evaluation', () => {
     expect(result.violations).toEqual([]);
     expect(result.review_reasons).toEqual([]);
   });
+
+  it('setup-stage service returns review without explicit human approval', () => {
+    const result = evaluateMachinePolicy(service('qvac'), policy('depin-sensor'), { requested_cost_usd: 0.01, receipt_required: true });
+
+    expect(result.status).toBe('review');
+    expect(result.review_reasons).toContain('setup_stage_requires_review');
+  });
+
+  it('setup-stage service can pass with explicit human approval override', () => {
+    const result = evaluateMachinePolicy(service('qvac'), policy('depin-sensor'), { requested_cost_usd: 0.01, receipt_required: true, human_approved: true });
+
+    expect(result.status).toBe('pass');
+    expect(result.review_reasons).not.toContain('setup_stage_requires_review');
+  });
 });
