@@ -504,6 +504,15 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 .machine-market-caveat p { margin: 0; color: #c8e3d0; line-height: 1.55; }
 .machine-market-caveat p:last-child { color: var(--muted); }
 .machine-market-summary .metric { min-height: 142px; }
+.machine-mission-control { display: grid; gap: 14px; border-color: rgba(126,255,176,.24); background: radial-gradient(circle at top left, rgba(126,255,176,.12), transparent 34%), linear-gradient(135deg, rgba(6,22,16,.96), rgba(3,8,7,.94)); }
+.machine-mission-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.machine-mission-grid article, .machine-mission-next { border: 1px solid rgba(126,255,176,.12); border-radius: 14px; padding: 12px; background: rgba(0,0,0,.22); }
+.machine-mission-grid span, .machine-mission-next span { display: block; color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.machine-mission-grid strong, .machine-mission-next strong { display: block; margin-top: 6px; color: var(--text); font-family: 'Space Grotesk', sans-serif; line-height: 1.18; }
+.machine-mission-grid small { display: block; margin-top: 6px; color: #c8e3d0; overflow-wrap: anywhere; }
+.machine-mission-next { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; }
+.machine-mission-next p { margin: 8px 0 0; color: #c8e3d0; line-height: 1.55; }
+.machine-mission-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
 .evidence-ladder-panel .panel-head small { max-width: 520px; color: var(--muted); line-height: 1.45; }
 .evidence-ladder { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .evidence-ladder span { border: 1px solid rgba(126,255,176,.18); border-radius: 999px; padding: 8px 10px; color: var(--muted); background: rgba(0,0,0,.22); font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
@@ -536,6 +545,8 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 .machine-service-card { position: sticky; top: 86px; display: grid; gap: 13px; }
 .machine-service-card .copy { margin: 0; font-size: 14px; }
 .machine-service-profile { border: 1px solid rgba(126,255,176,.1); border-radius: 12px; padding: 12px; background: rgba(0,0,0,.18); }
+.machine-next-action { border-color: rgba(126,255,176,.26); background: rgba(126,255,176,.055); }
+.machine-next-action .execute { margin-top: 8px; }
 .machine-caveat-list { display: grid; gap: 8px; margin: 8px 0 0; padding-left: 18px; color: #c8e3d0; line-height: 1.45; }
 .machine-preflight-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 430px); gap: 16px; align-items: start; }
 .machine-preflight-form { display: grid; gap: 12px; }
@@ -610,11 +621,16 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 .machine-usage-list p { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; margin: 0; border: 1px solid rgba(126,255,176,.1); border-radius: 10px; padding: 9px 10px; background: rgba(0,0,0,.18); }
 .machine-usage-list span { color: #c8e3d0; overflow-wrap: anywhere; }
 .machine-usage-list b { color: var(--green); }
+.machine-usage-list p.machine-caveat-row { grid-template-columns: minmax(0, 1fr); }
+.machine-usage-list p.machine-caveat-row span { color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.machine-caveat-copy { display: block; color: #c8e3d0; line-height: 1.55; white-space: normal; overflow-wrap: break-word; word-break: normal; }
 .repeatability-muted-stage { color: var(--muted); opacity: .78; }
 .evidence-counts { margin-top: 14px; }
 
 @media (max-width: 1180px) {
   .machine-market-filters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .machine-mission-grid, .machine-mission-next { grid-template-columns: 1fr; }
+  .machine-mission-actions { justify-content: flex-start; }
   .machine-market-grid { grid-template-columns: 1fr; }
   .machine-service-card { position: static; }
   .machine-preflight-layout, .machine-preflight-form-grid, .machine-clearance-grid, .machine-receipt-priority, .machine-check-summary { grid-template-columns: 1fr; }

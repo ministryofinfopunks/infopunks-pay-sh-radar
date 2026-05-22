@@ -296,6 +296,7 @@ describe('machine market page', () => {
     expect(container.textContent).toContain('Machine Market');
     expect(container.textContent).toContain('12 listed services mapped from robotic.sh for Phase 2 machine-economy intelligence.');
     expect(container.querySelector('.machine-market-caveat a[href="/machine-execution-shortlist"]')?.textContent).toContain('View execution shortlist');
+    expect(container.querySelector('[aria-label="Machine Market Mission Control"]')?.textContent).toContain('Machine Market Mission Control');
     for (const name of serviceNames) expect(container.textContent).toContain(name);
   });
 
@@ -330,7 +331,40 @@ describe('machine market page', () => {
     expect(container.textContent).toContain('Services evaluated12 / 12');
     expect(container.textContent).toContain('Receipts recorded12');
     expect(container.textContent).toContain('No Pay.sh, robotic.sh, or Agentic.Market call was made.');
+    expect(container.querySelector('[aria-label="Preflight Coverage"] .machine-caveat-row .machine-caveat-copy')?.textContent).toContain('Coverage run records decision receipts only.');
     expect(container.querySelector('a[href="/#methodology"]')?.textContent).toBe('Methodology: Machine Economy evidence ladder');
+  });
+
+  it('renders mission control with top candidate, proof plan, shortlist, and operational chips', async () => {
+    root = await renderPage(container);
+
+    const missionControl = container.querySelector('[aria-label="Machine Market Mission Control"]');
+    expect(missionControl?.textContent).toContain('Coverage complete / proof planning active');
+    expect(missionControl?.textContent).toContain('12 / 12 services evaluated');
+    expect(missionControl?.textContent).toContain('allow 6 / review 4 / deny 2');
+    expect(missionControl?.textContent).toContain('Cloud Translation');
+    expect(missionControl?.textContent).toContain('Plan execution, do not claim execution.');
+    expect(missionControl?.textContent).toContain('no robotic.sh-listed service has execution success claimed unless Radar holds a service-specific execution receipt');
+    expect(missionControl?.textContent).toContain('Pay.sh execution candidates remain separate from the robotic.sh visible service mirror');
+    expect(missionControl?.querySelector('a[href="/machine-execution-plan/cloud-translation"]')?.textContent).toContain('Open top candidate proof plan');
+    expect(missionControl?.querySelector('a[href="/machine-execution-shortlist"]')?.textContent).toContain('View execution shortlist');
+
+    const heroChips = container.querySelector('[aria-label="Machine Market principles"]')?.textContent ?? '';
+    expect(heroChips).toContain('Coverage complete');
+    expect(heroChips).toContain('12 / 12 evaluated');
+    expect(heroChips).toContain('Planning only');
+    expect(heroChips).toContain('Next: Cloud Translation');
+  });
+
+  it('shows selected service execution planning actions', async () => {
+    root = await renderPage(container);
+
+    const card = container.querySelector('[aria-label="Service policy profile"]');
+    expect(card?.textContent).toContain('candidate_tier');
+    expect(card?.textContent).toContain('recommendation');
+    expect(card?.textContent).toContain('execution_status');
+    expect(card?.querySelector('a[href="/machine-execution-plan/qvac"]')?.textContent).toContain('Open proof plan');
+    expect(card?.querySelector('a[href="/machine-service/qvac"]')?.textContent).toContain('View service dossier');
   });
 
   it('does not mark service rows as execution-tested or benchmark-recorded by default', async () => {

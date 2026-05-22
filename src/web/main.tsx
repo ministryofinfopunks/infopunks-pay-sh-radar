@@ -2154,6 +2154,7 @@ function MachineMarketPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedService, setSelectedService] = useState<MachineMarketService | null>(null);
   const [latestCoverageRun, setLatestCoverageRun] = useState<MachinePreflightCoverageRun | null>(null);
+  const [latestMachineReceipts, setLatestMachineReceipts] = useState<MachinePreflightReceipt[]>([]);
   const [latestAnyTransExecutionReceipt, setLatestAnyTransExecutionReceipt] = useState<MachinePreflightReceipt | null>(null);
   const [latestMachineTranslationGeneralExecutionReceipt, setLatestMachineTranslationGeneralExecutionReceipt] = useState<MachinePreflightReceipt | null>(null);
   const [machineTranslationGeneralRepeatability, setMachineTranslationGeneralRepeatability] = useState<AlibabaMachineExecutionRepeatabilityArtifact | null>(null);
@@ -2190,6 +2191,7 @@ function MachineMarketPage() {
       setSelectedService(servicesResponse.data.services[0] ?? null);
       setLatestCoverageRun(latestRunResponse?.data.runs?.[0] ?? null);
       const receipts = latestExecutionResponse?.data.receipts ?? [];
+      setLatestMachineReceipts(receipts);
       const anyTransExecution = receipts.find((receipt) => receipt.receipt_type === 'machine_execution' && receipt.execution_service_id === 'anytrans') ?? null;
       const machineTranslationGeneralExecution = receipts.find((receipt) => receipt.receipt_type === 'machine_execution' && receipt.execution_service_id === 'alibaba-machine-translation-general') ?? null;
       setLatestAnyTransExecutionReceipt(anyTransExecution);
@@ -2215,6 +2217,9 @@ function MachineMarketPage() {
     && (filters.evidenceStage === 'all' || service.evidence_stage === filters.evidenceStage)
     && (filters.status === 'all' || service.status === filters.status)
   ), [filters, services]);
+  const executionCandidates = useMemo(() => buildMachineExecutionShortlist(services, latestMachineReceipts, latestCoverageRun), [services, latestMachineReceipts, latestCoverageRun]);
+  const topExecutionCandidate = executionCandidates[0] ?? null;
+  const selectedExecutionCandidate = executionCandidates.find((candidate) => candidate.service.id === selectedService?.id) ?? null;
 
   const refreshLatestCoverageRun = async () => {
     setCoverageLoading(true);
@@ -2265,6 +2270,12 @@ function MachineMarketPage() {
     <main id="machine-market-content" className="machine-market-page" aria-label="Machine Market">
       <MachineMarketHero />
       <MachineMarketSummaryCards summary={summary} loading={loading} serviceCount={services.length} />
+      <MachineMarketMissionControl
+        serviceCount={services.length}
+        latestRun={latestCoverageRun}
+        topCandidate={topExecutionCandidate}
+        loading={loading}
+      />
       <section className="panel machine-market-caveat" aria-label="Coverage caveat">
         <p>Infopunks Radar mapped the entire listed robotic.sh machine-service market.</p>
         <p>Coverage refers to the 12 services visible in the observed robotic.sh market snapshot. Execution evidence is tracked separately.</p>
@@ -2280,10 +2291,70 @@ function MachineMarketPage() {
       {!loading && !error && services.length === 0 && <section className="panel"><EmptyState title="No machine services found." body="The Machine Market registry returned no services." /></section>}
       {!loading && !error && services.length > 0 && <section className="machine-market-grid">
         <MachineServiceTable services={visibleServices} selectedId={selectedService?.id ?? null} onSelect={setSelectedService} />
-        <MachineServiceCard service={selectedService} />
+        <MachineServiceCard service={selectedService} candidate={selectedExecutionCandidate} />
       </section>}
     </main>
   </div>;
+}
+
+function MachineMarketMissionControl({
+  serviceCount,
+  latestRun,
+  topCandidate,
+  loading
+}: {
+  serviceCount: number;
+  latestRun: MachinePreflightCoverageRun | null;
+  topCandidate: MachineExecutionCandidateScore | null;
+  loading: boolean;
+}) {
+  const totalServices = latestRun?.services_total ?? serviceCount;
+  const evaluatedServices = latestRun?.preflight_evaluated ?? (loading ? 0 : serviceCount);
+  const decisionSummary = latestRun
+    ? `allow ${latestRun.allow_count} / review ${latestRun.review_count} / deny ${latestRun.deny_count}`
+    : 'allow / review / deny pending latest coverage run';
+  const topCandidateName = topCandidate?.service.name ?? 'No candidate selected';
+  const topCandidateId = topCandidate?.service.id ?? null;
+
+  return <section className="panel machine-mission-control" aria-label="Machine Market Mission Control">
+    <div className="panel-head">
+      <div>
+        <p className="section-kicker">Mission Control</p>
+        <h2>Machine Market Mission Control</h2>
+      </div>
+      <span className="machine-badge evidence">planning only</span>
+    </div>
+    <div className="machine-mission-grid">
+      <article>
+        <span>Current phase</span>
+        <strong>Coverage complete / proof planning active</strong>
+      </article>
+      <article>
+        <span>Market coverage</span>
+        <strong>{evaluatedServices || 0} / {totalServices || 12} services evaluated</strong>
+      </article>
+      <article>
+        <span>Latest coverage decision summary</span>
+        <strong>{decisionSummary}</strong>
+      </article>
+      <article>
+        <span>Top execution candidate</span>
+        <strong>{topCandidateName}</strong>
+        {topCandidate && <small>{topCandidate.candidate_tier} · {topCandidate.recommendation}</small>}
+      </article>
+    </div>
+    <div className="machine-mission-next">
+      <div>
+        <span>Radar recommendation</span>
+        <strong>Plan execution, do not claim execution.</strong>
+        <p>Strict execution caveat: no robotic.sh-listed service has execution success claimed unless Radar holds a service-specific execution receipt. Pay.sh execution candidates remain separate from the robotic.sh visible service mirror.</p>
+      </div>
+      <div className="machine-mission-actions">
+        {topCandidateId && <a className="execute compact" href={`/machine-execution-plan/${encodeURIComponent(topCandidateId)}`}>Open top candidate proof plan</a>}
+        <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a>
+      </div>
+    </div>
+  </section>;
 }
 
 function FirstExecutionCard({
@@ -2339,7 +2410,7 @@ function FirstExecutionCard({
       <p><span>benchmark recorded</span><small>{String(benchmarkReadiness?.claims.benchmark_recorded ?? false)}</small></p>
       <p><span>winner claimed</span><small>{String(benchmarkReadiness?.claims.winner_claimed ?? false)}</small></p>
       <p><span>benchmark claim</span><small>false</small></p>
-      <p><span>caveats</span><small>{caveats.join(' ')}</small></p>
+      <p className="machine-caveat-row"><span>caveats</span><small className="machine-caveat-copy">{caveats.join(' ')}</small></p>
     </div>
   </section>;
 }
@@ -2601,7 +2672,7 @@ function CoveragePanel({
       <p><span>Decisions</span><small>allow {latestRun.allow_count} · review {latestRun.review_count} · deny {latestRun.deny_count}</small></p>
       <p><span>Receipts recorded</span><small>{latestRun.receipts_recorded}</small></p>
       <p><span>Storage adapter</span><small>{latestRun.storage?.adapter ?? 'unknown'}</small></p>
-      <p><span>Caveats</span><small>{latestRun.caveats.join(' ')}</small></p>
+      <p className="machine-caveat-row"><span>Caveats</span><small className="machine-caveat-copy">{latestRun.caveats.join(' ')}</small></p>
     </div>}
   </section>;
 }
@@ -2615,9 +2686,10 @@ function MachineMarketHero() {
       <p className="panel-caption">12 listed services mapped from robotic.sh for Phase 2 machine-economy intelligence.</p>
     </div>
     <div className="ticker" aria-label="Machine Market principles">
-      <span>Same terminal</span>
-      <span>New species of spender</span>
-      <span>Machines should not spend blind</span>
+      <span>Coverage complete</span>
+      <span>12 / 12 evaluated</span>
+      <span>Planning only</span>
+      <span>Next: Cloud Translation</span>
     </div>
   </section>;
 }
@@ -2716,7 +2788,7 @@ function MachineServiceTable({ services, selectedId, onSelect }: { services: Mac
   </section>;
 }
 
-function MachineServiceCard({ service }: { service: MachineMarketService | null }) {
+function MachineServiceCard({ service, candidate }: { service: MachineMarketService | null; candidate: MachineExecutionCandidateScore | null }) {
   if (!service) return <aside className="panel machine-service-card"><EmptyState title="No service selected." body="Select a service to view its policy profile." /></aside>;
   return <aside className="panel machine-service-card" aria-label="Service policy profile">
     <div className="panel-head">
@@ -2738,9 +2810,17 @@ function MachineServiceCard({ service }: { service: MachineMarketService | null 
       <p><b>market_type</b><span>{service.market_type}</span></p>
       <p><b>price</b><span>{service.price_display}</span></p>
       <p><b>evidence_health</b><span>{service.evidence_health}</span></p>
+      <p><b>candidate_tier</b><span>{candidate?.candidate_tier ?? 'not scored'}</span></p>
+      <p><b>recommendation</b><span>{candidate?.recommendation ?? 'not scored'}</span></p>
+      <p><b>execution_status</b><span>{candidate?.execution_status ?? 'not_attempted'}</span></p>
       <p><b>observed_source</b><span>{service.observed_source}</span></p>
       <p><b>observed_at</b><span>{formatMachineTimestamp(service.observed_at)}</span></p>
     </div>
+    <section className="dossier-section machine-next-action" aria-label="Selected service next action">
+      <h4>Next action</h4>
+      <p>{candidate?.recommendation === 'next_execution_candidate' ? 'Open the proof plan and verify every gate before any execution attempt.' : 'Inspect the proof plan and dossier before changing execution posture.'}</p>
+      <a className="execute compact" href={`/machine-execution-plan/${encodeURIComponent(service.id)}`}>Open proof plan</a>
+    </section>
     <section className="dossier-section">
       <h4>Machine use case</h4>
       <p>{service.machine_use_case}</p>
