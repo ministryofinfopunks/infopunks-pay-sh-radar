@@ -144,6 +144,9 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     limitation: process.env.NODE_ENV === 'test' ? 'Machine preflight receipts use isolated in-memory test storage.' : undefined,
     demoSeedEnabled: config.machineDemoSeed
   });
+  const machineReceiptStorageWarning = config.env === 'production' && machineReceiptStorage.adapter === 'jsonl'
+    ? 'Production is using JSONL machine receipt storage. Configure DATABASE_URL for Postgres-backed durability.'
+    : null;
   configureMachineDemoSeed(config.machineDemoSeed);
   const responseCache = createResponseCache();
   const allowedOrigins = new Set(DEFAULT_ALLOWED_ORIGINS);
@@ -233,17 +236,33 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     refreshBackgroundAnalytics();
   }
 
-  app.get('/health', async () => ({
-    ok: true,
-    service: 'infopunks-pay-sh-radar',
-    role: 'Cognitive Coordination Layer above Pay.sh',
-    ...healthDbDiagnostics(),
-    catalogSource: config.payShCatalogSource,
-    ingestionEnabled: config.ingestionEnabled,
-    lastIngestedAt: store.dataSource?.last_ingested_at ?? null,
-    providerCount: store.providers.length,
-    endpointCount: safeStoreEndpointCount(store)
-  }));
+  app.get('/health', async () => {
+    const adapterDiagnostics: { receipt_count?: number; warning?: string | null } = machineReceiptAdapter.getDiagnostics
+      ? await machineReceiptAdapter.getDiagnostics().catch((error) => ({
+          receipt_count: undefined,
+          warning: `Machine receipt diagnostics unavailable: ${errorMessage(error)}`
+        }))
+      : {};
+    return {
+      ok: true,
+      service: 'infopunks-pay-sh-radar',
+      role: 'Cognitive Coordination Layer above Pay.sh',
+      ...healthDbDiagnostics(),
+      catalogSource: config.payShCatalogSource,
+      ingestionEnabled: config.ingestionEnabled,
+      lastIngestedAt: store.dataSource?.last_ingested_at ?? null,
+      providerCount: store.providers.length,
+      endpointCount: safeStoreEndpointCount(store),
+      machine_receipts_storage: {
+        adapter: machineReceiptStorage.adapter,
+        mode: machineReceiptStorage.mode,
+        durable: machineReceiptStorage.durable,
+        demo_seed_enabled: machineReceiptStorage.demo_seed_enabled,
+        receipt_count: adapterDiagnostics.receipt_count,
+        warning: adapterDiagnostics.warning ?? machineReceiptStorageWarning
+      }
+    };
+  });
   app.get('/openapi.json', async () => createOpenApiSpec(config.version));
   app.get('/status', async () => withRouteTimeout('/status', ROUTE_TIMEOUT_MS, () => ({
     ok: true,
@@ -482,7 +501,10 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     }) };
   });
   app.get<{ Params: { machine_id: string } }>('/v1/machine-dossier/:machine_id', async (req) => ({
-    data: safeJsonExport(await buildMachineDossier(decodeURIComponent(req.params.machine_id)))
+    data: safeJsonExport({
+      ...await buildMachineDossier(decodeURIComponent(req.params.machine_id)),
+      storage: machineReceiptStorage
+    })
   }));
   app.post('/v1/machine-preflight', async (req, reply) => {
     const parsed = MachinePreflightRequestSchema.safeParse(req.body);

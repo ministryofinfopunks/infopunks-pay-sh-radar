@@ -90,7 +90,11 @@ function installFetch(receipts: any[]) {
       const chain = search.get('chain');
       if (chain) rows = rows.filter((receipt) => receipt.chain === chain);
       rows.sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
-      return json({ count: rows.length, receipts: rows });
+      return json({
+        count: rows.length,
+        storage: { mode: 'durable', adapter: 'jsonl', durable: true, demo_seed_enabled: true },
+        receipts: rows
+      });
     }
     const detailId = path.match(/^\/v1\/machine-preflight\/receipts\/([^/]+)$/)?.[1];
     if (detailId) {
@@ -149,6 +153,8 @@ describe('machine receipts page', () => {
     expect(container.textContent).toContain('Document AI');
     expect(container.textContent).toContain('2Captcha');
     expect(container.textContent).toContain('Denied');
+    expect(container.textContent).toContain('Storage: Durable JSONL.');
+    expect(container.textContent).toContain('Decision receipts, not payment receipts.');
   });
 
   it('filters work', async () => {

@@ -177,6 +177,13 @@ type MachinePreflightReceipt = {
   selected_service?: MachinePreflightResult['recommended_service'];
   policy_summary?: Pick<MachinePolicy, 'id' | 'name' | 'description' | 'risk_tolerance' | 'receipt_required' | 'minimum_evidence_stage' | 'status'> | null;
 };
+type MachineReceiptStorage = {
+  mode: 'durable' | 'memory' | 'test';
+  adapter: 'jsonl' | 'postgres' | 'memory';
+  durable: boolean;
+  demo_seed_enabled?: boolean;
+  warning?: string;
+};
 type MachineDossier = {
   machine_id: string;
   phase_scope: 'phase_2_pay_sh_robotic_sh';
@@ -2462,6 +2469,7 @@ type MachineReceiptFiltersState = {
 
 function MachineReceiptsPage() {
   const [receipts, setReceipts] = useState<MachinePreflightReceipt[]>([]);
+  const [storage, setStorage] = useState<MachineReceiptStorage | null>(null);
   const [selectedReceipt, setSelectedReceipt] = useState<MachinePreflightReceipt | null>(null);
   const [rawOpen, setRawOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -2478,8 +2486,11 @@ function MachineReceiptsPage() {
     if (filters.source_market !== 'all') query.set('source_market', filters.source_market);
     if (filters.chain !== 'all') query.set('chain', filters.chain);
     query.set('limit', '50');
-    api<{ data: { receipts: MachinePreflightReceipt[] } }>(`/v1/machine-preflight/receipts/recent?${query.toString()}`)
-      .then((response) => setReceipts(response.data.receipts))
+    api<{ data: { receipts: MachinePreflightReceipt[]; storage?: MachineReceiptStorage } }>(`/v1/machine-preflight/receipts/recent?${query.toString()}`)
+      .then((response) => {
+        setReceipts(response.data.receipts);
+        setStorage(response.data.storage ?? null);
+      })
       .catch((err) => setError(err instanceof Error ? err.message : 'machine receipts unavailable'))
       .finally(() => setLoading(false));
   }, [filters]);
@@ -2533,6 +2544,10 @@ function MachineReceiptsPage() {
         </div>
       </section>
       <MachineMethodologyNote />
+      {storage && <p className="panel-caption">
+        Storage: {storage.durable ? 'Durable' : 'Non-durable'} {storage.adapter.toUpperCase()}.
+        {storage.demo_seed_enabled ? ' Demo mode active.' : ''} Decision receipts, not payment receipts.
+      </p>}
       <ReceiptsSummaryCards receipts={receipts} />
       <ReceiptFilters filters={filters} onChange={setFilters} />
       {loading && <section className="panel" role="status"><p className="route-state">Loading machine receipts...</p></section>}

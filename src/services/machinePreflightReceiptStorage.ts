@@ -19,6 +19,7 @@ export type MachinePreflightReceiptStorageAdapter = {
   getMachinePreflightReceipt(receiptId: string): Promise<MachinePreflightReceipt | null>;
   listMachineReceiptsByMachine(machineId: string): Promise<MachinePreflightReceipt[]>;
   seedMachineDemoReceiptsIfEnabled(receipts: MachinePreflightReceipt[]): Promise<void>;
+  getDiagnostics?(): Promise<{ receipt_count?: number; warning?: string | null }>;
   clearForTests?(): Promise<void>;
   close?(): Promise<void>;
 };
@@ -59,9 +60,15 @@ export class MemoryMachinePreflightReceiptStorageAdapter implements MachinePrefl
   async clearForTests() {
     this.receipts.splice(0, this.receipts.length);
   }
+
+  async getDiagnostics() {
+    return { receipt_count: this.receipts.length, warning: null };
+  }
 }
 
 export class JsonlMachinePreflightReceiptStorageAdapter implements MachinePreflightReceiptStorageAdapter {
+  private malformedLineCount = 0;
+
   constructor(private readonly options: JsonlOptions) {}
 
   async appendMachinePreflightReceipt(receipt: MachinePreflightReceipt) {
@@ -96,6 +103,14 @@ export class JsonlMachinePreflightReceiptStorageAdapter implements MachinePrefli
     writeFileSync(this.options.filePath, '', 'utf8');
   }
 
+  async getDiagnostics() {
+    const rows = this.readAll();
+    return {
+      receipt_count: rows.length,
+      warning: this.malformedLineCount > 0 ? `Skipped ${this.malformedLineCount} malformed JSONL machine receipt line(s).` : null
+    };
+  }
+
   private readAll(): MachinePreflightReceipt[] {
     if (!existsSync(this.options.filePath)) return [];
     const lines = readFileSync(this.options.filePath, 'utf8')
@@ -109,6 +124,7 @@ export class JsonlMachinePreflightReceiptStorageAdapter implements MachinePrefli
         if (!parsed?.receipt?.receipt_id) continue;
         byId.set(parsed.receipt.receipt_id, copyReceipt(parsed.receipt));
       } catch {
+        this.malformedLineCount += 1;
         continue;
       }
     }
@@ -163,7 +179,18 @@ export class PostgresMachinePreflightReceiptStorageAdapter implements MachinePre
     await this.pool.end();
   }
 
+  async getDiagnostics() {
+    try {
+      await this.ensureSchema();
+      const result = await this.pool.query('select count(*)::int as count from machine_preflight_receipts');
+      return { receipt_count: result.rows[0]?.count ?? 0, warning: null };
+    } catch (error) {
+      return { receipt_count: undefined, warning: `Postgres machine receipt diagnostics unavailable: ${errorMessage(error)}` };
+    }
+  }
+
   private async ensureSchema() {
+    // Stable durable schema for machine preflight decision receipts.
     await this.pool.query(`
       create table if not exists machine_preflight_receipts (
         receipt_id text primary key,
@@ -179,6 +206,12 @@ export class PostgresMachinePreflightReceiptStorageAdapter implements MachinePre
       create index if not exists machine_preflight_receipts_decision_idx on machine_preflight_receipts(decision, created_at desc);
     `);
   }
+}
+
+function errorMessage(error: unknown): string {
+  if (!error || typeof error !== 'object' || !('message' in error)) return String(error ?? 'unknown_error');
+  const message = (error as { message?: unknown }).message;
+  return typeof message === 'string' ? message : String(message ?? 'unknown_error');
 }
 
 export function createMachineReceiptStorageMetadata(input: {
