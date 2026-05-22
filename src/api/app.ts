@@ -78,7 +78,7 @@ import { listRouteMappings } from '../services/providerEndpointMap';
 import { listMappingTargets } from '../services/mappingTargetService';
 import { MACHINE_MARKET_PHASE_SCOPE, buildMachineMarketSummary, listMachineMarketServices } from '../services/machineMarketService';
 import { getMachinePolicyTemplateById, listMachinePolicyTemplates } from '../services/machinePolicyService';
-import { buildMachineDossier, getMachinePreflightReceiptById, listRecentMachinePreflightReceipts, runMachinePreflight } from '../services/machinePreflightService';
+import { buildMachineDossier, configureMachineDemoSeed, getMachinePreflightReceiptById, listRecentMachinePreflightReceipts, runMachinePreflight } from '../services/machinePreflightService';
 import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
@@ -130,8 +130,10 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   const PROVIDER_LIST_MAX = 100;
   const machineReceiptStorage = {
     mode: 'memory',
-    limitation: 'Machine preflight receipts are held in process memory in this development build; they reset when the server restarts.'
+    limitation: 'Machine preflight receipts are held in process memory in this development build; they reset when the server restarts.',
+    demo_seed_enabled: config.machineDemoSeed
   } as const;
+  configureMachineDemoSeed(config.machineDemoSeed);
   const responseCache = createResponseCache();
   const allowedOrigins = new Set(DEFAULT_ALLOWED_ORIGINS);
   if (config.frontendOrigin) allowedOrigins.add(config.frontendOrigin);

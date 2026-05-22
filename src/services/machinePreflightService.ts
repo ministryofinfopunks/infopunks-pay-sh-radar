@@ -50,6 +50,9 @@ export type MachinePreflightServiceSummary = {
 export type MachinePreflightReceipt = {
   receipt_id: string;
   receipt_type: 'machine_preflight';
+  demo_mode: boolean;
+  execution_occurred: false;
+  payment_occurred: false;
   machine_id: string;
   policy_id: string | null;
   intent: string;
@@ -143,8 +146,81 @@ let receiptSequence = 0;
 // Development ledger: machine preflight receipts are intentionally process-local
 // until the project adds a storage adapter for durable machine decision receipts.
 const receipts: MachinePreflightReceipt[] = [];
+let demoSeedEnabled = process.env.MACHINE_DEMO_SEED === 'true';
+let demoSeeded = false;
+
+type MachineDemoSeedInput = {
+  machine_id: string;
+  intent: string;
+  category: MachineMarketCategory;
+  selected_service_id: string;
+  selected_service_name: string;
+  source_market: MachineMarketSource;
+  chain: MachineMarketChain;
+  decision: MachinePreflightDecision;
+  reason: string;
+};
+
+const demoSeedInputs: MachineDemoSeedInput[] = [
+  {
+    machine_id: 'did:peaq:delivery-bot-01',
+    intent: 'parse invoice image into structured fields',
+    category: 'vision',
+    selected_service_id: 'document-ai',
+    selected_service_name: 'Document AI',
+    source_market: 'pay.sh',
+    chain: 'solana',
+    decision: 'allow',
+    reason: 'vision task matched a Pay.sh service within bounded authority'
+  },
+  {
+    machine_id: 'did:peaq:field-bot-07',
+    intent: 'translate customer delivery note',
+    category: 'translation',
+    selected_service_id: 'cloud-translation',
+    selected_service_name: 'Cloud Translation',
+    source_market: 'pay.sh',
+    chain: 'solana',
+    decision: 'allow',
+    reason: 'translation task matched an allowed Pay.sh route'
+  },
+  {
+    machine_id: 'did:peaq:warehouse-camera-03',
+    intent: 'upload inspection image',
+    category: 'storage',
+    selected_service_id: 'stableupload',
+    selected_service_name: 'Stableupload',
+    source_market: 'pay.sh',
+    chain: 'solana',
+    decision: 'review',
+    reason: 'cost or evidence policy requires review before spend'
+  },
+  {
+    machine_id: 'did:peaq:research-agent-02',
+    intent: 'solve captcha challenge',
+    category: 'web',
+    selected_service_id: '2captcha',
+    selected_service_name: '2Captcha',
+    source_market: 'agentic.market',
+    chain: 'base',
+    decision: 'review',
+    reason: 'high policy risk requires human review'
+  },
+  {
+    machine_id: 'did:peaq:depin-sensor-09',
+    intent: 'run verifiable compute job',
+    category: 'compute',
+    selected_service_id: 'qvac',
+    selected_service_name: 'QVAC',
+    source_market: 'robotic.sh',
+    chain: 'peaq',
+    decision: 'review',
+    reason: 'setup-stage service requires review before execution'
+  }
+];
 
 export function runMachinePreflight(request: MachinePreflightRequest): MachinePreflightResponse {
+  ensureMachineDemoReceiptsSeeded();
   const createdAt = new Date().toISOString();
   const policy = buildPolicyForRequest(request, createdAt);
   const requestedCost = request.max_cost_usd ?? policy.per_call_budget_usd;
@@ -188,6 +264,7 @@ export function runMachinePreflight(request: MachinePreflightRequest): MachinePr
 }
 
 export function listRecentMachinePreflightReceipts(filters: MachinePreflightReceiptFilters = {}): MachinePreflightReceipt[] {
+  ensureMachineDemoReceiptsSeeded();
   const limit = Math.max(1, Math.min(filters.limit ?? 25, 100));
   return [...receipts]
     .filter((receipt) => !filters.decision || receipt.decision === filters.decision)
@@ -201,6 +278,7 @@ export function listRecentMachinePreflightReceipts(filters: MachinePreflightRece
 }
 
 export function getMachinePreflightReceiptById(receiptId: string): MachinePreflightReceiptDetail | null {
+  ensureMachineDemoReceiptsSeeded();
   const receipt = receipts.find((item) => item.receipt_id === receiptId);
   if (!receipt) return null;
   const service = receipt.selected_service_id ? serviceById(receipt.selected_service_id) : null;
@@ -221,6 +299,7 @@ export function getMachinePreflightReceiptById(receiptId: string): MachinePrefli
 }
 
 export function buildMachineDossier(machineId: string): MachineDossier {
+  ensureMachineDemoReceiptsSeeded();
   const machineReceipts = listRecentMachinePreflightReceipts({ machine_id: machineId, limit: 100 });
   const latest = machineReceipts[0] ?? null;
   const policy = latest?.policy_id ? getMachinePolicyTemplateById(latest.policy_id) : null;
@@ -259,7 +338,8 @@ export function buildMachineDossier(machineId: string): MachineDossier {
     caveats: [
       'This dossier represents Radar-observed machine preflight decisions only.',
       'It does not verify live peaqOS identity, wallet ownership, payment execution, or physical-world robot activity.',
-      'Receipts record whether a machine should spend before any service call occurs.'
+      'Receipts record whether a machine should spend before any service call occurs.',
+      ...(machineReceipts.some((receipt) => receipt.demo_mode) ? ['This dossier includes demo preflight receipts. It does not verify physical-world machine activity.'] : [])
     ],
     evidence_summary: {
       highest_stage_seen: highestStage,
@@ -274,6 +354,18 @@ export function buildMachineDossier(machineId: string): MachineDossier {
 export function clearMachinePreflightReceiptsForTests() {
   receipts.splice(0, receipts.length);
   receiptSequence = 0;
+  demoSeeded = false;
+  demoSeedEnabled = false;
+}
+
+export function setMachineDemoSeedEnabledForTests(enabled: boolean) {
+  demoSeedEnabled = enabled;
+  demoSeeded = false;
+}
+
+export function configureMachineDemoSeed(enabled: boolean) {
+  demoSeedEnabled = enabled;
+  if (!enabled) demoSeeded = false;
 }
 
 function buildPolicyForRequest(request: MachinePreflightRequest, timestamp: string): MachinePolicy {
@@ -371,6 +463,9 @@ function recordReceipt(input: {
   const receipt: MachinePreflightReceipt = {
     receipt_id: nextReceiptId(input.createdAt),
     receipt_type: 'machine_preflight',
+    demo_mode: false,
+    execution_occurred: false,
+    payment_occurred: false,
     machine_id: input.request.machine_id,
     policy_id: input.request.policy_id ?? input.policy.id,
     intent: input.request.intent,
@@ -457,6 +552,52 @@ function copyReceipt(receipt: MachinePreflightReceipt): MachinePreflightReceipt 
     review_reasons: [...receipt.review_reasons],
     caveats: [...receipt.caveats]
   };
+}
+
+function ensureMachineDemoReceiptsSeeded() {
+  if (!demoSeedEnabled || demoSeeded) return;
+  const seen = new Set(receipts.map((receipt) => receipt.receipt_id));
+  const baseMs = Date.parse('2026-05-22T00:00:00.000Z');
+  for (let i = 0; i < demoSeedInputs.length; i += 1) {
+    const seed = demoSeedInputs[i];
+    const receiptId = `mrx_demo_${seed.machine_id.replace(/[^a-z0-9]+/gi, '_').toLowerCase()}`;
+    if (seen.has(receiptId) || receipts.some((receipt) => receipt.machine_id === seed.machine_id && receipt.intent === seed.intent && receipt.demo_mode)) continue;
+    const service = serviceById(seed.selected_service_id);
+    const createdAt = new Date(baseMs + i * 60_000).toISOString();
+    receipts.push({
+      receipt_id: receiptId,
+      receipt_type: 'machine_preflight',
+      demo_mode: true,
+      execution_occurred: false,
+      payment_occurred: false,
+      machine_id: seed.machine_id,
+      policy_id: null,
+      intent: seed.intent,
+      requested_category: seed.category,
+      selected_service_id: seed.selected_service_id,
+      selected_service_name: seed.selected_service_name,
+      source_market: seed.source_market,
+      chain: seed.chain,
+      decision: seed.decision,
+      reason: seed.reason,
+      policy_checks: [],
+      violations: [],
+      review_reasons: seed.decision === 'review' ? ['demo_review_required'] : [],
+      caveats: [
+        'Demo preflight receipt. No service execution occurred.',
+        'No Pay.sh call was made and no payment occurred.',
+        'This is demo-mode data for local explainability only.',
+        ...(service?.caveats ?? [])
+      ],
+      max_cost_usd: null,
+      evidence_stage: service?.evidence_stage ?? null,
+      evidence_health: service?.evidence_health ?? null,
+      phase_scope: MACHINE_MARKET_PHASE_SCOPE,
+      created_at: createdAt
+    });
+    seen.add(receiptId);
+  }
+  demoSeeded = true;
 }
 
 function countSimpleUsage<T, K extends string>(items: T[], getKey: (item: T) => string | null, keyName: K): Array<Record<K, string> & { count: number }> {

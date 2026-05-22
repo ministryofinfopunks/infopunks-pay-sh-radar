@@ -18,6 +18,7 @@ export type RuntimeConfig = {
   monitorTimeoutMs: number | null;
   monitorMaxProviders: number | null;
   featuredProviderRotationMs: number;
+  machineDemoSeed: boolean;
   frontendOrigin: string | null;
   version: string;
 };
@@ -43,6 +44,7 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
     monitorTimeoutMs: readOptionalPositiveInteger('MONITOR_TIMEOUT_MS', env.MONITOR_TIMEOUT_MS),
     monitorMaxProviders: readOptionalPositiveInteger('MONITOR_MAX_PROVIDERS', env.MONITOR_MAX_PROVIDERS),
     featuredProviderRotationMs: readPositiveInteger('FEATURED_PROVIDER_ROTATION_MS', env.FEATURED_PROVIDER_ROTATION_MS, 10 * 60 * 1000),
+    machineDemoSeed: readBoolean('MACHINE_DEMO_SEED', env.MACHINE_DEMO_SEED, nodeEnv === 'development'),
     frontendOrigin: readOptionalUrl('FRONTEND_ORIGIN', env.FRONTEND_ORIGIN),
     version: env.APP_VERSION ?? packageVersion()
   };
@@ -62,6 +64,7 @@ export function deploymentSummary(config: RuntimeConfig) {
     apiPort: config.port,
     monitorEnabled: config.monitorEnabled,
     monitorMode: config.monitorMode,
+    machineDemoSeed: config.machineDemoSeed,
     ingestionEnabled: config.ingestionEnabled,
     dbMode: config.databaseUrl ? 'postgres' : 'memory',
     catalogSource: config.payShCatalogSource,

@@ -327,6 +327,13 @@ describe('machine preflight page', () => {
     expect(container.textContent).toContain('mrx_test_review');
   });
 
+  it('methodology link appears', async () => {
+    root = await renderPage(container);
+
+    const link = container.querySelector('a[href="/#methodology"]');
+    expect(link?.textContent).toBe('Methodology: Machine Economy evidence ladder');
+  });
+
   it('does not overclaim execution or benchmark evidence for policy-mapped preflight result', async () => {
     root = await renderPage(container);
 

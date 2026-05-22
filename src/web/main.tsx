@@ -152,6 +152,9 @@ type MachinePreflightResult = {
 type MachinePreflightReceipt = {
   receipt_id: string;
   receipt_type: 'machine_preflight';
+  demo_mode: boolean;
+  execution_occurred: false;
+  payment_occurred: false;
   machine_id: string;
   policy_id: string | null;
   intent: string;
@@ -2547,6 +2550,7 @@ function MachineReceiptsPage() {
 }
 
 function ReceiptsSummaryCards({ receipts }: { receipts: MachinePreflightReceipt[] }) {
+  const demoCount = receipts.filter((receipt) => receipt.demo_mode).length;
   const uniqueMachines = new Set(receipts.map((receipt) => receipt.machine_id)).size;
   const marketCounts = receipts.reduce<Record<string, number>>((counts, receipt) => {
     if (receipt.source_market) counts[receipt.source_market] = (counts[receipt.source_market] ?? 0) + 1;
@@ -2558,6 +2562,7 @@ function ReceiptsSummaryCards({ receipts }: { receipts: MachinePreflightReceipt[
     <article className="panel metric"><span>Allowed</span><strong>{receipts.filter((receipt) => receipt.decision === 'allow').length}</strong><small>permission before action</small></article>
     <article className="panel metric"><span>Denied</span><strong>{receipts.filter((receipt) => receipt.decision === 'deny').length}</strong><small>bounded autonomy proof</small></article>
     <article className="panel metric"><span>Review</span><strong>{receipts.filter((receipt) => receipt.decision === 'review').length}</strong><small>human checkpoint</small></article>
+    {demoCount > 0 && <article className="panel metric"><span>Demo receipts</span><strong>{demoCount}</strong><small>local demo mode only</small></article>}
     <article className="panel metric"><span>Unique machines</span><strong>{uniqueMachines}</strong><small>machine identities</small></article>
     <article className="panel metric"><span>Top source market</span><strong>{topMarket}</strong><small>preflight metadata</small></article>
     <article className="panel metric"><span>Latest receipt</span><strong>{receipts[0] ? formatMachineTimestamp(receipts[0].created_at) : 'none'}</strong><small>newest first</small></article>
@@ -2586,7 +2591,7 @@ function ReceiptsTimeline({ receipts, onSelect }: { receipts: MachinePreflightRe
         <span role="cell">{formatMachineTimestamp(receipt.created_at)}</span>
         <span role="cell" className={`decision-badge ${receipt.decision}`}>{receipt.decision}</span>
         <span role="cell"><a className="machine-id-link" href={`/machine-dossier/${encodeURIComponent(receipt.machine_id)}`}>{receipt.machine_id}</a></span>
-        <span role="cell">{receipt.intent}</span>
+        <span role="cell">{receipt.intent}{receipt.demo_mode && <small className="machine-demo-tag">Demo preflight receipt. No service execution occurred.</small>}</span>
         <span role="cell">{receipt.selected_service_name ?? 'none'}</span>
         <span role="cell">{receipt.source_market ?? 'none'}</span>
         <span role="cell">{receipt.chain ?? 'none'}</span>
@@ -2603,12 +2608,13 @@ function ReceiptDetailDrawer({ receipt, rawOpen, onRawToggle }: { receipt: Machi
   return <aside className={`panel machine-receipt-detail ${receipt.decision}`} aria-label="Receipt detail drawer">
     <div className="panel-head"><div><p className="section-kicker">Receipt Detail</p><h2><span className={`decision-badge ${receipt.decision}`}>{receipt.decision}</span> {receipt.receipt_id}</h2></div></div>
     <p className="copy">{receipt.reason}</p>
+    {receipt.demo_mode && <p className="machine-demo-note">Demo preflight receipt. No service execution occurred.</p>}
     <div className="machine-receipt-priority">
       <div><span>decision</span><strong className={`decision-badge ${receipt.decision}`}>{receipt.decision}</strong></div>
       <div><span>selected service</span><strong>{receipt.selected_service_name ?? 'none'}</strong></div>
       <div><span>source market / chain</span><strong>{receipt.source_market ?? 'none'} / {receipt.chain ?? 'none'}</strong></div>
-      <div><span>execution_occurred</span><strong>false</strong></div>
-      <div><span>payment_occurred</span><strong>false</strong></div>
+      <div><span>execution_occurred</span><strong>{String(receipt.execution_occurred)}</strong></div>
+      <div><span>payment_occurred</span><strong>{String(receipt.payment_occurred)}</strong></div>
       <div><span>evidence stage / health</span><strong>{formatEvidenceStage(receipt.evidence_stage)} / {receipt.evidence_health ?? 'none'}</strong></div>
     </div>
     <div className="key-values machine-service-profile">
@@ -2617,6 +2623,7 @@ function ReceiptDetailDrawer({ receipt, rawOpen, onRawToggle }: { receipt: Machi
       <p><b>source_market</b><span>{receipt.source_market ?? 'none'}</span></p>
       <p><b>chain</b><span>{receipt.chain ?? 'none'}</span></p>
       <p><b>evidence</b><span>{formatEvidenceStage(receipt.evidence_stage)} / {receipt.evidence_health ?? 'none'}</span></p>
+      <p><b>demo_mode</b><span>{String(receipt.demo_mode)}</span></p>
       <p><b>phase_scope</b><span>{receipt.phase_scope}</span></p>
     </div>
     <MachineEvidenceClaims serviceOrReceipt={receipt} />

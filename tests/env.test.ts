@@ -10,6 +10,7 @@ describe('runtime environment config', () => {
     expect(config.monitorMode).toBe('disabled');
     expect(config.databaseUrl).toBeNull();
     expect(config.featuredProviderRotationMs).toBe(600000);
+    expect(config.machineDemoSeed).toBe(true);
   });
 
   it('supports explicit safe metadata monitor mode and legacy enabled compatibility', () => {
@@ -23,6 +24,12 @@ describe('runtime environment config', () => {
     expect(() => loadRuntimeConfig({ NODE_ENV: 'production', PORT: '8787' })).toThrow('INFOPUNKS_ADMIN_TOKEN');
     expect(() => loadRuntimeConfig({ NODE_ENV: 'production', INFOPUNKS_ADMIN_TOKEN: 'secret' })).toThrow('PORT');
     expect(loadRuntimeConfig({ NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'secret' }).isProduction).toBe(true);
+    expect(loadRuntimeConfig({ NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'secret' }).machineDemoSeed).toBe(false);
+  });
+
+  it('allows explicit machine demo seed toggle', () => {
+    expect(loadRuntimeConfig({ NODE_ENV: 'test' }).machineDemoSeed).toBe(false);
+    expect(loadRuntimeConfig({ NODE_ENV: 'test', MACHINE_DEMO_SEED: 'true' }).machineDemoSeed).toBe(true);
   });
 
   it('rejects malformed production env values', () => {

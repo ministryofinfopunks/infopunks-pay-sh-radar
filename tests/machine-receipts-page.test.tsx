@@ -8,6 +8,9 @@ import { App } from '../src/web/main';
 const baseReceipt = {
   receipt_id: 'mrx_202605220001_0001',
   receipt_type: 'machine_preflight',
+  demo_mode: false,
+  execution_occurred: false,
+  payment_occurred: false,
   machine_id: 'did:peaq:delivery-bot-01',
   policy_id: 'template_delivery_robot',
   intent: 'parse invoice image',
@@ -27,6 +30,15 @@ const baseReceipt = {
   evidence_health: 'scaffold',
   phase_scope: 'phase_2_pay_sh_robotic_sh',
   created_at: '2026-05-22T00:01:00.000Z'
+};
+const demoReceipt = {
+  ...baseReceipt,
+  receipt_id: 'mrx_demo_did_peaq_delivery_bot_01',
+  demo_mode: true,
+  machine_id: 'did:peaq:delivery-bot-01',
+  intent: 'parse invoice image into structured fields',
+  reason: 'vision task matched a Pay.sh service within bounded authority',
+  created_at: '2026-05-22T00:04:00.000Z'
 };
 
 const denyReceipt = {
@@ -261,5 +273,29 @@ describe('machine receipts page', () => {
     expect(detailText).toContain('execution-tested claim: not yet');
     expect(detailText).not.toContain('winner');
     expect(detailText).not.toContain('proven');
+  });
+
+  it('shows demo disclaimer and demo count for demo receipts', async () => {
+    installFetch([demoReceipt, baseReceipt]);
+    root = await renderPage(container);
+
+    expect(container.textContent).toContain('Demo receipts');
+    expect(container.textContent).toContain('Demo preflight receipt. No service execution occurred.');
+
+    const button = Array.from(container.querySelectorAll('button')).find((item) => item.textContent === 'View details') as HTMLButtonElement;
+    await act(async () => {
+      button.click();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    await act(async () => {
+      const toggle = Array.from(container.querySelectorAll('button')).find((item) => item.textContent === 'Show raw JSON') as HTMLButtonElement;
+      toggle.click();
+    });
+
+    const detailText = container.querySelector('[aria-label="Receipt detail drawer"]')?.textContent ?? '';
+    expect(detailText).toContain('demo_modetrue');
+    expect(detailText).toContain('execution_occurredfalse');
+    expect(detailText).toContain('payment_occurredfalse');
   });
 });

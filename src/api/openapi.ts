@@ -1553,6 +1553,9 @@ function componentSchemas(): Record<string, JsonSchema> {
     MachinePreflightReceipt: objectSchema({
       receipt_id: stringSchema(),
       receipt_type: { const: 'machine_preflight' },
+      demo_mode: booleanSchema(),
+      execution_occurred: { const: false },
+      payment_occurred: { const: false },
       machine_id: stringSchema(),
       policy_id: nullableString(),
       intent: stringSchema(),

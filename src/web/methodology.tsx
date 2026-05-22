@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { MACHINE_EVIDENCE_STAGES, getEvidenceStageDescription } from '../services/machineEvidenceService';
 
 type MethodologySection = {
   title: string;
@@ -7,6 +8,11 @@ type MethodologySection = {
   calculation: string;
   window: string;
   limitations: string;
+};
+
+type MachineMethodologyBlock = {
+  heading: string;
+  rows: string[];
 };
 
 export const methodologySections: MethodologySection[] = [
@@ -81,6 +87,62 @@ export const methodologySections: MethodologySection[] = [
     calculation: 'Services are listed, classified, and policy-mapped when their category, source market, chain, machine use case, and policy risk are present. Preflight evaluates whether a machine should spend before any service call occurs.',
     window: 'Reflects the current static Machine Economy registry and Radar-observed machine preflight receipts.',
     limitations: 'Preflight is not execution. Receipts are decision receipts unless explicitly marked as payment receipts. Radar makes no benchmark claims without recorded artifacts.'
+  }
+];
+
+const machineMethodologyBlocks: MachineMethodologyBlock[] = [
+  {
+    heading: 'What Radar maps',
+    rows: [
+      'robotic.sh listed services',
+      'source market metadata',
+      'category metadata',
+      'chain metadata',
+      'evidence stage',
+      'policy risk',
+      'machine use case',
+      'preflight decisions',
+      'decision receipts',
+      'machine dossiers based on Radar-observed receipts'
+    ]
+  },
+  {
+    heading: 'What Radar does not claim yet',
+    rows: [
+      'no live service execution unless marked execution-tested',
+      'no payment receipt unless explicitly marked payment receipt',
+      'no benchmark claim without artifact',
+      'no winner claim without criteria',
+      'no live peaqOS identity verification unless integrated',
+      'no physical-world robot behavior verification unless explicitly connected'
+    ]
+  },
+  {
+    heading: 'Phase 2 scope',
+    rows: [
+      'Phase 2 focuses on Pay.sh and robotic.sh.',
+      'Agentic.Market/Base entries appear only where they are observed as source metadata in the robotic.sh service list.'
+    ]
+  },
+  {
+    heading: 'Evidence ladder',
+    rows: MACHINE_EVIDENCE_STAGES.map((stage) => `${stage}: ${getEvidenceStageDescription(stage)}`)
+  },
+  {
+    heading: 'Receipt language',
+    rows: [
+      'Machine receipts are decision receipts by default.',
+      'They record Radar’s preflight decision: allow, deny, or review.',
+      'They are not payment receipts unless explicitly marked as payment receipts.'
+    ]
+  },
+  {
+    heading: 'Product thesis',
+    rows: [
+      'robotic.sh gives machines a market. Infopunks gives machine spending policy, evidence, and receipts.',
+      'Same terminal. New species of spender.',
+      'Machines should not spend blind.'
+    ]
   }
 ];
 
@@ -165,6 +227,15 @@ export function MethodologyDrawer({ open, onClose }: { open: boolean; onClose: (
             <div><dt>Known limitations</dt><dd>{section.limitations}</dd></div>
           </dl>
         </section>)}
+        <section className="methodology-section" aria-label="Machine Economy Methodology">
+          <h3>Machine Economy Methodology</h3>
+          <dl>
+            {machineMethodologyBlocks.map((block) => <div key={block.heading}>
+              <dt>{block.heading}</dt>
+              <dd><ul className="machine-methodology-list">{block.rows.map((row) => <li key={row}>{row}</li>)}</ul></dd>
+            </div>)}
+          </dl>
+        </section>
       </div>
     </aside>
   </div>;

@@ -46,12 +46,20 @@ describe('MethodologyDrawer', () => {
       expect(document.body.textContent).toContain(label);
     }
 
-    expect(document.body.textContent).toContain('Machine Economy');
-    expect(document.body.textContent).toContain('Coverage: 12 listed robotic.sh services from the observed snapshot.');
-    expect(document.body.textContent).toContain('Phase 2 scope: Pay.sh + robotic.sh.');
-    expect(document.body.textContent).toContain('Preflight is not execution.');
-    expect(document.body.textContent).toContain('Receipts are decision receipts unless explicitly marked as payment receipts.');
-    expect(document.body.textContent).toContain('Radar makes no benchmark claims without recorded artifacts.');
+    expect(document.body.textContent).toContain('Machine Economy Methodology');
+    expect(document.body.textContent).toContain('What Radar maps');
+    expect(document.body.textContent).toContain('robotic.sh listed services');
+    expect(document.body.textContent).toContain('machine dossiers based on Radar-observed receipts');
+    expect(document.body.textContent).toContain('Phase 2 focuses on Pay.sh and robotic.sh.');
+    expect(document.body.textContent).toContain('Agentic.Market/Base entries appear only where they are observed as source metadata in the robotic.sh service list.');
+    expect(document.body.textContent).toContain('Machine receipts are decision receipts by default.');
+    expect(document.body.textContent).toContain('They record Radar’s preflight decision: allow, deny, or review.');
+    expect(document.body.textContent).toContain('They are not payment receipts unless explicitly marked as payment receipts.');
+    expect(document.body.textContent).toContain('listed: Service was observed in the robotic.sh market snapshot.');
+    expect(document.body.textContent).toContain('benchmark-recorded: A benchmark artifact exists with repeatable run data.');
+    expect(document.body.textContent).toContain('no live service execution unless marked execution-tested');
+    expect(document.body.textContent).toContain('no winner claim without criteria');
+    expect(document.body.textContent).toContain('no live peaqOS identity verification unless integrated');
   });
 
   it('closes on Escape', () => {

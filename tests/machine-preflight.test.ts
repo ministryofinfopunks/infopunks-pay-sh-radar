@@ -23,7 +23,10 @@ async function postPreflight(payload: Record<string, unknown>) {
 }
 
 describe('machine preflight API', () => {
+  const envSnapshot = { ...process.env };
+
   beforeEach(() => {
+    process.env = { ...envSnapshot, NODE_ENV: 'test' };
     clearMachinePreflightReceiptsForTests();
   });
 
@@ -188,6 +191,46 @@ describe('machine preflight API', () => {
     expect(dossier.json().data.summary.deny_count).toBe(1);
     expect(dossier.json().data.summary.review_count).toBe(1);
     expect(dossier.json().data.caveats.join(' ')).toContain('Radar-observed machine preflight decisions only');
+
+    await app.close();
+  });
+
+  it('does not seed demo receipts in production mode unless explicitly enabled', async () => {
+    process.env.NODE_ENV = 'production';
+    process.env.PORT = '8787';
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    delete process.env.MACHINE_DEMO_SEED;
+    const app = await createApp(emptyIntelligenceStore());
+
+    const recent = await app.inject({ method: 'GET', url: '/v1/machine-preflight/receipts/recent' });
+    expect(recent.statusCode).toBe(200);
+    expect(recent.json().data.receipts).toHaveLength(0);
+
+    await app.close();
+  });
+
+  it('seeds safe demo preflight receipts when explicitly enabled', async () => {
+    process.env.NODE_ENV = 'test';
+    process.env.MACHINE_DEMO_SEED = 'true';
+    const app = await createApp(emptyIntelligenceStore());
+
+    const recent = await app.inject({ method: 'GET', url: '/v1/machine-preflight/receipts/recent' });
+    expect(recent.statusCode).toBe(200);
+    expect(recent.json().data.receipts).toHaveLength(5);
+    expect(recent.json().data.receipts.every((receipt: any) => receipt.demo_mode === true)).toBe(true);
+    expect(recent.json().data.receipts.every((receipt: any) => receipt.execution_occurred === false)).toBe(true);
+    expect(recent.json().data.receipts.every((receipt: any) => receipt.payment_occurred === false)).toBe(true);
+    expect(recent.json().data.receipts.every((receipt: any) => receipt.phase_scope === 'phase_2_pay_sh_robotic_sh')).toBe(true);
+    expect(recent.json().data.receipts.every((receipt: any) => receipt.receipt_type === 'machine_preflight')).toBe(true);
+    expect(recent.json().data.receipts.some((receipt: any) => receipt.caveats.includes('Demo preflight receipt. No service execution occurred.'))).toBe(true);
+    expect(recent.json().data.receipts.some((receipt: any) => /executed|payment receipt|benchmark|winner/i.test(receipt.reason))).toBe(false);
+
+    const secondRecent = await app.inject({ method: 'GET', url: '/v1/machine-preflight/receipts/recent' });
+    expect(secondRecent.json().data.receipts).toHaveLength(5);
+
+    const dossier = await app.inject({ method: 'GET', url: '/v1/machine-dossier/did%3Apeaq%3Adelivery-bot-01' });
+    expect(dossier.statusCode).toBe(200);
+    expect(dossier.json().data.caveats).toContain('This dossier includes demo preflight receipts. It does not verify physical-world machine activity.');
 
     await app.close();
   });

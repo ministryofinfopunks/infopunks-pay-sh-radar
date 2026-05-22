@@ -37,11 +37,12 @@ const observedDossier = {
   market_usage: [{ source_market: 'pay.sh', count: 3 }],
   chain_usage: [{ chain: 'solana', count: 3 }],
   recent_receipts: [
-    { receipt_id: 'mrx_3', receipt_type: 'machine_preflight', machine_id: machineId, policy_id: 'delivery-robot', intent: 'review invoice parse', requested_category: 'vision', selected_service_id: 'document-ai', selected_service_name: 'Document AI', source_market: 'pay.sh', chain: 'solana', decision: 'review', reason: 'review', policy_checks: [], violations: [], review_reasons: ['evidence_stage_meets_minimum'], caveats: [], max_cost_usd: 0.05, evidence_stage: 'policy-mapped', evidence_health: 'scaffold', phase_scope: 'phase_2_pay_sh_robotic_sh', created_at: '2026-05-22T00:03:00.000Z' }
+    { receipt_id: 'mrx_3', receipt_type: 'machine_preflight', demo_mode: true, execution_occurred: false, payment_occurred: false, machine_id: machineId, policy_id: 'delivery-robot', intent: 'review invoice parse', requested_category: 'vision', selected_service_id: 'document-ai', selected_service_name: 'Document AI', source_market: 'pay.sh', chain: 'solana', decision: 'review', reason: 'review', policy_checks: [], violations: [], review_reasons: ['evidence_stage_meets_minimum'], caveats: [], max_cost_usd: 0.05, evidence_stage: 'policy-mapped', evidence_health: 'scaffold', phase_scope: 'phase_2_pay_sh_robotic_sh', created_at: '2026-05-22T00:03:00.000Z' }
   ],
   caveats: [
     'This dossier represents Radar-observed machine preflight decisions only.',
-    'It does not verify live peaqOS identity, wallet ownership, payment execution, or physical-world robot activity.'
+    'It does not verify live peaqOS identity, wallet ownership, payment execution, or physical-world robot activity.',
+    'This dossier includes demo preflight receipts. It does not verify physical-world machine activity.'
   ],
   evidence_summary: { highest_stage_seen: 'policy-mapped', stage_counts: { 'policy-mapped': 3 } }
 };
@@ -121,6 +122,7 @@ describe('machine dossier page', () => {
     expect(container.textContent).toContain('Review1');
     expect(container.textContent).toContain('This dossier represents Radar-observed machine preflight decisions only.');
     expect(container.textContent).toContain('It does not verify live peaqOS identity');
+    expect(container.textContent).toContain('This dossier includes demo preflight receipts. It does not verify physical-world machine activity.');
   });
 
   it('shows guarded claim status for highest observed stage', async () => {
@@ -132,5 +134,13 @@ describe('machine dossier page', () => {
     expect(evidenceText).toContain('benchmark-recorded claim: not yet');
     expect(evidenceText).not.toContain('winner');
     expect(evidenceText).not.toContain('proven');
+  });
+
+  it('methodology link appears', async () => {
+    installDossierFetch(observedDossier);
+    root = await renderPath(container, `/machine-dossier/${encodeURIComponent(machineId)}`);
+
+    const link = container.querySelector('a[href="/#methodology"]');
+    expect(link?.textContent).toBe('Methodology: Machine Economy evidence ladder');
   });
 });
