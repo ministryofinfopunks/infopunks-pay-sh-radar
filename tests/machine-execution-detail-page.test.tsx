@@ -15,11 +15,22 @@ function pathAndSearch(input: RequestInfo | URL) {
   return { path: url.pathname, search: url.searchParams };
 }
 
-function installFetch(receipts: any[]) {
+function installFetch(receipts: any[], repeatability: any = null) {
   vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
     const { path } = pathAndSearch(input);
     if (path === '/v1/machine-preflight/receipts/recent') {
       return json({ count: receipts.length, receipts });
+    }
+    if (path === '/v1/machine-execution/alibaba-machine-translation-general/repeatability') {
+      return json(repeatability ?? {
+        repeatability_status: 'insufficient_runs',
+        successful_receipts: 0,
+        success_rate: 0,
+        latency_ms: { min: null, median: null, max: null },
+        receipt_ids: [],
+        provider_request_ids: [],
+        caveats: []
+      });
     }
     return Promise.resolve(new Response('{}', { status: 404 }));
   });
@@ -96,7 +107,16 @@ describe('machine execution detail page', () => {
       evidence_health: 'scaffold',
       phase_scope: 'phase_2_pay_sh_robotic_sh',
       created_at: '2026-05-22T18:31:01.415Z'
-    }]);
+    }], {
+      repeatability_status: 'insufficient_runs',
+      successful_receipts: 1,
+      remaining_successful_runs_needed: 2,
+      success_rate: 1,
+      latency_ms: { min: 1000, median: 1000, max: 1000 },
+      receipt_ids: ['mrx_exec_20260522183100415_0001'],
+      provider_request_ids: ['630BC2E5-AA27-5E84-ABB2-0BFE100BBD9F'],
+      caveats: ['This is a repeatability artifact, not a benchmark.']
+    });
     root = await renderPage(container);
 
     const text = container.textContent ?? '';
@@ -114,6 +134,8 @@ describe('machine execution detail page', () => {
     expect(text).toContain('Payment is not claimed without explicit payment evidence.');
     expect(text).toContain('Execution-tested applies only to this route, not the full robotic.sh market.');
     expect(text).toContain('AnyTrans remains attempted-recorded and blocked by provider workspace authorization.');
+    expect(text).toContain('Repeatability not recorded yet. Run 2 more successful executions with the same prompt family.');
+    expect(text).toContain('repeatability statusinsufficient_runs');
   });
 
   it('renders empty state when no receipt exists', async () => {
@@ -122,5 +144,61 @@ describe('machine execution detail page', () => {
 
     expect(container.textContent).toContain('No execution receipt yet.');
     expect(container.textContent).toContain('No execution-tested receipt exists for Alibaba Machine Translation General yet.');
+  });
+
+  it('shows repeatability recorded state', async () => {
+    installFetch([{
+      receipt_id: 'mrx_exec_20260522183100415_0003',
+      receipt_type: 'machine_execution',
+      demo_mode: false,
+      execution_occurred: true,
+      payment_occurred: false,
+      execution_status: 'succeeded',
+      execution_service_id: 'alibaba-machine-translation-general',
+      execution_provider: 'Alibaba Cloud',
+      execution_started_at: '2026-05-22T18:31:00.415Z',
+      execution_completed_at: '2026-05-22T18:31:01.415Z',
+      execution_latency_ms: 1200,
+      execution_request_summary: '{"text":"Machines should not spend blind."}',
+      execution_response_summary: '{"translated_text_preview":"Las máquinas no deberían gastar a ciegas.","provider_request_id":"RID-3","word_count":32}',
+      execution_error: null,
+      execution_executor_name: 'infopunks-pay-sh-agent-harness',
+      execution_executor_version: '1.0.0',
+      execution_executor_mode: 'pay_cli',
+      payment_evidence: null,
+      preflight_receipt_id: 'mrx_202605220001_0001',
+      execution_run_id: 'mxr_202605220001_0003',
+      machine_id: 'did:peaq:machine-translation-prod-smoke',
+      policy_id: 'field-maintenance-bot',
+      intent: 'external alibaba machine translation general execution artifact ingest',
+      requested_category: 'translation',
+      selected_service_id: 'alibaba-machine-translation-general',
+      selected_service_name: 'Alibaba Machine Translation General',
+      source_market: 'pay.sh',
+      chain: 'solana',
+      decision: 'allow',
+      reason: 'ok',
+      policy_checks: [],
+      violations: [],
+      review_reasons: [],
+      caveats: [],
+      max_cost_usd: null,
+      evidence_stage: 'execution-tested',
+      evidence_health: 'scaffold',
+      phase_scope: 'phase_2_pay_sh_robotic_sh',
+      created_at: '2026-05-22T18:31:01.415Z'
+    }], {
+      repeatability_status: 'repeatability-recorded',
+      successful_receipts: 3,
+      remaining_successful_runs_needed: 0,
+      success_rate: 0.75,
+      latency_ms: { min: 1000, median: 1200, max: 2000 },
+      receipt_ids: ['mrx_exec_1', 'mrx_exec_2', 'mrx_exec_3'],
+      provider_request_ids: ['RID-1', 'RID-2', 'RID-3'],
+      caveats: ['This is a repeatability artifact, not a benchmark.']
+    });
+    root = await renderPage(container);
+    expect(container.textContent).toContain('Repeatability recorded across 3 successful executions.');
+    expect(container.textContent).toContain('repeatability statusrepeatability-recorded');
   });
 });

@@ -137,6 +137,7 @@ const machineMethodologyBlocks: MachineMethodologyBlock[] = [
       'Externally executed artifacts may be ingested from the Agent Harness. Radar treats them as execution evidence only if they prove a real external service call succeeded and a durable machine_execution receipt is recorded.',
       'Manual pay.sh success is not enough for Radar evidence-stage promotion. Radar marks a route execution-tested only after Harness posts a valid artifact and Radar records a durable machine_execution receipt.',
       'Execution-tested does not imply benchmarked, best, cheapest, or payment-confirmed unless those artifacts exist.',
+      'Repeatability-recorded means the same route has produced multiple successful execution receipts under the same prompt family. It is not a benchmark and does not compare providers.',
       'They are not payment receipts unless explicitly marked as payment receipts.',
       'execution-tested remains inactive until a real recorded service call occurs.',
       'benchmark-recorded remains inactive until repeatable benchmark artifacts exist.'

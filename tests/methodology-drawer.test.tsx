@@ -58,6 +58,7 @@ describe('MethodologyDrawer', () => {
     expect(document.body.textContent).toContain('execution-tested remains inactive until a real recorded service call occurs');
     expect(document.body.textContent).toContain('Externally executed artifacts may be ingested from the Agent Harness.');
     expect(document.body.textContent).toContain('Manual pay.sh success is not enough for Radar evidence-stage promotion.');
+    expect(document.body.textContent).toContain('Repeatability-recorded means the same route has produced multiple successful execution receipts under the same prompt family. It is not a benchmark and does not compare providers.');
     expect(document.body.textContent).toContain('benchmark-recorded remains inactive until repeatable benchmark artifacts exist');
     expect(document.body.textContent).toContain('listed: Service was observed in the robotic.sh market snapshot.');
     expect(document.body.textContent).toContain('benchmark-recorded: Benchmark-recorded remains inactive until repeatable benchmark artifacts exist.');

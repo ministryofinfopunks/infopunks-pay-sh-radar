@@ -200,6 +200,34 @@ type MachineReceiptStorage = {
   demo_seed_enabled?: boolean;
   warning?: string;
 };
+type AlibabaMachineExecutionRepeatabilityArtifact = {
+  artifact_id: string;
+  generated_at: string;
+  service_id: 'alibaba-machine-translation-general';
+  fqn: 'solana-foundation/alibaba/machinetranslation';
+  source_market: 'pay.sh';
+  chain: 'solana';
+  route_name: string;
+  route_status: string;
+  receipt_count: number;
+  successful_receipts: number;
+  failed_receipts: number;
+  success_rate: number;
+  latency_ms: { min: number | null; median: number | null; max: number | null };
+  prompt_family: string;
+  input_summary: string[];
+  output_summaries: string[];
+  provider_request_ids: string[];
+  receipt_ids: string[];
+  payment_occurred_any: boolean;
+  payment_claimed: false;
+  benchmark_claimed: false;
+  winner_claimed: false;
+  evidence_stage: 'execution-tested' | 'repeatability-recorded';
+  repeatability_status: 'insufficient_runs' | 'repeatability-recorded';
+  remaining_successful_runs_needed: number;
+  caveats: string[];
+};
 type MachineDossier = {
   machine_id: string;
   phase_scope: 'phase_2_pay_sh_robotic_sh';
@@ -2056,6 +2084,7 @@ function MachineMarketPage() {
   const [latestCoverageRun, setLatestCoverageRun] = useState<MachinePreflightCoverageRun | null>(null);
   const [latestAnyTransExecutionReceipt, setLatestAnyTransExecutionReceipt] = useState<MachinePreflightReceipt | null>(null);
   const [latestMachineTranslationGeneralExecutionReceipt, setLatestMachineTranslationGeneralExecutionReceipt] = useState<MachinePreflightReceipt | null>(null);
+  const [machineTranslationGeneralRepeatability, setMachineTranslationGeneralRepeatability] = useState<AlibabaMachineExecutionRepeatabilityArtifact | null>(null);
   const [coverageLoading, setCoverageLoading] = useState(false);
   const [coverageRunning, setCoverageRunning] = useState(false);
   const [coverageError, setCoverageError] = useState<string | null>(null);
@@ -2078,8 +2107,9 @@ function MachineMarketPage() {
       api<{ data: { services: MachineMarketService[] } }>('/v1/machine-market/services'),
       api<{ data: MachineMarketSummary }>('/v1/machine-market/summary'),
       api<{ data: { runs: MachinePreflightCoverageRun[] } }>('/v1/machine-preflight/coverage-runs/recent?limit=1').catch(() => null),
-      api<{ data: { receipts: MachinePreflightReceipt[] } }>('/v1/machine-preflight/receipts/recent?limit=25').catch(() => null)
-    ]).then(([servicesResponse, summaryResponse, latestRunResponse, latestExecutionResponse]) => {
+      api<{ data: { receipts: MachinePreflightReceipt[] } }>('/v1/machine-preflight/receipts/recent?limit=25').catch(() => null),
+      api<{ data: AlibabaMachineExecutionRepeatabilityArtifact }>('/v1/machine-execution/alibaba-machine-translation-general/repeatability').catch(() => null)
+    ]).then(([servicesResponse, summaryResponse, latestRunResponse, latestExecutionResponse, repeatabilityResponse]) => {
       if (cancelled) return;
       setServices(servicesResponse.data.services);
       setSummary(summaryResponse.data);
@@ -2090,6 +2120,7 @@ function MachineMarketPage() {
       const machineTranslationGeneralExecution = receipts.find((receipt) => receipt.receipt_type === 'machine_execution' && receipt.execution_service_id === 'alibaba-machine-translation-general') ?? null;
       setLatestAnyTransExecutionReceipt(anyTransExecution);
       setLatestMachineTranslationGeneralExecutionReceipt(machineTranslationGeneralExecution);
+      setMachineTranslationGeneralRepeatability(repeatabilityResponse?.data ?? null);
       setLoading(false);
     }).catch((err) => {
       if (cancelled) return;
@@ -2165,7 +2196,7 @@ function MachineMarketPage() {
       </section>
       <EvidenceLadder services={services} />
       <CoveragePanel latestRun={latestCoverageRun} loading={coverageLoading || loading} running={coverageRunning} error={coverageError} onRun={runCoveragePreflight} />
-      <FirstExecutionCard anyTransReceipt={latestAnyTransExecutionReceipt} machineTranslationGeneralReceipt={latestMachineTranslationGeneralExecutionReceipt} />
+      <FirstExecutionCard anyTransReceipt={latestAnyTransExecutionReceipt} machineTranslationGeneralReceipt={latestMachineTranslationGeneralExecutionReceipt} repeatability={machineTranslationGeneralRepeatability} />
       <Filters filters={filters} onChange={setFilters} />
       {loading && <section className="panel" role="status" aria-live="polite"><p className="route-state">Loading Machine Market services...</p></section>}
       {error && !loading && <section className="panel" role="alert"><p className="route-state error">Machine Market API unavailable: {error}</p><p className="panel-caption">No local fixture data is shown on this page.</p></section>}
@@ -2180,15 +2211,18 @@ function MachineMarketPage() {
 
 function FirstExecutionCard({
   anyTransReceipt,
-  machineTranslationGeneralReceipt
+  machineTranslationGeneralReceipt,
+  repeatability
 }: {
   anyTransReceipt: MachinePreflightReceipt | null;
   machineTranslationGeneralReceipt: MachinePreflightReceipt | null;
+  repeatability: AlibabaMachineExecutionRepeatabilityArtifact | null;
 }) {
   const preflightStatus = machineTranslationGeneralReceipt?.decision ?? 'not_attempted';
   const executionStatus = machineTranslationGeneralReceipt?.execution_status ?? 'not_attempted';
   const paymentStatus = machineTranslationGeneralReceipt?.payment_occurred ? 'payment_observed' : 'not_confirmed';
   const evidenceStage = machineTranslationGeneralReceipt?.evidence_stage ?? 'policy-mapped';
+  const repeatabilityLabel = repeatability?.repeatability_status === 'repeatability-recorded' ? 'recorded' : 'insufficient';
   const caveats = machineTranslationGeneralReceipt?.caveats?.length ? machineTranslationGeneralReceipt.caveats : [
     'Execution-tested applies only to Alibaba Machine Translation General after Radar records the successful execution receipt.',
     'This is not a benchmark artifact.',
@@ -2218,6 +2252,9 @@ function FirstExecutionCard({
       <p><span>payment status</span><small>{paymentStatus}</small></p>
       <p><span>evidence stage</span><small>{evidenceStage}</small></p>
       <p><span>latest execution receipt</span><small>{machineTranslationGeneralReceipt?.receipt_id ?? 'none'}</small></p>
+      <p><span>repeatability</span><small>{repeatabilityLabel}</small></p>
+      <p><span>repeatability successful runs</span><small>{repeatability?.successful_receipts ?? 0} / 3 required</small></p>
+      <p><span>benchmark claim</span><small>false</small></p>
       <p><span>caveats</span><small>{caveats.join(' ')}</small></p>
     </div>
   </section>;
@@ -2225,6 +2262,7 @@ function FirstExecutionCard({
 
 function AlibabaMachineExecutionDetailPage() {
   const [receipt, setReceipt] = useState<MachinePreflightReceipt | null>(null);
+  const [repeatability, setRepeatability] = useState<AlibabaMachineExecutionRepeatabilityArtifact | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -2234,8 +2272,11 @@ function AlibabaMachineExecutionDetailPage() {
     let cancelled = false;
     setLoading(true);
     setError(null);
-    api<{ data: { receipts: MachinePreflightReceipt[] } }>('/v1/machine-preflight/receipts/recent?service_id=alibaba-machine-translation-general&limit=25')
-      .then((response) => {
+    Promise.all([
+      api<{ data: { receipts: MachinePreflightReceipt[] } }>('/v1/machine-preflight/receipts/recent?service_id=alibaba-machine-translation-general&limit=25'),
+      api<{ data: AlibabaMachineExecutionRepeatabilityArtifact }>('/v1/machine-execution/alibaba-machine-translation-general/repeatability').catch(() => null)
+    ])
+      .then(([response, repeatabilityResponse]) => {
         if (cancelled) return;
         const receipts = response.data.receipts.filter((row) =>
           row.receipt_type === 'machine_execution'
@@ -2243,6 +2284,7 @@ function AlibabaMachineExecutionDetailPage() {
         );
         const latestSuccessful = receipts.find((row) => row.execution_status === 'succeeded') ?? null;
         setReceipt(latestSuccessful ?? receipts[0] ?? null);
+        setRepeatability(repeatabilityResponse?.data ?? null);
         setLoading(false);
       })
       .catch((err) => {
@@ -2327,6 +2369,22 @@ function AlibabaMachineExecutionDetailPage() {
           <div className="panel-head"><div><p className="section-kicker">Payment Status</p><h2>payment_occurred={String(receipt.payment_occurred)}</h2></div></div>
           <p className="panel-caption">Payment is not claimed because no explicit payment evidence was recorded.</p>
         </section>
+        {repeatability && <section className="panel" aria-label="Repeatability">
+          <div className="panel-head"><div><p className="section-kicker">Repeatability</p><h2>{repeatability.repeatability_status}</h2></div></div>
+          <div className="machine-usage-list">
+            <p><span>successful run count</span><small>{repeatability.successful_receipts}</small></p>
+            <p><span>required count</span><small>3</small></p>
+            <p><span>repeatability status</span><small>{repeatability.repeatability_status}</small></p>
+            <p><span>success rate</span><small>{repeatability.success_rate}</small></p>
+            <p><span>latency range</span><small>{formatMs(repeatability.latency_ms.min)} / {formatMs(repeatability.latency_ms.median)} / {formatMs(repeatability.latency_ms.max)}</small></p>
+            <p><span>receipt ids</span><small>{repeatability.receipt_ids.join(', ') || 'none'}</small></p>
+            <p><span>provider request ids</span><small>{repeatability.provider_request_ids.join(', ') || 'none'}</small></p>
+            <p><span>caveats</span><small>{repeatability.caveats.join(' ')}</small></p>
+          </div>
+          {repeatability.repeatability_status === 'insufficient_runs'
+            ? <p className="panel-caption">Repeatability not recorded yet. Run {repeatability.remaining_successful_runs_needed} more successful executions with the same prompt family.</p>
+            : <p className="panel-caption">Repeatability recorded across {repeatability.successful_receipts} successful executions.</p>}
+        </section>}
       </>}
       <section className="panel" aria-label="Evidence caveats">
         <div className="panel-head"><div><p className="section-kicker">Evidence Caveats</p><h2>Execution evidence boundaries</h2></div></div>
@@ -2747,7 +2805,7 @@ function normalizeTemplateId(policyId: string) {
 }
 
 function MachineMethodologyNote() {
-  return <p className="machine-methodology-note"><a href="/#methodology">Methodology: Machine Economy evidence ladder</a></p>;
+  return <p className="machine-methodology-note"><a href="/#methodology">Methodology: Machine Economy evidence ladder</a> Repeatability-recorded means the same route has produced multiple successful execution receipts under the same prompt family. It is not a benchmark and does not compare providers.</p>;
 }
 
 type MachineReceiptFiltersState = {

@@ -1,4 +1,4 @@
-import { appendMachineReceipt, runMachinePreflight, type MachinePreflightReceipt } from './machinePreflightService';
+import { appendMachineReceipt, listRecentMachinePreflightReceipts, runMachinePreflight, type MachinePreflightReceipt } from './machinePreflightService';
 import { getMachineMarketServiceById } from './machineMarketService';
 
 export type TranslationExecutionRequest = {
@@ -94,6 +94,35 @@ export type AlibabaMachineTranslationGeneralArtifactIngestResponse = {
   payment_occurred: boolean;
   payment_evidence: unknown | null;
   evidence_stage_after: 'policy-mapped' | 'execution-tested';
+  caveats: string[];
+};
+
+export type AlibabaMachineTranslationGeneralRepeatabilityArtifact = {
+  artifact_id: string;
+  generated_at: string;
+  service_id: 'alibaba-machine-translation-general';
+  fqn: 'solana-foundation/alibaba/machinetranslation';
+  source_market: 'pay.sh';
+  chain: 'solana';
+  route_name: 'Alibaba Machine Translation General';
+  route_status: 'execution-tested';
+  receipt_count: number;
+  successful_receipts: number;
+  failed_receipts: number;
+  success_rate: number;
+  latency_ms: { min: number | null; median: number | null; max: number | null };
+  prompt_family: string;
+  input_summary: string[];
+  output_summaries: string[];
+  provider_request_ids: string[];
+  receipt_ids: string[];
+  payment_occurred_any: boolean;
+  payment_claimed: false;
+  benchmark_claimed: false;
+  winner_claimed: false;
+  evidence_stage: 'execution-tested' | 'repeatability-recorded';
+  repeatability_status: 'insufficient_runs' | 'repeatability-recorded';
+  remaining_successful_runs_needed: number;
   caveats: string[];
 };
 
@@ -431,6 +460,79 @@ export async function ingestAlibabaMachineTranslationGeneralArtifact(input: Alib
   };
 }
 
+export async function buildAlibabaMachineTranslationGeneralRepeatabilityArtifact(): Promise<AlibabaMachineTranslationGeneralRepeatabilityArtifact> {
+  const receipts = await listRecentMachinePreflightReceipts({ service_id: 'alibaba-machine-translation-general', limit: 100 });
+  const executionReceipts = receipts.filter((row) => row.receipt_type === 'machine_execution');
+  const successful = executionReceipts.filter((row) =>
+    row.execution_status === 'succeeded'
+    && row.execution_occurred
+    && row.evidence_stage === 'execution-tested'
+  );
+  const failed = executionReceipts.filter((row) => row.execution_status !== 'succeeded');
+  const latencies = successful
+    .map((row) => row.execution_latency_ms)
+    .filter((value): value is number => typeof value === 'number' && Number.isFinite(value))
+    .sort((a, b) => a - b);
+  const parsedResponses = successful.map((row) => safeParseSummary(row.execution_response_summary));
+  const parsedRequests = successful.map((row) => safeParseSummary(row.execution_request_summary));
+  const providerRequestIds = uniq(parsedResponses
+    .map((row) => readSummaryValue(row, ['provider_request_id', 'providerRequestId', 'RequestId']))
+    .filter((value): value is string => typeof value === 'string' && value.length > 0));
+  const inputSummaries = uniq(parsedRequests
+    .map((row) => readSummaryValue(row, ['text', 'text_preview', 'textPreview']))
+    .filter((value): value is string => typeof value === 'string' && value.length > 0)
+    .slice(0, 5));
+  const outputSummaries = uniq(parsedResponses
+    .map((row) => readSummaryValue(row, ['translated_text_preview', 'translatedTextPreview', 'Translated']))
+    .filter((value): value is string => typeof value === 'string' && value.length > 0)
+    .slice(0, 5));
+  const successfulReceipts = successful.length;
+  const receiptCount = executionReceipts.length;
+  const remaining = Math.max(0, 3 - successfulReceipts);
+  const generatedAt = new Date().toISOString();
+  const repeatabilityRecorded = successfulReceipts >= 3;
+
+  return {
+    artifact_id: `mrx_repeatability_alibaba_machine_translation_general_${generatedAt.slice(0, 10).replaceAll('-', '')}`,
+    generated_at: generatedAt,
+    service_id: ALIBABA_MACHINE_TRANSLATION_GENERAL_META.service_id,
+    fqn: ALIBABA_MACHINE_TRANSLATION_GENERAL_META.fqn,
+    source_market: ALIBABA_MACHINE_TRANSLATION_GENERAL_META.source_market,
+    chain: ALIBABA_MACHINE_TRANSLATION_GENERAL_META.chain,
+    route_name: 'Alibaba Machine Translation General',
+    route_status: 'execution-tested',
+    receipt_count: receiptCount,
+    successful_receipts: successfulReceipts,
+    failed_receipts: failed.length,
+    success_rate: receiptCount > 0 ? Number((successfulReceipts / receiptCount).toFixed(4)) : 0,
+    latency_ms: {
+      min: latencies[0] ?? null,
+      median: median(latencies),
+      max: latencies.length ? latencies[latencies.length - 1] : null
+    },
+    prompt_family: 'machines-should-not-spend-blind.translation.general',
+    input_summary: inputSummaries.length ? inputSummaries : ['Machines should not spend blind.'],
+    output_summaries: outputSummaries,
+    provider_request_ids: providerRequestIds,
+    receipt_ids: successful.map((row) => row.receipt_id),
+    payment_occurred_any: executionReceipts.some((row) => row.payment_occurred),
+    payment_claimed: false,
+    benchmark_claimed: false,
+    winner_claimed: false,
+    evidence_stage: repeatabilityRecorded ? 'repeatability-recorded' : 'execution-tested',
+    repeatability_status: repeatabilityRecorded ? 'repeatability-recorded' : 'insufficient_runs',
+    remaining_successful_runs_needed: remaining,
+    caveats: [
+      'This is a repeatability artifact, not a benchmark.',
+      'No route winner is claimed.',
+      'Payment is not claimed without explicit payment evidence.',
+      'Repeatability applies only to Alibaba Machine Translation General.',
+      'This does not imply the full robotic.sh market is execution-tested.',
+      ...(remaining > 0 ? [`${remaining} more successful execution receipt(s) are needed to record repeatability.`] : [])
+    ]
+  };
+}
+
 async function executeAnyTransAdapter(input: TranslationExecutionRequest): Promise<TranslationAdapterResult> {
   const mode = resolveTranslationExecutionMode();
   if (mode === 'disabled') {
@@ -557,6 +659,36 @@ function resolveTranslationExecutionMode(): TranslationExecutionMode {
 function isX402ServerExecutionImplemented() {
   return process.env.PAY_SH_TRANSLATION_PAYMENT_HEADER === 'X-PAYMENT'
     && Boolean(process.env.PAY_SH_TRANSLATION_PAYMENT_VALUE);
+}
+
+function safeParseSummary(value: string | null): Record<string, unknown> | null {
+  if (!value) return null;
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    return parsed && typeof parsed === 'object' ? parsed as Record<string, unknown> : null;
+  } catch {
+    return null;
+  }
+}
+
+function readSummaryValue(summary: Record<string, unknown> | null, keys: string[]) {
+  if (!summary) return null;
+  for (const key of keys) {
+    const value = summary[key];
+    if (typeof value === 'string' && value.trim().length) return value.trim();
+  }
+  return null;
+}
+
+function median(values: number[]) {
+  if (!values.length) return null;
+  const mid = Math.floor(values.length / 2);
+  if (values.length % 2 === 1) return values[mid];
+  return Math.round((values[mid - 1] + values[mid]) / 2);
+}
+
+function uniq(values: string[]) {
+  return [...new Set(values)];
 }
 
 function safeSummary(value: unknown) {

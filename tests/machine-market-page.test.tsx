@@ -219,6 +219,16 @@ function installMachineMarketFetch() {
         created_at: '2026-05-22T00:00:01.000Z'
       }]
     });
+    if (path === '/v1/machine-execution/alibaba-machine-translation-general/repeatability') return json({
+      repeatability_status: 'insufficient_runs',
+      successful_receipts: 1,
+      remaining_successful_runs_needed: 2,
+      success_rate: 1,
+      latency_ms: { min: 1000, median: 1000, max: 1000 },
+      receipt_ids: ['mrx_exec_20260522000000000_0002'],
+      provider_request_ids: ['RID-1'],
+      caveats: ['This is a repeatability artifact, not a benchmark.']
+    });
     return Promise.resolve(new Response('{}', { status: 404 }));
   });
 }
@@ -316,6 +326,8 @@ describe('machine market page', () => {
     expect(pageText).toContain('Execution-tested applies only to Alibaba Machine Translation General after Radar records the successful execution receipt.');
     expect(pageText).toContain('infopunks-pay-sh-agent-harness');
     expect(pageText).toContain('manual');
+    expect(pageText).toContain('repeatability');
+    expect(pageText).toContain('benchmark claimfalse');
     expect(container.querySelector('a[href="/machine-execution/alibaba-machine-translation-general"]')).not.toBeNull();
   });
 });
