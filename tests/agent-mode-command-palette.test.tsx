@@ -198,8 +198,18 @@ describe('agent mode and command palette', () => {
   it('renders API Docs and Agent Mode controls', async () => {
     root = await renderApp(container);
 
+    const primaryNav = container.querySelector('[aria-label="Primary radar zones"]');
+    expect(primaryNav?.textContent).not.toContain('Machine Economy');
     expect(container.textContent).toContain('API Docs');
     expect(container.textContent).toContain('Agent Mode');
+    expect(container.textContent).toContain('Machine Economy Module');
+    expect(container.textContent).toContain('Machine Economy');
+    expect(container.textContent).toContain('Radar now maps the robotic.sh machine-service market: 12 listed services, bounded authority policies, preflight decisions, and machine receipts.');
+    expect(container.textContent).toContain('Same terminal. New species of spender.');
+    expect(container.textContent).toContain('Open Machine Market');
+    expect(container.querySelector('a[href="/machine-market"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/machine-preflight"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/machine-receipts"]')).not.toBeNull();
   });
 
   it('Agent Mode hides narrative panels and keeps preflight export and API docs visible', async () => {
@@ -303,9 +313,17 @@ describe('agent mode and command palette', () => {
       await Promise.resolve();
     });
 
-    for (const label of ['Open Compare', 'Open Cost / Performance', 'Open Benchmark Readiness', 'Open Agent Benchmark API', 'Open API Docs', 'Toggle Agent Mode', 'Jump to Degradations', 'Jump to Selected Dossier', 'Jump to Anomaly Watch']) {
+    for (const label of ['Open Compare', 'Open Cost / Performance', 'Open Benchmark Readiness', 'Open Agent Benchmark API', 'Open API Docs', 'Open Machine Market', 'Run Machine Preflight', 'View Machine Receipts', 'Search Machine Dossier', 'Toggle Agent Mode', 'Jump to Degradations', 'Jump to Selected Dossier', 'Jump to Anomaly Watch']) {
       expect(container.textContent).toContain(label);
     }
+
+    clickButton(container, 'Open Machine Market');
+    expect(window.open).toHaveBeenCalledWith('/machine-market', '_self');
+
+    await act(async () => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true }));
+      await Promise.resolve();
+    });
 
     clickButton(container, 'Toggle Agent Mode');
     expect(container.textContent).toContain('Agent Mode removes narrative panels');

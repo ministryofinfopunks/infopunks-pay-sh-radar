@@ -995,9 +995,16 @@ describe('radar endpoint intelligence UI', () => {
     expect(primaryNav?.textContent).toContain('Benchmarks');
     expect(primaryNav?.textContent).toContain('Mappings');
     expect(primaryNav?.textContent).not.toContain('Agent Benchmark API');
+    expect(primaryNav?.textContent).not.toContain('Machine Economy');
+    expect(primaryNav?.textContent).not.toContain('Machine Preflight');
     expect(container.textContent).toContain('Directory');
     expect(container.textContent).toContain('Events');
     expect(container.textContent).toContain('Preflight');
+    const machineMenu = container.querySelector('[aria-label="Machine Economy menu"]');
+    expect(machineMenu).toBeTruthy();
+    expect(container.querySelector('a[href="/machine-market"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/machine-preflight"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/machine-receipts"]')).not.toBeNull();
     expect(container.textContent).toContain('Pay.sh routes are live. Agents need proof before spend.');
     expect(container.textContent).toContain('Radar tracks mapped, proven, and benchmarked Pay.sh routes before agents route money through them.');
     expect(container.textContent).toContain('Pay.sh is the spend rail. Radar is the evidence ledger. The Harness is the proof adapter.');
