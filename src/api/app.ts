@@ -90,7 +90,7 @@ import {
   runMachinePreflightCoverageRun
 } from '../services/machinePreflightService';
 import { createMachineReceiptStorageMetadata, JsonlMachinePreflightReceiptStorageAdapter, MemoryMachinePreflightReceiptStorageAdapter, PostgresMachinePreflightReceiptStorageAdapter, type MachinePreflightReceiptStorageAdapter } from '../services/machinePreflightReceiptStorage';
-import { runCloudTranslationExecutionRoute } from '../services/machineExecutionService';
+import { deprecatedCloudTranslationExecutionResponse, runTranslationExecutionRoute } from '../services/machineExecutionService';
 import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
@@ -118,7 +118,7 @@ const MachineReceiptQuerySchema = z.object({
 const MachineCoverageRunQuerySchema = z.object({
   limit: z.coerce.number().int().positive().max(25).optional()
 });
-const MachineExecutionCloudTranslationRequestSchema = z.object({
+const MachineExecutionTranslationRequestSchema = z.object({
   machine_id: z.string().min(1),
   policy_id: z.string().min(1),
   service_id: z.string().optional(),
@@ -573,17 +573,17 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
       storage: machineReceiptStorage
     }) };
   });
-  app.post('/v1/machine-execution/cloud-translation', async (req, reply) => {
-    const parsed = MachineExecutionCloudTranslationRequestSchema.safeParse(req.body);
+  app.post('/v1/machine-execution/translation', async (req, reply) => {
+    const parsed = MachineExecutionTranslationRequestSchema.safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_machine_execution_request', phase_scope: MACHINE_MARKET_PHASE_SCOPE, details: parsed.error.flatten() });
-    if (parsed.data.service_id && parsed.data.service_id !== 'cloud-translation') {
+    if (parsed.data.service_id && parsed.data.service_id !== 'anytrans') {
       return reply.code(400).send({
         error: 'unsupported_service_execution',
         phase_scope: MACHINE_MARKET_PHASE_SCOPE,
-        supported_service_id: 'cloud-translation'
+        supported_service_id: 'anytrans'
       });
     }
-    const result = await runCloudTranslationExecutionRoute(parsed.data);
+    const result = await runTranslationExecutionRoute(parsed.data);
     return {
       data: safeJsonExport({
         ...result,
@@ -591,6 +591,12 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
         storage: machineReceiptStorage
       })
     };
+  });
+  app.post('/v1/machine-execution/cloud-translation', async (_req, reply) => {
+    return reply.code(409).send({
+      ...deprecatedCloudTranslationExecutionResponse(),
+      phase_scope: MACHINE_MARKET_PHASE_SCOPE
+    });
   });
   app.addHook('onClose', async () => {
     if (machineReceiptAdapter.close) await machineReceiptAdapter.close();
