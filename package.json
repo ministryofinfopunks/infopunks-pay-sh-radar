@@ -6,6 +6,7 @@
     "start": "node dist/server/server.js",
     "start:render": "npm run start",
     "smoke:backend": "node scripts/smoke-backend.mjs",
+    "harness:machine-translation-general": "node scripts/run-alibaba-machine-translation-general-harness.mjs",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "verify:production": "tsx scripts/verify-production.ts"

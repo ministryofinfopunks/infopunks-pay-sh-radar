@@ -136,14 +136,54 @@ function installMachineMarketFetch() {
       service_results: []
     });
     if (path === '/v1/machine-preflight/receipts/recent') return json({
-      count: 1,
+      count: 2,
       receipts: [{
-        receipt_id: 'mrx_exec_20260522000000000_0001',
+        receipt_id: 'mrx_exec_20260522000000000_0002',
         receipt_type: 'machine_execution',
         demo_mode: false,
         execution_occurred: true,
         payment_occurred: false,
         execution_status: 'succeeded',
+        execution_service_id: 'alibaba-machine-translation-general',
+        execution_provider: 'Alibaba Cloud',
+        execution_started_at: '2026-05-22T00:00:00.000Z',
+        execution_completed_at: '2026-05-22T00:00:01.000Z',
+        execution_latency_ms: 1000,
+        execution_request_summary: '{"SourceLanguage":"en","TargetLanguage":"es"}',
+        execution_response_summary: '{"translated_text_preview":"Las máquinas no deben gastar a ciegas."}',
+        execution_error: null,
+        execution_executor_name: 'infopunks-pay-sh-agent-harness',
+        execution_executor_version: '1.2.3',
+        execution_executor_mode: 'manual',
+        payment_evidence: null,
+        preflight_receipt_id: 'mrx_20260522000000000_0001',
+        execution_run_id: 'mxr_20260522000001000_0002',
+        machine_id: 'did:peaq:anytrans-prod-smoke',
+        policy_id: 'field-maintenance-bot',
+        intent: 'external alibaba machine translation general execution artifact ingest',
+        requested_category: 'translation',
+        selected_service_id: 'alibaba-machine-translation-general',
+        selected_service_name: 'Alibaba Machine Translation General',
+        source_market: 'pay.sh',
+        chain: 'solana',
+        decision: 'allow',
+        reason: 'Alibaba Machine Translation General external execution artifact indicates successful execution.',
+        policy_checks: [],
+        violations: [],
+        review_reasons: [],
+        caveats: [],
+        max_cost_usd: null,
+        evidence_stage: 'execution-tested',
+        evidence_health: 'scaffold',
+        phase_scope: 'phase_2_pay_sh_robotic_sh',
+        created_at: '2026-05-22T00:00:01.000Z'
+      }, {
+        receipt_id: 'mrx_exec_20260522000000000_0001',
+        receipt_type: 'machine_execution',
+        demo_mode: false,
+        execution_occurred: true,
+        payment_occurred: false,
+        execution_status: 'failed',
         execution_service_id: 'anytrans',
         execution_provider: 'Alibaba Cloud',
         execution_started_at: '2026-05-22T00:00:00.000Z',
@@ -171,9 +211,9 @@ function installMachineMarketFetch() {
         policy_checks: [],
         violations: [],
         review_reasons: [],
-        caveats: [],
+        caveats: ['Auth.AccessDenied.WorkSpace'],
         max_cost_usd: null,
-        evidence_stage: 'execution-tested',
+        evidence_stage: 'policy-mapped',
         evidence_health: 'scaffold',
         phase_scope: 'phase_2_pay_sh_robotic_sh',
         created_at: '2026-05-22T00:00:01.000Z'
@@ -266,13 +306,15 @@ describe('machine market page', () => {
     expect(tableText).not.toContain('winner');
   });
 
-  it('labels the card as AnyTrans execution candidate without overclaiming execution-tested', async () => {
+  it('renders AnyTrans blocked state and Machine Translation General execution candidate state', async () => {
     root = await renderPage(container);
     const pageText = container.textContent ?? '';
-    expect(pageText).toContain('AnyTrans Execution Candidate');
-    expect(pageText).toContain('AnyTrans is the first runnable translation execution candidate.');
-    expect(pageText).not.toContain('First Execution-Tested Route');
+    expect(pageText).toContain('Machine Translation Execution Candidates');
+    expect(pageText).toContain('attempted-recorded / workspace blocked');
+    expect(pageText).toContain('Alibaba Machine Translation General');
+    expect(pageText).toContain('POST api/translate/web/general');
+    expect(pageText).toContain('Execution-tested applies only to Alibaba Machine Translation General after Radar records the successful execution receipt.');
     expect(pageText).toContain('infopunks-pay-sh-agent-harness');
-    expect(pageText).toContain('x402');
+    expect(pageText).toContain('manual');
   });
 });

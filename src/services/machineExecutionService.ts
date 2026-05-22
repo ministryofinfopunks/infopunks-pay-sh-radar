@@ -65,6 +65,38 @@ export type AnyTransExecutionArtifactIngestResponse = {
   caveats: string[];
 };
 
+export type AlibabaMachineTranslationGeneralArtifactIngestRequest = {
+  machine_id: string;
+  service_id: 'alibaba-machine-translation-general';
+  fqn: 'solana-foundation/alibaba/machinetranslation';
+  source_market: 'pay.sh';
+  chain: 'solana';
+  preflight_receipt_id?: string | null;
+  execution_status: 'attempted' | 'succeeded' | 'failed';
+  execution_occurred: boolean;
+  payment_occurred: boolean;
+  payment_evidence: unknown | null;
+  execution_started_at: string;
+  execution_completed_at: string;
+  execution_latency_ms: number;
+  request_summary: Record<string, unknown>;
+  response_summary: Record<string, unknown> | null;
+  executor: { name: string; version?: string | null; mode: 'pay_cli' | 'x402' | 'manual' };
+  artifact_signature?: string | null;
+};
+
+export type AlibabaMachineTranslationGeneralArtifactIngestResponse = {
+  accepted: true;
+  receipt_id: string;
+  service_id: 'alibaba-machine-translation-general';
+  execution_status: 'attempted' | 'succeeded' | 'failed';
+  execution_occurred: boolean;
+  payment_occurred: boolean;
+  payment_evidence: unknown | null;
+  evidence_stage_after: 'policy-mapped' | 'execution-tested';
+  caveats: string[];
+};
+
 type TranslationAdapterResult = {
   execution_status: 'attempted' | 'succeeded' | 'failed';
   execution_occurred: boolean;
@@ -89,8 +121,27 @@ const ANYTRANS_META = {
   price_display: '$0.001/request' as const
 };
 
+const ALIBABA_MACHINE_TRANSLATION_GENERAL_META = {
+  service_id: 'alibaba-machine-translation-general' as const,
+  fqn: 'solana-foundation/alibaba/machinetranslation' as const,
+  source_market: 'pay.sh' as const,
+  chain: 'solana' as const,
+  category: 'translation' as const,
+  service_url: 'https://machinetranslation.alibaba.gateway-402.com' as const,
+  endpoint_path: 'api/translate/web/general' as const,
+  method: 'POST' as const,
+  price_display: '$0.001/request' as const
+};
+
 const REQUIRED_CAVEATS = [
   'Execution-tested applies only to the AnyTrans translation execution candidate.',
+  'This is not a benchmark artifact.',
+  'No winner is claimed.',
+  'Payment receipt is not claimed unless payment evidence is present.'
+];
+
+const GENERAL_REQUIRED_CAVEATS = [
+  'Execution-tested applies only to Alibaba Machine Translation General after Radar records the successful execution receipt.',
   'This is not a benchmark artifact.',
   'No winner is claimed.',
   'Payment receipt is not claimed unless payment evidence is present.'
@@ -292,6 +343,85 @@ export async function ingestAnyTransExecutionArtifact(input: AnyTransExecutionAr
     accepted: true,
     receipt_id: receipt.receipt_id,
     service_id: ANYTRANS_META.service_id,
+    execution_status: input.execution_status,
+    execution_occurred: receipt.execution_occurred,
+    payment_occurred: receipt.payment_occurred,
+    payment_evidence: paymentOccurred ? input.payment_evidence : null,
+    evidence_stage_after: receipt.evidence_stage === 'execution-tested' ? 'execution-tested' : 'policy-mapped',
+    caveats: [...receipt.caveats]
+  };
+}
+
+export async function ingestAlibabaMachineTranslationGeneralArtifact(input: AlibabaMachineTranslationGeneralArtifactIngestRequest): Promise<AlibabaMachineTranslationGeneralArtifactIngestResponse> {
+  const phaseScopeService = getMachineMarketServiceById('cloud-translation');
+  if (!phaseScopeService) throw new Error('translation_service_scope_not_found');
+  const caveats = [...GENERAL_REQUIRED_CAVEATS];
+  const hasPaymentEvidence = input.payment_evidence != null;
+  const paymentOccurred = input.payment_occurred && hasPaymentEvidence;
+  if (input.payment_occurred && !hasPaymentEvidence) {
+    caveats.push('Payment receipt is not claimed unless payment evidence is present.');
+  }
+
+  const successSummaryPreview = typeof input.response_summary?.translated_text_preview === 'string'
+    && input.response_summary.translated_text_preview.trim().length > 0;
+  const isExecutionTested = input.execution_occurred && input.execution_status === 'succeeded' && successSummaryPreview;
+  if (input.execution_status === 'succeeded' && !successSummaryPreview) {
+    caveats.push('Execution success claim rejected for execution-tested because translated_text_preview is missing.');
+  }
+  if (input.execution_status !== 'succeeded') {
+    caveats.push('Failed or non-success execution artifacts do not become execution-tested.');
+  }
+
+  const receiptAt = input.execution_completed_at;
+  const receipt = await appendMachineReceipt({
+    receipt_id: nextReceiptId(receiptAt),
+    receipt_type: 'machine_execution',
+    coverage_run_id: null,
+    demo_mode: false,
+    execution_occurred: input.execution_occurred,
+    payment_occurred: paymentOccurred,
+    execution_status: input.execution_status,
+    execution_service_id: ALIBABA_MACHINE_TRANSLATION_GENERAL_META.service_id,
+    execution_provider: 'Alibaba Cloud',
+    execution_started_at: input.execution_started_at,
+    execution_completed_at: input.execution_completed_at,
+    execution_latency_ms: input.execution_latency_ms,
+    execution_request_summary: safeSummary(input.request_summary),
+    execution_response_summary: safeSummary(input.response_summary),
+    execution_error: input.execution_status === 'succeeded' ? null : 'external_execution_failed',
+    execution_executor_name: input.executor.name,
+    execution_executor_version: input.executor.version ?? null,
+    execution_executor_mode: input.executor.mode,
+    payment_evidence: hasPaymentEvidence ? safeSummary(input.payment_evidence) : null,
+    preflight_receipt_id: input.preflight_receipt_id ?? null,
+    execution_run_id: nextExecutionRunId(receiptAt),
+    machine_id: input.machine_id,
+    policy_id: null,
+    intent: 'external alibaba machine translation general execution artifact ingest',
+    requested_category: 'translation',
+    selected_service_id: ALIBABA_MACHINE_TRANSLATION_GENERAL_META.service_id,
+    selected_service_name: 'Alibaba Machine Translation General',
+    source_market: ALIBABA_MACHINE_TRANSLATION_GENERAL_META.source_market,
+    chain: ALIBABA_MACHINE_TRANSLATION_GENERAL_META.chain,
+    decision: 'allow',
+    reason: isExecutionTested
+      ? 'Alibaba Machine Translation General external execution artifact indicates successful execution.'
+      : 'Alibaba Machine Translation General external execution artifact recorded without execution-tested claim.',
+    policy_checks: [],
+    violations: [],
+    review_reasons: [],
+    caveats,
+    max_cost_usd: null,
+    evidence_stage: isExecutionTested ? 'execution-tested' : 'policy-mapped',
+    evidence_health: 'scaffold',
+    phase_scope: phaseScopeService.phase_scope,
+    created_at: receiptAt
+  } as MachinePreflightReceipt);
+
+  return {
+    accepted: true,
+    receipt_id: receipt.receipt_id,
+    service_id: ALIBABA_MACHINE_TRANSLATION_GENERAL_META.service_id,
     execution_status: input.execution_status,
     execution_occurred: receipt.execution_occurred,
     payment_occurred: receipt.payment_occurred,

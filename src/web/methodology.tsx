@@ -135,6 +135,7 @@ const machineMethodologyBlocks: MachineMethodologyBlock[] = [
       'They record Radar’s preflight decision: allow, deny, or review.',
       'Execution-tested means a real external service call succeeded and a durable execution receipt exists. A failed closed execution gate, 402 challenge, or missing server-side x402 configuration does not count as execution-tested.',
       'Externally executed artifacts may be ingested from the Agent Harness. Radar treats them as execution evidence only if they prove a real external service call succeeded and a durable machine_execution receipt is recorded.',
+      'Manual pay.sh success is not enough for Radar evidence-stage promotion. Radar marks a route execution-tested only after Harness posts a valid artifact and Radar records a durable machine_execution receipt.',
       'Execution-tested does not imply benchmarked, best, cheapest, or payment-confirmed unless those artifacts exist.',
       'They are not payment receipts unless explicitly marked as payment receipts.',
       'execution-tested remains inactive until a real recorded service call occurs.',

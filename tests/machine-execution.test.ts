@@ -380,4 +380,130 @@ describe('machine execution anytrans translation route', () => {
     expect(receipt.execution_executor_mode).toBe('x402');
     await app.close();
   });
+
+  it('rejects unauthenticated machine translation general artifact ingest', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/machine-translation-general/artifacts',
+      payload: {
+        machine_id: payload.machine_id,
+        service_id: 'alibaba-machine-translation-general',
+        fqn: 'solana-foundation/alibaba/machinetranslation',
+        source_market: 'pay.sh',
+        chain: 'solana',
+        execution_status: 'failed',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-22T00:00:00.000Z',
+        execution_completed_at: '2026-05-22T00:00:01.000Z',
+        execution_latency_ms: 1000,
+        request_summary: { SourceLanguage: 'en', TargetLanguage: 'es' },
+        response_summary: null,
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'x402' }
+      }
+    });
+    expect(response.statusCode).toBe(401);
+    await app.close();
+  });
+
+  it('rejects wrong service/fqn/source/chain for machine translation general artifact ingest', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/machine-translation-general/artifacts',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: payload.machine_id,
+        service_id: 'anytrans',
+        fqn: 'solana-foundation/alibaba/anytrans',
+        source_market: 'robotic.sh',
+        chain: 'base',
+        execution_status: 'failed',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-22T00:00:00.000Z',
+        execution_completed_at: '2026-05-22T00:00:01.000Z',
+        execution_latency_ms: 1000,
+        request_summary: { SourceLanguage: 'en', TargetLanguage: 'es' },
+        response_summary: null,
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'x402' }
+      }
+    });
+    expect(response.statusCode).toBe(400);
+    expect(response.json().error).toBe('invalid_machine_translation_general_execution_artifact');
+    await app.close();
+  });
+
+  it('accepts successful machine translation general artifact and records execution-tested receipt', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/machine-translation-general/artifacts',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: payload.machine_id,
+        service_id: 'alibaba-machine-translation-general',
+        fqn: 'solana-foundation/alibaba/machinetranslation',
+        source_market: 'pay.sh',
+        chain: 'solana',
+        execution_status: 'succeeded',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-22T00:00:00.000Z',
+        execution_completed_at: '2026-05-22T00:00:01.000Z',
+        execution_latency_ms: 1000,
+        request_summary: { SourceLanguage: 'en', TargetLanguage: 'es', Scene: 'general', SourceText: payload.text },
+        response_summary: { translated_text_preview: 'Las máquinas no deben gastar a ciegas.' },
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'manual', version: '1.0.0' }
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.accepted).toBe(true);
+    expect(body.execution_status).toBe('succeeded');
+    expect(body.evidence_stage_after).toBe('execution-tested');
+
+    const recent = await app.inject({ method: 'GET', url: '/v1/machine-preflight/receipts/recent?service_id=alibaba-machine-translation-general&limit=10' });
+    const receipt = recent.json().data.receipts.find((row: any) => row.receipt_id === body.receipt_id);
+    expect(receipt.receipt_type).toBe('machine_execution');
+    expect(receipt.evidence_stage).toBe('execution-tested');
+    expect(receipt.execution_request_summary).toContain('SourceLanguage');
+    await app.close();
+  });
+
+  it('keeps failed machine translation general artifact policy-mapped', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/machine-translation-general/artifacts',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: payload.machine_id,
+        service_id: 'alibaba-machine-translation-general',
+        fqn: 'solana-foundation/alibaba/machinetranslation',
+        source_market: 'pay.sh',
+        chain: 'solana',
+        execution_status: 'failed',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-22T00:00:00.000Z',
+        execution_completed_at: '2026-05-22T00:00:01.000Z',
+        execution_latency_ms: 1000,
+        request_summary: { SourceLanguage: 'en', TargetLanguage: 'es' },
+        response_summary: { error: 'Auth.AccessDenied.WorkSpace' },
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'x402', version: '1.0.0' }
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.json().data.evidence_stage_after).toBe('policy-mapped');
+    await app.close();
+  });
 });
