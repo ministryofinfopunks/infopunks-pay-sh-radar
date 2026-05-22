@@ -206,6 +206,24 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     count: integerSchema(),
     targets: arrayOf(freeformObject())
   }), { count: 11, targets: [{ category: 'solana-infra', benchmark_intent: 'account balance', current_state: 'needs_two_comparable_mappings' }, { category: 'audio-ai', benchmark_intent: 'audio speech transcription', current_state: 'needs_two_comparable_mappings' }] }));
+  add('get', '/v1/machine-market/services', radarGet('Machine Economy', 'List machine-market services', 'A new Radar module for machine-economy intelligence. Returns the Phase 2 robotic.sh service mirror for Pay.sh and robotic.sh scope. Same terminal. New species of spender.', { $ref: '#/components/schemas/MachineMarketServiceListResponse' }, { count: 12, services: [{ id: 'qvac', name: 'QVAC', source_market: 'robotic.sh', chain: 'peaq', evidence_stage: 'policy-mapped' }] }));
+  add('get', '/v1/machine-market/summary', radarGet('Machine Economy', 'Get machine-market summary', 'Radar is the intelligence layer for autonomous spend across agents and machines. Machines should not spend blind.', { $ref: '#/components/schemas/MachineMarketSummaryResponse' }, { total_services: 12, ready_count: 11, setup_count: 1, phase_scope: 'phase_2_pay_sh_robotic_sh' }));
+  add('get', '/v1/machine-policies/templates', radarGet('Machine Economy', 'List machine policy templates', 'Bounded authority needs receipts. Returns static machine-spend policy templates; this is not live wallet delegation.', { $ref: '#/components/schemas/MachinePolicyTemplateListResponse' }, { count: 5, templates: [{ id: 'delivery-robot', name: 'Delivery Robot', risk_tolerance: 'low', receipt_required: true }] }));
+  add('get', '/v1/machine-policies/{policy_id}', {
+    tags: ['Machine Economy'],
+    summary: 'Get machine policy template',
+    description: `${SAFE_METADATA_NOTE} peaqOS gives machines identity and wallets. Infopunks defines the boundary of machine spend. Returns one static policy template by id.`,
+    parameters: [pathParam('policy_id', 'Machine policy template identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/MachinePolicyTemplateResponse' }, { policy: { id: 'delivery-robot', name: 'Delivery Robot', status: 'active' } }, 'machine_policy_not_found')
+  });
+  add('post', '/v1/machine-preflight', {
+    tags: ['Machine Economy'],
+    summary: 'Run machine spend preflight',
+    description: `${SAFE_METADATA_NOTE} Core decision endpoint for delegated machine spending. It does not execute services, call Pay.sh, or claim payment occurred.`,
+    requestBody: jsonRequest({ $ref: '#/components/schemas/MachinePreflightRequest' }, { machine_id: 'did:peaq:delivery-bot-01', intent: 'parse an invoice image into structured fields', category: 'vision', max_cost_usd: 0.05, allowed_markets: ['pay.sh'], allowed_chains: ['solana'], risk_tolerance: 'low', requires_receipt: true, policy_id: 'template_delivery_robot' }),
+    responses: envelopedResponses({ $ref: '#/components/schemas/MachinePreflightResponse' }, { decision: 'allow', recommended_service: { id: 'document-ai', name: 'Document AI' }, receipt_id: 'mrx_20260522000000000_0001' })
+  });
+  add('get', '/v1/machine-preflight/receipts/recent', radarGet('Machine Economy', 'List recent machine preflight receipts', 'Returns newest machine preflight decision receipts first. Receipts are decision records only; no payment or provider execution is implied.', { $ref: '#/components/schemas/MachinePreflightReceiptListResponse' }, { count: 1, receipts: [{ receipt_id: 'mrx_20260522000000000_0001', decision: 'allow', receipt_type: 'machine_preflight' }] }));
 
   add('post', '/v1/radar/preflight', {
     tags: ['Radar Agent'],
@@ -478,6 +496,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       { name: 'Radar History' },
       { name: 'Radar Risk' },
       { name: 'Radar Readiness' },
+      { name: 'Machine Economy' },
       { name: 'Radar CSV Exports' }
     ],
     paths,
@@ -1396,7 +1415,171 @@ function componentSchemas(): Record<string, JsonSchema> {
     ScoredCatalogResponse: freeformObject(),
     ProviderIntelligenceExportResponse: objectSchema({ generated_at: dateTimeSchema(), source: freeformObject(), count: integerSchema(), providers: arrayOf({ $ref: '#/components/schemas/ProviderIntelligence' }) }),
     EndpointIntelligenceExportResponse: objectSchema({ generated_at: dateTimeSchema(), source: freeformObject(), count: integerSchema(), endpoints: arrayOf({ $ref: '#/components/schemas/EndpointIntelligence' }) }),
-    RouteCandidatesExportResponse: freeformObject()
+    RouteCandidatesExportResponse: freeformObject(),
+    MachineMarketService: objectSchema({
+      id: stringSchema(),
+      name: stringSchema(),
+      provider: stringSchema(),
+      category: enumSchema(['compute', 'inference', 'web', 'vision', 'storage', 'translation']),
+      market_type: enumSchema(['digital', 'physical', 'all-compatible']),
+      source_market: enumSchema(['robotic.sh', 'pay.sh', 'agentic.market']),
+      chain: enumSchema(['solana', 'base', 'peaq', 'omnichain']),
+      status: enumSchema(['ready', 'setup']),
+      price_display: stringSchema(),
+      description: stringSchema(),
+      machine_use_case: stringSchema(),
+      evidence_health: enumSchema(['scaffold', 'listed']),
+      evidence_stage: enumSchema(['listed', 'classified', 'policy-mapped', 'preflight-ready', 'execution-tested', 'receipt-recorded', 'benchmark-recorded']),
+      policy_risk: stringSchema(),
+      caveats: arrayOf(stringSchema()),
+      observed_source: { const: 'robotic.sh' },
+      observed_at: dateTimeSchema(),
+      phase_scope: { const: 'phase_2_pay_sh_robotic_sh' }
+    }),
+    MachineMarketServiceListResponse: objectSchema({
+      generated_at: dateTimeSchema(),
+      source: { const: 'infopunks-pay-sh-radar' },
+      module: { const: 'machine-economy' },
+      count: integerSchema(),
+      services: arrayOf({ $ref: '#/components/schemas/MachineMarketService' })
+    }),
+    MachineMarketSummaryResponse: objectSchema({
+      generated_at: dateTimeSchema(),
+      source: { const: 'infopunks-pay-sh-radar' },
+      module: { const: 'machine-economy' },
+      total_services: integerSchema(),
+      categories: freeformObject(),
+      source_markets: freeformObject(),
+      chains: freeformObject(),
+      ready_count: integerSchema(),
+      setup_count: integerSchema(),
+      evidence_stage_counts: freeformObject(),
+      phase_scope: { const: 'phase_2_pay_sh_robotic_sh' },
+      positioning: objectSchema({
+        module: stringSchema(),
+        terminal: stringSchema(),
+        market_policy: stringSchema(),
+        spend_policy: stringSchema(),
+        radar_role: stringSchema()
+      })
+    }),
+    MachinePolicy: objectSchema({
+      id: stringSchema(),
+      name: stringSchema(),
+      description: stringSchema(),
+      machine_id: stringSchema(),
+      owner_label: stringSchema(),
+      daily_budget_usd: { type: 'number', minimum: 0 },
+      per_call_budget_usd: { type: 'number', minimum: 0 },
+      allowed_categories: arrayOf(enumSchema(['compute', 'inference', 'web', 'vision', 'storage', 'translation'])),
+      blocked_categories: arrayOf(enumSchema(['compute', 'inference', 'web', 'vision', 'storage', 'translation'])),
+      allowed_source_markets: arrayOf(enumSchema(['robotic.sh', 'pay.sh', 'agentic.market'])),
+      blocked_source_markets: arrayOf(enumSchema(['robotic.sh', 'pay.sh', 'agentic.market'])),
+      allowed_chains: arrayOf(enumSchema(['solana', 'base', 'peaq', 'omnichain'])),
+      blocked_chains: arrayOf(enumSchema(['solana', 'base', 'peaq', 'omnichain'])),
+      allowed_services: arrayOf(stringSchema()),
+      blocked_services: arrayOf(stringSchema()),
+      approval_required_above_usd: { type: 'number', minimum: 0 },
+      minimum_evidence_stage: enumSchema(['listed', 'classified', 'policy-mapped', 'preflight-ready', 'execution-tested', 'receipt-recorded', 'benchmark-recorded']),
+      minimum_evidence_health: enumSchema(['scaffold', 'listed']),
+      risk_tolerance: enumSchema(['low', 'medium', 'high']),
+      receipt_required: booleanSchema(),
+      human_review_required_for: arrayOf(stringSchema()),
+      created_at: dateTimeSchema(),
+      updated_at: dateTimeSchema(),
+      status: enumSchema(['active', 'draft', 'paused'])
+    }),
+    MachinePolicyTemplateListResponse: objectSchema({
+      generated_at: dateTimeSchema(),
+      source: { const: 'infopunks-pay-sh-radar' },
+      module: { const: 'machine-economy' },
+      positioning: objectSchema({ authority: stringSchema(), boundary: stringSchema() }),
+      count: integerSchema(),
+      templates: arrayOf({ $ref: '#/components/schemas/MachinePolicy' })
+    }),
+    MachinePolicyTemplateResponse: objectSchema({
+      generated_at: dateTimeSchema(),
+      source: { const: 'infopunks-pay-sh-radar' },
+      module: { const: 'machine-economy' },
+      policy: { $ref: '#/components/schemas/MachinePolicy' }
+    }),
+    MachinePolicyCheck: objectSchema({
+      id: stringSchema(),
+      label: stringSchema(),
+      status: enumSchema(['pass', 'fail', 'review']),
+      detail: stringSchema()
+    }),
+    MachinePreflightRequest: objectSchema({
+      machine_id: stringSchema(),
+      intent: stringSchema(),
+      category: stringSchema(),
+      max_cost_usd: { type: 'number', minimum: 0 },
+      allowed_markets: arrayOf(enumSchema(['robotic.sh', 'pay.sh', 'agentic.market'])),
+      allowed_chains: arrayOf(enumSchema(['solana', 'base', 'peaq', 'omnichain'])),
+      risk_tolerance: enumSchema(['low', 'medium', 'high']),
+      requires_receipt: booleanSchema(),
+      policy_id: stringSchema(),
+      minimum_evidence_stage: enumSchema(['listed', 'classified', 'policy-mapped', 'preflight-ready', 'execution-tested', 'receipt-recorded', 'benchmark-recorded'])
+    }, ['machine_id', 'intent', 'category']),
+    MachinePreflightServiceSummary: objectSchema({
+      id: stringSchema(),
+      name: stringSchema(),
+      provider: stringSchema(),
+      category: enumSchema(['compute', 'inference', 'web', 'vision', 'storage', 'translation']),
+      source_market: enumSchema(['robotic.sh', 'pay.sh', 'agentic.market']),
+      chain: enumSchema(['solana', 'base', 'peaq', 'omnichain']),
+      status: stringSchema(),
+      price_display: stringSchema(),
+      evidence_stage: stringSchema(),
+      evidence_health: stringSchema(),
+      policy_risk: stringSchema()
+    }),
+    MachinePreflightResponse: objectSchema({
+      decision: enumSchema(['allow', 'deny', 'review']),
+      recommended_service: { oneOf: [{ $ref: '#/components/schemas/MachinePreflightServiceSummary' }, { type: 'null' }] },
+      source_market: { type: ['string', 'null'], enum: ['robotic.sh', 'pay.sh', 'agentic.market', null] },
+      chain: { type: ['string', 'null'], enum: ['solana', 'base', 'peaq', 'omnichain', null] },
+      reason: stringSchema(),
+      policy_checks: arrayOf({ $ref: '#/components/schemas/MachinePolicyCheck' }),
+      violations: arrayOf(stringSchema()),
+      review_reasons: arrayOf(stringSchema()),
+      caveats: arrayOf(stringSchema()),
+      evidence_stage: nullableString(),
+      evidence_health: nullableString(),
+      receipt_id: stringSchema(),
+      receipt_required: booleanSchema(),
+      phase_scope: { const: 'phase_2_pay_sh_robotic_sh' }
+    }),
+    MachinePreflightReceipt: objectSchema({
+      receipt_id: stringSchema(),
+      receipt_type: { const: 'machine_preflight' },
+      machine_id: stringSchema(),
+      policy_id: nullableString(),
+      intent: stringSchema(),
+      requested_category: stringSchema(),
+      selected_service_id: nullableString(),
+      selected_service_name: nullableString(),
+      source_market: nullableString(),
+      chain: nullableString(),
+      decision: enumSchema(['allow', 'deny', 'review']),
+      reason: stringSchema(),
+      policy_checks: arrayOf({ $ref: '#/components/schemas/MachinePolicyCheck' }),
+      violations: arrayOf(stringSchema()),
+      review_reasons: arrayOf(stringSchema()),
+      caveats: arrayOf(stringSchema()),
+      max_cost_usd: { type: ['number', 'null'], minimum: 0 },
+      evidence_stage: nullableString(),
+      evidence_health: nullableString(),
+      phase_scope: { const: 'phase_2_pay_sh_robotic_sh' },
+      created_at: dateTimeSchema()
+    }),
+    MachinePreflightReceiptListResponse: objectSchema({
+      generated_at: dateTimeSchema(),
+      source: { const: 'infopunks-pay-sh-radar' },
+      module: { const: 'machine-economy' },
+      count: integerSchema(),
+      receipts: arrayOf({ $ref: '#/components/schemas/MachinePreflightReceipt' })
+    })
   }
 }
 

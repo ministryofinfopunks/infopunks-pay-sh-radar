@@ -76,9 +76,32 @@ import { DEFAULT_LIVE_CATALOG_URL } from '../ingestion/payShCatalogAdapter';
 import { degradationsCsv, endpointsCsv, providersCsv, routeCandidatesCsv } from '../services/radarCsvService';
 import { listRouteMappings } from '../services/providerEndpointMap';
 import { listMappingTargets } from '../services/mappingTargetService';
+import { MACHINE_MARKET_PHASE_SCOPE, buildMachineMarketSummary, listMachineMarketServices } from '../services/machineMarketService';
+import { getMachinePolicyTemplateById, listMachinePolicyTemplates } from '../services/machinePolicyService';
+import { buildMachineDossier, getMachinePreflightReceiptById, listRecentMachinePreflightReceipts, runMachinePreflight } from '../services/machinePreflightService';
 import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
+const MachinePreflightRequestSchema = z.object({
+  machine_id: z.string().min(1),
+  intent: z.string().min(1),
+  category: z.string().min(1),
+  max_cost_usd: z.number().nonnegative().optional(),
+  allowed_markets: z.array(z.enum(['robotic.sh', 'pay.sh', 'agentic.market'])).optional(),
+  allowed_chains: z.array(z.enum(['solana', 'base', 'peaq', 'omnichain'])).optional(),
+  risk_tolerance: z.enum(['low', 'medium', 'high']).default('medium'),
+  requires_receipt: z.boolean().default(true),
+  policy_id: z.string().min(1).optional(),
+  minimum_evidence_stage: z.enum(['listed', 'classified', 'policy-mapped', 'preflight-ready', 'execution-tested', 'receipt-recorded', 'benchmark-recorded']).optional()
+});
+const MachineReceiptQuerySchema = z.object({
+  decision: z.enum(['allow', 'deny', 'review']).optional(),
+  machine_id: z.string().min(1).optional(),
+  service_id: z.string().min(1).optional(),
+  source_market: z.enum(['robotic.sh', 'pay.sh', 'agentic.market']).optional(),
+  chain: z.enum(['solana', 'base', 'peaq', 'omnichain']).optional(),
+  limit: z.coerce.number().int().positive().max(100).optional()
+});
 const MAX_INLINE_SUPPORTING_EVENT_IDS = 10;
 const DEFAULT_ALLOWED_ORIGINS = new Set([
   'https://radar.infopunks.fun',
@@ -105,6 +128,10 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   const RADAR_ECOSYSTEM_RISK_TIMEOUT_MS = 1_200;
   const RADAR_ECOSYSTEM_HISTORY_TIMEOUT_MS = 1_200;
   const PROVIDER_LIST_MAX = 100;
+  const machineReceiptStorage = {
+    mode: 'memory',
+    limitation: 'Machine preflight receipts are held in process memory in this development build; they reset when the server restarts.'
+  } as const;
   const responseCache = createResponseCache();
   const allowedOrigins = new Set(DEFAULT_ALLOWED_ORIGINS);
   if (config.frontendOrigin) allowedOrigins.add(config.frontendOrigin);
@@ -370,6 +397,88 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
       targets: listMappingTargets()
     })
   }));
+  app.get('/v1/machine-market/services', async () => ({
+    data: safeJsonExport({
+      generated_at: new Date().toISOString(),
+      source: 'infopunks-pay-sh-radar',
+      module: 'machine-economy',
+      phase_scope: MACHINE_MARKET_PHASE_SCOPE,
+      count: listMachineMarketServices().length,
+      services: listMachineMarketServices()
+    })
+  }));
+  app.get('/v1/machine-market/summary', async () => ({
+    data: safeJsonExport({
+      generated_at: new Date().toISOString(),
+      source: 'infopunks-pay-sh-radar',
+      module: 'machine-economy',
+      ...buildMachineMarketSummary()
+    })
+  }));
+  app.get('/v1/machine-policies/templates', async () => ({
+    data: safeJsonExport({
+      generated_at: new Date().toISOString(),
+      source: 'infopunks-pay-sh-radar',
+      module: 'machine-economy',
+      phase_scope: MACHINE_MARKET_PHASE_SCOPE,
+      positioning: {
+        authority: 'Bounded authority needs receipts.',
+        boundary: 'peaqOS gives machines identity and wallets. Infopunks defines the boundary of machine spend.'
+      },
+      count: listMachinePolicyTemplates().length,
+      templates: listMachinePolicyTemplates()
+    })
+  }));
+  app.get<{ Params: { policy_id: string } }>('/v1/machine-policies/:policy_id', async (req, reply) => {
+    const policy = getMachinePolicyTemplateById(req.params.policy_id);
+    if (!policy) return reply.code(404).send({ error: 'machine_policy_not_found', phase_scope: MACHINE_MARKET_PHASE_SCOPE });
+    return {
+      data: safeJsonExport({
+        generated_at: new Date().toISOString(),
+        source: 'infopunks-pay-sh-radar',
+        module: 'machine-economy',
+        phase_scope: MACHINE_MARKET_PHASE_SCOPE,
+        policy
+      })
+    };
+  });
+  app.get<{ Querystring: { decision?: string; machine_id?: string; service_id?: string; source_market?: string; chain?: string; limit?: string } }>('/v1/machine-preflight/receipts/recent', async (req, reply) => {
+    const parsed = MachineReceiptQuerySchema.safeParse(req.query);
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_machine_receipt_query', phase_scope: MACHINE_MARKET_PHASE_SCOPE, details: parsed.error.flatten() });
+    const receipts = listRecentMachinePreflightReceipts(parsed.data);
+    return { data: safeJsonExport({
+      generated_at: new Date().toISOString(),
+      source: 'infopunks-pay-sh-radar',
+      module: 'machine-economy',
+      phase_scope: MACHINE_MARKET_PHASE_SCOPE,
+      storage: machineReceiptStorage,
+      count: receipts.length,
+      receipts
+    }) };
+  });
+  app.get<{ Params: { receipt_id: string } }>('/v1/machine-preflight/receipts/:receipt_id', async (req, reply) => {
+    const receipt = getMachinePreflightReceiptById(req.params.receipt_id);
+    if (!receipt) return reply.code(404).send({ error: 'machine_preflight_receipt_not_found', phase_scope: MACHINE_MARKET_PHASE_SCOPE });
+    return { data: safeJsonExport({
+      generated_at: new Date().toISOString(),
+      source: 'infopunks-pay-sh-radar',
+      module: 'machine-economy',
+      phase_scope: MACHINE_MARKET_PHASE_SCOPE,
+      storage: machineReceiptStorage,
+      receipt
+    }) };
+  });
+  app.get<{ Params: { machine_id: string } }>('/v1/machine-dossier/:machine_id', async (req) => ({
+    data: safeJsonExport(buildMachineDossier(decodeURIComponent(req.params.machine_id)))
+  }));
+  app.post('/v1/machine-preflight', async (req, reply) => {
+    const parsed = MachinePreflightRequestSchema.safeParse(req.body);
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_machine_preflight_request', phase_scope: MACHINE_MARKET_PHASE_SCOPE, details: parsed.error.flatten() });
+    return { data: safeJsonExport({
+      ...runMachinePreflight(parsed.data),
+      storage: machineReceiptStorage
+    }) };
+  });
   app.get('/v1/radar/export/providers.csv', async (_req, reply) => {
     reply.type('text/csv; charset=utf-8');
     return providersCsv(store);
