@@ -2389,7 +2389,13 @@ function MachineMarketCohort({
         <span>{executionClaims} execution claims</span>
       </div>
     </div>
+    <p className="machine-cohort-thesis">Every visible robotic.sh service now has a policy state, evidence state, readiness rank, and proof path.</p>
     <p className="panel-caption">Radar gives every visible service policy state, evidence state, readiness rank, and a proof path before spend. Machines should not spend blind.</p>
+    <section className="machine-next-controlled-strip" aria-label="Next Controlled Action strip">
+      <span>Next Controlled Action</span>
+      <strong>Cloud Translation proof plan ready</strong>
+      <small>planning only · no execution claim</small>
+    </section>
     <div className="machine-market-flow" aria-label="Machine market flow">
       {['Listed', 'Classified', 'Policy-Mapped', 'Shortlisted', 'Proof-Planned', 'Receipt-Recorded'].map((step, index) => <React.Fragment key={step}>
         <span>{step}</span>
@@ -2416,9 +2422,9 @@ function MachineMarketCohort({
             <small>{service.category} · {service.status}</small>
           </div>
           <div className="machine-cohort-meta">
-            <span><b>policy</b>{policyDecision}</span>
-            <span><b>execution</b>{candidate?.execution_status ?? 'not_attempted'}</span>
-            <span><b>readiness</b>{candidate?.candidate_tier ?? service.status}</span>
+            <span><b>policy</b><strong>{policyDecision}</strong></span>
+            <span><b>execution</b><strong>{candidate?.execution_status ?? 'not_attempted'}</strong></span>
+            <span><b>readiness</b><strong>{candidate?.candidate_tier ?? service.status}</strong></span>
           </div>
           <div className="machine-cohort-badges">
             {badges.map((badge) => <span className={`machine-status-badge ${badge.replace(/[^a-z0-9-]/gi, '-').toLowerCase()}`} key={badge}>{badge}</span>)}
@@ -2753,8 +2759,8 @@ function MachineMarketHero() {
   return <section className="panel hero machine-market-hero">
     <div>
       <p className="eyebrow">Machine Economy</p>
-      <h1>Machine Market</h1>
-      <p className="copy">robotic.sh gives machines a market. Radar gives every service policy, evidence, and a proof path before spend.</p>
+      <h1>Machine Market Command Center</h1>
+      <p className="copy">12 robotic.sh services mapped. Radar gives every service policy state, evidence state, readiness rank, and a proof path before spend.</p>
       <p className="panel-caption">12 listed services mapped from robotic.sh for Phase 2 machine-economy intelligence.</p>
     </div>
     <div className="ticker" aria-label="Machine Market principles">
@@ -2772,7 +2778,7 @@ function MachineMarketSummaryCards({ summary, loading, serviceCount }: { summary
     <article className="panel metric"><span>Total Services</span><strong>{loading && !total ? '...' : total}</strong><small>listed robotic.sh snapshot</small></article>
     <article className="panel metric"><span>Ready</span><strong>{summary?.ready_count ?? '-'}</strong><small>metadata status only</small></article>
     <article className="panel metric"><span>Setup</span><strong>{summary?.setup_count ?? '-'}</strong><small>needs setup before preflight</small></article>
-    <article className="panel metric"><span>Phase Scope</span><strong>Phase 2</strong><small>{summary?.phase_scope ?? 'phase_2_pay_sh_robotic_sh'}</small></article>
+    <article className="panel metric"><span>Execution Claims</span><strong>0</strong><small>planning only · Phase 2 ({summary?.phase_scope ?? 'phase_2_pay_sh_robotic_sh'})</small></article>
   </section>;
 }
 
