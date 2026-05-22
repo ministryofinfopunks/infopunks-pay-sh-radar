@@ -200,4 +200,184 @@ describe('machine execution anytrans translation route', () => {
     expect(body.evidence_stage_after).toBe('policy-mapped');
     await app.close();
   });
+
+  it('rejects unauthenticated artifact ingest', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/anytrans/artifacts',
+      payload: {
+        machine_id: payload.machine_id,
+        service_id: 'anytrans',
+        fqn: 'solana-foundation/alibaba/anytrans',
+        source_market: 'pay.sh',
+        chain: 'solana',
+        execution_status: 'failed',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-22T00:00:00.000Z',
+        execution_completed_at: '2026-05-22T00:00:01.000Z',
+        execution_latency_ms: 1000,
+        request_summary: { source_language: 'en', target_language: 'es' },
+        response_summary: null,
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'x402' }
+      }
+    });
+    expect(response.statusCode).toBe(401);
+    expect(response.json().error).toBe('admin_token_required');
+    await app.close();
+  });
+
+  it('rejects wrong fqn/source/chain or unsupported service_id on artifact ingest', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/anytrans/artifacts',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: payload.machine_id,
+        service_id: 'cloud-translation',
+        fqn: 'wrong/fqn',
+        source_market: 'robotic.sh',
+        chain: 'base',
+        execution_status: 'failed',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-22T00:00:00.000Z',
+        execution_completed_at: '2026-05-22T00:00:01.000Z',
+        execution_latency_ms: 1000,
+        request_summary: { source_language: 'en', target_language: 'es' },
+        response_summary: null,
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'x402' }
+      }
+    });
+    expect(response.statusCode).toBe(400);
+    expect(response.json().error).toBe('invalid_anytrans_execution_artifact');
+    await app.close();
+  });
+
+  it('rejects benchmark or winner claim fields on artifact ingest', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/anytrans/artifacts',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: payload.machine_id,
+        service_id: 'anytrans',
+        fqn: 'solana-foundation/alibaba/anytrans',
+        source_market: 'pay.sh',
+        chain: 'solana',
+        execution_status: 'failed',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-22T00:00:00.000Z',
+        execution_completed_at: '2026-05-22T00:00:01.000Z',
+        execution_latency_ms: 1000,
+        request_summary: { source_language: 'en', target_language: 'es' },
+        response_summary: null,
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'x402' },
+        winner_claim: true
+      }
+    });
+    expect(response.statusCode).toBe(400);
+    await app.close();
+  });
+
+  it('records failed artifact without execution-tested', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/anytrans/artifacts',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: payload.machine_id,
+        service_id: 'anytrans',
+        fqn: 'solana-foundation/alibaba/anytrans',
+        source_market: 'pay.sh',
+        chain: 'solana',
+        execution_status: 'failed',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-22T00:00:00.000Z',
+        execution_completed_at: '2026-05-22T00:00:01.000Z',
+        execution_latency_ms: 1000,
+        request_summary: { source_language: 'en', target_language: 'es', text_preview: payload.text },
+        response_summary: { error: 'payment_required' },
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'pay_cli', version: '0.0.1' }
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.accepted).toBe(true);
+    expect(body.execution_status).toBe('failed');
+    expect(body.evidence_stage_after).toBe('policy-mapped');
+    expect(body.payment_occurred).toBe(false);
+    await app.close();
+  });
+
+  it('records successful artifact as machine_execution receipt and links preflight when present', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const preflight = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-preflight',
+      payload: {
+        machine_id: payload.machine_id,
+        intent: 'translate text from en to es',
+        category: 'translation',
+        max_cost_usd: 0.05,
+        allowed_markets: ['pay.sh'],
+        allowed_chains: ['solana'],
+        policy_id: payload.policy_id
+      }
+    });
+    const preflightReceiptId = preflight.json().data.receipt_id;
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/anytrans/artifacts',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: payload.machine_id,
+        service_id: 'anytrans',
+        fqn: 'solana-foundation/alibaba/anytrans',
+        source_market: 'pay.sh',
+        chain: 'solana',
+        preflight_receipt_id: preflightReceiptId,
+        execution_status: 'succeeded',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-22T00:00:00.000Z',
+        execution_completed_at: '2026-05-22T00:00:01.000Z',
+        execution_latency_ms: 1000,
+        request_summary: { source_language: 'en', target_language: 'es', text_preview: payload.text },
+        response_summary: { translated_text_preview: 'Las máquinas no deberían gastar a ciegas.', target_language: 'es' },
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'x402', version: '1.0.0' },
+        artifact_signature: null
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.accepted).toBe(true);
+    expect(body.execution_status).toBe('succeeded');
+    expect(body.execution_occurred).toBe(true);
+    expect(body.evidence_stage_after).toBe('execution-tested');
+    expect(body.payment_occurred).toBe(false);
+
+    const recent = await app.inject({ method: 'GET', url: '/v1/machine-preflight/receipts/recent?service_id=anytrans&limit=20' });
+    const receipt = recent.json().data.receipts.find((row: any) => row.receipt_id === body.receipt_id);
+    expect(receipt.receipt_type).toBe('machine_execution');
+    expect(receipt.preflight_receipt_id).toBe(preflightReceiptId);
+    expect(receipt.execution_executor_name).toBe('infopunks-pay-sh-agent-harness');
+    expect(receipt.execution_executor_mode).toBe('x402');
+    await app.close();
+  });
 });

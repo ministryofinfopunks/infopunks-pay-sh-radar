@@ -165,6 +165,9 @@ type MachinePreflightReceipt = {
   execution_request_summary: string | null;
   execution_response_summary: string | null;
   execution_error: string | null;
+  execution_executor_name?: string | null;
+  execution_executor_version?: string | null;
+  execution_executor_mode?: string | null;
   payment_evidence: string | null;
   preflight_receipt_id: string | null;
   execution_run_id: string | null;
@@ -2191,6 +2194,8 @@ function FirstExecutionCard({ receipt }: { receipt: MachinePreflightReceipt | nu
       <p><span>current status</span><small>{executionStatus === 'succeeded' ? 'succeeded' : executionStatus === 'failed' ? 'failed' : receipt ? 'configured' : 'fail-closed'}</small></p>
       <p><span>preflight status</span><small>{preflightStatus}</small></p>
       <p><span>execution status</span><small>{executionStatus}</small></p>
+      <p><span>executor</span><small>{receipt?.execution_executor_name ?? 'not available'}</small></p>
+      <p><span>executor mode</span><small>{receipt?.execution_executor_mode ?? 'not available'}</small></p>
       <p><span>payment status</span><small>{paymentStatus}</small></p>
       <p><span>evidence stage</span><small>{evidenceStage}</small></p>
       <p><span>latest execution receipt</span><small>{receipt?.receipt_id ?? 'none'}</small></p>

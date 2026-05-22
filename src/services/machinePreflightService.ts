@@ -70,6 +70,9 @@ export type MachinePreflightReceipt = {
   execution_request_summary: string | null;
   execution_response_summary: string | null;
   execution_error: string | null;
+  execution_executor_name?: string | null;
+  execution_executor_version?: string | null;
+  execution_executor_mode?: string | null;
   payment_evidence: string | null;
   preflight_receipt_id: string | null;
   execution_run_id: string | null;
@@ -623,6 +626,9 @@ async function recordReceipt(input: {
     execution_request_summary: null,
     execution_response_summary: null,
     execution_error: null,
+    execution_executor_name: null,
+    execution_executor_version: null,
+    execution_executor_mode: null,
     payment_evidence: null,
     preflight_receipt_id: null,
     execution_run_id: null,
@@ -818,6 +824,9 @@ async function ensureMachineDemoReceiptsSeeded() {
       execution_request_summary: null,
       execution_response_summary: null,
       execution_error: null,
+      execution_executor_name: null,
+      execution_executor_version: null,
+      execution_executor_mode: null,
       payment_evidence: null,
       preflight_receipt_id: null,
       execution_run_id: null,
