@@ -25,6 +25,14 @@ function service(name: string, overrides: Record<string, unknown> = {}) {
       ? 'High machine relevance: routing outputs can influence physical-world movement. Execution requires bounded test scenarios, source validation, and clear non-operational constraints.'
       : `${name} requires spend policy.`,
     caveats: ['Static robotic.sh service mirror for Phase 2 only.'],
+    access_rail: 'not_recorded',
+    rail_status: 'not_recorded',
+    route_surface_status: 'not_recorded',
+    endpoint_count: null,
+    pricing_model: 'not recorded',
+    credential_requirement: 'not recorded',
+    first_safe_route: 'not recorded',
+    rail_caveat: 'rail surface not recorded in the current registry',
     observed_source: 'robotic.sh',
     observed_at: '2026-05-22T00:00:00.000Z',
     phase_scope: 'phase_2_pay_sh_robotic_sh',
@@ -33,13 +41,53 @@ function service(name: string, overrides: Record<string, unknown> = {}) {
 }
 
 const services = [
-  service('Cloud Translation'),
+  service('Cloud Translation', {
+    source_market: 'pay.sh',
+    chain: 'solana',
+    access_rail: 'pay_sh_solana',
+    rail_status: 'proof_plan_selected',
+    route_surface_status: 'no_callable_endpoints',
+    endpoint_count: 0,
+    pricing_model: 'per endpoint',
+    rail_caveat: 'selected proof plan, not execution-tested by Radar'
+  }),
+  service('BigQuery', {
+    source_market: 'pay.sh',
+    chain: 'solana',
+    provider: 'Google',
+    access_rail: 'pay_sh_solana',
+    rail_status: 'plan_eligible',
+    route_surface_status: 'callable_routes_listed',
+    endpoint_count: 2,
+    pricing_model: '$0.001',
+    first_safe_route: 'bounded query result lookup',
+    rail_caveat: 'catalog route surface only; Radar has not executed routes'
+  }),
+  service('Stableupload', {
+    category: 'storage',
+    source_market: 'pay.sh',
+    chain: 'solana',
+    provider: 'Stableupload',
+    access_rail: 'pay_sh_solana',
+    rail_status: 'review_required',
+    route_surface_status: 'callable_routes_listed',
+    endpoint_count: 3,
+    pricing_model: '$0.02',
+    first_safe_route: 'tiny non-sensitive fixture upload',
+    rail_caveat: 'catalog route surface only; storage policy review remains required before execution claims'
+  }),
   service('QVAC', { id: 'qvac', source_market: 'robotic.sh', chain: 'peaq', status: 'setup', category: 'compute' }),
   service('NAVER Maps', {
+    access_rail: 'peaqos_market_provider_account',
+    rail_status: 'review_required',
+    route_surface_status: 'callable_routes_listed',
+    endpoint_count: 4,
     machine_use_case: 'Autonomous robots can request routing, geocoding, and navigation context before moving or rerouting.',
     route_count: 4,
     pricing_model: 'Naver Cloud account pricing',
     credential_requirement: 'Naver Cloud provider credentials required',
+    first_safe_route: 'geocode lookup',
+    rail_caveat: 'catalog route surface only; Radar has not executed routes',
     catalog_routes: [
       { method: 'GET', path: '/map-geocode/v2/geocode', label: 'Geocode', risk: 'low_to_medium' },
       { method: 'GET', path: '/map-reversegeocode/v2/gc', label: 'Reverse geocode', risk: 'low_to_medium' },
@@ -225,11 +273,27 @@ describe('machine execution proof plan page', () => {
     const checklist = container.querySelector('[aria-label="Pre-execution checklist"]')?.textContent ?? '';
     const safeInput = container.querySelector('[aria-label="Safe test input"]')?.textContent ?? '';
     const criteria = container.querySelector('[aria-label="Success and failure criteria"]')?.textContent ?? '';
+    const railPlan = container.querySelector('[aria-label="Rail-aware proof planning"]')?.textContent ?? '';
+    const railGate = container.querySelector('[aria-label="Rail execution gate"]')?.textContent ?? '';
+    const evidence = container.querySelector('[aria-label="Evidence to collect"]')?.textContent ?? '';
 
     expect(checklist).toContain('catalog identity verified');
     expect(checklist).toContain('latest preflight receipt available');
     expect(safeInput).toContain('hello machine market');
     expect(safeInput).toContain('Spanish');
+    expect(railPlan).toContain('Rail-aware proof planning');
+    expect(railPlan).toContain('access rail');
+    expect(railPlan).toContain('route surface status');
+    expect(railPlan).toContain('credential requirement');
+    expect(railPlan).toContain('first safe route');
+    expect(railPlan).toContain('rail caveat');
+    expect(railPlan).toContain('No callable endpoint surface is currently recorded. Proof planning should not advance to execution.');
+    expect(railPlan).toContain('selected proof plan does not imply execution-tested');
+    expect(railGate).toContain('gate status');
+    expect(evidence).toContain('access_rail');
+    expect(evidence).toContain('selected_route');
+    expect(evidence).toContain('credential_status');
+    expect(evidence).toContain('rail_caveats');
     expect(criteria).toContain('Success criteria');
     expect(criteria).toContain('Failure criteria');
     expect(criteria).toContain('receipt is recorded');
@@ -244,6 +308,8 @@ describe('machine execution proof plan page', () => {
     expect(text).toContain('Planning only: no service execution is performed from this page, and no execution claim is made.');
     expect(container.querySelector('[aria-label="Evidence methodology drawer"]')?.textContent).toContain('proof_plan_selected');
     expect(container.querySelector('[aria-label="Evidence methodology drawer"]')?.textContent).toContain('This is not an execution claim.');
+    expect(text).toContain('Cloud Translation remains the selected controlled proof-plan action. This does not imply execution-tested status.');
+    expect(text).toContain('View rail coverage');
     expect(text).not.toContain('execution succeeded');
     expect(text).not.toContain('benchmark winner');
   });
@@ -259,11 +325,26 @@ describe('machine execution proof plan page', () => {
     const evidence = container.querySelector('[aria-label="Evidence to collect"]')?.textContent ?? '';
     const risk = container.querySelector('[aria-label="Physical-world routing risk"]')?.textContent ?? '';
     const context = container.querySelector('[aria-label="Public demo context"]')?.textContent ?? '';
+    const railPlan = container.querySelector('[aria-label="Rail-aware proof planning"]')?.textContent ?? '';
+    const railGate = container.querySelector('[aria-label="Rail execution gate"]')?.textContent ?? '';
 
     expect(text).toContain('NAVER Maps');
     expect(text).toContain('latest policy decisionreview');
     expect(text).toContain('evidence_healthscaffold');
     expect(text).toContain('execution_statusnot_attempted');
+    expect(railPlan).toContain('peaqOS / provider account');
+    expect(railPlan).toContain('callable routes listed');
+    expect(railPlan).toContain('4');
+    expect(railPlan).toContain('Naver Cloud account pricing');
+    expect(railPlan).toContain('Naver Cloud provider credentials required');
+    expect(railPlan).toContain('geocode lookup');
+    expect(railPlan).toContain('catalog route surface only; Radar has not executed routes');
+    expect(railPlan).toContain('Preferred first route');
+    expect(railPlan).toContain('Geocode lookup');
+    expect(railPlan).toContain('Avoid first');
+    expect(railPlan).toContain('Driving directions');
+    expect(railPlan).toContain('Driving directions can influence physical-world routing. Start with bounded geocode/static-map style checks before route guidance.');
+    expect(railGate).toContain('review_required');
     expect(safeInput).toContain('Geocode lookup for a public landmark or generic address');
     expect(safeInput).toContain('Static map retrieval before any driving directions route');
     expect(safeInput).toContain('no robot command, no dispatch, no live navigation, no physical movement');
@@ -281,6 +362,13 @@ describe('machine execution proof plan page', () => {
     expect(criteria).toContain('unsafe or ambiguous route output');
     expect(criteria).toContain('physical-world action is implied without guardrails');
     expect(evidence).toContain('service_id: naver-maps');
+    expect(evidence).toContain('access_rail');
+    expect(evidence).toContain('route_surface_status');
+    expect(evidence).toContain('selected_route');
+    expect(evidence).toContain('credential_status');
+    expect(evidence).toContain('pricing_model');
+    expect(evidence).toContain('payment/auth status');
+    expect(evidence).toContain('rail_caveats');
     expect(evidence).toContain('non-operational test flag');
     expect(evidence).toContain('normalized route/geocode output summary');
     expect(context).toContain('Observed demo context only');
@@ -307,5 +395,27 @@ describe('machine execution proof plan page', () => {
     const text = container.textContent ?? '';
     expect(text).toContain('Candidate Execution Proof Plan');
     expect(text).toContain('not recorded');
+  });
+
+  it('renders BigQuery rail-aware guidance for bounded queries', async () => {
+    installFetch();
+    root = await renderPath(container, '/machine-execution-plan/bigquery');
+
+    const railPlan = container.querySelector('[aria-label="Rail-aware proof planning"]')?.textContent ?? '';
+
+    expect(railPlan).toContain('bounded query result lookup');
+    expect(railPlan).toContain('Use a bounded public or synthetic dataset query. Do not query sensitive business data in the first proof attempt.');
+    expect(railPlan).toContain('$0.001');
+    expect(railPlan).toContain('2');
+  });
+
+  it('renders Stableupload rail-aware guidance for harmless fixture uploads', async () => {
+    installFetch();
+    root = await renderPath(container, '/machine-execution-plan/stableupload');
+
+    const railPlan = container.querySelector('[aria-label="Rail-aware proof planning"]')?.textContent ?? '';
+
+    expect(railPlan).toContain('tiny non-sensitive fixture upload');
+    expect(railPlan).toContain('Use a small harmless test fixture. Do not upload private, regulated, or production data in the first proof attempt.');
   });
 });

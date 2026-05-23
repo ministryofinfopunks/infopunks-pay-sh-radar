@@ -61,6 +61,7 @@ type MachineMarketRailStatus = 'plan_eligible' | 'review_required' | 'proof_plan
 type MachineMarketRouteSurfaceStatus = 'callable_routes_listed' | 'operator_runtime_required' | 'provider_setup_only' | 'no_callable_endpoints' | 'not_recorded';
 type MachineMarketEvidenceStage = 'listed' | 'classified' | 'policy-mapped' | 'preflight-ready' | 'execution-tested' | 'receipt-recorded' | 'benchmark-recorded';
 type MachineMarketCatalogRouteRisk = 'low_to_medium' | 'high';
+type MachineRailExecutionGateStatus = 'ready_to_plan' | 'review_required' | 'blocked' | 'not_recorded';
 type MachineMarketCatalogRoute = {
   method: string;
   path: string;
@@ -2323,12 +2324,90 @@ function formatMachineAccessRail(accessRail: MachineMarketAccessRail) {
     pay_sh_solana: 'Pay.sh / Solana',
     peaqos_market_provider_account: 'peaqOS / provider account',
     peaqos_market_operator_defined: 'peaqOS / operator-defined',
-    not_recorded: 'not_recorded'
+    not_recorded: 'not recorded'
   } as const)[accessRail];
 }
 
 function formatMachineEndpointCount(count: number | null | undefined) {
   return typeof count === 'number' ? String(count) : 'not recorded';
+}
+
+function formatMachineRouteSurfaceStatus(status: MachineMarketRouteSurfaceStatus | 'account_pricing' | null | undefined) {
+  if (!status) return 'not recorded';
+  return status.replace(/_/g, ' ');
+}
+
+function readRecordedValue(value: string | number | null | undefined) {
+  if (value === null || value === undefined || value === '') return 'not recorded';
+  return String(value);
+}
+
+function getRouteSurfaceImplication(status: MachineMarketRouteSurfaceStatus | 'account_pricing' | null | undefined) {
+  switch (status) {
+    case 'callable_routes_listed':
+      return 'Catalog exposes callable route surface, but Radar still requires a service-specific execution receipt before claiming execution.';
+    case 'provider_setup_only':
+      return 'Provider setup is required before route execution can be planned.';
+    case 'no_callable_endpoints':
+      return 'No callable endpoint surface is currently recorded. Proof planning should not advance to execution.';
+    case 'operator_runtime_required':
+      return 'Operator runtime registration is required before autonomous calls can be evaluated.';
+    case 'account_pricing':
+      return 'Provider account pricing applies. Payment and billing evidence must be recorded separately.';
+    case 'not_recorded':
+    default:
+      return 'Rail surface is not recorded yet. Execution planning remains blocked or review-required.';
+  }
+}
+
+function getRailExecutionGate(
+  service: MachineMarketService | null,
+  latestPolicyDecision: MachinePreflightReceipt['decision'] | 'not recorded'
+): { status: MachineRailExecutionGateStatus; reason: string } {
+  if (!service) {
+    return { status: 'not_recorded', reason: 'Service metadata is not recorded in the current registry mirror.' };
+  }
+
+  const routeSurface = service.route_surface_status ?? 'not_recorded';
+  const higherRiskCategory = service.category === 'navigation' || service.category === 'compute' || service.category === 'storage';
+
+  if (routeSurface === 'not_recorded') {
+    return { status: 'not_recorded', reason: 'Rail surface is not recorded yet, so execution planning remains blocked or review-required.' };
+  }
+  if (routeSurface === 'provider_setup_only') {
+    return { status: 'blocked', reason: 'Provider setup is required before route execution can be planned.' };
+  }
+  if (routeSurface === 'no_callable_endpoints') {
+    return {
+      status: latestPolicyDecision === 'review' ? 'review_required' : 'blocked',
+      reason: 'No callable endpoint surface is currently recorded. Proof planning should not advance to execution.'
+    };
+  }
+  if (routeSurface === 'operator_runtime_required') {
+    return {
+      status: latestPolicyDecision === 'review' ? 'review_required' : 'blocked',
+      reason: 'Operator runtime registration is required before autonomous calls can be evaluated.'
+    };
+  }
+  if (routeSurface === 'callable_routes_listed') {
+    if (latestPolicyDecision === 'allow') {
+      return higherRiskCategory
+        ? { status: 'review_required', reason: 'Callable routes are listed, but this category carries physical-world or sensitive-data risk and still requires review before any execution attempt.' }
+        : { status: 'ready_to_plan', reason: 'Callable routes are listed and policy currently allows planning-only proof work. Execution still requires a service-specific receipt.' };
+    }
+    if (latestPolicyDecision === 'review') {
+      return { status: 'review_required', reason: 'Callable routes are listed, but current policy keeps this service in review before planning can advance.' };
+    }
+    if (latestPolicyDecision === 'deny') {
+      return { status: 'blocked', reason: 'Callable routes are listed, but current policy denies use of this service.' };
+    }
+    return {
+      status: higherRiskCategory ? 'review_required' : 'not_recorded',
+      reason: 'Callable routes are listed, but no service-specific policy decision is recorded yet.'
+    };
+  }
+
+  return { status: 'not_recorded', reason: 'Rail execution gate is not recorded for this route surface.' };
 }
 
 function getMachineRailExecutionStatus(service: MachineMarketService, receipts: MachinePreflightReceipt[]): MachineRailExecutionStatus {
@@ -3257,7 +3336,7 @@ function MachineRailCoveragePage() {
             {services.map((service) => {
               const executionStatus = getMachineRailExecutionStatus(service, receipts);
               return <div className="machine-service-row machine-rail-row" role="row" key={service.id}>
-                <span role="cell"><strong>{service.name}</strong><small>{service.provider}</small></span>
+                <span role="cell"><strong>{service.name}</strong><small>{service.provider}</small><small><a className="execute compact secondary" href={`/machine-execution-plan/${encodeURIComponent(service.id)}`}>View rail-aware proof plan</a></small></span>
                 <span role="cell" className="machine-badge">{service.category}</span>
                 <span role="cell">{formatMachineAccessRail(service.access_rail)}</span>
                 <span role="cell">{service.route_surface_status}</span>
@@ -4391,6 +4470,14 @@ function MachineExecutionProofPlanPage({ serviceId }: { serviceId: string }) {
   const checklist = buildExecutionPlanChecklist(service, candidateScore, latestPreflight, latestExecution);
   const isTranslation = service?.category === 'translation' || /translation/i.test(service?.name ?? '');
   const isNavigation = service?.category === 'navigation' || service?.id === 'naver-maps';
+  const isBigQuery = service?.id === 'bigquery';
+  const isStableupload = service?.id === 'stableupload';
+  const railGate = getRailExecutionGate(service, latestPolicyDecision);
+  const serviceFirstSafeRoute = service?.first_safe_route && service.first_safe_route !== 'not recorded'
+    ? service.first_safe_route
+    : isTranslation
+      ? 'safe translation test'
+      : 'not recorded';
 
   return <div className="shell machine-market-shell">
     <a className="skip-link" href="#machine-execution-plan-content">Skip to content</a>
@@ -4429,6 +4516,7 @@ function MachineExecutionProofPlanPage({ serviceId }: { serviceId: string }) {
         <section className="panel machine-market-caveat" aria-label="Execution proof planning caveat">
           <p>Planning only: no service execution is performed from this page, and no execution claim is made.</p>
           <p>{PAY_SH_SERVICE_SEPARATION_NOTE}</p>
+          <p><a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a></p>
         </section>
         <MachineEvidenceMethodologyDrawer />
         <section className="machine-dossier-layout">
@@ -4458,6 +4546,7 @@ function MachineExecutionProofPlanPage({ serviceId }: { serviceId: string }) {
               <p><span>top blocking reasons</span><small>{candidateScore?.blocking_reasons.slice(0, 3).join(' ') || 'none recorded'}</small></p>
               <p><span>currently safe to plan execution</span><small>{safeToPlan ? 'yes, as future planning only with policy and receipt controls' : 'no, additional policy/readiness evidence is required first'}</small></p>
               <p><span>requires review</span><small>{requiresReview ? 'yes' : 'no'}</small></p>
+              {service?.id === MACHINE_SELECTED_CONTROLLED_ACTION_ID && <p><span>selected controlled proof-plan action</span><small>Cloud Translation remains the selected controlled proof-plan action. This does not imply execution-tested status.</small></p>}
             </div>
           </section>
         </section>
@@ -4466,6 +4555,59 @@ function MachineExecutionProofPlanPage({ serviceId }: { serviceId: string }) {
           <div className="machine-check-list">
             {checklist.map((item) => <p key={item.id}><b className={item.status}>{item.status}</b><span>{item.label}: {item.reason}</span></p>)}
           </div>
+        </section>
+        <section className="panel machine-policy-summary" aria-label="Rail-aware proof planning">
+          <div className="panel-head"><div><p className="section-kicker">Rail-aware proof planning</p><h2>Rail-aware proof planning</h2></div></div>
+          <div className="machine-usage-list">
+            <p><span>access rail</span><small>{service ? formatMachineAccessRail(service.access_rail) : 'not recorded'}</small></p>
+            <p><span>rail status</span><small>{service?.rail_status ?? 'not recorded'}</small></p>
+            <p><span>route surface status</span><small>{service ? formatMachineRouteSurfaceStatus(service.route_surface_status) : 'not recorded'}</small></p>
+            <p><span>endpoint count</span><small>{service ? formatMachineEndpointCount(service.endpoint_count) : 'not recorded'}</small></p>
+            <p><span>pricing model</span><small>{readRecordedValue(service?.pricing_model)}</small></p>
+            <p><span>credential requirement</span><small>{readRecordedValue(service?.credential_requirement)}</small></p>
+            <p><span>first safe route</span><small>{serviceFirstSafeRoute}</small></p>
+            <p><span>rail caveat</span><small>{readRecordedValue(service?.rail_caveat)}</small></p>
+            <p><span>route-surface implication</span><small>{getRouteSurfaceImplication(service?.route_surface_status)}</small></p>
+          </div>
+          {isNavigation && <section className="dossier-section">
+            <h4>NAVER-specific route safety guidance</h4>
+            <div className="machine-usage-list">
+              <p><span>Preferred first route</span><small>Geocode lookup</small></p>
+              <p><span>Avoid first</span><small>Driving directions</small></p>
+              <p><span>Reason</span><small>Driving directions can influence physical-world routing. Start with bounded geocode/static-map style checks before route guidance.</small></p>
+            </div>
+          </section>}
+          {isBigQuery && <section className="dossier-section">
+            <h4>Route guidance</h4>
+            <div className="machine-usage-list">
+              <p><span>first safe route</span><small>bounded query result lookup</small></p>
+              <p><span>route guidance</span><small>Use a bounded public or synthetic dataset query. Do not query sensitive business data in the first proof attempt.</small></p>
+            </div>
+          </section>}
+          {isStableupload && <section className="dossier-section">
+            <h4>Route guidance</h4>
+            <div className="machine-usage-list">
+              <p><span>first safe route</span><small>tiny non-sensitive fixture upload</small></p>
+              <p><span>route guidance</span><small>Use a small harmless test fixture. Do not upload private, regulated, or production data in the first proof attempt.</small></p>
+            </div>
+          </section>}
+          {service?.id === MACHINE_SELECTED_CONTROLLED_ACTION_ID && <section className="dossier-section">
+            <h4>Controlled proof-plan note</h4>
+            <div className="machine-usage-list">
+              <p><span>route surface status</span><small>{service ? formatMachineRouteSurfaceStatus(service.route_surface_status) : 'not recorded'}</small></p>
+              <p><span>credential requirement</span><small>{readRecordedValue(service?.credential_requirement)}</small></p>
+              <p><span>first safe route</span><small>{serviceFirstSafeRoute}</small></p>
+              <p><span>caveat</span><small>selected proof plan does not imply execution-tested</small></p>
+            </div>
+          </section>}
+        </section>
+        <section className="panel machine-policy-summary" aria-label="Rail execution gate">
+          <div className="panel-head"><div><p className="section-kicker">Rail execution gate</p><h2>Rail execution gate</h2></div></div>
+          <div className="machine-usage-list">
+            <p><span>gate status</span><small>{railGate.status}</small></p>
+            <p><span>reason</span><small>{railGate.reason}</small></p>
+          </div>
+          <p className="panel-caption">Never execution-ready without a service-specific receipt. This gate is planning-only.</p>
         </section>
         <section className="machine-dossier-layout">
           <section className="panel machine-policy-summary" aria-label="Safe test input">
@@ -4539,14 +4681,20 @@ function MachineExecutionProofPlanPage({ serviceId }: { serviceId: string }) {
           <p className="panel-caption">This note is context only. It is not counted as Radar execution evidence, benchmark evidence, winner evidence, or payment success evidence.</p>
         </section>}
         <section className="panel machine-policy-summary" aria-label="Evidence to collect">
-          <div className="panel-head"><div><p className="section-kicker">Evidence Objects</p><h2>Required after execution attempt</h2></div></div>
+          <div className="panel-head"><div><p className="section-kicker">Evidence Objects</p><h2>Required post-execution evidence</h2></div></div>
           <ul className="machine-caveat-list">
             <li>execution receipt id</li>
             <li>service_id: {service.id}</li>
+            <li>access_rail</li>
+            <li>route_surface_status</li>
+            <li>selected_route</li>
             <li>route/source used</li>
             <li>request timestamp</li>
             <li>response timestamp</li>
+            <li>credential_status</li>
+            <li>pricing_model</li>
             <li>payment/auth status</li>
+            <li>rail_caveats</li>
             <li>{isNavigation ? 'normalized route/geocode output summary' : 'normalized output summary'}</li>
             <li>non-operational test flag</li>
             <li>caveats</li>

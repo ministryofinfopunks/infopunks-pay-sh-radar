@@ -93,7 +93,7 @@ const services = [
     route_surface_status: 'callable_routes_listed',
     endpoint_count: 2,
     pricing_model: '$0.001',
-    first_safe_route: 'read/query result lookup with bounded public dataset',
+    first_safe_route: 'bounded query result lookup',
     rail_caveat: 'catalog route surface only; Radar has not executed routes'
   }),
   service('Document AI', {
@@ -120,7 +120,7 @@ const services = [
     route_surface_status: 'callable_routes_listed',
     endpoint_count: 3,
     pricing_model: '$0.02',
-    first_safe_route: 'small test upload with non-sensitive fixture'
+    first_safe_route: 'tiny non-sensitive fixture upload'
   }),
   service('Cloud Translation', {
     category: 'translation',
@@ -301,15 +301,18 @@ describe('machine rail coverage page', () => {
     expect(naverRow).toContain('peaqOS / provider account');
     expect(naverRow).toContain('4');
     expect(naverRow).toContain('review_required');
+    expect(naverRow).toContain('View rail-aware proof plan');
     expect(qvacRow).toContain('peaqOS / operator-defined');
     expect(qvacRow).toContain('operator_runtime_required');
     expect(qvacRow).toContain('runtime endpoint registration required');
     expect(bigQueryRow).toContain('Pay.sh / Solana');
     expect(bigQueryRow).toContain('$0.001');
     expect(bigQueryRow).toContain('2');
+    expect(bigQueryRow).toContain('bounded query result lookup');
     expect(stableuploadRow).toContain('Pay.sh / Solana');
     expect(stableuploadRow).toContain('$0.02');
     expect(stableuploadRow).toContain('3');
+    expect(stableuploadRow).toContain('tiny non-sensitive fixture upload');
     expect(cloudTranslationRow).toContain('proof_plan_selected');
     expect(cloudTranslationRow).toContain('not execution-tested');
     expect(generativeLanguageRow).toContain('no_callable_endpoints');
@@ -317,5 +320,15 @@ describe('machine rail coverage page', () => {
 
     expect(container.textContent).toContain('No execution claim. No benchmark claim. No winner claim.');
     expect(container.textContent).not.toMatch(/payment succeeded|execution succeeded|winner:|benchmark winner|payment confirmed/i);
+  });
+
+  it('links rail coverage rows to rail-aware proof plans', async () => {
+    root = await renderPage(container);
+
+    const naverLink = container.querySelector('a[href="/machine-execution-plan/naver-maps"]');
+    const bigQueryLink = container.querySelector('a[href="/machine-execution-plan/bigquery"]');
+
+    expect(naverLink?.textContent).toContain('View rail-aware proof plan');
+    expect(bigQueryLink?.textContent).toContain('View rail-aware proof plan');
   });
 });

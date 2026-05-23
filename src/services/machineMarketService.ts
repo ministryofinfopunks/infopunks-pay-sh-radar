@@ -157,7 +157,7 @@ const services: MachineMarketService[] = [
     endpoint_count: 2,
     pricing_model: '$0.001',
     credential_requirement: 'not recorded',
-    first_safe_route: 'read/query result lookup with bounded public dataset',
+    first_safe_route: 'bounded query result lookup',
     rail_caveat: 'catalog route surface only; Radar has not executed routes',
     caveats: defaultCaveats
   }),
@@ -203,7 +203,7 @@ const services: MachineMarketService[] = [
     endpoint_count: 3,
     pricing_model: '$0.02',
     credential_requirement: 'not recorded',
-    first_safe_route: 'small test upload with non-sensitive fixture',
+    first_safe_route: 'tiny non-sensitive fixture upload',
     rail_caveat: 'catalog route surface only; storage policy review remains required before execution claims',
     caveats: defaultCaveats
   }),
