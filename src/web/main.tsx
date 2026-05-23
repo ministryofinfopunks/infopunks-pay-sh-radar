@@ -2393,7 +2393,7 @@ function MachineMarketCohort({
     <p className="panel-caption">Radar gives every visible service policy state, evidence state, readiness rank, and a proof path before spend. Machines should not spend blind.</p>
     <section className="machine-next-controlled-strip" aria-label="Next Controlled Action strip">
       <span>Next Controlled Action</span>
-      <strong>Cloud Translation proof plan ready</strong>
+      <strong>Proof plan selected: Cloud Translation</strong>
       <small>planning only · no execution claim</small>
     </section>
     <div className="machine-market-flow" aria-label="Machine market flow">
@@ -2413,7 +2413,7 @@ function MachineMarketCohort({
           formatEvidenceStage(service.evidence_stage),
           policyDecision,
           riskWatch ? 'risk-watch' : null,
-          proofPlanReady ? 'proof-plan-ready' : null,
+          proofPlanReady ? 'proof-path' : null,
           candidate?.execution_status ?? 'not_attempted'
         ].filter((item): item is string => Boolean(item));
         return <article className="machine-cohort-card" key={service.id}>
@@ -2778,7 +2778,7 @@ function MachineMarketSummaryCards({ summary, loading, serviceCount }: { summary
     <article className="panel metric"><span>Total Services</span><strong>{loading && !total ? '...' : total}</strong><small>listed robotic.sh snapshot</small></article>
     <article className="panel metric"><span>Ready</span><strong>{summary?.ready_count ?? '-'}</strong><small>metadata status only</small></article>
     <article className="panel metric"><span>Setup</span><strong>{summary?.setup_count ?? '-'}</strong><small>needs setup before preflight</small></article>
-    <article className="panel metric"><span>Execution Claims</span><strong>0</strong><small>planning only · Phase 2 ({summary?.phase_scope ?? 'phase_2_pay_sh_robotic_sh'})</small></article>
+    <article className="panel metric"><span>Execution Claims</span><strong>0</strong><small>planning only</small><small>no robotic.sh service executed</small></article>
   </section>;
 }
 

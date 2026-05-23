@@ -298,6 +298,7 @@ describe('machine market page', () => {
     expect(container.textContent).toContain('12 listed services mapped from robotic.sh for Phase 2 machine-economy intelligence.');
     expect(container.querySelector('[aria-label="Machine Market summary"]')?.textContent).toContain('Execution Claims0');
     expect(container.querySelector('[aria-label="Machine Market summary"]')?.textContent).toContain('planning only');
+    expect(container.querySelector('[aria-label="Machine Market summary"]')?.textContent).toContain('no robotic.sh service executed');
     expect(container.querySelector('[aria-label="12-Service Market Cohort"]')?.textContent).toContain('12 robotic.sh services mapped');
     expect(container.querySelector('.machine-market-caveat a[href="/machine-execution-shortlist"]')?.textContent).toContain('View execution shortlist');
     expect(container.querySelector('[aria-label="Machine Market Mission Control"]')?.textContent).toContain('Machine Market Mission Control');
@@ -352,10 +353,12 @@ describe('machine market page', () => {
     expect(cohort?.textContent).toContain('Cloud Translation');
     expect(cohort?.textContent).toContain('Every visible robotic.sh service now has a policy state, evidence state, readiness rank, and proof path.');
     expect(cohort?.textContent).toContain('policy-mapped');
-    expect(cohort?.textContent).toContain('proof-plan-ready');
+    expect(cohort?.textContent).toContain('proof-path');
+    expect(cohort?.textContent).not.toContain('proof-plan-ready');
+    expect(cohort?.textContent).not.toContain('PROOF PLAN READY');
     expect(cohort?.textContent).toContain('not_attempted');
     expect(cohort?.textContent).toContain('Machines should not spend blind');
-    expect(cohort?.querySelector('[aria-label="Next Controlled Action strip"]')?.textContent).toContain('Cloud Translation proof plan ready');
+    expect(cohort?.querySelector('[aria-label="Next Controlled Action strip"]')?.textContent).toContain('Proof plan selected: Cloud Translation');
     expect(cohort?.querySelector('[aria-label="Next Controlled Action strip"]')?.textContent).toContain('planning only · no execution claim');
 
     const missionControl = container.querySelector('[aria-label="Machine Market Mission Control"]');
