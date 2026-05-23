@@ -333,6 +333,7 @@ describe('machine rail coverage page', () => {
     expect(container.textContent).toContain('Callable routes do not imply executed routes.');
     expect(container.textContent).toContain('Credentials do not imply payment proof.');
     expect(container.textContent).toContain('Execution requires service-specific receipts.');
+    expect(container.querySelector('.machine-market-caveat a[href="/machine-route-risk-matrix"]')?.textContent).toContain('View route risk matrix');
     expect(container.textContent).not.toMatch(/payment succeeded|execution succeeded|winner:|benchmark winner|payment confirmed|payment was successful|execution was successful/i);
   });
 
