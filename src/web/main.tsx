@@ -1383,6 +1383,10 @@ function isMachineMarketRoute(pathname: string) {
   return /^\/machine-market\/?$/.test(pathname);
 }
 
+function isMachineReadinessMatrixRoute(pathname: string) {
+  return /^\/machine-readiness-matrix\/?$/.test(pathname);
+}
+
 function isMachineExecutionShortlistRoute(pathname: string) {
   return /^\/machine-execution-shortlist\/?$/.test(pathname);
 }
@@ -2137,6 +2141,24 @@ const MACHINE_MARKET_STAGES: MachineMarketEvidenceStage[] = [...MACHINE_EVIDENCE
 const MACHINE_MARKET_CATEGORIES: MachineMarketCategory[] = ['compute', 'inference', 'web', 'vision', 'storage', 'translation'];
 const MACHINE_MARKET_SOURCES: MachineMarketSource[] = ['pay.sh', 'robotic.sh', 'agentic.market'];
 const MACHINE_MARKET_CHAINS: MachineMarketChain[] = ['solana', 'base', 'peaq', 'omnichain'];
+const MACHINE_SELECTED_CONTROLLED_ACTION_ID = 'cloud-translation';
+
+type MachineReadinessMatrixCellState = 'complete' | 'missing' | 'review' | 'not_applicable';
+type MachineReadinessMatrixColumn =
+  | 'listed'
+  | 'classified'
+  | 'policy_mapped'
+  | 'preflight_recorded'
+  | 'proof_path'
+  | 'proof_plan_selected'
+  | 'execution_receipt'
+  | 'repeatability_receipt';
+
+type MachineReadinessMatrixRow = {
+  service: MachineMarketService;
+  candidate: MachineExecutionCandidateScore | null;
+  states: Record<MachineReadinessMatrixColumn, MachineReadinessMatrixCellState>;
+};
 
 type MachineMarketFilters = {
   marketType: 'all' | MachineMarketType;
@@ -2147,12 +2169,90 @@ type MachineMarketFilters = {
   status: 'all' | MachineMarketStatus;
 };
 
+function getSelectedControlledActionCandidate(candidates: MachineExecutionCandidateScore[]) {
+  return candidates.find((candidate) => candidate.service.id === MACHINE_SELECTED_CONTROLLED_ACTION_ID) ?? candidates[0] ?? null;
+}
+
+function getCoverageServiceResult(serviceId: string, latestRun: MachinePreflightCoverageRun | null) {
+  return latestRun?.service_results.find((row) => row.service_id === serviceId) ?? null;
+}
+
+function getServicePreflightReceipt(serviceId: string, receipts: MachinePreflightReceipt[]) {
+  return receipts.find((receipt) => receipt.receipt_type === 'machine_preflight' && receipt.selected_service_id === serviceId) ?? null;
+}
+
+function getServiceExecutionReceipt(serviceId: string, receipts: MachinePreflightReceipt[]) {
+  return receipts.find((receipt) => receipt.receipt_type === 'machine_execution' && receipt.execution_service_id === serviceId) ?? null;
+}
+
+function getMachineInspectorNextSafeAction(service: MachineMarketService, candidate: MachineExecutionCandidateScore | null, selectedControlledActionId: string | null) {
+  if (service.id === selectedControlledActionId) return 'Open the controlled proof plan, keep planning-only posture, and wait for a service-specific receipt before any execution claim.';
+  if (!candidate) return 'Inspect the dossier and keep this service in metadata-only planning scope until Radar records policy and receipt evidence.';
+  if (candidate.recommendation === 'next_execution_candidate') return 'Keep this service in the proof-path cohort and inspect its proof plan before any change in execution posture.';
+  if (candidate.recommendation === 'monitor') return 'Maintain proof-path status and collect any missing service-specific preflight evidence before promotion.';
+  if (candidate.recommendation === 'needs_review') return 'Resolve the recorded review conditions before selecting a controlled proof plan.';
+  return 'Keep this service outside the controlled-action slot until policy or readiness blockers change.';
+}
+
+function describeMatrixCellState(state: MachineReadinessMatrixCellState) {
+  if (state === 'complete') return 'complete';
+  if (state === 'review') return 'review';
+  if (state === 'not_applicable') return 'not applicable';
+  return 'missing';
+}
+
+function buildMachineReadinessMatrix(
+  services: MachineMarketService[],
+  candidates: MachineExecutionCandidateScore[],
+  latestRun: MachinePreflightCoverageRun | null,
+  receipts: MachinePreflightReceipt[],
+  selectedControlledActionId: string | null
+): MachineReadinessMatrixRow[] {
+  const candidateById = new Map(candidates.map((candidate) => [candidate.service.id, candidate]));
+  return services.map((service) => {
+    const candidate = candidateById.get(service.id) ?? null;
+    const coverageResult = getCoverageServiceResult(service.id, latestRun);
+    const preflightReceipt = getServicePreflightReceipt(service.id, receipts);
+    const executionReceipt = getServiceExecutionReceipt(service.id, receipts);
+    const proofPathState = candidate?.recommendation === 'avoid_for_now'
+      ? 'missing'
+      : candidate?.recommendation === 'needs_review'
+        ? 'review'
+        : candidate
+          ? 'complete'
+          : 'missing';
+    const preflightState = preflightReceipt || coverageResult
+      ? candidate?.latest_policy_decision === 'review'
+        ? 'review'
+        : candidate?.latest_policy_decision === 'deny'
+          ? 'missing'
+          : 'complete'
+      : 'missing';
+
+    return {
+      service,
+      candidate,
+      states: {
+        listed: 'complete',
+        classified: service.provider && service.category && service.chain && service.source_market ? 'complete' : 'missing',
+        policy_mapped: service.evidence_stage === 'listed' || service.evidence_stage === 'classified' ? 'missing' : 'complete',
+        preflight_recorded: preflightState,
+        proof_path: proofPathState,
+        proof_plan_selected: service.id === selectedControlledActionId ? 'complete' : 'missing',
+        execution_receipt: executionReceipt ? 'complete' : 'missing',
+        repeatability_receipt: 'missing'
+      }
+    };
+  });
+}
+
 function MachineMarketPage() {
   const [services, setServices] = useState<MachineMarketService[]>([]);
   const [summary, setSummary] = useState<MachineMarketSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedService, setSelectedService] = useState<MachineMarketService | null>(null);
+  const [inspectedServiceId, setInspectedServiceId] = useState<string | null>(null);
   const [latestCoverageRun, setLatestCoverageRun] = useState<MachinePreflightCoverageRun | null>(null);
   const [latestMachineReceipts, setLatestMachineReceipts] = useState<MachinePreflightReceipt[]>([]);
   const [latestAnyTransExecutionReceipt, setLatestAnyTransExecutionReceipt] = useState<MachinePreflightReceipt | null>(null);
@@ -2189,6 +2289,7 @@ function MachineMarketPage() {
       setServices(servicesResponse.data.services);
       setSummary(summaryResponse.data);
       setSelectedService(servicesResponse.data.services[0] ?? null);
+      setInspectedServiceId(null);
       setLatestCoverageRun(latestRunResponse?.data.runs?.[0] ?? null);
       const receipts = latestExecutionResponse?.data.receipts ?? [];
       setLatestMachineReceipts(receipts);
@@ -2218,8 +2319,10 @@ function MachineMarketPage() {
     && (filters.status === 'all' || service.status === filters.status)
   ), [filters, services]);
   const executionCandidates = useMemo(() => buildMachineExecutionShortlist(services, latestMachineReceipts, latestCoverageRun), [services, latestMachineReceipts, latestCoverageRun]);
-  const topExecutionCandidate = executionCandidates[0] ?? null;
+  const selectedControlledAction = getSelectedControlledActionCandidate(executionCandidates);
   const selectedExecutionCandidate = executionCandidates.find((candidate) => candidate.service.id === selectedService?.id) ?? null;
+  const inspectedService = services.find((service) => service.id === inspectedServiceId) ?? null;
+  const inspectedCandidate = executionCandidates.find((candidate) => candidate.service.id === inspectedServiceId) ?? null;
 
   const refreshLatestCoverageRun = async () => {
     setCoverageLoading(true);
@@ -2270,17 +2373,32 @@ function MachineMarketPage() {
     <main id="machine-market-content" className="machine-market-page" aria-label="Machine Market">
       <MachineMarketHero />
       <MachineMarketSummaryCards summary={summary} loading={loading} serviceCount={services.length} />
-      <MachineMarketCohort services={services} candidates={executionCandidates} latestRun={latestCoverageRun} loading={loading} />
+      <MachineMarketCohort
+        services={services}
+        candidates={executionCandidates}
+        latestRun={latestCoverageRun}
+        loading={loading}
+        selectedControlledActionId={selectedControlledAction?.service.id ?? null}
+        inspectedServiceId={inspectedServiceId}
+        onInspect={(service) => {
+          setSelectedService(service);
+          setInspectedServiceId(service.id);
+        }}
+        onCloseInspector={() => setInspectedServiceId(null)}
+        inspectedService={inspectedService}
+        inspectedCandidate={inspectedCandidate}
+      />
       <MachineMarketMissionControl
         serviceCount={services.length}
         latestRun={latestCoverageRun}
-        topCandidate={topExecutionCandidate}
+        topCandidate={selectedControlledAction}
         loading={loading}
       />
+      <MachineMarketBrief latestRun={latestCoverageRun} selectedControlledActionName={selectedControlledAction?.service.name ?? 'Cloud Translation'} />
       <section className="panel machine-market-caveat" aria-label="Coverage caveat">
         <p>Infopunks Radar mapped the entire listed robotic.sh machine-service market.</p>
         <p>Coverage refers to the 12 services visible in the observed robotic.sh market snapshot. Execution evidence is tracked separately.</p>
-        <p><a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a></p>
+        <p><a className="execute compact secondary" href="/machine-readiness-matrix">View readiness matrix</a> <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a></p>
         <MachineMethodologyNote />
       </section>
       <EvidenceLadder services={services} />
@@ -2341,17 +2459,18 @@ function MachineMarketMissionControl({
       <article>
         <span>Next controlled action</span>
         <strong>{topCandidateName}</strong>
-        {topCandidate && <small>current proof-plan candidate · planning-only · not execution-tested · not a winner claim</small>}
+        {topCandidate && <small>selected controlled action · planning-only · not execution-tested · not a winner claim</small>}
       </article>
     </div>
     <div className="machine-mission-next">
       <div>
         <span>Next Controlled Action</span>
-        <strong>{topCandidate ? `${topCandidate.service.name} proof plan ready` : 'Proof planning awaits cohort evidence'}</strong>
+        <strong>{topCandidate ? `Proof plan selected: ${topCandidate.service.name}` : 'Proof planning awaits cohort evidence'}</strong>
         <p>Planning only. No execution claim. No benchmark claim. Pay.sh execution routes are tracked separately from the robotic.sh visible service mirror.</p>
       </div>
       <div className="machine-mission-actions">
         {topCandidateId && <a className="execute compact" href={`/machine-execution-plan/${encodeURIComponent(topCandidateId)}`}>Open controlled proof plan</a>}
+        <a className="execute compact secondary" href="/machine-readiness-matrix">View readiness matrix</a>
         <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a>
       </div>
     </div>
@@ -2362,12 +2481,24 @@ function MachineMarketCohort({
   services,
   candidates,
   latestRun,
-  loading
+  loading,
+  selectedControlledActionId,
+  inspectedServiceId,
+  onInspect,
+  onCloseInspector,
+  inspectedService,
+  inspectedCandidate
 }: {
   services: MachineMarketService[];
   candidates: MachineExecutionCandidateScore[];
   latestRun: MachinePreflightCoverageRun | null;
   loading: boolean;
+  selectedControlledActionId: string | null;
+  inspectedServiceId: string | null;
+  onInspect: (service: MachineMarketService) => void;
+  onCloseInspector: () => void;
+  inspectedService: MachineMarketService | null;
+  inspectedCandidate: MachineExecutionCandidateScore | null;
 }) {
   const candidateByServiceId = new Map(candidates.map((candidate) => [candidate.service.id, candidate]));
   const allowCount = latestRun?.allow_count ?? candidates.filter((candidate) => candidate.latest_policy_decision === 'allow').length;
@@ -2393,7 +2524,7 @@ function MachineMarketCohort({
     <p className="panel-caption">Radar gives every visible service policy state, evidence state, readiness rank, and a proof path before spend. Machines should not spend blind.</p>
     <section className="machine-next-controlled-strip" aria-label="Next Controlled Action strip">
       <span>Next Controlled Action</span>
-      <strong>Proof plan selected: Cloud Translation</strong>
+      <strong>Proof plan selected: {services.find((service) => service.id === selectedControlledActionId)?.name ?? 'Cloud Translation'}</strong>
       <small>planning only · no execution claim</small>
     </section>
     <div className="machine-market-flow" aria-label="Machine market flow">
@@ -2416,7 +2547,14 @@ function MachineMarketCohort({
           proofPlanReady ? 'proof-path' : null,
           candidate?.execution_status ?? 'not_attempted'
         ].filter((item): item is string => Boolean(item));
-        return <article className="machine-cohort-card" key={service.id}>
+        return <button
+          className={`machine-cohort-card ${inspectedServiceId === service.id ? 'selected' : ''}`}
+          key={service.id}
+          type="button"
+          onClick={() => onInspect(service)}
+          aria-expanded={inspectedServiceId === service.id}
+          aria-controls="machine-service-inspector"
+        >
           <div>
             <strong>{service.name}</strong>
             <small>{service.category} · {service.status}</small>
@@ -2429,10 +2567,188 @@ function MachineMarketCohort({
           <div className="machine-cohort-badges">
             {badges.map((badge) => <span className={`machine-status-badge ${badge.replace(/[^a-z0-9-]/gi, '-').toLowerCase()}`} key={badge}>{badge}</span>)}
           </div>
-        </article>;
+        </button>;
       })}
     </div>}
+    {inspectedService && <MachineMarketServiceInspector
+      service={inspectedService}
+      candidate={inspectedCandidate}
+      selectedControlledActionId={selectedControlledActionId}
+      onClose={onCloseInspector}
+    />}
   </section>;
+}
+
+function MachineMarketServiceInspector({
+  service,
+  candidate,
+  selectedControlledActionId,
+  onClose
+}: {
+  service: MachineMarketService;
+  candidate: MachineExecutionCandidateScore | null;
+  selectedControlledActionId: string | null;
+  onClose: () => void;
+}) {
+  const nextSafeAction = getMachineInspectorNextSafeAction(service, candidate, selectedControlledActionId);
+  return <section className="panel machine-service-inspector" id="machine-service-inspector" aria-label="Service inspector drawer">
+    <div className="panel-head">
+      <div>
+        <p className="section-kicker">Service Inspector</p>
+        <h2>{service.name}</h2>
+      </div>
+      <button className="execute compact secondary" type="button" onClick={onClose}>Close inspector</button>
+    </div>
+    <p className="panel-caption">Planning-only service inspection for the robotic.sh-visible cohort. No execution claim. No benchmark claim.</p>
+    <div className="machine-inspector-grid">
+      <article><span>provider</span><strong>{service.provider}</strong></article>
+      <article><span>category</span><strong>{service.category}</strong></article>
+      <article><span>status</span><strong>{service.status}</strong></article>
+      <article><span>policy decision</span><strong>{candidate?.latest_policy_decision ?? 'not recorded'}</strong></article>
+      <article><span>policy risk note</span><strong>{service.policy_risk}</strong></article>
+      <article><span>evidence stage</span><strong>{formatEvidenceStage(service.evidence_stage)}</strong></article>
+      <article><span>evidence health</span><strong>{service.evidence_health}</strong></article>
+      <article><span>readiness tier</span><strong>{candidate?.candidate_tier ?? 'not scored'}</strong></article>
+      <article><span>execution status</span><strong>{candidate?.execution_status ?? 'not_attempted'}</strong></article>
+      <article><span>next safe action</span><strong>{nextSafeAction}</strong></article>
+    </div>
+    <div className="machine-inspector-actions">
+      <a className="execute compact secondary" href={`/machine-service/${encodeURIComponent(service.id)}`}>View dossier</a>
+      <a className="execute compact" href={`/machine-execution-plan/${encodeURIComponent(service.id)}`}>View proof plan</a>
+    </div>
+  </section>;
+}
+
+function MachineMarketBrief({
+  latestRun,
+  selectedControlledActionName
+}: {
+  latestRun: MachinePreflightCoverageRun | null;
+  selectedControlledActionName: string;
+}) {
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
+  const allowCount = latestRun?.allow_count ?? 10;
+  const reviewCount = latestRun?.review_count ?? 1;
+  const denyCount = latestRun?.deny_count ?? 1;
+  const brief = `12 robotic.sh services mapped. ${allowCount} allow / ${reviewCount} review / ${denyCount} deny. Every visible service has policy state, evidence state, readiness rank, and proof path. 0 robotic.sh execution claims. 1 controlled proof-plan action selected. Machines should not spend blind.`;
+
+  async function copyBrief() {
+    const copied = await copyText(brief);
+    setCopyState(copied ? 'copied' : 'failed');
+  }
+
+  return <section className="panel machine-market-brief" aria-label="Machine Market Brief">
+    <div className="panel-head">
+      <div>
+        <p className="section-kicker">Market Brief</p>
+        <h2>Copyable Machine Market Brief</h2>
+      </div>
+      <button className="execute compact secondary" type="button" onClick={copyBrief}>{copyState === 'copied' ? 'Copied brief' : copyState === 'failed' ? 'Copy failed' : 'Copy brief'}</button>
+    </div>
+    <p className="copy">{brief}</p>
+    <p className="panel-caption">Selected controlled action: {selectedControlledActionName}. Planning only. No execution claim. Pay.sh routes tracked separately.</p>
+  </section>;
+}
+
+function MachineReadinessMatrixPage() {
+  const [services, setServices] = useState<MachineMarketService[]>([]);
+  const [receipts, setReceipts] = useState<MachinePreflightReceipt[]>([]);
+  const [coverageRun, setCoverageRun] = useState<MachinePreflightCoverageRun | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.title = 'Machine Readiness Matrix | Infopunks Pay.sh Radar';
+    setMetaTag('name', 'description', 'Readiness matrix for the 12 robotic.sh-visible machine services tracked by Infopunks Radar.');
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    Promise.all([
+      api<{ data: { services: MachineMarketService[] } }>('/v1/machine-market/services'),
+      api<{ data: { runs: MachinePreflightCoverageRun[] } }>('/v1/machine-preflight/coverage-runs/recent?limit=1').catch(() => null),
+      api<{ data: { receipts: MachinePreflightReceipt[] } }>('/v1/machine-preflight/receipts/recent?limit=100').catch(() => null)
+    ]).then(([servicesResponse, coverageResponse, receiptsResponse]) => {
+      if (cancelled) return;
+      setServices(servicesResponse.data.services);
+      setCoverageRun(coverageResponse?.data.runs?.[0] ?? null);
+      setReceipts(receiptsResponse?.data.receipts ?? []);
+      setLoading(false);
+    }).catch((err) => {
+      if (cancelled) return;
+      setError(err instanceof Error ? err.message : 'readiness matrix unavailable');
+      setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const candidates = useMemo(() => buildMachineExecutionShortlist(services, receipts, coverageRun), [services, receipts, coverageRun]);
+  const selectedControlledAction = getSelectedControlledActionCandidate(candidates);
+  const rows = useMemo(
+    () => buildMachineReadinessMatrix(services, candidates, coverageRun, receipts, selectedControlledAction?.service.id ?? null),
+    [services, candidates, coverageRun, receipts, selectedControlledAction]
+  );
+  const columns: MachineReadinessMatrixColumn[] = ['listed', 'classified', 'policy_mapped', 'preflight_recorded', 'proof_path', 'proof_plan_selected', 'execution_receipt', 'repeatability_receipt'];
+
+  return <div className="shell machine-market-shell">
+    <a className="skip-link" href="#machine-readiness-content">Skip to content</a>
+    <header className="site-header">
+      <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Readiness Matrix navigation">
+        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <div className="terminal-nav" aria-label="Machine Economy navigation">
+          <a href="/machine-market">Machine Economy</a>
+          <a className="active" href="/machine-readiness-matrix" aria-current="page">Readiness Matrix</a>
+          <a href="/machine-execution-shortlist">Execution Shortlist</a>
+          <a href="/machine-preflight">Machine Preflight</a>
+          <a href="/machine-receipts">Machine Receipts</a>
+          <a href="/">Radar Terminal</a>
+        </div>
+      </nav>
+    </header>
+    <main id="machine-readiness-content" className="machine-market-page machine-readiness-page" aria-label="Machine Readiness Matrix">
+      <section className="panel hero machine-market-hero">
+        <div>
+          <p className="eyebrow">Machine Economy Readiness Matrix</p>
+          <h1>Machine Readiness Matrix</h1>
+          <p className="copy">12 services mapped. 0 robotic.sh execution claims. 1 proof plan selected.</p>
+          <p className="panel-caption">Cloud Translation remains the selected controlled action. Coverage and preflight do not imply execution. Repeatability remains missing without service-specific receipts.</p>
+        </div>
+        <div className="ticker" aria-label="Readiness matrix principles">
+          <span>robotic.sh only</span>
+          <span>planning only</span>
+          <span>receipts decide claims</span>
+        </div>
+      </section>
+      {loading && <section className="panel" role="status"><p className="route-state">Loading readiness matrix...</p></section>}
+      {error && <section className="panel" role="alert"><p className="route-state error">Readiness matrix unavailable: {error}</p></section>}
+      {!loading && !error && <>
+        <section className="panel machine-market-caveat" aria-label="Readiness matrix caveats">
+          <p>12 services mapped. 0 robotic.sh execution claims. 1 proof plan selected.</p>
+          <p>No execution claim. No benchmark claim. Pay.sh routes tracked separately. Cloud Translation is the current controlled action, not a winner.</p>
+        </section>
+        <section className="panel machine-readiness-matrix-panel" aria-label="Machine readiness matrix table">
+          <div className="panel-head">
+            <div><p className="section-kicker">Readiness Matrix</p><h2>{rows.length} robotic.sh-visible services</h2></div>
+            <small>Execution and repeatability stay missing until a service-specific robotic.sh receipt exists.</small>
+          </div>
+          <div className="machine-service-table machine-readiness-table" role="table" aria-label="Machine readiness matrix">
+            <div className="machine-service-row machine-readiness-row head" role="row">
+              {['service', 'provider', 'policy', ...columns].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
+            </div>
+            {rows.map((row) => <div className="machine-service-row machine-readiness-row" role="row" key={row.service.id}>
+              <span role="cell"><strong>{row.service.name}</strong><small>{row.service.id}</small></span>
+              <span role="cell">{row.service.provider}</span>
+              <span role="cell">{row.candidate?.latest_policy_decision ?? 'not recorded'}</span>
+              {columns.map((column) => <span role="cell" key={column}>
+                <span className={`machine-status-badge matrix-state ${row.states[column]}`}>{describeMatrixCellState(row.states[column])}</span>
+              </span>)}
+            </div>)}
+          </div>
+        </section>
+      </>}
+    </main>
+  </div>;
 }
 
 function FirstExecutionCard({
@@ -5134,6 +5450,7 @@ function RadarApp() {
     { id: 'open-agent-benchmark-api', label: 'Open Agent Benchmark API', hint: 'Jump to benchmark API docs and examples', run: () => scrollToPanel('agent-benchmark-api') },
     { id: 'open-api-docs', label: 'Open API Docs', hint: OPENAPI_PATH, run: openApiDocs },
     { id: 'open-machine-market', label: 'Open Machine Market', hint: '/machine-market', run: () => openMachineRoute('/machine-market') },
+    { id: 'open-machine-readiness-matrix', label: 'Open Machine Readiness Matrix', hint: '/machine-readiness-matrix', run: () => openMachineRoute('/machine-readiness-matrix') },
     { id: 'open-machine-service-dossier', label: 'Open Machine Service Dossier', hint: 'Open /machine-market and choose View service dossier', run: () => openMachineRoute('/machine-market') },
     { id: 'open-robotic-sh-execution-shortlist', label: 'Open Robotic.sh Execution Shortlist', hint: '/machine-execution-shortlist', run: () => openMachineRoute('/machine-execution-shortlist') },
     { id: 'run-machine-preflight', label: 'Run Machine Preflight', hint: '/machine-preflight', run: () => openMachineRoute('/machine-preflight') },
@@ -8712,6 +9029,7 @@ export function App() {
   if (benchmarkId) return <PublicBenchmarkProofPage benchmarkId={benchmarkId} />;
   if (isBenchmarkIndexRoute(window.location.pathname)) return <PublicBenchmarksIndexPage />;
   if (isMachineMarketRoute(window.location.pathname)) return <MachineMarketPage />;
+  if (isMachineReadinessMatrixRoute(window.location.pathname)) return <MachineReadinessMatrixPage />;
   if (isMachineExecutionShortlistRoute(window.location.pathname)) return <MachineExecutionShortlistPage />;
   const machineExecutionPlanServiceId = routeMachineExecutionPlanServiceId(window.location.pathname);
   if (machineExecutionPlanServiceId) return <MachineExecutionProofPlanPage serviceId={machineExecutionPlanServiceId} />;

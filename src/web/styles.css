@@ -516,7 +516,8 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 .machine-market-flow span { border: 1px solid rgba(126,255,176,.16); border-radius: 999px; padding: 7px 9px; color: var(--green); background: rgba(126,255,176,.045); font-size: 10px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
 .machine-market-flow b { color: rgba(126,255,176,.36); font-weight: 500; }
 .machine-cohort-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
-.machine-cohort-card { display: grid; gap: 10px; min-width: 0; border: 1px solid rgba(126,255,176,.12); border-radius: 14px; padding: 12px; background: rgba(0,0,0,.24); }
+.machine-cohort-card { display: grid; gap: 10px; min-width: 0; width: 100%; border: 1px solid rgba(126,255,176,.12); border-radius: 14px; padding: 12px; background: rgba(0,0,0,.24); cursor: pointer; text-align: left; }
+.machine-cohort-card.selected { border-color: rgba(126,255,176,.42); background: rgba(126,255,176,.075); }
 .machine-cohort-card strong { display: block; color: var(--text); font-family: 'Space Grotesk', sans-serif; line-height: 1.12; }
 .machine-cohort-card small { display: block; margin-top: 4px; color: var(--muted); line-height: 1.35; text-transform: uppercase; letter-spacing: .04em; }
 .machine-cohort-meta { display: grid; gap: 5px; }
@@ -525,10 +526,11 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 .machine-cohort-meta strong { color: var(--text); font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: .01em; text-transform: lowercase; }
 .machine-cohort-badges { display: flex; flex-wrap: wrap; gap: 5px; }
 .machine-status-badge { border: 1px solid rgba(126,255,176,.16); border-radius: 999px; padding: 5px 7px; color: #c8e3d0; background: rgba(126,255,176,.045); font-size: 9px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; line-height: 1.1; }
-.machine-status-badge.allow, .machine-status-badge.proof-plan-ready { color: #041009; border-color: var(--green); background: var(--green); }
+.machine-status-badge.allow, .machine-status-badge.proof-path, .machine-status-badge.complete { color: #041009; border-color: var(--green); background: var(--green); }
 .machine-status-badge.review, .machine-status-badge.risk-watch { color: var(--amber); border-color: rgba(246,208,111,.34); background: rgba(246,208,111,.08); }
-.machine-status-badge.deny { color: var(--red); border-color: rgba(255,107,107,.42); background: rgba(255,107,107,.08); }
+.machine-status-badge.deny, .machine-status-badge.missing { color: var(--red); border-color: rgba(255,107,107,.42); background: rgba(255,107,107,.08); }
 .machine-status-badge.not-attempted { color: var(--blue); border-color: rgba(124,199,255,.28); background: rgba(124,199,255,.065); }
+.machine-status-badge.not_applicable { color: var(--blue); border-color: rgba(124,199,255,.28); background: rgba(124,199,255,.065); }
 .machine-mission-control { display: grid; gap: 14px; border-color: rgba(126,255,176,.24); background: radial-gradient(circle at top left, rgba(126,255,176,.12), transparent 34%), linear-gradient(135deg, rgba(6,22,16,.96), rgba(3,8,7,.94)); }
 .machine-mission-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 .machine-mission-grid article, .machine-mission-next { border: 1px solid rgba(126,255,176,.12); border-radius: 14px; padding: 12px; background: rgba(0,0,0,.22); }
@@ -538,6 +540,14 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 .machine-mission-next { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; }
 .machine-mission-next p { margin: 8px 0 0; color: #c8e3d0; line-height: 1.55; }
 .machine-mission-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.machine-market-brief { display: grid; gap: 12px; border-color: rgba(124,199,255,.22); background: linear-gradient(135deg, rgba(5,18,25,.94), rgba(3,8,7,.94)); }
+.machine-market-brief .copy { margin: 0; }
+.machine-service-inspector { display: grid; gap: 12px; border-color: rgba(124,199,255,.3); background: linear-gradient(135deg, rgba(7,20,28,.95), rgba(3,8,7,.93)); }
+.machine-inspector-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.machine-inspector-grid article { border: 1px solid rgba(126,255,176,.12); border-radius: 12px; padding: 11px; background: rgba(0,0,0,.18); }
+.machine-inspector-grid span { display: block; color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.machine-inspector-grid strong { display: block; margin-top: 6px; color: var(--text); line-height: 1.45; overflow-wrap: anywhere; }
+.machine-inspector-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .evidence-ladder-panel .panel-head small { max-width: 520px; color: var(--muted); line-height: 1.45; }
 .evidence-ladder { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .evidence-ladder span { border: 1px solid rgba(126,255,176,.18); border-radius: 999px; padding: 8px 10px; color: var(--muted); background: rgba(0,0,0,.22); font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
@@ -557,6 +567,8 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 .machine-service-row strong { color: var(--text); font-family: 'Space Grotesk', sans-serif; font-size: 15px; line-height: 1.2; min-width: 0; }
 .machine-service-row strong small { color: var(--muted); font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 400; line-height: 1.35; }
 .machine-service-row span { min-width: 0; color: #c8e3d0; font-size: 12px; overflow-wrap: anywhere; }
+.machine-readiness-row { grid-template-columns: minmax(210px, 1.15fr) minmax(130px, .7fr) minmax(100px, .54fr) repeat(8, minmax(110px, .55fr)); min-width: 1660px; }
+.machine-readiness-table .machine-status-badge { display: inline-flex; justify-content: center; min-width: 88px; }
 .machine-service-select { display: grid; gap: 4px; width: 100%; border: 0; padding: 0; background: transparent; color: inherit; cursor: pointer; text-align: left; }
 .machine-service-select small { color: var(--muted); font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 1.35; }
 .machine-service-select:hover strong { color: var(--green); }
@@ -655,6 +667,7 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 @media (max-width: 1180px) {
   .machine-market-filters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .machine-cohort-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .machine-inspector-grid { grid-template-columns: 1fr; }
   .machine-mission-grid, .machine-mission-next { grid-template-columns: 1fr; }
   .machine-mission-actions { justify-content: flex-start; }
   .machine-market-grid { grid-template-columns: 1fr; }

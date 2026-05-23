@@ -60,6 +60,15 @@ const services = [
   service('Exa')
 ];
 
+const serviceResults = services.map((item) => ({
+  service_id: item.id,
+  service_name: item.name,
+  decision: item.id === 'qvac' ? 'review' : item.id === '2captcha' ? 'deny' : 'allow',
+  receipt_id: `mrx_${item.id}_001`,
+  execution_occurred: false,
+  payment_occurred: false
+}));
+
 function json(data: unknown, status = 200) {
   return Promise.resolve(new Response(JSON.stringify({ data }), { status, headers: { 'Content-Type': 'application/json' } }));
 }
@@ -98,9 +107,9 @@ function installMachineMarketFetch() {
         services_total: 12,
         preflight_evaluated: 12,
         receipts_recorded: 12,
-        allow_count: 6,
-        review_count: 4,
-        deny_count: 2,
+        allow_count: 10,
+        review_count: 1,
+        deny_count: 1,
         execution_occurred: false,
         payment_occurred: false,
         storage: { adapter: 'memory', mode: 'test', durable: false },
@@ -111,7 +120,7 @@ function installMachineMarketFetch() {
           'No payment occurred.',
           'This is not a benchmark artifact.'
         ],
-        service_results: []
+        service_results: serviceResults
       }]
     });
     if (path === '/v1/machine-preflight/coverage-run') return json({
@@ -300,6 +309,7 @@ describe('machine market page', () => {
     expect(container.querySelector('[aria-label="Machine Market summary"]')?.textContent).toContain('planning only');
     expect(container.querySelector('[aria-label="Machine Market summary"]')?.textContent).toContain('no robotic.sh service executed');
     expect(container.querySelector('[aria-label="12-Service Market Cohort"]')?.textContent).toContain('12 robotic.sh services mapped');
+    expect(container.querySelector('a[href="/machine-readiness-matrix"]')?.textContent).toContain('View readiness matrix');
     expect(container.querySelector('.machine-market-caveat a[href="/machine-execution-shortlist"]')?.textContent).toContain('View execution shortlist');
     expect(container.querySelector('[aria-label="Machine Market Mission Control"]')?.textContent).toContain('Machine Market Mission Control');
     for (const name of serviceNames) expect(container.textContent).toContain(name);
@@ -345,9 +355,9 @@ describe('machine market page', () => {
 
     const cohort = container.querySelector('[aria-label="12-Service Market Cohort"]');
     expect(cohort?.textContent).toContain('12 services mapped');
-    expect(cohort?.textContent).toContain('6 allow');
-    expect(cohort?.textContent).toContain('4 review');
-    expect(cohort?.textContent).toContain('2 deny');
+    expect(cohort?.textContent).toContain('10 allow');
+    expect(cohort?.textContent).toContain('1 review');
+    expect(cohort?.textContent).toContain('1 deny');
     expect(cohort?.textContent).toContain('0 execution claims');
     expect(cohort?.textContent).toContain('QVAC');
     expect(cohort?.textContent).toContain('Cloud Translation');
@@ -364,16 +374,17 @@ describe('machine market page', () => {
     const missionControl = container.querySelector('[aria-label="Machine Market Mission Control"]');
     expect(missionControl?.textContent).toContain('Coverage complete / proof planning active');
     expect(missionControl?.textContent).toContain('12 / 12 services evaluated');
-    expect(missionControl?.textContent).toContain('allow 6 / review 4 / deny 2');
+    expect(missionControl?.textContent).toContain('allow 10 / review 1 / deny 1');
     expect(missionControl?.textContent).toContain('Next controlled action');
     expect(missionControl?.textContent).toContain('Cloud Translation');
-    expect(missionControl?.textContent).toContain('current proof-plan candidate');
+    expect(missionControl?.textContent).toContain('selected controlled action');
     expect(missionControl?.textContent).toContain('planning-only');
     expect(missionControl?.textContent).toContain('not execution-tested');
     expect(missionControl?.textContent).toContain('not a winner claim');
     expect(missionControl?.textContent).toContain('Planning only. No execution claim. No benchmark claim.');
     expect(missionControl?.textContent).toContain('Pay.sh execution routes are tracked separately from the robotic.sh visible service mirror');
     expect(missionControl?.querySelector('a[href="/machine-execution-plan/cloud-translation"]')?.textContent).toContain('Open controlled proof plan');
+    expect(missionControl?.querySelector('a[href="/machine-readiness-matrix"]')?.textContent).toContain('View readiness matrix');
     expect(missionControl?.querySelector('a[href="/machine-execution-shortlist"]')?.textContent).toContain('View execution shortlist');
 
     const heroChips = container.querySelector('[aria-label="Machine Market principles"]')?.textContent ?? '';
@@ -381,6 +392,62 @@ describe('machine market page', () => {
     expect(heroChips).toContain('Policy / evidence state');
     expect(heroChips).toContain('Readiness ranked');
     expect(heroChips).toContain('Machines should not spend blind');
+  });
+
+  it('opens the service inspector drawer from cohort cards with metadata and CTAs', async () => {
+    root = await renderPage(container);
+
+    const card = Array.from(container.querySelectorAll('.machine-cohort-card')).find((item) => item.textContent?.includes('Cloud Translation')) as HTMLButtonElement | undefined;
+    expect(card).toBeTruthy();
+
+    await act(async () => {
+      card!.click();
+    });
+
+    const drawer = container.querySelector('[aria-label="Service inspector drawer"]');
+    expect(drawer?.textContent).toContain('Cloud Translation');
+    expect(drawer?.textContent).toContain('provider');
+    expect(drawer?.textContent).toContain('Google');
+    expect(drawer?.textContent).toContain('category');
+    expect(drawer?.textContent).toContain('translation');
+    expect(drawer?.textContent).toContain('policy decision');
+    expect(drawer?.textContent).toContain('allow');
+    expect(drawer?.textContent).toContain('policy risk note');
+    expect(drawer?.textContent).toContain('Cloud Translation requires spend policy.');
+    expect(drawer?.textContent).toContain('evidence stage');
+    expect(drawer?.textContent).toContain('policy-mapped');
+    expect(drawer?.textContent).toContain('evidence health');
+    expect(drawer?.textContent).toContain('scaffold');
+    expect(drawer?.textContent).toContain('readiness tier');
+    expect(drawer?.textContent).toContain('execution status');
+    expect(drawer?.textContent).toContain('next safe action');
+    expect(drawer?.textContent).toContain('No execution claim. No benchmark claim.');
+    expect(drawer?.querySelector('a[href="/machine-service/cloud-translation"]')?.textContent).toContain('View dossier');
+    expect(drawer?.querySelector('a[href="/machine-execution-plan/cloud-translation"]')?.textContent).toContain('View proof plan');
+  });
+
+  it('renders the Market Brief, preserves 0 execution claims, and supports copy feedback', async () => {
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText: vi.fn().mockResolvedValue(undefined) }
+    });
+    root = await renderPage(container);
+
+    const brief = container.querySelector('[aria-label="Machine Market Brief"]');
+    expect(brief?.textContent).toContain('12 robotic.sh services mapped. 10 allow / 1 review / 1 deny. Every visible service has policy state, evidence state, readiness rank, and proof path. 0 robotic.sh execution claims. 1 controlled proof-plan action selected. Machines should not spend blind.');
+    expect(brief?.textContent).not.toContain('winner');
+    expect(brief?.textContent).not.toContain('benchmark');
+
+    const button = Array.from(brief?.querySelectorAll('button') ?? []).find((item) => item.textContent === 'Copy brief') as HTMLButtonElement | undefined;
+    expect(button).toBeTruthy();
+
+    await act(async () => {
+      button!.click();
+      await Promise.resolve();
+    });
+
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('12 robotic.sh services mapped. 10 allow / 1 review / 1 deny. Every visible service has policy state, evidence state, readiness rank, and proof path. 0 robotic.sh execution claims. 1 controlled proof-plan action selected. Machines should not spend blind.');
+    expect(button?.textContent).toBe('Copied brief');
   });
 
   it('shows selected service execution planning actions', async () => {
