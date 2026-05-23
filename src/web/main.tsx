@@ -3291,13 +3291,14 @@ function MachineRailCoveragePage() {
         <div>
           <p className="eyebrow">Machine Execution Rail Coverage</p>
           <h1>Machine Execution Rail Coverage</h1>
-          <p className="copy">Radar separates robotic.sh catalog presence from access rail readiness, callable route surfaces, pricing, credentials, and execution evidence.</p>
+          <p className="copy">Radar separates robotic.sh catalog presence from access rail readiness, callable route surfaces, credentials, pricing, and receipt-bound execution evidence.</p>
+          <p className="panel-caption">Radar does not ask only what service exists. It asks which rail, which route, under which proof conditions.</p>
         </div>
         <div className="ticker" aria-label="Machine rail coverage hero chips">
           <span>13 services mapped</span>
-          <span>Pay.sh / Solana surfaces</span>
-          <span>peaqOS / provider surfaces</span>
-          <span>0 execution claims</span>
+          <span>access rails classified</span>
+          <span>route surfaces separated</span>
+          <span>0 execution receipts</span>
           <span>receipt-driven</span>
         </div>
       </section>
@@ -3305,18 +3306,35 @@ function MachineRailCoveragePage() {
       {error && <section className="panel" role="alert"><p className="route-state error">Machine rail coverage unavailable: {error}</p></section>}
       {!loading && !error && <>
         <section className="grid four machine-market-summary" aria-label="Machine rail coverage summary">
-          <article className="panel metric"><span>Total services</span><strong>{summary.totalServices}</strong><small>robotic.sh-visible registry rows</small></article>
-          <article className="panel metric"><span>Pay.sh / Solana access rail</span><strong>{summary.payShSolana}</strong><small>services mapped to pay.sh_solana</small></article>
-          <article className="panel metric"><span>peaqOS / provider account rail</span><strong>{summary.peaqProviderAccount}</strong><small>provider-account surface only</small></article>
-          <article className="panel metric"><span>Callable routes listed</span><strong>{summary.callableRoutesListed}</strong><small>catalog route surface visible</small></article>
-          <article className="panel metric"><span>Provider setup required</span><strong>{summary.providerSetupRequired}</strong><small>operator or provider setup still required</small></article>
-          <article className="panel metric"><span>No callable endpoint recorded</span><strong>{summary.noCallableEndpointsRecorded}</strong><small>listed provider, no callable endpoints surfaced</small></article>
-          <article className="panel metric"><span>Execution receipts</span><strong>{summary.executionReceipts}</strong><small>service-specific only</small></article>
-          <article className="panel metric"><span>Repeatability receipts</span><strong>{summary.repeatabilityReceipts}</strong><small>service-specific repeats only</small></article>
+          <article className="panel metric"><span>Services mapped</span><strong>{summary.totalServices}</strong><small>robotic.sh-listed services mirrored into rail metadata</small></article>
+          <article className="panel metric"><span>Pay.sh / Solana rails</span><strong>{summary.payShSolana}</strong><small>access rail only, not execution proof</small></article>
+          <article className="panel metric"><span>peaqOS / provider-account rails</span><strong>{summary.peaqProviderAccount}</strong><small>provider account surface, not receipt evidence</small></article>
+          <article className="panel metric"><span>Callable route surfaces</span><strong>{summary.callableRoutesListed}</strong><small>routes listed in metadata, not executed</small></article>
+          <article className="panel metric"><span>Provider/operator setup required</span><strong>{summary.providerSetupRequired}</strong><small>setup blockers remain before safe route planning</small></article>
+          <article className="panel metric"><span>No callable endpoint recorded</span><strong>{summary.noCallableEndpointsRecorded}</strong><small>listed presence without callable route detail</small></article>
+          <article className="panel metric"><span>Execution receipts</span><strong>{summary.executionReceipts}</strong><small>service-specific receipts only</small></article>
+          <article className="panel metric"><span>Repeatability receipts</span><strong>{summary.repeatabilityReceipts}</strong><small>repeated service-specific receipts only</small></article>
+        </section>
+        <section className="panel machine-mission-control" aria-label="Machine rail interpretation strip">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Rail Interpretation</p>
+              <h2>Separate the evidence states</h2>
+            </div>
+            <span className="machine-badge evidence">screenshot-native</span>
+          </div>
+          <div className="ticker" aria-label="Machine rail interpretation statements">
+            <span>Listed ≠ callable</span>
+            <span>Callable ≠ executed</span>
+            <span>Credentials ≠ payment proof</span>
+            <span>Route surface ≠ receipt</span>
+          </div>
+          <p className="panel-caption">Radar does not ask only what service exists. It asks which rail, which route, under which proof conditions.</p>
         </section>
         <section className="panel machine-market-caveat" aria-label="Machine rail coverage caveats">
-          <p>No execution claim. No benchmark claim. No winner claim. Pay.sh availability does not imply Radar execution.</p>
-          <p>robotic.sh listing does not imply callable route readiness. Execution requires service-specific receipts.</p>
+          <p>No execution claim. No benchmark claim. No winner claim. No payment success claim.</p>
+          <p>Pay.sh availability does not imply Radar execution. robotic.sh listing does not imply callable route readiness.</p>
+          <p>Callable routes do not imply executed routes. Credentials do not imply payment proof. Execution requires service-specific receipts.</p>
           <p><a className="execute compact secondary" href="/machine-market">Back to Machine Economy</a> <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a></p>
         </section>
         <MachineEvidenceMethodologyDrawer />
@@ -3331,39 +3349,25 @@ function MachineRailCoveragePage() {
           </div>
           <div className="machine-service-table" role="table" aria-label="Machine rail coverage table">
             <div className="machine-service-row machine-rail-row head" role="row">
-              {['service', 'category', 'access rail', 'route surface', 'endpoints', 'pricing model', 'credential requirement', 'rail status', 'first safe route', 'execution status'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
+              {['service', 'category', 'access rail', 'route surface status', 'endpoints', 'pricing model', 'credential requirement', 'rail status', 'first safe route', 'execution status'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
             </div>
             {services.map((service) => {
               const executionStatus = getMachineRailExecutionStatus(service, receipts);
+              const routeSurfaceLabel = formatMachineRouteSurfaceStatus(service.route_surface_status);
+              const executionLabel = executionStatus === 'not_execution_tested' ? 'not execution-tested' : executionStatus.replace(/_/g, ' ');
               return <div className="machine-service-row machine-rail-row" role="row" key={service.id}>
                 <span role="cell"><strong>{service.name}</strong><small>{service.provider}</small><small><a className="execute compact secondary" href={`/machine-execution-plan/${encodeURIComponent(service.id)}`}>View rail-aware proof plan</a></small></span>
                 <span role="cell" className="machine-badge">{service.category}</span>
-                <span role="cell">{formatMachineAccessRail(service.access_rail)}</span>
-                <span role="cell">{service.route_surface_status}</span>
+                <span role="cell"><strong>{formatMachineAccessRail(service.access_rail)}</strong><small>{service.observed_source} listed service</small></span>
+                <span role="cell"><span className={`machine-status-badge ${service.route_surface_status === 'callable_routes_listed' ? 'complete' : service.route_surface_status === 'no_callable_endpoints' ? 'missing' : service.route_surface_status === 'operator_runtime_required' || service.route_surface_status === 'provider_setup_only' ? 'review' : ''}`}>{routeSurfaceLabel}</span><small>{service.route_surface_status}</small><small>{getRouteSurfaceImplication(service.route_surface_status)}</small></span>
                 <span role="cell">{formatMachineEndpointCount(service.endpoint_count)}</span>
                 <span role="cell">{service.pricing_model ?? 'not recorded'}</span>
                 <span role="cell">{service.credential_requirement ?? 'not recorded'}</span>
-                <span role="cell"><span className={`machine-status-badge ${service.rail_status === 'plan_eligible' ? 'complete' : service.rail_status === 'proof_plan_selected' ? 'not-attempted' : service.rail_status === 'review_required' ? 'review' : ''}`}>{service.rail_status}</span></span>
-                <span role="cell">{service.first_safe_route ?? 'not recorded'}</span>
-                <span role="cell"><span className={`machine-status-badge ${executionStatus === 'not_execution_tested' ? 'missing' : executionStatus === 'repeatability_receipt_recorded' ? 'complete' : 'not-attempted'}`}>{executionStatus === 'not_execution_tested' ? 'not execution-tested' : executionStatus.replace(/_/g, ' ')}</span></span>
+                <span role="cell"><span className={`machine-status-badge ${service.rail_status === 'plan_eligible' ? 'complete' : service.rail_status === 'proof_plan_selected' ? 'not-attempted' : service.rail_status === 'review_required' ? 'review' : ''}`}>{service.rail_status}</span><small>{service.rail_caveat ?? 'rail caveat not recorded'}</small></span>
+                <span role="cell"><strong>{service.first_safe_route ?? 'not recorded'}</strong><small>planning route only, not a receipt</small></span>
+                <span role="cell"><span className={`machine-status-badge ${executionStatus === 'not_execution_tested' ? 'missing' : executionStatus === 'repeatability_receipt_recorded' ? 'complete' : 'not-attempted'}`}>{executionLabel}</span><small>{executionStatus === 'not_execution_tested' ? 'No service-specific execution receipt recorded.' : 'Service-specific receipt exists; inspect proof details before any broader claim.'}</small></span>
               </div>;
             })}
-          </div>
-        </section>
-        <section className="panel machine-mission-control" aria-label="Machine rail interpretation panel">
-          <div className="panel-head">
-            <div>
-              <p className="section-kicker">Rail Interpretation</p>
-              <h2>How to read rail coverage</h2>
-            </div>
-            <span className="machine-badge evidence">receipt-driven</span>
-          </div>
-          <div className="machine-market-interpretation-list">
-            <p><span>catalog presence</span><small>robotic.sh listing does not imply immediate execution readiness.</small></p>
-            <p><span>pay.sh surface</span><small>Pay.sh access does not imply callable routes are exposed in Radar’s current registry.</small></p>
-            <p><span>credentials and pricing</span><small>Provider credentials and account pricing create different proof requirements than direct Pay.sh surfaces.</small></p>
-            <p><span>policy depth</span><small>Navigation, storage, and compute surfaces require stronger policy review than simple translation planning.</small></p>
-            <p><span>claims boundary</span><small>Execution remains receipt-driven. No payment success, execution success, benchmark, or winner claim appears here without service-specific receipts.</small></p>
           </div>
         </section>
       </>}
@@ -3373,28 +3377,27 @@ function MachineRailCoveragePage() {
 
 function MachineRailCoverageMethodology() {
   const rows = [
-    ['access_rail', 'The access surface Radar can currently see for the service, such as pay_sh_solana or peaqOS-mediated provider access.'],
-    ['route_surface_status', 'Whether Radar sees callable routes, setup-only provider presence, or no callable endpoint surface in the registry.'],
-    ['provider_setup_only', 'Provider presence is visible, but the current registry does not present a callable route surface that Radar can safely treat as execution-ready.'],
-    ['callable_routes_listed', 'The registry exposes route or endpoint surface detail, but that still does not imply Radar execution.'],
-    ['credentials_required', 'Provider or runtime credentials are required before autonomous calls can be considered.'],
-    ['account_pricing', 'Billing is tied to a provider account or external pricing model rather than a self-contained Radar receipt.'],
-    ['execution_receipt', 'A service-specific durable receipt proving a real execution attempt. Without it, this page stays planning-only.']
+    ['access_rail', 'The access surface Radar can see for a robotic.sh-listed service. Rail visibility is not a claim that the route is callable or executed.'],
+    ['route_surface_status', 'Whether Radar sees callable routes, provider setup only, operator setup only, or no callable endpoint recorded.'],
+    ['callable_routes_listed', 'Callable routes are listed in metadata. That is route evidence, not execution evidence.'],
+    ['provider_setup_only', 'Provider setup is still required before Radar can treat the service as a safe callable planning route.'],
+    ['no_callable_endpoint_recorded', 'The service is listed, but Radar has no callable endpoint surface recorded yet.'],
+    ['credentials_required', 'Credentials or runtime registration may be required. Credentials do not prove payment or execution success.'],
+    ['account_pricing', 'Pricing can be tied to a provider account or external billing surface. Account pricing is not receipt proof.'],
+    ['execution_receipt', 'A service-specific durable receipt proving a real execution attempt. Without it, this page remains planning metadata.']
   ] as const;
 
-  return <section className="panel machine-market-brief" aria-label="Machine rail methodology">
-    <div className="panel-head">
-      <div>
-        <p className="section-kicker">Rail Methodology</p>
-        <h2>Execution rail definitions</h2>
-      </div>
-      <span className="machine-badge source">read-only</span>
-    </div>
+  return <details className="panel machine-market-brief" aria-label="Machine rail methodology">
+    <summary className="machine-evidence-methodology-summary">
+      <span className="section-kicker">Rail Methodology</span>
+      <strong>Execution rail definitions</strong>
+      <small>Compact definitions for access rail, route surface status, setup-only states, credentials, pricing, and execution receipts.</small>
+    </summary>
     <div className="machine-usage-list">
       {rows.map(([label, meaning]) => <p key={label}><span>{label}</span><small>{meaning}</small></p>)}
-      <p className="machine-caveat-row"><span>rail caveat</span><small className="machine-caveat-copy">Pay.sh availability does not imply Radar execution. robotic.sh listing does not imply callable route readiness. Execution requires service-specific receipts.</small></p>
+      <p className="machine-caveat-row"><span>rail caveat</span><small className="machine-caveat-copy">Rail coverage is planning metadata. Execution remains receipt-driven.</small></p>
     </div>
-  </section>;
+  </details>;
 }
 
 function MachineReadinessMatrixPage() {

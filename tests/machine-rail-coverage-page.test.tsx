@@ -255,15 +255,24 @@ describe('machine rail coverage page', () => {
     root = await renderPage(container);
 
     expect(container.textContent).toContain('Machine Execution Rail Coverage');
-    expect(container.textContent).toContain('Radar separates robotic.sh catalog presence from access rail readiness, callable route surfaces, pricing, credentials, and execution evidence.');
-    expect(container.querySelector('[aria-label="Machine rail coverage summary"]')?.textContent).toContain('Total services13');
-    expect(container.querySelector('[aria-label="Machine rail coverage summary"]')?.textContent).toContain('Pay.sh / Solana access rail5');
-    expect(container.querySelector('[aria-label="Machine rail coverage summary"]')?.textContent).toContain('peaqOS / provider account rail1');
-    expect(container.querySelector('[aria-label="Machine rail coverage summary"]')?.textContent).toContain('Callable routes listed3');
-    expect(container.querySelector('[aria-label="Machine rail coverage summary"]')?.textContent).toContain('Provider setup required1');
+    expect(container.textContent).toContain('Radar separates robotic.sh catalog presence from access rail readiness, callable route surfaces, credentials, pricing, and receipt-bound execution evidence.');
+    expect(container.textContent).toContain('which rail, which route, under which proof conditions');
+    expect(container.querySelector('[aria-label="Machine rail coverage hero chips"]')?.textContent).toContain('13 services mapped');
+    expect(container.querySelector('[aria-label="Machine rail coverage hero chips"]')?.textContent).toContain('access rails classified');
+    expect(container.querySelector('[aria-label="Machine rail coverage hero chips"]')?.textContent).toContain('route surfaces separated');
+    expect(container.querySelector('[aria-label="Machine rail coverage hero chips"]')?.textContent).toContain('0 execution receipts');
+    expect(container.querySelector('[aria-label="Machine rail coverage summary"]')?.textContent).toContain('Services mapped13');
+    expect(container.querySelector('[aria-label="Machine rail coverage summary"]')?.textContent).toContain('Pay.sh / Solana rails5');
+    expect(container.querySelector('[aria-label="Machine rail coverage summary"]')?.textContent).toContain('peaqOS / provider-account rails1');
+    expect(container.querySelector('[aria-label="Machine rail coverage summary"]')?.textContent).toContain('Callable route surfaces3');
+    expect(container.querySelector('[aria-label="Machine rail coverage summary"]')?.textContent).toContain('Provider/operator setup required1');
     expect(container.querySelector('[aria-label="Machine rail coverage summary"]')?.textContent).toContain('No callable endpoint recorded3');
     expect(container.querySelector('[aria-label="Machine rail coverage summary"]')?.textContent).toContain('Execution receipts0');
     expect(container.querySelector('[aria-label="Machine rail coverage summary"]')?.textContent).toContain('Repeatability receipts0');
+    expect(container.querySelector('[aria-label="Machine rail interpretation strip"]')?.textContent).toContain('Listed ≠ callable');
+    expect(container.querySelector('[aria-label="Machine rail interpretation strip"]')?.textContent).toContain('Callable ≠ executed');
+    expect(container.querySelector('[aria-label="Machine rail interpretation strip"]')?.textContent).toContain('Credentials ≠ payment proof');
+    expect(container.querySelector('[aria-label="Machine rail interpretation strip"]')?.textContent).toContain('Route surface ≠ receipt');
     expect(container.querySelector('[aria-label="Machine rail methodology"]')?.textContent).toContain('access_rail');
     expect(container.querySelector('[aria-label="Machine rail methodology"]')?.textContent).toContain('execution_receipt');
     for (const name of serviceNames) expect(container.textContent).toContain(name);
@@ -318,8 +327,13 @@ describe('machine rail coverage page', () => {
     expect(generativeLanguageRow).toContain('no_callable_endpoints');
     expect(generativeLanguageRow).toContain('not execution-tested');
 
-    expect(container.textContent).toContain('No execution claim. No benchmark claim. No winner claim.');
-    expect(container.textContent).not.toMatch(/payment succeeded|execution succeeded|winner:|benchmark winner|payment confirmed/i);
+    expect(container.textContent).toContain('No execution claim. No benchmark claim. No winner claim. No payment success claim.');
+    expect(container.textContent).toContain('Pay.sh availability does not imply Radar execution.');
+    expect(container.textContent).toContain('robotic.sh listing does not imply callable route readiness.');
+    expect(container.textContent).toContain('Callable routes do not imply executed routes.');
+    expect(container.textContent).toContain('Credentials do not imply payment proof.');
+    expect(container.textContent).toContain('Execution requires service-specific receipts.');
+    expect(container.textContent).not.toMatch(/payment succeeded|execution succeeded|winner:|benchmark winner|payment confirmed|payment was successful|execution was successful/i);
   });
 
   it('links rail coverage rows to rail-aware proof plans', async () => {
