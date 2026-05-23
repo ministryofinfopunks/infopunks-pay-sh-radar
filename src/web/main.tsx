@@ -3316,7 +3316,7 @@ function MachineMarketMapPage() {
               <span className="machine-status-badge not-attempted">{summary.execution_claim_count} execution claims</span>
             </div>
             <div className="machine-market-map-services" aria-label={`${summary.label} services`}>
-              {summary.services.map((service) => <span className="machine-badge" key={service.id}>{service.name}</span>)}
+              {summary.services.map((service) => <a className="machine-badge" key={service.id} href={`/machine-service/${encodeURIComponent(service.id)}`}>{service.name}</a>)}
             </div>
             <div className="machine-usage-list">
               <p><span>allow / review / deny</span><small>{summary.allow_count} / {summary.review_count} / {summary.deny_count}</small></p>
@@ -3325,6 +3325,7 @@ function MachineMarketMapPage() {
               <p><span>evidence health summary</span><small>{formatDistributionSummary(summary.evidence_health_distribution, ['scaffold', 'listed'])}</small></p>
               <p><span>category risk note</span><small>{summary.category_risk_note}</small></p>
               <p><span>machine-use narrative</span><small>{summary.machine_use_narrative}</small></p>
+              {summary.key === 'maps-navigation' && summary.services.some((service) => service.id === 'naver-maps') && <p><span>proof path</span><small><a className="execute compact secondary" href="/machine-execution-plan/naver-maps">Inspect proof path</a></small></p>}
             </div>
           </article>)}
         </section>
@@ -4156,6 +4157,7 @@ function MachineExecutionProofPlanPage({ serviceId }: { serviceId: string }) {
   const requiresReview = !service || !candidateScore || candidateScore.recommendation === 'needs_review' || latestPolicyDecision === 'review' || latestPolicyDecision === 'not recorded';
   const checklist = buildExecutionPlanChecklist(service, candidateScore, latestPreflight, latestExecution);
   const isTranslation = service?.category === 'translation' || /translation/i.test(service?.name ?? '');
+  const isNavigation = service?.category === 'navigation' || service?.id === 'naver-maps';
 
   return <div className="shell machine-market-shell">
     <a className="skip-link" href="#machine-execution-plan-content">Skip to content</a>
@@ -4239,37 +4241,64 @@ function MachineExecutionProofPlanPage({ serviceId }: { serviceId: string }) {
               <p><span>input</span><small>hello machine market</small></p>
               <p><span>target</span><small>Spanish (fallback: French)</small></p>
               <p><span>expected semantic output</span><small>A natural translation of the phrase, not exact-string enforced unless the provider guarantees deterministic output.</small></p>
+            </div> : isNavigation ? <div className="machine-usage-list">
+              <p><span>request type</span><small>geocode or route lookup</small></p>
+              <p><span>origin</span><small>public landmark or generic coordinate</small></p>
+              <p><span>destination</span><small>public landmark or generic coordinate</small></p>
+              <p><span>mode</span><small>non-operational demo lookup</small></p>
+              <p><span>constraint</span><small>no robot command, no dispatch, no physical movement triggered</small></p>
+              <p><span>expected semantic output</span><small>Parseable route/geocode response with route summary or coordinate result present, no autonomous action triggered, and caveats preserved.</small></p>
             </div> : <p className="copy">No safe default test input has been defined for this service yet.</p>}
+          </section>
+          <section className="panel machine-policy-summary" aria-label="Physical-world routing risk">
+            <div className="panel-head"><div><p className="section-kicker">Risk Boundary</p><h2>Physical-world routing risk</h2></div></div>
+            <p className="copy">{isNavigation ? 'Routing outputs can influence physical-world movement. NAVER Maps requires review, bounded test inputs, and non-operational constraints before any execution attempt.' : 'This service still requires bounded preflight, deterministic inputs, and receipt-driven evidence before any execution attempt.'}</p>
+            {isNavigation && <div className="machine-usage-list">
+              <p><span>policy state</span><small>{latestPolicyDecision}</small></p>
+              <p><span>execution status</span><small>{executionStatus}</small></p>
+              <p><span>public demo context</span><small>Observed, not counted as Radar execution evidence.</small></p>
+            </div>}
           </section>
           <section className="panel machine-policy-summary" aria-label="Success and failure criteria">
             <div className="panel-head"><div><p className="section-kicker">Criteria</p><h2>Success and failure gates</h2></div></div>
             <section className="dossier-section"><h4>Success criteria</h4><ul className="machine-caveat-list">
+              <li>intended service identity is confirmed</li>
               <li>request completes through the intended execution rail</li>
-              <li>receipt is recorded</li>
+              <li>durable execution receipt is recorded</li>
               <li>service response is parseable</li>
-              <li>output matches expected semantic class</li>
+              <li>{isNavigation ? 'route/geocode semantics are present' : 'output matches expected semantic class'}</li>
+              <li>no robot command is issued</li>
+              <li>{isNavigation ? 'no physical movement is triggered' : 'no autonomous action is triggered'}</li>
               <li>payment/auth status is recorded if available</li>
               <li>caveats are preserved</li>
             </ul></section>
             <section className="dossier-section"><h4>Failure criteria</h4><ul className="machine-caveat-list">
-              <li>service cannot be reached</li>
+              <li>service identity mismatch</li>
               <li>auth/payment blocker</li>
               <li>malformed response</li>
-              <li>unsafe output</li>
+              <li>{isNavigation ? 'unsafe or ambiguous route output' : 'unsafe output'}</li>
               <li>no durable receipt</li>
-              <li>service identity mismatch</li>
+              <li>operational robot action triggered</li>
+              <li>{isNavigation ? 'physical-world action is implied without guardrails' : 'autonomous action is implied without guardrails'}</li>
             </ul></section>
           </section>
         </section>
+        {isNavigation && <section className="panel machine-policy-summary" aria-label="Public demo context">
+          <div className="panel-head"><div><p className="section-kicker">Public Context</p><h2>Observed demo context only</h2></div></div>
+          <p className="copy">Public demo context observed: peaq showcased NAVER Maps in a simulated Serve Robotics workflow with USDT settlement on Solana. Radar has not executed this service.</p>
+          <p className="panel-caption">This note is context only. It is not counted as Radar execution evidence, benchmark evidence, winner evidence, or payment success evidence.</p>
+        </section>}
         <section className="panel machine-policy-summary" aria-label="Evidence to collect">
           <div className="panel-head"><div><p className="section-kicker">Evidence Objects</p><h2>Required after execution attempt</h2></div></div>
           <ul className="machine-caveat-list">
             <li>execution receipt id</li>
+            <li>service_id: {service.id}</li>
             <li>route/source used</li>
             <li>request timestamp</li>
             <li>response timestamp</li>
             <li>payment/auth status</li>
-            <li>normalized output summary</li>
+            <li>{isNavigation ? 'normalized route/geocode output summary' : 'normalized output summary'}</li>
+            <li>non-operational test flag</li>
             <li>caveats</li>
             <li>evidence_health update</li>
           </ul>
@@ -4363,7 +4392,7 @@ function MachineServiceDossierPage({ serviceId }: { serviceId: string }) {
         <section className="panel machine-market-caveat" aria-label="Pay.sh separation note">
           <p>{PAY_SH_SERVICE_SEPARATION_NOTE}</p>
           <p><a className="execute compact secondary" href="/machine-execution-shortlist">Back to execution shortlist</a></p>
-          <p><a className="execute compact secondary" href={`/machine-execution-plan/${encodeURIComponent(service.id)}`}>View execution proof plan</a></p>
+          <p><a className="execute compact secondary" href={`/machine-execution-plan/${encodeURIComponent(service.id)}`}>{service.id === 'naver-maps' ? 'View NAVER Maps proof path' : 'View execution proof plan'}</a></p>
           {candidateScore && <p className="panel-caption">Current shortlist tier: {candidateScore.candidate_tier} · score {candidateScore.overall_candidate_score} · recommendation {candidateScore.recommendation}</p>}
         </section>
         <section className="machine-dossier-layout">

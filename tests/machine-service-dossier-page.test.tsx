@@ -217,6 +217,13 @@ describe('machine service dossier page', () => {
     expect(container.querySelector('a[href="/machine-execution-plan/cloud-translation"]')?.textContent).toContain('View execution proof plan');
   });
 
+  it('shows NAVER-specific proof-path link from the dossier', async () => {
+    root = await renderPath(container, '/machine-service/naver-maps');
+
+    expect(container.textContent).toContain('NAVER Maps');
+    expect(container.querySelector('a[href="/machine-execution-plan/naver-maps"]')?.textContent).toContain('View NAVER Maps proof path');
+  });
+
   it('shows unknown service not-found state', async () => {
     root = await renderPath(container, '/machine-service/not-in-mirror');
 

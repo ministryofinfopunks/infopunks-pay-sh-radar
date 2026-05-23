@@ -10,18 +10,20 @@ function service(name: string, overrides: Record<string, unknown> = {}) {
   return {
     id,
     name,
-    provider: name === 'Cloud Translation' ? 'Google' : name,
-    category: name === 'Cloud Translation' ? 'translation' : 'web',
-    market_type: 'digital',
-    source_market: 'pay.sh',
-    chain: 'solana',
+    provider: name === 'Cloud Translation' ? 'Google' : name === 'NAVER Maps' ? 'NAVER' : name,
+    category: name === 'Cloud Translation' ? 'translation' : name === 'NAVER Maps' ? 'navigation' : 'web',
+    market_type: name === 'NAVER Maps' ? 'physical' : 'digital',
+    source_market: name === 'NAVER Maps' ? 'robotic.sh' : 'pay.sh',
+    chain: name === 'NAVER Maps' ? 'unknown' : 'solana',
     status: 'ready',
-    price_display: 'Per endpoint',
+    price_display: name === 'NAVER Maps' ? 'not recorded' : 'Per endpoint',
     description: `${name} service metadata.`,
     machine_use_case: `${name} machine use case.`,
     evidence_health: 'scaffold',
     evidence_stage: 'policy-mapped',
-    policy_risk: `${name} requires spend policy.`,
+    policy_risk: name === 'NAVER Maps'
+      ? 'High machine relevance: routing outputs can influence physical-world movement. Execution requires bounded test scenarios, source validation, and clear non-operational constraints.'
+      : `${name} requires spend policy.`,
     caveats: ['Static robotic.sh service mirror for Phase 2 only.'],
     observed_source: 'robotic.sh',
     observed_at: '2026-05-22T00:00:00.000Z',
@@ -32,7 +34,11 @@ function service(name: string, overrides: Record<string, unknown> = {}) {
 
 const services = [
   service('Cloud Translation'),
-  service('QVAC', { id: 'qvac', source_market: 'robotic.sh', chain: 'peaq', status: 'setup', category: 'compute' })
+  service('QVAC', { id: 'qvac', source_market: 'robotic.sh', chain: 'peaq', status: 'setup', category: 'compute' }),
+  service('NAVER Maps', {
+    machine_use_case: 'Autonomous robots can request routing, geocoding, and navigation context before moving or rerouting.',
+    caveats: ['Public demo context observed: peaq showcased NAVER Maps in a simulated Serve Robotics workflow with USDT settlement on Solana. Radar has not executed this service.']
+  })
 ];
 
 const receipts = [{
@@ -73,6 +79,44 @@ const receipts = [{
   evidence_health: 'scaffold',
   phase_scope: 'phase_2_pay_sh_robotic_sh',
   created_at: '2026-05-22T00:00:00.000Z'
+}, {
+  receipt_id: 'mrx_naver_maps_001',
+  receipt_type: 'machine_preflight',
+  coverage_run_id: 'mcr_coverage_001',
+  demo_mode: false,
+  execution_occurred: false,
+  payment_occurred: false,
+  execution_status: 'not_attempted',
+  execution_service_id: null,
+  execution_provider: null,
+  execution_started_at: null,
+  execution_completed_at: null,
+  execution_latency_ms: null,
+  execution_request_summary: null,
+  execution_response_summary: null,
+  execution_error: null,
+  payment_evidence: null,
+  preflight_receipt_id: null,
+  execution_run_id: null,
+  machine_id: 'did:peaq:delivery-bot-nav-01',
+  policy_id: 'delivery-robot',
+  intent: 'lookup safe navigation context',
+  requested_category: 'navigation',
+  selected_service_id: 'naver-maps',
+  selected_service_name: 'NAVER Maps',
+  source_market: 'robotic.sh',
+  chain: 'unknown',
+  decision: 'review',
+  reason: 'navigation task requires review before spend',
+  policy_checks: [],
+  violations: [],
+  review_reasons: ['risk_tolerance_compatible'],
+  caveats: ['Public demo context observed: peaq showcased NAVER Maps in a simulated Serve Robotics workflow with USDT settlement on Solana. Radar has not executed this service.'],
+  max_cost_usd: 0.05,
+  evidence_stage: 'policy-mapped',
+  evidence_health: 'scaffold',
+  phase_scope: 'phase_2_pay_sh_robotic_sh',
+  created_at: '2026-05-22T00:00:00.000Z'
 }];
 
 function json(data: unknown, status = 200) {
@@ -99,18 +143,21 @@ function installFetch(options: { missingEvidence?: boolean } = {}) {
         runs: [{
           run_id: 'mcr_coverage_001',
           generated_at: '2026-05-22T00:10:00.000Z',
-          services_total: 2,
-          preflight_evaluated: 2,
-          receipts_recorded: 2,
+          services_total: 3,
+          preflight_evaluated: 3,
+          receipts_recorded: 3,
           allow_count: 1,
-          review_count: 1,
+          review_count: 2,
           deny_count: 0,
           execution_occurred: false,
           payment_occurred: false,
           phase_scope: 'phase_2_pay_sh_robotic_sh',
           storage: { adapter: 'memory', mode: 'test', durable: false },
           caveats: ['Coverage run records decision receipts only.'],
-          service_results: [{ service_id: 'cloud-translation', service_name: 'Cloud Translation', decision: 'allow', receipt_id: 'mrx_cloud_translation_001', execution_occurred: false, payment_occurred: false }]
+          service_results: [
+            { service_id: 'cloud-translation', service_name: 'Cloud Translation', decision: 'allow', receipt_id: 'mrx_cloud_translation_001', execution_occurred: false, payment_occurred: false },
+            { service_id: 'naver-maps', service_name: 'NAVER Maps', decision: 'review', receipt_id: 'mrx_naver_maps_001', execution_occurred: false, payment_occurred: false }
+          ]
         }]
       });
     }
@@ -188,6 +235,39 @@ describe('machine execution proof plan page', () => {
     expect(text).toContain('Planning only: no service execution is performed from this page, and no execution claim is made.');
     expect(container.querySelector('[aria-label="Evidence methodology drawer"]')?.textContent).toContain('proof_plan_selected');
     expect(container.querySelector('[aria-label="Evidence methodology drawer"]')?.textContent).toContain('This is not an execution claim.');
+    expect(text).not.toContain('execution succeeded');
+    expect(text).not.toContain('benchmark winner');
+  });
+
+  it('renders NAVER Maps proof path with review state, non-operational test, and context-only demo note', async () => {
+    installFetch();
+    root = await renderPath(container, '/machine-execution-plan/naver-maps');
+
+    const text = container.textContent ?? '';
+    const safeInput = container.querySelector('[aria-label="Safe test input"]')?.textContent ?? '';
+    const criteria = container.querySelector('[aria-label="Success and failure criteria"]')?.textContent ?? '';
+    const evidence = container.querySelector('[aria-label="Evidence to collect"]')?.textContent ?? '';
+    const risk = container.querySelector('[aria-label="Physical-world routing risk"]')?.textContent ?? '';
+    const context = container.querySelector('[aria-label="Public demo context"]')?.textContent ?? '';
+
+    expect(text).toContain('NAVER Maps');
+    expect(text).toContain('latest policy decisionreview');
+    expect(text).toContain('evidence_healthscaffold');
+    expect(text).toContain('execution_statusnot_attempted');
+    expect(safeInput).toContain('geocode or route lookup');
+    expect(safeInput).toContain('non-operational demo lookup');
+    expect(safeInput).toContain('no robot command, no dispatch, no physical movement triggered');
+    expect(risk).toContain('Routing outputs can influence physical-world movement. NAVER Maps requires review, bounded test inputs, and non-operational constraints before any execution attempt.');
+    expect(criteria).toContain('no robot command is issued');
+    expect(criteria).toContain('no physical movement is triggered');
+    expect(criteria).toContain('unsafe or ambiguous route output');
+    expect(criteria).toContain('physical-world action is implied without guardrails');
+    expect(evidence).toContain('service_id: naver-maps');
+    expect(evidence).toContain('non-operational test flag');
+    expect(evidence).toContain('normalized route/geocode output summary');
+    expect(context).toContain('Observed demo context only');
+    expect(context).toContain('Radar has not executed this service.');
+    expect(context).toContain('not counted as Radar execution evidence');
     expect(text).not.toContain('execution succeeded');
     expect(text).not.toContain('benchmark winner');
   });

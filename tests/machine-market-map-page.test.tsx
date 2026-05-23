@@ -181,6 +181,8 @@ describe('machine market map page', () => {
     expect(map?.textContent).toContain('verification');
     expect(map?.textContent).toContain('compute');
     expect(map?.textContent).toContain('Physical-world route decisions require bounded test scenarios, source validation, and clear non-operational demo constraints before execution.');
+    expect(container.querySelector('a[href="/machine-service/naver-maps"]')?.textContent).toContain('NAVER Maps');
+    expect(container.querySelector('a[href="/machine-execution-plan/naver-maps"]')?.textContent).toContain('Inspect proof path');
     expect(map?.textContent).toContain('allow / review / deny');
     expect(map?.textContent).toContain('readiness tier distribution');
     expect(map?.textContent).toContain('execution status summary');
