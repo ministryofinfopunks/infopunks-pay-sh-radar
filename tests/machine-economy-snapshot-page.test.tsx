@@ -104,10 +104,7 @@ function installFetch() {
         service_results: serviceResults
       }]
     });
-    if (path === '/v1/machine-preflight/receipts/recent') return json({
-      count: 0,
-      receipts: []
-    });
+    if (path === '/v1/machine-preflight/receipts/recent') return json({ count: 0, receipts: [] });
     return Promise.resolve(new Response('{}', { status: 404 }));
   });
 }
@@ -125,12 +122,12 @@ async function renderPage(container: HTMLDivElement) {
   return root;
 }
 
-describe('machine readiness matrix page', () => {
+describe('machine economy snapshot page', () => {
   let root: Root;
   let container: HTMLDivElement;
 
   beforeEach(() => {
-    window.history.pushState({}, '', '/machine-readiness-matrix');
+    window.history.pushState({}, '', '/machine-economy-snapshot');
     container = document.createElement('div');
     document.body.append(container);
     installFetch();
@@ -143,43 +140,63 @@ describe('machine readiness matrix page', () => {
     window.history.pushState({}, '', '/');
   });
 
-  it('renders the readiness matrix with all 12 services', async () => {
+  it('renders the snapshot route with computed headline values and current caveats', async () => {
     root = await renderPage(container);
 
-    expect(container.textContent).toContain('Machine Readiness Matrix');
-    expect(container.textContent).toContain('12 services mapped. 0 robotic.sh execution claims. 1 proof plan selected.');
-    expect(container.querySelector('[aria-label="Readiness Matrix Brief"]')?.textContent).toContain('Readiness Matrix Brief');
-    expect(container.querySelector('[aria-label="Readiness Matrix Brief"]')?.textContent).toContain('12 robotic.sh services mapped across the readiness ladder.');
-    expect(container.querySelector('[aria-label="Readiness Matrix Brief"]')?.textContent).toContain('1 proof plan selected.');
-    expect(container.querySelector('[aria-label="Readiness Matrix Brief"]')?.textContent).toContain('0 execution receipts.');
-    expect(container.querySelector('[aria-label="Readiness Matrix Brief"]')?.textContent).toContain('0 repeatability receipts.');
-    expect(container.querySelector('[aria-label="Readiness Matrix Brief"] button')?.textContent).toContain('Copy brief');
-    expect(container.querySelector('a[href="/machine-market-map"]')?.textContent).toContain('View market map');
-    expect(container.querySelector('a[href="/machine-economy-snapshot"]')?.textContent).toContain('View public snapshot');
-    expect(container.querySelector('[aria-label="Evidence methodology drawer"]')?.textContent).toContain('execution_receipt');
-    expect(container.querySelector('[aria-label="Evidence methodology drawer"]')?.textContent).toContain('repeatability_receipt');
-    for (const name of serviceNames) expect(container.textContent).toContain(name);
+    const text = container.textContent ?? '';
+    const stats = container.querySelector('[aria-label="Machine economy snapshot stat grid"]')?.textContent ?? '';
+    expect(text).toContain('Machine Economy Public Snapshot');
+    expect(text).toContain('12 robotic.sh services mapped into policy, evidence, readiness, and proof-path state.');
+    expect(text).toContain('12 services mapped');
+    expect(text).toContain('7 machine-function categories');
+    expect(text).toContain('10 allow / 1 review / 1 deny');
+    expect(stats).toContain('Proof plans selected1');
+    expect(text).toContain('0 execution claims');
+    expect(stats).toContain('Execution receipts0');
+    expect(stats).toContain('Repeatability receipts0');
+    expect(stats).toContain('Strongest readiness categorydata / query');
+    expect(stats).toContain('Riskiest categoryverification');
+    expect(stats).toContain('Next controlled actionCloud Translation proof plan');
+    expect(text).toContain('Coverage, preflight, and proof planning do not imply execution.');
+    expect(text).toContain('No execution claim. No benchmark claim. No winner claim.');
+    expect(text).toContain('Pay.sh execution routes tracked separately. Execution requires service-specific receipts.');
+    expect(text).toContain('Repeatability requires repeated service-specific receipts.');
+    expect(text).not.toContain('execution success');
   });
 
-  it('marks proof_plan_selected complete only for Cloud Translation and keeps execution receipts missing without service-specific receipts', async () => {
+  it('renders all 12 services, category summary, public brief, copy button, and methodology drawer', async () => {
     root = await renderPage(container);
 
-    const matrix = container.querySelector('[aria-label="Machine readiness matrix"]');
-    expect(matrix?.textContent).toContain('Cloud Translation');
+    const cohort = container.querySelector('[aria-label="Machine economy cohort band"]');
+    const cohortNames = Array.from(container.querySelectorAll('.machine-snapshot-cohort-row strong')).map((item) => item.textContent?.trim());
+    expect(cohort).not.toBeNull();
+    expect(cohortNames).toHaveLength(12);
+    expect(new Set(cohortNames).size).toBe(12);
+    for (const name of serviceNames) expect(cohortNames).toContain(name);
 
-    const rowTexts = Array.from(container.querySelectorAll('.machine-readiness-row')).map((row) => row.textContent ?? '');
-    const cloudTranslationRow = rowTexts.find((text) => text.includes('Cloud Translation'));
-    const qvacRow = rowTexts.find((text) => text.includes('QVAC'));
+    const categories = container.querySelector('[aria-label="Machine economy category summary"]');
+    expect(categories?.textContent).toContain('AI / inference');
+    expect(categories?.textContent).toContain('data / query');
+    expect(categories?.textContent).toContain('translation');
+    expect(categories?.textContent).toContain('web / retrieval');
+    expect(categories?.textContent).toContain('storage');
+    expect(categories?.textContent).toContain('verification');
+    expect(categories?.textContent).toContain('compute');
 
-    expect(cloudTranslationRow).toContain('complete');
-    expect(cloudTranslationRow).toContain('missingmissing');
-    expect(qvacRow).not.toContain('proof plan selectedcomplete');
+    const brief = container.querySelector('[aria-label="Machine economy public brief"]');
+    expect(brief?.textContent).toContain('12 robotic.sh services mapped across 7 machine-function categories.');
+    expect(brief?.textContent).toContain('Policy state: 10 allow / 1 review / 1 deny.');
+    expect(brief?.textContent).toContain('Radar selected 1 controlled proof-plan action: Cloud Translation.');
+    expect(brief?.querySelector('button')?.textContent).toContain('Copy snapshot brief');
 
-    const matrixText = matrix?.textContent ?? '';
-    expect(matrixText).toContain('execution_receipt');
-    expect(matrixText).toContain('repeatability_receipt');
-    expect(matrixText).not.toContain('benchmark');
-    expect(matrixText).not.toContain('winner');
-    expect(matrixText).not.toContain('execution success');
+    const methodology = container.querySelector('[aria-label="Evidence methodology drawer"]');
+    expect(methodology?.textContent).toContain('listed');
+    expect(methodology?.textContent).toContain('classified');
+    expect(methodology?.textContent).toContain('policy_mapped');
+    expect(methodology?.textContent).toContain('preflight_recorded');
+    expect(methodology?.textContent).toContain('proof_path');
+    expect(methodology?.textContent).toContain('proof_plan_selected');
+    expect(methodology?.textContent).toContain('execution_receipt');
+    expect(methodology?.textContent).toContain('repeatability_receipt');
   });
 });

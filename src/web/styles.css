@@ -551,6 +551,19 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 .machine-market-interpretation-list small { color: #c8e3d0; line-height: 1.5; }
 .machine-market-brief { display: grid; gap: 12px; border-color: rgba(124,199,255,.22); background: linear-gradient(135deg, rgba(5,18,25,.94), rgba(3,8,7,.94)); }
 .machine-market-brief .copy { margin: 0; }
+.machine-snapshot-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.machine-snapshot-story { border-color: rgba(126,255,176,.22); background: radial-gradient(circle at top right, rgba(126,255,176,.09), transparent 36%), linear-gradient(135deg, rgba(6,20,17,.96), rgba(3,8,7,.94)); }
+.machine-snapshot-cohort { gap: 12px; }
+.machine-snapshot-cohort-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.machine-snapshot-cohort-row { display: grid; gap: 6px; border: 1px solid rgba(126,255,176,.12); border-radius: 12px; padding: 10px; background: rgba(0,0,0,.18); }
+.machine-snapshot-cohort-row strong { color: var(--text); font-family: 'Space Grotesk', sans-serif; line-height: 1.15; }
+.machine-snapshot-cohort-row span { color: #c8e3d0; font-size: 11px; line-height: 1.35; text-transform: lowercase; }
+.machine-snapshot-category-summary { gap: 14px; }
+.machine-snapshot-category-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.machine-snapshot-category-card { display: grid; gap: 6px; border: 1px solid rgba(126,255,176,.12); border-radius: 12px; padding: 12px; background: rgba(0,0,0,.18); }
+.machine-snapshot-category-card strong { color: var(--text); font-family: 'Space Grotesk', sans-serif; line-height: 1.15; }
+.machine-snapshot-category-card span { color: #c8e3d0; font-size: 12px; line-height: 1.4; }
+.machine-snapshot-category-card small { color: var(--muted); line-height: 1.45; }
 .machine-evidence-methodology { display: grid; gap: 0; border-color: rgba(124,199,255,.24); background: linear-gradient(135deg, rgba(7,20,28,.95), rgba(3,8,7,.93)); }
 .machine-evidence-methodology-summary { display: grid; gap: 6px; cursor: pointer; list-style: none; }
 .machine-evidence-methodology-summary::-webkit-details-marker { display: none; }
@@ -692,6 +705,7 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
   .machine-mission-grid, .machine-mission-next { grid-template-columns: 1fr; }
   .machine-mission-actions { justify-content: flex-start; }
   .machine-market-map-grid { grid-template-columns: 1fr; }
+  .machine-snapshot-category-grid { grid-template-columns: 1fr; }
   .machine-evidence-methodology-grid { grid-template-columns: 1fr; }
   .machine-market-grid { grid-template-columns: 1fr; }
   .machine-service-card { position: static; }
@@ -705,6 +719,8 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 @media (max-width: 720px) {
   .machine-market-filters { grid-template-columns: 1fr; }
   .machine-cohort-grid { grid-template-columns: 1fr; }
+  .machine-snapshot-stats { grid-template-columns: 1fr; }
+  .machine-snapshot-cohort-grid { grid-template-columns: 1fr; }
   .machine-cohort-counts { justify-content: flex-start; }
   .machine-cohort-thesis { font-size: 16px; }
   .machine-market-flow b { display: none; }

@@ -1391,6 +1391,10 @@ function isMachineMarketMapRoute(pathname: string) {
   return /^\/machine-market-map\/?$/.test(pathname);
 }
 
+function isMachineEconomySnapshotRoute(pathname: string) {
+  return /^\/machine-economy-snapshot\/?$/.test(pathname);
+}
+
 function isMachineExecutionShortlistRoute(pathname: string) {
   return /^\/machine-execution-shortlist\/?$/.test(pathname);
 }
@@ -2195,6 +2199,23 @@ type MachineMarketMapCategorySummary = {
   machine_use_narrative: string;
 };
 
+type MachineEconomySnapshotSummary = {
+  candidates: MachineExecutionCandidateScore[];
+  categorySummaries: MachineMarketMapCategorySummary[];
+  rows: MachineReadinessMatrixRow[];
+  selectedControlledAction: MachineExecutionCandidateScore | null;
+  servicesMapped: number;
+  categoryCount: number;
+  allowCount: number;
+  reviewCount: number;
+  denyCount: number;
+  proofPlansSelected: number;
+  executionReceipts: number;
+  repeatabilityReceipts: number;
+  strongestCategory: MachineMarketMapCategorySummary | null;
+  riskiestCategory: MachineMarketMapCategorySummary | null;
+};
+
 type MachineMarketFilters = {
   marketType: 'all' | MachineMarketType;
   category: 'all' | MachineMarketCategory;
@@ -2230,6 +2251,10 @@ const MACHINE_MARKET_MAP_CATEGORY_ORDER: MachineMarketMapCategoryKey[] = [
 
 function getSelectedControlledActionCandidate(candidates: MachineExecutionCandidateScore[]) {
   return candidates.find((candidate) => candidate.service.id === MACHINE_SELECTED_CONTROLLED_ACTION_ID) ?? candidates[0] ?? null;
+}
+
+function getMachineMarketMapCategoryLabel(service: MachineMarketService) {
+  return MACHINE_MARKET_MAP_CATEGORY_LABELS[getMachineMarketMapCategoryKey(service)];
 }
 
 function getMachineMarketMapCategoryKey(service: MachineMarketService): MachineMarketMapCategoryKey {
@@ -2378,6 +2403,43 @@ function describeMatrixCellState(state: MachineReadinessMatrixCellState) {
 
 function countMachineReadinessState(rows: MachineReadinessMatrixRow[], column: MachineReadinessMatrixColumn, state: MachineReadinessMatrixCellState) {
   return rows.filter((row) => row.states[column] === state).length;
+}
+
+function buildMachineEconomySnapshotSummary(
+  services: MachineMarketService[],
+  receipts: MachinePreflightReceipt[],
+  coverageRun: MachinePreflightCoverageRun | null
+): MachineEconomySnapshotSummary {
+  const candidates = buildMachineExecutionShortlist(services, receipts, coverageRun);
+  const selectedControlledAction = getSelectedControlledActionCandidate(candidates);
+  const rows = buildMachineReadinessMatrix(services, candidates, coverageRun, receipts, selectedControlledAction?.service.id ?? null);
+  const categorySummaries = buildMachineMarketMapSummaries(services, candidates, coverageRun, receipts);
+  const strongestCategory = categorySummaries.find((item) => item.strongest) ?? null;
+  const riskiestCategory = categorySummaries.find((item) => item.riskiest) ?? null;
+  const policyCounts = rows.reduce((counts, row) => {
+    const decision = row.candidate?.latest_policy_decision ?? 'not recorded';
+    if (decision === 'allow') counts.allow += 1;
+    if (decision === 'review') counts.review += 1;
+    if (decision === 'deny') counts.deny += 1;
+    return counts;
+  }, { allow: 0, review: 0, deny: 0 });
+
+  return {
+    candidates,
+    categorySummaries,
+    rows,
+    selectedControlledAction,
+    servicesMapped: services.length,
+    categoryCount: categorySummaries.length,
+    allowCount: coverageRun?.allow_count ?? policyCounts.allow,
+    reviewCount: coverageRun?.review_count ?? policyCounts.review,
+    denyCount: coverageRun?.deny_count ?? policyCounts.deny,
+    proofPlansSelected: countMachineReadinessState(rows, 'proof_plan_selected', 'complete'),
+    executionReceipts: countMachineReadinessState(rows, 'execution_receipt', 'complete'),
+    repeatabilityReceipts: countMachineReadinessState(rows, 'repeatability_receipt', 'complete'),
+    strongestCategory,
+    riskiestCategory
+  };
 }
 
 function buildMachineReadinessMatrix(
@@ -2577,7 +2639,7 @@ function MachineMarketPage() {
       <section className="panel machine-market-caveat" aria-label="Coverage caveat">
         <p>Infopunks Radar mapped the entire listed robotic.sh machine-service market.</p>
         <p>Coverage refers to the 12 services visible in the observed robotic.sh market snapshot. Execution evidence is tracked separately.</p>
-        <p><a className="execute compact secondary" href="/machine-market-map">View market map</a> <a className="execute compact secondary" href="/machine-readiness-matrix">View readiness matrix</a> <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a></p>
+        <p><a className="execute compact secondary" href="/machine-market-map">View market map</a> <a className="execute compact secondary" href="/machine-readiness-matrix">View readiness matrix</a> <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a> <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a></p>
       </section>
       <MachineEvidenceMethodologyDrawer />
       <EvidenceLadder services={services} />
@@ -2829,6 +2891,190 @@ function MachineMarketBrief({
   </section>;
 }
 
+function MachineEconomySnapshotPage() {
+  const [services, setServices] = useState<MachineMarketService[]>([]);
+  const [receipts, setReceipts] = useState<MachinePreflightReceipt[]>([]);
+  const [coverageRun, setCoverageRun] = useState<MachinePreflightCoverageRun | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.title = 'Machine Economy Public Snapshot | Infopunks Pay.sh Radar';
+    setMetaTag('name', 'description', 'Public snapshot of the robotic.sh Machine Economy Radar: market map, readiness matrix, policy state, and proof planning in one read-only page.');
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    Promise.all([
+      api<{ data: { services: MachineMarketService[] } }>('/v1/machine-market/services'),
+      api<{ data: { runs: MachinePreflightCoverageRun[] } }>('/v1/machine-preflight/coverage-runs/recent?limit=1').catch(() => null),
+      api<{ data: { receipts: MachinePreflightReceipt[] } }>('/v1/machine-preflight/receipts/recent?limit=100').catch(() => null)
+    ]).then(([servicesResponse, coverageResponse, receiptsResponse]) => {
+      if (cancelled) return;
+      setServices(servicesResponse.data.services);
+      setCoverageRun(coverageResponse?.data.runs?.[0] ?? null);
+      setReceipts(receiptsResponse?.data.receipts ?? []);
+      setLoading(false);
+    }).catch((err) => {
+      if (cancelled) return;
+      setError(err instanceof Error ? err.message : 'machine economy snapshot unavailable');
+      setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const snapshot = useMemo(() => buildMachineEconomySnapshotSummary(services, receipts, coverageRun), [services, receipts, coverageRun]);
+
+  return <div className="shell machine-market-shell">
+    <a className="skip-link" href="#machine-snapshot-content">Skip to content</a>
+    <header className="site-header">
+      <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Economy Snapshot navigation">
+        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <div className="terminal-nav" aria-label="Machine Economy navigation">
+          <a href="/machine-market">Machine Economy</a>
+          <a href="/machine-readiness-matrix">Readiness Matrix</a>
+          <a href="/machine-market-map">Market Map</a>
+          <a className="active" href="/machine-economy-snapshot" aria-current="page">Public Snapshot</a>
+          <a href="/machine-execution-shortlist">Execution Shortlist</a>
+          <a href="/">Radar Terminal</a>
+        </div>
+      </nav>
+    </header>
+    <main id="machine-snapshot-content" className="machine-market-page machine-economy-snapshot-page" aria-label="Machine Economy Public Snapshot">
+      <section className="panel hero machine-market-hero machine-snapshot-hero">
+        <div>
+          <p className="eyebrow">Robotic.sh Machine Economy Snapshot</p>
+          <h1>Machine Economy Public Snapshot</h1>
+          <p className="copy">12 robotic.sh services mapped into policy, evidence, readiness, and proof-path state. Radar records what is ready to plan, not what has been executed.</p>
+        </div>
+        <div className="ticker" aria-label="Machine economy snapshot hero chips">
+          <span>robotic.sh visible market</span>
+          <span>{snapshot.servicesMapped} services mapped</span>
+          <span>{snapshot.categoryCount} machine-function categories</span>
+          <span>0 execution claims</span>
+          <span>receipt-driven</span>
+        </div>
+      </section>
+      {loading && <section className="panel" role="status"><p className="route-state">Loading machine economy snapshot...</p></section>}
+      {error && <section className="panel" role="alert"><p className="route-state error">Machine economy snapshot unavailable: {error}</p></section>}
+      {!loading && !error && <>
+        <section className="grid four machine-market-summary machine-snapshot-stats" aria-label="Machine economy snapshot stat grid">
+          <article className="panel metric"><span>Services mapped</span><strong>{snapshot.servicesMapped}</strong><small>robotic.sh visible catalog</small></article>
+          <article className="panel metric"><span>Machine-function categories</span><strong>{snapshot.categoryCount}</strong><small>normalized machine groups</small></article>
+          <article className="panel metric"><span>Policy summary</span><strong>{snapshot.allowCount} allow / {snapshot.reviewCount} review / {snapshot.denyCount} deny</strong><small>computed from current coverage</small></article>
+          <article className="panel metric"><span>Proof plans selected</span><strong>{snapshot.proofPlansSelected}</strong><small>controlled proof-path actions</small></article>
+          <article className="panel metric"><span>Execution receipts</span><strong>{snapshot.executionReceipts}</strong><small>service-specific only</small></article>
+          <article className="panel metric"><span>Repeatability receipts</span><strong>{snapshot.repeatabilityReceipts}</strong><small>repeated service-specific only</small></article>
+          <article className="panel metric"><span>Strongest readiness category</span><strong>{snapshot.strongestCategory?.label ?? 'n/a'}</strong><small>{snapshot.strongestCategory ? formatDistributionSummary(snapshot.strongestCategory.readiness_distribution, ['strong_candidate', 'possible_candidate', 'review_required', 'not_ready']) : 'pending'}</small></article>
+          <article className="panel metric"><span>Riskiest category</span><strong>{snapshot.riskiestCategory?.label ?? 'n/a'}</strong><small>{snapshot.riskiestCategory ? `${snapshot.riskiestCategory.allow_count} allow / ${snapshot.riskiestCategory.review_count} review / ${snapshot.riskiestCategory.deny_count} deny` : 'pending'}</small></article>
+          <article className="panel metric"><span>Next controlled action</span><strong>{snapshot.selectedControlledAction?.service.name ?? 'Cloud Translation'} proof plan</strong><small>planning only</small></article>
+        </section>
+        <section className="panel machine-market-cohort machine-snapshot-story" aria-label="Machine economy story strip">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Story Strip</p>
+              <h2>From visible catalog to future receipt</h2>
+            </div>
+            <span className="machine-badge evidence">planning only</span>
+          </div>
+          <div className="machine-market-flow" aria-label="Machine economy story flow">
+            {['robotic.sh catalog', 'Radar market map', 'readiness matrix', 'proof plan selected', 'future receipt'].map((step, index) => <React.Fragment key={step}>
+              <span>{step}</span>
+              {index < 4 && <b aria-hidden="true">-&gt;</b>}
+            </React.Fragment>)}
+          </div>
+          <p className="panel-caption">Coverage, preflight, and proof planning do not imply execution.</p>
+        </section>
+        <MachineEconomySnapshotCohortBand services={services} candidates={snapshot.candidates} />
+        <MachineEconomySnapshotCategorySummary summaries={snapshot.categorySummaries} />
+        <MachineEconomySnapshotBrief summary={snapshot} />
+        <section className="panel machine-market-caveat" aria-label="Machine economy snapshot caveats">
+          <p>No execution claim. No benchmark claim. No winner claim.</p>
+          <p>Pay.sh execution routes tracked separately. Execution requires service-specific receipts.</p>
+          <p>Repeatability requires repeated service-specific receipts.</p>
+        </section>
+        <MachineEvidenceMethodologyDrawer />
+      </>}
+    </main>
+  </div>;
+}
+
+function MachineEconomySnapshotCohortBand({
+  services,
+  candidates
+}: {
+  services: MachineMarketService[];
+  candidates: MachineExecutionCandidateScore[];
+}) {
+  const candidateById = new Map(candidates.map((candidate) => [candidate.service.id, candidate]));
+
+  return <section className="panel machine-market-cohort machine-snapshot-cohort" aria-label="Machine economy cohort band">
+    <div className="panel-head">
+      <div>
+        <p className="section-kicker">Market Cohort Summary</p>
+        <h2>12-service public cohort band</h2>
+      </div>
+      <span className="machine-badge source">{services.length} services</span>
+    </div>
+    <div className="machine-snapshot-cohort-grid">
+      {services.map((service) => {
+        const candidate = candidateById.get(service.id) ?? null;
+        return <article className="machine-snapshot-cohort-row" key={service.id}>
+          <strong>{service.name}</strong>
+          <span>{getMachineMarketMapCategoryLabel(service)}</span>
+          <span>{candidate?.latest_policy_decision ?? 'not recorded'}</span>
+          <span>{candidate?.candidate_tier ?? service.status}</span>
+          <span>{candidate?.execution_status ?? 'not_attempted'}</span>
+        </article>;
+      })}
+    </div>
+  </section>;
+}
+
+function MachineEconomySnapshotCategorySummary({ summaries }: { summaries: MachineMarketMapCategorySummary[] }) {
+  return <section className="panel machine-market-brief machine-snapshot-category-summary" aria-label="Machine economy category summary">
+    <div className="panel-head">
+      <div>
+        <p className="section-kicker">Category Summary</p>
+        <h2>7 machine-function groups</h2>
+      </div>
+      <span className="machine-badge evidence">computed from current registry</span>
+    </div>
+    <div className="machine-snapshot-category-grid">
+      {summaries.map((summary) => <article className="machine-snapshot-category-card" key={summary.key} aria-label={`${summary.label} summary`}>
+        <strong>{summary.label}</strong>
+        <span>{summary.service_count} services</span>
+        <span>{summary.allow_count} allow / {summary.review_count} review / {summary.deny_count} deny</span>
+        <span>{formatDistributionSummary(summary.readiness_distribution, ['strong_candidate', 'possible_candidate', 'review_required', 'not_ready'])}</span>
+        <small>{summary.category_risk_note}</small>
+      </article>)}
+    </div>
+  </section>;
+}
+
+function MachineEconomySnapshotBrief({ summary }: { summary: MachineEconomySnapshotSummary }) {
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
+  const brief = `${summary.servicesMapped} robotic.sh services mapped across ${summary.categoryCount} machine-function categories. Policy state: ${summary.allowCount} allow / ${summary.reviewCount} review / ${summary.denyCount} deny. Radar selected ${summary.proofPlansSelected} controlled proof-plan action: ${summary.selectedControlledAction?.service.name ?? 'Cloud Translation'}. ${summary.executionReceipts} execution receipts. ${summary.repeatabilityReceipts} repeatability receipts. Execution remains receipt-driven. Machines should not spend blind.`;
+
+  async function copyBrief() {
+    const copied = await copyText(brief);
+    setCopyState(copied ? 'copied' : 'failed');
+  }
+
+  return <section className="panel machine-market-brief" aria-label="Machine economy public brief">
+    <div className="panel-head">
+      <div>
+        <p className="section-kicker">Public Brief</p>
+        <h2>Copyable public snapshot brief</h2>
+      </div>
+      <button className="execute compact secondary" type="button" onClick={copyBrief}>{copyState === 'copied' ? 'Copied snapshot brief' : copyState === 'failed' ? 'Copy failed' : 'Copy snapshot brief'}</button>
+    </div>
+    <p className="copy">{brief}</p>
+    <p className="panel-caption">Execution remains receipt-driven. No execution claim. No benchmark claim. No winner claim.</p>
+  </section>;
+}
+
 function MachineReadinessMatrixPage() {
   const [services, setServices] = useState<MachineMarketService[]>([]);
   const [receipts, setReceipts] = useState<MachinePreflightReceipt[]>([]);
@@ -2906,7 +3152,7 @@ function MachineReadinessMatrixPage() {
         <section className="panel machine-market-caveat" aria-label="Readiness matrix caveats">
           <p>12 services mapped. 0 robotic.sh execution claims. 1 proof plan selected.</p>
           <p>No execution claim. No benchmark claim. Pay.sh routes tracked separately. Cloud Translation is the current controlled action, not a winner.</p>
-          <p><a className="execute compact secondary" href="/machine-market-map">View market map</a></p>
+          <p><a className="execute compact secondary" href="/machine-market-map">View market map</a> <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a></p>
         </section>
         <MachineEvidenceMethodologyDrawer />
         <section className="panel machine-readiness-matrix-panel" aria-label="Machine readiness matrix table">
@@ -3043,7 +3289,7 @@ function MachineMarketMapPage() {
         <section className="panel machine-market-caveat" aria-label="Machine market map caveats">
           <p>0 robotic.sh execution claims. Planning only.</p>
           <p>No execution claim. No benchmark claim. No winner claim. Pay.sh routes tracked separately.</p>
-          <p>Execution requires service-specific receipts before any robotic.sh success claim can be made.</p>
+          <p>Execution requires service-specific receipts before any robotic.sh success claim can be made. <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a></p>
         </section>
         <section className="machine-market-map-grid" aria-label="Category map">
           {categorySummaries.map((summary) => <article className="panel machine-market-map-card" key={summary.key} aria-label={`${summary.label} category`}>
@@ -5825,6 +6071,7 @@ function RadarApp() {
     { id: 'open-agent-benchmark-api', label: 'Open Agent Benchmark API', hint: 'Jump to benchmark API docs and examples', run: () => scrollToPanel('agent-benchmark-api') },
     { id: 'open-api-docs', label: 'Open API Docs', hint: OPENAPI_PATH, run: openApiDocs },
     { id: 'open-machine-market', label: 'Open Machine Market', hint: '/machine-market', run: () => openMachineRoute('/machine-market') },
+    { id: 'open-machine-economy-snapshot', label: 'Open Machine Economy Snapshot', hint: '/machine-economy-snapshot', run: () => openMachineRoute('/machine-economy-snapshot') },
     { id: 'open-machine-market-map', label: 'Open Machine Market Map', hint: '/machine-market-map', run: () => openMachineRoute('/machine-market-map') },
     { id: 'open-machine-readiness-matrix', label: 'Open Machine Readiness Matrix', hint: '/machine-readiness-matrix', run: () => openMachineRoute('/machine-readiness-matrix') },
     { id: 'open-machine-service-dossier', label: 'Open Machine Service Dossier', hint: 'Open /machine-market and choose View service dossier', run: () => openMachineRoute('/machine-market') },
@@ -9405,6 +9652,7 @@ export function App() {
   if (benchmarkId) return <PublicBenchmarkProofPage benchmarkId={benchmarkId} />;
   if (isBenchmarkIndexRoute(window.location.pathname)) return <PublicBenchmarksIndexPage />;
   if (isMachineMarketRoute(window.location.pathname)) return <MachineMarketPage />;
+  if (isMachineEconomySnapshotRoute(window.location.pathname)) return <MachineEconomySnapshotPage />;
   if (isMachineMarketMapRoute(window.location.pathname)) return <MachineMarketMapPage />;
   if (isMachineReadinessMatrixRoute(window.location.pathname)) return <MachineReadinessMatrixPage />;
   if (isMachineExecutionShortlistRoute(window.location.pathname)) return <MachineExecutionShortlistPage />;

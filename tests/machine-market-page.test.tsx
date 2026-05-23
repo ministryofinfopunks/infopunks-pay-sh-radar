@@ -311,6 +311,7 @@ describe('machine market page', () => {
     expect(container.querySelector('[aria-label="12-Service Market Cohort"]')?.textContent).toContain('12 robotic.sh services mapped');
     expect(container.querySelector('.machine-market-caveat a[href="/machine-market-map"]')?.textContent).toContain('View market map');
     expect(container.querySelector('a[href="/machine-readiness-matrix"]')?.textContent).toContain('View readiness matrix');
+    expect(container.querySelector('a[href="/machine-economy-snapshot"]')?.textContent).toContain('View public snapshot');
     expect(container.querySelector('.machine-market-caveat a[href="/machine-execution-shortlist"]')?.textContent).toContain('View execution shortlist');
     expect(container.querySelector('[aria-label="Machine Market Mission Control"]')?.textContent).toContain('Machine Market Mission Control');
     for (const name of serviceNames) expect(container.textContent).toContain(name);
