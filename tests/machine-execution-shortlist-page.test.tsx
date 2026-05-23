@@ -195,6 +195,8 @@ describe('machine execution shortlist page', () => {
     expect(text).toContain('next_execution_candidate');
     expect(container.querySelector('a[href="/machine-execution-plan/cloud-translation"]')?.textContent).toContain('View proof plan');
     expect(text).toContain('Radar recommends this as the clearest next execution candidate among the 12 robotic.sh-visible services. This is not an execution claim.');
+    expect(container.querySelector('[aria-label="Evidence methodology drawer"]')?.textContent).toContain('Evidence methodology');
+    expect(container.querySelector('[aria-label="Evidence methodology drawer"]')?.textContent).toContain('proof_plan_selected');
     expect(container.querySelector('[aria-label="Shortlist methodology"]')?.textContent).toContain('Shortlist ranking evaluates readiness for future execution.');
     expect(container.querySelector('[aria-label="Robotic.sh execution candidate table"]')?.textContent).toContain('View service dossier');
   });

@@ -309,6 +309,7 @@ describe('machine market page', () => {
     expect(container.querySelector('[aria-label="Machine Market summary"]')?.textContent).toContain('planning only');
     expect(container.querySelector('[aria-label="Machine Market summary"]')?.textContent).toContain('no robotic.sh service executed');
     expect(container.querySelector('[aria-label="12-Service Market Cohort"]')?.textContent).toContain('12 robotic.sh services mapped');
+    expect(container.querySelector('.machine-market-caveat a[href="/machine-market-map"]')?.textContent).toContain('View market map');
     expect(container.querySelector('a[href="/machine-readiness-matrix"]')?.textContent).toContain('View readiness matrix');
     expect(container.querySelector('.machine-market-caveat a[href="/machine-execution-shortlist"]')?.textContent).toContain('View execution shortlist');
     expect(container.querySelector('[aria-label="Machine Market Mission Control"]')?.textContent).toContain('Machine Market Mission Control');
@@ -347,7 +348,10 @@ describe('machine market page', () => {
     expect(container.textContent).toContain('Receipts recorded12');
     expect(container.textContent).toContain('No Pay.sh, robotic.sh, or Agentic.Market call was made.');
     expect(container.querySelector('[aria-label="Preflight Coverage"] .machine-caveat-row .machine-caveat-copy')?.textContent).toContain('Coverage run records decision receipts only.');
-    expect(container.querySelector('a[href="/#methodology"]')?.textContent).toBe('Methodology: Machine Economy evidence ladder');
+    const methodology = container.querySelector('[aria-label="Evidence methodology drawer"]');
+    expect(methodology?.textContent).toContain('proof_path');
+    expect(methodology?.textContent).toContain('proof_plan_selected');
+    expect(methodology?.textContent).toContain('This is not an execution claim.');
   });
 
   it('renders cohort command center with next controlled action, proof plan, shortlist, and operational chips', async () => {

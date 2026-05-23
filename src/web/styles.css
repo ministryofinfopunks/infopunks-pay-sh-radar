@@ -540,8 +540,29 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 .machine-mission-next { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; }
 .machine-mission-next p { margin: 8px 0 0; color: #c8e3d0; line-height: 1.55; }
 .machine-mission-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.machine-market-map-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.machine-market-map-card { display: grid; gap: 12px; }
+.machine-market-map-flags { display: flex; flex-wrap: wrap; gap: 6px; }
+.machine-market-map-services { display: flex; flex-wrap: wrap; gap: 6px; }
+.machine-market-map-services .machine-badge { color: #c8e3d0 !important; }
+.machine-market-interpretation-list { display: grid; gap: 9px; }
+.machine-market-interpretation-list p { display: grid; gap: 4px; margin: 0; }
+.machine-market-interpretation-list span { color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.machine-market-interpretation-list small { color: #c8e3d0; line-height: 1.5; }
 .machine-market-brief { display: grid; gap: 12px; border-color: rgba(124,199,255,.22); background: linear-gradient(135deg, rgba(5,18,25,.94), rgba(3,8,7,.94)); }
 .machine-market-brief .copy { margin: 0; }
+.machine-evidence-methodology { display: grid; gap: 0; border-color: rgba(124,199,255,.24); background: linear-gradient(135deg, rgba(7,20,28,.95), rgba(3,8,7,.93)); }
+.machine-evidence-methodology-summary { display: grid; gap: 6px; cursor: pointer; list-style: none; }
+.machine-evidence-methodology-summary::-webkit-details-marker { display: none; }
+.machine-evidence-methodology-summary strong { color: var(--text); font-family: 'Space Grotesk', sans-serif; line-height: 1.18; }
+.machine-evidence-methodology-summary small { color: #c8e3d0; line-height: 1.45; }
+.machine-evidence-methodology-body { display: grid; gap: 12px; margin-top: 12px; }
+.machine-evidence-methodology-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.machine-evidence-methodology-grid article { border: 1px solid rgba(126,255,176,.12); border-radius: 12px; padding: 11px; background: rgba(0,0,0,.18); }
+.machine-evidence-methodology-grid span { display: block; color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.machine-evidence-methodology-grid p { margin: 6px 0 0; color: #c8e3d0; line-height: 1.5; }
+.machine-evidence-methodology-caveat { border: 1px solid rgba(124,199,255,.18); border-radius: 12px; padding: 11px; background: rgba(124,199,255,.05); }
+.machine-evidence-methodology-caveat p { margin: 0; color: #c8e3d0; line-height: 1.55; }
 .machine-service-inspector { display: grid; gap: 12px; border-color: rgba(124,199,255,.3); background: linear-gradient(135deg, rgba(7,20,28,.95), rgba(3,8,7,.93)); }
 .machine-inspector-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .machine-inspector-grid article { border: 1px solid rgba(126,255,176,.12); border-radius: 12px; padding: 11px; background: rgba(0,0,0,.18); }
@@ -670,6 +691,8 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
   .machine-inspector-grid { grid-template-columns: 1fr; }
   .machine-mission-grid, .machine-mission-next { grid-template-columns: 1fr; }
   .machine-mission-actions { justify-content: flex-start; }
+  .machine-market-map-grid { grid-template-columns: 1fr; }
+  .machine-evidence-methodology-grid { grid-template-columns: 1fr; }
   .machine-market-grid { grid-template-columns: 1fr; }
   .machine-service-card { position: static; }
   .machine-preflight-layout, .machine-preflight-form-grid, .machine-clearance-grid, .machine-receipt-priority, .machine-check-summary { grid-template-columns: 1fr; }

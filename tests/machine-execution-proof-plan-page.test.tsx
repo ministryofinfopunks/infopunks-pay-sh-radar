@@ -185,7 +185,9 @@ describe('machine execution proof plan page', () => {
     root = await renderPath(container, '/machine-execution-plan/cloud-translation');
 
     const text = container.textContent ?? '';
-    expect(text).toContain('Planning only: no service execution is performed from this page, and no execution success is claimed.');
+    expect(text).toContain('Planning only: no service execution is performed from this page, and no execution claim is made.');
+    expect(container.querySelector('[aria-label="Evidence methodology drawer"]')?.textContent).toContain('proof_plan_selected');
+    expect(container.querySelector('[aria-label="Evidence methodology drawer"]')?.textContent).toContain('This is not an execution claim.');
     expect(text).not.toContain('execution succeeded');
     expect(text).not.toContain('benchmark winner');
   });

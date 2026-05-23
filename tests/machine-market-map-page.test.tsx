@@ -99,15 +99,14 @@ function installFetch() {
         caveats: [
           'Coverage run records decision receipts only.',
           'No service execution occurred.',
-          'No payment occurred.'
+          'No Pay.sh, robotic.sh, or Agentic.Market call was made.',
+          'No payment occurred.',
+          'This is not a benchmark artifact.'
         ],
         service_results: serviceResults
       }]
     });
-    if (path === '/v1/machine-preflight/receipts/recent') return json({
-      count: 0,
-      receipts: []
-    });
+    if (path === '/v1/machine-preflight/receipts/recent') return json({ count: 0, receipts: [] });
     return Promise.resolve(new Response('{}', { status: 404 }));
   });
 }
@@ -125,12 +124,12 @@ async function renderPage(container: HTMLDivElement) {
   return root;
 }
 
-describe('machine readiness matrix page', () => {
+describe('machine market map page', () => {
   let root: Root;
   let container: HTMLDivElement;
 
   beforeEach(() => {
-    window.history.pushState({}, '', '/machine-readiness-matrix');
+    window.history.pushState({}, '', '/machine-market-map');
     container = document.createElement('div');
     document.body.append(container);
     installFetch();
@@ -143,42 +142,39 @@ describe('machine readiness matrix page', () => {
     window.history.pushState({}, '', '/');
   });
 
-  it('renders the readiness matrix with all 12 services', async () => {
+  it('renders the market map route and represents all 12 services exactly once in the category map', async () => {
     root = await renderPage(container);
 
-    expect(container.textContent).toContain('Machine Readiness Matrix');
-    expect(container.textContent).toContain('12 services mapped. 0 robotic.sh execution claims. 1 proof plan selected.');
-    expect(container.querySelector('[aria-label="Readiness Matrix Brief"]')?.textContent).toContain('Readiness Matrix Brief');
-    expect(container.querySelector('[aria-label="Readiness Matrix Brief"]')?.textContent).toContain('12 robotic.sh services mapped across the readiness ladder.');
-    expect(container.querySelector('[aria-label="Readiness Matrix Brief"]')?.textContent).toContain('1 proof plan selected.');
-    expect(container.querySelector('[aria-label="Readiness Matrix Brief"]')?.textContent).toContain('0 execution receipts.');
-    expect(container.querySelector('[aria-label="Readiness Matrix Brief"]')?.textContent).toContain('0 repeatability receipts.');
-    expect(container.querySelector('[aria-label="Readiness Matrix Brief"] button')?.textContent).toContain('Copy brief');
-    expect(container.querySelector('a[href="/machine-market-map"]')?.textContent).toContain('View market map');
-    expect(container.querySelector('[aria-label="Evidence methodology drawer"]')?.textContent).toContain('execution_receipt');
-    expect(container.querySelector('[aria-label="Evidence methodology drawer"]')?.textContent).toContain('repeatability_receipt');
-    for (const name of serviceNames) expect(container.textContent).toContain(name);
+    expect(container.textContent).toContain('Machine Market Map');
+    expect(container.textContent).toContain('12 robotic.sh services mapped.');
+    expect(container.textContent).toContain('0 robotic.sh execution claims');
+    expect(container.textContent).toContain('Planning only.');
+
+    const serviceChips = Array.from(container.querySelectorAll('.machine-market-map-services .machine-badge')).map((item) => item.textContent?.trim());
+    expect(serviceChips).toHaveLength(12);
+    expect(new Set(serviceChips).size).toBe(12);
+    for (const name of serviceNames) expect(serviceChips).toContain(name);
   });
 
-  it('marks proof_plan_selected complete only for Cloud Translation and keeps execution receipts missing without service-specific receipts', async () => {
+  it('renders normalized categories and category summaries without execution, winner, or benchmark claims', async () => {
     root = await renderPage(container);
 
-    const matrix = container.querySelector('[aria-label="Machine readiness matrix"]');
-    expect(matrix?.textContent).toContain('Cloud Translation');
+    const map = container.querySelector('[aria-label="Category map"]');
+    expect(map?.textContent).toContain('AI / inference');
+    expect(map?.textContent).toContain('data / query');
+    expect(map?.textContent).toContain('translation');
+    expect(map?.textContent).toContain('web / retrieval');
+    expect(map?.textContent).toContain('storage');
+    expect(map?.textContent).toContain('verification');
+    expect(map?.textContent).toContain('compute');
+    expect(map?.textContent).toContain('allow / review / deny');
+    expect(map?.textContent).toContain('readiness tier distribution');
+    expect(map?.textContent).toContain('execution status summary');
+    expect(map?.textContent).toContain('evidence health summary');
 
-    const rowTexts = Array.from(container.querySelectorAll('.machine-readiness-row')).map((row) => row.textContent ?? '');
-    const cloudTranslationRow = rowTexts.find((text) => text.includes('Cloud Translation'));
-    const qvacRow = rowTexts.find((text) => text.includes('QVAC'));
-
-    expect(cloudTranslationRow).toContain('complete');
-    expect(cloudTranslationRow).toContain('missingmissing');
-    expect(qvacRow).not.toContain('proof plan selectedcomplete');
-
-    const matrixText = matrix?.textContent ?? '';
-    expect(matrixText).toContain('execution_receipt');
-    expect(matrixText).toContain('repeatability_receipt');
-    expect(matrixText).not.toContain('benchmark');
-    expect(matrixText).not.toContain('winner');
-    expect(matrixText).not.toContain('execution success');
+    expect(container.textContent).toContain('No execution claim. No benchmark claim. No winner claim. Pay.sh routes tracked separately.');
+    expect(container.textContent).toContain('Execution requires service-specific receipts before any robotic.sh success claim can be made.');
+    expect(container.textContent).toContain('Every category remains receipt-dependent. No robotic.sh-visible category is execution-proven on this page.');
+    expect(container.textContent).not.toContain('execution success');
   });
 });

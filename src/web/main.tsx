@@ -1387,6 +1387,10 @@ function isMachineReadinessMatrixRoute(pathname: string) {
   return /^\/machine-readiness-matrix\/?$/.test(pathname);
 }
 
+function isMachineMarketMapRoute(pathname: string) {
+  return /^\/machine-market-map\/?$/.test(pathname);
+}
+
 function isMachineExecutionShortlistRoute(pathname: string) {
   return /^\/machine-execution-shortlist\/?$/.test(pathname);
 }
@@ -2160,6 +2164,37 @@ type MachineReadinessMatrixRow = {
   states: Record<MachineReadinessMatrixColumn, MachineReadinessMatrixCellState>;
 };
 
+type MachineMarketMapCategoryKey =
+  | 'ai-inference'
+  | 'data-query'
+  | 'translation'
+  | 'web-retrieval'
+  | 'storage'
+  | 'automation'
+  | 'verification'
+  | 'compute'
+  | 'other';
+
+type MachineMarketMapCategorySummary = {
+  key: MachineMarketMapCategoryKey;
+  label: string;
+  services: MachineMarketService[];
+  service_count: number;
+  allow_count: number;
+  review_count: number;
+  deny_count: number;
+  readiness_distribution: Record<MachineExecutionCandidateTier, number>;
+  execution_status_distribution: Record<MachineExecutionCandidateScore['execution_status'], number>;
+  evidence_health_distribution: Record<MachineMarketService['evidence_health'], number>;
+  average_readiness_score: number;
+  risk_score: number;
+  strongest: boolean;
+  riskiest: boolean;
+  execution_claim_count: number;
+  category_risk_note: string;
+  machine_use_narrative: string;
+};
+
 type MachineMarketFilters = {
   marketType: 'all' | MachineMarketType;
   category: 'all' | MachineMarketCategory;
@@ -2169,8 +2204,148 @@ type MachineMarketFilters = {
   status: 'all' | MachineMarketStatus;
 };
 
+const MACHINE_MARKET_MAP_CATEGORY_LABELS: Record<MachineMarketMapCategoryKey, string> = {
+  'ai-inference': 'AI / inference',
+  'data-query': 'data / query',
+  translation: 'translation',
+  'web-retrieval': 'web / retrieval',
+  storage: 'storage',
+  automation: 'automation',
+  verification: 'verification',
+  compute: 'compute',
+  other: 'other'
+};
+
+const MACHINE_MARKET_MAP_CATEGORY_ORDER: MachineMarketMapCategoryKey[] = [
+  'ai-inference',
+  'data-query',
+  'translation',
+  'web-retrieval',
+  'storage',
+  'automation',
+  'verification',
+  'compute',
+  'other'
+];
+
 function getSelectedControlledActionCandidate(candidates: MachineExecutionCandidateScore[]) {
   return candidates.find((candidate) => candidate.service.id === MACHINE_SELECTED_CONTROLLED_ACTION_ID) ?? candidates[0] ?? null;
+}
+
+function getMachineMarketMapCategoryKey(service: MachineMarketService): MachineMarketMapCategoryKey {
+  if (service.category === 'compute') return 'compute';
+  if (service.category === 'storage') return 'storage';
+  if (service.category === 'translation') return 'translation';
+  if (service.category === 'vision' || service.category === 'inference') return 'ai-inference';
+  if (service.category === 'web') {
+    const id = service.id.toLowerCase();
+    const name = service.name.toLowerCase();
+    if (id.includes('bigquery') || name.includes('bigquery')) return 'data-query';
+    if (id.includes('captcha') || name.includes('captcha')) return 'verification';
+    if (id.includes('firecrawl') || id.includes('exa') || name.includes('firecrawl') || name.includes('exa')) return 'web-retrieval';
+    return 'web-retrieval';
+  }
+  return 'other';
+}
+
+function getMachineMarketReadinessTierWeight(tier: MachineExecutionCandidateTier) {
+  return ({ strong_candidate: 3, possible_candidate: 2, review_required: 1, not_ready: 0 } as const)[tier];
+}
+
+function formatDistributionSummary(distribution: Record<string, number>, order: string[]) {
+  return order.map((key) => `${key} ${distribution[key] ?? 0}`).join(' · ');
+}
+
+function buildMachineMarketMapSummaries(
+  services: MachineMarketService[],
+  candidates: MachineExecutionCandidateScore[],
+  latestRun: MachinePreflightCoverageRun | null,
+  receipts: MachinePreflightReceipt[]
+) {
+  const candidateById = new Map(candidates.map((candidate) => [candidate.service.id, candidate]));
+  const summaries: MachineMarketMapCategorySummary[] = [];
+
+  for (const key of MACHINE_MARKET_MAP_CATEGORY_ORDER) {
+    const categoryServices = services.filter((service) => getMachineMarketMapCategoryKey(service) === key);
+    if (!categoryServices.length) continue;
+    const readiness_distribution: Record<MachineExecutionCandidateTier, number> = {
+      strong_candidate: 0,
+      possible_candidate: 0,
+      review_required: 0,
+      not_ready: 0
+    };
+    const execution_status_distribution: Record<MachineExecutionCandidateScore['execution_status'], number> = {
+      'not_attempted': 0,
+      'attempted-recorded': 0,
+      'execution-tested': 0,
+      'repeatability-recorded': 0
+    };
+    const evidence_health_distribution: Record<MachineMarketService['evidence_health'], number> = {
+      scaffold: 0,
+      listed: 0
+    };
+
+    let allow_count = 0;
+    let review_count = 0;
+    let deny_count = 0;
+    let readiness_points = 0;
+
+    for (const service of categoryServices) {
+      const candidate = candidateById.get(service.id) ?? scoreMachineExecutionCandidate(service, receipts, latestRun);
+      const coverageDecision = getCoverageServiceResult(service.id, latestRun)?.decision ?? null;
+      const decision = candidate.latest_policy_decision !== 'not recorded' ? candidate.latest_policy_decision : coverageDecision ?? 'not recorded';
+      if (decision === 'allow') allow_count += 1;
+      if (decision === 'review') review_count += 1;
+      if (decision === 'deny') deny_count += 1;
+      readiness_distribution[candidate.candidate_tier] += 1;
+      execution_status_distribution[candidate.execution_status] += 1;
+      evidence_health_distribution[service.evidence_health] += 1;
+      readiness_points += getMachineMarketReadinessTierWeight(candidate.candidate_tier);
+    }
+
+    const service_count = categoryServices.length;
+    const average_readiness_score = service_count ? readiness_points / service_count : 0;
+    const risk_score = (deny_count * 2) + review_count;
+    const category_risk_note = deny_count > 0
+      ? 'Contains at least one deny decision. Keep this category blocked unless policy evidence changes.'
+      : review_count > 0
+        ? 'Contains review-required services. Human review and bounded authority remain mandatory.'
+        : 'Current policy coverage skews allow, but category status is still planning-only and not execution-proven.';
+    const machine_use_narrative = `This category shows how machines could use ${MACHINE_MARKET_MAP_CATEGORY_LABELS[key].toLowerCase()} services for ${compactList(categoryServices.map((service) => service.machine_use_case), 2).toLowerCase()}.`;
+
+    summaries.push({
+      key,
+      label: MACHINE_MARKET_MAP_CATEGORY_LABELS[key],
+      services: categoryServices,
+      service_count,
+      allow_count,
+      review_count,
+      deny_count,
+      readiness_distribution,
+      execution_status_distribution,
+      evidence_health_distribution,
+      average_readiness_score,
+      risk_score,
+      strongest: false,
+      riskiest: false,
+      execution_claim_count: execution_status_distribution['execution-tested'] + execution_status_distribution['repeatability-recorded'],
+      category_risk_note,
+      machine_use_narrative
+    });
+  }
+
+  const strongest = summaries
+    .slice()
+    .sort((a, b) => b.average_readiness_score - a.average_readiness_score || b.allow_count - a.allow_count || a.label.localeCompare(b.label))[0] ?? null;
+  const riskiest = summaries
+    .slice()
+    .sort((a, b) => b.risk_score - a.risk_score || b.deny_count - a.deny_count || b.review_count - a.review_count || a.label.localeCompare(b.label))[0] ?? null;
+
+  return summaries.map((summary) => ({
+    ...summary,
+    strongest: strongest?.key === summary.key,
+    riskiest: riskiest?.key === summary.key
+  }));
 }
 
 function getCoverageServiceResult(serviceId: string, latestRun: MachinePreflightCoverageRun | null) {
@@ -2199,6 +2374,10 @@ function describeMatrixCellState(state: MachineReadinessMatrixCellState) {
   if (state === 'review') return 'review';
   if (state === 'not_applicable') return 'not applicable';
   return 'missing';
+}
+
+function countMachineReadinessState(rows: MachineReadinessMatrixRow[], column: MachineReadinessMatrixColumn, state: MachineReadinessMatrixCellState) {
+  return rows.filter((row) => row.states[column] === state).length;
 }
 
 function buildMachineReadinessMatrix(
@@ -2398,9 +2577,9 @@ function MachineMarketPage() {
       <section className="panel machine-market-caveat" aria-label="Coverage caveat">
         <p>Infopunks Radar mapped the entire listed robotic.sh machine-service market.</p>
         <p>Coverage refers to the 12 services visible in the observed robotic.sh market snapshot. Execution evidence is tracked separately.</p>
-        <p><a className="execute compact secondary" href="/machine-readiness-matrix">View readiness matrix</a> <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a></p>
-        <MachineMethodologyNote />
+        <p><a className="execute compact secondary" href="/machine-market-map">View market map</a> <a className="execute compact secondary" href="/machine-readiness-matrix">View readiness matrix</a> <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a></p>
       </section>
+      <MachineEvidenceMethodologyDrawer />
       <EvidenceLadder services={services} />
       <CoveragePanel latestRun={latestCoverageRun} loading={coverageLoading || loading} running={coverageRunning} error={coverageError} onRun={runCoveragePreflight} />
       <FirstExecutionCard anyTransReceipt={latestAnyTransExecutionReceipt} machineTranslationGeneralReceipt={latestMachineTranslationGeneralExecutionReceipt} repeatability={machineTranslationGeneralRepeatability} benchmarkReadiness={machineTranslationGeneralBenchmarkReadiness} />
@@ -2723,10 +2902,13 @@ function MachineReadinessMatrixPage() {
       {loading && <section className="panel" role="status"><p className="route-state">Loading readiness matrix...</p></section>}
       {error && <section className="panel" role="alert"><p className="route-state error">Readiness matrix unavailable: {error}</p></section>}
       {!loading && !error && <>
+        <ReadinessMatrixBrief rows={rows} />
         <section className="panel machine-market-caveat" aria-label="Readiness matrix caveats">
           <p>12 services mapped. 0 robotic.sh execution claims. 1 proof plan selected.</p>
           <p>No execution claim. No benchmark claim. Pay.sh routes tracked separately. Cloud Translation is the current controlled action, not a winner.</p>
+          <p><a className="execute compact secondary" href="/machine-market-map">View market map</a></p>
         </section>
+        <MachineEvidenceMethodologyDrawer />
         <section className="panel machine-readiness-matrix-panel" aria-label="Machine readiness matrix table">
           <div className="panel-head">
             <div><p className="section-kicker">Readiness Matrix</p><h2>{rows.length} robotic.sh-visible services</h2></div>
@@ -2744,6 +2926,165 @@ function MachineReadinessMatrixPage() {
                 <span className={`machine-status-badge matrix-state ${row.states[column]}`}>{describeMatrixCellState(row.states[column])}</span>
               </span>)}
             </div>)}
+          </div>
+        </section>
+      </>}
+    </main>
+  </div>;
+}
+
+function ReadinessMatrixBrief({ rows }: { rows: MachineReadinessMatrixRow[] }) {
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
+  const servicesMapped = rows.length;
+  const proofPlanSelected = countMachineReadinessState(rows, 'proof_plan_selected', 'complete');
+  const executionReceipts = countMachineReadinessState(rows, 'execution_receipt', 'complete');
+  const repeatabilityReceipts = countMachineReadinessState(rows, 'repeatability_receipt', 'complete');
+  const brief = `${servicesMapped} robotic.sh services mapped across the readiness ladder. ${proofPlanSelected} proof plan selected. ${executionReceipts} execution receipts. ${repeatabilityReceipts} repeatability receipts. Execution remains receipt-driven.`;
+
+  async function copyBrief() {
+    const copied = await copyText(brief);
+    setCopyState(copied ? 'copied' : 'failed');
+  }
+
+  return <section className="panel machine-market-brief" aria-label="Readiness Matrix Brief">
+    <div className="panel-head">
+      <div>
+        <p className="section-kicker">Readiness Matrix Brief</p>
+        <h2>Readiness Matrix Brief</h2>
+      </div>
+      <button className="execute compact secondary" type="button" onClick={copyBrief}>{copyState === 'copied' ? 'Copied brief' : copyState === 'failed' ? 'Copy failed' : 'Copy brief'}</button>
+    </div>
+    <p className="copy">{brief}</p>
+    <p className="panel-caption">No execution claim. No benchmark claim. No winner claim. Execution remains receipt-driven.</p>
+  </section>;
+}
+
+function MachineMarketMapPage() {
+  const [services, setServices] = useState<MachineMarketService[]>([]);
+  const [receipts, setReceipts] = useState<MachinePreflightReceipt[]>([]);
+  const [coverageRun, setCoverageRun] = useState<MachinePreflightCoverageRun | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.title = 'Machine Market Map | Infopunks Pay.sh Radar';
+    setMetaTag('name', 'description', 'Read-only market map of the 12 robotic.sh-visible services grouped into machine-function categories.');
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    Promise.all([
+      api<{ data: { services: MachineMarketService[] } }>('/v1/machine-market/services'),
+      api<{ data: { runs: MachinePreflightCoverageRun[] } }>('/v1/machine-preflight/coverage-runs/recent?limit=1').catch(() => null),
+      api<{ data: { receipts: MachinePreflightReceipt[] } }>('/v1/machine-preflight/receipts/recent?limit=100').catch(() => null)
+    ]).then(([servicesResponse, coverageResponse, receiptsResponse]) => {
+      if (cancelled) return;
+      setServices(servicesResponse.data.services);
+      setCoverageRun(coverageResponse?.data.runs?.[0] ?? null);
+      setReceipts(receiptsResponse?.data.receipts ?? []);
+      setLoading(false);
+    }).catch((err) => {
+      if (cancelled) return;
+      setError(err instanceof Error ? err.message : 'machine market map unavailable');
+      setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const candidates = useMemo(() => buildMachineExecutionShortlist(services, receipts, coverageRun), [services, receipts, coverageRun]);
+  const categorySummaries = useMemo(() => buildMachineMarketMapSummaries(services, candidates, coverageRun, receipts), [services, candidates, coverageRun, receipts]);
+  const strongestCategory = categorySummaries.find((item) => item.strongest) ?? null;
+  const riskiestCategory = categorySummaries.find((item) => item.riskiest) ?? null;
+  const totalExecutionClaims = categorySummaries.reduce((sum, item) => sum + item.execution_claim_count, 0);
+
+  return <div className="shell machine-market-shell">
+    <a className="skip-link" href="#machine-market-map-content">Skip to content</a>
+    <header className="site-header">
+      <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Market Map navigation">
+        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <div className="terminal-nav" aria-label="Machine Economy navigation">
+          <a href="/machine-market">Machine Economy</a>
+          <a href="/machine-readiness-matrix">Readiness Matrix</a>
+          <a className="active" href="/machine-market-map" aria-current="page">Market Map</a>
+          <a href="/machine-execution-shortlist">Execution Shortlist</a>
+          <a href="/machine-preflight">Machine Preflight</a>
+          <a href="/machine-receipts">Machine Receipts</a>
+          <a href="/">Radar Terminal</a>
+        </div>
+      </nav>
+    </header>
+    <main id="machine-market-map-content" className="machine-market-page machine-market-map-page" aria-label="Machine Market Map">
+      <section className="panel hero machine-market-hero">
+        <div>
+          <p className="eyebrow">Robotic.sh Machine Market Map</p>
+          <h1>Machine Market Map</h1>
+          <p className="copy">12 robotic.sh services mapped. {categorySummaries.length || 0} normalized machine-function categories. 0 robotic.sh execution claims. Planning only.</p>
+          <p className="panel-caption">Read-only category map for the visible robotic.sh catalog. No execution claim, no benchmark claim, no winner claim.</p>
+        </div>
+        <div className="ticker" aria-label="Machine market map summary">
+          <span>12 services mapped</span>
+          <span>{categorySummaries.length || 0} categories</span>
+          <span>strongest: {strongestCategory?.label ?? 'pending'}</span>
+          <span>riskiest: {riskiestCategory?.label ?? 'pending'}</span>
+          <span>0 robotic.sh execution claims</span>
+          <span>planning only</span>
+        </div>
+      </section>
+      {loading && <section className="panel" role="status"><p className="route-state">Loading machine market map...</p></section>}
+      {error && <section className="panel" role="alert"><p className="route-state error">Machine market map unavailable: {error}</p></section>}
+      {!loading && !error && <>
+        <section className="grid four machine-market-summary" aria-label="Machine market map hero summary">
+          <article className="panel metric"><span>Services Mapped</span><strong>{services.length}</strong><small>robotic.sh visible catalog</small></article>
+          <article className="panel metric"><span>Category Count</span><strong>{categorySummaries.length}</strong><small>normalized machine-function groups</small></article>
+          <article className="panel metric"><span>Strongest Readiness</span><strong>{strongestCategory?.label ?? 'n/a'}</strong><small>{strongestCategory ? `allow ${strongestCategory.allow_count} · ${formatDistributionSummary(strongestCategory.readiness_distribution, ['strong_candidate', 'possible_candidate', 'review_required', 'not_ready'])}` : 'pending'}</small></article>
+          <article className="panel metric"><span>Riskiest Category</span><strong>{riskiestCategory?.label ?? 'n/a'}</strong><small>{riskiestCategory ? `allow ${riskiestCategory.allow_count} · review ${riskiestCategory.review_count} · deny ${riskiestCategory.deny_count}` : 'pending'}</small></article>
+        </section>
+        <section className="panel machine-market-caveat" aria-label="Machine market map caveats">
+          <p>0 robotic.sh execution claims. Planning only.</p>
+          <p>No execution claim. No benchmark claim. No winner claim. Pay.sh routes tracked separately.</p>
+          <p>Execution requires service-specific receipts before any robotic.sh success claim can be made.</p>
+        </section>
+        <section className="machine-market-map-grid" aria-label="Category map">
+          {categorySummaries.map((summary) => <article className="panel machine-market-map-card" key={summary.key} aria-label={`${summary.label} category`}>
+            <div className="panel-head">
+              <div>
+                <p className="section-kicker">Category Map</p>
+                <h2>{summary.label}</h2>
+              </div>
+              <span className={`machine-badge ${summary.riskiest ? 'status setup' : 'evidence'}`}>{summary.service_count} services</span>
+            </div>
+            <div className="machine-market-map-flags">
+              {summary.strongest && <span className="machine-status-badge complete">strongest readiness</span>}
+              {summary.riskiest && <span className="machine-status-badge review">highest review / deny risk</span>}
+              <span className="machine-status-badge not-attempted">{summary.execution_claim_count} execution claims</span>
+            </div>
+            <div className="machine-market-map-services" aria-label={`${summary.label} services`}>
+              {summary.services.map((service) => <span className="machine-badge" key={service.id}>{service.name}</span>)}
+            </div>
+            <div className="machine-usage-list">
+              <p><span>allow / review / deny</span><small>{summary.allow_count} / {summary.review_count} / {summary.deny_count}</small></p>
+              <p><span>readiness tier distribution</span><small>{formatDistributionSummary(summary.readiness_distribution, ['strong_candidate', 'possible_candidate', 'review_required', 'not_ready'])}</small></p>
+              <p><span>execution status summary</span><small>{formatDistributionSummary(summary.execution_status_distribution, ['not_attempted', 'attempted-recorded', 'execution-tested', 'repeatability-recorded'])}</small></p>
+              <p><span>evidence health summary</span><small>{formatDistributionSummary(summary.evidence_health_distribution, ['scaffold', 'listed'])}</small></p>
+              <p><span>category risk note</span><small>{summary.category_risk_note}</small></p>
+              <p><span>machine-use narrative</span><small>{summary.machine_use_narrative}</small></p>
+            </div>
+          </article>)}
+        </section>
+        <section className="panel machine-mission-control" aria-label="Market interpretation panel">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Radar Interpretation</p>
+              <h2>Market interpretation</h2>
+            </div>
+            <span className="machine-badge evidence">{totalExecutionClaims} execution claims</span>
+          </div>
+          <div className="machine-market-interpretation-list">
+            <p><span>strongest now</span><small>{strongestCategory ? `${strongestCategory.label} has the clearest readiness profile in the visible catalog.` : 'Readiness leadership is pending current category aggregation.'}</small></p>
+            <p><span>review risk</span><small>{riskiestCategory ? `${riskiestCategory.label} carries the highest current review / deny concentration.` : 'Review risk is pending current category aggregation.'}</small></p>
+            <p><span>not execution-proven yet</span><small>Every category remains receipt-dependent. No robotic.sh-visible category is execution-proven on this page.</small></p>
+            <p><span>why receipts matter</span><small>Catalog presence, policy coverage, and planning signals do not become execution-proven without service-specific receipts.</small></p>
           </div>
         </section>
       </>}
@@ -3333,6 +3674,7 @@ function MachineExecutionShortlistPage() {
           <p>{PAY_SH_SERVICE_SEPARATION_NOTE}</p>
         </section>
         <TopExecutionCandidatePanel candidate={topCandidate} />
+        <MachineEvidenceMethodologyDrawer />
         <MachineExecutionShortlistMethodology />
         <section className="panel machine-service-table-panel" aria-label="Execution candidate ranking">
           <div className="panel-head">
@@ -3593,9 +3935,10 @@ function MachineExecutionProofPlanPage({ serviceId }: { serviceId: string }) {
           </div>
         </section>
         <section className="panel machine-market-caveat" aria-label="Execution proof planning caveat">
-          <p>Planning only: no service execution is performed from this page, and no execution success is claimed.</p>
+          <p>Planning only: no service execution is performed from this page, and no execution claim is made.</p>
           <p>{PAY_SH_SERVICE_SEPARATION_NOTE}</p>
         </section>
+        <MachineEvidenceMethodologyDrawer />
         <section className="machine-dossier-layout">
           <section className="panel machine-policy-summary" aria-label="Execution candidate identity">
             <div className="panel-head"><div><p className="section-kicker">Candidate Identity</p><h2>{service.name}</h2></div></div>
@@ -4088,6 +4431,38 @@ function normalizeTemplateId(policyId: string) {
 
 function MachineMethodologyNote() {
   return <p className="machine-methodology-note"><a href="/#methodology">Methodology: Machine Economy evidence ladder</a> Repeatability-recorded means the same route has produced multiple successful execution receipts under the same prompt family. It is not a benchmark and does not compare providers. Benchmark-ready criteria define the minimum evidence required before a benchmark can be recorded. Criteria definition is not a benchmark.</p>;
+}
+
+function MachineEvidenceMethodologyDrawer() {
+  const items: Array<{ id: string; title: string; body: string }> = [
+    { id: 'listed', title: 'listed', body: 'Meaning: service appears in the current robotic.sh-visible service mirror.' },
+    { id: 'classified', title: 'classified', body: 'Meaning: Radar has normalized the service into category/status/source-market fields.' },
+    { id: 'policy_mapped', title: 'policy_mapped', body: 'Meaning: Radar has evaluated the service against the current machine policy profile or coverage run.' },
+    { id: 'preflight_recorded', title: 'preflight_recorded', body: 'Meaning: Radar has a durable preflight or decision receipt for the service. It does not imply execution.' },
+    { id: 'proof_path', title: 'proof_path', body: 'Meaning: Radar has enough structured information to describe what evidence would be needed before execution.' },
+    { id: 'proof_plan_selected', title: 'proof_plan_selected', body: 'Meaning: Radar has selected this service for controlled proof planning. This is not an execution claim.' },
+    { id: 'execution_receipt', title: 'execution_receipt', body: 'Meaning: a service-specific execution attempt has produced a durable receipt.' },
+    { id: 'repeatability_receipt', title: 'repeatability_receipt', body: 'Meaning: repeated execution attempts for the same service have produced durable repeatability evidence.' }
+  ];
+
+  return <details className="panel machine-evidence-methodology" aria-label="Evidence methodology drawer">
+    <summary className="machine-evidence-methodology-summary">
+      <span className="section-kicker">Evidence methodology</span>
+      <strong>Evidence methodology</strong>
+      <small>Definitions for listed, classified, policy_mapped, preflight_recorded, proof_path, proof_plan_selected, execution_receipt, and repeatability_receipt.</small>
+    </summary>
+    <div className="machine-evidence-methodology-body">
+      <div className="machine-evidence-methodology-grid">
+        {items.map((item) => <article key={item.id}>
+          <span>{item.title}</span>
+          <p>{item.body}</p>
+        </article>)}
+      </div>
+      <div className="machine-evidence-methodology-caveat">
+        <p>Coverage, preflight, and proof planning do not imply execution. Execution and repeatability remain receipt-driven.</p>
+      </div>
+    </div>
+  </details>;
 }
 
 type MachineReceiptFiltersState = {
@@ -5450,6 +5825,7 @@ function RadarApp() {
     { id: 'open-agent-benchmark-api', label: 'Open Agent Benchmark API', hint: 'Jump to benchmark API docs and examples', run: () => scrollToPanel('agent-benchmark-api') },
     { id: 'open-api-docs', label: 'Open API Docs', hint: OPENAPI_PATH, run: openApiDocs },
     { id: 'open-machine-market', label: 'Open Machine Market', hint: '/machine-market', run: () => openMachineRoute('/machine-market') },
+    { id: 'open-machine-market-map', label: 'Open Machine Market Map', hint: '/machine-market-map', run: () => openMachineRoute('/machine-market-map') },
     { id: 'open-machine-readiness-matrix', label: 'Open Machine Readiness Matrix', hint: '/machine-readiness-matrix', run: () => openMachineRoute('/machine-readiness-matrix') },
     { id: 'open-machine-service-dossier', label: 'Open Machine Service Dossier', hint: 'Open /machine-market and choose View service dossier', run: () => openMachineRoute('/machine-market') },
     { id: 'open-robotic-sh-execution-shortlist', label: 'Open Robotic.sh Execution Shortlist', hint: '/machine-execution-shortlist', run: () => openMachineRoute('/machine-execution-shortlist') },
@@ -9029,6 +9405,7 @@ export function App() {
   if (benchmarkId) return <PublicBenchmarkProofPage benchmarkId={benchmarkId} />;
   if (isBenchmarkIndexRoute(window.location.pathname)) return <PublicBenchmarksIndexPage />;
   if (isMachineMarketRoute(window.location.pathname)) return <MachineMarketPage />;
+  if (isMachineMarketMapRoute(window.location.pathname)) return <MachineMarketMapPage />;
   if (isMachineReadinessMatrixRoute(window.location.pathname)) return <MachineReadinessMatrixPage />;
   if (isMachineExecutionShortlistRoute(window.location.pathname)) return <MachineExecutionShortlistPage />;
   const machineExecutionPlanServiceId = routeMachineExecutionPlanServiceId(window.location.pathname);
