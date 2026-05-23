@@ -498,6 +498,7 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 
 .machine-market-page { display: grid; gap: 18px; }
 .machine-execution-hero::after { content: 'EXECUTION-TESTED ROUTE'; }
+.machine-rail-hero::after { content: 'CATALOG != CALLABLE'; }
 .machine-market-toolbar { justify-content: space-between; pointer-events: auto; }
 .machine-market-hero::after { content: 'POLICY -> EVIDENCE -> RECEIPTS'; }
 .machine-market-caveat { display: grid; gap: 8px; }
@@ -595,6 +596,7 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 .machine-service-table-panel { overflow: hidden; }
 .machine-service-table { display: grid; gap: 9px; overflow-x: auto; padding-bottom: 4px; scrollbar-gutter: stable; }
 .machine-service-row { display: grid; grid-template-columns: minmax(220px, 1.25fr) minmax(104px, .58fr) minmax(124px, .68fr) minmax(96px, .52fr) minmax(88px, .45fr) minmax(140px, .72fr) minmax(220px, 1.18fr) minmax(112px, .55fr) minmax(150px, .72fr); gap: 12px; align-items: center; min-width: 1280px; border: 1px solid rgba(126,255,176,.1); border-radius: 14px; padding: 13px 14px; background: rgba(0,0,0,.18); }
+.machine-rail-row { grid-template-columns: minmax(210px, 1.05fr) minmax(110px, .54fr) minmax(160px, .82fr) minmax(152px, .78fr) minmax(84px, .4fr) minmax(148px, .72fr) minmax(210px, 1.05fr) minmax(138px, .66fr) minmax(190px, .92fr) minmax(152px, .74fr); min-width: 1760px; }
 .machine-shortlist-row { grid-template-columns: minmax(210px, 1.05fr) minmax(130px, .62fr) minmax(104px, .48fr) minmax(116px, .58fr) minmax(84px, .42fr) minmax(112px, .52fr) minmax(140px, .62fr) minmax(132px, .62fr) minmax(142px, .68fr) minmax(72px, .34fr) minmax(156px, .72fr) minmax(280px, 1.32fr) minmax(148px, .7fr); min-width: 1840px; }
 .machine-service-row.head { min-height: 38px; border-color: rgba(126,255,176,.16); background: rgba(126,255,176,.055); color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
 .machine-service-row.selected { border-color: rgba(126,255,176,.44); background: rgba(126,255,176,.075); }

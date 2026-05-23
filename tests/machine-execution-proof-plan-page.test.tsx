@@ -37,6 +37,15 @@ const services = [
   service('QVAC', { id: 'qvac', source_market: 'robotic.sh', chain: 'peaq', status: 'setup', category: 'compute' }),
   service('NAVER Maps', {
     machine_use_case: 'Autonomous robots can request routing, geocoding, and navigation context before moving or rerouting.',
+    route_count: 4,
+    pricing_model: 'Naver Cloud account pricing',
+    credential_requirement: 'Naver Cloud provider credentials required',
+    catalog_routes: [
+      { method: 'GET', path: '/map-geocode/v2/geocode', label: 'Geocode', risk: 'low_to_medium' },
+      { method: 'GET', path: '/map-reversegeocode/v2/gc', label: 'Reverse geocode', risk: 'low_to_medium' },
+      { method: 'GET', path: '/map-direction/v1/driving', label: 'Driving directions', risk: 'high' },
+      { method: 'GET', path: '/map-static/v2/raster', label: 'Static map', risk: 'low_to_medium' }
+    ],
     caveats: ['Public demo context observed: peaq showcased NAVER Maps in a simulated Serve Robotics workflow with USDT settlement on Solana. Radar has not executed this service.']
   })
 ];
@@ -245,6 +254,7 @@ describe('machine execution proof plan page', () => {
 
     const text = container.textContent ?? '';
     const safeInput = container.querySelector('[aria-label="Safe test input"]')?.textContent ?? '';
+    const routeSurface = container.querySelector('[aria-label="Candidate route surface"]')?.textContent ?? '';
     const criteria = container.querySelector('[aria-label="Success and failure criteria"]')?.textContent ?? '';
     const evidence = container.querySelector('[aria-label="Evidence to collect"]')?.textContent ?? '';
     const risk = container.querySelector('[aria-label="Physical-world routing risk"]')?.textContent ?? '';
@@ -254,9 +264,17 @@ describe('machine execution proof plan page', () => {
     expect(text).toContain('latest policy decisionreview');
     expect(text).toContain('evidence_healthscaffold');
     expect(text).toContain('execution_statusnot_attempted');
-    expect(safeInput).toContain('geocode or route lookup');
-    expect(safeInput).toContain('non-operational demo lookup');
-    expect(safeInput).toContain('no robot command, no dispatch, no physical movement triggered');
+    expect(safeInput).toContain('Geocode lookup for a public landmark or generic address');
+    expect(safeInput).toContain('Static map retrieval before any driving directions route');
+    expect(safeInput).toContain('no robot command, no dispatch, no live navigation, no physical movement');
+    expect(routeSurface).toContain('Candidate Route Surface');
+    expect(routeSurface).toContain('Driving directions has higher physical-world risk because route output can influence robot movement.');
+    expect(routeSurface).toContain('Initial proof planning should prefer geocode or static map before driving directions.');
+    expect(routeSurface).toContain('/map-geocode/v2/geocode');
+    expect(routeSurface).toContain('/map-reversegeocode/v2/gc');
+    expect(routeSurface).toContain('/map-direction/v1/driving');
+    expect(routeSurface).toContain('/map-static/v2/raster');
+    expect(routeSurface).toContain('not execution receipts');
     expect(risk).toContain('Routing outputs can influence physical-world movement. NAVER Maps requires review, bounded test inputs, and non-operational constraints before any execution attempt.');
     expect(criteria).toContain('no robot command is issued');
     expect(criteria).toContain('no physical movement is triggered');
@@ -270,6 +288,7 @@ describe('machine execution proof plan page', () => {
     expect(context).toContain('not counted as Radar execution evidence');
     expect(text).not.toContain('execution succeeded');
     expect(text).not.toContain('benchmark winner');
+    expect(text).not.toContain('winner claimed');
   });
 
   it('shows unknown service state with backlink', async () => {

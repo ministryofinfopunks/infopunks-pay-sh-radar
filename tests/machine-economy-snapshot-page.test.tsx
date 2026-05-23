@@ -200,6 +200,7 @@ describe('machine economy snapshot page', () => {
     expect(brief?.textContent).toContain('Policy state: 10 allow / 2 review / 1 deny.');
     expect(brief?.textContent).toContain('Radar selected 1 controlled proof-plan action: Cloud Translation.');
     expect(brief?.querySelector('button')?.textContent).toContain('Copy snapshot brief');
+    expect(container.querySelector('a[href="/machine-rail-coverage"]')?.textContent).toContain('View rail coverage');
 
     const methodology = container.querySelector('[aria-label="Evidence methodology drawer"]');
     expect(methodology?.textContent).toContain('listed');

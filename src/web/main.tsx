@@ -56,7 +56,17 @@ type MachineMarketType = 'digital' | 'physical' | 'all-compatible';
 type MachineMarketSource = 'robotic.sh' | 'pay.sh' | 'agentic.market';
 type MachineMarketChain = 'solana' | 'base' | 'peaq' | 'omnichain' | 'unknown';
 type MachineMarketStatus = 'ready' | 'setup';
+type MachineMarketAccessRail = 'pay_sh_solana' | 'peaqos_market_provider_account' | 'peaqos_market_operator_defined' | 'not_recorded';
+type MachineMarketRailStatus = 'plan_eligible' | 'review_required' | 'proof_plan_selected' | 'not_recorded';
+type MachineMarketRouteSurfaceStatus = 'callable_routes_listed' | 'operator_runtime_required' | 'provider_setup_only' | 'no_callable_endpoints' | 'not_recorded';
 type MachineMarketEvidenceStage = 'listed' | 'classified' | 'policy-mapped' | 'preflight-ready' | 'execution-tested' | 'receipt-recorded' | 'benchmark-recorded';
+type MachineMarketCatalogRouteRisk = 'low_to_medium' | 'high';
+type MachineMarketCatalogRoute = {
+  method: string;
+  path: string;
+  label: string;
+  risk: MachineMarketCatalogRouteRisk;
+};
 type MachineMarketService = {
   id: string;
   name: string;
@@ -73,6 +83,16 @@ type MachineMarketService = {
   evidence_stage: MachineMarketEvidenceStage;
   policy_risk: string;
   caveats: string[];
+  access_rail: MachineMarketAccessRail;
+  rail_status: MachineMarketRailStatus;
+  route_surface_status: MachineMarketRouteSurfaceStatus;
+  endpoint_count?: number | null;
+  route_count?: number;
+  pricing_model?: string;
+  credential_requirement?: string;
+  first_safe_route?: string;
+  rail_caveat?: string;
+  catalog_routes?: MachineMarketCatalogRoute[];
   observed_source: 'robotic.sh';
   observed_at: string;
   phase_scope: 'phase_2_pay_sh_robotic_sh';
@@ -1395,6 +1415,10 @@ function isMachineEconomySnapshotRoute(pathname: string) {
   return /^\/machine-economy-snapshot\/?$/.test(pathname);
 }
 
+function isMachineRailCoverageRoute(pathname: string) {
+  return /^\/machine-rail-coverage\/?$/.test(pathname);
+}
+
 function isMachineExecutionShortlistRoute(pathname: string) {
   return /^\/machine-execution-shortlist\/?$/.test(pathname);
 }
@@ -2217,6 +2241,19 @@ type MachineEconomySnapshotSummary = {
   riskiestCategory: MachineMarketMapCategorySummary | null;
 };
 
+type MachineRailCoverageSummary = {
+  totalServices: number;
+  payShSolana: number;
+  peaqProviderAccount: number;
+  callableRoutesListed: number;
+  providerSetupRequired: number;
+  noCallableEndpointsRecorded: number;
+  executionReceipts: number;
+  repeatabilityReceipts: number;
+};
+
+type MachineRailExecutionStatus = 'not_execution_tested' | 'execution_receipt_recorded' | 'repeatability_receipt_recorded';
+
 type MachineMarketFilters = {
   marketType: 'all' | MachineMarketType;
   category: 'all' | MachineMarketCategory;
@@ -2279,6 +2316,43 @@ function getMachineMarketMapCategoryKey(service: MachineMarketService): MachineM
 
 function getMachineMarketReadinessTierWeight(tier: MachineExecutionCandidateTier) {
   return ({ strong_candidate: 3, possible_candidate: 2, review_required: 1, not_ready: 0 } as const)[tier];
+}
+
+function formatMachineAccessRail(accessRail: MachineMarketAccessRail) {
+  return ({
+    pay_sh_solana: 'Pay.sh / Solana',
+    peaqos_market_provider_account: 'peaqOS / provider account',
+    peaqos_market_operator_defined: 'peaqOS / operator-defined',
+    not_recorded: 'not_recorded'
+  } as const)[accessRail];
+}
+
+function formatMachineEndpointCount(count: number | null | undefined) {
+  return typeof count === 'number' ? String(count) : 'not recorded';
+}
+
+function getMachineRailExecutionStatus(service: MachineMarketService, receipts: MachinePreflightReceipt[]): MachineRailExecutionStatus {
+  const matchingReceipts = receipts.filter((receipt) =>
+    receipt.receipt_type === 'machine_execution'
+    && (receipt.execution_service_id === service.id || receipt.selected_service_id === service.id)
+  );
+  if (!matchingReceipts.length) return 'not_execution_tested';
+  const hasRepeatability = matchingReceipts.filter((receipt) => receipt.execution_status === 'succeeded').length >= 2;
+  if (hasRepeatability) return 'repeatability_receipt_recorded';
+  return 'execution_receipt_recorded';
+}
+
+function buildMachineRailCoverageSummary(services: MachineMarketService[], receipts: MachinePreflightReceipt[]): MachineRailCoverageSummary {
+  return {
+    totalServices: services.length,
+    payShSolana: services.filter((service) => service.access_rail === 'pay_sh_solana').length,
+    peaqProviderAccount: services.filter((service) => service.access_rail === 'peaqos_market_provider_account').length,
+    callableRoutesListed: services.filter((service) => service.route_surface_status === 'callable_routes_listed').length,
+    providerSetupRequired: services.filter((service) => service.route_surface_status === 'provider_setup_only' || service.route_surface_status === 'operator_runtime_required').length,
+    noCallableEndpointsRecorded: services.filter((service) => service.route_surface_status === 'no_callable_endpoints').length,
+    executionReceipts: services.filter((service) => getMachineRailExecutionStatus(service, receipts) !== 'not_execution_tested').length,
+    repeatabilityReceipts: services.filter((service) => getMachineRailExecutionStatus(service, receipts) === 'repeatability_receipt_recorded').length
+  };
 }
 
 function formatDistributionSummary(distribution: Record<string, number>, order: string[]) {
@@ -2648,7 +2722,7 @@ function MachineMarketPage() {
       <section className="panel machine-market-caveat" aria-label="Coverage caveat">
         <p>Infopunks Radar mapped the entire listed robotic.sh machine-service market.</p>
         <p>Coverage refers to the 13 services visible in the observed robotic.sh market snapshot. Execution evidence is tracked separately.</p>
-        <p><a className="execute compact secondary" href="/machine-market-map">View market map</a> <a className="execute compact secondary" href="/machine-readiness-matrix">View readiness matrix</a> <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a> <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a></p>
+        <p><a className="execute compact secondary" href="/machine-market-map">View market map</a> <a className="execute compact secondary" href="/machine-readiness-matrix">View readiness matrix</a> <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a> <a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a> <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a></p>
       </section>
       <MachineEvidenceMethodologyDrawer />
       <EvidenceLadder services={services} />
@@ -3003,6 +3077,7 @@ function MachineEconomySnapshotPage() {
           <p>No execution claim. No benchmark claim. No winner claim.</p>
           <p>Pay.sh execution routes tracked separately. Execution requires service-specific receipts.</p>
           <p>Repeatability requires repeated service-specific receipts.</p>
+          <p><a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a></p>
         </section>
         <MachineEvidenceMethodologyDrawer />
       </>}
@@ -3085,6 +3160,164 @@ function MachineEconomySnapshotBrief({ summary }: { summary: MachineEconomySnaps
   </section>;
 }
 
+function MachineRailCoveragePage() {
+  const [services, setServices] = useState<MachineMarketService[]>([]);
+  const [receipts, setReceipts] = useState<MachinePreflightReceipt[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.title = 'Machine Rail Coverage | Infopunks Pay.sh Radar';
+    setMetaTag('name', 'description', 'Read-only machine execution rail coverage for the 13 robotic.sh-visible services tracked by Infopunks Radar.');
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    Promise.all([
+      api<{ data: { services: MachineMarketService[] } }>('/v1/machine-market/services'),
+      api<{ data: { receipts: MachinePreflightReceipt[] } }>('/v1/machine-preflight/receipts/recent?limit=100').catch(() => null)
+    ]).then(([servicesResponse, receiptsResponse]) => {
+      if (cancelled) return;
+      setServices(servicesResponse.data.services);
+      setReceipts(receiptsResponse?.data.receipts ?? []);
+      setLoading(false);
+    }).catch((err) => {
+      if (cancelled) return;
+      setError(err instanceof Error ? err.message : 'machine rail coverage unavailable');
+      setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const summary = useMemo(() => buildMachineRailCoverageSummary(services, receipts), [services, receipts]);
+
+  return <div className="shell machine-market-shell">
+    <a className="skip-link" href="#machine-rail-coverage-content">Skip to content</a>
+    <header className="site-header">
+      <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Rail Coverage navigation">
+        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <div className="terminal-nav" aria-label="Machine Economy navigation">
+          <a href="/machine-market">Machine Economy</a>
+          <a href="/machine-readiness-matrix">Readiness Matrix</a>
+          <a href="/machine-market-map">Market Map</a>
+          <a href="/machine-economy-snapshot">Public Snapshot</a>
+          <a className="active" href="/machine-rail-coverage" aria-current="page">Rail Coverage</a>
+          <a href="/">Radar Terminal</a>
+        </div>
+      </nav>
+    </header>
+    <main id="machine-rail-coverage-content" className="machine-market-page machine-rail-coverage-page" aria-label="Machine Rail Coverage">
+      <section className="panel hero machine-market-hero machine-rail-hero">
+        <div>
+          <p className="eyebrow">Machine Execution Rail Coverage</p>
+          <h1>Machine Execution Rail Coverage</h1>
+          <p className="copy">Radar separates robotic.sh catalog presence from access rail readiness, callable route surfaces, pricing, credentials, and execution evidence.</p>
+        </div>
+        <div className="ticker" aria-label="Machine rail coverage hero chips">
+          <span>13 services mapped</span>
+          <span>Pay.sh / Solana surfaces</span>
+          <span>peaqOS / provider surfaces</span>
+          <span>0 execution claims</span>
+          <span>receipt-driven</span>
+        </div>
+      </section>
+      {loading && <section className="panel" role="status"><p className="route-state">Loading machine rail coverage...</p></section>}
+      {error && <section className="panel" role="alert"><p className="route-state error">Machine rail coverage unavailable: {error}</p></section>}
+      {!loading && !error && <>
+        <section className="grid four machine-market-summary" aria-label="Machine rail coverage summary">
+          <article className="panel metric"><span>Total services</span><strong>{summary.totalServices}</strong><small>robotic.sh-visible registry rows</small></article>
+          <article className="panel metric"><span>Pay.sh / Solana access rail</span><strong>{summary.payShSolana}</strong><small>services mapped to pay.sh_solana</small></article>
+          <article className="panel metric"><span>peaqOS / provider account rail</span><strong>{summary.peaqProviderAccount}</strong><small>provider-account surface only</small></article>
+          <article className="panel metric"><span>Callable routes listed</span><strong>{summary.callableRoutesListed}</strong><small>catalog route surface visible</small></article>
+          <article className="panel metric"><span>Provider setup required</span><strong>{summary.providerSetupRequired}</strong><small>operator or provider setup still required</small></article>
+          <article className="panel metric"><span>No callable endpoint recorded</span><strong>{summary.noCallableEndpointsRecorded}</strong><small>listed provider, no callable endpoints surfaced</small></article>
+          <article className="panel metric"><span>Execution receipts</span><strong>{summary.executionReceipts}</strong><small>service-specific only</small></article>
+          <article className="panel metric"><span>Repeatability receipts</span><strong>{summary.repeatabilityReceipts}</strong><small>service-specific repeats only</small></article>
+        </section>
+        <section className="panel machine-market-caveat" aria-label="Machine rail coverage caveats">
+          <p>No execution claim. No benchmark claim. No winner claim. Pay.sh availability does not imply Radar execution.</p>
+          <p>robotic.sh listing does not imply callable route readiness. Execution requires service-specific receipts.</p>
+          <p><a className="execute compact secondary" href="/machine-market">Back to Machine Economy</a> <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a></p>
+        </section>
+        <MachineEvidenceMethodologyDrawer />
+        <MachineRailCoverageMethodology />
+        <section className="panel machine-service-table-panel" aria-label="Machine rail coverage table panel">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Rail Coverage Table</p>
+              <h2>{services.length} robotic.sh-visible services</h2>
+            </div>
+            <small>Catalog presence is separated from callable rail readiness. No service is execution-ready on this page without a service-specific receipt.</small>
+          </div>
+          <div className="machine-service-table" role="table" aria-label="Machine rail coverage table">
+            <div className="machine-service-row machine-rail-row head" role="row">
+              {['service', 'category', 'access rail', 'route surface', 'endpoints', 'pricing model', 'credential requirement', 'rail status', 'first safe route', 'execution status'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
+            </div>
+            {services.map((service) => {
+              const executionStatus = getMachineRailExecutionStatus(service, receipts);
+              return <div className="machine-service-row machine-rail-row" role="row" key={service.id}>
+                <span role="cell"><strong>{service.name}</strong><small>{service.provider}</small></span>
+                <span role="cell" className="machine-badge">{service.category}</span>
+                <span role="cell">{formatMachineAccessRail(service.access_rail)}</span>
+                <span role="cell">{service.route_surface_status}</span>
+                <span role="cell">{formatMachineEndpointCount(service.endpoint_count)}</span>
+                <span role="cell">{service.pricing_model ?? 'not recorded'}</span>
+                <span role="cell">{service.credential_requirement ?? 'not recorded'}</span>
+                <span role="cell"><span className={`machine-status-badge ${service.rail_status === 'plan_eligible' ? 'complete' : service.rail_status === 'proof_plan_selected' ? 'not-attempted' : service.rail_status === 'review_required' ? 'review' : ''}`}>{service.rail_status}</span></span>
+                <span role="cell">{service.first_safe_route ?? 'not recorded'}</span>
+                <span role="cell"><span className={`machine-status-badge ${executionStatus === 'not_execution_tested' ? 'missing' : executionStatus === 'repeatability_receipt_recorded' ? 'complete' : 'not-attempted'}`}>{executionStatus === 'not_execution_tested' ? 'not execution-tested' : executionStatus.replace(/_/g, ' ')}</span></span>
+              </div>;
+            })}
+          </div>
+        </section>
+        <section className="panel machine-mission-control" aria-label="Machine rail interpretation panel">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Rail Interpretation</p>
+              <h2>How to read rail coverage</h2>
+            </div>
+            <span className="machine-badge evidence">receipt-driven</span>
+          </div>
+          <div className="machine-market-interpretation-list">
+            <p><span>catalog presence</span><small>robotic.sh listing does not imply immediate execution readiness.</small></p>
+            <p><span>pay.sh surface</span><small>Pay.sh access does not imply callable routes are exposed in Radar’s current registry.</small></p>
+            <p><span>credentials and pricing</span><small>Provider credentials and account pricing create different proof requirements than direct Pay.sh surfaces.</small></p>
+            <p><span>policy depth</span><small>Navigation, storage, and compute surfaces require stronger policy review than simple translation planning.</small></p>
+            <p><span>claims boundary</span><small>Execution remains receipt-driven. No payment success, execution success, benchmark, or winner claim appears here without service-specific receipts.</small></p>
+          </div>
+        </section>
+      </>}
+    </main>
+  </div>;
+}
+
+function MachineRailCoverageMethodology() {
+  const rows = [
+    ['access_rail', 'The access surface Radar can currently see for the service, such as pay_sh_solana or peaqOS-mediated provider access.'],
+    ['route_surface_status', 'Whether Radar sees callable routes, setup-only provider presence, or no callable endpoint surface in the registry.'],
+    ['provider_setup_only', 'Provider presence is visible, but the current registry does not present a callable route surface that Radar can safely treat as execution-ready.'],
+    ['callable_routes_listed', 'The registry exposes route or endpoint surface detail, but that still does not imply Radar execution.'],
+    ['credentials_required', 'Provider or runtime credentials are required before autonomous calls can be considered.'],
+    ['account_pricing', 'Billing is tied to a provider account or external pricing model rather than a self-contained Radar receipt.'],
+    ['execution_receipt', 'A service-specific durable receipt proving a real execution attempt. Without it, this page stays planning-only.']
+  ] as const;
+
+  return <section className="panel machine-market-brief" aria-label="Machine rail methodology">
+    <div className="panel-head">
+      <div>
+        <p className="section-kicker">Rail Methodology</p>
+        <h2>Execution rail definitions</h2>
+      </div>
+      <span className="machine-badge source">read-only</span>
+    </div>
+    <div className="machine-usage-list">
+      {rows.map(([label, meaning]) => <p key={label}><span>{label}</span><small>{meaning}</small></p>)}
+      <p className="machine-caveat-row"><span>rail caveat</span><small className="machine-caveat-copy">Pay.sh availability does not imply Radar execution. robotic.sh listing does not imply callable route readiness. Execution requires service-specific receipts.</small></p>
+    </div>
+  </section>;
+}
+
 function MachineReadinessMatrixPage() {
   const [services, setServices] = useState<MachineMarketService[]>([]);
   const [receipts, setReceipts] = useState<MachinePreflightReceipt[]>([]);
@@ -3162,7 +3395,7 @@ function MachineReadinessMatrixPage() {
         <section className="panel machine-market-caveat" aria-label="Readiness matrix caveats">
           <p>13 services mapped. 0 robotic.sh execution claims. 1 proof plan selected.</p>
           <p>No execution claim. No benchmark claim. Pay.sh routes tracked separately. Cloud Translation is the current controlled action, not a winner.</p>
-          <p><a className="execute compact secondary" href="/machine-market-map">View market map</a> <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a></p>
+          <p><a className="execute compact secondary" href="/machine-market-map">View market map</a> <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a> <a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a></p>
         </section>
         <MachineEvidenceMethodologyDrawer />
         <section className="panel machine-readiness-matrix-panel" aria-label="Machine readiness matrix table">
@@ -3299,7 +3532,7 @@ function MachineMarketMapPage() {
         <section className="panel machine-market-caveat" aria-label="Machine market map caveats">
           <p>0 robotic.sh execution claims. Planning only.</p>
           <p>No execution claim. No benchmark claim. No winner claim. Pay.sh routes tracked separately.</p>
-          <p>Execution requires service-specific receipts before any robotic.sh success claim can be made. <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a></p>
+          <p>Execution requires service-specific receipts before any robotic.sh success claim can be made. <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a> <a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a></p>
         </section>
         <section className="machine-market-map-grid" aria-label="Category map">
           {categorySummaries.map((summary) => <article className="panel machine-market-map-card" key={summary.key} aria-label={`${summary.label} category`}>
@@ -4242,14 +4475,31 @@ function MachineExecutionProofPlanPage({ serviceId }: { serviceId: string }) {
               <p><span>target</span><small>Spanish (fallback: French)</small></p>
               <p><span>expected semantic output</span><small>A natural translation of the phrase, not exact-string enforced unless the provider guarantees deterministic output.</small></p>
             </div> : isNavigation ? <div className="machine-usage-list">
-              <p><span>request type</span><small>geocode or route lookup</small></p>
-              <p><span>origin</span><small>public landmark or generic coordinate</small></p>
-              <p><span>destination</span><small>public landmark or generic coordinate</small></p>
-              <p><span>mode</span><small>non-operational demo lookup</small></p>
-              <p><span>constraint</span><small>no robot command, no dispatch, no physical movement triggered</small></p>
-              <p><span>expected semantic output</span><small>Parseable route/geocode response with route summary or coordinate result present, no autonomous action triggered, and caveats preserved.</small></p>
+              <p><span>preferred first safe test</span><small>Geocode lookup for a public landmark or generic address</small></p>
+              <p><span>follow-on planning candidate</span><small>Static map retrieval before any driving directions route</small></p>
+              <p><span>mode</span><small>catalog-aware, non-operational planning lookup</small></p>
+              <p><span>constraint</span><small>no robot command, no dispatch, no live navigation, no physical movement</small></p>
+              <p><span>expected semantic output</span><small>Parseable geocode or static map metadata only, with caveats preserved and no autonomous action triggered.</small></p>
             </div> : <p className="copy">No safe default test input has been defined for this service yet.</p>}
           </section>
+          {isNavigation && service.catalog_routes?.length && <section className="panel machine-policy-summary" aria-label="Candidate route surface">
+            <div className="panel-head"><div><p className="section-kicker">Candidate Route Surface</p><h2>Catalog-aware planning order</h2></div></div>
+            <div className="machine-usage-list">
+              <p><span>safer planning candidates</span><small>Geocode, reverse geocode, and static map are safer planning candidates because they provide location context without directly shaping movement instructions.</small></p>
+              <p><span>higher physical-world risk</span><small>Driving directions has higher physical-world risk because route output can influence robot movement.</small></p>
+              <p><span>initial proof plan</span><small>Initial proof planning should prefer geocode or static map before driving directions.</small></p>
+            </div>
+            <section className="dossier-section">
+              <h4>Observed catalog routes</h4>
+              <div className="machine-usage-list">
+                {service.catalog_routes.map((route) => <p key={`${route.method}:${route.path}`}>
+                  <span>{route.label}</span>
+                  <small>{route.method} {route.path} · risk {route.risk}</small>
+                </p>)}
+              </div>
+            </section>
+            <p className="panel-caption">Catalog route surface only. These routes are not execution receipts and are not counted as proof of execution, payment, benchmark performance, or winner status.</p>
+          </section>}
           <section className="panel machine-policy-summary" aria-label="Physical-world routing risk">
             <div className="panel-head"><div><p className="section-kicker">Risk Boundary</p><h2>Physical-world routing risk</h2></div></div>
             <p className="copy">{isNavigation ? 'Routing outputs can influence physical-world movement. NAVER Maps requires review, bounded test inputs, and non-operational constraints before any execution attempt.' : 'This service still requires bounded preflight, deterministic inputs, and receipt-driven evidence before any execution attempt.'}</p>
@@ -4400,6 +4650,7 @@ function MachineServiceDossierPage({ serviceId }: { serviceId: string }) {
           <MachineServicePolicyReadiness service={service} latestPreflight={latestPreflight} coverageDecision={coverageDecision} />
         </section>
         <section className="machine-dossier-layout">
+          <MachineServiceCatalogRouteSurface service={service} />
           <MachineServiceExecutionStatus service={service} status={executionStatus} latestExecution={latestExecution} />
           <MachineServiceEvidenceNotes service={service} />
         </section>
@@ -4428,6 +4679,28 @@ function MachineServiceIdentity({ service, position, total }: { service: Machine
       <p><b>Phase 2 scope</b><span>{service.phase_scope}</span></p>
     </div>
     <section className="dossier-section"><h4>Machine use case</h4><p>{service.machine_use_case}</p></section>
+  </section>;
+}
+
+function MachineServiceCatalogRouteSurface({ service }: { service: MachineMarketService }) {
+  if (!service.catalog_routes?.length) return null;
+  return <section className="panel machine-policy-summary" aria-label="Catalog route surface">
+    <div className="panel-head"><div><p className="section-kicker">Catalog Route Surface</p><h2>{service.route_count ?? service.catalog_routes.length} observed routes</h2></div></div>
+    <div className="machine-usage-list">
+      <p><span>pricing model</span><small>{service.pricing_model ?? 'not recorded'}</small></p>
+      <p><span>credential requirement</span><small>{service.credential_requirement ?? 'not recorded'}</small></p>
+      <p><span>route count</span><small>{service.route_count ?? service.catalog_routes.length}</small></p>
+    </div>
+    <section className="dossier-section">
+      <h4>Observed catalog routes</h4>
+      <div className="machine-usage-list">
+        {service.catalog_routes.map((route) => <p key={`${route.method}:${route.path}`}>
+          <span>{route.label}</span>
+          <small>{route.method} {route.path} · risk {route.risk}</small>
+        </p>)}
+      </div>
+    </section>
+    <p className="panel-caption">Catalog route surface only. Radar has not executed these routes.</p>
   </section>;
 }
 
@@ -6113,6 +6386,7 @@ function RadarApp() {
     { id: 'open-machine-market', label: 'Open Machine Market', hint: '/machine-market', run: () => openMachineRoute('/machine-market') },
     { id: 'open-machine-economy-snapshot', label: 'Open Machine Economy Snapshot', hint: '/machine-economy-snapshot', run: () => openMachineRoute('/machine-economy-snapshot') },
     { id: 'open-machine-market-map', label: 'Open Machine Market Map', hint: '/machine-market-map', run: () => openMachineRoute('/machine-market-map') },
+    { id: 'open-machine-rail-coverage', label: 'Open Machine Rail Coverage', hint: '/machine-rail-coverage', run: () => openMachineRoute('/machine-rail-coverage') },
     { id: 'open-machine-readiness-matrix', label: 'Open Machine Readiness Matrix', hint: '/machine-readiness-matrix', run: () => openMachineRoute('/machine-readiness-matrix') },
     { id: 'open-machine-service-dossier', label: 'Open Machine Service Dossier', hint: 'Open /machine-market and choose View service dossier', run: () => openMachineRoute('/machine-market') },
     { id: 'open-robotic-sh-execution-shortlist', label: 'Open Robotic.sh Execution Shortlist', hint: '/machine-execution-shortlist', run: () => openMachineRoute('/machine-execution-shortlist') },
@@ -9693,6 +9967,7 @@ export function App() {
   if (isBenchmarkIndexRoute(window.location.pathname)) return <PublicBenchmarksIndexPage />;
   if (isMachineMarketRoute(window.location.pathname)) return <MachineMarketPage />;
   if (isMachineEconomySnapshotRoute(window.location.pathname)) return <MachineEconomySnapshotPage />;
+  if (isMachineRailCoverageRoute(window.location.pathname)) return <MachineRailCoveragePage />;
   if (isMachineMarketMapRoute(window.location.pathname)) return <MachineMarketMapPage />;
   if (isMachineReadinessMatrixRoute(window.location.pathname)) return <MachineReadinessMatrixPage />;
   if (isMachineExecutionShortlistRoute(window.location.pathname)) return <MachineExecutionShortlistPage />;

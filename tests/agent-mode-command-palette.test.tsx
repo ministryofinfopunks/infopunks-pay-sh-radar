@@ -313,7 +313,7 @@ describe('agent mode and command palette', () => {
       await Promise.resolve();
     });
 
-    for (const label of ['Open Compare', 'Open Cost / Performance', 'Open Benchmark Readiness', 'Open Agent Benchmark API', 'Open API Docs', 'Open Machine Market', 'Open Machine Economy Snapshot', 'Open Machine Market Map', 'Open Machine Readiness Matrix', 'Open Machine Service Dossier', 'Open Robotic.sh Execution Shortlist', 'Run Machine Preflight', 'View Machine Receipts', 'View Machine Translation Repeatability Artifact', 'Search Machine Dossier', 'Toggle Agent Mode', 'Jump to Degradations', 'Jump to Selected Dossier', 'Jump to Anomaly Watch']) {
+    for (const label of ['Open Compare', 'Open Cost / Performance', 'Open Benchmark Readiness', 'Open Agent Benchmark API', 'Open API Docs', 'Open Machine Market', 'Open Machine Economy Snapshot', 'Open Machine Market Map', 'Open Machine Rail Coverage', 'Open Machine Readiness Matrix', 'Open Machine Service Dossier', 'Open Robotic.sh Execution Shortlist', 'Run Machine Preflight', 'View Machine Receipts', 'View Machine Translation Repeatability Artifact', 'Search Machine Dossier', 'Toggle Agent Mode', 'Jump to Degradations', 'Jump to Selected Dossier', 'Jump to Anomaly Watch']) {
       expect(container.textContent).toContain(label);
     }
 
@@ -335,6 +335,14 @@ describe('agent mode and command palette', () => {
 
     clickButton(container, 'Open Machine Market Map');
     expect(window.open).toHaveBeenCalledWith('/machine-market-map', '_self');
+
+    await act(async () => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true }));
+      await Promise.resolve();
+    });
+
+    clickButton(container, 'Open Machine Rail Coverage');
+    expect(window.open).toHaveBeenCalledWith('/machine-rail-coverage', '_self');
 
     await act(async () => {
       window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true }));

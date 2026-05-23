@@ -52,6 +52,15 @@ const services = [
     provider: 'NAVER',
     machine_use_case: 'Autonomous robots can request routing, geocoding, and navigation context before moving or rerouting.',
     policy_risk: 'High machine relevance: routing outputs can influence physical-world movement. Execution requires bounded test scenarios, source validation, and clear non-operational constraints.',
+    route_count: 4,
+    pricing_model: 'Naver Cloud account pricing',
+    credential_requirement: 'Naver Cloud provider credentials required',
+    catalog_routes: [
+      { method: 'GET', path: '/map-geocode/v2/geocode', label: 'Geocode', risk: 'low_to_medium' },
+      { method: 'GET', path: '/map-reversegeocode/v2/gc', label: 'Reverse geocode', risk: 'low_to_medium' },
+      { method: 'GET', path: '/map-direction/v1/driving', label: 'Driving directions', risk: 'high' },
+      { method: 'GET', path: '/map-static/v2/raster', label: 'Static map', risk: 'low_to_medium' }
+    ],
     caveats: ['Public demo context observed: peaq showcased NAVER Maps in a simulated Serve Robotics workflow with USDT settlement on Solana. Radar has not executed this service.']
   })
 ];
@@ -220,8 +229,22 @@ describe('machine service dossier page', () => {
   it('shows NAVER-specific proof-path link from the dossier', async () => {
     root = await renderPath(container, '/machine-service/naver-maps');
 
-    expect(container.textContent).toContain('NAVER Maps');
+    const text = container.textContent ?? '';
+    const routeSurface = container.querySelector('[aria-label="Catalog route surface"]')?.textContent ?? '';
+
+    expect(text).toContain('NAVER Maps');
     expect(container.querySelector('a[href="/machine-execution-plan/naver-maps"]')?.textContent).toContain('View NAVER Maps proof path');
+    expect(routeSurface).toContain('Catalog Route Surface');
+    expect(routeSurface).toContain('4 observed routes');
+    expect(routeSurface).toContain('pricing modelNaver Cloud account pricing');
+    expect(routeSurface).toContain('credential requirementNaver Cloud provider credentials required');
+    expect(routeSurface).toContain('/map-geocode/v2/geocode');
+    expect(routeSurface).toContain('/map-reversegeocode/v2/gc');
+    expect(routeSurface).toContain('/map-direction/v1/driving');
+    expect(routeSurface).toContain('/map-static/v2/raster');
+    expect(routeSurface).toContain('Catalog route surface only. Radar has not executed these routes.');
+    expect(text).not.toContain('execution succeeded');
+    expect(text).not.toContain('benchmark winner');
   });
 
   it('shows unknown service not-found state', async () => {

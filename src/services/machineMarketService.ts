@@ -4,6 +4,18 @@ export type MachineMarketSource = 'robotic.sh' | 'pay.sh' | 'agentic.market';
 export type MachineMarketChain = 'solana' | 'base' | 'peaq' | 'omnichain' | 'unknown';
 export type MachineMarketStatus = 'ready' | 'setup';
 export type MachineMarketEvidenceHealth = 'scaffold' | 'listed';
+export type MachineMarketAccessRail =
+  | 'pay_sh_solana'
+  | 'peaqos_market_provider_account'
+  | 'peaqos_market_operator_defined'
+  | 'not_recorded';
+export type MachineMarketRailStatus = 'plan_eligible' | 'review_required' | 'proof_plan_selected' | 'not_recorded';
+export type MachineMarketRouteSurfaceStatus =
+  | 'callable_routes_listed'
+  | 'operator_runtime_required'
+  | 'provider_setup_only'
+  | 'no_callable_endpoints'
+  | 'not_recorded';
 export type MachineMarketEvidenceStage =
   | 'listed'
   | 'classified'
@@ -12,6 +24,13 @@ export type MachineMarketEvidenceStage =
   | 'execution-tested'
   | 'receipt-recorded'
   | 'benchmark-recorded';
+export type MachineMarketCatalogRouteRisk = 'low_to_medium' | 'high';
+export type MachineMarketCatalogRoute = {
+  method: string;
+  path: string;
+  label: string;
+  risk: MachineMarketCatalogRouteRisk;
+};
 
 export const MACHINE_MARKET_PHASE_SCOPE = 'phase_2_pay_sh_robotic_sh';
 export const MACHINE_MARKET_OBSERVED_AT = '2026-05-22T00:00:00.000Z';
@@ -32,6 +51,16 @@ export type MachineMarketService = {
   evidence_stage: MachineMarketEvidenceStage;
   policy_risk: string;
   caveats: string[];
+  access_rail: MachineMarketAccessRail;
+  rail_status: MachineMarketRailStatus;
+  route_surface_status: MachineMarketRouteSurfaceStatus;
+  endpoint_count?: number | null;
+  route_count?: number;
+  pricing_model?: string;
+  credential_requirement?: string;
+  first_safe_route?: string;
+  rail_caveat?: string;
+  catalog_routes?: MachineMarketCatalogRoute[];
   observed_source: 'robotic.sh';
   observed_at: string;
   phase_scope: typeof MACHINE_MARKET_PHASE_SCOPE;
@@ -76,6 +105,14 @@ const services: MachineMarketService[] = [
     description: 'Verifiable agent compute with on-chain attestation for autonomous machines.',
     machine_use_case: 'Autonomous robots and agents can request attestable compute before committing machine spend.',
     policy_risk: 'Requires setup and attestation review before any autonomous machine can treat compute output as spend-authorizing evidence.',
+    access_rail: 'peaqos_market_operator_defined',
+    rail_status: 'review_required',
+    route_surface_status: 'operator_runtime_required',
+    endpoint_count: 2,
+    pricing_model: 'operator-defined',
+    credential_requirement: 'runtime endpoint registration required',
+    first_safe_route: 'non-operational runtime registration review',
+    rail_caveat: 'setup required before autonomous calls',
     caveats: ['Setup status only; execution readiness is not proven.', ...defaultCaveats]
   }),
   service({
@@ -91,6 +128,14 @@ const services: MachineMarketService[] = [
     description: 'Gemini text and multimodal generation via pay.sh.',
     machine_use_case: 'Machines can generate plans, summaries, and multimodal interpretations with preflight spend policy.',
     policy_risk: 'Inference output can steer action; require prompt, cost, and output-retention policy before spend.',
+    access_rail: 'pay_sh_solana',
+    rail_status: 'review_required',
+    route_surface_status: 'no_callable_endpoints',
+    endpoint_count: 0,
+    pricing_model: 'per endpoint',
+    credential_requirement: 'not recorded',
+    first_safe_route: 'not recorded',
+    rail_caveat: 'pay.sh lists provider but current registry exposes no callable endpoints',
     caveats: defaultCaveats
   }),
   service({
@@ -106,6 +151,14 @@ const services: MachineMarketService[] = [
     description: 'Serverless data warehouse queries via pay.sh.',
     machine_use_case: 'Autonomous systems can query operational datasets before routing or purchasing decisions.',
     policy_risk: 'Queries may leak sensitive business context or incur repeated spend without query budget limits.',
+    access_rail: 'pay_sh_solana',
+    rail_status: 'plan_eligible',
+    route_surface_status: 'callable_routes_listed',
+    endpoint_count: 2,
+    pricing_model: '$0.001',
+    credential_requirement: 'not recorded',
+    first_safe_route: 'read/query result lookup with bounded public dataset',
+    rail_caveat: 'catalog route surface only; Radar has not executed routes',
     caveats: defaultCaveats
   }),
   service({
@@ -121,6 +174,14 @@ const services: MachineMarketService[] = [
     description: 'Parse manifests, invoices, and IDs into structured fields.',
     machine_use_case: 'Machines can turn documents into structured evidence for logistics, billing, and identity workflows.',
     policy_risk: 'Documents can contain private or regulated data; require data handling policy and receipt traceability.',
+    access_rail: 'pay_sh_solana',
+    rail_status: 'review_required',
+    route_surface_status: 'no_callable_endpoints',
+    endpoint_count: 0,
+    pricing_model: 'per endpoint',
+    credential_requirement: 'not recorded',
+    first_safe_route: 'not recorded',
+    rail_caveat: 'pay.sh lists provider but current registry exposes no callable endpoints',
     caveats: defaultCaveats
   }),
   service({
@@ -136,6 +197,14 @@ const services: MachineMarketService[] = [
     description: 'Pay-per-upload media hosting via pay.sh.',
     machine_use_case: 'Robots and agents can store images, logs, manifests, and task artifacts with cost controls.',
     policy_risk: 'Uploads can persist sensitive evidence; require retention, access, and payload-size policy.',
+    access_rail: 'pay_sh_solana',
+    rail_status: 'review_required',
+    route_surface_status: 'callable_routes_listed',
+    endpoint_count: 3,
+    pricing_model: '$0.02',
+    credential_requirement: 'not recorded',
+    first_safe_route: 'small test upload with non-sensitive fixture',
+    rail_caveat: 'catalog route surface only; storage policy review remains required before execution claims',
     caveats: defaultCaveats
   }),
   service({
@@ -151,6 +220,14 @@ const services: MachineMarketService[] = [
     description: '130+ language neural translation via pay.sh.',
     machine_use_case: 'Machines can translate instructions, labels, support messages, and field reports across languages.',
     policy_risk: 'Translation can alter operational meaning; require confidence checks for safety-critical instructions.',
+    access_rail: 'pay_sh_solana',
+    rail_status: 'proof_plan_selected',
+    route_surface_status: 'no_callable_endpoints',
+    endpoint_count: 0,
+    pricing_model: 'per endpoint',
+    credential_requirement: 'not recorded',
+    first_safe_route: 'not recorded',
+    rail_caveat: 'selected proof plan, not execution-tested by Radar',
     caveats: defaultCaveats
   }),
   service({
@@ -166,6 +243,14 @@ const services: MachineMarketService[] = [
     description: 'Frontier reasoning and planning via agentic.market on Base.',
     machine_use_case: 'Machines can request reasoning, decomposition, and planning support with source metadata preserved.',
     policy_risk: 'Planning output may trigger downstream spend; require approval thresholds and evidence citations.',
+    access_rail: 'not_recorded',
+    rail_status: 'not_recorded',
+    route_surface_status: 'not_recorded',
+    endpoint_count: null,
+    pricing_model: 'not recorded',
+    credential_requirement: 'not recorded',
+    first_safe_route: 'not recorded',
+    rail_caveat: 'rail surface not recorded in the current registry',
     caveats: ['Included as robotic.sh source metadata; outside Phase 2 execution focus.', ...defaultCaveats]
   }),
   service({
@@ -181,6 +266,14 @@ const services: MachineMarketService[] = [
     description: 'OpenAI GPT and o-series models via agentic.market on Base.',
     machine_use_case: 'Machines can call model reasoning and generation for task planning, inspection, and control support.',
     policy_risk: 'Model calls can influence autonomous action; require spend caps, prompt logs, and output review policy.',
+    access_rail: 'not_recorded',
+    rail_status: 'not_recorded',
+    route_surface_status: 'not_recorded',
+    endpoint_count: null,
+    pricing_model: 'not recorded',
+    credential_requirement: 'not recorded',
+    first_safe_route: 'not recorded',
+    rail_caveat: 'rail surface not recorded in the current registry',
     caveats: ['Included as robotic.sh source metadata; outside Phase 2 execution focus.', ...defaultCaveats]
   }),
   service({
@@ -196,6 +289,14 @@ const services: MachineMarketService[] = [
     description: 'Captcha-solving API via agentic.market on Base.',
     machine_use_case: 'Machines can identify routes that claim captcha-solving capability for policy review.',
     policy_risk: 'Captcha solving can violate site terms or anti-abuse controls; default policy should block unless explicitly approved.',
+    access_rail: 'not_recorded',
+    rail_status: 'not_recorded',
+    route_surface_status: 'not_recorded',
+    endpoint_count: null,
+    pricing_model: 'not recorded',
+    credential_requirement: 'not recorded',
+    first_safe_route: 'not recorded',
+    rail_caveat: 'rail surface not recorded in the current registry',
     caveats: ['Included as robotic.sh source metadata; outside Phase 2 execution focus.', ...defaultCaveats]
   }),
   service({
@@ -211,6 +312,14 @@ const services: MachineMarketService[] = [
     description: 'Scrape-to-LLM clean text via agentic.market on Base.',
     machine_use_case: 'Machines can convert web pages into clean text for route research and market monitoring.',
     policy_risk: 'Scraping can hit robots, rate, or content restrictions; require domain policy and provenance receipts.',
+    access_rail: 'not_recorded',
+    rail_status: 'not_recorded',
+    route_surface_status: 'not_recorded',
+    endpoint_count: null,
+    pricing_model: 'not recorded',
+    credential_requirement: 'not recorded',
+    first_safe_route: 'not recorded',
+    rail_caveat: 'rail surface not recorded in the current registry',
     caveats: ['Included as robotic.sh source metadata; outside Phase 2 execution focus.', ...defaultCaveats]
   }),
   service({
@@ -226,6 +335,14 @@ const services: MachineMarketService[] = [
     description: 'Computational engine for math, physics, and geometry via agentic.market.',
     machine_use_case: 'Machines can request deterministic computational answers for planning, measurement, and checks.',
     policy_risk: 'Computed answers can drive physical-world choices; require input validation and result sanity checks.',
+    access_rail: 'not_recorded',
+    rail_status: 'not_recorded',
+    route_surface_status: 'not_recorded',
+    endpoint_count: null,
+    pricing_model: 'not recorded',
+    credential_requirement: 'not recorded',
+    first_safe_route: 'not recorded',
+    rail_caveat: 'rail surface not recorded in the current registry',
     caveats: ['Included as robotic.sh source metadata; outside Phase 2 execution focus.', ...defaultCaveats]
   }),
   service({
@@ -241,6 +358,14 @@ const services: MachineMarketService[] = [
     description: 'Semantic web search built for AI agents via agentic.market on Base.',
     machine_use_case: 'Machines can discover web evidence and candidate services before spend decisions.',
     policy_risk: 'Search results are not receipts; require source capture and freshness checks before autonomous spend.',
+    access_rail: 'not_recorded',
+    rail_status: 'not_recorded',
+    route_surface_status: 'not_recorded',
+    endpoint_count: null,
+    pricing_model: 'not recorded',
+    credential_requirement: 'not recorded',
+    first_safe_route: 'not recorded',
+    rail_caveat: 'rail surface not recorded in the current registry',
     caveats: ['Included as robotic.sh source metadata; outside Phase 2 execution focus.', ...defaultCaveats]
   }),
   service({
@@ -256,6 +381,21 @@ const services: MachineMarketService[] = [
     description: 'Korea-first routing, geocoding, reverse geocoding, and static maps for robot navigation.',
     machine_use_case: 'Autonomous robots can request routing, geocoding, and navigation context before moving or rerouting.',
     policy_risk: 'High machine relevance: routing outputs can influence physical-world movement. Execution requires bounded test scenarios, source validation, and clear non-operational constraints.',
+    access_rail: 'peaqos_market_provider_account',
+    rail_status: 'review_required',
+    route_surface_status: 'callable_routes_listed',
+    endpoint_count: 4,
+    route_count: 4,
+    pricing_model: 'Naver Cloud account pricing',
+    credential_requirement: 'Naver Cloud provider credentials required',
+    first_safe_route: 'geocode lookup',
+    rail_caveat: 'catalog route surface only; Radar has not executed routes',
+    catalog_routes: [
+      { method: 'GET', path: '/map-geocode/v2/geocode', label: 'Geocode', risk: 'low_to_medium' },
+      { method: 'GET', path: '/map-reversegeocode/v2/gc', label: 'Reverse geocode', risk: 'low_to_medium' },
+      { method: 'GET', path: '/map-direction/v1/driving', label: 'Driving directions', risk: 'high' },
+      { method: 'GET', path: '/map-static/v2/raster', label: 'Static map', risk: 'low_to_medium' }
+    ],
     caveats: [
       'Public demo context observed: peaq showcased NAVER Maps in a simulated Serve Robotics workflow with USDT settlement on Solana. Radar has not executed this service.',
       ...defaultCaveats
@@ -264,12 +404,22 @@ const services: MachineMarketService[] = [
 ];
 
 export function listMachineMarketServices(): MachineMarketService[] {
-  return services.map((item) => ({ ...item, caveats: [...item.caveats] }));
+  return services.map((item) => ({
+    ...item,
+    caveats: [...item.caveats],
+    catalog_routes: item.catalog_routes?.map((route) => ({ ...route }))
+  }));
 }
 
 export function getMachineMarketServiceById(serviceId: string): MachineMarketService | null {
   const service = services.find((item) => item.id === serviceId);
-  return service ? { ...service, caveats: [...service.caveats] } : null;
+  return service
+    ? {
+      ...service,
+      caveats: [...service.caveats],
+      catalog_routes: service.catalog_routes?.map((route) => ({ ...route }))
+    }
+    : null;
 }
 
 export function buildMachineMarketSummary(): MachineMarketSummary {
