@@ -206,8 +206,8 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     count: integerSchema(),
     targets: arrayOf(freeformObject())
   }), { count: 11, targets: [{ category: 'solana-infra', benchmark_intent: 'account balance', current_state: 'needs_two_comparable_mappings' }, { category: 'audio-ai', benchmark_intent: 'audio speech transcription', current_state: 'needs_two_comparable_mappings' }] }));
-  add('get', '/v1/machine-market/services', radarGet('Machine Economy', 'List machine-market services', 'A new Radar module for machine-economy intelligence. Returns the Phase 2 robotic.sh service mirror for Pay.sh and robotic.sh scope. Same terminal. New species of spender.', { $ref: '#/components/schemas/MachineMarketServiceListResponse' }, { count: 12, services: [{ id: 'qvac', name: 'QVAC', source_market: 'robotic.sh', chain: 'peaq', evidence_stage: 'policy-mapped' }] }));
-  add('get', '/v1/machine-market/summary', radarGet('Machine Economy', 'Get machine-market summary', 'Radar is the intelligence layer for autonomous spend across agents and machines. Machines should not spend blind.', { $ref: '#/components/schemas/MachineMarketSummaryResponse' }, { total_services: 12, ready_count: 11, setup_count: 1, phase_scope: 'phase_2_pay_sh_robotic_sh' }));
+  add('get', '/v1/machine-market/services', radarGet('Machine Economy', 'List machine-market services', 'A new Radar module for machine-economy intelligence. Returns the Phase 2 robotic.sh service mirror for Pay.sh and robotic.sh scope. Same terminal. New species of spender.', { $ref: '#/components/schemas/MachineMarketServiceListResponse' }, { count: 13, services: [{ id: 'qvac', name: 'QVAC', source_market: 'robotic.sh', chain: 'peaq', evidence_stage: 'policy-mapped' }, { id: 'naver-maps', name: 'NAVER Maps', source_market: 'robotic.sh', chain: 'unknown', evidence_stage: 'policy-mapped' }] }));
+  add('get', '/v1/machine-market/summary', radarGet('Machine Economy', 'Get machine-market summary', 'Radar is the intelligence layer for autonomous spend across agents and machines. Machines should not spend blind.', { $ref: '#/components/schemas/MachineMarketSummaryResponse' }, { total_services: 13, ready_count: 12, setup_count: 1, phase_scope: 'phase_2_pay_sh_robotic_sh' }));
   add('get', '/v1/machine-policies/templates', radarGet('Machine Economy', 'List machine policy templates', 'Bounded authority needs receipts. Returns static machine-spend policy templates; this is not live wallet delegation.', { $ref: '#/components/schemas/MachinePolicyTemplateListResponse' }, { count: 5, templates: [{ id: 'delivery-robot', name: 'Delivery Robot', risk_tolerance: 'low', receipt_required: true }] }));
   add('get', '/v1/machine-policies/{policy_id}', {
     tags: ['Machine Economy'],
@@ -228,15 +228,15 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     tags: ['Machine Economy'],
     summary: 'Run machine preflight coverage',
     description: `${SAFE_METADATA_NOTE} Evaluates all listed robotic.sh services through the internal machine preflight path and records decision receipts only.`,
-    responses: envelopedResponses({ $ref: '#/components/schemas/MachinePreflightCoverageRun' }, { run_id: 'mcr_20260522000000000_0001', services_total: 12, receipts_recorded: 12, execution_occurred: false, payment_occurred: false })
+    responses: envelopedResponses({ $ref: '#/components/schemas/MachinePreflightCoverageRun' }, { run_id: 'mcr_20260522000000000_0001', services_total: 13, receipts_recorded: 13, execution_occurred: false, payment_occurred: false })
   });
-  add('get', '/v1/machine-preflight/coverage-runs/recent', radarGet('Machine Economy', 'List recent machine preflight coverage runs', 'Returns recent machine preflight coverage runs. Coverage runs record decision receipts only.', { $ref: '#/components/schemas/MachinePreflightCoverageRunListResponse' }, { count: 1, runs: [{ run_id: 'mcr_20260522000000000_0001', services_total: 12, receipts_recorded: 12 }] }));
+  add('get', '/v1/machine-preflight/coverage-runs/recent', radarGet('Machine Economy', 'List recent machine preflight coverage runs', 'Returns recent machine preflight coverage runs. Coverage runs record decision receipts only.', { $ref: '#/components/schemas/MachinePreflightCoverageRunListResponse' }, { count: 1, runs: [{ run_id: 'mcr_20260522000000000_0001', services_total: 13, receipts_recorded: 13 }] }));
   add('get', '/v1/machine-preflight/coverage-runs/{run_id}', {
     tags: ['Machine Economy'],
     summary: 'Get machine preflight coverage run detail',
     description: `${SAFE_METADATA_NOTE} Returns one coverage run detail by run_id.`,
     parameters: [pathParam('run_id', 'Machine preflight coverage run identifier.')],
-    responses: envelopedResponses({ $ref: '#/components/schemas/MachinePreflightCoverageRun' }, { run_id: 'mcr_20260522000000000_0001', services_total: 12, receipts_recorded: 12 }, 'machine_preflight_coverage_run_not_found')
+    responses: envelopedResponses({ $ref: '#/components/schemas/MachinePreflightCoverageRun' }, { run_id: 'mcr_20260522000000000_0001', services_total: 13, receipts_recorded: 13 }, 'machine_preflight_coverage_run_not_found')
   });
 
   add('post', '/v1/radar/preflight', {
@@ -1434,10 +1434,10 @@ function componentSchemas(): Record<string, JsonSchema> {
       id: stringSchema(),
       name: stringSchema(),
       provider: stringSchema(),
-      category: enumSchema(['compute', 'inference', 'web', 'vision', 'storage', 'translation']),
+      category: enumSchema(['compute', 'inference', 'web', 'vision', 'storage', 'translation', 'navigation']),
       market_type: enumSchema(['digital', 'physical', 'all-compatible']),
       source_market: enumSchema(['robotic.sh', 'pay.sh', 'agentic.market']),
-      chain: enumSchema(['solana', 'base', 'peaq', 'omnichain']),
+      chain: enumSchema(['solana', 'base', 'peaq', 'omnichain', 'unknown']),
       status: enumSchema(['ready', 'setup']),
       price_display: stringSchema(),
       description: stringSchema(),
@@ -1485,12 +1485,12 @@ function componentSchemas(): Record<string, JsonSchema> {
       owner_label: stringSchema(),
       daily_budget_usd: { type: 'number', minimum: 0 },
       per_call_budget_usd: { type: 'number', minimum: 0 },
-      allowed_categories: arrayOf(enumSchema(['compute', 'inference', 'web', 'vision', 'storage', 'translation'])),
-      blocked_categories: arrayOf(enumSchema(['compute', 'inference', 'web', 'vision', 'storage', 'translation'])),
+      allowed_categories: arrayOf(enumSchema(['compute', 'inference', 'web', 'vision', 'storage', 'translation', 'navigation'])),
+      blocked_categories: arrayOf(enumSchema(['compute', 'inference', 'web', 'vision', 'storage', 'translation', 'navigation'])),
       allowed_source_markets: arrayOf(enumSchema(['robotic.sh', 'pay.sh', 'agentic.market'])),
       blocked_source_markets: arrayOf(enumSchema(['robotic.sh', 'pay.sh', 'agentic.market'])),
-      allowed_chains: arrayOf(enumSchema(['solana', 'base', 'peaq', 'omnichain'])),
-      blocked_chains: arrayOf(enumSchema(['solana', 'base', 'peaq', 'omnichain'])),
+      allowed_chains: arrayOf(enumSchema(['solana', 'base', 'peaq', 'omnichain', 'unknown'])),
+      blocked_chains: arrayOf(enumSchema(['solana', 'base', 'peaq', 'omnichain', 'unknown'])),
       allowed_services: arrayOf(stringSchema()),
       blocked_services: arrayOf(stringSchema()),
       approval_required_above_usd: { type: 'number', minimum: 0 },
@@ -1529,7 +1529,7 @@ function componentSchemas(): Record<string, JsonSchema> {
       category: stringSchema(),
       max_cost_usd: { type: 'number', minimum: 0 },
       allowed_markets: arrayOf(enumSchema(['robotic.sh', 'pay.sh', 'agentic.market'])),
-      allowed_chains: arrayOf(enumSchema(['solana', 'base', 'peaq', 'omnichain'])),
+      allowed_chains: arrayOf(enumSchema(['solana', 'base', 'peaq', 'omnichain', 'unknown'])),
       risk_tolerance: enumSchema(['low', 'medium', 'high']),
       requires_receipt: booleanSchema(),
       human_approved: booleanSchema(),
@@ -1540,9 +1540,9 @@ function componentSchemas(): Record<string, JsonSchema> {
       id: stringSchema(),
       name: stringSchema(),
       provider: stringSchema(),
-      category: enumSchema(['compute', 'inference', 'web', 'vision', 'storage', 'translation']),
+      category: enumSchema(['compute', 'inference', 'web', 'vision', 'storage', 'translation', 'navigation']),
       source_market: enumSchema(['robotic.sh', 'pay.sh', 'agentic.market']),
-      chain: enumSchema(['solana', 'base', 'peaq', 'omnichain']),
+      chain: enumSchema(['solana', 'base', 'peaq', 'omnichain', 'unknown']),
       status: stringSchema(),
       price_display: stringSchema(),
       evidence_stage: stringSchema(),
@@ -1553,7 +1553,7 @@ function componentSchemas(): Record<string, JsonSchema> {
       decision: enumSchema(['allow', 'deny', 'review']),
       recommended_service: { oneOf: [{ $ref: '#/components/schemas/MachinePreflightServiceSummary' }, { type: 'null' }] },
       source_market: { type: ['string', 'null'], enum: ['robotic.sh', 'pay.sh', 'agentic.market', null] },
-      chain: { type: ['string', 'null'], enum: ['solana', 'base', 'peaq', 'omnichain', null] },
+      chain: { type: ['string', 'null'], enum: ['solana', 'base', 'peaq', 'omnichain', 'unknown', null] },
       reason: stringSchema(),
       policy_checks: arrayOf({ $ref: '#/components/schemas/MachinePolicyCheck' }),
       violations: arrayOf(stringSchema()),

@@ -107,7 +107,7 @@ const MachinePreflightRequestSchema = z.object({
   category: z.string().min(1),
   max_cost_usd: z.number().nonnegative().optional(),
   allowed_markets: z.array(z.enum(['robotic.sh', 'pay.sh', 'agentic.market'])).optional(),
-  allowed_chains: z.array(z.enum(['solana', 'base', 'peaq', 'omnichain'])).optional(),
+  allowed_chains: z.array(z.enum(['solana', 'base', 'peaq', 'omnichain', 'unknown'])).optional(),
   risk_tolerance: z.enum(['low', 'medium', 'high']).default('medium'),
   requires_receipt: z.boolean().default(true),
   human_approved: z.boolean().optional(),
@@ -119,7 +119,7 @@ const MachineReceiptQuerySchema = z.object({
   machine_id: z.string().min(1).optional(),
   service_id: z.string().min(1).optional(),
   source_market: z.enum(['robotic.sh', 'pay.sh', 'agentic.market']).optional(),
-  chain: z.enum(['solana', 'base', 'peaq', 'omnichain']).optional(),
+  chain: z.enum(['solana', 'base', 'peaq', 'omnichain', 'unknown']).optional(),
   limit: z.coerce.number().int().positive().max(100).optional()
 });
 const MachineCoverageRunQuerySchema = z.object({

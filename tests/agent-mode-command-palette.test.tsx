@@ -204,7 +204,7 @@ describe('agent mode and command palette', () => {
     expect(container.textContent).toContain('Agent Mode');
     expect(container.textContent).toContain('Machine Economy Module');
     expect(container.textContent).toContain('Machine Economy');
-    expect(container.textContent).toContain('Radar now maps the robotic.sh machine-service market: 12 listed services, bounded authority policies, preflight decisions, and machine receipts.');
+    expect(container.textContent).toContain('Radar now maps the robotic.sh machine-service market: 13 listed services, bounded authority policies, preflight decisions, and machine receipts.');
     expect(container.textContent).toContain('Same terminal. New species of spender.');
     expect(container.textContent).toContain('Open Machine Market');
     expect(container.querySelector('a[href="/machine-market"]')).not.toBeNull();

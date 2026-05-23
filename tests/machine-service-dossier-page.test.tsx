@@ -42,7 +42,18 @@ const services = [
   service('2Captcha'),
   service('Firecrawl'),
   service('Wolfram Alpha', { category: 'inference', provider: 'Wolfram Research' }),
-  service('Exa')
+  service('Exa'),
+  service('NAVER Maps', {
+    category: 'navigation',
+    market_type: 'physical',
+    source_market: 'robotic.sh',
+    chain: 'unknown',
+    price_display: 'not recorded',
+    provider: 'NAVER',
+    machine_use_case: 'Autonomous robots can request routing, geocoding, and navigation context before moving or rerouting.',
+    policy_risk: 'High machine relevance: routing outputs can influence physical-world movement. Execution requires bounded test scenarios, source validation, and clear non-operational constraints.',
+    caveats: ['Public demo context observed: peaq showcased NAVER Maps in a simulated Serve Robotics workflow with USDT settlement on Solana. Radar has not executed this service.']
+  })
 ];
 
 const cloudTranslationReceipt = {
@@ -109,16 +120,16 @@ function pathOf(input: RequestInfo | URL) {
 function installFetch() {
   vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
     const path = pathOf(input);
-    if (path === '/v1/machine-market/services') return json({ count: 12, services });
+    if (path === '/v1/machine-market/services') return json({ count: 13, services });
     if (path === '/v1/machine-preflight/receipts/recent') return json({ count: 2, receipts: [cloudTranslationReceipt, alibabaExecutionReceipt] });
     if (path === '/v1/machine-preflight/coverage-runs/recent') return json({
       count: 1,
       runs: [{
         run_id: 'mcr_coverage_001',
         generated_at: '2026-05-22T00:10:00.000Z',
-        services_total: 12,
-        preflight_evaluated: 12,
-        receipts_recorded: 12,
+        services_total: 13,
+        preflight_evaluated: 13,
+        receipts_recorded: 13,
         allow_count: 6,
         review_count: 4,
         deny_count: 2,
@@ -201,7 +212,7 @@ describe('machine service dossier page', () => {
     root = await renderPath(container, '/machine-service/cloud-translation');
 
     expect(container.textContent).toContain('Pay.sh execution candidates are tracked separately from the robotic.sh visible service mirror.');
-    expect(container.textContent).toContain('Alibaba Machine Translation General is the first execution-tested Pay.sh route; it is not counted as one of the 12 visible robotic.sh services unless robotic.sh lists it.');
+    expect(container.textContent).toContain('Alibaba Machine Translation General is the first execution-tested Pay.sh route; it is not counted as one of the 13 visible robotic.sh services unless robotic.sh lists it.');
     expect(container.querySelector('a[href="/machine-execution-shortlist"]')).not.toBeNull();
     expect(container.querySelector('a[href="/machine-execution-plan/cloud-translation"]')?.textContent).toContain('View execution proof plan');
   });

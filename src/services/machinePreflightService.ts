@@ -701,7 +701,7 @@ function summarizeService(service: MachineMarketService): MachinePreflightServic
 }
 
 function isMachineMarketCategory(category: string): category is MachineMarketCategory {
-  return ['compute', 'inference', 'web', 'vision', 'storage', 'translation'].includes(category);
+  return ['compute', 'inference', 'web', 'vision', 'storage', 'translation', 'navigation'].includes(category);
 }
 
 function nextReceiptId(createdAt: string) {

@@ -17,7 +17,8 @@ const serviceNames = [
   '2Captcha',
   'Firecrawl',
   'Wolfram Alpha',
-  'Exa'
+  'Exa',
+  'NAVER Maps'
 ];
 
 function service(name: string, overrides: Record<string, unknown> = {}) {
@@ -57,13 +58,23 @@ const services = [
   service('2Captcha'),
   service('Firecrawl'),
   service('Wolfram Alpha', { category: 'inference', provider: 'Wolfram Research' }),
-  service('Exa')
+  service('Exa'),
+  service('NAVER Maps', {
+    category: 'navigation',
+    market_type: 'physical',
+    source_market: 'robotic.sh',
+    chain: 'unknown',
+    price_display: 'not recorded',
+    provider: 'NAVER',
+    machine_use_case: 'Autonomous robots can request routing, geocoding, and navigation context before moving or rerouting.',
+    policy_risk: 'High machine relevance: routing outputs can influence physical-world movement. Execution requires bounded test scenarios, source validation, and clear non-operational constraints.'
+  })
 ];
 
 const serviceResults = services.map((item) => ({
   service_id: item.id,
   service_name: item.name,
-  decision: item.id === 'qvac' ? 'review' : item.id === '2captcha' ? 'deny' : 'allow',
+  decision: item.id === 'qvac' || item.id === 'naver-maps' ? 'review' : item.id === '2captcha' ? 'deny' : 'allow',
   receipt_id: `mrx_${item.id}_001`,
   execution_occurred: false,
   payment_occurred: false
@@ -81,17 +92,17 @@ function pathOf(input: RequestInfo | URL) {
 function installFetch() {
   vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
     const path = pathOf(input);
-    if (path === '/v1/machine-market/services') return json({ count: 12, services });
+    if (path === '/v1/machine-market/services') return json({ count: 13, services });
     if (path === '/v1/machine-preflight/coverage-runs/recent') return json({
       count: 1,
       runs: [{
         run_id: 'mcr_20260522000000000_0001',
         generated_at: '2026-05-22T00:10:00.000Z',
-        services_total: 12,
-        preflight_evaluated: 12,
-        receipts_recorded: 12,
+        services_total: 13,
+        preflight_evaluated: 13,
+        receipts_recorded: 13,
         allow_count: 10,
-        review_count: 1,
+        review_count: 2,
         deny_count: 1,
         execution_occurred: false,
         payment_occurred: false,
@@ -143,13 +154,13 @@ describe('machine readiness matrix page', () => {
     window.history.pushState({}, '', '/');
   });
 
-  it('renders the readiness matrix with all 12 services', async () => {
+  it('renders the readiness matrix with all 13 services', async () => {
     root = await renderPage(container);
 
     expect(container.textContent).toContain('Machine Readiness Matrix');
-    expect(container.textContent).toContain('12 services mapped. 0 robotic.sh execution claims. 1 proof plan selected.');
+    expect(container.textContent).toContain('13 services mapped. 0 robotic.sh execution claims. 1 proof plan selected.');
     expect(container.querySelector('[aria-label="Readiness Matrix Brief"]')?.textContent).toContain('Readiness Matrix Brief');
-    expect(container.querySelector('[aria-label="Readiness Matrix Brief"]')?.textContent).toContain('12 robotic.sh services mapped across the readiness ladder.');
+    expect(container.querySelector('[aria-label="Readiness Matrix Brief"]')?.textContent).toContain('13 robotic.sh services mapped across the readiness ladder.');
     expect(container.querySelector('[aria-label="Readiness Matrix Brief"]')?.textContent).toContain('1 proof plan selected.');
     expect(container.querySelector('[aria-label="Readiness Matrix Brief"]')?.textContent).toContain('0 execution receipts.');
     expect(container.querySelector('[aria-label="Readiness Matrix Brief"]')?.textContent).toContain('0 repeatability receipts.');
@@ -170,10 +181,13 @@ describe('machine readiness matrix page', () => {
     const rowTexts = Array.from(container.querySelectorAll('.machine-readiness-row')).map((row) => row.textContent ?? '');
     const cloudTranslationRow = rowTexts.find((text) => text.includes('Cloud Translation'));
     const qvacRow = rowTexts.find((text) => text.includes('QVAC'));
+    const naverMapsRow = rowTexts.find((text) => text.includes('NAVER Maps'));
 
     expect(cloudTranslationRow).toContain('complete');
     expect(cloudTranslationRow).toContain('missingmissing');
     expect(qvacRow).not.toContain('proof plan selectedcomplete');
+    expect(naverMapsRow).toContain('review');
+    expect(naverMapsRow).toContain('missing');
 
     const matrixText = matrix?.textContent ?? '';
     expect(matrixText).toContain('execution_receipt');

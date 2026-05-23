@@ -51,10 +51,10 @@ type TrustAssessment = EvidenceReceipt & { entityId: string; score: number | nul
 type SignalAssessment = EvidenceReceipt & { entityId: string; score: number | null; narratives: string[]; components: Record<string, number | null>; unknowns: string[] };
 type Narrative = EvidenceReceipt & { id: string; title: string; heat: number | null; momentum: number | null; providerIds: string[]; keywords: string[]; summary: string };
 type DataSource = { mode: 'live_pay_sh_catalog' | 'fixture_fallback'; url: string | null; generated_at: string | null; provider_count: number | null; last_ingested_at: string | null; used_fixture: boolean; error?: string | null };
-type MachineMarketCategory = 'compute' | 'inference' | 'web' | 'vision' | 'storage' | 'translation';
+type MachineMarketCategory = 'compute' | 'inference' | 'web' | 'vision' | 'storage' | 'translation' | 'navigation';
 type MachineMarketType = 'digital' | 'physical' | 'all-compatible';
 type MachineMarketSource = 'robotic.sh' | 'pay.sh' | 'agentic.market';
-type MachineMarketChain = 'solana' | 'base' | 'peaq' | 'omnichain';
+type MachineMarketChain = 'solana' | 'base' | 'peaq' | 'omnichain' | 'unknown';
 type MachineMarketStatus = 'ready' | 'setup';
 type MachineMarketEvidenceStage = 'listed' | 'classified' | 'policy-mapped' | 'preflight-ready' | 'execution-tested' | 'receipt-recorded' | 'benchmark-recorded';
 type MachineMarketService = {
@@ -2146,9 +2146,9 @@ function PublicBenchmarkProofPage({ benchmarkId }: { benchmarkId: string }) {
 }
 
 const MACHINE_MARKET_STAGES: MachineMarketEvidenceStage[] = [...MACHINE_EVIDENCE_STAGES];
-const MACHINE_MARKET_CATEGORIES: MachineMarketCategory[] = ['compute', 'inference', 'web', 'vision', 'storage', 'translation'];
+const MACHINE_MARKET_CATEGORIES: MachineMarketCategory[] = ['compute', 'inference', 'web', 'vision', 'storage', 'translation', 'navigation'];
 const MACHINE_MARKET_SOURCES: MachineMarketSource[] = ['pay.sh', 'robotic.sh', 'agentic.market'];
-const MACHINE_MARKET_CHAINS: MachineMarketChain[] = ['solana', 'base', 'peaq', 'omnichain'];
+const MACHINE_MARKET_CHAINS: MachineMarketChain[] = ['solana', 'base', 'peaq', 'omnichain', 'unknown'];
 const MACHINE_SELECTED_CONTROLLED_ACTION_ID = 'cloud-translation';
 
 type MachineReadinessMatrixCellState = 'complete' | 'missing' | 'review' | 'not_applicable';
@@ -2172,6 +2172,7 @@ type MachineMarketMapCategoryKey =
   | 'ai-inference'
   | 'data-query'
   | 'translation'
+  | 'maps-navigation'
   | 'web-retrieval'
   | 'storage'
   | 'automation'
@@ -2229,6 +2230,7 @@ const MACHINE_MARKET_MAP_CATEGORY_LABELS: Record<MachineMarketMapCategoryKey, st
   'ai-inference': 'AI / inference',
   'data-query': 'data / query',
   translation: 'translation',
+  'maps-navigation': 'maps / navigation',
   'web-retrieval': 'web / retrieval',
   storage: 'storage',
   automation: 'automation',
@@ -2241,6 +2243,7 @@ const MACHINE_MARKET_MAP_CATEGORY_ORDER: MachineMarketMapCategoryKey[] = [
   'ai-inference',
   'data-query',
   'translation',
+  'maps-navigation',
   'web-retrieval',
   'storage',
   'automation',
@@ -2261,6 +2264,7 @@ function getMachineMarketMapCategoryKey(service: MachineMarketService): MachineM
   if (service.category === 'compute') return 'compute';
   if (service.category === 'storage') return 'storage';
   if (service.category === 'translation') return 'translation';
+  if (service.category === 'navigation') return 'maps-navigation';
   if (service.category === 'vision' || service.category === 'inference') return 'ai-inference';
   if (service.category === 'web') {
     const id = service.id.toLowerCase();
@@ -2331,12 +2335,16 @@ function buildMachineMarketMapSummaries(
     const service_count = categoryServices.length;
     const average_readiness_score = service_count ? readiness_points / service_count : 0;
     const risk_score = (deny_count * 2) + review_count;
-    const category_risk_note = deny_count > 0
-      ? 'Contains at least one deny decision. Keep this category blocked unless policy evidence changes.'
-      : review_count > 0
-        ? 'Contains review-required services. Human review and bounded authority remain mandatory.'
-        : 'Current policy coverage skews allow, but category status is still planning-only and not execution-proven.';
-    const machine_use_narrative = `This category shows how machines could use ${MACHINE_MARKET_MAP_CATEGORY_LABELS[key].toLowerCase()} services for ${compactList(categoryServices.map((service) => service.machine_use_case), 2).toLowerCase()}.`;
+    const category_risk_note = key === 'maps-navigation'
+      ? 'Physical-world route decisions require bounded test scenarios, source validation, and clear non-operational demo constraints before execution.'
+      : deny_count > 0
+        ? 'Contains at least one deny decision. Keep this category blocked unless policy evidence changes.'
+        : review_count > 0
+          ? 'Contains review-required services. Human review and bounded authority remain mandatory.'
+          : 'Current policy coverage skews allow, but category status is still planning-only and not execution-proven.';
+    const machine_use_narrative = key === 'maps-navigation'
+      ? 'NAVER Maps exposes routing, geocoding, and navigation services for autonomous machines. This is high machine relevance but requires review because routing outputs can influence physical-world movement.'
+      : `This category shows how machines could use ${MACHINE_MARKET_MAP_CATEGORY_LABELS[key].toLowerCase()} services for ${compactList(categoryServices.map((service) => service.machine_use_case), 2).toLowerCase()}.`;
 
     summaries.push({
       key,
@@ -2387,6 +2395,7 @@ function getServiceExecutionReceipt(serviceId: string, receipts: MachinePrefligh
 
 function getMachineInspectorNextSafeAction(service: MachineMarketService, candidate: MachineExecutionCandidateScore | null, selectedControlledActionId: string | null) {
   if (service.id === selectedControlledActionId) return 'Open the controlled proof plan, keep planning-only posture, and wait for a service-specific receipt before any execution claim.';
+  if (service.id === 'naver-maps') return 'Inspect proof path and define safe routing test before execution.';
   if (!candidate) return 'Inspect the dossier and keep this service in metadata-only planning scope until Radar records policy and receipt evidence.';
   if (candidate.recommendation === 'next_execution_candidate') return 'Keep this service in the proof-path cohort and inspect its proof plan before any change in execution posture.';
   if (candidate.recommendation === 'monitor') return 'Maintain proof-path status and collect any missing service-specific preflight evidence before promotion.';
@@ -2638,7 +2647,7 @@ function MachineMarketPage() {
       <MachineMarketBrief latestRun={latestCoverageRun} selectedControlledActionName={selectedControlledAction?.service.name ?? 'Cloud Translation'} />
       <section className="panel machine-market-caveat" aria-label="Coverage caveat">
         <p>Infopunks Radar mapped the entire listed robotic.sh machine-service market.</p>
-        <p>Coverage refers to the 12 services visible in the observed robotic.sh market snapshot. Execution evidence is tracked separately.</p>
+        <p>Coverage refers to the 13 services visible in the observed robotic.sh market snapshot. Execution evidence is tracked separately.</p>
         <p><a className="execute compact secondary" href="/machine-market-map">View market map</a> <a className="execute compact secondary" href="/machine-readiness-matrix">View readiness matrix</a> <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a> <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a></p>
       </section>
       <MachineEvidenceMethodologyDrawer />
@@ -2691,7 +2700,7 @@ function MachineMarketMissionControl({
       </article>
       <article>
         <span>Market coverage</span>
-        <strong>{evaluatedServices || 0} / {totalServices || 12} services evaluated</strong>
+        <strong>{evaluatedServices || 0} / {totalServices || 13} services evaluated</strong>
       </article>
       <article>
         <span>Latest coverage decision summary</span>
@@ -2747,14 +2756,14 @@ function MachineMarketCohort({
   const denyCount = latestRun?.deny_count ?? candidates.filter((candidate) => candidate.latest_policy_decision === 'deny').length;
   const executionClaims = candidates.filter((candidate) => candidate.execution_status !== 'not_attempted').length;
 
-  return <section className="panel machine-market-cohort" aria-label="12-Service Market Cohort">
+  return <section className="panel machine-market-cohort" aria-label="13-Service Market Cohort">
     <div className="panel-head">
       <div>
-        <p className="section-kicker">12-Service Market Cohort</p>
-        <h2>12 robotic.sh services mapped</h2>
+        <p className="section-kicker">13-Service Market Cohort</p>
+        <h2>{services.length} robotic.sh services mapped</h2>
       </div>
       <div className="machine-cohort-counts" aria-label="Cohort status summary">
-        <span>12 services mapped</span>
+        <span>{services.length} services mapped</span>
         <span>{allowCount} allow</span>
         <span>{reviewCount} review</span>
         <span>{denyCount} deny</span>
@@ -2774,7 +2783,7 @@ function MachineMarketCohort({
         {index < 5 && <b aria-hidden="true">-&gt;</b>}
       </React.Fragment>)}
     </div>
-    {loading && !services.length && <p className="route-state">Loading 12-service market cohort...</p>}
+    {loading && !services.length && <p className="route-state">Loading 13-service market cohort...</p>}
     {!!services.length && <div className="machine-cohort-grid">
       {services.map((service) => {
         const candidate = candidateByServiceId.get(service.id) ?? null;
@@ -2846,6 +2855,7 @@ function MachineMarketServiceInspector({
       <article><span>category</span><strong>{service.category}</strong></article>
       <article><span>status</span><strong>{service.status}</strong></article>
       <article><span>policy decision</span><strong>{candidate?.latest_policy_decision ?? 'not recorded'}</strong></article>
+      <article><span>machine use case</span><strong>{service.machine_use_case}</strong></article>
       <article><span>policy risk note</span><strong>{service.policy_risk}</strong></article>
       <article><span>evidence stage</span><strong>{formatEvidenceStage(service.evidence_stage)}</strong></article>
       <article><span>evidence health</span><strong>{service.evidence_health}</strong></article>
@@ -2855,7 +2865,7 @@ function MachineMarketServiceInspector({
     </div>
     <div className="machine-inspector-actions">
       <a className="execute compact secondary" href={`/machine-service/${encodeURIComponent(service.id)}`}>View dossier</a>
-      <a className="execute compact" href={`/machine-execution-plan/${encodeURIComponent(service.id)}`}>View proof plan</a>
+      <a className="execute compact" href={`/machine-execution-plan/${encodeURIComponent(service.id)}`}>{service.id === selectedControlledActionId ? 'Open proof plan' : 'Inspect proof path'}</a>
     </div>
   </section>;
 }
@@ -2869,9 +2879,9 @@ function MachineMarketBrief({
 }) {
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
   const allowCount = latestRun?.allow_count ?? 10;
-  const reviewCount = latestRun?.review_count ?? 1;
+  const reviewCount = latestRun?.review_count ?? 2;
   const denyCount = latestRun?.deny_count ?? 1;
-  const brief = `12 robotic.sh services mapped. ${allowCount} allow / ${reviewCount} review / ${denyCount} deny. Every visible service has policy state, evidence state, readiness rank, and proof path. 0 robotic.sh execution claims. 1 controlled proof-plan action selected. Machines should not spend blind.`;
+  const brief = `13 robotic.sh services mapped. ${allowCount} allow / ${reviewCount} review / ${denyCount} deny. Every visible service has policy state, evidence state, readiness rank, and proof path. 0 robotic.sh execution claims. 1 controlled proof-plan action selected. Machines should not spend blind.`;
 
   async function copyBrief() {
     const copied = await copyText(brief);
@@ -2946,7 +2956,7 @@ function MachineEconomySnapshotPage() {
         <div>
           <p className="eyebrow">Robotic.sh Machine Economy Snapshot</p>
           <h1>Machine Economy Public Snapshot</h1>
-          <p className="copy">12 robotic.sh services mapped into policy, evidence, readiness, and proof-path state. Radar records what is ready to plan, not what has been executed.</p>
+          <p className="copy">13 robotic.sh services mapped into policy, evidence, readiness, and proof-path state. Radar records what is ready to plan, not what has been executed.</p>
         </div>
         <div className="ticker" aria-label="Machine economy snapshot hero chips">
           <span>robotic.sh visible market</span>
@@ -3013,7 +3023,7 @@ function MachineEconomySnapshotCohortBand({
     <div className="panel-head">
       <div>
         <p className="section-kicker">Market Cohort Summary</p>
-        <h2>12-service public cohort band</h2>
+        <h2>{services.length}-service public cohort band</h2>
       </div>
       <span className="machine-badge source">{services.length} services</span>
     </div>
@@ -3037,7 +3047,7 @@ function MachineEconomySnapshotCategorySummary({ summaries }: { summaries: Machi
     <div className="panel-head">
       <div>
         <p className="section-kicker">Category Summary</p>
-        <h2>7 machine-function groups</h2>
+        <h2>{summaries.length} machine-function groups</h2>
       </div>
       <span className="machine-badge evidence">computed from current registry</span>
     </div>
@@ -3084,7 +3094,7 @@ function MachineReadinessMatrixPage() {
 
   useEffect(() => {
     document.title = 'Machine Readiness Matrix | Infopunks Pay.sh Radar';
-    setMetaTag('name', 'description', 'Readiness matrix for the 12 robotic.sh-visible machine services tracked by Infopunks Radar.');
+    setMetaTag('name', 'description', 'Readiness matrix for the 13 robotic.sh-visible machine services tracked by Infopunks Radar.');
     let cancelled = false;
     setLoading(true);
     setError(null);
@@ -3136,7 +3146,7 @@ function MachineReadinessMatrixPage() {
         <div>
           <p className="eyebrow">Machine Economy Readiness Matrix</p>
           <h1>Machine Readiness Matrix</h1>
-          <p className="copy">12 services mapped. 0 robotic.sh execution claims. 1 proof plan selected.</p>
+          <p className="copy">13 services mapped. 0 robotic.sh execution claims. 1 proof plan selected.</p>
           <p className="panel-caption">Cloud Translation remains the selected controlled action. Coverage and preflight do not imply execution. Repeatability remains missing without service-specific receipts.</p>
         </div>
         <div className="ticker" aria-label="Readiness matrix principles">
@@ -3150,7 +3160,7 @@ function MachineReadinessMatrixPage() {
       {!loading && !error && <>
         <ReadinessMatrixBrief rows={rows} />
         <section className="panel machine-market-caveat" aria-label="Readiness matrix caveats">
-          <p>12 services mapped. 0 robotic.sh execution claims. 1 proof plan selected.</p>
+          <p>13 services mapped. 0 robotic.sh execution claims. 1 proof plan selected.</p>
           <p>No execution claim. No benchmark claim. Pay.sh routes tracked separately. Cloud Translation is the current controlled action, not a winner.</p>
           <p><a className="execute compact secondary" href="/machine-market-map">View market map</a> <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a></p>
         </section>
@@ -3214,7 +3224,7 @@ function MachineMarketMapPage() {
 
   useEffect(() => {
     document.title = 'Machine Market Map | Infopunks Pay.sh Radar';
-    setMetaTag('name', 'description', 'Read-only market map of the 12 robotic.sh-visible services grouped into machine-function categories.');
+    setMetaTag('name', 'description', 'Read-only market map of the 13 robotic.sh-visible services grouped into machine-function categories.');
     let cancelled = false;
     setLoading(true);
     setError(null);
@@ -3265,11 +3275,11 @@ function MachineMarketMapPage() {
         <div>
           <p className="eyebrow">Robotic.sh Machine Market Map</p>
           <h1>Machine Market Map</h1>
-          <p className="copy">12 robotic.sh services mapped. {categorySummaries.length || 0} normalized machine-function categories. 0 robotic.sh execution claims. Planning only.</p>
+          <p className="copy">{services.length} robotic.sh services mapped. {categorySummaries.length || 0} normalized machine-function categories. 0 robotic.sh execution claims. Planning only.</p>
           <p className="panel-caption">Read-only category map for the visible robotic.sh catalog. No execution claim, no benchmark claim, no winner claim.</p>
         </div>
         <div className="ticker" aria-label="Machine market map summary">
-          <span>12 services mapped</span>
+          <span>{services.length} services mapped</span>
           <span>{categorySummaries.length || 0} categories</span>
           <span>strongest: {strongestCategory?.label ?? 'pending'}</span>
           <span>riskiest: {riskiestCategory?.label ?? 'pending'}</span>
@@ -3663,11 +3673,11 @@ function MachineMarketHero() {
     <div>
       <p className="eyebrow">Machine Economy</p>
       <h1>Machine Market Command Center</h1>
-      <p className="copy">12 robotic.sh services mapped. Radar gives every service policy state, evidence state, readiness rank, and a proof path before spend.</p>
-      <p className="panel-caption">12 listed services mapped from robotic.sh for Phase 2 machine-economy intelligence.</p>
+      <p className="copy">13 robotic.sh services mapped. Radar gives every service policy state, evidence state, readiness rank, and a proof path before spend.</p>
+      <p className="panel-caption">13 listed services mapped from robotic.sh for Phase 2 machine-economy intelligence.</p>
     </div>
     <div className="ticker" aria-label="Machine Market principles">
-      <span>12 services mapped</span>
+      <span>13 services mapped</span>
       <span>Policy / evidence state</span>
       <span>Readiness ranked</span>
       <span>Machines should not spend blind</span>
@@ -3825,7 +3835,7 @@ function MachineServiceCard({ service, candidate }: { service: MachineMarketServ
   </aside>;
 }
 
-const PAY_SH_SERVICE_SEPARATION_NOTE = 'Pay.sh execution candidates are tracked separately from the robotic.sh visible service mirror. Alibaba Machine Translation General is the first execution-tested Pay.sh route; it is not counted as one of the 12 visible robotic.sh services unless robotic.sh lists it.';
+const PAY_SH_SERVICE_SEPARATION_NOTE = 'Pay.sh execution candidates are tracked separately from the robotic.sh visible service mirror. Alibaba Machine Translation General is the first execution-tested Pay.sh route; it is not counted as one of the 13 visible robotic.sh services unless robotic.sh lists it.';
 
 type MachineExecutionCandidateTier = 'strong_candidate' | 'possible_candidate' | 'review_required' | 'not_ready';
 type MachineExecutionCandidateRecommendation = 'next_execution_candidate' | 'monitor' | 'needs_review' | 'avoid_for_now';
@@ -3904,7 +3914,7 @@ function MachineExecutionShortlistPage() {
         <div>
           <p className="eyebrow">Robotic.sh Execution Candidate Shortlist</p>
           <h1>Execution Shortlist</h1>
-          <p className="copy">Evidence-based candidate ranking for future execution attempts across the 12 robotic.sh-visible services.</p>
+          <p className="copy">Evidence-based candidate ranking for future execution attempts across the 13 robotic.sh-visible services.</p>
           <p className="panel-caption">Candidate ranking evaluates readiness for future execution. It is not a payment, benchmark, provider-quality, or winner claim.</p>
         </div>
         <div className="ticker" aria-label="Shortlist principles">
@@ -3945,7 +3955,7 @@ function TopExecutionCandidatePanel({ candidate }: { candidate: MachineExecution
     <div className="panel-head"><div><p className="section-kicker">Top Candidate</p><h2>{candidate?.service.name ?? 'No candidate available'}</h2></div></div>
     {!candidate && <EmptyState title="No top candidate." body="Radar needs the visible service registry before it can compute a shortlist." />}
     {candidate && <>
-      <p>Radar recommends this as the clearest next execution candidate among the 12 robotic.sh-visible services. This is not an execution claim.</p>
+      <p>Radar recommends this as the clearest next execution candidate among the 13 robotic.sh-visible services. This is not an execution claim.</p>
       <div className="machine-usage-list">
         <p><span>safest next robotic.sh-listed candidate</span><small>{candidate.service.name} / {candidate.service.id}</small></p>
         <p><span>why selected</span><small>{candidate.positive_reasons.join(' ')}</small></p>
@@ -4009,6 +4019,7 @@ function buildExecutionPlanChecklist(
   latestExecution: MachinePreflightReceipt | null
 ): ExecutionPlanChecklistItem[] {
   const translationService = service?.category === 'translation' || /translation/i.test(service?.name ?? '');
+  const navigationService = service?.category === 'navigation' || /map|navigation|route/i.test(service?.name ?? '');
   const knownService = Boolean(service);
   const policyDecision = candidate?.latest_policy_decision ?? 'not recorded';
   const executionRecorded = Boolean(latestExecution);
@@ -4017,9 +4028,9 @@ function buildExecutionPlanChecklist(
     { id: 'visible-mirror-belongs', label: 'service belongs to robotic.sh visible mirror', status: service?.observed_source === 'robotic.sh' ? 'ready' : 'missing', reason: service?.observed_source === 'robotic.sh' ? 'Observed source is robotic.sh.' : 'Observed source is missing or non-robotic.sh.' },
     { id: 'policy-decision-recorded', label: 'policy decision recorded', status: policyDecision === 'allow' ? 'ready' : policyDecision === 'review' ? 'review_required' : policyDecision === 'deny' ? 'missing' : 'missing', reason: `Latest policy decision is ${policyDecision}.` },
     { id: 'latest-preflight-receipt-available', label: 'latest preflight receipt available', status: latestPreflight ? 'ready' : 'missing', reason: latestPreflight ? `Using receipt ${latestPreflight.receipt_id}.` : 'No service-specific preflight receipt is recorded yet.' },
-    { id: 'io-shape-understood', label: 'input/output shape understood', status: service?.category === 'translation' || service?.category === 'vision' || service?.category === 'storage' ? 'ready' : knownService ? 'review_required' : 'missing', reason: knownService ? `${service?.category} category has ${service?.category === 'translation' || service?.category === 'vision' || service?.category === 'storage' ? 'clearer' : 'partial'} schema expectations.` : 'No known service category.' },
-    { id: 'safe-test-input-selected', label: 'safe test input selected', status: translationService ? 'ready' : 'missing', reason: translationService ? 'Safe default translation prompt is defined for planning.' : 'No deterministic safe input template defined for this category yet.' },
-    { id: 'expected-output-semantics-defined', label: 'expected output semantics defined', status: translationService ? 'ready' : knownService ? 'review_required' : 'missing', reason: translationService ? 'Semantic translation class is defined.' : 'Output semantic class needs service-specific definition.' },
+    { id: 'io-shape-understood', label: 'input/output shape understood', status: service?.category === 'translation' || service?.category === 'vision' || service?.category === 'storage' ? 'ready' : navigationService ? 'review_required' : knownService ? 'review_required' : 'missing', reason: knownService ? `${service?.category} category has ${service?.category === 'translation' || service?.category === 'vision' || service?.category === 'storage' ? 'clearer' : navigationService ? 'route-sensitive' : 'partial'} schema expectations.` : 'No known service category.' },
+    { id: 'safe-test-input-selected', label: 'safe test input selected', status: translationService ? 'ready' : navigationService ? 'review_required' : 'missing', reason: translationService ? 'Safe default translation prompt is defined for planning.' : navigationService ? 'A bounded non-operational routing scenario must be defined before execution.' : 'No deterministic safe input template defined for this category yet.' },
+    { id: 'expected-output-semantics-defined', label: 'expected output semantics defined', status: translationService ? 'ready' : navigationService ? 'review_required' : knownService ? 'review_required' : 'missing', reason: translationService ? 'Semantic translation class is defined.' : navigationService ? 'Route semantics, constraints, and safety checks need service-specific definition.' : 'Output semantic class needs service-specific definition.' },
     { id: 'payment-auth-known', label: 'payment/auth requirements known', status: knownService ? 'review_required' : 'missing', reason: knownService ? 'Source-market metadata exists; runtime auth/payment proof still required at execution time.' : 'No source-market metadata available.' },
     { id: 'receipt-schema-ready', label: 'execution receipt schema ready', status: 'ready', reason: 'Machine execution receipt schema is already defined in Radar.' },
     { id: 'caveats-prepared', label: 'caveats prepared', status: service?.caveats.length ? 'ready' : 'review_required', reason: service?.caveats.length ? `${service.caveats.length} caveat(s) are already cataloged.` : 'Service caveats should be prepared before execution.' },
@@ -4055,9 +4066,9 @@ function scoreMachineExecutionCandidate(
   const policy_safety_score = clampScore((latestPolicyDecision === 'allow' ? 92 : latestPolicyDecision === 'review' ? 56 : latestPolicyDecision === 'deny' ? 12 : 42) - (sensitive ? 18 : 0) - (setup ? 12 : 0));
   const execution_readiness_score = clampScore((service.status === 'ready' ? 76 : 34) + (executionStatus === 'execution-tested' ? 18 : executionStatus === 'attempted-recorded' ? 4 : 0));
   const auth_friction_score = clampScore((service.source_market === 'pay.sh' ? 80 : service.source_market === 'agentic.market' ? 62 : 48) - (setup ? 22 : 0) - (sensitive ? 12 : 0));
-  const machine_relevance_score = clampScore(({ translation: 90, vision: 84, storage: 80, web: 66, inference: 62, compute: 58 } as Record<MachineMarketCategory, number>)[service.category] - (/captcha/.test(riskText) ? 36 : 0));
-  const input_output_clarity_score = clampScore(({ translation: 90, storage: 84, vision: 80, web: 64, inference: 58, compute: 52 } as Record<MachineMarketCategory, number>)[service.category] + (service.price_display && service.price_display !== 'Per endpoint' ? 4 : 0));
-  const catalog_confidence_score = clampScore(48 + (service.provider ? 10 : 0) + (service.price_display ? 10 : 0) + (service.source_market ? 10 : 0) + (service.chain ? 10 : 0) + (service.observed_source === 'robotic.sh' ? 8 : 0) - (setup ? 8 : 0));
+  const machine_relevance_score = clampScore(({ translation: 90, vision: 84, storage: 80, navigation: 92, web: 66, inference: 62, compute: 58 } as Record<MachineMarketCategory, number>)[service.category] - (/captcha/.test(riskText) ? 36 : 0));
+  const input_output_clarity_score = clampScore(({ translation: 90, storage: 84, vision: 80, navigation: 54, web: 64, inference: 58, compute: 52 } as Record<MachineMarketCategory, number>)[service.category] + (service.price_display && service.price_display !== 'Per endpoint' && service.price_display !== 'not recorded' ? 4 : 0));
+  const catalog_confidence_score = clampScore(48 + (service.provider ? 10 : 0) + (service.price_display && service.price_display !== 'not recorded' ? 10 : 4) + (service.source_market ? 10 : 0) + (service.chain && service.chain !== 'unknown' ? 10 : 4) + (service.observed_source === 'robotic.sh' ? 8 : 0) - (setup ? 8 : 0));
   const evidence_health_score = clampScore((service.evidence_health === 'listed' ? 70 : 56) + (coverageDecision ? 16 : 0) + (latestPreflight ? 20 : 0) - (!coverageRun ? 12 : 0));
   const overall_candidate_score = Math.round((policy_safety_score * 0.22) + (execution_readiness_score * 0.16) + (auth_friction_score * 0.14) + (machine_relevance_score * 0.16) + (input_output_clarity_score * 0.12) + (catalog_confidence_score * 0.10) + (evidence_health_score * 0.10));
   const candidate_tier = overall_candidate_score >= 78 && latestPolicyDecision !== 'deny' && !setup && !sensitive ? 'strong_candidate' : overall_candidate_score >= 64 && latestPolicyDecision !== 'deny' ? 'possible_candidate' : latestPolicyDecision === 'deny' || sensitive ? 'not_ready' : 'review_required';
@@ -4384,7 +4395,7 @@ function MachineServiceIdentity({ service, position, total }: { service: Machine
       <p><b>evidence_health</b><span>{service.evidence_health}</span></p>
       <p><b>policy_risk</b><span>{service.policy_risk}</span></p>
       <p><b>robotic.sh catalog position</b><span>{position} / {total}</span></p>
-      <p><b>12-service visible mirror</b><span>yes</span></p>
+      <p><b>13-service visible mirror</b><span>yes</span></p>
       <p><b>Phase 2 scope</b><span>{service.phase_scope}</span></p>
     </div>
     <section className="dossier-section"><h4>Machine use case</h4><p>{service.machine_use_case}</p></section>
@@ -6240,7 +6251,7 @@ function RadarApp() {
       <div>
         <p className="section-kicker">New Radar Module</p>
         <h2>Machine Economy Module</h2>
-        <p>Radar now maps the robotic.sh machine-service market: 12 listed services, bounded authority policies, preflight decisions, and machine receipts.</p>
+        <p>Radar now maps the robotic.sh machine-service market: 13 listed services, bounded authority policies, preflight decisions, and machine receipts.</p>
         <small>Same terminal. New species of spender.</small>
       </div>
       <a className="execute compact secondary" href="/machine-market">Open Machine Market</a>

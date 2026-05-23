@@ -5,7 +5,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../src/web/main';
 
-const serviceNames = ['QVAC', 'Generative Language', 'BigQuery', 'Document AI', 'Stableupload', 'Cloud Translation', 'Claude', 'ChatGPT', '2Captcha', 'Firecrawl', 'Wolfram Alpha', 'Exa'];
+const serviceNames = ['QVAC', 'Generative Language', 'BigQuery', 'Document AI', 'Stableupload', 'Cloud Translation', 'Claude', 'ChatGPT', '2Captcha', 'Firecrawl', 'Wolfram Alpha', 'Exa', 'NAVER Maps'];
 
 function service(name: string, overrides: Record<string, unknown> = {}) {
   const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -44,13 +44,24 @@ const services = [
   service('2Captcha', { policy_risk: 'Captcha solving can violate site terms or anti-abuse controls; default policy should block unless explicitly approved.' }),
   service('Firecrawl'),
   service('Wolfram Alpha', { category: 'inference', provider: 'Wolfram Research' }),
-  service('Exa')
+  service('Exa'),
+  service('NAVER Maps', {
+    category: 'navigation',
+    market_type: 'physical',
+    source_market: 'robotic.sh',
+    chain: 'unknown',
+    price_display: 'not recorded',
+    provider: 'NAVER',
+    machine_use_case: 'Autonomous robots can request routing, geocoding, and navigation context before moving or rerouting.',
+    policy_risk: 'High machine relevance: routing outputs can influence physical-world movement. Execution requires bounded test scenarios, source validation, and clear non-operational constraints.'
+  })
 ];
 
 const receipts = [
   receipt('cloud-translation', 'Cloud Translation', 'allow', 'mrx_cloud_translation_001'),
   receipt('qvac', 'QVAC', 'review', 'mrx_qvac_001'),
-  receipt('2captcha', '2Captcha', 'deny', 'mrx_2captcha_001')
+  receipt('2captcha', '2Captcha', 'deny', 'mrx_2captcha_001'),
+  receipt('naver-maps', 'NAVER Maps', 'review', 'mrx_naver_maps_001')
 ];
 
 function receipt(serviceId: string, serviceName: string, decision: 'allow' | 'review' | 'deny', receiptId: string) {
@@ -107,7 +118,7 @@ function pathOf(input: RequestInfo | URL) {
 function installFetch(options: { missingEvidence?: boolean } = {}) {
   vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
     const path = pathOf(input);
-    if (path === '/v1/machine-market/services') return json({ count: 12, services });
+    if (path === '/v1/machine-market/services') return json({ count: 13, services });
     if (path === '/v1/machine-preflight/receipts/recent') {
       if (options.missingEvidence) return Promise.resolve(new Response('{}', { status: 404 }));
       return json({ count: receipts.length, receipts });
@@ -119,9 +130,9 @@ function installFetch(options: { missingEvidence?: boolean } = {}) {
         runs: [{
           run_id: 'mcr_coverage_001',
           generated_at: '2026-05-22T00:10:00.000Z',
-          services_total: 12,
-          preflight_evaluated: 12,
-          receipts_recorded: 12,
+          services_total: 13,
+          preflight_evaluated: 13,
+          receipts_recorded: 13,
           allow_count: 1,
           review_count: 1,
           deny_count: 1,
@@ -176,7 +187,7 @@ describe('machine execution shortlist page', () => {
     window.history.pushState({}, '', '/');
   });
 
-  it('renders shortlist with all 12 robotic.sh-visible services', async () => {
+  it('renders shortlist with all 13 robotic.sh-visible services', async () => {
     installFetch();
     root = await renderPage(container);
 
@@ -194,7 +205,7 @@ describe('machine execution shortlist page', () => {
     expect(text).toContain('candidate tier');
     expect(text).toContain('next_execution_candidate');
     expect(container.querySelector('a[href="/machine-execution-plan/cloud-translation"]')?.textContent).toContain('View proof plan');
-    expect(text).toContain('Radar recommends this as the clearest next execution candidate among the 12 robotic.sh-visible services. This is not an execution claim.');
+    expect(text).toContain('Radar recommends this as the clearest next execution candidate among the 13 robotic.sh-visible services. This is not an execution claim.');
     expect(container.querySelector('[aria-label="Evidence methodology drawer"]')?.textContent).toContain('Evidence methodology');
     expect(container.querySelector('[aria-label="Evidence methodology drawer"]')?.textContent).toContain('proof_plan_selected');
     expect(container.querySelector('[aria-label="Shortlist methodology"]')?.textContent).toContain('Shortlist ranking evaluates readiness for future execution.');
@@ -223,7 +234,7 @@ describe('machine execution shortlist page', () => {
     installFetch({ missingEvidence: true });
     root = await renderPage(container);
 
-    expect(container.textContent).toContain('12 robotic.sh-visible services');
+    expect(container.textContent).toContain('13 robotic.sh-visible services');
     expect(container.textContent).toContain('not recorded');
     expect(container.textContent).toContain('No preflight/coverage decision recorded.');
   });

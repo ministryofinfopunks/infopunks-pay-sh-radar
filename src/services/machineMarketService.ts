@@ -1,7 +1,7 @@
-export type MachineMarketCategory = 'compute' | 'inference' | 'web' | 'vision' | 'storage' | 'translation';
+export type MachineMarketCategory = 'compute' | 'inference' | 'web' | 'vision' | 'storage' | 'translation' | 'navigation';
 export type MachineMarketType = 'digital' | 'physical' | 'all-compatible';
 export type MachineMarketSource = 'robotic.sh' | 'pay.sh' | 'agentic.market';
-export type MachineMarketChain = 'solana' | 'base' | 'peaq' | 'omnichain';
+export type MachineMarketChain = 'solana' | 'base' | 'peaq' | 'omnichain' | 'unknown';
 export type MachineMarketStatus = 'ready' | 'setup';
 export type MachineMarketEvidenceHealth = 'scaffold' | 'listed';
 export type MachineMarketEvidenceStage =
@@ -242,6 +242,24 @@ const services: MachineMarketService[] = [
     machine_use_case: 'Machines can discover web evidence and candidate services before spend decisions.',
     policy_risk: 'Search results are not receipts; require source capture and freshness checks before autonomous spend.',
     caveats: ['Included as robotic.sh source metadata; outside Phase 2 execution focus.', ...defaultCaveats]
+  }),
+  service({
+    id: 'naver-maps',
+    name: 'NAVER Maps',
+    provider: 'NAVER',
+    category: 'navigation',
+    market_type: 'physical',
+    source_market: 'robotic.sh',
+    chain: 'unknown',
+    status: 'ready',
+    price_display: 'not recorded',
+    description: 'Korea-first routing, geocoding, reverse geocoding, and static maps for robot navigation.',
+    machine_use_case: 'Autonomous robots can request routing, geocoding, and navigation context before moving or rerouting.',
+    policy_risk: 'High machine relevance: routing outputs can influence physical-world movement. Execution requires bounded test scenarios, source validation, and clear non-operational constraints.',
+    caveats: [
+      'Public demo context observed: peaq showcased NAVER Maps in a simulated Serve Robotics workflow with USDT settlement on Solana. Radar has not executed this service.',
+      ...defaultCaveats
+    ]
   })
 ];
 
@@ -258,9 +276,9 @@ export function buildMachineMarketSummary(): MachineMarketSummary {
   const allServices = listMachineMarketServices();
   return {
     total_services: allServices.length,
-    categories: countBy(allServices, 'category', ['compute', 'inference', 'web', 'vision', 'storage', 'translation']),
+    categories: countBy(allServices, 'category', ['compute', 'inference', 'web', 'vision', 'storage', 'translation', 'navigation']),
     source_markets: countBy(allServices, 'source_market', ['robotic.sh', 'pay.sh', 'agentic.market']),
-    chains: countBy(allServices, 'chain', ['solana', 'base', 'peaq', 'omnichain']),
+    chains: countBy(allServices, 'chain', ['solana', 'base', 'peaq', 'omnichain', 'unknown']),
     ready_count: allServices.filter((item) => item.status === 'ready').length,
     setup_count: allServices.filter((item) => item.status === 'setup').length,
     evidence_stage_counts: countBy(allServices, 'evidence_stage', ['listed', 'classified', 'policy-mapped', 'preflight-ready', 'execution-tested', 'receipt-recorded', 'benchmark-recorded']),

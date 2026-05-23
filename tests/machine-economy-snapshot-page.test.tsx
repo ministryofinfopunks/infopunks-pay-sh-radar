@@ -17,7 +17,8 @@ const serviceNames = [
   '2Captcha',
   'Firecrawl',
   'Wolfram Alpha',
-  'Exa'
+  'Exa',
+  'NAVER Maps'
 ];
 
 function service(name: string, overrides: Record<string, unknown> = {}) {
@@ -57,13 +58,23 @@ const services = [
   service('2Captcha'),
   service('Firecrawl'),
   service('Wolfram Alpha', { category: 'inference', provider: 'Wolfram Research' }),
-  service('Exa')
+  service('Exa'),
+  service('NAVER Maps', {
+    category: 'navigation',
+    market_type: 'physical',
+    source_market: 'robotic.sh',
+    chain: 'unknown',
+    price_display: 'not recorded',
+    provider: 'NAVER',
+    machine_use_case: 'Autonomous robots can request routing, geocoding, and navigation context before moving or rerouting.',
+    policy_risk: 'High machine relevance: routing outputs can influence physical-world movement. Execution requires bounded test scenarios, source validation, and clear non-operational constraints.'
+  })
 ];
 
 const serviceResults = services.map((item) => ({
   service_id: item.id,
   service_name: item.name,
-  decision: item.id === 'qvac' ? 'review' : item.id === '2captcha' ? 'deny' : 'allow',
+  decision: item.id === 'qvac' || item.id === 'naver-maps' ? 'review' : item.id === '2captcha' ? 'deny' : 'allow',
   receipt_id: `mrx_${item.id}_001`,
   execution_occurred: false,
   payment_occurred: false
@@ -81,17 +92,17 @@ function pathOf(input: RequestInfo | URL) {
 function installFetch() {
   vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
     const path = pathOf(input);
-    if (path === '/v1/machine-market/services') return json({ count: 12, services });
+    if (path === '/v1/machine-market/services') return json({ count: 13, services });
     if (path === '/v1/machine-preflight/coverage-runs/recent') return json({
       count: 1,
       runs: [{
         run_id: 'mcr_20260522000000000_0001',
         generated_at: '2026-05-22T00:10:00.000Z',
-        services_total: 12,
-        preflight_evaluated: 12,
-        receipts_recorded: 12,
+        services_total: 13,
+        preflight_evaluated: 13,
+        receipts_recorded: 13,
         allow_count: 10,
-        review_count: 1,
+        review_count: 2,
         deny_count: 1,
         execution_occurred: false,
         payment_occurred: false,
@@ -146,10 +157,10 @@ describe('machine economy snapshot page', () => {
     const text = container.textContent ?? '';
     const stats = container.querySelector('[aria-label="Machine economy snapshot stat grid"]')?.textContent ?? '';
     expect(text).toContain('Machine Economy Public Snapshot');
-    expect(text).toContain('12 robotic.sh services mapped into policy, evidence, readiness, and proof-path state.');
-    expect(text).toContain('12 services mapped');
-    expect(text).toContain('7 machine-function categories');
-    expect(text).toContain('10 allow / 1 review / 1 deny');
+    expect(text).toContain('13 robotic.sh services mapped into policy, evidence, readiness, and proof-path state.');
+    expect(text).toContain('13 services mapped');
+    expect(text).toContain('8 machine-function categories');
+    expect(text).toContain('10 allow / 2 review / 1 deny');
     expect(stats).toContain('Proof plans selected1');
     expect(text).toContain('0 execution claims');
     expect(stats).toContain('Execution receipts0');
@@ -164,28 +175,29 @@ describe('machine economy snapshot page', () => {
     expect(text).not.toContain('execution success');
   });
 
-  it('renders all 12 services, category summary, public brief, copy button, and methodology drawer', async () => {
+  it('renders all 13 services, category summary, public brief, copy button, and methodology drawer', async () => {
     root = await renderPage(container);
 
     const cohort = container.querySelector('[aria-label="Machine economy cohort band"]');
     const cohortNames = Array.from(container.querySelectorAll('.machine-snapshot-cohort-row strong')).map((item) => item.textContent?.trim());
     expect(cohort).not.toBeNull();
-    expect(cohortNames).toHaveLength(12);
-    expect(new Set(cohortNames).size).toBe(12);
+    expect(cohortNames).toHaveLength(13);
+    expect(new Set(cohortNames).size).toBe(13);
     for (const name of serviceNames) expect(cohortNames).toContain(name);
 
     const categories = container.querySelector('[aria-label="Machine economy category summary"]');
     expect(categories?.textContent).toContain('AI / inference');
     expect(categories?.textContent).toContain('data / query');
     expect(categories?.textContent).toContain('translation');
+    expect(categories?.textContent).toContain('maps / navigation');
     expect(categories?.textContent).toContain('web / retrieval');
     expect(categories?.textContent).toContain('storage');
     expect(categories?.textContent).toContain('verification');
     expect(categories?.textContent).toContain('compute');
 
     const brief = container.querySelector('[aria-label="Machine economy public brief"]');
-    expect(brief?.textContent).toContain('12 robotic.sh services mapped across 7 machine-function categories.');
-    expect(brief?.textContent).toContain('Policy state: 10 allow / 1 review / 1 deny.');
+    expect(brief?.textContent).toContain('13 robotic.sh services mapped across 8 machine-function categories.');
+    expect(brief?.textContent).toContain('Policy state: 10 allow / 2 review / 1 deny.');
     expect(brief?.textContent).toContain('Radar selected 1 controlled proof-plan action: Cloud Translation.');
     expect(brief?.querySelector('button')?.textContent).toContain('Copy snapshot brief');
 

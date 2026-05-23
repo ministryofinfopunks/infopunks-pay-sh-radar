@@ -173,15 +173,15 @@ describe('machine preflight API', () => {
     await app.close();
   });
 
-  it('coverage run evaluates all 12 services and records decision receipts only', async () => {
+  it('coverage run evaluates all 13 services and records decision receipts only', async () => {
     const app = await createApp(emptyIntelligenceStore());
     const run = await app.inject({ method: 'POST', url: '/v1/machine-preflight/coverage-run' });
 
     expect(run.statusCode).toBe(200);
     const body = run.json().data;
-    expect(body.services_total).toBe(12);
-    expect(body.preflight_evaluated).toBe(12);
-    expect(body.receipts_recorded).toBe(12);
+    expect(body.services_total).toBe(13);
+    expect(body.preflight_evaluated).toBe(13);
+    expect(body.receipts_recorded).toBe(13);
     expect(body.execution_occurred).toBe(false);
     expect(body.payment_occurred).toBe(false);
     expect(body.phase_scope).toBe('phase_2_pay_sh_robotic_sh');
@@ -190,12 +190,14 @@ describe('machine preflight API', () => {
     expect(body.caveats).toContain('No Pay.sh, robotic.sh, or Agentic.Market call was made.');
     expect(body.caveats).toContain('No payment occurred.');
     expect(body.caveats).toContain('This is not a benchmark artifact.');
-    expect(body.service_results).toHaveLength(12);
+    expect(body.service_results).toHaveLength(13);
     const qvac = body.service_results.find((row: any) => row.service_id === 'qvac');
     const captcha = body.service_results.find((row: any) => row.service_id === '2captcha');
+    const naverMaps = body.service_results.find((row: any) => row.service_id === 'naver-maps');
     expect(qvac?.decision).toBe('review');
     expect(captcha?.decision).toBe('deny');
-    expect(body.review_count).toBeGreaterThanOrEqual(1);
+    expect(naverMaps?.decision).toBe('review');
+    expect(body.review_count).toBeGreaterThanOrEqual(2);
     expect(body.service_results.every((row: any) => row.execution_occurred === false)).toBe(true);
     expect(body.service_results.every((row: any) => row.payment_occurred === false)).toBe(true);
 
@@ -205,20 +207,22 @@ describe('machine preflight API', () => {
     const runId = recentRuns.json().data.runs[0].run_id;
     const detail = await app.inject({ method: 'GET', url: `/v1/machine-preflight/coverage-runs/${runId}` });
     expect(detail.statusCode).toBe(200);
-    expect(detail.json().data.services_total).toBe(12);
+    expect(detail.json().data.services_total).toBe(13);
     expect(detail.json().data.service_results.find((row: any) => row.service_id === 'qvac')?.decision).toBe('review');
     expect(detail.json().data.service_results.find((row: any) => row.service_id === '2captcha')?.decision).toBe('deny');
+    expect(detail.json().data.service_results.find((row: any) => row.service_id === 'naver-maps')?.decision).toBe('review');
 
     const receipts = await app.inject({ method: 'GET', url: '/v1/machine-preflight/receipts/recent?limit=25' });
     expect(receipts.statusCode).toBe(200);
     const coverageReceipts = receipts.json().data.receipts.filter((receipt: any) => receipt.coverage_run_id === runId);
-    expect(coverageReceipts).toHaveLength(12);
+    expect(coverageReceipts).toHaveLength(13);
     expect(coverageReceipts.every((receipt: any) => receipt.receipt_type === 'machine_preflight')).toBe(true);
     expect(coverageReceipts.every((receipt: any) => receipt.execution_occurred === false)).toBe(true);
     expect(coverageReceipts.every((receipt: any) => receipt.payment_occurred === false)).toBe(true);
     expect(coverageReceipts.find((receipt: any) => receipt.selected_service_id === 'qvac')?.decision).toBe('review');
     expect(coverageReceipts.find((receipt: any) => receipt.selected_service_id === 'qvac')?.reason).toBe('Setup-stage service requires review before execution.');
     expect(coverageReceipts.find((receipt: any) => receipt.selected_service_id === '2captcha')?.decision).toBe('deny');
+    expect(coverageReceipts.find((receipt: any) => receipt.selected_service_id === 'naver-maps')?.decision).toBe('review');
     expect(coverageReceipts.some((receipt: any) => /service execution|payment receipt|benchmark|winner/i.test(receipt.reason))).toBe(false);
 
     await app.close();

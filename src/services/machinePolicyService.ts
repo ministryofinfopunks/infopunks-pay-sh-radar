@@ -77,7 +77,7 @@ const policyTemplates: MachinePolicy[] = [
     owner_label: 'Operations',
     daily_budget_usd: 3,
     per_call_budget_usd: 0.05,
-    allowed_categories: ['vision', 'translation', 'web'],
+    allowed_categories: ['vision', 'translation', 'web', 'navigation'],
     blocked_services: ['2captcha'],
     approval_required_above_usd: 0.05,
     minimum_evidence_stage: 'policy-mapped',
@@ -141,7 +141,7 @@ const policyTemplates: MachinePolicy[] = [
     owner_label: 'Field Operations',
     daily_budget_usd: 8,
     per_call_budget_usd: 0.2,
-    allowed_categories: ['vision', 'translation', 'web', 'inference'],
+    allowed_categories: ['vision', 'translation', 'web', 'inference', 'navigation'],
     approval_required_above_usd: 0.2,
     minimum_evidence_stage: 'policy-mapped',
     risk_tolerance: 'medium',
@@ -346,7 +346,7 @@ function copyPolicy(policy: MachinePolicy): MachinePolicy {
 }
 
 function isHighPolicyRisk(service: MachineMarketService): boolean {
-  return /\bhigh\b|violate|anti-abuse|captcha/i.test(service.policy_risk);
+  return /\bhigh\b|physical-world|route|routing|navigation|violate|anti-abuse|captcha/i.test(service.policy_risk);
 }
 
 function explainEvaluation(status: MachinePolicyEvaluationStatus, service: MachineMarketService, policy: MachinePolicy, violations: string[], reviewReasons: string[]) {

@@ -3,15 +3,16 @@ import { createApp } from '../src/api/app';
 import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
 
 describe('machine market routes', () => {
-  it('returns the 12 robotic.sh service mirror records', async () => {
+  it('returns the 13 robotic.sh service mirror records', async () => {
     const app = await createApp(emptyIntelligenceStore());
     const response = await app.inject({ method: 'GET', url: '/v1/machine-market/services' });
 
     expect(response.statusCode).toBe(200);
     const body = response.json().data;
     expect(body.phase_scope).toBe('phase_2_pay_sh_robotic_sh');
-    expect(body.count).toBe(12);
-    expect(body.services).toHaveLength(12);
+    expect(body.count).toBe(13);
+    expect(body.services).toHaveLength(13);
+    expect(body.services.some((service: any) => service.id === 'naver-maps' && service.chain === 'unknown')).toBe(true);
     expect(body.services.every((service: any) => service.observed_source === 'robotic.sh')).toBe(true);
     expect(body.services.every((service: any) => service.phase_scope === 'phase_2_pay_sh_robotic_sh')).toBe(true);
 
@@ -24,26 +25,28 @@ describe('machine market routes', () => {
 
     expect(response.statusCode).toBe(200);
     const summary = response.json().data;
-    expect(summary.total_services).toBe(12);
+    expect(summary.total_services).toBe(13);
     expect(summary.categories).toEqual({
       compute: 1,
       inference: 4,
       web: 4,
       vision: 1,
       storage: 1,
-      translation: 1
+      translation: 1,
+      navigation: 1
     });
     expect(summary.source_markets).toMatchObject({
       'pay.sh': 5,
       'agentic.market': 6,
-      'robotic.sh': 1
+      'robotic.sh': 2
     });
     expect(summary.chains).toMatchObject({
       solana: 5,
       base: 6,
-      peaq: 1
+      peaq: 1,
+      unknown: 1
     });
-    expect(summary.ready_count).toBe(11);
+    expect(summary.ready_count).toBe(12);
     expect(summary.setup_count).toBe(1);
     expect(summary.phase_scope).toBe('phase_2_pay_sh_robotic_sh');
     expect(summary.positioning.module).toBe('A new Radar module for machine-economy intelligence.');

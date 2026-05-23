@@ -17,7 +17,8 @@ const serviceNames = [
   '2Captcha',
   'Firecrawl',
   'Wolfram Alpha',
-  'Exa'
+  'Exa',
+  'NAVER Maps'
 ];
 
 function service(name: string, overrides: Record<string, unknown> = {}) {
@@ -57,13 +58,24 @@ const services = [
   service('2Captcha'),
   service('Firecrawl'),
   service('Wolfram Alpha', { category: 'inference', provider: 'Wolfram Research' }),
-  service('Exa')
+  service('Exa'),
+  service('NAVER Maps', {
+    category: 'navigation',
+    market_type: 'physical',
+    source_market: 'robotic.sh',
+    chain: 'unknown',
+    price_display: 'not recorded',
+    provider: 'NAVER',
+    machine_use_case: 'Autonomous robots can request routing, geocoding, and navigation context before moving or rerouting.',
+    policy_risk: 'High machine relevance: routing outputs can influence physical-world movement. Execution requires bounded test scenarios, source validation, and clear non-operational constraints.',
+    caveats: ['Public demo context observed: peaq showcased NAVER Maps in a simulated Serve Robotics workflow with USDT settlement on Solana. Radar has not executed this service.']
+  })
 ];
 
 const serviceResults = services.map((item) => ({
   service_id: item.id,
   service_name: item.name,
-  decision: item.id === 'qvac' ? 'review' : item.id === '2captcha' ? 'deny' : 'allow',
+  decision: item.id === 'qvac' || item.id === 'naver-maps' ? 'review' : item.id === '2captcha' ? 'deny' : 'allow',
   receipt_id: `mrx_${item.id}_001`,
   execution_occurred: false,
   payment_occurred: false
@@ -81,15 +93,15 @@ function pathOf(input: RequestInfo | URL) {
 function installMachineMarketFetch() {
   vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
     const path = pathOf(input);
-    if (path === '/v1/machine-market/services') return json({ count: 12, services });
+    if (path === '/v1/machine-market/services') return json({ count: 13, services });
     if (path === '/v1/machine-market/summary') return json({
-      total_services: 12,
-      categories: { compute: 1, inference: 4, web: 4, vision: 1, storage: 1, translation: 1 },
-      source_markets: { 'pay.sh': 5, 'agentic.market': 6, 'robotic.sh': 1 },
-      chains: { solana: 5, base: 6, peaq: 1 },
-      ready_count: 11,
+      total_services: 13,
+      categories: { compute: 1, inference: 4, web: 4, vision: 1, storage: 1, translation: 1, navigation: 1 },
+      source_markets: { 'pay.sh': 5, 'agentic.market': 6, 'robotic.sh': 2 },
+      chains: { solana: 5, base: 6, peaq: 1, unknown: 1 },
+      ready_count: 12,
       setup_count: 1,
-      evidence_stage_counts: { 'policy-mapped': 12 },
+      evidence_stage_counts: { 'policy-mapped': 13 },
       phase_scope: 'phase_2_pay_sh_robotic_sh',
       positioning: {
         module: 'A new Radar module for machine-economy intelligence.',
@@ -104,11 +116,11 @@ function installMachineMarketFetch() {
       runs: [{
         run_id: 'mcr_20260522000000000_0001',
         generated_at: '2026-05-22T00:10:00.000Z',
-        services_total: 12,
-        preflight_evaluated: 12,
-        receipts_recorded: 12,
+        services_total: 13,
+        preflight_evaluated: 13,
+        receipts_recorded: 13,
         allow_count: 10,
-        review_count: 1,
+        review_count: 2,
         deny_count: 1,
         execution_occurred: false,
         payment_occurred: false,
@@ -126,9 +138,9 @@ function installMachineMarketFetch() {
     if (path === '/v1/machine-preflight/coverage-run') return json({
       run_id: 'mcr_20260522000000000_0002',
       generated_at: '2026-05-22T00:11:00.000Z',
-      services_total: 12,
-      preflight_evaluated: 12,
-      receipts_recorded: 12,
+      services_total: 13,
+      preflight_evaluated: 13,
+      receipts_recorded: 13,
       allow_count: 7,
       review_count: 3,
       deny_count: 2,
@@ -299,16 +311,16 @@ describe('machine market page', () => {
     window.history.pushState({}, '', '/');
   });
 
-  it('renders /machine-market with all 12 services', async () => {
+  it('renders /machine-market with all 13 services', async () => {
     root = await renderPage(container);
 
     expect(container.textContent).toContain('Machine Market Command Center');
-    expect(container.textContent).toContain('12 robotic.sh services mapped. Radar gives every service policy state, evidence state, readiness rank, and a proof path before spend.');
-    expect(container.textContent).toContain('12 listed services mapped from robotic.sh for Phase 2 machine-economy intelligence.');
+    expect(container.textContent).toContain('13 robotic.sh services mapped. Radar gives every service policy state, evidence state, readiness rank, and a proof path before spend.');
+    expect(container.textContent).toContain('13 listed services mapped from robotic.sh for Phase 2 machine-economy intelligence.');
     expect(container.querySelector('[aria-label="Machine Market summary"]')?.textContent).toContain('Execution Claims0');
     expect(container.querySelector('[aria-label="Machine Market summary"]')?.textContent).toContain('planning only');
     expect(container.querySelector('[aria-label="Machine Market summary"]')?.textContent).toContain('no robotic.sh service executed');
-    expect(container.querySelector('[aria-label="12-Service Market Cohort"]')?.textContent).toContain('12 robotic.sh services mapped');
+    expect(container.querySelector('[aria-label="13-Service Market Cohort"]')?.textContent).toContain('13 robotic.sh services mapped');
     expect(container.querySelector('.machine-market-caveat a[href="/machine-market-map"]')?.textContent).toContain('View market map');
     expect(container.querySelector('a[href="/machine-readiness-matrix"]')?.textContent).toContain('View readiness matrix');
     expect(container.querySelector('a[href="/machine-economy-snapshot"]')?.textContent).toContain('View public snapshot');
@@ -342,11 +354,11 @@ describe('machine market page', () => {
 
     expect(container.querySelector('[aria-label="Evidence ladder"]')?.textContent).toContain('listed');
     expect(container.querySelector('[aria-label="Evidence ladder"]')?.textContent).toContain('preflight-ready');
-    expect(container.textContent).toContain('Coverage refers to the 12 services visible in the observed robotic.sh market snapshot. Execution evidence is tracked separately.');
+    expect(container.textContent).toContain('Coverage refers to the 13 services visible in the observed robotic.sh market snapshot. Execution evidence is tracked separately.');
     expect(container.textContent).toContain('Preflight Coverage');
     expect(container.textContent).toContain('Run Coverage Preflight');
-    expect(container.textContent).toContain('Services evaluated12 / 12');
-    expect(container.textContent).toContain('Receipts recorded12');
+    expect(container.textContent).toContain('Services evaluated13 / 13');
+    expect(container.textContent).toContain('Receipts recorded13');
     expect(container.textContent).toContain('No Pay.sh, robotic.sh, or Agentic.Market call was made.');
     expect(container.querySelector('[aria-label="Preflight Coverage"] .machine-caveat-row .machine-caveat-copy')?.textContent).toContain('Coverage run records decision receipts only.');
     const methodology = container.querySelector('[aria-label="Evidence methodology drawer"]');
@@ -358,10 +370,10 @@ describe('machine market page', () => {
   it('renders cohort command center with next controlled action, proof plan, shortlist, and operational chips', async () => {
     root = await renderPage(container);
 
-    const cohort = container.querySelector('[aria-label="12-Service Market Cohort"]');
-    expect(cohort?.textContent).toContain('12 services mapped');
+    const cohort = container.querySelector('[aria-label="13-Service Market Cohort"]');
+    expect(cohort?.textContent).toContain('13 services mapped');
     expect(cohort?.textContent).toContain('10 allow');
-    expect(cohort?.textContent).toContain('1 review');
+    expect(cohort?.textContent).toContain('2 review');
     expect(cohort?.textContent).toContain('1 deny');
     expect(cohort?.textContent).toContain('0 execution claims');
     expect(cohort?.textContent).toContain('QVAC');
@@ -378,8 +390,8 @@ describe('machine market page', () => {
 
     const missionControl = container.querySelector('[aria-label="Machine Market Mission Control"]');
     expect(missionControl?.textContent).toContain('Coverage complete / proof planning active');
-    expect(missionControl?.textContent).toContain('12 / 12 services evaluated');
-    expect(missionControl?.textContent).toContain('allow 10 / review 1 / deny 1');
+    expect(missionControl?.textContent).toContain('13 / 13 services evaluated');
+    expect(missionControl?.textContent).toContain('allow 10 / review 2 / deny 1');
     expect(missionControl?.textContent).toContain('Next controlled action');
     expect(missionControl?.textContent).toContain('Cloud Translation');
     expect(missionControl?.textContent).toContain('selected controlled action');
@@ -393,16 +405,16 @@ describe('machine market page', () => {
     expect(missionControl?.querySelector('a[href="/machine-execution-shortlist"]')?.textContent).toContain('View execution shortlist');
 
     const heroChips = container.querySelector('[aria-label="Machine Market principles"]')?.textContent ?? '';
-    expect(heroChips).toContain('12 services mapped');
+    expect(heroChips).toContain('13 services mapped');
     expect(heroChips).toContain('Policy / evidence state');
     expect(heroChips).toContain('Readiness ranked');
     expect(heroChips).toContain('Machines should not spend blind');
   });
 
-  it('opens the service inspector drawer from cohort cards with metadata and CTAs', async () => {
+  it('opens the NAVER Maps inspector drawer with navigation risk note and proof-path CTA', async () => {
     root = await renderPage(container);
 
-    const card = Array.from(container.querySelectorAll('.machine-cohort-card')).find((item) => item.textContent?.includes('Cloud Translation')) as HTMLButtonElement | undefined;
+    const card = Array.from(container.querySelectorAll('.machine-cohort-card')).find((item) => item.textContent?.includes('NAVER Maps')) as HTMLButtonElement | undefined;
     expect(card).toBeTruthy();
 
     await act(async () => {
@@ -410,15 +422,17 @@ describe('machine market page', () => {
     });
 
     const drawer = container.querySelector('[aria-label="Service inspector drawer"]');
-    expect(drawer?.textContent).toContain('Cloud Translation');
+    expect(drawer?.textContent).toContain('NAVER Maps');
     expect(drawer?.textContent).toContain('provider');
-    expect(drawer?.textContent).toContain('Google');
+    expect(drawer?.textContent).toContain('NAVER');
     expect(drawer?.textContent).toContain('category');
-    expect(drawer?.textContent).toContain('translation');
+    expect(drawer?.textContent).toContain('navigation');
     expect(drawer?.textContent).toContain('policy decision');
-    expect(drawer?.textContent).toContain('allow');
+    expect(drawer?.textContent).toContain('review');
+    expect(drawer?.textContent).toContain('machine use case');
+    expect(drawer?.textContent).toContain('Autonomous robots can request routing, geocoding, and navigation context before moving or rerouting.');
     expect(drawer?.textContent).toContain('policy risk note');
-    expect(drawer?.textContent).toContain('Cloud Translation requires spend policy.');
+    expect(drawer?.textContent).toContain('routing outputs can influence physical-world movement');
     expect(drawer?.textContent).toContain('evidence stage');
     expect(drawer?.textContent).toContain('policy-mapped');
     expect(drawer?.textContent).toContain('evidence health');
@@ -426,9 +440,10 @@ describe('machine market page', () => {
     expect(drawer?.textContent).toContain('readiness tier');
     expect(drawer?.textContent).toContain('execution status');
     expect(drawer?.textContent).toContain('next safe action');
+    expect(drawer?.textContent).toContain('Inspect proof path and define safe routing test before execution.');
     expect(drawer?.textContent).toContain('No execution claim. No benchmark claim.');
-    expect(drawer?.querySelector('a[href="/machine-service/cloud-translation"]')?.textContent).toContain('View dossier');
-    expect(drawer?.querySelector('a[href="/machine-execution-plan/cloud-translation"]')?.textContent).toContain('View proof plan');
+    expect(drawer?.querySelector('a[href="/machine-service/naver-maps"]')?.textContent).toContain('View dossier');
+    expect(drawer?.querySelector('a[href="/machine-execution-plan/naver-maps"]')?.textContent).toContain('Inspect proof path');
   });
 
   it('renders the Market Brief, preserves 0 execution claims, and supports copy feedback', async () => {
@@ -439,7 +454,7 @@ describe('machine market page', () => {
     root = await renderPage(container);
 
     const brief = container.querySelector('[aria-label="Machine Market Brief"]');
-    expect(brief?.textContent).toContain('12 robotic.sh services mapped. 10 allow / 1 review / 1 deny. Every visible service has policy state, evidence state, readiness rank, and proof path. 0 robotic.sh execution claims. 1 controlled proof-plan action selected. Machines should not spend blind.');
+    expect(brief?.textContent).toContain('13 robotic.sh services mapped. 10 allow / 2 review / 1 deny. Every visible service has policy state, evidence state, readiness rank, and proof path. 0 robotic.sh execution claims. 1 controlled proof-plan action selected. Machines should not spend blind.');
     expect(brief?.textContent).not.toContain('winner');
     expect(brief?.textContent).not.toContain('benchmark');
 
@@ -451,7 +466,7 @@ describe('machine market page', () => {
       await Promise.resolve();
     });
 
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('12 robotic.sh services mapped. 10 allow / 1 review / 1 deny. Every visible service has policy state, evidence state, readiness rank, and proof path. 0 robotic.sh execution claims. 1 controlled proof-plan action selected. Machines should not spend blind.');
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('13 robotic.sh services mapped. 10 allow / 2 review / 1 deny. Every visible service has policy state, evidence state, readiness rank, and proof path. 0 robotic.sh execution claims. 1 controlled proof-plan action selected. Machines should not spend blind.');
     expect(button?.textContent).toBe('Copied brief');
   });
 
