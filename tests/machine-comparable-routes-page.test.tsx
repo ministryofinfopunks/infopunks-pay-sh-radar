@@ -25,7 +25,15 @@ function installFetch() {
         {
           lane_id: 'machine_translation',
           task_class: 'Machine Translation',
-          candidate_routes: [{ service_id: 'anytrans', route_id: 'translation:POST:/translate', profile_id: 'machine_translation_safe_phrase' }],
+          candidate_routes: [
+            {
+              service_id: 'anytrans',
+              route_id: 'translation:POST:/translate',
+              profile_id: 'machine_translation_safe_phrase',
+              route_state: 'blocked',
+              missing_evidence: ['missing_service_identity', 'missing_route_surface', 'missing_receipt']
+            }
+          ],
           comparable_route_count: 1,
           required_methodology: ['same_task'],
           missing_methodology: ['comparable_route_missing'],
@@ -37,7 +45,17 @@ function installFetch() {
           cost_latency_fields_required: ['execution_latency_ms', 'payment_status'],
           safety_constraints: ['no benchmark ranking claims'],
           readiness_effect: 'single route only; benchmark lane remains blocked',
-          next_action: 'Add a second comparable route.'
+          next_action: 'Add a second comparable route.',
+          evidence_requirements_panel: {
+            lane: 'machine_translation',
+            run_count_target: 3,
+            comparable_routes_required: 2,
+            missing_service_identity: ['anytrans', 'alibaba-machine-translation-general'],
+            missing_route_surface: ['anytrans', 'alibaba-machine-translation-general'],
+            missing_receipt: ['anytrans', 'alibaba-machine-translation-general'],
+            missing_comparable_route: true,
+            missing_run_count_target: true
+          }
         },
         {
           lane_id: 'data_query_bigquery',
@@ -139,6 +157,12 @@ describe('machine comparable routes page', () => {
     expect(text).toContain('Data Query / BigQuery');
     expect(text).toContain('Storage / Stableupload');
     expect(text).toContain('Navigation / NAVER geocode');
+    expect(text).toContain('Machine Translation eligibility blockers');
+    expect(text).toContain('Missing service identity: anytrans, alibaba-machine-translation-general');
+    expect(text).toContain('Missing route surface: anytrans, alibaba-machine-translation-general');
+    expect(text).toContain('Missing receipt: anytrans, alibaba-machine-translation-general');
+    expect(text).toContain('Missing comparable route: yes');
+    expect(text).toContain('Missing run-count target: yes (target=3)');
     expect(text).not.toMatch(/winner|best route|best provider/i);
   });
 });

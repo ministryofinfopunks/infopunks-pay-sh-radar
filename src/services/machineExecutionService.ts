@@ -317,6 +317,16 @@ export type MachineComparableRoute = {
     profile_id: string;
     route_state: 'proven' | 'fixture_only' | 'candidate_unproven' | 'blocked';
     evidence_note: string;
+    missing_evidence?: Array<
+      | 'missing_service_identity'
+      | 'missing_route_surface'
+      | 'missing_receipt'
+      | 'missing_comparable_route'
+      | 'missing_run_count_target'
+    >;
+    route_surface_present?: boolean;
+    service_identity_present?: boolean;
+    receipt_evidence_present?: boolean;
   }>;
   comparable_route_count: number;
   required_methodology: string[];
@@ -330,6 +340,16 @@ export type MachineComparableRoute = {
   safety_constraints: string[];
   readiness_effect: string;
   next_action: string;
+  evidence_requirements_panel?: {
+    lane: 'machine_translation';
+    run_count_target: number;
+    comparable_routes_required: number;
+    missing_service_identity: string[];
+    missing_route_surface: string[];
+    missing_receipt: string[];
+    missing_comparable_route: boolean;
+    missing_run_count_target: boolean;
+  };
 };
 export type MachineComparableRouteDiscovery = {
   generated_at: string;
@@ -1469,16 +1489,36 @@ export async function buildMachineComparableRouteDiscovery(): Promise<MachineCom
       (row.execution_service_id ?? row.selected_service_id) === serviceId
     );
     const servicePresent = services.some((service) => service.id === serviceId);
+    const routeSurfacePresent = servicePresent;
+    const hasAnyReceipt = routeReceipts.length > 0;
+    const missingEvidence: Array<
+      | 'missing_service_identity'
+      | 'missing_route_surface'
+      | 'missing_receipt'
+      | 'missing_comparable_route'
+      | 'missing_run_count_target'
+    > = [];
+    if (!servicePresent) missingEvidence.push('missing_service_identity');
+    if (!routeSurfacePresent) missingEvidence.push('missing_route_surface');
+    if (!hasAnyReceipt) missingEvidence.push('missing_receipt');
     if (!servicePresent && routeReceipts.length === 0) {
       return {
         route_state: 'blocked' as const,
-        evidence_note: 'service not present in inventory and no controlled receipt/proof evidence is recorded'
+        evidence_note: 'service not present in inventory and no controlled receipt/proof evidence is recorded',
+        missing_evidence: missingEvidence,
+        route_surface_present: routeSurfacePresent,
+        service_identity_present: servicePresent,
+        receipt_evidence_present: hasAnyReceipt
       };
     }
     if (!routeReceipts.length) {
       return {
         route_state: 'candidate_unproven' as const,
-        evidence_note: 'candidate route exists in inventory but no service-specific execution receipt evidence is recorded'
+        evidence_note: 'candidate route exists in inventory but no service-specific execution receipt evidence is recorded',
+        missing_evidence: missingEvidence,
+        route_surface_present: routeSurfacePresent,
+        service_identity_present: servicePresent,
+        receipt_evidence_present: hasAnyReceipt
       };
     }
     const hasSucceeded = routeReceipts.some((row) => row.execution_status === 'succeeded' && row.execution_occurred);
@@ -1486,28 +1526,51 @@ export async function buildMachineComparableRouteDiscovery(): Promise<MachineCom
     if (hasSucceeded) {
       return {
         route_state: 'proven' as const,
-        evidence_note: 'service-specific receipt evidence exists for successful execution'
+        evidence_note: 'service-specific receipt evidence exists for successful execution',
+        missing_evidence: [],
+        route_surface_present: routeSurfacePresent,
+        service_identity_present: servicePresent,
+        receipt_evidence_present: hasAnyReceipt
       };
     }
     if (hasFixtureOnly) {
       return {
         route_state: 'fixture_only' as const,
-        evidence_note: 'only fixture-scoped receipt evidence exists; caveated and not benchmark evidence'
+        evidence_note: 'only fixture-scoped receipt evidence exists; caveated and not benchmark evidence',
+        missing_evidence: [],
+        route_surface_present: routeSurfacePresent,
+        service_identity_present: servicePresent,
+        receipt_evidence_present: hasAnyReceipt
       };
     }
     return {
       route_state: 'candidate_unproven' as const,
-      evidence_note: 'service-specific receipt evidence exists but success proof is not established'
+      evidence_note: 'service-specific receipt evidence exists but success proof is not established',
+      missing_evidence: [],
+      route_surface_present: routeSurfacePresent,
+      service_identity_present: servicePresent,
+      receipt_evidence_present: hasAnyReceipt
     };
   };
   const anytransState = translationStateFor('anytrans');
   const alibabaState = translationStateFor('alibaba-machine-translation-general');
-  const translationCandidateRoutes = [
+  const translationCandidateRoutes: MachineComparableRoute['candidate_routes'] = [
     { service_id: 'anytrans', route_id: 'translation:POST:/translate', profile_id: 'machine_translation_safe_phrase', ...anytransState },
     { service_id: 'alibaba-machine-translation-general', route_id: 'alibaba-machine-translation-general:POST:/api/translate/web/general', profile_id: 'machine_translation_safe_phrase', ...alibabaState }
   ];
   const translationComparableReady = translationCandidateRoutes.every((route) => route.route_state !== 'blocked');
   const translationProvenCount = translationCandidateRoutes.filter((route) => route.route_state === 'proven').length;
+  const translationMissingComparableRoute = translationCandidateRoutes.filter((route) => route.route_state !== 'blocked').length < 2;
+  const translationMissingRunCountTarget = translationCandidateRoutes.some((route) => route.route_state !== 'proven');
+  const translationMissingServiceIdentity = translationCandidateRoutes
+    .filter((route) => route.missing_evidence?.includes('missing_service_identity'))
+    .map((route) => route.service_id);
+  const translationMissingRouteSurface = translationCandidateRoutes
+    .filter((route) => route.missing_evidence?.includes('missing_route_surface'))
+    .map((route) => route.service_id);
+  const translationMissingReceipt = translationCandidateRoutes
+    .filter((route) => route.missing_evidence?.includes('missing_receipt'))
+    .map((route) => route.service_id);
   const lanes: MachineComparableRoute[] = [
     {
       lane_id: 'machine_translation',
@@ -1536,7 +1599,17 @@ export async function buildMachineComparableRouteDiscovery(): Promise<MachineCom
           : 'single route only; benchmark lane remains blocked',
       next_action: translationProvenCount >= 2
         ? 'Run benchmark gate check and only execute controlled benchmark if gate returns benchmark_execution_allowed=true.'
-        : 'Keep route evidence state explicit (candidate_unproven or fixture_only caveats) and collect service-specific proven receipts.'
+        : 'Keep route evidence state explicit (candidate_unproven or fixture_only caveats) and collect service-specific proven receipts.',
+      evidence_requirements_panel: {
+        lane: 'machine_translation',
+        run_count_target: 3,
+        comparable_routes_required: 2,
+        missing_service_identity: translationMissingServiceIdentity,
+        missing_route_surface: translationMissingRouteSurface,
+        missing_receipt: translationMissingReceipt,
+        missing_comparable_route: translationMissingComparableRoute,
+        missing_run_count_target: translationMissingRunCountTarget
+      }
     },
     {
       lane_id: 'data_query_bigquery',

@@ -1586,6 +1586,64 @@ describe('machine execution anytrans translation route', () => {
     await app.close();
   });
 
+  it('reports exact translation evidence blockers when routes are blocked', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+    const comparable = await app.inject({ method: 'GET', url: '/v1/machine-execution/comparable-routes' });
+    expect(comparable.statusCode).toBe(200);
+    const lane = comparable.json().data.lanes.find((row: any) => row.lane_id === 'machine_translation');
+    const anytrans = lane.candidate_routes.find((route: any) => route.service_id === 'anytrans');
+    const alibaba = lane.candidate_routes.find((route: any) => route.service_id === 'alibaba-machine-translation-general');
+    expect(anytrans.route_state).toBe('blocked');
+    expect(alibaba.route_state).toBe('blocked');
+    expect(anytrans.missing_evidence).toContain('missing_service_identity');
+    expect(anytrans.missing_evidence).toContain('missing_route_surface');
+    expect(anytrans.missing_evidence).toContain('missing_receipt');
+    expect(alibaba.missing_evidence).toContain('missing_service_identity');
+    expect(alibaba.missing_evidence).toContain('missing_route_surface');
+    expect(alibaba.missing_evidence).toContain('missing_receipt');
+    expect(lane.evidence_requirements_panel.missing_comparable_route).toBe(true);
+    expect(lane.evidence_requirements_panel.missing_run_count_target).toBe(true);
+    await app.close();
+  });
+
+  it('candidate_unproven route state does not open gate and proven requires successful receipt evidence', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/anytrans/artifacts',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: 'did:peaq:candidate-unproven-anytrans',
+        service_id: 'anytrans',
+        fqn: 'solana-foundation/alibaba/anytrans',
+        source_market: 'pay.sh',
+        chain: 'solana',
+        execution_status: 'failed',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-24T00:00:00.000Z',
+        execution_completed_at: '2026-05-24T00:00:01.000Z',
+        execution_latency_ms: 1000,
+        request_summary: { source_language: 'en', target_language: 'es' },
+        response_summary: { error: 'upstream unavailable' },
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'manual' }
+      }
+    });
+    const comparable = await app.inject({ method: 'GET', url: '/v1/machine-execution/comparable-routes' });
+    const lane = comparable.json().data.lanes.find((row: any) => row.lane_id === 'machine_translation');
+    const anytrans = lane.candidate_routes.find((route: any) => route.service_id === 'anytrans');
+    const alibaba = lane.candidate_routes.find((route: any) => route.service_id === 'alibaba-machine-translation-general');
+    expect(anytrans.route_state).toBe('candidate_unproven');
+    expect(anytrans.missing_evidence).not.toContain('missing_receipt');
+    expect(anytrans.route_state).not.toBe('proven');
+    expect(alibaba.route_state).toBe('blocked');
+    const gate = await app.inject({ method: 'GET', url: '/v1/machine-execution/benchmark-gate' });
+    expect(gate.json().data.benchmark_execution_allowed).toBe(false);
+    await app.close();
+  });
+
   it('marks fixture_only route with caveat and does not open benchmark gate', async () => {
     process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
     const app = await createApp(emptyIntelligenceStore());

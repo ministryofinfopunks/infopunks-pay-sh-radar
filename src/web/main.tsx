@@ -397,6 +397,16 @@ type MachineComparableRouteLane = {
     profile_id: string;
     route_state?: 'proven' | 'fixture_only' | 'candidate_unproven' | 'blocked';
     evidence_note?: string;
+    missing_evidence?: Array<
+      | 'missing_service_identity'
+      | 'missing_route_surface'
+      | 'missing_receipt'
+      | 'missing_comparable_route'
+      | 'missing_run_count_target'
+    >;
+    route_surface_present?: boolean;
+    service_identity_present?: boolean;
+    receipt_evidence_present?: boolean;
   }>;
   comparable_route_count: number;
   required_methodology: string[];
@@ -410,6 +420,16 @@ type MachineComparableRouteLane = {
   safety_constraints: string[];
   readiness_effect: string;
   next_action: string;
+  evidence_requirements_panel?: {
+    lane: 'machine_translation';
+    run_count_target: number;
+    comparable_routes_required: number;
+    missing_service_identity: string[];
+    missing_route_surface: string[];
+    missing_receipt: string[];
+    missing_comparable_route: boolean;
+    missing_run_count_target: boolean;
+  };
 };
 type MachineComparableRouteReport = {
   generated_at: string;
@@ -5031,7 +5051,7 @@ function MachineComparableRoutesPage() {
             </div>
             {report.lanes.map((lane) => <div key={lane.lane_id} className="machine-service-row machine-blocker-row" role="row">
               <span role="cell"><strong>{lane.task_class}</strong><small>{lane.lane_id}</small></span>
-              <span role="cell"><small>{lane.candidate_routes.map((route) => `${route.service_id} (${route.profile_id})`).join(' · ') || 'none recorded'}</small></span>
+              <span role="cell"><small>{lane.candidate_routes.map((route) => `${route.service_id} (${route.profile_id}, ${route.route_state ?? 'unknown'})`).join(' · ') || 'none recorded'}</small></span>
               <span role="cell"><span className={`machine-status-badge ${lane.comparable_route_count >= 2 ? 'complete' : 'review'}`}>{lane.comparable_route_count >= 2 ? 'yes' : 'no'}</span></span>
               <span role="cell"><small>{lane.missing_methodology.join(', ') || 'none'}</small></span>
               <span role="cell"><small>{lane.required_methodology.join(', ')}. inputs: {lane.comparable_inputs}. outputs: {lane.comparable_outputs}. normalization: {lane.normalization_strategy}. success: {lane.success_criteria}. run_count_target: {lane.run_count_target}. cost/latency: {lane.cost_latency_fields_required.join(', ')}. safety: {lane.safety_constraints.join(', ')}. readiness effect: {lane.readiness_effect}</small></span>
@@ -5039,6 +5059,17 @@ function MachineComparableRoutesPage() {
             </div>)}
           </div>
         </section>
+        {report.lanes
+          .filter((lane) => lane.lane_id === 'machine_translation')
+          .map((lane) => <section key={`${lane.lane_id}-evidence`} className="panel machine-market-caveat" aria-label="Machine translation evidence requirements">
+            <div className="panel-head"><div><p className="section-kicker">Evidence requirements</p><h2>Machine Translation eligibility blockers</h2></div></div>
+            <p>Route states: {lane.candidate_routes.map((route) => `${route.service_id}=${route.route_state ?? 'unknown'}`).join(' · ')}</p>
+            <p>Missing service identity: {lane.evidence_requirements_panel?.missing_service_identity.join(', ') || 'none'}</p>
+            <p>Missing route surface: {lane.evidence_requirements_panel?.missing_route_surface.join(', ') || 'none'}</p>
+            <p>Missing receipt: {lane.evidence_requirements_panel?.missing_receipt.join(', ') || 'none'}</p>
+            <p>Missing comparable route: {lane.evidence_requirements_panel?.missing_comparable_route ? 'yes' : 'no'}</p>
+            <p>Missing run-count target: {lane.evidence_requirements_panel?.missing_run_count_target ? `yes (target=${lane.evidence_requirements_panel?.run_count_target ?? lane.run_count_target})` : 'no'}</p>
+          </section>)}
       </>}
     </main>
   </div>;
