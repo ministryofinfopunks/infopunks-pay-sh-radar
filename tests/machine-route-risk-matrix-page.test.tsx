@@ -224,6 +224,9 @@ describe('machine route risk matrix page', () => {
     expect(container.textContent).toContain('Credential requirement does not imply payment proof.');
     expect(container.textContent).toContain('Payment is not confirmed unless payment evidence exists.');
     expect(container.textContent).toContain('Route-level risk is planning metadata. It does not imply execution, payment success, benchmark superiority, or provider quality.');
+    const attribution = container.querySelector('[aria-label="Route-risk attribution"]')?.textContent ?? '';
+    expect(attribution).toContain('manual scaffold');
+    expect(attribution).toContain('Planning metadata only; route risk is not execution evidence.');
     expect(container.textContent).not.toMatch(/payment succeeded|execution succeeded|winner:|benchmark winner|best provider|top provider|provider quality is|payment confirmed/i);
   });
 

@@ -315,6 +315,19 @@ describe('machine execution proof plan page', () => {
     expect(text).not.toMatch(/NAVER Maps executed|NAVER execution proven|robotic\.sh market execution proven|payment success proven|best route|best provider|market-wide execution proven/i);
   });
 
+  it('renders proof source attribution without introducing execution claims', async () => {
+    installFetch();
+    root = await renderPath(container, '/machine-execution-plan/naver-maps');
+    const text = container.querySelector('[aria-label="Proof source attribution"]')?.textContent ?? '';
+    expect(text).toContain('robotic.sh service page');
+    expect(text).toContain('public demo context');
+    expect(text).toContain('manual scaffold');
+    expect(text).toContain('route surface');
+    expect(text).toContain('Public context only; not Radar execution evidence, not payment proof.');
+    expect(text).toContain('Radar receipt ledger');
+    expect(text).toContain('No service-specific execution receipt recorded.');
+  });
+
   it('renders NAVER Maps proof path with review state, non-operational test, and context-only demo note', async () => {
     installFetch();
     root = await renderPath(container, '/machine-execution-plan/naver-maps');
@@ -375,6 +388,7 @@ describe('machine execution proof plan page', () => {
     expect(context).toContain('Observed demo context only');
     expect(context).toContain('Radar has not executed this service.');
     expect(context).toContain('not counted as Radar execution evidence');
+    expect(context).toContain('Public context is not Radar execution evidence.');
     expect(text).not.toContain('execution succeeded');
     expect(text).not.toContain('benchmark winner');
     expect(text).not.toContain('winner claimed');

@@ -84,6 +84,9 @@ type MachineMarketSourceAttribution = {
   observed_at: string;
   caveat: string;
 };
+
+type MachineAttributionRow = MachineMarketSourceAttribution;
+const MACHINE_MARKET_SOURCE_OBSERVED_AT = '2026-05-22T00:00:00.000Z';
 type MachineMarketService = {
   id: string;
   name: string;
@@ -151,6 +154,7 @@ type MachineFirstSafeRouteQueueRow = {
   blocked_by: string;
   required_evidence: string;
   execution_status: MachineRouteExecutionStatus;
+  execution_receipt_id: string | null;
   proof_plan_href: string;
   warning: string;
   review_gated: boolean;
@@ -1552,6 +1556,18 @@ function routeMachineExecutionPlanServiceId(pathname: string) {
   }
 }
 
+function routeMachineExecutionReceiptId(pathname: string) {
+  const match = pathname.match(/^\/machine-execution\/([^/]+)\/?$/);
+  if (!match) return null;
+  const slug = match[1];
+  if (slug === 'alibaba-machine-translation-general') return null;
+  try {
+    return decodeURIComponent(slug);
+  } catch {
+    return slug;
+  }
+}
+
 function setMetaTag(attr: 'property' | 'name', key: string, content: string) {
   let node = document.head.querySelector(`meta[${attr}="${key}"]`) as HTMLMetaElement | null;
   if (!node) {
@@ -2374,6 +2390,8 @@ type MachineMarketChangelogRow = {
     | 'derived_radar_state'
     | 'unknown';
   claim_boundary: string;
+  receipt_id?: string;
+  receipt_href?: string;
 };
 
 type MachineRailExecutionStatus = 'not_execution_tested' | 'execution_receipt_recorded' | 'repeatability_receipt_recorded';
@@ -2566,6 +2584,12 @@ function formatMachineRouteExecutionStatus(value: MachineRouteExecutionStatus) {
   return value.replace(/_/g, ' ');
 }
 
+function formatFirstSafeQueueExecutionStatus(value: MachineRouteExecutionStatus) {
+  if (value === 'service_receipt_recorded') return 'execution_receipt_recorded';
+  if (value === 'repeatability_receipt_recorded') return 'repeatability_candidate';
+  return 'not_attempted';
+}
+
 function machineEvidenceCounts(receipts: MachinePreflightReceipt[]) {
   return summarizeMachineEvidenceCounts(receipts);
 }
@@ -2745,6 +2769,7 @@ function buildMachineFirstSafeRouteQueueRows(services: MachineMarketService[], r
     if (!service) return null;
 
     const executionStatus = getMachineRouteExecutionStatus(service.id, receipts);
+    const latestExecutionReceipt = getServiceExecutionReceipt(service.id, receipts);
     const proofPlanHref = `/machine-execution-plan/${encodeURIComponent(service.id)}`;
 
     if (service.id === 'cloud-translation') {
@@ -2757,6 +2782,7 @@ function buildMachineFirstSafeRouteQueueRows(services: MachineMarketService[], r
         blocked_by: 'callable endpoint surface not recorded; execution rail confirmation not recorded',
         required_evidence: 'execution receipt, payment/auth status if available, normalized translation summary, caveats',
         execution_status: executionStatus,
+        execution_receipt_id: latestExecutionReceipt?.receipt_id ?? null,
         proof_plan_href: proofPlanHref,
         warning: 'Selected proof plan does not imply execution-tested status.',
         review_gated: false,
@@ -2775,6 +2801,7 @@ function buildMachineFirstSafeRouteQueueRows(services: MachineMarketService[], r
         blocked_by: 'Naver Cloud credentials, provider/account setup, review state, non-operational test constraints',
         required_evidence: 'service-specific execution receipt, selected_route, credential_status, non-operational test flag, no robot command, no physical movement, normalized geocode summary',
         execution_status: executionStatus,
+        execution_receipt_id: latestExecutionReceipt?.receipt_id ?? null,
         proof_plan_href: proofPlanHref,
         warning: 'Driving directions is avoid-first because route guidance can influence physical-world movement.',
         review_gated: true,
@@ -2792,6 +2819,7 @@ function buildMachineFirstSafeRouteQueueRows(services: MachineMarketService[], r
         blocked_by: 'callable route/path confirmation not recorded; dataset boundary; credential/payment status',
         required_evidence: 'selected_route, bounded query input, parseable tabular output, credential_status, execution receipt',
         execution_status: executionStatus,
+        execution_receipt_id: latestExecutionReceipt?.receipt_id ?? null,
         proof_plan_href: proofPlanHref,
         warning: 'Do not query sensitive business or production data in the first proof attempt.',
         review_gated: false,
@@ -2809,6 +2837,7 @@ function buildMachineFirstSafeRouteQueueRows(services: MachineMarketService[], r
         blocked_by: 'callable route/path confirmation not recorded; storage policy review; credential/payment status',
         required_evidence: 'selected_route, fixture hash or metadata, upload response, credential_status, execution receipt',
         execution_status: executionStatus,
+        execution_receipt_id: latestExecutionReceipt?.receipt_id ?? null,
         proof_plan_href: proofPlanHref,
         warning: 'Do not upload private, regulated, or production data in the first proof attempt.',
         review_gated: true,
@@ -2825,6 +2854,7 @@ function buildMachineFirstSafeRouteQueueRows(services: MachineMarketService[], r
       blocked_by: 'operator runtime registration, callable route details, review state',
       required_evidence: 'setup/registration evidence, route surface metadata, policy review, no execution receipt expected yet',
       execution_status: executionStatus,
+      execution_receipt_id: latestExecutionReceipt?.receipt_id ?? null,
       proof_plan_href: proofPlanHref,
       warning: 'Runtime registration review comes before autonomous execution.',
       review_gated: true,
@@ -2861,6 +2891,69 @@ function getMachineSourceAttribution(service: MachineMarketService) {
   const source = service.source_attribution;
   if (!source) return `${service.observed_source} · ${formatDate(service.observed_at)} · public/catalog context only`;
   return `${source.source} · ${source.scope} · observed ${formatDate(source.observed_at)}`;
+}
+
+function defaultMachineSourceAttribution(service: MachineMarketService): MachineAttributionRow {
+  return service.source_attribution ?? {
+    source: 'robotic.sh catalog metadata',
+    scope: 'service identity / category / provider / market listing',
+    observed_at: service.observed_at,
+    caveat: 'Catalog presence does not imply execution or payment proof.'
+  };
+}
+
+function getMachineServiceAttributionRows(service: MachineMarketService): MachineAttributionRow[] {
+  const rows: MachineAttributionRow[] = [defaultMachineSourceAttribution(service)];
+  rows.push({
+    source: 'manual scaffold',
+    scope: 'policy/readiness/rail planning metadata',
+    observed_at: service.observed_at,
+    caveat: 'Planning metadata only; not execution evidence.'
+  });
+  if (service.id === 'naver-maps') {
+    rows.push({
+      source: 'robotic.sh service page',
+      scope: 'NAVER Maps listing, category, endpoint count, route surface',
+      observed_at: service.observed_at,
+      caveat: 'Catalog route surface only; Radar has not executed routes.'
+    });
+    rows.push({
+      source: 'public demo context',
+      scope: 'peaq / Serve Robotics / NAVER Maps public workflow context',
+      observed_at: service.observed_at,
+      caveat: 'Public context only; not Radar execution evidence, not payment proof.'
+    });
+    rows.push({
+      source: 'manual scaffold',
+      scope: 'policy review, first-safe route, route-risk interpretation',
+      observed_at: service.observed_at,
+      caveat: 'Radar planning judgment; execution remains receipt-driven.'
+    });
+  }
+  return rows;
+}
+
+function getMachineReceiptAttributionRow(service: MachineMarketService, latestExecution: MachinePreflightReceipt | null): MachineAttributionRow {
+  return {
+    source: 'Radar receipt ledger',
+    scope: 'service-specific execution receipts',
+    observed_at: latestExecution?.execution_completed_at ?? latestExecution?.created_at ?? service.observed_at,
+    caveat: latestExecution
+      ? 'Receipt recorded. Scope is service-specific and does not imply market-wide execution.'
+      : 'No service-specific execution receipt recorded.'
+  };
+}
+
+function SourceAttributionPanel({ title, rows, ariaLabel }: { title: string; rows: MachineAttributionRow[]; ariaLabel: string }) {
+  return <section className="panel machine-policy-summary" aria-label={ariaLabel}>
+    <div className="panel-head"><div><p className="section-kicker">{title}</p><h2>{title}</h2></div></div>
+    <div className="machine-usage-list">
+      {rows.map((row, index) => <p key={`${row.source}:${row.scope}:${index}`}>
+        <span>{row.source}</span>
+        <small>scope: {row.scope} · observed_at: {formatMachineTimestamp(row.observed_at)} · caveat: {row.caveat}</small>
+      </p>)}
+    </div>
+  </section>;
 }
 
 function buildMachineExecutionBlockerRows(services: MachineMarketService[], receipts: MachinePreflightReceipt[]): MachineExecutionBlockerRow[] {
@@ -2945,9 +3038,30 @@ function buildMachineExecutionBlockerSummary(rows: MachineExecutionBlockerRow[])
   };
 }
 
-function buildMachineMarketChangelogRows(services: MachineMarketService[]): MachineMarketChangelogRow[] {
+function buildMachineMarketChangelogRows(services: MachineMarketService[], receipts: MachinePreflightReceipt[]): MachineMarketChangelogRow[] {
   const naver = services.find((service) => service.id === 'naver-maps');
+  const latestExecution = receipts.find((row) => row.receipt_type === 'machine_execution' && row.execution_occurred) ?? null;
+  const executionService = latestExecution
+    ? services.find((service) => service.id === (latestExecution.execution_service_id ?? latestExecution.selected_service_id))
+    : null;
   return [
+    latestExecution ? {
+      date: formatMachineTimestamp(latestExecution.created_at),
+      change: `${executionService?.name ?? latestExecution.execution_service_id ?? 'Service'} execution receipt recorded (${latestExecution.receipt_id}).`,
+      scope: 'service execution receipt',
+      source: 'Radar machine receipt ingest',
+      source_type: 'radar_execution_receipt',
+      claim_boundary: 'Service-specific execution receipt only. Not market-wide proof, not payment proof, not benchmark proof, not winner proof.',
+      receipt_id: latestExecution.receipt_id,
+      receipt_href: `/machine-execution/${encodeURIComponent(latestExecution.receipt_id)}`
+    } : {
+      date: '2026-05-22',
+      change: 'Execution receipt ingest surface is available for service-specific machine execution evidence.',
+      scope: 'service execution receipt',
+      source: 'Radar machine receipt ingest',
+      source_type: 'manual_scaffold',
+      claim_boundary: 'Ingestion capability does not imply execution.'
+    },
     {
       date: '2026-05-22',
       change: `${services.length || 13} robotic.sh-visible services mapped into Radar machine-market metadata.`,
@@ -3749,6 +3863,7 @@ function MachineEconomySnapshotPage() {
           <p>0 robotic.sh market-wide execution claims. {serviceExecutionReceiptLabel(evidenceCounts.service_specific_execution_receipts)}.</p>
           <p>{paymentSuccessClaimLabel(evidenceCounts.payment_success_claims)}. {benchmarkClaimLabel(evidenceCounts.benchmark_claims)}. {winnerClaimLabel(evidenceCounts.winner_claims)}.</p>
           <p>Public context only. Not Radar execution evidence.</p>
+          <p><b>Source discipline</b>: Catalog, rail, route, and public-context fields are attributed separately. Public context is not Radar execution evidence.</p>
           <p>Repeatability ≠ winner. Service receipt ≠ market proof.</p>
           <p><a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a> <a className="execute compact secondary" href="/machine-route-risk-matrix">View route risk matrix</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a></p>
         </section>
@@ -3925,6 +4040,19 @@ function MachineRouteRiskMatrixPage() {
           <p>Route metadata does not imply execution. Credential requirement does not imply payment proof.</p>
           <p>Payment is not confirmed unless payment evidence exists.</p>
           <p>Execution status is receipt-driven. Catalog route presence does not imply route execution.</p>
+          <details className="panel machine-market-brief" aria-label="Route-risk attribution">
+            <summary className="machine-evidence-methodology-summary">
+              <span className="section-kicker">Route-risk attribution</span>
+              <strong>Route-risk attribution</strong>
+              <small>Risk rows are attributed planning metadata, not execution proof.</small>
+            </summary>
+            <div className="machine-usage-list">
+              <p><span>source</span><small>manual scaffold</small></p>
+              <p><span>scope</span><small>route-risk interpretation, first-safe selection, and avoid-first classification</small></p>
+              <p><span>observed_at</span><small>{formatMachineTimestamp(MACHINE_MARKET_SOURCE_OBSERVED_AT)}</small></p>
+              <p><span>caveat</span><small>Planning metadata only; route risk is not execution evidence.</small></p>
+            </div>
+          </details>
           <p><a className="execute compact secondary" href="/machine-rail-coverage">Back to rail coverage</a> <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a></p>
         </section>
         <section className="grid two machine-route-guidance-grid" aria-label="Machine route guidance">
@@ -4095,6 +4223,19 @@ function MachineRailCoveragePage() {
           <p>{paymentSuccessClaimLabel(evidenceCounts.payment_success_claims)}. {benchmarkClaimLabel(evidenceCounts.benchmark_claims)}. {winnerClaimLabel(evidenceCounts.winner_claims)}.</p>
           <p>Pay.sh availability does not imply Radar execution. robotic.sh listing does not imply callable route readiness.</p>
           <p>Callable routes do not imply executed routes. Credentials do not imply payment proof. Execution requires service-specific receipts.</p>
+          <details className="panel machine-market-brief" aria-label="Rail metadata attribution">
+            <summary className="machine-evidence-methodology-summary">
+              <span className="section-kicker">Rail metadata attribution</span>
+              <strong>Rail metadata attribution</strong>
+              <small>Rail and route-surface fields are catalog/planning metadata.</small>
+            </summary>
+            <div className="machine-usage-list">
+              <p><span>source</span><small>robotic.sh catalog metadata</small></p>
+              <p><span>scope</span><small>access rail, route surface status, endpoint count, pricing model, credential requirement</small></p>
+              <p><span>observed_at</span><small>{formatMachineTimestamp(MACHINE_MARKET_SOURCE_OBSERVED_AT)}</small></p>
+              <p><span>caveat</span><small>Catalog/rail metadata only; not service execution evidence.</small></p>
+            </div>
+          </details>
           <p><a className="execute compact secondary" href="/machine-market">Back to Machine Economy</a> <a className="execute compact secondary" href="/machine-route-risk-matrix">View route risk matrix</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a> <a className="execute compact secondary" href="/machine-execution-blockers">View execution blockers</a> <a className="execute compact secondary" href="/machine-market-changelog">View changelog</a> <a className="execute compact secondary" href="/machine-no-claim-ledger">View no-claim ledger</a></p>
         </section>
         <MachineNoClaimLedgerPanel evidenceCounts={evidenceCounts} />
@@ -4268,7 +4409,7 @@ function MachineFirstSafeRoutesPage() {
               <span role="cell">{row.why_safe_first}</span>
               <span role="cell">{row.blocked_by}</span>
               <span role="cell">{row.required_evidence}<small>payment_unconfirmed · benchmark_not_recorded</small></span>
-              <span role="cell"><span className={`machine-status-badge ${row.execution_status === 'not_attempted' ? 'missing' : row.execution_status === 'repeatability_receipt_recorded' ? 'complete' : 'not-attempted'}`}>{formatMachineRouteExecutionStatus(row.execution_status)}</span><small>{row.execution_status === 'not_attempted' ? '0 service-specific execution receipts recorded here' : 'Service-specific execution receipt recorded here'}</small></span>
+              <span role="cell"><span className={`machine-status-badge ${row.execution_status === 'not_attempted' ? 'missing' : row.execution_status === 'repeatability_receipt_recorded' ? 'complete' : 'not-attempted'}`}>{formatFirstSafeQueueExecutionStatus(row.execution_status)}</span><small>{row.execution_status === 'not_attempted' ? '0 service-specific execution receipts recorded here' : row.execution_receipt_id ? <>Service-specific execution receipt recorded. <a className="execute compact secondary" href={`/machine-execution/${encodeURIComponent(row.execution_receipt_id)}`}>View receipt detail</a></> : 'Service-specific execution receipt recorded here'}</small></span>
               <span role="cell"><a className="execute compact secondary" href={row.proof_plan_href}>View proof plan</a></span>
             </div>)}
           </div>
@@ -4460,6 +4601,7 @@ function MachineExecutionBlockersPage() {
 
 function MachineMarketChangelogPage() {
   const [services, setServices] = useState<MachineMarketService[]>([]);
+  const [receipts, setReceipts] = useState<MachinePreflightReceipt[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -4469,9 +4611,13 @@ function MachineMarketChangelogPage() {
     let cancelled = false;
     setLoading(true);
     setError(null);
-    api<{ data: { services: MachineMarketService[] } }>('/v1/machine-market/services').then((response) => {
+    Promise.all([
+      api<{ data: { services: MachineMarketService[] } }>('/v1/machine-market/services'),
+      api<{ data: { receipts: MachinePreflightReceipt[] } }>('/v1/machine-preflight/receipts/recent?limit=100').catch(() => null)
+    ]).then(([servicesResponse, receiptsResponse]) => {
       if (cancelled) return;
-      setServices(response.data.services);
+      setServices(servicesResponse.data.services);
+      setReceipts(receiptsResponse?.data.receipts ?? []);
       setLoading(false);
     }).catch((err) => {
       if (cancelled) return;
@@ -4483,7 +4629,7 @@ function MachineMarketChangelogPage() {
     };
   }, []);
 
-  const rows = useMemo(() => buildMachineMarketChangelogRows(services), [services]);
+  const rows = useMemo(() => buildMachineMarketChangelogRows(services, receipts), [services, receipts]);
 
   return <div className="shell machine-market-shell">
     <a className="skip-link" href="#machine-market-changelog-content">Skip to content</a>
@@ -4529,7 +4675,7 @@ function MachineMarketChangelogPage() {
               <span role="cell"><span className="machine-badge source">{row.scope}</span></span>
               <span role="cell">{row.source}</span>
               <span role="cell"><span className="machine-badge evidence">{row.source_type}</span></span>
-              <span role="cell">{row.claim_boundary}</span>
+              <span role="cell">{row.claim_boundary}{row.receipt_href ? <> <a className="execute compact secondary" href={row.receipt_href}>View receipt detail</a></> : null}</span>
             </div>)}
           </div>
         </section>
@@ -5703,6 +5849,10 @@ function MachineExecutionProofPlanPage({ serviceId }: { serviceId: string }) {
   const isBigQuery = service?.id === 'bigquery';
   const isStableupload = service?.id === 'stableupload';
   const railGate = getRailExecutionGate(service, latestPolicyDecision);
+  const proofAttributionRows = service ? [
+    ...getMachineServiceAttributionRows(service),
+    getMachineReceiptAttributionRow(service, latestExecution)
+  ] : [];
   const serviceFirstSafeRoute = service?.first_safe_route && service.first_safe_route !== 'not recorded'
     ? service.first_safe_route
     : isTranslation
@@ -5835,6 +5985,7 @@ function MachineExecutionProofPlanPage({ serviceId }: { serviceId: string }) {
           </div>
           <p className="panel-caption">Never execution-ready without a service-specific receipt. This gate is planning-only.</p>
         </section>
+        <SourceAttributionPanel title="Proof source attribution" ariaLabel="Proof source attribution" rows={proofAttributionRows} />
         <section className="machine-dossier-layout">
           <section className="panel machine-policy-summary" aria-label="Safe test input">
             <div className="panel-head"><div><p className="section-kicker">Safe Test Input</p><h2>Future execution input seed</h2></div></div>
@@ -5904,7 +6055,7 @@ function MachineExecutionProofPlanPage({ serviceId }: { serviceId: string }) {
         {isNavigation && <section className="panel machine-policy-summary" aria-label="Public demo context">
           <div className="panel-head"><div><p className="section-kicker">Public Context</p><h2>Observed demo context only</h2></div></div>
           <p className="copy">Public demo context observed: peaq showcased NAVER Maps in a simulated Serve Robotics workflow with USDT settlement on Solana. Radar has not executed this service.</p>
-          <p className="panel-caption">This note is context only. It is not counted as Radar execution evidence, benchmark evidence, winner evidence, or payment success evidence.</p>
+          <p className="panel-caption">This note is context only. It is not counted as Radar execution evidence, benchmark evidence, winner evidence, or payment success evidence. Public context is not Radar execution evidence.</p>
         </section>}
         <section className="panel machine-policy-summary" aria-label="Evidence to collect">
           <div className="panel-head"><div><p className="section-kicker">Evidence Objects</p><h2>Required post-execution evidence</h2></div></div>
@@ -5976,6 +6127,7 @@ function MachineServiceDossierPage({ serviceId }: { serviceId: string }) {
   const executionStatus = getServiceExecutionStatus(latestExecution);
   const policyStatus = latestPreflight?.decision ?? coverageDecision?.decision ?? null;
   const candidateScore = service ? scoreMachineExecutionCandidate(service, receipts, coverageRun) : null;
+  const serviceAttributionRows = service ? getMachineServiceAttributionRows(service) : [];
 
   return <div className="shell machine-market-shell">
     <a className="skip-link" href="#machine-service-content">Skip to content</a>
@@ -6024,6 +6176,19 @@ function MachineServiceDossierPage({ serviceId }: { serviceId: string }) {
           <MachineServiceExecutionStatus service={service} status={executionStatus} latestExecution={latestExecution} />
           <MachineServiceEvidenceNotes service={service} />
         </section>
+        {executionReceipts.length > 0 && <section className="panel machine-policy-summary" aria-label="Service execution receipts">
+          <div className="panel-head"><div><p className="section-kicker">Service Receipts</p><h2>{executionReceipts.length} service-specific execution receipt{executionReceipts.length === 1 ? '' : 's'}</h2></div></div>
+          <div className="machine-usage-list">
+            {executionReceipts.map((receipt) => <p key={receipt.receipt_id}>
+              <span>{receipt.receipt_id}</span>
+              <small>{formatMachineTimestamp(receipt.created_at)} · {receipt.execution_status} · <a className="execute compact secondary" href={`/machine-execution/${encodeURIComponent(receipt.receipt_id)}`}>View receipt detail</a></small>
+            </p>)}
+          </div>
+        </section>}
+        <SourceAttributionPanel title="Source attribution" ariaLabel="Source attribution" rows={[
+          ...serviceAttributionRows,
+          getMachineReceiptAttributionRow(service, latestExecution)
+        ]} />
       </>}
     </main>
   </div>;
@@ -6070,7 +6235,7 @@ function MachineServiceCatalogRouteSurface({ service }: { service: MachineMarket
         </p>)}
       </div>
     </section>
-    <p className="panel-caption">Catalog route surface only. Radar has not executed these routes.</p>
+    <p className="panel-caption">Catalog route surface only. Radar has not executed routes.</p>
   </section>;
 }
 
@@ -6115,6 +6280,7 @@ function MachineServiceExecutionStatus({
     <div className="panel-head"><div><p className="section-kicker">Execution Status</p><h2>{status}</h2></div></div>
     <p className="panel-caption">Execution evidence is service-specific. Catalog coverage and preflight decisions do not create execution-tested status.</p>
     {!latestExecution && <p className="route-state">No execution receipt recorded for this robotic.sh-listed service yet.</p>}
+    <p className="panel-caption">Execution receipts: 0 service-specific execution receipts unless a receipt exists. Repeatability receipts: 0 unless repeated successful receipts are recorded.</p>
     {latestExecution && <div className="machine-usage-list">
       <p><span>latest execution receipt id</span><small>{latestExecution.receipt_id}</small></p>
       <p><span>payment status</span><small>{latestExecution.payment_occurred ? 'payment_observed' : 'payment_not_confirmed'}</small></p>
@@ -6367,7 +6533,10 @@ function MachineEvidenceMethodologyDrawer() {
     { id: 'proof_path', title: 'proof_path', body: 'Meaning: Radar has enough structured information to describe what evidence would be needed before execution.' },
     { id: 'proof_plan_selected', title: 'proof_plan_selected', body: 'Meaning: Radar has selected this service for controlled proof planning. This is not an execution claim.' },
     { id: 'execution_receipt', title: 'execution_receipt', body: 'Meaning: a service-specific execution attempt has produced a durable receipt.' },
-    { id: 'repeatability_receipt', title: 'repeatability_receipt', body: 'Meaning: repeated execution attempts for the same service have produced durable repeatability evidence.' }
+    { id: 'repeatability_receipt', title: 'repeatability_receipt', body: 'Meaning: repeated execution attempts for the same service have produced durable repeatability evidence.' },
+    { id: 'source_attribution', title: 'source attribution', body: 'Meaning: Radar records where a claim came from, what scope it covers, when it was observed, and what it does not prove.' },
+    { id: 'public_context', title: 'public context', body: 'Meaning: public demo/news/service-page context that may explain relevance but is not Radar execution evidence.' },
+    { id: 'manual_scaffold', title: 'manual scaffold', body: 'Meaning: Radar planning metadata or interpretation that requires future receipts before becoming execution evidence.' }
   ];
 
   return <details className="panel machine-evidence-methodology" aria-label="Evidence methodology drawer">
@@ -6548,7 +6717,7 @@ function ReceiptsTimeline({ receipts, onSelect }: { receipts: MachinePreflightRe
         <span role="cell">{receipt.chain ?? 'none'}</span>
         <span role="cell"><MachineEvidenceStageTag stage={receipt.evidence_stage} /></span>
         <span role="cell">{receipt.receipt_id}</span>
-        <span role="cell"><button className="execute compact secondary" type="button" onClick={() => onSelect(receipt.receipt_id)}>View details</button></span>
+        <span role="cell"><button className="execute compact secondary" type="button" onClick={() => onSelect(receipt.receipt_id)}>View details</button> <a className="execute compact secondary" href={`/machine-execution/${encodeURIComponent(receipt.receipt_id)}`}>Execution detail</a></span>
       </div>)}
     </div>
   </section>;
@@ -6599,6 +6768,73 @@ function ReceiptDetailDrawer({ receipt, rawOpen, onRawToggle }: { receipt: Machi
     <button className="execute compact secondary" type="button" onClick={onRawToggle}>{rawOpen ? 'Hide raw JSON' : 'Show raw JSON'}</button>
     {rawOpen && <SafeCodeBlock value={JSON.stringify(receipt, null, 2)} label="Machine receipt raw JSON" />}
   </aside>;
+}
+
+function MachineExecutionReceiptDetailPage({ receiptId }: { receiptId: string }) {
+  const [receipt, setReceipt] = useState<MachinePreflightReceipt | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.title = `Machine Execution Receipt ${receiptId} | Infopunks Pay.sh Radar`;
+    setMetaTag('name', 'description', 'Service-specific machine execution receipt detail with strict claim boundaries.');
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    api<{ data: { receipt: MachinePreflightReceipt } }>(`/v1/machine-preflight/receipts/${encodeURIComponent(receiptId)}`)
+      .then((response) => {
+        if (cancelled) return;
+        setReceipt(response.data.receipt ?? null);
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setError(err instanceof Error ? err.message : 'machine execution receipt unavailable');
+        setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [receiptId]);
+
+  const caveats = [
+    'Service-specific execution receipt only.',
+    'Not market-wide proof.',
+    'Not payment proof.',
+    'Not benchmark proof.',
+    'Not winner proof.'
+  ];
+
+  return <div className="shell machine-market-shell">
+    <a className="skip-link" href="#machine-execution-receipt-content">Skip to content</a>
+    <main id="machine-execution-receipt-content" className="machine-market-page machine-execution-page" aria-label="Machine execution receipt detail page">
+      {loading && <section className="panel" role="status"><p className="route-state">Loading execution receipt detail...</p></section>}
+      {error && <section className="panel" role="alert"><p className="route-state error">Execution receipt detail unavailable: {error}</p></section>}
+      {!loading && !error && !receipt && <section className="panel"><EmptyState title="Execution receipt not found." body="No receipt exists for this id in current storage." /></section>}
+      {!loading && !error && receipt && <>
+        <section className="panel hero machine-market-hero">
+          <div>
+            <p className="eyebrow">Machine Execution Receipt</p>
+            <h1>{receipt.receipt_id}</h1>
+            <p className="copy">Service-scoped execution evidence only.</p>
+          </div>
+        </section>
+        <section className="panel" aria-label="Receipt core fields">
+          <div className="machine-usage-list">
+            <p><span>service</span><small>{receipt.selected_service_name ?? receipt.execution_service_id ?? 'unknown'}</small></p>
+            <p><span>execution_status</span><small>{receipt.execution_status}</small></p>
+            <p><span>payment_status</span><small>{resolveMachinePaymentStatus(receipt)}</small></p>
+            <p><span>evidence_stage</span><small>{receipt.evidence_stage ?? 'unknown'}</small></p>
+            <p><span>created_at</span><small>{formatMachineTimestamp(receipt.created_at)}</small></p>
+          </div>
+        </section>
+        <section className="panel" aria-label="Execution receipt caveats">
+          <h2>Caveats</h2>
+          <ul className="machine-caveat-list">{caveats.map((item) => <li key={item}>{item}</li>)}</ul>
+        </section>
+      </>}
+    </main>
+  </div>;
 }
 
 function MachineDossierPage({ machineId }: { machineId: string }) {
@@ -11452,11 +11688,13 @@ export function App() {
   if (isMachineMarketMapRoute(window.location.pathname)) return <MachineMarketMapPage />;
   if (isMachineReadinessMatrixRoute(window.location.pathname)) return <MachineReadinessMatrixPage />;
   if (isMachineExecutionShortlistRoute(window.location.pathname)) return <MachineExecutionShortlistPage />;
+  if (isAlibabaMachineExecutionRoute(window.location.pathname)) return <AlibabaMachineExecutionDetailPage />;
+  const machineExecutionReceiptId = routeMachineExecutionReceiptId(window.location.pathname);
+  if (machineExecutionReceiptId) return <MachineExecutionReceiptDetailPage receiptId={machineExecutionReceiptId} />;
   const machineExecutionPlanServiceId = routeMachineExecutionPlanServiceId(window.location.pathname);
   if (machineExecutionPlanServiceId) return <MachineExecutionProofPlanPage serviceId={machineExecutionPlanServiceId} />;
   if (isMachinePreflightRoute(window.location.pathname)) return <MachinePreflightPage />;
   if (isMachineReceiptsRoute(window.location.pathname)) return <MachineReceiptsPage />;
-  if (isAlibabaMachineExecutionRoute(window.location.pathname)) return <AlibabaMachineExecutionDetailPage />;
   const machineServiceId = routeMachineServiceId(window.location.pathname);
   if (machineServiceId) return <MachineServiceDossierPage serviceId={machineServiceId} />;
   const machineDossierId = routeMachineDossierId(window.location.pathname);

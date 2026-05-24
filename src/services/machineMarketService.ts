@@ -655,10 +655,10 @@ function service(input: ServiceInput): MachineMarketService {
     evidence_health: 'scaffold',
     evidence_stage: 'policy-mapped',
     source_attribution: {
-      source: 'robotic.sh',
-      scope: 'static Phase 2 robotic.sh-visible service mirror',
+      source: 'robotic.sh catalog metadata',
+      scope: 'service identity / category / provider / market listing',
       observed_at: MACHINE_MARKET_OBSERVED_AT,
-      caveat: 'Public/catalog context only. Radar evidence changes only when a service-specific receipt is recorded.'
+      caveat: 'Catalog presence does not imply execution or payment proof.'
     },
     observed_source: 'robotic.sh',
     observed_at: MACHINE_MARKET_OBSERVED_AT,

@@ -340,6 +340,9 @@ describe('machine rail coverage page', () => {
     expect(container.textContent).toContain('Callable routes do not imply executed routes.');
     expect(container.textContent).toContain('Credentials do not imply payment proof.');
     expect(container.textContent).toContain('Execution requires service-specific receipts.');
+    const attribution = container.querySelector('[aria-label="Rail metadata attribution"]')?.textContent ?? '';
+    expect(attribution).toContain('robotic.sh catalog metadata');
+    expect(attribution).toContain('Catalog/rail metadata only; not service execution evidence.');
     expect(container.querySelector('.machine-market-caveat a[href="/machine-route-risk-matrix"]')?.textContent).toContain('View route risk matrix');
     expect(container.querySelector('.machine-market-caveat a[href="/machine-first-safe-routes"]')?.textContent).toContain('View first safe route queue');
     expect(container.textContent).not.toMatch(/payment succeeded|execution succeeded|winner:|benchmark winner|payment confirmed|payment was successful|execution was successful/i);

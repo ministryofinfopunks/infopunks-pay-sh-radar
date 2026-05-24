@@ -242,7 +242,13 @@ describe('machine service dossier page', () => {
     expect(routeSurface).toContain('/map-reversegeocode/v2/gc');
     expect(routeSurface).toContain('/map-direction/v1/driving');
     expect(routeSurface).toContain('/map-static/v2/raster');
-    expect(routeSurface).toContain('Catalog route surface only. Radar has not executed these routes.');
+    expect(routeSurface).toContain('Catalog route surface only. Radar has not executed routes.');
+    const attribution = container.querySelector('[aria-label="Source attribution"]')?.textContent ?? '';
+    expect(attribution).toContain('robotic.sh service page');
+    expect(attribution).toContain('public demo context');
+    expect(attribution).toContain('Public context only; not Radar execution evidence, not payment proof.');
+    expect(attribution).toContain('Radar receipt ledger');
+    expect(attribution).toContain('No service-specific execution receipt recorded.');
     expect(text).not.toContain('execution succeeded');
     expect(text).not.toContain('benchmark winner');
     expect(text).not.toMatch(/NAVER Maps executed|NAVER execution proven|robotic\.sh market execution proven|payment success proven|best route|best provider|market-wide execution proven/i);

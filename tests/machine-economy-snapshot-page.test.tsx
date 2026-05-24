@@ -180,6 +180,7 @@ describe('machine economy snapshot page', () => {
     expect(text).toContain('0 robotic.sh market-wide execution claims. 0 service-specific execution receipts recorded.');
     expect(text).toContain('0 payment success claims. 0 benchmark claims. 0 winner claims.');
     expect(text).toContain('Public context only. Not Radar execution evidence.');
+    expect(text).toContain('Catalog, rail, route, and public-context fields are attributed separately. Public context is not Radar execution evidence.');
     expect(text).toContain('Service receipt ≠ market proof.');
     expect(text).toContain('Repeatability ≠ winner.');
     expect(text).not.toContain('execution success');
@@ -223,5 +224,8 @@ describe('machine economy snapshot page', () => {
     expect(methodology?.textContent).toContain('proof_plan_selected');
     expect(methodology?.textContent).toContain('execution_receipt');
     expect(methodology?.textContent).toContain('repeatability_receipt');
+    expect(methodology?.textContent).toContain('source attribution');
+    expect(methodology?.textContent).toContain('public context');
+    expect(methodology?.textContent).toContain('manual scaffold');
   });
 });
