@@ -93,6 +93,29 @@ const bigQueryExecutionReceipt = {
   evidence_stage: 'execution-tested',
   created_at: '2026-05-23T00:00:01.000Z'
 };
+const stableuploadExecutionReceipt = {
+  ...baseReceipt,
+  receipt_id: 'mrx_exec_stableupload_fixture_0001',
+  receipt_type: 'machine_execution',
+  execution_occurred: true,
+  payment_occurred: false,
+  execution_status: 'succeeded',
+  execution_service_id: 'stableupload',
+  execution_provider: 'Stableupload',
+  execution_started_at: '2026-05-23T00:00:00.000Z',
+  execution_completed_at: '2026-05-23T00:00:01.000Z',
+  execution_latency_ms: 640,
+  execution_request_summary: '{"fixture":"stableupload_tiny_fixture"}',
+  execution_response_summary: '{"file_size_bytes":128,"file_hash":"sha256:stableupload-tiny-fixture-v1","upload_reference":"stableupload_fixture_ref_001","sensitive_data_flag":false}',
+  execution_error: null,
+  payment_evidence: null,
+  selected_service_id: 'stableupload',
+  selected_service_name: 'Stableupload',
+  reason: 'Stableupload external execution artifact indicates successful execution.',
+  caveats: ['Service-specific execution receipt only.', 'Not market-wide proof.', 'Not payment proof.', 'Not benchmark proof.', 'Not winner proof.'],
+  evidence_stage: 'execution-tested',
+  created_at: '2026-05-23T00:00:01.000Z'
+};
 
 function json(data: unknown, status = 200) {
   return Promise.resolve(new Response(JSON.stringify({ data }), { status, headers: { 'Content-Type': 'application/json' } }));
@@ -368,6 +391,26 @@ describe('machine receipts page', () => {
     expect(text).toContain('row_count1');
     expect(text).toContain('dataset_classificationsynthetic');
     expect(text).toContain('bounded_query_confirmedtrue');
+    expect(text).toContain('payment_statusnot_confirmed');
+    expect(text).toContain('Not payment proof.');
+    expect(text).toContain('Not benchmark proof.');
+    expect(text).toContain('Not winner proof.');
+    expect(text).toContain('Not market-wide proof.');
+  });
+
+  it('renders Stableupload execution receipt detail summary fields', async () => {
+    window.history.pushState({}, '', `/machine-execution/${encodeURIComponent(stableuploadExecutionReceipt.receipt_id)}`);
+    installFetch([stableuploadExecutionReceipt]);
+    root = await renderPage(container);
+
+    const text = container.textContent ?? '';
+    expect(text).toContain('Machine Execution Receipt');
+    expect(text).toContain('Stableupload Summary');
+    expect(text).toContain('proof_profilestableupload_tiny_fixture');
+    expect(text).toContain('file_size_bytes128');
+    expect(text).toContain('file_hashsha256:stableupload-tiny-fixture-v1');
+    expect(text).toContain('upload_referencestableupload_fixture_ref_001');
+    expect(text).toContain('sensitive_data_flagfalse');
     expect(text).toContain('payment_statusnot_confirmed');
     expect(text).toContain('Not payment proof.');
     expect(text).toContain('Not benchmark proof.');

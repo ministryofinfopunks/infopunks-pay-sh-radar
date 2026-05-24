@@ -437,7 +437,116 @@ describe('machine execution anytrans translation route', () => {
       }
     });
     expect(response.statusCode).toBe(200);
-    expect(response.json().data.evidence_stage_after).toBe('execution-tested');
+    const data = response.json().data;
+    expect(data.evidence_stage_after).toBe('execution-tested');
+    expect(data.payment_status).toBe('not_confirmed');
+    expect(data.caveats).toContain('Not market-wide proof.');
+    expect(data.caveats).toContain('Not benchmark proof.');
+    expect(data.caveats).toContain('Not winner proof.');
+    await app.close();
+  });
+
+  it('provides and ingests Stableupload tiny fixture payload', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const sample = await app.inject({ method: 'GET', url: '/v1/machine-execution/stableupload/fixtures/tiny-fixture' });
+    expect(sample.statusCode).toBe(200);
+    const samplePayload = sample.json().data.payload;
+    expect(samplePayload.service_id).toBe('stableupload');
+    expect(samplePayload.response_summary.file_size_bytes).toBeTypeOf('number');
+    expect(samplePayload.response_summary.file_hash).toBeTruthy();
+    expect(samplePayload.response_summary.upload_reference).toBeTruthy();
+    expect(samplePayload.response_summary.sensitive_data_flag).toBe(false);
+
+    const ingested = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/stableupload/fixtures/ingest',
+      headers: { authorization: 'Bearer secret' },
+      payload: { machine_id: 'did:peaq:stableupload-fixture-bot-test' }
+    });
+    expect(ingested.statusCode).toBe(200);
+    const ingestedData = ingested.json().data;
+    expect(ingestedData.fixture_ingested).toBe(true);
+    expect(ingestedData.service_id).toBe('stableupload');
+    expect(ingestedData.payment_status).toBe('not_confirmed');
+    expect(ingestedData.evidence_stage_after).toBe('execution-tested');
+    expect(ingestedData.caveats).toContain('Not market-wide proof.');
+    expect(ingestedData.caveats).toContain('Not payment proof.');
+    expect(ingestedData.caveats).toContain('Not benchmark proof.');
+    expect(ingestedData.caveats).toContain('Not winner proof.');
+    await app.close();
+  });
+
+  it('rejects Stableupload receipts with sensitive_data_flag=true', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/receipts/ingest',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: payload.machine_id,
+        service_id: 'stableupload',
+        fqn: 'stableupload/upload',
+        source_market: 'pay.sh',
+        chain: 'solana',
+        execution_status: 'succeeded',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-22T00:00:00.000Z',
+        execution_completed_at: '2026-05-22T00:00:01.000Z',
+        execution_latency_ms: 1000,
+        request_summary: { fixture: 'tiny.txt' },
+        response_summary: {
+          file_size_bytes: 128,
+          file_hash: 'sha256:abc',
+          upload_reference: 'upl_123',
+          sensitive_data_flag: true
+        },
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'manual' }
+      }
+    });
+    expect(response.statusCode).toBe(400);
+    expect(response.json().error).toBe('invalid_machine_execution_receipt_ingest');
+    await app.close();
+  });
+
+  it('rejects Stableupload receipts with forbidden private/regulated/production markers', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/receipts/ingest',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: payload.machine_id,
+        service_id: 'stableupload',
+        fqn: 'stableupload/upload',
+        source_market: 'pay.sh',
+        chain: 'solana',
+        execution_status: 'succeeded',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-22T00:00:00.000Z',
+        execution_completed_at: '2026-05-22T00:00:01.000Z',
+        execution_latency_ms: 1000,
+        request_summary: { fixture: 'tiny.txt' },
+        response_summary: {
+          file_size_bytes: 128,
+          file_hash: 'sha256:abc',
+          upload_reference: 'upl_123',
+          sensitive_data_flag: false,
+          private_file: true,
+          regulated_data: true,
+          production_asset: true
+        },
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'manual' }
+      }
+    });
+    expect(response.statusCode).toBe(400);
+    expect(response.json().error).toBe('invalid_machine_execution_receipt_ingest');
     await app.close();
   });
 

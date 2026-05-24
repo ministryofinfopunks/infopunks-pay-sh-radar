@@ -227,6 +227,14 @@ export type BigQueryBoundedQueryFixtureOptions = {
   machine_id?: string;
   execution_completed_at?: string;
 };
+export type StableuploadTinyFixtureOptions = {
+  machine_id?: string;
+  execution_completed_at?: string;
+};
+export type NaverGeocodeFixtureOptions = {
+  machine_id?: string;
+  execution_completed_at?: string;
+};
 
 type TranslationAdapterResult = {
   execution_status: 'attempted' | 'succeeded' | 'failed';
@@ -417,6 +425,72 @@ export function buildBigQueryBoundedQueryFixtureReceipt(options: BigQueryBounded
     },
     executor: { name: 'infopunks-radar-fixture', version: 'fixture-v1', mode: 'manual' },
     artifact_signature: 'fixture:bigquery_bounded_query:v1'
+  };
+}
+
+export function buildStableuploadTinyFixtureReceipt(options: StableuploadTinyFixtureOptions = {}): MachineExecutionReceiptIngestRequest {
+  const completedAt = options.execution_completed_at ?? new Date().toISOString();
+  const startedAt = new Date(Math.max(0, Date.parse(completedAt) - 640)).toISOString();
+  return {
+    machine_id: options.machine_id ?? 'did:peaq:stableupload-fixture-bot-01',
+    service_id: 'stableupload',
+    fqn: 'stableupload/upload',
+    source_market: 'pay.sh',
+    chain: 'solana',
+    preflight_receipt_id: null,
+    execution_status: 'succeeded',
+    execution_occurred: true,
+    payment_occurred: false,
+    payment_evidence: null,
+    execution_started_at: startedAt,
+    execution_completed_at: completedAt,
+    execution_latency_ms: 640,
+    request_summary: {
+      fixture: 'stableupload_tiny_fixture',
+      file_name: 'tiny-fixture.txt',
+      route_policy: 'tiny_non_sensitive_fixture_only'
+    },
+    response_summary: {
+      file_size_bytes: 128,
+      file_hash: 'sha256:stableupload-tiny-fixture-v1',
+      upload_reference: 'stableupload_fixture_ref_001',
+      sensitive_data_flag: false
+    },
+    executor: { name: 'infopunks-radar-fixture', version: 'fixture-v1', mode: 'manual' },
+    artifact_signature: 'fixture:stableupload_tiny_fixture:v1'
+  };
+}
+
+export function buildNaverGeocodeFixtureReceipt(options: NaverGeocodeFixtureOptions = {}): MachineExecutionReceiptIngestRequest {
+  const completedAt = options.execution_completed_at ?? new Date().toISOString();
+  const startedAt = new Date(Math.max(0, Date.parse(completedAt) - 720)).toISOString();
+  return {
+    machine_id: options.machine_id ?? 'did:peaq:naver-geocode-fixture-bot-01',
+    service_id: 'naver-maps',
+    fqn: 'naver/maps/geocode',
+    source_market: 'robotic.sh',
+    chain: 'unknown',
+    preflight_receipt_id: null,
+    execution_status: 'succeeded',
+    execution_occurred: true,
+    payment_occurred: false,
+    payment_evidence: null,
+    execution_started_at: startedAt,
+    execution_completed_at: completedAt,
+    execution_latency_ms: 720,
+    request_summary: {
+      fixture: 'naver_geocode_lookup',
+      route_policy: 'non_operational_geocode_lookup_only'
+    },
+    response_summary: {
+      query_label: 'fixture.seoul_station_lookup',
+      geocode_result_preview: 'Seoul Station, KR',
+      coordinates_present: true,
+      no_robot_command: true,
+      no_physical_movement: true
+    },
+    executor: { name: 'infopunks-radar-fixture', version: 'fixture-v1', mode: 'manual' },
+    artifact_signature: 'fixture:naver_geocode_lookup:v1'
   };
 }
 

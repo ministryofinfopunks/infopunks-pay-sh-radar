@@ -3046,6 +3046,16 @@ function buildMachineMarketChangelogRows(services: MachineMarketService[], recei
     && row.execution_occurred
     && (row.execution_service_id ?? row.selected_service_id) === 'bigquery'
   ) ?? null;
+  const latestStableuploadExecution = receipts.find((row) =>
+    row.receipt_type === 'machine_execution'
+    && row.execution_occurred
+    && (row.execution_service_id ?? row.selected_service_id) === 'stableupload'
+  ) ?? null;
+  const latestNaverGeocodeExecution = receipts.find((row) =>
+    row.receipt_type === 'machine_execution'
+    && row.execution_occurred
+    && (row.execution_service_id ?? row.selected_service_id) === 'naver-maps'
+  ) ?? null;
   const executionService = latestExecution
     ? services.find((service) => service.id === (latestExecution.execution_service_id ?? latestExecution.selected_service_id))
     : null;
@@ -3076,6 +3086,26 @@ function buildMachineMarketChangelogRows(services: MachineMarketService[], recei
       claim_boundary: 'Service-specific execution receipt only. Bounded public/synthetic query only. Not market-wide proof, not payment proof, not benchmark proof, not winner proof.',
       receipt_id: latestBigQueryExecution.receipt_id,
       receipt_href: `/machine-execution/${encodeURIComponent(latestBigQueryExecution.receipt_id)}`
+    }] : []),
+    ...(latestStableuploadExecution ? [{
+      date: formatMachineTimestamp(latestStableuploadExecution.created_at),
+      change: `Stableupload tiny non-sensitive fixture receipt recorded (${latestStableuploadExecution.receipt_id}).`,
+      scope: 'stableupload first-safe receipt',
+      source: 'Radar fixture ingest (replaceable by Harness output)',
+      source_type: 'manual_scaffold' as const,
+      claim_boundary: 'Service-specific execution receipt only. Tiny non-sensitive fixture only. Not market-wide proof, not payment proof, not benchmark proof, not winner proof.',
+      receipt_id: latestStableuploadExecution.receipt_id,
+      receipt_href: `/machine-execution/${encodeURIComponent(latestStableuploadExecution.receipt_id)}`
+    }] : []),
+    ...(latestNaverGeocodeExecution ? [{
+      date: formatMachineTimestamp(latestNaverGeocodeExecution.created_at),
+      change: `NAVER Maps non-operational geocode fixture receipt recorded (${latestNaverGeocodeExecution.receipt_id}).`,
+      scope: 'naver geocode first-safe receipt',
+      source: 'Radar fixture ingest (replaceable by Harness output)',
+      source_type: 'manual_scaffold' as const,
+      claim_boundary: 'Non-operational geocode lookup only. No robot command. No physical movement. Public context only is not Radar execution evidence. Service-specific execution receipt only. Not market-wide proof, not payment proof, not benchmark proof, not winner proof.',
+      receipt_id: latestNaverGeocodeExecution.receipt_id,
+      receipt_href: `/machine-execution/${encodeURIComponent(latestNaverGeocodeExecution.receipt_id)}`
     }] : []),
     {
       date: '2026-05-22',
@@ -6822,6 +6852,8 @@ function MachineExecutionReceiptDetailPage({ receiptId }: { receiptId: string })
   const requestSummary = parseMachineExecutionSummary(receipt?.execution_request_summary);
   const responseSummary = parseMachineExecutionSummary(receipt?.execution_response_summary);
   const isBigQueryReceipt = (receipt?.execution_service_id ?? receipt?.selected_service_id) === 'bigquery';
+  const isStableuploadReceipt = (receipt?.execution_service_id ?? receipt?.selected_service_id) === 'stableupload';
+  const isNaverReceipt = (receipt?.execution_service_id ?? receipt?.selected_service_id) === 'naver-maps';
 
   return <div className="shell machine-market-shell">
     <a className="skip-link" href="#machine-execution-receipt-content">Skip to content</a>
@@ -6858,6 +6890,31 @@ function MachineExecutionReceiptDetailPage({ receiptId }: { receiptId: string })
             <p><span>request_fixture</span><small>{String(requestSummary?.fixture ?? 'none')}</small></p>
           </div>
           <p className="panel-caption">Bounded public/synthetic query fixture path. Replace with Harness execution output when live rail is configured.</p>
+        </section>}
+        {isStableuploadReceipt && <section className="panel" aria-label="Stableupload tiny fixture receipt summary">
+          <h2>Stableupload Summary</h2>
+          <div className="machine-usage-list">
+            <p><span>proof_profile</span><small>stableupload_tiny_fixture</small></p>
+            <p><span>file_size_bytes</span><small>{String(responseSummary?.file_size_bytes ?? 'unknown')}</small></p>
+            <p><span>file_hash</span><small>{String(responseSummary?.file_hash ?? 'unknown')}</small></p>
+            <p><span>upload_reference</span><small>{String(responseSummary?.upload_reference ?? 'unknown')}</small></p>
+            <p><span>sensitive_data_flag</span><small>{String(responseSummary?.sensitive_data_flag ?? false)}</small></p>
+            <p><span>request_fixture</span><small>{String(requestSummary?.fixture ?? 'none')}</small></p>
+          </div>
+          <p className="panel-caption">Tiny non-sensitive fixture path only. Replace with Harness execution output when live rail is configured.</p>
+        </section>}
+        {isNaverReceipt && <section className="panel" aria-label="NAVER geocode non-operational receipt summary">
+          <h2>NAVER Geocode Summary</h2>
+          <div className="machine-usage-list">
+            <p><span>proof_profile</span><small>naver_geocode_lookup</small></p>
+            <p><span>query_label</span><small>{String(responseSummary?.query_label ?? 'unknown')}</small></p>
+            <p><span>geocode_result_preview</span><small>{String(responseSummary?.geocode_result_preview ?? 'unknown')}</small></p>
+            <p><span>coordinates_present</span><small>{String(responseSummary?.coordinates_present ?? false)}</small></p>
+            <p><span>no_robot_command</span><small>{String(responseSummary?.no_robot_command ?? false)}</small></p>
+            <p><span>no_physical_movement</span><small>{String(responseSummary?.no_physical_movement ?? false)}</small></p>
+            <p><span>request_fixture</span><small>{String(requestSummary?.fixture ?? 'none')}</small></p>
+          </div>
+          <p className="panel-caption">Non-operational geocode lookup only. No robot command, no physical movement, no real-world route guidance.</p>
         </section>}
         <section className="panel" aria-label="Execution receipt caveats">
           <h2>Caveats</h2>

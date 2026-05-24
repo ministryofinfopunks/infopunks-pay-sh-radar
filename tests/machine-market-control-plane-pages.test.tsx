@@ -204,6 +204,62 @@ describe('machine market control plane pages', () => {
     expect(text).toContain('Bounded public/synthetic query only.');
   });
 
+  it('adds Stableupload changelog entry when a Stableupload receipt exists', async () => {
+    vi.restoreAllMocks();
+    vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const path = pathOf(input);
+      if (path === '/v1/machine-market/services') return json({ count: services.length, services });
+      if (path === '/v1/machine-preflight/receipts/recent') return json({
+        count: 1,
+        receipts: [{
+          receipt_id: 'mrx_exec_stableupload_fixture_0001',
+          receipt_type: 'machine_execution',
+          demo_mode: false,
+          execution_occurred: true,
+          payment_occurred: false,
+          execution_status: 'succeeded',
+          execution_service_id: 'stableupload',
+          execution_provider: 'Stableupload',
+          execution_started_at: '2026-05-23T00:00:00.000Z',
+          execution_completed_at: '2026-05-23T00:00:01.000Z',
+          execution_latency_ms: 640,
+          execution_request_summary: '{"fixture":"stableupload_tiny_fixture"}',
+          execution_response_summary: '{"file_size_bytes":128,"file_hash":"sha256:stableupload-tiny-fixture-v1","upload_reference":"stableupload_fixture_ref_001","sensitive_data_flag":false}',
+          execution_error: null,
+          payment_evidence: null,
+          preflight_receipt_id: null,
+          execution_run_id: 'mxr_stableupload_fixture_0001',
+          machine_id: 'did:peaq:stableupload-fixture-bot-01',
+          policy_id: null,
+          intent: 'external machine execution artifact ingest (stableupload)',
+          requested_category: 'storage',
+          selected_service_id: 'stableupload',
+          selected_service_name: 'Stableupload',
+          source_market: 'pay.sh',
+          chain: 'solana',
+          decision: 'allow',
+          reason: 'Stableupload external execution artifact indicates successful execution.',
+          policy_checks: [],
+          violations: [],
+          review_reasons: [],
+          caveats: ['Service-specific execution receipt only.', 'Not market-wide proof.', 'Not payment proof.', 'Not benchmark proof.', 'Not winner proof.'],
+          max_cost_usd: null,
+          evidence_stage: 'execution-tested',
+          evidence_health: 'scaffold',
+          phase_scope: 'phase_2_pay_sh_robotic_sh',
+          created_at: '2026-05-23T00:00:01.000Z'
+        }]
+      });
+      return Promise.resolve(new Response('{}', { status: 404 }));
+    });
+
+    root = await renderPath(container, '/machine-market-changelog');
+    const text = container.textContent ?? '';
+    expect(text).toContain('Stableupload tiny non-sensitive fixture receipt recorded');
+    expect(text).toContain('Radar fixture ingest (replaceable by Harness output)');
+    expect(text).toContain('Tiny non-sensitive fixture only.');
+  });
+
   it('renders the standalone no-claim ledger with critical no-claim copy', async () => {
     root = await renderPath(container, '/machine-no-claim-ledger');
 

@@ -94,6 +94,8 @@ import {
   buildAlibabaMachineTranslationGeneralBenchmarkReadinessArtifact,
   buildAlibabaMachineTranslationGeneralRepeatabilityArtifact,
   buildBigQueryBoundedQueryFixtureReceipt,
+  buildNaverGeocodeFixtureReceipt,
+  buildStableuploadTinyFixtureReceipt,
   deprecatedCloudTranslationExecutionResponse,
   ingestMachineExecutionReceipt,
   ingestAlibabaMachineTranslationGeneralArtifact,
@@ -794,6 +796,64 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
         fixture_ingested: true,
         fixture_label: 'BigQuery bounded public/synthetic query fixture',
         proof_profile: 'bigquery_bounded_query',
+        payload: fixturePayload,
+        ...result,
+        phase_scope: MACHINE_MARKET_PHASE_SCOPE,
+        storage: machineReceiptStorage
+      })
+    };
+  });
+  app.get('/v1/machine-execution/stableupload/fixtures/tiny-fixture', async () => {
+    const fixture = buildStableuploadTinyFixtureReceipt();
+    return {
+      data: safeJsonExport({
+        fixture_label: 'Stableupload tiny non-sensitive fixture',
+        proof_profile: 'stableupload_tiny_fixture',
+        replace_with: 'Harness-generated receipt payload',
+        payload: fixture
+      })
+    };
+  });
+  app.post('/v1/machine-execution/stableupload/fixtures/ingest', async (req, reply) => {
+    if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'admin_token_required' });
+    const parsed = BigQueryFixtureIngestSchema.safeParse(req.body);
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_stableupload_fixture_ingest', details: parsed.error.flatten() });
+    const fixturePayload = buildStableuploadTinyFixtureReceipt(parsed.data ?? {});
+    const result = await ingestMachineExecutionReceipt(fixturePayload);
+    return {
+      data: safeJsonExport({
+        fixture_ingested: true,
+        fixture_label: 'Stableupload tiny non-sensitive fixture',
+        proof_profile: 'stableupload_tiny_fixture',
+        payload: fixturePayload,
+        ...result,
+        phase_scope: MACHINE_MARKET_PHASE_SCOPE,
+        storage: machineReceiptStorage
+      })
+    };
+  });
+  app.get('/v1/machine-execution/naver/fixtures/geocode', async () => {
+    const fixture = buildNaverGeocodeFixtureReceipt();
+    return {
+      data: safeJsonExport({
+        fixture_label: 'NAVER Maps non-operational geocode fixture',
+        proof_profile: 'naver_geocode_lookup',
+        replace_with: 'Harness-generated receipt payload',
+        payload: fixture
+      })
+    };
+  });
+  app.post('/v1/machine-execution/naver/fixtures/geocode/ingest', async (req, reply) => {
+    if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'admin_token_required' });
+    const parsed = BigQueryFixtureIngestSchema.safeParse(req.body);
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_naver_geocode_fixture_ingest', details: parsed.error.flatten() });
+    const fixturePayload = buildNaverGeocodeFixtureReceipt(parsed.data ?? {});
+    const result = await ingestMachineExecutionReceipt(fixturePayload);
+    return {
+      data: safeJsonExport({
+        fixture_ingested: true,
+        fixture_label: 'NAVER Maps non-operational geocode fixture',
+        proof_profile: 'naver_geocode_lookup',
         payload: fixturePayload,
         ...result,
         phase_scope: MACHINE_MARKET_PHASE_SCOPE,

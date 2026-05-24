@@ -261,4 +261,37 @@ describe('machine service dossier page', () => {
     expect(container.textContent).toContain('This service is not in the current robotic.sh visible service mirror.');
     expect(container.querySelector('.machine-receipts-empty a[href="/machine-market"]')?.textContent).toContain('Back to Machine Market');
   });
+
+  it('shows Stableupload service-specific execution receipt when present', async () => {
+    vi.restoreAllMocks();
+    vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const path = pathOf(input);
+      if (path === '/v1/machine-market/services') return json({ count: 13, services });
+      if (path === '/v1/machine-preflight/receipts/recent') return json({
+        count: 1,
+        receipts: [{
+          ...cloudTranslationReceipt,
+          receipt_id: 'mrx_exec_stableupload_fixture_0001',
+          receipt_type: 'machine_execution',
+          execution_occurred: true,
+          execution_status: 'succeeded',
+          execution_service_id: 'stableupload',
+          selected_service_id: 'stableupload',
+          selected_service_name: 'Stableupload',
+          intent: 'external machine execution artifact ingest (stableupload)',
+          requested_category: 'storage',
+          evidence_stage: 'execution-tested',
+          created_at: '2026-05-23T00:00:01.000Z'
+        }]
+      });
+      if (path === '/v1/machine-preflight/coverage-runs/recent') return json({ count: 0, runs: [] });
+      return Promise.resolve(new Response('{}', { status: 404 }));
+    });
+
+    root = await renderPath(container, '/machine-service/stableupload');
+    const text = container.textContent ?? '';
+    expect(text).toContain('Service Receipts');
+    expect(text).toContain('mrx_exec_stableupload_fixture_0001');
+    expect(container.querySelector('a[href="/machine-execution/mrx_exec_stableupload_fixture_0001"]')?.textContent).toContain('View receipt detail');
+  });
 });
