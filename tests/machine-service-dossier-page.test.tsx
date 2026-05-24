@@ -221,7 +221,7 @@ describe('machine service dossier page', () => {
     root = await renderPath(container, '/machine-service/cloud-translation');
 
     expect(container.textContent).toContain('Pay.sh execution candidates are tracked separately from the robotic.sh visible service mirror.');
-    expect(container.textContent).toContain('Alibaba Machine Translation General is the first execution-tested Pay.sh route; it is not counted as one of the 13 visible robotic.sh services unless robotic.sh lists it.');
+    expect(container.textContent).toContain('Alibaba Machine Translation General is the first service-specific execution-tested Pay.sh route in this machine-translation evidence set; it is not counted as one of the 13 visible robotic.sh services unless robotic.sh lists it.');
     expect(container.querySelector('a[href="/machine-execution-shortlist"]')).not.toBeNull();
     expect(container.querySelector('a[href="/machine-execution-plan/cloud-translation"]')?.textContent).toContain('View execution proof plan');
   });
@@ -245,6 +245,7 @@ describe('machine service dossier page', () => {
     expect(routeSurface).toContain('Catalog route surface only. Radar has not executed these routes.');
     expect(text).not.toContain('execution succeeded');
     expect(text).not.toContain('benchmark winner');
+    expect(text).not.toMatch(/NAVER Maps executed|NAVER execution proven|robotic\.sh market execution proven|payment success proven|best route|best provider|market-wide execution proven/i);
   });
 
   it('shows unknown service not-found state', async () => {

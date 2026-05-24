@@ -148,20 +148,22 @@ describe('machine first safe route queue page', () => {
     root = await renderPage(container);
 
     expect(container.textContent).toContain('Machine First Safe Route Queue');
-    expect(container.textContent).toContain('Radar turns route-risk analysis into a planning queue for future proof attempts. Nothing here is an execution claim.');
+    expect(container.textContent).toContain('Radar does not ask which service is most exciting. It asks which route is safest to prove first.');
     expect(container.querySelector('[aria-label="Machine first safe route hero chips"]')?.textContent).toContain('route-aware queue');
     expect(container.querySelector('[aria-label="Machine first safe route hero chips"]')?.textContent).toContain('first-safe candidates');
     expect(container.querySelector('[aria-label="Machine first safe route hero chips"]')?.textContent).toContain('planning only');
-    expect(container.querySelector('[aria-label="Machine first safe route hero chips"]')?.textContent).toContain('0 execution receipts');
+    expect(container.querySelector('[aria-label="Machine first safe route hero chips"]')?.textContent).toContain('0 robotic.sh market-wide execution claims');
     expect(container.querySelector('[aria-label="Machine first safe route queue summary"]')?.textContent).toContain('Queue entries5');
     expect(container.querySelector('[aria-label="Machine first safe route queue summary"]')?.textContent).toContain('First-safe candidates5');
-    expect(container.querySelector('[aria-label="Machine first safe route queue summary"]')?.textContent).toContain('Execution receipts0');
-    expect(container.querySelector('[aria-label="Machine first safe route queue summary"]')?.textContent).toContain('Repeatability receipts0');
+    expect(container.querySelector('[aria-label="Machine first safe route queue summary"]')?.textContent).toContain('Service-specific execution receipts0');
+    expect(container.querySelector('[aria-label="Machine first safe route queue summary"]')?.textContent).toContain('Payment success claims0');
+    expect(container.querySelector('[aria-label="Machine first safe route queue summary"]')?.textContent).toContain('Benchmark claims0');
     expect(container.querySelector('[aria-label="Machine first safe route interpretation strip"]')?.textContent).toContain('First-safe ≠ executed');
     expect(container.querySelector('[aria-label="Machine first safe route interpretation strip"]')?.textContent).toContain('Ranked ≠ winner');
     expect(container.querySelector('[aria-label="Machine first safe route interpretation strip"]')?.textContent).toContain('Blocked ≠ abandoned');
     expect(container.querySelector('[aria-label="Machine first safe route interpretation strip"]')?.textContent).toContain('Proof plan ≠ receipt');
-    expect(container.textContent).toContain('No execution claim. No payment success claim. No benchmark claim. No winner claim. No provider quality claim.');
+    expect(container.textContent).toContain('0 robotic.sh market-wide execution claims. 0 service-specific execution receipts recorded.');
+    expect(container.textContent).toContain('0 payment success claims. 0 benchmark claims. 0 winner claims. No provider quality claim.');
     expect(container.textContent).toContain('First-safe route ranking is planning metadata. It does not imply execution, payment success, benchmark superiority, provider quality, or winner status.');
     expect(container.textContent).not.toMatch(/payment succeeded|execution succeeded|benchmark winner|winner claim:|best provider|provider quality is/i);
   });
@@ -188,6 +190,8 @@ describe('machine first safe route queue page', () => {
     expect(text).toContain('QVAC');
     expect(text).toContain('runtime registration review, no execution');
     expect(text).toContain('Runtime registration review comes before autonomous execution.');
+    expect(text).toContain('payment_unconfirmed');
+    expect(text).toContain('benchmark_not_recorded');
     expect(text).toContain('not attempted');
     expect(container.querySelector('a[href="/machine-execution-plan/cloud-translation"]')?.textContent).toContain('View proof plan');
     expect(container.querySelector('a[href="/machine-execution-plan/naver-maps"]')?.textContent).toContain('View proof plan');

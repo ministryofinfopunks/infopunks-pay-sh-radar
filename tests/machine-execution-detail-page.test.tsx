@@ -168,14 +168,14 @@ describe('machine execution detail page', () => {
 
     const text = container.textContent ?? '';
     expect(text).toContain('Alibaba Machine Translation General');
-    expect(text).toContain('First execution-tested Machine Radar route.');
+    expect(text).toContain('Service-specific execution evidence for a Pay.sh machine-translation route candidate.');
     expect(text).toContain('mrx_exec_20260522183100415_0001');
     expect(text).toContain('Las máquinas no deberían gastar a ciegas.');
     expect(text).toContain('630BC2E5-AA27-5E84-ABB2-0BFE100BBD9F');
     expect(text).toContain('infopunks-pay-sh-agent-harness');
     expect(text).toContain('pay_cli');
-    expect(text).toContain('payment_occurred=false');
-    expect(text).toContain('Payment is not claimed because no explicit payment evidence was recorded.');
+    expect(text).toContain('payment_statusnot_confirmed');
+    expect(text).toContain('0 payment success claims. Payment remains unconfirmed unless payment evidence exists.');
     expect(text).toContain('Machine Execution Repeatability Artifact');
     expect(text).toContain('artifact: mrx_repeatability_alibaba_machine_translation_general_20260522');
     expect(text).toContain('No winner is claimed.');
@@ -190,15 +190,15 @@ describe('machine execution detail page', () => {
     expect(text).toContain('success rate100%');
     expect(text).toContain('latency range1.00s–1.00s');
     expect(text).toContain('median latency1.00s');
-    expect(text).toContain('payment claimedfalse');
-    expect(text).toContain('benchmark claimedfalse');
-    expect(text).toContain('winner claimedfalse');
+    expect(text).toContain('payment success claims0');
+    expect(text).toContain('benchmark claims0');
+    expect(text).toContain('winner claims0');
     expect(text).toContain('Coverage → Execution-tested → Repeatability-recorded → Benchmark-ready, inactive → Benchmark-recorded, inactive');
     expect(text).toContain('Output summaries are safe excerpts from durable execution receipts.');
     expect(text).toContain('Progress: 1 / 3 successful receipts. Run 2 more successful executions with the same prompt family.');
     expect(text).toContain('Benchmark-Ready Criteria');
     expect(text).toContain('benchmark-recorded: inactive');
-    expect(text).toContain('No benchmark has been run.');
+    expect(text).toContain('No benchmark has been run and no winner is claimed.');
   });
 
   it('renders empty state when no receipt exists', async () => {

@@ -327,11 +327,11 @@ describe('machine market page', () => {
     expect(topNav?.textContent).not.toContain('Execution Detail');
 
     expect(container.textContent).toContain('Machine Market Command Center');
-    expect(container.textContent).toContain('13 robotic.sh services mapped. Radar gives every service policy state, evidence state, readiness rank, and a proof path before spend.');
+    expect(container.textContent).toContain('Radar turns visible machine services into policy, rail, route, proof, and receipt state before machines spend.');
     expect(container.textContent).toContain('13 listed services mapped from robotic.sh for Phase 2 machine-economy intelligence.');
-    expect(container.querySelector('[aria-label="Machine Market summary"]')?.textContent).toContain('Execution Claims0');
-    expect(container.querySelector('[aria-label="Machine Market summary"]')?.textContent).toContain('planning only');
-    expect(container.querySelector('[aria-label="Machine Market summary"]')?.textContent).toContain('no robotic.sh service executed');
+    expect(container.querySelector('[aria-label="Machine Market summary"]')?.textContent).toContain('Market-wide execution claims0');
+    expect(container.querySelector('[aria-label="Machine Market summary"]')?.textContent).toContain('Service-specific execution receipts2');
+    expect(container.querySelector('[aria-label="Machine Market summary"]')?.textContent).toContain('Payment success claims0');
     expect(container.querySelector('[aria-label="13-Service Market Cohort"]')?.textContent).toContain('13 robotic.sh services mapped');
     expect(container.querySelector('[aria-label="Coverage caveat"] a[href="/machine-market-map"]')?.textContent).toContain('View market map');
     expect(container.querySelector('[aria-label="Coverage caveat"] a[href="/machine-readiness-matrix"]')?.textContent).toContain('View readiness matrix');
@@ -344,10 +344,14 @@ describe('machine market page', () => {
     expect(controlSurfaces?.textContent).toContain('Machine Economy Control Surfaces');
     expect(controlSurfaces?.querySelector('a[href="/machine-market-map"]')?.textContent).toContain('Market Map');
     expect(controlSurfaces?.querySelector('a[href="/machine-readiness-matrix"]')?.textContent).toContain('Readiness Matrix');
-    expect(controlSurfaces?.querySelector('a[href="/machine-economy-snapshot"]')?.textContent).toContain('Public Snapshot');
+    expect(controlSurfaces?.querySelector('a[href="/machine-economy-snapshot"]')?.textContent).toContain('Snapshot');
     expect(controlSurfaces?.querySelector('a[href="/machine-rail-coverage"]')?.textContent).toContain('Rail Coverage');
     expect(controlSurfaces?.querySelector('a[href="/machine-route-risk-matrix"]')?.textContent).toContain('Route Risk Matrix');
     expect(controlSurfaces?.querySelector('a[href="/machine-first-safe-routes"]')?.textContent).toContain('First Safe Route Queue');
+    expect(controlSurfaces?.querySelector('a[href="/machine-execution-blockers"]')?.textContent).toContain('Execution Blockers');
+    expect(controlSurfaces?.querySelector('a[href="/machine-market-changelog"]')?.textContent).toContain('Changelog');
+    expect(controlSurfaces?.querySelector('a[href="/machine-no-claim-ledger"]')?.textContent).toContain('No-Claim Ledger');
+    expect(controlSurfaces?.querySelector('a[href="/machine-receipts"]')?.textContent).toContain('Receipts');
     for (const name of serviceNames) expect(container.textContent).toContain(name);
   });
 
@@ -376,7 +380,7 @@ describe('machine market page', () => {
 
     expect(container.querySelector('[aria-label="Evidence ladder"]')?.textContent).toContain('listed');
     expect(container.querySelector('[aria-label="Evidence ladder"]')?.textContent).toContain('preflight-ready');
-    expect(container.textContent).toContain('Coverage refers to the 13 services visible in the observed robotic.sh market snapshot. Execution evidence is tracked separately.');
+    expect(container.textContent).toContain('Coverage refers to the 13 services visible in the observed robotic.sh market snapshot. 0 market-wide execution claims. Service-specific execution receipts are scoped to the recorded route.');
     expect(container.textContent).toContain('Preflight Coverage');
     expect(container.textContent).toContain('Run Coverage Preflight');
     expect(container.textContent).toContain('Services evaluated13 / 13');
@@ -397,7 +401,7 @@ describe('machine market page', () => {
     expect(cohort?.textContent).toContain('10 allow');
     expect(cohort?.textContent).toContain('2 review');
     expect(cohort?.textContent).toContain('1 deny');
-    expect(cohort?.textContent).toContain('0 execution claims');
+    expect(cohort?.textContent).toContain('0 robotic.sh market-wide execution claims');
     expect(cohort?.textContent).toContain('QVAC');
     expect(cohort?.textContent).toContain('Cloud Translation');
     expect(cohort?.textContent).toContain('Every visible robotic.sh service now has a policy state, evidence state, readiness rank, and proof path.');
@@ -420,17 +424,17 @@ describe('machine market page', () => {
     expect(missionControl?.textContent).toContain('planning-only');
     expect(missionControl?.textContent).toContain('not execution-tested');
     expect(missionControl?.textContent).toContain('not a winner claim');
-    expect(missionControl?.textContent).toContain('Planning only. No execution claim. No benchmark claim.');
+    expect(missionControl?.textContent).toContain('Planning only. 0 robotic.sh market-wide execution claims. 0 payment success claims.');
     expect(missionControl?.textContent).toContain('Pay.sh execution routes are tracked separately from the robotic.sh visible service mirror');
     expect(missionControl?.querySelector('a[href="/machine-execution-plan/cloud-translation"]')?.textContent).toContain('Open controlled proof plan');
     expect(missionControl?.querySelector('a[href="/machine-readiness-matrix"]')?.textContent).toContain('View readiness matrix');
     expect(missionControl?.querySelector('a[href="/machine-execution-shortlist"]')?.textContent).toContain('View execution shortlist');
 
     const heroChips = container.querySelector('[aria-label="Machine Market principles"]')?.textContent ?? '';
-    expect(heroChips).toContain('13 services mapped');
-    expect(heroChips).toContain('Policy / evidence state');
-    expect(heroChips).toContain('Readiness ranked');
-    expect(heroChips).toContain('Machines should not spend blind');
+    expect(heroChips).toContain('Listed ≠ callable');
+    expect(heroChips).toContain('Callable ≠ executed');
+    expect(heroChips).toContain('Credentials ≠ payment proof');
+    expect(heroChips).toContain('Route surface ≠ receipt');
   });
 
   it('opens the NAVER Maps inspector drawer with navigation risk note and proof-path CTA', async () => {
@@ -463,12 +467,12 @@ describe('machine market page', () => {
     expect(drawer?.textContent).toContain('execution status');
     expect(drawer?.textContent).toContain('next safe action');
     expect(drawer?.textContent).toContain('Inspect proof path and define safe routing test before execution.');
-    expect(drawer?.textContent).toContain('No execution claim. No benchmark claim.');
+    expect(drawer?.textContent).toContain('No robotic.sh market-wide execution claim. No benchmark claim.');
     expect(drawer?.querySelector('a[href="/machine-service/naver-maps"]')?.textContent).toContain('View dossier');
     expect(drawer?.querySelector('a[href="/machine-execution-plan/naver-maps"]')?.textContent).toContain('Inspect proof path');
   });
 
-  it('renders the Market Brief, preserves 0 execution claims, and supports copy feedback', async () => {
+  it('renders the Market Brief, preserves scoped market-wide execution language, and supports copy feedback', async () => {
     Object.defineProperty(navigator, 'clipboard', {
       configurable: true,
       value: { writeText: vi.fn().mockResolvedValue(undefined) }
@@ -476,7 +480,7 @@ describe('machine market page', () => {
     root = await renderPage(container);
 
     const brief = container.querySelector('[aria-label="Machine Market Brief"]');
-    expect(brief?.textContent).toContain('13 robotic.sh services mapped. 10 allow / 2 review / 1 deny. Every visible service has policy state, evidence state, readiness rank, and proof path. 0 robotic.sh execution claims. 1 controlled proof-plan action selected. Machines should not spend blind.');
+    expect(brief?.textContent).toContain('13 robotic.sh services mapped. 10 allow / 2 review / 1 deny. Every visible service has policy state, evidence state, readiness rank, and proof path. 0 robotic.sh market-wide execution claims. 1 controlled proof-plan action selected. Machines should not spend blind.');
     expect(brief?.textContent).not.toContain('winner');
     expect(brief?.textContent).not.toContain('benchmark');
 
@@ -488,7 +492,7 @@ describe('machine market page', () => {
       await Promise.resolve();
     });
 
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('13 robotic.sh services mapped. 10 allow / 2 review / 1 deny. Every visible service has policy state, evidence state, readiness rank, and proof path. 0 robotic.sh execution claims. 1 controlled proof-plan action selected. Machines should not spend blind.');
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('13 robotic.sh services mapped. 10 allow / 2 review / 1 deny. Every visible service has policy state, evidence state, readiness rank, and proof path. 0 robotic.sh market-wide execution claims. 1 controlled proof-plan action selected. Machines should not spend blind.');
     expect(button?.textContent).toBe('Copied brief');
   });
 
@@ -531,10 +535,11 @@ describe('machine market page', () => {
     expect(pageText).toContain('infopunks-pay-sh-agent-harness');
     expect(pageText).toContain('manual');
     expect(pageText).toContain('repeatabilityinsufficient_runs');
-    expect(pageText).toContain('benchmark claimfalse');
+    expect(pageText).toContain('benchmark claims0');
     expect(pageText).toContain('benchmark readinesscriteria-defined');
     expect(pageText).toContain('benchmark recordedfalse');
     expect(pageText).toContain('winner claimedfalse');
+    expect(pageText).toContain('winner claims0');
     expect(pageText).toContain('repeatability successful runs1 successful receipts');
     expect(pageText).toContain('recorded success rate100%');
     expect(pageText).toContain('View repeatability artifact');

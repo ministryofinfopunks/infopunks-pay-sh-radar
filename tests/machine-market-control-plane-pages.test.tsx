@@ -123,12 +123,14 @@ describe('machine market control plane pages', () => {
   it('renders execution blockers without turning blockers into execution claims', async () => {
     root = await renderPath(container, '/machine-execution-blockers');
 
-    expect(container.textContent).toContain('Machine Execution Blockers');
-    expect(container.textContent).toContain('Governance before autonomy.');
+    expect(container.textContent).toContain('Execution Blockers');
+    expect(container.textContent).toContain('Radar does not just find what can run. Radar explains why most things should not run yet.');
     expect(container.textContent).toContain('Machines should not spend blind');
     expect(container.querySelector('[aria-label="Machine execution blocker table"]')?.textContent).toContain('No service-specific execution receipt recorded.');
     expect(container.querySelector('[aria-label="Machine execution blocker table"]')?.textContent).toContain('Naver Cloud provider credentials required');
-    expect(container.textContent).toContain('Credentials, account pricing, or public settlement context are not payment proof.');
+    expect(container.textContent).toContain('Payment remains unconfirmed unless payment evidence exists.');
+    expect(container.textContent).toContain('no benchmark artifact');
+    expect(container.textContent).toContain('no winner criteria');
     expect(container.textContent).not.toMatch(/execution succeeded|payment succeeded|benchmark winner|best provider/i);
   });
 
@@ -136,7 +138,10 @@ describe('machine market control plane pages', () => {
     root = await renderPath(container, '/machine-market-changelog');
 
     expect(container.textContent).toContain('Machine Market Changelog');
+    expect(container.textContent).toContain('Radar remembers when the machine market changes.');
     expect(container.textContent).toContain('claim boundary');
+    expect(container.textContent).toContain('source type');
+    expect(container.textContent).toContain('public_context');
     expect(container.textContent).toContain('Listed does not mean callable or executed.');
     expect(container.textContent).toContain('Public demo context is not Radar evidence; NAVER Maps has not been executed by Radar.');
     expect(container.textContent).toContain('New pages add interpretation and policy memory, not new live Pay.sh, robotic.sh, or peaqOS data.');
@@ -148,10 +153,12 @@ describe('machine market control plane pages', () => {
     expect(container.textContent).toContain('Machine No-Claim Ledger');
     expect(container.textContent).toContain('Radar records restraint');
     expect(container.textContent).toContain('Proof before trust');
-    expect(container.textContent).toContain('0 robotic.sh execution receipts recorded by Radar.');
-    expect(container.textContent).toContain('0 repeatability receipts recorded by Radar.');
-    expect(container.textContent).toContain('0 payment success claims recorded for robotic.sh routes.');
-    expect(container.textContent).toContain('No winner, provider-quality, or benchmark superiority claim is made.');
-    expect(container.textContent).toContain('NAVER Maps is navigation / review / not_attempted.');
+    expect(container.textContent).toContain('Market-wide execution claim: 0');
+    expect(container.textContent).toContain('Payment success claim: 0');
+    expect(container.textContent).toContain('Benchmark claim: 0');
+    expect(container.textContent).toContain('Winner claim: 0');
+    expect(container.textContent).toContain('NAVER Maps execution claim: 0');
+    expect(container.textContent).toContain('Service-specific execution receipt: 0');
+    expect(container.textContent).toContain('Repeatability receipt: 0');
   });
 });

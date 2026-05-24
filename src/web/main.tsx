@@ -10,6 +10,12 @@ import {
   getEvidenceStageDescription,
   MACHINE_EVIDENCE_STAGES
 } from '../services/machineEvidenceService';
+import {
+  MACHINE_EVIDENCE_TAXONOMY,
+  resolveMachinePaymentStatus,
+  resolveMachineReceiptTaxonomy,
+  summarizeMachineEvidenceCounts
+} from '../services/machineMarketService';
 import './styles.css';
 
 type Severity = 'critical' | 'warning' | 'informational' | 'unknown';
@@ -2300,7 +2306,7 @@ type MachineMarketMapCategorySummary = {
   risk_score: number;
   strongest: boolean;
   riskiest: boolean;
-  execution_claim_count: number;
+  service_execution_receipt_count: number;
   category_risk_note: string;
   machine_use_narrative: string;
 };
@@ -2357,6 +2363,16 @@ type MachineMarketChangelogRow = {
   change: string;
   scope: string;
   source: string;
+  source_type:
+    | 'catalog_metadata'
+    | 'public_context'
+    | 'manual_scaffold'
+    | 'radar_preflight_receipt'
+    | 'radar_execution_receipt'
+    | 'radar_repeatability_receipt'
+    | 'benchmark_artifact'
+    | 'derived_radar_state'
+    | 'unknown';
   claim_boundary: string;
 };
 
@@ -2548,6 +2564,26 @@ function formatMachineFirstSafeCandidate(value: MachineFirstSafeCandidate) {
 
 function formatMachineRouteExecutionStatus(value: MachineRouteExecutionStatus) {
   return value.replace(/_/g, ' ');
+}
+
+function machineEvidenceCounts(receipts: MachinePreflightReceipt[]) {
+  return summarizeMachineEvidenceCounts(receipts);
+}
+
+function serviceExecutionReceiptLabel(count: number) {
+  return `${count} service-specific execution receipt${count === 1 ? '' : 's'} recorded`;
+}
+
+function paymentSuccessClaimLabel(count: number) {
+  return `${count} payment success claim${count === 1 ? '' : 's'}`;
+}
+
+function benchmarkClaimLabel(count: number) {
+  return `${count} benchmark claim${count === 1 ? '' : 's'}`;
+}
+
+function winnerClaimLabel(count: number) {
+  return `${count} winner claim${count === 1 ? '' : 's'}`;
 }
 
 function getMachineFirstSafeServiceIds() {
@@ -2917,6 +2953,7 @@ function buildMachineMarketChangelogRows(services: MachineMarketService[]): Mach
       change: `${services.length || 13} robotic.sh-visible services mapped into Radar machine-market metadata.`,
       scope: 'service-level visibility',
       source: 'Radar static Phase 2 mirror',
+      source_type: 'catalog_metadata',
       claim_boundary: 'Listed does not mean callable or executed.'
     },
     {
@@ -2924,6 +2961,7 @@ function buildMachineMarketChangelogRows(services: MachineMarketService[]): Mach
       change: 'Machine function categories normalized for policy, route-risk, and market-map views.',
       scope: 'classification',
       source: 'Radar registry classification',
+      source_type: 'derived_radar_state',
       claim_boundary: 'Category fit is intelligence metadata, not provider quality.'
     },
     {
@@ -2931,6 +2969,7 @@ function buildMachineMarketChangelogRows(services: MachineMarketService[]): Mach
       change: 'Cloud Translation selected for controlled proof planning.',
       scope: 'planning',
       source: 'Radar execution shortlist',
+      source_type: 'derived_radar_state',
       claim_boundary: 'Selected proof plan is not an execution claim.'
     },
     {
@@ -2938,6 +2977,7 @@ function buildMachineMarketChangelogRows(services: MachineMarketService[]): Mach
       change: naver ? 'NAVER Maps added as navigation / review / not_attempted with geocode as the first-safe route.' : 'NAVER Maps route metadata reserved for navigation review.',
       scope: 'route-level risk',
       source: 'Radar service metadata plus public demo context caveat',
+      source_type: 'public_context',
       claim_boundary: 'Public demo context is not Radar evidence; NAVER Maps has not been executed by Radar.'
     },
     {
@@ -2945,6 +2985,7 @@ function buildMachineMarketChangelogRows(services: MachineMarketService[]): Mach
       change: 'Rail coverage, route-risk matrix, first-safe queue, blockers, changelog, and no-claim ledger exposed as market-control-plane views.',
       scope: 'intelligence surface',
       source: 'Radar UI scaffold',
+      source_type: 'manual_scaffold',
       claim_boundary: 'New pages add interpretation and policy memory, not new live Pay.sh, robotic.sh, or peaqOS data.'
     }
   ];
@@ -3030,7 +3071,7 @@ function buildMachineMarketMapSummaries(
       risk_score,
       strongest: false,
       riskiest: false,
-      execution_claim_count: execution_status_distribution['execution-tested'] + execution_status_distribution['repeatability-recorded'],
+      service_execution_receipt_count: execution_status_distribution['execution-tested'] + execution_status_distribution['repeatability-recorded'],
       category_risk_note,
       machine_use_narrative
     });
@@ -3242,6 +3283,7 @@ function MachineMarketPage() {
   const selectedExecutionCandidate = executionCandidates.find((candidate) => candidate.service.id === selectedService?.id) ?? null;
   const inspectedService = services.find((service) => service.id === inspectedServiceId) ?? null;
   const inspectedCandidate = executionCandidates.find((candidate) => candidate.service.id === inspectedServiceId) ?? null;
+  const evidenceCounts = useMemo(() => machineEvidenceCounts(latestMachineReceipts), [latestMachineReceipts]);
 
   const refreshLatestCoverageRun = async () => {
     setCoverageLoading(true);
@@ -3285,12 +3327,20 @@ function MachineMarketPage() {
     </header>
     <main id="machine-market-content" className="machine-market-page" aria-label="Machine Market">
       <MachineMarketHero />
-      <MachineMarketSummaryCards summary={summary} loading={loading} serviceCount={services.length} />
+      <MachineMarketSummaryCards
+        summary={summary}
+        loading={loading}
+        serviceCount={services.length}
+        executionReceiptCount={evidenceCounts.service_specific_execution_receipts}
+        repeatabilityReceiptCount={evidenceCounts.repeatability_receipts}
+        paymentSuccessClaimCount={evidenceCounts.payment_success_claims}
+      />
       <MachineMarketCohort
         services={services}
         candidates={executionCandidates}
         latestRun={latestCoverageRun}
         loading={loading}
+        evidenceCounts={evidenceCounts}
         selectedControlledActionId={selectedControlledAction?.service.id ?? null}
         inspectedServiceId={inspectedServiceId}
         onInspect={(service) => {
@@ -3305,13 +3355,14 @@ function MachineMarketPage() {
         serviceCount={services.length}
         latestRun={latestCoverageRun}
         topCandidate={selectedControlledAction}
+        evidenceCounts={evidenceCounts}
         loading={loading}
       />
       <MachineControlSurfacesStrip />
       <MachineMarketBrief latestRun={latestCoverageRun} selectedControlledActionName={selectedControlledAction?.service.name ?? 'Cloud Translation'} />
       <section className="panel machine-market-caveat" aria-label="Coverage caveat">
         <p>Infopunks Radar mapped the entire listed robotic.sh machine-service market.</p>
-        <p>Coverage refers to the 13 services visible in the observed robotic.sh market snapshot. Execution evidence is tracked separately.</p>
+        <p>Coverage refers to the 13 services visible in the observed robotic.sh market snapshot. 0 market-wide execution claims. Service-specific execution receipts are scoped to the recorded route.</p>
         <p><a className="execute compact secondary" href="/machine-market-map">View market map</a> <a className="execute compact secondary" href="/machine-readiness-matrix">View readiness matrix</a> <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a> <a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a> <a className="execute compact secondary" href="/machine-route-risk-matrix">View route risk matrix</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a> <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a></p>
       </section>
       <MachineEvidenceMethodologyDrawer />
@@ -3334,11 +3385,13 @@ function MachineMarketMissionControl({
   serviceCount,
   latestRun,
   topCandidate,
+  evidenceCounts,
   loading
 }: {
   serviceCount: number;
   latestRun: MachinePreflightCoverageRun | null;
   topCandidate: MachineExecutionCandidateScore | null;
+  evidenceCounts: ReturnType<typeof machineEvidenceCounts>;
   loading: boolean;
 }) {
   const totalServices = latestRun?.services_total ?? serviceCount;
@@ -3355,7 +3408,7 @@ function MachineMarketMissionControl({
         <p className="section-kicker">Mission Control</p>
         <h2>Machine Market Mission Control</h2>
       </div>
-      <span className="machine-badge evidence">0 execution claims</span>
+      <span className="machine-badge evidence">0 robotic.sh market-wide execution claims</span>
     </div>
     <div className="machine-mission-grid">
       <article>
@@ -3371,6 +3424,10 @@ function MachineMarketMissionControl({
         <strong>{decisionSummary}</strong>
       </article>
       <article>
+        <span>Service-specific evidence</span>
+        <strong>{serviceExecutionReceiptLabel(evidenceCounts.service_specific_execution_receipts)}</strong>
+      </article>
+      <article>
         <span>Next controlled action</span>
         <strong>{topCandidateName}</strong>
         {topCandidate && <small>selected controlled action · planning-only · not execution-tested · not a winner claim</small>}
@@ -3380,7 +3437,7 @@ function MachineMarketMissionControl({
       <div>
         <span>Next Controlled Action</span>
         <strong>{topCandidate ? `Proof plan selected: ${topCandidate.service.name}` : 'Proof planning awaits cohort evidence'}</strong>
-        <p>Planning only. No execution claim. No benchmark claim. Pay.sh execution routes are tracked separately from the robotic.sh visible service mirror.</p>
+        <p>Planning only. 0 robotic.sh market-wide execution claims. {paymentSuccessClaimLabel(evidenceCounts.payment_success_claims)}. Pay.sh execution routes are tracked separately from the robotic.sh visible service mirror.</p>
       </div>
       <div className="machine-mission-actions">
         {topCandidateId && <a className="execute compact" href={`/machine-execution-plan/${encodeURIComponent(topCandidateId)}`}>Open controlled proof plan</a>}
@@ -3396,6 +3453,7 @@ function MachineMarketCohort({
   candidates,
   latestRun,
   loading,
+  evidenceCounts,
   selectedControlledActionId,
   inspectedServiceId,
   onInspect,
@@ -3407,6 +3465,7 @@ function MachineMarketCohort({
   candidates: MachineExecutionCandidateScore[];
   latestRun: MachinePreflightCoverageRun | null;
   loading: boolean;
+  evidenceCounts: ReturnType<typeof machineEvidenceCounts>;
   selectedControlledActionId: string | null;
   inspectedServiceId: string | null;
   onInspect: (service: MachineMarketService) => void;
@@ -3418,7 +3477,6 @@ function MachineMarketCohort({
   const allowCount = latestRun?.allow_count ?? candidates.filter((candidate) => candidate.latest_policy_decision === 'allow').length;
   const reviewCount = latestRun?.review_count ?? candidates.filter((candidate) => candidate.latest_policy_decision === 'review').length;
   const denyCount = latestRun?.deny_count ?? candidates.filter((candidate) => candidate.latest_policy_decision === 'deny').length;
-  const executionClaims = candidates.filter((candidate) => candidate.execution_status !== 'not_attempted').length;
 
   return <section className="panel machine-market-cohort" aria-label="13-Service Market Cohort">
     <div className="panel-head">
@@ -3431,7 +3489,8 @@ function MachineMarketCohort({
         <span>{allowCount} allow</span>
         <span>{reviewCount} review</span>
         <span>{denyCount} deny</span>
-        <span>{executionClaims} execution claims</span>
+        <span>0 robotic.sh market-wide execution claims</span>
+        <span>{serviceExecutionReceiptLabel(evidenceCounts.service_specific_execution_receipts)}</span>
       </div>
     </div>
     <p className="machine-cohort-thesis">Every visible robotic.sh service now has a policy state, evidence state, readiness rank, and proof path.</p>
@@ -3513,7 +3572,7 @@ function MachineMarketServiceInspector({
       </div>
       <button className="execute compact secondary" type="button" onClick={onClose}>Close inspector</button>
     </div>
-    <p className="panel-caption">Planning-only service inspection for the robotic.sh-visible cohort. No execution claim. No benchmark claim.</p>
+    <p className="panel-caption">Planning-only service inspection for the robotic.sh-visible cohort. No robotic.sh market-wide execution claim. No benchmark claim.</p>
     <div className="machine-inspector-grid">
       <article><span>provider</span><strong>{service.provider}</strong></article>
       <article><span>category</span><strong>{service.category}</strong></article>
@@ -3545,7 +3604,7 @@ function MachineMarketBrief({
   const allowCount = latestRun?.allow_count ?? 10;
   const reviewCount = latestRun?.review_count ?? 2;
   const denyCount = latestRun?.deny_count ?? 1;
-  const brief = `13 robotic.sh services mapped. ${allowCount} allow / ${reviewCount} review / ${denyCount} deny. Every visible service has policy state, evidence state, readiness rank, and proof path. 0 robotic.sh execution claims. 1 controlled proof-plan action selected. Machines should not spend blind.`;
+  const brief = `13 robotic.sh services mapped. ${allowCount} allow / ${reviewCount} review / ${denyCount} deny. Every visible service has policy state, evidence state, readiness rank, and proof path. 0 robotic.sh market-wide execution claims. 1 controlled proof-plan action selected. Machines should not spend blind.`;
 
   async function copyBrief() {
     const copied = await copyText(brief);
@@ -3561,7 +3620,7 @@ function MachineMarketBrief({
       <button className="execute compact secondary" type="button" onClick={copyBrief}>{copyState === 'copied' ? 'Copied brief' : copyState === 'failed' ? 'Copy failed' : 'Copy brief'}</button>
     </div>
     <p className="copy">{brief}</p>
-    <p className="panel-caption">Selected controlled action: {selectedControlledActionName}. Planning only. No execution claim. Pay.sh routes tracked separately.</p>
+    <p className="panel-caption">Selected controlled action: {selectedControlledActionName}. Planning only. No market-wide execution claim. Pay.sh routes tracked separately.</p>
   </section>;
 }
 
@@ -3599,6 +3658,7 @@ function MachineEconomySnapshotPage() {
   }, []);
 
   const snapshot = useMemo(() => buildMachineEconomySnapshotSummary(services, receipts, coverageRun), [services, receipts, coverageRun]);
+  const evidenceCounts = useMemo(() => machineEvidenceCounts(receipts), [receipts]);
 
   return <div className="shell machine-market-shell">
     <a className="skip-link" href="#machine-snapshot-content">Skip to content</a>
@@ -3613,16 +3673,18 @@ function MachineEconomySnapshotPage() {
     <main id="machine-snapshot-content" className="machine-market-page machine-economy-snapshot-page" aria-label="Machine Economy Public Snapshot">
       <section className="panel hero machine-market-hero machine-snapshot-hero">
         <div>
-          <p className="eyebrow">Robotic.sh Machine Economy Snapshot</p>
-          <h1>Machine Economy Public Snapshot</h1>
-          <p className="copy">13 robotic.sh services mapped into policy, evidence, readiness, and proof-path state. Radar records what is ready to plan, not what has been executed.</p>
+          <p className="eyebrow">Machine Market Radar Snapshot</p>
+          <h1>Machine Market Radar Snapshot</h1>
+          <p className="copy">Machine services are becoming spendable. Spendable does not mean safe.</p>
+          <p className="panel-caption">Radar inserts policy, proof, and memory before autonomous action.</p>
         </div>
         <div className="ticker" aria-label="Machine economy snapshot hero chips">
-          <span>robotic.sh visible market</span>
-          <span>{snapshot.servicesMapped} services mapped</span>
-          <span>{snapshot.categoryCount} machine-function categories</span>
-          <span>0 execution claims</span>
-          <span>receipt-driven</span>
+          <span>listed ≠ callable</span>
+          <span>callable ≠ executed</span>
+          <span>credentials ≠ payment proof</span>
+          <span>route surface ≠ receipt</span>
+          <span>machine markets need judgment before spend</span>
+          <span>that’s Radar</span>
         </div>
       </section>
       {loading && <section className="panel" role="status"><p className="route-state">Loading machine economy snapshot...</p></section>}
@@ -3630,14 +3692,39 @@ function MachineEconomySnapshotPage() {
       {!loading && !error && <>
         <section className="grid four machine-market-summary machine-snapshot-stats" aria-label="Machine economy snapshot stat grid">
           <article className="panel metric"><span>Services mapped</span><strong>{snapshot.servicesMapped}</strong><small>robotic.sh visible catalog</small></article>
-          <article className="panel metric"><span>Machine-function categories</span><strong>{snapshot.categoryCount}</strong><small>normalized machine groups</small></article>
+          <article className="panel metric"><span>Categories</span><strong>{snapshot.categoryCount}</strong><small>normalized machine-function groups</small></article>
           <article className="panel metric"><span>Policy summary</span><strong>{snapshot.allowCount} allow / {snapshot.reviewCount} review / {snapshot.denyCount} deny</strong><small>computed from current coverage</small></article>
-          <article className="panel metric"><span>Proof plans selected</span><strong>{snapshot.proofPlansSelected}</strong><small>controlled proof-path actions</small></article>
-          <article className="panel metric"><span>Execution receipts</span><strong>{snapshot.executionReceipts}</strong><small>service-specific only</small></article>
-          <article className="panel metric"><span>Repeatability receipts</span><strong>{snapshot.repeatabilityReceipts}</strong><small>repeated service-specific only</small></article>
+          <article className="panel metric"><span>First-safe queue</span><strong>active</strong><small>route planning state only</small></article>
+          <article className="panel metric"><span>Market-wide execution claim</span><strong>{evidenceCounts.robotic_sh_market_wide_execution_claims}</strong><small>Service receipt ≠ market proof.</small></article>
+          <article className="panel metric"><span>Service-specific execution receipts</span><strong>{evidenceCounts.service_specific_execution_receipts}</strong><small>Service-specific execution only.</small></article>
+          <article className="panel metric"><span>Payment success claims</span><strong>{evidenceCounts.payment_success_claims}</strong><small>not payment proof without payment evidence</small></article>
+          <article className="panel metric"><span>Benchmark claims</span><strong>{evidenceCounts.benchmark_claims}</strong><small>0 unless benchmark artifact exists</small></article>
+          <article className="panel metric"><span>Winner claims</span><strong>{evidenceCounts.winner_claims}</strong><small>0 unless explicit criteria/artifact exists</small></article>
           <article className="panel metric"><span>Strongest readiness category</span><strong>{snapshot.strongestCategory?.label ?? 'n/a'}</strong><small>{snapshot.strongestCategory ? formatDistributionSummary(snapshot.strongestCategory.readiness_distribution, ['strong_candidate', 'possible_candidate', 'review_required', 'not_ready']) : 'pending'}</small></article>
           <article className="panel metric"><span>Riskiest category</span><strong>{snapshot.riskiestCategory?.label ?? 'n/a'}</strong><small>{snapshot.riskiestCategory ? `${snapshot.riskiestCategory.allow_count} allow / ${snapshot.riskiestCategory.review_count} review / ${snapshot.riskiestCategory.deny_count} deny` : 'pending'}</small></article>
           <article className="panel metric"><span>Next controlled action</span><strong>{snapshot.selectedControlledAction?.service.name ?? 'Cloud Translation'} proof plan</strong><small>planning only</small></article>
+        </section>
+        <section className="grid two machine-route-guidance-grid" aria-label="Machine snapshot additions">
+          <article className="panel machine-market-brief">
+            <div className="panel-head"><div><p className="section-kicker">What changed</p><h2>Control plane now visible</h2></div></div>
+            <div className="machine-usage-list">
+              <p><span>Rail coverage added</span><small>Rail state is separated from route and receipt state.</small></p>
+              <p><span>Route risk separated</span><small>Route-level risk is distinct from service-level listing.</small></p>
+              <p><span>First-safe queue active</span><small>Planning queue exists without execution overclaims.</small></p>
+              <p><span>Execution blockers visible</span><small>Blockers are explicit before any spend attempt.</small></p>
+              <p><span>Market changelog live</span><small>Radar records market memory over time.</small></p>
+              <p><span>No-claim ledger live</span><small>Proof boundaries are explicit and auditable.</small></p>
+            </div>
+          </article>
+          <article className="panel machine-market-brief">
+            <div className="panel-head"><div><p className="section-kicker">Next safest proof path</p><h2>{snapshot.selectedControlledAction?.service.name ?? 'Cloud Translation'}</h2></div></div>
+            <div className="machine-usage-list">
+              <p><span>selected safest route</span><small>{snapshot.selectedControlledAction?.service.first_safe_route ?? 'not recorded'}</small></p>
+              <p><span>proof required</span><small>Service-specific execution receipt with bounded input/output evidence.</small></p>
+              <p><span>blocked-by</span><small>{snapshot.selectedControlledAction?.service.rail_caveat ?? 'review required before proof attempt'}</small></p>
+              <p><span>caveat</span><small>Payment success claim, benchmark claim, and winner claim remain 0 unless explicit evidence artifacts exist.</small></p>
+            </div>
+          </article>
         </section>
         <section className="panel machine-market-cohort machine-snapshot-story" aria-label="Machine economy story strip">
           <div className="panel-head">
@@ -3659,9 +3746,10 @@ function MachineEconomySnapshotPage() {
         <MachineEconomySnapshotCategorySummary summaries={snapshot.categorySummaries} />
         <MachineEconomySnapshotBrief summary={snapshot} />
         <section className="panel machine-market-caveat" aria-label="Machine economy snapshot caveats">
-          <p>No execution claim. No benchmark claim. No winner claim.</p>
-          <p>Pay.sh execution routes tracked separately. Execution requires service-specific receipts.</p>
-          <p>Repeatability requires repeated service-specific receipts.</p>
+          <p>0 robotic.sh market-wide execution claims. {serviceExecutionReceiptLabel(evidenceCounts.service_specific_execution_receipts)}.</p>
+          <p>{paymentSuccessClaimLabel(evidenceCounts.payment_success_claims)}. {benchmarkClaimLabel(evidenceCounts.benchmark_claims)}. {winnerClaimLabel(evidenceCounts.winner_claims)}.</p>
+          <p>Public context only. Not Radar execution evidence.</p>
+          <p>Repeatability ≠ winner. Service receipt ≠ market proof.</p>
           <p><a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a> <a className="execute compact secondary" href="/machine-route-risk-matrix">View route risk matrix</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a></p>
         </section>
         <MachineEvidenceMethodologyDrawer />
@@ -3725,7 +3813,7 @@ function MachineEconomySnapshotCategorySummary({ summaries }: { summaries: Machi
 
 function MachineEconomySnapshotBrief({ summary }: { summary: MachineEconomySnapshotSummary }) {
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
-  const brief = `${summary.servicesMapped} robotic.sh services mapped across ${summary.categoryCount} machine-function categories. Policy state: ${summary.allowCount} allow / ${summary.reviewCount} review / ${summary.denyCount} deny. Radar selected ${summary.proofPlansSelected} controlled proof-plan action: ${summary.selectedControlledAction?.service.name ?? 'Cloud Translation'}. ${summary.executionReceipts} execution receipts. ${summary.repeatabilityReceipts} repeatability receipts. Execution remains receipt-driven. Machines should not spend blind.`;
+  const brief = `${summary.servicesMapped} robotic.sh services mapped across ${summary.categoryCount} machine-function categories. Policy state: ${summary.allowCount} allow / ${summary.reviewCount} review / ${summary.denyCount} deny. Radar selected ${summary.proofPlansSelected} controlled proof-plan action: ${summary.selectedControlledAction?.service.name ?? 'Cloud Translation'}. 0 robotic.sh market-wide execution claims. ${summary.executionReceipts} service-specific execution receipts. ${summary.repeatabilityReceipts} repeatability receipts. Execution remains receipt-driven. Machines should not spend blind.`;
 
   async function copyBrief() {
     const copied = await copyText(brief);
@@ -3741,7 +3829,7 @@ function MachineEconomySnapshotBrief({ summary }: { summary: MachineEconomySnaps
       <button className="execute compact secondary" type="button" onClick={copyBrief}>{copyState === 'copied' ? 'Copied snapshot brief' : copyState === 'failed' ? 'Copy failed' : 'Copy snapshot brief'}</button>
     </div>
     <p className="copy">{brief}</p>
-    <p className="panel-caption">Execution remains receipt-driven. No execution claim. No benchmark claim. No winner claim.</p>
+    <p className="panel-caption">Execution remains receipt-driven. No market-wide execution claim. No benchmark claim. No winner claim.</p>
   </section>;
 }
 
@@ -3777,6 +3865,7 @@ function MachineRouteRiskMatrixPage() {
 
   const rows = useMemo(() => buildMachineRouteRiskRows(services, receipts), [services, receipts]);
   const summary = useMemo(() => buildMachineRouteRiskSummary(rows), [rows]);
+  const evidenceCounts = useMemo(() => machineEvidenceCounts(receipts), [receipts]);
 
   return <div className="shell machine-market-shell">
     <a className="skip-link" href="#machine-route-risk-content">Skip to content</a>
@@ -3791,15 +3880,16 @@ function MachineRouteRiskMatrixPage() {
     <main id="machine-route-risk-content" className="machine-market-page machine-route-risk-page" aria-label="Machine Route-Level Risk Matrix">
       <section className="panel hero machine-market-hero machine-route-risk-hero">
         <div>
-          <p className="eyebrow">Machine Route-Level Risk Matrix</p>
-          <h1>Machine Route-Level Risk Matrix</h1>
-          <p className="copy">Radar separates services from rails, rails from routes, and routes from receipts before machines spend.</p>
+          <p className="eyebrow">Route-Level Risk Matrix</p>
+          <h1>Route-Level Risk Matrix</h1>
+          <p className="copy">Agents do not execute services in the abstract. They hit routes. Radar separates services from rails, rails from routes, routes from receipts.</p>
         </div>
         <div className="ticker" aria-label="Machine route risk hero chips">
           <span>route surfaces mapped</span>
           <span>first-safe routes identified</span>
           <span>avoid-first routes flagged</span>
-          <span>0 execution receipts</span>
+          <span>0 robotic.sh market-wide execution claims</span>
+          <span>{serviceExecutionReceiptLabel(evidenceCounts.service_specific_execution_receipts)}</span>
           <span>receipt-driven</span>
         </div>
       </section>
@@ -3807,12 +3897,12 @@ function MachineRouteRiskMatrixPage() {
       {error && <section className="panel" role="alert"><p className="route-state error">Machine route risk matrix unavailable: {error}</p></section>}
       {!loading && !error && <>
         <section className="grid four machine-market-summary" aria-label="Machine route risk summary">
-          <article className="panel metric"><span>Services with route surfaces</span><strong>{summary.servicesWithRouteSurfaces}</strong><small>services with route rows recorded</small></article>
-          <article className="panel metric"><span>Total routes mapped</span><strong>{summary.totalRoutesMapped}</strong><small>route rows, not execution receipts</small></article>
+          <article className="panel metric"><span>Route rows tracked</span><strong>{summary.totalRoutesMapped}</strong><small>route rows, not execution receipts</small></article>
           <article className="panel metric"><span>First-safe candidates</span><strong>{summary.firstSafeCandidates}</strong><small>yes or possible candidates only</small></article>
           <article className="panel metric"><span>Avoid-first routes</span><strong>{summary.avoidFirstRoutes}</strong><small>flagged for later, not blocked forever</small></article>
           <article className="panel metric"><span>High-risk routes</span><strong>{summary.highRiskRoutes}</strong><small>physical-world or higher-sensitivity planning paths</small></article>
-          <article className="panel metric"><span>Execution receipts</span><strong>{summary.executionReceipts}</strong><small>service-specific receipts only</small></article>
+          <article className="panel metric"><span>Service-specific executed routes</span><strong>{summary.executionReceipts}</strong><small>service-specific execution only</small></article>
+          <article className="panel metric"><span>Payment-confirmed routes</span><strong>{evidenceCounts.payment_success_claims}</strong><small>0 unless payment evidence exists</small></article>
         </section>
         <section className="panel machine-mission-control" aria-label="Machine route interpretation strip">
           <div className="panel-head">
@@ -3823,15 +3913,17 @@ function MachineRouteRiskMatrixPage() {
             <span className="machine-badge evidence">receipt-driven</span>
           </div>
           <div className="ticker" aria-label="Machine route interpretation statements">
-            <span>Services ≠ routes</span>
-            <span>Routes ≠ receipts</span>
-            <span>First-safe ≠ executed</span>
-            <span>Avoid-first ≠ blocked forever</span>
+            <span>listed ≠ callable</span>
+            <span>callable ≠ executed</span>
+            <span>credentials ≠ payment proof</span>
+            <span>route surface ≠ receipt</span>
           </div>
         </section>
         <section className="panel machine-market-caveat" aria-label="Machine route risk caveats">
-          <p>No execution claim. No payment success claim. No benchmark claim. No winner claim. No provider quality claim.</p>
+          <p>Market-wide execution claims: {evidenceCounts.robotic_sh_market_wide_execution_claims}. Payment success claims: {evidenceCounts.payment_success_claims}. Benchmark claims: {evidenceCounts.benchmark_claims}. Winner claims: {evidenceCounts.winner_claims}.</p>
           <p>Route-level risk is planning metadata. It does not imply execution, payment success, benchmark superiority, or provider quality.</p>
+          <p>Route metadata does not imply execution. Credential requirement does not imply payment proof.</p>
+          <p>Payment is not confirmed unless payment evidence exists.</p>
           <p>Execution status is receipt-driven. Catalog route presence does not imply route execution.</p>
           <p><a className="execute compact secondary" href="/machine-rail-coverage">Back to rail coverage</a> <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a></p>
         </section>
@@ -3839,7 +3931,8 @@ function MachineRouteRiskMatrixPage() {
           <article className="panel machine-market-brief">
             <div className="panel-head"><div><p className="section-kicker">Guidance</p><h2>Why route-level policy matters</h2></div></div>
             <div className="machine-usage-list">
-              <p><span>NAVER Maps</span><small>NAVER Maps shows why route-level policy matters: geocode can be safer while driving directions carries physical-world routing risk.</small></p>
+              <p><span>NAVER Maps</span><small>Geocode lookup is first-safe candidate / review. Driving directions is avoid-first / high risk because of physical-world routing risk. Execution status remains not_attempted.</small></p>
+              <p><span>Machine Translation</span><small>Service-specific execution evidence exists for one machine-translation route only. Payment not confirmed unless payment evidence exists. Benchmark and winner claims remain false without artifacts.</small></p>
               <p><span>BigQuery</span><small>BigQuery should begin with bounded public/synthetic queries.</small></p>
               <p><span>Stableupload</span><small>Stableupload should begin with tiny non-sensitive fixtures.</small></p>
               <p><span>Execution</span><small>Execution remains receipt-driven.</small></p>
@@ -3887,7 +3980,7 @@ function MachineRouteRiskMatrixPage() {
                 <span role="cell">{row.credential_requirement}</span>
                 <span role="cell">{row.expected_output_class}</span>
                 <span role="cell">{row.proof_condition}</span>
-                <span role="cell"><span className={`machine-status-badge ${row.execution_status === 'not_attempted' ? 'missing' : row.execution_status === 'repeatability_receipt_recorded' ? 'complete' : 'not-attempted'}`}>{formatMachineRouteExecutionStatus(row.execution_status)}</span><small>{row.execution_status === 'not_attempted' ? 'No service-specific route execution receipt recorded.' : 'Service-level receipt exists; inspect proof details before broader claims.'}</small></span>
+                <span role="cell"><span className={`machine-status-badge ${row.execution_status === 'not_attempted' ? 'missing' : row.execution_status === 'repeatability_receipt_recorded' ? 'complete' : 'not-attempted'}`}>{formatMachineRouteExecutionStatus(row.execution_status)}</span><small>{row.execution_status === 'not_attempted' ? 'No service-specific route execution receipt recorded.' : 'Service-specific execution receipt. Not market-wide proof, not payment proof, not benchmark proof.'}</small></span>
                 <span role="cell"><a className="execute compact secondary" href={`/machine-execution-plan/${encodeURIComponent(row.service_id)}`}>View rail-aware proof plan</a></span>
               </div>;
             })}
@@ -3929,6 +4022,7 @@ function MachineRailCoveragePage() {
   }, []);
 
   const summary = useMemo(() => buildMachineRailCoverageSummary(services, receipts), [services, receipts]);
+  const evidenceCounts = useMemo(() => machineEvidenceCounts(receipts), [receipts]);
 
   return <div className="shell machine-market-shell">
     <a className="skip-link" href="#machine-rail-coverage-content">Skip to content</a>
@@ -3952,7 +4046,8 @@ function MachineRailCoveragePage() {
           <span>13 services mapped</span>
           <span>access rails classified</span>
           <span>route surfaces separated</span>
-          <span>0 execution receipts</span>
+          <span>0 robotic.sh market-wide execution claims</span>
+          <span>{serviceExecutionReceiptLabel(evidenceCounts.service_specific_execution_receipts)}</span>
           <span>receipt-driven</span>
         </div>
       </section>
@@ -3966,8 +4061,9 @@ function MachineRailCoveragePage() {
           <article className="panel metric"><span>Callable route surfaces</span><strong>{summary.callableRoutesListed}</strong><small>routes listed in metadata, not executed</small></article>
           <article className="panel metric"><span>Provider/operator setup required</span><strong>{summary.providerSetupRequired}</strong><small>setup blockers remain before safe route planning</small></article>
           <article className="panel metric"><span>No callable endpoint recorded</span><strong>{summary.noCallableEndpointsRecorded}</strong><small>listed presence without callable route detail</small></article>
-          <article className="panel metric"><span>Execution receipts</span><strong>{summary.executionReceipts}</strong><small>service-specific receipts only</small></article>
-          <article className="panel metric"><span>Repeatability receipts</span><strong>{summary.repeatabilityReceipts}</strong><small>repeated service-specific receipts only</small></article>
+          <article className="panel metric"><span>Service-specific execution receipts</span><strong>{summary.executionReceipts}</strong><small>Service-specific execution receipts are scoped to the recorded route.</small></article>
+          <article className="panel metric"><span>Payment success claims</span><strong>{evidenceCounts.payment_success_claims}</strong><small>Payment remains unconfirmed unless payment evidence exists.</small></article>
+          <article className="panel metric"><span>Benchmark claims</span><strong>{evidenceCounts.benchmark_claims}</strong><small>Benchmark claim requires benchmark artifact.</small></article>
         </section>
         <section className="grid five machine-rail-snapshot" aria-label="Machine rail doctrine snapshot cards">
           <article className="panel metric"><span>Visible market</span><strong>robotic.sh</strong><small>service visibility and public context, not Radar proof</small></article>
@@ -3993,12 +4089,15 @@ function MachineRailCoveragePage() {
           <p className="panel-caption">Radar does not ask only what service exists. It asks which rail, which route, under which proof conditions.</p>
         </section>
         <section className="panel machine-market-caveat" aria-label="Machine rail coverage caveats">
-          <p>No execution claim. No benchmark claim. No winner claim. No payment success claim.</p>
+          <p>0 market-wide execution claims. Service-specific execution receipts are scoped to the recorded route.</p>
+          <p>Rail coverage does not prove execution. Execution receipts are service-specific. Payment remains unconfirmed unless payment evidence exists.</p>
+          <p>Route metadata does not imply execution. Credential requirement does not imply payment proof.</p>
+          <p>{paymentSuccessClaimLabel(evidenceCounts.payment_success_claims)}. {benchmarkClaimLabel(evidenceCounts.benchmark_claims)}. {winnerClaimLabel(evidenceCounts.winner_claims)}.</p>
           <p>Pay.sh availability does not imply Radar execution. robotic.sh listing does not imply callable route readiness.</p>
           <p>Callable routes do not imply executed routes. Credentials do not imply payment proof. Execution requires service-specific receipts.</p>
           <p><a className="execute compact secondary" href="/machine-market">Back to Machine Economy</a> <a className="execute compact secondary" href="/machine-route-risk-matrix">View route risk matrix</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a> <a className="execute compact secondary" href="/machine-execution-blockers">View execution blockers</a> <a className="execute compact secondary" href="/machine-market-changelog">View changelog</a> <a className="execute compact secondary" href="/machine-no-claim-ledger">View no-claim ledger</a></p>
         </section>
-        <MachineNoClaimLedgerPanel />
+        <MachineNoClaimLedgerPanel evidenceCounts={evidenceCounts} />
         <MachineEvidenceMethodologyDrawer />
         <MachineRailCoverageMethodology />
         <section className="panel machine-service-table-panel" aria-label="Machine rail coverage table panel">
@@ -4071,7 +4170,8 @@ function MachineFirstSafeRoutesPage() {
 
   const rows = useMemo(() => buildMachineFirstSafeRouteQueueRows(services, receipts), [services, receipts]);
   const summary = useMemo(() => buildMachineFirstSafeRouteQueueSummary(rows), [rows]);
-  const brief = 'Radar has identified a first-safe route queue for the robotic.sh machine market. Cloud Translation remains the selected controlled proof-plan action. NAVER Maps should start with geocode, not driving directions. BigQuery should start with bounded public/synthetic queries. Stableupload should start with tiny non-sensitive fixtures. QVAC requires runtime registration review. 0 execution receipts. Execution remains receipt-driven.';
+  const evidenceCounts = useMemo(() => machineEvidenceCounts(receipts), [receipts]);
+  const brief = 'Radar has identified a first-safe route queue for the robotic.sh machine market. Cloud Translation remains the selected controlled proof-plan action. NAVER Maps should start with geocode, not driving directions. BigQuery should start with bounded public/synthetic queries. Stableupload should start with tiny non-sensitive fixtures. QVAC requires runtime registration review. 0 robotic.sh market-wide execution claims. Execution remains receipt-driven.';
 
   async function copyBrief() {
     const copied = await copyText(brief);
@@ -4091,15 +4191,16 @@ function MachineFirstSafeRoutesPage() {
     <main id="machine-first-safe-routes-content" className="machine-market-page machine-first-safe-routes-page" aria-label="Machine First Safe Route Queue">
       <section className="panel hero machine-market-hero">
         <div>
-          <p className="eyebrow">Machine First Safe Route Queue</p>
+          <p className="eyebrow">First Safe Route Queue</p>
           <h1>Machine First Safe Route Queue</h1>
-          <p className="copy">Radar turns route-risk analysis into a planning queue for future proof attempts. Nothing here is an execution claim.</p>
+          <p className="copy">Radar does not ask which service is most exciting. It asks which route is safest to prove first.</p>
         </div>
         <div className="ticker" aria-label="Machine first safe route hero chips">
           <span>route-aware queue</span>
           <span>first-safe candidates</span>
           <span>planning only</span>
-          <span>0 execution receipts</span>
+          <span>0 robotic.sh market-wide execution claims</span>
+          <span>{serviceExecutionReceiptLabel(evidenceCounts.service_specific_execution_receipts)}</span>
           <span>receipt-driven</span>
         </div>
       </section>
@@ -4111,8 +4212,9 @@ function MachineFirstSafeRoutesPage() {
           <article className="panel metric"><span>First-safe candidates</span><strong>{summary.firstSafeCandidates}</strong><small>future proof attempts, not receipts</small></article>
           <article className="panel metric"><span>Review-gated entries</span><strong>{summary.reviewGatedEntries}</strong><small>review before any attempt</small></article>
           <article className="panel metric"><span>Blocked/setup-required entries</span><strong>{summary.blockedOrSetupRequiredEntries}</strong><small>missing route, setup, or credential evidence</small></article>
-          <article className="panel metric"><span>Execution receipts</span><strong>{summary.executionReceipts}</strong><small>service-specific receipts only</small></article>
-          <article className="panel metric"><span>Repeatability receipts</span><strong>{summary.repeatabilityReceipts}</strong><small>repeatable proof remains unrecorded</small></article>
+          <article className="panel metric"><span>Service-specific execution receipts</span><strong>{summary.executionReceipts}</strong><small>service-specific execution only</small></article>
+          <article className="panel metric"><span>Payment success claims</span><strong>{evidenceCounts.payment_success_claims}</strong><small>payment_unconfirmed unless payment evidence exists</small></article>
+          <article className="panel metric"><span>Benchmark claims</span><strong>{evidenceCounts.benchmark_claims}</strong><small>benchmark_not_recorded unless artifact exists</small></article>
         </section>
         <section className="panel machine-mission-control" aria-label="Machine first safe route interpretation strip">
           <div className="panel-head">
@@ -4130,7 +4232,9 @@ function MachineFirstSafeRoutesPage() {
           </div>
         </section>
         <section className="panel machine-market-caveat" aria-label="Machine first safe route caveats">
-          <p>No execution claim. No payment success claim. No benchmark claim. No winner claim. No provider quality claim.</p>
+          <p>0 robotic.sh market-wide execution claims. {serviceExecutionReceiptLabel(evidenceCounts.service_specific_execution_receipts)}.</p>
+          <p>{paymentSuccessClaimLabel(evidenceCounts.payment_success_claims)}. {benchmarkClaimLabel(evidenceCounts.benchmark_claims)}. {winnerClaimLabel(evidenceCounts.winner_claims)}. No provider quality claim.</p>
+          <p>Payment is not confirmed unless payment evidence exists. Route metadata does not imply execution.</p>
           <p>First-safe does not mean executed. Rank does not mean winner. Execution requires service-specific receipts.</p>
           <p>First-safe route ranking is planning metadata. It does not imply execution, payment success, benchmark superiority, provider quality, or winner status.</p>
           <p><a className="execute compact secondary" href="/machine-route-risk-matrix">Back to route risk matrix</a> <a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a></p>
@@ -4163,8 +4267,8 @@ function MachineFirstSafeRoutesPage() {
               <span role="cell">{row.first_safe_route}</span>
               <span role="cell">{row.why_safe_first}</span>
               <span role="cell">{row.blocked_by}</span>
-              <span role="cell">{row.required_evidence}</span>
-              <span role="cell"><span className={`machine-status-badge ${row.execution_status === 'not_attempted' ? 'missing' : row.execution_status === 'repeatability_receipt_recorded' ? 'complete' : 'not-attempted'}`}>{formatMachineRouteExecutionStatus(row.execution_status)}</span><small>0 execution receipts recorded here</small></span>
+              <span role="cell">{row.required_evidence}<small>payment_unconfirmed · benchmark_not_recorded</small></span>
+              <span role="cell"><span className={`machine-status-badge ${row.execution_status === 'not_attempted' ? 'missing' : row.execution_status === 'repeatability_receipt_recorded' ? 'complete' : 'not-attempted'}`}>{formatMachineRouteExecutionStatus(row.execution_status)}</span><small>{row.execution_status === 'not_attempted' ? '0 service-specific execution receipts recorded here' : 'Service-specific execution receipt recorded here'}</small></span>
               <span role="cell"><a className="execute compact secondary" href={row.proof_plan_href}>View proof plan</a></span>
             </div>)}
           </div>
@@ -4197,14 +4301,30 @@ function MachineFirstSafeRoutesPage() {
   </div>;
 }
 
-function MachineNoClaimLedgerPanel({ variant = 'panel' }: { variant?: 'panel' | 'page' }) {
+function MachineNoClaimLedgerPanel({
+  variant = 'panel',
+  evidenceCounts
+}: {
+  variant?: 'panel' | 'page';
+  evidenceCounts?: ReturnType<typeof machineEvidenceCounts>;
+}) {
+  const scopedCounts = evidenceCounts ?? {
+    robotic_sh_market_wide_execution_claims: 0,
+    service_specific_execution_receipts: 0,
+    repeatability_receipts: 0,
+    payment_success_claims: 0,
+    benchmark_claims: 0,
+    winner_claims: 0
+  };
   const rows = [
-    ['Execution', '0 robotic.sh execution receipts recorded by Radar.', 'Callable or selected routes remain planning metadata until a service-specific receipt exists.'],
-    ['Repeatability', '0 repeatability receipts recorded by Radar.', 'One future success would not prove repeatability.'],
-    ['Payment', '0 payment success claims recorded for robotic.sh routes.', 'Credentials, account pricing, or public settlement context are not payment proof.'],
-    ['Benchmark', '0 benchmark claims recorded for machine-service routes.', 'No winner, provider-quality, or benchmark superiority claim is made.'],
-    ['Public context', 'peaq / Serve Robotics public demo context is not Radar evidence.', 'Public demo context can inform caveats but cannot count as Radar proof.'],
-    ['NAVER Maps', 'NAVER Maps is navigation / review / not_attempted.', 'Radar has not executed NAVER Maps and should start with non-operational geocode planning only.']
+    ['Market-wide execution claim', `${scopedCounts.robotic_sh_market_wide_execution_claims}`, 'source_type: derived_radar_state · Service receipt ≠ market proof.'],
+    ['NAVER Maps execution claim', '0', 'source_type: public_context · NAVER Maps is navigation / review / not_attempted.'],
+    ['Payment success claim', `${scopedCounts.payment_success_claims}`, 'source_type: radar_execution_receipt · Payment remains unconfirmed unless payment evidence exists.'],
+    ['Benchmark claim', `${scopedCounts.benchmark_claims}`, 'source_type: benchmark_artifact · No benchmark artifact recorded unless explicitly linked.'],
+    ['Winner claim', `${scopedCounts.winner_claims}`, 'source_type: derived_radar_state · No winner claim unless explicit criteria and artifact exist.'],
+    ['Public demo counted as Radar proof', '0', 'source_type: public_context · Public context only. Not Radar execution evidence.'],
+    ['Service-specific execution receipt', `${scopedCounts.service_specific_execution_receipts}`, 'source_type: radar_execution_receipt · Service-specific execution receipt. Not market-wide proof, not payment proof, not benchmark proof.'],
+    ['Repeatability receipt', `${scopedCounts.repeatability_receipts}`, 'source_type: radar_repeatability_receipt · Repeatability is route-specific. Not benchmark superiority.']
   ] as const;
 
   return <section className={`panel machine-no-claim-ledger ${variant === 'page' ? 'page-ledger' : ''}`} aria-label="Machine No-Claim Ledger">
@@ -4220,9 +4340,11 @@ function MachineNoClaimLedgerPanel({ variant = 'panel' }: { variant?: 'panel' | 
       <span>Callable ≠ executed</span>
       <span>Credentials ≠ payment proof</span>
       <span>Route surface ≠ receipt</span>
+      <span>Service receipt ≠ market proof</span>
+      <span>Repeatability ≠ winner</span>
     </div>
     <div className="machine-usage-list" role="list">
-      {rows.map(([label, state, boundary]) => <p key={label} role="listitem"><span>{label}</span><small><strong>{state}</strong> {boundary}</small></p>)}
+      {rows.map(([label, state, boundary]) => <p key={label} role="listitem"><span>{label}: {state}</span><small>{boundary}</small></p>)}
     </div>
   </section>;
 }
@@ -4273,15 +4395,15 @@ function MachineExecutionBlockersPage() {
     <main id="machine-execution-blockers-content" className="machine-market-page machine-execution-blockers-page" aria-label="Machine Execution Blockers">
       <section className="panel hero machine-market-hero">
         <div>
-          <p className="eyebrow">Machine Execution Blockers</p>
-          <h1>Machine Execution Blockers</h1>
-          <p className="copy">Governance before autonomy. Radar shows what blocks a machine-service route from becoming a receipt-backed execution claim.</p>
+          <p className="eyebrow">Execution Blockers</p>
+          <h1>Execution Blockers</h1>
+          <p className="copy">Radar does not just find what can run. Radar explains why most things should not run yet.</p>
         </div>
         <div className="ticker" aria-label="Machine execution blocker hero chips">
           <span>Machines should not spend blind</span>
           <span>credentials separated</span>
           <span>payment proof separated</span>
-          <span>0 robotic.sh execution receipts</span>
+          <span>0 robotic.sh market-wide execution claims</span>
         </div>
       </section>
       {loading && <section className="panel" role="status"><p className="route-state">Loading machine execution blockers...</p></section>}
@@ -4294,6 +4416,21 @@ function MachineExecutionBlockersPage() {
           <article className="panel metric"><span>Credential blockers</span><strong>{summary.credentialBlockers}</strong><small>credentials are not payment proof</small></article>
           <article className="panel metric"><span>Setup blockers</span><strong>{summary.setupBlockers}</strong><small>operator or provider setup required</small></article>
           <article className="panel metric"><span>Receipt blockers</span><strong>{summary.receiptBlockers}</strong><small>receipt required before execution claim</small></article>
+        </section>
+        <section className="panel machine-market-brief" aria-label="Machine execution blocker groups">
+          <div className="panel-head"><div><p className="section-kicker">Blocker groups</p><h2>What still blocks safe execution</h2></div></div>
+          <div className="machine-usage-list">
+            <p><span>no callable endpoint recorded</span><small>listed presence without callable route surface.</small></p>
+            <p><span>credentials required</span><small>credential readiness is not payment proof.</small></p>
+            <p><span>provider setup required</span><small>provider onboarding and setup still missing.</small></p>
+            <p><span>policy review</span><small>review gates remain before bounded proof attempts.</small></p>
+            <p><span>physical-world risk</span><small>routing outputs can affect movement and safety constraints.</small></p>
+            <p><span>sensitive data risk</span><small>query/upload routes can expose regulated or private data.</small></p>
+            <p><span>operator runtime required</span><small>runtime registration or operator setup still required.</small></p>
+            <p><span>no payment proof</span><small>Payment success claims remain 0 unless payment evidence exists.</small></p>
+            <p><span>no benchmark artifact</span><small>Benchmark claims remain 0 unless artifact exists.</small></p>
+            <p><span>no winner criteria</span><small>Winner claims remain 0 unless explicit criteria and artifact exist.</small></p>
+          </div>
         </section>
         <MachineNoClaimLedgerPanel />
         <section className="panel machine-service-table-panel" aria-label="Machine execution blocker table panel">
@@ -4363,7 +4500,8 @@ function MachineMarketChangelogPage() {
         <div>
           <p className="eyebrow">Machine Market Changelog</p>
           <h1>Machine Market Changelog</h1>
-          <p className="copy">Radar memory for machine-service market changes, with every change tied to a claim boundary.</p>
+          <p className="copy">Radar remembers when the machine market changes.</p>
+          <p className="panel-caption">Memory is evidence-scoped: services mapped, route surface shifts, execution-state changes, payment-state changes, and benchmark-state changes.</p>
         </div>
         <div className="ticker" aria-label="Machine market changelog hero chips">
           <span>public context separated</span>
@@ -4383,13 +4521,14 @@ function MachineMarketChangelogPage() {
           </div>
           <div className="machine-service-table" role="table" aria-label="Machine market changelog table">
             <div className="machine-service-row machine-changelog-row head" role="row">
-              {['date', 'change', 'scope', 'source', 'claim boundary'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
+              {['date', 'change', 'scope', 'source', 'source type', 'claim boundary'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
             </div>
             {rows.map((row) => <div className="machine-service-row machine-changelog-row" role="row" key={`${row.date}:${row.change}`}>
               <span role="cell"><strong>{row.date}</strong></span>
               <span role="cell">{row.change}</span>
               <span role="cell"><span className="machine-badge source">{row.scope}</span></span>
               <span role="cell">{row.source}</span>
+              <span role="cell"><span className="machine-badge evidence">{row.source_type}</span></span>
               <span role="cell">{row.claim_boundary}</span>
             </div>)}
           </div>
@@ -4400,10 +4539,26 @@ function MachineMarketChangelogPage() {
 }
 
 function MachineNoClaimLedgerPage() {
+  const [receipts, setReceipts] = useState<MachinePreflightReceipt[]>([]);
+
   useEffect(() => {
     document.title = 'Machine No-Claim Ledger | Infopunks Pay.sh Radar';
     setMetaTag('name', 'description', 'No-claim ledger for machine-service markets: no execution, payment, repeatability, benchmark, or winner claims without receipts.');
+    let cancelled = false;
+    api<{ data: { receipts: MachinePreflightReceipt[] } }>('/v1/machine-preflight/receipts/recent?limit=100')
+      .then((response) => {
+        if (cancelled) return;
+        setReceipts(response.data.receipts ?? []);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setReceipts([]);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
+  const evidenceCounts = useMemo(() => machineEvidenceCounts(receipts), [receipts]);
 
   return <div className="shell machine-market-shell">
     <a className="skip-link" href="#machine-no-claim-ledger-content">Skip to content</a>
@@ -4420,7 +4575,7 @@ function MachineNoClaimLedgerPage() {
         <div>
           <p className="eyebrow">Machine No-Claim Ledger</p>
           <h1>Machine No-Claim Ledger</h1>
-          <p className="copy">Radar records restraint: no execution claim, no payment success claim, no repeatability claim, no benchmark claim, and no winner claim without receipts.</p>
+          <p className="copy">Radar records restraint: 0 market-wide execution claims, scoped service-specific receipts, and no payment, benchmark, or winner claims without proof artifacts.</p>
         </div>
         <div className="ticker" aria-label="Machine no-claim ledger hero chips">
           <span>Radar records restraint</span>
@@ -4429,7 +4584,7 @@ function MachineNoClaimLedgerPage() {
           <span>Machines should not spend blind</span>
         </div>
       </section>
-      <MachineNoClaimLedgerPanel variant="page" />
+      <MachineNoClaimLedgerPanel variant="page" evidenceCounts={evidenceCounts} />
     </main>
   </div>;
 }
@@ -4498,6 +4653,7 @@ function MachineReadinessMatrixPage() {
     () => buildMachineReadinessMatrix(services, candidates, coverageRun, receipts, selectedControlledAction?.service.id ?? null),
     [services, candidates, coverageRun, receipts, selectedControlledAction]
   );
+  const evidenceCounts = useMemo(() => machineEvidenceCounts(receipts), [receipts]);
   const columns: MachineReadinessMatrixColumn[] = ['listed', 'classified', 'policy_mapped', 'preflight_recorded', 'proof_path', 'proof_plan_selected', 'execution_receipt', 'repeatability_receipt'];
 
   return <div className="shell machine-market-shell">
@@ -4515,7 +4671,7 @@ function MachineReadinessMatrixPage() {
         <div>
           <p className="eyebrow">Machine Economy Readiness Matrix</p>
           <h1>Machine Readiness Matrix</h1>
-          <p className="copy">13 services mapped. 0 robotic.sh execution claims. 1 proof plan selected.</p>
+          <p className="copy">13 services mapped. 0 robotic.sh market-wide execution claims. {serviceExecutionReceiptLabel(evidenceCounts.service_specific_execution_receipts)}.</p>
           <p className="panel-caption">Cloud Translation remains the selected controlled action. Coverage and preflight do not imply execution. Repeatability remains missing without service-specific receipts.</p>
         </div>
         <div className="ticker" aria-label="Readiness matrix principles">
@@ -4529,15 +4685,16 @@ function MachineReadinessMatrixPage() {
       {!loading && !error && <>
         <ReadinessMatrixBrief rows={rows} />
         <section className="panel machine-market-caveat" aria-label="Readiness matrix caveats">
-          <p>13 services mapped. 0 robotic.sh execution claims. 1 proof plan selected.</p>
-          <p>No execution claim. No benchmark claim. Pay.sh routes tracked separately. Cloud Translation is the current controlled action, not a winner.</p>
+          <p>13 services mapped. 0 robotic.sh market-wide execution claims. {serviceExecutionReceiptLabel(evidenceCounts.service_specific_execution_receipts)}.</p>
+          <p>{paymentSuccessClaimLabel(evidenceCounts.payment_success_claims)}. {benchmarkClaimLabel(evidenceCounts.benchmark_claims)}. {winnerClaimLabel(evidenceCounts.winner_claims)}.</p>
+          <p>Pay.sh routes tracked separately. Cloud Translation is the current controlled action, not a winner.</p>
           <p><a className="execute compact secondary" href="/machine-market-map">View market map</a> <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a> <a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a></p>
         </section>
         <MachineEvidenceMethodologyDrawer />
         <section className="panel machine-readiness-matrix-panel" aria-label="Machine readiness matrix table">
           <div className="panel-head">
             <div><p className="section-kicker">Readiness Matrix</p><h2>{rows.length} robotic.sh-visible services</h2></div>
-            <small>Execution and repeatability stay missing until a service-specific robotic.sh receipt exists.</small>
+            <small>Execution and repeatability stay missing for services without a service-specific receipt.</small>
           </div>
           <div className="machine-service-table machine-readiness-table" role="table" aria-label="Machine readiness matrix">
             <div className="machine-service-row machine-readiness-row head" role="row">
@@ -4564,7 +4721,7 @@ function ReadinessMatrixBrief({ rows }: { rows: MachineReadinessMatrixRow[] }) {
   const proofPlanSelected = countMachineReadinessState(rows, 'proof_plan_selected', 'complete');
   const executionReceipts = countMachineReadinessState(rows, 'execution_receipt', 'complete');
   const repeatabilityReceipts = countMachineReadinessState(rows, 'repeatability_receipt', 'complete');
-  const brief = `${servicesMapped} robotic.sh services mapped across the readiness ladder. ${proofPlanSelected} proof plan selected. ${executionReceipts} execution receipts. ${repeatabilityReceipts} repeatability receipts. Execution remains receipt-driven.`;
+  const brief = `${servicesMapped} robotic.sh services mapped across the readiness ladder. ${proofPlanSelected} proof plan selected. 0 robotic.sh market-wide execution claims. ${executionReceipts} service-specific execution receipts. ${repeatabilityReceipts} repeatability receipts. Execution remains receipt-driven.`;
 
   async function copyBrief() {
     const copied = await copyText(brief);
@@ -4580,7 +4737,7 @@ function ReadinessMatrixBrief({ rows }: { rows: MachineReadinessMatrixRow[] }) {
       <button className="execute compact secondary" type="button" onClick={copyBrief}>{copyState === 'copied' ? 'Copied brief' : copyState === 'failed' ? 'Copy failed' : 'Copy brief'}</button>
     </div>
     <p className="copy">{brief}</p>
-    <p className="panel-caption">No execution claim. No benchmark claim. No winner claim. Execution remains receipt-driven.</p>
+    <p className="panel-caption">No market-wide execution claim. No benchmark claim. No winner claim. Execution remains receipt-driven.</p>
   </section>;
 }
 
@@ -4621,7 +4778,8 @@ function MachineMarketMapPage() {
   const categorySummaries = useMemo(() => buildMachineMarketMapSummaries(services, candidates, coverageRun, receipts), [services, candidates, coverageRun, receipts]);
   const strongestCategory = categorySummaries.find((item) => item.strongest) ?? null;
   const riskiestCategory = categorySummaries.find((item) => item.riskiest) ?? null;
-  const totalExecutionClaims = categorySummaries.reduce((sum, item) => sum + item.execution_claim_count, 0);
+  const evidenceCounts = useMemo(() => machineEvidenceCounts(receipts), [receipts]);
+  const totalExecutionReceipts = categorySummaries.reduce((sum, item) => sum + item.service_execution_receipt_count, 0);
 
   return <div className="shell machine-market-shell">
     <a className="skip-link" href="#machine-market-map-content">Skip to content</a>
@@ -4638,15 +4796,16 @@ function MachineMarketMapPage() {
         <div>
           <p className="eyebrow">Robotic.sh Machine Market Map</p>
           <h1>Machine Market Map</h1>
-          <p className="copy">{services.length} robotic.sh services mapped. {categorySummaries.length || 0} normalized machine-function categories. 0 robotic.sh execution claims. Planning only.</p>
-          <p className="panel-caption">Read-only category map for the visible robotic.sh catalog. No execution claim, no benchmark claim, no winner claim.</p>
+          <p className="copy">{services.length} robotic.sh services mapped. {categorySummaries.length || 0} normalized machine-function categories. 0 robotic.sh market-wide execution claims. Planning only.</p>
+          <p className="panel-caption">Read-only category map for the visible robotic.sh catalog. No robotic.sh market-wide execution claim, no benchmark claim, no winner claim.</p>
         </div>
         <div className="ticker" aria-label="Machine market map summary">
           <span>{services.length} services mapped</span>
           <span>{categorySummaries.length || 0} categories</span>
           <span>strongest: {strongestCategory?.label ?? 'pending'}</span>
           <span>riskiest: {riskiestCategory?.label ?? 'pending'}</span>
-          <span>0 robotic.sh execution claims</span>
+          <span>0 robotic.sh market-wide execution claims</span>
+          <span>{serviceExecutionReceiptLabel(evidenceCounts.service_specific_execution_receipts)}</span>
           <span>planning only</span>
         </div>
       </section>
@@ -4660,8 +4819,8 @@ function MachineMarketMapPage() {
           <article className="panel metric"><span>Riskiest Category</span><strong>{riskiestCategory?.label ?? 'n/a'}</strong><small>{riskiestCategory ? `allow ${riskiestCategory.allow_count} · review ${riskiestCategory.review_count} · deny ${riskiestCategory.deny_count}` : 'pending'}</small></article>
         </section>
         <section className="panel machine-market-caveat" aria-label="Machine market map caveats">
-          <p>0 robotic.sh execution claims. Planning only.</p>
-          <p>No execution claim. No benchmark claim. No winner claim. Pay.sh routes tracked separately.</p>
+          <p>0 robotic.sh market-wide execution claims. Planning only.</p>
+          <p>{serviceExecutionReceiptLabel(evidenceCounts.service_specific_execution_receipts)}. {paymentSuccessClaimLabel(evidenceCounts.payment_success_claims)}. {benchmarkClaimLabel(evidenceCounts.benchmark_claims)}. {winnerClaimLabel(evidenceCounts.winner_claims)}.</p>
           <p>Execution requires service-specific receipts before any robotic.sh success claim can be made. <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a> <a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a></p>
         </section>
         <section className="machine-market-map-grid" aria-label="Category map">
@@ -4676,7 +4835,7 @@ function MachineMarketMapPage() {
             <div className="machine-market-map-flags">
               {summary.strongest && <span className="machine-status-badge complete">strongest readiness</span>}
               {summary.riskiest && <span className="machine-status-badge review">highest review / deny risk</span>}
-              <span className="machine-status-badge not-attempted">{summary.execution_claim_count} execution claims</span>
+              <span className="machine-status-badge not-attempted">{summary.service_execution_receipt_count} service-specific execution receipts</span>
             </div>
             <div className="machine-market-map-services" aria-label={`${summary.label} services`}>
               {summary.services.map((service) => <a className="machine-badge" key={service.id} href={`/machine-service/${encodeURIComponent(service.id)}`}>{service.name}</a>)}
@@ -4698,7 +4857,7 @@ function MachineMarketMapPage() {
               <p className="section-kicker">Radar Interpretation</p>
               <h2>Market interpretation</h2>
             </div>
-            <span className="machine-badge evidence">{totalExecutionClaims} execution claims</span>
+            <span className="machine-badge evidence">{totalExecutionReceipts} service-specific execution receipts</span>
           </div>
           <div className="machine-market-interpretation-list">
             <p><span>strongest now</span><small>{strongestCategory ? `${strongestCategory.label} has the clearest readiness profile in the visible catalog.` : 'Readiness leadership is pending current category aggregation.'}</small></p>
@@ -4725,10 +4884,11 @@ function FirstExecutionCard({
 }) {
   const preflightStatus = machineTranslationGeneralReceipt?.decision ?? 'not_attempted';
   const executionStatus = machineTranslationGeneralReceipt?.execution_status ?? 'not_attempted';
-  const paymentStatus = machineTranslationGeneralReceipt?.payment_occurred ? 'payment_observed' : 'not_confirmed';
+  const paymentStatus = machineTranslationGeneralReceipt ? resolveMachinePaymentStatus(machineTranslationGeneralReceipt) : 'not_confirmed';
   const evidenceStage = machineTranslationGeneralReceipt?.evidence_stage ?? 'policy-mapped';
   const repeatabilityLabel = repeatability?.repeatability_status === 'repeatability-recorded' ? 'repeatability-recorded' : 'insufficient_runs';
   const recordedSuccessRate = typeof repeatability?.success_rate === 'number' ? `${Math.round(repeatability.success_rate * 100)}%` : '0%';
+  const taxonomy = machineTranslationGeneralReceipt ? resolveMachineReceiptTaxonomy(machineTranslationGeneralReceipt) : MACHINE_EVIDENCE_TAXONOMY.entries.pay_sh_execution_candidate;
   const caveats = machineTranslationGeneralReceipt?.caveats?.length ? machineTranslationGeneralReceipt.caveats : [
     'Execution-tested applies only to Alibaba Machine Translation General after Radar records the successful execution receipt.',
     'This is not a benchmark artifact.',
@@ -4744,6 +4904,7 @@ function FirstExecutionCard({
     </div>
     <p>AnyTrans remains attempted-recorded and workspace blocked. Machine Translation General is the first successful execution candidate only after Radar records a durable machine_execution receipt.</p>
     <p><b>Execution-tested applies only to Alibaba Machine Translation General after Radar records the successful execution receipt.</b></p>
+    <p className="panel-caption">Service-specific execution evidence is not payment proof, not benchmark proof, and not winner proof. It also does not prove the full robotic.sh market is executable.</p>
     <p><a href="/machine-execution/alibaba-machine-translation-general">View repeatability artifact</a></p>
     <div className="machine-usage-list">
       <p><span>AnyTrans status</span><small>{anyTransReceipt ? 'attempted-recorded / workspace blocked' : 'attempted-recorded / workspace blocked'}</small></p>
@@ -4753,6 +4914,9 @@ function FirstExecutionCard({
       <p><span>current status</span><small>{executionStatus === 'succeeded' ? 'succeeded' : executionStatus === 'failed' ? 'failed' : machineTranslationGeneralReceipt ? 'configured' : 'fail-closed'}</small></p>
       <p><span>preflight status</span><small>{preflightStatus}</small></p>
       <p><span>execution status</span><small>{executionStatus}</small></p>
+      <p><span>evidence scope</span><small>{taxonomy.scope}</small></p>
+      <p><span>receipt type</span><small>{taxonomy.receipt_type}</small></p>
+      <p><span>claim status</span><small>{taxonomy.claim_status}</small></p>
       <p><span>executor</span><small>{machineTranslationGeneralReceipt?.execution_executor_name ?? 'not available'}</small></p>
       <p><span>executor mode</span><small>{machineTranslationGeneralReceipt?.execution_executor_mode ?? 'not available'}</small></p>
       <p><span>payment status</span><small>{paymentStatus}</small></p>
@@ -4762,9 +4926,11 @@ function FirstExecutionCard({
       <p><span>repeatability successful runs</span><small>{repeatability?.successful_receipts ?? 0} successful receipts</small></p>
       <p><span>recorded success rate</span><small>{recordedSuccessRate}</small></p>
       <p><span>benchmark readiness</span><small>{benchmarkReadiness?.benchmark_readiness_status ?? 'criteria-defined'}</small></p>
+      <p><span>payment success claims</span><small>0</small></p>
       <p><span>benchmark recorded</span><small>{String(benchmarkReadiness?.claims.benchmark_recorded ?? false)}</small></p>
       <p><span>winner claimed</span><small>{String(benchmarkReadiness?.claims.winner_claimed ?? false)}</small></p>
-      <p><span>benchmark claim</span><small>false</small></p>
+      <p><span>benchmark claims</span><small>0</small></p>
+      <p><span>winner claims</span><small>0</small></p>
       <p className="machine-caveat-row"><span>caveats</span><small className="machine-caveat-copy">{caveats.join(' ')}</small></p>
     </div>
   </section>;
@@ -4816,6 +4982,8 @@ function AlibabaMachineExecutionDetailPage() {
   const wordCount = readSummaryField(responseSummary, ['word_count', 'wordCount']) ?? 'unknown';
   const translatedPreview = readSummaryField(responseSummary, ['translated_text_preview', 'translatedTextPreview']) ?? 'Las máquinas no deberían gastar a ciegas.';
   const inputPreview = readSummaryField(requestSummary, ['text', 'text_preview', 'textPreview']) ?? 'Machines should not spend blind.';
+  const receiptTaxonomy = receipt ? resolveMachineReceiptTaxonomy(receipt) : null;
+  const paymentStatus = receipt ? resolveMachinePaymentStatus(receipt) : 'not_confirmed';
 
   return <div className="shell machine-market-shell">
     <a className="skip-link" href="#machine-execution-content">Skip to content</a>
@@ -4835,7 +5003,7 @@ function AlibabaMachineExecutionDetailPage() {
         <div>
           <p className="eyebrow">Machine Execution</p>
           <h1>Alibaba Machine Translation General</h1>
-          <p className="copy">First execution-tested Machine Radar route.</p>
+          <p className="copy">Service-specific execution evidence for a Pay.sh machine-translation route candidate.</p>
           <div className="chips">
             <span>execution-tested</span>
             <span>Pay.sh</span>
@@ -4857,7 +5025,10 @@ function AlibabaMachineExecutionDetailPage() {
             <p><span>created_at</span><small>{formatMachineTimestamp(receipt.created_at)}</small></p>
             <p><span>execution_status</span><small>{receipt.execution_status}</small></p>
             <p><span>execution_occurred</span><small>{String(receipt.execution_occurred)}</small></p>
-            <p><span>payment_occurred</span><small>{String(receipt.payment_occurred)}</small></p>
+            <p><span>evidence_scope</span><small>{receiptTaxonomy?.scope ?? 'service_execution'}</small></p>
+            <p><span>receipt_type</span><small>{receiptTaxonomy?.receipt_type ?? 'execution_receipt'}</small></p>
+            <p><span>claim_status</span><small>{receiptTaxonomy?.claim_status ?? 'receipt_recorded'}</small></p>
+            <p><span>payment_status</span><small>{paymentStatus}</small></p>
             <p><span>evidence_stage</span><small>{receipt.evidence_stage ?? 'unknown'}</small></p>
             <p><span>executor</span><small>{receipt.execution_executor_name ?? 'unknown'}</small></p>
             <p><span>executor mode</span><small>{receipt.execution_executor_mode ?? 'unknown'}</small></p>
@@ -4875,12 +5046,12 @@ function AlibabaMachineExecutionDetailPage() {
           </div>
         </section>
         <section className="panel" aria-label="Payment status">
-          <div className="panel-head"><div><p className="section-kicker">Payment Status</p><h2>payment_occurred={String(receipt.payment_occurred)}</h2></div></div>
-          <p className="panel-caption">Payment is not claimed because no explicit payment evidence was recorded.</p>
+          <div className="panel-head"><div><p className="section-kicker">Payment Status</p><h2>{paymentStatus}</h2></div></div>
+          <p className="panel-caption">0 payment success claims. Payment remains unconfirmed unless payment evidence exists.</p>
         </section>
         {repeatability && <section className="panel" aria-label="Machine Execution Repeatability Artifact">
           <div className="panel-head"><div><p className="section-kicker">Repeatability</p><h2>Machine Execution Repeatability Artifact</h2></div></div>
-          <p className="panel-caption">Same route. Same prompt family. Multiple successful execution receipts.</p>
+          <p className="panel-caption">Same route. Same prompt family. Multiple successful execution receipts. Repeatability is route-specific, not benchmark proof.</p>
           <div className="chips compact-chips">
             <span>status: {repeatability.repeatability_status}</span>
             <span>artifact: {repeatability.artifact_id}</span>
@@ -4892,14 +5063,14 @@ function AlibabaMachineExecutionDetailPage() {
             <p><span>latency range</span><small>{formatLatencyRangeSeconds(repeatability.latency_ms.min, repeatability.latency_ms.max)}</small></p>
             <p><span>median latency</span><small>{formatLatencySeconds(repeatability.latency_ms.median)}</small></p>
             <p><span>durable storage</span><small>Postgres</small></p>
-            <p><span>payment claimed</span><small>{String(repeatability.payment_claimed)}</small></p>
-            <p><span>benchmark claimed</span><small>{String(repeatability.benchmark_claimed)}</small></p>
-            <p><span>winner claimed</span><small>{String(repeatability.winner_claimed)}</small></p>
+            <p><span>payment success claims</span><small>0</small></p>
+            <p><span>benchmark claims</span><small>0</small></p>
+            <p><span>winner claims</span><small>0</small></p>
           </div>
           <div className="machine-usage-list">
             <p><span>proof chain</span><small>Coverage → Execution-tested → Repeatability-recorded → <span className="repeatability-muted-stage">Benchmark-ready, inactive</span> → <span className="repeatability-muted-stage">Benchmark-recorded, inactive</span></small></p>
           </div>
-          <p className="panel-caption">Repeatability-recorded means this route has produced multiple successful execution receipts under the same prompt family. It is not a benchmark.</p>
+          <p className="panel-caption">Repeatability-recorded means this route has produced multiple successful execution receipts under the same prompt family. It is not a benchmark, not a winner claim, and not market-wide proof.</p>
           <section aria-label="Repeatability receipt list">
             <div className="panel-head"><div><p className="section-kicker">Receipts</p><h3>Execution receipt excerpts</h3></div></div>
             <div className="machine-receipt-table" role="table" aria-label="Repeatability receipts">
@@ -4933,7 +5104,7 @@ function AlibabaMachineExecutionDetailPage() {
         </section>}
         {benchmarkReadiness && <section className="panel" aria-label="Benchmark-Ready Criteria">
           <div className="panel-head"><div><p className="section-kicker">Benchmark Readiness</p><h2>Benchmark-Ready Criteria</h2></div></div>
-          <p className="panel-caption">Benchmark-ready criteria define the gate for a future benchmark. No benchmark has been run.</p>
+          <p className="panel-caption">Benchmark-ready criteria define the gate for a future benchmark. No benchmark has been run and no winner is claimed.</p>
           <div className="chips compact-chips">
             <span>status: {benchmarkReadiness.benchmark_readiness_status}</span>
             <span>benchmark-recorded: inactive</span>
@@ -4942,8 +5113,8 @@ function AlibabaMachineExecutionDetailPage() {
           <div className="machine-usage-list">
             <p><span>readiness summary</span><small>{benchmarkReadiness.satisfied_criteria_count} / {benchmarkReadiness.total_criteria_count} criteria satisfied</small></p>
             <p><span>benchmark ready</span><small>{String(benchmarkReadiness.benchmark_ready)}</small></p>
-            <p><span>benchmark claimed</span><small>{String(benchmarkReadiness.claims.benchmark_claimed)}</small></p>
-            <p><span>winner claimed</span><small>{String(benchmarkReadiness.claims.winner_claimed)}</small></p>
+            <p><span>benchmark claims</span><small>0</small></p>
+            <p><span>winner claims</span><small>0</small></p>
           </div>
           <section aria-label="Benchmark criteria checklist">
             <div className="panel-head"><div><p className="section-kicker">Criteria</p><h3>Checklist</h3></div></div>
@@ -4986,7 +5157,7 @@ function AlibabaMachineExecutionDetailPage() {
       </section>
       <section className="panel" aria-label="AnyTrans relationship">
         <div className="panel-head"><div><p className="section-kicker">Relationship to AnyTrans</p><h2>Current state</h2></div></div>
-        <p className="panel-caption">AnyTrans remains attempted-recorded and blocked by provider workspace authorization. Alibaba Machine Translation General is the first successful execution-tested route.</p>
+        <p className="panel-caption">AnyTrans remains attempted-recorded and blocked by provider workspace authorization. Alibaba Machine Translation General is the first service-specific successful execution-tested Pay.sh route in this machine-translation evidence set.</p>
       </section>
     </main>
   </div>;
@@ -5014,6 +5185,7 @@ function CoveragePanel({
       <button className="execute compact" type="button" onClick={onRun} disabled={running}>{running ? 'Running...' : 'Run Coverage Preflight'}</button>
     </div>
     <p>Evaluate the full listed robotic.sh service market through bounded-authority preflight and record durable decision receipts.</p>
+    <p className="panel-caption">Preflight decision receipts are policy decisions, not service execution. Coverage receipts do not prove payment, benchmark status, or winner status.</p>
     {loading && !latestRun && <p className="panel-caption">Loading latest coverage run...</p>}
     {error && <p className="route-state error">{error}</p>}
     {latestRun && <div className="machine-usage-list">
@@ -5032,25 +5204,42 @@ function MachineMarketHero() {
     <div>
       <p className="eyebrow">Machine Economy</p>
       <h1>Machine Market Command Center</h1>
-      <p className="copy">13 robotic.sh services mapped. Radar gives every service policy state, evidence state, readiness rank, and a proof path before spend.</p>
+      <p className="copy">Radar turns visible machine services into policy, rail, route, proof, and receipt state before machines spend.</p>
       <p className="panel-caption">13 listed services mapped from robotic.sh for Phase 2 machine-economy intelligence.</p>
     </div>
     <div className="ticker" aria-label="Machine Market principles">
-      <span>13 services mapped</span>
-      <span>Policy / evidence state</span>
-      <span>Readiness ranked</span>
-      <span>Machines should not spend blind</span>
+      <span>Listed ≠ callable</span>
+      <span>Callable ≠ executed</span>
+      <span>Credentials ≠ payment proof</span>
+      <span>Route surface ≠ receipt</span>
     </div>
   </section>;
 }
 
-function MachineMarketSummaryCards({ summary, loading, serviceCount }: { summary: MachineMarketSummary | null; loading: boolean; serviceCount: number }) {
+function MachineMarketSummaryCards({
+  summary,
+  loading,
+  serviceCount,
+  executionReceiptCount,
+  repeatabilityReceiptCount,
+  paymentSuccessClaimCount
+}: {
+  summary: MachineMarketSummary | null;
+  loading: boolean;
+  serviceCount: number;
+  executionReceiptCount: number;
+  repeatabilityReceiptCount: number;
+  paymentSuccessClaimCount: number;
+}) {
   const total = summary?.total_services ?? serviceCount;
   return <section className="grid four machine-market-summary" aria-label="Machine Market summary">
-    <article className="panel metric"><span>Total Services</span><strong>{loading && !total ? '...' : total}</strong><small>listed robotic.sh snapshot</small></article>
-    <article className="panel metric"><span>Ready</span><strong>{summary?.ready_count ?? '-'}</strong><small>metadata status only</small></article>
-    <article className="panel metric"><span>Setup</span><strong>{summary?.setup_count ?? '-'}</strong><small>needs setup before preflight</small></article>
-    <article className="panel metric"><span>Execution Claims</span><strong>0</strong><small>planning only</small><small>no robotic.sh service executed</small></article>
+    <article className="panel metric"><span>Services mapped</span><strong>{loading && !total ? '...' : total}</strong><small>listed robotic.sh snapshot</small></article>
+    <article className="panel metric"><span>Policy mapped</span><strong>{loading && !total ? '...' : total}</strong><small>policy state exists for each listed service</small></article>
+    <article className="panel metric"><span>First-safe queue</span><strong>active</strong><small>planning state only</small></article>
+    <article className="panel metric"><span>Market-wide execution claims</span><strong>0</strong><small>Service receipt ≠ market proof.</small></article>
+    <article className="panel metric"><span>Service-specific execution receipts</span><strong>{executionReceiptCount}</strong><small>{executionReceiptCount === 1 ? 'Machine Translation candidate only; not market-wide proof.' : 'Service-specific execution receipts are scoped to the recorded route.'}</small></article>
+    <article className="panel metric"><span>Payment success claims</span><strong>{paymentSuccessClaimCount}</strong><small>Payment remains unconfirmed unless payment evidence exists.</small></article>
+    {repeatabilityReceiptCount > 0 && <article className="panel metric"><span>Repeatability: {repeatabilityReceiptCount} route{repeatabilityReceiptCount === 1 ? '' : 's'}</span><strong>{repeatabilityReceiptCount}</strong><small>Single-route repeatability, not benchmark or winner evidence.</small></article>}
   </section>;
 }
 
@@ -5194,7 +5383,7 @@ function MachineServiceCard({ service, candidate }: { service: MachineMarketServ
   </aside>;
 }
 
-const PAY_SH_SERVICE_SEPARATION_NOTE = 'Pay.sh execution candidates are tracked separately from the robotic.sh visible service mirror. Alibaba Machine Translation General is the first execution-tested Pay.sh route; it is not counted as one of the 13 visible robotic.sh services unless robotic.sh lists it.';
+const PAY_SH_SERVICE_SEPARATION_NOTE = 'Pay.sh execution candidates are tracked separately from the robotic.sh visible service mirror. Alibaba Machine Translation General is the first service-specific execution-tested Pay.sh route in this machine-translation evidence set; it is not counted as one of the 13 visible robotic.sh services unless robotic.sh lists it.';
 
 type MachineExecutionCandidateTier = 'strong_candidate' | 'possible_candidate' | 'review_required' | 'not_ready';
 type MachineExecutionCandidateRecommendation = 'next_execution_candidate' | 'monitor' | 'needs_review' | 'avoid_for_now';
@@ -6277,7 +6466,7 @@ function MachineReceiptsPage() {
           <p className="panel-caption">Receipts record the boundary between permission and action. Denied attempts matter. They prove autonomy is bounded.</p>
         </div>
         <div className="ticker" aria-label="Machine Receipts principles">
-          <span>Decision receipts</span>
+          <span>Preflight and execution receipts</span>
           <span>Not payment receipts</span>
           <span>Preflight before action</span>
         </div>
@@ -6285,7 +6474,7 @@ function MachineReceiptsPage() {
       <MachineMethodologyNote />
       {storage && <p className="panel-caption">
         Storage: {storage.durable ? 'Durable' : 'Non-durable'} {storage.adapter.toUpperCase()}.
-        {storage.demo_seed_enabled ? ' Demo mode active.' : ''} Decision receipts, not payment receipts.
+        {storage.demo_seed_enabled ? ' Demo mode active.' : ''} Preflight and execution receipts, not payment receipts.
       </p>}
       <ReceiptsSummaryCards receipts={receipts} />
       <ReceiptFilters filters={filters} onChange={setFilters} />
@@ -6306,16 +6495,20 @@ function MachineReceiptsPage() {
 function ReceiptsSummaryCards({ receipts }: { receipts: MachinePreflightReceipt[] }) {
   const demoCount = receipts.filter((receipt) => receipt.demo_mode).length;
   const uniqueMachines = new Set(receipts.map((receipt) => receipt.machine_id)).size;
+  const evidenceCounts = machineEvidenceCounts(receipts);
   const marketCounts = receipts.reduce<Record<string, number>>((counts, receipt) => {
     if (receipt.source_market) counts[receipt.source_market] = (counts[receipt.source_market] ?? 0) + 1;
     return counts;
   }, {});
   const topMarket = Object.entries(marketCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'none';
   return <section className="grid four machine-market-summary machine-receipts-summary" aria-label="Machine receipt summary">
-    <article className="panel metric"><span>Total receipts</span><strong>{receipts.length}</strong><small>decision receipts</small></article>
+    <article className="panel metric"><span>Total receipts</span><strong>{receipts.length}</strong><small>preflight plus service execution receipts</small></article>
     <article className="panel metric"><span>Allowed</span><strong>{receipts.filter((receipt) => receipt.decision === 'allow').length}</strong><small>permission before action</small></article>
     <article className="panel metric"><span>Denied</span><strong>{receipts.filter((receipt) => receipt.decision === 'deny').length}</strong><small>bounded autonomy proof</small></article>
     <article className="panel metric"><span>Review</span><strong>{receipts.filter((receipt) => receipt.decision === 'review').length}</strong><small>human checkpoint</small></article>
+    <article className="panel metric"><span>Preflight decision receipts</span><strong>{evidenceCounts.preflight_decision_receipts}</strong><small>policy decisions, not service execution</small></article>
+    <article className="panel metric"><span>Service-specific execution receipts</span><strong>{evidenceCounts.service_specific_execution_receipts}</strong><small>execution proof for one service only</small></article>
+    <article className="panel metric"><span>Payment success claims</span><strong>{evidenceCounts.payment_success_claims}</strong><small>requires explicit payment evidence</small></article>
     {demoCount > 0 && <article className="panel metric"><span>Demo receipts</span><strong>{demoCount}</strong><small>local demo mode only</small></article>}
     <article className="panel metric"><span>Unique machines</span><strong>{uniqueMachines}</strong><small>machine identities</small></article>
     <article className="panel metric"><span>Top source market</span><strong>{topMarket}</strong><small>preflight metadata</small></article>
@@ -6336,7 +6529,7 @@ function ReceiptFilters({ filters, onChange }: { filters: MachineReceiptFiltersS
 
 function ReceiptsTimeline({ receipts, onSelect }: { receipts: MachinePreflightReceipt[]; onSelect: (receiptId: string) => void }) {
   return <section className="panel machine-receipts-timeline" aria-label="Receipts timeline">
-    <div className="panel-head"><div><p className="section-kicker">Receipt Timeline</p><h2>{receipts.length} decision receipts</h2></div><small>Denied and review receipts are successful governance records.</small></div>
+    <div className="panel-head"><div><p className="section-kicker">Receipt Timeline</p><h2>{receipts.length} machine receipts</h2></div><small>Preflight decision receipts and service execution receipts share one timeline. Denied and review receipts remain successful governance records.</small></div>
     <div className="machine-receipt-table" role="table" aria-label="Machine receipt timeline table">
       <div className="machine-receipt-row head" role="row">
         {['timestamp', 'decision', 'machine_id', 'intent', 'selected service', 'source market', 'chain', 'evidence stage', 'receipt id', ''].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
@@ -6359,6 +6552,8 @@ function ReceiptsTimeline({ receipts, onSelect }: { receipts: MachinePreflightRe
 
 function ReceiptDetailDrawer({ receipt, rawOpen, onRawToggle }: { receipt: MachinePreflightReceipt; rawOpen: boolean; onRawToggle: () => void }) {
   const checksPassed = receipt.policy_checks.filter((check) => check.status === 'pass').length;
+  const taxonomy = resolveMachineReceiptTaxonomy(receipt);
+  const paymentStatus = resolveMachinePaymentStatus(receipt);
   return <aside className={`panel machine-receipt-detail ${receipt.decision}`} aria-label="Receipt detail drawer">
     <div className="panel-head"><div><p className="section-kicker">Receipt Detail</p><h2><span className={`decision-badge ${receipt.decision}`}>{receipt.decision}</span> {receipt.receipt_id}</h2></div></div>
     <p className="copy">{receipt.reason}</p>
@@ -6368,7 +6563,7 @@ function ReceiptDetailDrawer({ receipt, rawOpen, onRawToggle }: { receipt: Machi
       <div><span>selected service</span><strong>{receipt.selected_service_name ?? 'none'}</strong></div>
       <div><span>source market / chain</span><strong>{receipt.source_market ?? 'none'} / {receipt.chain ?? 'none'}</strong></div>
       <div><span>execution_occurred</span><strong>{String(receipt.execution_occurred)}</strong></div>
-      <div><span>payment_occurred</span><strong>{String(receipt.payment_occurred)}</strong></div>
+      <div><span>payment_status</span><strong>{paymentStatus}</strong></div>
       <div><span>evidence stage / health</span><strong>{formatEvidenceStage(receipt.evidence_stage)} / {receipt.evidence_health ?? 'none'}</strong></div>
     </div>
     <div className="key-values machine-service-profile">
@@ -6377,10 +6572,15 @@ function ReceiptDetailDrawer({ receipt, rawOpen, onRawToggle }: { receipt: Machi
       <p><b>source_market</b><span>{receipt.source_market ?? 'none'}</span></p>
       <p><b>chain</b><span>{receipt.chain ?? 'none'}</span></p>
       <p><b>evidence</b><span>{formatEvidenceStage(receipt.evidence_stage)} / {receipt.evidence_health ?? 'none'}</span></p>
+      <p><b>evidence_scope</b><span>{taxonomy.scope}</span></p>
+      <p><b>receipt_type</b><span>{taxonomy.receipt_type}</span></p>
+      <p><b>claim_status</b><span>{taxonomy.claim_status}</span></p>
+      <p><b>payment_status</b><span>{paymentStatus}</span></p>
       <p><b>demo_mode</b><span>{String(receipt.demo_mode)}</span></p>
       <p><b>phase_scope</b><span>{receipt.phase_scope}</span></p>
     </div>
     <MachineEvidenceClaims serviceOrReceipt={receipt} />
+    <p className="panel-caption">{taxonomy.definition}</p>
     <section className="machine-check-summary" aria-label="Policy check summary">
       <span><b>{checksPassed}</b> checks passed</span>
       <span><b>{receipt.violations.length}</b> violations</span>
@@ -11140,6 +11340,11 @@ type MachineControlPlaneNavCurrent =
   | 'machine-route-risk-matrix'
   | 'machine-first-safe-routes'
   | 'machine-execution-shortlist'
+  | 'machine-readiness-matrix'
+  | 'machine-market-map'
+  | 'machine-execution-blockers'
+  | 'machine-market-changelog'
+  | 'machine-no-claim-ledger'
   | 'machine-receipts'
   | 'machine-economy-snapshot';
 
@@ -11156,6 +11361,11 @@ function MachineControlPlaneNavLinks({
     { href: '/machine-route-risk-matrix', label: 'Route Risk', key: 'machine-route-risk-matrix' },
     { href: '/machine-first-safe-routes', label: 'First Safe Queue', key: 'machine-first-safe-routes' },
     { href: '/machine-execution-shortlist', label: 'Proof Plans', key: 'machine-execution-shortlist' },
+    { href: '/machine-readiness-matrix', label: 'Readiness Matrix', key: 'machine-readiness-matrix' },
+    { href: '/machine-market-map', label: 'Market Map', key: 'machine-market-map' },
+    { href: '/machine-execution-blockers', label: 'Execution Blockers', key: 'machine-execution-blockers' },
+    { href: '/machine-market-changelog', label: 'Changelog', key: 'machine-market-changelog' },
+    { href: '/machine-no-claim-ledger', label: 'No-Claim Ledger', key: 'machine-no-claim-ledger' },
     { href: '/machine-receipts', label: 'Receipts', key: 'machine-receipts' }
   ];
 
@@ -11181,12 +11391,27 @@ function MachineControlSurfacesStrip() {
     </div>
     <p className="copy">Use these control surfaces to move from the visible machine market to rail classification, route risk, and first-safe planning without implying execution.</p>
     <div className="machine-control-surfaces-links">
-      <a className="execute compact secondary" href="/machine-market-map">Market Map</a>
-      <a className="execute compact secondary" href="/machine-readiness-matrix">Readiness Matrix</a>
-      <a className="execute compact secondary" href="/machine-economy-snapshot">Public Snapshot</a>
+      <a className="execute compact secondary" href="/machine-market">Command Center</a>
       <a className="execute compact secondary" href="/machine-rail-coverage">Rail Coverage</a>
       <a className="execute compact secondary" href="/machine-route-risk-matrix">Route Risk Matrix</a>
       <a className="execute compact secondary" href="/machine-first-safe-routes">First Safe Route Queue</a>
+      <a className="execute compact secondary" href="/machine-execution-shortlist">Proof Plans</a>
+      <a className="execute compact secondary" href="/machine-readiness-matrix">Readiness Matrix</a>
+      <a className="execute compact secondary" href="/machine-market-map">Market Map</a>
+      <a className="execute compact secondary" href="/machine-execution-blockers">Execution Blockers</a>
+      <a className="execute compact secondary" href="/machine-market-changelog">Changelog</a>
+      <a className="execute compact secondary" href="/machine-no-claim-ledger">No-Claim Ledger</a>
+      <a className="execute compact secondary" href="/machine-receipts">Receipts</a>
+      <a className="execute compact secondary" href="/machine-economy-snapshot">Snapshot</a>
+    </div>
+    <div className="machine-usage-list">
+      <p><span>Rail Coverage</span><small>access rail and callable-surface intelligence</small></p>
+      <p><span>Route Risk</span><small>route-level risk and avoid-first logic</small></p>
+      <p><span>First Safe Queue</span><small>execution roadmap without execution</small></p>
+      <p><span>Execution Blockers</span><small>what should not run yet</small></p>
+      <p><span>Changelog</span><small>machine market memory</small></p>
+      <p><span>No-Claim Ledger</span><small>restraint and claim discipline</small></p>
+      <p><span>Snapshot</span><small>public artifact</small></p>
     </div>
   </section>;
 }

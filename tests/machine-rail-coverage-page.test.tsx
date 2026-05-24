@@ -260,15 +260,16 @@ describe('machine rail coverage page', () => {
     expect(container.querySelector('[aria-label="Machine rail coverage hero chips"]')?.textContent).toContain('13 services mapped');
     expect(container.querySelector('[aria-label="Machine rail coverage hero chips"]')?.textContent).toContain('access rails classified');
     expect(container.querySelector('[aria-label="Machine rail coverage hero chips"]')?.textContent).toContain('route surfaces separated');
-    expect(container.querySelector('[aria-label="Machine rail coverage hero chips"]')?.textContent).toContain('0 execution receipts');
+    expect(container.querySelector('[aria-label="Machine rail coverage hero chips"]')?.textContent).toContain('0 robotic.sh market-wide execution claims');
     expect(container.querySelector('[aria-label="Machine rail coverage summary"]')?.textContent).toContain('Services mapped13');
     expect(container.querySelector('[aria-label="Machine rail coverage summary"]')?.textContent).toContain('Pay.sh / Solana rails5');
     expect(container.querySelector('[aria-label="Machine rail coverage summary"]')?.textContent).toContain('peaqOS / provider-account rails1');
     expect(container.querySelector('[aria-label="Machine rail coverage summary"]')?.textContent).toContain('Callable route surfaces3');
     expect(container.querySelector('[aria-label="Machine rail coverage summary"]')?.textContent).toContain('Provider/operator setup required1');
     expect(container.querySelector('[aria-label="Machine rail coverage summary"]')?.textContent).toContain('No callable endpoint recorded3');
-    expect(container.querySelector('[aria-label="Machine rail coverage summary"]')?.textContent).toContain('Execution receipts0');
-    expect(container.querySelector('[aria-label="Machine rail coverage summary"]')?.textContent).toContain('Repeatability receipts0');
+    expect(container.querySelector('[aria-label="Machine rail coverage summary"]')?.textContent).toContain('Service-specific execution receipts0');
+    expect(container.querySelector('[aria-label="Machine rail coverage summary"]')?.textContent).toContain('Payment success claims0');
+    expect(container.querySelector('[aria-label="Machine rail coverage summary"]')?.textContent).toContain('Benchmark claims0');
     expect(container.querySelector('[aria-label="Machine rail interpretation strip"]')?.textContent).toContain('Listed ≠ callable');
     expect(container.querySelector('[aria-label="Machine rail interpretation strip"]')?.textContent).toContain('Callable ≠ executed');
     expect(container.querySelector('[aria-label="Machine rail interpretation strip"]')?.textContent).toContain('Credentials ≠ payment proof');
@@ -327,7 +328,13 @@ describe('machine rail coverage page', () => {
     expect(generativeLanguageRow).toContain('no_callable_endpoints');
     expect(generativeLanguageRow).toContain('not execution-tested');
 
-    expect(container.textContent).toContain('No execution claim. No benchmark claim. No winner claim. No payment success claim.');
+    expect(container.textContent).toContain('0 market-wide execution claims. Service-specific execution receipts are scoped to the recorded route.');
+    expect(container.textContent).toContain('Rail coverage does not prove execution.');
+    expect(container.textContent).toContain('Execution receipts are service-specific.');
+    expect(container.textContent).toContain('Payment remains unconfirmed unless payment evidence exists.');
+    expect(container.textContent).toContain('Route metadata does not imply execution.');
+    expect(container.textContent).toContain('Credential requirement does not imply payment proof.');
+    expect(container.textContent).toContain('0 payment success claims. 0 benchmark claims. 0 winner claims.');
     expect(container.textContent).toContain('Pay.sh availability does not imply Radar execution.');
     expect(container.textContent).toContain('robotic.sh listing does not imply callable route readiness.');
     expect(container.textContent).toContain('Callable routes do not imply executed routes.');

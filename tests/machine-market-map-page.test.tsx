@@ -159,7 +159,7 @@ describe('machine market map page', () => {
 
     expect(container.textContent).toContain('Machine Market Map');
     expect(container.textContent).toContain('13 robotic.sh services mapped.');
-    expect(container.textContent).toContain('0 robotic.sh execution claims');
+    expect(container.textContent).toContain('0 robotic.sh market-wide execution claims');
     expect(container.textContent).toContain('Planning only.');
 
     const serviceChips = Array.from(container.querySelectorAll('.machine-market-map-services .machine-badge')).map((item) => item.textContent?.trim());
@@ -188,7 +188,7 @@ describe('machine market map page', () => {
     expect(map?.textContent).toContain('execution status summary');
     expect(map?.textContent).toContain('evidence health summary');
 
-    expect(container.textContent).toContain('No execution claim. No benchmark claim. No winner claim. Pay.sh routes tracked separately.');
+    expect(container.textContent).toContain('0 service-specific execution receipts recorded. 0 payment success claims. 0 benchmark claims. 0 winner claims.');
     expect(container.textContent).toContain('Execution requires service-specific receipts before any robotic.sh success claim can be made.');
     expect(container.querySelector('[aria-label="Machine market map caveats"] a[href="/machine-economy-snapshot"]')?.textContent).toContain('View public snapshot');
     expect(container.querySelector('[aria-label="Machine market map caveats"] a[href="/machine-rail-coverage"]')?.textContent).toContain('View rail coverage');

@@ -158,11 +158,11 @@ describe('machine readiness matrix page', () => {
     root = await renderPage(container);
 
     expect(container.textContent).toContain('Machine Readiness Matrix');
-    expect(container.textContent).toContain('13 services mapped. 0 robotic.sh execution claims. 1 proof plan selected.');
+    expect(container.textContent).toContain('13 services mapped. 0 robotic.sh market-wide execution claims. 0 service-specific execution receipts recorded.');
     expect(container.querySelector('[aria-label="Readiness Matrix Brief"]')?.textContent).toContain('Readiness Matrix Brief');
     expect(container.querySelector('[aria-label="Readiness Matrix Brief"]')?.textContent).toContain('13 robotic.sh services mapped across the readiness ladder.');
     expect(container.querySelector('[aria-label="Readiness Matrix Brief"]')?.textContent).toContain('1 proof plan selected.');
-    expect(container.querySelector('[aria-label="Readiness Matrix Brief"]')?.textContent).toContain('0 execution receipts.');
+    expect(container.querySelector('[aria-label="Readiness Matrix Brief"]')?.textContent).toContain('0 service-specific execution receipts.');
     expect(container.querySelector('[aria-label="Readiness Matrix Brief"]')?.textContent).toContain('0 repeatability receipts.');
     expect(container.querySelector('[aria-label="Readiness Matrix Brief"] button')?.textContent).toContain('Copy brief');
     expect(container.querySelector('[aria-label="Readiness matrix caveats"] a[href="/machine-market-map"]')?.textContent).toContain('View market map');

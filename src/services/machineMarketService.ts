@@ -31,6 +31,55 @@ export type MachineMarketCatalogRoute = {
   label: string;
   risk: MachineMarketCatalogRouteRisk;
 };
+export type MachineEvidenceScope =
+  | 'robotic_sh_market_coverage'
+  | 'pay_sh_execution_candidate'
+  | 'preflight_decision'
+  | 'service_execution'
+  | 'payment_confirmation'
+  | 'repeatability'
+  | 'benchmark'
+  | 'winner_claim';
+export type MachineEvidenceReceiptType =
+  | 'coverage_decision_receipt'
+  | 'execution_receipt'
+  | 'payment_receipt'
+  | 'repeatability_receipt'
+  | 'benchmark_artifact'
+  | 'none';
+export type MachineClaimStatus =
+  | 'not_claimed'
+  | 'planning_only'
+  | 'receipt_recorded'
+  | 'repeatability_recorded'
+  | 'benchmark_recorded'
+  | 'winner_claimed';
+export type MachinePaymentStatus = 'not_confirmed' | 'confirmed' | 'not_applicable' | 'unknown';
+export type MachineEvidenceTaxonomyEntry = {
+  scope: MachineEvidenceScope;
+  receipt_type: MachineEvidenceReceiptType;
+  claim_status: MachineClaimStatus;
+  payment_status: MachinePaymentStatus;
+  definition: string;
+};
+export type MachineEvidenceReceiptLike = {
+  receipt_type?: string | null;
+  execution_service_id?: string | null;
+  execution_status?: string | null;
+  execution_occurred?: boolean | null;
+  payment_occurred?: boolean | null;
+  payment_evidence?: string | null;
+  evidence_stage?: string | null;
+};
+export type MachineEvidenceCounts = {
+  robotic_sh_market_wide_execution_claims: number;
+  service_specific_execution_receipts: number;
+  preflight_decision_receipts: number;
+  payment_success_claims: number;
+  repeatability_receipts: number;
+  benchmark_claims: number;
+  winner_claims: number;
+};
 export type MachineMarketSourceAttribution = {
   source: string;
   scope: string;
@@ -40,6 +89,106 @@ export type MachineMarketSourceAttribution = {
 
 export const MACHINE_MARKET_PHASE_SCOPE = 'phase_2_pay_sh_robotic_sh';
 export const MACHINE_MARKET_OBSERVED_AT = '2026-05-22T00:00:00.000Z';
+export const MACHINE_EVIDENCE_TAXONOMY = {
+  doctrine: [
+    'listed ≠ callable',
+    'callable ≠ executed',
+    'credentials ≠ payment proof',
+    'route surface ≠ receipt',
+    'service receipt ≠ market proof',
+    'repeatability ≠ winner'
+  ],
+  evidence_scope: [
+    'robotic_sh_market_coverage',
+    'pay_sh_execution_candidate',
+    'preflight_decision',
+    'service_execution',
+    'payment_confirmation',
+    'repeatability',
+    'benchmark',
+    'winner_claim'
+  ],
+  receipt_type: [
+    'coverage_decision_receipt',
+    'execution_receipt',
+    'payment_receipt',
+    'repeatability_receipt',
+    'benchmark_artifact',
+    'none'
+  ],
+  claim_status: [
+    'not_claimed',
+    'planning_only',
+    'receipt_recorded',
+    'repeatability_recorded',
+    'benchmark_recorded',
+    'winner_claimed'
+  ],
+  payment_status: [
+    'not_confirmed',
+    'confirmed',
+    'not_applicable',
+    'unknown'
+  ],
+  entries: {
+    robotic_sh_market_coverage: {
+      scope: 'robotic_sh_market_coverage',
+      receipt_type: 'coverage_decision_receipt',
+      claim_status: 'planning_only',
+      payment_status: 'not_applicable',
+      definition: 'robotic.sh-visible catalog coverage and policy mapping for the market. It is not service execution proof.'
+    },
+    pay_sh_execution_candidate: {
+      scope: 'pay_sh_execution_candidate',
+      receipt_type: 'none',
+      claim_status: 'planning_only',
+      payment_status: 'unknown',
+      definition: 'A Pay.sh route identified as a candidate for controlled execution. Candidate status is not a receipt.'
+    },
+    preflight_decision: {
+      scope: 'preflight_decision',
+      receipt_type: 'coverage_decision_receipt',
+      claim_status: 'planning_only',
+      payment_status: 'not_applicable',
+      definition: 'A preflight decision receipt records allow, review, or deny. It does not prove service execution.'
+    },
+    service_execution: {
+      scope: 'service_execution',
+      receipt_type: 'execution_receipt',
+      claim_status: 'receipt_recorded',
+      payment_status: 'unknown',
+      definition: 'A service-specific execution receipt proves one route attempt for one service. It is not market-wide proof.'
+    },
+    payment_confirmation: {
+      scope: 'payment_confirmation',
+      receipt_type: 'payment_receipt',
+      claim_status: 'receipt_recorded',
+      payment_status: 'confirmed',
+      definition: 'Payment confirmation requires explicit payment evidence. Execution alone is insufficient.'
+    },
+    repeatability: {
+      scope: 'repeatability',
+      receipt_type: 'repeatability_receipt',
+      claim_status: 'repeatability_recorded',
+      payment_status: 'unknown',
+      definition: 'Repeatability records repeated success for one route under one prompt family. It is not a benchmark.'
+    },
+    benchmark: {
+      scope: 'benchmark',
+      receipt_type: 'benchmark_artifact',
+      claim_status: 'benchmark_recorded',
+      payment_status: 'unknown',
+      definition: 'Benchmark evidence compares routes under a recorded artifact. Repeatability alone is not benchmark proof.'
+    },
+    winner_claim: {
+      scope: 'winner_claim',
+      receipt_type: 'none',
+      claim_status: 'winner_claimed',
+      payment_status: 'unknown',
+      definition: 'Winner claims require an explicit winner artifact and criteria. No winner follows automatically from execution or repeatability.'
+    }
+  } satisfies Record<MachineEvidenceScope, MachineEvidenceTaxonomyEntry>
+} as const;
 
 export type MachineMarketService = {
   id: string;
@@ -72,6 +221,54 @@ export type MachineMarketService = {
   observed_at: string;
   phase_scope: typeof MACHINE_MARKET_PHASE_SCOPE;
 };
+
+export function resolveMachinePaymentStatus(input: Pick<MachineEvidenceReceiptLike, 'payment_occurred' | 'payment_evidence'>): MachinePaymentStatus {
+  if (input.payment_occurred && typeof input.payment_evidence === 'string' && input.payment_evidence.trim().length > 0) return 'confirmed';
+  if (input.payment_occurred && (!input.payment_evidence || input.payment_evidence.trim().length === 0)) return 'unknown';
+  return 'not_confirmed';
+}
+
+export function resolveMachineReceiptTaxonomy(receipt: MachineEvidenceReceiptLike): MachineEvidenceTaxonomyEntry {
+  if (receipt.receipt_type === 'machine_preflight') return MACHINE_EVIDENCE_TAXONOMY.entries.preflight_decision;
+  if (receipt.receipt_type !== 'machine_execution') return MACHINE_EVIDENCE_TAXONOMY.entries.robotic_sh_market_coverage;
+  const paymentStatus = resolveMachinePaymentStatus(receipt);
+  if (paymentStatus === 'confirmed') {
+    return {
+      ...MACHINE_EVIDENCE_TAXONOMY.entries.payment_confirmation,
+      payment_status: paymentStatus
+    };
+  }
+  if (receipt.evidence_stage === 'repeatability-recorded') {
+    return {
+      ...MACHINE_EVIDENCE_TAXONOMY.entries.repeatability,
+      payment_status: paymentStatus
+    };
+  }
+  return {
+    ...MACHINE_EVIDENCE_TAXONOMY.entries.service_execution,
+    payment_status: paymentStatus
+  };
+}
+
+export function summarizeMachineEvidenceCounts(receipts: MachineEvidenceReceiptLike[]): MachineEvidenceCounts {
+  const executionReceipts = receipts.filter((receipt) =>
+    receipt.receipt_type === 'machine_execution'
+    && typeof receipt.execution_service_id === 'string'
+    && receipt.execution_service_id.length > 0
+    && receipt.execution_occurred
+  );
+  const repeatabilityReceipts = executionReceipts.filter((receipt) => receipt.evidence_stage === 'repeatability-recorded');
+  const paymentSuccessClaims = executionReceipts.filter((receipt) => resolveMachinePaymentStatus(receipt) === 'confirmed');
+  return {
+    robotic_sh_market_wide_execution_claims: 0,
+    service_specific_execution_receipts: executionReceipts.length,
+    preflight_decision_receipts: receipts.filter((receipt) => receipt.receipt_type === 'machine_preflight').length,
+    payment_success_claims: paymentSuccessClaims.length,
+    repeatability_receipts: repeatabilityReceipts.length,
+    benchmark_claims: 0,
+    winner_claims: 0
+  };
+}
 
 export type MachineMarketSummary = {
   total_services: number;

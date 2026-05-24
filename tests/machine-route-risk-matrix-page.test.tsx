@@ -159,25 +159,25 @@ describe('machine route risk matrix page', () => {
   it('renders the route matrix with route-level guidance and receipt-driven interpretation', async () => {
     root = await renderPage(container);
 
-    expect(container.textContent).toContain('Machine Route-Level Risk Matrix');
-    expect(container.textContent).toContain('Radar separates services from rails, rails from routes, and routes from receipts before machines spend.');
+    expect(container.textContent).toContain('Route-Level Risk Matrix');
+    expect(container.textContent).toContain('Agents do not execute services in the abstract. They hit routes. Radar separates services from rails, rails from routes, routes from receipts.');
     expect(container.querySelector('[aria-label="Machine route risk hero chips"]')?.textContent).toContain('route surfaces mapped');
     expect(container.querySelector('[aria-label="Machine route risk hero chips"]')?.textContent).toContain('first-safe routes identified');
     expect(container.querySelector('[aria-label="Machine route risk hero chips"]')?.textContent).toContain('avoid-first routes flagged');
-    expect(container.querySelector('[aria-label="Machine route risk hero chips"]')?.textContent).toContain('0 execution receipts');
-    expect(container.querySelector('[aria-label="Machine route risk summary"]')?.textContent).toContain('Services with route surfaces3');
-    expect(container.querySelector('[aria-label="Machine route risk summary"]')?.textContent).toContain('Total routes mapped6');
+    expect(container.querySelector('[aria-label="Machine route risk hero chips"]')?.textContent).toContain('0 robotic.sh market-wide execution claims');
+    expect(container.querySelector('[aria-label="Machine route risk summary"]')?.textContent).toContain('Route rows tracked6');
     expect(container.querySelector('[aria-label="Machine route risk summary"]')?.textContent).toContain('First-safe candidates5');
     expect(container.querySelector('[aria-label="Machine route risk summary"]')?.textContent).toContain('Avoid-first routes1');
     expect(container.querySelector('[aria-label="Machine route risk summary"]')?.textContent).toContain('High-risk routes1');
-    expect(container.querySelector('[aria-label="Machine route risk summary"]')?.textContent).toContain('Execution receipts0');
-    expect(container.querySelector('[aria-label="Machine route interpretation strip"]')?.textContent).toContain('Services ≠ routes');
-    expect(container.querySelector('[aria-label="Machine route interpretation strip"]')?.textContent).toContain('Routes ≠ receipts');
-    expect(container.querySelector('[aria-label="Machine route interpretation strip"]')?.textContent).toContain('First-safe ≠ executed');
-    expect(container.querySelector('[aria-label="Machine route interpretation strip"]')?.textContent).toContain('Avoid-first ≠ blocked forever');
+    expect(container.querySelector('[aria-label="Machine route risk summary"]')?.textContent).toContain('Service-specific executed routes0');
+    expect(container.querySelector('[aria-label="Machine route risk summary"]')?.textContent).toContain('Payment-confirmed routes0');
+    expect(container.querySelector('[aria-label="Machine route interpretation strip"]')?.textContent).toContain('listed ≠ callable');
+    expect(container.querySelector('[aria-label="Machine route interpretation strip"]')?.textContent).toContain('callable ≠ executed');
+    expect(container.querySelector('[aria-label="Machine route interpretation strip"]')?.textContent).toContain('credentials ≠ payment proof');
+    expect(container.querySelector('[aria-label="Machine route interpretation strip"]')?.textContent).toContain('route surface ≠ receipt');
     expect(container.querySelector('[aria-label="Machine route guidance"]')?.textContent).toContain('BigQuery should begin with bounded public/synthetic queries.');
     expect(container.querySelector('[aria-label="Machine route guidance"]')?.textContent).toContain('Stableupload should begin with tiny non-sensitive fixtures.');
-    expect(container.querySelector('[aria-label="Machine route guidance"]')?.textContent).toContain('Execution remains receipt-driven.');
+    expect(container.querySelector('[aria-label="Machine route guidance"]')?.textContent).toContain('Execution status remains not_attempted.');
     expect(container.querySelector('[aria-label="Machine route risk methodology"]')?.textContent).toContain('route_risk');
     expect(container.querySelector('[aria-label="Machine route risk methodology"]')?.textContent).toContain('proof_condition');
     expect(container.querySelector('[aria-label="Machine route risk methodology"]')?.textContent).toContain('execution_status');
@@ -219,7 +219,10 @@ describe('machine route risk matrix page', () => {
     expect(directionsRow).toContain('high');
     expect(directionsRow).toContain('yes');
     expect(directionsRow).toContain('physical-world routing risk');
-    expect(container.textContent).toContain('No execution claim. No payment success claim. No benchmark claim. No winner claim. No provider quality claim.');
+    expect(container.textContent).toContain('Market-wide execution claims: 0. Payment success claims: 0. Benchmark claims: 0. Winner claims: 0.');
+    expect(container.textContent).toContain('Route metadata does not imply execution.');
+    expect(container.textContent).toContain('Credential requirement does not imply payment proof.');
+    expect(container.textContent).toContain('Payment is not confirmed unless payment evidence exists.');
     expect(container.textContent).toContain('Route-level risk is planning metadata. It does not imply execution, payment success, benchmark superiority, or provider quality.');
     expect(container.textContent).not.toMatch(/payment succeeded|execution succeeded|winner:|benchmark winner|best provider|top provider|provider quality is|payment confirmed/i);
   });

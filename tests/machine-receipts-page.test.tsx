@@ -154,7 +154,7 @@ describe('machine receipts page', () => {
     expect(container.textContent).toContain('2Captcha');
     expect(container.textContent).toContain('Denied');
     expect(container.textContent).toContain('Storage: Durable JSONL.');
-    expect(container.textContent).toContain('Decision receipts, not payment receipts.');
+    expect(container.textContent).toContain('Preflight and execution receipts, not payment receipts.');
   });
 
   it('filters work', async () => {
@@ -250,7 +250,7 @@ describe('machine receipts page', () => {
     root = await renderPage(container);
 
     expect(container.textContent).toContain('Denied attempts matter. They prove autonomy is bounded.');
-    expect(container.textContent).toContain('Denied and review receipts are successful governance records.');
+    expect(container.textContent).toContain('Preflight decision receipts and service execution receipts share one timeline. Denied and review receipts remain successful governance records.');
     expect(container.textContent).not.toContain('error');
   });
 
@@ -302,6 +302,6 @@ describe('machine receipts page', () => {
     const detailText = container.querySelector('[aria-label="Receipt detail drawer"]')?.textContent ?? '';
     expect(detailText).toContain('demo_modetrue');
     expect(detailText).toContain('execution_occurredfalse');
-    expect(detailText).toContain('payment_occurredfalse');
+    expect(detailText).toContain('payment_statusnot_confirmed');
   });
 });

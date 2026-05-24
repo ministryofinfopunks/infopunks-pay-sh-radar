@@ -312,6 +312,7 @@ describe('machine execution proof plan page', () => {
     expect(text).toContain('View rail coverage');
     expect(text).not.toContain('execution succeeded');
     expect(text).not.toContain('benchmark winner');
+    expect(text).not.toMatch(/NAVER Maps executed|NAVER execution proven|robotic\.sh market execution proven|payment success proven|best route|best provider|market-wide execution proven/i);
   });
 
   it('renders NAVER Maps proof path with review state, non-operational test, and context-only demo note', async () => {
@@ -377,6 +378,7 @@ describe('machine execution proof plan page', () => {
     expect(text).not.toContain('execution succeeded');
     expect(text).not.toContain('benchmark winner');
     expect(text).not.toContain('winner claimed');
+    expect(text).not.toMatch(/NAVER Maps executed|NAVER execution proven|robotic\.sh market execution proven|payment success proven|best route|best provider|market-wide execution proven/i);
   });
 
   it('shows unknown service state with backlink', async () => {
