@@ -2587,7 +2587,7 @@ function formatMachineRouteExecutionStatus(value: MachineRouteExecutionStatus) {
 
 function formatFirstSafeQueueExecutionStatus(value: MachineRouteExecutionStatus) {
   if (value === 'service_receipt_recorded') return 'execution_receipt_recorded';
-  if (value === 'repeatability_receipt_recorded') return 'repeatability_candidate';
+  if (value === 'repeatability_receipt_recorded') return 'repeatability_recorded';
   return 'not_attempted';
 }
 
@@ -3076,6 +3076,39 @@ function buildMachineMarketChangelogRows(services: MachineMarketService[], recei
   const executionService = latestExecution
     ? services.find((service) => service.id === (latestExecution.execution_service_id ?? latestExecution.selected_service_id))
     : null;
+  const successfulBigQueryRuns = receipts.filter((row) =>
+    row.receipt_type === 'machine_execution'
+    && (row.execution_service_id ?? row.selected_service_id) === 'bigquery'
+    && row.execution_status === 'succeeded'
+    && row.execution_occurred
+  ).length;
+  const successfulAnyTransRuns = receipts.filter((row) =>
+    row.receipt_type === 'machine_execution'
+    && (row.execution_service_id ?? row.selected_service_id) === 'anytrans'
+    && row.execution_status === 'succeeded'
+    && row.execution_occurred
+  ).length;
+  const repeatabilityRows: MachineMarketChangelogRow[] = [];
+  if (successfulAnyTransRuns >= 2) {
+    repeatabilityRows.push({
+      date: formatMachineTimestamp(receipts[0]?.created_at ?? MACHINE_MARKET_SOURCE_OBSERVED_AT),
+      change: `Machine Translation repeatability ${successfulAnyTransRuns >= 3 ? 'recorded' : 'candidate'} from service-specific receipts (${successfulAnyTransRuns} successful runs).`,
+      scope: 'machine translation repeatability',
+      source: 'Radar receipt-derived repeatability pack',
+      source_type: 'radar_repeatability_receipt',
+      claim_boundary: 'Repeatability is route-specific and not benchmark or winner proof.'
+    });
+  }
+  if (successfulBigQueryRuns >= 2) {
+    repeatabilityRows.push({
+      date: formatMachineTimestamp(receipts[0]?.created_at ?? MACHINE_MARKET_SOURCE_OBSERVED_AT),
+      change: `BigQuery bounded query repeatability ${successfulBigQueryRuns >= 3 ? 'recorded' : 'candidate'} from service-specific receipts (${successfulBigQueryRuns} successful runs).`,
+      scope: 'bigquery repeatability',
+      source: 'Radar receipt-derived repeatability pack',
+      source_type: 'radar_repeatability_receipt',
+      claim_boundary: 'Repeatability is route-specific and not benchmark or winner proof.'
+    });
+  }
   return [
     latestExecution ? {
       date: formatMachineTimestamp(latestExecution.created_at),
@@ -3163,7 +3196,8 @@ function buildMachineMarketChangelogRows(services: MachineMarketService[], recei
       source: 'Radar UI scaffold',
       source_type: 'manual_scaffold' as const,
       claim_boundary: 'New pages add interpretation and policy memory, not new live Pay.sh, robotic.sh, or peaqOS data.'
-    }
+    },
+    ...repeatabilityRows
   ];
 }
 
@@ -6798,6 +6832,14 @@ function ReceiptFilters({ filters, onChange }: { filters: MachineReceiptFiltersS
 }
 
 function ReceiptsTimeline({ receipts, onSelect }: { receipts: MachinePreflightReceipt[]; onSelect: (receiptId: string) => void }) {
+  const successfulByService = new Map<string, number>();
+  for (const receipt of receipts) {
+    const serviceId = receipt.execution_service_id ?? receipt.selected_service_id;
+    if (!serviceId) continue;
+    if (receipt.receipt_type === 'machine_execution' && receipt.execution_status === 'succeeded' && receipt.execution_occurred) {
+      successfulByService.set(serviceId, (successfulByService.get(serviceId) ?? 0) + 1);
+    }
+  }
   return <section className="panel machine-receipts-timeline" aria-label="Receipts timeline">
     <div className="panel-head"><div><p className="section-kicker">Receipt Timeline</p><h2>{receipts.length} machine receipts</h2></div><small>Preflight decision receipts and service execution receipts share one timeline. Denied and review receipts remain successful governance records.</small></div>
     <div className="machine-receipt-table" role="table" aria-label="Machine receipt timeline table">
@@ -6812,12 +6854,22 @@ function ReceiptsTimeline({ receipts, onSelect }: { receipts: MachinePreflightRe
         <span role="cell">{receipt.selected_service_name ?? 'none'}</span>
         <span role="cell">{receipt.source_market ?? 'none'}</span>
         <span role="cell">{receipt.chain ?? 'none'}</span>
-        <span role="cell"><MachineEvidenceStageTag stage={receipt.evidence_stage} /></span>
+        <span role="cell"><MachineEvidenceStageTag stage={receipt.evidence_stage} /><small>{formatReceiptRepeatabilityState(receipt, successfulByService)}</small></span>
         <span role="cell">{receipt.receipt_id}</span>
         <span role="cell"><button className="execute compact secondary" type="button" onClick={() => onSelect(receipt.receipt_id)}>View details</button> <a className="execute compact secondary" href={`/machine-execution/${encodeURIComponent(receipt.receipt_id)}`}>Execution detail</a></span>
       </div>)}
     </div>
   </section>;
+}
+
+function formatReceiptRepeatabilityState(receipt: MachinePreflightReceipt, successfulByService: Map<string, number>) {
+  if (receipt.receipt_type !== 'machine_execution') return 'repeatability_not_applicable';
+  const serviceId = receipt.execution_service_id ?? receipt.selected_service_id;
+  if (!serviceId) return 'repeatability_not_applicable';
+  if (receipt.evidence_stage === 'repeatability-recorded') return 'repeatability_recorded';
+  const successful = successfulByService.get(serviceId) ?? 0;
+  if (successful >= 2) return 'repeatability_candidate';
+  return 'repeatability_insufficient_runs';
 }
 
 function ReceiptDetailDrawer({ receipt, rawOpen, onRawToggle }: { receipt: MachinePreflightReceipt; rawOpen: boolean; onRawToggle: () => void }) {
@@ -6904,6 +6956,7 @@ function MachineExecutionReceiptDetailPage({ receiptId }: { receiptId: string })
   const requestSummary = parseMachineExecutionSummary(receipt?.execution_request_summary);
   const responseSummary = parseMachineExecutionSummary(receipt?.execution_response_summary);
   const isBigQueryReceipt = (receipt?.execution_service_id ?? receipt?.selected_service_id) === 'bigquery';
+  const isAnyTransReceipt = (receipt?.execution_service_id ?? receipt?.selected_service_id) === 'anytrans';
   const isBigQueryLiveReceipt = receipt ? isBigQueryLiveExecutionReceipt(receipt) : false;
   const isStableuploadReceipt = (receipt?.execution_service_id ?? receipt?.selected_service_id) === 'stableupload';
   const isNaverReceipt = (receipt?.execution_service_id ?? receipt?.selected_service_id) === 'naver-maps';
@@ -6929,6 +6982,7 @@ function MachineExecutionReceiptDetailPage({ receiptId }: { receiptId: string })
             <p><span>payment_status</span><small>{resolveMachinePaymentStatus(receipt)}</small></p>
             <p><span>evidence_stage</span><small>{receipt.evidence_stage ?? 'unknown'}</small></p>
             <p><span>created_at</span><small>{formatMachineTimestamp(receipt.created_at)}</small></p>
+            {(isBigQueryReceipt || isAnyTransReceipt) && <p><span>repeatability_pack</span><small><a href={`/v1/machine-execution/repeatability/${encodeURIComponent((receipt.execution_service_id ?? receipt.selected_service_id) ?? '')}`}>View repeatability pack JSON</a></small></p>}
           </div>
         </section>
         {isBigQueryReceipt && <section className="panel" aria-label="BigQuery bounded query receipt summary">

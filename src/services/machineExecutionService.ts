@@ -1,6 +1,6 @@
 import { appendMachineReceipt, listRecentMachinePreflightReceipts, runMachinePreflight, type MachinePreflightReceipt } from './machinePreflightService';
 import { getMachineMarketServiceById } from './machineMarketService';
-import { validateMachineExecutionProofByProfile } from './machineExecutionProofProfiles';
+import { getMachineExecutionProofProfile, validateMachineExecutionProofByProfile } from './machineExecutionProofProfiles';
 
 export type TranslationExecutionRequest = {
   machine_id: string;
@@ -261,6 +261,33 @@ export type BigQueryLiveBoundedQueryResponse =
     };
     caveats: string[];
   };
+export type MachineExecutionRepeatabilityPack = {
+  repeatability_pack_id: string;
+  service_id: string;
+  route_id: string;
+  profile_id: 'machine_translation_safe_phrase' | 'bigquery_bounded_query';
+  run_count: number;
+  successful_runs: number;
+  failed_runs: number;
+  success_rate: number;
+  receipt_ids: string[];
+  generated_at: string;
+  payment_status_summary: {
+    confirmed_count: number;
+    not_confirmed_count: number;
+    payment_success_claim: 0 | 1;
+  };
+  live_harness_execution_summary?: {
+    live_receipt_count: number;
+    fixture_receipt_count: number;
+    unknown_receipt_count: number;
+  };
+  repeatability_status: 'insufficient_runs' | 'repeatability_candidate' | 'repeatability_recorded';
+  benchmark_claim: false;
+  winner_claim: false;
+  market_wide_execution_claim: false;
+  caveats: string[];
+};
 export type StableuploadTinyFixtureOptions = {
   machine_id?: string;
   execution_completed_at?: string;
@@ -1113,6 +1140,85 @@ export async function buildAlibabaMachineTranslationGeneralBenchmarkReadinessArt
       benchmark_recorded: false
     }
   };
+}
+
+export async function buildMachineExecutionRepeatabilityPack(serviceId: string): Promise<MachineExecutionRepeatabilityPack> {
+  const profile = getMachineExecutionProofProfile(serviceId);
+  if (!profile || (profile.profile_id !== 'machine_translation_safe_phrase' && profile.profile_id !== 'bigquery_bounded_query')) {
+    throw new Error(`repeatability_not_supported_for_service_id:${serviceId}`);
+  }
+  const receipts = await listRecentMachinePreflightReceipts({ service_id: serviceId, limit: 200 });
+  const executionReceipts = receipts.filter((row) => row.receipt_type === 'machine_execution');
+  const routeId = profile.route_id;
+  const matching = executionReceipts.filter((row) => {
+    if ((row.execution_service_id ?? row.selected_service_id) !== serviceId) return false;
+    if (row.execution_status === 'not_attempted') return false;
+    const responseSummary = safeParseSummary(row.execution_response_summary);
+    const validation = validateMachineExecutionProofByProfile({
+      service_id: serviceId,
+      execution_status: row.execution_status,
+      execution_occurred: row.execution_occurred,
+      response_summary: responseSummary
+    });
+    if (row.execution_status === 'succeeded') return validation.issues.length === 0;
+    return true;
+  });
+  const successful = matching.filter((row) => row.execution_status === 'succeeded' && row.execution_occurred);
+  const failed = matching.filter((row) => row.execution_status !== 'succeeded');
+  const confirmedCount = matching.filter((row) => row.payment_occurred).length;
+  const runCount = matching.length;
+  const successfulRuns = successful.length;
+  const repeatabilityStatus: MachineExecutionRepeatabilityPack['repeatability_status'] = successfulRuns >= 3
+    ? 'repeatability_recorded'
+    : successfulRuns >= 2
+      ? 'repeatability_candidate'
+      : 'insufficient_runs';
+  const generatedAt = new Date().toISOString();
+  const base: MachineExecutionRepeatabilityPack = {
+    repeatability_pack_id: `mrx_repeatability_pack_${serviceId.replace(/[^a-z0-9]+/gi, '_').toLowerCase()}_${generatedAt.slice(0, 10).replaceAll('-', '')}`,
+    service_id: serviceId,
+    route_id: routeId,
+    profile_id: profile.profile_id,
+    run_count: runCount,
+    successful_runs: successfulRuns,
+    failed_runs: failed.length,
+    success_rate: runCount > 0 ? Number((successfulRuns / runCount).toFixed(4)) : 0,
+    receipt_ids: matching.map((row) => row.receipt_id),
+    generated_at: generatedAt,
+    payment_status_summary: {
+      confirmed_count: confirmedCount,
+      not_confirmed_count: Math.max(0, runCount - confirmedCount),
+      payment_success_claim: confirmedCount > 0 ? 1 : 0
+    },
+    repeatability_status: repeatabilityStatus,
+    benchmark_claim: false,
+    winner_claim: false,
+    market_wide_execution_claim: false,
+    caveats: [
+      'Route-specific repeatability only.',
+      'Not benchmark proof.',
+      'Not winner proof.',
+      'Not market-wide proof.',
+      'Not payment proof unless payment evidence exists.'
+    ]
+  };
+
+  if (serviceId === 'bigquery') {
+    const classified = matching.reduce((acc, row) => {
+      const request = safeParseSummary(row.execution_request_summary);
+      if (request?.live_execution === true && request?.harness_execution === true) acc.live += 1;
+      else if (request?.fixture === 'bigquery_bounded_query') acc.fixture += 1;
+      else acc.unknown += 1;
+      return acc;
+    }, { live: 0, fixture: 0, unknown: 0 });
+    base.live_harness_execution_summary = {
+      live_receipt_count: classified.live,
+      fixture_receipt_count: classified.fixture,
+      unknown_receipt_count: classified.unknown
+    };
+  }
+
+  return base;
 }
 
 async function executeAnyTransAdapter(input: TranslationExecutionRequest): Promise<TranslationAdapterResult> {

@@ -94,6 +94,7 @@ import {
   buildAlibabaMachineTranslationGeneralBenchmarkReadinessArtifact,
   buildAlibabaMachineTranslationGeneralRepeatabilityArtifact,
   buildBigQueryBoundedQueryFixtureReceipt,
+  buildMachineExecutionRepeatabilityPack,
   buildNaverGeocodeFixtureReceipt,
   buildStableuploadTinyFixtureReceipt,
   deprecatedCloudTranslationExecutionResponse,
@@ -900,6 +901,24 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
         storage: machineReceiptStorage
       })
     };
+  });
+  app.get<{ Params: { service_id: string } }>('/v1/machine-execution/repeatability/:service_id', async (req, reply) => {
+    try {
+      const normalizedServiceId = req.params.service_id === 'machine-translation-safe-phrase' ? 'anytrans' : req.params.service_id;
+      const pack = await buildMachineExecutionRepeatabilityPack(normalizedServiceId);
+      return {
+        data: safeJsonExport({
+          ...pack,
+          storage: machineReceiptStorage
+        })
+      };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (message.startsWith('repeatability_not_supported_for_service_id:')) {
+        return reply.code(404).send({ error: 'repeatability_service_not_supported', service_id: req.params.service_id });
+      }
+      throw error;
+    }
   });
   app.get('/v1/machine-execution/alibaba-machine-translation-general/benchmark-readiness', async () => {
     const artifact = await buildAlibabaMachineTranslationGeneralBenchmarkReadinessArtifact(machineReceiptStorage.durable);

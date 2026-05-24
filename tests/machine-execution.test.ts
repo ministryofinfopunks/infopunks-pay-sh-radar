@@ -1338,6 +1338,87 @@ describe('machine execution anytrans translation route', () => {
     await app.close();
   });
 
+  it('computes machine translation repeatability pack from recorded receipts only', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    for (const idx of [1, 2]) {
+      await app.inject({
+        method: 'POST',
+        url: '/v1/machine-execution/receipts/ingest',
+        headers: { authorization: 'Bearer secret' },
+        payload: {
+          machine_id: payload.machine_id,
+          service_id: 'anytrans',
+          fqn: 'solana-foundation/alibaba/anytrans',
+          source_market: 'pay.sh',
+          chain: 'solana',
+          execution_status: 'succeeded',
+          execution_occurred: true,
+          payment_occurred: false,
+          payment_evidence: null,
+          execution_started_at: `2026-05-22T00:00:0${idx}.000Z`,
+          execution_completed_at: `2026-05-22T00:00:1${idx}.000Z`,
+          execution_latency_ms: 900 + idx,
+          request_summary: { text: payload.text },
+          response_summary: { translated_text_preview: 'Las máquinas no deberían gastar a ciegas.' },
+          executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'manual' }
+        }
+      });
+    }
+    const response = await app.inject({ method: 'GET', url: '/v1/machine-execution/repeatability/anytrans' });
+    expect(response.statusCode).toBe(200);
+    const pack = response.json().data;
+    expect(pack.profile_id).toBe('machine_translation_safe_phrase');
+    expect(pack.route_id).toBe('translation:POST:/translate');
+    expect(pack.successful_runs).toBe(2);
+    expect(pack.repeatability_status).toBe('repeatability_candidate');
+    expect(pack.benchmark_claim).toBe(false);
+    expect(pack.winner_claim).toBe(false);
+    expect(pack.market_wide_execution_claim).toBe(false);
+    expect(pack.payment_status_summary.payment_success_claim).toBe(0);
+    await app.close();
+  });
+
+  it('computes BigQuery repeatability pack and distinguishes fixture vs live receipts', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    process.env.INFOPUNKS_BIGQUERY_LIVE_HARNESS_ENABLED = 'true';
+    process.env.INFOPUNKS_BIGQUERY_LIVE_HARNESS_MODE = 'mock_success';
+    process.env.INFOPUNKS_BIGQUERY_LIVE_CREDENTIALS_CONFIGURED = '1';
+    process.env.INFOPUNKS_BIGQUERY_LIVE_RAIL_CONFIGURED = '1';
+    const app = await createApp(emptyIntelligenceStore());
+    await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/bigquery/fixtures/ingest',
+      headers: { authorization: 'Bearer secret' },
+      payload: { machine_id: 'did:peaq:bigquery-fixture-a' }
+    });
+    await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/bigquery/run-bounded-query',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: 'did:peaq:bigquery-live-a',
+        query: 'SELECT value FROM `bigquery-public-data.samples.synthetic_table` WHERE value IS NOT NULL LIMIT 5',
+        query_label: 'public.synthetic.smoke_check',
+        row_limit: 5,
+        dataset_classification: 'public'
+      }
+    });
+    const response = await app.inject({ method: 'GET', url: '/v1/machine-execution/repeatability/bigquery' });
+    expect(response.statusCode).toBe(200);
+    const pack = response.json().data;
+    expect(pack.profile_id).toBe('bigquery_bounded_query');
+    expect(pack.run_count).toBe(2);
+    expect(pack.successful_runs).toBe(2);
+    expect(pack.repeatability_status).toBe('repeatability_candidate');
+    expect(pack.live_harness_execution_summary.live_receipt_count).toBe(1);
+    expect(pack.live_harness_execution_summary.fixture_receipt_count).toBe(1);
+    expect(pack.benchmark_claim).toBe(false);
+    expect(pack.winner_claim).toBe(false);
+    expect(pack.market_wide_execution_claim).toBe(false);
+    await app.close();
+  });
+
   it('benchmark readiness API returns criteria and keeps benchmark/winner/payment claims false', async () => {
     process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
     const app = await createApp(emptyIntelligenceStore());

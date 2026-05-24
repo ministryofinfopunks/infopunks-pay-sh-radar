@@ -439,6 +439,46 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       }
     }
   });
+  add('get', '/v1/machine-execution/repeatability/{service_id}', {
+    tags: ['Machine Economy'],
+    summary: 'Get service repeatability pack',
+    description: `${SAFE_METADATA_NOTE} Computes repeatability from recorded service-specific execution receipts only. Route-specific repeatability only; not benchmark proof; not winner proof; not market-wide proof; not payment proof unless payment evidence exists.`,
+    parameters: [pathParam('service_id', 'Service identifier. Supported: anytrans, bigquery, machine-translation-safe-phrase(alias of anytrans).')],
+    responses: {
+      ...envelopedResponses(
+        freeformObject(),
+        {
+          repeatability_pack_id: 'mrx_repeatability_pack_anytrans_20260524',
+          service_id: 'anytrans',
+          route_id: 'translation:POST:/translate',
+          profile_id: 'machine_translation_safe_phrase',
+          run_count: 3,
+          successful_runs: 2,
+          failed_runs: 1,
+          success_rate: 0.6667,
+          receipt_ids: ['mrx_exec_a', 'mrx_exec_b', 'mrx_exec_c'],
+          generated_at: '2026-05-24T00:00:00.000Z',
+          payment_status_summary: {
+            confirmed_count: 0,
+            not_confirmed_count: 3,
+            payment_success_claim: 0
+          },
+          repeatability_status: 'repeatability_candidate',
+          benchmark_claim: false,
+          winner_claim: false,
+          market_wide_execution_claim: false,
+          caveats: [
+            'Route-specific repeatability only.',
+            'Not benchmark proof.',
+            'Not winner proof.',
+            'Not market-wide proof.',
+            'Not payment proof unless payment evidence exists.'
+          ]
+        }
+      ),
+      '404': errorResponse('repeatability_service_not_supported')
+    }
+  });
   add('get', '/v1/machine-execution/stableupload/fixtures/tiny-fixture', {
     tags: ['Machine Economy'],
     summary: 'Get Stableupload tiny-fixture payload',
