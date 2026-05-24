@@ -6375,6 +6375,9 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 
 .machine-market-toolbar .terminal-nav > a,
 .machine-control-plane-summary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: var(--machine-nav-height);
   border: 1px solid transparent;
   border-radius: 999px;
@@ -6456,11 +6459,17 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 }
 
 .machine-control-plane-menu a {
+  display: inline-flex;
+  align-items: center;
   justify-content: flex-start;
   min-height: 40px;
+  padding-block: 0.56rem;
   border-radius: 12px;
   padding-inline: 12px;
   color: rgba(232,255,240,.82);
+  line-height: 1.1;
+  text-decoration: none;
+  vertical-align: middle;
 }
 
 .machine-market-hero {
@@ -6553,22 +6562,31 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
   color: var(--machine-text-muted);
 }
 
-.execute {
+.machine-market-page .execute,
+.machine-market-toolbar .execute {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 999px;
-  min-height: 46px;
+  min-height: 40px;
   padding: 0 18px;
   letter-spacing: .02em;
-  line-height: 1.2;
+  line-height: 1.1;
+  text-align: center;
+  vertical-align: middle;
   white-space: normal;
   box-shadow: 0 10px 28px rgba(126,255,176,.12);
 }
 
-.execute.compact {
+.machine-market-page .execute.compact,
+.machine-market-toolbar .execute.compact {
   width: auto;
-  min-height: 38px;
+  min-height: 40px;
   margin-top: 0;
   padding: 0 14px;
+  padding-block: 0.6rem;
   font-size: 11px;
+  line-height: 1.1;
 }
 
 .machine-control-surfaces-links {
@@ -6580,6 +6598,11 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 .machine-control-surfaces-links .execute {
   justify-content: center;
   width: 100%;
+  min-height: 42px;
+  line-height: 1.15;
+  text-align: center;
+  padding-block: 0.62rem;
+  white-space: normal;
 }
 
 .machine-usage-list {
