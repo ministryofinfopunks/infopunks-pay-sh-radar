@@ -314,6 +314,18 @@ describe('machine market page', () => {
   it('renders /machine-market with all 13 services', async () => {
     root = await renderPage(container);
 
+    const topNav = container.querySelector('[aria-label="Machine Economy navigation"]');
+    expect(topNav?.textContent).toContain('Machine Market');
+    expect(topNav?.textContent).toContain('Rail Coverage');
+    expect(topNav?.textContent).toContain('Route Risk');
+    expect(topNav?.textContent).toContain('First Safe Queue');
+    expect(topNav?.textContent).toContain('Proof Plans');
+    expect(topNav?.textContent).toContain('Receipts');
+    expect(topNav?.textContent).toContain('Radar Terminal');
+    expect(topNav?.textContent).not.toContain('Benchmarks');
+    expect(topNav?.textContent).not.toContain('Machine Preflight');
+    expect(topNav?.textContent).not.toContain('Execution Detail');
+
     expect(container.textContent).toContain('Machine Market Command Center');
     expect(container.textContent).toContain('13 robotic.sh services mapped. Radar gives every service policy state, evidence state, readiness rank, and a proof path before spend.');
     expect(container.textContent).toContain('13 listed services mapped from robotic.sh for Phase 2 machine-economy intelligence.');
@@ -321,13 +333,21 @@ describe('machine market page', () => {
     expect(container.querySelector('[aria-label="Machine Market summary"]')?.textContent).toContain('planning only');
     expect(container.querySelector('[aria-label="Machine Market summary"]')?.textContent).toContain('no robotic.sh service executed');
     expect(container.querySelector('[aria-label="13-Service Market Cohort"]')?.textContent).toContain('13 robotic.sh services mapped');
-    expect(container.querySelector('.machine-market-caveat a[href="/machine-market-map"]')?.textContent).toContain('View market map');
-    expect(container.querySelector('a[href="/machine-readiness-matrix"]')?.textContent).toContain('View readiness matrix');
-    expect(container.querySelector('a[href="/machine-economy-snapshot"]')?.textContent).toContain('View public snapshot');
-    expect(container.querySelector('a[href="/machine-rail-coverage"]')?.textContent).toContain('View rail coverage');
-    expect(container.querySelector('a[href="/machine-route-risk-matrix"]')?.textContent).toContain('View route risk matrix');
-    expect(container.querySelector('.machine-market-caveat a[href="/machine-execution-shortlist"]')?.textContent).toContain('View execution shortlist');
+    expect(container.querySelector('[aria-label="Coverage caveat"] a[href="/machine-market-map"]')?.textContent).toContain('View market map');
+    expect(container.querySelector('[aria-label="Coverage caveat"] a[href="/machine-readiness-matrix"]')?.textContent).toContain('View readiness matrix');
+    expect(container.querySelector('[aria-label="Coverage caveat"] a[href="/machine-economy-snapshot"]')?.textContent).toContain('View public snapshot');
+    expect(container.querySelector('[aria-label="Coverage caveat"] a[href="/machine-rail-coverage"]')?.textContent).toContain('View rail coverage');
+    expect(container.querySelector('[aria-label="Coverage caveat"] a[href="/machine-route-risk-matrix"]')?.textContent).toContain('View route risk matrix');
+    expect(container.querySelector('[aria-label="Coverage caveat"] a[href="/machine-execution-shortlist"]')?.textContent).toContain('View execution shortlist');
     expect(container.querySelector('[aria-label="Machine Market Mission Control"]')?.textContent).toContain('Machine Market Mission Control');
+    const controlSurfaces = container.querySelector('[aria-label="Machine Economy Control Surfaces"]');
+    expect(controlSurfaces?.textContent).toContain('Machine Economy Control Surfaces');
+    expect(controlSurfaces?.querySelector('a[href="/machine-market-map"]')?.textContent).toContain('Market Map');
+    expect(controlSurfaces?.querySelector('a[href="/machine-readiness-matrix"]')?.textContent).toContain('Readiness Matrix');
+    expect(controlSurfaces?.querySelector('a[href="/machine-economy-snapshot"]')?.textContent).toContain('Public Snapshot');
+    expect(controlSurfaces?.querySelector('a[href="/machine-rail-coverage"]')?.textContent).toContain('Rail Coverage');
+    expect(controlSurfaces?.querySelector('a[href="/machine-route-risk-matrix"]')?.textContent).toContain('Route Risk Matrix');
+    expect(controlSurfaces?.querySelector('a[href="/machine-first-safe-routes"]')?.textContent).toContain('First Safe Route Queue');
     for (const name of serviceNames) expect(container.textContent).toContain(name);
   });
 

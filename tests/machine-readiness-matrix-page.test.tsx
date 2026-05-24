@@ -165,9 +165,9 @@ describe('machine readiness matrix page', () => {
     expect(container.querySelector('[aria-label="Readiness Matrix Brief"]')?.textContent).toContain('0 execution receipts.');
     expect(container.querySelector('[aria-label="Readiness Matrix Brief"]')?.textContent).toContain('0 repeatability receipts.');
     expect(container.querySelector('[aria-label="Readiness Matrix Brief"] button')?.textContent).toContain('Copy brief');
-    expect(container.querySelector('a[href="/machine-market-map"]')?.textContent).toContain('View market map');
-    expect(container.querySelector('a[href="/machine-economy-snapshot"]')?.textContent).toContain('View public snapshot');
-    expect(container.querySelector('a[href="/machine-rail-coverage"]')?.textContent).toContain('View rail coverage');
+    expect(container.querySelector('[aria-label="Readiness matrix caveats"] a[href="/machine-market-map"]')?.textContent).toContain('View market map');
+    expect(container.querySelector('[aria-label="Readiness matrix caveats"] a[href="/machine-economy-snapshot"]')?.textContent).toContain('View public snapshot');
+    expect(container.querySelector('[aria-label="Readiness matrix caveats"] a[href="/machine-rail-coverage"]')?.textContent).toContain('View rail coverage');
     expect(container.querySelector('[aria-label="Evidence methodology drawer"]')?.textContent).toContain('execution_receipt');
     expect(container.querySelector('[aria-label="Evidence methodology drawer"]')?.textContent).toContain('repeatability_receipt');
     for (const name of serviceNames) expect(container.textContent).toContain(name);

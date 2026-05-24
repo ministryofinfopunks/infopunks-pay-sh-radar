@@ -190,8 +190,8 @@ describe('machine market map page', () => {
 
     expect(container.textContent).toContain('No execution claim. No benchmark claim. No winner claim. Pay.sh routes tracked separately.');
     expect(container.textContent).toContain('Execution requires service-specific receipts before any robotic.sh success claim can be made.');
-    expect(container.querySelector('a[href="/machine-economy-snapshot"]')?.textContent).toContain('View public snapshot');
-    expect(container.querySelector('a[href="/machine-rail-coverage"]')?.textContent).toContain('View rail coverage');
+    expect(container.querySelector('[aria-label="Machine market map caveats"] a[href="/machine-economy-snapshot"]')?.textContent).toContain('View public snapshot');
+    expect(container.querySelector('[aria-label="Machine market map caveats"] a[href="/machine-rail-coverage"]')?.textContent).toContain('View rail coverage');
     expect(container.textContent).toContain('Every category remains receipt-dependent. No robotic.sh-visible category is execution-proven on this page.');
     expect(container.textContent).not.toContain('execution success');
   });

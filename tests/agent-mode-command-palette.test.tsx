@@ -208,7 +208,10 @@ describe('agent mode and command palette', () => {
     expect(container.textContent).toContain('Same terminal. New species of spender.');
     expect(container.textContent).toContain('Open Machine Market');
     expect(container.querySelector('a[href="/machine-market"]')).not.toBeNull();
-    expect(container.querySelector('a[href="/machine-preflight"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/machine-rail-coverage"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/machine-route-risk-matrix"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/machine-first-safe-routes"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/machine-execution-shortlist"]')).not.toBeNull();
     expect(container.querySelector('a[href="/machine-receipts"]')).not.toBeNull();
   });
 

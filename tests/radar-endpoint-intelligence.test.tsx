@@ -1003,7 +1003,10 @@ describe('radar endpoint intelligence UI', () => {
     const machineMenu = container.querySelector('[aria-label="Machine Economy menu"]');
     expect(machineMenu).toBeTruthy();
     expect(container.querySelector('a[href="/machine-market"]')).not.toBeNull();
-    expect(container.querySelector('a[href="/machine-preflight"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/machine-rail-coverage"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/machine-route-risk-matrix"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/machine-first-safe-routes"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/machine-execution-shortlist"]')).not.toBeNull();
     expect(container.querySelector('a[href="/machine-receipts"]')).not.toBeNull();
     expect(container.textContent).toContain('Pay.sh routes are live. Agents need proof before spend.');
     expect(container.textContent).toContain('Radar tracks mapped, proven, and benchmarked Pay.sh routes before agents route money through them.');
