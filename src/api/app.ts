@@ -97,6 +97,7 @@ import {
   buildMachineBenchmarkMethodologyArtifacts,
   buildMachineBenchmarkGateCheck,
   buildMachineComparableRouteDiscovery,
+  buildMachineTranslationEvidencePlan,
   buildBigQueryBoundedQueryFixtureReceipt,
   buildMachineExecutionRepeatabilityPack,
   buildNaverGeocodeFixtureReceipt,
@@ -939,6 +940,16 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     return {
       data: safeJsonExport({
         ...discovery,
+        phase_scope: MACHINE_MARKET_PHASE_SCOPE,
+        storage: machineReceiptStorage
+      })
+    };
+  });
+  app.get('/v1/machine-execution/translation-evidence-plan', async () => {
+    const plan = await buildMachineTranslationEvidencePlan();
+    return {
+      data: safeJsonExport({
+        ...plan,
         phase_scope: MACHINE_MARKET_PHASE_SCOPE,
         storage: machineReceiptStorage
       })

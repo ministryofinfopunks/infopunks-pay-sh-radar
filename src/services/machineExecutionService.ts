@@ -358,6 +358,40 @@ export type MachineComparableRouteDiscovery = {
   lanes: MachineComparableRoute[];
   caveats: string[];
 };
+export type MachineTranslationEvidenceState = 'blocked' | 'candidate_unproven' | 'fixture_only' | 'proven';
+export type MachineTranslationEvidenceMissing =
+  | 'missing_service_identity'
+  | 'missing_route_surface'
+  | 'missing_receipt'
+  | 'missing_comparable_route'
+  | 'missing_run_count_target';
+export type MachineTranslationEvidencePlanRoute = {
+  service_id: string;
+  route_id: string;
+  source_hint: 'seed' | 'registry' | 'receipt';
+  evidence_state: MachineTranslationEvidenceState;
+  service_identity_state: 'present' | 'missing';
+  route_surface_state: 'present' | 'missing';
+  proof_profile_match: 'machine_translation_safe_phrase' | 'unknown_or_mismatch';
+  receipt_state: 'none' | 'fixture_only' | 'service_specific_success';
+  repeatability_state: 'missing' | 'insufficient_runs' | 'target_met';
+  comparable_route_eligible: boolean;
+  missing_evidence: MachineTranslationEvidenceMissing[];
+  next_action: 'Record route identity' | 'Record route surface' | 'Ingest service-specific receipt' | 'Generate repeatability pack' | 'Re-check benchmark gate';
+};
+export type MachineTranslationEvidencePlan = {
+  generated_at: string;
+  lane_id: 'machine_translation';
+  benchmark_execution_allowed: false;
+  comparable_route_count: number;
+  proven_comparable_route_count: number;
+  run_count_target: number;
+  required_proven_comparable_routes: 2;
+  routes: MachineTranslationEvidencePlanRoute[];
+  blockers: MachineTranslationEvidenceMissing[];
+  ctas: Array<'Record route identity' | 'Record route surface' | 'Ingest service-specific receipt' | 'Generate repeatability pack' | 'Re-check benchmark gate'>;
+  caveats: string[];
+};
 export type MachineBenchmarkMethodologyArtifact = {
   benchmark_id: string;
   lane_id: 'machine_translation' | 'data_query_bigquery' | 'storage_stableupload' | 'navigation_naver_geocode';
@@ -1698,6 +1732,130 @@ export async function buildMachineComparableRouteDiscovery(): Promise<MachineCom
       'No comparable route, no benchmark.',
       'Methodology before leaderboard.',
       'No benchmark artifacts are created by this discovery endpoint.'
+    ]
+  };
+}
+
+function preferredTranslationRouteId(serviceId: string): string {
+  if (serviceId === 'anytrans') return 'translation:POST:/translate';
+  if (serviceId === 'alibaba-machine-translation-general') return 'alibaba-machine-translation-general:POST:/api/translate/web/general';
+  if (serviceId === 'cloud-translation') return 'cloud-translation:POST:/translateText';
+  return `${serviceId}:translation:route`;
+}
+
+function hasFixtureSignal(receipt: MachinePreflightReceipt): boolean {
+  const requestSummary = String(receipt.execution_request_summary ?? '').toLowerCase();
+  const responseSummary = String(receipt.execution_response_summary ?? '').toLowerCase();
+  return requestSummary.includes('"fixture"') || responseSummary.includes('"fixture"');
+}
+
+export async function buildMachineTranslationEvidencePlan(): Promise<MachineTranslationEvidencePlan> {
+  const runCountTarget = 3;
+  const services = listMachineMarketServices();
+  const receipts = await listRecentMachinePreflightReceipts({ limit: 500 });
+  const executionReceipts = receipts.filter((row) => row.receipt_type === 'machine_execution');
+  const knownTranslationServices = services.filter((service) => service.category === 'translation');
+  const mandatoryServiceIds = ['anytrans', 'alibaba-machine-translation-general'];
+  const translationReceiptServiceIds = executionReceipts
+    .map((row) => row.execution_service_id ?? row.selected_service_id ?? null)
+    .filter((serviceId): serviceId is string => typeof serviceId === 'string' && serviceId.toLowerCase().includes('translation'));
+  const candidateServiceIds = [...new Set([
+    ...mandatoryServiceIds,
+    ...knownTranslationServices.map((service) => service.id),
+    ...translationReceiptServiceIds
+  ])];
+
+  const routes: MachineTranslationEvidencePlanRoute[] = candidateServiceIds.map((serviceId) => {
+    const service = services.find((row) => row.id === serviceId);
+    const routeReceipts = executionReceipts.filter((row) => (row.execution_service_id ?? row.selected_service_id) === serviceId);
+    const successfulReceipts = routeReceipts.filter((row) => row.execution_status === 'succeeded' && row.execution_occurred);
+    const fixtureReceipts = routeReceipts.filter((row) => hasFixtureSignal(row));
+    const serviceIdentityPresent = Boolean(service);
+    const routeSurfacePresent = Boolean(service && ((service.route_count ?? 0) > 0 || (service.endpoint_count ?? 0) > 0 || (service.catalog_routes?.length ?? 0) > 0));
+    const profileMatch: MachineTranslationEvidencePlanRoute['proof_profile_match'] = (
+      serviceId === 'anytrans'
+      || serviceId === 'alibaba-machine-translation-general'
+      || serviceId === 'cloud-translation'
+    ) ? 'machine_translation_safe_phrase' : 'unknown_or_mismatch';
+
+    let evidenceState: MachineTranslationEvidenceState = 'candidate_unproven';
+    if (!serviceIdentityPresent && routeReceipts.length === 0) evidenceState = 'blocked';
+    else if (successfulReceipts.length > 0) evidenceState = 'proven';
+    else if (fixtureReceipts.length > 0) evidenceState = 'fixture_only';
+
+    const receiptState: MachineTranslationEvidencePlanRoute['receipt_state'] = successfulReceipts.length > 0
+      ? 'service_specific_success'
+      : fixtureReceipts.length > 0
+        ? 'fixture_only'
+        : 'none';
+    const repeatabilityState: MachineTranslationEvidencePlanRoute['repeatability_state'] = successfulReceipts.length >= runCountTarget
+      ? 'target_met'
+      : successfulReceipts.length > 0
+        ? 'insufficient_runs'
+        : 'missing';
+    const missingEvidence: MachineTranslationEvidenceMissing[] = [];
+    if (!serviceIdentityPresent) missingEvidence.push('missing_service_identity');
+    if (!routeSurfacePresent) missingEvidence.push('missing_route_surface');
+    if (receiptState === 'none') missingEvidence.push('missing_receipt');
+    if (repeatabilityState !== 'target_met') missingEvidence.push('missing_run_count_target');
+
+    let nextAction: MachineTranslationEvidencePlanRoute['next_action'] = 'Re-check benchmark gate';
+    if (!serviceIdentityPresent) nextAction = 'Record route identity';
+    else if (!routeSurfacePresent) nextAction = 'Record route surface';
+    else if (receiptState === 'none') nextAction = 'Ingest service-specific receipt';
+    else if (repeatabilityState !== 'target_met') nextAction = 'Generate repeatability pack';
+
+    const comparableEligible = serviceIdentityPresent && routeSurfacePresent && profileMatch === 'machine_translation_safe_phrase' && evidenceState !== 'blocked';
+    return {
+      service_id: serviceId,
+      route_id: preferredTranslationRouteId(serviceId),
+      source_hint: mandatoryServiceIds.includes(serviceId) ? 'seed' : (service ? 'registry' : 'receipt'),
+      evidence_state: evidenceState,
+      service_identity_state: serviceIdentityPresent ? 'present' : 'missing',
+      route_surface_state: routeSurfacePresent ? 'present' : 'missing',
+      proof_profile_match: profileMatch,
+      receipt_state: receiptState,
+      repeatability_state: repeatabilityState,
+      comparable_route_eligible: comparableEligible,
+      missing_evidence: missingEvidence,
+      next_action: nextAction
+    };
+  });
+
+  const provenComparableRouteCount = routes.filter((route) => route.comparable_route_eligible && route.evidence_state === 'proven').length;
+  const comparableRouteCount = routes.filter((route) => route.comparable_route_eligible).length;
+  const blockers = new Set<MachineTranslationEvidenceMissing>();
+  for (const route of routes) {
+    for (const missing of route.missing_evidence) blockers.add(missing);
+  }
+  if (comparableRouteCount < 2) blockers.add('missing_comparable_route');
+  if (provenComparableRouteCount < 2) blockers.add('missing_run_count_target');
+
+  return {
+    generated_at: new Date().toISOString(),
+    lane_id: 'machine_translation',
+    benchmark_execution_allowed: false,
+    comparable_route_count: comparableRouteCount,
+    proven_comparable_route_count: provenComparableRouteCount,
+    run_count_target: runCountTarget,
+    required_proven_comparable_routes: 2,
+    routes,
+    blockers: [...blockers],
+    ctas: [
+      'Record route identity',
+      'Record route surface',
+      'Ingest service-specific receipt',
+      'Generate repeatability pack',
+      'Re-check benchmark gate'
+    ],
+    caveats: [
+      'candidate_unproven does not open benchmark gate.',
+      'fixture_only does not open benchmark gate unless explicitly allowed by methodology.',
+      'proven requires successful service-specific receipt evidence.',
+      'Two proven comparable routes are required before benchmark gate can open.',
+      'No benchmark execution is run by this plan endpoint.',
+      'No benchmark artifacts are created.',
+      'No winner is claimed.'
     ]
   };
 }

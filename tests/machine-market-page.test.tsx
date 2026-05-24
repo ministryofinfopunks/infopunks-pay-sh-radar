@@ -319,6 +319,7 @@ describe('machine market page', () => {
     expect(topNav?.textContent).toContain('Rail Coverage');
     expect(topNav?.textContent).toContain('Route Risk');
     expect(topNav?.textContent).toContain('First Safe Queue');
+    expect(topNav?.textContent).toContain('Proof Ladder');
     expect(topNav?.textContent).toContain('Proof Plans');
     expect(topNav?.textContent).toContain('Receipts');
     expect(topNav?.textContent).toContain('Radar Terminal');
@@ -341,6 +342,7 @@ describe('machine market page', () => {
     expect(container.querySelector('[aria-label="Coverage caveat"] a[href="/machine-economy-snapshot"]')?.textContent).toContain('View public snapshot');
     expect(container.querySelector('[aria-label="Coverage caveat"] a[href="/machine-rail-coverage"]')?.textContent).toContain('View rail coverage');
     expect(container.querySelector('[aria-label="Coverage caveat"] a[href="/machine-route-risk-matrix"]')?.textContent).toContain('View route risk matrix');
+    expect(container.querySelector('[aria-label="Coverage caveat"] a[href="/machine-proof-ladder"]')?.textContent).toContain('View proof ladder');
     expect(container.querySelector('[aria-label="Coverage caveat"] a[href="/machine-execution-shortlist"]')?.textContent).toContain('View execution shortlist');
     expect(container.querySelector('[aria-label="Machine Market Mission Control"]')?.textContent).toContain('Machine Market Mission Control');
     const controlSurfaces = container.querySelector('[aria-label="Machine Economy Control Surfaces"]');
@@ -351,6 +353,7 @@ describe('machine market page', () => {
     expect(controlSurfaces?.querySelector('a[href="/machine-rail-coverage"]')?.textContent).toContain('Rail Coverage');
     expect(controlSurfaces?.querySelector('a[href="/machine-route-risk-matrix"]')?.textContent).toContain('Route Risk Matrix');
     expect(controlSurfaces?.querySelector('a[href="/machine-first-safe-routes"]')?.textContent).toContain('First Safe Route Queue');
+    expect(controlSurfaces?.querySelector('a[href="/machine-proof-ladder"]')?.textContent).toContain('Proof Ladder');
     expect(controlSurfaces?.querySelector('a[href="/machine-execution-blockers"]')?.textContent).toContain('Execution Blockers');
     expect(controlSurfaces?.querySelector('a[href="/machine-market-changelog"]')?.textContent).toContain('Changelog');
     expect(controlSurfaces?.querySelector('a[href="/machine-no-claim-ledger"]')?.textContent).toContain('No-Claim Ledger');

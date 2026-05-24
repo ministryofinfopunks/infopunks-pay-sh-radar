@@ -438,6 +438,32 @@ type MachineComparableRouteReport = {
   lanes: MachineComparableRouteLane[];
   caveats: string[];
 };
+type MachineTranslationEvidencePlan = {
+  generated_at: string;
+  lane_id: 'machine_translation';
+  benchmark_execution_allowed: false;
+  comparable_route_count: number;
+  proven_comparable_route_count: number;
+  run_count_target: number;
+  required_proven_comparable_routes: 2;
+  routes: Array<{
+    service_id: string;
+    route_id: string;
+    source_hint: 'seed' | 'registry' | 'receipt';
+    evidence_state: 'blocked' | 'candidate_unproven' | 'fixture_only' | 'proven';
+    service_identity_state: 'present' | 'missing';
+    route_surface_state: 'present' | 'missing';
+    proof_profile_match: 'machine_translation_safe_phrase' | 'unknown_or_mismatch';
+    receipt_state: 'none' | 'fixture_only' | 'service_specific_success';
+    repeatability_state: 'missing' | 'insufficient_runs' | 'target_met';
+    comparable_route_eligible: boolean;
+    missing_evidence: Array<'missing_service_identity' | 'missing_route_surface' | 'missing_receipt' | 'missing_comparable_route' | 'missing_run_count_target'>;
+    next_action: 'Record route identity' | 'Record route surface' | 'Ingest service-specific receipt' | 'Generate repeatability pack' | 'Re-check benchmark gate';
+  }>;
+  blockers: Array<'missing_service_identity' | 'missing_route_surface' | 'missing_receipt' | 'missing_comparable_route' | 'missing_run_count_target'>;
+  ctas: Array<'Record route identity' | 'Record route surface' | 'Ingest service-specific receipt' | 'Generate repeatability pack' | 'Re-check benchmark gate'>;
+  caveats: string[];
+};
 type MachineBenchmarkMethodologyArtifact = {
   benchmark_id: string;
   lane_id: 'machine_translation' | 'data_query_bigquery' | 'storage_stableupload' | 'navigation_naver_geocode';
@@ -1633,6 +1659,9 @@ function isMachineBenchmarkReadinessRoute(pathname: string) {
 }
 function isMachineComparableRoutesRoute(pathname: string) {
   return /^\/machine-comparable-routes\/?$/.test(pathname);
+}
+function isMachineTranslationEvidenceRoute(pathname: string) {
+  return /^\/machine-translation-evidence\/?$/.test(pathname);
 }
 function isMachineProofLadderRoute(pathname: string) {
   return /^\/machine-proof-ladder\/?$/.test(pathname);
@@ -3749,7 +3778,7 @@ function MachineMarketPage() {
       <section className="panel machine-market-caveat" aria-label="Coverage caveat">
         <p>Infopunks Radar mapped the entire listed robotic.sh machine-service market.</p>
         <p>Coverage refers to the 13 services visible in the observed robotic.sh market snapshot. 0 market-wide execution claims. Service-specific execution receipts are scoped to the recorded route.</p>
-        <p><a className="execute compact secondary" href="/machine-market-map">View market map</a> <a className="execute compact secondary" href="/machine-readiness-matrix">View readiness matrix</a> <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a> <a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a> <a className="execute compact secondary" href="/machine-route-risk-matrix">View route risk matrix</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a> <a className="execute compact secondary" href="/machine-benchmark-readiness">View benchmark readiness</a> <a className="execute compact secondary" href="/machine-benchmark-methodology">View benchmark methodology</a> <a className="execute compact secondary" href="/machine-comparable-routes">View comparable routes</a> <a className="execute compact secondary" href="/machine-proof-ladder">View proof ladder</a> <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a></p>
+        <p><a className="execute compact secondary" href="/machine-market-map">View market map</a> <a className="execute compact secondary" href="/machine-readiness-matrix">View readiness matrix</a> <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a> <a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a> <a className="execute compact secondary" href="/machine-route-risk-matrix">View route risk matrix</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a> <a className="execute compact secondary" href="/machine-benchmark-readiness">View benchmark readiness</a> <a className="execute compact secondary" href="/machine-benchmark-methodology">View benchmark methodology</a> <a className="execute compact secondary" href="/machine-comparable-routes">View comparable routes</a> <a className="execute compact secondary" href="/machine-translation-evidence">View translation evidence plan</a> <a className="execute compact secondary" href="/machine-proof-ladder">View proof ladder</a> <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a></p>
       </section>
       <MachineEvidenceMethodologyDrawer />
       <EvidenceLadder services={services} />
@@ -4650,7 +4679,7 @@ function MachineFirstSafeRoutesPage() {
           <p>Payment is not confirmed unless payment evidence exists. Route metadata does not imply execution.</p>
           <p>First-safe does not mean executed. Rank does not mean winner. Execution requires service-specific receipts.</p>
           <p>First-safe route ranking is planning metadata. It does not imply execution, payment success, benchmark superiority, provider quality, or winner status.</p>
-          <p><a className="execute compact secondary" href="/machine-route-risk-matrix">Back to route risk matrix</a> <a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a> <a className="execute compact secondary" href="/machine-benchmark-readiness">View benchmark readiness</a> <a className="execute compact secondary" href="/machine-comparable-routes">View comparable routes</a></p>
+          <p><a className="execute compact secondary" href="/machine-route-risk-matrix">Back to route risk matrix</a> <a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a> <a className="execute compact secondary" href="/machine-benchmark-readiness">View benchmark readiness</a> <a className="execute compact secondary" href="/machine-comparable-routes">View comparable routes</a> <a className="execute compact secondary" href="/machine-translation-evidence">View translation evidence plan</a></p>
         </section>
         <section className="panel machine-market-brief" aria-label="Machine first safe route brief">
           <div className="panel-head">
@@ -4947,7 +4976,7 @@ function MachineBenchmarkReadinessPage() {
         <p>No winner claim exists until criteria and artifacts exist.</p>
         <p>A single repeatable route is not a benchmark.</p>
         <p>Comparable routes are required before benchmark artifacts.</p>
-        <p><a className="execute compact secondary" href="/machine-market">Back to Machine Market</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a> <a className="execute compact secondary" href="/machine-benchmark-methodology">View benchmark methodology</a> <a className="execute compact secondary" href="/machine-comparable-routes">View comparable routes</a> <a className="execute compact secondary" href="/machine-receipts">View receipts</a></p>
+        <p><a className="execute compact secondary" href="/machine-market">Back to Machine Market</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a> <a className="execute compact secondary" href="/machine-benchmark-methodology">View benchmark methodology</a> <a className="execute compact secondary" href="/machine-comparable-routes">View comparable routes</a> <a className="execute compact secondary" href="/machine-translation-evidence">View translation evidence plan</a> <a className="execute compact secondary" href="/machine-receipts">View receipts</a></p>
       </section>
       {loading && <section className="panel" role="status"><p className="route-state">Loading machine benchmark readiness...</p></section>}
       {error && <section className="panel" role="alert"><p className="route-state error">Machine benchmark readiness unavailable: {error}</p></section>}
@@ -5032,7 +5061,7 @@ function MachineComparableRoutesPage() {
       <section className="panel machine-market-caveat" aria-label="Machine comparable route caveats">
         <p>No comparable route, no benchmark.</p>
         <p>Methodology before leaderboard.</p>
-        <p><a className="execute compact secondary" href="/machine-benchmark-readiness">View benchmark readiness</a> <a className="execute compact secondary" href="/machine-benchmark-methodology">View benchmark methodology</a> <a className="execute compact secondary" href="/machine-market">Back to Machine Market</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a></p>
+        <p><a className="execute compact secondary" href="/machine-benchmark-readiness">View benchmark readiness</a> <a className="execute compact secondary" href="/machine-benchmark-methodology">View benchmark methodology</a> <a className="execute compact secondary" href="/machine-translation-evidence">View translation evidence plan</a> <a className="execute compact secondary" href="/machine-market">Back to Machine Market</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a></p>
       </section>
       {loading && <section className="panel" role="status"><p className="route-state">Loading machine comparable routes...</p></section>}
       {error && <section className="panel" role="alert"><p className="route-state error">Machine comparable routes unavailable: {error}</p></section>}
@@ -5070,6 +5099,102 @@ function MachineComparableRoutesPage() {
             <p>Missing comparable route: {lane.evidence_requirements_panel?.missing_comparable_route ? 'yes' : 'no'}</p>
             <p>Missing run-count target: {lane.evidence_requirements_panel?.missing_run_count_target ? `yes (target=${lane.evidence_requirements_panel?.run_count_target ?? lane.run_count_target})` : 'no'}</p>
           </section>)}
+      </>}
+    </main>
+  </div>;
+}
+
+function MachineTranslationEvidencePage() {
+  const [plan, setPlan] = useState<MachineTranslationEvidencePlan | null>(null);
+  const [gate, setGate] = useState<MachineBenchmarkGateCheck | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.title = 'Machine Translation Evidence Plan | Infopunks Pay.sh Radar';
+    setMetaTag('name', 'description', 'Machine Translation evidence acquisition planning. No benchmark execution and no winner claims.');
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    Promise.all([
+      api<{ data: MachineTranslationEvidencePlan }>('/v1/machine-execution/translation-evidence-plan'),
+      api<{ data: MachineBenchmarkGateCheck }>('/v1/machine-execution/benchmark-gate')
+    ]).then(([planResponse, gateResponse]) => {
+      if (cancelled) return;
+      setPlan(planResponse.data);
+      setGate(gateResponse.data);
+      setLoading(false);
+    }).catch((err) => {
+      if (cancelled) return;
+      setError(err instanceof Error ? err.message : 'machine translation evidence unavailable');
+      setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return <div className="shell machine-market-shell">
+    <a className="skip-link" href="#machine-translation-evidence-content">Skip to content</a>
+    <header className="site-header">
+      <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Translation Evidence navigation">
+        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <div className="terminal-nav" aria-label="Machine Economy navigation">
+          <MachineControlPlaneNavLinks current="machine-translation-evidence" />
+        </div>
+      </nav>
+    </header>
+    <main id="machine-translation-evidence-content" className="machine-market-page machine-benchmark-readiness-page" aria-label="Machine Translation Evidence Acquisition Plan">
+      <section className="panel hero machine-market-hero">
+        <div>
+          <p className="eyebrow">Evidence Acquisition</p>
+          <h1>Machine Translation Evidence Plan</h1>
+          <p className="copy">Plan route identity, route surface, receipts, and repeatability before re-checking benchmark gate.</p>
+        </div>
+      </section>
+      <section className="panel machine-market-caveat" aria-label="Machine translation evidence caveats">
+        <p>candidate_unproven does not open benchmark gate.</p>
+        <p>fixture_only does not open benchmark gate unless explicitly allowed by methodology.</p>
+        <p>proven requires successful service-specific receipt evidence.</p>
+        <p>Two proven comparable routes are required before benchmark gate can open.</p>
+        <p><a className="execute compact secondary" href="/machine-market">Back to Machine Market</a> <a className="execute compact secondary" href="/machine-comparable-routes">View comparable routes</a> <a className="execute compact secondary" href="/machine-benchmark-readiness">View benchmark readiness</a> <a className="execute compact secondary" href="/machine-benchmark-methodology">View benchmark methodology</a> <a className="execute compact secondary" href="/machine-proof-ladder">View proof ladder</a></p>
+      </section>
+      {loading && <section className="panel" role="status"><p className="route-state">Loading machine translation evidence plan...</p></section>}
+      {error && <section className="panel" role="alert"><p className="route-state error">Machine translation evidence unavailable: {error}</p></section>}
+      {!loading && !error && plan && <>
+        {gate && <MachineBenchmarkGatePanel gate={gate} />}
+        <section className="grid four machine-market-summary" aria-label="Machine translation evidence summary">
+          <article className="panel metric"><span>Comparable route count</span><strong>{plan.comparable_route_count}</strong><small>eligible translation routes</small></article>
+          <article className="panel metric"><span>Proven comparable routes</span><strong>{plan.proven_comparable_route_count}</strong><small>must be at least 2</small></article>
+          <article className="panel metric"><span>Run count target</span><strong>{plan.run_count_target}</strong><small>per proven route</small></article>
+          <article className="panel metric"><span>Benchmark gate</span><strong>{plan.benchmark_execution_allowed ? 'open' : 'closed'}</strong><small>closed until full proof conditions are met</small></article>
+        </section>
+        <section className="panel machine-service-table-panel" aria-label="Machine translation evidence route table">
+          <div className="panel-head"><div><p className="section-kicker">Candidate routes</p><h2>{plan.routes.length} route evidence tracks</h2></div></div>
+          <div className="machine-service-table" role="table" aria-label="Machine translation evidence routes">
+            <div className="machine-service-row machine-blocker-row head" role="row">
+              {['service', 'service identity', 'route surface', 'proof profile match', 'receipt', 'repeatability', 'comparable-route eligible', 'evidence state', 'missing evidence', 'next action'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
+            </div>
+            {plan.routes.map((route) => <div key={`${route.service_id}:${route.route_id}`} className="machine-service-row machine-blocker-row" role="row">
+              <span role="cell"><strong>{route.service_id}</strong><small>{route.route_id}</small></span>
+              <span role="cell">{route.service_identity_state}</span>
+              <span role="cell">{route.route_surface_state}</span>
+              <span role="cell">{route.proof_profile_match}</span>
+              <span role="cell">{route.receipt_state}</span>
+              <span role="cell">{route.repeatability_state}</span>
+              <span role="cell"><span className={`machine-status-badge ${route.comparable_route_eligible ? 'complete' : 'review'}`}>{route.comparable_route_eligible ? 'yes' : 'no'}</span></span>
+              <span role="cell"><span className="machine-status-badge review">{route.evidence_state}</span></span>
+              <span role="cell"><small>{route.missing_evidence.join(', ') || 'none'}</small></span>
+              <span role="cell">{route.next_action}</span>
+            </div>)}
+          </div>
+        </section>
+        <section className="panel machine-market-caveat" aria-label="Machine translation evidence acquisition ctas">
+          <p><b>Current blockers:</b> {plan.blockers.join(', ') || 'none'}</p>
+          <p><b>CTAs:</b> {plan.ctas.join(' · ')}</p>
+          <p><b>No benchmark claim:</b> true</p>
+          <p><b>No winner claim:</b> true</p>
+        </section>
       </>}
     </main>
   </div>;
@@ -5197,6 +5322,7 @@ function MachineProofLadderPage() {
         <p>No criteria, no winner.</p>
         <p>Service receipt ≠ market proof.</p>
         <p>Repeatability ≠ winner.</p>
+        <p><a className="execute compact secondary" href="/machine-translation-evidence">View translation evidence plan</a></p>
       </section>
       {gate && <MachineBenchmarkGatePanel gate={gate} />}
       <section className="panel machine-service-table-panel" aria-label="Machine proof ladder stages">
@@ -5280,7 +5406,7 @@ function MachineBenchmarkMethodologyPage() {
         <p>No comparable route, no benchmark.</p>
         <p>No criteria, no winner.</p>
         <p>No artifact, no claim.</p>
-        <p><a className="execute compact secondary" href="/machine-market">Back to Machine Market</a> <a className="execute compact secondary" href="/machine-benchmark-readiness">View benchmark readiness</a> <a className="execute compact secondary" href="/machine-comparable-routes">View comparable routes</a></p>
+        <p><a className="execute compact secondary" href="/machine-market">Back to Machine Market</a> <a className="execute compact secondary" href="/machine-benchmark-readiness">View benchmark readiness</a> <a className="execute compact secondary" href="/machine-comparable-routes">View comparable routes</a> <a className="execute compact secondary" href="/machine-translation-evidence">View translation evidence plan</a></p>
       </section>
       {loading && <section className="panel" role="status"><p className="route-state">Loading machine benchmark methodology...</p></section>}
       {error && <section className="panel" role="alert"><p className="route-state error">Machine benchmark methodology unavailable: {error}</p></section>}
@@ -12397,6 +12523,7 @@ type MachineControlPlaneNavCurrent =
   | 'machine-benchmark-readiness'
   | 'machine-benchmark-methodology'
   | 'machine-comparable-routes'
+  | 'machine-translation-evidence'
   | 'machine-proof-ladder'
   | 'machine-execution-shortlist'
   | 'machine-readiness-matrix'
@@ -12422,6 +12549,7 @@ function MachineControlPlaneNavLinks({
     { href: '/machine-benchmark-readiness', label: 'Benchmark Readiness', key: 'machine-benchmark-readiness' },
     { href: '/machine-benchmark-methodology', label: 'Benchmark Methodology', key: 'machine-benchmark-methodology' },
     { href: '/machine-comparable-routes', label: 'Comparable Routes', key: 'machine-comparable-routes' },
+    { href: '/machine-translation-evidence', label: 'Translation Evidence', key: 'machine-translation-evidence' },
     { href: '/machine-proof-ladder', label: 'Proof Ladder', key: 'machine-proof-ladder' },
     { href: '/machine-receipts', label: 'Receipts', key: 'machine-receipts' }
   ];
@@ -12473,6 +12601,7 @@ function MachineControlSurfacesStrip() {
       <a className="execute compact secondary" href="/machine-benchmark-readiness">Benchmark Readiness</a>
       <a className="execute compact secondary" href="/machine-benchmark-methodology">Benchmark Methodology</a>
       <a className="execute compact secondary" href="/machine-comparable-routes">Comparable Routes</a>
+      <a className="execute compact secondary" href="/machine-translation-evidence">Translation Evidence</a>
       <a className="execute compact secondary" href="/machine-proof-ladder">Proof Ladder</a>
       <a className="execute compact secondary" href="/machine-execution-shortlist">Proof Plans</a>
       <a className="execute compact secondary" href="/machine-readiness-matrix">Readiness Matrix</a>
@@ -12489,6 +12618,7 @@ function MachineControlSurfacesStrip() {
       <p><span>First Safe Queue</span><small>execution roadmap without execution</small></p>
       <p><span>Benchmark Readiness</span><small>readiness state only, no benchmark evidence</small></p>
       <p><span>Comparable Routes</span><small>methodology contracts before benchmarking</small></p>
+      <p><span>Translation Evidence</span><small>evidence acquisition path to unlock translation lane later</small></p>
       <p><span>Proof Ladder</span><small>public evidence progression without winner claims</small></p>
       <p><span>Execution Blockers</span><small>what should not run yet</small></p>
       <p><span>Changelog</span><small>machine market memory</small></p>
@@ -12513,6 +12643,7 @@ export function App() {
   if (isMachineBenchmarkReadinessRoute(window.location.pathname)) return <MachineBenchmarkReadinessPage />;
   if (isMachineBenchmarkMethodologyRoute(window.location.pathname)) return <MachineBenchmarkMethodologyPage />;
   if (isMachineComparableRoutesRoute(window.location.pathname)) return <MachineComparableRoutesPage />;
+  if (isMachineTranslationEvidenceRoute(window.location.pathname)) return <MachineTranslationEvidencePage />;
   if (isMachineProofLadderRoute(window.location.pathname)) return <MachineProofLadderPage />;
   if (isMachineExecutionBlockersRoute(window.location.pathname)) return <MachineExecutionBlockersPage />;
   if (isMachineMarketChangelogRoute(window.location.pathname)) return <MachineMarketChangelogPage />;
