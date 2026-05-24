@@ -403,6 +403,121 @@ describe('machine execution anytrans translation route', () => {
     expect(ingestedData.caveats).toContain('Not payment proof.');
     expect(ingestedData.caveats).toContain('Not benchmark proof.');
     expect(ingestedData.caveats).toContain('Not winner proof.');
+    const recent = await app.inject({ method: 'GET', url: '/v1/machine-preflight/receipts/recent?service_id=bigquery&limit=20' });
+    const fixtureReceipt = recent.json().data.receipts[0];
+    expect(fixtureReceipt.execution_request_summary).toContain('"fixture":"bigquery_bounded_query"');
+    expect(fixtureReceipt.execution_request_summary).not.toContain('"live_execution":true');
+    await app.close();
+  });
+
+  it('blocks live BigQuery run when Harness integration is not configured', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/bigquery/run-bounded-query',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: 'did:peaq:bigquery-live-bot-01',
+        query: 'SELECT value FROM `bigquery-public-data.samples.synthetic_table` WHERE value IS NOT NULL LIMIT 5',
+        query_label: 'public.synthetic.smoke_check',
+        row_limit: 5,
+        dataset_classification: 'public'
+      }
+    });
+    expect(response.statusCode).toBe(409);
+    const body = response.json().data;
+    expect(body.status).toBe('blocked');
+    expect(body.reason).toBe('live_harness_not_configured');
+    expect(body.claim_posture).toEqual({
+      execution_claim: false,
+      payment_success_claim: false,
+      benchmark_claim: false,
+      winner_claim: false
+    });
+    const recent = await app.inject({ method: 'GET', url: '/v1/machine-preflight/receipts/recent?service_id=bigquery&limit=20' });
+    expect(recent.json().data.receipts).toHaveLength(0);
+    await app.close();
+  });
+
+  it('rejects unsafe/unbounded/sensitive live BigQuery queries', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    process.env.INFOPUNKS_BIGQUERY_LIVE_HARNESS_ENABLED = 'true';
+    process.env.INFOPUNKS_BIGQUERY_LIVE_HARNESS_MODE = 'mock_success';
+    process.env.INFOPUNKS_BIGQUERY_LIVE_CREDENTIALS_CONFIGURED = '1';
+    process.env.INFOPUNKS_BIGQUERY_LIVE_RAIL_CONFIGURED = '1';
+    const app = await createApp(emptyIntelligenceStore());
+
+    const unsafe = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/bigquery/run-bounded-query',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: 'did:peaq:bigquery-live-bot-01',
+        query: 'SELECT * FROM `x.y.z`',
+        query_label: 'unsafe',
+        row_limit: 10,
+        dataset_classification: 'public'
+      }
+    });
+    expect(unsafe.statusCode).toBe(409);
+    expect(unsafe.json().data.reason).toBe('row_limit_required');
+
+    const sensitive = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/bigquery/run-bounded-query',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: 'did:peaq:bigquery-live-bot-01',
+        query: 'SELECT email FROM `x.y.z` WHERE email IS NOT NULL LIMIT 5',
+        query_label: 'sensitive',
+        row_limit: 5,
+        dataset_classification: 'public'
+      }
+    });
+    expect(sensitive.statusCode).toBe(409);
+    expect(sensitive.json().data.reason).toBe('personal_data_not_allowed');
+    await app.close();
+  });
+
+  it('records service-specific BigQuery live receipt when mocked Harness is configured', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    process.env.INFOPUNKS_BIGQUERY_LIVE_HARNESS_ENABLED = 'true';
+    process.env.INFOPUNKS_BIGQUERY_LIVE_HARNESS_MODE = 'mock_success';
+    process.env.INFOPUNKS_BIGQUERY_LIVE_CREDENTIALS_CONFIGURED = '1';
+    process.env.INFOPUNKS_BIGQUERY_LIVE_RAIL_CONFIGURED = '1';
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/bigquery/run-bounded-query',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: 'did:peaq:bigquery-live-bot-01',
+        query: 'SELECT value FROM `bigquery-public-data.samples.synthetic_table` WHERE value IS NOT NULL LIMIT 5',
+        query_label: 'public.synthetic.smoke_check',
+        row_limit: 5,
+        dataset_classification: 'public'
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const data = response.json().data;
+    expect(data.status).toBe('succeeded');
+    expect(data.service_id).toBe('bigquery');
+    expect(data.proof_profile).toBe('bigquery_bounded_query');
+    expect(data.payment_status).toBe('not_confirmed');
+    expect(data.claim_posture.execution_claim).toBe(false);
+    expect(data.claim_posture.benchmark_claim).toBe(false);
+    expect(data.claim_posture.winner_claim).toBe(false);
+
+    const recent = await app.inject({ method: 'GET', url: '/v1/machine-preflight/receipts/recent?service_id=bigquery&limit=20' });
+    const [receipt] = recent.json().data.receipts;
+    expect(receipt.receipt_type).toBe('machine_execution');
+    expect(receipt.execution_service_id).toBe('bigquery');
+    expect(receipt.execution_request_summary).toContain('"live_execution":true');
+    expect(receipt.execution_request_summary).not.toContain('fixture');
+    expect(receipt.payment_occurred).toBe(false);
+    expect(receipt.caveats).toContain('Not benchmark proof.');
+    expect(receipt.caveats).toContain('Not winner proof.');
     await app.close();
   });
 

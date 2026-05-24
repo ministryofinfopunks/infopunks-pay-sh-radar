@@ -109,6 +109,7 @@ describe('openapi discovery', () => {
     const ingest = spec.paths['/v1/machine-execution/receipts/ingest']?.post;
     const fixtureSample = spec.paths['/v1/machine-execution/bigquery/fixtures/bounded-query']?.get;
     const fixtureIngest = spec.paths['/v1/machine-execution/bigquery/fixtures/ingest']?.post;
+    const liveRun = spec.paths['/v1/machine-execution/bigquery/run-bounded-query']?.post;
     const stableuploadFixtureSample = spec.paths['/v1/machine-execution/stableupload/fixtures/tiny-fixture']?.get;
     const stableuploadFixtureIngest = spec.paths['/v1/machine-execution/stableupload/fixtures/ingest']?.post;
     const naverFixtureSample = spec.paths['/v1/machine-execution/naver/fixtures/geocode']?.get;
@@ -117,6 +118,7 @@ describe('openapi discovery', () => {
     expect(ingest).toBeTruthy();
     expect(fixtureSample).toBeTruthy();
     expect(fixtureIngest).toBeTruthy();
+    expect(liveRun).toBeTruthy();
     expect(stableuploadFixtureSample).toBeTruthy();
     expect(stableuploadFixtureIngest).toBeTruthy();
     expect(naverFixtureSample).toBeTruthy();
@@ -126,6 +128,7 @@ describe('openapi discovery', () => {
     expect(spec.components.securitySchemes.bearerAuth.scheme).toBe('bearer');
     expect(ingest.security).toEqual([{ bearerAuth: [] }]);
     expect(fixtureIngest.security).toEqual([{ bearerAuth: [] }]);
+    expect(liveRun.security).toEqual([{ bearerAuth: [] }]);
     expect(stableuploadFixtureIngest.security).toEqual([{ bearerAuth: [] }]);
     expect(naverFixtureIngest.security).toEqual([{ bearerAuth: [] }]);
     expect(fixtureSample.security).toBeUndefined();
@@ -152,6 +155,10 @@ describe('openapi discovery', () => {
     expect(String(fixtureIngest.description)).toContain('not benchmark proof');
     expect(String(fixtureIngest.description)).toContain('not winner proof');
     expect(JSON.stringify(fixtureIngest.responses)).toContain('admin_token_required');
+    expect(String(liveRun.description)).toContain('never falls back to fixture routes');
+    expect(String(liveRun.description)).toContain('Admin bearer auth required');
+    expect(JSON.stringify(liveRun.responses)).toContain('live_harness_not_configured');
+    expect(JSON.stringify(liveRun.responses)).toContain('admin_token_required');
 
     expect(String(stableuploadFixtureSample.description)).toContain('Fixture-only route');
     expect(String(stableuploadFixtureSample.description)).toContain('does not execute live Stableupload');

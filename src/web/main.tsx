@@ -72,6 +72,7 @@ type MachineFirstSafeCandidate = 'yes' | 'possible' | 'no' | 'not_recorded';
 type MachineAvoidFirst = 'yes' | 'no';
 type MachineRouteExecutionStatus = 'not_attempted' | 'service_receipt_recorded' | 'repeatability_receipt_recorded';
 type MachineRailExecutionGateStatus = 'ready_to_plan' | 'review_required' | 'blocked' | 'not_recorded';
+type BigQueryLiveHarnessStatus = 'blocked_live_harness_not_configured' | 'ready_for_controlled_run' | 'receipt_recorded';
 type MachineMarketCatalogRoute = {
   method: string;
   path: string;
@@ -2810,20 +2811,23 @@ function buildMachineFirstSafeRouteQueueRows(services: MachineMarketService[], r
     }
 
     if (service.id === 'bigquery') {
+      const liveStatus = getBigQueryLiveHarnessStatus(service, receipts);
       return {
         rank: index + 1,
         service_id: service.id,
         service_name: service.name,
         first_safe_route: 'bounded public/synthetic query',
         why_safe_first: 'bounded query result can be parsed without sensitive production data',
-        blocked_by: 'callable route/path confirmation not recorded; dataset boundary; credential/payment status',
-        required_evidence: 'selected_route, bounded query input, parseable tabular output, credential_status, execution receipt',
+        blocked_by: liveStatus === 'blocked_live_harness_not_configured'
+          ? 'live harness/credentials/rail not configured for controlled run'
+          : 'dataset boundary; credential/payment status',
+        required_evidence: 'selected_route, bounded query input, parseable tabular output, credential_status, harness gate status, execution receipt',
         execution_status: executionStatus,
         execution_receipt_id: latestExecutionReceipt?.receipt_id ?? null,
         proof_plan_href: proofPlanHref,
-        warning: 'Do not query sensitive business or production data in the first proof attempt.',
-        review_gated: false,
-        blocked_or_setup_required: true
+        warning: `BigQuery live status: ${liveStatus}. Do not query sensitive business or production data in the first proof attempt.`,
+        review_gated: liveStatus !== 'receipt_recorded',
+        blocked_or_setup_required: liveStatus === 'blocked_live_harness_not_configured'
       };
     }
 
@@ -2962,6 +2966,7 @@ function buildMachineExecutionBlockerRows(services: MachineMarketService[], rece
   for (const service of services) {
     const executionStatus = getMachineRouteExecutionStatus(service.id, receipts);
     const source_attribution = getMachineSourceAttribution(service);
+    const bigQueryLiveStatus = service.id === 'bigquery' ? getBigQueryLiveHarnessStatus(service, receipts) : null;
 
     if (executionStatus === 'not_attempted') {
       rows.push({
@@ -3019,6 +3024,18 @@ function buildMachineExecutionBlockerRows(services: MachineMarketService[], rece
         blocker: 'Human review required before autonomous spend planning.',
         evidence_needed: 'Policy decision, bounded route constraints, and caveat acceptance.',
         next_safe_action: 'Keep Governance before autonomy as the default posture.',
+        source_attribution
+      });
+    }
+
+    if (service.id === 'bigquery' && bigQueryLiveStatus === 'blocked_live_harness_not_configured') {
+      rows.push({
+        service_id: service.id,
+        service_name: service.name,
+        blocker_class: 'setup',
+        blocker: 'BigQuery live Harness, credentials, or rail is not configured.',
+        evidence_needed: 'Harness integration status, credential status, rail status, and explicit blocked reasons from /v1/machine-execution/bigquery/run-bounded-query.',
+        next_safe_action: 'Keep fixture path separate; do not claim live execution until a live Harness receipt is recorded.',
         source_attribution
       });
     }
@@ -3260,6 +3277,36 @@ function getServicePreflightReceipt(serviceId: string, receipts: MachinePrefligh
 
 function getServiceExecutionReceipt(serviceId: string, receipts: MachinePreflightReceipt[]) {
   return receipts.find((receipt) => receipt.receipt_type === 'machine_execution' && receipt.execution_service_id === serviceId) ?? null;
+}
+
+function parseMachineExecutionSummaryLoose(summary: unknown): Record<string, unknown> | null {
+  if (!summary) return null;
+  if (typeof summary === 'object') return summary as Record<string, unknown>;
+  if (typeof summary !== 'string') return null;
+  try {
+    const parsed = JSON.parse(summary);
+    return parsed && typeof parsed === 'object' ? parsed as Record<string, unknown> : null;
+  } catch {
+    return null;
+  }
+}
+
+function isBigQueryLiveExecutionReceipt(receipt: MachinePreflightReceipt) {
+  if (receipt.receipt_type !== 'machine_execution') return false;
+  if ((receipt.execution_service_id ?? receipt.selected_service_id) !== 'bigquery') return false;
+  if (receipt.execution_status !== 'succeeded' || !receipt.execution_occurred) return false;
+  const requestSummary = parseMachineExecutionSummaryLoose(receipt.execution_request_summary);
+  const responseSummary = parseMachineExecutionSummaryLoose(receipt.execution_response_summary);
+  return requestSummary?.live_execution === true
+    && requestSummary?.harness_execution === true
+    && responseSummary?.bounded_query_confirmed === true;
+}
+
+function getBigQueryLiveHarnessStatus(service: MachineMarketService | null, receipts: MachinePreflightReceipt[]): BigQueryLiveHarnessStatus {
+  const hasLiveReceipt = receipts.some((receipt) => isBigQueryLiveExecutionReceipt(receipt));
+  if (hasLiveReceipt) return 'receipt_recorded';
+  if (service?.route_surface_status === 'callable_routes_listed' && service.status === 'ready') return 'ready_for_controlled_run';
+  return 'blocked_live_harness_not_configured';
 }
 
 function getMachineInspectorNextSafeAction(service: MachineMarketService, candidate: MachineExecutionCandidateScore | null, selectedControlledActionId: string | null) {
@@ -5894,6 +5941,7 @@ function MachineExecutionProofPlanPage({ serviceId }: { serviceId: string }) {
   const isBigQuery = service?.id === 'bigquery';
   const isStableupload = service?.id === 'stableupload';
   const railGate = getRailExecutionGate(service, latestPolicyDecision);
+  const bigQueryLiveStatus = isBigQuery ? getBigQueryLiveHarnessStatus(service, receipts) : null;
   const proofAttributionRows = service ? [
     ...getMachineServiceAttributionRows(service),
     getMachineReceiptAttributionRow(service, latestExecution)
@@ -6027,6 +6075,7 @@ function MachineExecutionProofPlanPage({ serviceId }: { serviceId: string }) {
           <div className="machine-usage-list">
             <p><span>gate status</span><small>{railGate.status}</small></p>
             <p><span>reason</span><small>{railGate.reason}</small></p>
+            {isBigQuery && <p><span>bigquery_live_harness_status</span><small>{bigQueryLiveStatus}</small></p>}
           </div>
           <p className="panel-caption">Never execution-ready without a service-specific receipt. This gate is planning-only.</p>
         </section>
@@ -6715,6 +6764,7 @@ function ReceiptsSummaryCards({ receipts }: { receipts: MachinePreflightReceipt[
   const demoCount = receipts.filter((receipt) => receipt.demo_mode).length;
   const uniqueMachines = new Set(receipts.map((receipt) => receipt.machine_id)).size;
   const evidenceCounts = machineEvidenceCounts(receipts);
+  const bigQueryLiveReceipts = receipts.filter((receipt) => isBigQueryLiveExecutionReceipt(receipt)).length;
   const marketCounts = receipts.reduce<Record<string, number>>((counts, receipt) => {
     if (receipt.source_market) counts[receipt.source_market] = (counts[receipt.source_market] ?? 0) + 1;
     return counts;
@@ -6727,6 +6777,7 @@ function ReceiptsSummaryCards({ receipts }: { receipts: MachinePreflightReceipt[
     <article className="panel metric"><span>Review</span><strong>{receipts.filter((receipt) => receipt.decision === 'review').length}</strong><small>human checkpoint</small></article>
     <article className="panel metric"><span>Preflight decision receipts</span><strong>{evidenceCounts.preflight_decision_receipts}</strong><small>policy decisions, not service execution</small></article>
     <article className="panel metric"><span>Service-specific execution receipts</span><strong>{evidenceCounts.service_specific_execution_receipts}</strong><small>execution proof for one service only</small></article>
+    <article className="panel metric"><span>BigQuery live receipts</span><strong>{bigQueryLiveReceipts}</strong><small>counted only when live Harness execution succeeded</small></article>
     <article className="panel metric"><span>Payment success claims</span><strong>{evidenceCounts.payment_success_claims}</strong><small>requires explicit payment evidence</small></article>
     {demoCount > 0 && <article className="panel metric"><span>Demo receipts</span><strong>{demoCount}</strong><small>local demo mode only</small></article>}
     <article className="panel metric"><span>Unique machines</span><strong>{uniqueMachines}</strong><small>machine identities</small></article>
@@ -6853,6 +6904,7 @@ function MachineExecutionReceiptDetailPage({ receiptId }: { receiptId: string })
   const requestSummary = parseMachineExecutionSummary(receipt?.execution_request_summary);
   const responseSummary = parseMachineExecutionSummary(receipt?.execution_response_summary);
   const isBigQueryReceipt = (receipt?.execution_service_id ?? receipt?.selected_service_id) === 'bigquery';
+  const isBigQueryLiveReceipt = receipt ? isBigQueryLiveExecutionReceipt(receipt) : false;
   const isStableuploadReceipt = (receipt?.execution_service_id ?? receipt?.selected_service_id) === 'stableupload';
   const isNaverReceipt = (receipt?.execution_service_id ?? receipt?.selected_service_id) === 'naver-maps';
 
@@ -6889,8 +6941,12 @@ function MachineExecutionReceiptDetailPage({ receiptId }: { receiptId: string })
             <p><span>bounded_query_confirmed</span><small>{String(responseSummary?.bounded_query_confirmed ?? false)}</small></p>
             <p><span>result_preview</span><small>{String(responseSummary?.result_preview != null ? JSON.stringify(responseSummary.result_preview) : 'none')}</small></p>
             <p><span>request_fixture</span><small>{String(requestSummary?.fixture ?? 'none')}</small></p>
+            <p><span>live_harness_execution</span><small>{String(isBigQueryLiveReceipt)}</small></p>
           </div>
-          <p className="panel-caption">Bounded public/synthetic query fixture path. Replace with Harness execution output when live rail is configured.</p>
+          <p className="panel-caption">{isBigQueryLiveReceipt
+            ? 'Live Harness bounded-query receipt recorded.'
+            : 'Bounded public/synthetic query fixture path. Replace with Harness execution output when live rail is configured.'}
+          </p>
         </section>}
         {isStableuploadReceipt && <section className="panel" aria-label="Stableupload tiny fixture receipt summary">
           <h2>Stableupload Summary</h2>

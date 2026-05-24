@@ -100,6 +100,7 @@ import {
   ingestMachineExecutionReceipt,
   ingestAlibabaMachineTranslationGeneralArtifact,
   ingestAnyTransExecutionArtifact,
+  runBigQueryLiveBoundedQuery,
   runTranslationExecutionRoute
 } from '../services/machineExecutionService';
 import { validateMachineExecutionProofByProfile } from '../services/machineExecutionProofProfiles';
@@ -260,6 +261,14 @@ const BigQueryFixtureIngestSchema = z.object({
   machine_id: z.string().min(1).optional(),
   execution_completed_at: z.string().datetime().optional()
 }).optional();
+const BigQueryLiveBoundedQueryRunSchema = z.object({
+  machine_id: z.string().min(1),
+  query: z.string().min(1),
+  query_label: z.string().min(1),
+  row_limit: z.number().int().positive().max(1000),
+  dataset_classification: z.enum(['public', 'synthetic', 'explicitly_safe']),
+  payment_evidence: z.unknown().nullable().optional()
+}).strict();
 const MAX_INLINE_SUPPORTING_EVENT_IDS = 10;
 const DEFAULT_ALLOWED_ORIGINS = new Set([
   'https://radar.infopunks.fun',
@@ -797,6 +806,28 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
         fixture_label: 'BigQuery bounded public/synthetic query fixture',
         proof_profile: 'bigquery_bounded_query',
         payload: fixturePayload,
+        ...result,
+        phase_scope: MACHINE_MARKET_PHASE_SCOPE,
+        storage: machineReceiptStorage
+      })
+    };
+  });
+  app.post('/v1/machine-execution/bigquery/run-bounded-query', async (req, reply) => {
+    if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'admin_token_required' });
+    const parsed = BigQueryLiveBoundedQueryRunSchema.safeParse(req.body);
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_bigquery_live_run_request', details: parsed.error.flatten() });
+    const result = await runBigQueryLiveBoundedQuery(parsed.data);
+    if (result.status === 'blocked') {
+      return reply.code(409).send({
+        data: safeJsonExport({
+          ...result,
+          phase_scope: MACHINE_MARKET_PHASE_SCOPE,
+          storage: machineReceiptStorage
+        })
+      });
+    }
+    return {
+      data: safeJsonExport({
         ...result,
         phase_scope: MACHINE_MARKET_PHASE_SCOPE,
         storage: machineReceiptStorage

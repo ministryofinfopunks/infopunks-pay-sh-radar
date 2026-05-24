@@ -365,6 +365,80 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       '400': errorResponse('invalid_bigquery_fixture_ingest')
     }
   });
+  add('post', '/v1/machine-execution/bigquery/run-bounded-query', {
+    tags: ['Machine Economy'],
+    summary: 'Run guarded BigQuery bounded query via live Harness',
+    description: `${SAFE_METADATA_NOTE} Admin bearer auth required. Executes only through configured live Harness and never falls back to fixture routes. If Harness, credentials, or rail are missing, response is blocked with explicit reasons. Claim discipline: no market-wide execution claim, no payment success claim without payment evidence, no benchmark claim, no winner claim.`,
+    security: [{ bearerAuth: [] }],
+    requestBody: jsonRequest(
+      objectSchema({
+        machine_id: stringSchema(),
+        query: stringSchema(),
+        query_label: stringSchema(),
+        row_limit: integerSchema(),
+        dataset_classification: enumSchema(['public', 'synthetic', 'explicitly_safe']),
+        payment_evidence: { oneOf: [freeformObject(), { type: 'null' }] }
+      }, ['machine_id', 'query', 'query_label', 'row_limit', 'dataset_classification']),
+      {
+        machine_id: 'did:peaq:bigquery-live-bot-01',
+        query: 'SELECT value FROM `bigquery-public-data.samples.synthetic_table` WHERE value IS NOT NULL LIMIT 5',
+        query_label: 'public.synthetic.smoke_check',
+        row_limit: 5,
+        dataset_classification: 'public',
+        payment_evidence: null
+      }
+    ),
+    responses: {
+      ...envelopedResponses(
+        freeformObject(),
+        {
+          status: 'succeeded',
+          proof_profile: 'bigquery_bounded_query',
+          receipt_id: 'mrx_exec_20260524000001000_0001',
+          service_id: 'bigquery',
+          payment_status: 'not_confirmed',
+          claim_posture: {
+            execution_claim: false,
+            payment_success_claim: false,
+            benchmark_claim: false,
+            winner_claim: false
+          },
+          caveats: [
+            'Service-specific execution receipt only.',
+            'Not market-wide proof.',
+            'Not payment proof.',
+            'Not benchmark proof.',
+            'Not winner proof.'
+          ]
+        }
+      ),
+      '401': errorResponse('admin_token_required'),
+      '400': errorResponse('invalid_bigquery_live_run_request'),
+      '409': {
+        description: 'Live Harness blocked/not configured.',
+        content: {
+          'application/json': {
+            schema: objectSchema({
+              data: freeformObject()
+            }, ['data']),
+            example: {
+              data: {
+                status: 'blocked',
+                reason: 'live_harness_not_configured',
+                blockers: ['live_harness_not_configured', 'missing_bigquery_credentials_config', 'missing_bigquery_rail_config'],
+                claim_posture: {
+                  execution_claim: false,
+                  payment_success_claim: false,
+                  benchmark_claim: false,
+                  winner_claim: false
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  });
   add('get', '/v1/machine-execution/stableupload/fixtures/tiny-fixture', {
     tags: ['Machine Economy'],
     summary: 'Get Stableupload tiny-fixture payload',

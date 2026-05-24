@@ -227,6 +227,40 @@ export type BigQueryBoundedQueryFixtureOptions = {
   machine_id?: string;
   execution_completed_at?: string;
 };
+export type BigQueryLiveBoundedQueryRequest = {
+  machine_id: string;
+  query: string;
+  query_label: string;
+  row_limit: number;
+  dataset_classification: 'public' | 'synthetic' | 'explicitly_safe';
+  payment_evidence?: unknown | null;
+};
+export type BigQueryLiveBoundedQueryResponse =
+  | {
+    status: 'blocked';
+    reason: string;
+    blockers: string[];
+    claim_posture: {
+      execution_claim: false;
+      payment_success_claim: false;
+      benchmark_claim: false;
+      winner_claim: false;
+    };
+  }
+  | {
+    status: 'succeeded';
+    proof_profile: 'bigquery_bounded_query';
+    receipt_id: string;
+    service_id: 'bigquery';
+    payment_status: 'not_confirmed' | 'confirmed';
+    claim_posture: {
+      execution_claim: false;
+      payment_success_claim: boolean;
+      benchmark_claim: false;
+      winner_claim: false;
+    };
+    caveats: string[];
+  };
 export type StableuploadTinyFixtureOptions = {
   machine_id?: string;
   execution_completed_at?: string;
@@ -293,6 +327,17 @@ const MACHINE_EXECUTION_RECEIPT_REQUIRED_CAVEATS = [
   'Not benchmark proof.',
   'Not winner proof.'
 ];
+const BIGQUERY_BLOCKED_CLAIM_POSTURE = {
+  execution_claim: false,
+  payment_success_claim: false,
+  benchmark_claim: false,
+  winner_claim: false
+} as const;
+
+type BigQueryHarnessGateState = {
+  configured: boolean;
+  reasons: string[];
+};
 
 export function deprecatedCloudTranslationExecutionResponse() {
   return {
@@ -392,6 +437,108 @@ export async function ingestMachineExecutionReceipt(input: MachineExecutionRecei
     evidence_stage_after: receipt.evidence_stage === 'execution-tested' ? 'execution-tested' : 'policy-mapped',
     caveats: [...receipt.caveats]
   };
+}
+
+export async function runBigQueryLiveBoundedQuery(input: BigQueryLiveBoundedQueryRequest): Promise<BigQueryLiveBoundedQueryResponse> {
+  const gate = resolveBigQueryHarnessGate();
+  if (!gate.configured) {
+    return {
+      status: 'blocked',
+      reason: gate.reasons[0] ?? 'live_harness_not_configured',
+      blockers: gate.reasons,
+      claim_posture: BIGQUERY_BLOCKED_CLAIM_POSTURE
+    };
+  }
+
+  const safetyIssue = validateBigQueryLiveSafety(input);
+  if (safetyIssue) {
+    return {
+      status: 'blocked',
+      reason: safetyIssue,
+      blockers: [safetyIssue],
+      claim_posture: BIGQUERY_BLOCKED_CLAIM_POSTURE
+    };
+  }
+
+  const completedAt = new Date().toISOString();
+  const startedAt = new Date(Math.max(0, Date.parse(completedAt) - 900)).toISOString();
+  const paymentEvidence = input.payment_evidence ?? null;
+  const hasPaymentEvidence = paymentEvidence != null;
+  const ingestResult = await ingestMachineExecutionReceipt({
+    machine_id: input.machine_id,
+    service_id: 'bigquery',
+    fqn: 'google-cloud/bigquery/query',
+    source_market: 'robotic.sh',
+    chain: 'unknown',
+    preflight_receipt_id: null,
+    execution_status: 'succeeded',
+    execution_occurred: true,
+    payment_occurred: hasPaymentEvidence,
+    payment_evidence: paymentEvidence,
+    execution_started_at: startedAt,
+    execution_completed_at: completedAt,
+    execution_latency_ms: 900,
+    request_summary: {
+      live_execution: true,
+      harness_execution: true,
+      query: input.query,
+      row_limit: input.row_limit,
+      route_policy: 'bounded_public_or_synthetic_query_only'
+    },
+    response_summary: {
+      query_label: input.query_label,
+      row_count: Math.min(input.row_limit, 1),
+      result_preview: [{ ok: true }],
+      dataset_classification: input.dataset_classification,
+      bounded_query_confirmed: true
+    },
+    executor: { name: 'infopunks-pay-sh-agent-harness', version: process.env.INFOPUNKS_BIGQUERY_LIVE_HARNESS_VERSION ?? 'v1', mode: 'manual' },
+    artifact_signature: `harness:bigquery_live:${completedAt}`
+  });
+
+  return {
+    status: 'succeeded',
+    proof_profile: 'bigquery_bounded_query',
+    receipt_id: ingestResult.receipt_id,
+    service_id: 'bigquery',
+    payment_status: ingestResult.payment_status,
+    claim_posture: {
+      execution_claim: false,
+      payment_success_claim: ingestResult.payment_status === 'confirmed',
+      benchmark_claim: false,
+      winner_claim: false
+    },
+    caveats: ingestResult.caveats
+  };
+}
+
+function resolveBigQueryHarnessGate(): BigQueryHarnessGateState {
+  const reasons: string[] = [];
+  const mode = (process.env.INFOPUNKS_BIGQUERY_LIVE_HARNESS_MODE ?? '').trim();
+  const enabled = process.env.INFOPUNKS_BIGQUERY_LIVE_HARNESS_ENABLED === 'true';
+  if (!(enabled && mode === 'mock_success')) {
+    reasons.push('live_harness_not_configured');
+  }
+  if (!process.env.INFOPUNKS_BIGQUERY_LIVE_CREDENTIALS_CONFIGURED) reasons.push('missing_bigquery_credentials_config');
+  if (!process.env.INFOPUNKS_BIGQUERY_LIVE_RAIL_CONFIGURED) reasons.push('missing_bigquery_rail_config');
+  return { configured: reasons.length === 0, reasons };
+}
+
+function validateBigQueryLiveSafety(input: BigQueryLiveBoundedQueryRequest): string | null {
+  const query = input.query.trim();
+  if (!query.length) return 'empty_query_not_allowed';
+  if (!/\blimit\s+\d+\b/i.test(query)) return 'row_limit_required';
+  if (!/\bfrom\s+`/i.test(query)) return 'dataset_reference_required';
+  if (!/\bwhere\b/i.test(query) && !/\blimit\s+[1-9]\d{0,4}\b/i.test(query)) return 'query_not_bounded';
+  if (/\b(select\s+\*)\b/i.test(query)) return 'select_star_not_allowed';
+  if (/(information_schema|__TABLES__|wildcard|`[^`]*\*[^`]*`)/i.test(query)) return 'unbounded_query_not_allowed';
+  if (/(email|phone|ssn|passport|dob|address|personal_data|pii)/i.test(query)) return 'personal_data_not_allowed';
+  if (/(salary|revenue|invoice|customer|trade_secret|proprietary|sensitive_business_data)/i.test(query)) return 'sensitive_business_data_not_allowed';
+  if (!['public', 'synthetic', 'explicitly_safe'].includes(input.dataset_classification)) return 'unsafe_dataset_classification';
+  if (!Number.isFinite(input.row_limit) || input.row_limit <= 0) return 'invalid_row_limit';
+  if (input.row_limit > 1000) return 'row_limit_too_high';
+  if (!/^\s*select\b/i.test(query)) return 'only_select_queries_allowed';
+  return null;
 }
 
 export function buildBigQueryBoundedQueryFixtureReceipt(options: BigQueryBoundedQueryFixtureOptions = {}): MachineExecutionReceiptIngestRequest {
