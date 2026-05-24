@@ -202,6 +202,7 @@ describe('machine economy snapshot page', () => {
     expect(brief?.querySelector('button')?.textContent).toContain('Copy snapshot brief');
     expect(container.querySelector('a[href="/machine-rail-coverage"]')?.textContent).toContain('View rail coverage');
     expect(container.querySelector('a[href="/machine-route-risk-matrix"]')?.textContent).toContain('View route risk matrix');
+    expect(container.querySelector('a[href="/machine-first-safe-routes"]')?.textContent).toContain('View first safe route queue');
 
     const methodology = container.querySelector('[aria-label="Evidence methodology drawer"]');
     expect(methodology?.textContent).toContain('listed');

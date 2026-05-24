@@ -129,6 +129,28 @@ type MachineRouteRiskSummary = {
   highRiskRoutes: number;
   executionReceipts: number;
 };
+type MachineFirstSafeRouteQueueRow = {
+  rank: number;
+  service_id: string;
+  service_name: string;
+  first_safe_route: string;
+  why_safe_first: string;
+  blocked_by: string;
+  required_evidence: string;
+  execution_status: MachineRouteExecutionStatus;
+  proof_plan_href: string;
+  warning: string;
+  review_gated: boolean;
+  blocked_or_setup_required: boolean;
+};
+type MachineFirstSafeRouteQueueSummary = {
+  queueEntries: number;
+  firstSafeCandidates: number;
+  reviewGatedEntries: number;
+  blockedOrSetupRequiredEntries: number;
+  executionReceipts: number;
+  repeatabilityReceipts: number;
+};
 type MachineMarketSummary = {
   total_services: number;
   categories: Record<string, number>;
@@ -1451,6 +1473,10 @@ function isMachineRouteRiskMatrixRoute(pathname: string) {
   return /^\/machine-route-risk-matrix\/?$/.test(pathname);
 }
 
+function isMachineFirstSafeRoutesRoute(pathname: string) {
+  return /^\/machine-first-safe-routes\/?$/.test(pathname);
+}
+
 function isMachineRailCoverageRoute(pathname: string) {
   return /^\/machine-rail-coverage\/?$/.test(pathname);
 }
@@ -2478,6 +2504,10 @@ function formatMachineRouteExecutionStatus(value: MachineRouteExecutionStatus) {
   return value.replace(/_/g, ' ');
 }
 
+function getMachineFirstSafeServiceIds() {
+  return ['cloud-translation', 'naver-maps', 'bigquery', 'stableupload', 'qvac'];
+}
+
 function buildMachineRouteRiskRows(services: MachineMarketService[], receipts: MachinePreflightReceipt[]): MachineRouteRiskRow[] {
   const rows: MachineRouteRiskRow[] = [];
 
@@ -2621,6 +2651,114 @@ function buildMachineRouteRiskSummary(rows: MachineRouteRiskRow[]): MachineRoute
     avoidFirstRoutes: rows.filter((row) => row.avoid_first === 'yes').length,
     highRiskRoutes: rows.filter((row) => row.route_risk === 'high').length,
     executionReceipts: new Set(rows.filter((row) => row.execution_status !== 'not_attempted').map((row) => row.service_id)).size
+  };
+}
+
+function buildMachineFirstSafeRouteQueueRows(services: MachineMarketService[], receipts: MachinePreflightReceipt[]): MachineFirstSafeRouteQueueRow[] {
+  const routeRows = buildMachineRouteRiskRows(services, receipts);
+  const serviceById = new Map(services.map((service) => [service.id, service]));
+
+  return getMachineFirstSafeServiceIds().map((serviceId, index) => {
+    const service = serviceById.get(serviceId);
+    if (!service) return null;
+
+    const executionStatus = getMachineRouteExecutionStatus(service.id, receipts);
+    const proofPlanHref = `/machine-execution-plan/${encodeURIComponent(service.id)}`;
+
+    if (service.id === 'cloud-translation') {
+      return {
+        rank: index + 1,
+        service_id: service.id,
+        service_name: service.name,
+        first_safe_route: 'safe translation phrase',
+        why_safe_first: 'simple input/output, bounded text, semantic output class is easy to verify',
+        blocked_by: 'callable endpoint surface not recorded; execution rail confirmation not recorded',
+        required_evidence: 'execution receipt, payment/auth status if available, normalized translation summary, caveats',
+        execution_status: executionStatus,
+        proof_plan_href: proofPlanHref,
+        warning: 'Selected proof plan does not imply execution-tested status.',
+        review_gated: false,
+        blocked_or_setup_required: true
+      };
+    }
+
+    if (service.id === 'naver-maps') {
+      const geocodeRow = routeRows.find((row) => row.service_id === service.id && row.path === '/map-geocode/v2/geocode') ?? null;
+      return {
+        rank: index + 1,
+        service_id: service.id,
+        service_name: service.name,
+        first_safe_route: geocodeRow ? `geocode lookup (${geocodeRow.method} ${geocodeRow.path})` : 'geocode lookup',
+        why_safe_first: 'lower-risk lookup than driving directions; does not require robot dispatch or physical movement',
+        blocked_by: 'Naver Cloud credentials, provider/account setup, review state, non-operational test constraints',
+        required_evidence: 'service-specific execution receipt, selected_route, credential_status, non-operational test flag, no robot command, no physical movement, normalized geocode summary',
+        execution_status: executionStatus,
+        proof_plan_href: proofPlanHref,
+        warning: 'Driving directions is avoid-first because route guidance can influence physical-world movement.',
+        review_gated: true,
+        blocked_or_setup_required: true
+      };
+    }
+
+    if (service.id === 'bigquery') {
+      return {
+        rank: index + 1,
+        service_id: service.id,
+        service_name: service.name,
+        first_safe_route: 'bounded public/synthetic query',
+        why_safe_first: 'bounded query result can be parsed without sensitive production data',
+        blocked_by: 'callable route/path confirmation not recorded; dataset boundary; credential/payment status',
+        required_evidence: 'selected_route, bounded query input, parseable tabular output, credential_status, execution receipt',
+        execution_status: executionStatus,
+        proof_plan_href: proofPlanHref,
+        warning: 'Do not query sensitive business or production data in the first proof attempt.',
+        review_gated: false,
+        blocked_or_setup_required: true
+      };
+    }
+
+    if (service.id === 'stableupload') {
+      return {
+        rank: index + 1,
+        service_id: service.id,
+        service_name: service.name,
+        first_safe_route: 'tiny non-sensitive fixture upload',
+        why_safe_first: 'harmless small fixture minimizes privacy and storage risk',
+        blocked_by: 'callable route/path confirmation not recorded; storage policy review; credential/payment status',
+        required_evidence: 'selected_route, fixture hash or metadata, upload response, credential_status, execution receipt',
+        execution_status: executionStatus,
+        proof_plan_href: proofPlanHref,
+        warning: 'Do not upload private, regulated, or production data in the first proof attempt.',
+        review_gated: true,
+        blocked_or_setup_required: true
+      };
+    }
+
+    return {
+      rank: index + 1,
+      service_id: service.id,
+      service_name: service.name,
+      first_safe_route: 'runtime registration review, no execution',
+      why_safe_first: 'operator-defined/runtime setup means execution should not proceed until registration semantics are understood',
+      blocked_by: 'operator runtime registration, callable route details, review state',
+      required_evidence: 'setup/registration evidence, route surface metadata, policy review, no execution receipt expected yet',
+      execution_status: executionStatus,
+      proof_plan_href: proofPlanHref,
+      warning: 'Runtime registration review comes before autonomous execution.',
+      review_gated: true,
+      blocked_or_setup_required: true
+    };
+  }).filter((row): row is MachineFirstSafeRouteQueueRow => Boolean(row));
+}
+
+function buildMachineFirstSafeRouteQueueSummary(rows: MachineFirstSafeRouteQueueRow[]): MachineFirstSafeRouteQueueSummary {
+  return {
+    queueEntries: rows.length,
+    firstSafeCandidates: rows.length,
+    reviewGatedEntries: rows.filter((row) => row.review_gated).length,
+    blockedOrSetupRequiredEntries: rows.filter((row) => row.blocked_or_setup_required).length,
+    executionReceipts: new Set(rows.filter((row) => row.execution_status !== 'not_attempted').map((row) => row.service_id)).size,
+    repeatabilityReceipts: new Set(rows.filter((row) => row.execution_status === 'repeatability_receipt_recorded').map((row) => row.service_id)).size
   };
 }
 
@@ -3004,7 +3142,7 @@ function MachineMarketPage() {
       <section className="panel machine-market-caveat" aria-label="Coverage caveat">
         <p>Infopunks Radar mapped the entire listed robotic.sh machine-service market.</p>
         <p>Coverage refers to the 13 services visible in the observed robotic.sh market snapshot. Execution evidence is tracked separately.</p>
-        <p><a className="execute compact secondary" href="/machine-market-map">View market map</a> <a className="execute compact secondary" href="/machine-readiness-matrix">View readiness matrix</a> <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a> <a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a> <a className="execute compact secondary" href="/machine-route-risk-matrix">View route risk matrix</a> <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a></p>
+        <p><a className="execute compact secondary" href="/machine-market-map">View market map</a> <a className="execute compact secondary" href="/machine-readiness-matrix">View readiness matrix</a> <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a> <a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a> <a className="execute compact secondary" href="/machine-route-risk-matrix">View route risk matrix</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a> <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a></p>
       </section>
       <MachineEvidenceMethodologyDrawer />
       <EvidenceLadder services={services} />
@@ -3359,7 +3497,7 @@ function MachineEconomySnapshotPage() {
           <p>No execution claim. No benchmark claim. No winner claim.</p>
           <p>Pay.sh execution routes tracked separately. Execution requires service-specific receipts.</p>
           <p>Repeatability requires repeated service-specific receipts.</p>
-          <p><a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a> <a className="execute compact secondary" href="/machine-route-risk-matrix">View route risk matrix</a></p>
+          <p><a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a> <a className="execute compact secondary" href="/machine-route-risk-matrix">View route risk matrix</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a></p>
         </section>
         <MachineEvidenceMethodologyDrawer />
       </>}
@@ -3536,7 +3674,7 @@ function MachineRouteRiskMatrixPage() {
           <p>No execution claim. No payment success claim. No benchmark claim. No winner claim. No provider quality claim.</p>
           <p>Route-level risk is planning metadata. It does not imply execution, payment success, benchmark superiority, or provider quality.</p>
           <p>Execution status is receipt-driven. Catalog route presence does not imply route execution.</p>
-          <p><a className="execute compact secondary" href="/machine-rail-coverage">Back to rail coverage</a> <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a></p>
+          <p><a className="execute compact secondary" href="/machine-rail-coverage">Back to rail coverage</a> <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a></p>
         </section>
         <section className="grid two machine-route-guidance-grid" aria-label="Machine route guidance">
           <article className="panel machine-market-brief">
@@ -3698,7 +3836,7 @@ function MachineRailCoveragePage() {
           <p>No execution claim. No benchmark claim. No winner claim. No payment success claim.</p>
           <p>Pay.sh availability does not imply Radar execution. robotic.sh listing does not imply callable route readiness.</p>
           <p>Callable routes do not imply executed routes. Credentials do not imply payment proof. Execution requires service-specific receipts.</p>
-          <p><a className="execute compact secondary" href="/machine-market">Back to Machine Economy</a> <a className="execute compact secondary" href="/machine-route-risk-matrix">View route risk matrix</a> <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a></p>
+          <p><a className="execute compact secondary" href="/machine-market">Back to Machine Economy</a> <a className="execute compact secondary" href="/machine-route-risk-matrix">View route risk matrix</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a> <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a></p>
         </section>
         <MachineEvidenceMethodologyDrawer />
         <MachineRailCoverageMethodology />
@@ -3732,6 +3870,172 @@ function MachineRailCoveragePage() {
               </div>;
             })}
           </div>
+        </section>
+      </>}
+    </main>
+  </div>;
+}
+
+function MachineFirstSafeRoutesPage() {
+  const [services, setServices] = useState<MachineMarketService[]>([]);
+  const [receipts, setReceipts] = useState<MachinePreflightReceipt[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
+
+  useEffect(() => {
+    document.title = 'Machine First Safe Route Queue | Infopunks Pay.sh Radar';
+    setMetaTag('name', 'description', 'Read-only first safe route queue for future robotic.sh proof attempts inside Infopunks Radar.');
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    Promise.all([
+      api<{ data: { services: MachineMarketService[] } }>('/v1/machine-market/services'),
+      api<{ data: { receipts: MachinePreflightReceipt[] } }>('/v1/machine-preflight/receipts/recent?limit=100').catch(() => null)
+    ]).then(([servicesResponse, receiptsResponse]) => {
+      if (cancelled) return;
+      setServices(servicesResponse.data.services);
+      setReceipts(receiptsResponse?.data.receipts ?? []);
+      setLoading(false);
+    }).catch((err) => {
+      if (cancelled) return;
+      setError(err instanceof Error ? err.message : 'machine first safe route queue unavailable');
+      setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const rows = useMemo(() => buildMachineFirstSafeRouteQueueRows(services, receipts), [services, receipts]);
+  const summary = useMemo(() => buildMachineFirstSafeRouteQueueSummary(rows), [rows]);
+  const brief = 'Radar has identified a first-safe route queue for the robotic.sh machine market. Cloud Translation remains the selected controlled proof-plan action. NAVER Maps should start with geocode, not driving directions. BigQuery should start with bounded public/synthetic queries. Stableupload should start with tiny non-sensitive fixtures. QVAC requires runtime registration review. 0 execution receipts. Execution remains receipt-driven.';
+
+  async function copyBrief() {
+    const copied = await copyText(brief);
+    setCopyState(copied ? 'copied' : 'failed');
+  }
+
+  return <div className="shell machine-market-shell">
+    <a className="skip-link" href="#machine-first-safe-routes-content">Skip to content</a>
+    <header className="site-header">
+      <nav className="global-toolbar machine-market-toolbar" aria-label="Machine First Safe Route Queue navigation">
+        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <div className="terminal-nav" aria-label="Machine Economy navigation">
+          <a href="/machine-market">Machine Economy</a>
+          <a href="/machine-readiness-matrix">Readiness Matrix</a>
+          <a href="/machine-market-map">Market Map</a>
+          <a href="/machine-economy-snapshot">Public Snapshot</a>
+          <a href="/machine-rail-coverage">Rail Coverage</a>
+          <a href="/machine-route-risk-matrix">Route Risk Matrix</a>
+          <a className="active" href="/machine-first-safe-routes" aria-current="page">First Safe Route Queue</a>
+          <a href="/">Radar Terminal</a>
+        </div>
+      </nav>
+    </header>
+    <main id="machine-first-safe-routes-content" className="machine-market-page machine-first-safe-routes-page" aria-label="Machine First Safe Route Queue">
+      <section className="panel hero machine-market-hero">
+        <div>
+          <p className="eyebrow">Machine First Safe Route Queue</p>
+          <h1>Machine First Safe Route Queue</h1>
+          <p className="copy">Radar turns route-risk analysis into a planning queue for future proof attempts. Nothing here is an execution claim.</p>
+        </div>
+        <div className="ticker" aria-label="Machine first safe route hero chips">
+          <span>route-aware queue</span>
+          <span>first-safe candidates</span>
+          <span>planning only</span>
+          <span>0 execution receipts</span>
+          <span>receipt-driven</span>
+        </div>
+      </section>
+      {loading && <section className="panel" role="status"><p className="route-state">Loading machine first safe route queue...</p></section>}
+      {error && <section className="panel" role="alert"><p className="route-state error">Machine first safe route queue unavailable: {error}</p></section>}
+      {!loading && !error && <>
+        <section className="grid four machine-market-summary" aria-label="Machine first safe route queue summary">
+          <article className="panel metric"><span>Queue entries</span><strong>{summary.queueEntries}</strong><small>ranked planning rows only</small></article>
+          <article className="panel metric"><span>First-safe candidates</span><strong>{summary.firstSafeCandidates}</strong><small>future proof attempts, not receipts</small></article>
+          <article className="panel metric"><span>Review-gated entries</span><strong>{summary.reviewGatedEntries}</strong><small>review before any attempt</small></article>
+          <article className="panel metric"><span>Blocked/setup-required entries</span><strong>{summary.blockedOrSetupRequiredEntries}</strong><small>missing route, setup, or credential evidence</small></article>
+          <article className="panel metric"><span>Execution receipts</span><strong>{summary.executionReceipts}</strong><small>service-specific receipts only</small></article>
+          <article className="panel metric"><span>Repeatability receipts</span><strong>{summary.repeatabilityReceipts}</strong><small>repeatable proof remains unrecorded</small></article>
+        </section>
+        <section className="panel machine-mission-control" aria-label="Machine first safe route interpretation strip">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Interpretation</p>
+              <h2>Planning queue, not proof</h2>
+            </div>
+            <span className="machine-badge evidence">receipt-driven</span>
+          </div>
+          <div className="ticker" aria-label="Machine first safe route interpretation statements">
+            <span>First-safe ≠ executed</span>
+            <span>Ranked ≠ winner</span>
+            <span>Blocked ≠ abandoned</span>
+            <span>Proof plan ≠ receipt</span>
+          </div>
+        </section>
+        <section className="panel machine-market-caveat" aria-label="Machine first safe route caveats">
+          <p>No execution claim. No payment success claim. No benchmark claim. No winner claim. No provider quality claim.</p>
+          <p>First-safe does not mean executed. Rank does not mean winner. Execution requires service-specific receipts.</p>
+          <p>First-safe route ranking is planning metadata. It does not imply execution, payment success, benchmark superiority, provider quality, or winner status.</p>
+          <p><a className="execute compact secondary" href="/machine-route-risk-matrix">Back to route risk matrix</a> <a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a></p>
+        </section>
+        <section className="panel machine-market-brief" aria-label="Machine first safe route brief">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Public Brief</p>
+              <h2>Copyable queue brief</h2>
+            </div>
+            <button className="execute compact secondary" type="button" onClick={copyBrief}>{copyState === 'copied' ? 'Copied queue brief' : copyState === 'failed' ? 'Copy failed' : 'Copy queue brief'}</button>
+          </div>
+          <p className="copy">{brief}</p>
+        </section>
+        <section className="panel machine-service-table-panel" aria-label="Machine first safe route queue table panel">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Queue</p>
+              <h2>{rows.length} first-safe route entries</h2>
+            </div>
+            <small>Rank means suggested planning order for future proof attempts. It is not a winner claim.</small>
+          </div>
+          <div className="machine-service-table" role="table" aria-label="Machine first safe route queue table">
+            <div className="machine-service-row machine-first-safe-route-row head" role="row">
+              {['rank', 'service', 'first safe route', 'why safe first', 'blocked by', 'required evidence', 'execution status', 'proof plan'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
+            </div>
+            {rows.map((row) => <div className="machine-service-row machine-first-safe-route-row" role="row" key={row.service_id}>
+              <span role="cell"><strong>{row.rank}</strong><small>planning order</small></span>
+              <span role="cell"><strong>{row.service_name}</strong><small>{row.service_id}</small><small>{row.warning}</small></span>
+              <span role="cell">{row.first_safe_route}</span>
+              <span role="cell">{row.why_safe_first}</span>
+              <span role="cell">{row.blocked_by}</span>
+              <span role="cell">{row.required_evidence}</span>
+              <span role="cell"><span className={`machine-status-badge ${row.execution_status === 'not_attempted' ? 'missing' : row.execution_status === 'repeatability_receipt_recorded' ? 'complete' : 'not-attempted'}`}>{formatMachineRouteExecutionStatus(row.execution_status)}</span><small>0 execution receipts recorded here</small></span>
+              <span role="cell"><a className="execute compact secondary" href={row.proof_plan_href}>View proof plan</a></span>
+            </div>)}
+          </div>
+        </section>
+        <section className="grid two machine-route-guidance-grid" aria-label="Machine first safe route methodology and warnings">
+          <article className="panel machine-market-brief">
+            <div className="panel-head"><div><p className="section-kicker">Route Warnings</p><h2>Concise row warnings</h2></div></div>
+            <div className="machine-usage-list">
+              {rows.map((row) => <p key={row.service_id}><span>{row.service_name}</span><small>{row.warning}</small></p>)}
+            </div>
+          </article>
+          <details className="panel machine-market-brief" aria-label="Machine first safe route methodology">
+            <summary className="machine-evidence-methodology-summary">
+              <span className="section-kicker">Methodology</span>
+              <strong>Compact queue definitions</strong>
+              <small>Planning metadata stays separate from execution proof.</small>
+            </summary>
+            <div className="machine-usage-list">
+              <p><span>first safe route</span><small>The safest bounded route or setup review Radar should plan first for a service.</small></p>
+              <p><span>blocked by</span><small>The recorded setup, route-surface, credential, or review blockers that prevent execution claims.</small></p>
+              <p><span>required evidence</span><small>The minimum receipt-bound proof package Radar would need before changing execution posture.</small></p>
+              <p><span>planning rank</span><small>Suggested planning order for future proof attempts. Ranked does not mean winner.</small></p>
+              <p><span>execution status</span><small>Receipt-driven only. Without a service-specific receipt, status remains not attempted.</small></p>
+            </div>
+            <p className="machine-caveat-row"><span>caveat</span><small className="machine-caveat-copy">First-safe route ranking is planning metadata. It does not imply execution, payment success, benchmark superiority, provider quality, or winner status.</small></p>
+          </details>
         </section>
       </>}
     </main>
@@ -6902,6 +7206,7 @@ function RadarApp() {
     { id: 'open-machine-market-map', label: 'Open Machine Market Map', hint: '/machine-market-map', run: () => openMachineRoute('/machine-market-map') },
     { id: 'open-machine-rail-coverage', label: 'Open Machine Rail Coverage', hint: '/machine-rail-coverage', run: () => openMachineRoute('/machine-rail-coverage') },
     { id: 'open-machine-route-risk-matrix', label: 'Open Machine Route Risk Matrix', hint: '/machine-route-risk-matrix', run: () => openMachineRoute('/machine-route-risk-matrix') },
+    { id: 'open-machine-first-safe-route-queue', label: 'Open Machine First Safe Route Queue', hint: '/machine-first-safe-routes', run: () => openMachineRoute('/machine-first-safe-routes') },
     { id: 'open-machine-readiness-matrix', label: 'Open Machine Readiness Matrix', hint: '/machine-readiness-matrix', run: () => openMachineRoute('/machine-readiness-matrix') },
     { id: 'open-machine-service-dossier', label: 'Open Machine Service Dossier', hint: 'Open /machine-market and choose View service dossier', run: () => openMachineRoute('/machine-market') },
     { id: 'open-robotic-sh-execution-shortlist', label: 'Open Robotic.sh Execution Shortlist', hint: '/machine-execution-shortlist', run: () => openMachineRoute('/machine-execution-shortlist') },
@@ -10483,6 +10788,7 @@ export function App() {
   if (isMachineMarketRoute(window.location.pathname)) return <MachineMarketPage />;
   if (isMachineEconomySnapshotRoute(window.location.pathname)) return <MachineEconomySnapshotPage />;
   if (isMachineRouteRiskMatrixRoute(window.location.pathname)) return <MachineRouteRiskMatrixPage />;
+  if (isMachineFirstSafeRoutesRoute(window.location.pathname)) return <MachineFirstSafeRoutesPage />;
   if (isMachineRailCoverageRoute(window.location.pathname)) return <MachineRailCoveragePage />;
   if (isMachineMarketMapRoute(window.location.pathname)) return <MachineMarketMapPage />;
   if (isMachineReadinessMatrixRoute(window.location.pathname)) return <MachineReadinessMatrixPage />;

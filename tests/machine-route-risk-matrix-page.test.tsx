@@ -181,6 +181,7 @@ describe('machine route risk matrix page', () => {
     expect(container.querySelector('[aria-label="Machine route risk methodology"]')?.textContent).toContain('route_risk');
     expect(container.querySelector('[aria-label="Machine route risk methodology"]')?.textContent).toContain('proof_condition');
     expect(container.querySelector('[aria-label="Machine route risk methodology"]')?.textContent).toContain('execution_status');
+    expect(container.querySelector('.machine-market-caveat a[href="/machine-first-safe-routes"]')?.textContent).toContain('View first safe route queue');
   });
 
   it('renders NAVER Maps, BigQuery, and Stableupload route rows without execution or benchmark claims', async () => {
