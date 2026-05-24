@@ -327,7 +327,82 @@ describe('machine execution anytrans translation route', () => {
       }
     });
     expect(response.statusCode).toBe(200);
-    expect(response.json().data.evidence_stage_after).toBe('execution-tested');
+    const data = response.json().data;
+    expect(data.evidence_stage_after).toBe('execution-tested');
+    expect(data.payment_status).toBe('not_confirmed');
+    expect(data.caveats).toContain('Not market-wide proof.');
+    expect(data.caveats).toContain('Not payment proof.');
+    expect(data.caveats).toContain('Not benchmark proof.');
+    expect(data.caveats).toContain('Not winner proof.');
+    await app.close();
+  });
+
+  it('rejects BigQuery receipts with forbidden fields', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/receipts/ingest',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: payload.machine_id,
+        service_id: 'bigquery',
+        fqn: 'google-cloud/bigquery/query',
+        source_market: 'robotic.sh',
+        chain: 'unknown',
+        execution_status: 'succeeded',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-22T00:00:00.000Z',
+        execution_completed_at: '2026-05-22T00:00:02.000Z',
+        execution_latency_ms: 2000,
+        request_summary: { statement: 'SELECT 1' },
+        response_summary: {
+          query_label: 'synthetic_row_count_check',
+          row_count: 1,
+          result_preview: [{ value: 1 }],
+          dataset_classification: 'synthetic',
+          bounded_query_confirmed: true,
+          personal_data: 'pii'
+        },
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'manual' }
+      }
+    });
+    expect(response.statusCode).toBe(400);
+    expect(response.json().error).toBe('invalid_machine_execution_receipt_ingest');
+    await app.close();
+  });
+
+  it('provides and ingests BigQuery bounded-query fixture payload', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const sample = await app.inject({ method: 'GET', url: '/v1/machine-execution/bigquery/fixtures/bounded-query' });
+    expect(sample.statusCode).toBe(200);
+    const samplePayload = sample.json().data.payload;
+    expect(samplePayload.service_id).toBe('bigquery');
+    expect(samplePayload.response_summary.translated_text_preview).toBeUndefined();
+    expect(samplePayload.response_summary.query_label).toBeTruthy();
+    expect(samplePayload.response_summary.row_count).toBeTypeOf('number');
+    expect(samplePayload.response_summary.dataset_classification).toBeTruthy();
+    expect(samplePayload.response_summary.bounded_query_confirmed).toBe(true);
+
+    const ingested = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/bigquery/fixtures/ingest',
+      headers: { authorization: 'Bearer secret' },
+      payload: { machine_id: 'did:peaq:bigquery-fixture-bot-test' }
+    });
+    expect(ingested.statusCode).toBe(200);
+    const ingestedData = ingested.json().data;
+    expect(ingestedData.fixture_ingested).toBe(true);
+    expect(ingestedData.service_id).toBe('bigquery');
+    expect(ingestedData.payment_status).toBe('not_confirmed');
+    expect(ingestedData.evidence_stage_after).toBe('execution-tested');
+    expect(ingestedData.caveats).toContain('Not market-wide proof.');
+    expect(ingestedData.caveats).toContain('Not payment proof.');
+    expect(ingestedData.caveats).toContain('Not benchmark proof.');
+    expect(ingestedData.caveats).toContain('Not winner proof.');
     await app.close();
   });
 

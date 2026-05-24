@@ -70,6 +70,30 @@ const reviewReceipt = {
   created_at: '2026-05-22T00:03:00.000Z'
 };
 
+const bigQueryExecutionReceipt = {
+  ...baseReceipt,
+  receipt_id: 'mrx_exec_bigquery_fixture_0001',
+  receipt_type: 'machine_execution',
+  execution_occurred: true,
+  payment_occurred: false,
+  execution_status: 'succeeded',
+  execution_service_id: 'bigquery',
+  execution_provider: 'Google Cloud',
+  execution_started_at: '2026-05-23T00:00:00.000Z',
+  execution_completed_at: '2026-05-23T00:00:01.000Z',
+  execution_latency_ms: 1000,
+  execution_request_summary: '{"fixture":"bigquery_bounded_query"}',
+  execution_response_summary: '{"query_label":"fixture.synthetic_row_count_check","row_count":1,"result_preview":[{"value":1}],"dataset_classification":"synthetic","bounded_query_confirmed":true}',
+  execution_error: null,
+  payment_evidence: null,
+  selected_service_id: 'bigquery',
+  selected_service_name: 'BigQuery',
+  reason: 'BigQuery external execution artifact indicates successful execution.',
+  caveats: ['Service-specific execution receipt only.', 'Not market-wide proof.', 'Not payment proof.', 'Not benchmark proof.', 'Not winner proof.'],
+  evidence_stage: 'execution-tested',
+  created_at: '2026-05-23T00:00:01.000Z'
+};
+
 function json(data: unknown, status = 200) {
   return Promise.resolve(new Response(JSON.stringify({ data }), { status, headers: { 'Content-Type': 'application/json' } }));
 }
@@ -329,5 +353,25 @@ describe('machine receipts page', () => {
     expect(text).toContain('Not payment proof.');
     expect(text).toContain('Not benchmark proof.');
     expect(text).toContain('Not winner proof.');
+  });
+
+  it('renders BigQuery execution receipt detail summary fields', async () => {
+    window.history.pushState({}, '', `/machine-execution/${encodeURIComponent(bigQueryExecutionReceipt.receipt_id)}`);
+    installFetch([bigQueryExecutionReceipt]);
+    root = await renderPage(container);
+
+    const text = container.textContent ?? '';
+    expect(text).toContain('Machine Execution Receipt');
+    expect(text).toContain('BigQuery Summary');
+    expect(text).toContain('proof_profilebigquery_bounded_query');
+    expect(text).toContain('query_labelfixture.synthetic_row_count_check');
+    expect(text).toContain('row_count1');
+    expect(text).toContain('dataset_classificationsynthetic');
+    expect(text).toContain('bounded_query_confirmedtrue');
+    expect(text).toContain('payment_statusnot_confirmed');
+    expect(text).toContain('Not payment proof.');
+    expect(text).toContain('Not benchmark proof.');
+    expect(text).toContain('Not winner proof.');
+    expect(text).toContain('Not market-wide proof.');
   });
 });

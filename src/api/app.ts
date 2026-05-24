@@ -93,6 +93,7 @@ import { createMachineReceiptStorageMetadata, JsonlMachinePreflightReceiptStorag
 import {
   buildAlibabaMachineTranslationGeneralBenchmarkReadinessArtifact,
   buildAlibabaMachineTranslationGeneralRepeatabilityArtifact,
+  buildBigQueryBoundedQueryFixtureReceipt,
   deprecatedCloudTranslationExecutionResponse,
   ingestMachineExecutionReceipt,
   ingestAlibabaMachineTranslationGeneralArtifact,
@@ -253,6 +254,10 @@ const MachineExecutionReceiptIngestSchema = z.object({
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'payment_occurred requires payment_evidence' });
   }
 });
+const BigQueryFixtureIngestSchema = z.object({
+  machine_id: z.string().min(1).optional(),
+  execution_completed_at: z.string().datetime().optional()
+}).optional();
 const MAX_INLINE_SUPPORTING_EVENT_IDS = 10;
 const DEFAULT_ALLOWED_ORIGINS = new Set([
   'https://radar.infopunks.fun',
@@ -761,6 +766,35 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     const result = await ingestMachineExecutionReceipt(parsed.data);
     return {
       data: safeJsonExport({
+        ...result,
+        phase_scope: MACHINE_MARKET_PHASE_SCOPE,
+        storage: machineReceiptStorage
+      })
+    };
+  });
+  app.get('/v1/machine-execution/bigquery/fixtures/bounded-query', async () => {
+    const fixture = buildBigQueryBoundedQueryFixtureReceipt();
+    return {
+      data: safeJsonExport({
+        fixture_label: 'BigQuery bounded public/synthetic query fixture',
+        proof_profile: 'bigquery_bounded_query',
+        replace_with: 'Harness-generated receipt payload',
+        payload: fixture
+      })
+    };
+  });
+  app.post('/v1/machine-execution/bigquery/fixtures/ingest', async (req, reply) => {
+    if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'admin_token_required' });
+    const parsed = BigQueryFixtureIngestSchema.safeParse(req.body);
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_bigquery_fixture_ingest', details: parsed.error.flatten() });
+    const fixturePayload = buildBigQueryBoundedQueryFixtureReceipt(parsed.data ?? {});
+    const result = await ingestMachineExecutionReceipt(fixturePayload);
+    return {
+      data: safeJsonExport({
+        fixture_ingested: true,
+        fixture_label: 'BigQuery bounded public/synthetic query fixture',
+        proof_profile: 'bigquery_bounded_query',
+        payload: fixturePayload,
         ...result,
         phase_scope: MACHINE_MARKET_PHASE_SCOPE,
         storage: machineReceiptStorage

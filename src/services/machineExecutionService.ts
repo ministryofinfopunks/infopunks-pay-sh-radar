@@ -223,6 +223,11 @@ export type MachineExecutionReceiptIngestResponse = {
   caveats: string[];
 };
 
+export type BigQueryBoundedQueryFixtureOptions = {
+  machine_id?: string;
+  execution_completed_at?: string;
+};
+
 type TranslationAdapterResult = {
   execution_status: 'attempted' | 'succeeded' | 'failed';
   execution_occurred: boolean;
@@ -378,6 +383,40 @@ export async function ingestMachineExecutionReceipt(input: MachineExecutionRecei
     payment_evidence: paymentOccurred ? input.payment_evidence : null,
     evidence_stage_after: receipt.evidence_stage === 'execution-tested' ? 'execution-tested' : 'policy-mapped',
     caveats: [...receipt.caveats]
+  };
+}
+
+export function buildBigQueryBoundedQueryFixtureReceipt(options: BigQueryBoundedQueryFixtureOptions = {}): MachineExecutionReceiptIngestRequest {
+  const completedAt = options.execution_completed_at ?? new Date().toISOString();
+  const startedAt = new Date(Math.max(0, Date.parse(completedAt) - 850)).toISOString();
+  return {
+    machine_id: options.machine_id ?? 'did:peaq:bigquery-fixture-bot-01',
+    service_id: 'bigquery',
+    fqn: 'google-cloud/bigquery/query',
+    source_market: 'robotic.sh',
+    chain: 'unknown',
+    preflight_receipt_id: null,
+    execution_status: 'succeeded',
+    execution_occurred: true,
+    payment_occurred: false,
+    payment_evidence: null,
+    execution_started_at: startedAt,
+    execution_completed_at: completedAt,
+    execution_latency_ms: 850,
+    request_summary: {
+      fixture: 'bigquery_bounded_query',
+      statement_preview: 'SELECT 1 AS value',
+      route_policy: 'bounded_public_or_synthetic_query_only'
+    },
+    response_summary: {
+      query_label: 'fixture.synthetic_row_count_check',
+      row_count: 1,
+      result_preview: [{ value: 1 }],
+      dataset_classification: 'synthetic',
+      bounded_query_confirmed: true
+    },
+    executor: { name: 'infopunks-radar-fixture', version: 'fixture-v1', mode: 'manual' },
+    artifact_signature: 'fixture:bigquery_bounded_query:v1'
   };
 }
 

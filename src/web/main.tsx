@@ -3041,6 +3041,11 @@ function buildMachineExecutionBlockerSummary(rows: MachineExecutionBlockerRow[])
 function buildMachineMarketChangelogRows(services: MachineMarketService[], receipts: MachinePreflightReceipt[]): MachineMarketChangelogRow[] {
   const naver = services.find((service) => service.id === 'naver-maps');
   const latestExecution = receipts.find((row) => row.receipt_type === 'machine_execution' && row.execution_occurred) ?? null;
+  const latestBigQueryExecution = receipts.find((row) =>
+    row.receipt_type === 'machine_execution'
+    && row.execution_occurred
+    && (row.execution_service_id ?? row.selected_service_id) === 'bigquery'
+  ) ?? null;
   const executionService = latestExecution
     ? services.find((service) => service.id === (latestExecution.execution_service_id ?? latestExecution.selected_service_id))
     : null;
@@ -3050,7 +3055,7 @@ function buildMachineMarketChangelogRows(services: MachineMarketService[], recei
       change: `${executionService?.name ?? latestExecution.execution_service_id ?? 'Service'} execution receipt recorded (${latestExecution.receipt_id}).`,
       scope: 'service execution receipt',
       source: 'Radar machine receipt ingest',
-      source_type: 'radar_execution_receipt',
+      source_type: 'radar_execution_receipt' as const,
       claim_boundary: 'Service-specific execution receipt only. Not market-wide proof, not payment proof, not benchmark proof, not winner proof.',
       receipt_id: latestExecution.receipt_id,
       receipt_href: `/machine-execution/${encodeURIComponent(latestExecution.receipt_id)}`
@@ -3059,15 +3064,25 @@ function buildMachineMarketChangelogRows(services: MachineMarketService[], recei
       change: 'Execution receipt ingest surface is available for service-specific machine execution evidence.',
       scope: 'service execution receipt',
       source: 'Radar machine receipt ingest',
-      source_type: 'manual_scaffold',
+      source_type: 'manual_scaffold' as const,
       claim_boundary: 'Ingestion capability does not imply execution.'
     },
+    ...(latestBigQueryExecution ? [{
+      date: formatMachineTimestamp(latestBigQueryExecution.created_at),
+      change: `BigQuery bounded query fixture receipt recorded (${latestBigQueryExecution.receipt_id}).`,
+      scope: 'bigquery first-safe receipt',
+      source: 'Radar fixture ingest (replaceable by Harness output)',
+      source_type: 'manual_scaffold' as const,
+      claim_boundary: 'Service-specific execution receipt only. Bounded public/synthetic query only. Not market-wide proof, not payment proof, not benchmark proof, not winner proof.',
+      receipt_id: latestBigQueryExecution.receipt_id,
+      receipt_href: `/machine-execution/${encodeURIComponent(latestBigQueryExecution.receipt_id)}`
+    }] : []),
     {
       date: '2026-05-22',
       change: `${services.length || 13} robotic.sh-visible services mapped into Radar machine-market metadata.`,
       scope: 'service-level visibility',
       source: 'Radar static Phase 2 mirror',
-      source_type: 'catalog_metadata',
+      source_type: 'catalog_metadata' as const,
       claim_boundary: 'Listed does not mean callable or executed.'
     },
     {
@@ -3075,7 +3090,7 @@ function buildMachineMarketChangelogRows(services: MachineMarketService[], recei
       change: 'Machine function categories normalized for policy, route-risk, and market-map views.',
       scope: 'classification',
       source: 'Radar registry classification',
-      source_type: 'derived_radar_state',
+      source_type: 'derived_radar_state' as const,
       claim_boundary: 'Category fit is intelligence metadata, not provider quality.'
     },
     {
@@ -3083,7 +3098,7 @@ function buildMachineMarketChangelogRows(services: MachineMarketService[], recei
       change: 'Cloud Translation selected for controlled proof planning.',
       scope: 'planning',
       source: 'Radar execution shortlist',
-      source_type: 'derived_radar_state',
+      source_type: 'derived_radar_state' as const,
       claim_boundary: 'Selected proof plan is not an execution claim.'
     },
     {
@@ -3091,7 +3106,7 @@ function buildMachineMarketChangelogRows(services: MachineMarketService[], recei
       change: naver ? 'NAVER Maps added as navigation / review / not_attempted with geocode as the first-safe route.' : 'NAVER Maps route metadata reserved for navigation review.',
       scope: 'route-level risk',
       source: 'Radar service metadata plus public demo context caveat',
-      source_type: 'public_context',
+      source_type: 'public_context' as const,
       claim_boundary: 'Public demo context is not Radar evidence; NAVER Maps has not been executed by Radar.'
     },
     {
@@ -3099,7 +3114,7 @@ function buildMachineMarketChangelogRows(services: MachineMarketService[], recei
       change: 'Rail coverage, route-risk matrix, first-safe queue, blockers, changelog, and no-claim ledger exposed as market-control-plane views.',
       scope: 'intelligence surface',
       source: 'Radar UI scaffold',
-      source_type: 'manual_scaffold',
+      source_type: 'manual_scaffold' as const,
       claim_boundary: 'New pages add interpretation and policy memory, not new live Pay.sh, robotic.sh, or peaqOS data.'
     }
   ];
@@ -6804,6 +6819,9 @@ function MachineExecutionReceiptDetailPage({ receiptId }: { receiptId: string })
     'Not benchmark proof.',
     'Not winner proof.'
   ];
+  const requestSummary = parseMachineExecutionSummary(receipt?.execution_request_summary);
+  const responseSummary = parseMachineExecutionSummary(receipt?.execution_response_summary);
+  const isBigQueryReceipt = (receipt?.execution_service_id ?? receipt?.selected_service_id) === 'bigquery';
 
   return <div className="shell machine-market-shell">
     <a className="skip-link" href="#machine-execution-receipt-content">Skip to content</a>
@@ -6828,6 +6846,19 @@ function MachineExecutionReceiptDetailPage({ receiptId }: { receiptId: string })
             <p><span>created_at</span><small>{formatMachineTimestamp(receipt.created_at)}</small></p>
           </div>
         </section>
+        {isBigQueryReceipt && <section className="panel" aria-label="BigQuery bounded query receipt summary">
+          <h2>BigQuery Summary</h2>
+          <div className="machine-usage-list">
+            <p><span>proof_profile</span><small>bigquery_bounded_query</small></p>
+            <p><span>query_label</span><small>{String(responseSummary?.query_label ?? 'unknown')}</small></p>
+            <p><span>row_count</span><small>{String(responseSummary?.row_count ?? 'unknown')}</small></p>
+            <p><span>dataset_classification</span><small>{String(responseSummary?.dataset_classification ?? 'unknown')}</small></p>
+            <p><span>bounded_query_confirmed</span><small>{String(responseSummary?.bounded_query_confirmed ?? false)}</small></p>
+            <p><span>result_preview</span><small>{String(responseSummary?.result_preview != null ? JSON.stringify(responseSummary.result_preview) : 'none')}</small></p>
+            <p><span>request_fixture</span><small>{String(requestSummary?.fixture ?? 'none')}</small></p>
+          </div>
+          <p className="panel-caption">Bounded public/synthetic query fixture path. Replace with Harness execution output when live rail is configured.</p>
+        </section>}
         <section className="panel" aria-label="Execution receipt caveats">
           <h2>Caveats</h2>
           <ul className="machine-caveat-list">{caveats.map((item) => <li key={item}>{item}</li>)}</ul>

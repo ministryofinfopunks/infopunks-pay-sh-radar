@@ -148,6 +148,62 @@ describe('machine market control plane pages', () => {
     expect(container.textContent).toContain('New pages add interpretation and policy memory, not new live Pay.sh, robotic.sh, or peaqOS data.');
   });
 
+  it('adds BigQuery changelog entry when a BigQuery receipt exists', async () => {
+    vi.restoreAllMocks();
+    vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const path = pathOf(input);
+      if (path === '/v1/machine-market/services') return json({ count: services.length, services });
+      if (path === '/v1/machine-preflight/receipts/recent') return json({
+        count: 1,
+        receipts: [{
+          receipt_id: 'mrx_exec_bigquery_fixture_0001',
+          receipt_type: 'machine_execution',
+          demo_mode: false,
+          execution_occurred: true,
+          payment_occurred: false,
+          execution_status: 'succeeded',
+          execution_service_id: 'bigquery',
+          execution_provider: 'Google Cloud',
+          execution_started_at: '2026-05-23T00:00:00.000Z',
+          execution_completed_at: '2026-05-23T00:00:01.000Z',
+          execution_latency_ms: 1000,
+          execution_request_summary: '{"fixture":"bigquery_bounded_query"}',
+          execution_response_summary: '{"query_label":"fixture.synthetic_row_count_check","row_count":1,"result_preview":[{"value":1}],"dataset_classification":"synthetic","bounded_query_confirmed":true}',
+          execution_error: null,
+          payment_evidence: null,
+          preflight_receipt_id: null,
+          execution_run_id: 'mxr_bigquery_fixture_0001',
+          machine_id: 'did:peaq:bigquery-fixture-bot-01',
+          policy_id: null,
+          intent: 'external machine execution artifact ingest (bigquery)',
+          requested_category: 'web',
+          selected_service_id: 'bigquery',
+          selected_service_name: 'BigQuery',
+          source_market: 'robotic.sh',
+          chain: 'unknown',
+          decision: 'allow',
+          reason: 'BigQuery external execution artifact indicates successful execution.',
+          policy_checks: [],
+          violations: [],
+          review_reasons: [],
+          caveats: ['Service-specific execution receipt only.', 'Not market-wide proof.', 'Not payment proof.', 'Not benchmark proof.', 'Not winner proof.'],
+          max_cost_usd: null,
+          evidence_stage: 'execution-tested',
+          evidence_health: 'scaffold',
+          phase_scope: 'phase_2_pay_sh_robotic_sh',
+          created_at: '2026-05-23T00:00:01.000Z'
+        }]
+      });
+      return Promise.resolve(new Response('{}', { status: 404 }));
+    });
+
+    root = await renderPath(container, '/machine-market-changelog');
+    const text = container.textContent ?? '';
+    expect(text).toContain('BigQuery bounded query fixture receipt recorded');
+    expect(text).toContain('Radar fixture ingest (replaceable by Harness output)');
+    expect(text).toContain('Bounded public/synthetic query only.');
+  });
+
   it('renders the standalone no-claim ledger with critical no-claim copy', async () => {
     root = await renderPath(container, '/machine-no-claim-ledger');
 
