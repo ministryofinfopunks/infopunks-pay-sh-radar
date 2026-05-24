@@ -3248,6 +3248,11 @@ function buildMachineMarketChangelogRows(services: MachineMarketService[], recei
     && row.execution_occurred
     && (row.execution_service_id ?? row.selected_service_id) === 'naver-maps'
   ) ?? null;
+  const latestCloudTranslationExecution = receipts.find((row) =>
+    row.receipt_type === 'machine_execution'
+    && row.execution_occurred
+    && (row.execution_service_id ?? row.selected_service_id) === 'cloud-translation'
+  ) ?? null;
   const executionService = latestExecution
     ? services.find((service) => service.id === (latestExecution.execution_service_id ?? latestExecution.selected_service_id))
     : null;
@@ -3331,6 +3336,16 @@ function buildMachineMarketChangelogRows(services: MachineMarketService[], recei
       claim_boundary: 'Non-operational geocode lookup only. No robot command. No physical movement. Public context only is not Radar execution evidence. Service-specific execution receipt only. Not market-wide proof, not payment proof, not benchmark proof, not winner proof.',
       receipt_id: latestNaverGeocodeExecution.receipt_id,
       receipt_href: `/machine-execution/${encodeURIComponent(latestNaverGeocodeExecution.receipt_id)}`
+    }] : []),
+    ...(latestCloudTranslationExecution ? [{
+      date: formatMachineTimestamp(latestCloudTranslationExecution.created_at),
+      change: `Cloud Translation safe phrase fixture receipt recorded (${latestCloudTranslationExecution.receipt_id}).`,
+      scope: 'cloud translation first-safe receipt',
+      source: 'Radar fixture ingest (replaceable by Harness output)',
+      source_type: 'manual_scaffold' as const,
+      claim_boundary: 'Service-specific execution receipt only. Safe phrase translation only. Not market-wide proof, not payment proof, not benchmark proof, not winner proof.',
+      receipt_id: latestCloudTranslationExecution.receipt_id,
+      receipt_href: `/machine-execution/${encodeURIComponent(latestCloudTranslationExecution.receipt_id)}`
     }] : []),
     {
       date: '2026-05-22',
@@ -4971,6 +4986,10 @@ function MachineBenchmarkReadinessPage() {
         </div>
       </section>
       <section className="panel machine-market-caveat" aria-label="Machine benchmark readiness caveats">
+        <p>Machine Market benchmarks require robotic.sh-listed services.</p>
+        <p>Pay.sh can be the rail, but robotic.sh visibility anchors the benchmark lane.</p>
+        <p>No robotic.sh-listed comparable route, no Machine Market benchmark.</p>
+        <p>If nothing compatible exists, Radar moves back to evidence acquisition.</p>
         <p>Benchmark readiness is not benchmark evidence.</p>
         <p>Repeatability is not route superiority.</p>
         <p>No winner claim exists until criteria and artifacts exist.</p>
@@ -5059,6 +5078,10 @@ function MachineComparableRoutesPage() {
         </div>
       </section>
       <section className="panel machine-market-caveat" aria-label="Machine comparable route caveats">
+        <p>Machine Market benchmarks require robotic.sh-listed services.</p>
+        <p>Pay.sh can be the rail, but robotic.sh visibility anchors the benchmark lane.</p>
+        <p>No robotic.sh-listed comparable route, no Machine Market benchmark.</p>
+        <p>If nothing compatible exists, Radar moves back to evidence acquisition.</p>
         <p>No comparable route, no benchmark.</p>
         <p>Methodology before leaderboard.</p>
         <p><a className="execute compact secondary" href="/machine-benchmark-readiness">View benchmark readiness</a> <a className="execute compact secondary" href="/machine-benchmark-methodology">View benchmark methodology</a> <a className="execute compact secondary" href="/machine-translation-evidence">View translation evidence plan</a> <a className="execute compact secondary" href="/machine-market">Back to Machine Market</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a></p>
@@ -5153,6 +5176,10 @@ function MachineTranslationEvidencePage() {
         </div>
       </section>
       <section className="panel machine-market-caveat" aria-label="Machine translation evidence caveats">
+        <p>Machine Market benchmarks require robotic.sh-listed services.</p>
+        <p>Pay.sh can be the rail, but robotic.sh visibility anchors the benchmark lane.</p>
+        <p>No robotic.sh-listed comparable route, no Machine Market benchmark.</p>
+        <p>If nothing compatible exists, Radar moves back to evidence acquisition.</p>
         <p>candidate_unproven does not open benchmark gate.</p>
         <p>fixture_only does not open benchmark gate unless explicitly allowed by methodology.</p>
         <p>proven requires successful service-specific receipt evidence.</p>
@@ -5316,6 +5343,10 @@ function MachineProofLadderPage() {
         </div>
       </section>
       <section className="panel machine-market-caveat" aria-label="Machine proof ladder doctrine">
+        <p>Machine Market benchmarks require robotic.sh-listed services.</p>
+        <p>Pay.sh can be the rail, but robotic.sh visibility anchors the benchmark lane.</p>
+        <p>No robotic.sh-listed comparable route, no Machine Market benchmark.</p>
+        <p>If nothing compatible exists, Radar moves back to evidence acquisition.</p>
         <p>No comparable route, no benchmark.</p>
         <p>No methodology, no artifact.</p>
         <p>No artifact, no claim.</p>
@@ -5403,6 +5434,10 @@ function MachineBenchmarkMethodologyPage() {
         </div>
       </section>
       <section className="panel machine-market-caveat" aria-label="Machine benchmark methodology posture">
+        <p>Machine Market benchmarks require robotic.sh-listed services.</p>
+        <p>Pay.sh can be the rail, but robotic.sh visibility anchors the benchmark lane.</p>
+        <p>No robotic.sh-listed comparable route, no Machine Market benchmark.</p>
+        <p>If nothing compatible exists, Radar moves back to evidence acquisition.</p>
         <p>No comparable route, no benchmark.</p>
         <p>No criteria, no winner.</p>
         <p>No artifact, no claim.</p>

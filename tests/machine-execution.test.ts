@@ -247,8 +247,13 @@ describe('machine execution anytrans translation route', () => {
         execution_started_at: '2026-05-22T00:00:00.000Z',
         execution_completed_at: '2026-05-22T00:00:01.000Z',
         execution_latency_ms: 1000,
-        request_summary: { text: 'Machines should not spend blind.' },
-        response_summary: { translated_text_preview: 'Las máquinas no deberían gastar a ciegas.' },
+        request_summary: { text: 'Machines should not spend blind.', source_language: 'en', target_language: 'es' },
+        response_summary: {
+          translated_text_preview: 'Las máquinas no deberían gastar a ciegas.',
+          source_language: 'en',
+          target_language: 'es',
+          semantic_translation_observed: true
+        },
         executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'manual' }
       }
     });
@@ -277,8 +282,13 @@ describe('machine execution anytrans translation route', () => {
         execution_started_at: '2026-05-22T00:00:00.000Z',
         execution_completed_at: '2026-05-22T00:00:01.000Z',
         execution_latency_ms: 1000,
-        request_summary: { text: 'Machines should not spend blind.' },
-        response_summary: { translated_text_preview: 'Las máquinas no deberían gastar a ciegas.' },
+        request_summary: { text: 'Machines should not spend blind.', source_language: 'en', target_language: 'es' },
+        response_summary: {
+          translated_text_preview: 'Las máquinas no deberían gastar a ciegas.',
+          source_language: 'en',
+          target_language: 'es',
+          semantic_translation_observed: true
+        },
         executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'manual' }
       }
     });
@@ -1359,8 +1369,13 @@ describe('machine execution anytrans translation route', () => {
           execution_started_at: `2026-05-22T00:00:0${idx}.000Z`,
           execution_completed_at: `2026-05-22T00:00:1${idx}.000Z`,
           execution_latency_ms: 900 + idx,
-          request_summary: { text: payload.text },
-          response_summary: { translated_text_preview: 'Las máquinas no deberían gastar a ciegas.' },
+          request_summary: { text: payload.text, source_language: 'en', target_language: 'es' },
+          response_summary: {
+            translated_text_preview: 'Las máquinas no deberían gastar a ciegas.',
+            source_language: 'en',
+            target_language: 'es',
+            semantic_translation_observed: true
+          },
           executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'manual' }
         }
       });
@@ -1676,6 +1691,195 @@ describe('machine execution anytrans translation route', () => {
     expect(String(fixtureRoute.evidence_note)).toContain('not benchmark evidence');
     const gate = await app.inject({ method: 'GET', url: '/v1/machine-execution/benchmark-gate' });
     expect(gate.json().data.benchmark_execution_allowed).toBe(false);
+    await app.close();
+  });
+
+  it('does not count Pay.sh-only or Agentic.Market-only translation routes toward machine comparable_route_count', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const ingest = async (serviceId: string, sourceMarket: 'pay.sh' | 'agentic.market') => app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/receipts/ingest',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: `did:peaq:${serviceId}`,
+        service_id: serviceId,
+        fqn: `unknown/${serviceId}`,
+        source_market: sourceMarket,
+        chain: 'unknown',
+        execution_status: 'succeeded',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-25T00:00:00.000Z',
+        execution_completed_at: '2026-05-25T00:00:01.000Z',
+        execution_latency_ms: 1000,
+        request_summary: { source_language: 'en', target_language: 'es' },
+        response_summary: { translated_text_preview: 'hola' },
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'manual' }
+      }
+    });
+    const before = await app.inject({ method: 'GET', url: '/v1/machine-execution/comparable-routes' });
+    const beforeLane = before.json().data.lanes.find((lane: any) => lane.lane_id === 'machine_translation');
+    await ingest('pay-only-translation-service', 'pay.sh');
+    await ingest('agentic-only-translation-service', 'agentic.market');
+    const after = await app.inject({ method: 'GET', url: '/v1/machine-execution/comparable-routes' });
+    const afterLane = after.json().data.lanes.find((lane: any) => lane.lane_id === 'machine_translation');
+    expect(afterLane.comparable_route_count).toBe(beforeLane.comparable_route_count);
+    const gate = await app.inject({ method: 'GET', url: '/v1/machine-execution/benchmark-gate' });
+    expect(gate.json().data.benchmark_execution_allowed).toBe(false);
+    await app.close();
+  });
+
+  it('robotic.sh-listed translation service with route surface and no receipt stays candidate_unproven, not proven', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+    const planResponse = await app.inject({ method: 'GET', url: '/v1/machine-execution/translation-evidence-plan' });
+    expect(planResponse.statusCode).toBe(200);
+    const plan = planResponse.json().data;
+    const cloudTranslation = plan.routes.find((route: any) => route.service_id === 'cloud-translation');
+    expect(cloudTranslation).toBeTruthy();
+    expect(cloudTranslation.service_identity_state).toBe('present');
+    expect(cloudTranslation.route_surface_state).toBe('present');
+    expect(cloudTranslation.receipt_state).toBe('none');
+    expect(cloudTranslation.evidence_state).toBe('candidate_unproven');
+    expect(cloudTranslation.evidence_state).not.toBe('proven');
+    await app.close();
+  });
+
+  it('cloud-translation receipt enforces machine_translation_safe_phrase required fields', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const invalid = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/receipts/ingest',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: 'did:peaq:cloud-proof-invalid',
+        service_id: 'cloud-translation',
+        fqn: 'solana-foundation/google/cloudtranslation',
+        source_market: 'pay.sh',
+        chain: 'solana',
+        execution_status: 'succeeded',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-25T00:00:00.000Z',
+        execution_completed_at: '2026-05-25T00:00:01.000Z',
+        execution_latency_ms: 1000,
+        request_summary: { text_preview: 'Machines should not spend blind.' },
+        response_summary: { translated_text_preview: 'Las máquinas no deberían gastar a ciegas.' },
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'manual' }
+      }
+    });
+    expect(invalid.statusCode).toBe(400);
+    expect(JSON.stringify(invalid.json())).toContain('semantic_translation_observed');
+
+    const valid = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/receipts/ingest',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: 'did:peaq:cloud-proof-valid',
+        service_id: 'cloud-translation',
+        fqn: 'solana-foundation/google/cloudtranslation',
+        source_market: 'pay.sh',
+        chain: 'solana',
+        execution_status: 'succeeded',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-25T00:00:00.000Z',
+        execution_completed_at: '2026-05-25T00:00:01.000Z',
+        execution_latency_ms: 1000,
+        request_summary: { source_language: 'en', target_language: 'es' },
+        response_summary: {
+          translated_text_preview: 'Las máquinas no deberían gastar a ciegas.',
+          source_language: 'en',
+          target_language: 'es',
+          semantic_translation_observed: true
+        },
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'manual' }
+      }
+    });
+    expect(valid.statusCode).toBe(200);
+    expect(valid.json().data.service_id).toBe('cloud-translation');
+    await app.close();
+  });
+
+  it('cloud-translation becomes fixture_only only after fixture receipt evidence is ingested', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const before = await app.inject({ method: 'GET', url: '/v1/machine-execution/translation-evidence-plan' });
+    const beforeCloud = before.json().data.routes.find((route: any) => route.service_id === 'cloud-translation');
+    expect(beforeCloud.evidence_state).toBe('candidate_unproven');
+    expect(beforeCloud.receipt_state).toBe('none');
+
+    const ingest = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/cloud-translation/fixtures/safe-phrase/ingest',
+      headers: { authorization: 'Bearer secret' },
+      payload: { machine_id: 'did:peaq:cloud-translation-fixture-bot-01' }
+    });
+    expect(ingest.statusCode).toBe(200);
+    expect(ingest.json().data.proof_profile).toBe('machine_translation_safe_phrase');
+    expect(ingest.json().data.service_id).toBe('cloud-translation');
+    expect(ingest.json().data.execution_status).toBe('failed');
+
+    const after = await app.inject({ method: 'GET', url: '/v1/machine-execution/translation-evidence-plan' });
+    const afterCloud = after.json().data.routes.find((route: any) => route.service_id === 'cloud-translation');
+    expect(afterCloud.evidence_state).toBe('fixture_only');
+    expect(afterCloud.receipt_state).toBe('fixture_only');
+    expect(afterCloud.missing_evidence).not.toContain('missing_receipt');
+    expect(after.json().data.benchmark_execution_allowed).toBe(false);
+    expect(JSON.stringify(after.json().data)).not.toMatch(/best route|best provider/i);
+    await app.close();
+  });
+
+  it('benchmark gate remains closed and claims remain zero when only cloud-translation proven receipt exists', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const ingest = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/receipts/ingest',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: 'did:peaq:cloud-proof-only',
+        service_id: 'cloud-translation',
+        fqn: 'solana-foundation/google/cloudtranslation',
+        source_market: 'pay.sh',
+        chain: 'solana',
+        execution_status: 'succeeded',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-25T00:00:00.000Z',
+        execution_completed_at: '2026-05-25T00:00:01.000Z',
+        execution_latency_ms: 1000,
+        request_summary: { source_language: 'en', target_language: 'es' },
+        response_summary: {
+          translated_text_preview: 'Las máquinas no deberían gastar a ciegas.',
+          source_language: 'en',
+          target_language: 'es',
+          semantic_translation_observed: true
+        },
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'manual' }
+      }
+    });
+    expect(ingest.statusCode).toBe(200);
+
+    const plan = await app.inject({ method: 'GET', url: '/v1/machine-execution/translation-evidence-plan' });
+    const cloud = plan.json().data.routes.find((route: any) => route.service_id === 'cloud-translation');
+    expect(cloud.evidence_state).toBe('proven');
+    expect(cloud.receipt_state).toBe('service_specific_success');
+
+    const gate = await app.inject({ method: 'GET', url: '/v1/machine-execution/benchmark-gate' });
+    expect(gate.json().data.benchmark_execution_allowed).toBe(false);
+
+    const readiness = await app.inject({ method: 'GET', url: '/v1/machine-execution/benchmark-readiness' });
+    expect(readiness.json().data.benchmark_claims).toBe(0);
+    expect(readiness.json().data.winner_claims).toBe(0);
+    expect(readiness.json().data.payment_success_claims).toBe(0);
+    expect(JSON.stringify(readiness.json().data)).not.toMatch(/best route|best provider/i);
     await app.close();
   });
 

@@ -789,6 +789,67 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       '400': errorResponse('invalid_naver_geocode_fixture_ingest')
     }
   });
+  add('get', '/v1/machine-execution/cloud-translation/fixtures/safe-phrase', {
+    tags: ['Machine Economy'],
+    summary: 'Get Cloud Translation safe-phrase fixture payload',
+    description: `${SAFE_METADATA_NOTE} Fixture-only route. Returns a replaceable sample payload for proof profile machine_translation_safe_phrase. This endpoint does not execute live Cloud Translation. Shape is safe phrase translation evidence. payment_status remains not_confirmed unless payment evidence exists.`,
+    responses: envelopedResponses(
+      freeformObject(),
+      {
+        fixture_label: 'Cloud Translation safe phrase fixture',
+        proof_profile: 'machine_translation_safe_phrase',
+        replace_with: 'Harness-generated service-specific receipt payload',
+        payload: {
+          machine_id: 'did:peaq:cloud-translation-fixture-bot-01',
+          service_id: 'cloud-translation',
+          fqn: 'solana-foundation/google/cloudtranslation',
+          source_market: 'pay.sh',
+          chain: 'solana',
+          execution_status: 'failed',
+          execution_occurred: true,
+          payment_occurred: false,
+          payment_evidence: null,
+          request_summary: { fixture: 'machine_translation_safe_phrase' },
+          response_summary: {
+            translated_text_preview: 'Las máquinas no deberían gastar a ciegas.',
+            source_language: 'en',
+            target_language: 'es',
+            semantic_translation_observed: true
+          }
+        }
+      }
+    )
+  });
+  add('post', '/v1/machine-execution/cloud-translation/fixtures/safe-phrase/ingest', {
+    tags: ['Machine Economy'],
+    summary: 'Ingest Cloud Translation safe-phrase fixture receipt',
+    description: `${SAFE_METADATA_NOTE} Admin token required (Authorization: Bearer <token>). Fixture-only ingest path for Cloud Translation safe phrase proof shape unless a live success receipt already exists. Does not execute live Cloud Translation. Claim discipline: service-specific execution receipt only; not market-wide proof; not payment proof unless payment evidence exists; not benchmark proof; not winner proof.`,
+    security: [{ bearerAuth: [] }],
+    requestBody: jsonRequest(
+      { $ref: '#/components/schemas/BigQueryFixtureIngestRequest' },
+      { machine_id: 'did:peaq:cloud-translation-fixture-bot-01' }
+    ),
+    responses: {
+      ...envelopedResponses(
+        freeformObject(),
+        {
+          fixture_ingested: true,
+          fixture_label: 'Cloud Translation safe phrase fixture',
+          proof_profile: 'machine_translation_safe_phrase',
+          accepted: true,
+          service_id: 'cloud-translation',
+          execution_status: 'failed',
+          execution_occurred: true,
+          payment_occurred: false,
+          payment_status: 'not_confirmed',
+          evidence_stage_after: 'policy-mapped'
+        }
+      ),
+      '401': errorResponse('admin_token_required'),
+      '400': errorResponse('invalid_cloud_translation_fixture_ingest'),
+      '409': errorResponse('cloud_translation_live_receipt_already_exists')
+    }
+  });
   add('post', '/v1/machine-preflight/coverage-run', {
     tags: ['Machine Economy'],
     summary: 'Run machine preflight coverage',

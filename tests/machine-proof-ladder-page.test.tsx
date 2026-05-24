@@ -60,6 +60,8 @@ describe('machine proof ladder page', () => {
     expect(text).toContain('Radar does not jump from catalog listing to benchmark. It records the steps between visibility, proof, repeatability, methodology, and trust.');
 
     expect(text).toContain('No comparable route, no benchmark.');
+    expect(text).toContain('Machine Market benchmarks require robotic.sh-listed services.');
+    expect(text).toContain('No robotic.sh-listed comparable route, no Machine Market benchmark.');
     expect(text).toContain('No methodology, no artifact.');
     expect(text).toContain('No artifact, no claim.');
     expect(text).toContain('No criteria, no winner.');

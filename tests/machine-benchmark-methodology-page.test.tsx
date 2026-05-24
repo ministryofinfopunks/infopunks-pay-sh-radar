@@ -89,6 +89,8 @@ describe('machine benchmark methodology page', () => {
     expect(text).toContain('Methodology before benchmarks.');
     expect(text).toContain('This is the inspection form, not the race.');
     expect(text).toContain('No comparable route, no benchmark.');
+    expect(text).toContain('Machine Market benchmarks require robotic.sh-listed services.');
+    expect(text).toContain('No robotic.sh-listed comparable route, no Machine Market benchmark.');
     expect(text).toContain('No criteria, no winner.');
     expect(text).toContain('No artifact, no claim.');
     expect(text).toContain('machine_translation');

@@ -119,6 +119,8 @@ describe('machine benchmark readiness page', () => {
     const text = container.textContent ?? '';
     expect(text).toContain('Machine Benchmark Readiness');
     expect(text).toContain('Benchmark readiness is not benchmark evidence.');
+    expect(text).toContain('Machine Market benchmarks require robotic.sh-listed services.');
+    expect(text).toContain('No robotic.sh-listed comparable route, no Machine Market benchmark.');
     expect(text).toContain('Repeatability is not route superiority.');
     expect(text).toContain('No winner claim exists until criteria and artifacts exist.');
     expect(container.querySelector('a[href="/machine-comparable-routes"]')).not.toBeNull();

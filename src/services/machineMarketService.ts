@@ -426,12 +426,21 @@ const services: MachineMarketService[] = [
     policy_risk: 'Translation can alter operational meaning; require confidence checks for safety-critical instructions.',
     access_rail: 'pay_sh_solana',
     rail_status: 'proof_plan_selected',
-    route_surface_status: 'no_callable_endpoints',
-    endpoint_count: 0,
+    route_surface_status: 'callable_routes_listed',
+    endpoint_count: 1,
+    route_count: 1,
     pricing_model: 'per endpoint',
     credential_requirement: 'not recorded',
-    first_safe_route: 'not recorded',
-    rail_caveat: 'selected proof plan, not execution-tested by Radar',
+    first_safe_route: 'safe translation phrase',
+    rail_caveat: 'callable route metadata listed; execution status remains receipt-scoped',
+    catalog_routes: [
+      {
+        method: 'POST',
+        path: '/translateText',
+        label: 'Safe phrase translation',
+        risk: 'low_to_medium'
+      }
+    ],
     caveats: defaultCaveats
   }),
   service({

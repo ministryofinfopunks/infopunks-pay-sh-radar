@@ -119,6 +119,8 @@ describe('openapi discovery', () => {
     const stableuploadFixtureIngest = spec.paths['/v1/machine-execution/stableupload/fixtures/ingest']?.post;
     const naverFixtureSample = spec.paths['/v1/machine-execution/naver/fixtures/geocode']?.get;
     const naverFixtureIngest = spec.paths['/v1/machine-execution/naver/fixtures/geocode/ingest']?.post;
+    const cloudFixtureSample = spec.paths['/v1/machine-execution/cloud-translation/fixtures/safe-phrase']?.get;
+    const cloudFixtureIngest = spec.paths['/v1/machine-execution/cloud-translation/fixtures/safe-phrase/ingest']?.post;
 
     expect(ingest).toBeTruthy();
     expect(fixtureSample).toBeTruthy();
@@ -133,6 +135,8 @@ describe('openapi discovery', () => {
     expect(stableuploadFixtureIngest).toBeTruthy();
     expect(naverFixtureSample).toBeTruthy();
     expect(naverFixtureIngest).toBeTruthy();
+    expect(cloudFixtureSample).toBeTruthy();
+    expect(cloudFixtureIngest).toBeTruthy();
     expect(spec.components.securitySchemes.bearerAuth).toBeTruthy();
     expect(spec.components.securitySchemes.bearerAuth.type).toBe('http');
     expect(spec.components.securitySchemes.bearerAuth.scheme).toBe('bearer');
@@ -141,9 +145,11 @@ describe('openapi discovery', () => {
     expect(liveRun.security).toEqual([{ bearerAuth: [] }]);
     expect(stableuploadFixtureIngest.security).toEqual([{ bearerAuth: [] }]);
     expect(naverFixtureIngest.security).toEqual([{ bearerAuth: [] }]);
+    expect(cloudFixtureIngest.security).toEqual([{ bearerAuth: [] }]);
     expect(fixtureSample.security).toBeUndefined();
     expect(stableuploadFixtureSample.security).toBeUndefined();
     expect(naverFixtureSample.security).toBeUndefined();
+    expect(cloudFixtureSample.security).toBeUndefined();
 
     expect(String(ingest.description)).toContain('Admin token required');
     expect(JSON.stringify(ingest.responses)).toContain('admin_token_required');
@@ -207,6 +213,14 @@ describe('openapi discovery', () => {
     expect(String(naverFixtureIngest.description)).toContain('no robot command');
     expect(String(naverFixtureIngest.description)).toContain('no physical movement');
     expect(JSON.stringify(naverFixtureIngest.responses)).toContain('admin_token_required');
+    expect(String(cloudFixtureSample.description)).toContain('Fixture-only route');
+    expect(String(cloudFixtureSample.description)).toContain('does not execute live Cloud Translation');
+    expect(String(cloudFixtureSample.description)).toContain('safe phrase translation evidence');
+    expect(String(cloudFixtureIngest.description)).toContain('Fixture-only ingest path');
+    expect(String(cloudFixtureIngest.description)).toContain('Does not execute live Cloud Translation');
+    expect(String(cloudFixtureIngest.description)).toContain('not benchmark proof');
+    expect(String(cloudFixtureIngest.description)).toContain('not winner proof');
+    expect(JSON.stringify(cloudFixtureIngest.responses)).toContain('admin_token_required');
 
     await app.close();
   });

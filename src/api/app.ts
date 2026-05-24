@@ -101,6 +101,7 @@ import {
   buildBigQueryBoundedQueryFixtureReceipt,
   buildMachineExecutionRepeatabilityPack,
   buildNaverGeocodeFixtureReceipt,
+  buildCloudTranslationSafePhraseFixtureReceipt,
   buildStableuploadTinyFixtureReceipt,
   deprecatedCloudTranslationExecutionResponse,
   ingestMachineExecutionReceipt,
@@ -891,6 +892,45 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
         fixture_ingested: true,
         fixture_label: 'NAVER Maps non-operational geocode fixture',
         proof_profile: 'naver_geocode_lookup',
+        payload: fixturePayload,
+        ...result,
+        phase_scope: MACHINE_MARKET_PHASE_SCOPE,
+        storage: machineReceiptStorage
+      })
+    };
+  });
+  app.get('/v1/machine-execution/cloud-translation/fixtures/safe-phrase', async () => {
+    const fixture = buildCloudTranslationSafePhraseFixtureReceipt();
+    return {
+      data: safeJsonExport({
+        fixture_label: 'Cloud Translation safe phrase fixture',
+        proof_profile: 'machine_translation_safe_phrase',
+        replace_with: 'Harness-generated service-specific receipt payload',
+        payload: fixture
+      })
+    };
+  });
+  app.post('/v1/machine-execution/cloud-translation/fixtures/safe-phrase/ingest', async (req, reply) => {
+    if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'admin_token_required' });
+    const parsed = BigQueryFixtureIngestSchema.safeParse(req.body);
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_cloud_translation_fixture_ingest', details: parsed.error.flatten() });
+    const existing = await listRecentMachinePreflightReceipts({ service_id: 'cloud-translation', limit: 25 });
+    const hasLiveSuccess = existing.some((row) =>
+      row.receipt_type === 'machine_execution'
+      && row.execution_status === 'succeeded'
+      && row.execution_occurred
+      && !String(row.execution_request_summary ?? '').includes('"fixture"')
+    );
+    if (hasLiveSuccess) {
+      return reply.code(409).send({ error: 'cloud_translation_live_receipt_already_exists', message: 'live_service_specific_receipt_exists' });
+    }
+    const fixturePayload = buildCloudTranslationSafePhraseFixtureReceipt(parsed.data ?? {});
+    const result = await ingestMachineExecutionReceipt(fixturePayload);
+    return {
+      data: safeJsonExport({
+        fixture_ingested: true,
+        fixture_label: 'Cloud Translation safe phrase fixture',
+        proof_profile: 'machine_translation_safe_phrase',
         payload: fixturePayload,
         ...result,
         phase_scope: MACHINE_MARKET_PHASE_SCOPE,

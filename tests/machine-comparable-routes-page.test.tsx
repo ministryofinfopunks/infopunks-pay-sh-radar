@@ -151,6 +151,9 @@ describe('machine comparable routes page', () => {
     const text = container.textContent ?? '';
     expect(text).toContain('Machine Comparable Routes');
     expect(text).toContain('Comparable routes are required before benchmarks.');
+    expect(text).toContain('Machine Market benchmarks require robotic.sh-listed services.');
+    expect(text).toContain('Pay.sh can be the rail, but robotic.sh visibility anchors the benchmark lane.');
+    expect(text).toContain('No robotic.sh-listed comparable route, no Machine Market benchmark.');
     expect(text).toContain('No comparable route, no benchmark.');
     expect(text).toContain('Methodology before leaderboard.');
     expect(text).toContain('Machine Translation');

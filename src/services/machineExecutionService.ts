@@ -464,6 +464,12 @@ export type NaverGeocodeFixtureOptions = {
   machine_id?: string;
   execution_completed_at?: string;
 };
+export type CloudTranslationSafePhraseFixtureOptions = {
+  machine_id?: string;
+  execution_completed_at?: string;
+  source_language?: string;
+  target_language?: string;
+};
 
 type TranslationAdapterResult = {
   execution_status: 'attempted' | 'succeeded' | 'failed';
@@ -833,6 +839,42 @@ export function buildNaverGeocodeFixtureReceipt(options: NaverGeocodeFixtureOpti
     },
     executor: { name: 'infopunks-radar-fixture', version: 'fixture-v1', mode: 'manual' },
     artifact_signature: 'fixture:naver_geocode_lookup:v1'
+  };
+}
+
+export function buildCloudTranslationSafePhraseFixtureReceipt(options: CloudTranslationSafePhraseFixtureOptions = {}): MachineExecutionReceiptIngestRequest {
+  const completedAt = options.execution_completed_at ?? new Date().toISOString();
+  const startedAt = new Date(Math.max(0, Date.parse(completedAt) - 680)).toISOString();
+  const sourceLanguage = options.source_language ?? 'en';
+  const targetLanguage = options.target_language ?? 'es';
+  return {
+    machine_id: options.machine_id ?? 'did:peaq:cloud-translation-fixture-bot-01',
+    service_id: 'cloud-translation',
+    fqn: 'solana-foundation/google/cloudtranslation',
+    source_market: 'pay.sh',
+    chain: 'solana',
+    preflight_receipt_id: null,
+    execution_status: 'failed',
+    execution_occurred: true,
+    payment_occurred: false,
+    payment_evidence: null,
+    execution_started_at: startedAt,
+    execution_completed_at: completedAt,
+    execution_latency_ms: 680,
+    request_summary: {
+      fixture: 'machine_translation_safe_phrase',
+      source_language: sourceLanguage,
+      target_language: targetLanguage,
+      route_policy: 'safe_phrase_translation_only'
+    },
+    response_summary: {
+      translated_text_preview: 'Las máquinas no deberían gastar a ciegas.',
+      source_language: sourceLanguage,
+      target_language: targetLanguage,
+      semantic_translation_observed: true
+    },
+    executor: { name: 'infopunks-radar-fixture', version: 'fixture-v1', mode: 'manual' },
+    artifact_signature: 'fixture:machine_translation_safe_phrase:v1'
   };
 }
 
@@ -1516,13 +1558,22 @@ export async function buildMachineBenchmarkReadinessReport(): Promise<MachineBen
 
 export async function buildMachineComparableRouteDiscovery(): Promise<MachineComparableRouteDiscovery> {
   const services = listMachineMarketServices();
+  const roboticVisibleServiceIds = new Set(
+    services.filter((service) => service.observed_source === 'robotic.sh').map((service) => service.id)
+  );
   const receipts = await listRecentMachinePreflightReceipts({ limit: 250 });
   const executionReceipts = receipts.filter((row) => row.receipt_type === 'machine_execution');
+  const hasReceiptForUnmappedRailOnlyTranslationRoute = executionReceipts.some((row) => {
+    const serviceId = row.execution_service_id ?? row.selected_service_id;
+    if (!serviceId || roboticVisibleServiceIds.has(serviceId)) return false;
+    const sourceMarket = row.source_market;
+    return sourceMarket === 'pay.sh' || sourceMarket === 'agentic.market';
+  });
   const translationStateFor = (serviceId: 'anytrans' | 'alibaba-machine-translation-general') => {
     const routeReceipts = executionReceipts.filter((row) =>
       (row.execution_service_id ?? row.selected_service_id) === serviceId
     );
-    const servicePresent = services.some((service) => service.id === serviceId);
+    const servicePresent = roboticVisibleServiceIds.has(serviceId);
     const routeSurfacePresent = servicePresent;
     const hasAnyReceipt = routeReceipts.length > 0;
     const missingEvidence: Array<
@@ -1633,7 +1684,9 @@ export async function buildMachineComparableRouteDiscovery(): Promise<MachineCom
           : 'single route only; benchmark lane remains blocked',
       next_action: translationProvenCount >= 2
         ? 'Run benchmark gate check and only execute controlled benchmark if gate returns benchmark_execution_allowed=true.'
-        : 'Keep route evidence state explicit (candidate_unproven or fixture_only caveats) and collect service-specific proven receipts.',
+        : hasReceiptForUnmappedRailOnlyTranslationRoute
+          ? 'Map Pay.sh or Agentic.Market route identity to a robotic.sh-visible service before counting comparability, then collect service-specific proven receipts.'
+          : 'Keep route evidence state explicit (candidate_unproven or fixture_only caveats) and collect service-specific proven receipts.',
       evidence_requirements_panel: {
         lane: 'machine_translation',
         run_count_target: 3,
@@ -1728,6 +1781,10 @@ export async function buildMachineComparableRouteDiscovery(): Promise<MachineCom
     winner_claims: 0,
     lanes,
     caveats: [
+      'Machine Market benchmarks require robotic.sh-listed services.',
+      'Pay.sh can be the rail, but robotic.sh visibility anchors the benchmark lane.',
+      'No robotic.sh-listed comparable route, no Machine Market benchmark.',
+      'If nothing compatible exists, Radar moves back to evidence acquisition.',
       'Comparable routes are required before benchmarks.',
       'No comparable route, no benchmark.',
       'Methodology before leaderboard.',
@@ -1752,6 +1809,9 @@ function hasFixtureSignal(receipt: MachinePreflightReceipt): boolean {
 export async function buildMachineTranslationEvidencePlan(): Promise<MachineTranslationEvidencePlan> {
   const runCountTarget = 3;
   const services = listMachineMarketServices();
+  const roboticVisibleServiceIds = new Set(
+    services.filter((service) => service.observed_source === 'robotic.sh').map((service) => service.id)
+  );
   const receipts = await listRecentMachinePreflightReceipts({ limit: 500 });
   const executionReceipts = receipts.filter((row) => row.receipt_type === 'machine_execution');
   const knownTranslationServices = services.filter((service) => service.category === 'translation');
@@ -1770,7 +1830,7 @@ export async function buildMachineTranslationEvidencePlan(): Promise<MachineTran
     const routeReceipts = executionReceipts.filter((row) => (row.execution_service_id ?? row.selected_service_id) === serviceId);
     const successfulReceipts = routeReceipts.filter((row) => row.execution_status === 'succeeded' && row.execution_occurred);
     const fixtureReceipts = routeReceipts.filter((row) => hasFixtureSignal(row));
-    const serviceIdentityPresent = Boolean(service);
+    const serviceIdentityPresent = Boolean(service && roboticVisibleServiceIds.has(service.id));
     const routeSurfacePresent = Boolean(service && ((service.route_count ?? 0) > 0 || (service.endpoint_count ?? 0) > 0 || (service.catalog_routes?.length ?? 0) > 0));
     const profileMatch: MachineTranslationEvidencePlanRoute['proof_profile_match'] = (
       serviceId === 'anytrans'
@@ -1849,6 +1909,10 @@ export async function buildMachineTranslationEvidencePlan(): Promise<MachineTran
       'Re-check benchmark gate'
     ],
     caveats: [
+      'Machine Market benchmarks require robotic.sh-listed services.',
+      'Pay.sh can be the rail, but robotic.sh visibility anchors the benchmark lane.',
+      'No robotic.sh-listed comparable route, no Machine Market benchmark.',
+      'If nothing compatible exists, Radar moves back to evidence acquisition.',
       'candidate_unproven does not open benchmark gate.',
       'fixture_only does not open benchmark gate unless explicitly allowed by methodology.',
       'proven requires successful service-specific receipt evidence.',
@@ -1867,6 +1931,8 @@ export async function buildMachineBenchmarkMethodologyArtifacts(): Promise<Machi
   ]);
   const generatedAt = new Date().toISOString();
   const caveats = [
+    'Machine Market benchmarks require robotic.sh-listed services.',
+    'No robotic.sh-listed comparable route, no Machine Market benchmark.',
     'Methodology artifact schema is not benchmark evidence.',
     'Benchmark readiness is not benchmark evidence.',
     'Repeatability is not route superiority.',
@@ -1911,7 +1977,8 @@ export async function buildMachineBenchmarkMethodologyArtifacts(): Promise<Machi
         'methodology_only',
         'no_benchmark_execution',
         'no_winner_claim_without_explicit_criteria',
-        'no_benchmark_artifact_recording_from_schema_endpoint'
+        'no_benchmark_artifact_recording_from_schema_endpoint',
+        'robotic_sh_listed_services_only'
       ],
       comparable_route_count: comparableRouteCount,
       readiness_status: readinessStatus,
@@ -1947,8 +2014,9 @@ export async function buildMachineBenchmarkMethodologyArtifacts(): Promise<Machi
       benchmark_execution_allowed: hasBenchmarkReadyLane,
       reason: hasBenchmarkReadyLane
         ? 'At least one lane satisfies benchmark-ready gate conditions.'
-        : 'Blocked: benchmark execution requires readiness_status=benchmark_ready, methodology_artifact_schema=present, and comparable_route_count>=2.',
+        : 'Blocked: benchmark execution requires robotic_sh_visible_service_identity, readiness_status=benchmark_ready, methodology_artifact_schema=present, and comparable_route_count>=2.',
       required_conditions: [
+        'robotic_sh_visible_service_identity = present',
         'readiness_status = benchmark_ready',
         'methodology_artifact_schema = present',
         'comparable_route_count >= 2'
@@ -1967,6 +2035,7 @@ export async function buildMachineBenchmarkGateCheck(): Promise<MachineBenchmark
   const comparableByLane = new Map(comparable.lanes.map((lane) => [lane.lane_id, lane] as const));
   const artifactsByLane = new Map(methodology.methodology_artifacts.map((artifact) => [artifact.lane_id, artifact] as const));
   const required_conditions = [
+    'robotic_sh_visible_service_identity = present',
     'readiness_status = benchmark_ready',
     'methodology_artifact_schema = present',
     'comparable_route_count >= 2',

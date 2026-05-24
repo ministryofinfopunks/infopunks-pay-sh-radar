@@ -46,8 +46,13 @@ const PROFILES: MachineExecutionProofProfile[] = [
     route_id: 'translation:POST:/translate',
     safe_input_class: 'safe_phrase',
     expected_output_class: 'semantic_translation',
-    required_success_fields: [{ field: 'translated_text_preview', type: 'present' }],
-    optional_success_fields: ['target_language', 'provider_request_id', 'word_count'],
+    required_success_fields: [
+      { field: 'translated_text_preview', type: 'present' },
+      { field: 'source_language', type: 'present' },
+      { field: 'target_language', type: 'present' },
+      { field: 'semantic_translation_observed', type: 'boolean_true' }
+    ],
+    optional_success_fields: ['provider_request_id', 'word_count'],
     forbidden_fields: [],
     payment_evidence_policy: 'Do not claim payment success unless payment evidence exists.',
     benchmark_policy: 'Do not claim benchmark without benchmark artifact.',
