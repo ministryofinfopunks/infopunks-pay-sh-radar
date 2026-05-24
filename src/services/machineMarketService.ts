@@ -31,6 +31,12 @@ export type MachineMarketCatalogRoute = {
   label: string;
   risk: MachineMarketCatalogRouteRisk;
 };
+export type MachineMarketSourceAttribution = {
+  source: string;
+  scope: string;
+  observed_at: string;
+  caveat: string;
+};
 
 export const MACHINE_MARKET_PHASE_SCOPE = 'phase_2_pay_sh_robotic_sh';
 export const MACHINE_MARKET_OBSERVED_AT = '2026-05-22T00:00:00.000Z';
@@ -61,6 +67,7 @@ export type MachineMarketService = {
   first_safe_route?: string;
   rail_caveat?: string;
   catalog_routes?: MachineMarketCatalogRoute[];
+  source_attribution: MachineMarketSourceAttribution;
   observed_source: 'robotic.sh';
   observed_at: string;
   phase_scope: typeof MACHINE_MARKET_PHASE_SCOPE;
@@ -84,7 +91,7 @@ export type MachineMarketSummary = {
   };
 };
 
-type ServiceInput = Omit<MachineMarketService, 'observed_source' | 'observed_at' | 'phase_scope' | 'evidence_health' | 'evidence_stage'>;
+type ServiceInput = Omit<MachineMarketService, 'observed_source' | 'observed_at' | 'phase_scope' | 'evidence_health' | 'evidence_stage' | 'source_attribution'>;
 
 const defaultCaveats = [
   'Static robotic.sh service mirror for Phase 2 only.',
@@ -407,6 +414,7 @@ export function listMachineMarketServices(): MachineMarketService[] {
   return services.map((item) => ({
     ...item,
     caveats: [...item.caveats],
+    source_attribution: { ...item.source_attribution },
     catalog_routes: item.catalog_routes?.map((route) => ({ ...route }))
   }));
 }
@@ -417,6 +425,7 @@ export function getMachineMarketServiceById(serviceId: string): MachineMarketSer
     ? {
       ...service,
       caveats: [...service.caveats],
+      source_attribution: { ...service.source_attribution },
       catalog_routes: service.catalog_routes?.map((route) => ({ ...route }))
     }
     : null;
@@ -448,6 +457,12 @@ function service(input: ServiceInput): MachineMarketService {
     ...input,
     evidence_health: 'scaffold',
     evidence_stage: 'policy-mapped',
+    source_attribution: {
+      source: 'robotic.sh',
+      scope: 'static Phase 2 robotic.sh-visible service mirror',
+      observed_at: MACHINE_MARKET_OBSERVED_AT,
+      caveat: 'Public/catalog context only. Radar evidence changes only when a service-specific receipt is recorded.'
+    },
     observed_source: 'robotic.sh',
     observed_at: MACHINE_MARKET_OBSERVED_AT,
     phase_scope: MACHINE_MARKET_PHASE_SCOPE
