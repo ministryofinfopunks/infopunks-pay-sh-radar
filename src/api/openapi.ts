@@ -544,6 +544,65 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       }
     )
   });
+  add('get', '/v1/machine-execution/benchmark-methodology', {
+    tags: ['Machine Economy'],
+    summary: 'Get machine benchmark methodology artifact scaffolds',
+    description: `${SAFE_METADATA_NOTE} Returns methodology schema artifacts only for future machine benchmarks. This endpoint is not benchmark execution, not benchmark evidence, does not record benchmark artifacts, and does not claim winners.`,
+    responses: envelopedResponses(
+      freeformObject(),
+      {
+        generated_at: '2026-05-24T00:00:00.000Z',
+        artifact_schema_version: 'machine_benchmark_methodology.v1',
+        methodology_artifacts: [
+          {
+            benchmark_id: 'machine-benchmark-machine_translation',
+            lane_id: 'machine_translation',
+            task_class: 'Machine Translation',
+            routes_compared: [{ service_id: 'anytrans', route_id: 'translation:POST:/translate', profile_id: 'machine_translation_safe_phrase' }],
+            input_set: 'same phrase set',
+            normalization_strategy: 'trim/lowercase canonical comparison',
+            success_criteria: 'parseable translation output',
+            run_count: 0,
+            cost_fields: ['payment_status', 'payment_evidence'],
+            latency_fields: ['execution_latency_ms'],
+            payment_fields: ['payment_status', 'payment_evidence'],
+            safety_constraints: ['no benchmark ranking claims'],
+            policy_constraints: ['methodology_only', 'no_benchmark_execution'],
+            comparable_route_count: 1,
+            readiness_status: 'single_route_repeatability_ready',
+            methodology_status: 'missing_comparable_routes',
+            artifact_status: 'scaffold',
+            winner_policy: 'no_winner_default',
+            winner_claim: false,
+            benchmark_claim: false,
+            methodology_artifact_schema: 'present',
+            output_normalization: 'trim/lowercase canonical comparison',
+            run_count_target: 3,
+            cost_fields_required: ['payment_status', 'payment_evidence'],
+            latency_fields_required: ['execution_latency_ms'],
+            payment_fields_required: ['payment_status', 'payment_evidence'],
+            missing_requirements: ['comparable_routes_missing'],
+            benchmark_allowed: false,
+            caveats: ['Methodology artifact schema is not benchmark evidence.'],
+            generated_at: '2026-05-24T00:00:00.000Z'
+          }
+        ],
+        global_gate: {
+          benchmark_execution_allowed: false,
+          reason: 'Blocked: benchmark execution requires readiness_status=benchmark_ready, methodology_artifact_schema=present, and comparable_route_count>=2.',
+          required_conditions: [
+            'readiness_status = benchmark_ready',
+            'methodology_artifact_schema = present',
+            'comparable_route_count >= 2'
+          ]
+        },
+        caveats: [
+          'Methodology artifact schema is not benchmark evidence.',
+          'No benchmark execution has been run by this scaffold.'
+        ]
+      }
+    )
+  });
   add('get', '/v1/machine-execution/stableupload/fixtures/tiny-fixture', {
     tags: ['Machine Economy'],
     summary: 'Get Stableupload tiny-fixture payload',

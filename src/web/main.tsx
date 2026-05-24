@@ -412,6 +412,49 @@ type MachineComparableRouteReport = {
   lanes: MachineComparableRouteLane[];
   caveats: string[];
 };
+type MachineBenchmarkMethodologyArtifact = {
+  benchmark_id: string;
+  lane_id: 'machine_translation' | 'data_query_bigquery' | 'storage_stableupload' | 'navigation_naver_geocode';
+  task_class: string;
+  routes_compared: Array<{ service_id: string; route_id: string; profile_id: string }>;
+  input_set: string;
+  normalization_strategy: string;
+  success_criteria: string;
+  run_count: number;
+  cost_fields: string[];
+  latency_fields: string[];
+  payment_fields: string[];
+  safety_constraints: string[];
+  policy_constraints: string[];
+  comparable_route_count: number;
+  readiness_status: string;
+  methodology_status: 'missing_comparable_routes' | 'methodology_incomplete' | 'schema_present' | 'ready_for_benchmark_artifact';
+  artifact_status: 'scaffold' | 'methodology_ready' | 'benchmark_recorded';
+  winner_policy: 'no_winner_default' | 'explicit_criteria_required' | 'no_clear_winner_allowed';
+  winner_claim: false;
+  benchmark_claim: false;
+  methodology_artifact_schema: 'present';
+  output_normalization: string;
+  run_count_target: number;
+  cost_fields_required: string[];
+  latency_fields_required: string[];
+  payment_fields_required: string[];
+  missing_requirements: string[];
+  benchmark_allowed: boolean;
+  caveats: string[];
+  generated_at: string;
+};
+type MachineBenchmarkMethodologyReport = {
+  generated_at: string;
+  artifact_schema_version: string;
+  methodology_artifacts: MachineBenchmarkMethodologyArtifact[];
+  global_gate: {
+    benchmark_execution_allowed: boolean;
+    reason: string;
+    required_conditions: string[];
+  };
+  caveats: string[];
+};
 type MachineDossier = {
   machine_id: string;
   phase_scope: 'phase_2_pay_sh_robotic_sh';
@@ -1543,6 +1586,9 @@ function isMachineBenchmarkReadinessRoute(pathname: string) {
 }
 function isMachineComparableRoutesRoute(pathname: string) {
   return /^\/machine-comparable-routes\/?$/.test(pathname);
+}
+function isMachineBenchmarkMethodologyRoute(pathname: string) {
+  return /^\/machine-benchmark-methodology\/?$/.test(pathname);
 }
 
 function isMachineExecutionBlockersRoute(pathname: string) {
@@ -3653,7 +3699,7 @@ function MachineMarketPage() {
       <section className="panel machine-market-caveat" aria-label="Coverage caveat">
         <p>Infopunks Radar mapped the entire listed robotic.sh machine-service market.</p>
         <p>Coverage refers to the 13 services visible in the observed robotic.sh market snapshot. 0 market-wide execution claims. Service-specific execution receipts are scoped to the recorded route.</p>
-        <p><a className="execute compact secondary" href="/machine-market-map">View market map</a> <a className="execute compact secondary" href="/machine-readiness-matrix">View readiness matrix</a> <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a> <a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a> <a className="execute compact secondary" href="/machine-route-risk-matrix">View route risk matrix</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a> <a className="execute compact secondary" href="/machine-benchmark-readiness">View benchmark readiness</a> <a className="execute compact secondary" href="/machine-comparable-routes">View comparable routes</a> <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a></p>
+        <p><a className="execute compact secondary" href="/machine-market-map">View market map</a> <a className="execute compact secondary" href="/machine-readiness-matrix">View readiness matrix</a> <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a> <a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a> <a className="execute compact secondary" href="/machine-route-risk-matrix">View route risk matrix</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a> <a className="execute compact secondary" href="/machine-benchmark-readiness">View benchmark readiness</a> <a className="execute compact secondary" href="/machine-benchmark-methodology">View benchmark methodology</a> <a className="execute compact secondary" href="/machine-comparable-routes">View comparable routes</a> <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a></p>
       </section>
       <MachineEvidenceMethodologyDrawer />
       <EvidenceLadder services={services} />
@@ -4826,7 +4872,7 @@ function MachineBenchmarkReadinessPage() {
         <p>No winner claim exists until criteria and artifacts exist.</p>
         <p>A single repeatable route is not a benchmark.</p>
         <p>Comparable routes are required before benchmark artifacts.</p>
-        <p><a className="execute compact secondary" href="/machine-market">Back to Machine Market</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a> <a className="execute compact secondary" href="/machine-comparable-routes">View comparable routes</a> <a className="execute compact secondary" href="/machine-receipts">View receipts</a></p>
+        <p><a className="execute compact secondary" href="/machine-market">Back to Machine Market</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a> <a className="execute compact secondary" href="/machine-benchmark-methodology">View benchmark methodology</a> <a className="execute compact secondary" href="/machine-comparable-routes">View comparable routes</a> <a className="execute compact secondary" href="/machine-receipts">View receipts</a></p>
       </section>
       {loading && <section className="panel" role="status"><p className="route-state">Loading machine benchmark readiness...</p></section>}
       {error && <section className="panel" role="alert"><p className="route-state error">Machine benchmark readiness unavailable: {error}</p></section>}
@@ -4910,7 +4956,7 @@ function MachineComparableRoutesPage() {
       <section className="panel machine-market-caveat" aria-label="Machine comparable route caveats">
         <p>No comparable route, no benchmark.</p>
         <p>Methodology before leaderboard.</p>
-        <p><a className="execute compact secondary" href="/machine-benchmark-readiness">View benchmark readiness</a> <a className="execute compact secondary" href="/machine-market">Back to Machine Market</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a></p>
+        <p><a className="execute compact secondary" href="/machine-benchmark-readiness">View benchmark readiness</a> <a className="execute compact secondary" href="/machine-benchmark-methodology">View benchmark methodology</a> <a className="execute compact secondary" href="/machine-market">Back to Machine Market</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a></p>
       </section>
       {loading && <section className="panel" role="status"><p className="route-state">Loading machine comparable routes...</p></section>}
       {error && <section className="panel" role="alert"><p className="route-state error">Machine comparable routes unavailable: {error}</p></section>}
@@ -4936,6 +4982,114 @@ function MachineComparableRoutesPage() {
               <span role="cell">{lane.next_action}</span>
             </div>)}
           </div>
+        </section>
+      </>}
+    </main>
+  </div>;
+}
+
+function MachineBenchmarkMethodologyPage() {
+  const [report, setReport] = useState<MachineBenchmarkMethodologyReport | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.title = 'Machine Benchmark Methodology | Infopunks Pay.sh Radar';
+    setMetaTag('name', 'description', 'Methodology schema scaffolds for future machine benchmarks. Not benchmark execution, not benchmark evidence, no winner claims.');
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    api<{ data: MachineBenchmarkMethodologyReport }>('/v1/machine-execution/benchmark-methodology')
+      .then((response) => {
+        if (cancelled) return;
+        setReport(response.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setError(err instanceof Error ? err.message : 'machine benchmark methodology unavailable');
+        setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return <div className="shell machine-market-shell">
+    <a className="skip-link" href="#machine-benchmark-methodology-content">Skip to content</a>
+    <header className="site-header">
+      <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Benchmark Methodology navigation">
+        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <div className="terminal-nav" aria-label="Machine Economy navigation">
+          <MachineControlPlaneNavLinks current="machine-benchmark-methodology" />
+        </div>
+      </nav>
+    </header>
+    <main id="machine-benchmark-methodology-content" className="machine-market-page machine-benchmark-readiness-page" aria-label="Machine Benchmark Methodology">
+      <section className="panel hero machine-market-hero">
+        <div>
+          <p className="eyebrow">Methodology Before Benchmarks</p>
+          <h1>Machine Benchmark Methodology</h1>
+          <p className="copy">Methodology before benchmarks.</p>
+          <p className="panel-caption">This is the inspection form, not the race.</p>
+        </div>
+      </section>
+      <section className="panel machine-market-caveat" aria-label="Machine benchmark methodology posture">
+        <p>No comparable route, no benchmark.</p>
+        <p>No criteria, no winner.</p>
+        <p>No artifact, no claim.</p>
+        <p><a className="execute compact secondary" href="/machine-market">Back to Machine Market</a> <a className="execute compact secondary" href="/machine-benchmark-readiness">View benchmark readiness</a> <a className="execute compact secondary" href="/machine-comparable-routes">View comparable routes</a></p>
+      </section>
+      {loading && <section className="panel" role="status"><p className="route-state">Loading machine benchmark methodology...</p></section>}
+      {error && <section className="panel" role="alert"><p className="route-state error">Machine benchmark methodology unavailable: {error}</p></section>}
+      {!loading && !error && report && <>
+        <section className="panel machine-market-brief" aria-label="Global benchmark gate">
+          <div className="panel-head"><div><p className="section-kicker">Global benchmark gate</p><h2>Execution gate</h2></div></div>
+          <p><b>benchmark_execution_allowed:</b> {String(report.global_gate.benchmark_execution_allowed)}</p>
+          <p>{report.global_gate.reason}</p>
+          <p><b>required_conditions:</b> {report.global_gate.required_conditions.join(' · ')}</p>
+        </section>
+        <section className="panel machine-market-brief" aria-label="Artifact schema fields">
+          <div className="panel-head"><div><p className="section-kicker">Artifact schema fields</p><h2>Schema contract</h2></div></div>
+          <p>benchmark_id · lane_id · task_class · routes_compared · input_set · normalization_strategy · success_criteria · run_count · cost_fields · latency_fields · payment_fields · safety_constraints · policy_constraints · comparable_route_count · readiness_status · methodology_status · artifact_status · winner_policy · winner_claim · benchmark_claim · caveats · generated_at</p>
+        </section>
+        <section className="panel machine-service-table-panel" aria-label="Lane methodology scaffolds">
+          <div className="panel-head"><div><p className="section-kicker">Lane methodology scaffolds</p><h2>{report.methodology_artifacts.length} lane artifacts</h2></div></div>
+          <div className="machine-service-table" role="table" aria-label="Machine benchmark methodology artifact table">
+            <div className="machine-service-row machine-blocker-row head" role="row">
+              {['lane', 'task class', 'routes compared', 'comparable routes', 'methodology status', 'artifact status', 'missing requirements', 'benchmark allowed', 'claims', 'caveats'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
+            </div>
+            {report.methodology_artifacts.map((artifact) => <div key={artifact.benchmark_id} className="machine-service-row machine-blocker-row" role="row">
+              <span role="cell"><strong>{artifact.lane_id}</strong><small>{artifact.benchmark_id}</small></span>
+              <span role="cell">{artifact.task_class}</span>
+              <span role="cell"><small>{artifact.routes_compared.map((route) => `${route.service_id} (${route.profile_id})`).join(' · ') || 'none recorded'}</small></span>
+              <span role="cell">{artifact.comparable_route_count}</span>
+              <span role="cell">{artifact.methodology_status}</span>
+              <span role="cell">{artifact.artifact_status}</span>
+              <span role="cell"><small>{artifact.missing_requirements.join(', ') || 'none'}</small></span>
+              <span role="cell">{String(artifact.benchmark_allowed)}</span>
+              <span role="cell"><small>benchmark_claim={String(artifact.benchmark_claim)} · winner_claim={String(artifact.winner_claim)}</small></span>
+              <span role="cell"><small>{artifact.caveats.join(' ')}</small></span>
+            </div>)}
+          </div>
+        </section>
+        <section className="panel machine-market-brief" aria-label="Missing requirements">
+          <div className="panel-head"><div><p className="section-kicker">Missing requirements</p><h2>What blocks benchmark artifacts</h2></div></div>
+          <div className="machine-usage-list">
+            {report.methodology_artifacts.map((artifact) => <p key={`missing-${artifact.benchmark_id}`}>
+              <span>{artifact.lane_id}</span>
+              <small>{artifact.missing_requirements.join(', ') || 'none'}</small>
+            </p>)}
+          </div>
+        </section>
+        <section className="panel machine-market-caveat" aria-label="Caveats / no-claim posture">
+          <p>Methodology artifact schema is not benchmark evidence.</p>
+          <p>Benchmark readiness is not benchmark evidence.</p>
+          <p>Repeatability is not route superiority.</p>
+          <p>A single repeatable route is not a benchmark.</p>
+          <p>Comparable routes are required before benchmark artifacts.</p>
+          <p>No winner claim exists until explicit criteria and artifacts exist.</p>
+          <p>No benchmark execution has been run by this scaffold.</p>
         </section>
       </>}
     </main>
@@ -11998,6 +12152,7 @@ type MachineControlPlaneNavCurrent =
   | 'machine-route-risk-matrix'
   | 'machine-first-safe-routes'
   | 'machine-benchmark-readiness'
+  | 'machine-benchmark-methodology'
   | 'machine-comparable-routes'
   | 'machine-execution-shortlist'
   | 'machine-readiness-matrix'
@@ -12021,6 +12176,7 @@ function MachineControlPlaneNavLinks({
     { href: '/machine-route-risk-matrix', label: 'Route Risk', key: 'machine-route-risk-matrix' },
     { href: '/machine-first-safe-routes', label: 'First Safe Queue', key: 'machine-first-safe-routes' },
     { href: '/machine-benchmark-readiness', label: 'Benchmark Readiness', key: 'machine-benchmark-readiness' },
+    { href: '/machine-benchmark-methodology', label: 'Benchmark Methodology', key: 'machine-benchmark-methodology' },
     { href: '/machine-comparable-routes', label: 'Comparable Routes', key: 'machine-comparable-routes' },
     { href: '/machine-receipts', label: 'Receipts', key: 'machine-receipts' }
   ];
@@ -12070,6 +12226,7 @@ function MachineControlSurfacesStrip() {
       <a className="execute compact secondary" href="/machine-route-risk-matrix">Route Risk Matrix</a>
       <a className="execute compact secondary" href="/machine-first-safe-routes">First Safe Route Queue</a>
       <a className="execute compact secondary" href="/machine-benchmark-readiness">Benchmark Readiness</a>
+      <a className="execute compact secondary" href="/machine-benchmark-methodology">Benchmark Methodology</a>
       <a className="execute compact secondary" href="/machine-comparable-routes">Comparable Routes</a>
       <a className="execute compact secondary" href="/machine-execution-shortlist">Proof Plans</a>
       <a className="execute compact secondary" href="/machine-readiness-matrix">Readiness Matrix</a>
@@ -12107,6 +12264,7 @@ export function App() {
   if (isMachineRouteRiskMatrixRoute(window.location.pathname)) return <MachineRouteRiskMatrixPage />;
   if (isMachineFirstSafeRoutesRoute(window.location.pathname)) return <MachineFirstSafeRoutesPage />;
   if (isMachineBenchmarkReadinessRoute(window.location.pathname)) return <MachineBenchmarkReadinessPage />;
+  if (isMachineBenchmarkMethodologyRoute(window.location.pathname)) return <MachineBenchmarkMethodologyPage />;
   if (isMachineComparableRoutesRoute(window.location.pathname)) return <MachineComparableRoutesPage />;
   if (isMachineExecutionBlockersRoute(window.location.pathname)) return <MachineExecutionBlockersPage />;
   if (isMachineMarketChangelogRoute(window.location.pathname)) return <MachineMarketChangelogPage />;

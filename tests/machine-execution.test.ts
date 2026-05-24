@@ -1523,4 +1523,27 @@ describe('machine execution anytrans translation route', () => {
     expect(JSON.stringify(data)).not.toMatch(/best route|best provider|winner_claimed=true/i);
     await app.close();
   });
+
+  it('machine benchmark methodology API returns scaffold artifacts and strict gate posture', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({ method: 'GET', url: '/v1/machine-execution/benchmark-methodology' });
+    expect(response.statusCode).toBe(200);
+    const data = response.json().data;
+    expect(data.artifact_schema_version).toBe('machine_benchmark_methodology.v1');
+    expect(Array.isArray(data.methodology_artifacts)).toBe(true);
+    expect(data.methodology_artifacts.some((lane: any) => lane.lane_id === 'machine_translation')).toBe(true);
+    expect(data.methodology_artifacts.some((lane: any) => lane.lane_id === 'data_query_bigquery')).toBe(true);
+    expect(data.methodology_artifacts.some((lane: any) => lane.lane_id === 'storage_stableupload')).toBe(true);
+    expect(data.methodology_artifacts.some((lane: any) => lane.lane_id === 'navigation_naver_geocode')).toBe(true);
+    expect(data.methodology_artifacts.some((lane: any) => lane.artifact_status === 'scaffold')).toBe(true);
+    expect(data.methodology_artifacts.every((lane: any) => lane.benchmark_claim === false)).toBe(true);
+    expect(data.methodology_artifacts.every((lane: any) => lane.winner_claim === false)).toBe(true);
+    expect(data.global_gate.benchmark_execution_allowed).toBe(false);
+    expect(data.global_gate.required_conditions).toContain('readiness_status = benchmark_ready');
+    expect(data.global_gate.required_conditions).toContain('methodology_artifact_schema = present');
+    expect(data.global_gate.required_conditions).toContain('comparable_route_count >= 2');
+    expect(String(data.global_gate.reason)).toContain('Blocked');
+    expect(JSON.stringify(data)).not.toMatch(/best route|best provider|winner_claimed=true/i);
+    await app.close();
+  });
 });

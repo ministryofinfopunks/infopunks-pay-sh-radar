@@ -94,6 +94,7 @@ import {
   buildAlibabaMachineTranslationGeneralBenchmarkReadinessArtifact,
   buildAlibabaMachineTranslationGeneralRepeatabilityArtifact,
   buildMachineBenchmarkReadinessReport,
+  buildMachineBenchmarkMethodologyArtifacts,
   buildMachineComparableRouteDiscovery,
   buildBigQueryBoundedQueryFixtureReceipt,
   buildMachineExecutionRepeatabilityPack,
@@ -937,6 +938,16 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     return {
       data: safeJsonExport({
         ...discovery,
+        phase_scope: MACHINE_MARKET_PHASE_SCOPE,
+        storage: machineReceiptStorage
+      })
+    };
+  });
+  app.get('/v1/machine-execution/benchmark-methodology', async () => {
+    const methodology = await buildMachineBenchmarkMethodologyArtifacts();
+    return {
+      data: safeJsonExport({
+        ...methodology,
         phase_scope: MACHINE_MARKET_PHASE_SCOPE,
         storage: machineReceiptStorage
       })

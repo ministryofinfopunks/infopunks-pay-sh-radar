@@ -332,6 +332,49 @@ export type MachineComparableRouteDiscovery = {
   lanes: MachineComparableRoute[];
   caveats: string[];
 };
+export type MachineBenchmarkMethodologyArtifact = {
+  benchmark_id: string;
+  lane_id: 'machine_translation' | 'data_query_bigquery' | 'storage_stableupload' | 'navigation_naver_geocode';
+  task_class: string;
+  routes_compared: Array<{ service_id: string; route_id: string; profile_id: string }>;
+  input_set: string;
+  normalization_strategy: string;
+  success_criteria: string;
+  run_count: number;
+  cost_fields: string[];
+  latency_fields: string[];
+  payment_fields: string[];
+  safety_constraints: string[];
+  policy_constraints: string[];
+  comparable_route_count: number;
+  readiness_status: MachineBenchmarkReadinessLane['readiness_status'];
+  methodology_status: 'missing_comparable_routes' | 'methodology_incomplete' | 'schema_present' | 'ready_for_benchmark_artifact';
+  artifact_status: 'scaffold' | 'methodology_ready' | 'benchmark_recorded';
+  winner_policy: 'no_winner_default' | 'explicit_criteria_required' | 'no_clear_winner_allowed';
+  winner_claim: false;
+  benchmark_claim: false;
+  methodology_artifact_schema: 'present';
+  output_normalization: string;
+  run_count_target: number;
+  cost_fields_required: string[];
+  latency_fields_required: string[];
+  payment_fields_required: string[];
+  missing_requirements: string[];
+  benchmark_allowed: boolean;
+  caveats: string[];
+  generated_at: string;
+};
+export type MachineBenchmarkMethodologyArtifactsReport = {
+  generated_at: string;
+  artifact_schema_version: string;
+  methodology_artifacts: MachineBenchmarkMethodologyArtifact[];
+  global_gate: {
+    benchmark_execution_allowed: boolean;
+    reason: string;
+    required_conditions: string[];
+  };
+  caveats: string[];
+};
 export type StableuploadTinyFixtureOptions = {
   machine_id?: string;
   execution_completed_at?: string;
@@ -1492,6 +1535,104 @@ export async function buildMachineComparableRouteDiscovery(): Promise<MachineCom
       'Methodology before leaderboard.',
       'No benchmark artifacts are created by this discovery endpoint.'
     ]
+  };
+}
+
+export async function buildMachineBenchmarkMethodologyArtifacts(): Promise<MachineBenchmarkMethodologyArtifactsReport> {
+  const [readiness, comparable] = await Promise.all([
+    buildMachineBenchmarkReadinessReport(),
+    buildMachineComparableRouteDiscovery()
+  ]);
+  const generatedAt = new Date().toISOString();
+  const caveats = [
+    'Methodology artifact schema is not benchmark evidence.',
+    'Benchmark readiness is not benchmark evidence.',
+    'Repeatability is not route superiority.',
+    'A single repeatable route is not a benchmark.',
+    'Comparable routes are required before benchmark artifacts.',
+    'No winner claim exists until explicit criteria and artifacts exist.',
+    'No benchmark execution has been run by this scaffold.'
+  ];
+
+  const methodologyArtifacts = comparable.lanes.map<MachineBenchmarkMethodologyArtifact>((lane) => {
+    const readinessLane = readiness.lanes.find((row) => row.lane_id === lane.lane_id);
+    const missingRequirements = [...new Set([
+      ...(lane.missing_methodology ?? []),
+      ...(readinessLane?.missing_requirements ?? [])
+    ])];
+    const comparableRouteCount = lane.comparable_route_count;
+    const readinessStatus = readinessLane?.readiness_status ?? 'not_ready';
+    const methodologyStatus: MachineBenchmarkMethodologyArtifact['methodology_status'] = comparableRouteCount < 2
+      ? 'missing_comparable_routes'
+      : missingRequirements.length > 0
+        ? 'methodology_incomplete'
+        : 'schema_present';
+    const benchmarkAllowed = readinessStatus === 'benchmark_ready' && comparableRouteCount >= 2;
+    const artifactMethodologyStatus: MachineBenchmarkMethodologyArtifact['methodology_status'] = benchmarkAllowed
+      ? 'ready_for_benchmark_artifact'
+      : methodologyStatus;
+
+    return {
+      benchmark_id: `machine-benchmark-${lane.lane_id}`,
+      lane_id: lane.lane_id,
+      task_class: lane.task_class,
+      routes_compared: [...lane.candidate_routes],
+      input_set: lane.comparable_inputs,
+      normalization_strategy: lane.normalization_strategy,
+      success_criteria: lane.success_criteria,
+      run_count: 0,
+      cost_fields: lane.cost_latency_fields_required.filter((field) => field.toLowerCase().includes('cost') || field.toLowerCase().includes('payment')),
+      latency_fields: lane.cost_latency_fields_required.filter((field) => field.toLowerCase().includes('latency')),
+      payment_fields: lane.cost_latency_fields_required.filter((field) => field.toLowerCase().includes('payment')),
+      safety_constraints: [...lane.safety_constraints],
+      policy_constraints: [
+        'methodology_only',
+        'no_benchmark_execution',
+        'no_winner_claim_without_explicit_criteria',
+        'no_benchmark_artifact_recording_from_schema_endpoint'
+      ],
+      comparable_route_count: comparableRouteCount,
+      readiness_status: readinessStatus,
+      methodology_status: artifactMethodologyStatus,
+      artifact_status: 'scaffold',
+      winner_policy: 'no_winner_default',
+      winner_claim: false,
+      benchmark_claim: false,
+      methodology_artifact_schema: 'present',
+      output_normalization: lane.normalization_strategy,
+      run_count_target: lane.run_count_target,
+      cost_fields_required: lane.cost_latency_fields_required.filter((field) => field.toLowerCase().includes('cost') || field.toLowerCase().includes('payment')),
+      latency_fields_required: lane.cost_latency_fields_required.filter((field) => field.toLowerCase().includes('latency')),
+      payment_fields_required: lane.cost_latency_fields_required.filter((field) => field.toLowerCase().includes('payment')),
+      missing_requirements: missingRequirements,
+      benchmark_allowed: benchmarkAllowed,
+      caveats,
+      generated_at: generatedAt
+    };
+  });
+
+  const hasBenchmarkReadyLane = methodologyArtifacts.some((artifact) =>
+    artifact.readiness_status === 'benchmark_ready'
+    && artifact.methodology_artifact_schema === 'present'
+    && artifact.comparable_route_count >= 2
+  );
+
+  return {
+    generated_at: generatedAt,
+    artifact_schema_version: 'machine_benchmark_methodology.v1',
+    methodology_artifacts: methodologyArtifacts,
+    global_gate: {
+      benchmark_execution_allowed: hasBenchmarkReadyLane,
+      reason: hasBenchmarkReadyLane
+        ? 'At least one lane satisfies benchmark-ready gate conditions.'
+        : 'Blocked: benchmark execution requires readiness_status=benchmark_ready, methodology_artifact_schema=present, and comparable_route_count>=2.',
+      required_conditions: [
+        'readiness_status = benchmark_ready',
+        'methodology_artifact_schema = present',
+        'comparable_route_count >= 2'
+      ]
+    },
+    caveats
   };
 }
 
