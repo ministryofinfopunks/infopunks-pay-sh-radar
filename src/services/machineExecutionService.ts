@@ -1,5 +1,5 @@
 import { appendMachineReceipt, listRecentMachinePreflightReceipts, runMachinePreflight, type MachinePreflightReceipt } from './machinePreflightService';
-import { getMachineMarketServiceById } from './machineMarketService';
+import { getMachineMarketServiceById, listMachineMarketServices } from './machineMarketService';
 import { getMachineExecutionProofProfile, validateMachineExecutionProofByProfile } from './machineExecutionProofProfiles';
 
 export type TranslationExecutionRequest = {
@@ -286,6 +286,26 @@ export type MachineExecutionRepeatabilityPack = {
   benchmark_claim: false;
   winner_claim: false;
   market_wide_execution_claim: false;
+  caveats: string[];
+};
+export type MachineBenchmarkReadinessLane = {
+  lane_id: 'machine_translation' | 'data_query_bigquery' | 'storage_stableupload' | 'navigation_naver_geocode';
+  task_class: string;
+  candidate_routes: Array<{ service_id: string; route_id: string; profile_id: string }>;
+  comparable_route_count: number;
+  repeatability_state: 'missing' | 'single_route_repeatability_ready' | 'repeatability_recorded';
+  missing_requirements: string[];
+  readiness_status: 'not_ready' | 'single_route_repeatability_ready' | 'comparable_routes_missing' | 'methodology_missing' | 'artifact_schema_ready' | 'benchmark_ready';
+  next_action: string;
+  caveats: string[];
+};
+export type MachineBenchmarkReadinessReport = {
+  generated_at: string;
+  benchmark_claims: 0;
+  winner_claims: 0;
+  market_wide_execution_claims: 0;
+  payment_success_claims: number;
+  lanes: MachineBenchmarkReadinessLane[];
   caveats: string[];
 };
 export type StableuploadTinyFixtureOptions = {
@@ -1219,6 +1239,116 @@ export async function buildMachineExecutionRepeatabilityPack(serviceId: string):
   }
 
   return base;
+}
+
+export async function buildMachineBenchmarkReadinessReport(): Promise<MachineBenchmarkReadinessReport> {
+  const services = listMachineMarketServices();
+  const receipts = await listRecentMachinePreflightReceipts({ limit: 250 });
+  const executionReceipts = receipts.filter((row) => row.receipt_type === 'machine_execution');
+
+  const paymentSuccessClaims = executionReceipts.filter((row) => row.payment_occurred).length;
+  const laneSpecs: Array<{
+    lane_id: MachineBenchmarkReadinessLane['lane_id'];
+    task_class: string;
+    serviceIds: string[];
+    routeHint: string;
+  }> = [
+    { lane_id: 'machine_translation', task_class: 'translation safe phrase', serviceIds: ['anytrans', 'alibaba-machine-translation-general'], routeHint: 'translation:POST:/translate' },
+    { lane_id: 'data_query_bigquery', task_class: 'bounded data query', serviceIds: ['bigquery'], routeHint: 'bigquery:POST:/query' },
+    { lane_id: 'storage_stableupload', task_class: 'tiny non-sensitive fixture upload', serviceIds: ['stableupload'], routeHint: 'stableupload:POST:/upload' },
+    { lane_id: 'navigation_naver_geocode', task_class: 'non-operational geocode lookup', serviceIds: ['naver-maps'], routeHint: 'naver-maps:GET:/map-geocode/v2/geocode' }
+  ];
+
+  const lanes: MachineBenchmarkReadinessLane[] = await Promise.all(laneSpecs.map(async (lane) => {
+    const candidate_routes = lane.serviceIds
+      .filter((serviceId) => services.some((service) => service.id === serviceId))
+      .map((serviceId) => {
+        const profile = getMachineExecutionProofProfile(serviceId);
+        return {
+          service_id: serviceId,
+          route_id: profile?.route_id ?? lane.routeHint,
+          profile_id: profile?.profile_id ?? 'unknown'
+        };
+      });
+    const comparableRouteCount = candidate_routes.length;
+    const serviceSuccessCounts = lane.serviceIds.map((serviceId) => executionReceipts.filter((row) =>
+      (row.execution_service_id ?? row.selected_service_id) === serviceId
+      && row.execution_status === 'succeeded'
+      && row.execution_occurred
+    ).length);
+    const maxSuccess = Math.max(0, ...serviceSuccessCounts);
+    const repeatability_state: MachineBenchmarkReadinessLane['repeatability_state'] = maxSuccess >= 3
+      ? 'repeatability_recorded'
+      : maxSuccess >= 2
+        ? 'single_route_repeatability_ready'
+        : 'missing';
+    const methodologyReady = lane.lane_id === 'machine_translation';
+    const artifactSchemaReady = true;
+    const sameTaskClass = true;
+    const sameInputClass = lane.lane_id === 'machine_translation';
+    const sameOutputNormalization = lane.lane_id === 'machine_translation';
+    const sameSuccessCriteria = lane.lane_id === 'machine_translation';
+    const comparableLatencyCostPaymentFields = lane.lane_id === 'machine_translation';
+    const safetyCompatible = lane.lane_id === 'machine_translation';
+    const missing_requirements: string[] = [];
+    if (comparableRouteCount < 2) missing_requirements.push('comparable_routes_missing');
+    if (!methodologyReady) missing_requirements.push('methodology_missing');
+    if (!sameTaskClass) missing_requirements.push('same_task_class_required');
+    if (!sameInputClass) missing_requirements.push('same_input_class_required');
+    if (!sameOutputNormalization) missing_requirements.push('same_output_normalization_required');
+    if (!sameSuccessCriteria) missing_requirements.push('same_success_criteria_required');
+    if (!comparableLatencyCostPaymentFields) missing_requirements.push('comparable_latency_cost_payment_fields_required');
+    if (!safetyCompatible) missing_requirements.push('safety_policy_compatibility_required');
+    if (repeatability_state === 'missing') missing_requirements.push('repeatability_missing');
+
+    let readiness_status: MachineBenchmarkReadinessLane['readiness_status'] = 'not_ready';
+    if (comparableRouteCount < 2) {
+      readiness_status = repeatability_state === 'single_route_repeatability_ready' || repeatability_state === 'repeatability_recorded'
+        ? 'single_route_repeatability_ready'
+        : 'comparable_routes_missing';
+    } else if (!methodologyReady) readiness_status = 'methodology_missing';
+    else if (artifactSchemaReady) readiness_status = 'artifact_schema_ready';
+    if (comparableRouteCount >= 2 && methodologyReady && artifactSchemaReady && repeatability_state === 'repeatability_recorded') {
+      readiness_status = 'benchmark_ready';
+    }
+    if (readiness_status === 'benchmark_ready') readiness_status = 'artifact_schema_ready';
+
+    return {
+      lane_id: lane.lane_id,
+      task_class: lane.task_class,
+      candidate_routes,
+      comparable_route_count: comparableRouteCount,
+      repeatability_state,
+      missing_requirements,
+      readiness_status,
+      next_action: comparableRouteCount < 2
+        ? 'Add at least one more comparable route before any benchmark artifact.'
+        : methodologyReady
+          ? 'Keep readiness-only posture and wait for explicit benchmark run authorization.'
+          : 'Define methodology contract before benchmark artifacts.',
+      caveats: [
+        'Benchmark readiness is not benchmark evidence.',
+        'Repeatability is not route superiority.',
+        'No winner claim exists until criteria and artifacts exist.',
+        'A single repeatable route is not a benchmark.',
+        'Comparable routes are required before benchmark artifacts.'
+      ]
+    };
+  }));
+
+  return {
+    generated_at: new Date().toISOString(),
+    benchmark_claims: 0,
+    winner_claims: 0,
+    market_wide_execution_claims: 0,
+    payment_success_claims: paymentSuccessClaims,
+    lanes,
+    caveats: [
+      'Readiness state only; no benchmark execution is run by this endpoint.',
+      'No benchmark artifacts are created.',
+      'No winner is claimed.'
+    ]
+  };
 }
 
 async function executeAnyTransAdapter(input: TranslationExecutionRequest): Promise<TranslationAdapterResult> {

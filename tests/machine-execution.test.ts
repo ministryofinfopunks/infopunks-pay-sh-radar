@@ -1488,4 +1488,22 @@ describe('machine execution anytrans translation route', () => {
     expect(data.benchmark_artifact_schema).toBeTruthy();
     await app.close();
   });
+
+  it('machine benchmark readiness API returns readiness-only lanes with no benchmark/winner claims', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({ method: 'GET', url: '/v1/machine-execution/benchmark-readiness' });
+    expect(response.statusCode).toBe(200);
+    const data = response.json().data;
+    expect(data.benchmark_claims).toBe(0);
+    expect(data.winner_claims).toBe(0);
+    expect(data.market_wide_execution_claims).toBe(0);
+    expect(Array.isArray(data.lanes)).toBe(true);
+    expect(data.lanes.some((lane: any) => lane.lane_id === 'machine_translation')).toBe(true);
+    expect(data.lanes.some((lane: any) => lane.lane_id === 'data_query_bigquery')).toBe(true);
+    expect(data.lanes.some((lane: any) => lane.lane_id === 'storage_stableupload')).toBe(true);
+    expect(data.lanes.some((lane: any) => lane.lane_id === 'navigation_naver_geocode')).toBe(true);
+    expect(data.lanes.some((lane: any) => lane.readiness_status === 'comparable_routes_missing' || lane.readiness_status === 'single_route_repeatability_ready')).toBe(true);
+    expect(JSON.stringify(data)).not.toMatch(/best|winner_claimed=true/i);
+    await app.close();
+  });
 });

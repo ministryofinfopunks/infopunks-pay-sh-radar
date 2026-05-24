@@ -368,6 +368,26 @@ type AlibabaMachineExecutionBenchmarkReadinessArtifact = {
     benchmark_recorded: false;
   };
 };
+type MachineBenchmarkReadinessLane = {
+  lane_id: 'machine_translation' | 'data_query_bigquery' | 'storage_stableupload' | 'navigation_naver_geocode';
+  task_class: string;
+  candidate_routes: Array<{ service_id: string; route_id: string; profile_id: string }>;
+  comparable_route_count: number;
+  repeatability_state: 'missing' | 'single_route_repeatability_ready' | 'repeatability_recorded';
+  missing_requirements: string[];
+  readiness_status: 'not_ready' | 'single_route_repeatability_ready' | 'comparable_routes_missing' | 'methodology_missing' | 'artifact_schema_ready' | 'benchmark_ready';
+  next_action: string;
+  caveats: string[];
+};
+type MachineBenchmarkReadinessReport = {
+  generated_at: string;
+  benchmark_claims: 0;
+  winner_claims: 0;
+  market_wide_execution_claims: 0;
+  payment_success_claims: number;
+  lanes: MachineBenchmarkReadinessLane[];
+  caveats: string[];
+};
 type MachineDossier = {
   machine_id: string;
   phase_scope: 'phase_2_pay_sh_robotic_sh';
@@ -1493,6 +1513,9 @@ function isMachineRouteRiskMatrixRoute(pathname: string) {
 
 function isMachineFirstSafeRoutesRoute(pathname: string) {
   return /^\/machine-first-safe-routes\/?$/.test(pathname);
+}
+function isMachineBenchmarkReadinessRoute(pathname: string) {
+  return /^\/machine-benchmark-readiness\/?$/.test(pathname);
 }
 
 function isMachineExecutionBlockersRoute(pathname: string) {
@@ -3603,7 +3626,7 @@ function MachineMarketPage() {
       <section className="panel machine-market-caveat" aria-label="Coverage caveat">
         <p>Infopunks Radar mapped the entire listed robotic.sh machine-service market.</p>
         <p>Coverage refers to the 13 services visible in the observed robotic.sh market snapshot. 0 market-wide execution claims. Service-specific execution receipts are scoped to the recorded route.</p>
-        <p><a className="execute compact secondary" href="/machine-market-map">View market map</a> <a className="execute compact secondary" href="/machine-readiness-matrix">View readiness matrix</a> <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a> <a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a> <a className="execute compact secondary" href="/machine-route-risk-matrix">View route risk matrix</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a> <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a></p>
+        <p><a className="execute compact secondary" href="/machine-market-map">View market map</a> <a className="execute compact secondary" href="/machine-readiness-matrix">View readiness matrix</a> <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a> <a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a> <a className="execute compact secondary" href="/machine-route-risk-matrix">View route risk matrix</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a> <a className="execute compact secondary" href="/machine-benchmark-readiness">View benchmark readiness</a> <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a></p>
       </section>
       <MachineEvidenceMethodologyDrawer />
       <EvidenceLadder services={services} />
@@ -4504,7 +4527,7 @@ function MachineFirstSafeRoutesPage() {
           <p>Payment is not confirmed unless payment evidence exists. Route metadata does not imply execution.</p>
           <p>First-safe does not mean executed. Rank does not mean winner. Execution requires service-specific receipts.</p>
           <p>First-safe route ranking is planning metadata. It does not imply execution, payment success, benchmark superiority, provider quality, or winner status.</p>
-          <p><a className="execute compact secondary" href="/machine-route-risk-matrix">Back to route risk matrix</a> <a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a></p>
+          <p><a className="execute compact secondary" href="/machine-route-risk-matrix">Back to route risk matrix</a> <a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a> <a className="execute compact secondary" href="/machine-benchmark-readiness">View benchmark readiness</a></p>
         </section>
         <section className="panel machine-market-brief" aria-label="Machine first safe route brief">
           <div className="panel-head">
@@ -4717,6 +4740,92 @@ function MachineExecutionBlockersPage() {
               <span role="cell">{row.next_safe_action}</span>
               <span role="cell">{row.source_attribution}</span>
               <span role="cell"><a className="execute compact secondary" href={`/machine-execution-plan/${encodeURIComponent(row.service_id)}`}>View proof plan</a></span>
+            </div>)}
+          </div>
+        </section>
+      </>}
+    </main>
+  </div>;
+}
+
+function MachineBenchmarkReadinessPage() {
+  const [report, setReport] = useState<MachineBenchmarkReadinessReport | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.title = 'Machine Benchmark Readiness | Infopunks Pay.sh Radar';
+    setMetaTag('name', 'description', 'Machine benchmark readiness state only. No benchmark execution, no winner claims.');
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    api<{ data: MachineBenchmarkReadinessReport }>('/v1/machine-execution/benchmark-readiness')
+      .then((response) => {
+        if (cancelled) return;
+        setReport(response.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setError(err instanceof Error ? err.message : 'machine benchmark readiness unavailable');
+        setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return <div className="shell machine-market-shell">
+    <a className="skip-link" href="#machine-benchmark-readiness-content">Skip to content</a>
+    <header className="site-header">
+      <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Benchmark Readiness navigation">
+        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <div className="terminal-nav" aria-label="Machine Economy navigation">
+          <MachineControlPlaneNavLinks current="machine-benchmark-readiness" />
+        </div>
+      </nav>
+    </header>
+    <main id="machine-benchmark-readiness-content" className="machine-market-page machine-benchmark-readiness-page" aria-label="Machine Benchmark Readiness">
+      <section className="panel hero machine-market-hero">
+        <div>
+          <p className="eyebrow">Benchmark Readiness</p>
+          <h1>Machine Benchmark Readiness</h1>
+          <p className="copy">Readiness gates for future benchmarking lanes. This page does not run benchmarks.</p>
+        </div>
+      </section>
+      <section className="panel machine-market-caveat" aria-label="Machine benchmark readiness caveats">
+        <p>Benchmark readiness is not benchmark evidence.</p>
+        <p>Repeatability is not route superiority.</p>
+        <p>No winner claim exists until criteria and artifacts exist.</p>
+        <p>A single repeatable route is not a benchmark.</p>
+        <p>Comparable routes are required before benchmark artifacts.</p>
+        <p><a className="execute compact secondary" href="/machine-market">Back to Machine Market</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a> <a className="execute compact secondary" href="/machine-receipts">View receipts</a></p>
+      </section>
+      {loading && <section className="panel" role="status"><p className="route-state">Loading machine benchmark readiness...</p></section>}
+      {error && <section className="panel" role="alert"><p className="route-state error">Machine benchmark readiness unavailable: {error}</p></section>}
+      {!loading && !error && report && <>
+        <section className="grid four machine-market-summary" aria-label="Machine benchmark readiness summary">
+          <article className="panel metric"><span>Benchmark claims</span><strong>{report.benchmark_claims}</strong><small>must remain 0 in readiness mode</small></article>
+          <article className="panel metric"><span>Winner claims</span><strong>{report.winner_claims}</strong><small>must remain 0 in readiness mode</small></article>
+          <article className="panel metric"><span>Market-wide execution claims</span><strong>{report.market_wide_execution_claims}</strong><small>must remain 0 in readiness mode</small></article>
+          <article className="panel metric"><span>Payment success claims</span><strong>{report.payment_success_claims}</strong><small>0 unless payment evidence exists</small></article>
+        </section>
+        <section className="panel machine-service-table-panel" aria-label="Benchmark readiness lanes">
+          <div className="panel-head"><div><p className="section-kicker">Candidate lanes</p><h2>{report.lanes.length} benchmark readiness lanes</h2></div></div>
+          <div className="machine-service-table" role="table" aria-label="Machine benchmark readiness lane table">
+            <div className="machine-service-row machine-blocker-row head" role="row">
+              {['lane_id', 'task class', 'candidate routes', 'comparable route count', 'repeatability state', 'missing requirements', 'readiness status', 'next action', 'caveats'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
+            </div>
+            {report.lanes.map((lane) => <div key={lane.lane_id} className="machine-service-row machine-blocker-row" role="row">
+              <span role="cell"><strong>{lane.lane_id}</strong></span>
+              <span role="cell">{lane.task_class}</span>
+              <span role="cell"><small>{lane.candidate_routes.map((route) => `${route.service_id} (${route.profile_id})`).join(' · ') || 'none recorded'}</small></span>
+              <span role="cell">{lane.comparable_route_count}</span>
+              <span role="cell">{lane.repeatability_state}</span>
+              <span role="cell"><small>{lane.missing_requirements.join(', ') || 'none'}</small></span>
+              <span role="cell"><span className="machine-status-badge review">{lane.readiness_status}</span></span>
+              <span role="cell">{lane.next_action}</span>
+              <span role="cell"><small>{lane.caveats.join(' ')}</small></span>
             </div>)}
           </div>
         </section>
@@ -6773,6 +6882,7 @@ function MachineReceiptsPage() {
       <section className="panel machine-market-caveat" aria-label="Machine receipt source caveats">
         <p>Receipt source, not robotic.sh catalog source of truth.</p>
         <p>Preflight receipt ≠ execution. Execution receipt ≠ payment proof.</p>
+        <p><a className="execute compact secondary" href="/machine-benchmark-readiness">View benchmark readiness</a></p>
       </section>
       {storage && <p className="panel-caption">
         Storage: {storage.durable ? 'Durable' : 'Non-durable'} {storage.adapter.toUpperCase()}.
@@ -11779,6 +11889,7 @@ type MachineControlPlaneNavCurrent =
   | 'machine-rail-coverage'
   | 'machine-route-risk-matrix'
   | 'machine-first-safe-routes'
+  | 'machine-benchmark-readiness'
   | 'machine-execution-shortlist'
   | 'machine-readiness-matrix'
   | 'machine-market-map'
@@ -11800,6 +11911,7 @@ function MachineControlPlaneNavLinks({
     { href: '/machine-rail-coverage', label: 'Rail Coverage', key: 'machine-rail-coverage' },
     { href: '/machine-route-risk-matrix', label: 'Route Risk', key: 'machine-route-risk-matrix' },
     { href: '/machine-first-safe-routes', label: 'First Safe Queue', key: 'machine-first-safe-routes' },
+    { href: '/machine-benchmark-readiness', label: 'Benchmark Readiness', key: 'machine-benchmark-readiness' },
     { href: '/machine-receipts', label: 'Receipts', key: 'machine-receipts' }
   ];
   if (includeSnapshot) primaryLinks.push({ href: '/machine-economy-snapshot', label: 'Snapshot', key: 'machine-economy-snapshot' });
@@ -11847,6 +11959,7 @@ function MachineControlSurfacesStrip() {
       <a className="execute compact secondary" href="/machine-rail-coverage">Rail Coverage</a>
       <a className="execute compact secondary" href="/machine-route-risk-matrix">Route Risk Matrix</a>
       <a className="execute compact secondary" href="/machine-first-safe-routes">First Safe Route Queue</a>
+      <a className="execute compact secondary" href="/machine-benchmark-readiness">Benchmark Readiness</a>
       <a className="execute compact secondary" href="/machine-execution-shortlist">Proof Plans</a>
       <a className="execute compact secondary" href="/machine-readiness-matrix">Readiness Matrix</a>
       <a className="execute compact secondary" href="/machine-market-map">Market Map</a>
@@ -11860,6 +11973,7 @@ function MachineControlSurfacesStrip() {
       <p><span>Rail Coverage</span><small>access rail and callable-surface intelligence</small></p>
       <p><span>Route Risk</span><small>route-level risk and avoid-first logic</small></p>
       <p><span>First Safe Queue</span><small>execution roadmap without execution</small></p>
+      <p><span>Benchmark Readiness</span><small>readiness state only, no benchmark evidence</small></p>
       <p><span>Execution Blockers</span><small>what should not run yet</small></p>
       <p><span>Changelog</span><small>machine market memory</small></p>
       <p><span>No-Claim Ledger</span><small>restraint and claim discipline</small></p>
@@ -11880,6 +11994,7 @@ export function App() {
   if (isMachineEconomySnapshotRoute(window.location.pathname)) return <MachineEconomySnapshotPage />;
   if (isMachineRouteRiskMatrixRoute(window.location.pathname)) return <MachineRouteRiskMatrixPage />;
   if (isMachineFirstSafeRoutesRoute(window.location.pathname)) return <MachineFirstSafeRoutesPage />;
+  if (isMachineBenchmarkReadinessRoute(window.location.pathname)) return <MachineBenchmarkReadinessPage />;
   if (isMachineExecutionBlockersRoute(window.location.pathname)) return <MachineExecutionBlockersPage />;
   if (isMachineMarketChangelogRoute(window.location.pathname)) return <MachineMarketChangelogPage />;
   if (isMachineNoClaimLedgerRoute(window.location.pathname)) return <MachineNoClaimLedgerPage />;

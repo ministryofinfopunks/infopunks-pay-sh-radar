@@ -479,6 +479,35 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       '404': errorResponse('repeatability_service_not_supported')
     }
   });
+  add('get', '/v1/machine-execution/benchmark-readiness', {
+    tags: ['Machine Economy'],
+    summary: 'Get machine benchmark readiness state',
+    description: `${SAFE_METADATA_NOTE} Returns benchmark readiness state only. Does not run benchmarks, create benchmark artifacts, compare best/worst routes, or claim winners.`,
+    responses: envelopedResponses(
+      freeformObject(),
+      {
+        generated_at: '2026-05-24T00:00:00.000Z',
+        benchmark_claims: 0,
+        winner_claims: 0,
+        market_wide_execution_claims: 0,
+        payment_success_claims: 0,
+        lanes: [
+          {
+            lane_id: 'machine_translation',
+            task_class: 'translation safe phrase',
+            candidate_routes: [{ service_id: 'anytrans', route_id: 'translation:POST:/translate', profile_id: 'machine_translation_safe_phrase' }],
+            comparable_route_count: 1,
+            repeatability_state: 'single_route_repeatability_ready',
+            missing_requirements: ['comparable_routes_missing'],
+            readiness_status: 'single_route_repeatability_ready',
+            next_action: 'Add at least one more comparable route before any benchmark artifact.',
+            caveats: ['Benchmark readiness is not benchmark evidence.']
+          }
+        ],
+        caveats: ['Readiness state only; no benchmark execution is run by this endpoint.']
+      }
+    )
+  });
   add('get', '/v1/machine-execution/stableupload/fixtures/tiny-fixture', {
     tags: ['Machine Economy'],
     summary: 'Get Stableupload tiny-fixture payload',

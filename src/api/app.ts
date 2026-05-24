@@ -93,6 +93,7 @@ import { createMachineReceiptStorageMetadata, JsonlMachinePreflightReceiptStorag
 import {
   buildAlibabaMachineTranslationGeneralBenchmarkReadinessArtifact,
   buildAlibabaMachineTranslationGeneralRepeatabilityArtifact,
+  buildMachineBenchmarkReadinessReport,
   buildBigQueryBoundedQueryFixtureReceipt,
   buildMachineExecutionRepeatabilityPack,
   buildNaverGeocodeFixtureReceipt,
@@ -919,6 +920,16 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
       }
       throw error;
     }
+  });
+  app.get('/v1/machine-execution/benchmark-readiness', async () => {
+    const report = await buildMachineBenchmarkReadinessReport();
+    return {
+      data: safeJsonExport({
+        ...report,
+        phase_scope: MACHINE_MARKET_PHASE_SCOPE,
+        storage: machineReceiptStorage
+      })
+    };
   });
   app.get('/v1/machine-execution/alibaba-machine-translation-general/benchmark-readiness', async () => {
     const artifact = await buildAlibabaMachineTranslationGeneralBenchmarkReadinessArtifact(machineReceiptStorage.durable);
