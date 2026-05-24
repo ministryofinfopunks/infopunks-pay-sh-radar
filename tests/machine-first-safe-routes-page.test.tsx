@@ -267,4 +267,62 @@ describe('machine first safe route queue page', () => {
     expect(text).toContain('execution_receipt_recorded');
     expect(text).toContain('View receipt detail');
   });
+
+  it('shows NAVER geocode progression when a service receipt exists', async () => {
+    vi.restoreAllMocks();
+    vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const path = pathOf(input);
+      if (path === '/v1/machine-market/services') return json({ count: services.length, services });
+      if (path === '/v1/machine-preflight/receipts/recent') return json({
+        count: 1,
+        receipts: [{
+          receipt_id: 'mrx_exec_naver_fixture_0001',
+          receipt_type: 'machine_execution',
+          demo_mode: false,
+          execution_occurred: true,
+          payment_occurred: false,
+          execution_status: 'succeeded',
+          execution_service_id: 'naver-maps',
+          execution_provider: 'NAVER',
+          execution_started_at: '2026-05-23T00:00:00.000Z',
+          execution_completed_at: '2026-05-23T00:00:01.000Z',
+          execution_latency_ms: 720,
+          execution_request_summary: '{"fixture":"naver_geocode_lookup"}',
+          execution_response_summary: '{"query_label":"fixture.seoul_station_lookup","geocode_result_preview":"Seoul Station, KR","coordinates_present":true,"no_robot_command":true,"no_physical_movement":true}',
+          execution_error: null,
+          payment_evidence: null,
+          preflight_receipt_id: null,
+          execution_run_id: 'mxr_naver_fixture_0001',
+          machine_id: 'did:peaq:naver-geocode-fixture-bot-01',
+          policy_id: null,
+          intent: 'external machine execution artifact ingest (naver-maps)',
+          requested_category: 'navigation',
+          selected_service_id: 'naver-maps',
+          selected_service_name: 'NAVER Maps',
+          source_market: 'robotic.sh',
+          chain: 'unknown',
+          decision: 'allow',
+          reason: 'NAVER Maps external execution artifact indicates successful execution.',
+          policy_checks: [],
+          violations: [],
+          review_reasons: [],
+          caveats: ['Service-specific execution receipt only.', 'Not market-wide proof.', 'Not payment proof.', 'Not benchmark proof.', 'Not winner proof.'],
+          max_cost_usd: null,
+          evidence_stage: 'execution-tested',
+          evidence_health: 'scaffold',
+          phase_scope: 'phase_2_pay_sh_robotic_sh',
+          created_at: '2026-05-23T00:00:01.000Z'
+        }]
+      });
+      return Promise.resolve(new Response('{}', { status: 404 }));
+    });
+
+    root = await renderPage(container);
+    const text = container.querySelector('[aria-label="Machine first safe route queue table"]')?.textContent ?? '';
+    expect(text).toContain('NAVER Maps');
+    expect(text).toContain('execution_receipt_recorded');
+    expect(text).toContain('View receipt detail');
+    expect(text).toContain('/map-geocode/v2/geocode');
+    expect(text).toContain('Driving directions is avoid-first because route guidance can influence physical-world movement.');
+  });
 });

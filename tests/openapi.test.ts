@@ -111,20 +111,26 @@ describe('openapi discovery', () => {
     const fixtureIngest = spec.paths['/v1/machine-execution/bigquery/fixtures/ingest']?.post;
     const stableuploadFixtureSample = spec.paths['/v1/machine-execution/stableupload/fixtures/tiny-fixture']?.get;
     const stableuploadFixtureIngest = spec.paths['/v1/machine-execution/stableupload/fixtures/ingest']?.post;
+    const naverFixtureSample = spec.paths['/v1/machine-execution/naver/fixtures/geocode']?.get;
+    const naverFixtureIngest = spec.paths['/v1/machine-execution/naver/fixtures/geocode/ingest']?.post;
 
     expect(ingest).toBeTruthy();
     expect(fixtureSample).toBeTruthy();
     expect(fixtureIngest).toBeTruthy();
     expect(stableuploadFixtureSample).toBeTruthy();
     expect(stableuploadFixtureIngest).toBeTruthy();
+    expect(naverFixtureSample).toBeTruthy();
+    expect(naverFixtureIngest).toBeTruthy();
     expect(spec.components.securitySchemes.bearerAuth).toBeTruthy();
     expect(spec.components.securitySchemes.bearerAuth.type).toBe('http');
     expect(spec.components.securitySchemes.bearerAuth.scheme).toBe('bearer');
     expect(ingest.security).toEqual([{ bearerAuth: [] }]);
     expect(fixtureIngest.security).toEqual([{ bearerAuth: [] }]);
     expect(stableuploadFixtureIngest.security).toEqual([{ bearerAuth: [] }]);
+    expect(naverFixtureIngest.security).toEqual([{ bearerAuth: [] }]);
     expect(fixtureSample.security).toBeUndefined();
     expect(stableuploadFixtureSample.security).toBeUndefined();
+    expect(naverFixtureSample.security).toBeUndefined();
 
     expect(String(ingest.description)).toContain('Admin token required');
     expect(JSON.stringify(ingest.responses)).toContain('admin_token_required');
@@ -155,6 +161,15 @@ describe('openapi discovery', () => {
     expect(String(stableuploadFixtureIngest.description)).toContain('not benchmark proof');
     expect(String(stableuploadFixtureIngest.description)).toContain('not winner proof');
     expect(JSON.stringify(stableuploadFixtureIngest.responses)).toContain('admin_token_required');
+
+    expect(String(naverFixtureSample.description)).toContain('Fixture-only route');
+    expect(String(naverFixtureSample.description)).toContain('does not execute live NAVER Maps');
+    expect(String(naverFixtureSample.description)).toContain('non-operational geocode lookup evidence');
+    expect(String(naverFixtureIngest.description)).toContain('Fixture-only ingest path');
+    expect(String(naverFixtureIngest.description)).toContain('Does not execute live NAVER Maps');
+    expect(String(naverFixtureIngest.description)).toContain('no robot command');
+    expect(String(naverFixtureIngest.description)).toContain('no physical movement');
+    expect(JSON.stringify(naverFixtureIngest.responses)).toContain('admin_token_required');
 
     await app.close();
   });

@@ -447,6 +447,90 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       '400': errorResponse('invalid_stableupload_fixture_ingest')
     }
   });
+  add('get', '/v1/machine-execution/naver/fixtures/geocode', {
+    tags: ['Machine Economy'],
+    summary: 'Get NAVER Maps geocode fixture payload',
+    description: `${SAFE_METADATA_NOTE} Fixture-only route. Returns a replaceable sample payload for proof profile naver_geocode_lookup. This endpoint does not execute live NAVER Maps. Shape is non-operational geocode lookup evidence. No robot command, no physical movement, no route guidance for real-world movement. payment_status remains not_confirmed unless payment evidence exists.`,
+    responses: envelopedResponses(
+      { $ref: '#/components/schemas/NaverGeocodeFixtureSampleResponse' },
+      {
+        fixture_label: 'NAVER Maps non-operational geocode fixture',
+        proof_profile: 'naver_geocode_lookup',
+        replace_with: 'Harness-generated receipt payload',
+        payload: {
+          machine_id: 'did:peaq:naver-geocode-fixture-bot-01',
+          service_id: 'naver-maps',
+          fqn: 'naver/maps/geocode',
+          source_market: 'robotic.sh',
+          chain: 'unknown',
+          execution_status: 'succeeded',
+          execution_occurred: true,
+          payment_occurred: false,
+          payment_evidence: null,
+          execution_started_at: '2026-05-23T00:00:00.000Z',
+          execution_completed_at: '2026-05-23T00:00:01.000Z',
+          execution_latency_ms: 720,
+          request_summary: { fixture: 'naver_geocode_lookup' },
+          response_summary: {
+            query_label: 'fixture.seoul_station_lookup',
+            geocode_result_preview: 'Seoul Station, KR',
+            coordinates_present: true,
+            no_robot_command: true,
+            no_physical_movement: true
+          },
+          executor: { name: 'infopunks-radar-fixture', version: 'fixture-v1', mode: 'manual' }
+        }
+      }
+    )
+  });
+  add('post', '/v1/machine-execution/naver/fixtures/geocode/ingest', {
+    tags: ['Machine Economy'],
+    summary: 'Ingest NAVER Maps geocode fixture receipt',
+    description: `${SAFE_METADATA_NOTE} Admin token required (Authorization: Bearer <token>). Fixture-only ingest path for NAVER Maps non-operational geocode proof shape. Does not execute live NAVER Maps. Claim discipline: non-operational geocode lookup only; no robot command; no physical movement; service-specific execution receipt only; not market-wide proof; not payment proof unless payment evidence exists; not benchmark proof; not winner proof.`,
+    security: [{ bearerAuth: [] }],
+    requestBody: jsonRequest(
+      { $ref: '#/components/schemas/NaverGeocodeFixtureIngestRequest' },
+      { machine_id: 'did:peaq:naver-geocode-fixture-bot-01' }
+    ),
+    responses: {
+      ...envelopedResponses(
+        { $ref: '#/components/schemas/NaverGeocodeFixtureIngestResponse' },
+        {
+          fixture_ingested: true,
+          fixture_label: 'NAVER Maps non-operational geocode fixture',
+          proof_profile: 'naver_geocode_lookup',
+          payload: {
+            service_id: 'naver-maps',
+            response_summary: {
+              query_label: 'fixture.seoul_station_lookup',
+              geocode_result_preview: 'Seoul Station, KR',
+              coordinates_present: true,
+              no_robot_command: true,
+              no_physical_movement: true
+            }
+          },
+          accepted: true,
+          receipt_id: 'mrx_exec_20260523000001000_0001',
+          service_id: 'naver-maps',
+          execution_status: 'succeeded',
+          execution_occurred: true,
+          payment_occurred: false,
+          payment_status: 'not_confirmed',
+          payment_evidence: null,
+          evidence_stage_after: 'execution-tested',
+          caveats: [
+            'Service-specific execution receipt only.',
+            'Not market-wide proof.',
+            'Not payment proof.',
+            'Not benchmark proof.',
+            'Not winner proof.'
+          ]
+        }
+      ),
+      '401': errorResponse('admin_token_required'),
+      '400': errorResponse('invalid_naver_geocode_fixture_ingest')
+    }
+  });
   add('post', '/v1/machine-preflight/coverage-run', {
     tags: ['Machine Economy'],
     summary: 'Run machine preflight coverage',
@@ -1992,6 +2076,47 @@ function componentSchemas(): Record<string, JsonSchema> {
       accepted: { const: true },
       receipt_id: stringSchema(),
       service_id: { const: 'stableupload' },
+      execution_status: enumSchema(['attempted', 'succeeded', 'failed']),
+      execution_occurred: booleanSchema(),
+      payment_occurred: booleanSchema(),
+      payment_status: enumSchema(['not_confirmed', 'confirmed']),
+      payment_evidence: { oneOf: [freeformObject(), { type: 'null' }, stringSchema(), integerSchema(), booleanSchema(), { type: 'array', items: {} }] },
+      evidence_stage_after: enumSchema(['policy-mapped', 'execution-tested']),
+      caveats: arrayOf(stringSchema())
+    }, [
+      'fixture_ingested',
+      'fixture_label',
+      'proof_profile',
+      'payload',
+      'accepted',
+      'receipt_id',
+      'service_id',
+      'execution_status',
+      'execution_occurred',
+      'payment_occurred',
+      'payment_status',
+      'payment_evidence',
+      'evidence_stage_after',
+      'caveats'
+    ]),
+    NaverGeocodeFixtureIngestRequest: objectSchema({
+      machine_id: stringSchema(),
+      execution_completed_at: dateTimeSchema()
+    }),
+    NaverGeocodeFixtureSampleResponse: objectSchema({
+      fixture_label: stringSchema(),
+      proof_profile: { const: 'naver_geocode_lookup' },
+      replace_with: stringSchema(),
+      payload: { $ref: '#/components/schemas/MachineExecutionReceiptIngestRequest' }
+    }, ['fixture_label', 'proof_profile', 'replace_with', 'payload']),
+    NaverGeocodeFixtureIngestResponse: objectSchema({
+      fixture_ingested: { const: true },
+      fixture_label: stringSchema(),
+      proof_profile: { const: 'naver_geocode_lookup' },
+      payload: { $ref: '#/components/schemas/MachineExecutionReceiptIngestRequest' },
+      accepted: { const: true },
+      receipt_id: stringSchema(),
+      service_id: { const: 'naver-maps' },
       execution_status: enumSchema(['attempted', 'succeeded', 'failed']),
       execution_occurred: booleanSchema(),
       payment_occurred: booleanSchema(),

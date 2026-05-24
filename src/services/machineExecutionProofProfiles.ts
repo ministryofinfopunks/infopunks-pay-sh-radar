@@ -115,7 +115,12 @@ const PROFILES: MachineExecutionProofProfile[] = [
     benchmark_policy: 'Do not claim benchmark without benchmark artifact.',
     winner_policy: 'Do not claim winner without explicit criteria and artifact.',
     physical_world_policy: 'No robot command, no physical movement, no operational guidance.',
-    default_caveats: ['Non-operational geocode lookup only; public context is not Radar execution evidence.']
+    default_caveats: [
+      'Non-operational geocode lookup only.',
+      'No robot command.',
+      'No physical movement.',
+      'Public context is not Radar execution evidence.'
+    ]
   },
   {
     profile_id: 'qvac_runtime_registration_review',

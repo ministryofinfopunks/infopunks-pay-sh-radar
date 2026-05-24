@@ -116,6 +116,29 @@ const stableuploadExecutionReceipt = {
   evidence_stage: 'execution-tested',
   created_at: '2026-05-23T00:00:01.000Z'
 };
+const naverExecutionReceipt = {
+  ...baseReceipt,
+  receipt_id: 'mrx_exec_naver_fixture_0001',
+  receipt_type: 'machine_execution',
+  execution_occurred: true,
+  payment_occurred: false,
+  execution_status: 'succeeded',
+  execution_service_id: 'naver-maps',
+  execution_provider: 'NAVER',
+  execution_started_at: '2026-05-23T00:00:00.000Z',
+  execution_completed_at: '2026-05-23T00:00:01.000Z',
+  execution_latency_ms: 720,
+  execution_request_summary: '{"fixture":"naver_geocode_lookup"}',
+  execution_response_summary: '{"query_label":"fixture.seoul_station_lookup","geocode_result_preview":"Seoul Station, KR","coordinates_present":true,"no_robot_command":true,"no_physical_movement":true}',
+  execution_error: null,
+  payment_evidence: null,
+  selected_service_id: 'naver-maps',
+  selected_service_name: 'NAVER Maps',
+  reason: 'NAVER Maps external execution artifact indicates successful execution.',
+  caveats: ['Service-specific execution receipt only.', 'Not market-wide proof.', 'Not payment proof.', 'Not benchmark proof.', 'Not winner proof.'],
+  evidence_stage: 'execution-tested',
+  created_at: '2026-05-23T00:00:01.000Z'
+};
 
 function json(data: unknown, status = 200) {
   return Promise.resolve(new Response(JSON.stringify({ data }), { status, headers: { 'Content-Type': 'application/json' } }));
@@ -412,6 +435,26 @@ describe('machine receipts page', () => {
     expect(text).toContain('upload_referencestableupload_fixture_ref_001');
     expect(text).toContain('sensitive_data_flagfalse');
     expect(text).toContain('payment_statusnot_confirmed');
+    expect(text).toContain('Not payment proof.');
+    expect(text).toContain('Not benchmark proof.');
+    expect(text).toContain('Not winner proof.');
+    expect(text).toContain('Not market-wide proof.');
+  });
+
+  it('renders NAVER geocode execution receipt detail summary fields', async () => {
+    window.history.pushState({}, '', `/machine-execution/${encodeURIComponent(naverExecutionReceipt.receipt_id)}`);
+    installFetch([naverExecutionReceipt]);
+    root = await renderPage(container);
+
+    const text = container.textContent ?? '';
+    expect(text).toContain('Machine Execution Receipt');
+    expect(text).toContain('NAVER Geocode Summary');
+    expect(text).toContain('proof_profilenaver_geocode_lookup');
+    expect(text).toContain('query_labelfixture.seoul_station_lookup');
+    expect(text).toContain('geocode_result_previewSeoul Station, KR');
+    expect(text).toContain('coordinates_presenttrue');
+    expect(text).toContain('no_robot_commandtrue');
+    expect(text).toContain('no_physical_movementtrue');
     expect(text).toContain('Not payment proof.');
     expect(text).toContain('Not benchmark proof.');
     expect(text).toContain('Not winner proof.');

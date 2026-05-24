@@ -6229,6 +6229,7 @@ function MachineServiceDossierPage({ serviceId }: { serviceId: string }) {
               <small>{formatMachineTimestamp(receipt.created_at)} · {receipt.execution_status} · <a className="execute compact secondary" href={`/machine-execution/${encodeURIComponent(receipt.receipt_id)}`}>View receipt detail</a></small>
             </p>)}
           </div>
+          {service.id === 'naver-maps' && <p className="panel-caption">NAVER receipt scope is geocode-only non-operational lookup evidence. No robot command, no physical movement, and no operational route guidance.</p>}
         </section>}
         <SourceAttributionPanel title="Source attribution" ariaLabel="Source attribution" rows={[
           ...serviceAttributionRows,

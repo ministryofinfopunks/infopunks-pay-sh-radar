@@ -294,4 +294,38 @@ describe('machine service dossier page', () => {
     expect(text).toContain('mrx_exec_stableupload_fixture_0001');
     expect(container.querySelector('a[href="/machine-execution/mrx_exec_stableupload_fixture_0001"]')?.textContent).toContain('View receipt detail');
   });
+
+  it('shows NAVER receipt as geocode-only non-operational when present', async () => {
+    vi.restoreAllMocks();
+    vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const path = pathOf(input);
+      if (path === '/v1/machine-market/services') return json({ count: 13, services });
+      if (path === '/v1/machine-preflight/receipts/recent') return json({
+        count: 1,
+        receipts: [{
+          ...cloudTranslationReceipt,
+          receipt_id: 'mrx_exec_naver_fixture_0001',
+          receipt_type: 'machine_execution',
+          execution_occurred: true,
+          execution_status: 'succeeded',
+          execution_service_id: 'naver-maps',
+          selected_service_id: 'naver-maps',
+          selected_service_name: 'NAVER Maps',
+          intent: 'external machine execution artifact ingest (naver-maps)',
+          requested_category: 'navigation',
+          evidence_stage: 'execution-tested',
+          created_at: '2026-05-23T00:00:01.000Z'
+        }]
+      });
+      if (path === '/v1/machine-preflight/coverage-runs/recent') return json({ count: 0, runs: [] });
+      return Promise.resolve(new Response('{}', { status: 404 }));
+    });
+
+    root = await renderPath(container, '/machine-service/naver-maps');
+    const text = container.textContent ?? '';
+    expect(text).toContain('Service Receipts');
+    expect(text).toContain('mrx_exec_naver_fixture_0001');
+    expect(text).toContain('NAVER receipt scope is geocode-only non-operational lookup evidence.');
+    expect(text).toContain('No robot command, no physical movement, and no operational route guidance.');
+  });
 });

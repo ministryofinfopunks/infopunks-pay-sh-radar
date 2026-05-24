@@ -582,11 +582,49 @@ describe('machine execution anytrans translation route', () => {
       }
     });
     expect(response.statusCode).toBe(200);
-    expect(response.json().data.evidence_stage_after).toBe('execution-tested');
+    const data = response.json().data;
+    expect(data.evidence_stage_after).toBe('execution-tested');
+    expect(data.payment_status).toBe('not_confirmed');
+    expect(data.caveats).toContain('Not market-wide proof.');
+    expect(data.caveats).toContain('Not payment proof.');
+    expect(data.caveats).toContain('Not benchmark proof.');
+    expect(data.caveats).toContain('Not winner proof.');
     await app.close();
   });
 
-  it('rejects NAVER driving/dispatch artifacts for geocode profile', async () => {
+  it('provides and ingests NAVER geocode fixture payload', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const sample = await app.inject({ method: 'GET', url: '/v1/machine-execution/naver/fixtures/geocode' });
+    expect(sample.statusCode).toBe(200);
+    const samplePayload = sample.json().data.payload;
+    expect(samplePayload.service_id).toBe('naver-maps');
+    expect(samplePayload.response_summary.query_label).toBeTruthy();
+    expect(samplePayload.response_summary.geocode_result_preview).toBeTruthy();
+    expect(samplePayload.response_summary.coordinates_present).toBe(true);
+    expect(samplePayload.response_summary.no_robot_command).toBe(true);
+    expect(samplePayload.response_summary.no_physical_movement).toBe(true);
+
+    const ingested = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/naver/fixtures/geocode/ingest',
+      headers: { authorization: 'Bearer secret' },
+      payload: { machine_id: 'did:peaq:naver-geocode-fixture-bot-test' }
+    });
+    expect(ingested.statusCode).toBe(200);
+    const ingestedData = ingested.json().data;
+    expect(ingestedData.fixture_ingested).toBe(true);
+    expect(ingestedData.service_id).toBe('naver-maps');
+    expect(ingestedData.payment_status).toBe('not_confirmed');
+    expect(ingestedData.evidence_stage_after).toBe('execution-tested');
+    expect(ingestedData.caveats).toContain('Not market-wide proof.');
+    expect(ingestedData.caveats).toContain('Not payment proof.');
+    expect(ingestedData.caveats).toContain('Not benchmark proof.');
+    expect(ingestedData.caveats).toContain('Not winner proof.');
+    await app.close();
+  });
+
+  it('rejects NAVER geocode receipt with driving_directions', async () => {
     process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
     const app = await createApp(emptyIntelligenceStore());
     const response = await app.inject({
@@ -613,8 +651,81 @@ describe('machine execution anytrans translation route', () => {
           coordinates_present: true,
           no_robot_command: true,
           no_physical_movement: true,
-          driving_directions: 'turn left',
+          driving_directions: 'turn left'
+        },
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'manual' }
+      }
+    });
+    expect(response.statusCode).toBe(400);
+    expect(response.json().error).toBe('invalid_machine_execution_receipt_ingest');
+    await app.close();
+  });
+
+  it('rejects NAVER geocode receipt with robot_dispatch', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/receipts/ingest',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: payload.machine_id,
+        service_id: 'naver-maps',
+        fqn: 'naver/maps/geocode',
+        source_market: 'robotic.sh',
+        chain: 'unknown',
+        execution_status: 'succeeded',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-22T00:00:00.000Z',
+        execution_completed_at: '2026-05-22T00:00:01.000Z',
+        execution_latency_ms: 1000,
+        request_summary: { query: 'Seoul Station' },
+        response_summary: {
+          query_label: 'seoul_station_lookup',
+          geocode_result_preview: 'Seoul Station, KR',
+          coordinates_present: true,
+          no_robot_command: true,
+          no_physical_movement: true,
           robot_dispatch: true
+        },
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'manual' }
+      }
+    });
+    expect(response.statusCode).toBe(400);
+    expect(response.json().error).toBe('invalid_machine_execution_receipt_ingest');
+    await app.close();
+  });
+
+  it('rejects NAVER geocode receipt with operational_route_guidance', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/receipts/ingest',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: payload.machine_id,
+        service_id: 'naver-maps',
+        fqn: 'naver/maps/geocode',
+        source_market: 'robotic.sh',
+        chain: 'unknown',
+        execution_status: 'succeeded',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-22T00:00:00.000Z',
+        execution_completed_at: '2026-05-22T00:00:01.000Z',
+        execution_latency_ms: 1000,
+        request_summary: { query: 'Seoul Station' },
+        response_summary: {
+          query_label: 'seoul_station_lookup',
+          geocode_result_preview: 'Seoul Station, KR',
+          coordinates_present: true,
+          no_robot_command: true,
+          no_physical_movement: true,
+          operational_route_guidance: 'dispatch to route'
         },
         executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'manual' }
       }
