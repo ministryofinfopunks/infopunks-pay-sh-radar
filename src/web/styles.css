@@ -6354,6 +6354,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
   background: rgba(5, 10, 8, .76);
   box-shadow: 0 18px 50px rgba(0,0,0,.28);
   backdrop-filter: blur(22px);
+  overflow: visible;
 }
 
 .machine-market-toolbar .nav-brand {
@@ -6372,7 +6373,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
   align-items: center;
   gap: 6px;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
   flex-wrap: nowrap;
 }
 
