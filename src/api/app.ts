@@ -94,6 +94,7 @@ import {
   buildAlibabaMachineTranslationGeneralBenchmarkReadinessArtifact,
   buildAlibabaMachineTranslationGeneralRepeatabilityArtifact,
   deprecatedCloudTranslationExecutionResponse,
+  ingestMachineExecutionReceipt,
   ingestAlibabaMachineTranslationGeneralArtifact,
   ingestAnyTransExecutionArtifact,
   runTranslationExecutionRoute
@@ -179,6 +180,44 @@ const AlibabaMachineTranslationGeneralExecutionArtifactIngestSchema = z.object({
   fqn: z.literal('solana-foundation/alibaba/machinetranslation'),
   source_market: z.literal('pay.sh'),
   chain: z.literal('solana'),
+  preflight_receipt_id: z.string().min(1).optional().nullable(),
+  execution_status: z.enum(['attempted', 'succeeded', 'failed']),
+  execution_occurred: z.boolean(),
+  payment_occurred: z.boolean(),
+  payment_evidence: z.unknown().nullable(),
+  execution_started_at: z.string().datetime(),
+  execution_completed_at: z.string().datetime(),
+  execution_latency_ms: z.number().int().nonnegative(),
+  request_summary: z.record(z.string(), z.unknown()),
+  response_summary: z.record(z.string(), z.unknown()).nullable(),
+  executor: z.object({
+    name: z.string().min(1),
+    version: z.string().min(1).optional().nullable(),
+    mode: z.enum(['pay_cli', 'x402', 'manual'])
+  }),
+  artifact_signature: z.string().optional().nullable()
+}).strict().superRefine((value, ctx) => {
+  const candidate = value as Record<string, unknown>;
+  if ('benchmark' in candidate || 'benchmark_claim' in candidate || 'winner' in candidate || 'winner_claim' in candidate) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'benchmark_or_winner_claim_fields_not_allowed' });
+  }
+  if (value.execution_status === 'succeeded') {
+    const preview = value.response_summary && typeof value.response_summary.translated_text_preview === 'string'
+      ? value.response_summary.translated_text_preview.trim()
+      : '';
+    if (!value.execution_occurred) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'execution_occurred=true required for succeeded execution_status' });
+    if (!preview.length) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'response_summary.translated_text_preview required for succeeded execution_status' });
+  }
+  if (value.payment_occurred && value.payment_evidence == null) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'payment_occurred requires payment_evidence' });
+  }
+});
+const MachineExecutionReceiptIngestSchema = z.object({
+  machine_id: z.string().min(1),
+  service_id: z.string().min(1),
+  fqn: z.string().min(3),
+  source_market: z.enum(['robotic.sh', 'pay.sh', 'agentic.market']),
+  chain: z.enum(['solana', 'base', 'peaq', 'omnichain', 'unknown']),
   preflight_receipt_id: z.string().min(1).optional().nullable(),
   execution_status: z.enum(['attempted', 'succeeded', 'failed']),
   execution_occurred: z.boolean(),
@@ -698,6 +737,25 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
       });
     }
     const result = await ingestAlibabaMachineTranslationGeneralArtifact(parsed.data);
+    return {
+      data: safeJsonExport({
+        ...result,
+        phase_scope: MACHINE_MARKET_PHASE_SCOPE,
+        storage: machineReceiptStorage
+      })
+    };
+  });
+  app.post('/v1/machine-execution/receipts/ingest', async (req, reply) => {
+    if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'admin_token_required' });
+    const parsed = MachineExecutionReceiptIngestSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return reply.code(400).send({
+        error: 'invalid_machine_execution_receipt_ingest',
+        phase_scope: MACHINE_MARKET_PHASE_SCOPE,
+        details: parsed.error.flatten()
+      });
+    }
+    const result = await ingestMachineExecutionReceipt(parsed.data);
     return {
       data: safeJsonExport({
         ...result,

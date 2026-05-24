@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  getMachineMarketServiceById,
   resolveMachinePaymentStatus,
   resolveMachineReceiptTaxonomy,
   summarizeMachineEvidenceCounts
@@ -86,5 +87,10 @@ describe('machine market claim discipline', () => {
     expect(confirmedPayment.scope).toBe('payment_confirmation');
     expect(confirmedPayment.payment_status).toBe('confirmed');
   });
-});
 
+  it('keeps NAVER Maps at not_attempted without service-specific receipt evidence', () => {
+    const naver = getMachineMarketServiceById('naver-maps');
+    expect(naver).not.toBeNull();
+    expect(naver?.evidence_stage).toBe('policy-mapped');
+  });
+});

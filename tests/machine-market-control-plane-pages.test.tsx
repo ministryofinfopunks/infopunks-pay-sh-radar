@@ -142,6 +142,7 @@ describe('machine market control plane pages', () => {
     expect(container.textContent).toContain('claim boundary');
     expect(container.textContent).toContain('source type');
     expect(container.textContent).toContain('public_context');
+    expect(container.textContent).toContain('Execution receipt ingest surface is available for service-specific machine execution evidence.');
     expect(container.textContent).toContain('Listed does not mean callable or executed.');
     expect(container.textContent).toContain('Public demo context is not Radar evidence; NAVER Maps has not been executed by Radar.');
     expect(container.textContent).toContain('New pages add interpretation and policy memory, not new live Pay.sh, robotic.sh, or peaqOS data.');

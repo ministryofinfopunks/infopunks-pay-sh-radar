@@ -266,6 +266,15 @@ describe('machine receipts page', () => {
     expect(link?.textContent).toBe(baseReceipt.machine_id);
   });
 
+  it('adds execution detail links from machine receipts timeline rows', async () => {
+    installFetch([baseReceipt]);
+    root = await renderPage(container);
+
+    const link = container.querySelector(`a[href="/machine-execution/${encodeURIComponent(baseReceipt.receipt_id)}"]`);
+    expect(link).not.toBeNull();
+    expect(link?.textContent).toContain('Execution detail');
+  });
+
   it('does not overclaim benchmark or winner status in receipt detail for policy-mapped stage', async () => {
     installFetch([baseReceipt]);
     root = await renderPage(container);
@@ -306,5 +315,19 @@ describe('machine receipts page', () => {
     expect(detailText).toContain('demo_modetrue');
     expect(detailText).toContain('execution_occurredfalse');
     expect(detailText).toContain('payment_statusnot_confirmed');
+  });
+
+  it('renders /machine-execution/:receipt_id detail page caveats', async () => {
+    window.history.pushState({}, '', `/machine-execution/${encodeURIComponent(baseReceipt.receipt_id)}`);
+    installFetch([baseReceipt]);
+    root = await renderPage(container);
+
+    const text = container.textContent ?? '';
+    expect(text).toContain('Machine Execution Receipt');
+    expect(text).toContain('Service-specific execution receipt only.');
+    expect(text).toContain('Not market-wide proof.');
+    expect(text).toContain('Not payment proof.');
+    expect(text).toContain('Not benchmark proof.');
+    expect(text).toContain('Not winner proof.');
   });
 });

@@ -229,6 +229,72 @@ describe('machine execution anytrans translation route', () => {
     await app.close();
   });
 
+  it('rejects unauthenticated generic machine execution receipt ingest', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/receipts/ingest',
+      payload: {
+        machine_id: payload.machine_id,
+        service_id: 'cloud-translation',
+        fqn: 'solana-foundation/google/cloudtranslation',
+        source_market: 'pay.sh',
+        chain: 'solana',
+        execution_status: 'succeeded',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-22T00:00:00.000Z',
+        execution_completed_at: '2026-05-22T00:00:01.000Z',
+        execution_latency_ms: 1000,
+        request_summary: { text: 'Machines should not spend blind.' },
+        response_summary: { translated_text_preview: 'Las máquinas no deberían gastar a ciegas.' },
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'manual' }
+      }
+    });
+    expect(response.statusCode).toBe(401);
+    expect(response.json().error).toBe('admin_token_required');
+    await app.close();
+  });
+
+  it('records admin-ingested cloud translation execution receipt with strict caveats', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/receipts/ingest',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: payload.machine_id,
+        service_id: 'cloud-translation',
+        fqn: 'solana-foundation/google/cloudtranslation',
+        source_market: 'pay.sh',
+        chain: 'solana',
+        execution_status: 'succeeded',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-22T00:00:00.000Z',
+        execution_completed_at: '2026-05-22T00:00:01.000Z',
+        execution_latency_ms: 1000,
+        request_summary: { text: 'Machines should not spend blind.' },
+        response_summary: { translated_text_preview: 'Las máquinas no deberían gastar a ciegas.' },
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'manual' }
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.accepted).toBe(true);
+    expect(body.service_id).toBe('cloud-translation');
+    expect(body.payment_status).toBe('not_confirmed');
+    expect(body.caveats).toContain('Service-specific execution receipt only.');
+    expect(body.caveats).toContain('Not market-wide proof.');
+    expect(body.caveats).toContain('Not payment proof.');
+    expect(body.caveats).toContain('Not benchmark proof.');
+    expect(body.caveats).toContain('Not winner proof.');
+    await app.close();
+  });
+
   it('rejects wrong fqn/source/chain or unsupported service_id on artifact ingest', async () => {
     process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
     const app = await createApp(emptyIntelligenceStore());

@@ -192,7 +192,7 @@ describe('machine first safe route queue page', () => {
     expect(text).toContain('Runtime registration review comes before autonomous execution.');
     expect(text).toContain('payment_unconfirmed');
     expect(text).toContain('benchmark_not_recorded');
-    expect(text).toContain('not attempted');
+    expect(text).toContain('not_attempted');
     expect(container.querySelector('a[href="/machine-execution-plan/cloud-translation"]')?.textContent).toContain('View proof plan');
     expect(container.querySelector('a[href="/machine-execution-plan/naver-maps"]')?.textContent).toContain('View proof plan');
     expect(container.querySelector('a[href="/machine-execution-plan/bigquery"]')?.textContent).toContain('View proof plan');
