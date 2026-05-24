@@ -391,7 +391,13 @@ type MachineBenchmarkReadinessReport = {
 type MachineComparableRouteLane = {
   lane_id: 'machine_translation' | 'data_query_bigquery' | 'storage_stableupload' | 'navigation_naver_geocode';
   task_class: string;
-  candidate_routes: Array<{ service_id: string; route_id: string; profile_id: string }>;
+  candidate_routes: Array<{
+    service_id: string;
+    route_id: string;
+    profile_id: string;
+    route_state?: 'proven' | 'fixture_only' | 'candidate_unproven' | 'blocked';
+    evidence_note?: string;
+  }>;
   comparable_route_count: number;
   required_methodology: string[];
   missing_methodology: string[];
@@ -459,7 +465,20 @@ type MachineBenchmarkGateCheck = {
   benchmark_execution_allowed: boolean;
   allowed_lanes: Array<'machine_translation' | 'data_query_bigquery' | 'storage_stableupload' | 'navigation_naver_geocode'>;
   blocked_lanes: Array<'machine_translation' | 'data_query_bigquery' | 'storage_stableupload' | 'navigation_naver_geocode'>;
-  blocking_reasons: Array<'comparable_routes_missing' | 'methodology_incomplete' | 'readiness_not_benchmark_ready' | 'repeatability_missing' | 'safety_policy_blocked' | 'artifact_schema_missing'>;
+  blocking_reasons: Array<
+    | 'comparable_routes_missing'
+    | 'comparable_routes_not_proven'
+    | 'task_class_mismatch'
+    | 'input_class_mismatch'
+    | 'output_normalization_mismatch'
+    | 'success_criteria_mismatch'
+    | 'run_count_target_mismatch'
+    | 'methodology_incomplete'
+    | 'readiness_not_benchmark_ready'
+    | 'repeatability_missing'
+    | 'safety_policy_blocked'
+    | 'artifact_schema_missing'
+  >;
   required_conditions: string[];
   generated_at: string;
 };

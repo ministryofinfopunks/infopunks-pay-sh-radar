@@ -311,7 +311,13 @@ export type MachineBenchmarkReadinessReport = {
 export type MachineComparableRoute = {
   lane_id: 'machine_translation' | 'data_query_bigquery' | 'storage_stableupload' | 'navigation_naver_geocode';
   task_class: string;
-  candidate_routes: Array<{ service_id: string; route_id: string; profile_id: string }>;
+  candidate_routes: Array<{
+    service_id: string;
+    route_id: string;
+    profile_id: string;
+    route_state: 'proven' | 'fixture_only' | 'candidate_unproven' | 'blocked';
+    evidence_note: string;
+  }>;
   comparable_route_count: number;
   required_methodology: string[];
   missing_methodology: string[];
@@ -377,6 +383,12 @@ export type MachineBenchmarkMethodologyArtifactsReport = {
 };
 export type MachineBenchmarkGateBlockingReason =
   | 'comparable_routes_missing'
+  | 'comparable_routes_not_proven'
+  | 'task_class_mismatch'
+  | 'input_class_mismatch'
+  | 'output_normalization_mismatch'
+  | 'success_criteria_mismatch'
+  | 'run_count_target_mismatch'
   | 'methodology_incomplete'
   | 'readiness_not_benchmark_ready'
   | 'repeatability_missing'
@@ -1342,17 +1354,18 @@ export async function buildMachineBenchmarkReadinessReport(): Promise<MachineBen
   ];
 
   const lanes: MachineBenchmarkReadinessLane[] = await Promise.all(laneSpecs.map(async (lane) => {
-    const candidate_routes = lane.serviceIds
-      .filter((serviceId) => services.some((service) => service.id === serviceId))
-      .map((serviceId) => {
-        const profile = getMachineExecutionProofProfile(serviceId);
-        return {
-          service_id: serviceId,
-          route_id: profile?.route_id ?? lane.routeHint,
-          profile_id: profile?.profile_id ?? 'unknown'
-        };
-      });
-    const comparableRouteCount = candidate_routes.length;
+    const candidate_routes = lane.serviceIds.map((serviceId) => {
+      const profile = getMachineExecutionProofProfile(serviceId);
+      return {
+        service_id: serviceId,
+        route_id: profile?.route_id ?? lane.routeHint,
+        profile_id: profile?.profile_id ?? 'unknown'
+      };
+    });
+    const comparableRouteCount = lane.serviceIds.filter((serviceId) =>
+      services.some((service) => service.id === serviceId)
+      || executionReceipts.some((row) => (row.execution_service_id ?? row.selected_service_id) === serviceId)
+    ).length;
     const serviceSuccessCounts = lane.serviceIds.map((serviceId) => executionReceipts.filter((row) =>
       (row.execution_service_id ?? row.selected_service_id) === serviceId
       && row.execution_status === 'succeeded'
@@ -1366,12 +1379,25 @@ export async function buildMachineBenchmarkReadinessReport(): Promise<MachineBen
         : 'missing';
     const methodologyReady = lane.lane_id === 'machine_translation';
     const artifactSchemaReady = true;
-    const sameTaskClass = true;
+    const sameTaskClass = lane.lane_id === 'machine_translation';
     const sameInputClass = lane.lane_id === 'machine_translation';
     const sameOutputNormalization = lane.lane_id === 'machine_translation';
     const sameSuccessCriteria = lane.lane_id === 'machine_translation';
+    const sameRunCountTarget = lane.lane_id === 'machine_translation';
     const comparableLatencyCostPaymentFields = lane.lane_id === 'machine_translation';
     const safetyCompatible = lane.lane_id === 'machine_translation';
+    const provenComparableRouteCount = lane.lane_id === 'machine_translation'
+      ? executionReceipts.filter((row) =>
+        ((row.execution_service_id ?? row.selected_service_id) === 'anytrans'
+          || (row.execution_service_id ?? row.selected_service_id) === 'alibaba-machine-translation-general')
+        && row.execution_status === 'succeeded'
+        && row.execution_occurred
+      ).reduce((acc, row) => {
+        const id = (row.execution_service_id ?? row.selected_service_id) as string;
+        acc.add(id);
+        return acc;
+      }, new Set<string>()).size
+      : 0;
     const missing_requirements: string[] = [];
     if (comparableRouteCount < 2) missing_requirements.push('comparable_routes_missing');
     if (!methodologyReady) missing_requirements.push('methodology_missing');
@@ -1379,8 +1405,10 @@ export async function buildMachineBenchmarkReadinessReport(): Promise<MachineBen
     if (!sameInputClass) missing_requirements.push('same_input_class_required');
     if (!sameOutputNormalization) missing_requirements.push('same_output_normalization_required');
     if (!sameSuccessCriteria) missing_requirements.push('same_success_criteria_required');
+    if (!sameRunCountTarget) missing_requirements.push('same_run_count_target_required');
     if (!comparableLatencyCostPaymentFields) missing_requirements.push('comparable_latency_cost_payment_fields_required');
     if (!safetyCompatible) missing_requirements.push('safety_policy_compatibility_required');
+    if (comparableRouteCount >= 2 && provenComparableRouteCount < 2) missing_requirements.push('comparable_routes_not_proven');
     if (repeatability_state === 'missing') missing_requirements.push('repeatability_missing');
 
     let readiness_status: MachineBenchmarkReadinessLane['readiness_status'] = 'not_ready';
@@ -1390,10 +1418,9 @@ export async function buildMachineBenchmarkReadinessReport(): Promise<MachineBen
         : 'comparable_routes_missing';
     } else if (!methodologyReady) readiness_status = 'methodology_missing';
     else if (artifactSchemaReady) readiness_status = 'artifact_schema_ready';
-    if (comparableRouteCount >= 2 && methodologyReady && artifactSchemaReady && repeatability_state === 'repeatability_recorded') {
+    if (comparableRouteCount >= 2 && provenComparableRouteCount >= 2 && methodologyReady && artifactSchemaReady && repeatability_state === 'repeatability_recorded') {
       readiness_status = 'benchmark_ready';
     }
-    if (readiness_status === 'benchmark_ready') readiness_status = 'artifact_schema_ready';
 
     return {
       lane_id: lane.lane_id,
@@ -1435,15 +1462,58 @@ export async function buildMachineBenchmarkReadinessReport(): Promise<MachineBen
 
 export async function buildMachineComparableRouteDiscovery(): Promise<MachineComparableRouteDiscovery> {
   const services = listMachineMarketServices();
+  const receipts = await listRecentMachinePreflightReceipts({ limit: 250 });
+  const executionReceipts = receipts.filter((row) => row.receipt_type === 'machine_execution');
+  const translationStateFor = (serviceId: 'anytrans' | 'alibaba-machine-translation-general') => {
+    const routeReceipts = executionReceipts.filter((row) =>
+      (row.execution_service_id ?? row.selected_service_id) === serviceId
+    );
+    const servicePresent = services.some((service) => service.id === serviceId);
+    if (!servicePresent && routeReceipts.length === 0) {
+      return {
+        route_state: 'blocked' as const,
+        evidence_note: 'service not present in inventory and no controlled receipt/proof evidence is recorded'
+      };
+    }
+    if (!routeReceipts.length) {
+      return {
+        route_state: 'candidate_unproven' as const,
+        evidence_note: 'candidate route exists in inventory but no service-specific execution receipt evidence is recorded'
+      };
+    }
+    const hasSucceeded = routeReceipts.some((row) => row.execution_status === 'succeeded' && row.execution_occurred);
+    const hasFixtureOnly = routeReceipts.some((row) => String(row.execution_request_summary ?? '').includes('"fixture"'));
+    if (hasSucceeded) {
+      return {
+        route_state: 'proven' as const,
+        evidence_note: 'service-specific receipt evidence exists for successful execution'
+      };
+    }
+    if (hasFixtureOnly) {
+      return {
+        route_state: 'fixture_only' as const,
+        evidence_note: 'only fixture-scoped receipt evidence exists; caveated and not benchmark evidence'
+      };
+    }
+    return {
+      route_state: 'candidate_unproven' as const,
+      evidence_note: 'service-specific receipt evidence exists but success proof is not established'
+    };
+  };
+  const anytransState = translationStateFor('anytrans');
+  const alibabaState = translationStateFor('alibaba-machine-translation-general');
+  const translationCandidateRoutes = [
+    { service_id: 'anytrans', route_id: 'translation:POST:/translate', profile_id: 'machine_translation_safe_phrase', ...anytransState },
+    { service_id: 'alibaba-machine-translation-general', route_id: 'alibaba-machine-translation-general:POST:/api/translate/web/general', profile_id: 'machine_translation_safe_phrase', ...alibabaState }
+  ];
+  const translationComparableReady = translationCandidateRoutes.every((route) => route.route_state !== 'blocked');
+  const translationProvenCount = translationCandidateRoutes.filter((route) => route.route_state === 'proven').length;
   const lanes: MachineComparableRoute[] = [
     {
       lane_id: 'machine_translation',
       task_class: 'Machine Translation',
-      candidate_routes: [
-        { service_id: 'anytrans', route_id: 'translation:POST:/translate', profile_id: 'machine_translation_safe_phrase' },
-        { service_id: 'alibaba-machine-translation-general', route_id: 'alibaba-machine-translation-general:POST:/api/translate/web/general', profile_id: 'machine_translation_safe_phrase' }
-      ].filter((route) => services.some((service) => service.id === route.service_id)),
-      comparable_route_count: services.some((service) => service.id === 'anytrans') && services.some((service) => service.id === 'alibaba-machine-translation-general') ? 2 : 1,
+      candidate_routes: translationCandidateRoutes,
+      comparable_route_count: translationComparableReady ? 2 : Math.min(1, translationCandidateRoutes.filter((route) => route.route_state !== 'blocked').length),
       required_methodology: [
         'same_task',
         'same_input_class',
@@ -1451,7 +1521,7 @@ export async function buildMachineComparableRouteDiscovery(): Promise<MachineCom
         'same_success_criteria',
         'same_cost_latency_capture'
       ],
-      missing_methodology: [],
+      missing_methodology: translationComparableReady ? [] : ['comparable_route_missing'],
       comparable_inputs: 'same phrase set, same source/target language pairs, same max_cost policy',
       comparable_outputs: 'normalized translated_text and minimal metadata fields',
       normalization_strategy: 'trim/lowercase canonical comparison, locale-safe unicode normalization',
@@ -1459,15 +1529,21 @@ export async function buildMachineComparableRouteDiscovery(): Promise<MachineCom
       run_count_target: 3,
       cost_latency_fields_required: ['execution_latency_ms', 'payment_status', 'payment_evidence'],
       safety_constraints: ['no sensitive text payloads', 'no benchmark ranking claims', 'service-specific receipt scope only'],
-      readiness_effect: 'comparable route exists but methodology contract must remain explicit before any benchmark run',
-      next_action: 'Keep methodology contract published and add route-level parity assertions.'
+      readiness_effect: translationProvenCount >= 2
+        ? 'two comparable proven routes exist; lane can be benchmark-ready only when full gate conditions pass'
+        : translationComparableReady
+          ? 'second comparable route exists but at least one route is not proven; gate remains closed'
+          : 'single route only; benchmark lane remains blocked',
+      next_action: translationProvenCount >= 2
+        ? 'Run benchmark gate check and only execute controlled benchmark if gate returns benchmark_execution_allowed=true.'
+        : 'Keep route evidence state explicit (candidate_unproven or fixture_only caveats) and collect service-specific proven receipts.'
     },
     {
       lane_id: 'data_query_bigquery',
       task_class: 'Data Query / BigQuery',
       candidate_routes: [
-        { service_id: 'bigquery', route_id: 'bigquery:POST:/query', profile_id: 'bigquery_bounded_query' }
-      ].filter((route) => services.some((service) => service.id === route.service_id)),
+        { service_id: 'bigquery', route_id: 'bigquery:POST:/query', profile_id: 'bigquery_bounded_query', route_state: 'candidate_unproven' as const, evidence_note: 'single route candidate only' }
+      ],
       comparable_route_count: 1,
       required_methodology: [
         'same_task',
@@ -1491,8 +1567,8 @@ export async function buildMachineComparableRouteDiscovery(): Promise<MachineCom
       lane_id: 'storage_stableupload',
       task_class: 'Storage / Stableupload',
       candidate_routes: [
-        { service_id: 'stableupload', route_id: 'stableupload:POST:/upload', profile_id: 'stableupload_tiny_fixture' }
-      ].filter((route) => services.some((service) => service.id === route.service_id)),
+        { service_id: 'stableupload', route_id: 'stableupload:POST:/upload', profile_id: 'stableupload_tiny_fixture', route_state: 'candidate_unproven' as const, evidence_note: 'single route candidate only' }
+      ],
       comparable_route_count: 1,
       required_methodology: [
         'same_task',
@@ -1516,8 +1592,8 @@ export async function buildMachineComparableRouteDiscovery(): Promise<MachineCom
       lane_id: 'navigation_naver_geocode',
       task_class: 'Navigation / NAVER geocode',
       candidate_routes: [
-        { service_id: 'naver-maps', route_id: 'naver-maps:GET:/map-geocode/v2/geocode', profile_id: 'naver_geocode_lookup' }
-      ].filter((route) => services.some((service) => service.id === route.service_id)),
+        { service_id: 'naver-maps', route_id: 'naver-maps:GET:/map-geocode/v2/geocode', profile_id: 'naver_geocode_lookup', route_state: 'candidate_unproven' as const, evidence_note: 'single route candidate only' }
+      ],
       comparable_route_count: 1,
       required_methodology: [
         'same_task',
@@ -1652,15 +1728,23 @@ export async function buildMachineBenchmarkMethodologyArtifacts(): Promise<Machi
 }
 
 export async function buildMachineBenchmarkGateCheck(): Promise<MachineBenchmarkGateCheck> {
-  const [readiness, methodology] = await Promise.all([
+  const [readiness, methodology, comparable] = await Promise.all([
     buildMachineBenchmarkReadinessReport(),
-    buildMachineBenchmarkMethodologyArtifacts()
+    buildMachineBenchmarkMethodologyArtifacts(),
+    buildMachineComparableRouteDiscovery()
   ]);
+  const comparableByLane = new Map(comparable.lanes.map((lane) => [lane.lane_id, lane] as const));
   const artifactsByLane = new Map(methodology.methodology_artifacts.map((artifact) => [artifact.lane_id, artifact] as const));
   const required_conditions = [
     'readiness_status = benchmark_ready',
     'methodology_artifact_schema = present',
-    'comparable_route_count >= 2'
+    'comparable_route_count >= 2',
+    'routes share task class',
+    'routes share input class',
+    'routes share output normalization',
+    'routes share success criteria',
+    'routes share run count target',
+    'safety/policy constraints pass'
   ];
   const allowed_lanes: MachineBenchmarkGateCheck['allowed_lanes'] = [];
   const blocked_lanes: MachineBenchmarkGateCheck['blocked_lanes'] = [];
@@ -1671,13 +1755,37 @@ export async function buildMachineBenchmarkGateCheck(): Promise<MachineBenchmark
     const schemaPresent = artifact?.methodology_artifact_schema === 'present';
     const benchmarkReady = lane.readiness_status === 'benchmark_ready';
     const comparableReady = lane.comparable_route_count >= 2;
-    const allowed = benchmarkReady && schemaPresent && comparableReady;
+    const comparableLane = comparableByLane.get(lane.lane_id);
+    const routeStates = comparableLane?.candidate_routes.map((route) => route.route_state) ?? [];
+    const hasTwoProven = routeStates.filter((state) => state === 'proven').length >= 2;
+    const sameTaskClass = lane.lane_id === 'machine_translation';
+    const sameInputClass = lane.lane_id === 'machine_translation';
+    const sameOutputNormalization = lane.lane_id === 'machine_translation';
+    const sameSuccessCriteria = lane.lane_id === 'machine_translation';
+    const sameRunCountTarget = lane.lane_id === 'machine_translation';
+    const safetyPolicyPass = lane.lane_id === 'machine_translation';
+    const allowed = benchmarkReady
+      && schemaPresent
+      && comparableReady
+      && hasTwoProven
+      && sameTaskClass
+      && sameInputClass
+      && sameOutputNormalization
+      && sameSuccessCriteria
+      && sameRunCountTarget
+      && safetyPolicyPass;
     if (allowed) {
       allowed_lanes.push(lane.lane_id);
       continue;
     }
     blocked_lanes.push(lane.lane_id);
     if (!comparableReady || lane.missing_requirements.includes('comparable_routes_missing')) blocking.add('comparable_routes_missing');
+    if (!hasTwoProven || lane.missing_requirements.includes('comparable_routes_not_proven')) blocking.add('comparable_routes_not_proven');
+    if (!sameTaskClass) blocking.add('task_class_mismatch');
+    if (!sameInputClass) blocking.add('input_class_mismatch');
+    if (!sameOutputNormalization) blocking.add('output_normalization_mismatch');
+    if (!sameSuccessCriteria) blocking.add('success_criteria_mismatch');
+    if (!sameRunCountTarget) blocking.add('run_count_target_mismatch');
     if (!schemaPresent) blocking.add('artifact_schema_missing');
     if (artifact && artifact.missing_requirements.length > 0) blocking.add('methodology_incomplete');
     if (!benchmarkReady) blocking.add('readiness_not_benchmark_ready');
