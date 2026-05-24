@@ -228,6 +228,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     tags: ['Machine Economy'],
     summary: 'Ingest service-specific machine execution receipt',
     description: `${SAFE_METADATA_NOTE} Admin token required (Authorization: Bearer <token>). Ingests a service-specific execution receipt validated by proof profile. Claim discipline: service-specific execution receipt only; not market-wide proof; not payment proof unless payment evidence exists; not benchmark proof; not winner proof.`,
+    security: [{ bearerAuth: [] }],
     requestBody: jsonRequest(
       { $ref: '#/components/schemas/MachineExecutionReceiptIngestRequest' },
       {
@@ -320,6 +321,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     tags: ['Machine Economy'],
     summary: 'Ingest BigQuery bounded-query fixture receipt',
     description: `${SAFE_METADATA_NOTE} Admin token required (Authorization: Bearer <token>). Fixture-only ingest path for BigQuery bounded public/synthetic query proof shape. Does not execute live BigQuery. Claim discipline: service-specific execution receipt only; not market-wide proof; not payment proof unless payment evidence exists; not benchmark proof; not winner proof.`,
+    security: [{ bearerAuth: [] }],
     requestBody: jsonRequest(
       { $ref: '#/components/schemas/BigQueryBoundedQueryFixtureIngestRequest' },
       { machine_id: 'did:peaq:bigquery-fixture-bot-01' }
@@ -361,6 +363,88 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       ),
       '401': errorResponse('admin_token_required'),
       '400': errorResponse('invalid_bigquery_fixture_ingest')
+    }
+  });
+  add('get', '/v1/machine-execution/stableupload/fixtures/tiny-fixture', {
+    tags: ['Machine Economy'],
+    summary: 'Get Stableupload tiny-fixture payload',
+    description: `${SAFE_METADATA_NOTE} Fixture-only route. Returns a replaceable sample payload for proof profile stableupload_tiny_fixture. This endpoint does not execute live Stableupload. Shape is tiny non-sensitive upload evidence. payment_status remains not_confirmed unless payment evidence exists.`,
+    responses: envelopedResponses(
+      { $ref: '#/components/schemas/StableuploadTinyFixtureSampleResponse' },
+      {
+        fixture_label: 'Stableupload tiny non-sensitive fixture',
+        proof_profile: 'stableupload_tiny_fixture',
+        replace_with: 'Harness-generated receipt payload',
+        payload: {
+          machine_id: 'did:peaq:stableupload-fixture-bot-01',
+          service_id: 'stableupload',
+          fqn: 'stableupload/upload',
+          source_market: 'pay.sh',
+          chain: 'solana',
+          execution_status: 'succeeded',
+          execution_occurred: true,
+          payment_occurred: false,
+          payment_evidence: null,
+          execution_started_at: '2026-05-23T00:00:00.000Z',
+          execution_completed_at: '2026-05-23T00:00:01.000Z',
+          execution_latency_ms: 640,
+          request_summary: { fixture: 'stableupload_tiny_fixture' },
+          response_summary: {
+            file_size_bytes: 128,
+            file_hash: 'sha256:stableupload-tiny-fixture-v1',
+            upload_reference: 'stableupload_fixture_ref_001',
+            sensitive_data_flag: false
+          },
+          executor: { name: 'infopunks-radar-fixture', version: 'fixture-v1', mode: 'manual' }
+        }
+      }
+    )
+  });
+  add('post', '/v1/machine-execution/stableupload/fixtures/ingest', {
+    tags: ['Machine Economy'],
+    summary: 'Ingest Stableupload tiny-fixture receipt',
+    description: `${SAFE_METADATA_NOTE} Admin token required (Authorization: Bearer <token>). Fixture-only ingest path for Stableupload tiny non-sensitive fixture proof shape. Does not execute live Stableupload. Claim discipline: service-specific execution receipt only; not market-wide proof; not payment proof unless payment evidence exists; not benchmark proof; not winner proof.`,
+    security: [{ bearerAuth: [] }],
+    requestBody: jsonRequest(
+      { $ref: '#/components/schemas/StableuploadTinyFixtureIngestRequest' },
+      { machine_id: 'did:peaq:stableupload-fixture-bot-01' }
+    ),
+    responses: {
+      ...envelopedResponses(
+        { $ref: '#/components/schemas/StableuploadTinyFixtureIngestResponse' },
+        {
+          fixture_ingested: true,
+          fixture_label: 'Stableupload tiny non-sensitive fixture',
+          proof_profile: 'stableupload_tiny_fixture',
+          payload: {
+            service_id: 'stableupload',
+            response_summary: {
+              file_size_bytes: 128,
+              file_hash: 'sha256:stableupload-tiny-fixture-v1',
+              upload_reference: 'stableupload_fixture_ref_001',
+              sensitive_data_flag: false
+            }
+          },
+          accepted: true,
+          receipt_id: 'mrx_exec_20260523000001000_0001',
+          service_id: 'stableupload',
+          execution_status: 'succeeded',
+          execution_occurred: true,
+          payment_occurred: false,
+          payment_status: 'not_confirmed',
+          payment_evidence: null,
+          evidence_stage_after: 'execution-tested',
+          caveats: [
+            'Service-specific execution receipt only.',
+            'Not market-wide proof.',
+            'Not payment proof.',
+            'Not benchmark proof.',
+            'Not winner proof.'
+          ]
+        }
+      ),
+      '401': errorResponse('admin_token_required'),
+      '400': errorResponse('invalid_stableupload_fixture_ingest')
     }
   });
   add('post', '/v1/machine-preflight/coverage-run', {
@@ -653,7 +737,16 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       { name: 'Radar CSV Exports' }
     ],
     paths,
-    components: { schemas: componentSchemas() }
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT'
+        }
+      },
+      schemas: componentSchemas()
+    }
   };
 }
 
@@ -1858,6 +1951,47 @@ function componentSchemas(): Record<string, JsonSchema> {
       accepted: { const: true },
       receipt_id: stringSchema(),
       service_id: { const: 'bigquery' },
+      execution_status: enumSchema(['attempted', 'succeeded', 'failed']),
+      execution_occurred: booleanSchema(),
+      payment_occurred: booleanSchema(),
+      payment_status: enumSchema(['not_confirmed', 'confirmed']),
+      payment_evidence: { oneOf: [freeformObject(), { type: 'null' }, stringSchema(), integerSchema(), booleanSchema(), { type: 'array', items: {} }] },
+      evidence_stage_after: enumSchema(['policy-mapped', 'execution-tested']),
+      caveats: arrayOf(stringSchema())
+    }, [
+      'fixture_ingested',
+      'fixture_label',
+      'proof_profile',
+      'payload',
+      'accepted',
+      'receipt_id',
+      'service_id',
+      'execution_status',
+      'execution_occurred',
+      'payment_occurred',
+      'payment_status',
+      'payment_evidence',
+      'evidence_stage_after',
+      'caveats'
+    ]),
+    StableuploadTinyFixtureIngestRequest: objectSchema({
+      machine_id: stringSchema(),
+      execution_completed_at: dateTimeSchema()
+    }),
+    StableuploadTinyFixtureSampleResponse: objectSchema({
+      fixture_label: stringSchema(),
+      proof_profile: { const: 'stableupload_tiny_fixture' },
+      replace_with: stringSchema(),
+      payload: { $ref: '#/components/schemas/MachineExecutionReceiptIngestRequest' }
+    }, ['fixture_label', 'proof_profile', 'replace_with', 'payload']),
+    StableuploadTinyFixtureIngestResponse: objectSchema({
+      fixture_ingested: { const: true },
+      fixture_label: stringSchema(),
+      proof_profile: { const: 'stableupload_tiny_fixture' },
+      payload: { $ref: '#/components/schemas/MachineExecutionReceiptIngestRequest' },
+      accepted: { const: true },
+      receipt_id: stringSchema(),
+      service_id: { const: 'stableupload' },
       execution_status: enumSchema(['attempted', 'succeeded', 'failed']),
       execution_occurred: booleanSchema(),
       payment_occurred: booleanSchema(),

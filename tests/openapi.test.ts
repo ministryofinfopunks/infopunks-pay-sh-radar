@@ -113,6 +113,12 @@ describe('openapi discovery', () => {
     expect(ingest).toBeTruthy();
     expect(fixtureSample).toBeTruthy();
     expect(fixtureIngest).toBeTruthy();
+    expect(spec.components.securitySchemes.bearerAuth).toBeTruthy();
+    expect(spec.components.securitySchemes.bearerAuth.type).toBe('http');
+    expect(spec.components.securitySchemes.bearerAuth.scheme).toBe('bearer');
+    expect(ingest.security).toEqual([{ bearerAuth: [] }]);
+    expect(fixtureIngest.security).toEqual([{ bearerAuth: [] }]);
+    expect(fixtureSample.security).toBeUndefined();
 
     expect(String(ingest.description)).toContain('Admin token required');
     expect(JSON.stringify(ingest.responses)).toContain('admin_token_required');
