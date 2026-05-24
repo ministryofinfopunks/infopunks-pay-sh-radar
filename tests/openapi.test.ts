@@ -101,4 +101,40 @@ describe('openapi discovery', () => {
 
     await app.close();
   });
+
+  it('documents machine execution receipt ingest and BigQuery fixture endpoints with strict caveats', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+    const spec = (await app.inject({ method: 'GET', url: '/openapi.json' })).json();
+
+    const ingest = spec.paths['/v1/machine-execution/receipts/ingest']?.post;
+    const fixtureSample = spec.paths['/v1/machine-execution/bigquery/fixtures/bounded-query']?.get;
+    const fixtureIngest = spec.paths['/v1/machine-execution/bigquery/fixtures/ingest']?.post;
+
+    expect(ingest).toBeTruthy();
+    expect(fixtureSample).toBeTruthy();
+    expect(fixtureIngest).toBeTruthy();
+
+    expect(String(ingest.description)).toContain('Admin token required');
+    expect(JSON.stringify(ingest.responses)).toContain('admin_token_required');
+    expect(JSON.stringify(ingest)).toContain('service-specific execution receipt only');
+    expect(JSON.stringify(ingest)).toContain('not market-wide proof');
+    expect(JSON.stringify(ingest)).toContain('not payment proof unless payment evidence exists');
+    expect(JSON.stringify(ingest)).toContain('not benchmark proof');
+    expect(JSON.stringify(ingest)).toContain('not winner proof');
+
+    expect(String(fixtureSample.description)).toContain('Fixture-only route');
+    expect(String(fixtureSample.description)).toContain('does not execute live BigQuery');
+    expect(String(fixtureSample.description)).toContain('does not require translated_text_preview');
+    expect(String(fixtureSample.description)).toContain('payment_status remains not_confirmed unless payment evidence exists');
+    expect(String(fixtureSample.description)).toContain('bounded public/synthetic query');
+    expect(JSON.stringify(fixtureSample)).not.toContain('live BigQuery execution');
+
+    expect(String(fixtureIngest.description)).toContain('Fixture-only ingest path');
+    expect(String(fixtureIngest.description)).toContain('Does not execute live BigQuery');
+    expect(String(fixtureIngest.description)).toContain('not benchmark proof');
+    expect(String(fixtureIngest.description)).toContain('not winner proof');
+    expect(JSON.stringify(fixtureIngest.responses)).toContain('admin_token_required');
+
+    await app.close();
+  });
 });
