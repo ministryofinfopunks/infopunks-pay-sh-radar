@@ -99,6 +99,7 @@ import {
   ingestAnyTransExecutionArtifact,
   runTranslationExecutionRoute
 } from '../services/machineExecutionService';
+import { validateMachineExecutionProofByProfile } from '../services/machineExecutionProofProfiles';
 import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
@@ -239,12 +240,14 @@ const MachineExecutionReceiptIngestSchema = z.object({
   if ('benchmark' in candidate || 'benchmark_claim' in candidate || 'winner' in candidate || 'winner_claim' in candidate) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'benchmark_or_winner_claim_fields_not_allowed' });
   }
-  if (value.execution_status === 'succeeded') {
-    const preview = value.response_summary && typeof value.response_summary.translated_text_preview === 'string'
-      ? value.response_summary.translated_text_preview.trim()
-      : '';
-    if (!value.execution_occurred) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'execution_occurred=true required for succeeded execution_status' });
-    if (!preview.length) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'response_summary.translated_text_preview required for succeeded execution_status' });
+  const proofValidation = validateMachineExecutionProofByProfile({
+    service_id: value.service_id,
+    execution_status: value.execution_status,
+    execution_occurred: value.execution_occurred,
+    response_summary: value.response_summary
+  });
+  for (const issue of proofValidation.issues) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: issue });
   }
   if (value.payment_occurred && value.payment_evidence == null) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'payment_occurred requires payment_evidence' });

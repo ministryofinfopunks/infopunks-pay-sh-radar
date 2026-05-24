@@ -1,5 +1,6 @@
 import { appendMachineReceipt, listRecentMachinePreflightReceipts, runMachinePreflight, type MachinePreflightReceipt } from './machinePreflightService';
 import { getMachineMarketServiceById } from './machineMarketService';
+import { validateMachineExecutionProofByProfile } from './machineExecutionProofProfiles';
 
 export type TranslationExecutionRequest = {
   machine_id: string;
@@ -299,16 +300,24 @@ export function deprecatedCloudTranslationExecutionResponse() {
 export async function ingestMachineExecutionReceipt(input: MachineExecutionReceiptIngestRequest): Promise<MachineExecutionReceiptIngestResponse> {
   const scopeService = getMachineMarketServiceById(input.service_id) ?? getMachineMarketServiceById('cloud-translation');
   if (!scopeService) throw new Error('machine_execution_scope_service_not_found');
-  const caveats = [...MACHINE_EXECUTION_RECEIPT_REQUIRED_CAVEATS];
+  const proofValidation = validateMachineExecutionProofByProfile({
+    service_id: input.service_id,
+    execution_status: input.execution_status,
+    execution_occurred: input.execution_occurred,
+    response_summary: input.response_summary
+  });
+  const caveats = [
+    ...MACHINE_EXECUTION_RECEIPT_REQUIRED_CAVEATS,
+    ...proofValidation.profile.default_caveats,
+    `Proof profile: ${proofValidation.profile.profile_id}.`
+  ];
   const hasPaymentEvidence = input.payment_evidence != null;
   const paymentOccurred = input.payment_occurred && hasPaymentEvidence;
   if (input.payment_occurred && !hasPaymentEvidence) caveats.push('Payment receipt is not claimed unless payment evidence is present.');
 
-  const successSummaryPreview = typeof input.response_summary?.translated_text_preview === 'string'
-    && input.response_summary.translated_text_preview.trim().length > 0;
-  const isExecutionTested = input.execution_occurred && input.execution_status === 'succeeded' && successSummaryPreview;
-  if (input.execution_status === 'succeeded' && !successSummaryPreview) {
-    caveats.push('Execution success claim rejected for execution-tested because translated_text_preview is missing.');
+  const isExecutionTested = proofValidation.success_proof_eligible;
+  if (input.execution_status === 'succeeded' && proofValidation.issues.length > 0) {
+    caveats.push(`Execution success claim rejected for execution-tested because ${proofValidation.issues.join('; ')}.`);
   }
   if (input.execution_status !== 'succeeded') caveats.push('Failed or non-success execution artifacts do not become execution-tested.');
 

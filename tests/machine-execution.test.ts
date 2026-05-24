@@ -295,6 +295,228 @@ describe('machine execution anytrans translation route', () => {
     await app.close();
   });
 
+  it('accepts BigQuery profile success without translated_text_preview', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/receipts/ingest',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: payload.machine_id,
+        service_id: 'bigquery',
+        fqn: 'google-cloud/bigquery/query',
+        source_market: 'robotic.sh',
+        chain: 'unknown',
+        execution_status: 'succeeded',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-22T00:00:00.000Z',
+        execution_completed_at: '2026-05-22T00:00:02.000Z',
+        execution_latency_ms: 2000,
+        request_summary: { statement: 'SELECT 1' },
+        response_summary: {
+          query_label: 'synthetic_row_count_check',
+          row_count: 1,
+          result_preview: [{ value: 1 }],
+          dataset_classification: 'synthetic',
+          bounded_query_confirmed: true
+        },
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'manual' }
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.json().data.evidence_stage_after).toBe('execution-tested');
+    await app.close();
+  });
+
+  it('accepts Stableupload tiny fixture success', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/receipts/ingest',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: payload.machine_id,
+        service_id: 'stableupload',
+        fqn: 'stableupload/upload',
+        source_market: 'pay.sh',
+        chain: 'solana',
+        execution_status: 'succeeded',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-22T00:00:00.000Z',
+        execution_completed_at: '2026-05-22T00:00:01.000Z',
+        execution_latency_ms: 1000,
+        request_summary: { fixture: 'tiny.txt' },
+        response_summary: {
+          file_size_bytes: 128,
+          file_hash: 'sha256:abc',
+          upload_reference: 'upl_123',
+          sensitive_data_flag: false
+        },
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'manual' }
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.json().data.evidence_stage_after).toBe('execution-tested');
+    await app.close();
+  });
+
+  it('accepts NAVER geocode lookup only when non-operational flags are true', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/receipts/ingest',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: payload.machine_id,
+        service_id: 'naver-maps',
+        fqn: 'naver/maps/geocode',
+        source_market: 'robotic.sh',
+        chain: 'unknown',
+        execution_status: 'succeeded',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-22T00:00:00.000Z',
+        execution_completed_at: '2026-05-22T00:00:01.000Z',
+        execution_latency_ms: 1000,
+        request_summary: { query: 'Seoul Station' },
+        response_summary: {
+          query_label: 'seoul_station_lookup',
+          geocode_result_preview: 'Seoul Station, KR',
+          coordinates_present: true,
+          no_robot_command: true,
+          no_physical_movement: true
+        },
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'manual' }
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.json().data.evidence_stage_after).toBe('execution-tested');
+    await app.close();
+  });
+
+  it('rejects NAVER driving/dispatch artifacts for geocode profile', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/receipts/ingest',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: payload.machine_id,
+        service_id: 'naver-maps',
+        fqn: 'naver/maps/direction',
+        source_market: 'robotic.sh',
+        chain: 'unknown',
+        execution_status: 'succeeded',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-22T00:00:00.000Z',
+        execution_completed_at: '2026-05-22T00:00:01.000Z',
+        execution_latency_ms: 1000,
+        request_summary: { query: 'A to B' },
+        response_summary: {
+          query_label: 'route_attempt',
+          geocode_result_preview: 'preview',
+          coordinates_present: true,
+          no_robot_command: true,
+          no_physical_movement: true,
+          driving_directions: 'turn left',
+          robot_dispatch: true
+        },
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'manual' }
+      }
+    });
+    expect(response.statusCode).toBe(400);
+    expect(response.json().error).toBe('invalid_machine_execution_receipt_ingest');
+    await app.close();
+  });
+
+  it('rejects NAVER geocode receipt when no_robot_command/no_physical_movement are not true', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/receipts/ingest',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: payload.machine_id,
+        service_id: 'naver-maps',
+        fqn: 'naver/maps/geocode',
+        source_market: 'robotic.sh',
+        chain: 'unknown',
+        execution_status: 'succeeded',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-22T00:00:00.000Z',
+        execution_completed_at: '2026-05-22T00:00:01.000Z',
+        execution_latency_ms: 1000,
+        request_summary: { query: 'Seoul Station' },
+        response_summary: {
+          query_label: 'seoul_station_lookup',
+          geocode_result_preview: 'Seoul Station, KR',
+          coordinates_present: true,
+          no_robot_command: false,
+          no_physical_movement: false
+        },
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'manual' }
+      }
+    });
+    expect(response.statusCode).toBe(400);
+    expect(response.json().error).toBe('invalid_machine_execution_receipt_ingest');
+    await app.close();
+  });
+
+  it('keeps payment/benchmark/winner claims constrained for not_confirmed payment receipts', async () => {
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/machine-execution/receipts/ingest',
+      headers: { authorization: 'Bearer secret' },
+      payload: {
+        machine_id: payload.machine_id,
+        service_id: 'bigquery',
+        fqn: 'google-cloud/bigquery/query',
+        source_market: 'robotic.sh',
+        chain: 'unknown',
+        execution_status: 'succeeded',
+        execution_occurred: true,
+        payment_occurred: false,
+        payment_evidence: null,
+        execution_started_at: '2026-05-22T00:00:00.000Z',
+        execution_completed_at: '2026-05-22T00:00:01.000Z',
+        execution_latency_ms: 1000,
+        request_summary: { statement: 'SELECT 1' },
+        response_summary: {
+          query_label: 'synthetic_row_count_check',
+          row_count: 1,
+          result_preview: [{ value: 1 }],
+          dataset_classification: 'synthetic',
+          bounded_query_confirmed: true
+        },
+        executor: { name: 'infopunks-pay-sh-agent-harness', mode: 'manual' }
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    const data = response.json().data;
+    expect(data.payment_status).toBe('not_confirmed');
+    expect(data.caveats).toContain('Not market-wide proof.');
+    expect(data.caveats).toContain('Not payment proof.');
+    expect(data.caveats).toContain('Not benchmark proof.');
+    expect(data.caveats).toContain('Not winner proof.');
+    await app.close();
+  });
+
   it('rejects wrong fqn/source/chain or unsupported service_id on artifact ingest', async () => {
     process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
     const app = await createApp(emptyIntelligenceStore());
