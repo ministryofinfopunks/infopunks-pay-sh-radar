@@ -6344,7 +6344,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
   top: 12px;
   z-index: 45;
   display: grid !important;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: minmax(180px, auto) minmax(0, 1fr);
   align-items: center !important;
   gap: 14px;
   margin-bottom: 22px;
@@ -6357,6 +6357,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 }
 
 .machine-market-toolbar .nav-brand {
+  min-width: 180px;
   min-height: var(--machine-nav-height);
   padding-inline: 17px;
   border: 1px solid rgba(210,255,226,.1);
@@ -6366,10 +6367,12 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 .machine-market-toolbar .terminal-nav {
   grid-column: auto;
   grid-row: auto;
+  display: flex;
   justify-content: flex-end;
   align-items: center;
   gap: 6px;
-  overflow: visible;
+  min-width: 0;
+  overflow: hidden;
   flex-wrap: nowrap;
 }
 
@@ -6411,6 +6414,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 .machine-control-plane-more {
   position: relative;
   flex: 0 0 auto;
+  margin-left: auto;
 }
 
 .machine-control-plane-summary {
@@ -6470,6 +6474,11 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
   line-height: 1.1;
   text-decoration: none;
   vertical-align: middle;
+}
+
+.machine-market-toolbar .machine-control-plane-link {
+  flex: 0 1 auto;
+  min-width: 0;
 }
 
 .machine-market-hero {
@@ -6874,13 +6883,22 @@ summary:focus-visible {
 
 @media (max-width: 1100px) {
   .machine-market-toolbar {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(170px, auto) minmax(0, 1fr);
     border-radius: 26px;
   }
 
   .machine-market-toolbar .terminal-nav {
-    justify-content: flex-start;
-    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .machine-market-toolbar .machine-control-plane-link.priority-medium:not([aria-current="page"]) {
+    display: none;
+  }
+}
+
+@media (max-width: 920px) {
+  .machine-market-toolbar .machine-control-plane-link.priority-high:not([aria-current="page"]) {
+    display: none;
   }
 }
 
@@ -6912,10 +6930,12 @@ summary:focus-visible {
     position: static;
     padding: 10px;
     border-radius: 22px;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .machine-market-toolbar .nav-brand {
     width: 100%;
+    min-width: 0;
   }
 
   .machine-market-toolbar .terminal-nav {
@@ -6934,6 +6954,7 @@ summary:focus-visible {
 
   .machine-control-plane-more {
     width: 100%;
+    margin-left: 0;
   }
 
   .machine-control-plane-menu {

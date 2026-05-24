@@ -12576,27 +12576,27 @@ function MachineControlPlaneNavLinks({
   current: MachineControlPlaneNavCurrent | null;
   includeSnapshot?: boolean;
 }) {
-  const primaryLinks: Array<{ href: string; label: string; key: MachineControlPlaneNavCurrent }> = [
-    { href: '/machine-market', label: 'Machine Market', key: 'machine-market' },
-    { href: '/machine-rail-coverage', label: 'Rail Coverage', key: 'machine-rail-coverage' },
-    { href: '/machine-route-risk-matrix', label: 'Route Risk', key: 'machine-route-risk-matrix' },
-    { href: '/machine-first-safe-routes', label: 'First Safe Queue', key: 'machine-first-safe-routes' },
-    { href: '/machine-benchmark-readiness', label: 'Benchmark Readiness', key: 'machine-benchmark-readiness' },
+  const primaryLinks: Array<{ href: string; label: string; key: MachineControlPlaneNavCurrent; priorityClass: string }> = [
+    { href: '/machine-market', label: 'Machine Market', key: 'machine-market', priorityClass: 'priority-core' },
+    { href: '/machine-rail-coverage', label: 'Rail Coverage', key: 'machine-rail-coverage', priorityClass: 'priority-core' },
+    { href: '/machine-route-risk-matrix', label: 'Route Risk', key: 'machine-route-risk-matrix', priorityClass: 'priority-core' },
+    { href: '/machine-first-safe-routes', label: 'First Safe Queue', key: 'machine-first-safe-routes', priorityClass: 'priority-high' },
+    { href: '/machine-benchmark-readiness', label: 'Benchmark Readiness', key: 'machine-benchmark-readiness', priorityClass: 'priority-high' },
+    { href: '/machine-receipts', label: 'Receipts', key: 'machine-receipts', priorityClass: 'priority-medium' }
+  ];
+  if (includeSnapshot) primaryLinks.push({ href: '/machine-economy-snapshot', label: 'Snapshot', key: 'machine-economy-snapshot', priorityClass: 'priority-medium' });
+
+  const secondaryLinks: Array<{ href: string; label: string; key: MachineControlPlaneNavCurrent | 'radar-terminal' }> = [
     { href: '/machine-benchmark-methodology', label: 'Benchmark Methodology', key: 'machine-benchmark-methodology' },
     { href: '/machine-comparable-routes', label: 'Comparable Routes', key: 'machine-comparable-routes' },
     { href: '/machine-translation-evidence', label: 'Translation Evidence', key: 'machine-translation-evidence' },
     { href: '/machine-proof-ladder', label: 'Proof Ladder', key: 'machine-proof-ladder' },
-    { href: '/machine-receipts', label: 'Receipts', key: 'machine-receipts' }
-  ];
-  if (includeSnapshot) primaryLinks.push({ href: '/machine-economy-snapshot', label: 'Snapshot', key: 'machine-economy-snapshot' });
-
-  const secondaryLinks: Array<{ href: string; label: string; key: MachineControlPlaneNavCurrent | 'radar-terminal' }> = [
-    { href: '/machine-execution-shortlist', label: 'Proof Plans', key: 'machine-execution-shortlist' },
-    { href: '/machine-readiness-matrix', label: 'Readiness Matrix', key: 'machine-readiness-matrix' },
-    { href: '/machine-market-map', label: 'Market Map', key: 'machine-market-map' },
     { href: '/machine-execution-blockers', label: 'Execution Blockers', key: 'machine-execution-blockers' },
     { href: '/machine-market-changelog', label: 'Changelog', key: 'machine-market-changelog' },
     { href: '/machine-no-claim-ledger', label: 'No-Claim Ledger', key: 'machine-no-claim-ledger' },
+    { href: '/machine-readiness-matrix', label: 'Readiness Matrix', key: 'machine-readiness-matrix' },
+    { href: '/machine-market-map', label: 'Market Map', key: 'machine-market-map' },
+    { href: '/machine-execution-shortlist', label: 'Proof Plans', key: 'machine-execution-shortlist' },
     { href: '/', label: 'Radar Terminal', key: 'radar-terminal' }
   ];
   const secondaryActive = secondaryLinks.some((link) => link.key === current);
@@ -12604,7 +12604,7 @@ function MachineControlPlaneNavLinks({
   return <>
     {primaryLinks.map((link) => {
       const active = current === link.key;
-      return <a key={link.href} className={active ? 'active' : ''} href={link.href} aria-current={active ? 'page' : undefined}>{link.label}</a>;
+      return <a key={link.href} className={`machine-control-plane-link ${link.priorityClass}${active ? ' active' : ''}`} href={link.href} aria-current={active ? 'page' : undefined}>{link.label}</a>;
     })}
     <details className={`machine-control-plane-more ${secondaryActive ? 'active' : ''}`}>
       <summary className="machine-control-plane-summary" aria-label="More Machine Economy control surfaces">More</summary>
