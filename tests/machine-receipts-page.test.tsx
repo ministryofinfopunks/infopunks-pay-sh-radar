@@ -155,6 +155,8 @@ describe('machine receipts page', () => {
     expect(container.textContent).toContain('Denied');
     expect(container.textContent).toContain('Storage: Durable JSONL.');
     expect(container.textContent).toContain('Preflight and execution receipts, not payment receipts.');
+    expect(container.textContent).toContain('Receipt source, not robotic.sh catalog source of truth.');
+    expect(container.textContent).toContain('Preflight receipt ≠ execution. Execution receipt ≠ payment proof.');
   });
 
   it('filters work', async () => {
@@ -186,6 +188,7 @@ describe('machine receipts page', () => {
 
     expect(container.querySelector('[aria-label="Receipt detail drawer"]')?.textContent).toContain('Show policy checks');
     expect(container.querySelector('[aria-label="Receipt detail drawer"]')?.textContent).toContain('Machine preflight only. No service was executed.');
+    expect(container.querySelector('[aria-label="Receipt detail drawer"]')?.textContent).toContain('Receipt source, not robotic.sh catalog source of truth.');
   });
 
   it('receipt detail collapses policy checks behind a summary by default', async () => {

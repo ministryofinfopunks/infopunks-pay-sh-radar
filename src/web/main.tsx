@@ -4388,7 +4388,7 @@ function MachineExecutionBlockersPage() {
       <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Execution Blockers navigation">
         <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
         <div className="terminal-nav" aria-label="Machine Economy navigation">
-          <MachineControlPlaneNavLinks current={null} />
+          <MachineControlPlaneNavLinks current="machine-execution-blockers" />
         </div>
       </nav>
     </header>
@@ -4491,7 +4491,7 @@ function MachineMarketChangelogPage() {
       <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Market Changelog navigation">
         <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
         <div className="terminal-nav" aria-label="Machine Economy navigation">
-          <MachineControlPlaneNavLinks current={null} />
+          <MachineControlPlaneNavLinks current="machine-market-changelog" />
         </div>
       </nav>
     </header>
@@ -4566,7 +4566,7 @@ function MachineNoClaimLedgerPage() {
       <nav className="global-toolbar machine-market-toolbar" aria-label="Machine No-Claim Ledger navigation">
         <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
         <div className="terminal-nav" aria-label="Machine Economy navigation">
-          <MachineControlPlaneNavLinks current={null} />
+          <MachineControlPlaneNavLinks current="machine-no-claim-ledger" />
         </div>
       </nav>
     </header>
@@ -4662,7 +4662,7 @@ function MachineReadinessMatrixPage() {
       <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Readiness Matrix navigation">
         <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
         <div className="terminal-nav" aria-label="Machine Economy navigation">
-          <MachineControlPlaneNavLinks current={null} />
+          <MachineControlPlaneNavLinks current="machine-readiness-matrix" />
         </div>
       </nav>
     </header>
@@ -4787,7 +4787,7 @@ function MachineMarketMapPage() {
       <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Market Map navigation">
         <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
         <div className="terminal-nav" aria-label="Machine Economy navigation">
-          <MachineControlPlaneNavLinks current={null} />
+          <MachineControlPlaneNavLinks current="machine-market-map" />
         </div>
       </nav>
     </header>
@@ -6472,6 +6472,10 @@ function MachineReceiptsPage() {
         </div>
       </section>
       <MachineMethodologyNote />
+      <section className="panel machine-market-caveat" aria-label="Machine receipt source caveats">
+        <p>Receipt source, not robotic.sh catalog source of truth.</p>
+        <p>Preflight receipt ≠ execution. Execution receipt ≠ payment proof.</p>
+      </section>
       {storage && <p className="panel-caption">
         Storage: {storage.durable ? 'Durable' : 'Non-durable'} {storage.adapter.toUpperCase()}.
         {storage.demo_seed_enabled ? ' Demo mode active.' : ''} Preflight and execution receipts, not payment receipts.
@@ -6581,6 +6585,7 @@ function ReceiptDetailDrawer({ receipt, rawOpen, onRawToggle }: { receipt: Machi
     </div>
     <MachineEvidenceClaims serviceOrReceipt={receipt} />
     <p className="panel-caption">{taxonomy.definition}</p>
+    <p className="panel-caption">Receipt source, not robotic.sh catalog source of truth. Preflight receipt ≠ execution. Execution receipt ≠ payment proof.</p>
     <section className="machine-check-summary" aria-label="Policy check summary">
       <span><b>{checksPassed}</b> checks passed</span>
       <span><b>{receipt.violations.length}</b> violations</span>
@@ -11355,28 +11360,40 @@ function MachineControlPlaneNavLinks({
   current: MachineControlPlaneNavCurrent | null;
   includeSnapshot?: boolean;
 }) {
-  const links: Array<{ href: string; label: string; key: MachineControlPlaneNavCurrent | 'radar-terminal' }> = [
+  const primaryLinks: Array<{ href: string; label: string; key: MachineControlPlaneNavCurrent }> = [
     { href: '/machine-market', label: 'Machine Market', key: 'machine-market' },
     { href: '/machine-rail-coverage', label: 'Rail Coverage', key: 'machine-rail-coverage' },
     { href: '/machine-route-risk-matrix', label: 'Route Risk', key: 'machine-route-risk-matrix' },
     { href: '/machine-first-safe-routes', label: 'First Safe Queue', key: 'machine-first-safe-routes' },
+    { href: '/machine-receipts', label: 'Receipts', key: 'machine-receipts' }
+  ];
+  if (includeSnapshot) primaryLinks.push({ href: '/machine-economy-snapshot', label: 'Snapshot', key: 'machine-economy-snapshot' });
+
+  const secondaryLinks: Array<{ href: string; label: string; key: MachineControlPlaneNavCurrent | 'radar-terminal' }> = [
     { href: '/machine-execution-shortlist', label: 'Proof Plans', key: 'machine-execution-shortlist' },
     { href: '/machine-readiness-matrix', label: 'Readiness Matrix', key: 'machine-readiness-matrix' },
     { href: '/machine-market-map', label: 'Market Map', key: 'machine-market-map' },
     { href: '/machine-execution-blockers', label: 'Execution Blockers', key: 'machine-execution-blockers' },
     { href: '/machine-market-changelog', label: 'Changelog', key: 'machine-market-changelog' },
     { href: '/machine-no-claim-ledger', label: 'No-Claim Ledger', key: 'machine-no-claim-ledger' },
-    { href: '/machine-receipts', label: 'Receipts', key: 'machine-receipts' }
+    { href: '/', label: 'Radar Terminal', key: 'radar-terminal' }
   ];
-
-  if (includeSnapshot) links.push({ href: '/machine-economy-snapshot', label: 'Snapshot', key: 'machine-economy-snapshot' });
-  links.push({ href: '/', label: 'Radar Terminal', key: 'radar-terminal' });
+  const secondaryActive = secondaryLinks.some((link) => link.key === current);
 
   return <>
-    {links.map((link) => {
+    {primaryLinks.map((link) => {
       const active = current === link.key;
       return <a key={link.href} className={active ? 'active' : ''} href={link.href} aria-current={active ? 'page' : undefined}>{link.label}</a>;
     })}
+    <details className={`machine-control-plane-more ${secondaryActive ? 'active' : ''}`}>
+      <summary className="machine-control-plane-summary" aria-label="More Machine Economy control surfaces">More</summary>
+      <div className="machine-control-plane-menu" aria-label="Secondary Machine Economy navigation">
+        {secondaryLinks.map((link) => {
+          const active = current === link.key;
+          return <a key={link.href} className={active ? 'active' : ''} href={link.href} aria-current={active ? 'page' : undefined}>{link.label}</a>;
+        })}
+      </div>
+    </details>
   </>;
 }
 

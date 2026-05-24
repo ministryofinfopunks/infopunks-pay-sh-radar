@@ -322,6 +322,9 @@ describe('machine market page', () => {
     expect(topNav?.textContent).toContain('Proof Plans');
     expect(topNav?.textContent).toContain('Receipts');
     expect(topNav?.textContent).toContain('Radar Terminal');
+    expect(topNav?.querySelector('.machine-control-plane-summary')?.textContent).toContain('More');
+    expect(topNav?.querySelector('.machine-control-plane-menu a[href="/machine-readiness-matrix"]')?.textContent).toContain('Readiness Matrix');
+    expect(topNav?.querySelector('.machine-control-plane-menu a[href="/machine-market-map"]')?.textContent).toContain('Market Map');
     expect(topNav?.textContent).not.toContain('Benchmarks');
     expect(topNav?.textContent).not.toContain('Machine Preflight');
     expect(topNav?.textContent).not.toContain('Execution Detail');
