@@ -71,6 +71,14 @@ function installFetch() {
       ],
       caveats: ['Readiness state only; no benchmark execution is run by this endpoint.']
     });
+    if (path === '/v1/machine-execution/benchmark-gate') return json({
+      benchmark_execution_allowed: false,
+      allowed_lanes: [],
+      blocked_lanes: ['machine_translation', 'data_query_bigquery', 'storage_stableupload', 'navigation_naver_geocode'],
+      blocking_reasons: ['comparable_routes_missing', 'readiness_not_benchmark_ready', 'methodology_incomplete'],
+      required_conditions: ['readiness_status = benchmark_ready', 'methodology_artifact_schema = present', 'comparable_route_count >= 2'],
+      generated_at: '2026-05-24T00:00:00.000Z'
+    });
     return Promise.resolve(new Response('{}', { status: 404 }));
   });
 }
@@ -121,6 +129,10 @@ describe('machine benchmark readiness page', () => {
     expect(text).toMatch(/single_route_repeatability_ready|comparable_routes_missing/);
     expect(text).toContain('Benchmark claims0');
     expect(text).toContain('Winner claims0');
+    expect(text).toContain('Benchmark gate is closed');
+    expect(text).toMatch(/Gate status:\s*closed/);
+    expect(text).toMatch(/No benchmark claim:\s*true/);
+    expect(text).toMatch(/No winner claim:\s*true/);
     expect(text).not.toMatch(/benchmark winner|best provider|worst provider/i);
   });
 });

@@ -1546,4 +1546,21 @@ describe('machine execution anytrans translation route', () => {
     expect(JSON.stringify(data)).not.toMatch(/best route|best provider|winner_claimed=true/i);
     await app.close();
   });
+
+  it('machine benchmark gate API returns closed gate and blocking reasons when no lane passes', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({ method: 'GET', url: '/v1/machine-execution/benchmark-gate' });
+    expect(response.statusCode).toBe(200);
+    const data = response.json().data;
+    expect(data.benchmark_execution_allowed).toBe(false);
+    expect(Array.isArray(data.allowed_lanes)).toBe(true);
+    expect(data.allowed_lanes.length).toBe(0);
+    expect(Array.isArray(data.blocked_lanes)).toBe(true);
+    expect(data.blocking_reasons).toContain('comparable_routes_missing');
+    expect(data.blocking_reasons).toContain('readiness_not_benchmark_ready');
+    expect(data.required_conditions).toContain('readiness_status = benchmark_ready');
+    expect(data.required_conditions).toContain('methodology_artifact_schema = present');
+    expect(data.required_conditions).toContain('comparable_route_count >= 2');
+    await app.close();
+  });
 });

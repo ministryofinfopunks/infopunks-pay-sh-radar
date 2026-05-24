@@ -375,6 +375,21 @@ export type MachineBenchmarkMethodologyArtifactsReport = {
   };
   caveats: string[];
 };
+export type MachineBenchmarkGateBlockingReason =
+  | 'comparable_routes_missing'
+  | 'methodology_incomplete'
+  | 'readiness_not_benchmark_ready'
+  | 'repeatability_missing'
+  | 'safety_policy_blocked'
+  | 'artifact_schema_missing';
+export type MachineBenchmarkGateCheck = {
+  benchmark_execution_allowed: boolean;
+  allowed_lanes: MachineBenchmarkReadinessLane['lane_id'][];
+  blocked_lanes: MachineBenchmarkReadinessLane['lane_id'][];
+  blocking_reasons: MachineBenchmarkGateBlockingReason[];
+  required_conditions: string[];
+  generated_at: string;
+};
 export type StableuploadTinyFixtureOptions = {
   machine_id?: string;
   execution_completed_at?: string;
@@ -1633,6 +1648,56 @@ export async function buildMachineBenchmarkMethodologyArtifacts(): Promise<Machi
       ]
     },
     caveats
+  };
+}
+
+export async function buildMachineBenchmarkGateCheck(): Promise<MachineBenchmarkGateCheck> {
+  const [readiness, methodology] = await Promise.all([
+    buildMachineBenchmarkReadinessReport(),
+    buildMachineBenchmarkMethodologyArtifacts()
+  ]);
+  const artifactsByLane = new Map(methodology.methodology_artifacts.map((artifact) => [artifact.lane_id, artifact] as const));
+  const required_conditions = [
+    'readiness_status = benchmark_ready',
+    'methodology_artifact_schema = present',
+    'comparable_route_count >= 2'
+  ];
+  const allowed_lanes: MachineBenchmarkGateCheck['allowed_lanes'] = [];
+  const blocked_lanes: MachineBenchmarkGateCheck['blocked_lanes'] = [];
+  const blocking = new Set<MachineBenchmarkGateBlockingReason>();
+
+  for (const lane of readiness.lanes) {
+    const artifact = artifactsByLane.get(lane.lane_id);
+    const schemaPresent = artifact?.methodology_artifact_schema === 'present';
+    const benchmarkReady = lane.readiness_status === 'benchmark_ready';
+    const comparableReady = lane.comparable_route_count >= 2;
+    const allowed = benchmarkReady && schemaPresent && comparableReady;
+    if (allowed) {
+      allowed_lanes.push(lane.lane_id);
+      continue;
+    }
+    blocked_lanes.push(lane.lane_id);
+    if (!comparableReady || lane.missing_requirements.includes('comparable_routes_missing')) blocking.add('comparable_routes_missing');
+    if (!schemaPresent) blocking.add('artifact_schema_missing');
+    if (artifact && artifact.missing_requirements.length > 0) blocking.add('methodology_incomplete');
+    if (!benchmarkReady) blocking.add('readiness_not_benchmark_ready');
+    if (lane.repeatability_state === 'missing' || lane.missing_requirements.includes('repeatability_missing')) blocking.add('repeatability_missing');
+    if (
+      lane.missing_requirements.includes('safety_policy_compatibility_required')
+      || artifact?.missing_requirements.includes('safety_policy_compatibility_required')
+    ) {
+      blocking.add('safety_policy_blocked');
+    }
+  }
+
+  if (!allowed_lanes.length && !blocking.size) blocking.add('readiness_not_benchmark_ready');
+  return {
+    benchmark_execution_allowed: allowed_lanes.length > 0,
+    allowed_lanes,
+    blocked_lanes,
+    blocking_reasons: [...blocking],
+    required_conditions,
+    generated_at: new Date().toISOString()
   };
 }
 

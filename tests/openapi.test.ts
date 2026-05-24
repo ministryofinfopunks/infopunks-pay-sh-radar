@@ -114,6 +114,7 @@ describe('openapi discovery', () => {
     const machineBenchmarkReadiness = spec.paths['/v1/machine-execution/benchmark-readiness']?.get;
     const machineComparableRoutes = spec.paths['/v1/machine-execution/comparable-routes']?.get;
     const machineBenchmarkMethodology = spec.paths['/v1/machine-execution/benchmark-methodology']?.get;
+    const machineBenchmarkGate = spec.paths['/v1/machine-execution/benchmark-gate']?.get;
     const stableuploadFixtureSample = spec.paths['/v1/machine-execution/stableupload/fixtures/tiny-fixture']?.get;
     const stableuploadFixtureIngest = spec.paths['/v1/machine-execution/stableupload/fixtures/ingest']?.post;
     const naverFixtureSample = spec.paths['/v1/machine-execution/naver/fixtures/geocode']?.get;
@@ -127,6 +128,7 @@ describe('openapi discovery', () => {
     expect(machineBenchmarkReadiness).toBeTruthy();
     expect(machineComparableRoutes).toBeTruthy();
     expect(machineBenchmarkMethodology).toBeTruthy();
+    expect(machineBenchmarkGate).toBeTruthy();
     expect(stableuploadFixtureSample).toBeTruthy();
     expect(stableuploadFixtureIngest).toBeTruthy();
     expect(naverFixtureSample).toBeTruthy();
@@ -183,6 +185,10 @@ describe('openapi discovery', () => {
     expect(String(machineBenchmarkMethodology?.description)).toContain('not benchmark evidence');
     expect(String(machineBenchmarkMethodology?.description)).toContain('does not claim winners');
     expect(String(machineBenchmarkMethodology?.description)).toContain('does not record benchmark artifacts');
+    expect(String(machineBenchmarkGate?.description)).toContain('does not run benchmarks');
+    expect(String(machineBenchmarkGate?.description)).toContain('does not create benchmark artifacts');
+    expect(String(machineBenchmarkGate?.description)).toContain('does not claim benchmark execution');
+    expect(String(machineBenchmarkGate?.description)).toContain('does not claim winners');
 
     expect(String(stableuploadFixtureSample.description)).toContain('Fixture-only route');
     expect(String(stableuploadFixtureSample.description)).toContain('does not execute live Stableupload');

@@ -603,6 +603,26 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       }
     )
   });
+  add('get', '/v1/machine-execution/benchmark-gate', {
+    tags: ['Machine Economy'],
+    summary: 'Get machine benchmark execution gate check',
+    description: `${SAFE_METADATA_NOTE} Returns benchmark gate-check state only. This endpoint does not run benchmarks, does not create benchmark artifacts, does not claim benchmark execution, and does not claim winners.`,
+    responses: envelopedResponses(
+      freeformObject(),
+      {
+        benchmark_execution_allowed: false,
+        allowed_lanes: [],
+        blocked_lanes: ['machine_translation', 'data_query_bigquery', 'storage_stableupload', 'navigation_naver_geocode'],
+        blocking_reasons: ['comparable_routes_missing', 'methodology_incomplete', 'readiness_not_benchmark_ready', 'repeatability_missing', 'safety_policy_blocked', 'artifact_schema_missing'],
+        required_conditions: [
+          'readiness_status = benchmark_ready',
+          'methodology_artifact_schema = present',
+          'comparable_route_count >= 2'
+        ],
+        generated_at: '2026-05-24T00:00:00.000Z'
+      }
+    )
+  });
   add('get', '/v1/machine-execution/stableupload/fixtures/tiny-fixture', {
     tags: ['Machine Economy'],
     summary: 'Get Stableupload tiny-fixture payload',

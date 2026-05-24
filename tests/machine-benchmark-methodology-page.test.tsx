@@ -40,6 +40,14 @@ function installFetch() {
         'No benchmark execution has been run by this scaffold.'
       ]
     });
+    if (path === '/v1/machine-execution/benchmark-gate') return json({
+      benchmark_execution_allowed: false,
+      allowed_lanes: [],
+      blocked_lanes: ['machine_translation', 'data_query_bigquery', 'storage_stableupload', 'navigation_naver_geocode'],
+      blocking_reasons: ['comparable_routes_missing', 'readiness_not_benchmark_ready', 'methodology_incomplete'],
+      required_conditions: ['readiness_status = benchmark_ready', 'methodology_artifact_schema = present', 'comparable_route_count >= 2'],
+      generated_at: '2026-05-24T00:00:00.000Z'
+    });
     return Promise.resolve(new Response('{}', { status: 404 }));
   });
 }
@@ -91,6 +99,11 @@ describe('machine benchmark methodology page', () => {
     expect(text).toContain('Data Query / BigQuery lane');
     expect(text).toContain('Storage / Stableupload lane');
     expect(text).toContain('Navigation / NAVER geocode lane');
+    expect(text).toContain('Benchmark gate is closed');
+    expect(text).toContain('Gate status: closed');
+    expect(text).toContain('No benchmark claim: true');
+    expect(text).toContain('No winner claim: true');
+    expect(text).not.toContain('benchmark execution completed');
     expect(text).not.toMatch(/best route|best provider|winner claimed true|benchmark winner/i);
   });
 });

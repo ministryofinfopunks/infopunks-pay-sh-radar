@@ -455,6 +455,14 @@ type MachineBenchmarkMethodologyReport = {
   };
   caveats: string[];
 };
+type MachineBenchmarkGateCheck = {
+  benchmark_execution_allowed: boolean;
+  allowed_lanes: Array<'machine_translation' | 'data_query_bigquery' | 'storage_stableupload' | 'navigation_naver_geocode'>;
+  blocked_lanes: Array<'machine_translation' | 'data_query_bigquery' | 'storage_stableupload' | 'navigation_naver_geocode'>;
+  blocking_reasons: Array<'comparable_routes_missing' | 'methodology_incomplete' | 'readiness_not_benchmark_ready' | 'repeatability_missing' | 'safety_policy_blocked' | 'artifact_schema_missing'>;
+  required_conditions: string[];
+  generated_at: string;
+};
 type MachineDossier = {
   machine_id: string;
   phase_scope: 'phase_2_pay_sh_robotic_sh';
@@ -1586,6 +1594,9 @@ function isMachineBenchmarkReadinessRoute(pathname: string) {
 }
 function isMachineComparableRoutesRoute(pathname: string) {
   return /^\/machine-comparable-routes\/?$/.test(pathname);
+}
+function isMachineProofLadderRoute(pathname: string) {
+  return /^\/machine-proof-ladder\/?$/.test(pathname);
 }
 function isMachineBenchmarkMethodologyRoute(pathname: string) {
   return /^\/machine-benchmark-methodology\/?$/.test(pathname);
@@ -3699,7 +3710,7 @@ function MachineMarketPage() {
       <section className="panel machine-market-caveat" aria-label="Coverage caveat">
         <p>Infopunks Radar mapped the entire listed robotic.sh machine-service market.</p>
         <p>Coverage refers to the 13 services visible in the observed robotic.sh market snapshot. 0 market-wide execution claims. Service-specific execution receipts are scoped to the recorded route.</p>
-        <p><a className="execute compact secondary" href="/machine-market-map">View market map</a> <a className="execute compact secondary" href="/machine-readiness-matrix">View readiness matrix</a> <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a> <a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a> <a className="execute compact secondary" href="/machine-route-risk-matrix">View route risk matrix</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a> <a className="execute compact secondary" href="/machine-benchmark-readiness">View benchmark readiness</a> <a className="execute compact secondary" href="/machine-benchmark-methodology">View benchmark methodology</a> <a className="execute compact secondary" href="/machine-comparable-routes">View comparable routes</a> <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a></p>
+        <p><a className="execute compact secondary" href="/machine-market-map">View market map</a> <a className="execute compact secondary" href="/machine-readiness-matrix">View readiness matrix</a> <a className="execute compact secondary" href="/machine-economy-snapshot">View public snapshot</a> <a className="execute compact secondary" href="/machine-rail-coverage">View rail coverage</a> <a className="execute compact secondary" href="/machine-route-risk-matrix">View route risk matrix</a> <a className="execute compact secondary" href="/machine-first-safe-routes">View first safe route queue</a> <a className="execute compact secondary" href="/machine-benchmark-readiness">View benchmark readiness</a> <a className="execute compact secondary" href="/machine-benchmark-methodology">View benchmark methodology</a> <a className="execute compact secondary" href="/machine-comparable-routes">View comparable routes</a> <a className="execute compact secondary" href="/machine-proof-ladder">View proof ladder</a> <a className="execute compact secondary" href="/machine-execution-shortlist">View execution shortlist</a></p>
       </section>
       <MachineEvidenceMethodologyDrawer />
       <EvidenceLadder services={services} />
@@ -4821,7 +4832,29 @@ function MachineExecutionBlockersPage() {
   </div>;
 }
 
+function MachineBenchmarkGatePanel({ gate }: { gate: MachineBenchmarkGateCheck }) {
+  const isOpen = gate.benchmark_execution_allowed;
+  return <section className="panel machine-market-brief" aria-label="Machine benchmark gate check">
+    <div className="panel-head"><div><p className="section-kicker">Benchmark gate check</p><h2>Benchmark gate</h2></div></div>
+    <p>Benchmark gate is closed until comparable routes, methodology, and readiness all pass.</p>
+    {!isOpen && <>
+      <p><b>Gate status:</b> closed</p>
+      <p><b>Why closed:</b> {gate.blocking_reasons.join(', ') || 'readiness_not_benchmark_ready'}</p>
+      <p><b>What must happen next:</b> {gate.required_conditions.join(' · ')}</p>
+      <p><b>No benchmark claim:</b> true</p>
+      <p><b>No winner claim:</b> true</p>
+    </>}
+    {isOpen && <>
+      <p><b>Gate status:</b> open</p>
+      <p><b>Eligible lane(s):</b> {gate.allowed_lanes.join(', ') || 'none'}</p>
+      <p><b>Required next action:</b> controlled benchmark run</p>
+      <p><b>Winner claim:</b> false by default unless explicit criteria and artifact exist</p>
+    </>}
+  </section>;
+}
+
 function MachineBenchmarkReadinessPage() {
+  const [gate, setGate] = useState<MachineBenchmarkGateCheck | null>(null);
   const [report, setReport] = useState<MachineBenchmarkReadinessReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -4832,10 +4865,13 @@ function MachineBenchmarkReadinessPage() {
     let cancelled = false;
     setLoading(true);
     setError(null);
-    api<{ data: MachineBenchmarkReadinessReport }>('/v1/machine-execution/benchmark-readiness')
-      .then((response) => {
+    Promise.all([
+      api<{ data: MachineBenchmarkReadinessReport }>('/v1/machine-execution/benchmark-readiness'),
+      api<{ data: MachineBenchmarkGateCheck }>('/v1/machine-execution/benchmark-gate')
+    ]).then(([response, gateResponse]) => {
         if (cancelled) return;
         setReport(response.data);
+        setGate(gateResponse.data);
         setLoading(false);
       })
       .catch((err) => {
@@ -4877,6 +4913,7 @@ function MachineBenchmarkReadinessPage() {
       {loading && <section className="panel" role="status"><p className="route-state">Loading machine benchmark readiness...</p></section>}
       {error && <section className="panel" role="alert"><p className="route-state error">Machine benchmark readiness unavailable: {error}</p></section>}
       {!loading && !error && report && <>
+        {gate && <MachineBenchmarkGatePanel gate={gate} />}
         <section className="grid four machine-market-summary" aria-label="Machine benchmark readiness summary">
           <article className="panel metric"><span>Benchmark claims</span><strong>{report.benchmark_claims}</strong><small>must remain 0 in readiness mode</small></article>
           <article className="panel metric"><span>Winner claims</span><strong>{report.winner_claims}</strong><small>must remain 0 in readiness mode</small></article>
@@ -4988,8 +5025,160 @@ function MachineComparableRoutesPage() {
   </div>;
 }
 
+type MachineProofLadderStage = {
+  stage: string;
+  meaning: string;
+  currentState: string;
+  proves: string;
+  doesNotProve: string;
+  href?: string;
+};
+
+const MACHINE_PROOF_LADDER_STAGES: MachineProofLadderStage[] = [
+  {
+    stage: 'Mapped',
+    meaning: 'robotic.sh-visible service exists in Radar.',
+    currentState: 'Radar maps the listed machine market into visible service records.',
+    proves: 'Visibility and mapping coverage exist for the service.',
+    doesNotProve: 'callable, executed, paid, benchmarked.',
+    href: '/machine-market'
+  },
+  {
+    stage: 'First-safe',
+    meaning: 'Radar selected safer proof paths.',
+    currentState: 'Radar ranks first-safe candidates and blocks avoid-first routes.',
+    proves: 'Safer early proof paths were selected before execution.',
+    doesNotProve: 'execution.',
+    href: '/machine-first-safe-routes'
+  },
+  {
+    stage: 'Receipt',
+    meaning: 'service-specific receipt exists.',
+    currentState: 'Radar records service-scoped receipts with strict caveats.',
+    proves: 'One service and route has recorded receipt evidence.',
+    doesNotProve: 'market-wide proof, payment proof, benchmark proof, winner proof.',
+    href: '/machine-receipts'
+  },
+  {
+    stage: 'Repeatability',
+    meaning: 'repeated receipts for one route/profile.',
+    currentState: 'Repeatability artifacts stay route/profile scoped until benchmark gates open.',
+    proves: 'The same route/profile produced repeated receipt evidence.',
+    doesNotProve: 'route superiority or benchmark.',
+    href: '/v1/machine-execution/repeatability/:service_id'
+  },
+  {
+    stage: 'Readiness',
+    meaning: 'Radar checks if a lane can be benchmarked.',
+    currentState: 'Readiness lanes track missing requirements before any benchmark claim.',
+    proves: 'A gate check exists for future benchmark eligibility.',
+    doesNotProve: 'benchmark evidence.',
+    href: '/machine-benchmark-readiness'
+  },
+  {
+    stage: 'Comparable routes',
+    meaning: 'Radar checks whether at least two fair routes exist.',
+    currentState: 'Comparable-route discovery tracks parity requirements across lanes.',
+    proves: 'Comparable route availability is explicitly checked.',
+    doesNotProve: 'benchmark result.',
+    href: '/machine-comparable-routes'
+  },
+  {
+    stage: 'Methodology',
+    meaning: 'artifact contract exists.',
+    currentState: 'Methodology schema defines artifact contract and claim boundaries.',
+    proves: 'Methodology requirements are documented and testable.',
+    doesNotProve: 'benchmark execution.',
+    href: '/machine-benchmark-methodology'
+  },
+  {
+    stage: 'Benchmark later',
+    meaning: 'only allowed when gate opens.',
+    currentState: 'Benchmark execution remains deferred until all gate conditions are true.',
+    proves: 'Benchmark timing is gated by explicit evidence thresholds.',
+    doesNotProve: 'superiority ranking, winner claim, or benchmark already run.'
+  }
+];
+
+function MachineProofLadderPage() {
+  const [gate, setGate] = useState<MachineBenchmarkGateCheck | null>(null);
+
+  useEffect(() => {
+    document.title = 'Machine Market Proof Ladder | Infopunks Pay.sh Radar';
+    setMetaTag('name', 'description', 'Public evidence-state ladder for Machine Market Radar. This page is evidence-state summary only, not benchmark evidence.');
+    let cancelled = false;
+    api<{ data: MachineBenchmarkGateCheck }>('/v1/machine-execution/benchmark-gate')
+      .then((response) => {
+        if (cancelled) return;
+        setGate(response.data);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setGate(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return <div className="shell machine-market-shell">
+    <a className="skip-link" href="#machine-proof-ladder-content">Skip to content</a>
+    <header className="site-header">
+      <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Proof Ladder navigation">
+        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <div className="terminal-nav" aria-label="Machine Economy navigation">
+          <MachineControlPlaneNavLinks current="machine-proof-ladder" />
+        </div>
+      </nav>
+    </header>
+    <main id="machine-proof-ladder-content" className="machine-market-page machine-benchmark-readiness-page" aria-label="Machine Market Proof Ladder">
+      <section className="panel hero machine-market-hero">
+        <div>
+          <p className="eyebrow">Public Proof Surface</p>
+          <h1>Machine Market Proof Ladder</h1>
+          <p className="copy">Radar does not jump from catalog listing to benchmark. It records the steps between visibility, proof, repeatability, methodology, and trust.</p>
+          <p className="panel-caption">Mapped → First-safe → Receipt → Repeatability → Readiness → Comparable routes → Methodology → Benchmark later</p>
+        </div>
+      </section>
+      <section className="panel machine-market-caveat" aria-label="Machine proof ladder doctrine">
+        <p>No comparable route, no benchmark.</p>
+        <p>No methodology, no artifact.</p>
+        <p>No artifact, no claim.</p>
+        <p>No criteria, no winner.</p>
+        <p>Service receipt ≠ market proof.</p>
+        <p>Repeatability ≠ winner.</p>
+      </section>
+      {gate && <MachineBenchmarkGatePanel gate={gate} />}
+      <section className="panel machine-service-table-panel" aria-label="Machine proof ladder stages">
+        <div className="panel-head"><div><p className="section-kicker">Evidence progression</p><h2>8 ladder stages</h2></div></div>
+        <div className="machine-service-table" role="table" aria-label="Machine proof ladder stage table">
+          <div className="machine-service-row machine-blocker-row head" role="row">
+            {['stage', 'what it means', 'current machine market state', 'what it proves', 'what it does not prove', 'surface'].map((heading) => <span key={heading} role="columnheader">{heading}</span>)}
+          </div>
+          {MACHINE_PROOF_LADDER_STAGES.map((item) => <div key={item.stage} className="machine-service-row machine-blocker-row" role="row">
+            <span role="cell"><strong>{item.stage}</strong></span>
+            <span role="cell">{item.meaning}</span>
+            <span role="cell"><small>{item.currentState}</small></span>
+            <span role="cell">{item.proves}</span>
+            <span role="cell"><small>{item.doesNotProve}</small></span>
+            <span role="cell">{item.href ? <a href={item.href}>{item.href}</a> : 'Gate only'}</span>
+          </div>)}
+        </div>
+      </section>
+      <section className="panel machine-market-brief" aria-label="Machine benchmark-later gate">
+        <div className="panel-head"><div><p className="section-kicker">Benchmark later gate</p><h2>Required conditions</h2></div></div>
+        <p><b>readiness_status</b> = benchmark_ready</p>
+        <p><b>methodology_artifact_schema</b> = present</p>
+        <p><b>comparable_route_count</b> &gt;= 2</p>
+        <p className="panel-caption">Evidence-state summary only. This page does not claim benchmark execution and does not claim a winner.</p>
+      </section>
+    </main>
+  </div>;
+}
+
 function MachineBenchmarkMethodologyPage() {
   const [report, setReport] = useState<MachineBenchmarkMethodologyReport | null>(null);
+  const [gate, setGate] = useState<MachineBenchmarkGateCheck | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -4999,10 +5188,13 @@ function MachineBenchmarkMethodologyPage() {
     let cancelled = false;
     setLoading(true);
     setError(null);
-    api<{ data: MachineBenchmarkMethodologyReport }>('/v1/machine-execution/benchmark-methodology')
-      .then((response) => {
+    Promise.all([
+      api<{ data: MachineBenchmarkMethodologyReport }>('/v1/machine-execution/benchmark-methodology'),
+      api<{ data: MachineBenchmarkGateCheck }>('/v1/machine-execution/benchmark-gate')
+    ]).then(([response, gateResponse]) => {
         if (cancelled) return;
         setReport(response.data);
+        setGate(gateResponse.data);
         setLoading(false);
       })
       .catch((err) => {
@@ -5043,6 +5235,7 @@ function MachineBenchmarkMethodologyPage() {
       {loading && <section className="panel" role="status"><p className="route-state">Loading machine benchmark methodology...</p></section>}
       {error && <section className="panel" role="alert"><p className="route-state error">Machine benchmark methodology unavailable: {error}</p></section>}
       {!loading && !error && report && <>
+        {gate && <MachineBenchmarkGatePanel gate={gate} />}
         <section className="panel machine-market-brief" aria-label="Global benchmark gate">
           <div className="panel-head"><div><p className="section-kicker">Global benchmark gate</p><h2>Execution gate</h2></div></div>
           <p><b>benchmark_execution_allowed:</b> {String(report.global_gate.benchmark_execution_allowed)}</p>
@@ -12154,6 +12347,7 @@ type MachineControlPlaneNavCurrent =
   | 'machine-benchmark-readiness'
   | 'machine-benchmark-methodology'
   | 'machine-comparable-routes'
+  | 'machine-proof-ladder'
   | 'machine-execution-shortlist'
   | 'machine-readiness-matrix'
   | 'machine-market-map'
@@ -12178,6 +12372,7 @@ function MachineControlPlaneNavLinks({
     { href: '/machine-benchmark-readiness', label: 'Benchmark Readiness', key: 'machine-benchmark-readiness' },
     { href: '/machine-benchmark-methodology', label: 'Benchmark Methodology', key: 'machine-benchmark-methodology' },
     { href: '/machine-comparable-routes', label: 'Comparable Routes', key: 'machine-comparable-routes' },
+    { href: '/machine-proof-ladder', label: 'Proof Ladder', key: 'machine-proof-ladder' },
     { href: '/machine-receipts', label: 'Receipts', key: 'machine-receipts' }
   ];
   if (includeSnapshot) primaryLinks.push({ href: '/machine-economy-snapshot', label: 'Snapshot', key: 'machine-economy-snapshot' });
@@ -12228,6 +12423,7 @@ function MachineControlSurfacesStrip() {
       <a className="execute compact secondary" href="/machine-benchmark-readiness">Benchmark Readiness</a>
       <a className="execute compact secondary" href="/machine-benchmark-methodology">Benchmark Methodology</a>
       <a className="execute compact secondary" href="/machine-comparable-routes">Comparable Routes</a>
+      <a className="execute compact secondary" href="/machine-proof-ladder">Proof Ladder</a>
       <a className="execute compact secondary" href="/machine-execution-shortlist">Proof Plans</a>
       <a className="execute compact secondary" href="/machine-readiness-matrix">Readiness Matrix</a>
       <a className="execute compact secondary" href="/machine-market-map">Market Map</a>
@@ -12243,6 +12439,7 @@ function MachineControlSurfacesStrip() {
       <p><span>First Safe Queue</span><small>execution roadmap without execution</small></p>
       <p><span>Benchmark Readiness</span><small>readiness state only, no benchmark evidence</small></p>
       <p><span>Comparable Routes</span><small>methodology contracts before benchmarking</small></p>
+      <p><span>Proof Ladder</span><small>public evidence progression without winner claims</small></p>
       <p><span>Execution Blockers</span><small>what should not run yet</small></p>
       <p><span>Changelog</span><small>machine market memory</small></p>
       <p><span>No-Claim Ledger</span><small>restraint and claim discipline</small></p>
@@ -12266,6 +12463,7 @@ export function App() {
   if (isMachineBenchmarkReadinessRoute(window.location.pathname)) return <MachineBenchmarkReadinessPage />;
   if (isMachineBenchmarkMethodologyRoute(window.location.pathname)) return <MachineBenchmarkMethodologyPage />;
   if (isMachineComparableRoutesRoute(window.location.pathname)) return <MachineComparableRoutesPage />;
+  if (isMachineProofLadderRoute(window.location.pathname)) return <MachineProofLadderPage />;
   if (isMachineExecutionBlockersRoute(window.location.pathname)) return <MachineExecutionBlockersPage />;
   if (isMachineMarketChangelogRoute(window.location.pathname)) return <MachineMarketChangelogPage />;
   if (isMachineNoClaimLedgerRoute(window.location.pathname)) return <MachineNoClaimLedgerPage />;
