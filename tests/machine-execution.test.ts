@@ -1506,4 +1506,21 @@ describe('machine execution anytrans translation route', () => {
     expect(JSON.stringify(data)).not.toMatch(/best|winner_claimed=true/i);
     await app.close();
   });
+
+  it('machine comparable routes API returns methodology contracts without benchmark/winner claims', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+    const response = await app.inject({ method: 'GET', url: '/v1/machine-execution/comparable-routes' });
+    expect(response.statusCode).toBe(200);
+    const data = response.json().data;
+    expect(data.benchmark_claims).toBe(0);
+    expect(data.winner_claims).toBe(0);
+    expect(Array.isArray(data.lanes)).toBe(true);
+    expect(data.lanes.some((lane: any) => lane.lane_id === 'machine_translation')).toBe(true);
+    expect(data.lanes.some((lane: any) => lane.lane_id === 'data_query_bigquery')).toBe(true);
+    expect(data.lanes.some((lane: any) => lane.lane_id === 'storage_stableupload')).toBe(true);
+    expect(data.lanes.some((lane: any) => lane.lane_id === 'navigation_naver_geocode')).toBe(true);
+    expect(data.lanes.every((lane: any) => typeof lane.required_methodology !== 'undefined')).toBe(true);
+    expect(JSON.stringify(data)).not.toMatch(/best route|best provider|winner_claimed=true/i);
+    await app.close();
+  });
 });

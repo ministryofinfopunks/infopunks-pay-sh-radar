@@ -113,6 +113,7 @@ describe('machine benchmark readiness page', () => {
     expect(text).toContain('Benchmark readiness is not benchmark evidence.');
     expect(text).toContain('Repeatability is not route superiority.');
     expect(text).toContain('No winner claim exists until criteria and artifacts exist.');
+    expect(container.querySelector('a[href="/machine-comparable-routes"]')).not.toBeNull();
     expect(text).toContain('machine_translation');
     expect(text).toContain('data_query_bigquery');
     expect(text).toContain('storage_stableupload');

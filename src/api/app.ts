@@ -94,6 +94,7 @@ import {
   buildAlibabaMachineTranslationGeneralBenchmarkReadinessArtifact,
   buildAlibabaMachineTranslationGeneralRepeatabilityArtifact,
   buildMachineBenchmarkReadinessReport,
+  buildMachineComparableRouteDiscovery,
   buildBigQueryBoundedQueryFixtureReceipt,
   buildMachineExecutionRepeatabilityPack,
   buildNaverGeocodeFixtureReceipt,
@@ -926,6 +927,16 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     return {
       data: safeJsonExport({
         ...report,
+        phase_scope: MACHINE_MARKET_PHASE_SCOPE,
+        storage: machineReceiptStorage
+      })
+    };
+  });
+  app.get('/v1/machine-execution/comparable-routes', async () => {
+    const discovery = await buildMachineComparableRouteDiscovery();
+    return {
+      data: safeJsonExport({
+        ...discovery,
         phase_scope: MACHINE_MARKET_PHASE_SCOPE,
         storage: machineReceiptStorage
       })

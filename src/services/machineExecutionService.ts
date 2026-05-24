@@ -308,6 +308,30 @@ export type MachineBenchmarkReadinessReport = {
   lanes: MachineBenchmarkReadinessLane[];
   caveats: string[];
 };
+export type MachineComparableRoute = {
+  lane_id: 'machine_translation' | 'data_query_bigquery' | 'storage_stableupload' | 'navigation_naver_geocode';
+  task_class: string;
+  candidate_routes: Array<{ service_id: string; route_id: string; profile_id: string }>;
+  comparable_route_count: number;
+  required_methodology: string[];
+  missing_methodology: string[];
+  comparable_inputs: string;
+  comparable_outputs: string;
+  normalization_strategy: string;
+  success_criteria: string;
+  run_count_target: number;
+  cost_latency_fields_required: string[];
+  safety_constraints: string[];
+  readiness_effect: string;
+  next_action: string;
+};
+export type MachineComparableRouteDiscovery = {
+  generated_at: string;
+  benchmark_claims: 0;
+  winner_claims: 0;
+  lanes: MachineComparableRoute[];
+  caveats: string[];
+};
 export type StableuploadTinyFixtureOptions = {
   machine_id?: string;
   execution_completed_at?: string;
@@ -1347,6 +1371,126 @@ export async function buildMachineBenchmarkReadinessReport(): Promise<MachineBen
       'Readiness state only; no benchmark execution is run by this endpoint.',
       'No benchmark artifacts are created.',
       'No winner is claimed.'
+    ]
+  };
+}
+
+export async function buildMachineComparableRouteDiscovery(): Promise<MachineComparableRouteDiscovery> {
+  const services = listMachineMarketServices();
+  const lanes: MachineComparableRoute[] = [
+    {
+      lane_id: 'machine_translation',
+      task_class: 'Machine Translation',
+      candidate_routes: [
+        { service_id: 'anytrans', route_id: 'translation:POST:/translate', profile_id: 'machine_translation_safe_phrase' },
+        { service_id: 'alibaba-machine-translation-general', route_id: 'alibaba-machine-translation-general:POST:/api/translate/web/general', profile_id: 'machine_translation_safe_phrase' }
+      ].filter((route) => services.some((service) => service.id === route.service_id)),
+      comparable_route_count: services.some((service) => service.id === 'anytrans') && services.some((service) => service.id === 'alibaba-machine-translation-general') ? 2 : 1,
+      required_methodology: [
+        'same_task',
+        'same_input_class',
+        'same_output_normalization',
+        'same_success_criteria',
+        'same_cost_latency_capture'
+      ],
+      missing_methodology: [],
+      comparable_inputs: 'same phrase set, same source/target language pairs, same max_cost policy',
+      comparable_outputs: 'normalized translated_text and minimal metadata fields',
+      normalization_strategy: 'trim/lowercase canonical comparison, locale-safe unicode normalization',
+      success_criteria: 'parseable translation output, non-empty translated_text, policy-safe response',
+      run_count_target: 3,
+      cost_latency_fields_required: ['execution_latency_ms', 'payment_status', 'payment_evidence'],
+      safety_constraints: ['no sensitive text payloads', 'no benchmark ranking claims', 'service-specific receipt scope only'],
+      readiness_effect: 'comparable route exists but methodology contract must remain explicit before any benchmark run',
+      next_action: 'Keep methodology contract published and add route-level parity assertions.'
+    },
+    {
+      lane_id: 'data_query_bigquery',
+      task_class: 'Data Query / BigQuery',
+      candidate_routes: [
+        { service_id: 'bigquery', route_id: 'bigquery:POST:/query', profile_id: 'bigquery_bounded_query' }
+      ].filter((route) => services.some((service) => service.id === route.service_id)),
+      comparable_route_count: 1,
+      required_methodology: [
+        'same_task',
+        'same_input_class',
+        'same_output_normalization',
+        'same_success_criteria',
+        'same_cost_latency_capture'
+      ],
+      missing_methodology: ['comparable_route_missing'],
+      comparable_inputs: 'bounded public/synthetic SQL only, fixed row and column limits',
+      comparable_outputs: 'normalized table schema/rows with deterministic ordering',
+      normalization_strategy: 'stable row ordering, type-normalized scalar serialization',
+      success_criteria: 'query completes, bounded rows returned, parseable schema',
+      run_count_target: 3,
+      cost_latency_fields_required: ['execution_latency_ms', 'payment_status', 'payment_evidence'],
+      safety_constraints: ['no sensitive production datasets', 'no benchmark ranking claims', 'service-specific receipt scope only'],
+      readiness_effect: 'single route only; benchmark lane remains blocked',
+      next_action: 'Add a second comparable data-query route with identical bounded-query contract.'
+    },
+    {
+      lane_id: 'storage_stableupload',
+      task_class: 'Storage / Stableupload',
+      candidate_routes: [
+        { service_id: 'stableupload', route_id: 'stableupload:POST:/upload', profile_id: 'stableupload_tiny_fixture' }
+      ].filter((route) => services.some((service) => service.id === route.service_id)),
+      comparable_route_count: 1,
+      required_methodology: [
+        'same_task',
+        'same_input_class',
+        'same_output_normalization',
+        'same_success_criteria',
+        'same_cost_latency_capture'
+      ],
+      missing_methodology: ['comparable_route_missing'],
+      comparable_inputs: 'same tiny non-sensitive fixture and declared hash',
+      comparable_outputs: 'normalized upload reference, size, and hash fields',
+      normalization_strategy: 'hash-first comparison, deterministic metadata field ordering',
+      success_criteria: 'upload accepted, metadata recorded, fixture hash preserved',
+      run_count_target: 3,
+      cost_latency_fields_required: ['execution_latency_ms', 'payment_status', 'payment_evidence'],
+      safety_constraints: ['no private data uploads', 'tiny fixture only', 'no benchmark ranking claims'],
+      readiness_effect: 'single route only; benchmark lane remains blocked',
+      next_action: 'Add a second storage route with the same tiny-fixture contract.'
+    },
+    {
+      lane_id: 'navigation_naver_geocode',
+      task_class: 'Navigation / NAVER geocode',
+      candidate_routes: [
+        { service_id: 'naver-maps', route_id: 'naver-maps:GET:/map-geocode/v2/geocode', profile_id: 'naver_geocode_lookup' }
+      ].filter((route) => services.some((service) => service.id === route.service_id)),
+      comparable_route_count: 1,
+      required_methodology: [
+        'same_task',
+        'same_input_class',
+        'same_output_normalization',
+        'same_success_criteria',
+        'same_cost_latency_capture'
+      ],
+      missing_methodology: ['comparable_route_missing'],
+      comparable_inputs: 'same public landmark/address lookup set, non-operational mode only',
+      comparable_outputs: 'normalized geocode coordinates and address match confidence',
+      normalization_strategy: 'coordinate precision normalization and consistent address tokenization',
+      success_criteria: 'valid coordinate pair returned with parseable address metadata',
+      run_count_target: 3,
+      cost_latency_fields_required: ['execution_latency_ms', 'payment_status', 'payment_evidence'],
+      safety_constraints: ['no robot command', 'no physical movement', 'no live navigation instruction', 'no benchmark ranking claims'],
+      readiness_effect: 'single route only; benchmark lane remains blocked',
+      next_action: 'Add a second non-operational geocode route with the same bounded lookup contract.'
+    }
+  ];
+
+  return {
+    generated_at: new Date().toISOString(),
+    benchmark_claims: 0,
+    winner_claims: 0,
+    lanes,
+    caveats: [
+      'Comparable routes are required before benchmarks.',
+      'No comparable route, no benchmark.',
+      'Methodology before leaderboard.',
+      'No benchmark artifacts are created by this discovery endpoint.'
     ]
   };
 }

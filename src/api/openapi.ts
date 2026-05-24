@@ -508,6 +508,42 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       }
     )
   });
+  add('get', '/v1/machine-execution/comparable-routes', {
+    tags: ['Machine Economy'],
+    summary: 'Get machine comparable-route discovery state',
+    description: `${SAFE_METADATA_NOTE} Returns comparable-route discovery and methodology contracts only. Does not run benchmarks, create benchmark artifacts, or claim winners/best routes/providers.`,
+    responses: envelopedResponses(
+      freeformObject(),
+      {
+        generated_at: '2026-05-24T00:00:00.000Z',
+        benchmark_claims: 0,
+        winner_claims: 0,
+        lanes: [
+          {
+            lane_id: 'machine_translation',
+            task_class: 'Machine Translation',
+            candidate_routes: [
+              { service_id: 'anytrans', route_id: 'translation:POST:/translate', profile_id: 'machine_translation_safe_phrase' },
+              { service_id: 'alibaba-machine-translation-general', route_id: 'alibaba-machine-translation-general:POST:/api/translate/web/general', profile_id: 'machine_translation_safe_phrase' }
+            ],
+            comparable_route_count: 2,
+            required_methodology: ['same_task', 'same_input_class', 'same_output_normalization', 'same_success_criteria', 'same_cost_latency_capture'],
+            missing_methodology: [],
+            comparable_inputs: 'same phrase set, same source/target language pairs, same max_cost policy',
+            comparable_outputs: 'normalized translated_text and minimal metadata fields',
+            normalization_strategy: 'trim/lowercase canonical comparison, locale-safe unicode normalization',
+            success_criteria: 'parseable translation output, non-empty translated_text, policy-safe response',
+            run_count_target: 3,
+            cost_latency_fields_required: ['execution_latency_ms', 'payment_status', 'payment_evidence'],
+            safety_constraints: ['no sensitive text payloads', 'no benchmark ranking claims', 'service-specific receipt scope only'],
+            readiness_effect: 'comparable route exists but methodology contract must remain explicit before any benchmark run',
+            next_action: 'Keep methodology contract published and add route-level parity assertions.'
+          }
+        ],
+        caveats: ['Comparable routes are required before benchmarks.', 'No comparable route, no benchmark.', 'Methodology before leaderboard.']
+      }
+    )
+  });
   add('get', '/v1/machine-execution/stableupload/fixtures/tiny-fixture', {
     tags: ['Machine Economy'],
     summary: 'Get Stableupload tiny-fixture payload',
