@@ -917,6 +917,16 @@ type RadarBundleRunListResponse = {
     caveat_delta: { added: string[]; removed: string[] };
     winner_claimed: false;
   };
+  freshness?: {
+    last_controlled_run_at: string;
+    latest_run_age_hours: number;
+    freshness_state: 'fresh' | 'aging' | 'stale';
+    freshness_thresholds_hours: {
+      fresh_until: 24;
+      aging_until: 72;
+    };
+    recommended_agent_action: string;
+  } | null;
   winner_claimed: false;
   agent_guidance: string[];
 };
@@ -10947,10 +10957,12 @@ function AgentBenchmarkApiPanel() {
         {bundleRunStatus === 'error' && <>
           <p className="route-state warn">Bundle Run Ledger unavailable</p>
           <p className="route-state warn">Bundle Run History unavailable</p>
+          <p className="route-state warn">Bundle Run Freshness unavailable</p>
         </>}
         {bundleRunStatus === 'ready' && bundleRunSummary && bundleRunDetail && <div className="bundle-run-ledger-card">
           {(() => {
             const historySummary = bundleRunList?.history_summary;
+            const freshness = bundleRunList?.freshness;
             const latestRun = bundleRunList?.runs.find((run) => run.run_id === historySummary?.latest_run_id) ?? bundleRunList?.runs[0] ?? null;
             const previousRun = bundleRunList?.runs.find((run) => run.run_id === historySummary?.previous_run_id) ?? bundleRunList?.runs[1] ?? null;
             const caveatsUnchanged = historySummary ? historySummary.caveat_delta.added.length === 0 && historySummary.caveat_delta.removed.length === 0 : false;
@@ -10990,10 +11002,18 @@ function AgentBenchmarkApiPanel() {
                 <b>Delta</b>
                 <span>{deltaLabel} · caveats {caveatsUnchanged ? 'unchanged' : 'changed'} · observed cost {historySummary.observed_cost_state}</span>
               </article>
+              {freshness ? <article>
+                <b>Freshness</b>
+                <span>{freshness.freshness_state} · {freshness.latest_run_age_hours}h · {freshness.last_controlled_run_at}</span>
+              </article> : <article>
+                <b>Freshness</b>
+                <span>Bundle Run Freshness unavailable</span>
+              </article>}
             </div>
             <p className="bundle-run-history-foot">
               skipped review-required steps {historySummary.skipped_review_required_steps_stable ? `stable at ${historySummary.latest_skipped_step_count}` : `${historySummary.previous_skipped_step_count} -> ${historySummary.latest_skipped_step_count}`} · winner_claimed={String(historySummary.winner_claimed)}
             </p>
+            {freshness ? <p className="bundle-run-history-foot">recommended action: {freshness.recommended_agent_action}</p> : <p className="route-state warn">Bundle Run Freshness unavailable</p>}
           </div> : <p className="route-state warn">Bundle Run History unavailable</p>}
           {historySummary && <p className="panel-caption">
             {historySummary.history_count} controlled runs tracked · latest source_count {historySummary.source_count_delta >= 0 ? '+' : ''}{historySummary.source_count_delta} · observed cost still unavailable · winner_claimed=false

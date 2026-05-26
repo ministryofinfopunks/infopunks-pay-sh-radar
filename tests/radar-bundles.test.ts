@@ -1,8 +1,29 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createApp } from '../src/api/app';
 import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
+import { deriveBundleRunFreshness } from '../src/services/radarBundleRunLedgerService';
 
 describe('radar bundle registry', () => {
+  it('derives bundle run freshness states with deterministic now inputs', () => {
+    const latest = '2026-05-21T08:45:56.919Z';
+
+    const fresh = deriveBundleRunFreshness(latest, new Date('2026-05-22T08:45:56.919Z'));
+    expect(fresh.last_controlled_run_at).toBe(latest);
+    expect(fresh.latest_run_age_hours).toBe(24);
+    expect(fresh.freshness_state).toBe('fresh');
+    expect(fresh.recommended_agent_action).toBe('Inspect latest run detail before spend.');
+
+    const aging = deriveBundleRunFreshness(latest, new Date('2026-05-22T09:45:56.919Z'));
+    expect(aging.latest_run_age_hours).toBe(25);
+    expect(aging.freshness_state).toBe('aging');
+    expect(aging.recommended_agent_action).toBe('Inspect latest run detail and consider re-running before spend if the bundle is time-sensitive.');
+
+    const stale = deriveBundleRunFreshness(latest, new Date('2026-05-24T09:45:56.919Z'));
+    expect(stale.latest_run_age_hours).toBe(73);
+    expect(stale.freshness_state).toBe('stale');
+    expect(stale.recommended_agent_action).toBe('Re-run the bundle before relying on this history for spend decisions.');
+  });
+
   it('serves read-only bundle registry with expected invariants', async () => {
     const app = await createApp(emptyIntelligenceStore());
 
@@ -92,6 +113,12 @@ describe('radar bundle registry', () => {
       expect(list.history_summary.caveat_delta.added).toEqual([]);
       expect(list.history_summary.caveat_delta.removed).toEqual([]);
       expect(list.history_summary.winner_claimed).toBe(false);
+      expect(list.freshness.last_controlled_run_at).toBe('2026-05-21T08:45:56.919Z');
+      expect(list.freshness.latest_run_age_hours).toEqual(expect.any(Number));
+      expect(['fresh', 'aging', 'stale']).toContain(list.freshness.freshness_state);
+      expect(list.freshness.freshness_thresholds_hours).toEqual({ fresh_until: 24, aging_until: 72 });
+      expect(list.freshness.recommended_agent_action.length).toBeGreaterThan(0);
+      expect(list.winner_claimed).toBe(false);
       expect(fetchSpy).not.toHaveBeenCalled();
 
       const detailResponse = await app.inject({ method: 'GET', url: '/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli' });

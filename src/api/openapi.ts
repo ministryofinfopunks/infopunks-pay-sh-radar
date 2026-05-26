@@ -1055,6 +1055,16 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
         caveat_delta: { added: [], removed: [] },
         winner_claimed: false
       },
+      freshness: {
+        last_controlled_run_at: '2026-05-21T08:45:56.919Z',
+        latest_run_age_hours: 12.4,
+        freshness_state: 'fresh',
+        freshness_thresholds_hours: {
+          fresh_until: 24,
+          aging_until: 72
+        },
+        recommended_agent_action: 'Inspect latest run detail before spend.'
+      },
       winner_claimed: false
     }, 'bundle_not_found')
   });

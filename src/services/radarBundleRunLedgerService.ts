@@ -149,6 +149,32 @@ const MORNING_BRIEFING_RUN_PREVIOUS_DETAIL: RadarBundleRunDetail = {
   source_map: MORNING_BRIEFING_RUN_LATEST_DETAIL.source_map.slice(0, 9)
 };
 
+const FRESH_UNTIL_HOURS = 24 as const;
+const AGING_UNTIL_HOURS = 72 as const;
+
+export function deriveBundleRunFreshness(latestGeneratedAt: string, now = new Date()) {
+  const latestMs = Date.parse(latestGeneratedAt);
+  const nowMs = now.getTime();
+  const ageHoursRaw = Number.isFinite(latestMs) ? Math.max(0, (nowMs - latestMs) / (1000 * 60 * 60)) : 0;
+  const latestRunAgeHours = Math.round(ageHoursRaw * 10) / 10;
+  const freshnessState: 'fresh' | 'aging' | 'stale' = latestRunAgeHours <= FRESH_UNTIL_HOURS ? 'fresh' : latestRunAgeHours <= AGING_UNTIL_HOURS ? 'aging' : 'stale';
+  const recommendedAgentAction = freshnessState === 'fresh'
+    ? 'Inspect latest run detail before spend.'
+    : freshnessState === 'aging'
+      ? 'Inspect latest run detail and consider re-running before spend if the bundle is time-sensitive.'
+      : 'Re-run the bundle before relying on this history for spend decisions.';
+  return {
+    last_controlled_run_at: latestGeneratedAt,
+    latest_run_age_hours: latestRunAgeHours,
+    freshness_state: freshnessState,
+    freshness_thresholds_hours: {
+      fresh_until: FRESH_UNTIL_HOURS,
+      aging_until: AGING_UNTIL_HOURS
+    },
+    recommended_agent_action: recommendedAgentAction
+  };
+}
+
 function toSummary(detail: RadarBundleRunDetail): RadarBundleRunSummary {
   return {
     run_id: detail.run_id,
@@ -179,6 +205,7 @@ export function listRadarBundleRuns(bundleId: string): RadarBundleRunListRespons
   const previous = summaries[1];
   const latestCaveats = runs[0]?.caveat_objects.map((item) => item.code) ?? [];
   const previousCaveats = runs[1]?.caveat_objects.map((item) => item.code) ?? [];
+  const freshness = latest ? deriveBundleRunFreshness(latest.generated_at) : null;
   return {
     bundle_id: SOURCE_BUNDLE_ID,
     count: runs.length,
@@ -205,6 +232,7 @@ export function listRadarBundleRuns(bundleId: string): RadarBundleRunListRespons
       },
       winner_claimed: false
     },
+    freshness,
     winner_claimed: false,
     agent_guidance: [
       'Bundle run history records controlled Harness proof evolution, not benchmark winners.',

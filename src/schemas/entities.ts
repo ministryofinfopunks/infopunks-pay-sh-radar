@@ -1245,6 +1245,17 @@ export const BundleRunHistorySummarySchema = z.object({
   winner_claimed: z.literal(false)
 });
 
+export const BundleRunFreshnessSchema = z.object({
+  last_controlled_run_at: z.string().datetime(),
+  latest_run_age_hours: z.number().nonnegative(),
+  freshness_state: z.enum(['fresh', 'aging', 'stale']),
+  freshness_thresholds_hours: z.object({
+    fresh_until: z.literal(24),
+    aging_until: z.literal(72)
+  }),
+  recommended_agent_action: z.string()
+}).nullable();
+
 export const BundleRunDetailSchema = z.object({
   run_id: z.string(),
   bundle_id: z.literal('morning-briefing'),
@@ -1291,6 +1302,7 @@ export const BundleRunListResponseSchema = z.object({
   latest_generated_at: z.string().datetime().nullable(),
   runs: z.array(BundleRunSummarySchema),
   history_summary: BundleRunHistorySummarySchema,
+  freshness: BundleRunFreshnessSchema,
   winner_claimed: z.literal(false),
   agent_guidance: z.array(z.string())
 });
