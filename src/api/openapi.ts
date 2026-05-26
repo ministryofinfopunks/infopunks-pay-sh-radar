@@ -1029,7 +1029,34 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     summary: 'List bundle run ledger records',
     description: 'Returns read-only controlled live run ledger summaries for curated Harness proof records. Radar does not execute paid APIs and does not execute Harness from this route.',
     parameters: [pathParam('bundle_id', 'Bundle identifier.')],
-    responses: envelopedResponses({ $ref: '#/components/schemas/BundleRunListResponse' }, { bundle_id: 'morning-briefing', count: 1, winner_claimed: false, runs: [{ run_id: 'morning-briefing-run-2026-05-21-084556-pay-cli', status: 'controlled_live_run', evidence_health: 'caveated' }] }, 'bundle_not_found')
+    responses: envelopedResponses({ $ref: '#/components/schemas/BundleRunListResponse' }, {
+      bundle_id: 'morning-briefing',
+      count: 2,
+      latest_run_id: 'morning-briefing-run-2026-05-21-084556-pay-cli',
+      latest_generated_at: '2026-05-21T08:45:56.919Z',
+      runs: [
+        { run_id: 'morning-briefing-run-2026-05-21-084556-pay-cli', status: 'controlled_live_run', evidence_health: 'caveated' },
+        { run_id: 'morning-briefing-run-2026-05-21-075521-pay-cli', status: 'controlled_live_run', evidence_health: 'caveated' }
+      ],
+      history_summary: {
+        history_count: 2,
+        latest_run_id: 'morning-briefing-run-2026-05-21-084556-pay-cli',
+        previous_run_id: 'morning-briefing-run-2026-05-21-075521-pay-cli',
+        source_count_delta: 1,
+        latest_source_count: 10,
+        previous_source_count: 9,
+        observed_cost_available: false,
+        observed_cost_state: 'unavailable',
+        skipped_review_required_steps_stable: true,
+        latest_skipped_step_count: 2,
+        previous_skipped_step_count: 2,
+        caveat_codes_latest: ['status_code_unavailable', 'observed_cost_unavailable', 'source_map_empty'],
+        caveat_codes_previous: ['status_code_unavailable', 'observed_cost_unavailable', 'source_map_empty'],
+        caveat_delta: { added: [], removed: [] },
+        winner_claimed: false
+      },
+      winner_claimed: false
+    }, 'bundle_not_found')
   });
   add('get', '/v1/radar/bundles/{bundle_id}/runs/{run_id}', {
     tags: ['Radar Agent'],
@@ -1953,6 +1980,26 @@ function componentSchemas(): Record<string, JsonSchema> {
       source_count: integerSchema(),
       winner_claimed: { const: false }
     }),
+    BundleRunHistorySummary: objectSchema({
+      history_count: integerSchema(),
+      latest_run_id: { oneOf: [stringSchema(), { type: 'null' }] },
+      previous_run_id: { oneOf: [stringSchema(), { type: 'null' }] },
+      source_count_delta: integerSchema(),
+      latest_source_count: integerSchema(),
+      previous_source_count: integerSchema(),
+      observed_cost_available: booleanSchema(),
+      observed_cost_state: enumSchema(['available', 'unavailable']),
+      skipped_review_required_steps_stable: booleanSchema(),
+      latest_skipped_step_count: integerSchema(),
+      previous_skipped_step_count: integerSchema(),
+      caveat_codes_latest: arrayOf(enumSchema(['status_code_unavailable', 'observed_cost_unavailable', 'source_map_empty'])),
+      caveat_codes_previous: arrayOf(enumSchema(['status_code_unavailable', 'observed_cost_unavailable', 'source_map_empty'])),
+      caveat_delta: objectSchema({
+        added: arrayOf(enumSchema(['status_code_unavailable', 'observed_cost_unavailable', 'source_map_empty'])),
+        removed: arrayOf(enumSchema(['status_code_unavailable', 'observed_cost_unavailable', 'source_map_empty']))
+      }),
+      winner_claimed: { const: false }
+    }),
     BundleRunDetail: objectSchema({
       run_id: stringSchema(),
       bundle_id: { const: 'morning-briefing' },
@@ -1978,7 +2025,10 @@ function componentSchemas(): Record<string, JsonSchema> {
     BundleRunListResponse: objectSchema({
       bundle_id: { const: 'morning-briefing' },
       count: integerSchema(),
+      latest_run_id: { oneOf: [stringSchema(), { type: 'null' }] },
+      latest_generated_at: { oneOf: [dateTimeSchema(), { type: 'null' }] },
       runs: arrayOf({ $ref: '#/components/schemas/BundleRunSummary' }),
+      history_summary: { $ref: '#/components/schemas/BundleRunHistorySummary' },
       winner_claimed: { const: false },
       agent_guidance: arrayOf(stringSchema())
     }),

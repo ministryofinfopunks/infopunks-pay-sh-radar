@@ -65,9 +65,12 @@ describe('radar bundle registry', () => {
       const listResponse = await app.inject({ method: 'GET', url: '/v1/radar/bundles/morning-briefing/runs' });
       expect(listResponse.statusCode).toBe(200);
       const list = listResponse.json().data;
-      expect(list.count).toBe(1);
-      expect(list.runs).toHaveLength(1);
+      expect(list.count).toBe(2);
+      expect(list.latest_run_id).toBe('morning-briefing-run-2026-05-21-084556-pay-cli');
+      expect(list.latest_generated_at).toBe('2026-05-21T08:45:56.919Z');
+      expect(list.runs).toHaveLength(2);
       expect(list.winner_claimed).toBe(false);
+      expect(Date.parse(list.runs[0].generated_at)).toBeGreaterThan(Date.parse(list.runs[1].generated_at));
       expect(list.runs[0].status).toBe('controlled_live_run');
       expect(list.runs[0].evidence_health).toBe('caveated');
       expect(list.runs[0].run_id).toBe('morning-briefing-run-2026-05-21-084556-pay-cli');
@@ -78,6 +81,17 @@ describe('radar bundle registry', () => {
       expect(list.runs[0].blocked_step_count).toBe(0);
       expect(list.runs[0].source_count).toBe(10);
       expect(list.runs[0].observed_cost_usd).toBeNull();
+      expect(list.runs[1].run_id).toBe('morning-briefing-run-2026-05-21-075521-pay-cli');
+      expect(list.runs[1].source_count).toBe(9);
+      expect(list.history_summary.history_count).toBe(2);
+      expect(list.history_summary.source_count_delta).toBe(1);
+      expect(list.history_summary.latest_source_count).toBe(10);
+      expect(list.history_summary.previous_source_count).toBe(9);
+      expect(list.history_summary.observed_cost_available).toBe(false);
+      expect(list.history_summary.skipped_review_required_steps_stable).toBe(true);
+      expect(list.history_summary.caveat_delta.added).toEqual([]);
+      expect(list.history_summary.caveat_delta.removed).toEqual([]);
+      expect(list.history_summary.winner_claimed).toBe(false);
       expect(fetchSpy).not.toHaveBeenCalled();
 
       const detailResponse = await app.inject({ method: 'GET', url: '/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli' });
@@ -99,9 +113,21 @@ describe('radar bundle registry', () => {
       const cryptoStep = detail.executed_steps.find((step: { step_id: string }) => step.step_id === 'crypto_market_scan');
       expect(cryptoStep?.normalized_output_preview?.price).toBe(86.3233427074135);
       expect(cryptoStep?.normalized_output_preview?.token).toBe('SOL / ZEC');
+
+      const previousDetailResponse = await app.inject({ method: 'GET', url: '/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-075521-pay-cli' });
+      expect(previousDetailResponse.statusCode).toBe(200);
+      const previousDetail = previousDetailResponse.json().data;
+      expect(previousDetail.run_id).toBe('morning-briefing-run-2026-05-21-075521-pay-cli');
+      expect(previousDetail.generated_at).toBe('2026-05-21T07:55:21.600Z');
+      expect(previousDetail.status).toBe('controlled_live_run');
+      expect(previousDetail.evidence_health).toBe('caveated');
+      expect(previousDetail.winner_claimed).toBe(false);
+      expect(previousDetail.executed_steps).toHaveLength(3);
+      expect(previousDetail.skipped_steps).toHaveLength(2);
+      expect(previousDetail.source_map).toHaveLength(9);
       const serialized = JSON.stringify({ list, detail }).toLowerCase();
       expect(serialized).not.toContain('recorded bundle');
-      for (const phrase of ['winner route', 'loser route', 'best route', 'top route', 'superiority']) {
+      for (const phrase of ['winner route', 'loser route', 'best route', 'top route', 'superiority', 'production briefing', 'ranking authority', 'guaranteed trust', 'safest provider']) {
         expect(serialized).not.toContain(phrase);
       }
       expect(fetchSpy).not.toHaveBeenCalled();

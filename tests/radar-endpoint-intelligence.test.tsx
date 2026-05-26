@@ -743,22 +743,58 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
     if (options.bundleRunLedgerUnavailable && path === '/v1/radar/bundles/morning-briefing/runs') return Promise.resolve(new Response('{}', { status: 503 }));
     if (path === '/v1/radar/bundles/morning-briefing/runs') return json({
       bundle_id: 'morning-briefing',
-      count: 1,
-      runs: [{
-        run_id: 'morning-briefing-run-2026-05-21-084556-pay-cli',
-        status: 'controlled_live_run',
-        evidence_health: 'caveated',
-        generated_at: '2026-05-21T08:45:56.919Z',
-        execution_mode: 'pay_cli',
-        final_bundle_state: 'executed_with_review_required_skipped',
-        estimated_cost_usd: '0.02-0.05',
-        observed_cost_usd: null,
-        executed_step_count: 3,
-        skipped_step_count: 2,
-        blocked_step_count: 0,
-        source_count: 10,
+      count: 2,
+      latest_run_id: 'morning-briefing-run-2026-05-21-084556-pay-cli',
+      latest_generated_at: '2026-05-21T08:45:56.919Z',
+      runs: [
+        {
+          run_id: 'morning-briefing-run-2026-05-21-084556-pay-cli',
+          status: 'controlled_live_run',
+          evidence_health: 'caveated',
+          generated_at: '2026-05-21T08:45:56.919Z',
+          execution_mode: 'pay_cli',
+          final_bundle_state: 'executed_with_review_required_skipped',
+          estimated_cost_usd: '0.02-0.05',
+          observed_cost_usd: null,
+          executed_step_count: 3,
+          skipped_step_count: 2,
+          blocked_step_count: 0,
+          source_count: 10,
+          winner_claimed: false
+        },
+        {
+          run_id: 'morning-briefing-run-2026-05-21-075521-pay-cli',
+          status: 'controlled_live_run',
+          evidence_health: 'caveated',
+          generated_at: '2026-05-21T07:55:21.600Z',
+          execution_mode: 'pay_cli',
+          final_bundle_state: 'executed_with_review_required_skipped',
+          estimated_cost_usd: '0.02-0.05',
+          observed_cost_usd: null,
+          executed_step_count: 3,
+          skipped_step_count: 2,
+          blocked_step_count: 0,
+          source_count: 9,
+          winner_claimed: false
+        }
+      ],
+      history_summary: {
+        history_count: 2,
+        latest_run_id: 'morning-briefing-run-2026-05-21-084556-pay-cli',
+        previous_run_id: 'morning-briefing-run-2026-05-21-075521-pay-cli',
+        source_count_delta: 1,
+        latest_source_count: 10,
+        previous_source_count: 9,
+        observed_cost_available: false,
+        observed_cost_state: 'unavailable',
+        skipped_review_required_steps_stable: true,
+        latest_skipped_step_count: 2,
+        previous_skipped_step_count: 2,
+        caveat_codes_latest: ['status_code_unavailable', 'observed_cost_unavailable', 'source_map_empty'],
+        caveat_codes_previous: ['status_code_unavailable', 'observed_cost_unavailable', 'source_map_empty'],
+        caveat_delta: { added: [], removed: [] },
         winner_claimed: false
-      }],
+      },
       winner_claimed: false,
       agent_guidance: ['Bundle runs are Harness proof records, not benchmark claims.']
     });
@@ -1294,6 +1330,19 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('10 sources');
     expect(container.textContent).toContain('observed cost unavailable');
     expect(container.textContent).toContain('winner_claimed=false');
+    expect(container.textContent).toContain('2 controlled runs tracked');
+    expect(container.textContent).toContain('latest source_count +1');
+    expect(container.textContent).toContain('observed cost still unavailable');
+    expect(container.textContent).toContain('Latest run');
+    expect(container.textContent).toContain('084556-pay-cli');
+    expect(container.textContent).toContain('Previous run');
+    expect(container.textContent).toContain('075521-pay-cli');
+    expect(container.textContent).toMatch(/Source count.*9 -> 10/);
+    expect(container.textContent).toContain('Caveats');
+    expect(container.textContent).toContain('unchanged');
+    expect(container.textContent).toContain('Skipped review-required steps');
+    expect(container.textContent).toContain('stable at 2');
+    expect(container.textContent).toContain('Bundle run history records controlled Harness proof evolution, not benchmark claims.');
     expect(container.textContent).toContain('world_news_search');
     expect(container.textContent).toContain('ai_news_search');
     expect(container.textContent).toContain('crypto_market_scan');

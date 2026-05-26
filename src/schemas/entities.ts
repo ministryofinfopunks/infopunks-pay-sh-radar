@@ -1224,6 +1224,27 @@ export const BundleRunSummarySchema = z.object({
   winner_claimed: z.literal(false)
 });
 
+export const BundleRunHistorySummarySchema = z.object({
+  history_count: z.number().int().nonnegative(),
+  latest_run_id: z.string().nullable(),
+  previous_run_id: z.string().nullable(),
+  source_count_delta: z.number().int(),
+  latest_source_count: z.number().int().nonnegative(),
+  previous_source_count: z.number().int().nonnegative(),
+  observed_cost_available: z.boolean(),
+  observed_cost_state: z.enum(['available', 'unavailable']),
+  skipped_review_required_steps_stable: z.boolean(),
+  latest_skipped_step_count: z.number().int().nonnegative(),
+  previous_skipped_step_count: z.number().int().nonnegative(),
+  caveat_codes_latest: z.array(z.enum(['status_code_unavailable', 'observed_cost_unavailable', 'source_map_empty'])),
+  caveat_codes_previous: z.array(z.enum(['status_code_unavailable', 'observed_cost_unavailable', 'source_map_empty'])),
+  caveat_delta: z.object({
+    added: z.array(z.enum(['status_code_unavailable', 'observed_cost_unavailable', 'source_map_empty'])),
+    removed: z.array(z.enum(['status_code_unavailable', 'observed_cost_unavailable', 'source_map_empty']))
+  }),
+  winner_claimed: z.literal(false)
+});
+
 export const BundleRunDetailSchema = z.object({
   run_id: z.string(),
   bundle_id: z.literal('morning-briefing'),
@@ -1266,7 +1287,10 @@ export const BundleRunDetailSchema = z.object({
 export const BundleRunListResponseSchema = z.object({
   bundle_id: z.literal('morning-briefing'),
   count: z.number().int().nonnegative(),
+  latest_run_id: z.string().nullable(),
+  latest_generated_at: z.string().datetime().nullable(),
   runs: z.array(BundleRunSummarySchema),
+  history_summary: BundleRunHistorySummarySchema,
   winner_claimed: z.literal(false),
   agent_guidance: z.array(z.string())
 });
@@ -1512,5 +1536,6 @@ export type RadarBundleRunBlockedStep = z.infer<typeof BundleRunBlockedStepSchem
 export type RadarBundleRunSourceMapItem = z.infer<typeof BundleRunSourceMapItemSchema>;
 export type RadarBundleRunCaveatObject = z.infer<typeof BundleRunCaveatObjectSchema>;
 export type RadarBundleRunSummary = z.infer<typeof BundleRunSummarySchema>;
+export type RadarBundleRunHistorySummary = z.infer<typeof BundleRunHistorySummarySchema>;
 export type RadarBundleRunDetail = z.infer<typeof BundleRunDetailSchema>;
 export type RadarBundleRunListResponse = z.infer<typeof BundleRunListResponseSchema>;

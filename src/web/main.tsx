@@ -897,7 +897,26 @@ type RadarBundleRunSummary = {
 type RadarBundleRunListResponse = {
   bundle_id: 'morning-briefing';
   count: number;
+  latest_run_id: string | null;
+  latest_generated_at: string | null;
   runs: RadarBundleRunSummary[];
+  history_summary: {
+    history_count: number;
+    latest_run_id: string | null;
+    previous_run_id: string | null;
+    source_count_delta: number;
+    latest_source_count: number;
+    previous_source_count: number;
+    observed_cost_available: boolean;
+    observed_cost_state: 'available' | 'unavailable';
+    skipped_review_required_steps_stable: boolean;
+    latest_skipped_step_count: number;
+    previous_skipped_step_count: number;
+    caveat_codes_latest: string[];
+    caveat_codes_previous: string[];
+    caveat_delta: { added: string[]; removed: string[] };
+    winner_claimed: false;
+  };
   winner_claimed: false;
   agent_guidance: string[];
 };
@@ -10762,6 +10781,7 @@ function AgentBenchmarkApiPanel() {
   const activeCurl = curlExamples[activeCurlIndex] ?? curlExamples[0];
   const [bundleRunStatus, setBundleRunStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
   const [bundleRunSummary, setBundleRunSummary] = useState<RadarBundleRunSummary | null>(null);
+  const [bundleRunList, setBundleRunList] = useState<RadarBundleRunListResponse | null>(null);
   const [bundleRunDetail, setBundleRunDetail] = useState<RadarBundleRunDetail | null>(null);
   const [bundlePlans, setBundlePlans] = useState<Record<string, RadarBundlePlanResponse | null>>({});
   const [bundlePlannerStatus, setBundlePlannerStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
@@ -10828,6 +10848,7 @@ function AgentBenchmarkApiPanel() {
     api<{ data: RadarBundleRunListResponse }>('/v1/radar/bundles/morning-briefing/runs')
       .then(async (response) => {
         if (cancelled) return;
+        setBundleRunList(response.data);
         const latestRun = response.data.runs[0] ?? null;
         setBundleRunSummary(latestRun);
         if (!latestRun) {
@@ -10914,6 +10935,7 @@ function AgentBenchmarkApiPanel() {
         </div>
         <p className="panel-caption">Bundle runs are Harness proof records, not benchmark claims.</p>
         <p className="panel-caption">Radar does not execute paid APIs from this surface.</p>
+        <p className="panel-caption">Bundle run history records controlled Harness proof evolution, not benchmark claims.</p>
         <p className="panel-caption">This run is caveated because observed cost and pay_cli HTTP status were unavailable, and one executed step had an empty source map.</p>
         <p className="panel-caption"><b>winner_claimed=false</b></p>
         {bundleRunStatus === 'loading' && <div className="preflight-skeleton" aria-label="Bundle run ledger loading"><span /><span /><span /></div>}
@@ -10935,7 +10957,17 @@ function AgentBenchmarkApiPanel() {
             <span>{bundleRunSummary.observed_cost_usd == null ? 'observed cost unavailable' : `$${bundleRunSummary.observed_cost_usd.toFixed(2)}`}</span>
             <span>winner_claimed={String(bundleRunSummary.winner_claimed)}</span>
           </div>
+          {bundleRunList && <p className="panel-caption">
+            {bundleRunList.history_summary.history_count} controlled runs tracked · latest source_count {bundleRunList.history_summary.source_count_delta >= 0 ? '+' : ''}{bundleRunList.history_summary.source_count_delta} · observed cost still unavailable · winner_claimed=false
+          </p>}
           <div className="bundle-run-subgrid">
+            {bundleRunList && <>
+              <p><b>Latest run</b><span>{bundleRunList.history_summary.latest_run_id?.replace('morning-briefing-run-2026-05-21-', '') ?? 'unknown'}</span></p>
+              <p><b>Previous run</b><span>{bundleRunList.history_summary.previous_run_id?.replace('morning-briefing-run-2026-05-21-', '') ?? 'unknown'}</span></p>
+              <p><b>Source count</b><span>{bundleRunList.history_summary.previous_source_count} {'->'} {bundleRunList.history_summary.latest_source_count}</span></p>
+              <p><b>Caveats</b><span>{bundleRunList.history_summary.caveat_delta.added.length === 0 && bundleRunList.history_summary.caveat_delta.removed.length === 0 ? 'unchanged' : 'changed'}</span></p>
+              <p><b>Skipped review-required steps</b><span>{bundleRunList.history_summary.skipped_review_required_steps_stable ? `stable at ${bundleRunList.history_summary.latest_skipped_step_count}` : `${bundleRunList.history_summary.previous_skipped_step_count} -> ${bundleRunList.history_summary.latest_skipped_step_count}`}</span></p>
+            </>}
             <p><b>Executed steps</b><span>{bundleRunDetail.executed_steps.map((step) => step.step_id).join(' · ')}</span></p>
             <p><b>Skipped review-required</b><span>{bundleRunDetail.skipped_steps.map((step) => step.step_id).join(' · ')}</span></p>
             <p><b>Caveats</b><span>{bundleRunDetail.caveat_objects.map((caveat) => caveat.code).join(' · ')}</span></p>

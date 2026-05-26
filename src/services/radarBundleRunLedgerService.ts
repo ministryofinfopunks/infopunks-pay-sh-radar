@@ -2,7 +2,7 @@ import { RadarBundleRunDetail, RadarBundleRunListResponse, RadarBundleRunSummary
 
 const SOURCE_BUNDLE_ID = 'morning-briefing';
 
-const MORNING_BRIEFING_RUN_DETAIL: RadarBundleRunDetail = {
+const MORNING_BRIEFING_RUN_LATEST_DETAIL: RadarBundleRunDetail = {
   run_id: 'morning-briefing-run-2026-05-21-084556-pay-cli',
   bundle_id: 'morning-briefing',
   status: 'controlled_live_run',
@@ -142,6 +142,13 @@ const MORNING_BRIEFING_RUN_DETAIL: RadarBundleRunDetail = {
   recommended_next_action: 'Review skipped review_required steps and explicitly enable gates only if approved.'
 };
 
+const MORNING_BRIEFING_RUN_PREVIOUS_DETAIL: RadarBundleRunDetail = {
+  ...MORNING_BRIEFING_RUN_LATEST_DETAIL,
+  run_id: 'morning-briefing-run-2026-05-21-075521-pay-cli',
+  generated_at: '2026-05-21T07:55:21.600Z',
+  source_map: MORNING_BRIEFING_RUN_LATEST_DETAIL.source_map.slice(0, 9)
+};
+
 function toSummary(detail: RadarBundleRunDetail): RadarBundleRunSummary {
   return {
     run_id: detail.run_id,
@@ -161,21 +168,48 @@ function toSummary(detail: RadarBundleRunDetail): RadarBundleRunSummary {
 }
 
 function morningBriefingRuns(): RadarBundleRunDetail[] {
-  return [MORNING_BRIEFING_RUN_DETAIL];
+  return [MORNING_BRIEFING_RUN_LATEST_DETAIL, MORNING_BRIEFING_RUN_PREVIOUS_DETAIL];
 }
 
 export function listRadarBundleRuns(bundleId: string): RadarBundleRunListResponse | null {
   if (bundleId !== SOURCE_BUNDLE_ID) return null;
-  const runs = morningBriefingRuns();
+  const runs = morningBriefingRuns().sort((a, b) => Date.parse(b.generated_at) - Date.parse(a.generated_at));
+  const summaries = runs.map(toSummary);
+  const latest = summaries[0];
+  const previous = summaries[1];
+  const latestCaveats = runs[0]?.caveat_objects.map((item) => item.code) ?? [];
+  const previousCaveats = runs[1]?.caveat_objects.map((item) => item.code) ?? [];
   return {
     bundle_id: SOURCE_BUNDLE_ID,
     count: runs.length,
-    runs: runs.map(toSummary),
+    latest_run_id: latest?.run_id ?? null,
+    latest_generated_at: latest?.generated_at ?? null,
+    runs: summaries,
+    history_summary: {
+      history_count: runs.length,
+      latest_run_id: latest?.run_id ?? null,
+      previous_run_id: previous?.run_id ?? null,
+      source_count_delta: (latest?.source_count ?? 0) - (previous?.source_count ?? 0),
+      latest_source_count: latest?.source_count ?? 0,
+      previous_source_count: previous?.source_count ?? 0,
+      observed_cost_available: latest?.observed_cost_usd != null,
+      observed_cost_state: latest?.observed_cost_usd == null ? 'unavailable' : 'available',
+      skipped_review_required_steps_stable: (latest?.skipped_step_count ?? 0) === (previous?.skipped_step_count ?? 0),
+      latest_skipped_step_count: latest?.skipped_step_count ?? 0,
+      previous_skipped_step_count: previous?.skipped_step_count ?? 0,
+      caveat_codes_latest: latestCaveats,
+      caveat_codes_previous: previousCaveats,
+      caveat_delta: {
+        added: latestCaveats.filter((code) => !previousCaveats.includes(code)),
+        removed: previousCaveats.filter((code) => !latestCaveats.includes(code))
+      },
+      winner_claimed: false
+    },
     winner_claimed: false,
     agent_guidance: [
-      'Bundle runs are Harness proof records, not benchmark claims.',
-      'controlled_live_run means the Harness executed approved steps from a Radar plan.',
-      'caveated means agents should inspect skipped review-required steps, missing observed cost, and execution caveats before relying on the run.'
+      'Bundle run history records controlled Harness proof evolution, not benchmark winners.',
+      'Agents should inspect latest run detail, skipped review-required steps, caveats, and observed cost availability before relying on a bundle.',
+      'winner_claimed=false means no bundle or route winner should be inferred.'
     ]
   };
 }
