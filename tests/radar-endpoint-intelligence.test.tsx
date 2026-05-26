@@ -149,7 +149,7 @@ function anomalyWatchItems(count: number) {
   }));
 }
 
-function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknown[]; degraded?: boolean; readiness?: Record<string, unknown>; anomalyWatch?: ReturnType<typeof anomalyWatchItems>; evidenceLedger?: unknown; evidenceLedgerUnavailable?: boolean; bundleRunLedgerUnavailable?: boolean } = {}) {
+function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknown[]; degraded?: boolean; readiness?: Record<string, unknown>; anomalyWatch?: ReturnType<typeof anomalyWatchItems>; evidenceLedger?: unknown; evidenceLedgerUnavailable?: boolean; bundleRunLedgerUnavailable?: boolean; bundleRunHistorySummaryMissing?: boolean } = {}) {
   vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
     const path = pathOf(input);
     if (path === '/v1/pulse') return json({ providerCount: 1, endpointCount: options.endpoints?.length ?? 0, eventCount: 1, averageTrust: 86, averageSignal: 74, hottestNarrative: null, topTrust: [], topSignal: [], data_source: { mode: 'live_pay_sh_catalog', url: 'https://pay.sh/api/catalog', generated_at: observedAt, provider_count: 1, last_ingested_at: observedAt, used_fixture: false }, updatedAt: observedAt });
@@ -741,6 +741,23 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
       winner_claimed: false
     });
     if (options.bundleRunLedgerUnavailable && path === '/v1/radar/bundles/morning-briefing/runs') return Promise.resolve(new Response('{}', { status: 503 }));
+    const bundleRunHistorySummary = {
+      history_count: 2,
+      latest_run_id: 'morning-briefing-run-2026-05-21-084556-pay-cli',
+      previous_run_id: 'morning-briefing-run-2026-05-21-075521-pay-cli',
+      source_count_delta: 1,
+      latest_source_count: 10,
+      previous_source_count: 9,
+      observed_cost_available: false,
+      observed_cost_state: 'unavailable',
+      skipped_review_required_steps_stable: true,
+      latest_skipped_step_count: 2,
+      previous_skipped_step_count: 2,
+      caveat_codes_latest: ['status_code_unavailable', 'observed_cost_unavailable', 'source_map_empty'],
+      caveat_codes_previous: ['status_code_unavailable', 'observed_cost_unavailable', 'source_map_empty'],
+      caveat_delta: { added: [], removed: [] },
+      winner_claimed: false
+    };
     if (path === '/v1/radar/bundles/morning-briefing/runs') return json({
       bundle_id: 'morning-briefing',
       count: 2,
@@ -778,23 +795,7 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
           winner_claimed: false
         }
       ],
-      history_summary: {
-        history_count: 2,
-        latest_run_id: 'morning-briefing-run-2026-05-21-084556-pay-cli',
-        previous_run_id: 'morning-briefing-run-2026-05-21-075521-pay-cli',
-        source_count_delta: 1,
-        latest_source_count: 10,
-        previous_source_count: 9,
-        observed_cost_available: false,
-        observed_cost_state: 'unavailable',
-        skipped_review_required_steps_stable: true,
-        latest_skipped_step_count: 2,
-        previous_skipped_step_count: 2,
-        caveat_codes_latest: ['status_code_unavailable', 'observed_cost_unavailable', 'source_map_empty'],
-        caveat_codes_previous: ['status_code_unavailable', 'observed_cost_unavailable', 'source_map_empty'],
-        caveat_delta: { added: [], removed: [] },
-        winner_claimed: false
-      },
+      ...(options.bundleRunHistorySummaryMissing ? {} : { history_summary: bundleRunHistorySummary }),
       winner_claimed: false,
       agent_guidance: ['Bundle runs are Harness proof records, not benchmark claims.']
     });
@@ -1321,6 +1322,7 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Bundle Run Ledger');
     expect(container.textContent).toContain('Bundle runs are Harness proof records, not benchmark claims.');
     expect(container.textContent).toContain('Radar does not execute paid APIs from this surface.');
+    expect(container.textContent).toContain('Radar remembers controlled Harness runs over time.');
     expect(container.textContent).toContain('controlled_live_run');
     expect(container.textContent).toContain('Morning Briefing controlled Harness run');
     expect(container.textContent).toContain('caveated');
@@ -1332,7 +1334,12 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('winner_claimed=false');
     expect(container.textContent).toContain('2 controlled runs tracked');
     expect(container.textContent).toContain('latest source_count +1');
+    expect(container.textContent).toContain('Run History');
     expect(container.textContent).toContain('observed cost still unavailable');
+    expect(container.textContent).toContain('+1 source');
+    expect(container.textContent).toContain('caveats unchanged');
+    expect(container.textContent).toContain('observed cost unavailable');
+    expect(container.textContent).toContain('skipped review-required steps stable at 2');
     expect(container.textContent).toContain('Latest run');
     expect(container.textContent).toContain('084556-pay-cli');
     expect(container.textContent).toContain('Previous run');
@@ -1396,6 +1403,16 @@ describe('radar endpoint intelligence UI', () => {
     installFetch({ endpoints: [normalizedEndpoint], detailEndpoints: [endpoint], bundleRunLedgerUnavailable: true });
     root = await renderApp(container);
     expect(container.textContent).toContain('Bundle Run Ledger unavailable');
+    expect(container.textContent).toContain('Bundle Run History unavailable');
+  });
+
+  it('shows Bundle Run History unavailable fallback when history summary is missing', async () => {
+    installFetch({ endpoints: [normalizedEndpoint], detailEndpoints: [endpoint], bundleRunHistorySummaryMissing: true });
+    root = await renderApp(container);
+
+    expect(container.textContent).toContain('Bundle Run History unavailable');
+    expect(container.textContent).not.toContain('084556-pay-cli · 10 sources');
+    expect(container.textContent).not.toContain('+1 source');
   });
 
   it('derives homepage recorded and scaffold lane ratio from evidence ledger lane arrays', async () => {
