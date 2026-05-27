@@ -1217,6 +1217,17 @@ type RadarEvidenceLedger = {
 };
 type AgentSpendReadinessState = 'recorded_evidence' | 'caveated_evidence' | 'controlled_run_observed' | 'scaffold_only' | 'catalog_only' | 'blocked_or_unclear';
 type AgentSpendReadiness = 'ready_for_inspection' | 'needs_review' | 'not_ready';
+type AgentReadinessDecisionSummary = {
+  ready_for_agent_review: boolean;
+  requires_rerun_before_spend: boolean;
+  requires_human_or_policy_approval: boolean;
+  observed_cost_available: boolean;
+  winner_claimed: false;
+  decision_state: 'ready_for_review' | 'review_ready_caveated' | 'rerun_required' | 'not_ready';
+  blocking_reasons: string[];
+  review_reasons: string[];
+  recommended_agent_action: string;
+};
 type AgentReadinessCard = {
   provider_id: string;
   provider_label: string;
@@ -1239,6 +1250,7 @@ type AgentReadinessCard = {
   builder_next_step: string;
   agent_guidance: string;
   winner_claimed: false;
+  agent_readiness_summary?: AgentReadinessDecisionSummary;
   share_copy: string;
 };
 type AgentReadinessList = {
@@ -1248,6 +1260,7 @@ type AgentReadinessList = {
   winner_claimed: false;
   agent_guidance: string[];
 };
+type AgentReadinessProofLinkGroup = 'benchmark_history' | 'route_timelines' | 'bundle_runs';
 type TrendDirection = 'improving' | 'stable' | 'degrading' | 'unknown';
 type RiskLevel = 'low' | 'watch' | 'elevated' | 'critical' | 'unknown';
 type RiskRecommendation = 'route normally' | 'route with caution' | 'required fallback route' | 'not recommended for routing' | 'insufficient history';
@@ -1932,6 +1945,64 @@ function updateAgentReadinessPageMetadata() {
   setMetaTag('name', 'twitter:image', 'https://radar.infopunks.fun/og-radar.png');
 }
 
+function agentReadinessInterpretation(state: AgentSpendReadinessState) {
+  if (state === 'recorded_evidence') return 'Artifact-backed route evidence exists. Agents should still inspect caveats before spend.';
+  if (state === 'caveated_evidence') return 'Evidence exists, but caveats require review before routing agents.';
+  if (state === 'controlled_run_observed') return 'A controlled Harness run exists. Agents should inspect run freshness, skipped steps, and caveats.';
+  if (state === 'scaffold_only') return 'This lane was explored but does not yet meet the hard bar for recorded evidence.';
+  if (state === 'catalog_only') return 'Catalog presence exists, but no artifact-backed route evidence has been recorded yet.';
+  return 'Billing, proof, or route semantics remain unclear; this is not ready for automated spend.';
+}
+
+function compactAgentReadinessProofLinkLabel(group: AgentReadinessProofLinkGroup, href: string) {
+  if (group === 'benchmark_history') {
+    const benchmarkId = href.match(/\/benchmark-history\/([^/?#]+)/)?.[1];
+    const label = benchmarkId ? humanizeProofId(decodeURIComponent(benchmarkId)) : null;
+    return label ? `Benchmark history: ${label}` : 'Benchmark history: Proof link';
+  }
+  if (group === 'route_timelines') {
+    const routeId = href.match(/\/routes\/([^/?#]+)/)?.[1];
+    const decoded = routeId ? decodeURIComponent(routeId) : '';
+    const providerId = decoded.split(':')[0] || '';
+    const label = providerId ? humanizeProofId(providerId) : null;
+    return label ? `Route timeline: ${label}` : 'Route timeline: Proof link';
+  }
+  if (group === 'bundle_runs') {
+    const runId = href.match(/\/runs\/([^/?#]+)/)?.[1];
+    const label = runId ? humanizeBundleRunId(decodeURIComponent(runId)) : null;
+    return label ? `Bundle run: ${label}` : 'Bundle run: Proof link';
+  }
+  return 'Proof link';
+}
+
+function humanizeBundleRunId(runId: string) {
+  const match = runId.match(/^([a-z0-9-]+)-run-\d{4}-\d{2}-\d{2}-(\d{6})/i);
+  if (!match) return null;
+  return `${humanizeProofId(match[1])} ${match[2]}`;
+}
+
+function humanizeProofId(id: string) {
+  return id
+    .replace(/^finance-data-/, '')
+    .replace(/^data-/, '')
+    .replace(/^document-/, '')
+    .split(/[-_/]+/g)
+    .filter(Boolean)
+    .map(formatProofLabelPart)
+    .join(' ');
+}
+
+function formatProofLabelPart(part: string) {
+  const known: Record<string, string> = {
+    sol: 'SOL',
+    api: 'API',
+    paysponge: 'PaySponge',
+    coingecko: 'CoinGecko',
+    stablecrypto: 'StableCrypto'
+  };
+  return known[part.toLowerCase()] ?? `${part.charAt(0).toUpperCase()}${part.slice(1)}`;
+}
+
 function benchmarkRouteLabel(route: RadarBenchmarkRouteMetric) {
   const id = route.provider_id.toLowerCase();
   if (route.route_id === 'paysponge-reducto:POST:/parse') return 'PaySponge Reducto';
@@ -2581,13 +2652,14 @@ function AgentReadinessProviderPage({ providerId }: { providerId: string }) {
 
   if (missing || !card) return <div className="shell public-provider-shell"><main className="public-provider-page agent-readiness-public-page" aria-label="Agent Spend Readiness Card"><section className="panel agent-readiness-public-card"><p className="section-kicker">Agent Spend Readiness Card</p><h1>Provider readiness card not found.</h1><p className="panel-caption">No provider readiness card is available for <code>{providerId}</code>.</p><a className="execute compact secondary" href="/">Back to Radar</a></section></main></div>;
 
-  const proofLinks = [
-    ...card.proof_links.benchmark_history.map((href) => ({ href, label: href, group: 'benchmark_history' })),
-    ...card.proof_links.route_timelines.map((href) => ({ href, label: href, group: 'route_timelines' })),
-    ...card.proof_links.bundle_runs.map((href) => ({ href, label: href, group: 'bundle_runs' }))
+  const proofLinks: Array<{ href: string; label: string; group: AgentReadinessProofLinkGroup }> = [
+    ...card.proof_links.benchmark_history.map((href) => ({ href, label: compactAgentReadinessProofLinkLabel('benchmark_history', href), group: 'benchmark_history' as const })),
+    ...card.proof_links.route_timelines.map((href) => ({ href, label: compactAgentReadinessProofLinkLabel('route_timelines', href), group: 'route_timelines' as const })),
+    ...card.proof_links.bundle_runs.map((href) => ({ href, label: compactAgentReadinessProofLinkLabel('bundle_runs', href), group: 'bundle_runs' as const }))
   ];
   const pagePath = `/radar/readiness/${encodeURIComponent(card.provider_id)}`;
   const radarUrl = `https://radar.infopunks.fun${pagePath}`;
+  const whatThisMeans = agentReadinessInterpretation(card.readiness_state);
 
   return <div className="shell public-provider-shell">
     <main className="public-provider-page agent-readiness-public-page" aria-label="Agent Spend Readiness Card">
@@ -2613,6 +2685,10 @@ function AgentReadinessProviderPage({ providerId }: { providerId: string }) {
           <span className={`readiness-chip spend-${card.agent_spend_readiness}`}>{card.agent_spend_readiness}</span>
           <span className="readiness-chip winner-claim">winner_claimed={String(card.winner_claimed)}</span>
         </div>
+        <div className="agent-readiness-meaning" aria-label="What this means">
+          <p className="section-kicker">What this means</p>
+          <p>{whatThisMeans}</p>
+        </div>
         <div className="agent-readiness-summary-grid screenshot-counts" aria-label="Evidence counts row">
           <Metric label="recorded_benchmarks" value={card.evidence_summary.recorded_benchmarks} sub="artifact-backed lanes" />
           <Metric label="proven_routes" value={card.evidence_summary.proven_routes} sub="route proof count" />
@@ -2631,12 +2707,13 @@ function AgentReadinessProviderPage({ providerId }: { providerId: string }) {
           </div>
           <div>
             <div className="agent-readiness-share">
-              <span>Share text</span>
-              <CopyButton value={card.share_copy} label="Copy share text" />
+              <span>Builder share text</span>
+              <CopyButton value={card.share_copy} label="Copy readiness post" />
             </div>
             <pre className="agent-readiness-share-block">{card.share_copy}</pre>
           </div>
         </div>
+        <AgentDecisionSummarySection summary={card.agent_readiness_summary} />
         <p className="agent-readiness-card-footer">Agents should inspect caveats before spend.</p>
       </section>
 
@@ -2645,7 +2722,7 @@ function AgentReadinessProviderPage({ providerId }: { providerId: string }) {
         {proofLinks.length === 0
           ? <p className="panel-caption">No proof links exposed for this card yet.</p>
           : <div className="agent-readiness-proof-links">
-            {proofLinks.map((link) => <a key={`${link.group}:${link.href}`} className="readiness-chip" href={link.href}>{link.group}: {link.label}</a>)}
+            {proofLinks.map((link) => <a key={`${link.group}:${link.href}`} className="readiness-chip proof-link-chip" href={link.href} title={link.href}><span>{link.label}</span><small>{link.href}</small></a>)}
           </div>}
       </section>
 
@@ -2660,6 +2737,29 @@ function AgentReadinessProviderPage({ providerId }: { providerId: string }) {
       </section>
 
     </main>
+  </div>;
+}
+
+function AgentDecisionSummarySection({ summary }: { summary?: AgentReadinessDecisionSummary }) {
+  return <div className="agent-decision-summary" aria-label="Agent Decision Summary">
+    <div>
+      <p className="section-kicker">Agent Decision Summary</p>
+      <p className="panel-caption">Agent Readiness Summary compresses freshness, caveats, skipped steps, and cost visibility into one pre-spend decision object.</p>
+    </div>
+    {summary ? <>
+      <div className="agent-decision-chip-row">
+        <span>ready_for_agent_review={String(summary.ready_for_agent_review)}</span>
+        <span>requires_rerun_before_spend={String(summary.requires_rerun_before_spend)}</span>
+        <span>requires_human_or_policy_approval={String(summary.requires_human_or_policy_approval)}</span>
+        <span>observed_cost_available={String(summary.observed_cost_available)}</span>
+        <span>winner_claimed={String(summary.winner_claimed)}</span>
+        <span>decision_state={summary.decision_state}</span>
+      </div>
+      <p className="agent-decision-action">recommended_agent_action: {summary.recommended_agent_action}</p>
+      {!!summary.review_reasons.length && <div className="agent-decision-review-reasons" aria-label="Review reasons">
+        {summary.review_reasons.map((reason) => <span key={reason}>{reason}</span>)}
+      </div>}
+    </> : <p className="route-state warn">Agent Readiness Summary unavailable for this provider card.</p>}
   </div>;
 }
 
@@ -10600,6 +10700,9 @@ function BenchmarkReadinessPanel({ readiness, loading }: { readiness: RadarBench
 
 function AgentSpendReadinessCardsPanel({ readiness }: { readiness: AgentReadinessList | null }) {
   const cards = readiness?.cards.slice(0, 12) ?? [];
+  const artifactBackedStates = new Set<AgentSpendReadinessState>(['recorded_evidence', 'caveated_evidence', 'controlled_run_observed']);
+  const artifactBackedCards = cards.filter((card) => artifactBackedStates.has(card.readiness_state));
+  const exploredCards = cards.filter((card) => !artifactBackedStates.has(card.readiness_state));
   return <section className="panel agent-readiness-panel" aria-label="Agent Spend Readiness Cards">
     <div className="phase3-panel-head">
       <ScopeLabel scope="GLOBAL" />
@@ -10607,12 +10710,26 @@ function AgentSpendReadinessCardsPanel({ readiness }: { readiness: AgentReadines
     </div>
     <p className="panel-caption">Builders can now see what agents see before spending.</p>
     <p className="panel-caption">Readiness cards are proof-state diagnostics, not rankings.</p>
-    <p className="route-state">Sorted by proof maturity order.</p>
+    <p className="route-state">Grouped by proof maturity, not ranked.</p>
     {!readiness && <EmptyState title="Panel data unavailable" body="Agent readiness cards delayed" />}
-    {!!cards.length && <div className="agent-readiness-grid">
-      {cards.map((card) => <AgentSpendReadinessCardView key={card.provider_id} card={card} />)}
+    {!!cards.length && <div className="agent-readiness-groups">
+      <AgentSpendReadinessCardGroup title="Artifact-backed cards" cards={artifactBackedCards} />
+      <AgentSpendReadinessCardGroup title="Explored / catalog-only cards" cards={exploredCards} />
     </div>}
     {readiness && !cards.length && <EmptyState title="No cards available" body="No provider readiness diagnostics are available yet." />}
+  </section>;
+}
+
+function AgentSpendReadinessCardGroup({ title, cards }: { title: string; cards: AgentReadinessCard[] }) {
+  if (!cards.length) return null;
+  return <section className="agent-readiness-group" aria-label={title}>
+    <div className="agent-readiness-group-head">
+      <h3>{title}</h3>
+      <span>{cards.length} cards</span>
+    </div>
+    <div className="agent-readiness-grid">
+      {cards.map((card) => <AgentSpendReadinessCardView key={card.provider_id} card={card} />)}
+    </div>
   </section>;
 }
 
@@ -10620,12 +10737,15 @@ function AgentSpendReadinessCardView({ card }: { card: AgentReadinessCard }) {
   const blockers = card.evidence_summary.caveat_count > 0
     ? `${card.evidence_summary.caveat_count} caveats / blockers`
     : 'no recorded caveats';
+  const whatThisMeans = agentReadinessInterpretation(card.readiness_state);
   return <article className="agent-readiness-card">
     <div className="agent-readiness-card-head">
       <h3>{card.provider_label}</h3>
       <div className="readiness-chip-row" aria-label="readiness chips">
         <span className={`readiness-chip state-${card.readiness_state}`}>{card.readiness_state}</span>
         <span className={`readiness-chip spend-${card.agent_spend_readiness}`}>{card.agent_spend_readiness}</span>
+        <span className="readiness-chip winner-claim">winner_claimed={String(card.winner_claimed)}</span>
+        {card.agent_readiness_summary && <span className="readiness-chip decision-summary-available">agent decision summary available</span>}
       </div>
     </div>
     <div className="agent-readiness-counts" aria-label="evidence counts">
@@ -10635,10 +10755,11 @@ function AgentSpendReadinessCardView({ card }: { card: AgentReadinessCard }) {
       <span><b>{card.evidence_summary.scaffold_lanes}</b> scaffolds</span>
     </div>
     <p className="agent-readiness-blockers">{blockers}</p>
+    <p className="agent-readiness-what"><b>What this means</b><span>{whatThisMeans}</span></p>
     <p className="agent-readiness-next">{card.builder_next_step}</p>
     <div className="agent-readiness-card-actions">
       <a className="execute compact secondary agent-readiness-open" href={`/radar/readiness/${encodeURIComponent(card.provider_id)}`}>Open readiness card</a>
-      <span className="readiness-chip public-card">Public card</span>
+      <a className="execute compact secondary agent-readiness-share-action" href={`/radar/readiness/${encodeURIComponent(card.provider_id)}`}>Share card</a>
     </div>
     <details className="agent-readiness-detail">
       <summary>Detail</summary>
@@ -10647,8 +10768,8 @@ function AgentSpendReadinessCardView({ card }: { card: AgentReadinessCard }) {
       <p><b>agent guidance</b><span>{card.agent_guidance}</span></p>
     </details>
     <div className="agent-readiness-share">
-      <span>share copy</span>
-      <CopyButton value={card.share_copy} label="Copy share copy" />
+      <span>Public share card</span>
+      <CopyButton value={card.share_copy} label="Copy readiness post" />
     </div>
     <p className="agent-readiness-share-copy">{card.share_copy}</p>
   </article>;

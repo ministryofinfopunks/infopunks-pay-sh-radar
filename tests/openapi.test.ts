@@ -72,6 +72,7 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.AgentReadinessCard).toBeTruthy();
     expect(spec.components.schemas.AgentReadinessState.enum).toContain('recorded_evidence');
     expect(spec.components.schemas.AgentSpendReadiness.enum).toContain('ready_for_inspection');
+    expect(spec.components.schemas.AgentReadinessCard.properties.agent_readiness_summary.$ref).toBe('#/components/schemas/BundleRunAgentReadinessSummary');
     expect(spec.components.schemas.BundleRegistryResponse).toBeTruthy();
     expect(spec.components.schemas.BundleResponse).toBeTruthy();
     expect(spec.components.schemas.BundlePlanRequest).toBeTruthy();

@@ -206,6 +206,7 @@ function finalizeCard(card: MutableCard): AgentSpendReadinessCard {
     route_timelines: unique(card.proof_links.route_timelines),
     bundle_runs: unique(card.proof_links.bundle_runs)
   };
+  const agentReadinessSummary = agentReadinessSummaryFromBundleProofLinks(proofLinks.bundle_runs);
   return {
     provider_id: card.provider_id,
     provider_label: card.provider_label,
@@ -216,8 +217,23 @@ function finalizeCard(card: MutableCard): AgentSpendReadinessCard {
     builder_next_step,
     agent_guidance: agentGuidance(readiness_state),
     winner_claimed: false,
+    ...(agentReadinessSummary ? { agent_readiness_summary: agentReadinessSummary } : {}),
     share_copy: `Radar card: ${card.provider_label} is ${readiness_state}. Proof exists: ${evidenceSummary.recorded_benchmarks} recorded benchmarks, ${evidenceSummary.proven_routes} proven routes, winner_claimed=false. Agents should inspect caveats before spend.`
   };
+}
+
+function agentReadinessSummaryFromBundleProofLinks(bundleRunLinks: string[]): AgentSpendReadinessCard['agent_readiness_summary'] {
+  for (const link of bundleRunLinks) {
+    const match = link.match(/^\/v1\/radar\/bundles\/([^/]+)\/runs(?:\/([^/]+))?$/);
+    if (!match) continue;
+    const bundleId = decodeURIComponent(match[1]);
+    const runId = match[2] ? decodeURIComponent(match[2]) : null;
+    const history = listRadarBundleRuns(bundleId);
+    if (!history?.agent_readiness_summary) continue;
+    if (runId && !history.runs.some((run) => run.run_id === runId)) continue;
+    return history.agent_readiness_summary;
+  }
+  return undefined;
 }
 
 function readinessState(card: MutableCard): AgentSpendReadinessState {

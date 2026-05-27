@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { createApp } from '../src/api/app';
 import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
 
@@ -58,5 +58,37 @@ describe('agent spend readiness cards', () => {
     expect(missing.json()).toEqual({ error: 'provider_readiness_not_found' });
 
     await app.close();
+  });
+
+  it('attaches bundle-run agent readiness summaries only when a card has a matching bundle run proof link', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-05-21T21:15:56.919Z'));
+    const app = await createApp(emptyIntelligenceStore());
+    try {
+      const response = await app.inject({ method: 'GET', url: '/v1/radar/agent-readiness/paysponge-coingecko' });
+      expect(response.statusCode).toBe(200);
+      const card = response.json().data;
+      expect(card.proof_links.bundle_runs).toContain('/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli');
+      expect(card.agent_readiness_summary).toBeTruthy();
+      expect(card.agent_readiness_summary.ready_for_agent_review).toBe(true);
+      expect(card.agent_readiness_summary.requires_rerun_before_spend).toBe(false);
+      expect(card.agent_readiness_summary.requires_human_or_policy_approval).toBe(true);
+      expect(card.agent_readiness_summary.observed_cost_available).toBe(false);
+      expect(card.agent_readiness_summary.winner_claimed).toBe(false);
+      expect(card.agent_readiness_summary.decision_state).toBe('review_ready_caveated');
+      expect(card.agent_readiness_summary.review_reasons.length).toBeGreaterThan(0);
+      expect(card.agent_readiness_summary.recommended_agent_action).toBe('Inspect latest run detail, skipped review-required steps, and caveats before spend.');
+
+      const list = (await app.inject({ method: 'GET', url: '/v1/radar/agent-readiness' })).json().data;
+      const withoutBundleSummary = list.cards.find((row: { proof_links: { bundle_runs: string[] }; agent_readiness_summary?: unknown }) => row.proof_links.bundle_runs.length === 0);
+      expect(withoutBundleSummary).toBeTruthy();
+      expect(withoutBundleSummary.agent_readiness_summary).toBeUndefined();
+
+      const serialized = JSON.stringify(card).toLowerCase();
+      for (const phrase of bannedLanguage) expect(serialized).not.toContain(phrase);
+    } finally {
+      await app.close();
+      vi.useRealTimers();
+    }
   });
 });

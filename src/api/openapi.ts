@@ -1020,6 +1020,17 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
           builder_next_step: 'Inspect latest route timeline and caveats before routing agents.',
           agent_guidance: 'Artifact-backed route evidence exists; inspect latest route timelines and caveats before spend.',
           winner_claimed: false,
+          agent_readiness_summary: {
+            ready_for_agent_review: true,
+            requires_rerun_before_spend: false,
+            requires_human_or_policy_approval: true,
+            observed_cost_available: false,
+            winner_claimed: false,
+            decision_state: 'review_ready_caveated',
+            blocking_reasons: [],
+            review_reasons: ['billing_unclear_steps_skipped', 'observed_cost_unavailable', 'status_code_unavailable'],
+            recommended_agent_action: 'Inspect latest run detail, skipped review-required steps, and caveats before spend.'
+          },
           share_copy: 'Radar card: CoinGecko Onchain DEX API is recorded_evidence. Proof exists: 3 recorded benchmarks, 3 proven routes, winner_claimed=false. Agents should inspect caveats before spend.'
         }
       ],
@@ -1044,10 +1055,21 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
         readiness_state: 'recorded_evidence',
         agent_spend_readiness: 'ready_for_inspection',
         evidence_summary: { recorded_benchmarks: 3, proven_routes: 3, controlled_bundle_runs: 2, scaffold_lanes: 0, caveat_count: 0, latest_artifact_id: 'finance-data-token-metadata-benchmark-runs-2026-05-19', latest_observed_at: '2026-05-19T00:00:00.000Z' },
-        proof_links: { benchmark_history: ['/v1/radar/benchmark-history/finance-data-token-metadata'], route_timelines: [], bundle_runs: [] },
+        proof_links: { benchmark_history: ['/v1/radar/benchmark-history/finance-data-token-metadata'], route_timelines: [], bundle_runs: ['/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli'] },
         builder_next_step: 'Inspect latest route timeline and caveats before routing agents.',
         agent_guidance: 'Artifact-backed route evidence exists; inspect latest route timelines and caveats before spend.',
         winner_claimed: false,
+        agent_readiness_summary: {
+          ready_for_agent_review: true,
+          requires_rerun_before_spend: false,
+          requires_human_or_policy_approval: true,
+          observed_cost_available: false,
+          winner_claimed: false,
+          decision_state: 'review_ready_caveated',
+          blocking_reasons: [],
+          review_reasons: ['billing_unclear_steps_skipped', 'observed_cost_unavailable', 'status_code_unavailable'],
+          recommended_agent_action: 'Inspect latest run detail, skipped review-required steps, and caveats before spend.'
+        },
         share_copy: 'Radar card: CoinGecko Onchain DEX API is recorded_evidence. Proof exists: 3 recorded benchmarks, 3 proven routes, winner_claimed=false. Agents should inspect caveats before spend.'
       },
       'provider_readiness_not_found'
@@ -1927,6 +1949,7 @@ function componentSchemas(): Record<string, JsonSchema> {
       builder_next_step: stringSchema(),
       agent_guidance: stringSchema(),
       winner_claimed: { const: false },
+      agent_readiness_summary: { $ref: '#/components/schemas/BundleRunAgentReadinessSummary' },
       share_copy: stringSchema()
     }),
     AgentReadinessListResponse: objectSchema({

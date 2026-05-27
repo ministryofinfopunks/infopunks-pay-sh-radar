@@ -146,6 +146,29 @@ function installFetchMock() {
         agent_guidance: 'Artifact-backed route evidence exists; inspect latest route timelines and caveats before spend.',
         winner_claimed: false,
         share_copy: 'Radar card: Receipt API is recorded_evidence. Proof exists: 1 recorded benchmarks, 1 proven routes, winner_claimed=false. Agents should inspect caveats before spend.'
+      }, {
+        provider_id: 'catalog-only',
+        provider_label: 'Catalog Only API',
+        readiness_state: 'catalog_only',
+        agent_spend_readiness: 'not_ready',
+        evidence_summary: {
+          recorded_benchmarks: 0,
+          proven_routes: 0,
+          controlled_bundle_runs: 0,
+          scaffold_lanes: 0,
+          caveat_count: 0,
+          latest_artifact_id: null,
+          latest_observed_at: null
+        },
+        proof_links: {
+          benchmark_history: [],
+          route_timelines: [],
+          bundle_runs: []
+        },
+        builder_next_step: 'No artifact-backed route evidence yet; start with unpaid 402 verification and one controlled paid proof.',
+        agent_guidance: 'Catalog metadata exists, but no proof lane is recorded yet.',
+        winner_claimed: false,
+        share_copy: 'Radar card: Catalog Only API is catalog_only. Proof exists: 0 recorded benchmarks, 0 proven routes, winner_claimed=false. Agents should inspect caveats before spend.'
       }],
       winner_claimed: false,
       agent_guidance: ['Readiness cards are proof-state diagnostics, not rankings.']
@@ -206,11 +229,17 @@ describe('frontend evidence receipts', () => {
     expect(container.textContent).toContain('Agent Spend Readiness Cards');
     expect(container.textContent).toContain('Builders can now see what agents see before spending.');
     expect(container.textContent).toContain('proof-state diagnostics, not rankings.');
+    expect(container.textContent).toContain('Grouped by proof maturity, not ranked.');
+    expect(container.textContent).toContain('Artifact-backed cards');
+    expect(container.textContent).toContain('Explored / catalog-only cards');
     expect(container.textContent).toContain('recorded_evidence');
     expect(container.textContent).toContain('ready_for_inspection');
-    expect(container.textContent).toContain('share copy');
+    expect(container.textContent).toContain('winner_claimed=false');
+    expect(container.textContent).toContain('Artifact-backed route evidence exists. Agents should still inspect caveats before spend.');
+    expect(container.textContent).toContain('Catalog presence exists, but no artifact-backed route evidence has been recorded yet.');
+    expect(container.textContent).toContain('Public share card');
     expect(container.textContent).toContain('Open readiness card');
-    expect(container.textContent).toContain('Public card');
+    expect(container.textContent).toContain('Share card');
     expect(container.querySelector('a[href="/radar/readiness/receipt"]')).not.toBeNull();
   });
 });

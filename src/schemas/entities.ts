@@ -1046,6 +1046,18 @@ export const AgentSpendReadinessSchema = z.enum([
   'not_ready'
 ]);
 
+export const BundleRunAgentReadinessSummarySchema = z.object({
+  ready_for_agent_review: z.boolean(),
+  requires_rerun_before_spend: z.boolean(),
+  requires_human_or_policy_approval: z.boolean(),
+  observed_cost_available: z.boolean(),
+  winner_claimed: z.literal(false),
+  decision_state: z.enum(['ready_for_review', 'review_ready_caveated', 'rerun_required', 'not_ready']),
+  blocking_reasons: z.array(z.enum(['freshness_stale', 'winner_claimed_true'])),
+  review_reasons: z.array(z.enum(['billing_unclear_steps_skipped', 'observed_cost_unavailable', 'status_code_unavailable', 'source_map_empty'])),
+  recommended_agent_action: z.string()
+});
+
 export const AgentSpendReadinessCardSchema = z.object({
   provider_id: z.string(),
   provider_label: z.string(),
@@ -1068,6 +1080,7 @@ export const AgentSpendReadinessCardSchema = z.object({
   builder_next_step: z.string(),
   agent_guidance: z.string(),
   winner_claimed: z.literal(false),
+  agent_readiness_summary: BundleRunAgentReadinessSummarySchema.optional(),
   share_copy: z.string()
 });
 
@@ -1303,18 +1316,6 @@ export const BundleRunFreshnessSchema = z.object({
   }),
   recommended_agent_action: z.string()
 }).nullable();
-
-export const BundleRunAgentReadinessSummarySchema = z.object({
-  ready_for_agent_review: z.boolean(),
-  requires_rerun_before_spend: z.boolean(),
-  requires_human_or_policy_approval: z.boolean(),
-  observed_cost_available: z.boolean(),
-  winner_claimed: z.literal(false),
-  decision_state: z.enum(['ready_for_review', 'review_ready_caveated', 'rerun_required', 'not_ready']),
-  blocking_reasons: z.array(z.enum(['freshness_stale', 'winner_claimed_true'])),
-  review_reasons: z.array(z.enum(['billing_unclear_steps_skipped', 'observed_cost_unavailable', 'status_code_unavailable', 'source_map_empty'])),
-  recommended_agent_action: z.string()
-});
 
 export const BundleRunDetailSchema = z.object({
   run_id: z.string(),
