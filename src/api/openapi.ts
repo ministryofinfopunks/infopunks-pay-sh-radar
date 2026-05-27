@@ -1019,6 +1019,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
           proof_links: { benchmark_history: ['/v1/radar/benchmark-history/finance-data-token-metadata'], route_timelines: ['/v1/radar/benchmark-history/finance-data-token-metadata/routes/paysponge-coingecko%3AGET%3A%2Fx402%2Fonchain%2Ftokens'], bundle_runs: ['/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli'] },
           builder_next_step: 'Inspect latest route timeline and caveats before routing agents.',
           agent_guidance: 'Artifact-backed route evidence exists; inspect latest route timelines and caveats before spend.',
+          what_this_means: 'Artifact-backed route evidence exists. Agents should still inspect caveats before spend.',
           winner_claimed: false,
           agent_readiness_summary: {
             ready_for_agent_review: true,
@@ -1058,6 +1059,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
         proof_links: { benchmark_history: ['/v1/radar/benchmark-history/finance-data-token-metadata'], route_timelines: [], bundle_runs: ['/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli'] },
         builder_next_step: 'Inspect latest route timeline and caveats before routing agents.',
         agent_guidance: 'Artifact-backed route evidence exists; inspect latest route timelines and caveats before spend.',
+        what_this_means: 'Artifact-backed route evidence exists. Agents should still inspect caveats before spend.',
         winner_claimed: false,
         agent_readiness_summary: {
           ready_for_agent_review: true,
@@ -1948,6 +1950,7 @@ function componentSchemas(): Record<string, JsonSchema> {
       proof_links: { $ref: '#/components/schemas/AgentReadinessProofLinks' },
       builder_next_step: stringSchema(),
       agent_guidance: stringSchema(),
+      what_this_means: stringSchema(),
       winner_claimed: { const: false },
       agent_readiness_summary: { $ref: '#/components/schemas/BundleRunAgentReadinessSummary' },
       share_copy: stringSchema()

@@ -1079,6 +1079,7 @@ export const AgentSpendReadinessCardSchema = z.object({
   }),
   builder_next_step: z.string(),
   agent_guidance: z.string(),
+  what_this_means: z.string().min(1),
   winner_claimed: z.literal(false),
   agent_readiness_summary: BundleRunAgentReadinessSummarySchema.optional(),
   share_copy: z.string()

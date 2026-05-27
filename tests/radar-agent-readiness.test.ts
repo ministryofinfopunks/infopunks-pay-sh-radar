@@ -31,14 +31,39 @@ describe('agent spend readiness cards', () => {
       expect(card).toHaveProperty('readiness_state');
       expect(card).toHaveProperty('agent_spend_readiness');
       expect(card).toHaveProperty('builder_next_step');
+      expect(card).toHaveProperty('what_this_means');
       expect(card).toHaveProperty('share_copy');
+      expect(card.what_this_means).toEqual(expect.any(String));
+      expect(card.what_this_means.length).toBeGreaterThan(0);
       expect(card.winner_claimed).toBe(false);
     }
 
-    expect(data.cards.some((card: { readiness_state: string }) => card.readiness_state === 'recorded_evidence')).toBe(true);
+    const recordedCard = data.cards.find((card: { readiness_state: string }) => card.readiness_state === 'recorded_evidence');
+    expect(recordedCard?.what_this_means).toBe('Artifact-backed route evidence exists. Agents should still inspect caveats before spend.');
+    const blockedOrUnclearCard = data.cards.find((card: { readiness_state: string }) => card.readiness_state === 'blocked_or_unclear');
+    if (blockedOrUnclearCard) expect(blockedOrUnclearCard.what_this_means).toBe('Billing, proof, or route semantics remain unclear; this is not ready for automated spend.');
+    expect(recordedCard).toBeTruthy();
     expect(data.cards.some((card: { readiness_state: string }) => card.readiness_state === 'scaffold_only' || card.readiness_state === 'blocked_or_unclear')).toBe(true);
 
     const serialized = JSON.stringify(data).toLowerCase();
+    for (const phrase of bannedLanguage) expect(serialized).not.toContain(phrase);
+
+    await app.close();
+  });
+
+  it('derives catalog-only interpretation for catalog-only provider cards', async () => {
+    const store = emptyIntelligenceStore();
+    store.providers.push({ id: 'catalog-only-api', name: 'Catalog Only API' } as never);
+    const app = await createApp(store);
+    const response = await app.inject({ method: 'GET', url: '/v1/radar/agent-readiness' });
+
+    expect(response.statusCode).toBe(200);
+    const data = response.json().data;
+    const catalogOnlyCard = data.cards.find((card: { provider_id: string }) => card.provider_id === 'catalog-only-api');
+    expect(catalogOnlyCard.readiness_state).toBe('catalog_only');
+    expect(catalogOnlyCard.what_this_means).toBe('Catalog presence exists, but no artifact-backed route evidence has been recorded yet.');
+
+    const serialized = JSON.stringify(catalogOnlyCard).toLowerCase();
     for (const phrase of bannedLanguage) expect(serialized).not.toContain(phrase);
 
     await app.close();
@@ -68,6 +93,8 @@ describe('agent spend readiness cards', () => {
       const response = await app.inject({ method: 'GET', url: '/v1/radar/agent-readiness/paysponge-coingecko' });
       expect(response.statusCode).toBe(200);
       const card = response.json().data;
+      expect(card.what_this_means).toBe('Artifact-backed route evidence exists. Agents should still inspect caveats before spend.');
+      expect(card.what_this_means).not.toBeNull();
       expect(card.proof_links.bundle_runs).toContain('/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli');
       expect(card.agent_readiness_summary).toBeTruthy();
       expect(card.agent_readiness_summary.ready_for_agent_review).toBe(true);

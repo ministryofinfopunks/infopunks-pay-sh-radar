@@ -14,7 +14,7 @@ import {
   AgentSpendReadinessState
 } from '../schemas/entities';
 
-type MutableCard = Omit<AgentSpendReadinessCard, 'readiness_state' | 'agent_spend_readiness' | 'builder_next_step' | 'agent_guidance' | 'share_copy'> & {
+type MutableCard = Omit<AgentSpendReadinessCard, 'readiness_state' | 'agent_spend_readiness' | 'builder_next_step' | 'agent_guidance' | 'what_this_means' | 'share_copy'> & {
   routeEvidenceHealth: Set<string>;
   routeCaveatCount: number;
   blockerNotes: string[];
@@ -216,6 +216,7 @@ function finalizeCard(card: MutableCard): AgentSpendReadinessCard {
     proof_links: proofLinks,
     builder_next_step,
     agent_guidance: agentGuidance(readiness_state),
+    what_this_means: deriveReadinessMeaning(readiness_state),
     winner_claimed: false,
     ...(agentReadinessSummary ? { agent_readiness_summary: agentReadinessSummary } : {}),
     share_copy: `Radar card: ${card.provider_label} is ${readiness_state}. Proof exists: ${evidenceSummary.recorded_benchmarks} recorded benchmarks, ${evidenceSummary.proven_routes} proven routes, winner_claimed=false. Agents should inspect caveats before spend.`
@@ -269,6 +270,15 @@ function agentGuidance(state: AgentSpendReadinessState) {
   if (state === 'blocked_or_unclear') return 'Do not route autonomous spend until blockers or billing-boundary ambiguity are resolved.';
   if (state === 'scaffold_only') return 'Treat this as explored evidence only; benchmark-grade proof is not recorded.';
   return 'Catalog metadata exists, but no proof lane is recorded yet.';
+}
+
+export function deriveReadinessMeaning(state: AgentSpendReadinessState) {
+  if (state === 'recorded_evidence') return 'Artifact-backed route evidence exists. Agents should still inspect caveats before spend.';
+  if (state === 'caveated_evidence') return 'Evidence exists, but caveats require review before routing agents.';
+  if (state === 'controlled_run_observed') return 'A controlled Harness run exists. Agents should inspect run freshness, skipped steps, and caveats.';
+  if (state === 'scaffold_only') return 'This lane was explored but does not yet meet the hard bar for recorded evidence.';
+  if (state === 'catalog_only') return 'Catalog presence exists, but no artifact-backed route evidence has been recorded yet.';
+  return 'Billing, proof, or route semantics remain unclear; this is not ready for automated spend.';
 }
 
 function latestIso(current: string | null, candidate: string) {

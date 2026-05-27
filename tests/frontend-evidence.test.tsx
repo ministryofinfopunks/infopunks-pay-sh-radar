@@ -144,6 +144,7 @@ function installFetchMock() {
         },
         builder_next_step: 'Inspect latest route timeline and caveats before routing agents.',
         agent_guidance: 'Artifact-backed route evidence exists; inspect latest route timelines and caveats before spend.',
+        what_this_means: 'Artifact-backed route evidence exists. Agents should still inspect caveats before spend.',
         winner_claimed: false,
         share_copy: 'Radar card: Receipt API is recorded_evidence. Proof exists: 1 recorded benchmarks, 1 proven routes, winner_claimed=false. Agents should inspect caveats before spend.'
       }, {
@@ -167,6 +168,7 @@ function installFetchMock() {
         },
         builder_next_step: 'No artifact-backed route evidence yet; start with unpaid 402 verification and one controlled paid proof.',
         agent_guidance: 'Catalog metadata exists, but no proof lane is recorded yet.',
+        what_this_means: 'Catalog presence exists, but no artifact-backed route evidence has been recorded yet.',
         winner_claimed: false,
         share_copy: 'Radar card: Catalog Only API is catalog_only. Proof exists: 0 recorded benchmarks, 0 proven routes, winner_claimed=false. Agents should inspect caveats before spend.'
       }],

@@ -51,6 +51,7 @@ function readinessCard(withSummary = true) {
     },
     builder_next_step: 'Inspect latest route timeline and caveats before routing agents.',
     agent_guidance: 'Artifact-backed route evidence exists; inspect latest route timelines and caveats before spend.',
+    what_this_means: 'Artifact-backed route evidence exists. Agents should still inspect caveats before spend.',
     winner_claimed: false,
     share_copy: 'Radar card: CoinGecko Onchain DEX API is recorded_evidence. Proof exists: 3 recorded benchmarks, 3 proven routes, winner_claimed=false. Agents should inspect caveats before spend.'
   };

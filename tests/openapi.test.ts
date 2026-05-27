@@ -72,7 +72,10 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.AgentReadinessCard).toBeTruthy();
     expect(spec.components.schemas.AgentReadinessState.enum).toContain('recorded_evidence');
     expect(spec.components.schemas.AgentSpendReadiness.enum).toContain('ready_for_inspection');
+    expect(spec.components.schemas.AgentReadinessCard.properties.what_this_means).toBeTruthy();
     expect(spec.components.schemas.AgentReadinessCard.properties.agent_readiness_summary.$ref).toBe('#/components/schemas/BundleRunAgentReadinessSummary');
+    expect(JSON.stringify(spec.paths['/v1/radar/agent-readiness'])).toContain('what_this_means');
+    expect(JSON.stringify(spec.paths['/v1/radar/agent-readiness/{provider_id}'])).toContain('Artifact-backed route evidence exists. Agents should still inspect caveats before spend.');
     expect(spec.components.schemas.BundleRegistryResponse).toBeTruthy();
     expect(spec.components.schemas.BundleResponse).toBeTruthy();
     expect(spec.components.schemas.BundlePlanRequest).toBeTruthy();

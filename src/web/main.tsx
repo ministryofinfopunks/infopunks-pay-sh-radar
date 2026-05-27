@@ -1249,6 +1249,7 @@ type AgentReadinessCard = {
   };
   builder_next_step: string;
   agent_guidance: string;
+  what_this_means?: string;
   winner_claimed: false;
   agent_readiness_summary?: AgentReadinessDecisionSummary;
   share_copy: string;
@@ -2659,7 +2660,7 @@ function AgentReadinessProviderPage({ providerId }: { providerId: string }) {
   ];
   const pagePath = `/radar/readiness/${encodeURIComponent(card.provider_id)}`;
   const radarUrl = `https://radar.infopunks.fun${pagePath}`;
-  const whatThisMeans = agentReadinessInterpretation(card.readiness_state);
+  const whatThisMeans = card.what_this_means ?? agentReadinessInterpretation(card.readiness_state);
 
   return <div className="shell public-provider-shell">
     <main className="public-provider-page agent-readiness-public-page" aria-label="Agent Spend Readiness Card">
@@ -10737,7 +10738,7 @@ function AgentSpendReadinessCardView({ card }: { card: AgentReadinessCard }) {
   const blockers = card.evidence_summary.caveat_count > 0
     ? `${card.evidence_summary.caveat_count} caveats / blockers`
     : 'no recorded caveats';
-  const whatThisMeans = agentReadinessInterpretation(card.readiness_state);
+  const whatThisMeans = card.what_this_means ?? agentReadinessInterpretation(card.readiness_state);
   return <article className="agent-readiness-card">
     <div className="agent-readiness-card-head">
       <h3>{card.provider_label}</h3>
