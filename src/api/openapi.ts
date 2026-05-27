@@ -1001,6 +1001,58 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       winner_claimed: false
     }
   ));
+  add('get', '/v1/radar/agent-readiness', radarGet(
+    'Radar Readiness',
+    'List Agent Spend Readiness Cards',
+    'Returns provider-level proof-state diagnostics for builders. Cards derive from existing Radar catalog, benchmark history, route timelines, scaffold lanes, bundle registry, and bundle run ledger data. They are not rankings and do not claim winners.',
+    { $ref: '#/components/schemas/AgentReadinessListResponse' },
+    {
+      count: 2,
+      generated_at: '2026-05-27T00:00:00.000Z',
+      cards: [
+        {
+          provider_id: 'paysponge-coingecko',
+          provider_label: 'CoinGecko Onchain DEX API',
+          readiness_state: 'recorded_evidence',
+          agent_spend_readiness: 'ready_for_inspection',
+          evidence_summary: { recorded_benchmarks: 3, proven_routes: 3, controlled_bundle_runs: 2, scaffold_lanes: 0, caveat_count: 0, latest_artifact_id: 'finance-data-token-metadata-benchmark-runs-2026-05-19', latest_observed_at: '2026-05-19T00:00:00.000Z' },
+          proof_links: { benchmark_history: ['/v1/radar/benchmark-history/finance-data-token-metadata'], route_timelines: ['/v1/radar/benchmark-history/finance-data-token-metadata/routes/paysponge-coingecko%3AGET%3A%2Fx402%2Fonchain%2Ftokens'], bundle_runs: ['/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli'] },
+          builder_next_step: 'Inspect latest route timeline and caveats before routing agents.',
+          agent_guidance: 'Artifact-backed route evidence exists; inspect latest route timelines and caveats before spend.',
+          winner_claimed: false,
+          share_copy: 'Radar card: CoinGecko Onchain DEX API is recorded_evidence. Proof exists: 3 recorded benchmarks, 3 proven routes, winner_claimed=false. Agents should inspect caveats before spend.'
+        }
+      ],
+      winner_claimed: false,
+      agent_guidance: [
+        'Readiness cards are proof-state diagnostics, not rankings.',
+        'Agents should inspect route timelines, caveats, and latest artifacts before spend.',
+        'winner_claimed=false means no provider winner should be inferred.'
+      ]
+    }
+  ));
+  add('get', '/v1/radar/agent-readiness/{provider_id}', {
+    tags: ['Radar Readiness'],
+    summary: 'Get Agent Spend Readiness Card',
+    description: 'Returns one provider proof-state diagnostic card. This endpoint is read-only, does not execute paid APIs, is not a ranking, and does not claim a winner.',
+    parameters: [pathParam('provider_id', 'Provider identifier.')],
+    responses: envelopedResponses(
+      { $ref: '#/components/schemas/AgentReadinessCard' },
+      {
+        provider_id: 'paysponge-coingecko',
+        provider_label: 'CoinGecko Onchain DEX API',
+        readiness_state: 'recorded_evidence',
+        agent_spend_readiness: 'ready_for_inspection',
+        evidence_summary: { recorded_benchmarks: 3, proven_routes: 3, controlled_bundle_runs: 2, scaffold_lanes: 0, caveat_count: 0, latest_artifact_id: 'finance-data-token-metadata-benchmark-runs-2026-05-19', latest_observed_at: '2026-05-19T00:00:00.000Z' },
+        proof_links: { benchmark_history: ['/v1/radar/benchmark-history/finance-data-token-metadata'], route_timelines: [], bundle_runs: [] },
+        builder_next_step: 'Inspect latest route timeline and caveats before routing agents.',
+        agent_guidance: 'Artifact-backed route evidence exists; inspect latest route timelines and caveats before spend.',
+        winner_claimed: false,
+        share_copy: 'Radar card: CoinGecko Onchain DEX API is recorded_evidence. Proof exists: 3 recorded benchmarks, 3 proven routes, winner_claimed=false. Agents should inspect caveats before spend.'
+      },
+      'provider_readiness_not_found'
+    )
+  });
   add('get', '/v1/radar/bundles', radarGet(
     'Radar Agent',
     'List read-only bundle registry',
@@ -1837,6 +1889,41 @@ function componentSchemas(): Record<string, JsonSchema> {
       recommended_agent_action: stringSchema(),
       agent_guidance: arrayOf(stringSchema()),
       winner_claimed: booleanSchema()
+    }),
+    AgentReadinessState: { type: 'string', enum: ['recorded_evidence', 'caveated_evidence', 'controlled_run_observed', 'scaffold_only', 'catalog_only', 'blocked_or_unclear'] },
+    AgentSpendReadiness: { type: 'string', enum: ['ready_for_inspection', 'needs_review', 'not_ready'] },
+    AgentReadinessEvidenceSummary: objectSchema({
+      recorded_benchmarks: integerSchema(),
+      proven_routes: integerSchema(),
+      controlled_bundle_runs: integerSchema(),
+      scaffold_lanes: integerSchema(),
+      caveat_count: integerSchema(),
+      latest_artifact_id: { oneOf: [stringSchema(), { type: 'null' }] },
+      latest_observed_at: { oneOf: [dateTimeSchema(), { type: 'null' }] }
+    }),
+    AgentReadinessProofLinks: objectSchema({
+      benchmark_history: arrayOf(stringSchema()),
+      route_timelines: arrayOf(stringSchema()),
+      bundle_runs: arrayOf(stringSchema())
+    }),
+    AgentReadinessCard: objectSchema({
+      provider_id: stringSchema(),
+      provider_label: stringSchema(),
+      readiness_state: { $ref: '#/components/schemas/AgentReadinessState' },
+      agent_spend_readiness: { $ref: '#/components/schemas/AgentSpendReadiness' },
+      evidence_summary: { $ref: '#/components/schemas/AgentReadinessEvidenceSummary' },
+      proof_links: { $ref: '#/components/schemas/AgentReadinessProofLinks' },
+      builder_next_step: stringSchema(),
+      agent_guidance: stringSchema(),
+      winner_claimed: { const: false },
+      share_copy: stringSchema()
+    }),
+    AgentReadinessListResponse: objectSchema({
+      count: integerSchema(),
+      generated_at: dateTimeSchema(),
+      cards: arrayOf({ $ref: '#/components/schemas/AgentReadinessCard' }),
+      winner_claimed: { const: false },
+      agent_guidance: arrayOf(stringSchema())
     }),
     BundleStatus: { type: 'string', enum: ['recipe_scaffold', 'partially_supported', 'research_only_pending_billing_review', 'execution_ready', 'recorded'] },
     BundleExecutionBoundary: { type: 'string', enum: ['clean_402', 'paid_proven', 'billing_unclear', 'billable_probe_observed', 'blocked'] },

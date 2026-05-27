@@ -34,6 +34,8 @@ import {
   RadarBenchmarkRouteHistoryDetailSchema,
   RadarBenchmarkArtifactListSchema,
   RadarBenchmarkArtifactSchema,
+  AgentSpendReadinessCardSchema,
+  AgentSpendReadinessListSchema,
   RadarPreflightRequestSchema,
   RadarPreflightResponseSchema,
   RadarRiskResponseSchema,
@@ -71,6 +73,7 @@ import { buildRadarBundlePlan, getRadarBundleById, listRadarBundles } from '../s
 import { getRadarBundleRunById, listRadarBundleRuns } from '../services/radarBundleRunLedgerService';
 import { buildEcosystemHistory, buildEndpointHistory, buildProviderHistory, normalizeHistoryWindow } from '../services/radarHistoryService';
 import { buildEcosystemRiskSummary, buildEndpointRiskAssessment, buildProviderRiskAssessment } from '../services/radarRiskService';
+import { buildAgentSpendReadiness, getAgentSpendReadinessCard } from '../services/radarAgentReadinessService';
 import { createResponseCache } from '../services/responseCache';
 import { DEFAULT_LIVE_CATALOG_URL } from '../ingestion/payShCatalogAdapter';
 import { degradationsCsv, endpointsCsv, providersCsv, routeCandidatesCsv } from '../services/radarCsvService';
@@ -1196,6 +1199,16 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   app.get('/v1/radar/evidence-ledger/brief', async () => ({
     data: safeJsonExport(RadarEvidenceLedgerBriefSchema.parse(buildRadarEvidenceLedgerBrief()))
   }));
+  app.get('/v1/radar/agent-readiness', async () => ({
+    data: safeJsonExport(AgentSpendReadinessListSchema.parse(buildAgentSpendReadiness(store)))
+  }));
+  app.get<{ Params: { provider_id: string } }>('/v1/radar/agent-readiness/:provider_id', async (req, reply) => {
+    const card = getAgentSpendReadinessCard(store, req.params.provider_id);
+    if (!card) return reply.code(404).send({ error: 'provider_readiness_not_found' });
+    return {
+      data: safeJsonExport(AgentSpendReadinessCardSchema.parse(card))
+    };
+  });
   app.get('/v1/radar/bundles', async () => ({
     data: safeJsonExport(RadarBundleListSchema.parse(listRadarBundles()))
   }));

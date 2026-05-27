@@ -1204,6 +1204,39 @@ type RadarEvidenceLedger = {
   scaffold_lanes: RadarEvidenceLedgerScaffoldLane[];
   latest_artifacts: RadarEvidenceLedgerLatestArtifact[];
 };
+type AgentSpendReadinessState = 'recorded_evidence' | 'caveated_evidence' | 'controlled_run_observed' | 'scaffold_only' | 'catalog_only' | 'blocked_or_unclear';
+type AgentSpendReadiness = 'ready_for_inspection' | 'needs_review' | 'not_ready';
+type AgentReadinessCard = {
+  provider_id: string;
+  provider_label: string;
+  readiness_state: AgentSpendReadinessState;
+  agent_spend_readiness: AgentSpendReadiness;
+  evidence_summary: {
+    recorded_benchmarks: number;
+    proven_routes: number;
+    controlled_bundle_runs: number;
+    scaffold_lanes: number;
+    caveat_count: number;
+    latest_artifact_id: string | null;
+    latest_observed_at: string | null;
+  };
+  proof_links: {
+    benchmark_history: string[];
+    route_timelines: string[];
+    bundle_runs: string[];
+  };
+  builder_next_step: string;
+  agent_guidance: string;
+  winner_claimed: false;
+  share_copy: string;
+};
+type AgentReadinessList = {
+  count: number;
+  generated_at: string;
+  cards: AgentReadinessCard[];
+  winner_claimed: false;
+  agent_guidance: string[];
+};
 type TrendDirection = 'improving' | 'stable' | 'degrading' | 'unknown';
 type RiskLevel = 'low' | 'watch' | 'elevated' | 'critical' | 'unknown';
 type RiskRecommendation = 'route normally' | 'route with caution' | 'required fallback route' | 'not recommended for routing' | 'insufficient history';
@@ -8271,6 +8304,7 @@ function RadarApp() {
   const [benchmarkReadiness, setBenchmarkReadiness] = useState<RadarBenchmarkReadiness | null>(null);
   const [benchmarkRegistry, setBenchmarkRegistry] = useState<RadarBenchmarkRegistry | null>(null);
   const [evidenceLedger, setEvidenceLedger] = useState<RadarEvidenceLedger | null>(null);
+  const [agentReadiness, setAgentReadiness] = useState<AgentReadinessList | null>(null);
   const [routeMappingRegistry, setRouteMappingRegistry] = useState<RadarRouteMappingRegistry | null>(null);
   const [mappingTargetRegistry, setMappingTargetRegistry] = useState<RadarMappingTargetRegistry | null>(null);
   const [routeMappingStatusFilter, setRouteMappingStatusFilter] = useState<RouteMappingStatusFilter>('all');
@@ -8500,6 +8534,15 @@ function RadarApp() {
           .catch(() => {
             if (!active) return;
             setEvidenceLedger(null);
+          });
+        api<{ data: AgentReadinessList }>('/v1/radar/agent-readiness', undefined, SECONDARY_TIMEOUT_MS)
+          .then((response) => {
+            if (!active) return;
+            setAgentReadiness(response.data);
+          })
+          .catch(() => {
+            if (!active) return;
+            setAgentReadiness(null);
           });
         if (providers?.length) {
           void Promise.allSettled(providers.slice(0, 120).map((provider) => api<{ data: RadarRiskResponse }>(`/v1/radar/risk/providers/${provider.id}`, undefined, SECONDARY_TIMEOUT_MS)))
@@ -9187,6 +9230,7 @@ function RadarApp() {
     </section>}
 
     {!agentMode && <HeadToHeadBenchmarkPanel registry={benchmarkRegistry} evidenceLedger={evidenceLedger} loading={benchmarkReadinessLoading} />}
+    {!agentMode && <AgentSpendReadinessCardsPanel readiness={agentReadiness} />}
 
     <div id="global-pulse" className="anchor-target" />
     <EcosystemStatusPanel status={ecosystemStatus} reading={ecosystemReading} pulse={data.pulse} summary={pulseSummary} selectedProvider={selectedProvider} />
@@ -10403,6 +10447,58 @@ function BenchmarkReadinessPanel({ readiness, loading }: { readiness: RadarBench
       {twoProvenRow && <p className="panel-caption">No route winner is claimed until normalized criteria are finalized.</p>}
     </div>}
   </section>;
+}
+
+function AgentSpendReadinessCardsPanel({ readiness }: { readiness: AgentReadinessList | null }) {
+  const cards = readiness?.cards.slice(0, 12) ?? [];
+  return <section className="panel agent-readiness-panel" aria-label="Agent Spend Readiness Cards">
+    <div className="phase3-panel-head">
+      <ScopeLabel scope="GLOBAL" />
+      <h2>Agent Spend Readiness Cards</h2>
+    </div>
+    <p className="panel-caption">Builders can now see what agents see before spending.</p>
+    <p className="panel-caption">Readiness cards are proof-state diagnostics, not rankings.</p>
+    <p className="route-state">Sorted by proof maturity order.</p>
+    {!readiness && <EmptyState title="Panel data unavailable" body="Agent readiness cards delayed" />}
+    {!!cards.length && <div className="agent-readiness-grid">
+      {cards.map((card) => <AgentSpendReadinessCardView key={card.provider_id} card={card} />)}
+    </div>}
+    {readiness && !cards.length && <EmptyState title="No cards available" body="No provider readiness diagnostics are available yet." />}
+  </section>;
+}
+
+function AgentSpendReadinessCardView({ card }: { card: AgentReadinessCard }) {
+  const blockers = card.evidence_summary.caveat_count > 0
+    ? `${card.evidence_summary.caveat_count} caveats / blockers`
+    : 'no recorded caveats';
+  return <article className="agent-readiness-card">
+    <div className="agent-readiness-card-head">
+      <h3>{card.provider_label}</h3>
+      <div className="readiness-chip-row" aria-label="readiness chips">
+        <span className={`readiness-chip state-${card.readiness_state}`}>{card.readiness_state}</span>
+        <span className={`readiness-chip spend-${card.agent_spend_readiness}`}>{card.agent_spend_readiness}</span>
+      </div>
+    </div>
+    <div className="agent-readiness-counts" aria-label="evidence counts">
+      <span><b>{card.evidence_summary.recorded_benchmarks}</b> benchmarks</span>
+      <span><b>{card.evidence_summary.proven_routes}</b> proven routes</span>
+      <span><b>{card.evidence_summary.controlled_bundle_runs}</b> bundle runs</span>
+      <span><b>{card.evidence_summary.scaffold_lanes}</b> scaffolds</span>
+    </div>
+    <p className="agent-readiness-blockers">{blockers}</p>
+    <p className="agent-readiness-next">{card.builder_next_step}</p>
+    <details className="agent-readiness-detail">
+      <summary>Detail</summary>
+      <p><b>latest artifact</b><span>{card.evidence_summary.latest_artifact_id ?? 'none'}</span></p>
+      <p><b>proof links</b><span>{[...card.proof_links.benchmark_history, ...card.proof_links.route_timelines, ...card.proof_links.bundle_runs].slice(0, 4).join(' | ') || 'none'}</span></p>
+      <p><b>agent guidance</b><span>{card.agent_guidance}</span></p>
+    </details>
+    <div className="agent-readiness-share">
+      <span>share copy</span>
+      <CopyButton value={card.share_copy} label="Copy share copy" />
+    </div>
+    <p className="agent-readiness-share-copy">{card.share_copy}</p>
+  </article>;
 }
 
 function HeadToHeadBenchmarkPanel({ registry, evidenceLedger, loading }: { registry: RadarBenchmarkRegistry | null; evidenceLedger: RadarEvidenceLedger | null; loading: boolean }) {

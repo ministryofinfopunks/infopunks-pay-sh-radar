@@ -1031,6 +1031,54 @@ export const RadarEvidenceLedgerBriefSchema = z.object({
   winner_claimed: z.boolean()
 });
 
+export const AgentSpendReadinessStateSchema = z.enum([
+  'recorded_evidence',
+  'caveated_evidence',
+  'controlled_run_observed',
+  'scaffold_only',
+  'catalog_only',
+  'blocked_or_unclear'
+]);
+
+export const AgentSpendReadinessSchema = z.enum([
+  'ready_for_inspection',
+  'needs_review',
+  'not_ready'
+]);
+
+export const AgentSpendReadinessCardSchema = z.object({
+  provider_id: z.string(),
+  provider_label: z.string(),
+  readiness_state: AgentSpendReadinessStateSchema,
+  agent_spend_readiness: AgentSpendReadinessSchema,
+  evidence_summary: z.object({
+    recorded_benchmarks: z.number().int().nonnegative(),
+    proven_routes: z.number().int().nonnegative(),
+    controlled_bundle_runs: z.number().int().nonnegative(),
+    scaffold_lanes: z.number().int().nonnegative(),
+    caveat_count: z.number().int().nonnegative(),
+    latest_artifact_id: z.string().nullable(),
+    latest_observed_at: z.string().datetime().nullable()
+  }),
+  proof_links: z.object({
+    benchmark_history: z.array(z.string()),
+    route_timelines: z.array(z.string()),
+    bundle_runs: z.array(z.string())
+  }),
+  builder_next_step: z.string(),
+  agent_guidance: z.string(),
+  winner_claimed: z.literal(false),
+  share_copy: z.string()
+});
+
+export const AgentSpendReadinessListSchema = z.object({
+  count: z.number().int().nonnegative(),
+  generated_at: z.string().datetime(),
+  cards: z.array(AgentSpendReadinessCardSchema),
+  winner_claimed: z.literal(false),
+  agent_guidance: z.array(z.string())
+});
+
 export const RadarBundleStatusSchema = z.enum([
   'recipe_scaffold',
   'partially_supported',
@@ -1519,6 +1567,10 @@ export type RadarBenchmarkList = z.infer<typeof RadarBenchmarkListSchema>;
 export type RadarBenchmarkSummary = z.infer<typeof RadarBenchmarkSummarySchema>;
 export type RadarEvidenceLedger = z.infer<typeof RadarEvidenceLedgerSchema>;
 export type RadarEvidenceLedgerBrief = z.infer<typeof RadarEvidenceLedgerBriefSchema>;
+export type AgentSpendReadinessState = z.infer<typeof AgentSpendReadinessStateSchema>;
+export type AgentSpendReadiness = z.infer<typeof AgentSpendReadinessSchema>;
+export type AgentSpendReadinessCard = z.infer<typeof AgentSpendReadinessCardSchema>;
+export type AgentSpendReadinessList = z.infer<typeof AgentSpendReadinessListSchema>;
 export type RadarBenchmarkWinnerStatus = z.infer<typeof RadarBenchmarkWinnerStatusSchema>;
 export type RadarBenchmarkArtifact = z.infer<typeof RadarBenchmarkArtifactSchema>;
 export type RadarBenchmarkArtifactList = z.infer<typeof RadarBenchmarkArtifactListSchema>;

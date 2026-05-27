@@ -120,6 +120,36 @@ function installFetchMock() {
       data_source: dataSource
     });
     if (url.endsWith('/v1/providers/featured')) return response({ providerId: 'receipt', providerName: 'Receipt API', category: 'Data', rotationWindowMs: 600000, windowStartedAt: observedAt, nextRotationAt: '2026-01-01T00:15:00.000Z', index: 0, providerCount: 1, strategy: 'time_window_round_robin' });
+    if (url.endsWith('/v1/radar/agent-readiness')) return response({
+      count: 1,
+      generated_at: observedAt,
+      cards: [{
+        provider_id: 'receipt',
+        provider_label: 'Receipt API',
+        readiness_state: 'recorded_evidence',
+        agent_spend_readiness: 'ready_for_inspection',
+        evidence_summary: {
+          recorded_benchmarks: 1,
+          proven_routes: 1,
+          controlled_bundle_runs: 0,
+          scaffold_lanes: 0,
+          caveat_count: 0,
+          latest_artifact_id: 'artifact-1',
+          latest_observed_at: observedAt
+        },
+        proof_links: {
+          benchmark_history: ['/v1/radar/benchmark-history/example'],
+          route_timelines: ['/v1/radar/benchmark-history/example/routes/receipt'],
+          bundle_runs: []
+        },
+        builder_next_step: 'Inspect latest route timeline and caveats before routing agents.',
+        agent_guidance: 'Artifact-backed route evidence exists; inspect latest route timelines and caveats before spend.',
+        winner_claimed: false,
+        share_copy: 'Radar card: Receipt API is recorded_evidence. Proof exists: 1 recorded benchmarks, 1 proven routes, winner_claimed=false. Agents should inspect caveats before spend.'
+      }],
+      winner_claimed: false,
+      agent_guidance: ['Readiness cards are proof-state diagnostics, not rankings.']
+    });
     if (url.endsWith('/v1/providers/receipt')) return response({ provider, endpoints: [], trustAssessment, signalAssessment });
     if (url.endsWith('/v1/providers/receipt/intelligence')) return response({
       provider,
@@ -173,5 +203,11 @@ describe('frontend evidence receipts', () => {
     expect(container.textContent).toContain('provider-level evidence only');
     expect(container.textContent).toContain('LIVE CATALOG PARTIAL');
     expect(container.textContent).toContain('Provider Intelligence Dossier');
+    expect(container.textContent).toContain('Agent Spend Readiness Cards');
+    expect(container.textContent).toContain('Builders can now see what agents see before spending.');
+    expect(container.textContent).toContain('proof-state diagnostics, not rankings.');
+    expect(container.textContent).toContain('recorded_evidence');
+    expect(container.textContent).toContain('ready_for_inspection');
+    expect(container.textContent).toContain('share copy');
   });
 });

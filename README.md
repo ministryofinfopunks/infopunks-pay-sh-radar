@@ -22,6 +22,15 @@ Scaffold lanes are not failed benchmarks. They are lanes where Radar found insuf
 
 `GET /v1/radar/evidence-ledger` is the core agent-facing endpoint for inspecting the ledger before spend.
 
+## Agent Spend Readiness Cards
+
+Agent Spend Readiness Cards expose proof-state diagnostics for builders. They are not rankings and do not claim winners.
+
+Builders can inspect what Radar knows about each provider or route before agents spend: recorded benchmark evidence, route timelines, controlled bundle run references, scaffold lanes, caveats, and suggested next steps.
+
+- `GET /v1/radar/agent-readiness`
+- `GET /v1/radar/agent-readiness/:provider_id`
+
 Pay.sh is the spend rail. Radar is the evidence ledger. The Harness is the proof adapter.
 
 ---

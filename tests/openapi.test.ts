@@ -40,6 +40,8 @@ describe('openapi discovery', () => {
     expect(spec.paths['/v1/radar/benchmark-summary']?.get).toBeTruthy();
     expect(spec.paths['/v1/radar/evidence-ledger']?.get).toBeTruthy();
     expect(spec.paths['/v1/radar/evidence-ledger/brief']?.get).toBeTruthy();
+    expect(spec.paths['/v1/radar/agent-readiness']?.get).toBeTruthy();
+    expect(spec.paths['/v1/radar/agent-readiness/{provider_id}']?.get).toBeTruthy();
     expect(spec.paths['/v1/radar/bundles']?.get).toBeTruthy();
     expect(spec.paths['/v1/radar/bundles/{bundle_id}']?.get).toBeTruthy();
     expect(spec.paths['/v1/radar/bundles/{bundle_id}/runs']?.get).toBeTruthy();
@@ -66,6 +68,10 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.BenchmarkSummaryResponse).toBeTruthy();
     expect(spec.components.schemas.EvidenceLedgerResponse).toBeTruthy();
     expect(spec.components.schemas.EvidenceLedgerBriefResponse).toBeTruthy();
+    expect(spec.components.schemas.AgentReadinessListResponse).toBeTruthy();
+    expect(spec.components.schemas.AgentReadinessCard).toBeTruthy();
+    expect(spec.components.schemas.AgentReadinessState.enum).toContain('recorded_evidence');
+    expect(spec.components.schemas.AgentSpendReadiness.enum).toContain('ready_for_inspection');
     expect(spec.components.schemas.BundleRegistryResponse).toBeTruthy();
     expect(spec.components.schemas.BundleResponse).toBeTruthy();
     expect(spec.components.schemas.BundlePlanRequest).toBeTruthy();
