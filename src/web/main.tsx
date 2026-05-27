@@ -1663,6 +1663,16 @@ function routeProviderId(pathname: string) {
   }
 }
 
+function routeAgentReadinessProviderId(pathname: string) {
+  const match = pathname.match(/^\/radar\/readiness\/([^/]+)\/?$/);
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+}
+
 function routeReceiptId(pathname: string) {
   const match = pathname.match(/^\/receipts\/([^/]+)\/?$/);
   if (!match) return null;
@@ -1883,6 +1893,20 @@ function updateBenchmarkPageMetadata(benchmark: RadarBenchmarkDetail | null, ben
     : missing
       ? `No benchmark exists for ${benchmarkId} in the current dataset.`
       : `${benchmark?.category ?? 'unknown category'} / ${benchmark?.benchmark_intent ?? 'unknown intent'}. No route winner is claimed.`;
+  document.title = title;
+  setMetaTag('name', 'description', desc);
+  setMetaTag('property', 'og:type', 'article');
+  setMetaTag('property', 'og:title', title);
+  setMetaTag('property', 'og:description', desc);
+  setMetaTag('property', 'og:url', window.location.href);
+  setMetaTag('name', 'twitter:card', 'summary_large_image');
+  setMetaTag('name', 'twitter:title', title);
+  setMetaTag('name', 'twitter:description', desc);
+}
+
+function updateAgentReadinessPageMetadata() {
+  const title = 'Agent Spend Readiness Card | Infopunks Radar';
+  const desc = 'Proof-state diagnostics for Pay.sh providers. Not rankings. winner_claimed=false.';
   document.title = title;
   setMetaTag('name', 'description', desc);
   setMetaTag('property', 'og:type', 'article');
@@ -2512,6 +2536,113 @@ function PublicBenchmarkProofPage({ benchmarkId }: { benchmarkId: string }) {
   if (missing) return <main className="boot" aria-label="Benchmark not found"><section className="panel public-provider-page"><h1>Benchmark Not Found</h1><p className="copy">No benchmark exists for <code>{benchmarkId}</code> in the current dataset.</p></section></main>;
   if (!benchmark) return <main className="boot" aria-label="Benchmark loading">LOADING BENCHMARK PROOF...</main>;
   return <div className="shell public-provider-shell"><main className="public-provider-page" aria-label="Public benchmark proof page"><BenchmarkProofContent benchmark={benchmark} history={history} routeHistory={routeHistory} /></main></div>;
+}
+
+function AgentReadinessProviderPage({ providerId }: { providerId: string }) {
+  const [card, setCard] = useState<AgentReadinessCard | null>(null);
+  const [missing, setMissing] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    setCard(null);
+    setMissing(false);
+    setLoading(true);
+    updateAgentReadinessPageMetadata();
+    api<{ data: AgentReadinessCard }>(`/v1/radar/agent-readiness/${encodeURIComponent(providerId)}`)
+      .then((response) => {
+        if (!active) return;
+        setCard(response.data);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (!active) return;
+        setMissing(true);
+        setLoading(false);
+      });
+    return () => { active = false; };
+  }, [providerId]);
+
+  if (loading) return <div className="shell public-provider-shell"><main className="public-provider-page agent-readiness-public-page" aria-label="Agent Spend Readiness Card"><section className="panel agent-readiness-public-card"><p className="section-kicker">Agent Spend Readiness Card</p><h1>Loading readiness card...</h1><p className="panel-caption">Builders can now see what agents see before spending.</p></section></main></div>;
+
+  if (missing || !card) return <div className="shell public-provider-shell"><main className="public-provider-page agent-readiness-public-page" aria-label="Agent Spend Readiness Card"><section className="panel agent-readiness-public-card"><p className="section-kicker">Agent Spend Readiness Card</p><h1>Provider readiness card not found.</h1><p className="panel-caption">No provider readiness card is available for <code>{providerId}</code>.</p><a className="execute compact secondary" href="/">Back to Radar</a></section></main></div>;
+
+  const proofLinks = [
+    ...card.proof_links.benchmark_history.map((href) => ({ href, label: href, group: 'benchmark_history' })),
+    ...card.proof_links.route_timelines.map((href) => ({ href, label: href, group: 'route_timelines' })),
+    ...card.proof_links.bundle_runs.map((href) => ({ href, label: href, group: 'bundle_runs' }))
+  ];
+
+  return <div className="shell public-provider-shell">
+    <main className="public-provider-page agent-readiness-public-page" aria-label="Agent Spend Readiness Card">
+      <section className="panel agent-readiness-public-card">
+        <div className="agent-readiness-public-head">
+          <div>
+            <p className="section-kicker">Agent Spend Readiness Card</p>
+            <h1>{card.provider_label}</h1>
+            <p className="panel-caption">Builders can now see what agents see before spending.</p>
+            <p className="panel-caption">Proof-state diagnostics, not rankings.</p>
+          </div>
+          <a className="execute compact secondary" href="/">Radar Home</a>
+        </div>
+        <div className="agent-readiness-public-meta">
+          <p><b>provider_id</b><span>{card.provider_id}</span></p>
+          <p><b>winner_claimed</b><span>{String(card.winner_claimed)}</span></p>
+        </div>
+        <div className="readiness-chip-row" aria-label="readiness chips">
+          <span className={`readiness-chip state-${card.readiness_state}`}>{card.readiness_state}</span>
+          <span className={`readiness-chip spend-${card.agent_spend_readiness}`}>{card.agent_spend_readiness}</span>
+        </div>
+      </section>
+
+      <section className="panel agent-readiness-public-card" aria-label="Evidence Summary">
+        <div className="panel-head"><div><p className="section-kicker">Evidence Summary</p><h2>Recorded proof signals</h2></div></div>
+        <div className="agent-readiness-summary-grid">
+          <Metric label="recorded_benchmarks" value={card.evidence_summary.recorded_benchmarks} sub="artifact-backed lanes" />
+          <Metric label="proven_routes" value={card.evidence_summary.proven_routes} sub="route proof count" />
+          <Metric label="controlled_bundle_runs" value={card.evidence_summary.controlled_bundle_runs} sub="bundle run references" />
+          <Metric label="scaffold_lanes" value={card.evidence_summary.scaffold_lanes} sub="explored lanes" />
+          <Metric label="caveat_count" value={card.evidence_summary.caveat_count} sub="caveats or blockers" />
+        </div>
+        <div className="agent-readiness-public-meta">
+          {card.evidence_summary.latest_artifact_id && <p><b>latest_artifact_id</b><span>{card.evidence_summary.latest_artifact_id}</span></p>}
+          {card.evidence_summary.latest_observed_at && <p><b>latest_observed_at</b><span>{card.evidence_summary.latest_observed_at}</span></p>}
+        </div>
+      </section>
+
+      <section className="panel agent-readiness-public-card" aria-label="Proof Links">
+        <div className="panel-head"><div><p className="section-kicker">Proof Links</p><h2>Inspect before spend</h2></div></div>
+        {proofLinks.length === 0
+          ? <p className="panel-caption">No proof links exposed for this card yet.</p>
+          : <div className="agent-readiness-proof-links">
+            {proofLinks.map((link) => <a key={`${link.group}:${link.href}`} className="readiness-chip" href={link.href}>{link.group}: {link.label}</a>)}
+          </div>}
+      </section>
+
+      <section className="panel agent-readiness-public-card" aria-label="Builder Next Step">
+        <p className="section-kicker">Builder Next Step</p>
+        <h2>{card.builder_next_step}</h2>
+      </section>
+
+      <section className="panel agent-readiness-public-card" aria-label="Agent Guidance">
+        <p className="section-kicker">Agent Guidance</p>
+        <div className="agent-readiness-guidance">
+          <p>{card.agent_guidance}</p>
+          <p>Readiness cards are proof-state diagnostics, not rankings.</p>
+          <p>Agents should inspect route timelines, caveats, and latest artifacts before spend.</p>
+          <p>winner_claimed=false means no provider winner should be inferred.</p>
+        </div>
+      </section>
+
+      <section className="panel agent-readiness-public-card" aria-label="Share Copy">
+        <div className="agent-readiness-share">
+          <span>share_copy</span>
+          <CopyButton value={card.share_copy} label="Copy share text" />
+        </div>
+        <pre className="agent-readiness-share-block">{card.share_copy}</pre>
+      </section>
+    </main>
+  </div>;
 }
 
 const MACHINE_MARKET_STAGES: MachineMarketEvidenceStage[] = [...MACHINE_EVIDENCE_STAGES];
@@ -10487,6 +10618,7 @@ function AgentSpendReadinessCardView({ card }: { card: AgentReadinessCard }) {
     </div>
     <p className="agent-readiness-blockers">{blockers}</p>
     <p className="agent-readiness-next">{card.builder_next_step}</p>
+    <a className="execute compact secondary agent-readiness-open" href={`/radar/readiness/${encodeURIComponent(card.provider_id)}`}>Open readiness card</a>
     <details className="agent-readiness-detail">
       <summary>Detail</summary>
       <p><b>latest artifact</b><span>{card.evidence_summary.latest_artifact_id ?? 'none'}</span></p>
@@ -12858,6 +12990,8 @@ export function App() {
   if (receiptId) return <PublicReceiptPage eventId={receiptId} />;
   const benchmarkId = routeBenchmarkId(window.location.pathname);
   if (benchmarkId) return <PublicBenchmarkProofPage benchmarkId={benchmarkId} />;
+  const readinessProviderId = routeAgentReadinessProviderId(window.location.pathname);
+  if (readinessProviderId) return <AgentReadinessProviderPage providerId={readinessProviderId} />;
   if (isBenchmarkIndexRoute(window.location.pathname)) return <PublicBenchmarksIndexPage />;
   if (isMachineMarketRoute(window.location.pathname)) return <MachineMarketPage />;
   if (isMachineEconomySnapshotRoute(window.location.pathname)) return <MachineEconomySnapshotPage />;

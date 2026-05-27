@@ -7183,6 +7183,10 @@ summary:focus-visible {
   line-height: 1.45;
 }
 
+.agent-readiness-open {
+  justify-self: start;
+}
+
 .agent-readiness-next {
   color: var(--text);
 }
@@ -7217,14 +7221,110 @@ summary:focus-visible {
   letter-spacing: .08em;
 }
 
+.agent-readiness-public-page {
+  display: grid;
+  gap: 16px;
+}
+
+.agent-readiness-public-card {
+  border-radius: 8px;
+  border-color: rgba(130, 220, 180, .22);
+}
+
+.agent-readiness-public-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.agent-readiness-public-head h1 {
+  margin: 0;
+  font-size: clamp(2rem, 7vw, 4.5rem);
+  line-height: 1;
+  overflow-wrap: anywhere;
+}
+
+.agent-readiness-public-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.agent-readiness-public-meta p,
+.agent-readiness-guidance p {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  padding: 10px;
+  border: 1px solid rgba(210,255,226,.12);
+  border-radius: 8px;
+  background: rgba(255,255,255,.03);
+}
+
+.agent-readiness-public-meta b {
+  color: var(--muted);
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.agent-readiness-public-meta span,
+.agent-readiness-proof-links a,
+.agent-readiness-share-block {
+  overflow-wrap: anywhere;
+}
+
+.agent-readiness-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.agent-readiness-proof-links,
+.agent-readiness-guidance {
+  display: grid;
+  gap: 8px;
+}
+
+.agent-readiness-share-block {
+  margin: 10px 0 0;
+  padding: 12px;
+  white-space: pre-wrap;
+  border: 1px solid rgba(210,255,226,.12);
+  border-radius: 8px;
+  color: var(--text);
+  background: rgba(0,0,0,.22);
+  font: inherit;
+  font-size: .9rem;
+}
+
 @media (max-width: 980px) {
   .agent-readiness-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .agent-readiness-summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 640px) {
   .agent-readiness-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .agent-readiness-public-head,
+  .agent-readiness-public-meta {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .agent-readiness-public-head {
+    display: grid;
+  }
+
+  .agent-readiness-summary-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 }
