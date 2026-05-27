@@ -1913,9 +1913,12 @@ function updateAgentReadinessPageMetadata() {
   setMetaTag('property', 'og:title', title);
   setMetaTag('property', 'og:description', desc);
   setMetaTag('property', 'og:url', window.location.href);
+  setMetaTag('property', 'og:image', 'https://radar.infopunks.fun/og-radar.png');
+  setMetaTag('property', 'og:image:alt', 'Infopunks Radar Agent Spend Readiness Card preview');
   setMetaTag('name', 'twitter:card', 'summary_large_image');
   setMetaTag('name', 'twitter:title', title);
   setMetaTag('name', 'twitter:description', desc);
+  setMetaTag('name', 'twitter:image', 'https://radar.infopunks.fun/og-radar.png');
 }
 
 function benchmarkRouteLabel(route: RadarBenchmarkRouteMetric) {
@@ -2572,42 +2575,58 @@ function AgentReadinessProviderPage({ providerId }: { providerId: string }) {
     ...card.proof_links.route_timelines.map((href) => ({ href, label: href, group: 'route_timelines' })),
     ...card.proof_links.bundle_runs.map((href) => ({ href, label: href, group: 'bundle_runs' }))
   ];
+  const pagePath = `/radar/readiness/${encodeURIComponent(card.provider_id)}`;
+  const radarUrl = `https://radar.infopunks.fun${pagePath}`;
 
   return <div className="shell public-provider-shell">
     <main className="public-provider-page agent-readiness-public-page" aria-label="Agent Spend Readiness Card">
-      <section className="panel agent-readiness-public-card">
+      <section className="panel agent-readiness-public-card screenshot-card" aria-label="Screenshot-ready Agent Spend Readiness Card">
         <div className="agent-readiness-public-head">
           <div>
             <p className="section-kicker">Agent Spend Readiness Card</p>
             <h1>{card.provider_label}</h1>
+            <p className="agent-readiness-provider-id">provider_id: <span>{card.provider_id}</span></p>
             <p className="panel-caption">Builders can now see what agents see before spending.</p>
             <p className="panel-caption">Proof-state diagnostics, not rankings.</p>
           </div>
           <a className="execute compact secondary" href="/">Radar Home</a>
         </div>
         <div className="agent-readiness-public-meta">
-          <p><b>provider_id</b><span>{card.provider_id}</span></p>
-          <p><b>winner_claimed</b><span>{String(card.winner_claimed)}</span></p>
+          <p><b>Provider ID</b><span>provider_id {card.provider_id}</span></p>
+          <p><b>Radar URL</b><span>{radarUrl}</span></p>
+          <p><b>Page path</b><span>{pagePath}</span></p>
+          <p><b>Proof posture</b><span>Proof-state diagnostics, not rankings.</span></p>
         </div>
         <div className="readiness-chip-row" aria-label="readiness chips">
           <span className={`readiness-chip state-${card.readiness_state}`}>{card.readiness_state}</span>
           <span className={`readiness-chip spend-${card.agent_spend_readiness}`}>{card.agent_spend_readiness}</span>
+          <span className="readiness-chip winner-claim">winner_claimed={String(card.winner_claimed)}</span>
         </div>
-      </section>
-
-      <section className="panel agent-readiness-public-card" aria-label="Evidence Summary">
-        <div className="panel-head"><div><p className="section-kicker">Evidence Summary</p><h2>Recorded proof signals</h2></div></div>
-        <div className="agent-readiness-summary-grid">
+        <div className="agent-readiness-summary-grid screenshot-counts" aria-label="Evidence counts row">
           <Metric label="recorded_benchmarks" value={card.evidence_summary.recorded_benchmarks} sub="artifact-backed lanes" />
           <Metric label="proven_routes" value={card.evidence_summary.proven_routes} sub="route proof count" />
           <Metric label="controlled_bundle_runs" value={card.evidence_summary.controlled_bundle_runs} sub="bundle run references" />
           <Metric label="scaffold_lanes" value={card.evidence_summary.scaffold_lanes} sub="explored lanes" />
           <Metric label="caveat_count" value={card.evidence_summary.caveat_count} sub="caveats or blockers" />
         </div>
-        <div className="agent-readiness-public-meta">
-          {card.evidence_summary.latest_artifact_id && <p><b>latest_artifact_id</b><span>{card.evidence_summary.latest_artifact_id}</span></p>}
-          {card.evidence_summary.latest_observed_at && <p><b>latest_observed_at</b><span>{card.evidence_summary.latest_observed_at}</span></p>}
+        <div className="agent-readiness-public-meta compact">
+          {card.evidence_summary.latest_artifact_id && <p><b>latest artifact</b><span>{card.evidence_summary.latest_artifact_id}</span></p>}
+          {card.evidence_summary.latest_observed_at && <p><b>latest observed</b><span>{card.evidence_summary.latest_observed_at}</span></p>}
         </div>
+        <div className="agent-readiness-hero-copy">
+          <div>
+            <p className="section-kicker">Builder Next Step</p>
+            <p>{card.builder_next_step}</p>
+          </div>
+          <div>
+            <div className="agent-readiness-share">
+              <span>Share text</span>
+              <CopyButton value={card.share_copy} label="Copy share text" />
+            </div>
+            <pre className="agent-readiness-share-block">{card.share_copy}</pre>
+          </div>
+        </div>
+        <p className="agent-readiness-card-footer">Agents should inspect caveats before spend.</p>
       </section>
 
       <section className="panel agent-readiness-public-card" aria-label="Proof Links">
@@ -2617,11 +2636,6 @@ function AgentReadinessProviderPage({ providerId }: { providerId: string }) {
           : <div className="agent-readiness-proof-links">
             {proofLinks.map((link) => <a key={`${link.group}:${link.href}`} className="readiness-chip" href={link.href}>{link.group}: {link.label}</a>)}
           </div>}
-      </section>
-
-      <section className="panel agent-readiness-public-card" aria-label="Builder Next Step">
-        <p className="section-kicker">Builder Next Step</p>
-        <h2>{card.builder_next_step}</h2>
       </section>
 
       <section className="panel agent-readiness-public-card" aria-label="Agent Guidance">
@@ -2634,13 +2648,6 @@ function AgentReadinessProviderPage({ providerId }: { providerId: string }) {
         </div>
       </section>
 
-      <section className="panel agent-readiness-public-card" aria-label="Share Copy">
-        <div className="agent-readiness-share">
-          <span>share_copy</span>
-          <CopyButton value={card.share_copy} label="Copy share text" />
-        </div>
-        <pre className="agent-readiness-share-block">{card.share_copy}</pre>
-      </section>
     </main>
   </div>;
 }
@@ -10618,7 +10625,10 @@ function AgentSpendReadinessCardView({ card }: { card: AgentReadinessCard }) {
     </div>
     <p className="agent-readiness-blockers">{blockers}</p>
     <p className="agent-readiness-next">{card.builder_next_step}</p>
-    <a className="execute compact secondary agent-readiness-open" href={`/radar/readiness/${encodeURIComponent(card.provider_id)}`}>Open readiness card</a>
+    <div className="agent-readiness-card-actions">
+      <a className="execute compact secondary agent-readiness-open" href={`/radar/readiness/${encodeURIComponent(card.provider_id)}`}>Open readiness card</a>
+      <span className="readiness-chip public-card">Public card</span>
+    </div>
     <details className="agent-readiness-detail">
       <summary>Detail</summary>
       <p><b>latest artifact</b><span>{card.evidence_summary.latest_artifact_id ?? 'none'}</span></p>

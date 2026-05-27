@@ -210,6 +210,7 @@ describe('frontend evidence receipts', () => {
     expect(container.textContent).toContain('ready_for_inspection');
     expect(container.textContent).toContain('share copy');
     expect(container.textContent).toContain('Open readiness card');
+    expect(container.textContent).toContain('Public card');
     expect(container.querySelector('a[href="/radar/readiness/receipt"]')).not.toBeNull();
   });
 });
