@@ -79,6 +79,10 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.BundleRunSummary).toBeTruthy();
     expect(spec.components.schemas.BundleRunDetail).toBeTruthy();
     expect(spec.components.schemas.BundleRunListResponse).toBeTruthy();
+    expect(spec.components.schemas.BundleRunAgentReadinessSummary).toBeTruthy();
+    expect(spec.components.schemas.BundleRunListResponse.properties.agent_readiness_summary.$ref).toBe('#/components/schemas/BundleRunAgentReadinessSummary');
+    expect(JSON.stringify(spec.paths['/v1/radar/bundles/{bundle_id}/runs'])).toContain('agent_readiness_summary');
+    expect(JSON.stringify(spec.paths['/v1/radar/bundles/{bundle_id}/runs'])).toContain('review_ready_caveated');
     expect(spec.components.schemas.BundleStep.properties.execution_boundary.$ref).toBe('#/components/schemas/BundleExecutionBoundary');
     expect(spec.components.schemas.EvidenceLedgerBriefRecordedLane.properties.latest_artifact_recorded_runs).toBeTruthy();
     expect(spec.components.schemas.EvidenceLedgerBriefRecordedLane.properties.total_recorded_runs).toBeTruthy();

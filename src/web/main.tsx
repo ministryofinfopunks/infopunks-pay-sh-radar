@@ -928,6 +928,17 @@ type RadarBundleRunListResponse = {
     recommended_agent_action: string;
   } | null;
   winner_claimed: false;
+  agent_readiness_summary?: {
+    ready_for_agent_review: boolean;
+    requires_rerun_before_spend: boolean;
+    requires_human_or_policy_approval: boolean;
+    observed_cost_available: boolean;
+    winner_claimed: false;
+    decision_state: 'ready_for_review' | 'review_ready_caveated' | 'rerun_required' | 'not_ready';
+    blocking_reasons: string[];
+    review_reasons: string[];
+    recommended_agent_action: string;
+  };
   agent_guidance: string[];
 };
 type RadarBundleRunDetail = {
@@ -11201,6 +11212,7 @@ function AgentBenchmarkApiPanel() {
           {(() => {
             const historySummary = bundleRunList?.history_summary;
             const freshness = bundleRunList?.freshness;
+            const agentReadinessSummary = bundleRunList?.agent_readiness_summary;
             const latestRun = bundleRunList?.runs.find((run) => run.run_id === historySummary?.latest_run_id) ?? bundleRunList?.runs[0] ?? null;
             const previousRun = bundleRunList?.runs.find((run) => run.run_id === historySummary?.previous_run_id) ?? bundleRunList?.runs[1] ?? null;
             const caveatsUnchanged = historySummary ? historySummary.caveat_delta.added.length === 0 && historySummary.caveat_delta.removed.length === 0 : false;
@@ -11252,6 +11264,21 @@ function AgentBenchmarkApiPanel() {
               skipped review-required steps {historySummary.skipped_review_required_steps_stable ? `stable at ${historySummary.latest_skipped_step_count}` : `${historySummary.previous_skipped_step_count} -> ${historySummary.latest_skipped_step_count}`} · winner_claimed={String(historySummary.winner_claimed)}
             </p>
             {freshness ? <p className="bundle-run-history-foot">recommended action: {freshness.recommended_agent_action}</p> : <p className="route-state warn">Bundle Run Freshness unavailable</p>}
+            {agentReadinessSummary && <div className="agent-readiness-summary-card" aria-label="Agent Readiness Summary">
+              <div>
+                <p className="section-kicker">Agent Readiness Summary</p>
+                <span>Agent Readiness Summary compresses freshness, caveats, skipped steps, and cost visibility into one pre-spend decision object.</span>
+              </div>
+              <div className="agent-readiness-summary-grid">
+                <span>ready_for_agent_review={String(agentReadinessSummary.ready_for_agent_review)}</span>
+                <span>requires_rerun_before_spend={String(agentReadinessSummary.requires_rerun_before_spend)}</span>
+                <span>requires_human_or_policy_approval={String(agentReadinessSummary.requires_human_or_policy_approval)}</span>
+                <span>observed_cost_available={String(agentReadinessSummary.observed_cost_available)}</span>
+                <span>winner_claimed={String(agentReadinessSummary.winner_claimed)}</span>
+                <span>decision_state={agentReadinessSummary.decision_state}</span>
+              </div>
+              <p className="bundle-run-history-foot">recommended_agent_action: {agentReadinessSummary.recommended_agent_action}</p>
+            </div>}
           </div> : <p className="route-state warn">Bundle Run History unavailable</p>}
           {historySummary && <p className="panel-caption">
             {historySummary.history_count} controlled runs tracked · latest source_count {historySummary.source_count_delta >= 0 ? '+' : ''}{historySummary.source_count_delta} · observed cost still unavailable · winner_claimed=false

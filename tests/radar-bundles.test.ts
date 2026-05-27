@@ -82,6 +82,8 @@ describe('radar bundle registry', () => {
     });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (globalThis as any).fetch = fetchSpy;
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-05-21T21:15:56.919Z'));
     try {
       const listResponse = await app.inject({ method: 'GET', url: '/v1/radar/bundles/morning-briefing/runs' });
       expect(listResponse.statusCode).toBe(200);
@@ -118,6 +120,16 @@ describe('radar bundle registry', () => {
       expect(['fresh', 'aging', 'stale']).toContain(list.freshness.freshness_state);
       expect(list.freshness.freshness_thresholds_hours).toEqual({ fresh_until: 24, aging_until: 72 });
       expect(list.freshness.recommended_agent_action.length).toBeGreaterThan(0);
+      expect(list.agent_readiness_summary).toBeTruthy();
+      expect(list.agent_readiness_summary.ready_for_agent_review).toBe(true);
+      expect(list.freshness.freshness_state).not.toBe('stale');
+      expect(list.agent_readiness_summary.requires_rerun_before_spend).toBe(false);
+      expect(list.agent_readiness_summary.requires_human_or_policy_approval).toBe(true);
+      expect(list.agent_readiness_summary.observed_cost_available).toBe(false);
+      expect(list.agent_readiness_summary.winner_claimed).toBe(false);
+      expect(list.agent_readiness_summary.decision_state).toBe('review_ready_caveated');
+      expect(list.agent_readiness_summary.review_reasons).toEqual(expect.arrayContaining(['billing_unclear_steps_skipped', 'observed_cost_unavailable']));
+      expect(list.agent_readiness_summary.recommended_agent_action.length).toBeGreaterThan(0);
       expect(list.winner_claimed).toBe(false);
       expect(fetchSpy).not.toHaveBeenCalled();
 
@@ -159,6 +171,7 @@ describe('radar bundle registry', () => {
       }
       expect(fetchSpy).not.toHaveBeenCalled();
     } finally {
+      vi.useRealTimers();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (globalThis as any).fetch = originalFetch;
       await app.close();

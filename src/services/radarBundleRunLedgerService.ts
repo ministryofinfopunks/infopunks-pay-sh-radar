@@ -1,4 +1,4 @@
-import { RadarBundleRunDetail, RadarBundleRunListResponse, RadarBundleRunSummary } from '../schemas/entities';
+import { RadarBundleRunDetail, RadarBundleRunHistorySummary, RadarBundleRunListResponse, RadarBundleRunSummary } from '../schemas/entities';
 
 const SOURCE_BUNDLE_ID = 'morning-briefing';
 
@@ -175,6 +175,64 @@ export function deriveBundleRunFreshness(latestGeneratedAt: string, now = new Da
   };
 }
 
+type BundleRunFreshness = ReturnType<typeof deriveBundleRunFreshness> | null;
+
+export function deriveBundleRunAgentReadinessSummary(
+  runs: RadarBundleRunDetail[],
+  historySummary: RadarBundleRunHistorySummary,
+  freshness: BundleRunFreshness,
+  winnerClaimed: false
+): RadarBundleRunListResponse['agent_readiness_summary'] {
+  const latest = runs[0] ?? null;
+  const hasControlledRun = runs.some((run) => run.status === 'controlled_live_run');
+  const freshnessState = freshness?.freshness_state ?? null;
+  const requiresRerunBeforeSpend = freshnessState === 'stale';
+  const billingUnclearStepsSkipped = latest?.skipped_steps.some((step) => step.execution_boundary === 'billing_unclear' || step.reason === 'billing_unclear') ?? false;
+  const requiresHumanOrPolicyApproval = historySummary.latest_skipped_step_count > 0 || billingUnclearStepsSkipped;
+  const observedCostAvailable = historySummary.observed_cost_available;
+  const latestCaveatCodes = historySummary.caveat_codes_latest;
+
+  const blockingReasons = [
+    ...(requiresRerunBeforeSpend ? ['freshness_stale' as const] : []),
+    ...(winnerClaimed ? ['winner_claimed_true' as const] : [])
+  ];
+
+  const reviewReasons = Array.from(new Set([
+    ...(billingUnclearStepsSkipped ? ['billing_unclear_steps_skipped' as const] : []),
+    ...(!observedCostAvailable ? ['observed_cost_unavailable' as const] : []),
+    ...latestCaveatCodes
+  ]));
+
+  const readyForAgentReview = hasControlledRun && winnerClaimed === false;
+  const decisionState = !hasControlledRun || winnerClaimed
+    ? 'not_ready'
+    : requiresRerunBeforeSpend
+      ? 'rerun_required'
+      : freshnessState && ['fresh', 'aging'].includes(freshnessState) && !requiresHumanOrPolicyApproval && observedCostAvailable && latestCaveatCodes.length === 0
+        ? 'ready_for_review'
+        : 'review_ready_caveated';
+
+  const recommendedAgentAction = decisionState === 'ready_for_review'
+    ? 'Inspect latest run detail before spend.'
+    : decisionState === 'review_ready_caveated'
+      ? 'Inspect latest run detail, skipped review-required steps, and caveats before spend.'
+      : decisionState === 'rerun_required'
+        ? 'Re-run the bundle before relying on this history for spend decisions.'
+        : 'Do not rely on this bundle for agent spend decisions yet.';
+
+  return {
+    ready_for_agent_review: readyForAgentReview,
+    requires_rerun_before_spend: requiresRerunBeforeSpend,
+    requires_human_or_policy_approval: requiresHumanOrPolicyApproval,
+    observed_cost_available: observedCostAvailable,
+    winner_claimed: winnerClaimed,
+    decision_state: decisionState,
+    blocking_reasons: blockingReasons,
+    review_reasons: reviewReasons,
+    recommended_agent_action: recommendedAgentAction
+  };
+}
+
 function toSummary(detail: RadarBundleRunDetail): RadarBundleRunSummary {
   return {
     run_id: detail.run_id,
@@ -206,34 +264,36 @@ export function listRadarBundleRuns(bundleId: string): RadarBundleRunListRespons
   const latestCaveats = runs[0]?.caveat_objects.map((item) => item.code) ?? [];
   const previousCaveats = runs[1]?.caveat_objects.map((item) => item.code) ?? [];
   const freshness = latest ? deriveBundleRunFreshness(latest.generated_at) : null;
+  const historySummary: RadarBundleRunHistorySummary = {
+    history_count: runs.length,
+    latest_run_id: latest?.run_id ?? null,
+    previous_run_id: previous?.run_id ?? null,
+    source_count_delta: (latest?.source_count ?? 0) - (previous?.source_count ?? 0),
+    latest_source_count: latest?.source_count ?? 0,
+    previous_source_count: previous?.source_count ?? 0,
+    observed_cost_available: latest?.observed_cost_usd != null,
+    observed_cost_state: latest?.observed_cost_usd == null ? 'unavailable' : 'available',
+    skipped_review_required_steps_stable: (latest?.skipped_step_count ?? 0) === (previous?.skipped_step_count ?? 0),
+    latest_skipped_step_count: latest?.skipped_step_count ?? 0,
+    previous_skipped_step_count: previous?.skipped_step_count ?? 0,
+    caveat_codes_latest: latestCaveats,
+    caveat_codes_previous: previousCaveats,
+    caveat_delta: {
+      added: latestCaveats.filter((code) => !previousCaveats.includes(code)),
+      removed: previousCaveats.filter((code) => !latestCaveats.includes(code))
+    },
+    winner_claimed: false
+  };
   return {
     bundle_id: SOURCE_BUNDLE_ID,
     count: runs.length,
     latest_run_id: latest?.run_id ?? null,
     latest_generated_at: latest?.generated_at ?? null,
     runs: summaries,
-    history_summary: {
-      history_count: runs.length,
-      latest_run_id: latest?.run_id ?? null,
-      previous_run_id: previous?.run_id ?? null,
-      source_count_delta: (latest?.source_count ?? 0) - (previous?.source_count ?? 0),
-      latest_source_count: latest?.source_count ?? 0,
-      previous_source_count: previous?.source_count ?? 0,
-      observed_cost_available: latest?.observed_cost_usd != null,
-      observed_cost_state: latest?.observed_cost_usd == null ? 'unavailable' : 'available',
-      skipped_review_required_steps_stable: (latest?.skipped_step_count ?? 0) === (previous?.skipped_step_count ?? 0),
-      latest_skipped_step_count: latest?.skipped_step_count ?? 0,
-      previous_skipped_step_count: previous?.skipped_step_count ?? 0,
-      caveat_codes_latest: latestCaveats,
-      caveat_codes_previous: previousCaveats,
-      caveat_delta: {
-        added: latestCaveats.filter((code) => !previousCaveats.includes(code)),
-        removed: previousCaveats.filter((code) => !latestCaveats.includes(code))
-      },
-      winner_claimed: false
-    },
+    history_summary: historySummary,
     freshness,
     winner_claimed: false,
+    agent_readiness_summary: deriveBundleRunAgentReadinessSummary(runs, historySummary, freshness, false),
     agent_guidance: [
       'Bundle run history records controlled Harness proof evolution, not benchmark winners.',
       'Agents should inspect latest run detail, skipped review-required steps, caveats, and observed cost availability before relying on a bundle.',

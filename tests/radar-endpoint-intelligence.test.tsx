@@ -765,6 +765,17 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
       freshness_thresholds_hours: { fresh_until: 24, aging_until: 72 },
       recommended_agent_action: 'Inspect latest run detail before spend.'
     };
+    const bundleRunAgentReadinessSummary = {
+      ready_for_agent_review: true,
+      requires_rerun_before_spend: false,
+      requires_human_or_policy_approval: true,
+      observed_cost_available: false,
+      winner_claimed: false,
+      decision_state: 'review_ready_caveated',
+      blocking_reasons: [],
+      review_reasons: ['billing_unclear_steps_skipped', 'observed_cost_unavailable', 'status_code_unavailable', 'source_map_empty'],
+      recommended_agent_action: 'Inspect latest run detail, skipped review-required steps, and caveats before spend.'
+    };
     if (path === '/v1/radar/bundles/morning-briefing/runs') return json({
       bundle_id: 'morning-briefing',
       count: 2,
@@ -805,6 +816,7 @@ function installFetch(options: { endpoints?: unknown[]; detailEndpoints?: unknow
       ...(options.bundleRunHistorySummaryMissing ? {} : { history_summary: bundleRunHistorySummary }),
       ...(options.bundleRunFreshnessMissing ? {} : { freshness: bundleRunFreshness }),
       winner_claimed: false,
+      agent_readiness_summary: bundleRunAgentReadinessSummary,
       agent_guidance: ['Bundle runs are Harness proof records, not benchmark claims.']
     });
     if (path === '/v1/radar/bundles/morning-briefing/runs/morning-briefing-run-2026-05-21-084556-pay-cli') return json({
@@ -1346,6 +1358,14 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.textContent).toContain('Freshness');
     expect(container.textContent).toContain('fresh · 12.4h · 2026-05-21T08:45:56.919Z');
     expect(container.textContent).toContain('recommended action: Inspect latest run detail before spend.');
+    expect(container.textContent).toContain('Agent Readiness Summary');
+    expect(container.textContent).toContain('Agent Readiness Summary compresses freshness, caveats, skipped steps, and cost visibility into one pre-spend decision object.');
+    expect(container.textContent).toContain('ready_for_agent_review=true');
+    expect(container.textContent).toContain('requires_human_or_policy_approval=true');
+    expect(container.textContent).toContain('observed_cost_available=false');
+    expect(container.textContent).toContain('winner_claimed=false');
+    expect(container.textContent).toContain('decision_state=review_ready_caveated');
+    expect(container.textContent).toContain('recommended_agent_action: Inspect latest run detail, skipped review-required steps, and caveats before spend.');
     expect(container.textContent).toContain('observed cost still unavailable');
     expect(container.textContent).toContain('+1 source');
     expect(container.textContent).toContain('caveats unchanged');

@@ -1117,7 +1117,18 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
         },
         recommended_agent_action: 'Inspect latest run detail before spend.'
       },
-      winner_claimed: false
+      winner_claimed: false,
+      agent_readiness_summary: {
+        ready_for_agent_review: true,
+        requires_rerun_before_spend: false,
+        requires_human_or_policy_approval: true,
+        observed_cost_available: false,
+        winner_claimed: false,
+        decision_state: 'review_ready_caveated',
+        blocking_reasons: [],
+        review_reasons: ['billing_unclear_steps_skipped', 'observed_cost_unavailable', 'status_code_unavailable', 'source_map_empty'],
+        recommended_agent_action: 'Inspect latest run detail, skipped review-required steps, and caveats before spend.'
+      }
     }, 'bundle_not_found')
   });
   add('get', '/v1/radar/bundles/{bundle_id}/runs/{run_id}', {
@@ -2097,6 +2108,32 @@ function componentSchemas(): Record<string, JsonSchema> {
       }),
       winner_claimed: { const: false }
     }),
+    BundleRunFreshness: {
+      oneOf: [
+        objectSchema({
+          last_controlled_run_at: dateTimeSchema(),
+          latest_run_age_hours: { type: 'number', minimum: 0 },
+          freshness_state: enumSchema(['fresh', 'aging', 'stale']),
+          freshness_thresholds_hours: objectSchema({
+            fresh_until: { const: 24 },
+            aging_until: { const: 72 }
+          }),
+          recommended_agent_action: stringSchema()
+        }),
+        { type: 'null' }
+      ]
+    },
+    BundleRunAgentReadinessSummary: objectSchema({
+      ready_for_agent_review: booleanSchema(),
+      requires_rerun_before_spend: booleanSchema(),
+      requires_human_or_policy_approval: booleanSchema(),
+      observed_cost_available: booleanSchema(),
+      winner_claimed: { const: false },
+      decision_state: enumSchema(['ready_for_review', 'review_ready_caveated', 'rerun_required', 'not_ready']),
+      blocking_reasons: arrayOf(enumSchema(['freshness_stale', 'winner_claimed_true'])),
+      review_reasons: arrayOf(enumSchema(['billing_unclear_steps_skipped', 'observed_cost_unavailable', 'status_code_unavailable', 'source_map_empty'])),
+      recommended_agent_action: stringSchema()
+    }),
     BundleRunDetail: objectSchema({
       run_id: stringSchema(),
       bundle_id: { const: 'morning-briefing' },
@@ -2126,7 +2163,9 @@ function componentSchemas(): Record<string, JsonSchema> {
       latest_generated_at: { oneOf: [dateTimeSchema(), { type: 'null' }] },
       runs: arrayOf({ $ref: '#/components/schemas/BundleRunSummary' }),
       history_summary: { $ref: '#/components/schemas/BundleRunHistorySummary' },
+      freshness: { $ref: '#/components/schemas/BundleRunFreshness' },
       winner_claimed: { const: false },
+      agent_readiness_summary: { $ref: '#/components/schemas/BundleRunAgentReadinessSummary' },
       agent_guidance: arrayOf(stringSchema())
     }),
     BenchmarkArtifactRoute: objectSchema({

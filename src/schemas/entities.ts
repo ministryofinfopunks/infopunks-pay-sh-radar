@@ -1304,6 +1304,18 @@ export const BundleRunFreshnessSchema = z.object({
   recommended_agent_action: z.string()
 }).nullable();
 
+export const BundleRunAgentReadinessSummarySchema = z.object({
+  ready_for_agent_review: z.boolean(),
+  requires_rerun_before_spend: z.boolean(),
+  requires_human_or_policy_approval: z.boolean(),
+  observed_cost_available: z.boolean(),
+  winner_claimed: z.literal(false),
+  decision_state: z.enum(['ready_for_review', 'review_ready_caveated', 'rerun_required', 'not_ready']),
+  blocking_reasons: z.array(z.enum(['freshness_stale', 'winner_claimed_true'])),
+  review_reasons: z.array(z.enum(['billing_unclear_steps_skipped', 'observed_cost_unavailable', 'status_code_unavailable', 'source_map_empty'])),
+  recommended_agent_action: z.string()
+});
+
 export const BundleRunDetailSchema = z.object({
   run_id: z.string(),
   bundle_id: z.literal('morning-briefing'),
@@ -1352,6 +1364,7 @@ export const BundleRunListResponseSchema = z.object({
   history_summary: BundleRunHistorySummarySchema,
   freshness: BundleRunFreshnessSchema,
   winner_claimed: z.literal(false),
+  agent_readiness_summary: BundleRunAgentReadinessSummarySchema,
   agent_guidance: z.array(z.string())
 });
 
