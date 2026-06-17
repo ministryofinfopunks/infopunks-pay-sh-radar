@@ -1,4 +1,7 @@
 import {
+  ClaimChallengeCreateRequestSchema,
+  ClaimDetailSchema,
+  ClaimSchema,
   HumanValidationSubmissionSchema,
   PreSpendCheckRequestSchema,
   PreSpendProviderListResponseSchema
@@ -87,7 +90,7 @@ function metrics(repository: PreSpendRepository) {
     pre_spend_checks_completed: state.pre_spend_checks_completed,
     human_validations_submitted: state.human_validations_submitted,
     failed_routes_avoided: state.failed_routes_avoided,
-    claims_challenged: validations.filter((item) => item.validation_state === 'disputed').length,
+    claims_challenged: repository.listChallenges().length + validations.filter((item) => item.validation_state === 'disputed').length,
     repeatable_routes_discovered: routes.filter((route) => route.success_rate >= 0.9 && route.receipt_references.length >= 2).length,
     agent_builders_using_the_api: 7,
     amount_of_spend_protected_or_intelligently_routed: '184.90 USDC'
@@ -383,6 +386,32 @@ export function createPreSpendIntelligenceService(repository: PreSpendRepository
     submitValidation(input: HumanValidationSubmission) {
       const validation = HumanValidationSubmissionSchema.parse(input);
       return repository.submitValidation(validation);
+    },
+    listClaims() {
+      return repository.listClaims().map((claim) => ClaimSchema.parse(claim));
+    },
+    getClaim(claimId: string) {
+      const claim = repository.getClaim(claimId);
+      if (!claim) return null;
+      return ClaimDetailSchema.parse({
+        ...claim,
+        challenges: repository.getChallengesForClaim(claimId)
+      });
+    },
+    listChallenges() {
+      return repository.listChallenges();
+    },
+    getChallengesForClaim(claimId: string) {
+      return repository.getChallengesForClaim(claimId);
+    },
+    submitClaim(input: Parameters<PreSpendRepository['submitClaim']>[0]) {
+      return ClaimSchema.parse(repository.submitClaim(input));
+    },
+    submitClaimChallenge(claimId: string, input: Omit<Parameters<PreSpendRepository['submitClaimChallenge']>[0], 'claim_id'>) {
+      return repository.submitClaimChallenge({
+        ...ClaimChallengeCreateRequestSchema.parse(input),
+        claim_id: claimId
+      });
     }
   };
 }

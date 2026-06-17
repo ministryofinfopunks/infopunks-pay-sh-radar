@@ -136,6 +136,75 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     }),
     responses: envelopedResponses({ $ref: '#/components/schemas/HumanValidationSubmission' }, { target_type: 'receipt', target_id: 'receipt_003', validation_state: 'human_validated' })
   });
+  add('get', '/v1/claims', {
+    tags: ['Claims'],
+    summary: 'List claims',
+    description: 'Returns structured claim objects backed by receipts and validation context. Claims are reusable signal, not token votes or payment execution.',
+    responses: envelopedResponses(objectSchema({
+      generated_at: dateTimeSchema(),
+      source: stringSchema(),
+      metrics: { $ref: '#/components/schemas/PreSpendMetrics' },
+      claims: arrayOf({ $ref: '#/components/schemas/Claim' })
+    }), { claims: [{ claim_id: 'claim_001', claim_type: 'reliability', target_type: 'route', target_id: 'route_pay_sh_token_quote_01' }] })
+  });
+  add('get', '/v1/claims/{claim_id}', {
+    tags: ['Claims'],
+    summary: 'Get claim detail',
+    description: 'Returns one claim with linked challenges and receipt-backed evidence references.',
+    parameters: [pathParam('claim_id', 'Claim identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/ClaimDetail' }, {
+      claim_id: 'claim_001',
+      claim_type: 'reliability',
+      target_type: 'route',
+      target_id: 'route_pay_sh_token_quote_01',
+      statement: 'Quartz token quote route remains the safest first attempt for stablecoin quote checks under current receipt evidence.',
+      challenges: []
+    }, 'claim_not_found')
+  });
+  add('post', '/v1/claims', {
+    tags: ['Claims'],
+    summary: 'Submit claim',
+    description: 'Submits a structured claim tied to a route, provider, service, receipt, counterparty, or prior claim. No claim without evidence.',
+    requestBody: jsonRequest({ $ref: '#/components/schemas/ClaimCreateRequest' }, {
+      submitted_by: 'agent_ops_001',
+      claim_type: 'blocker',
+      target_type: 'service',
+      target_id: 'service_receipt_parsing',
+      statement: 'Layout-heavy PDF parsing should require human approval until newer receipts replace the stale evidence window.',
+      evidence_receipt_ids: ['receipt_008', 'receipt_009'],
+      evidence_artifact_uris: ['artifact://artifact_receipt_parse_run_001'],
+      confidence_score: 64,
+      validation_state: 'machine_checked',
+      human_notes: ['Known blockers still active.']
+    }),
+    responses: envelopedResponses({ $ref: '#/components/schemas/Claim' }, { claim_id: 'claim_003', status: 'submitted', target_type: 'service', target_id: 'service_receipt_parsing' })
+  });
+  add('get', '/v1/claims/{claim_id}/challenges', {
+    tags: ['Claims'],
+    summary: 'List claim challenges',
+    description: 'Returns challenges recorded against a claim. Challenge flow is a placeholder for future validation markets.',
+    parameters: [pathParam('claim_id', 'Claim identifier.')],
+    responses: envelopedResponses(objectSchema({
+      generated_at: dateTimeSchema(),
+      source: stringSchema(),
+      claim_id: stringSchema(),
+      challenges: arrayOf({ $ref: '#/components/schemas/ClaimChallenge' })
+    }), { claim_id: 'claim_002', challenges: [{ challenge_id: 'challenge_001', claim_id: 'claim_002', status: 'submitted' }] }, 'claim_not_found')
+  });
+  add('post', '/v1/claims/{claim_id}/challenges', {
+    tags: ['Claims'],
+    summary: 'Submit claim challenge',
+    description: 'Submits a challenge placeholder for a claim with receipt evidence, artifact evidence, and human notes. Claims are not token markets yet.',
+    parameters: [pathParam('claim_id', 'Claim identifier.')],
+    requestBody: jsonRequest({ $ref: '#/components/schemas/ClaimChallengeCreateRequest' }, {
+      challenged_by: 'validator_004',
+      reason: 'One failing receipt is not enough to generalize across all invoice layouts without fresh replacement evidence.',
+      evidence_receipt_ids: ['receipt_009'],
+      evidence_artifact_uris: ['artifact://artifact_receipt_parse_run_002'],
+      human_notes: ['Challenge placeholder only.']
+    }),
+    responses: envelopedResponses({ $ref: '#/components/schemas/ClaimChallenge' }, { challenge_id: 'challenge_002', claim_id: 'claim_002', status: 'submitted' }, 'claim_not_found')
+  });
 
   add('get', '/v1/providers', {
     tags: ['Providers'],
@@ -1846,6 +1915,74 @@ function componentSchemas(): Record<string, JsonSchema> {
       dispute_note: { oneOf: [stringSchema(), { type: 'null' }] },
       confidence_adjustment: { type: 'number', minimum: -30, maximum: 30 },
       human_notes: { oneOf: [stringSchema(), { type: 'null' }] }
+    }),
+    Claim: objectSchema({
+      claim_id: stringSchema(),
+      created_at: dateTimeSchema(),
+      submitted_by: stringSchema(),
+      claim_type: enumSchema(['reliability', 'cost', 'latency', 'output_quality', 'safety', 'dispute', 'blocker', 'benchmark', 'counterparty_risk']),
+      target_type: enumSchema(['route', 'provider', 'service', 'receipt', 'counterparty', 'claim']),
+      target_id: stringSchema(),
+      statement: stringSchema(),
+      evidence_receipt_ids: arrayOf(stringSchema()),
+      evidence_artifact_uris: arrayOf(stringSchema()),
+      status: enumSchema(['submitted', 'under_review', 'supported', 'challenged', 'rejected', 'resolved', 'stale']),
+      confidence_score: { type: 'number', minimum: 0, maximum: 100 },
+      validation_state: enumSchema(['unvalidated', 'machine_checked', 'human_validated', 'disputed', 'rejected', 'stale']),
+      challenge_count: integerSchema(),
+      support_count: integerSchema(),
+      human_notes: arrayOf(stringSchema())
+    }),
+    ClaimCreateRequest: objectSchema({
+      submitted_by: stringSchema(),
+      claim_type: enumSchema(['reliability', 'cost', 'latency', 'output_quality', 'safety', 'dispute', 'blocker', 'benchmark', 'counterparty_risk']),
+      target_type: enumSchema(['route', 'provider', 'service', 'receipt', 'counterparty', 'claim']),
+      target_id: stringSchema(),
+      statement: stringSchema(),
+      evidence_receipt_ids: arrayOf(stringSchema()),
+      evidence_artifact_uris: arrayOf(stringSchema()),
+      status: enumSchema(['submitted', 'under_review', 'supported', 'challenged', 'rejected', 'resolved', 'stale']),
+      confidence_score: { type: 'number', minimum: 0, maximum: 100 },
+      validation_state: enumSchema(['unvalidated', 'machine_checked', 'human_validated', 'disputed', 'rejected', 'stale']),
+      support_count: integerSchema(),
+      human_notes: arrayOf(stringSchema())
+    }),
+    ClaimChallenge: objectSchema({
+      challenge_id: stringSchema(),
+      claim_id: stringSchema(),
+      created_at: dateTimeSchema(),
+      challenged_by: stringSchema(),
+      reason: stringSchema(),
+      evidence_receipt_ids: arrayOf(stringSchema()),
+      evidence_artifact_uris: arrayOf(stringSchema()),
+      status: enumSchema(['submitted', 'under_review', 'resolved', 'rejected']),
+      human_notes: arrayOf(stringSchema())
+    }),
+    ClaimChallengeCreateRequest: objectSchema({
+      challenged_by: stringSchema(),
+      reason: stringSchema(),
+      evidence_receipt_ids: arrayOf(stringSchema()),
+      evidence_artifact_uris: arrayOf(stringSchema()),
+      status: enumSchema(['submitted', 'under_review', 'resolved', 'rejected']),
+      human_notes: arrayOf(stringSchema())
+    }),
+    ClaimDetail: objectSchema({
+      claim_id: stringSchema(),
+      created_at: dateTimeSchema(),
+      submitted_by: stringSchema(),
+      claim_type: enumSchema(['reliability', 'cost', 'latency', 'output_quality', 'safety', 'dispute', 'blocker', 'benchmark', 'counterparty_risk']),
+      target_type: enumSchema(['route', 'provider', 'service', 'receipt', 'counterparty', 'claim']),
+      target_id: stringSchema(),
+      statement: stringSchema(),
+      evidence_receipt_ids: arrayOf(stringSchema()),
+      evidence_artifact_uris: arrayOf(stringSchema()),
+      status: enumSchema(['submitted', 'under_review', 'supported', 'challenged', 'rejected', 'resolved', 'stale']),
+      confidence_score: { type: 'number', minimum: 0, maximum: 100 },
+      validation_state: enumSchema(['unvalidated', 'machine_checked', 'human_validated', 'disputed', 'rejected', 'stale']),
+      challenge_count: integerSchema(),
+      support_count: integerSchema(),
+      human_notes: arrayOf(stringSchema()),
+      challenges: arrayOf({ $ref: '#/components/schemas/ClaimChallenge' })
     }),
     HealthResponse: objectSchema({
       ok: booleanSchema(),

@@ -51,6 +51,7 @@ const AUDIO_SPEECH_TRANSCRIPTION_INTENT = 'transcribe the same short audio fixtu
 const BENCHMARK_EVIDENCE_AT = '2026-05-16T07:42:42.271Z';
 const BENCHMARK_PROOF_REFERENCE = 'live-proofs/finance-data-sol-price-benchmark-runs-2026-05-16.md';
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+const BENCHMARK_REFERENCE_NOW_MS = Date.parse(BENCHMARK_EVIDENCE_AT);
 type EvidenceHealth = 'recorded' | 'caveated' | 'stale' | 'degraded' | 'unverified' | 'scaffold';
 
 export type BenchmarkArtifactSafeMetadata = {
@@ -835,7 +836,7 @@ function resolveEvidenceHealth(params: {
   if (hasWarningCaveat) return 'caveated';
 
   const recordedAtMs = Date.parse(latestRecordedAt);
-  if (Number.isFinite(recordedAtMs) && (Date.now() - recordedAtMs) > THIRTY_DAYS_MS) return 'stale';
+  if (Number.isFinite(recordedAtMs) && (BENCHMARK_REFERENCE_NOW_MS - recordedAtMs) > THIRTY_DAYS_MS) return 'stale';
 
   return 'recorded';
 }

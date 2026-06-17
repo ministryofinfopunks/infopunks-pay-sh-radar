@@ -328,6 +328,9 @@ export const SearchRequestSchema = z.object({
 export const RiskLevelSchema = z.enum(['low', 'medium', 'high', 'critical']);
 export const DecisionStateSchema = z.enum(['approved', 'approved_with_warning', 'use_with_caution', 'requires_human_approval', 'do_not_use']);
 export const ValidationStateSchema = z.enum(['unvalidated', 'machine_checked', 'human_validated', 'disputed', 'rejected', 'stale']);
+export const ClaimTargetTypeSchema = z.enum(['route', 'provider', 'service', 'receipt', 'counterparty', 'claim']);
+export const ClaimStatusSchema = z.enum(['submitted', 'under_review', 'supported', 'challenged', 'rejected', 'resolved', 'stale']);
+export const ClaimTypeSchema = z.enum(['reliability', 'cost', 'latency', 'output_quality', 'safety', 'dispute', 'blocker', 'benchmark', 'counterparty_risk']);
 
 export const RouteIntelligenceSchema = z.object({
   route_id: z.string(),
@@ -462,6 +465,64 @@ export const HumanValidationSubmissionSchema = z.object({
   dispute_note: z.string().nullable().optional(),
   confidence_adjustment: z.number().int().min(-30).max(30).default(0),
   human_notes: z.string().nullable().optional()
+});
+
+export const ClaimSchema = z.object({
+  claim_id: z.string(),
+  created_at: z.string().datetime(),
+  submitted_by: z.string().min(1),
+  claim_type: ClaimTypeSchema,
+  target_type: ClaimTargetTypeSchema,
+  target_id: z.string().min(1),
+  statement: z.string().min(1),
+  evidence_receipt_ids: z.array(z.string()),
+  evidence_artifact_uris: z.array(z.string()),
+  status: ClaimStatusSchema,
+  confidence_score: z.number().min(0).max(100),
+  validation_state: ValidationStateSchema,
+  challenge_count: z.number().int().nonnegative(),
+  support_count: z.number().int().nonnegative(),
+  human_notes: z.array(z.string())
+});
+
+export const ClaimChallengeSchema = z.object({
+  challenge_id: z.string(),
+  claim_id: z.string().min(1),
+  created_at: z.string().datetime(),
+  challenged_by: z.string().min(1),
+  reason: z.string().min(1),
+  evidence_receipt_ids: z.array(z.string()),
+  evidence_artifact_uris: z.array(z.string()),
+  status: z.enum(['submitted', 'under_review', 'resolved', 'rejected']),
+  human_notes: z.array(z.string())
+});
+
+export const ClaimCreateRequestSchema = z.object({
+  submitted_by: z.string().min(1),
+  claim_type: ClaimTypeSchema,
+  target_type: ClaimTargetTypeSchema,
+  target_id: z.string().min(1),
+  statement: z.string().min(1),
+  evidence_receipt_ids: z.array(z.string()).default([]),
+  evidence_artifact_uris: z.array(z.string()).default([]),
+  status: ClaimStatusSchema.default('submitted'),
+  confidence_score: z.number().min(0).max(100).default(50),
+  validation_state: ValidationStateSchema.default('unvalidated'),
+  support_count: z.number().int().nonnegative().default(0),
+  human_notes: z.array(z.string()).default([])
+});
+
+export const ClaimChallengeCreateRequestSchema = z.object({
+  challenged_by: z.string().min(1),
+  reason: z.string().min(1),
+  evidence_receipt_ids: z.array(z.string()).default([]),
+  evidence_artifact_uris: z.array(z.string()).default([]),
+  status: z.enum(['submitted', 'under_review', 'resolved', 'rejected']).default('submitted'),
+  human_notes: z.array(z.string()).default([])
+});
+
+export const ClaimDetailSchema = ClaimSchema.extend({
+  challenges: z.array(ClaimChallengeSchema)
 });
 
 export const RouteTrustSummarySchema = z.object({
@@ -1846,6 +1907,14 @@ export type PreSpendMetrics = z.infer<typeof PreSpendMetricsSchema>;
 export type PreSpendCheckRequest = z.infer<typeof PreSpendCheckRequestSchema>;
 export type PreSpendCheckResponse = z.infer<typeof PreSpendCheckResponseSchema>;
 export type HumanValidationSubmission = z.infer<typeof HumanValidationSubmissionSchema>;
+export type ClaimTargetType = z.infer<typeof ClaimTargetTypeSchema>;
+export type ClaimStatus = z.infer<typeof ClaimStatusSchema>;
+export type ClaimType = z.infer<typeof ClaimTypeSchema>;
+export type Claim = z.infer<typeof ClaimSchema>;
+export type ClaimChallenge = z.infer<typeof ClaimChallengeSchema>;
+export type ClaimCreateRequest = z.infer<typeof ClaimCreateRequestSchema>;
+export type ClaimChallengeCreateRequest = z.infer<typeof ClaimChallengeCreateRequestSchema>;
+export type ClaimDetail = z.infer<typeof ClaimDetailSchema>;
 export type RouteIntelligenceDetail = z.infer<typeof RouteIntelligenceDetailSchema>;
 export type ProviderIntelligenceDetail = z.infer<typeof ProviderIntelligenceDetailSchema>;
 export type PreSpendProviderSummary = z.infer<typeof PreSpendProviderSummarySchema>;

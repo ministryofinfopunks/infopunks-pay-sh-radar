@@ -14,6 +14,8 @@ import {
   PreSpendCheckRequestSchema,
   PreSpendReceiptSchema,
   HumanValidationSubmissionSchema,
+  ClaimCreateRequestSchema,
+  ClaimChallengeCreateRequestSchema,
   RadarComparisonRequestSchema,
   RadarEcosystemRiskSummarySchema,
   RadarBatchPreflightRequestSchema,
@@ -1442,6 +1444,39 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     const parsed = HumanValidationSubmissionSchema.safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_human_validation_submission', details: parsed.error.flatten() });
     return { data: safeJsonExport(preSpendIntelligence.submitValidation(parsed.data)) };
+  });
+  app.get('/v1/claims', async () => ({ data: safeJsonExport({
+    generated_at: new Date().toISOString(),
+    source: 'infopunks-pay-sh-radar',
+    metrics: preSpendIntelligence.getMetrics(),
+    claims: preSpendIntelligence.listClaims()
+  }) }));
+  app.get<{ Params: { claim_id: string } }>('/v1/claims/:claim_id', async (req, reply) => {
+    const detail = preSpendIntelligence.getClaim(req.params.claim_id);
+    if (!detail) return reply.code(404).send({ error: 'claim_not_found' });
+    return { data: safeJsonExport(detail) };
+  });
+  app.post('/v1/claims', async (req, reply) => {
+    const parsed = ClaimCreateRequestSchema.safeParse(req.body);
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_claim_submission', details: parsed.error.flatten() });
+    return { data: safeJsonExport(preSpendIntelligence.submitClaim(parsed.data)) };
+  });
+  app.get<{ Params: { claim_id: string } }>('/v1/claims/:claim_id/challenges', async (req, reply) => {
+    const claim = preSpendIntelligence.getClaim(req.params.claim_id);
+    if (!claim) return reply.code(404).send({ error: 'claim_not_found' });
+    return { data: safeJsonExport({
+      generated_at: new Date().toISOString(),
+      source: 'infopunks-pay-sh-radar',
+      claim_id: req.params.claim_id,
+      challenges: preSpendIntelligence.getChallengesForClaim(req.params.claim_id)
+    }) };
+  });
+  app.post<{ Params: { claim_id: string } }>('/v1/claims/:claim_id/challenges', async (req, reply) => {
+    const claim = preSpendIntelligence.getClaim(req.params.claim_id);
+    if (!claim) return reply.code(404).send({ error: 'claim_not_found' });
+    const parsed = ClaimChallengeCreateRequestSchema.safeParse(req.body);
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_claim_challenge_submission', details: parsed.error.flatten() });
+    return { data: safeJsonExport(preSpendIntelligence.submitClaimChallenge(req.params.claim_id, parsed.data)) };
   });
   app.post('/v1/recommend-route', async (req, reply) => handleParsed(req.body, RouteRecommendationRequestSchema, (input) => ({ data: recommendRoute(input, store) }), reply));
   app.post('/v1/preflight', async (req, reply) => handleParsed(req.body, PreflightRequestSchema, (input) => ({ data: runPreflight(input, store) }), reply));

@@ -72,6 +72,11 @@ describe('openapi discovery', () => {
     expect(spec.paths['/v1/receipts']?.get).toBeTruthy();
     expect(spec.paths['/v1/receipts/{event_id}']?.get).toBeTruthy();
     expect(spec.paths['/v1/validation/submit']?.post).toBeTruthy();
+    expect(spec.paths['/v1/claims']?.get).toBeTruthy();
+    expect(spec.paths['/v1/claims']?.post).toBeTruthy();
+    expect(spec.paths['/v1/claims/{claim_id}']?.get).toBeTruthy();
+    expect(spec.paths['/v1/claims/{claim_id}/challenges']?.get).toBeTruthy();
+    expect(spec.paths['/v1/claims/{claim_id}/challenges']?.post).toBeTruthy();
     expect(spec.components.schemas.RouteIntelligence).toBeTruthy();
     expect(spec.components.schemas.BuilderProviderIntelligence).toBeTruthy();
     expect(spec.components.schemas.ServiceDossier).toBeTruthy();
@@ -79,6 +84,11 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.PreSpendCheckRequest).toBeTruthy();
     expect(spec.components.schemas.PreSpendCheckResponse).toBeTruthy();
     expect(spec.components.schemas.HumanValidationSubmission).toBeTruthy();
+    expect(spec.components.schemas.Claim).toBeTruthy();
+    expect(spec.components.schemas.ClaimDetail).toBeTruthy();
+    expect(spec.components.schemas.ClaimCreateRequest).toBeTruthy();
+    expect(spec.components.schemas.ClaimChallenge).toBeTruthy();
+    expect(spec.components.schemas.ClaimChallengeCreateRequest).toBeTruthy();
     expect(spec.components.schemas.PreSpendRouteDetailResponse).toBeTruthy();
     expect(spec.components.schemas.PreSpendProviderDetailResponse).toBeTruthy();
     expect(spec.components.schemas.PreSpendProviderSummary).toBeTruthy();
@@ -99,6 +109,8 @@ describe('openapi discovery', () => {
     expect(JSON.stringify(spec.paths['/v1/routes/{route_id}'])).toContain('route trust summary');
     expect(JSON.stringify(spec.paths['/v1/services/{service_id}'])).toContain('best route decision map');
     expect(JSON.stringify(spec.paths['/v1/receipts/{event_id}'])).toContain('pre-spend receipt detail');
+    expect(JSON.stringify(spec.paths['/v1/claims'])).toContain('No claim without evidence');
+    expect(JSON.stringify(spec.paths['/v1/claims/{claim_id}/challenges'])).toContain('Claims are not token markets yet');
     expect(spec.components.schemas.BenchmarkRouteMetric.properties.status_code).toBeTruthy();
     expect(spec.components.schemas.BenchmarkRouteMetric.properties.status_evidence).toBeTruthy();
     expect(spec.components.schemas.BenchmarkRouteMetric.properties.execution_transport).toBeTruthy();

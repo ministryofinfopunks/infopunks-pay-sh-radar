@@ -10,6 +10,7 @@ const provider = { provider_id: 'provider_pay_sh_lattice', name: 'Lattice Resear
 const quartzProvider = { provider_id: 'provider_pay_sh_quartz', name: 'Quartz Route Index', service_categories: ['token_pricing'], reliability_score: 96, pricing_consistency: 'highly consistent', output_quality_notes: ['precise output shape'], uptime_notes: ['healthy'], dispute_history: [], human_validation_status: 'human_validated', known_risks: [], agent_compatibility: ['wallets'], route_coverage: 1, recent_receipt_count: 3 };
 const service = { service_id: 'service_market_research', category: 'market_research', available_routes: ['route_pay_sh_market_research_01'], supported_inputs: ['query'], observed_cost_range: { min: '0.25 USDC', max: '0.31 USDC' }, observed_latency_range: { min_ms: 780, max_ms: 1600 }, best_observed_route: 'route_pay_sh_market_research_01', cheapest_observed_route: 'route_pay_sh_market_research_01', safest_first_attempt: 'route_pay_sh_market_research_01', fastest_repeatable_route: 'route_pay_sh_market_research_01', known_blockers: ['prompt specificity'], evidence_artifacts: ['artifact_market_research_benchmark_001'], benchmark_readiness: 'human_validated', pre_spend_recommendation: 'Use verified route first.' };
 const receipt = { receipt_id: 'receipt_001', timestamp: '2026-06-14T09:40:00.000Z', agent_id: 'agent_001', route_id: 'route_pay_sh_market_research_01', provider_id: 'provider_pay_sh_lattice', service_id: 'service_market_research', task_type: 'buy_market_research', cost: '0.25 USDC', payment_method: 'stablecoin', latency_ms: 980, input_summary: 'brief request', output_summary: 'structured brief returned', status: 'succeeded', failure_reason: null, validation_state: 'human_validated', human_notes: ['useful baseline summary'], confidence_delta: 4, evidence_artifact: 'artifact_market_research_run_001' };
+const claim = { claim_id: 'claim_001', created_at: '2026-06-16T09:15:00.000Z', submitted_by: 'analyst_001', claim_type: 'reliability', target_type: 'route', target_id: route.route_id, statement: 'Receipt-backed route remains safe for stablecoin quote checks.', evidence_receipt_ids: [receipt.receipt_id], evidence_artifact_uris: ['artifact://artifact_market_research_run_001'], status: 'supported', confidence_score: 91, validation_state: 'human_validated', challenge_count: 0, support_count: 2, human_notes: ['Receipt-backed route intelligence supports repeatable use.'] };
 const metrics = { verified_pre_spend_decisions: 2, routes_indexed: 6, providers_scored: 5, receipts_generated: 11, pre_spend_checks_completed: 4, human_validations_submitted: 3, failed_routes_avoided: 1, claims_challenged: 1, repeatable_routes_discovered: 3, agent_builders_using_the_api: 7, amount_of_spend_protected_or_intelligently_routed: '184.90 USDC' };
 const decision = { intent: 'buy_market_research', decision: 'approved_with_warning', recommended_route: 'route_pay_sh_market_research_01', confidence_score: 82, risk_level: 'medium', estimated_cost: '0.25 USDC', last_successful_run: '2026-06-14T09:40:00.000Z', known_blockers: ['occasional timeout under high load'], requires_human_approval: false, receipt_references: ['receipt_001'], safer_alternatives: ['route_pay_sh_market_research_03'], do_not_use: [{ provider: 'provider_x', reason: 'no recent successful receipt' }], rationale: ['Confidence meets required threshold.'] };
 
@@ -42,6 +43,7 @@ describe('pre-spend builder pages', () => {
   beforeEach(() => {
     vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
       const path = pathOf(input);
+      const method = typeof input === 'string' || input instanceof URL ? 'GET' : input.method ?? 'GET';
       if (path === '/v1/routes') return json({ metrics, routes: [route] });
       if (path === '/v1/routes/route_pay_sh_market_research_01') return json({
         route,
@@ -140,6 +142,11 @@ describe('pre-spend builder pages', () => {
         }
       });
       if (path === '/v1/receipts/receipt_missing') return Promise.resolve(new Response(JSON.stringify({ error: 'receipt_not_found' }), { status: 404 }));
+      if (path === '/v1/claims' && method === 'POST') return json(claim);
+      if (path === '/v1/claims') return json({ metrics, claims: [claim] });
+      if (path === '/v1/claims/claim_001') return json({ ...claim, challenges: [] });
+      if (path === '/v1/claims/missing-claim') return Promise.resolve(new Response(JSON.stringify({ error: 'claim_not_found' }), { status: 404 }));
+      if (path === '/v1/claims/claim_001/challenges') return json({ claim_id: 'claim_001', challenges: [] });
       if (path === '/v1/pre-spend/check') return json(decision);
       return Promise.resolve(new Response('{}', { status: 404 }));
     });
@@ -170,9 +177,10 @@ describe('pre-spend builder pages', () => {
   it('renders developers page with SDK, API, decision states, trust copy, and public links', async () => {
     const { root, container } = await render('/developers');
     const text = container.textContent ?? '';
-    expect(text).toContain('Before your agent pays, call Infopunks.');
+    expect(text).toContain('Before your agent pays, it checks Infopunks.');
     expect(text).toContain('createInfopunksPreSpendClient');
     expect(text).toContain('POST /v1/pre-spend/check');
+    expect(text).toContain('https://radar.infopunks.fun');
     expect(text).toContain('approved');
     expect(text).toContain('approved_with_warning');
     expect(text).toContain('use_with_caution');
@@ -186,7 +194,27 @@ describe('pre-spend builder pages', () => {
     expect(container.querySelector('a[href="/providers"]')).toBeTruthy();
     expect(container.querySelector('a[href="/services"]')).toBeTruthy();
     expect(container.querySelector('a[href="/receipts"]')).toBeTruthy();
+    expect(container.querySelector('a[href="/claim"]')).toBeTruthy();
     expect(container.querySelector('a[href="/openapi.json"]')).toBeTruthy();
+    root.unmount();
+  });
+
+  it('renders claim page with claim loop copy and evidence language', async () => {
+    const { root, container } = await render('/claim');
+    const text = container.textContent ?? '';
+    expect(text).toContain('route decision → receipt → claim → validation → reputation');
+    expect(text).toContain('No claim without evidence.');
+    expect(text).toContain('Claims are not votes.');
+    expect(container.querySelector('a[href="/claims/claim_001"]')).toBeTruthy();
+    root.unmount();
+  });
+
+  it('renders claim detail page with receipt links', async () => {
+    const { root, container } = await render('/claims/claim_001');
+    expect(container.textContent).toContain('Receipt-backed claim');
+    expect(container.textContent).toContain('Receipt-backed route remains safe for stablecoin quote checks.');
+    expect(container.querySelector('a[href="/receipts/receipt_001"]')).toBeTruthy();
+    expect(container.querySelector('a[href="/claim"]')).toBeTruthy();
     root.unmount();
   });
 

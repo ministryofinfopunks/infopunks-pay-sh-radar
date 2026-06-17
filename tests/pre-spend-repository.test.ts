@@ -22,6 +22,13 @@ describe('pre-spend repository', () => {
       listValidations: expect.any(Function),
       getValidationsForTarget: expect.any(Function),
       submitValidation: expect.any(Function),
+      listClaims: expect.any(Function),
+      getClaim: expect.any(Function),
+      submitClaim: expect.any(Function),
+      listChallenges: expect.any(Function),
+      getChallenge: expect.any(Function),
+      getChallengesForClaim: expect.any(Function),
+      submitClaimChallenge: expect.any(Function),
       getMetricsState: expect.any(Function),
       recordPreSpendCheck: expect.any(Function)
     });
@@ -141,6 +148,52 @@ describe('pre-spend repository', () => {
     expect(repository.getReceipt(createdReceipt.receipt_id)?.confidence_delta).toBe(8);
     expect(repository.getReceipt(createdReceipt.receipt_id)?.human_notes).toContain('Looks good.');
     expect(repository.getMetricsState().human_validations_submitted).toBe(4);
+  });
+
+  it('lists claims and gets claim detail records deterministically', () => {
+    const repository = createPreSpendRepository();
+    const claims = repository.listClaims();
+
+    expect(claims.length).toBeGreaterThanOrEqual(2);
+    expect(repository.getClaim('claim_001')?.target_type).toBe('route');
+    expect(repository.getClaim('claim_missing')).toBeNull();
+  });
+
+  it('submits claims and challenges and updates challenge counters', () => {
+    const repository = createPreSpendRepository();
+    const claim = repository.submitClaim({
+      submitted_by: 'builder_ui',
+      claim_type: 'blocker',
+      target_type: 'service',
+      target_id: 'service_receipt_parsing',
+      statement: 'Layout-heavy parsing still needs human validation.',
+      evidence_receipt_ids: ['receipt_009'],
+      evidence_artifact_uris: ['artifact://artifact_receipt_parse_run_002'],
+      status: 'submitted',
+      confidence_score: 62,
+      validation_state: 'machine_checked',
+      support_count: 0,
+      human_notes: ['Submitted in test.']
+    });
+
+    expect(claim.claim_id).toBe('claim_003');
+    expect(repository.listClaims()[0]?.claim_id).toBe(claim.claim_id);
+
+    const challenge = repository.submitClaimChallenge({
+      claim_id: claim.claim_id,
+      challenged_by: 'validator_500',
+      reason: 'Fresh replacement receipts are still missing.',
+      evidence_receipt_ids: ['receipt_008'],
+      evidence_artifact_uris: ['artifact://artifact_receipt_parse_run_001'],
+      status: 'submitted',
+      human_notes: ['Challenge submitted in test.']
+    });
+
+    expect(challenge.challenge_id).toBe('challenge_002');
+    expect(repository.getChallengesForClaim(claim.claim_id)).toHaveLength(1);
+    expect(repository.getClaim(claim.claim_id)?.challenge_count).toBe(1);
+    expect(repository.getClaim(claim.claim_id)?.status).toBe('challenged');
+    expect(repository.getChallenge(challenge.challenge_id)?.claim_id).toBe(claim.claim_id);
   });
 
   it('keeps mutable receipt state isolated between separately created repositories', () => {

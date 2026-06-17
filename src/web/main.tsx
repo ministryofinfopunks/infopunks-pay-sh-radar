@@ -17,6 +17,8 @@ import {
   summarizeMachineEvidenceCounts
 } from '../services/machineMarketService';
 import {
+  ClaimDetailPage,
+  ClaimsPage,
   ProviderDetailPage,
   DevelopersPage,
   ReceiptDetailPage,
@@ -1740,6 +1742,16 @@ function routeServiceId(pathname: string) {
   }
 }
 
+function routeClaimId(pathname: string) {
+  const match = pathname.match(/^\/claims\/([^/]+)\/?$/);
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+}
+
 function routePropagationId(pathname: string) {
   const match = pathname.match(/^\/propagation\/([^/]+)\/?$/);
   if (!match) return null;
@@ -1786,6 +1798,10 @@ function isServicesIndexRoute(pathname: string) {
 
 function isReceiptsIndexRoute(pathname: string) {
   return /^\/receipts\/?$/.test(pathname);
+}
+
+function isClaimsIndexRoute(pathname: string) {
+  return /^\/claim\/?$/.test(pathname);
 }
 
 function isMachineMarketRoute(pathname: string) {
@@ -9422,6 +9438,7 @@ function RadarApp() {
               API Docs
             </a>
             <a className="methodology-trigger" href="/developers">Developers</a>
+            <a className="methodology-trigger" href="/claim">Claims</a>
             <a className="methodology-trigger" href="#agent-benchmark-api">Agent Benchmark API</a>
             <button className="methodology-trigger methodology-link" type="button" onClick={() => setMethodologyOpen(true)} aria-label="Open methodology drawer">
               Methodology
@@ -10343,7 +10360,7 @@ function PreflightConsole({
         <ScopeLabel scope="GLOBAL" />
         <p className="section-kicker">Agent Routing Guard</p>
         <h2 id="preflight-title">Agent Preflight</h2>
-        <p className="panel-caption">Ask Radar where an agent should route before spending. This checks catalog intelligence only and does not execute paid APIs.</p>
+        <p className="panel-caption">Before your agent pays, it checks Infopunks. Ask Radar where an agent should route before spending. This checks catalog intelligence only and does not execute paid APIs.</p>
       </div>
       <div className="panel-actions preflight-header-actions" aria-label="Agent preflight API actions">
         <a className="copy-chip" href={toApiUrl(API_BASE_URL, OPENAPI_PATH)} target="_blank" rel="noreferrer">API Docs</a>
@@ -10368,7 +10385,7 @@ function PreflightConsole({
       </div>
     </div>
     {error && <p className="route-state error">{error}</p>}
-    {!result && status !== 'loading' && !error && <EmptyState title="No preflight decision yet." body="Ask Radar where an agent should route before spending." />}
+    {!result && status !== 'loading' && !error && <EmptyState title="No preflight decision yet." body="Before your agent pays, it checks Infopunks for route intelligence." />}
     {status === 'loading' && <div className="preflight-skeleton" aria-label="Preflight loading"><span /><span /><span /></div>}
     {result && <PreflightResultView result={result} curl={curl} />}
   </section>;
@@ -13204,6 +13221,7 @@ export function App() {
   if (propagationId) return <PropagationIncidentPage clusterId={propagationId} />;
   if (isSpendTerminalRoute(window.location.pathname)) return <SpendTerminalPage />;
   if (isDevelopersRoute(window.location.pathname)) return <DevelopersPage />;
+  if (isClaimsIndexRoute(window.location.pathname)) return <ClaimsPage />;
   if (isRoutesIndexRoute(window.location.pathname)) return <RoutesIndexPage />;
   const routeId = routeRouteId(window.location.pathname);
   if (routeId) return <RouteDetailPage routeId={routeId} />;
@@ -13213,6 +13231,8 @@ export function App() {
   if (isServicesIndexRoute(window.location.pathname)) return <ServicesIndexPage />;
   const serviceId = routeServiceId(window.location.pathname);
   if (serviceId) return <ServiceDetailPage serviceId={serviceId} />;
+  const claimId = routeClaimId(window.location.pathname);
+  if (claimId) return <ClaimDetailPage claimId={claimId} />;
   if (isReceiptsIndexRoute(window.location.pathname)) return <ReceiptsIndexPage />;
   const receiptId = routeReceiptId(window.location.pathname);
   if (receiptId && receiptId.startsWith('receipt_')) return <ReceiptDetailPage receiptId={receiptId} />;

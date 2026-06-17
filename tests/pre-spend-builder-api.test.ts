@@ -233,6 +233,60 @@ describe('pre-spend builder API', () => {
     await app.close();
   });
 
+  it('lists claims, returns claim detail, and accepts claim and challenge submission', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+
+    const list = await app.inject({ method: 'GET', url: '/v1/claims' });
+    expect(list.statusCode).toBe(200);
+    expect(list.json().data.claims.length).toBeGreaterThanOrEqual(2);
+
+    const detail = await app.inject({ method: 'GET', url: '/v1/claims/claim_001' });
+    expect(detail.statusCode).toBe(200);
+    expect(detail.json().data.claim_id).toBe('claim_001');
+    expect(Array.isArray(detail.json().data.challenges)).toBe(true);
+
+    const create = await app.inject({
+      method: 'POST',
+      url: '/v1/claims',
+      payload: {
+        submitted_by: 'builder_ui',
+        claim_type: 'blocker',
+        target_type: 'service',
+        target_id: 'service_receipt_parsing',
+        statement: 'Layout-heavy parsing still needs human validation.',
+        evidence_receipt_ids: ['receipt_009'],
+        evidence_artifact_uris: ['artifact://artifact_receipt_parse_run_002'],
+        status: 'submitted',
+        confidence_score: 62,
+        validation_state: 'machine_checked',
+        support_count: 0,
+        human_notes: ['Submitted in test.']
+      }
+    });
+    expect(create.statusCode).toBe(200);
+    expect(create.json().data.claim_id).toMatch(/^claim_/);
+
+    const challenges = await app.inject({ method: 'GET', url: `/v1/claims/${create.json().data.claim_id}/challenges` });
+    expect(challenges.statusCode).toBe(200);
+    expect(challenges.json().data.claim_id).toBe(create.json().data.claim_id);
+
+    const challenge = await app.inject({
+      method: 'POST',
+      url: `/v1/claims/${create.json().data.claim_id}/challenges`,
+      payload: {
+        challenged_by: 'validator_500',
+        reason: 'Fresh replacement receipts are still missing.',
+        evidence_receipt_ids: ['receipt_008'],
+        evidence_artifact_uris: ['artifact://artifact_receipt_parse_run_001'],
+        status: 'submitted',
+        human_notes: ['Challenge submitted in test.']
+      }
+    });
+    expect(challenge.statusCode).toBe(200);
+    expect(challenge.json().data.claim_id).toBe(create.json().data.claim_id);
+    await app.close();
+  });
+
   it('keeps pre-spend API state isolated per app instance in tests', async () => {
     const firstApp = await createApp(emptyIntelligenceStore());
     const secondApp = await createApp(emptyIntelligenceStore());

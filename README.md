@@ -1,11 +1,10 @@
 # Infopunks Pay.sh Radar
 
-Infopunks Pay.sh Radar is a live intelligence layer for the Pay.sh ecosystem.
+Infopunks is the pre-spend intelligence layer for autonomous markets.
 
-It tracks providers, monitors service health, scores trust and ecosystem activity, and helps users discover reliable Pay.sh services in real time.
+Before your agent pays, it checks Infopunks.
 
-Pay.sh handles payments and discovery.  
-Infopunks Radar adds intelligence, monitoring, and coordination on top.
+Radar turns route evidence, receipts, validation, and public route intelligence into receipt-backed pre-spend decisions. This is not a payment execution client. Pay.sh can handle payment and discovery; Radar is the intelligence layer before payment.
 
 ## Current Evidence Ledger State
 
@@ -56,11 +55,36 @@ const decision = await client.checkPreSpend({
 
 The SDK calls `POST /v1/pre-spend/check`.
 
+Production base URL: `https://radar.infopunks.fun`
+
 Responses are receipt-backed pre-spend decisions.
 
 This is not a payment execution client.
 
 See the minimal agent flow in [examples/pre-spend-agent](/Users/ahdilm/Documents/Infopunks%20Pay.sh%20Intelligence%20Terminal/examples/pre-spend-agent/README.md:1).
+
+## Manual QA Checklist
+
+- Pages: verify `/`, `/developers`, `/spend-terminal`, `/routes`, `/providers`, `/services`, `/receipts`, `/claim`, and linked detail pages render without React errors.
+- Copy: verify public pages use `Pre-Spend Intelligence`, `Before your agent pays, it checks Infopunks.`, `No receipt, no trust.`, `known blockers`, `safer alternatives`, `human validation`, and `evidence graph`.
+- API: verify `POST /v1/pre-spend/check`, `GET /v1/routes`, `GET /v1/pre-spend/providers`, `GET /v1/services`, `GET /v1/receipts`, `POST /v1/receipts`, `POST /v1/validation/submit`, `GET /v1/claims`, `POST /v1/claims`, `GET /v1/claims/:claim_id/challenges`, and `GET /openapi.json`.
+- SDK: verify the package export `import { createInfopunksPreSpendClient } from "infopunks-pay-sh-radar/sdk";` still works against `https://radar.infopunks.fun`.
+- Terminal: verify the spend terminal still returns decision states including `approved`, `approved_with_warning`, `use_with_caution`, `requires_human_approval`, and `do_not_use`.
+- Evidence links: verify route, provider, service, receipt, and claim pages link to related receipts where available.
+- Claims: verify `/claim` shows route decision → receipt → claim → validation → reputation, receipt references, known blockers, safer alternatives, and challenge placeholders.
+
+```bash
+curl -s -X POST "https://radar.infopunks.fun/v1/pre-spend/check" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "agent_id": "agent_001",
+    "intent": "buy_market_research",
+    "budget": 25,
+    "risk_tolerance": "low",
+    "preferred_settlement": "stablecoin",
+    "required_confidence": 75
+  }' | jq
+```
 
 ---
 

@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import {
+  ClaimChallengeSchema,
+  ClaimSchema,
   HumanValidationSubmissionSchema,
   PreSpendReceiptSchema,
   ProviderIntelligenceRecordSchema,
@@ -12,6 +14,8 @@ export type SeedProviderIntelligenceRecord = z.infer<typeof ProviderIntelligence
 export type SeedServiceDossier = z.infer<typeof ServiceDossierSchema>;
 export type SeedPreSpendReceipt = z.infer<typeof PreSpendReceiptSchema>;
 export type SeedHumanValidationSubmission = z.infer<typeof HumanValidationSubmissionSchema>;
+export type SeedClaim = z.infer<typeof ClaimSchema>;
+export type SeedClaimChallenge = z.infer<typeof ClaimChallengeSchema>;
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
@@ -321,12 +325,65 @@ const seedValidations = HumanValidationSubmissionSchema.array().parse([
   { target_type: 'route', target_id: 'route_pay_sh_receipt_parse_02', validator_id: 'validator_003', validation_state: 'stale', output_quality_note: 'usable on clean receipts only', confidence_adjustment: -4, human_notes: 'Fresh proof needed.' }
 ]);
 
+const seedClaims = ClaimSchema.array().parse([
+  {
+    claim_id: 'claim_001',
+    created_at: '2026-06-16T09:15:00.000Z',
+    submitted_by: 'analyst_001',
+    claim_type: 'reliability',
+    target_type: 'route',
+    target_id: 'route_pay_sh_token_quote_01',
+    statement: 'Quartz token quote route remains the safest first attempt for stablecoin quote checks under current receipt evidence.',
+    evidence_receipt_ids: ['receipt_005', 'receipt_006'],
+    evidence_artifact_uris: ['artifact://artifact_token_quote_run_001', 'artifact://artifact_token_quote_run_002'],
+    status: 'supported',
+    confidence_score: 91,
+    validation_state: 'human_validated',
+    challenge_count: 0,
+    support_count: 2,
+    human_notes: ['Receipt-backed route intelligence supports repeatable quote checks.']
+  },
+  {
+    claim_id: 'claim_002',
+    created_at: '2026-06-16T12:30:00.000Z',
+    submitted_by: 'ops_reviewer',
+    claim_type: 'blocker',
+    target_type: 'service',
+    target_id: 'service_receipt_parsing',
+    statement: 'Glass receipt parsing should require human validation for layout-heavy PDFs until newer receipts replace the stale evidence window.',
+    evidence_receipt_ids: ['receipt_008', 'receipt_009'],
+    evidence_artifact_uris: ['artifact://artifact_receipt_parse_run_001', 'artifact://artifact_receipt_parse_run_002'],
+    status: 'challenged',
+    confidence_score: 66,
+    validation_state: 'stale',
+    challenge_count: 1,
+    support_count: 1,
+    human_notes: ['Known blockers still apply.']
+  }
+]);
+
+const seedChallenges = ClaimChallengeSchema.array().parse([
+  {
+    challenge_id: 'challenge_001',
+    claim_id: 'claim_002',
+    created_at: '2026-06-16T14:10:00.000Z',
+    challenged_by: 'validator_004',
+    reason: 'One failing receipt is not enough to generalize across all invoice layouts without fresh replacement evidence.',
+    evidence_receipt_ids: ['receipt_009'],
+    evidence_artifact_uris: ['artifact://artifact_receipt_parse_run_002'],
+    status: 'submitted',
+    human_notes: ['Challenge placeholder only. Review newer receipt samples before resolving.']
+  }
+]);
+
 export type PreSpendSeedState = {
   routes: SeedRouteIntelligence[];
   providers: SeedProviderIntelligenceRecord[];
   services: SeedServiceDossier[];
   receipts: SeedPreSpendReceipt[];
   validations: SeedHumanValidationSubmission[];
+  claims: SeedClaim[];
+  claimChallenges: SeedClaimChallenge[];
   metrics: {
     pre_spend_checks_completed: number;
     human_validations_submitted: number;
@@ -341,6 +398,8 @@ export function createPreSpendSeedState(): PreSpendSeedState {
     services: clone(seedServices),
     receipts: clone(seedReceipts),
     validations: clone(seedValidations),
+    claims: clone(seedClaims),
+    claimChallenges: clone(seedChallenges),
     metrics: {
       pre_spend_checks_completed: 0,
       human_validations_submitted: seedValidations.length,

@@ -4,6 +4,9 @@ import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
 type DecisionState = 'approved' | 'approved_with_warning' | 'use_with_caution' | 'requires_human_approval' | 'do_not_use';
 type ValidationState = 'unvalidated' | 'machine_checked' | 'human_validated' | 'disputed' | 'rejected' | 'stale';
+type ClaimTargetType = 'route' | 'provider' | 'service' | 'receipt' | 'counterparty' | 'claim';
+type ClaimStatus = 'submitted' | 'under_review' | 'supported' | 'challenged' | 'rejected' | 'resolved' | 'stale';
+type ClaimType = 'reliability' | 'cost' | 'latency' | 'output_quality' | 'safety' | 'dispute' | 'blocker' | 'benchmark' | 'counterparty_risk';
 
 type RouteIntelligence = {
   route_id: string;
@@ -207,6 +210,40 @@ type ReceiptDetail = Receipt & {
   impact: ReceiptImpact;
 };
 
+type Claim = {
+  claim_id: string;
+  created_at: string;
+  submitted_by: string;
+  claim_type: ClaimType;
+  target_type: ClaimTargetType;
+  target_id: string;
+  statement: string;
+  evidence_receipt_ids: string[];
+  evidence_artifact_uris: string[];
+  status: ClaimStatus;
+  confidence_score: number;
+  validation_state: ValidationState;
+  challenge_count: number;
+  support_count: number;
+  human_notes: string[];
+};
+
+type ClaimChallenge = {
+  challenge_id: string;
+  claim_id: string;
+  created_at: string;
+  challenged_by: string;
+  reason: string;
+  evidence_receipt_ids: string[];
+  evidence_artifact_uris: string[];
+  status: 'submitted' | 'under_review' | 'resolved' | 'rejected';
+  human_notes: string[];
+};
+
+type ClaimDetail = Claim & {
+  challenges: ClaimChallenge[];
+};
+
 const API_BASE_URL = getApiBaseUrl();
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -251,6 +288,10 @@ function serviceHref(serviceId: string) {
 
 function receiptHref(receiptId: string) {
   return `/receipts/${encodeURIComponent(receiptId)}`;
+}
+
+function claimHref(claimId: string) {
+  return `/claims/${encodeURIComponent(claimId)}`;
 }
 
 function terminalCopy(decision: DecisionState) {
@@ -426,15 +467,15 @@ function MetricsBand({ metrics }: { metrics: Metrics | null }) {
 }
 
 function PlaceholderMarketPanel() {
-  return <section className="panel builder-placeholder-panel" aria-label="Signal market placeholder">
+  return <section className="panel builder-placeholder-panel" aria-label="Claims and validation placeholder">
     <div className="panel-head">
       <div>
-        <p className="section-kicker">Signal Market Placeholder</p>
-        <h2>Validation primitives only</h2>
+        <p className="section-kicker">Claim Primitive</p>
+        <h2>Receipt-backed signal comes before markets</h2>
       </div>
     </div>
     <div className="builder-placeholder-grid">
-      {['claim submission placeholder', 'claim challenge placeholder', 'validation notes', 'contributor reputation placeholder', 'benchmark campaign request placeholder', 'evidence contribution log placeholder'].map((label) => <article key={label}><strong>{label}</strong><span>planning surface only</span></article>)}
+      {['claim submission', 'claim challenge', 'human validation', 'receipt references', 'known blockers', 'safer alternatives'].map((label) => <article key={label}><strong>{label}</strong><span>small evidence primitive only</span></article>)}
     </div>
   </section>;
 }
@@ -623,6 +664,7 @@ Content-Type: application/json
     { href: '/providers', title: 'Providers', copy: 'Review provider reliability, disputes, and coverage.' },
     { href: '/services', title: 'Services', copy: 'Compare best route, safest first attempt, and blockers.' },
     { href: '/receipts', title: 'Receipts', copy: 'Trace every decision back to recorded route evidence.' },
+    { href: '/claim', title: 'Claims', copy: 'Turn receipts into reusable signal objects with evidence and challenge placeholders.' },
     { href: '/openapi.json', title: 'OpenAPI', copy: 'Pull the public OpenAPI spec from the live endpoint.' },
     { href: '/developers#agent-example', title: 'Agent Example', copy: 'See the minimal example and repo path for examples/pre-spend-agent.' }
   ];
@@ -632,15 +674,15 @@ Content-Type: application/json
       <section className="panel hero builder-hero">
         <div>
           <p className="eyebrow">Developer Surface</p>
-          <h1>Before your agent pays, call Infopunks.</h1>
-          <p className="copy">Infopunks gives agents a receipt-backed pre-spend decision before they spend on a route, provider, endpoint, service, claim, or counterparty.</p>
-          <p className="copy">This is not payment execution. It is the intelligence layer before spend.</p>
+          <h1>Before your agent pays, it checks Infopunks.</h1>
+          <p className="copy">Infopunks is the pre-spend intelligence layer before payment. It returns receipt-backed route intelligence, known blockers, safer alternatives, and validation context before economic action.</p>
+          <p className="copy">Infopunks is not executing payment. The SDK calls POST /v1/pre-spend/check against https://radar.infopunks.fun.</p>
         </div>
         <div className="ticker" aria-label="Developer page signals">
-          <span>intent before spend</span>
+          <span>pre-spend intelligence</span>
           <span>receipt-backed decisions</span>
           <span>not payment execution</span>
-          <span>no receipt, no trust</span>
+          <span>before your agent pays, it checks Infopunks</span>
         </div>
       </section>
 
@@ -680,7 +722,7 @@ Content-Type: application/json
               <h2 id="sdk-usage-heading">Use the pre-spend client</h2>
             </div>
           </div>
-          <p className="panel-caption">Import the SDK, create a client, and ask for a decision before your agent spends.</p>
+          <p className="panel-caption">Import the SDK, create a client, and ask Infopunks whether the agent should spend before payment execution happens somewhere else.</p>
           <pre className="builder-code-block"><code>{sdkExample}</code></pre>
         </section>
 
@@ -691,7 +733,7 @@ Content-Type: application/json
               <h2 id="api-heading">POST /v1/pre-spend/check</h2>
             </div>
           </div>
-          <p className="panel-caption">Builders can call the HTTP endpoint directly when they do not want the SDK wrapper.</p>
+          <p className="panel-caption">Builders can call the HTTP endpoint directly when they do not want the SDK wrapper. The public contract is the intelligence layer before payment, not the payment client itself.</p>
           <pre className="builder-code-block"><code>{apiRequest}</code></pre>
           <pre className="builder-code-block"><code>{apiResponse}</code></pre>
         </section>
@@ -723,6 +765,7 @@ Content-Type: application/json
           <p className="builder-note-row">No receipt, no trust.</p>
           <p className="builder-note-row">Every decision should point back to receipts.</p>
           <p className="builder-note-row">Receipts capture route runs, cost, latency, status, validation, confidence delta, and evidence artifacts.</p>
+          <p className="builder-note-row">Evidence graph pages connect routes, providers, services, receipts, and human validation.</p>
         </div>
       </section>
 
@@ -749,6 +792,155 @@ Content-Type: application/json
   </div>;
 }
 
+export function ClaimsPage() {
+  const [claims, setClaims] = useState<Claim[]>([]);
+  const [metrics, setMetrics] = useState<Metrics | null>(null);
+  const [targetType, setTargetType] = useState<ClaimTargetType>('route');
+  const [targetId, setTargetId] = useState('route_pay_sh_token_quote_01');
+  const [claimType, setClaimType] = useState<ClaimType>('reliability');
+  const [statement, setStatement] = useState('Receipt-backed route remains safe for stablecoin quote checks.');
+  const [receiptEvidence, setReceiptEvidence] = useState('receipt_005, receipt_006');
+  const [artifactEvidence, setArtifactEvidence] = useState('artifact://artifact_token_quote_run_001');
+  const [status, setStatus] = useState<ClaimStatus>('submitted');
+  const [validationState, setValidationState] = useState<ValidationState>('unvalidated');
+
+  useEffect(() => {
+    document.title = 'Claims | Infopunks Builder';
+    api<{ data: { claims: Claim[]; metrics: Metrics } }>('/v1/claims').then((response) => {
+      setClaims(response.data.claims);
+      setMetrics(response.data.metrics);
+    }).catch(() => undefined);
+  }, []);
+
+  async function submit(event: React.FormEvent) {
+    event.preventDefault();
+    const response = await api<{ data: Claim }>('/v1/claims', {
+      method: 'POST',
+      body: JSON.stringify({
+        submitted_by: 'builder_ui',
+        claim_type: claimType,
+        target_type: targetType,
+        target_id: targetId,
+        statement,
+        evidence_receipt_ids: receiptEvidence.split(',').map((item) => item.trim()).filter(Boolean),
+        evidence_artifact_uris: artifactEvidence.split(',').map((item) => item.trim()).filter(Boolean),
+        status,
+        confidence_score: 60,
+        validation_state: validationState,
+        human_notes: ['Submitted from the public claim placeholder UI.']
+      })
+    });
+    setClaims((current) => [response.data, ...current]);
+  }
+
+  return <div className="shell builder-shell">
+    <main className="builder-page" aria-label="Claims">
+      <section className="panel hero builder-hero">
+        <div>
+          <p className="eyebrow">Claim Primitive</p>
+          <h1>Claims are how Infopunks turns receipts into reusable signal.</h1>
+          <p className="copy">route decision → receipt → claim → validation → reputation</p>
+          <p className="copy">No claim without evidence. Claims are not votes. Claims are not token markets yet. Claims are structured signal objects backed by receipts.</p>
+        </div>
+      </section>
+      <MetricsBand metrics={metrics} />
+      <section className="grid two builder-section-grid">
+        <form className="panel builder-form-panel" onSubmit={submit}>
+          <div className="panel-head"><div><p className="section-kicker">Claim Submission</p><h2>Submission placeholder</h2></div></div>
+          <p className="panel-caption">Tie the statement to receipts, evidence artifacts, human validation, and a target object. No claim without evidence.</p>
+          <label><span>target type</span><select aria-label="target type" value={targetType} onChange={(event) => setTargetType(event.target.value as ClaimTargetType)}>{['route', 'provider', 'service', 'receipt', 'counterparty', 'claim'].map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
+          <label><span>target ID</span><input aria-label="target ID" value={targetId} onChange={(event) => setTargetId(event.target.value)} /></label>
+          <label><span>claim type</span><select aria-label="claim type" value={claimType} onChange={(event) => setClaimType(event.target.value as ClaimType)}>{['reliability', 'cost', 'latency', 'output_quality', 'safety', 'dispute', 'blocker', 'benchmark', 'counterparty_risk'].map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
+          <label><span>statement</span><textarea aria-label="statement" value={statement} onChange={(event) => setStatement(event.target.value)} rows={4} /></label>
+          <label><span>receipt evidence IDs</span><input aria-label="receipt evidence IDs" value={receiptEvidence} onChange={(event) => setReceiptEvidence(event.target.value)} /></label>
+          <label><span>evidence artifact URIs</span><input aria-label="evidence artifact URIs" value={artifactEvidence} onChange={(event) => setArtifactEvidence(event.target.value)} /></label>
+          <label><span>validation state</span><select aria-label="validation state" value={validationState} onChange={(event) => setValidationState(event.target.value as ValidationState)}>{['unvalidated', 'machine_checked', 'human_validated', 'disputed', 'rejected', 'stale'].map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
+          <label><span>claim status</span><select aria-label="claim status" value={status} onChange={(event) => setStatus(event.target.value as ClaimStatus)}>{['submitted', 'under_review', 'supported', 'challenged', 'rejected', 'resolved', 'stale'].map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
+          <button className="builder-button" type="submit">Submit claim placeholder</button>
+        </form>
+        <section className="panel builder-detail-panel">
+          <div className="panel-head"><div><p className="section-kicker">Claim Rules</p><h2>Validation posture</h2></div></div>
+          <div className="builder-note-stack">
+            <p className="builder-note-row">Claims are not votes.</p>
+            <p className="builder-note-row">Claims are not token markets yet.</p>
+            <p className="builder-note-row">Human validation and challenge flow decide whether the claim should survive as reusable route intelligence.</p>
+            <p className="builder-note-row">Related receipts and evidence graph links should remain inspectable from every claim.</p>
+          </div>
+        </section>
+      </section>
+      <section className="panel builder-detail-panel" aria-label="Existing claims">
+        <div className="panel-head"><div><p className="section-kicker">Existing Claims</p><h2>Reusable signal objects</h2></div></div>
+        <div className="builder-card-grid">
+          {claims.map((claim) => <article className="panel builder-card" key={claim.claim_id}>
+            <a className="builder-card-anchor" href={claimHref(claim.claim_id)}>
+              <p className="section-kicker">{claim.claim_type}</p>
+              <h2>{claim.claim_id}</h2>
+              <div className="builder-stat-list">
+                <span>target {claim.target_type}:{claim.target_id}</span>
+                <span>status {claim.status}</span>
+                <span>validation {claim.validation_state}</span>
+                <span>confidence {claim.confidence_score}</span>
+                <span>challenges {claim.challenge_count}</span>
+              </div>
+              <p className="panel-caption">{claim.statement}</p>
+              <div className="panel-caption">Related receipts: <LinkedIds items={claim.evidence_receipt_ids} buildHref={receiptHref} /></div>
+              <span className="builder-card-cta">Inspect claim</span>
+            </a>
+          </article>)}
+        </div>
+      </section>
+    </main>
+  </div>;
+}
+
+export function ClaimDetailPage({ claimId }: { claimId: string }) {
+  const [detail, setDetail] = useState<ClaimDetail | null>(null);
+  const [missing, setMissing] = useState(false);
+
+  useEffect(() => {
+    document.title = `${claimId} | Claim Detail`;
+    setMissing(false);
+    api<{ data: ClaimDetail }>(`/v1/claims/${encodeURIComponent(claimId)}`)
+      .then((response) => setDetail(response.data))
+      .catch((error) => {
+        if (isNotFoundError(error)) setMissing(true);
+      });
+  }, [claimId]);
+
+  if (missing) return <DetailNotFound title="Claim not found" body={`No inspectable claim exists for ${claimId}.`} href="/claim" linkLabel="Back to claims" />;
+  if (!detail) return <LoadingShell title="Claim detail" />;
+
+  return <DetailShell title="Claim detail" eyebrow="Receipt-backed claim" headline={detail.claim_id} copy="Claims connect route decisions, receipts, challenges, and human validation into reusable signal." metrics={null}>
+    <DetailTable title="Claim evidence" rows={[
+      ['claim ID', detail.claim_id],
+      ['submitted by', detail.submitted_by],
+      ['created at', formatDateTime(detail.created_at)],
+      ['claim type', detail.claim_type],
+      ['target', `${detail.target_type}:${detail.target_id}`],
+      ['statement', detail.statement],
+      ['status', detail.status],
+      ['validation state', detail.validation_state],
+      ['confidence score', detail.confidence_score],
+      ['support count', detail.support_count],
+      ['challenge count', detail.challenge_count],
+      ['evidence receipts', <LinkedIds items={detail.evidence_receipt_ids} buildHref={receiptHref} />],
+      ['evidence artifact URIs', joined(detail.evidence_artifact_uris)],
+      ['human notes', joined(detail.human_notes)]
+    ]} />
+    <DetailList title="Challenges" items={detail.challenges.map((challenge) => `${challenge.challenge_id}: ${challenge.reason}`)} emptyLabel="No challenges recorded yet." />
+    <section className="panel builder-detail-panel">
+      <div className="panel-head"><div><p className="section-kicker">Challenge placeholder</p><h2>Challenge action</h2></div></div>
+      <p className="panel-caption">Challenge flow remains intentionally small: reason, receipt evidence, artifact evidence, and human notes.</p>
+      <div className="builder-note-stack">
+        {detail.challenges.length
+          ? detail.challenges.map((challenge) => <p className="builder-note-row" key={challenge.challenge_id}>{challenge.challenge_id} · {challenge.status} · {challenge.reason}</p>)
+          : <p className="builder-note-row">No challenge submitted yet.</p>}
+      </div>
+      <BuilderLink href="/claim">Back to /claim</BuilderLink>
+    </section>
+  </DetailShell>;
+}
+
 export function RoutesIndexPage() {
   const [routes, setRoutes] = useState<RouteIntelligence[]>([]);
   const [metrics, setMetrics] = useState<Metrics | null>(null);
@@ -769,7 +961,7 @@ export function RoutesIndexPage() {
       ? b.confidence_score - a.confidence_score
       : ['low', 'medium', 'high', 'critical'].indexOf(a.risk_level) - ['low', 'medium', 'high', 'critical'].indexOf(b.risk_level)), [routes, serviceFilter, sort]);
 
-  return <div className="shell builder-shell"><main className="builder-page" aria-label="Routes"><section className="panel hero builder-hero"><div><p className="eyebrow">Receipt-backed route intelligence</p><h1>Routes</h1><p className="copy">Route cards expose cost, latency, confidence, blockers, and freshness before economic action.</p></div></section><MetricsBand metrics={metrics} /><section className="panel builder-filter-panel"><label><span>service type</span><select value={serviceFilter} onChange={(event) => setServiceFilter(event.target.value)}><option value="all">all</option>{Array.from(new Set(routes.map((route) => route.service_id))).map((serviceId) => <option key={serviceId} value={serviceId}>{serviceId}</option>)}</select></label><label><span>sort</span><select value={sort} onChange={(event) => setSort(event.target.value as 'risk' | 'confidence')}><option value="confidence">confidence sorting</option><option value="risk">risk sorting</option></select></label></section><section className="builder-card-grid" aria-label="Route cards">{visible.map((route) => <article className="panel builder-card" key={route.route_id}><a className="builder-card-anchor" href={routeHref(route.route_id)}><p className="section-kicker">{route.recommended_use_case}</p><h2>{route.route_id}</h2><p>{route.endpoint}</p><div className="builder-stat-list"><span>risk {route.risk_level}</span><span>confidence {route.confidence_score}</span><span>cost {route.estimated_cost}</span><span>latency range {route.latency_ms_p50}-{route.latency_ms_p95} ms</span><span>last successful run {formatDate(route.last_successful_run)}</span></div><p className="panel-caption">Known blockers: {joined(route.known_blockers)}</p><span className="builder-card-cta">Inspect route evidence</span></a></article>)}</section></main></div>;
+  return <div className="shell builder-shell"><main className="builder-page" aria-label="Routes"><section className="panel hero builder-hero"><div><p className="eyebrow">Receipt-backed route intelligence</p><h1>Routes</h1><p className="copy">Before your agent pays, inspect the route. These cards show known blockers, safer route posture, and the receipts behind each economic action.</p></div></section><MetricsBand metrics={metrics} /><section className="panel builder-filter-panel"><label><span>service type</span><select value={serviceFilter} onChange={(event) => setServiceFilter(event.target.value)}><option value="all">all</option>{Array.from(new Set(routes.map((route) => route.service_id))).map((serviceId) => <option key={serviceId} value={serviceId}>{serviceId}</option>)}</select></label><label><span>sort</span><select value={sort} onChange={(event) => setSort(event.target.value as 'risk' | 'confidence')}><option value="confidence">confidence sorting</option><option value="risk">risk sorting</option></select></label></section><section className="builder-card-grid" aria-label="Route cards">{visible.map((route) => <article className="panel builder-card" key={route.route_id}><a className="builder-card-anchor" href={routeHref(route.route_id)}><p className="section-kicker">{route.recommended_use_case}</p><h2>{route.route_id}</h2><p>{route.endpoint}</p><div className="builder-stat-list"><span>risk {route.risk_level}</span><span>confidence {route.confidence_score}</span><span>cost {route.estimated_cost}</span><span>latency range {route.latency_ms_p50}-{route.latency_ms_p95} ms</span><span>last successful run {formatDate(route.last_successful_run)}</span></div><p className="panel-caption">Known blockers: {joined(route.known_blockers)}</p><span className="builder-card-cta">Inspect route evidence graph</span></a></article>)}</section></main></div>;
 }
 
 export function ProvidersIndexPage() {
@@ -784,7 +976,7 @@ export function ProvidersIndexPage() {
     }).catch(() => undefined);
   }, []);
 
-  return <div className="shell builder-shell"><main className="builder-page" aria-label="Providers"><section className="panel hero builder-hero"><div><p className="eyebrow">Providers scored</p><h1>Providers</h1><p className="copy">Providers are scored for reliability, disputes, human validation, and route coverage before agents route spend.</p></div></section><MetricsBand metrics={metrics} /><section className="builder-card-grid" aria-label="Provider cards">{providers.map((provider) => <article className="panel builder-card" key={provider.provider_id}><a className="builder-card-anchor" href={providerHref(provider.provider_id)}><p className="section-kicker">{provider.service_categories.join(', ')}</p><h2>{provider.name}</h2><div className="builder-stat-list"><span>reliability score {provider.reliability_score}</span><span>route coverage {provider.route_coverage}</span><span>receipt count {provider.recent_receipt_count}</span><span>validation status {provider.human_validation_status}</span></div><p className="panel-caption">Known risks: {joined(provider.known_risks)}</p><p className="panel-caption">Dispute history: {joined(provider.dispute_history)}</p><span className="builder-card-cta">Inspect provider trust</span></a></article>)}</section></main></div>;
+  return <div className="shell builder-shell"><main className="builder-page" aria-label="Providers"><section className="panel hero builder-hero"><div><p className="eyebrow">Providers scored</p><h1>Providers</h1><p className="copy">Provider pages show receipt-backed route intelligence, human validation, dispute history, and whether the provider belongs in a pre-spend decision at all.</p></div></section><MetricsBand metrics={metrics} /><section className="builder-card-grid" aria-label="Provider cards">{providers.map((provider) => <article className="panel builder-card" key={provider.provider_id}><a className="builder-card-anchor" href={providerHref(provider.provider_id)}><p className="section-kicker">{provider.service_categories.join(', ')}</p><h2>{provider.name}</h2><div className="builder-stat-list"><span>reliability score {provider.reliability_score}</span><span>route coverage {provider.route_coverage}</span><span>receipt count {provider.recent_receipt_count}</span><span>validation status {provider.human_validation_status}</span></div><p className="panel-caption">Known risks: {joined(provider.known_risks)}</p><p className="panel-caption">Dispute history: {joined(provider.dispute_history)}</p><span className="builder-card-cta">Inspect provider trust</span></a></article>)}</section></main></div>;
 }
 
 export function ServicesIndexPage() {
@@ -799,7 +991,7 @@ export function ServicesIndexPage() {
     }).catch(() => undefined);
   }, []);
 
-  return <div className="shell builder-shell"><main className="builder-page" aria-label="Services"><section className="panel hero builder-hero"><div><p className="eyebrow">Service dossiers</p><h1>Services</h1><p className="copy">Service dossiers expose best observed route, cheapest route, safest first attempt, benchmark readiness, and blockers.</p></div></section><MetricsBand metrics={metrics} /><section className="builder-card-grid" aria-label="Service dossiers">{services.map((service) => <article className="panel builder-card" key={service.service_id}><a className="builder-card-anchor" href={serviceHref(service.service_id)}><p className="section-kicker">{service.category}</p><h2>{service.service_id}</h2><div className="builder-stat-list"><span>best observed route {service.best_observed_route ?? 'n/a'}</span><span>cheapest observed route {service.cheapest_observed_route ?? 'n/a'}</span><span>safest first attempt {service.safest_first_attempt ?? 'n/a'}</span><span>fastest repeatable route {service.fastest_repeatable_route ?? 'n/a'}</span><span>benchmark readiness {service.benchmark_readiness}</span></div><p className="panel-caption">Known blockers: {joined(service.known_blockers)}</p><p className="panel-caption">{service.pre_spend_recommendation}</p><span className="builder-card-cta">Inspect service dossier</span></a></article>)}</section><PlaceholderMarketPanel /></main></div>;
+  return <div className="shell builder-shell"><main className="builder-page" aria-label="Services"><section className="panel hero builder-hero"><div><p className="eyebrow">Service dossiers</p><h1>Services</h1><p className="copy">Service dossiers answer should this agent spend, which route is safer first, where the known blockers sit, and which receipt-backed alternatives remain available.</p></div></section><MetricsBand metrics={metrics} /><section className="builder-card-grid" aria-label="Service dossiers">{services.map((service) => <article className="panel builder-card" key={service.service_id}><a className="builder-card-anchor" href={serviceHref(service.service_id)}><p className="section-kicker">{service.category}</p><h2>{service.service_id}</h2><div className="builder-stat-list"><span>best observed route {service.best_observed_route ?? 'n/a'}</span><span>cheapest observed route {service.cheapest_observed_route ?? 'n/a'}</span><span>safest first attempt {service.safest_first_attempt ?? 'n/a'}</span><span>fastest repeatable route {service.fastest_repeatable_route ?? 'n/a'}</span><span>benchmark readiness {service.benchmark_readiness}</span></div><p className="panel-caption">Known blockers: {joined(service.known_blockers)}</p><p className="panel-caption">{service.pre_spend_recommendation}</p><span className="builder-card-cta">Inspect service dossier</span></a></article>)}</section><PlaceholderMarketPanel /></main></div>;
 }
 
 export function ReceiptsIndexPage() {
@@ -814,7 +1006,7 @@ export function ReceiptsIndexPage() {
     }).catch(() => undefined);
   }, []);
 
-  return <div className="shell builder-shell"><main className="builder-page" aria-label="Receipts"><section className="panel hero builder-hero"><div><p className="eyebrow">Receipt-backed route intelligence</p><h1>Receipts</h1><p className="copy">Every route-run needs evidence: status, cost, latency, validation state, and failure reason where relevant.</p></div></section><MetricsBand metrics={metrics} /><section className="builder-card-grid" aria-label="Receipt ledger rows">{receipts.map((receipt) => <article className="panel builder-card" key={receipt.receipt_id}><a className="builder-card-anchor" href={receiptHref(receipt.receipt_id)}><p className="section-kicker">{receipt.task_type}</p><h2>{receipt.receipt_id}</h2><div className="builder-stat-list"><span>status {receipt.status}</span><span>cost {receipt.cost}</span><span>latency {receipt.latency_ms} ms</span><span>validation state {receipt.validation_state}</span><span>linked route {receipt.route_id}</span><span>linked provider {receipt.provider_id}</span></div><p className="panel-caption">Failure reason: {receipt.failure_reason ?? 'none'}</p><p className="panel-caption">Evidence artifact: {receipt.evidence_artifact}</p><span className="builder-card-cta">Inspect receipt impact</span></a></article>)}</section></main></div>;
+  return <div className="shell builder-shell"><main className="builder-page" aria-label="Receipts"><section className="panel hero builder-hero"><div><p className="eyebrow">Receipt-backed route intelligence</p><h1>Receipts</h1><p className="copy">Receipts are the proof layer behind route intelligence. No receipt, no trust. Every receipt should link back to route, provider, service, validation, and evidence graph context.</p></div></section><MetricsBand metrics={metrics} /><section className="builder-card-grid" aria-label="Receipt ledger rows">{receipts.map((receipt) => <article className="panel builder-card" key={receipt.receipt_id}><a className="builder-card-anchor" href={receiptHref(receipt.receipt_id)}><p className="section-kicker">{receipt.task_type}</p><h2>{receipt.receipt_id}</h2><div className="builder-stat-list"><span>status {receipt.status}</span><span>cost {receipt.cost}</span><span>latency {receipt.latency_ms} ms</span><span>validation state {receipt.validation_state}</span><span>linked route {receipt.route_id}</span><span>linked provider {receipt.provider_id}</span></div><p className="panel-caption">Failure reason: {receipt.failure_reason ?? 'none'}</p><p className="panel-caption">Evidence artifact: {receipt.evidence_artifact}</p><span className="builder-card-cta">Inspect receipt impact</span></a></article>)}</section></main></div>;
 }
 
 export function RouteDetailPage({ routeId }: { routeId: string }) {
