@@ -74,17 +74,108 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   });
   add('get', '/v1/receipts/{event_id}', {
     tags: ['Events'],
-    summary: 'Get structured public receipt',
-    description: 'Returns a public, structured receipt for an event id.',
+    summary: 'Get structured receipt detail',
+    description: 'Returns either a public event receipt or a pre-spend receipt detail with linked route, provider, service, and evidence impact.',
     parameters: [pathParam('event_id', 'Receipt event identifier.')],
-    responses: envelopedResponses('ReceiptResponse', { event_id: 'evt-1', event_type: 'provider.updated' }, 'receipt_not_found')
+    responses: envelopedResponses({
+      oneOf: [
+        { $ref: '#/components/schemas/ReceiptResponse' },
+        { $ref: '#/components/schemas/PreSpendReceiptDetailResponse' }
+      ]
+    }, { receipt_id: 'receipt_003', route_id: 'route_pay_sh_market_research_03', impact: { freshness: 'fresh', human_validated: true } }, 'receipt_not_found')
+  });
+  add('get', '/v1/receipts', {
+    tags: ['Pre-Spend Intelligence'],
+    summary: 'List pre-spend receipts',
+    description: 'Returns recent route-run receipts and validation state.',
+    responses: envelopedResponses(objectSchema({
+      generated_at: dateTimeSchema(),
+      source: stringSchema(),
+      metrics: { $ref: '#/components/schemas/PreSpendMetrics' },
+      receipts: arrayOf({ $ref: '#/components/schemas/PreSpendReceipt' })
+    }), { receipts: [{ receipt_id: 'receipt_001', route_id: 'route_pay_sh_market_research_01' }] })
+  });
+  add('post', '/v1/receipts', {
+    tags: ['Pre-Spend Intelligence'],
+    summary: 'Create pre-spend receipt',
+    description: 'Creates a new in-memory receipt object for route-run evidence.',
+    requestBody: jsonRequest({ $ref: '#/components/schemas/PreSpendReceiptCreateRequest' }, {
+      agent_id: 'agent_077',
+      route_id: 'route_pay_sh_token_quote_01',
+      provider_id: 'provider_pay_sh_quartz',
+      service_id: 'service_token_pricing',
+      task_type: 'price_token_quote',
+      cost: '0.07 USDC',
+      payment_method: 'stablecoin',
+      latency_ms: 260,
+      input_summary: 'SOL/USDC quote request',
+      output_summary: 'bounded quote JSON',
+      status: 'succeeded',
+      failure_reason: null,
+      validation_state: 'machine_checked',
+      human_notes: [],
+      confidence_delta: 3,
+      evidence_artifact: 'artifact_token_quote_run_004'
+    }),
+    responses: envelopedResponses({ $ref: '#/components/schemas/PreSpendReceipt' }, { receipt_id: 'receipt_012', route_id: 'route_pay_sh_token_quote_01' })
+  });
+  add('post', '/v1/validation/submit', {
+    tags: ['Pre-Spend Intelligence'],
+    summary: 'Submit human validation annotation',
+    description: 'Accepts validation notes, quality notes, disputes, blocker notes, and confidence adjustments for routes, providers, services, or receipts.',
+    requestBody: jsonRequest({ $ref: '#/components/schemas/HumanValidationSubmission' }, {
+      target_type: 'receipt',
+      target_id: 'receipt_003',
+      validator_id: 'validator_001',
+      validation_state: 'human_validated',
+      output_quality_note: 'structured and directly usable',
+      blocker_note: null,
+      dispute_note: null,
+      confidence_adjustment: 6,
+      human_notes: 'Verified pre-spend decision quality.'
+    }),
+    responses: envelopedResponses({ $ref: '#/components/schemas/HumanValidationSubmission' }, { target_type: 'receipt', target_id: 'receipt_003', validation_state: 'human_validated' })
   });
 
   add('get', '/v1/providers', {
     tags: ['Providers'],
     summary: 'List providers',
-    description: 'Returns lightweight provider records for directory and agent discovery.',
-    responses: envelopedResponses(arrayOf({ $ref: '#/components/schemas/ProviderSummary' }), [{ id: 'alpha', name: 'Alpha API', category: 'payments' }])
+    description: 'Returns lightweight provider records for the legacy Radar provider directory and agent discovery. Pass `scope=pre-spend` for the canonical pre-spend builder provider intelligence payload.',
+    parameters: [{
+      name: 'scope',
+      in: 'query',
+      required: false,
+      description: 'Optional compatibility flag. Use `pre-spend` to return the canonical pre-spend provider intelligence payload instead of the legacy provider directory.',
+      schema: enumSchema(['pre-spend'])
+    }],
+    responses: envelopedResponses({
+      oneOf: [
+        arrayOf({ $ref: '#/components/schemas/ProviderSummary' }),
+        { $ref: '#/components/schemas/PreSpendProviderListResponse' }
+      ]
+    }, [{ id: 'alpha', name: 'Alpha API', category: 'payments' }])
+  });
+  add('get', '/v1/routes', {
+    tags: ['Pre-Spend Intelligence'],
+    summary: 'List route intelligence',
+    description: 'Returns receipt-backed route intelligence for the Pre-Spend Intelligence Terminal.',
+    responses: envelopedResponses(objectSchema({
+      generated_at: dateTimeSchema(),
+      source: stringSchema(),
+      metrics: { $ref: '#/components/schemas/PreSpendMetrics' },
+      routes: arrayOf({ $ref: '#/components/schemas/RouteIntelligence' })
+    }), { routes: [{ route_id: 'route_pay_sh_token_quote_01', provider_id: 'provider_pay_sh_quartz' }] })
+  });
+  add('get', '/v1/routes/{route_id}', {
+    tags: ['Pre-Spend Intelligence'],
+    summary: 'Get route intelligence detail',
+    description: 'Returns route intelligence with linked provider, service, receipt evidence, validation state, decision implications, and route trust summary.',
+    parameters: [pathParam('route_id', 'Pre-spend route identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/PreSpendRouteDetailResponse' }, {
+      route: { route_id: 'route_pay_sh_token_quote_01' },
+      validation_state: 'human_validated',
+      trust_summary: { successful_receipt_count: 3, blocker_severity: 'none' }
+    }, 'route_not_found')
   });
   add('get', '/v1/providers/featured', {
     tags: ['Providers'],
@@ -95,9 +186,102 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   add('get', '/v1/providers/{id}', {
     tags: ['Providers'],
     summary: 'Get provider detail',
-    description: 'Returns provider metadata, endpoints, and current trust/signal assessments.',
+    description: 'Returns either a legacy provider dossier or a pre-spend provider detail with linked routes, receipts, warnings, and provider trust profile.',
     parameters: [pathParam('id', 'Provider identifier.')],
-    responses: envelopedResponses('ProviderDetailResponse', { provider: { id: 'alpha', name: 'Alpha API' }, endpoints: [] }, 'provider_not_found')
+    responses: envelopedResponses({
+      oneOf: [
+        { $ref: '#/components/schemas/ProviderDetailResponse' },
+        { $ref: '#/components/schemas/PreSpendProviderDetailResponse' }
+      ]
+    }, { provider: { provider_id: 'provider_pay_sh_quartz', name: 'Quartz Route Index' }, trust_profile: { safe_for_first_attempt: true, not_recommended: false } }, 'provider_not_found')
+  });
+  add('get', '/v1/pre-spend/providers', {
+    tags: ['Pre-Spend Intelligence'],
+    summary: 'List canonical pre-spend providers',
+    description: 'Returns only deterministic pre-spend builder provider intelligence from the in-memory pre-spend intelligence service. This endpoint is canonical for agent-callable pre-spend provider discovery and is distinct from the legacy Radar provider directory.',
+    responses: envelopedResponses({ $ref: '#/components/schemas/PreSpendProviderListResponse' }, {
+      generated_at: '2026-06-16T04:00:00.000Z',
+      source: 'infopunks-pay-sh-radar',
+      providers: [{
+        provider_id: 'provider_pay_sh_quartz',
+        name: 'Quartz Route Index',
+        service_categories: ['token_pricing'],
+        reliability_score: 96,
+        pricing_consistency: 'highly consistent',
+        output_quality_notes: ['precise output shape'],
+        uptime_notes: ['healthy current run cadence'],
+        dispute_history: [],
+        human_validation_status: 'human_validated',
+        known_risks: [],
+        agent_compatibility: ['trading_agents', 'autonomous_wallets'],
+        route_coverage: 1,
+        recent_receipt_count: 3,
+        linked_routes: ['route_pay_sh_token_quote_01'],
+        linked_receipts: ['receipt_005', 'receipt_006', 'receipt_007'],
+        trust_profile: { safe_for_first_attempt: true, better_for_repeatable_routes: true, requires_human_approval: false, not_recommended: false, summary: 'Safe for first attempts under current observed conditions and suitable for repeatable receipt-backed routing.' }
+      }]
+    })
+  });
+  add('get', '/v1/pre-spend/providers/{provider_id}', {
+    tags: ['Pre-Spend Intelligence'],
+    summary: 'Get canonical pre-spend provider detail',
+    description: 'Returns the enriched pre-spend provider detail payload used by provider detail pages for `provider_*` identifiers. This endpoint is distinct from the legacy Radar provider directory detail route.',
+    parameters: [pathParam('provider_id', 'Pre-spend provider identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/PreSpendProviderDetailResponse' }, {
+      provider: { provider_id: 'provider_pay_sh_quartz', name: 'Quartz Route Index' },
+      routes: [{ route_id: 'route_pay_sh_token_quote_01', provider_id: 'provider_pay_sh_quartz' }],
+      receipts: [{ receipt_id: 'receipt_005', provider_id: 'provider_pay_sh_quartz' }],
+      trust_profile: { safe_for_first_attempt: true, better_for_repeatable_routes: true, requires_human_approval: false, not_recommended: false, summary: 'Safe for first attempts under current observed conditions and suitable for repeatable receipt-backed routing.' }
+    }, 'provider_not_found')
+  });
+  add('get', '/v1/services', {
+    tags: ['Pre-Spend Intelligence'],
+    summary: 'List service dossiers',
+    description: 'Returns service dossiers for paid API and service routes.',
+    responses: envelopedResponses(objectSchema({
+      generated_at: dateTimeSchema(),
+      source: stringSchema(),
+      metrics: { $ref: '#/components/schemas/PreSpendMetrics' },
+      services: arrayOf({ $ref: '#/components/schemas/ServiceDossier' })
+    }), { services: [{ service_id: 'service_market_research', category: 'market_research' }] })
+  });
+  add('get', '/v1/services/{service_id}', {
+    tags: ['Pre-Spend Intelligence'],
+    summary: 'Get service dossier detail',
+    description: 'Returns a service dossier, linked routes and receipts, and the best route decision map for pre-spend selection.',
+    parameters: [pathParam('service_id', 'Service dossier identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/PreSpendServiceDetailResponse' }, {
+      service: { service_id: 'service_market_research' },
+      best_route_decision_map: { best_observed_route: 'route_pay_sh_market_research_03', cheapest_route: 'route_pay_sh_market_research_01' }
+    }, 'service_not_found')
+  });
+  add('post', '/v1/pre-spend/check', {
+    tags: ['Pre-Spend Intelligence'],
+    summary: 'Run pre-spend decision check',
+    description: 'Core decision endpoint for agents. Returns a receipt-backed recommendation about whether an agent should spend on a route now.',
+    requestBody: jsonRequest({ $ref: '#/components/schemas/PreSpendCheckRequest' }, {
+      agent_id: 'agent_001',
+      intent: 'buy_market_research',
+      budget: 25,
+      risk_tolerance: 'low',
+      preferred_settlement: 'stablecoin',
+      required_confidence: 75
+    }),
+    responses: envelopedResponses({ $ref: '#/components/schemas/PreSpendCheckResponse' }, {
+      intent: 'buy_market_research',
+      decision: 'approved_with_warning',
+      recommended_route: 'route_pay_sh_market_research_01',
+      confidence_score: 82,
+      risk_level: 'medium',
+      estimated_cost: '0.25 USDC',
+      last_successful_run: '2026-06-14T09:40:00.000Z',
+      known_blockers: ['occasional timeout under high load', 'output quality varies by prompt specificity'],
+      requires_human_approval: false,
+      receipt_references: ['receipt_001', 'receipt_002'],
+      safer_alternatives: ['route_pay_sh_market_research_03'],
+      do_not_use: [{ provider: 'provider_x', reason: 'no recent successful receipt' }],
+      rationale: ['Confidence meets required threshold.', 'Recent successful receipts exist.', 'Known blockers are present, so the route is approved with warning.']
+    })
   });
   add('get', '/v1/providers/{id}/history', {
     tags: ['Providers'],
@@ -1421,6 +1605,247 @@ function componentSchemas(): Record<string, JsonSchema> {
       error: stringSchema(),
       message: stringSchema(),
       details: freeformObject()
+    }),
+    PreSpendMetrics: objectSchema({
+      verified_pre_spend_decisions: integerSchema(),
+      routes_indexed: integerSchema(),
+      providers_scored: integerSchema(),
+      receipts_generated: integerSchema(),
+      pre_spend_checks_completed: integerSchema(),
+      human_validations_submitted: integerSchema(),
+      failed_routes_avoided: integerSchema(),
+      claims_challenged: integerSchema(),
+      repeatable_routes_discovered: integerSchema(),
+      agent_builders_using_the_api: integerSchema(),
+      amount_of_spend_protected_or_intelligently_routed: stringSchema()
+    }),
+    BuilderProviderIntelligence: objectSchema({
+      provider_id: stringSchema(),
+      name: stringSchema(),
+      service_categories: arrayOf(stringSchema()),
+      reliability_score: { type: 'number', minimum: 0, maximum: 100 },
+      pricing_consistency: stringSchema(),
+      output_quality_notes: arrayOf(stringSchema()),
+      uptime_notes: arrayOf(stringSchema()),
+      dispute_history: arrayOf(stringSchema()),
+      human_validation_status: enumSchema(['unvalidated', 'machine_checked', 'human_validated', 'disputed', 'rejected', 'stale']),
+      known_risks: arrayOf(stringSchema()),
+      agent_compatibility: arrayOf(stringSchema()),
+      route_coverage: integerSchema(),
+      recent_receipt_count: integerSchema()
+    }),
+    RouteIntelligence: objectSchema({
+      route_id: stringSchema(),
+      provider_id: stringSchema(),
+      service_id: stringSchema(),
+      endpoint: stringSchema(),
+      payment_method: stringSchema(),
+      estimated_cost: stringSchema(),
+      latency_ms_p50: integerSchema(),
+      latency_ms_p95: integerSchema(),
+      success_rate: { type: 'number', minimum: 0, maximum: 1 },
+      last_tested_at: dateTimeSchema(),
+      last_successful_run: { oneOf: [dateTimeSchema(), { type: 'null' }] },
+      last_failed_run: { oneOf: [dateTimeSchema(), { type: 'null' }] },
+      confidence_score: { type: 'number', minimum: 0, maximum: 100 },
+      risk_level: enumSchema(['low', 'medium', 'high', 'critical']),
+      known_blockers: arrayOf(stringSchema()),
+      receipt_references: arrayOf(stringSchema()),
+      recommended_use_case: stringSchema(),
+      avoid_conditions: arrayOf(stringSchema())
+    }),
+    ServiceDossier: objectSchema({
+      service_id: stringSchema(),
+      category: stringSchema(),
+      available_routes: arrayOf(stringSchema()),
+      supported_inputs: arrayOf(stringSchema()),
+      observed_cost_range: objectSchema({ min: stringSchema(), max: stringSchema() }),
+      observed_latency_range: objectSchema({ min_ms: integerSchema(), max_ms: integerSchema() }),
+      best_observed_route: { oneOf: [stringSchema(), { type: 'null' }] },
+      cheapest_observed_route: { oneOf: [stringSchema(), { type: 'null' }] },
+      safest_first_attempt: { oneOf: [stringSchema(), { type: 'null' }] },
+      fastest_repeatable_route: { oneOf: [stringSchema(), { type: 'null' }] },
+      known_blockers: arrayOf(stringSchema()),
+      evidence_artifacts: arrayOf(stringSchema()),
+      benchmark_readiness: enumSchema(['unvalidated', 'machine_checked', 'human_validated', 'disputed', 'rejected', 'stale']),
+      pre_spend_recommendation: stringSchema()
+    }),
+    PreSpendReceipt: objectSchema({
+      receipt_id: stringSchema(),
+      timestamp: dateTimeSchema(),
+      agent_id: stringSchema(),
+      route_id: stringSchema(),
+      provider_id: stringSchema(),
+      service_id: stringSchema(),
+      task_type: stringSchema(),
+      cost: stringSchema(),
+      payment_method: stringSchema(),
+      latency_ms: integerSchema(),
+      input_summary: stringSchema(),
+      output_summary: stringSchema(),
+      status: enumSchema(['succeeded', 'failed', 'timed_out', 'partial']),
+      failure_reason: { oneOf: [stringSchema(), { type: 'null' }] },
+      validation_state: enumSchema(['unvalidated', 'machine_checked', 'human_validated', 'disputed', 'rejected', 'stale']),
+      human_notes: arrayOf(stringSchema()),
+      confidence_delta: { type: 'number', minimum: -100, maximum: 100 },
+      evidence_artifact: stringSchema()
+    }),
+    PreSpendReceiptCreateRequest: objectSchema({
+      agent_id: stringSchema(),
+      route_id: stringSchema(),
+      provider_id: stringSchema(),
+      service_id: stringSchema(),
+      task_type: stringSchema(),
+      cost: stringSchema(),
+      payment_method: stringSchema(),
+      latency_ms: integerSchema(),
+      input_summary: stringSchema(),
+      output_summary: stringSchema(),
+      status: enumSchema(['succeeded', 'failed', 'timed_out', 'partial']),
+      failure_reason: { oneOf: [stringSchema(), { type: 'null' }] },
+      validation_state: enumSchema(['unvalidated', 'machine_checked', 'human_validated', 'disputed', 'rejected', 'stale']),
+      human_notes: arrayOf(stringSchema()),
+      confidence_delta: { type: 'number', minimum: -100, maximum: 100 },
+      evidence_artifact: stringSchema()
+    }),
+    PreSpendCheckRequest: objectSchema({
+      agent_id: stringSchema(),
+      intent: stringSchema(),
+      budget: { type: 'number', minimum: 0 },
+      risk_tolerance: enumSchema(['low', 'medium', 'high', 'critical']),
+      preferred_settlement: stringSchema(),
+      required_confidence: { type: 'number', minimum: 0, maximum: 100 }
+    }),
+    PreSpendCheckResponse: objectSchema({
+      intent: stringSchema(),
+      decision: enumSchema(['approved', 'approved_with_warning', 'use_with_caution', 'requires_human_approval', 'do_not_use']),
+      recommended_route: { oneOf: [stringSchema(), { type: 'null' }] },
+      confidence_score: { type: 'number', minimum: 0, maximum: 100 },
+      risk_level: enumSchema(['low', 'medium', 'high', 'critical']),
+      estimated_cost: { oneOf: [stringSchema(), { type: 'null' }] },
+      last_successful_run: { oneOf: [dateTimeSchema(), { type: 'null' }] },
+      known_blockers: arrayOf(stringSchema()),
+      requires_human_approval: booleanSchema(),
+      receipt_references: arrayOf(stringSchema()),
+      safer_alternatives: arrayOf(stringSchema()),
+      do_not_use: arrayOf(objectSchema({ provider: stringSchema(), reason: stringSchema() })),
+      rationale: arrayOf(stringSchema())
+    }),
+    RouteTrustSummary: objectSchema({
+      receipt_freshness: stringSchema(),
+      successful_receipt_count: integerSchema(),
+      failure_patterns: arrayOf(stringSchema()),
+      blocker_severity: enumSchema(['none', 'low', 'medium', 'high']),
+      provider_reliability: stringSchema(),
+      human_validation: stringSchema(),
+      summary: stringSchema()
+    }),
+    ProviderTrustProfile: objectSchema({
+      safe_for_first_attempt: booleanSchema(),
+      better_for_repeatable_routes: booleanSchema(),
+      requires_human_approval: booleanSchema(),
+      not_recommended: booleanSchema(),
+      summary: stringSchema()
+    }),
+    ServiceDecisionMap: objectSchema({
+      best_observed_route: { oneOf: [stringSchema(), { type: 'null' }] },
+      cheapest_route: { oneOf: [stringSchema(), { type: 'null' }] },
+      safest_first_attempt: { oneOf: [stringSchema(), { type: 'null' }] },
+      fastest_repeatable_route: { oneOf: [stringSchema(), { type: 'null' }] },
+      summary: stringSchema()
+    }),
+    ReceiptImpact: objectSchema({
+      improves_route_confidence: booleanSchema(),
+      reduces_route_confidence: booleanSchema(),
+      freshness: enumSchema(['fresh', 'stale']),
+      human_validated: booleanSchema(),
+      should_affect_future_pre_spend_decisions: booleanSchema(),
+      summary: stringSchema()
+    }),
+    PreSpendRouteDetailResponse: objectSchema({
+      route: { $ref: '#/components/schemas/RouteIntelligence' },
+      provider: { oneOf: [{ $ref: '#/components/schemas/BuilderProviderIntelligence' }, { type: 'null' }] },
+      service: { oneOf: [{ $ref: '#/components/schemas/ServiceDossier' }, { type: 'null' }] },
+      receipts: arrayOf({ $ref: '#/components/schemas/PreSpendReceipt' }),
+      metrics: { $ref: '#/components/schemas/PreSpendMetrics' },
+      validation_state: { oneOf: [enumSchema(['unvalidated', 'machine_checked', 'human_validated', 'disputed', 'rejected', 'stale']), { type: 'null' }] },
+      decision_implications: arrayOf(stringSchema()),
+      trust_summary: { oneOf: [{ $ref: '#/components/schemas/RouteTrustSummary' }, { type: 'null' }] }
+    }),
+    PreSpendProviderDetailResponse: objectSchema({
+      provider: { $ref: '#/components/schemas/BuilderProviderIntelligence' },
+      routes: arrayOf({ $ref: '#/components/schemas/RouteIntelligence' }),
+      services: arrayOf({ $ref: '#/components/schemas/ServiceDossier' }),
+      receipts: arrayOf({ $ref: '#/components/schemas/PreSpendReceipt' }),
+      metrics: { $ref: '#/components/schemas/PreSpendMetrics' },
+      provider_level_warnings: arrayOf(stringSchema()),
+      trust_profile: { $ref: '#/components/schemas/ProviderTrustProfile' }
+    }),
+    PreSpendProviderSummary: objectSchema({
+      provider_id: stringSchema(),
+      name: stringSchema(),
+      service_categories: arrayOf(stringSchema()),
+      reliability_score: { type: 'number', minimum: 0, maximum: 100 },
+      pricing_consistency: stringSchema(),
+      output_quality_notes: arrayOf(stringSchema()),
+      uptime_notes: arrayOf(stringSchema()),
+      dispute_history: arrayOf(stringSchema()),
+      human_validation_status: enumSchema(['unvalidated', 'machine_checked', 'human_validated', 'disputed', 'rejected', 'stale']),
+      known_risks: arrayOf(stringSchema()),
+      agent_compatibility: arrayOf(stringSchema()),
+      route_coverage: integerSchema(),
+      recent_receipt_count: integerSchema(),
+      linked_routes: arrayOf(stringSchema()),
+      linked_receipts: arrayOf(stringSchema()),
+      trust_profile: { $ref: '#/components/schemas/ProviderTrustProfile' }
+    }),
+    PreSpendProviderListResponse: objectSchema({
+      generated_at: dateTimeSchema(),
+      source: stringSchema(),
+      metrics: { $ref: '#/components/schemas/PreSpendMetrics' },
+      providers: arrayOf({ $ref: '#/components/schemas/PreSpendProviderSummary' })
+    }),
+    PreSpendServiceDetailResponse: objectSchema({
+      service: { $ref: '#/components/schemas/ServiceDossier' },
+      routes: arrayOf({ $ref: '#/components/schemas/RouteIntelligence' }),
+      receipts: arrayOf({ $ref: '#/components/schemas/PreSpendReceipt' }),
+      metrics: { $ref: '#/components/schemas/PreSpendMetrics' },
+      best_route_decision_map: { $ref: '#/components/schemas/ServiceDecisionMap' }
+    }),
+    PreSpendReceiptDetailResponse: objectSchema({
+      receipt_id: stringSchema(),
+      timestamp: dateTimeSchema(),
+      agent_id: stringSchema(),
+      route_id: stringSchema(),
+      provider_id: stringSchema(),
+      service_id: stringSchema(),
+      task_type: stringSchema(),
+      cost: stringSchema(),
+      payment_method: stringSchema(),
+      latency_ms: integerSchema(),
+      input_summary: stringSchema(),
+      output_summary: stringSchema(),
+      status: enumSchema(['succeeded', 'failed', 'timed_out', 'partial']),
+      failure_reason: { oneOf: [stringSchema(), { type: 'null' }] },
+      validation_state: enumSchema(['unvalidated', 'machine_checked', 'human_validated', 'disputed', 'rejected', 'stale']),
+      human_notes: arrayOf(stringSchema()),
+      confidence_delta: { type: 'number', minimum: -100, maximum: 100 },
+      evidence_artifact: stringSchema(),
+      route: { oneOf: [{ $ref: '#/components/schemas/RouteIntelligence' }, { type: 'null' }] },
+      provider: { oneOf: [{ $ref: '#/components/schemas/BuilderProviderIntelligence' }, { type: 'null' }] },
+      service: { oneOf: [{ $ref: '#/components/schemas/ServiceDossier' }, { type: 'null' }] },
+      impact: { $ref: '#/components/schemas/ReceiptImpact' }
+    }),
+    HumanValidationSubmission: objectSchema({
+      target_type: enumSchema(['route', 'provider', 'service', 'receipt']),
+      target_id: stringSchema(),
+      validator_id: stringSchema(),
+      validation_state: enumSchema(['unvalidated', 'machine_checked', 'human_validated', 'disputed', 'rejected', 'stale']),
+      output_quality_note: { oneOf: [stringSchema(), { type: 'null' }] },
+      blocker_note: { oneOf: [stringSchema(), { type: 'null' }] },
+      dispute_note: { oneOf: [stringSchema(), { type: 'null' }] },
+      confidence_adjustment: { type: 'number', minimum: -30, maximum: 30 },
+      human_notes: { oneOf: [stringSchema(), { type: 'null' }] }
     }),
     HealthResponse: objectSchema({
       ok: booleanSchema(),

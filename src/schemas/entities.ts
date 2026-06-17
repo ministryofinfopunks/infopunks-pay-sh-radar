@@ -325,6 +325,229 @@ export const SearchRequestSchema = z.object({
   limit: z.number().int().min(1).max(50).default(10)
 });
 
+export const RiskLevelSchema = z.enum(['low', 'medium', 'high', 'critical']);
+export const DecisionStateSchema = z.enum(['approved', 'approved_with_warning', 'use_with_caution', 'requires_human_approval', 'do_not_use']);
+export const ValidationStateSchema = z.enum(['unvalidated', 'machine_checked', 'human_validated', 'disputed', 'rejected', 'stale']);
+
+export const RouteIntelligenceSchema = z.object({
+  route_id: z.string(),
+  provider_id: z.string(),
+  service_id: z.string(),
+  endpoint: z.string(),
+  payment_method: z.string(),
+  estimated_cost: z.string(),
+  latency_ms_p50: z.number().int().nonnegative(),
+  latency_ms_p95: z.number().int().nonnegative(),
+  success_rate: z.number().min(0).max(1),
+  last_tested_at: z.string().datetime(),
+  last_successful_run: z.string().datetime().nullable(),
+  last_failed_run: z.string().datetime().nullable(),
+  confidence_score: z.number().min(0).max(100),
+  risk_level: RiskLevelSchema,
+  known_blockers: z.array(z.string()),
+  receipt_references: z.array(z.string()),
+  recommended_use_case: z.string(),
+  avoid_conditions: z.array(z.string())
+});
+
+export const ProviderIntelligenceRecordSchema = z.object({
+  provider_id: z.string(),
+  name: z.string(),
+  service_categories: z.array(z.string()),
+  reliability_score: z.number().min(0).max(100),
+  pricing_consistency: z.string(),
+  output_quality_notes: z.array(z.string()),
+  uptime_notes: z.array(z.string()),
+  dispute_history: z.array(z.string()),
+  human_validation_status: ValidationStateSchema,
+  known_risks: z.array(z.string()),
+  agent_compatibility: z.array(z.string()),
+  route_coverage: z.number().int().nonnegative(),
+  recent_receipt_count: z.number().int().nonnegative()
+});
+
+export const ServiceDossierSchema = z.object({
+  service_id: z.string(),
+  category: z.string(),
+  available_routes: z.array(z.string()),
+  supported_inputs: z.array(z.string()),
+  observed_cost_range: z.object({
+    min: z.string(),
+    max: z.string()
+  }),
+  observed_latency_range: z.object({
+    min_ms: z.number().int().nonnegative(),
+    max_ms: z.number().int().nonnegative()
+  }),
+  best_observed_route: z.string().nullable(),
+  cheapest_observed_route: z.string().nullable(),
+  safest_first_attempt: z.string().nullable(),
+  fastest_repeatable_route: z.string().nullable(),
+  known_blockers: z.array(z.string()),
+  evidence_artifacts: z.array(z.string()),
+  benchmark_readiness: ValidationStateSchema,
+  pre_spend_recommendation: z.string()
+});
+
+export const PreSpendReceiptSchema = z.object({
+  receipt_id: z.string(),
+  timestamp: z.string().datetime(),
+  agent_id: z.string(),
+  route_id: z.string(),
+  provider_id: z.string(),
+  service_id: z.string(),
+  task_type: z.string(),
+  cost: z.string(),
+  payment_method: z.string(),
+  latency_ms: z.number().int().nonnegative(),
+  input_summary: z.string(),
+  output_summary: z.string(),
+  status: z.enum(['succeeded', 'failed', 'timed_out', 'partial']),
+  failure_reason: z.string().nullable(),
+  validation_state: ValidationStateSchema,
+  human_notes: z.array(z.string()),
+  confidence_delta: z.number().min(-100).max(100),
+  evidence_artifact: z.string()
+});
+
+export const PreSpendMetricsSchema = z.object({
+  verified_pre_spend_decisions: z.number().int().nonnegative(),
+  routes_indexed: z.number().int().nonnegative(),
+  providers_scored: z.number().int().nonnegative(),
+  receipts_generated: z.number().int().nonnegative(),
+  pre_spend_checks_completed: z.number().int().nonnegative(),
+  human_validations_submitted: z.number().int().nonnegative(),
+  failed_routes_avoided: z.number().int().nonnegative(),
+  claims_challenged: z.number().int().nonnegative(),
+  repeatable_routes_discovered: z.number().int().nonnegative(),
+  agent_builders_using_the_api: z.number().int().nonnegative(),
+  amount_of_spend_protected_or_intelligently_routed: z.string()
+});
+
+export const PreSpendCheckRequestSchema = z.object({
+  agent_id: z.string().min(1),
+  intent: z.string().min(1),
+  budget: z.number().nonnegative(),
+  risk_tolerance: RiskLevelSchema,
+  preferred_settlement: z.string().min(1),
+  required_confidence: z.number().min(0).max(100)
+});
+
+export const PreSpendCheckResponseSchema = z.object({
+  intent: z.string(),
+  decision: DecisionStateSchema,
+  recommended_route: z.string().nullable(),
+  confidence_score: z.number().min(0).max(100),
+  risk_level: RiskLevelSchema,
+  estimated_cost: z.string().nullable(),
+  last_successful_run: z.string().datetime().nullable(),
+  known_blockers: z.array(z.string()),
+  requires_human_approval: z.boolean(),
+  receipt_references: z.array(z.string()),
+  safer_alternatives: z.array(z.string()),
+  do_not_use: z.array(z.object({
+    provider: z.string(),
+    reason: z.string()
+  })),
+  rationale: z.array(z.string())
+});
+
+export const HumanValidationSubmissionSchema = z.object({
+  target_type: z.enum(['route', 'provider', 'service', 'receipt']),
+  target_id: z.string().min(1),
+  validator_id: z.string().min(1),
+  validation_state: ValidationStateSchema,
+  output_quality_note: z.string().nullable().optional(),
+  blocker_note: z.string().nullable().optional(),
+  dispute_note: z.string().nullable().optional(),
+  confidence_adjustment: z.number().int().min(-30).max(30).default(0),
+  human_notes: z.string().nullable().optional()
+});
+
+export const RouteTrustSummarySchema = z.object({
+  receipt_freshness: z.string(),
+  successful_receipt_count: z.number().int().nonnegative(),
+  failure_patterns: z.array(z.string()),
+  blocker_severity: z.enum(['none', 'low', 'medium', 'high']),
+  provider_reliability: z.string(),
+  human_validation: z.string(),
+  summary: z.string()
+});
+
+export const ProviderTrustProfileSchema = z.object({
+  safe_for_first_attempt: z.boolean(),
+  better_for_repeatable_routes: z.boolean(),
+  requires_human_approval: z.boolean(),
+  not_recommended: z.boolean(),
+  summary: z.string()
+});
+
+export const ServiceDecisionMapSchema = z.object({
+  best_observed_route: z.string().nullable(),
+  cheapest_route: z.string().nullable(),
+  safest_first_attempt: z.string().nullable(),
+  fastest_repeatable_route: z.string().nullable(),
+  summary: z.string()
+});
+
+export const ReceiptImpactSchema = z.object({
+  improves_route_confidence: z.boolean(),
+  reduces_route_confidence: z.boolean(),
+  freshness: z.enum(['fresh', 'stale']),
+  human_validated: z.boolean(),
+  should_affect_future_pre_spend_decisions: z.boolean(),
+  summary: z.string()
+});
+
+export const RouteIntelligenceDetailSchema = z.object({
+  route: RouteIntelligenceSchema,
+  provider: ProviderIntelligenceRecordSchema.nullable(),
+  service: ServiceDossierSchema.nullable(),
+  receipts: z.array(PreSpendReceiptSchema),
+  metrics: PreSpendMetricsSchema,
+  validation_state: ValidationStateSchema.nullable(),
+  decision_implications: z.array(z.string()),
+  trust_summary: RouteTrustSummarySchema.nullable()
+});
+
+export const ProviderIntelligenceDetailSchema = z.object({
+  provider: ProviderIntelligenceRecordSchema,
+  routes: z.array(RouteIntelligenceSchema),
+  services: z.array(ServiceDossierSchema),
+  receipts: z.array(PreSpendReceiptSchema),
+  metrics: PreSpendMetricsSchema,
+  provider_level_warnings: z.array(z.string()),
+  trust_profile: ProviderTrustProfileSchema
+});
+
+export const PreSpendProviderSummarySchema = ProviderIntelligenceRecordSchema.extend({
+  linked_routes: z.array(z.string()),
+  linked_receipts: z.array(z.string()),
+  trust_profile: ProviderTrustProfileSchema
+});
+
+export const PreSpendProviderListResponseSchema = z.object({
+  generated_at: z.string().datetime(),
+  source: z.string(),
+  metrics: PreSpendMetricsSchema,
+  providers: z.array(PreSpendProviderSummarySchema)
+});
+
+export const ServiceDossierDetailSchema = z.object({
+  service: ServiceDossierSchema,
+  routes: z.array(RouteIntelligenceSchema),
+  receipts: z.array(PreSpendReceiptSchema),
+  metrics: PreSpendMetricsSchema,
+  best_route_decision_map: ServiceDecisionMapSchema
+});
+
+export const PreSpendReceiptDetailSchema = PreSpendReceiptSchema.extend({
+  route: RouteIntelligenceSchema.nullable(),
+  provider: ProviderIntelligenceRecordSchema.nullable(),
+  service: ServiceDossierSchema.nullable(),
+  impact: ReceiptImpactSchema
+});
+
 export const RouteRecommendationRequestSchema = z.object({
   task: z.string().min(1),
   category: z.string().optional(),
@@ -1618,3 +1841,5 @@ export type RadarBundleRunSummary = z.infer<typeof BundleRunSummarySchema>;
 export type RadarBundleRunHistorySummary = z.infer<typeof BundleRunHistorySummarySchema>;
 export type RadarBundleRunDetail = z.infer<typeof BundleRunDetailSchema>;
 export type RadarBundleRunListResponse = z.infer<typeof BundleRunListResponseSchema>;
+export type PreSpendProviderSummary = z.infer<typeof PreSpendProviderSummarySchema>;
+export type PreSpendProviderListResponse = z.infer<typeof PreSpendProviderListResponseSchema>;

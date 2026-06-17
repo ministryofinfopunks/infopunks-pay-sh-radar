@@ -7555,3 +7555,236 @@ summary:focus-visible {
     width: 100%;
   }
 }
+.builder-shell {
+  min-height: 100vh;
+}
+
+.builder-page {
+  padding: 24px;
+  display: grid;
+  gap: 16px;
+}
+
+.builder-hero {
+  display: grid;
+  gap: 16px;
+}
+
+.builder-terminal-grid,
+.builder-card-grid,
+.builder-placeholder-grid,
+.builder-result-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.builder-card-grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.builder-card-anchor {
+  display: grid;
+  gap: 6px;
+  color: inherit;
+  text-decoration: none;
+  height: 100%;
+}
+
+.builder-card-cta,
+.builder-link {
+  color: var(--blue);
+  text-decoration: none;
+}
+
+.builder-card-cta {
+  margin-top: auto;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.builder-result-grid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.builder-result-grid article,
+.builder-placeholder-grid article {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 12px;
+  border-radius: 8px;
+  display: grid;
+  gap: 6px;
+}
+
+.builder-result-grid article.wide {
+  grid-column: 1 / -1;
+}
+
+.builder-form-panel label,
+.builder-filter-panel label {
+  display: grid;
+  gap: 6px;
+}
+
+.builder-form-panel,
+.builder-filter-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.builder-filter-panel {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.builder-card .builder-stat-list {
+  display: grid;
+  gap: 4px;
+  margin: 12px 0;
+}
+
+.builder-metrics {
+  align-items: stretch;
+}
+
+.builder-detail-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.builder-section-grid {
+  align-items: start;
+}
+
+.builder-detail-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.builder-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.builder-detail-grid article {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 12px;
+  display: grid;
+  gap: 6px;
+}
+
+.builder-detail-grid article span,
+.builder-note-row {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.builder-detail-grid article strong {
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.builder-link-list,
+.builder-note-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.builder-link-list {
+  align-items: center;
+}
+
+.builder-note-row {
+  margin: 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.14);
+}
+
+.builder-placeholder-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.builder-terminal-empty {
+  display: grid;
+  gap: 8px;
+}
+
+.builder-terminal-empty small {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.builder-decision-banner {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(126, 255, 176, 0.18);
+  border-radius: 10px;
+  padding: 14px;
+  background: rgba(126, 255, 176, 0.05);
+}
+
+.builder-decision-banner strong {
+  display: block;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 24px;
+  color: var(--text);
+  text-transform: uppercase;
+}
+
+.builder-decision-banner p {
+  margin: 6px 0 0;
+  color: #b8cfbf;
+  line-height: 1.5;
+}
+
+.builder-banner-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.builder-banner-meta span {
+  border: 1px solid rgba(126, 255, 176, 0.18);
+  border-radius: 999px;
+  padding: 5px 8px;
+  color: var(--green);
+  background: rgba(0, 0, 0, 0.18);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.builder-decision-banner.warn {
+  border-color: rgba(246, 208, 111, 0.28);
+  background: rgba(246, 208, 111, 0.08);
+}
+
+.builder-decision-banner.warn .builder-banner-meta span {
+  color: var(--amber);
+  border-color: rgba(246, 208, 111, 0.24);
+}
+
+.builder-decision-banner.error {
+  border-color: rgba(255, 107, 107, 0.34);
+  background: rgba(255, 107, 107, 0.08);
+}
+
+.builder-decision-banner.error .builder-banner-meta span {
+  color: var(--red);
+  border-color: rgba(255, 107, 107, 0.28);
+}
+
+@media (min-width: 960px) {
+  .builder-terminal-grid {
+    grid-template-columns: minmax(320px, 420px) 1fr;
+  }
+}

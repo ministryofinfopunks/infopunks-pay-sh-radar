@@ -11,6 +11,9 @@ import { semanticSearch } from '../services/searchService';
 import {
   PreflightRequestSchema,
   PreflightResponseSchema,
+  PreSpendCheckRequestSchema,
+  PreSpendReceiptSchema,
+  HumanValidationSubmissionSchema,
   RadarComparisonRequestSchema,
   RadarEcosystemRiskSummarySchema,
   RadarBatchPreflightRequestSchema,
@@ -114,6 +117,7 @@ import {
   runTranslationExecutionRoute
 } from '../services/machineExecutionService';
 import { validateMachineExecutionProofByProfile } from '../services/machineExecutionProofProfiles';
+import { createPreSpendIntelligenceService } from '../services/preSpendIntelligenceService';
 import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
@@ -323,6 +327,7 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   const machineReceiptStorageWarning = config.env === 'production' && machineReceiptStorage.adapter === 'jsonl'
     ? 'Production is using JSONL machine receipt storage. Configure DATABASE_URL for Postgres-backed durability.'
     : null;
+  const preSpendIntelligence = createPreSpendIntelligenceService();
   configureMachineDemoSeed(config.machineDemoSeed);
   const responseCache = createResponseCache();
   const allowedOrigins = new Set(DEFAULT_ALLOWED_ORIGINS);
@@ -501,19 +506,94 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     };
   });
   app.get('/v1/events/recent', async () => ({ data: [...store.events].sort((a, b) => Date.parse(b.observedAt) - Date.parse(a.observedAt)).slice(0, 100).map((event) => ({ ...event, ...classifyEventSeverity(event, store.events) })) }));
-  app.get('/v1/providers', async () => {
+  app.get<{ Querystring: { scope?: string } }>('/v1/providers', async (req) => {
     await ensureLiveBootstrap('route:/v1/providers');
-    return withRouteTimeout('/v1/providers', ROUTE_TIMEOUT_MS, () => ({
-      data: lightweightProviders(store, PROVIDER_LIST_MAX)
-    }), () => ({
-      data: lightweightProviders(store, 25)
+    if (req.query.scope === 'pre-spend') {
+      return {
+        data: safeJsonExport(preSpendIntelligence.listProviderSummaries())
+      };
+    }
+    const builderProviders = preSpendIntelligence.listProviders().map((provider) => ({
+      id: provider.provider_id,
+      provider_id: provider.provider_id,
+      name: provider.name,
+      namespace: 'infopunks/builder',
+      fqn: `infopunks.builder.${provider.provider_id}`,
+      category: provider.service_categories[0] ?? 'pre_spend',
+      description: provider.output_quality_notes[0] ?? null,
+      endpointCount: provider.route_coverage,
+      pricing: { min: null, max: null, clarity: 'route_observed', raw: provider.pricing_consistency },
+      tags: ['pre_spend_intelligence', ...provider.service_categories],
+      status: 'metered',
+      latestTrustScore: provider.reliability_score,
+      latestSignalScore: provider.recent_receipt_count * 20,
+      route_coverage: provider.route_coverage,
+      reliability_score: provider.reliability_score,
+      known_risks: provider.known_risks,
+      validation_status: provider.human_validation_status,
+      dispute_history: provider.dispute_history,
+      receipt_count: provider.recent_receipt_count
     }));
+    const providerPayload = store.providers.length > 0
+      ? lightweightProviders(store, PROVIDER_LIST_MAX)
+      : builderProviders.slice(0, PROVIDER_LIST_MAX);
+    const fallbackPayload = store.providers.length > 0
+      ? lightweightProviders(store, 25)
+      : builderProviders.slice(0, 25);
+    return withRouteTimeout('/v1/providers', ROUTE_TIMEOUT_MS, () => ({
+      data: providerPayload
+    }), () => ({
+      data: fallbackPayload
+    }));
+  });
+  app.get('/v1/pre-spend/providers', async () => ({
+    data: safeJsonExport(preSpendIntelligence.listProviderSummaries())
+  }));
+  app.get<{ Params: { provider_id: string } }>('/v1/pre-spend/providers/:provider_id', async (req, reply) => {
+    const detail = preSpendIntelligence.getProviderDetail(req.params.provider_id);
+    if (!detail) return reply.code(404).send({ error: 'provider_not_found' });
+    return {
+      data: safeJsonExport(detail)
+    };
   });
   app.get('/v1/providers/featured', async () => ({ data: featuredProviderRotation(store, config.featuredProviderRotationMs) }));
   app.get<{ Params: { id: string } }>('/v1/providers/:id', async (req, reply) => {
+    const builderProviderDetail = preSpendIntelligence.getProviderDetail(req.params.id);
+    if (builderProviderDetail) {
+      return {
+        data: safeJsonExport(builderProviderDetail)
+      };
+    }
     const provider = findProvider(store, req.params.id);
     if (!provider) return reply.code(404).send({ error: 'provider_not_found' });
     return { data: { provider, endpoints: store.endpoints.filter((item) => item.providerId === provider.id), trustAssessment: store.trustAssessments.find((item) => item.entityId === provider.id), signalAssessment: store.signalAssessments.find((item) => item.entityId === provider.id) } };
+  });
+  app.get('/v1/routes', async () => ({ data: safeJsonExport({
+    generated_at: new Date().toISOString(),
+    source: 'infopunks-pay-sh-radar',
+    metrics: preSpendIntelligence.getMetrics(),
+    routes: preSpendIntelligence.listRoutes()
+  }) }));
+  app.get<{ Params: { route_id: string } }>('/v1/routes/:route_id', async (req, reply) => {
+    const detail = preSpendIntelligence.getRouteDetail(req.params.route_id);
+    if (!detail) return reply.code(404).send({ error: 'route_not_found' });
+    return { data: safeJsonExport(detail) };
+  });
+  app.get('/v1/services', async () => ({ data: safeJsonExport({
+    generated_at: new Date().toISOString(),
+    source: 'infopunks-pay-sh-radar',
+    metrics: preSpendIntelligence.getMetrics(),
+    services: preSpendIntelligence.listServices()
+  }) }));
+  app.get<{ Params: { service_id: string } }>('/v1/services/:service_id', async (req, reply) => {
+    const detail = preSpendIntelligence.getServiceDetail(req.params.service_id);
+    if (!detail) return reply.code(404).send({ error: 'service_not_found' });
+    return { data: safeJsonExport(detail) };
+  });
+  app.post('/v1/pre-spend/check', async (req, reply) => {
+    const parsed = PreSpendCheckRequestSchema.safeParse(req.body);
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_pre_spend_check_request', details: parsed.error.flatten() });
+    return { data: safeJsonExport(preSpendIntelligence.check(parsed.data)) };
   });
   app.get<{ Params: { id: string } }>('/v1/providers/:id/history', async (req, reply) => {
     const provider = findProvider(store, req.params.id);
@@ -1341,6 +1421,25 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
       return { data: [], degraded: true, reason: 'search_timeout' };
     }
   }, reply));
+  app.get('/v1/receipts', async () => ({ data: safeJsonExport({
+    generated_at: new Date().toISOString(),
+    source: 'infopunks-pay-sh-radar',
+    metrics: preSpendIntelligence.getMetrics(),
+    receipts: preSpendIntelligence.listReceipts()
+  }) }));
+  app.post('/v1/receipts', async (req, reply) => {
+    const parsed = PreSpendReceiptSchema.omit({ receipt_id: true, timestamp: true }).partial({ human_notes: true }).safeParse(req.body);
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_pre_spend_receipt', details: parsed.error.flatten() });
+    return { data: safeJsonExport(preSpendIntelligence.createReceipt({
+      ...parsed.data,
+      human_notes: parsed.data.human_notes ?? []
+    })) };
+  });
+  app.post('/v1/validation/submit', async (req, reply) => {
+    const parsed = HumanValidationSubmissionSchema.safeParse(req.body);
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_human_validation_submission', details: parsed.error.flatten() });
+    return { data: safeJsonExport(preSpendIntelligence.submitValidation(parsed.data)) };
+  });
   app.post('/v1/recommend-route', async (req, reply) => handleParsed(req.body, RouteRecommendationRequestSchema, (input) => ({ data: recommendRoute(input, store) }), reply));
   app.post('/v1/preflight', async (req, reply) => handleParsed(req.body, PreflightRequestSchema, (input) => ({ data: runPreflight(input, store) }), reply));
   app.get('/v1/preflight/schema', async () => ({
@@ -1383,6 +1482,12 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
     return reply.type('text/html; charset=utf-8').send(renderInterpretationPage(req, interpretation, summary));
   });
   app.get<{ Params: { event_id: string } }>('/v1/receipts/:event_id', async (req, reply) => {
+    const builderReceiptDetail = preSpendIntelligence.getReceiptDetail(req.params.event_id);
+    if (builderReceiptDetail) {
+      return {
+        data: safeJsonExport(builderReceiptDetail)
+      };
+    }
     const summary = pulseSummary(store, new Date().toISOString(), config.payShIngestIntervalMs, { includePropagation: false, includeInterpretations: false, propagationFallback: cachedPropagation, interpretationsFallback: cachedInterpretations });
     const event = summary.timeline.find((item) => item.id === req.params.event_id || item.event_id === req.params.event_id);
     if (!event) return reply.code(404).send({ error: 'receipt_not_found' });

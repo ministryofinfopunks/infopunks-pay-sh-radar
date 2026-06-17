@@ -16,6 +16,17 @@ import {
   resolveMachineReceiptTaxonomy,
   summarizeMachineEvidenceCounts
 } from '../services/machineMarketService';
+import {
+  ProviderDetailPage,
+  ReceiptDetailPage,
+  RouteDetailPage,
+  ProvidersIndexPage,
+  ReceiptsIndexPage,
+  RoutesIndexPage,
+  ServiceDetailPage,
+  ServicesIndexPage,
+  SpendTerminalPage
+} from './preSpendBuilderPages';
 import './styles.css';
 
 type Severity = 'critical' | 'warning' | 'informational' | 'unknown';
@@ -1708,6 +1719,26 @@ function routeReceiptId(pathname: string) {
   }
 }
 
+function routeRouteId(pathname: string) {
+  const match = pathname.match(/^\/routes\/([^/]+)\/?$/);
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+}
+
+function routeServiceId(pathname: string) {
+  const match = pathname.match(/^\/services\/([^/]+)\/?$/);
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+}
+
 function routePropagationId(pathname: string) {
   const match = pathname.match(/^\/propagation\/([^/]+)\/?$/);
   if (!match) return null;
@@ -1730,6 +1761,26 @@ function routeBenchmarkId(pathname: string) {
 
 function isBenchmarkIndexRoute(pathname: string) {
   return /^\/benchmarks\/?$/.test(pathname);
+}
+
+function isSpendTerminalRoute(pathname: string) {
+  return /^\/spend-terminal\/?$/.test(pathname);
+}
+
+function isRoutesIndexRoute(pathname: string) {
+  return /^\/routes\/?$/.test(pathname);
+}
+
+function isProvidersIndexRoute(pathname: string) {
+  return /^\/providers\/?$/.test(pathname);
+}
+
+function isServicesIndexRoute(pathname: string) {
+  return /^\/services\/?$/.test(pathname);
+}
+
+function isReceiptsIndexRoute(pathname: string) {
+  return /^\/receipts\/?$/.test(pathname);
 }
 
 function isMachineMarketRoute(pathname: string) {
@@ -13145,7 +13196,19 @@ function MachineControlSurfacesStrip() {
 export function App() {
   const propagationId = routePropagationId(window.location.pathname);
   if (propagationId) return <PropagationIncidentPage clusterId={propagationId} />;
+  if (isSpendTerminalRoute(window.location.pathname)) return <SpendTerminalPage />;
+  if (isRoutesIndexRoute(window.location.pathname)) return <RoutesIndexPage />;
+  const routeId = routeRouteId(window.location.pathname);
+  if (routeId) return <RouteDetailPage routeId={routeId} />;
+  if (isProvidersIndexRoute(window.location.pathname)) return <ProvidersIndexPage />;
+  const providerId = routeProviderId(window.location.pathname);
+  if (providerId && providerId.startsWith('provider_')) return <ProviderDetailPage providerId={providerId} />;
+  if (isServicesIndexRoute(window.location.pathname)) return <ServicesIndexPage />;
+  const serviceId = routeServiceId(window.location.pathname);
+  if (serviceId) return <ServiceDetailPage serviceId={serviceId} />;
+  if (isReceiptsIndexRoute(window.location.pathname)) return <ReceiptsIndexPage />;
   const receiptId = routeReceiptId(window.location.pathname);
+  if (receiptId && receiptId.startsWith('receipt_')) return <ReceiptDetailPage receiptId={receiptId} />;
   if (receiptId) return <PublicReceiptPage eventId={receiptId} />;
   const benchmarkId = routeBenchmarkId(window.location.pathname);
   if (benchmarkId) return <PublicBenchmarkProofPage benchmarkId={benchmarkId} />;
@@ -13179,7 +13242,6 @@ export function App() {
   if (machineServiceId) return <MachineServiceDossierPage serviceId={machineServiceId} />;
   const machineDossierId = routeMachineDossierId(window.location.pathname);
   if (machineDossierId) return <MachineDossierPage machineId={machineDossierId} />;
-  const providerId = routeProviderId(window.location.pathname);
   if (providerId) return <PublicProviderPage providerId={providerId} />;
   return <RadarApp />;
 }
