@@ -118,6 +118,7 @@ import {
 } from '../services/machineExecutionService';
 import { validateMachineExecutionProofByProfile } from '../services/machineExecutionProofProfiles';
 import { createPreSpendIntelligenceService } from '../services/preSpendIntelligenceService';
+import { createInMemoryPreSpendRepository, preSpendRepository } from '../repositories/preSpendRepository';
 import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
@@ -327,7 +328,9 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
   const machineReceiptStorageWarning = config.env === 'production' && machineReceiptStorage.adapter === 'jsonl'
     ? 'Production is using JSONL machine receipt storage. Configure DATABASE_URL for Postgres-backed durability.'
     : null;
-  const preSpendIntelligence = createPreSpendIntelligenceService();
+  const preSpendIntelligence = createPreSpendIntelligenceService(
+    process.env.NODE_ENV === 'test' ? createInMemoryPreSpendRepository() : preSpendRepository
+  );
   configureMachineDemoSeed(config.machineDemoSeed);
   const responseCache = createResponseCache();
   const allowedOrigins = new Set(DEFAULT_ALLOWED_ORIGINS);

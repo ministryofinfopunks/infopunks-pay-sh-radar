@@ -233,6 +233,43 @@ describe('pre-spend builder API', () => {
     await app.close();
   });
 
+  it('keeps pre-spend API state isolated per app instance in tests', async () => {
+    const firstApp = await createApp(emptyIntelligenceStore());
+    const secondApp = await createApp(emptyIntelligenceStore());
+
+    const created = await firstApp.inject({
+      method: 'POST',
+      url: '/v1/receipts',
+      payload: {
+        agent_id: 'agent_022',
+        route_id: 'route_pay_sh_token_quote_01',
+        provider_id: 'provider_pay_sh_quartz',
+        service_id: 'service_token_pricing',
+        task_type: 'price_token_quote',
+        cost: '0.07 USDC',
+        payment_method: 'stablecoin',
+        latency_ms: 250,
+        input_summary: 'BTC/USDC quote request',
+        output_summary: 'bounded quote JSON',
+        status: 'succeeded',
+        failure_reason: null,
+        validation_state: 'machine_checked',
+        human_notes: [],
+        confidence_delta: 4,
+        evidence_artifact: 'artifact_token_quote_run_006'
+      }
+    });
+
+    expect(created.statusCode).toBe(200);
+    const createdReceiptId = created.json().data.receipt_id as string;
+
+    const isolated = await secondApp.inject({ method: 'GET', url: `/v1/receipts/${createdReceiptId}` });
+    expect(isolated.statusCode).toBe(404);
+
+    await firstApp.close();
+    await secondApp.close();
+  });
+
   it('returns 404 for missing pre-spend detail entities', async () => {
     const app = await createApp(emptyIntelligenceStore());
     expect((await app.inject({ method: 'GET', url: '/v1/routes/missing-route' })).statusCode).toBe(404);
