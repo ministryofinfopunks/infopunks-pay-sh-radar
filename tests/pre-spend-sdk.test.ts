@@ -4,11 +4,18 @@ import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
 import {
   createInfopunksPreSpendClient,
   InfopunksPreSpendClientError
-} from '../src/sdk';
+} from 'infopunks-pay-sh-radar/sdk';
 
 describe('pre-spend SDK', () => {
   afterEach(() => {
     vi.restoreAllMocks();
+  });
+
+  it('is importable from the package sdk export path', async () => {
+    const sdkModule = await import('infopunks-pay-sh-radar/sdk');
+
+    expect(sdkModule.createInfopunksPreSpendClient).toBe(createInfopunksPreSpendClient);
+    expect(sdkModule.InfopunksPreSpendClientError).toBe(InfopunksPreSpendClientError);
   });
 
   it('posts check requests to the pre-spend endpoint and returns typed decisions', async () => {
@@ -83,6 +90,74 @@ describe('pre-spend SDK', () => {
       name: 'InfopunksPreSpendClientError',
       status: 400,
       code: 'invalid_pre_spend_check_request'
+    });
+  });
+
+  it('throws a typed error when fetch is unavailable and no fetch is injected', () => {
+    const originalFetch = globalThis.fetch;
+
+    try {
+      vi.stubGlobal('fetch', undefined);
+
+      expect(() => createInfopunksPreSpendClient({
+        baseUrl: 'https://radar.infopunks.fun'
+      })).toThrowError(InfopunksPreSpendClientError);
+
+      expect(() => createInfopunksPreSpendClient({
+        baseUrl: 'https://radar.infopunks.fun'
+      })).toThrow(/Provide options\.fetch or use a runtime with global fetch/);
+    } finally {
+      vi.stubGlobal('fetch', originalFetch);
+    }
+  });
+
+  it('surfaces invalid JSON responses as typed errors', async () => {
+    const client = createInfopunksPreSpendClient({
+      baseUrl: 'https://radar.infopunks.fun',
+      fetch: async () => new Response('not-json', {
+        status: 200,
+        headers: { 'content-type': 'application/json' }
+      })
+    });
+
+    await expect(client.checkPreSpend({
+      agent_id: 'agent_001',
+      intent: 'buy_market_research',
+      budget: 25,
+      risk_tolerance: 'low',
+      preferred_settlement: 'stablecoin',
+      required_confidence: 75
+    })).rejects.toMatchObject({
+      name: 'InfopunksPreSpendClientError',
+      status: 200,
+      code: 'invalid_json_response'
+    });
+  });
+
+  it('surfaces unexpected response shapes as typed errors', async () => {
+    const client = createInfopunksPreSpendClient({
+      baseUrl: 'https://radar.infopunks.fun',
+      fetch: async () => new Response(JSON.stringify({
+        data: {
+          decision: 'approved_with_warning'
+        }
+      }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' }
+      })
+    });
+
+    await expect(client.checkPreSpend({
+      agent_id: 'agent_001',
+      intent: 'buy_market_research',
+      budget: 25,
+      risk_tolerance: 'low',
+      preferred_settlement: 'stablecoin',
+      required_confidence: 75
+    })).rejects.toMatchObject({
+      name: 'InfopunksPreSpendClientError',
+      status: 200,
+      code: 'invalid_response_shape'
     });
   });
 

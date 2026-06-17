@@ -1,4 +1,10 @@
 {
+  "name": "infopunks-pay-sh-radar",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    "./sdk": "./src/sdk.ts"
+  },
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "lint": "tsc --noEmit --pretty false",
@@ -33,8 +39,5 @@
   },
   "engines": {
     "node": ">=20"
-  },
-  "private": true,
-  "name": "infopunks-pay-sh-radar",
-  "version": "0.1.0"
+  }
 }

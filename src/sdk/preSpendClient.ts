@@ -79,7 +79,13 @@ export function createInfopunksPreSpendClient(options: CreateInfopunksPreSpendCl
   if (!baseUrl) throw new Error('createInfopunksPreSpendClient requires a non-empty baseUrl.');
 
   const fetchImpl = options.fetch ?? globalThis.fetch;
-  if (!fetchImpl) throw new Error('createInfopunksPreSpendClient requires a fetch implementation.');
+  if (!fetchImpl) {
+    throw new InfopunksPreSpendClientError({
+      message: 'createInfopunksPreSpendClient requires a fetch implementation. Provide options.fetch or use a runtime with global fetch.',
+      status: 0,
+      code: 'fetch_unavailable'
+    });
+  }
 
   async function post<TInput, TOutput>(path: string, input: TInput, responseSchema: z.ZodType<TOutput>) {
     const response = await fetchImpl(joinUrl(baseUrl, path), {

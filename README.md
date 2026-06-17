@@ -33,6 +33,35 @@ Builders can inspect what Radar knows about each provider or route before agents
 
 Pay.sh is the spend rail. Radar is the evidence ledger. The Harness is the proof adapter.
 
+## Pre-Spend SDK
+
+Before an agent pays, it checks Infopunks.
+
+```ts
+import { createInfopunksPreSpendClient } from "infopunks-pay-sh-radar/sdk";
+
+const client = createInfopunksPreSpendClient({
+  baseUrl: "https://radar.infopunks.fun"
+});
+
+const decision = await client.checkPreSpend({
+  agent_id: "agent_001",
+  intent: "buy_market_research",
+  budget: 25,
+  risk_tolerance: "low",
+  preferred_settlement: "stablecoin",
+  required_confidence: 75
+});
+```
+
+The SDK calls `POST /v1/pre-spend/check`.
+
+Responses are receipt-backed pre-spend decisions.
+
+This is not a payment execution client.
+
+See the minimal agent flow in [examples/pre-spend-agent](/Users/ahdilm/Documents/Infopunks%20Pay.sh%20Intelligence%20Terminal/examples/pre-spend-agent/README.md:1).
+
 ---
 
 # What Radar Does
