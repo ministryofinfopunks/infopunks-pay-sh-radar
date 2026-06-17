@@ -201,6 +201,7 @@ describe('agent mode and command palette', () => {
     const primaryNav = container.querySelector('[aria-label="Primary radar zones"]');
     expect(primaryNav?.textContent).not.toContain('Machine Economy');
     expect(container.textContent).toContain('API Docs');
+    expect(container.querySelector('a[href="/developers"]')?.textContent).toContain('Developers');
     expect(container.textContent).toContain('Agent Mode');
     expect(container.textContent).toContain('Machine Economy Module');
     expect(container.textContent).toContain('Machine Economy');

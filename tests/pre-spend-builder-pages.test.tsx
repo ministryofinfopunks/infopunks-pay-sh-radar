@@ -167,6 +167,29 @@ describe('pre-spend builder pages', () => {
     root.unmount();
   });
 
+  it('renders developers page with SDK, API, decision states, trust copy, and public links', async () => {
+    const { root, container } = await render('/developers');
+    const text = container.textContent ?? '';
+    expect(text).toContain('Before your agent pays, call Infopunks.');
+    expect(text).toContain('createInfopunksPreSpendClient');
+    expect(text).toContain('POST /v1/pre-spend/check');
+    expect(text).toContain('approved');
+    expect(text).toContain('approved_with_warning');
+    expect(text).toContain('use_with_caution');
+    expect(text).toContain('requires_human_approval');
+    expect(text).toContain('do_not_use');
+    expect(text).toContain('No receipt, no trust.');
+    expect(text).toContain('Every decision should point back to receipts.');
+    expect(text).toContain('Receipts capture route runs, cost, latency, status, validation, confidence delta, and evidence artifacts.');
+    expect(container.querySelector('a[href="/spend-terminal"]')).toBeTruthy();
+    expect(container.querySelector('a[href="/routes"]')).toBeTruthy();
+    expect(container.querySelector('a[href="/providers"]')).toBeTruthy();
+    expect(container.querySelector('a[href="/services"]')).toBeTruthy();
+    expect(container.querySelector('a[href="/receipts"]')).toBeTruthy();
+    expect(container.querySelector('a[href="/openapi.json"]')).toBeTruthy();
+    root.unmount();
+  });
+
   it('renders routes page with detail links', async () => {
     const { root, container } = await render('/routes');
     expect(container.textContent).toContain('Routes');

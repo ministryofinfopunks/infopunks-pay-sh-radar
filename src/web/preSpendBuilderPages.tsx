@@ -563,6 +563,192 @@ export function SpendTerminalPage() {
   </div>;
 }
 
+export function DevelopersPage() {
+  useEffect(() => {
+    document.title = 'Developers | Infopunks Builder';
+  }, []);
+
+  const sdkExample = `import { createInfopunksPreSpendClient } from "infopunks-pay-sh-radar/sdk";
+
+const client = createInfopunksPreSpendClient({
+  baseUrl: "https://radar.infopunks.fun"
+});
+
+const decision = await client.checkPreSpend({
+  agent_id: "agent_001",
+  intent: "buy_market_research",
+  budget: 25,
+  risk_tolerance: "low",
+  preferred_settlement: "stablecoin",
+  required_confidence: 75
+});`;
+
+  const apiRequest = `POST /v1/pre-spend/check
+Content-Type: application/json
+
+{
+  "agent_id": "agent_001",
+  "intent": "buy_market_research",
+  "budget": 25,
+  "risk_tolerance": "low",
+  "preferred_settlement": "stablecoin",
+  "required_confidence": 75
+}`;
+
+  const apiResponse = `{
+  "data": {
+    "intent": "buy_market_research",
+    "decision": "approved_with_warning",
+    "recommended_route": "route_pay_sh_market_research_01",
+    "confidence_score": 82,
+    "risk_level": "medium",
+    "estimated_cost": "0.25 USDC",
+    "requires_human_approval": false,
+    "receipt_references": ["receipt_001"],
+    "known_blockers": ["occasional timeout under high load"]
+  }
+}`;
+
+  const decisionStates: Array<{ state: DecisionState; copy: string }> = [
+    { state: 'approved', copy: 'Route can be used under the declared constraints.' },
+    { state: 'approved_with_warning', copy: 'Use is allowed, but the agent should surface caveats.' },
+    { state: 'use_with_caution', copy: 'Evidence is usable but fragile. Slow down and inspect the route.' },
+    { state: 'requires_human_approval', copy: 'The agent should stop and request an explicit human decision.' },
+    { state: 'do_not_use', copy: 'Observed evidence does not support spend on this route or counterparty.' }
+  ];
+
+  const resourceCards = [
+    { href: '/spend-terminal', title: 'Spend Terminal', copy: 'Run the receipt-backed pre-spend check UI.' },
+    { href: '/routes', title: 'Routes', copy: 'Inspect route-level intelligence before autonomous spend.' },
+    { href: '/providers', title: 'Providers', copy: 'Review provider reliability, disputes, and coverage.' },
+    { href: '/services', title: 'Services', copy: 'Compare best route, safest first attempt, and blockers.' },
+    { href: '/receipts', title: 'Receipts', copy: 'Trace every decision back to recorded route evidence.' },
+    { href: '/openapi.json', title: 'OpenAPI', copy: 'Pull the public OpenAPI spec from the live endpoint.' },
+    { href: '/developers#agent-example', title: 'Agent Example', copy: 'See the minimal example and repo path for examples/pre-spend-agent.' }
+  ];
+
+  return <div className="shell builder-shell">
+    <main className="builder-page developers-page" aria-label="Developers">
+      <section className="panel hero builder-hero">
+        <div>
+          <p className="eyebrow">Developer Surface</p>
+          <h1>Before your agent pays, call Infopunks.</h1>
+          <p className="copy">Infopunks gives agents a receipt-backed pre-spend decision before they spend on a route, provider, endpoint, service, claim, or counterparty.</p>
+          <p className="copy">This is not payment execution. It is the intelligence layer before spend.</p>
+        </div>
+        <div className="ticker" aria-label="Developer page signals">
+          <span>intent before spend</span>
+          <span>receipt-backed decisions</span>
+          <span>not payment execution</span>
+          <span>no receipt, no trust</span>
+        </div>
+      </section>
+
+      <section className="panel builder-detail-panel" aria-label="Three-step builder flow">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Builder Flow</p>
+            <h2>Three-step builder flow</h2>
+          </div>
+        </div>
+        <div className="builder-card-grid builder-step-grid">
+          <article className="panel builder-card">
+            <p className="section-kicker">Step 1</p>
+            <h2>Agent declares intent.</h2>
+            <p className="panel-caption">Describe the task, budget, risk tolerance, settlement preference, and minimum confidence before any money moves.</p>
+          </article>
+          <article className="panel builder-card">
+            <p className="section-kicker">Step 2</p>
+            <h2>Infopunks checks the route.</h2>
+            <p className="panel-caption">Route intelligence, provider reliability, receipts, blockers, validation, risk, and confidence are evaluated before spend.</p>
+          </article>
+          <article className="panel builder-card">
+            <p className="section-kicker">Step 3</p>
+            <h2>Agent receives a decision.</h2>
+            <div className="builder-chip-row" aria-label="Pre-spend decision states">
+              {decisionStates.map((item) => <span className={`builder-decision-chip ${decisionTone(item.state)}`} key={item.state}>{item.state}</span>)}
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section className="grid two builder-section-grid">
+        <section className="panel builder-detail-panel" aria-labelledby="sdk-usage-heading">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">SDK Usage</p>
+              <h2 id="sdk-usage-heading">Use the pre-spend client</h2>
+            </div>
+          </div>
+          <p className="panel-caption">Import the SDK, create a client, and ask for a decision before your agent spends.</p>
+          <pre className="builder-code-block"><code>{sdkExample}</code></pre>
+        </section>
+
+        <section className="panel builder-detail-panel" aria-labelledby="api-heading">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">API</p>
+              <h2 id="api-heading">POST /v1/pre-spend/check</h2>
+            </div>
+          </div>
+          <p className="panel-caption">Builders can call the HTTP endpoint directly when they do not want the SDK wrapper.</p>
+          <pre className="builder-code-block"><code>{apiRequest}</code></pre>
+          <pre className="builder-code-block"><code>{apiResponse}</code></pre>
+        </section>
+      </section>
+
+      <section className="panel builder-detail-panel" aria-label="Decision states">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Decision States</p>
+            <h2>Crisp outcomes for builders</h2>
+          </div>
+        </div>
+        <div className="builder-detail-grid">
+          {decisionStates.map((item) => <article key={item.state}>
+            <span>{item.state}</span>
+            <strong>{item.copy}</strong>
+          </article>)}
+        </div>
+      </section>
+
+      <section className="panel builder-detail-panel" aria-label="Receipt-backed trust">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Receipt-Backed Trust</p>
+            <h2>No receipt, no trust.</h2>
+          </div>
+        </div>
+        <div className="builder-note-stack">
+          <p className="builder-note-row">No receipt, no trust.</p>
+          <p className="builder-note-row">Every decision should point back to receipts.</p>
+          <p className="builder-note-row">Receipts capture route runs, cost, latency, status, validation, confidence delta, and evidence artifacts.</p>
+        </div>
+      </section>
+
+      <section className="panel builder-detail-panel" id="agent-example" aria-label="Developer links">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Builder Links</p>
+            <h2>Inspect the public surfaces</h2>
+          </div>
+        </div>
+        <div className="builder-card-grid">
+          {resourceCards.map((card) => <article className="panel builder-card" key={card.title}>
+            <a className="builder-card-anchor" href={card.href}>
+              <p className="section-kicker">Public link</p>
+              <h2>{card.title}</h2>
+              <p className="panel-caption">{card.copy}</p>
+              <span className="builder-card-cta">Open</span>
+            </a>
+          </article>)}
+        </div>
+        <p className="panel-caption">Minimal agent example path in repo: <code>examples/pre-spend-agent/README.md</code></p>
+      </section>
+    </main>
+  </div>;
+}
+
 export function RoutesIndexPage() {
   const [routes, setRoutes] = useState<RouteIntelligence[]>([]);
   const [metrics, setMetrics] = useState<Metrics | null>(null);

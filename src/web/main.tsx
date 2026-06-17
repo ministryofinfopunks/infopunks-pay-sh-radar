@@ -18,6 +18,7 @@ import {
 } from '../services/machineMarketService';
 import {
   ProviderDetailPage,
+  DevelopersPage,
   ReceiptDetailPage,
   RouteDetailPage,
   ProvidersIndexPage,
@@ -1765,6 +1766,10 @@ function isBenchmarkIndexRoute(pathname: string) {
 
 function isSpendTerminalRoute(pathname: string) {
   return /^\/spend-terminal\/?$/.test(pathname);
+}
+
+function isDevelopersRoute(pathname: string) {
+  return /^\/developers\/?$/.test(pathname);
 }
 
 function isRoutesIndexRoute(pathname: string) {
@@ -9416,6 +9421,7 @@ function RadarApp() {
             <a className="methodology-trigger api-docs-link" href={toApiUrl(API_BASE_URL, OPENAPI_PATH)} target="_blank" rel="noreferrer">
               API Docs
             </a>
+            <a className="methodology-trigger" href="/developers">Developers</a>
             <a className="methodology-trigger" href="#agent-benchmark-api">Agent Benchmark API</a>
             <button className="methodology-trigger methodology-link" type="button" onClick={() => setMethodologyOpen(true)} aria-label="Open methodology drawer">
               Methodology
@@ -13197,6 +13203,7 @@ export function App() {
   const propagationId = routePropagationId(window.location.pathname);
   if (propagationId) return <PropagationIncidentPage clusterId={propagationId} />;
   if (isSpendTerminalRoute(window.location.pathname)) return <SpendTerminalPage />;
+  if (isDevelopersRoute(window.location.pathname)) return <DevelopersPage />;
   if (isRoutesIndexRoute(window.location.pathname)) return <RoutesIndexPage />;
   const routeId = routeRouteId(window.location.pathname);
   if (routeId) return <RouteDetailPage routeId={routeId} />;
