@@ -86,6 +86,22 @@ curl -s -X POST "https://radar.infopunks.fun/v1/pre-spend/check" \
   }' | jq
 ```
 
+## Production Smoke QA
+
+Run the deployment smoke check against production:
+
+```bash
+npm run smoke:production
+```
+
+Override the base URL for local or preview verification:
+
+```bash
+SMOKE_BASE_URL=http://localhost:8787 npm run smoke:production
+```
+
+The production smoke script is mostly read-only. It verifies public pages, `openapi.json`, the pre-spend API, and claims primitives. The default run does not create new claims or challenges in production.
+
 ---
 
 # What Radar Does
