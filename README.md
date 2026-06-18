@@ -780,25 +780,27 @@ MONITOR_INTERVAL_MS=900000
 
 # Deployment
 
-## Split Mode (Static Frontend + Backend API)
+## Unified Render Deployment
 
-- Static frontend: `https://radar.infopunks.fun`
-- Backend API: `https://infopunks-pay-sh-radar.onrender.com`
-- Required static frontend environment variable:
+`https://radar.infopunks.fun` should point at the full Node/Fastify app, not a Render Static Site.
 
-```env
-VITE_API_BASE_URL=https://infopunks-pay-sh-radar.onrender.com
-```
+Use a Render Web Service so one process serves:
 
-In split mode, the frontend must call the backend API URL directly instead of relative `/v1/*` paths.
+- `/v1/*`
+- `/openapi.json`
+- frontend static assets from `dist/client`
+- SPA fallback for frontend pages only
+
+Do not deploy `radar.infopunks.fun` as a Static Site publishing `dist/client`, or the HTML shell will swallow API URLs.
 
 ---
 
-## Render Backend
+## Render Service
 
 Recommended runtime:
 
 - Node.js 20+
+- Render Web Service
 
 Build command:
 
@@ -809,7 +811,7 @@ npm ci && npm run build
 Start command:
 
 ```bash
-npm start
+npm run start:render
 ```
 
 Render automatically provides:
@@ -819,6 +821,8 @@ PORT
 ```
 
 Set `DATABASE_URL` to enable Postgres persistence.
+
+The checked-in [render.yaml](/Users/ahdilm/Documents/Infopunks%20Pay.sh%20Intelligence%20Terminal/render.yaml:1) codifies the expected Render Web Service configuration.
 
 ---
 

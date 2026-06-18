@@ -121,11 +121,27 @@ async function checkJsonGet(baseUrl: string, path: string): Promise<unknown> {
     throw new Error(`expected 2xx, got ${response.status}`);
   }
 
-  const body = await response.json() as unknown;
+  const body = await parseExpectedJson(response);
   if (!isRecord(body)) {
     throw new Error('expected JSON object response');
   }
   return body;
+}
+
+async function parseExpectedJson(response: Response): Promise<unknown> {
+  const contentType = response.headers.get('content-type')?.toLowerCase() ?? '';
+  const text = await response.text();
+  const trimmed = text.trimStart();
+
+  if (contentType.includes('text/html') || trimmed.startsWith('<!doctype html') || trimmed.startsWith('<html')) {
+    throw new Error('Expected JSON but received HTML. The frontend SPA fallback may be swallowing this API route.');
+  }
+
+  try {
+    return JSON.parse(text) as unknown;
+  } catch (error) {
+    throw new Error(`expected JSON response, parse failed: ${error instanceof Error ? error.message : String(error)}`);
+  }
 }
 
 function assertPreSpendResponse(body: unknown): void {
@@ -208,7 +224,7 @@ export async function runSmoke(baseUrl = resolveBaseUrl()): Promise<boolean> {
       throw new Error(`expected 2xx, got ${response.status}`);
     }
 
-    const body = await response.json() as unknown;
+    const body = await parseExpectedJson(response);
     assertPreSpendResponse(body);
     pass(`POST ${plan.preSpendPath}`);
   } catch (error) {

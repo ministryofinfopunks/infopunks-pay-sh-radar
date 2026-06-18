@@ -299,7 +299,15 @@ const CORS_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
 const CORS_ALLOWED_HEADERS = ['Content-Type', 'Authorization', 'X-Requested-With'];
 const CORS_MAX_AGE_SECONDS = 86_400;
 
-export async function createApp(preloadedStore?: IntelligenceStore, repository: IntelligenceRepository = defaultRepository()) {
+export type CreateAppOptions = {
+  clientDistDir?: string | null;
+};
+
+export async function createApp(
+  preloadedStore?: IntelligenceStore,
+  repository: IntelligenceRepository = defaultRepository(),
+  options: CreateAppOptions = {}
+) {
   const config = loadRuntimeConfig();
   const app = Fastify({ logger: false });
   const persistenceMode: 'postgres' | 'memory' = config.databaseUrl ? 'postgres' : 'memory';
@@ -1567,9 +1575,12 @@ export async function createApp(preloadedStore?: IntelligenceStore, repository: 
       }
     };
   });
-  const clientDistDir = resolve(process.cwd(), 'dist/client');
-  const clientIndexPath = join(clientDistDir, 'index.html');
-  if (existsSync(clientIndexPath)) {
+  const configuredClientDistDir = options.clientDistDir === undefined
+    ? resolve(process.cwd(), 'dist/client')
+    : options.clientDistDir;
+  const clientDistDir = configuredClientDistDir ? resolve(configuredClientDistDir) : null;
+  const clientIndexPath = clientDistDir ? join(clientDistDir, 'index.html') : null;
+  if (clientDistDir && clientIndexPath && existsSync(clientIndexPath)) {
     app.get('/*', async (req, reply) => {
       if (req.method !== 'GET') return reply.code(404).send({ error: 'not_found' });
       const urlPath = (req.raw.url ?? '/').split('?')[0] ?? '/';

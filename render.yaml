@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: infopunks-pay-sh-radar
+    runtime: node
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start:render
+    envVars:
+      - key: NODE_ENV
+        value: production
