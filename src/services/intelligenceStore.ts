@@ -23,14 +23,23 @@ export async function createIntelligenceStore(repository: IntelligenceRepository
     allowFixtureFallback: process.env.PAYSH_ALLOW_FIXTURE_FALLBACK === 'true' || process.env.NODE_ENV !== 'production'
   });
   if (items.length === 0 && dataSource.mode === 'live_pay_sh_catalog' && dataSource.error) {
-    const empty = emptySnapshot();
-    empty.dataSource = {
-      ...dataSource,
-      error: dataSource.error,
-      last_ingested_at: new Date().toISOString()
-    };
-    await repository.saveSnapshot(empty);
-    return empty;
+    const fixture = await loadPayShCatalog(undefined, {
+      catalogSource: 'fixture',
+      allowFixtureFallback: true
+    });
+    const { snapshot: ingestedFallback } = applyPayShCatalogIngestion(emptySnapshot(), fixture.items, {
+      source: fixture.source,
+      dataSource: {
+        ...fixture.dataSource,
+        url: dataSource.url,
+        error: dataSource.error,
+        used_fixture: true,
+        mode: 'fixture_fallback'
+      }
+    });
+    const fallbackSnapshot = recomputeAssessments(ingestedFallback);
+    await repository.saveSnapshot(fallbackSnapshot);
+    return fallbackSnapshot;
   }
   const { snapshot: ingested } = applyPayShCatalogIngestion(emptySnapshot(), items, { source, dataSource });
   const snapshot = recomputeAssessments(ingested);

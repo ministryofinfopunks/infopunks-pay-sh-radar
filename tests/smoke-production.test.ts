@@ -46,6 +46,7 @@ describe('production smoke plan', () => {
       '/v1/claims/claim_001/challenges'
     ]);
     expect(plan.preSpendPath).toBe('/v1/pre-spend/check');
+    expect(plan.livePulsePath).toBe('/v1/pulse');
     expect(PRE_SPEND_CHECK_PAYLOAD).toEqual({
       agent_id: 'agent_001',
       intent: 'buy_market_research',

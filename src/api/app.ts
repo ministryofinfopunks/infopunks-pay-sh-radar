@@ -289,6 +289,7 @@ const BigQueryLiveBoundedQueryRunSchema = z.object({
 const MAX_INLINE_SUPPORTING_EVENT_IDS = 10;
 const DEFAULT_ALLOWED_ORIGINS = new Set([
   'https://radar.infopunks.fun',
+  'https://infopunks-pay-sh-radar.onrender.com',
   'https://infopunks-pay-sh-radar-web.onrender.com',
   'http://localhost:3000',
   'http://localhost:5173',
@@ -481,7 +482,7 @@ export async function createApp(
   })));
   app.get('/version', async () => ({ service: 'infopunks-pay-sh-radar', version: config.version }));
   app.get('/v1/pulse', async () => {
-    await ensureLiveBootstrap('route:/v1/pulse');
+    await ensureLiveBootstrapWithinBudget('route:/v1/pulse');
     return withRouteTimeout('/v1/pulse', ROUTE_TIMEOUT_MS, () => ({
       data: buildPulseDashboard(store, cachedInterpretations, bootstrapped || store.providers.length > 0)
     }), () => ({
@@ -520,7 +521,7 @@ export async function createApp(
   });
   app.get('/v1/events/recent', async () => ({ data: [...store.events].sort((a, b) => Date.parse(b.observedAt) - Date.parse(a.observedAt)).slice(0, 100).map((event) => ({ ...event, ...classifyEventSeverity(event, store.events) })) }));
   app.get<{ Querystring: { scope?: string } }>('/v1/providers', async (req) => {
-    await ensureLiveBootstrap('route:/v1/providers');
+    await ensureLiveBootstrapWithinBudget('route:/v1/providers');
     if (req.query.scope === 'pre-spend') {
       return {
         data: safeJsonExport(preSpendIntelligence.listProviderSummaries())
@@ -647,7 +648,7 @@ export async function createApp(
   });
   app.get('/v1/radar/endpoints', async () => {
     const startedAtMs = Date.now();
-    await ensureLiveBootstrap('route:/v1/radar/endpoints');
+    await ensureLiveBootstrapWithinBudget('route:/v1/radar/endpoints');
     const cached = await responseCache.getOrSet('radar:endpoints', RADAR_ENDPOINTS_TTL_MS, () => {
       const snapshot = buildRadarExportSnapshot(store);
       return {
@@ -1731,20 +1732,38 @@ export async function createApp(
       refreshBackgroundAnalytics();
       console.log(`[radar-bootstrap] live catalog bootstrap succeeded provider_count=${store.providers.length} endpoint_count=${endpointCount}`);
     })()
-      .catch((error) => {
+      .catch(async (error) => {
         const reasonLabel = error instanceof Error ? error.message : String(error);
         console.log(`[radar-bootstrap] live catalog bootstrap failed reason=${reasonLabel}`);
         bootstrapped = store.providers.length > 0;
         if (!store.providers.length) {
-          store.dataSource = {
-            mode: 'fixture_fallback',
-            url: liveCatalogUrl,
-            generated_at: null,
-            provider_count: 0,
-            last_ingested_at: new Date().toISOString(),
-            used_fixture: true,
-            error: store.dataSource?.error ?? reasonLabel
-          };
+          try {
+            await runPayShIngestionWithOptions(store, repository, {
+              catalogSource: 'fixture',
+              catalogUrl: liveCatalogUrl,
+              allowFixtureFallback: true
+            });
+            if (store.dataSource) {
+              store.dataSource = {
+                ...store.dataSource,
+                mode: 'fixture_fallback',
+                url: liveCatalogUrl,
+                used_fixture: true,
+                error: reasonLabel
+              };
+            }
+            bootstrapped = store.providers.length > 0;
+          } catch (fixtureError) {
+            store.dataSource = {
+              mode: 'fixture_fallback',
+              url: liveCatalogUrl,
+              generated_at: null,
+              provider_count: 0,
+              last_ingested_at: new Date().toISOString(),
+              used_fixture: true,
+              error: fixtureError instanceof Error ? fixtureError.message : String(fixtureError)
+            };
+          }
         }
         refreshBackgroundAnalytics();
       })
@@ -1753,6 +1772,14 @@ export async function createApp(
       });
 
     await liveBootstrapPromise;
+  }
+
+  async function ensureLiveBootstrapWithinBudget(reason: 'route:/v1/pulse' | 'route:/v1/providers' | 'route:/v1/radar/endpoints') {
+    try {
+      await withTimeout(() => ensureLiveBootstrap(reason), ROUTE_TIMEOUT_MS, 'bootstrap_timeout');
+    } catch {
+      refreshBackgroundAnalytics();
+    }
   }
 
   async function withRouteTimeout<T>(route: '/status' | '/v1/pulse' | '/v1/providers' | '/v1/pulse/summary', timeoutMs: number, work: () => T | Promise<T>, fallback: () => T): Promise<T> {

@@ -9529,7 +9529,7 @@ function RadarApp() {
           <p>Pulse shows live ecosystem intelligence. Benchmarks show artifact-backed route evidence.</p>
         </div>
         <div className="source-stack">
-          <span className={`source-badge ${data.pulse.data_source.mode}`}>{data.pulse.data_source.mode === 'live_pay_sh_catalog' ? 'LIVE PAY.SH CATALOG' : 'FIXTURE FALLBACK'}</span>
+          <span className={`source-badge ${data.pulse.data_source.mode}`}>{data.pulse.data_source.mode === 'live_pay_sh_catalog' ? 'LIVE PAY.SH CATALOG' : 'FIXTURE-BACKED RADAR STATE'}</span>
           <small className="source-line">{formatDataSource(data.pulse.data_source, data.pulse.providerCount, data.pulse.endpointCount)}</small>
         </div>
       </div>
@@ -12687,9 +12687,9 @@ function getEcosystemStatus(pulse: Pulse, summary: PulseSummary | null): { state
   if (propagationSeverity === 'high' || propagationState === 'spreading' || pulse.data_source.used_fixture) {
     return {
       state: 'warning',
-      label: pulse.data_source.used_fixture ? 'Fallback data mode' : 'Elevated ecosystem watch',
+      label: pulse.data_source.used_fixture ? 'Fixture-backed radar state' : 'Elevated ecosystem watch',
       detail: pulse.data_source.used_fixture
-        ? 'Live catalog was unavailable, so the radar is preserving the visible fixture fallback state.'
+        ? 'Backend healthy; upstream Pay.sh catalog unavailable. Showing deterministic fixture-backed Radar state.'
         : 'Spreading or high-severity signals are active. Prioritize trust movement and affected providers.'
     };
   }
@@ -13074,7 +13074,7 @@ function groupTimelineByBatch(events: PulseEvent[]) {
 }
 
 function sourceLabel(source: DataSource) {
-  return source.mode === 'live_pay_sh_catalog' && !source.used_fixture ? 'LIVE PAY.SH CATALOG' : 'FIXTURE FALLBACK';
+  return source.mode === 'live_pay_sh_catalog' && !source.used_fixture ? 'LIVE PAY.SH CATALOG' : 'FIXTURE-BACKED RADAR STATE';
 }
 
 function graphFallbackEvidence(graph: { nodes: unknown[]; edges: unknown[] }): EvidenceReceipt {

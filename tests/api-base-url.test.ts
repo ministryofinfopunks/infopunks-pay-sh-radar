@@ -10,6 +10,15 @@ describe('resolveApiBaseUrl', () => {
     expect(result).toBe('');
   });
 
+  it('uses the static production API host when the public radar site has no injected base URL', () => {
+    const result = resolveApiBaseUrl({
+      envApiBaseUrl: '',
+      locationHost: 'radar.infopunks.fun'
+    });
+
+    expect(result).toBe('https://infopunks-pay-sh-radar.onrender.com');
+  });
+
   it('uses configured absolute API base URL when set', () => {
     const result = resolveApiBaseUrl({
       envApiBaseUrl: 'https://api.example.com'
@@ -24,6 +33,15 @@ describe('resolveApiBaseUrl', () => {
     });
 
     expect(result).toBe('https://api.example.com');
+  });
+
+  it('prefers runtime API base URL overrides over build-time config', () => {
+    const result = resolveApiBaseUrl({
+      envApiBaseUrl: 'https://api.example.com',
+      runtimeApiBaseUrl: 'https://runtime.example.com/'
+    });
+
+    expect(result).toBe('https://runtime.example.com');
   });
 });
 

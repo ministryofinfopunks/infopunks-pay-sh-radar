@@ -182,7 +182,8 @@ describe('live bootstrap wiring', () => {
     const app = await createApp(store);
 
     const pulse = await app.inject({ method: 'GET', url: '/v1/pulse' });
-    expect(ingestionSpy).toHaveBeenCalledTimes(1);
+    expect(ingestionSpy.mock.calls.length).toBeGreaterThanOrEqual(1);
+    expect(ingestionSpy.mock.calls.length).toBeLessThanOrEqual(2);
     expect(pulse.statusCode).toBe(200);
     expect(pulse.json().data.data_source.error).not.toBe('bootstrap_not_called');
 

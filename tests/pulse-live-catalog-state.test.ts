@@ -193,4 +193,62 @@ describe('pulse and radar live catalog state wiring', () => {
     expect(parseFailed.usedFixture).toBe(true);
     expect(parseFailed.dataSource.error).toBe('live_catalog_parse_failed');
   });
+
+  it('classifies aborted live catalog fetches as upstream timeouts', async () => {
+    vi.stubGlobal('fetch', vi.fn((_input: RequestInfo | URL, init?: RequestInit) => new Promise((_resolve, reject) => {
+      init?.signal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')), { once: true });
+    })) as typeof fetch);
+
+    const timedOut = await loadPayShCatalog('https://pay.sh/api/catalog', { catalogSource: 'live', allowFixtureFallback: true });
+    expect(timedOut.usedFixture).toBe(true);
+    expect(timedOut.dataSource.error).toBe('live_catalog_timeout');
+  });
+
+  it('returns fixture-backed pulse data instead of hanging when live bootstrap times out', async () => {
+    const previousNodeEnv = process.env.NODE_ENV;
+    const previousBootstrap = process.env.PAYSH_BOOTSTRAP_ENABLED;
+    const previousCatalogSource = process.env.PAYSH_CATALOG_SOURCE;
+    const previousAllowFixture = process.env.PAYSH_ALLOW_FIXTURE_FALLBACK;
+    const previousPort = process.env.PORT;
+    const previousAdminToken = process.env.INFOPUNKS_ADMIN_TOKEN;
+
+    process.env.NODE_ENV = 'production';
+    process.env.PORT = '8787';
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'test-token';
+    process.env.PAYSH_BOOTSTRAP_ENABLED = 'true';
+    process.env.PAYSH_CATALOG_SOURCE = 'live';
+    process.env.PAYSH_ALLOW_FIXTURE_FALLBACK = 'false';
+    vi.stubGlobal('fetch', vi.fn((_input: RequestInfo | URL, init?: RequestInit) => new Promise((_resolve, reject) => {
+      init?.signal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')), { once: true });
+    })) as typeof fetch);
+
+    const app = await createApp({ ...EMPTY_SNAPSHOT });
+
+    try {
+      const startedAt = Date.now();
+      const response = await app.inject({ method: 'GET', url: '/v1/pulse' });
+      const durationMs = Date.now() - startedAt;
+
+      expect(response.statusCode).toBe(200);
+      expect(response.headers['content-type']).toContain('application/json');
+      expect(durationMs).toBeLessThan(5_000);
+      expect(response.json().data.providerCount).toBeGreaterThan(0);
+      expect(response.json().data.data_source.used_fixture).toBe(true);
+      expect(response.json().data.data_source.error).toBe('live_catalog_timeout');
+    } finally {
+      await app.close();
+      if (previousNodeEnv === undefined) delete process.env.NODE_ENV;
+      else process.env.NODE_ENV = previousNodeEnv;
+      if (previousBootstrap === undefined) delete process.env.PAYSH_BOOTSTRAP_ENABLED;
+      else process.env.PAYSH_BOOTSTRAP_ENABLED = previousBootstrap;
+      if (previousCatalogSource === undefined) delete process.env.PAYSH_CATALOG_SOURCE;
+      else process.env.PAYSH_CATALOG_SOURCE = previousCatalogSource;
+      if (previousAllowFixture === undefined) delete process.env.PAYSH_ALLOW_FIXTURE_FALLBACK;
+      else process.env.PAYSH_ALLOW_FIXTURE_FALLBACK = previousAllowFixture;
+      if (previousPort === undefined) delete process.env.PORT;
+      else process.env.PORT = previousPort;
+      if (previousAdminToken === undefined) delete process.env.INFOPUNKS_ADMIN_TOKEN;
+      else process.env.INFOPUNKS_ADMIN_TOKEN = previousAdminToken;
+    }
+  });
 });

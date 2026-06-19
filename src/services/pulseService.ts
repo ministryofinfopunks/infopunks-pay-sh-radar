@@ -281,8 +281,6 @@ function hasLiveCatalogEvidence(store: IntelligenceStore) {
   if (store.ingestionRuns.some((run) => run.source.startsWith('pay.sh:live-catalog'))) return true;
   if (store.events.some((event) => event.source.startsWith('pay.sh:live-catalog'))) return true;
   if (store.events.some((event) => event.type === 'catalog.ingested' && event.payload.mode === 'live_pay_sh_catalog')) return true;
-  if (store.providers.some((provider) => typeof provider.sourceSha === 'string' && provider.sourceSha.length > 0)) return true;
-  if (store.providers.some((provider) => provider.endpointMetadataPartial === true && typeof provider.fqn === 'string' && provider.fqn.length > 0)) return true;
   return false;
 }
 

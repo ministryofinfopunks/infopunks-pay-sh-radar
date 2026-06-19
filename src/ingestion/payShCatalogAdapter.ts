@@ -9,6 +9,7 @@ const FIXTURE_SOURCE = 'pay.sh:public-catalog-fixture';
 const LIVE_SOURCE = 'pay.sh:live-catalog';
 const CATALOG_URL = 'https://pay.sh/';
 const DEFAULT_LIVE_CATALOG_URL = 'https://pay.sh/api/catalog';
+const LIVE_CATALOG_FETCH_TIMEOUT_MS = 2_000;
 
 const EndpointMethodSchema = z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
 const CatalogEndpointSchema = z.object({
@@ -200,7 +201,17 @@ export async function loadPayShCatalog(
   if (sourceMode === 'fixture') return fixtureResult(url ?? null, 'bootstrap_not_called');
 
   try {
-    const response = await fetch(liveUrl, { headers: { accept: 'application/json' } });
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), LIVE_CATALOG_FETCH_TIMEOUT_MS);
+    let response: Response;
+    try {
+      response = await fetch(liveUrl, {
+        headers: { accept: 'application/json' },
+        signal: controller.signal
+      });
+    } finally {
+      clearTimeout(timer);
+    }
     if (!response.ok) throw new Error(`Pay.sh catalog returned ${response.status}`);
     const body = await response.json();
     const normalized = normalizePayShCatalog(body);
@@ -268,9 +279,12 @@ function sanitizeCatalogError(error: unknown) {
 }
 
 function normalizeCatalogErrorCode(error: unknown) {
+  if (error instanceof DOMException && error.name === 'AbortError') return 'live_catalog_timeout';
   const message = sanitizeCatalogError(error);
   if (message === 'live_catalog_empty_provider_array') return message;
+  if (message === 'Aborted') return 'live_catalog_timeout';
   if (message.startsWith('Pay.sh catalog returned')) return 'live_catalog_fetch_failed';
+  if (message === 'This operation was aborted' || message === 'The operation was aborted.' || /AbortError/i.test(message)) return 'live_catalog_timeout';
   return 'live_catalog_parse_failed';
 }
 

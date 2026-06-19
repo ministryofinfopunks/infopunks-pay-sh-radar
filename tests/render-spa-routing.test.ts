@@ -44,6 +44,26 @@ describe('render-style SPA routing boundaries', () => {
     }
   });
 
+  it('serves JSON for /v1/pulse even when SPA fallback is enabled', async () => {
+    const clientDistDir = createClientDistFixture();
+    const app = await createApp(emptyIntelligenceStore(), undefined, { clientDistDir });
+
+    try {
+      const response = await app.inject({ method: 'GET', url: '/v1/pulse' });
+      expect(response.statusCode).toBe(200);
+      expect(response.headers['content-type']).toContain('application/json');
+      expect(response.body.startsWith('<!doctype html>')).toBe(false);
+      expect(response.json().data).toEqual(expect.objectContaining({
+        providerCount: expect.any(Number),
+        endpointCount: expect.any(Number),
+        data_source: expect.any(Object)
+      }));
+    } finally {
+      await app.close();
+      rmSync(clientDistDir, { recursive: true, force: true });
+    }
+  });
+
   it('serves frontend routes and unknown frontend paths through the HTML shell', async () => {
     const clientDistDir = createClientDistFixture();
     const app = await createApp(emptyIntelligenceStore(), undefined, { clientDistDir });

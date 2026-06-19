@@ -16,6 +16,7 @@ export type SmokePlan = {
   apiGetPaths: string[];
   claimsApiPaths: string[];
   preSpendPath: string;
+  livePulsePath: string;
 };
 
 const RETRY_ATTEMPTS = 3;
@@ -63,7 +64,8 @@ export function buildSmokePlan(): SmokePlan {
       `/v1/claims/${encodeURIComponent(claimId)}`,
       `/v1/claims/${encodeURIComponent(claimId)}/challenges`
     ],
-    preSpendPath: '/v1/pre-spend/check'
+    preSpendPath: '/v1/pre-spend/check',
+    livePulsePath: '/v1/pulse'
   };
 }
 
@@ -73,6 +75,10 @@ function pass(label: string): void {
 
 function fail(label: string, detail: string): void {
   console.error(`FAIL ${label} - ${detail}`);
+}
+
+function warn(label: string, detail: string): void {
+  console.warn(`WARN ${label} - ${detail}`);
 }
 
 function sleep(ms: number): Promise<void> {
@@ -183,6 +189,30 @@ function assertChallenges(body: unknown): void {
   }
 }
 
+function assertLivePulse(body: unknown): { fixtureFallback: boolean; summary: string } {
+  if (!hasDataEnvelope(body) || !isRecord(body.data)) {
+    throw new Error('missing pulse data payload');
+  }
+
+  const data = body.data;
+  if (typeof data.providerCount !== 'number') throw new Error('missing data.providerCount');
+  if (typeof data.endpointCount !== 'number') throw new Error('missing data.endpointCount');
+  if (!isRecord(data.data_source)) throw new Error('missing data.data_source');
+
+  const source = data.data_source;
+  if (typeof source.used_fixture !== 'boolean') throw new Error('missing data.data_source.used_fixture');
+  if (!('catalog_status' in data) || typeof data.catalog_status !== 'string') throw new Error('missing data.catalog_status');
+
+  const sourceMode = typeof source.mode === 'string' ? source.mode : 'unknown';
+  const error = typeof source.error === 'string' ? source.error : 'none';
+  const summary = `catalog_status=${String(data.catalog_status)} source_mode=${sourceMode} used_fixture=${String(source.used_fixture)} providers=${data.providerCount} endpoints=${data.endpointCount} error=${error}`;
+
+  return {
+    fixtureFallback: source.used_fixture,
+    summary
+  };
+}
+
 export async function runSmoke(baseUrl = resolveBaseUrl()): Promise<boolean> {
   const plan = buildSmokePlan();
   let failed = false;
@@ -208,6 +238,16 @@ export async function runSmoke(baseUrl = resolveBaseUrl()): Promise<boolean> {
       failed = true;
       fail(`GET ${path}`, error instanceof Error ? error.message : String(error));
     }
+  }
+
+  try {
+    const body = await checkJsonGet(baseUrl, plan.livePulsePath);
+    const result = assertLivePulse(body);
+    if (result.fixtureFallback) warn(`GET ${plan.livePulsePath}`, `backend healthy; upstream catalog fallback active (${result.summary})`);
+    else pass(`GET ${plan.livePulsePath}`);
+  } catch (error) {
+    failed = true;
+    fail(`GET ${plan.livePulsePath}`, error instanceof Error ? error.message : String(error));
   }
 
   try {

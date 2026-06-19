@@ -40,6 +40,7 @@ const dataSource = {
   last_ingested_at: now,
   used_fixture: false
 };
+type PulseDataSource = typeof dataSource & { error?: string };
 
 function json(data: unknown, status = 200) {
   return Promise.resolve(new Response(JSON.stringify({ data }), { status, headers: { 'Content-Type': 'application/json' } }));
@@ -50,7 +51,17 @@ function pathOf(input: RequestInfo | URL) {
   return new URL(raw, 'http://localhost').pathname;
 }
 
-function installFetch(options: { corePulse: 'ok' | 'fail' | 'timeout'; optionalFail?: boolean; searchFail?: boolean; malformedProvider?: boolean; delayFeaturedProviderSelection?: boolean; pulseTimeoutAttempts?: number; summaryFailAttempts?: number; fetchFailureMode?: 'cors_or_fetch_failed' }) {
+function installFetch(options: {
+  corePulse: 'ok' | 'fail' | 'timeout';
+  optionalFail?: boolean;
+  searchFail?: boolean;
+  malformedProvider?: boolean;
+  delayFeaturedProviderSelection?: boolean;
+  pulseTimeoutAttempts?: number;
+  summaryFailAttempts?: number;
+  fetchFailureMode?: 'cors_or_fetch_failed';
+  pulseDataSourceOverride?: PulseDataSource;
+}) {
   const calls: string[] = [];
   const requestInits: { path: string; init?: RequestInit }[] = [];
   let featuredFetchCount = 0;
@@ -85,7 +96,7 @@ function installFetch(options: { corePulse: 'ok' | 'fail' | 'timeout'; optionalF
         hottestNarrative: null,
         topTrust: [],
         topSignal: [],
-        data_source: dataSource,
+        data_source: options.pulseDataSourceOverride ?? dataSource,
         updatedAt: now
       });
     }
@@ -111,7 +122,7 @@ function installFetch(options: { corePulse: 'ok' | 'fail' | 'timeout'; optionalF
       providerActivity: { '1h': [], '24h': [], '7d': [] },
       signalSpikes: [],
       interpretations: [],
-      data_source: dataSource
+      data_source: options.pulseDataSourceOverride ?? dataSource
       });
     }
     if (path === '/v1/providers/featured') {
@@ -243,6 +254,34 @@ describe('radar boot loading behavior', () => {
     expect(container.textContent).toContain('Agents inspect the Evidence Ledger or Brief, request a non-executing Bundle Plan, then a Harness may execute later and return proof artifacts for Radar to record.');
     expect(container.textContent).not.toContain('Radar degraded: unable to load live pulse');
     expect(fetchState.calls).not.toContain('/v1/search');
+  });
+
+  it('healthy fixture-backed pulse does not trigger degraded mode and uses accurate fallback copy', async () => {
+    installFetch({
+      corePulse: 'ok',
+      pulseDataSourceOverride: {
+        mode: 'fixture_fallback',
+        url: 'https://pay.sh/api/catalog',
+        generated_at: now,
+        provider_count: 1,
+        last_ingested_at: now,
+        used_fixture: true,
+        error: 'live_catalog_timeout'
+      }
+    });
+
+    await act(async () => {
+      root = createRoot(container);
+      root.render(<App />);
+    });
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(container.textContent).not.toContain('Radar degraded: unable to load live pulse');
+    expect(container.textContent).toContain('Fixture-backed radar state');
+    expect(container.textContent).toContain('Backend healthy; upstream Pay.sh catalog unavailable. Showing deterministic fixture-backed Radar state.');
   });
 
   it('search failure stays local to semantic search card', async () => {
