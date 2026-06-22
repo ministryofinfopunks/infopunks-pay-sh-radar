@@ -61,6 +61,7 @@ function installFetch(options: {
   summaryFailAttempts?: number;
   fetchFailureMode?: 'cors_or_fetch_failed';
   pulseDataSourceOverride?: PulseDataSource;
+  pulseStatusOverride?: { backend: 'healthy'; upstream: { state: string; reason?: string | null }; radar: { state: string; reason?: string | null } };
 }) {
   const calls: string[] = [];
   const requestInits: { path: string; init?: RequestInit }[] = [];
@@ -97,6 +98,7 @@ function installFetch(options: {
         topTrust: [],
         topSignal: [],
         data_source: options.pulseDataSourceOverride ?? dataSource,
+        status: options.pulseStatusOverride ?? { backend: 'healthy', upstream: { state: 'ready', reason: null }, radar: { state: 'live', reason: 'live_bootstrap_complete' } },
         updatedAt: now
       });
     }
@@ -267,6 +269,11 @@ describe('radar boot loading behavior', () => {
         last_ingested_at: now,
         used_fixture: true,
         error: 'live_catalog_timeout'
+      },
+      pulseStatusOverride: {
+        backend: 'healthy',
+        upstream: { state: 'timeout', reason: 'live_catalog_timeout' },
+        radar: { state: 'fixture_backed', reason: 'live_bootstrap_pending_or_failed' }
       }
     });
 

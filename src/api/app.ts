@@ -4,6 +4,8 @@ import { createReadStream, existsSync } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve } from 'node:path';
 import { z } from 'zod';
+import { payShCatalogFixture } from '../data/payShCatalogFixture';
+import { applyPayShCatalogIngestion } from '../ingestion/payShCatalogAdapter';
 import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, IntelligenceStore, runPayShIngestion, runPayShIngestionWithOptions } from '../services/intelligenceStore';
 import { IntelligenceRepository } from '../persistence/repository';
 import { recommendRoute } from '../services/routeService';
@@ -52,6 +54,7 @@ import { endpointHistory, findEndpoint, findProvider, providerHistory, providerI
 import { endpointMonitorSummary, isMonitorEnabled, monitorIntervalMs, monitorMaxProviders, monitorTimeoutMs, providerMonitorSummary, runMonitor } from '../services/endpointMonitorService';
 import { loadRuntimeConfig } from '../config/env';
 import { dataSourceState, PULSE_CAPS, pulseSummary } from '../services/pulseService';
+import { recomputeAssessments } from '../services/intelligenceStore';
 import { featuredProviderRotation } from '../services/featuredProviderService';
 import { classifyEventSeverity, classifyGraphSeverity, classifyNarrativeClusterSeverity, classifyProviderDossierSeverity } from '../engines/severityEngine';
 import { analyzePropagation } from '../services/propagationService';
@@ -399,6 +402,8 @@ export async function createApp(
   const liveCatalogUrl = config.payShCatalogUrl ?? DEFAULT_LIVE_CATALOG_URL;
   let startupLoadPromise: Promise<void> | null = null;
   let liveBootstrapPromise: Promise<void> | null = null;
+  let liveBootstrapStatus: 'idle' | 'pending' | 'ready' | 'failed' = 'idle';
+  let liveBootstrapError: string | null = null;
   let cachedPropagation = analyzePropagation(store);
   let cachedInterpretations = pulseSummary(
     store,
@@ -407,6 +412,13 @@ export async function createApp(
     { includePropagation: false, includeInterpretations: true, propagationFallback: cachedPropagation }
   ).interpretations;
   let cachedPulseDashboard = buildPulseDashboard(store, cachedInterpretations, bootstrapped);
+  const fixturePulseStore = createFixturePulseStore();
+  const fixturePulseInterpretations = pulseSummary(
+    fixturePulseStore,
+    new Date().toISOString(),
+    config.payShIngestIntervalMs,
+    { includePropagation: false, includeInterpretations: true, propagationFallback: analyzePropagation(fixturePulseStore) }
+  ).interpretations;
 
   if (!preloadedStore) {
     const bootstrapStartMs = Date.now();
@@ -414,12 +426,16 @@ export async function createApp(
       .then((loadedStore) => {
         copyStoreInto(store, loadedStore);
         bootstrapped = Boolean(loadedStore.providers.length > 0);
+        liveBootstrapStatus = bootstrapped ? 'ready' : 'failed';
+        liveBootstrapError = bootstrapped ? null : 'bootstrap_not_called';
         logTiming('database_connect', bootstrapStartMs);
         logTiming('catalog_load', bootstrapStartMs);
         refreshBackgroundAnalytics();
       })
       .catch((error) => {
         logDbDegraded('startup_load', classifyBootstrapFailure(error), error);
+        liveBootstrapStatus = 'failed';
+        liveBootstrapError = errorMessage(error);
         console.log(JSON.stringify({
           event: 'startup_load_failed',
           code: errorCode(error),
@@ -481,14 +497,49 @@ export async function createApp(
     catalog_status: 'warming_up'
   })));
   app.get('/version', async () => ({ service: 'infopunks-pay-sh-radar', version: config.version }));
-  app.get('/v1/pulse', async () => {
-    await ensureLiveBootstrapWithinBudget('route:/v1/pulse');
-    return withRouteTimeout('/v1/pulse', ROUTE_TIMEOUT_MS, () => ({
-      data: buildPulseDashboard(store, cachedInterpretations, bootstrapped || store.providers.length > 0)
-    }), () => ({
-      data: pulseWarmingUpFallback(store, bootstrapped, 'pulse_timeout')
-    }));
-  });
+  app.get('/v1/pulse', async () => withRouteTimeout('/v1/pulse', ROUTE_TIMEOUT_MS, () => {
+    const generatedAt = new Date().toISOString();
+    const liveDataSource = dataSourceState(store, generatedAt);
+    const livePulseReady = store.providers.length > 0 && liveDataSource.mode === 'live_pay_sh_catalog' && liveDataSource.used_fixture === false;
+    const routeBootstrapState = liveBootstrapStatus === 'idle' ? 'pending' : liveBootstrapStatus;
+    if (livePulseReady) {
+      const status = pulseRouteStatus(store, routeBootstrapState, liveBootstrapError);
+      const diagnostics = pulseDiagnostics(liveDataSource, routeBootstrapState, status.upstream.reason ?? liveBootstrapError, generatedAt);
+      void ensureLiveBootstrap('route:/v1/pulse');
+      return {
+        data: {
+          ...buildPulseDashboard(store, cachedInterpretations, true, generatedAt),
+          ...diagnostics,
+          status
+        }
+      };
+    }
+
+    void ensureLiveBootstrap('route:/v1/pulse');
+    const status = pulseRouteStatus(fixturePulseStore, routeBootstrapState, liveBootstrapError);
+    const fixtureStore = pulseFixtureStoreWithStatus(fixturePulseStore, status.upstream.reason);
+    const diagnostics = pulseDiagnostics(dataSourceState(fixtureStore), routeBootstrapState, status.upstream.reason, generatedAt);
+    return {
+      data: {
+        ...buildPulseDashboard(fixtureStore, fixturePulseInterpretations, true, generatedAt),
+        ...diagnostics,
+        catalog_status: 'fixture_fallback',
+        status
+      }
+    };
+  }, () => ({
+    data: {
+      ...buildPulseDashboard(
+        pulseFixtureStoreWithStatus(fixturePulseStore, liveBootstrapError ?? 'pulse_timeout'),
+        fixturePulseInterpretations,
+        true,
+        new Date().toISOString()
+      ),
+      ...pulseDiagnostics(dataSourceState(fixturePulseStore), liveBootstrapStatus === 'idle' ? 'pending' : liveBootstrapStatus, liveBootstrapError ?? 'pulse_timeout', new Date().toISOString()),
+      catalog_status: 'fixture_fallback',
+      status: pulseRouteStatus(fixturePulseStore, liveBootstrapStatus === 'idle' ? 'pending' : liveBootstrapStatus, liveBootstrapError ?? 'pulse_timeout')
+    }
+  })));
   app.get('/v1/pulse/summary', async () => withRouteTimeout('/v1/pulse/summary', ROUTE_TIMEOUT_MS, () => {
     const summary = pulseSummary(store, new Date().toISOString(), config.payShIngestIntervalMs, { includePropagation: false, includeInterpretations: false, propagationFallback: cachedPropagation, interpretationsFallback: cachedInterpretations });
     const pulse = buildPulseDashboard(store, cachedInterpretations, bootstrapped || store.providers.length > 0);
@@ -1681,6 +1732,8 @@ export async function createApp(
     if (startupLoadPromise) await startupLoadPromise;
     if (isLiveBootstrapSatisfied(store)) {
       bootstrapped = true;
+      liveBootstrapStatus = 'ready';
+      liveBootstrapError = null;
       return;
     }
     if (!liveBootstrapEnabled) {
@@ -1696,6 +1749,8 @@ export async function createApp(
         };
       }
       bootstrapped = store.providers.length > 0;
+      liveBootstrapStatus = bootstrapped ? 'ready' : 'failed';
+      liveBootstrapError = bootstrapped ? null : 'bootstrap_not_called';
       return;
     }
     if (liveBootstrapPromise) {
@@ -1703,6 +1758,8 @@ export async function createApp(
       return;
     }
 
+    liveBootstrapStatus = 'pending';
+    liveBootstrapError = null;
     liveBootstrapPromise = (async () => {
       console.log('[radar-bootstrap] starting live Pay.sh catalog bootstrap');
       let result: Awaited<ReturnType<typeof runPayShIngestionWithOptions>>;
@@ -1729,6 +1786,8 @@ export async function createApp(
         throw new Error(failureReason);
       }
       bootstrapped = true;
+      liveBootstrapStatus = 'ready';
+      liveBootstrapError = null;
       refreshBackgroundAnalytics();
       console.log(`[radar-bootstrap] live catalog bootstrap succeeded provider_count=${store.providers.length} endpoint_count=${endpointCount}`);
     })()
@@ -1736,6 +1795,8 @@ export async function createApp(
         const reasonLabel = error instanceof Error ? error.message : String(error);
         console.log(`[radar-bootstrap] live catalog bootstrap failed reason=${reasonLabel}`);
         bootstrapped = store.providers.length > 0;
+        liveBootstrapStatus = 'failed';
+        liveBootstrapError = reasonLabel;
         if (!store.providers.length) {
           try {
             await runPayShIngestionWithOptions(store, repository, {
@@ -1965,6 +2026,107 @@ function compactInterpretationsSummary(interpretations: ReturnType<typeof pulseS
 function pulseDashboardResponse(cachedPulseDashboard: ReturnType<typeof buildPulseDashboard> | null, store: IntelligenceStore) {
   if (cachedPulseDashboard) return cachedPulseDashboard;
   return pulseWarmingUpFallback(store, false, 'pulse_cache_missing');
+}
+
+function createFixturePulseStore(): IntelligenceStore {
+  const generatedAt = new Date().toISOString();
+  const fixtureIngestion = applyPayShCatalogIngestion(emptyIntelligenceStore(), payShCatalogFixture, {
+    source: 'pay.sh:public-catalog-fixture',
+    dataSource: {
+      mode: 'fixture_fallback',
+      url: DEFAULT_LIVE_CATALOG_URL,
+      generated_at: null,
+      provider_count: payShCatalogFixture.length,
+      last_ingested_at: generatedAt,
+      used_fixture: true,
+      error: null
+    }
+  });
+  const fixtureSnapshot = recomputeAssessments(fixtureIngestion.snapshot);
+  const baseDataSource = fixtureSnapshot.dataSource ?? {
+    mode: 'fixture_fallback' as const,
+    url: DEFAULT_LIVE_CATALOG_URL,
+    generated_at: null,
+    provider_count: fixtureSnapshot.providers.length,
+    last_ingested_at: generatedAt,
+    used_fixture: true,
+    error: null
+  };
+  return {
+    ...fixtureSnapshot,
+    dataSource: {
+      ...baseDataSource,
+      mode: 'fixture_fallback',
+      error: 'bootstrap_pending',
+      last_ingested_at: baseDataSource.last_ingested_at ?? generatedAt
+    }
+  };
+}
+
+function pulseFixtureStoreWithStatus(store: IntelligenceStore, error: string | null): IntelligenceStore {
+  const generatedAt = new Date().toISOString();
+  const baseDataSource = store.dataSource ?? {
+    mode: 'fixture_fallback' as const,
+    url: DEFAULT_LIVE_CATALOG_URL,
+    generated_at: null,
+    provider_count: store.providers.length,
+    last_ingested_at: generatedAt,
+    used_fixture: true,
+    error: null
+  };
+  return {
+    ...store,
+    dataSource: {
+      ...baseDataSource,
+      mode: 'fixture_fallback',
+      error: error ?? 'bootstrap_pending',
+      last_ingested_at: generatedAt
+    }
+  };
+}
+
+function pulseRouteStatus(store: IntelligenceStore, state: 'idle' | 'pending' | 'ready' | 'failed', error: string | null) {
+  const dataSource = dataSourceState(store);
+  const fixtureBacked = dataSource.used_fixture === true || store.providers.length === 0;
+  const liveReady = dataSource.mode === 'live_pay_sh_catalog' && store.providers.length > 0 && dataSource.used_fixture === false;
+  const upstreamState = state === 'ready'
+    ? fixtureBacked ? 'unavailable' : 'ready'
+    : state === 'failed' && error?.includes('timeout')
+      ? 'timeout'
+      : liveReady
+        ? 'ready'
+        : 'unavailable';
+  return {
+    backend: 'healthy' as const,
+    upstream: {
+      state: upstreamState,
+      reason: error ?? (liveReady ? null : state === 'pending' ? 'bootstrap_pending' : fixtureBacked ? 'fixture_backed_fallback' : null)
+    },
+    radar: {
+      state: fixtureBacked ? 'fixture_backed' as const : 'live' as const,
+      reason: fixtureBacked ? 'live_bootstrap_pending_or_failed' : 'live_bootstrap_complete'
+    }
+  };
+}
+
+function pulseDiagnostics(
+  dataSource: ReturnType<typeof dataSourceState>,
+  bootstrapState: 'idle' | 'pending' | 'ready' | 'failed',
+  fallbackReason: string | null,
+  generatedAt: string
+) {
+  const liveCatalogState = dataSource.mode === 'live_pay_sh_catalog' && dataSource.used_fixture === false
+    ? 'live'
+    : dataSource.used_fixture
+      ? 'fixture_fallback'
+      : 'unavailable';
+  return {
+    pulse_source: dataSource.mode === 'live_pay_sh_catalog' ? 'live_pay_sh_catalog' : 'fixture_backed',
+    live_catalog_state: liveCatalogState,
+    bootstrap_state: bootstrapState,
+    fallback_reason: fallbackReason,
+    generated_at: generatedAt
+  };
 }
 
 function pulseWarmingUpFallback(store: IntelligenceStore, bootstrapped: boolean, error: string) {

@@ -19,6 +19,7 @@ export type SmokePlan = {
   livePulsePath: string;
 };
 
+const REQUEST_TIMEOUT_MS = 5_000;
 const RETRY_ATTEMPTS = 3;
 const RETRY_DELAY_MS = 500;
 
@@ -85,15 +86,25 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function fetchWithRetry(input: string, init?: RequestInit): Promise<Response> {
+async function fetchWithRetry(input: string, init?: RequestInit, label = input): Promise<Response> {
   let lastError: Error | null = null;
 
   for (let attempt = 1; attempt <= RETRY_ATTEMPTS; attempt += 1) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
     try {
-      return await fetch(input, init);
+      return await fetch(input, {
+        ...init,
+        signal: init?.signal ?? controller.signal
+      });
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
+      if (lastError.name === 'AbortError' && label.includes('/v1/pulse')) {
+        throw new Error('GET /v1/pulse timed out. Backend route may be waiting on live bootstrap or upstream catalog.');
+      }
       if (attempt < RETRY_ATTEMPTS) await sleep(RETRY_DELAY_MS);
+    } finally {
+      clearTimeout(timeout);
     }
   }
 
@@ -111,7 +122,7 @@ function hasDataEnvelope(value: unknown): value is { data: unknown } {
 async function checkPublicPage(baseUrl: string, path: string): Promise<void> {
   const response = await fetchWithRetry(`${baseUrl}${path}`, {
     headers: { accept: path === '/openapi.json' ? 'application/json' : 'text/html,application/xhtml+xml' }
-  });
+  }, path);
 
   if (response.status !== 200) {
     throw new Error(`expected 200, got ${response.status}`);
@@ -121,7 +132,7 @@ async function checkPublicPage(baseUrl: string, path: string): Promise<void> {
 async function checkJsonGet(baseUrl: string, path: string): Promise<unknown> {
   const response = await fetchWithRetry(`${baseUrl}${path}`, {
     headers: { accept: 'application/json' }
-  });
+  }, path);
 
   if (!response.ok) {
     throw new Error(`expected 2xx, got ${response.status}`);
@@ -258,7 +269,7 @@ export async function runSmoke(baseUrl = resolveBaseUrl()): Promise<boolean> {
         'content-type': 'application/json'
       },
       body: JSON.stringify(PRE_SPEND_CHECK_PAYLOAD)
-    });
+    }, plan.preSpendPath);
 
     if (!response.ok) {
       throw new Error(`expected 2xx, got ${response.status}`);

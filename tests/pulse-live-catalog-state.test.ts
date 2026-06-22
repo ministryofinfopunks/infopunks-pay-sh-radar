@@ -231,10 +231,19 @@ describe('pulse and radar live catalog state wiring', () => {
 
       expect(response.statusCode).toBe(200);
       expect(response.headers['content-type']).toContain('application/json');
-      expect(durationMs).toBeLessThan(5_000);
+      expect(durationMs).toBeLessThan(1_000);
       expect(response.json().data.providerCount).toBeGreaterThan(0);
+      expect(response.json().data.endpointCount).toBeGreaterThanOrEqual(0);
       expect(response.json().data.data_source.used_fixture).toBe(true);
-      expect(response.json().data.data_source.error).toBe('live_catalog_timeout');
+      expect(response.json().data.data_source.error).toBe('bootstrap_pending');
+      expect(response.json().data.pulse_source).toBe('fixture_backed');
+      expect(response.json().data.live_catalog_state).toBe('fixture_fallback');
+      expect(response.json().data.bootstrap_state).toBe('pending');
+      expect(response.json().data.fallback_reason).toBe('bootstrap_pending');
+      expect(response.json().data.status).toMatchObject({
+        backend: 'healthy',
+        radar: { state: 'fixture_backed' }
+      });
     } finally {
       await app.close();
       if (previousNodeEnv === undefined) delete process.env.NODE_ENV;

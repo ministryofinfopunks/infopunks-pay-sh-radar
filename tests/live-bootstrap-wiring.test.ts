@@ -121,8 +121,12 @@ describe('live bootstrap wiring', () => {
     const response = await app.inject({ method: 'GET', url: '/v1/pulse' });
     expect(response.statusCode).toBe(200);
     expect(response.json().data.providerCount).toBeGreaterThan(0);
-    expect(response.json().data.data_source.mode).toBe('live_pay_sh_catalog');
-    expect(response.json().data.data_source.used_fixture).toBe(false);
+    expect(response.json().data.data_source.mode).toBe('fixture_fallback');
+    expect(response.json().data.data_source.used_fixture).toBe(true);
+    expect(response.json().data.status).toMatchObject({
+      backend: 'healthy',
+      radar: { state: 'fixture_backed' }
+    });
     expect(ingestionSpy).toHaveBeenCalledTimes(1);
 
     await app.close();
@@ -186,6 +190,53 @@ describe('live bootstrap wiring', () => {
     expect(ingestionSpy.mock.calls.length).toBeLessThanOrEqual(2);
     expect(pulse.statusCode).toBe(200);
     expect(pulse.json().data.data_source.error).not.toBe('bootstrap_not_called');
+
+    await app.close();
+  });
+
+  it('returns fixture-backed pulse immediately when live catalog ingestion hangs', async () => {
+    const store = emptyStore();
+    vi.spyOn(intelligenceStoreModule, 'runPayShIngestionWithOptions').mockImplementation(async () => new Promise(() => {}));
+    const app = await createApp(store);
+
+    const startedAt = Date.now();
+    const response = await app.inject({ method: 'GET', url: '/v1/pulse' });
+    const durationMs = Date.now() - startedAt;
+
+    expect(response.statusCode).toBe(200);
+    expect(durationMs).toBeLessThan(1_000);
+    expect(response.json().data.providerCount).toBeGreaterThan(0);
+    expect(response.json().data.endpointCount).toBeGreaterThanOrEqual(0);
+    expect(response.json().data.data_source.used_fixture).toBe(true);
+    expect(response.json().data.bootstrap_state).toBe('pending');
+    expect(response.json().data.fallback_reason).toBe('bootstrap_pending');
+    expect(response.json().data.status).toMatchObject({
+      backend: 'healthy',
+      radar: { state: 'fixture_backed' }
+    });
+
+    await app.close();
+  });
+
+  it('returns fixture-backed pulse immediately when cold bootstrap never resolves', async () => {
+    vi.spyOn(intelligenceStoreModule, 'createIntelligenceStore').mockImplementation(async () => new Promise(() => {}));
+    const app = await createApp();
+
+    const startedAt = Date.now();
+    const response = await app.inject({ method: 'GET', url: '/v1/pulse' });
+    const durationMs = Date.now() - startedAt;
+
+    expect(response.statusCode).toBe(200);
+    expect(durationMs).toBeLessThan(1_000);
+    expect(response.json().data.providerCount).toBeGreaterThan(0);
+    expect(response.json().data.data_source.used_fixture).toBe(true);
+    expect(response.json().data.bootstrap_state).toBe('pending');
+    expect(response.json().data.fallback_reason).toBe('bootstrap_pending');
+    expect(response.json().data.status).toMatchObject({
+      backend: 'healthy',
+      upstream: expect.objectContaining({ state: expect.any(String) }),
+      radar: { state: 'fixture_backed' }
+    });
 
     await app.close();
   });
