@@ -8122,6 +8122,208 @@ summary:focus-visible {
   align-items: start;
 }
 
+.preflight-card-shell {
+  padding-top: 18px;
+}
+
+.preflight-card-page {
+  display: grid;
+  gap: 16px;
+}
+
+.preflight-card-panel {
+  display: grid;
+  gap: 16px;
+  padding: clamp(18px, 3vw, 30px);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(124, 199, 255, .15), transparent 32%),
+    linear-gradient(145deg, rgba(9, 25, 18, .96), rgba(2, 7, 6, .94) 64%);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, .28);
+}
+
+.preflight-card-panel.state-allow {
+  border-color: rgba(126,255,176,.34);
+}
+
+.preflight-card-panel.state-review {
+  border-color: rgba(246,208,111,.34);
+}
+
+.preflight-card-panel.state-deny {
+  border-color: rgba(255,107,107,.34);
+}
+
+.preflight-card-panel.state-neutral {
+  border-color: rgba(124,199,255,.34);
+}
+
+.preflight-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.preflight-card-head h1 {
+  margin: 0;
+  font-size: clamp(2rem, 7vw, 4.4rem);
+  line-height: .95;
+  overflow-wrap: anywhere;
+}
+
+.preflight-card-subtitle {
+  margin: 8px 0 0;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  overflow-wrap: anywhere;
+}
+
+.preflight-card-flow {
+  border: 1px dashed rgba(126,255,176,.18);
+  border-radius: 999px;
+  padding: 10px 14px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.preflight-card-state-row {
+  display: grid;
+  gap: 10px;
+}
+
+.preflight-card-state-row strong {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(22px, 3vw, 34px);
+  line-height: 1.08;
+}
+
+.preflight-card-badge {
+  display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(126,255,176,.28);
+  background: rgba(126,255,176,.08);
+  color: var(--green);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.preflight-card-badge.allow {
+  color: var(--green);
+  border-color: rgba(126,255,176,.38);
+  background: rgba(126,255,176,.11);
+}
+
+.preflight-card-badge.review {
+  color: var(--amber);
+  border-color: rgba(246,208,111,.42);
+  background: rgba(246,208,111,.1);
+}
+
+.preflight-card-badge.deny {
+  color: var(--red);
+  border-color: rgba(255,107,107,.42);
+  background: rgba(255,107,107,.11);
+}
+
+.preflight-card-badge.neutral {
+  color: var(--blue);
+  border-color: rgba(124,199,255,.42);
+  background: rgba(124,199,255,.1);
+}
+
+.preflight-card-guidance {
+  margin: 0;
+  color: #c3ddcd;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.preflight-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.preflight-card-grid article {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid rgba(210,255,226,.12);
+  border-radius: 10px;
+  background: rgba(255,255,255,.03);
+  min-width: 0;
+}
+
+.preflight-card-grid article.wide {
+  grid-column: 1 / -1;
+}
+
+.preflight-card-grid span {
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.preflight-card-grid strong {
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.preflight-card-mantra {
+  margin: 0;
+  color: var(--amber);
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.preflight-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.preflight-card-json {
+  margin: 0;
+  max-height: 320px;
+  overflow: auto;
+  padding: 12px;
+  border: 1px solid rgba(124,199,255,.18);
+  border-radius: 10px;
+  background: rgba(1, 6, 7, .64);
+  color: #c8f0ff;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.preflight-card-footnote {
+  margin: 0;
+}
+
+@media (max-width: 719px) {
+  .preflight-card-head {
+    grid-template-columns: 1fr;
+  }
+
+  .preflight-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (min-width: 720px) {
   .loop-counter-grid,
   .loop-step-grid,
@@ -8151,5 +8353,9 @@ summary:focus-visible {
 
   .loop-failure-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .preflight-card-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }

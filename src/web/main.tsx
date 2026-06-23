@@ -32,6 +32,7 @@ import {
 } from './preSpendBuilderPages';
 import { ProofCheckDetailPage, ProofCheckPage } from './proofCheckPages';
 import { LoopDetailPage, LoopsPage } from './loopPages';
+import { MachineMarketPreflightCardPage, RadarPreflightCardPage } from './preflightCardPages';
 import './styles.css';
 
 type Severity = 'critical' | 'warning' | 'informational' | 'unknown';
@@ -1794,6 +1795,26 @@ function routeBenchmarkId(pathname: string) {
   }
 }
 
+function routeRadarCard(pathname: string) {
+  const match = pathname.match(/^\/radar\/cards\/(provider|route|benchmark|artifact)\/([^/]+)\/?$/);
+  if (!match) return null;
+  try {
+    return { type: match[1] as 'provider' | 'route' | 'benchmark' | 'artifact', id: decodeURIComponent(match[2]) };
+  } catch {
+    return { type: match[1] as 'provider' | 'route' | 'benchmark' | 'artifact', id: match[2] };
+  }
+}
+
+function routeMachineMarketCardId(pathname: string) {
+  const match = pathname.match(/^\/machine-market\/cards\/([^/]+)\/?$/);
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+}
+
 function isBenchmarkIndexRoute(pathname: string) {
   return /^\/benchmarks\/?$/.test(pathname);
 }
@@ -2297,7 +2318,7 @@ function BenchmarkProofContent({ benchmark, history, routeHistory }: { benchmark
       <p className="eyebrow">Infopunks Pay.sh Radar</p>
       <h1>{benchmark.benchmark_recorded ? 'Benchmark Proof' : 'Benchmark Scaffold'}: {benchmark.benchmark_id}</h1>
       <p className="panel-caption">No route winner is claimed.</p>
-      <p className="panel-caption"><a href="/benchmarks">View all benchmarks</a></p>
+      <p className="panel-caption"><a href="/benchmarks">View all benchmarks</a> <a href={`/radar/cards/benchmark/${encodeURIComponent(benchmark.benchmark_id)}`}>Open Preflight Card</a></p>
     </section>
     <section className="panel">
       <div className="readiness-list-grid">
@@ -7475,6 +7496,7 @@ function MachineServiceDossierPage({ serviceId }: { serviceId: string }) {
             <h1>{service.name}</h1>
             <p className="copy">{service.description}</p>
             <p className="panel-caption">Dossier for service_id {service.id}. Coverage-recorded means catalog and policy evidence only; it is not execution-tested evidence.</p>
+            <p className="panel-caption"><a href={`/machine-market/cards/${encodeURIComponent(service.id)}`}>Open Preflight Card</a></p>
           </div>
           <div className="ticker" aria-label="Machine service dossier status">
             <span>{service.source_market}</span>
@@ -8414,6 +8436,7 @@ function PublicProviderPage({ providerId }: { providerId: string }) {
             <button className="execute compact secondary" type="button" onClick={copyShareUrl} aria-label="Copy share URL">
               {copyState === 'copied' ? 'Copied URL' : 'Copy Share URL'}
             </button>
+            <a className="execute compact secondary" href={`/radar/cards/provider/${encodeURIComponent(providerId)}`}>Open Preflight Card</a>
             <a className="execute compact secondary" href="/#terminal-content">Open Radar</a>
             <a className="execute compact secondary" href="/#terminal-content" onClick={(event) => {
               event.preventDefault();
@@ -13249,6 +13272,10 @@ function MachineControlSurfacesStrip() {
 }
 
 export function App() {
+  const radarCard = routeRadarCard(window.location.pathname);
+  if (radarCard) return <RadarPreflightCardPage type={radarCard.type} id={radarCard.id} />;
+  const machineMarketCardId = routeMachineMarketCardId(window.location.pathname);
+  if (machineMarketCardId) return <MachineMarketPreflightCardPage id={machineMarketCardId} />;
   const propagationId = routePropagationId(window.location.pathname);
   if (propagationId) return <PropagationIncidentPage clusterId={propagationId} />;
   if (isProofCheckIndexRoute(window.location.pathname)) return <ProofCheckPage />;
