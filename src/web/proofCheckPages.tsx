@@ -122,6 +122,7 @@ function ProofCheckNav() {
     </a>
     <div className="terminal-nav" aria-label="Proof Feed routes">
       <a href="/check" aria-current={window.location.pathname === '/check' ? 'page' : undefined}>Check</a>
+      <a href="/loops">Loops</a>
       <a href="/routes">Routes</a>
       <a href="/providers">Providers</a>
       <a href="/receipts">Receipts</a>

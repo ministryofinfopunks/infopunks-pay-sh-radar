@@ -356,6 +356,7 @@ export const ProofRiskFlagSchema = z.enum([
   'missing_source'
 ]);
 export const ProofDecisionStateSchema = z.enum(['trust', 'caution', 'do_not_use_yet', 'unproven', 'disputed']);
+export const LoopProofStateSchema = z.enum(['verified', 'partial', 'failure_recorded', 'memory_recorded', 'unproven', 'disputed']);
 
 export const RouteIntelligenceSchema = z.object({
   route_id: z.string(),
@@ -583,6 +584,43 @@ export const ProofCheckSchema = z.object({
 export const ProofCheckResultSchema = ProofCheckSchema.extend({
   headline: z.string(),
   public_cta: z.string()
+});
+
+export const LoopRunSchema = z.object({
+  run_id: z.string(),
+  started_at: z.string().datetime(),
+  completed_at: z.string().datetime(),
+  hypothesis: z.string(),
+  action_taken: z.string(),
+  evidence_artifacts: z.array(z.string()),
+  score: z.number().min(0).max(100),
+  failure_reason: z.string().nullable(),
+  proof_state: LoopProofStateSchema,
+  decision_state: ProofDecisionStateSchema,
+  linked_check_id: z.string()
+});
+
+export const LoopSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  objective: z.string(),
+  hypothesis: z.string(),
+  action_taken: z.string(),
+  evidence_artifacts: z.array(z.string()),
+  score: z.number().min(0).max(100),
+  failure_reason: z.string().nullable(),
+  proof_state: LoopProofStateSchema,
+  decision_state: ProofDecisionStateSchema,
+  linked_check_id: z.string()
+});
+
+export const LoopDetailSchema = LoopSchema.extend({
+  runs: z.array(LoopRunSchema)
+});
+
+export const LoopCheckInputSchema = z.object({
+  input: z.string().min(1),
+  linked_check_id: z.string().optional()
 });
 
 export const RouteTrustSummarySchema = z.object({
@@ -1976,6 +2014,7 @@ export type ReceiptStrength = z.infer<typeof ReceiptStrengthSchema>;
 export type ProofValidationStatus = z.infer<typeof ProofValidationStatusSchema>;
 export type ProofRiskFlag = z.infer<typeof ProofRiskFlagSchema>;
 export type ProofDecisionState = z.infer<typeof ProofDecisionStateSchema>;
+export type LoopProofState = z.infer<typeof LoopProofStateSchema>;
 export type Claim = z.infer<typeof ClaimSchema>;
 export type ClaimChallenge = z.infer<typeof ClaimChallengeSchema>;
 export type ClaimCreateRequest = z.infer<typeof ClaimCreateRequestSchema>;
@@ -1984,6 +2023,10 @@ export type ClaimDetail = z.infer<typeof ClaimDetailSchema>;
 export type ProofCheckInput = z.infer<typeof ProofCheckInputSchema>;
 export type ProofCheck = z.infer<typeof ProofCheckSchema>;
 export type ProofCheckResult = z.infer<typeof ProofCheckResultSchema>;
+export type LoopRun = z.infer<typeof LoopRunSchema>;
+export type Loop = z.infer<typeof LoopSchema>;
+export type LoopDetail = z.infer<typeof LoopDetailSchema>;
+export type LoopCheckInput = z.infer<typeof LoopCheckInputSchema>;
 export type RouteIntelligenceDetail = z.infer<typeof RouteIntelligenceDetailSchema>;
 export type ProviderIntelligenceDetail = z.infer<typeof ProviderIntelligenceDetailSchema>;
 export type PreSpendProviderSummary = z.infer<typeof PreSpendProviderSummarySchema>;

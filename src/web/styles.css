@@ -8037,6 +8037,17 @@ summary:focus-visible {
   color: #dcebe0;
 }
 
+.loop-card {
+  display: grid;
+  gap: 14px;
+}
+
+.loop-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 @media (min-width: 960px) {
   .proof-check-hero,
   .proof-check-output {

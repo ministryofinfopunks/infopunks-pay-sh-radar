@@ -31,6 +31,7 @@ import {
   SpendTerminalPage
 } from './preSpendBuilderPages';
 import { ProofCheckDetailPage, ProofCheckPage } from './proofCheckPages';
+import { LoopDetailPage, LoopsPage } from './loopPages';
 import './styles.css';
 
 type Severity = 'critical' | 'warning' | 'informational' | 'unknown';
@@ -1763,6 +1764,16 @@ function routeProofCheckId(pathname: string) {
   }
 }
 
+function routeLoopId(pathname: string) {
+  const match = pathname.match(/^\/loops\/([^/]+)\/?$/);
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+}
+
 function routePropagationId(pathname: string) {
   const match = pathname.match(/^\/propagation\/([^/]+)\/?$/);
   if (!match) return null;
@@ -1817,6 +1828,10 @@ function isClaimsIndexRoute(pathname: string) {
 
 function isProofCheckIndexRoute(pathname: string) {
   return /^\/check\/?$/.test(pathname);
+}
+
+function isLoopsIndexRoute(pathname: string) {
+  return /^\/loops\/?$/.test(pathname);
 }
 
 function isMachineMarketRoute(pathname: string) {
@@ -9454,6 +9469,7 @@ function RadarApp() {
             </a>
             <a className="methodology-trigger" href="/developers">Developers</a>
             <a className="methodology-trigger" href="/check">Check</a>
+            <a className="methodology-trigger" href="/loops">Loops</a>
             <a className="methodology-trigger" href="/claim">Claims</a>
             <a className="methodology-trigger" href="#agent-benchmark-api">Agent Benchmark API</a>
             <button className="methodology-trigger methodology-link" type="button" onClick={() => setMethodologyOpen(true)} aria-label="Open methodology drawer">
@@ -13236,6 +13252,7 @@ export function App() {
   const propagationId = routePropagationId(window.location.pathname);
   if (propagationId) return <PropagationIncidentPage clusterId={propagationId} />;
   if (isProofCheckIndexRoute(window.location.pathname)) return <ProofCheckPage />;
+  if (isLoopsIndexRoute(window.location.pathname)) return <LoopsPage />;
   if (isSpendTerminalRoute(window.location.pathname)) return <SpendTerminalPage />;
   if (isDevelopersRoute(window.location.pathname)) return <DevelopersPage />;
   if (isClaimsIndexRoute(window.location.pathname)) return <ClaimsPage />;
@@ -13252,6 +13269,8 @@ export function App() {
   if (claimId) return <ClaimDetailPage claimId={claimId} />;
   const proofCheckId = routeProofCheckId(window.location.pathname);
   if (proofCheckId) return <ProofCheckDetailPage checkId={proofCheckId} />;
+  const loopId = routeLoopId(window.location.pathname);
+  if (loopId) return <LoopDetailPage loopId={loopId} />;
   if (isReceiptsIndexRoute(window.location.pathname)) return <ReceiptsIndexPage />;
   const receiptId = routeReceiptId(window.location.pathname);
   if (receiptId && receiptId.startsWith('receipt_')) return <ReceiptDetailPage receiptId={receiptId} />;

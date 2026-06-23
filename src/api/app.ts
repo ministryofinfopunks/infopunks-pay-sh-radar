@@ -19,6 +19,7 @@ import {
   ClaimCreateRequestSchema,
   ClaimChallengeCreateRequestSchema,
   ProofCheckInputSchema,
+  LoopCheckInputSchema,
   RadarComparisonRequestSchema,
   RadarEcosystemRiskSummarySchema,
   RadarBatchPreflightRequestSchema,
@@ -127,6 +128,8 @@ import { createPreSpendIntelligenceService } from '../services/preSpendIntellige
 import { createInMemoryPreSpendRepository, preSpendRepository } from '../repositories/preSpendRepository';
 import { createInMemoryProofCheckRepository, proofCheckRepository } from '../repositories/proofCheckRepository';
 import { createProofCheckService } from '../services/proofCheckService';
+import { createInMemoryLoopRepository, loopRepository } from '../repositories/loopRepository';
+import { createLoopService } from '../services/loopService';
 import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
@@ -350,6 +353,9 @@ export async function createApp(
   );
   const proofCheckService = createProofCheckService(
     process.env.NODE_ENV === 'test' ? createInMemoryProofCheckRepository() : proofCheckRepository
+  );
+  const loopService = createLoopService(
+    process.env.NODE_ENV === 'test' ? createInMemoryLoopRepository() : loopRepository
   );
   configureMachineDemoSeed(config.machineDemoSeed);
   const responseCache = createResponseCache();
@@ -1531,6 +1537,21 @@ export async function createApp(
     const check = proofCheckService.getProofCheck(req.params.check_id);
     if (!check) return reply.code(404).send({ error: 'proof_check_not_found' });
     return { data: safeJsonExport(check) };
+  });
+  app.get('/v1/loops', async () => ({ data: safeJsonExport({
+    generated_at: new Date().toISOString(),
+    source: 'infopunks-pay-sh-radar',
+    loops: loopService.listLoops()
+  }) }));
+  app.get<{ Params: { loop_id: string } }>('/v1/loops/:loop_id', async (req, reply) => {
+    const loop = loopService.getLoop(req.params.loop_id);
+    if (!loop) return reply.code(404).send({ error: 'loop_not_found' });
+    return { data: safeJsonExport(loop) };
+  });
+  app.post('/v1/loops/check', async (req, reply) => {
+    const parsed = LoopCheckInputSchema.safeParse(req.body);
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_loop_check_input', details: parsed.error.flatten() });
+    return { data: safeJsonExport(loopService.createLoopCheck(parsed.data)) };
   });
   app.get<{ Params: { claim_id: string } }>('/v1/claims/:claim_id', async (req, reply) => {
     const detail = preSpendIntelligence.getClaim(req.params.claim_id);

@@ -86,11 +86,25 @@ Decision states:
 
 No receipt, no trust.
 
+## Loop Check
+
+Infopunks Loop Check connects loop engineering directly to Proof Feed.
+
+Autonomous loops generate claims, checks, receipts, and public memory. Every loop should be checkable. Every loop check should produce a proof receipt.
+
+- `/loops`
+- `/loops/:loopId`
+- `GET /v1/loops`
+- `GET /v1/loops/:loopId`
+- `POST /v1/loops/check`
+
+Seeded loop examples include pre-spend route discipline, provider trust, failure memory, machine service route readiness, and carbon claim integrity. Each loop links back to a proof receipt through `linked_check_id`.
+
 ## Manual QA Checklist
 
-- Pages: verify `/`, `/developers`, `/spend-terminal`, `/check`, `/routes`, `/providers`, `/services`, `/receipts`, `/claim`, and linked detail pages render without React errors.
+- Pages: verify `/`, `/developers`, `/spend-terminal`, `/check`, `/loops`, `/routes`, `/providers`, `/services`, `/receipts`, `/claim`, and linked detail pages render without React errors.
 - Copy: verify public pages use `Pre-Spend Intelligence`, `Before your agent pays, it checks Infopunks.`, `No receipt, no trust.`, `known blockers`, `safer alternatives`, `human validation`, and `evidence graph`.
-- API: verify `POST /v1/pre-spend/check`, `POST /v1/check`, `GET /v1/checks`, `GET /v1/routes`, `GET /v1/pre-spend/providers`, `GET /v1/services`, `GET /v1/receipts`, `POST /v1/receipts`, `POST /v1/validation/submit`, `GET /v1/claims`, `POST /v1/claims`, `GET /v1/claims/:claim_id/challenges`, and `GET /openapi.json`.
+- API: verify `POST /v1/pre-spend/check`, `POST /v1/check`, `GET /v1/checks`, `GET /v1/loops`, `GET /v1/loops/:loopId`, `POST /v1/loops/check`, `GET /v1/routes`, `GET /v1/pre-spend/providers`, `GET /v1/services`, `GET /v1/receipts`, `POST /v1/receipts`, `POST /v1/validation/submit`, `GET /v1/claims`, `POST /v1/claims`, `GET /v1/claims/:claim_id/challenges`, and `GET /openapi.json`.
 - SDK: verify the package export `import { createInfopunksPreSpendClient } from "infopunks-pay-sh-radar/sdk";` still works against `https://radar.infopunks.fun`.
 - Terminal: verify the spend terminal still returns decision states including `approved`, `approved_with_warning`, `use_with_caution`, `requires_human_approval`, and `do_not_use`.
 - Evidence links: verify route, provider, service, receipt, and claim pages link to related receipts where available.

@@ -172,6 +172,41 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       public_cta: 'Agents can spend. Infopunks helps them judge.'
     }, 'proof_check_not_found')
   });
+  add('get', '/v1/loops', {
+    tags: ['Loops'],
+    summary: 'List loop checks',
+    description: 'Returns seeded autonomous loops with proof states, decision states, linked proof checks, and public memory fields.',
+    responses: envelopedResponses(objectSchema({
+      generated_at: dateTimeSchema(),
+      source: stringSchema(),
+      loops: arrayOf({ $ref: '#/components/schemas/LoopDetail' })
+    }), { loops: [{ id: 'loop_pre_spend_route', decision_state: 'trust', linked_check_id: 'check_route_pay_sh_seed' }] })
+  });
+  add('get', '/v1/loops/{loop_id}', {
+    tags: ['Loops'],
+    summary: 'Get loop detail',
+    description: 'Returns one autonomous loop with latest run memory and the linked proof receipt reference.',
+    parameters: [pathParam('loop_id', 'Loop identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/LoopDetail' }, {
+      id: 'loop_provider_trust',
+      proof_state: 'verified',
+      linked_check_id: 'check_provider_reliability_seed'
+    }, 'loop_not_found')
+  });
+  add('post', '/v1/loops/check', {
+    tags: ['Loops'],
+    summary: 'Create loop check',
+    description: 'Creates a deterministic loop check record and links it to an existing or inferred proof receipt.',
+    requestBody: jsonRequest({ $ref: '#/components/schemas/LoopCheckInput' }, {
+      input: 'Provider trust loop for receipt parsing reliability.',
+      linked_check_id: 'check_provider_reliability_seed'
+    }),
+    responses: envelopedResponses({ $ref: '#/components/schemas/LoopDetail' }, {
+      id: 'loop_123abc',
+      name: 'Generated Provider Trust Loop',
+      linked_check_id: 'check_provider_reliability_seed'
+    })
+  });
   add('get', '/v1/claims', {
     tags: ['Claims'],
     summary: 'List claims',
@@ -1550,6 +1585,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       { name: 'Radar Risk' },
       { name: 'Radar Readiness' },
       { name: 'Proof Feed' },
+      { name: 'Loops' },
       { name: 'Machine Economy' },
       { name: 'Radar CSV Exports' }
     ],
@@ -2073,6 +2109,50 @@ function componentSchemas(): Record<string, JsonSchema> {
       decision_summary: stringSchema(),
       headline: stringSchema(),
       public_cta: stringSchema()
+    }),
+    LoopRun: objectSchema({
+      run_id: stringSchema(),
+      started_at: dateTimeSchema(),
+      completed_at: dateTimeSchema(),
+      hypothesis: stringSchema(),
+      action_taken: stringSchema(),
+      evidence_artifacts: arrayOf(stringSchema()),
+      score: { type: 'number', minimum: 0, maximum: 100 },
+      failure_reason: { oneOf: [stringSchema(), { type: 'null' }] },
+      proof_state: enumSchema(['verified', 'partial', 'failure_recorded', 'memory_recorded', 'unproven', 'disputed']),
+      decision_state: enumSchema(['trust', 'caution', 'do_not_use_yet', 'unproven', 'disputed']),
+      linked_check_id: stringSchema()
+    }),
+    Loop: objectSchema({
+      id: stringSchema(),
+      name: stringSchema(),
+      objective: stringSchema(),
+      hypothesis: stringSchema(),
+      action_taken: stringSchema(),
+      evidence_artifacts: arrayOf(stringSchema()),
+      score: { type: 'number', minimum: 0, maximum: 100 },
+      failure_reason: { oneOf: [stringSchema(), { type: 'null' }] },
+      proof_state: enumSchema(['verified', 'partial', 'failure_recorded', 'memory_recorded', 'unproven', 'disputed']),
+      decision_state: enumSchema(['trust', 'caution', 'do_not_use_yet', 'unproven', 'disputed']),
+      linked_check_id: stringSchema()
+    }),
+    LoopDetail: objectSchema({
+      id: stringSchema(),
+      name: stringSchema(),
+      objective: stringSchema(),
+      hypothesis: stringSchema(),
+      action_taken: stringSchema(),
+      evidence_artifacts: arrayOf(stringSchema()),
+      score: { type: 'number', minimum: 0, maximum: 100 },
+      failure_reason: { oneOf: [stringSchema(), { type: 'null' }] },
+      proof_state: enumSchema(['verified', 'partial', 'failure_recorded', 'memory_recorded', 'unproven', 'disputed']),
+      decision_state: enumSchema(['trust', 'caution', 'do_not_use_yet', 'unproven', 'disputed']),
+      linked_check_id: stringSchema(),
+      runs: arrayOf({ $ref: '#/components/schemas/LoopRun' })
+    }),
+    LoopCheckInput: objectSchema({
+      input: stringSchema(),
+      linked_check_id: { oneOf: [stringSchema(), { type: 'null' }] }
     }),
     HealthResponse: objectSchema({
       ok: booleanSchema(),

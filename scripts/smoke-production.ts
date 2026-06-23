@@ -1,4 +1,5 @@
 import { createPreSpendSeedState } from '../src/repositories/preSpendSeedData';
+import { createInMemoryLoopRepository } from '../src/repositories/loopRepository';
 import { pathToFileURL } from 'node:url';
 
 export const DEFAULT_BASE_URL = 'https://radar.infopunks.fun';
@@ -34,6 +35,7 @@ export function buildSmokePlan(): SmokePlan {
   const serviceId = seed.services[0]?.service_id ?? 'service_market_research';
   const receiptId = seed.receipts[0]?.receipt_id ?? 'receipt_001';
   const claimId = seed.claims[0]?.claim_id ?? 'claim_001';
+  const loopId = createInMemoryLoopRepository().listLoops()[0]?.id ?? 'loop_pre_spend_route';
 
   return {
     publicPaths: [
@@ -45,14 +47,17 @@ export function buildSmokePlan(): SmokePlan {
       '/services',
       '/receipts',
       '/claim',
+      '/loops',
       '/openapi.json',
       `/routes/${encodeURIComponent(routeId)}`,
       `/providers/${encodeURIComponent(providerId)}`,
       `/services/${encodeURIComponent(serviceId)}`,
       `/receipts/${encodeURIComponent(receiptId)}`,
-      `/claims/${encodeURIComponent(claimId)}`
+      `/claims/${encodeURIComponent(claimId)}`,
+      `/loops/${encodeURIComponent(loopId)}`
     ],
     apiGetPaths: [
+      '/v1/loops',
       '/v1/routes',
       '/v1/pre-spend/providers',
       '/v1/services',

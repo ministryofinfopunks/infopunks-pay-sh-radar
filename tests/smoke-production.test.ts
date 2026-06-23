@@ -15,6 +15,7 @@ describe('production smoke plan', () => {
       '/',
       '/developers',
       '/spend-terminal',
+      '/loops',
       '/routes',
       '/providers',
       '/services',
@@ -25,7 +26,8 @@ describe('production smoke plan', () => {
       '/providers/provider_pay_sh_lattice',
       '/services/service_market_research',
       '/receipts/receipt_001',
-      '/claims/claim_001'
+      '/claims/claim_001',
+      '/loops/loop_pre_spend_route'
     ]));
   });
 
@@ -33,6 +35,7 @@ describe('production smoke plan', () => {
     const plan = buildSmokePlan();
 
     expect(plan.apiGetPaths).toEqual([
+      '/v1/loops',
       '/v1/routes',
       '/v1/pre-spend/providers',
       '/v1/services',
