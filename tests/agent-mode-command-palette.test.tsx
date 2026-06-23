@@ -199,7 +199,11 @@ describe('agent mode and command palette', () => {
     root = await renderApp(container);
 
     const primaryNav = container.querySelector('[aria-label="Primary radar zones"]');
+    expect(primaryNav?.classList.contains('terminal-nav-scroll-rail')).toBe(true);
     expect(primaryNav?.textContent).not.toContain('Machine Economy');
+    for (const label of ['Benchmarks', 'Mappings', 'Preflight', 'Compare', 'Dossier', 'Check', 'Loops', 'Claims']) {
+      expect(container.textContent).toContain(label);
+    }
     expect(container.textContent).toContain('API Docs');
     expect(container.querySelector('a[href="/developers"]')?.textContent).toContain('Developers');
     expect(container.querySelector('a[href="/claim"]')?.textContent).toContain('Claims');

@@ -9451,7 +9451,7 @@ function RadarApp() {
           <span>Infopunks</span>
           <strong>Pay.sh Radar</strong>
         </a>
-        <div className="terminal-nav" aria-label="Primary radar zones">
+        <div className="terminal-nav terminal-nav-scroll-rail" aria-label="Primary radar zones">
           {[
             ['global-pulse', 'Pulse'],
             ['providers', 'Directory'],

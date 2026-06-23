@@ -5598,18 +5598,26 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 .site-header .nav-brand {
   flex: 0 0 auto;
   flex-shrink: 0;
+  min-width: 0;
 }
 
-.site-header .terminal-nav {
+.site-header .terminal-nav,
+.site-header .terminal-nav-scroll-rail {
   flex: 1 1 auto;
   min-width: 0;
+  display: flex;
   flex-wrap: nowrap;
   overflow-x: auto;
   overflow-y: visible;
+  white-space: nowrap;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
 
-.site-header .terminal-nav a {
+.site-header .terminal-nav a,
+.site-header .terminal-nav-scroll-rail a {
   flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .site-header .terminal-actions {
@@ -5620,6 +5628,8 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
   align-items: center;
   justify-content: flex-end;
   gap: 6px;
+  overflow: visible;
+  white-space: nowrap;
 }
 
 .site-header .terminal-action-cluster {
@@ -5685,23 +5695,36 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 
 @media (max-width: 1200px) {
   .site-header .global-toolbar {
+    flex-wrap: wrap;
     align-items: flex-start;
+  }
+
+  .site-header .terminal-nav {
+    flex: 1 1 0;
+    min-width: min(100%, 280px);
   }
 
   .site-header .terminal-actions {
     flex: 1 1 100%;
     min-width: 0;
+    max-width: 100%;
     overflow-x: auto;
     overflow-y: visible;
     justify-content: flex-start;
     padding-bottom: 2px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .site-header .terminal-actions::-webkit-scrollbar {
+    display: none;
   }
 }
 
 @media (max-width: 768px) {
   .site-header .global-toolbar {
-    flex-wrap: nowrap;
-    overflow: hidden;
+    gap: 8px;
+    overflow: visible;
   }
 
   .site-header .terminal-nav,
