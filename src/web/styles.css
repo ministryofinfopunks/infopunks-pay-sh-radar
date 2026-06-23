@@ -8048,6 +8048,65 @@ summary:focus-visible {
   gap: 10px;
 }
 
+.loop-lab-hero,
+.loop-lab-how,
+.loop-failure-wall {
+  display: grid;
+  gap: 18px;
+}
+
+.loop-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.loop-counter-grid,
+.loop-step-grid,
+.loop-failure-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.loop-counter-card,
+.loop-step-card,
+.loop-failure-card,
+.loop-lab-card-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.loop-counter-card span,
+.loop-step-card .eyebrow {
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.loop-counter-card strong {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 34px;
+  color: var(--text);
+}
+
+.loop-receipt-card {
+  min-height: 100%;
+}
+
+.loop-detail-top {
+  align-items: start;
+}
+
+@media (min-width: 720px) {
+  .loop-counter-grid,
+  .loop-step-grid,
+  .loop-failure-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (min-width: 960px) {
   .proof-check-hero,
   .proof-check-output {
@@ -8056,6 +8115,18 @@ summary:focus-visible {
   }
 
   .proof-detail-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .loop-counter-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .loop-step-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .loop-failure-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

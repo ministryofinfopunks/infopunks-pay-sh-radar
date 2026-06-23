@@ -100,6 +100,21 @@ Autonomous loops generate claims, checks, receipts, and public memory. Every loo
 
 Seeded loop examples include pre-spend route discipline, provider trust, failure memory, machine service route readiness, and carbon claim integrity. Each loop links back to a proof receipt through `linked_check_id`.
 
+## LoopLab Launch Surface
+
+Infopunks LoopLab is where autonomous work becomes collective memory.
+
+`/loops` now acts as the public launch surface for loop engineering inside Radar. It includes:
+
+- LoopLab hero positioning and launch CTAs
+- collective memory counters
+- a “How the loop works” explainer
+- screenshot-friendly Loop Receipt Cards
+- a Failure Wall for cautionary and under-evidenced loops
+- linked Proof Receipt Cards on `/loops/:loopId`
+
+AI is moving from prompts to loops. LoopLab turns autonomous runs into proof receipts so the next agent does not start from zero.
+
 ## Manual QA Checklist
 
 - Pages: verify `/`, `/developers`, `/spend-terminal`, `/check`, `/loops`, `/routes`, `/providers`, `/services`, `/receipts`, `/claim`, and linked detail pages render without React errors.
