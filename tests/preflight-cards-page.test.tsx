@@ -247,9 +247,24 @@ describe('shareable preflight cards', () => {
     expect(text).toContain('preflight-ready');
   });
 
+  it('renders the public preflight card index page', async () => {
+    root = await renderPath(container, '/radar/cards');
+    const text = container.textContent ?? '';
+    const links = Array.from(container.querySelectorAll('a')).map((item) => item.getAttribute('href'));
+    expect(text).toContain('Preflight Card Index');
+    expect(text).toContain('Agent Spend Cards');
+    expect(text).toContain('No-Winner Benchmark Cards');
+    expect(text).toContain('Machine Proof-Plan Cards');
+    expect(text).toContain('Needs Evidence Cards');
+    expect(links).toContain('/radar/cards/benchmark/web-search');
+    expect(text).toContain('Radar refuses to declare a winner without enough comparable evidence.');
+    expect(text).toContain('proof-plan-ready without pretending execution has happened');
+    expect(text).toContain('No public needs-evidence cards exposed yet.');
+  });
+
   it('copies radar tweet text with the Infopunks spending line', async () => {
     root = await renderPath(container, '/radar/cards/provider/alpha');
-    const button = Array.from(container.querySelectorAll('button')).find((item) => item.textContent?.includes('Copy tweet')) as HTMLButtonElement;
+    const button = Array.from(container.querySelectorAll('button')).find((item) => item.textContent?.includes('Copy Tweet')) as HTMLButtonElement;
     await act(async () => {
       button.click();
     });
@@ -260,7 +275,7 @@ describe('shareable preflight cards', () => {
 
   it('uses the no-winner benchmark tweet template', async () => {
     root = await renderPath(container, '/radar/cards/benchmark/finance-data-sol-price');
-    const button = Array.from(container.querySelectorAll('button')).find((item) => item.textContent?.includes('Copy tweet')) as HTMLButtonElement;
+    const button = Array.from(container.querySelectorAll('button')).find((item) => item.textContent?.includes('Copy Tweet')) as HTMLButtonElement;
     await act(async () => {
       button.click();
     });
@@ -271,7 +286,7 @@ describe('shareable preflight cards', () => {
 
   it('uses the machine service tweet template', async () => {
     root = await renderPath(container, '/machine-market/cards/cloud-translation');
-    const button = Array.from(container.querySelectorAll('button')).find((item) => item.textContent?.includes('Copy tweet')) as HTMLButtonElement;
+    const button = Array.from(container.querySelectorAll('button')).find((item) => item.textContent?.includes('Copy Tweet')) as HTMLButtonElement;
     await act(async () => {
       button.click();
     });
@@ -283,7 +298,7 @@ describe('shareable preflight cards', () => {
 
   it('copies agent JSON containing id, type, state, verdict, and canonicalPath', async () => {
     root = await renderPath(container, '/radar/cards/provider/alpha');
-    const button = Array.from(container.querySelectorAll('button')).find((item) => item.textContent?.includes('Copy agent JSON')) as HTMLButtonElement;
+    const button = Array.from(container.querySelectorAll('button')).find((item) => item.textContent?.includes('Copy JSON')) as HTMLButtonElement;
     await act(async () => {
       button.click();
     });
@@ -295,6 +310,16 @@ describe('shareable preflight cards', () => {
     expect(payload).toContain('"verdict": "Provider has usable monitoring and intelligence evidence."');
     expect(payload).toContain('"canonicalPath": "/radar/cards/provider/alpha"');
     expect(payload).toContain('"generatedAt":');
+  });
+
+  it('copies gallery tweet text from the card view model share text', async () => {
+    root = await renderPath(container, '/radar/cards');
+    const button = Array.from(container.querySelectorAll('button')).find((item) => item.textContent?.includes('Copy Tweet')) as HTMLButtonElement;
+    await act(async () => {
+      button.click();
+    });
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('My agent checked Infopunks before spending.'));
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('Provider: CoinGecko Onchain DEX API'));
   });
 
   it('renders a useful not-found state without crashing', async () => {

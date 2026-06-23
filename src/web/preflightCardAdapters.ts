@@ -36,6 +36,14 @@ export type PreflightCardViewModel = {
   agentJson: Record<string, unknown>;
 };
 
+export type PreflightCardIndexSection = {
+  id: string;
+  title: string;
+  description: string;
+  emptyMessage?: string;
+  cards: PreflightCardViewModel[];
+};
+
 type ProviderIntelligenceResponse = {
   provider: {
     id: string;
@@ -275,6 +283,61 @@ export async function loadMachineServicePreflightCard(id: string): Promise<Prefl
     tweetText,
     agentJson
   };
+}
+
+export async function getPreflightCardIndex(): Promise<PreflightCardIndexSection[]> {
+  const definitions: Array<{
+    id: string;
+    title: string;
+    description: string;
+    emptyMessage?: string;
+    loaders: Array<() => Promise<PreflightCardViewModel | null>>;
+  }> = [
+    {
+      id: 'agent-spend-cards',
+      title: 'Agent Spend Cards',
+      description: 'Routes and providers agents can inspect before spending.',
+      loaders: [
+        () => loadRadarPreflightCard('provider', 'coingecko-onchain'),
+        () => loadRadarPreflightCard('route', 'sol-price')
+      ]
+    },
+    {
+      id: 'no-winner-benchmark-cards',
+      title: 'No-Winner Benchmark Cards',
+      description: 'Benchmarks where Radar refuses to declare a winner without enough comparable evidence.',
+      loaders: [
+        () => loadRadarPreflightCard('benchmark', 'web-search'),
+        () => loadRadarPreflightCard('benchmark', 'finance-data-sol-price')
+      ]
+    },
+    {
+      id: 'machine-proof-plan-cards',
+      title: 'Machine Proof-Plan Cards',
+      description: 'Machine-service routes that are policy-mapped or proof-plan-ready without pretending execution has happened.',
+      loaders: [
+        () => loadMachineServicePreflightCard('cloud-translation')
+      ]
+    },
+    {
+      id: 'needs-evidence-cards',
+      title: 'Needs Evidence Cards',
+      description: 'Routes and services that should not be treated as proven yet.',
+      emptyMessage: 'No public needs-evidence cards exposed yet.',
+      loaders: []
+    }
+  ];
+
+  return Promise.all(definitions.map(async (section) => {
+    const cards = (await Promise.all(section.loaders.map((load) => load().catch(() => null)))).filter((card): card is PreflightCardViewModel => card !== null);
+    return {
+      id: section.id,
+      title: section.title,
+      description: section.description,
+      emptyMessage: section.emptyMessage,
+      cards
+    };
+  }));
 }
 
 async function buildProviderCard(id: string): Promise<PreflightCardViewModel | null> {

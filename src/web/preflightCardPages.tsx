@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
+  getPreflightCardIndex,
+  type PreflightCardIndexSection,
   type PreflightCardState,
   type PreflightCardViewModel,
   formatStateLabel,
@@ -30,6 +32,16 @@ function updateCardMetadata(card: PreflightCardViewModel | null, missingLabel: s
   setMetaTag('property', 'og:description', description);
   setMetaTag('property', 'og:type', 'website');
   // TODO: Add generated OG images for preflight cards if this stack later supports dynamic image rendering.
+}
+
+function updateCardIndexMetadata() {
+  const title = 'Preflight Card Index';
+  const description = 'Browse public spend-safety labels for agent routes, benchmarks, providers, and machine services.';
+  document.title = title;
+  setMetaTag('name', 'description', description);
+  setMetaTag('property', 'og:title', title);
+  setMetaTag('property', 'og:description', description);
+  setMetaTag('property', 'og:type', 'website');
 }
 
 async function copyText(value: string) {
@@ -102,6 +114,22 @@ function stateExplainer(card: PreflightCardViewModel) {
   return null;
 }
 
+function cardTypeLabel(card: PreflightCardViewModel) {
+  return card.type === 'machine-service' ? 'machine service' : card.type;
+}
+
+function CardClipboardActions({ card }: { card: PreflightCardViewModel }) {
+  const copy = useCopyState();
+  return <div className="preflight-card-actions">
+    <button className="execute compact" type="button" onClick={() => copy.run('tweet', card.tweetText)}>
+      {copy.state.tweet === 'copied' ? 'Copied Tweet' : copy.state.tweet === 'failed' ? 'Tweet Copy Failed' : 'Copy Tweet'}
+    </button>
+    <button className="execute compact secondary" type="button" onClick={() => copy.run('json', JSON.stringify(card.agentJson, null, 2))}>
+      {copy.state.json === 'copied' ? 'Copied JSON' : copy.state.json === 'failed' ? 'JSON Copy Failed' : 'Copy JSON'}
+    </button>
+  </div>;
+}
+
 function PreflightCardLayout({ card, backLabel }: { card: PreflightCardViewModel; backLabel: string }) {
   const copy = useCopyState();
   const stateLabel = useMemo(() => formatStateLabel(card.state), [card.state]);
@@ -119,7 +147,10 @@ function PreflightCardLayout({ card, backLabel }: { card: PreflightCardViewModel
             <h1>{card.title}</h1>
             <p className="preflight-card-subtitle">{card.subtitle ?? card.type}</p>
           </div>
-          <a className="execute compact secondary" href={card.sourcePath ?? '/'}>{backLabel}</a>
+          <div className="preflight-card-head-actions">
+            <a className="execute compact secondary" href="/radar/cards">Preflight Cards</a>
+            <a className="execute compact secondary" href={card.sourcePath ?? '/'}>{backLabel}</a>
+          </div>
         </div>
         <div className="preflight-card-flow">Discover &rarr; Check &rarr; Pay &rarr; Prove</div>
         <div className="preflight-card-state-row">
@@ -145,10 +176,10 @@ function PreflightCardLayout({ card, backLabel }: { card: PreflightCardViewModel
         <p className="preflight-card-mantra">No receipt, no trust.</p>
         <div className="preflight-card-actions">
           <button className="execute compact" type="button" onClick={() => copy.run('tweet', card.tweetText)}>
-            {copy.state.tweet === 'copied' ? 'Copied tweet' : copy.state.tweet === 'failed' ? 'Tweet copy failed' : 'Copy tweet'}
+            {copy.state.tweet === 'copied' ? 'Copied Tweet' : copy.state.tweet === 'failed' ? 'Tweet Copy Failed' : 'Copy Tweet'}
           </button>
           <button className="execute compact secondary" type="button" onClick={() => copy.run('json', JSON.stringify(card.agentJson, null, 2))}>
-            {copy.state.json === 'copied' ? 'Copied JSON' : copy.state.json === 'failed' ? 'JSON copy failed' : 'Copy agent JSON'}
+            {copy.state.json === 'copied' ? 'Copied JSON' : copy.state.json === 'failed' ? 'JSON Copy Failed' : 'Copy JSON'}
           </button>
         </div>
         <pre className="preflight-card-json" aria-label="Agent JSON preview"><code>{JSON.stringify(card.agentJson, null, 2)}</code></pre>
@@ -216,4 +247,104 @@ export function MachineMarketPreflightCardPage({ id }: { id: string }) {
   if (missing) return <RadarCardNotFound type="machine-service" id={id} />;
   if (!card) return <main className="boot">LOADING PREFLIGHT CARD...</main>;
   return <PreflightCardLayout card={card} backLabel="Back to Machine Market" />;
+}
+
+function PreflightCardIndexTile({ card }: { card: PreflightCardViewModel }) {
+  const stateLabel = useMemo(() => formatStateLabel(card.state), [card.state]);
+  const explainer = useMemo(() => stateExplainer(card), [card]);
+  return <article className={`panel preflight-index-tile state-${stateTone(card.state)}`}>
+    <div className="preflight-index-tile-head">
+      <span className={`preflight-card-badge ${stateTone(card.state)}`}>{stateLabel}</span>
+      <span className="preflight-card-label preflight-index-tag">Agent spend safety label</span>
+    </div>
+    <div className="preflight-index-title-block">
+      <h3>{card.title}</h3>
+      <p className="preflight-index-subtitle">{card.subtitle ?? cardTypeLabel(card)}</p>
+    </div>
+    <div className="preflight-card-stat-pills" aria-label={`${card.title} quick stats`}>
+      <span className="preflight-stat-pill"><b>Type</b>{cardTypeLabel(card)}</span>
+      <span className="preflight-stat-pill"><b>Evidence</b>{jsonDisplay(card.evidenceCount)}</span>
+      <span className="preflight-stat-pill"><b>Caveats</b>{jsonDisplay(card.caveatCount)}</span>
+      {typeof card.trustScore === 'number' && <span className="preflight-stat-pill"><b>Trust</b>{card.trustScore}</span>}
+      {typeof card.signalScore === 'number' && <span className="preflight-stat-pill"><b>Signal</b>{card.signalScore}</span>}
+    </div>
+    <p className="preflight-index-verdict">{card.verdict}</p>
+    {explainer && <p className="preflight-card-explainer">{explainer}</p>}
+    <p className="preflight-card-guidance">{card.guidance}</p>
+    <div className="preflight-index-actions">
+      <a className="execute compact" href={card.canonicalPath}>Open Card</a>
+      <CardClipboardActions card={card} />
+    </div>
+  </article>;
+}
+
+function PreflightCardIndexSectionView({ section }: { section: PreflightCardIndexSection }) {
+  return <section className="preflight-index-section" aria-labelledby={section.id}>
+    <div className="preflight-index-section-head">
+      <div>
+        <p className="eyebrow">PUBLIC GALLERY</p>
+        <h2 id={section.id}>{section.title}</h2>
+      </div>
+      <p className="panel-caption">{section.description}</p>
+    </div>
+    {!!section.cards.length && <div className="preflight-index-grid">
+      {section.cards.map((card) => <PreflightCardIndexTile key={card.canonicalPath} card={card} />)}
+    </div>}
+    {!section.cards.length && <div className="panel preflight-index-empty">
+      <p className="preflight-card-label">No public cards yet</p>
+      <p className="copy">{section.emptyMessage ?? 'No public cards are available in this section yet.'}</p>
+    </div>}
+  </section>;
+}
+
+export function PreflightCardIndexPage() {
+  const [sections, setSections] = useState<PreflightCardIndexSection[] | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    updateCardIndexMetadata();
+    setSections(null);
+    setFailed(false);
+    getPreflightCardIndex()
+      .then((response) => {
+        if (!active) return;
+        setSections(response);
+      })
+      .catch(() => {
+        if (!active) return;
+        setFailed(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (failed) return <div className="shell preflight-card-shell">
+    <main className="preflight-card-page" aria-label="Preflight card index unavailable">
+      <section className="panel preflight-card-panel">
+        <p className="eyebrow">PREFLIGHT CARD INDEX</p>
+        <h1>Preflight Card Index unavailable.</h1>
+        <p className="copy">The public gallery could not load from the current Infopunks dataset.</p>
+        <a className="execute compact secondary" href="/">Back to Radar</a>
+      </section>
+    </main>
+  </div>;
+
+  if (!sections) return <main className="boot">LOADING PREFLIGHT CARD INDEX...</main>;
+
+  return <div className="shell preflight-card-shell">
+    <main className="preflight-card-page preflight-index-page" aria-label="Preflight Card Index">
+      <section className="panel preflight-index-hero">
+        <p className="eyebrow">INFOPUNKS PREFLIGHT CARDS</p>
+        <h1>Preflight Card Index</h1>
+        <p className="copy">Browse public spend-safety labels for agent routes, benchmarks, providers, and machine services.</p>
+        <div className="preflight-card-flow">Discover &rarr; Check &rarr; Pay &rarr; Prove</div>
+        <p className="preflight-card-mantra">No receipt, no trust.</p>
+        <p className="preflight-index-hero-quote">My agent checked Infopunks before it spent.</p>
+        <p className="panel-caption">Shareable agent spend safety labels for the agentic and machine economy.</p>
+      </section>
+      {sections.map((section) => <PreflightCardIndexSectionView key={section.id} section={section} />)}
+    </main>
+  </div>;
 }

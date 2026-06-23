@@ -106,6 +106,11 @@ describe('render-style SPA routing boundaries', () => {
       expect(radarCard.headers['content-type']).toContain('text/html');
       expect(radarCard.body).toContain('Radar SPA shell');
 
+      const radarCardIndex = await app.inject({ method: 'GET', url: '/radar/cards' });
+      expect(radarCardIndex.statusCode).toBe(200);
+      expect(radarCardIndex.headers['content-type']).toContain('text/html');
+      expect(radarCardIndex.body).toContain('Radar SPA shell');
+
       const machineCard = await app.inject({ method: 'GET', url: '/machine-market/cards/cloud-translation' });
       expect(machineCard.statusCode).toBe(200);
       expect(machineCard.headers['content-type']).toContain('text/html');

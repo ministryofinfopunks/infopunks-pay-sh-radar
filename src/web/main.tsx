@@ -32,7 +32,7 @@ import {
 } from './preSpendBuilderPages';
 import { ProofCheckDetailPage, ProofCheckPage } from './proofCheckPages';
 import { LoopDetailPage, LoopsPage } from './loopPages';
-import { MachineMarketPreflightCardPage, RadarPreflightCardPage } from './preflightCardPages';
+import { MachineMarketPreflightCardPage, PreflightCardIndexPage, RadarPreflightCardPage } from './preflightCardPages';
 import './styles.css';
 
 type Severity = 'critical' | 'warning' | 'informational' | 'unknown';
@@ -1803,6 +1803,10 @@ function routeRadarCard(pathname: string) {
   } catch {
     return { type: match[1] as 'provider' | 'route' | 'benchmark' | 'artifact', id: match[2] };
   }
+}
+
+function isRadarCardIndexRoute(pathname: string) {
+  return /^\/radar\/cards\/?$/.test(pathname);
 }
 
 function routeMachineMarketCardId(pathname: string) {
@@ -10840,6 +10844,7 @@ function AgentSpendReadinessCardsPanel({ readiness }: { readiness: AgentReadines
     </div>
     <p className="panel-caption">Builders can now see what agents see before spending.</p>
     <p className="panel-caption">Readiness cards are proof-state diagnostics, not rankings.</p>
+    <p className="panel-caption"><a href="/radar/cards">Browse public Preflight Cards</a></p>
     <p className="route-state">Grouped by proof maturity, not ranked.</p>
     {!readiness && <EmptyState title="Panel data unavailable" body="Agent readiness cards delayed" />}
     {!!cards.length && <div className="agent-readiness-groups">
@@ -13272,6 +13277,7 @@ function MachineControlSurfacesStrip() {
 }
 
 export function App() {
+  if (isRadarCardIndexRoute(window.location.pathname)) return <PreflightCardIndexPage />;
   const radarCard = routeRadarCard(window.location.pathname);
   if (radarCard) return <RadarPreflightCardPage type={radarCard.type} id={radarCard.id} />;
   const machineMarketCardId = routeMachineMarketCardId(window.location.pathname);
