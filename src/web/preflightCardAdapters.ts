@@ -17,6 +17,7 @@ export type PreflightCardViewModel = {
   type: PreflightCardType;
   title: string;
   subtitle?: string;
+  generatedAt: string;
   state: PreflightCardState;
   verdict: string;
   evidenceCount?: number;
@@ -170,6 +171,16 @@ type MachinePreflightReceipt = {
 
 const API_BASE_URL = getApiBaseUrl();
 const PUBLIC_HOST = 'https://radar.infopunks.fun';
+const RADAR_PROVIDER_ALIASES: Record<string, string> = {
+  'coingecko-onchain': 'paysponge-coingecko'
+};
+const RADAR_BENCHMARK_ALIASES: Record<string, string> = {
+  'web-search': 'data-web-search-results',
+  'sol-price': 'finance-data-sol-price'
+};
+const RADAR_ROUTE_ALIASES: Record<string, { benchmarkId: string; preferredProviderId?: string }> = {
+  'sol-price': { benchmarkId: 'finance-data-sol-price', preferredProviderId: 'paysponge-coingecko' }
+};
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(toApiUrl(API_BASE_URL, path), {
@@ -193,6 +204,7 @@ export async function loadRadarPreflightCard(type: Exclude<PreflightCardType, 'm
 }
 
 export async function loadMachineServicePreflightCard(id: string): Promise<PreflightCardViewModel | null> {
+  const generatedAt = new Date().toISOString();
   const servicesResponse = await api<{ count: number; services: MachineMarketService[] }>('/v1/machine-market/services');
   const service = servicesResponse.services.find((item) => item.id === id) ?? null;
   if (!service) return null;
@@ -210,27 +222,45 @@ export async function loadMachineServicePreflightCard(id: string): Promise<Prefl
   const readiness = service.evidence_stage;
   const policyState = latestReceipt?.decision ?? (service.rail_status === 'review_required' ? 'review' : service.rail_status === 'proof_plan_selected' ? 'proof_plan_selected' : undefined);
   const guidance = state === 'PROOF_PLAN_READY'
-    ? 'planning only · no execution claim.'
+    ? 'Planning only · no execution claim.'
     : executionReceipt
       ? 'Service-specific receipt exists. Inspect scope and caveats before spend.'
       : service.evidence_stage === 'policy-mapped'
-        ? 'Visible market service with policy mapping only. Do not infer execution.'
-        : 'No service-specific receipt recorded yet.';
+        ? 'Visible market service with policy mapping only. This route is not proven yet.'
+        : 'No service-specific receipt recorded yet. This route is not proven yet.';
   const tweetText = [
-    'My agent checked Infopunks before spending.',
-    `Machine route: ${service.name}`,
-    `State: ${formatStateLabel(state)}`,
-    executionReceipt ? 'Evidence: service receipt recorded' : 'Evidence: planning only',
-    service.caveats.length ? 'Caveats: open' : 'Caveats: minimal',
+    `This machine route is ${formatStateLabel(state)}.`,
     '',
-    'machines should not spend blind',
+    `${service.name}`,
+    `Policy: ${policyState ?? 'not recorded'}`,
+    `Readiness: ${readiness ?? 'not recorded'}`,
+    '',
+    'Planning only does not equal execution.',
+    'Machines should not spend blind.',
+    '',
     canonicalUrl(canonicalPath)
   ].join('\n');
+  const agentJson = buildAgentJson({
+    id,
+    type: 'machine-service',
+    title: service.name,
+    generatedAt,
+    state,
+    verdict,
+    evidenceCount: receipts.length,
+    caveatCount,
+    latestReceiptId: latestReceipt?.receipt_id ?? undefined,
+    benchmarkState: executionReceipt ? 'execution-observed' : undefined,
+    readiness,
+    policyState,
+    canonicalPath
+  });
   return {
     id,
     type: 'machine-service',
     title: service.name,
     subtitle: `${service.provider} · ${service.category}`,
+    generatedAt,
     state,
     verdict,
     evidenceCount: receipts.length || 0,
@@ -243,23 +273,14 @@ export async function loadMachineServicePreflightCard(id: string): Promise<Prefl
     canonicalPath,
     sourcePath: `/machine-service/${encodeURIComponent(id)}`,
     tweetText,
-    agentJson: {
-      id,
-      type: 'machine-service',
-      state,
-      verdict,
-      canonicalPath,
-      readiness,
-      policyState,
-      latestReceiptId: latestReceipt?.receipt_id ?? null,
-      evidenceCount: receipts.length,
-      caveatCount
-    }
+    agentJson
   };
 }
 
 async function buildProviderCard(id: string): Promise<PreflightCardViewModel | null> {
-  const intel = await api<ProviderIntelligenceResponse>(`/v1/providers/${encodeURIComponent(id)}/intelligence`).catch(() => null);
+  const resolvedId = RADAR_PROVIDER_ALIASES[id] ?? id;
+  const generatedAt = new Date().toISOString();
+  const intel = await api<ProviderIntelligenceResponse>(`/v1/providers/${encodeURIComponent(resolvedId)}/intelligence`).catch(() => null);
   if (!intel) return null;
   const evidenceCount = intel.recent_changes.length + intel.endpoint_count;
   const caveatCount = intel.endpoint_health.degraded + intel.endpoint_health.failed + intel.endpoint_health.recent_failures.length;
@@ -270,17 +291,32 @@ async function buildProviderCard(id: string): Promise<PreflightCardViewModel | n
     'My agent checked Infopunks before spending.',
     `Provider: ${intel.provider.name}`,
     `State: ${formatStateLabel(state)}`,
-    evidenceCount ? 'Evidence: recorded' : 'Evidence: thin',
-    caveatCount ? 'Caveats: open' : 'Caveats: minimal',
+    `Evidence: ${evidenceCount}`,
+    `Caveats: ${caveatCount}`,
     '',
     'autonomous markets need receipts, not vibes',
     canonicalUrl(canonicalPath)
   ].join('\n');
+  const agentJson = buildAgentJson({
+    id,
+    type: 'provider',
+    title: intel.provider.name,
+    generatedAt,
+    state,
+    verdict,
+    evidenceCount,
+    caveatCount,
+    trustScore: scoreOrUndefined(intel.latest_trust_score),
+    signalScore: scoreOrUndefined(intel.latest_signal_score),
+    readiness: intel.service_monitor.status,
+    canonicalPath
+  });
   return {
     id,
     type: 'provider',
     title: intel.provider.name,
     subtitle: intel.provider.category,
+    generatedAt,
     state,
     verdict,
     evidenceCount,
@@ -294,28 +330,20 @@ async function buildProviderCard(id: string): Promise<PreflightCardViewModel | n
         ? 'Review route health and provider changes before using this provider.'
         : state === 'DENY'
           ? 'Provider has degraded or failed evidence. Avoid autonomous spend here.'
-          : 'Provider remains catalog-visible but evidence is incomplete.',
+          : 'Provider remains catalog-visible, but the route is not proven yet.',
     canonicalPath,
-    sourcePath: `/providers/${encodeURIComponent(id)}`,
+    sourcePath: `/providers/${encodeURIComponent(resolvedId)}`,
     tweetText,
-    agentJson: {
-      id,
-      type: 'provider',
-      state,
-      verdict,
-      canonicalPath,
-      trustScore: intel.latest_trust_score,
-      signalScore: intel.latest_signal_score,
-      evidenceCount,
-      caveatCount
-    }
+    agentJson
   };
 }
 
 async function buildBenchmarkCard(id: string): Promise<PreflightCardViewModel | null> {
+  const generatedAt = new Date().toISOString();
+  const resolvedId = RADAR_BENCHMARK_ALIASES[id] ?? id;
   const [benchmark, history] = await Promise.all([
-    api<RadarBenchmarkDetail>(`/v1/radar/benchmarks/${encodeURIComponent(id)}`).catch(() => null),
-    api<RadarBenchmarkHistory>(`/v1/radar/benchmarks/${encodeURIComponent(id)}/history`).catch(() => null)
+    api<RadarBenchmarkDetail>(`/v1/radar/benchmarks/${encodeURIComponent(resolvedId)}`).catch(() => null),
+    api<RadarBenchmarkHistory>(`/v1/radar/benchmarks/${encodeURIComponent(resolvedId)}/history`).catch(() => null)
   ]);
   if (!benchmark) return null;
   const state = deriveBenchmarkState(benchmark);
@@ -323,21 +351,48 @@ async function buildBenchmarkCard(id: string): Promise<PreflightCardViewModel | 
   const caveatCount = benchmark.readiness_note ? 1 : 0;
   const canonicalPath = `/radar/cards/benchmark/${encodeURIComponent(id)}`;
   const verdict = benchmarkVerdict(benchmark, state);
-  const tweetText = [
-    'My agent checked Infopunks before spending.',
-    `Route: ${benchmarkTitle(benchmark)}`,
-    `State: ${formatStateLabel(state)}`,
-    evidenceCount ? 'Evidence: recorded' : 'Evidence: pending',
-    caveatCount ? 'Caveats: open' : 'Caveats: minimal',
-    '',
-    'autonomous markets need receipts, not vibes',
-    canonicalUrl(canonicalPath)
-  ].join('\n');
+  const tweetText = state === 'NO_WINNER'
+    ? [
+      'Infopunks checked the benchmark.',
+      '',
+      `${benchmarkTitle(benchmark)}: NO WINNER YET`,
+      '',
+      'Radar refuses to crown winners without comparable evidence.',
+      '',
+      'agents need judgment before spend',
+      '',
+      canonicalUrl(canonicalPath)
+    ].join('\n')
+    : [
+      'My agent checked Infopunks before spending.',
+      `Benchmark: ${benchmarkTitle(benchmark)}`,
+      `State: ${formatStateLabel(state)}`,
+      `Evidence: ${evidenceCount}`,
+      `Caveats: ${caveatCount}`,
+      '',
+      'autonomous markets need receipts, not vibes',
+      canonicalUrl(canonicalPath)
+    ].join('\n');
+  const agentJson = buildAgentJson({
+    id,
+    type: 'benchmark',
+    title: benchmarkTitle(benchmark),
+    generatedAt,
+    state,
+    verdict,
+    evidenceCount,
+    caveatCount,
+    latestArtifactId: history?.latest_artifact_id ?? undefined,
+    benchmarkState: benchmark.winner_status ?? (benchmark.benchmark_recorded ? 'recorded' : 'scaffold'),
+    readiness: benchmark.benchmark_recorded ? 'recorded' : 'needs evidence',
+    canonicalPath
+  });
   return {
     id,
     type: 'benchmark',
     title: benchmarkTitle(benchmark),
     subtitle: benchmark.category,
+    generatedAt,
     state,
     verdict,
     evidenceCount,
@@ -347,25 +402,16 @@ async function buildBenchmarkCard(id: string): Promise<PreflightCardViewModel | 
     readiness: benchmark.benchmark_recorded ? 'recorded' : 'needs evidence',
     guidance: benchmark.winner_claimed
       ? 'Benchmark evidence supports a winner claim. Inspect artifact details before routing.'
-      : 'No winner claimed. Use the recorded evidence, not vibes, when choosing a route.',
+      : 'Radar refuses to declare a winner without enough comparable evidence.',
     canonicalPath,
-    sourcePath: `/benchmarks/${encodeURIComponent(id)}`,
+    sourcePath: `/benchmarks/${encodeURIComponent(resolvedId)}`,
     tweetText,
-    agentJson: {
-      id,
-      type: 'benchmark',
-      state,
-      verdict,
-      canonicalPath,
-      benchmarkState: benchmark.winner_status ?? null,
-      latestArtifactId: history?.latest_artifact_id ?? null,
-      evidenceCount,
-      caveatCount
-    }
+    agentJson
   };
 }
 
 async function buildArtifactCard(id: string): Promise<PreflightCardViewModel | null> {
+  const generatedAt = new Date().toISOString();
   const artifact = await api<BenchmarkArtifact>(`/v1/radar/benchmark-artifacts/${encodeURIComponent(id)}`).catch(() => null);
   if (!artifact) return null;
   const state: PreflightCardState = artifact.winner_claimed ? 'READY_FOR_INSPECTION' : 'NO_WINNER';
@@ -377,17 +423,31 @@ async function buildArtifactCard(id: string): Promise<PreflightCardViewModel | n
     'My agent checked Infopunks before spending.',
     `Artifact: ${artifact.artifact_id}`,
     `State: ${formatStateLabel(state)}`,
-    artifact.total_runs ? 'Evidence: artifact recorded' : 'Evidence: thin artifact',
-    'Caveats: inspect route notes',
+    `Evidence: ${artifact.total_runs}`,
+    `Caveats: ${artifact.notes ? 1 : 0}`,
     '',
     'autonomous markets need receipts, not vibes',
     canonicalUrl(canonicalPath)
   ].join('\n');
+  const agentJson = buildAgentJson({
+    id,
+    type: 'artifact',
+    title: artifact.artifact_id,
+    generatedAt,
+    state,
+    verdict,
+    evidenceCount: artifact.total_runs,
+    caveatCount: artifact.notes ? 1 : 0,
+    latestArtifactId: artifact.artifact_id,
+    benchmarkState: artifact.winner_status,
+    canonicalPath
+  });
   return {
     id,
     type: 'artifact',
     title: artifact.artifact_id,
     subtitle: artifact.benchmark_id,
+    generatedAt,
     state,
     verdict,
     evidenceCount: artifact.total_runs,
@@ -400,29 +460,27 @@ async function buildArtifactCard(id: string): Promise<PreflightCardViewModel | n
     canonicalPath,
     sourcePath: `/benchmarks/${encodeURIComponent(artifact.benchmark_id)}`,
     tweetText,
-    agentJson: {
-      id,
-      type: 'artifact',
-      state,
-      verdict,
-      canonicalPath,
-      benchmarkState: artifact.winner_status,
-      latestArtifactId: artifact.artifact_id,
-      evidenceCount: artifact.total_runs,
-      caveatCount: artifact.notes ? 1 : 0
-    }
+    agentJson
   };
 }
 
 async function buildRouteCard(id: string): Promise<PreflightCardViewModel | null> {
+  const generatedAt = new Date().toISOString();
   const registry = await api<RadarBenchmarkRegistry>('/v1/radar/benchmarks').catch(() => null);
   if (!registry) return null;
-  const benchmark = registry.benchmarks.find((item) => item.routes.some((route) => route.route_id === id)) ?? null;
+  const routeAlias = RADAR_ROUTE_ALIASES[id] ?? null;
+  const benchmark = routeAlias
+    ? registry.benchmarks.find((item) => item.benchmark_id === routeAlias.benchmarkId) ?? null
+    : registry.benchmarks.find((item) => item.routes.some((route) => route.route_id === id)) ?? null;
   if (!benchmark) return null;
-  const route = benchmark.routes.find((item) => item.route_id === id) ?? null;
+  const route = routeAlias
+    ? benchmark.routes.find((item) => item.provider_id === routeAlias.preferredProviderId) ?? benchmark.routes[0] ?? null
+    : benchmark.routes.find((item) => item.route_id === id) ?? null;
   if (!route) return null;
   const routeHistory = await api<RadarRouteHistoryAggregate>(`/v1/radar/benchmark-history/${encodeURIComponent(benchmark.benchmark_id)}/routes`).catch(() => null);
-  const routeHistoryRow = routeHistory?.routes.find((item) => item.route_id === id) ?? null;
+  const routeHistoryRow = routeAlias
+    ? routeHistory?.routes.find((item) => item.provider_id === route.provider_id) ?? null
+    : routeHistory?.routes.find((item) => item.route_id === id) ?? null;
   const state = deriveRadarRouteState(route, routeHistoryRow);
   const evidenceCount = routeHistoryRow?.latest_success_count ?? (route.paid_execution_proven ? 1 : 0);
   const caveatCount = routeHistoryRow?.caveats.length ?? 0;
@@ -436,17 +494,32 @@ async function buildRouteCard(id: string): Promise<PreflightCardViewModel | null
     'My agent checked Infopunks before spending.',
     `Route: ${routeHistoryRow?.label ?? id}`,
     `State: ${formatStateLabel(state)}`,
-    evidenceCount ? 'Evidence: recorded' : 'Evidence: thin',
-    caveatCount ? 'Caveats: open' : 'Caveats: minimal',
+    `Evidence: ${evidenceCount}`,
+    `Caveats: ${caveatCount}`,
     '',
     'autonomous markets need receipts, not vibes',
     canonicalUrl(canonicalPath)
   ].join('\n');
+  const agentJson = buildAgentJson({
+    id,
+    type: 'route',
+    title: routeHistoryRow?.label ?? id,
+    generatedAt,
+    state,
+    verdict,
+    evidenceCount,
+    caveatCount,
+    latestArtifactId: routeHistoryRow?.latest_artifact_id ?? undefined,
+    benchmarkState: routeHistoryRow?.winner_status ?? benchmark.winner_status,
+    readiness: route.execution_status,
+    canonicalPath
+  });
   return {
     id,
     type: 'route',
     title: routeHistoryRow?.label ?? id,
     subtitle: `${benchmarkTitle(benchmark)} · ${route.provider_id}`,
+    generatedAt,
     state,
     verdict,
     evidenceCount,
@@ -457,22 +530,14 @@ async function buildRouteCard(id: string): Promise<PreflightCardViewModel | null
     guidance: state === 'READY_FOR_INSPECTION'
       ? 'Route evidence is recorded. Inspect caveats and freshness before spend.'
       : state === 'NO_WINNER'
-        ? 'No winner is claimed for this route set. Compare proof, not vibes.'
-        : 'No artifact recorded yet for this route. Treat as incomplete evidence.',
+        ? 'Radar refuses to declare a winner without enough comparable evidence.'
+        : state === 'CATALOG_ONLY'
+          ? 'This route is visible, but not proven yet.'
+          : 'No artifact recorded yet for this route. Treat it as unproven.',
     canonicalPath,
     sourcePath: `/benchmarks/${encodeURIComponent(benchmark.benchmark_id)}`,
     tweetText,
-    agentJson: {
-      id,
-      type: 'route',
-      state,
-      verdict,
-      canonicalPath,
-      latestArtifactId: routeHistoryRow?.latest_artifact_id ?? null,
-      benchmarkState: routeHistoryRow?.winner_status ?? benchmark.winner_status ?? null,
-      evidenceCount,
-      caveatCount
-    }
+    agentJson
   };
 }
 
@@ -490,6 +555,44 @@ function providerVerdict(intel: ProviderIntelligenceResponse, state: PreflightCa
   if (state === 'DENY') return 'Provider evidence indicates degraded or failed spend posture.';
   if (state === 'CATALOG_ONLY') return 'Provider is catalog-visible without enough proof to trust spend.';
   return 'Provider needs more evidence before agents should rely on it.';
+}
+
+function buildAgentJson(input: {
+  id: string;
+  type: PreflightCardType;
+  title: string;
+  generatedAt: string;
+  state: PreflightCardState;
+  verdict: string;
+  evidenceCount?: number;
+  caveatCount?: number;
+  latestArtifactId?: string;
+  latestReceiptId?: string;
+  trustScore?: number;
+  signalScore?: number;
+  benchmarkState?: string;
+  readiness?: string;
+  policyState?: string;
+  canonicalPath: string;
+}) {
+  return {
+    id: input.id,
+    type: input.type,
+    title: input.title,
+    state: input.state,
+    verdict: input.verdict,
+    evidenceCount: input.evidenceCount ?? null,
+    caveatCount: input.caveatCount ?? null,
+    latestArtifactId: input.latestArtifactId ?? null,
+    latestReceiptId: input.latestReceiptId ?? null,
+    trustScore: input.trustScore ?? null,
+    signalScore: input.signalScore ?? null,
+    benchmarkState: input.benchmarkState ?? null,
+    readiness: input.readiness ?? null,
+    policyState: input.policyState ?? null,
+    canonicalPath: input.canonicalPath,
+    generatedAt: input.generatedAt
+  };
 }
 
 function deriveBenchmarkState(benchmark: RadarBenchmarkDetail): PreflightCardState {

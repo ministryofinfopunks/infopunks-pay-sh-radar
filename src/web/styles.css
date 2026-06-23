@@ -8179,6 +8179,15 @@ summary:focus-visible {
   overflow-wrap: anywhere;
 }
 
+.preflight-card-label {
+  margin: 0 0 10px;
+  color: #d7f2e0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
 .preflight-card-flow {
   border: 1px dashed rgba(126,255,176,.18);
   border-radius: 999px;
@@ -8247,6 +8256,45 @@ summary:focus-visible {
   color: #c3ddcd;
   font-size: 16px;
   line-height: 1.6;
+}
+
+.preflight-card-explainer {
+  margin: -2px 0 0;
+  border: 1px solid rgba(124,199,255,.22);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: rgba(124,199,255,.06);
+  color: #d4edff;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.preflight-card-stat-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.preflight-stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  max-width: 100%;
+  padding: 8px 12px;
+  border: 1px solid rgba(210,255,226,.14);
+  border-radius: 999px;
+  background: rgba(255,255,255,.035);
+  color: var(--text);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.preflight-stat-pill b {
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
 }
 
 .preflight-card-grid {

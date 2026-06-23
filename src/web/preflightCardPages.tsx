@@ -94,9 +94,18 @@ function jsonDisplay(value: string | number | undefined) {
   return value ?? 'n/a';
 }
 
+function stateExplainer(card: PreflightCardViewModel) {
+  if (card.state === 'NO_WINNER') return 'Radar refuses to declare a winner without enough comparable evidence.';
+  if (card.state === 'PROOF_PLAN_READY') return 'Planning only · no execution claim.';
+  if (card.state === 'NEEDS_EVIDENCE') return 'Not proven yet. More receipts or artifacts are needed before agents should trust spend here.';
+  if (card.state === 'CATALOG_ONLY') return 'Catalog-visible only. This route or service is not proven yet.';
+  return null;
+}
+
 function PreflightCardLayout({ card, backLabel }: { card: PreflightCardViewModel; backLabel: string }) {
   const copy = useCopyState();
   const stateLabel = useMemo(() => formatStateLabel(card.state), [card.state]);
+  const explainer = useMemo(() => stateExplainer(card), [card]);
   useEffect(() => {
     updateCardMetadata(card, `${card.type} ${card.id}`);
   }, [card]);
@@ -106,26 +115,30 @@ function PreflightCardLayout({ card, backLabel }: { card: PreflightCardViewModel
         <div className="preflight-card-head">
           <div>
             <p className="eyebrow">INFOPUNKS PREFLIGHT CARD</p>
+            <p className="preflight-card-label">Agent spend safety label</p>
             <h1>{card.title}</h1>
             <p className="preflight-card-subtitle">{card.subtitle ?? card.type}</p>
           </div>
           <a className="execute compact secondary" href={card.sourcePath ?? '/'}>{backLabel}</a>
         </div>
-        <div className="preflight-card-flow">Discover -&gt; Check -&gt; Pay -&gt; Prove</div>
+        <div className="preflight-card-flow">Discover &rarr; Check &rarr; Pay &rarr; Prove</div>
         <div className="preflight-card-state-row">
           <span className={`preflight-card-badge ${stateTone(card.state)}`}>{stateLabel}</span>
           <strong>{card.verdict}</strong>
         </div>
+        {explainer && <p className="preflight-card-explainer">{explainer}</p>}
         <p className="preflight-card-guidance">{card.guidance}</p>
-        <div className="preflight-card-grid" aria-label="Preflight card facts">
-          <article><span>target type</span><strong>{card.type}</strong></article>
-          <article><span>evidence count</span><strong>{jsonDisplay(card.evidenceCount)}</strong></article>
-          <article><span>caveat count</span><strong>{jsonDisplay(card.caveatCount)}</strong></article>
-          <article><span>trust score</span><strong>{jsonDisplay(card.trustScore)}</strong></article>
-          <article><span>signal score</span><strong>{jsonDisplay(card.signalScore)}</strong></article>
-          <article><span>benchmark state</span><strong>{card.benchmarkState ?? 'n/a'}</strong></article>
-          <article><span>readiness</span><strong>{card.readiness ?? 'n/a'}</strong></article>
-          <article><span>policy state</span><strong>{card.policyState ?? 'n/a'}</strong></article>
+        <div className="preflight-card-stat-pills" aria-label="Preflight card quick stats">
+          <span className="preflight-stat-pill"><b>Type</b>{card.type}</span>
+          <span className="preflight-stat-pill"><b>Evidence</b>{jsonDisplay(card.evidenceCount)}</span>
+          <span className="preflight-stat-pill"><b>Caveats</b>{jsonDisplay(card.caveatCount)}</span>
+          <span className="preflight-stat-pill"><b>Trust</b>{jsonDisplay(card.trustScore)}</span>
+          <span className="preflight-stat-pill"><b>Signal</b>{jsonDisplay(card.signalScore)}</span>
+          {card.benchmarkState && <span className="preflight-stat-pill"><b>Benchmark</b>{card.benchmarkState}</span>}
+          {card.readiness && <span className="preflight-stat-pill"><b>Readiness</b>{card.readiness}</span>}
+          {card.policyState && <span className="preflight-stat-pill"><b>Policy</b>{card.policyState}</span>}
+        </div>
+        <div className="preflight-card-grid" aria-label="Preflight card details">
           <article className="wide"><span>latest artifact</span><strong>{card.latestArtifactId ?? 'No artifact recorded yet'}</strong></article>
           <article className="wide"><span>latest receipt</span><strong>{card.latestReceiptId ?? 'No receipt recorded yet'}</strong></article>
         </div>
