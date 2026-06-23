@@ -15,6 +15,7 @@ export const PRE_SPEND_CHECK_PAYLOAD = {
 export type SmokePlan = {
   publicPaths: string[];
   apiGetPaths: string[];
+  apiHeadJsonPaths: string[];
   claimsApiPaths: string[];
   preSpendPath: string;
   livePulsePath: string;
@@ -64,6 +65,11 @@ export function buildSmokePlan(): SmokePlan {
       '/v1/receipts',
       '/v1/claims',
       '/openapi.json'
+    ],
+    apiHeadJsonPaths: [
+      '/openapi.json',
+      '/v1/loops',
+      '/v1/checks'
     ],
     claimsApiPaths: [
       '/v1/claims',
@@ -148,6 +154,22 @@ async function checkJsonGet(baseUrl: string, path: string): Promise<unknown> {
     throw new Error('expected JSON object response');
   }
   return body;
+}
+
+async function checkJsonHead(baseUrl: string, path: string): Promise<void> {
+  const response = await fetchWithRetry(`${baseUrl}${path}`, {
+    method: 'HEAD',
+    headers: { accept: 'application/json' }
+  }, `HEAD ${path}`);
+
+  if (!response.ok) {
+    throw new Error(`expected 2xx, got ${response.status}`);
+  }
+
+  const contentType = response.headers.get('content-type')?.toLowerCase() ?? '';
+  if (!contentType.includes('application/json')) {
+    throw new Error(`expected application/json content-type, got ${contentType || 'missing'}`);
+  }
 }
 
 async function parseExpectedJson(response: Response): Promise<unknown> {
@@ -253,6 +275,16 @@ export async function runSmoke(baseUrl = resolveBaseUrl()): Promise<boolean> {
     } catch (error) {
       failed = true;
       fail(`GET ${path}`, error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  for (const path of plan.apiHeadJsonPaths) {
+    try {
+      await checkJsonHead(baseUrl, path);
+      pass(`HEAD ${path}`);
+    } catch (error) {
+      failed = true;
+      fail(`HEAD ${path}`, error instanceof Error ? error.message : String(error));
     }
   }
 

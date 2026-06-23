@@ -44,6 +44,23 @@ describe('render-style SPA routing boundaries', () => {
     }
   });
 
+  it('serves JSON content-types for HEAD /openapi.json, /v1/loops, and /v1/checks even when SPA fallback is enabled', async () => {
+    const clientDistDir = createClientDistFixture();
+    const app = await createApp(emptyIntelligenceStore(), undefined, { clientDistDir });
+
+    try {
+      for (const path of ['/openapi.json', '/v1/loops', '/v1/checks']) {
+        const response = await app.inject({ method: 'HEAD', url: path });
+        expect(response.statusCode).toBe(200);
+        expect(response.headers['content-type']).toContain('application/json');
+        expect(response.body.startsWith('<!doctype html>')).toBe(false);
+      }
+    } finally {
+      await app.close();
+      rmSync(clientDistDir, { recursive: true, force: true });
+    }
+  });
+
   it('serves JSON for /v1/pulse even when SPA fallback is enabled', async () => {
     const clientDistDir = createClientDistFixture();
     const app = await createApp(emptyIntelligenceStore(), undefined, { clientDistDir });

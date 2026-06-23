@@ -4,6 +4,9 @@ services:
     runtime: node
     buildCommand: npm ci && npm run build
     startCommand: npm run start:render
+    healthCheckPath: /openapi.json
+    domains:
+      - radar.infopunks.fun
     envVars:
       - key: NODE_ENV
         value: production

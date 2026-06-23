@@ -876,6 +876,14 @@ Set `DATABASE_URL` to enable Postgres persistence.
 
 The checked-in [render.yaml](/Users/ahdilm/Documents/Infopunks%20Pay.sh%20Intelligence%20Terminal/render.yaml:1) codifies the expected Render Web Service configuration.
 
+Production sanity check:
+
+- `https://infopunks-pay-sh-radar.onrender.com/openapi.json` should return `application/json`
+- `https://infopunks-pay-sh-radar.onrender.com/v1/loops` should return `application/json`
+- `https://infopunks-pay-sh-radar.onrender.com/v1/checks` should return `application/json`
+
+If the `onrender.com` service returns JSON but `https://radar.infopunks.fun/...` returns `text/html`, the custom domain is attached to the wrong Render service, usually a Static Site that serves `dist/client`. Reattach `radar.infopunks.fun` to the Node Web Service defined in `render.yaml` and redeploy the blueprint.
+
 ---
 
 # Docker

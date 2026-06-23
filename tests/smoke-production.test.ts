@@ -43,6 +43,11 @@ describe('production smoke plan', () => {
       '/v1/claims',
       '/openapi.json'
     ]);
+    expect(plan.apiHeadJsonPaths).toEqual([
+      '/openapi.json',
+      '/v1/loops',
+      '/v1/checks'
+    ]);
     expect(plan.claimsApiPaths).toEqual([
       '/v1/claims',
       '/v1/claims/claim_001',
