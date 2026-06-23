@@ -136,6 +136,42 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     }),
     responses: envelopedResponses({ $ref: '#/components/schemas/HumanValidationSubmission' }, { target_type: 'receipt', target_id: 'receipt_003', validation_state: 'human_validated' })
   });
+  add('post', '/v1/check', {
+    tags: ['Proof Feed'],
+    summary: 'Create proof check',
+    description: 'Creates a deterministic Infopunks Receipt Check from pasted claim, route, provider, wallet, project, or link input. No external scraping is performed in this MVP.',
+    requestBody: jsonRequest({ $ref: '#/components/schemas/ProofCheckInput' }, {
+      input: 'Pay.sh route claims repeatable market intelligence performance.',
+      sourceUrl: 'https://example.com/pay-sh-route-demo',
+      submittedBy: 'builder_ui'
+    }),
+    responses: envelopedResponses({ $ref: '#/components/schemas/ProofCheckResult' }, {
+      check_id: 'check_route_pay_sh_seed',
+      claim: 'Pay.sh route claims repeatable market intelligence performance.',
+      decision_state: 'caution'
+    })
+  });
+  add('get', '/v1/checks', {
+    tags: ['Proof Feed'],
+    summary: 'List proof checks',
+    description: 'Returns seeded and newly created public proof checks for the Receipt Check feed.',
+    responses: envelopedResponses(objectSchema({
+      generated_at: dateTimeSchema(),
+      source: stringSchema(),
+      checks: arrayOf({ $ref: '#/components/schemas/ProofCheckResult' })
+    }), { checks: [{ check_id: 'check_route_pay_sh_seed', decision_state: 'caution' }] })
+  });
+  add('get', '/v1/checks/{check_id}', {
+    tags: ['Proof Feed'],
+    summary: 'Get proof check detail',
+    description: 'Returns one Infopunks Receipt Check for a public share page.',
+    parameters: [pathParam('check_id', 'Proof check identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/ProofCheckResult' }, {
+      check_id: 'check_provider_reliability_seed',
+      decision_state: 'trust',
+      public_cta: 'Agents can spend. Infopunks helps them judge.'
+    }, 'proof_check_not_found')
+  });
   add('get', '/v1/claims', {
     tags: ['Claims'],
     summary: 'List claims',
@@ -1513,6 +1549,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       { name: 'Radar History' },
       { name: 'Radar Risk' },
       { name: 'Radar Readiness' },
+      { name: 'Proof Feed' },
       { name: 'Machine Economy' },
       { name: 'Radar CSV Exports' }
     ],
@@ -1983,6 +2020,59 @@ function componentSchemas(): Record<string, JsonSchema> {
       support_count: integerSchema(),
       human_notes: arrayOf(stringSchema()),
       challenges: arrayOf({ $ref: '#/components/schemas/ClaimChallenge' })
+    }),
+    ProofCheckInput: objectSchema({
+      input: stringSchema(),
+      sourceUrl: { oneOf: [{ type: 'string', format: 'uri' }, { type: 'null' }] },
+      submittedBy: { oneOf: [stringSchema(), { type: 'null' }] }
+    }),
+    ProofCheck: objectSchema({
+      check_id: stringSchema(),
+      created_at: dateTimeSchema(),
+      submitted_by: { oneOf: [stringSchema(), { type: 'null' }] },
+      source_url: { oneOf: [{ type: 'string', format: 'uri' }, { type: 'null' }] },
+      input: stringSchema(),
+      claim: stringSchema(),
+      claim_type: enumSchema(['agent_autonomy', 'route_performance', 'provider_reliability', 'market_claim', 'token_claim', 'partnership_claim', 'revenue_claim', 'generic_claim']),
+      claim_summary: stringSchema(),
+      subject_label: stringSchema(),
+      receipts_found: arrayOf(stringSchema()),
+      evidence_artifacts: arrayOf(stringSchema()),
+      evidence_strength: enumSchema(['strong', 'medium', 'weak', 'missing']),
+      receipt_strength: enumSchema(['verified_receipts', 'partial_receipts', 'weak_receipts', 'no_receipts']),
+      validation_status: enumSchema(['human_validated', 'community_pending', 'disputed', 'unvalidated']),
+      risk_flags: arrayOf(enumSchema(['hype_without_receipts', 'autonomy_unproven', 'weak_onchain_evidence', 'no_human_validation', 'unclear_provider_history', 'narrative_over_evidence', 'route_not_repeatable', 'disputed_claim', 'missing_source'])),
+      decision_state: enumSchema(['trust', 'caution', 'do_not_use_yet', 'unproven', 'disputed']),
+      share_url: stringSchema(),
+      share_text: stringSchema(),
+      evidence_summary: stringSchema(),
+      validation_summary: stringSchema(),
+      decision_summary: stringSchema()
+    }),
+    ProofCheckResult: objectSchema({
+      check_id: stringSchema(),
+      created_at: dateTimeSchema(),
+      submitted_by: { oneOf: [stringSchema(), { type: 'null' }] },
+      source_url: { oneOf: [{ type: 'string', format: 'uri' }, { type: 'null' }] },
+      input: stringSchema(),
+      claim: stringSchema(),
+      claim_type: enumSchema(['agent_autonomy', 'route_performance', 'provider_reliability', 'market_claim', 'token_claim', 'partnership_claim', 'revenue_claim', 'generic_claim']),
+      claim_summary: stringSchema(),
+      subject_label: stringSchema(),
+      receipts_found: arrayOf(stringSchema()),
+      evidence_artifacts: arrayOf(stringSchema()),
+      evidence_strength: enumSchema(['strong', 'medium', 'weak', 'missing']),
+      receipt_strength: enumSchema(['verified_receipts', 'partial_receipts', 'weak_receipts', 'no_receipts']),
+      validation_status: enumSchema(['human_validated', 'community_pending', 'disputed', 'unvalidated']),
+      risk_flags: arrayOf(enumSchema(['hype_without_receipts', 'autonomy_unproven', 'weak_onchain_evidence', 'no_human_validation', 'unclear_provider_history', 'narrative_over_evidence', 'route_not_repeatable', 'disputed_claim', 'missing_source'])),
+      decision_state: enumSchema(['trust', 'caution', 'do_not_use_yet', 'unproven', 'disputed']),
+      share_url: stringSchema(),
+      share_text: stringSchema(),
+      evidence_summary: stringSchema(),
+      validation_summary: stringSchema(),
+      decision_summary: stringSchema(),
+      headline: stringSchema(),
+      public_cta: stringSchema()
     }),
     HealthResponse: objectSchema({
       ok: booleanSchema(),

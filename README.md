@@ -63,11 +63,34 @@ This is not a payment execution client.
 
 See the minimal agent flow in [examples/pre-spend-agent](/Users/ahdilm/Documents/Infopunks%20Pay.sh%20Intelligence%20Terminal/examples/pre-spend-agent/README.md:1).
 
+## Infopunks Proof Feed
+
+Infopunks Proof Feed is Community Notes for the agent economy.
+
+It extends Radar with a public receipt-check layer for claims, projects, wallets, providers, routes, services, tweets, and market narratives. Agents can spend. Infopunks helps them judge.
+
+- `/check`
+- `/check/:checkId`
+- `POST /v1/check`
+- `GET /v1/checks`
+- `GET /v1/checks/:checkId`
+
+The MVP is deterministic and seeded. It produces an Infopunks Receipt Card with claim, claim type, receipts found, evidence strength, risk flags, validation status, decision state, and a shareable public URL.
+
+Decision states:
+- `trust`
+- `caution`
+- `do_not_use_yet`
+- `unproven`
+- `disputed`
+
+No receipt, no trust.
+
 ## Manual QA Checklist
 
-- Pages: verify `/`, `/developers`, `/spend-terminal`, `/routes`, `/providers`, `/services`, `/receipts`, `/claim`, and linked detail pages render without React errors.
+- Pages: verify `/`, `/developers`, `/spend-terminal`, `/check`, `/routes`, `/providers`, `/services`, `/receipts`, `/claim`, and linked detail pages render without React errors.
 - Copy: verify public pages use `Pre-Spend Intelligence`, `Before your agent pays, it checks Infopunks.`, `No receipt, no trust.`, `known blockers`, `safer alternatives`, `human validation`, and `evidence graph`.
-- API: verify `POST /v1/pre-spend/check`, `GET /v1/routes`, `GET /v1/pre-spend/providers`, `GET /v1/services`, `GET /v1/receipts`, `POST /v1/receipts`, `POST /v1/validation/submit`, `GET /v1/claims`, `POST /v1/claims`, `GET /v1/claims/:claim_id/challenges`, and `GET /openapi.json`.
+- API: verify `POST /v1/pre-spend/check`, `POST /v1/check`, `GET /v1/checks`, `GET /v1/routes`, `GET /v1/pre-spend/providers`, `GET /v1/services`, `GET /v1/receipts`, `POST /v1/receipts`, `POST /v1/validation/submit`, `GET /v1/claims`, `POST /v1/claims`, `GET /v1/claims/:claim_id/challenges`, and `GET /openapi.json`.
 - SDK: verify the package export `import { createInfopunksPreSpendClient } from "infopunks-pay-sh-radar/sdk";` still works against `https://radar.infopunks.fun`.
 - Terminal: verify the spend terminal still returns decision states including `approved`, `approved_with_warning`, `use_with_caution`, `requires_human_approval`, and `do_not_use`.
 - Evidence links: verify route, provider, service, receipt, and claim pages link to related receipts where available.

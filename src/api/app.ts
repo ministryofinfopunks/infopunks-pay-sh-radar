@@ -18,6 +18,7 @@ import {
   HumanValidationSubmissionSchema,
   ClaimCreateRequestSchema,
   ClaimChallengeCreateRequestSchema,
+  ProofCheckInputSchema,
   RadarComparisonRequestSchema,
   RadarEcosystemRiskSummarySchema,
   RadarBatchPreflightRequestSchema,
@@ -124,6 +125,8 @@ import {
 import { validateMachineExecutionProofByProfile } from '../services/machineExecutionProofProfiles';
 import { createPreSpendIntelligenceService } from '../services/preSpendIntelligenceService';
 import { createInMemoryPreSpendRepository, preSpendRepository } from '../repositories/preSpendRepository';
+import { createInMemoryProofCheckRepository, proofCheckRepository } from '../repositories/proofCheckRepository';
+import { createProofCheckService } from '../services/proofCheckService';
 import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
@@ -344,6 +347,9 @@ export async function createApp(
     : null;
   const preSpendIntelligence = createPreSpendIntelligenceService(
     process.env.NODE_ENV === 'test' ? createInMemoryPreSpendRepository() : preSpendRepository
+  );
+  const proofCheckService = createProofCheckService(
+    process.env.NODE_ENV === 'test' ? createInMemoryProofCheckRepository() : proofCheckRepository
   );
   configureMachineDemoSeed(config.machineDemoSeed);
   const responseCache = createResponseCache();
@@ -1511,6 +1517,21 @@ export async function createApp(
     metrics: preSpendIntelligence.getMetrics(),
     claims: preSpendIntelligence.listClaims()
   }) }));
+  app.post('/v1/check', async (req, reply) => {
+    const parsed = ProofCheckInputSchema.safeParse(req.body);
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_proof_check_input', details: parsed.error.flatten() });
+    return { data: safeJsonExport(proofCheckService.createProofCheck(parsed.data)) };
+  });
+  app.get('/v1/checks', async () => ({ data: safeJsonExport({
+    generated_at: new Date().toISOString(),
+    source: 'infopunks-pay-sh-radar',
+    checks: proofCheckService.listProofChecks()
+  }) }));
+  app.get<{ Params: { check_id: string } }>('/v1/checks/:check_id', async (req, reply) => {
+    const check = proofCheckService.getProofCheck(req.params.check_id);
+    if (!check) return reply.code(404).send({ error: 'proof_check_not_found' });
+    return { data: safeJsonExport(check) };
+  });
   app.get<{ Params: { claim_id: string } }>('/v1/claims/:claim_id', async (req, reply) => {
     const detail = preSpendIntelligence.getClaim(req.params.claim_id);
     if (!detail) return reply.code(404).send({ error: 'claim_not_found' });

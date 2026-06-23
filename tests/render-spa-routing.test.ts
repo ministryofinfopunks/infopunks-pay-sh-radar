@@ -74,6 +74,11 @@ describe('render-style SPA routing boundaries', () => {
       expect(developers.headers['content-type']).toContain('text/html');
       expect(developers.body).toContain('Radar SPA shell');
 
+      const check = await app.inject({ method: 'GET', url: '/check' });
+      expect(check.statusCode).toBe(200);
+      expect(check.headers['content-type']).toContain('text/html');
+      expect(check.body).toContain('Radar SPA shell');
+
       const unknownFrontend = await app.inject({ method: 'GET', url: '/frontend-route-that-does-not-exist' });
       expect(unknownFrontend.statusCode).toBe(200);
       expect(unknownFrontend.headers['content-type']).toContain('text/html');

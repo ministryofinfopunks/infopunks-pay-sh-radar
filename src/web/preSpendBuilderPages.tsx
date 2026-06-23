@@ -660,6 +660,7 @@ Content-Type: application/json
 
   const resourceCards = [
     { href: '/spend-terminal', title: 'Spend Terminal', copy: 'Run the receipt-backed pre-spend check UI.' },
+    { href: '/check', title: 'Check', copy: 'Turn claims, routes, providers, wallets, and links into public receipt checks.' },
     { href: '/routes', title: 'Routes', copy: 'Inspect route-level intelligence before autonomous spend.' },
     { href: '/providers', title: 'Providers', copy: 'Review provider reliability, disputes, and coverage.' },
     { href: '/services', title: 'Services', copy: 'Compare best route, safest first attempt, and blockers.' },

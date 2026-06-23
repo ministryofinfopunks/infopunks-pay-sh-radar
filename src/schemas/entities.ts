@@ -331,6 +331,31 @@ export const ValidationStateSchema = z.enum(['unvalidated', 'machine_checked', '
 export const ClaimTargetTypeSchema = z.enum(['route', 'provider', 'service', 'receipt', 'counterparty', 'claim']);
 export const ClaimStatusSchema = z.enum(['submitted', 'under_review', 'supported', 'challenged', 'rejected', 'resolved', 'stale']);
 export const ClaimTypeSchema = z.enum(['reliability', 'cost', 'latency', 'output_quality', 'safety', 'dispute', 'blocker', 'benchmark', 'counterparty_risk']);
+export const ProofClaimTypeSchema = z.enum([
+  'agent_autonomy',
+  'route_performance',
+  'provider_reliability',
+  'market_claim',
+  'token_claim',
+  'partnership_claim',
+  'revenue_claim',
+  'generic_claim'
+]);
+export const EvidenceStrengthSchema = z.enum(['strong', 'medium', 'weak', 'missing']);
+export const ReceiptStrengthSchema = z.enum(['verified_receipts', 'partial_receipts', 'weak_receipts', 'no_receipts']);
+export const ProofValidationStatusSchema = z.enum(['human_validated', 'community_pending', 'disputed', 'unvalidated']);
+export const ProofRiskFlagSchema = z.enum([
+  'hype_without_receipts',
+  'autonomy_unproven',
+  'weak_onchain_evidence',
+  'no_human_validation',
+  'unclear_provider_history',
+  'narrative_over_evidence',
+  'route_not_repeatable',
+  'disputed_claim',
+  'missing_source'
+]);
+export const ProofDecisionStateSchema = z.enum(['trust', 'caution', 'do_not_use_yet', 'unproven', 'disputed']);
 
 export const RouteIntelligenceSchema = z.object({
   route_id: z.string(),
@@ -523,6 +548,41 @@ export const ClaimChallengeCreateRequestSchema = z.object({
 
 export const ClaimDetailSchema = ClaimSchema.extend({
   challenges: z.array(ClaimChallengeSchema)
+});
+
+export const ProofCheckInputSchema = z.object({
+  input: z.string().min(1),
+  sourceUrl: z.string().url().optional(),
+  submittedBy: z.string().min(1).optional()
+});
+
+export const ProofCheckSchema = z.object({
+  check_id: z.string(),
+  created_at: z.string().datetime(),
+  submitted_by: z.string().nullable(),
+  source_url: z.string().url().nullable(),
+  input: z.string(),
+  claim: z.string(),
+  claim_type: ProofClaimTypeSchema,
+  claim_summary: z.string(),
+  subject_label: z.string(),
+  receipts_found: z.array(z.string()),
+  evidence_artifacts: z.array(z.string()),
+  evidence_strength: EvidenceStrengthSchema,
+  receipt_strength: ReceiptStrengthSchema,
+  validation_status: ProofValidationStatusSchema,
+  risk_flags: z.array(ProofRiskFlagSchema),
+  decision_state: ProofDecisionStateSchema,
+  share_url: z.string(),
+  share_text: z.string(),
+  evidence_summary: z.string(),
+  validation_summary: z.string(),
+  decision_summary: z.string()
+});
+
+export const ProofCheckResultSchema = ProofCheckSchema.extend({
+  headline: z.string(),
+  public_cta: z.string()
 });
 
 export const RouteTrustSummarySchema = z.object({
@@ -1910,11 +1970,20 @@ export type HumanValidationSubmission = z.infer<typeof HumanValidationSubmission
 export type ClaimTargetType = z.infer<typeof ClaimTargetTypeSchema>;
 export type ClaimStatus = z.infer<typeof ClaimStatusSchema>;
 export type ClaimType = z.infer<typeof ClaimTypeSchema>;
+export type ProofClaimType = z.infer<typeof ProofClaimTypeSchema>;
+export type EvidenceStrength = z.infer<typeof EvidenceStrengthSchema>;
+export type ReceiptStrength = z.infer<typeof ReceiptStrengthSchema>;
+export type ProofValidationStatus = z.infer<typeof ProofValidationStatusSchema>;
+export type ProofRiskFlag = z.infer<typeof ProofRiskFlagSchema>;
+export type ProofDecisionState = z.infer<typeof ProofDecisionStateSchema>;
 export type Claim = z.infer<typeof ClaimSchema>;
 export type ClaimChallenge = z.infer<typeof ClaimChallengeSchema>;
 export type ClaimCreateRequest = z.infer<typeof ClaimCreateRequestSchema>;
 export type ClaimChallengeCreateRequest = z.infer<typeof ClaimChallengeCreateRequestSchema>;
 export type ClaimDetail = z.infer<typeof ClaimDetailSchema>;
+export type ProofCheckInput = z.infer<typeof ProofCheckInputSchema>;
+export type ProofCheck = z.infer<typeof ProofCheckSchema>;
+export type ProofCheckResult = z.infer<typeof ProofCheckResultSchema>;
 export type RouteIntelligenceDetail = z.infer<typeof RouteIntelligenceDetailSchema>;
 export type ProviderIntelligenceDetail = z.infer<typeof ProviderIntelligenceDetailSchema>;
 export type PreSpendProviderSummary = z.infer<typeof PreSpendProviderSummarySchema>;

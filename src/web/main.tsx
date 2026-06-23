@@ -30,6 +30,7 @@ import {
   ServicesIndexPage,
   SpendTerminalPage
 } from './preSpendBuilderPages';
+import { ProofCheckDetailPage, ProofCheckPage } from './proofCheckPages';
 import './styles.css';
 
 type Severity = 'critical' | 'warning' | 'informational' | 'unknown';
@@ -1752,6 +1753,16 @@ function routeClaimId(pathname: string) {
   }
 }
 
+function routeProofCheckId(pathname: string) {
+  const match = pathname.match(/^\/check\/([^/]+)\/?$/);
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+}
+
 function routePropagationId(pathname: string) {
   const match = pathname.match(/^\/propagation\/([^/]+)\/?$/);
   if (!match) return null;
@@ -1802,6 +1813,10 @@ function isReceiptsIndexRoute(pathname: string) {
 
 function isClaimsIndexRoute(pathname: string) {
   return /^\/claim\/?$/.test(pathname);
+}
+
+function isProofCheckIndexRoute(pathname: string) {
+  return /^\/check\/?$/.test(pathname);
 }
 
 function isMachineMarketRoute(pathname: string) {
@@ -9438,6 +9453,7 @@ function RadarApp() {
               API Docs
             </a>
             <a className="methodology-trigger" href="/developers">Developers</a>
+            <a className="methodology-trigger" href="/check">Check</a>
             <a className="methodology-trigger" href="/claim">Claims</a>
             <a className="methodology-trigger" href="#agent-benchmark-api">Agent Benchmark API</a>
             <button className="methodology-trigger methodology-link" type="button" onClick={() => setMethodologyOpen(true)} aria-label="Open methodology drawer">
@@ -13219,6 +13235,7 @@ function MachineControlSurfacesStrip() {
 export function App() {
   const propagationId = routePropagationId(window.location.pathname);
   if (propagationId) return <PropagationIncidentPage clusterId={propagationId} />;
+  if (isProofCheckIndexRoute(window.location.pathname)) return <ProofCheckPage />;
   if (isSpendTerminalRoute(window.location.pathname)) return <SpendTerminalPage />;
   if (isDevelopersRoute(window.location.pathname)) return <DevelopersPage />;
   if (isClaimsIndexRoute(window.location.pathname)) return <ClaimsPage />;
@@ -13233,6 +13250,8 @@ export function App() {
   if (serviceId) return <ServiceDetailPage serviceId={serviceId} />;
   const claimId = routeClaimId(window.location.pathname);
   if (claimId) return <ClaimDetailPage claimId={claimId} />;
+  const proofCheckId = routeProofCheckId(window.location.pathname);
+  if (proofCheckId) return <ProofCheckDetailPage checkId={proofCheckId} />;
   if (isReceiptsIndexRoute(window.location.pathname)) return <ReceiptsIndexPage />;
   const receiptId = routeReceiptId(window.location.pathname);
   if (receiptId && receiptId.startsWith('receipt_')) return <ReceiptDetailPage receiptId={receiptId} />;
