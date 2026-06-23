@@ -1676,7 +1676,7 @@ export async function createApp(
   const clientIndexPath = clientDistDir ? join(clientDistDir, 'index.html') : null;
   if (clientDistDir && clientIndexPath && existsSync(clientIndexPath)) {
     app.get('/*', async (req, reply) => {
-      if (req.method !== 'GET') return reply.code(404).send({ error: 'not_found' });
+      if (req.method !== 'GET' && req.method !== 'HEAD') return reply.code(404).send({ error: 'not_found' });
       const urlPath = (req.raw.url ?? '/').split('?')[0] ?? '/';
       if (urlPath.startsWith('/v1/') || urlPath === '/health' || urlPath === '/version' || urlPath === '/status' || urlPath === '/openapi.json') {
         return reply.code(404).send({ error: 'not_found' });

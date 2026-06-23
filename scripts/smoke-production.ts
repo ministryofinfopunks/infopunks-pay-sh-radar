@@ -14,6 +14,7 @@ export const PRE_SPEND_CHECK_PAYLOAD = {
 
 export type SmokePlan = {
   publicPaths: string[];
+  publicHeadPaths: string[];
   apiGetPaths: string[];
   apiHeadJsonPaths: string[];
   claimsApiPaths: string[];
@@ -55,7 +56,19 @@ export function buildSmokePlan(): SmokePlan {
       `/services/${encodeURIComponent(serviceId)}`,
       `/receipts/${encodeURIComponent(receiptId)}`,
       `/claims/${encodeURIComponent(claimId)}`,
-      `/loops/${encodeURIComponent(loopId)}`
+      `/loops/${encodeURIComponent(loopId)}`,
+      '/radar/cards',
+      '/radar/cards/provider/coingecko-onchain',
+      '/radar/cards/route/sol-price',
+      '/radar/cards/benchmark/web-search',
+      '/machine-market/cards/cloud-translation'
+    ],
+    publicHeadPaths: [
+      '/radar/cards',
+      '/radar/cards/provider/coingecko-onchain',
+      '/radar/cards/route/sol-price',
+      '/radar/cards/benchmark/web-search',
+      '/machine-market/cards/cloud-translation'
     ],
     apiGetPaths: [
       '/v1/loops',
@@ -137,6 +150,22 @@ async function checkPublicPage(baseUrl: string, path: string): Promise<void> {
 
   if (response.status !== 200) {
     throw new Error(`expected 200, got ${response.status}`);
+  }
+}
+
+async function checkPublicHead(baseUrl: string, path: string): Promise<void> {
+  const response = await fetchWithRetry(`${baseUrl}${path}`, {
+    method: 'HEAD',
+    headers: { accept: 'text/html,application/xhtml+xml' }
+  }, `HEAD ${path}`);
+
+  if (response.status !== 200) {
+    throw new Error(`expected 200, got ${response.status}`);
+  }
+
+  const contentType = response.headers.get('content-type')?.toLowerCase() ?? '';
+  if (!contentType.includes('text/html')) {
+    throw new Error(`expected text/html content-type, got ${contentType || 'missing'}`);
   }
 }
 
@@ -262,6 +291,16 @@ export async function runSmoke(baseUrl = resolveBaseUrl()): Promise<boolean> {
     } catch (error) {
       failed = true;
       fail(path, error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  for (const path of plan.publicHeadPaths) {
+    try {
+      await checkPublicHead(baseUrl, path);
+      pass(`HEAD ${path}`);
+    } catch (error) {
+      failed = true;
+      fail(`HEAD ${path}`, error instanceof Error ? error.message : String(error));
     }
   }
 

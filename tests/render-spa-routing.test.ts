@@ -126,6 +126,26 @@ describe('render-style SPA routing boundaries', () => {
     }
   });
 
+  it('serves HEAD for public SPA card routes through the HTML shell', async () => {
+    const clientDistDir = createClientDistFixture();
+    const app = await createApp(emptyIntelligenceStore(), undefined, { clientDistDir });
+
+    try {
+      for (const path of [
+        '/radar/cards',
+        '/radar/cards/benchmark/web-search',
+        '/machine-market/cards/cloud-translation'
+      ]) {
+        const response = await app.inject({ method: 'HEAD', url: path });
+        expect(response.statusCode).toBe(200);
+        expect(response.headers['content-type']).toContain('text/html');
+      }
+    } finally {
+      await app.close();
+      rmSync(clientDistDir, { recursive: true, force: true });
+    }
+  });
+
   it('does not let the SPA fallback swallow unknown API routes', async () => {
     const clientDistDir = createClientDistFixture();
     const app = await createApp(emptyIntelligenceStore(), undefined, { clientDistDir });
