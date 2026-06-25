@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
+import { SignalGraphContextPanel, type SignalGraphContextNode } from './signalGraphContextPanel';
 
 type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
 type DecisionState = 'approved' | 'approved_with_warning' | 'use_with_caution' | 'requires_human_approval' | 'do_not_use';
@@ -244,6 +245,13 @@ type ClaimDetail = Claim & {
   challenges: ClaimChallenge[];
 };
 
+type SignalGraphEntityType = 'receipt' | 'claim' | 'loop' | 'route' | 'provider' | 'service';
+type SignalGraphEntityLookupResponse = {
+  entity_type: SignalGraphEntityType;
+  entity_id: string;
+  nodes: SignalGraphContextNode[];
+};
+
 const API_BASE_URL = getApiBaseUrl();
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -444,6 +452,28 @@ function LoadingShell({ title }: { title: string }) {
       </section>
     </main>
   </div>;
+}
+
+function useSignalGraphContext(entityType: SignalGraphEntityType, entityId: string) {
+  const [node, setNode] = useState<SignalGraphContextNode | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setNode(null);
+    api<{ data: SignalGraphEntityLookupResponse }>(`/v1/graph/entities/${encodeURIComponent(entityType)}/${encodeURIComponent(entityId)}`)
+      .then((response) => {
+        if (cancelled) return;
+        setNode(response.data.nodes[0] ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) setNode(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [entityId, entityType]);
+
+  return node;
 }
 
 function MetricsBand({ metrics }: { metrics: Metrics | null }) {
@@ -898,6 +928,7 @@ export function ClaimsPage() {
 export function ClaimDetailPage({ claimId }: { claimId: string }) {
   const [detail, setDetail] = useState<ClaimDetail | null>(null);
   const [missing, setMissing] = useState(false);
+  const signalGraphNode = useSignalGraphContext('claim', claimId);
 
   useEffect(() => {
     document.title = `${claimId} | Claim Detail`;
@@ -913,6 +944,7 @@ export function ClaimDetailPage({ claimId }: { claimId: string }) {
   if (!detail) return <LoadingShell title="Claim detail" />;
 
   return <DetailShell title="Claim detail" eyebrow="Receipt-backed claim" headline={detail.claim_id} copy="Claims connect route decisions, receipts, challenges, and human validation into reusable signal." metrics={null}>
+    {signalGraphNode && <SignalGraphContextPanel node={signalGraphNode} />}
     <DetailTable title="Claim evidence" rows={[
       ['claim ID', detail.claim_id],
       ['submitted by', detail.submitted_by],
@@ -1014,6 +1046,7 @@ export function ReceiptsIndexPage() {
 export function RouteDetailPage({ routeId }: { routeId: string }) {
   const [detail, setDetail] = useState<RouteDetail | null>(null);
   const [missing, setMissing] = useState(false);
+  const signalGraphNode = useSignalGraphContext('route', routeId);
 
   useEffect(() => {
     document.title = `${routeId} | Route Detail`;
@@ -1030,6 +1063,7 @@ export function RouteDetailPage({ routeId }: { routeId: string }) {
 
   const { route, provider, service, receipts, metrics, trust_summary } = detail;
   return <DetailShell title="Route detail" eyebrow="Pre-Spend Route Detail" headline={route.route_id} copy="Trace route evidence, inspect receipt freshness, and decide whether this route is ready for spend." metrics={metrics}>
+    {signalGraphNode && <SignalGraphContextPanel node={signalGraphNode} />}
     <DetailTable title="Route evidence" rows={[
       ['route ID', route.route_id],
       ['provider', provider ? <BuilderLink href={providerHref(provider.provider_id)}>{provider.name}</BuilderLink> : route.provider_id],
@@ -1194,6 +1228,7 @@ export function ServiceDetailPage({ serviceId }: { serviceId: string }) {
 export function ReceiptDetailPage({ receiptId }: { receiptId: string }) {
   const [detail, setDetail] = useState<ReceiptDetail | null>(null);
   const [missing, setMissing] = useState(false);
+  const signalGraphNode = useSignalGraphContext('receipt', receiptId);
 
   useEffect(() => {
     document.title = `${receiptId} | Receipt Detail`;
@@ -1209,6 +1244,7 @@ export function ReceiptDetailPage({ receiptId }: { receiptId: string }) {
   if (!detail) return <LoadingShell title="Receipt detail" />;
 
   return <DetailShell title="Receipt detail" eyebrow="Pre-Spend Receipt Detail" headline={detail.receipt_id} copy="Inspect receipt evidence, linked route intelligence, and whether this run should change future pre-spend decisions." metrics={null}>
+    {signalGraphNode && <SignalGraphContextPanel node={signalGraphNode} />}
     <DetailTable title="Receipt evidence" rows={[
       ['receipt ID', detail.receipt_id],
       ['timestamp', formatDateTime(detail.timestamp)],

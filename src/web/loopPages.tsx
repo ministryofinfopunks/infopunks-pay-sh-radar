@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import { ProofReceiptCard, type ProofCheckResult } from './proofCheckPages';
+import { SignalGraphContextPanel, type SignalGraphContextNode } from './signalGraphContextPanel';
 
 type LoopProofState = 'verified' | 'partial' | 'failure_recorded' | 'memory_recorded' | 'unproven' | 'disputed';
 type ProofDecisionState = 'trust' | 'caution' | 'do_not_use_yet' | 'unproven' | 'disputed';
@@ -40,6 +41,11 @@ type LoopCounters = {
   evidenceArtifacts: number;
   failureReasonsLogged: number;
   decisionStatesIssued: number;
+};
+type SignalGraphEntityLookupResponse = {
+  entity_type: 'loop';
+  entity_id: string;
+  nodes: SignalGraphContextNode[];
 };
 
 const API_BASE_URL = getApiBaseUrl();
@@ -196,6 +202,28 @@ function FailureWall({ loops }: { loops: LoopDetail[] }) {
   </section>;
 }
 
+function useLoopSignalGraphContext(loopId: string) {
+  const [node, setNode] = useState<SignalGraphContextNode | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setNode(null);
+    api<{ data: SignalGraphEntityLookupResponse }>(`/v1/graph/entities/loop/${encodeURIComponent(loopId)}`)
+      .then((response) => {
+        if (cancelled) return;
+        setNode(response.data.nodes[0] ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) setNode(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [loopId]);
+
+  return node;
+}
+
 export function LoopsPage() {
   const [loops, setLoops] = useState<LoopDetail[]>([]);
   const [loading, setLoading] = useState(true);
@@ -250,6 +278,7 @@ export function LoopDetailPage({ loopId }: { loopId: string }) {
   const [check, setCheck] = useState<ProofCheckResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [missing, setMissing] = useState(false);
+  const signalGraphNode = useLoopSignalGraphContext(loopId);
 
   useEffect(() => {
     let cancelled = false;
@@ -321,6 +350,7 @@ export function LoopDetailPage({ loopId }: { loopId: string }) {
             </ul>
           </article>
         </section>
+        {signalGraphNode && <SignalGraphContextPanel node={signalGraphNode} />}
         <section className="proof-detail-grid">
           <article className="panel">
             <p className="eyebrow">Evidence Artifacts</p>

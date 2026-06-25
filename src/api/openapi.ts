@@ -207,6 +207,97 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       linked_check_id: 'check_provider_reliability_seed'
     })
   });
+  add('get', '/v1/graph', {
+    tags: ['Signal Graph'],
+    summary: 'Get expanded graph',
+    description: 'Returns the existing graph layer in a backwards-compatible shape with additive Signal Graph fields: tagline, clusters, ripples, and stats. Existing nodes, edges, and evidence remain present.',
+    responses: envelopedResponses({ $ref: '#/components/schemas/SignalGraphResponse' }, {
+      tagline: 'Stop scrolling the feed. Read the graph.',
+      clusters: [{ id: 'pre_spend_intelligence', label: 'Pre-Spend Intelligence', proof_state: 'validated' }],
+      nodes: [{ id: 'claim_no_receipt_no_trust', type: 'claim', label: 'No receipt, no trust' }],
+      edges: [{ id: 'edge_no_receipt_proof_feed', source_node_id: 'claim_no_receipt_no_trust', target_node_id: 'proof_check_feed', type: 'proof_link' }],
+      ripples: [{ id: 'ripple_pre_spend_24h', cluster_id: 'pre_spend_intelligence', proof_state: 'validated' }],
+      stats: { node_count: 28, edge_count: 38, cluster_count: 5, validated_count: 11, disputed_count: 2, compounding_count: 8, last_updated_at: '2026-06-25T09:00:00.000Z' },
+      evidence: { source: 'fixture_fallback', confidence: 0.5 }
+    })
+  });
+  add('get', '/v1/graph/clusters', {
+    tags: ['Signal Graph'],
+    summary: 'List Signal Graph clusters',
+    description: 'Returns the seeded Signal Graph cluster registry with proof states and 24h ripple summaries.',
+    responses: envelopedResponses(objectSchema({
+      generated_at: dateTimeSchema(),
+      source: stringSchema(),
+      clusters: arrayOf({ $ref: '#/components/schemas/SignalGraphCluster' })
+    }), { clusters: [{ id: 'agentic_payments', label: 'Agentic Payments', proof_state: 'compounding' }] })
+  });
+  add('get', '/v1/graph/clusters/{cluster_id}', {
+    tags: ['Signal Graph'],
+    summary: 'Get Signal Graph cluster detail',
+    description: 'Returns one Signal Graph cluster with its local nodes, touching edges, and current ripples.',
+    parameters: [pathParam('cluster_id', 'Signal Graph cluster identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/SignalGraphClusterDetail' }, {
+      cluster: { id: 'machine_markets', label: 'Machine Markets', proof_state: 'validated' },
+      nodes: [{ id: 'project_machine_markets', type: 'project', label: 'Machine markets' }],
+      edges: [{ id: 'edge_machine_markets_m2m', source_node_id: 'project_machine_markets', target_node_id: 'claim_m2m_payments', type: 'proof_link' }],
+      ripples: [{ id: 'ripple_machine_markets_24h', cluster_id: 'machine_markets', title: 'Machine buyers are moving from demo copy to bounded route plans' }]
+    }, 'signal_graph_cluster_not_found')
+  });
+  add('get', '/v1/graph/nodes/{node_id}', {
+    tags: ['Signal Graph'],
+    summary: 'Get Signal Graph node detail',
+    description: 'Returns one Signal Graph node, its cluster, connected edges, related nodes, and active ripples.',
+    parameters: [pathParam('node_id', 'Signal Graph node identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/SignalGraphNodeDetail' }, {
+      node: { id: 'project_pay_sh', type: 'project', label: 'Pay.sh', proof_state: 'validated' },
+      cluster: { id: 'agentic_payments', label: 'Agentic Payments', proof_state: 'compounding' },
+      connected_edges: [{ id: 'edge_pay_sh_pre_spend', source_node_id: 'project_pay_sh', target_node_id: 'project_pre_spend_intelligence', type: 'proof_link' }],
+      related_nodes: [{ id: 'project_pre_spend_intelligence', type: 'project', label: 'Pre-Spend Intelligence', proof_state: 'validated' }],
+      ripples: [{ id: 'ripple_agentic_payments_24h', cluster_id: 'agentic_payments', title: 'Payment rail narrative is consolidating around wallet-aware routes' }]
+    }, 'signal_graph_node_not_found')
+  });
+  add('get', '/v1/graph/entities/{entity_type}/{entity_id}', {
+    tags: ['Signal Graph'],
+    summary: 'Lookup Signal Graph nodes by linked entity',
+    description: 'Returns Signal Graph nodes that explicitly link to the requested receipt, claim, loop, route, provider, or service ID. No label heuristics are used.',
+    parameters: [
+      { name: 'entity_type', in: 'path', required: true, description: 'Stable linked entity type.', schema: { $ref: '#/components/schemas/SignalGraphEntityType' } },
+      pathParam('entity_id', 'Stable entity identifier.')
+    ],
+    responses: envelopedResponses({ $ref: '#/components/schemas/SignalGraphEntityLookupResponse' }, {
+      entity_type: 'claim',
+      entity_id: 'claim_001',
+      nodes: [{ id: 'claim_route_memory', type: 'claim', label: 'Route memory', cluster_id: 'pre_spend_intelligence', proof_state: 'validated' }]
+    }, 'unsupported_signal_graph_entity_type')
+  });
+  add('get', '/v1/graph/ripples', {
+    tags: ['Signal Graph'],
+    summary: 'List Signal Graph ripples',
+    description: 'Returns the 24h change layer for the seeded Signal Graph.',
+    responses: envelopedResponses(objectSchema({
+      generated_at: dateTimeSchema(),
+      source: stringSchema(),
+      ripples: arrayOf({ $ref: '#/components/schemas/SignalGraphRipple' })
+    }), { ripples: [{ id: 'ripple_ct_24h', cluster_id: 'ct_subcultures', proof_state: 'compounding' }] })
+  });
+  add('post', '/v1/graph/check', {
+    tags: ['Signal Graph'],
+    summary: 'Check Signal Graph input',
+    description: 'Runs a deterministic v0 Signal Graph assessment over a lightweight claim, meme, or project input and suggests how it should connect into graph memory.',
+    requestBody: jsonRequest({ $ref: '#/components/schemas/SignalGraphCheckInput' }, {
+      label: 'Agent wallets need route memory before autonomous spend.',
+      summary: 'Wallet-aware agents should inherit confidence from receipts, not from feed consensus.',
+      source_url: 'https://example.com/agent-wallets-route-memory',
+      cluster_id: 'pre_spend_intelligence'
+    }),
+    responses: envelopedResponses({ $ref: '#/components/schemas/SignalGraphCheckResponse' }, {
+      generated_node_preview: { id: 'preview_abc123', type: 'agent', label: 'Agent wallets need route memory before autonomous spend.', cluster_id: 'pre_spend_intelligence', proof_state: 'validated' },
+      suggested_proof_state: 'validated',
+      confidence_score: 90,
+      suggested_edges: [{ target_node_id: 'claim_no_receipt_no_trust', type: 'proof_link', strength: 92 }],
+      explanation: 'Deterministic v0 assessment suggests the input already speaks in receipt, route, or proof language and should connect into the graph as validated memory.'
+    })
+  });
   add('get', '/v1/claims', {
     tags: ['Claims'],
     summary: 'List claims',
@@ -2153,6 +2244,127 @@ function componentSchemas(): Record<string, JsonSchema> {
     LoopCheckInput: objectSchema({
       input: stringSchema(),
       linked_check_id: { oneOf: [stringSchema(), { type: 'null' }] }
+    }),
+    SignalGraphProofState: enumSchema(['unproven', 'validated', 'disputed', 'corrupted', 'compounding']),
+    SignalNodeType: enumSchema(['claim', 'meme', 'agent', 'project', 'token', 'post', 'route', 'receipt', 'proof_check', 'loop_run', 'provider', 'service', 'narrative', 'category']),
+    SignalEdgeType: enumSchema(['semantic_similarity', 'proof_link', 'citation', 'receipt', 'receipt_link', 'shared_wallet', 'repeated_narrative', 'contradiction', 'amplification', 'provider_category', 'narrative_category']),
+    SignalGraphCluster: objectSchema({
+      id: stringSchema(),
+      label: stringSchema(),
+      summary: stringSchema(),
+      proof_state: { $ref: '#/components/schemas/SignalGraphProofState' },
+      ripple_summary: stringSchema(),
+      node_count: integerSchema(),
+      edge_count: integerSchema(),
+      updated_at: dateTimeSchema()
+    }),
+    SignalGraphNode: objectSchema({
+      id: stringSchema(),
+      type: { $ref: '#/components/schemas/SignalNodeType' },
+      label: stringSchema(),
+      summary: stringSchema(),
+      cluster_id: stringSchema(),
+      proof_state: { $ref: '#/components/schemas/SignalGraphProofState' },
+      confidence_score: { type: 'number', minimum: 0, maximum: 100 },
+      velocity_score: { type: 'number', minimum: 0, maximum: 100 },
+      source_urls: arrayOf(stringSchema()),
+      linked_receipt_ids: arrayOf(stringSchema()),
+      linked_claim_ids: arrayOf(stringSchema()),
+      linked_loop_ids: arrayOf(stringSchema()),
+      linked_route_ids: arrayOf(stringSchema()),
+      linked_provider_ids: arrayOf(stringSchema()),
+      linked_service_ids: arrayOf(stringSchema()),
+      created_at: dateTimeSchema(),
+      updated_at: dateTimeSchema()
+    }),
+    SignalGraphEdge: objectSchema({
+      id: stringSchema(),
+      source_node_id: stringSchema(),
+      target_node_id: stringSchema(),
+      type: { $ref: '#/components/schemas/SignalEdgeType' },
+      strength: { type: 'number', minimum: 0, maximum: 100 },
+      explanation: stringSchema()
+    }),
+    SignalGraphRipple: objectSchema({
+      id: stringSchema(),
+      cluster_id: stringSchema(),
+      title: stringSchema(),
+      summary: stringSchema(),
+      proof_state: { $ref: '#/components/schemas/SignalGraphProofState' },
+      impact_score: { type: 'number', minimum: 0, maximum: 100 },
+      changed_at: dateTimeSchema(),
+      linked_node_ids: arrayOf(stringSchema())
+    }),
+    SignalGraphStats: objectSchema({
+      node_count: integerSchema(),
+      edge_count: integerSchema(),
+      cluster_count: integerSchema(),
+      validated_count: integerSchema(),
+      disputed_count: integerSchema(),
+      compounding_count: integerSchema(),
+      last_updated_at: dateTimeSchema()
+    }),
+    SignalGraphEvidence: objectSchema({
+      event_id: nullableString(),
+      provider_id: nullableString(),
+      endpoint_id: nullableString(),
+      observed_at: { oneOf: [dateTimeSchema(), { type: 'null' }] },
+      catalog_generated_at: { oneOf: [dateTimeSchema(), { type: 'null' }] },
+      ingested_at: { oneOf: [dateTimeSchema(), { type: 'null' }] },
+      source: nullableString(),
+      derivation_reason: stringSchema(),
+      confidence: { type: 'number', minimum: 0, maximum: 1 },
+      severity: enumSchema(['critical', 'warning', 'informational', 'unknown']),
+      severity_reason: stringSchema(),
+      severity_score: { type: 'number' },
+      severity_window: stringSchema()
+    }),
+    SignalGraphResponse: objectSchema({
+      tagline: stringSchema(),
+      clusters: arrayOf({ $ref: '#/components/schemas/SignalGraphCluster' }),
+      nodes: arrayOf({ $ref: '#/components/schemas/SignalGraphNode' }),
+      edges: arrayOf({ $ref: '#/components/schemas/SignalGraphEdge' }),
+      ripples: arrayOf({ $ref: '#/components/schemas/SignalGraphRipple' }),
+      stats: { $ref: '#/components/schemas/SignalGraphStats' },
+      evidence: { oneOf: [{ $ref: '#/components/schemas/SignalGraphEvidence' }, { type: 'null' }] }
+    }),
+    SignalGraphClusterDetail: objectSchema({
+      cluster: { $ref: '#/components/schemas/SignalGraphCluster' },
+      nodes: arrayOf({ $ref: '#/components/schemas/SignalGraphNode' }),
+      edges: arrayOf({ $ref: '#/components/schemas/SignalGraphEdge' }),
+      ripples: arrayOf({ $ref: '#/components/schemas/SignalGraphRipple' })
+    }),
+    SignalGraphNodeDetail: objectSchema({
+      node: { $ref: '#/components/schemas/SignalGraphNode' },
+      cluster: { $ref: '#/components/schemas/SignalGraphCluster' },
+      connected_edges: arrayOf({ $ref: '#/components/schemas/SignalGraphEdge' }),
+      related_nodes: arrayOf({ $ref: '#/components/schemas/SignalGraphNode' }),
+      ripples: arrayOf({ $ref: '#/components/schemas/SignalGraphRipple' })
+    }),
+    SignalGraphCheckInput: objectSchema({
+      label: stringSchema(),
+      summary: stringSchema(),
+      source_url: stringSchema(),
+      cluster_id: stringSchema()
+    }),
+    SignalGraphEntityType: enumSchema(['receipt', 'claim', 'loop', 'route', 'provider', 'service']),
+    SignalGraphSuggestedEdge: objectSchema({
+      target_node_id: stringSchema(),
+      type: { $ref: '#/components/schemas/SignalEdgeType' },
+      strength: { type: 'number', minimum: 0, maximum: 100 },
+      explanation: stringSchema()
+    }),
+    SignalGraphCheckResponse: objectSchema({
+      generated_node_preview: { $ref: '#/components/schemas/SignalGraphNode' },
+      suggested_proof_state: { $ref: '#/components/schemas/SignalGraphProofState' },
+      confidence_score: { type: 'number', minimum: 0, maximum: 100 },
+      suggested_edges: arrayOf({ $ref: '#/components/schemas/SignalGraphSuggestedEdge' }),
+      explanation: stringSchema()
+    }),
+    SignalGraphEntityLookupResponse: objectSchema({
+      entity_type: { $ref: '#/components/schemas/SignalGraphEntityType' },
+      entity_id: stringSchema(),
+      nodes: arrayOf({ $ref: '#/components/schemas/SignalGraphNode' })
     }),
     HealthResponse: objectSchema({
       ok: booleanSchema(),

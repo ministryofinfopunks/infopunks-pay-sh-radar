@@ -201,17 +201,22 @@ describe('agent mode and command palette', () => {
     const primaryNav = container.querySelector('[aria-label="Primary radar zones"]');
     expect(primaryNav?.classList.contains('terminal-nav-scroll-rail')).toBe(true);
     expect(primaryNav?.textContent).not.toContain('Machine Economy');
-    for (const label of ['Benchmarks', 'Mappings', 'Preflight', 'Compare', 'Dossier', 'Check', 'Loops', 'Claims']) {
+    for (const label of ['Benchmarks', 'Mappings', 'Preflight', 'Compare', 'Dossier', 'Check', 'Loops', 'Signal Graph', 'Claims']) {
       expect(container.textContent).toContain(label);
     }
     expect(container.textContent).toContain('API Docs');
     expect(container.querySelector('a[href="/developers"]')?.textContent).toContain('Developers');
+    expect(container.querySelector('a[href="/graph"]')?.textContent).toContain('Signal Graph');
     expect(container.querySelector('a[href="/claim"]')?.textContent).toContain('Claims');
     expect(container.textContent).toContain('Agent Mode');
     expect(container.textContent).toContain('Machine Economy Module');
     expect(container.textContent).toContain('Machine Economy');
     expect(container.textContent).toContain('Radar now maps the robotic.sh machine-service market: 13 listed services, bounded authority policies, preflight decisions, and machine receipts.');
     expect(container.textContent).toContain('Same terminal. New species of spender.');
+    expect(container.textContent).toContain('Read the graph, not the feed.');
+    expect(container.textContent).toContain('Claims, routes, receipts, loops, and narratives mapped by proof.');
+    expect(container.querySelector('a[href="/graph"]')?.textContent).toContain('Signal Graph');
+    expect(Array.from(container.querySelectorAll('a[href="/graph"]')).some((node) => node.textContent?.includes('Open Signal Graph'))).toBe(true);
     expect(container.textContent).toContain('Open Machine Market');
     expect(container.querySelector('a[href="/machine-market"]')).not.toBeNull();
     expect(container.querySelector('a[href="/machine-rail-coverage"]')).not.toBeNull();

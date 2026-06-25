@@ -7750,6 +7750,19 @@ summary:focus-visible {
   overflow-wrap: anywhere;
 }
 
+.signal-graph-context-panel {
+  display: grid;
+  gap: 12px;
+  background:
+    radial-gradient(circle at top right, rgba(89, 214, 255, 0.08), transparent 34%),
+    radial-gradient(circle at bottom left, rgba(112, 255, 180, 0.08), transparent 28%),
+    rgba(8, 14, 18, 0.9);
+}
+
+.signal-graph-context-grid article {
+  background: rgba(2, 7, 10, 0.6);
+}
+
 .builder-link-list,
 .builder-note-stack {
   display: flex;
@@ -8588,5 +8601,449 @@ summary:focus-visible {
 
   .preflight-card-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.graph-shell {
+  min-height: 100vh;
+}
+
+.signal-graph-page {
+  display: grid;
+  gap: 18px;
+  padding: 112px 18px 32px;
+}
+
+.signal-graph-hero,
+.signal-graph-workspace {
+  display: grid;
+  gap: 18px;
+}
+
+.signal-graph-check-panel,
+.signal-graph-check-grid,
+.signal-graph-check-form,
+.signal-graph-check-result {
+  display: grid;
+  gap: 14px;
+}
+
+.signal-graph-hero {
+  overflow: hidden;
+}
+
+.signal-graph-tagline {
+  margin: 0;
+  font-size: clamp(1.2rem, 1rem + 0.9vw, 1.8rem);
+  line-height: 1.2;
+  color: #e9ffe1;
+}
+
+.signal-graph-thesis {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.signal-graph-thesis p {
+  margin: 0;
+  font-size: 0.98rem;
+}
+
+.signal-graph-check-panel {
+  background:
+    radial-gradient(circle at top left, rgba(113, 255, 184, 0.1), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(91, 201, 255, 0.08), transparent 30%),
+    linear-gradient(135deg, rgba(4, 10, 14, 0.96), rgba(8, 18, 24, 0.92));
+}
+
+.signal-graph-check-subtitle {
+  margin: 0;
+  max-width: 62ch;
+  line-height: 1.55;
+}
+
+.signal-graph-field,
+.signal-graph-field-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.signal-graph-field span {
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #b8d7c5;
+}
+
+.signal-graph-field input,
+.signal-graph-field textarea,
+.signal-graph-field select {
+  width: 100%;
+  border: 1px solid rgba(124, 247, 185, 0.18);
+  border-radius: 14px;
+  background: rgba(4, 10, 14, 0.82);
+  color: #ebfff1;
+  padding: 11px 13px;
+  font: inherit;
+  resize: vertical;
+}
+
+.signal-graph-field input::placeholder,
+.signal-graph-field textarea::placeholder {
+  color: rgba(197, 220, 205, 0.52);
+}
+
+.signal-graph-field input:focus,
+.signal-graph-field textarea:focus,
+.signal-graph-field select:focus {
+  outline: 1px solid rgba(124, 247, 185, 0.4);
+  border-color: rgba(124, 247, 185, 0.42);
+  box-shadow: 0 0 0 3px rgba(77, 208, 154, 0.12);
+}
+
+.signal-graph-field textarea {
+  min-height: 96px;
+}
+
+.signal-graph-check-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.signal-graph-inline-error {
+  margin: 0;
+}
+
+.signal-graph-check-result {
+  align-content: start;
+  padding: 16px;
+  border: 1px solid rgba(114, 255, 199, 0.14);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at top right, rgba(98, 220, 255, 0.08), transparent 38%),
+    rgba(3, 8, 12, 0.76);
+}
+
+.signal-graph-hero-meta,
+.signal-graph-sidebar,
+.signal-graph-detail-panel {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.signal-graph-legend,
+.signal-graph-stats-card,
+.signal-graph-sidebar-block {
+  display: grid;
+  gap: 12px;
+}
+
+.signal-graph-proof-list,
+.signal-graph-filter-chips,
+.signal-graph-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.signal-proof-pill,
+.signal-proof-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(129, 245, 161, 0.26);
+  background: rgba(10, 18, 20, 0.78);
+  color: #d6ffdd;
+  font-size: 0.82rem;
+  text-transform: none;
+}
+
+.signal-proof-pill {
+  flex-direction: column;
+  align-items: flex-start;
+  border-radius: 16px;
+  min-width: 134px;
+}
+
+.signal-proof-pill small {
+  opacity: 0.72;
+}
+
+.signal-proof-pill-validated,
+.signal-proof-chip-validated,
+.signal-graph-node-validated circle {
+  border-color: rgba(103, 239, 144, 0.55);
+  color: #d9ffca;
+}
+
+.signal-proof-pill-disputed,
+.signal-proof-chip-disputed,
+.signal-graph-node-disputed circle {
+  border-color: rgba(255, 176, 93, 0.55);
+  color: #ffe1bb;
+}
+
+.signal-proof-pill-corrupted,
+.signal-proof-chip-corrupted,
+.signal-graph-node-corrupted circle {
+  border-color: rgba(255, 103, 103, 0.6);
+  color: #ffd0d0;
+}
+
+.signal-proof-pill-compounding,
+.signal-proof-chip-compounding,
+.signal-graph-node-compounding circle {
+  border-color: rgba(115, 193, 255, 0.58);
+  color: #d3efff;
+}
+
+.signal-proof-pill-unproven,
+.signal-proof-chip-unproven,
+.signal-graph-node-unproven circle {
+  border-color: rgba(196, 196, 196, 0.45);
+  color: #ededed;
+}
+
+.signal-graph-stat-grid,
+.signal-graph-score-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.signal-graph-stat-grid div,
+.signal-graph-score-grid div {
+  padding: 12px;
+  border: 1px solid rgba(114, 255, 199, 0.14);
+  border-radius: 16px;
+  background: rgba(4, 10, 14, 0.72);
+}
+
+.signal-graph-stat-grid dt,
+.signal-graph-score-grid dt {
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.7;
+}
+
+.signal-graph-stat-grid dd,
+.signal-graph-score-grid dd {
+  margin: 6px 0 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.signal-graph-cluster-list,
+.signal-graph-edge-list {
+  display: grid;
+  gap: 10px;
+}
+
+.signal-graph-cluster-card {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid rgba(114, 255, 199, 0.16);
+  border-radius: 16px;
+  background: rgba(3, 8, 12, 0.78);
+  color: inherit;
+  text-align: left;
+}
+
+.signal-graph-cluster-card.active,
+.signal-graph-cluster-card:hover {
+  border-color: rgba(114, 255, 199, 0.34);
+  background: rgba(7, 17, 22, 0.92);
+}
+
+.signal-graph-cluster-head,
+.signal-graph-panel-head,
+.signal-graph-ripple-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.signal-graph-canvas-panel {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.signal-graph-svg {
+  width: 100%;
+  height: auto;
+  min-height: 420px;
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at top, rgba(38, 255, 167, 0.12), transparent 42%),
+    linear-gradient(180deg, rgba(12, 17, 24, 0.96), rgba(2, 7, 10, 0.98));
+}
+
+.signal-graph-svg-frame {
+  fill: transparent;
+  stroke: rgba(115, 241, 190, 0.18);
+}
+
+.signal-graph-cluster-ring circle {
+  fill: rgba(14, 26, 30, 0.22);
+  stroke: rgba(114, 255, 199, 0.13);
+  stroke-dasharray: 5 9;
+}
+
+.signal-graph-cluster-ring text,
+.signal-graph-node text {
+  fill: #d7fff1;
+  font-size: 13px;
+}
+
+.signal-graph-edge-layer line {
+  stroke: rgba(97, 215, 255, 0.7);
+  vector-effect: non-scaling-stroke;
+}
+
+.signal-graph-node {
+  cursor: pointer;
+  outline: none;
+}
+
+.signal-graph-node circle {
+  fill: rgba(8, 12, 18, 0.9);
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+.signal-graph-node.selected circle,
+.signal-graph-node:focus circle {
+  stroke-width: 3;
+  filter: drop-shadow(0 0 14px rgba(125, 247, 190, 0.42));
+}
+
+.signal-graph-node-summary {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
+
+.signal-graph-detail-section {
+  display: grid;
+  gap: 10px;
+}
+
+.signal-graph-detail-section h3,
+.signal-graph-ripple-card h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.signal-graph-source-list {
+  display: grid;
+  gap: 8px;
+}
+
+.signal-graph-source-list a {
+  overflow-wrap: anywhere;
+}
+
+.signal-graph-edge-list article {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 10px;
+  padding: 12px;
+  border: 1px solid rgba(114, 255, 199, 0.12);
+  border-radius: 14px;
+  background: rgba(4, 9, 12, 0.72);
+}
+
+.signal-graph-edge-list article p {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.signal-graph-ripple-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.signal-graph-ripple-card {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid rgba(114, 255, 199, 0.16);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top right, rgba(93, 227, 255, 0.08), transparent 35%),
+    rgba(3, 8, 12, 0.84);
+}
+
+.signal-graph-teaser-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background:
+    radial-gradient(circle at top left, rgba(116, 255, 178, 0.1), transparent 32%),
+    linear-gradient(135deg, rgba(5, 11, 16, 0.96), rgba(8, 20, 26, 0.94));
+}
+
+.signal-graph-teaser-card h2,
+.signal-graph-teaser-card p {
+  margin: 0;
+}
+
+@media (min-width: 960px) {
+  .signal-graph-hero {
+    grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.9fr);
+    align-items: start;
+  }
+
+  .signal-graph-check-grid {
+    grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.95fr);
+    align-items: start;
+  }
+
+  .signal-graph-field-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .signal-graph-workspace {
+    grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.8fr) minmax(300px, 0.95fr);
+    align-items: start;
+  }
+
+  .signal-graph-ripple-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 959px) {
+  .signal-graph-page {
+    padding-top: 104px;
+  }
+
+  .signal-graph-check-result {
+    padding: 14px;
+  }
+
+  .signal-graph-svg {
+    min-height: 340px;
+  }
+
+  .signal-graph-teaser-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .signal-graph-ripple-head,
+  .signal-graph-panel-head {
+    flex-direction: column;
   }
 }

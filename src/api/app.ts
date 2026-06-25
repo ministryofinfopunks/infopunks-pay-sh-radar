@@ -20,6 +20,15 @@ import {
   ClaimChallengeCreateRequestSchema,
   ProofCheckInputSchema,
   LoopCheckInputSchema,
+  SignalGraphCheckInputSchema,
+  SignalGraphCheckResponseSchema,
+  SignalGraphClusterDetailSchema,
+  SignalGraphClusterSchema,
+  SignalGraphEntityLookupResponseSchema,
+  SignalGraphEntityTypeSchema,
+  SignalGraphNodeDetailSchema,
+  SignalGraphResponseSchema,
+  SignalGraphRippleSchema,
   RadarComparisonRequestSchema,
   RadarEcosystemRiskSummarySchema,
   RadarBatchPreflightRequestSchema,
@@ -130,6 +139,7 @@ import { createInMemoryProofCheckRepository, proofCheckRepository } from '../rep
 import { createProofCheckService } from '../services/proofCheckService';
 import { createInMemoryLoopRepository, loopRepository } from '../repositories/loopRepository';
 import { createLoopService } from '../services/loopService';
+import { checkSignalGraph, findSignalGraphNodesForEntity, getSignalGraph, getSignalGraphCluster, getSignalGraphClusters, getSignalGraphNode, getSignalGraphRipples, isSignalGraphEntityType } from '../services/signalGraphService';
 import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
@@ -1580,6 +1590,52 @@ export async function createApp(
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_claim_challenge_submission', details: parsed.error.flatten() });
     return { data: safeJsonExport(preSpendIntelligence.submitClaimChallenge(req.params.claim_id, parsed.data)) };
   });
+  app.get('/v1/graph/clusters', async () => ({
+    data: safeJsonExport({
+      generated_at: new Date().toISOString(),
+      source: 'infopunks-pay-sh-radar',
+      clusters: SignalGraphClusterSchema.array().parse(getSignalGraphClusters())
+    })
+  }));
+  app.get<{ Params: { cluster_id: string } }>('/v1/graph/clusters/:cluster_id', async (req, reply) => {
+    const cluster = getSignalGraphCluster(req.params.cluster_id);
+    if (!cluster) return reply.code(404).send({ error: 'signal_graph_cluster_not_found' });
+    return {
+      data: safeJsonExport(SignalGraphClusterDetailSchema.parse(cluster))
+    };
+  });
+  app.get<{ Params: { node_id: string } }>('/v1/graph/nodes/:node_id', async (req, reply) => {
+    const node = getSignalGraphNode(req.params.node_id);
+    if (!node) return reply.code(404).send({ error: 'signal_graph_node_not_found' });
+    return {
+      data: safeJsonExport(SignalGraphNodeDetailSchema.parse(node))
+    };
+  });
+  app.get<{ Params: { entity_type: string; entity_id: string } }>('/v1/graph/entities/:entity_type/:entity_id', async (req, reply) => {
+    if (!isSignalGraphEntityType(req.params.entity_type)) {
+      return reply.code(400).send({
+        error: 'unsupported_signal_graph_entity_type',
+        supported_entity_types: SignalGraphEntityTypeSchema.options
+      });
+    }
+    return {
+      data: safeJsonExport(SignalGraphEntityLookupResponseSchema.parse(findSignalGraphNodesForEntity(req.params.entity_type, req.params.entity_id)))
+    };
+  });
+  app.get('/v1/graph/ripples', async () => ({
+    data: safeJsonExport({
+      generated_at: new Date().toISOString(),
+      source: 'infopunks-pay-sh-radar',
+      ripples: SignalGraphRippleSchema.array().parse(getSignalGraphRipples())
+    })
+  }));
+  app.post('/v1/graph/check', async (req, reply) => {
+    const parsed = SignalGraphCheckInputSchema.safeParse(req.body);
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_graph_check_input', details: parsed.error.flatten() });
+    return {
+      data: safeJsonExport(SignalGraphCheckResponseSchema.parse(checkSignalGraph(parsed.data)))
+    };
+  });
   app.post('/v1/recommend-route', async (req, reply) => handleParsed(req.body, RouteRecommendationRequestSchema, (input) => ({ data: recommendRoute(input, store) }), reply));
   app.post('/v1/preflight', async (req, reply) => handleParsed(req.body, PreflightRequestSchema, (input) => ({ data: runPreflight(input, store) }), reply));
   app.get('/v1/preflight/schema', async () => ({
@@ -1614,7 +1670,9 @@ export async function createApp(
     refreshBackgroundAnalytics();
     return { data: { run: result.run, emittedEvents: result.events.length } };
   });
-  app.get('/v1/graph', async () => ({ data: { nodes: graphNodes(store), edges: graphEdges(store), evidence: graphReceipt(store) } }));
+  app.get('/v1/graph', async () => ({
+    data: safeJsonExport(SignalGraphResponseSchema.parse(buildGraphPayload(store)))
+  }));
   app.get<{ Params: { id: string } }>('/interpretations/:id', async (req, reply) => {
     const summary = pulseSummary(store, new Date().toISOString(), config.payShIngestIntervalMs, { includePropagation: false, includeInterpretations: false, propagationFallback: cachedPropagation, interpretationsFallback: cachedInterpretations });
     const interpretation = summary.interpretations.find((item) => item.interpretation_id === req.params.id);
@@ -2359,17 +2417,158 @@ function handleParsed<T>(body: unknown, schema: z.ZodSchema<T>, next: (input: T)
 
 function graphNodes(store: IntelligenceStore) {
   return [
-    ...store.providers.map((provider) => ({ id: provider.id, type: 'provider', label: provider.name, category: provider.category, provider_id: provider.id, observed_at: provider.lastSeenAt, catalog_generated_at: provider.catalogGeneratedAt ?? null, ingested_at: provider.ingestedAt ?? provider.lastSeenAt, source: provider.source, derivation_reason: 'Graph provider node is derived from provider catalog membership.', confidence: provider.confidence ?? 1, ...classifyProviderDossierSeverity(provider, store.trustAssessments.find((item) => item.entityId === provider.id) ?? null, store.signalAssessments.find((item) => item.entityId === provider.id) ?? null, store.events), evidence: provider.evidence[0] ?? null })),
-    ...store.narratives.map((narrative) => ({ id: narrative.id, type: 'narrative', label: narrative.title, heat: narrative.heat, provider_id: null, endpoint_id: null, observed_at: narrative.evidence[0]?.observedAt ?? null, catalog_generated_at: narrative.evidence[0]?.catalogGeneratedAt ?? null, ingested_at: narrative.evidence[0]?.ingestedAt ?? null, source: narrative.evidence[0]?.source ?? 'infopunks:deterministic-scoring', derivation_reason: 'Graph narrative node is derived from deterministic narrative clustering.', confidence: narrative.evidence.length ? 1 : 0.5, ...classifyNarrativeClusterSeverity(narrative), evidence: narrative.evidence[0] ?? null })),
-    ...Array.from(new Set(store.providers.map((provider) => provider.category))).map((category) => ({ id: `category-${category}`, type: 'category', label: category, provider_id: null, endpoint_id: null, observed_at: latestProviderTimestamp(store, category), catalog_generated_at: latestCatalogGeneratedAt(store, category), ingested_at: latestProviderTimestamp(store, category), source: 'pay.sh', derivation_reason: 'Graph category node is derived from provider catalog categories.', confidence: 1, ...classifyGraphSeverity('category') }))
+    ...store.providers.map((provider) => {
+      const trustAssessment = store.trustAssessments.find((item) => item.entityId === provider.id);
+      const signalAssessment = store.signalAssessments.find((item) => item.entityId === provider.id);
+      const trustScore = trustAssessment?.score ?? null;
+      const signalScore = signalAssessment?.score ?? null;
+      const proofState = trustScore !== null && trustScore !== undefined
+        ? trustScore >= 85 ? 'validated' : trustScore >= 60 ? 'compounding' : 'disputed'
+        : 'unproven';
+      return {
+        id: provider.id,
+        type: 'provider',
+        label: provider.name,
+        summary: provider.description ?? `Provider node for ${provider.name}.`,
+        cluster_id: clusterIdForCategory(provider.category),
+        proof_state: proofState,
+        confidence_score: trustScore ?? Math.round((provider.confidence ?? 0.7) * 100),
+        velocity_score: signalScore ?? 58,
+        linked_provider_ids: [provider.id],
+        created_at: provider.firstSeenAt,
+        updated_at: provider.lastSeenAt,
+        category: provider.category,
+        provider_id: provider.id,
+        observed_at: provider.lastSeenAt,
+        catalog_generated_at: provider.catalogGeneratedAt ?? null,
+        ingested_at: provider.ingestedAt ?? provider.lastSeenAt,
+        source: provider.source,
+        derivation_reason: 'Graph provider node is derived from provider catalog membership.',
+        confidence: provider.confidence ?? 1,
+        ...classifyProviderDossierSeverity(provider, store.trustAssessments.find((item) => item.entityId === provider.id) ?? null, store.signalAssessments.find((item) => item.entityId === provider.id) ?? null, store.events),
+        evidence: provider.evidence[0] ?? null
+      };
+    }),
+    ...store.narratives.map((narrative) => ({
+      id: narrative.id,
+      type: 'narrative',
+      label: narrative.title,
+      summary: narrative.summary,
+      cluster_id: clusterIdForNarrative(narrative.title),
+      proof_state: narrative.evidence.length ? 'compounding' : 'unproven',
+      confidence_score: Math.round((narrative.heat ?? 50)),
+      velocity_score: Math.round((narrative.momentum ?? 50)),
+      linked_provider_ids: narrative.providerIds,
+      created_at: narrative.evidence[0]?.observedAt ?? NOW_FALLBACK,
+      updated_at: narrative.evidence[0]?.observedAt ?? NOW_FALLBACK,
+      heat: narrative.heat,
+      provider_id: null,
+      endpoint_id: null,
+      observed_at: narrative.evidence[0]?.observedAt ?? null,
+      catalog_generated_at: narrative.evidence[0]?.catalogGeneratedAt ?? null,
+      ingested_at: narrative.evidence[0]?.ingestedAt ?? null,
+      source: narrative.evidence[0]?.source ?? 'infopunks:deterministic-scoring',
+      derivation_reason: 'Graph narrative node is derived from deterministic narrative clustering.',
+      confidence: narrative.evidence.length ? 1 : 0.5,
+      ...classifyNarrativeClusterSeverity(narrative),
+      evidence: narrative.evidence[0] ?? null
+    })),
+    ...Array.from(new Set(store.providers.map((provider) => provider.category))).map((category) => ({
+      id: `category-${category}`,
+      type: 'category',
+      label: category,
+      summary: `Provider catalog category node for ${category}.`,
+      cluster_id: clusterIdForCategory(category),
+      proof_state: 'compounding',
+      confidence_score: 72,
+      velocity_score: 54,
+      created_at: latestProviderTimestamp(store, category) ?? NOW_FALLBACK,
+      updated_at: latestProviderTimestamp(store, category) ?? NOW_FALLBACK,
+      provider_id: null,
+      endpoint_id: null,
+      observed_at: latestProviderTimestamp(store, category),
+      catalog_generated_at: latestCatalogGeneratedAt(store, category),
+      ingested_at: latestProviderTimestamp(store, category),
+      source: 'pay.sh',
+      derivation_reason: 'Graph category node is derived from provider catalog categories.',
+      confidence: 1,
+      ...classifyGraphSeverity('category')
+    }))
   ];
 }
 
 function graphEdges(store: IntelligenceStore) {
   return [
-    ...store.providers.map((provider) => ({ source: provider.id, target: `category-${provider.category}`, type: 'listed_in', provider_id: provider.id, endpoint_id: null, observed_at: provider.lastSeenAt, catalog_generated_at: provider.catalogGeneratedAt ?? null, ingested_at: provider.ingestedAt ?? provider.lastSeenAt, derivation_reason: 'Graph edge is derived from provider category metadata.', confidence: provider.confidence ?? 1, ...classifyGraphSeverity('edge'), evidenceCount: provider.evidence.length, evidence: provider.evidence[0] ?? null })),
-    ...store.narratives.flatMap((narrative) => narrative.providerIds.map((providerId) => ({ source: narrative.id, target: providerId, type: 'contains', provider_id: providerId, endpoint_id: null, observed_at: narrative.evidence[0]?.observedAt ?? null, catalog_generated_at: narrative.evidence[0]?.catalogGeneratedAt ?? null, ingested_at: narrative.evidence[0]?.ingestedAt ?? null, derivation_reason: 'Graph edge is derived from narrative keyword membership.', confidence: narrative.evidence.length ? 1 : 0.5, ...classifyNarrativeClusterSeverity(narrative), evidenceCount: narrative.evidence.length, evidence: narrative.evidence[0] ?? null })))
+    ...store.providers.map((provider) => ({
+      id: `edge-provider-category-${provider.id}`,
+      source: provider.id,
+      target: `category-${provider.category}`,
+      source_node_id: provider.id,
+      target_node_id: `category-${provider.category}`,
+      type: 'provider_category',
+      strength: Math.round((provider.confidence ?? 1) * 100),
+      explanation: 'Graph edge is derived from provider category metadata.',
+      provider_id: provider.id,
+      endpoint_id: null,
+      observed_at: provider.lastSeenAt,
+      catalog_generated_at: provider.catalogGeneratedAt ?? null,
+      ingested_at: provider.ingestedAt ?? provider.lastSeenAt,
+      derivation_reason: 'Graph edge is derived from provider category metadata.',
+      confidence: provider.confidence ?? 1,
+      ...classifyGraphSeverity('edge'),
+      evidenceCount: provider.evidence.length,
+      evidence: provider.evidence[0] ?? null
+    })),
+    ...store.narratives.flatMap((narrative) => narrative.providerIds.map((providerId) => ({
+      id: `edge-narrative-provider-${narrative.id}-${providerId}`,
+      source: narrative.id,
+      target: providerId,
+      source_node_id: narrative.id,
+      target_node_id: providerId,
+      type: 'amplification',
+      strength: narrative.evidence.length ? 76 : 52,
+      explanation: 'Graph edge is derived from narrative keyword membership.',
+      provider_id: providerId,
+      endpoint_id: null,
+      observed_at: narrative.evidence[0]?.observedAt ?? null,
+      catalog_generated_at: narrative.evidence[0]?.catalogGeneratedAt ?? null,
+      ingested_at: narrative.evidence[0]?.ingestedAt ?? null,
+      derivation_reason: 'Graph edge is derived from narrative keyword membership.',
+      confidence: narrative.evidence.length ? 1 : 0.5,
+      ...classifyNarrativeClusterSeverity(narrative),
+      evidenceCount: narrative.evidence.length,
+      evidence: narrative.evidence[0] ?? null
+    })))
   ];
+}
+
+function buildGraphPayload(store: IntelligenceStore) {
+  const legacyNodes = graphNodes(store);
+  const legacyEdges = graphEdges(store);
+  const signalGraph = getSignalGraph();
+  const mergedNodes = [...signalGraph.nodes, ...legacyNodes].filter((node, index, array) => array.findIndex((candidate) => candidate.id === node.id) === index);
+  const mergedEdges = [
+    ...signalGraph.edges.map((edge) => ({ ...edge, source: edge.source_node_id, target: edge.target_node_id })),
+    ...legacyEdges
+  ].filter((edge, index, array) => array.findIndex((candidate) => candidate.id === edge.id || `${candidate.source_node_id ?? candidate.source}:${candidate.target_node_id ?? candidate.target}:${candidate.type}` === `${edge.source_node_id ?? edge.source}:${edge.target_node_id ?? edge.target}:${edge.type}`) === index);
+  const proofStateNodes = mergedNodes.filter((node) => typeof node === 'object' && node !== null && 'proof_state' in node);
+  return {
+    tagline: signalGraph.tagline,
+    clusters: signalGraph.clusters,
+    nodes: mergedNodes,
+    edges: mergedEdges,
+    ripples: signalGraph.ripples,
+    stats: {
+      node_count: mergedNodes.length,
+      edge_count: mergedEdges.length,
+      cluster_count: signalGraph.clusters.length,
+      validated_count: proofStateNodes.filter((node) => node.proof_state === 'validated').length,
+      disputed_count: proofStateNodes.filter((node) => node.proof_state === 'disputed').length,
+      compounding_count: proofStateNodes.filter((node) => node.proof_state === 'compounding').length,
+      last_updated_at: signalGraph.stats.last_updated_at
+    },
+    evidence: graphReceipt(store)
+  };
 }
 
 function graphReceipt(store: IntelligenceStore) {
@@ -2386,6 +2585,23 @@ function graphReceipt(store: IntelligenceStore) {
     confidence: store.events.length ? 1 : 0.5,
     ...classifyGraphSeverity('graph')
   };
+}
+
+const NOW_FALLBACK = '2026-06-25T09:00:00.000Z';
+
+function clusterIdForCategory(category: string) {
+  if (/(payment|finance|crypto|wallet)/i.test(category)) return 'agentic_payments';
+  if (/(machine|compute|translation|vision|navigation|storage)/i.test(category)) return 'machine_markets';
+  if (/(search|data|ocr|audit|research)/i.test(category)) return 'pre_spend_intelligence';
+  return 'ct_subcultures';
+}
+
+function clusterIdForNarrative(title: string) {
+  if (/(carbon|credit|integrity)/i.test(title)) return 'carbon_finance_2_0';
+  if (/(depin|machine|robot|market)/i.test(title)) return 'machine_markets';
+  if (/(wallet|payment|solana|base|x402)/i.test(title)) return 'agentic_payments';
+  if (/(route|receipt|proof|loop|claim)/i.test(title)) return 'pre_spend_intelligence';
+  return 'ct_subcultures';
 }
 
 function latestProviderTimestamp(store: IntelligenceStore, category: string) {

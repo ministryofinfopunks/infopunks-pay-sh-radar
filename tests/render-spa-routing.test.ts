@@ -101,6 +101,11 @@ describe('render-style SPA routing boundaries', () => {
       expect(loops.headers['content-type']).toContain('text/html');
       expect(loops.body).toContain('Radar SPA shell');
 
+      const graph = await app.inject({ method: 'GET', url: '/graph' });
+      expect(graph.statusCode).toBe(200);
+      expect(graph.headers['content-type']).toContain('text/html');
+      expect(graph.body).toContain('Radar SPA shell');
+
       const radarCard = await app.inject({ method: 'GET', url: '/radar/cards/provider/alpha' });
       expect(radarCard.statusCode).toBe(200);
       expect(radarCard.headers['content-type']).toContain('text/html');

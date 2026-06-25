@@ -357,6 +357,9 @@ export const ProofRiskFlagSchema = z.enum([
 ]);
 export const ProofDecisionStateSchema = z.enum(['trust', 'caution', 'do_not_use_yet', 'unproven', 'disputed']);
 export const LoopProofStateSchema = z.enum(['verified', 'partial', 'failure_recorded', 'memory_recorded', 'unproven', 'disputed']);
+export const SignalNodeTypeSchema = z.enum(['claim', 'meme', 'agent', 'project', 'token', 'post', 'route', 'receipt', 'proof_check', 'loop_run', 'provider', 'service', 'narrative', 'category']);
+export const SignalGraphProofStateSchema = z.enum(['unproven', 'validated', 'disputed', 'corrupted', 'compounding']);
+export const SignalEdgeTypeSchema = z.enum(['semantic_similarity', 'proof_link', 'citation', 'receipt', 'receipt_link', 'shared_wallet', 'repeated_narrative', 'contradiction', 'amplification', 'provider_category', 'narrative_category']);
 
 export const RouteIntelligenceSchema = z.object({
   route_id: z.string(),
@@ -621,6 +624,145 @@ export const LoopDetailSchema = LoopSchema.extend({
 export const LoopCheckInputSchema = z.object({
   input: z.string().min(1),
   linked_check_id: z.string().optional()
+});
+
+export const SignalGraphClusterSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  summary: z.string(),
+  proof_state: SignalGraphProofStateSchema,
+  ripple_summary: z.string(),
+  node_count: z.number().int().nonnegative(),
+  edge_count: z.number().int().nonnegative(),
+  updated_at: z.string().datetime()
+});
+
+export const SignalGraphNodeSchema = z.object({
+  id: z.string(),
+  type: SignalNodeTypeSchema,
+  label: z.string(),
+  summary: z.string(),
+  cluster_id: z.string(),
+  proof_state: SignalGraphProofStateSchema,
+  confidence_score: z.number().min(0).max(100),
+  velocity_score: z.number().min(0).max(100),
+  source_urls: z.array(z.string().url()).optional(),
+  linked_receipt_ids: z.array(z.string()).optional(),
+  linked_claim_ids: z.array(z.string()).optional(),
+  linked_loop_ids: z.array(z.string()).optional(),
+  linked_route_ids: z.array(z.string()).optional(),
+  linked_provider_ids: z.array(z.string()).optional(),
+  linked_service_ids: z.array(z.string()).optional(),
+  created_at: z.string().datetime(),
+  updated_at: z.string().datetime()
+});
+
+export const SignalGraphEdgeSchema = z.object({
+  id: z.string(),
+  source_node_id: z.string(),
+  target_node_id: z.string(),
+  type: SignalEdgeTypeSchema,
+  strength: z.number().min(0).max(100),
+  explanation: z.string()
+});
+
+export const SignalGraphRippleSchema = z.object({
+  id: z.string(),
+  cluster_id: z.string(),
+  title: z.string(),
+  summary: z.string(),
+  proof_state: SignalGraphProofStateSchema,
+  impact_score: z.number().min(0).max(100),
+  changed_at: z.string().datetime(),
+  linked_node_ids: z.array(z.string())
+});
+
+export const SignalGraphStatsSchema = z.object({
+  node_count: z.number().int().nonnegative(),
+  edge_count: z.number().int().nonnegative(),
+  cluster_count: z.number().int().nonnegative(),
+  validated_count: z.number().int().nonnegative(),
+  disputed_count: z.number().int().nonnegative(),
+  compounding_count: z.number().int().nonnegative(),
+  last_updated_at: z.string().datetime()
+});
+
+export const SignalGraphEvidenceSchema = z.object({
+  event_id: z.string().nullable().optional(),
+  provider_id: z.string().nullable().optional(),
+  endpoint_id: z.string().nullable().optional(),
+  observed_at: z.string().datetime().nullable().optional(),
+  catalog_generated_at: z.string().datetime().nullable().optional(),
+  ingested_at: z.string().datetime().nullable().optional(),
+  source: z.string().nullable().optional(),
+  derivation_reason: z.string().optional(),
+  confidence: z.number().min(0).max(1).optional(),
+  severity: SeveritySchema.optional(),
+  severity_reason: z.string().optional(),
+  severity_score: z.number().optional(),
+  severity_window: z.string().optional()
+});
+
+export const SignalGraphResponseSchema = z.object({
+  tagline: z.string(),
+  clusters: z.array(SignalGraphClusterSchema),
+  nodes: z.array(SignalGraphNodeSchema),
+  edges: z.array(SignalGraphEdgeSchema),
+  ripples: z.array(SignalGraphRippleSchema),
+  stats: SignalGraphStatsSchema,
+  evidence: SignalGraphEvidenceSchema.nullable().optional()
+});
+
+export const SignalGraphClusterDetailSchema = z.object({
+  cluster: SignalGraphClusterSchema,
+  nodes: z.array(SignalGraphNodeSchema),
+  edges: z.array(SignalGraphEdgeSchema),
+  ripples: z.array(SignalGraphRippleSchema)
+});
+
+export const SignalGraphNodeDetailSchema = z.object({
+  node: SignalGraphNodeSchema,
+  cluster: SignalGraphClusterSchema,
+  connected_edges: z.array(SignalGraphEdgeSchema),
+  related_nodes: z.array(SignalGraphNodeSchema),
+  ripples: z.array(SignalGraphRippleSchema)
+});
+
+export const SignalGraphCheckInputSchema = z.object({
+  label: z.string().min(1),
+  summary: z.string().min(1).optional(),
+  source_url: z.string().url().optional(),
+  cluster_id: z.string().min(1).optional()
+});
+
+export const SignalGraphEntityTypeSchema = z.enum([
+  'receipt',
+  'claim',
+  'loop',
+  'route',
+  'provider',
+  'service'
+]);
+
+export const SignalGraphSuggestedEdgeSchema = z.object({
+  target_node_id: z.string(),
+  type: SignalEdgeTypeSchema,
+  strength: z.number().min(0).max(100),
+  explanation: z.string()
+});
+
+export const SignalGraphCheckResponseSchema = z.object({
+  generated_node_preview: SignalGraphNodeSchema,
+  suggested_proof_state: SignalGraphProofStateSchema,
+  confidence_score: z.number().min(0).max(100),
+  suggested_edges: z.array(SignalGraphSuggestedEdgeSchema),
+  explanation: z.string()
+});
+
+export const SignalGraphEntityLookupResponseSchema = z.object({
+  entity_type: SignalGraphEntityTypeSchema,
+  entity_id: z.string().min(1),
+  nodes: z.array(SignalGraphNodeSchema)
 });
 
 export const RouteTrustSummarySchema = z.object({
@@ -2015,6 +2157,9 @@ export type ProofValidationStatus = z.infer<typeof ProofValidationStatusSchema>;
 export type ProofRiskFlag = z.infer<typeof ProofRiskFlagSchema>;
 export type ProofDecisionState = z.infer<typeof ProofDecisionStateSchema>;
 export type LoopProofState = z.infer<typeof LoopProofStateSchema>;
+export type SignalNodeType = z.infer<typeof SignalNodeTypeSchema>;
+export type SignalGraphProofState = z.infer<typeof SignalGraphProofStateSchema>;
+export type SignalEdgeType = z.infer<typeof SignalEdgeTypeSchema>;
 export type Claim = z.infer<typeof ClaimSchema>;
 export type ClaimChallenge = z.infer<typeof ClaimChallengeSchema>;
 export type ClaimCreateRequest = z.infer<typeof ClaimCreateRequestSchema>;
@@ -2027,6 +2172,20 @@ export type LoopRun = z.infer<typeof LoopRunSchema>;
 export type Loop = z.infer<typeof LoopSchema>;
 export type LoopDetail = z.infer<typeof LoopDetailSchema>;
 export type LoopCheckInput = z.infer<typeof LoopCheckInputSchema>;
+export type SignalGraphCluster = z.infer<typeof SignalGraphClusterSchema>;
+export type SignalGraphNode = z.infer<typeof SignalGraphNodeSchema>;
+export type SignalGraphEdge = z.infer<typeof SignalGraphEdgeSchema>;
+export type SignalGraphRipple = z.infer<typeof SignalGraphRippleSchema>;
+export type SignalGraphStats = z.infer<typeof SignalGraphStatsSchema>;
+export type SignalGraphEvidence = z.infer<typeof SignalGraphEvidenceSchema>;
+export type SignalGraphResponse = z.infer<typeof SignalGraphResponseSchema>;
+export type SignalGraphClusterDetail = z.infer<typeof SignalGraphClusterDetailSchema>;
+export type SignalGraphNodeDetail = z.infer<typeof SignalGraphNodeDetailSchema>;
+export type SignalGraphCheckInput = z.infer<typeof SignalGraphCheckInputSchema>;
+export type SignalGraphEntityType = z.infer<typeof SignalGraphEntityTypeSchema>;
+export type SignalGraphSuggestedEdge = z.infer<typeof SignalGraphSuggestedEdgeSchema>;
+export type SignalGraphCheckResponse = z.infer<typeof SignalGraphCheckResponseSchema>;
+export type SignalGraphEntityLookupResponse = z.infer<typeof SignalGraphEntityLookupResponseSchema>;
 export type RouteIntelligenceDetail = z.infer<typeof RouteIntelligenceDetailSchema>;
 export type ProviderIntelligenceDetail = z.infer<typeof ProviderIntelligenceDetailSchema>;
 export type PreSpendProviderSummary = z.infer<typeof PreSpendProviderSummarySchema>;

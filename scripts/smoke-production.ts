@@ -19,15 +19,40 @@ export type SmokePlan = {
   apiHeadJsonPaths: string[];
   claimsApiPaths: string[];
   preSpendPath: string;
+  graphCheckPath: string;
   livePulsePath: string;
 };
 
-const REQUEST_TIMEOUT_MS = 5_000;
-const RETRY_ATTEMPTS = 3;
-const RETRY_DELAY_MS = 500;
+export type SmokeConfig = {
+  publicPageTimeoutMs: number;
+  apiTimeoutMs: number;
+  publicPageRetryAttempts: number;
+  publicPageRetryDelayMs: number;
+};
+
+export const DEFAULT_PUBLIC_PAGE_TIMEOUT_MS = 15_000;
+export const DEFAULT_API_TIMEOUT_MS = 5_000;
+export const DEFAULT_PUBLIC_PAGE_RETRY_ATTEMPTS = 3;
+export const DEFAULT_PUBLIC_PAGE_RETRY_DELAY_MS = 1_000;
 
 export function resolveBaseUrl(env: NodeJS.ProcessEnv = process.env): string {
   return (env.SMOKE_BASE_URL ?? DEFAULT_BASE_URL).replace(/\/$/, '');
+}
+
+function parsePositiveInteger(value: string | undefined, fallback: number): number {
+  if (!value) return fallback;
+
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+export function resolveSmokeConfig(env: NodeJS.ProcessEnv = process.env): SmokeConfig {
+  return {
+    publicPageTimeoutMs: parsePositiveInteger(env.SMOKE_PUBLIC_PAGE_TIMEOUT_MS, DEFAULT_PUBLIC_PAGE_TIMEOUT_MS),
+    apiTimeoutMs: parsePositiveInteger(env.SMOKE_API_TIMEOUT_MS, DEFAULT_API_TIMEOUT_MS),
+    publicPageRetryAttempts: parsePositiveInteger(env.SMOKE_PUBLIC_PAGE_RETRY_ATTEMPTS, DEFAULT_PUBLIC_PAGE_RETRY_ATTEMPTS),
+    publicPageRetryDelayMs: parsePositiveInteger(env.SMOKE_PUBLIC_PAGE_RETRY_DELAY_MS, DEFAULT_PUBLIC_PAGE_RETRY_DELAY_MS)
+  };
 }
 
 export function buildSmokePlan(): SmokePlan {
@@ -50,6 +75,7 @@ export function buildSmokePlan(): SmokePlan {
       '/receipts',
       '/claim',
       '/loops',
+      '/graph',
       '/openapi.json',
       `/routes/${encodeURIComponent(routeId)}`,
       `/providers/${encodeURIComponent(providerId)}`,
@@ -71,6 +97,8 @@ export function buildSmokePlan(): SmokePlan {
       '/machine-market/cards/cloud-translation'
     ],
     apiGetPaths: [
+      '/v1/graph',
+      '/v1/graph/ripples',
       '/v1/loops',
       '/v1/routes',
       '/v1/pre-spend/providers',
@@ -90,12 +118,13 @@ export function buildSmokePlan(): SmokePlan {
       `/v1/claims/${encodeURIComponent(claimId)}/challenges`
     ],
     preSpendPath: '/v1/pre-spend/check',
+    graphCheckPath: '/v1/graph/check',
     livePulsePath: '/v1/pulse'
   };
 }
 
-function pass(label: string): void {
-  console.log(`PASS ${label}`);
+function pass(label: string, elapsedMs?: number): void {
+  console.log(`PASS ${label}${typeof elapsedMs === 'number' ? ` - elapsed=${elapsedMs}ms` : ''}`);
 }
 
 function fail(label: string, detail: string): void {
@@ -110,29 +139,131 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function fetchWithRetry(input: string, init?: RequestInit, label = input): Promise<Response> {
-  let lastError: Error | null = null;
+type TimedFetchResult = {
+  response: Response;
+  elapsedMs: number;
+};
 
-  for (let attempt = 1; attempt <= RETRY_ATTEMPTS; attempt += 1) {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+type RequestFailureDetail = {
+  method: string;
+  path: string;
+  elapsedMs?: number;
+  status?: number;
+  reason: string;
+};
+
+class SmokeRequestError extends Error {
+  readonly detail: RequestFailureDetail;
+
+  constructor(detail: RequestFailureDetail) {
+    super(formatFailureDetail(detail));
+    this.name = 'SmokeRequestError';
+    this.detail = detail;
+  }
+}
+
+function formatFailureDetail(detail: RequestFailureDetail): string {
+  const parts = [`method=${detail.method}`, `path=${detail.path}`];
+  if (typeof detail.status === 'number') parts.push(`status=${detail.status}`);
+  parts.push(`reason=${detail.reason}`);
+  if (typeof detail.elapsedMs === 'number') parts.push(`elapsed=${detail.elapsedMs}ms`);
+  return parts.join(' ');
+}
+
+function toFailureDetail(method: string, path: string, error: unknown): string {
+  if (error instanceof SmokeRequestError) return formatFailureDetail(error.detail);
+  return formatFailureDetail({
+    method,
+    path,
+    reason: error instanceof Error ? error.message : String(error)
+  });
+}
+
+async function timedFetch(input: string, init: RequestInit | undefined, timeoutMs: number, method: string, path: string): Promise<TimedFetchResult> {
+  const controller = new AbortController();
+  const startedAt = Date.now();
+  let timedOut = false;
+  const timeout = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, timeoutMs);
+
+  try {
+    const response = await fetch(input, {
+      ...init,
+      signal: init?.signal ?? controller.signal
+    });
+    return {
+      response,
+      elapsedMs: Date.now() - startedAt
+    };
+  } catch (error) {
+    const elapsedMs = Date.now() - startedAt;
+    const reason = timedOut
+      ? `timeout after ${timeoutMs}ms`
+      : error instanceof Error
+        ? error.message
+        : String(error);
+    throw new SmokeRequestError({
+      method,
+      path,
+      elapsedMs,
+      reason
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+type FetchWithRetryOptions = {
+  input: string;
+  method: string;
+  path: string;
+  init?: RequestInit;
+  timeoutMs: number;
+  retryAttempts?: number;
+  retryDelayMs?: number;
+};
+
+async function fetchWithRetry(options: FetchWithRetryOptions): Promise<TimedFetchResult> {
+  const {
+    input,
+    method,
+    path,
+    init,
+    timeoutMs,
+    retryAttempts = 1,
+    retryDelayMs = 0
+  } = options;
+
+  let lastError: SmokeRequestError | null = null;
+
+  for (let attempt = 1; attempt <= retryAttempts; attempt += 1) {
     try {
-      return await fetch(input, {
-        ...init,
-        signal: init?.signal ?? controller.signal
-      });
+      return await timedFetch(input, init, timeoutMs, method, path);
     } catch (error) {
-      lastError = error instanceof Error ? error : new Error(String(error));
-      if (lastError.name === 'AbortError' && label.includes('/v1/pulse')) {
-        throw new Error('GET /v1/pulse timed out. Backend route may be waiting on live bootstrap or upstream catalog.');
+      lastError = error instanceof SmokeRequestError
+        ? error
+        : new SmokeRequestError({
+            method,
+            path,
+            reason: error instanceof Error ? error.message : String(error)
+          });
+      if (attempt < retryAttempts) {
+        warn(`${method} ${path}`, `attempt ${attempt}/${retryAttempts} failed (${formatFailureDetail(lastError.detail)}); retrying in ${retryDelayMs}ms`);
+        await sleep(retryDelayMs);
       }
-      if (attempt < RETRY_ATTEMPTS) await sleep(RETRY_DELAY_MS);
-    } finally {
-      clearTimeout(timeout);
     }
   }
 
-  throw new Error(lastError?.message ?? 'unknown fetch failure');
+  if (lastError && method === 'GET' && path === '/v1/pulse' && lastError.detail.reason.startsWith('timeout after ')) {
+    throw new SmokeRequestError({
+      ...lastError.detail,
+      reason: `${lastError.detail.reason}; backend route may be waiting on live bootstrap or upstream catalog`
+    });
+  }
+
+  throw lastError ?? new SmokeRequestError({ method, path, reason: 'unknown fetch failure' });
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -143,62 +274,138 @@ function hasDataEnvelope(value: unknown): value is { data: unknown } {
   return isRecord(value) && 'data' in value;
 }
 
-async function checkPublicPage(baseUrl: string, path: string): Promise<void> {
-  const response = await fetchWithRetry(`${baseUrl}${path}`, {
-    headers: { accept: path === '/openapi.json' ? 'application/json' : 'text/html,application/xhtml+xml' }
-  }, path);
+async function checkPublicPage(baseUrl: string, path: string, config: SmokeConfig): Promise<number> {
+  const { response, elapsedMs } = await fetchWithRetry({
+    input: `${baseUrl}${path}`,
+    method: 'GET',
+    path,
+    timeoutMs: config.publicPageTimeoutMs,
+    retryAttempts: config.publicPageRetryAttempts,
+    retryDelayMs: config.publicPageRetryDelayMs,
+    init: {
+      headers: { accept: path === '/openapi.json' ? 'application/json' : 'text/html,application/xhtml+xml' }
+    }
+  });
 
   if (response.status !== 200) {
-    throw new Error(`expected 200, got ${response.status}`);
+    throw new SmokeRequestError({
+      method: 'GET',
+      path,
+      status: response.status,
+      elapsedMs,
+      reason: 'expected 200'
+    });
   }
+
+  return elapsedMs;
 }
 
-async function checkPublicHead(baseUrl: string, path: string): Promise<void> {
-  const response = await fetchWithRetry(`${baseUrl}${path}`, {
+async function checkPublicHead(baseUrl: string, path: string, config: SmokeConfig): Promise<number> {
+  const { response, elapsedMs } = await fetchWithRetry({
+    input: `${baseUrl}${path}`,
     method: 'HEAD',
-    headers: { accept: 'text/html,application/xhtml+xml' }
-  }, `HEAD ${path}`);
+    path,
+    timeoutMs: config.publicPageTimeoutMs,
+    retryAttempts: config.publicPageRetryAttempts,
+    retryDelayMs: config.publicPageRetryDelayMs,
+    init: {
+      method: 'HEAD',
+      headers: { accept: 'text/html,application/xhtml+xml' }
+    }
+  });
 
   if (response.status !== 200) {
-    throw new Error(`expected 200, got ${response.status}`);
+    throw new SmokeRequestError({
+      method: 'HEAD',
+      path,
+      status: response.status,
+      elapsedMs,
+      reason: 'expected 200'
+    });
   }
 
   const contentType = response.headers.get('content-type')?.toLowerCase() ?? '';
   if (!contentType.includes('text/html')) {
-    throw new Error(`expected text/html content-type, got ${contentType || 'missing'}`);
+    throw new SmokeRequestError({
+      method: 'HEAD',
+      path,
+      status: response.status,
+      elapsedMs,
+      reason: `expected text/html content-type, got ${contentType || 'missing'}`
+    });
   }
+
+  return elapsedMs;
 }
 
-async function checkJsonGet(baseUrl: string, path: string): Promise<unknown> {
-  const response = await fetchWithRetry(`${baseUrl}${path}`, {
-    headers: { accept: 'application/json' }
-  }, path);
+async function checkJsonGet(baseUrl: string, path: string, timeoutMs: number): Promise<{ body: unknown; elapsedMs: number }> {
+  const { response, elapsedMs } = await fetchWithRetry({
+    input: `${baseUrl}${path}`,
+    method: 'GET',
+    path,
+    timeoutMs,
+    init: {
+      headers: { accept: 'application/json' }
+    }
+  });
 
   if (!response.ok) {
-    throw new Error(`expected 2xx, got ${response.status}`);
+    throw new SmokeRequestError({
+      method: 'GET',
+      path,
+      status: response.status,
+      elapsedMs,
+      reason: 'expected 2xx'
+    });
   }
 
-  const body = await parseExpectedJson(response);
+  const body = await parseJsonOrThrow('GET', path, response, elapsedMs);
   if (!isRecord(body)) {
-    throw new Error('expected JSON object response');
+    throw new SmokeRequestError({
+      method: 'GET',
+      path,
+      status: response.status,
+      elapsedMs,
+      reason: 'expected JSON object response'
+    });
   }
-  return body;
+  return { body, elapsedMs };
 }
 
-async function checkJsonHead(baseUrl: string, path: string): Promise<void> {
-  const response = await fetchWithRetry(`${baseUrl}${path}`, {
+async function checkJsonHead(baseUrl: string, path: string, timeoutMs: number): Promise<number> {
+  const { response, elapsedMs } = await fetchWithRetry({
+    input: `${baseUrl}${path}`,
     method: 'HEAD',
-    headers: { accept: 'application/json' }
-  }, `HEAD ${path}`);
+    path,
+    timeoutMs,
+    init: {
+      method: 'HEAD',
+      headers: { accept: 'application/json' }
+    }
+  });
 
   if (!response.ok) {
-    throw new Error(`expected 2xx, got ${response.status}`);
+    throw new SmokeRequestError({
+      method: 'HEAD',
+      path,
+      status: response.status,
+      elapsedMs,
+      reason: 'expected 2xx'
+    });
   }
 
   const contentType = response.headers.get('content-type')?.toLowerCase() ?? '';
   if (!contentType.includes('application/json')) {
-    throw new Error(`expected application/json content-type, got ${contentType || 'missing'}`);
+    throw new SmokeRequestError({
+      method: 'HEAD',
+      path,
+      status: response.status,
+      elapsedMs,
+      reason: `expected application/json content-type, got ${contentType || 'missing'}`
+    });
   }
+
+  return elapsedMs;
 }
 
 async function parseExpectedJson(response: Response): Promise<unknown> {
@@ -214,6 +421,20 @@ async function parseExpectedJson(response: Response): Promise<unknown> {
     return JSON.parse(text) as unknown;
   } catch (error) {
     throw new Error(`expected JSON response, parse failed: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
+async function parseJsonOrThrow(method: string, path: string, response: Response, elapsedMs: number): Promise<unknown> {
+  try {
+    return await parseExpectedJson(response);
+  } catch (error) {
+    throw new SmokeRequestError({
+      method,
+      path,
+      status: response.status,
+      elapsedMs,
+      reason: error instanceof Error ? error.message : String(error)
+    });
   }
 }
 
@@ -280,90 +501,141 @@ function assertLivePulse(body: unknown): { fixtureFallback: boolean; summary: st
   };
 }
 
-export async function runSmoke(baseUrl = resolveBaseUrl()): Promise<boolean> {
+export async function runSmoke(baseUrl = resolveBaseUrl(), config = resolveSmokeConfig()): Promise<boolean> {
   const plan = buildSmokePlan();
   let failed = false;
 
   for (const path of plan.publicPaths) {
     try {
-      await checkPublicPage(baseUrl, path);
-      pass(path);
+      const elapsedMs = await checkPublicPage(baseUrl, path, config);
+      pass(`GET ${path}`, elapsedMs);
     } catch (error) {
       failed = true;
-      fail(path, error instanceof Error ? error.message : String(error));
+      fail(`GET ${path}`, toFailureDetail('GET', path, error));
     }
   }
 
   for (const path of plan.publicHeadPaths) {
     try {
-      await checkPublicHead(baseUrl, path);
-      pass(`HEAD ${path}`);
+      const elapsedMs = await checkPublicHead(baseUrl, path, config);
+      pass(`HEAD ${path}`, elapsedMs);
     } catch (error) {
       failed = true;
-      fail(`HEAD ${path}`, error instanceof Error ? error.message : String(error));
+      fail(`HEAD ${path}`, toFailureDetail('HEAD', path, error));
     }
   }
 
   for (const path of plan.apiGetPaths) {
     try {
-      const body = await checkJsonGet(baseUrl, path);
+      const { body, elapsedMs } = await checkJsonGet(baseUrl, path, config.apiTimeoutMs);
       if (path !== '/openapi.json' && !hasDataEnvelope(body)) {
         throw new Error('missing data payload');
       }
-      pass(`GET ${path}`);
+      pass(`GET ${path}`, elapsedMs);
     } catch (error) {
       failed = true;
-      fail(`GET ${path}`, error instanceof Error ? error.message : String(error));
+      fail(`GET ${path}`, toFailureDetail('GET', path, error));
     }
   }
 
   for (const path of plan.apiHeadJsonPaths) {
     try {
-      await checkJsonHead(baseUrl, path);
-      pass(`HEAD ${path}`);
+      const elapsedMs = await checkJsonHead(baseUrl, path, config.apiTimeoutMs);
+      pass(`HEAD ${path}`, elapsedMs);
     } catch (error) {
       failed = true;
-      fail(`HEAD ${path}`, error instanceof Error ? error.message : String(error));
+      fail(`HEAD ${path}`, toFailureDetail('HEAD', path, error));
     }
   }
 
   try {
-    const body = await checkJsonGet(baseUrl, plan.livePulsePath);
+    const { body, elapsedMs } = await checkJsonGet(baseUrl, plan.livePulsePath, config.apiTimeoutMs);
     const result = assertLivePulse(body);
     if (result.fixtureFallback) warn(`GET ${plan.livePulsePath}`, `backend healthy; upstream catalog fallback active (${result.summary})`);
-    else pass(`GET ${plan.livePulsePath}`);
+    else pass(`GET ${plan.livePulsePath}`, elapsedMs);
   } catch (error) {
     failed = true;
-    fail(`GET ${plan.livePulsePath}`, error instanceof Error ? error.message : String(error));
+    fail(`GET ${plan.livePulsePath}`, toFailureDetail('GET', plan.livePulsePath, error));
   }
 
   try {
-    const response = await fetchWithRetry(`${baseUrl}${plan.preSpendPath}`, {
+    const { response, elapsedMs } = await fetchWithRetry({
+      input: `${baseUrl}${plan.preSpendPath}`,
       method: 'POST',
-      headers: {
-        accept: 'application/json',
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify(PRE_SPEND_CHECK_PAYLOAD)
-    }, plan.preSpendPath);
+      path: plan.preSpendPath,
+      timeoutMs: config.apiTimeoutMs,
+      init: {
+        method: 'POST',
+        headers: {
+          accept: 'application/json',
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify(PRE_SPEND_CHECK_PAYLOAD)
+      }
+    });
 
     if (!response.ok) {
-      throw new Error(`expected 2xx, got ${response.status}`);
+      throw new SmokeRequestError({
+        method: 'POST',
+        path: plan.preSpendPath,
+        status: response.status,
+        elapsedMs,
+        reason: 'expected 2xx'
+      });
     }
 
-    const body = await parseExpectedJson(response);
+    const body = await parseJsonOrThrow('POST', plan.preSpendPath, response, elapsedMs);
     assertPreSpendResponse(body);
-    pass(`POST ${plan.preSpendPath}`);
+    pass(`POST ${plan.preSpendPath}`, elapsedMs);
   } catch (error) {
     failed = true;
-    fail(`POST ${plan.preSpendPath}`, error instanceof Error ? error.message : String(error));
+    fail(`POST ${plan.preSpendPath}`, toFailureDetail('POST', plan.preSpendPath, error));
+  }
+
+  try {
+    const { response, elapsedMs } = await fetchWithRetry({
+      input: `${baseUrl}${plan.graphCheckPath}`,
+      method: 'POST',
+      path: plan.graphCheckPath,
+      timeoutMs: config.apiTimeoutMs,
+      init: {
+        method: 'POST',
+        headers: {
+          accept: 'application/json',
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          label: 'Smoke graph check',
+          summary: 'Receipt-backed memory should outrank feed scrolling.'
+        })
+      }
+    });
+
+    if (!response.ok) {
+      throw new SmokeRequestError({
+        method: 'POST',
+        path: plan.graphCheckPath,
+        status: response.status,
+        elapsedMs,
+        reason: 'expected 2xx'
+      });
+    }
+
+    const body = await parseJsonOrThrow('POST', plan.graphCheckPath, response, elapsedMs);
+    if (!hasDataEnvelope(body) || !isRecord(body.data) || !isRecord(body.data.generated_node_preview)) {
+      throw new Error('missing graph check preview payload');
+    }
+    pass(`POST ${plan.graphCheckPath}`, elapsedMs);
+  } catch (error) {
+    failed = true;
+    fail(`POST ${plan.graphCheckPath}`, toFailureDetail('POST', plan.graphCheckPath, error));
   }
 
   const claimId = createPreSpendSeedState().claims[0]?.claim_id ?? 'claim_001';
 
   for (const path of plan.claimsApiPaths) {
     try {
-      const body = await checkJsonGet(baseUrl, path);
+      const { body, elapsedMs } = await checkJsonGet(baseUrl, path, config.apiTimeoutMs);
       if (path === '/v1/claims') {
         assertClaimsList(body);
       } else if (path.endsWith('/challenges')) {
@@ -371,10 +643,10 @@ export async function runSmoke(baseUrl = resolveBaseUrl()): Promise<boolean> {
       } else {
         assertClaimDetail(body, claimId);
       }
-      pass(`GET ${path}`);
+      pass(`GET ${path}`, elapsedMs);
     } catch (error) {
       failed = true;
-      fail(`GET ${path}`, error instanceof Error ? error.message : String(error));
+      fail(`GET ${path}`, toFailureDetail('GET', path, error));
     }
   }
 

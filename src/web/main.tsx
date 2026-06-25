@@ -73,6 +73,86 @@ type EventSort = 'last observed' | 'severity' | 'provider';
 type TrustAssessment = EvidenceReceipt & { entityId: string; score: number | null; grade: string; components: Record<string, number | null>; unknowns: string[] };
 type SignalAssessment = EvidenceReceipt & { entityId: string; score: number | null; narratives: string[]; components: Record<string, number | null>; unknowns: string[] };
 type Narrative = EvidenceReceipt & { id: string; title: string; heat: number | null; momentum: number | null; providerIds: string[]; keywords: string[]; summary: string };
+type GraphProofState = 'unproven' | 'validated' | 'disputed' | 'corrupted' | 'compounding';
+type GraphNodeType = 'claim' | 'meme' | 'agent' | 'project' | 'token' | 'post' | 'route' | 'receipt' | 'proof_check' | 'loop_run' | 'provider' | 'service' | 'narrative' | 'category';
+type GraphEdgeType = 'semantic_similarity' | 'proof_link' | 'citation' | 'receipt' | 'receipt_link' | 'shared_wallet' | 'repeated_narrative' | 'contradiction' | 'amplification' | 'provider_category' | 'narrative_category';
+type GraphCluster = {
+  id: string;
+  label: string;
+  summary: string;
+  proof_state: GraphProofState;
+  ripple_summary: string;
+  node_count: number;
+  edge_count: number;
+  updated_at: string;
+};
+type GraphNode = {
+  id: string;
+  type: GraphNodeType;
+  label: string;
+  summary: string;
+  cluster_id: string;
+  proof_state: GraphProofState;
+  confidence_score: number;
+  velocity_score: number;
+  source_urls?: string[];
+  linked_receipt_ids?: string[];
+  linked_claim_ids?: string[];
+  linked_loop_ids?: string[];
+  linked_route_ids?: string[];
+  linked_provider_ids?: string[];
+  linked_service_ids?: string[];
+  created_at: string;
+  updated_at: string;
+};
+type GraphEdge = {
+  id: string;
+  source_node_id: string;
+  target_node_id: string;
+  type: GraphEdgeType;
+  strength: number;
+  explanation: string;
+};
+type GraphRipple = {
+  id: string;
+  cluster_id: string;
+  title: string;
+  summary: string;
+  proof_state: GraphProofState;
+  impact_score: number;
+  changed_at: string;
+  linked_node_ids: string[];
+};
+type GraphSuggestedEdge = {
+  target_node_id: string;
+  type: GraphEdgeType;
+  strength: number;
+  explanation: string;
+};
+type GraphCheckResponse = {
+  generated_node_preview: GraphNode;
+  suggested_proof_state: GraphProofState;
+  confidence_score: number;
+  suggested_edges: GraphSuggestedEdge[];
+  explanation: string;
+};
+type GraphStats = {
+  node_count: number;
+  edge_count: number;
+  cluster_count: number;
+  validated_count: number;
+  disputed_count: number;
+  compounding_count: number;
+  last_updated_at: string | null;
+};
+type GraphPayload = {
+  tagline: string;
+  clusters: GraphCluster[];
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+  ripples: GraphRipple[];
+  stats: GraphStats | null;
+};
 type DataSource = { mode: 'live_pay_sh_catalog' | 'fixture_fallback'; url: string | null; generated_at: string | null; provider_count: number | null; last_ingested_at: string | null; used_fixture: boolean; error?: string | null };
 type MachineMarketCategory = 'compute' | 'inference' | 'web' | 'vision' | 'storage' | 'translation' | 'navigation';
 type MachineMarketType = 'digital' | 'physical' | 'all-compatible';
@@ -1857,6 +1937,10 @@ function isProofCheckIndexRoute(pathname: string) {
 
 function isLoopsIndexRoute(pathname: string) {
   return /^\/loops\/?$/.test(pathname);
+}
+
+function isGraphRoute(pathname: string) {
+  return /^\/graph\/?$/.test(pathname);
 }
 
 function isMachineMarketRoute(pathname: string) {
@@ -9497,6 +9581,7 @@ function RadarApp() {
             <a className="methodology-trigger" href="/developers">Developers</a>
             <a className="methodology-trigger" href="/check">Check</a>
             <a className="methodology-trigger" href="/loops">Loops</a>
+            <a className="methodology-trigger" href="/graph">Signal Graph</a>
             <a className="methodology-trigger" href="/claim">Claims</a>
             <a className="methodology-trigger" href="#agent-benchmark-api">Agent Benchmark API</a>
             <button className="methodology-trigger methodology-link" type="button" onClick={() => setMethodologyOpen(true)} aria-label="Open methodology drawer">
@@ -9619,6 +9704,15 @@ function RadarApp() {
         <small>Same terminal. New species of spender.</small>
       </div>
       <a className="execute compact secondary" href="/machine-market">Open Machine Market</a>
+    </section>}
+
+    {!agentMode && <section className="panel signal-graph-teaser-card" aria-label="Signal Graph teaser">
+      <div>
+        <p className="section-kicker">Visual Memory Layer</p>
+        <h2>Read the graph, not the feed.</h2>
+        <p>Claims, routes, receipts, loops, and narratives mapped by proof.</p>
+      </div>
+      <a className="execute compact secondary" href="/graph">Open Signal Graph</a>
     </section>}
 
     {!agentMode && <HeadToHeadBenchmarkPanel registry={benchmarkRegistry} evidenceLedger={evidenceLedger} loading={benchmarkReadinessLoading} />}
@@ -13285,6 +13379,822 @@ function MachineControlSurfacesStrip() {
   </section>;
 }
 
+const GRAPH_PROOF_STATE_LABELS: Record<GraphProofState, string> = {
+  unproven: 'Unproven',
+  validated: 'Validated',
+  disputed: 'Disputed',
+  corrupted: 'Corrupted',
+  compounding: 'Compounding'
+};
+
+const GRAPH_EMPTY_STATE: GraphPayload = {
+  tagline: 'Stop scrolling the feed. Read the graph.',
+  clusters: [],
+  nodes: [],
+  edges: [],
+  ripples: [],
+  stats: null
+};
+
+function graphProofStateLabel(value: string | null | undefined) {
+  if (!value) return 'Unknown';
+  if (value in GRAPH_PROOF_STATE_LABELS) return GRAPH_PROOF_STATE_LABELS[value as GraphProofState];
+  return value.replace(/_/g, ' ');
+}
+
+function graphNodeTypeLabel(value: string | null | undefined) {
+  if (!value) return 'unknown';
+  return value.replace(/_/g, ' ');
+}
+
+function graphEdgeTypeLabel(value: string | null | undefined) {
+  if (!value) return 'unknown';
+  return value.replace(/_/g, ' ');
+}
+
+function graphTitleCase(value: string) {
+  return value.split(/[_\s]+/).filter(Boolean).map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
+}
+
+function safeGraphStringList(value: unknown) {
+  return asArray<unknown>(value).filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
+}
+
+function safeGraphNumber(value: unknown, fallback = 0) {
+  return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+}
+
+function safeGraphNode(raw: unknown): GraphNode | null {
+  if (!isRecord(raw) || typeof raw.id !== 'string' || typeof raw.label !== 'string') return null;
+  return {
+    id: raw.id,
+    type: typeof raw.type === 'string' ? raw.type as GraphNodeType : 'claim',
+    label: raw.label,
+    summary: typeof raw.summary === 'string' ? raw.summary : 'No summary recorded.',
+    cluster_id: typeof raw.cluster_id === 'string' ? raw.cluster_id : 'unclustered',
+    proof_state: typeof raw.proof_state === 'string' ? raw.proof_state as GraphProofState : 'unproven',
+    confidence_score: safeGraphNumber(raw.confidence_score),
+    velocity_score: safeGraphNumber(raw.velocity_score),
+    source_urls: safeGraphStringList(raw.source_urls),
+    linked_receipt_ids: safeGraphStringList(raw.linked_receipt_ids),
+    linked_claim_ids: safeGraphStringList(raw.linked_claim_ids),
+    linked_loop_ids: safeGraphStringList(raw.linked_loop_ids),
+    linked_route_ids: safeGraphStringList(raw.linked_route_ids),
+    linked_provider_ids: safeGraphStringList(raw.linked_provider_ids),
+    linked_service_ids: safeGraphStringList(raw.linked_service_ids),
+    created_at: typeof raw.created_at === 'string' ? raw.created_at : '',
+    updated_at: typeof raw.updated_at === 'string' ? raw.updated_at : ''
+  };
+}
+
+function safeGraphEdge(raw: unknown): GraphEdge | null {
+  if (!isRecord(raw) || typeof raw.id !== 'string') return null;
+  const source_node_id = typeof raw.source_node_id === 'string'
+    ? raw.source_node_id
+    : typeof raw.source === 'string'
+      ? raw.source
+      : null;
+  const target_node_id = typeof raw.target_node_id === 'string'
+    ? raw.target_node_id
+    : typeof raw.target === 'string'
+      ? raw.target
+      : null;
+  if (!source_node_id || !target_node_id) return null;
+  return {
+    id: raw.id,
+    source_node_id,
+    target_node_id,
+    type: typeof raw.type === 'string' ? raw.type as GraphEdgeType : 'semantic_similarity',
+    strength: safeGraphNumber(raw.strength, 50),
+    explanation: typeof raw.explanation === 'string' ? raw.explanation : 'No explanation recorded.'
+  };
+}
+
+function safeGraphCluster(raw: unknown): GraphCluster | null {
+  if (!isRecord(raw) || typeof raw.id !== 'string') return null;
+  return {
+    id: raw.id,
+    label: typeof raw.label === 'string' ? raw.label : graphTitleCase(raw.id),
+    summary: typeof raw.summary === 'string' ? raw.summary : 'Cluster summary unavailable.',
+    proof_state: typeof raw.proof_state === 'string' ? raw.proof_state as GraphProofState : 'unproven',
+    ripple_summary: typeof raw.ripple_summary === 'string' ? raw.ripple_summary : 'No 24h ripple summary recorded.',
+    node_count: safeGraphNumber(raw.node_count),
+    edge_count: safeGraphNumber(raw.edge_count),
+    updated_at: typeof raw.updated_at === 'string' ? raw.updated_at : ''
+  };
+}
+
+function safeGraphRipple(raw: unknown): GraphRipple | null {
+  if (!isRecord(raw) || typeof raw.id !== 'string' || typeof raw.title !== 'string') return null;
+  return {
+    id: raw.id,
+    cluster_id: typeof raw.cluster_id === 'string' ? raw.cluster_id : 'unclustered',
+    title: raw.title,
+    summary: typeof raw.summary === 'string' ? raw.summary : 'No ripple summary recorded.',
+    proof_state: typeof raw.proof_state === 'string' ? raw.proof_state as GraphProofState : 'unproven',
+    impact_score: safeGraphNumber(raw.impact_score),
+    changed_at: typeof raw.changed_at === 'string' ? raw.changed_at : '',
+    linked_node_ids: safeGraphStringList(raw.linked_node_ids)
+  };
+}
+
+function safeGraphStats(raw: unknown): GraphStats | null {
+  if (!isRecord(raw)) return null;
+  return {
+    node_count: safeGraphNumber(raw.node_count),
+    edge_count: safeGraphNumber(raw.edge_count),
+    cluster_count: safeGraphNumber(raw.cluster_count),
+    validated_count: safeGraphNumber(raw.validated_count),
+    disputed_count: safeGraphNumber(raw.disputed_count),
+    compounding_count: safeGraphNumber(raw.compounding_count),
+    last_updated_at: typeof raw.last_updated_at === 'string' ? raw.last_updated_at : null
+  };
+}
+
+function normalizeGraphPayload(raw: unknown): GraphPayload {
+  const payload = isRecord(raw) && 'data' in raw ? raw.data : raw;
+  if (!isRecord(payload)) return GRAPH_EMPTY_STATE;
+  const nodes = asArray<unknown>(payload.nodes).map(safeGraphNode).filter((item): item is GraphNode => item !== null);
+  const edges = asArray<unknown>(payload.edges).map(safeGraphEdge).filter((item): item is GraphEdge => item !== null);
+  const clusters = asArray<unknown>(payload.clusters).map(safeGraphCluster).filter((item): item is GraphCluster => item !== null);
+  const derivedClusterIds = Array.from(new Set(nodes.map((node) => node.cluster_id)));
+  const completedClusters = clusters.length > 0
+    ? clusters
+    : derivedClusterIds.map((id) => ({
+      id,
+      label: graphTitleCase(id),
+      summary: 'Cluster summary unavailable in this payload.',
+      proof_state: 'unproven' as GraphProofState,
+      ripple_summary: 'No 24h ripple summary recorded.',
+      node_count: nodes.filter((node) => node.cluster_id === id).length,
+      edge_count: edges.filter((edge) => {
+        const source = nodes.find((node) => node.id === edge.source_node_id);
+        const target = nodes.find((node) => node.id === edge.target_node_id);
+        return source?.cluster_id === id || target?.cluster_id === id;
+      }).length,
+      updated_at: nodes.find((node) => node.cluster_id === id)?.updated_at ?? ''
+    }));
+  return {
+    tagline: typeof payload.tagline === 'string' && payload.tagline.trim().length > 0 ? payload.tagline : GRAPH_EMPTY_STATE.tagline,
+    clusters: completedClusters,
+    nodes,
+    edges,
+    ripples: asArray<unknown>(payload.ripples).map(safeGraphRipple).filter((item): item is GraphRipple => item !== null),
+    stats: safeGraphStats(payload.stats)
+  };
+}
+
+function normalizeGraphRippleResponse(raw: unknown) {
+  const payload = isRecord(raw) && 'data' in raw ? raw.data : raw;
+  if (!isRecord(payload)) return [] as GraphRipple[];
+  return asArray<unknown>(payload.ripples).map(safeGraphRipple).filter((item): item is GraphRipple => item !== null);
+}
+
+function safeGraphSuggestedEdge(raw: unknown): GraphSuggestedEdge | null {
+  if (!isRecord(raw)) return null;
+  if (typeof raw.target_node_id !== 'string' || typeof raw.type !== 'string') return null;
+  return {
+    target_node_id: raw.target_node_id,
+    type: raw.type as GraphEdgeType,
+    strength: safeGraphNumber(raw.strength),
+    explanation: typeof raw.explanation === 'string' ? raw.explanation : 'No edge explanation recorded.'
+  };
+}
+
+function normalizeGraphCheckResponse(raw: unknown): GraphCheckResponse | null {
+  const payload = isRecord(raw) && 'data' in raw ? raw.data : raw;
+  if (!isRecord(payload)) return null;
+  const generatedNodePreview = safeGraphNode(payload.generated_node_preview);
+  if (!generatedNodePreview) return null;
+  return {
+    generated_node_preview: generatedNodePreview,
+    suggested_proof_state: typeof payload.suggested_proof_state === 'string' ? payload.suggested_proof_state as GraphProofState : generatedNodePreview.proof_state,
+    confidence_score: safeGraphNumber(payload.confidence_score),
+    suggested_edges: asArray<unknown>(payload.suggested_edges).map(safeGraphSuggestedEdge).filter((item): item is GraphSuggestedEdge => item !== null),
+    explanation: typeof payload.explanation === 'string' ? payload.explanation : 'No explanation recorded.'
+  };
+}
+
+function graphNodeLinkGroups(node: GraphNode) {
+  return [
+    ['Receipts', node.linked_receipt_ids ?? []],
+    ['Claims', node.linked_claim_ids ?? []],
+    ['Loops', node.linked_loop_ids ?? []],
+    ['Routes', node.linked_route_ids ?? []],
+    ['Providers', node.linked_provider_ids ?? []],
+    ['Services', node.linked_service_ids ?? []]
+  ] as const;
+}
+
+function graphEntityHref(group: string, id: string) {
+  if (group === 'Receipts') return id.startsWith('receipt_') ? `/receipts/${encodeURIComponent(id)}` : null;
+  if (group === 'Claims') return `/claims/${encodeURIComponent(id)}`;
+  if (group === 'Loops') return `/loops/${encodeURIComponent(id)}`;
+  if (group === 'Routes') return `/routes/${encodeURIComponent(id)}`;
+  if (group === 'Providers') return `/providers/${encodeURIComponent(id)}`;
+  if (group === 'Services') return `/services/${encodeURIComponent(id)}`;
+  return null;
+}
+
+function graphQueryNodeId() {
+  try {
+    return new URLSearchParams(window.location.search).get('node');
+  } catch {
+    return null;
+  }
+}
+
+function buildNodeShareText(node: GraphNode, clusterLabel: string) {
+  return `INFOPUNKS SIGNAL GRAPH
+
+${node.label}
+
+Type: ${graphNodeTypeLabel(node.type)}
+Cluster: ${clusterLabel}
+Proof state: ${graphProofStateLabel(node.proof_state)}
+Confidence: ${node.confidence_score}/100
+Velocity: ${node.velocity_score}/100
+
+${node.summary}
+
+Stop scrolling the feed.
+Read the graph.
+
+radar.infopunks.fun/graph?node=${node.id}`;
+}
+
+function buildRippleShareText(ripple: GraphRipple, clusterLabel: string) {
+  return `SIGNAL GRAPH RIPPLE
+
+${ripple.title}
+
+Cluster: ${clusterLabel}
+Proof state: ${graphProofStateLabel(ripple.proof_state)}
+Impact: ${ripple.impact_score}/100
+
+${ripple.summary}
+
+Stop scrolling the feed.
+Read the graph.
+
+radar.infopunks.fun/graph`;
+}
+
+function buildSignalCheckShareText(result: GraphCheckResponse, clusterLabel: string) {
+  return `INFOPUNKS SIGNAL CHECK
+
+${result.generated_node_preview.label}
+
+Suggested proof state: ${graphProofStateLabel(result.suggested_proof_state)}
+Confidence: ${result.confidence_score}/100
+Suggested cluster: ${clusterLabel}
+
+${result.explanation}
+
+Stop scrolling the feed.
+Read the graph.
+
+radar.infopunks.fun/graph`;
+}
+
+function SignalGraphPage() {
+  const [graph, setGraph] = useState<GraphPayload>(GRAPH_EMPTY_STATE);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [activeClusterId, setActiveClusterId] = useState<'all' | string>('all');
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(() => graphQueryNodeId());
+  const [signalCheckLabel, setSignalCheckLabel] = useState('');
+  const [signalCheckSummary, setSignalCheckSummary] = useState('');
+  const [signalCheckSourceUrl, setSignalCheckSourceUrl] = useState('');
+  const [signalCheckClusterId, setSignalCheckClusterId] = useState('');
+  const [signalCheckValidationError, setSignalCheckValidationError] = useState<string | null>(null);
+  const [signalCheckError, setSignalCheckError] = useState<string | null>(null);
+  const [signalCheckLoading, setSignalCheckLoading] = useState(false);
+  const [signalCheckResult, setSignalCheckResult] = useState<GraphCheckResponse | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      setLoading(true);
+      setError(null);
+      try {
+        const normalized = normalizeGraphPayload(await api<unknown>('/v1/graph'));
+        let ripples = normalized.ripples;
+        if (ripples.length === 0) {
+          try {
+            ripples = normalizeGraphRippleResponse(await api<unknown>('/v1/graph/ripples'));
+          } catch {
+            ripples = [];
+          }
+        }
+        if (cancelled) return;
+        setGraph({ ...normalized, ripples });
+        setSelectedNodeId((current) => current ?? normalized.nodes[0]?.id ?? null);
+      } catch {
+        if (cancelled) return;
+        setError('Signal Graph is temporarily unavailable.');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const clusterMap = useMemo(() => new Map(graph.clusters.map((cluster) => [cluster.id, cluster])), [graph.clusters]);
+  const nodeMap = useMemo(() => new Map(graph.nodes.map((node) => [node.id, node])), [graph.nodes]);
+  const visibleNodes = useMemo(() => activeClusterId === 'all' ? graph.nodes : graph.nodes.filter((node) => node.cluster_id === activeClusterId), [activeClusterId, graph.nodes]);
+  const visibleNodeIds = useMemo(() => new Set(visibleNodes.map((node) => node.id)), [visibleNodes]);
+  const visibleEdges = useMemo(() => graph.edges.filter((edge) => visibleNodeIds.has(edge.source_node_id) && visibleNodeIds.has(edge.target_node_id)), [graph.edges, visibleNodeIds]);
+  const visibleRipples = useMemo(() => activeClusterId === 'all' ? graph.ripples : graph.ripples.filter((ripple) => ripple.cluster_id === activeClusterId), [activeClusterId, graph.ripples]);
+  const selectedNode = useMemo(() => {
+    if (selectedNodeId && visibleNodeIds.has(selectedNodeId)) return nodeMap.get(selectedNodeId) ?? null;
+    return visibleNodes[0] ?? null;
+  }, [nodeMap, selectedNodeId, visibleNodeIds, visibleNodes]);
+
+  useEffect(() => {
+    if (selectedNode?.id && selectedNodeId !== selectedNode.id) setSelectedNodeId(selectedNode.id);
+  }, [selectedNode?.id, selectedNodeId]);
+
+  useEffect(() => {
+    if (!selectedNodeId) return;
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('node', selectedNodeId);
+      window.history.replaceState(window.history.state, '', `${url.pathname}?${url.searchParams.toString()}`);
+    } catch {
+      return;
+    }
+  }, [selectedNodeId]);
+
+  const connectedEdges = useMemo(() => selectedNode ? graph.edges.filter((edge) => edge.source_node_id === selectedNode.id || edge.target_node_id === selectedNode.id) : [], [graph.edges, selectedNode]);
+  const connectedNodes = useMemo(() => {
+    if (!selectedNode) return [] as GraphNode[];
+    const ids = new Set<string>();
+    for (const edge of connectedEdges) ids.add(edge.source_node_id === selectedNode.id ? edge.target_node_id : edge.source_node_id);
+    return Array.from(ids).map((id) => nodeMap.get(id)).filter((item): item is GraphNode => item != null);
+  }, [connectedEdges, nodeMap, selectedNode]);
+  const signalCheckClusterLabel = signalCheckResult
+    ? clusterMap.get(signalCheckResult.generated_node_preview.cluster_id)?.label ?? graphTitleCase(signalCheckResult.generated_node_preview.cluster_id)
+    : null;
+
+  const clusterNodes = useMemo(() => {
+    const map = new Map<string, GraphNode[]>();
+    for (const cluster of graph.clusters) map.set(cluster.id, []);
+    for (const node of visibleNodes) {
+      if (!map.has(node.cluster_id)) map.set(node.cluster_id, []);
+      map.get(node.cluster_id)!.push(node);
+    }
+    return map;
+  }, [graph.clusters, visibleNodes]);
+
+  const layout = useMemo(() => {
+    const width = 960;
+    const height = 640;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const clusterIds = Array.from(clusterNodes.keys()).filter((clusterId) => (clusterNodes.get(clusterId) ?? []).length > 0);
+    const orbitX = Math.max(180, Math.min(300, 120 + clusterIds.length * 26));
+    const orbitY = Math.max(120, Math.min(220, 90 + clusterIds.length * 18));
+    const positions = new Map<string, { x: number; y: number }>();
+    const clusterCenters = new Map<string, { x: number; y: number }>();
+    clusterIds.forEach((clusterId, clusterIndex) => {
+      const angle = -Math.PI / 2 + (clusterIndex / Math.max(clusterIds.length, 1)) * Math.PI * 2;
+      const clusterX = clusterIds.length === 1 ? centerX : centerX + Math.cos(angle) * orbitX;
+      const clusterY = clusterIds.length === 1 ? centerY : centerY + Math.sin(angle) * orbitY;
+      clusterCenters.set(clusterId, { x: clusterX, y: clusterY });
+      const nodes = clusterNodes.get(clusterId) ?? [];
+      nodes.forEach((node, nodeIndex) => {
+        const ring = 54 + Math.floor(nodeIndex / 6) * 24;
+        const localAngle = -Math.PI / 2 + (nodeIndex / Math.max(nodes.length, 1)) * Math.PI * 2;
+        positions.set(node.id, {
+          x: clusterX + Math.cos(localAngle) * ring,
+          y: clusterY + Math.sin(localAngle) * ring
+        });
+      });
+    });
+    return { width, height, positions, clusterCenters, clusterIds };
+  }, [clusterNodes]);
+
+  async function submitSignalCheck(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const label = signalCheckLabel.trim();
+    if (!label) {
+      setSignalCheckValidationError('Signal label is required.');
+      return;
+    }
+
+    setSignalCheckValidationError(null);
+    setSignalCheckError(null);
+    setSignalCheckResult(null);
+    setSignalCheckLoading(true);
+    try {
+      const payload: Record<string, string> = { label };
+      const summary = signalCheckSummary.trim();
+      const sourceUrl = signalCheckSourceUrl.trim();
+      const clusterId = signalCheckClusterId.trim();
+      if (summary) payload.summary = summary;
+      if (sourceUrl) payload.source_url = sourceUrl;
+      if (clusterId) payload.cluster_id = clusterId;
+
+      const response = normalizeGraphCheckResponse(await api<unknown>('/v1/graph/check', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      }));
+
+      if (!response) throw new Error('Signal check returned an invalid preview payload.');
+      setSignalCheckResult(response);
+    } catch (submitError) {
+      setSignalCheckError(submitError instanceof Error ? submitError.message : 'Signal check failed.');
+    } finally {
+      setSignalCheckLoading(false);
+    }
+  }
+
+  return <div className="shell graph-shell">
+    <a className="skip-link" href="#graph-content">Skip to content</a>
+    <header className="site-header">
+      <nav className="global-toolbar" aria-label="Signal Graph controls">
+        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home">
+          <span>Infopunks</span>
+          <strong>Signal Graph</strong>
+        </a>
+        <div className="terminal-nav terminal-nav-scroll-rail" aria-label="Signal Graph navigation">
+          <a href="/check">Check</a>
+          <a href="/loops">Loops</a>
+          <a href="/claim">Claims</a>
+          <a href="/graph" className="active" aria-current="page">Signal Graph</a>
+        </div>
+        <div className="terminal-actions" aria-label="Signal Graph quick links">
+          <span className="terminal-action-cluster">
+            <a className="methodology-trigger" href="#graph-canvas">Explore the graph</a>
+            <a className="methodology-trigger" href="#graph-ripples">View 24h ripples</a>
+          </span>
+        </div>
+      </nav>
+    </header>
+
+    <main id="graph-content" className="signal-graph-page">
+      <section className="panel signal-graph-hero">
+        <div className="signal-graph-hero-copy">
+          <p className="section-kicker">Infopunks Signal Graph</p>
+          <h1>Infopunks Signal Graph</h1>
+          <p className="signal-graph-tagline">{graph.tagline}</p>
+          <p className="panel-caption">A proof-aware map of claims, memes, agents, projects, tokens, posts, routes, receipts, checks, loops, and narrative clusters.</p>
+          <div className="signal-graph-thesis">
+            <p>The feed shows what people are saying.</p>
+            <p>The graph shows what the signal is becoming.</p>
+          </div>
+          <div className="panel-actions">
+            <a className="execute" href="#graph-canvas">Explore the graph</a>
+            <a className="execute compact secondary" href="#graph-ripples">View 24h ripples</a>
+          </div>
+        </div>
+        <div className="signal-graph-hero-meta">
+          <section className="signal-graph-legend" aria-label="Proof state legend">
+            <p className="section-kicker">Proof State Legend</p>
+            <div className="signal-graph-proof-list">
+              {Object.entries(GRAPH_PROOF_STATE_LABELS).map(([state, label]) => <span key={state} className={`signal-proof-pill signal-proof-pill-${state}`}>
+                <strong>{label}</strong>
+                <small>{state.replace(/_/g, ' ')}</small>
+              </span>)}
+            </div>
+          </section>
+          <section className="signal-graph-stats-card" aria-label="Signal Graph totals">
+            <p className="section-kicker">Graph Totals</p>
+            <dl className="signal-graph-stat-grid">
+              <div><dt>Nodes</dt><dd>{graph.stats?.node_count ?? graph.nodes.length}</dd></div>
+              <div><dt>Edges</dt><dd>{graph.stats?.edge_count ?? graph.edges.length}</dd></div>
+              <div><dt>Clusters</dt><dd>{graph.stats?.cluster_count ?? graph.clusters.length}</dd></div>
+              <div><dt>Validated</dt><dd>{graph.stats?.validated_count ?? graph.nodes.filter((node) => node.proof_state === 'validated').length}</dd></div>
+              <div><dt>Disputed</dt><dd>{graph.stats?.disputed_count ?? graph.nodes.filter((node) => node.proof_state === 'disputed').length}</dd></div>
+              <div><dt>Compounding</dt><dd>{graph.stats?.compounding_count ?? graph.nodes.filter((node) => node.proof_state === 'compounding').length}</dd></div>
+            </dl>
+            <p className="panel-caption">Last updated {formatMachineTimestamp(graph.stats?.last_updated_at ?? graph.nodes[0]?.updated_at ?? null)}</p>
+          </section>
+        </div>
+      </section>
+
+      <section className="panel signal-graph-check-panel" aria-labelledby="signal-graph-check-title">
+        <div className="signal-graph-check-copy">
+          <p className="section-kicker">Check a signal</p>
+          <h2 id="signal-graph-check-title">Check a signal</h2>
+          <p className="signal-graph-check-subtitle">Paste a claim, post, token, project, or narrative fragment. Infopunks will preview where it belongs in the graph.</p>
+          <p className="panel-caption">v0 preview. Full live ingestion comes later.</p>
+        </div>
+
+        <div className="signal-graph-check-grid">
+          <form className="signal-graph-check-form" onSubmit={submitSignalCheck} noValidate>
+            <label className="signal-graph-field">
+              <span>Signal label</span>
+              <input
+                name="label"
+                value={signalCheckLabel}
+                onChange={(event) => {
+                  setSignalCheckLabel(event.target.value);
+                  if (signalCheckValidationError) setSignalCheckValidationError(null);
+                }}
+                placeholder="Agent wallets need route memory before autonomous spend."
+                aria-invalid={signalCheckValidationError ? 'true' : 'false'}
+                aria-describedby={signalCheckValidationError ? 'signal-check-label-error' : undefined}
+              />
+            </label>
+            {signalCheckValidationError && <p id="signal-check-label-error" className="route-state error signal-graph-inline-error" role="alert">{signalCheckValidationError}</p>}
+
+            <label className="signal-graph-field">
+              <span>Summary</span>
+              <textarea
+                name="summary"
+                value={signalCheckSummary}
+                onChange={(event) => setSignalCheckSummary(event.target.value)}
+                rows={3}
+                placeholder="Optional context, evidence, or narrative fragment."
+              />
+            </label>
+
+            <div className="signal-graph-field-grid">
+              <label className="signal-graph-field">
+                <span>Source URL</span>
+                <input
+                  name="source_url"
+                  type="url"
+                  value={signalCheckSourceUrl}
+                  onChange={(event) => setSignalCheckSourceUrl(event.target.value)}
+                  placeholder="https://example.com/thread"
+                />
+              </label>
+
+              <label className="signal-graph-field">
+                <span>Cluster</span>
+                <select name="cluster_id" value={signalCheckClusterId} onChange={(event) => setSignalCheckClusterId(event.target.value)}>
+                  <option value="">Auto-detect cluster</option>
+                  {graph.clusters.map((cluster) => <option key={cluster.id} value={cluster.id}>{cluster.label}</option>)}
+                </select>
+              </label>
+            </div>
+
+            <div className="signal-graph-check-actions">
+              <button className="execute" type="submit" disabled={signalCheckLoading}>{signalCheckLoading ? 'Mapping signal...' : 'Map signal'}</button>
+            </div>
+            {signalCheckError && <p className="route-state error signal-graph-inline-error" role="status">{signalCheckError}</p>}
+          </form>
+
+          <section className="signal-graph-check-result" aria-labelledby="signal-graph-check-result-title">
+            <div className="signal-graph-panel-head">
+              <div>
+                <p className="section-kicker">Placement Preview</p>
+                <h3 id="signal-graph-check-result-title">Signal placement preview</h3>
+              </div>
+              {signalCheckResult && signalCheckClusterLabel && <CopyButton value={buildSignalCheckShareText(signalCheckResult, signalCheckClusterLabel)} label="Copy check" />}
+            </div>
+
+            {signalCheckLoading
+              ? <p className="route-state">Mapping signal into graph...</p>
+              : !signalCheckResult
+                ? <p className="panel-caption">Map a signal to preview its suggested proof state, cluster, connected edges, and placement explanation.</p>
+              : <>
+                <div className="signal-graph-detail-meta">
+                  <span className="signal-proof-chip">{graphNodeTypeLabel(signalCheckResult.generated_node_preview.type)}</span>
+                  <span className={`signal-proof-chip signal-proof-chip-${signalCheckResult.suggested_proof_state}`}>{graphProofStateLabel(signalCheckResult.suggested_proof_state)}</span>
+                  <span className="signal-proof-chip">{signalCheckClusterLabel}</span>
+                </div>
+                <p className="signal-graph-node-summary">{signalCheckResult.generated_node_preview.summary}</p>
+                <dl className="signal-graph-score-grid">
+                  <div><dt>Suggested node label</dt><dd>{signalCheckResult.generated_node_preview.label}</dd></div>
+                  <div><dt>Suggested proof state</dt><dd>{graphProofStateLabel(signalCheckResult.suggested_proof_state)}</dd></div>
+                  <div><dt>Confidence score</dt><dd>{signalCheckResult.confidence_score}/100</dd></div>
+                  <div><dt>Suggested cluster</dt><dd>{signalCheckClusterLabel}</dd></div>
+                </dl>
+
+                <section className="signal-graph-detail-section">
+                  <h3>Suggested edges</h3>
+                  {signalCheckResult.suggested_edges.length === 0
+                    ? <p className="panel-caption">No suggested edges recorded.</p>
+                    : <div className="signal-graph-edge-list">
+                      {signalCheckResult.suggested_edges.map((edge, index) => {
+                        const targetNode = nodeMap.get(edge.target_node_id);
+                        return <article key={`${edge.target_node_id}-${edge.type}-${index}`}>
+                          <strong>{targetNode?.label ?? edge.target_node_id}</strong>
+                          <span>{edge.strength}/100</span>
+                          <p>{graphEdgeTypeLabel(edge.type)} · {edge.explanation}</p>
+                        </article>;
+                      })}
+                    </div>}
+                </section>
+
+                <section className="signal-graph-detail-section">
+                  <h3>Explanation</h3>
+                  <p className="signal-graph-node-summary">{signalCheckResult.explanation}</p>
+                </section>
+              </>}
+          </section>
+        </div>
+      </section>
+
+      {error && <section className="panel" role="status" aria-live="polite">
+        <p className="route-state error">{error}</p>
+      </section>}
+
+      <section className="signal-graph-workspace">
+        <aside className="panel signal-graph-sidebar" aria-label="Cluster filters and graph stats">
+          <div className="signal-graph-sidebar-block">
+            <p className="section-kicker">Cluster Filters</p>
+            <div className="signal-graph-filter-chips" role="group" aria-label="Filter graph by cluster">
+              <button type="button" className={activeClusterId === 'all' ? 'copy-chip active' : 'copy-chip'} onClick={() => setActiveClusterId('all')}>All clusters</button>
+              {graph.clusters.map((cluster) => <button key={cluster.id} type="button" className={activeClusterId === cluster.id ? 'copy-chip active' : 'copy-chip'} onClick={() => setActiveClusterId(cluster.id)}>{cluster.label}</button>)}
+            </div>
+          </div>
+          <div className="signal-graph-sidebar-block">
+            <p className="section-kicker">Clusters</p>
+            <div className="signal-graph-cluster-list">
+              {graph.clusters.map((cluster) => <button key={cluster.id} type="button" className={`signal-graph-cluster-card ${activeClusterId === cluster.id ? 'active' : ''}`} onClick={() => setActiveClusterId(cluster.id)}>
+                <span className="signal-graph-cluster-head">
+                  <strong>{cluster.label}</strong>
+                  <span className={`signal-proof-chip signal-proof-chip-${cluster.proof_state}`}>{graphProofStateLabel(cluster.proof_state)}</span>
+                </span>
+                <span>{cluster.summary}</span>
+                <small>{cluster.node_count} nodes · {cluster.edge_count} edges</small>
+              </button>)}
+            </div>
+          </div>
+        </aside>
+
+        <section className="panel signal-graph-canvas-panel" id="graph-canvas" aria-labelledby="signal-graph-canvas-title">
+          <div className="signal-graph-panel-head">
+            <div>
+              <p className="section-kicker">Visual Memory Layer</p>
+              <h2 id="signal-graph-canvas-title">Read the graph</h2>
+            </div>
+            <p className="panel-caption">Clusters orbit the canvas. Click any node to inspect its proof state, links, and connected signal.</p>
+          </div>
+          {loading
+            ? <p className="route-state">Loading graph memory...</p>
+            : visibleNodes.length === 0
+              ? <p className="route-state warn">No nodes match this cluster filter.</p>
+              : <svg className="signal-graph-svg" viewBox={`0 0 ${layout.width} ${layout.height}`} role="img" aria-label="Signal Graph cluster and node map">
+                <rect x="1" y="1" width={layout.width - 2} height={layout.height - 2} rx="26" className="signal-graph-svg-frame" />
+                {layout.clusterIds.map((clusterId) => {
+                  const center = layout.clusterCenters.get(clusterId);
+                  const cluster = clusterMap.get(clusterId);
+                  if (!center || !cluster) return null;
+                  return <g key={clusterId} className="signal-graph-cluster-ring">
+                    <circle cx={center.x} cy={center.y} r="112" />
+                    <text x={center.x} y={center.y - 124} textAnchor="middle">{cluster.label}</text>
+                  </g>;
+                })}
+                <g className="signal-graph-edge-layer">
+                  {visibleEdges.map((edge) => {
+                    const source = layout.positions.get(edge.source_node_id);
+                    const target = layout.positions.get(edge.target_node_id);
+                    if (!source || !target) return null;
+                    return <line key={edge.id} x1={source.x} y1={source.y} x2={target.x} y2={target.y} strokeWidth={1 + edge.strength / 30} opacity={0.18 + edge.strength / 140}>
+                      <title>{`${graphEdgeTypeLabel(edge.type)} · ${edge.explanation}`}</title>
+                    </line>;
+                  })}
+                </g>
+                <g className="signal-graph-node-layer">
+                  {visibleNodes.slice().sort((left, right) => {
+                    if (left.id === selectedNode?.id) return 1;
+                    if (right.id === selectedNode?.id) return -1;
+                    return left.label.localeCompare(right.label);
+                  }).map((node) => {
+                    const position = layout.positions.get(node.id);
+                    const cluster = clusterMap.get(node.cluster_id);
+                    if (!position) return null;
+                    const active = selectedNode?.id === node.id;
+                    return <g
+                      key={node.id}
+                      data-node-id={node.id}
+                      className={`signal-graph-node signal-graph-node-${node.proof_state} ${active ? 'selected' : ''}`}
+                      transform={`translate(${position.x}, ${position.y})`}
+                      tabIndex={0}
+                      role="button"
+                      aria-label={`${node.label}, ${graphNodeTypeLabel(node.type)}, ${graphProofStateLabel(node.proof_state)}`}
+                      onClick={() => setSelectedNodeId(node.id)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          setSelectedNodeId(node.id);
+                        }
+                      }}
+                    >
+                      <title>{`${node.label} · ${cluster?.label ?? graphTitleCase(node.cluster_id)} · ${graphProofStateLabel(node.proof_state)}`}</title>
+                      <circle r={active ? 15 : 11} />
+                      <text y={active ? 34 : 28} textAnchor="middle">{node.label}</text>
+                    </g>;
+                  })}
+                </g>
+              </svg>}
+        </section>
+
+        <aside className="panel signal-graph-detail-panel" aria-label="Selected node details">
+          <div className="signal-graph-panel-head">
+            <div>
+              <p className="section-kicker">Selected Node</p>
+              <h2>{selectedNode?.label ?? 'Select a node'}</h2>
+            </div>
+            {selectedNode && <CopyButton value={buildNodeShareText(selectedNode, clusterMap.get(selectedNode.cluster_id)?.label ?? graphTitleCase(selectedNode.cluster_id))} label="Copy node signal" />}
+          </div>
+          {!selectedNode
+            ? <p className="panel-caption">Choose a node from the graph to inspect its proof state, attached receipts, and connected signal.</p>
+            : <>
+              <div className="signal-graph-detail-meta">
+                <span className="signal-proof-chip">{graphNodeTypeLabel(selectedNode.type)}</span>
+                <span className={`signal-proof-chip signal-proof-chip-${selectedNode.proof_state}`}>{graphProofStateLabel(selectedNode.proof_state)}</span>
+                <span className="signal-proof-chip">{clusterMap.get(selectedNode.cluster_id)?.label ?? graphTitleCase(selectedNode.cluster_id)}</span>
+              </div>
+              <p className="signal-graph-node-summary">{selectedNode.summary}</p>
+              <dl className="signal-graph-score-grid">
+                <div><dt>Confidence</dt><dd>{selectedNode.confidence_score}/100</dd></div>
+                <div><dt>Velocity</dt><dd>{selectedNode.velocity_score}/100</dd></div>
+                <div><dt>Created</dt><dd>{formatMachineTimestamp(selectedNode.created_at)}</dd></div>
+                <div><dt>Updated</dt><dd>{formatMachineTimestamp(selectedNode.updated_at)}</dd></div>
+              </dl>
+
+              <section className="signal-graph-detail-section">
+                <h3>Connected nodes</h3>
+                {connectedNodes.length === 0
+                  ? <p className="panel-caption">No connected nodes recorded.</p>
+                  : <div className="compact-chip-wrap">
+                    {connectedNodes.map((node) => <button key={node.id} type="button" className="copy-chip" onClick={() => setSelectedNodeId(node.id)}>{node.label}</button>)}
+                  </div>}
+              </section>
+
+              {graphNodeLinkGroups(selectedNode).map(([label, values]) => <section key={label} className="signal-graph-detail-section">
+                <h3>{label}</h3>
+                {values.length === 0
+                  ? <p className="panel-caption">No linked {label.toLowerCase()} recorded.</p>
+                  : <div className="compact-chip-wrap">{values.map((value) => {
+                    const href = graphEntityHref(label, value);
+                    return href
+                      ? <a key={value} className="copy-chip" href={href}>{value}</a>
+                      : <span key={value}>{value}</span>;
+                  })}</div>}
+              </section>)}
+
+              <section className="signal-graph-detail-section">
+                <h3>Source URLs</h3>
+                {(selectedNode.source_urls ?? []).length === 0
+                  ? <p className="panel-caption">No source URLs recorded.</p>
+                  : <div className="signal-graph-source-list">
+                    {(selectedNode.source_urls ?? []).map((url) => <a key={url} href={url} target="_blank" rel="noreferrer">{url}</a>)}
+                  </div>}
+              </section>
+
+              <section className="signal-graph-detail-section">
+                <h3>Connected edges</h3>
+                {connectedEdges.length === 0
+                  ? <p className="panel-caption">No edge explanations recorded.</p>
+                  : <div className="signal-graph-edge-list">
+                    {connectedEdges.map((edge) => <article key={edge.id}>
+                      <strong>{graphEdgeTypeLabel(edge.type)}</strong>
+                      <span>{edge.strength}/100</span>
+                      <p>{edge.explanation}</p>
+                    </article>)}
+                  </div>}
+              </section>
+            </>}
+        </aside>
+      </section>
+
+      <section className="panel signal-graph-ripples" id="graph-ripples" aria-labelledby="signal-graph-ripples-title">
+        <div className="signal-graph-panel-head">
+          <div>
+            <p className="section-kicker">24h Ripples</p>
+            <h2 id="signal-graph-ripples-title">24h Ripples</h2>
+            <p className="panel-caption">What changed in the graph since the last cycle.</p>
+          </div>
+        </div>
+        {visibleRipples.length === 0
+          ? <p className="route-state warn">No ripples recorded for this cluster filter.</p>
+          : <div className="signal-graph-ripple-grid">
+            {visibleRipples.map((ripple) => {
+              const clusterLabel = clusterMap.get(ripple.cluster_id)?.label ?? graphTitleCase(ripple.cluster_id);
+              return <article key={ripple.id} className="signal-graph-ripple-card">
+                <div className="signal-graph-ripple-head">
+                  <div>
+                    <p className="section-kicker">{clusterLabel}</p>
+                    <h3>{ripple.title}</h3>
+                  </div>
+                  <CopyButton value={buildRippleShareText(ripple, clusterLabel)} label="Copy signal" />
+                </div>
+                <p>{ripple.summary}</p>
+                <div className="signal-graph-detail-meta">
+                  <span className={`signal-proof-chip signal-proof-chip-${ripple.proof_state}`}>{graphProofStateLabel(ripple.proof_state)}</span>
+                  <span className="signal-proof-chip">Impact {ripple.impact_score}/100</span>
+                  <span className="signal-proof-chip">{ripple.linked_node_ids.length} linked nodes</span>
+                </div>
+                <p className="panel-caption">Changed {formatMachineTimestamp(ripple.changed_at)}</p>
+              </article>;
+            })}
+          </div>}
+      </section>
+    </main>
+  </div>;
+}
+
 export function App() {
   if (isRadarCardIndexRoute(window.location.pathname)) return <PreflightCardIndexPage />;
   const radarCard = routeRadarCard(window.location.pathname);
@@ -13295,6 +14205,7 @@ export function App() {
   if (propagationId) return <PropagationIncidentPage clusterId={propagationId} />;
   if (isProofCheckIndexRoute(window.location.pathname)) return <ProofCheckPage />;
   if (isLoopsIndexRoute(window.location.pathname)) return <LoopsPage />;
+  if (isGraphRoute(window.location.pathname)) return <SignalGraphPage />;
   if (isSpendTerminalRoute(window.location.pathname)) return <SpendTerminalPage />;
   if (isDevelopersRoute(window.location.pathname)) return <DevelopersPage />;
   if (isClaimsIndexRoute(window.location.pathname)) return <ClaimsPage />;
