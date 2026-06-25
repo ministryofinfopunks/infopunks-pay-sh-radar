@@ -9581,6 +9581,15 @@ function RadarApp() {
         <p className="mission-subtitle">Radar tracks mapped, proven, and benchmarked Pay.sh routes before agents route money through them.</p>
         <p className="copy">Pay.sh is the spend rail. Radar is the evidence ledger. The Harness is the proof adapter.</p>
         <p className="copy">Agents inspect the Evidence Ledger or Brief, request a non-executing Bundle Plan, then a Harness may execute later and return proof artifacts for Radar to record.</p>
+        <section className="preflight-home-cta" aria-label="Preflight card index call to action">
+          <div className="preflight-home-cta-copy">
+            <p className="section-kicker">New: Browse Preflight Cards</p>
+            <p>Agent spend safety labels for autonomous markets.</p>
+            <small>Discover → Check → Pay → Prove</small>
+            <small>No receipt, no trust.</small>
+          </div>
+          <a className="execute compact secondary" href="/radar/cards">Browse Preflight Cards</a>
+        </section>
         <ProofMetricsStrip summary={publicProofSummary(evidenceLedger)} />
         <p className="panel-caption">Recorded means paid evidence exists. No winner means Radar refuses to infer superiority without criteria.</p>
         <div className="orientation-panel" aria-label="Radar orientation">
