@@ -198,17 +198,25 @@ describe('agent mode and command palette', () => {
   it('renders API Docs and Agent Mode controls', async () => {
     root = await renderApp(container);
 
-    const primaryNav = container.querySelector('[aria-label="Primary radar zones"]');
+    const header = container.querySelector('.site-header');
+    const primaryNav = header?.querySelector('[aria-label="Primary radar zones"]');
     expect(primaryNav?.classList.contains('terminal-nav-scroll-rail')).toBe(true);
     expect(primaryNav?.textContent).not.toContain('Machine Economy');
-    for (const label of ['Benchmarks', 'Mappings', 'Preflight', 'Compare', 'Dossier', 'Check', 'Loops', 'Signal Graph', 'Claims']) {
-      expect(container.textContent).toContain(label);
+    for (const label of ['API Docs', 'Developers', 'Narrative Intel', 'Check', 'Loops', 'Signal Graph', 'Claims', 'Agent Benchmark API']) {
+      expect(primaryNav?.textContent).toContain(label);
     }
+    expect(primaryNav?.textContent).not.toContain('Methodology');
     expect(container.textContent).toContain('API Docs');
     expect(container.querySelector('a[href="/developers"]')?.textContent).toContain('Developers');
     expect(container.querySelector('a[href="/narratives"]')?.textContent).toContain('Narrative Intel');
     expect(container.querySelector('a[href="/graph"]')?.textContent).toContain('Signal Graph');
     expect(container.querySelector('a[href="/claim"]')?.textContent).toContain('Claims');
+    for (const label of ['Methodology', 'Events', 'Machine Economy', 'Cmd+K', 'Agent Mode', 'Terminal Comfortable']) {
+      expect(header?.textContent).toContain(label);
+    }
+    for (const label of ['Pulse', 'Directory', 'Benchmarks', 'Mappings', 'Preflight', 'Compare', 'Dossier']) {
+      expect(header?.textContent).toContain(label);
+    }
     expect(container.textContent).toContain('Agent Mode');
     expect(container.textContent).toContain('Machine Economy Module');
     expect(container.textContent).toContain('Machine Economy');
@@ -225,6 +233,20 @@ describe('agent mode and command palette', () => {
     expect(container.querySelector('a[href="/machine-first-safe-routes"]')).not.toBeNull();
     expect(container.querySelector('a[href="/machine-execution-shortlist"]')).not.toBeNull();
     expect(container.querySelector('a[href="/machine-receipts"]')).not.toBeNull();
+  });
+
+  it('keeps primary header nav unique and utilities visible', async () => {
+    root = await renderApp(container);
+
+    const header = container.querySelector('.site-header');
+    const primaryLabels = Array.from(header?.querySelectorAll('[aria-label="Primary radar zones"] a') ?? []).map((node) => node.textContent?.trim()).filter(Boolean);
+    expect(primaryLabels).toContain('Narrative Intel');
+    expect(new Set(primaryLabels).size).toBe(primaryLabels.length);
+
+    const utilityText = header?.querySelector('[aria-label="Utility actions"]')?.textContent ?? '';
+    for (const label of ['Methodology', 'Events', 'Machine Economy', 'Cmd+K', 'Agent Mode', 'Terminal Comfortable']) {
+      expect(utilityText).toContain(label);
+    }
   });
 
   it('Agent Mode hides narrative panels and keeps preflight export and API docs visible', async () => {

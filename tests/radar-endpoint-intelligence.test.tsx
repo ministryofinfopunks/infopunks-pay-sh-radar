@@ -1048,12 +1048,15 @@ describe('radar endpoint intelligence UI', () => {
     root = await renderApp(container);
 
     const primaryNav = container.querySelector('[aria-label="Primary radar zones"]');
-    expect(primaryNav?.textContent).toContain('Pulse');
-    expect(primaryNav?.textContent).toContain('Benchmarks');
-    expect(primaryNav?.textContent).toContain('Mappings');
-    expect(primaryNav?.textContent).not.toContain('Agent Benchmark API');
+    expect(primaryNav?.textContent).toContain('API Docs');
+    expect(primaryNav?.textContent).toContain('Narrative Intel');
+    expect(primaryNav?.textContent).toContain('Agent Benchmark API');
     expect(primaryNav?.textContent).not.toContain('Machine Economy');
     expect(primaryNav?.textContent).not.toContain('Machine Preflight');
+    const sectionShortcuts = container.querySelector('[aria-label="Radar section shortcuts"]');
+    expect(sectionShortcuts?.textContent).toContain('Pulse');
+    expect(sectionShortcuts?.textContent).toContain('Benchmarks');
+    expect(sectionShortcuts?.textContent).toContain('Mappings');
     expect(container.textContent).toContain('Directory');
     expect(container.textContent).toContain('Events');
     expect(container.textContent).toContain('Preflight');

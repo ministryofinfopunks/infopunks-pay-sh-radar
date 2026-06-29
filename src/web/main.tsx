@@ -9588,6 +9588,25 @@ function RadarApp() {
   const ecosystemStatus = getEcosystemStatus(data.pulse, pulseSummary);
   const ecosystemReading = getEcosystemReading(data.pulse, pulseSummary);
   const providerDegradation = providerDegradationInfo(selectedProvider, providerIntel);
+  const primaryHeaderNav = [
+    { href: toApiUrl(API_BASE_URL, OPENAPI_PATH), label: 'API Docs', external: true, className: 'api-docs-link' },
+    { href: '/developers', label: 'Developers', external: false, className: undefined },
+    { href: '/narratives', label: 'Narrative Intel', external: false, className: undefined },
+    { href: '/check', label: 'Check', external: false, className: undefined },
+    { href: '/loops', label: 'Loops', external: false, className: undefined },
+    { href: '/graph', label: 'Signal Graph', external: false, className: undefined },
+    { href: '/claim', label: 'Claims', external: false, className: undefined },
+    { href: '#agent-benchmark-api', label: 'Agent Benchmark API', external: false, className: undefined }
+  ] as const;
+  const sectionShortcutNav = [
+    ['global-pulse', 'Pulse'],
+    ['providers', 'Directory'],
+    ['benchmark-readiness', 'Benchmarks'],
+    ['route-mapping-registry', 'Mappings'],
+    ['preflight', 'Preflight'],
+    ['compare', 'Compare'],
+    ['dossier', 'Dossier']
+  ] as const;
 
   return <div className={`shell ${agentMode ? 'agent-mode-shell' : ''} density-${densityMode}`}>
     <a className="skip-link" href="#terminal-content">Skip to content</a>
@@ -9597,29 +9616,19 @@ function RadarApp() {
           <span>Infopunks</span>
           <strong>Pay.sh Radar</strong>
         </a>
-        <div className="terminal-nav terminal-nav-scroll-rail" aria-label="Primary radar zones">
-          {[
-            ['global-pulse', 'Pulse'],
-            ['providers', 'Directory'],
-            ['benchmark-readiness', 'Benchmarks'],
-            ['route-mapping-registry', 'Mappings'],
-            ['preflight', 'Preflight'],
-            ['compare', 'Compare'],
-            ['dossier', 'Dossier']
-          ].map(([id, label]) => <a key={id} href={`#${id}`} className={activeSection === id ? 'active' : ''} aria-current={activeSection === id ? 'location' : undefined}>{label}</a>)}
+        <div className="terminal-nav terminal-nav-scroll-rail header-primary-nav" aria-label="Primary radar zones">
+          {primaryHeaderNav.map(({ href, label, external, className }) => <a
+            key={label}
+            href={href}
+            className={className}
+            target={external ? '_blank' : undefined}
+            rel={external ? 'noreferrer' : undefined}
+          >
+            {label}
+          </a>)}
         </div>
         <div className="terminal-actions" aria-label="Utility actions">
-          <span className="terminal-action-cluster" aria-label="Docs">
-            <a className="methodology-trigger api-docs-link" href={toApiUrl(API_BASE_URL, OPENAPI_PATH)} target="_blank" rel="noreferrer">
-              API Docs
-            </a>
-            <a className="methodology-trigger" href="/developers">Developers</a>
-            <a className="methodology-trigger" href="/narratives">Narrative Intel</a>
-            <a className="methodology-trigger" href="/check">Check</a>
-            <a className="methodology-trigger" href="/loops">Loops</a>
-            <a className="methodology-trigger" href="/graph">Signal Graph</a>
-            <a className="methodology-trigger" href="/claim">Claims</a>
-            <a className="methodology-trigger" href="#agent-benchmark-api">Agent Benchmark API</a>
+          <span className="terminal-action-cluster" aria-label="Reference and timeline">
             <button className="methodology-trigger methodology-link" type="button" onClick={() => setMethodologyOpen(true)} aria-label="Open methodology drawer">
               Methodology
             </button>
@@ -9658,6 +9667,9 @@ function RadarApp() {
           </span>
         </div>
       </nav>
+      <div className="header-secondary-rail terminal-nav terminal-nav-scroll-rail" aria-label="Radar section shortcuts">
+        {sectionShortcutNav.map(([id, label]) => <a key={id} href={`#${id}`} className={activeSection === id ? 'active' : ''} aria-current={activeSection === id ? 'location' : undefined}>{label}</a>)}
+      </div>
     </header>
     <CommandPalette open={commandPaletteOpen} commands={commandActions} onClose={() => setCommandPaletteOpen(false)} />
     <MethodologyDrawer open={methodologyOpen} onClose={() => setMethodologyOpen(false)} />
