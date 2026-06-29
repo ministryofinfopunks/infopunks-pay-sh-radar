@@ -112,6 +112,7 @@ const BLACK_BULL_SHARE_LINES = [
 ] as const;
 
 const API_BASE_URL = getApiBaseUrl();
+const PUBLIC_HOST = 'https://radar.infopunks.fun';
 
 async function api<T>(path: string) {
   const response = await fetch(toApiUrl(API_BASE_URL, path), {
@@ -119,6 +120,54 @@ async function api<T>(path: string) {
   });
   if (!response.ok) throw new Error(`${path} ${response.status}`);
   return response.json() as Promise<{ data: T }>;
+}
+
+function canonicalUrl(path: string) {
+  return `${PUBLIC_HOST}${path}`;
+}
+
+function setMetaTag(attr: 'property' | 'name', key: string, content: string) {
+  let node = document.head.querySelector(`meta[${attr}="${key}"]`) as HTMLMetaElement | null;
+  if (!node) {
+    node = document.createElement('meta');
+    node.setAttribute(attr, key);
+    document.head.appendChild(node);
+  }
+  node.setAttribute('content', content);
+}
+
+function setCanonicalLink(href: string) {
+  let node = document.head.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+  if (!node) {
+    node = document.createElement('link');
+    node.setAttribute('rel', 'canonical');
+    document.head.appendChild(node);
+  }
+  node.setAttribute('href', href);
+}
+
+function updateNarrativeMetadata({
+  title,
+  description,
+  canonicalPath,
+  type
+}: {
+  title: string;
+  description: string;
+  canonicalPath: string;
+  type: 'website' | 'article';
+}) {
+  const url = canonicalUrl(canonicalPath);
+  document.title = title;
+  setMetaTag('name', 'description', description);
+  setMetaTag('property', 'og:type', type);
+  setMetaTag('property', 'og:title', title);
+  setMetaTag('property', 'og:description', description);
+  setMetaTag('property', 'og:url', url);
+  setMetaTag('name', 'twitter:card', 'summary_large_image');
+  setMetaTag('name', 'twitter:title', title);
+  setMetaTag('name', 'twitter:description', description);
+  setCanonicalLink(url);
 }
 
 async function copyText(value: string) {
@@ -484,6 +533,15 @@ export function NarrativesIndexPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    updateNarrativeMetadata({
+      title: 'Infopunks Narrative Asset Intelligence',
+      description: 'Signal reports, evidence updates, and sovereignty checks for narratives that become markets.',
+      canonicalPath: '/narratives',
+      type: 'website'
+    });
+  }, []);
+
+  useEffect(() => {
     api<NarrativeAsset[]>('/v1/narratives')
       .then((response) => setAssets(response.data))
       .catch((err) => setError(err instanceof Error ? err.message : 'narratives_unavailable'));
@@ -541,6 +599,15 @@ export function AttentionMarketsPage() {
     'attention velocity can precede price action',
     'narrative assets require sovereignty checks'
   ];
+
+  useEffect(() => {
+    updateNarrativeMetadata({
+      title: 'Attention Markets | Infopunks Narrative Asset Intelligence',
+      description: 'Narrative markets are tracked as evidence desks where attention, myth, power concentration, and reflexivity become market structure.',
+      canonicalPath: '/narratives/attention-markets',
+      type: 'article'
+    });
+  }, []);
 
   return <div className="shell narrative-shell">
     <a className="skip-link" href="#attention-content">Skip to content</a>
@@ -605,6 +672,26 @@ function SignalSurfacePage({ slug, expectedType }: { slug: string; expectedType:
   const latestUpdate = updates?.latest_update ?? null;
   const preVerdictSections = useMemo(() => (surface?.sections ?? []).filter((section) => section.id !== 'infopunk-verdict'), [surface?.sections]);
   const verdictSection = useMemo(() => (surface?.sections ?? []).find((section) => section.id === 'infopunk-verdict') ?? null, [surface?.sections]);
+
+  useEffect(() => {
+    if (!surface) return;
+    if (surface.slug === 'black-bull') {
+      updateNarrativeMetadata({
+        title: 'Infopunks Signal Report: $ANSEM / The Black Bull',
+        description: 'A living Narrative Asset Intelligence report on financialized attention, myth, power concentration, and reflexivity risk.',
+        canonicalPath: `/signals/${surface.slug}`,
+        type: 'article'
+      });
+      return;
+    }
+
+    updateNarrativeMetadata({
+      title: `${surface.title} | Infopunks Narrative Asset Intelligence`,
+      description: surface.disclaimer,
+      canonicalPath: `/signals/${surface.slug}`,
+      type: 'article'
+    });
+  }, [surface]);
 
   if (error && isNotFoundError(new Error(error))) {
     return <div className="shell narrative-shell"><main className="narrative-page"><section className="panel"><h1>Signal Not Found</h1><p>{slug}</p></section></main></div>;
@@ -714,6 +801,7 @@ export function SignalUpdatePermalinkPage({ slug, updateId }: { slug: string; up
   const [surface, setSurface] = useState<NarrativeSignalSurface | null>(null);
   const [updateDetail, setUpdateDetail] = useState<SignalEvidenceUpdateDetailResponse | null>(null);
   const [missing, setMissing] = useState(false);
+  const signalName = surface?.asset ? `${surface.asset.ticker} / ${surface.asset.name}` : surface?.title ?? slug;
 
   useEffect(() => {
     let active = true;
@@ -736,11 +824,20 @@ export function SignalUpdatePermalinkPage({ slug, updateId }: { slug: string; up
     };
   }, [slug, updateId]);
 
+  useEffect(() => {
+    if (!surface || !updateDetail) return;
+    updateNarrativeMetadata({
+      title: `Infopunks Desk Dispatch: ${signalUpdateTypeLabel(updateDetail.update.update_type)}`,
+      description: `${signalName} signal update. Reports are not final. Signals mutate.`,
+      canonicalPath: `/signals/${slug}/updates/${updateId}`,
+      type: 'article'
+    });
+  }, [signalName, slug, surface, updateDetail, updateId]);
+
   if (missing) return <SignalUpdateNotFound slug={slug} />;
   if (!surface || !updateDetail) return <div className="shell narrative-shell"><main className="narrative-page"><section className="panel"><p>Loading update dispatch...</p></section></main></div>;
 
   const update = updateDetail.update;
-  const signalName = surface.asset ? `${surface.asset.ticker} / ${surface.asset.name}` : surface.title;
 
   return <div className="shell narrative-shell">
     <main className="narrative-page" aria-label="Signal update dispatch">

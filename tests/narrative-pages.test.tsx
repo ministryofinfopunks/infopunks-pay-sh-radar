@@ -14,6 +14,10 @@ function pathOf(input: RequestInfo | URL) {
   return new URL(raw, 'http://localhost').pathname;
 }
 
+function metaContent(selector: string) {
+  return document.head.querySelector(selector)?.getAttribute('content');
+}
+
 const narrativeAsset = {
   id: 'narrative_asset_black_bull',
   slug: 'black-bull',
@@ -189,6 +193,13 @@ describe('narrative pages', () => {
     expect(Array.from(container.querySelectorAll('a[href="/narratives/attention-markets"]')).some((node) => node.textContent?.includes('Read Attention Markets Thesis'))).toBe(true);
     expect(container.querySelector('a[href="/narratives"]')?.textContent).toContain('Narrative Intel');
     expect(container.textContent).toContain('ANSEM / The Black Bull');
+    expect(document.title).toBe('Infopunks Narrative Asset Intelligence');
+    expect(metaContent('meta[name="description"]')).toBe('Signal reports, evidence updates, and sovereignty checks for narratives that become markets.');
+    expect(metaContent('meta[property="og:title"]')).toBe('Infopunks Narrative Asset Intelligence');
+    expect(metaContent('meta[property="og:description"]')).toBe('Signal reports, evidence updates, and sovereignty checks for narratives that become markets.');
+    expect(metaContent('meta[name="twitter:title"]')).toBe('Infopunks Narrative Asset Intelligence');
+    expect(metaContent('meta[name="twitter:description"]')).toBe('Signal reports, evidence updates, and sovereignty checks for narratives that become markets.');
+    expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe('https://radar.infopunks.fun/narratives');
   });
 
   it('renders the attention markets page', async () => {
@@ -253,6 +264,13 @@ describe('narrative pages', () => {
     expect(Array.from(container.querySelectorAll('a[href="/narratives"]')).some((node) => node.textContent?.includes('Narrative Intel Index'))).toBe(true);
     expect(container.textContent).toContain('Holder / Power Concentration');
     expect(container.textContent).toContain('do_not_chase'.replaceAll('_', ' '));
+    expect(document.title).toBe('Infopunks Signal Report: $ANSEM / The Black Bull');
+    expect(metaContent('meta[name="description"]')).toBe('A living Narrative Asset Intelligence report on financialized attention, myth, power concentration, and reflexivity risk.');
+    expect(metaContent('meta[property="og:title"]')).toBe('Infopunks Signal Report: $ANSEM / The Black Bull');
+    expect(metaContent('meta[property="og:description"]')).toBe('A living Narrative Asset Intelligence report on financialized attention, myth, power concentration, and reflexivity risk.');
+    expect(metaContent('meta[name="twitter:title"]')).toBe('Infopunks Signal Report: $ANSEM / The Black Bull');
+    expect(metaContent('meta[name="twitter:description"]')).toBe('A living Narrative Asset Intelligence report on financialized attention, myth, power concentration, and reflexivity risk.');
+    expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe('https://radar.infopunks.fun/signals/black-bull');
   });
 
   it('renders the signal update permalink as a standalone dispatch artifact', async () => {
@@ -272,6 +290,13 @@ describe('narrative pages', () => {
     expect(Array.from(container.querySelectorAll('a[href="/signals/black-bull"]')).some((node) => node.textContent?.includes('Back to signal'))).toBe(true);
     expect(Array.from(container.querySelectorAll('a[href="/narratives/attention-markets"]')).some((node) => node.textContent?.includes('Attention Markets'))).toBe(true);
     expect(Array.from(container.querySelectorAll('a[href="/narratives"]')).some((node) => node.textContent?.includes('Narratives'))).toBe(true);
+    expect(document.title).toBe('Infopunks Desk Dispatch: Verdict Change');
+    expect(metaContent('meta[name="description"]')).toBe('ANSEM / The Black Bull signal update. Reports are not final. Signals mutate.');
+    expect(metaContent('meta[property="og:title"]')).toBe('Infopunks Desk Dispatch: Verdict Change');
+    expect(metaContent('meta[property="og:description"]')).toBe('ANSEM / The Black Bull signal update. Reports are not final. Signals mutate.');
+    expect(metaContent('meta[name="twitter:title"]')).toBe('Infopunks Desk Dispatch: Verdict Change');
+    expect(metaContent('meta[name="twitter:description"]')).toBe('ANSEM / The Black Bull signal update. Reports are not final. Signals mutate.');
+    expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe('https://radar.infopunks.fun/signals/black-bull/updates/seu_black_bull_005');
   });
 
   it('renders a clean not-found state for unknown signal update permalinks', async () => {
