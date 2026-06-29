@@ -8,6 +8,7 @@ import { payShCatalogFixture } from '../data/payShCatalogFixture';
 import { getNarrativeAssetBySlug, getSignalSurfaceBySlug, listNarrativeAssets, listSignalSurfaces } from '../data/narrativeIntel';
 import { getLatestSignalUpdate, getSignalUpdate, getSignalUpdateSummary, listSignalUpdates } from '../data/signalUpdates';
 import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
+import { renderNarrativesOgImage, renderOgPng, renderSignalReportOgImage, renderSignalUpdateOgImage } from '../shared/narrativeOg';
 import { applyPayShCatalogIngestion } from '../ingestion/payShCatalogAdapter';
 import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, IntelligenceStore, runPayShIngestion, runPayShIngestionWithOptions } from '../services/intelligenceStore';
 import { IntelligenceRepository } from '../persistence/repository';
@@ -1541,6 +1542,22 @@ export async function createApp(
       }
     };
   });
+  app.get('/og/narratives.png', async (_req, reply) => {
+    reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
+    return reply.type('image/png').send(renderOgPng(renderNarrativesOgImage()));
+  });
+  app.get<{ Params: { slug: string } }>('/og/signals/:slug.png', async (req, reply) => {
+    const svg = renderSignalReportOgImage(req.params.slug);
+    if (!svg) return reply.code(404).send({ error: 'og_image_not_found' });
+    reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
+    return reply.type('image/png').send(renderOgPng(svg));
+  });
+  app.get<{ Params: { slug: string; updateId: string } }>('/og/signals/:slug/updates/:updateId.png', async (req, reply) => {
+    const svg = renderSignalUpdateOgImage(req.params.slug, req.params.updateId);
+    if (!svg) return reply.code(404).send({ error: 'og_image_not_found' });
+    reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
+    return reply.type('image/png').send(renderOgPng(svg));
+  });
   app.post('/v1/search', async (req, reply) => handleParsed(req.body, SearchRequestSchema, async (input) => {
     const startedAtMs = Date.now();
     console.log(JSON.stringify({ event: 'route_timing_start', route: '/v1/search', started_at: new Date(startedAtMs).toISOString() }));
@@ -2835,9 +2852,13 @@ function injectNarrativeRouteMetadata(html: string, urlPath: string) {
     [/<meta\s+property="og:description"\s+content="[\s\S]*?"\s*\/?>/i, `<meta property="og:description" content="${escapeHtml(metadata.ogDescription)}" />`],
     [/<meta\s+property="og:type"\s+content="[\s\S]*?"\s*\/?>/i, '<meta property="og:type" content="website" />'],
     [/<meta\s+property="og:url"\s+content="[\s\S]*?"\s*\/?>/i, `<meta property="og:url" content="${escapeHtml(absoluteCanonical)}" />`],
+    [/<meta\s+property="og:image"\s+content="[\s\S]*?"\s*\/?>/i, metadata.ogImageUrl ? `<meta property="og:image" content="${escapeHtml(metadata.ogImageUrl)}" />` : ''],
+    [/<meta\s+property="og:image:width"\s+content="[\s\S]*?"\s*\/?>/i, metadata.ogImageUrl ? `<meta property="og:image:width" content="${escapeHtml(String(metadata.ogImageWidth))}" />` : ''],
+    [/<meta\s+property="og:image:height"\s+content="[\s\S]*?"\s*\/?>/i, metadata.ogImageUrl ? `<meta property="og:image:height" content="${escapeHtml(String(metadata.ogImageHeight))}" />` : ''],
     [/<meta\s+name="twitter:card"\s+content="[\s\S]*?"\s*\/?>/i, `<meta name="twitter:card" content="${escapeHtml(metadata.twitterCard)}" />`],
     [/<meta\s+name="twitter:title"\s+content="[\s\S]*?"\s*\/?>/i, `<meta name="twitter:title" content="${escapeHtml(metadata.twitterTitle)}" />`],
     [/<meta\s+name="twitter:description"\s+content="[\s\S]*?"\s*\/?>/i, `<meta name="twitter:description" content="${escapeHtml(metadata.twitterDescription)}" />`],
+    [/<meta\s+name="twitter:image"\s+content="[\s\S]*?"\s*\/?>/i, metadata.twitterImageUrl ? `<meta name="twitter:image" content="${escapeHtml(metadata.twitterImageUrl)}" />` : ''],
     [/<link\s+rel="canonical"\s+href="[\s\S]*?"\s*\/?>/i, `<link rel="canonical" href="${escapeHtml(absoluteCanonical)}" />`]
   ] as const;
 
@@ -2858,9 +2879,17 @@ function injectNarrativeRouteMetadata(html: string, urlPath: string) {
   ensure(/<meta\s+property="og:description"/i, `<meta property="og:description" content="${escapeHtml(metadata.ogDescription)}" />`);
   ensure(/<meta\s+property="og:type"/i, '<meta property="og:type" content="website" />');
   ensure(/<meta\s+property="og:url"/i, `<meta property="og:url" content="${escapeHtml(absoluteCanonical)}" />`);
+  if (metadata.ogImageUrl) {
+    ensure(/<meta\s+property="og:image"/i, `<meta property="og:image" content="${escapeHtml(metadata.ogImageUrl)}" />`);
+    ensure(/<meta\s+property="og:image:width"/i, `<meta property="og:image:width" content="${escapeHtml(String(metadata.ogImageWidth))}" />`);
+    ensure(/<meta\s+property="og:image:height"/i, `<meta property="og:image:height" content="${escapeHtml(String(metadata.ogImageHeight))}" />`);
+  }
   ensure(/<meta\s+name="twitter:card"/i, `<meta name="twitter:card" content="${escapeHtml(metadata.twitterCard)}" />`);
   ensure(/<meta\s+name="twitter:title"/i, `<meta name="twitter:title" content="${escapeHtml(metadata.twitterTitle)}" />`);
   ensure(/<meta\s+name="twitter:description"/i, `<meta name="twitter:description" content="${escapeHtml(metadata.twitterDescription)}" />`);
+  if (metadata.twitterImageUrl) {
+    ensure(/<meta\s+name="twitter:image"/i, `<meta name="twitter:image" content="${escapeHtml(metadata.twitterImageUrl)}" />`);
+  }
   ensure(/<link\s+rel="canonical"/i, `<link rel="canonical" href="${escapeHtml(absoluteCanonical)}" />`);
 
   return output;

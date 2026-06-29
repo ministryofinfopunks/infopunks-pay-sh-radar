@@ -199,6 +199,8 @@ describe('narrative pages', () => {
     expect(metaContent('meta[property="og:description"]')).toBe('Signal reports, evidence updates, and sovereignty checks for narratives that become markets.');
     expect(metaContent('meta[name="twitter:title"]')).toBe('Infopunks Narrative Asset Intelligence');
     expect(metaContent('meta[name="twitter:description"]')).toBe('Signal reports, evidence updates, and sovereignty checks for narratives that become markets.');
+    expect(metaContent('meta[property="og:image"]')).toBe('https://radar.infopunks.fun/og/narratives.png');
+    expect(metaContent('meta[name="twitter:image"]')).toBe('https://radar.infopunks.fun/og/narratives.png');
     expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe('https://radar.infopunks.fun/narratives');
   });
 
@@ -270,6 +272,8 @@ describe('narrative pages', () => {
     expect(metaContent('meta[property="og:description"]')).toBe('A living Narrative Asset Intelligence report on financialized attention, myth, power concentration, and reflexivity risk.');
     expect(metaContent('meta[name="twitter:title"]')).toBe('Infopunks Signal Report: $ANSEM / The Black Bull');
     expect(metaContent('meta[name="twitter:description"]')).toBe('A living Narrative Asset Intelligence report on financialized attention, myth, power concentration, and reflexivity risk.');
+    expect(metaContent('meta[property="og:image"]')).toBe('https://radar.infopunks.fun/og/signals/black-bull.png');
+    expect(metaContent('meta[name="twitter:image"]')).toBe('https://radar.infopunks.fun/og/signals/black-bull.png');
     expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe('https://radar.infopunks.fun/signals/black-bull');
   });
 
@@ -296,6 +300,8 @@ describe('narrative pages', () => {
     expect(metaContent('meta[property="og:description"]')).toBe('ANSEM / The Black Bull signal update. Reports are not final. Signals mutate.');
     expect(metaContent('meta[name="twitter:title"]')).toBe('Infopunks Desk Dispatch: Verdict Change');
     expect(metaContent('meta[name="twitter:description"]')).toBe('ANSEM / The Black Bull signal update. Reports are not final. Signals mutate.');
+    expect(metaContent('meta[property="og:image"]')).toBe('https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_005.png');
+    expect(metaContent('meta[name="twitter:image"]')).toBe('https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_005.png');
     expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe('https://radar.infopunks.fun/signals/black-bull/updates/seu_black_bull_005');
   });
 

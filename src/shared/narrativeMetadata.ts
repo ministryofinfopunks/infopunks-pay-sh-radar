@@ -1,5 +1,6 @@
 import { getSignalSurfaceBySlug } from '../data/narrativeIntel';
 import { getSignalUpdate } from '../data/signalUpdates';
+import { narrativeOgImageUrl, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH, signalUpdateTypeLabel } from './narrativeOg';
 
 export type NarrativeMetadata = {
   title: string;
@@ -7,8 +8,12 @@ export type NarrativeMetadata = {
   canonicalPath: string;
   ogTitle: string;
   ogDescription: string;
+  ogImageUrl: string | null;
+  ogImageWidth: number;
+  ogImageHeight: number;
   twitterTitle: string;
   twitterDescription: string;
+  twitterImageUrl: string | null;
   twitterCard: 'summary_large_image' | 'summary';
 };
 
@@ -22,32 +27,21 @@ function decodePathPart(value: string) {
   }
 }
 
-function signalUpdateTypeLabel(value: string) {
-  switch (value) {
-    case 'attention_shift':
-      return 'Attention Shift';
-    case 'holder_shift':
-      return 'Holder / Power Shift';
-    case 'myth_shift':
-      return 'Myth Shift';
-    case 'risk_shift':
-      return 'Risk Shift';
-    case 'verdict_change':
-      return 'Verdict Change';
-    default:
-      return 'Signal Update';
-  }
-}
-
 function buildMetadata(title: string, description: string, canonicalPath: string): NarrativeMetadata {
+  const ogImagePath = narrativeOgImageUrl(canonicalPath);
+  const absoluteOgImageUrl = ogImagePath ? `${NARRATIVE_PUBLIC_HOST}${ogImagePath}` : null;
   return {
     title,
     description,
     canonicalPath,
     ogTitle: title,
     ogDescription: description,
+    ogImageUrl: absoluteOgImageUrl,
+    ogImageWidth: OG_IMAGE_WIDTH,
+    ogImageHeight: OG_IMAGE_HEIGHT,
     twitterTitle: title,
     twitterDescription: description,
+    twitterImageUrl: absoluteOgImageUrl,
     twitterCard: 'summary_large_image'
   };
 }

@@ -112,6 +112,8 @@ describe('render-style SPA routing boundaries', () => {
       expect(narratives.body).toContain('Radar SPA shell');
       expect(narratives.body).toContain('<title>Infopunks Narrative Asset Intelligence</title>');
       expect(narratives.body).toContain('property="og:title" content="Infopunks Narrative Asset Intelligence"');
+      expect(narratives.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/narratives.png"');
+      expect(narratives.body).toContain('name="twitter:image" content="https://radar.infopunks.fun/og/narratives.png"');
 
       const attentionMarkets = await app.inject({ method: 'GET', url: '/narratives/attention-markets' });
       expect(attentionMarkets.statusCode).toBe(200);
@@ -129,12 +131,16 @@ describe('render-style SPA routing boundaries', () => {
       expect(blackBull.body).toContain('Radar SPA shell');
       expect(blackBull.body).toContain('<title>Infopunks Signal Report: $ANSEM / The Black Bull</title>');
       expect(blackBull.body).toContain('property="og:description" content="A living Narrative Asset Intelligence report on financialized attention, myth, power concentration, and reflexivity risk."');
+      expect(blackBull.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/signals/black-bull.png"');
+      expect(blackBull.body).toContain('name="twitter:image" content="https://radar.infopunks.fun/og/signals/black-bull.png"');
 
       const blackBullUpdate = await app.inject({ method: 'GET', url: '/signals/black-bull/updates/seu_black_bull_005' });
       expect(blackBullUpdate.statusCode).toBe(200);
       expect(blackBullUpdate.headers['content-type']).toContain('text/html');
       expect(blackBullUpdate.body).toContain('Radar SPA shell');
       expect(blackBullUpdate.body).toContain('Infopunks Desk Dispatch: Verdict Change');
+      expect(blackBullUpdate.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_005.png"');
+      expect(blackBullUpdate.body).toContain('name="twitter:image" content="https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_005.png"');
 
       const radarCard = await app.inject({ method: 'GET', url: '/radar/cards/provider/alpha' });
       expect(radarCard.statusCode).toBe(200);

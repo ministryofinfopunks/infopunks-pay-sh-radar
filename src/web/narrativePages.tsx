@@ -150,11 +150,13 @@ function updateNarrativeMetadata({
   title,
   description,
   canonicalPath,
+  imageUrl,
   type
 }: {
   title: string;
   description: string;
   canonicalPath: string;
+  imageUrl: string | null;
   type: 'website' | 'article';
 }) {
   const url = canonicalUrl(canonicalPath);
@@ -164,6 +166,12 @@ function updateNarrativeMetadata({
   setMetaTag('property', 'og:title', title);
   setMetaTag('property', 'og:description', description);
   setMetaTag('property', 'og:url', url);
+  if (imageUrl) {
+    setMetaTag('property', 'og:image', imageUrl);
+    setMetaTag('property', 'og:image:width', '1200');
+    setMetaTag('property', 'og:image:height', '630');
+    setMetaTag('name', 'twitter:image', imageUrl);
+  }
   setMetaTag('name', 'twitter:card', 'summary_large_image');
   setMetaTag('name', 'twitter:title', title);
   setMetaTag('name', 'twitter:description', description);
@@ -177,6 +185,7 @@ function syncNarrativeMetadata(pathname: string) {
     title: metadata.title,
     description: metadata.description,
     canonicalPath: metadata.canonicalPath,
+    imageUrl: metadata.ogImageUrl,
     type: 'website'
   });
 }
