@@ -26,7 +26,7 @@ describe('pre-spend builder API', () => {
     expect(body.rationale.length).toBeGreaterThan(0);
   });
 
-  it('returns approved_with_warning when blockers exist but confidence is acceptable', async () => {
+  it('returns approved when a cleaner high-confidence market research route is available', async () => {
     const response = await postCheck({
       agent_id: 'agent_001',
       intent: 'buy_market_research',
@@ -37,8 +37,9 @@ describe('pre-spend builder API', () => {
     });
     expect(response.statusCode).toBe(200);
     const body = response.json().data;
-    expect(body.decision).toBe('approved_with_warning');
-    expect(body.known_blockers.length).toBeGreaterThan(0);
+    expect(body.decision).toBe('approved');
+    expect(body.recommended_route).toBe('route_pay_sh_market_research_03');
+    expect(body.known_blockers).toEqual([]);
     expect(body.rationale.length).toBeGreaterThan(0);
   });
 

@@ -180,8 +180,8 @@ describe('pre-spend SDK', () => {
         required_confidence: 75
       });
 
-      expect(decision.decision).toBe('approved_with_warning');
-      expect(decision.recommended_route).toMatch(/^route_pay_sh_market_research_/);
+      expect(decision.decision).toBe('approved');
+      expect(decision.recommended_route).toBe('route_pay_sh_market_research_03');
       expect(decision.rationale.length).toBeGreaterThan(0);
     } finally {
       await app.close();
