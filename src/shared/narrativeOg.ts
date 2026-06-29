@@ -1,15 +1,8 @@
 import { getSignalSurfaceBySlug } from '../data/narrativeIntel';
 import { getSignalUpdate } from '../data/signalUpdates';
-import { Resvg } from '@resvg/resvg-js';
 
 export const OG_IMAGE_WIDTH = 1200;
 export const OG_IMAGE_HEIGHT = 630;
-const RESVG_OPTIONS = {
-  fitTo: {
-    mode: 'width' as const,
-    value: OG_IMAGE_WIDTH
-  }
-};
 
 type OgImagePayload = {
   title: string;
@@ -140,11 +133,6 @@ function renderSignalCardSvg(payload: OgImagePayload) {
   <circle cx="1085" cy="548" r="27" fill="none" stroke="${payload.accent}" stroke-width="2" opacity="0.85" />
   <text x="86" y="602" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="15" fill="#54756b">radar.infopunks.fun</text>
 </svg>`;
-}
-
-export function renderOgPng(svg: string) {
-  const renderer = new Resvg(svg, RESVG_OPTIONS);
-  return Buffer.from(renderer.render().asPng());
 }
 
 export function renderNarrativesOgImage() {
