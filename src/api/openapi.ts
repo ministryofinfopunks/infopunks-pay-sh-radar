@@ -597,6 +597,27 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     parameters: [pathParam('slug', 'Signal surface slug.')],
     responses: envelopedResponses('NarrativeSignalSurfaceResponse', { slug: 'black-bull', type: 'signal_report', signal_source: 'Ansem' }, 'signal_surface_not_found')
   });
+  add('get', '/v1/signals/{slug}/updates', {
+    tags: ['Intelligence'],
+    summary: 'List signal evidence updates',
+    description: 'Returns versioned evidence updates for a signal asset, newest first. Infopunks Radar is no longer just watching markets. It is watching the narratives that become markets.',
+    parameters: [pathParam('slug', 'Signal surface slug.')],
+    responses: envelopedResponses('SignalEvidenceUpdateListResponse', {
+      signal_slug: 'black-bull',
+      count: 5,
+      updates: [{
+        update_id: 'seu_black_bull_005',
+        signal_slug: 'black-bull',
+        timestamp: '2026-06-28T18:20:00.000Z',
+        update_type: 'verdict_change',
+        summary: 'Infopunks classifies ANSEM / The Black Bull as a high-signal but high-reflexivity narrative asset.',
+        evidence_links: ['/signals/black-bull', '/narratives/attention-markets'],
+        previous_score: 74,
+        new_score: 80,
+        analyst_note: 'The report remains non-directional. This is not a buy/sell call. It is a signal map.'
+      }]
+    }, 'signal_surface_not_found')
+  });
   add('post', '/v1/search', {
     tags: ['Intelligence'],
     summary: 'Semantic search',
@@ -3303,6 +3324,25 @@ function componentSchemas(): Record<string, JsonSchema> {
       asset_slug: { type: ['string', 'null'] },
       last_updated: dateTimeSchema()
     })),
+    SignalEvidenceUpdateType: enumSchema(['attention_shift', 'holder_shift', 'myth_shift', 'risk_shift', 'verdict_change']),
+    SignalEvidenceUpdate: objectSchema({
+      update_id: stringSchema(),
+      signal_slug: stringSchema(),
+      timestamp: dateTimeSchema(),
+      update_type: { $ref: '#/components/schemas/SignalEvidenceUpdateType' },
+      summary: stringSchema(),
+      evidence_links: arrayOf(stringSchema()),
+      previous_score: integerSchema(),
+      new_score: integerSchema(),
+      analyst_note: stringSchema()
+    }, ['update_id', 'signal_slug', 'timestamp', 'update_type', 'summary', 'evidence_links', 'analyst_note']),
+    SignalEvidenceUpdateListResponse: objectSchema({
+      signal_slug: stringSchema(),
+      count: integerSchema(),
+      updates: arrayOf({ $ref: '#/components/schemas/SignalEvidenceUpdate' }),
+      latest_update: { oneOf: [{ $ref: '#/components/schemas/SignalEvidenceUpdate' }, { type: 'null' }] },
+      summary: stringSchema()
+    }, ['signal_slug', 'count', 'updates', 'summary']),
     SearchRequest: objectSchema({ query: stringSchema(), limit: integerSchema() }, ['query']),
     RouteRecommendationRequest: freeformObject(),
     RouteRecommendationResponse: freeformObject(),

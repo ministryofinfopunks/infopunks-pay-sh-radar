@@ -62,4 +62,56 @@ describe('narrative intel api', () => {
       await app.close();
     }
   });
+
+  it('returns seeded signal evidence updates newest first', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+
+    try {
+      const response = await app.inject({ method: 'GET', url: '/v1/signals/black-bull/updates' });
+      expect(response.statusCode).toBe(200);
+
+      const payload = response.json().data;
+      expect(payload.signal_slug).toBe('black-bull');
+      expect(payload.count).toBeGreaterThanOrEqual(5);
+      expect(payload.summary).toContain('Evidence update summary');
+      expect(payload.latest_update).toEqual(expect.objectContaining({
+        update_id: 'seu_black_bull_005',
+        update_type: 'verdict_change'
+      }));
+      expect(payload.updates).toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          update_id: expect.any(String),
+          signal_slug: 'black-bull',
+          timestamp: expect.any(String),
+          update_type: expect.stringMatching(/attention_shift|holder_shift|myth_shift|risk_shift|verdict_change/),
+          summary: expect.any(String),
+          evidence_links: expect.arrayContaining([expect.any(String)]),
+          analyst_note: expect.any(String)
+        })
+      ]));
+
+      const timestamps = payload.updates.map((update: { timestamp: string }) => update.timestamp);
+      expect(timestamps).toEqual([...timestamps].sort((a, b) => b.localeCompare(a)));
+      expect(payload.updates[0]).toEqual(expect.objectContaining({
+        update_id: 'seu_black_bull_005',
+        update_type: 'verdict_change',
+        previous_score: 74,
+        new_score: 80
+      }));
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('returns 404 for unknown signal update requests', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+
+    try {
+      const response = await app.inject({ method: 'GET', url: '/v1/signals/unknown-signal/updates' });
+      expect(response.statusCode).toBe(404);
+      expect(response.json()).toEqual({ error: 'signal_surface_not_found' });
+    } finally {
+      await app.close();
+    }
+  });
 });

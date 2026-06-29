@@ -79,6 +79,7 @@ describe('openapi discovery', () => {
     expect(spec.paths['/v1/narratives/{slug}']?.get).toBeTruthy();
     expect(spec.paths['/v1/signals']?.get).toBeTruthy();
     expect(spec.paths['/v1/signals/{slug}']?.get).toBeTruthy();
+    expect(spec.paths['/v1/signals/{slug}/updates']?.get).toBeTruthy();
     expect(spec.paths['/v1/loops']?.get).toBeTruthy();
     expect(spec.paths['/v1/loops/{loop_id}']?.get).toBeTruthy();
     expect(spec.paths['/v1/loops/check']?.post).toBeTruthy();
@@ -120,6 +121,9 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.SignalGraphCheckResponse).toBeTruthy();
     expect(spec.components.schemas.NarrativeAssetResponse).toBeTruthy();
     expect(spec.components.schemas.NarrativeSignalSurfaceResponse).toBeTruthy();
+    expect(spec.components.schemas.SignalEvidenceUpdateType).toBeTruthy();
+    expect(spec.components.schemas.SignalEvidenceUpdate).toBeTruthy();
+    expect(spec.components.schemas.SignalEvidenceUpdateListResponse).toBeTruthy();
     expect(spec.components.schemas.ClaimCreateRequest).toBeTruthy();
     expect(spec.components.schemas.ClaimChallenge).toBeTruthy();
     expect(spec.components.schemas.ClaimChallengeCreateRequest).toBeTruthy();
@@ -153,6 +157,9 @@ describe('openapi discovery', () => {
     expect(JSON.stringify(spec.paths['/v1/graph/entities/{entity_type}/{entity_id}'])).toContain('unsupported_signal_graph_entity_type');
     expect(JSON.stringify(spec.paths['/v1/claims'])).toContain('No claim without evidence');
     expect(JSON.stringify(spec.paths['/v1/claims/{claim_id}/challenges'])).toContain('Claims are not token markets yet');
+    expect(JSON.stringify(spec.paths['/v1/signals/{slug}/updates'])).toContain('watching the narratives that become markets');
+    expect(spec.components.schemas.SignalEvidenceUpdateType.enum).toEqual(['attention_shift', 'holder_shift', 'myth_shift', 'risk_shift', 'verdict_change']);
+    expect(spec.components.schemas.SignalEvidenceUpdate.properties.update_type.$ref).toBe('#/components/schemas/SignalEvidenceUpdateType');
     expect(spec.components.schemas.BenchmarkRouteMetric.properties.status_code).toBeTruthy();
     expect(spec.components.schemas.BenchmarkRouteMetric.properties.status_evidence).toBeTruthy();
     expect(spec.components.schemas.BenchmarkRouteMetric.properties.execution_transport).toBeTruthy();

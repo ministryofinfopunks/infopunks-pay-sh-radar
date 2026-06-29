@@ -79,6 +79,7 @@ describe('production smoke plan', () => {
       '/v1/narratives/black-bull',
       '/v1/signals',
       '/v1/signals/black-bull',
+      '/v1/signals/black-bull/updates',
       '/v1/pre-spend/providers',
       '/v1/services',
       '/v1/receipts',

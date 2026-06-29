@@ -67,6 +67,45 @@ type NarrativeSignalSurface = {
   asset?: NarrativeAsset;
 };
 
+type SignalEvidenceUpdateType = 'attention_shift' | 'holder_shift' | 'myth_shift' | 'risk_shift' | 'verdict_change';
+
+type SignalEvidenceUpdate = {
+  update_id: string;
+  signal_slug: string;
+  timestamp: string;
+  update_type: SignalEvidenceUpdateType;
+  summary: string;
+  evidence_links: string[];
+  previous_score?: number;
+  new_score?: number;
+  analyst_note: string;
+};
+
+type SignalEvidenceUpdateResponse = {
+  signal_slug: string;
+  count: number;
+  updates: SignalEvidenceUpdate[];
+  latest_update: SignalEvidenceUpdate | null;
+  summary: string;
+};
+
+const NARRATIVE_METHOD_STEPS = [
+  'Detect Narrative Asset',
+  'Map Signal Source',
+  'Score Attention Velocity',
+  'Check Power Concentration',
+  'Track Reflexivity Risk',
+  'Publish Versioned Evidence Updates'
+] as const;
+
+const BLACK_BULL_SHARE_LINES = [
+  "$ANSEM is the market asking how much Ansem's attention is worth. Infopunks is asking who understands attention before it becomes price.",
+  'Infopunks do not worship signal. Infopunks map signal.',
+  'Solana is entering the attention-market era. Personas become liquidity. Memes become coordination rails.',
+  'Reports are not final. Signals mutate.',
+  'Infopunks Radar is watching the narratives that become markets.'
+] as const;
+
 const API_BASE_URL = getApiBaseUrl();
 
 async function api<T>(path: string) {
@@ -91,6 +130,218 @@ function formatScore(value: number | string) {
 
 function formatDate(value: string) {
   return value.replace('T', ' ').slice(0, 16);
+}
+
+function signalUpdateTypeLabel(value: SignalEvidenceUpdateType) {
+  switch (value) {
+    case 'attention_shift':
+      return 'Attention Shift';
+    case 'holder_shift':
+      return 'Holder / Power Shift';
+    case 'myth_shift':
+      return 'Myth Shift';
+    case 'risk_shift':
+      return 'Risk Shift';
+    case 'verdict_change':
+      return 'Verdict Change';
+  }
+}
+
+function signalDelta(update: SignalEvidenceUpdate) {
+  if (typeof update.previous_score !== 'number' || typeof update.new_score !== 'number') return null;
+  const delta = update.new_score - update.previous_score;
+  const prefix = delta > 0 ? '+' : '';
+  return {
+    value: delta,
+    label: `${prefix}${delta}`,
+    trajectory: delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat'
+  };
+}
+
+function deskStatus(signal: NarrativeSignalSurface, updateCount: number) {
+  if (signal.slug === 'black-bull') return 'Live Watch';
+  if (!updateCount) return 'Seeded Report';
+  return 'Needs Review';
+}
+
+function EvidenceChip({ href }: { href: string }) {
+  return <a className="narrative-evidence-chip" href={href}>{href}</a>;
+}
+
+function LatestDeskUpdateChip({ latestUpdate }: { latestUpdate: SignalEvidenceUpdate | null }) {
+  if (!latestUpdate) return null;
+
+  return <section className="panel narrative-desk-chip" aria-label="Latest desk update">
+    <div className="narrative-desk-chip-head">
+      <div>
+        <p className="section-kicker">Latest Desk Update</p>
+        <h2>{signalUpdateTypeLabel(latestUpdate.update_type)}</h2>
+      </div>
+      <span className={`narrative-update-badge type-${latestUpdate.update_type}`}>{signalUpdateTypeLabel(latestUpdate.update_type)}</span>
+    </div>
+    <p>{latestUpdate.summary}</p>
+    <div className="narrative-desk-chip-meta">
+      <span>{formatDate(latestUpdate.timestamp)}</span>
+      <a className="execute compact secondary" href="#living-evidence-feed">Open Living Evidence Feed</a>
+    </div>
+  </section>;
+}
+
+function ReportFreshnessCard({ surface, updateCount, latestUpdate }: {
+  surface: NarrativeSignalSurface;
+  updateCount: number;
+  latestUpdate: SignalEvidenceUpdate | null;
+}) {
+  const status = deskStatus(surface, updateCount);
+
+  return <article className="panel narrative-freshness-card" aria-label="Report freshness card">
+    <div className="narrative-freshness-head">
+      <div>
+        <p className="section-kicker">Report Freshness</p>
+        <h2>{status}</h2>
+      </div>
+      <span className="source-badge">{status}</span>
+    </div>
+    <div className="narrative-freshness-grid">
+      <div><span>Last updated</span><strong>{formatDate(surface.last_updated)}</strong></div>
+      <div><span>Evidence updates</span><strong>{updateCount}</strong></div>
+      <div><span>Latest update type</span><strong>{latestUpdate ? signalUpdateTypeLabel(latestUpdate.update_type) : 'No updates'}</strong></div>
+      <div><span>Desk status</span><strong>{status}</strong></div>
+    </div>
+  </article>;
+}
+
+function LivingEvidenceFeed({ updates, latestUpdate, summary }: {
+  updates: SignalEvidenceUpdate[];
+  latestUpdate: SignalEvidenceUpdate | null;
+  summary: string;
+}) {
+  return <section id="living-evidence-feed" className="panel narrative-living-feed" aria-label="Living Evidence Feed">
+    <div className="narrative-living-feed-head">
+      <div>
+        <p className="section-kicker">Living desk</p>
+        <h2>Living Evidence Feed</h2>
+        <p>Versioned updates tracking how the narrative changes over time.</p>
+      </div>
+      {latestUpdate && <span className={`narrative-update-badge type-${latestUpdate.update_type}`}>{signalUpdateTypeLabel(latestUpdate.update_type)}</span>}
+    </div>
+    <p className="narrative-feed-rally">Reports are not final. Signals mutate.</p>
+    <p className="narrative-feed-summary">{summary}</p>
+    {!updates.length && <div className="narrative-feed-empty">
+      <p className="section-kicker">Static report mode</p>
+      <p>No versioned evidence updates yet. This signal remains in static report mode.</p>
+    </div>}
+    {!!updates.length && <div className="timeline narrative-update-timeline">
+      {updates.map((update) => {
+        const delta = signalDelta(update);
+        return <article key={update.update_id} className="panel narrative-update-card">
+          <div className="narrative-update-head">
+            <div>
+              <p className="section-kicker">{formatDate(update.timestamp)}</p>
+              <h3>{signalUpdateTypeLabel(update.update_type)}</h3>
+            </div>
+            <span className={`narrative-update-badge type-${update.update_type}`}>{signalUpdateTypeLabel(update.update_type)}</span>
+          </div>
+          <p>{update.summary}</p>
+          {delta && <div className={`narrative-signal-delta ${delta.trajectory}`}>
+            <span>Signal Delta</span>
+            <strong>{update.previous_score} → {update.new_score} ({delta.label})</strong>
+          </div>}
+          <p className="narrative-analyst-note"><b>Analyst note:</b> {update.analyst_note}</p>
+          <div className="chips narrative-update-chips">
+            {update.evidence_links.map((href) => <EvidenceChip key={`${update.update_id}-${href}`} href={href} />)}
+          </div>
+        </article>;
+      })}
+    </div>}
+  </section>;
+}
+
+function NarrativeMethodModule() {
+  return <section className="panel narrative-method-module" aria-label="Narrative Asset Intelligence Method">
+    <div className="narrative-method-head">
+      <div>
+        <p className="section-kicker">Desk method</p>
+        <h2>Narrative Asset Intelligence Method</h2>
+        <p>Narrative Asset Intelligence treats attention, myth, wallet power, and reflexivity as one evidence desk.</p>
+      </div>
+    </div>
+    <div className="narrative-method-grid">
+      {NARRATIVE_METHOD_STEPS.map((step, index) => <article key={step} className="panel narrative-method-step">
+        <p className="section-kicker">Step {index + 1}</p>
+        <h3>{step}</h3>
+      </article>)}
+    </div>
+  </section>;
+}
+
+function FeaturedNarrativeReport() {
+  const metrics = [
+    ['Signal Strength', 'High'],
+    ['Myth Coherence', 'High'],
+    ['Reflexivity Risk', 'High'],
+    ['Sovereignty Status', 'Unproven']
+  ] as const;
+
+  return <section className="panel narrative-featured-report" aria-label="Featured ANSEM Black Bull report">
+    <div className="narrative-featured-head">
+      <div>
+        <p className="section-kicker">First Narrative Asset Intelligence Report</p>
+        <h2>$ANSEM / The Black Bull</h2>
+        <p>A live signal report on what happens when persona, attention, myth, wallet flows, and market reflexivity become one tradable object.</p>
+      </div>
+      <span className="source-badge">Narrative Asset Intelligence</span>
+    </div>
+    <div className="narrative-featured-metrics">
+      {metrics.map(([label, value]) => <div key={label}>
+        <span>{label}</span>
+        <strong>{value}</strong>
+      </div>)}
+    </div>
+    <div className="panel-actions">
+      <a className="execute" href="/signals/black-bull">Open Signal Report</a>
+      <a className="execute compact secondary" href="/narratives/attention-markets">Read Attention Markets Thesis</a>
+    </div>
+  </section>;
+}
+
+function ShareLinesModule() {
+  return <section className="panel narrative-share-lines" aria-label="Share Lines">
+    <div className="narrative-share-lines-head">
+      <div>
+        <p className="section-kicker">Field copy</p>
+        <h2>Share Lines</h2>
+      </div>
+    </div>
+    <div className="narrative-share-lines-grid">
+      {BLACK_BULL_SHARE_LINES.map((line, index) => <article key={line} className="panel narrative-share-line-card">
+        <p className="section-kicker">Line {index + 1}</p>
+        <p>{line}</p>
+      </article>)}
+    </div>
+  </section>;
+}
+
+function DoNotWorshipSignalCard() {
+  return <section className="panel narrative-warning-card state-high_reflexivity" aria-label="Do Not Worship Signal">
+    <div className="narrative-warning-head">
+      <div>
+        <p className="section-kicker">Sovereignty warning</p>
+        <h2>Do Not Worship Signal</h2>
+      </div>
+      <span className="narrative-decision-pill state-high_reflexivity">high reflexivity</span>
+    </div>
+    <p>High signal does not mean low risk. Narrative assets can move fast because belief, liquidity, and attention reinforce each other. Infopunks maps the loop so readers do not get owned by it.</p>
+  </section>;
+}
+
+function NarrativeLinkCluster({ links }: { links: Array<{ href: string; label: string }> }) {
+  return <section className="panel narrative-link-cluster" aria-label="Related narrative routes">
+    <p className="section-kicker">Desk links</p>
+    <div className="chips narrative-route-chips">
+      {links.map((link) => <a key={link.href} className="narrative-evidence-chip" href={link.href}>{link.label}</a>)}
+    </div>
+  </section>;
 }
 
 function NarrativeIntelNav({ current }: { current: string }) {
@@ -199,6 +450,8 @@ export function NarrativesIndexPage() {
 
       {error && <section className="panel"><p className="route-state error">{error}</p></section>}
 
+      <FeaturedNarrativeReport />
+
       <section className="narrative-grid">
         {assets.map((asset) => <NarrativeAssetPreview key={asset.id} asset={asset} />)}
       </section>
@@ -253,12 +506,15 @@ export function AttentionMarketsPage() {
               : 'Narrative compression can turn a social pattern into a market rail faster than fundamentals can catch up.'}</p>
         </article>)}
       </section>
+
+      <NarrativeMethodModule />
     </main>
   </div>;
 }
 
 function SignalSurfacePage({ slug, expectedType }: { slug: string; expectedType: NarrativeSignalSurface['type'] }) {
   const [surface, setSurface] = useState<NarrativeSignalSurface | null>(null);
+  const [updates, setUpdates] = useState<SignalEvidenceUpdateResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -270,7 +526,20 @@ function SignalSurfacePage({ slug, expectedType }: { slug: string; expectedType:
       .catch((err) => setError(err instanceof Error ? err.message : 'signal_surface_unavailable'));
   }, [slug, expectedType]);
 
+  useEffect(() => {
+    api<SignalEvidenceUpdateResponse>(`/v1/signals/${encodeURIComponent(slug)}/updates`)
+      .then((response) => setUpdates(response.data))
+      .catch((err) => {
+        if (isNotFoundError(err)) return;
+        setError(err instanceof Error ? err.message : 'signal_updates_unavailable');
+      });
+  }, [slug]);
+
   const cardsById = useMemo(() => new Map((surface?.cards ?? []).map((card) => [card.id, card])), [surface?.cards]);
+  const feedUpdates = updates?.updates ?? [];
+  const latestUpdate = updates?.latest_update ?? null;
+  const preVerdictSections = useMemo(() => (surface?.sections ?? []).filter((section) => section.id !== 'infopunk-verdict'), [surface?.sections]);
+  const verdictSection = useMemo(() => (surface?.sections ?? []).find((section) => section.id === 'infopunk-verdict') ?? null, [surface?.sections]);
 
   if (error && isNotFoundError(new Error(error))) {
     return <div className="shell narrative-shell"><main className="narrative-page"><section className="panel"><h1>Signal Not Found</h1><p>{slug}</p></section></main></div>;
@@ -290,6 +559,7 @@ function SignalSurfacePage({ slug, expectedType }: { slug: string; expectedType:
             <h1>{surface.title}</h1>
             <p className="copy">{surface.thesis}</p>
             <p className="copy">{surface.disclaimer}</p>
+            {surface.type === 'signal_report' && <p className="copy narrative-rally-line">Infopunks Radar is no longer just watching markets. It is watching the narratives that become markets.</p>}
           </div>
           <div className="panel narrative-hero-rail">
             <p className="section-kicker">Signal source</p>
@@ -299,14 +569,27 @@ function SignalSurfacePage({ slug, expectedType }: { slug: string; expectedType:
           </div>
         </section>
 
+        {surface.type === 'signal_report' && <LatestDeskUpdateChip latestUpdate={latestUpdate} />}
+
         {surface.asset && <section className="panel narrative-copy-panel">
           <p className="section-kicker">Mapped asset</p>
           <h2>{surface.asset.ticker} / {surface.asset.name}</h2>
           <p>{surface.asset.infopunk_verdict}</p>
         </section>}
 
+        {surface.type === 'signal_report' && <ReportFreshnessCard surface={surface} updateCount={updates?.count ?? 0} latestUpdate={latestUpdate} />}
+        {surface.slug === 'ansem' && <NarrativeLinkCluster links={[
+          { href: '/signals/black-bull', label: 'Black Bull Signal Report' },
+          { href: '/narratives/attention-markets', label: 'Attention Markets Thesis' }
+        ]} />}
+        {surface.slug === 'black-bull' && <NarrativeLinkCluster links={[
+          { href: '/signals/ansem', label: 'Ansem Signal Source' },
+          { href: '/narratives/attention-markets', label: 'Attention Markets Thesis' },
+          { href: '/narratives', label: 'Narrative Intel Index' }
+        ]} />}
+
         <section className="narrative-section-stack">
-          {surface.sections.map((section) => <section key={section.id} className="panel narrative-report-section" aria-label={section.title}>
+          {(surface.type === 'signal_report' ? preVerdictSections : surface.sections).map((section) => <section key={section.id} className="panel narrative-report-section" aria-label={section.title}>
             <div className="narrative-section-head">
               <div>
                 <p className="section-kicker">Narrative desk</p>
@@ -321,6 +604,31 @@ function SignalSurfacePage({ slug, expectedType }: { slug: string; expectedType:
               })}
             </div>
           </section>)}
+
+          {surface.slug === 'black-bull' && <DoNotWorshipSignalCard />}
+          {surface.slug === 'black-bull' && <NarrativeMethodModule />}
+          {surface.type === 'signal_report' && <LivingEvidenceFeed
+            updates={feedUpdates}
+            latestUpdate={latestUpdate}
+            summary={updates?.summary ?? 'Evidence update summary: no evidence updates yet.'}
+          />}
+          {surface.slug === 'black-bull' && <ShareLinesModule />}
+
+          {surface.type === 'signal_report' && verdictSection && <section key={verdictSection.id} className="panel narrative-report-section" aria-label={verdictSection.title}>
+            <div className="narrative-section-head">
+              <div>
+                <p className="section-kicker">Narrative desk</p>
+                <h2>{verdictSection.title}</h2>
+              </div>
+            </div>
+            <p>{verdictSection.body}</p>
+            <div className="narrative-card-grid">
+              {verdictSection.card_ids.map((cardId) => {
+                const card = cardsById.get(cardId);
+                return card ? <NarrativeMetricCard key={card.id} card={card} /> : null;
+              })}
+            </div>
+          </section>}
         </section>
 
         {surface.asset && <NarrativeEvidenceList artifacts={surface.asset.evidence_artifacts} />}

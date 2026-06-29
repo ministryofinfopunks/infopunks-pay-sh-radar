@@ -405,6 +405,26 @@ export const NarrativeSignalSurfaceSchema = z.object({
   asset: NarrativeAssetSchema.optional()
 });
 
+export const SignalEvidenceUpdateTypeSchema = z.enum([
+  'attention_shift',
+  'holder_shift',
+  'myth_shift',
+  'risk_shift',
+  'verdict_change'
+]);
+
+export const SignalEvidenceUpdateSchema = z.object({
+  update_id: z.string(),
+  signal_slug: z.string(),
+  timestamp: z.string().datetime(),
+  update_type: SignalEvidenceUpdateTypeSchema,
+  summary: z.string(),
+  evidence_links: z.array(z.string()),
+  previous_score: z.number().min(0).max(100).optional(),
+  new_score: z.number().min(0).max(100).optional(),
+  analyst_note: z.string()
+});
+
 export const SearchRequestSchema = z.object({
   query: z.string().min(1),
   category: z.string().optional(),
@@ -2172,6 +2192,8 @@ export type NarrativeSignalSurfaceType = z.infer<typeof NarrativeSignalSurfaceTy
 export type NarrativeSignalCard = z.infer<typeof NarrativeSignalCardSchema>;
 export type NarrativeSignalSection = z.infer<typeof NarrativeSignalSectionSchema>;
 export type NarrativeSignalSurface = z.infer<typeof NarrativeSignalSurfaceSchema>;
+export type SignalEvidenceUpdateType = z.infer<typeof SignalEvidenceUpdateTypeSchema>;
+export type SignalEvidenceUpdate = z.infer<typeof SignalEvidenceUpdateSchema>;
 export type RouteRecommendation = z.infer<typeof RouteRecommendationSchema>;
 export type SearchRequest = z.infer<typeof SearchRequestSchema>;
 export type RouteRecommendationRequest = z.infer<typeof RouteRecommendationRequestSchema>;

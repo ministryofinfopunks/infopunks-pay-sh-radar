@@ -89,6 +89,47 @@ const blackBullSignal = {
   asset: narrativeAsset
 };
 
+const blackBullUpdates = {
+  signal_slug: 'black-bull',
+  count: 5,
+  latest_update: {
+    update_id: 'seu_black_bull_005',
+    signal_slug: 'black-bull',
+    timestamp: '2026-06-28T18:20:00.000Z',
+    update_type: 'verdict_change',
+    summary: 'Infopunks classifies ANSEM / The Black Bull as a high-signal but high-reflexivity narrative asset.',
+    evidence_links: ['/signals/black-bull', '/narratives/attention-markets'],
+    previous_score: 74,
+    new_score: 80,
+    analyst_note: 'The report remains non-directional. This is not a buy/sell call. It is a signal map.'
+  },
+  summary: 'Evidence update summary: Infopunks classifies ANSEM / The Black Bull as a high-signal but high-reflexivity narrative asset. Score movement: 74 -> 80. Latest signal shift: verdict_change. Reflexivity monitoring remains active. Infopunks Radar is no longer just watching markets. It is watching the narratives that become markets.',
+  updates: [
+    {
+      update_id: 'seu_black_bull_005',
+      signal_slug: 'black-bull',
+      timestamp: '2026-06-28T18:20:00.000Z',
+      update_type: 'verdict_change',
+      summary: 'Infopunks classifies ANSEM / The Black Bull as a high-signal but high-reflexivity narrative asset.',
+      evidence_links: ['/signals/black-bull', '/narratives/attention-markets'],
+      previous_score: 74,
+      new_score: 80,
+      analyst_note: 'The report remains non-directional. This is not a buy/sell call. It is a signal map.'
+    },
+    {
+      update_id: 'seu_black_bull_004',
+      signal_slug: 'black-bull',
+      timestamp: '2026-06-27T14:45:00.000Z',
+      update_type: 'risk_shift',
+      summary: 'Reflexivity risk increased as the asset became more dependent on attention loops between price, posting, and belief.',
+      evidence_links: ['/signals/black-bull'],
+      previous_score: 71,
+      new_score: 82,
+      analyst_note: 'High reflexivity is not automatically bearish, but it means the loop requires active monitoring.'
+    }
+  ]
+};
+
 describe('narrative pages', () => {
   let root: Root | null = null;
   let container: HTMLDivElement;
@@ -101,6 +142,8 @@ describe('narrative pages', () => {
       if (path === '/v1/narratives') return json([narrativeAsset]);
       if (path === '/v1/signals/ansem') return json(ansemSignal);
       if (path === '/v1/signals/black-bull') return json(blackBullSignal);
+      if (path === '/v1/signals/black-bull/updates') return json(blackBullUpdates);
+      if (path === '/v1/signals/ansem/updates') return json({ signal_slug: 'ansem', count: 0, latest_update: null, summary: 'Evidence update summary: no evidence updates yet.', updates: [] });
       return Promise.resolve(new Response('{}', { status: 404 }));
     });
   });
@@ -129,6 +172,15 @@ describe('narrative pages', () => {
 
     expect(container.textContent).toContain('Infopunks maps attention markets before they become consensus.');
     expect(container.textContent).toContain('Infopunks do not worship signal. Infopunks map signal.');
+    expect(container.textContent).toContain('First Narrative Asset Intelligence Report');
+    expect(container.textContent).toContain('$ANSEM / The Black Bull');
+    expect(container.textContent).toContain('A live signal report on what happens when persona, attention, myth, wallet flows, and market reflexivity become one tradable object.');
+    expect(container.textContent).toContain('Signal Strength');
+    expect(container.textContent).toContain('Myth Coherence');
+    expect(container.textContent).toContain('Reflexivity Risk');
+    expect(container.textContent).toContain('Sovereignty Status');
+    expect(Array.from(container.querySelectorAll('a[href="/signals/black-bull"]')).some((node) => node.textContent?.includes('Open Signal Report'))).toBe(true);
+    expect(Array.from(container.querySelectorAll('a[href="/narratives/attention-markets"]')).some((node) => node.textContent?.includes('Read Attention Markets Thesis'))).toBe(true);
     expect(container.querySelector('a[href="/narratives"]')?.textContent).toContain('Narrative Intel');
     expect(container.textContent).toContain('ANSEM / The Black Bull');
   });
@@ -141,6 +193,9 @@ describe('narrative pages', () => {
     expect(container.textContent).toContain('wallets can become myth objects');
     expect(container.textContent).toContain('attention velocity can precede price action');
     expect(container.textContent).toContain('narrative assets require sovereignty checks');
+    expect(container.textContent).toContain('Narrative Asset Intelligence Method');
+    expect(container.textContent).toContain('Detect Narrative Asset');
+    expect(container.textContent).toContain('Publish Versioned Evidence Updates');
   });
 
   it('renders the Ansem signal source page without sounding like advice', async () => {
@@ -149,9 +204,11 @@ describe('narrative pages', () => {
     expect(container.textContent).toContain('Ansem');
     expect(container.textContent).toContain('This page maps a signal source. It is not financial advice');
     expect(container.textContent).toContain('Signal Source');
+    expect(Array.from(container.querySelectorAll('a[href="/signals/black-bull"]')).some((node) => node.textContent?.includes('Black Bull Signal Report'))).toBe(true);
+    expect(Array.from(container.querySelectorAll('a[href="/narratives/attention-markets"]')).some((node) => node.textContent?.includes('Attention Markets Thesis'))).toBe(true);
   });
 
-  it('renders all narrative score cards on the Black Bull report', async () => {
+  it('renders the living intelligence desk elements on the Black Bull report', async () => {
     await render('/signals/black-bull');
 
     for (const label of [
@@ -169,6 +226,24 @@ describe('narrative pages', () => {
     ]) {
       expect(container.textContent).toContain(label);
     }
+    expect(container.textContent).toContain('Living Evidence Feed');
+    expect(container.textContent).toContain('Latest Desk Update');
+    expect(container.textContent).toContain('Report Freshness');
+    expect(container.textContent).toContain('Live Watch');
+    expect(container.textContent).toContain('Infopunks Radar is no longer just watching markets. It is watching the narratives that become markets.');
+    expect(container.textContent).toContain('Reports are not final. Signals mutate.');
+    expect(container.textContent).toContain('Share Lines');
+    expect(container.textContent).toContain('Do Not Worship Signal');
+    expect(container.textContent).toContain('Narrative Asset Intelligence Method');
+    expect(container.textContent).toContain("Solana is entering the attention-market era. Personas become liquidity. Memes become coordination rails.");
+    expect(container.textContent).toContain('High signal does not mean low risk.');
+    expect(container.textContent).toContain('Infopunks classifies ANSEM / The Black Bull as a high-signal but high-reflexivity narrative asset.');
+    expect(container.textContent).toContain('Signal Delta');
+    expect(container.textContent).toContain('74 → 80 (+6)');
+    expect(container.querySelector('a[href="#living-evidence-feed"]')?.textContent).toContain('Open Living Evidence Feed');
+    expect(Array.from(container.querySelectorAll('a[href="/signals/ansem"]')).some((node) => node.textContent?.includes('Ansem Signal Source'))).toBe(true);
+    expect(Array.from(container.querySelectorAll('a[href="/narratives/attention-markets"]')).some((node) => node.textContent?.includes('Attention Markets Thesis'))).toBe(true);
+    expect(Array.from(container.querySelectorAll('a[href="/narratives"]')).some((node) => node.textContent?.includes('Narrative Intel Index'))).toBe(true);
     expect(container.textContent).toContain('Holder / Power Concentration');
     expect(container.textContent).toContain('do_not_chase'.replaceAll('_', ' '));
   });

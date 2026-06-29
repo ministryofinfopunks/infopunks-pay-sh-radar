@@ -6,6 +6,7 @@ import { extname, join, normalize, resolve } from 'node:path';
 import { z } from 'zod';
 import { payShCatalogFixture } from '../data/payShCatalogFixture';
 import { getNarrativeAssetBySlug, getSignalSurfaceBySlug, listNarrativeAssets, listSignalSurfaces } from '../data/narrativeIntel';
+import { getLatestSignalUpdate, getSignalUpdateSummary, listSignalUpdates } from '../data/signalUpdates';
 import { applyPayShCatalogIngestion } from '../ingestion/payShCatalogAdapter';
 import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, IntelligenceStore, runPayShIngestion, runPayShIngestionWithOptions } from '../services/intelligenceStore';
 import { IntelligenceRepository } from '../persistence/repository';
@@ -1507,6 +1508,23 @@ export async function createApp(
     const signal = getSignalSurfaceBySlug(req.params.slug);
     if (!signal) return reply.code(404).send({ error: 'signal_surface_not_found' });
     return { data: signal };
+  });
+  app.get<{ Params: { slug: string } }>('/v1/signals/:slug/updates', async (req, reply) => {
+    const signal = getSignalSurfaceBySlug(req.params.slug);
+    if (!signal) return reply.code(404).send({ error: 'signal_surface_not_found' });
+
+    const updates = listSignalUpdates(req.params.slug);
+    const latestUpdate = getLatestSignalUpdate(req.params.slug);
+
+    return {
+      data: {
+        signal_slug: req.params.slug,
+        count: updates.length,
+        updates,
+        latest_update: latestUpdate,
+        summary: getSignalUpdateSummary(req.params.slug)
+      }
+    };
   });
   app.post('/v1/search', async (req, reply) => handleParsed(req.body, SearchRequestSchema, async (input) => {
     const startedAtMs = Date.now();
