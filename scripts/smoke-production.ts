@@ -108,6 +108,8 @@ export function buildSmokePlan(): SmokePlan {
       '/v1/routes',
       '/v1/narratives',
       '/v1/signal-desk',
+      '/v1/signal-desk/candidates',
+      '/v1/signal-desk/candidates/candidate_sol_persona_attention',
       '/v1/narratives/black-bull',
       '/v1/signals',
       '/v1/signals/black-bull',

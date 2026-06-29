@@ -580,7 +580,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   add('get', '/v1/signal-desk', {
     tags: ['Intelligence'],
     summary: 'Get Signal Desk index',
-    description: 'Returns the derived Signal Desk catalog with featured report, dispatches, risk shifts, report cards, and compact desk activity for Narrative Asset Intelligence.',
+    description: 'Returns the derived Signal Desk catalog with featured report, dispatches, risk shifts, report cards, compact desk activity, and candidate signals queued for evidence review or promotion into reports.',
     responses: envelopedResponses('SignalDeskIndex', {
       generated_at: '2026-06-29T00:00:00.000Z',
       desk_status: 'live_watch',
@@ -589,6 +589,29 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
         dispatches: 5,
         risk_shifts: 3,
         watched_signals: 1
+      },
+      candidate_signals: [{
+        candidate_id: 'candidate_sol_persona_attention',
+        name: 'Next attention market around a major Solana persona',
+        chain: 'Solana',
+        category: 'attention_market',
+        submitted_by: 'desk',
+        status: 'watching',
+        priority: 'high',
+        risk_level: 'medium',
+        summary: 'The desk is tracking whether a familiar Solana persona is compressing social attention into a new market object.',
+        why_it_matters: 'Persona-led coordination can mint a market before durable ownership or utility becomes legible.',
+        evidence_links: ['/narratives/attention-markets'],
+        created_at: '2026-06-24T09:00:00.000Z',
+        updated_at: '2026-06-29T00:00:00.000Z'
+      }],
+      candidate_counts: {
+        total: 6,
+        queued: 1,
+        watching: 1,
+        needs_evidence: 2,
+        under_review: 1,
+        promoted_to_report: 0
       },
       featured_report: {
         slug: 'black-bull',
@@ -611,6 +634,52 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       risk_shifts: [],
       desk_activity: []
     })
+  });
+  add('get', '/v1/signal-desk/candidates', {
+    tags: ['Intelligence'],
+    summary: 'List candidate signals',
+    description: 'Returns the seeded candidate queue for the desk. Candidate signals are pre-report items waiting for evidence, review, rejection, or promotion.',
+    responses: envelopedResponses('CandidateSignalListResponse', {
+      count: 6,
+      candidates: [{
+        candidate_id: 'candidate_sol_persona_attention',
+        name: 'Next attention market around a major Solana persona',
+        chain: 'Solana',
+        category: 'attention_market',
+        submitted_by: 'desk',
+        status: 'watching',
+        priority: 'high',
+        risk_level: 'medium',
+        summary: 'The desk is tracking whether a familiar Solana persona is compressing social attention into a new market object.',
+        why_it_matters: 'Persona-led coordination can mint a market before durable ownership or utility becomes legible.',
+        evidence_links: ['/narratives/attention-markets'],
+        created_at: '2026-06-24T09:00:00.000Z',
+        updated_at: '2026-06-29T00:00:00.000Z'
+      }]
+    })
+  });
+  add('get', '/v1/signal-desk/candidates/{candidateId}', {
+    tags: ['Intelligence'],
+    summary: 'Get candidate signal',
+    description: 'Returns one candidate signal record by id. Unknown candidate ids return candidate_signal_not_found.',
+    parameters: [pathParam('candidateId', 'Candidate signal identifier.')],
+    responses: envelopedResponses('CandidateSignalDetailResponse', {
+      candidate: {
+        candidate_id: 'candidate_sol_persona_attention',
+        name: 'Next attention market around a major Solana persona',
+        chain: 'Solana',
+        category: 'attention_market',
+        submitted_by: 'desk',
+        status: 'watching',
+        priority: 'high',
+        risk_level: 'medium',
+        summary: 'The desk is tracking whether a familiar Solana persona is compressing social attention into a new market object.',
+        why_it_matters: 'Persona-led coordination can mint a market before durable ownership or utility becomes legible.',
+        evidence_links: ['/narratives/attention-markets'],
+        created_at: '2026-06-24T09:00:00.000Z',
+        updated_at: '2026-06-29T00:00:00.000Z'
+      }
+    }, 'candidate_signal_not_found')
   });
   add('get', '/v1/narratives/{slug}', {
     tags: ['Intelligence'],
@@ -3399,6 +3468,33 @@ function componentSchemas(): Record<string, JsonSchema> {
     SignalDeskStatus: enumSchema(['live_watch', 'seeded_report', 'needs_review']),
     SignalDeskActivityType: enumSchema(['report_published', 'dispatch_published', 'risk_shift', 'verdict_change', 'metadata_updated', 'og_card_generated']),
     SignalEvidenceUpdateType: enumSchema(['attention_shift', 'holder_shift', 'myth_shift', 'risk_shift', 'verdict_change']),
+    CandidateSignalCategory: enumSchema(['attention_market', 'meme_asset', 'agentic_narrative', 'depin_signal', 'kol_signal', 'market_myth', 'unknown']),
+    CandidateSignalStatus: enumSchema(['queued', 'watching', 'needs_evidence', 'under_review', 'rejected', 'promoted_to_report']),
+    CandidateSignalPriority: enumSchema(['low', 'medium', 'high']),
+    CandidateSignalRiskLevel: enumSchema(['low', 'medium', 'high', 'unknown']),
+    CandidateSignal: objectSchema({
+      candidate_id: stringSchema(),
+      name: stringSchema(),
+      ticker: stringSchema(),
+      chain: stringSchema(),
+      category: { $ref: '#/components/schemas/CandidateSignalCategory' },
+      submitted_by: enumSchema(['desk', 'community', 'system']),
+      status: { $ref: '#/components/schemas/CandidateSignalStatus' },
+      priority: { $ref: '#/components/schemas/CandidateSignalPriority' },
+      risk_level: { $ref: '#/components/schemas/CandidateSignalRiskLevel' },
+      summary: stringSchema(),
+      why_it_matters: stringSchema(),
+      evidence_links: arrayOf(stringSchema()),
+      created_at: dateTimeSchema(),
+      updated_at: dateTimeSchema()
+    }, ['candidate_id', 'name', 'category', 'submitted_by', 'status', 'priority', 'risk_level', 'summary', 'why_it_matters', 'evidence_links', 'created_at', 'updated_at']),
+    CandidateSignalListResponse: objectSchema({
+      count: integerSchema(),
+      candidates: arrayOf({ $ref: '#/components/schemas/CandidateSignal' })
+    }, ['count', 'candidates']),
+    CandidateSignalDetailResponse: objectSchema({
+      candidate: { $ref: '#/components/schemas/CandidateSignal' }
+    }, ['candidate']),
     SignalEvidenceUpdate: objectSchema({
       update_id: stringSchema(),
       signal_slug: stringSchema(),
@@ -3470,12 +3566,21 @@ function componentSchemas(): Record<string, JsonSchema> {
         risk_shifts: integerSchema(),
         watched_signals: integerSchema()
       }, ['reports', 'dispatches', 'risk_shifts', 'watched_signals']),
+      candidate_signals: arrayOf({ $ref: '#/components/schemas/CandidateSignal' }),
+      candidate_counts: objectSchema({
+        total: integerSchema(),
+        queued: integerSchema(),
+        watching: integerSchema(),
+        needs_evidence: integerSchema(),
+        under_review: integerSchema(),
+        promoted_to_report: integerSchema()
+      }, ['total', 'queued', 'watching', 'needs_evidence', 'under_review', 'promoted_to_report']),
       featured_report: { oneOf: [{ $ref: '#/components/schemas/SignalDeskReportCard' }, { type: 'null' }] },
       reports: arrayOf({ $ref: '#/components/schemas/SignalDeskReportCard' }),
       latest_dispatches: arrayOf({ $ref: '#/components/schemas/SignalDeskDispatchCard' }),
       risk_shifts: arrayOf({ $ref: '#/components/schemas/SignalDeskDispatchCard' }),
       desk_activity: arrayOf({ $ref: '#/components/schemas/SignalDeskActivityItem' })
-    }, ['generated_at', 'desk_status', 'counts', 'featured_report', 'reports', 'latest_dispatches', 'risk_shifts', 'desk_activity']),
+    }, ['generated_at', 'desk_status', 'counts', 'candidate_signals', 'candidate_counts', 'featured_report', 'reports', 'latest_dispatches', 'risk_shifts', 'desk_activity']),
     SearchRequest: objectSchema({ query: stringSchema(), limit: integerSchema() }, ['query']),
     RouteRecommendationRequest: freeformObject(),
     RouteRecommendationResponse: freeformObject(),

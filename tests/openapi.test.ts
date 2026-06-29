@@ -77,6 +77,8 @@ describe('openapi discovery', () => {
     expect(spec.paths['/v1/checks/{check_id}']?.get).toBeTruthy();
     expect(spec.paths['/v1/narratives']?.get).toBeTruthy();
     expect(spec.paths['/v1/signal-desk']?.get).toBeTruthy();
+    expect(spec.paths['/v1/signal-desk/candidates']?.get).toBeTruthy();
+    expect(spec.paths['/v1/signal-desk/candidates/{candidateId}']?.get).toBeTruthy();
     expect(spec.paths['/v1/narratives/{slug}']?.get).toBeTruthy();
     expect(spec.paths['/v1/signals']?.get).toBeTruthy();
     expect(spec.paths['/v1/signals/{slug}']?.get).toBeTruthy();
@@ -124,6 +126,11 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.NarrativeAssetResponse).toBeTruthy();
     expect(spec.components.schemas.NarrativeSignalSurfaceResponse).toBeTruthy();
     expect(spec.components.schemas.SignalDeskIndex).toBeTruthy();
+    expect(spec.components.schemas.CandidateSignal).toBeTruthy();
+    expect(spec.components.schemas.CandidateSignalCategory).toBeTruthy();
+    expect(spec.components.schemas.CandidateSignalStatus).toBeTruthy();
+    expect(spec.components.schemas.CandidateSignalPriority).toBeTruthy();
+    expect(spec.components.schemas.CandidateSignalRiskLevel).toBeTruthy();
     expect(spec.components.schemas.SignalDeskReportCard).toBeTruthy();
     expect(spec.components.schemas.SignalDeskDispatchCard).toBeTruthy();
     expect(spec.components.schemas.SignalDeskActivityItem).toBeTruthy();
@@ -166,7 +173,12 @@ describe('openapi discovery', () => {
     expect(JSON.stringify(spec.paths['/v1/claims/{claim_id}/challenges'])).toContain('Claims are not token markets yet');
     expect(JSON.stringify(spec.paths['/v1/signals/{slug}/updates'])).toContain('watching the narratives that become markets');
     expect(JSON.stringify(spec.paths['/v1/signal-desk'])).toContain('featured report');
+    expect(JSON.stringify(spec.paths['/v1/signal-desk/candidates'])).toContain('seeded candidate queue');
+    expect(JSON.stringify(spec.paths['/v1/signal-desk/candidates/{candidateId}'])).toContain('candidate_signal_not_found');
     expect(JSON.stringify(spec.paths['/v1/signals/{slug}/updates/{updateId}'])).toContain('signal_update_not_found');
+    expect(spec.components.schemas.CandidateSignal.properties.category.$ref).toBe('#/components/schemas/CandidateSignalCategory');
+    expect(spec.components.schemas.CandidateSignal.properties.status.$ref).toBe('#/components/schemas/CandidateSignalStatus');
+    expect(spec.components.schemas.SignalDeskIndex.properties.candidate_signals.items.$ref).toBe('#/components/schemas/CandidateSignal');
     expect(spec.components.schemas.SignalEvidenceUpdateType.enum).toEqual(['attention_shift', 'holder_shift', 'myth_shift', 'risk_shift', 'verdict_change']);
     expect(spec.components.schemas.SignalEvidenceUpdate.properties.update_type.$ref).toBe('#/components/schemas/SignalEvidenceUpdateType');
     expect(spec.components.schemas.BenchmarkRouteMetric.properties.status_code).toBeTruthy();

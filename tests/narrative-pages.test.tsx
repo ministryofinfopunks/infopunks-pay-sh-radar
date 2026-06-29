@@ -143,10 +143,49 @@ const signalDesk = {
   generated_at: '2026-06-29T00:00:00.000Z',
   desk_status: 'live_watch',
   counts: {
-    reports: 1,
-    dispatches: 5,
+    reports: 2,
+    dispatches: 6,
     risk_shifts: 3,
-    watched_signals: 1
+    watched_signals: 2
+  },
+  candidate_signals: [
+    {
+      candidate_id: 'candidate_sol_persona_attention',
+      name: 'Next attention market around a major Solana persona',
+      chain: 'Solana',
+      category: 'attention_market',
+      submitted_by: 'desk',
+      status: 'watching',
+      priority: 'high',
+      risk_level: 'medium',
+      summary: 'The desk is tracking whether a familiar Solana persona is compressing social attention into a new market object.',
+      why_it_matters: 'Persona-led coordination can mint a market before durable ownership or utility becomes legible.',
+      evidence_links: ['/narratives/attention-markets'],
+      created_at: '2026-06-24T09:00:00.000Z',
+      updated_at: '2026-06-29T00:00:00.000Z'
+    },
+    {
+      candidate_id: 'candidate_agentic_meme_repeat_mentions',
+      name: 'Agentic meme asset gaining repeat mentions',
+      category: 'agentic_narrative',
+      submitted_by: 'system',
+      status: 'needs_evidence',
+      priority: 'medium',
+      risk_level: 'unknown',
+      summary: 'Repeat mentions suggest an agentic meme frame may be forming, but current evidence is still too thin for a mapped report.',
+      why_it_matters: 'Repeated framing can signal that a meme is turning into a coordination rail instead of a one-cycle joke.',
+      evidence_links: [],
+      created_at: '2026-06-25T12:30:00.000Z',
+      updated_at: '2026-06-29T00:00:00.000Z'
+    }
+  ],
+  candidate_counts: {
+    total: 2,
+    queued: 0,
+    watching: 1,
+    needs_evidence: 1,
+    under_review: 0,
+    promoted_to_report: 0
   },
   featured_report: {
     slug: 'black-bull',
@@ -179,23 +218,56 @@ const signalDesk = {
     latest_update_type: 'verdict_change',
     latest_update_at: '2026-06-28T18:20:00.000Z',
     update_count: 5
+  }, {
+    slug: 'wallet-coordination',
+    ticker: 'AICORE',
+    name: 'AI Wallet Coordination',
+    category: 'Agentic Narrative',
+    thesis: 'AI wallet coordination is being tested as a narrative rail rather than a utility layer.',
+    href: '/signals/wallet-coordination',
+    signal_strength: 71,
+    myth_coherence: 68,
+    reflexivity_risk: 59,
+    sovereignty_score: 52,
+    desk_status: 'seeded_report',
+    latest_update_type: 'attention_shift',
+    latest_update_at: '2026-06-27T09:10:00.000Z',
+    update_count: 1
   }],
-  latest_dispatches: blackBullUpdates.updates.map((update) => ({
-    update_id: update.update_id,
-    signal_slug: update.signal_slug,
-    signal_name: 'The Black Bull',
-    ticker: 'ANSEM',
-    update_type: update.update_type,
-    readable_update_type: update.update_type === 'verdict_change' ? 'Verdict Change' : 'Risk Shift',
-    timestamp: update.timestamp,
-    summary: update.summary,
-    analyst_note: update.analyst_note,
-    href: `/signals/${update.signal_slug}/updates/${update.update_id}`,
-    og_image: `/og/signals/${update.signal_slug}/updates/${update.update_id}.png`,
-    previous_score: update.previous_score,
-    new_score: update.new_score,
-    signal_delta: typeof update.previous_score === 'number' && typeof update.new_score === 'number' ? update.new_score - update.previous_score : undefined
-  })),
+  latest_dispatches: [
+    ...blackBullUpdates.updates.map((update) => ({
+      update_id: update.update_id,
+      signal_slug: update.signal_slug,
+      signal_name: 'The Black Bull',
+      ticker: 'ANSEM',
+      update_type: update.update_type,
+      readable_update_type: update.update_type === 'verdict_change' ? 'Verdict Change' : 'Risk Shift',
+      timestamp: update.timestamp,
+      summary: update.summary,
+      analyst_note: update.analyst_note,
+      href: `/signals/${update.signal_slug}/updates/${update.update_id}`,
+      og_image: `/og/signals/${update.signal_slug}/updates/${update.update_id}.png`,
+      previous_score: update.previous_score,
+      new_score: update.new_score,
+      signal_delta: typeof update.previous_score === 'number' && typeof update.new_score === 'number' ? update.new_score - update.previous_score : undefined
+    })),
+    {
+      update_id: 'seu_wallet_coordination_001',
+      signal_slug: 'wallet-coordination',
+      signal_name: 'AI Wallet Coordination',
+      ticker: 'AICORE',
+      update_type: 'attention_shift',
+      readable_update_type: 'Attention Shift',
+      timestamp: '2026-06-27T09:10:00.000Z',
+      summary: 'AI wallet coordination is receiving repeat desk mentions across agent infrastructure conversations.',
+      analyst_note: 'Signal is early and still needs cleaner evidence separation from generic AI wallet chatter.',
+      href: '/signals/wallet-coordination/updates/seu_wallet_coordination_001',
+      og_image: '/og/signals/wallet-coordination/updates/seu_wallet_coordination_001.png',
+      previous_score: 51,
+      new_score: 63,
+      signal_delta: 12
+    }
+  ],
   risk_shifts: blackBullUpdates.updates.map((update) => ({
     update_id: update.update_id,
     signal_slug: update.signal_slug,
@@ -293,6 +365,69 @@ describe('narrative pages', () => {
     expect(metaContent('meta[property="og:image"]')).toBe('https://radar.infopunks.fun/og/narratives.png');
     expect(metaContent('meta[name="twitter:image"]')).toBe('https://radar.infopunks.fun/og/narratives.png');
     expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe('https://radar.infopunks.fun/narratives');
+    expect(container.textContent).toContain('Candidate Signals');
+    expect(container.textContent).toContain('Submit Narrative for Desk Review');
+    expect(container.textContent).toContain('Mapped reports show what the desk has already processed. Candidate signals show what the desk is watching next.');
+    expect(container.textContent).toContain('Submitting a narrative does not create a buy call. It adds a candidate for evidence review.');
+    expect(container.textContent).toContain('Next attention market around a major Solana persona');
+    expect(container.textContent).toContain('Agentic meme asset gaining repeat mentions');
+    expect(container.querySelector('input[aria-label="Search reports and dispatches"]')).not.toBeNull();
+    expect(container.querySelector('select[aria-label="Update Type Filter"]')).not.toBeNull();
+    expect(container.querySelector('select[aria-label="Risk Level Filter"]')).not.toBeNull();
+    expect(container.querySelector('select[aria-label="Signal Status Filter"]')).not.toBeNull();
+  });
+
+  it('filters dispatches by update type and search', async () => {
+    await render('/narratives');
+
+    const updateType = container.querySelector('select[aria-label="Update Type Filter"]') as HTMLSelectElement;
+    const search = container.querySelector('input[aria-label="Search reports and dispatches"]') as HTMLInputElement;
+
+    await act(async () => {
+      updateType.value = 'attention_shift';
+      updateType.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    expect(container.textContent).toContain('AI wallet coordination is receiving repeat desk mentions across agent infrastructure conversations.');
+    expect(container.textContent).toContain('No matching dispatches');
+
+    await act(async () => {
+      search.value = 'wallet coordination';
+      search.dispatchEvent(new Event('input', { bubbles: true }));
+      search.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    expect(container.textContent).toContain('AI Wallet Coordination');
+    expect(container.textContent).not.toContain('The Black Bull report published');
+  });
+
+  it('stages intake confirmation without claiming persistence', async () => {
+    await render('/narratives');
+
+    const name = container.querySelector('input[aria-label="Narrative name"]') as HTMLInputElement;
+    const why = container.querySelector('textarea[aria-label="Why it matters"]') as HTMLTextAreaElement;
+    const evidence = container.querySelector('textarea[aria-label="Evidence links"]') as HTMLTextAreaElement;
+    const form = container.querySelector('form.narrative-intake-form') as HTMLFormElement;
+
+    await act(async () => {
+      name.value = 'AI wallet coordination narrative';
+      name.dispatchEvent(new Event('input', { bubbles: true }));
+      name.dispatchEvent(new Event('change', { bubbles: true }));
+      why.value = 'The desk should review whether coordination copy is turning into an investable narrative surface.';
+      why.dispatchEvent(new Event('input', { bubbles: true }));
+      why.dispatchEvent(new Event('change', { bubbles: true }));
+      evidence.value = 'https://example.com/evidence';
+      evidence.dispatchEvent(new Event('input', { bubbles: true }));
+      evidence.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    await act(async () => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+
+    expect(container.textContent).toContain('Submission staged. Connect intake persistence to make this live.');
+    expect(container.textContent).not.toContain('stored');
+    expect(container.textContent).not.toContain('saved permanently');
   });
 
   it('renders the attention markets page', async () => {

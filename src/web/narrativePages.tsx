@@ -151,11 +151,55 @@ type SignalDeskIndex = {
     risk_shifts: number;
     watched_signals: number;
   };
+  candidate_signals: CandidateSignal[];
+  candidate_counts: {
+    total: number;
+    queued: number;
+    watching: number;
+    needs_evidence: number;
+    under_review: number;
+    promoted_to_report: number;
+  };
   featured_report: SignalDeskReportCard | null;
   reports: SignalDeskReportCard[];
   latest_dispatches: SignalDeskDispatchCard[];
   risk_shifts: SignalDeskDispatchCard[];
   desk_activity: SignalDeskActivityItem[];
+};
+
+type CandidateSignalCategory = 'attention_market' | 'meme_asset' | 'agentic_narrative' | 'depin_signal' | 'kol_signal' | 'market_myth' | 'unknown';
+type CandidateSignalStatus = 'queued' | 'watching' | 'needs_evidence' | 'under_review' | 'rejected' | 'promoted_to_report';
+type CandidateSignalPriority = 'low' | 'medium' | 'high';
+type CandidateSignalRiskLevel = 'low' | 'medium' | 'high' | 'unknown';
+
+type CandidateSignal = {
+  candidate_id: string;
+  name: string;
+  ticker?: string;
+  chain?: string;
+  category: CandidateSignalCategory;
+  submitted_by: 'desk' | 'community' | 'system';
+  status: CandidateSignalStatus;
+  priority: CandidateSignalPriority;
+  risk_level: CandidateSignalRiskLevel;
+  summary: string;
+  why_it_matters: string;
+  evidence_links: string[];
+  created_at: string;
+  updated_at: string;
+};
+
+type NarrativeFilterUpdateType = 'all' | SignalEvidenceUpdateType;
+type NarrativeFilterRisk = 'all' | 'high_reflexivity' | 'power_concentration' | 'unproven_sovereignty' | 'live_watch';
+type NarrativeFilterStatus = 'all' | SignalDeskStatus;
+
+type NarrativeIntakeForm = {
+  narrativeName: string;
+  tickerOrTag: string;
+  chain: string;
+  whyItMatters: string;
+  evidenceLinks: string;
+  submitterHandle: string;
 };
 
 const NARRATIVE_METHOD_STEPS = [
@@ -283,6 +327,43 @@ function formatDeskStatus(value: SignalDeskStatus) {
   return value.split('_').map((part) => `${part[0]?.toUpperCase() ?? ''}${part.slice(1)}`).join(' ');
 }
 
+function formatCandidateCategory(value: CandidateSignalCategory) {
+  return value.split('_').map((part) => `${part[0]?.toUpperCase() ?? ''}${part.slice(1)}`).join(' ');
+}
+
+function formatCandidateStatus(value: CandidateSignalStatus) {
+  return value.split('_').map((part) => `${part[0]?.toUpperCase() ?? ''}${part.slice(1)}`).join(' ');
+}
+
+function formatCandidatePriority(value: CandidateSignalPriority) {
+  return `${value[0]?.toUpperCase() ?? ''}${value.slice(1)} Priority`;
+}
+
+function formatCandidateRiskLevel(value: CandidateSignalRiskLevel) {
+  return value === 'unknown'
+    ? 'Unknown Risk'
+    : `${value[0]?.toUpperCase() ?? ''}${value.slice(1)} Risk`;
+}
+
+function updateTypeFilterLabel(value: NarrativeFilterUpdateType) {
+  return value === 'all' ? 'All' : signalUpdateTypeLabel(value);
+}
+
+function riskFilterLabel(value: NarrativeFilterRisk) {
+  switch (value) {
+    case 'all':
+      return 'All';
+    case 'high_reflexivity':
+      return 'High Reflexivity';
+    case 'power_concentration':
+      return 'Power Concentration';
+    case 'unproven_sovereignty':
+      return 'Unproven Sovereignty';
+    case 'live_watch':
+      return 'Live Watch';
+  }
+}
+
 function signalUpdateTypeLabel(value: SignalEvidenceUpdateType) {
   switch (value) {
     case 'attention_shift':
@@ -313,6 +394,67 @@ function deskStatus(signal: NarrativeSignalSurface, updateCount: number) {
   if (signal.slug === 'black-bull') return 'Live Watch';
   if (!updateCount) return 'Seeded Report';
   return 'Needs Review';
+}
+
+function reportSearchText(report: SignalDeskReportCard) {
+  return [
+    report.ticker,
+    report.name,
+    report.category,
+    report.thesis,
+    report.latest_update_type ? signalUpdateTypeLabel(report.latest_update_type) : '',
+    formatDeskStatus(report.desk_status)
+  ].join(' ').toLowerCase();
+}
+
+function dispatchSearchText(dispatch: SignalDeskDispatchCard) {
+  return [
+    dispatch.ticker,
+    dispatch.signal_name,
+    dispatch.summary,
+    dispatch.analyst_note,
+    dispatch.readable_update_type
+  ].join(' ').toLowerCase();
+}
+
+function reportMatchesRisk(report: SignalDeskReportCard, risk: NarrativeFilterRisk) {
+  if (risk === 'all') return true;
+  if (risk === 'high_reflexivity') return report.reflexivity_risk >= 80;
+  if (risk === 'power_concentration') return report.latest_update_type === 'holder_shift';
+  if (risk === 'unproven_sovereignty') return report.sovereignty_score <= 40;
+  return report.desk_status === 'live_watch';
+}
+
+function dispatchMatchesRisk(dispatch: SignalDeskDispatchCard, deskStatusBySignal: Map<string, SignalDeskStatus>, risk: NarrativeFilterRisk) {
+  if (risk === 'all') return true;
+  const summary = `${dispatch.summary} ${dispatch.analyst_note}`.toLowerCase();
+  if (risk === 'high_reflexivity') return summary.includes('reflexiv');
+  if (risk === 'power_concentration') return dispatch.update_type === 'holder_shift' || summary.includes('holder') || summary.includes('power concentration');
+  if (risk === 'unproven_sovereignty') return summary.includes('sovereignty');
+  return deskStatusBySignal.get(dispatch.signal_slug) === 'live_watch';
+}
+
+function dispatchMatchesStatus(dispatch: SignalDeskDispatchCard, deskStatusBySignal: Map<string, SignalDeskStatus>, status: NarrativeFilterStatus) {
+  if (status === 'all') return true;
+  return deskStatusBySignal.get(dispatch.signal_slug) === status;
+}
+
+function reportMatchesFilters(report: SignalDeskReportCard, filters: { updateType: NarrativeFilterUpdateType; risk: NarrativeFilterRisk; status: NarrativeFilterStatus; search: string }) {
+  const search = filters.search.trim().toLowerCase();
+  if (filters.updateType !== 'all' && report.latest_update_type !== filters.updateType) return false;
+  if (filters.status !== 'all' && report.desk_status !== filters.status) return false;
+  if (!reportMatchesRisk(report, filters.risk)) return false;
+  if (search && !reportSearchText(report).includes(search)) return false;
+  return true;
+}
+
+function dispatchMatchesFilters(dispatch: SignalDeskDispatchCard, deskStatusBySignal: Map<string, SignalDeskStatus>, filters: { updateType: NarrativeFilterUpdateType; risk: NarrativeFilterRisk; status: NarrativeFilterStatus; search: string }) {
+  const search = filters.search.trim().toLowerCase();
+  if (filters.updateType !== 'all' && dispatch.update_type !== filters.updateType) return false;
+  if (!dispatchMatchesStatus(dispatch, deskStatusBySignal, filters.status)) return false;
+  if (!dispatchMatchesRisk(dispatch, deskStatusBySignal, filters.risk)) return false;
+  if (search && !dispatchSearchText(dispatch).includes(search)) return false;
+  return true;
 }
 
 function EvidenceChip({ href }: { href: string }) {
@@ -482,6 +624,7 @@ function DeskStatusStrip({ desk }: { desk: SignalDeskIndex }) {
     ['Dispatches', desk.counts.dispatches],
     ['Risk Shifts', desk.counts.risk_shifts],
     ['Watched Signals', desk.counts.watched_signals],
+    ['Candidates', desk.candidate_counts.total],
     ['Desk Status', formatDeskStatus(desk.desk_status)]
   ] as const;
 
@@ -498,6 +641,83 @@ function DeskStatusStrip({ desk }: { desk: SignalDeskIndex }) {
         <span>{label}</span>
         <strong>{value}</strong>
       </article>)}
+    </div>
+  </section>;
+}
+
+function NarrativeControlStrip({
+  updateType,
+  risk,
+  status,
+  search,
+  onUpdateTypeChange,
+  onRiskChange,
+  onStatusChange,
+  onSearchChange
+}: {
+  updateType: NarrativeFilterUpdateType;
+  risk: NarrativeFilterRisk;
+  status: NarrativeFilterStatus;
+  search: string;
+  onUpdateTypeChange: (value: NarrativeFilterUpdateType) => void;
+  onRiskChange: (value: NarrativeFilterRisk) => void;
+  onStatusChange: (value: NarrativeFilterStatus) => void;
+  onSearchChange: (value: string) => void;
+}) {
+  return <section className="panel narrative-control-strip" aria-label="Narrative filters">
+    <div className="narrative-desk-catalog-head">
+      <div>
+        <p className="section-kicker">Desk filters</p>
+        <h2>Analyst Control Strip</h2>
+        <p>Filter live desk outputs without changing the underlying report or dispatch routes.</p>
+      </div>
+    </div>
+    <div className="narrative-control-grid">
+      <label className="narrative-control-field">
+        <span>Update Type</span>
+        <select aria-label="Update Type Filter" value={updateType} onChange={(event) => onUpdateTypeChange(event.target.value as NarrativeFilterUpdateType)}>
+          <option value="all">All</option>
+          <option value="attention_shift">Attention Shift</option>
+          <option value="holder_shift">Holder / Power Shift</option>
+          <option value="myth_shift">Myth Shift</option>
+          <option value="risk_shift">Risk Shift</option>
+          <option value="verdict_change">Verdict Change</option>
+        </select>
+      </label>
+      <label className="narrative-control-field">
+        <span>Risk Level</span>
+        <select aria-label="Risk Level Filter" value={risk} onChange={(event) => onRiskChange(event.target.value as NarrativeFilterRisk)}>
+          <option value="all">All</option>
+          <option value="high_reflexivity">High Reflexivity</option>
+          <option value="power_concentration">Power Concentration</option>
+          <option value="unproven_sovereignty">Unproven Sovereignty</option>
+          <option value="live_watch">Live Watch</option>
+        </select>
+      </label>
+      <label className="narrative-control-field">
+        <span>Signal Status</span>
+        <select aria-label="Signal Status Filter" value={status} onChange={(event) => onStatusChange(event.target.value as NarrativeFilterStatus)}>
+          <option value="all">All</option>
+          <option value="live_watch">Live Watch</option>
+          <option value="seeded_report">Seeded Report</option>
+          <option value="needs_review">Needs Review</option>
+        </select>
+      </label>
+      <label className="narrative-control-field narrative-control-search">
+        <span>Search</span>
+        <input
+          aria-label="Search reports and dispatches"
+          type="search"
+          value={search}
+          onChange={(event) => onSearchChange(event.target.value)}
+          placeholder="Ticker, name, summary, analyst note, category, update type"
+        />
+      </label>
+    </div>
+    <div className="chips narrative-route-chips">
+      <span className="narrative-evidence-chip">{updateTypeFilterLabel(updateType)}</span>
+      <span className="narrative-evidence-chip">{riskFilterLabel(risk)}</span>
+      <span className="narrative-evidence-chip">{status === 'all' ? 'All Statuses' : formatDeskStatus(status)}</span>
     </div>
   </section>;
 }
@@ -653,6 +873,15 @@ function DispatchSection({
       </div>
     </div>
     <div className="narrative-desk-catalog-grid">
+      {!dispatches.length && <article className="panel narrative-update-card narrative-empty-state">
+        <div className="narrative-update-head">
+          <div>
+            <p className="section-kicker">Filtered view</p>
+            <h3>No matching dispatches</h3>
+          </div>
+        </div>
+        <p>Adjust the analyst control strip to widen the desk view.</p>
+      </article>}
       {dispatches.map((dispatch) => <article key={dispatch.update_id} className="panel narrative-update-card">
         <div className="narrative-update-head">
           <div>
@@ -703,6 +932,144 @@ function ReportCatalogCard({ report }: { report: SignalDeskReportCard }) {
   </article>;
 }
 
+function CandidateSignalCard({ candidate }: { candidate: CandidateSignal }) {
+  return <article className="panel narrative-candidate-card">
+    <div className="narrative-asset-head">
+      <div>
+        <p className="section-kicker">{formatCandidateCategory(candidate.category)}</p>
+        <h2>{candidate.ticker ? `${candidate.ticker} / ${candidate.name}` : candidate.name}</h2>
+      </div>
+      <span className="source-badge">{formatCandidateStatus(candidate.status)}</span>
+    </div>
+    <div className="narrative-asset-stats">
+      <span>{formatCandidatePriority(candidate.priority)}</span>
+      <span>{formatCandidateRiskLevel(candidate.risk_level)}</span>
+      {candidate.chain && <span>{candidate.chain}</span>}
+      <span>submitted by {candidate.submitted_by}</span>
+    </div>
+    <p>{candidate.summary}</p>
+    <p className="narrative-candidate-why"><b>Why it matters:</b> {candidate.why_it_matters}</p>
+    <div className="chips narrative-update-chips">
+      {candidate.evidence_links.length
+        ? candidate.evidence_links.map((href) => <EvidenceChip key={`${candidate.candidate_id}-${href}`} href={href} />)
+        : <span className="narrative-evidence-chip">No linked evidence yet</span>}
+    </div>
+    <div className="panel-actions">
+      <a className="execute compact secondary" href={`/v1/signal-desk/candidates/${candidate.candidate_id}`}>Track Candidate</a>
+      {candidate.status === 'needs_evidence' && <a className="execute compact secondary" href="#submit-narrative-review">Needs Evidence</a>}
+    </div>
+  </article>;
+}
+
+function CandidateSignalsSection({ desk }: { desk: SignalDeskIndex }) {
+  return <section className="panel narrative-desk-catalog" aria-label="Candidate Signals">
+    <div className="narrative-desk-catalog-head">
+      <div>
+        <p className="section-kicker">Desk queue</p>
+        <h2>Candidate Signals</h2>
+        <p>Signals waiting for evidence, review, or promotion into full reports.</p>
+      </div>
+      <span className="source-badge">{desk.candidate_counts.total} tracked</span>
+    </div>
+    <p className="narrative-feed-summary">Mapped reports show what the desk has already processed. Candidate signals show what the desk is watching next.</p>
+    <div className="narrative-desk-status-grid narrative-candidate-counts">
+      <article className="narrative-desk-stat"><span>Queued</span><strong>{desk.candidate_counts.queued}</strong></article>
+      <article className="narrative-desk-stat"><span>Watching</span><strong>{desk.candidate_counts.watching}</strong></article>
+      <article className="narrative-desk-stat"><span>Needs Evidence</span><strong>{desk.candidate_counts.needs_evidence}</strong></article>
+      <article className="narrative-desk-stat"><span>Under Review</span><strong>{desk.candidate_counts.under_review}</strong></article>
+      <article className="narrative-desk-stat"><span>Promoted</span><strong>{desk.candidate_counts.promoted_to_report}</strong></article>
+    </div>
+    <div className="narrative-desk-catalog-grid narrative-candidate-grid">
+      {desk.candidate_signals.map((candidate) => <CandidateSignalCard key={candidate.candidate_id} candidate={candidate} />)}
+    </div>
+  </section>;
+}
+
+function SubmitNarrativeReviewCard() {
+  const [form, setForm] = useState<NarrativeIntakeForm>({
+    narrativeName: '',
+    tickerOrTag: '',
+    chain: '',
+    whyItMatters: '',
+    evidenceLinks: '',
+    submitterHandle: ''
+  });
+  const [submitted, setSubmitted] = useState(false);
+  const [errors, setErrors] = useState<string[]>([]);
+
+  function setField<K extends keyof NarrativeIntakeForm>(key: K, value: NarrativeIntakeForm[K]) {
+    setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const submittedForm: NarrativeIntakeForm = {
+      narrativeName: String(formData.get('narrative_name') ?? ''),
+      tickerOrTag: String(formData.get('ticker_or_tag') ?? ''),
+      chain: String(formData.get('chain') ?? ''),
+      whyItMatters: String(formData.get('why_it_matters') ?? ''),
+      evidenceLinks: String(formData.get('evidence_links') ?? ''),
+      submitterHandle: String(formData.get('submitter_handle') ?? '')
+    };
+    setForm(submittedForm);
+    const nextErrors: string[] = [];
+    if (!submittedForm.narrativeName.trim()) nextErrors.push('Narrative name is required.');
+    if (!submittedForm.whyItMatters.trim()) nextErrors.push('Why it matters is required.');
+    const evidenceLinks = submittedForm.evidenceLinks.split('\n').map((item) => item.trim()).filter(Boolean);
+    if (!evidenceLinks.length) nextErrors.push('At least one evidence link is required.');
+    setErrors(nextErrors);
+    if (nextErrors.length) {
+      setSubmitted(false);
+      return;
+    }
+    setSubmitted(true);
+  }
+
+  return <section id="submit-narrative-review" className="panel narrative-intake-card" aria-label="Submit Narrative for Desk Review">
+    <div className="narrative-desk-catalog-head">
+      <div>
+        <p className="section-kicker">Desk intake</p>
+        <h2>Submit Narrative for Desk Review</h2>
+        <p>Submitting a narrative does not create a buy call. It adds a candidate for evidence review.</p>
+      </div>
+    </div>
+    <form className="narrative-intake-form" onSubmit={handleSubmit}>
+      <label className="narrative-control-field">
+        <span>Narrative name</span>
+        <input name="narrative_name" aria-label="Narrative name" value={form.narrativeName} onChange={(event) => setField('narrativeName', event.target.value)} />
+      </label>
+      <label className="narrative-control-field">
+        <span>Ticker or tag optional</span>
+        <input name="ticker_or_tag" aria-label="Ticker or tag optional" value={form.tickerOrTag} onChange={(event) => setField('tickerOrTag', event.target.value)} />
+      </label>
+      <label className="narrative-control-field">
+        <span>Chain or ecosystem optional</span>
+        <input name="chain" aria-label="Chain or ecosystem optional" value={form.chain} onChange={(event) => setField('chain', event.target.value)} />
+      </label>
+      <label className="narrative-control-field narrative-intake-wide">
+        <span>Why it matters</span>
+        <textarea name="why_it_matters" aria-label="Why it matters" value={form.whyItMatters} onChange={(event) => setField('whyItMatters', event.target.value)} rows={4} />
+      </label>
+      <label className="narrative-control-field narrative-intake-wide">
+        <span>Evidence links</span>
+        <textarea name="evidence_links" aria-label="Evidence links" value={form.evidenceLinks} onChange={(event) => setField('evidenceLinks', event.target.value)} rows={4} placeholder="One link per line" />
+      </label>
+      <label className="narrative-control-field">
+        <span>Submitter handle optional</span>
+        <input name="submitter_handle" aria-label="Submitter handle optional" value={form.submitterHandle} onChange={(event) => setField('submitterHandle', event.target.value)} />
+      </label>
+      <div className="panel-actions">
+        <button className="execute" type="submit">Stage Submission</button>
+      </div>
+    </form>
+    {errors.length > 0 && <div className="route-state error">{errors.join(' ')}</div>}
+    {submitted && <div className="narrative-intake-confirmation">
+      <p>Submission staged. Connect intake persistence to make this live.</p>
+    </div>}
+  </section>;
+}
+
 function DeskActivityTimeline({ items }: { items: SignalDeskActivityItem[] }) {
   return <section className="panel narrative-desk-activity" aria-label="Desk Activity Timeline">
     <div className="narrative-desk-catalog-head">
@@ -733,6 +1100,10 @@ function DeskActivityTimeline({ items }: { items: SignalDeskActivityItem[] }) {
 export function NarrativesIndexPage() {
   const [desk, setDesk] = useState<SignalDeskIndex | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [updateType, setUpdateType] = useState<NarrativeFilterUpdateType>('all');
+  const [risk, setRisk] = useState<NarrativeFilterRisk>('all');
+  const [status, setStatus] = useState<NarrativeFilterStatus>('all');
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     syncNarrativeMetadata('/narratives');
@@ -743,6 +1114,24 @@ export function NarrativesIndexPage() {
       .then((response) => setDesk(response.data))
       .catch((err) => setError(err instanceof Error ? err.message : 'signal_desk_unavailable'));
   }, []);
+
+  const deskStatusBySignal = useMemo(() => {
+    const next = new Map<string, SignalDeskStatus>();
+    for (const report of desk?.reports ?? []) next.set(report.slug, report.desk_status);
+    return next;
+  }, [desk?.reports]);
+
+  const filteredReports = useMemo(() => {
+    return (desk?.reports ?? []).filter((report) => reportMatchesFilters(report, { updateType, risk, status, search }));
+  }, [desk?.reports, risk, search, status, updateType]);
+
+  const filteredLatestDispatches = useMemo(() => {
+    return (desk?.latest_dispatches ?? []).filter((dispatch) => dispatchMatchesFilters(dispatch, deskStatusBySignal, { updateType, risk, status, search }));
+  }, [desk?.latest_dispatches, deskStatusBySignal, risk, search, status, updateType]);
+
+  const filteredRiskShifts = useMemo(() => {
+    return (desk?.risk_shifts ?? []).filter((dispatch) => dispatchMatchesFilters(dispatch, deskStatusBySignal, { updateType, risk, status, search }));
+  }, [desk?.risk_shifts, deskStatusBySignal, risk, search, status, updateType]);
 
   return <div className="shell narrative-shell">
     <a className="skip-link" href="#narrative-content">Skip to content</a>
@@ -771,6 +1160,16 @@ export function NarrativesIndexPage() {
       {error && <section className="panel"><p className="route-state error">{error}</p></section>}
       {desk && <>
         <DeskStatusStrip desk={desk} />
+        <NarrativeControlStrip
+          updateType={updateType}
+          risk={risk}
+          status={status}
+          search={search}
+          onUpdateTypeChange={setUpdateType}
+          onRiskChange={setRisk}
+          onStatusChange={setStatus}
+          onSearchChange={setSearch}
+        />
         {desk.featured_report && <FeaturedNarrativeReport
           report={desk.featured_report}
           latestDispatchHref={desk.latest_dispatches[0]?.href ?? null}
@@ -778,13 +1177,13 @@ export function NarrativesIndexPage() {
         <DispatchSection
           title="Latest Desk Dispatches"
           subtitle="Latest evidence updates from the desk. Reports are not final. Signals mutate."
-          dispatches={desk.latest_dispatches}
+          dispatches={filteredLatestDispatches}
           ariaLabel="Latest Desk Dispatches"
         />
         <DispatchSection
           title="Risk Shifts"
           subtitle="Power, reflexivity, and verdict changes that require sovereignty checks."
-          dispatches={desk.risk_shifts}
+          dispatches={filteredRiskShifts}
           ariaLabel="Risk Shifts"
         />
         <section className="panel narrative-desk-catalog" aria-label="Reports Catalog">
@@ -796,9 +1195,16 @@ export function NarrativesIndexPage() {
             </div>
           </div>
           <div className="narrative-grid">
-            {desk.reports.map((report) => <ReportCatalogCard key={report.slug} report={report} />)}
+            {!filteredReports.length && <article className="panel narrative-asset-preview narrative-empty-state">
+              <p className="section-kicker">Filtered view</p>
+              <h2>No matching reports</h2>
+              <p>Current filters narrow the catalog below the active desk set.</p>
+            </article>}
+            {filteredReports.map((report) => <ReportCatalogCard key={report.slug} report={report} />)}
           </div>
         </section>
+        <CandidateSignalsSection desk={desk} />
+        <SubmitNarrativeReviewCard />
         <NarrativeLinkCluster links={[
           { href: '/signals/black-bull', label: 'Black Bull Signal Report' },
           { href: '/signals/ansem', label: 'Ansem Signal Source' },

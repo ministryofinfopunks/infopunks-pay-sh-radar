@@ -54,6 +54,21 @@ describe('narrative intel api', () => {
         risk_shifts: expect.any(Number),
         watched_signals: expect.any(Number)
       }));
+      expect(payload.candidate_counts).toEqual(expect.objectContaining({
+        total: expect.any(Number),
+        queued: expect.any(Number),
+        watching: expect.any(Number),
+        needs_evidence: expect.any(Number),
+        under_review: expect.any(Number),
+        promoted_to_report: expect.any(Number)
+      }));
+      expect(payload.candidate_signals).toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          candidate_id: expect.any(String),
+          name: expect.any(String),
+          status: expect.stringMatching(/queued|watching|needs_evidence|under_review|rejected|promoted_to_report/)
+        })
+      ]));
       expect(payload.featured_report).toEqual(expect.objectContaining({
         slug: 'black-bull',
         ticker: 'ANSEM',
@@ -73,6 +88,55 @@ describe('narrative intel api', () => {
           href: '/signals/black-bull'
         })
       ]));
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('returns seeded candidate signals', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+
+    try {
+      const response = await app.inject({ method: 'GET', url: '/v1/signal-desk/candidates' });
+      expect(response.statusCode).toBe(200);
+      expect(response.json().data).toEqual(expect.objectContaining({
+        count: expect.any(Number),
+        candidates: expect.arrayContaining([
+          expect.objectContaining({
+            candidate_id: 'candidate_sol_persona_attention',
+            status: 'watching'
+          })
+        ])
+      }));
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('returns one candidate signal by id', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+
+    try {
+      const response = await app.inject({ method: 'GET', url: '/v1/signal-desk/candidates/candidate_sol_persona_attention' });
+      expect(response.statusCode).toBe(200);
+      expect(response.json().data).toEqual(expect.objectContaining({
+        candidate: expect.objectContaining({
+          candidate_id: 'candidate_sol_persona_attention',
+          name: 'Next attention market around a major Solana persona'
+        })
+      }));
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('returns 404 for unknown candidate ids', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+
+    try {
+      const response = await app.inject({ method: 'GET', url: '/v1/signal-desk/candidates/missing-candidate' });
+      expect(response.statusCode).toBe(404);
+      expect(response.json()).toEqual({ error: 'candidate_signal_not_found' });
     } finally {
       await app.close();
     }

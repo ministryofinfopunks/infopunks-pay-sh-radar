@@ -427,6 +427,48 @@ export const SignalEvidenceUpdateSchema = z.object({
 
 export const SignalDeskStatusSchema = z.enum(['live_watch', 'seeded_report', 'needs_review']);
 
+export const CandidateSignalCategorySchema = z.enum([
+  'attention_market',
+  'meme_asset',
+  'agentic_narrative',
+  'depin_signal',
+  'kol_signal',
+  'market_myth',
+  'unknown'
+]);
+
+export const CandidateSignalSubmittedBySchema = z.enum(['desk', 'community', 'system']);
+
+export const CandidateSignalStatusSchema = z.enum([
+  'queued',
+  'watching',
+  'needs_evidence',
+  'under_review',
+  'rejected',
+  'promoted_to_report'
+]);
+
+export const CandidateSignalPrioritySchema = z.enum(['low', 'medium', 'high']);
+
+export const CandidateSignalRiskLevelSchema = z.enum(['low', 'medium', 'high', 'unknown']);
+
+export const CandidateSignalSchema = z.object({
+  candidate_id: z.string(),
+  name: z.string(),
+  ticker: z.string().optional(),
+  chain: z.string().optional(),
+  category: CandidateSignalCategorySchema,
+  submitted_by: CandidateSignalSubmittedBySchema,
+  status: CandidateSignalStatusSchema,
+  priority: CandidateSignalPrioritySchema,
+  risk_level: CandidateSignalRiskLevelSchema,
+  summary: z.string(),
+  why_it_matters: z.string(),
+  evidence_links: z.array(z.string()),
+  created_at: z.string().datetime(),
+  updated_at: z.string().datetime()
+});
+
 export const SignalDeskActivityTypeSchema = z.enum([
   'report_published',
   'dispatch_published',
@@ -487,6 +529,15 @@ export const SignalDeskIndexSchema = z.object({
     dispatches: z.number().int().nonnegative(),
     risk_shifts: z.number().int().nonnegative(),
     watched_signals: z.number().int().nonnegative()
+  }),
+  candidate_signals: z.array(CandidateSignalSchema),
+  candidate_counts: z.object({
+    total: z.number().int().nonnegative(),
+    queued: z.number().int().nonnegative(),
+    watching: z.number().int().nonnegative(),
+    needs_evidence: z.number().int().nonnegative(),
+    under_review: z.number().int().nonnegative(),
+    promoted_to_report: z.number().int().nonnegative()
   }),
   featured_report: SignalDeskReportCardSchema.nullable(),
   reports: z.array(SignalDeskReportCardSchema),
@@ -2265,6 +2316,12 @@ export type NarrativeSignalSurface = z.infer<typeof NarrativeSignalSurfaceSchema
 export type SignalEvidenceUpdateType = z.infer<typeof SignalEvidenceUpdateTypeSchema>;
 export type SignalEvidenceUpdate = z.infer<typeof SignalEvidenceUpdateSchema>;
 export type SignalDeskStatus = z.infer<typeof SignalDeskStatusSchema>;
+export type CandidateSignalCategory = z.infer<typeof CandidateSignalCategorySchema>;
+export type CandidateSignalSubmittedBy = z.infer<typeof CandidateSignalSubmittedBySchema>;
+export type CandidateSignalStatus = z.infer<typeof CandidateSignalStatusSchema>;
+export type CandidateSignalPriority = z.infer<typeof CandidateSignalPrioritySchema>;
+export type CandidateSignalRiskLevel = z.infer<typeof CandidateSignalRiskLevelSchema>;
+export type CandidateSignal = z.infer<typeof CandidateSignalSchema>;
 export type SignalDeskActivityType = z.infer<typeof SignalDeskActivityTypeSchema>;
 export type SignalDeskReportCard = z.infer<typeof SignalDeskReportCardSchema>;
 export type SignalDeskDispatchCard = z.infer<typeof SignalDeskDispatchCardSchema>;

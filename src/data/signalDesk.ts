@@ -1,5 +1,6 @@
 import { listNarrativeAssets, signalSurfaces } from './narrativeIntel';
 import { getLatestSignalUpdate, listSignalUpdates } from './signalUpdates';
+import { getCandidateSignalCounts, listCandidateSignals } from './candidateSignals';
 import type {
   NarrativeAsset,
   NarrativeSignalSurface,
@@ -195,11 +196,14 @@ export function getSignalDeskIndex(): SignalDeskIndex {
   const dispatches = getLatestDispatches();
   const riskShifts = getRiskShifts();
   const latestActivity = getLatestDeskActivity();
+  const candidateSignals = listCandidateSignals();
+  const candidateCounts = getCandidateSignalCounts();
   const generatedAtCandidates = [
     ...reports.map((report) => report.latest_update_at ?? surfaceByAssetSlug(report.slug)?.last_updated ?? ''),
     ...listNarrativeAssets().map((asset) => asset.last_updated),
     ...dispatches.map((dispatch) => dispatch.timestamp),
-    ...riskShifts.map((dispatch) => dispatch.timestamp)
+    ...riskShifts.map((dispatch) => dispatch.timestamp),
+    ...candidateSignals.map((candidate) => candidate.updated_at)
   ].filter(Boolean);
   const generated_at = [...generatedAtCandidates].sort((left, right) => right.localeCompare(left))[0] ?? new Date().toISOString();
 
@@ -212,6 +216,8 @@ export function getSignalDeskIndex(): SignalDeskIndex {
       risk_shifts: getAllDispatchCards().filter((item) => RISK_SHIFT_TYPES.has(item.update_type)).length,
       watched_signals: listNarrativeAssets().length
     },
+    candidate_signals: candidateSignals,
+    candidate_counts: candidateCounts,
     featured_report: reports.find((report) => report.slug === 'black-bull') ?? reports[0] ?? null,
     reports,
     latest_dispatches: dispatches,
