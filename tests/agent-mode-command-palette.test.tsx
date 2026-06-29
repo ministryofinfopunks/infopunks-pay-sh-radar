@@ -211,12 +211,10 @@ describe('agent mode and command palette', () => {
     expect(container.querySelector('a[href="/narratives"]')?.textContent).toContain('Narrative Intel');
     expect(container.querySelector('a[href="/graph"]')?.textContent).toContain('Signal Graph');
     expect(container.querySelector('a[href="/claim"]')?.textContent).toContain('Claims');
-    for (const label of ['Methodology', 'Events', 'Machine Economy', 'Cmd+K', 'Agent Mode', 'Terminal Comfortable']) {
+    for (const label of ['Radar', 'More', 'Cmd+K', 'Agent Mode', 'Terminal Comfortable']) {
       expect(header?.textContent).toContain(label);
     }
-    for (const label of ['Pulse', 'Directory', 'Benchmarks', 'Mappings', 'Preflight', 'Compare', 'Dossier']) {
-      expect(header?.textContent).toContain(label);
-    }
+    expect(header?.querySelector('.header-secondary-rail')).toBeNull();
     expect(container.textContent).toContain('Agent Mode');
     expect(container.textContent).toContain('Machine Economy Module');
     expect(container.textContent).toContain('Machine Economy');
@@ -242,11 +240,17 @@ describe('agent mode and command palette', () => {
     const primaryLabels = Array.from(header?.querySelectorAll('[aria-label="Primary radar zones"] a') ?? []).map((node) => node.textContent?.trim()).filter(Boolean);
     expect(primaryLabels).toContain('Narrative Intel');
     expect(new Set(primaryLabels).size).toBe(primaryLabels.length);
+    expect((header?.textContent?.match(/Infopunks/g) ?? []).length).toBe(1);
+    expect((header?.textContent?.match(/Pay\.sh Radar/g) ?? []).length).toBe(1);
+    for (const label of primaryLabels) {
+      expect(primaryLabels.filter((item) => item === label)).toHaveLength(1);
+    }
 
     const utilityText = header?.querySelector('[aria-label="Utility actions"]')?.textContent ?? '';
-    for (const label of ['Methodology', 'Events', 'Machine Economy', 'Cmd+K', 'Agent Mode', 'Terminal Comfortable']) {
+    for (const label of ['Radar', 'More', 'Cmd+K', 'Agent Mode', 'Terminal Comfortable']) {
       expect(utilityText).toContain(label);
     }
+    expect(header?.querySelector('.header-secondary-rail')).toBeNull();
   });
 
   it('Agent Mode hides narrative panels and keeps preflight export and API docs visible', async () => {

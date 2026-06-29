@@ -8830,8 +8830,10 @@ function RadarApp() {
   const [agentMode, setAgentMode] = useState(false);
   const [densityMode, setDensityMode] = useState<DensityMode>('comfortable');
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
-  const [machineMenuOpen, setMachineMenuOpen] = useState(false);
-  const machineMenuRef = useRef<HTMLDetailsElement | null>(null);
+  const [radarMenuOpen, setRadarMenuOpen] = useState(false);
+  const [utilityMenuOpen, setUtilityMenuOpen] = useState(false);
+  const radarMenuRef = useRef<HTMLDetailsElement | null>(null);
+  const utilityMenuRef = useRef<HTMLDetailsElement | null>(null);
   const refreshInFlightRef = useRef(false);
   const interactionHoldUntil = useRef(0);
   const featuredRotationEnabledRef = useRef(featuredRotationEnabled);
@@ -9196,13 +9198,16 @@ function RadarApp() {
   }, []);
 
   useEffect(() => {
-    if (!machineMenuOpen) return;
+    if (!radarMenuOpen && !utilityMenuOpen) return;
     const onPointerDown = (event: MouseEvent) => {
-      if (!machineMenuRef.current) return;
-      if (!machineMenuRef.current.contains(event.target as Node)) setMachineMenuOpen(false);
+      const target = event.target as Node;
+      if (radarMenuRef.current && !radarMenuRef.current.contains(target)) setRadarMenuOpen(false);
+      if (utilityMenuRef.current && !utilityMenuRef.current.contains(target)) setUtilityMenuOpen(false);
     };
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setMachineMenuOpen(false);
+      if (event.key !== 'Escape') return;
+      setRadarMenuOpen(false);
+      setUtilityMenuOpen(false);
     };
     window.addEventListener('mousedown', onPointerDown);
     window.addEventListener('keydown', onKeyDown);
@@ -9210,7 +9215,7 @@ function RadarApp() {
       window.removeEventListener('mousedown', onPointerDown);
       window.removeEventListener('keydown', onKeyDown);
     };
-  }, [machineMenuOpen]);
+  }, [radarMenuOpen, utilityMenuOpen]);
 
   const safeProviders = useMemo(() => asArray<Provider>(data?.providers), [data?.providers]);
   const safeTopTrust = useMemo(() => asArray<TrustAssessment>(data?.pulse.topTrust), [data?.pulse.topTrust]);
@@ -9588,25 +9593,39 @@ function RadarApp() {
   const ecosystemStatus = getEcosystemStatus(data.pulse, pulseSummary);
   const ecosystemReading = getEcosystemReading(data.pulse, pulseSummary);
   const providerDegradation = providerDegradationInfo(selectedProvider, providerIntel);
+  const pathname = window.location.pathname;
+  const hash = window.location.hash;
+  const agentBenchmarkActive = pathname === '/' && hash === '#agent-benchmark-api';
   const primaryHeaderNav = [
-    { href: toApiUrl(API_BASE_URL, OPENAPI_PATH), label: 'API Docs', external: true, className: 'api-docs-link' },
-    { href: '/developers', label: 'Developers', external: false, className: undefined },
-    { href: '/narratives', label: 'Narrative Intel', external: false, className: undefined },
-    { href: '/check', label: 'Check', external: false, className: undefined },
-    { href: '/loops', label: 'Loops', external: false, className: undefined },
-    { href: '/graph', label: 'Signal Graph', external: false, className: undefined },
-    { href: '/claim', label: 'Claims', external: false, className: undefined },
-    { href: '#agent-benchmark-api', label: 'Agent Benchmark API', external: false, className: undefined }
+    { href: toApiUrl(API_BASE_URL, OPENAPI_PATH), label: 'API Docs', external: true, className: 'api-docs-link', active: false },
+    { href: '/developers', label: 'Developers', external: false, className: undefined, active: isDevelopersRoute(pathname) },
+    { href: '/narratives', label: 'Narrative Intel', external: false, className: undefined, active: isNarrativesRoute(pathname) || isAttentionMarketsRoute(pathname) },
+    { href: '/check', label: 'Check', external: false, className: undefined, active: isProofCheckIndexRoute(pathname) || routeProofCheckId(pathname) !== null },
+    { href: '/loops', label: 'Loops', external: false, className: undefined, active: isLoopsIndexRoute(pathname) || routeLoopId(pathname) !== null },
+    { href: '/graph', label: 'Signal Graph', external: false, className: undefined, active: isGraphRoute(pathname) || routeSignalSlug(pathname) !== null || routeSignalUpdate(pathname) !== null },
+    { href: '/claim', label: 'Claims', external: false, className: undefined, active: isClaimsIndexRoute(pathname) || routeClaimId(pathname) !== null },
+    { href: '#agent-benchmark-api', label: 'Agent Benchmark API', external: false, className: undefined, active: agentBenchmarkActive }
   ] as const;
   const sectionShortcutNav = [
-    ['global-pulse', 'Pulse'],
-    ['providers', 'Directory'],
-    ['benchmark-readiness', 'Benchmarks'],
-    ['route-mapping-registry', 'Mappings'],
-    ['preflight', 'Preflight'],
-    ['compare', 'Compare'],
-    ['dossier', 'Dossier']
+    { id: 'global-pulse', label: 'Pulse' },
+    { id: 'providers', label: 'Directory' },
+    { id: 'benchmark-readiness', label: 'Benchmarks' },
+    { id: 'route-mapping-registry', label: 'Mappings' },
+    { id: 'preflight', label: 'Preflight' },
+    { id: 'compare', label: 'Compare' },
+    { id: 'dossier', label: 'Dossier' }
   ] as const;
+  const machineEconomyLinks = [
+    { href: '/machine-market', label: 'Machine Market', active: isMachineMarketRoute(pathname) },
+    { href: '/machine-rail-coverage', label: 'Rail Coverage', active: isMachineRailCoverageRoute(pathname) },
+    { href: '/machine-route-risk-matrix', label: 'Route Risk', active: isMachineRouteRiskMatrixRoute(pathname) },
+    { href: '/machine-first-safe-routes', label: 'First Safe Queue', active: isMachineFirstSafeRoutesRoute(pathname) },
+    { href: '/machine-execution-shortlist', label: 'Proof Plans', active: isMachineExecutionShortlistRoute(pathname) },
+    { href: '/machine-receipts', label: 'Receipts', active: isMachineReceiptsRoute(pathname) },
+    { href: '/machine-economy-snapshot', label: 'Snapshot', active: isMachineEconomySnapshotRoute(pathname) }
+  ] as const;
+  const radarMenuActive = pathname === '/' && sectionShortcutNav.some(({ id }) => activeSection === id);
+  const utilityMenuActive = pathname === '/' && (hash === '#methodology' || hash === '#events') || machineEconomyLinks.some((link) => link.active);
 
   return <div className={`shell ${agentMode ? 'agent-mode-shell' : ''} density-${densityMode}`}>
     <a className="skip-link" href="#terminal-content">Skip to content</a>
@@ -9617,44 +9636,57 @@ function RadarApp() {
           <strong>Pay.sh Radar</strong>
         </a>
         <div className="terminal-nav terminal-nav-scroll-rail header-primary-nav" aria-label="Primary radar zones">
-          {primaryHeaderNav.map(({ href, label, external, className }) => <a
+          {primaryHeaderNav.map(({ href, label, external, className, active }) => <a
             key={label}
             href={href}
-            className={className}
+            className={`${className ?? ''}${active ? ' active' : ''}`.trim()}
             target={external ? '_blank' : undefined}
             rel={external ? 'noreferrer' : undefined}
+            aria-current={active ? 'page' : undefined}
           >
             {label}
           </a>)}
         </div>
         <div className="terminal-actions" aria-label="Utility actions">
-          <span className="terminal-action-cluster" aria-label="Reference and timeline">
-            <button className="methodology-trigger methodology-link" type="button" onClick={() => setMethodologyOpen(true)} aria-label="Open methodology drawer">
-              Methodology
-            </button>
-            <a className="methodology-trigger methodology-link" href="#events">Events</a>
-          </span>
           <details
-            ref={machineMenuRef}
-            className={`terminal-action-cluster machine-economy-cluster ${machineMenuOpen ? 'open' : ''}`}
-            aria-label="Machine Economy menu"
-            open={machineMenuOpen}
-            onToggle={(event) => setMachineMenuOpen((event.currentTarget as HTMLDetailsElement).open)}
+            ref={radarMenuRef}
+            className={`header-menu header-radar-menu ${radarMenuOpen ? 'open' : ''}${radarMenuActive ? ' active' : ''}`}
+            aria-label="Radar menu"
+            open={radarMenuOpen}
+            onToggle={(event) => setRadarMenuOpen((event.currentTarget as HTMLDetailsElement).open)}
           >
-            <summary className="methodology-trigger methodology-link machine-economy-trigger">
-              Machine Economy
+            <summary className="methodology-trigger methodology-link header-menu-trigger" aria-label="Open radar section shortcuts">
+              Radar
             </summary>
-            <div className="machine-economy-menu" role="menu" aria-label="Machine Economy routes">
-              <a className="methodology-trigger methodology-link" role="menuitem" href="/machine-market">Machine Market</a>
-              <a className="methodology-trigger methodology-link" role="menuitem" href="/machine-rail-coverage">Rail Coverage</a>
-              <a className="methodology-trigger methodology-link" role="menuitem" href="/machine-route-risk-matrix">Route Risk</a>
-              <a className="methodology-trigger methodology-link" role="menuitem" href="/machine-first-safe-routes">First Safe Queue</a>
-              <a className="methodology-trigger methodology-link" role="menuitem" href="/machine-execution-shortlist">Proof Plans</a>
-              <a className="methodology-trigger methodology-link" role="menuitem" href="/machine-receipts">Receipts</a>
-              <a className="methodology-trigger methodology-link" role="menuitem" href="/machine-economy-snapshot">Snapshot</a>
+            <div className="header-menu-panel" role="menu" aria-label="Radar section shortcuts">
+              {sectionShortcutNav.map(({ id, label }) => <a key={id} role="menuitem" href={`#${id}`} className={activeSection === id ? 'active' : ''} aria-current={activeSection === id ? 'location' : undefined}>{label}</a>)}
             </div>
           </details>
-          <span className="terminal-action-cluster" aria-label="Tools">
+          <details
+            ref={utilityMenuRef}
+            className={`header-menu header-utility-menu ${utilityMenuOpen ? 'open' : ''}${utilityMenuActive ? ' active' : ''}`}
+            aria-label="More utilities"
+            open={utilityMenuOpen}
+            onToggle={(event) => setUtilityMenuOpen((event.currentTarget as HTMLDetailsElement).open)}
+          >
+            <summary className="methodology-trigger methodology-link header-menu-trigger" aria-label="Open more utilities">
+              More
+            </summary>
+            <div className="header-menu-panel header-utility-panel" role="menu" aria-label="Secondary utility controls">
+              <button className={`header-menu-item button-reset${pathname === '/' && hash === '#methodology' ? ' active' : ''}`} type="button" aria-label="Open methodology drawer" onClick={() => {
+                setMethodologyOpen(true);
+                setUtilityMenuOpen(false);
+              }} aria-current={pathname === '/' && hash === '#methodology' ? 'location' : undefined}>
+                Methodology
+              </button>
+              <a role="menuitem" href="#events" className={pathname === '/' && hash === '#events' ? 'active' : ''} aria-current={pathname === '/' && hash === '#events' ? 'location' : undefined}>Events</a>
+              <div className="header-menu-group" aria-label="Machine Economy menu">
+                <span className="header-menu-heading">Machine Economy</span>
+                {machineEconomyLinks.map((link) => <a key={link.href} role="menuitem" href={link.href} className={link.active ? 'active' : ''} aria-current={link.active ? 'page' : undefined}>{link.label}</a>)}
+              </div>
+            </div>
+          </details>
+          <span className="terminal-action-cluster terminal-action-cluster-tools" aria-label="Tools">
           <button className="methodology-trigger command-trigger" type="button" onClick={() => setCommandPaletteOpen(true)} aria-label="Open command palette">
             Cmd+K
           </button>
@@ -9667,9 +9699,6 @@ function RadarApp() {
           </span>
         </div>
       </nav>
-      <div className="header-secondary-rail terminal-nav terminal-nav-scroll-rail" aria-label="Radar section shortcuts">
-        {sectionShortcutNav.map(([id, label]) => <a key={id} href={`#${id}`} className={activeSection === id ? 'active' : ''} aria-current={activeSection === id ? 'location' : undefined}>{label}</a>)}
-      </div>
     </header>
     <CommandPalette open={commandPaletteOpen} commands={commandActions} onClose={() => setCommandPaletteOpen(false)} />
     <MethodologyDrawer open={methodologyOpen} onClose={() => setMethodologyOpen(false)} />

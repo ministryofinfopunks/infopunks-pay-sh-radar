@@ -1057,6 +1057,7 @@ describe('radar endpoint intelligence UI', () => {
     expect(sectionShortcuts?.textContent).toContain('Pulse');
     expect(sectionShortcuts?.textContent).toContain('Benchmarks');
     expect(sectionShortcuts?.textContent).toContain('Mappings');
+    expect(container.querySelector('.header-secondary-rail')).toBeNull();
     expect(container.textContent).toContain('Directory');
     expect(container.textContent).toContain('Events');
     expect(container.textContent).toContain('Preflight');
