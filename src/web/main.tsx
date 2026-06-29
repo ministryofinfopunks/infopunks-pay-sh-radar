@@ -33,7 +33,7 @@ import {
 import { ProofCheckDetailPage, ProofCheckPage } from './proofCheckPages';
 import { LoopDetailPage, LoopsPage } from './loopPages';
 import { MachineMarketPreflightCardPage, PreflightCardIndexPage, RadarPreflightCardPage } from './preflightCardPages';
-import { AttentionMarketsPage, NarrativeSignalReportPage, NarrativesIndexPage, SignalSourcePage } from './narrativePages';
+import { AttentionMarketsPage, NarrativeSignalReportPage, NarrativesIndexPage, SignalSourcePage, SignalUpdatePermalinkPage } from './narrativePages';
 import './styles.css';
 
 type Severity = 'critical' | 'warning' | 'informational' | 'unknown';
@@ -1959,6 +1959,22 @@ function routeSignalSlug(pathname: string) {
     return decodeURIComponent(match[1]);
   } catch {
     return match[1];
+  }
+}
+
+function routeSignalUpdate(pathname: string) {
+  const match = pathname.match(/^\/signals\/([^/]+)\/updates\/([^/]+)\/?$/);
+  if (!match) return null;
+  try {
+    return {
+      slug: decodeURIComponent(match[1]),
+      updateId: decodeURIComponent(match[2])
+    };
+  } catch {
+    return {
+      slug: match[1],
+      updateId: match[2]
+    };
   }
 }
 
@@ -14228,6 +14244,8 @@ export function App() {
   if (isGraphRoute(window.location.pathname)) return <SignalGraphPage />;
   if (isNarrativesRoute(window.location.pathname)) return <NarrativesIndexPage />;
   if (isAttentionMarketsRoute(window.location.pathname)) return <AttentionMarketsPage />;
+  const signalUpdate = routeSignalUpdate(window.location.pathname);
+  if (signalUpdate) return <SignalUpdatePermalinkPage slug={signalUpdate.slug} updateId={signalUpdate.updateId} />;
   const signalSlug = routeSignalSlug(window.location.pathname);
   if (signalSlug === 'ansem') return <SignalSourcePage slug={signalSlug} />;
   if (signalSlug === 'black-bull') return <NarrativeSignalReportPage slug={signalSlug} />;

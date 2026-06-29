@@ -64,6 +64,14 @@ export function listSignalUpdates(signal_slug: string): SignalEvidenceUpdate[] {
     .sort((a, b) => b.timestamp.localeCompare(a.timestamp));
 }
 
+export function getSignalUpdate(signal_slug: string, update_id: string): SignalEvidenceUpdate | null {
+  return signalEvidenceUpdates.find((update) => update.signal_slug === signal_slug && update.update_id === update_id) ?? null;
+}
+
+export function signalUpdateExists(signal_slug: string, update_id: string): boolean {
+  return getSignalUpdate(signal_slug, update_id) !== null;
+}
+
 export function getLatestSignalUpdate(signal_slug: string): SignalEvidenceUpdate | null {
   return listSignalUpdates(signal_slug)[0] ?? null;
 }

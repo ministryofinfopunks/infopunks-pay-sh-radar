@@ -6,7 +6,7 @@ import { extname, join, normalize, resolve } from 'node:path';
 import { z } from 'zod';
 import { payShCatalogFixture } from '../data/payShCatalogFixture';
 import { getNarrativeAssetBySlug, getSignalSurfaceBySlug, listNarrativeAssets, listSignalSurfaces } from '../data/narrativeIntel';
-import { getLatestSignalUpdate, getSignalUpdateSummary, listSignalUpdates } from '../data/signalUpdates';
+import { getLatestSignalUpdate, getSignalUpdate, getSignalUpdateSummary, listSignalUpdates } from '../data/signalUpdates';
 import { applyPayShCatalogIngestion } from '../ingestion/payShCatalogAdapter';
 import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, IntelligenceStore, runPayShIngestion, runPayShIngestionWithOptions } from '../services/intelligenceStore';
 import { IntelligenceRepository } from '../persistence/repository';
@@ -1523,6 +1523,20 @@ export async function createApp(
         updates,
         latest_update: latestUpdate,
         summary: getSignalUpdateSummary(req.params.slug)
+      }
+    };
+  });
+  app.get<{ Params: { slug: string; updateId: string } }>('/v1/signals/:slug/updates/:updateId', async (req, reply) => {
+    const signal = getSignalSurfaceBySlug(req.params.slug);
+    if (!signal) return reply.code(404).send({ error: 'signal_surface_not_found' });
+
+    const update = getSignalUpdate(req.params.slug, req.params.updateId);
+    if (!update) return reply.code(404).send({ error: 'signal_update_not_found' });
+
+    return {
+      data: {
+        signal_slug: req.params.slug,
+        update
       }
     };
   });

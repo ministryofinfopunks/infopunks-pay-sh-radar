@@ -126,6 +126,11 @@ describe('render-style SPA routing boundaries', () => {
       expect(blackBull.headers['content-type']).toContain('text/html');
       expect(blackBull.body).toContain('Radar SPA shell');
 
+      const blackBullUpdate = await app.inject({ method: 'GET', url: '/signals/black-bull/updates/seu_black_bull_005' });
+      expect(blackBullUpdate.statusCode).toBe(200);
+      expect(blackBullUpdate.headers['content-type']).toContain('text/html');
+      expect(blackBullUpdate.body).toContain('Radar SPA shell');
+
       const radarCard = await app.inject({ method: 'GET', url: '/radar/cards/provider/alpha' });
       expect(radarCard.statusCode).toBe(200);
       expect(radarCard.headers['content-type']).toContain('text/html');
@@ -161,6 +166,7 @@ describe('render-style SPA routing boundaries', () => {
         '/narratives/attention-markets',
         '/signals/ansem',
         '/signals/black-bull',
+        '/signals/black-bull/updates/seu_black_bull_005',
         '/radar/cards',
         '/radar/cards/benchmark/web-search',
         '/machine-market/cards/cloud-translation'

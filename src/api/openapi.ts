@@ -618,6 +618,43 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       }]
     }, 'signal_surface_not_found')
   });
+  add('get', '/v1/signals/{slug}/updates/{updateId}', {
+    tags: ['Intelligence'],
+    summary: 'Get signal evidence update',
+    description: 'Returns one versioned evidence update for a signal asset by update id. Unknown signals return signal_surface_not_found. Unknown update ids return signal_update_not_found.',
+    parameters: [
+      pathParam('slug', 'Signal surface slug.'),
+      pathParam('updateId', 'Signal evidence update identifier.')
+    ],
+    responses: {
+      ...envelopedResponses('SignalEvidenceUpdateDetailResponse', {
+        signal_slug: 'black-bull',
+        update: {
+          update_id: 'seu_black_bull_005',
+          signal_slug: 'black-bull',
+          timestamp: '2026-06-28T18:20:00.000Z',
+          update_type: 'verdict_change',
+          summary: 'Infopunks classifies ANSEM / The Black Bull as a high-signal but high-reflexivity narrative asset.',
+          evidence_links: ['/signals/black-bull', '/narratives/attention-markets'],
+          previous_score: 74,
+          new_score: 80,
+          analyst_note: 'The report remains non-directional. This is not a buy/sell call. It is a signal map.'
+        }
+      }),
+      '404': {
+        description: 'Unknown signal or unknown signal update.',
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ErrorEnvelope' },
+            examples: {
+              signalNotFound: { value: { error: 'signal_surface_not_found' } },
+              updateNotFound: { value: { error: 'signal_update_not_found' } }
+            }
+          }
+        }
+      }
+    }
+  });
   add('post', '/v1/search', {
     tags: ['Intelligence'],
     summary: 'Semantic search',
@@ -3343,6 +3380,10 @@ function componentSchemas(): Record<string, JsonSchema> {
       latest_update: { oneOf: [{ $ref: '#/components/schemas/SignalEvidenceUpdate' }, { type: 'null' }] },
       summary: stringSchema()
     }, ['signal_slug', 'count', 'updates', 'summary']),
+    SignalEvidenceUpdateDetailResponse: objectSchema({
+      signal_slug: stringSchema(),
+      update: { $ref: '#/components/schemas/SignalEvidenceUpdate' }
+    }, ['signal_slug', 'update']),
     SearchRequest: objectSchema({ query: stringSchema(), limit: integerSchema() }, ['query']),
     RouteRecommendationRequest: freeformObject(),
     RouteRecommendationResponse: freeformObject(),

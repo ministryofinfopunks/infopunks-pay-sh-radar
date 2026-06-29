@@ -89,6 +89,11 @@ type SignalEvidenceUpdateResponse = {
   summary: string;
 };
 
+type SignalEvidenceUpdateDetailResponse = {
+  signal_slug: string;
+  update: SignalEvidenceUpdate;
+};
+
 const NARRATIVE_METHOD_STEPS = [
   'Detect Narrative Asset',
   'Map Signal Source',
@@ -114,6 +119,16 @@ async function api<T>(path: string) {
   });
   if (!response.ok) throw new Error(`${path} ${response.status}`);
   return response.json() as Promise<{ data: T }>;
+}
+
+async function copyText(value: string) {
+  try {
+    if (!navigator.clipboard?.writeText) return false;
+    await navigator.clipboard.writeText(value);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function isNotFoundError(error: unknown) {
@@ -166,6 +181,56 @@ function deskStatus(signal: NarrativeSignalSurface, updateCount: number) {
 
 function EvidenceChip({ href }: { href: string }) {
   return <a className="narrative-evidence-chip" href={href}>{href}</a>;
+}
+
+function SignalUpdateScoreDelta({ update }: { update: SignalEvidenceUpdate }) {
+  const delta = signalDelta(update);
+  if (!delta) return null;
+
+  return <div className={`narrative-signal-delta ${delta.trajectory}`}>
+    <span>Signal Delta</span>
+    <strong>{update.previous_score} → {update.new_score} ({delta.label})</strong>
+  </div>;
+}
+
+function DeskDispatchCard({ signalName, updateType }: { signalName: string; updateType: SignalEvidenceUpdateType }) {
+  const [state, setState] = useState<'idle' | 'copied' | 'failed'>('idle');
+  const copy = `Infopunks Signal Update: ${signalUpdateTypeLabel(updateType)} detected for ${signalName}. Reports are not final. Signals mutate.`;
+
+  async function handleCopy() {
+    const copied = await copyText(copy);
+    setState(copied ? 'copied' : 'failed');
+    window.setTimeout(() => setState('idle'), 1400);
+  }
+
+  const buttonLabel = state === 'copied' ? 'Copied' : state === 'failed' ? 'Failed to copy' : 'Copy Dispatch';
+
+  return <section className="panel narrative-desk-dispatch" aria-label="Desk Dispatch">
+    <div className="narrative-desk-dispatch-head">
+      <div>
+        <p className="section-kicker">Share-ready copy</p>
+        <h2>Desk Dispatch</h2>
+      </div>
+      <button className="copy-chip" type="button" onClick={handleCopy} aria-label="Copy Desk Dispatch" aria-live="polite">{buttonLabel}</button>
+    </div>
+    <p className="narrative-desk-dispatch-copy">{copy}</p>
+  </section>;
+}
+
+function SignalUpdateNotFound({ slug }: { slug: string }) {
+  return <div className="shell narrative-shell">
+    <main className="narrative-page" aria-label="Signal update not found">
+      <section className="panel narrative-update-not-found">
+        <p className="section-kicker">Narrative desk</p>
+        <h1>Signal update not found.</h1>
+        <p>This permalink does not match a known versioned evidence update.</p>
+        <div className="panel-actions">
+          <a className="execute" href={`/signals/${slug}`}>Back to signal</a>
+          <a className="execute compact secondary" href="/narratives">Back to narratives</a>
+        </div>
+      </section>
+    </main>
+  </div>;
 }
 
 function LatestDeskUpdateChip({ latestUpdate }: { latestUpdate: SignalEvidenceUpdate | null }) {
@@ -243,11 +308,11 @@ function LivingEvidenceFeed({ updates, latestUpdate, summary }: {
             <span className={`narrative-update-badge type-${update.update_type}`}>{signalUpdateTypeLabel(update.update_type)}</span>
           </div>
           <p>{update.summary}</p>
-          {delta && <div className={`narrative-signal-delta ${delta.trajectory}`}>
-            <span>Signal Delta</span>
-            <strong>{update.previous_score} → {update.new_score} ({delta.label})</strong>
-          </div>}
+          {delta && <SignalUpdateScoreDelta update={update} />}
           <p className="narrative-analyst-note"><b>Analyst note:</b> {update.analyst_note}</p>
+          <div className="panel-actions">
+            <a className="execute compact secondary" href={`/signals/${update.signal_slug}/updates/${update.update_id}`}>Open Dispatch</a>
+          </div>
           <div className="chips narrative-update-chips">
             {update.evidence_links.map((href) => <EvidenceChip key={`${update.update_id}-${href}`} href={href} />)}
           </div>
@@ -643,4 +708,68 @@ export function SignalSourcePage({ slug }: { slug: string }) {
 
 export function NarrativeSignalReportPage({ slug }: { slug: string }) {
   return <SignalSurfacePage slug={slug} expectedType="signal_report" />;
+}
+
+export function SignalUpdatePermalinkPage({ slug, updateId }: { slug: string; updateId: string }) {
+  const [surface, setSurface] = useState<NarrativeSignalSurface | null>(null);
+  const [updateDetail, setUpdateDetail] = useState<SignalEvidenceUpdateDetailResponse | null>(null);
+  const [missing, setMissing] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    setMissing(false);
+    Promise.all([
+      api<NarrativeSignalSurface>(`/v1/signals/${encodeURIComponent(slug)}`),
+      api<SignalEvidenceUpdateDetailResponse>(`/v1/signals/${encodeURIComponent(slug)}/updates/${encodeURIComponent(updateId)}`)
+    ])
+      .then(([surfaceResponse, updateResponse]) => {
+        if (!active) return;
+        setSurface(surfaceResponse.data);
+        setUpdateDetail(updateResponse.data);
+      })
+      .catch((error: unknown) => {
+        if (!active) return;
+        if (isNotFoundError(error)) setMissing(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, [slug, updateId]);
+
+  if (missing) return <SignalUpdateNotFound slug={slug} />;
+  if (!surface || !updateDetail) return <div className="shell narrative-shell"><main className="narrative-page"><section className="panel"><p>Loading update dispatch...</p></section></main></div>;
+
+  const update = updateDetail.update;
+  const signalName = surface.asset ? `${surface.asset.ticker} / ${surface.asset.name}` : surface.title;
+
+  return <div className="shell narrative-shell">
+    <main className="narrative-page" aria-label="Signal update dispatch">
+      <section className="panel narrative-update-permalink">
+        <div className="narrative-update-permalink-head">
+          <div>
+            <p className="section-kicker">Versioned Evidence Update</p>
+            <h1>{signalName}</h1>
+            <p>{surface.subtitle}</p>
+          </div>
+          <span className={`narrative-update-badge type-${update.update_type}`}>{signalUpdateTypeLabel(update.update_type)}</span>
+        </div>
+        <div className="narrative-update-permalink-meta">
+          <span>Signal: {surface.title}</span>
+          <span>Timestamp: {formatDate(update.timestamp)}</span>
+        </div>
+        <p className="narrative-update-summary">{update.summary}</p>
+        <SignalUpdateScoreDelta update={update} />
+        <p className="narrative-analyst-note"><b>Analyst note:</b> {update.analyst_note}</p>
+        <div className="chips narrative-update-chips">
+          {update.evidence_links.map((href) => <EvidenceChip key={`${update.update_id}-${href}`} href={href} />)}
+        </div>
+        <div className="panel-actions">
+          <a className="execute" href={`/signals/${slug}`}>Back to signal</a>
+          <a className="execute compact secondary" href="/narratives/attention-markets">Attention Markets</a>
+          <a className="execute compact secondary" href="/narratives">Narratives</a>
+        </div>
+      </section>
+      <DeskDispatchCard signalName={signalName} updateType={update.update_type} />
+    </main>
+  </div>;
 }

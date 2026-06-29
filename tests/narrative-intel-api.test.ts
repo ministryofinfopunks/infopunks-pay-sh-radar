@@ -103,6 +103,26 @@ describe('narrative intel api', () => {
     }
   });
 
+  it('returns one seeded signal evidence update by id', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+
+    try {
+      const response = await app.inject({ method: 'GET', url: '/v1/signals/black-bull/updates/seu_black_bull_005' });
+      expect(response.statusCode).toBe(200);
+      expect(response.json().data).toEqual(expect.objectContaining({
+        signal_slug: 'black-bull',
+        update: expect.objectContaining({
+          update_id: 'seu_black_bull_005',
+          signal_slug: 'black-bull',
+          update_type: 'verdict_change',
+          summary: expect.any(String)
+        })
+      }));
+    } finally {
+      await app.close();
+    }
+  });
+
   it('returns 404 for unknown signal update requests', async () => {
     const app = await createApp(emptyIntelligenceStore());
 
@@ -110,6 +130,18 @@ describe('narrative intel api', () => {
       const response = await app.inject({ method: 'GET', url: '/v1/signals/unknown-signal/updates' });
       expect(response.statusCode).toBe(404);
       expect(response.json()).toEqual({ error: 'signal_surface_not_found' });
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('returns 404 for unknown signal update ids', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+
+    try {
+      const response = await app.inject({ method: 'GET', url: '/v1/signals/black-bull/updates/missing-update' });
+      expect(response.statusCode).toBe(404);
+      expect(response.json()).toEqual({ error: 'signal_update_not_found' });
     } finally {
       await app.close();
     }

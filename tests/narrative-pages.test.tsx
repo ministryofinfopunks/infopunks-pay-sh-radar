@@ -130,6 +130,11 @@ const blackBullUpdates = {
   ]
 };
 
+const blackBullUpdateDetail = {
+  signal_slug: 'black-bull',
+  update: blackBullUpdates.latest_update
+};
+
 describe('narrative pages', () => {
   let root: Root | null = null;
   let container: HTMLDivElement;
@@ -143,6 +148,7 @@ describe('narrative pages', () => {
       if (path === '/v1/signals/ansem') return json(ansemSignal);
       if (path === '/v1/signals/black-bull') return json(blackBullSignal);
       if (path === '/v1/signals/black-bull/updates') return json(blackBullUpdates);
+      if (path === '/v1/signals/black-bull/updates/seu_black_bull_005') return json(blackBullUpdateDetail);
       if (path === '/v1/signals/ansem/updates') return json({ signal_slug: 'ansem', count: 0, latest_update: null, summary: 'Evidence update summary: no evidence updates yet.', updates: [] });
       return Promise.resolve(new Response('{}', { status: 404 }));
     });
@@ -241,10 +247,38 @@ describe('narrative pages', () => {
     expect(container.textContent).toContain('Signal Delta');
     expect(container.textContent).toContain('74 → 80 (+6)');
     expect(container.querySelector('a[href="#living-evidence-feed"]')?.textContent).toContain('Open Living Evidence Feed');
+    expect(Array.from(container.querySelectorAll('a[href="/signals/black-bull/updates/seu_black_bull_005"]')).some((node) => node.textContent?.includes('Open Dispatch'))).toBe(true);
     expect(Array.from(container.querySelectorAll('a[href="/signals/ansem"]')).some((node) => node.textContent?.includes('Ansem Signal Source'))).toBe(true);
     expect(Array.from(container.querySelectorAll('a[href="/narratives/attention-markets"]')).some((node) => node.textContent?.includes('Attention Markets Thesis'))).toBe(true);
     expect(Array.from(container.querySelectorAll('a[href="/narratives"]')).some((node) => node.textContent?.includes('Narrative Intel Index'))).toBe(true);
     expect(container.textContent).toContain('Holder / Power Concentration');
     expect(container.textContent).toContain('do_not_chase'.replaceAll('_', ' '));
+  });
+
+  it('renders the signal update permalink as a standalone dispatch artifact', async () => {
+    await render('/signals/black-bull/updates/seu_black_bull_005');
+
+    expect(container.textContent).toContain('Versioned Evidence Update');
+    expect(container.textContent).toContain('ANSEM / The Black Bull');
+    expect(container.textContent).toContain('Verdict Change');
+    expect(container.textContent).toContain('Timestamp: 2026-06-28 18:20');
+    expect(container.textContent).toContain('Infopunks classifies ANSEM / The Black Bull as a high-signal but high-reflexivity narrative asset.');
+    expect(container.textContent).toContain('Analyst note:');
+    expect(container.textContent).toContain('Signal Delta');
+    expect(container.textContent).toContain('74 → 80 (+6)');
+    expect(container.textContent).toContain('Desk Dispatch');
+    expect(container.textContent).toContain('Infopunks Signal Update: Verdict Change detected for ANSEM / The Black Bull. Reports are not final. Signals mutate.');
+    expect(container.querySelector('button[aria-label="Copy Desk Dispatch"]')).not.toBeNull();
+    expect(Array.from(container.querySelectorAll('a[href="/signals/black-bull"]')).some((node) => node.textContent?.includes('Back to signal'))).toBe(true);
+    expect(Array.from(container.querySelectorAll('a[href="/narratives/attention-markets"]')).some((node) => node.textContent?.includes('Attention Markets'))).toBe(true);
+    expect(Array.from(container.querySelectorAll('a[href="/narratives"]')).some((node) => node.textContent?.includes('Narratives'))).toBe(true);
+  });
+
+  it('renders a clean not-found state for unknown signal update permalinks', async () => {
+    await render('/signals/black-bull/updates/missing-update');
+
+    expect(container.textContent).toContain('Signal update not found.');
+    expect(Array.from(container.querySelectorAll('a[href="/signals/black-bull"]')).some((node) => node.textContent?.includes('Back to signal'))).toBe(true);
+    expect(Array.from(container.querySelectorAll('a[href="/narratives"]')).some((node) => node.textContent?.includes('Back to narratives'))).toBe(true);
   });
 });

@@ -80,6 +80,7 @@ describe('openapi discovery', () => {
     expect(spec.paths['/v1/signals']?.get).toBeTruthy();
     expect(spec.paths['/v1/signals/{slug}']?.get).toBeTruthy();
     expect(spec.paths['/v1/signals/{slug}/updates']?.get).toBeTruthy();
+    expect(spec.paths['/v1/signals/{slug}/updates/{updateId}']?.get).toBeTruthy();
     expect(spec.paths['/v1/loops']?.get).toBeTruthy();
     expect(spec.paths['/v1/loops/{loop_id}']?.get).toBeTruthy();
     expect(spec.paths['/v1/loops/check']?.post).toBeTruthy();
@@ -124,6 +125,7 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.SignalEvidenceUpdateType).toBeTruthy();
     expect(spec.components.schemas.SignalEvidenceUpdate).toBeTruthy();
     expect(spec.components.schemas.SignalEvidenceUpdateListResponse).toBeTruthy();
+    expect(spec.components.schemas.SignalEvidenceUpdateDetailResponse).toBeTruthy();
     expect(spec.components.schemas.ClaimCreateRequest).toBeTruthy();
     expect(spec.components.schemas.ClaimChallenge).toBeTruthy();
     expect(spec.components.schemas.ClaimChallengeCreateRequest).toBeTruthy();
@@ -158,6 +160,7 @@ describe('openapi discovery', () => {
     expect(JSON.stringify(spec.paths['/v1/claims'])).toContain('No claim without evidence');
     expect(JSON.stringify(spec.paths['/v1/claims/{claim_id}/challenges'])).toContain('Claims are not token markets yet');
     expect(JSON.stringify(spec.paths['/v1/signals/{slug}/updates'])).toContain('watching the narratives that become markets');
+    expect(JSON.stringify(spec.paths['/v1/signals/{slug}/updates/{updateId}'])).toContain('signal_update_not_found');
     expect(spec.components.schemas.SignalEvidenceUpdateType.enum).toEqual(['attention_shift', 'holder_shift', 'myth_shift', 'risk_shift', 'verdict_change']);
     expect(spec.components.schemas.SignalEvidenceUpdate.properties.update_type.$ref).toBe('#/components/schemas/SignalEvidenceUpdateType');
     expect(spec.components.schemas.BenchmarkRouteMetric.properties.status_code).toBeTruthy();
