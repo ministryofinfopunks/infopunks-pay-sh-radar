@@ -76,6 +76,7 @@ describe('openapi discovery', () => {
     expect(spec.paths['/v1/checks']?.get).toBeTruthy();
     expect(spec.paths['/v1/checks/{check_id}']?.get).toBeTruthy();
     expect(spec.paths['/v1/narratives']?.get).toBeTruthy();
+    expect(spec.paths['/v1/signal-desk']?.get).toBeTruthy();
     expect(spec.paths['/v1/narratives/{slug}']?.get).toBeTruthy();
     expect(spec.paths['/v1/signals']?.get).toBeTruthy();
     expect(spec.paths['/v1/signals/{slug}']?.get).toBeTruthy();
@@ -122,6 +123,10 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.SignalGraphCheckResponse).toBeTruthy();
     expect(spec.components.schemas.NarrativeAssetResponse).toBeTruthy();
     expect(spec.components.schemas.NarrativeSignalSurfaceResponse).toBeTruthy();
+    expect(spec.components.schemas.SignalDeskIndex).toBeTruthy();
+    expect(spec.components.schemas.SignalDeskReportCard).toBeTruthy();
+    expect(spec.components.schemas.SignalDeskDispatchCard).toBeTruthy();
+    expect(spec.components.schemas.SignalDeskActivityItem).toBeTruthy();
     expect(spec.components.schemas.SignalEvidenceUpdateType).toBeTruthy();
     expect(spec.components.schemas.SignalEvidenceUpdate).toBeTruthy();
     expect(spec.components.schemas.SignalEvidenceUpdateListResponse).toBeTruthy();
@@ -160,6 +165,7 @@ describe('openapi discovery', () => {
     expect(JSON.stringify(spec.paths['/v1/claims'])).toContain('No claim without evidence');
     expect(JSON.stringify(spec.paths['/v1/claims/{claim_id}/challenges'])).toContain('Claims are not token markets yet');
     expect(JSON.stringify(spec.paths['/v1/signals/{slug}/updates'])).toContain('watching the narratives that become markets');
+    expect(JSON.stringify(spec.paths['/v1/signal-desk'])).toContain('featured report');
     expect(JSON.stringify(spec.paths['/v1/signals/{slug}/updates/{updateId}'])).toContain('signal_update_not_found');
     expect(spec.components.schemas.SignalEvidenceUpdateType.enum).toEqual(['attention_shift', 'holder_shift', 'myth_shift', 'risk_shift', 'verdict_change']);
     expect(spec.components.schemas.SignalEvidenceUpdate.properties.update_type.$ref).toBe('#/components/schemas/SignalEvidenceUpdateType');

@@ -425,6 +425,76 @@ export const SignalEvidenceUpdateSchema = z.object({
   analyst_note: z.string()
 });
 
+export const SignalDeskStatusSchema = z.enum(['live_watch', 'seeded_report', 'needs_review']);
+
+export const SignalDeskActivityTypeSchema = z.enum([
+  'report_published',
+  'dispatch_published',
+  'risk_shift',
+  'verdict_change',
+  'metadata_updated',
+  'og_card_generated'
+]);
+
+export const SignalDeskReportCardSchema = z.object({
+  slug: z.string(),
+  ticker: z.string(),
+  name: z.string(),
+  category: z.string(),
+  thesis: z.string(),
+  href: z.string(),
+  signal_strength: z.number().min(0).max(100),
+  myth_coherence: z.number().min(0).max(100),
+  reflexivity_risk: z.number().min(0).max(100),
+  sovereignty_score: z.number().min(0).max(100),
+  desk_status: SignalDeskStatusSchema,
+  latest_update_type: SignalEvidenceUpdateTypeSchema.optional(),
+  latest_update_at: z.string().datetime().optional(),
+  update_count: z.number().int().nonnegative()
+});
+
+export const SignalDeskDispatchCardSchema = z.object({
+  update_id: z.string(),
+  signal_slug: z.string(),
+  signal_name: z.string(),
+  ticker: z.string(),
+  update_type: SignalEvidenceUpdateTypeSchema,
+  readable_update_type: z.string(),
+  timestamp: z.string().datetime(),
+  summary: z.string(),
+  analyst_note: z.string(),
+  href: z.string(),
+  og_image: z.string(),
+  previous_score: z.number().min(0).max(100).optional(),
+  new_score: z.number().min(0).max(100).optional(),
+  signal_delta: z.number().optional()
+});
+
+export const SignalDeskActivityItemSchema = z.object({
+  id: z.string(),
+  type: SignalDeskActivityTypeSchema,
+  timestamp: z.string().datetime(),
+  title: z.string(),
+  summary: z.string(),
+  href: z.string()
+});
+
+export const SignalDeskIndexSchema = z.object({
+  generated_at: z.string().datetime(),
+  desk_status: SignalDeskStatusSchema,
+  counts: z.object({
+    reports: z.number().int().nonnegative(),
+    dispatches: z.number().int().nonnegative(),
+    risk_shifts: z.number().int().nonnegative(),
+    watched_signals: z.number().int().nonnegative()
+  }),
+  featured_report: SignalDeskReportCardSchema.nullable(),
+  reports: z.array(SignalDeskReportCardSchema),
+  latest_dispatches: z.array(SignalDeskDispatchCardSchema),
+  risk_shifts: z.array(SignalDeskDispatchCardSchema),
+  desk_activity: z.array(SignalDeskActivityItemSchema)
+});
+
 export const SearchRequestSchema = z.object({
   query: z.string().min(1),
   category: z.string().optional(),
@@ -2194,6 +2264,12 @@ export type NarrativeSignalSection = z.infer<typeof NarrativeSignalSectionSchema
 export type NarrativeSignalSurface = z.infer<typeof NarrativeSignalSurfaceSchema>;
 export type SignalEvidenceUpdateType = z.infer<typeof SignalEvidenceUpdateTypeSchema>;
 export type SignalEvidenceUpdate = z.infer<typeof SignalEvidenceUpdateSchema>;
+export type SignalDeskStatus = z.infer<typeof SignalDeskStatusSchema>;
+export type SignalDeskActivityType = z.infer<typeof SignalDeskActivityTypeSchema>;
+export type SignalDeskReportCard = z.infer<typeof SignalDeskReportCardSchema>;
+export type SignalDeskDispatchCard = z.infer<typeof SignalDeskDispatchCardSchema>;
+export type SignalDeskActivityItem = z.infer<typeof SignalDeskActivityItemSchema>;
+export type SignalDeskIndex = z.infer<typeof SignalDeskIndexSchema>;
 export type RouteRecommendation = z.infer<typeof RouteRecommendationSchema>;
 export type SearchRequest = z.infer<typeof SearchRequestSchema>;
 export type RouteRecommendationRequest = z.infer<typeof RouteRecommendationRequestSchema>;

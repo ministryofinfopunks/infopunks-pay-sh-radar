@@ -577,6 +577,41 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     description: 'Returns seeded Narrative Asset Intelligence records for attention markets and narrative assets.',
     responses: envelopedResponses('NarrativeAssetListResponse', [{ slug: 'black-bull', ticker: 'ANSEM', signal_source: 'Ansem' }])
   });
+  add('get', '/v1/signal-desk', {
+    tags: ['Intelligence'],
+    summary: 'Get Signal Desk index',
+    description: 'Returns the derived Signal Desk catalog with featured report, dispatches, risk shifts, report cards, and compact desk activity for Narrative Asset Intelligence.',
+    responses: envelopedResponses('SignalDeskIndex', {
+      generated_at: '2026-06-29T00:00:00.000Z',
+      desk_status: 'live_watch',
+      counts: {
+        reports: 1,
+        dispatches: 5,
+        risk_shifts: 3,
+        watched_signals: 1
+      },
+      featured_report: {
+        slug: 'black-bull',
+        ticker: 'ANSEM',
+        name: 'The Black Bull',
+        category: 'Attention Market / Narrative Asset',
+        thesis: '$ANSEM is a live experiment in financialized attention, where persona, meme, wallet flows, and community belief become a tradable signal object.',
+        href: '/signals/black-bull',
+        signal_strength: 89,
+        myth_coherence: 84,
+        reflexivity_risk: 88,
+        sovereignty_score: 34,
+        desk_status: 'live_watch',
+        latest_update_type: 'verdict_change',
+        latest_update_at: '2026-06-28T18:20:00.000Z',
+        update_count: 5
+      },
+      reports: [],
+      latest_dispatches: [],
+      risk_shifts: [],
+      desk_activity: []
+    })
+  });
   add('get', '/v1/narratives/{slug}', {
     tags: ['Intelligence'],
     summary: 'Get narrative asset',
@@ -3361,6 +3396,8 @@ function componentSchemas(): Record<string, JsonSchema> {
       asset_slug: { type: ['string', 'null'] },
       last_updated: dateTimeSchema()
     })),
+    SignalDeskStatus: enumSchema(['live_watch', 'seeded_report', 'needs_review']),
+    SignalDeskActivityType: enumSchema(['report_published', 'dispatch_published', 'risk_shift', 'verdict_change', 'metadata_updated', 'og_card_generated']),
     SignalEvidenceUpdateType: enumSchema(['attention_shift', 'holder_shift', 'myth_shift', 'risk_shift', 'verdict_change']),
     SignalEvidenceUpdate: objectSchema({
       update_id: stringSchema(),
@@ -3384,6 +3421,61 @@ function componentSchemas(): Record<string, JsonSchema> {
       signal_slug: stringSchema(),
       update: { $ref: '#/components/schemas/SignalEvidenceUpdate' }
     }, ['signal_slug', 'update']),
+    SignalDeskReportCard: objectSchema({
+      slug: stringSchema(),
+      ticker: stringSchema(),
+      name: stringSchema(),
+      category: stringSchema(),
+      thesis: stringSchema(),
+      href: stringSchema(),
+      signal_strength: integerSchema(),
+      myth_coherence: integerSchema(),
+      reflexivity_risk: integerSchema(),
+      sovereignty_score: integerSchema(),
+      desk_status: { $ref: '#/components/schemas/SignalDeskStatus' },
+      latest_update_type: { $ref: '#/components/schemas/SignalEvidenceUpdateType' },
+      latest_update_at: dateTimeSchema(),
+      update_count: integerSchema()
+    }, ['slug', 'ticker', 'name', 'category', 'thesis', 'href', 'signal_strength', 'myth_coherence', 'reflexivity_risk', 'sovereignty_score', 'desk_status', 'update_count']),
+    SignalDeskDispatchCard: objectSchema({
+      update_id: stringSchema(),
+      signal_slug: stringSchema(),
+      signal_name: stringSchema(),
+      ticker: stringSchema(),
+      update_type: { $ref: '#/components/schemas/SignalEvidenceUpdateType' },
+      readable_update_type: stringSchema(),
+      timestamp: dateTimeSchema(),
+      summary: stringSchema(),
+      analyst_note: stringSchema(),
+      href: stringSchema(),
+      og_image: stringSchema(),
+      previous_score: integerSchema(),
+      new_score: integerSchema(),
+      signal_delta: integerSchema()
+    }, ['update_id', 'signal_slug', 'signal_name', 'ticker', 'update_type', 'readable_update_type', 'timestamp', 'summary', 'analyst_note', 'href', 'og_image']),
+    SignalDeskActivityItem: objectSchema({
+      id: stringSchema(),
+      type: { $ref: '#/components/schemas/SignalDeskActivityType' },
+      timestamp: dateTimeSchema(),
+      title: stringSchema(),
+      summary: stringSchema(),
+      href: stringSchema()
+    }, ['id', 'type', 'timestamp', 'title', 'summary', 'href']),
+    SignalDeskIndex: objectSchema({
+      generated_at: dateTimeSchema(),
+      desk_status: { $ref: '#/components/schemas/SignalDeskStatus' },
+      counts: objectSchema({
+        reports: integerSchema(),
+        dispatches: integerSchema(),
+        risk_shifts: integerSchema(),
+        watched_signals: integerSchema()
+      }, ['reports', 'dispatches', 'risk_shifts', 'watched_signals']),
+      featured_report: { oneOf: [{ $ref: '#/components/schemas/SignalDeskReportCard' }, { type: 'null' }] },
+      reports: arrayOf({ $ref: '#/components/schemas/SignalDeskReportCard' }),
+      latest_dispatches: arrayOf({ $ref: '#/components/schemas/SignalDeskDispatchCard' }),
+      risk_shifts: arrayOf({ $ref: '#/components/schemas/SignalDeskDispatchCard' }),
+      desk_activity: arrayOf({ $ref: '#/components/schemas/SignalDeskActivityItem' })
+    }, ['generated_at', 'desk_status', 'counts', 'featured_report', 'reports', 'latest_dispatches', 'risk_shifts', 'desk_activity']),
     SearchRequest: objectSchema({ query: stringSchema(), limit: integerSchema() }, ['query']),
     RouteRecommendationRequest: freeformObject(),
     RouteRecommendationResponse: freeformObject(),

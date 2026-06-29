@@ -76,6 +76,7 @@ describe('production smoke plan', () => {
       '/v1/loops',
       '/v1/routes',
       '/v1/narratives',
+      '/v1/signal-desk',
       '/v1/narratives/black-bull',
       '/v1/signals',
       '/v1/signals/black-bull',
@@ -90,6 +91,11 @@ describe('production smoke plan', () => {
       '/openapi.json',
       '/v1/loops',
       '/v1/checks'
+    ]);
+    expect(plan.pngPaths).toEqual([
+      '/og/narratives.png',
+      '/og/signals/black-bull.png',
+      '/og/signals/black-bull/updates/seu_black_bull_005.png'
     ]);
     expect(plan.claimsApiPaths).toEqual([
       '/v1/claims',

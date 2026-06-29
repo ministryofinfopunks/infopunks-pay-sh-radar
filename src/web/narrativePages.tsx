@@ -95,6 +95,69 @@ type SignalEvidenceUpdateDetailResponse = {
   update: SignalEvidenceUpdate;
 };
 
+type SignalDeskStatus = 'live_watch' | 'seeded_report' | 'needs_review';
+
+type SignalDeskReportCard = {
+  slug: string;
+  ticker: string;
+  name: string;
+  category: string;
+  thesis: string;
+  href: string;
+  signal_strength: number;
+  myth_coherence: number;
+  reflexivity_risk: number;
+  sovereignty_score: number;
+  desk_status: SignalDeskStatus;
+  latest_update_type?: SignalEvidenceUpdateType;
+  latest_update_at?: string;
+  update_count: number;
+};
+
+type SignalDeskDispatchCard = {
+  update_id: string;
+  signal_slug: string;
+  signal_name: string;
+  ticker: string;
+  update_type: SignalEvidenceUpdateType;
+  readable_update_type: string;
+  timestamp: string;
+  summary: string;
+  analyst_note: string;
+  href: string;
+  og_image: string;
+  previous_score?: number;
+  new_score?: number;
+  signal_delta?: number;
+};
+
+type SignalDeskActivityType = 'report_published' | 'dispatch_published' | 'risk_shift' | 'verdict_change' | 'metadata_updated' | 'og_card_generated';
+
+type SignalDeskActivityItem = {
+  id: string;
+  type: SignalDeskActivityType;
+  timestamp: string;
+  title: string;
+  summary: string;
+  href: string;
+};
+
+type SignalDeskIndex = {
+  generated_at: string;
+  desk_status: SignalDeskStatus;
+  counts: {
+    reports: number;
+    dispatches: number;
+    risk_shifts: number;
+    watched_signals: number;
+  };
+  featured_report: SignalDeskReportCard | null;
+  reports: SignalDeskReportCard[];
+  latest_dispatches: SignalDeskDispatchCard[];
+  risk_shifts: SignalDeskDispatchCard[];
+  desk_activity: SignalDeskActivityItem[];
+};
+
 const NARRATIVE_METHOD_STEPS = [
   'Detect Narrative Asset',
   'Map Signal Source',
@@ -214,6 +277,10 @@ function formatScore(value: number | string) {
 
 function formatDate(value: string) {
   return value.replace('T', ' ').slice(0, 16);
+}
+
+function formatDeskStatus(value: SignalDeskStatus) {
+  return value.split('_').map((part) => `${part[0]?.toUpperCase() ?? ''}${part.slice(1)}`).join(' ');
 }
 
 function signalUpdateTypeLabel(value: SignalEvidenceUpdateType) {
@@ -409,32 +476,73 @@ function NarrativeMethodModule() {
   </section>;
 }
 
-function FeaturedNarrativeReport() {
-  const metrics = [
-    ['Signal Strength', 'High'],
-    ['Myth Coherence', 'High'],
-    ['Reflexivity Risk', 'High'],
-    ['Sovereignty Status', 'Unproven']
+function DeskStatusStrip({ desk }: { desk: SignalDeskIndex }) {
+  const stats = [
+    ['Reports', desk.counts.reports],
+    ['Dispatches', desk.counts.dispatches],
+    ['Risk Shifts', desk.counts.risk_shifts],
+    ['Watched Signals', desk.counts.watched_signals],
+    ['Desk Status', formatDeskStatus(desk.desk_status)]
   ] as const;
 
+  return <section className="panel narrative-desk-status" aria-label="Desk Status Strip">
+    <div className="narrative-desk-status-head">
+      <div>
+        <p className="section-kicker">Desk status</p>
+        <h2>Live Watch</h2>
+      </div>
+      <span className="source-badge">{formatDate(desk.generated_at)}</span>
+    </div>
+    <div className="narrative-desk-status-grid">
+      {stats.map(([label, value]) => <article key={label} className="narrative-desk-stat">
+        <span>{label}</span>
+        <strong>{value}</strong>
+      </article>)}
+    </div>
+  </section>;
+}
+
+function FeaturedNarrativeReport({ report, latestDispatchHref }: { report: SignalDeskReportCard; latestDispatchHref: string | null }) {
   return <section className="panel narrative-featured-report" aria-label="Featured ANSEM Black Bull report">
     <div className="narrative-featured-head">
       <div>
-        <p className="section-kicker">First Narrative Asset Intelligence Report</p>
-        <h2>$ANSEM / The Black Bull</h2>
-        <p>A live signal report on what happens when persona, attention, myth, wallet flows, and market reflexivity become one tradable object.</p>
+        <p className="section-kicker">Featured report</p>
+        <h2>{report.ticker} / {report.name}</h2>
+        <p>{report.thesis}</p>
       </div>
-      <span className="source-badge">Narrative Asset Intelligence</span>
+      <span className="source-badge">{formatDeskStatus(report.desk_status)}</span>
     </div>
     <div className="narrative-featured-metrics">
-      {metrics.map(([label, value]) => <div key={label}>
-        <span>{label}</span>
-        <strong>{value}</strong>
-      </div>)}
+      <div>
+        <span>Signal Strength</span>
+        <strong>{report.signal_strength}</strong>
+      </div>
+      <div>
+        <span>Myth Coherence</span>
+        <strong>{report.myth_coherence}</strong>
+      </div>
+      <div>
+        <span>Reflexivity Risk</span>
+        <strong>{report.reflexivity_risk}</strong>
+      </div>
+      <div>
+        <span>Sovereignty Score</span>
+        <strong>{report.sovereignty_score}</strong>
+      </div>
+      <div>
+        <span>Latest Update Type</span>
+        <strong>{report.latest_update_type ? signalUpdateTypeLabel(report.latest_update_type) : 'No updates'}</strong>
+      </div>
+      <div>
+        <span>Latest Update Timestamp</span>
+        <strong>{report.latest_update_at ? formatDate(report.latest_update_at) : 'No updates'}</strong>
+      </div>
     </div>
     <div className="panel-actions">
-      <a className="execute" href="/signals/black-bull">Open Signal Report</a>
-      <a className="execute compact secondary" href="/narratives/attention-markets">Read Attention Markets Thesis</a>
+      <a className="execute" href={report.href}>Open Signal Report</a>
+      {latestDispatchHref
+        ? <a className="execute compact secondary" href={latestDispatchHref}>Open Latest Dispatch</a>
+        : <a className="execute compact secondary" href="/narratives/attention-markets">Open Latest Dispatch</a>}
     </div>
   </section>;
 }
@@ -525,31 +633,105 @@ function NarrativeEvidenceList({ artifacts }: { artifacts: NarrativeEvidenceArti
   </div>;
 }
 
-function NarrativeAssetPreview({ asset }: { asset: NarrativeAsset }) {
+function DispatchSection({
+  title,
+  subtitle,
+  dispatches,
+  ariaLabel
+}: {
+  title: string;
+  subtitle: string;
+  dispatches: SignalDeskDispatchCard[];
+  ariaLabel: string;
+}) {
+  return <section className="panel narrative-desk-catalog" aria-label={ariaLabel}>
+    <div className="narrative-desk-catalog-head">
+      <div>
+        <p className="section-kicker">Desk dispatches</p>
+        <h2>{title}</h2>
+        <p>{subtitle}</p>
+      </div>
+    </div>
+    <div className="narrative-desk-catalog-grid">
+      {dispatches.map((dispatch) => <article key={dispatch.update_id} className="panel narrative-update-card">
+        <div className="narrative-update-head">
+          <div>
+            <p className="section-kicker">{dispatch.ticker} / {dispatch.signal_name}</p>
+            <h3>{dispatch.readable_update_type}</h3>
+          </div>
+          <span className={`narrative-update-badge type-${dispatch.update_type}`}>{dispatch.readable_update_type}</span>
+        </div>
+        <p>{dispatch.summary}</p>
+        {typeof dispatch.previous_score === 'number' && typeof dispatch.new_score === 'number' && <div className={`narrative-signal-delta ${(dispatch.signal_delta ?? 0) > 0 ? 'up' : (dispatch.signal_delta ?? 0) < 0 ? 'down' : 'flat'}`}>
+          <span>Signal Delta</span>
+          <strong>{dispatch.previous_score} → {dispatch.new_score} ({dispatch.signal_delta && dispatch.signal_delta > 0 ? '+' : ''}{dispatch.signal_delta ?? 0})</strong>
+        </div>}
+        <p className="narrative-analyst-note"><b>Analyst note:</b> {dispatch.analyst_note}</p>
+        <div className="narrative-desk-card-meta">
+          <span>{formatDate(dispatch.timestamp)}</span>
+          <a className="execute compact secondary" href={dispatch.href}>Open Dispatch</a>
+        </div>
+      </article>)}
+    </div>
+  </section>;
+}
+
+function ReportCatalogCard({ report }: { report: SignalDeskReportCard }) {
   return <article className="panel narrative-asset-preview">
     <div className="narrative-asset-head">
       <div>
-        <p className="section-kicker">{asset.category}</p>
-        <h2>{asset.ticker} / {asset.name}</h2>
+        <p className="section-kicker">{report.category}</p>
+        <h2>{report.ticker} / {report.name}</h2>
       </div>
-      <span className="source-badge">{asset.chain}</span>
+      <span className="source-badge">{formatDeskStatus(report.desk_status)}</span>
     </div>
-    <p>{asset.thesis}</p>
+    <p>{report.thesis}</p>
     <div className="narrative-asset-stats">
-      <span>attention {asset.attention_velocity_score}</span>
-      <span>myth {asset.myth_coherence_score}</span>
-      <span>reflexivity {asset.reflexivity_risk_score}</span>
-      <span>sovereignty {asset.sovereignty_score}</span>
+      <span>signal {report.signal_strength}</span>
+      <span>myth {report.myth_coherence}</span>
+      <span>reflexivity {report.reflexivity_risk}</span>
+      <span>sovereignty {report.sovereignty_score}</span>
+      <span>updates {report.update_count}</span>
+    </div>
+    <div className="narrative-desk-card-meta">
+      <span>{report.latest_update_at ? formatDate(report.latest_update_at) : 'No updates yet'}</span>
+      <span>{report.latest_update_type ? signalUpdateTypeLabel(report.latest_update_type) : 'Seeded report'}</span>
     </div>
     <div className="panel-actions">
-      <a className="execute compact secondary" href="/signals/black-bull">Open signal report</a>
-      <a className="execute compact secondary" href="/signals/ansem">Open signal source</a>
+      <a className="execute compact secondary" href={report.href}>Open Report</a>
     </div>
   </article>;
 }
 
+function DeskActivityTimeline({ items }: { items: SignalDeskActivityItem[] }) {
+  return <section className="panel narrative-desk-activity" aria-label="Desk Activity Timeline">
+    <div className="narrative-desk-catalog-head">
+      <div>
+        <p className="section-kicker">Desk activity</p>
+        <h2>Desk Activity Timeline</h2>
+        <p>Report launches, dispatches, risk shifts, and distribution surfaces in one restrained feed.</p>
+      </div>
+    </div>
+    <div className="timeline narrative-update-timeline">
+      {items.map((item) => <article key={item.id} className="panel narrative-activity-item">
+        <div className="narrative-update-head">
+          <div>
+            <p className="section-kicker">{formatDate(item.timestamp)}</p>
+            <h3>{item.title}</h3>
+          </div>
+          <span className="narrative-evidence-chip">{item.type.replaceAll('_', ' ')}</span>
+        </div>
+        <p>{item.summary}</p>
+        <div className="panel-actions">
+          <a className="execute compact secondary" href={item.href}>Open Activity</a>
+        </div>
+      </article>)}
+    </div>
+  </section>;
+}
+
 export function NarrativesIndexPage() {
-  const [assets, setAssets] = useState<NarrativeAsset[]>([]);
+  const [desk, setDesk] = useState<SignalDeskIndex | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -557,9 +739,9 @@ export function NarrativesIndexPage() {
   }, []);
 
   useEffect(() => {
-    api<NarrativeAsset[]>('/v1/narratives')
-      .then((response) => setAssets(response.data))
-      .catch((err) => setError(err instanceof Error ? err.message : 'narratives_unavailable'));
+    api<SignalDeskIndex>('/v1/signal-desk')
+      .then((response) => setDesk(response.data))
+      .catch((err) => setError(err instanceof Error ? err.message : 'signal_desk_unavailable'));
   }, []);
 
   return <div className="shell narrative-shell">
@@ -571,36 +753,58 @@ export function NarrativesIndexPage() {
       <section className="panel hero narrative-hero">
         <div>
           <p className="eyebrow">Narrative Asset Intelligence</p>
-          <h1>Narrative Intel</h1>
-          <p className="copy">Infopunks maps attention markets before they become consensus.</p>
-          <p className="copy">Infopunks do not worship signal. Infopunks map signal.</p>
+          <h1>Narrative Asset Intelligence</h1>
+          <p className="copy">Signal reports, evidence updates, and sovereignty checks for narratives that become markets.</p>
+          <p className="copy narrative-rally-line">Infopunks Radar is no longer just watching markets. It is watching the narratives that become markets.</p>
           <div className="panel-actions">
-            <a className="execute" href="/narratives/attention-markets">Read attention markets</a>
-            <a className="execute compact secondary" href="/signals/black-bull">Open seeded report</a>
+            <a className="execute" href="/signals/black-bull">Open Signal Report</a>
+            <a className="execute compact secondary" href="/narratives/attention-markets">Read Attention Markets Thesis</a>
           </div>
         </div>
         <div className="panel narrative-hero-rail">
           <p className="section-kicker">Desk stance</p>
-          <p>Attention can become a market before it becomes a business.</p>
-          <p>Personas can become liquidity. Memes can become coordination rails. Wallets can become myth objects.</p>
+          <p>Bloomberg-style cultural intelligence for memetic markets, compact enough for live watch and dispatch review.</p>
+          <p>Personas can become liquidity. Memes can become coordination rails. Sovereignty checks still decide whether signal has durable shape.</p>
         </div>
       </section>
 
       {error && <section className="panel"><p className="route-state error">{error}</p></section>}
-
-      <FeaturedNarrativeReport />
-
-      <section className="narrative-grid">
-        {assets.map((asset) => <NarrativeAssetPreview key={asset.id} asset={asset} />)}
-      </section>
-
-      {!!assets[0] && <>
-        <section className="panel narrative-copy-panel">
-          <p className="section-kicker">Core Positioning</p>
-          <h2>Signal without sovereignty is not conviction.</h2>
-          <p>{assets[0].infopunk_verdict}</p>
+      {desk && <>
+        <DeskStatusStrip desk={desk} />
+        {desk.featured_report && <FeaturedNarrativeReport
+          report={desk.featured_report}
+          latestDispatchHref={desk.latest_dispatches[0]?.href ?? null}
+        />}
+        <DispatchSection
+          title="Latest Desk Dispatches"
+          subtitle="Latest evidence updates from the desk. Reports are not final. Signals mutate."
+          dispatches={desk.latest_dispatches}
+          ariaLabel="Latest Desk Dispatches"
+        />
+        <DispatchSection
+          title="Risk Shifts"
+          subtitle="Power, reflexivity, and verdict changes that require sovereignty checks."
+          dispatches={desk.risk_shifts}
+          ariaLabel="Risk Shifts"
+        />
+        <section className="panel narrative-desk-catalog" aria-label="Reports Catalog">
+          <div className="narrative-desk-catalog-head">
+            <div>
+              <p className="section-kicker">Report catalog</p>
+              <h2>Reports Catalog</h2>
+              <p>Every live report card on the desk, structured to scale beyond Black Bull.</p>
+            </div>
+          </div>
+          <div className="narrative-grid">
+            {desk.reports.map((report) => <ReportCatalogCard key={report.slug} report={report} />)}
+          </div>
         </section>
-        <NarrativeEvidenceList artifacts={assets[0].evidence_artifacts} />
+        <NarrativeLinkCluster links={[
+          { href: '/signals/black-bull', label: 'Black Bull Signal Report' },
+          { href: '/signals/ansem', label: 'Ansem Signal Source' },
+          { href: '/narratives/attention-markets', label: 'Attention Markets Thesis' }
+        ]} />
+        <DeskActivityTimeline items={desk.desk_activity} />
       </>}
     </main>
   </div>;

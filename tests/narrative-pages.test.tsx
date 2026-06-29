@@ -139,6 +139,91 @@ const blackBullUpdateDetail = {
   update: blackBullUpdates.latest_update
 };
 
+const signalDesk = {
+  generated_at: '2026-06-29T00:00:00.000Z',
+  desk_status: 'live_watch',
+  counts: {
+    reports: 1,
+    dispatches: 5,
+    risk_shifts: 3,
+    watched_signals: 1
+  },
+  featured_report: {
+    slug: 'black-bull',
+    ticker: 'ANSEM',
+    name: 'The Black Bull',
+    category: 'Attention Market / Narrative Asset',
+    thesis: narrativeAsset.thesis,
+    href: '/signals/black-bull',
+    signal_strength: 89,
+    myth_coherence: 84,
+    reflexivity_risk: 88,
+    sovereignty_score: 34,
+    desk_status: 'live_watch',
+    latest_update_type: 'verdict_change',
+    latest_update_at: '2026-06-28T18:20:00.000Z',
+    update_count: 5
+  },
+  reports: [{
+    slug: 'black-bull',
+    ticker: 'ANSEM',
+    name: 'The Black Bull',
+    category: 'Attention Market / Narrative Asset',
+    thesis: narrativeAsset.thesis,
+    href: '/signals/black-bull',
+    signal_strength: 89,
+    myth_coherence: 84,
+    reflexivity_risk: 88,
+    sovereignty_score: 34,
+    desk_status: 'live_watch',
+    latest_update_type: 'verdict_change',
+    latest_update_at: '2026-06-28T18:20:00.000Z',
+    update_count: 5
+  }],
+  latest_dispatches: blackBullUpdates.updates.map((update) => ({
+    update_id: update.update_id,
+    signal_slug: update.signal_slug,
+    signal_name: 'The Black Bull',
+    ticker: 'ANSEM',
+    update_type: update.update_type,
+    readable_update_type: update.update_type === 'verdict_change' ? 'Verdict Change' : 'Risk Shift',
+    timestamp: update.timestamp,
+    summary: update.summary,
+    analyst_note: update.analyst_note,
+    href: `/signals/${update.signal_slug}/updates/${update.update_id}`,
+    og_image: `/og/signals/${update.signal_slug}/updates/${update.update_id}.png`,
+    previous_score: update.previous_score,
+    new_score: update.new_score,
+    signal_delta: typeof update.previous_score === 'number' && typeof update.new_score === 'number' ? update.new_score - update.previous_score : undefined
+  })),
+  risk_shifts: blackBullUpdates.updates.map((update) => ({
+    update_id: update.update_id,
+    signal_slug: update.signal_slug,
+    signal_name: 'The Black Bull',
+    ticker: 'ANSEM',
+    update_type: update.update_type,
+    readable_update_type: update.update_type === 'verdict_change' ? 'Verdict Change' : 'Risk Shift',
+    timestamp: update.timestamp,
+    summary: update.summary,
+    analyst_note: update.analyst_note,
+    href: `/signals/${update.signal_slug}/updates/${update.update_id}`,
+    og_image: `/og/signals/${update.signal_slug}/updates/${update.update_id}.png`,
+    previous_score: update.previous_score,
+    new_score: update.new_score,
+    signal_delta: typeof update.previous_score === 'number' && typeof update.new_score === 'number' ? update.new_score - update.previous_score : undefined
+  })),
+  desk_activity: [
+    {
+      id: 'dispatch_published_seu_black_bull_005',
+      type: 'dispatch_published',
+      timestamp: '2026-06-28T18:20:00.000Z',
+      title: 'Verdict Change published for ANSEM',
+      summary: blackBullUpdates.latest_update.summary,
+      href: '/signals/black-bull/updates/seu_black_bull_005'
+    }
+  ]
+};
+
 describe('narrative pages', () => {
   let root: Root | null = null;
   let container: HTMLDivElement;
@@ -148,7 +233,7 @@ describe('narrative pages', () => {
     document.body.append(container);
     vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
       const path = pathOf(input);
-      if (path === '/v1/narratives') return json([narrativeAsset]);
+      if (path === '/v1/signal-desk') return json(signalDesk);
       if (path === '/v1/signals/ansem') return json(ansemSignal);
       if (path === '/v1/signals/black-bull') return json(blackBullSignal);
       if (path === '/v1/signals/black-bull/updates') return json(blackBullUpdates);
@@ -180,17 +265,23 @@ describe('narrative pages', () => {
   it('renders the narrative index and seeded copy', async () => {
     await render('/narratives');
 
-    expect(container.textContent).toContain('Infopunks maps attention markets before they become consensus.');
-    expect(container.textContent).toContain('Infopunks do not worship signal. Infopunks map signal.');
-    expect(container.textContent).toContain('First Narrative Asset Intelligence Report');
-    expect(container.textContent).toContain('$ANSEM / The Black Bull');
-    expect(container.textContent).toContain('A live signal report on what happens when persona, attention, myth, wallet flows, and market reflexivity become one tradable object.');
+    expect(container.textContent).toContain('Signal reports, evidence updates, and sovereignty checks for narratives that become markets.');
+    expect(container.textContent).toContain('Infopunks Radar is no longer just watching markets. It is watching the narratives that become markets.');
+    expect(container.textContent).toContain('Desk status');
+    expect(container.textContent).toContain('Live Watch');
+    expect(container.textContent).toContain('Latest Desk Dispatches');
+    expect(container.textContent).toContain('Risk Shifts');
+    expect(container.textContent).toContain('Reports Catalog');
+    expect(container.textContent).toContain('Desk Activity Timeline');
+    expect(container.textContent).toContain('ANSEM / The Black Bull');
     expect(container.textContent).toContain('Signal Strength');
     expect(container.textContent).toContain('Myth Coherence');
     expect(container.textContent).toContain('Reflexivity Risk');
-    expect(container.textContent).toContain('Sovereignty Status');
+    expect(container.textContent).toContain('Sovereignty Score');
     expect(Array.from(container.querySelectorAll('a[href="/signals/black-bull"]')).some((node) => node.textContent?.includes('Open Signal Report'))).toBe(true);
     expect(Array.from(container.querySelectorAll('a[href="/narratives/attention-markets"]')).some((node) => node.textContent?.includes('Read Attention Markets Thesis'))).toBe(true);
+    expect(Array.from(container.querySelectorAll('a[href="/signals/black-bull/updates/seu_black_bull_005"]')).some((node) => node.textContent?.includes('Open Dispatch'))).toBe(true);
+    expect(Array.from(container.querySelectorAll('a[href="/signals/ansem"]')).some((node) => node.textContent?.includes('Ansem Signal Source'))).toBe(true);
     expect(container.querySelector('a[href="/narratives"]')?.textContent).toContain('Narrative Intel');
     expect(container.textContent).toContain('ANSEM / The Black Bull');
     expect(document.title).toBe('Infopunks Narrative Asset Intelligence');

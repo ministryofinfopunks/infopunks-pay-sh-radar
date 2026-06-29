@@ -40,6 +40,44 @@ describe('narrative intel api', () => {
     }
   });
 
+  it('returns the derived Signal Desk index', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+
+    try {
+      const response = await app.inject({ method: 'GET', url: '/v1/signal-desk' });
+      expect(response.statusCode).toBe(200);
+
+      const payload = response.json().data;
+      expect(payload.counts).toEqual(expect.objectContaining({
+        reports: expect.any(Number),
+        dispatches: expect.any(Number),
+        risk_shifts: expect.any(Number),
+        watched_signals: expect.any(Number)
+      }));
+      expect(payload.featured_report).toEqual(expect.objectContaining({
+        slug: 'black-bull',
+        ticker: 'ANSEM',
+        name: 'The Black Bull'
+      }));
+      expect(payload.latest_dispatches).toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          update_id: expect.any(String),
+          href: expect.stringMatching(/^\/signals\/black-bull\/updates\//)
+        })
+      ]));
+      expect(payload.risk_shifts.every((item: { update_type: string }) => ['risk_shift', 'verdict_change', 'holder_shift'].includes(item.update_type))).toBe(true);
+      expect(payload.reports).toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          slug: 'black-bull',
+          ticker: 'ANSEM',
+          href: '/signals/black-bull'
+        })
+      ]));
+    } finally {
+      await app.close();
+    }
+  });
+
   it('returns seeded signal source and report data', async () => {
     const app = await createApp(emptyIntelligenceStore());
 

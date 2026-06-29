@@ -17,6 +17,7 @@ export type SmokePlan = {
   publicHeadPaths: string[];
   apiGetPaths: string[];
   apiHeadJsonPaths: string[];
+  pngPaths: string[];
   claimsApiPaths: string[];
   preSpendPath: string;
   graphCheckPath: string;
@@ -106,6 +107,7 @@ export function buildSmokePlan(): SmokePlan {
       '/v1/loops',
       '/v1/routes',
       '/v1/narratives',
+      '/v1/signal-desk',
       '/v1/narratives/black-bull',
       '/v1/signals',
       '/v1/signals/black-bull',
@@ -120,6 +122,11 @@ export function buildSmokePlan(): SmokePlan {
       '/openapi.json',
       '/v1/loops',
       '/v1/checks'
+    ],
+    pngPaths: [
+      '/og/narratives.png',
+      '/og/signals/black-bull.png',
+      '/og/signals/black-bull/updates/seu_black_bull_005.png'
     ],
     claimsApiPaths: [
       '/v1/claims',
@@ -417,6 +424,41 @@ async function checkJsonHead(baseUrl: string, path: string, timeoutMs: number): 
   return elapsedMs;
 }
 
+async function checkPngGet(baseUrl: string, path: string, timeoutMs: number): Promise<number> {
+  const { response, elapsedMs } = await fetchWithRetry({
+    input: `${baseUrl}${path}`,
+    method: 'GET',
+    path,
+    timeoutMs,
+    init: {
+      headers: { accept: 'image/png' }
+    }
+  });
+
+  if (response.status !== 200) {
+    throw new SmokeRequestError({
+      method: 'GET',
+      path,
+      status: response.status,
+      elapsedMs,
+      reason: 'expected 200'
+    });
+  }
+
+  const contentType = response.headers.get('content-type')?.toLowerCase() ?? '';
+  if (!contentType.includes('image/png')) {
+    throw new SmokeRequestError({
+      method: 'GET',
+      path,
+      status: response.status,
+      elapsedMs,
+      reason: `expected image/png content-type, got ${contentType || 'missing'}`
+    });
+  }
+
+  return elapsedMs;
+}
+
 async function parseExpectedJson(response: Response): Promise<unknown> {
   const contentType = response.headers.get('content-type')?.toLowerCase() ?? '';
   const text = await response.text();
@@ -554,6 +596,16 @@ export async function runSmoke(baseUrl = resolveBaseUrl(), config = resolveSmoke
     } catch (error) {
       failed = true;
       fail(`HEAD ${path}`, toFailureDetail('HEAD', path, error));
+    }
+  }
+
+  for (const path of plan.pngPaths) {
+    try {
+      const elapsedMs = await checkPngGet(baseUrl, path, config.apiTimeoutMs);
+      pass(`GET ${path}`, elapsedMs);
+    } catch (error) {
+      failed = true;
+      fail(`GET ${path}`, toFailureDetail('GET', path, error));
     }
   }
 

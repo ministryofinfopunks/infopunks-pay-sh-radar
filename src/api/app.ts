@@ -6,6 +6,7 @@ import { extname, join, normalize, resolve } from 'node:path';
 import { z } from 'zod';
 import { payShCatalogFixture } from '../data/payShCatalogFixture';
 import { getNarrativeAssetBySlug, getSignalSurfaceBySlug, listNarrativeAssets, listSignalSurfaces } from '../data/narrativeIntel';
+import { getSignalDeskIndex } from '../data/signalDesk';
 import { getLatestSignalUpdate, getSignalUpdate, getSignalUpdateSummary, listSignalUpdates } from '../data/signalUpdates';
 import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
 import { renderNarrativesOgImage, renderSignalReportOgImage, renderSignalUpdateOgImage } from '../shared/narrativeOg';
@@ -1501,6 +1502,7 @@ export async function createApp(
     return { data: signal };
   });
   app.get('/v1/narratives', async () => ({ data: listNarrativeAssets() }));
+  app.get('/v1/signal-desk', async () => ({ data: getSignalDeskIndex() }));
   app.get<{ Params: { slug: string } }>('/v1/narratives/:slug', async (req, reply) => {
     const asset = getNarrativeAssetBySlug(req.params.slug);
     if (!asset) return reply.code(404).send({ error: 'narrative_not_found' });
