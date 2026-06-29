@@ -7,7 +7,7 @@ import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
 
 function createClientDistFixture() {
   const dir = mkdtempSync(join(tmpdir(), 'radar-client-dist-'));
-  writeFileSync(join(dir, 'index.html'), '<!doctype html><html><body><div id="app">Radar SPA shell</div></body></html>');
+  writeFileSync(join(dir, 'index.html'), '<!doctype html><html><head><title>Infopunks Pay.sh Radar | Evidence Ledger for Pay.sh Agent Routes</title><meta name="description" content="Generic shell description." /><meta property="og:title" content="Infopunks Pay.sh Radar | Evidence Ledger for Pay.sh Agent Routes" /><meta property="og:description" content="Generic shell description." /><meta property="og:type" content="website" /><meta property="og:url" content="https://radar.infopunks.fun/" /><meta name="twitter:card" content="summary_large_image" /><meta name="twitter:title" content="Infopunks Pay.sh Radar | Evidence Ledger for Pay.sh Agent Routes" /><meta name="twitter:description" content="Generic shell description." /><link rel="canonical" href="https://radar.infopunks.fun/" /></head><body><div id="app">Radar SPA shell</div></body></html>');
   return dir;
 }
 
@@ -110,6 +110,8 @@ describe('render-style SPA routing boundaries', () => {
       expect(narratives.statusCode).toBe(200);
       expect(narratives.headers['content-type']).toContain('text/html');
       expect(narratives.body).toContain('Radar SPA shell');
+      expect(narratives.body).toContain('<title>Infopunks Narrative Asset Intelligence</title>');
+      expect(narratives.body).toContain('property="og:title" content="Infopunks Narrative Asset Intelligence"');
 
       const attentionMarkets = await app.inject({ method: 'GET', url: '/narratives/attention-markets' });
       expect(attentionMarkets.statusCode).toBe(200);
@@ -125,11 +127,14 @@ describe('render-style SPA routing boundaries', () => {
       expect(blackBull.statusCode).toBe(200);
       expect(blackBull.headers['content-type']).toContain('text/html');
       expect(blackBull.body).toContain('Radar SPA shell');
+      expect(blackBull.body).toContain('<title>Infopunks Signal Report: $ANSEM / The Black Bull</title>');
+      expect(blackBull.body).toContain('property="og:description" content="A living Narrative Asset Intelligence report on financialized attention, myth, power concentration, and reflexivity risk."');
 
       const blackBullUpdate = await app.inject({ method: 'GET', url: '/signals/black-bull/updates/seu_black_bull_005' });
       expect(blackBullUpdate.statusCode).toBe(200);
       expect(blackBullUpdate.headers['content-type']).toContain('text/html');
       expect(blackBullUpdate.body).toContain('Radar SPA shell');
+      expect(blackBullUpdate.body).toContain('Infopunks Desk Dispatch: Verdict Change');
 
       const radarCard = await app.inject({ method: 'GET', url: '/radar/cards/provider/alpha' });
       expect(radarCard.statusCode).toBe(200);
@@ -150,6 +155,7 @@ describe('render-style SPA routing boundaries', () => {
       expect(unknownFrontend.statusCode).toBe(200);
       expect(unknownFrontend.headers['content-type']).toContain('text/html');
       expect(unknownFrontend.body).toContain('Radar SPA shell');
+      expect(unknownFrontend.body).toContain('<title>Infopunks Pay.sh Radar | Evidence Ledger for Pay.sh Agent Routes</title>');
     } finally {
       await app.close();
       rmSync(clientDistDir, { recursive: true, force: true });

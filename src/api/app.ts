@@ -1,12 +1,13 @@
 import cors from '@fastify/cors';
 import Fastify, { FastifyReply, FastifyRequest } from 'fastify';
 import { createReadStream, existsSync } from 'node:fs';
-import { stat } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve } from 'node:path';
 import { z } from 'zod';
 import { payShCatalogFixture } from '../data/payShCatalogFixture';
 import { getNarrativeAssetBySlug, getSignalSurfaceBySlug, listNarrativeAssets, listSignalSurfaces } from '../data/narrativeIntel';
 import { getLatestSignalUpdate, getSignalUpdate, getSignalUpdateSummary, listSignalUpdates } from '../data/signalUpdates';
+import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
 import { applyPayShCatalogIngestion } from '../ingestion/payShCatalogAdapter';
 import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, IntelligenceStore, runPayShIngestion, runPayShIngestionWithOptions } from '../services/intelligenceStore';
 import { IntelligenceRepository } from '../persistence/repository';
@@ -1794,7 +1795,8 @@ export async function createApp(
       } catch {
         // fall through to SPA index
       }
-      return reply.type('text/html; charset=utf-8').send(createReadStream(clientIndexPath));
+      const html = await readFile(clientIndexPath, 'utf8');
+      return reply.type('text/html; charset=utf-8').send(injectNarrativeRouteMetadata(html, urlPath));
     });
   }
 
@@ -2815,4 +2817,51 @@ function escapeHtml(value: string) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
+}
+
+function replaceTag(html: string, pattern: RegExp, replacement: string) {
+  return pattern.test(html) ? html.replace(pattern, replacement) : html;
+}
+
+function injectNarrativeRouteMetadata(html: string, urlPath: string) {
+  const metadata = getNarrativeMetadataForPath(urlPath);
+  if (!metadata) return html;
+
+  const absoluteCanonical = `${NARRATIVE_PUBLIC_HOST}${metadata.canonicalPath}`;
+  const replacements = [
+    [/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(metadata.title)}</title>`],
+    [/<meta\s+name="description"\s+content="[\s\S]*?"\s*\/?>/i, `<meta name="description" content="${escapeHtml(metadata.description)}" />`],
+    [/<meta\s+property="og:title"\s+content="[\s\S]*?"\s*\/?>/i, `<meta property="og:title" content="${escapeHtml(metadata.ogTitle)}" />`],
+    [/<meta\s+property="og:description"\s+content="[\s\S]*?"\s*\/?>/i, `<meta property="og:description" content="${escapeHtml(metadata.ogDescription)}" />`],
+    [/<meta\s+property="og:type"\s+content="[\s\S]*?"\s*\/?>/i, '<meta property="og:type" content="website" />'],
+    [/<meta\s+property="og:url"\s+content="[\s\S]*?"\s*\/?>/i, `<meta property="og:url" content="${escapeHtml(absoluteCanonical)}" />`],
+    [/<meta\s+name="twitter:card"\s+content="[\s\S]*?"\s*\/?>/i, `<meta name="twitter:card" content="${escapeHtml(metadata.twitterCard)}" />`],
+    [/<meta\s+name="twitter:title"\s+content="[\s\S]*?"\s*\/?>/i, `<meta name="twitter:title" content="${escapeHtml(metadata.twitterTitle)}" />`],
+    [/<meta\s+name="twitter:description"\s+content="[\s\S]*?"\s*\/?>/i, `<meta name="twitter:description" content="${escapeHtml(metadata.twitterDescription)}" />`],
+    [/<link\s+rel="canonical"\s+href="[\s\S]*?"\s*\/?>/i, `<link rel="canonical" href="${escapeHtml(absoluteCanonical)}" />`]
+  ] as const;
+
+  let output = html;
+  for (const [pattern, replacement] of replacements) {
+    output = replaceTag(output, pattern, replacement);
+  }
+
+  const headClose = /<\/head>/i;
+  const ensure = (pattern: RegExp, snippet: string) => {
+    if (pattern.test(output)) return;
+    output = output.replace(headClose, `    ${snippet}\n  </head>`);
+  };
+
+  ensure(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(metadata.title)}</title>`);
+  ensure(/<meta\s+name="description"/i, `<meta name="description" content="${escapeHtml(metadata.description)}" />`);
+  ensure(/<meta\s+property="og:title"/i, `<meta property="og:title" content="${escapeHtml(metadata.ogTitle)}" />`);
+  ensure(/<meta\s+property="og:description"/i, `<meta property="og:description" content="${escapeHtml(metadata.ogDescription)}" />`);
+  ensure(/<meta\s+property="og:type"/i, '<meta property="og:type" content="website" />');
+  ensure(/<meta\s+property="og:url"/i, `<meta property="og:url" content="${escapeHtml(absoluteCanonical)}" />`);
+  ensure(/<meta\s+name="twitter:card"/i, `<meta name="twitter:card" content="${escapeHtml(metadata.twitterCard)}" />`);
+  ensure(/<meta\s+name="twitter:title"/i, `<meta name="twitter:title" content="${escapeHtml(metadata.twitterTitle)}" />`);
+  ensure(/<meta\s+name="twitter:description"/i, `<meta name="twitter:description" content="${escapeHtml(metadata.twitterDescription)}" />`);
+  ensure(/<link\s+rel="canonical"/i, `<link rel="canonical" href="${escapeHtml(absoluteCanonical)}" />`);
+
+  return output;
 }

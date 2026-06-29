@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
+import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
 
 type NarrativeDecisionState = 'strong_signal' | 'watch_closely' | 'concentrated_power' | 'high_reflexivity' | 'unproven' | 'do_not_chase';
 
@@ -112,7 +113,6 @@ const BLACK_BULL_SHARE_LINES = [
 ] as const;
 
 const API_BASE_URL = getApiBaseUrl();
-const PUBLIC_HOST = 'https://radar.infopunks.fun';
 
 async function api<T>(path: string) {
   const response = await fetch(toApiUrl(API_BASE_URL, path), {
@@ -123,7 +123,7 @@ async function api<T>(path: string) {
 }
 
 function canonicalUrl(path: string) {
-  return `${PUBLIC_HOST}${path}`;
+  return `${NARRATIVE_PUBLIC_HOST}${path}`;
 }
 
 function setMetaTag(attr: 'property' | 'name', key: string, content: string) {
@@ -168,6 +168,17 @@ function updateNarrativeMetadata({
   setMetaTag('name', 'twitter:title', title);
   setMetaTag('name', 'twitter:description', description);
   setCanonicalLink(url);
+}
+
+function syncNarrativeMetadata(pathname: string) {
+  const metadata = getNarrativeMetadataForPath(pathname);
+  if (!metadata) return;
+  updateNarrativeMetadata({
+    title: metadata.title,
+    description: metadata.description,
+    canonicalPath: metadata.canonicalPath,
+    type: 'website'
+  });
 }
 
 async function copyText(value: string) {
@@ -533,12 +544,7 @@ export function NarrativesIndexPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    updateNarrativeMetadata({
-      title: 'Infopunks Narrative Asset Intelligence',
-      description: 'Signal reports, evidence updates, and sovereignty checks for narratives that become markets.',
-      canonicalPath: '/narratives',
-      type: 'website'
-    });
+    syncNarrativeMetadata('/narratives');
   }, []);
 
   useEffect(() => {
@@ -601,12 +607,7 @@ export function AttentionMarketsPage() {
   ];
 
   useEffect(() => {
-    updateNarrativeMetadata({
-      title: 'Attention Markets | Infopunks Narrative Asset Intelligence',
-      description: 'Narrative markets are tracked as evidence desks where attention, myth, power concentration, and reflexivity become market structure.',
-      canonicalPath: '/narratives/attention-markets',
-      type: 'article'
-    });
+    syncNarrativeMetadata('/narratives/attention-markets');
   }, []);
 
   return <div className="shell narrative-shell">
@@ -675,22 +676,7 @@ function SignalSurfacePage({ slug, expectedType }: { slug: string; expectedType:
 
   useEffect(() => {
     if (!surface) return;
-    if (surface.slug === 'black-bull') {
-      updateNarrativeMetadata({
-        title: 'Infopunks Signal Report: $ANSEM / The Black Bull',
-        description: 'A living Narrative Asset Intelligence report on financialized attention, myth, power concentration, and reflexivity risk.',
-        canonicalPath: `/signals/${surface.slug}`,
-        type: 'article'
-      });
-      return;
-    }
-
-    updateNarrativeMetadata({
-      title: `${surface.title} | Infopunks Narrative Asset Intelligence`,
-      description: surface.disclaimer,
-      canonicalPath: `/signals/${surface.slug}`,
-      type: 'article'
-    });
+    syncNarrativeMetadata(`/signals/${surface.slug}`);
   }, [surface]);
 
   if (error && isNotFoundError(new Error(error))) {
@@ -826,12 +812,7 @@ export function SignalUpdatePermalinkPage({ slug, updateId }: { slug: string; up
 
   useEffect(() => {
     if (!surface || !updateDetail) return;
-    updateNarrativeMetadata({
-      title: `Infopunks Desk Dispatch: ${signalUpdateTypeLabel(updateDetail.update.update_type)}`,
-      description: `${signalName} signal update. Reports are not final. Signals mutate.`,
-      canonicalPath: `/signals/${slug}/updates/${updateId}`,
-      type: 'article'
-    });
+    syncNarrativeMetadata(`/signals/${slug}/updates/${updateId}`);
   }, [signalName, slug, surface, updateDetail, updateId]);
 
   if (missing) return <SignalUpdateNotFound slug={slug} />;
