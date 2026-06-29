@@ -5,6 +5,7 @@ import { stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve } from 'node:path';
 import { z } from 'zod';
 import { payShCatalogFixture } from '../data/payShCatalogFixture';
+import { getNarrativeAssetBySlug, getSignalSurfaceBySlug, listNarrativeAssets, listSignalSurfaces } from '../data/narrativeIntel';
 import { applyPayShCatalogIngestion } from '../ingestion/payShCatalogAdapter';
 import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, IntelligenceStore, runPayShIngestion, runPayShIngestionWithOptions } from '../services/intelligenceStore';
 import { IntelligenceRepository } from '../persistence/repository';
@@ -1495,7 +1496,18 @@ export async function createApp(
     if (!signal) return reply.code(404).send({ error: 'signal_assessment_not_found' });
     return { data: signal };
   });
-  app.get('/v1/narratives', async () => ({ data: store.narratives }));
+  app.get('/v1/narratives', async () => ({ data: listNarrativeAssets() }));
+  app.get<{ Params: { slug: string } }>('/v1/narratives/:slug', async (req, reply) => {
+    const asset = getNarrativeAssetBySlug(req.params.slug);
+    if (!asset) return reply.code(404).send({ error: 'narrative_not_found' });
+    return { data: asset };
+  });
+  app.get('/v1/signals', async () => ({ data: listSignalSurfaces() }));
+  app.get<{ Params: { slug: string } }>('/v1/signals/:slug', async (req, reply) => {
+    const signal = getSignalSurfaceBySlug(req.params.slug);
+    if (!signal) return reply.code(404).send({ error: 'signal_surface_not_found' });
+    return { data: signal };
+  });
   app.post('/v1/search', async (req, reply) => handleParsed(req.body, SearchRequestSchema, async (input) => {
     const startedAtMs = Date.now();
     console.log(JSON.stringify({ event: 'route_timing_start', route: '/v1/search', started_at: new Date(startedAtMs).toISOString() }));

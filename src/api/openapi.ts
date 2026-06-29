@@ -574,8 +574,28 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   add('get', '/v1/narratives', {
     tags: ['Intelligence'],
     summary: 'List narratives',
-    description: 'Returns catalog-derived ecosystem narratives.',
-    responses: envelopedResponses(arrayOf(freeformObject()), [])
+    description: 'Returns seeded Narrative Asset Intelligence records for attention markets and narrative assets.',
+    responses: envelopedResponses('NarrativeAssetListResponse', [{ slug: 'black-bull', ticker: 'ANSEM', signal_source: 'Ansem' }])
+  });
+  add('get', '/v1/narratives/{slug}', {
+    tags: ['Intelligence'],
+    summary: 'Get narrative asset',
+    description: 'Returns one seeded narrative asset record by slug.',
+    parameters: [pathParam('slug', 'Narrative asset slug.')],
+    responses: envelopedResponses('NarrativeAssetResponse', { slug: 'black-bull', ticker: 'ANSEM', name: 'The Black Bull' }, 'narrative_not_found')
+  });
+  add('get', '/v1/signals', {
+    tags: ['Intelligence'],
+    summary: 'List signal surfaces',
+    description: 'Returns seeded signal source and signal report surfaces for Narrative Asset Intelligence.',
+    responses: envelopedResponses('NarrativeSignalSurfaceListResponse', [{ slug: 'ansem', type: 'signal_source' }, { slug: 'black-bull', type: 'signal_report' }])
+  });
+  add('get', '/v1/signals/{slug}', {
+    tags: ['Intelligence'],
+    summary: 'Get signal surface',
+    description: 'Returns one seeded signal source or signal report surface by slug.',
+    parameters: [pathParam('slug', 'Signal surface slug.')],
+    responses: envelopedResponses('NarrativeSignalSurfaceResponse', { slug: 'black-bull', type: 'signal_report', signal_source: 'Ansem' }, 'signal_surface_not_found')
   });
   add('post', '/v1/search', {
     tags: ['Intelligence'],
@@ -3213,6 +3233,76 @@ function componentSchemas(): Record<string, JsonSchema> {
     EndpointMonitorResponse: freeformObject(),
     TrustAssessmentResponse: freeformObject(),
     SignalAssessmentResponse: freeformObject(),
+    NarrativeEvidenceArtifact: objectSchema({
+      label: stringSchema(),
+      note: stringSchema(),
+      href: stringSchema()
+    }, ['label', 'note']),
+    NarrativeRelatedRoute: objectSchema({
+      label: stringSchema(),
+      href: stringSchema()
+    }, ['label', 'href']),
+    NarrativeAssetResponse: objectSchema({
+      id: stringSchema(),
+      slug: stringSchema(),
+      ticker: stringSchema(),
+      name: stringSchema(),
+      chain: stringSchema(),
+      category: stringSchema(),
+      thesis: stringSchema(),
+      signal_source: stringSchema(),
+      attention_velocity_score: integerSchema(),
+      myth_coherence_score: integerSchema(),
+      centralization_risk_score: integerSchema(),
+      reflexivity_risk_score: integerSchema(),
+      kol_dependency_score: integerSchema(),
+      trench_contagion_score: integerSchema(),
+      sovereignty_score: integerSchema(),
+      infopunk_verdict: stringSchema(),
+      evidence_artifacts: arrayOf({ $ref: '#/components/schemas/NarrativeEvidenceArtifact' }),
+      related_routes: arrayOf({ $ref: '#/components/schemas/NarrativeRelatedRoute' }),
+      last_updated: dateTimeSchema()
+    }),
+    NarrativeAssetListResponse: arrayOf({ $ref: '#/components/schemas/NarrativeAssetResponse' }),
+    NarrativeSignalCard: objectSchema({
+      id: stringSchema(),
+      title: stringSchema(),
+      score: { oneOf: [integerSchema(), stringSchema()] },
+      short_explanation: stringSchema(),
+      evidence_note: stringSchema(),
+      decision_state: enumSchema(['strong_signal', 'watch_closely', 'concentrated_power', 'high_reflexivity', 'unproven', 'do_not_chase'])
+    }),
+    NarrativeSignalSection: objectSchema({
+      id: stringSchema(),
+      title: stringSchema(),
+      body: stringSchema(),
+      card_ids: arrayOf(stringSchema())
+    }),
+    NarrativeSignalSurfaceResponse: objectSchema({
+      slug: stringSchema(),
+      type: enumSchema(['signal_source', 'signal_report']),
+      title: stringSchema(),
+      subtitle: stringSchema(),
+      thesis: stringSchema(),
+      disclaimer: stringSchema(),
+      signal_source: stringSchema(),
+      asset_slug: { type: ['string', 'null'] },
+      last_updated: dateTimeSchema(),
+      cards: arrayOf({ $ref: '#/components/schemas/NarrativeSignalCard' }),
+      sections: arrayOf({ $ref: '#/components/schemas/NarrativeSignalSection' }),
+      asset: { $ref: '#/components/schemas/NarrativeAssetResponse' }
+    }),
+    NarrativeSignalSurfaceListResponse: arrayOf(objectSchema({
+      slug: stringSchema(),
+      type: enumSchema(['signal_source', 'signal_report']),
+      title: stringSchema(),
+      subtitle: stringSchema(),
+      thesis: stringSchema(),
+      disclaimer: stringSchema(),
+      signal_source: stringSchema(),
+      asset_slug: { type: ['string', 'null'] },
+      last_updated: dateTimeSchema()
+    })),
     SearchRequest: objectSchema({ query: stringSchema(), limit: integerSchema() }, ['query']),
     RouteRecommendationRequest: freeformObject(),
     RouteRecommendationResponse: freeformObject(),

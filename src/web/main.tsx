@@ -33,6 +33,7 @@ import {
 import { ProofCheckDetailPage, ProofCheckPage } from './proofCheckPages';
 import { LoopDetailPage, LoopsPage } from './loopPages';
 import { MachineMarketPreflightCardPage, PreflightCardIndexPage, RadarPreflightCardPage } from './preflightCardPages';
+import { AttentionMarketsPage, NarrativeSignalReportPage, NarrativesIndexPage, SignalSourcePage } from './narrativePages';
 import './styles.css';
 
 type Severity = 'critical' | 'warning' | 'informational' | 'unknown';
@@ -1941,6 +1942,24 @@ function isLoopsIndexRoute(pathname: string) {
 
 function isGraphRoute(pathname: string) {
   return /^\/graph\/?$/.test(pathname);
+}
+
+function isNarrativesRoute(pathname: string) {
+  return /^\/narratives\/?$/.test(pathname);
+}
+
+function isAttentionMarketsRoute(pathname: string) {
+  return /^\/narratives\/attention-markets\/?$/.test(pathname);
+}
+
+function routeSignalSlug(pathname: string) {
+  const match = pathname.match(/^\/signals\/([^/]+)\/?$/);
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
 }
 
 function isMachineMarketRoute(pathname: string) {
@@ -9579,6 +9598,7 @@ function RadarApp() {
               API Docs
             </a>
             <a className="methodology-trigger" href="/developers">Developers</a>
+            <a className="methodology-trigger" href="/narratives">Narrative Intel</a>
             <a className="methodology-trigger" href="/check">Check</a>
             <a className="methodology-trigger" href="/loops">Loops</a>
             <a className="methodology-trigger" href="/graph">Signal Graph</a>
@@ -14206,6 +14226,11 @@ export function App() {
   if (isProofCheckIndexRoute(window.location.pathname)) return <ProofCheckPage />;
   if (isLoopsIndexRoute(window.location.pathname)) return <LoopsPage />;
   if (isGraphRoute(window.location.pathname)) return <SignalGraphPage />;
+  if (isNarrativesRoute(window.location.pathname)) return <NarrativesIndexPage />;
+  if (isAttentionMarketsRoute(window.location.pathname)) return <AttentionMarketsPage />;
+  const signalSlug = routeSignalSlug(window.location.pathname);
+  if (signalSlug === 'ansem') return <SignalSourcePage slug={signalSlug} />;
+  if (signalSlug === 'black-bull') return <NarrativeSignalReportPage slug={signalSlug} />;
   if (isSpendTerminalRoute(window.location.pathname)) return <SpendTerminalPage />;
   if (isDevelopersRoute(window.location.pathname)) return <DevelopersPage />;
   if (isClaimsIndexRoute(window.location.pathname)) return <ClaimsPage />;

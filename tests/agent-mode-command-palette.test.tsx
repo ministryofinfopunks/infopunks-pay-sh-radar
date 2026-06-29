@@ -206,6 +206,7 @@ describe('agent mode and command palette', () => {
     }
     expect(container.textContent).toContain('API Docs');
     expect(container.querySelector('a[href="/developers"]')?.textContent).toContain('Developers');
+    expect(container.querySelector('a[href="/narratives"]')?.textContent).toContain('Narrative Intel');
     expect(container.querySelector('a[href="/graph"]')?.textContent).toContain('Signal Graph');
     expect(container.querySelector('a[href="/claim"]')?.textContent).toContain('Claims');
     expect(container.textContent).toContain('Agent Mode');

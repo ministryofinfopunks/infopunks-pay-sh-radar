@@ -227,7 +227,7 @@ describe('signal graph page', () => {
       await Promise.resolve();
     });
 
-    const submitCall = fetchMock.mock.calls.find((call) => pathOf(call[0] as RequestInfo | URL) === '/v1/graph/check');
+    const submitCall = fetchMock.mock.calls.find((call: Parameters<typeof fetch>) => pathOf(call[0] as RequestInfo | URL) === '/v1/graph/check');
     expect(submitCall).toBeTruthy();
     expect(submitCall?.[1]?.method).toBe('POST');
     expect(JSON.parse(String(submitCall?.[1]?.body))).toEqual({

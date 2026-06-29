@@ -75,6 +75,10 @@ describe('openapi discovery', () => {
     expect(spec.paths['/v1/check']?.post).toBeTruthy();
     expect(spec.paths['/v1/checks']?.get).toBeTruthy();
     expect(spec.paths['/v1/checks/{check_id}']?.get).toBeTruthy();
+    expect(spec.paths['/v1/narratives']?.get).toBeTruthy();
+    expect(spec.paths['/v1/narratives/{slug}']?.get).toBeTruthy();
+    expect(spec.paths['/v1/signals']?.get).toBeTruthy();
+    expect(spec.paths['/v1/signals/{slug}']?.get).toBeTruthy();
     expect(spec.paths['/v1/loops']?.get).toBeTruthy();
     expect(spec.paths['/v1/loops/{loop_id}']?.get).toBeTruthy();
     expect(spec.paths['/v1/loops/check']?.post).toBeTruthy();
@@ -114,6 +118,8 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.SignalGraphEntityLookupResponse).toBeTruthy();
     expect(spec.components.schemas.SignalGraphCheckInput).toBeTruthy();
     expect(spec.components.schemas.SignalGraphCheckResponse).toBeTruthy();
+    expect(spec.components.schemas.NarrativeAssetResponse).toBeTruthy();
+    expect(spec.components.schemas.NarrativeSignalSurfaceResponse).toBeTruthy();
     expect(spec.components.schemas.ClaimCreateRequest).toBeTruthy();
     expect(spec.components.schemas.ClaimChallenge).toBeTruthy();
     expect(spec.components.schemas.ClaimChallengeCreateRequest).toBeTruthy();

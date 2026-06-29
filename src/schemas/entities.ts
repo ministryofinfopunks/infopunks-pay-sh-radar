@@ -319,6 +319,92 @@ export const NarrativeClusterSchema = z.object({
   evidence: z.array(EvidenceSchema)
 });
 
+export const NarrativeDecisionStateSchema = z.enum([
+  'strong_signal',
+  'watch_closely',
+  'concentrated_power',
+  'high_reflexivity',
+  'unproven',
+  'do_not_chase'
+]);
+
+export const NarrativeEvidenceArtifactSchema = z.object({
+  label: z.string(),
+  note: z.string(),
+  href: z.string().optional()
+});
+
+export const NarrativeRelatedRouteSchema = z.object({
+  label: z.string(),
+  href: z.string()
+});
+
+export const NarrativeAssetSchema = z.object({
+  id: z.string(),
+  slug: z.string(),
+  ticker: z.string(),
+  name: z.string(),
+  chain: z.string(),
+  category: z.string(),
+  thesis: z.string(),
+  signal_source: z.string(),
+  attention_velocity_score: z.number().min(0).max(100),
+  myth_coherence_score: z.number().min(0).max(100),
+  centralization_risk_score: z.number().min(0).max(100),
+  reflexivity_risk_score: z.number().min(0).max(100),
+  kol_dependency_score: z.number().min(0).max(100),
+  trench_contagion_score: z.number().min(0).max(100),
+  sovereignty_score: z.number().min(0).max(100),
+  infopunk_verdict: z.string(),
+  evidence_artifacts: z.array(NarrativeEvidenceArtifactSchema),
+  related_routes: z.array(NarrativeRelatedRouteSchema),
+  last_updated: z.string().datetime(),
+  title: z.string(),
+  heat: z.number().min(0).max(100),
+  momentum: z.number().min(0).max(100),
+  providerIds: z.array(z.string()),
+  keywords: z.array(z.string()),
+  summary: z.string(),
+  severity: SeveritySchema.optional(),
+  severity_reason: z.string().optional(),
+  severity_score: z.number().optional(),
+  severity_window: z.string().optional(),
+  evidence: z.array(EvidenceSchema).optional()
+});
+
+export const NarrativeSignalSurfaceTypeSchema = z.enum(['signal_source', 'signal_report']);
+
+export const NarrativeSignalCardSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  score: z.union([z.number().min(0).max(100), z.string()]),
+  short_explanation: z.string(),
+  evidence_note: z.string(),
+  decision_state: NarrativeDecisionStateSchema
+});
+
+export const NarrativeSignalSectionSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  body: z.string(),
+  card_ids: z.array(z.string())
+});
+
+export const NarrativeSignalSurfaceSchema = z.object({
+  slug: z.string(),
+  type: NarrativeSignalSurfaceTypeSchema,
+  title: z.string(),
+  subtitle: z.string(),
+  thesis: z.string(),
+  disclaimer: z.string(),
+  signal_source: z.string(),
+  asset_slug: z.string().nullable(),
+  last_updated: z.string().datetime(),
+  cards: z.array(NarrativeSignalCardSchema),
+  sections: z.array(NarrativeSignalSectionSchema),
+  asset: NarrativeAssetSchema.optional()
+});
+
 export const SearchRequestSchema = z.object({
   query: z.string().min(1),
   category: z.string().optional(),
@@ -2078,6 +2164,14 @@ export type MonitorRun = z.infer<typeof MonitorRunSchema>;
 export type TrustAssessment = z.infer<typeof TrustAssessmentSchema>;
 export type SignalAssessment = z.infer<typeof SignalAssessmentSchema>;
 export type NarrativeCluster = z.infer<typeof NarrativeClusterSchema>;
+export type NarrativeDecisionState = z.infer<typeof NarrativeDecisionStateSchema>;
+export type NarrativeEvidenceArtifact = z.infer<typeof NarrativeEvidenceArtifactSchema>;
+export type NarrativeRelatedRoute = z.infer<typeof NarrativeRelatedRouteSchema>;
+export type NarrativeAsset = z.infer<typeof NarrativeAssetSchema>;
+export type NarrativeSignalSurfaceType = z.infer<typeof NarrativeSignalSurfaceTypeSchema>;
+export type NarrativeSignalCard = z.infer<typeof NarrativeSignalCardSchema>;
+export type NarrativeSignalSection = z.infer<typeof NarrativeSignalSectionSchema>;
+export type NarrativeSignalSurface = z.infer<typeof NarrativeSignalSurfaceSchema>;
 export type RouteRecommendation = z.infer<typeof RouteRecommendationSchema>;
 export type SearchRequest = z.infer<typeof SearchRequestSchema>;
 export type RouteRecommendationRequest = z.infer<typeof RouteRecommendationRequestSchema>;

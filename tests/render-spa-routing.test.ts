@@ -106,6 +106,26 @@ describe('render-style SPA routing boundaries', () => {
       expect(graph.headers['content-type']).toContain('text/html');
       expect(graph.body).toContain('Radar SPA shell');
 
+      const narratives = await app.inject({ method: 'GET', url: '/narratives' });
+      expect(narratives.statusCode).toBe(200);
+      expect(narratives.headers['content-type']).toContain('text/html');
+      expect(narratives.body).toContain('Radar SPA shell');
+
+      const attentionMarkets = await app.inject({ method: 'GET', url: '/narratives/attention-markets' });
+      expect(attentionMarkets.statusCode).toBe(200);
+      expect(attentionMarkets.headers['content-type']).toContain('text/html');
+      expect(attentionMarkets.body).toContain('Radar SPA shell');
+
+      const ansem = await app.inject({ method: 'GET', url: '/signals/ansem' });
+      expect(ansem.statusCode).toBe(200);
+      expect(ansem.headers['content-type']).toContain('text/html');
+      expect(ansem.body).toContain('Radar SPA shell');
+
+      const blackBull = await app.inject({ method: 'GET', url: '/signals/black-bull' });
+      expect(blackBull.statusCode).toBe(200);
+      expect(blackBull.headers['content-type']).toContain('text/html');
+      expect(blackBull.body).toContain('Radar SPA shell');
+
       const radarCard = await app.inject({ method: 'GET', url: '/radar/cards/provider/alpha' });
       expect(radarCard.statusCode).toBe(200);
       expect(radarCard.headers['content-type']).toContain('text/html');
@@ -137,6 +157,10 @@ describe('render-style SPA routing boundaries', () => {
 
     try {
       for (const path of [
+        '/narratives',
+        '/narratives/attention-markets',
+        '/signals/ansem',
+        '/signals/black-bull',
         '/radar/cards',
         '/radar/cards/benchmark/web-search',
         '/machine-market/cards/cloud-translation'
