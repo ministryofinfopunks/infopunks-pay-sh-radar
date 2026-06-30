@@ -68,7 +68,7 @@ function reportRiskFacets(asset: NarrativeAsset): SignalRiskFacet[] {
   if (asset.reflexivity_risk_score >= 80) facets.push('high_reflexivity');
   if (asset.kol_dependency_score >= 80) facets.push('kol_dependency');
   if (asset.centralization_risk_score >= 70) facets.push('power_concentration');
-  if (asset.sovereignty_score <= 40) facets.push('unproven_sovereignty');
+  if (asset.sovereignty_score <= 50) facets.push('unproven_sovereignty');
   if (listSignalUpdates(asset.slug).length > 0) facets.push('live_watch');
   return uniqueFacets(facets);
 }
@@ -77,7 +77,8 @@ function dispatchRiskFacets(update: SignalEvidenceUpdate, asset: NarrativeAsset)
   const facets: SignalRiskFacet[] = [];
   if (update.update_type === 'risk_shift') facets.push('high_reflexivity');
   if (update.update_type === 'holder_shift') facets.push('power_concentration');
-  if (update.update_type === 'verdict_change' && asset.sovereignty_score <= 40) facets.push('unproven_sovereignty');
+  if (update.update_type === 'verdict_change' && asset.sovereignty_score <= 50) facets.push('unproven_sovereignty');
+  if (update.update_type === 'verdict_change' && asset.centralization_risk_score >= 70) facets.push('power_concentration');
   if (update.update_type === 'attention_shift' && asset.reflexivity_risk_score >= 80) facets.push('live_watch');
   if (asset.kol_dependency_score >= 80 && (update.update_type === 'attention_shift' || update.update_type === 'verdict_change')) facets.push('kol_dependency');
   if (update.update_type === 'verdict_change' || update.update_type === 'risk_shift' || update.update_type === 'holder_shift') facets.push('live_watch');

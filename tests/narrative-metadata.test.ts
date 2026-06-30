@@ -37,18 +37,18 @@ describe('narrative metadata helper', () => {
   });
 
   it('returns metadata for a seeded dispatch permalink', () => {
-    expect(getNarrativeMetadataForPath('/signals/black-bull/updates/seu_black_bull_005')).toEqual({
+    expect(getNarrativeMetadataForPath('/signals/black-bull/updates/seu_black_bull_006')).toEqual({
       title: 'Infopunks Desk Dispatch: Verdict Change',
       description: 'ANSEM / The Black Bull signal update. Reports are not final. Signals mutate.',
-      canonicalPath: '/signals/black-bull/updates/seu_black_bull_005',
+      canonicalPath: '/signals/black-bull/updates/seu_black_bull_006',
       ogTitle: 'Infopunks Desk Dispatch: Verdict Change',
       ogDescription: 'ANSEM / The Black Bull signal update. Reports are not final. Signals mutate.',
-      ogImageUrl: 'https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_005.png',
+      ogImageUrl: 'https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_006.png',
       ogImageWidth: 1200,
       ogImageHeight: 630,
       twitterTitle: 'Infopunks Desk Dispatch: Verdict Change',
       twitterDescription: 'ANSEM / The Black Bull signal update. Reports are not final. Signals mutate.',
-      twitterImageUrl: 'https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_005.png',
+      twitterImageUrl: 'https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_006.png',
       twitterCard: 'summary_large_image'
     });
   });

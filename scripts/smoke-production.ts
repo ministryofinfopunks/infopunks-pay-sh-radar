@@ -128,7 +128,7 @@ export function buildSmokePlan(): SmokePlan {
     pngPaths: [
       '/og/narratives.png',
       '/og/signals/black-bull.png',
-      '/og/signals/black-bull/updates/seu_black_bull_005.png'
+      '/og/signals/black-bull/updates/seu_black_bull_006.png'
     ],
     claimsApiPaths: [
       '/v1/claims',

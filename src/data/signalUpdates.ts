@@ -54,7 +54,21 @@ const signalEvidenceUpdates: SignalEvidenceUpdate[] = [
     evidence_links: ['/signals/black-bull', '/narratives/attention-markets'],
     previous_score: 74,
     new_score: 80,
-    analyst_note: 'The report remains non-directional. This is not a buy/sell call. It is a signal map.'
+    analyst_note: 'The report remains non-directional. It is a signal map, not financial advice.'
+  },
+  {
+    update_id: 'seu_black_bull_006',
+    signal_slug: 'black-bull',
+    timestamp: '2026-06-30T09:30:00.000Z',
+    update_type: 'verdict_change',
+    summary: "Ansem's reported 67.38M $ANSEM airdrop to 700+ wallets strengthens the Black Bull's community-coordination signal and upgrades the desk verdict to Supportive Watch.",
+    evidence_links: [
+      'https://solscan.io/account/GV6UUmNxz2RpKxmNAPadYKb7uQpszwqQAu3qLJxVdC52#transfers',
+      '/signals/black-bull'
+    ],
+    previous_score: 80,
+    new_score: 88,
+    analyst_note: "The airdrop improves the trench-revival thesis by expanding the narrative's community surface area. Concentration risk remains material because a large portion of distributed tokens reportedly clustered around a small number of wallets, so KOL dependency and power concentration stay elevated."
   }
 ];
 

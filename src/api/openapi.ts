@@ -582,12 +582,12 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     summary: 'Get Signal Desk index',
     description: 'Returns the derived Signal Desk catalog with featured report, dispatches, risk shifts, report cards, compact desk activity, and candidate signals queued for evidence review or promotion into reports.',
     responses: envelopedResponses('SignalDeskIndex', {
-      generated_at: '2026-06-29T00:00:00.000Z',
+      generated_at: '2026-06-30T09:30:00.000Z',
       desk_status: 'live_watch',
       counts: {
         reports: 1,
-        dispatches: 5,
-        risk_shifts: 3,
+        dispatches: 6,
+        risk_shifts: 4,
         watched_signals: 1
       },
       candidate_signals: [{
@@ -619,17 +619,17 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
         ticker: 'ANSEM',
         name: 'The Black Bull',
         category: 'Attention Market / Narrative Asset',
-        thesis: '$ANSEM is a live experiment in financialized attention, where persona, meme, wallet flows, and community belief become a tradable signal object.',
+        thesis: "The Black Bull has moved beyond pure persona speculation into visible community coordination. Ansem's airdrop strengthens the trench-revival thesis and gives the narrative more distributed cultural surface area. KOL dependency remains high, but the latest evidence improves the desk's confidence that this is a serious Solana attention-market event, not a hollow meme artifact.",
         href: '/signals/black-bull',
-        signal_strength: 89,
-        myth_coherence: 84,
-        reflexivity_risk: 88,
-        sovereignty_score: 34,
+        signal_strength: 92,
+        myth_coherence: 88,
+        reflexivity_risk: 86,
+        sovereignty_score: 45,
         risk_facets: ['high_reflexivity', 'kol_dependency', 'power_concentration', 'unproven_sovereignty', 'live_watch'],
         desk_status: 'live_watch',
         latest_update_type: 'verdict_change',
-        latest_update_at: '2026-06-28T18:20:00.000Z',
-        update_count: 5
+        latest_update_at: '2026-06-30T09:30:00.000Z',
+        update_count: 6
       },
       reports: [],
       latest_dispatches: [],
@@ -712,17 +712,17 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     parameters: [pathParam('slug', 'Signal surface slug.')],
     responses: envelopedResponses('SignalEvidenceUpdateListResponse', {
       signal_slug: 'black-bull',
-      count: 5,
+      count: 6,
       updates: [{
-        update_id: 'seu_black_bull_005',
+        update_id: 'seu_black_bull_006',
         signal_slug: 'black-bull',
-        timestamp: '2026-06-28T18:20:00.000Z',
+        timestamp: '2026-06-30T09:30:00.000Z',
         update_type: 'verdict_change',
-        summary: 'Infopunks classifies ANSEM / The Black Bull as a high-signal but high-reflexivity narrative asset.',
-        evidence_links: ['/signals/black-bull', '/narratives/attention-markets'],
-        previous_score: 74,
-        new_score: 80,
-        analyst_note: 'The report remains non-directional. This is not a buy/sell call. It is a signal map.'
+        summary: "Ansem's reported 67.38M $ANSEM airdrop to 700+ wallets strengthens the Black Bull's community-coordination signal and upgrades the desk verdict to Supportive Watch.",
+        evidence_links: ['https://solscan.io/account/GV6UUmNxz2RpKxmNAPadYKb7uQpszwqQAu3qLJxVdC52#transfers', '/signals/black-bull'],
+        previous_score: 80,
+        new_score: 88,
+        analyst_note: "The airdrop improves the trench-revival thesis by expanding the narrative's community surface area. Concentration risk remains material because a large portion of distributed tokens reportedly clustered around a small number of wallets, so KOL dependency and power concentration stay elevated."
       }]
     }, 'signal_surface_not_found')
   });
@@ -738,15 +738,15 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       ...envelopedResponses('SignalEvidenceUpdateDetailResponse', {
         signal_slug: 'black-bull',
         update: {
-          update_id: 'seu_black_bull_005',
+          update_id: 'seu_black_bull_006',
           signal_slug: 'black-bull',
-          timestamp: '2026-06-28T18:20:00.000Z',
+          timestamp: '2026-06-30T09:30:00.000Z',
           update_type: 'verdict_change',
-          summary: 'Infopunks classifies ANSEM / The Black Bull as a high-signal but high-reflexivity narrative asset.',
-          evidence_links: ['/signals/black-bull', '/narratives/attention-markets'],
-          previous_score: 74,
-          new_score: 80,
-          analyst_note: 'The report remains non-directional. This is not a buy/sell call. It is a signal map.'
+          summary: "Ansem's reported 67.38M $ANSEM airdrop to 700+ wallets strengthens the Black Bull's community-coordination signal and upgrades the desk verdict to Supportive Watch.",
+          evidence_links: ['https://solscan.io/account/GV6UUmNxz2RpKxmNAPadYKb7uQpszwqQAu3qLJxVdC52#transfers', '/signals/black-bull'],
+          previous_score: 80,
+          new_score: 88,
+          analyst_note: "The airdrop improves the trench-revival thesis by expanding the narrative's community surface area. Concentration risk remains material because a large portion of distributed tokens reportedly clustered around a small number of wallets, so KOL dependency and power concentration stay elevated."
         }
       }),
       '404': {
@@ -3436,7 +3436,7 @@ function componentSchemas(): Record<string, JsonSchema> {
       score: { oneOf: [integerSchema(), stringSchema()] },
       short_explanation: stringSchema(),
       evidence_note: stringSchema(),
-      decision_state: enumSchema(['strong_signal', 'watch_closely', 'concentrated_power', 'high_reflexivity', 'unproven', 'do_not_chase'])
+      decision_state: enumSchema(['strong_signal', 'supportive_watch', 'watch_closely', 'concentrated_power', 'high_reflexivity', 'unproven', 'do_not_chase'])
     }),
     NarrativeSignalSection: objectSchema({
       id: stringSchema(),

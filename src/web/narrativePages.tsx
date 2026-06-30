@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
 
-type NarrativeDecisionState = 'strong_signal' | 'watch_closely' | 'concentrated_power' | 'high_reflexivity' | 'unproven' | 'do_not_chase';
+type NarrativeDecisionState = 'strong_signal' | 'supportive_watch' | 'watch_closely' | 'concentrated_power' | 'high_reflexivity' | 'unproven' | 'do_not_chase';
 
 type NarrativeEvidenceArtifact = {
   label: string;
@@ -216,6 +216,7 @@ const NARRATIVE_METHOD_STEPS = [
 ] as const;
 
 const BLACK_BULL_SHARE_LINES = [
+  "Ansem's airdrop turns $ANSEM from a pure attention object into a visible trench-coordination event. Infopunks marks it Supportive Watch.",
   "$ANSEM is the market asking how much Ansem's attention is worth. Infopunks is asking who understands attention before it becomes price.",
   'Infopunks do not worship signal. Infopunks map signal.',
   'Solana is entering the attention-market era. Personas become liquidity. Memes become coordination rails.',
@@ -316,6 +317,7 @@ function isNotFoundError(error: unknown) {
 }
 
 function stateLabel(value: NarrativeDecisionState) {
+  if (value === 'supportive_watch') return 'Supportive Watch';
   return value.replaceAll('_', ' ');
 }
 

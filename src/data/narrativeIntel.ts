@@ -1,6 +1,6 @@
 import type { NarrativeAsset, NarrativeSignalSurface } from '../schemas/entities';
 
-const LAST_UPDATED = '2026-06-29T00:00:00.000Z';
+const LAST_UPDATED = '2026-06-30T09:30:00.000Z';
 
 export const narrativeAssets: NarrativeAsset[] = [
   {
@@ -10,16 +10,16 @@ export const narrativeAssets: NarrativeAsset[] = [
     name: 'The Black Bull',
     chain: 'Solana',
     category: 'Attention Market / Narrative Asset',
-    thesis: '$ANSEM is a live experiment in financialized attention, where persona, meme, wallet flows, and community belief become a tradable signal object.',
+    thesis: "The Black Bull has moved beyond pure persona speculation into visible community coordination. Ansem's airdrop strengthens the trench-revival thesis and gives the narrative more distributed cultural surface area. KOL dependency remains high, but the latest evidence improves the desk's confidence that this is a serious Solana attention-market event, not a hollow meme artifact.",
     signal_source: 'Ansem',
-    attention_velocity_score: 91,
-    myth_coherence_score: 84,
-    centralization_risk_score: 78,
-    reflexivity_risk_score: 88,
+    attention_velocity_score: 93,
+    myth_coherence_score: 88,
+    centralization_risk_score: 82,
+    reflexivity_risk_score: 86,
     kol_dependency_score: 93,
-    trench_contagion_score: 81,
-    sovereignty_score: 34,
-    infopunk_verdict: 'Infopunks do not worship signal. Infopunks map signal. This asset reads as a strong attention object with weak sovereignty and elevated reflexivity.',
+    trench_contagion_score: 87,
+    sovereignty_score: 45,
+    infopunk_verdict: 'Infopunks supports the Black Bull as a serious Solana attention-market and trench-revival signal. Infopunks do not worship signal. Infopunks map signal. KOL dependency and power concentration remain material.',
     evidence_artifacts: [
       {
         label: 'Persona-linked order flow',
@@ -32,6 +32,11 @@ export const narrativeAssets: NarrativeAsset[] = [
       {
         label: 'Crowded trench reflex',
         note: 'Attention spikes can convert directly into copy-trade contagion before durable ownership forms.'
+      },
+      {
+        label: 'Airdrop coordination evidence',
+        note: 'Ansem / the linked wallet reportedly airdropped 67.38M $ANSEM to 700+ wallets, while 49.89M $ANSEM reportedly clustered around 7 wallets.',
+        href: 'https://solscan.io/account/GV6UUmNxz2RpKxmNAPadYKb7uQpszwqQAu3qLJxVdC52#transfers'
       }
     ],
     related_routes: [
@@ -72,7 +77,7 @@ export const signalSurfaces: NarrativeSignalSurface[] = [
       {
         id: 'signal-strength',
         title: 'Signal Strength',
-        score: 89,
+        score: 92,
         short_explanation: 'Persona visibility, memetic clarity, and wallet attention are moving in sync.',
         evidence_note: 'Attention is reaching the asset through identity before fundamentals.',
         decision_state: 'strong_signal'
@@ -118,25 +123,25 @@ export const signalSurfaces: NarrativeSignalSurface[] = [
       {
         id: 'signal-strength',
         title: 'Signal Strength',
-        score: 89,
-        short_explanation: 'Identity, meme compression, and wallet attention are aligned strongly enough to register as a live signal object.',
-        evidence_note: 'The signal is legible before it is stable.',
+        score: 92,
+        short_explanation: 'Identity, meme compression, wallet attention, and visible airdrop coordination now register as a serious live signal object.',
+        evidence_note: 'Airdrop evidence strengthens the coordination case while leaving concentration risk visible.',
         decision_state: 'strong_signal'
       },
       {
         id: 'myth-coherence',
         title: 'Myth Coherence',
         score: blackBull.myth_coherence_score,
-        short_explanation: 'The story is easy to repeat: persona becomes symbol, symbol becomes coordination rail.',
-        evidence_note: 'Low-friction story transfer is helping the asset spread.',
+        short_explanation: 'The story is easy to repeat: persona becomes symbol, symbol becomes coordination rail, airdrop becomes trench surface area.',
+        evidence_note: 'Low-friction story transfer and visible distribution are helping the asset spread.',
         decision_state: 'watch_closely'
       },
       {
         id: 'attention-velocity',
         title: 'Attention Velocity',
         score: blackBull.attention_velocity_score,
-        short_explanation: 'Attention is moving faster than conventional diligence cycles.',
-        evidence_note: 'Velocity is leading perception and can precede price action.',
+        short_explanation: 'Attention is moving faster than conventional diligence cycles and now has stronger community-coordination evidence.',
+        evidence_note: 'Velocity is leading perception; the latest airdrop evidence adds distribution surface area.',
         decision_state: 'strong_signal'
       },
       {
@@ -167,25 +172,25 @@ export const signalSurfaces: NarrativeSignalSurface[] = [
         id: 'trench-contagion',
         title: 'Trench Contagion',
         score: blackBull.trench_contagion_score,
-        short_explanation: 'Fast-copy trench behavior can spread this signal into lower-conviction wallets quickly.',
-        evidence_note: 'Crowding risk is visible even before durable ownership forms.',
-        decision_state: 'do_not_chase'
+        short_explanation: 'The airdrop strengthens trench-revival mechanics by giving the narrative more wallets and cultural surface area.',
+        evidence_note: 'Crowding risk remains visible because reflexive attention can still outrun durable ownership.',
+        decision_state: 'watch_closely'
       },
       {
         id: 'sovereignty-score',
         title: 'Sovereignty Score',
         score: blackBull.sovereignty_score,
-        short_explanation: 'The asset still borrows much of its power from external attention rather than internal mission gravity.',
-        evidence_note: 'Sovereignty checks remain the gating discipline.',
+        short_explanation: 'The airdrop improves independent community surface area, but durable sovereignty remains developing.',
+        evidence_note: 'Concentration and KOL dependency keep sovereignty unproven despite a higher coordination score.',
         decision_state: 'unproven'
       },
       {
         id: 'infopunk-verdict',
         title: 'Infopunk Verdict',
-        score: 'MAP ONLY',
-        short_explanation: 'Strong signal does not equal strong sovereignty.',
-        evidence_note: 'Map the flows, the concentration, and the reflexivity. Do not confuse attention with durable truth.',
-        decision_state: 'do_not_chase'
+        score: 'SUPPORTIVE WATCH',
+        short_explanation: 'Infopunks stands behind the Black Bull as a serious coordination signal while preserving the risk anatomy.',
+        evidence_note: 'Airdrop evidence strengthens the trench-revival thesis; KOL dependency and concentration risk remain explicit.',
+        decision_state: 'supportive_watch'
       }
     ],
     sections: [
@@ -222,7 +227,7 @@ export const signalSurfaces: NarrativeSignalSurface[] = [
       {
         id: 'infopunk-verdict',
         title: 'Infopunk Verdict',
-        body: 'Infopunks map the signal and then ask whether the asset can stand without the amplifier. Here the signal is real; the sovereignty is not yet proven.',
+        body: 'Infopunks stands behind the Black Bull as a serious coordination signal while continuing to monitor dependency, concentration, and reflexivity risk. The latest airdrop evidence strengthens the case that this is not only an attention object, but a trench-revival event with real community surface area.',
         card_ids: ['infopunk-verdict']
       }
     ],

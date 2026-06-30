@@ -321,6 +321,7 @@ export const NarrativeClusterSchema = z.object({
 
 export const NarrativeDecisionStateSchema = z.enum([
   'strong_signal',
+  'supportive_watch',
   'watch_closely',
   'concentrated_power',
   'high_reflexivity',

@@ -9288,13 +9288,15 @@ summary:focus-visible {
 .narrative-metric-card strong { display: block; margin: 8px 0; font-family: 'Space Grotesk', sans-serif; font-size: 28px; color: var(--text); }
 .narrative-metric-card p { margin: 0; color: #c0d7c7; line-height: 1.55; }
 .narrative-metric-card small { display: block; margin-top: 10px; color: var(--muted); line-height: 1.45; }
-.narrative-metric-card.state-strong_signal { border-color: rgba(126,255,176,.3); box-shadow: 0 0 24px rgba(126,255,176,.05); }
+.narrative-metric-card.state-strong_signal,
+.narrative-metric-card.state-supportive_watch { border-color: rgba(126,255,176,.3); box-shadow: 0 0 24px rgba(126,255,176,.05); }
 .narrative-metric-card.state-watch_closely { border-color: rgba(246,208,111,.28); }
 .narrative-metric-card.state-concentrated_power,
 .narrative-metric-card.state-high_reflexivity,
 .narrative-metric-card.state-do_not_chase { border-color: rgba(255,107,107,.24); }
 .narrative-decision-pill { border: 1px solid rgba(126,255,176,.22); border-radius: 999px; padding: 6px 9px; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-.narrative-decision-pill.state-strong_signal { color: var(--green); border-color: rgba(126,255,176,.28); background: rgba(126,255,176,.06); }
+.narrative-decision-pill.state-strong_signal,
+.narrative-decision-pill.state-supportive_watch { color: var(--green); border-color: rgba(126,255,176,.28); background: rgba(126,255,176,.06); }
 .narrative-decision-pill.state-watch_closely { color: var(--amber); border-color: rgba(246,208,111,.28); background: rgba(246,208,111,.07); }
 .narrative-decision-pill.state-concentrated_power,
 .narrative-decision-pill.state-high_reflexivity,

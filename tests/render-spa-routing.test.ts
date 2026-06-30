@@ -134,13 +134,13 @@ describe('render-style SPA routing boundaries', () => {
       expect(blackBull.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/signals/black-bull.png"');
       expect(blackBull.body).toContain('name="twitter:image" content="https://radar.infopunks.fun/og/signals/black-bull.png"');
 
-      const blackBullUpdate = await app.inject({ method: 'GET', url: '/signals/black-bull/updates/seu_black_bull_005' });
+      const blackBullUpdate = await app.inject({ method: 'GET', url: '/signals/black-bull/updates/seu_black_bull_006' });
       expect(blackBullUpdate.statusCode).toBe(200);
       expect(blackBullUpdate.headers['content-type']).toContain('text/html');
       expect(blackBullUpdate.body).toContain('Radar SPA shell');
       expect(blackBullUpdate.body).toContain('Infopunks Desk Dispatch: Verdict Change');
-      expect(blackBullUpdate.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_005.png"');
-      expect(blackBullUpdate.body).toContain('name="twitter:image" content="https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_005.png"');
+      expect(blackBullUpdate.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_006.png"');
+      expect(blackBullUpdate.body).toContain('name="twitter:image" content="https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_006.png"');
 
       const radarCard = await app.inject({ method: 'GET', url: '/radar/cards/provider/alpha' });
       expect(radarCard.statusCode).toBe(200);
@@ -178,7 +178,7 @@ describe('render-style SPA routing boundaries', () => {
         '/narratives/attention-markets',
         '/signals/ansem',
         '/signals/black-bull',
-        '/signals/black-bull/updates/seu_black_bull_005',
+        '/signals/black-bull/updates/seu_black_bull_006',
         '/radar/cards',
         '/radar/cards/benchmark/web-search',
         '/machine-market/cards/cloud-translation'
