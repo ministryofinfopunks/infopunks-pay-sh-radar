@@ -33,7 +33,7 @@ import {
 import { ProofCheckDetailPage, ProofCheckPage } from './proofCheckPages';
 import { LoopDetailPage, LoopsPage } from './loopPages';
 import { MachineMarketPreflightCardPage, PreflightCardIndexPage, RadarPreflightCardPage } from './preflightCardPages';
-import { AttentionMarketsPage, NarrativeSignalReportPage, NarrativesIndexPage, SignalSourcePage, SignalUpdatePermalinkPage } from './narrativePages';
+import { AttentionMarketWatchPage, AttentionMarketWatchProfilePage, AttentionMarketsPage, NarrativeSignalReportPage, NarrativesIndexPage, SignalSourcePage, SignalUpdatePermalinkPage } from './narrativePages';
 import './styles.css';
 
 type Severity = 'critical' | 'warning' | 'informational' | 'unknown';
@@ -1950,6 +1950,20 @@ function isNarrativesRoute(pathname: string) {
 
 function isAttentionMarketsRoute(pathname: string) {
   return /^\/narratives\/attention-markets\/?$/.test(pathname);
+}
+
+function isAttentionMarketWatchRoute(pathname: string) {
+  return /^\/narratives\/attention-market-watch\/?$/.test(pathname) || /^\/attention-market-watch\/?$/.test(pathname);
+}
+
+function routeAttentionMarketWatchSlug(pathname: string) {
+  const match = pathname.match(/^\/attention-market-watch\/([^/]+)\/?$/);
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
 }
 
 function routeSignalSlug(pathname: string) {
@@ -9599,7 +9613,7 @@ function RadarApp() {
   const primaryHeaderNav = [
     { href: toApiUrl(API_BASE_URL, OPENAPI_PATH), label: 'API Docs', external: true, className: 'api-docs-link', active: false },
     { href: '/developers', label: 'Developers', external: false, className: undefined, active: isDevelopersRoute(pathname) },
-    { href: '/narratives', label: 'Narrative Intel', external: false, className: undefined, active: isNarrativesRoute(pathname) || isAttentionMarketsRoute(pathname) },
+    { href: '/narratives', label: 'Narrative Intel', external: false, className: undefined, active: isNarrativesRoute(pathname) || isAttentionMarketsRoute(pathname) || isAttentionMarketWatchRoute(pathname) || routeAttentionMarketWatchSlug(pathname) !== null },
     { href: '/check', label: 'Check', external: false, className: undefined, active: isProofCheckIndexRoute(pathname) || routeProofCheckId(pathname) !== null },
     { href: '/loops', label: 'Loops', external: false, className: undefined, active: isLoopsIndexRoute(pathname) || routeLoopId(pathname) !== null },
     { href: '/graph', label: 'Signal Graph', external: false, className: undefined, active: isGraphRoute(pathname) || routeSignalSlug(pathname) !== null || routeSignalUpdate(pathname) !== null },
@@ -9625,7 +9639,7 @@ function RadarApp() {
     { href: '/machine-economy-snapshot', label: 'Snapshot', active: isMachineEconomySnapshotRoute(pathname) }
   ] as const;
   const radarMenuActive = pathname === '/' && sectionShortcutNav.some(({ id }) => activeSection === id);
-  const utilityMenuActive = pathname === '/' && (hash === '#methodology' || hash === '#events') || machineEconomyLinks.some((link) => link.active);
+  const utilityMenuActive = pathname === '/' && (hash === '#methodology' || hash === '#events') || machineEconomyLinks.some((link) => link.active) || isAttentionMarketWatchRoute(pathname) || routeAttentionMarketWatchSlug(pathname) !== null;
 
   return <div className={`shell ${agentMode ? 'agent-mode-shell' : ''} density-${densityMode}`}>
     <a className="skip-link" href="#terminal-content">Skip to content</a>
@@ -9680,6 +9694,10 @@ function RadarApp() {
                 Methodology
               </button>
               <a role="menuitem" href="#events" className={pathname === '/' && hash === '#events' ? 'active' : ''} aria-current={pathname === '/' && hash === '#events' ? 'location' : undefined}>Events</a>
+              <div className="header-menu-group" aria-label="Narrative Intelligence menu">
+                <span className="header-menu-heading">Narrative Intelligence</span>
+                <a role="menuitem" href="/narratives/attention-market-watch" className={isAttentionMarketWatchRoute(pathname) || routeAttentionMarketWatchSlug(pathname) !== null ? 'active' : ''} aria-current={isAttentionMarketWatchRoute(pathname) || routeAttentionMarketWatchSlug(pathname) !== null ? 'page' : undefined}>Attention Market Watch</a>
+              </div>
               <div className="header-menu-group" aria-label="Machine Economy menu">
                 <span className="header-menu-heading">Machine Economy</span>
                 {machineEconomyLinks.map((link) => <a key={link.href} role="menuitem" href={link.href} className={link.active ? 'active' : ''} aria-current={link.active ? 'page' : undefined}>{link.label}</a>)}
@@ -14285,6 +14303,9 @@ export function App() {
   if (isGraphRoute(window.location.pathname)) return <SignalGraphPage />;
   if (isNarrativesRoute(window.location.pathname)) return <NarrativesIndexPage />;
   if (isAttentionMarketsRoute(window.location.pathname)) return <AttentionMarketsPage />;
+  if (isAttentionMarketWatchRoute(window.location.pathname)) return <AttentionMarketWatchPage />;
+  const attentionMarketWatchSlug = routeAttentionMarketWatchSlug(window.location.pathname);
+  if (attentionMarketWatchSlug) return <AttentionMarketWatchProfilePage slug={attentionMarketWatchSlug} />;
   const signalUpdate = routeSignalUpdate(window.location.pathname);
   if (signalUpdate) return <SignalUpdatePermalinkPage slug={signalUpdate.slug} updateId={signalUpdate.updateId} />;
   const signalSlug = routeSignalSlug(window.location.pathname);

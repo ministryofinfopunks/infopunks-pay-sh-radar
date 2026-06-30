@@ -120,6 +120,23 @@ describe('render-style SPA routing boundaries', () => {
       expect(attentionMarkets.headers['content-type']).toContain('text/html');
       expect(attentionMarkets.body).toContain('Radar SPA shell');
 
+      const attentionMarketWatch = await app.inject({ method: 'GET', url: '/narratives/attention-market-watch' });
+      expect(attentionMarketWatch.statusCode).toBe(200);
+      expect(attentionMarketWatch.headers['content-type']).toContain('text/html');
+      expect(attentionMarketWatch.body).toContain('<title>Infopunks Attention Market Watch</title>');
+      expect(attentionMarketWatch.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/attention-market-watch.png"');
+
+      const attentionMarketWatchShort = await app.inject({ method: 'GET', url: '/attention-market-watch' });
+      expect(attentionMarketWatchShort.statusCode).toBe(200);
+      expect(attentionMarketWatchShort.headers['content-type']).toContain('text/html');
+      expect(attentionMarketWatchShort.body).toContain('<title>Infopunks Attention Market Watch</title>');
+
+      const attentionMarketWatchProfile = await app.inject({ method: 'GET', url: '/attention-market-watch/ansem' });
+      expect(attentionMarketWatchProfile.statusCode).toBe(200);
+      expect(attentionMarketWatchProfile.headers['content-type']).toContain('text/html');
+      expect(attentionMarketWatchProfile.body).toContain('Infopunks Attention Market Watch: $ANSEM');
+      expect(attentionMarketWatchProfile.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/attention-market-watch/ansem.png"');
+
       const ansem = await app.inject({ method: 'GET', url: '/signals/ansem' });
       expect(ansem.statusCode).toBe(200);
       expect(ansem.headers['content-type']).toContain('text/html');
@@ -192,6 +209,9 @@ describe('render-style SPA routing boundaries', () => {
       for (const path of [
         '/narratives',
         '/narratives/attention-markets',
+        '/narratives/attention-market-watch',
+        '/attention-market-watch',
+        '/attention-market-watch/ansem',
         '/signals/ansem',
         '/signals/black-bull',
         '/signals/black-bull/updates/seu_black_bull_006',

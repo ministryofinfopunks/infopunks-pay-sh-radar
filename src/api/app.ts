@@ -9,8 +9,9 @@ import { getNarrativeAssetBySlug, getSignalSurfaceBySlug, listNarrativeAssets, l
 import { getCandidateSignal, listCandidateSignals } from '../data/candidateSignals';
 import { getSignalDeskIndex } from '../data/signalDesk';
 import { getLatestSignalUpdate, getSignalUpdate, getSignalUpdateSummary, listSignalUpdates } from '../data/signalUpdates';
+import { getAttentionMarketSignalBySlug, getAttentionMarketWatchIndex } from '../data/attentionMarketWatch';
 import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
-import { renderNarrativesOgImage, renderSignalReportOgImage, renderSignalUpdateOgImage } from '../shared/narrativeOg';
+import { renderAttentionMarketWatchOgImage, renderNarrativesOgImage, renderSignalReportOgImage, renderSignalUpdateOgImage } from '../shared/narrativeOg';
 import { renderOgPng } from '../server/narrativeOgPng';
 import { applyPayShCatalogIngestion } from '../ingestion/payShCatalogAdapter';
 import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, IntelligenceStore, runPayShIngestion, runPayShIngestionWithOptions } from '../services/intelligenceStore';
@@ -1503,6 +1504,12 @@ export async function createApp(
     return { data: signal };
   });
   app.get('/v1/narratives', async () => ({ data: listNarrativeAssets() }));
+  app.get('/v1/attention-market-watch', async () => ({ data: getAttentionMarketWatchIndex() }));
+  app.get<{ Params: { slug: string } }>('/v1/attention-market-watch/:slug', async (req, reply) => {
+    const signal = getAttentionMarketSignalBySlug(req.params.slug);
+    if (!signal) return reply.code(404).send({ error: 'attention_market_signal_not_found' });
+    return { data: { signal } };
+  });
   app.get('/v1/signal-desk', async () => ({ data: getSignalDeskIndex() }));
   app.get('/v1/signal-desk/candidates', async () => {
     const candidates = listCandidateSignals();
@@ -1558,6 +1565,16 @@ export async function createApp(
   app.get('/og/narratives.png', async (_req, reply) => {
     reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
     return reply.type('image/png').send(renderOgPng(renderNarrativesOgImage()));
+  });
+  app.get('/og/attention-market-watch.png', async (_req, reply) => {
+    reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
+    return reply.type('image/png').send(renderOgPng(renderAttentionMarketWatchOgImage()));
+  });
+  app.get<{ Params: { slug: string } }>('/og/attention-market-watch/:slug.png', async (req, reply) => {
+    const signal = getAttentionMarketSignalBySlug(req.params.slug);
+    if (!signal) return reply.code(404).send({ error: 'og_image_not_found' });
+    reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
+    return reply.type('image/png').send(renderOgPng(renderAttentionMarketWatchOgImage(signal.slug)));
   });
   app.get<{ Params: { slug: string } }>('/og/signals/:slug.png', async (req, reply) => {
     const svg = renderSignalReportOgImage(req.params.slug);

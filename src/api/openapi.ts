@@ -577,6 +577,46 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     description: 'Returns seeded Narrative Asset Intelligence records for attention markets and narrative assets.',
     responses: envelopedResponses('NarrativeAssetListResponse', [{ slug: 'black-bull', ticker: 'ANSEM', signal_source: 'Ansem' }])
   });
+  add('get', '/v1/attention-market-watch', {
+    tags: ['Intelligence'],
+    summary: 'List Attention Market Watch signals',
+    description: 'Returns the public Attention Market Watch index for persona-backed markets, classifying attention source, control risk, coherence, receipts, fragmentation, and verdict.',
+    responses: envelopedResponses('AttentionMarketWatchListResponse', {
+      generated_at: '2026-06-30T15:00:00.000Z',
+      count: 4,
+      verdict_counts: {
+        supportive_watch: 1,
+        attention_arbitrage: 2,
+        re_index_watch: 1
+      },
+      signals: [{
+        slug: 'ansem',
+        ticker: 'ANSEM',
+        name: 'The Black Bull',
+        category: 'persona_coin',
+        evolution_verdict: 'supportive_watch',
+        verdict_label: 'Supportive Watch',
+        href: '/signals/black-bull'
+      }]
+    })
+  });
+  add('get', '/v1/attention-market-watch/{slug}', {
+    tags: ['Intelligence'],
+    summary: 'Get Attention Market Watch profile',
+    description: 'Returns one Attention Market Watch classification profile by slug. Unknown slugs return attention_market_signal_not_found.',
+    parameters: [pathParam('slug', 'Attention Market Watch profile slug.')],
+    responses: envelopedResponses('AttentionMarketWatchDetailResponse', {
+      signal: {
+        slug: 'ansem',
+        ticker: 'ANSEM',
+        name: 'The Black Bull',
+        category: 'persona_coin',
+        evolution_verdict: 'supportive_watch',
+        verdict_label: 'Supportive Watch',
+        href: '/signals/black-bull'
+      }
+    }, 'attention_market_signal_not_found')
+  });
   add('get', '/v1/signal-desk', {
     tags: ['Intelligence'],
     summary: 'Get Signal Desk index',
@@ -3464,6 +3504,59 @@ function componentSchemas(): Record<string, JsonSchema> {
       last_updated: dateTimeSchema()
     }),
     NarrativeAssetListResponse: arrayOf({ $ref: '#/components/schemas/NarrativeAssetResponse' }),
+    AttentionMarketCategory: enumSchema(['persona_coin', 'influencer_attention', 'dev_attention', 'ai_agent_attention', 'community_archetype', 'streamer_signal', 'reply_gang', 'anonymous_cult']),
+    AttentionSourceType: enumSchema(['influencer', 'dev', 'ai_agent', 'community_archetype', 'streamer', 'reply_gang', 'anonymous_cult']),
+    AttentionMarketVerdict: enumSchema(['attention_arbitrage', 'extraction_risk', 'cult_sludge', 're_index_watch', 'movement_candidate', 'signal_market_candidate', 'supportive_watch']),
+    AttentionSource: objectSchema({
+      type: { $ref: '#/components/schemas/AttentionSourceType' },
+      label: stringSchema(),
+      summary: stringSchema()
+    }, ['type', 'label', 'summary']),
+    AttentionControlRisk: objectSchema({
+      score: integerSchema(),
+      summary: stringSchema(),
+      factors: arrayOf(stringSchema())
+    }, ['score', 'summary', 'factors']),
+    AttentionScoreSummary: objectSchema({
+      score: integerSchema(),
+      summary: stringSchema()
+    }, ['score', 'summary']),
+    AttentionReceiptLayer: objectSchema({
+      score: integerSchema(),
+      summary: stringSchema(),
+      evidence_links: arrayOf(stringSchema())
+    }, ['score', 'summary', 'evidence_links']),
+    AttentionMarketSignal: objectSchema({
+      id: stringSchema(),
+      slug: stringSchema(),
+      ticker: stringSchema(),
+      name: stringSchema(),
+      category: { $ref: '#/components/schemas/AttentionMarketCategory' },
+      attention_source: { $ref: '#/components/schemas/AttentionSource' },
+      control_risk: { $ref: '#/components/schemas/AttentionControlRisk' },
+      coherence_score: { $ref: '#/components/schemas/AttentionScoreSummary' },
+      receipt_layer: { $ref: '#/components/schemas/AttentionReceiptLayer' },
+      fragmentation_risk: { $ref: '#/components/schemas/AttentionScoreSummary' },
+      evolution_verdict: { $ref: '#/components/schemas/AttentionMarketVerdict' },
+      verdict_label: stringSchema(),
+      verdict_copy: stringSchema(),
+      risk_facets: arrayOf({ $ref: '#/components/schemas/SignalRiskFacet' }),
+      related_signal_slug: stringSchema(),
+      href: stringSchema(),
+      updated_at: dateTimeSchema()
+    }, ['id', 'slug', 'ticker', 'name', 'category', 'attention_source', 'control_risk', 'coherence_score', 'receipt_layer', 'fragmentation_risk', 'evolution_verdict', 'verdict_label', 'verdict_copy', 'risk_facets', 'href', 'updated_at']),
+    AttentionMarketWatchListResponse: objectSchema({
+      generated_at: dateTimeSchema(),
+      count: integerSchema(),
+      verdict_counts: {
+        type: 'object',
+        additionalProperties: integerSchema()
+      },
+      signals: arrayOf({ $ref: '#/components/schemas/AttentionMarketSignal' })
+    }, ['generated_at', 'count', 'verdict_counts', 'signals']),
+    AttentionMarketWatchDetailResponse: objectSchema({
+      signal: { $ref: '#/components/schemas/AttentionMarketSignal' }
+    }, ['signal']),
     NarrativeSignalCard: objectSchema({
       id: stringSchema(),
       title: stringSchema(),

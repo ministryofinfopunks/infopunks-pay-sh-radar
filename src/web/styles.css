@@ -9533,6 +9533,14 @@ summary:focus-visible {
 .narrative-desk-catalog-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
+.attention-watch-module {
+  border-color: rgba(206, 228, 255, .22);
+  background: linear-gradient(180deg, rgba(214, 233, 255, .08), rgba(10, 15, 20, .96));
+}
+.attention-watch-card {
+  border-color: rgba(206, 228, 255, .2);
+  background: linear-gradient(180deg, rgba(244, 248, 252, .06), rgba(7, 10, 14, .97));
+}
 .narrative-desk-card-meta {
   display: flex;
   flex-wrap: wrap;

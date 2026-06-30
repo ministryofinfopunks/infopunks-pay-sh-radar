@@ -200,6 +200,59 @@ type CandidateSignal = {
   updated_at: string;
 };
 
+type AttentionMarketCategory = 'persona_coin' | 'influencer_attention' | 'dev_attention' | 'ai_agent_attention' | 'community_archetype' | 'streamer_signal' | 'reply_gang' | 'anonymous_cult';
+type AttentionSourceType = 'influencer' | 'dev' | 'ai_agent' | 'community_archetype' | 'streamer' | 'reply_gang' | 'anonymous_cult';
+type AttentionMarketVerdict = 'attention_arbitrage' | 'extraction_risk' | 'cult_sludge' | 're_index_watch' | 'movement_candidate' | 'signal_market_candidate' | 'supportive_watch';
+
+type AttentionMarketSignal = {
+  id: string;
+  slug: string;
+  ticker: string;
+  name: string;
+  category: AttentionMarketCategory;
+  attention_source: {
+    type: AttentionSourceType;
+    label: string;
+    summary: string;
+  };
+  control_risk: {
+    score: number;
+    summary: string;
+    factors: string[];
+  };
+  coherence_score: {
+    score: number;
+    summary: string;
+  };
+  receipt_layer: {
+    score: number;
+    summary: string;
+    evidence_links: string[];
+  };
+  fragmentation_risk: {
+    score: number;
+    summary: string;
+  };
+  evolution_verdict: AttentionMarketVerdict;
+  verdict_label: string;
+  verdict_copy: string;
+  risk_facets: SignalRiskFacet[];
+  related_signal_slug?: string;
+  href: string;
+  updated_at: string;
+};
+
+type AttentionMarketWatchIndex = {
+  generated_at: string;
+  count: number;
+  verdict_counts: Record<string, number>;
+  signals: AttentionMarketSignal[];
+};
+
+type AttentionMarketWatchDetail = {
+  signal: AttentionMarketSignal;
+};
+
 type NarrativeFilterUpdateType = 'all' | SignalEvidenceUpdateType;
 type NarrativeFilterRisk = 'all' | SignalRiskFacet;
 type NarrativeFilterStatus = 'all' | SignalDeskStatus;
@@ -357,6 +410,14 @@ function formatCandidateRiskLevel(value: CandidateSignalRiskLevel) {
   return value === 'unknown'
     ? 'Unknown Risk'
     : `${value[0]?.toUpperCase() ?? ''}${value.slice(1)} Risk`;
+}
+
+function formatAttentionCategory(value: AttentionMarketCategory) {
+  return value.split('_').map((part) => `${part[0]?.toUpperCase() ?? ''}${part.slice(1)}`).join(' ');
+}
+
+function formatAttentionVerdict(value: AttentionMarketVerdict) {
+  return value.split('_').map((part) => `${part[0]?.toUpperCase() ?? ''}${part.slice(1)}`).join(' ');
 }
 
 function formatRiskFacet(value: SignalRiskFacet) {
@@ -857,10 +918,18 @@ function NarrativeIntelNav({ current }: { current: string }) {
   const links = [
     { href: '/narratives', label: 'Narrative Intel' },
     { href: '/narratives/attention-markets', label: 'Attention Markets' },
+    { href: '/narratives/attention-market-watch', label: 'Attention Market Watch' },
     { href: '/signals/ansem', label: 'Ansem' },
     { href: '/signals/black-bull', label: 'Black Bull' },
     { href: '/signals/troll', label: 'TROLL' }
   ];
+
+  function isActive(href: string) {
+    if (href === '/narratives/attention-market-watch') {
+      return current === href || current.startsWith('/attention-market-watch/');
+    }
+    return current === href;
+  }
 
   return <nav className="global-toolbar narrative-toolbar" aria-label="Narrative Intel navigation">
     <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home">
@@ -868,7 +937,7 @@ function NarrativeIntelNav({ current }: { current: string }) {
       <strong>Narrative Intel</strong>
     </a>
     <div className="terminal-nav terminal-nav-scroll-rail" aria-label="Narrative Intel routes">
-      {links.map((link) => <a key={link.href} href={link.href} className={current === link.href ? 'active' : ''} aria-current={current === link.href ? 'page' : undefined}>{link.label}</a>)}
+      {links.map((link) => <a key={link.href} href={link.href} className={isActive(link.href) ? 'active' : ''} aria-current={isActive(link.href) ? 'page' : undefined}>{link.label}</a>)}
     </div>
     <div className="terminal-actions" aria-label="Narrative Intel quick links">
       <span className="terminal-action-cluster">
@@ -1162,8 +1231,148 @@ function DeskActivityTimeline({ items }: { items: SignalDeskActivityItem[] }) {
   </section>;
 }
 
+function AttentionWatchModule({ watch }: { watch: AttentionMarketWatchIndex }) {
+  return <section className="panel narrative-desk-catalog attention-watch-module" aria-label="Attention Market Watch">
+    <div className="narrative-desk-catalog-head">
+      <div>
+        <p className="section-kicker">Signal Desk Index</p>
+        <h2>Attention Market Watch</h2>
+        <p>Persona-backed markets are becoming their own asset class. Infopunks classifies the attention source, control risk, coherence, receipts, and fragmentation risk.</p>
+      </div>
+      <span className="source-badge">{watch.count} monitored</span>
+    </div>
+    <div className="narrative-desk-status-grid">
+      {Object.entries(watch.verdict_counts).map(([verdict, count]) => <article key={verdict} className="narrative-desk-stat">
+        <span>{formatAttentionVerdict(verdict as AttentionMarketVerdict)}</span>
+        <strong>{count}</strong>
+      </article>)}
+    </div>
+    <div className="panel-actions">
+      <a className="execute" href="/narratives/attention-market-watch">Open Attention Market Watch</a>
+    </div>
+  </section>;
+}
+
+function AttentionWatchSignalCard({ signal }: { signal: AttentionMarketSignal }) {
+  const cta = signal.href === '/signals/black-bull' ? 'Open Signal' : 'Open Watch Profile';
+
+  return <article className="panel narrative-asset-preview attention-watch-card">
+    <div className="narrative-asset-head">
+      <div>
+        <p className="section-kicker">{formatAttentionCategory(signal.category)}</p>
+        <h2>{signal.ticker} / {signal.name}</h2>
+      </div>
+      <span className="source-badge">{signal.verdict_label}</span>
+    </div>
+    <p>{signal.attention_source.label}</p>
+    <p>{signal.attention_source.summary}</p>
+    <div className="narrative-asset-stats">
+      <span>control {signal.control_risk.score}</span>
+      <span>coherence {signal.coherence_score.score}</span>
+      <span>receipts {signal.receipt_layer.score}</span>
+      <span>fragmentation {signal.fragmentation_risk.score}</span>
+    </div>
+    <p>{signal.verdict_copy}</p>
+    <div className="chips narrative-update-chips">
+      {signal.risk_facets.map((facet) => <RiskFacetChip key={`${signal.slug}-${facet}`} facet={facet} />)}
+    </div>
+    <div className="panel-actions">
+      <a className="execute compact secondary" href={signal.href}>{cta}</a>
+    </div>
+  </article>;
+}
+
+function AttentionMarketWatchIndexPageBody({ watch }: { watch: AttentionMarketWatchIndex }) {
+  const verdicts: AttentionMarketVerdict[] = [
+    'attention_arbitrage',
+    'extraction_risk',
+    'cult_sludge',
+    're_index_watch',
+    'movement_candidate',
+    'signal_market_candidate',
+    'supportive_watch'
+  ];
+  const ansem = watch.signals.find((signal) => signal.slug === 'ansem') ?? null;
+
+  return <>
+    <section className="panel hero narrative-hero">
+      <div>
+        <p className="eyebrow">Narrative Asset Intelligence</p>
+        <h1>Attention Market Watch</h1>
+        <p className="copy">Influencer coins are the first wave of persona-backed markets. Infopunks tracks the next layer: which narratives are real, which wallets are extracting, which communities are coherent, and which movements have receipts.</p>
+        <p className="copy narrative-rally-line">Before you follow the meta, check the receipts.</p>
+      </div>
+      <div className="panel narrative-hero-rail">
+        <p className="section-kicker">Category thesis</p>
+        <p>Influencer coins say: Trust this person. Infopunks says: Trust the process that reveals what is worth trusting.</p>
+      </div>
+    </section>
+
+    <section className="panel narrative-desk-catalog" aria-label="Classification Method">
+      <div className="narrative-desk-catalog-head">
+        <div>
+          <p className="section-kicker">Classification Method</p>
+          <h2>Classification Method</h2>
+        </div>
+      </div>
+      <div className="narrative-method-grid">
+        {['Attention Source', 'Control Risk', 'Coherence Score', 'Receipt Layer', 'Fragmentation Risk', 'Evolution Verdict'].map((item) => <article key={item} className="panel narrative-method-step">
+          <h3>{item}</h3>
+        </article>)}
+      </div>
+    </section>
+
+    <section className="panel narrative-desk-catalog" aria-label="Verdict Types">
+      <div className="narrative-desk-catalog-head">
+        <div>
+          <p className="section-kicker">Verdict Types</p>
+          <h2>Verdict Types</h2>
+        </div>
+      </div>
+      <div className="narrative-method-grid">
+        {verdicts.map((verdict) => <article key={verdict} className="panel narrative-method-step">
+          <h3>{formatAttentionVerdict(verdict)}</h3>
+          <p>{watch.verdict_counts[verdict] ?? 0} tracked</p>
+        </article>)}
+      </div>
+    </section>
+
+    <section className="panel narrative-desk-catalog" aria-label="Watchlist">
+      <div className="narrative-desk-catalog-head">
+        <div>
+          <p className="section-kicker">Watchlist</p>
+          <h2>Watchlist</h2>
+        </div>
+      </div>
+      <div className="narrative-grid">
+        {watch.signals.map((signal) => <AttentionWatchSignalCard key={signal.slug} signal={signal} />)}
+      </div>
+    </section>
+
+    {ansem && <section className="panel narrative-copy-panel" aria-label="Featured Case Study">
+      <p className="section-kicker">Featured Case Study</p>
+      <h2>ANSEM / The Black Bull</h2>
+      <p>$ANSEM showed persona attention becoming a market. Attention Market Watch turns that event into a classification system.</p>
+      <div className="panel-actions">
+        <a className="execute" href="/signals/black-bull">Open Black Bull Signal Report</a>
+      </div>
+    </section>}
+  </>;
+}
+
+function AttentionMarketWatchProfileCard({ label, score, body }: { label: string; score: string; body: string }) {
+  return <article className="panel narrative-metric-card">
+    <div className="narrative-metric-head">
+      <p className="section-kicker">{label}</p>
+      <span className="narrative-decision-pill state-watch_closely">{score}</span>
+    </div>
+    <p>{body}</p>
+  </article>;
+}
+
 export function NarrativesIndexPage() {
   const [desk, setDesk] = useState<SignalDeskIndex | null>(null);
+  const [attentionWatch, setAttentionWatch] = useState<AttentionMarketWatchIndex | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [updateType, setUpdateType] = useState<NarrativeFilterUpdateType>('all');
   const [risk, setRisk] = useState<NarrativeFilterRisk>('all');
@@ -1178,6 +1387,12 @@ export function NarrativesIndexPage() {
     api<SignalDeskIndex>('/v1/signal-desk')
       .then((response) => setDesk(response.data))
       .catch((err) => setError(err instanceof Error ? err.message : 'signal_desk_unavailable'));
+  }, []);
+
+  useEffect(() => {
+    api<AttentionMarketWatchIndex>('/v1/attention-market-watch')
+      .then((response) => setAttentionWatch(response.data))
+      .catch(() => undefined);
   }, []);
 
   const deskStatusBySignal = useMemo(() => {
@@ -1239,6 +1454,7 @@ export function NarrativesIndexPage() {
           onStatusChange={setStatus}
           onSearchChange={setSearch}
         />
+        {attentionWatch && <AttentionWatchModule watch={attentionWatch} />}
         {desk.featured_report && <FeaturedNarrativeReport
           report={desk.featured_report}
           latestDispatchHref={desk.latest_dispatches[0]?.href ?? null}
@@ -1329,6 +1545,124 @@ export function AttentionMarketsPage() {
       </section>
 
       <NarrativeMethodModule />
+    </main>
+  </div>;
+}
+
+export function AttentionMarketWatchPage() {
+  const [watch, setWatch] = useState<AttentionMarketWatchIndex | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    syncNarrativeMetadata('/narratives/attention-market-watch');
+  }, []);
+
+  useEffect(() => {
+    api<AttentionMarketWatchIndex>('/v1/attention-market-watch')
+      .then((response) => setWatch(response.data))
+      .catch((err) => setError(err instanceof Error ? err.message : 'attention_market_watch_unavailable'));
+  }, []);
+
+  return <div className="shell narrative-shell">
+    <a className="skip-link" href="#attention-watch-content">Skip to content</a>
+    <header className="site-header">
+      <NarrativeIntelNav current="/narratives/attention-market-watch" />
+    </header>
+    <main id="attention-watch-content" className="narrative-page">
+      {error && <section className="panel"><p className="route-state error">{error}</p></section>}
+      {watch && <AttentionMarketWatchIndexPageBody watch={watch} />}
+    </main>
+  </div>;
+}
+
+export function AttentionMarketWatchProfilePage({ slug }: { slug: string }) {
+  const [detail, setDetail] = useState<AttentionMarketWatchDetail | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    syncNarrativeMetadata(`/attention-market-watch/${slug}`);
+  }, [slug]);
+
+  useEffect(() => {
+    api<AttentionMarketWatchDetail>(`/v1/attention-market-watch/${encodeURIComponent(slug)}`)
+      .then((response) => setDetail(response.data))
+      .catch((err) => setError(err instanceof Error ? err.message : 'attention_market_watch_profile_unavailable'));
+  }, [slug]);
+
+  const signal = detail?.signal ?? null;
+  const profileStateCopy = signal && signal.slug === 'ansem'
+    ? 'Linked signal report available.'
+    : signal && (signal.receipt_layer.score <= 24 || signal.evolution_verdict === 'attention_arbitrage')
+      ? 'Monitored derivative signal. Evidence required.'
+      : 'Profile under active watch.';
+
+  return <div className="shell narrative-shell">
+    <a className="skip-link" href="#attention-watch-profile-content">Skip to content</a>
+    <header className="site-header">
+      <NarrativeIntelNav current={`/attention-market-watch/${slug}`} />
+    </header>
+    <main id="attention-watch-profile-content" className="narrative-page">
+      {error && !signal && <section className="panel"><p className="route-state error">{error}</p></section>}
+      {signal && <>
+        <section className="panel hero narrative-hero">
+          <div>
+            <p className="eyebrow">Attention Market Profile</p>
+            <h1>{signal.name}</h1>
+            <p className="copy">${signal.ticker}</p>
+            <p className="copy">{signal.verdict_copy}</p>
+            <p className="copy">{profileStateCopy}</p>
+          </div>
+          <div className="panel narrative-hero-rail">
+            <p className="section-kicker">Verdict</p>
+            <p>{signal.verdict_label}</p>
+            <p className="section-kicker">Attention source</p>
+            <p>{signal.attention_source.label}</p>
+          </div>
+        </section>
+
+        <section className="narrative-card-grid">
+          <AttentionMarketWatchProfileCard label="Attention Source" score={signal.attention_source.type} body={signal.attention_source.summary} />
+          <AttentionMarketWatchProfileCard label="Control Risk" score={`${signal.control_risk.score}/100`} body={signal.control_risk.summary} />
+          <AttentionMarketWatchProfileCard label="Coherence Score" score={`${signal.coherence_score.score}/100`} body={signal.coherence_score.summary} />
+          <AttentionMarketWatchProfileCard label="Receipt Layer" score={`${signal.receipt_layer.score}/100`} body={signal.receipt_layer.summary} />
+          <AttentionMarketWatchProfileCard label="Fragmentation Risk" score={`${signal.fragmentation_risk.score}/100`} body={signal.fragmentation_risk.summary} />
+          <AttentionMarketWatchProfileCard label="Evolution Verdict" score={signal.verdict_label} body={signal.verdict_copy} />
+        </section>
+
+        <section className="panel narrative-desk-catalog" aria-label="Risk facets">
+          <div className="narrative-desk-catalog-head">
+            <div>
+              <p className="section-kicker">Risk facets</p>
+              <h2>Risk facets</h2>
+            </div>
+          </div>
+          <div className="chips narrative-update-chips">
+            {signal.risk_facets.map((facet) => <RiskFacetChip key={`${signal.slug}-${facet}`} facet={facet} />)}
+          </div>
+        </section>
+
+        <section className="panel narrative-desk-catalog" aria-label="Evidence links">
+          <div className="narrative-desk-catalog-head">
+            <div>
+              <p className="section-kicker">Evidence links</p>
+              <h2>Evidence links</h2>
+            </div>
+          </div>
+          <div className="chips narrative-update-chips">
+            {signal.receipt_layer.evidence_links.map((href) => <EvidenceChip key={`${signal.slug}-${href}`} href={href} />)}
+          </div>
+        </section>
+
+        <section className="panel narrative-copy-panel">
+          <p className="section-kicker">Control factors</p>
+          <p>{signal.control_risk.factors.join(' · ')}</p>
+        </section>
+
+        <div className="panel-actions">
+          {signal.href && <a className="execute" href={signal.href}>{signal.href === '/signals/black-bull' ? 'Open Black Bull Signal Report' : 'Open Watch Profile'}</a>}
+          <a className="execute compact secondary" href="/narratives/attention-market-watch">Back to Attention Market Watch</a>
+        </div>
+      </>}
     </main>
   </div>;
 }

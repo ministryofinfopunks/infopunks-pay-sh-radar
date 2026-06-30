@@ -47,6 +47,56 @@ describe('narrative intel api', () => {
     }
   });
 
+  it('returns Attention Market Watch index and detail data', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+
+    try {
+      const list = await app.inject({ method: 'GET', url: '/v1/attention-market-watch' });
+      expect(list.statusCode).toBe(200);
+      expect(list.json().data).toEqual(expect.objectContaining({
+        count: 4,
+        verdict_counts: expect.objectContaining({
+          supportive_watch: 1
+        }),
+        signals: expect.arrayContaining([
+          expect.objectContaining({
+            slug: 'ansem',
+            ticker: 'ANSEM',
+            evolution_verdict: 'supportive_watch',
+            href: '/signals/black-bull'
+          }),
+          expect.objectContaining({
+            slug: 'tjr',
+            ticker: 'TJR'
+          }),
+          expect.objectContaining({
+            slug: 'luke',
+            ticker: 'LUKE'
+          }),
+          expect.objectContaining({
+            slug: 'superman',
+            ticker: 'SUPERMAN'
+          })
+        ])
+      }));
+
+      const detail = await app.inject({ method: 'GET', url: '/v1/attention-market-watch/ansem' });
+      expect(detail.statusCode).toBe(200);
+      expect(detail.json().data).toEqual(expect.objectContaining({
+        signal: expect.objectContaining({
+          slug: 'ansem',
+          evolution_verdict: 'supportive_watch',
+          href: '/signals/black-bull',
+          receipt_layer: expect.objectContaining({
+            evidence_links: expect.arrayContaining(['/signals/black-bull'])
+          })
+        })
+      }));
+    } finally {
+      await app.close();
+    }
+  });
+
   it('returns the derived Signal Desk index', async () => {
     const app = await createApp(emptyIntelligenceStore());
 
@@ -404,6 +454,24 @@ describe('narrative intel api', () => {
     }
   });
 
+  it('serves the Attention Market Watch OG image routes', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+
+    try {
+      const index = await app.inject({ method: 'GET', url: '/og/attention-market-watch.png' });
+      expect(index.statusCode).toBe(200);
+      expect(index.headers['content-type']).toContain('image/png');
+      expectPng(index.rawPayload);
+
+      const profile = await app.inject({ method: 'GET', url: '/og/attention-market-watch/ansem.png' });
+      expect(profile.statusCode).toBe(200);
+      expect(profile.headers['content-type']).toContain('image/png');
+      expectPng(profile.rawPayload);
+    } finally {
+      await app.close();
+    }
+  }, 10000);
+
   it('serves the seeded signal report OG image route', async () => {
     const app = await createApp(emptyIntelligenceStore());
 
@@ -467,6 +535,18 @@ describe('narrative intel api', () => {
       const response = await app.inject({ method: 'GET', url: '/v1/signals/unknown-signal/updates' });
       expect(response.statusCode).toBe(404);
       expect(response.json()).toEqual({ error: 'signal_surface_not_found' });
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('returns 404 for unknown Attention Market Watch profiles', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+
+    try {
+      const response = await app.inject({ method: 'GET', url: '/v1/attention-market-watch/missing-profile' });
+      expect(response.statusCode).toBe(404);
+      expect(response.json()).toEqual({ error: 'attention_market_signal_not_found' });
     } finally {
       await app.close();
     }

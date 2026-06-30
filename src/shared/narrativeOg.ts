@@ -64,12 +64,21 @@ export function narrativeOgImageUrl(pathname: string) {
     return '/og/narratives.png';
   }
 
+  if (/^\/narratives\/attention-market-watch\/?$/.test(pathname) || /^\/attention-market-watch\/?$/.test(pathname)) {
+    return '/og/attention-market-watch.png';
+  }
+
   if (/^\/signals\/black-bull\/?$/.test(pathname)) {
     return '/og/signals/black-bull.png';
   }
 
   if (/^\/signals\/troll\/?$/.test(pathname)) {
     return '/og/signals/troll.png';
+  }
+
+  const attentionWatchMatch = pathname.match(/^\/attention-market-watch\/([^/]+)\/?$/);
+  if (attentionWatchMatch) {
+    return `/og/attention-market-watch/${encodeURIComponent(attentionWatchMatch[1])}.png`;
   }
 
   const updateMatch = pathname.match(/^\/signals\/([^/]+)\/updates\/([^/]+)\/?$/);
@@ -148,6 +157,31 @@ export function renderNarrativesOgImage() {
     accent: '#62ffc7',
     eyebrow: 'NARRATIVE INTEL INDEX',
     routeLabel: '/narratives'
+  });
+}
+
+export function renderAttentionMarketWatchOgImage(slug?: string | null) {
+  if (!slug) {
+    return renderSignalCardSvg({
+      title: 'Attention Market Watch',
+      subtitle: 'Before you follow the meta, check the receipts.',
+      badge: 'INFOPUNKS RADAR',
+      footer: 'Persona-backed markets / control risk / receipts / coherence / fragmentation',
+      accent: '#9fd6ff',
+      eyebrow: 'NARRATIVE ASSET INTELLIGENCE',
+      routeLabel: '/narratives/attention-market-watch'
+    });
+  }
+
+  const title = slug.toUpperCase();
+  return renderSignalCardSvg({
+    title: `$${title} Attention Watch`,
+    subtitle: 'Attention market classification across source, control, coherence, receipts, fragmentation, and verdict.',
+    badge: 'INFOPUNKS RADAR',
+    footer: 'Before you follow the meta, check the receipts.',
+    accent: '#9fd6ff',
+    eyebrow: 'ATTENTION MARKET PROFILE',
+    routeLabel: `/attention-market-watch/${slug}`
   });
 }
 

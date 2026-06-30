@@ -55,6 +55,9 @@ describe('production smoke plan', () => {
       '/graph',
       '/narratives',
       '/narratives/attention-markets',
+      '/narratives/attention-market-watch',
+      '/attention-market-watch',
+      '/attention-market-watch/ansem',
       '/signals/ansem',
       '/signals/black-bull',
       '/signals/troll',
@@ -77,6 +80,8 @@ describe('production smoke plan', () => {
       '/v1/loops',
       '/v1/routes',
       '/v1/narratives',
+      '/v1/attention-market-watch',
+      '/v1/attention-market-watch/ansem',
       '/v1/signal-desk',
       '/v1/signal-desk/candidates',
       '/v1/signal-desk/candidates/candidate_sol_persona_attention',
@@ -99,6 +104,8 @@ describe('production smoke plan', () => {
     ]);
     expect(plan.pngPaths).toEqual([
       '/og/narratives.png',
+      '/og/attention-market-watch.png',
+      '/og/attention-market-watch/ansem.png',
       '/og/signals/black-bull.png',
       '/og/signals/black-bull/updates/seu_black_bull_006.png',
       '/og/signals/troll.png',

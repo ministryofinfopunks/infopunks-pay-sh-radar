@@ -447,6 +447,95 @@ const signalDesk = {
   ]
 };
 
+const attentionMarketWatch = {
+  generated_at: '2026-06-30T15:00:00.000Z',
+  count: 4,
+  verdict_counts: {
+    supportive_watch: 1,
+    attention_arbitrage: 2,
+    re_index_watch: 1
+  },
+  signals: [
+    {
+      id: 'attention_market_signal_ansem',
+      slug: 'ansem',
+      ticker: 'ANSEM',
+      name: 'The Black Bull',
+      category: 'persona_coin',
+      attention_source: {
+        type: 'influencer',
+        label: 'Influencer-linked attention',
+        summary: 'Persona-led attention is visible, legible, and tied to public coordination events rather than purely anonymous churn.'
+      },
+      control_risk: { score: 82, summary: 'Control risk remains elevated because attention routing and wallet concentration still cluster around a narrow set of actors.', factors: ['KOL dependency remains material'] },
+      coherence_score: { score: 88, summary: 'The story is compact and coherent.' },
+      receipt_layer: { score: 78, summary: 'Airdrop receipts and linked signal reporting provide visible evidence.', evidence_links: ['/signals/black-bull', '/narratives/attention-market-watch'] },
+      fragmentation_risk: { score: 57, summary: 'The narrative is still intact.' },
+      evolution_verdict: 'supportive_watch',
+      verdict_label: 'Supportive Watch',
+      verdict_copy: 'Visible airdrop receipts and coordination evidence make this more than a hollow attention loop, but dependence and concentration stay explicit.',
+      risk_facets: ['kol_dependency', 'power_concentration', 'high_reflexivity', 'live_watch'],
+      related_signal_slug: 'black-bull',
+      href: '/signals/black-bull',
+      updated_at: '2026-06-30T15:00:00.000Z'
+    },
+    {
+      id: 'attention_market_signal_tjr',
+      slug: 'tjr',
+      ticker: 'TJR',
+      name: 'TJR',
+      category: 'influencer_attention',
+      attention_source: { type: 'influencer', label: 'Influencer-derived derivative attention', summary: 'The signal reads as a monitored persona-adjacent attention object rather than a fully evidenced movement.' },
+      control_risk: { score: 79, summary: 'Derivative persona markets can be steered by a small number of wallets.', factors: ['Evidence base is still light'] },
+      coherence_score: { score: 54, summary: 'The meme is understandable, but the current repo evidence does not yet show a deeper coherence layer.' },
+      receipt_layer: { score: 24, summary: 'Evidence remains placeholder-level.', evidence_links: ['/narratives/attention-market-watch', '/signals/black-bull'] },
+      fragmentation_risk: { score: 74, summary: 'The symbol can fragment quickly.' },
+      evolution_verdict: 'attention_arbitrage',
+      verdict_label: 'Attention Arbitrage',
+      verdict_copy: 'Monitored derivative signal. Current posture: attention object first, evidence object second.',
+      risk_facets: ['thin_evidence', 'kol_dependency', 'high_reflexivity'],
+      href: '/attention-market-watch/tjr',
+      updated_at: '2026-06-30T15:00:00.000Z'
+    },
+    {
+      id: 'attention_market_signal_luke',
+      slug: 'luke',
+      ticker: 'LUKE',
+      name: 'LUKE',
+      category: 'influencer_attention',
+      attention_source: { type: 'influencer', label: 'Persona-backed attention surface', summary: 'This reads as a persona-backed attention surface under observation.' },
+      control_risk: { score: 76, summary: 'Dependence on a recognizable source node is still stronger than any visible independent logic.', factors: ['Persona gravity appears stronger than community receipts'] },
+      coherence_score: { score: 49, summary: 'The desk can classify the object, but the current evidence set does not justify stronger claims.' },
+      receipt_layer: { score: 20, summary: 'Evidence required.', evidence_links: ['/narratives/attention-market-watch'] },
+      fragmentation_risk: { score: 71, summary: 'Without a stronger receipt layer, the narrative can split into copycat attention pockets.' },
+      evolution_verdict: 'attention_arbitrage',
+      verdict_label: 'Attention Arbitrage',
+      verdict_copy: 'Evidence-light watch profile. This remains a classification object, not a thesis endorsement.',
+      risk_facets: ['thin_evidence', 'kol_dependency'],
+      href: '/attention-market-watch/luke',
+      updated_at: '2026-06-30T15:00:00.000Z'
+    },
+    {
+      id: 'attention_market_signal_superman',
+      slug: 'superman',
+      ticker: 'SUPERMAN',
+      name: 'SUPERMAN',
+      category: 'anonymous_cult',
+      attention_source: { type: 'anonymous_cult', label: 'Anonymous cult attention', summary: 'This signal reads closer to a cultish attention cluster.' },
+      control_risk: { score: 84, summary: 'Anonymous or semi-anonymous swarms can hide extraction posture.', factors: ['Anonymous coordination can obscure actual control'] },
+      coherence_score: { score: 46, summary: 'The current evidence base does not show a stable classification beyond watch status.' },
+      receipt_layer: { score: 18, summary: 'Receipt density is too thin to treat this as a validated movement.', evidence_links: ['/narratives/attention-market-watch'] },
+      fragmentation_risk: { score: 81, summary: 'Fragmentation and re-indexing risk stay high.' },
+      evolution_verdict: 're_index_watch',
+      verdict_label: 'Re-Index Watch',
+      verdict_copy: 'Watch for whether this re-indexes into something coherent or dissolves into derivative cult sludge.',
+      risk_facets: ['thin_evidence', 'power_concentration', 'narrative_fatigue'],
+      href: '/attention-market-watch/superman',
+      updated_at: '2026-06-30T15:00:00.000Z'
+    }
+  ]
+};
+
 describe('narrative pages', () => {
   let root: Root | null = null;
   let container: HTMLDivElement;
@@ -456,6 +545,11 @@ describe('narrative pages', () => {
     document.body.append(container);
     vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
       const path = pathOf(input);
+      if (path === '/v1/attention-market-watch') return json(attentionMarketWatch);
+      if (path === '/v1/attention-market-watch/ansem') return json({ signal: attentionMarketWatch.signals[0] });
+      if (path === '/v1/attention-market-watch/tjr') return json({ signal: attentionMarketWatch.signals[1] });
+      if (path === '/v1/attention-market-watch/luke') return json({ signal: attentionMarketWatch.signals[2] });
+      if (path === '/v1/attention-market-watch/superman') return json({ signal: attentionMarketWatch.signals[3] });
       if (path === '/v1/signal-desk') return json(signalDesk);
       if (path === '/v1/signals/ansem') return json(ansemSignal);
       if (path === '/v1/signals/black-bull') return json(blackBullSignal);
@@ -536,6 +630,8 @@ describe('narrative pages', () => {
     expect(container.textContent).toContain('High Reflexivity');
     expect(container.textContent).toContain('KOL Dependency');
     expect(container.textContent).toContain('Thin Evidence');
+    expect(container.textContent).toContain('Attention Market Watch');
+    expect(container.textContent).toContain('Open Attention Market Watch');
   });
 
   it('filters visible results by risk facet', async () => {
@@ -626,6 +722,37 @@ describe('narrative pages', () => {
     expect(container.textContent).toContain('Narrative Asset Intelligence Method');
     expect(container.textContent).toContain('Detect Narrative Asset');
     expect(container.textContent).toContain('Publish Versioned Evidence Updates');
+  });
+
+  it('renders the Attention Market Watch index', async () => {
+    await render('/narratives/attention-market-watch');
+
+    expect(container.textContent).toContain('Attention Market Watch');
+    expect(container.textContent).toContain('Before you follow the meta, check the receipts.');
+    expect(container.textContent).toContain('Classification Method');
+    expect(container.textContent).toContain('Verdict Types');
+    expect(container.textContent).toContain('Watchlist');
+    expect(container.textContent).toContain('ANSEM');
+    expect(container.textContent).toContain('TJR');
+    expect(container.textContent).toContain('LUKE');
+    expect(container.textContent).toContain('SUPERMAN');
+    expect(container.textContent).toContain('Open Black Bull Signal Report');
+    expect(document.title).toBe('Infopunks Attention Market Watch');
+  });
+
+  it('renders the Attention Market Watch profile and links to Black Bull for ANSEM', async () => {
+    await render('/attention-market-watch/ansem');
+
+    expect(container.textContent).toContain('The Black Bull');
+    expect(container.textContent).toContain('Supportive Watch');
+    expect(container.textContent).toContain('Attention Source');
+    expect(container.textContent).toContain('Control Risk');
+    expect(container.textContent).toContain('Coherence Score');
+    expect(container.textContent).toContain('Receipt Layer');
+    expect(container.textContent).toContain('Fragmentation Risk');
+    expect(container.textContent).toContain('Evolution Verdict');
+    expect(Array.from(container.querySelectorAll('a[href="/signals/black-bull"]')).some((node) => node.textContent?.includes('Open Black Bull Signal Report'))).toBe(true);
+    expect(document.title).toBe('Infopunks Attention Market Watch: $ANSEM');
   });
 
   it('renders the Ansem signal source page without sounding like advice', async () => {

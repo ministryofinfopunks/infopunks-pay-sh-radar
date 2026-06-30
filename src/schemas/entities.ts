@@ -570,6 +570,91 @@ export const SignalDeskIndexSchema = z.object({
   desk_activity: z.array(SignalDeskActivityItemSchema)
 });
 
+export const AttentionMarketCategorySchema = z.enum([
+  'persona_coin',
+  'influencer_attention',
+  'dev_attention',
+  'ai_agent_attention',
+  'community_archetype',
+  'streamer_signal',
+  'reply_gang',
+  'anonymous_cult'
+]);
+
+export const AttentionSourceTypeSchema = z.enum([
+  'influencer',
+  'dev',
+  'ai_agent',
+  'community_archetype',
+  'streamer',
+  'reply_gang',
+  'anonymous_cult'
+]);
+
+export const AttentionMarketVerdictSchema = z.enum([
+  'attention_arbitrage',
+  'extraction_risk',
+  'cult_sludge',
+  're_index_watch',
+  'movement_candidate',
+  'signal_market_candidate',
+  'supportive_watch'
+]);
+
+export const AttentionSourceSchema = z.object({
+  type: AttentionSourceTypeSchema,
+  label: z.string(),
+  summary: z.string()
+});
+
+export const AttentionControlRiskSchema = z.object({
+  score: z.number().min(0).max(100),
+  summary: z.string(),
+  factors: z.array(z.string())
+});
+
+export const AttentionScoreSummarySchema = z.object({
+  score: z.number().min(0).max(100),
+  summary: z.string()
+});
+
+export const AttentionReceiptLayerSchema = z.object({
+  score: z.number().min(0).max(100),
+  summary: z.string(),
+  evidence_links: z.array(z.string())
+});
+
+export const AttentionMarketSignalSchema = z.object({
+  id: z.string(),
+  slug: z.string(),
+  ticker: z.string(),
+  name: z.string(),
+  category: AttentionMarketCategorySchema,
+  attention_source: AttentionSourceSchema,
+  control_risk: AttentionControlRiskSchema,
+  coherence_score: AttentionScoreSummarySchema,
+  receipt_layer: AttentionReceiptLayerSchema,
+  fragmentation_risk: AttentionScoreSummarySchema,
+  evolution_verdict: AttentionMarketVerdictSchema,
+  verdict_label: z.string(),
+  verdict_copy: z.string(),
+  risk_facets: z.array(SignalRiskFacetSchema),
+  related_signal_slug: z.string().optional(),
+  href: z.string(),
+  updated_at: z.string().datetime()
+});
+
+export const AttentionMarketWatchListResponseSchema = z.object({
+  generated_at: z.string().datetime(),
+  count: z.number().int().nonnegative(),
+  verdict_counts: z.record(z.string(), z.number().int().nonnegative()),
+  signals: z.array(AttentionMarketSignalSchema)
+});
+
+export const AttentionMarketWatchDetailResponseSchema = z.object({
+  signal: AttentionMarketSignalSchema
+});
+
 export const SearchRequestSchema = z.object({
   query: z.string().min(1),
   category: z.string().optional(),
@@ -2352,6 +2437,16 @@ export type SignalDeskReportCard = z.infer<typeof SignalDeskReportCardSchema>;
 export type SignalDeskDispatchCard = z.infer<typeof SignalDeskDispatchCardSchema>;
 export type SignalDeskActivityItem = z.infer<typeof SignalDeskActivityItemSchema>;
 export type SignalDeskIndex = z.infer<typeof SignalDeskIndexSchema>;
+export type AttentionMarketCategory = z.infer<typeof AttentionMarketCategorySchema>;
+export type AttentionSourceType = z.infer<typeof AttentionSourceTypeSchema>;
+export type AttentionMarketVerdict = z.infer<typeof AttentionMarketVerdictSchema>;
+export type AttentionSource = z.infer<typeof AttentionSourceSchema>;
+export type AttentionControlRisk = z.infer<typeof AttentionControlRiskSchema>;
+export type AttentionScoreSummary = z.infer<typeof AttentionScoreSummarySchema>;
+export type AttentionReceiptLayer = z.infer<typeof AttentionReceiptLayerSchema>;
+export type AttentionMarketSignal = z.infer<typeof AttentionMarketSignalSchema>;
+export type AttentionMarketWatchListResponse = z.infer<typeof AttentionMarketWatchListResponseSchema>;
+export type AttentionMarketWatchDetailResponse = z.infer<typeof AttentionMarketWatchDetailResponseSchema>;
 export type RouteRecommendation = z.infer<typeof RouteRecommendationSchema>;
 export type SearchRequest = z.infer<typeof SearchRequestSchema>;
 export type RouteRecommendationRequest = z.infer<typeof RouteRecommendationRequestSchema>;

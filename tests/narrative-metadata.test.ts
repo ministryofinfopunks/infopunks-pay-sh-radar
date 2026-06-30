@@ -36,6 +36,40 @@ describe('narrative metadata helper', () => {
     });
   });
 
+  it('returns metadata for /narratives/attention-market-watch', () => {
+    expect(getNarrativeMetadataForPath('/narratives/attention-market-watch')).toEqual({
+      title: 'Infopunks Attention Market Watch',
+      description: 'Classification engine for persona-backed markets, influencer coins, receipts, control risk, and narrative coherence.',
+      canonicalPath: '/narratives/attention-market-watch',
+      ogTitle: 'Infopunks Attention Market Watch',
+      ogDescription: 'Classification engine for persona-backed markets, influencer coins, receipts, control risk, and narrative coherence.',
+      ogImageUrl: 'https://radar.infopunks.fun/og/attention-market-watch.png',
+      ogImageWidth: 1200,
+      ogImageHeight: 630,
+      twitterTitle: 'Infopunks Attention Market Watch',
+      twitterDescription: 'Classification engine for persona-backed markets, influencer coins, receipts, control risk, and narrative coherence.',
+      twitterImageUrl: 'https://radar.infopunks.fun/og/attention-market-watch.png',
+      twitterCard: 'summary_large_image'
+    });
+  });
+
+  it('returns metadata for /attention-market-watch/ansem', () => {
+    expect(getNarrativeMetadataForPath('/attention-market-watch/ansem')).toEqual({
+      title: 'Infopunks Attention Market Watch: $ANSEM',
+      description: 'Attention market classification for $ANSEM, including source, control risk, coherence, receipts, fragmentation, and verdict.',
+      canonicalPath: '/attention-market-watch/ansem',
+      ogTitle: 'Infopunks Attention Market Watch: $ANSEM',
+      ogDescription: 'Attention market classification for $ANSEM, including source, control risk, coherence, receipts, fragmentation, and verdict.',
+      ogImageUrl: 'https://radar.infopunks.fun/og/attention-market-watch/ansem.png',
+      ogImageWidth: 1200,
+      ogImageHeight: 630,
+      twitterTitle: 'Infopunks Attention Market Watch: $ANSEM',
+      twitterDescription: 'Attention market classification for $ANSEM, including source, control risk, coherence, receipts, fragmentation, and verdict.',
+      twitterImageUrl: 'https://radar.infopunks.fun/og/attention-market-watch/ansem.png',
+      twitterCard: 'summary_large_image'
+    });
+  });
+
   it('returns metadata for /signals/troll', () => {
     expect(getNarrativeMetadataForPath('/signals/troll')).toEqual({
       title: 'Infopunks Signal Report: $TROLL / The Re-Indexed Archetype',

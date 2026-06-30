@@ -63,6 +63,25 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
     );
   }
 
+  if (/^\/narratives\/attention-market-watch\/?$/.test(pathname) || /^\/attention-market-watch\/?$/.test(pathname)) {
+    return buildMetadata(
+      'Infopunks Attention Market Watch',
+      'Classification engine for persona-backed markets, influencer coins, receipts, control risk, and narrative coherence.',
+      '/narratives/attention-market-watch'
+    );
+  }
+
+  const attentionWatchProfileMatch = pathname.match(/^\/attention-market-watch\/([^/]+)\/?$/);
+  if (attentionWatchProfileMatch) {
+    const slug = decodePathPart(attentionWatchProfileMatch[1]);
+    const ticker = slug.toUpperCase();
+    return buildMetadata(
+      `Infopunks Attention Market Watch: $${ticker}`,
+      `Attention market classification for $${ticker}, including source, control risk, coherence, receipts, fragmentation, and verdict.`,
+      `/attention-market-watch/${encodeURIComponent(slug)}`
+    );
+  }
+
   if (/^\/signals\/ansem\/?$/.test(pathname)) {
     return buildMetadata(
       'Infopunks Signal Source: Ansem',
