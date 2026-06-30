@@ -186,6 +186,10 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.SignalDeskIndex.properties.candidate_signals.items.$ref).toBe('#/components/schemas/CandidateSignal');
     expect(spec.components.schemas.SignalEvidenceUpdateType.enum).toEqual(['attention_shift', 'holder_shift', 'myth_shift', 'risk_shift', 'verdict_change']);
     expect(spec.components.schemas.SignalEvidenceUpdate.properties.update_type.$ref).toBe('#/components/schemas/SignalEvidenceUpdateType');
+    expect(spec.components.schemas.NarrativeSignalSurfaceResponse.properties.infopunk_verdict).toBeTruthy();
+    expect(spec.components.schemas.NarrativeSignalSurfaceResponse.properties.verdict_label).toBeTruthy();
+    expect(spec.components.schemas.NarrativeSignalSurfaceResponse.properties.verdict_state).toBeTruthy();
+    expect(spec.components.schemas.NarrativeSignalSurfaceResponse.properties.verdict_copy).toBeTruthy();
     expect(spec.components.schemas.BenchmarkRouteMetric.properties.status_code).toBeTruthy();
     expect(spec.components.schemas.BenchmarkRouteMetric.properties.status_evidence).toBeTruthy();
     expect(spec.components.schemas.BenchmarkRouteMetric.properties.execution_transport).toBeTruthy();

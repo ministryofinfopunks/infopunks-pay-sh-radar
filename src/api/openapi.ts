@@ -3454,6 +3454,10 @@ function componentSchemas(): Record<string, JsonSchema> {
       signal_source: stringSchema(),
       asset_slug: { type: ['string', 'null'] },
       last_updated: dateTimeSchema(),
+      infopunk_verdict: stringSchema(),
+      verdict_label: stringSchema(),
+      verdict_state: stringSchema(),
+      verdict_copy: stringSchema(),
       cards: arrayOf({ $ref: '#/components/schemas/NarrativeSignalCard' }),
       sections: arrayOf({ $ref: '#/components/schemas/NarrativeSignalSection' }),
       asset: { $ref: '#/components/schemas/NarrativeAssetResponse' }

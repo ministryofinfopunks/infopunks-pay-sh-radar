@@ -427,6 +427,38 @@ export const signalSurfaces: NarrativeSignalSurface[] = [
   }
 ];
 
+function verdictFieldsForSurface(surface: NarrativeSignalSurface) {
+  if (surface.type !== 'signal_report' || !surface.asset) return {};
+
+  if (surface.slug === 'black-bull') {
+    return {
+      infopunk_verdict: surface.asset.infopunk_verdict,
+      verdict_label: 'SUPPORTIVE WATCH',
+      verdict_state: 'supportive_watch',
+      verdict_copy: surface.asset.infopunk_verdict
+    };
+  }
+
+  if (surface.slug === 'troll') {
+    return {
+      infopunk_verdict: surface.asset.infopunk_verdict,
+      verdict_label: 'RE-INDEX WATCH',
+      verdict_state: 're_index_watch',
+      verdict_copy: surface.asset.infopunk_verdict
+    };
+  }
+
+  const verdictCard = surface.cards.find((card) => card.id === 'infopunk-verdict');
+  const verdictLabel = typeof verdictCard?.score === 'string' ? verdictCard.score : undefined;
+  const verdictState = verdictCard?.decision_state;
+  return {
+    infopunk_verdict: surface.asset.infopunk_verdict,
+    verdict_label: verdictLabel,
+    verdict_state: verdictState,
+    verdict_copy: surface.asset.infopunk_verdict
+  };
+}
+
 export function listNarrativeAssets() {
   return narrativeAssets;
 }
@@ -445,10 +477,12 @@ export function listSignalSurfaces() {
     disclaimer: item.disclaimer,
     signal_source: item.signal_source,
     asset_slug: item.asset_slug,
-    last_updated: item.last_updated
+    last_updated: item.last_updated,
+    ...verdictFieldsForSurface(item)
   }));
 }
 
 export function getSignalSurfaceBySlug(slug: string) {
-  return signalSurfaces.find((item) => item.slug === slug) ?? null;
+  const surface = signalSurfaces.find((item) => item.slug === slug);
+  return surface ? { ...surface, ...verdictFieldsForSurface(surface) } : null;
 }

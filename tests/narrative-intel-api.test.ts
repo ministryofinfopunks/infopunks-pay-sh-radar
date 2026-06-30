@@ -229,7 +229,11 @@ describe('narrative intel api', () => {
       expect(report.json().data).toEqual(expect.objectContaining({
         slug: 'black-bull',
         type: 'signal_report',
-        signal_source: 'Ansem'
+        signal_source: 'Ansem',
+        infopunk_verdict: expect.stringContaining('Infopunks supports the Black Bull'),
+        verdict_label: 'SUPPORTIVE WATCH',
+        verdict_state: 'supportive_watch',
+        verdict_copy: expect.stringContaining('Infopunks supports the Black Bull')
       }));
       expect(report.json().data.cards).toEqual(expect.arrayContaining([
         expect.objectContaining({
@@ -254,7 +258,11 @@ describe('narrative intel api', () => {
       expect(troll.json().data).toEqual(expect.objectContaining({
         slug: 'troll',
         type: 'signal_report',
-        signal_source: 'Community takeover + legacy internet meme archetype'
+        signal_source: 'Community takeover + legacy internet meme archetype',
+        infopunk_verdict: expect.stringContaining('Infopunks marks $TROLL as Re-index Watch'),
+        verdict_label: 'RE-INDEX WATCH',
+        verdict_state: 're_index_watch',
+        verdict_copy: expect.stringContaining('The signal is resurrection')
       }));
       expect(troll.json().data.cards).toEqual(expect.arrayContaining([
         expect.objectContaining({

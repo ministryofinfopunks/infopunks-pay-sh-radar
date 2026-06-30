@@ -402,6 +402,10 @@ export const NarrativeSignalSurfaceSchema = z.object({
   signal_source: z.string(),
   asset_slug: z.string().nullable(),
   last_updated: z.string().datetime(),
+  infopunk_verdict: z.string().optional(),
+  verdict_label: z.string().optional(),
+  verdict_state: z.string().optional(),
+  verdict_copy: z.string().optional(),
   cards: z.array(NarrativeSignalCardSchema),
   sections: z.array(NarrativeSignalSectionSchema),
   asset: NarrativeAssetSchema.optional()
