@@ -80,6 +80,7 @@ type SignalEvidenceUpdate = {
   previous_score?: number;
   new_score?: number;
   analyst_note: string;
+  risk_facets?: SignalRiskFacet[];
 };
 
 type SignalEvidenceUpdateResponse = {
@@ -134,7 +135,7 @@ type SignalDeskDispatchCard = {
   signal_delta?: number;
 };
 
-type SignalDeskActivityType = 'report_published' | 'dispatch_published' | 'risk_shift' | 'verdict_change' | 'metadata_updated' | 'og_card_generated';
+type SignalDeskActivityType = 'report_published' | 'dispatch_published' | 'risk_shift' | 'verdict_change' | 'candidate_promoted' | 'metadata_updated' | 'og_card_generated';
 
 type SignalDeskActivityItem = {
   id: string;
@@ -393,8 +394,8 @@ function signalDelta(update: SignalEvidenceUpdate) {
 }
 
 function deskStatus(signal: NarrativeSignalSurface, updateCount: number) {
-  if (signal.slug === 'black-bull') return 'Live Watch';
-  if (!updateCount) return 'Seeded Report';
+  if (updateCount > 0) return 'Live Watch';
+  if (signal.type === 'signal_report') return 'Seeded Report';
   return 'Needs Review';
 }
 
@@ -831,7 +832,8 @@ function NarrativeIntelNav({ current }: { current: string }) {
     { href: '/narratives', label: 'Narrative Intel' },
     { href: '/narratives/attention-markets', label: 'Attention Markets' },
     { href: '/signals/ansem', label: 'Ansem' },
-    { href: '/signals/black-bull', label: 'Black Bull' }
+    { href: '/signals/black-bull', label: 'Black Bull' },
+    { href: '/signals/troll', label: 'TROLL' }
   ];
 
   return <nav className="global-toolbar narrative-toolbar" aria-label="Narrative Intel navigation">
@@ -1379,6 +1381,10 @@ function SignalSurfacePage({ slug, expectedType }: { slug: string; expectedType:
         ]} />}
         {surface.slug === 'black-bull' && <NarrativeLinkCluster links={[
           { href: '/signals/ansem', label: 'Ansem Signal Source' },
+          { href: '/narratives/attention-markets', label: 'Attention Markets Thesis' },
+          { href: '/narratives', label: 'Narrative Intel Index' }
+        ]} />}
+        {surface.slug === 'troll' && <NarrativeLinkCluster links={[
           { href: '/narratives/attention-markets', label: 'Attention Markets Thesis' },
           { href: '/narratives', label: 'Narrative Intel Index' }
         ]} />}

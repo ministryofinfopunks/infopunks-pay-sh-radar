@@ -1,12 +1,39 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { createApp } from '../src/api/app';
 import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
 
-async function postCheck(payload: Record<string, unknown>) {
+async function postCheck(payload: Record<string, unknown>, fixedNow?: string) {
   const app = await createApp(emptyIntelligenceStore());
-  const response = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload });
-  await app.close();
-  return response;
+  const RealDate = Date;
+  try {
+    if (fixedNow) {
+      const fixedMs = new RealDate(fixedNow).getTime();
+      class MockDate extends RealDate {
+        constructor(value?: string | number | Date) {
+          super(arguments.length === 0 ? fixedMs : value as string | number | Date);
+        }
+
+        static now() {
+          return fixedMs;
+        }
+
+        static parse = RealDate.parse;
+        static UTC = RealDate.UTC;
+      }
+
+      globalThis.Date = MockDate as DateConstructor;
+    }
+
+    const response = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload });
+
+    if (fixedNow) globalThis.Date = RealDate;
+    await app.close();
+    return response;
+  } catch (error) {
+    if (fixedNow) globalThis.Date = RealDate;
+    await app.close();
+    throw error;
+  }
 }
 
 describe('pre-spend builder API', () => {
@@ -26,7 +53,7 @@ describe('pre-spend builder API', () => {
     expect(body.rationale.length).toBeGreaterThan(0);
   });
 
-  it('returns approved when a cleaner high-confidence market research route is available', async () => {
+  it('returns approved_with_warning when the cheaper market research route wins within the cost-selection threshold', async () => {
     const response = await postCheck({
       agent_id: 'agent_001',
       intent: 'buy_market_research',
@@ -34,12 +61,16 @@ describe('pre-spend builder API', () => {
       risk_tolerance: 'low',
       preferred_settlement: 'stablecoin',
       required_confidence: 75
-    });
+    }, '2026-06-20T00:00:00.000Z');
     expect(response.statusCode).toBe(200);
     const body = response.json().data;
-    expect(body.decision).toBe('approved');
-    expect(body.recommended_route).toBe('route_pay_sh_market_research_03');
-    expect(body.known_blockers).toEqual([]);
+    expect(body.decision).toBe('approved_with_warning');
+    expect(body.recommended_route).toBe('route_pay_sh_market_research_01');
+    expect(body.known_blockers).toEqual([
+      'occasional timeout under high load',
+      'output quality varies by prompt specificity'
+    ]);
+    expect(body.safer_alternatives).toContain('route_pay_sh_market_research_03');
     expect(body.rationale.length).toBeGreaterThan(0);
   });
 

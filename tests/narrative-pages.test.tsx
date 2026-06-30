@@ -140,16 +140,116 @@ const blackBullUpdateDetail = {
   update: blackBullUpdates.latest_update
 };
 
+const trollAsset = {
+  id: 'narrative_asset_troll',
+  slug: 'troll',
+  ticker: 'TROLL',
+  name: 'The Re-Indexed Archetype',
+  chain: 'Solana',
+  category: 'Meme Archetype / Community Takeover / Re-indexed Internet Lore',
+  thesis: 'TROLL is not a new meme. It is an old internet archetype being re-indexed as a Solana-native community asset. Its strength comes from instantly legible meme history, community takeover energy, and broad internet-native recognizability.',
+  signal_source: 'Community takeover + legacy internet meme archetype',
+  attention_velocity_score: 78,
+  myth_coherence_score: 91,
+  centralization_risk_score: 70,
+  reflexivity_risk_score: 76,
+  kol_dependency_score: 0,
+  trench_contagion_score: 82,
+  sovereignty_score: 58,
+  infopunk_verdict: 'Infopunks marks $TROLL as Re-index Watch. The signal is not newness. The signal is resurrection. TROLL carries one of the internet\'s oldest memetic archetypes into a Solana-native community takeover structure. Meme fitness is high, community surface is visible, and the symbol travels instantly. The desk still requires deeper wallet-flow, concentration, and recent narrative-velocity evidence before upgrading to Supportive Watch.',
+  evidence_artifacts: [
+    { label: 'DEX Screener market structure', note: 'Observed on DEX Screener: TROLL trades on Solana via PumpSwap with around $53.1M market cap / FDV and around $2.7M liquidity.', href: 'https://dexscreener.com/solana/4w2cysotx6czaugmmwg13hdpy4qemg2czekyeqyk9ama' },
+    { label: 'Community takeover profile', note: 'Observed on DEX Screener: the profile is marked Community Takeover, shows a community claim dated Apr 24, 2025, and states "Troll is a community run token."', href: 'https://dexscreener.com/solana/4w2cysotx6czaugmmwg13hdpy4qemg2czekyeqyk9ama' }
+  ],
+  related_routes: [{ label: 'TROLL Signal Report', href: '/signals/troll' }],
+  last_updated: '2026-06-30T12:00:00.000Z'
+};
+
+const trollSignal = {
+  slug: 'troll',
+  type: 'signal_report',
+  title: '$TROLL / The Re-Indexed Archetype',
+  subtitle: 'Narrative signal report',
+  thesis: trollAsset.thesis,
+  disclaimer: 'This report maps signal conditions around a narrative asset. It is not financial advice.',
+  signal_source: 'Community takeover + legacy internet meme archetype',
+  asset_slug: 'troll',
+  last_updated: '2026-06-30T12:00:00.000Z',
+  cards: [
+    { id: 'signal-strength', title: 'Signal Strength', score: 86, short_explanation: 'The signal comes from instant archetype recognition plus visible community takeover structure, not from novelty.', evidence_note: 'Observed on DEX Screener: Solana / PumpSwap market structure and visible liquidity create a real surface for monitoring.', decision_state: 'watch_closely' },
+    { id: 'meme-fitness', title: 'Meme Fitness', score: 95, short_explanation: 'The troll symbol is already installed in internet memory.', evidence_note: 'Legacy meme recognizability reduces explanation friction.', decision_state: 'strong_signal' },
+    { id: 'myth-coherence', title: 'Myth Coherence', score: 91, short_explanation: 'The story is compact: old archetype, new chain, community-run re-indexing.', evidence_note: 'The narrative depends on recognizable resurrection.', decision_state: 'watch_closely' },
+    { id: 'community-surface', title: 'Community Surface', score: 84, short_explanation: 'Community surface is visible, but it still needs more repeated evidence.', evidence_note: 'Observed on DEX Screener: the page says "Troll is a community run token" and shows a community claim date.', decision_state: 'watch_closely' },
+    { id: 'attention-velocity', title: 'Attention Velocity', score: 78, short_explanation: 'Recognizable lore and current market visibility create a strong watch condition.', evidence_note: 'Around $53.1M market cap / FDV and around $2.7M liquidity on DEX Screener indicate attention is already finding the symbol.', decision_state: 'watch_closely' },
+    { id: 'trench-contagion', title: 'Trench Contagion', score: 82, short_explanation: 'Legacy meme shorthand can spread fast in trench environments.', evidence_note: 'The meme does not need a long onboarding curve.', decision_state: 'watch_closely' },
+    { id: 'holder-power-concentration', title: 'Holder / Power Concentration', score: 70, short_explanation: 'The desk needs deeper holder and wallet-flow evidence.', evidence_note: 'Holder surface is visible on DEX Screener, but not treated as canonical on-chain truth.', decision_state: 'concentrated_power' },
+    { id: 'reflexivity-risk', title: 'Reflexivity Risk', score: 76, short_explanation: 'Legacy memes can reignite quickly and start reinforcing themselves.', evidence_note: 'Track whether attention loops remain evidence-led.', decision_state: 'high_reflexivity' },
+    { id: 'sovereignty-score', title: 'Sovereignty Score', score: 58, short_explanation: 'Community takeover improves independence, but durable sovereignty still needs stronger proof.', evidence_note: 'Takeover framing is a positive coordination signal, not final proof.', decision_state: 'unproven' },
+    { id: 'infopunk-verdict', title: 'Infopunk Verdict', score: 'RE-INDEX WATCH', short_explanation: 'Infopunks opens TROLL as a resurrection signal.', evidence_note: 'The desk wants deeper wallet-flow, concentration, and recent narrative-velocity evidence before any upgrade.', decision_state: 'watch_closely' }
+  ],
+  sections: [
+    { id: 'signal-source', title: 'Signal Source', body: 'TROLL\'s signal source is not one KOL. It is a legacy internet archetype plus community takeover structure.', card_ids: ['signal-strength'] },
+    { id: 'archetype-fitness', title: 'Archetype Fitness', body: 'The troll symbol is instantly legible across internet culture. It travels faster than newly invented lore because the meme is already installed in collective memory.', card_ids: ['meme-fitness', 'myth-coherence'] },
+    { id: 'community-takeover', title: 'Community Takeover', body: 'The DEX Screener profile frames TROLL as a community-run token and shows a community claim date. Treat this as a positive coordination signal, but require ongoing evidence.', card_ids: ['community-surface', 'holder-power-concentration'] },
+    { id: 'attention-velocity', title: 'Attention Velocity', body: 'TROLL has market visibility and recognizable lore, but the desk should keep watching whether current attention is organic, durable, and repeatable.', card_ids: ['attention-velocity', 'trench-contagion'] },
+    { id: 'reflexivity-risk', title: 'Reflexivity Risk', body: 'Legacy memes can revive quickly, but attention loops can also overheat. Track whether price, posting, and belief become self-reinforcing without new evidence.', card_ids: ['reflexivity-risk', 'sovereignty-score'] },
+    { id: 'infopunk-verdict', title: 'Infopunk Verdict', body: 'Infopunks marks $TROLL as Re-index Watch. The signal is not newness. The signal is resurrection. TROLL carries one of the internet\'s oldest memetic archetypes into a Solana-native community takeover structure. Meme fitness is high, community surface is visible, and the symbol travels instantly. The desk still requires deeper wallet-flow, concentration, and recent narrative-velocity evidence before upgrading to Supportive Watch.', card_ids: ['infopunk-verdict'] }
+  ],
+  asset: trollAsset
+};
+
+const trollLatestUpdate = {
+  update_id: 'seu_troll_001',
+  signal_slug: 'troll',
+  timestamp: '2026-06-30T12:00:00.000Z',
+  update_type: 'verdict_change',
+  summary: 'Infopunks opens $TROLL as the second re-indexed signal report, classifying it as a legacy internet archetype entering Solana-native community takeover form.',
+  evidence_links: ['https://dexscreener.com/solana/4w2cysotx6czaugmmwg13hdpy4qemg2czekyeqyk9ama', '/signals/troll'],
+  new_score: 86,
+  analyst_note: 'TROLL\'s signal is not novelty. The signal is resurrection. The meme already exists in internet memory; the desk is now watching whether community takeover structure, liquidity, holder surface, and trench attention can turn that legacy archetype into a durable Solana-native narrative asset.',
+  risk_facets: ['live_watch', 'thin_evidence', 'high_reflexivity', 'power_concentration']
+} as const;
+
+const trollUpdates = {
+  signal_slug: 'troll',
+  count: 1,
+  latest_update: trollLatestUpdate,
+  summary: 'Evidence update summary: Infopunks opens $TROLL as the second re-indexed signal report, classifying it as a legacy internet archetype entering Solana-native community takeover form. Latest signal shift: verdict_change. Reflexivity monitoring remains active. Infopunks Radar is no longer just watching markets. It is watching the narratives that become markets.',
+  updates: [trollLatestUpdate]
+};
+
+const trollUpdateDetail = {
+  signal_slug: 'troll',
+  update: trollUpdates.latest_update
+};
+
 const signalDesk = {
   generated_at: '2026-06-30T09:30:00.000Z',
   desk_status: 'live_watch',
   counts: {
     reports: 2,
-    dispatches: 6,
+    dispatches: 3,
     risk_shifts: 4,
     watched_signals: 2
   },
   candidate_signals: [
+    {
+      candidate_id: 'candidate_troll_reindex',
+      name: 'The Re-Indexed Archetype',
+      ticker: 'TROLL',
+      chain: 'Solana',
+      category: 'meme_asset',
+      submitted_by: 'desk',
+      status: 'promoted_to_report',
+      priority: 'high',
+      risk_level: 'medium',
+      risk_facets: ['live_watch', 'thin_evidence', 'high_reflexivity', 'power_concentration'],
+      summary: 'Candidate promoted to report: $TROLL / The Re-Indexed Archetype.',
+      why_it_matters: 'Legacy internet lore can re-enter the market as a community takeover signal without depending on a single persona source.',
+      evidence_links: ['https://dexscreener.com/solana/4w2cysotx6czaugmmwg13hdpy4qemg2czekyeqyk9ama', '/signals/troll'],
+      created_at: '2026-06-30T11:30:00.000Z',
+      updated_at: '2026-06-30T12:00:00.000Z'
+    },
     {
       candidate_id: 'candidate_sol_persona_attention',
       name: 'Next attention market around a major Solana persona',
@@ -183,12 +283,12 @@ const signalDesk = {
     }
   ],
   candidate_counts: {
-    total: 2,
+    total: 3,
     queued: 0,
     watching: 1,
     needs_evidence: 1,
     under_review: 0,
-    promoted_to_report: 0
+    promoted_to_report: 1
   },
   featured_report: {
     slug: 'black-bull',
@@ -208,6 +308,22 @@ const signalDesk = {
     update_count: 6
   },
   reports: [{
+    slug: 'troll',
+    ticker: 'TROLL',
+    name: 'The Re-Indexed Archetype',
+    category: 'Meme Archetype / Community Takeover / Re-indexed Internet Lore',
+    thesis: trollAsset.thesis,
+    href: '/signals/troll',
+    signal_strength: 86,
+    myth_coherence: 91,
+    reflexivity_risk: 76,
+    sovereignty_score: 58,
+    risk_facets: ['live_watch', 'thin_evidence', 'high_reflexivity', 'power_concentration'],
+    desk_status: 'live_watch',
+    latest_update_type: 'verdict_change',
+    latest_update_at: '2026-06-30T12:00:00.000Z',
+    update_count: 1
+  }, {
     slug: 'black-bull',
     ticker: 'ANSEM',
     name: 'The Black Bull',
@@ -223,24 +339,23 @@ const signalDesk = {
     latest_update_type: 'verdict_change',
     latest_update_at: '2026-06-30T09:30:00.000Z',
     update_count: 6
-  }, {
-    slug: 'wallet-coordination',
-    ticker: 'AICORE',
-    name: 'AI Wallet Coordination',
-    category: 'Agentic Narrative',
-    thesis: 'AI wallet coordination is being tested as a narrative rail rather than a utility layer.',
-    href: '/signals/wallet-coordination',
-    signal_strength: 71,
-    myth_coherence: 68,
-    reflexivity_risk: 59,
-    sovereignty_score: 52,
-    risk_facets: ['thin_evidence'],
-    desk_status: 'seeded_report',
-    latest_update_type: 'attention_shift',
-    latest_update_at: '2026-06-27T09:10:00.000Z',
-    update_count: 1
   }],
   latest_dispatches: [
+    {
+      update_id: 'seu_troll_001',
+      signal_slug: 'troll',
+      signal_name: 'The Re-Indexed Archetype',
+      ticker: 'TROLL',
+      update_type: 'verdict_change',
+      readable_update_type: 'Verdict Change',
+      timestamp: '2026-06-30T12:00:00.000Z',
+      summary: trollUpdates.latest_update.summary,
+      analyst_note: trollUpdates.latest_update.analyst_note,
+      href: '/signals/troll/updates/seu_troll_001',
+      og_image: '/og/signals/troll/updates/seu_troll_001.png',
+      risk_facets: ['live_watch', 'thin_evidence', 'high_reflexivity', 'power_concentration'],
+      new_score: 86
+    },
     ...blackBullUpdates.updates.map((update) => ({
       update_id: update.update_id,
       signal_slug: update.signal_slug,
@@ -259,24 +374,7 @@ const signalDesk = {
       previous_score: update.previous_score,
       new_score: update.new_score,
       signal_delta: typeof update.previous_score === 'number' && typeof update.new_score === 'number' ? update.new_score - update.previous_score : undefined
-    })),
-    {
-      update_id: 'seu_wallet_coordination_001',
-      signal_slug: 'wallet-coordination',
-      signal_name: 'AI Wallet Coordination',
-      ticker: 'AICORE',
-      update_type: 'attention_shift',
-      readable_update_type: 'Attention Shift',
-      timestamp: '2026-06-27T09:10:00.000Z',
-      summary: 'AI wallet coordination is receiving repeat desk mentions across agent infrastructure conversations.',
-      analyst_note: 'Signal is early and still needs cleaner evidence separation from generic AI wallet chatter.',
-      href: '/signals/wallet-coordination/updates/seu_wallet_coordination_001',
-      og_image: '/og/signals/wallet-coordination/updates/seu_wallet_coordination_001.png',
-      risk_facets: ['thin_evidence'],
-      previous_score: 51,
-      new_score: 63,
-      signal_delta: 12
-    }
+    }))
   ],
   risk_shifts: blackBullUpdates.updates.map((update) => ({
     update_id: update.update_id,
@@ -301,6 +399,14 @@ const signalDesk = {
   })),
   desk_activity: [
     {
+      id: 'candidate_promoted_candidate_troll_reindex',
+      type: 'candidate_promoted',
+      timestamp: '2026-06-30T12:00:00.000Z',
+      title: 'Candidate promoted to report: $TROLL / The Re-Indexed Archetype',
+      summary: 'Candidate promoted to report: $TROLL / The Re-Indexed Archetype.',
+      href: '/signals/troll'
+    },
+    {
       id: 'dispatch_published_seu_black_bull_006',
       type: 'dispatch_published',
       timestamp: '2026-06-30T09:30:00.000Z',
@@ -323,8 +429,11 @@ describe('narrative pages', () => {
       if (path === '/v1/signal-desk') return json(signalDesk);
       if (path === '/v1/signals/ansem') return json(ansemSignal);
       if (path === '/v1/signals/black-bull') return json(blackBullSignal);
+      if (path === '/v1/signals/troll') return json(trollSignal);
       if (path === '/v1/signals/black-bull/updates') return json(blackBullUpdates);
       if (path === '/v1/signals/black-bull/updates/seu_black_bull_006') return json(blackBullUpdateDetail);
+      if (path === '/v1/signals/troll/updates') return json(trollUpdates);
+      if (path === '/v1/signals/troll/updates/seu_troll_001') return json(trollUpdateDetail);
       if (path === '/v1/signals/ansem/updates') return json({ signal_slug: 'ansem', count: 0, latest_update: null, summary: 'Evidence update summary: no evidence updates yet.', updates: [] });
       return Promise.resolve(new Response('{}', { status: 404 }));
     });
@@ -361,6 +470,7 @@ describe('narrative pages', () => {
     expect(container.textContent).toContain('Reports Catalog');
     expect(container.textContent).toContain('Desk Activity Timeline');
     expect(container.textContent).toContain('ANSEM / The Black Bull');
+    expect(container.textContent).toContain('TROLL / The Re-Indexed Archetype');
     expect(container.textContent).toContain('Signal Strength');
     expect(container.textContent).toContain('Myth Coherence');
     expect(container.textContent).toContain('Reflexivity Risk');
@@ -386,6 +496,7 @@ describe('narrative pages', () => {
     expect(container.textContent).toContain('Submitting a narrative does not create a buy call. It adds a candidate for evidence review.');
     expect(container.textContent).toContain('Next attention market around a major Solana persona');
     expect(container.textContent).toContain('Agentic meme asset gaining repeat mentions');
+    expect(container.textContent).toContain('Candidate promoted to report: $TROLL / The Re-Indexed Archetype.');
     expect(container.querySelector('input[aria-label="Search reports and dispatches"]')).not.toBeNull();
     expect(container.querySelector('select[aria-label="Update Type Filter"]')).not.toBeNull();
     expect(container.querySelector('select[aria-label="Risk Facet Filter"]')).not.toBeNull();
@@ -401,13 +512,12 @@ describe('narrative pages', () => {
     const riskFacet = container.querySelector('select[aria-label="Risk Facet Filter"]') as HTMLSelectElement;
 
     await act(async () => {
-      riskFacet.value = 'high_reflexivity';
+      riskFacet.value = 'kol_dependency';
       riskFacet.dispatchEvent(new Event('change', { bubbles: true }));
     });
 
     expect(container.textContent).toContain('The Black Bull');
     expect(container.textContent).not.toContain('Agentic meme asset gaining repeat mentions');
-    expect(container.textContent).not.toContain('AI wallet coordination is receiving repeat desk mentions across agent infrastructure conversations.');
   });
 
   it('filters dispatches by update type and search', async () => {
@@ -417,20 +527,20 @@ describe('narrative pages', () => {
     const search = container.querySelector('input[aria-label="Search reports and dispatches"]') as HTMLInputElement;
 
     await act(async () => {
-      updateType.value = 'attention_shift';
+      updateType.value = 'verdict_change';
       updateType.dispatchEvent(new Event('change', { bubbles: true }));
     });
 
-    expect(container.textContent).toContain('AI wallet coordination is receiving repeat desk mentions across agent infrastructure conversations.');
-    expect(container.textContent).toContain('No matching dispatches');
+    expect(container.textContent).toContain('Infopunks opens $TROLL as the second re-indexed signal report');
+    expect(container.textContent).toContain("Ansem's reported 67.38M $ANSEM airdrop");
 
     await act(async () => {
-      search.value = 'wallet coordination';
+      search.value = 're-indexed archetype';
       search.dispatchEvent(new Event('input', { bubbles: true }));
       search.dispatchEvent(new Event('change', { bubbles: true }));
     });
 
-    expect(container.textContent).toContain('AI Wallet Coordination');
+    expect(container.textContent).toContain('The Re-Indexed Archetype');
     expect(container.textContent).not.toContain('The Black Bull report published');
   });
 
@@ -581,6 +691,28 @@ describe('narrative pages', () => {
     expect(metaContent('meta[property="og:image"]')).toBe('https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_006.png');
     expect(metaContent('meta[name="twitter:image"]')).toBe('https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_006.png');
     expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe('https://radar.infopunks.fun/signals/black-bull/updates/seu_black_bull_006');
+  });
+
+  it('renders the TROLL report and dispatch routes', async () => {
+    await render('/signals/troll');
+
+    expect(container.textContent).toContain('$TROLL / The Re-Indexed Archetype');
+    expect(container.textContent).toContain('RE-INDEX WATCH');
+    expect(container.textContent).toContain('Community Takeover');
+    expect(container.textContent).toContain('Meme Fitness');
+    expect(container.textContent).toContain('Holder / Power Concentration');
+    expect(container.textContent).toContain('Observed on DEX Screener');
+    expect(metaContent('meta[property="og:title"]')).toBe('Infopunks Signal Report: $TROLL / The Re-Indexed Archetype');
+    expect(metaContent('meta[property="og:image"]')).toBe('https://radar.infopunks.fun/og/signals/troll.png');
+
+    await render('/signals/troll/updates/seu_troll_001');
+
+    expect(container.textContent).toContain('Desk Dispatch');
+    expect(container.textContent).toContain('$TROLL / The Re-Indexed Archetype');
+    expect(container.textContent).toContain('Infopunks opens $TROLL as the second re-indexed signal report');
+    expect(document.title).toBe('Infopunks Desk Dispatch: Re-index Watch');
+    expect(metaContent('meta[property="og:title"]')).toBe('Infopunks Desk Dispatch: Re-index Watch');
+    expect(metaContent('meta[property="og:image"]')).toBe('https://radar.infopunks.fun/og/signals/troll/updates/seu_troll_001.png');
   });
 
   it('renders a clean not-found state for unknown signal update permalinks', async () => {

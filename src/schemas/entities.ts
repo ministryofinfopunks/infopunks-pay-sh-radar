@@ -366,6 +366,7 @@ export const NarrativeAssetSchema = z.object({
   providerIds: z.array(z.string()),
   keywords: z.array(z.string()),
   summary: z.string(),
+  risk_facets: z.array(z.lazy(() => SignalRiskFacetSchema)).optional(),
   severity: SeveritySchema.optional(),
   severity_reason: z.string().optional(),
   severity_score: z.number().optional(),
@@ -423,7 +424,8 @@ export const SignalEvidenceUpdateSchema = z.object({
   evidence_links: z.array(z.string()),
   previous_score: z.number().min(0).max(100).optional(),
   new_score: z.number().min(0).max(100).optional(),
-  analyst_note: z.string()
+  analyst_note: z.string(),
+  risk_facets: z.array(z.lazy(() => SignalRiskFacetSchema)).optional()
 });
 
 export const SignalDeskStatusSchema = z.enum(['live_watch', 'seeded_report', 'needs_review']);
@@ -486,6 +488,7 @@ export const SignalDeskActivityTypeSchema = z.enum([
   'dispatch_published',
   'risk_shift',
   'verdict_change',
+  'candidate_promoted',
   'metadata_updated',
   'og_card_generated'
 ]);

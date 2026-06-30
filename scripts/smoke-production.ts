@@ -81,6 +81,7 @@ export function buildSmokePlan(): SmokePlan {
       '/narratives/attention-markets',
       '/signals/ansem',
       '/signals/black-bull',
+      '/signals/troll',
       '/openapi.json',
       `/routes/${encodeURIComponent(routeId)}`,
       `/providers/${encodeURIComponent(providerId)}`,
@@ -114,6 +115,8 @@ export function buildSmokePlan(): SmokePlan {
       '/v1/signals',
       '/v1/signals/black-bull',
       '/v1/signals/black-bull/updates',
+      '/v1/signals/troll',
+      '/v1/signals/troll/updates',
       '/v1/pre-spend/providers',
       '/v1/services',
       '/v1/receipts',
@@ -128,7 +131,9 @@ export function buildSmokePlan(): SmokePlan {
     pngPaths: [
       '/og/narratives.png',
       '/og/signals/black-bull.png',
-      '/og/signals/black-bull/updates/seu_black_bull_006.png'
+      '/og/signals/black-bull/updates/seu_black_bull_006.png',
+      '/og/signals/troll.png',
+      '/og/signals/troll/updates/seu_troll_001.png'
     ],
     claimsApiPaths: [
       '/v1/claims',

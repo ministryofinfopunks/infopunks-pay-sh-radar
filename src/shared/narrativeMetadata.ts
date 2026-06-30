@@ -79,6 +79,14 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
     );
   }
 
+  if (/^\/signals\/troll\/?$/.test(pathname)) {
+    return buildMetadata(
+      'Infopunks Signal Report: $TROLL / The Re-Indexed Archetype',
+      'A Narrative Asset Intelligence report on a legacy internet meme archetype re-entering Solana-native community takeover form.',
+      '/signals/troll'
+    );
+  }
+
   const updateMatch = pathname.match(/^\/signals\/([^/]+)\/updates\/([^/]+)\/?$/);
   if (updateMatch) {
     const slug = decodePathPart(updateMatch[1]);
@@ -87,9 +95,15 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
     const update = getSignalUpdate(slug, updateId);
     if (!surface || !update) return null;
     const signalName = surface.asset ? `${surface.asset.ticker} / ${surface.asset.name}` : surface.title;
+    const title = slug === 'troll'
+      ? 'Infopunks Desk Dispatch: Re-index Watch'
+      : `Infopunks Desk Dispatch: ${signalUpdateTypeLabel(update.update_type)}`;
+    const description = slug === 'troll'
+      ? 'The Re-Indexed Archetype signal update. Reports are not final. Signals mutate.'
+      : `${signalName} signal update. Reports are not final. Signals mutate.`;
     return buildMetadata(
-      `Infopunks Desk Dispatch: ${signalUpdateTypeLabel(update.update_type)}`,
-      `${signalName} signal update. Reports are not final. Signals mutate.`,
+      title,
+      description,
       `/signals/${encodeURIComponent(slug)}/updates/${encodeURIComponent(updateId)}`
     );
   }

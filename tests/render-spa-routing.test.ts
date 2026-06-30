@@ -142,6 +142,22 @@ describe('render-style SPA routing boundaries', () => {
       expect(blackBullUpdate.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_006.png"');
       expect(blackBullUpdate.body).toContain('name="twitter:image" content="https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_006.png"');
 
+      const troll = await app.inject({ method: 'GET', url: '/signals/troll' });
+      expect(troll.statusCode).toBe(200);
+      expect(troll.headers['content-type']).toContain('text/html');
+      expect(troll.body).toContain('Radar SPA shell');
+      expect(troll.body).toContain('<title>Infopunks Signal Report: $TROLL / The Re-Indexed Archetype</title>');
+      expect(troll.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/signals/troll.png"');
+      expect(troll.body).toContain('name="twitter:image" content="https://radar.infopunks.fun/og/signals/troll.png"');
+
+      const trollUpdate = await app.inject({ method: 'GET', url: '/signals/troll/updates/seu_troll_001' });
+      expect(trollUpdate.statusCode).toBe(200);
+      expect(trollUpdate.headers['content-type']).toContain('text/html');
+      expect(trollUpdate.body).toContain('Radar SPA shell');
+      expect(trollUpdate.body).toContain('Infopunks Desk Dispatch: Re-index Watch');
+      expect(trollUpdate.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/signals/troll/updates/seu_troll_001.png"');
+      expect(trollUpdate.body).toContain('name="twitter:image" content="https://radar.infopunks.fun/og/signals/troll/updates/seu_troll_001.png"');
+
       const radarCard = await app.inject({ method: 'GET', url: '/radar/cards/provider/alpha' });
       expect(radarCard.statusCode).toBe(200);
       expect(radarCard.headers['content-type']).toContain('text/html');
@@ -179,6 +195,8 @@ describe('render-style SPA routing boundaries', () => {
         '/signals/ansem',
         '/signals/black-bull',
         '/signals/black-bull/updates/seu_black_bull_006',
+        '/signals/troll',
+        '/signals/troll/updates/seu_troll_001',
         '/radar/cards',
         '/radar/cards/benchmark/web-search',
         '/machine-market/cards/cloud-translation'

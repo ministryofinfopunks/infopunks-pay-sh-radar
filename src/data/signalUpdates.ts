@@ -69,6 +69,20 @@ const signalEvidenceUpdates: SignalEvidenceUpdate[] = [
     previous_score: 80,
     new_score: 88,
     analyst_note: "The airdrop improves the trench-revival thesis by expanding the narrative's community surface area. Concentration risk remains material because a large portion of distributed tokens reportedly clustered around a small number of wallets, so KOL dependency and power concentration stay elevated."
+  },
+  {
+    update_id: 'seu_troll_001',
+    signal_slug: 'troll',
+    timestamp: '2026-06-30T12:00:00.000Z',
+    update_type: 'verdict_change',
+    summary: 'Infopunks opens $TROLL as the second re-indexed signal report, classifying it as a legacy internet archetype entering Solana-native community takeover form.',
+    evidence_links: [
+      'https://dexscreener.com/solana/4w2cysotx6czaugmmwg13hdpy4qemg2czekyeqyk9ama',
+      '/signals/troll'
+    ],
+    new_score: 86,
+    analyst_note: "TROLL's signal is not novelty. The signal is resurrection. The meme already exists in internet memory; the desk is now watching whether community takeover structure, liquidity, holder surface, and trench attention can turn that legacy archetype into a durable Solana-native narrative asset.",
+    risk_facets: ['live_watch', 'thin_evidence', 'high_reflexivity', 'power_concentration']
   }
 ];
 

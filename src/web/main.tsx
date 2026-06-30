@@ -14290,6 +14290,7 @@ export function App() {
   const signalSlug = routeSignalSlug(window.location.pathname);
   if (signalSlug === 'ansem') return <SignalSourcePage slug={signalSlug} />;
   if (signalSlug === 'black-bull') return <NarrativeSignalReportPage slug={signalSlug} />;
+  if (signalSlug === 'troll') return <NarrativeSignalReportPage slug={signalSlug} />;
   if (isSpendTerminalRoute(window.location.pathname)) return <SpendTerminalPage />;
   if (isDevelopersRoute(window.location.pathname)) return <DevelopersPage />;
   if (isClaimsIndexRoute(window.location.pathname)) return <ClaimsPage />;

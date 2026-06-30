@@ -57,6 +57,7 @@ describe('production smoke plan', () => {
       '/narratives/attention-markets',
       '/signals/ansem',
       '/signals/black-bull',
+      '/signals/troll',
       '/openapi.json',
       '/routes/route_pay_sh_market_research_01',
       '/providers/provider_pay_sh_lattice',
@@ -83,6 +84,8 @@ describe('production smoke plan', () => {
       '/v1/signals',
       '/v1/signals/black-bull',
       '/v1/signals/black-bull/updates',
+      '/v1/signals/troll',
+      '/v1/signals/troll/updates',
       '/v1/pre-spend/providers',
       '/v1/services',
       '/v1/receipts',
@@ -97,7 +100,9 @@ describe('production smoke plan', () => {
     expect(plan.pngPaths).toEqual([
       '/og/narratives.png',
       '/og/signals/black-bull.png',
-      '/og/signals/black-bull/updates/seu_black_bull_006.png'
+      '/og/signals/black-bull/updates/seu_black_bull_006.png',
+      '/og/signals/troll.png',
+      '/og/signals/troll/updates/seu_troll_001.png'
     ]);
     expect(plan.claimsApiPaths).toEqual([
       '/v1/claims',

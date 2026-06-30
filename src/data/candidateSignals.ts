@@ -10,6 +10,25 @@ type CandidateSignalSeed = Omit<CandidateSignal, 'risk_facets'>;
 
 const seededCandidates: CandidateSignalSeed[] = [
   {
+    candidate_id: 'candidate_troll_reindex',
+    name: 'The Re-Indexed Archetype',
+    ticker: 'TROLL',
+    chain: 'Solana',
+    category: 'meme_asset',
+    submitted_by: 'desk',
+    status: 'promoted_to_report',
+    priority: 'high',
+    risk_level: 'medium',
+    summary: 'Candidate promoted to report: $TROLL / The Re-Indexed Archetype.',
+    why_it_matters: 'Legacy internet lore can re-enter the market as a community takeover signal without depending on a single persona source.',
+    evidence_links: [
+      'https://dexscreener.com/solana/4w2cysotx6czaugmmwg13hdpy4qemg2czekyeqyk9ama',
+      '/signals/troll'
+    ],
+    created_at: '2026-06-30T11:30:00.000Z',
+    updated_at: '2026-06-30T12:00:00.000Z'
+  },
+  {
     candidate_id: 'candidate_sol_persona_attention',
     name: 'Next attention market around a major Solana persona',
     chain: 'Solana',
@@ -147,12 +166,14 @@ function deriveCandidateRiskFacets(candidate: CandidateSignalSeed): SignalRiskFa
   ];
 
   if (candidate.category === 'attention_market') facets.push('high_reflexivity', 'power_concentration');
+  if (candidate.category === 'meme_asset') facets.push('live_watch', 'high_reflexivity');
   if (candidate.category === 'agentic_narrative') facets.push('thin_evidence');
   if (candidate.category === 'depin_signal') facets.push('live_watch');
   if (candidate.category === 'market_myth') facets.push('narrative_fatigue', 'thin_evidence');
   if (candidate.category === 'unknown') facets.push('thin_evidence');
 
   if (summary.includes('persona')) facets.push('kol_dependency');
+  if (summary.includes('promoted to report')) facets.push('thin_evidence', 'power_concentration');
   if (summary.includes('repeat mentions')) facets.push('narrative_fatigue');
   if (summary.includes('thin') || summary.includes('unclear evidence') || summary.includes('premature')) facets.push('thin_evidence');
   if (summary.includes('myth')) facets.push('narrative_fatigue');

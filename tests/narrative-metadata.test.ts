@@ -36,6 +36,23 @@ describe('narrative metadata helper', () => {
     });
   });
 
+  it('returns metadata for /signals/troll', () => {
+    expect(getNarrativeMetadataForPath('/signals/troll')).toEqual({
+      title: 'Infopunks Signal Report: $TROLL / The Re-Indexed Archetype',
+      description: 'A Narrative Asset Intelligence report on a legacy internet meme archetype re-entering Solana-native community takeover form.',
+      canonicalPath: '/signals/troll',
+      ogTitle: 'Infopunks Signal Report: $TROLL / The Re-Indexed Archetype',
+      ogDescription: 'A Narrative Asset Intelligence report on a legacy internet meme archetype re-entering Solana-native community takeover form.',
+      ogImageUrl: 'https://radar.infopunks.fun/og/signals/troll.png',
+      ogImageWidth: 1200,
+      ogImageHeight: 630,
+      twitterTitle: 'Infopunks Signal Report: $TROLL / The Re-Indexed Archetype',
+      twitterDescription: 'A Narrative Asset Intelligence report on a legacy internet meme archetype re-entering Solana-native community takeover form.',
+      twitterImageUrl: 'https://radar.infopunks.fun/og/signals/troll.png',
+      twitterCard: 'summary_large_image'
+    });
+  });
+
   it('returns metadata for a seeded dispatch permalink', () => {
     expect(getNarrativeMetadataForPath('/signals/black-bull/updates/seu_black_bull_006')).toEqual({
       title: 'Infopunks Desk Dispatch: Verdict Change',
@@ -49,6 +66,23 @@ describe('narrative metadata helper', () => {
       twitterTitle: 'Infopunks Desk Dispatch: Verdict Change',
       twitterDescription: 'ANSEM / The Black Bull signal update. Reports are not final. Signals mutate.',
       twitterImageUrl: 'https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_006.png',
+      twitterCard: 'summary_large_image'
+    });
+  });
+
+  it('returns metadata for the TROLL dispatch permalink', () => {
+    expect(getNarrativeMetadataForPath('/signals/troll/updates/seu_troll_001')).toEqual({
+      title: 'Infopunks Desk Dispatch: Re-index Watch',
+      description: 'The Re-Indexed Archetype signal update. Reports are not final. Signals mutate.',
+      canonicalPath: '/signals/troll/updates/seu_troll_001',
+      ogTitle: 'Infopunks Desk Dispatch: Re-index Watch',
+      ogDescription: 'The Re-Indexed Archetype signal update. Reports are not final. Signals mutate.',
+      ogImageUrl: 'https://radar.infopunks.fun/og/signals/troll/updates/seu_troll_001.png',
+      ogImageWidth: 1200,
+      ogImageHeight: 630,
+      twitterTitle: 'Infopunks Desk Dispatch: Re-index Watch',
+      twitterDescription: 'The Re-Indexed Archetype signal update. Reports are not final. Signals mutate.',
+      twitterImageUrl: 'https://radar.infopunks.fun/og/signals/troll/updates/seu_troll_001.png',
       twitterCard: 'summary_large_image'
     });
   });

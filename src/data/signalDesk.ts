@@ -70,6 +70,7 @@ function reportRiskFacets(asset: NarrativeAsset): SignalRiskFacet[] {
   if (asset.centralization_risk_score >= 70) facets.push('power_concentration');
   if (asset.sovereignty_score <= 50) facets.push('unproven_sovereignty');
   if (listSignalUpdates(asset.slug).length > 0) facets.push('live_watch');
+  if (asset.risk_facets?.length) facets.push(...asset.risk_facets);
   return uniqueFacets(facets);
 }
 
@@ -82,6 +83,8 @@ function dispatchRiskFacets(update: SignalEvidenceUpdate, asset: NarrativeAsset)
   if (update.update_type === 'attention_shift' && asset.reflexivity_risk_score >= 80) facets.push('live_watch');
   if (asset.kol_dependency_score >= 80 && (update.update_type === 'attention_shift' || update.update_type === 'verdict_change')) facets.push('kol_dependency');
   if (update.update_type === 'verdict_change' || update.update_type === 'risk_shift' || update.update_type === 'holder_shift') facets.push('live_watch');
+  if (update.risk_facets?.length) facets.push(...update.risk_facets);
+  if (asset.risk_facets?.length && update.update_type === 'verdict_change') facets.push(...asset.risk_facets);
   return uniqueFacets(facets);
 }
 
@@ -198,6 +201,16 @@ export function getLatestDeskActivity(limit = 10): SignalDeskActivityItem[] {
         title: `Verdict changed for ${update.ticker}`,
         summary: update.summary,
         href: update.href
+      })),
+    ...listCandidateSignals()
+      .filter((candidate) => candidate.status === 'promoted_to_report')
+      .map((candidate) => ({
+        id: `candidate_promoted_${candidate.candidate_id}`,
+        type: 'candidate_promoted' as const,
+        timestamp: candidate.updated_at,
+        title: `Candidate promoted to report: $${candidate.ticker ?? candidate.name} / ${candidate.name}`,
+        summary: candidate.summary,
+        href: candidate.evidence_links[1] ?? '/narratives'
       })),
     ...reports.map((report) => ({
       id: `metadata_updated_${report.slug}`,

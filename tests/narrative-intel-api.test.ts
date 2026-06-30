@@ -25,6 +25,13 @@ describe('narrative intel api', () => {
           name: 'The Black Bull',
           chain: 'Solana',
           signal_source: 'Ansem'
+        }),
+        expect.objectContaining({
+          slug: 'troll',
+          ticker: 'TROLL',
+          name: 'The Re-Indexed Archetype',
+          chain: 'Solana',
+          signal_source: 'Community takeover + legacy internet meme archetype'
         })
       ]));
 
@@ -68,6 +75,11 @@ describe('narrative intel api', () => {
           name: expect.any(String),
           status: expect.stringMatching(/queued|watching|needs_evidence|under_review|rejected|promoted_to_report/),
           risk_facets: expect.arrayContaining([expect.any(String)])
+        }),
+        expect.objectContaining({
+          candidate_id: 'candidate_troll_reindex',
+          ticker: 'TROLL',
+          status: 'promoted_to_report'
         })
       ]));
       expect(payload.featured_report).toEqual(expect.objectContaining({
@@ -78,6 +90,11 @@ describe('narrative intel api', () => {
       }));
       expect(payload.latest_dispatches).toEqual(expect.arrayContaining([
         expect.objectContaining({
+          update_id: 'seu_troll_001',
+          href: '/signals/troll/updates/seu_troll_001',
+          risk_facets: expect.arrayContaining(['live_watch', 'thin_evidence', 'high_reflexivity', 'power_concentration'])
+        }),
+        expect.objectContaining({
           update_id: 'seu_black_bull_006',
           href: '/signals/black-bull/updates/seu_black_bull_006',
           summary: expect.stringContaining('Supportive Watch'),
@@ -85,8 +102,8 @@ describe('narrative intel api', () => {
         })
       ]));
       expect(payload.latest_dispatches[0]).toEqual(expect.objectContaining({
-        update_id: 'seu_black_bull_006',
-        signal_delta: 8
+        update_id: 'seu_troll_001',
+        new_score: 86
       }));
       expect(payload.risk_shifts).toEqual(expect.arrayContaining([
         expect.objectContaining({
@@ -109,6 +126,21 @@ describe('narrative intel api', () => {
           ticker: 'ANSEM',
           href: '/signals/black-bull',
           risk_facets: expect.arrayContaining(['high_reflexivity'])
+        }),
+        expect.objectContaining({
+          slug: 'troll',
+          ticker: 'TROLL',
+          href: '/signals/troll',
+          risk_facets: expect.arrayContaining(['live_watch', 'thin_evidence', 'high_reflexivity', 'power_concentration'])
+        })
+      ]));
+      const trollReport = payload.reports.find((item: { slug: string }) => item.slug === 'troll');
+      expect(trollReport.risk_facets).not.toContain('kol_dependency');
+      expect(payload.desk_activity).toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          type: 'candidate_promoted',
+          title: 'Candidate promoted to report: $TROLL / The Re-Indexed Archetype',
+          href: '/signals/troll'
         })
       ]));
     } finally {
@@ -125,6 +157,11 @@ describe('narrative intel api', () => {
       expect(response.json().data).toEqual(expect.objectContaining({
         count: expect.any(Number),
         candidates: expect.arrayContaining([
+          expect.objectContaining({
+            candidate_id: 'candidate_troll_reindex',
+            status: 'promoted_to_report',
+            risk_facets: expect.arrayContaining(['live_watch', 'thin_evidence', 'high_reflexivity', 'power_concentration'])
+          }),
           expect.objectContaining({
             candidate_id: 'candidate_sol_persona_attention',
             status: 'watching',
@@ -175,7 +212,8 @@ describe('narrative intel api', () => {
       expect(list.statusCode).toBe(200);
       expect(list.json().data).toEqual(expect.arrayContaining([
         expect.objectContaining({ slug: 'ansem', type: 'signal_source' }),
-        expect.objectContaining({ slug: 'black-bull', type: 'signal_report' })
+        expect.objectContaining({ slug: 'black-bull', type: 'signal_report' }),
+        expect.objectContaining({ slug: 'troll', type: 'signal_report' })
       ]));
 
       const source = await app.inject({ method: 'GET', url: '/v1/signals/ansem' });
@@ -210,6 +248,31 @@ describe('narrative intel api', () => {
       ]));
       expect(report.json().data.sections.find((section: { id: string }) => section.id === 'infopunk-verdict').body).not.toMatch(/\bbuy\b|\bsell\b/i);
       expect(report.json().data.cards.length).toBeGreaterThanOrEqual(9);
+
+      const troll = await app.inject({ method: 'GET', url: '/v1/signals/troll' });
+      expect(troll.statusCode).toBe(200);
+      expect(troll.json().data).toEqual(expect.objectContaining({
+        slug: 'troll',
+        type: 'signal_report',
+        signal_source: 'Community takeover + legacy internet meme archetype'
+      }));
+      expect(troll.json().data.cards).toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          id: 'infopunk-verdict',
+          score: 'RE-INDEX WATCH'
+        }),
+        expect.objectContaining({
+          id: 'community-surface',
+          title: 'Community Surface'
+        }),
+        expect.objectContaining({
+          id: 'holder-power-concentration',
+          decision_state: 'concentrated_power'
+        })
+      ]));
+      expect(troll.json().data.sections).toEqual(expect.arrayContaining([
+        expect.objectContaining({ title: 'Community Takeover' })
+      ]));
     } finally {
       await app.close();
     }
@@ -277,6 +340,40 @@ describe('narrative intel api', () => {
     }
   });
 
+  it('returns the seeded TROLL signal evidence update surfaces', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+
+    try {
+      const updates = await app.inject({ method: 'GET', url: '/v1/signals/troll/updates' });
+      expect(updates.statusCode).toBe(200);
+      expect(updates.json().data).toEqual(expect.objectContaining({
+        signal_slug: 'troll',
+        count: 1,
+        latest_update: expect.objectContaining({
+          update_id: 'seu_troll_001',
+          update_type: 'verdict_change',
+          new_score: 86
+        })
+      }));
+
+      const detail = await app.inject({ method: 'GET', url: '/v1/signals/troll/updates/seu_troll_001' });
+      expect(detail.statusCode).toBe(200);
+      expect(detail.json().data).toEqual(expect.objectContaining({
+        signal_slug: 'troll',
+        update: expect.objectContaining({
+          update_id: 'seu_troll_001',
+          evidence_links: expect.arrayContaining([
+            'https://dexscreener.com/solana/4w2cysotx6czaugmmwg13hdpy4qemg2czekyeqyk9ama',
+            '/signals/troll'
+          ]),
+          risk_facets: ['live_watch', 'thin_evidence', 'high_reflexivity', 'power_concentration']
+        })
+      }));
+    } finally {
+      await app.close();
+    }
+  });
+
   it('serves the narrative OG image route', async () => {
     const app = await createApp(emptyIntelligenceStore());
 
@@ -299,6 +396,24 @@ describe('narrative intel api', () => {
       expect(response.statusCode).toBe(200);
       expect(response.headers['content-type']).toContain('image/png');
       expectPng(response.rawPayload);
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('serves the seeded TROLL report and dispatch OG image routes', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+
+    try {
+      const report = await app.inject({ method: 'GET', url: '/og/signals/troll.png' });
+      expect(report.statusCode).toBe(200);
+      expect(report.headers['content-type']).toContain('image/png');
+      expectPng(report.rawPayload);
+
+      const dispatch = await app.inject({ method: 'GET', url: '/og/signals/troll/updates/seu_troll_001.png' });
+      expect(dispatch.statusCode).toBe(200);
+      expect(dispatch.headers['content-type']).toContain('image/png');
+      expectPng(dispatch.rawPayload);
     } finally {
       await app.close();
     }

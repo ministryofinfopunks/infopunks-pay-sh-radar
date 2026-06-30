@@ -8,6 +8,7 @@ import {
 
 describe('pre-spend SDK', () => {
   afterEach(() => {
+    vi.useRealTimers();
     vi.restoreAllMocks();
   });
 
@@ -171,17 +172,43 @@ describe('pre-spend SDK', () => {
         baseUrl: address.toString().replace(/\/$/, '')
       });
 
-      const decision = await client.checkPreSpend({
-        agent_id: 'agent_001',
-        intent: 'buy_market_research',
-        budget: 25,
-        risk_tolerance: 'low',
-        preferred_settlement: 'stablecoin',
-        required_confidence: 75
-      });
+      const RealDate = Date;
+      const fixedMs = new RealDate('2026-06-20T00:00:00.000Z').getTime();
+      class MockDate extends RealDate {
+        constructor(value?: string | number | Date) {
+          super(arguments.length === 0 ? fixedMs : value as string | number | Date);
+        }
 
-      expect(decision.decision).toBe('approved');
-      expect(decision.recommended_route).toBe('route_pay_sh_market_research_03');
+        static now() {
+          return fixedMs;
+        }
+
+        static parse = RealDate.parse;
+        static UTC = RealDate.UTC;
+      }
+
+      globalThis.Date = MockDate as DateConstructor;
+      let decision;
+      try {
+        decision = await client.checkPreSpend({
+          agent_id: 'agent_001',
+          intent: 'buy_market_research',
+          budget: 25,
+          risk_tolerance: 'low',
+          preferred_settlement: 'stablecoin',
+          required_confidence: 75
+        });
+      } finally {
+        globalThis.Date = RealDate;
+      }
+
+      expect(decision.decision).toBe('approved_with_warning');
+      expect(decision.recommended_route).toBe('route_pay_sh_market_research_01');
+      expect(decision.known_blockers).toEqual([
+        'occasional timeout under high load',
+        'output quality varies by prompt specificity'
+      ]);
+      expect(decision.safer_alternatives).toContain('route_pay_sh_market_research_03');
       expect(decision.rationale.length).toBeGreaterThan(0);
     } finally {
       await app.close();

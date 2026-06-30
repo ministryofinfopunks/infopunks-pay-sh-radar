@@ -68,6 +68,10 @@ export function narrativeOgImageUrl(pathname: string) {
     return '/og/signals/black-bull.png';
   }
 
+  if (/^\/signals\/troll\/?$/.test(pathname)) {
+    return '/og/signals/troll.png';
+  }
+
   const updateMatch = pathname.match(/^\/signals\/([^/]+)\/updates\/([^/]+)\/?$/);
   if (updateMatch) {
     return `/og/signals/${encodeURIComponent(updateMatch[1])}/updates/${encodeURIComponent(updateMatch[2])}.png`;
@@ -149,23 +153,51 @@ export function renderNarrativesOgImage() {
 
 export function renderSignalReportOgImage(slug: string) {
   const surface = getSignalSurfaceBySlug(slug);
-  if (!surface || slug !== 'black-bull') return null;
+  if (!surface) return null;
 
-  return renderSignalCardSvg({
-    title: '$ANSEM / The Black Bull',
-    subtitle: 'Living signal report on financialized attention, myth, power concentration, and reflexivity risk.',
-    badge: 'SIGNAL REPORT',
-    footer: 'Evidence map / myth compression / power concentration / reflexivity risk',
-    accent: '#7bfec4',
-    eyebrow: 'NARRATIVE SIGNAL SURFACE',
-    routeLabel: `/signals/${slug}`
-  });
+  if (slug === 'black-bull') {
+    return renderSignalCardSvg({
+      title: '$ANSEM / The Black Bull',
+      subtitle: 'Living signal report on financialized attention, myth, power concentration, and reflexivity risk.',
+      badge: 'SIGNAL REPORT',
+      footer: 'Evidence map / myth compression / power concentration / reflexivity risk',
+      accent: '#7bfec4',
+      eyebrow: 'NARRATIVE SIGNAL SURFACE',
+      routeLabel: `/signals/${slug}`
+    });
+  }
+
+  if (slug === 'troll') {
+    return renderSignalCardSvg({
+      title: '$TROLL / The Re-Indexed Archetype',
+      subtitle: 'Legacy internet meme archetype entering Solana-native community takeover form.',
+      badge: 'SIGNAL REPORT',
+      footer: 'Legacy lore / community takeover / meme fitness / reflexivity watch',
+      accent: '#ffb35c',
+      eyebrow: 'NARRATIVE SIGNAL SURFACE',
+      routeLabel: `/signals/${slug}`
+    });
+  }
+
+  return null;
 }
 
 export function renderSignalUpdateOgImage(slug: string, updateId: string) {
   const surface = getSignalSurfaceBySlug(slug);
   const update = getSignalUpdate(slug, updateId);
   if (!surface || !update) return null;
+
+  if (slug === 'troll') {
+    return renderSignalCardSvg({
+      title: 'Infopunks Desk Dispatch',
+      subtitle: 'Re-index Watch opened for $TROLL',
+      badge: 'VERSIONED EVIDENCE UPDATE',
+      footer: 'Reports are not final. Signals mutate.',
+      accent: '#ff8a6a',
+      eyebrow: 'DESK DISPATCH PERMALINK',
+      routeLabel: `/signals/${slug}/updates/${updateId}`
+    });
+  }
 
   return renderSignalCardSvg({
     title: 'Infopunks Desk Dispatch',
