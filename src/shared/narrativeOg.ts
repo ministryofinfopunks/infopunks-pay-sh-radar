@@ -170,9 +170,9 @@ export function renderSignalReportOgImage(slug: string) {
   if (slug === 'troll') {
     return renderSignalCardSvg({
       title: '$TROLL / The Re-Indexed Archetype',
-      subtitle: 'Legacy internet meme archetype entering Solana-native community takeover form.',
+      subtitle: 'Old internet culture reactivated by Solana trench memory.',
       badge: 'SIGNAL REPORT',
-      footer: 'Legacy lore / community takeover / meme fitness / reflexivity watch',
+      footer: 'The signal is not novelty. The signal is survival.',
       accent: '#ffb35c',
       eyebrow: 'NARRATIVE SIGNAL SURFACE',
       routeLabel: `/signals/${slug}`
@@ -190,9 +190,9 @@ export function renderSignalUpdateOgImage(slug: string, updateId: string) {
   if (slug === 'troll') {
     return renderSignalCardSvg({
       title: 'Infopunks Desk Dispatch',
-      subtitle: 'Re-index Watch opened for $TROLL',
+      subtitle: 'Durable Re-index verdict issued for $TROLL',
       badge: 'VERSIONED EVIDENCE UPDATE',
-      footer: 'Reports are not final. Signals mutate.',
+      footer: 'The signal is not novelty. The signal is survival.',
       accent: '#ff8a6a',
       eyebrow: 'DESK DISPATCH PERMALINK',
       routeLabel: `/signals/${slug}/updates/${updateId}`

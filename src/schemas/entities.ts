@@ -322,6 +322,7 @@ export const NarrativeClusterSchema = z.object({
 export const NarrativeDecisionStateSchema = z.enum([
   'strong_signal',
   'supportive_watch',
+  'durable_re_index',
   'watch_closely',
   'concentrated_power',
   'high_reflexivity',
@@ -504,6 +505,8 @@ export const SignalDeskReportCardSchema = z.object({
   category: z.string(),
   thesis: z.string(),
   href: z.string(),
+  verdict_label: z.string().optional(),
+  verdict_state: z.string().optional(),
   signal_strength: z.number().min(0).max(100),
   myth_coherence: z.number().min(0).max(100),
   reflexivity_risk: z.number().min(0).max(100),

@@ -1,4 +1,4 @@
-import { listNarrativeAssets, signalSurfaces } from './narrativeIntel';
+import { getSignalSurfaceBySlug, listNarrativeAssets, signalSurfaces } from './narrativeIntel';
 import { getLatestSignalUpdate, listSignalUpdates } from './signalUpdates';
 import { getCandidateSignalCounts, listCandidateSignals } from './candidateSignals';
 import type {
@@ -25,7 +25,8 @@ function activityByNewest(left: SignalDeskActivityItem, right: SignalDeskActivit
 }
 
 function surfaceByAssetSlug(slug: string): NarrativeSignalSurface | null {
-  return signalSurfaces.find((item) => item.type === 'signal_report' && item.asset_slug === slug) ?? null;
+  const surface = signalSurfaces.find((item) => item.type === 'signal_report' && item.asset_slug === slug);
+  return surface ? getSignalSurfaceBySlug(surface.slug) : null;
 }
 
 function readableUpdateType(value: SignalEvidenceUpdateType): string {
@@ -122,6 +123,8 @@ function buildReportCard(asset: NarrativeAsset): SignalDeskReportCard | null {
     category: asset.category,
     thesis: asset.thesis,
     href: `/signals/${asset.slug}`,
+    verdict_label: surface.verdict_label,
+    verdict_state: surface.verdict_state,
     signal_strength: getSignalStrength(surface, asset),
     myth_coherence: asset.myth_coherence_score,
     reflexivity_risk: asset.reflexivity_risk_score,

@@ -150,13 +150,13 @@ describe('render-style SPA routing boundaries', () => {
       expect(troll.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/signals/troll.png"');
       expect(troll.body).toContain('name="twitter:image" content="https://radar.infopunks.fun/og/signals/troll.png"');
 
-      const trollUpdate = await app.inject({ method: 'GET', url: '/signals/troll/updates/seu_troll_001' });
+      const trollUpdate = await app.inject({ method: 'GET', url: '/signals/troll/updates/seu_troll_002' });
       expect(trollUpdate.statusCode).toBe(200);
       expect(trollUpdate.headers['content-type']).toContain('text/html');
       expect(trollUpdate.body).toContain('Radar SPA shell');
-      expect(trollUpdate.body).toContain('Infopunks Desk Dispatch: Re-index Watch');
-      expect(trollUpdate.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/signals/troll/updates/seu_troll_001.png"');
-      expect(trollUpdate.body).toContain('name="twitter:image" content="https://radar.infopunks.fun/og/signals/troll/updates/seu_troll_001.png"');
+      expect(trollUpdate.body).toContain('Infopunks Desk Dispatch: Durable Re-index');
+      expect(trollUpdate.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/signals/troll/updates/seu_troll_002.png"');
+      expect(trollUpdate.body).toContain('name="twitter:image" content="https://radar.infopunks.fun/og/signals/troll/updates/seu_troll_002.png"');
 
       const radarCard = await app.inject({ method: 'GET', url: '/radar/cards/provider/alpha' });
       expect(radarCard.statusCode).toBe(200);
@@ -196,7 +196,7 @@ describe('render-style SPA routing boundaries', () => {
         '/signals/black-bull',
         '/signals/black-bull/updates/seu_black_bull_006',
         '/signals/troll',
-        '/signals/troll/updates/seu_troll_001',
+        '/signals/troll/updates/seu_troll_002',
         '/radar/cards',
         '/radar/cards/benchmark/web-search',
         '/machine-market/cards/cloud-translation'

@@ -83,6 +83,21 @@ const signalEvidenceUpdates: SignalEvidenceUpdate[] = [
     new_score: 86,
     analyst_note: "TROLL's signal is not novelty. The signal is resurrection. The meme already exists in internet memory; the desk is now watching whether community takeover structure, liquidity, holder surface, and trench attention can turn that legacy archetype into a durable Solana-native narrative asset.",
     risk_facets: ['live_watch', 'thin_evidence', 'high_reflexivity', 'power_concentration']
+  },
+  {
+    update_id: 'seu_troll_002',
+    signal_slug: 'troll',
+    timestamp: '2026-06-30T13:30:00.000Z',
+    update_type: 'verdict_change',
+    summary: 'Infopunks upgrades $TROLL to Durable Re-index after reclassifying its long circulation, 64,000+ holder surface, and legacy internet archetype survival as stronger evidence.',
+    evidence_links: [
+      'https://solscan.io/token/5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2',
+      '/signals/troll'
+    ],
+    previous_score: 86,
+    new_score: 90,
+    analyst_note: 'TROLL\'s signal is not novelty. The signal is survival. More than 435 days in circulation and a 64,000+ holder surface suggest the meme has persisted through multiple rotations instead of relying only on fresh attention. The desk upgrades the verdict while continuing to monitor concentration, reflexivity, and evidence quality.',
+    risk_facets: ['live_watch', 'thin_evidence', 'high_reflexivity', 'power_concentration']
   }
 ];
 

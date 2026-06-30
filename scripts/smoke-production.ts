@@ -133,7 +133,7 @@ export function buildSmokePlan(): SmokePlan {
       '/og/signals/black-bull.png',
       '/og/signals/black-bull/updates/seu_black_bull_006.png',
       '/og/signals/troll.png',
-      '/og/signals/troll/updates/seu_troll_001.png'
+      '/og/signals/troll/updates/seu_troll_002.png'
     ],
     claimsApiPaths: [
       '/v1/claims',

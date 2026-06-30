@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
 
-type NarrativeDecisionState = 'strong_signal' | 'supportive_watch' | 'watch_closely' | 'concentrated_power' | 'high_reflexivity' | 'unproven' | 'do_not_chase';
+type NarrativeDecisionState = 'strong_signal' | 'supportive_watch' | 'durable_re_index' | 'watch_closely' | 'concentrated_power' | 'high_reflexivity' | 'unproven' | 'do_not_chase';
 
 type NarrativeEvidenceArtifact = {
   label: string;
@@ -63,6 +63,10 @@ type NarrativeSignalSurface = {
   signal_source: string;
   asset_slug: string | null;
   last_updated: string;
+  infopunk_verdict?: string;
+  verdict_label?: string;
+  verdict_state?: string;
+  verdict_copy?: string;
   cards: NarrativeSignalCard[];
   sections: NarrativeSignalSection[];
   asset?: NarrativeAsset;
@@ -106,6 +110,8 @@ type SignalDeskReportCard = {
   category: string;
   thesis: string;
   href: string;
+  verdict_label?: string;
+  verdict_state?: string;
   signal_strength: number;
   myth_coherence: number;
   reflexivity_risk: number;
@@ -318,6 +324,7 @@ function isNotFoundError(error: unknown) {
 }
 
 function stateLabel(value: NarrativeDecisionState) {
+  if (value === 'durable_re_index') return 'Durable Re-index';
   if (value === 'supportive_watch') return 'Supportive Watch';
   return value.replaceAll('_', ' ');
 }
@@ -486,9 +493,25 @@ function SignalUpdateScoreDelta({ update }: { update: SignalEvidenceUpdate }) {
   </div>;
 }
 
-function DeskDispatchCard({ signalName, updateType }: { signalName: string; updateType: SignalEvidenceUpdateType }) {
+function verdictLabelToState(verdictLabel: string): NarrativeDecisionState {
+  if (verdictLabel === 'DURABLE RE-INDEX') return 'durable_re_index';
+  if (verdictLabel === 'SUPPORTIVE WATCH') return 'supportive_watch';
+  return 'watch_closely';
+}
+
+function DeskDispatchCard({
+  signalName,
+  updateType,
+  verdictLabel
+}: {
+  signalName: string;
+  updateType: SignalEvidenceUpdateType;
+  verdictLabel?: string;
+}) {
   const [state, setState] = useState<'idle' | 'copied' | 'failed'>('idle');
-  const copy = `Infopunks Signal Update: ${signalUpdateTypeLabel(updateType)} detected for ${signalName}. Reports are not final. Signals mutate.`;
+  const copy = verdictLabel
+    ? `Infopunks Signal Update: ${verdictLabel} issued for ${signalName}. Reports are not final. Signals mutate.`
+    : `Infopunks Signal Update: ${signalUpdateTypeLabel(updateType)} detected for ${signalName}. Reports are not final. Signals mutate.`;
 
   async function handleCopy() {
     const copied = await copyText(copy);
@@ -506,6 +529,9 @@ function DeskDispatchCard({ signalName, updateType }: { signalName: string; upda
       </div>
       <button className="copy-chip" type="button" onClick={handleCopy} aria-label="Copy Desk Dispatch" aria-live="polite">{buttonLabel}</button>
     </div>
+    {verdictLabel && <div className="chips narrative-update-chips">
+      <span className={`narrative-decision-pill state-${verdictLabelToState(verdictLabel)}`}>{verdictLabel}</span>
+    </div>}
     <p className="narrative-desk-dispatch-copy">{copy}</p>
   </section>;
 }
@@ -939,6 +965,9 @@ function ReportCatalogCard({ report }: { report: SignalDeskReportCard }) {
       </div>
       <span className="source-badge">{formatDeskStatus(report.desk_status)}</span>
     </div>
+    {report.verdict_label && <div className="chips narrative-update-chips">
+      <span className={`narrative-decision-pill state-${report.verdict_state ?? 'watch_closely'}`}>{report.verdict_label}</span>
+    </div>}
     <p>{report.thesis}</p>
     <div className="chips narrative-update-chips">
       {report.risk_facets.map((facet) => <RiskFacetChip key={`${report.slug}-${facet}`} facet={facet} />)}
@@ -1498,6 +1527,9 @@ export function SignalUpdatePermalinkPage({ slug, updateId }: { slug: string; up
           <span>Signal: {surface.title}</span>
           <span>Timestamp: {formatDate(update.timestamp)}</span>
         </div>
+        {surface.verdict_label && <div className="chips narrative-update-chips">
+          <span className={`narrative-decision-pill state-${surface.verdict_state ?? 'watch_closely'}`}>{surface.verdict_label}</span>
+        </div>}
         <p className="narrative-update-summary">{update.summary}</p>
         <SignalUpdateScoreDelta update={update} />
         <p className="narrative-analyst-note"><b>Analyst note:</b> {update.analyst_note}</p>
@@ -1510,7 +1542,7 @@ export function SignalUpdatePermalinkPage({ slug, updateId }: { slug: string; up
           <a className="execute compact secondary" href="/narratives">Narratives</a>
         </div>
       </section>
-      <DeskDispatchCard signalName={signalName} updateType={update.update_type} />
+      <DeskDispatchCard signalName={signalName} updateType={update.update_type} verdictLabel={surface.verdict_label} />
     </main>
   </div>;
 }

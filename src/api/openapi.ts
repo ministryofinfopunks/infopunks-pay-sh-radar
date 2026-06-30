@@ -582,13 +582,13 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     summary: 'Get Signal Desk index',
     description: 'Returns the derived Signal Desk catalog with featured report, dispatches, risk shifts, report cards, compact desk activity, and candidate signals queued for evidence review or promotion into reports.',
     responses: envelopedResponses('SignalDeskIndex', {
-      generated_at: '2026-06-30T09:30:00.000Z',
+      generated_at: '2026-06-30T13:30:00.000Z',
       desk_status: 'live_watch',
       counts: {
-        reports: 1,
-        dispatches: 6,
-        risk_shifts: 4,
-        watched_signals: 1
+        reports: 2,
+        dispatches: 8,
+        risk_shifts: 6,
+        watched_signals: 2
       },
       candidate_signals: [{
         candidate_id: 'candidate_sol_persona_attention',
@@ -612,7 +612,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
         watching: 1,
         needs_evidence: 2,
         under_review: 1,
-        promoted_to_report: 0
+        promoted_to_report: 1
       },
       featured_report: {
         slug: 'black-bull',
@@ -631,8 +631,42 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
         latest_update_at: '2026-06-30T09:30:00.000Z',
         update_count: 6
       },
-      reports: [],
-      latest_dispatches: [],
+      reports: [{
+        slug: 'troll',
+        ticker: 'TROLL',
+        name: 'The Re-Indexed Archetype',
+        category: 'Meme Archetype / Community Takeover / Re-indexed Internet Lore',
+        thesis: 'TROLL is not a fresh meme trying to become culture. It is old internet culture being reactivated by the trenches as a Solana-native community asset. Its strength comes from archetype survival, community takeover energy, and tracker-visible holder surface that has remained legible across multiple rotations.',
+        href: '/signals/troll',
+        verdict_label: 'DURABLE RE-INDEX',
+        verdict_state: 'durable_re_index',
+        signal_strength: 90,
+        myth_coherence: 93,
+        reflexivity_risk: 78,
+        sovereignty_score: 63,
+        risk_facets: ['live_watch', 'thin_evidence', 'high_reflexivity', 'power_concentration'],
+        desk_status: 'live_watch',
+        latest_update_type: 'verdict_change',
+        latest_update_at: '2026-06-30T13:30:00.000Z',
+        update_count: 2
+      }],
+      latest_dispatches: [{
+        update_id: 'seu_troll_002',
+        signal_slug: 'troll',
+        signal_name: 'The Re-Indexed Archetype',
+        ticker: 'TROLL',
+        update_type: 'verdict_change',
+        readable_update_type: 'Verdict Change',
+        timestamp: '2026-06-30T13:30:00.000Z',
+        summary: 'Infopunks upgrades $TROLL to Durable Re-index after reclassifying its long circulation, 64,000+ holder surface, and legacy internet archetype survival as stronger evidence.',
+        analyst_note: 'TROLL\'s signal is not novelty. The signal is survival. More than 435 days in circulation and a 64,000+ holder surface suggest the meme has persisted through multiple rotations instead of relying only on fresh attention. The desk upgrades the verdict while continuing to monitor concentration, reflexivity, and evidence quality.',
+        href: '/signals/troll/updates/seu_troll_002',
+        og_image: '/og/signals/troll/updates/seu_troll_002.png',
+        risk_facets: ['live_watch', 'thin_evidence', 'high_reflexivity', 'power_concentration'],
+        previous_score: 86,
+        new_score: 90,
+        signal_delta: 4
+      }],
       risk_shifts: [],
       desk_activity: []
     })
@@ -3436,7 +3470,7 @@ function componentSchemas(): Record<string, JsonSchema> {
       score: { oneOf: [integerSchema(), stringSchema()] },
       short_explanation: stringSchema(),
       evidence_note: stringSchema(),
-      decision_state: enumSchema(['strong_signal', 'supportive_watch', 'watch_closely', 'concentrated_power', 'high_reflexivity', 'unproven', 'do_not_chase'])
+      decision_state: enumSchema(['strong_signal', 'supportive_watch', 'durable_re_index', 'watch_closely', 'concentrated_power', 'high_reflexivity', 'unproven', 'do_not_chase'])
     }),
     NarrativeSignalSection: objectSchema({
       id: stringSchema(),
@@ -3456,7 +3490,7 @@ function componentSchemas(): Record<string, JsonSchema> {
       last_updated: dateTimeSchema(),
       infopunk_verdict: stringSchema(),
       verdict_label: stringSchema(),
-      verdict_state: stringSchema(),
+      verdict_state: enumSchema(['strong_signal', 'supportive_watch', 'durable_re_index', 'watch_closely', 'concentrated_power', 'high_reflexivity', 'unproven', 'do_not_chase']),
       verdict_copy: stringSchema(),
       cards: arrayOf({ $ref: '#/components/schemas/NarrativeSignalCard' }),
       sections: arrayOf({ $ref: '#/components/schemas/NarrativeSignalSection' }),
@@ -3534,6 +3568,8 @@ function componentSchemas(): Record<string, JsonSchema> {
       category: stringSchema(),
       thesis: stringSchema(),
       href: stringSchema(),
+      verdict_label: stringSchema(),
+      verdict_state: enumSchema(['strong_signal', 'supportive_watch', 'durable_re_index', 'watch_closely', 'concentrated_power', 'high_reflexivity', 'unproven', 'do_not_chase']),
       signal_strength: integerSchema(),
       myth_coherence: integerSchema(),
       reflexivity_risk: integerSchema(),

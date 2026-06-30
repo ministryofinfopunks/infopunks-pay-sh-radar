@@ -102,7 +102,7 @@ describe('production smoke plan', () => {
       '/og/signals/black-bull.png',
       '/og/signals/black-bull/updates/seu_black_bull_006.png',
       '/og/signals/troll.png',
-      '/og/signals/troll/updates/seu_troll_001.png'
+      '/og/signals/troll/updates/seu_troll_002.png'
     ]);
     expect(plan.claimsApiPaths).toEqual([
       '/v1/claims',

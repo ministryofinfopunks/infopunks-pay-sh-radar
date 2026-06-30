@@ -90,8 +90,9 @@ describe('narrative intel api', () => {
       }));
       expect(payload.latest_dispatches).toEqual(expect.arrayContaining([
         expect.objectContaining({
-          update_id: 'seu_troll_001',
-          href: '/signals/troll/updates/seu_troll_001',
+          update_id: 'seu_troll_002',
+          href: '/signals/troll/updates/seu_troll_002',
+          summary: expect.stringContaining('Durable Re-index'),
           risk_facets: expect.arrayContaining(['live_watch', 'thin_evidence', 'high_reflexivity', 'power_concentration'])
         }),
         expect.objectContaining({
@@ -102,8 +103,8 @@ describe('narrative intel api', () => {
         })
       ]));
       expect(payload.latest_dispatches[0]).toEqual(expect.objectContaining({
-        update_id: 'seu_troll_001',
-        new_score: 86
+        update_id: 'seu_troll_002',
+        new_score: 90
       }));
       expect(payload.risk_shifts).toEqual(expect.arrayContaining([
         expect.objectContaining({
@@ -111,12 +112,8 @@ describe('narrative intel api', () => {
           risk_facets: expect.arrayContaining(['high_reflexivity', 'live_watch'])
         }),
         expect.objectContaining({
-          update_type: 'holder_shift',
-          risk_facets: expect.arrayContaining(['power_concentration', 'live_watch'])
-        }),
-        expect.objectContaining({
           update_type: 'verdict_change',
-          risk_facets: expect.arrayContaining(['unproven_sovereignty', 'live_watch'])
+          risk_facets: expect.arrayContaining(['power_concentration', 'live_watch'])
         })
       ]));
       expect(payload.risk_shifts.every((item: { update_type: string }) => ['risk_shift', 'verdict_change', 'holder_shift'].includes(item.update_type))).toBe(true);
@@ -131,6 +128,8 @@ describe('narrative intel api', () => {
           slug: 'troll',
           ticker: 'TROLL',
           href: '/signals/troll',
+          verdict_label: 'DURABLE RE-INDEX',
+          verdict_state: 'durable_re_index',
           risk_facets: expect.arrayContaining(['live_watch', 'thin_evidence', 'high_reflexivity', 'power_concentration'])
         })
       ]));
@@ -259,19 +258,25 @@ describe('narrative intel api', () => {
         slug: 'troll',
         type: 'signal_report',
         signal_source: 'Community takeover + legacy internet meme archetype',
-        infopunk_verdict: expect.stringContaining('Infopunks marks $TROLL as Re-index Watch'),
-        verdict_label: 'RE-INDEX WATCH',
-        verdict_state: 're_index_watch',
-        verdict_copy: expect.stringContaining('The signal is resurrection')
+        infopunk_verdict: expect.stringContaining('Infopunks upgrades $TROLL to Durable Re-index'),
+        verdict_label: 'DURABLE RE-INDEX',
+        verdict_state: 'durable_re_index',
+        verdict_copy: expect.stringContaining('The signal is survival')
       }));
       expect(troll.json().data.cards).toEqual(expect.arrayContaining([
         expect.objectContaining({
           id: 'infopunk-verdict',
-          score: 'RE-INDEX WATCH'
+          score: 'DURABLE RE-INDEX',
+          decision_state: 'durable_re_index'
         }),
         expect.objectContaining({
           id: 'community-surface',
           title: 'Community Surface'
+        }),
+        expect.objectContaining({
+          id: 'archetype-survival',
+          title: 'Archetype Survival',
+          score: 94
         }),
         expect.objectContaining({
           id: 'holder-power-concentration',
@@ -279,7 +284,8 @@ describe('narrative intel api', () => {
         })
       ]));
       expect(troll.json().data.sections).toEqual(expect.arrayContaining([
-        expect.objectContaining({ title: 'Community Takeover' })
+        expect.objectContaining({ title: 'Community Takeover' }),
+        expect.objectContaining({ title: 'Holder Surface' })
       ]));
     } finally {
       await app.close();
@@ -356,24 +362,26 @@ describe('narrative intel api', () => {
       expect(updates.statusCode).toBe(200);
       expect(updates.json().data).toEqual(expect.objectContaining({
         signal_slug: 'troll',
-        count: 1,
+        count: 2,
         latest_update: expect.objectContaining({
-          update_id: 'seu_troll_001',
+          update_id: 'seu_troll_002',
           update_type: 'verdict_change',
-          new_score: 86
+          new_score: 90
         })
       }));
 
-      const detail = await app.inject({ method: 'GET', url: '/v1/signals/troll/updates/seu_troll_001' });
+      const detail = await app.inject({ method: 'GET', url: '/v1/signals/troll/updates/seu_troll_002' });
       expect(detail.statusCode).toBe(200);
       expect(detail.json().data).toEqual(expect.objectContaining({
         signal_slug: 'troll',
         update: expect.objectContaining({
-          update_id: 'seu_troll_001',
+          update_id: 'seu_troll_002',
           evidence_links: expect.arrayContaining([
-            'https://dexscreener.com/solana/4w2cysotx6czaugmmwg13hdpy4qemg2czekyeqyk9ama',
+            'https://solscan.io/token/5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2',
             '/signals/troll'
           ]),
+          previous_score: 86,
+          new_score: 90,
           risk_facets: ['live_watch', 'thin_evidence', 'high_reflexivity', 'power_concentration']
         })
       }));
@@ -418,7 +426,7 @@ describe('narrative intel api', () => {
       expect(report.headers['content-type']).toContain('image/png');
       expectPng(report.rawPayload);
 
-      const dispatch = await app.inject({ method: 'GET', url: '/og/signals/troll/updates/seu_troll_001.png' });
+      const dispatch = await app.inject({ method: 'GET', url: '/og/signals/troll/updates/seu_troll_002.png' });
       expect(dispatch.statusCode).toBe(200);
       expect(dispatch.headers['content-type']).toContain('image/png');
       expectPng(dispatch.rawPayload);

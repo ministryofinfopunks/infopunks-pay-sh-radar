@@ -189,6 +189,8 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.NarrativeSignalSurfaceResponse.properties.infopunk_verdict).toBeTruthy();
     expect(spec.components.schemas.NarrativeSignalSurfaceResponse.properties.verdict_label).toBeTruthy();
     expect(spec.components.schemas.NarrativeSignalSurfaceResponse.properties.verdict_state).toBeTruthy();
+    expect(spec.components.schemas.NarrativeSignalCard.properties.decision_state.enum).toContain('durable_re_index');
+    expect(spec.components.schemas.NarrativeSignalSurfaceResponse.properties.verdict_state.enum).toContain('durable_re_index');
     expect(spec.components.schemas.NarrativeSignalSurfaceResponse.properties.verdict_copy).toBeTruthy();
     expect(spec.components.schemas.BenchmarkRouteMetric.properties.status_code).toBeTruthy();
     expect(spec.components.schemas.BenchmarkRouteMetric.properties.status_evidence).toBeTruthy();
