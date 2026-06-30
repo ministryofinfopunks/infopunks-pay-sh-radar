@@ -1,4 +1,10 @@
-import type { AttentionMarketSignal, AttentionMarketVerdict } from '../schemas/entities';
+import type {
+  AttentionMarketIntakeRequest,
+  AttentionMarketIntakeSubmission,
+  AttentionMarketSignal,
+  AttentionMarketVerdict,
+  SignalRiskFacet
+} from '../schemas/entities';
 
 const UPDATED_AT = '2026-06-30T15:00:00.000Z';
 
@@ -104,7 +110,7 @@ export const attentionMarketSignals: AttentionMarketSignal[] = [
     },
     evolution_verdict: 'attention_arbitrage',
     verdict_label: verdictLabel('attention_arbitrage'),
-    verdict_copy: 'Monitored derivative signal. Current posture: attention object first, evidence object second.',
+    verdict_copy: 'Monitored derivative signal. Evidence-light profile. This attention-market object is under review, not an endorsement.',
     risk_facets: ['thin_evidence', 'kol_dependency', 'high_reflexivity'],
     href: '/attention-market-watch/tjr',
     updated_at: UPDATED_AT
@@ -146,7 +152,7 @@ export const attentionMarketSignals: AttentionMarketSignal[] = [
     },
     evolution_verdict: 'attention_arbitrage',
     verdict_label: verdictLabel('attention_arbitrage'),
-    verdict_copy: 'Evidence-light watch profile. This remains a classification object, not a thesis endorsement.',
+    verdict_copy: 'Monitored derivative signal. Evidence-light profile. This attention-market object is classified for watch status, not an endorsement.',
     risk_facets: ['thin_evidence', 'kol_dependency'],
     href: '/attention-market-watch/luke',
     updated_at: UPDATED_AT
@@ -188,12 +194,29 @@ export const attentionMarketSignals: AttentionMarketSignal[] = [
     },
     evolution_verdict: 're_index_watch',
     verdict_label: verdictLabel('re_index_watch'),
-    verdict_copy: 'Watch for whether this re-indexes into something coherent or dissolves into derivative cult sludge.',
+    verdict_copy: 'Evidence-light profile. This attention-market object is monitored, not endorsed. Watch whether it coheres or collapses into derivative cult sludge.',
     risk_facets: ['thin_evidence', 'power_concentration', 'narrative_fatigue'],
     href: '/attention-market-watch/superman',
     updated_at: UPDATED_AT
   }
 ];
+
+export const ATTENTION_MARKET_DEFAULT_EVIDENCE_REQUIREMENTS = [
+  'Identify attention source',
+  'Identify token contract or market page',
+  'Identify control points: supply, fees, liquidity, authority, social legitimacy',
+  'Provide receipt links: on-chain actions, public commitments, wallet flows, product links, or community coordination',
+  'Explain whether the asset unites attention or fragments it',
+  'Explain why this is more than a ticker wrapped around a face'
+] as const;
+
+export const ATTENTION_MARKET_DEFAULT_RISK_FACETS: SignalRiskFacet[] = [
+  'thin_evidence',
+  'high_reflexivity',
+  'power_concentration'
+];
+
+export const ATTENTION_MARKET_INTAKE_DISCLAIMER = 'Submission staged for review. This is not an endorsement and is not yet persisted.';
 
 export function listAttentionMarketSignals() {
   return attentionMarketSignals.slice();
@@ -217,5 +240,49 @@ export function getAttentionMarketWatchIndex() {
     count: signals.length,
     verdict_counts,
     signals
+  };
+}
+
+function slugify(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 32) || 'attention-object';
+}
+
+export function getAttentionMarketIntakeRequirements() {
+  return {
+    requirements: [...ATTENTION_MARKET_DEFAULT_EVIDENCE_REQUIREMENTS],
+    default_risk_facets: [...ATTENTION_MARKET_DEFAULT_RISK_FACETS],
+    disclaimer: ATTENTION_MARKET_INTAKE_DISCLAIMER
+  };
+}
+
+export function createAttentionMarketIntakeSubmission(input: AttentionMarketIntakeRequest): AttentionMarketIntakeSubmission {
+  const evidence_links = (input.evidence_links ?? []).map((link) => link.trim()).filter(Boolean);
+  const status = evidence_links.length > 0 ? 'staged' : 'needs_evidence';
+  const submitted_at = new Date().toISOString();
+  const ticker = input.ticker.trim().toUpperCase();
+  const name = input.name.trim();
+  const slug = slugify(`${ticker}-${name}`);
+  const intake_id = `am_intake_${slug}_${evidence_links.length || '0'}`;
+
+  return {
+    intake_id,
+    submitted_at,
+    status,
+    ticker,
+    name,
+    chain: input.chain?.trim() || undefined,
+    attention_source_type: input.attention_source_type ?? 'unknown',
+    attention_source_label: input.attention_source_label?.trim() || undefined,
+    submitter_handle: input.submitter_handle?.trim() || undefined,
+    why_it_matters: input.why_it_matters.trim(),
+    evidence_links,
+    default_evidence_requirements: [...ATTENTION_MARKET_DEFAULT_EVIDENCE_REQUIREMENTS],
+    default_risk_facets: [...ATTENTION_MARKET_DEFAULT_RISK_FACETS],
+    intake_note: 'Submission staged for review. This is not an endorsement and is not yet persisted.'
   };
 }

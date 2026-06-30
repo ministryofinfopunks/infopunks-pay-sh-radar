@@ -9,7 +9,12 @@ import { getNarrativeAssetBySlug, getSignalSurfaceBySlug, listNarrativeAssets, l
 import { getCandidateSignal, listCandidateSignals } from '../data/candidateSignals';
 import { getSignalDeskIndex } from '../data/signalDesk';
 import { getLatestSignalUpdate, getSignalUpdate, getSignalUpdateSummary, listSignalUpdates } from '../data/signalUpdates';
-import { getAttentionMarketSignalBySlug, getAttentionMarketWatchIndex } from '../data/attentionMarketWatch';
+import {
+  createAttentionMarketIntakeSubmission,
+  getAttentionMarketIntakeRequirements,
+  getAttentionMarketSignalBySlug,
+  getAttentionMarketWatchIndex
+} from '../data/attentionMarketWatch';
 import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
 import { renderAttentionMarketWatchOgImage, renderNarrativesOgImage, renderSignalReportOgImage, renderSignalUpdateOgImage } from '../shared/narrativeOg';
 import { renderOgPng } from '../server/narrativeOgPng';
@@ -313,6 +318,16 @@ const BigQueryLiveBoundedQueryRunSchema = z.object({
   dataset_classification: z.enum(['public', 'synthetic', 'explicitly_safe']),
   payment_evidence: z.unknown().nullable().optional()
 }).strict();
+const AttentionMarketIntakeRequestSchema = z.object({
+  ticker: z.string().min(1),
+  name: z.string().min(1),
+  chain: z.string().min(1).optional(),
+  attention_source_type: z.enum(['influencer', 'dev', 'ai_agent', 'community_archetype', 'streamer', 'reply_gang', 'anonymous_cult', 'unknown']).optional(),
+  attention_source_label: z.string().min(1).optional(),
+  submitter_handle: z.string().min(1).optional(),
+  why_it_matters: z.string().min(1),
+  evidence_links: z.array(z.string()).optional()
+});
 const MAX_INLINE_SUPPORTING_EVENT_IDS = 10;
 const DEFAULT_ALLOWED_ORIGINS = new Set([
   'https://radar.infopunks.fun',
@@ -1505,6 +1520,12 @@ export async function createApp(
   });
   app.get('/v1/narratives', async () => ({ data: listNarrativeAssets() }));
   app.get('/v1/attention-market-watch', async () => ({ data: getAttentionMarketWatchIndex() }));
+  app.get('/v1/attention-market-watch/intake/requirements', async () => ({ data: getAttentionMarketIntakeRequirements() }));
+  app.post('/v1/attention-market-watch/intake', async (req, reply) => handleParsed(req.body, AttentionMarketIntakeRequestSchema, (input) => ({
+    data: {
+      submission: createAttentionMarketIntakeSubmission(input)
+    }
+  }), reply));
   app.get<{ Params: { slug: string } }>('/v1/attention-market-watch/:slug', async (req, reply) => {
     const signal = getAttentionMarketSignalBySlug(req.params.slug);
     if (!signal) return reply.code(404).send({ error: 'attention_market_signal_not_found' });

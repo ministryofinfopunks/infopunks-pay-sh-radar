@@ -12,6 +12,17 @@ export const PRE_SPEND_CHECK_PAYLOAD = {
   required_confidence: 75
 } as const;
 
+export const ATTENTION_MARKET_INTAKE_PAYLOAD = {
+  ticker: 'SAFE',
+  name: 'Safe Persona Object',
+  chain: 'Solana',
+  attention_source_type: 'influencer',
+  attention_source_label: 'Smoke test observer',
+  submitter_handle: '@smoke',
+  why_it_matters: 'This attention-market object needs evidence review before any watch-profile promotion.',
+  evidence_links: ['/narratives/attention-market-watch']
+} as const;
+
 export type SmokePlan = {
   publicPaths: string[];
   publicHeadPaths: string[];
@@ -20,6 +31,8 @@ export type SmokePlan = {
   pngPaths: string[];
   claimsApiPaths: string[];
   preSpendPath: string;
+  attentionMarketIntakePath: string;
+  attentionMarketIntakeRequirementsPath: string;
   graphCheckPath: string;
   livePulsePath: string;
 };
@@ -113,6 +126,7 @@ export function buildSmokePlan(): SmokePlan {
       '/v1/narratives',
       '/v1/attention-market-watch',
       '/v1/attention-market-watch/ansem',
+      '/v1/attention-market-watch/intake/requirements',
       '/v1/signal-desk',
       '/v1/signal-desk/candidates',
       '/v1/signal-desk/candidates/candidate_sol_persona_attention',
@@ -148,6 +162,8 @@ export function buildSmokePlan(): SmokePlan {
       `/v1/claims/${encodeURIComponent(claimId)}/challenges`
     ],
     preSpendPath: '/v1/pre-spend/check',
+    attentionMarketIntakePath: '/v1/attention-market-watch/intake',
+    attentionMarketIntakeRequirementsPath: '/v1/attention-market-watch/intake/requirements',
     graphCheckPath: '/v1/graph/check',
     livePulsePath: '/v1/pulse'
   };
@@ -665,6 +681,42 @@ export async function runSmoke(baseUrl = resolveBaseUrl(), config = resolveSmoke
   } catch (error) {
     failed = true;
     fail(`POST ${plan.preSpendPath}`, toFailureDetail('POST', plan.preSpendPath, error));
+  }
+
+  try {
+    const { response, elapsedMs } = await fetchWithRetry({
+      input: `${baseUrl}${plan.attentionMarketIntakePath}`,
+      method: 'POST',
+      path: plan.attentionMarketIntakePath,
+      timeoutMs: config.apiTimeoutMs,
+      init: {
+        method: 'POST',
+        headers: {
+          accept: 'application/json',
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify(ATTENTION_MARKET_INTAKE_PAYLOAD)
+      }
+    });
+
+    if (!response.ok) {
+      throw new SmokeRequestError({
+        method: 'POST',
+        path: plan.attentionMarketIntakePath,
+        status: response.status,
+        elapsedMs,
+        reason: 'expected 2xx'
+      });
+    }
+
+    const body = await parseJsonOrThrow('POST', plan.attentionMarketIntakePath, response, elapsedMs);
+    if (!hasDataEnvelope(body) || !isRecord(body.data) || !isRecord(body.data.submission)) {
+      throw new Error('missing attention market intake submission payload');
+    }
+    pass(`POST ${plan.attentionMarketIntakePath}`, elapsedMs);
+  } catch (error) {
+    failed = true;
+    fail(`POST ${plan.attentionMarketIntakePath}`, toFailureDetail('POST', plan.attentionMarketIntakePath, error));
   }
 
   try {

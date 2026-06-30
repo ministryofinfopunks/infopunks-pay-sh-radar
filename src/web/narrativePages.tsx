@@ -253,6 +253,42 @@ type AttentionMarketWatchDetail = {
   signal: AttentionMarketSignal;
 };
 
+type AttentionMarketIntakeStatus = 'staged' | 'needs_evidence' | 'under_review' | 'rejected' | 'promoted_to_watch_profile';
+
+type AttentionMarketIntakeSubmission = {
+  intake_id: string;
+  submitted_at: string;
+  status: AttentionMarketIntakeStatus;
+  ticker: string;
+  name: string;
+  chain?: string;
+  attention_source_type: AttentionSourceType | 'unknown';
+  attention_source_label?: string;
+  submitter_handle?: string;
+  why_it_matters: string;
+  evidence_links: string[];
+  default_evidence_requirements: string[];
+  default_risk_facets: SignalRiskFacet[];
+  intake_note: string;
+};
+
+type AttentionMarketIntakeRequirements = {
+  requirements: string[];
+  default_risk_facets: SignalRiskFacet[];
+  disclaimer: string;
+};
+
+type AttentionMarketIntakeForm = {
+  ticker: string;
+  name: string;
+  chain: string;
+  attention_source_type: AttentionSourceType | 'unknown';
+  attention_source_label: string;
+  submitter_handle: string;
+  why_it_matters: string;
+  evidence_links: string;
+};
+
 type NarrativeFilterUpdateType = 'all' | SignalEvidenceUpdateType;
 type NarrativeFilterRisk = 'all' | SignalRiskFacet;
 type NarrativeFilterStatus = 'all' | SignalDeskStatus;
@@ -289,6 +325,16 @@ const API_BASE_URL = getApiBaseUrl();
 async function api<T>(path: string) {
   const response = await fetch(toApiUrl(API_BASE_URL, path), {
     headers: { Accept: 'application/json', 'Content-Type': 'application/json' }
+  });
+  if (!response.ok) throw new Error(`${path} ${response.status}`);
+  return response.json() as Promise<{ data: T }>;
+}
+
+async function postApi<T>(path: string, body: unknown) {
+  const response = await fetch(toApiUrl(API_BASE_URL, path), {
+    method: 'POST',
+    headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
   });
   if (!response.ok) throw new Error(`${path} ${response.status}`);
   return response.json() as Promise<{ data: T }>;
@@ -1249,12 +1295,14 @@ function AttentionWatchModule({ watch }: { watch: AttentionMarketWatchIndex }) {
     </div>
     <div className="panel-actions">
       <a className="execute" href="/narratives/attention-market-watch">Open Attention Market Watch</a>
+      <a className="execute compact secondary" href="/narratives/attention-market-watch#intake">Submit Attention Market</a>
     </div>
   </section>;
 }
 
 function AttentionWatchSignalCard({ signal }: { signal: AttentionMarketSignal }) {
   const cta = signal.href === '/signals/black-bull' ? 'Open Signal' : 'Open Watch Profile';
+  const evidenceLight = signal.slug === 'tjr' || signal.slug === 'luke' || signal.slug === 'superman';
 
   return <article className="panel narrative-asset-preview attention-watch-card">
     <div className="narrative-asset-head">
@@ -1264,6 +1312,10 @@ function AttentionWatchSignalCard({ signal }: { signal: AttentionMarketSignal })
       </div>
       <span className="source-badge">{signal.verdict_label}</span>
     </div>
+    {evidenceLight && <div className="chips narrative-update-chips">
+      <span className="narrative-evidence-chip">Evidence-light profile</span>
+      <span className="narrative-evidence-chip">Monitored, not endorsed</span>
+    </div>}
     <p>{signal.attention_source.label}</p>
     <p>{signal.attention_source.summary}</p>
     <div className="narrative-asset-stats">
@@ -1282,7 +1334,192 @@ function AttentionWatchSignalCard({ signal }: { signal: AttentionMarketSignal })
   </article>;
 }
 
-function AttentionMarketWatchIndexPageBody({ watch }: { watch: AttentionMarketWatchIndex }) {
+function AttentionMarketEvidenceRequirementsModule({ requirements }: { requirements: AttentionMarketIntakeRequirements }) {
+  const publicLabels = [
+    'Attention source',
+    'Control points',
+    'Coherence',
+    'Receipt layer',
+    'Fragmentation risk',
+    'Evolution verdict candidate'
+  ];
+
+  return <section className="panel narrative-desk-catalog" aria-label="Evidence Requirements">
+    <div className="narrative-desk-catalog-head">
+      <div>
+        <p className="section-kicker">Evidence Requirements</p>
+        <h2>Evidence Requirements</h2>
+      </div>
+    </div>
+    <div className="narrative-method-grid">
+      {publicLabels.map((item) => <article key={item} className="panel narrative-method-step">
+        <h3>{item}</h3>
+      </article>)}
+    </div>
+    <div className="chips narrative-update-chips">
+      {requirements.default_risk_facets.map((facet) => <RiskFacetChip key={`intake-${facet}`} facet={facet} />)}
+    </div>
+    <p className="narrative-rally-line">Before you follow the meta, check the receipts.</p>
+  </section>;
+}
+
+function AttentionMarketIntakeCard({
+  requirements
+}: {
+  requirements: AttentionMarketIntakeRequirements | null;
+}) {
+  const [form, setForm] = useState<AttentionMarketIntakeForm>({
+    ticker: '',
+    name: '',
+    chain: '',
+    attention_source_type: 'unknown',
+    attention_source_label: '',
+    submitter_handle: '',
+    why_it_matters: '',
+    evidence_links: ''
+  });
+  const [errors, setErrors] = useState<string[]>([]);
+  const [submission, setSubmission] = useState<AttentionMarketIntakeSubmission | null>(null);
+  const [requirementsOpen, setRequirementsOpen] = useState(false);
+
+  function setField<K extends keyof AttentionMarketIntakeForm>(key: K, value: AttentionMarketIntakeForm[K]) {
+    setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const submittedForm: AttentionMarketIntakeForm = {
+      ticker: String(formData.get('ticker') ?? ''),
+      name: String(formData.get('name') ?? ''),
+      chain: String(formData.get('chain') ?? ''),
+      attention_source_type: (String(formData.get('attention_source_type') ?? 'unknown') as AttentionMarketIntakeForm['attention_source_type']) || 'unknown',
+      attention_source_label: String(formData.get('attention_source_label') ?? ''),
+      submitter_handle: String(formData.get('submitter_handle') ?? ''),
+      why_it_matters: String(formData.get('why_it_matters') ?? ''),
+      evidence_links: String(formData.get('evidence_links') ?? '')
+    };
+    setForm(submittedForm);
+    const nextErrors: string[] = [];
+    if (!submittedForm.ticker.trim()) nextErrors.push('Ticker is required.');
+    if (!submittedForm.name.trim()) nextErrors.push('Name is required.');
+    if (!submittedForm.why_it_matters.trim()) nextErrors.push('Why it matters is required.');
+    setErrors(nextErrors);
+    if (nextErrors.length) {
+      setSubmission(null);
+      return;
+    }
+
+    const payload = {
+      ticker: submittedForm.ticker.trim(),
+      name: submittedForm.name.trim(),
+      chain: submittedForm.chain.trim() || undefined,
+      attention_source_type: submittedForm.attention_source_type,
+      attention_source_label: submittedForm.attention_source_label.trim() || undefined,
+      submitter_handle: submittedForm.submitter_handle.trim() || undefined,
+      why_it_matters: submittedForm.why_it_matters.trim(),
+      evidence_links: submittedForm.evidence_links.split('\n').map((item) => item.trim()).filter(Boolean)
+    };
+
+    try {
+      const response = await postApi<{ submission: AttentionMarketIntakeSubmission }>('/v1/attention-market-watch/intake', payload);
+      setSubmission(response.data.submission);
+      setErrors([]);
+      setRequirementsOpen(true);
+    } catch (error) {
+      setErrors([error instanceof Error ? error.message : 'attention_market_intake_unavailable']);
+    }
+  }
+
+  return <section id="intake" className="panel narrative-intake-card" aria-label="Submit an Attention Market">
+    <div className="narrative-desk-catalog-head">
+      <div>
+        <p className="section-kicker">Attention market intake</p>
+        <h2>Submit an Attention Market</h2>
+        <p>Got a persona coin, influencer token, reply-gang asset, or cult ticker entering the trenches? Stage it for evidence review.</p>
+        <p>Submission does not create a report. It creates a candidate signal for evidence review.</p>
+      </div>
+    </div>
+    <form className="narrative-intake-form" onSubmit={handleSubmit}>
+      <label className="narrative-control-field">
+        <span>Ticker</span>
+        <input name="ticker" aria-label="Ticker" value={form.ticker} onChange={(event) => setField('ticker', event.target.value)} />
+      </label>
+      <label className="narrative-control-field">
+        <span>Name</span>
+        <input name="name" aria-label="Name" value={form.name} onChange={(event) => setField('name', event.target.value)} />
+      </label>
+      <label className="narrative-control-field">
+        <span>Chain / ecosystem optional</span>
+        <input name="chain" aria-label="Chain / ecosystem optional" value={form.chain} onChange={(event) => setField('chain', event.target.value)} />
+      </label>
+      <label className="narrative-control-field">
+        <span>Attention source type</span>
+        <select name="attention_source_type" aria-label="Attention source type" value={form.attention_source_type} onChange={(event) => setField('attention_source_type', event.target.value as AttentionMarketIntakeForm['attention_source_type'])}>
+          <option value="unknown">Unknown</option>
+          <option value="influencer">Influencer</option>
+          <option value="dev">Dev</option>
+          <option value="ai_agent">AI agent</option>
+          <option value="community_archetype">Community archetype</option>
+          <option value="streamer">Streamer</option>
+          <option value="reply_gang">Reply gang</option>
+          <option value="anonymous_cult">Anonymous cult</option>
+        </select>
+      </label>
+      <label className="narrative-control-field">
+        <span>Attention source label optional</span>
+        <input name="attention_source_label" aria-label="Attention source label optional" value={form.attention_source_label} onChange={(event) => setField('attention_source_label', event.target.value)} />
+      </label>
+      <label className="narrative-control-field">
+        <span>Submitter handle optional</span>
+        <input name="submitter_handle" aria-label="Submitter handle optional" value={form.submitter_handle} onChange={(event) => setField('submitter_handle', event.target.value)} />
+      </label>
+      <label className="narrative-control-field narrative-intake-wide">
+        <span>Why it matters</span>
+        <textarea name="why_it_matters" aria-label="Why it matters" value={form.why_it_matters} onChange={(event) => setField('why_it_matters', event.target.value)} rows={4} />
+      </label>
+      <label className="narrative-control-field narrative-intake-wide">
+        <span>Evidence links</span>
+        <textarea name="evidence_links" aria-label="Evidence links" value={form.evidence_links} onChange={(event) => setField('evidence_links', event.target.value)} rows={4} placeholder="One link per line" />
+      </label>
+      <div className="panel-actions">
+        <button className="execute" type="submit">Stage for Review</button>
+        <button className="execute compact secondary" type="button" onClick={() => setRequirementsOpen((value) => !value)}>View Evidence Requirements</button>
+      </div>
+    </form>
+    {errors.length > 0 && <div className="route-state error">{errors.join(' ')}</div>}
+    {submission && <div className="narrative-intake-confirmation">
+      <p>Submission staged for review. This is not an endorsement. The desk requires receipts before promotion.</p>
+      <p><b>Staged intake id:</b> {submission.intake_id}</p>
+      <p><b>Status:</b> {submission.status}</p>
+      <p>{submission.intake_note}</p>
+      <div className="chips narrative-update-chips">
+        {submission.default_risk_facets.map((facet) => <RiskFacetChip key={`submission-${facet}`} facet={facet} />)}
+      </div>
+      <div className="narrative-evidence-list">
+        {submission.default_evidence_requirements.map((requirement) => <article key={requirement} className="panel narrative-evidence-card">
+          <p>{requirement}</p>
+        </article>)}
+      </div>
+    </div>}
+    {requirementsOpen && requirements && <div className="narrative-intake-requirements-inline">
+      <div className="narrative-evidence-list">
+        {requirements.requirements.map((requirement) => <article key={requirement} className="panel narrative-evidence-card">
+          <p>{requirement}</p>
+        </article>)}
+      </div>
+      <p className="panel-caption">{requirements.disclaimer}</p>
+    </div>}
+  </section>;
+}
+
+function AttentionMarketWatchIndexPageBody({
+  watch,
+  requirements
+}: {
+  watch: AttentionMarketWatchIndex;
+  requirements: AttentionMarketIntakeRequirements | null;
+}) {
   const verdicts: AttentionMarketVerdict[] = [
     'attention_arbitrage',
     'extraction_risk',
@@ -1348,6 +1585,9 @@ function AttentionMarketWatchIndexPageBody({ watch }: { watch: AttentionMarketWa
         {watch.signals.map((signal) => <AttentionWatchSignalCard key={signal.slug} signal={signal} />)}
       </div>
     </section>
+
+    {requirements && <AttentionMarketEvidenceRequirementsModule requirements={requirements} />}
+    <AttentionMarketIntakeCard requirements={requirements} />
 
     {ansem && <section className="panel narrative-copy-panel" aria-label="Featured Case Study">
       <p className="section-kicker">Featured Case Study</p>
@@ -1551,6 +1791,7 @@ export function AttentionMarketsPage() {
 
 export function AttentionMarketWatchPage() {
   const [watch, setWatch] = useState<AttentionMarketWatchIndex | null>(null);
+  const [requirements, setRequirements] = useState<AttentionMarketIntakeRequirements | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -1563,6 +1804,12 @@ export function AttentionMarketWatchPage() {
       .catch((err) => setError(err instanceof Error ? err.message : 'attention_market_watch_unavailable'));
   }, []);
 
+  useEffect(() => {
+    api<AttentionMarketIntakeRequirements>('/v1/attention-market-watch/intake/requirements')
+      .then((response) => setRequirements(response.data))
+      .catch(() => undefined);
+  }, []);
+
   return <div className="shell narrative-shell">
     <a className="skip-link" href="#attention-watch-content">Skip to content</a>
     <header className="site-header">
@@ -1570,7 +1817,7 @@ export function AttentionMarketWatchPage() {
     </header>
     <main id="attention-watch-content" className="narrative-page">
       {error && <section className="panel"><p className="route-state error">{error}</p></section>}
-      {watch && <AttentionMarketWatchIndexPageBody watch={watch} />}
+      {watch && <AttentionMarketWatchIndexPageBody watch={watch} requirements={requirements} />}
     </main>
   </div>;
 }
@@ -1593,7 +1840,7 @@ export function AttentionMarketWatchProfilePage({ slug }: { slug: string }) {
   const profileStateCopy = signal && signal.slug === 'ansem'
     ? 'Linked signal report available.'
     : signal && (signal.receipt_layer.score <= 24 || signal.evolution_verdict === 'attention_arbitrage')
-      ? 'Monitored derivative signal. Evidence required.'
+      ? 'Monitored derivative signal. Evidence-light profile. This attention-market object is not an endorsement.'
       : 'Profile under active watch.';
 
   return <div className="shell narrative-shell">
@@ -1611,6 +1858,10 @@ export function AttentionMarketWatchProfilePage({ slug }: { slug: string }) {
             <p className="copy">${signal.ticker}</p>
             <p className="copy">{signal.verdict_copy}</p>
             <p className="copy">{profileStateCopy}</p>
+            {(signal.slug === 'tjr' || signal.slug === 'luke' || signal.slug === 'superman') && <div className="chips narrative-update-chips">
+              <span className="narrative-evidence-chip">Evidence-light profile</span>
+              <span className="narrative-evidence-chip">Monitored, not endorsed</span>
+            </div>}
           </div>
           <div className="panel narrative-hero-rail">
             <p className="section-kicker">Verdict</p>

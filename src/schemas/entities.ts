@@ -655,6 +655,66 @@ export const AttentionMarketWatchDetailResponseSchema = z.object({
   signal: AttentionMarketSignalSchema
 });
 
+export const AttentionMarketIntakeStatusSchema = z.enum([
+  'staged',
+  'needs_evidence',
+  'under_review',
+  'rejected',
+  'promoted_to_watch_profile'
+]);
+
+export const AttentionMarketIntakeSubmissionSchema = z.object({
+  intake_id: z.string(),
+  submitted_at: z.string().datetime(),
+  status: AttentionMarketIntakeStatusSchema,
+  ticker: z.string(),
+  name: z.string(),
+  chain: z.string().optional(),
+  attention_source_type: z.enum([
+    'influencer',
+    'dev',
+    'ai_agent',
+    'community_archetype',
+    'streamer',
+    'reply_gang',
+    'anonymous_cult',
+    'unknown'
+  ]),
+  attention_source_label: z.string().optional(),
+  submitter_handle: z.string().optional(),
+  why_it_matters: z.string(),
+  evidence_links: z.array(z.string()),
+  default_evidence_requirements: z.array(z.string()),
+  default_risk_facets: z.array(SignalRiskFacetSchema),
+  intake_note: z.string()
+});
+
+export const AttentionMarketIntakeRequestSchema = z.object({
+  ticker: z.string().min(1),
+  name: z.string().min(1),
+  chain: z.string().min(1).optional(),
+  attention_source_type: z.enum([
+    'influencer',
+    'dev',
+    'ai_agent',
+    'community_archetype',
+    'streamer',
+    'reply_gang',
+    'anonymous_cult',
+    'unknown'
+  ]).optional(),
+  attention_source_label: z.string().min(1).optional(),
+  submitter_handle: z.string().min(1).optional(),
+  why_it_matters: z.string().min(1),
+  evidence_links: z.array(z.string()).optional()
+});
+
+export const AttentionMarketIntakeRequirementsResponseSchema = z.object({
+  requirements: z.array(z.string()),
+  default_risk_facets: z.array(SignalRiskFacetSchema),
+  disclaimer: z.string()
+});
+
 export const SearchRequestSchema = z.object({
   query: z.string().min(1),
   category: z.string().optional(),
@@ -2447,6 +2507,10 @@ export type AttentionReceiptLayer = z.infer<typeof AttentionReceiptLayerSchema>;
 export type AttentionMarketSignal = z.infer<typeof AttentionMarketSignalSchema>;
 export type AttentionMarketWatchListResponse = z.infer<typeof AttentionMarketWatchListResponseSchema>;
 export type AttentionMarketWatchDetailResponse = z.infer<typeof AttentionMarketWatchDetailResponseSchema>;
+export type AttentionMarketIntakeStatus = z.infer<typeof AttentionMarketIntakeStatusSchema>;
+export type AttentionMarketIntakeSubmission = z.infer<typeof AttentionMarketIntakeSubmissionSchema>;
+export type AttentionMarketIntakeRequest = z.infer<typeof AttentionMarketIntakeRequestSchema>;
+export type AttentionMarketIntakeRequirementsResponse = z.infer<typeof AttentionMarketIntakeRequirementsResponseSchema>;
 export type RouteRecommendation = z.infer<typeof RouteRecommendationSchema>;
 export type SearchRequest = z.infer<typeof SearchRequestSchema>;
 export type RouteRecommendationRequest = z.infer<typeof RouteRecommendationRequestSchema>;

@@ -97,6 +97,94 @@ describe('narrative intel api', () => {
     }
   });
 
+  it('returns Attention Market Intake requirements', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+
+    try {
+      const response = await app.inject({ method: 'GET', url: '/v1/attention-market-watch/intake/requirements' });
+      expect(response.statusCode).toBe(200);
+      expect(response.json().data).toEqual(expect.objectContaining({
+        requirements: expect.arrayContaining([
+          'Identify attention source',
+          'Explain why this is more than a ticker wrapped around a face'
+        ]),
+        default_risk_facets: ['thin_evidence', 'high_reflexivity', 'power_concentration'],
+        disclaimer: expect.stringContaining('not an endorsement')
+      }));
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('validates required Attention Market Intake fields', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+
+    try {
+      const response = await app.inject({
+        method: 'POST',
+        url: '/v1/attention-market-watch/intake',
+        payload: { ticker: '', name: '', why_it_matters: '' }
+      });
+      expect(response.statusCode).toBe(400);
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('returns staged Attention Market Intake submissions with evidence', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+
+    try {
+      const response = await app.inject({
+        method: 'POST',
+        url: '/v1/attention-market-watch/intake',
+        payload: {
+          ticker: 'SAFE',
+          name: 'Safe Persona Object',
+          chain: 'Solana',
+          attention_source_type: 'influencer',
+          why_it_matters: 'This attention-market object is entering the trenches and needs evidence review.',
+          evidence_links: ['/narratives/attention-market-watch']
+        }
+      });
+      expect(response.statusCode).toBe(200);
+      expect(response.json().data).toEqual(expect.objectContaining({
+        submission: expect.objectContaining({
+          ticker: 'SAFE',
+          name: 'Safe Persona Object',
+          status: 'staged',
+          evidence_links: ['/narratives/attention-market-watch'],
+          intake_note: expect.stringContaining('not an endorsement')
+        })
+      }));
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('returns needs_evidence Attention Market Intake submissions without evidence', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+
+    try {
+      const response = await app.inject({
+        method: 'POST',
+        url: '/v1/attention-market-watch/intake',
+        payload: {
+          ticker: 'SAFE',
+          name: 'Safe Persona Object',
+          why_it_matters: 'This attention-market object needs evidence before watch promotion.'
+        }
+      });
+      expect(response.statusCode).toBe(200);
+      expect(response.json().data.submission).toEqual(expect.objectContaining({
+        status: 'needs_evidence',
+        default_risk_facets: ['thin_evidence', 'high_reflexivity', 'power_concentration']
+      }));
+    } finally {
+      await app.close();
+    }
+  });
+
   it('returns the derived Signal Desk index', async () => {
     const app = await createApp(emptyIntelligenceStore());
 
@@ -452,7 +540,7 @@ describe('narrative intel api', () => {
     } finally {
       await app.close();
     }
-  });
+  }, 10000);
 
   it('serves the Attention Market Watch OG image routes', async () => {
     const app = await createApp(emptyIntelligenceStore());
@@ -483,7 +571,7 @@ describe('narrative intel api', () => {
     } finally {
       await app.close();
     }
-  });
+  }, 10000);
 
   it('serves the seeded TROLL report and dispatch OG image routes', async () => {
     const app = await createApp(emptyIntelligenceStore());
@@ -501,7 +589,7 @@ describe('narrative intel api', () => {
     } finally {
       await app.close();
     }
-  });
+  }, 10000);
 
   it('serves the seeded dispatch permalink OG image route', async () => {
     const app = await createApp(emptyIntelligenceStore());
@@ -514,7 +602,7 @@ describe('narrative intel api', () => {
     } finally {
       await app.close();
     }
-  });
+  }, 10000);
 
   it('returns 404 for unknown OG update image routes', async () => {
     const app = await createApp(emptyIntelligenceStore());

@@ -78,6 +78,8 @@ describe('openapi discovery', () => {
     expect(spec.paths['/v1/narratives']?.get).toBeTruthy();
     expect(spec.paths['/v1/attention-market-watch']?.get).toBeTruthy();
     expect(spec.paths['/v1/attention-market-watch/{slug}']?.get).toBeTruthy();
+    expect(spec.paths['/v1/attention-market-watch/intake']?.post).toBeTruthy();
+    expect(spec.paths['/v1/attention-market-watch/intake/requirements']?.get).toBeTruthy();
     expect(spec.paths['/v1/signal-desk']?.get).toBeTruthy();
     expect(spec.paths['/v1/signal-desk/candidates']?.get).toBeTruthy();
     expect(spec.paths['/v1/signal-desk/candidates/{candidateId}']?.get).toBeTruthy();
@@ -132,6 +134,10 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.AttentionMarketVerdict).toBeTruthy();
     expect(spec.components.schemas.AttentionMarketWatchListResponse).toBeTruthy();
     expect(spec.components.schemas.AttentionMarketWatchDetailResponse).toBeTruthy();
+    expect(spec.components.schemas.AttentionMarketIntakeRequest).toBeTruthy();
+    expect(spec.components.schemas.AttentionMarketIntakeSubmission).toBeTruthy();
+    expect(spec.components.schemas.AttentionMarketIntakeSubmissionResponse).toBeTruthy();
+    expect(spec.components.schemas.AttentionMarketIntakeRequirementsResponse).toBeTruthy();
     expect(spec.components.schemas.NarrativeSignalSurfaceResponse).toBeTruthy();
     expect(spec.components.schemas.SignalDeskIndex).toBeTruthy();
     expect(spec.components.schemas.SignalRiskFacet).toBeTruthy();
@@ -185,8 +191,10 @@ describe('openapi discovery', () => {
     expect(JSON.stringify(spec.paths['/v1/signal-desk/candidates'])).toContain('seeded candidate queue');
     expect(JSON.stringify(spec.paths['/v1/signal-desk/candidates/{candidateId}'])).toContain('candidate_signal_not_found');
     expect(JSON.stringify(spec.paths['/v1/attention-market-watch/{slug}'])).toContain('attention_market_signal_not_found');
+    expect(JSON.stringify(spec.paths['/v1/attention-market-watch/intake'])).toContain('not an endorsement');
     expect(spec.components.schemas.SignalRiskFacet.enum).toEqual(['high_reflexivity', 'power_concentration', 'unproven_sovereignty', 'kol_dependency', 'thin_evidence', 'narrative_fatigue', 'live_watch']);
     expect(spec.components.schemas.AttentionMarketVerdict.enum).toEqual(['attention_arbitrage', 'extraction_risk', 'cult_sludge', 're_index_watch', 'movement_candidate', 'signal_market_candidate', 'supportive_watch']);
+    expect(spec.components.schemas.AttentionMarketIntakeSubmission.properties.status.$ref).toBe('#/components/schemas/AttentionMarketIntakeStatus');
     expect(JSON.stringify(spec.paths['/v1/signals/{slug}/updates/{updateId}'])).toContain('signal_update_not_found');
     expect(spec.components.schemas.CandidateSignal.properties.category.$ref).toBe('#/components/schemas/CandidateSignalCategory');
     expect(spec.components.schemas.CandidateSignal.properties.status.$ref).toBe('#/components/schemas/CandidateSignalStatus');

@@ -5,6 +5,7 @@ import {
   DEFAULT_PUBLIC_PAGE_RETRY_ATTEMPTS,
   DEFAULT_PUBLIC_PAGE_RETRY_DELAY_MS,
   DEFAULT_PUBLIC_PAGE_TIMEOUT_MS,
+  ATTENTION_MARKET_INTAKE_PAYLOAD,
   PRE_SPEND_CHECK_PAYLOAD,
   buildSmokePlan,
   resolveBaseUrl,
@@ -82,6 +83,7 @@ describe('production smoke plan', () => {
       '/v1/narratives',
       '/v1/attention-market-watch',
       '/v1/attention-market-watch/ansem',
+      '/v1/attention-market-watch/intake/requirements',
       '/v1/signal-desk',
       '/v1/signal-desk/candidates',
       '/v1/signal-desk/candidates/candidate_sol_persona_attention',
@@ -117,6 +119,8 @@ describe('production smoke plan', () => {
       '/v1/claims/claim_001/challenges'
     ]);
     expect(plan.preSpendPath).toBe('/v1/pre-spend/check');
+    expect(plan.attentionMarketIntakePath).toBe('/v1/attention-market-watch/intake');
+    expect(plan.attentionMarketIntakeRequirementsPath).toBe('/v1/attention-market-watch/intake/requirements');
     expect(plan.graphCheckPath).toBe('/v1/graph/check');
     expect(plan.livePulsePath).toBe('/v1/pulse');
     expect(PRE_SPEND_CHECK_PAYLOAD).toEqual({
@@ -126,6 +130,16 @@ describe('production smoke plan', () => {
       risk_tolerance: 'low',
       preferred_settlement: 'stablecoin',
       required_confidence: 75
+    });
+    expect(ATTENTION_MARKET_INTAKE_PAYLOAD).toEqual({
+      ticker: 'SAFE',
+      name: 'Safe Persona Object',
+      chain: 'Solana',
+      attention_source_type: 'influencer',
+      attention_source_label: 'Smoke test observer',
+      submitter_handle: '@smoke',
+      why_it_matters: 'This attention-market object needs evidence review before any watch-profile promotion.',
+      evidence_links: ['/narratives/attention-market-watch']
     });
   });
 });

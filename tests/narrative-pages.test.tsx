@@ -536,6 +536,19 @@ const attentionMarketWatch = {
   ]
 };
 
+const attentionMarketIntakeRequirements = {
+  requirements: [
+    'Identify attention source',
+    'Identify token contract or market page',
+    'Identify control points: supply, fees, liquidity, authority, social legitimacy',
+    'Provide receipt links: on-chain actions, public commitments, wallet flows, product links, or community coordination',
+    'Explain whether the asset unites attention or fragments it',
+    'Explain why this is more than a ticker wrapped around a face'
+  ],
+  default_risk_facets: ['thin_evidence', 'high_reflexivity', 'power_concentration'],
+  disclaimer: 'Submission staged for review. This is not an endorsement and is not yet persisted.'
+};
+
 describe('narrative pages', () => {
   let root: Root | null = null;
   let container: HTMLDivElement;
@@ -543,9 +556,33 @@ describe('narrative pages', () => {
   beforeEach(() => {
     container = document.createElement('div');
     document.body.append(container);
-    vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
       const path = pathOf(input);
+      if (path === '/v1/attention-market-watch/intake' && init?.method === 'POST') {
+        const payload = JSON.parse(String(init.body ?? '{}'));
+        if (!payload.ticker || !payload.name || !payload.why_it_matters) return Promise.resolve(new Response('{}', { status: 400 }));
+        const evidenceLinks = Array.isArray(payload.evidence_links) ? payload.evidence_links : [];
+        return json({
+          submission: {
+            intake_id: `am_intake_${String(payload.ticker).toLowerCase()}_${evidenceLinks.length || '0'}`,
+            submitted_at: '2026-06-30T18:00:00.000Z',
+            status: evidenceLinks.length ? 'staged' : 'needs_evidence',
+            ticker: payload.ticker,
+            name: payload.name,
+            chain: payload.chain,
+            attention_source_type: payload.attention_source_type ?? 'unknown',
+            attention_source_label: payload.attention_source_label,
+            submitter_handle: payload.submitter_handle,
+            why_it_matters: payload.why_it_matters,
+            evidence_links: evidenceLinks,
+            default_evidence_requirements: attentionMarketIntakeRequirements.requirements,
+            default_risk_facets: attentionMarketIntakeRequirements.default_risk_facets,
+            intake_note: attentionMarketIntakeRequirements.disclaimer
+          }
+        });
+      }
       if (path === '/v1/attention-market-watch') return json(attentionMarketWatch);
+      if (path === '/v1/attention-market-watch/intake/requirements') return json(attentionMarketIntakeRequirements);
       if (path === '/v1/attention-market-watch/ansem') return json({ signal: attentionMarketWatch.signals[0] });
       if (path === '/v1/attention-market-watch/tjr') return json({ signal: attentionMarketWatch.signals[1] });
       if (path === '/v1/attention-market-watch/luke') return json({ signal: attentionMarketWatch.signals[2] });
@@ -632,6 +669,7 @@ describe('narrative pages', () => {
     expect(container.textContent).toContain('Thin Evidence');
     expect(container.textContent).toContain('Attention Market Watch');
     expect(container.textContent).toContain('Open Attention Market Watch');
+    expect(Array.from(container.querySelectorAll('a[href="/narratives/attention-market-watch#intake"]')).some((node) => node.textContent?.includes('Submit Attention Market'))).toBe(true);
   });
 
   it('filters visible results by risk facet', async () => {
@@ -729,6 +767,9 @@ describe('narrative pages', () => {
 
     expect(container.textContent).toContain('Attention Market Watch');
     expect(container.textContent).toContain('Before you follow the meta, check the receipts.');
+    expect(container.textContent).toContain('Submit an Attention Market');
+    expect(container.textContent).toContain('Evidence Requirements');
+    expect(container.textContent).toContain('Submission does not create a report. It creates a candidate signal for evidence review.');
     expect(container.textContent).toContain('Classification Method');
     expect(container.textContent).toContain('Verdict Types');
     expect(container.textContent).toContain('Watchlist');
@@ -738,6 +779,51 @@ describe('narrative pages', () => {
     expect(container.textContent).toContain('SUPERMAN');
     expect(container.textContent).toContain('Open Black Bull Signal Report');
     expect(document.title).toBe('Infopunks Attention Market Watch');
+  });
+
+  it('validates and stages an attention market intake submission', async () => {
+    await render('/narratives/attention-market-watch');
+
+    const form = container.querySelector('form.narrative-intake-form') as HTMLFormElement;
+
+    await act(async () => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+
+    expect(container.textContent).toContain('Ticker is required.');
+    expect(container.textContent).toContain('Name is required.');
+    expect(container.textContent).toContain('Why it matters is required.');
+
+    const ticker = container.querySelector('input[aria-label="Ticker"]') as HTMLInputElement;
+    const name = container.querySelector('input[aria-label="Name"]') as HTMLInputElement;
+    const why = container.querySelector('textarea[aria-label="Why it matters"]') as HTMLTextAreaElement;
+    const evidence = container.querySelector('textarea[aria-label="Evidence links"]') as HTMLTextAreaElement;
+
+    await act(async () => {
+      ticker.value = 'SAFE';
+      ticker.dispatchEvent(new Event('input', { bubbles: true }));
+      ticker.dispatchEvent(new Event('change', { bubbles: true }));
+      name.value = 'Safe Persona Object';
+      name.dispatchEvent(new Event('input', { bubbles: true }));
+      name.dispatchEvent(new Event('change', { bubbles: true }));
+      why.value = 'This attention-market object needs evidence review before classification.';
+      why.dispatchEvent(new Event('input', { bubbles: true }));
+      why.dispatchEvent(new Event('change', { bubbles: true }));
+      evidence.value = '/narratives/attention-market-watch';
+      evidence.dispatchEvent(new Event('input', { bubbles: true }));
+      evidence.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    await act(async () => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      await Promise.resolve();
+    });
+
+    expect(container.textContent).toContain('Submission staged for review. This is not an endorsement. The desk requires receipts before promotion.');
+    expect(container.textContent).toContain('Staged intake id:');
+    expect(container.textContent).toContain('Status:');
+    expect(container.textContent).toContain('am_intake_safe_1');
+    expect(container.textContent).toContain('Thin Evidence');
   });
 
   it('renders the Attention Market Watch profile and links to Black Bull for ANSEM', async () => {
@@ -753,6 +839,19 @@ describe('narrative pages', () => {
     expect(container.textContent).toContain('Evolution Verdict');
     expect(Array.from(container.querySelectorAll('a[href="/signals/black-bull"]')).some((node) => node.textContent?.includes('Open Black Bull Signal Report'))).toBe(true);
     expect(document.title).toBe('Infopunks Attention Market Watch: $ANSEM');
+  });
+
+  it('renders evidence-light wording for monitored derivative profiles', async () => {
+    await render('/attention-market-watch/tjr');
+    expect(container.textContent).toContain('Evidence-light profile');
+    expect(container.textContent).toContain('Monitored, not endorsed');
+    expect(container.textContent).toContain('not an endorsement');
+
+    await render('/attention-market-watch/luke');
+    expect(container.textContent).toContain('Evidence-light profile');
+
+    await render('/attention-market-watch/superman');
+    expect(container.textContent).toContain('Monitored, not endorsed');
   });
 
   it('renders the Ansem signal source page without sounding like advice', async () => {

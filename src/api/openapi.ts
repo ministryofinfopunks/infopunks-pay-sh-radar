@@ -600,6 +600,63 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       }]
     })
   });
+  add('get', '/v1/attention-market-watch/intake/requirements', {
+    tags: ['Intelligence'],
+    summary: 'Get Attention Market Intake requirements',
+    description: 'Returns the default evidence requirements, default risk facets, and public disclaimer for staged attention-market intake. Submission does not equal endorsement.',
+    responses: envelopedResponses('AttentionMarketIntakeRequirementsResponse', {
+      requirements: [
+        'Identify attention source',
+        'Identify token contract or market page',
+        'Identify control points: supply, fees, liquidity, authority, social legitimacy',
+        'Provide receipt links: on-chain actions, public commitments, wallet flows, product links, or community coordination',
+        'Explain whether the asset unites attention or fragments it',
+        'Explain why this is more than a ticker wrapped around a face'
+      ],
+      default_risk_facets: ['thin_evidence', 'high_reflexivity', 'power_concentration'],
+      disclaimer: 'Submission staged for review. This is not an endorsement and is not yet persisted.'
+    })
+  });
+  add('post', '/v1/attention-market-watch/intake', {
+    tags: ['Intelligence'],
+    summary: 'Stage an Attention Market intake submission',
+    description: 'Stages a non-persistent attention-market submission for evidence review. Submission does not create a report, does not persist data, and is not an endorsement.',
+    requestBody: jsonRequest({ $ref: '#/components/schemas/AttentionMarketIntakeRequest' }, {
+      ticker: 'SAFE',
+      name: 'Safe Persona Object',
+      chain: 'Solana',
+      attention_source_type: 'influencer',
+      attention_source_label: 'Example influencer cluster',
+      submitter_handle: '@observer',
+      why_it_matters: 'This attention-market object is entering the trenches and needs evidence review before classification.',
+      evidence_links: ['/narratives/attention-market-watch']
+    }),
+    responses: envelopedResponses('AttentionMarketIntakeSubmissionResponse', {
+      submission: {
+        intake_id: 'am_intake_safe-safe-persona-object_1',
+        submitted_at: '2026-06-30T18:00:00.000Z',
+        status: 'staged',
+        ticker: 'SAFE',
+        name: 'Safe Persona Object',
+        chain: 'Solana',
+        attention_source_type: 'influencer',
+        attention_source_label: 'Example influencer cluster',
+        submitter_handle: '@observer',
+        why_it_matters: 'This attention-market object is entering the trenches and needs evidence review before classification.',
+        evidence_links: ['/narratives/attention-market-watch'],
+        default_evidence_requirements: [
+          'Identify attention source',
+          'Identify token contract or market page',
+          'Identify control points: supply, fees, liquidity, authority, social legitimacy',
+          'Provide receipt links: on-chain actions, public commitments, wallet flows, product links, or community coordination',
+          'Explain whether the asset unites attention or fragments it',
+          'Explain why this is more than a ticker wrapped around a face'
+        ],
+        default_risk_facets: ['thin_evidence', 'high_reflexivity', 'power_concentration'],
+        intake_note: 'Submission staged for review. This is not an endorsement and is not yet persisted.'
+      }
+    })
+  });
   add('get', '/v1/attention-market-watch/{slug}', {
     tags: ['Intelligence'],
     summary: 'Get Attention Market Watch profile',
@@ -3557,6 +3614,41 @@ function componentSchemas(): Record<string, JsonSchema> {
     AttentionMarketWatchDetailResponse: objectSchema({
       signal: { $ref: '#/components/schemas/AttentionMarketSignal' }
     }, ['signal']),
+    AttentionMarketIntakeStatus: enumSchema(['staged', 'needs_evidence', 'under_review', 'rejected', 'promoted_to_watch_profile']),
+    AttentionMarketIntakeRequest: objectSchema({
+      ticker: stringSchema(),
+      name: stringSchema(),
+      chain: stringSchema(),
+      attention_source_type: enumSchema(['influencer', 'dev', 'ai_agent', 'community_archetype', 'streamer', 'reply_gang', 'anonymous_cult', 'unknown']),
+      attention_source_label: stringSchema(),
+      submitter_handle: stringSchema(),
+      why_it_matters: stringSchema(),
+      evidence_links: arrayOf(stringSchema())
+    }, ['ticker', 'name', 'why_it_matters']),
+    AttentionMarketIntakeSubmission: objectSchema({
+      intake_id: stringSchema(),
+      submitted_at: dateTimeSchema(),
+      status: { $ref: '#/components/schemas/AttentionMarketIntakeStatus' },
+      ticker: stringSchema(),
+      name: stringSchema(),
+      chain: stringSchema(),
+      attention_source_type: enumSchema(['influencer', 'dev', 'ai_agent', 'community_archetype', 'streamer', 'reply_gang', 'anonymous_cult', 'unknown']),
+      attention_source_label: stringSchema(),
+      submitter_handle: stringSchema(),
+      why_it_matters: stringSchema(),
+      evidence_links: arrayOf(stringSchema()),
+      default_evidence_requirements: arrayOf(stringSchema()),
+      default_risk_facets: arrayOf({ $ref: '#/components/schemas/SignalRiskFacet' }),
+      intake_note: stringSchema()
+    }, ['intake_id', 'submitted_at', 'status', 'ticker', 'name', 'attention_source_type', 'why_it_matters', 'evidence_links', 'default_evidence_requirements', 'default_risk_facets', 'intake_note']),
+    AttentionMarketIntakeSubmissionResponse: objectSchema({
+      submission: { $ref: '#/components/schemas/AttentionMarketIntakeSubmission' }
+    }, ['submission']),
+    AttentionMarketIntakeRequirementsResponse: objectSchema({
+      requirements: arrayOf(stringSchema()),
+      default_risk_facets: arrayOf({ $ref: '#/components/schemas/SignalRiskFacet' }),
+      disclaimer: stringSchema()
+    }, ['requirements', 'default_risk_facets', 'disclaimer']),
     NarrativeSignalCard: objectSchema({
       id: stringSchema(),
       title: stringSchema(),
