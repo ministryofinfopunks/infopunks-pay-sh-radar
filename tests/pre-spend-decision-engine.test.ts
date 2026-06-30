@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   calculateConfidenceScore,
   calculateRiskLevel,
@@ -99,6 +99,15 @@ function buildRequest(overrides: Partial<PreSpendCheckRequest> = {}): PreSpendCh
 }
 
 describe('pre-spend decision engine', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-06-20T00:00:00.000Z'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('has a fixture for approved', () => {
     const result = makePreSpendDecision(buildRequest(), [buildContext()]);
     expect(result.decision).toBe('approved');

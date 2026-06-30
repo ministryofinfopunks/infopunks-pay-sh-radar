@@ -599,6 +599,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
         status: 'watching',
         priority: 'high',
         risk_level: 'medium',
+        risk_facets: ['high_reflexivity', 'power_concentration', 'kol_dependency', 'live_watch'],
         summary: 'The desk is tracking whether a familiar Solana persona is compressing social attention into a new market object.',
         why_it_matters: 'Persona-led coordination can mint a market before durable ownership or utility becomes legible.',
         evidence_links: ['/narratives/attention-markets'],
@@ -624,6 +625,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
         myth_coherence: 84,
         reflexivity_risk: 88,
         sovereignty_score: 34,
+        risk_facets: ['high_reflexivity', 'kol_dependency', 'power_concentration', 'unproven_sovereignty', 'live_watch'],
         desk_status: 'live_watch',
         latest_update_type: 'verdict_change',
         latest_update_at: '2026-06-28T18:20:00.000Z',
@@ -650,6 +652,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
         status: 'watching',
         priority: 'high',
         risk_level: 'medium',
+        risk_facets: ['high_reflexivity', 'power_concentration', 'kol_dependency', 'live_watch'],
         summary: 'The desk is tracking whether a familiar Solana persona is compressing social attention into a new market object.',
         why_it_matters: 'Persona-led coordination can mint a market before durable ownership or utility becomes legible.',
         evidence_links: ['/narratives/attention-markets'],
@@ -673,6 +676,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
         status: 'watching',
         priority: 'high',
         risk_level: 'medium',
+        risk_facets: ['high_reflexivity', 'power_concentration', 'kol_dependency', 'live_watch'],
         summary: 'The desk is tracking whether a familiar Solana persona is compressing social attention into a new market object.',
         why_it_matters: 'Persona-led coordination can mint a market before durable ownership or utility becomes legible.',
         evidence_links: ['/narratives/attention-markets'],
@@ -3466,6 +3470,7 @@ function componentSchemas(): Record<string, JsonSchema> {
       last_updated: dateTimeSchema()
     })),
     SignalDeskStatus: enumSchema(['live_watch', 'seeded_report', 'needs_review']),
+    SignalRiskFacet: enumSchema(['high_reflexivity', 'power_concentration', 'unproven_sovereignty', 'kol_dependency', 'thin_evidence', 'narrative_fatigue', 'live_watch']),
     SignalDeskActivityType: enumSchema(['report_published', 'dispatch_published', 'risk_shift', 'verdict_change', 'metadata_updated', 'og_card_generated']),
     SignalEvidenceUpdateType: enumSchema(['attention_shift', 'holder_shift', 'myth_shift', 'risk_shift', 'verdict_change']),
     CandidateSignalCategory: enumSchema(['attention_market', 'meme_asset', 'agentic_narrative', 'depin_signal', 'kol_signal', 'market_myth', 'unknown']),
@@ -3482,12 +3487,13 @@ function componentSchemas(): Record<string, JsonSchema> {
       status: { $ref: '#/components/schemas/CandidateSignalStatus' },
       priority: { $ref: '#/components/schemas/CandidateSignalPriority' },
       risk_level: { $ref: '#/components/schemas/CandidateSignalRiskLevel' },
+      risk_facets: arrayOf({ $ref: '#/components/schemas/SignalRiskFacet' }),
       summary: stringSchema(),
       why_it_matters: stringSchema(),
       evidence_links: arrayOf(stringSchema()),
       created_at: dateTimeSchema(),
       updated_at: dateTimeSchema()
-    }, ['candidate_id', 'name', 'category', 'submitted_by', 'status', 'priority', 'risk_level', 'summary', 'why_it_matters', 'evidence_links', 'created_at', 'updated_at']),
+    }, ['candidate_id', 'name', 'category', 'submitted_by', 'status', 'priority', 'risk_level', 'risk_facets', 'summary', 'why_it_matters', 'evidence_links', 'created_at', 'updated_at']),
     CandidateSignalListResponse: objectSchema({
       count: integerSchema(),
       candidates: arrayOf({ $ref: '#/components/schemas/CandidateSignal' })
@@ -3528,11 +3534,12 @@ function componentSchemas(): Record<string, JsonSchema> {
       myth_coherence: integerSchema(),
       reflexivity_risk: integerSchema(),
       sovereignty_score: integerSchema(),
+      risk_facets: arrayOf({ $ref: '#/components/schemas/SignalRiskFacet' }),
       desk_status: { $ref: '#/components/schemas/SignalDeskStatus' },
       latest_update_type: { $ref: '#/components/schemas/SignalEvidenceUpdateType' },
       latest_update_at: dateTimeSchema(),
       update_count: integerSchema()
-    }, ['slug', 'ticker', 'name', 'category', 'thesis', 'href', 'signal_strength', 'myth_coherence', 'reflexivity_risk', 'sovereignty_score', 'desk_status', 'update_count']),
+    }, ['slug', 'ticker', 'name', 'category', 'thesis', 'href', 'signal_strength', 'myth_coherence', 'reflexivity_risk', 'sovereignty_score', 'risk_facets', 'desk_status', 'update_count']),
     SignalDeskDispatchCard: objectSchema({
       update_id: stringSchema(),
       signal_slug: stringSchema(),
@@ -3545,10 +3552,11 @@ function componentSchemas(): Record<string, JsonSchema> {
       analyst_note: stringSchema(),
       href: stringSchema(),
       og_image: stringSchema(),
+      risk_facets: arrayOf({ $ref: '#/components/schemas/SignalRiskFacet' }),
       previous_score: integerSchema(),
       new_score: integerSchema(),
       signal_delta: integerSchema()
-    }, ['update_id', 'signal_slug', 'signal_name', 'ticker', 'update_type', 'readable_update_type', 'timestamp', 'summary', 'analyst_note', 'href', 'og_image']),
+    }, ['update_id', 'signal_slug', 'signal_name', 'ticker', 'update_type', 'readable_update_type', 'timestamp', 'summary', 'analyst_note', 'href', 'og_image', 'risk_facets']),
     SignalDeskActivityItem: objectSchema({
       id: stringSchema(),
       type: { $ref: '#/components/schemas/SignalDeskActivityType' },

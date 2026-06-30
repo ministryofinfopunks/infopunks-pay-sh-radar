@@ -126,6 +126,7 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.NarrativeAssetResponse).toBeTruthy();
     expect(spec.components.schemas.NarrativeSignalSurfaceResponse).toBeTruthy();
     expect(spec.components.schemas.SignalDeskIndex).toBeTruthy();
+    expect(spec.components.schemas.SignalRiskFacet).toBeTruthy();
     expect(spec.components.schemas.CandidateSignal).toBeTruthy();
     expect(spec.components.schemas.CandidateSignalCategory).toBeTruthy();
     expect(spec.components.schemas.CandidateSignalStatus).toBeTruthy();
@@ -175,9 +176,13 @@ describe('openapi discovery', () => {
     expect(JSON.stringify(spec.paths['/v1/signal-desk'])).toContain('featured report');
     expect(JSON.stringify(spec.paths['/v1/signal-desk/candidates'])).toContain('seeded candidate queue');
     expect(JSON.stringify(spec.paths['/v1/signal-desk/candidates/{candidateId}'])).toContain('candidate_signal_not_found');
+    expect(spec.components.schemas.SignalRiskFacet.enum).toEqual(['high_reflexivity', 'power_concentration', 'unproven_sovereignty', 'kol_dependency', 'thin_evidence', 'narrative_fatigue', 'live_watch']);
     expect(JSON.stringify(spec.paths['/v1/signals/{slug}/updates/{updateId}'])).toContain('signal_update_not_found');
     expect(spec.components.schemas.CandidateSignal.properties.category.$ref).toBe('#/components/schemas/CandidateSignalCategory');
     expect(spec.components.schemas.CandidateSignal.properties.status.$ref).toBe('#/components/schemas/CandidateSignalStatus');
+    expect(spec.components.schemas.CandidateSignal.properties.risk_facets.items.$ref).toBe('#/components/schemas/SignalRiskFacet');
+    expect(spec.components.schemas.SignalDeskReportCard.properties.risk_facets.items.$ref).toBe('#/components/schemas/SignalRiskFacet');
+    expect(spec.components.schemas.SignalDeskDispatchCard.properties.risk_facets.items.$ref).toBe('#/components/schemas/SignalRiskFacet');
     expect(spec.components.schemas.SignalDeskIndex.properties.candidate_signals.items.$ref).toBe('#/components/schemas/CandidateSignal');
     expect(spec.components.schemas.SignalEvidenceUpdateType.enum).toEqual(['attention_shift', 'holder_shift', 'myth_shift', 'risk_shift', 'verdict_change']);
     expect(spec.components.schemas.SignalEvidenceUpdate.properties.update_type.$ref).toBe('#/components/schemas/SignalEvidenceUpdateType');

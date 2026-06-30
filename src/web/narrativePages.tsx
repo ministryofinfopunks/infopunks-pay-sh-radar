@@ -96,6 +96,7 @@ type SignalEvidenceUpdateDetailResponse = {
 };
 
 type SignalDeskStatus = 'live_watch' | 'seeded_report' | 'needs_review';
+type SignalRiskFacet = 'high_reflexivity' | 'power_concentration' | 'unproven_sovereignty' | 'kol_dependency' | 'thin_evidence' | 'narrative_fatigue' | 'live_watch';
 
 type SignalDeskReportCard = {
   slug: string;
@@ -108,6 +109,7 @@ type SignalDeskReportCard = {
   myth_coherence: number;
   reflexivity_risk: number;
   sovereignty_score: number;
+  risk_facets: SignalRiskFacet[];
   desk_status: SignalDeskStatus;
   latest_update_type?: SignalEvidenceUpdateType;
   latest_update_at?: string;
@@ -126,6 +128,7 @@ type SignalDeskDispatchCard = {
   analyst_note: string;
   href: string;
   og_image: string;
+  risk_facets: SignalRiskFacet[];
   previous_score?: number;
   new_score?: number;
   signal_delta?: number;
@@ -182,6 +185,7 @@ type CandidateSignal = {
   status: CandidateSignalStatus;
   priority: CandidateSignalPriority;
   risk_level: CandidateSignalRiskLevel;
+  risk_facets: SignalRiskFacet[];
   summary: string;
   why_it_matters: string;
   evidence_links: string[];
@@ -190,7 +194,7 @@ type CandidateSignal = {
 };
 
 type NarrativeFilterUpdateType = 'all' | SignalEvidenceUpdateType;
-type NarrativeFilterRisk = 'all' | 'high_reflexivity' | 'power_concentration' | 'unproven_sovereignty' | 'live_watch';
+type NarrativeFilterRisk = 'all' | SignalRiskFacet;
 type NarrativeFilterStatus = 'all' | SignalDeskStatus;
 
 type NarrativeIntakeForm = {
@@ -345,23 +349,19 @@ function formatCandidateRiskLevel(value: CandidateSignalRiskLevel) {
     : `${value[0]?.toUpperCase() ?? ''}${value.slice(1)} Risk`;
 }
 
+function formatRiskFacet(value: SignalRiskFacet) {
+  return value.split('_').map((part) => {
+    if (part.toLowerCase() === 'kol') return 'KOL';
+    return `${part[0]?.toUpperCase() ?? ''}${part.slice(1)}`;
+  }).join(' ');
+}
+
 function updateTypeFilterLabel(value: NarrativeFilterUpdateType) {
   return value === 'all' ? 'All' : signalUpdateTypeLabel(value);
 }
 
 function riskFilterLabel(value: NarrativeFilterRisk) {
-  switch (value) {
-    case 'all':
-      return 'All';
-    case 'high_reflexivity':
-      return 'High Reflexivity';
-    case 'power_concentration':
-      return 'Power Concentration';
-    case 'unproven_sovereignty':
-      return 'Unproven Sovereignty';
-    case 'live_watch':
-      return 'Live Watch';
-  }
+  return value === 'all' ? 'All' : formatRiskFacet(value);
 }
 
 function signalUpdateTypeLabel(value: SignalEvidenceUpdateType) {
@@ -419,19 +419,12 @@ function dispatchSearchText(dispatch: SignalDeskDispatchCard) {
 
 function reportMatchesRisk(report: SignalDeskReportCard, risk: NarrativeFilterRisk) {
   if (risk === 'all') return true;
-  if (risk === 'high_reflexivity') return report.reflexivity_risk >= 80;
-  if (risk === 'power_concentration') return report.latest_update_type === 'holder_shift';
-  if (risk === 'unproven_sovereignty') return report.sovereignty_score <= 40;
-  return report.desk_status === 'live_watch';
+  return report.risk_facets.includes(risk);
 }
 
-function dispatchMatchesRisk(dispatch: SignalDeskDispatchCard, deskStatusBySignal: Map<string, SignalDeskStatus>, risk: NarrativeFilterRisk) {
+function dispatchMatchesRisk(dispatch: SignalDeskDispatchCard, _deskStatusBySignal: Map<string, SignalDeskStatus>, risk: NarrativeFilterRisk) {
   if (risk === 'all') return true;
-  const summary = `${dispatch.summary} ${dispatch.analyst_note}`.toLowerCase();
-  if (risk === 'high_reflexivity') return summary.includes('reflexiv');
-  if (risk === 'power_concentration') return dispatch.update_type === 'holder_shift' || summary.includes('holder') || summary.includes('power concentration');
-  if (risk === 'unproven_sovereignty') return summary.includes('sovereignty');
-  return deskStatusBySignal.get(dispatch.signal_slug) === 'live_watch';
+  return dispatch.risk_facets.includes(risk);
 }
 
 function dispatchMatchesStatus(dispatch: SignalDeskDispatchCard, deskStatusBySignal: Map<string, SignalDeskStatus>, status: NarrativeFilterStatus) {
@@ -457,8 +450,27 @@ function dispatchMatchesFilters(dispatch: SignalDeskDispatchCard, deskStatusBySi
   return true;
 }
 
+function candidateMatchesFilters(candidate: CandidateSignal, filters: { risk: NarrativeFilterRisk; search: string }) {
+  const search = filters.search.trim().toLowerCase();
+  if (filters.risk !== 'all' && !candidate.risk_facets.includes(filters.risk)) return false;
+  const haystack = [
+    candidate.name,
+    candidate.ticker ?? '',
+    candidate.chain ?? '',
+    candidate.summary,
+    candidate.why_it_matters,
+    formatCandidateCategory(candidate.category)
+  ].join(' ').toLowerCase();
+  if (search && !haystack.includes(search)) return false;
+  return true;
+}
+
 function EvidenceChip({ href }: { href: string }) {
   return <a className="narrative-evidence-chip" href={href}>{href}</a>;
+}
+
+function RiskFacetChip({ facet }: { facet: SignalRiskFacet }) {
+  return <span className={`narrative-evidence-chip narrative-risk-facet facet-${facet}`}>{formatRiskFacet(facet)}</span>;
 }
 
 function SignalUpdateScoreDelta({ update }: { update: SignalEvidenceUpdate }) {
@@ -685,12 +697,15 @@ function NarrativeControlStrip({
         </select>
       </label>
       <label className="narrative-control-field">
-        <span>Risk Level</span>
-        <select aria-label="Risk Level Filter" value={risk} onChange={(event) => onRiskChange(event.target.value as NarrativeFilterRisk)}>
+        <span>Risk Facet</span>
+        <select aria-label="Risk Facet Filter" value={risk} onChange={(event) => onRiskChange(event.target.value as NarrativeFilterRisk)}>
           <option value="all">All</option>
           <option value="high_reflexivity">High Reflexivity</option>
           <option value="power_concentration">Power Concentration</option>
           <option value="unproven_sovereignty">Unproven Sovereignty</option>
+          <option value="kol_dependency">KOL Dependency</option>
+          <option value="thin_evidence">Thin Evidence</option>
+          <option value="narrative_fatigue">Narrative Fatigue</option>
           <option value="live_watch">Live Watch</option>
         </select>
       </label>
@@ -757,6 +772,9 @@ function FeaturedNarrativeReport({ report, latestDispatchHref }: { report: Signa
         <span>Latest Update Timestamp</span>
         <strong>{report.latest_update_at ? formatDate(report.latest_update_at) : 'No updates'}</strong>
       </div>
+    </div>
+    <div className="chips narrative-update-chips">
+      {report.risk_facets.map((facet) => <RiskFacetChip key={`${report.slug}-${facet}`} facet={facet} />)}
     </div>
     <div className="panel-actions">
       <a className="execute" href={report.href}>Open Signal Report</a>
@@ -891,6 +909,9 @@ function DispatchSection({
           <span className={`narrative-update-badge type-${dispatch.update_type}`}>{dispatch.readable_update_type}</span>
         </div>
         <p>{dispatch.summary}</p>
+        <div className="chips narrative-update-chips">
+          {dispatch.risk_facets.map((facet) => <RiskFacetChip key={`${dispatch.update_id}-${facet}`} facet={facet} />)}
+        </div>
         {typeof dispatch.previous_score === 'number' && typeof dispatch.new_score === 'number' && <div className={`narrative-signal-delta ${(dispatch.signal_delta ?? 0) > 0 ? 'up' : (dispatch.signal_delta ?? 0) < 0 ? 'down' : 'flat'}`}>
           <span>Signal Delta</span>
           <strong>{dispatch.previous_score} → {dispatch.new_score} ({dispatch.signal_delta && dispatch.signal_delta > 0 ? '+' : ''}{dispatch.signal_delta ?? 0})</strong>
@@ -915,6 +936,9 @@ function ReportCatalogCard({ report }: { report: SignalDeskReportCard }) {
       <span className="source-badge">{formatDeskStatus(report.desk_status)}</span>
     </div>
     <p>{report.thesis}</p>
+    <div className="chips narrative-update-chips">
+      {report.risk_facets.map((facet) => <RiskFacetChip key={`${report.slug}-${facet}`} facet={facet} />)}
+    </div>
     <div className="narrative-asset-stats">
       <span>signal {report.signal_strength}</span>
       <span>myth {report.myth_coherence}</span>
@@ -948,6 +972,9 @@ function CandidateSignalCard({ candidate }: { candidate: CandidateSignal }) {
       <span>submitted by {candidate.submitted_by}</span>
     </div>
     <p>{candidate.summary}</p>
+    <div className="chips narrative-update-chips">
+      {candidate.risk_facets.map((facet) => <RiskFacetChip key={`${candidate.candidate_id}-${facet}`} facet={facet} />)}
+    </div>
     <p className="narrative-candidate-why"><b>Why it matters:</b> {candidate.why_it_matters}</p>
     <div className="chips narrative-update-chips">
       {candidate.evidence_links.length
@@ -961,7 +988,7 @@ function CandidateSignalCard({ candidate }: { candidate: CandidateSignal }) {
   </article>;
 }
 
-function CandidateSignalsSection({ desk }: { desk: SignalDeskIndex }) {
+function CandidateSignalsSection({ candidates, counts }: { candidates: CandidateSignal[]; counts: SignalDeskIndex['candidate_counts'] }) {
   return <section className="panel narrative-desk-catalog" aria-label="Candidate Signals">
     <div className="narrative-desk-catalog-head">
       <div>
@@ -969,18 +996,23 @@ function CandidateSignalsSection({ desk }: { desk: SignalDeskIndex }) {
         <h2>Candidate Signals</h2>
         <p>Signals waiting for evidence, review, or promotion into full reports.</p>
       </div>
-      <span className="source-badge">{desk.candidate_counts.total} tracked</span>
+      <span className="source-badge">{counts.total} tracked</span>
     </div>
     <p className="narrative-feed-summary">Mapped reports show what the desk has already processed. Candidate signals show what the desk is watching next.</p>
     <div className="narrative-desk-status-grid narrative-candidate-counts">
-      <article className="narrative-desk-stat"><span>Queued</span><strong>{desk.candidate_counts.queued}</strong></article>
-      <article className="narrative-desk-stat"><span>Watching</span><strong>{desk.candidate_counts.watching}</strong></article>
-      <article className="narrative-desk-stat"><span>Needs Evidence</span><strong>{desk.candidate_counts.needs_evidence}</strong></article>
-      <article className="narrative-desk-stat"><span>Under Review</span><strong>{desk.candidate_counts.under_review}</strong></article>
-      <article className="narrative-desk-stat"><span>Promoted</span><strong>{desk.candidate_counts.promoted_to_report}</strong></article>
+      <article className="narrative-desk-stat"><span>Queued</span><strong>{counts.queued}</strong></article>
+      <article className="narrative-desk-stat"><span>Watching</span><strong>{counts.watching}</strong></article>
+      <article className="narrative-desk-stat"><span>Needs Evidence</span><strong>{counts.needs_evidence}</strong></article>
+      <article className="narrative-desk-stat"><span>Under Review</span><strong>{counts.under_review}</strong></article>
+      <article className="narrative-desk-stat"><span>Promoted</span><strong>{counts.promoted_to_report}</strong></article>
     </div>
     <div className="narrative-desk-catalog-grid narrative-candidate-grid">
-      {desk.candidate_signals.map((candidate) => <CandidateSignalCard key={candidate.candidate_id} candidate={candidate} />)}
+      {!candidates.length && <article className="panel narrative-candidate-card narrative-empty-state">
+        <p className="section-kicker">Filtered view</p>
+        <h2>No matching candidates</h2>
+        <p>Current analyst filters exclude the watched queue.</p>
+      </article>}
+      {candidates.map((candidate) => <CandidateSignalCard key={candidate.candidate_id} candidate={candidate} />)}
     </div>
   </section>;
 }
@@ -1133,6 +1165,10 @@ export function NarrativesIndexPage() {
     return (desk?.risk_shifts ?? []).filter((dispatch) => dispatchMatchesFilters(dispatch, deskStatusBySignal, { updateType, risk, status, search }));
   }, [desk?.risk_shifts, deskStatusBySignal, risk, search, status, updateType]);
 
+  const filteredCandidates = useMemo(() => {
+    return (desk?.candidate_signals ?? []).filter((candidate) => candidateMatchesFilters(candidate, { risk, search }));
+  }, [desk?.candidate_signals, risk, search]);
+
   return <div className="shell narrative-shell">
     <a className="skip-link" href="#narrative-content">Skip to content</a>
     <header className="site-header">
@@ -1203,7 +1239,7 @@ export function NarrativesIndexPage() {
             {filteredReports.map((report) => <ReportCatalogCard key={report.slug} report={report} />)}
           </div>
         </section>
-        <CandidateSignalsSection desk={desk} />
+        <CandidateSignalsSection candidates={filteredCandidates} counts={desk.candidate_counts} />
         <SubmitNarrativeReviewCard />
         <NarrativeLinkCluster links={[
           { href: '/signals/black-bull', label: 'Black Bull Signal Report' },

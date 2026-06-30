@@ -9770,6 +9770,29 @@ summary:focus-visible {
   border-color: rgba(124,199,255,.22);
   color: var(--blue);
 }
+.narrative-risk-facet {
+  font-size: 11px;
+  padding: 5px 9px;
+}
+.narrative-risk-facet.facet-high_reflexivity,
+.narrative-risk-facet.facet-live_watch {
+  border-color: rgba(124,199,255,.24);
+  color: var(--blue);
+  background: rgba(124,199,255,.06);
+}
+.narrative-risk-facet.facet-power_concentration,
+.narrative-risk-facet.facet-kol_dependency {
+  border-color: rgba(246,208,111,.24);
+  color: var(--amber);
+  background: rgba(246,208,111,.06);
+}
+.narrative-risk-facet.facet-unproven_sovereignty,
+.narrative-risk-facet.facet-thin_evidence,
+.narrative-risk-facet.facet-narrative_fatigue {
+  border-color: rgba(255,107,107,.22);
+  color: #f3b9b9;
+  background: rgba(255,107,107,.06);
+}
 
 @media (max-width: 980px) {
   .narrative-grid,

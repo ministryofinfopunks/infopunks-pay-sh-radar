@@ -4,6 +4,7 @@ import { getCandidateSignalCounts, listCandidateSignals } from './candidateSigna
 import type {
   NarrativeAsset,
   NarrativeSignalSurface,
+  SignalRiskFacet,
   SignalDeskActivityItem,
   SignalDeskDispatchCard,
   SignalDeskIndex,
@@ -58,6 +59,31 @@ function getSignalStrength(surface: NarrativeSignalSurface, asset: NarrativeAsse
   return typeof score === 'number' ? score : asset.attention_velocity_score;
 }
 
+function uniqueFacets(facets: SignalRiskFacet[]) {
+  return Array.from(new Set(facets));
+}
+
+function reportRiskFacets(asset: NarrativeAsset): SignalRiskFacet[] {
+  const facets: SignalRiskFacet[] = [];
+  if (asset.reflexivity_risk_score >= 80) facets.push('high_reflexivity');
+  if (asset.kol_dependency_score >= 80) facets.push('kol_dependency');
+  if (asset.centralization_risk_score >= 70) facets.push('power_concentration');
+  if (asset.sovereignty_score <= 40) facets.push('unproven_sovereignty');
+  if (listSignalUpdates(asset.slug).length > 0) facets.push('live_watch');
+  return uniqueFacets(facets);
+}
+
+function dispatchRiskFacets(update: SignalEvidenceUpdate, asset: NarrativeAsset): SignalRiskFacet[] {
+  const facets: SignalRiskFacet[] = [];
+  if (update.update_type === 'risk_shift') facets.push('high_reflexivity');
+  if (update.update_type === 'holder_shift') facets.push('power_concentration');
+  if (update.update_type === 'verdict_change' && asset.sovereignty_score <= 40) facets.push('unproven_sovereignty');
+  if (update.update_type === 'attention_shift' && asset.reflexivity_risk_score >= 80) facets.push('live_watch');
+  if (asset.kol_dependency_score >= 80 && (update.update_type === 'attention_shift' || update.update_type === 'verdict_change')) facets.push('kol_dependency');
+  if (update.update_type === 'verdict_change' || update.update_type === 'risk_shift' || update.update_type === 'holder_shift') facets.push('live_watch');
+  return uniqueFacets(facets);
+}
+
 function buildDispatchCard(update: SignalEvidenceUpdate, asset: NarrativeAsset): SignalDeskDispatchCard {
   return {
     update_id: update.update_id,
@@ -71,6 +97,7 @@ function buildDispatchCard(update: SignalEvidenceUpdate, asset: NarrativeAsset):
     analyst_note: update.analyst_note,
     href: `/signals/${update.signal_slug}/updates/${update.update_id}`,
     og_image: `/og/signals/${update.signal_slug}/updates/${update.update_id}.png`,
+    risk_facets: dispatchRiskFacets(update, asset),
     previous_score: update.previous_score,
     new_score: update.new_score,
     signal_delta: scoreDelta(update)
@@ -95,6 +122,7 @@ function buildReportCard(asset: NarrativeAsset): SignalDeskReportCard | null {
     myth_coherence: asset.myth_coherence_score,
     reflexivity_risk: asset.reflexivity_risk_score,
     sovereignty_score: asset.sovereignty_score,
+    risk_facets: reportRiskFacets(asset),
     desk_status: resolveDeskStatus(1, updates.length),
     latest_update_type: latestUpdate?.update_type,
     latest_update_at: latestUpdate?.timestamp,

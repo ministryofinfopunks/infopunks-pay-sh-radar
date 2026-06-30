@@ -427,6 +427,16 @@ export const SignalEvidenceUpdateSchema = z.object({
 
 export const SignalDeskStatusSchema = z.enum(['live_watch', 'seeded_report', 'needs_review']);
 
+export const SignalRiskFacetSchema = z.enum([
+  'high_reflexivity',
+  'power_concentration',
+  'unproven_sovereignty',
+  'kol_dependency',
+  'thin_evidence',
+  'narrative_fatigue',
+  'live_watch'
+]);
+
 export const CandidateSignalCategorySchema = z.enum([
   'attention_market',
   'meme_asset',
@@ -462,6 +472,7 @@ export const CandidateSignalSchema = z.object({
   status: CandidateSignalStatusSchema,
   priority: CandidateSignalPrioritySchema,
   risk_level: CandidateSignalRiskLevelSchema,
+  risk_facets: z.array(SignalRiskFacetSchema),
   summary: z.string(),
   why_it_matters: z.string(),
   evidence_links: z.array(z.string()),
@@ -489,6 +500,7 @@ export const SignalDeskReportCardSchema = z.object({
   myth_coherence: z.number().min(0).max(100),
   reflexivity_risk: z.number().min(0).max(100),
   sovereignty_score: z.number().min(0).max(100),
+  risk_facets: z.array(SignalRiskFacetSchema),
   desk_status: SignalDeskStatusSchema,
   latest_update_type: SignalEvidenceUpdateTypeSchema.optional(),
   latest_update_at: z.string().datetime().optional(),
@@ -507,6 +519,7 @@ export const SignalDeskDispatchCardSchema = z.object({
   analyst_note: z.string(),
   href: z.string(),
   og_image: z.string(),
+  risk_facets: z.array(SignalRiskFacetSchema),
   previous_score: z.number().min(0).max(100).optional(),
   new_score: z.number().min(0).max(100).optional(),
   signal_delta: z.number().optional()
@@ -2316,6 +2329,7 @@ export type NarrativeSignalSurface = z.infer<typeof NarrativeSignalSurfaceSchema
 export type SignalEvidenceUpdateType = z.infer<typeof SignalEvidenceUpdateTypeSchema>;
 export type SignalEvidenceUpdate = z.infer<typeof SignalEvidenceUpdateSchema>;
 export type SignalDeskStatus = z.infer<typeof SignalDeskStatusSchema>;
+export type SignalRiskFacet = z.infer<typeof SignalRiskFacetSchema>;
 export type CandidateSignalCategory = z.infer<typeof CandidateSignalCategorySchema>;
 export type CandidateSignalSubmittedBy = z.infer<typeof CandidateSignalSubmittedBySchema>;
 export type CandidateSignalStatus = z.infer<typeof CandidateSignalStatusSchema>;

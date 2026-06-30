@@ -66,18 +66,35 @@ describe('narrative intel api', () => {
         expect.objectContaining({
           candidate_id: expect.any(String),
           name: expect.any(String),
-          status: expect.stringMatching(/queued|watching|needs_evidence|under_review|rejected|promoted_to_report/)
+          status: expect.stringMatching(/queued|watching|needs_evidence|under_review|rejected|promoted_to_report/),
+          risk_facets: expect.arrayContaining([expect.any(String)])
         })
       ]));
       expect(payload.featured_report).toEqual(expect.objectContaining({
         slug: 'black-bull',
         ticker: 'ANSEM',
-        name: 'The Black Bull'
+        name: 'The Black Bull',
+        risk_facets: expect.arrayContaining(['high_reflexivity', 'kol_dependency', 'power_concentration', 'unproven_sovereignty', 'live_watch'])
       }));
       expect(payload.latest_dispatches).toEqual(expect.arrayContaining([
         expect.objectContaining({
           update_id: expect.any(String),
-          href: expect.stringMatching(/^\/signals\/black-bull\/updates\//)
+          href: expect.stringMatching(/^\/signals\/black-bull\/updates\//),
+          risk_facets: expect.arrayContaining([expect.any(String)])
+        })
+      ]));
+      expect(payload.risk_shifts).toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          update_type: 'risk_shift',
+          risk_facets: expect.arrayContaining(['high_reflexivity', 'live_watch'])
+        }),
+        expect.objectContaining({
+          update_type: 'holder_shift',
+          risk_facets: expect.arrayContaining(['power_concentration', 'live_watch'])
+        }),
+        expect.objectContaining({
+          update_type: 'verdict_change',
+          risk_facets: expect.arrayContaining(['unproven_sovereignty', 'live_watch'])
         })
       ]));
       expect(payload.risk_shifts.every((item: { update_type: string }) => ['risk_shift', 'verdict_change', 'holder_shift'].includes(item.update_type))).toBe(true);
@@ -85,7 +102,8 @@ describe('narrative intel api', () => {
         expect.objectContaining({
           slug: 'black-bull',
           ticker: 'ANSEM',
-          href: '/signals/black-bull'
+          href: '/signals/black-bull',
+          risk_facets: expect.arrayContaining(['high_reflexivity'])
         })
       ]));
     } finally {
@@ -104,7 +122,8 @@ describe('narrative intel api', () => {
         candidates: expect.arrayContaining([
           expect.objectContaining({
             candidate_id: 'candidate_sol_persona_attention',
-            status: 'watching'
+            status: 'watching',
+            risk_facets: expect.arrayContaining(['kol_dependency', 'live_watch'])
           })
         ])
       }));
@@ -122,7 +141,8 @@ describe('narrative intel api', () => {
       expect(response.json().data).toEqual(expect.objectContaining({
         candidate: expect.objectContaining({
           candidate_id: 'candidate_sol_persona_attention',
-          name: 'Next attention market around a major Solana persona'
+          name: 'Next attention market around a major Solana persona',
+          risk_facets: expect.arrayContaining(['kol_dependency', 'live_watch'])
         })
       }));
     } finally {

@@ -1,10 +1,14 @@
 import type {
   CandidateSignal,
   CandidateSignalPriority,
-  CandidateSignalStatus
+  CandidateSignalRiskLevel,
+  CandidateSignalStatus,
+  SignalRiskFacet
 } from '../schemas/entities';
 
-const seededCandidates: CandidateSignal[] = [
+type CandidateSignalSeed = Omit<CandidateSignal, 'risk_facets'>;
+
+const seededCandidates: CandidateSignalSeed[] = [
   {
     candidate_id: 'candidate_sol_persona_attention',
     name: 'Next attention market around a major Solana persona',
@@ -100,12 +104,77 @@ function byUpdatedDesc(left: CandidateSignal, right: CandidateSignal) {
   return right.updated_at.localeCompare(left.updated_at);
 }
 
+function uniqueFacets(facets: SignalRiskFacet[]) {
+  return Array.from(new Set(facets));
+}
+
+function facetsFromRiskLevel(riskLevel: CandidateSignalRiskLevel): SignalRiskFacet[] {
+  switch (riskLevel) {
+    case 'high':
+      return ['live_watch'];
+    case 'medium':
+      return ['live_watch'];
+    case 'low':
+    case 'unknown':
+      return [];
+  }
+}
+
+function facetsFromStatus(status: CandidateSignalStatus): SignalRiskFacet[] {
+  switch (status) {
+    case 'watching':
+    case 'under_review':
+      return ['live_watch'];
+    case 'needs_evidence':
+    case 'queued':
+      return ['thin_evidence'];
+    case 'rejected':
+    case 'promoted_to_report':
+      return [];
+  }
+}
+
+function facetsFromPriority(priority: CandidateSignalPriority): SignalRiskFacet[] {
+  return priority === 'high' ? ['live_watch'] : [];
+}
+
+function deriveCandidateRiskFacets(candidate: CandidateSignalSeed): SignalRiskFacet[] {
+  const summary = `${candidate.summary} ${candidate.why_it_matters}`.toLowerCase();
+  const facets: SignalRiskFacet[] = [
+    ...facetsFromRiskLevel(candidate.risk_level),
+    ...facetsFromStatus(candidate.status),
+    ...facetsFromPriority(candidate.priority)
+  ];
+
+  if (candidate.category === 'attention_market') facets.push('high_reflexivity', 'power_concentration');
+  if (candidate.category === 'agentic_narrative') facets.push('thin_evidence');
+  if (candidate.category === 'depin_signal') facets.push('live_watch');
+  if (candidate.category === 'market_myth') facets.push('narrative_fatigue', 'thin_evidence');
+  if (candidate.category === 'unknown') facets.push('thin_evidence');
+
+  if (summary.includes('persona')) facets.push('kol_dependency');
+  if (summary.includes('repeat mentions')) facets.push('narrative_fatigue');
+  if (summary.includes('thin') || summary.includes('unclear evidence') || summary.includes('premature')) facets.push('thin_evidence');
+  if (summary.includes('myth')) facets.push('narrative_fatigue');
+  if (summary.includes('wallet coordination')) facets.push('unproven_sovereignty');
+
+  return uniqueFacets(facets);
+}
+
+function materializeCandidate(candidate: CandidateSignalSeed): CandidateSignal {
+  return {
+    ...candidate,
+    risk_facets: deriveCandidateRiskFacets(candidate)
+  };
+}
+
 export function listCandidateSignals(): CandidateSignal[] {
-  return [...seededCandidates].sort(byUpdatedDesc);
+  return seededCandidates.map(materializeCandidate).sort(byUpdatedDesc);
 }
 
 export function getCandidateSignal(candidate_id: string): CandidateSignal | null {
-  return seededCandidates.find((candidate) => candidate.candidate_id === candidate_id) ?? null;
+  const candidate = seededCandidates.find((item) => item.candidate_id === candidate_id);
+  return candidate ? materializeCandidate(candidate) : null;
 }
 
 export function getCandidateSignalCounts() {

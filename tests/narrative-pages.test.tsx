@@ -158,6 +158,7 @@ const signalDesk = {
       status: 'watching',
       priority: 'high',
       risk_level: 'medium',
+      risk_facets: ['high_reflexivity', 'power_concentration', 'kol_dependency', 'live_watch'],
       summary: 'The desk is tracking whether a familiar Solana persona is compressing social attention into a new market object.',
       why_it_matters: 'Persona-led coordination can mint a market before durable ownership or utility becomes legible.',
       evidence_links: ['/narratives/attention-markets'],
@@ -172,6 +173,7 @@ const signalDesk = {
       status: 'needs_evidence',
       priority: 'medium',
       risk_level: 'unknown',
+      risk_facets: ['thin_evidence', 'narrative_fatigue'],
       summary: 'Repeat mentions suggest an agentic meme frame may be forming, but current evidence is still too thin for a mapped report.',
       why_it_matters: 'Repeated framing can signal that a meme is turning into a coordination rail instead of a one-cycle joke.',
       evidence_links: [],
@@ -198,6 +200,7 @@ const signalDesk = {
     myth_coherence: 84,
     reflexivity_risk: 88,
     sovereignty_score: 34,
+    risk_facets: ['high_reflexivity', 'kol_dependency', 'power_concentration', 'unproven_sovereignty', 'live_watch'],
     desk_status: 'live_watch',
     latest_update_type: 'verdict_change',
     latest_update_at: '2026-06-28T18:20:00.000Z',
@@ -214,6 +217,7 @@ const signalDesk = {
     myth_coherence: 84,
     reflexivity_risk: 88,
     sovereignty_score: 34,
+    risk_facets: ['high_reflexivity', 'kol_dependency', 'power_concentration', 'unproven_sovereignty', 'live_watch'],
     desk_status: 'live_watch',
     latest_update_type: 'verdict_change',
     latest_update_at: '2026-06-28T18:20:00.000Z',
@@ -229,6 +233,7 @@ const signalDesk = {
     myth_coherence: 68,
     reflexivity_risk: 59,
     sovereignty_score: 52,
+    risk_facets: ['thin_evidence'],
     desk_status: 'seeded_report',
     latest_update_type: 'attention_shift',
     latest_update_at: '2026-06-27T09:10:00.000Z',
@@ -247,6 +252,9 @@ const signalDesk = {
       analyst_note: update.analyst_note,
       href: `/signals/${update.signal_slug}/updates/${update.update_id}`,
       og_image: `/og/signals/${update.signal_slug}/updates/${update.update_id}.png`,
+      risk_facets: update.update_type === 'verdict_change'
+        ? ['unproven_sovereignty', 'kol_dependency', 'live_watch']
+        : ['high_reflexivity', 'live_watch'],
       previous_score: update.previous_score,
       new_score: update.new_score,
       signal_delta: typeof update.previous_score === 'number' && typeof update.new_score === 'number' ? update.new_score - update.previous_score : undefined
@@ -263,6 +271,7 @@ const signalDesk = {
       analyst_note: 'Signal is early and still needs cleaner evidence separation from generic AI wallet chatter.',
       href: '/signals/wallet-coordination/updates/seu_wallet_coordination_001',
       og_image: '/og/signals/wallet-coordination/updates/seu_wallet_coordination_001.png',
+      risk_facets: ['thin_evidence'],
       previous_score: 51,
       new_score: 63,
       signal_delta: 12
@@ -280,6 +289,11 @@ const signalDesk = {
     analyst_note: update.analyst_note,
     href: `/signals/${update.signal_slug}/updates/${update.update_id}`,
     og_image: `/og/signals/${update.signal_slug}/updates/${update.update_id}.png`,
+    risk_facets: update.update_type === 'verdict_change'
+      ? ['unproven_sovereignty', 'kol_dependency', 'live_watch']
+      : update.update_type === 'holder_shift'
+        ? ['power_concentration', 'live_watch']
+        : ['high_reflexivity', 'live_watch'],
     previous_score: update.previous_score,
     new_score: update.new_score,
     signal_delta: typeof update.previous_score === 'number' && typeof update.new_score === 'number' ? update.new_score - update.previous_score : undefined
@@ -373,8 +387,26 @@ describe('narrative pages', () => {
     expect(container.textContent).toContain('Agentic meme asset gaining repeat mentions');
     expect(container.querySelector('input[aria-label="Search reports and dispatches"]')).not.toBeNull();
     expect(container.querySelector('select[aria-label="Update Type Filter"]')).not.toBeNull();
-    expect(container.querySelector('select[aria-label="Risk Level Filter"]')).not.toBeNull();
+    expect(container.querySelector('select[aria-label="Risk Facet Filter"]')).not.toBeNull();
     expect(container.querySelector('select[aria-label="Signal Status Filter"]')).not.toBeNull();
+    expect(container.textContent).toContain('High Reflexivity');
+    expect(container.textContent).toContain('KOL Dependency');
+    expect(container.textContent).toContain('Thin Evidence');
+  });
+
+  it('filters visible results by risk facet', async () => {
+    await render('/narratives');
+
+    const riskFacet = container.querySelector('select[aria-label="Risk Facet Filter"]') as HTMLSelectElement;
+
+    await act(async () => {
+      riskFacet.value = 'high_reflexivity';
+      riskFacet.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    expect(container.textContent).toContain('The Black Bull');
+    expect(container.textContent).not.toContain('Agentic meme asset gaining repeat mentions');
+    expect(container.textContent).not.toContain('AI wallet coordination is receiving repeat desk mentions across agent infrastructure conversations.');
   });
 
   it('filters dispatches by update type and search', async () => {
@@ -399,6 +431,16 @@ describe('narrative pages', () => {
 
     expect(container.textContent).toContain('AI Wallet Coordination');
     expect(container.textContent).not.toContain('The Black Bull report published');
+  });
+
+  it('renders risk facet chips on report, dispatch, and candidate cards', async () => {
+    await render('/narratives');
+
+    expect(container.textContent).toContain('High Reflexivity');
+    expect(container.textContent).toContain('Power Concentration');
+    expect(container.textContent).toContain('Unproven Sovereignty');
+    expect(container.textContent).toContain('KOL Dependency');
+    expect(container.textContent).toContain('Thin Evidence');
   });
 
   it('stages intake confirmation without claiming persistence', async () => {
