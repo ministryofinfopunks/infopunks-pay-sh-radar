@@ -132,6 +132,10 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.AttentionMarketCategory).toBeTruthy();
     expect(spec.components.schemas.AttentionSourceType).toBeTruthy();
     expect(spec.components.schemas.AttentionMarketVerdict).toBeTruthy();
+    expect(spec.components.schemas.NarrativeEvolutionStage).toBeTruthy();
+    expect(spec.components.schemas.AttentionMarketEvolutionStage).toBeTruthy();
+    expect(spec.components.schemas.AttentionMarketEvolutionStageDefinition).toBeTruthy();
+    expect(spec.components.schemas.MovementStatus).toBeTruthy();
     expect(spec.components.schemas.AttentionMarketWatchListResponse).toBeTruthy();
     expect(spec.components.schemas.AttentionMarketWatchDetailResponse).toBeTruthy();
     expect(spec.components.schemas.AttentionMarketIntakeRequest).toBeTruthy();
@@ -207,6 +211,13 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.NarrativeSignalSurfaceResponse.properties.infopunk_verdict).toBeTruthy();
     expect(spec.components.schemas.NarrativeSignalSurfaceResponse.properties.verdict_label).toBeTruthy();
     expect(spec.components.schemas.NarrativeSignalSurfaceResponse.properties.verdict_state).toBeTruthy();
+    expect(spec.components.schemas.NarrativeSignalSurfaceResponse.properties.current_evolution_stage.$ref).toBe('#/components/schemas/NarrativeEvolutionStage');
+    expect(spec.components.schemas.NarrativeSignalSurfaceResponse.properties.current_evolution_label).toBeTruthy();
+    expect(spec.components.schemas.NarrativeSignalSurfaceResponse.properties.movement_status.$ref).toBe('#/components/schemas/MovementStatus');
+    expect(spec.components.schemas.NarrativeSignalSurfaceResponse.properties.movement_status_label).toBeTruthy();
+    expect(spec.components.schemas.AttentionMarketSignal.properties.current_evolution_label).toBeTruthy();
+    expect(spec.components.schemas.AttentionMarketSignal.properties.current_evolution_stage.$ref).toBe('#/components/schemas/AttentionMarketEvolutionStage');
+    expect(spec.components.schemas.AttentionMarketWatchListResponse.properties.evolution_stages.items.$ref).toBe('#/components/schemas/AttentionMarketEvolutionStageDefinition');
     expect(spec.components.schemas.NarrativeSignalCard.properties.decision_state.enum).toContain('durable_re_index');
     expect(spec.components.schemas.NarrativeSignalSurfaceResponse.properties.verdict_state.enum).toContain('durable_re_index');
     expect(spec.components.schemas.NarrativeSignalSurfaceResponse.properties.verdict_copy).toBeTruthy();

@@ -147,17 +147,17 @@ describe('render-style SPA routing boundaries', () => {
       expect(blackBull.headers['content-type']).toContain('text/html');
       expect(blackBull.body).toContain('Radar SPA shell');
       expect(blackBull.body).toContain('<title>Infopunks Signal Report: $ANSEM / The Black Bull</title>');
-      expect(blackBull.body).toContain('property="og:description" content="A living Narrative Asset Intelligence report on financialized attention, myth, power concentration, and reflexivity risk."');
+      expect(blackBull.body).toContain('property="og:description" content="A living Narrative Asset Intelligence report on $ANSEM evolving from persona attention into community coordination."');
       expect(blackBull.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/signals/black-bull.png"');
       expect(blackBull.body).toContain('name="twitter:image" content="https://radar.infopunks.fun/og/signals/black-bull.png"');
 
-      const blackBullUpdate = await app.inject({ method: 'GET', url: '/signals/black-bull/updates/seu_black_bull_006' });
+      const blackBullUpdate = await app.inject({ method: 'GET', url: '/signals/black-bull/updates/seu_black_bull_007' });
       expect(blackBullUpdate.statusCode).toBe(200);
       expect(blackBullUpdate.headers['content-type']).toContain('text/html');
       expect(blackBullUpdate.body).toContain('Radar SPA shell');
-      expect(blackBullUpdate.body).toContain('Infopunks Desk Dispatch: Verdict Change');
-      expect(blackBullUpdate.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_006.png"');
-      expect(blackBullUpdate.body).toContain('name="twitter:image" content="https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_006.png"');
+      expect(blackBullUpdate.body).toContain('Infopunks Desk Dispatch: Coordination Market Emerging');
+      expect(blackBullUpdate.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_007.png"');
+      expect(blackBullUpdate.body).toContain('name="twitter:image" content="https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_007.png"');
 
       const troll = await app.inject({ method: 'GET', url: '/signals/troll' });
       expect(troll.statusCode).toBe(200);
@@ -214,7 +214,7 @@ describe('render-style SPA routing boundaries', () => {
         '/attention-market-watch/ansem',
         '/signals/ansem',
         '/signals/black-bull',
-        '/signals/black-bull/updates/seu_black_bull_006',
+        '/signals/black-bull/updates/seu_black_bull_007',
         '/signals/troll',
         '/signals/troll/updates/seu_troll_002',
         '/radar/cards',

@@ -109,7 +109,7 @@ describe('production smoke plan', () => {
       '/og/attention-market-watch.png',
       '/og/attention-market-watch/ansem.png',
       '/og/signals/black-bull.png',
-      '/og/signals/black-bull/updates/seu_black_bull_006.png',
+      '/og/signals/black-bull/updates/seu_black_bull_007.png',
       '/og/signals/troll.png',
       '/og/signals/troll/updates/seu_troll_002.png'
     ]);

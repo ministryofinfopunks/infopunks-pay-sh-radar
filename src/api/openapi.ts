@@ -582,13 +582,30 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     summary: 'List Attention Market Watch signals',
     description: 'Returns the public Attention Market Watch index for persona-backed markets, classifying attention source, control risk, coherence, receipts, fragmentation, and verdict.',
     responses: envelopedResponses('AttentionMarketWatchListResponse', {
-      generated_at: '2026-06-30T15:00:00.000Z',
+      generated_at: '2026-07-01T09:00:00.000Z',
       count: 4,
       verdict_counts: {
         supportive_watch: 1,
         attention_arbitrage: 2,
         re_index_watch: 1
       },
+      evolution_stages: [
+        {
+          id: 'persona_coin',
+          label: 'Persona Coin',
+          description: 'Ticker wrapped around a person, face, handle, or reputation engine.'
+        },
+        {
+          id: 'attention_market',
+          label: 'Attention Market',
+          description: 'Attention becomes the asset being priced.'
+        },
+        {
+          id: 'coordination_market_emerging',
+          label: 'Coordination Market Emerging',
+          description: 'Redistribution, holder growth, community media, and shared rituals begin carrying the signal.'
+        }
+      ],
       signals: [{
         slug: 'ansem',
         ticker: 'ANSEM',
@@ -596,6 +613,8 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
         category: 'persona_coin',
         evolution_verdict: 'supportive_watch',
         verdict_label: 'Supportive Watch',
+        current_evolution_stage: 'coordination_market_emerging',
+        current_evolution_label: 'Coordination Market Emerging',
         href: '/signals/black-bull'
       }]
     })
@@ -670,6 +689,8 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
         category: 'persona_coin',
         evolution_verdict: 'supportive_watch',
         verdict_label: 'Supportive Watch',
+        current_evolution_stage: 'coordination_market_emerging',
+        current_evolution_label: 'Coordination Market Emerging',
         href: '/signals/black-bull'
       }
     }, 'attention_market_signal_not_found')
@@ -679,12 +700,12 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     summary: 'Get Signal Desk index',
     description: 'Returns the derived Signal Desk catalog with featured report, dispatches, risk shifts, report cards, compact desk activity, and candidate signals queued for evidence review or promotion into reports.',
     responses: envelopedResponses('SignalDeskIndex', {
-      generated_at: '2026-06-30T13:30:00.000Z',
+      generated_at: '2026-07-01T09:00:00.000Z',
       desk_status: 'live_watch',
       counts: {
         reports: 2,
-        dispatches: 8,
-        risk_shifts: 6,
+        dispatches: 9,
+        risk_shifts: 7,
         watched_signals: 2
       },
       candidate_signals: [{
@@ -716,7 +737,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
         ticker: 'ANSEM',
         name: 'The Black Bull',
         category: 'Attention Market / Narrative Asset',
-        thesis: "The Black Bull has moved beyond pure persona speculation into visible community coordination. Ansem's airdrop strengthens the trench-revival thesis and gives the narrative more distributed cultural surface area. KOL dependency remains high, but the latest evidence improves the desk's confidence that this is a serious Solana attention-market event, not a hollow meme artifact.",
+        thesis: "The Black Bull is no longer only a persona-backed attention object. Reported creator-fee redistribution, tracker-visible holder growth, and community-led media suggest an emerging coordination market, while KOL dependency, power concentration, and reflexivity remain material.",
         href: '/signals/black-bull',
         signal_strength: 92,
         myth_coherence: 88,
@@ -725,8 +746,8 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
         risk_facets: ['high_reflexivity', 'kol_dependency', 'power_concentration', 'unproven_sovereignty', 'live_watch'],
         desk_status: 'live_watch',
         latest_update_type: 'verdict_change',
-        latest_update_at: '2026-06-30T09:30:00.000Z',
-        update_count: 6
+        latest_update_at: '2026-07-01T09:00:00.000Z',
+        update_count: 7
       },
       reports: [{
         slug: 'troll',
@@ -748,21 +769,21 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
         update_count: 2
       }],
       latest_dispatches: [{
-        update_id: 'seu_troll_002',
-        signal_slug: 'troll',
-        signal_name: 'The Re-Indexed Archetype',
-        ticker: 'TROLL',
+        update_id: 'seu_black_bull_007',
+        signal_slug: 'black-bull',
+        signal_name: 'The Black Bull',
+        ticker: 'ANSEM',
         update_type: 'verdict_change',
         readable_update_type: 'Verdict Change',
-        timestamp: '2026-06-30T13:30:00.000Z',
-        summary: 'Infopunks upgrades $TROLL to Durable Re-index after reclassifying its long circulation, 64,000+ holder surface, and legacy internet archetype survival as stronger evidence.',
-        analyst_note: 'TROLL\'s signal is not novelty. The signal is survival. More than 435 days in circulation and a 64,000+ holder surface suggest the meme has persisted through multiple rotations instead of relying only on fresh attention. The desk upgrades the verdict while continuing to monitor concentration, reflexivity, and evidence quality.',
-        href: '/signals/troll/updates/seu_troll_002',
-        og_image: '/og/signals/troll/updates/seu_troll_002.png',
-        risk_facets: ['live_watch', 'thin_evidence', 'high_reflexivity', 'power_concentration'],
-        previous_score: 86,
-        new_score: 90,
-        signal_delta: 4
+        timestamp: '2026-07-01T09:00:00.000Z',
+        summary: 'Infopunks updates Black Bull from a pure persona attention market into Coordination Market Emerging as redistribution, holder growth, and community-led media become central to the signal.',
+        analyst_note: 'The latest signal shift is structural. Ansem\'s low-key activity, reported creator-fee redistribution, holder-growth narrative, and community media suggest Black Bull is moving from persona-led attention into community coordination. The desk keeps SUPPORTIVE WATCH active while monitoring whether the flywheel can persist beyond short-term incentives and concentrated attention.',
+        href: '/signals/black-bull/updates/seu_black_bull_007',
+        og_image: '/og/signals/black-bull/updates/seu_black_bull_007.png',
+        risk_facets: ['high_reflexivity', 'kol_dependency', 'power_concentration', 'unproven_sovereignty', 'live_watch'],
+        previous_score: 88,
+        new_score: 91,
+        signal_delta: 3
       }],
       risk_shifts: [],
       desk_activity: []
@@ -834,7 +855,15 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     summary: 'Get signal surface',
     description: 'Returns one seeded signal source or signal report surface by slug.',
     parameters: [pathParam('slug', 'Signal surface slug.')],
-    responses: envelopedResponses('NarrativeSignalSurfaceResponse', { slug: 'black-bull', type: 'signal_report', signal_source: 'Ansem' }, 'signal_surface_not_found')
+    responses: envelopedResponses('NarrativeSignalSurfaceResponse', {
+      slug: 'black-bull',
+      type: 'signal_report',
+      signal_source: 'Ansem',
+      current_evolution_stage: 'coordination_market_emerging',
+      current_evolution_label: 'Coordination Market Emerging',
+      movement_status: 'under_observation',
+      movement_status_label: 'Movement Candidate Under Observation'
+    }, 'signal_surface_not_found')
   });
   add('get', '/v1/signals/{slug}/updates', {
     tags: ['Intelligence'],
@@ -843,17 +872,17 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     parameters: [pathParam('slug', 'Signal surface slug.')],
     responses: envelopedResponses('SignalEvidenceUpdateListResponse', {
       signal_slug: 'black-bull',
-      count: 6,
+      count: 7,
       updates: [{
-        update_id: 'seu_black_bull_006',
+        update_id: 'seu_black_bull_007',
         signal_slug: 'black-bull',
-        timestamp: '2026-06-30T09:30:00.000Z',
+        timestamp: '2026-07-01T09:00:00.000Z',
         update_type: 'verdict_change',
-        summary: "Ansem's reported 67.38M $ANSEM airdrop to 700+ wallets strengthens the Black Bull's community-coordination signal and upgrades the desk verdict to Supportive Watch.",
-        evidence_links: ['https://solscan.io/account/GV6UUmNxz2RpKxmNAPadYKb7uQpszwqQAu3qLJxVdC52#transfers', '/signals/black-bull'],
-        previous_score: 80,
-        new_score: 88,
-        analyst_note: "The airdrop improves the trench-revival thesis by expanding the narrative's community surface area. Concentration risk remains material because a large portion of distributed tokens reportedly clustered around a small number of wallets, so KOL dependency and power concentration stay elevated."
+        summary: 'Infopunks updates Black Bull from a pure persona attention market into Coordination Market Emerging as redistribution, holder growth, and community-led media become central to the signal.',
+        evidence_links: ['https://solscan.io/account/GV6UUmNxz2RpKxmNAPadYKb7uQpszwqQAu3qLJxVdC52#transfers', '/signals/black-bull', '/narratives/attention-market-watch'],
+        previous_score: 88,
+        new_score: 91,
+        analyst_note: 'The latest signal shift is structural. Ansem\'s low-key activity, reported creator-fee redistribution, holder-growth narrative, and community media suggest Black Bull is moving from persona-led attention into community coordination. The desk keeps SUPPORTIVE WATCH active while monitoring whether the flywheel can persist beyond short-term incentives and concentrated attention.'
       }]
     }, 'signal_surface_not_found')
   });
@@ -869,15 +898,15 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       ...envelopedResponses('SignalEvidenceUpdateDetailResponse', {
         signal_slug: 'black-bull',
         update: {
-          update_id: 'seu_black_bull_006',
+          update_id: 'seu_black_bull_007',
           signal_slug: 'black-bull',
-          timestamp: '2026-06-30T09:30:00.000Z',
+          timestamp: '2026-07-01T09:00:00.000Z',
           update_type: 'verdict_change',
-          summary: "Ansem's reported 67.38M $ANSEM airdrop to 700+ wallets strengthens the Black Bull's community-coordination signal and upgrades the desk verdict to Supportive Watch.",
-          evidence_links: ['https://solscan.io/account/GV6UUmNxz2RpKxmNAPadYKb7uQpszwqQAu3qLJxVdC52#transfers', '/signals/black-bull'],
-          previous_score: 80,
-          new_score: 88,
-          analyst_note: "The airdrop improves the trench-revival thesis by expanding the narrative's community surface area. Concentration risk remains material because a large portion of distributed tokens reportedly clustered around a small number of wallets, so KOL dependency and power concentration stay elevated."
+          summary: 'Infopunks updates Black Bull from a pure persona attention market into Coordination Market Emerging as redistribution, holder growth, and community-led media become central to the signal.',
+          evidence_links: ['https://solscan.io/account/GV6UUmNxz2RpKxmNAPadYKb7uQpszwqQAu3qLJxVdC52#transfers', '/signals/black-bull', '/narratives/attention-market-watch'],
+          previous_score: 88,
+          new_score: 91,
+          analyst_note: 'The latest signal shift is structural. Ansem\'s low-key activity, reported creator-fee redistribution, holder-growth narrative, and community media suggest Black Bull is moving from persona-led attention into community coordination. The desk keeps SUPPORTIVE WATCH active while monitoring whether the flywheel can persist beyond short-term incentives and concentrated attention.'
         }
       }),
       '404': {
@@ -3539,6 +3568,14 @@ function componentSchemas(): Record<string, JsonSchema> {
       label: stringSchema(),
       href: stringSchema()
     }, ['label', 'href']),
+    NarrativeEvolutionStage: enumSchema(['persona_coin', 'attention_market', 'coordination_market_emerging', 'movement_candidate_under_observation']),
+    AttentionMarketEvolutionStage: enumSchema(['persona_coin', 'attention_market', 'coordination_market_emerging', 'movement_candidate_under_observation', 'extraction_risk', 'cult_sludge']),
+    AttentionMarketEvolutionStageDefinition: objectSchema({
+      id: { $ref: '#/components/schemas/AttentionMarketEvolutionStage' },
+      label: stringSchema(),
+      description: stringSchema()
+    }, ['id', 'label', 'description']),
+    MovementStatus: enumSchema(['under_observation']),
     NarrativeAssetResponse: objectSchema({
       id: stringSchema(),
       slug: stringSchema(),
@@ -3558,7 +3595,12 @@ function componentSchemas(): Record<string, JsonSchema> {
       infopunk_verdict: stringSchema(),
       evidence_artifacts: arrayOf({ $ref: '#/components/schemas/NarrativeEvidenceArtifact' }),
       related_routes: arrayOf({ $ref: '#/components/schemas/NarrativeRelatedRoute' }),
-      last_updated: dateTimeSchema()
+      last_updated: dateTimeSchema(),
+      evolution_path: arrayOf({ $ref: '#/components/schemas/NarrativeEvolutionStage' }),
+      current_evolution_stage: { $ref: '#/components/schemas/NarrativeEvolutionStage' },
+      current_evolution_label: stringSchema(),
+      movement_status: { $ref: '#/components/schemas/MovementStatus' },
+      movement_status_label: stringSchema()
     }),
     NarrativeAssetListResponse: arrayOf({ $ref: '#/components/schemas/NarrativeAssetResponse' }),
     AttentionMarketCategory: enumSchema(['persona_coin', 'influencer_attention', 'dev_attention', 'ai_agent_attention', 'community_archetype', 'streamer_signal', 'reply_gang', 'anonymous_cult']),
@@ -3597,6 +3639,8 @@ function componentSchemas(): Record<string, JsonSchema> {
       evolution_verdict: { $ref: '#/components/schemas/AttentionMarketVerdict' },
       verdict_label: stringSchema(),
       verdict_copy: stringSchema(),
+      current_evolution_stage: { $ref: '#/components/schemas/AttentionMarketEvolutionStage' },
+      current_evolution_label: stringSchema(),
       risk_facets: arrayOf({ $ref: '#/components/schemas/SignalRiskFacet' }),
       related_signal_slug: stringSchema(),
       href: stringSchema(),
@@ -3609,8 +3653,9 @@ function componentSchemas(): Record<string, JsonSchema> {
         type: 'object',
         additionalProperties: integerSchema()
       },
+      evolution_stages: arrayOf({ $ref: '#/components/schemas/AttentionMarketEvolutionStageDefinition' }),
       signals: arrayOf({ $ref: '#/components/schemas/AttentionMarketSignal' })
-    }, ['generated_at', 'count', 'verdict_counts', 'signals']),
+    }, ['generated_at', 'count', 'verdict_counts', 'evolution_stages', 'signals']),
     AttentionMarketWatchDetailResponse: objectSchema({
       signal: { $ref: '#/components/schemas/AttentionMarketSignal' }
     }, ['signal']),
@@ -3677,6 +3722,11 @@ function componentSchemas(): Record<string, JsonSchema> {
       verdict_label: stringSchema(),
       verdict_state: enumSchema(['strong_signal', 'supportive_watch', 'durable_re_index', 'watch_closely', 'concentrated_power', 'high_reflexivity', 'unproven', 'do_not_chase']),
       verdict_copy: stringSchema(),
+      evolution_path: arrayOf({ $ref: '#/components/schemas/NarrativeEvolutionStage' }),
+      current_evolution_stage: { $ref: '#/components/schemas/NarrativeEvolutionStage' },
+      current_evolution_label: stringSchema(),
+      movement_status: { $ref: '#/components/schemas/MovementStatus' },
+      movement_status_label: stringSchema(),
       cards: arrayOf({ $ref: '#/components/schemas/NarrativeSignalCard' }),
       sections: arrayOf({ $ref: '#/components/schemas/NarrativeSignalSection' }),
       asset: { $ref: '#/components/schemas/NarrativeAssetResponse' }
@@ -3690,7 +3740,12 @@ function componentSchemas(): Record<string, JsonSchema> {
       disclaimer: stringSchema(),
       signal_source: stringSchema(),
       asset_slug: { type: ['string', 'null'] },
-      last_updated: dateTimeSchema()
+      last_updated: dateTimeSchema(),
+      evolution_path: arrayOf({ $ref: '#/components/schemas/NarrativeEvolutionStage' }),
+      current_evolution_stage: { $ref: '#/components/schemas/NarrativeEvolutionStage' },
+      current_evolution_label: stringSchema(),
+      movement_status: { $ref: '#/components/schemas/MovementStatus' },
+      movement_status_label: stringSchema()
     })),
     SignalDeskStatus: enumSchema(['live_watch', 'seeded_report', 'needs_review']),
     SignalRiskFacet: enumSchema(['high_reflexivity', 'power_concentration', 'unproven_sovereignty', 'kol_dependency', 'thin_evidence', 'narrative_fatigue', 'live_watch']),

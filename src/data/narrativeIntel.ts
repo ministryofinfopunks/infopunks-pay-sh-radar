@@ -1,6 +1,6 @@
 import type { NarrativeAsset, NarrativeSignalSurface } from '../schemas/entities';
 
-const LAST_UPDATED = '2026-06-30T09:30:00.000Z';
+const LAST_UPDATED = '2026-07-01T09:00:00.000Z';
 
 export const narrativeAssets: NarrativeAsset[] = [
   {
@@ -10,7 +10,7 @@ export const narrativeAssets: NarrativeAsset[] = [
     name: 'The Black Bull',
     chain: 'Solana',
     category: 'Attention Market / Narrative Asset',
-    thesis: "The Black Bull has moved beyond pure persona speculation into visible community coordination. Ansem's airdrop strengthens the trench-revival thesis and gives the narrative more distributed cultural surface area. KOL dependency remains high, but the latest evidence improves the desk's confidence that this is a serious Solana attention-market event, not a hollow meme artifact.",
+    thesis: "The Black Bull is no longer only a persona-backed attention object. Reported creator-fee redistribution, tracker-visible holder growth, and community-led media suggest an emerging coordination market, while KOL dependency, power concentration, and reflexivity remain material.",
     signal_source: 'Ansem',
     attention_velocity_score: 93,
     myth_coherence_score: 88,
@@ -19,7 +19,7 @@ export const narrativeAssets: NarrativeAsset[] = [
     kol_dependency_score: 93,
     trench_contagion_score: 87,
     sovereignty_score: 45,
-    infopunk_verdict: 'Infopunks supports the Black Bull as a serious Solana attention-market and trench-revival signal. Infopunks do not worship signal. Infopunks map signal. KOL dependency and power concentration remain material.',
+    infopunk_verdict: 'Infopunks keeps the Black Bull at SUPPORTIVE WATCH while reclassifying the signal as Coordination Market Emerging. Infopunks do not worship signal. Infopunks map signal. Coordination evidence has improved, but KOL dependency and power concentration remain material.',
     evidence_artifacts: [
       {
         label: 'Persona-linked order flow',
@@ -37,6 +37,14 @@ export const narrativeAssets: NarrativeAsset[] = [
         label: 'Airdrop coordination evidence',
         note: 'Ansem / the linked wallet reportedly airdropped 67.38M $ANSEM to 700+ wallets, while 49.89M $ANSEM reportedly clustered around 7 wallets.',
         href: 'https://solscan.io/account/GV6UUmNxz2RpKxmNAPadYKb7uQpszwqQAu3qLJxVdC52#transfers'
+      },
+      {
+        label: 'Redistribution flywheel',
+        note: 'Community-reported summaries frame creator-fee redistribution as trench stimmy mechanics that convert persona attention into wider participation and holder-base expansion.'
+      },
+      {
+        label: 'Holder growth narrative',
+        note: 'Tracker-visible and community-reported summaries now emphasize 72,000+ holders and rapid holder growth as a core part of the Black Bull signal, without treating those figures as canonical truth.'
       }
     ],
     related_routes: [
@@ -51,7 +59,17 @@ export const narrativeAssets: NarrativeAsset[] = [
     momentum: 84,
     providerIds: [],
     keywords: ['solana', 'attention market', 'kol', 'meme coin', 'persona liquidity'],
-    summary: '$ANSEM compresses persona, meme, and wallet attention into a tradable narrative object.',
+    summary: '$ANSEM now reads as a persona-backed attention market evolving into an emerging coordination market through reported redistribution, holder growth, and participant-carried media.',
+    evolution_path: [
+      'persona_coin',
+      'attention_market',
+      'coordination_market_emerging',
+      'movement_candidate_under_observation'
+    ],
+    current_evolution_stage: 'coordination_market_emerging',
+    current_evolution_label: 'Coordination Market Emerging',
+    movement_status: 'under_observation',
+    movement_status_label: 'Movement Candidate Under Observation',
     risk_facets: ['high_reflexivity', 'kol_dependency', 'power_concentration', 'unproven_sovereignty', 'live_watch'],
     severity: 'warning',
     severity_reason: 'Attention is strong, but concentration and reflexivity remain high.',
@@ -179,30 +197,75 @@ export const signalSurfaces: NarrativeSignalSurface[] = [
     signal_source: 'Ansem',
     asset_slug: 'black-bull',
     last_updated: LAST_UPDATED,
+    evolution_path: blackBull.evolution_path,
+    current_evolution_stage: blackBull.current_evolution_stage,
+    current_evolution_label: blackBull.current_evolution_label,
+    movement_status: blackBull.movement_status,
+    movement_status_label: blackBull.movement_status_label,
     cards: [
       {
         id: 'signal-strength',
         title: 'Signal Strength',
         score: 92,
-        short_explanation: 'Identity, meme compression, wallet attention, and visible airdrop coordination now register as a serious live signal object.',
-        evidence_note: 'Airdrop evidence strengthens the coordination case while leaving concentration risk visible.',
+        short_explanation: 'Identity, meme compression, redistribution mechanics, and community media now register as a serious live coordination signal.',
+        evidence_note: 'Reported redistribution and holder expansion strengthen the coordination case while leaving concentration risk visible.',
         decision_state: 'strong_signal'
       },
       {
         id: 'myth-coherence',
         title: 'Myth Coherence',
         score: blackBull.myth_coherence_score,
-        short_explanation: 'The story is easy to repeat: persona becomes symbol, symbol becomes coordination rail, airdrop becomes trench surface area.',
-        evidence_note: 'Low-friction story transfer and visible distribution are helping the asset spread.',
+        short_explanation: 'The story is easy to repeat: persona becomes symbol, symbol becomes redistribution rail, and the community starts carrying the signal.',
+        evidence_note: 'Low-friction story transfer, reported redistribution, and participant media are helping the asset spread.',
         decision_state: 'watch_closely'
       },
       {
         id: 'attention-velocity',
         title: 'Attention Velocity',
         score: blackBull.attention_velocity_score,
-        short_explanation: 'Attention is moving faster than conventional diligence cycles and now has stronger community-coordination evidence.',
-        evidence_note: 'Velocity is leading perception; the latest airdrop evidence adds distribution surface area.',
+        short_explanation: 'Attention still moves faster than conventional diligence cycles, but recent signal carry looks more community-led than persona-led.',
+        evidence_note: 'Velocity still matters, though redistribution and participation now carry more of the narrative load.',
         decision_state: 'strong_signal'
+      },
+      {
+        id: 'redistribution-flywheel',
+        title: 'Redistribution Flywheel',
+        score: 88,
+        short_explanation: 'Creator-fee redistribution and reported airdrops convert attention into visible community participation.',
+        evidence_note: 'The desk treats reported stimmy mechanics as coordination evidence, not canonical distribution proof.',
+        decision_state: 'strong_signal'
+      },
+      {
+        id: 'holder-growth-signal',
+        title: 'Holder Growth Signal',
+        score: 86,
+        short_explanation: 'Tracker-visible and community-reported holder growth strengthens the case that the signal is spreading beyond a narrow attention core.',
+        evidence_note: 'Community-reported 72,000+ holder talk is tracked as a visible narrative surface, not perfect canonical truth.',
+        decision_state: 'strong_signal'
+      },
+      {
+        id: 'community-media-layer',
+        title: 'Community Media Layer',
+        score: 82,
+        short_explanation: 'Art, bulletins, animations, and community summaries show the narrative being carried by participants, not only the signal source.',
+        evidence_note: 'The desk is tracking participant-made media as evidence that the symbol is developing beyond one persona node.',
+        decision_state: 'watch_closely'
+      },
+      {
+        id: 'copycat-resistance',
+        title: 'Copycat Resistance',
+        score: 84,
+        short_explanation: '$ANSEM is being contrasted favorably against derivative influencer coins, which strengthens the original signal’s legitimacy.',
+        evidence_note: 'Community contrast with copycats matters because it shows the original symbol still holds narrative priority.',
+        decision_state: 'watch_closely'
+      },
+      {
+        id: 'movement-readiness',
+        title: 'Movement Readiness',
+        score: 74,
+        short_explanation: 'The coordination layer is emerging, but movement status remains under observation until the flywheel proves durable beyond short-term incentives.',
+        evidence_note: 'The desk is explicitly separating emerging coordination from durable movement status.',
+        decision_state: 'unproven'
       },
       {
         id: 'holder-power-concentration',
@@ -217,7 +280,7 @@ export const signalSurfaces: NarrativeSignalSurface[] = [
         title: 'KOL Dependency',
         score: blackBull.kol_dependency_score,
         short_explanation: 'The asset depends heavily on one reputation engine and adjacent amplification bands.',
-        evidence_note: 'Dependency risk is higher than organic sovereignty.',
+        evidence_note: 'Coordination evidence has improved, but it does not erase KOL dependency.',
         decision_state: 'concentrated_power'
       },
       {
@@ -240,16 +303,16 @@ export const signalSurfaces: NarrativeSignalSurface[] = [
         id: 'sovereignty-score',
         title: 'Sovereignty Score',
         score: blackBull.sovereignty_score,
-        short_explanation: 'The airdrop improves independent community surface area, but durable sovereignty remains developing.',
-        evidence_note: 'Concentration and KOL dependency keep sovereignty unproven despite a higher coordination score.',
+        short_explanation: 'Redistribution improves independent community surface area, but durable sovereignty remains developing.',
+        evidence_note: 'Concentration and KOL dependency keep sovereignty unproven despite better coordination evidence.',
         decision_state: 'unproven'
       },
       {
         id: 'infopunk-verdict',
         title: 'Infopunk Verdict',
         score: 'SUPPORTIVE WATCH',
-        short_explanation: 'Infopunks stands behind the Black Bull as a serious coordination signal while preserving the risk anatomy.',
-        evidence_note: 'Airdrop evidence strengthens the trench-revival thesis; KOL dependency and concentration risk remain explicit.',
+        short_explanation: 'Infopunks keeps SUPPORTIVE WATCH active while reclassifying the signal as Coordination Market Emerging.',
+        evidence_note: 'Coordination evidence has improved, but KOL dependency, power concentration, and reflexivity remain explicit.',
         decision_state: 'supportive_watch'
       }
     ],
@@ -263,8 +326,14 @@ export const signalSurfaces: NarrativeSignalSurface[] = [
       {
         id: 'attention-velocity',
         title: 'Attention Velocity',
-        body: 'When social compression, wallet watchers, and trench chatter converge, attention velocity can front-run formal price discovery.',
+        body: 'When social compression, wallet watchers, and trench chatter converge, attention velocity can front-run formal price discovery. Recent Black Bull activity is more low-key from the source itself, with redistribution and community participation carrying more of the visible signal.',
         card_ids: ['attention-velocity', 'trench-contagion']
+      },
+      {
+        id: 'coordination-market',
+        title: 'Coordination Market',
+        body: '$ANSEM began as a persona-linked attention object. The latest evidence suggests the signal is evolving into a coordination market: redistribution mechanics, holder growth, community media, and trench participation are now carrying more of the narrative load.',
+        card_ids: ['redistribution-flywheel', 'holder-growth-signal', 'community-media-layer', 'copycat-resistance', 'movement-readiness']
       },
       {
         id: 'holder-power-concentration',
@@ -287,7 +356,7 @@ export const signalSurfaces: NarrativeSignalSurface[] = [
       {
         id: 'infopunk-verdict',
         title: 'Infopunk Verdict',
-        body: 'Infopunks stands behind the Black Bull as a serious coordination signal while continuing to monitor dependency, concentration, and reflexivity risk. The latest airdrop evidence strengthens the case that this is not only an attention object, but a trench-revival event with real community surface area.',
+        body: 'Infopunks keeps SUPPORTIVE WATCH active while monitoring a structural signal shift: Black Bull is moving from persona-led attention toward emerging community coordination. Coordination evidence has improved, but it does not erase KOL dependency. The desk now tracks whether the community flywheel can keep compounding without relying on constant persona attention.',
         card_ids: ['infopunk-verdict']
       }
     ],
@@ -449,7 +518,12 @@ function verdictFieldsForSurface(surface: NarrativeSignalSurface) {
       infopunk_verdict: surface.asset.infopunk_verdict,
       verdict_label: 'SUPPORTIVE WATCH',
       verdict_state: 'supportive_watch',
-      verdict_copy: surface.asset.infopunk_verdict
+      verdict_copy: surface.asset.infopunk_verdict,
+      evolution_path: surface.asset.evolution_path,
+      current_evolution_stage: surface.asset.current_evolution_stage,
+      current_evolution_label: surface.asset.current_evolution_label,
+      movement_status: surface.asset.movement_status,
+      movement_status_label: surface.asset.movement_status_label
     };
   }
 
@@ -458,7 +532,12 @@ function verdictFieldsForSurface(surface: NarrativeSignalSurface) {
       infopunk_verdict: surface.asset.infopunk_verdict,
       verdict_label: 'DURABLE RE-INDEX',
       verdict_state: 'durable_re_index',
-      verdict_copy: surface.asset.infopunk_verdict
+      verdict_copy: surface.asset.infopunk_verdict,
+      evolution_path: surface.asset.evolution_path,
+      current_evolution_stage: surface.asset.current_evolution_stage,
+      current_evolution_label: surface.asset.current_evolution_label,
+      movement_status: surface.asset.movement_status,
+      movement_status_label: surface.asset.movement_status_label
     };
   }
 
@@ -469,7 +548,12 @@ function verdictFieldsForSurface(surface: NarrativeSignalSurface) {
     infopunk_verdict: surface.asset.infopunk_verdict,
     verdict_label: verdictLabel,
     verdict_state: verdictState,
-    verdict_copy: surface.asset.infopunk_verdict
+    verdict_copy: surface.asset.infopunk_verdict,
+    evolution_path: surface.asset.evolution_path,
+    current_evolution_stage: surface.asset.current_evolution_stage,
+    current_evolution_label: surface.asset.current_evolution_label,
+    movement_status: surface.asset.movement_status,
+    movement_status_label: surface.asset.movement_status_label
   };
 }
 
@@ -492,6 +576,11 @@ export function listSignalSurfaces() {
     signal_source: item.signal_source,
     asset_slug: item.asset_slug,
     last_updated: item.last_updated,
+    evolution_path: item.asset?.evolution_path,
+    current_evolution_stage: item.asset?.current_evolution_stage,
+    current_evolution_label: item.asset?.current_evolution_label,
+    movement_status: item.asset?.movement_status,
+    movement_status_label: item.asset?.movement_status_label,
     ...verdictFieldsForSurface(item)
   }));
 }

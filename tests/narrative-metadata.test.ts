@@ -22,15 +22,15 @@ describe('narrative metadata helper', () => {
   it('returns metadata for /signals/black-bull', () => {
     expect(getNarrativeMetadataForPath('/signals/black-bull')).toEqual({
       title: 'Infopunks Signal Report: $ANSEM / The Black Bull',
-      description: 'A living Narrative Asset Intelligence report on financialized attention, myth, power concentration, and reflexivity risk.',
+      description: 'A living Narrative Asset Intelligence report on $ANSEM evolving from persona attention into community coordination.',
       canonicalPath: '/signals/black-bull',
       ogTitle: 'Infopunks Signal Report: $ANSEM / The Black Bull',
-      ogDescription: 'A living Narrative Asset Intelligence report on financialized attention, myth, power concentration, and reflexivity risk.',
+      ogDescription: 'A living Narrative Asset Intelligence report on $ANSEM evolving from persona attention into community coordination.',
       ogImageUrl: 'https://radar.infopunks.fun/og/signals/black-bull.png',
       ogImageWidth: 1200,
       ogImageHeight: 630,
       twitterTitle: 'Infopunks Signal Report: $ANSEM / The Black Bull',
-      twitterDescription: 'A living Narrative Asset Intelligence report on financialized attention, myth, power concentration, and reflexivity risk.',
+      twitterDescription: 'A living Narrative Asset Intelligence report on $ANSEM evolving from persona attention into community coordination.',
       twitterImageUrl: 'https://radar.infopunks.fun/og/signals/black-bull.png',
       twitterCard: 'summary_large_image'
     });
@@ -88,18 +88,18 @@ describe('narrative metadata helper', () => {
   });
 
   it('returns metadata for a seeded dispatch permalink', () => {
-    expect(getNarrativeMetadataForPath('/signals/black-bull/updates/seu_black_bull_006')).toEqual({
-      title: 'Infopunks Desk Dispatch: Verdict Change',
-      description: 'ANSEM / The Black Bull signal update. Reports are not final. Signals mutate.',
-      canonicalPath: '/signals/black-bull/updates/seu_black_bull_006',
-      ogTitle: 'Infopunks Desk Dispatch: Verdict Change',
-      ogDescription: 'ANSEM / The Black Bull signal update. Reports are not final. Signals mutate.',
-      ogImageUrl: 'https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_006.png',
+    expect(getNarrativeMetadataForPath('/signals/black-bull/updates/seu_black_bull_007')).toEqual({
+      title: 'Infopunks Desk Dispatch: Coordination Market Emerging',
+      description: 'Black Bull signal update. Persona attention is evolving into community coordination.',
+      canonicalPath: '/signals/black-bull/updates/seu_black_bull_007',
+      ogTitle: 'Infopunks Desk Dispatch: Coordination Market Emerging',
+      ogDescription: 'Black Bull signal update. Persona attention is evolving into community coordination.',
+      ogImageUrl: 'https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_007.png',
       ogImageWidth: 1200,
       ogImageHeight: 630,
-      twitterTitle: 'Infopunks Desk Dispatch: Verdict Change',
-      twitterDescription: 'ANSEM / The Black Bull signal update. Reports are not final. Signals mutate.',
-      twitterImageUrl: 'https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_006.png',
+      twitterTitle: 'Infopunks Desk Dispatch: Coordination Market Emerging',
+      twitterDescription: 'Black Bull signal update. Persona attention is evolving into community coordination.',
+      twitterImageUrl: 'https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_007.png',
       twitterCard: 'summary_large_image'
     });
   });

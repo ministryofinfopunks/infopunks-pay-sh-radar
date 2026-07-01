@@ -10,6 +10,14 @@ type NarrativeEvidenceArtifact = {
   href?: string;
 };
 
+type NarrativeEvolutionStage =
+  | 'persona_coin'
+  | 'attention_market'
+  | 'coordination_market_emerging'
+  | 'movement_candidate_under_observation';
+
+type MovementStatus = 'under_observation';
+
 type NarrativeRelatedRoute = {
   label: string;
   href: string;
@@ -35,6 +43,11 @@ type NarrativeAsset = {
   evidence_artifacts: NarrativeEvidenceArtifact[];
   related_routes: NarrativeRelatedRoute[];
   last_updated: string;
+  evolution_path?: NarrativeEvolutionStage[];
+  current_evolution_stage?: NarrativeEvolutionStage;
+  current_evolution_label?: string;
+  movement_status?: MovementStatus;
+  movement_status_label?: string;
 };
 
 type NarrativeSignalCard = {
@@ -67,6 +80,11 @@ type NarrativeSignalSurface = {
   verdict_label?: string;
   verdict_state?: string;
   verdict_copy?: string;
+  evolution_path?: NarrativeEvolutionStage[];
+  current_evolution_stage?: NarrativeEvolutionStage;
+  current_evolution_label?: string;
+  movement_status?: MovementStatus;
+  movement_status_label?: string;
   cards: NarrativeSignalCard[];
   sections: NarrativeSignalSection[];
   asset?: NarrativeAsset;
@@ -236,16 +254,25 @@ type AttentionMarketSignal = {
   evolution_verdict: AttentionMarketVerdict;
   verdict_label: string;
   verdict_copy: string;
+  current_evolution_stage?: 'persona_coin' | 'attention_market' | 'coordination_market_emerging' | 'movement_candidate_under_observation' | 'extraction_risk' | 'cult_sludge';
+  current_evolution_label?: string;
   risk_facets: SignalRiskFacet[];
   related_signal_slug?: string;
   href: string;
   updated_at: string;
 };
 
+type AttentionMarketEvolutionStage = {
+  id: 'persona_coin' | 'attention_market' | 'coordination_market_emerging' | 'movement_candidate_under_observation' | 'extraction_risk' | 'cult_sludge';
+  label: string;
+  description: string;
+};
+
 type AttentionMarketWatchIndex = {
   generated_at: string;
   count: number;
   verdict_counts: Record<string, number>;
+  evolution_stages: AttentionMarketEvolutionStage[];
   signals: AttentionMarketSignal[];
 };
 
@@ -312,7 +339,7 @@ const NARRATIVE_METHOD_STEPS = [
 ] as const;
 
 const BLACK_BULL_SHARE_LINES = [
-  "Ansem's airdrop turns $ANSEM from a pure attention object into a visible trench-coordination event. Infopunks marks it Supportive Watch.",
+  '$ANSEM is evolving from persona attention into community coordination. Infopunks keeps it at Supportive Watch while the flywheel is still under observation.',
   "$ANSEM is the market asking how much Ansem's attention is worth. Infopunks is asking who understands attention before it becomes price.",
   'Infopunks do not worship signal. Infopunks map signal.',
   'Solana is entering the attention-market era. Personas become liquidity. Memes become coordination rails.',
@@ -463,6 +490,10 @@ function formatAttentionCategory(value: AttentionMarketCategory) {
 }
 
 function formatAttentionVerdict(value: AttentionMarketVerdict) {
+  return value.split('_').map((part) => `${part[0]?.toUpperCase() ?? ''}${part.slice(1)}`).join(' ');
+}
+
+function formatEvolutionStage(value: NarrativeEvolutionStage) {
   return value.split('_').map((part) => `${part[0]?.toUpperCase() ?? ''}${part.slice(1)}`).join(' ');
 }
 
@@ -659,22 +690,60 @@ function SignalUpdateNotFound({ slug }: { slug: string }) {
   </div>;
 }
 
-function LatestDeskUpdateChip({ latestUpdate }: { latestUpdate: SignalEvidenceUpdate | null }) {
+function LatestDeskUpdateChip({
+  latestUpdate,
+  currentEvolutionLabel,
+  movementStatusLabel
+}: {
+  latestUpdate: SignalEvidenceUpdate | null;
+  currentEvolutionLabel?: string;
+  movementStatusLabel?: string;
+}) {
   if (!latestUpdate) return null;
 
   return <section className="panel narrative-desk-chip" aria-label="Latest desk update">
     <div className="narrative-desk-chip-head">
       <div>
         <p className="section-kicker">Latest Desk Update</p>
-        <h2>{signalUpdateTypeLabel(latestUpdate.update_type)}</h2>
+        <h2>{currentEvolutionLabel ?? signalUpdateTypeLabel(latestUpdate.update_type)}</h2>
       </div>
       <span className={`narrative-update-badge type-${latestUpdate.update_type}`}>{signalUpdateTypeLabel(latestUpdate.update_type)}</span>
     </div>
+    {movementStatusLabel && <div className="chips narrative-update-chips">
+      <span className="narrative-evidence-chip">{movementStatusLabel}</span>
+    </div>}
     <p>{latestUpdate.summary}</p>
     <div className="narrative-desk-chip-meta">
       <span>{formatDate(latestUpdate.timestamp)}</span>
       <a className="execute compact secondary" href="#living-evidence-feed">Open Living Evidence Feed</a>
     </div>
+  </section>;
+}
+
+function EvolutionTimelineModule({ surface }: { surface: NarrativeSignalSurface }) {
+  const evolutionPath = surface.evolution_path ?? [];
+  if (!evolutionPath.length) return null;
+
+  return <section className="panel narrative-report-section" aria-label="Evolution Timeline">
+    <div className="narrative-section-head">
+      <div>
+        <p className="section-kicker">Narrative desk</p>
+        <h2>Evolution Timeline</h2>
+        <p>How a persona-backed asset becomes a coordination market.</p>
+      </div>
+    </div>
+    <div className="chips narrative-update-chips">
+      {evolutionPath.map((stage, index) => <React.Fragment key={stage}>
+        <span className={stage === surface.current_evolution_stage ? 'narrative-decision-pill state-supportive_watch' : 'narrative-evidence-chip'}>
+          {stage === surface.current_evolution_stage && surface.current_evolution_label
+            ? surface.current_evolution_label
+            : formatEvolutionStage(stage)}
+        </span>
+        {index < evolutionPath.length - 1 && <span className="narrative-evidence-chip" aria-hidden="true">→</span>}
+      </React.Fragment>)}
+    </div>
+    {surface.current_evolution_label && <p className="narrative-rally-line">{surface.current_evolution_label}</p>}
+    <p>$ANSEM began as a persona-linked attention object. The latest evidence suggests the signal is evolving into a coordination market: redistribution mechanics, holder growth, community media, and trench participation are now carrying more of the narrative load.</p>
   </section>;
 }
 
@@ -1283,7 +1352,7 @@ function AttentionWatchModule({ watch }: { watch: AttentionMarketWatchIndex }) {
       <div>
         <p className="section-kicker">Signal Desk Index</p>
         <h2>Attention Market Watch</h2>
-        <p>Persona-backed markets are becoming their own asset class. Infopunks classifies the attention source, control risk, coherence, receipts, and fragmentation risk.</p>
+        <p>Attention Market Watch now tracks which persona-backed assets remain attention arbitrage, which become extraction risk, and which begin evolving into coordination markets.</p>
       </div>
       <span className="source-badge">{watch.count} monitored</span>
     </div>
@@ -1316,13 +1385,16 @@ function AttentionWatchSignalCard({ signal }: { signal: AttentionMarketSignal })
       <span className="narrative-evidence-chip">Evidence-light profile</span>
       <span className="narrative-evidence-chip">Monitored, not endorsed</span>
     </div>}
+    {signal.current_evolution_label && <div className="chips narrative-update-chips">
+      <span className="narrative-decision-pill state-supportive_watch">{signal.current_evolution_label}</span>
+    </div>}
     <p>{signal.attention_source.label}</p>
     <p>{signal.attention_source.summary}</p>
     <div className="narrative-asset-stats">
-      <span>control {signal.control_risk.score}</span>
-      <span>coherence {signal.coherence_score.score}</span>
+      <span>stage {signal.current_evolution_label ?? 'Unclassified'}</span>
+      <span>verdict {signal.verdict_label}</span>
       <span>receipts {signal.receipt_layer.score}</span>
-      <span>fragmentation {signal.fragmentation_risk.score}</span>
+      <span>control {signal.control_risk.score}</span>
     </div>
     <p>{signal.verdict_copy}</p>
     <div className="chips narrative-update-chips">
@@ -1332,6 +1404,25 @@ function AttentionWatchSignalCard({ signal }: { signal: AttentionMarketSignal })
       <a className="execute compact secondary" href={signal.href}>{cta}</a>
     </div>
   </article>;
+}
+
+function AttentionMarketEvolutionMap({ stages }: { stages: AttentionMarketWatchIndex['evolution_stages'] }) {
+  return <section className="panel narrative-desk-catalog" aria-label="Evolution Map">
+    <div className="narrative-desk-catalog-head">
+      <div>
+        <p className="section-kicker">Lifecycle map</p>
+        <h2>Evolution Map</h2>
+        <p>Not every persona coin becomes a movement. Infopunks tracks what stage the signal is actually in.</p>
+      </div>
+    </div>
+    <div className="narrative-method-grid">
+      {stages.map((stage) => <article key={stage.id} className="panel narrative-method-step">
+        <h3>{stage.label}</h3>
+        <p>{stage.description}</p>
+      </article>)}
+    </div>
+    <p className="narrative-rally-line">Attention gets the market started. Coordination decides whether it survives.</p>
+  </section>;
 }
 
 function AttentionMarketEvidenceRequirementsModule({ requirements }: { requirements: AttentionMarketIntakeRequirements }) {
@@ -1558,6 +1649,8 @@ function AttentionMarketWatchIndexPageBody({
         </article>)}
       </div>
     </section>
+
+    <AttentionMarketEvolutionMap stages={watch.evolution_stages} />
 
     <section className="panel narrative-desk-catalog" aria-label="Verdict Types">
       <div className="narrative-desk-catalog-head">
@@ -1838,7 +1931,7 @@ export function AttentionMarketWatchProfilePage({ slug }: { slug: string }) {
 
   const signal = detail?.signal ?? null;
   const profileStateCopy = signal && signal.slug === 'ansem'
-    ? 'Linked signal report available.'
+    ? 'ANSEM is the first Attention Market Watch case where persona attention appears to be evolving into a coordination market through redistribution, holder growth, and community participation.'
     : signal && (signal.receipt_layer.score <= 24 || signal.evolution_verdict === 'attention_arbitrage')
       ? 'Monitored derivative signal. Evidence-light profile. This attention-market object is not an endorsement.'
       : 'Profile under active watch.';
@@ -1858,6 +1951,9 @@ export function AttentionMarketWatchProfilePage({ slug }: { slug: string }) {
             <p className="copy">${signal.ticker}</p>
             <p className="copy">{signal.verdict_copy}</p>
             <p className="copy">{profileStateCopy}</p>
+            {signal.current_evolution_label && <div className="chips narrative-update-chips">
+              <span className="narrative-decision-pill state-supportive_watch">{signal.current_evolution_label}</span>
+            </div>}
             {(signal.slug === 'tjr' || signal.slug === 'luke' || signal.slug === 'superman') && <div className="chips narrative-update-chips">
               <span className="narrative-evidence-chip">Evidence-light profile</span>
               <span className="narrative-evidence-chip">Monitored, not endorsed</span>
@@ -1878,7 +1974,32 @@ export function AttentionMarketWatchProfilePage({ slug }: { slug: string }) {
           <AttentionMarketWatchProfileCard label="Receipt Layer" score={`${signal.receipt_layer.score}/100`} body={signal.receipt_layer.summary} />
           <AttentionMarketWatchProfileCard label="Fragmentation Risk" score={`${signal.fragmentation_risk.score}/100`} body={signal.fragmentation_risk.summary} />
           <AttentionMarketWatchProfileCard label="Evolution Verdict" score={signal.verdict_label} body={signal.verdict_copy} />
+          {signal.current_evolution_label && <AttentionMarketWatchProfileCard
+            label="Current Evolution Stage"
+            score={signal.current_evolution_label}
+            body={signal.slug === 'ansem'
+              ? 'ANSEM is the first Attention Market Watch case where persona attention appears to be evolving into a coordination market through redistribution, holder growth, and community participation.'
+              : 'Current evolution stage tracks where the desk thinks the attention asset sits in the lifecycle right now, without treating that as durable movement proof.'}
+          />}
         </section>
+
+        {signal.slug === 'ansem' && <section className="panel narrative-desk-catalog" aria-label="Evolution Timeline">
+          <div className="narrative-desk-catalog-head">
+            <div>
+              <p className="section-kicker">Lifecycle map</p>
+              <h2>Evolution Timeline</h2>
+            </div>
+          </div>
+          <div className="chips narrative-update-chips">
+            <span className="narrative-evidence-chip">Persona Coin</span>
+            <span className="narrative-evidence-chip" aria-hidden="true">→</span>
+            <span className="narrative-evidence-chip">Attention Market</span>
+            <span className="narrative-evidence-chip" aria-hidden="true">→</span>
+            <span className="narrative-decision-pill state-supportive_watch">Coordination Market Emerging</span>
+          </div>
+          <p className="narrative-rally-line">Movement Candidate Under Observation</p>
+          <p>Attention gets the market started. Coordination decides whether it survives.</p>
+        </section>}
 
         <section className="panel narrative-desk-catalog" aria-label="Risk facets">
           <div className="narrative-desk-catalog-head">
@@ -1980,7 +2101,11 @@ function SignalSurfacePage({ slug, expectedType }: { slug: string; expectedType:
           </div>
         </section>
 
-        {surface.type === 'signal_report' && <LatestDeskUpdateChip latestUpdate={latestUpdate} />}
+        {surface.type === 'signal_report' && <LatestDeskUpdateChip
+          latestUpdate={latestUpdate}
+          currentEvolutionLabel={surface.current_evolution_label}
+          movementStatusLabel={surface.movement_status_label}
+        />}
 
         {surface.asset && <section className="panel narrative-copy-panel">
           <p className="section-kicker">Mapped asset</p>
@@ -2004,6 +2129,7 @@ function SignalSurfacePage({ slug, expectedType }: { slug: string; expectedType:
         ]} />}
 
         <section className="narrative-section-stack">
+          {surface.slug === 'black-bull' && <EvolutionTimelineModule surface={surface} />}
           {(surface.type === 'signal_report' ? preVerdictSections : surface.sections).map((section) => <section key={section.id} className="panel narrative-report-section" aria-label={section.title}>
             <div className="narrative-section-head">
               <div>

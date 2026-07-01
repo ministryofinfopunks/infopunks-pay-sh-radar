@@ -40,7 +40,7 @@ describe('narrative intel api', () => {
       expect(detail.json().data).toEqual(expect.objectContaining({
         slug: 'black-bull',
         ticker: 'ANSEM',
-        thesis: "The Black Bull has moved beyond pure persona speculation into visible community coordination. Ansem's airdrop strengthens the trench-revival thesis and gives the narrative more distributed cultural surface area. KOL dependency remains high, but the latest evidence improves the desk's confidence that this is a serious Solana attention-market event, not a hollow meme artifact."
+        thesis: "The Black Bull is no longer only a persona-backed attention object. Reported creator-fee redistribution, tracker-visible holder growth, and community-led media suggest an emerging coordination market, while KOL dependency, power concentration, and reflexivity remain material."
       }));
     } finally {
       await app.close();
@@ -58,24 +58,43 @@ describe('narrative intel api', () => {
         verdict_counts: expect.objectContaining({
           supportive_watch: 1
         }),
+        evolution_stages: expect.arrayContaining([
+          expect.objectContaining({
+            id: 'persona_coin',
+            label: 'Persona Coin'
+          }),
+          expect.objectContaining({
+            id: 'coordination_market_emerging',
+            label: 'Coordination Market Emerging'
+          }),
+          expect.objectContaining({
+            id: 'cult_sludge',
+            label: 'Cult Sludge'
+          })
+        ]),
         signals: expect.arrayContaining([
           expect.objectContaining({
             slug: 'ansem',
             ticker: 'ANSEM',
             evolution_verdict: 'supportive_watch',
+            current_evolution_stage: 'coordination_market_emerging',
+            current_evolution_label: 'Coordination Market Emerging',
             href: '/signals/black-bull'
           }),
           expect.objectContaining({
             slug: 'tjr',
-            ticker: 'TJR'
+            ticker: 'TJR',
+            current_evolution_stage: 'attention_market'
           }),
           expect.objectContaining({
             slug: 'luke',
-            ticker: 'LUKE'
+            ticker: 'LUKE',
+            current_evolution_stage: 'attention_market'
           }),
           expect.objectContaining({
             slug: 'superman',
-            ticker: 'SUPERMAN'
+            ticker: 'SUPERMAN',
+            current_evolution_stage: 'cult_sludge'
           })
         ])
       }));
@@ -86,6 +105,8 @@ describe('narrative intel api', () => {
         signal: expect.objectContaining({
           slug: 'ansem',
           evolution_verdict: 'supportive_watch',
+          current_evolution_stage: 'coordination_market_emerging',
+          current_evolution_label: 'Coordination Market Emerging',
           href: '/signals/black-bull',
           receipt_layer: expect.objectContaining({
             evidence_links: expect.arrayContaining(['/signals/black-bull'])
@@ -234,15 +255,15 @@ describe('narrative intel api', () => {
           risk_facets: expect.arrayContaining(['live_watch', 'thin_evidence', 'high_reflexivity', 'power_concentration'])
         }),
         expect.objectContaining({
-          update_id: 'seu_black_bull_006',
-          href: '/signals/black-bull/updates/seu_black_bull_006',
-          summary: expect.stringContaining('Supportive Watch'),
+          update_id: 'seu_black_bull_007',
+          href: '/signals/black-bull/updates/seu_black_bull_007',
+          summary: expect.stringContaining('Coordination Market Emerging'),
           risk_facets: expect.arrayContaining(['kol_dependency', 'power_concentration', 'live_watch'])
         })
       ]));
       expect(payload.latest_dispatches[0]).toEqual(expect.objectContaining({
-        update_id: 'seu_troll_002',
-        new_score: 90
+        update_id: 'seu_black_bull_007',
+        new_score: 91
       }));
       expect(payload.risk_shifts).toEqual(expect.arrayContaining([
         expect.objectContaining({
@@ -367,10 +388,14 @@ describe('narrative intel api', () => {
         slug: 'black-bull',
         type: 'signal_report',
         signal_source: 'Ansem',
-        infopunk_verdict: expect.stringContaining('Infopunks supports the Black Bull'),
+        infopunk_verdict: expect.stringContaining('Infopunks keeps the Black Bull'),
         verdict_label: 'SUPPORTIVE WATCH',
         verdict_state: 'supportive_watch',
-        verdict_copy: expect.stringContaining('Infopunks supports the Black Bull')
+        verdict_copy: expect.stringContaining('Infopunks keeps the Black Bull'),
+        current_evolution_stage: 'coordination_market_emerging',
+        current_evolution_label: 'Coordination Market Emerging',
+        movement_status: 'under_observation',
+        movement_status_label: 'Movement Candidate Under Observation'
       }));
       expect(report.json().data.cards).toEqual(expect.arrayContaining([
         expect.objectContaining({
@@ -385,6 +410,16 @@ describe('narrative intel api', () => {
         expect.objectContaining({
           id: 'holder-power-concentration',
           decision_state: 'concentrated_power'
+        }),
+        expect.objectContaining({
+          id: 'redistribution-flywheel',
+          title: 'Redistribution Flywheel',
+          score: 88
+        }),
+        expect.objectContaining({
+          id: 'holder-growth-signal',
+          title: 'Holder Growth Signal',
+          score: 86
         })
       ]));
       expect(report.json().data.sections.find((section: { id: string }) => section.id === 'infopunk-verdict').body).not.toMatch(/\bbuy\b|\bsell\b/i);
@@ -442,7 +477,7 @@ describe('narrative intel api', () => {
       expect(payload.count).toBeGreaterThanOrEqual(5);
       expect(payload.summary).toContain('Evidence update summary');
       expect(payload.latest_update).toEqual(expect.objectContaining({
-        update_id: 'seu_black_bull_006',
+        update_id: 'seu_black_bull_007',
         update_type: 'verdict_change'
       }));
       expect(payload.latest_update.evidence_links).toContain('https://solscan.io/account/GV6UUmNxz2RpKxmNAPadYKb7uQpszwqQAu3qLJxVdC52#transfers');
@@ -461,10 +496,10 @@ describe('narrative intel api', () => {
       const timestamps = payload.updates.map((update: { timestamp: string }) => update.timestamp);
       expect(timestamps).toEqual([...timestamps].sort((a, b) => b.localeCompare(a)));
       expect(payload.updates[0]).toEqual(expect.objectContaining({
-        update_id: 'seu_black_bull_006',
+        update_id: 'seu_black_bull_007',
         update_type: 'verdict_change',
-        previous_score: 80,
-        new_score: 88
+        previous_score: 88,
+        new_score: 91
       }));
     } finally {
       await app.close();
@@ -475,15 +510,15 @@ describe('narrative intel api', () => {
     const app = await createApp(emptyIntelligenceStore());
 
     try {
-      const response = await app.inject({ method: 'GET', url: '/v1/signals/black-bull/updates/seu_black_bull_006' });
+      const response = await app.inject({ method: 'GET', url: '/v1/signals/black-bull/updates/seu_black_bull_007' });
       expect(response.statusCode).toBe(200);
       expect(response.json().data).toEqual(expect.objectContaining({
         signal_slug: 'black-bull',
         update: expect.objectContaining({
-          update_id: 'seu_black_bull_006',
+          update_id: 'seu_black_bull_007',
           signal_slug: 'black-bull',
           update_type: 'verdict_change',
-          summary: expect.stringContaining('Supportive Watch'),
+          summary: expect.stringContaining('Coordination Market Emerging'),
           evidence_links: expect.arrayContaining(['https://solscan.io/account/GV6UUmNxz2RpKxmNAPadYKb7uQpszwqQAu3qLJxVdC52#transfers'])
         })
       }));
@@ -595,7 +630,7 @@ describe('narrative intel api', () => {
     const app = await createApp(emptyIntelligenceStore());
 
     try {
-      const response = await app.inject({ method: 'GET', url: '/og/signals/black-bull/updates/seu_black_bull_006.png' });
+      const response = await app.inject({ method: 'GET', url: '/og/signals/black-bull/updates/seu_black_bull_007.png' });
       expect(response.statusCode).toBe(200);
       expect(response.headers['content-type']).toContain('image/png');
       expectPng(response.rawPayload);

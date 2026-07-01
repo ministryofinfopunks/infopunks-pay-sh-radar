@@ -25,7 +25,7 @@ const narrativeAsset = {
   name: 'The Black Bull',
   chain: 'Solana',
   category: 'Attention Market / Narrative Asset',
-  thesis: "The Black Bull has moved beyond pure persona speculation into visible community coordination. Ansem's airdrop strengthens the trench-revival thesis and gives the narrative more distributed cultural surface area. KOL dependency remains high, but the latest evidence improves the desk's confidence that this is a serious Solana attention-market event, not a hollow meme artifact.",
+  thesis: "The Black Bull is no longer only a persona-backed attention object. Reported creator-fee redistribution, tracker-visible holder growth, and community-led media suggest an emerging coordination market, while KOL dependency, power concentration, and reflexivity remain material.",
   signal_source: 'Ansem',
   attention_velocity_score: 93,
   myth_coherence_score: 88,
@@ -34,13 +34,19 @@ const narrativeAsset = {
   kol_dependency_score: 93,
   trench_contagion_score: 87,
   sovereignty_score: 45,
-  infopunk_verdict: 'Infopunks supports the Black Bull as a serious Solana attention-market and trench-revival signal. Infopunks do not worship signal. Infopunks map signal. KOL dependency and power concentration remain material.',
+  infopunk_verdict: 'Infopunks keeps the Black Bull at SUPPORTIVE WATCH while reclassifying the signal as Coordination Market Emerging. Infopunks do not worship signal. Infopunks map signal. Coordination evidence has improved, but KOL dependency and power concentration remain material.',
   evidence_artifacts: [
     { label: 'Persona-linked order flow', note: 'Wallet watchers keep collapsing into one symbol map.' },
-    { label: 'Airdrop coordination evidence', note: 'Ansem / the linked wallet reportedly airdropped 67.38M $ANSEM to 700+ wallets, while 49.89M $ANSEM reportedly clustered around 7 wallets.', href: 'https://solscan.io/account/GV6UUmNxz2RpKxmNAPadYKb7uQpszwqQAu3qLJxVdC52#transfers' }
+    { label: 'Airdrop coordination evidence', note: 'Ansem / the linked wallet reportedly airdropped 67.38M $ANSEM to 700+ wallets, while 49.89M $ANSEM reportedly clustered around 7 wallets.', href: 'https://solscan.io/account/GV6UUmNxz2RpKxmNAPadYKb7uQpszwqQAu3qLJxVdC52#transfers' },
+    { label: 'Redistribution flywheel', note: 'Community-reported summaries frame creator-fee redistribution as trench stimmy mechanics that convert persona attention into wider participation and holder-base expansion.' }
   ],
   related_routes: [{ label: 'Black Bull Signal Report', href: '/signals/black-bull' }],
-  last_updated: '2026-06-29T00:00:00.000Z'
+  last_updated: '2026-07-01T09:00:00.000Z',
+  evolution_path: ['persona_coin', 'attention_market', 'coordination_market_emerging', 'movement_candidate_under_observation'],
+  current_evolution_stage: 'coordination_market_emerging',
+  current_evolution_label: 'Coordination Market Emerging',
+  movement_status: 'under_observation',
+  movement_status_label: 'Movement Candidate Under Observation'
 };
 
 const ansemSignal = {
@@ -71,55 +77,69 @@ const blackBullSignal = {
   disclaimer: 'This report maps signal conditions around a narrative asset. It is not investment advice.',
   signal_source: 'Ansem',
   asset_slug: 'black-bull',
-  last_updated: '2026-06-29T00:00:00.000Z',
+  last_updated: '2026-07-01T09:00:00.000Z',
+  verdict_label: 'SUPPORTIVE WATCH',
+  verdict_state: 'supportive_watch',
+  verdict_copy: narrativeAsset.infopunk_verdict,
+  evolution_path: narrativeAsset.evolution_path,
+  current_evolution_stage: narrativeAsset.current_evolution_stage,
+  current_evolution_label: narrativeAsset.current_evolution_label,
+  movement_status: narrativeAsset.movement_status,
+  movement_status_label: narrativeAsset.movement_status_label,
   cards: [
-    { id: 'signal-strength', title: 'Signal Strength', score: 92, short_explanation: 'Identity and meme compression are aligned.', evidence_note: 'Airdrop evidence strengthens the coordination case while leaving concentration risk visible.', decision_state: 'strong_signal' },
-    { id: 'myth-coherence', title: 'Myth Coherence', score: 88, short_explanation: 'The story is easy to repeat.', evidence_note: 'Low-friction story transfer and visible distribution are helping.', decision_state: 'watch_closely' },
-    { id: 'attention-velocity', title: 'Attention Velocity', score: 93, short_explanation: 'Attention is moving fast.', evidence_note: 'The latest airdrop evidence adds distribution surface area.', decision_state: 'strong_signal' },
+    { id: 'signal-strength', title: 'Signal Strength', score: 92, short_explanation: 'Identity, redistribution mechanics, and community media are aligned.', evidence_note: 'Reported redistribution strengthens the coordination case while leaving concentration risk visible.', decision_state: 'strong_signal' },
+    { id: 'myth-coherence', title: 'Myth Coherence', score: 88, short_explanation: 'The story is easy to repeat.', evidence_note: 'Low-friction story transfer and participant media are helping.', decision_state: 'watch_closely' },
+    { id: 'attention-velocity', title: 'Attention Velocity', score: 93, short_explanation: 'Attention is moving fast, but the latest signal carry is more community-led.', evidence_note: 'Redistribution and participation now carry more of the narrative load.', decision_state: 'strong_signal' },
+    { id: 'redistribution-flywheel', title: 'Redistribution Flywheel', score: 88, short_explanation: 'Creator-fee redistribution and reported airdrops convert attention into visible community participation.', evidence_note: 'The desk treats reported stimmy mechanics as coordination evidence, not canonical distribution proof.', decision_state: 'strong_signal' },
+    { id: 'holder-growth-signal', title: 'Holder Growth Signal', score: 86, short_explanation: 'Tracker-visible and community-reported holder growth strengthens the case that the signal is spreading beyond a narrow attention core.', evidence_note: 'Community-reported 72,000+ holder talk is tracked as a visible narrative surface, not perfect canonical truth.', decision_state: 'strong_signal' },
+    { id: 'community-media-layer', title: 'Community Media Layer', score: 82, short_explanation: 'Art, bulletins, animations, and community summaries show the narrative being carried by participants, not only the signal source.', evidence_note: 'Participant-made media is evidence that the symbol is developing beyond one persona node.', decision_state: 'watch_closely' },
+    { id: 'copycat-resistance', title: 'Copycat Resistance', score: 84, short_explanation: '$ANSEM is being contrasted favorably against derivative influencer coins, which strengthens the original signal\'s legitimacy.', evidence_note: 'Community contrast with copycats shows the original symbol still holds narrative priority.', decision_state: 'watch_closely' },
+    { id: 'movement-readiness', title: 'Movement Readiness', score: 74, short_explanation: 'The coordination layer is emerging, but movement status remains under observation until the flywheel proves durable beyond short-term incentives.', evidence_note: 'The desk is explicitly separating emerging coordination from durable movement status.', decision_state: 'unproven' },
     { id: 'holder-power-concentration', title: 'Holder / Power Concentration', score: 82, short_explanation: 'Power concentration remains material.', evidence_note: 'Consensus can be manufactured.', decision_state: 'concentrated_power' },
-    { id: 'kol-dependency', title: 'KOL Dependency', score: 93, short_explanation: 'The asset depends on one amplifier cluster.', evidence_note: 'Dependency is high.', decision_state: 'concentrated_power' },
+    { id: 'kol-dependency', title: 'KOL Dependency', score: 93, short_explanation: 'The asset depends on one amplifier cluster.', evidence_note: 'Coordination evidence has improved, but it does not erase KOL dependency.', decision_state: 'concentrated_power' },
     { id: 'reflexivity-risk', title: 'Reflexivity Risk', score: 86, short_explanation: 'Narrative belief and price can loop hard.', evidence_note: 'The market can become a mirror.', decision_state: 'high_reflexivity' },
     { id: 'trench-contagion', title: 'Trench Contagion', score: 87, short_explanation: 'The airdrop strengthens trench-revival mechanics.', evidence_note: 'Crowding risk remains visible.', decision_state: 'watch_closely' },
     { id: 'sovereignty-score', title: 'Sovereignty Score', score: 45, short_explanation: 'Durable sovereignty remains developing.', evidence_note: 'Concentration and KOL dependency keep sovereignty unproven.', decision_state: 'unproven' },
-    { id: 'infopunk-verdict', title: 'Infopunk Verdict', score: 'SUPPORTIVE WATCH', short_explanation: 'Infopunks stands behind the Black Bull as a serious coordination signal while preserving the risk anatomy.', evidence_note: 'Airdrop evidence strengthens the trench-revival thesis; KOL dependency and concentration risk remain explicit.', decision_state: 'supportive_watch' }
+    { id: 'infopunk-verdict', title: 'Infopunk Verdict', score: 'SUPPORTIVE WATCH', short_explanation: 'Infopunks keeps SUPPORTIVE WATCH active while reclassifying the signal as Coordination Market Emerging.', evidence_note: 'Coordination evidence has improved, but KOL dependency, power concentration, and reflexivity remain explicit.', decision_state: 'supportive_watch' }
   ],
   sections: [
     { id: 'signal-source', title: 'Signal Source', body: 'Ansem matters here as a coordination source.', card_ids: ['signal-strength', 'kol-dependency'] },
-    { id: 'attention-velocity', title: 'Attention Velocity', body: 'Attention can front-run formal diligence.', card_ids: ['attention-velocity', 'trench-contagion'] },
+    { id: 'attention-velocity', title: 'Attention Velocity', body: 'Attention can front-run formal diligence. Recent Black Bull activity is more low-key from the source itself, with redistribution and community participation carrying more of the visible signal.', card_ids: ['attention-velocity', 'trench-contagion'] },
+    { id: 'coordination-market', title: 'Coordination Market', body: '$ANSEM began as a persona-linked attention object. The latest evidence suggests the signal is evolving into a coordination market: redistribution mechanics, holder growth, community media, and trench participation are now carrying more of the narrative load.', card_ids: ['redistribution-flywheel', 'holder-growth-signal', 'community-media-layer', 'copycat-resistance', 'movement-readiness'] },
     { id: 'holder-power-concentration', title: 'Holder / Power Concentration', body: 'Narrative assets need concentration checks.', card_ids: ['holder-power-concentration', 'sovereignty-score'] },
     { id: 'meme-fitness', title: 'Meme Fitness', body: 'The myth is compact and portable.', card_ids: ['myth-coherence'] },
     { id: 'reflexivity-risk', title: 'Reflexivity Risk', body: 'Price can validate the story long enough to pull in weaker conviction flows.', card_ids: ['reflexivity-risk'] },
-    { id: 'infopunk-verdict', title: 'Infopunk Verdict', body: 'Infopunks stands behind the Black Bull as a serious coordination signal while continuing to monitor dependency, concentration, and reflexivity risk. The latest airdrop evidence strengthens the case that this is not only an attention object, but a trench-revival event with real community surface area.', card_ids: ['infopunk-verdict'] }
+    { id: 'infopunk-verdict', title: 'Infopunk Verdict', body: 'Infopunks keeps SUPPORTIVE WATCH active while monitoring a structural signal shift: Black Bull is moving from persona-led attention toward emerging community coordination. Coordination evidence has improved, but it does not erase KOL dependency. The desk now tracks whether the community flywheel can keep compounding without relying on constant persona attention.', card_ids: ['infopunk-verdict'] }
   ],
   asset: narrativeAsset
 };
 
 const blackBullUpdates = {
   signal_slug: 'black-bull',
-  count: 6,
+  count: 7,
   latest_update: {
-    update_id: 'seu_black_bull_006',
+    update_id: 'seu_black_bull_007',
     signal_slug: 'black-bull',
-    timestamp: '2026-06-30T09:30:00.000Z',
+    timestamp: '2026-07-01T09:00:00.000Z',
     update_type: 'verdict_change',
-    summary: "Ansem's reported 67.38M $ANSEM airdrop to 700+ wallets strengthens the Black Bull's community-coordination signal and upgrades the desk verdict to Supportive Watch.",
-    evidence_links: ['https://solscan.io/account/GV6UUmNxz2RpKxmNAPadYKb7uQpszwqQAu3qLJxVdC52#transfers', '/signals/black-bull'],
-    previous_score: 80,
-    new_score: 88,
-    analyst_note: "The airdrop improves the trench-revival thesis by expanding the narrative's community surface area. Concentration risk remains material because a large portion of distributed tokens reportedly clustered around a small number of wallets, so KOL dependency and power concentration stay elevated."
+    summary: 'Infopunks updates Black Bull from a pure persona attention market into Coordination Market Emerging as redistribution, holder growth, and community-led media become central to the signal.',
+    evidence_links: ['https://solscan.io/account/GV6UUmNxz2RpKxmNAPadYKb7uQpszwqQAu3qLJxVdC52#transfers', '/signals/black-bull', '/narratives/attention-market-watch'],
+    previous_score: 88,
+    new_score: 91,
+    analyst_note: "The latest signal shift is structural. Ansem's low-key activity, reported creator-fee redistribution, holder-growth narrative, and community media suggest Black Bull is moving from persona-led attention into community coordination. The desk keeps SUPPORTIVE WATCH active while monitoring whether the flywheel can persist beyond short-term incentives and concentrated attention."
   },
-  summary: "Evidence update summary: Ansem's reported 67.38M $ANSEM airdrop to 700+ wallets strengthens the Black Bull's community-coordination signal and upgrades the desk verdict to Supportive Watch. Score movement: 80 -> 88. Latest signal shift: verdict_change. Reflexivity monitoring remains active. Infopunks Radar is no longer just watching markets. It is watching the narratives that become markets.",
+  summary: 'Evidence update summary: Infopunks updates Black Bull from a pure persona attention market into Coordination Market Emerging as redistribution, holder growth, and community-led media become central to the signal. Score movement: 88 -> 91. Latest signal shift: verdict_change. Reflexivity monitoring remains active. Infopunks Radar is no longer just watching markets. It is watching the narratives that become markets.',
   updates: [
     {
-      update_id: 'seu_black_bull_006',
+      update_id: 'seu_black_bull_007',
       signal_slug: 'black-bull',
-      timestamp: '2026-06-30T09:30:00.000Z',
+      timestamp: '2026-07-01T09:00:00.000Z',
       update_type: 'verdict_change',
-      summary: "Ansem's reported 67.38M $ANSEM airdrop to 700+ wallets strengthens the Black Bull's community-coordination signal and upgrades the desk verdict to Supportive Watch.",
-      evidence_links: ['https://solscan.io/account/GV6UUmNxz2RpKxmNAPadYKb7uQpszwqQAu3qLJxVdC52#transfers', '/signals/black-bull'],
-      previous_score: 80,
-      new_score: 88,
-      analyst_note: "The airdrop improves the trench-revival thesis by expanding the narrative's community surface area. Concentration risk remains material because a large portion of distributed tokens reportedly clustered around a small number of wallets, so KOL dependency and power concentration stay elevated."
+      summary: 'Infopunks updates Black Bull from a pure persona attention market into Coordination Market Emerging as redistribution, holder growth, and community-led media become central to the signal.',
+      evidence_links: ['https://solscan.io/account/GV6UUmNxz2RpKxmNAPadYKb7uQpszwqQAu3qLJxVdC52#transfers', '/signals/black-bull', '/narratives/attention-market-watch'],
+      previous_score: 88,
+      new_score: 91,
+      analyst_note: "The latest signal shift is structural. Ansem's low-key activity, reported creator-fee redistribution, holder-growth narrative, and community media suggest Black Bull is moving from persona-led attention into community coordination. The desk keeps SUPPORTIVE WATCH active while monitoring whether the flywheel can persist beyond short-term incentives and concentrated attention."
     },
     {
       update_id: 'seu_black_bull_004',
@@ -242,12 +262,12 @@ const trollUpdateDetail = {
 };
 
 const signalDesk = {
-  generated_at: '2026-06-30T13:30:00.000Z',
+  generated_at: '2026-07-01T09:00:00.000Z',
   desk_status: 'live_watch',
   counts: {
     reports: 2,
-    dispatches: 8,
-    risk_shifts: 6,
+    dispatches: 9,
+    risk_shifts: 7,
     watched_signals: 2
   },
   candidate_signals: [
@@ -322,8 +342,8 @@ const signalDesk = {
     risk_facets: ['high_reflexivity', 'kol_dependency', 'power_concentration', 'unproven_sovereignty', 'live_watch'],
     desk_status: 'live_watch',
     latest_update_type: 'verdict_change',
-    latest_update_at: '2026-06-30T09:30:00.000Z',
-    update_count: 6
+    latest_update_at: '2026-07-01T09:00:00.000Z',
+    update_count: 7
   },
   reports: [{
     slug: 'troll',
@@ -357,10 +377,27 @@ const signalDesk = {
     risk_facets: ['high_reflexivity', 'kol_dependency', 'power_concentration', 'unproven_sovereignty', 'live_watch'],
     desk_status: 'live_watch',
     latest_update_type: 'verdict_change',
-    latest_update_at: '2026-06-30T09:30:00.000Z',
-    update_count: 6
+    latest_update_at: '2026-07-01T09:00:00.000Z',
+    update_count: 7
   }],
   latest_dispatches: [
+    {
+      update_id: 'seu_black_bull_007',
+      signal_slug: 'black-bull',
+      signal_name: 'The Black Bull',
+      ticker: 'ANSEM',
+      update_type: 'verdict_change',
+      readable_update_type: 'Verdict Change',
+      timestamp: '2026-07-01T09:00:00.000Z',
+      summary: blackBullUpdates.latest_update.summary,
+      analyst_note: blackBullUpdates.latest_update.analyst_note,
+      href: '/signals/black-bull/updates/seu_black_bull_007',
+      og_image: '/og/signals/black-bull/updates/seu_black_bull_007.png',
+      risk_facets: ['high_reflexivity', 'kol_dependency', 'power_concentration', 'unproven_sovereignty', 'live_watch'],
+      previous_score: 88,
+      new_score: 91,
+      signal_delta: 3
+    },
     {
       update_id: 'seu_troll_002',
       signal_slug: 'troll',
@@ -437,24 +474,32 @@ const signalDesk = {
       href: '/signals/troll/updates/seu_troll_002'
     },
     {
-      id: 'dispatch_published_seu_black_bull_006',
+      id: 'dispatch_published_seu_black_bull_007',
       type: 'dispatch_published',
-      timestamp: '2026-06-30T09:30:00.000Z',
+      timestamp: '2026-07-01T09:00:00.000Z',
       title: 'Verdict Change published for ANSEM',
       summary: blackBullUpdates.latest_update.summary,
-      href: '/signals/black-bull/updates/seu_black_bull_006'
+      href: '/signals/black-bull/updates/seu_black_bull_007'
     }
   ]
 };
 
 const attentionMarketWatch = {
-  generated_at: '2026-06-30T15:00:00.000Z',
+  generated_at: '2026-07-01T09:00:00.000Z',
   count: 4,
   verdict_counts: {
     supportive_watch: 1,
     attention_arbitrage: 2,
     re_index_watch: 1
   },
+  evolution_stages: [
+    { id: 'persona_coin', label: 'Persona Coin', description: 'Ticker wrapped around a person, face, handle, or reputation engine.' },
+    { id: 'attention_market', label: 'Attention Market', description: 'Attention becomes the asset being priced.' },
+    { id: 'coordination_market_emerging', label: 'Coordination Market Emerging', description: 'Redistribution, holder growth, community media, and shared rituals begin carrying the signal.' },
+    { id: 'movement_candidate_under_observation', label: 'Movement Candidate Under Observation', description: 'The community may be becoming durable, but the desk requires sustained receipts.' },
+    { id: 'extraction_risk', label: 'Extraction Risk', description: 'Attention and liquidity appear to be captured faster than community structure forms.' },
+    { id: 'cult_sludge', label: 'Cult Sludge', description: 'High emotion, low coherence, weak receipts, and factional noise.' }
+  ],
   signals: [
     {
       id: 'attention_market_signal_ansem',
@@ -464,20 +509,22 @@ const attentionMarketWatch = {
       category: 'persona_coin',
       attention_source: {
         type: 'influencer',
-        label: 'Influencer-linked attention',
-        summary: 'Persona-led attention is visible, legible, and tied to public coordination events rather than purely anonymous churn.'
+        label: 'Influencer-linked attention evolving into coordination',
+        summary: 'Persona-led attention is still visible, but recent redistribution mechanics and community activity suggest the signal is spreading beyond a pure persona core.'
       },
-      control_risk: { score: 82, summary: 'Control risk remains elevated because attention routing and wallet concentration still cluster around a narrow set of actors.', factors: ['KOL dependency remains material'] },
-      coherence_score: { score: 88, summary: 'The story is compact and coherent.' },
-      receipt_layer: { score: 78, summary: 'Airdrop receipts and linked signal reporting provide visible evidence.', evidence_links: ['/signals/black-bull', '/narratives/attention-market-watch'] },
-      fragmentation_risk: { score: 57, summary: 'The narrative is still intact.' },
+      control_risk: { score: 82, summary: 'Control risk remains elevated because attention routing and wallet concentration still cluster around a narrow set of actors, even as the community surface expands.', factors: ['KOL dependency remains material'] },
+      coherence_score: { score: 88, summary: 'The story is compact and coherent: persona becomes symbol, symbol becomes redistribution rail, and the community begins carrying the signal.' },
+      receipt_layer: { score: 84, summary: 'Reported creator-fee redistribution, linked signal reporting, and tracker-visible holder expansion provide visible evidence, though they do not erase concentration or dependence risk.', evidence_links: ['/signals/black-bull', '/narratives/attention-market-watch'] },
+      fragmentation_risk: { score: 52, summary: 'The narrative remains more intact than derivative influencer coins, though fragmentation can still appear if the community flywheel stalls.' },
       evolution_verdict: 'supportive_watch',
       verdict_label: 'Supportive Watch',
-      verdict_copy: 'Visible airdrop receipts and coordination evidence make this more than a hollow attention loop, but dependence and concentration stay explicit.',
+      verdict_copy: 'ANSEM is the first Attention Market Watch case where persona attention appears to be evolving into a coordination market through redistribution, holder growth, and community participation.',
+      current_evolution_stage: 'coordination_market_emerging',
+      current_evolution_label: 'Coordination Market Emerging',
       risk_facets: ['kol_dependency', 'power_concentration', 'high_reflexivity', 'live_watch'],
       related_signal_slug: 'black-bull',
       href: '/signals/black-bull',
-      updated_at: '2026-06-30T15:00:00.000Z'
+      updated_at: '2026-07-01T09:00:00.000Z'
     },
     {
       id: 'attention_market_signal_tjr',
@@ -493,6 +540,8 @@ const attentionMarketWatch = {
       evolution_verdict: 'attention_arbitrage',
       verdict_label: 'Attention Arbitrage',
       verdict_copy: 'Monitored derivative signal. Current posture: attention object first, evidence object second.',
+      current_evolution_stage: 'attention_market',
+      current_evolution_label: 'Attention Market',
       risk_facets: ['thin_evidence', 'kol_dependency', 'high_reflexivity'],
       href: '/attention-market-watch/tjr',
       updated_at: '2026-06-30T15:00:00.000Z'
@@ -511,6 +560,8 @@ const attentionMarketWatch = {
       evolution_verdict: 'attention_arbitrage',
       verdict_label: 'Attention Arbitrage',
       verdict_copy: 'Evidence-light watch profile. This remains a classification object, not a thesis endorsement.',
+      current_evolution_stage: 'attention_market',
+      current_evolution_label: 'Attention Market',
       risk_facets: ['thin_evidence', 'kol_dependency'],
       href: '/attention-market-watch/luke',
       updated_at: '2026-06-30T15:00:00.000Z'
@@ -528,7 +579,9 @@ const attentionMarketWatch = {
       fragmentation_risk: { score: 81, summary: 'Fragmentation and re-indexing risk stay high.' },
       evolution_verdict: 're_index_watch',
       verdict_label: 'Re-Index Watch',
-      verdict_copy: 'Watch for whether this re-indexes into something coherent or dissolves into derivative cult sludge.',
+      verdict_copy: 'Watch for whether this re-indexes into something coherent or degrades into high-noise, low-receipt cult sludge risk.',
+      current_evolution_stage: 'cult_sludge',
+      current_evolution_label: 'Cult Sludge',
       risk_facets: ['thin_evidence', 'power_concentration', 'narrative_fatigue'],
       href: '/attention-market-watch/superman',
       updated_at: '2026-06-30T15:00:00.000Z'
@@ -592,7 +645,7 @@ describe('narrative pages', () => {
       if (path === '/v1/signals/black-bull') return json(blackBullSignal);
       if (path === '/v1/signals/troll') return json(trollSignal);
       if (path === '/v1/signals/black-bull/updates') return json(blackBullUpdates);
-      if (path === '/v1/signals/black-bull/updates/seu_black_bull_006') return json(blackBullUpdateDetail);
+      if (path === '/v1/signals/black-bull/updates/seu_black_bull_007') return json(blackBullUpdateDetail);
       if (path === '/v1/signals/troll/updates') return json(trollUpdates);
       if (path === '/v1/signals/troll/updates/seu_troll_002') return json(trollUpdateDetail);
       if (path === '/v1/signals/ansem/updates') return json({ signal_slug: 'ansem', count: 0, latest_update: null, summary: 'Evidence update summary: no evidence updates yet.', updates: [] });
@@ -639,7 +692,7 @@ describe('narrative pages', () => {
     expect(container.textContent).toContain('Sovereignty Score');
     expect(Array.from(container.querySelectorAll('a[href="/signals/black-bull"]')).some((node) => node.textContent?.includes('Open Signal Report'))).toBe(true);
     expect(Array.from(container.querySelectorAll('a[href="/narratives/attention-markets"]')).some((node) => node.textContent?.includes('Read Attention Markets Thesis'))).toBe(true);
-    expect(Array.from(container.querySelectorAll('a[href="/signals/black-bull/updates/seu_black_bull_006"]')).some((node) => node.textContent?.includes('Open Dispatch'))).toBe(true);
+    expect(Array.from(container.querySelectorAll('a[href="/signals/black-bull/updates/seu_black_bull_007"]')).some((node) => node.textContent?.includes('Open Dispatch'))).toBe(true);
     expect(Array.from(container.querySelectorAll('a[href="/signals/ansem"]')).some((node) => node.textContent?.includes('Ansem Signal Source'))).toBe(true);
     expect(container.querySelector('a[href="/narratives"]')?.textContent).toContain('Narrative Intel');
     expect(container.textContent).toContain('ANSEM / The Black Bull');
@@ -669,6 +722,7 @@ describe('narrative pages', () => {
     expect(container.textContent).toContain('Thin Evidence');
     expect(container.textContent).toContain('Attention Market Watch');
     expect(container.textContent).toContain('Open Attention Market Watch');
+    expect(container.textContent).toContain('Attention Market Watch now tracks which persona-backed assets remain attention arbitrage, which become extraction risk, and which begin evolving into coordination markets.');
     expect(Array.from(container.querySelectorAll('a[href="/narratives/attention-market-watch#intake"]')).some((node) => node.textContent?.includes('Submit Attention Market'))).toBe(true);
   });
 
@@ -698,7 +752,7 @@ describe('narrative pages', () => {
     });
 
     expect(container.textContent).toContain('Infopunks upgrades $TROLL to Durable Re-index');
-    expect(container.textContent).toContain("Ansem's reported 67.38M $ANSEM airdrop");
+    expect(container.textContent).toContain('Coordination Market Emerging');
 
     await act(async () => {
       search.value = 'durable re-index';
@@ -767,12 +821,21 @@ describe('narrative pages', () => {
 
     expect(container.textContent).toContain('Attention Market Watch');
     expect(container.textContent).toContain('Before you follow the meta, check the receipts.');
+    expect(container.textContent).toContain('Evolution Map');
+    expect(container.textContent).toContain('Not every persona coin becomes a movement. Infopunks tracks what stage the signal is actually in.');
+    expect(container.textContent).toContain('Attention gets the market started. Coordination decides whether it survives.');
     expect(container.textContent).toContain('Submit an Attention Market');
     expect(container.textContent).toContain('Evidence Requirements');
     expect(container.textContent).toContain('Submission does not create a report. It creates a candidate signal for evidence review.');
     expect(container.textContent).toContain('Classification Method');
     expect(container.textContent).toContain('Verdict Types');
     expect(container.textContent).toContain('Watchlist');
+    expect(container.textContent).toContain('Persona Coin');
+    expect(container.textContent).toContain('Attention Market');
+    expect(container.textContent).toContain('Coordination Market Emerging');
+    expect(container.textContent).toContain('Movement Candidate Under Observation');
+    expect(container.textContent).toContain('Extraction Risk');
+    expect(container.textContent).toContain('Cult Sludge');
     expect(container.textContent).toContain('ANSEM');
     expect(container.textContent).toContain('TJR');
     expect(container.textContent).toContain('LUKE');
@@ -837,6 +900,11 @@ describe('narrative pages', () => {
     expect(container.textContent).toContain('Receipt Layer');
     expect(container.textContent).toContain('Fragmentation Risk');
     expect(container.textContent).toContain('Evolution Verdict');
+    expect(container.textContent).toContain('Current Evolution Stage');
+    expect(container.textContent).toContain('Coordination Market Emerging');
+    expect(container.textContent).toContain('Evolution Timeline');
+    expect(container.textContent).toContain('Movement Candidate Under Observation');
+    expect(container.textContent).toContain('Attention gets the market started. Coordination decides whether it survives.');
     expect(Array.from(container.querySelectorAll('a[href="/signals/black-bull"]')).some((node) => node.textContent?.includes('Open Black Bull Signal Report'))).toBe(true);
     expect(document.title).toBe('Infopunks Attention Market Watch: $ANSEM');
   });
@@ -870,12 +938,18 @@ describe('narrative pages', () => {
     for (const label of [
       'Signal Source',
       'Attention Velocity',
+      'Coordination Market',
       'Holder / Power Concentration',
       'Meme Fitness',
       'Reflexivity Risk',
       'Infopunk Verdict',
       'Signal Strength',
       'Myth Coherence',
+      'Redistribution Flywheel',
+      'Holder Growth Signal',
+      'Community Media Layer',
+      'Copycat Resistance',
+      'Movement Readiness',
       'KOL Dependency',
       'Trench Contagion',
       'Sovereignty Score'
@@ -884,6 +958,8 @@ describe('narrative pages', () => {
     }
     expect(container.textContent).toContain('Living Evidence Feed');
     expect(container.textContent).toContain('Latest Desk Update');
+    expect(container.textContent).toContain('Evolution Timeline');
+    expect(container.textContent).toContain('How a persona-backed asset becomes a coordination market.');
     expect(container.textContent).toContain('Report Freshness');
     expect(container.textContent).toContain('Live Watch');
     expect(container.textContent).toContain('Infopunks Radar is no longer just watching markets. It is watching the narratives that become markets.');
@@ -893,62 +969,63 @@ describe('narrative pages', () => {
     expect(container.textContent).toContain('Narrative Asset Intelligence Method');
     expect(container.textContent).toContain("Solana is entering the attention-market era. Personas become liquidity. Memes become coordination rails.");
     expect(container.textContent).toContain('High signal does not mean low risk.');
-    expect(container.textContent).toContain("Ansem's reported 67.38M $ANSEM airdrop to 700+ wallets strengthens the Black Bull's community-coordination signal and upgrades the desk verdict to Supportive Watch.");
+    expect(container.textContent).toContain('Infopunks updates Black Bull from a pure persona attention market into Coordination Market Emerging as redistribution, holder growth, and community-led media become central to the signal.');
     expect(container.textContent).toContain('Supportive Watch');
-    expect(container.textContent).toContain('community-coordination signal');
+    expect(container.textContent).toContain('Coordination Market Emerging');
+    expect(container.textContent).toContain('Movement Candidate Under Observation');
     expect(container.textContent).toContain('Airdrop coordination evidence');
     expect(Array.from(container.querySelectorAll('a[href="https://solscan.io/account/GV6UUmNxz2RpKxmNAPadYKb7uQpszwqQAu3qLJxVdC52#transfers"]')).some((node) => node.textContent?.includes('Open artifact') || node.textContent?.includes('Evidence'))).toBe(true);
     expect(container.textContent).toContain('Signal Delta');
-    expect(container.textContent).toContain('80 → 88 (+8)');
+    expect(container.textContent).toContain('88 → 91 (+3)');
     expect(container.querySelector('a[href="#living-evidence-feed"]')?.textContent).toContain('Open Living Evidence Feed');
-    expect(Array.from(container.querySelectorAll('a[href="/signals/black-bull/updates/seu_black_bull_006"]')).some((node) => node.textContent?.includes('Open Dispatch'))).toBe(true);
+    expect(Array.from(container.querySelectorAll('a[href="/signals/black-bull/updates/seu_black_bull_007"]')).some((node) => node.textContent?.includes('Open Dispatch'))).toBe(true);
     expect(Array.from(container.querySelectorAll('a[href="/signals/ansem"]')).some((node) => node.textContent?.includes('Ansem Signal Source'))).toBe(true);
     expect(Array.from(container.querySelectorAll('a[href="/narratives/attention-markets"]')).some((node) => node.textContent?.includes('Attention Markets Thesis'))).toBe(true);
     expect(Array.from(container.querySelectorAll('a[href="/narratives"]')).some((node) => node.textContent?.includes('Narrative Intel Index'))).toBe(true);
     expect(container.textContent).toContain('Holder / Power Concentration');
     expect(container.textContent).toContain('KOL Dependency');
     expect(container.textContent).toContain('Power Concentration');
-    expect(container.textContent).toContain("Ansem's airdrop turns $ANSEM from a pure attention object into a visible trench-coordination event. Infopunks marks it Supportive Watch.");
+    expect(container.textContent).toContain('$ANSEM is evolving from persona attention into community coordination. Infopunks keeps it at Supportive Watch while the flywheel is still under observation.');
     const verdictText = container.querySelector('section[aria-label="Infopunk Verdict"]')?.textContent ?? '';
     expect(verdictText).not.toMatch(/\bbuy\b|\bsell\b/i);
     expect(document.title).toBe('Infopunks Signal Report: $ANSEM / The Black Bull');
-    expect(metaContent('meta[name="description"]')).toBe('A living Narrative Asset Intelligence report on financialized attention, myth, power concentration, and reflexivity risk.');
+    expect(metaContent('meta[name="description"]')).toBe('A living Narrative Asset Intelligence report on $ANSEM evolving from persona attention into community coordination.');
     expect(metaContent('meta[property="og:title"]')).toBe('Infopunks Signal Report: $ANSEM / The Black Bull');
-    expect(metaContent('meta[property="og:description"]')).toBe('A living Narrative Asset Intelligence report on financialized attention, myth, power concentration, and reflexivity risk.');
+    expect(metaContent('meta[property="og:description"]')).toBe('A living Narrative Asset Intelligence report on $ANSEM evolving from persona attention into community coordination.');
     expect(metaContent('meta[name="twitter:title"]')).toBe('Infopunks Signal Report: $ANSEM / The Black Bull');
-    expect(metaContent('meta[name="twitter:description"]')).toBe('A living Narrative Asset Intelligence report on financialized attention, myth, power concentration, and reflexivity risk.');
+    expect(metaContent('meta[name="twitter:description"]')).toBe('A living Narrative Asset Intelligence report on $ANSEM evolving from persona attention into community coordination.');
     expect(metaContent('meta[property="og:image"]')).toBe('https://radar.infopunks.fun/og/signals/black-bull.png');
     expect(metaContent('meta[name="twitter:image"]')).toBe('https://radar.infopunks.fun/og/signals/black-bull.png');
     expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe('https://radar.infopunks.fun/signals/black-bull');
   });
 
   it('renders the signal update permalink as a standalone dispatch artifact', async () => {
-    await render('/signals/black-bull/updates/seu_black_bull_006');
+    await render('/signals/black-bull/updates/seu_black_bull_007');
 
     expect(container.textContent).toContain('Versioned Evidence Update');
     expect(container.textContent).toContain('ANSEM / The Black Bull');
     expect(container.textContent).toContain('Verdict Change');
-    expect(container.textContent).toContain('Timestamp: 2026-06-30 09:30');
-    expect(container.textContent).toContain("Ansem's reported 67.38M $ANSEM airdrop to 700+ wallets strengthens the Black Bull's community-coordination signal and upgrades the desk verdict to Supportive Watch.");
+    expect(container.textContent).toContain('Timestamp: 2026-07-01 09:00');
+    expect(container.textContent).toContain('Infopunks updates Black Bull from a pure persona attention market into Coordination Market Emerging as redistribution, holder growth, and community-led media become central to the signal.');
     expect(Array.from(container.querySelectorAll('a[href="https://solscan.io/account/GV6UUmNxz2RpKxmNAPadYKb7uQpszwqQAu3qLJxVdC52#transfers"]')).length).toBeGreaterThan(0);
     expect(container.textContent).toContain('Analyst note:');
     expect(container.textContent).toContain('Signal Delta');
-    expect(container.textContent).toContain('80 → 88 (+8)');
+    expect(container.textContent).toContain('88 → 91 (+3)');
     expect(container.textContent).toContain('Desk Dispatch');
-    expect(container.textContent).toContain('Infopunks Signal Update: Verdict Change detected for ANSEM / The Black Bull. Reports are not final. Signals mutate.');
+    expect(container.textContent).toContain('Infopunks Signal Update: SUPPORTIVE WATCH issued for ANSEM / The Black Bull. Reports are not final. Signals mutate.');
     expect(container.querySelector('button[aria-label="Copy Desk Dispatch"]')).not.toBeNull();
     expect(Array.from(container.querySelectorAll('a[href="/signals/black-bull"]')).some((node) => node.textContent?.includes('Back to signal'))).toBe(true);
     expect(Array.from(container.querySelectorAll('a[href="/narratives/attention-markets"]')).some((node) => node.textContent?.includes('Attention Markets'))).toBe(true);
     expect(Array.from(container.querySelectorAll('a[href="/narratives"]')).some((node) => node.textContent?.includes('Narratives'))).toBe(true);
-    expect(document.title).toBe('Infopunks Desk Dispatch: Verdict Change');
-    expect(metaContent('meta[name="description"]')).toBe('ANSEM / The Black Bull signal update. Reports are not final. Signals mutate.');
-    expect(metaContent('meta[property="og:title"]')).toBe('Infopunks Desk Dispatch: Verdict Change');
-    expect(metaContent('meta[property="og:description"]')).toBe('ANSEM / The Black Bull signal update. Reports are not final. Signals mutate.');
-    expect(metaContent('meta[name="twitter:title"]')).toBe('Infopunks Desk Dispatch: Verdict Change');
-    expect(metaContent('meta[name="twitter:description"]')).toBe('ANSEM / The Black Bull signal update. Reports are not final. Signals mutate.');
-    expect(metaContent('meta[property="og:image"]')).toBe('https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_006.png');
-    expect(metaContent('meta[name="twitter:image"]')).toBe('https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_006.png');
-    expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe('https://radar.infopunks.fun/signals/black-bull/updates/seu_black_bull_006');
+    expect(document.title).toBe('Infopunks Desk Dispatch: Coordination Market Emerging');
+    expect(metaContent('meta[name="description"]')).toBe('Black Bull signal update. Persona attention is evolving into community coordination.');
+    expect(metaContent('meta[property="og:title"]')).toBe('Infopunks Desk Dispatch: Coordination Market Emerging');
+    expect(metaContent('meta[property="og:description"]')).toBe('Black Bull signal update. Persona attention is evolving into community coordination.');
+    expect(metaContent('meta[name="twitter:title"]')).toBe('Infopunks Desk Dispatch: Coordination Market Emerging');
+    expect(metaContent('meta[name="twitter:description"]')).toBe('Black Bull signal update. Persona attention is evolving into community coordination.');
+    expect(metaContent('meta[property="og:image"]')).toBe('https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_007.png');
+    expect(metaContent('meta[name="twitter:image"]')).toBe('https://radar.infopunks.fun/og/signals/black-bull/updates/seu_black_bull_007.png');
+    expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe('https://radar.infopunks.fun/signals/black-bull/updates/seu_black_bull_007');
   });
 
   it('renders the TROLL report and dispatch routes', async () => {

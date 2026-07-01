@@ -1,4 +1,6 @@
 import type {
+  AttentionMarketEvolutionStage,
+  AttentionMarketEvolutionStageDefinition,
   AttentionMarketIntakeRequest,
   AttentionMarketIntakeSubmission,
   AttentionMarketSignal,
@@ -6,7 +8,7 @@ import type {
   SignalRiskFacet
 } from '../schemas/entities';
 
-const UPDATED_AT = '2026-06-30T15:00:00.000Z';
+const UPDATED_AT = '2026-07-01T09:00:00.000Z';
 
 function verdictLabel(verdict: AttentionMarketVerdict) {
   switch (verdict) {
@@ -27,6 +29,39 @@ function verdictLabel(verdict: AttentionMarketVerdict) {
   }
 }
 
+export const ATTENTION_MARKET_EVOLUTION_STAGES: AttentionMarketEvolutionStageDefinition[] = [
+  {
+    id: 'persona_coin',
+    label: 'Persona Coin',
+    description: 'Ticker wrapped around a person, face, handle, or reputation engine.'
+  },
+  {
+    id: 'attention_market',
+    label: 'Attention Market',
+    description: 'Attention becomes the asset being priced.'
+  },
+  {
+    id: 'coordination_market_emerging',
+    label: 'Coordination Market Emerging',
+    description: 'Redistribution, holder growth, community media, and shared rituals begin carrying the signal.'
+  },
+  {
+    id: 'movement_candidate_under_observation',
+    label: 'Movement Candidate Under Observation',
+    description: 'The community may be becoming durable, but the desk requires sustained receipts.'
+  },
+  {
+    id: 'extraction_risk',
+    label: 'Extraction Risk',
+    description: 'Attention and liquidity appear to be captured faster than community structure forms.'
+  },
+  {
+    id: 'cult_sludge',
+    label: 'Cult Sludge',
+    description: 'High emotion, low coherence, weak receipts, and factional noise.'
+  }
+];
+
 export const attentionMarketSignals: AttentionMarketSignal[] = [
   {
     id: 'attention_market_signal_ansem',
@@ -36,12 +71,12 @@ export const attentionMarketSignals: AttentionMarketSignal[] = [
     category: 'persona_coin',
     attention_source: {
       type: 'influencer',
-      label: 'Influencer-linked attention',
-      summary: 'Persona-led attention is visible, legible, and tied to public coordination events rather than purely anonymous churn.'
+      label: 'Influencer-linked attention evolving into coordination',
+      summary: 'Persona-led attention is still visible, but recent redistribution mechanics and community activity suggest the signal is spreading beyond a pure persona core.'
     },
     control_risk: {
       score: 82,
-      summary: 'Control risk remains elevated because attention routing and wallet concentration still cluster around a narrow set of actors.',
+      summary: 'Control risk remains elevated because attention routing and wallet concentration still cluster around a narrow set of actors, even as the community surface expands.',
       factors: [
         'KOL dependency remains material',
         'Concentration risk stays visible even after broader distribution',
@@ -50,23 +85,25 @@ export const attentionMarketSignals: AttentionMarketSignal[] = [
     },
     coherence_score: {
       score: 88,
-      summary: 'The story is compact and coherent: persona becomes symbol, symbol becomes coordination rail, and receipts remain visible.'
+      summary: 'The story is compact and coherent: persona becomes symbol, symbol becomes redistribution rail, and the community begins carrying the signal.'
     },
     receipt_layer: {
-      score: 78,
-      summary: 'Airdrop receipts and linked signal reporting provide visible evidence, though they do not erase concentration or dependence risk.',
+      score: 84,
+      summary: 'Reported creator-fee redistribution, linked signal reporting, and tracker-visible holder expansion provide visible evidence, though they do not erase concentration or dependence risk.',
       evidence_links: [
         '/signals/black-bull',
-        '/narratives/attention-markets'
+        '/narratives/attention-market-watch'
       ]
     },
     fragmentation_risk: {
-      score: 57,
-      summary: 'The narrative is still intact, but fragmentation can appear quickly if the source node cools or copycat flows dilute the symbol.'
+      score: 52,
+      summary: 'The narrative remains more intact than derivative influencer coins, though fragmentation can still appear if the community flywheel stalls.'
     },
     evolution_verdict: 'supportive_watch',
     verdict_label: verdictLabel('supportive_watch'),
-    verdict_copy: 'Visible airdrop receipts and coordination evidence make this more than a hollow attention loop, but dependence and concentration stay explicit.',
+    verdict_copy: 'ANSEM is the first Attention Market Watch case where persona attention appears to be evolving into a coordination market through redistribution, holder growth, and community participation.',
+    current_evolution_stage: 'coordination_market_emerging',
+    current_evolution_label: 'Coordination Market Emerging',
     risk_facets: ['kol_dependency', 'power_concentration', 'high_reflexivity', 'live_watch'],
     related_signal_slug: 'black-bull',
     href: '/signals/black-bull',
@@ -111,6 +148,8 @@ export const attentionMarketSignals: AttentionMarketSignal[] = [
     evolution_verdict: 'attention_arbitrage',
     verdict_label: verdictLabel('attention_arbitrage'),
     verdict_copy: 'Monitored derivative signal. Evidence-light profile. This attention-market object is under review, not an endorsement.',
+    current_evolution_stage: 'attention_market',
+    current_evolution_label: 'Attention Market',
     risk_facets: ['thin_evidence', 'kol_dependency', 'high_reflexivity'],
     href: '/attention-market-watch/tjr',
     updated_at: UPDATED_AT
@@ -153,6 +192,8 @@ export const attentionMarketSignals: AttentionMarketSignal[] = [
     evolution_verdict: 'attention_arbitrage',
     verdict_label: verdictLabel('attention_arbitrage'),
     verdict_copy: 'Monitored derivative signal. Evidence-light profile. This attention-market object is classified for watch status, not an endorsement.',
+    current_evolution_stage: 'attention_market',
+    current_evolution_label: 'Attention Market',
     risk_facets: ['thin_evidence', 'kol_dependency'],
     href: '/attention-market-watch/luke',
     updated_at: UPDATED_AT
@@ -194,7 +235,9 @@ export const attentionMarketSignals: AttentionMarketSignal[] = [
     },
     evolution_verdict: 're_index_watch',
     verdict_label: verdictLabel('re_index_watch'),
-    verdict_copy: 'Evidence-light profile. This attention-market object is monitored, not endorsed. Watch whether it coheres or collapses into derivative cult sludge.',
+    verdict_copy: 'Evidence-light profile. This attention-market object is monitored, not endorsed. Watch whether it coheres into a durable signal or degrades into high-noise, low-receipt cult sludge risk.',
+    current_evolution_stage: 'cult_sludge',
+    current_evolution_label: 'Cult Sludge',
     risk_facets: ['thin_evidence', 'power_concentration', 'narrative_fatigue'],
     href: '/attention-market-watch/superman',
     updated_at: UPDATED_AT
@@ -239,6 +282,7 @@ export function getAttentionMarketWatchIndex() {
     generated_at: signals.map((signal) => signal.updated_at).sort((left, right) => right.localeCompare(left))[0] ?? UPDATED_AT,
     count: signals.length,
     verdict_counts,
+    evolution_stages: ATTENTION_MARKET_EVOLUTION_STAGES,
     signals
   };
 }

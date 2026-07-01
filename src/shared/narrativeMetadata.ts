@@ -93,7 +93,7 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
   if (/^\/signals\/black-bull\/?$/.test(pathname)) {
     return buildMetadata(
       'Infopunks Signal Report: $ANSEM / The Black Bull',
-      'A living Narrative Asset Intelligence report on financialized attention, myth, power concentration, and reflexivity risk.',
+      'A living Narrative Asset Intelligence report on $ANSEM evolving from persona attention into community coordination.',
       '/signals/black-bull'
     );
   }
@@ -116,9 +116,13 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
     const signalName = surface.asset ? `${surface.asset.ticker} / ${surface.asset.name}` : surface.title;
     const title = slug === 'troll'
       ? 'Infopunks Desk Dispatch: Durable Re-index'
+      : slug === 'black-bull' && updateId === 'seu_black_bull_007'
+        ? 'Infopunks Desk Dispatch: Coordination Market Emerging'
       : `Infopunks Desk Dispatch: ${signalUpdateTypeLabel(update.update_type)}`;
     const description = slug === 'troll'
       ? 'The Re-Indexed Archetype signal update. The signal is not novelty. The signal is survival.'
+      : slug === 'black-bull' && updateId === 'seu_black_bull_007'
+        ? 'Black Bull signal update. Persona attention is evolving into community coordination.'
       : `${signalName} signal update. Reports are not final. Signals mutate.`;
     return buildMetadata(
       title,

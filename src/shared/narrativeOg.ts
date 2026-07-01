@@ -192,7 +192,7 @@ export function renderSignalReportOgImage(slug: string) {
   if (slug === 'black-bull') {
     return renderSignalCardSvg({
       title: '$ANSEM / The Black Bull',
-      subtitle: 'Living signal report on financialized attention, myth, power concentration, and reflexivity risk.',
+      subtitle: 'Living signal report on persona attention evolving into community coordination.',
       badge: 'SIGNAL REPORT',
       footer: 'Evidence map / myth compression / power concentration / reflexivity risk',
       accent: '#7bfec4',
@@ -227,6 +227,18 @@ export function renderSignalUpdateOgImage(slug: string, updateId: string) {
       subtitle: 'Durable Re-index verdict issued for $TROLL',
       badge: 'VERSIONED EVIDENCE UPDATE',
       footer: 'The signal is not novelty. The signal is survival.',
+      accent: '#ff8a6a',
+      eyebrow: 'DESK DISPATCH PERMALINK',
+      routeLabel: `/signals/${slug}/updates/${updateId}`
+    });
+  }
+
+  if (slug === 'black-bull' && updateId === 'seu_black_bull_007') {
+    return renderSignalCardSvg({
+      title: 'Infopunks Desk Dispatch',
+      subtitle: 'Coordination Market Emerging for $ANSEM',
+      badge: 'VERSIONED EVIDENCE UPDATE',
+      footer: 'Persona attention is becoming community coordination.',
       accent: '#ff8a6a',
       eyebrow: 'DESK DISPATCH PERMALINK',
       routeLabel: `/signals/${slug}/updates/${updateId}`

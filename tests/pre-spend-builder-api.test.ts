@@ -2,35 +2,47 @@ import { describe, expect, it, vi } from 'vitest';
 import { createApp } from '../src/api/app';
 import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
 
+async function withFixedDate<T>(fixedNow: string, run: () => Promise<T>) {
+  const RealDate = Date;
+  const fixedMs = new RealDate(fixedNow).getTime();
+
+  class MockDate extends RealDate {
+    constructor(value?: string | number | Date) {
+      super(arguments.length === 0 ? fixedMs : value as string | number | Date);
+    }
+
+    static now() {
+      return fixedMs;
+    }
+
+    static parse = RealDate.parse;
+    static UTC = RealDate.UTC;
+  }
+
+  globalThis.Date = MockDate as DateConstructor;
+
+  try {
+    return await run();
+  } finally {
+    globalThis.Date = RealDate;
+  }
+}
+
 async function postCheck(payload: Record<string, unknown>, fixedNow?: string) {
   const app = await createApp(emptyIntelligenceStore());
-  const RealDate = Date;
   try {
     if (fixedNow) {
-      const fixedMs = new RealDate(fixedNow).getTime();
-      class MockDate extends RealDate {
-        constructor(value?: string | number | Date) {
-          super(arguments.length === 0 ? fixedMs : value as string | number | Date);
-        }
-
-        static now() {
-          return fixedMs;
-        }
-
-        static parse = RealDate.parse;
-        static UTC = RealDate.UTC;
-      }
-
-      globalThis.Date = MockDate as DateConstructor;
+      return await withFixedDate(fixedNow, async () => {
+        const response = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload });
+        await app.close();
+        return response;
+      });
     }
 
     const response = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload });
-
-    if (fixedNow) globalThis.Date = RealDate;
     await app.close();
     return response;
   } catch (error) {
-    if (fixedNow) globalThis.Date = RealDate;
     await app.close();
     throw error;
   }
@@ -45,7 +57,7 @@ describe('pre-spend builder API', () => {
       risk_tolerance: 'low',
       preferred_settlement: 'stablecoin',
       required_confidence: 70
-    });
+    }, '2026-06-20T00:00:00.000Z');
     expect(response.statusCode).toBe(200);
     const body = response.json().data;
     expect(body.decision).toBe('approved');
@@ -133,19 +145,21 @@ describe('pre-spend builder API', () => {
   });
 
   it('lists canonical pre-spend providers and returns enriched provider details', async () => {
-    const app = await createApp(emptyIntelligenceStore());
-    const list = await app.inject({ method: 'GET', url: '/v1/pre-spend/providers' });
-    expect(list.statusCode).toBe(200);
-    expect(list.json().data.providers.some((entry: any) => entry.provider_id === 'provider_pay_sh_quartz')).toBe(true);
-    expect(list.json().data.providers.every((entry: any) => entry.provider_id.startsWith('provider_'))).toBe(true);
-    expect(list.json().data.providers[0].trust_profile.summary.length).toBeGreaterThan(0);
+    await withFixedDate('2026-06-20T00:00:00.000Z', async () => {
+      const app = await createApp(emptyIntelligenceStore());
+      const list = await app.inject({ method: 'GET', url: '/v1/pre-spend/providers' });
+      expect(list.statusCode).toBe(200);
+      expect(list.json().data.providers.some((entry: any) => entry.provider_id === 'provider_pay_sh_quartz')).toBe(true);
+      expect(list.json().data.providers.every((entry: any) => entry.provider_id.startsWith('provider_'))).toBe(true);
+      expect(list.json().data.providers[0].trust_profile.summary.length).toBeGreaterThan(0);
 
-    const detail = await app.inject({ method: 'GET', url: '/v1/pre-spend/providers/provider_pay_sh_quartz' });
-    expect(detail.statusCode).toBe(200);
-    expect(detail.json().data.provider.provider_id).toBe('provider_pay_sh_quartz');
-    expect(detail.json().data.receipts.length).toBeGreaterThan(0);
-    expect(detail.json().data.trust_profile.safe_for_first_attempt).toBe(true);
-    await app.close();
+      const detail = await app.inject({ method: 'GET', url: '/v1/pre-spend/providers/provider_pay_sh_quartz' });
+      expect(detail.statusCode).toBe(200);
+      expect(detail.json().data.provider.provider_id).toBe('provider_pay_sh_quartz');
+      expect(detail.json().data.receipts.length).toBeGreaterThan(0);
+      expect(detail.json().data.trust_profile.safe_for_first_attempt).toBe(true);
+      await app.close();
+    });
   });
 
   it('supports /v1/providers?scope=pre-spend as a compatibility alias', async () => {

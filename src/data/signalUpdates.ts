@@ -71,6 +71,21 @@ const signalEvidenceUpdates: SignalEvidenceUpdate[] = [
     analyst_note: "The airdrop improves the trench-revival thesis by expanding the narrative's community surface area. Concentration risk remains material because a large portion of distributed tokens reportedly clustered around a small number of wallets, so KOL dependency and power concentration stay elevated."
   },
   {
+    update_id: 'seu_black_bull_007',
+    signal_slug: 'black-bull',
+    timestamp: '2026-07-01T09:00:00.000Z',
+    update_type: 'verdict_change',
+    summary: 'Infopunks updates Black Bull from a pure persona attention market into Coordination Market Emerging as redistribution, holder growth, and community-led media become central to the signal.',
+    evidence_links: [
+      'https://solscan.io/account/GV6UUmNxz2RpKxmNAPadYKb7uQpszwqQAu3qLJxVdC52#transfers',
+      '/signals/black-bull',
+      '/narratives/attention-market-watch'
+    ],
+    previous_score: 88,
+    new_score: 91,
+    analyst_note: "The latest signal shift is structural. Ansem's low-key activity, reported creator-fee redistribution, holder-growth narrative, and community media suggest Black Bull is moving from persona-led attention into community coordination. The desk keeps SUPPORTIVE WATCH active while monitoring whether the flywheel can persist beyond short-term incentives and concentrated attention."
+  },
+  {
     update_id: 'seu_troll_001',
     signal_slug: 'troll',
     timestamp: '2026-06-30T12:00:00.000Z',

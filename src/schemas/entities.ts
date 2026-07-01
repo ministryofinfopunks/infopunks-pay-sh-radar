@@ -341,6 +341,32 @@ export const NarrativeRelatedRouteSchema = z.object({
   href: z.string()
 });
 
+export const NarrativeEvolutionStageSchema = z.enum([
+  'persona_coin',
+  'attention_market',
+  'coordination_market_emerging',
+  'movement_candidate_under_observation'
+]);
+
+export const MovementStatusSchema = z.enum([
+  'under_observation'
+]);
+
+export const AttentionMarketEvolutionStageSchema = z.enum([
+  'persona_coin',
+  'attention_market',
+  'coordination_market_emerging',
+  'movement_candidate_under_observation',
+  'extraction_risk',
+  'cult_sludge'
+]);
+
+export const AttentionMarketEvolutionStageDefinitionSchema = z.object({
+  id: AttentionMarketEvolutionStageSchema,
+  label: z.string(),
+  description: z.string()
+});
+
 export const NarrativeAssetSchema = z.object({
   id: z.string(),
   slug: z.string(),
@@ -367,6 +393,11 @@ export const NarrativeAssetSchema = z.object({
   providerIds: z.array(z.string()),
   keywords: z.array(z.string()),
   summary: z.string(),
+  evolution_path: z.array(NarrativeEvolutionStageSchema).optional(),
+  current_evolution_stage: NarrativeEvolutionStageSchema.optional(),
+  current_evolution_label: z.string().optional(),
+  movement_status: MovementStatusSchema.optional(),
+  movement_status_label: z.string().optional(),
   risk_facets: z.array(z.lazy(() => SignalRiskFacetSchema)).optional(),
   severity: SeveritySchema.optional(),
   severity_reason: z.string().optional(),
@@ -407,6 +438,11 @@ export const NarrativeSignalSurfaceSchema = z.object({
   verdict_label: z.string().optional(),
   verdict_state: z.string().optional(),
   verdict_copy: z.string().optional(),
+  evolution_path: z.array(NarrativeEvolutionStageSchema).optional(),
+  current_evolution_stage: NarrativeEvolutionStageSchema.optional(),
+  current_evolution_label: z.string().optional(),
+  movement_status: MovementStatusSchema.optional(),
+  movement_status_label: z.string().optional(),
   cards: z.array(NarrativeSignalCardSchema),
   sections: z.array(NarrativeSignalSectionSchema),
   asset: NarrativeAssetSchema.optional()
@@ -638,6 +674,8 @@ export const AttentionMarketSignalSchema = z.object({
   evolution_verdict: AttentionMarketVerdictSchema,
   verdict_label: z.string(),
   verdict_copy: z.string(),
+  current_evolution_stage: AttentionMarketEvolutionStageSchema.optional(),
+  current_evolution_label: z.string().optional(),
   risk_facets: z.array(SignalRiskFacetSchema),
   related_signal_slug: z.string().optional(),
   href: z.string(),
@@ -648,6 +686,7 @@ export const AttentionMarketWatchListResponseSchema = z.object({
   generated_at: z.string().datetime(),
   count: z.number().int().nonnegative(),
   verdict_counts: z.record(z.string(), z.number().int().nonnegative()),
+  evolution_stages: z.array(AttentionMarketEvolutionStageDefinitionSchema),
   signals: z.array(AttentionMarketSignalSchema)
 });
 
@@ -2482,6 +2521,8 @@ export type NarrativeSignalSurfaceType = z.infer<typeof NarrativeSignalSurfaceTy
 export type NarrativeSignalCard = z.infer<typeof NarrativeSignalCardSchema>;
 export type NarrativeSignalSection = z.infer<typeof NarrativeSignalSectionSchema>;
 export type NarrativeSignalSurface = z.infer<typeof NarrativeSignalSurfaceSchema>;
+export type AttentionMarketEvolutionStage = z.infer<typeof AttentionMarketEvolutionStageSchema>;
+export type AttentionMarketEvolutionStageDefinition = z.infer<typeof AttentionMarketEvolutionStageDefinitionSchema>;
 export type SignalEvidenceUpdateType = z.infer<typeof SignalEvidenceUpdateTypeSchema>;
 export type SignalEvidenceUpdate = z.infer<typeof SignalEvidenceUpdateSchema>;
 export type SignalDeskStatus = z.infer<typeof SignalDeskStatusSchema>;

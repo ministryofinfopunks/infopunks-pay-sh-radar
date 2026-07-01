@@ -158,13 +158,13 @@ export function getLatestDispatches(limit = 5): SignalDeskDispatchCard[] {
   return getAllDispatchCards().slice(0, limit);
 }
 
-export function getRiskShifts(limit = 5): SignalDeskDispatchCard[] {
+export function getRiskShifts(limit = 10): SignalDeskDispatchCard[] {
   return getAllDispatchCards()
     .filter((item) => RISK_SHIFT_TYPES.has(item.update_type))
     .slice(0, limit);
 }
 
-export function getLatestDeskActivity(limit = 10): SignalDeskActivityItem[] {
+export function getLatestDeskActivity(limit = 15): SignalDeskActivityItem[] {
   const reports = getSignalReportCards();
   const updates = getAllDispatchCards();
 
