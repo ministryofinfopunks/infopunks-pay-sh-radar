@@ -1,6 +1,7 @@
 import { createPreSpendSeedState } from '../src/repositories/preSpendSeedData';
 import { createInMemoryLoopRepository } from '../src/repositories/loopRepository';
 import { pathToFileURL } from 'node:url';
+import { listSignalHuntCandidates } from '../src/data/signalHunt';
 
 export const DEFAULT_BASE_URL = 'https://radar.infopunks.fun';
 export const PRE_SPEND_CHECK_PAYLOAD = {
@@ -48,6 +49,8 @@ export const DEFAULT_PUBLIC_PAGE_TIMEOUT_MS = 15_000;
 export const DEFAULT_API_TIMEOUT_MS = 5_000;
 export const DEFAULT_PUBLIC_PAGE_RETRY_ATTEMPTS = 3;
 export const DEFAULT_PUBLIC_PAGE_RETRY_DELAY_MS = 1_000;
+const SIGNAL_HUNT_LIST_PATH = '/v1/signal-hunt';
+const SIGNAL_HUNT_DETAIL_OPENAPI_PATH = '/v1/signal-hunt/{signalId}';
 
 export function resolveBaseUrl(env: NodeJS.ProcessEnv = process.env): string {
   return (env.SMOKE_BASE_URL ?? DEFAULT_BASE_URL).replace(/\/$/, '');
@@ -77,6 +80,7 @@ export function buildSmokePlan(): SmokePlan {
   const receiptId = seed.receipts[0]?.receipt_id ?? 'receipt_001';
   const claimId = seed.claims[0]?.claim_id ?? 'claim_001';
   const loopId = createInMemoryLoopRepository().listLoops()[0]?.id ?? 'loop_pre_spend_route';
+  const signalHuntId = listSignalHuntCandidates()[0]?.id ?? 'hunt_black_bull_coordination';
 
   return {
     publicPaths: [
@@ -89,6 +93,7 @@ export function buildSmokePlan(): SmokePlan {
       '/receipts',
       '/claim',
       '/loops',
+      '/signal-hunt',
       '/graph',
       '/narratives',
       '/narratives/attention-markets',
@@ -105,6 +110,7 @@ export function buildSmokePlan(): SmokePlan {
       `/receipts/${encodeURIComponent(receiptId)}`,
       `/claims/${encodeURIComponent(claimId)}`,
       `/loops/${encodeURIComponent(loopId)}`,
+      `/signal-hunt/${encodeURIComponent(signalHuntId)}`,
       '/radar/cards',
       '/radar/cards/provider/coingecko-onchain',
       '/radar/cards/route/sol-price',
@@ -122,6 +128,7 @@ export function buildSmokePlan(): SmokePlan {
       '/v1/graph',
       '/v1/graph/ripples',
       '/v1/loops',
+      '/v1/signal-hunt',
       '/v1/routes',
       '/v1/narratives',
       '/v1/attention-market-watch',
@@ -130,6 +137,7 @@ export function buildSmokePlan(): SmokePlan {
       '/v1/signal-desk',
       '/v1/signal-desk/candidates',
       '/v1/signal-desk/candidates/candidate_sol_persona_attention',
+      `/v1/signal-hunt/${encodeURIComponent(signalHuntId)}`,
       '/v1/narratives/black-bull',
       '/v1/signals',
       '/v1/signals/black-bull',
@@ -318,6 +326,14 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function hasDataEnvelope(value: unknown): value is { data: unknown } {
   return isRecord(value) && 'data' in value;
+}
+
+function isSignalHuntShellPath(path: string): boolean {
+  return path === '/signal-hunt' || path.startsWith('/signal-hunt/');
+}
+
+function formatPublicPagePassLabel(path: string): string {
+  return isSignalHuntShellPath(path) ? `GET ${path} (shell route)` : `GET ${path}`;
 }
 
 async function checkPublicPage(baseUrl: string, path: string, config: SmokeConfig): Promise<number> {
@@ -558,6 +574,47 @@ function assertChallenges(body: unknown): void {
   }
 }
 
+export function assertSignalHuntDeployment(
+  openapiBody: unknown,
+  signalHuntListBody: unknown,
+  signalHuntDetailBody: unknown,
+  expectedSignalId: string,
+  expectedTitle: string
+): void {
+  const openapiPaths = isRecord(openapiBody) && isRecord(openapiBody.paths)
+    ? openapiBody.paths
+    : null;
+  if (!openapiPaths || !(SIGNAL_HUNT_LIST_PATH in openapiPaths) || !(SIGNAL_HUNT_DETAIL_OPENAPI_PATH in openapiPaths)) {
+    throw new Error('Signal Hunt OpenAPI paths missing');
+  }
+
+  if (!hasDataEnvelope(signalHuntListBody) || !isRecord(signalHuntListBody.data)) {
+    throw new Error('Signal Hunt API missing from production deployment');
+  }
+
+  const listCandidates = Array.isArray(signalHuntListBody.data.candidates) ? signalHuntListBody.data.candidates : null;
+  if (!listCandidates) {
+    throw new Error('Signal Hunt API missing from production deployment');
+  }
+
+  const matchedCandidate = listCandidates.find((candidate) => isRecord(candidate) && candidate.id === expectedSignalId);
+  if (!matchedCandidate) {
+    throw new Error(`Signal Hunt seeded candidate missing: ${expectedSignalId}`);
+  }
+
+  if (!hasDataEnvelope(signalHuntDetailBody) || !isRecord(signalHuntDetailBody.data)) {
+    throw new Error('Signal Hunt detail API missing from production deployment');
+  }
+
+  if (signalHuntDetailBody.data.id !== expectedSignalId) {
+    throw new Error(`Signal Hunt detail mismatch: expected id=${expectedSignalId}, got ${String(signalHuntDetailBody.data.id)}`);
+  }
+
+  if (signalHuntDetailBody.data.title !== expectedTitle) {
+    throw new Error(`Signal Hunt detail mismatch: expected title=${expectedTitle}, got ${String(signalHuntDetailBody.data.title)}`);
+  }
+}
+
 function assertLivePulse(body: unknown): { fixtureFallback: boolean; summary: string } {
   if (!hasDataEnvelope(body) || !isRecord(body.data)) {
     throw new Error('missing pulse data payload');
@@ -585,11 +642,16 @@ function assertLivePulse(body: unknown): { fixtureFallback: boolean; summary: st
 export async function runSmoke(baseUrl = resolveBaseUrl(), config = resolveSmokeConfig()): Promise<boolean> {
   const plan = buildSmokePlan();
   let failed = false;
+  const apiBodies = new Map<string, unknown>();
+  const seededSignal = listSignalHuntCandidates()[0];
+  const signalHuntId = seededSignal?.id ?? 'hunt_black_bull_coordination';
+  const signalHuntTitle = seededSignal?.title ?? 'Black Bull Coordination'
+  const signalHuntDetailPath = `${SIGNAL_HUNT_LIST_PATH}/${encodeURIComponent(signalHuntId)}`;
 
   for (const path of plan.publicPaths) {
     try {
       const elapsedMs = await checkPublicPage(baseUrl, path, config);
-      pass(`GET ${path}`, elapsedMs);
+      pass(formatPublicPagePassLabel(path), elapsedMs);
     } catch (error) {
       failed = true;
       fail(`GET ${path}`, toFailureDetail('GET', path, error));
@@ -612,11 +674,26 @@ export async function runSmoke(baseUrl = resolveBaseUrl(), config = resolveSmoke
       if (path !== '/openapi.json' && !hasDataEnvelope(body)) {
         throw new Error('missing data payload');
       }
+      apiBodies.set(path, body);
       pass(`GET ${path}`, elapsedMs);
     } catch (error) {
       failed = true;
       fail(`GET ${path}`, toFailureDetail('GET', path, error));
     }
+  }
+
+  try {
+    assertSignalHuntDeployment(
+      apiBodies.get('/openapi.json'),
+      apiBodies.get(SIGNAL_HUNT_LIST_PATH),
+      apiBodies.get(signalHuntDetailPath),
+      signalHuntId,
+      signalHuntTitle
+    );
+    pass('Signal Hunt deployment proof');
+  } catch (error) {
+    failed = true;
+    fail('Signal Hunt deployment proof', error instanceof Error ? error.message : String(error));
   }
 
   for (const path of plan.apiHeadJsonPaths) {

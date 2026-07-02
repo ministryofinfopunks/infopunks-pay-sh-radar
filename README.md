@@ -115,11 +115,33 @@ Infopunks LoopLab is where autonomous work becomes collective memory.
 
 AI is moving from prompts to loops. LoopLab turns autonomous runs into proof receipts so the next agent does not start from zero.
 
+## Signal Hunt
+
+Signal Hunt is the community intake layer for Infopunks. It captures early CT and market signals, attaches evidence, routes them into Proof Feed and LoopLab, and helps transform cultural attention into reusable pre-spend intelligence for agents.
+
+Core stack:
+
+- Signal Hunt is the front door.
+- Proof Feed is the receipt printer.
+- LoopLab is the memory engine.
+- Pre-Spend Terminal is the agent judgment layer.
+- Evidence Ledger makes claims traceable.
+- Provider Reputation makes trust reusable.
+
+- `/signal-hunt`
+- `/signal-hunt/:signalId`
+- `GET /v1/signal-hunt`
+- `GET /v1/signal-hunt/:signalId`
+- `POST /v1/signal-hunt/submit`
+- `POST /v1/signal-hunt/:signalId/verify`
+
+Signal Hunt turns CT attention into reusable intelligence. Culture finds the edge. Infrastructure makes it durable.
+
 ## Manual QA Checklist
 
-- Pages: verify `/`, `/developers`, `/spend-terminal`, `/check`, `/loops`, `/routes`, `/providers`, `/services`, `/receipts`, `/claim`, and linked detail pages render without React errors.
+- Pages: verify `/`, `/developers`, `/spend-terminal`, `/check`, `/loops`, `/signal-hunt`, `/routes`, `/providers`, `/services`, `/receipts`, `/claim`, and linked detail pages render without React errors.
 - Copy: verify public pages use `Pre-Spend Intelligence`, `Before your agent pays, it checks Infopunks.`, `No receipt, no trust.`, `known blockers`, `safer alternatives`, `human validation`, and `evidence graph`.
-- API: verify `POST /v1/pre-spend/check`, `POST /v1/check`, `GET /v1/checks`, `GET /v1/loops`, `GET /v1/loops/:loopId`, `POST /v1/loops/check`, `GET /v1/routes`, `GET /v1/pre-spend/providers`, `GET /v1/services`, `GET /v1/receipts`, `POST /v1/receipts`, `POST /v1/validation/submit`, `GET /v1/claims`, `POST /v1/claims`, `GET /v1/claims/:claim_id/challenges`, and `GET /openapi.json`.
+- API: verify `POST /v1/pre-spend/check`, `POST /v1/check`, `GET /v1/checks`, `GET /v1/loops`, `GET /v1/loops/:loopId`, `POST /v1/loops/check`, `GET /v1/signal-hunt`, `GET /v1/signal-hunt/:signalId`, `POST /v1/signal-hunt/submit`, `POST /v1/signal-hunt/:signalId/verify`, `GET /v1/routes`, `GET /v1/pre-spend/providers`, `GET /v1/services`, `GET /v1/receipts`, `POST /v1/receipts`, `POST /v1/validation/submit`, `GET /v1/claims`, `POST /v1/claims`, `GET /v1/claims/:claim_id/challenges`, and `GET /openapi.json`.
 - SDK: verify the package export `import { createInfopunksPreSpendClient } from "infopunks-pay-sh-radar/sdk";` still works against `https://radar.infopunks.fun`.
 - Terminal: verify the spend terminal still returns decision states including `approved`, `approved_with_warning`, `use_with_caution`, `requires_human_approval`, and `do_not_use`.
 - Evidence links: verify route, provider, service, receipt, and claim pages link to related receipts where available.
@@ -301,8 +323,24 @@ Command palette actions include:
 - `GET /v1/pulse`
 - `GET /v1/pulse/summary`
 - `GET /v1/narratives`
+- `GET /v1/signal-hunt`
 - `GET /v1/events/recent`
 - `GET /v1/graph`
+
+## Public Signal Stack
+
+- `Signal Hunt`
+  Community intake layer for early CT and market signals.
+- `Proof Feed`
+  Receipt-check layer that records whether a signal has evidence.
+- `LoopLab`
+  Memory engine that turns outcomes into reusable public loop history.
+- `Evidence Ledger`
+  Traceability layer for proof, artifacts, and benchmark memory.
+- `Pre-Spend Terminal`
+  Agent judgment layer that uses evidence before spend.
+- `Provider Reputation`
+  Reusable trust surface built from claims, checks, routes, and proof.
 
 ---
 

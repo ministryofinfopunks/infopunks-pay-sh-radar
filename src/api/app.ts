@@ -9,6 +9,7 @@ import { getNarrativeAssetBySlug, getSignalSurfaceBySlug, listNarrativeAssets, l
 import { getCandidateSignal, listCandidateSignals } from '../data/candidateSignals';
 import { getSignalDeskIndex } from '../data/signalDesk';
 import { getLatestSignalUpdate, getSignalUpdate, getSignalUpdateSummary, listSignalUpdates } from '../data/signalUpdates';
+import { createSignalHuntSubmission, getSignalHuntCandidate, getSignalHuntCounts, listSignalHuntCandidates, verifySignalHuntCandidate } from '../data/signalHunt';
 import {
   createAttentionMarketIntakeSubmission,
   getAttentionMarketIntakeRequirements,
@@ -16,7 +17,7 @@ import {
   getAttentionMarketWatchIndex
 } from '../data/attentionMarketWatch';
 import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
-import { renderAttentionMarketWatchOgImage, renderNarrativesOgImage, renderSignalReportOgImage, renderSignalUpdateOgImage } from '../shared/narrativeOg';
+import { renderAttentionMarketWatchOgImage, renderNarrativesOgImage, renderSignalHuntOgImage, renderSignalReportOgImage, renderSignalUpdateOgImage } from '../shared/narrativeOg';
 import { renderOgPng } from '../server/narrativeOgPng';
 import { applyPayShCatalogIngestion } from '../ingestion/payShCatalogAdapter';
 import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, IntelligenceStore, runPayShIngestion, runPayShIngestionWithOptions } from '../services/intelligenceStore';
@@ -33,6 +34,10 @@ import {
   ClaimChallengeCreateRequestSchema,
   ProofCheckInputSchema,
   LoopCheckInputSchema,
+  SignalHuntSubmissionInputSchema,
+  SignalHuntSummarySchema,
+  SignalHuntVerifyInputSchema,
+  SignalHuntCandidateSchema,
   SignalGraphCheckInputSchema,
   SignalGraphCheckResponseSchema,
   SignalGraphClusterDetailSchema,
@@ -1541,6 +1546,26 @@ export async function createApp(
     if (!candidate) return reply.code(404).send({ error: 'candidate_signal_not_found' });
     return { data: { candidate } };
   });
+  app.get('/v1/signal-hunt', async () => ({
+    data: safeJsonExport(SignalHuntSummarySchema.parse({
+      generated_at: new Date().toISOString(),
+      counts: getSignalHuntCounts(),
+      candidates: listSignalHuntCandidates()
+    }))
+  }));
+  app.get<{ Params: { signalId: string } }>('/v1/signal-hunt/:signalId', async (req, reply) => {
+    const candidate = getSignalHuntCandidate(req.params.signalId);
+    if (!candidate) return reply.code(404).send({ error: 'signal_hunt_not_found' });
+    return { data: safeJsonExport(SignalHuntCandidateSchema.parse(candidate)) };
+  });
+  app.post('/v1/signal-hunt/submit', async (req, reply) => handleParsed(req.body, SignalHuntSubmissionInputSchema, (input) => ({
+    data: safeJsonExport(SignalHuntCandidateSchema.parse(createSignalHuntSubmission(input)))
+  }), reply));
+  app.post<{ Params: { signalId: string } }>('/v1/signal-hunt/:signalId/verify', async (req, reply) => handleParsed(req.body, SignalHuntVerifyInputSchema, (input) => {
+    const candidate = verifySignalHuntCandidate(req.params.signalId, input);
+    if (!candidate) return reply.code(404).send({ error: 'signal_hunt_not_found' });
+    return { data: safeJsonExport(SignalHuntCandidateSchema.parse(candidate)) };
+  }, reply));
   app.get<{ Params: { slug: string } }>('/v1/narratives/:slug', async (req, reply) => {
     const asset = getNarrativeAssetBySlug(req.params.slug);
     if (!asset) return reply.code(404).send({ error: 'narrative_not_found' });
@@ -1590,6 +1615,10 @@ export async function createApp(
   app.get('/og/attention-market-watch.png', async (_req, reply) => {
     reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
     return reply.type('image/png').send(renderOgPng(renderAttentionMarketWatchOgImage()));
+  });
+  app.get('/og/signal-hunt.png', async (_req, reply) => {
+    reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
+    return reply.type('image/png').send(renderOgPng(renderSignalHuntOgImage()));
   });
   app.get<{ Params: { slug: string } }>('/og/attention-market-watch/:slug.png', async (req, reply) => {
     const signal = getAttentionMarketSignalBySlug(req.params.slug);

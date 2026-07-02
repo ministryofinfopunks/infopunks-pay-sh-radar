@@ -101,6 +101,19 @@ describe('render-style SPA routing boundaries', () => {
       expect(loops.headers['content-type']).toContain('text/html');
       expect(loops.body).toContain('Radar SPA shell');
 
+      const signalHunt = await app.inject({ method: 'GET', url: '/signal-hunt' });
+      expect(signalHunt.statusCode).toBe(200);
+      expect(signalHunt.headers['content-type']).toContain('text/html');
+      expect(signalHunt.body).toContain('Radar SPA shell');
+      expect(signalHunt.body).toContain('<title>Infopunks Signal Hunt</title>');
+      expect(signalHunt.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/signal-hunt.png"');
+
+      const signalHuntDetail = await app.inject({ method: 'GET', url: '/signal-hunt/hunt_black_bull_coordination' });
+      expect(signalHuntDetail.statusCode).toBe(200);
+      expect(signalHuntDetail.headers['content-type']).toContain('text/html');
+      expect(signalHuntDetail.body).toContain('Radar SPA shell');
+      expect(signalHuntDetail.body).toContain('Infopunks Signal Hunt: hunt_black_bull_coordination');
+
       const graph = await app.inject({ method: 'GET', url: '/graph' });
       expect(graph.statusCode).toBe(200);
       expect(graph.headers['content-type']).toContain('text/html');
@@ -207,6 +220,8 @@ describe('render-style SPA routing boundaries', () => {
 
     try {
       for (const path of [
+        '/signal-hunt',
+        '/signal-hunt/hunt_black_bull_coordination',
         '/narratives',
         '/narratives/attention-markets',
         '/narratives/attention-market-watch',

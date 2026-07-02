@@ -68,6 +68,10 @@ export function narrativeOgImageUrl(pathname: string) {
     return '/og/attention-market-watch.png';
   }
 
+  if (/^\/signal-hunt\/?$/.test(pathname) || /^\/signal-hunt\/[^/]+\/?$/.test(pathname)) {
+    return '/og/signal-hunt.png';
+  }
+
   if (/^\/signals\/black-bull\/?$/.test(pathname)) {
     return '/og/signals/black-bull.png';
   }
@@ -182,6 +186,18 @@ export function renderAttentionMarketWatchOgImage(slug?: string | null) {
     accent: '#9fd6ff',
     eyebrow: 'ATTENTION MARKET PROFILE',
     routeLabel: `/attention-market-watch/${slug}`
+  });
+}
+
+export function renderSignalHuntOgImage() {
+  return renderSignalCardSvg({
+    title: 'Signal Hunt',
+    subtitle: 'Find what matters before it trends.',
+    badge: 'INFOPUNKS RADAR',
+    footer: 'Culture intake / proof trail / loop memory / pre-spend judgment',
+    accent: '#ffe36d',
+    eyebrow: 'PUBLIC CULTURE LAYER',
+    routeLabel: '/signal-hunt'
   });
 }
 

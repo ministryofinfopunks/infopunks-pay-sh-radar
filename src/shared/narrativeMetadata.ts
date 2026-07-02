@@ -82,6 +82,24 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
     );
   }
 
+  if (/^\/signal-hunt\/?$/.test(pathname)) {
+    return buildMetadata(
+      'Infopunks Signal Hunt',
+      'Public culture-layer intake for early signal, proof trails, and agent memory before the narrative hardens.',
+      '/signal-hunt'
+    );
+  }
+
+  const signalHuntDetailMatch = pathname.match(/^\/signal-hunt\/([^/]+)\/?$/);
+  if (signalHuntDetailMatch) {
+    const signalId = decodePathPart(signalHuntDetailMatch[1]);
+    return buildMetadata(
+      `Infopunks Signal Hunt: ${signalId}`,
+      'A Signal Hunt detail page linking public cultural intake to proof checks, loops, route memory, and agent judgment.',
+      `/signal-hunt/${encodeURIComponent(signalId)}`
+    );
+  }
+
   if (/^\/signals\/ansem\/?$/.test(pathname)) {
     return buildMetadata(
       'Infopunks Signal Source: Ansem',

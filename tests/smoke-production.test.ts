@@ -7,6 +7,7 @@ import {
   DEFAULT_PUBLIC_PAGE_TIMEOUT_MS,
   ATTENTION_MARKET_INTAKE_PAYLOAD,
   PRE_SPEND_CHECK_PAYLOAD,
+  assertSignalHuntDeployment,
   buildSmokePlan,
   resolveBaseUrl,
   resolveSmokeConfig
@@ -47,6 +48,7 @@ describe('production smoke plan', () => {
       '/',
       '/developers',
       '/spend-terminal',
+      '/signal-hunt',
       '/loops',
       '/routes',
       '/providers',
@@ -68,7 +70,8 @@ describe('production smoke plan', () => {
       '/services/service_market_research',
       '/receipts/receipt_001',
       '/claims/claim_001',
-      '/loops/loop_pre_spend_route'
+      '/loops/loop_pre_spend_route',
+      '/signal-hunt/hunt_black_bull_coordination'
     ]));
   });
 
@@ -79,6 +82,7 @@ describe('production smoke plan', () => {
       '/v1/graph',
       '/v1/graph/ripples',
       '/v1/loops',
+      '/v1/signal-hunt',
       '/v1/routes',
       '/v1/narratives',
       '/v1/attention-market-watch',
@@ -87,6 +91,7 @@ describe('production smoke plan', () => {
       '/v1/signal-desk',
       '/v1/signal-desk/candidates',
       '/v1/signal-desk/candidates/candidate_sol_persona_attention',
+      '/v1/signal-hunt/hunt_black_bull_coordination',
       '/v1/narratives/black-bull',
       '/v1/signals',
       '/v1/signals/black-bull',
@@ -141,5 +146,44 @@ describe('production smoke plan', () => {
       why_it_matters: 'This attention-market object needs evidence review before any watch-profile promotion.',
       evidence_links: ['/narratives/attention-market-watch']
     });
+  });
+
+  it('proves Signal Hunt is deployed with OpenAPI coverage and seeded API data', () => {
+    expect(() => assertSignalHuntDeployment(
+      {
+        paths: {
+          '/v1/signal-hunt': {},
+          '/v1/signal-hunt/{signalId}': {}
+        }
+      },
+      {
+        data: {
+          candidates: [
+            {
+              id: 'hunt_black_bull_coordination',
+              title: 'Black Bull Coordination'
+            }
+          ]
+        }
+      },
+      {
+        data: {
+          id: 'hunt_black_bull_coordination',
+          title: 'Black Bull Coordination'
+        }
+      },
+      'hunt_black_bull_coordination',
+      'Black Bull Coordination'
+    )).not.toThrow();
+  });
+
+  it('fails clearly when Signal Hunt OpenAPI coverage is missing', () => {
+    expect(() => assertSignalHuntDeployment(
+      { paths: {} },
+      { data: { candidates: [] } },
+      { data: { id: 'hunt_black_bull_coordination', title: 'Black Bull Coordination' } },
+      'hunt_black_bull_coordination',
+      'Black Bull Coordination'
+    )).toThrow('Signal Hunt OpenAPI paths missing');
   });
 });

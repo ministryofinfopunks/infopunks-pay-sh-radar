@@ -1061,6 +1061,84 @@ export const LoopCheckInputSchema = z.object({
   linked_check_id: z.string().optional()
 });
 
+export const SignalHuntProofStateSchema = z.enum([
+  'unproven',
+  'receipts_attached',
+  'validated',
+  'challenged',
+  'rejected'
+]);
+
+export const SignalHuntHuntStateSchema = z.enum([
+  'fresh_signal',
+  'under_review',
+  'verified_signal',
+  'noise',
+  'disputed'
+]);
+
+export const SignalHuntDecisionStateSchema = z.enum(['signal', 'noise', 'review']);
+
+export const SignalHuntCandidateSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  handle_or_source: z.string(),
+  category: z.string(),
+  thesis: z.string(),
+  why_it_matters: z.string(),
+  evidence: z.array(z.string()),
+  evidence_count: z.number().int().nonnegative(),
+  signal_score: z.number().min(0).max(100),
+  velocity_score: z.number().min(0).max(100),
+  risk_score: z.number().min(0).max(100),
+  proof_state: SignalHuntProofStateSchema,
+  hunt_state: SignalHuntHuntStateSchema,
+  decision_state: SignalHuntDecisionStateSchema,
+  submitted_by: z.string(),
+  submitted_at: z.string().datetime(),
+  updated_at: z.string().datetime(),
+  linked_check_ids: z.array(z.string()),
+  linked_loop_ids: z.array(z.string()),
+  linked_signal_ids: z.array(z.string()),
+  linked_route_ids: z.array(z.string()),
+  tags: z.array(z.string())
+});
+
+export const SignalHuntSummarySchema = z.object({
+  generated_at: z.string().datetime(),
+  counts: z.object({
+    total: z.number().int().nonnegative(),
+    fresh_signal: z.number().int().nonnegative(),
+    under_review: z.number().int().nonnegative(),
+    verified_signal: z.number().int().nonnegative(),
+    noise: z.number().int().nonnegative(),
+    disputed: z.number().int().nonnegative()
+  }),
+  candidates: z.array(SignalHuntCandidateSchema)
+});
+
+export const SignalHuntSubmissionInputSchema = z.object({
+  title: z.string().min(1),
+  handle_or_source: z.string().min(1),
+  category: z.string().min(1),
+  thesis: z.string().min(1),
+  why_it_matters: z.string().min(1),
+  evidence: z.array(z.string().min(1)).min(1),
+  submitted_by: z.string().min(1),
+  tags: z.array(z.string().min(1)).default([])
+});
+
+export const SignalHuntVerifyInputSchema = z.object({
+  verifier: z.string().min(1),
+  verdict: z.enum(['verified_signal', 'noise', 'disputed', 'under_review']),
+  proof_state: z.enum(['receipts_attached', 'validated', 'challenged', 'rejected']).optional(),
+  decision_note: z.string().min(1),
+  linked_check_ids: z.array(z.string()).default([]),
+  linked_loop_ids: z.array(z.string()).default([]),
+  linked_signal_ids: z.array(z.string()).default([]),
+  linked_route_ids: z.array(z.string()).default([])
+});
+
 export const SignalGraphClusterSchema = z.object({
   id: z.string(),
   label: z.string(),
@@ -2646,6 +2724,13 @@ export type LoopRun = z.infer<typeof LoopRunSchema>;
 export type Loop = z.infer<typeof LoopSchema>;
 export type LoopDetail = z.infer<typeof LoopDetailSchema>;
 export type LoopCheckInput = z.infer<typeof LoopCheckInputSchema>;
+export type SignalHuntProofState = z.infer<typeof SignalHuntProofStateSchema>;
+export type SignalHuntHuntState = z.infer<typeof SignalHuntHuntStateSchema>;
+export type SignalHuntDecisionState = z.infer<typeof SignalHuntDecisionStateSchema>;
+export type SignalHuntCandidate = z.infer<typeof SignalHuntCandidateSchema>;
+export type SignalHuntSummary = z.infer<typeof SignalHuntSummarySchema>;
+export type SignalHuntSubmissionInput = z.infer<typeof SignalHuntSubmissionInputSchema>;
+export type SignalHuntVerifyInput = z.infer<typeof SignalHuntVerifyInputSchema>;
 export type SignalGraphCluster = z.infer<typeof SignalGraphClusterSchema>;
 export type SignalGraphNode = z.infer<typeof SignalGraphNodeSchema>;
 export type SignalGraphEdge = z.infer<typeof SignalGraphEdgeSchema>;

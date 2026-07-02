@@ -837,6 +837,119 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       }
     }, 'candidate_signal_not_found')
   });
+  add('get', '/v1/signal-hunt', {
+    tags: ['Intelligence'],
+    summary: 'List Signal Hunt intake',
+    description: 'Returns the public Signal Hunt board: fresh signals, review queue, verified signals, noise, and disputes. This is the cultural intake layer feeding Proof Feed, LoopLab, Evidence Ledger, provider reputation, and agent readiness.',
+    responses: envelopedResponses('SignalHuntSummary', {
+      generated_at: '2026-07-01T12:15:00.000Z',
+      counts: {
+        total: 5,
+        fresh_signal: 1,
+        under_review: 1,
+        verified_signal: 1,
+        noise: 1,
+        disputed: 1
+      },
+      candidates: [{
+        id: 'hunt_black_bull_coordination',
+        title: 'Black Bull attention is mutating into community coordination',
+        handle_or_source: '@ansem + community carry',
+        category: 'attention_market',
+        thesis: 'The signal is no longer only persona velocity. Redistribution mechanics and participant-made media are carrying the object into a broader coordination loop.',
+        why_it_matters: 'Signal Hunt surfaces the intake before Narrative Intel hardens the frame.',
+        evidence: ['Reported creator-fee redistribution summaries keep recirculating as trench proof.'],
+        evidence_count: 3,
+        signal_score: 92,
+        velocity_score: 89,
+        risk_score: 79,
+        proof_state: 'validated',
+        hunt_state: 'verified_signal',
+        decision_state: 'signal',
+        submitted_by: 'desk',
+        submitted_at: '2026-07-01T09:00:00.000Z',
+        updated_at: '2026-07-01T12:15:00.000Z',
+        linked_check_ids: ['check_route_pay_sh_seed'],
+        linked_loop_ids: ['loop_pre_spend_route'],
+        linked_signal_ids: ['black-bull'],
+        linked_route_ids: ['route_pay_sh_market_research_01'],
+        tags: ['coordination', 'attention-market', 'community-carry']
+      }]
+    })
+  });
+  add('get', '/v1/signal-hunt/{signalId}', {
+    tags: ['Intelligence'],
+    summary: 'Get Signal Hunt detail',
+    description: 'Returns one Signal Hunt item with thesis, why it matters, evidence list, linked proof checks, loops, signal items, routes, and current decision panel.',
+    parameters: [pathParam('signalId', 'Signal Hunt identifier.')],
+    responses: envelopedResponses('SignalHuntCandidate', {
+      id: 'hunt_troll_reindex',
+      title: 'TROLL is behaving like internet memory, not fresh meme novelty',
+      handle_or_source: 'Community takeover / Solscan / Dexscreener',
+      category: 'meme_archetype',
+      thesis: 'The signal is survival.',
+      why_it_matters: 'Signal Hunt should catch re-indexed culture before the market narrative pretends it appeared from nowhere.',
+      evidence: ['The asset carries a long-circulation survival frame instead of a one-cycle novelty frame.'],
+      evidence_count: 3,
+      signal_score: 88,
+      velocity_score: 74,
+      risk_score: 67,
+      proof_state: 'receipts_attached',
+      hunt_state: 'under_review',
+      decision_state: 'review',
+      submitted_by: 'community',
+      submitted_at: '2026-06-30T11:30:00.000Z',
+      updated_at: '2026-07-01T08:40:00.000Z',
+      linked_check_ids: ['check_provider_reliability_seed'],
+      linked_loop_ids: [],
+      linked_signal_ids: ['troll'],
+      linked_route_ids: [],
+      tags: ['reindex', 'meme', 'community-takeover']
+    }, 'signal_hunt_not_found')
+  });
+  add('post', '/v1/signal-hunt/submit', {
+    tags: ['Intelligence'],
+    summary: 'Submit Signal Hunt intake',
+    description: 'Stages a new public Signal Hunt candidate. This is cultural intake, not a financial promise.',
+    requestBody: jsonRequest({ $ref: '#/components/schemas/SignalHuntSubmissionInput' }, {
+      title: 'Machine-wallet infra is becoming public culture instead of back-office plumbing',
+      handle_or_source: 'Machine market stack / Signal Graph',
+      category: 'agent_infra',
+      thesis: 'Machine identity, wallet rails, and preflight policy are starting to compress into one memetic stack.',
+      why_it_matters: 'Signal Hunt is the intake layer that lets culture-facing discovery attach to the serious machine-market and pre-spend stack before claims harden.',
+      evidence: ['Machine market coverage has expanded into route risk, receipts, and first-safe planning.'],
+      submitted_by: 'desk',
+      tags: ['machine-markets', 'wallets']
+    }),
+    responses: envelopedResponses('SignalHuntCandidate', {
+      id: 'hunt_newsignal',
+      hunt_state: 'fresh_signal',
+      proof_state: 'receipts_attached',
+      decision_state: 'review'
+    })
+  });
+  add('post', '/v1/signal-hunt/{signalId}/verify', {
+    tags: ['Intelligence'],
+    summary: 'Verify or reject Signal Hunt intake',
+    description: 'Moves a Signal Hunt item toward verified signal, noise, dispute, or continued review while attaching linked proof or loop memory.',
+    parameters: [pathParam('signalId', 'Signal Hunt identifier.')],
+    requestBody: jsonRequest({ $ref: '#/components/schemas/SignalHuntVerifyInput' }, {
+      verifier: 'desk',
+      verdict: 'verified_signal',
+      proof_state: 'validated',
+      decision_note: 'Linked proof and loop memory now support promotion beyond intake chatter.',
+      linked_check_ids: ['check_route_pay_sh_seed'],
+      linked_loop_ids: ['loop_pre_spend_route'],
+      linked_signal_ids: ['black-bull'],
+      linked_route_ids: ['route_pay_sh_market_research_01']
+    }),
+    responses: envelopedResponses('SignalHuntCandidate', {
+      id: 'hunt_black_bull_coordination',
+      hunt_state: 'verified_signal',
+      proof_state: 'validated',
+      decision_state: 'signal'
+    }, 'signal_hunt_not_found')
+  });
   add('get', '/v1/narratives/{slug}', {
     tags: ['Intelligence'],
     summary: 'Get narrative asset',
@@ -2590,6 +2703,65 @@ function componentSchemas(): Record<string, JsonSchema> {
     LoopCheckInput: objectSchema({
       input: stringSchema(),
       linked_check_id: { oneOf: [stringSchema(), { type: 'null' }] }
+    }),
+    SignalHuntProofState: enumSchema(['unproven', 'receipts_attached', 'validated', 'challenged', 'rejected']),
+    SignalHuntHuntState: enumSchema(['fresh_signal', 'under_review', 'verified_signal', 'noise', 'disputed']),
+    SignalHuntDecisionState: enumSchema(['signal', 'noise', 'review']),
+    SignalHuntCandidate: objectSchema({
+      id: stringSchema(),
+      title: stringSchema(),
+      handle_or_source: stringSchema(),
+      category: stringSchema(),
+      thesis: stringSchema(),
+      why_it_matters: stringSchema(),
+      evidence: arrayOf(stringSchema()),
+      evidence_count: integerSchema(),
+      signal_score: integerSchema(),
+      velocity_score: integerSchema(),
+      risk_score: integerSchema(),
+      proof_state: { $ref: '#/components/schemas/SignalHuntProofState' },
+      hunt_state: { $ref: '#/components/schemas/SignalHuntHuntState' },
+      decision_state: { $ref: '#/components/schemas/SignalHuntDecisionState' },
+      submitted_by: stringSchema(),
+      submitted_at: dateTimeSchema(),
+      updated_at: dateTimeSchema(),
+      linked_check_ids: arrayOf(stringSchema()),
+      linked_loop_ids: arrayOf(stringSchema()),
+      linked_signal_ids: arrayOf(stringSchema()),
+      linked_route_ids: arrayOf(stringSchema()),
+      tags: arrayOf(stringSchema())
+    }),
+    SignalHuntSummary: objectSchema({
+      generated_at: dateTimeSchema(),
+      counts: objectSchema({
+        total: integerSchema(),
+        fresh_signal: integerSchema(),
+        under_review: integerSchema(),
+        verified_signal: integerSchema(),
+        noise: integerSchema(),
+        disputed: integerSchema()
+      }),
+      candidates: arrayOf({ $ref: '#/components/schemas/SignalHuntCandidate' })
+    }),
+    SignalHuntSubmissionInput: objectSchema({
+      title: stringSchema(),
+      handle_or_source: stringSchema(),
+      category: stringSchema(),
+      thesis: stringSchema(),
+      why_it_matters: stringSchema(),
+      evidence: arrayOf(stringSchema()),
+      submitted_by: stringSchema(),
+      tags: arrayOf(stringSchema())
+    }),
+    SignalHuntVerifyInput: objectSchema({
+      verifier: stringSchema(),
+      verdict: enumSchema(['verified_signal', 'noise', 'disputed', 'under_review']),
+      proof_state: enumSchema(['receipts_attached', 'validated', 'challenged', 'rejected']),
+      decision_note: stringSchema(),
+      linked_check_ids: arrayOf(stringSchema()),
+      linked_loop_ids: arrayOf(stringSchema()),
+      linked_signal_ids: arrayOf(stringSchema()),
+      linked_route_ids: arrayOf(stringSchema())
     }),
     SignalGraphProofState: enumSchema(['unproven', 'validated', 'disputed', 'corrupted', 'compounding']),
     SignalNodeType: enumSchema(['claim', 'meme', 'agent', 'project', 'token', 'post', 'route', 'receipt', 'proof_check', 'loop_run', 'provider', 'service', 'narrative', 'category']),

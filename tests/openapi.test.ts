@@ -83,6 +83,10 @@ describe('openapi discovery', () => {
     expect(spec.paths['/v1/signal-desk']?.get).toBeTruthy();
     expect(spec.paths['/v1/signal-desk/candidates']?.get).toBeTruthy();
     expect(spec.paths['/v1/signal-desk/candidates/{candidateId}']?.get).toBeTruthy();
+    expect(spec.paths['/v1/signal-hunt']?.get).toBeTruthy();
+    expect(spec.paths['/v1/signal-hunt/{signalId}']?.get).toBeTruthy();
+    expect(spec.paths['/v1/signal-hunt/submit']?.post).toBeTruthy();
+    expect(spec.paths['/v1/signal-hunt/{signalId}/verify']?.post).toBeTruthy();
     expect(spec.paths['/v1/narratives/{slug}']?.get).toBeTruthy();
     expect(spec.paths['/v1/signals']?.get).toBeTruthy();
     expect(spec.paths['/v1/signals/{slug}']?.get).toBeTruthy();
@@ -150,6 +154,13 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.CandidateSignalStatus).toBeTruthy();
     expect(spec.components.schemas.CandidateSignalPriority).toBeTruthy();
     expect(spec.components.schemas.CandidateSignalRiskLevel).toBeTruthy();
+    expect(spec.components.schemas.SignalHuntProofState).toBeTruthy();
+    expect(spec.components.schemas.SignalHuntHuntState).toBeTruthy();
+    expect(spec.components.schemas.SignalHuntDecisionState).toBeTruthy();
+    expect(spec.components.schemas.SignalHuntCandidate).toBeTruthy();
+    expect(spec.components.schemas.SignalHuntSummary).toBeTruthy();
+    expect(spec.components.schemas.SignalHuntSubmissionInput).toBeTruthy();
+    expect(spec.components.schemas.SignalHuntVerifyInput).toBeTruthy();
     expect(spec.components.schemas.SignalDeskReportCard).toBeTruthy();
     expect(spec.components.schemas.SignalDeskDispatchCard).toBeTruthy();
     expect(spec.components.schemas.SignalDeskActivityItem).toBeTruthy();
@@ -194,6 +205,9 @@ describe('openapi discovery', () => {
     expect(JSON.stringify(spec.paths['/v1/signal-desk'])).toContain('featured report');
     expect(JSON.stringify(spec.paths['/v1/signal-desk/candidates'])).toContain('seeded candidate queue');
     expect(JSON.stringify(spec.paths['/v1/signal-desk/candidates/{candidateId}'])).toContain('candidate_signal_not_found');
+    expect(JSON.stringify(spec.paths['/v1/signal-hunt'])).toContain('cultural intake layer');
+    expect(JSON.stringify(spec.paths['/v1/signal-hunt/{signalId}'])).toContain('signal_hunt_not_found');
+    expect(JSON.stringify(spec.paths['/v1/signal-hunt/submit'])).toContain('not a financial promise');
     expect(JSON.stringify(spec.paths['/v1/attention-market-watch/{slug}'])).toContain('attention_market_signal_not_found');
     expect(JSON.stringify(spec.paths['/v1/attention-market-watch/intake'])).toContain('not an endorsement');
     expect(spec.components.schemas.SignalRiskFacet.enum).toEqual(['high_reflexivity', 'power_concentration', 'unproven_sovereignty', 'kol_dependency', 'thin_evidence', 'narrative_fatigue', 'live_watch']);

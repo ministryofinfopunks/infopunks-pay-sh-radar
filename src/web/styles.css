@@ -9852,3 +9852,112 @@ summary:focus-visible {
     flex-direction: column;
   }
 }
+.signal-hunt-page,
+.signal-hunt-detail-page {
+  gap: 1.25rem;
+}
+
+.signal-hunt-hero,
+.signal-hunt-detail-hero {
+  display: grid;
+  gap: 1rem;
+}
+
+.signal-hunt-hero h2 {
+  margin: 0;
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+}
+
+.signal-hunt-hero-actions,
+.signal-hunt-card-actions,
+.signal-hunt-badge-row,
+.signal-hunt-chip-row,
+.signal-hunt-cta-grid,
+.signal-hunt-proof-grid {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.signal-hunt-counter-grid,
+.signal-hunt-grid,
+.signal-hunt-detail-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.signal-hunt-counter-grid {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.signal-hunt-grid,
+.signal-hunt-proof-grid,
+.signal-hunt-cta-grid,
+.signal-hunt-detail-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.signal-hunt-card {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.signal-hunt-card-head,
+.signal-hunt-link-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.signal-hunt-link-stack {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.signal-hunt-link-group > span {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted-text, #8f96ad);
+}
+
+.status-pill.review {
+  background: rgba(244, 184, 66, 0.14);
+  color: #ffd37a;
+}
+
+.status-pill.warn {
+  background: rgba(255, 122, 89, 0.14);
+  color: #ff9f7c;
+}
+
+.status-pill.ok {
+  background: rgba(85, 201, 121, 0.14);
+  color: #9bf5b2;
+}
+
+.status-pill.muted {
+  background: rgba(138, 148, 173, 0.16);
+  color: #c6cede;
+}
+
+.signal-hunt-evidence-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.signal-hunt-proof-trail .panel,
+.signal-hunt-cta-card {
+  min-height: 100%;
+}
+
+@media (max-width: 720px) {
+  .signal-hunt-card-head,
+  .signal-hunt-link-group {
+    flex-direction: column;
+  }
+}

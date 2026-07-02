@@ -32,6 +32,7 @@ import {
 } from './preSpendBuilderPages';
 import { ProofCheckDetailPage, ProofCheckPage } from './proofCheckPages';
 import { LoopDetailPage, LoopsPage } from './loopPages';
+import { SignalHuntDetailPage, SignalHuntPage } from './signalHuntPages';
 import { MachineMarketPreflightCardPage, PreflightCardIndexPage, RadarPreflightCardPage } from './preflightCardPages';
 import { AttentionMarketWatchPage, AttentionMarketWatchProfilePage, AttentionMarketsPage, NarrativeSignalReportPage, NarrativesIndexPage, SignalSourcePage, SignalUpdatePermalinkPage } from './narrativePages';
 import './styles.css';
@@ -1938,6 +1939,20 @@ function isProofCheckIndexRoute(pathname: string) {
 
 function isLoopsIndexRoute(pathname: string) {
   return /^\/loops\/?$/.test(pathname);
+}
+
+function isSignalHuntRoute(pathname: string) {
+  return /^\/signal-hunt\/?$/.test(pathname);
+}
+
+function routeSignalHuntId(pathname: string) {
+  const match = pathname.match(/^\/signal-hunt\/([^/]+)\/?$/);
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
 }
 
 function isGraphRoute(pathname: string) {
@@ -9616,6 +9631,7 @@ function RadarApp() {
     { href: '/narratives', label: 'Narrative Intel', external: false, className: undefined, active: isNarrativesRoute(pathname) || isAttentionMarketsRoute(pathname) || isAttentionMarketWatchRoute(pathname) || routeAttentionMarketWatchSlug(pathname) !== null },
     { href: '/check', label: 'Check', external: false, className: undefined, active: isProofCheckIndexRoute(pathname) || routeProofCheckId(pathname) !== null },
     { href: '/loops', label: 'Loops', external: false, className: undefined, active: isLoopsIndexRoute(pathname) || routeLoopId(pathname) !== null },
+    { href: '/signal-hunt', label: 'Signal Hunt', external: false, className: undefined, active: isSignalHuntRoute(pathname) || routeSignalHuntId(pathname) !== null },
     { href: '/graph', label: 'Signal Graph', external: false, className: undefined, active: isGraphRoute(pathname) || routeSignalSlug(pathname) !== null || routeSignalUpdate(pathname) !== null },
     { href: '/claim', label: 'Claims', external: false, className: undefined, active: isClaimsIndexRoute(pathname) || routeClaimId(pathname) !== null },
     { href: '#agent-benchmark-api', label: 'Agent Benchmark API', external: false, className: undefined, active: agentBenchmarkActive }
@@ -14300,6 +14316,9 @@ export function App() {
   if (propagationId) return <PropagationIncidentPage clusterId={propagationId} />;
   if (isProofCheckIndexRoute(window.location.pathname)) return <ProofCheckPage />;
   if (isLoopsIndexRoute(window.location.pathname)) return <LoopsPage />;
+  if (isSignalHuntRoute(window.location.pathname)) return <SignalHuntPage />;
+  const signalHuntId = routeSignalHuntId(window.location.pathname);
+  if (signalHuntId) return <SignalHuntDetailPage signalId={signalHuntId} />;
   if (isGraphRoute(window.location.pathname)) return <SignalGraphPage />;
   if (isNarrativesRoute(window.location.pathname)) return <NarrativesIndexPage />;
   if (isAttentionMarketsRoute(window.location.pathname)) return <AttentionMarketsPage />;

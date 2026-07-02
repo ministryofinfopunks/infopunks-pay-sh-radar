@@ -6,6 +6,8 @@ const checks = [
   { path: '/version', expect: (json) => json.service === 'infopunks-pay-sh-radar' && typeof json.version === 'string' },
   { path: '/v1/pulse', expect: (json) => typeof json.data?.providerCount === 'number' },
   { path: '/v1/providers', expect: (json) => Array.isArray(json.data) },
+  { path: '/v1/signal-hunt', expect: (json) => Array.isArray(json.data?.candidates) && typeof json.data?.counts?.total === 'number' },
+  { path: '/v1/signal-hunt/hunt_black_bull_coordination', expect: (json) => json.data?.id === 'hunt_black_bull_coordination' },
   { path: '/v1/graph', expect: (json) => Array.isArray(json.data?.nodes) && Array.isArray(json.data?.edges) },
   { path: '/v1/graph/ripples', expect: (json) => Array.isArray(json.data?.ripples) }
 ];
