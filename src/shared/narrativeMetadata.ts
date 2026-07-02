@@ -71,6 +71,14 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
     );
   }
 
+  if (/^\/abundance\/?$/.test(pathname) || /^\/narratives\/abundance-desk\/?$/.test(pathname)) {
+    return buildMetadata(
+      'Abundance Desk',
+      'Infopunks as the proof, receipt, and judgment layer for the machine-labor economy.',
+      '/abundance'
+    );
+  }
+
   const attentionWatchProfileMatch = pathname.match(/^\/attention-market-watch\/([^/]+)\/?$/);
   if (attentionWatchProfileMatch) {
     const slug = decodePathPart(attentionWatchProfileMatch[1]);

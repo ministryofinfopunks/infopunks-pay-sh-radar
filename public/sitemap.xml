@@ -6,4 +6,10 @@
   <url>
     <loc>https://radar.infopunks.fun/openapi.json</loc>
   </url>
+  <url>
+    <loc>https://radar.infopunks.fun/abundance</loc>
+  </url>
+  <url>
+    <loc>https://radar.infopunks.fun/narratives/abundance-desk</loc>
+  </url>
 </urlset>

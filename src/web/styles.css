@@ -6837,6 +6837,162 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
   display: none;
 }
 
+.abundance-page {
+  display: grid;
+  gap: var(--section-gap);
+}
+
+.abundance-hero {
+  border-color: rgba(157, 255, 194, .18);
+  background:
+    radial-gradient(circle at 82% 10%, rgba(155, 211, 255, .12), transparent 30%),
+    radial-gradient(circle at 12% 18%, rgba(157, 255, 194, .14), transparent 34%),
+    linear-gradient(180deg, rgba(12, 24, 20, .9), rgba(4, 9, 7, .92));
+}
+
+.abundance-hero-copy {
+  color: var(--text-strong) !important;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.abundance-hero-rail {
+  align-self: stretch;
+}
+
+.abundance-watch-grid,
+.abundance-readiness-grid,
+.abundance-receipt-grid,
+.abundance-index-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.abundance-watch-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.abundance-readiness-grid,
+.abundance-receipt-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.abundance-index-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.abundance-card,
+.abundance-receipt-card {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.abundance-card h2,
+.abundance-card h3,
+.abundance-receipt-card h3 {
+  margin: 0;
+  color: var(--text-strong);
+  font-size: clamp(20px, 2vw, 28px);
+  line-height: 1.08;
+}
+
+.abundance-card p,
+.abundance-receipt-card p,
+.abundance-index-grid small {
+  margin: 0;
+  color: rgba(220, 239, 226, .82);
+  line-height: 1.56;
+}
+
+.abundance-card-head,
+.abundance-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.abundance-chip-row {
+  justify-content: flex-start;
+}
+
+.abundance-chip-row span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  border: 1px solid rgba(203, 255, 221, .13);
+  border-radius: 999px;
+  padding: 0 9px;
+  color: rgba(232,255,240,.8);
+  background: rgba(126,255,176,.045);
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.abundance-index-grid article {
+  display: grid;
+  gap: 8px;
+  min-height: 170px;
+  border: 1px solid rgba(203,255,221,.11);
+  border-radius: 14px;
+  padding: 14px;
+  background: rgba(4, 10, 8, .44);
+}
+
+.abundance-index-grid strong {
+  color: var(--text-strong);
+  line-height: 1.16;
+}
+
+.abundance-index-grid b {
+  color: var(--ok);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 34px;
+  line-height: 1;
+}
+
+.abundance-validator {
+  display: grid;
+  grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+  gap: 18px;
+  align-items: center;
+}
+
+.abundance-page .state-ready {
+  border-color: rgba(157,255,194,.2);
+}
+
+.abundance-page .state-caution,
+.abundance-page .state-unproven {
+  border-color: rgba(242,207,122,.2);
+}
+
+.abundance-page .state-do_not_use_yet,
+.abundance-page .state-disputed {
+  border-color: rgba(255,125,125,.2);
+}
+
+@media (max-width: 1180px) {
+  .abundance-watch-grid,
+  .abundance-index-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .abundance-readiness-grid,
+  .abundance-receipt-grid,
+  .abundance-validator {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .abundance-watch-grid,
+  .abundance-index-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .machine-control-plane-menu a {
   display: inline-flex;
   align-items: center;

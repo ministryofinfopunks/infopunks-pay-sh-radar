@@ -54,9 +54,12 @@ describe('static public discovery metadata', () => {
     expect(robots).toContain('Sitemap: https://radar.infopunks.fun/sitemap.xml');
     expect(sitemap).toContain('<loc>https://radar.infopunks.fun/</loc>');
     expect(sitemap).toContain('<loc>https://radar.infopunks.fun/openapi.json</loc>');
+    expect(sitemap).toContain('<loc>https://radar.infopunks.fun/abundance</loc>');
+    expect(sitemap).toContain('<loc>https://radar.infopunks.fun/narratives/abundance-desk</loc>');
     expect(llms).toContain('does not execute paid Pay.sh APIs');
     expect(llms).toContain('Route intelligence and preflight output are advisory');
     expect(llms).toContain('https://radar.infopunks.fun/openapi.json');
+    expect(llms).toContain('https://radar.infopunks.fun/v1/abundance');
     expect(wellKnown.name).toBe('Infopunks Pay.sh Radar');
     expect(wellKnown.openapi).toBe('https://radar.infopunks.fun/openapi.json');
     expect(wellKnown.safety).toBe('safe_metadata_only_no_paid_api_execution');

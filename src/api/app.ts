@@ -9,6 +9,7 @@ import { getNarrativeAssetBySlug, getSignalSurfaceBySlug, listNarrativeAssets, l
 import { getCandidateSignal, listCandidateSignals } from '../data/candidateSignals';
 import { getSignalDeskIndex } from '../data/signalDesk';
 import { getLatestSignalUpdate, getSignalUpdate, getSignalUpdateSummary, listSignalUpdates } from '../data/signalUpdates';
+import { abundanceClaimsFeed, getAbundanceDeskPayload, machineWorkReceipts } from '../data/abundanceDesk';
 import { createSignalHuntSubmission, getSignalHuntCandidate, getSignalHuntCounts, listSignalHuntCandidates, verifySignalHuntCandidate } from '../data/signalHunt';
 import {
   createAttentionMarketIntakeSubmission,
@@ -1524,6 +1525,25 @@ export async function createApp(
     return { data: signal };
   });
   app.get('/v1/narratives', async () => ({ data: listNarrativeAssets() }));
+  app.get('/v1/abundance', async () => ({ data: safeJsonExport(getAbundanceDeskPayload()) }));
+  app.get('/v1/abundance/claims', async () => ({
+    data: safeJsonExport({
+      generated_at: new Date().toISOString(),
+      source: 'infopunks-pay-sh-radar',
+      module: 'abundance-desk',
+      count: abundanceClaimsFeed.length,
+      claims: abundanceClaimsFeed
+    })
+  }));
+  app.get('/v1/abundance/receipts', async () => ({
+    data: safeJsonExport({
+      generated_at: new Date().toISOString(),
+      source: 'infopunks-pay-sh-radar',
+      module: 'abundance-desk',
+      count: machineWorkReceipts.length,
+      receipts: machineWorkReceipts
+    })
+  }));
   app.get('/v1/attention-market-watch', async () => ({ data: getAttentionMarketWatchIndex() }));
   app.get('/v1/attention-market-watch/intake/requirements', async () => ({ data: getAttentionMarketIntakeRequirements() }));
   app.post('/v1/attention-market-watch/intake', async (req, reply) => handleParsed(req.body, AttentionMarketIntakeRequestSchema, (input) => ({

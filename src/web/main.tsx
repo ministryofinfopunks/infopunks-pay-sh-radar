@@ -34,7 +34,7 @@ import { ProofCheckDetailPage, ProofCheckPage } from './proofCheckPages';
 import { LoopDetailPage, LoopsPage } from './loopPages';
 import { SignalHuntDetailPage, SignalHuntPage } from './signalHuntPages';
 import { MachineMarketPreflightCardPage, PreflightCardIndexPage, RadarPreflightCardPage } from './preflightCardPages';
-import { AttentionMarketWatchPage, AttentionMarketWatchProfilePage, AttentionMarketsPage, NarrativeSignalReportPage, NarrativesIndexPage, SignalSourcePage, SignalUpdatePermalinkPage } from './narrativePages';
+import { AbundanceDeskPage, AttentionMarketWatchPage, AttentionMarketWatchProfilePage, AttentionMarketsPage, NarrativeSignalReportPage, NarrativesIndexPage, SignalSourcePage, SignalUpdatePermalinkPage } from './narrativePages';
 import './styles.css';
 
 type Severity = 'critical' | 'warning' | 'informational' | 'unknown';
@@ -1969,6 +1969,10 @@ function isAttentionMarketsRoute(pathname: string) {
 
 function isAttentionMarketWatchRoute(pathname: string) {
   return /^\/narratives\/attention-market-watch\/?$/.test(pathname) || /^\/attention-market-watch\/?$/.test(pathname);
+}
+
+function isAbundanceDeskRoute(pathname: string) {
+  return /^\/abundance\/?$/.test(pathname) || /^\/narratives\/abundance-desk\/?$/.test(pathname);
 }
 
 function routeAttentionMarketWatchSlug(pathname: string) {
@@ -9628,7 +9632,7 @@ function RadarApp() {
   const primaryHeaderNav = [
     { href: toApiUrl(API_BASE_URL, OPENAPI_PATH), label: 'API Docs', external: true, className: 'api-docs-link', active: false },
     { href: '/developers', label: 'Developers', external: false, className: undefined, active: isDevelopersRoute(pathname) },
-    { href: '/narratives', label: 'Narrative Intel', external: false, className: undefined, active: isNarrativesRoute(pathname) || isAttentionMarketsRoute(pathname) || isAttentionMarketWatchRoute(pathname) || routeAttentionMarketWatchSlug(pathname) !== null },
+    { href: '/narratives', label: 'Narrative Intel', external: false, className: undefined, active: isNarrativesRoute(pathname) || isAttentionMarketsRoute(pathname) || isAttentionMarketWatchRoute(pathname) || isAbundanceDeskRoute(pathname) || routeAttentionMarketWatchSlug(pathname) !== null },
     { href: '/check', label: 'Check', external: false, className: undefined, active: isProofCheckIndexRoute(pathname) || routeProofCheckId(pathname) !== null },
     { href: '/loops', label: 'Loops', external: false, className: undefined, active: isLoopsIndexRoute(pathname) || routeLoopId(pathname) !== null },
     { href: '/signal-hunt', label: 'Signal Hunt', external: false, className: undefined, active: isSignalHuntRoute(pathname) || routeSignalHuntId(pathname) !== null },
@@ -9655,7 +9659,7 @@ function RadarApp() {
     { href: '/machine-economy-snapshot', label: 'Snapshot', active: isMachineEconomySnapshotRoute(pathname) }
   ] as const;
   const radarMenuActive = pathname === '/' && sectionShortcutNav.some(({ id }) => activeSection === id);
-  const utilityMenuActive = pathname === '/' && (hash === '#methodology' || hash === '#events') || machineEconomyLinks.some((link) => link.active) || isAttentionMarketWatchRoute(pathname) || routeAttentionMarketWatchSlug(pathname) !== null;
+  const utilityMenuActive = pathname === '/' && (hash === '#methodology' || hash === '#events') || machineEconomyLinks.some((link) => link.active) || isAttentionMarketWatchRoute(pathname) || isAbundanceDeskRoute(pathname) || routeAttentionMarketWatchSlug(pathname) !== null;
 
   return <div className={`shell ${agentMode ? 'agent-mode-shell' : ''} density-${densityMode}`}>
     <a className="skip-link" href="#terminal-content">Skip to content</a>
@@ -9713,6 +9717,7 @@ function RadarApp() {
               <div className="header-menu-group" aria-label="Narrative Intelligence menu">
                 <span className="header-menu-heading">Narrative Intelligence</span>
                 <a role="menuitem" href="/narratives/attention-market-watch" className={isAttentionMarketWatchRoute(pathname) || routeAttentionMarketWatchSlug(pathname) !== null ? 'active' : ''} aria-current={isAttentionMarketWatchRoute(pathname) || routeAttentionMarketWatchSlug(pathname) !== null ? 'page' : undefined}>Attention Market Watch</a>
+                <a role="menuitem" href="/abundance" className={isAbundanceDeskRoute(pathname) ? 'active' : ''} aria-current={isAbundanceDeskRoute(pathname) ? 'page' : undefined}>Abundance Desk</a>
               </div>
               <div className="header-menu-group" aria-label="Machine Economy menu">
                 <span className="header-menu-heading">Machine Economy</span>
@@ -14323,6 +14328,7 @@ export function App() {
   if (isNarrativesRoute(window.location.pathname)) return <NarrativesIndexPage />;
   if (isAttentionMarketsRoute(window.location.pathname)) return <AttentionMarketsPage />;
   if (isAttentionMarketWatchRoute(window.location.pathname)) return <AttentionMarketWatchPage />;
+  if (isAbundanceDeskRoute(window.location.pathname)) return <AbundanceDeskPage narrativeRoute={/^\/narratives\/abundance-desk\/?$/.test(window.location.pathname)} />;
   const attentionMarketWatchSlug = routeAttentionMarketWatchSlug(window.location.pathname);
   if (attentionMarketWatchSlug) return <AttentionMarketWatchProfilePage slug={attentionMarketWatchSlug} />;
   const signalUpdate = routeSignalUpdate(window.location.pathname);

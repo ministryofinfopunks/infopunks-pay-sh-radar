@@ -15,3 +15,8 @@ Key public routes:
 - https://radar.infopunks.fun/v1/radar/preflight/batch
 - https://radar.infopunks.fun/v1/radar/benchmark-readiness
 - https://radar.infopunks.fun/v1/radar/risk/ecosystem
+- https://radar.infopunks.fun/abundance
+- https://radar.infopunks.fun/narratives/abundance-desk
+- https://radar.infopunks.fun/v1/abundance
+- https://radar.infopunks.fun/v1/abundance/claims
+- https://radar.infopunks.fun/v1/abundance/receipts

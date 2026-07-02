@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
+import type { AbundanceClaim, AbundanceDecisionState, AbundanceDeskPayload, AbundanceProofState } from '../data/abundanceDesk';
 
 type NarrativeDecisionState = 'strong_signal' | 'supportive_watch' | 'durable_re_index' | 'watch_closely' | 'concentrated_power' | 'high_reflexivity' | 'unproven' | 'do_not_chase';
 
@@ -1034,6 +1035,7 @@ function NarrativeIntelNav({ current }: { current: string }) {
     { href: '/narratives', label: 'Narrative Intel' },
     { href: '/narratives/attention-markets', label: 'Attention Markets' },
     { href: '/narratives/attention-market-watch', label: 'Attention Market Watch' },
+    { href: '/abundance', label: 'Abundance Desk' },
     { href: '/signals/ansem', label: 'Ansem' },
     { href: '/signals/black-bull', label: 'Black Bull' },
     { href: '/signals/troll', label: 'TROLL' }
@@ -1042,6 +1044,9 @@ function NarrativeIntelNav({ current }: { current: string }) {
   function isActive(href: string) {
     if (href === '/narratives/attention-market-watch') {
       return current === href || current.startsWith('/attention-market-watch/');
+    }
+    if (href === '/abundance') {
+      return current === href || current === '/narratives/abundance-desk';
     }
     return current === href;
   }
@@ -1061,6 +1066,200 @@ function NarrativeIntelNav({ current }: { current: string }) {
       </span>
     </div>
   </nav>;
+}
+
+function abundanceProofLabel(state: AbundanceProofState) {
+  return ({
+    receipts_present: 'Receipts present',
+    plausible_unproven: 'Plausible, unproven',
+    hype_without_route: 'Hype without route',
+    dangerous_if_automated: 'Dangerous if automated',
+    ready_for_agent_spend: 'Ready for agent spend',
+    needs_human_validation: 'Needs human validation'
+  } as const)[state];
+}
+
+function abundanceDecisionLabel(state: AbundanceDecisionState) {
+  return ({
+    ready: 'Ready',
+    caution: 'Caution',
+    do_not_use_yet: 'Do not use yet',
+    unproven: 'Unproven',
+    disputed: 'Disputed'
+  } as const)[state];
+}
+
+function AbundanceClaimCard({ claim }: { claim: AbundanceClaim }) {
+  return <article className={`panel abundance-card state-${claim.decision_state}`} aria-label={claim.claim_id}>
+    <div className="abundance-card-head">
+      <p className="section-kicker">{claim.claim_id}</p>
+      <span className={`narrative-decision-pill state-${claim.decision_state}`}>{abundanceDecisionLabel(claim.decision_state)}</span>
+    </div>
+    <h3>{claim.claim}</h3>
+    <p>{claim.infopunks_interpretation}</p>
+    <div className="abundance-chip-row">
+      <span>{claim.source_type.replaceAll('_', ' ')}</span>
+      <span>{abundanceProofLabel(claim.proof_state)}</span>
+    </div>
+    <div className="machine-usage-list">
+      {claim.evidence.map((item) => <p key={item}><span>Evidence</span><small>{item}</small></p>)}
+    </div>
+  </article>;
+}
+
+export function AbundanceDeskPage({ narrativeRoute = false }: { narrativeRoute?: boolean }) {
+  const currentPath = narrativeRoute ? '/narratives/abundance-desk' : '/abundance';
+  const [payload, setPayload] = useState<AbundanceDeskPayload | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    syncNarrativeMetadata(currentPath);
+  }, [currentPath]);
+
+  useEffect(() => {
+    api<AbundanceDeskPayload>('/v1/abundance')
+      .then((response) => setPayload(response.data))
+      .catch((err) => setError(err instanceof Error ? err.message : 'abundance_desk_unavailable'));
+  }, []);
+
+  return <div className="shell narrative-shell abundance-shell">
+    <a className="skip-link" href="#abundance-content">Skip to content</a>
+    <header className="site-header">
+      <NarrativeIntelNav current={currentPath} />
+    </header>
+    <main id="abundance-content" className="narrative-page abundance-page">
+      <section className="panel hero narrative-hero abundance-hero">
+        <div>
+          <p className="eyebrow">Machine Labor Economy</p>
+          <h1>Abundance Desk</h1>
+          <p className="copy abundance-hero-copy">When machines do the work, Infopunks checks the receipts.</p>
+          <p className="copy">AI and robots may make work optional. But abundance still needs proof: who acted, what worked, who verified it, which route was safe, and which machine deserves trust.</p>
+          <div className="panel-actions">
+            <a className="execute" href="/v1/abundance">Open JSON Surface</a>
+            <a className="execute compact secondary" href="/machine-receipts">View Machine Receipts</a>
+          </div>
+        </div>
+        <div className="panel narrative-hero-rail abundance-hero-rail">
+          <p className="section-kicker">Desk thesis</p>
+          <p>Infopunks is the proof, receipt, and judgment layer for the machine-labor economy.</p>
+          <p>Optional work still needs accountable work. The desk connects machine routes, agent spend, receipts, validators, and dispute memory.</p>
+        </div>
+      </section>
+
+      {error && <section className="panel"><p className="route-state error">{error}</p></section>}
+      {!payload && !error && <section className="panel"><p className="route-state">Loading Abundance Desk...</p></section>}
+      {payload && <>
+        <section className="grid four abundance-watch-grid" aria-label="Machine Labor Watch">
+          {payload.machine_labor_watch.map((card) => <article className="panel abundance-card" key={card.card_id}>
+            <div className="abundance-card-head">
+              <p className="section-kicker">Machine Labor Watch</p>
+              <span className={`narrative-decision-pill state-${card.decision_state}`}>{abundanceDecisionLabel(card.decision_state)}</span>
+            </div>
+            <h2>{card.title}</h2>
+            <p>{card.claim_surface}</p>
+            <small>{card.watch_signal}</small>
+            <div className="abundance-chip-row">
+              <span>{card.category.replaceAll('_', ' ')}</span>
+              <span>{abundanceProofLabel(card.proof_state)}</span>
+            </div>
+          </article>)}
+        </section>
+
+        <section className="panel abundance-index" aria-label="Proof Gap Index">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Proof Gap Index</p>
+              <h2>Classify the claim before machines spend.</h2>
+            </div>
+            <span className="machine-badge evidence">judgment states</span>
+          </div>
+          <div className="abundance-index-grid">
+            {payload.proof_gap_index.map((row) => <article key={row.state}>
+              <strong>{row.label}</strong>
+              <b>{row.count}</b>
+              <small>{row.interpretation}</small>
+            </article>)}
+          </div>
+        </section>
+
+        <section className="panel abundance-receipts" aria-label="Machine Work Receipts">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Machine Work Receipts</p>
+              <h2>New receipt type for machine labor.</h2>
+            </div>
+            <a className="execute compact secondary" href="/v1/abundance/receipts">GET /v1/abundance/receipts</a>
+          </div>
+          <div className="abundance-receipt-grid">
+            {payload.machine_work_receipts.map((receipt) => <article className="panel abundance-receipt-card" key={receipt.receipt_id}>
+              <p className="section-kicker">{receipt.receipt_id}</p>
+              <h3>{receipt.task}</h3>
+              <p>{receipt.output_summary}</p>
+              <div className="machine-usage-list">
+                <p><span>performer_type</span><small>{receipt.performer_type}</small></p>
+                <p><span>performer_name</span><small>{receipt.performer_name}</small></p>
+                <p><span>requester</span><small>{receipt.requester}</small></p>
+                <p><span>route_used</span><small>{receipt.route_used}</small></p>
+                <p><span>cost_paid_usd</span><small>{receipt.cost_paid_usd ?? 'not claimed'}</small></p>
+                <p><span>chain</span><small>{receipt.chain}</small></p>
+                <p><span>validation_state</span><small>{abundanceProofLabel(receipt.validation_state)}</small></p>
+                <p><span>human_validator</span><small>{receipt.human_validator ?? 'not assigned'}</small></p>
+                <p><span>failure_reason</span><small>{receipt.failure_reason ?? 'none recorded'}</small></p>
+                <p><span>reputation_impact</span><small>{receipt.reputation_impact}</small></p>
+              </div>
+              <div className="abundance-chip-row">
+                {receipt.evidence_artifacts.map((artifact) => <span key={artifact}>{artifact}</span>)}
+              </div>
+            </article>)}
+          </div>
+        </section>
+
+        <section className="panel abundance-readiness" aria-label="Agent Spend Readiness">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Agent Spend Readiness</p>
+              <h2>Autonomous payment needs route confidence.</h2>
+            </div>
+          </div>
+          <div className="abundance-readiness-grid">
+            {payload.agent_spend_readiness.map((card) => <article className={`panel abundance-card state-${card.readiness_state}`} key={card.service_id}>
+              <div className="abundance-card-head">
+                <p className="section-kicker">{card.payment_route}</p>
+                <span className={`narrative-decision-pill state-${card.readiness_state}`}>{abundanceDecisionLabel(card.readiness_state)}</span>
+              </div>
+              <h3>{card.service_name}</h3>
+              <p>{card.reason}</p>
+              <small>Next receipt: {card.required_next_receipt}</small>
+            </article>)}
+          </div>
+        </section>
+
+        <section className="panel abundance-validator" aria-label="Human Validator Layer">
+          <div>
+            <p className="section-kicker">Human Validator Layer</p>
+            <h2>Humans move up the stack.</h2>
+            <p className="copy">The point is not human absence. It is better human placement: validation, consequence ownership, loop design, and dispute resolution.</p>
+          </div>
+          <div className="machine-market-flow">
+            {payload.human_validator_layer.map((item) => <span key={item}>{item}</span>)}
+          </div>
+        </section>
+
+        <section className="panel abundance-claims" aria-label="Abundance Claims Feed">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Abundance Claims Feed</p>
+              <h2>Claims become useful when judgment attaches.</h2>
+            </div>
+            <a className="execute compact secondary" href="/v1/abundance/claims">GET /v1/abundance/claims</a>
+          </div>
+          <div className="narrative-grid">
+            {payload.abundance_claims_feed.map((claim) => <AbundanceClaimCard key={claim.claim_id} claim={claim} />)}
+          </div>
+        </section>
+      </>}
+    </main>
+  </div>;
 }
 
 function NarrativeMetricCard({ card }: { card: NarrativeSignalCard }) {
@@ -1765,6 +1964,7 @@ export function NarrativesIndexPage() {
           <div className="panel-actions">
             <a className="execute" href="/signals/black-bull">Open Signal Report</a>
             <a className="execute compact secondary" href="/narratives/attention-markets">Read Attention Markets Thesis</a>
+            <a className="execute compact secondary" href="/abundance">Open Abundance Desk</a>
           </div>
         </div>
         <div className="panel narrative-hero-rail">
@@ -1826,7 +2026,8 @@ export function NarrativesIndexPage() {
         <NarrativeLinkCluster links={[
           { href: '/signals/black-bull', label: 'Black Bull Signal Report' },
           { href: '/signals/ansem', label: 'Ansem Signal Source' },
-          { href: '/narratives/attention-markets', label: 'Attention Markets Thesis' }
+          { href: '/narratives/attention-markets', label: 'Attention Markets Thesis' },
+          { href: '/abundance', label: 'Abundance Desk' }
         ]} />
         <DeskActivityTimeline items={desk.desk_activity} />
       </>}
