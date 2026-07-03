@@ -7,6 +7,7 @@ import {
   DEFAULT_PUBLIC_PAGE_TIMEOUT_MS,
   ATTENTION_MARKET_INTAKE_PAYLOAD,
   HERMES_PRE_SPEND_DECISION_PAYLOAD,
+  HERMES_POLICY_OUTCOME_PAYLOAD,
   HERMES_SPEND_POLICY_PAYLOAD,
   PRE_SPEND_CHECK_PAYLOAD,
   assertSignalHuntDeployment,
@@ -108,6 +109,7 @@ describe('production smoke plan', () => {
       '/v1/hermes/health',
       '/v1/hermes/spend-policy',
       '/v1/hermes/spend-policy/example',
+      plan.hermesPolicyReconciliationPreviewPath,
       '/v1/hermes/pre-spend-decision/example',
       '/v1/hermes/reputation-ledger',
       '/v1/hermes/reputation-ledger/providers',
@@ -163,6 +165,10 @@ describe('production smoke plan', () => {
     expect(plan.hermesSpendPolicyReceiptPreviewPath).toContain('/receipt-preview');
     expect(plan.hermesSpendPolicyReceiptPath).toContain('/v1/hermes/spend-policy/check/');
     expect(plan.hermesSpendPolicyReceiptPath).toContain('/receipt');
+    expect(plan.hermesPolicyReconciliationPreviewPath).toContain('/v1/hermes/spend-policy/check/');
+    expect(plan.hermesPolicyReconciliationPreviewPath).toContain('/reconciliation-preview');
+    expect(plan.hermesPolicyOutcomePath).toContain('/v1/hermes/spend-policy/check/');
+    expect(plan.hermesPolicyOutcomePath).toContain('/outcome');
     expect(plan.hermesDecisionReceiptPath).toContain('/v1/hermes/pre-spend-decision/');
     expect(plan.hermesDecisionReceiptPath).toContain('/receipt');
     expect(plan.hermesDecisionOutcomePath).toContain('/v1/hermes/pre-spend-decision/');
@@ -195,6 +201,14 @@ describe('production smoke plan', () => {
       chain: 'base'
     });
     expect(HERMES_SPEND_POLICY_PAYLOAD).toEqual(HERMES_PRE_SPEND_DECISION_PAYLOAD);
+    expect(HERMES_POLICY_OUTCOME_PAYLOAD).toEqual({
+      outcome_state: 'blocked_as_required',
+      outcome_summary: 'Wallet stayed blocked after policy denied autonomous spend.',
+      spend_happened: false,
+      amount_usd: 25,
+      observed_latency_ms: 1800,
+      evidence_artifacts: []
+    });
   });
 
   it('proves Signal Hunt is deployed with OpenAPI coverage and seeded API data', () => {

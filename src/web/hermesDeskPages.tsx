@@ -24,6 +24,12 @@ import type {
   HermesSpendPolicyRule,
   HermesSpendPolicyViolation
 } from '../services/hermesSpendPolicy';
+import {
+  previewHermesPolicyReconciliation,
+  type HermesPolicyComplianceState,
+  type HermesPolicyOutcomeState,
+  type HermesPolicyReconciliationResult
+} from '../services/hermesPolicyReconciliation';
 import { getNarrativeMetadataForPath } from '../shared/narrativeMetadata';
 
 const API_BASE_URL = getApiBaseUrl();
@@ -127,6 +133,14 @@ function spendPolicyViolationOutcomeLabel(state: HermesSpendPolicyViolation['out
 }
 
 function policyRiskLevelLabel(state: HermesPolicyDecisionReceiptConversion['receipt']['risk_summary']['risk_level']) {
+  return titleCaseWords(state);
+}
+
+function policyOutcomeStateLabel(state: HermesPolicyOutcomeState) {
+  return titleCaseWords(state);
+}
+
+function policyComplianceStateLabel(state: HermesPolicyComplianceState) {
   return titleCaseWords(state);
 }
 
@@ -537,6 +551,82 @@ function HermesSpendPolicySection({
   </section>;
 }
 
+function HermesPolicyReconciliationCard({
+  reconciliation,
+  policyDecision,
+  compact = false
+}: {
+  reconciliation: HermesPolicyReconciliationResult;
+  policyDecision?: HermesSpendPolicyDecision;
+  compact?: boolean;
+}) {
+  return <article className={`panel hermes-run-card state-${reconciliation.compliance_state}`} aria-label={`Policy reconciliation ${reconciliation.check_id}`}>
+    <div className="abundance-card-head">
+      <p className="section-kicker">Policy Outcome Reconciliation</p>
+      <div className="abundance-chip-row">
+        <span className={`narrative-decision-pill state-${reconciliation.outcome.outcome_state}`}>{policyOutcomeStateLabel(reconciliation.outcome.outcome_state)}</span>
+        <span className="narrative-evidence-chip">{policyComplianceStateLabel(reconciliation.compliance_state)}</span>
+        <span className="narrative-evidence-chip">{reconciliation.feedback.next_policy_action}</span>
+      </div>
+    </div>
+    <h3>{reconciliation.policy_receipt_id}</h3>
+    <p>{reconciliation.summary}</p>
+    <div className="machine-usage-list">
+      <p><span>check_id</span><small>{reconciliation.check_id}</small></p>
+      <p><span>policy_receipt_id</span><small>{reconciliation.policy_receipt_id}</small></p>
+      <p><span>policy_decision</span><small>{policyDecision ?? 'not available'}</small></p>
+      <p><span>outcome_state</span><small>{reconciliation.outcome.outcome_state}</small></p>
+      <p><span>compliance_state</span><small>{reconciliation.compliance_state}</small></p>
+      <p><span>spend_happened</span><small>{String(reconciliation.outcome.spend_happened)}</small></p>
+      <p><span>amount_usd</span><small>{typeof reconciliation.outcome.amount_usd === 'number' ? reconciliation.outcome.amount_usd.toFixed(2) : 'not supplied'}</small></p>
+      <p><span>impact_direction</span><small>{reconciliation.impact.direction}</small></p>
+      <p><span>impact_magnitude</span><small>{reconciliation.impact.magnitude}</small></p>
+      <p><span>next_policy_action</span><small>{reconciliation.feedback.next_policy_action}</small></p>
+    </div>
+    <div className="abundance-chip-row">
+      {reconciliation.findings.map((finding) => <span key={finding.id}>{finding.label}</span>)}
+      {!reconciliation.findings.length && <span>no findings</span>}
+    </div>
+    {!compact && <>
+      <div className="hermes-flow-strip" aria-label="Policy reconciliation flow">
+        {['Policy Check', 'Policy Receipt', 'Wallet Outcome', 'Reconciliation', 'Feedback'].map((step, index) => (
+          <React.Fragment key={step}>
+            <span>{step}</span>
+            {index < 4 && <b aria-hidden="true">-&gt;</b>}
+          </React.Fragment>
+        ))}
+      </div>
+      <div className="machine-usage-list">
+        {reconciliation.findings.map((finding) => <p key={finding.id}><span>{finding.label}</span><small>{finding.detail}</small></p>)}
+        {!reconciliation.findings.length && <p><span>findings</span><small>No deterministic reconciliation findings were raised.</small></p>}
+      </div>
+    </>}
+  </article>;
+}
+
+function HermesPolicyReconciliationSection({
+  result
+}: {
+  result: HermesSpendPolicyCheckResult | null;
+}) {
+  if (!result) return <section className="panel"><p className="route-state">Loading Policy Outcome Reconciliation...</p></section>;
+  const reconciliation = previewHermesPolicyReconciliation(result);
+
+  return <section className="panel hermes-runs-section" aria-label="Policy Outcome Reconciliation">
+    <div className="panel-head">
+      <div>
+        <p className="section-kicker">Policy Outcome Reconciliation</p>
+        <h2>A policy receipt proves what was allowed.</h2>
+      </div>
+      <a className="execute compact secondary" href="/hermes/spend-policy">Open Spend Policy Layer</a>
+    </div>
+    <p className="copy">A reconciliation proves what actually happened.</p>
+    <div className="hermes-run-grid">
+      <HermesPolicyReconciliationCard reconciliation={reconciliation} policyDecision={result.decision} compact />
+    </div>
+  </section>;
+}
+
 function HermesDecisionFeedbackCard({
   feedback,
   compact = false
@@ -663,6 +753,7 @@ function HermesMemoryLoopDashboardPage() {
           <p className="copy hermes-hero-copy">Agents do not need chat history. Agents need memory that changes future action.</p>
           <p className="copy">Run → Receipt → Claim → Review → Reputation → Decision → Outcome → Feedback</p>
           <p className="copy">Policy sits between Decision and Outcome as the wallet safety gate.</p>
+          <p className="copy">Policy reconciliation compares the policy receipt against the actual wallet outcome before feedback is used for the next spend.</p>
           <div className="panel-actions">
             <a className="execute" href="/v1/hermes/memory-loop">Open Memory Loop JSON</a>
             <a className="execute compact secondary" href="/hermes">Back to Hermes Desk</a>
@@ -716,6 +807,7 @@ function HermesMemoryLoopDashboardPage() {
           <p className="copy">The next agent does not start from zero. It inherits receipts, reviewed claims, reputation state, and feedback from previous outcomes.</p>
           <p className="copy">Policy sits between Decision and Outcome as the wallet safety gate.</p>
           <p className="copy">Policy decisions can now become receipts, making the safety gate auditable before the outcome feeds back into reputation.</p>
+          <p className="copy">Optional artifact: Outcome → Policy Reconciliation → Feedback.</p>
           <div className="machine-usage-list">
             <p><span>current_decision</span><small>{loop.summary.current_decision ?? 'not available'}</small></p>
             <p><span>required_action</span><small>{loop.summary.current_required_action ?? 'not available'}</small></p>
@@ -829,6 +921,17 @@ function HermesNarrativePage() {
         <p>These receipts can later be compared against outcomes and used as feedback.</p>
         <p>A policy decision should not disappear after the wallet acts. It should become an audit receipt.</p>
       </section>
+      <section className="panel hermes-narrative-copy" aria-label="Policy Outcome Reconciliation">
+        <p className="section-kicker">Policy Outcome Reconciliation</p>
+        <h2>Policy receipts preserve what the system allowed. Outcomes preserve what the wallet actually did.</h2>
+        <p>Policy receipts preserve what the system allowed, tested, reviewed, or blocked.</p>
+        <p>Outcomes show what actually happened.</p>
+        <p>Reconciliation compares the expected policy behavior against observed wallet behavior.</p>
+        <p>This detects non-compliance, missing manual review, spends despite blocks, and test-spend success.</p>
+        <p>Reconciliation turns enforcement into feedback.</p>
+        <p>A policy receipt proves what was allowed.</p>
+        <p>A reconciliation proves what actually happened.</p>
+      </section>
       <section className="panel hermes-narrative-copy" aria-label="Decision Receipt and Feedback Loop">
         <p className="section-kicker">Decision Receipt and Feedback Loop</p>
         <h2>The loop closes when outcomes are recorded.</h2>
@@ -908,6 +1011,10 @@ function HermesDeskSurface() {
   const policyReceiptPreview = useMemo(() => {
     if (!spendPolicyResult) return null;
     return createHermesPolicyDecisionReceipt(spendPolicyResult);
+  }, [spendPolicyResult]);
+  const policyReconciliationPreview = useMemo(() => {
+    if (!spendPolicyResult) return null;
+    return previewHermesPolicyReconciliation(spendPolicyResult);
   }, [spendPolicyResult]);
 
   return <div className="shell narrative-shell hermes-shell">
@@ -1097,6 +1204,23 @@ function HermesDeskSurface() {
           </div>
         </section>}
 
+        {policyReconciliationPreview && <section className="panel hermes-skill-pack-detail" aria-label="Policy Outcome Reconciliation">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Policy Outcome Reconciliation</p>
+              <h2>A policy receipt proves what was allowed.</h2>
+            </div>
+            <a className="execute compact secondary" href="/hermes/spend-policy">Open Spend Policy Layer</a>
+          </div>
+          <p className="copy">A reconciliation proves what actually happened.</p>
+          <div className="machine-usage-list">
+            <p><span>compliance_state</span><small>{policyReconciliationPreview.compliance_state}</small></p>
+            <p><span>outcome_state</span><small>{policyReconciliationPreview.outcome.outcome_state}</small></p>
+            <p><span>next_policy_action</span><small>{policyReconciliationPreview.feedback.next_policy_action}</small></p>
+            <p><span>impact_direction</span><small>{policyReconciliationPreview.impact.direction}</small></p>
+          </div>
+        </section>}
+
         <HermesDecisionFeedbackSection decision={preSpendDecision} />
 
         <section className="panel hermes-runs-section" aria-label="Completed Hermes runs">
@@ -1267,11 +1391,23 @@ function HermesSkillPackPage() {
               <h2>Hermes skills should emit structured outputs that policy can evaluate deterministically.</h2>
             </div>
           </div>
-          <p className="copy">Hermes skills should generate structured outputs useful for policy checks.</p>
-          <div className="abundance-chip-row">
-            {['risk level', 'required action', 'disputed evidence', 'provider status', 'route status', 'spend amount sensitivity', 'chain/payment rail context'].map((item) => <span key={item}>{item}</span>)}
+        <p className="copy">Hermes skills should generate structured outputs useful for policy checks.</p>
+        <div className="abundance-chip-row">
+          {['risk level', 'required action', 'disputed evidence', 'provider status', 'route status', 'spend amount sensitivity', 'chain/payment rail context'].map((item) => <span key={item}>{item}</span>)}
+        </div>
+      </section>
+      <section className="panel hermes-skill-pack-detail" aria-label="Reconciliation-ready outputs">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Reconciliation-ready outputs</p>
+            <h2>Hermes skills should help compare expected policy behavior against observed outcomes.</h2>
           </div>
-        </section>
+        </div>
+        <p className="copy">Hermes skills should emit enough structured detail to compare what policy allowed against what the wallet actually did.</p>
+        <div className="abundance-chip-row">
+          {['expected action', 'allowed amount', 'observed spend', 'chain/payment rail used', 'manual review status', 'failure reason', 'evidence artifacts'].map((item) => <span key={item}>{item}</span>)}
+        </div>
+      </section>
         <section className="panel hermes-skill-pack-detail" aria-label="Audit-ready outputs">
           <div className="panel-head">
             <div>
@@ -1356,6 +1492,7 @@ function HermesSpendPolicyPage() {
 
   const policy = result?.policy ?? policySurface?.policies[0] ?? null;
   const receiptPreview = useMemo(() => (result ? createHermesPolicyDecisionReceipt(result) : null), [result]);
+  const reconciliationPreview = useMemo(() => (result ? previewHermesPolicyReconciliation(result) : null), [result]);
 
   return <div className="shell narrative-shell hermes-shell">
     <a className="skip-link" href="#hermes-spend-policy-content">Skip to content</a>
@@ -1477,6 +1614,27 @@ function HermesSpendPolicyPage() {
           {receiptPreview.receipt.audit_trail.events.map((event) => <p key={event.id}><span>{event.label.toLowerCase()}</span><small>{event.summary}</small></p>)}
         </div>
       </section>}
+      {reconciliationPreview && <section className="panel hermes-runs-section" aria-label="Policy Outcome Reconciliation">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Policy Outcome Reconciliation</p>
+            <h2>A policy receipt proves what was allowed.</h2>
+          </div>
+          <a className="execute compact secondary" href={`/v1/hermes/spend-policy/check/${encodeURIComponent(reconciliationPreview.check_id)}/reconciliation-preview`}>GET reconciliation preview</a>
+        </div>
+        <p className="copy">A reconciliation proves what actually happened.</p>
+        <div className="hermes-flow-strip" aria-label="Policy outcome reconciliation flow">
+          {['Policy Check', 'Policy Receipt', 'Wallet Outcome', 'Reconciliation', 'Feedback'].map((step, index) => (
+            <React.Fragment key={step}>
+              <span>{step}</span>
+              {index < 4 && <b aria-hidden="true">-&gt;</b>}
+            </React.Fragment>
+          ))}
+        </div>
+        <div className="hermes-run-grid">
+          <HermesPolicyReconciliationCard reconciliation={reconciliationPreview} policyDecision={result.decision} />
+        </div>
+      </section>}
       {result && <section className="panel hermes-skill-pack-detail" aria-label="Violations and Warnings">
         <div className="panel-head">
           <div>
@@ -1564,6 +1722,7 @@ function HermesPreSpendDecisionPage() {
         </div>
         <p className="copy">The decision engine is part of a larger memory loop. Decisions produce receipts. Outcomes produce feedback. Feedback changes future reputation.</p>
         <p className="copy">The Pre-Spend Decision Engine recommends action. The Spend Policy Layer converts that recommendation into an allow, test, review, or block decision.</p>
+        <p className="copy">Policy reconciliation compares the policy receipt against the actual wallet outcome before feedback is used for the next spend.</p>
       </section>
       {error && <section className="panel"><p className="route-state error">{error}</p></section>}
       {!error && decision && <section className="panel hermes-runs-section" aria-label="Example decision card">
@@ -1685,9 +1844,11 @@ function HermesDecisionFeedbackPage() {
             <h2>Feedback is not the end of the loop.</h2>
           </div>
           <a className="execute compact secondary" href="/hermes/memory-loop">Open Memory Loop</a>
+          <a className="execute compact secondary" href="/hermes/spend-policy">Open Spend Policy Layer</a>
         </div>
         <p className="copy">Feedback is not the end of the loop. It becomes input for the next pre-spend decision.</p>
         <p className="copy">Policy receipts can become part of the feedback trail when comparing what the wallet was allowed to do against what actually happened.</p>
+        <p className="copy">Decision feedback tells whether the spend outcome matched the recommendation. Policy reconciliation tells whether the wallet obeyed the safety gate.</p>
       </section>
       {error && <section className="panel"><p className="route-state error">{error}</p></section>}
       {receipt && <section className="panel hermes-runs-section" aria-label="Example Decision Receipt">

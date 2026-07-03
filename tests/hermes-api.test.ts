@@ -4,6 +4,7 @@ import type { HermesRun } from '../src/data/hermesDesk';
 import { convertHermesRunToReceipt } from '../src/services/hermesReceiptConverter';
 import { getHermesPreSpendDecisionExample } from '../src/services/hermesPreSpendDecision';
 import { getDefaultHermesSpendPolicy, getHermesSpendPolicyExampleCheck } from '../src/services/hermesSpendPolicy';
+import { previewHermesPolicyReconciliation } from '../src/services/hermesPolicyReconciliation';
 
 describe('Hermes Desk API', () => {
   const originalHermesEnv = {
@@ -543,6 +544,76 @@ describe('Hermes Desk API', () => {
     await app.close();
   });
 
+  it('returns a reconciliation preview for the deterministic example check', async () => {
+    const app = await createApp();
+    const check = getHermesSpendPolicyExampleCheck();
+
+    const response = await app.inject({
+      method: 'GET',
+      url: `/v1/hermes/spend-policy/check/${encodeURIComponent(check.id)}/reconciliation-preview`
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().data).toEqual(expect.objectContaining({
+      check_id: check.id,
+      policy_receipt_id: previewHermesPolicyReconciliation(check).policy_receipt_id,
+      feedback: expect.objectContaining({ status: 'preview' })
+    }));
+
+    await app.close();
+  });
+
+  it('returns a reconciliation result for outcome POST', async () => {
+    const app = await createApp();
+    const check = getHermesSpendPolicyExampleCheck();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: `/v1/hermes/spend-policy/check/${encodeURIComponent(check.id)}/outcome`,
+      payload: {
+        outcome_state: 'blocked_as_required',
+        outcome_summary: 'Wallet stayed blocked after policy denied autonomous spend.',
+        spend_happened: false,
+        amount_usd: 25,
+        observed_latency_ms: 1800,
+        evidence_artifacts: []
+      }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().data).toEqual(expect.objectContaining({
+      check_id: check.id,
+      outcome: expect.objectContaining({ outcome_state: 'blocked_as_required' }),
+      feedback: expect.objectContaining({ status: 'recorded' })
+    }));
+
+    await app.close();
+  });
+
+  it('returns non_compliant when spent_despite_block is posted for the example block check', async () => {
+    const app = await createApp();
+    const check = getHermesSpendPolicyExampleCheck();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: `/v1/hermes/spend-policy/check/${encodeURIComponent(check.id)}/outcome`,
+      payload: {
+        outcome_state: 'spent_despite_block',
+        spend_happened: true,
+        amount_usd: 25,
+        evidence_artifacts: []
+      }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().data).toEqual(expect.objectContaining({
+      compliance_state: 'non_compliant',
+      findings: expect.arrayContaining([expect.objectContaining({ label: 'Spent despite block' })])
+    }));
+
+    await app.close();
+  });
+
   it('returns 404 for unknown policy receipt preview check ids', async () => {
     const app = await createApp();
 
@@ -559,12 +630,45 @@ describe('Hermes Desk API', () => {
     await app.close();
   });
 
+  it('returns 404 for unknown policy reconciliation preview check ids', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({
+      method: 'GET',
+      url: '/v1/hermes/spend-policy/check/not-real/reconciliation-preview'
+    });
+
+    expect(response.statusCode).toBe(404);
+    expect(response.json()).toEqual(expect.objectContaining({
+      error: 'hermes_spend_policy_check_not_found'
+    }));
+
+    await app.close();
+  });
+
   it('returns 404 for unknown policy receipt check ids', async () => {
     const app = await createApp();
 
     const response = await app.inject({
       method: 'POST',
       url: '/v1/hermes/spend-policy/check/not-real/receipt'
+    });
+
+    expect(response.statusCode).toBe(404);
+    expect(response.json()).toEqual(expect.objectContaining({
+      error: 'hermes_spend_policy_check_not_found'
+    }));
+
+    await app.close();
+  });
+
+  it('returns 404 for unknown policy outcome check ids', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/hermes/spend-policy/check/not-real/outcome',
+      payload: {}
     });
 
     expect(response.statusCode).toBe(404);

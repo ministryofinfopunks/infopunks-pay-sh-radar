@@ -126,6 +126,9 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Policy Decision Receipts');
     expect(text).toContain('A policy decision should not disappear after the wallet acts.');
     expect(text).toContain('policy_receipt_id');
+    expect(text).toContain('Policy Outcome Reconciliation');
+    expect(text).toContain('A policy receipt proves what was allowed.');
+    expect(text).toContain('A reconciliation proves what actually happened.');
     expect(text).toContain('Decision Receipt and Feedback Loop');
     expect(text).toContain('A decision without an outcome is advice.');
     expect(text).toContain('A decision with a receipt becomes intelligence.');
@@ -191,6 +194,10 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('route status');
     expect(text).toContain('spend amount sensitivity');
     expect(text).toContain('chain/payment rail context');
+    expect(text).toContain('Reconciliation-ready outputs');
+    expect(text).toContain('expected action');
+    expect(text).toContain('allowed amount');
+    expect(text).toContain('observed spend');
     expect(text).toContain('Audit-ready outputs');
     expect(text).toContain('decision reason');
     expect(text).toContain('outcome criteria');
@@ -232,6 +239,9 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Policy checks should not be invisible runtime decisions.');
     expect(text).toContain('Every allow, test, review, or block should be auditable.');
     expect(text).toContain('A policy decision should not disappear after the wallet acts. It should become an audit receipt.');
+    expect(text).toContain('Policy Outcome Reconciliation');
+    expect(text).toContain('Reconciliation turns enforcement into feedback.');
+    expect(text).toContain('A reconciliation proves what actually happened.');
     expect(text).toContain('Decisions recommend action.');
     expect(text).toContain('Policies enforce boundaries.');
     expect(text).toContain('Autonomous wallets need both judgment and rules.');
@@ -257,6 +267,8 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Decisions use reputation before money moves.');
     expect(text).toContain('Policy sits between Decision and Outcome as the wallet safety gate.');
     expect(text).toContain('Outcomes teach the next decision.');
+    expect(text).toContain('A policy receipt proves what was allowed.');
+    expect(text).toContain('A reconciliation proves what actually happened.');
     expect(text).toContain('Agents do not need chat history.');
     expect(text).toContain('Agents need memory that changes future action.');
     expect(container.querySelector('a[href="/narratives/hermes-desk"]')?.getAttribute('aria-current')).toBe('page');
@@ -289,6 +301,7 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('The next agent does not start from zero. It inherits receipts, reviewed claims, reputation state, and feedback from previous outcomes.');
     expect(text).toContain('Policy sits between Decision and Outcome as the wallet safety gate.');
     expect(text).toContain('Policy decisions can now become receipts, making the safety gate auditable before the outcome feeds back into reputation.');
+    expect(text).toContain('Policy reconciliation compares the policy receipt against the actual wallet outcome before feedback is used for the next spend.');
     expect(container.querySelector('a[href="/hermes/memory-loop"]')?.getAttribute('aria-current')).toBe('page');
   });
 
@@ -323,6 +336,7 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Inputs used');
     expect(text).toContain('The decision engine is part of a larger memory loop. Decisions produce receipts. Outcomes produce feedback. Feedback changes future reputation.');
     expect(text).toContain('The Pre-Spend Decision Engine recommends action. The Spend Policy Layer converts that recommendation into an allow, test, review, or block decision.');
+    expect(text).toContain('Policy reconciliation compares the policy receipt against the actual wallet outcome before feedback is used for the next spend.');
     expect(container.querySelector('a[href="/hermes/pre-spend-decision"]')?.getAttribute('aria-current')).toBe('page');
   });
 
@@ -338,6 +352,8 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Example Spend Intent');
     expect(text).toContain('Policy Check Result');
     expect(text).toContain('Policy Decision Receipts');
+    expect(text).toContain('Policy Outcome Reconciliation');
+    expect(text).toContain('A policy receipt proves what was allowed.');
     expect(text).toContain('A policy decision should not disappear');
     expect(text).toContain('Policy Receipt');
     expect(text).toContain('Audit Trail');
@@ -363,6 +379,7 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('What the system learns');
     expect(text).toContain('Feedback is not the end of the loop. It becomes input for the next pre-spend decision.');
     expect(text).toContain('Policy receipts can become part of the feedback trail when comparing what the wallet was allowed to do against what actually happened.');
+    expect(text).toContain('Decision feedback tells whether the spend outcome matched the recommendation. Policy reconciliation tells whether the wallet obeyed the safety gate.');
     expect(container.querySelector('a[href="/hermes/decision-feedback"]')?.getAttribute('aria-current')).toBe('page');
   });
 });

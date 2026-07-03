@@ -546,6 +546,120 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       }
     }, 'hermes_spend_policy_check_not_found')
   });
+  add('get', '/v1/hermes/spend-policy/check/{check_id}/reconciliation-preview', {
+    tags: ['Hermes'],
+    summary: 'Preview Hermes policy outcome reconciliation',
+    description: 'Builds a deterministic preview reconciliation by comparing a policy decision receipt against a default wallet outcome. No persistence is performed and no live Hermes sidecar is required.',
+    parameters: [pathParam('check_id', 'Hermes spend policy check identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesPolicyReconciliationResult' }, {
+      check_id: 'hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+      policy_receipt_id: 'receipt_hermes_policy_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+      outcome: {
+        id: 'policy_outcome_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+        source_check_id: 'hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+        source_policy_receipt_id: 'receipt_hermes_policy_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+        outcome_state: 'blocked_as_required',
+        outcome_summary: 'Wallet stayed blocked after policy denied autonomous spend.',
+        spend_happened: false,
+        amount_usd: 25,
+        chain: 'base',
+        payment_rail: 'x402',
+        provider_id: 'provider_pay_sh_lattice',
+        route_id: 'route_pay_sh_market_research_01',
+        service_id: 'service_market_research',
+        evidence_artifacts: [{ id: 'artifact_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective_policy_reconciliation_note', label: 'Mock reconciliation note', kind: 'note', uri: '/v1/hermes/spend-policy/check/hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective/outcome', summary: 'Deterministic mock outcome artifact generated because no external wallet evidence artifact was supplied.' }],
+        created_at: '2026-07-03T00:00:00.000Z'
+      },
+      compliance_state: 'compliant',
+      findings: [{ id: 'policy_reconciliation_finding_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective_compliant_block', severity: 'low', label: 'Compliant block', detail: 'Observed wallet respected the block decision.', expected: 'Wallet should not spend after a block decision.', observed: 'Wallet stayed blocked as required.' }],
+      feedback: {
+        status: 'preview',
+        notes: ['policy_decision=block', 'outcome_state=blocked_as_required', 'spend_happened=false', 'Preview only. No persistence was performed.'],
+        next_policy_action: 'none'
+      },
+      impact: {
+        target_type: 'provider',
+        target_id: 'provider_pay_sh_lattice',
+        direction: 'watch',
+        magnitude: 0.6,
+        summary: 'Observed outcome keeps provider:provider_pay_sh_lattice on watch while policy safety remains under review.',
+        reputation_notes: ['policy_decision=block', 'required_action=do_not_spend', 'compliance_state=compliant', 'outcome_state=blocked_as_required', 'spend_happened=false', 'pre_spend_confidence=0.46', 'finding_count=1']
+      },
+      summary: 'Policy block reconciled with wallet outcome blocked_as_required: compliant. Next action=none.',
+      generated_at: '2026-07-03T00:00:00.000Z'
+    }, 'hermes_spend_policy_check_not_found')
+  });
+  add('post', '/v1/hermes/spend-policy/check/{check_id}/outcome', {
+    tags: ['Hermes'],
+    summary: 'Reconcile Hermes policy outcome',
+    description: 'Compares a policy decision receipt against an observed wallet outcome and returns a deterministic reconciliation result that proves whether the wallet obeyed the safety gate. The endpoint is stateless, mock-safe, deploy-safe, and does not mutate receipts, claims, reputation, decisions, outcomes, policies, policy checks, or policy receipts persistently.',
+    parameters: [pathParam('check_id', 'Hermes spend policy check identifier.')],
+    requestBody: jsonRequest(objectSchema({
+      outcome_state: { $ref: '#/components/schemas/HermesPolicyOutcomeState' },
+      outcome_summary: stringSchema(),
+      spend_happened: booleanSchema(),
+      amount_usd: { type: 'number', minimum: 0 },
+      chain: stringSchema(),
+      payment_rail: stringSchema(),
+      provider_id: stringSchema(),
+      route_id: stringSchema(),
+      service_id: stringSchema(),
+      observed_latency_ms: integerSchema(),
+      error_code: stringSchema(),
+      evidence_artifacts: arrayOf(objectSchema({
+        id: stringSchema(),
+        label: stringSchema(),
+        kind: enumSchema(['url', 'api_response', 'log', 'screenshot', 'note', 'receipt']),
+        uri: stringSchema(),
+        summary: stringSchema()
+      }))
+    }), {
+      outcome_state: 'test_spend_completed',
+      outcome_summary: 'Wallet completed the required test spend and provider returned expected result.',
+      spend_happened: true,
+      amount_usd: 25,
+      observed_latency_ms: 1800,
+      evidence_artifacts: []
+    }),
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesPolicyReconciliationResult' }, {
+      check_id: 'hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+      policy_receipt_id: 'receipt_hermes_policy_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+      outcome: {
+        id: 'policy_outcome_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+        source_check_id: 'hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+        source_policy_receipt_id: 'receipt_hermes_policy_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+        outcome_state: 'spent_despite_block',
+        outcome_summary: 'Wallet spent even though the policy gate required a block.',
+        spend_happened: true,
+        amount_usd: 25,
+        chain: 'base',
+        payment_rail: 'x402',
+        provider_id: 'provider_pay_sh_lattice',
+        route_id: 'route_pay_sh_market_research_01',
+        service_id: 'service_market_research',
+        observed_latency_ms: 1800,
+        evidence_artifacts: [{ id: 'artifact_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective_policy_reconciliation_note', label: 'Mock reconciliation note', kind: 'note', uri: '/v1/hermes/spend-policy/check/hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective/outcome', summary: 'Deterministic mock outcome artifact generated because no external wallet evidence artifact was supplied.' }],
+        created_at: '2026-07-03T00:00:00.000Z'
+      },
+      compliance_state: 'non_compliant',
+      findings: [{ id: 'policy_reconciliation_finding_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective_spent_despite_block', severity: 'critical', label: 'Spent despite block', detail: 'Observed wallet execution violated a block decision.', expected: 'Wallet must not spend when policy decision is block.', observed: 'Wallet spent with outcome_state=spent_despite_block.' }],
+      feedback: {
+        status: 'recorded',
+        notes: ['policy_decision=block', 'outcome_state=spent_despite_block', 'spend_happened=true', 'Stateless reconciliation generated. No persistence was performed.'],
+        next_policy_action: 'block_provider'
+      },
+      impact: {
+        target_type: 'provider',
+        target_id: 'provider_pay_sh_lattice',
+        direction: 'negative',
+        magnitude: 0.8,
+        summary: 'Observed outcome should reduce trust in provider:provider_pay_sh_lattice and tighten future wallet gating.',
+        reputation_notes: ['policy_decision=block', 'required_action=do_not_spend', 'compliance_state=non_compliant', 'outcome_state=spent_despite_block', 'spend_happened=true', 'pre_spend_confidence=0.46', 'finding_count=1']
+      },
+      summary: 'Policy block reconciled with wallet outcome spent_despite_block: non_compliant. Next action=block_provider.',
+      generated_at: '2026-07-03T00:00:00.000Z'
+    }, 'hermes_spend_policy_check_not_found')
+  });
   add('get', '/v1/hermes/memory-loop', {
     tags: ['Hermes'],
     summary: 'Get Hermes Agent Memory Loop',
@@ -3369,6 +3483,64 @@ function componentSchemas(): Record<string, JsonSchema> {
         notes: arrayOf(stringSchema())
       }, ['status', 'notes'])
     }, ['check_id', 'receipt', 'conversion']),
+    HermesPolicyOutcomeState: enumSchema(['spent', 'test_spend_completed', 'blocked_as_required', 'manual_review_completed', 'manual_review_missing', 'spend_attempt_blocked', 'spent_despite_block', 'failed', 'unknown']),
+    HermesPolicyComplianceState: enumSchema(['compliant', 'partially_compliant', 'non_compliant', 'needs_review', 'unknown']),
+    HermesPolicyOutcome: objectSchema({
+      id: stringSchema(),
+      source_check_id: stringSchema(),
+      source_policy_receipt_id: stringSchema(),
+      outcome_state: { $ref: '#/components/schemas/HermesPolicyOutcomeState' },
+      outcome_summary: stringSchema(),
+      spend_happened: booleanSchema(),
+      amount_usd: { type: 'number', minimum: 0 },
+      chain: stringSchema(),
+      payment_rail: stringSchema(),
+      provider_id: stringSchema(),
+      route_id: stringSchema(),
+      service_id: stringSchema(),
+      observed_latency_ms: integerSchema(),
+      error_code: stringSchema(),
+      evidence_artifacts: arrayOf(objectSchema({
+        id: stringSchema(),
+        label: stringSchema(),
+        kind: enumSchema(['url', 'api_response', 'log', 'screenshot', 'note', 'receipt']),
+        uri: stringSchema(),
+        summary: stringSchema()
+      }, ['id', 'label', 'kind', 'uri', 'summary'])),
+      created_at: dateTimeSchema()
+    }, ['id', 'source_check_id', 'source_policy_receipt_id', 'outcome_state', 'outcome_summary', 'spend_happened', 'evidence_artifacts', 'created_at']),
+    HermesPolicyReconciliationFinding: objectSchema({
+      id: stringSchema(),
+      severity: enumSchema(['low', 'medium', 'high', 'critical']),
+      label: stringSchema(),
+      detail: stringSchema(),
+      expected: stringSchema(),
+      observed: stringSchema()
+    }, ['id', 'severity', 'label', 'detail', 'expected', 'observed']),
+    HermesPolicyReconciliationImpact: objectSchema({
+      target_type: enumSchema(['provider', 'route', 'service', 'policy', 'unknown']),
+      target_id: stringSchema(),
+      direction: enumSchema(['positive', 'negative', 'neutral', 'watch']),
+      magnitude: { type: 'number', minimum: 0, maximum: 1 },
+      summary: stringSchema(),
+      reputation_notes: arrayOf(stringSchema())
+    }, ['target_type', 'direction', 'magnitude', 'summary', 'reputation_notes']),
+    HermesPolicyReconciliationFeedback: objectSchema({
+      status: enumSchema(['recorded', 'preview', 'failed']),
+      notes: arrayOf(stringSchema()),
+      next_policy_action: enumSchema(['none', 'tighten_policy', 'loosen_policy', 'require_manual_review', 'block_provider', 'request_more_evidence'])
+    }, ['status', 'notes', 'next_policy_action']),
+    HermesPolicyReconciliationResult: objectSchema({
+      check_id: stringSchema(),
+      policy_receipt_id: stringSchema(),
+      outcome: { $ref: '#/components/schemas/HermesPolicyOutcome' },
+      compliance_state: { $ref: '#/components/schemas/HermesPolicyComplianceState' },
+      findings: arrayOf({ $ref: '#/components/schemas/HermesPolicyReconciliationFinding' }),
+      feedback: { $ref: '#/components/schemas/HermesPolicyReconciliationFeedback' },
+      impact: { $ref: '#/components/schemas/HermesPolicyReconciliationImpact' },
+      summary: stringSchema(),
+      generated_at: dateTimeSchema()
+    }, ['check_id', 'policy_receipt_id', 'outcome', 'compliance_state', 'findings', 'feedback', 'impact', 'summary', 'generated_at']),
     HermesDecisionOutcomeState: enumSchema(['successful', 'failed', 'partial', 'blocked', 'manual_review', 'unknown']),
     HermesDecisionOutcomeImpact: objectSchema({
       target_type: enumSchema(['provider', 'route', 'service', 'unknown']),

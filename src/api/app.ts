@@ -186,6 +186,7 @@ import {
   resolveHermesSpendPolicyCheckById
 } from '../services/hermesSpendPolicy';
 import { createHermesPolicyDecisionReceipt } from '../services/hermesPolicyReceipt';
+import { previewHermesPolicyReconciliation, reconcileHermesPolicyOutcome, type HermesPolicyOutcome } from '../services/hermesPolicyReconciliation';
 import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
@@ -222,6 +223,28 @@ const HermesDecisionOutcomeRequestSchema = z.object({
     uri: z.string().min(1).optional(),
     summary: z.string().min(1).optional()
   }).strict()).optional()
+}).strict().optional();
+const HermesPolicyOutcomeRequestSchema = z.object({
+  id: z.string().min(1).optional(),
+  outcome_state: z.enum(['spent', 'test_spend_completed', 'blocked_as_required', 'manual_review_completed', 'manual_review_missing', 'spend_attempt_blocked', 'spent_despite_block', 'failed', 'unknown']).optional(),
+  outcome_summary: z.string().min(1).optional(),
+  spend_happened: z.boolean().optional(),
+  amount_usd: z.number().nonnegative().optional(),
+  chain: z.string().min(1).optional(),
+  payment_rail: z.string().min(1).optional(),
+  provider_id: z.string().min(1).optional(),
+  route_id: z.string().min(1).optional(),
+  service_id: z.string().min(1).optional(),
+  observed_latency_ms: z.number().int().nonnegative().optional(),
+  error_code: z.string().min(1).optional(),
+  evidence_artifacts: z.array(z.object({
+    id: z.string().min(1).optional(),
+    label: z.string().min(1).optional(),
+    kind: z.enum(['url', 'api_response', 'log', 'screenshot', 'note', 'receipt']).optional(),
+    uri: z.string().min(1).optional(),
+    summary: z.string().min(1).optional()
+  }).strict()).optional(),
+  created_at: z.string().datetime().optional()
 }).strict().optional();
 const HermesClaimPromotionRequestSchema = z.object({
   review_state: z.unknown().optional()
@@ -1605,10 +1628,21 @@ export async function createApp(
   app.post('/v1/hermes/spend-policy/check', async (req, reply) => handleParsed(req.body, HermesSpendPolicyCheckInputSchema, (input) => ({
     data: safeJsonExport(checkHermesSpendPolicy(input))
   }), reply));
+  app.get<{ Params: { check_id: string } }>('/v1/hermes/spend-policy/check/:check_id/reconciliation-preview', async (req, reply) => {
+    const check = resolveHermesSpendPolicyCheckById(req.params.check_id);
+    if (!check) {
+      return reply.code(404).send({
+        error: 'hermes_spend_policy_check_not_found',
+        message: `No deterministic Hermes spend policy check found for check_id=${req.params.check_id}`
+      });
+    }
+    return { data: safeJsonExport(previewHermesPolicyReconciliation(check)) };
+  });
   app.get<{ Params: Record<string, string> }>('/v1/hermes/spend-policy/check/*', async (req, reply) => {
     const wildcard = typeof req.params['*'] === 'string' ? req.params['*'] : '';
-    const match = wildcard.trim().match(/^([^/]+)\/receipt-preview$/);
+    const match = wildcard.trim().match(/^([^/]+)\/(receipt-preview|reconciliation-preview)$/);
     const checkId = match?.[1];
+    const action = match?.[2];
     if (!checkId) {
       return reply.code(404).send({
         error: 'hermes_spend_policy_check_not_found',
@@ -1622,12 +1656,32 @@ export async function createApp(
         message: `No deterministic Hermes spend policy check found for check_id=${checkId}`
       });
     }
+    if (action === 'reconciliation-preview') {
+      return { data: safeJsonExport(previewHermesPolicyReconciliation(check)) };
+    }
     return { data: safeJsonExport(createHermesPolicyDecisionReceipt(check)) };
   });
+  app.post<{ Params: { check_id: string } }>('/v1/hermes/spend-policy/check/:check_id/outcome', async (req, reply) => handleParsed(
+    req.body,
+    HermesPolicyOutcomeRequestSchema,
+    (input) => {
+      const check = resolveHermesSpendPolicyCheckById(req.params.check_id);
+      if (!check) {
+        reply.code(404);
+        return {
+          error: 'hermes_spend_policy_check_not_found',
+          message: `No deterministic Hermes spend policy check found for check_id=${req.params.check_id}`
+        };
+      }
+      return { data: safeJsonExport(reconcileHermesPolicyOutcome(check, input as Partial<HermesPolicyOutcome>)) };
+    },
+    reply
+  ));
   app.post<{ Params: Record<string, string> }>('/v1/hermes/spend-policy/check/*', async (req, reply) => {
     const wildcard = typeof req.params['*'] === 'string' ? req.params['*'] : '';
-    const match = wildcard.trim().match(/^([^/]+)\/receipt$/);
+    const match = wildcard.trim().match(/^([^/]+)\/(receipt|outcome)$/);
     const checkId = match?.[1];
+    const action = match?.[2];
     if (!checkId) {
       return reply.code(404).send({
         error: 'hermes_spend_policy_check_not_found',
@@ -1640,6 +1694,11 @@ export async function createApp(
         error: 'hermes_spend_policy_check_not_found',
         message: `No deterministic Hermes spend policy check found for check_id=${checkId}`
       });
+    }
+    if (action === 'outcome') {
+      return handleParsed(req.body, HermesPolicyOutcomeRequestSchema, (input) => ({
+        data: safeJsonExport(reconcileHermesPolicyOutcome(check, input as Partial<HermesPolicyOutcome>))
+      }), reply);
     }
     return { data: safeJsonExport(createHermesPolicyDecisionReceipt(check)) };
   });
