@@ -338,8 +338,8 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   });
   add('post', '/v1/hermes/pre-spend-run', {
     tags: ['Hermes'],
-    summary: 'Create mock Hermes pre-spend run',
-    description: 'Creates a mock HermesRun-shaped investigation for a route, provider, service, and spend context. No live Hermes HTTP calls are made unless future bridge code explicitly gates them behind HERMES_ENABLED=true and HERMES_MODE=http.',
+    summary: 'Create Hermes pre-spend run',
+    description: 'Creates a HermesRun-shaped investigation for a route, provider, service, and spend context. The bridge attempts a live Hermes HTTP sidecar call only when HERMES_ENABLED=true and HERMES_MODE=http; otherwise or on failure it returns a mock-compatible fallback run.',
     requestBody: jsonRequest({ $ref: '#/components/schemas/HermesPreSpendRunRequest' }, {
       route_id: 'route_pay_sh_market_research_01',
       provider_id: 'provider_pay_sh_lattice',
@@ -350,7 +350,8 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       id: 'hermes_mock_pre_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research',
       title: 'Mock Hermes Pre-Spend Run',
       decision: 'caution',
-      state: 'completed'
+      state: 'completed',
+      source: 'mock'
     })
   });
   add('get', '/v1/hermes/skills', {
@@ -367,13 +368,11 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   add('get', '/v1/hermes/health', {
     tags: ['Hermes'],
     summary: 'Get Hermes bridge health',
-    description: 'Returns Hermes bridge configuration status. The sidecar is optional and is not required for deploy, build, tests, or smoke checks.',
+    description: 'Returns Hermes bridge configuration status and, when enabled, a non-fatal Hermes sidecar health check. The sidecar is optional and is not required for deploy, build, tests, or smoke checks.',
     responses: envelopedResponses({ $ref: '#/components/schemas/HermesHealth' }, {
-      ok: true,
-      service: 'hermes-bridge',
+      enabled: false,
       mode: 'mock',
-      hermes_enabled: false,
-      sidecar_required: false
+      status: 'mock'
     })
   });
   add('get', '/v1/claims', {
@@ -2382,6 +2381,13 @@ function componentSchemas(): Record<string, JsonSchema> {
     summary: stringSchema(),
     uri: stringSchema()
   }, ['artifact_id', 'label', 'type', 'summary', 'uri']);
+  const hermesRunLifecycleEvent = objectSchema({
+    id: stringSchema(),
+    at: dateTimeSchema(),
+    state: stringSchema(),
+    label: stringSchema(),
+    detail: stringSchema()
+  }, ['id', 'at', 'state', 'label']);
   const hermesSkillSummary = objectSchema({
     id: stringSchema(),
     label: stringSchema(),
@@ -2403,7 +2409,10 @@ function componentSchemas(): Record<string, JsonSchema> {
     linked_claim_id: nullableString(),
     linked_loop_id: nullableString(),
     created_at: dateTimeSchema(),
-    completed_at: { type: ['string', 'null'], format: 'date-time' }
+    completed_at: { type: ['string', 'null'], format: 'date-time' },
+    source: enumSchema(['mock', 'hermes_http', 'hermes_http_fallback']),
+    fallback_reason: stringSchema(),
+    lifecycle_events: arrayOf(hermesRunLifecycleEvent)
   }, ['id', 'title', 'objective', 'state', 'decision', 'confidence', 'summary', 'risk_factors', 'artifacts', 'linked_receipt_id', 'linked_claim_id', 'linked_loop_id', 'created_at', 'completed_at']);
 
   return {
@@ -2413,6 +2422,7 @@ function componentSchemas(): Record<string, JsonSchema> {
       details: freeformObject()
     }),
     HermesArtifact: hermesArtifact,
+    HermesRunLifecycleEvent: hermesRunLifecycleEvent,
     HermesSkillSummary: hermesSkillSummary,
     HermesRun: hermesRun,
     HermesDeskSummary: objectSchema({
@@ -2442,15 +2452,15 @@ function componentSchemas(): Record<string, JsonSchema> {
       spend_context: freeformObject()
     }, ['route_id', 'provider_id', 'service_id']),
     HermesHealth: objectSchema({
-      ok: booleanSchema(),
-      service: stringSchema(),
-      runtime: freeformObject(),
+      enabled: booleanSchema(),
       mode: enumSchema(['mock', 'http']),
-      hermes_enabled: booleanSchema(),
-      live_http_allowed: booleanSchema(),
-      sidecar_required: booleanSchema(),
-      message: stringSchema()
-    }),
+      status: enumSchema(['mock', 'online', 'offline', 'error']),
+      base_url: stringSchema(),
+      checked_at: dateTimeSchema(),
+      latency_ms: integerSchema(),
+      error: stringSchema(),
+      capabilities: arrayOf(stringSchema())
+    }, ['enabled', 'mode', 'status', 'checked_at']),
     PreSpendMetrics: objectSchema({
       verified_pre_spend_decisions: integerSchema(),
       routes_indexed: integerSchema(),

@@ -38,6 +38,12 @@ describe('Hermes Desk page', () => {
     document.body.append(container);
     vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
       if (pathOf(input) === '/v1/hermes') return json(getHermesDeskSummary({}));
+      if (pathOf(input) === '/v1/hermes/health') return json({
+        enabled: false,
+        mode: 'mock',
+        status: 'mock',
+        checked_at: '2026-07-03T00:00:00.000Z'
+      });
       return Promise.resolve(new Response('{}', { status: 404 }));
     });
   });
@@ -59,6 +65,12 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Pay.sh Route Pre-Spend Check');
     expect(text).toContain('Agentic Market Provider Risk Review');
     expect(text).toContain('Signal Hunt Narrative Scan');
+    expect(text).toContain('Bridge status');
+    expect(text).toContain('Mock-safe sidecar reachability.');
+    expect(text).toContain('source: mock');
+    expect(text).toContain('Queued');
+    expect(text).toContain('Running');
+    expect(text).toContain('Completed');
     expect(text).toContain('receipt: receipt_001');
     expect(text).toContain('claim: claim_001');
     expect(text).toContain('loop: loop_pre_spend_route');

@@ -97,15 +97,22 @@ describe('Hermes Desk API', () => {
       title: 'Mock Hermes Pre-Spend Run',
       state: 'completed',
       decision: 'caution',
-      linked_loop_id: 'loop_pre_spend_route'
+      linked_loop_id: 'loop_pre_spend_route',
+      source: 'mock'
     }));
     expect(body.data.summary).toContain('No live Hermes sidecar call was made');
     expect(body.data.artifacts.length).toBeGreaterThanOrEqual(2);
+    expect(body.data.lifecycle_events.map((event: any) => event.state)).toEqual([
+      'queued',
+      'mock_investigation_started',
+      'mock_receipt_generated',
+      'completed'
+    ]);
 
     await app.close();
   });
 
-  it('returns Hermes bridge health in deploy-safe mode', async () => {
+  it('returns Hermes bridge health in mock mode when Hermes is disabled', async () => {
     const app = await createApp();
 
     const response = await app.inject({ method: 'GET', url: '/v1/hermes/health' });
@@ -113,13 +120,11 @@ describe('Hermes Desk API', () => {
 
     expect(response.statusCode).toBe(200);
     expect(body.data).toEqual(expect.objectContaining({
-      ok: true,
-      service: 'hermes-bridge',
-      hermes_enabled: false,
-      live_http_allowed: false,
-      sidecar_required: false
+      enabled: false,
+      mode: 'mock',
+      status: 'mock'
     }));
-    expect(body.data.message).toContain('No sidecar is required');
+    expect(body.data.error ?? null).toBeNull();
 
     await app.close();
   });

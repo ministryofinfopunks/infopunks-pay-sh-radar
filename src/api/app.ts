@@ -159,7 +159,7 @@ import { createProofCheckService } from '../services/proofCheckService';
 import { createInMemoryLoopRepository, loopRepository } from '../repositories/loopRepository';
 import { createLoopService } from '../services/loopService';
 import { checkSignalGraph, findSignalGraphNodesForEntity, getSignalGraph, getSignalGraphCluster, getSignalGraphClusters, getSignalGraphNode, getSignalGraphRipples, isSignalGraphEntityType } from '../services/signalGraphService';
-import { createMockPreSpendRun, getHermesDeskSummary, getHermesHealth, getHermesRunById, listHermesRuns } from '../services/hermesBridge';
+import { checkHermesHealth, createLivePreSpendRun, getHermesDeskSummary, getHermesRunById, listHermesRuns } from '../services/hermesBridge';
 import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
@@ -1547,8 +1547,8 @@ export async function createApp(
     if (!run) return reply.code(404).send({ error: 'hermes_run_not_found' });
     return { data: safeJsonExport(run) };
   });
-  app.post('/v1/hermes/pre-spend-run', async (req, reply) => handleParsed(req.body, HermesPreSpendRunRequestSchema, (input) => ({
-    data: safeJsonExport(createMockPreSpendRun(input))
+  app.post('/v1/hermes/pre-spend-run', async (req, reply) => handleParsed(req.body, HermesPreSpendRunRequestSchema, async (input) => ({
+    data: safeJsonExport(await createLivePreSpendRun(input))
   }), reply));
   app.get('/v1/hermes/skills', async () => ({
     data: safeJsonExport({
@@ -1558,7 +1558,7 @@ export async function createApp(
       skills: getHermesDeskSummary().skills
     })
   }));
-  app.get('/v1/hermes/health', async () => ({ data: safeJsonExport(getHermesHealth()) }));
+  app.get('/v1/hermes/health', async () => ({ data: safeJsonExport(await checkHermesHealth()) }));
   app.get('/v1/abundance', async () => ({ data: safeJsonExport(getAbundanceDeskPayload()) }));
   app.get('/v1/abundance/claims', async () => ({
     data: safeJsonExport({

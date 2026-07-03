@@ -11,6 +11,14 @@ async function api<T>(path: string): Promise<{ data: T }> {
   return response.json() as Promise<{ data: T }>;
 }
 
+type HermesHealthResponse = {
+  status?: 'mock' | 'online' | 'offline' | 'error';
+  mode?: 'mock' | 'http';
+  checked_at?: string;
+  error?: string;
+  base_url?: string;
+};
+
 function syncHermesMetadata(pathname: string) {
   const metadata = getNarrativeMetadataForPath(pathname);
   if (!metadata || typeof document === 'undefined') return;
@@ -82,11 +90,18 @@ function HermesMetric({ label, value, sub }: { label: string; value: string | nu
   </article>;
 }
 
+function sourceLabel(source?: HermesRun['source']) {
+  return source ? source.replaceAll('_', ' ') : null;
+}
+
 function HermesRunCard({ run }: { run: HermesRun }) {
   return <article className={`panel hermes-run-card state-${run.decision}`} aria-label={run.title}>
     <div className="abundance-card-head">
       <p className="section-kicker">{runStateLabel(run.state)}</p>
-      <span className={`narrative-decision-pill state-${run.decision}`}>{decisionLabel(run.decision)}</span>
+      <div className="abundance-chip-row">
+        {run.source && <span className="narrative-evidence-chip">source: {sourceLabel(run.source)}</span>}
+        <span className={`narrative-decision-pill state-${run.decision}`}>{decisionLabel(run.decision)}</span>
+      </div>
     </div>
     <h2>{run.title}</h2>
     <p>{run.summary}</p>
@@ -104,9 +119,17 @@ function HermesRunCard({ run }: { run: HermesRun }) {
       <span>claim: {run.linked_claim_id ?? 'pending'}</span>
       <span>loop: {run.linked_loop_id ?? 'pending'}</span>
     </div>
+    {run.fallback_reason && <p className="hermes-bridge-note">fallback_reason: {run.fallback_reason}</p>}
     <div className="machine-usage-list">
       {run.risk_factors.map((risk) => <p key={risk}><span>risk</span><small>{risk}</small></p>)}
     </div>
+    {!!run.lifecycle_events?.length && <div className="hermes-timeline" aria-label={`${run.title} lifecycle`}>
+      {run.lifecycle_events.map((event) => <div key={event.id} className="hermes-timeline-event">
+        <span>{event.label}</span>
+        <small>{event.state} at {event.at}</small>
+        {event.detail && <small>{event.detail}</small>}
+      </div>)}
+    </div>}
     <div className="hermes-artifact-list">
       {run.artifacts.map((artifact) => <a key={artifact.artifact_id} className="narrative-evidence-chip" href={artifact.uri}>{artifact.label}</a>)}
     </div>
@@ -185,6 +208,7 @@ function HermesNarrativePage() {
 
 function HermesDeskSurface() {
   const [summary, setSummary] = useState<HermesDeskSummary | null>(null);
+  const [health, setHealth] = useState<HermesHealthResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -195,10 +219,19 @@ function HermesDeskSurface() {
     api<HermesDeskSummary>('/v1/hermes')
       .then((response) => setSummary(response.data))
       .catch((err) => setError(err instanceof Error ? err.message : 'hermes_desk_unavailable'));
+
+    api<HermesHealthResponse>('/v1/hermes/health')
+      .then((response) => setHealth(response.data))
+      .catch(() => setHealth({
+        status: 'error',
+        mode: 'mock',
+        error: 'health_check_failed'
+      }));
   }, []);
 
   const activeRuns = useMemo(() => (summary?.runs ?? []).filter((run) => run.state === 'queued' || run.state === 'running'), [summary?.runs]);
   const completedRuns = useMemo(() => (summary?.runs ?? []).filter((run) => run.state === 'completed'), [summary?.runs]);
+  const bridgeStatus = health?.status ?? 'mock';
 
   return <div className="shell narrative-shell hermes-shell">
     <a className="skip-link" href="#hermes-content">Skip to content</a>
@@ -220,6 +253,7 @@ function HermesDeskSurface() {
         <div className="panel narrative-hero-rail hermes-hero-rail">
           <p className="section-kicker">Sidecar state</p>
           <p>{summary ? `mode=${summary.sidecar.mode} enabled=${String(summary.sidecar.enabled)} live_http_allowed=${String(summary.sidecar.live_http_allowed)}` : 'mode=mock enabled=false live_http_allowed=false'}</p>
+          <p>Bridge status: {bridgeStatus}{health?.mode ? ` (${health.mode})` : ''}</p>
           <p>Hermes Agent is not vendored here and is not required for deploy, build, tests, or smoke checks.</p>
         </div>
       </section>
@@ -232,6 +266,23 @@ function HermesDeskSurface() {
           <HermesMetric label="active" value={summary.counts.active_runs} sub="queued or running" />
           <HermesMetric label="completed" value={summary.counts.completed_runs} sub="finished runs" />
           <HermesMetric label="sidecar" value={summary.sidecar.status} sub="optional runtime" />
+        </section>
+
+        <section className="panel hermes-bridge-status" aria-label="Hermes bridge status">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Bridge status</p>
+              <h2>Mock-safe sidecar reachability.</h2>
+            </div>
+            <a className="execute compact secondary" href="/v1/hermes/health">GET /v1/hermes/health</a>
+          </div>
+          <div className="machine-usage-list">
+            <p><span>status</span><small>{bridgeStatus}</small></p>
+            <p><span>mode</span><small>{health?.mode ?? summary.sidecar.mode}</small></p>
+            <p><span>checked_at</span><small>{health?.checked_at ?? 'not available'}</small></p>
+            <p><span>base_url</span><small>{health?.base_url ?? 'not configured'}</small></p>
+            <p><span>bridge_note</span><small>{health?.error ?? 'Hermes can stay unavailable and Radar will keep serving mock-compatible runs.'}</small></p>
+          </div>
         </section>
 
         <section className="panel hermes-runs-section" aria-label="Active Hermes runs">

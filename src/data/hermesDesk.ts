@@ -10,6 +10,16 @@ export type HermesArtifact = {
   uri: string;
 };
 
+export type HermesRunSource = 'mock' | 'hermes_http' | 'hermes_http_fallback';
+
+export type HermesRunLifecycleEvent = {
+  id: string;
+  at: string;
+  state: string;
+  label: string;
+  detail?: string;
+};
+
 export type HermesRun = {
   id: string;
   title: string;
@@ -25,6 +35,9 @@ export type HermesRun = {
   linked_loop_id: string | null;
   created_at: string;
   completed_at: string | null;
+  source?: HermesRunSource;
+  fallback_reason?: string;
+  lifecycle_events?: HermesRunLifecycleEvent[];
 };
 
 export type HermesSkillSummary = {
@@ -139,7 +152,13 @@ export const hermesRuns: HermesRun[] = [
     linked_claim_id: 'claim_001',
     linked_loop_id: 'loop_pre_spend_route',
     created_at: '2026-07-02T09:10:00.000Z',
-    completed_at: '2026-07-02T09:14:00.000Z'
+    completed_at: '2026-07-02T09:14:00.000Z',
+    source: 'mock',
+    lifecycle_events: [
+      { id: 'hermes_pay_sh_route_pre_spend_check_queued', at: '2026-07-02T09:10:00.000Z', state: 'queued', label: 'Queued' },
+      { id: 'hermes_pay_sh_route_pre_spend_check_running', at: '2026-07-02T09:11:00.000Z', state: 'running', label: 'Running' },
+      { id: 'hermes_pay_sh_route_pre_spend_check_completed', at: '2026-07-02T09:14:00.000Z', state: 'completed', label: 'Completed' }
+    ]
   },
   {
     id: 'hermes_agentic_market_provider_risk_review',
@@ -174,7 +193,13 @@ export const hermesRuns: HermesRun[] = [
     linked_claim_id: 'claim_002',
     linked_loop_id: 'loop_provider_trust',
     created_at: '2026-07-02T11:20:00.000Z',
-    completed_at: '2026-07-02T11:27:00.000Z'
+    completed_at: '2026-07-02T11:27:00.000Z',
+    source: 'mock',
+    lifecycle_events: [
+      { id: 'hermes_agentic_market_provider_risk_review_queued', at: '2026-07-02T11:20:00.000Z', state: 'queued', label: 'Queued' },
+      { id: 'hermes_agentic_market_provider_risk_review_running', at: '2026-07-02T11:21:00.000Z', state: 'running', label: 'Running' },
+      { id: 'hermes_agentic_market_provider_risk_review_completed', at: '2026-07-02T11:27:00.000Z', state: 'completed', label: 'Completed' }
+    ]
   },
   {
     id: 'hermes_signal_hunt_narrative_scan',
@@ -209,7 +234,13 @@ export const hermesRuns: HermesRun[] = [
     linked_claim_id: null,
     linked_loop_id: 'loop_pre_spend_route',
     created_at: '2026-07-03T06:00:00.000Z',
-    completed_at: null
+    completed_at: null,
+    source: 'mock',
+    lifecycle_events: [
+      { id: 'hermes_signal_hunt_narrative_scan_queued', at: '2026-07-03T06:00:00.000Z', state: 'queued', label: 'Queued' },
+      { id: 'hermes_signal_hunt_narrative_scan_running', at: '2026-07-03T06:03:00.000Z', state: 'running', label: 'Running' },
+      { id: 'hermes_signal_hunt_narrative_scan_completed', at: '2026-07-03T06:20:00.000Z', state: 'completed', label: 'Completed' }
+    ]
   }
 ];
 
