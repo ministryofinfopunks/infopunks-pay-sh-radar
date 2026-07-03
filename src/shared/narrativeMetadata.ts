@@ -111,6 +111,14 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
     );
   }
 
+  if (/^\/hermes\/wallet-audit-trail\/?$/.test(pathname)) {
+    return buildMetadata(
+      'Autonomous Wallet Audit Trail',
+      'Autonomous wallets need more than logs. They need audit trails with judgment.',
+      '/hermes/wallet-audit-trail'
+    );
+  }
+
   if (/^\/hermes\/?$/.test(pathname) || /^\/narratives\/hermes-desk\/?$/.test(pathname)) {
     return buildMetadata(
       'Hermes Desk',

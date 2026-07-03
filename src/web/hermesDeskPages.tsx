@@ -30,6 +30,13 @@ import {
   type HermesPolicyOutcomeState,
   type HermesPolicyReconciliationResult
 } from '../services/hermesPolicyReconciliation';
+import type {
+  HermesWalletAuditEvent,
+  HermesWalletAuditEventState,
+  HermesWalletAuditRiskPosture,
+  HermesWalletAuditSummary,
+  HermesWalletAuditTrail
+} from '../services/hermesWalletAuditTrail';
 import { getNarrativeMetadataForPath } from '../shared/narrativeMetadata';
 
 const API_BASE_URL = getApiBaseUrl();
@@ -144,6 +151,14 @@ function policyComplianceStateLabel(state: HermesPolicyComplianceState) {
   return titleCaseWords(state);
 }
 
+function walletAuditEventStateLabel(state: HermesWalletAuditEventState) {
+  return titleCaseWords(state);
+}
+
+function walletAuditRiskLevelLabel(level: HermesWalletAuditRiskPosture['level']) {
+  return titleCaseWords(level);
+}
+
 function HermesNav({ current }: { current: string }) {
   const links = [
     { href: '/', label: 'Radar Home' },
@@ -152,6 +167,7 @@ function HermesNav({ current }: { current: string }) {
     { href: '/hermes/pre-spend-decision', label: 'Pre-Spend Decision' },
     { href: '/hermes/spend-policy', label: 'Spend Policy' },
     { href: '/hermes/decision-feedback', label: 'Decision Feedback' },
+    { href: '/hermes/wallet-audit-trail', label: 'Wallet Audit Trail' },
     { href: '/hermes/reputation-ledger', label: 'Reputation Ledger' },
     { href: '/hermes/skill-pack', label: 'Skill Pack' },
     { href: '/narratives/hermes-desk', label: 'Narrative' },
@@ -166,6 +182,7 @@ function HermesNav({ current }: { current: string }) {
     if (href === '/hermes/pre-spend-decision') return current === '/hermes/pre-spend-decision';
     if (href === '/hermes/spend-policy') return current === '/hermes/spend-policy';
     if (href === '/hermes/decision-feedback') return current === '/hermes/decision-feedback';
+    if (href === '/hermes/wallet-audit-trail') return current === '/hermes/wallet-audit-trail';
     if (href === '/hermes/reputation-ledger') return current === '/hermes/reputation-ledger';
     if (href === '/hermes/skill-pack') return current === '/hermes/skill-pack';
     if (href === '/narratives/hermes-desk') return current === '/narratives/hermes-desk';
@@ -189,7 +206,7 @@ function HermesNav({ current }: { current: string }) {
   </nav>;
 }
 
-function HermesMetric({ label, value, sub }: { label: string; value: string | number; sub: string }) {
+function HermesMetric({ label, value, sub }: { label: string; value: string | number | boolean; sub: string }) {
   return <article className="panel metric hermes-metric">
     <span>{label}</span>
     <strong>{value}</strong>
@@ -696,6 +713,196 @@ function HermesDecisionFeedbackSection({ decision }: { decision: HermesPreSpendD
   </section>;
 }
 
+function walletAuditReferenceCount(trail: HermesWalletAuditTrail) {
+  return new Set(trail.events.flatMap((event) => event.references.map((reference) => `${reference.kind}:${reference.id}`))).size;
+}
+
+function HermesWalletAuditEventCard({ event }: { event: HermesWalletAuditEvent }) {
+  return <article className={`panel hermes-run-card state-${event.state}`} aria-label={event.title}>
+    <div className="abundance-card-head">
+      <p className="section-kicker">{titleCaseWords(event.kind)}</p>
+      <div className="abundance-chip-row">
+        <span className={`narrative-decision-pill state-${event.state}`}>{walletAuditEventStateLabel(event.state)}</span>
+        <span className="narrative-evidence-chip">{event.actor}</span>
+      </div>
+    </div>
+    <h3>{event.title}</h3>
+    <p>{event.summary}</p>
+    <div className="machine-usage-list">
+      <p><span>source_id</span><small>{event.source_id ?? 'not available'}</small></p>
+      <p><span>actor</span><small>{event.actor}</small></p>
+      <p><span>at</span><small>{event.at}</small></p>
+      <p><span>decision</span><small>{event.decision ?? 'not available'}</small></p>
+      <p><span>compliance_state</span><small>{event.compliance_state ?? 'not available'}</small></p>
+      <p><span>required_action</span><small>{event.required_action ?? 'not available'}</small></p>
+      <p><span>amount / chain / rail</span><small>{typeof event.amount_usd === 'number' ? `$${event.amount_usd.toFixed(2)}` : 'not supplied'} / {event.chain ?? 'not supplied'} / {event.payment_rail ?? 'not supplied'}</small></p>
+      <p><span>references</span><small>{event.references.length}</small></p>
+    </div>
+  </article>;
+}
+
+function HermesWalletAuditCompactCard({ trail }: { trail: HermesWalletAuditTrail }) {
+  return <section className="panel hermes-skill-pack-detail" aria-label="Autonomous Wallet Audit Trail">
+    <div className="panel-head">
+      <div>
+        <p className="section-kicker">Autonomous Wallet Audit Trail</p>
+        <h2>Autonomous wallets need more than logs.</h2>
+      </div>
+      <a className="execute compact secondary" href="/hermes/wallet-audit-trail">Open Wallet Audit Trail</a>
+    </div>
+    <p className="copy">They need audit trails with judgment.</p>
+    <div className="machine-usage-list">
+      <p><span>trail_id</span><small>{trail.id}</small></p>
+      <p><span>risk_posture</span><small>{walletAuditRiskLevelLabel(trail.risk_posture.level)}</small></p>
+      <p><span>event_count</span><small>{trail.summary.event_count}</small></p>
+      <p><span>policy_decision</span><small>{trail.events.find((event) => event.kind === 'policy_check')?.decision ?? 'not available'}</small></p>
+      <p><span>compliance_state</span><small>{trail.summary.final_compliance_state ?? 'not available'}</small></p>
+      <p><span>next_policy_action</span><small>{trail.summary.next_policy_action ?? 'not available'}</small></p>
+    </div>
+  </section>;
+}
+
+function HermesWalletAuditTrailPage() {
+  const [auditSummary, setAuditSummary] = useState<HermesWalletAuditSummary | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    syncHermesMetadata('/hermes/wallet-audit-trail');
+  }, []);
+
+  useEffect(() => {
+    api<HermesWalletAuditSummary>('/v1/hermes/wallet-audit-trail')
+      .then((response) => setAuditSummary(response.data))
+      .catch((err) => setError(err instanceof Error ? err.message : 'hermes_wallet_audit_trail_unavailable'));
+  }, []);
+
+  const trail = auditSummary?.trails[0] ?? null;
+  const orderedSteps = ['Spend Intent', 'Pre-Spend Decision', 'Decision Receipt', 'Policy Check', 'Policy Receipt', 'Wallet Outcome', 'Reconciliation', 'Feedback'];
+  const references = trail ? Array.from(new Map(
+    trail.events.flatMap((event) => event.references).map((reference) => [`${reference.kind}:${reference.id}`, reference] as const)
+  ).values()) : [];
+
+  return <div className="shell narrative-shell hermes-shell">
+    <a className="skip-link" href="#hermes-wallet-audit-content">Skip to content</a>
+    <header className="site-header">
+      <HermesNav current="/hermes/wallet-audit-trail" />
+    </header>
+    <main id="hermes-wallet-audit-content" className="narrative-page hermes-page">
+      <section className="panel hero narrative-hero hermes-hero">
+        <div>
+          <p className="eyebrow">Wallet Judgment Timeline</p>
+          <h1>Autonomous Wallet Audit Trail</h1>
+          <p className="copy hermes-hero-copy">Autonomous wallets need more than logs. They need audit trails with judgment.</p>
+          <p className="copy">Spend Intent -&gt; Pre-Spend Decision -&gt; Decision Receipt -&gt; Policy Check -&gt; Policy Receipt -&gt; Wallet Outcome -&gt; Reconciliation -&gt; Feedback</p>
+          <div className="panel-actions">
+            <a className="execute" href="/v1/hermes/wallet-audit-trail">Open Audit Trail JSON</a>
+            <a className="execute compact secondary" href="/hermes">Back to Hermes Desk</a>
+          </div>
+        </div>
+        <div className="panel narrative-hero-rail hermes-hero-rail">
+          <p className="section-kicker">Stateless build</p>
+          <p>No live Hermes sidecar is required.</p>
+          <p>No persistence or wallet mutation is performed by this audit trail.</p>
+        </div>
+      </section>
+      {error && <section className="panel"><p className="route-state error">{error}</p></section>}
+      {!error && !trail && <section className="panel"><p className="route-state">Loading Autonomous Wallet Audit Trail...</p></section>}
+      {trail && <>
+        <section className="panel hermes-skill-pack-detail" aria-label="Audit Trail Summary">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Audit Trail Summary</p>
+              <h2>{trail.thesis}</h2>
+            </div>
+          </div>
+          <div className="machine-usage-list">
+            <p><span>trail_id</span><small>{trail.id}</small></p>
+            <p><span>source_check_id</span><small>{trail.source_check_id}</small></p>
+            <p><span>source_decision_id</span><small>{trail.source_decision_id}</small></p>
+            <p><span>event_count</span><small>{trail.summary.event_count}</small></p>
+            <p><span>final_compliance_state</span><small>{trail.summary.final_compliance_state ?? 'not available'}</small></p>
+            <p><span>final_feedback_direction</span><small>{trail.summary.final_feedback_direction ?? 'not available'}</small></p>
+            <p><span>next_policy_action</span><small>{trail.summary.next_policy_action ?? 'not available'}</small></p>
+          </div>
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="Risk Posture">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Risk Posture</p>
+              <h2>{walletAuditRiskLevelLabel(trail.risk_posture.level)}</h2>
+            </div>
+          </div>
+          <p className="copy">{trail.risk_posture.summary}</p>
+          <div className="abundance-chip-row">
+            {trail.risk_posture.reasons.map((reason) => <span key={reason}>{reason}</span>)}
+          </div>
+        </section>
+
+        <section className="panel hermes-runs-section" aria-label="Timeline">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Timeline</p>
+              <h2>Eight deterministic wallet safety events.</h2>
+            </div>
+          </div>
+          <div className="hermes-flow-strip" aria-label="Wallet audit trail flow">
+            {orderedSteps.map((step, index) => (
+              <React.Fragment key={step}>
+                <span>{step}</span>
+                {index < orderedSteps.length - 1 && <b aria-hidden="true">-&gt;</b>}
+              </React.Fragment>
+            ))}
+          </div>
+          <div className="hermes-run-grid">
+            {trail.events.map((event) => <HermesWalletAuditEventCard key={event.id} event={event} />)}
+          </div>
+        </section>
+
+        <section className="panel hermes-runs-section" aria-label="Signals">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Signals</p>
+              <h2>Compact wallet safety indicators.</h2>
+            </div>
+          </div>
+          <div className="grid four hermes-metric-grid">
+            {trail.signals.map((signal) => <HermesMetric key={signal.id} label={signal.label} value={signal.value} sub={signal.summary} />)}
+          </div>
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="References">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">References</p>
+              <h2>Stitched evidence handles across the wallet sequence.</h2>
+            </div>
+          </div>
+          <div className="machine-usage-list">
+            {references.map((reference) => <p key={`${reference.kind}:${reference.id}`}><span>{`${reference.kind}:${reference.id}`}</span><small>{reference.summary}</small></p>)}
+          </div>
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="What builders can inspect">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">What builders can inspect</p>
+              <h2>One timeline, one inspection surface.</h2>
+            </div>
+          </div>
+          <p className="copy">Builders can inspect the spend intent, decision reason, receipt trail, policy gate, wallet outcome, reconciliation result, and feedback action in one place.</p>
+          <div className="machine-usage-list">
+            <p><span>reference_count</span><small>{walletAuditReferenceCount(trail)}</small></p>
+            <p><span>recorded_count</span><small>{trail.summary.recorded_count}</small></p>
+            <p><span>compliant_count</span><small>{trail.summary.compliant_count}</small></p>
+            <p><span>needs_review_count</span><small>{trail.summary.needs_review_count}</small></p>
+          </div>
+        </section>
+      </>}
+    </main>
+  </div>;
+}
+
 function HermesMemoryLoopStageCard({ stage }: { stage: HermesMemoryLoop['stages'][number] }) {
   return <article className={`panel hermes-memory-stage state-${stage.state}`} aria-label={`${stage.label} memory stage`}>
     <div className="abundance-card-head">
@@ -814,6 +1021,16 @@ function HermesMemoryLoopDashboardPage() {
             <p><span>reputation_state</span><small>{loop.summary.reputation_state ?? 'not available'}</small></p>
             <p><span>feedback_direction</span><small>{loop.summary.feedback_direction ?? 'not available'}</small></p>
           </div>
+        </section>
+        <section className="panel hermes-skill-pack-detail" aria-label="Wallet audit trail note">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Wallet audit trail</p>
+              <h2>The memory loop teaches future action.</h2>
+            </div>
+            <a className="execute compact secondary" href="/hermes/wallet-audit-trail">Open Wallet Audit Trail</a>
+          </div>
+          <p className="copy">The memory loop teaches future action. The wallet audit trail makes that action inspectable.</p>
         </section>
       </>}
     </main>
@@ -957,6 +1174,14 @@ function HermesNarrativePage() {
         <p>Agents do not need chat history.</p>
         <p>Agents need memory that changes future action.</p>
       </section>
+      <section className="panel hermes-narrative-copy" aria-label="Autonomous Wallet Audit Trail">
+        <p className="section-kicker">Autonomous Wallet Audit Trail</p>
+        <h2>Autonomous wallets need more than logs. They need audit trails with judgment.</h2>
+        <p>Logs say what happened.</p>
+        <p>Audit trails explain why it happened and whether it obeyed policy.</p>
+        <p>Infopunks stitches spend intent, decision, receipts, policy checks, wallet outcomes, reconciliation, and feedback into one inspectable timeline.</p>
+        <p>This makes autonomous wallet behavior understandable to builders, users, communities, and eventually regulators.</p>
+      </section>
     </main>
   </div>;
 }
@@ -967,6 +1192,7 @@ function HermesDeskSurface() {
   const [ledger, setLedger] = useState<HermesReputationLedgerSummary | null>(null);
   const [preSpendDecision, setPreSpendDecision] = useState<HermesPreSpendDecision | null>(null);
   const [spendPolicyResult, setSpendPolicyResult] = useState<HermesSpendPolicyCheckResult | null>(null);
+  const [walletAuditSummary, setWalletAuditSummary] = useState<HermesWalletAuditSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -997,6 +1223,10 @@ function HermesDeskSurface() {
     api<HermesSpendPolicyCheckResult>('/v1/hermes/spend-policy/example')
       .then((response) => setSpendPolicyResult(response.data))
       .catch(() => setSpendPolicyResult(null));
+
+    api<HermesWalletAuditSummary>('/v1/hermes/wallet-audit-trail')
+      .then((response) => setWalletAuditSummary(response.data))
+      .catch(() => setWalletAuditSummary(null));
   }, []);
 
   const activeRuns = useMemo(() => (summary?.runs ?? []).filter((run) => run.state === 'queued' || run.state === 'running'), [summary?.runs]);
@@ -1016,6 +1246,7 @@ function HermesDeskSurface() {
     if (!spendPolicyResult) return null;
     return previewHermesPolicyReconciliation(spendPolicyResult);
   }, [spendPolicyResult]);
+  const walletAuditTrail = walletAuditSummary?.trails[0] ?? null;
 
   return <div className="shell narrative-shell hermes-shell">
     <a className="skip-link" href="#hermes-content">Skip to content</a>
@@ -1185,6 +1416,8 @@ function HermesDeskSurface() {
         <HermesPreSpendDecisionSection decision={preSpendDecision} />
 
         <HermesSpendPolicySection result={spendPolicyResult} />
+
+        {walletAuditTrail && <HermesWalletAuditCompactCard trail={walletAuditTrail} />}
 
         {policyReceiptPreview && <section className="panel hermes-skill-pack-detail" aria-label="Policy Decision Receipts">
           <div className="panel-head">
@@ -1420,6 +1653,18 @@ function HermesSkillPackPage() {
             {['decision reason', 'cited evidence', 'risk factors', 'rule triggers', 'expected action', 'outcome criteria'].map((item) => <span key={item}>{item}</span>)}
           </div>
         </section>
+        <section className="panel hermes-skill-pack-detail" aria-label="Audit-trail-ready outputs">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Audit-trail-ready outputs</p>
+              <h2>Hermes skills should produce outputs that can be inspected later.</h2>
+            </div>
+            <a className="execute compact secondary" href="/hermes/wallet-audit-trail">Open Wallet Audit Trail</a>
+          </div>
+          <div className="abundance-chip-row">
+            {['spend intent', 'decision reason', 'policy trigger', 'evidence reference', 'expected wallet behavior', 'actual wallet behavior', 'reconciliation finding', 'feedback action'].map((item) => <span key={item}>{item}</span>)}
+          </div>
+        </section>
 
       <section className="panel hermes-skill-pack-detail" aria-label="Memory-loop-ready skills">
           <div className="panel-head">
@@ -1635,6 +1880,15 @@ function HermesSpendPolicyPage() {
           <HermesPolicyReconciliationCard reconciliation={reconciliationPreview} policyDecision={result.decision} />
         </div>
       </section>}
+      <section className="panel hermes-skill-pack-detail" aria-label="Wallet audit trail note">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Wallet audit trail</p>
+            <h2>Policy checks, policy receipts, and reconciliations now roll up into one autonomous wallet audit trail.</h2>
+          </div>
+          <a className="execute compact secondary" href="/hermes/wallet-audit-trail">Open Wallet Audit Trail</a>
+        </div>
+      </section>
       {result && <section className="panel hermes-skill-pack-detail" aria-label="Violations and Warnings">
         <div className="panel-head">
           <div>
@@ -1850,6 +2104,16 @@ function HermesDecisionFeedbackPage() {
         <p className="copy">Policy receipts can become part of the feedback trail when comparing what the wallet was allowed to do against what actually happened.</p>
         <p className="copy">Decision feedback tells whether the spend outcome matched the recommendation. Policy reconciliation tells whether the wallet obeyed the safety gate.</p>
       </section>
+      <section className="panel hermes-skill-pack-detail" aria-label="Wallet audit trail note">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Wallet audit trail</p>
+            <h2>Decision feedback is one part of the larger wallet audit trail.</h2>
+          </div>
+          <a className="execute compact secondary" href="/hermes/wallet-audit-trail">Open Wallet Audit Trail</a>
+        </div>
+        <p className="copy">Decision feedback is one part of the larger wallet audit trail that shows what was recommended, what was allowed, what happened, and what changed.</p>
+      </section>
       {error && <section className="panel"><p className="route-state error">{error}</p></section>}
       {receipt && <section className="panel hermes-runs-section" aria-label="Example Decision Receipt">
         <div className="panel-head"><div><p className="section-kicker">Example Decision Receipt</p><h2>Receipt-shaped decision memory.</h2></div></div>
@@ -1934,10 +2198,12 @@ export function HermesDeskPage({
   reputationLedgerRoute = false,
   preSpendDecisionRoute = false,
   spendPolicyRoute = false,
-  decisionFeedbackRoute = false
-}: { narrativeRoute?: boolean; memoryLoopRoute?: boolean; skillPackRoute?: boolean; reputationLedgerRoute?: boolean; preSpendDecisionRoute?: boolean; spendPolicyRoute?: boolean; decisionFeedbackRoute?: boolean }) {
+  decisionFeedbackRoute = false,
+  walletAuditTrailRoute = false
+}: { narrativeRoute?: boolean; memoryLoopRoute?: boolean; skillPackRoute?: boolean; reputationLedgerRoute?: boolean; preSpendDecisionRoute?: boolean; spendPolicyRoute?: boolean; decisionFeedbackRoute?: boolean; walletAuditTrailRoute?: boolean }) {
   if (memoryLoopRoute) return <HermesMemoryLoopDashboardPage />;
   if (decisionFeedbackRoute) return <HermesDecisionFeedbackPage />;
+  if (walletAuditTrailRoute) return <HermesWalletAuditTrailPage />;
   if (spendPolicyRoute) return <HermesSpendPolicyPage />;
   if (preSpendDecisionRoute) return <HermesPreSpendDecisionPage />;
   if (reputationLedgerRoute) return <HermesReputationLedgerPage />;

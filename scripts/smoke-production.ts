@@ -5,6 +5,7 @@ import { listSignalHuntCandidates } from '../src/data/signalHunt';
 import { hermesRuns } from '../src/data/hermesDesk';
 import { HERMES_PRE_SPEND_DECISION_EXAMPLE_ID } from '../src/services/hermesPreSpendDecision';
 import { getHermesSpendPolicyExampleCheck } from '../src/services/hermesSpendPolicy';
+import { buildHermesWalletAuditTrail } from '../src/services/hermesWalletAuditTrail';
 
 export const DEFAULT_BASE_URL = 'https://radar.infopunks.fun';
 export const PRE_SPEND_CHECK_PAYLOAD = {
@@ -67,6 +68,7 @@ export type SmokePlan = {
   hermesPolicyOutcomePath: string;
   hermesDecisionReceiptPath: string;
   hermesDecisionOutcomePath: string;
+  hermesWalletAuditTrailDetailPath: string;
   livePulsePath: string;
 };
 
@@ -115,6 +117,7 @@ export function buildSmokePlan(): SmokePlan {
   const signalHuntId = listSignalHuntCandidates()[0]?.id ?? 'hunt_black_bull_coordination';
   const hermesRunId = hermesRuns[0]?.id ?? 'hermes_pay_sh_route_pre_spend_check';
   const hermesPolicyCheckId = getHermesSpendPolicyExampleCheck().id;
+  const hermesWalletAuditTrailId = buildHermesWalletAuditTrail().id;
 
   return {
     publicPaths: [
@@ -139,6 +142,7 @@ export function buildSmokePlan(): SmokePlan {
       '/hermes/pre-spend-decision',
       '/hermes/spend-policy',
       '/hermes/decision-feedback',
+      '/hermes/wallet-audit-trail',
       '/hermes/reputation-ledger',
       '/hermes/skill-pack',
       '/narratives/hermes-desk',
@@ -186,6 +190,8 @@ export function buildSmokePlan(): SmokePlan {
       '/v1/hermes/health',
       '/v1/hermes/spend-policy',
       '/v1/hermes/spend-policy/example',
+      '/v1/hermes/wallet-audit-trail',
+      `/v1/hermes/wallet-audit-trail/${encodeURIComponent(hermesWalletAuditTrailId)}`,
       `/v1/hermes/spend-policy/check/${encodeURIComponent(hermesPolicyCheckId)}/reconciliation-preview`,
       '/v1/hermes/pre-spend-decision/example',
       '/v1/hermes/reputation-ledger',
@@ -244,6 +250,7 @@ export function buildSmokePlan(): SmokePlan {
     hermesPolicyOutcomePath: `/v1/hermes/spend-policy/check/${encodeURIComponent(hermesPolicyCheckId)}/outcome`,
     hermesDecisionReceiptPath: `/v1/hermes/pre-spend-decision/${encodeURIComponent(HERMES_PRE_SPEND_DECISION_EXAMPLE_ID)}/receipt`,
     hermesDecisionOutcomePath: `/v1/hermes/pre-spend-decision/${encodeURIComponent(HERMES_PRE_SPEND_DECISION_EXAMPLE_ID)}/outcome`,
+    hermesWalletAuditTrailDetailPath: `/v1/hermes/wallet-audit-trail/${encodeURIComponent(hermesWalletAuditTrailId)}`,
     livePulsePath: '/v1/pulse'
   };
 }

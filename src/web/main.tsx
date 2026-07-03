@@ -1977,7 +1977,7 @@ function isAbundanceDeskRoute(pathname: string) {
 }
 
 function isHermesDeskRoute(pathname: string) {
-  return /^\/hermes\/?$/.test(pathname) || /^\/hermes\/memory-loop\/?$/.test(pathname) || /^\/hermes\/skill-pack\/?$/.test(pathname) || /^\/hermes\/reputation-ledger\/?$/.test(pathname) || /^\/hermes\/pre-spend-decision\/?$/.test(pathname) || /^\/hermes\/spend-policy\/?$/.test(pathname) || /^\/hermes\/decision-feedback\/?$/.test(pathname) || /^\/narratives\/hermes-desk\/?$/.test(pathname);
+  return /^\/hermes\/?$/.test(pathname) || /^\/hermes\/memory-loop\/?$/.test(pathname) || /^\/hermes\/skill-pack\/?$/.test(pathname) || /^\/hermes\/reputation-ledger\/?$/.test(pathname) || /^\/hermes\/pre-spend-decision\/?$/.test(pathname) || /^\/hermes\/spend-policy\/?$/.test(pathname) || /^\/hermes\/decision-feedback\/?$/.test(pathname) || /^\/hermes\/wallet-audit-trail\/?$/.test(pathname) || /^\/narratives\/hermes-desk\/?$/.test(pathname);
 }
 
 function routeAttentionMarketWatchSlug(pathname: string) {
@@ -14336,7 +14336,7 @@ export function App() {
   if (isAttentionMarketsRoute(window.location.pathname)) return <AttentionMarketsPage />;
   if (isAttentionMarketWatchRoute(window.location.pathname)) return <AttentionMarketWatchPage />;
   if (isAbundanceDeskRoute(window.location.pathname)) return <AbundanceDeskPage narrativeRoute={/^\/narratives\/abundance-desk\/?$/.test(window.location.pathname)} />;
-  if (isHermesDeskRoute(window.location.pathname)) return <HermesDeskPage narrativeRoute={/^\/narratives\/hermes-desk\/?$/.test(window.location.pathname)} memoryLoopRoute={/^\/hermes\/memory-loop\/?$/.test(window.location.pathname)} skillPackRoute={/^\/hermes\/skill-pack\/?$/.test(window.location.pathname)} reputationLedgerRoute={/^\/hermes\/reputation-ledger\/?$/.test(window.location.pathname)} preSpendDecisionRoute={/^\/hermes\/pre-spend-decision\/?$/.test(window.location.pathname)} spendPolicyRoute={/^\/hermes\/spend-policy\/?$/.test(window.location.pathname)} decisionFeedbackRoute={/^\/hermes\/decision-feedback\/?$/.test(window.location.pathname)} />;
+  if (isHermesDeskRoute(window.location.pathname)) return <HermesDeskPage narrativeRoute={/^\/narratives\/hermes-desk\/?$/.test(window.location.pathname)} memoryLoopRoute={/^\/hermes\/memory-loop\/?$/.test(window.location.pathname)} skillPackRoute={/^\/hermes\/skill-pack\/?$/.test(window.location.pathname)} reputationLedgerRoute={/^\/hermes\/reputation-ledger\/?$/.test(window.location.pathname)} preSpendDecisionRoute={/^\/hermes\/pre-spend-decision\/?$/.test(window.location.pathname)} spendPolicyRoute={/^\/hermes\/spend-policy\/?$/.test(window.location.pathname)} decisionFeedbackRoute={/^\/hermes\/decision-feedback\/?$/.test(window.location.pathname)} walletAuditTrailRoute={/^\/hermes\/wallet-audit-trail\/?$/.test(window.location.pathname)} />;
   const attentionMarketWatchSlug = routeAttentionMarketWatchSlug(window.location.pathname);
   if (attentionMarketWatchSlug) return <AttentionMarketWatchProfilePage slug={attentionMarketWatchSlug} />;
   const signalUpdate = routeSignalUpdate(window.location.pathname);

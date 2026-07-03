@@ -689,6 +689,76 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       summary: { stage_count: 8, current_decision: 'do_not_spend', current_required_action: 'do_not_use_provider' }
     }, 'hermes_memory_loop_not_found')
   });
+  add('get', '/v1/hermes/wallet-audit-trail', {
+    tags: ['Hermes'],
+    summary: 'Get Autonomous Wallet Audit Trail',
+    description: 'Returns a deterministic, stateless wallet audit summary that stitches spend intent, pre-spend decision, receipts, policy check, wallet outcome, reconciliation, and feedback into one timeline. No live Hermes sidecar or persistence is required.',
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesWalletAuditSummary' }, {
+      generated_at: '2026-07-03T00:00:00.000Z',
+      trail_count: 1,
+      trails: [{
+        id: 'hermes_wallet_audit_trail_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+        title: 'Autonomous Wallet Audit Trail',
+        generated_at: '2026-07-03T00:00:00.000Z',
+        thesis: 'Autonomous wallets need more than logs. They need audit trails with judgment.',
+        source_check_id: 'hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+        source_decision_id: 'hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+        events: [{
+          id: 'hermes_wallet_audit_trail_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective_event_1_spend_intent',
+          at: '2026-07-03T00:00:00.000Z',
+          kind: 'spend_intent',
+          state: 'recorded',
+          title: 'Spend Intent',
+          summary: 'Wallet requested $25.00 for route_pay_sh_market_research_01 on base via x402.',
+          actor: 'agent',
+          source_id: 'hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+          amount_usd: 25,
+          chain: 'base',
+          payment_rail: 'x402',
+          provider_id: 'provider_pay_sh_lattice',
+          route_id: 'route_pay_sh_market_research_01',
+          service_id: 'service_market_research',
+          references: [{ kind: 'reputation', id: 'provider:provider_pay_sh_lattice', summary: 'Lattice Research Relay is degraded with trust score 13.' }]
+        }],
+        signals: [{ id: 'policy_decision', label: 'Policy decision', value: 'block', summary: 'Wallet gate result produced by the spend policy layer.' }],
+        risk_posture: {
+          level: 'medium',
+          summary: 'Medium wallet safety posture: behavior is compliant but still worth watching.',
+          reasons: ['Watch-state feedback, warnings, or test-spend requirements keep the trail under active inspection.']
+        },
+        summary: {
+          event_count: 8,
+          recorded_count: 3,
+          allowed_count: 0,
+          blocked_count: 1,
+          compliant_count: 2,
+          non_compliant_count: 0,
+          needs_review_count: 1,
+          final_compliance_state: 'compliant',
+          final_feedback_direction: 'watch',
+          next_policy_action: 'none'
+        }
+      }]
+    })
+  });
+  add('get', '/v1/hermes/wallet-audit-trail/{trail_id}', {
+    tags: ['Hermes'],
+    summary: 'Get Autonomous Wallet Audit Trail by id',
+    description: 'Returns the deterministic wallet audit trail by id. Unknown trail ids return hermes_wallet_audit_trail_not_found.',
+    parameters: [pathParam('trail_id', 'Hermes wallet audit trail identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesWalletAuditTrail' }, {
+      id: 'hermes_wallet_audit_trail_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+      title: 'Autonomous Wallet Audit Trail',
+      generated_at: '2026-07-03T00:00:00.000Z',
+      thesis: 'Autonomous wallets need more than logs. They need audit trails with judgment.',
+      source_check_id: 'hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+      source_decision_id: 'hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+      events: [{ id: 'wallet_audit_event_1', at: '2026-07-03T00:00:00.000Z', kind: 'spend_intent', state: 'recorded', title: 'Spend Intent', summary: 'Wallet requested $25.00 for route_pay_sh_market_research_01 on base via x402.', actor: 'agent', references: [{ kind: 'reputation', id: 'provider:provider_pay_sh_lattice', summary: 'Lattice Research Relay is degraded with trust score 13.' }] }],
+      signals: [{ id: 'risk_posture', label: 'Risk posture', value: 'medium', summary: 'Medium wallet safety posture: behavior is compliant but still worth watching.' }],
+      risk_posture: { level: 'medium', summary: 'Medium wallet safety posture: behavior is compliant but still worth watching.', reasons: ['Watch-state feedback, warnings, or test-spend requirements keep the trail under active inspection.'] },
+      summary: { event_count: 8, recorded_count: 3, allowed_count: 0, blocked_count: 1, compliant_count: 2, non_compliant_count: 0, needs_review_count: 1, final_compliance_state: 'compliant', final_feedback_direction: 'watch', next_policy_action: 'none' }
+    }, 'hermes_wallet_audit_trail_not_found')
+  });
   add('get', '/v1/hermes/skill-pack/skills', {
     tags: ['Hermes'],
     summary: 'List Hermes Skill Pack skills',
@@ -3295,6 +3365,73 @@ function componentSchemas(): Record<string, JsonSchema> {
       loop_count: integerSchema(),
       loops: arrayOf({ $ref: '#/components/schemas/HermesMemoryLoop' })
     }, ['generated_at', 'loop_count', 'loops']),
+    HermesWalletAuditEventKind: enumSchema(['spend_intent', 'pre_spend_decision', 'decision_receipt', 'policy_check', 'policy_receipt', 'wallet_outcome', 'reconciliation', 'feedback']),
+    HermesWalletAuditEventState: enumSchema(['recorded', 'allowed', 'test_required', 'manual_review_required', 'blocked', 'compliant', 'partially_compliant', 'non_compliant', 'needs_review', 'unknown']),
+    HermesWalletAuditReference: objectSchema({
+      kind: enumSchema(['decision', 'decision_receipt', 'policy_check', 'policy_receipt', 'outcome', 'reconciliation', 'reputation', 'receipt', 'claim', 'run']),
+      id: stringSchema(),
+      summary: stringSchema()
+    }, ['kind', 'id', 'summary']),
+    HermesWalletAuditEvent: objectSchema({
+      id: stringSchema(),
+      at: dateTimeSchema(),
+      kind: { $ref: '#/components/schemas/HermesWalletAuditEventKind' },
+      state: { $ref: '#/components/schemas/HermesWalletAuditEventState' },
+      title: stringSchema(),
+      summary: stringSchema(),
+      actor: enumSchema(['agent', 'infopunks', 'policy_engine', 'wallet', 'reconciliation_engine']),
+      source_id: stringSchema(),
+      decision: stringSchema(),
+      required_action: stringSchema(),
+      compliance_state: stringSchema(),
+      amount_usd: { type: 'number', minimum: 0 },
+      chain: stringSchema(),
+      payment_rail: stringSchema(),
+      provider_id: stringSchema(),
+      route_id: stringSchema(),
+      service_id: stringSchema(),
+      references: arrayOf({ $ref: '#/components/schemas/HermesWalletAuditReference' }),
+      metadata: freeformObject()
+    }, ['id', 'at', 'kind', 'state', 'title', 'summary', 'actor', 'references']),
+    HermesWalletAuditSignal: objectSchema({
+      id: stringSchema(),
+      label: stringSchema(),
+      value: { oneOf: [stringSchema(), { type: 'number' }, booleanSchema()] },
+      summary: stringSchema()
+    }, ['id', 'label', 'value', 'summary']),
+    HermesWalletAuditRiskPosture: objectSchema({
+      level: enumSchema(['low', 'medium', 'high', 'critical']),
+      summary: stringSchema(),
+      reasons: arrayOf(stringSchema())
+    }, ['level', 'summary', 'reasons']),
+    HermesWalletAuditTrail: objectSchema({
+      id: stringSchema(),
+      title: stringSchema(),
+      generated_at: dateTimeSchema(),
+      thesis: stringSchema(),
+      source_check_id: stringSchema(),
+      source_decision_id: stringSchema(),
+      events: arrayOf({ $ref: '#/components/schemas/HermesWalletAuditEvent' }),
+      signals: arrayOf({ $ref: '#/components/schemas/HermesWalletAuditSignal' }),
+      risk_posture: { $ref: '#/components/schemas/HermesWalletAuditRiskPosture' },
+      summary: objectSchema({
+        event_count: integerSchema(),
+        recorded_count: integerSchema(),
+        allowed_count: integerSchema(),
+        blocked_count: integerSchema(),
+        compliant_count: integerSchema(),
+        non_compliant_count: integerSchema(),
+        needs_review_count: integerSchema(),
+        final_compliance_state: stringSchema(),
+        final_feedback_direction: stringSchema(),
+        next_policy_action: stringSchema()
+      }, ['event_count', 'recorded_count', 'allowed_count', 'blocked_count', 'compliant_count', 'non_compliant_count', 'needs_review_count'])
+    }, ['id', 'title', 'generated_at', 'thesis', 'source_check_id', 'source_decision_id', 'events', 'signals', 'risk_posture', 'summary']),
+    HermesWalletAuditSummary: objectSchema({
+      generated_at: dateTimeSchema(),
+      trail_count: integerSchema(),
+      trails: arrayOf({ $ref: '#/components/schemas/HermesWalletAuditTrail' })
+    }, ['generated_at', 'trail_count', 'trails']),
     HermesRunReceipt: hermesRunReceipt,
     HermesClaimCandidate: hermesClaimCandidate,
     HermesClaimReviewState: hermesClaimReviewState,

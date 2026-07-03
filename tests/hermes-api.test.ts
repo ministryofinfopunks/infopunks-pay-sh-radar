@@ -5,6 +5,7 @@ import { convertHermesRunToReceipt } from '../src/services/hermesReceiptConverte
 import { getHermesPreSpendDecisionExample } from '../src/services/hermesPreSpendDecision';
 import { getDefaultHermesSpendPolicy, getHermesSpendPolicyExampleCheck } from '../src/services/hermesSpendPolicy';
 import { previewHermesPolicyReconciliation } from '../src/services/hermesPolicyReconciliation';
+import { buildHermesWalletAuditTrail } from '../src/services/hermesWalletAuditTrail';
 
 describe('Hermes Desk API', () => {
   const originalHermesEnv = {
@@ -257,6 +258,60 @@ describe('Hermes Desk API', () => {
     expect(body.data.provider_count).toBeGreaterThanOrEqual(1);
     expect(body.data.route_count).toBeGreaterThanOrEqual(1);
     expect(body.data.entries.map((entry: any) => entry.target_type)).toEqual(expect.arrayContaining(['provider', 'route', 'service']));
+
+    await app.close();
+  });
+
+  it('returns the wallet audit trail summary', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({ method: 'GET', url: '/v1/hermes/wallet-audit-trail' });
+    const body = response.json();
+
+    expect(response.statusCode).toBe(200);
+    expect(body.data.trail_count).toBeGreaterThanOrEqual(1);
+    expect(body.data.trails[0]).toEqual(expect.objectContaining({
+      title: 'Autonomous Wallet Audit Trail'
+    }));
+    expect(body.data.trails[0].events.map((event: any) => event.kind)).toEqual([
+      'spend_intent',
+      'pre_spend_decision',
+      'decision_receipt',
+      'policy_check',
+      'policy_receipt',
+      'wallet_outcome',
+      'reconciliation',
+      'feedback'
+    ]);
+
+    await app.close();
+  });
+
+  it('returns one deterministic wallet audit trail by id', async () => {
+    const app = await createApp();
+    const trail = buildHermesWalletAuditTrail();
+
+    const response = await app.inject({ method: 'GET', url: `/v1/hermes/wallet-audit-trail/${encodeURIComponent(trail.id)}` });
+    const body = response.json();
+
+    expect(response.statusCode).toBe(200);
+    expect(body.data).toEqual(expect.objectContaining({
+      id: trail.id,
+      source_check_id: trail.source_check_id
+    }));
+
+    await app.close();
+  });
+
+  it('returns 404 for an unknown wallet audit trail id', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({ method: 'GET', url: '/v1/hermes/wallet-audit-trail/not-real' });
+
+    expect(response.statusCode).toBe(404);
+    expect(response.json()).toEqual(expect.objectContaining({
+      error: 'hermes_wallet_audit_trail_not_found'
+    }));
 
     await app.close();
   });

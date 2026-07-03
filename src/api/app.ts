@@ -187,6 +187,10 @@ import {
 } from '../services/hermesSpendPolicy';
 import { createHermesPolicyDecisionReceipt } from '../services/hermesPolicyReceipt';
 import { previewHermesPolicyReconciliation, reconcileHermesPolicyOutcome, type HermesPolicyOutcome } from '../services/hermesPolicyReconciliation';
+import {
+  buildHermesWalletAuditTrailSummary,
+  resolveHermesWalletAuditTrailById
+} from '../services/hermesWalletAuditTrail';
 import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
@@ -1712,6 +1716,18 @@ export async function createApp(
       });
     }
     return { data: safeJsonExport(loop) };
+  });
+  app.get('/v1/hermes/wallet-audit-trail', async () => ({ data: safeJsonExport(buildHermesWalletAuditTrailSummary()) }));
+  app.get<{ Params: Record<string, string> }>('/v1/hermes/wallet-audit-trail/*', async (req, reply) => {
+    const trailId = typeof req.params['*'] === 'string' ? req.params['*'].trim() : '';
+    const trail = resolveHermesWalletAuditTrailById(trailId);
+    if (!trail) {
+      return reply.code(404).send({
+        error: 'hermes_wallet_audit_trail_not_found',
+        message: `No Hermes wallet audit trail found for trail_id=${trailId || 'unknown'}`
+      });
+    }
+    return { data: safeJsonExport(trail) };
   });
   app.get('/v1/hermes/skill-pack/skills', async () => ({
     data: safeJsonExport({

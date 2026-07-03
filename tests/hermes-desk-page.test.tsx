@@ -9,6 +9,7 @@ import { buildHermesReputationLedger } from '../src/services/hermesReputationLed
 import { createHermesPreSpendDecisionExample } from '../src/services/hermesPreSpendDecision';
 import { buildHermesMemoryLoopSummary } from '../src/services/hermesMemoryLoop';
 import { createHermesSpendPolicyExample, listHermesSpendPolicies, listHermesSpendPolicyRules } from '../src/services/hermesSpendPolicy';
+import { buildHermesWalletAuditTrailSummary } from '../src/services/hermesWalletAuditTrail';
 import { App } from '../src/web/main';
 
 function json(data: unknown) {
@@ -45,6 +46,7 @@ describe('Hermes Desk page', () => {
       if (pathOf(input) === '/v1/hermes') return json(getHermesDeskSummary({}));
       if (pathOf(input) === '/v1/hermes/skill-pack') return json(getHermesSkillPack());
       if (pathOf(input) === '/v1/hermes/memory-loop') return json(buildHermesMemoryLoopSummary());
+      if (pathOf(input) === '/v1/hermes/wallet-audit-trail') return json(buildHermesWalletAuditTrailSummary());
       if (pathOf(input) === '/v1/hermes/reputation-ledger') return json(buildHermesReputationLedger());
       if (pathOf(input) === '/v1/hermes/pre-spend-decision/example') return json(createHermesPreSpendDecisionExample());
       if (pathOf(input) === '/v1/hermes/spend-policy') return json({
@@ -117,6 +119,8 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('One claim is judgment.');
     expect(text).toContain('Many judgments become reputation.');
     expect(text).toContain('Pre-Spend Decision Engine');
+    expect(text).toContain('Autonomous Wallet Audit Trail');
+    expect(text).toContain('Open Wallet Audit Trail');
     expect(text).toContain('Before an agent spends, it checks the ledger.');
     expect(text).toContain('Reputation is not just displayed.');
     expect(text).toContain('Reputation now decides.');
@@ -177,6 +181,9 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Feedback-ready skills');
     expect(text).toContain('Memory-loop-ready skills');
     expect(text).toContain('Hermes skills should produce outputs that can flow through: Run → Receipt → Claim → Review → Reputation → Decision → Outcome → Feedback');
+    expect(text).toContain('Audit-trail-ready outputs');
+    expect(text).toContain('spend intent');
+    expect(text).toContain('feedback action');
     expect(text).toContain('expected result');
     expect(text).toContain('success criteria');
     expect(text).toContain('failure reasons');
@@ -271,6 +278,10 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('A reconciliation proves what actually happened.');
     expect(text).toContain('Agents do not need chat history.');
     expect(text).toContain('Agents need memory that changes future action.');
+    expect(text).toContain('Autonomous Wallet Audit Trail');
+    expect(text).toContain('Logs say what happened.');
+    expect(text).toContain('Audit trails explain why it happened and whether it obeyed policy.');
+    expect(text).toContain('This makes autonomous wallet behavior understandable to builders, users, communities, and eventually regulators.');
     expect(container.querySelector('a[href="/narratives/hermes-desk"]')?.getAttribute('aria-current')).toBe('page');
   });
 
@@ -302,6 +313,7 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Policy sits between Decision and Outcome as the wallet safety gate.');
     expect(text).toContain('Policy decisions can now become receipts, making the safety gate auditable before the outcome feeds back into reputation.');
     expect(text).toContain('Policy reconciliation compares the policy receipt against the actual wallet outcome before feedback is used for the next spend.');
+    expect(text).toContain('The memory loop teaches future action. The wallet audit trail makes that action inspectable.');
     expect(container.querySelector('a[href="/hermes/memory-loop"]')?.getAttribute('aria-current')).toBe('page');
   });
 
@@ -362,6 +374,8 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Pre-Spend Decision Used');
     expect(text).toContain('References Used');
     expect(text).toContain('Rule Map');
+    expect(text).toContain('Policy checks, policy receipts, and reconciliations now roll up into one autonomous wallet audit trail.');
+    expect(container.querySelector('a[href="/hermes/wallet-audit-trail"]')).not.toBeNull();
     expect(container.querySelector('a[href="/hermes/spend-policy"]')?.getAttribute('aria-current')).toBe('page');
   });
 
@@ -380,6 +394,31 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Feedback is not the end of the loop. It becomes input for the next pre-spend decision.');
     expect(text).toContain('Policy receipts can become part of the feedback trail when comparing what the wallet was allowed to do against what actually happened.');
     expect(text).toContain('Decision feedback tells whether the spend outcome matched the recommendation. Policy reconciliation tells whether the wallet obeyed the safety gate.');
+    expect(text).toContain('Decision feedback is one part of the larger wallet audit trail that shows what was recommended, what was allowed, what happened, and what changed.');
+    expect(container.querySelector('a[href="/hermes/wallet-audit-trail"]')).not.toBeNull();
     expect(container.querySelector('a[href="/hermes/decision-feedback"]')?.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('renders the Autonomous Wallet Audit Trail page', async () => {
+    root = await renderPath(container, '/hermes/wallet-audit-trail');
+
+    const text = container.textContent ?? '';
+    expect(text).toContain('Autonomous Wallet Audit Trail');
+    expect(text).toContain('Autonomous wallets need more than logs. They need audit trails with judgment.');
+    expect(text).toContain('Audit Trail Summary');
+    expect(text).toContain('Risk Posture');
+    expect(text).toContain('Timeline');
+    expect(text).toContain('Signals');
+    expect(text).toContain('References');
+    expect(text).toContain('What builders can inspect');
+    expect(text).toContain('Spend Intent');
+    expect(text).toContain('Pre-Spend Decision');
+    expect(text).toContain('Decision Receipt');
+    expect(text).toContain('Policy Check');
+    expect(text).toContain('Policy Receipt');
+    expect(text).toContain('Wallet Outcome');
+    expect(text).toContain('Reconciliation');
+    expect(text).toContain('Feedback');
+    expect(container.querySelector('a[href="/hermes/wallet-audit-trail"]')?.getAttribute('aria-current')).toBe('page');
   });
 });
