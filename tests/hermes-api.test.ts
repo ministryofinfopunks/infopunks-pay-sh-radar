@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createApp } from '../src/api/app';
 import type { HermesRun } from '../src/data/hermesDesk';
 import { convertHermesRunToReceipt } from '../src/services/hermesReceiptConverter';
+import { getHermesPreSpendDecisionExample } from '../src/services/hermesPreSpendDecision';
 
 describe('Hermes Desk API', () => {
   const originalHermesEnv = {
@@ -345,6 +346,109 @@ describe('Hermes Desk API', () => {
       }),
       generated_at: '2026-07-03T00:00:00.000Z'
     }));
+
+    await app.close();
+  });
+
+  it('returns a decision receipt for the deterministic example decision', async () => {
+    const app = await createApp();
+    const decision = getHermesPreSpendDecisionExample();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: `/v1/hermes/pre-spend-decision/${encodeURIComponent(decision.id)}/receipt`
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().data).toEqual(expect.objectContaining({
+      decision_id: decision.id,
+      receipt: expect.objectContaining({
+        source_decision_id: decision.id,
+        receipt_kind: 'pre_spend_decision_receipt'
+      })
+    }));
+
+    await app.close();
+  });
+
+  it('returns a feedback result for the deterministic example decision', async () => {
+    const app = await createApp();
+    const decision = getHermesPreSpendDecisionExample();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: `/v1/hermes/pre-spend-decision/${encodeURIComponent(decision.id)}/outcome`
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().data).toEqual(expect.objectContaining({
+      decision_id: decision.id,
+      receipt: expect.objectContaining({
+        source_decision_id: decision.id
+      }),
+      outcome: expect.objectContaining({
+        source_decision_id: decision.id
+      }),
+      reputation_feedback: expect.objectContaining({
+        direction: expect.any(String)
+      })
+    }));
+
+    await app.close();
+  });
+
+  it('returns 404 for unknown decision receipt ids', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/hermes/pre-spend-decision/not-real/receipt'
+    });
+
+    expect(response.statusCode).toBe(404);
+    expect(response.json()).toEqual(expect.objectContaining({
+      error: 'hermes_pre_spend_decision_not_found'
+    }));
+
+    await app.close();
+  });
+
+  it('returns 404 for unknown decision outcome ids', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/hermes/pre-spend-decision/not-real/outcome'
+    });
+
+    expect(response.statusCode).toBe(404);
+    expect(response.json()).toEqual(expect.objectContaining({
+      error: 'hermes_pre_spend_decision_not_found'
+    }));
+
+    await app.close();
+  });
+
+  it('accepts a valid outcome override on the decision outcome endpoint', async () => {
+    const app = await createApp();
+    const decision = getHermesPreSpendDecisionExample();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: `/v1/hermes/pre-spend-decision/${encodeURIComponent(decision.id)}/outcome`,
+      payload: {
+        outcome_state: 'successful',
+        outcome_summary: 'Provider completed the service within expected bounds.',
+        spend_happened: true,
+        amount_usd: 25,
+        observed_latency_ms: 1800,
+        evidence_artifacts: []
+      }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().data.outcome.outcome_state).toBe('successful');
+    expect(response.json().data.outcome.spend_happened).toBe(true);
 
     await app.close();
   });

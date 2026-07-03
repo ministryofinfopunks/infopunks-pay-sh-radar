@@ -105,6 +105,9 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Before an agent spends, it checks the ledger.');
     expect(text).toContain('Reputation is not just displayed.');
     expect(text).toContain('Reputation now decides.');
+    expect(text).toContain('Decision Receipt and Feedback Loop');
+    expect(text).toContain('A decision without an outcome is advice.');
+    expect(text).toContain('A decision with a receipt becomes intelligence.');
     expect(text).toContain('Provider Impact Surface');
     expect(text).toContain('Route Impact Surface');
     expect(text).toContain('provider_pay_sh_lattice');
@@ -147,6 +150,11 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('required actions');
     expect(text).toContain('risk factors');
     expect(text).toContain('reputation inputs');
+    expect(text).toContain('Feedback-ready skills');
+    expect(text).toContain('expected result');
+    expect(text).toContain('success criteria');
+    expect(text).toContain('failure reasons');
+    expect(text).toContain('evidence artifacts');
     expect(text).toContain('Hermes skills should produce outputs that can update reputation over time.');
     expect(text).toContain('route reputation');
     expect(text).toContain('provider reputation');
@@ -186,6 +194,14 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Reputation is not just displayed.');
     expect(text).toContain('Reputation now decides.');
     expect(text).toContain('Before an agent spends, it checks the ledger.');
+    expect(text).toContain('Decision Receipt and Feedback Loop');
+    expect(text).toContain('The Pre-Spend Decision Engine recommends action before money moves.');
+    expect(text).toContain('Decision Receipts preserve why the recommendation was made.');
+    expect(text).toContain('Outcomes record what actually happened after the decision.');
+    expect(text).toContain('Feedback turns the result into future reputation input.');
+    expect(text).toContain('This closes the loop from advice to intelligence.');
+    expect(text).toContain('A decision without an outcome is advice.');
+    expect(text).toContain('A decision with a receipt becomes intelligence.');
     expect(text).toContain('One receipt is evidence.');
     expect(text).toContain('One claim is judgment.');
     expect(text).toContain('Many judgments become reputation.');
@@ -222,5 +238,20 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Risk factors');
     expect(text).toContain('Inputs used');
     expect(container.querySelector('a[href="/hermes/pre-spend-decision"]')?.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('renders the expanded Hermes Decision Feedback page', async () => {
+    root = await renderPath(container, '/hermes/decision-feedback');
+
+    const text = container.textContent ?? '';
+    expect(text).toContain('Decision Receipt and Feedback Loop');
+    expect(text).toContain('A decision becomes intelligence when the outcome is recorded.');
+    expect(text).toContain('A decision without an outcome is advice.');
+    expect(text).toContain('A decision with a receipt becomes intelligence.');
+    expect(text).toContain('Example Decision Receipt');
+    expect(text).toContain('Example Outcome');
+    expect(text).toContain('Reputation Feedback');
+    expect(text).toContain('What the system learns');
+    expect(container.querySelector('a[href="/hermes/decision-feedback"]')?.getAttribute('aria-current')).toBe('page');
   });
 });

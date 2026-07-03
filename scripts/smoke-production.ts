@@ -3,6 +3,7 @@ import { createInMemoryLoopRepository } from '../src/repositories/loopRepository
 import { pathToFileURL } from 'node:url';
 import { listSignalHuntCandidates } from '../src/data/signalHunt';
 import { hermesRuns } from '../src/data/hermesDesk';
+import { HERMES_PRE_SPEND_DECISION_EXAMPLE_ID } from '../src/services/hermesPreSpendDecision';
 
 export const DEFAULT_BASE_URL = 'https://radar.infopunks.fun';
 export const PRE_SPEND_CHECK_PAYLOAD = {
@@ -48,6 +49,8 @@ export type SmokePlan = {
   hermesReceiptPath: string;
   hermesClaimPromotionPath: string;
   hermesPreSpendDecisionPath: string;
+  hermesDecisionReceiptPath: string;
+  hermesDecisionOutcomePath: string;
   livePulsePath: string;
 };
 
@@ -116,6 +119,7 @@ export function buildSmokePlan(): SmokePlan {
       '/narratives/abundance-desk',
       '/hermes',
       '/hermes/pre-spend-decision',
+      '/hermes/decision-feedback',
       '/hermes/reputation-ledger',
       '/hermes/skill-pack',
       '/narratives/hermes-desk',
@@ -210,6 +214,8 @@ export function buildSmokePlan(): SmokePlan {
     hermesReceiptPath: `/v1/hermes/runs/${encodeURIComponent(hermesRunId)}/receipt`,
     hermesClaimPromotionPath: `/v1/hermes/runs/${encodeURIComponent(hermesRunId)}/claim/promote`,
     hermesPreSpendDecisionPath: '/v1/hermes/pre-spend-decision',
+    hermesDecisionReceiptPath: `/v1/hermes/pre-spend-decision/${encodeURIComponent(HERMES_PRE_SPEND_DECISION_EXAMPLE_ID)}/receipt`,
+    hermesDecisionOutcomePath: `/v1/hermes/pre-spend-decision/${encodeURIComponent(HERMES_PRE_SPEND_DECISION_EXAMPLE_ID)}/outcome`,
     livePulsePath: '/v1/pulse'
   };
 }
@@ -655,6 +661,22 @@ function assertHermesPreSpendDecision(body: unknown): void {
   if (!Array.isArray(data.claim_inputs)) throw new Error('missing data.claim_inputs');
 }
 
+function assertHermesDecisionReceipt(body: unknown): void {
+  if (!hasDataEnvelope(body) || !isRecord(body.data)) throw new Error('missing Hermes decision receipt payload');
+  const data = body.data;
+  if (!isRecord(data.receipt)) throw new Error('missing data.receipt');
+  if (!isRecord(data.conversion)) throw new Error('missing data.conversion');
+  if (data.receipt.receipt_kind !== 'pre_spend_decision_receipt') throw new Error('unexpected decision receipt kind');
+}
+
+function assertHermesDecisionOutcome(body: unknown): void {
+  if (!hasDataEnvelope(body) || !isRecord(body.data)) throw new Error('missing Hermes decision outcome payload');
+  const data = body.data;
+  if (!isRecord(data.receipt)) throw new Error('missing data.receipt');
+  if (!isRecord(data.outcome)) throw new Error('missing data.outcome');
+  if (!isRecord(data.reputation_feedback)) throw new Error('missing data.reputation_feedback');
+}
+
 export function assertSignalHuntDeployment(
   openapiBody: unknown,
   signalHuntListBody: unknown,
@@ -1014,6 +1036,70 @@ export async function runSmoke(baseUrl = resolveBaseUrl(), config = resolveSmoke
   } catch (error) {
     failed = true;
     fail(`POST ${plan.hermesPreSpendDecisionPath}`, toFailureDetail('POST', plan.hermesPreSpendDecisionPath, error));
+  }
+
+  try {
+    const { response, elapsedMs } = await fetchWithRetry({
+      input: `${baseUrl}${plan.hermesDecisionReceiptPath}`,
+      method: 'POST',
+      path: plan.hermesDecisionReceiptPath,
+      timeoutMs: config.apiTimeoutMs,
+      init: {
+        method: 'POST',
+        headers: { accept: 'application/json' }
+      }
+    });
+
+    if (!response.ok) {
+      throw new SmokeRequestError({
+        method: 'POST',
+        path: plan.hermesDecisionReceiptPath,
+        status: response.status,
+        elapsedMs,
+        reason: 'expected 2xx'
+      });
+    }
+
+    const body = await parseJsonOrThrow('POST', plan.hermesDecisionReceiptPath, response, elapsedMs);
+    assertHermesDecisionReceipt(body);
+    pass(`POST ${plan.hermesDecisionReceiptPath}`, elapsedMs);
+  } catch (error) {
+    failed = true;
+    fail(`POST ${plan.hermesDecisionReceiptPath}`, toFailureDetail('POST', plan.hermesDecisionReceiptPath, error));
+  }
+
+  try {
+    const { response, elapsedMs } = await fetchWithRetry({
+      input: `${baseUrl}${plan.hermesDecisionOutcomePath}`,
+      method: 'POST',
+      path: plan.hermesDecisionOutcomePath,
+      timeoutMs: config.apiTimeoutMs,
+      init: {
+        method: 'POST',
+        headers: {
+          accept: 'application/json',
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({})
+      }
+    });
+
+    if (!response.ok) {
+      throw new SmokeRequestError({
+        method: 'POST',
+        path: plan.hermesDecisionOutcomePath,
+        status: response.status,
+        elapsedMs,
+        reason: 'expected 2xx'
+      });
+    }
+
+    const body = await parseJsonOrThrow('POST', plan.hermesDecisionOutcomePath, response, elapsedMs);
+    assertHermesDecisionOutcome(body);
+    pass(`POST ${plan.hermesDecisionOutcomePath}`, elapsedMs);
+  } catch (error) {
+    failed = true;
+    fail(`POST ${plan.hermesDecisionOutcomePath}`, toFailureDetail('POST', plan.hermesDecisionOutcomePath, error));
   }
 
   const claimId = createPreSpendSeedState().claims[0]?.claim_id ?? 'claim_001';

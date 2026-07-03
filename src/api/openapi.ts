@@ -423,6 +423,108 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       required_action: 'do_not_use_provider'
     })
   });
+  add('post', '/v1/hermes/pre-spend-decision/{decision_id}/receipt', {
+    tags: ['Hermes'],
+    summary: 'Convert pre-spend decision to receipt',
+    description: 'Converts a deterministic Hermes pre-spend decision into a receipt-shaped object. This route is stateless, deterministic, and does not persist receipts or mutate market memory.',
+    parameters: [pathParam('decision_id', 'Hermes pre-spend decision identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesDecisionReceiptConversion' }, {
+      decision_id: 'hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+      receipt: {
+        id: 'receipt_hermes_decision_hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+        source: 'pre_spend_decision',
+        source_decision_id: 'hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+        title: 'Pre-Spend Decision Receipt: do_not_spend',
+        summary: 'Provider reputation is degraded in the ledger. Required action: do_not_use_provider.',
+        decision: 'do_not_spend',
+        required_action: 'do_not_use_provider',
+        confidence: 0.46,
+        receipt_kind: 'pre_spend_decision_receipt',
+        created_at: '2026-07-03T00:00:00.000Z'
+      },
+      conversion: { status: 'converted', notes: ['Decision receipt conversion is deterministic and stateless.'] }
+    }, 'hermes_pre_spend_decision_not_found')
+  });
+  add('post', '/v1/hermes/pre-spend-decision/{decision_id}/outcome', {
+    tags: ['Hermes'],
+    summary: 'Record pre-spend decision outcome',
+    description: 'Creates a deterministic decision outcome and reputation feedback object for a known Hermes pre-spend decision. This route is stateless, deterministic, and does not mutate receipts, claims, or reputation ledger entries persistently.',
+    parameters: [pathParam('decision_id', 'Hermes pre-spend decision identifier.')],
+    requestBody: {
+      required: false,
+      content: {
+        'application/json': {
+          schema: objectSchema({
+            outcome_state: { $ref: '#/components/schemas/HermesDecisionOutcomeState' },
+            outcome_summary: stringSchema(),
+            spend_happened: booleanSchema(),
+            amount_usd: { type: 'number', minimum: 0 },
+            observed_latency_ms: integerSchema(),
+            error_code: stringSchema(),
+            evidence_artifacts: arrayOf(objectSchema({
+              id: stringSchema(),
+              label: stringSchema(),
+              kind: enumSchema(['url', 'api_response', 'log', 'screenshot', 'note', 'receipt']),
+              uri: stringSchema(),
+              summary: stringSchema()
+            }))
+          }),
+          examples: {
+            request: {
+              value: {
+                outcome_state: 'successful',
+                outcome_summary: 'Provider completed the service within expected bounds.',
+                spend_happened: true,
+                amount_usd: 25,
+                observed_latency_ms: 1800,
+                evidence_artifacts: []
+              }
+            }
+          }
+        }
+      }
+    },
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesDecisionFeedbackResult' }, {
+      decision_id: 'hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+      receipt: {
+        id: 'receipt_hermes_decision_hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+        source: 'pre_spend_decision',
+        decision: 'do_not_spend',
+        required_action: 'do_not_use_provider',
+        confidence: 0.46,
+        receipt_kind: 'pre_spend_decision_receipt',
+        created_at: '2026-07-03T00:00:00.000Z'
+      },
+      outcome: {
+        id: 'outcome_hermes_decision_hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective_blocked',
+        source_decision_id: 'hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+        source_decision_receipt_id: 'receipt_hermes_decision_hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+        outcome_state: 'blocked',
+        outcome_summary: 'Spend stayed blocked after the do_not_spend recommendation, preserving caution instead of forcing execution.',
+        spend_happened: false,
+        amount_usd: 25,
+        impact: {
+          target_type: 'provider',
+          target_id: 'provider_pay_sh_lattice',
+          direction: 'positive',
+          magnitude: 0.26,
+          summary: 'The decision prevented risk for provider:provider_pay_sh_lattice and should reinforce future caution.',
+          reputation_notes: ['decision_state=do_not_spend']
+        },
+        evidence_artifacts: [{ id: 'artifact_hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective_note', label: 'Mock outcome note', kind: 'note', uri: '/v1/hermes/pre-spend-decision/hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective/outcome', summary: 'Deterministic mock outcome artifact generated because no external evidence artifact was supplied.' }],
+        created_at: '2026-07-03T00:00:00.000Z'
+      },
+      feedback: { status: 'recorded', notes: ['Decision feedback is deterministic and stateless.'] },
+      reputation_feedback: {
+        target_type: 'provider',
+        target_id: 'provider_pay_sh_lattice',
+        direction: 'positive',
+        magnitude: 0.26,
+        summary: 'The decision prevented risk for provider:provider_pay_sh_lattice and should reinforce future caution.',
+        reputation_notes: ['decision_state=do_not_spend']
+      }
+    }, 'hermes_pre_spend_decision_not_found')
+  });
   add('get', '/v1/hermes/reputation-ledger/{target_type}/{target_id}', {
     tags: ['Hermes'],
     summary: 'Get Hermes reputation entry',
@@ -2830,6 +2932,71 @@ function componentSchemas(): Record<string, JsonSchema> {
       }),
       generated_at: dateTimeSchema()
     }, ['id', 'input', 'decision', 'confidence', 'reason', 'required_action', 'risk_factors', 'reputation_inputs', 'receipt_inputs', 'claim_inputs', 'run_inputs', 'ledger_state', 'generated_at']),
+    HermesDecisionOutcomeState: enumSchema(['successful', 'failed', 'partial', 'blocked', 'manual_review', 'unknown']),
+    HermesDecisionOutcomeImpact: objectSchema({
+      target_type: enumSchema(['provider', 'route', 'service', 'unknown']),
+      target_id: stringSchema(),
+      direction: enumSchema(['positive', 'negative', 'neutral', 'watch']),
+      magnitude: { type: 'number', minimum: 0, maximum: 1 },
+      summary: stringSchema(),
+      reputation_notes: arrayOf(stringSchema())
+    }, ['target_type', 'direction', 'magnitude', 'summary', 'reputation_notes']),
+    HermesDecisionReceipt: objectSchema({
+      id: stringSchema(),
+      source: { const: 'pre_spend_decision' },
+      source_decision_id: stringSchema(),
+      title: stringSchema(),
+      summary: stringSchema(),
+      decision: { $ref: '#/components/schemas/HermesPreSpendDecisionState' },
+      required_action: stringSchema(),
+      confidence: { type: 'number', minimum: 0, maximum: 1 },
+      input: { $ref: '#/components/schemas/HermesPreSpendDecisionInput' },
+      risk_factors: arrayOf({ $ref: '#/components/schemas/HermesPreSpendRiskFactor' }),
+      reputation_inputs: arrayOf({ $ref: '#/components/schemas/HermesPreSpendDecisionInputReference' }),
+      receipt_inputs: arrayOf({ $ref: '#/components/schemas/HermesPreSpendDecisionInputReference' }),
+      claim_inputs: arrayOf({ $ref: '#/components/schemas/HermesPreSpendDecisionInputReference' }),
+      run_inputs: arrayOf({ $ref: '#/components/schemas/HermesPreSpendDecisionInputReference' }),
+      receipt_kind: { const: 'pre_spend_decision_receipt' },
+      created_at: dateTimeSchema()
+    }, ['id', 'source', 'source_decision_id', 'title', 'summary', 'decision', 'required_action', 'confidence', 'input', 'risk_factors', 'reputation_inputs', 'receipt_inputs', 'claim_inputs', 'run_inputs', 'receipt_kind', 'created_at']),
+    HermesDecisionOutcome: objectSchema({
+      id: stringSchema(),
+      source_decision_id: stringSchema(),
+      source_decision_receipt_id: stringSchema(),
+      outcome_state: { $ref: '#/components/schemas/HermesDecisionOutcomeState' },
+      outcome_summary: stringSchema(),
+      spend_happened: booleanSchema(),
+      amount_usd: { type: 'number', minimum: 0 },
+      observed_latency_ms: integerSchema(),
+      error_code: stringSchema(),
+      evidence_artifacts: arrayOf(objectSchema({
+        id: stringSchema(),
+        label: stringSchema(),
+        kind: enumSchema(['url', 'api_response', 'log', 'screenshot', 'note', 'receipt']),
+        uri: stringSchema(),
+        summary: stringSchema()
+      }, ['id', 'label', 'kind', 'uri', 'summary'])),
+      impact: { $ref: '#/components/schemas/HermesDecisionOutcomeImpact' },
+      created_at: dateTimeSchema()
+    }, ['id', 'source_decision_id', 'source_decision_receipt_id', 'outcome_state', 'outcome_summary', 'spend_happened', 'evidence_artifacts', 'impact', 'created_at']),
+    HermesDecisionReceiptConversion: objectSchema({
+      decision_id: stringSchema(),
+      receipt: { $ref: '#/components/schemas/HermesDecisionReceipt' },
+      conversion: objectSchema({
+        status: enumSchema(['converted', 'already_converted', 'failed']),
+        notes: arrayOf(stringSchema())
+      }, ['status', 'notes'])
+    }, ['decision_id', 'receipt', 'conversion']),
+    HermesDecisionFeedbackResult: objectSchema({
+      decision_id: stringSchema(),
+      receipt: { $ref: '#/components/schemas/HermesDecisionReceipt' },
+      outcome: { $ref: '#/components/schemas/HermesDecisionOutcome' },
+      feedback: objectSchema({
+        status: enumSchema(['recorded', 'preview', 'failed']),
+        notes: arrayOf(stringSchema())
+      }, ['status', 'notes']),
+      reputation_feedback: { $ref: '#/components/schemas/HermesDecisionOutcomeImpact' }
+    }, ['decision_id', 'receipt', 'outcome', 'feedback', 'reputation_feedback']),
     HermesPromotedClaim: hermesPromotedClaim,
     HermesClaimPromotionRequest: objectSchema({
       review_state: hermesClaimReviewState

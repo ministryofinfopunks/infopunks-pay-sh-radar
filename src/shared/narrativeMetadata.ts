@@ -95,6 +95,14 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
     );
   }
 
+  if (/^\/hermes\/decision-feedback\/?$/.test(pathname)) {
+    return buildMetadata(
+      'Decision Receipt and Feedback Loop',
+      'A decision becomes intelligence when the outcome is recorded.',
+      '/hermes/decision-feedback'
+    );
+  }
+
   if (/^\/hermes\/?$/.test(pathname) || /^\/narratives\/hermes-desk\/?$/.test(pathname)) {
     return buildMetadata(
       'Hermes Desk',

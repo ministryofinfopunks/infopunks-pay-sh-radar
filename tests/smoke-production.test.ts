@@ -64,6 +64,7 @@ describe('production smoke plan', () => {
       '/narratives/abundance-desk',
       '/hermes',
       '/hermes/pre-spend-decision',
+      '/hermes/decision-feedback',
       '/hermes/reputation-ledger',
       '/hermes/skill-pack',
       '/narratives/hermes-desk',
@@ -151,6 +152,10 @@ describe('production smoke plan', () => {
     expect(plan.hermesReceiptPath).toBe('/v1/hermes/runs/hermes_pay_sh_route_pre_spend_check/receipt');
     expect(plan.hermesClaimPromotionPath).toBe('/v1/hermes/runs/hermes_pay_sh_route_pre_spend_check/claim/promote');
     expect(plan.hermesPreSpendDecisionPath).toBe('/v1/hermes/pre-spend-decision');
+    expect(plan.hermesDecisionReceiptPath).toContain('/v1/hermes/pre-spend-decision/');
+    expect(plan.hermesDecisionReceiptPath).toContain('/receipt');
+    expect(plan.hermesDecisionOutcomePath).toContain('/v1/hermes/pre-spend-decision/');
+    expect(plan.hermesDecisionOutcomePath).toContain('/outcome');
     expect(plan.livePulsePath).toBe('/v1/pulse');
     expect(PRE_SPEND_CHECK_PAYLOAD).toEqual({
       agent_id: 'agent_001',

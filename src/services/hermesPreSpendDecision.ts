@@ -88,6 +88,8 @@ export const HERMES_PRE_SPEND_DECISION_EXAMPLE_INPUT: HermesPreSpendDecisionInpu
   chain: 'base'
 };
 
+export const HERMES_PRE_SPEND_DECISION_EXAMPLE_ID = stableId(HERMES_PRE_SPEND_DECISION_EXAMPLE_INPUT);
+
 function normalizeString(value: string | undefined): string | undefined {
   if (typeof value !== 'string') return undefined;
   const trimmed = value.trim();
@@ -507,6 +509,23 @@ export function createHermesPreSpendDecisionExample(
   input: HermesPreSpendDecisionInput = HERMES_PRE_SPEND_DECISION_EXAMPLE_INPUT
 ): HermesPreSpendDecision {
   return createHermesPreSpendDecision(input);
+}
+
+export function getHermesPreSpendDecisionExample(): HermesPreSpendDecision {
+  return createHermesPreSpendDecisionExample();
+}
+
+export function resolveHermesPreSpendDecisionById(decisionId: string): HermesPreSpendDecision | undefined {
+  const normalizedId = normalizeString(decisionId);
+  if (!normalizedId) return undefined;
+
+  const exampleDecision = getHermesPreSpendDecisionExample();
+  if (normalizedId === exampleDecision.id || normalizedId === HERMES_PRE_SPEND_DECISION_EXAMPLE_ID) {
+    return exampleDecision;
+  }
+
+  const examples = buildHermesPreSpendDecisionExamples();
+  return examples.find((decision) => decision.id === normalizedId);
 }
 
 export function buildHermesPreSpendDecisionExamples(): HermesPreSpendDecision[] {

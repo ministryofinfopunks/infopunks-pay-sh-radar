@@ -170,7 +170,12 @@ import {
   listHermesRouteReputationEntries,
   listHermesServiceReputationEntries
 } from '../services/hermesReputationLedger';
-import { createHermesPreSpendDecision, createHermesPreSpendDecisionExample } from '../services/hermesPreSpendDecision';
+import {
+  createHermesPreSpendDecision,
+  createHermesPreSpendDecisionExample,
+  resolveHermesPreSpendDecisionById
+} from '../services/hermesPreSpendDecision';
+import { createHermesDecisionReceipt, recordHermesDecisionOutcome } from '../services/hermesDecisionFeedback';
 import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
@@ -190,6 +195,21 @@ const HermesPreSpendDecisionInputSchema = z.object({
   agent_type: z.string().min(1).optional(),
   objective: z.string().min(1).optional()
 }).strict();
+const HermesDecisionOutcomeRequestSchema = z.object({
+  outcome_state: z.enum(['successful', 'failed', 'partial', 'blocked', 'manual_review', 'unknown']).optional(),
+  outcome_summary: z.string().min(1).optional(),
+  spend_happened: z.boolean().optional(),
+  amount_usd: z.number().nonnegative().optional(),
+  observed_latency_ms: z.number().int().nonnegative().optional(),
+  error_code: z.string().min(1).optional(),
+  evidence_artifacts: z.array(z.object({
+    id: z.string().min(1).optional(),
+    label: z.string().min(1).optional(),
+    kind: z.enum(['url', 'api_response', 'log', 'screenshot', 'note', 'receipt']).optional(),
+    uri: z.string().min(1).optional(),
+    summary: z.string().min(1).optional()
+  }).strict()).optional()
+}).strict().optional();
 const HermesClaimPromotionRequestSchema = z.object({
   review_state: z.unknown().optional()
 }).optional();
@@ -1594,6 +1614,36 @@ export async function createApp(
       entries: listHermesServiceReputationEntries()
     })
   }));
+  app.post<{ Params: Record<string, string> }>('/v1/hermes/pre-spend-decision/*', async (req, reply) => {
+    const wildcard = typeof req.params['*'] === 'string' ? req.params['*'] : '';
+    const suffix = wildcard.trim();
+    const receiptMatch = suffix.match(/^([^/]+)\/receipt$/);
+    const outcomeMatch = suffix.match(/^([^/]+)\/outcome$/);
+    const decisionId = receiptMatch?.[1] ?? outcomeMatch?.[1];
+
+    if (!decisionId) {
+      return reply.code(404).send({
+        error: 'hermes_pre_spend_decision_not_found',
+        message: `No Hermes pre-spend decision action found for path=${req.url}`
+      });
+    }
+
+    const decision = resolveHermesPreSpendDecisionById(decisionId);
+    if (!decision) {
+      return reply.code(404).send({
+        error: 'hermes_pre_spend_decision_not_found',
+        message: `No Hermes pre-spend decision found for decision_id=${decisionId}`
+      });
+    }
+
+    if (receiptMatch) {
+      return { data: safeJsonExport(createHermesDecisionReceipt(decision)) };
+    }
+
+    return handleParsed(req.body, HermesDecisionOutcomeRequestSchema, (input) => ({
+      data: safeJsonExport(recordHermesDecisionOutcome(decision, input))
+    }), reply);
+  });
   app.post('/v1/hermes/pre-spend-decision', async (req, reply) => handleParsed(req.body, HermesPreSpendDecisionInputSchema, (input) => ({
     data: safeJsonExport(createHermesPreSpendDecision(input))
   }), reply));

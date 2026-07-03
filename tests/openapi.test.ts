@@ -110,6 +110,8 @@ describe('openapi discovery', () => {
     expect(spec.paths['/v1/hermes/reputation-ledger/routes']?.get).toBeTruthy();
     expect(spec.paths['/v1/hermes/pre-spend-decision']?.post).toBeTruthy();
     expect(spec.paths['/v1/hermes/pre-spend-decision/example']?.get).toBeTruthy();
+    expect(spec.paths['/v1/hermes/pre-spend-decision/{decision_id}/receipt']?.post).toBeTruthy();
+    expect(spec.paths['/v1/hermes/pre-spend-decision/{decision_id}/outcome']?.post).toBeTruthy();
     expect(spec.paths['/v1/hermes/reputation-ledger/{target_type}/{target_id}']?.get).toBeTruthy();
     expect(spec.paths['/v1/hermes/runs/{run_id}/receipt']?.post).toBeTruthy();
     expect(spec.paths['/v1/hermes/runs/{run_id}/receipt-preview']?.get).toBeTruthy();
@@ -155,6 +157,12 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.HermesPreSpendRequiredAction).toBeTruthy();
     expect(spec.components.schemas.HermesPreSpendRiskFactor).toBeTruthy();
     expect(spec.components.schemas.HermesPreSpendDecisionInputReference).toBeTruthy();
+    expect(spec.components.schemas.HermesDecisionReceipt).toBeTruthy();
+    expect(spec.components.schemas.HermesDecisionOutcome).toBeTruthy();
+    expect(spec.components.schemas.HermesDecisionOutcomeState).toBeTruthy();
+    expect(spec.components.schemas.HermesDecisionOutcomeImpact).toBeTruthy();
+    expect(spec.components.schemas.HermesDecisionFeedbackResult).toBeTruthy();
+    expect(spec.components.schemas.HermesDecisionReceiptConversion).toBeTruthy();
     expect(spec.components.schemas.SignalGraphResponse).toBeTruthy();
     expect(spec.components.schemas.SignalGraphCluster).toBeTruthy();
     expect(spec.components.schemas.SignalGraphNode).toBeTruthy();
@@ -236,6 +244,8 @@ describe('openapi discovery', () => {
     expect(JSON.stringify(spec.paths['/v1/hermes/reputation-ledger'])).toContain('stateless and does not require a live Hermes sidecar');
     expect(JSON.stringify(spec.paths['/v1/hermes/pre-spend-decision'])).toContain('deterministic spend recommendation');
     expect(JSON.stringify(spec.paths['/v1/hermes/pre-spend-decision/example'])).toContain('deterministic example pre-spend decision');
+    expect(JSON.stringify(spec.paths['/v1/hermes/pre-spend-decision/{decision_id}/receipt'])).toContain('stateless, deterministic');
+    expect(JSON.stringify(spec.paths['/v1/hermes/pre-spend-decision/{decision_id}/outcome'])).toContain('does not mutate receipts, claims, or reputation ledger entries persistently');
     expect(JSON.stringify(spec.paths['/v1/hermes/reputation-ledger/{target_type}/{target_id}'])).toContain('hermes_reputation_entry_not_found');
     expect(JSON.stringify(spec.paths['/v1/hermes/runs/{run_id}/receipt'])).toContain('does not mutate existing receipts or claims');
     expect(JSON.stringify(spec.paths['/v1/hermes/runs/{run_id}/claim/promote'])).toContain('does not mutate persistent claims or reputation records');

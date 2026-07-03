@@ -12,6 +12,8 @@ import type {
   HermesPreSpendRequiredAction,
   HermesPreSpendRiskFactor
 } from '../services/hermesPreSpendDecision';
+import type { HermesDecisionFeedbackResult, HermesDecisionOutcomeState, HermesDecisionReceipt } from '../services/hermesDecisionFeedback';
+import { createHermesDecisionReceipt, recordHermesDecisionOutcome } from '../services/hermesDecisionFeedback';
 import { getNarrativeMetadataForPath } from '../shared/narrativeMetadata';
 
 const API_BASE_URL = getApiBaseUrl();
@@ -102,11 +104,16 @@ function riskSeverityLabel(severity: HermesPreSpendRiskFactor['severity']) {
   return titleCaseWords(severity);
 }
 
+function outcomeStateLabel(state: HermesDecisionOutcomeState) {
+  return titleCaseWords(state);
+}
+
 function HermesNav({ current }: { current: string }) {
   const links = [
     { href: '/', label: 'Radar Home' },
     { href: '/hermes', label: 'Hermes Desk' },
     { href: '/hermes/pre-spend-decision', label: 'Pre-Spend Decision' },
+    { href: '/hermes/decision-feedback', label: 'Decision Feedback' },
     { href: '/hermes/reputation-ledger', label: 'Reputation Ledger' },
     { href: '/hermes/skill-pack', label: 'Skill Pack' },
     { href: '/narratives/hermes-desk', label: 'Narrative' },
@@ -118,6 +125,7 @@ function HermesNav({ current }: { current: string }) {
   function active(href: string) {
     if (href === '/hermes') return current === '/hermes';
     if (href === '/hermes/pre-spend-decision') return current === '/hermes/pre-spend-decision';
+    if (href === '/hermes/decision-feedback') return current === '/hermes/decision-feedback';
     if (href === '/hermes/reputation-ledger') return current === '/hermes/reputation-ledger';
     if (href === '/hermes/skill-pack') return current === '/hermes/skill-pack';
     if (href === '/narratives/hermes-desk') return current === '/narratives/hermes-desk';
@@ -394,6 +402,75 @@ function HermesPreSpendDecisionSection({ decision }: { decision: HermesPreSpendD
   </section>;
 }
 
+function HermesDecisionFeedbackCard({
+  feedback,
+  compact = false
+}: {
+  feedback: HermesDecisionFeedbackResult;
+  compact?: boolean;
+}) {
+  return <article className={`panel hermes-run-card state-${feedback.outcome.impact.direction}`} aria-label={`Decision feedback ${feedback.decision_id}`}>
+    <div className="abundance-card-head">
+      <p className="section-kicker">Decision Feedback</p>
+      <div className="abundance-chip-row">
+        <span className={`narrative-decision-pill state-${feedback.receipt.decision}`}>{preSpendDecisionLabel(feedback.receipt.decision)}</span>
+        <span className="narrative-evidence-chip">{outcomeStateLabel(feedback.outcome.outcome_state)}</span>
+        <span className="narrative-evidence-chip">{feedback.outcome.impact.direction}</span>
+      </div>
+    </div>
+    <h3>{feedback.receipt.id}</h3>
+    <p>{feedback.outcome.outcome_summary}</p>
+    <div className="machine-usage-list">
+      <p><span>decision_id</span><small>{feedback.decision_id}</small></p>
+      <p><span>receipt_id</span><small>{feedback.receipt.id}</small></p>
+      <p><span>decision</span><small>{feedback.receipt.decision}</small></p>
+      <p><span>required_action</span><small>{feedback.receipt.required_action}</small></p>
+      <p><span>confidence</span><small>{feedback.receipt.confidence}</small></p>
+      <p><span>outcome_state</span><small>{feedback.outcome.outcome_state}</small></p>
+      <p><span>spend_happened</span><small>{String(feedback.outcome.spend_happened)}</small></p>
+      <p><span>impact_direction</span><small>{feedback.outcome.impact.direction}</small></p>
+      <p><span>impact_magnitude</span><small>{feedback.outcome.impact.magnitude}</small></p>
+      <p><span>target</span><small>{`${feedback.outcome.impact.target_type}:${feedback.outcome.impact.target_id ?? 'unknown'}`}</small></p>
+    </div>
+    <div className="abundance-chip-row">
+      {feedback.reputation_feedback.reputation_notes.map((note) => <span key={`${feedback.decision_id}-${note}`}>{note}</span>)}
+    </div>
+    {!compact && <>
+      <div className="hermes-flow-strip" aria-label="Decision feedback flow">
+        {['Pre-Spend Decision', 'Decision Receipt', 'Spend Outcome', 'Reputation Feedback', 'Better Next Spend'].map((step, index) => (
+          <React.Fragment key={step}>
+            <span>{step}</span>
+            {index < 4 && <b aria-hidden="true">-&gt;</b>}
+          </React.Fragment>
+        ))}
+      </div>
+      <div className="machine-usage-list">
+        {feedback.reputation_feedback.reputation_notes.map((note) => <p key={note}><span>reputation_note</span><small>{note}</small></p>)}
+      </div>
+    </>}
+  </article>;
+}
+
+function HermesDecisionFeedbackSection({ decision }: { decision: HermesPreSpendDecision | null }) {
+  if (!decision) return <section className="panel"><p className="route-state">Loading Decision Receipt and Feedback Loop...</p></section>;
+  const feedback = recordHermesDecisionOutcome(decision);
+
+  return <section className="panel hermes-runs-section" aria-label="Decision Receipt and Feedback Loop">
+    <div className="panel-head">
+      <div>
+        <p className="section-kicker">Decision Receipt and Feedback Loop</p>
+        <h2>A decision becomes intelligence when the outcome is recorded.</h2>
+      </div>
+      <a className="execute compact secondary" href={`/hermes/decision-feedback`}>Open feedback loop</a>
+    </div>
+    <p className="copy">A decision without an outcome is advice.</p>
+    <p className="copy">A decision with a receipt becomes intelligence.</p>
+    <div className="hermes-run-grid">
+      <HermesDecisionFeedbackCard feedback={feedback} compact />
+    </div>
+  </section>;
+}
+
 function HermesNarrativePage() {
   useEffect(() => {
     syncHermesMetadata('/narratives/hermes-desk');
@@ -476,6 +553,17 @@ function HermesNarrativePage() {
         <p>Reputation is not just displayed.</p>
         <p>Reputation now decides.</p>
         <p>Before an agent spends, it checks the ledger.</p>
+      </section>
+      <section className="panel hermes-narrative-copy" aria-label="Decision Receipt and Feedback Loop">
+        <p className="section-kicker">Decision Receipt and Feedback Loop</p>
+        <h2>The loop closes when outcomes are recorded.</h2>
+        <p>The Pre-Spend Decision Engine recommends action before money moves.</p>
+        <p>Decision Receipts preserve why the recommendation was made.</p>
+        <p>Outcomes record what actually happened after the decision.</p>
+        <p>Feedback turns the result into future reputation input.</p>
+        <p>This closes the loop from advice to intelligence.</p>
+        <p>A decision without an outcome is advice.</p>
+        <p>A decision with a receipt becomes intelligence.</p>
       </section>
     </main>
   </div>;
@@ -670,6 +758,8 @@ function HermesDeskSurface() {
 
         <HermesPreSpendDecisionSection decision={preSpendDecision} />
 
+        <HermesDecisionFeedbackSection decision={preSpendDecision} />
+
         <section className="panel hermes-runs-section" aria-label="Completed Hermes runs">
           <div className="panel-head">
             <div>
@@ -843,6 +933,18 @@ function HermesSkillPackPage() {
             {['pre-spend decisions', 'required actions', 'risk factors', 'reputation inputs', 'receipt generation', 'claim review'].map((item) => <span key={item}>{item}</span>)}
           </div>
         </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="Feedback-ready skills">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Feedback-ready skills</p>
+              <h2>Skills should emit outputs that can be compared with what happened after spend.</h2>
+            </div>
+          </div>
+          <div className="abundance-chip-row">
+            {['expected result', 'required action', 'risk factors', 'success criteria', 'failure reasons', 'evidence artifacts'].map((item) => <span key={item}>{item}</span>)}
+          </div>
+        </section>
       </>}
     </main>
   </div>;
@@ -861,6 +963,7 @@ function HermesPreSpendDecisionPage() {
       .then((response) => setDecision(response.data))
       .catch((err) => setError(err instanceof Error ? err.message : 'hermes_pre_spend_decision_unavailable'));
   }, []);
+  const decisionReceipt = decision ? createHermesDecisionReceipt(decision) : null;
 
   return <div className="shell narrative-shell hermes-shell">
     <a className="skip-link" href="#hermes-pre-spend-content">Skip to content</a>
@@ -875,6 +978,7 @@ function HermesPreSpendDecisionPage() {
           <p className="copy hermes-hero-copy">Before an agent spends, it checks the ledger.</p>
           <div className="panel-actions">
             <a className="execute" href="/v1/hermes/pre-spend-decision/example">Open Example JSON</a>
+            <a className="execute compact secondary" href="/hermes/decision-feedback">Open feedback loop</a>
             <a className="execute compact secondary" href="/hermes">Back to Hermes Desk</a>
           </div>
         </div>
@@ -904,6 +1008,18 @@ function HermesPreSpendDecisionPage() {
         </div>
       </section>}
       {!error && !decision && <section className="panel"><p className="route-state">Loading example decision...</p></section>}
+      {decisionReceipt && <section className="panel hermes-skill-pack-detail" aria-label="Decision Receipts">
+        <div className="panel-head"><div><p className="section-kicker">Decision Receipts</p><h2>Pre-spend decisions should be receiptable.</h2></div></div>
+        <p className="copy">Outcomes close the loop.</p>
+        <p className="copy">Decision receipts become intelligence when compared against what happened after spend.</p>
+        <p className="copy">A decision without an outcome is advice.</p>
+        <p className="copy">A decision with a receipt becomes intelligence.</p>
+        <div className="machine-usage-list">
+          <p><span>receipt_id</span><small>{decisionReceipt.receipt.id}</small></p>
+          <p><span>summary</span><small>{decisionReceipt.receipt.summary}</small></p>
+          <p><span>conversion</span><small>{decisionReceipt.conversion.notes.join(' ')}</small></p>
+        </div>
+      </section>}
       <section className="panel hermes-skill-pack-detail" aria-label="Decision state mapping">
         <div className="panel-head"><div><p className="section-kicker">Decision state mapping</p><h2>Bounded spend language.</h2></div></div>
         <div className="machine-usage-list">
@@ -939,6 +1055,88 @@ function HermesPreSpendDecisionPage() {
         <div className="panel-head"><div><p className="section-kicker">Inputs used</p><h2>The decision engine reads accumulated evidence, not vibes.</h2></div></div>
         <div className="abundance-chip-row">
           {['provider reputation', 'route reputation', 'service reputation', 'receipts', 'reviewed claims', 'Hermes runs'].map((item) => <span key={item}>{item}</span>)}
+        </div>
+      </section>
+    </main>
+  </div>;
+}
+
+function HermesDecisionFeedbackPage() {
+  const [decision, setDecision] = useState<HermesPreSpendDecision | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    syncHermesMetadata('/hermes/decision-feedback');
+  }, []);
+
+  useEffect(() => {
+    api<HermesPreSpendDecision>('/v1/hermes/pre-spend-decision/example')
+      .then((response) => setDecision(response.data))
+      .catch((err) => setError(err instanceof Error ? err.message : 'hermes_decision_feedback_unavailable'));
+  }, []);
+
+  const receipt = decision ? createHermesDecisionReceipt(decision) : null;
+  const feedback = decision ? recordHermesDecisionOutcome(decision) : null;
+
+  return <div className="shell narrative-shell hermes-shell">
+    <a className="skip-link" href="#hermes-decision-feedback-content">Skip to content</a>
+    <header className="site-header">
+      <HermesNav current="/hermes/decision-feedback" />
+    </header>
+    <main id="hermes-decision-feedback-content" className="narrative-page hermes-page">
+      <section className="panel hero narrative-hero hermes-hero">
+        <div>
+          <p className="eyebrow">Feedback Loop</p>
+          <h1>Decision Receipt and Feedback Loop</h1>
+          <p className="copy hermes-hero-copy">A decision becomes intelligence when the outcome is recorded.</p>
+          <div className="panel-actions">
+            <a className="execute" href="/v1/hermes/pre-spend-decision/example">Open decision JSON</a>
+            <a className="execute compact secondary" href="/hermes/pre-spend-decision">Back to decision engine</a>
+          </div>
+        </div>
+        <div className="panel narrative-hero-rail hermes-hero-rail">
+          <p className="section-kicker">Loop doctrine</p>
+          <p>A decision without an outcome is advice.</p>
+          <p>A decision with a receipt becomes intelligence.</p>
+        </div>
+      </section>
+      <section className="panel hermes-narrative-flow" aria-label="Decision feedback loop flow">
+        <article><span>1</span><h2>Flow</h2><p>Pre-Spend Decision -&gt; Decision Receipt -&gt; Spend Outcome -&gt; Reputation Feedback -&gt; Better Next Spend.</p></article>
+        <article><span>2</span><h2>Example Decision Receipt</h2><p>The receipt preserves why the recommendation was made.</p></article>
+        <article><span>3</span><h2>Example Outcome</h2><p>The outcome records what actually happened after the recommendation.</p></article>
+        <article><span>4</span><h2>Reputation Feedback</h2><p>The impact object turns the result into future route, provider, or service memory.</p></article>
+        <article><span>5</span><h2>What the system learns</h2><p>The next spend inherits memory from both the recommendation and the outcome.</p></article>
+      </section>
+      {error && <section className="panel"><p className="route-state error">{error}</p></section>}
+      {receipt && <section className="panel hermes-runs-section" aria-label="Example Decision Receipt">
+        <div className="panel-head"><div><p className="section-kicker">Example Decision Receipt</p><h2>Receipt-shaped decision memory.</h2></div></div>
+        <div className="machine-usage-list">
+          <p><span>receipt_id</span><small>{receipt.receipt.id}</small></p>
+          <p><span>decision</span><small>{receipt.receipt.decision}</small></p>
+          <p><span>required_action</span><small>{receipt.receipt.required_action}</small></p>
+          <p><span>confidence</span><small>{receipt.receipt.confidence}</small></p>
+          <p><span>summary</span><small>{receipt.receipt.summary}</small></p>
+        </div>
+      </section>}
+      {feedback && <section className="panel hermes-runs-section" aria-label="Example Outcome">
+        <div className="panel-head"><div><p className="section-kicker">Example Outcome</p><h2>Deterministic feedback result.</h2></div></div>
+        <div className="hermes-run-grid">
+          <HermesDecisionFeedbackCard feedback={feedback} />
+        </div>
+      </section>}
+      {feedback && <section className="panel hermes-skill-pack-detail" aria-label="Reputation Feedback">
+        <div className="panel-head"><div><p className="section-kicker">Reputation Feedback</p><h2>What gets fed back into the next spend.</h2></div></div>
+        <div className="machine-usage-list">
+          <p><span>direction</span><small>{feedback.reputation_feedback.direction}</small></p>
+          <p><span>magnitude</span><small>{feedback.reputation_feedback.magnitude}</small></p>
+          <p><span>target</span><small>{`${feedback.reputation_feedback.target_type}:${feedback.reputation_feedback.target_id ?? 'unknown'}`}</small></p>
+          <p><span>summary</span><small>{feedback.reputation_feedback.summary}</small></p>
+        </div>
+      </section>}
+      <section className="panel hermes-skill-pack-detail" aria-label="What the system learns">
+        <div className="panel-head"><div><p className="section-kicker">What the system learns</p><h2>Advice becomes reusable market memory only after outcomes land.</h2></div></div>
+        <div className="abundance-chip-row">
+          {['what was recommended', 'what action was required', 'what actually happened', 'what evidence exists now', 'what should change next spend'].map((item) => <span key={item}>{item}</span>)}
         </div>
       </section>
     </main>
@@ -990,8 +1188,10 @@ export function HermesDeskPage({
   narrativeRoute = false,
   skillPackRoute = false,
   reputationLedgerRoute = false,
-  preSpendDecisionRoute = false
-}: { narrativeRoute?: boolean; skillPackRoute?: boolean; reputationLedgerRoute?: boolean; preSpendDecisionRoute?: boolean }) {
+  preSpendDecisionRoute = false,
+  decisionFeedbackRoute = false
+}: { narrativeRoute?: boolean; skillPackRoute?: boolean; reputationLedgerRoute?: boolean; preSpendDecisionRoute?: boolean; decisionFeedbackRoute?: boolean }) {
+  if (decisionFeedbackRoute) return <HermesDecisionFeedbackPage />;
   if (preSpendDecisionRoute) return <HermesPreSpendDecisionPage />;
   if (reputationLedgerRoute) return <HermesReputationLedgerPage />;
   if (skillPackRoute) return <HermesSkillPackPage />;
