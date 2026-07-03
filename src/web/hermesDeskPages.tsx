@@ -3,6 +3,7 @@ import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import type { HermesDecisionState, HermesDeskSummary, HermesRun, HermesRunState } from '../data/hermesDesk';
 import type { HermesSkillPack } from '../data/hermesSkillPack';
 import { convertHermesRunToReceipt, type HermesRunReceiptConversion } from '../services/hermesReceiptConverter';
+import { promoteHermesClaimCandidate, type HermesClaimReviewState } from '../services/hermesClaimPromotion';
 import { getNarrativeMetadataForPath } from '../shared/narrativeMetadata';
 
 const API_BASE_URL = getApiBaseUrl();
@@ -48,6 +49,16 @@ function runStateLabel(state: HermesRunState) {
     completed: 'Completed',
     failed: 'Failed',
     blocked: 'Blocked'
+  } as const)[state];
+}
+
+function reviewStateLabel(state: HermesClaimReviewState) {
+  return ({
+    candidate: 'Candidate',
+    accepted: 'Accepted',
+    needs_more_evidence: 'Needs more evidence',
+    disputed: 'Disputed',
+    rejected: 'Rejected'
   } as const)[state];
 }
 
@@ -190,12 +201,14 @@ function HermesNarrativePage() {
           <p className="copy">Hermes as the execution brain. Infopunks as the evidence and judgment layer.</p>
           <p className="copy">Agentic investigations become useful only when their outputs can be checked, disputed, repeated, and connected to route reputation.</p>
           <p className="copy">Hermes runs are not chat logs. They are pre-spend investigations.</p>
+          <p className="copy">Receipts remember what happened. Claims decide what it means. Reputation decides who gets trusted next.</p>
         </div>
         <div className="panel narrative-hero-rail hermes-hero-rail">
           <p className="section-kicker">Operating split</p>
           <p>Hermes runs the loop. Infopunks keeps the receipts.</p>
           <p>Every agent run can become a receipt. Every receipt can become a claim. Every claim can update provider or route reputation.</p>
           <p>Agent Run Receipts convert investigations into receipts, claims, and eventually reputation.</p>
+          <p>Claim Candidate Review decides whether the market should accept, dispute, reject, or request more evidence.</p>
         </div>
       </section>
       <section className="panel hermes-narrative-flow" aria-label="Hermes evidence flow">
@@ -219,10 +232,20 @@ function HermesNarrativePage() {
           <h2>Agent Run Receipts</h2>
           <p>Infopunks converts those investigations into receipts, claims, and eventually reputation.</p>
         </article>
+        <article>
+          <span>5</span>
+          <h2>Claim Candidate Review</h2>
+          <p>Claim Candidates propose what the evidence means; Claim Review decides whether market memory should move.</p>
+        </article>
       </section>
       <section className="panel hermes-narrative-copy">
         <p>Hermes should be allowed to investigate before money moves, but not allowed to turn investigation into trust by itself. Radar keeps that boundary explicit: a run can suggest a decision, but the proof feed decides whether the evidence says trust, caution, do_not_use_yet, unproven, or disputed.</p>
         <p>This is how agent experience becomes market memory.</p>
+      </section>
+      <section className="panel hermes-narrative-copy" aria-label="Claim Candidate Review">
+        <p className="section-kicker">Claim Candidate Review</p>
+        <h2>Receipts remember what happened. Claims decide what it means. Reputation decides who gets trusted next.</h2>
+        <p>Hermes runs are pre-spend investigations. Agent Run Receipts preserve what happened. Claim Candidates propose what the evidence means. Claim Review decides whether the market should accept, dispute, reject, or request more evidence. Reputation Impact determines who gets trusted next.</p>
       </section>
     </main>
   </div>;
@@ -255,6 +278,9 @@ function HermesDeskSurface() {
   const completedRuns = useMemo(() => (summary?.runs ?? []).filter((run) => run.state === 'completed'), [summary?.runs]);
   const receiptPreviews = useMemo(() => {
     return new Map((summary?.runs ?? []).map((run) => [run.id, convertHermesRunToReceipt(run)]));
+  }, [summary?.runs]);
+  const claimPromotions = useMemo(() => {
+    return new Map((summary?.runs ?? []).map((run) => [run.id, promoteHermesClaimCandidate(run)]));
   }, [summary?.runs]);
   const bridgeStatus = health?.status ?? 'mock';
 
@@ -346,6 +372,54 @@ function HermesDeskSurface() {
                   <p><span>confidence</span><small>{preview.receipt.confidence}</small></p>
                   <p><span>evidence_count</span><small>{preview.receipt.evidence_count}</small></p>
                   <p><span>claim_candidate</span><small>{preview.claim_candidate.title}</small></p>
+                </div>
+              </article>;
+            })}
+          </div>
+        </section>
+
+        <section className="panel hermes-runs-section" aria-label="Claim Candidate Review">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Claim Candidate Review</p>
+              <h2>Receipts remember what happened. Claims decide what it means. Reputation decides who gets trusted next.</h2>
+            </div>
+            <a className="execute compact secondary" href={`/v1/hermes/runs/${encodeURIComponent(summary.runs[0]?.id ?? 'hermes_pay_sh_route_pre_spend_check')}/claim/promotion-preview`}>GET promotion preview</a>
+          </div>
+          <div className="hermes-flow-strip" aria-label="Hermes claim promotion flow">
+            {['Hermes Run', 'Agent Run Receipt', 'Claim Candidate', 'Reviewed Claim', 'Reputation Impact'].map((step, index) => (
+              <React.Fragment key={step}>
+                <span>{step}</span>
+                {index < 4 && <b aria-hidden="true">-&gt;</b>}
+              </React.Fragment>
+            ))}
+          </div>
+          <div className="hermes-claim-review-grid">
+            {summary.runs.map((run) => {
+              const receiptPreview = receiptPreviews.get(run.id);
+              const promotion = claimPromotions.get(run.id);
+              if (!receiptPreview || !promotion) return null;
+              const impact = promotion.promoted_claim.reputation_impact;
+              return <article className={`panel hermes-claim-review-card review-${promotion.promoted_claim.review_state}`} key={`${run.id}-claim-review`}>
+                <div className="abundance-card-head">
+                  <p className="section-kicker">{promotion.conversion.status}</p>
+                  <span className={`hermes-review-badge review-${promotion.promoted_claim.review_state}`}>{reviewStateLabel(promotion.promoted_claim.review_state)}</span>
+                </div>
+                <h3>{promotion.promoted_claim.title}</h3>
+                <div className="machine-usage-list">
+                  <p><span>source_run</span><small>{promotion.run_id}</small></p>
+                  <p><span>receipt_id</span><small>{promotion.promoted_claim.source_receipt_id}</small></p>
+                  <p><span>claim_candidate</span><small>{receiptPreview.claim_candidate.title}</small></p>
+                  <p><span>promoted_claim</span><small>{promotion.promoted_claim.id}</small></p>
+                  <p><span>review_state</span><small>{promotion.promoted_claim.review_state}</small></p>
+                  <p><span>decision</span><small>{decisionLabel(promotion.promoted_claim.decision)}</small></p>
+                  <p><span>confidence</span><small>{promotion.promoted_claim.confidence}</small></p>
+                  <p><span>evidence_count</span><small>{promotion.promoted_claim.evidence_count}</small></p>
+                  <p><span>impact</span><small>{impact.direction}</small></p>
+                  <p><span>target</span><small>{impact.target_type}{impact.target_id ? `:${impact.target_id}` : ''}</small></p>
+                </div>
+                <div className="machine-usage-list">
+                  {impact.reputation_notes.map((note) => <p key={`${promotion.promoted_claim.id}-${note}`}><span>reputation_note</span><small>{note}</small></p>)}
                 </div>
               </article>;
             })}
@@ -486,6 +560,18 @@ function HermesSkillPackPage() {
           </div>
           <div className="abundance-chip-row">
             {skillPack.linked_infopunks_primitives.map((primitive) => <span key={primitive}>{primitive}</span>)}
+          </div>
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="Promotion-ready outputs">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Promotion-ready outputs</p>
+              <h2>Skills should produce evidence suitable for claim review.</h2>
+            </div>
+          </div>
+          <div className="abundance-chip-row">
+            {['receipt generation', 'claim candidate creation', 'claim review', 'reputation impact'].map((item) => <span key={item}>{item}</span>)}
           </div>
         </section>
       </>}

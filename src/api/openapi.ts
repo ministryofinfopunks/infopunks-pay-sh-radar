@@ -403,6 +403,47 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       conversion: { status: 'converted', notes: [] }
     }, 'hermes_run_not_found')
   });
+  add('post', '/v1/hermes/runs/{run_id}/claim/promote', {
+    tags: ['Hermes'],
+    summary: 'Promote Hermes claim candidate',
+    description: 'Promotes a Hermes-generated claim candidate into an Infopunks claim-shaped object with review state and reputation impact metadata. This route is deterministic, stateless, and does not mutate persistent claims or reputation records.',
+    parameters: [pathParam('run_id', 'Hermes run identifier.')],
+    requestBody: {
+      required: false,
+      content: {
+        'application/json': {
+          schema: { $ref: '#/components/schemas/HermesClaimPromotionRequest' },
+          examples: { request: { value: { review_state: 'accepted' } } }
+        }
+      }
+    },
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesClaimPromotionResult' }, {
+      run_id: 'hermes_pay_sh_route_pre_spend_check',
+      promoted_claim: {
+        id: 'claim_hermes_promoted_hermes_pay_sh_route_pre_spend_check',
+        review_state: 'needs_more_evidence',
+        decision: 'caution',
+        reputation_impact: { target_type: 'unknown', direction: 'watch', magnitude: 0.82 }
+      },
+      review: { state: 'needs_more_evidence', reviewer: 'infopunks_mock_reviewer' },
+      conversion: { status: 'promoted', notes: ['Promotion is deterministic and stateless.'] }
+    }, 'hermes_run_not_found')
+  });
+  add('get', '/v1/hermes/runs/{run_id}/claim/promotion-preview', {
+    tags: ['Hermes'],
+    summary: 'Preview Hermes claim promotion',
+    description: 'Returns the same deterministic claim promotion result as the POST route without implying creation.',
+    parameters: [pathParam('run_id', 'Hermes run identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesClaimPromotionResult' }, {
+      run_id: 'hermes_pay_sh_route_pre_spend_check',
+      promoted_claim: {
+        id: 'claim_hermes_promoted_hermes_pay_sh_route_pre_spend_check',
+        review_state: 'needs_more_evidence',
+        decision: 'caution'
+      },
+      conversion: { status: 'promoted', notes: [] }
+    }, 'hermes_run_not_found')
+  });
   add('post', '/v1/hermes/pre-spend-run', {
     tags: ['Hermes'],
     summary: 'Create Hermes pre-spend run',
@@ -2513,6 +2554,32 @@ function componentSchemas(): Record<string, JsonSchema> {
     risk_notes: arrayOf(stringSchema()),
     created_at: dateTimeSchema()
   }, ['id', 'source_receipt_id', 'title', 'claim', 'status', 'confidence', 'evidence_summary', 'risk_notes', 'created_at']);
+  const hermesClaimReviewState = enumSchema(['candidate', 'accepted', 'needs_more_evidence', 'disputed', 'rejected']);
+  const hermesReputationImpact = objectSchema({
+    target_type: enumSchema(['route', 'provider', 'service', 'unknown']),
+    target_id: stringSchema(),
+    direction: enumSchema(['positive', 'negative', 'neutral', 'watch']),
+    magnitude: { type: 'number', minimum: 0, maximum: 1 },
+    summary: stringSchema(),
+    reputation_notes: arrayOf(stringSchema())
+  }, ['target_type', 'direction', 'magnitude', 'summary', 'reputation_notes']);
+  const hermesPromotedClaim = objectSchema({
+    id: stringSchema(),
+    source: { const: 'hermes_agent_run' },
+    source_run_id: stringSchema(),
+    source_receipt_id: stringSchema(),
+    title: stringSchema(),
+    claim: stringSchema(),
+    review_state: hermesClaimReviewState,
+    decision: hermesDecisionState,
+    confidence: { type: 'number', minimum: 0, maximum: 100 },
+    evidence_summary: stringSchema(),
+    evidence_count: integerSchema(),
+    risk_notes: arrayOf(stringSchema()),
+    reputation_impact: hermesReputationImpact,
+    created_at: dateTimeSchema(),
+    reviewed_at: dateTimeSchema()
+  }, ['id', 'source', 'source_run_id', 'source_receipt_id', 'title', 'claim', 'review_state', 'decision', 'confidence', 'evidence_summary', 'evidence_count', 'risk_notes', 'reputation_impact', 'created_at', 'reviewed_at']);
   const hermesRun = objectSchema({
     id: stringSchema(),
     title: stringSchema(),
@@ -2565,6 +2632,25 @@ function componentSchemas(): Record<string, JsonSchema> {
     }, ['id', 'title', 'summary', 'tagline', 'version', 'doctrine_rules', 'expected_output_schema', 'decision_state_mapping', 'linked_infopunks_primitives', 'skills']),
     HermesRunReceipt: hermesRunReceipt,
     HermesClaimCandidate: hermesClaimCandidate,
+    HermesClaimReviewState: hermesClaimReviewState,
+    HermesReputationImpact: hermesReputationImpact,
+    HermesPromotedClaim: hermesPromotedClaim,
+    HermesClaimPromotionRequest: objectSchema({
+      review_state: hermesClaimReviewState
+    }),
+    HermesClaimPromotionResult: objectSchema({
+      run_id: stringSchema(),
+      promoted_claim: hermesPromotedClaim,
+      review: objectSchema({
+        state: hermesClaimReviewState,
+        reviewer: { const: 'infopunks_mock_reviewer' },
+        notes: arrayOf(stringSchema())
+      }, ['state', 'reviewer', 'notes']),
+      conversion: objectSchema({
+        status: enumSchema(['promoted', 'already_promoted', 'failed']),
+        notes: arrayOf(stringSchema())
+      }, ['status', 'notes'])
+    }, ['run_id', 'promoted_claim', 'review', 'conversion']),
     HermesRunReceiptConversion: objectSchema({
       run_id: stringSchema(),
       receipt: hermesRunReceipt,

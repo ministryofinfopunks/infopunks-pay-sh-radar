@@ -162,6 +162,7 @@ import { checkSignalGraph, findSignalGraphNodesForEntity, getSignalGraph, getSig
 import { checkHermesHealth, createLivePreSpendRun, getHermesDeskSummary, getHermesRunById, listHermesRuns } from '../services/hermesBridge';
 import { getHermesSkillById, getHermesSkillPack, listHermesSkillPackSkills } from '../data/hermesSkillPack';
 import { convertHermesRunToReceipt } from '../services/hermesReceiptConverter';
+import { isHermesClaimReviewState, promoteHermesClaimCandidate } from '../services/hermesClaimPromotion';
 import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
@@ -171,6 +172,9 @@ const HermesPreSpendRunRequestSchema = z.object({
   service_id: z.string().min(1),
   spend_context: z.record(z.string(), z.unknown()).optional()
 });
+const HermesClaimPromotionRequestSchema = z.object({
+  review_state: z.unknown().optional()
+}).optional();
 const MachinePreflightRequestSchema = z.object({
   machine_id: z.string().min(1),
   intent: z.string().min(1),
@@ -1583,6 +1587,30 @@ export async function createApp(
       });
     }
     return { data: safeJsonExport(convertHermesRunToReceipt(run)) };
+  });
+  app.post<{ Params: { run_id: string } }>('/v1/hermes/runs/:run_id/claim/promote', async (req, reply) => {
+    const run = getHermesRunById(req.params.run_id);
+    if (!run) {
+      return reply.code(404).send({
+        error: 'hermes_run_not_found',
+        message: `No Hermes run found for run_id=${req.params.run_id}`
+      });
+    }
+    const parsed = HermesClaimPromotionRequestSchema.safeParse(req.body);
+    const requestedState = parsed.success && isHermesClaimReviewState(parsed.data?.review_state)
+      ? parsed.data.review_state
+      : undefined;
+    return { data: safeJsonExport(promoteHermesClaimCandidate(run, requestedState)) };
+  });
+  app.get<{ Params: { run_id: string } }>('/v1/hermes/runs/:run_id/claim/promotion-preview', async (req, reply) => {
+    const run = getHermesRunById(req.params.run_id);
+    if (!run) {
+      return reply.code(404).send({
+        error: 'hermes_run_not_found',
+        message: `No Hermes run found for run_id=${req.params.run_id}`
+      });
+    }
+    return { data: safeJsonExport(promoteHermesClaimCandidate(run)) };
   });
   app.post('/v1/hermes/pre-spend-run', async (req, reply) => handleParsed(req.body, HermesPreSpendRunRequestSchema, async (input) => ({
     data: safeJsonExport(await createLivePreSpendRun(input))

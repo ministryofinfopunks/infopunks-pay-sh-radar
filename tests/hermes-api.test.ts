@@ -118,6 +118,67 @@ describe('Hermes Desk API', () => {
     await app.close();
   });
 
+  it('promotes a seeded Hermes claim candidate into a reviewed claim', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({ method: 'POST', url: '/v1/hermes/runs/hermes_pay_sh_route_pre_spend_check/claim/promote' });
+    const body = response.json();
+
+    expect(response.statusCode).toBe(200);
+    expect(body.data.run_id).toBe('hermes_pay_sh_route_pre_spend_check');
+    expect(body.data.promoted_claim).toEqual(expect.objectContaining({
+      id: 'claim_hermes_promoted_hermes_pay_sh_route_pre_spend_check',
+      source: 'hermes_agent_run',
+      source_run_id: 'hermes_pay_sh_route_pre_spend_check',
+      source_receipt_id: 'receipt_hermes_hermes_pay_sh_route_pre_spend_check',
+      review_state: 'needs_more_evidence',
+      decision: 'caution',
+      confidence: 82,
+      evidence_count: 2
+    }));
+    expect(body.data.promoted_claim.reputation_impact).toEqual(expect.objectContaining({
+      direction: 'watch',
+      magnitude: 0.82
+    }));
+    expect(body.data.review).toEqual(expect.objectContaining({
+      state: 'needs_more_evidence',
+      reviewer: 'infopunks_mock_reviewer'
+    }));
+    expect(body.data.conversion.status).toBe('promoted');
+
+    await app.close();
+  });
+
+  it('accepts a valid review_state override during claim promotion', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/hermes/runs/hermes_pay_sh_route_pre_spend_check/claim/promote',
+      payload: { review_state: 'accepted' }
+    });
+    const body = response.json();
+
+    expect(response.statusCode).toBe(200);
+    expect(body.data.promoted_claim.review_state).toBe('accepted');
+    expect(body.data.review.state).toBe('accepted');
+
+    await app.close();
+  });
+
+  it('returns 404 for missing Hermes run claim promotion', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({ method: 'POST', url: '/v1/hermes/runs/not-real/claim/promote' });
+
+    expect(response.statusCode).toBe(404);
+    expect(response.json()).toEqual(expect.objectContaining({
+      error: 'hermes_run_not_found'
+    }));
+
+    await app.close();
+  });
+
   it('returns 404 for missing Hermes run receipt conversion', async () => {
     const app = await createApp();
 

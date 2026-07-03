@@ -141,6 +141,7 @@ describe('production smoke plan', () => {
     expect(plan.attentionMarketIntakeRequirementsPath).toBe('/v1/attention-market-watch/intake/requirements');
     expect(plan.graphCheckPath).toBe('/v1/graph/check');
     expect(plan.hermesReceiptPath).toBe('/v1/hermes/runs/hermes_pay_sh_route_pre_spend_check/receipt');
+    expect(plan.hermesClaimPromotionPath).toBe('/v1/hermes/runs/hermes_pay_sh_route_pre_spend_check/claim/promote');
     expect(plan.livePulsePath).toBe('/v1/pulse');
     expect(PRE_SPEND_CHECK_PAYLOAD).toEqual({
       agent_id: 'agent_001',

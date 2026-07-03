@@ -37,6 +37,7 @@ export type SmokePlan = {
   attentionMarketIntakeRequirementsPath: string;
   graphCheckPath: string;
   hermesReceiptPath: string;
+  hermesClaimPromotionPath: string;
   livePulsePath: string;
 };
 
@@ -190,6 +191,7 @@ export function buildSmokePlan(): SmokePlan {
     attentionMarketIntakeRequirementsPath: '/v1/attention-market-watch/intake/requirements',
     graphCheckPath: '/v1/graph/check',
     hermesReceiptPath: `/v1/hermes/runs/${encodeURIComponent(hermesRunId)}/receipt`,
+    hermesClaimPromotionPath: `/v1/hermes/runs/${encodeURIComponent(hermesRunId)}/claim/promote`,
     livePulsePath: '/v1/pulse'
   };
 }
@@ -606,6 +608,21 @@ function assertHermesReceiptConversion(body: unknown): void {
   if (data.conversion.status !== 'converted') throw new Error('unexpected conversion status');
 }
 
+function assertHermesClaimPromotion(body: unknown): void {
+  if (!hasDataEnvelope(body) || !isRecord(body.data)) {
+    throw new Error('missing Hermes claim promotion payload');
+  }
+
+  const data = body.data;
+  if (!isRecord(data.promoted_claim)) throw new Error('missing data.promoted_claim');
+  if (!isRecord(data.review)) throw new Error('missing data.review');
+  if (!isRecord(data.conversion)) throw new Error('missing data.conversion');
+  if (data.promoted_claim.source !== 'hermes_agent_run') throw new Error('unexpected promoted claim source');
+  if (!isRecord(data.promoted_claim.reputation_impact)) throw new Error('missing reputation impact');
+  if (data.review.reviewer !== 'infopunks_mock_reviewer') throw new Error('unexpected reviewer');
+  if (data.conversion.status !== 'promoted') throw new Error('unexpected promotion status');
+}
+
 export function assertSignalHuntDeployment(
   openapiBody: unknown,
   signalHuntListBody: unknown,
@@ -897,6 +914,40 @@ export async function runSmoke(baseUrl = resolveBaseUrl(), config = resolveSmoke
   } catch (error) {
     failed = true;
     fail(`POST ${plan.hermesReceiptPath}`, toFailureDetail('POST', plan.hermesReceiptPath, error));
+  }
+
+  try {
+    const { response, elapsedMs } = await fetchWithRetry({
+      input: `${baseUrl}${plan.hermesClaimPromotionPath}`,
+      method: 'POST',
+      path: plan.hermesClaimPromotionPath,
+      timeoutMs: config.apiTimeoutMs,
+      init: {
+        method: 'POST',
+        headers: {
+          accept: 'application/json',
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({})
+      }
+    });
+
+    if (!response.ok) {
+      throw new SmokeRequestError({
+        method: 'POST',
+        path: plan.hermesClaimPromotionPath,
+        status: response.status,
+        elapsedMs,
+        reason: 'expected 2xx'
+      });
+    }
+
+    const body = await parseJsonOrThrow('POST', plan.hermesClaimPromotionPath, response, elapsedMs);
+    assertHermesClaimPromotion(body);
+    pass(`POST ${plan.hermesClaimPromotionPath}`, elapsedMs);
+  } catch (error) {
+    failed = true;
+    fail(`POST ${plan.hermesClaimPromotionPath}`, toFailureDetail('POST', plan.hermesClaimPromotionPath, error));
   }
 
   const claimId = createPreSpendSeedState().claims[0]?.claim_id ?? 'claim_001';

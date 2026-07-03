@@ -6994,7 +6994,8 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 .hermes-hero-rail,
 .hermes-run-card,
 .hermes-skill-card,
-.hermes-receipt-card {
+.hermes-receipt-card,
+.hermes-claim-review-card {
   min-width: 0;
 }
 
@@ -7003,7 +7004,9 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 .hermes-skill-grid,
 .hermes-narrative-flow,
 .hermes-receipt-grid,
-.hermes-rule-grid {
+.hermes-rule-grid,
+.hermes-claim-review-grid,
+.hermes-flow-strip {
   display: grid;
   gap: 12px;
 }
@@ -7021,13 +7024,15 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 }
 
 .hermes-receipt-grid,
-.hermes-rule-grid {
+.hermes-rule-grid,
+.hermes-claim-review-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .hermes-run-card,
 .hermes-skill-card,
 .hermes-receipt-card,
+.hermes-claim-review-card,
 .hermes-rule-grid article {
   display: grid;
   gap: 12px;
@@ -7036,6 +7041,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 .hermes-run-card h2,
 .hermes-skill-card h3,
 .hermes-receipt-card h3,
+.hermes-claim-review-card h3,
 .hermes-rule-grid h3,
 .hermes-narrative-flow h2 {
   margin: 0;
@@ -7046,6 +7052,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 .hermes-run-card p,
 .hermes-skill-card p,
 .hermes-receipt-card p,
+.hermes-claim-review-card p,
 .hermes-rule-grid p,
 .hermes-narrative-flow p,
 .hermes-narrative-copy p {
@@ -7112,6 +7119,66 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
   text-align: right;
 }
 
+.hermes-flow-strip {
+  grid-template-columns: repeat(9, auto);
+  align-items: center;
+  justify-content: start;
+  overflow-x: auto;
+  padding: 10px;
+  border: 1px solid rgba(124,199,255,.15);
+  border-radius: 12px;
+  background: rgba(7, 18, 23, .48);
+}
+
+.hermes-flow-strip span,
+.hermes-flow-strip b,
+.hermes-review-badge {
+  white-space: nowrap;
+}
+
+.hermes-flow-strip span {
+  color: var(--text-strong);
+  font-size: .86rem;
+  font-weight: 800;
+}
+
+.hermes-flow-strip b {
+  color: rgba(124,199,255,.7);
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.hermes-review-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(124,199,255,.18);
+  border-radius: 999px;
+  padding: 6px 9px;
+  color: var(--text-strong);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  background: rgba(124,199,255,.06);
+}
+
+.hermes-review-badge.review-accepted {
+  border-color: rgba(157,255,194,.28);
+  background: rgba(157,255,194,.08);
+}
+
+.hermes-review-badge.review-needs_more_evidence,
+.hermes-review-badge.review-candidate {
+  border-color: rgba(242,207,122,.28);
+  background: rgba(242,207,122,.07);
+}
+
+.hermes-review-badge.review-disputed,
+.hermes-review-badge.review-rejected {
+  border-color: rgba(255,125,125,.28);
+  background: rgba(255,125,125,.07);
+}
+
 .hermes-bridge-status,
 .hermes-timeline {
   display: grid;
@@ -7149,7 +7216,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 }
 
 .hermes-narrative-flow {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
 .hermes-narrative-flow article,
@@ -7200,6 +7267,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
   .hermes-run-grid,
   .hermes-skill-grid,
   .hermes-receipt-grid,
+  .hermes-claim-review-grid,
   .hermes-rule-grid,
   .hermes-narrative-flow {
     grid-template-columns: 1fr;

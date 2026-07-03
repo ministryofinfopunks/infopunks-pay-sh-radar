@@ -86,6 +86,13 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Every Hermes investigation can become a receipt');
     expect(text).toContain('receipt_hermes_hermes_pay_sh_route_pre_spend_check');
     expect(text).toContain('Receipt-ready');
+    expect(text).toContain('Claim Candidate Review');
+    expect(text).toContain('Receipts remember what happened.');
+    expect(text).toContain('Claims decide what it means.');
+    expect(text).toContain('Reputation decides who gets trusted next.');
+    expect(text).toContain('claim_hermes_promoted_hermes_pay_sh_route_pre_spend_check');
+    expect(text).toContain('needs_more_evidence');
+    expect(text).toContain('Reputation Impact');
     expect(container.querySelector('a[href="/hermes"]')?.getAttribute('aria-current')).toBe('page');
     expect(container.querySelector('a[href="/v1/hermes/skills"]')).not.toBeNull();
     expect(container.querySelector('a[href="/hermes/skill-pack"]')).not.toBeNull();
@@ -113,6 +120,11 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('claims');
     expect(text).toContain('loops');
     expect(text).toContain('proof checks');
+    expect(text).toContain('Promotion-ready outputs');
+    expect(text).toContain('receipt generation');
+    expect(text).toContain('claim candidate creation');
+    expect(text).toContain('claim review');
+    expect(text).toContain('reputation impact');
     expect(container.querySelector('a[href="/hermes/skill-pack"]')?.getAttribute('aria-current')).toBe('page');
   });
 
@@ -129,6 +141,11 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Hermes runs are not chat logs. They are pre-spend investigations.');
     expect(text).toContain('Infopunks converts those investigations into receipts, claims, and eventually reputation.');
     expect(text).toContain('This is how agent experience becomes market memory.');
+    expect(text).toContain('Claim Candidate Review');
+    expect(text).toContain('Agent Run Receipts preserve what happened.');
+    expect(text).toContain('Claim Candidates propose what the evidence means.');
+    expect(text).toContain('Reputation Impact determines who gets trusted next.');
+    expect(text).toContain('Receipts remember what happened. Claims decide what it means. Reputation decides who gets trusted next.');
     expect(container.querySelector('a[href="/narratives/hermes-desk"]')?.getAttribute('aria-current')).toBe('page');
   });
 });
