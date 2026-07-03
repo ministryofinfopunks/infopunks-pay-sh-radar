@@ -25,6 +25,15 @@ export const ATTENTION_MARKET_INTAKE_PAYLOAD = {
   evidence_links: ['/narratives/attention-market-watch']
 } as const;
 
+export const HERMES_PRE_SPEND_DECISION_PAYLOAD = {
+  route_id: 'route_pay_sh_market_research_01',
+  provider_id: 'provider_pay_sh_lattice',
+  service_id: 'service_market_research',
+  amount_usd: 25,
+  payment_rail: 'x402',
+  chain: 'base'
+} as const;
+
 export type SmokePlan = {
   publicPaths: string[];
   publicHeadPaths: string[];
@@ -38,6 +47,7 @@ export type SmokePlan = {
   graphCheckPath: string;
   hermesReceiptPath: string;
   hermesClaimPromotionPath: string;
+  hermesPreSpendDecisionPath: string;
   livePulsePath: string;
 };
 
@@ -105,6 +115,7 @@ export function buildSmokePlan(): SmokePlan {
       '/abundance',
       '/narratives/abundance-desk',
       '/hermes',
+      '/hermes/pre-spend-decision',
       '/hermes/reputation-ledger',
       '/hermes/skill-pack',
       '/narratives/hermes-desk',
@@ -149,6 +160,7 @@ export function buildSmokePlan(): SmokePlan {
       '/v1/hermes/skill-pack/skills',
       '/v1/hermes/runs',
       '/v1/hermes/health',
+      '/v1/hermes/pre-spend-decision/example',
       '/v1/hermes/reputation-ledger',
       '/v1/hermes/reputation-ledger/providers',
       '/v1/hermes/reputation-ledger/routes',
@@ -197,6 +209,7 @@ export function buildSmokePlan(): SmokePlan {
     graphCheckPath: '/v1/graph/check',
     hermesReceiptPath: `/v1/hermes/runs/${encodeURIComponent(hermesRunId)}/receipt`,
     hermesClaimPromotionPath: `/v1/hermes/runs/${encodeURIComponent(hermesRunId)}/claim/promote`,
+    hermesPreSpendDecisionPath: '/v1/hermes/pre-spend-decision',
     livePulsePath: '/v1/pulse'
   };
 }
@@ -628,6 +641,20 @@ function assertHermesClaimPromotion(body: unknown): void {
   if (data.conversion.status !== 'promoted') throw new Error('unexpected promotion status');
 }
 
+function assertHermesPreSpendDecision(body: unknown): void {
+  if (!hasDataEnvelope(body) || !isRecord(body.data)) {
+    throw new Error('missing Hermes pre-spend decision payload');
+  }
+
+  const data = body.data;
+  if (typeof data.decision !== 'string') throw new Error('missing data.decision');
+  if (typeof data.confidence !== 'number') throw new Error('missing data.confidence');
+  if (typeof data.required_action !== 'string') throw new Error('missing data.required_action');
+  if (!Array.isArray(data.reputation_inputs)) throw new Error('missing data.reputation_inputs');
+  if (!Array.isArray(data.receipt_inputs)) throw new Error('missing data.receipt_inputs');
+  if (!Array.isArray(data.claim_inputs)) throw new Error('missing data.claim_inputs');
+}
+
 export function assertSignalHuntDeployment(
   openapiBody: unknown,
   signalHuntListBody: unknown,
@@ -953,6 +980,40 @@ export async function runSmoke(baseUrl = resolveBaseUrl(), config = resolveSmoke
   } catch (error) {
     failed = true;
     fail(`POST ${plan.hermesClaimPromotionPath}`, toFailureDetail('POST', plan.hermesClaimPromotionPath, error));
+  }
+
+  try {
+    const { response, elapsedMs } = await fetchWithRetry({
+      input: `${baseUrl}${plan.hermesPreSpendDecisionPath}`,
+      method: 'POST',
+      path: plan.hermesPreSpendDecisionPath,
+      timeoutMs: config.apiTimeoutMs,
+      init: {
+        method: 'POST',
+        headers: {
+          accept: 'application/json',
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify(HERMES_PRE_SPEND_DECISION_PAYLOAD)
+      }
+    });
+
+    if (!response.ok) {
+      throw new SmokeRequestError({
+        method: 'POST',
+        path: plan.hermesPreSpendDecisionPath,
+        status: response.status,
+        elapsedMs,
+        reason: 'expected 2xx'
+      });
+    }
+
+    const body = await parseJsonOrThrow('POST', plan.hermesPreSpendDecisionPath, response, elapsedMs);
+    assertHermesPreSpendDecision(body);
+    pass(`POST ${plan.hermesPreSpendDecisionPath}`, elapsedMs);
+  } catch (error) {
+    failed = true;
+    fail(`POST ${plan.hermesPreSpendDecisionPath}`, toFailureDetail('POST', plan.hermesPreSpendDecisionPath, error));
   }
 
   const claimId = createPreSpendSeedState().claims[0]?.claim_id ?? 'claim_001';

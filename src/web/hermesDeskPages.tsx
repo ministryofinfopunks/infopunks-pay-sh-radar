@@ -5,6 +5,13 @@ import type { HermesSkillPack } from '../data/hermesSkillPack';
 import { convertHermesRunToReceipt, type HermesRunReceiptConversion } from '../services/hermesReceiptConverter';
 import { promoteHermesClaimCandidate, type HermesClaimReviewState } from '../services/hermesClaimPromotion';
 import type { HermesReputationLedgerEntry, HermesReputationLedgerSummary, HermesReputationState } from '../services/hermesReputationLedger';
+import type {
+  HermesPreSpendDecision,
+  HermesPreSpendDecisionState,
+  HermesPreSpendDecisionInputReference,
+  HermesPreSpendRequiredAction,
+  HermesPreSpendRiskFactor
+} from '../services/hermesPreSpendDecision';
 import { getNarrativeMetadataForPath } from '../shared/narrativeMetadata';
 
 const API_BASE_URL = getApiBaseUrl();
@@ -77,10 +84,29 @@ function formatLedgerNumber(value: number) {
   return Number.isInteger(value) ? String(value) : value.toFixed(2);
 }
 
+function titleCaseWords(value: string) {
+  return value
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function preSpendDecisionLabel(state: HermesPreSpendDecisionState) {
+  return titleCaseWords(state);
+}
+
+function requiredActionLabel(state: HermesPreSpendRequiredAction) {
+  return titleCaseWords(state);
+}
+
+function riskSeverityLabel(severity: HermesPreSpendRiskFactor['severity']) {
+  return titleCaseWords(severity);
+}
+
 function HermesNav({ current }: { current: string }) {
   const links = [
     { href: '/', label: 'Radar Home' },
     { href: '/hermes', label: 'Hermes Desk' },
+    { href: '/hermes/pre-spend-decision', label: 'Pre-Spend Decision' },
     { href: '/hermes/reputation-ledger', label: 'Reputation Ledger' },
     { href: '/hermes/skill-pack', label: 'Skill Pack' },
     { href: '/narratives/hermes-desk', label: 'Narrative' },
@@ -91,6 +117,7 @@ function HermesNav({ current }: { current: string }) {
 
   function active(href: string) {
     if (href === '/hermes') return current === '/hermes';
+    if (href === '/hermes/pre-spend-decision') return current === '/hermes/pre-spend-decision';
     if (href === '/hermes/reputation-ledger') return current === '/hermes/reputation-ledger';
     if (href === '/hermes/skill-pack') return current === '/hermes/skill-pack';
     if (href === '/narratives/hermes-desk') return current === '/narratives/hermes-desk';
@@ -288,6 +315,85 @@ function HermesReputationLedgerSection({ ledger }: { ledger: HermesReputationLed
   </section>;
 }
 
+function HermesInputReferenceList({
+  title,
+  items
+}: {
+  title: string;
+  items: HermesPreSpendDecisionInputReference[];
+}) {
+  return <div className="machine-usage-list">
+    <p><span>{title}</span><small>{items.length ? items.map((item) => item.id).join(', ') : 'none'}</small></p>
+  </div>;
+}
+
+function HermesPreSpendDecisionCard({
+  decision,
+  compact = false
+}: {
+  decision: HermesPreSpendDecision;
+  compact?: boolean;
+}) {
+  return <article className={`panel hermes-run-card state-${decision.decision}`} aria-label={`Pre-spend decision ${decision.id}`}>
+    <div className="abundance-card-head">
+      <p className="section-kicker">Pre-Spend Decision</p>
+      <div className="abundance-chip-row">
+        <span className={`narrative-decision-pill state-${decision.decision}`}>{preSpendDecisionLabel(decision.decision)}</span>
+        <span className="narrative-evidence-chip">{requiredActionLabel(decision.required_action)}</span>
+      </div>
+    </div>
+    <h3>{decision.input.route_id ?? 'No route specified'}</h3>
+    <p>{decision.reason}</p>
+    <div className="hermes-confidence" aria-label={`${decision.confidence} confidence`}>
+      <span>confidence</span>
+      <strong>{decision.confidence}</strong>
+    </div>
+    <div className="machine-usage-list">
+      <p><span>route_id</span><small>{decision.input.route_id ?? 'not supplied'}</small></p>
+      <p><span>provider_id</span><small>{decision.input.provider_id ?? 'not supplied'}</small></p>
+      <p><span>service_id</span><small>{decision.input.service_id ?? 'not supplied'}</small></p>
+      <p><span>amount_usd</span><small>{typeof decision.input.amount_usd === 'number' ? decision.input.amount_usd.toFixed(2) : 'not supplied'}</small></p>
+      <p><span>decision</span><small>{decision.decision}</small></p>
+      <p><span>required_action</span><small>{decision.required_action}</small></p>
+      <p><span>ledger_state</span><small>{`provider=${decision.ledger_state.provider_state ?? 'missing'} route=${decision.ledger_state.route_state ?? 'missing'} service=${decision.ledger_state.service_state ?? 'missing'}`}</small></p>
+      <p><span>ledger_score</span><small>{`provider=${decision.ledger_state.provider_score ?? 'na'} route=${decision.ledger_state.route_score ?? 'na'} service=${decision.ledger_state.service_score ?? 'na'}`}</small></p>
+    </div>
+    <div className="abundance-chip-row">
+      {decision.risk_factors.map((risk) => <span key={risk.id}>{risk.label} ({riskSeverityLabel(risk.severity)})</span>)}
+      {!decision.risk_factors.length && <span>no additional risk factors</span>}
+    </div>
+    {!compact && <>
+      <div className="machine-usage-list">
+        {decision.risk_factors.map((risk) => <p key={`${decision.id}-${risk.id}`}><span>{risk.source}</span><small>{risk.detail}</small></p>)}
+      </div>
+      <HermesInputReferenceList title="reputation inputs" items={decision.reputation_inputs} />
+      <HermesInputReferenceList title="receipt inputs" items={decision.receipt_inputs} />
+      <HermesInputReferenceList title="claim inputs" items={decision.claim_inputs} />
+      <HermesInputReferenceList title="run inputs" items={decision.run_inputs} />
+    </>}
+  </article>;
+}
+
+function HermesPreSpendDecisionSection({ decision }: { decision: HermesPreSpendDecision | null }) {
+  if (!decision) return <section className="panel"><p className="route-state">Loading Pre-Spend Decision Engine...</p></section>;
+
+  return <section className="panel hermes-runs-section" aria-label="Pre-Spend Decision Engine">
+    <div className="panel-head">
+      <div>
+        <p className="section-kicker">Pre-Spend Decision Engine</p>
+        <h2>Before an agent spends, it checks the ledger.</h2>
+      </div>
+      <a className="execute compact secondary" href="/v1/hermes/pre-spend-decision/example">GET example</a>
+      <a className="execute compact secondary" href="/hermes/pre-spend-decision">Open decision engine</a>
+    </div>
+    <p className="copy">Reputation is not just displayed.</p>
+    <p className="copy">Reputation now decides.</p>
+    <div className="hermes-run-grid">
+      <HermesPreSpendDecisionCard decision={decision} />
+    </div>
+  </section>;
+}
+
 function HermesNarrativePage() {
   useEffect(() => {
     syncHermesMetadata('/narratives/hermes-desk');
@@ -361,6 +467,16 @@ function HermesNarrativePage() {
         <p>One claim is judgment.</p>
         <p>Many judgments become reputation.</p>
       </section>
+      <section className="panel hermes-narrative-copy" aria-label="Pre-Spend Decision Engine">
+        <p className="section-kicker">Pre-Spend Decision Engine</p>
+        <h2>The Reputation Ledger is not only for display.</h2>
+        <p>Agents should query it before money moves.</p>
+        <p>The decision engine turns accumulated evidence into a spend recommendation.</p>
+        <p>Every decision can create a new run, receipt, claim, and future reputation update.</p>
+        <p>Reputation is not just displayed.</p>
+        <p>Reputation now decides.</p>
+        <p>Before an agent spends, it checks the ledger.</p>
+      </section>
     </main>
   </div>;
 }
@@ -369,6 +485,7 @@ function HermesDeskSurface() {
   const [summary, setSummary] = useState<HermesDeskSummary | null>(null);
   const [health, setHealth] = useState<HermesHealthResponse | null>(null);
   const [ledger, setLedger] = useState<HermesReputationLedgerSummary | null>(null);
+  const [preSpendDecision, setPreSpendDecision] = useState<HermesPreSpendDecision | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -391,6 +508,10 @@ function HermesDeskSurface() {
     api<HermesReputationLedgerSummary>('/v1/hermes/reputation-ledger')
       .then((response) => setLedger(response.data))
       .catch(() => setLedger(null));
+
+    api<HermesPreSpendDecision>('/v1/hermes/pre-spend-decision/example')
+      .then((response) => setPreSpendDecision(response.data))
+      .catch(() => setPreSpendDecision(null));
   }, []);
 
   const activeRuns = useMemo(() => (summary?.runs ?? []).filter((run) => run.state === 'queued' || run.state === 'running'), [summary?.runs]);
@@ -546,6 +667,8 @@ function HermesDeskSurface() {
         </section>
 
         <HermesReputationLedgerSection ledger={ledger} />
+
+        <HermesPreSpendDecisionSection decision={preSpendDecision} />
 
         <section className="panel hermes-runs-section" aria-label="Completed Hermes runs">
           <div className="panel-head">
@@ -708,7 +831,116 @@ function HermesSkillPackPage() {
             {['route reputation', 'provider reputation', 'service reputation', 'disputed evidence', 'watchlist state'].map((item) => <span key={item}>{item}</span>)}
           </div>
         </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="Decision-ready outputs">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Decision-ready outputs</p>
+              <h2>Hermes skills should emit structured outputs that can feed the next spend decision.</h2>
+            </div>
+          </div>
+          <div className="abundance-chip-row">
+            {['pre-spend decisions', 'required actions', 'risk factors', 'reputation inputs', 'receipt generation', 'claim review'].map((item) => <span key={item}>{item}</span>)}
+          </div>
+        </section>
       </>}
+    </main>
+  </div>;
+}
+
+function HermesPreSpendDecisionPage() {
+  const [decision, setDecision] = useState<HermesPreSpendDecision | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    syncHermesMetadata('/hermes/pre-spend-decision');
+  }, []);
+
+  useEffect(() => {
+    api<HermesPreSpendDecision>('/v1/hermes/pre-spend-decision/example')
+      .then((response) => setDecision(response.data))
+      .catch((err) => setError(err instanceof Error ? err.message : 'hermes_pre_spend_decision_unavailable'));
+  }, []);
+
+  return <div className="shell narrative-shell hermes-shell">
+    <a className="skip-link" href="#hermes-pre-spend-content">Skip to content</a>
+    <header className="site-header">
+      <HermesNav current="/hermes/pre-spend-decision" />
+    </header>
+    <main id="hermes-pre-spend-content" className="narrative-page hermes-page">
+      <section className="panel hero narrative-hero hermes-hero">
+        <div>
+          <p className="eyebrow">Spend Gate</p>
+          <h1>Pre-Spend Decision Engine</h1>
+          <p className="copy hermes-hero-copy">Before an agent spends, it checks the ledger.</p>
+          <div className="panel-actions">
+            <a className="execute" href="/v1/hermes/pre-spend-decision/example">Open Example JSON</a>
+            <a className="execute compact secondary" href="/hermes">Back to Hermes Desk</a>
+          </div>
+        </div>
+        <div className="panel narrative-hero-rail hermes-hero-rail">
+          <p className="section-kicker">Decision doctrine</p>
+          <p>Reputation is not just displayed.</p>
+          <p>Reputation now decides.</p>
+        </div>
+      </section>
+      <section className="panel hermes-narrative-flow" aria-label="Pre-spend decision flow">
+        <article><span>1</span><h2>Spend Intent</h2><p>Route, provider, service, amount, and execution context enter the decision engine.</p></article>
+        <article><span>2</span><h2>Reputation Ledger</h2><p>Provider, route, and service memory are gathered from reviewed claims and receipts.</p></article>
+        <article><span>3</span><h2>Decision</h2><p>A deterministic state is returned: proceed, caution, test spend, stop, or request more evidence.</p></article>
+        <article><span>4</span><h2>Required Action</h2><p>The engine recommends the next action the agent should take before money moves.</p></article>
+        <article><span>5</span><h2>New Receipt</h2><p>The next run can create a new receipt, claim, and future ledger update.</p></article>
+      </section>
+      {error && <section className="panel"><p className="route-state error">{error}</p></section>}
+      {!error && decision && <section className="panel hermes-runs-section" aria-label="Example decision card">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Example decision card</p>
+            <h2>Seeded decision output.</h2>
+          </div>
+        </div>
+        <div className="hermes-run-grid">
+          <HermesPreSpendDecisionCard decision={decision} />
+        </div>
+      </section>}
+      {!error && !decision && <section className="panel"><p className="route-state">Loading example decision...</p></section>}
+      <section className="panel hermes-skill-pack-detail" aria-label="Decision state mapping">
+        <div className="panel-head"><div><p className="section-kicker">Decision state mapping</p><h2>Bounded spend language.</h2></div></div>
+        <div className="machine-usage-list">
+          {[
+            ['proceed', 'Provider and route evidence is strong enough to spend without extra gating.'],
+            ['proceed_with_caution', 'Evidence is mixed or incomplete, so spend should stay constrained.'],
+            ['test_spend_first', 'The next safe move is a small deterministic test spend.'],
+            ['do_not_spend', 'Ledger evidence says stop or move to a fallback path.'],
+            ['insufficient_evidence', 'The spend context needs more proof before money moves.']
+          ].map(([state, detail]) => <p key={state}><span>{state}</span><small>{detail}</small></p>)}
+        </div>
+      </section>
+      <section className="panel hermes-skill-pack-detail" aria-label="Required action mapping">
+        <div className="panel-head"><div><p className="section-kicker">Required action mapping</p><h2>What the agent should do next.</h2></div></div>
+        <div className="machine-usage-list">
+          {[
+            ['none', 'Spend can proceed without extra gating.'],
+            ['run_small_test_spend', 'Use a constrained test spend before scaling.'],
+            ['request_more_evidence', 'Wait for stronger receipt or claim evidence.'],
+            ['use_fallback_route', 'Move to a safer route.'],
+            ['do_not_use_provider', 'Do not spend through the provider.'],
+            ['manual_review_required', 'Escalate before spending.']
+          ].map(([state, detail]) => <p key={state}><span>{state}</span><small>{detail}</small></p>)}
+        </div>
+      </section>
+      <section className="panel hermes-skill-pack-detail" aria-label="Risk factors">
+        <div className="panel-head"><div><p className="section-kicker">Risk factors</p><h2>Why the engine raises caution.</h2></div></div>
+        <div className="abundance-chip-row">
+          {['missing provider reputation', 'missing route reputation', 'missing service reputation', 'watchlist status', 'degraded target', 'disputed target', 'high amount', 'insufficient evidence'].map((item) => <span key={item}>{item}</span>)}
+        </div>
+      </section>
+      <section className="panel hermes-skill-pack-detail" aria-label="Inputs used">
+        <div className="panel-head"><div><p className="section-kicker">Inputs used</p><h2>The decision engine reads accumulated evidence, not vibes.</h2></div></div>
+        <div className="abundance-chip-row">
+          {['provider reputation', 'route reputation', 'service reputation', 'receipts', 'reviewed claims', 'Hermes runs'].map((item) => <span key={item}>{item}</span>)}
+        </div>
+      </section>
     </main>
   </div>;
 }
@@ -757,8 +989,10 @@ function HermesReputationLedgerPage() {
 export function HermesDeskPage({
   narrativeRoute = false,
   skillPackRoute = false,
-  reputationLedgerRoute = false
-}: { narrativeRoute?: boolean; skillPackRoute?: boolean; reputationLedgerRoute?: boolean }) {
+  reputationLedgerRoute = false,
+  preSpendDecisionRoute = false
+}: { narrativeRoute?: boolean; skillPackRoute?: boolean; reputationLedgerRoute?: boolean; preSpendDecisionRoute?: boolean }) {
+  if (preSpendDecisionRoute) return <HermesPreSpendDecisionPage />;
   if (reputationLedgerRoute) return <HermesReputationLedgerPage />;
   if (skillPackRoute) return <HermesSkillPackPage />;
   return narrativeRoute ? <HermesNarrativePage /> : <HermesDeskSurface />;

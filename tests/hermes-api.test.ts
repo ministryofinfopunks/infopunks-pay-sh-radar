@@ -258,6 +258,97 @@ describe('Hermes Desk API', () => {
     await app.close();
   });
 
+  it('returns a pre-spend decision for seeded Hermes IDs', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/hermes/pre-spend-decision',
+      payload: {
+        route_id: 'route_pay_sh_market_research_01',
+        provider_id: 'provider_pay_sh_lattice',
+        service_id: 'service_market_research',
+        amount_usd: 25,
+        payment_rail: 'x402',
+        chain: 'base'
+      }
+    });
+    const body = response.json();
+
+    expect(response.statusCode).toBe(200);
+    expect(body.data.input.route_id).toBe('route_pay_sh_market_research_01');
+    expect(body.data.input.provider_id).toBe('provider_pay_sh_lattice');
+    expect(body.data.reputation_inputs.length).toBeGreaterThanOrEqual(1);
+    expect(body.data.claim_inputs.length).toBeGreaterThanOrEqual(1);
+    expect(body.data.decision).toBe('do_not_spend');
+
+    await app.close();
+  });
+
+  it('returns insufficient evidence for unknown pre-spend decision ids', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/hermes/pre-spend-decision',
+      payload: {
+        route_id: 'route_unknown',
+        provider_id: 'provider_unknown',
+        service_id: 'service_unknown'
+      }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().data).toEqual(expect.objectContaining({
+      decision: 'insufficient_evidence',
+      required_action: 'request_more_evidence',
+      confidence: 0.35
+    }));
+
+    await app.close();
+  });
+
+  it('requires a more cautious action for high amount pre-spend decisions', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/hermes/pre-spend-decision',
+      payload: {
+        route_id: 'route_pay_sh_market_research_01',
+        provider_id: 'provider_pay_sh_lattice',
+        service_id: 'service_market_research',
+        amount_usd: 1250,
+        payment_rail: 'x402',
+        chain: 'base'
+      }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().data.required_action).toBe('manual_review_required');
+
+    await app.close();
+  });
+
+  it('returns a deterministic pre-spend decision example', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({ method: 'GET', url: '/v1/hermes/pre-spend-decision/example' });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().data).toEqual(expect.objectContaining({
+      input: expect.objectContaining({
+        route_id: 'route_pay_sh_market_research_01',
+        provider_id: 'provider_pay_sh_lattice',
+        service_id: 'service_market_research',
+        amount_usd: 25
+      }),
+      generated_at: '2026-07-03T00:00:00.000Z'
+    }));
+
+    await app.close();
+  });
+
   it('returns Hermes provider reputation entries', async () => {
     const app = await createApp();
 

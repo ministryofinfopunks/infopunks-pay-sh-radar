@@ -170,6 +170,7 @@ import {
   listHermesRouteReputationEntries,
   listHermesServiceReputationEntries
 } from '../services/hermesReputationLedger';
+import { createHermesPreSpendDecision, createHermesPreSpendDecisionExample } from '../services/hermesPreSpendDecision';
 import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
@@ -179,6 +180,16 @@ const HermesPreSpendRunRequestSchema = z.object({
   service_id: z.string().min(1),
   spend_context: z.record(z.string(), z.unknown()).optional()
 });
+const HermesPreSpendDecisionInputSchema = z.object({
+  route_id: z.string().min(1).optional(),
+  provider_id: z.string().min(1).optional(),
+  service_id: z.string().min(1).optional(),
+  amount_usd: z.number().nonnegative().optional(),
+  payment_rail: z.string().min(1).optional(),
+  chain: z.string().min(1).optional(),
+  agent_type: z.string().min(1).optional(),
+  objective: z.string().min(1).optional()
+}).strict();
 const HermesClaimPromotionRequestSchema = z.object({
   review_state: z.unknown().optional()
 }).optional();
@@ -1582,6 +1593,12 @@ export async function createApp(
       count: listHermesServiceReputationEntries().length,
       entries: listHermesServiceReputationEntries()
     })
+  }));
+  app.post('/v1/hermes/pre-spend-decision', async (req, reply) => handleParsed(req.body, HermesPreSpendDecisionInputSchema, (input) => ({
+    data: safeJsonExport(createHermesPreSpendDecision(input))
+  }), reply));
+  app.get('/v1/hermes/pre-spend-decision/example', async () => ({
+    data: safeJsonExport(createHermesPreSpendDecisionExample())
   }));
   app.get<{ Params: { target_type: string; target_id: string } }>('/v1/hermes/reputation-ledger/:target_type/:target_id', async (req, reply) => {
     const entry = getHermesReputationEntry(req.params.target_type, req.params.target_id);

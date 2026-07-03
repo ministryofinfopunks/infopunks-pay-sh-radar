@@ -376,6 +376,53 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       entries: arrayOf({ $ref: '#/components/schemas/HermesReputationLedgerEntry' })
     }), { count: 1, entries: [{ target_type: 'route', target_id: 'route_pay_sh_market_research_01', current_state: 'watchlist' }] })
   });
+  add('post', '/v1/hermes/pre-spend-decision', {
+    tags: ['Hermes'],
+    summary: 'Create Hermes pre-spend decision',
+    description: 'Returns a stateless, deterministic spend recommendation backed by matching provider, route, and service reputation ledger entries. This route never requires a live Hermes sidecar and does not mutate receipts, claims, routes, providers, or services.',
+    requestBody: jsonRequest({ $ref: '#/components/schemas/HermesPreSpendDecisionInput' }, {
+      route_id: 'route_pay_sh_market_research_01',
+      provider_id: 'provider_pay_sh_lattice',
+      service_id: 'service_market_research',
+      amount_usd: 25,
+      payment_rail: 'x402',
+      chain: 'base'
+    }),
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesPreSpendDecision' }, {
+      id: 'hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+      input: {
+        route_id: 'route_pay_sh_market_research_01',
+        provider_id: 'provider_pay_sh_lattice',
+        service_id: 'service_market_research',
+        amount_usd: 25,
+        payment_rail: 'x402',
+        chain: 'base'
+      },
+      decision: 'do_not_spend',
+      confidence: 0.46,
+      reason: 'Provider reputation is degraded in the ledger.',
+      required_action: 'do_not_use_provider',
+      risk_factors: [{ id: 'provider_degraded', severity: 'high', label: 'provider degraded', detail: 'Lattice Research Relay is degraded with trust score 13.', source: 'provider_reputation' }],
+      reputation_inputs: [{ kind: 'reputation_entry', id: 'provider:provider_pay_sh_lattice', target_type: 'provider', target_id: 'provider_pay_sh_lattice', summary: 'Lattice Research Relay is degraded with trust score 13.' }],
+      receipt_inputs: [{ kind: 'receipt', id: 'receipt_hermes_hermes_agentic_market_provider_risk_review', target_type: 'provider', target_id: 'provider_pay_sh_lattice', summary: 'Receipt receipt_hermes_hermes_agentic_market_provider_risk_review contributes evidence for provider:provider_pay_sh_lattice.' }],
+      claim_inputs: [{ kind: 'claim', id: 'claim_hermes_promoted_hermes_agentic_market_provider_risk_review', target_type: 'provider', target_id: 'provider_pay_sh_lattice', summary: 'Reviewed claim claim_hermes_promoted_hermes_agentic_market_provider_risk_review contributes reputation judgment for provider:provider_pay_sh_lattice.' }],
+      run_inputs: [{ kind: 'run', id: 'hermes_agentic_market_provider_risk_review', target_type: 'provider', target_id: 'provider_pay_sh_lattice', summary: 'Hermes run hermes_agentic_market_provider_risk_review contributed source evidence for provider:provider_pay_sh_lattice.' }],
+      ledger_state: { provider_state: 'degraded', route_state: 'watchlist', service_state: 'watchlist', provider_score: 13, route_score: 38, service_score: 41 },
+      generated_at: '2026-07-03T00:00:00.000Z'
+    })
+  });
+  add('get', '/v1/hermes/pre-spend-decision/example', {
+    tags: ['Hermes'],
+    summary: 'Get Hermes pre-spend decision example',
+    description: 'Returns one deterministic example pre-spend decision using seeded Hermes route, provider, and service identifiers.',
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesPreSpendDecision' }, {
+      id: 'hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+      decision: 'do_not_spend',
+      confidence: 0.46,
+      reason: 'Provider reputation is degraded in the ledger.',
+      required_action: 'do_not_use_provider'
+    })
+  });
   add('get', '/v1/hermes/reputation-ledger/{target_type}/{target_id}', {
     tags: ['Hermes'],
     summary: 'Get Hermes reputation entry',
@@ -2735,6 +2782,54 @@ function componentSchemas(): Record<string, JsonSchema> {
       disputed_count: integerSchema(),
       entries: arrayOf(hermesReputationLedgerEntry)
     }, ['generated_at', 'entry_count', 'provider_count', 'route_count', 'service_count', 'unknown_count', 'trusted_count', 'watchlist_count', 'degraded_count', 'disputed_count', 'entries']),
+    HermesPreSpendDecisionState: enumSchema(['proceed', 'proceed_with_caution', 'test_spend_first', 'do_not_spend', 'insufficient_evidence']),
+    HermesPreSpendRequiredAction: enumSchema(['none', 'run_small_test_spend', 'request_more_evidence', 'use_fallback_route', 'do_not_use_provider', 'manual_review_required']),
+    HermesPreSpendRiskFactor: objectSchema({
+      id: stringSchema(),
+      severity: enumSchema(['low', 'medium', 'high']),
+      label: stringSchema(),
+      detail: stringSchema(),
+      source: enumSchema(['provider_reputation', 'route_reputation', 'service_reputation', 'amount', 'evidence', 'unknown'])
+    }, ['id', 'severity', 'label', 'detail', 'source']),
+    HermesPreSpendDecisionInputReference: objectSchema({
+      kind: enumSchema(['reputation_entry', 'receipt', 'claim', 'run']),
+      id: stringSchema(),
+      target_type: stringSchema(),
+      target_id: stringSchema(),
+      summary: stringSchema()
+    }, ['kind', 'id', 'summary']),
+    HermesPreSpendDecisionInput: objectSchema({
+      route_id: stringSchema(),
+      provider_id: stringSchema(),
+      service_id: stringSchema(),
+      amount_usd: { type: 'number', minimum: 0 },
+      payment_rail: stringSchema(),
+      chain: stringSchema(),
+      agent_type: stringSchema(),
+      objective: stringSchema()
+    }),
+    HermesPreSpendDecision: objectSchema({
+      id: stringSchema(),
+      input: { $ref: '#/components/schemas/HermesPreSpendDecisionInput' },
+      decision: { $ref: '#/components/schemas/HermesPreSpendDecisionState' },
+      confidence: { type: 'number', minimum: 0, maximum: 1 },
+      reason: stringSchema(),
+      required_action: { $ref: '#/components/schemas/HermesPreSpendRequiredAction' },
+      risk_factors: arrayOf({ $ref: '#/components/schemas/HermesPreSpendRiskFactor' }),
+      reputation_inputs: arrayOf({ $ref: '#/components/schemas/HermesPreSpendDecisionInputReference' }),
+      receipt_inputs: arrayOf({ $ref: '#/components/schemas/HermesPreSpendDecisionInputReference' }),
+      claim_inputs: arrayOf({ $ref: '#/components/schemas/HermesPreSpendDecisionInputReference' }),
+      run_inputs: arrayOf({ $ref: '#/components/schemas/HermesPreSpendDecisionInputReference' }),
+      ledger_state: objectSchema({
+        provider_state: stringSchema(),
+        route_state: stringSchema(),
+        service_state: stringSchema(),
+        provider_score: integerSchema(),
+        route_score: integerSchema(),
+        service_score: integerSchema()
+      }),
+      generated_at: dateTimeSchema()
+    }, ['id', 'input', 'decision', 'confidence', 'reason', 'required_action', 'risk_factors', 'reputation_inputs', 'receipt_inputs', 'claim_inputs', 'run_inputs', 'ledger_state', 'generated_at']),
     HermesPromotedClaim: hermesPromotedClaim,
     HermesClaimPromotionRequest: objectSchema({
       review_state: hermesClaimReviewState

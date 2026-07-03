@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getHermesDeskSummary } from '../src/services/hermesBridge';
 import { getHermesSkillPack } from '../src/data/hermesSkillPack';
 import { buildHermesReputationLedger } from '../src/services/hermesReputationLedger';
+import { createHermesPreSpendDecisionExample } from '../src/services/hermesPreSpendDecision';
 import { App } from '../src/web/main';
 
 function json(data: unknown) {
@@ -42,6 +43,7 @@ describe('Hermes Desk page', () => {
       if (pathOf(input) === '/v1/hermes') return json(getHermesDeskSummary({}));
       if (pathOf(input) === '/v1/hermes/skill-pack') return json(getHermesSkillPack());
       if (pathOf(input) === '/v1/hermes/reputation-ledger') return json(buildHermesReputationLedger());
+      if (pathOf(input) === '/v1/hermes/pre-spend-decision/example') return json(createHermesPreSpendDecisionExample());
       if (pathOf(input) === '/v1/hermes/health') return json({
         enabled: false,
         mode: 'mock',
@@ -99,6 +101,10 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('One receipt is evidence.');
     expect(text).toContain('One claim is judgment.');
     expect(text).toContain('Many judgments become reputation.');
+    expect(text).toContain('Pre-Spend Decision Engine');
+    expect(text).toContain('Before an agent spends, it checks the ledger.');
+    expect(text).toContain('Reputation is not just displayed.');
+    expect(text).toContain('Reputation now decides.');
     expect(text).toContain('Provider Impact Surface');
     expect(text).toContain('Route Impact Surface');
     expect(text).toContain('provider_pay_sh_lattice');
@@ -106,6 +112,7 @@ describe('Hermes Desk page', () => {
     expect(container.querySelector('a[href="/hermes"]')?.getAttribute('aria-current')).toBe('page');
     expect(container.querySelector('a[href="/v1/hermes/skills"]')).not.toBeNull();
     expect(container.querySelector('a[href="/hermes/skill-pack"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/hermes/pre-spend-decision"]')).not.toBeNull();
   });
 
   it('renders the Hermes Skill Pack page', async () => {
@@ -135,6 +142,11 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('claim candidate creation');
     expect(text).toContain('claim review');
     expect(text).toContain('reputation impact');
+    expect(text).toContain('Decision-ready outputs');
+    expect(text).toContain('pre-spend decisions');
+    expect(text).toContain('required actions');
+    expect(text).toContain('risk factors');
+    expect(text).toContain('reputation inputs');
     expect(text).toContain('Hermes skills should produce outputs that can update reputation over time.');
     expect(text).toContain('route reputation');
     expect(text).toContain('provider reputation');
@@ -167,6 +179,13 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Claim Review decides what the evidence means.');
     expect(text).toContain('Reputation Ledger accumulates many reviewed claims.');
     expect(text).toContain('Providers, routes, and services become more or less trusted based on evidence-backed history.');
+    expect(text).toContain('Pre-Spend Decision Engine');
+    expect(text).toContain('The Reputation Ledger is not only for display.');
+    expect(text).toContain('Agents should query it before money moves.');
+    expect(text).toContain('The decision engine turns accumulated evidence into a spend recommendation.');
+    expect(text).toContain('Reputation is not just displayed.');
+    expect(text).toContain('Reputation now decides.');
+    expect(text).toContain('Before an agent spends, it checks the ledger.');
     expect(text).toContain('One receipt is evidence.');
     expect(text).toContain('One claim is judgment.');
     expect(text).toContain('Many judgments become reputation.');
@@ -184,5 +203,24 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('provider_pay_sh_lattice');
     expect(text).toContain('route_pay_sh_market_research_01');
     expect(container.querySelector('a[href="/hermes/reputation-ledger"]')?.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('renders the expanded Hermes Pre-Spend Decision page', async () => {
+    root = await renderPath(container, '/hermes/pre-spend-decision');
+
+    const text = container.textContent ?? '';
+    expect(text).toContain('Pre-Spend Decision Engine');
+    expect(text).toContain('Before an agent spends, it checks the ledger.');
+    expect(text).toContain('Spend Intent');
+    expect(text).toContain('Reputation Ledger');
+    expect(text).toContain('Decision');
+    expect(text).toContain('Required Action');
+    expect(text).toContain('New Receipt');
+    expect(text).toContain('Example decision card');
+    expect(text).toContain('Decision state mapping');
+    expect(text).toContain('Required action mapping');
+    expect(text).toContain('Risk factors');
+    expect(text).toContain('Inputs used');
+    expect(container.querySelector('a[href="/hermes/pre-spend-decision"]')?.getAttribute('aria-current')).toBe('page');
   });
 });

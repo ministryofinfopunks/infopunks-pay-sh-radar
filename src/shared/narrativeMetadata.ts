@@ -87,6 +87,14 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
     );
   }
 
+  if (/^\/hermes\/pre-spend-decision\/?$/.test(pathname)) {
+    return buildMetadata(
+      'Pre-Spend Decision Engine',
+      'Before an agent spends, it checks the ledger.',
+      '/hermes/pre-spend-decision'
+    );
+  }
+
   if (/^\/hermes\/?$/.test(pathname) || /^\/narratives\/hermes-desk\/?$/.test(pathname)) {
     return buildMetadata(
       'Hermes Desk',

@@ -6,6 +6,7 @@ import {
   DEFAULT_PUBLIC_PAGE_RETRY_DELAY_MS,
   DEFAULT_PUBLIC_PAGE_TIMEOUT_MS,
   ATTENTION_MARKET_INTAKE_PAYLOAD,
+  HERMES_PRE_SPEND_DECISION_PAYLOAD,
   PRE_SPEND_CHECK_PAYLOAD,
   assertSignalHuntDeployment,
   buildSmokePlan,
@@ -62,6 +63,7 @@ describe('production smoke plan', () => {
       '/abundance',
       '/narratives/abundance-desk',
       '/hermes',
+      '/hermes/pre-spend-decision',
       '/hermes/reputation-ledger',
       '/hermes/skill-pack',
       '/narratives/hermes-desk',
@@ -99,6 +101,7 @@ describe('production smoke plan', () => {
       '/v1/hermes/skill-pack/skills',
       '/v1/hermes/runs',
       '/v1/hermes/health',
+      '/v1/hermes/pre-spend-decision/example',
       '/v1/hermes/reputation-ledger',
       '/v1/hermes/reputation-ledger/providers',
       '/v1/hermes/reputation-ledger/routes',
@@ -147,6 +150,7 @@ describe('production smoke plan', () => {
     expect(plan.graphCheckPath).toBe('/v1/graph/check');
     expect(plan.hermesReceiptPath).toBe('/v1/hermes/runs/hermes_pay_sh_route_pre_spend_check/receipt');
     expect(plan.hermesClaimPromotionPath).toBe('/v1/hermes/runs/hermes_pay_sh_route_pre_spend_check/claim/promote');
+    expect(plan.hermesPreSpendDecisionPath).toBe('/v1/hermes/pre-spend-decision');
     expect(plan.livePulsePath).toBe('/v1/pulse');
     expect(PRE_SPEND_CHECK_PAYLOAD).toEqual({
       agent_id: 'agent_001',
@@ -165,6 +169,14 @@ describe('production smoke plan', () => {
       submitter_handle: '@smoke',
       why_it_matters: 'This attention-market object needs evidence review before any watch-profile promotion.',
       evidence_links: ['/narratives/attention-market-watch']
+    });
+    expect(HERMES_PRE_SPEND_DECISION_PAYLOAD).toEqual({
+      route_id: 'route_pay_sh_market_research_01',
+      provider_id: 'provider_pay_sh_lattice',
+      service_id: 'service_market_research',
+      amount_usd: 25,
+      payment_rail: 'x402',
+      chain: 'base'
     });
   });
 
