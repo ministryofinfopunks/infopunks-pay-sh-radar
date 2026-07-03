@@ -37,6 +37,14 @@ import type {
   HermesWalletAuditSummary,
   HermesWalletAuditTrail
 } from '../services/hermesWalletAuditTrail';
+import type {
+  HermesWalletPositiveControl,
+  HermesWalletRequiredNextAction,
+  HermesWalletRiskFactor,
+  HermesWalletRiskScore,
+  HermesWalletRiskScoreSummary,
+  HermesWalletSafetyRating
+} from '../services/hermesWalletRiskScore';
 import { getNarrativeMetadataForPath } from '../shared/narrativeMetadata';
 
 const API_BASE_URL = getApiBaseUrl();
@@ -159,6 +167,14 @@ function walletAuditRiskLevelLabel(level: HermesWalletAuditRiskPosture['level'])
   return titleCaseWords(level);
 }
 
+function walletSafetyRatingLabel(rating: HermesWalletSafetyRating) {
+  return titleCaseWords(rating);
+}
+
+function walletRequiredActionLabel(action: HermesWalletRequiredNextAction) {
+  return titleCaseWords(action);
+}
+
 function HermesNav({ current }: { current: string }) {
   const links = [
     { href: '/', label: 'Radar Home' },
@@ -168,6 +184,7 @@ function HermesNav({ current }: { current: string }) {
     { href: '/hermes/spend-policy', label: 'Spend Policy' },
     { href: '/hermes/decision-feedback', label: 'Decision Feedback' },
     { href: '/hermes/wallet-audit-trail', label: 'Wallet Audit Trail' },
+    { href: '/hermes/wallet-risk-score', label: 'Wallet Risk Score' },
     { href: '/hermes/reputation-ledger', label: 'Reputation Ledger' },
     { href: '/hermes/skill-pack', label: 'Skill Pack' },
     { href: '/narratives/hermes-desk', label: 'Narrative' },
@@ -183,6 +200,7 @@ function HermesNav({ current }: { current: string }) {
     if (href === '/hermes/spend-policy') return current === '/hermes/spend-policy';
     if (href === '/hermes/decision-feedback') return current === '/hermes/decision-feedback';
     if (href === '/hermes/wallet-audit-trail') return current === '/hermes/wallet-audit-trail';
+    if (href === '/hermes/wallet-risk-score') return current === '/hermes/wallet-risk-score';
     if (href === '/hermes/reputation-ledger') return current === '/hermes/reputation-ledger';
     if (href === '/hermes/skill-pack') return current === '/hermes/skill-pack';
     if (href === '/narratives/hermes-desk') return current === '/narratives/hermes-desk';
@@ -762,6 +780,189 @@ function HermesWalletAuditCompactCard({ trail }: { trail: HermesWalletAuditTrail
   </section>;
 }
 
+function HermesWalletRiskFactorList({
+  items,
+  empty
+}: {
+  items: HermesWalletRiskFactor[] | HermesWalletPositiveControl[];
+  empty: string;
+}) {
+  return <div className="machine-usage-list">
+    {items.map((item) => <p key={item.id}><span>{item.label}</span><small>{item.detail}</small></p>)}
+    {!items.length && <p><span>none</span><small>{empty}</small></p>}
+  </div>;
+}
+
+function HermesWalletRiskScoreCompactCard({ score }: { score: HermesWalletRiskScore }) {
+  return <section className="panel hermes-skill-pack-detail" aria-label="Wallet Risk Score">
+    <div className="panel-head">
+      <div>
+        <p className="section-kicker">Wallet Risk Score</p>
+        <h2>Audit trails explain what happened.</h2>
+      </div>
+      <a className="execute compact secondary" href="/hermes/wallet-risk-score">Open Wallet Risk Score</a>
+    </div>
+    <p className="copy">Risk scores tell the wallet what to do next.</p>
+    <div className="machine-usage-list">
+      <p><span>risk_score</span><small>{score.risk_score}</small></p>
+      <p><span>safety_rating</span><small>{walletSafetyRatingLabel(score.safety_rating)}</small></p>
+      <p><span>required_next_action</span><small>{walletRequiredActionLabel(score.required_next_action)}</small></p>
+      <p><span>top_risk_count</span><small>{score.top_risks.length}</small></p>
+      <p><span>positive_control_count</span><small>{score.positive_controls.length}</small></p>
+    </div>
+  </section>;
+}
+
+function HermesWalletRiskScorePage() {
+  const [riskSummary, setRiskSummary] = useState<HermesWalletRiskScoreSummary | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    syncHermesMetadata('/hermes/wallet-risk-score');
+  }, []);
+
+  useEffect(() => {
+    api<HermesWalletRiskScoreSummary>('/v1/hermes/wallet-risk-score')
+      .then((response) => setRiskSummary(response.data))
+      .catch((err) => setError(err instanceof Error ? err.message : 'hermes_wallet_risk_score_unavailable'));
+  }, []);
+
+  const score = riskSummary?.scores[0] ?? null;
+
+  return <div className="shell narrative-shell hermes-shell">
+    <a className="skip-link" href="#hermes-wallet-risk-score-content">Skip to content</a>
+    <header className="site-header">
+      <HermesNav current="/hermes/wallet-risk-score" />
+    </header>
+    <main id="hermes-wallet-risk-score-content" className="narrative-page hermes-page">
+      <section className="panel hero narrative-hero hermes-hero">
+        <div>
+          <p className="eyebrow">Wallet Safety Signal</p>
+          <h1>Wallet Risk Score</h1>
+          <p className="copy hermes-hero-copy">Audit trails explain what happened. Risk scores tell the wallet what to do next.</p>
+          <div className="panel-actions">
+            <a className="execute" href="/v1/hermes/wallet-risk-score">Open Risk Score JSON</a>
+            <a className="execute compact secondary" href="/hermes/wallet-audit-trail">Open Wallet Audit Trail</a>
+          </div>
+        </div>
+        <div className="panel narrative-hero-rail hermes-hero-rail">
+          <p className="section-kicker">Stateless build</p>
+          <p>No live Hermes sidecar is required.</p>
+          <p>No persistence or wallet mutation is performed by this score surface.</p>
+        </div>
+      </section>
+      {error && <section className="panel"><p className="route-state error">{error}</p></section>}
+      {!error && !score && <section className="panel"><p className="route-state">Loading Wallet Risk Score...</p></section>}
+      {score && <>
+        <section className="panel hermes-skill-pack-detail" aria-label="Score Summary">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Score Summary</p>
+              <h2>{score.summary}</h2>
+            </div>
+          </div>
+          <div className="machine-usage-list">
+            <p><span>risk_score</span><small>{score.risk_score}</small></p>
+            <p><span>source_trail_id</span><small>{score.source_trail_id}</small></p>
+            <p><span>event_count</span><small>{score.inputs.event_count}</small></p>
+          </div>
+        </section>
+
+        <section className="panel hermes-runs-section" aria-label="Safety Rating">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Safety Rating</p>
+              <h2>{walletSafetyRatingLabel(score.safety_rating)}</h2>
+            </div>
+          </div>
+          <div className="grid four hermes-metric-grid">
+            <HermesMetric label="Safety rating" value={walletSafetyRatingLabel(score.safety_rating)} sub="Wallet safety rating derived from the audit trail." />
+            <HermesMetric label="Required next action" value={walletRequiredActionLabel(score.required_next_action)} sub="Action the wallet should take before the next move." />
+            <HermesMetric label="Top risks" value={score.top_risks.length} sub="Deterministic risk factors raised by the score." />
+            <HermesMetric label="Positive controls" value={score.positive_controls.length} sub="Positive controls preserved across the wallet sequence." />
+          </div>
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="Required Next Action">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Required Next Action</p>
+              <h2>{walletRequiredActionLabel(score.required_next_action)}</h2>
+            </div>
+          </div>
+          <p className="copy">{score.summary}</p>
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="Top Risks">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Top Risks</p>
+              <h2>Deterministic wallet safety concerns.</h2>
+            </div>
+          </div>
+          <HermesWalletRiskFactorList items={score.top_risks} empty="No top risks were raised." />
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="Positive Controls">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Positive Controls</p>
+              <h2>Controls that improved wallet confidence.</h2>
+            </div>
+          </div>
+          <HermesWalletRiskFactorList items={score.positive_controls} empty="No positive controls were recorded." />
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="Score Breakdown">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Score Breakdown</p>
+              <h2>Deterministic wallet scoring adjustments.</h2>
+            </div>
+          </div>
+          <div className="machine-usage-list">
+            <p><span>base_score</span><small>{score.score_breakdown.base_score}</small></p>
+            <p><span>audit_posture_adjustment</span><small>{score.score_breakdown.audit_posture_adjustment}</small></p>
+            <p><span>compliance_adjustment</span><small>{score.score_breakdown.compliance_adjustment}</small></p>
+            <p><span>policy_adjustment</span><small>{score.score_breakdown.policy_adjustment}</small></p>
+            <p><span>outcome_adjustment</span><small>{score.score_breakdown.outcome_adjustment}</small></p>
+            <p><span>feedback_adjustment</span><small>{score.score_breakdown.feedback_adjustment}</small></p>
+            <p><span>evidence_adjustment</span><small>{score.score_breakdown.evidence_adjustment}</small></p>
+            <p><span>final_score</span><small>{score.score_breakdown.final_score}</small></p>
+          </div>
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="Inputs Used">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Inputs Used</p>
+              <h2>Audit inputs that shaped the score.</h2>
+            </div>
+          </div>
+          <div className="machine-usage-list">
+            <p><span>trail_id</span><small>{score.inputs.trail_id}</small></p>
+            <p><span>risk_posture_level</span><small>{score.inputs.risk_posture_level ?? 'not available'}</small></p>
+            <p><span>policy_decision</span><small>{score.inputs.policy_decision ?? 'not available'}</small></p>
+            <p><span>compliance_state</span><small>{score.inputs.compliance_state ?? 'not available'}</small></p>
+            <p><span>next_policy_action</span><small>{score.inputs.next_policy_action ?? 'not available'}</small></p>
+            <p><span>feedback_direction</span><small>{score.inputs.feedback_direction ?? 'not available'}</small></p>
+          </div>
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="How the score is calculated">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">How the score is calculated</p>
+              <h2>Audit posture, compliance, policy, outcome, feedback, and evidence adjust the base score.</h2>
+            </div>
+          </div>
+          <p className="copy">The score starts at 50, then moves based on audit posture, compliance state, policy decision, wallet outcome, feedback action, and evidence completeness.</p>
+        </section>
+      </>}
+    </main>
+  </div>;
+}
+
 function HermesWalletAuditTrailPage() {
   const [auditSummary, setAuditSummary] = useState<HermesWalletAuditSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -898,6 +1099,16 @@ function HermesWalletAuditTrailPage() {
             <p><span>needs_review_count</span><small>{trail.summary.needs_review_count}</small></p>
           </div>
         </section>
+        <section className="panel hermes-skill-pack-detail" aria-label="Wallet Risk Score">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Wallet Risk Score</p>
+              <h2>The audit trail now compresses into a safety score.</h2>
+            </div>
+            <a className="execute compact secondary" href="/hermes/wallet-risk-score">Open Wallet Risk Score</a>
+          </div>
+          <p className="copy">The audit trail now compresses into a safety score that agents and wallets can use before the next action.</p>
+        </section>
       </>}
     </main>
   </div>;
@@ -1031,6 +1242,16 @@ function HermesMemoryLoopDashboardPage() {
             <a className="execute compact secondary" href="/hermes/wallet-audit-trail">Open Wallet Audit Trail</a>
           </div>
           <p className="copy">The memory loop teaches future action. The wallet audit trail makes that action inspectable.</p>
+        </section>
+        <section className="panel hermes-skill-pack-detail" aria-label="Wallet risk score note">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Wallet risk score</p>
+              <h2>The memory loop produces judgment.</h2>
+            </div>
+            <a className="execute compact secondary" href="/hermes/wallet-risk-score">Open Wallet Risk Score</a>
+          </div>
+          <p className="copy">The memory loop produces judgment. The wallet risk score compresses that judgment into a usable wallet safety signal.</p>
         </section>
       </>}
     </main>
@@ -1182,6 +1403,14 @@ function HermesNarrativePage() {
         <p>Infopunks stitches spend intent, decision, receipts, policy checks, wallet outcomes, reconciliation, and feedback into one inspectable timeline.</p>
         <p>This makes autonomous wallet behavior understandable to builders, users, communities, and eventually regulators.</p>
       </section>
+      <section className="panel hermes-narrative-copy" aria-label="Wallet Risk Score">
+        <p className="section-kicker">Wallet Risk Score</p>
+        <h2>Audit trails explain what happened. Risk scores tell the wallet what to do next.</h2>
+        <p>Audit trails preserve the full reasoning chain.</p>
+        <p>Wallet risk scores compress the chain into a usable safety signal.</p>
+        <p>Agents and wallets can use the score to decide whether to proceed, test, request review, tighten policy, block providers, or pause.</p>
+        <p>This makes the full Infopunks memory loop legible to agents, builders, communities, and users.</p>
+      </section>
     </main>
   </div>;
 }
@@ -1193,6 +1422,7 @@ function HermesDeskSurface() {
   const [preSpendDecision, setPreSpendDecision] = useState<HermesPreSpendDecision | null>(null);
   const [spendPolicyResult, setSpendPolicyResult] = useState<HermesSpendPolicyCheckResult | null>(null);
   const [walletAuditSummary, setWalletAuditSummary] = useState<HermesWalletAuditSummary | null>(null);
+  const [walletRiskSummary, setWalletRiskSummary] = useState<HermesWalletRiskScoreSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -1227,6 +1457,10 @@ function HermesDeskSurface() {
     api<HermesWalletAuditSummary>('/v1/hermes/wallet-audit-trail')
       .then((response) => setWalletAuditSummary(response.data))
       .catch(() => setWalletAuditSummary(null));
+
+    api<HermesWalletRiskScoreSummary>('/v1/hermes/wallet-risk-score')
+      .then((response) => setWalletRiskSummary(response.data))
+      .catch(() => setWalletRiskSummary(null));
   }, []);
 
   const activeRuns = useMemo(() => (summary?.runs ?? []).filter((run) => run.state === 'queued' || run.state === 'running'), [summary?.runs]);
@@ -1247,6 +1481,7 @@ function HermesDeskSurface() {
     return previewHermesPolicyReconciliation(spendPolicyResult);
   }, [spendPolicyResult]);
   const walletAuditTrail = walletAuditSummary?.trails[0] ?? null;
+  const walletRiskScore = walletRiskSummary?.scores[0] ?? null;
 
   return <div className="shell narrative-shell hermes-shell">
     <a className="skip-link" href="#hermes-content">Skip to content</a>
@@ -1418,6 +1653,8 @@ function HermesDeskSurface() {
         <HermesSpendPolicySection result={spendPolicyResult} />
 
         {walletAuditTrail && <HermesWalletAuditCompactCard trail={walletAuditTrail} />}
+
+        {walletRiskScore && <HermesWalletRiskScoreCompactCard score={walletRiskScore} />}
 
         {policyReceiptPreview && <section className="panel hermes-skill-pack-detail" aria-label="Policy Decision Receipts">
           <div className="panel-head">
@@ -1665,6 +1902,18 @@ function HermesSkillPackPage() {
             {['spend intent', 'decision reason', 'policy trigger', 'evidence reference', 'expected wallet behavior', 'actual wallet behavior', 'reconciliation finding', 'feedback action'].map((item) => <span key={item}>{item}</span>)}
           </div>
         </section>
+        <section className="panel hermes-skill-pack-detail" aria-label="Risk-score-ready outputs">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Risk-score-ready outputs</p>
+              <h2>Hermes skills should produce structured outputs that help scoring.</h2>
+            </div>
+            <a className="execute compact secondary" href="/hermes/wallet-risk-score">Open Wallet Risk Score</a>
+          </div>
+          <div className="abundance-chip-row">
+            {['severity', 'confidence', 'compliance state', 'evidence completeness', 'policy trigger', 'outcome state', 'feedback action'].map((item) => <span key={item}>{item}</span>)}
+          </div>
+        </section>
 
       <section className="panel hermes-skill-pack-detail" aria-label="Memory-loop-ready skills">
           <div className="panel-head">
@@ -1888,6 +2137,16 @@ function HermesSpendPolicyPage() {
           </div>
           <a className="execute compact secondary" href="/hermes/wallet-audit-trail">Open Wallet Audit Trail</a>
         </div>
+      </section>
+      <section className="panel hermes-skill-pack-detail" aria-label="Wallet risk score note">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Wallet risk score</p>
+            <h2>Policy checks and reconciliation feed the wallet risk score.</h2>
+          </div>
+          <a className="execute compact secondary" href="/hermes/wallet-risk-score">Open Wallet Risk Score</a>
+        </div>
+        <p className="copy">Policy checks and reconciliation feed the wallet risk score, which tells the wallet whether to continue, test, review, tighten policy, or pause.</p>
       </section>
       {result && <section className="panel hermes-skill-pack-detail" aria-label="Violations and Warnings">
         <div className="panel-head">
@@ -2199,11 +2458,13 @@ export function HermesDeskPage({
   preSpendDecisionRoute = false,
   spendPolicyRoute = false,
   decisionFeedbackRoute = false,
-  walletAuditTrailRoute = false
-}: { narrativeRoute?: boolean; memoryLoopRoute?: boolean; skillPackRoute?: boolean; reputationLedgerRoute?: boolean; preSpendDecisionRoute?: boolean; spendPolicyRoute?: boolean; decisionFeedbackRoute?: boolean; walletAuditTrailRoute?: boolean }) {
+  walletAuditTrailRoute = false,
+  walletRiskScoreRoute = false
+}: { narrativeRoute?: boolean; memoryLoopRoute?: boolean; skillPackRoute?: boolean; reputationLedgerRoute?: boolean; preSpendDecisionRoute?: boolean; spendPolicyRoute?: boolean; decisionFeedbackRoute?: boolean; walletAuditTrailRoute?: boolean; walletRiskScoreRoute?: boolean }) {
   if (memoryLoopRoute) return <HermesMemoryLoopDashboardPage />;
   if (decisionFeedbackRoute) return <HermesDecisionFeedbackPage />;
   if (walletAuditTrailRoute) return <HermesWalletAuditTrailPage />;
+  if (walletRiskScoreRoute) return <HermesWalletRiskScorePage />;
   if (spendPolicyRoute) return <HermesSpendPolicyPage />;
   if (preSpendDecisionRoute) return <HermesPreSpendDecisionPage />;
   if (reputationLedgerRoute) return <HermesReputationLedgerPage />;

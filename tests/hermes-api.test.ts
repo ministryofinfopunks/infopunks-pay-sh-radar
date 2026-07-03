@@ -6,6 +6,7 @@ import { getHermesPreSpendDecisionExample } from '../src/services/hermesPreSpend
 import { getDefaultHermesSpendPolicy, getHermesSpendPolicyExampleCheck } from '../src/services/hermesSpendPolicy';
 import { previewHermesPolicyReconciliation } from '../src/services/hermesPolicyReconciliation';
 import { buildHermesWalletAuditTrail } from '../src/services/hermesWalletAuditTrail';
+import { buildHermesWalletRiskScore } from '../src/services/hermesWalletRiskScore';
 
 describe('Hermes Desk API', () => {
   const originalHermesEnv = {
@@ -311,6 +312,54 @@ describe('Hermes Desk API', () => {
     expect(response.statusCode).toBe(404);
     expect(response.json()).toEqual(expect.objectContaining({
       error: 'hermes_wallet_audit_trail_not_found'
+    }));
+
+    await app.close();
+  });
+
+  it('returns the wallet risk score summary', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({ method: 'GET', url: '/v1/hermes/wallet-risk-score' });
+    const body = response.json();
+
+    expect(response.statusCode).toBe(200);
+    expect(body.data.score_count).toBeGreaterThanOrEqual(1);
+    expect(body.data.scores[0]).toEqual(expect.objectContaining({
+      risk_score: expect.any(Number),
+      safety_rating: expect.any(String),
+      required_next_action: expect.any(String)
+    }));
+    expect(body.data.scores[0].top_risks.length).toBeGreaterThanOrEqual(1);
+    expect(body.data.scores[0].positive_controls.length).toBeGreaterThanOrEqual(1);
+
+    await app.close();
+  });
+
+  it('returns one deterministic wallet risk score by id', async () => {
+    const app = await createApp();
+    const score = buildHermesWalletRiskScore();
+
+    const response = await app.inject({ method: 'GET', url: `/v1/hermes/wallet-risk-score/${encodeURIComponent(score.id)}` });
+    const body = response.json();
+
+    expect(response.statusCode).toBe(200);
+    expect(body.data).toEqual(expect.objectContaining({
+      id: score.id,
+      source_trail_id: score.source_trail_id
+    }));
+
+    await app.close();
+  });
+
+  it('returns 404 for an unknown wallet risk score id', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({ method: 'GET', url: '/v1/hermes/wallet-risk-score/not-real' });
+
+    expect(response.statusCode).toBe(404);
+    expect(response.json()).toEqual(expect.objectContaining({
+      error: 'hermes_wallet_risk_score_not_found'
     }));
 
     await app.close();

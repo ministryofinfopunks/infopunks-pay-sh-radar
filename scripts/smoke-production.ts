@@ -6,6 +6,7 @@ import { hermesRuns } from '../src/data/hermesDesk';
 import { HERMES_PRE_SPEND_DECISION_EXAMPLE_ID } from '../src/services/hermesPreSpendDecision';
 import { getHermesSpendPolicyExampleCheck } from '../src/services/hermesSpendPolicy';
 import { buildHermesWalletAuditTrail } from '../src/services/hermesWalletAuditTrail';
+import { buildHermesWalletRiskScore } from '../src/services/hermesWalletRiskScore';
 
 export const DEFAULT_BASE_URL = 'https://radar.infopunks.fun';
 export const PRE_SPEND_CHECK_PAYLOAD = {
@@ -69,6 +70,7 @@ export type SmokePlan = {
   hermesDecisionReceiptPath: string;
   hermesDecisionOutcomePath: string;
   hermesWalletAuditTrailDetailPath: string;
+  hermesWalletRiskScoreDetailPath: string;
   livePulsePath: string;
 };
 
@@ -118,6 +120,7 @@ export function buildSmokePlan(): SmokePlan {
   const hermesRunId = hermesRuns[0]?.id ?? 'hermes_pay_sh_route_pre_spend_check';
   const hermesPolicyCheckId = getHermesSpendPolicyExampleCheck().id;
   const hermesWalletAuditTrailId = buildHermesWalletAuditTrail().id;
+  const hermesWalletRiskScoreId = buildHermesWalletRiskScore().id;
 
   return {
     publicPaths: [
@@ -143,6 +146,7 @@ export function buildSmokePlan(): SmokePlan {
       '/hermes/spend-policy',
       '/hermes/decision-feedback',
       '/hermes/wallet-audit-trail',
+      '/hermes/wallet-risk-score',
       '/hermes/reputation-ledger',
       '/hermes/skill-pack',
       '/narratives/hermes-desk',
@@ -192,6 +196,8 @@ export function buildSmokePlan(): SmokePlan {
       '/v1/hermes/spend-policy/example',
       '/v1/hermes/wallet-audit-trail',
       `/v1/hermes/wallet-audit-trail/${encodeURIComponent(hermesWalletAuditTrailId)}`,
+      '/v1/hermes/wallet-risk-score',
+      `/v1/hermes/wallet-risk-score/${encodeURIComponent(hermesWalletRiskScoreId)}`,
       `/v1/hermes/spend-policy/check/${encodeURIComponent(hermesPolicyCheckId)}/reconciliation-preview`,
       '/v1/hermes/pre-spend-decision/example',
       '/v1/hermes/reputation-ledger',
@@ -251,6 +257,7 @@ export function buildSmokePlan(): SmokePlan {
     hermesDecisionReceiptPath: `/v1/hermes/pre-spend-decision/${encodeURIComponent(HERMES_PRE_SPEND_DECISION_EXAMPLE_ID)}/receipt`,
     hermesDecisionOutcomePath: `/v1/hermes/pre-spend-decision/${encodeURIComponent(HERMES_PRE_SPEND_DECISION_EXAMPLE_ID)}/outcome`,
     hermesWalletAuditTrailDetailPath: `/v1/hermes/wallet-audit-trail/${encodeURIComponent(hermesWalletAuditTrailId)}`,
+    hermesWalletRiskScoreDetailPath: `/v1/hermes/wallet-risk-score/${encodeURIComponent(hermesWalletRiskScoreId)}`,
     livePulsePath: '/v1/pulse'
   };
 }

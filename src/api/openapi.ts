@@ -759,6 +759,81 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       summary: { event_count: 8, recorded_count: 3, allowed_count: 0, blocked_count: 1, compliant_count: 2, non_compliant_count: 0, needs_review_count: 1, final_compliance_state: 'compliant', final_feedback_direction: 'watch', next_policy_action: 'none' }
     }, 'hermes_wallet_audit_trail_not_found')
   });
+  add('get', '/v1/hermes/wallet-risk-score', {
+    tags: ['Hermes'],
+    summary: 'Get Wallet Risk Score',
+    description: 'Returns a deterministic, stateless wallet risk score summary derived from the Autonomous Wallet Audit Trail. No live Hermes sidecar or persistence is required.',
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesWalletRiskScoreSummary' }, {
+      generated_at: '2026-07-03T00:00:00.000Z',
+      score_count: 1,
+      scores: [{
+        id: 'hermes_wallet_risk_score_hermes_wallet_audit_trail_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+        source_trail_id: 'hermes_wallet_audit_trail_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+        generated_at: '2026-07-03T00:00:00.000Z',
+        risk_score: 75,
+        safety_rating: 'watch',
+        required_next_action: 'run_test_spend',
+        summary: 'Wallet safety rating is watch at 75/100. Top risk: Policy blocked the spend. Next action: run_test_spend.',
+        top_risks: [{ id: 'wallet_risk_policy_block', severity: 'high', label: 'Policy blocked the spend', detail: 'The wallet safety gate returned a block decision for the canonical spend intent.', source: 'policy' }],
+        positive_controls: [{ id: 'wallet_control_complete_audit_trail', label: 'Complete audit trail', detail: 'All eight deterministic wallet safety events were present in order.', source: 'audit_trail' }],
+        score_breakdown: {
+          base_score: 50,
+          audit_posture_adjustment: 5,
+          compliance_adjustment: 20,
+          policy_adjustment: -25,
+          outcome_adjustment: 15,
+          feedback_adjustment: 5,
+          evidence_adjustment: 5,
+          final_score: 75
+        },
+        inputs: {
+          trail_id: 'hermes_wallet_audit_trail_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+          event_count: 8,
+          risk_posture_level: 'medium',
+          policy_decision: 'block',
+          compliance_state: 'compliant',
+          next_policy_action: 'none',
+          feedback_direction: 'watch'
+        }
+      }]
+    })
+  });
+  add('get', '/v1/hermes/wallet-risk-score/{score_id}', {
+    tags: ['Hermes'],
+    summary: 'Get Wallet Risk Score by id',
+    description: 'Returns the deterministic wallet risk score by id. Unknown score ids return hermes_wallet_risk_score_not_found.',
+    parameters: [pathParam('score_id', 'Hermes wallet risk score identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesWalletRiskScore' }, {
+      id: 'hermes_wallet_risk_score_hermes_wallet_audit_trail_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+      source_trail_id: 'hermes_wallet_audit_trail_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+      generated_at: '2026-07-03T00:00:00.000Z',
+      risk_score: 75,
+      safety_rating: 'watch',
+      required_next_action: 'run_test_spend',
+      summary: 'Wallet safety rating is watch at 75/100. Top risk: Policy blocked the spend. Next action: run_test_spend.',
+      top_risks: [{ id: 'wallet_risk_policy_block', severity: 'high', label: 'Policy blocked the spend', detail: 'The wallet safety gate returned a block decision for the canonical spend intent.', source: 'policy' }],
+      positive_controls: [{ id: 'wallet_control_complete_audit_trail', label: 'Complete audit trail', detail: 'All eight deterministic wallet safety events were present in order.', source: 'audit_trail' }],
+      score_breakdown: {
+        base_score: 50,
+        audit_posture_adjustment: 5,
+        compliance_adjustment: 20,
+        policy_adjustment: -25,
+        outcome_adjustment: 15,
+        feedback_adjustment: 5,
+        evidence_adjustment: 5,
+        final_score: 75
+      },
+      inputs: {
+        trail_id: 'hermes_wallet_audit_trail_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+        event_count: 8,
+        risk_posture_level: 'medium',
+        policy_decision: 'block',
+        compliance_state: 'compliant',
+        next_policy_action: 'none',
+        feedback_direction: 'watch'
+      }
+    }, 'hermes_wallet_risk_score_not_found')
+  });
   add('get', '/v1/hermes/skill-pack/skills', {
     tags: ['Hermes'],
     summary: 'List Hermes Skill Pack skills',
@@ -3432,6 +3507,59 @@ function componentSchemas(): Record<string, JsonSchema> {
       trail_count: integerSchema(),
       trails: arrayOf({ $ref: '#/components/schemas/HermesWalletAuditTrail' })
     }, ['generated_at', 'trail_count', 'trails']),
+    HermesWalletSafetyRating: enumSchema(['safe', 'watch', 'risky', 'blocked', 'unknown']),
+    HermesWalletRequiredNextAction: enumSchema(['none', 'run_test_spend', 'manual_review_required', 'tighten_policy', 'block_provider', 'request_more_evidence', 'pause_wallet']),
+    HermesWalletRiskFactor: objectSchema({
+      id: stringSchema(),
+      severity: enumSchema(['low', 'medium', 'high', 'critical']),
+      label: stringSchema(),
+      detail: stringSchema(),
+      source: enumSchema(['audit_trail', 'policy', 'reconciliation', 'pre_spend_decision', 'reputation', 'outcome', 'unknown'])
+    }, ['id', 'severity', 'label', 'detail', 'source']),
+    HermesWalletPositiveControl: objectSchema({
+      id: stringSchema(),
+      label: stringSchema(),
+      detail: stringSchema(),
+      source: enumSchema(['audit_trail', 'policy', 'reconciliation', 'pre_spend_decision', 'reputation', 'outcome'])
+    }, ['id', 'label', 'detail', 'source']),
+    HermesWalletRiskScoreInput: objectSchema({
+      trail_id: stringSchema()
+    }),
+    HermesWalletRiskScore: objectSchema({
+      id: stringSchema(),
+      source_trail_id: stringSchema(),
+      generated_at: dateTimeSchema(),
+      risk_score: integerSchema(),
+      safety_rating: { $ref: '#/components/schemas/HermesWalletSafetyRating' },
+      required_next_action: { $ref: '#/components/schemas/HermesWalletRequiredNextAction' },
+      summary: stringSchema(),
+      top_risks: arrayOf({ $ref: '#/components/schemas/HermesWalletRiskFactor' }),
+      positive_controls: arrayOf({ $ref: '#/components/schemas/HermesWalletPositiveControl' }),
+      score_breakdown: objectSchema({
+        base_score: integerSchema(),
+        audit_posture_adjustment: integerSchema(),
+        compliance_adjustment: integerSchema(),
+        policy_adjustment: integerSchema(),
+        outcome_adjustment: integerSchema(),
+        feedback_adjustment: integerSchema(),
+        evidence_adjustment: integerSchema(),
+        final_score: integerSchema()
+      }, ['base_score', 'audit_posture_adjustment', 'compliance_adjustment', 'policy_adjustment', 'outcome_adjustment', 'feedback_adjustment', 'evidence_adjustment', 'final_score']),
+      inputs: objectSchema({
+        trail_id: stringSchema(),
+        event_count: integerSchema(),
+        risk_posture_level: stringSchema(),
+        policy_decision: stringSchema(),
+        compliance_state: stringSchema(),
+        next_policy_action: stringSchema(),
+        feedback_direction: stringSchema()
+      }, ['trail_id', 'event_count'])
+    }, ['id', 'source_trail_id', 'generated_at', 'risk_score', 'safety_rating', 'required_next_action', 'summary', 'top_risks', 'positive_controls', 'score_breakdown', 'inputs']),
+    HermesWalletRiskScoreSummary: objectSchema({
+      generated_at: dateTimeSchema(),
+      score_count: integerSchema(),
+      scores: arrayOf({ $ref: '#/components/schemas/HermesWalletRiskScore' })
+    }, ['generated_at', 'score_count', 'scores']),
     HermesRunReceipt: hermesRunReceipt,
     HermesClaimCandidate: hermesClaimCandidate,
     HermesClaimReviewState: hermesClaimReviewState,

@@ -119,6 +119,14 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
     );
   }
 
+  if (/^\/hermes\/wallet-risk-score\/?$/.test(pathname)) {
+    return buildMetadata(
+      'Wallet Risk Score',
+      'Audit trails explain what happened. Risk scores tell the wallet what to do next.',
+      '/hermes/wallet-risk-score'
+    );
+  }
+
   if (/^\/hermes\/?$/.test(pathname) || /^\/narratives\/hermes-desk\/?$/.test(pathname)) {
     return buildMetadata(
       'Hermes Desk',

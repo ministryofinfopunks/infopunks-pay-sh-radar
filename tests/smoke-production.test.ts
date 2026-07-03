@@ -70,6 +70,7 @@ describe('production smoke plan', () => {
       '/hermes/spend-policy',
       '/hermes/decision-feedback',
       '/hermes/wallet-audit-trail',
+      '/hermes/wallet-risk-score',
       '/hermes/reputation-ledger',
       '/hermes/skill-pack',
       '/narratives/hermes-desk',
@@ -112,6 +113,8 @@ describe('production smoke plan', () => {
       '/v1/hermes/spend-policy/example',
       '/v1/hermes/wallet-audit-trail',
       plan.hermesWalletAuditTrailDetailPath,
+      '/v1/hermes/wallet-risk-score',
+      plan.hermesWalletRiskScoreDetailPath,
       plan.hermesPolicyReconciliationPreviewPath,
       '/v1/hermes/pre-spend-decision/example',
       '/v1/hermes/reputation-ledger',
@@ -177,6 +180,7 @@ describe('production smoke plan', () => {
     expect(plan.hermesDecisionOutcomePath).toContain('/v1/hermes/pre-spend-decision/');
     expect(plan.hermesDecisionOutcomePath).toContain('/outcome');
     expect(plan.hermesWalletAuditTrailDetailPath).toContain('/v1/hermes/wallet-audit-trail/');
+    expect(plan.hermesWalletRiskScoreDetailPath).toContain('/v1/hermes/wallet-risk-score/');
     expect(plan.livePulsePath).toBe('/v1/pulse');
     expect(PRE_SPEND_CHECK_PAYLOAD).toEqual({
       agent_id: 'agent_001',

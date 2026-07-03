@@ -191,6 +191,10 @@ import {
   buildHermesWalletAuditTrailSummary,
   resolveHermesWalletAuditTrailById
 } from '../services/hermesWalletAuditTrail';
+import {
+  buildHermesWalletRiskScoreSummary,
+  resolveHermesWalletRiskScoreById
+} from '../services/hermesWalletRiskScore';
 import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
@@ -1728,6 +1732,18 @@ export async function createApp(
       });
     }
     return { data: safeJsonExport(trail) };
+  });
+  app.get('/v1/hermes/wallet-risk-score', async () => ({ data: safeJsonExport(buildHermesWalletRiskScoreSummary()) }));
+  app.get<{ Params: Record<string, string> }>('/v1/hermes/wallet-risk-score/*', async (req, reply) => {
+    const scoreId = typeof req.params['*'] === 'string' ? req.params['*'].trim() : '';
+    const score = resolveHermesWalletRiskScoreById(scoreId);
+    if (!score) {
+      return reply.code(404).send({
+        error: 'hermes_wallet_risk_score_not_found',
+        message: `No Hermes wallet risk score found for score_id=${scoreId || 'unknown'}`
+      });
+    }
+    return { data: safeJsonExport(score) };
   });
   app.get('/v1/hermes/skill-pack/skills', async () => ({
     data: safeJsonExport({
