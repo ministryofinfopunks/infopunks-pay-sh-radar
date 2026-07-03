@@ -159,9 +159,16 @@ import { createProofCheckService } from '../services/proofCheckService';
 import { createInMemoryLoopRepository, loopRepository } from '../repositories/loopRepository';
 import { createLoopService } from '../services/loopService';
 import { checkSignalGraph, findSignalGraphNodesForEntity, getSignalGraph, getSignalGraphCluster, getSignalGraphClusters, getSignalGraphNode, getSignalGraphRipples, isSignalGraphEntityType } from '../services/signalGraphService';
+import { createMockPreSpendRun, getHermesDeskSummary, getHermesHealth, getHermesRunById, listHermesRuns } from '../services/hermesBridge';
 import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
+const HermesPreSpendRunRequestSchema = z.object({
+  route_id: z.string().min(1),
+  provider_id: z.string().min(1),
+  service_id: z.string().min(1),
+  spend_context: z.record(z.string(), z.unknown()).optional()
+});
 const MachinePreflightRequestSchema = z.object({
   machine_id: z.string().min(1),
   intent: z.string().min(1),
@@ -1525,6 +1532,33 @@ export async function createApp(
     return { data: signal };
   });
   app.get('/v1/narratives', async () => ({ data: listNarrativeAssets() }));
+  app.get('/v1/hermes', async () => ({ data: safeJsonExport(getHermesDeskSummary()) }));
+  app.get('/v1/hermes/runs', async () => ({
+    data: safeJsonExport({
+      generated_at: new Date().toISOString(),
+      source: 'infopunks-pay-sh-radar',
+      module: 'hermes-desk',
+      count: listHermesRuns().length,
+      runs: listHermesRuns()
+    })
+  }));
+  app.get<{ Params: { run_id: string } }>('/v1/hermes/runs/:run_id', async (req, reply) => {
+    const run = getHermesRunById(req.params.run_id);
+    if (!run) return reply.code(404).send({ error: 'hermes_run_not_found' });
+    return { data: safeJsonExport(run) };
+  });
+  app.post('/v1/hermes/pre-spend-run', async (req, reply) => handleParsed(req.body, HermesPreSpendRunRequestSchema, (input) => ({
+    data: safeJsonExport(createMockPreSpendRun(input))
+  }), reply));
+  app.get('/v1/hermes/skills', async () => ({
+    data: safeJsonExport({
+      generated_at: new Date().toISOString(),
+      source: 'infopunks-pay-sh-radar',
+      module: 'hermes-desk',
+      skills: getHermesDeskSummary().skills
+    })
+  }));
+  app.get('/v1/hermes/health', async () => ({ data: safeJsonExport(getHermesHealth()) }));
   app.get('/v1/abundance', async () => ({ data: safeJsonExport(getAbundanceDeskPayload()) }));
   app.get('/v1/abundance/claims', async () => ({
     data: safeJsonExport({

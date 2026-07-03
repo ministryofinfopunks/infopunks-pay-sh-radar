@@ -1036,6 +1036,7 @@ function NarrativeIntelNav({ current }: { current: string }) {
     { href: '/narratives/attention-markets', label: 'Attention Markets' },
     { href: '/narratives/attention-market-watch', label: 'Attention Market Watch' },
     { href: '/abundance', label: 'Abundance Desk' },
+    { href: '/hermes', label: 'Hermes Desk' },
     { href: '/signals/ansem', label: 'Ansem' },
     { href: '/signals/black-bull', label: 'Black Bull' },
     { href: '/signals/troll', label: 'TROLL' }
@@ -1047,6 +1048,9 @@ function NarrativeIntelNav({ current }: { current: string }) {
     }
     if (href === '/abundance') {
       return current === href || current === '/narratives/abundance-desk';
+    }
+    if (href === '/hermes') {
+      return current === href || current === '/narratives/hermes-desk';
     }
     return current === href;
   }

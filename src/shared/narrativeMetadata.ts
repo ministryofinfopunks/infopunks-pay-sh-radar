@@ -79,6 +79,14 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
     );
   }
 
+  if (/^\/hermes\/?$/.test(pathname) || /^\/narratives\/hermes-desk\/?$/.test(pathname)) {
+    return buildMetadata(
+      'Hermes Desk',
+      'Agentic investigations before money moves. Hermes runs the loop while Infopunks keeps the receipts.',
+      '/hermes'
+    );
+  }
+
   const attentionWatchProfileMatch = pathname.match(/^\/attention-market-watch\/([^/]+)\/?$/);
   if (attentionWatchProfileMatch) {
     const slug = decodePathPart(attentionWatchProfileMatch[1]);

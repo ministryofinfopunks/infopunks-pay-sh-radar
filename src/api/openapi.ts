@@ -298,6 +298,84 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       explanation: 'Deterministic v0 assessment suggests the input already speaks in receipt, route, or proof language and should connect into the graph as validated memory.'
     })
   });
+  add('get', '/v1/hermes', {
+    tags: ['Hermes'],
+    summary: 'Get Hermes Desk summary',
+    description: 'Returns the deploy-safe Hermes Desk surface. Hermes Agent is represented as an optional sidecar runtime; this endpoint works in mock mode without live sidecar calls.',
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesDeskSummary' }, {
+      title: 'Hermes Desk',
+      route: '/hermes',
+      explanation: 'Hermes runs the loop. Infopunks keeps the receipts.',
+      counts: { runs: 3, active_runs: 1, completed_runs: 2 },
+      sidecar: { enabled: false, mode: 'mock', live_http_allowed: false, status: 'disabled' }
+    })
+  });
+  add('get', '/v1/hermes/runs', {
+    tags: ['Hermes'],
+    summary: 'List Hermes runs',
+    description: 'Returns Hermes Agent investigations as Radar run memory with linked receipts, claims, loops, artifacts, decisions, and risk factors.',
+    responses: envelopedResponses(objectSchema({
+      generated_at: dateTimeSchema(),
+      source: stringSchema(),
+      module: stringSchema(),
+      count: integerSchema(),
+      runs: arrayOf({ $ref: '#/components/schemas/HermesRun' })
+    }), { module: 'hermes-desk', count: 3, runs: [{ id: 'hermes_pay_sh_route_pre_spend_check', decision: 'caution' }] })
+  });
+  add('get', '/v1/hermes/runs/{run_id}', {
+    tags: ['Hermes'],
+    summary: 'Get Hermes run',
+    description: 'Returns one Hermes investigation run by id.',
+    parameters: [pathParam('run_id', 'Hermes run identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesRun' }, {
+      id: 'hermes_pay_sh_route_pre_spend_check',
+      title: 'Pay.sh Route Pre-Spend Check',
+      decision: 'caution',
+      linked_receipt_id: 'receipt_001',
+      linked_claim_id: 'claim_001',
+      linked_loop_id: 'loop_pre_spend_route'
+    }, 'hermes_run_not_found')
+  });
+  add('post', '/v1/hermes/pre-spend-run', {
+    tags: ['Hermes'],
+    summary: 'Create mock Hermes pre-spend run',
+    description: 'Creates a mock HermesRun-shaped investigation for a route, provider, service, and spend context. No live Hermes HTTP calls are made unless future bridge code explicitly gates them behind HERMES_ENABLED=true and HERMES_MODE=http.',
+    requestBody: jsonRequest({ $ref: '#/components/schemas/HermesPreSpendRunRequest' }, {
+      route_id: 'route_pay_sh_market_research_01',
+      provider_id: 'provider_pay_sh_lattice',
+      service_id: 'service_market_research',
+      spend_context: { budget_usd: 25, intent: 'buy_market_research' }
+    }),
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesRun' }, {
+      id: 'hermes_mock_pre_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research',
+      title: 'Mock Hermes Pre-Spend Run',
+      decision: 'caution',
+      state: 'completed'
+    })
+  });
+  add('get', '/v1/hermes/skills', {
+    tags: ['Hermes'],
+    summary: 'List Infopunks Hermes skill pack',
+    description: 'Returns the Infopunks skill pack shape intended for Hermes Agent sidecar runs.',
+    responses: envelopedResponses(objectSchema({
+      generated_at: dateTimeSchema(),
+      source: stringSchema(),
+      module: stringSchema(),
+      skills: arrayOf({ $ref: '#/components/schemas/HermesSkillSummary' })
+    }), { module: 'hermes-desk', skills: [{ id: 'pre-spend-route-check', label: 'pre-spend route check' }] })
+  });
+  add('get', '/v1/hermes/health', {
+    tags: ['Hermes'],
+    summary: 'Get Hermes bridge health',
+    description: 'Returns Hermes bridge configuration status. The sidecar is optional and is not required for deploy, build, tests, or smoke checks.',
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesHealth' }, {
+      ok: true,
+      service: 'hermes-bridge',
+      mode: 'mock',
+      hermes_enabled: false,
+      sidecar_required: false
+    })
+  });
   add('get', '/v1/claims', {
     tags: ['Claims'],
     summary: 'List claims',
@@ -2139,6 +2217,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       { name: 'Radar Readiness' },
       { name: 'Proof Feed' },
       { name: 'Loops' },
+      { name: 'Hermes' },
       { name: 'Machine Economy' },
       { name: 'Radar CSV Exports' }
     ],
@@ -2294,12 +2373,83 @@ function componentSchemas(): Record<string, JsonSchema> {
     required_runs: integerSchema(),
     next_step: stringSchema()
   });
+  const hermesDecisionState = enumSchema(['trust', 'caution', 'do_not_use_yet', 'unproven', 'disputed']);
+  const hermesRunState = enumSchema(['queued', 'running', 'completed', 'failed', 'blocked']);
+  const hermesArtifact = objectSchema({
+    artifact_id: stringSchema(),
+    label: stringSchema(),
+    type: enumSchema(['receipt', 'claim', 'loop_run', 'risk_note', 'narrative_scan', 'skill_trace']),
+    summary: stringSchema(),
+    uri: stringSchema()
+  }, ['artifact_id', 'label', 'type', 'summary', 'uri']);
+  const hermesSkillSummary = objectSchema({
+    id: stringSchema(),
+    label: stringSchema(),
+    purpose: stringSchema(),
+    enabled: booleanSchema(),
+    produces: arrayOf(enumSchema(['receipt', 'claim', 'loop_run', 'risk_note', 'narrative_signal']))
+  }, ['id', 'label', 'purpose', 'enabled', 'produces']);
+  const hermesRun = objectSchema({
+    id: stringSchema(),
+    title: stringSchema(),
+    objective: stringSchema(),
+    state: hermesRunState,
+    decision: hermesDecisionState,
+    confidence: { type: 'number', minimum: 0, maximum: 100 },
+    summary: stringSchema(),
+    risk_factors: arrayOf(stringSchema()),
+    artifacts: arrayOf(hermesArtifact),
+    linked_receipt_id: nullableString(),
+    linked_claim_id: nullableString(),
+    linked_loop_id: nullableString(),
+    created_at: dateTimeSchema(),
+    completed_at: { type: ['string', 'null'], format: 'date-time' }
+  }, ['id', 'title', 'objective', 'state', 'decision', 'confidence', 'summary', 'risk_factors', 'artifacts', 'linked_receipt_id', 'linked_claim_id', 'linked_loop_id', 'created_at', 'completed_at']);
 
   return {
     ErrorEnvelope: objectSchema({
       error: stringSchema(),
       message: stringSchema(),
       details: freeformObject()
+    }),
+    HermesArtifact: hermesArtifact,
+    HermesSkillSummary: hermesSkillSummary,
+    HermesRun: hermesRun,
+    HermesDeskSummary: objectSchema({
+      generated_at: dateTimeSchema(),
+      title: { const: 'Hermes Desk' },
+      route: { const: '/hermes' },
+      narrative_route: { const: '/narratives/hermes-desk' },
+      hero_copy: stringSchema(),
+      explanation: stringSchema(),
+      source: stringSchema(),
+      sidecar: objectSchema({
+        enabled: booleanSchema(),
+        mode: enumSchema(['mock', 'http']),
+        base_url_configured: booleanSchema(),
+        api_key_configured: booleanSchema(),
+        live_http_allowed: booleanSchema(),
+        status: enumSchema(['mock_ready', 'http_configured', 'disabled'])
+      }),
+      counts: freeformObject(),
+      skills: arrayOf(hermesSkillSummary),
+      runs: arrayOf(hermesRun)
+    }),
+    HermesPreSpendRunRequest: objectSchema({
+      route_id: stringSchema(),
+      provider_id: stringSchema(),
+      service_id: stringSchema(),
+      spend_context: freeformObject()
+    }, ['route_id', 'provider_id', 'service_id']),
+    HermesHealth: objectSchema({
+      ok: booleanSchema(),
+      service: stringSchema(),
+      runtime: freeformObject(),
+      mode: enumSchema(['mock', 'http']),
+      hermes_enabled: booleanSchema(),
+      live_http_allowed: booleanSchema(),
+      sidecar_required: booleanSchema(),
+      message: stringSchema()
     }),
     PreSpendMetrics: objectSchema({
       verified_pre_spend_decisions: integerSchema(),
