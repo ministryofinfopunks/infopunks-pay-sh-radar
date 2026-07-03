@@ -15,6 +15,14 @@ import type {
 import type { HermesDecisionFeedbackResult, HermesDecisionOutcomeState, HermesDecisionReceipt } from '../services/hermesDecisionFeedback';
 import { createHermesDecisionReceipt, recordHermesDecisionOutcome } from '../services/hermesDecisionFeedback';
 import type { HermesMemoryLoop, HermesMemoryLoopSummary } from '../services/hermesMemoryLoop';
+import type {
+  HermesSpendPolicy,
+  HermesSpendPolicyCheckResult,
+  HermesSpendPolicyDecision,
+  HermesSpendPolicyReference,
+  HermesSpendPolicyRule,
+  HermesSpendPolicyViolation
+} from '../services/hermesSpendPolicy';
 import { getNarrativeMetadataForPath } from '../shared/narrativeMetadata';
 
 const API_BASE_URL = getApiBaseUrl();
@@ -97,7 +105,7 @@ function preSpendDecisionLabel(state: HermesPreSpendDecisionState) {
   return titleCaseWords(state);
 }
 
-function requiredActionLabel(state: HermesPreSpendRequiredAction) {
+function requiredActionLabel(state: HermesPreSpendRequiredAction | HermesSpendPolicyCheckResult['required_action']) {
   return titleCaseWords(state);
 }
 
@@ -109,12 +117,21 @@ function outcomeStateLabel(state: HermesDecisionOutcomeState) {
   return titleCaseWords(state);
 }
 
+function spendPolicyDecisionLabel(state: HermesSpendPolicyDecision) {
+  return titleCaseWords(state);
+}
+
+function spendPolicyViolationOutcomeLabel(state: HermesSpendPolicyViolation['outcome']) {
+  return titleCaseWords(state);
+}
+
 function HermesNav({ current }: { current: string }) {
   const links = [
     { href: '/', label: 'Radar Home' },
     { href: '/hermes', label: 'Hermes Desk' },
     { href: '/hermes/memory-loop', label: 'Memory Loop' },
     { href: '/hermes/pre-spend-decision', label: 'Pre-Spend Decision' },
+    { href: '/hermes/spend-policy', label: 'Spend Policy' },
     { href: '/hermes/decision-feedback', label: 'Decision Feedback' },
     { href: '/hermes/reputation-ledger', label: 'Reputation Ledger' },
     { href: '/hermes/skill-pack', label: 'Skill Pack' },
@@ -128,6 +145,7 @@ function HermesNav({ current }: { current: string }) {
     if (href === '/hermes') return current === '/hermes';
     if (href === '/hermes/memory-loop') return current === '/hermes/memory-loop';
     if (href === '/hermes/pre-spend-decision') return current === '/hermes/pre-spend-decision';
+    if (href === '/hermes/spend-policy') return current === '/hermes/spend-policy';
     if (href === '/hermes/decision-feedback') return current === '/hermes/decision-feedback';
     if (href === '/hermes/reputation-ledger') return current === '/hermes/reputation-ledger';
     if (href === '/hermes/skill-pack') return current === '/hermes/skill-pack';
@@ -405,6 +423,115 @@ function HermesPreSpendDecisionSection({ decision }: { decision: HermesPreSpendD
   </section>;
 }
 
+function HermesSpendPolicyReferenceList({
+  title,
+  items
+}: {
+  title: string;
+  items: HermesSpendPolicyReference[];
+}) {
+  return <section className="panel hermes-skill-pack-detail" aria-label={title}>
+    <div className="panel-head">
+      <div>
+        <p className="section-kicker">{title}</p>
+        <h2>{title}</h2>
+      </div>
+    </div>
+    <div className="machine-usage-list">
+      {items.map((item) => <p key={`${item.kind}-${item.id}`}><span>{`${item.kind}:${item.id}`}</span><small>{item.summary}</small></p>)}
+      {!items.length && <p><span>none</span><small>No references were attached.</small></p>}
+    </div>
+  </section>;
+}
+
+function HermesSpendPolicyRuleMap({ rules }: { rules: HermesSpendPolicyRule[] }) {
+  return <section className="panel hermes-skill-pack-detail" aria-label="Rule Map">
+    <div className="panel-head">
+      <div>
+        <p className="section-kicker">Rule Map</p>
+        <h2>Deterministic policy rules.</h2>
+      </div>
+    </div>
+    <div className="hermes-rule-grid">
+      {rules.map((rule) => <article key={rule.id}>
+        <h3>{rule.label}</h3>
+        <p>{rule.description}</p>
+        <p className="copy">{`${rule.id} · ${titleCaseWords(rule.severity)}`}</p>
+      </article>)}
+    </div>
+  </section>;
+}
+
+function HermesSpendPolicyCard({
+  result,
+  compact = false
+}: {
+  result: HermesSpendPolicyCheckResult;
+  compact?: boolean;
+}) {
+  return <article className={`panel hermes-run-card state-${result.decision}`} aria-label={`Spend policy result ${result.id}`}>
+    <div className="abundance-card-head">
+      <p className="section-kicker">Agent Spend Policy Layer</p>
+      <div className="abundance-chip-row">
+        <span className={`narrative-decision-pill state-${result.decision}`}>{spendPolicyDecisionLabel(result.decision)}</span>
+        <span className="narrative-evidence-chip">{result.allowed ? 'Allowed' : 'Not allowed'}</span>
+        <span className="narrative-evidence-chip">{requiredActionLabel(result.required_action)}</span>
+      </div>
+    </div>
+    <h3>{result.policy.title}</h3>
+    <p>{result.reason}</p>
+    <div className="machine-usage-list">
+      <p><span>policy_id</span><small>{result.policy.id}</small></p>
+      <p><span>amount_usd</span><small>{typeof result.input.amount_usd === 'number' ? result.input.amount_usd.toFixed(2) : 'not supplied'}</small></p>
+      <p><span>chain</span><small>{result.input.chain ?? 'not supplied'}</small></p>
+      <p><span>payment_rail</span><small>{result.input.payment_rail ?? 'not supplied'}</small></p>
+      <p><span>decision</span><small>{result.decision}</small></p>
+      <p><span>allowed</span><small>{String(result.allowed)}</small></p>
+      <p><span>required_action</span><small>{result.required_action}</small></p>
+      <p><span>pre_spend_decision</span><small>{result.pre_spend_decision.decision}</small></p>
+    </div>
+    <div className="abundance-chip-row">
+      {result.violations.map((item) => <span key={item.id}>{item.label} ({titleCaseWords(item.severity)})</span>)}
+      {result.warnings.map((item) => <span key={item.id}>{item.label} ({titleCaseWords(item.severity)})</span>)}
+      {!result.violations.length && !result.warnings.length && <span>no violations or warnings</span>}
+    </div>
+    {!compact && <>
+      <div className="machine-usage-list">
+        <p><span>max_amount_usd</span><small>{result.policy.max_amount_usd.toFixed(2)}</small></p>
+        <p><span>allowed_chains</span><small>{result.policy.allowed_chains.join(', ') || 'none'}</small></p>
+        <p><span>allowed_payment_rails</span><small>{result.policy.allowed_payment_rails.join(', ') || 'none'}</small></p>
+        <p><span>blocked_providers</span><small>{result.policy.blocked_providers.join(', ') || 'none'}</small></p>
+        <p><span>require_test_spend_for_watchlist</span><small>{String(result.policy.require_test_spend_for_watchlist)}</small></p>
+        <p><span>manual_review_threshold_usd</span><small>{result.policy.manual_review_threshold_usd.toFixed(2)}</small></p>
+        <p><span>do_not_spend_on_disputed</span><small>{String(result.policy.do_not_spend_on_disputed)}</small></p>
+      </div>
+    </>}
+  </article>;
+}
+
+function HermesSpendPolicySection({
+  result
+}: {
+  result: HermesSpendPolicyCheckResult | null;
+}) {
+  if (!result) return <section className="panel"><p className="route-state">Loading Agent Spend Policy Layer...</p></section>;
+
+  return <section className="panel hermes-runs-section" aria-label="Agent Spend Policy Layer">
+    <div className="panel-head">
+      <div>
+        <p className="section-kicker">Agent Spend Policy Layer</p>
+        <h2>Decision tells an agent what to do.</h2>
+      </div>
+      <a className="execute compact secondary" href="/v1/hermes/spend-policy/example">GET example</a>
+      <a className="execute compact secondary" href="/hermes/spend-policy">Open Spend Policy Layer</a>
+    </div>
+    <p className="copy">Policy tells an agent what it is allowed to do.</p>
+    <div className="hermes-run-grid">
+      <HermesSpendPolicyCard result={result} compact />
+    </div>
+  </section>;
+}
+
 function HermesDecisionFeedbackCard({
   feedback,
   compact = false
@@ -530,6 +657,7 @@ function HermesMemoryLoopDashboardPage() {
           <h1>Agent Memory Loop</h1>
           <p className="copy hermes-hero-copy">Agents do not need chat history. Agents need memory that changes future action.</p>
           <p className="copy">Run → Receipt → Claim → Review → Reputation → Decision → Outcome → Feedback</p>
+          <p className="copy">Policy sits between Decision and Outcome as the wallet safety gate.</p>
           <div className="panel-actions">
             <a className="execute" href="/v1/hermes/memory-loop">Open Memory Loop JSON</a>
             <a className="execute compact secondary" href="/hermes">Back to Hermes Desk</a>
@@ -581,6 +709,7 @@ function HermesMemoryLoopDashboardPage() {
             </div>
           </div>
           <p className="copy">The next agent does not start from zero. It inherits receipts, reviewed claims, reputation state, and feedback from previous outcomes.</p>
+          <p className="copy">Policy sits between Decision and Outcome as the wallet safety gate.</p>
           <div className="machine-usage-list">
             <p><span>current_decision</span><small>{loop.summary.current_decision ?? 'not available'}</small></p>
             <p><span>required_action</span><small>{loop.summary.current_required_action ?? 'not available'}</small></p>
@@ -676,6 +805,16 @@ function HermesNarrativePage() {
         <p>Reputation now decides.</p>
         <p>Before an agent spends, it checks the ledger.</p>
       </section>
+      <section className="panel hermes-narrative-copy" aria-label="Agent Spend Policy Layer">
+        <p className="section-kicker">Agent Spend Policy Layer</p>
+        <h2>Decision tells an agent what to do. Policy tells an agent what it is allowed to do.</h2>
+        <p>Decisions recommend action.</p>
+        <p>Policies enforce boundaries.</p>
+        <p>Autonomous wallets need both judgment and rules.</p>
+        <p>Policy can block disputed providers, require test spends, enforce chain/payment rail limits, and escalate large spends to manual review.</p>
+        <p>Decision tells an agent what to do.</p>
+        <p>Policy tells an agent what it is allowed to do.</p>
+      </section>
       <section className="panel hermes-narrative-copy" aria-label="Decision Receipt and Feedback Loop">
         <p className="section-kicker">Decision Receipt and Feedback Loop</p>
         <h2>The loop closes when outcomes are recorded.</h2>
@@ -696,6 +835,7 @@ function HermesNarrativePage() {
         <p>Reviews decide whether the claim should affect trust.</p>
         <p>Reputation accumulates across claims.</p>
         <p>Decisions use reputation before money moves.</p>
+        <p>Policy sits between Decision and Outcome as the wallet safety gate.</p>
         <p>Outcomes teach the next decision.</p>
         <p>Agents do not need chat history.</p>
         <p>Agents need memory that changes future action.</p>
@@ -709,6 +849,7 @@ function HermesDeskSurface() {
   const [health, setHealth] = useState<HermesHealthResponse | null>(null);
   const [ledger, setLedger] = useState<HermesReputationLedgerSummary | null>(null);
   const [preSpendDecision, setPreSpendDecision] = useState<HermesPreSpendDecision | null>(null);
+  const [spendPolicyResult, setSpendPolicyResult] = useState<HermesSpendPolicyCheckResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -735,6 +876,10 @@ function HermesDeskSurface() {
     api<HermesPreSpendDecision>('/v1/hermes/pre-spend-decision/example')
       .then((response) => setPreSpendDecision(response.data))
       .catch(() => setPreSpendDecision(null));
+
+    api<HermesSpendPolicyCheckResult>('/v1/hermes/spend-policy/example')
+      .then((response) => setSpendPolicyResult(response.data))
+      .catch(() => setSpendPolicyResult(null));
   }, []);
 
   const activeRuns = useMemo(() => (summary?.runs ?? []).filter((run) => run.state === 'queued' || run.state === 'running'), [summary?.runs]);
@@ -801,6 +946,7 @@ function HermesDeskSurface() {
               </React.Fragment>
             ))}
           </div>
+          <p className="copy">Policy sits between Decision and Outcome as the wallet safety gate.</p>
         </section>
 
         <section className="panel hermes-bridge-status" aria-label="Hermes bridge status">
@@ -912,6 +1058,8 @@ function HermesDeskSurface() {
         <HermesReputationLedgerSection ledger={ledger} />
 
         <HermesPreSpendDecisionSection decision={preSpendDecision} />
+
+        <HermesSpendPolicySection result={spendPolicyResult} />
 
         <HermesDecisionFeedbackSection decision={preSpendDecision} />
 
@@ -1076,8 +1224,20 @@ function HermesSkillPackPage() {
             {['route reputation', 'provider reputation', 'service reputation', 'disputed evidence', 'watchlist state'].map((item) => <span key={item}>{item}</span>)}
           </div>
         </section>
+        <section className="panel hermes-skill-pack-detail" aria-label="Policy-ready outputs">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Policy-ready outputs</p>
+              <h2>Hermes skills should emit structured outputs that policy can evaluate deterministically.</h2>
+            </div>
+          </div>
+          <p className="copy">Hermes skills should generate structured outputs useful for policy checks.</p>
+          <div className="abundance-chip-row">
+            {['risk level', 'required action', 'disputed evidence', 'provider status', 'route status', 'spend amount sensitivity', 'chain/payment rail context'].map((item) => <span key={item}>{item}</span>)}
+          </div>
+        </section>
 
-        <section className="panel hermes-skill-pack-detail" aria-label="Memory-loop-ready skills">
+      <section className="panel hermes-skill-pack-detail" aria-label="Memory-loop-ready skills">
           <div className="panel-head">
             <div>
               <p className="section-kicker">Memory-loop-ready skills</p>
@@ -1086,6 +1246,7 @@ function HermesSkillPackPage() {
             <a className="execute compact secondary" href="/hermes/memory-loop">Open Memory Loop</a>
           </div>
           <p className="copy">Hermes skills should produce outputs that can flow through: Run → Receipt → Claim → Review → Reputation → Decision → Outcome → Feedback</p>
+          <p className="copy">Policy-ready outputs let the wallet add a final safety gate between Decision and Outcome.</p>
         </section>
 
         <section className="panel hermes-skill-pack-detail" aria-label="Decision-ready outputs">
@@ -1112,6 +1273,139 @@ function HermesSkillPackPage() {
           </div>
         </section>
       </>}
+    </main>
+  </div>;
+}
+
+function HermesSpendPolicyPage() {
+  const [policySurface, setPolicySurface] = useState<{
+    generated_at: string;
+    count: number;
+    policies: HermesSpendPolicy[];
+    rules: HermesSpendPolicyRule[];
+  } | null>(null);
+  const [result, setResult] = useState<HermesSpendPolicyCheckResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    syncHermesMetadata('/hermes/spend-policy');
+  }, []);
+
+  useEffect(() => {
+    api<{
+      generated_at: string;
+      count: number;
+      policies: HermesSpendPolicy[];
+      rules: HermesSpendPolicyRule[];
+    }>('/v1/hermes/spend-policy')
+      .then((response) => setPolicySurface(response.data))
+      .catch((err) => setError(err instanceof Error ? err.message : 'hermes_spend_policy_unavailable'));
+
+    api<HermesSpendPolicyCheckResult>('/v1/hermes/spend-policy/example')
+      .then((response) => setResult(response.data))
+      .catch(() => setResult(null));
+  }, []);
+
+  const policy = result?.policy ?? policySurface?.policies[0] ?? null;
+
+  return <div className="shell narrative-shell hermes-shell">
+    <a className="skip-link" href="#hermes-spend-policy-content">Skip to content</a>
+    <header className="site-header">
+      <HermesNav current="/hermes/spend-policy" />
+    </header>
+    <main id="hermes-spend-policy-content" className="narrative-page hermes-page">
+      <section className="panel hero narrative-hero hermes-hero">
+        <div>
+          <p className="eyebrow">Wallet Safety Gate</p>
+          <h1>Agent Spend Policy Layer</h1>
+          <p className="copy hermes-hero-copy">Decision tells an agent what to do. Policy tells an agent what it is allowed to do.</p>
+          <p className="copy">Before an agent spends, it checks the ledger. Before a wallet signs, it checks policy.</p>
+          <div className="panel-actions">
+            <a className="execute" href="/v1/hermes/spend-policy/example">Open Example JSON</a>
+            <a className="execute compact secondary" href="/v1/hermes/spend-policy">Open Policy JSON</a>
+            <a className="execute compact secondary" href="/hermes">Back to Hermes Desk</a>
+          </div>
+        </div>
+        <div className="panel narrative-hero-rail hermes-hero-rail">
+          <p className="section-kicker">Narrative</p>
+          <p>Decision tells an agent what to do.</p>
+          <p>Policy tells an agent what it is allowed to do.</p>
+          <p>Before an agent spends, it checks the ledger. Before a wallet signs, it checks policy.</p>
+        </div>
+      </section>
+      {error && <section className="panel"><p className="route-state error">{error}</p></section>}
+      {!error && !policy && <section className="panel"><p className="route-state">Loading Agent Spend Policy Layer...</p></section>}
+      {policy && <section className="panel hermes-skill-pack-detail" aria-label="Policy Summary">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Policy Summary</p>
+            <h2>{policy.title}</h2>
+          </div>
+        </div>
+        <p className="copy">{policy.summary}</p>
+        <div className="machine-usage-list">
+          <p><span>max_amount_usd</span><small>{policy.max_amount_usd.toFixed(2)}</small></p>
+          <p><span>allowed_chains</span><small>{policy.allowed_chains.join(', ') || 'none'}</small></p>
+          <p><span>allowed_payment_rails</span><small>{policy.allowed_payment_rails.join(', ') || 'none'}</small></p>
+          <p><span>blocked_providers</span><small>{policy.blocked_providers.join(', ') || 'none'}</small></p>
+          <p><span>require_test_spend_for_watchlist</span><small>{String(policy.require_test_spend_for_watchlist)}</small></p>
+          <p><span>manual_review_threshold_usd</span><small>{policy.manual_review_threshold_usd.toFixed(2)}</small></p>
+          <p><span>do_not_spend_on_disputed</span><small>{String(policy.do_not_spend_on_disputed)}</small></p>
+        </div>
+      </section>}
+      {result && <section className="panel hermes-skill-pack-detail" aria-label="Example Spend Intent">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Example Spend Intent</p>
+            <h2>Deterministic seeded spend intent.</h2>
+          </div>
+        </div>
+        <div className="machine-usage-list">
+          <p><span>route_id</span><small>{result.input.route_id ?? 'not supplied'}</small></p>
+          <p><span>provider_id</span><small>{result.input.provider_id ?? 'not supplied'}</small></p>
+          <p><span>service_id</span><small>{result.input.service_id ?? 'not supplied'}</small></p>
+          <p><span>amount_usd</span><small>{typeof result.input.amount_usd === 'number' ? result.input.amount_usd.toFixed(2) : 'not supplied'}</small></p>
+          <p><span>payment_rail</span><small>{result.input.payment_rail ?? 'not supplied'}</small></p>
+          <p><span>chain</span><small>{result.input.chain ?? 'not supplied'}</small></p>
+        </div>
+      </section>}
+      {result && <section className="panel hermes-runs-section" aria-label="Policy Check Result">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Policy Check Result</p>
+            <h2>Deterministic wallet gate output.</h2>
+          </div>
+        </div>
+        <div className="hermes-run-grid">
+          <HermesSpendPolicyCard result={result} />
+        </div>
+      </section>}
+      {result && <section className="panel hermes-skill-pack-detail" aria-label="Violations and Warnings">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Violations and Warnings</p>
+            <h2>Why the policy responded this way.</h2>
+          </div>
+        </div>
+        <div className="machine-usage-list">
+          {result.violations.map((item) => <p key={item.id}><span>{`${item.label} · ${spendPolicyViolationOutcomeLabel(item.outcome)}`}</span><small>{item.detail}</small></p>)}
+          {result.warnings.map((item) => <p key={item.id}><span>{`${item.label} · ${spendPolicyViolationOutcomeLabel(item.outcome)}`}</span><small>{item.detail}</small></p>)}
+          {!result.violations.length && !result.warnings.length && <p><span>none</span><small>No violations or warnings were raised.</small></p>}
+        </div>
+      </section>}
+      {result && <section className="panel hermes-skill-pack-detail" aria-label="Pre-Spend Decision Used">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Pre-Spend Decision Used</p>
+            <h2>Policy consumes the existing decision engine.</h2>
+          </div>
+        </div>
+        <div className="hermes-run-grid">
+          <HermesPreSpendDecisionCard decision={result.pre_spend_decision} compact />
+        </div>
+      </section>}
+      {result && <HermesSpendPolicyReferenceList title="References Used" items={result.references} />}
+      {policySurface && <HermesSpendPolicyRuleMap rules={policySurface.rules} />}
     </main>
   </div>;
 }
@@ -1169,8 +1463,10 @@ function HermesPreSpendDecisionPage() {
             <h2>The decision engine is part of a larger memory loop.</h2>
           </div>
           <a className="execute compact secondary" href="/hermes/memory-loop">Open Memory Loop</a>
+          <a className="execute compact secondary" href="/hermes/spend-policy">Open Spend Policy Layer</a>
         </div>
         <p className="copy">The decision engine is part of a larger memory loop. Decisions produce receipts. Outcomes produce feedback. Feedback changes future reputation.</p>
+        <p className="copy">The Pre-Spend Decision Engine recommends action. The Spend Policy Layer converts that recommendation into an allow, test, review, or block decision.</p>
       </section>
       {error && <section className="panel"><p className="route-state error">{error}</p></section>}
       {!error && decision && <section className="panel hermes-runs-section" aria-label="Example decision card">
@@ -1378,10 +1674,12 @@ export function HermesDeskPage({
   skillPackRoute = false,
   reputationLedgerRoute = false,
   preSpendDecisionRoute = false,
+  spendPolicyRoute = false,
   decisionFeedbackRoute = false
-}: { narrativeRoute?: boolean; memoryLoopRoute?: boolean; skillPackRoute?: boolean; reputationLedgerRoute?: boolean; preSpendDecisionRoute?: boolean; decisionFeedbackRoute?: boolean }) {
+}: { narrativeRoute?: boolean; memoryLoopRoute?: boolean; skillPackRoute?: boolean; reputationLedgerRoute?: boolean; preSpendDecisionRoute?: boolean; spendPolicyRoute?: boolean; decisionFeedbackRoute?: boolean }) {
   if (memoryLoopRoute) return <HermesMemoryLoopDashboardPage />;
   if (decisionFeedbackRoute) return <HermesDecisionFeedbackPage />;
+  if (spendPolicyRoute) return <HermesSpendPolicyPage />;
   if (preSpendDecisionRoute) return <HermesPreSpendDecisionPage />;
   if (reputationLedgerRoute) return <HermesReputationLedgerPage />;
   if (skillPackRoute) return <HermesSkillPackPage />;

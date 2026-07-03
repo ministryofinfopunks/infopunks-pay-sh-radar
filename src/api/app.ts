@@ -177,6 +177,13 @@ import {
 } from '../services/hermesPreSpendDecision';
 import { createHermesDecisionReceipt, recordHermesDecisionOutcome } from '../services/hermesDecisionFeedback';
 import { buildHermesMemoryLoopSummary } from '../services/hermesMemoryLoop';
+import {
+  checkHermesSpendPolicy,
+  createHermesSpendPolicyExample,
+  getDefaultHermesSpendPolicy,
+  listHermesSpendPolicies,
+  listHermesSpendPolicyRules
+} from '../services/hermesSpendPolicy';
 import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
@@ -195,6 +202,9 @@ const HermesPreSpendDecisionInputSchema = z.object({
   chain: z.string().min(1).optional(),
   agent_type: z.string().min(1).optional(),
   objective: z.string().min(1).optional()
+}).strict();
+const HermesSpendPolicyCheckInputSchema = HermesPreSpendDecisionInputSchema.extend({
+  policy_id: z.string().min(1).optional()
 }).strict();
 const HermesDecisionOutcomeRequestSchema = z.object({
   outcome_state: z.enum(['successful', 'failed', 'partial', 'blocked', 'manual_review', 'unknown']).optional(),
@@ -1579,6 +1589,20 @@ export async function createApp(
   app.get('/v1/narratives', async () => ({ data: listNarrativeAssets() }));
   app.get('/v1/hermes', async () => ({ data: safeJsonExport(getHermesDeskSummary()) }));
   app.get('/v1/hermes/skill-pack', async () => ({ data: safeJsonExport(getHermesSkillPack()) }));
+  app.get('/v1/hermes/spend-policy', async () => ({
+    data: safeJsonExport({
+      generated_at: getDefaultHermesSpendPolicy().created_at,
+      count: listHermesSpendPolicies().length,
+      policies: listHermesSpendPolicies(),
+      rules: listHermesSpendPolicyRules()
+    })
+  }));
+  app.get('/v1/hermes/spend-policy/example', async () => ({
+    data: safeJsonExport(createHermesSpendPolicyExample())
+  }));
+  app.post('/v1/hermes/spend-policy/check', async (req, reply) => handleParsed(req.body, HermesSpendPolicyCheckInputSchema, (input) => ({
+    data: safeJsonExport(checkHermesSpendPolicy(input))
+  }), reply));
   app.get('/v1/hermes/memory-loop', async () => ({ data: safeJsonExport(buildHermesMemoryLoopSummary()) }));
   app.get<{ Params: { loop_id: string } }>('/v1/hermes/memory-loop/:loop_id', async (req, reply) => {
     const loop = buildHermesMemoryLoopSummary().loops.find((item) => item.id === req.params.loop_id);

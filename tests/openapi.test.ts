@@ -103,6 +103,9 @@ describe('openapi discovery', () => {
     expect(spec.paths['/v1/graph/ripples']?.get).toBeTruthy();
     expect(spec.paths['/v1/graph/check']?.post).toBeTruthy();
     expect(spec.paths['/v1/hermes/skill-pack']?.get).toBeTruthy();
+    expect(spec.paths['/v1/hermes/spend-policy']?.get).toBeTruthy();
+    expect(spec.paths['/v1/hermes/spend-policy/example']?.get).toBeTruthy();
+    expect(spec.paths['/v1/hermes/spend-policy/check']?.post).toBeTruthy();
     expect(spec.paths['/v1/hermes/skill-pack/skills']?.get).toBeTruthy();
     expect(spec.paths['/v1/hermes/skill-pack/skills/{skill_id}']?.get).toBeTruthy();
     expect(spec.paths['/v1/hermes/reputation-ledger']?.get).toBeTruthy();
@@ -157,6 +160,13 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.HermesPreSpendRequiredAction).toBeTruthy();
     expect(spec.components.schemas.HermesPreSpendRiskFactor).toBeTruthy();
     expect(spec.components.schemas.HermesPreSpendDecisionInputReference).toBeTruthy();
+    expect(spec.components.schemas.HermesSpendPolicy).toBeTruthy();
+    expect(spec.components.schemas.HermesSpendPolicyCheckInput).toBeTruthy();
+    expect(spec.components.schemas.HermesSpendPolicyCheckResult).toBeTruthy();
+    expect(spec.components.schemas.HermesSpendPolicyDecision).toBeTruthy();
+    expect(spec.components.schemas.HermesSpendPolicyRule).toBeTruthy();
+    expect(spec.components.schemas.HermesSpendPolicyViolation).toBeTruthy();
+    expect(spec.components.schemas.HermesSpendPolicyReference).toBeTruthy();
     expect(spec.components.schemas.HermesDecisionReceipt).toBeTruthy();
     expect(spec.components.schemas.HermesDecisionOutcome).toBeTruthy();
     expect(spec.components.schemas.HermesDecisionOutcomeState).toBeTruthy();
@@ -241,6 +251,8 @@ describe('openapi discovery', () => {
     expect(JSON.stringify(spec.paths['/v1/graph/nodes/{node_id}'])).toContain('signal_graph_node_not_found');
     expect(JSON.stringify(spec.paths['/v1/graph/entities/{entity_type}/{entity_id}'])).toContain('unsupported_signal_graph_entity_type');
     expect(JSON.stringify(spec.paths['/v1/hermes/skill-pack'])).toContain('Infopunks Pre-Spend Skill Pack');
+    expect(JSON.stringify(spec.paths['/v1/hermes/spend-policy'])).toContain('seeded spend policies');
+    expect(JSON.stringify(spec.paths['/v1/hermes/spend-policy/check'])).toContain('allow, test, review, or block decision');
     expect(JSON.stringify(spec.paths['/v1/hermes/reputation-ledger'])).toContain('stateless and does not require a live Hermes sidecar');
     expect(JSON.stringify(spec.paths['/v1/hermes/pre-spend-decision'])).toContain('deterministic spend recommendation');
     expect(JSON.stringify(spec.paths['/v1/hermes/pre-spend-decision/example'])).toContain('deterministic example pre-spend decision');

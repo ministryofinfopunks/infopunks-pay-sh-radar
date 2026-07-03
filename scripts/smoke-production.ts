@@ -35,6 +35,8 @@ export const HERMES_PRE_SPEND_DECISION_PAYLOAD = {
   chain: 'base'
 } as const;
 
+export const HERMES_SPEND_POLICY_PAYLOAD = HERMES_PRE_SPEND_DECISION_PAYLOAD;
+
 export type SmokePlan = {
   publicPaths: string[];
   publicHeadPaths: string[];
@@ -49,6 +51,7 @@ export type SmokePlan = {
   hermesReceiptPath: string;
   hermesClaimPromotionPath: string;
   hermesPreSpendDecisionPath: string;
+  hermesSpendPolicyCheckPath: string;
   hermesDecisionReceiptPath: string;
   hermesDecisionOutcomePath: string;
   livePulsePath: string;
@@ -120,6 +123,7 @@ export function buildSmokePlan(): SmokePlan {
       '/hermes',
       '/hermes/memory-loop',
       '/hermes/pre-spend-decision',
+      '/hermes/spend-policy',
       '/hermes/decision-feedback',
       '/hermes/reputation-ledger',
       '/hermes/skill-pack',
@@ -166,6 +170,8 @@ export function buildSmokePlan(): SmokePlan {
       '/v1/hermes/skill-pack/skills',
       '/v1/hermes/runs',
       '/v1/hermes/health',
+      '/v1/hermes/spend-policy',
+      '/v1/hermes/spend-policy/example',
       '/v1/hermes/pre-spend-decision/example',
       '/v1/hermes/reputation-ledger',
       '/v1/hermes/reputation-ledger/providers',
@@ -216,6 +222,7 @@ export function buildSmokePlan(): SmokePlan {
     hermesReceiptPath: `/v1/hermes/runs/${encodeURIComponent(hermesRunId)}/receipt`,
     hermesClaimPromotionPath: `/v1/hermes/runs/${encodeURIComponent(hermesRunId)}/claim/promote`,
     hermesPreSpendDecisionPath: '/v1/hermes/pre-spend-decision',
+    hermesSpendPolicyCheckPath: '/v1/hermes/spend-policy/check',
     hermesDecisionReceiptPath: `/v1/hermes/pre-spend-decision/${encodeURIComponent(HERMES_PRE_SPEND_DECISION_EXAMPLE_ID)}/receipt`,
     hermesDecisionOutcomePath: `/v1/hermes/pre-spend-decision/${encodeURIComponent(HERMES_PRE_SPEND_DECISION_EXAMPLE_ID)}/outcome`,
     livePulsePath: '/v1/pulse'
@@ -663,6 +670,22 @@ function assertHermesPreSpendDecision(body: unknown): void {
   if (!Array.isArray(data.claim_inputs)) throw new Error('missing data.claim_inputs');
 }
 
+function assertHermesSpendPolicy(body: unknown): void {
+  if (!hasDataEnvelope(body) || !isRecord(body.data)) {
+    throw new Error('missing Hermes spend policy payload');
+  }
+
+  const data = body.data;
+  if (!isRecord(data.policy)) throw new Error('missing data.policy');
+  if (!isRecord(data.pre_spend_decision)) throw new Error('missing data.pre_spend_decision');
+  if (typeof data.decision !== 'string') throw new Error('missing data.decision');
+  if (typeof data.allowed !== 'boolean') throw new Error('missing data.allowed');
+  if (typeof data.required_action !== 'string') throw new Error('missing data.required_action');
+  if (!Array.isArray(data.violations)) throw new Error('missing data.violations');
+  if (!Array.isArray(data.warnings)) throw new Error('missing data.warnings');
+  if (!Array.isArray(data.references)) throw new Error('missing data.references');
+}
+
 function assertHermesDecisionReceipt(body: unknown): void {
   if (!hasDataEnvelope(body) || !isRecord(body.data)) throw new Error('missing Hermes decision receipt payload');
   const data = body.data;
@@ -1038,6 +1061,40 @@ export async function runSmoke(baseUrl = resolveBaseUrl(), config = resolveSmoke
   } catch (error) {
     failed = true;
     fail(`POST ${plan.hermesPreSpendDecisionPath}`, toFailureDetail('POST', plan.hermesPreSpendDecisionPath, error));
+  }
+
+  try {
+    const { response, elapsedMs } = await fetchWithRetry({
+      input: `${baseUrl}${plan.hermesSpendPolicyCheckPath}`,
+      method: 'POST',
+      path: plan.hermesSpendPolicyCheckPath,
+      timeoutMs: config.apiTimeoutMs,
+      init: {
+        method: 'POST',
+        headers: {
+          accept: 'application/json',
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify(HERMES_SPEND_POLICY_PAYLOAD)
+      }
+    });
+
+    if (!response.ok) {
+      throw new SmokeRequestError({
+        method: 'POST',
+        path: plan.hermesSpendPolicyCheckPath,
+        status: response.status,
+        elapsedMs,
+        reason: 'expected 2xx'
+      });
+    }
+
+    const body = await parseJsonOrThrow('POST', plan.hermesSpendPolicyCheckPath, response, elapsedMs);
+    assertHermesSpendPolicy(body);
+    pass(`POST ${plan.hermesSpendPolicyCheckPath}`, elapsedMs);
+  } catch (error) {
+    failed = true;
+    fail(`POST ${plan.hermesSpendPolicyCheckPath}`, toFailureDetail('POST', plan.hermesSpendPolicyCheckPath, error));
   }
 
   try {

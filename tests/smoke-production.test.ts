@@ -7,6 +7,7 @@ import {
   DEFAULT_PUBLIC_PAGE_TIMEOUT_MS,
   ATTENTION_MARKET_INTAKE_PAYLOAD,
   HERMES_PRE_SPEND_DECISION_PAYLOAD,
+  HERMES_SPEND_POLICY_PAYLOAD,
   PRE_SPEND_CHECK_PAYLOAD,
   assertSignalHuntDeployment,
   buildSmokePlan,
@@ -65,6 +66,7 @@ describe('production smoke plan', () => {
       '/hermes',
       '/hermes/memory-loop',
       '/hermes/pre-spend-decision',
+      '/hermes/spend-policy',
       '/hermes/decision-feedback',
       '/hermes/reputation-ledger',
       '/hermes/skill-pack',
@@ -104,6 +106,8 @@ describe('production smoke plan', () => {
       '/v1/hermes/skill-pack/skills',
       '/v1/hermes/runs',
       '/v1/hermes/health',
+      '/v1/hermes/spend-policy',
+      '/v1/hermes/spend-policy/example',
       '/v1/hermes/pre-spend-decision/example',
       '/v1/hermes/reputation-ledger',
       '/v1/hermes/reputation-ledger/providers',
@@ -154,6 +158,7 @@ describe('production smoke plan', () => {
     expect(plan.hermesReceiptPath).toBe('/v1/hermes/runs/hermes_pay_sh_route_pre_spend_check/receipt');
     expect(plan.hermesClaimPromotionPath).toBe('/v1/hermes/runs/hermes_pay_sh_route_pre_spend_check/claim/promote');
     expect(plan.hermesPreSpendDecisionPath).toBe('/v1/hermes/pre-spend-decision');
+    expect(plan.hermesSpendPolicyCheckPath).toBe('/v1/hermes/spend-policy/check');
     expect(plan.hermesDecisionReceiptPath).toContain('/v1/hermes/pre-spend-decision/');
     expect(plan.hermesDecisionReceiptPath).toContain('/receipt');
     expect(plan.hermesDecisionOutcomePath).toContain('/v1/hermes/pre-spend-decision/');
@@ -185,6 +190,7 @@ describe('production smoke plan', () => {
       payment_rail: 'x402',
       chain: 'base'
     });
+    expect(HERMES_SPEND_POLICY_PAYLOAD).toEqual(HERMES_PRE_SPEND_DECISION_PAYLOAD);
   });
 
   it('proves Signal Hunt is deployed with OpenAPI coverage and seeded API data', () => {

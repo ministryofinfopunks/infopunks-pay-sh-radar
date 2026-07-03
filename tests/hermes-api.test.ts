@@ -3,6 +3,7 @@ import { createApp } from '../src/api/app';
 import type { HermesRun } from '../src/data/hermesDesk';
 import { convertHermesRunToReceipt } from '../src/services/hermesReceiptConverter';
 import { getHermesPreSpendDecisionExample } from '../src/services/hermesPreSpendDecision';
+import { getDefaultHermesSpendPolicy } from '../src/services/hermesSpendPolicy';
 
 describe('Hermes Desk API', () => {
   const originalHermesEnv = {
@@ -283,6 +284,33 @@ describe('Hermes Desk API', () => {
     await app.close();
   });
 
+  it('returns seeded Hermes spend policies', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({ method: 'GET', url: '/v1/hermes/spend-policy' });
+    const body = response.json();
+
+    expect(response.statusCode).toBe(200);
+    expect(body.data.count).toBeGreaterThanOrEqual(2);
+    expect(body.data.policies.map((policy: any) => policy.id)).toContain(getDefaultHermesSpendPolicy().id);
+    expect(body.data.rules.length).toBeGreaterThanOrEqual(1);
+
+    await app.close();
+  });
+
+  it('returns a deterministic Hermes spend policy example', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({ method: 'GET', url: '/v1/hermes/spend-policy/example' });
+    const body = response.json();
+
+    expect(response.statusCode).toBe(200);
+    expect(body.data.policy.id).toBe(getDefaultHermesSpendPolicy().id);
+    expect(body.data.references.map((item: any) => item.kind)).toEqual(expect.arrayContaining(['policy', 'pre_spend_decision']));
+
+    await app.close();
+  });
+
   it('returns one Hermes Agent Memory Loop by id', async () => {
     const app = await createApp();
     const loopId = 'hermes_memory_loop_hermes_pay_sh_route_pre_spend_check';
@@ -399,6 +427,76 @@ describe('Hermes Desk API', () => {
       }),
       generated_at: '2026-07-03T00:00:00.000Z'
     }));
+
+    await app.close();
+  });
+
+  it('returns a spend policy check for seeded Hermes input', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/hermes/spend-policy/check',
+      payload: {
+        route_id: 'route_pay_sh_market_research_01',
+        provider_id: 'provider_pay_sh_lattice',
+        service_id: 'service_market_research',
+        amount_usd: 25,
+        payment_rail: 'x402',
+        chain: 'base'
+      }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().data).toEqual(expect.objectContaining({
+      policy: expect.objectContaining({ id: getDefaultHermesSpendPolicy().id }),
+      pre_spend_decision: expect.objectContaining({ id: expect.any(String) }),
+      references: expect.any(Array)
+    }));
+
+    await app.close();
+  });
+
+  it('blocks unsupported chain in the spend policy check', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/hermes/spend-policy/check',
+      payload: {
+        route_id: 'route_pay_sh_market_research_01',
+        provider_id: 'provider_pay_sh_lattice',
+        service_id: 'service_market_research',
+        amount_usd: 25,
+        payment_rail: 'x402',
+        chain: 'ethereum'
+      }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().data.decision).toBe('block');
+
+    await app.close();
+  });
+
+  it('requires manual review or block for higher-amount spend policy checks', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/hermes/spend-policy/check',
+      payload: {
+        route_id: 'route_pay_sh_market_research_01',
+        provider_id: 'provider_pay_sh_lattice',
+        service_id: 'service_market_research',
+        amount_usd: 1250,
+        payment_rail: 'x402',
+        chain: 'base'
+      }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(['require_manual_review', 'block']).toContain(response.json().data.decision);
 
     await app.close();
   });

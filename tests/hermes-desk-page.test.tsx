@@ -8,6 +8,7 @@ import { getHermesSkillPack } from '../src/data/hermesSkillPack';
 import { buildHermesReputationLedger } from '../src/services/hermesReputationLedger';
 import { createHermesPreSpendDecisionExample } from '../src/services/hermesPreSpendDecision';
 import { buildHermesMemoryLoopSummary } from '../src/services/hermesMemoryLoop';
+import { createHermesSpendPolicyExample, listHermesSpendPolicies, listHermesSpendPolicyRules } from '../src/services/hermesSpendPolicy';
 import { App } from '../src/web/main';
 
 function json(data: unknown) {
@@ -46,6 +47,13 @@ describe('Hermes Desk page', () => {
       if (pathOf(input) === '/v1/hermes/memory-loop') return json(buildHermesMemoryLoopSummary());
       if (pathOf(input) === '/v1/hermes/reputation-ledger') return json(buildHermesReputationLedger());
       if (pathOf(input) === '/v1/hermes/pre-spend-decision/example') return json(createHermesPreSpendDecisionExample());
+      if (pathOf(input) === '/v1/hermes/spend-policy') return json({
+        generated_at: '2026-07-03T00:00:00.000Z',
+        count: listHermesSpendPolicies().length,
+        policies: listHermesSpendPolicies(),
+        rules: listHermesSpendPolicyRules()
+      });
+      if (pathOf(input) === '/v1/hermes/spend-policy/example') return json(createHermesSpendPolicyExample());
       if (pathOf(input) === '/v1/hermes/health') return json({
         enabled: false,
         mode: 'mock',
@@ -92,6 +100,7 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Agent Memory Loop');
     expect(text).toContain('Agents do not need chat history.');
     expect(text).toContain('Agents need memory that changes future action.');
+    expect(text).toContain('Policy sits between Decision and Outcome as the wallet safety gate.');
     expect(text).toContain('Open Memory Loop');
     expect(text).toContain('Every Hermes investigation can become a receipt');
     expect(text).toContain('receipt_hermes_hermes_pay_sh_route_pre_spend_check');
@@ -111,6 +120,9 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Before an agent spends, it checks the ledger.');
     expect(text).toContain('Reputation is not just displayed.');
     expect(text).toContain('Reputation now decides.');
+    expect(text).toContain('Agent Spend Policy Layer');
+    expect(text).toContain('Decision tells an agent what to do.');
+    expect(text).toContain('Policy tells an agent what it is allowed to do.');
     expect(text).toContain('Decision Receipt and Feedback Loop');
     expect(text).toContain('A decision without an outcome is advice.');
     expect(text).toContain('A decision with a receipt becomes intelligence.');
@@ -169,6 +181,13 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('service reputation');
     expect(text).toContain('disputed evidence');
     expect(text).toContain('watchlist state');
+    expect(text).toContain('Policy-ready outputs');
+    expect(text).toContain('risk level');
+    expect(text).toContain('required action');
+    expect(text).toContain('provider status');
+    expect(text).toContain('route status');
+    expect(text).toContain('spend amount sensitivity');
+    expect(text).toContain('chain/payment rail context');
     expect(container.querySelector('a[href="/hermes/skill-pack"]')?.getAttribute('aria-current')).toBe('page');
   });
 
@@ -202,6 +221,12 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Reputation is not just displayed.');
     expect(text).toContain('Reputation now decides.');
     expect(text).toContain('Before an agent spends, it checks the ledger.');
+    expect(text).toContain('Agent Spend Policy Layer');
+    expect(text).toContain('Decisions recommend action.');
+    expect(text).toContain('Policies enforce boundaries.');
+    expect(text).toContain('Autonomous wallets need both judgment and rules.');
+    expect(text).toContain('Decision tells an agent what to do.');
+    expect(text).toContain('Policy tells an agent what it is allowed to do.');
     expect(text).toContain('Decision Receipt and Feedback Loop');
     expect(text).toContain('The Pre-Spend Decision Engine recommends action before money moves.');
     expect(text).toContain('Decision Receipts preserve why the recommendation was made.');
@@ -220,6 +245,7 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Reviews decide whether the claim should affect trust.');
     expect(text).toContain('Reputation accumulates across claims.');
     expect(text).toContain('Decisions use reputation before money moves.');
+    expect(text).toContain('Policy sits between Decision and Outcome as the wallet safety gate.');
     expect(text).toContain('Outcomes teach the next decision.');
     expect(text).toContain('Agents do not need chat history.');
     expect(text).toContain('Agents need memory that changes future action.');
@@ -251,6 +277,7 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Feedback direction');
     expect(text).toContain('What changed for the next spend?');
     expect(text).toContain('The next agent does not start from zero. It inherits receipts, reviewed claims, reputation state, and feedback from previous outcomes.');
+    expect(text).toContain('Policy sits between Decision and Outcome as the wallet safety gate.');
     expect(container.querySelector('a[href="/hermes/memory-loop"]')?.getAttribute('aria-current')).toBe('page');
   });
 
@@ -284,7 +311,26 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Risk factors');
     expect(text).toContain('Inputs used');
     expect(text).toContain('The decision engine is part of a larger memory loop. Decisions produce receipts. Outcomes produce feedback. Feedback changes future reputation.');
+    expect(text).toContain('The Pre-Spend Decision Engine recommends action. The Spend Policy Layer converts that recommendation into an allow, test, review, or block decision.');
     expect(container.querySelector('a[href="/hermes/pre-spend-decision"]')?.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('renders the Hermes Spend Policy page', async () => {
+    root = await renderPath(container, '/hermes/spend-policy');
+
+    const text = container.textContent ?? '';
+    expect(text).toContain('Agent Spend Policy Layer');
+    expect(text).toContain('Decision tells an agent what to do.');
+    expect(text).toContain('Policy tells an agent what it is allowed to do.');
+    expect(text).toContain('Before an agent spends, it checks the ledger. Before a wallet signs, it checks policy.');
+    expect(text).toContain('Policy Summary');
+    expect(text).toContain('Example Spend Intent');
+    expect(text).toContain('Policy Check Result');
+    expect(text).toContain('Violations and Warnings');
+    expect(text).toContain('Pre-Spend Decision Used');
+    expect(text).toContain('References Used');
+    expect(text).toContain('Rule Map');
+    expect(container.querySelector('a[href="/hermes/spend-policy"]')?.getAttribute('aria-current')).toBe('page');
   });
 
   it('renders the expanded Hermes Decision Feedback page', async () => {

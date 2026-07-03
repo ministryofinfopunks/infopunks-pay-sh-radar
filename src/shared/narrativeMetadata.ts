@@ -95,6 +95,14 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
     );
   }
 
+  if (/^\/hermes\/spend-policy\/?$/.test(pathname)) {
+    return buildMetadata(
+      'Agent Spend Policy Layer',
+      'Decision tells an agent what to do. Policy tells an agent what it is allowed to do.',
+      '/hermes/spend-policy'
+    );
+  }
+
   if (/^\/hermes\/decision-feedback\/?$/.test(pathname)) {
     return buildMetadata(
       'Decision Receipt and Feedback Loop',
