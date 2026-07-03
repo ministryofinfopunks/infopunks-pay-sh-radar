@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createApp } from '../src/api/app';
+import type { HermesRun } from '../src/data/hermesDesk';
+import { convertHermesRunToReceipt } from '../src/services/hermesReceiptConverter';
 
 describe('Hermes Desk API', () => {
   const originalHermesEnv = {
@@ -40,10 +42,116 @@ describe('Hermes Desk API', () => {
       'provider risk check',
       'receipt validator',
       'claim dispute review',
-      'signal hunt analyst'
+      'signal hunt analyst',
+      'carbon credit instrument check'
     ]));
 
     await app.close();
+  });
+
+  it('returns the primary Hermes Skill Pack manifest and seeded skills', async () => {
+    const app = await createApp();
+
+    const pack = await app.inject({ method: 'GET', url: '/v1/hermes/skill-pack' });
+    const skills = await app.inject({ method: 'GET', url: '/v1/hermes/skill-pack/skills' });
+    const skill = await app.inject({ method: 'GET', url: '/v1/hermes/skill-pack/skills/receipt-validator' });
+
+    expect(pack.statusCode).toBe(200);
+    expect(pack.json().data).toEqual(expect.objectContaining({
+      id: 'infopunks-pre-spend-skill-pack',
+      title: 'Infopunks Pre-Spend Skill Pack',
+      summary: 'A skill pack for agentic investigations before money moves.',
+      tagline: 'Hermes runs the investigation. Infopunks keeps the receipts.',
+      version: '0.1.0'
+    }));
+    expect(pack.json().data.doctrine_rules.map((rule: any) => rule.title)).toEqual(expect.arrayContaining([
+      'No receipt, no trust.',
+      'Separate claim from evidence.',
+      'Unknown is a valid state.',
+      'Prefer do_not_use_yet over fake confidence.'
+    ]));
+    expect(skills.statusCode).toBe(200);
+    expect(skills.json().data.count).toBe(6);
+    expect(skills.json().data.skills.map((item: any) => item.id)).toEqual(expect.arrayContaining([
+      'pre-spend-route-check',
+      'provider-risk-check',
+      'receipt-validator',
+      'claim-dispute-review',
+      'signal-hunt-analyst',
+      'carbon-credit-instrument-check'
+    ]));
+    expect(skill.statusCode).toBe(200);
+    expect(skill.json().data).toEqual(expect.objectContaining({
+      id: 'receipt-validator',
+      title: 'Receipt Validator'
+    }));
+
+    await app.close();
+  });
+
+  it('converts a seeded Hermes run into a receipt and claim candidate', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({ method: 'POST', url: '/v1/hermes/runs/hermes_pay_sh_route_pre_spend_check/receipt' });
+    const body = response.json();
+
+    expect(response.statusCode).toBe(200);
+    expect(body.data.run_id).toBe('hermes_pay_sh_route_pre_spend_check');
+    expect(body.data.receipt).toEqual(expect.objectContaining({
+      id: 'receipt_hermes_hermes_pay_sh_route_pre_spend_check',
+      source_run_id: 'hermes_pay_sh_route_pre_spend_check',
+      decision: 'caution',
+      confidence: 82,
+      evidence_count: 2,
+      receipt_kind: 'agent_run_receipt',
+      source: 'hermes'
+    }));
+    expect(body.data.claim_candidate).toEqual(expect.objectContaining({
+      id: 'claim_candidate_hermes_hermes_pay_sh_route_pre_spend_check',
+      source_receipt_id: 'receipt_hermes_hermes_pay_sh_route_pre_spend_check',
+      status: 'candidate',
+      confidence: 82
+    }));
+    expect(body.data.claim_candidate.claim).toContain('limited or test spend');
+    expect(body.data.conversion.status).toBe('converted');
+
+    await app.close();
+  });
+
+  it('returns 404 for missing Hermes run receipt conversion', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({ method: 'POST', url: '/v1/hermes/runs/not-real/receipt' });
+
+    expect(response.statusCode).toBe(404);
+    expect(response.json()).toEqual(expect.objectContaining({
+      error: 'hermes_run_not_found'
+    }));
+
+    await app.close();
+  });
+
+  it('keeps receipt conversion safe when a run has no artifacts', () => {
+    const conversion = convertHermesRunToReceipt({
+      id: 'hermes_no_artifacts',
+      title: 'No Artifact Test',
+      objective: 'Check missing artifacts.',
+      state: 'completed',
+      decision: 'unproven',
+      confidence: 44,
+      summary: 'No artifacts were attached.',
+      risk_factors: [],
+      artifacts: [],
+      linked_receipt_id: null,
+      linked_claim_id: null,
+      linked_loop_id: null,
+      created_at: '2026-07-03T00:00:00.000Z',
+      completed_at: '2026-07-03T00:01:00.000Z'
+    } satisfies HermesRun);
+
+    expect(conversion.receipt.evidence_count).toBe(0);
+    expect(conversion.claim_candidate.claim).toContain('remains unproven');
+    expect(conversion.conversion.notes.join(' ')).toContain('No artifacts were attached');
   });
 
   it('lists and retrieves seeded Hermes runs', async () => {

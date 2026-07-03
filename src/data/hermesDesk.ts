@@ -1,3 +1,5 @@
+import { getHermesSkillPack } from './hermesSkillPack';
+
 export type HermesRunState = 'queued' | 'running' | 'completed' | 'failed' | 'blocked';
 
 export type HermesDecisionState = 'trust' | 'caution' | 'do_not_use_yet' | 'unproven' | 'disputed';
@@ -80,43 +82,22 @@ export type HermesDeskSummary = {
 
 export const hermesDeskGeneratedAt = '2026-07-03T00:00:00.000Z';
 
-export const hermesSkillPack: HermesSkillSummary[] = [
-  {
-    id: 'pre-spend-route-check',
-    label: 'pre-spend route check',
-    purpose: 'Investigate a candidate route before an agent spends through it.',
-    enabled: true,
-    produces: ['receipt', 'claim', 'loop_run', 'risk_note']
-  },
-  {
-    id: 'provider-risk-check',
-    label: 'provider risk check',
-    purpose: 'Review provider reliability, caveats, disputes, and observed route memory.',
-    enabled: true,
-    produces: ['claim', 'risk_note']
-  },
-  {
-    id: 'receipt-validator',
-    label: 'receipt validator',
-    purpose: 'Check whether an agent run has enough evidence to become durable Radar memory.',
-    enabled: true,
-    produces: ['receipt', 'risk_note']
-  },
-  {
-    id: 'claim-dispute-review',
-    label: 'claim dispute review',
-    purpose: 'Compare claims against attached receipts and flag disputed or stale evidence.',
-    enabled: true,
-    produces: ['claim', 'risk_note']
-  },
-  {
-    id: 'signal-hunt-analyst',
-    label: 'signal hunt analyst',
-    purpose: 'Scan narrative inputs and connect credible signals into proof and loop memory.',
-    enabled: true,
-    produces: ['narrative_signal', 'claim', 'loop_run']
-  }
-];
+function skillProduces(skillId: string): HermesSkillSummary['produces'] {
+  if (skillId === 'pre-spend-route-check') return ['receipt', 'claim', 'loop_run', 'risk_note'];
+  if (skillId === 'provider-risk-check') return ['claim', 'risk_note'];
+  if (skillId === 'receipt-validator') return ['receipt', 'risk_note'];
+  if (skillId === 'claim-dispute-review') return ['claim', 'risk_note'];
+  if (skillId === 'signal-hunt-analyst') return ['narrative_signal', 'claim', 'loop_run'];
+  return ['receipt', 'claim', 'risk_note'];
+}
+
+export const hermesSkillPack: HermesSkillSummary[] = getHermesSkillPack().skills.map((skill) => ({
+  id: skill.id,
+  label: skill.title.toLowerCase(),
+  purpose: skill.purpose,
+  enabled: true,
+  produces: skillProduces(skill.id)
+}));
 
 export const hermesRuns: HermesRun[] = [
   {

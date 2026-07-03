@@ -160,6 +160,8 @@ import { createInMemoryLoopRepository, loopRepository } from '../repositories/lo
 import { createLoopService } from '../services/loopService';
 import { checkSignalGraph, findSignalGraphNodesForEntity, getSignalGraph, getSignalGraphCluster, getSignalGraphClusters, getSignalGraphNode, getSignalGraphRipples, isSignalGraphEntityType } from '../services/signalGraphService';
 import { checkHermesHealth, createLivePreSpendRun, getHermesDeskSummary, getHermesRunById, listHermesRuns } from '../services/hermesBridge';
+import { getHermesSkillById, getHermesSkillPack, listHermesSkillPackSkills } from '../data/hermesSkillPack';
+import { convertHermesRunToReceipt } from '../services/hermesReceiptConverter';
 import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
@@ -1533,6 +1535,21 @@ export async function createApp(
   });
   app.get('/v1/narratives', async () => ({ data: listNarrativeAssets() }));
   app.get('/v1/hermes', async () => ({ data: safeJsonExport(getHermesDeskSummary()) }));
+  app.get('/v1/hermes/skill-pack', async () => ({ data: safeJsonExport(getHermesSkillPack()) }));
+  app.get('/v1/hermes/skill-pack/skills', async () => ({
+    data: safeJsonExport({
+      generated_at: '2026-07-03T00:00:00.000Z',
+      source: 'infopunks-pay-sh-radar',
+      module: 'hermes-skill-pack',
+      count: listHermesSkillPackSkills().length,
+      skills: listHermesSkillPackSkills()
+    })
+  }));
+  app.get<{ Params: { skill_id: string } }>('/v1/hermes/skill-pack/skills/:skill_id', async (req, reply) => {
+    const skill = getHermesSkillById(req.params.skill_id);
+    if (!skill) return reply.code(404).send({ error: 'hermes_skill_not_found' });
+    return { data: safeJsonExport(skill) };
+  });
   app.get('/v1/hermes/runs', async () => ({
     data: safeJsonExport({
       generated_at: new Date().toISOString(),
@@ -1546,6 +1563,26 @@ export async function createApp(
     const run = getHermesRunById(req.params.run_id);
     if (!run) return reply.code(404).send({ error: 'hermes_run_not_found' });
     return { data: safeJsonExport(run) };
+  });
+  app.post<{ Params: { run_id: string } }>('/v1/hermes/runs/:run_id/receipt', async (req, reply) => {
+    const run = getHermesRunById(req.params.run_id);
+    if (!run) {
+      return reply.code(404).send({
+        error: 'hermes_run_not_found',
+        message: `No Hermes run found for run_id=${req.params.run_id}`
+      });
+    }
+    return { data: safeJsonExport(convertHermesRunToReceipt(run)) };
+  });
+  app.get<{ Params: { run_id: string } }>('/v1/hermes/runs/:run_id/receipt-preview', async (req, reply) => {
+    const run = getHermesRunById(req.params.run_id);
+    if (!run) {
+      return reply.code(404).send({
+        error: 'hermes_run_not_found',
+        message: `No Hermes run found for run_id=${req.params.run_id}`
+      });
+    }
+    return { data: safeJsonExport(convertHermesRunToReceipt(run)) };
   });
   app.post('/v1/hermes/pre-spend-run', async (req, reply) => handleParsed(req.body, HermesPreSpendRunRequestSchema, async (input) => ({
     data: safeJsonExport(await createLivePreSpendRun(input))

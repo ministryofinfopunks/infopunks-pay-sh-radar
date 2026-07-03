@@ -62,6 +62,7 @@ describe('production smoke plan', () => {
       '/abundance',
       '/narratives/abundance-desk',
       '/hermes',
+      '/hermes/skill-pack',
       '/narratives/hermes-desk',
       '/attention-market-watch',
       '/attention-market-watch/ansem',
@@ -93,6 +94,8 @@ describe('production smoke plan', () => {
       '/v1/abundance/claims',
       '/v1/abundance/receipts',
       '/v1/hermes',
+      '/v1/hermes/skill-pack',
+      '/v1/hermes/skill-pack/skills',
       '/v1/hermes/runs',
       '/v1/hermes/health',
       '/v1/attention-market-watch',
@@ -137,6 +140,7 @@ describe('production smoke plan', () => {
     expect(plan.attentionMarketIntakePath).toBe('/v1/attention-market-watch/intake');
     expect(plan.attentionMarketIntakeRequirementsPath).toBe('/v1/attention-market-watch/intake/requirements');
     expect(plan.graphCheckPath).toBe('/v1/graph/check');
+    expect(plan.hermesReceiptPath).toBe('/v1/hermes/runs/hermes_pay_sh_route_pre_spend_check/receipt');
     expect(plan.livePulsePath).toBe('/v1/pulse');
     expect(PRE_SPEND_CHECK_PAYLOAD).toEqual({
       agent_id: 'agent_001',

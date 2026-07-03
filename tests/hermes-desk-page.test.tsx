@@ -4,6 +4,7 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getHermesDeskSummary } from '../src/services/hermesBridge';
+import { getHermesSkillPack } from '../src/data/hermesSkillPack';
 import { App } from '../src/web/main';
 
 function json(data: unknown) {
@@ -38,6 +39,7 @@ describe('Hermes Desk page', () => {
     document.body.append(container);
     vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
       if (pathOf(input) === '/v1/hermes') return json(getHermesDeskSummary({}));
+      if (pathOf(input) === '/v1/hermes/skill-pack') return json(getHermesSkillPack());
       if (pathOf(input) === '/v1/hermes/health') return json({
         enabled: false,
         mode: 'mock',
@@ -79,8 +81,39 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('receipt validator');
     expect(text).toContain('claim dispute review');
     expect(text).toContain('signal hunt analyst');
+    expect(text).toContain('carbon credit instrument check');
+    expect(text).toContain('Agent Run Receipts');
+    expect(text).toContain('Every Hermes investigation can become a receipt');
+    expect(text).toContain('receipt_hermes_hermes_pay_sh_route_pre_spend_check');
+    expect(text).toContain('Receipt-ready');
     expect(container.querySelector('a[href="/hermes"]')?.getAttribute('aria-current')).toBe('page');
     expect(container.querySelector('a[href="/v1/hermes/skills"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/hermes/skill-pack"]')).not.toBeNull();
+  });
+
+  it('renders the Hermes Skill Pack page', async () => {
+    root = await renderPath(container, '/hermes/skill-pack');
+
+    const text = container.textContent ?? '';
+    expect(text).toContain('Infopunks Hermes Skill Pack');
+    expect(text).toContain('How Hermes learns to investigate before money moves.');
+    expect(text).toContain('Hermes runs the investigation. Infopunks turns the investigation into market memory.');
+    expect(text).toContain('Pre-Spend Route Check');
+    expect(text).toContain('Provider Risk Check');
+    expect(text).toContain('Receipt Validator');
+    expect(text).toContain('Claim Dispute Review');
+    expect(text).toContain('Signal Hunt Analyst');
+    expect(text).toContain('Carbon Credit Instrument Check');
+    expect(text).toContain('No receipt, no trust.');
+    expect(text).toContain('Expected output schema');
+    expect(text).toContain('Decision state mapping');
+    expect(text).toContain('routes');
+    expect(text).toContain('providers');
+    expect(text).toContain('receipts');
+    expect(text).toContain('claims');
+    expect(text).toContain('loops');
+    expect(text).toContain('proof checks');
+    expect(container.querySelector('a[href="/hermes/skill-pack"]')?.getAttribute('aria-current')).toBe('page');
   });
 
   it('renders the Hermes Desk narrative page', async () => {
@@ -92,6 +125,10 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Every agent run can become a receipt');
     expect(text).toContain('Every receipt can become a claim');
     expect(text).toContain('Every claim can update provider or route reputation');
+    expect(text).toContain('Agent Run Receipts');
+    expect(text).toContain('Hermes runs are not chat logs. They are pre-spend investigations.');
+    expect(text).toContain('Infopunks converts those investigations into receipts, claims, and eventually reputation.');
+    expect(text).toContain('This is how agent experience becomes market memory.');
     expect(container.querySelector('a[href="/narratives/hermes-desk"]')?.getAttribute('aria-current')).toBe('page');
   });
 });

@@ -310,6 +310,39 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       sidecar: { enabled: false, mode: 'mock', live_http_allowed: false, status: 'disabled' }
     })
   });
+  add('get', '/v1/hermes/skill-pack', {
+    tags: ['Hermes'],
+    summary: 'Get Infopunks Hermes Skill Pack',
+    description: 'Returns the deterministic Infopunks Pre-Spend Skill Pack manifest that teaches Hermes how to investigate before money moves.',
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesSkillPack' }, {
+      id: 'infopunks-pre-spend-skill-pack',
+      title: 'Infopunks Pre-Spend Skill Pack',
+      tagline: 'Hermes runs the investigation. Infopunks keeps the receipts.'
+    })
+  });
+  add('get', '/v1/hermes/skill-pack/skills', {
+    tags: ['Hermes'],
+    summary: 'List Hermes Skill Pack skills',
+    description: 'Returns every seeded skill from the Infopunks Hermes Skill Pack manifest.',
+    responses: envelopedResponses(objectSchema({
+      generated_at: dateTimeSchema(),
+      source: stringSchema(),
+      module: stringSchema(),
+      count: integerSchema(),
+      skills: arrayOf({ $ref: '#/components/schemas/HermesSkill' })
+    }), { module: 'hermes-skill-pack', count: 6, skills: [{ id: 'pre-spend-route-check', title: 'Pre-Spend Route Check' }] })
+  });
+  add('get', '/v1/hermes/skill-pack/skills/{skill_id}', {
+    tags: ['Hermes'],
+    summary: 'Get Hermes Skill Pack skill',
+    description: 'Returns one seeded Hermes skill by id.',
+    parameters: [pathParam('skill_id', 'Hermes skill identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesSkill' }, {
+      id: 'receipt-validator',
+      title: 'Receipt Validator',
+      linked_infopunks_primitives: ['receipts', 'proof checks', 'claims']
+    }, 'hermes_skill_not_found')
+  });
   add('get', '/v1/hermes/runs', {
     tags: ['Hermes'],
     summary: 'List Hermes runs',
@@ -334,6 +367,40 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       linked_receipt_id: 'receipt_001',
       linked_claim_id: 'claim_001',
       linked_loop_id: 'loop_pre_spend_route'
+    }, 'hermes_run_not_found')
+  });
+  add('post', '/v1/hermes/runs/{run_id}/receipt', {
+    tags: ['Hermes'],
+    summary: 'Convert Hermes run to receipt',
+    description: 'Converts a seeded HermesRun into a ProofReceipt-compatible agent run receipt plus a claim candidate. This route is stateless and does not mutate existing receipts or claims.',
+    parameters: [pathParam('run_id', 'Hermes run identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesRunReceiptConversion' }, {
+      run_id: 'hermes_pay_sh_route_pre_spend_check',
+      receipt: {
+        id: 'receipt_hermes_hermes_pay_sh_route_pre_spend_check',
+        decision: 'caution',
+        evidence_count: 2,
+        receipt_kind: 'agent_run_receipt',
+        source: 'hermes'
+      },
+      claim_candidate: {
+        id: 'claim_candidate_hermes_hermes_pay_sh_route_pre_spend_check',
+        status: 'candidate',
+        confidence: 82
+      },
+      conversion: { status: 'converted', notes: ['Generated claim candidate is not persisted and does not update market memory yet.'] }
+    }, 'hermes_run_not_found')
+  });
+  add('get', '/v1/hermes/runs/{run_id}/receipt-preview', {
+    tags: ['Hermes'],
+    summary: 'Preview Hermes run receipt conversion',
+    description: 'Returns the same stateless conversion as the POST route without implying creation.',
+    parameters: [pathParam('run_id', 'Hermes run identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesRunReceiptConversion' }, {
+      run_id: 'hermes_pay_sh_route_pre_spend_check',
+      receipt: { id: 'receipt_hermes_hermes_pay_sh_route_pre_spend_check', decision: 'caution', evidence_count: 2 },
+      claim_candidate: { id: 'claim_candidate_hermes_hermes_pay_sh_route_pre_spend_check', status: 'candidate' },
+      conversion: { status: 'converted', notes: [] }
     }, 'hermes_run_not_found')
   });
   add('post', '/v1/hermes/pre-spend-run', {
@@ -2395,6 +2462,57 @@ function componentSchemas(): Record<string, JsonSchema> {
     enabled: booleanSchema(),
     produces: arrayOf(enumSchema(['receipt', 'claim', 'loop_run', 'risk_note', 'narrative_signal']))
   }, ['id', 'label', 'purpose', 'enabled', 'produces']);
+  const hermesSkillRule = objectSchema({
+    id: stringSchema(),
+    title: stringSchema(),
+    description: stringSchema()
+  }, ['id', 'title', 'description']);
+  const hermesSkillOutputSchema = objectSchema({
+    required_fields: arrayOf(stringSchema()),
+    artifact_contract: arrayOf(stringSchema()),
+    decision_states: arrayOf(hermesDecisionState),
+    receipt_ready_fields: arrayOf(stringSchema())
+  }, ['required_fields', 'artifact_contract', 'decision_states', 'receipt_ready_fields']);
+  const hermesSkill = objectSchema({
+    id: stringSchema(),
+    title: stringSchema(),
+    purpose: stringSchema(),
+    when_to_use: arrayOf(stringSchema()),
+    rules: arrayOf(hermesSkillRule),
+    expected_outputs: hermesSkillOutputSchema,
+    decision_mapping: objectSchema({
+      trust: stringSchema(),
+      caution: stringSchema(),
+      do_not_use_yet: stringSchema(),
+      unproven: stringSchema(),
+      disputed: stringSchema()
+    }),
+    linked_infopunks_primitives: arrayOf(stringSchema())
+  }, ['id', 'title', 'purpose', 'when_to_use', 'rules', 'expected_outputs', 'decision_mapping', 'linked_infopunks_primitives']);
+  const hermesRunReceipt = objectSchema({
+    id: stringSchema(),
+    source_run_id: stringSchema(),
+    title: stringSchema(),
+    summary: stringSchema(),
+    decision: hermesDecisionState,
+    confidence: { type: 'number', minimum: 0, maximum: 100 },
+    artifacts: arrayOf(hermesArtifact),
+    evidence_count: integerSchema(),
+    created_at: dateTimeSchema(),
+    receipt_kind: { const: 'agent_run_receipt' },
+    source: { const: 'hermes' }
+  }, ['id', 'source_run_id', 'title', 'summary', 'decision', 'confidence', 'artifacts', 'evidence_count', 'created_at', 'receipt_kind', 'source']);
+  const hermesClaimCandidate = objectSchema({
+    id: stringSchema(),
+    source_receipt_id: stringSchema(),
+    title: stringSchema(),
+    claim: stringSchema(),
+    status: { const: 'candidate' },
+    confidence: { type: 'number', minimum: 0, maximum: 100 },
+    evidence_summary: stringSchema(),
+    risk_notes: arrayOf(stringSchema()),
+    created_at: dateTimeSchema()
+  }, ['id', 'source_receipt_id', 'title', 'claim', 'status', 'confidence', 'evidence_summary', 'risk_notes', 'created_at']);
   const hermesRun = objectSchema({
     id: stringSchema(),
     title: stringSchema(),
@@ -2424,6 +2542,38 @@ function componentSchemas(): Record<string, JsonSchema> {
     HermesArtifact: hermesArtifact,
     HermesRunLifecycleEvent: hermesRunLifecycleEvent,
     HermesSkillSummary: hermesSkillSummary,
+    HermesSkillRule: hermesSkillRule,
+    HermesSkillOutputSchema: hermesSkillOutputSchema,
+    HermesSkill: hermesSkill,
+    HermesSkillPack: objectSchema({
+      id: stringSchema(),
+      title: stringSchema(),
+      summary: stringSchema(),
+      tagline: stringSchema(),
+      version: stringSchema(),
+      doctrine_rules: arrayOf(hermesSkillRule),
+      expected_output_schema: hermesSkillOutputSchema,
+      decision_state_mapping: objectSchema({
+        trust: stringSchema(),
+        caution: stringSchema(),
+        do_not_use_yet: stringSchema(),
+        unproven: stringSchema(),
+        disputed: stringSchema()
+      }),
+      linked_infopunks_primitives: arrayOf(stringSchema()),
+      skills: arrayOf(hermesSkill)
+    }, ['id', 'title', 'summary', 'tagline', 'version', 'doctrine_rules', 'expected_output_schema', 'decision_state_mapping', 'linked_infopunks_primitives', 'skills']),
+    HermesRunReceipt: hermesRunReceipt,
+    HermesClaimCandidate: hermesClaimCandidate,
+    HermesRunReceiptConversion: objectSchema({
+      run_id: stringSchema(),
+      receipt: hermesRunReceipt,
+      claim_candidate: hermesClaimCandidate,
+      conversion: objectSchema({
+        status: enumSchema(['converted', 'already_converted', 'failed']),
+        notes: arrayOf(stringSchema())
+      }, ['status', 'notes'])
+    }, ['run_id', 'receipt', 'claim_candidate', 'conversion']),
     HermesRun: hermesRun,
     HermesDeskSummary: objectSchema({
       generated_at: dateTimeSchema(),

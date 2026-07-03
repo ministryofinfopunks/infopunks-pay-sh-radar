@@ -2,6 +2,7 @@ import { createPreSpendSeedState } from '../src/repositories/preSpendSeedData';
 import { createInMemoryLoopRepository } from '../src/repositories/loopRepository';
 import { pathToFileURL } from 'node:url';
 import { listSignalHuntCandidates } from '../src/data/signalHunt';
+import { hermesRuns } from '../src/data/hermesDesk';
 
 export const DEFAULT_BASE_URL = 'https://radar.infopunks.fun';
 export const PRE_SPEND_CHECK_PAYLOAD = {
@@ -35,6 +36,7 @@ export type SmokePlan = {
   attentionMarketIntakePath: string;
   attentionMarketIntakeRequirementsPath: string;
   graphCheckPath: string;
+  hermesReceiptPath: string;
   livePulsePath: string;
 };
 
@@ -81,6 +83,7 @@ export function buildSmokePlan(): SmokePlan {
   const claimId = seed.claims[0]?.claim_id ?? 'claim_001';
   const loopId = createInMemoryLoopRepository().listLoops()[0]?.id ?? 'loop_pre_spend_route';
   const signalHuntId = listSignalHuntCandidates()[0]?.id ?? 'hunt_black_bull_coordination';
+  const hermesRunId = hermesRuns[0]?.id ?? 'hermes_pay_sh_route_pre_spend_check';
 
   return {
     publicPaths: [
@@ -101,6 +104,7 @@ export function buildSmokePlan(): SmokePlan {
       '/abundance',
       '/narratives/abundance-desk',
       '/hermes',
+      '/hermes/skill-pack',
       '/narratives/hermes-desk',
       '/attention-market-watch',
       '/attention-market-watch/ansem',
@@ -139,6 +143,8 @@ export function buildSmokePlan(): SmokePlan {
       '/v1/abundance/claims',
       '/v1/abundance/receipts',
       '/v1/hermes',
+      '/v1/hermes/skill-pack',
+      '/v1/hermes/skill-pack/skills',
       '/v1/hermes/runs',
       '/v1/hermes/health',
       '/v1/attention-market-watch',
@@ -183,6 +189,7 @@ export function buildSmokePlan(): SmokePlan {
     attentionMarketIntakePath: '/v1/attention-market-watch/intake',
     attentionMarketIntakeRequirementsPath: '/v1/attention-market-watch/intake/requirements',
     graphCheckPath: '/v1/graph/check',
+    hermesReceiptPath: `/v1/hermes/runs/${encodeURIComponent(hermesRunId)}/receipt`,
     livePulsePath: '/v1/pulse'
   };
 }
@@ -584,6 +591,21 @@ function assertChallenges(body: unknown): void {
   }
 }
 
+function assertHermesReceiptConversion(body: unknown): void {
+  if (!hasDataEnvelope(body) || !isRecord(body.data)) {
+    throw new Error('missing Hermes receipt conversion payload');
+  }
+
+  const data = body.data;
+  if (!isRecord(data.receipt)) throw new Error('missing data.receipt');
+  if (!isRecord(data.claim_candidate)) throw new Error('missing data.claim_candidate');
+  if (!isRecord(data.conversion)) throw new Error('missing data.conversion');
+  if (data.receipt.receipt_kind !== 'agent_run_receipt') throw new Error('unexpected receipt_kind');
+  if (data.receipt.source !== 'hermes') throw new Error('unexpected receipt source');
+  if (data.claim_candidate.status !== 'candidate') throw new Error('unexpected claim candidate status');
+  if (data.conversion.status !== 'converted') throw new Error('unexpected conversion status');
+}
+
 export function assertSignalHuntDeployment(
   openapiBody: unknown,
   signalHuntListBody: unknown,
@@ -843,6 +865,38 @@ export async function runSmoke(baseUrl = resolveBaseUrl(), config = resolveSmoke
   } catch (error) {
     failed = true;
     fail(`POST ${plan.graphCheckPath}`, toFailureDetail('POST', plan.graphCheckPath, error));
+  }
+
+  try {
+    const { response, elapsedMs } = await fetchWithRetry({
+      input: `${baseUrl}${plan.hermesReceiptPath}`,
+      method: 'POST',
+      path: plan.hermesReceiptPath,
+      timeoutMs: config.apiTimeoutMs,
+      init: {
+        method: 'POST',
+        headers: {
+          accept: 'application/json'
+        }
+      }
+    });
+
+    if (!response.ok) {
+      throw new SmokeRequestError({
+        method: 'POST',
+        path: plan.hermesReceiptPath,
+        status: response.status,
+        elapsedMs,
+        reason: 'expected 2xx'
+      });
+    }
+
+    const body = await parseJsonOrThrow('POST', plan.hermesReceiptPath, response, elapsedMs);
+    assertHermesReceiptConversion(body);
+    pass(`POST ${plan.hermesReceiptPath}`, elapsedMs);
+  } catch (error) {
+    failed = true;
+    fail(`POST ${plan.hermesReceiptPath}`, toFailureDetail('POST', plan.hermesReceiptPath, error));
   }
 
   const claimId = createPreSpendSeedState().claims[0]?.claim_id ?? 'claim_001';

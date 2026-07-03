@@ -79,6 +79,14 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
     );
   }
 
+  if (/^\/hermes\/skill-pack\/?$/.test(pathname)) {
+    return buildMetadata(
+      'Infopunks Hermes Skill Pack',
+      'How Hermes learns to investigate before money moves.',
+      '/hermes/skill-pack'
+    );
+  }
+
   if (/^\/hermes\/?$/.test(pathname) || /^\/narratives\/hermes-desk\/?$/.test(pathname)) {
     return buildMetadata(
       'Hermes Desk',

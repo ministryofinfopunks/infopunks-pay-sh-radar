@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import type { HermesDecisionState, HermesDeskSummary, HermesRun, HermesRunState } from '../data/hermesDesk';
+import type { HermesSkillPack } from '../data/hermesSkillPack';
+import { convertHermesRunToReceipt, type HermesRunReceiptConversion } from '../services/hermesReceiptConverter';
 import { getNarrativeMetadataForPath } from '../shared/narrativeMetadata';
 
 const API_BASE_URL = getApiBaseUrl();
@@ -53,6 +55,7 @@ function HermesNav({ current }: { current: string }) {
   const links = [
     { href: '/', label: 'Radar Home' },
     { href: '/hermes', label: 'Hermes Desk' },
+    { href: '/hermes/skill-pack', label: 'Skill Pack' },
     { href: '/narratives/hermes-desk', label: 'Narrative' },
     { href: '/check', label: 'Proof Feed' },
     { href: '/loops', label: 'Loops' },
@@ -61,6 +64,7 @@ function HermesNav({ current }: { current: string }) {
 
   function active(href: string) {
     if (href === '/hermes') return current === '/hermes';
+    if (href === '/hermes/skill-pack') return current === '/hermes/skill-pack';
     if (href === '/narratives/hermes-desk') return current === '/narratives/hermes-desk';
     return current === href;
   }
@@ -94,12 +98,13 @@ function sourceLabel(source?: HermesRun['source']) {
   return source ? source.replaceAll('_', ' ') : null;
 }
 
-function HermesRunCard({ run }: { run: HermesRun }) {
+function HermesRunCard({ run, receiptPreview }: { run: HermesRun; receiptPreview?: HermesRunReceiptConversion }) {
   return <article className={`panel hermes-run-card state-${run.decision}`} aria-label={run.title}>
     <div className="abundance-card-head">
       <p className="section-kicker">{runStateLabel(run.state)}</p>
       <div className="abundance-chip-row">
         {run.source && <span className="narrative-evidence-chip">source: {sourceLabel(run.source)}</span>}
+        <span className="narrative-evidence-chip">Receipt-ready</span>
         <span className={`narrative-decision-pill state-${run.decision}`}>{decisionLabel(run.decision)}</span>
       </div>
     </div>
@@ -119,6 +124,14 @@ function HermesRunCard({ run }: { run: HermesRun }) {
       <span>claim: {run.linked_claim_id ?? 'pending'}</span>
       <span>loop: {run.linked_loop_id ?? 'pending'}</span>
     </div>
+    {receiptPreview && <div className="hermes-receipt-preview" aria-label={`${run.title} receipt conversion preview`}>
+      <p><span>source_run</span><small>{receiptPreview.receipt.source_run_id}</small></p>
+      <p><span>decision</span><small>{decisionLabel(receiptPreview.receipt.decision)}</small></p>
+      <p><span>confidence</span><small>{receiptPreview.receipt.confidence}</small></p>
+      <p><span>evidence_count</span><small>{receiptPreview.receipt.evidence_count}</small></p>
+      <p><span>conversion</span><small>{receiptPreview.conversion.status}</small></p>
+      <p><span>claim_candidate</span><small>{receiptPreview.claim_candidate.id}</small></p>
+    </div>}
     {run.fallback_reason && <p className="hermes-bridge-note">fallback_reason: {run.fallback_reason}</p>}
     <div className="machine-usage-list">
       {run.risk_factors.map((risk) => <p key={risk}><span>risk</span><small>{risk}</small></p>)}
@@ -144,6 +157,7 @@ function SkillPackSection({ summary }: { summary: HermesDeskSummary }) {
         <h2>Skills Hermes can run, receipts Radar can judge.</h2>
       </div>
       <a className="execute compact secondary" href="/v1/hermes/skills">GET /v1/hermes/skills</a>
+      <a className="execute compact secondary" href="/hermes/skill-pack">Open Skill Pack</a>
     </div>
     <div className="hermes-skill-grid">
       {summary.skills.map((skill) => <article className="panel hermes-skill-card" key={skill.id}>
@@ -175,11 +189,13 @@ function HermesNarrativePage() {
           <h1>Hermes Desk</h1>
           <p className="copy">Hermes as the execution brain. Infopunks as the evidence and judgment layer.</p>
           <p className="copy">Agentic investigations become useful only when their outputs can be checked, disputed, repeated, and connected to route reputation.</p>
+          <p className="copy">Hermes runs are not chat logs. They are pre-spend investigations.</p>
         </div>
         <div className="panel narrative-hero-rail hermes-hero-rail">
           <p className="section-kicker">Operating split</p>
           <p>Hermes runs the loop. Infopunks keeps the receipts.</p>
           <p>Every agent run can become a receipt. Every receipt can become a claim. Every claim can update provider or route reputation.</p>
+          <p>Agent Run Receipts convert investigations into receipts, claims, and eventually reputation.</p>
         </div>
       </section>
       <section className="panel hermes-narrative-flow" aria-label="Hermes evidence flow">
@@ -198,9 +214,15 @@ function HermesNarrativePage() {
           <h2>Reputation memory</h2>
           <p>Provider and route reputation move only when receipt-backed claims survive validation or dispute review.</p>
         </article>
+        <article>
+          <span>4</span>
+          <h2>Agent Run Receipts</h2>
+          <p>Infopunks converts those investigations into receipts, claims, and eventually reputation.</p>
+        </article>
       </section>
       <section className="panel hermes-narrative-copy">
         <p>Hermes should be allowed to investigate before money moves, but not allowed to turn investigation into trust by itself. Radar keeps that boundary explicit: a run can suggest a decision, but the proof feed decides whether the evidence says trust, caution, do_not_use_yet, unproven, or disputed.</p>
+        <p>This is how agent experience becomes market memory.</p>
       </section>
     </main>
   </div>;
@@ -231,6 +253,9 @@ function HermesDeskSurface() {
 
   const activeRuns = useMemo(() => (summary?.runs ?? []).filter((run) => run.state === 'queued' || run.state === 'running'), [summary?.runs]);
   const completedRuns = useMemo(() => (summary?.runs ?? []).filter((run) => run.state === 'completed'), [summary?.runs]);
+  const receiptPreviews = useMemo(() => {
+    return new Map((summary?.runs ?? []).map((run) => [run.id, convertHermesRunToReceipt(run)]));
+  }, [summary?.runs]);
   const bridgeStatus = health?.status ?? 'mock';
 
   return <div className="shell narrative-shell hermes-shell">
@@ -247,6 +272,7 @@ function HermesDeskSurface() {
           <p className="copy">Hermes runs the loop. Infopunks keeps the receipts.</p>
           <div className="panel-actions">
             <a className="execute" href="/v1/hermes">Open JSON Surface</a>
+            <a className="execute compact secondary" href="/hermes/skill-pack">Open Skill Pack</a>
             <a className="execute compact secondary" href="/narratives/hermes-desk">Read Narrative</a>
           </div>
         </div>
@@ -294,7 +320,35 @@ function HermesDeskSurface() {
             <a className="execute compact secondary" href="/v1/hermes/runs">GET /v1/hermes/runs</a>
           </div>
           <div className="hermes-run-grid">
-            {activeRuns.map((run) => <HermesRunCard key={run.id} run={run} />)}
+            {activeRuns.map((run) => <HermesRunCard key={run.id} run={run} receiptPreview={receiptPreviews.get(run.id)} />)}
+          </div>
+        </section>
+
+        <section className="panel hermes-runs-section" aria-label="Agent Run Receipts">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Agent Run Receipts</p>
+              <h2>Every Hermes investigation can become a receipt.</h2>
+            </div>
+            <a className="execute compact secondary" href={`/v1/hermes/runs/${encodeURIComponent(summary.runs[0]?.id ?? 'hermes_pay_sh_route_pre_spend_check')}/receipt-preview`}>GET receipt preview</a>
+          </div>
+          <p className="copy">Every Hermes investigation can become a receipt. Every receipt can become a claim. Every claim can update market memory.</p>
+          <div className="hermes-receipt-grid">
+            {summary.runs.map((run) => {
+              const preview = receiptPreviews.get(run.id);
+              if (!preview) return null;
+              return <article className="panel hermes-receipt-card" key={`${run.id}-receipt`}>
+                <p className="section-kicker">{preview.conversion.status}</p>
+                <h3>{preview.receipt.id}</h3>
+                <div className="machine-usage-list">
+                  <p><span>source_run</span><small>{preview.run_id}</small></p>
+                  <p><span>decision</span><small>{decisionLabel(preview.receipt.decision)}</small></p>
+                  <p><span>confidence</span><small>{preview.receipt.confidence}</small></p>
+                  <p><span>evidence_count</span><small>{preview.receipt.evidence_count}</small></p>
+                  <p><span>claim_candidate</span><small>{preview.claim_candidate.title}</small></p>
+                </div>
+              </article>;
+            })}
           </div>
         </section>
 
@@ -306,7 +360,7 @@ function HermesDeskSurface() {
             </div>
           </div>
           <div className="hermes-run-grid">
-            {completedRuns.map((run) => <HermesRunCard key={run.id} run={run} />)}
+            {completedRuns.map((run) => <HermesRunCard key={run.id} run={run} receiptPreview={receiptPreviews.get(run.id)} />)}
           </div>
         </section>
 
@@ -316,6 +370,130 @@ function HermesDeskSurface() {
   </div>;
 }
 
-export function HermesDeskPage({ narrativeRoute = false }: { narrativeRoute?: boolean }) {
+function HermesSkillPackPage() {
+  const [skillPack, setSkillPack] = useState<HermesSkillPack | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    syncHermesMetadata('/hermes/skill-pack');
+  }, []);
+
+  useEffect(() => {
+    api<HermesSkillPack>('/v1/hermes/skill-pack')
+      .then((response) => setSkillPack(response.data))
+      .catch((err) => setError(err instanceof Error ? err.message : 'hermes_skill_pack_unavailable'));
+  }, []);
+
+  return <div className="shell narrative-shell hermes-shell">
+    <a className="skip-link" href="#hermes-skill-pack-content">Skip to content</a>
+    <header className="site-header">
+      <HermesNav current="/hermes/skill-pack" />
+    </header>
+    <main id="hermes-skill-pack-content" className="narrative-page hermes-page">
+      <section className="panel hero narrative-hero hermes-hero">
+        <div>
+          <p className="eyebrow">Skill Manifest</p>
+          <h1>Infopunks Hermes Skill Pack</h1>
+          <p className="copy hermes-hero-copy">How Hermes learns to investigate before money moves.</p>
+          <p className="copy">Hermes runs the investigation. Infopunks turns the investigation into market memory.</p>
+          <div className="panel-actions">
+            <a className="execute" href="/v1/hermes/skill-pack">Open Manifest JSON</a>
+            <a className="execute compact secondary" href="/hermes">Back to Hermes Desk</a>
+          </div>
+        </div>
+        <div className="panel narrative-hero-rail hermes-hero-rail">
+          <p className="section-kicker">Linked primitives</p>
+          <p>{skillPack ? skillPack.linked_infopunks_primitives.join(' / ') : 'routes / providers / receipts / claims / loops / proof checks'}</p>
+        </div>
+      </section>
+
+      {error && <section className="panel"><p className="route-state error">{error}</p></section>}
+      {!skillPack && !error && <section className="panel"><p className="route-state">Loading Hermes Skill Pack...</p></section>}
+      {skillPack && <>
+        <section className="panel hermes-skills" aria-label="Hermes skill cards">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">{skillPack.version}</p>
+              <h2>{skillPack.summary}</h2>
+            </div>
+            <a className="execute compact secondary" href="/v1/hermes/skill-pack/skills">GET skills</a>
+          </div>
+          <div className="hermes-skill-grid">
+            {skillPack.skills.map((skill) => <article className="panel hermes-skill-card" key={skill.id}>
+              <p className="section-kicker">{skill.id}</p>
+              <h3>{skill.title}</h3>
+              <p>{skill.purpose}</p>
+              <div className="machine-usage-list">
+                <p><span>when_to_use</span><small>{skill.when_to_use[0]}</small></p>
+                <p><span>decision_mapping</span><small>{Object.keys(skill.decision_mapping).join(', ')}</small></p>
+              </div>
+              <div className="abundance-chip-row">
+                {skill.linked_infopunks_primitives.map((primitive) => <span key={`${skill.id}-${primitive}`}>{primitive}</span>)}
+              </div>
+            </article>)}
+          </div>
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="Skill pack rules">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Rules</p>
+              <h2>Infopunks-native doctrine.</h2>
+            </div>
+          </div>
+          <div className="hermes-rule-grid">
+            {skillPack.doctrine_rules.map((rule) => <article key={rule.id}>
+              <h3>{rule.title}</h3>
+              <p>{rule.description}</p>
+            </article>)}
+          </div>
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="Expected output schema">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Expected output schema</p>
+              <h2>Run output must be receipt-ready.</h2>
+            </div>
+          </div>
+          <div className="machine-usage-list">
+            <p><span>required_fields</span><small>{skillPack.expected_output_schema.required_fields.join(', ')}</small></p>
+            <p><span>artifact_contract</span><small>{skillPack.expected_output_schema.artifact_contract.join(', ')}</small></p>
+            <p><span>receipt_ready_fields</span><small>{skillPack.expected_output_schema.receipt_ready_fields.join(', ')}</small></p>
+          </div>
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="Decision state mapping">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Decision state mapping</p>
+              <h2>Trust language stays bounded.</h2>
+            </div>
+          </div>
+          <div className="machine-usage-list">
+            {Object.entries(skillPack.decision_state_mapping).map(([decision, explanation]) => (
+              <p key={decision}><span>{decision}</span><small>{explanation}</small></p>
+            ))}
+          </div>
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="Linked primitives">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Linked primitives</p>
+              <h2>Routes, providers, receipts, claims, loops, and proof checks.</h2>
+            </div>
+          </div>
+          <div className="abundance-chip-row">
+            {skillPack.linked_infopunks_primitives.map((primitive) => <span key={primitive}>{primitive}</span>)}
+          </div>
+        </section>
+      </>}
+    </main>
+  </div>;
+}
+
+export function HermesDeskPage({ narrativeRoute = false, skillPackRoute = false }: { narrativeRoute?: boolean; skillPackRoute?: boolean }) {
+  if (skillPackRoute) return <HermesSkillPackPage />;
   return narrativeRoute ? <HermesNarrativePage /> : <HermesDeskSurface />;
 }

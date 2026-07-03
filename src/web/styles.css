@@ -6993,14 +6993,17 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 
 .hermes-hero-rail,
 .hermes-run-card,
-.hermes-skill-card {
+.hermes-skill-card,
+.hermes-receipt-card {
   min-width: 0;
 }
 
 .hermes-metric-grid,
 .hermes-run-grid,
 .hermes-skill-grid,
-.hermes-narrative-flow {
+.hermes-narrative-flow,
+.hermes-receipt-grid,
+.hermes-rule-grid {
   display: grid;
   gap: 12px;
 }
@@ -7014,17 +7017,26 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 }
 
 .hermes-skill-grid {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.hermes-receipt-grid,
+.hermes-rule-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .hermes-run-card,
-.hermes-skill-card {
+.hermes-skill-card,
+.hermes-receipt-card,
+.hermes-rule-grid article {
   display: grid;
   gap: 12px;
 }
 
 .hermes-run-card h2,
 .hermes-skill-card h3,
+.hermes-receipt-card h3,
+.hermes-rule-grid h3,
 .hermes-narrative-flow h2 {
   margin: 0;
   color: var(--text-strong);
@@ -7033,6 +7045,8 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 
 .hermes-run-card p,
 .hermes-skill-card p,
+.hermes-receipt-card p,
+.hermes-rule-grid p,
 .hermes-narrative-flow p,
 .hermes-narrative-copy p {
   margin: 0;
@@ -7072,6 +7086,32 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
   gap: 7px;
 }
 
+.hermes-receipt-preview {
+  display: grid;
+  gap: 7px;
+  border: 1px solid rgba(157,255,194,.14);
+  border-radius: 12px;
+  padding: 10px;
+  background: rgba(157,255,194,.045);
+}
+
+.hermes-receipt-preview p {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: rgba(220, 239, 226, .82);
+  font-size: .88rem;
+}
+
+.hermes-receipt-preview span {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.hermes-receipt-preview small {
+  text-align: right;
+}
+
 .hermes-bridge-status,
 .hermes-timeline {
   display: grid;
@@ -7109,10 +7149,11 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 }
 
 .hermes-narrative-flow {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
-.hermes-narrative-flow article {
+.hermes-narrative-flow article,
+.hermes-rule-grid article {
   display: grid;
   gap: 10px;
   min-height: 190px;
@@ -7158,6 +7199,8 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
   .abundance-validator,
   .hermes-run-grid,
   .hermes-skill-grid,
+  .hermes-receipt-grid,
+  .hermes-rule-grid,
   .hermes-narrative-flow {
     grid-template-columns: 1fr;
   }

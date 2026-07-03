@@ -102,6 +102,11 @@ describe('openapi discovery', () => {
     expect(spec.paths['/v1/graph/entities/{entity_type}/{entity_id}']?.get).toBeTruthy();
     expect(spec.paths['/v1/graph/ripples']?.get).toBeTruthy();
     expect(spec.paths['/v1/graph/check']?.post).toBeTruthy();
+    expect(spec.paths['/v1/hermes/skill-pack']?.get).toBeTruthy();
+    expect(spec.paths['/v1/hermes/skill-pack/skills']?.get).toBeTruthy();
+    expect(spec.paths['/v1/hermes/skill-pack/skills/{skill_id}']?.get).toBeTruthy();
+    expect(spec.paths['/v1/hermes/runs/{run_id}/receipt']?.post).toBeTruthy();
+    expect(spec.paths['/v1/hermes/runs/{run_id}/receipt-preview']?.get).toBeTruthy();
     expect(spec.paths['/v1/claims']?.get).toBeTruthy();
     expect(spec.paths['/v1/claims']?.post).toBeTruthy();
     expect(spec.paths['/v1/claims/{claim_id}']?.get).toBeTruthy();
@@ -122,6 +127,11 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.LoopDetail).toBeTruthy();
     expect(spec.components.schemas.LoopRun).toBeTruthy();
     expect(spec.components.schemas.LoopCheckInput).toBeTruthy();
+    expect(spec.components.schemas.HermesSkillPack).toBeTruthy();
+    expect(spec.components.schemas.HermesSkill).toBeTruthy();
+    expect(spec.components.schemas.HermesRunReceipt).toBeTruthy();
+    expect(spec.components.schemas.HermesClaimCandidate).toBeTruthy();
+    expect(spec.components.schemas.HermesRunReceiptConversion).toBeTruthy();
     expect(spec.components.schemas.SignalGraphResponse).toBeTruthy();
     expect(spec.components.schemas.SignalGraphCluster).toBeTruthy();
     expect(spec.components.schemas.SignalGraphNode).toBeTruthy();
@@ -199,6 +209,8 @@ describe('openapi discovery', () => {
     expect(JSON.stringify(spec.paths['/v1/graph/clusters/{cluster_id}'])).toContain('signal_graph_cluster_not_found');
     expect(JSON.stringify(spec.paths['/v1/graph/nodes/{node_id}'])).toContain('signal_graph_node_not_found');
     expect(JSON.stringify(spec.paths['/v1/graph/entities/{entity_type}/{entity_id}'])).toContain('unsupported_signal_graph_entity_type');
+    expect(JSON.stringify(spec.paths['/v1/hermes/skill-pack'])).toContain('Infopunks Pre-Spend Skill Pack');
+    expect(JSON.stringify(spec.paths['/v1/hermes/runs/{run_id}/receipt'])).toContain('does not mutate existing receipts or claims');
     expect(JSON.stringify(spec.paths['/v1/claims'])).toContain('No claim without evidence');
     expect(JSON.stringify(spec.paths['/v1/claims/{claim_id}/challenges'])).toContain('Claims are not token markets yet');
     expect(JSON.stringify(spec.paths['/v1/signals/{slug}/updates'])).toContain('watching the narratives that become markets');
