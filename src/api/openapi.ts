@@ -418,6 +418,134 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       generated_at: '2026-07-03T00:00:00.000Z'
     })
   });
+  add('get', '/v1/hermes/spend-policy/check/{check_id}/receipt-preview', {
+    tags: ['Hermes'],
+    summary: 'Preview Hermes policy decision receipt',
+    description: 'Converts a deterministic Hermes spend policy check into a stateless audit receipt preview. No persistence is performed.',
+    parameters: [pathParam('check_id', 'Hermes spend policy check identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesPolicyDecisionReceiptConversion' }, {
+      check_id: 'hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+      receipt: {
+        id: 'receipt_hermes_policy_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+        source: 'spend_policy_check',
+        source_check_id: 'hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+        source_policy_id: 'policy_infopunks_default_agent_spend',
+        title: 'Policy Decision Receipt: block',
+        summary: 'Decision=block; allowed=false; required_action=do_not_spend; reason=Pre-spend decision returned do_not_spend: Provider reputation is degraded in the ledger.',
+        receipt_kind: 'spend_policy_decision_receipt',
+        policy_decision: 'block',
+        allowed: false,
+        required_action: 'do_not_spend',
+        reason: 'Pre-spend decision returned do_not_spend: Provider reputation is degraded in the ledger.',
+        input: {
+          route_id: 'route_pay_sh_market_research_01',
+          provider_id: 'provider_pay_sh_lattice',
+          service_id: 'service_market_research',
+          amount_usd: 25,
+          payment_rail: 'x402',
+          chain: 'base',
+          policy_id: 'policy_infopunks_default_agent_spend'
+        },
+        policy_snapshot: {
+          id: 'policy_infopunks_default_agent_spend',
+          title: 'Infopunks Default Agent Spend Policy',
+          max_amount_usd: 250,
+          allowed_chains: ['base', 'solana'],
+          allowed_payment_rails: ['x402', 'pay.sh', 'agentic.market'],
+          blocked_providers: [],
+          require_test_spend_for_watchlist: true,
+          manual_review_threshold_usd: 1000,
+          do_not_spend_on_disputed: true
+        },
+        violations: [{ id: 'policy_violation_pre_spend_do_not_spend', rule_id: 'policy_rule_pre_spend_block', severity: 'critical', label: 'Pre-spend engine blocked the spend', detail: 'Pre-spend decision returned do_not_spend with required_action=do_not_use_provider.', outcome: 'blocked' }],
+        warnings: [{ id: 'policy_warning_watchlist_test_spend', rule_id: 'policy_rule_watchlist_test_spend', severity: 'medium', label: 'Watchlist requires test spend', detail: 'Matched provider, route, or service memory is on watchlist or the decision engine already recommends a test spend first.', outcome: 'test_spend_required' }],
+        pre_spend_decision_id: 'hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+        references: [{ kind: 'policy', id: 'policy_infopunks_default_agent_spend', summary: 'Infopunks Default Agent Spend Policy: A conservative policy for autonomous wallets using pre-spend intelligence.' }],
+        audit_trail: {
+          id: 'audit_trail_hermes_policy_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+          source_check_id: 'hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+          events: [{ id: 'audit_event_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective_policy_loaded', at: '2026-07-03T00:00:00.000Z', label: 'Policy Loaded', state: 'policy_loaded', summary: 'Loaded policy policy_infopunks_default_agent_spend for deterministic evaluation.' }]
+        },
+        risk_summary: {
+          risk_level: 'critical',
+          violation_count: 1,
+          warning_count: 1,
+          critical_count: 1,
+          high_count: 0,
+          summary: 'Policy blocked spend and retained the decision as audit evidence.'
+        },
+        created_at: '2026-07-03T00:00:00.000Z'
+      },
+      conversion: {
+        status: 'converted',
+        notes: ['Blocked policy decisions are retained as audit evidence.']
+      }
+    }, 'hermes_spend_policy_check_not_found')
+  });
+  add('post', '/v1/hermes/spend-policy/check/{check_id}/receipt', {
+    tags: ['Hermes'],
+    summary: 'Create Hermes policy decision receipt',
+    description: 'Statelessly converts a deterministic Hermes spend policy check into an audit receipt object. No persistence is performed.',
+    parameters: [pathParam('check_id', 'Hermes spend policy check identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesPolicyDecisionReceiptConversion' }, {
+      check_id: 'hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+      receipt: {
+        id: 'receipt_hermes_policy_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+        source: 'spend_policy_check',
+        source_check_id: 'hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+        source_policy_id: 'policy_infopunks_default_agent_spend',
+        title: 'Policy Decision Receipt: block',
+        summary: 'Decision=block; allowed=false; required_action=do_not_spend; reason=Pre-spend decision returned do_not_spend: Provider reputation is degraded in the ledger.',
+        receipt_kind: 'spend_policy_decision_receipt',
+        policy_decision: 'block',
+        allowed: false,
+        required_action: 'do_not_spend',
+        reason: 'Pre-spend decision returned do_not_spend: Provider reputation is degraded in the ledger.',
+        input: {
+          route_id: 'route_pay_sh_market_research_01',
+          provider_id: 'provider_pay_sh_lattice',
+          service_id: 'service_market_research',
+          amount_usd: 25,
+          payment_rail: 'x402',
+          chain: 'base',
+          policy_id: 'policy_infopunks_default_agent_spend'
+        },
+        policy_snapshot: {
+          id: 'policy_infopunks_default_agent_spend',
+          title: 'Infopunks Default Agent Spend Policy',
+          max_amount_usd: 250,
+          allowed_chains: ['base', 'solana'],
+          allowed_payment_rails: ['x402', 'pay.sh', 'agentic.market'],
+          blocked_providers: [],
+          require_test_spend_for_watchlist: true,
+          manual_review_threshold_usd: 1000,
+          do_not_spend_on_disputed: true
+        },
+        violations: [{ id: 'policy_violation_pre_spend_do_not_spend', rule_id: 'policy_rule_pre_spend_block', severity: 'critical', label: 'Pre-spend engine blocked the spend', detail: 'Pre-spend decision returned do_not_spend with required_action=do_not_use_provider.', outcome: 'blocked' }],
+        warnings: [{ id: 'policy_warning_watchlist_test_spend', rule_id: 'policy_rule_watchlist_test_spend', severity: 'medium', label: 'Watchlist requires test spend', detail: 'Matched provider, route, or service memory is on watchlist or the decision engine already recommends a test spend first.', outcome: 'test_spend_required' }],
+        pre_spend_decision_id: 'hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+        references: [{ kind: 'policy', id: 'policy_infopunks_default_agent_spend', summary: 'Infopunks Default Agent Spend Policy: A conservative policy for autonomous wallets using pre-spend intelligence.' }],
+        audit_trail: {
+          id: 'audit_trail_hermes_policy_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+          source_check_id: 'hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective',
+          events: [{ id: 'audit_event_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective_policy_loaded', at: '2026-07-03T00:00:00.000Z', label: 'Policy Loaded', state: 'policy_loaded', summary: 'Loaded policy policy_infopunks_default_agent_spend for deterministic evaluation.' }]
+        },
+        risk_summary: {
+          risk_level: 'critical',
+          violation_count: 1,
+          warning_count: 1,
+          critical_count: 1,
+          high_count: 0,
+          summary: 'Policy blocked spend and retained the decision as audit evidence.'
+        },
+        created_at: '2026-07-03T00:00:00.000Z'
+      },
+      conversion: {
+        status: 'converted',
+        notes: ['Blocked policy decisions are retained as audit evidence.']
+      }
+    }, 'hermes_spend_policy_check_not_found')
+  });
   add('get', '/v1/hermes/memory-loop', {
     tags: ['Hermes'],
     summary: 'Get Hermes Agent Memory Loop',
@@ -3181,6 +3309,66 @@ function componentSchemas(): Record<string, JsonSchema> {
       references: arrayOf({ $ref: '#/components/schemas/HermesSpendPolicyReference' }),
       generated_at: dateTimeSchema()
     }, ['id', 'policy', 'input', 'decision', 'allowed', 'reason', 'required_action', 'violations', 'warnings', 'pre_spend_decision', 'references', 'generated_at']),
+    HermesPolicyAuditTrailEvent: objectSchema({
+      id: stringSchema(),
+      at: dateTimeSchema(),
+      label: stringSchema(),
+      state: enumSchema(['policy_loaded', 'spend_intent_received', 'pre_spend_decision_checked', 'rules_evaluated', 'policy_decision_made', 'receipt_created']),
+      summary: stringSchema()
+    }, ['id', 'at', 'label', 'state', 'summary']),
+    HermesPolicyAuditTrail: objectSchema({
+      id: stringSchema(),
+      source_check_id: stringSchema(),
+      events: arrayOf({ $ref: '#/components/schemas/HermesPolicyAuditTrailEvent' })
+    }, ['id', 'source_check_id', 'events']),
+    HermesPolicyReceiptRiskSummary: objectSchema({
+      risk_level: enumSchema(['low', 'medium', 'high', 'critical']),
+      violation_count: integerSchema(),
+      warning_count: integerSchema(),
+      critical_count: integerSchema(),
+      high_count: integerSchema(),
+      summary: stringSchema()
+    }, ['risk_level', 'violation_count', 'warning_count', 'critical_count', 'high_count', 'summary']),
+    HermesPolicyDecisionReceipt: objectSchema({
+      id: stringSchema(),
+      source: { const: 'spend_policy_check' },
+      source_check_id: stringSchema(),
+      source_policy_id: stringSchema(),
+      title: stringSchema(),
+      summary: stringSchema(),
+      receipt_kind: { const: 'spend_policy_decision_receipt' },
+      policy_decision: { $ref: '#/components/schemas/HermesSpendPolicyDecision' },
+      allowed: booleanSchema(),
+      required_action: stringSchema(),
+      reason: stringSchema(),
+      input: { $ref: '#/components/schemas/HermesSpendPolicyCheckInput' },
+      policy_snapshot: objectSchema({
+        id: stringSchema(),
+        title: stringSchema(),
+        max_amount_usd: { type: 'number', minimum: 0 },
+        allowed_chains: arrayOf(stringSchema()),
+        allowed_payment_rails: arrayOf(stringSchema()),
+        blocked_providers: arrayOf(stringSchema()),
+        require_test_spend_for_watchlist: booleanSchema(),
+        manual_review_threshold_usd: { type: 'number', minimum: 0 },
+        do_not_spend_on_disputed: booleanSchema()
+      }, ['id', 'title', 'max_amount_usd', 'allowed_chains', 'allowed_payment_rails', 'blocked_providers', 'require_test_spend_for_watchlist', 'manual_review_threshold_usd', 'do_not_spend_on_disputed']),
+      violations: arrayOf({ $ref: '#/components/schemas/HermesSpendPolicyViolation' }),
+      warnings: arrayOf({ $ref: '#/components/schemas/HermesSpendPolicyViolation' }),
+      pre_spend_decision_id: stringSchema(),
+      references: arrayOf({ $ref: '#/components/schemas/HermesSpendPolicyReference' }),
+      audit_trail: { $ref: '#/components/schemas/HermesPolicyAuditTrail' },
+      risk_summary: { $ref: '#/components/schemas/HermesPolicyReceiptRiskSummary' },
+      created_at: dateTimeSchema()
+    }, ['id', 'source', 'source_check_id', 'source_policy_id', 'title', 'summary', 'receipt_kind', 'policy_decision', 'allowed', 'required_action', 'reason', 'input', 'policy_snapshot', 'violations', 'warnings', 'references', 'audit_trail', 'risk_summary', 'created_at']),
+    HermesPolicyDecisionReceiptConversion: objectSchema({
+      check_id: stringSchema(),
+      receipt: { $ref: '#/components/schemas/HermesPolicyDecisionReceipt' },
+      conversion: objectSchema({
+        status: enumSchema(['converted', 'already_converted', 'failed']),
+        notes: arrayOf(stringSchema())
+      }, ['status', 'notes'])
+    }, ['check_id', 'receipt', 'conversion']),
     HermesDecisionOutcomeState: enumSchema(['successful', 'failed', 'partial', 'blocked', 'manual_review', 'unknown']),
     HermesDecisionOutcomeImpact: objectSchema({
       target_type: enumSchema(['provider', 'route', 'service', 'unknown']),

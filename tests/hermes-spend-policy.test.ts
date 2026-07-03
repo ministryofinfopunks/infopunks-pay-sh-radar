@@ -3,7 +3,9 @@ import * as preSpendDecision from '../src/services/hermesPreSpendDecision';
 import {
   checkHermesSpendPolicy,
   HERMES_SPEND_POLICY_EXAMPLE_INPUT,
+  getHermesSpendPolicyExampleCheck,
   listHermesSpendPolicies,
+  resolveHermesSpendPolicyCheckById,
   type HermesSpendPolicyCheckInput
 } from '../src/services/hermesSpendPolicy';
 import type { HermesPreSpendDecision } from '../src/services/hermesPreSpendDecision';
@@ -242,5 +244,19 @@ describe('Hermes spend policy layer', () => {
 
     spy.mockReturnValueOnce(decisionFixture({ decision: 'insufficient_evidence', required_action: 'request_more_evidence' }));
     expect(check().allowed).toBe(false);
+  });
+
+  it('returns a deterministic example check', () => {
+    const example = getHermesSpendPolicyExampleCheck();
+
+    expect(example.input).toEqual(expect.objectContaining(HERMES_SPEND_POLICY_EXAMPLE_INPUT));
+    expect(example.id).toBe(getHermesSpendPolicyExampleCheck().id);
+  });
+
+  it('resolves the example check by id and rejects unknown ids', () => {
+    const example = getHermesSpendPolicyExampleCheck();
+
+    expect(resolveHermesSpendPolicyCheckById(example.id)?.id).toBe(example.id);
+    expect(resolveHermesSpendPolicyCheckById('not-real')).toBeUndefined();
   });
 });

@@ -159,6 +159,10 @@ describe('production smoke plan', () => {
     expect(plan.hermesClaimPromotionPath).toBe('/v1/hermes/runs/hermes_pay_sh_route_pre_spend_check/claim/promote');
     expect(plan.hermesPreSpendDecisionPath).toBe('/v1/hermes/pre-spend-decision');
     expect(plan.hermesSpendPolicyCheckPath).toBe('/v1/hermes/spend-policy/check');
+    expect(plan.hermesSpendPolicyReceiptPreviewPath).toContain('/v1/hermes/spend-policy/check/');
+    expect(plan.hermesSpendPolicyReceiptPreviewPath).toContain('/receipt-preview');
+    expect(plan.hermesSpendPolicyReceiptPath).toContain('/v1/hermes/spend-policy/check/');
+    expect(plan.hermesSpendPolicyReceiptPath).toContain('/receipt');
     expect(plan.hermesDecisionReceiptPath).toContain('/v1/hermes/pre-spend-decision/');
     expect(plan.hermesDecisionReceiptPath).toContain('/receipt');
     expect(plan.hermesDecisionOutcomePath).toContain('/v1/hermes/pre-spend-decision/');

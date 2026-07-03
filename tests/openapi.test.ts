@@ -106,6 +106,8 @@ describe('openapi discovery', () => {
     expect(spec.paths['/v1/hermes/spend-policy']?.get).toBeTruthy();
     expect(spec.paths['/v1/hermes/spend-policy/example']?.get).toBeTruthy();
     expect(spec.paths['/v1/hermes/spend-policy/check']?.post).toBeTruthy();
+    expect(spec.paths['/v1/hermes/spend-policy/check/{check_id}/receipt-preview']?.get).toBeTruthy();
+    expect(spec.paths['/v1/hermes/spend-policy/check/{check_id}/receipt']?.post).toBeTruthy();
     expect(spec.paths['/v1/hermes/skill-pack/skills']?.get).toBeTruthy();
     expect(spec.paths['/v1/hermes/skill-pack/skills/{skill_id}']?.get).toBeTruthy();
     expect(spec.paths['/v1/hermes/reputation-ledger']?.get).toBeTruthy();
@@ -167,6 +169,11 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.HermesSpendPolicyRule).toBeTruthy();
     expect(spec.components.schemas.HermesSpendPolicyViolation).toBeTruthy();
     expect(spec.components.schemas.HermesSpendPolicyReference).toBeTruthy();
+    expect(spec.components.schemas.HermesPolicyDecisionReceipt).toBeTruthy();
+    expect(spec.components.schemas.HermesPolicyDecisionReceiptConversion).toBeTruthy();
+    expect(spec.components.schemas.HermesPolicyAuditTrail).toBeTruthy();
+    expect(spec.components.schemas.HermesPolicyAuditTrailEvent).toBeTruthy();
+    expect(spec.components.schemas.HermesPolicyReceiptRiskSummary).toBeTruthy();
     expect(spec.components.schemas.HermesDecisionReceipt).toBeTruthy();
     expect(spec.components.schemas.HermesDecisionOutcome).toBeTruthy();
     expect(spec.components.schemas.HermesDecisionOutcomeState).toBeTruthy();
@@ -253,6 +260,8 @@ describe('openapi discovery', () => {
     expect(JSON.stringify(spec.paths['/v1/hermes/skill-pack'])).toContain('Infopunks Pre-Spend Skill Pack');
     expect(JSON.stringify(spec.paths['/v1/hermes/spend-policy'])).toContain('seeded spend policies');
     expect(JSON.stringify(spec.paths['/v1/hermes/spend-policy/check'])).toContain('allow, test, review, or block decision');
+    expect(JSON.stringify(spec.paths['/v1/hermes/spend-policy/check/{check_id}/receipt-preview'])).toContain('hermes_spend_policy_check_not_found');
+    expect(JSON.stringify(spec.paths['/v1/hermes/spend-policy/check/{check_id}/receipt'])).toContain('hermes_spend_policy_check_not_found');
     expect(JSON.stringify(spec.paths['/v1/hermes/reputation-ledger'])).toContain('stateless and does not require a live Hermes sidecar');
     expect(JSON.stringify(spec.paths['/v1/hermes/pre-spend-decision'])).toContain('deterministic spend recommendation');
     expect(JSON.stringify(spec.paths['/v1/hermes/pre-spend-decision/example'])).toContain('deterministic example pre-spend decision');

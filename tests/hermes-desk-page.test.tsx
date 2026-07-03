@@ -123,6 +123,9 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Agent Spend Policy Layer');
     expect(text).toContain('Decision tells an agent what to do.');
     expect(text).toContain('Policy tells an agent what it is allowed to do.');
+    expect(text).toContain('Policy Decision Receipts');
+    expect(text).toContain('A policy decision should not disappear after the wallet acts.');
+    expect(text).toContain('policy_receipt_id');
     expect(text).toContain('Decision Receipt and Feedback Loop');
     expect(text).toContain('A decision without an outcome is advice.');
     expect(text).toContain('A decision with a receipt becomes intelligence.');
@@ -188,6 +191,9 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('route status');
     expect(text).toContain('spend amount sensitivity');
     expect(text).toContain('chain/payment rail context');
+    expect(text).toContain('Audit-ready outputs');
+    expect(text).toContain('decision reason');
+    expect(text).toContain('outcome criteria');
     expect(container.querySelector('a[href="/hermes/skill-pack"]')?.getAttribute('aria-current')).toBe('page');
   });
 
@@ -222,6 +228,10 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Reputation now decides.');
     expect(text).toContain('Before an agent spends, it checks the ledger.');
     expect(text).toContain('Agent Spend Policy Layer');
+    expect(text).toContain('Policy Decision Receipts');
+    expect(text).toContain('Policy checks should not be invisible runtime decisions.');
+    expect(text).toContain('Every allow, test, review, or block should be auditable.');
+    expect(text).toContain('A policy decision should not disappear after the wallet acts. It should become an audit receipt.');
     expect(text).toContain('Decisions recommend action.');
     expect(text).toContain('Policies enforce boundaries.');
     expect(text).toContain('Autonomous wallets need both judgment and rules.');
@@ -278,6 +288,7 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('What changed for the next spend?');
     expect(text).toContain('The next agent does not start from zero. It inherits receipts, reviewed claims, reputation state, and feedback from previous outcomes.');
     expect(text).toContain('Policy sits between Decision and Outcome as the wallet safety gate.');
+    expect(text).toContain('Policy decisions can now become receipts, making the safety gate auditable before the outcome feeds back into reputation.');
     expect(container.querySelector('a[href="/hermes/memory-loop"]')?.getAttribute('aria-current')).toBe('page');
   });
 
@@ -326,6 +337,11 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Policy Summary');
     expect(text).toContain('Example Spend Intent');
     expect(text).toContain('Policy Check Result');
+    expect(text).toContain('Policy Decision Receipts');
+    expect(text).toContain('A policy decision should not disappear');
+    expect(text).toContain('Policy Receipt');
+    expect(text).toContain('Audit Trail');
+    expect(text).toContain('Future Feedback');
     expect(text).toContain('Violations and Warnings');
     expect(text).toContain('Pre-Spend Decision Used');
     expect(text).toContain('References Used');
@@ -346,6 +362,7 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Reputation Feedback');
     expect(text).toContain('What the system learns');
     expect(text).toContain('Feedback is not the end of the loop. It becomes input for the next pre-spend decision.');
+    expect(text).toContain('Policy receipts can become part of the feedback trail when comparing what the wallet was allowed to do against what actually happened.');
     expect(container.querySelector('a[href="/hermes/decision-feedback"]')?.getAttribute('aria-current')).toBe('page');
   });
 });

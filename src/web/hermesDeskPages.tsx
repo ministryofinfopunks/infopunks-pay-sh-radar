@@ -15,6 +15,7 @@ import type {
 import type { HermesDecisionFeedbackResult, HermesDecisionOutcomeState, HermesDecisionReceipt } from '../services/hermesDecisionFeedback';
 import { createHermesDecisionReceipt, recordHermesDecisionOutcome } from '../services/hermesDecisionFeedback';
 import type { HermesMemoryLoop, HermesMemoryLoopSummary } from '../services/hermesMemoryLoop';
+import { createHermesPolicyDecisionReceipt, type HermesPolicyDecisionReceiptConversion } from '../services/hermesPolicyReceipt';
 import type {
   HermesSpendPolicy,
   HermesSpendPolicyCheckResult,
@@ -122,6 +123,10 @@ function spendPolicyDecisionLabel(state: HermesSpendPolicyDecision) {
 }
 
 function spendPolicyViolationOutcomeLabel(state: HermesSpendPolicyViolation['outcome']) {
+  return titleCaseWords(state);
+}
+
+function policyRiskLevelLabel(state: HermesPolicyDecisionReceiptConversion['receipt']['risk_summary']['risk_level']) {
   return titleCaseWords(state);
 }
 
@@ -710,6 +715,7 @@ function HermesMemoryLoopDashboardPage() {
           </div>
           <p className="copy">The next agent does not start from zero. It inherits receipts, reviewed claims, reputation state, and feedback from previous outcomes.</p>
           <p className="copy">Policy sits between Decision and Outcome as the wallet safety gate.</p>
+          <p className="copy">Policy decisions can now become receipts, making the safety gate auditable before the outcome feeds back into reputation.</p>
           <div className="machine-usage-list">
             <p><span>current_decision</span><small>{loop.summary.current_decision ?? 'not available'}</small></p>
             <p><span>required_action</span><small>{loop.summary.current_required_action ?? 'not available'}</small></p>
@@ -815,6 +821,14 @@ function HermesNarrativePage() {
         <p>Decision tells an agent what to do.</p>
         <p>Policy tells an agent what it is allowed to do.</p>
       </section>
+      <section className="panel hermes-narrative-copy" aria-label="Policy Decision Receipts">
+        <p className="section-kicker">Policy Decision Receipts</p>
+        <h2>Policy checks should not be invisible runtime decisions.</h2>
+        <p>Every allow, test, review, or block should be auditable.</p>
+        <p>Policy receipts preserve the rule set, spend intent, decision, violations, warnings, and references used.</p>
+        <p>These receipts can later be compared against outcomes and used as feedback.</p>
+        <p>A policy decision should not disappear after the wallet acts. It should become an audit receipt.</p>
+      </section>
       <section className="panel hermes-narrative-copy" aria-label="Decision Receipt and Feedback Loop">
         <p className="section-kicker">Decision Receipt and Feedback Loop</p>
         <h2>The loop closes when outcomes are recorded.</h2>
@@ -891,6 +905,10 @@ function HermesDeskSurface() {
     return new Map((summary?.runs ?? []).map((run) => [run.id, promoteHermesClaimCandidate(run)]));
   }, [summary?.runs]);
   const bridgeStatus = health?.status ?? 'mock';
+  const policyReceiptPreview = useMemo(() => {
+    if (!spendPolicyResult) return null;
+    return createHermesPolicyDecisionReceipt(spendPolicyResult);
+  }, [spendPolicyResult]);
 
   return <div className="shell narrative-shell hermes-shell">
     <a className="skip-link" href="#hermes-content">Skip to content</a>
@@ -1060,6 +1078,24 @@ function HermesDeskSurface() {
         <HermesPreSpendDecisionSection decision={preSpendDecision} />
 
         <HermesSpendPolicySection result={spendPolicyResult} />
+
+        {policyReceiptPreview && <section className="panel hermes-skill-pack-detail" aria-label="Policy Decision Receipts">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Policy Decision Receipts</p>
+              <h2>Policy checks become auditable wallet evidence.</h2>
+            </div>
+            <a className="execute compact secondary" href="/hermes/spend-policy">Open Spend Policy Layer</a>
+          </div>
+          <p className="copy">A policy decision should not disappear after the wallet acts.</p>
+          <p className="copy">It should become an audit receipt.</p>
+          <div className="machine-usage-list">
+            <p><span>policy_receipt_id</span><small>{policyReceiptPreview.receipt.id}</small></p>
+            <p><span>decision</span><small>{spendPolicyDecisionLabel(policyReceiptPreview.receipt.policy_decision)}</small></p>
+            <p><span>risk_level</span><small>{policyRiskLevelLabel(policyReceiptPreview.receipt.risk_summary.risk_level)}</small></p>
+            <p><span>audit_trail_events</span><small>{policyReceiptPreview.receipt.audit_trail.events.length}</small></p>
+          </div>
+        </section>}
 
         <HermesDecisionFeedbackSection decision={preSpendDecision} />
 
@@ -1236,6 +1272,18 @@ function HermesSkillPackPage() {
             {['risk level', 'required action', 'disputed evidence', 'provider status', 'route status', 'spend amount sensitivity', 'chain/payment rail context'].map((item) => <span key={item}>{item}</span>)}
           </div>
         </section>
+        <section className="panel hermes-skill-pack-detail" aria-label="Audit-ready outputs">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Audit-ready outputs</p>
+              <h2>Hermes skills should produce outputs that can survive audit.</h2>
+            </div>
+          </div>
+          <p className="copy">Policy receipts compare what the wallet was allowed to do against what actually happened, so skill outputs need audit-grade structure.</p>
+          <div className="abundance-chip-row">
+            {['decision reason', 'cited evidence', 'risk factors', 'rule triggers', 'expected action', 'outcome criteria'].map((item) => <span key={item}>{item}</span>)}
+          </div>
+        </section>
 
       <section className="panel hermes-skill-pack-detail" aria-label="Memory-loop-ready skills">
           <div className="panel-head">
@@ -1307,6 +1355,7 @@ function HermesSpendPolicyPage() {
   }, []);
 
   const policy = result?.policy ?? policySurface?.policies[0] ?? null;
+  const receiptPreview = useMemo(() => (result ? createHermesPolicyDecisionReceipt(result) : null), [result]);
 
   return <div className="shell narrative-shell hermes-shell">
     <a className="skip-link" href="#hermes-spend-policy-content">Skip to content</a>
@@ -1378,6 +1427,54 @@ function HermesSpendPolicyPage() {
         </div>
         <div className="hermes-run-grid">
           <HermesSpendPolicyCard result={result} />
+        </div>
+      </section>}
+      {receiptPreview && <section className="panel hermes-runs-section" aria-label="Policy Decision Receipts">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Policy Decision Receipts</p>
+            <h2>Policy checks become audit-ready receipts.</h2>
+          </div>
+          <a className="execute compact secondary" href={`/v1/hermes/spend-policy/check/${encodeURIComponent(receiptPreview.check_id)}/receipt-preview`}>GET receipt preview</a>
+        </div>
+        <p className="copy">A policy decision should not disappear after the wallet acts.</p>
+        <p className="copy">It should become an audit receipt.</p>
+        <div className="hermes-flow-strip" aria-label="Policy receipt flow">
+          {['Spend Intent', 'Pre-Spend Decision', 'Policy Check', 'Policy Receipt', 'Audit Trail', 'Future Feedback'].map((step, index) => (
+            <React.Fragment key={step}>
+              <span>{step}</span>
+              {index < 5 && <b aria-hidden="true">-&gt;</b>}
+            </React.Fragment>
+          ))}
+        </div>
+        <div className="hermes-run-grid">
+          <article className="panel hermes-receipt-card">
+            <p className="section-kicker">{receiptPreview.conversion.status}</p>
+            <h3>{receiptPreview.receipt.id}</h3>
+            <div className="machine-usage-list">
+              <p><span>source_check_id</span><small>{receiptPreview.receipt.source_check_id}</small></p>
+              <p><span>policy_id</span><small>{receiptPreview.receipt.source_policy_id}</small></p>
+              <p><span>policy_decision</span><small>{spendPolicyDecisionLabel(receiptPreview.receipt.policy_decision)}</small></p>
+              <p><span>allowed</span><small>{String(receiptPreview.receipt.allowed)}</small></p>
+              <p><span>required_action</span><small>{receiptPreview.receipt.required_action}</small></p>
+              <p><span>risk_level</span><small>{policyRiskLevelLabel(receiptPreview.receipt.risk_summary.risk_level)}</small></p>
+              <p><span>violation_count</span><small>{receiptPreview.receipt.risk_summary.violation_count}</small></p>
+              <p><span>warning_count</span><small>{receiptPreview.receipt.risk_summary.warning_count}</small></p>
+              <p><span>audit_trail_event_count</span><small>{receiptPreview.receipt.audit_trail.events.length}</small></p>
+              <p><span>references_count</span><small>{receiptPreview.receipt.references.length}</small></p>
+            </div>
+          </article>
+        </div>
+      </section>}
+      {receiptPreview && <section className="panel hermes-skill-pack-detail" aria-label="Audit Trail">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Audit Trail</p>
+            <h2>Deterministic policy decision evidence.</h2>
+          </div>
+        </div>
+        <div className="machine-usage-list">
+          {receiptPreview.receipt.audit_trail.events.map((event) => <p key={event.id}><span>{event.label.toLowerCase()}</span><small>{event.summary}</small></p>)}
         </div>
       </section>}
       {result && <section className="panel hermes-skill-pack-detail" aria-label="Violations and Warnings">
@@ -1590,6 +1687,7 @@ function HermesDecisionFeedbackPage() {
           <a className="execute compact secondary" href="/hermes/memory-loop">Open Memory Loop</a>
         </div>
         <p className="copy">Feedback is not the end of the loop. It becomes input for the next pre-spend decision.</p>
+        <p className="copy">Policy receipts can become part of the feedback trail when comparing what the wallet was allowed to do against what actually happened.</p>
       </section>
       {error && <section className="panel"><p className="route-state error">{error}</p></section>}
       {receipt && <section className="panel hermes-runs-section" aria-label="Example Decision Receipt">

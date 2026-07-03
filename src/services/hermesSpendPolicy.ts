@@ -551,3 +551,17 @@ export function checkHermesSpendPolicy(input: HermesSpendPolicyCheckInput): Herm
 export function createHermesSpendPolicyExample(): HermesSpendPolicyCheckResult {
   return checkHermesSpendPolicy(HERMES_SPEND_POLICY_EXAMPLE_INPUT);
 }
+
+export function getHermesSpendPolicyExampleCheck(): HermesSpendPolicyCheckResult {
+  return createHermesSpendPolicyExample();
+}
+
+export function resolveHermesSpendPolicyCheckById(checkId: string): HermesSpendPolicyCheckResult | undefined {
+  const normalizedCheckId = normalizeString(checkId);
+  if (!normalizedCheckId) return undefined;
+
+  const exampleCheck = getHermesSpendPolicyExampleCheck();
+  if (normalizedCheckId === exampleCheck.id) return exampleCheck;
+
+  return undefined;
+}
