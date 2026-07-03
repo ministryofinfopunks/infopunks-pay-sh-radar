@@ -35,6 +35,9 @@ export type HermesRun = {
   linked_receipt_id: string | null;
   linked_claim_id: string | null;
   linked_loop_id: string | null;
+  provider_id?: string;
+  route_id?: string;
+  service_id?: string;
   created_at: string;
   completed_at: string | null;
   source?: HermesRunSource;
@@ -132,6 +135,7 @@ export const hermesRuns: HermesRun[] = [
     linked_receipt_id: 'receipt_001',
     linked_claim_id: 'claim_001',
     linked_loop_id: 'loop_pre_spend_route',
+    route_id: 'route_pay_sh_market_research_01',
     created_at: '2026-07-02T09:10:00.000Z',
     completed_at: '2026-07-02T09:14:00.000Z',
     source: 'mock',
@@ -173,6 +177,7 @@ export const hermesRuns: HermesRun[] = [
     linked_receipt_id: null,
     linked_claim_id: 'claim_002',
     linked_loop_id: 'loop_provider_trust',
+    provider_id: 'provider_pay_sh_lattice',
     created_at: '2026-07-02T11:20:00.000Z',
     completed_at: '2026-07-02T11:27:00.000Z',
     source: 'mock',
@@ -214,6 +219,7 @@ export const hermesRuns: HermesRun[] = [
     linked_receipt_id: null,
     linked_claim_id: null,
     linked_loop_id: 'loop_pre_spend_route',
+    service_id: 'service_market_research',
     created_at: '2026-07-03T06:00:00.000Z',
     completed_at: null,
     source: 'mock',

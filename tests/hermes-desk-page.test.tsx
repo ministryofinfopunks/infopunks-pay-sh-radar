@@ -5,6 +5,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getHermesDeskSummary } from '../src/services/hermesBridge';
 import { getHermesSkillPack } from '../src/data/hermesSkillPack';
+import { buildHermesReputationLedger } from '../src/services/hermesReputationLedger';
 import { App } from '../src/web/main';
 
 function json(data: unknown) {
@@ -40,6 +41,7 @@ describe('Hermes Desk page', () => {
     vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
       if (pathOf(input) === '/v1/hermes') return json(getHermesDeskSummary({}));
       if (pathOf(input) === '/v1/hermes/skill-pack') return json(getHermesSkillPack());
+      if (pathOf(input) === '/v1/hermes/reputation-ledger') return json(buildHermesReputationLedger());
       if (pathOf(input) === '/v1/hermes/health') return json({
         enabled: false,
         mode: 'mock',
@@ -93,6 +95,14 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('claim_hermes_promoted_hermes_pay_sh_route_pre_spend_check');
     expect(text).toContain('needs_more_evidence');
     expect(text).toContain('Reputation Impact');
+    expect(text).toContain('Reputation Ledger');
+    expect(text).toContain('One receipt is evidence.');
+    expect(text).toContain('One claim is judgment.');
+    expect(text).toContain('Many judgments become reputation.');
+    expect(text).toContain('Provider Impact Surface');
+    expect(text).toContain('Route Impact Surface');
+    expect(text).toContain('provider_pay_sh_lattice');
+    expect(text).toContain('route_pay_sh_market_research_01');
     expect(container.querySelector('a[href="/hermes"]')?.getAttribute('aria-current')).toBe('page');
     expect(container.querySelector('a[href="/v1/hermes/skills"]')).not.toBeNull();
     expect(container.querySelector('a[href="/hermes/skill-pack"]')).not.toBeNull();
@@ -125,6 +135,12 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('claim candidate creation');
     expect(text).toContain('claim review');
     expect(text).toContain('reputation impact');
+    expect(text).toContain('Hermes skills should produce outputs that can update reputation over time.');
+    expect(text).toContain('route reputation');
+    expect(text).toContain('provider reputation');
+    expect(text).toContain('service reputation');
+    expect(text).toContain('disputed evidence');
+    expect(text).toContain('watchlist state');
     expect(container.querySelector('a[href="/hermes/skill-pack"]')?.getAttribute('aria-current')).toBe('page');
   });
 
@@ -146,6 +162,27 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Claim Candidates propose what the evidence means.');
     expect(text).toContain('Reputation Impact determines who gets trusted next.');
     expect(text).toContain('Receipts remember what happened. Claims decide what it means. Reputation decides who gets trusted next.');
+    expect(text).toContain('Reputation Ledger');
+    expect(text).toContain('Agent Run Receipts preserve evidence.');
+    expect(text).toContain('Claim Review decides what the evidence means.');
+    expect(text).toContain('Reputation Ledger accumulates many reviewed claims.');
+    expect(text).toContain('Providers, routes, and services become more or less trusted based on evidence-backed history.');
+    expect(text).toContain('One receipt is evidence.');
+    expect(text).toContain('One claim is judgment.');
+    expect(text).toContain('Many judgments become reputation.');
     expect(container.querySelector('a[href="/narratives/hermes-desk"]')?.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('renders the expanded Hermes Reputation Ledger page', async () => {
+    root = await renderPath(container, '/hermes/reputation-ledger');
+
+    const text = container.textContent ?? '';
+    expect(text).toContain('Reputation Ledger');
+    expect(text).toContain('One receipt is evidence.');
+    expect(text).toContain('Provider Impact Surface');
+    expect(text).toContain('Route Impact Surface');
+    expect(text).toContain('provider_pay_sh_lattice');
+    expect(text).toContain('route_pay_sh_market_research_01');
+    expect(container.querySelector('a[href="/hermes/reputation-ledger"]')?.getAttribute('aria-current')).toBe('page');
   });
 });

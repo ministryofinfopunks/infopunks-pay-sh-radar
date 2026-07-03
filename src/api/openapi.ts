@@ -343,6 +343,55 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       linked_infopunks_primitives: ['receipts', 'proof checks', 'claims']
     }, 'hermes_skill_not_found')
   });
+  add('get', '/v1/hermes/reputation-ledger', {
+    tags: ['Hermes'],
+    summary: 'Get Hermes Reputation Ledger',
+    description: 'Aggregates deterministic promoted Hermes claim reputation impacts into provider, route, service, and unknown target reputation entries. This endpoint is stateless and does not require a live Hermes sidecar.',
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesReputationLedgerSummary' }, {
+      generated_at: '2026-07-03T00:00:00.000Z',
+      entry_count: 3,
+      provider_count: 1,
+      route_count: 1,
+      service_count: 1,
+      entries: [{ target_type: 'provider', target_id: 'provider_pay_sh_lattice', current_state: 'degraded', trust_score: 13 }]
+    })
+  });
+  add('get', '/v1/hermes/reputation-ledger/providers', {
+    tags: ['Hermes'],
+    summary: 'List Hermes provider reputation entries',
+    description: 'Returns Reputation Ledger entries where target_type is provider.',
+    responses: envelopedResponses(objectSchema({
+      generated_at: dateTimeSchema(),
+      count: integerSchema(),
+      entries: arrayOf({ $ref: '#/components/schemas/HermesReputationLedgerEntry' })
+    }), { count: 1, entries: [{ target_type: 'provider', target_id: 'provider_pay_sh_lattice', current_state: 'degraded' }] })
+  });
+  add('get', '/v1/hermes/reputation-ledger/routes', {
+    tags: ['Hermes'],
+    summary: 'List Hermes route reputation entries',
+    description: 'Returns Reputation Ledger entries where target_type is route.',
+    responses: envelopedResponses(objectSchema({
+      generated_at: dateTimeSchema(),
+      count: integerSchema(),
+      entries: arrayOf({ $ref: '#/components/schemas/HermesReputationLedgerEntry' })
+    }), { count: 1, entries: [{ target_type: 'route', target_id: 'route_pay_sh_market_research_01', current_state: 'watchlist' }] })
+  });
+  add('get', '/v1/hermes/reputation-ledger/{target_type}/{target_id}', {
+    tags: ['Hermes'],
+    summary: 'Get Hermes reputation entry',
+    description: 'Returns one Reputation Ledger entry by target type and target id. target_type accepts provider/providers, route/routes, service/services, and unknown.',
+    parameters: [
+      pathParam('target_type', 'Hermes reputation target type.'),
+      pathParam('target_id', 'Hermes reputation target identifier.')
+    ],
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesReputationLedgerEntry' }, {
+      target_type: 'provider',
+      target_id: 'provider_pay_sh_lattice',
+      label: 'Lattice Research Relay',
+      current_state: 'degraded',
+      trust_score: 13
+    }, 'hermes_reputation_entry_not_found')
+  });
   add('get', '/v1/hermes/runs', {
     tags: ['Hermes'],
     summary: 'List Hermes runs',
@@ -2482,6 +2531,9 @@ function componentSchemas(): Record<string, JsonSchema> {
   });
   const hermesDecisionState = enumSchema(['trust', 'caution', 'do_not_use_yet', 'unproven', 'disputed']);
   const hermesRunState = enumSchema(['queued', 'running', 'completed', 'failed', 'blocked']);
+  const hermesReputationTargetType = enumSchema(['provider', 'route', 'service', 'unknown']);
+  const hermesReputationDirection = enumSchema(['positive', 'negative', 'neutral', 'watch']);
+  const hermesReputationState = enumSchema(['trusted', 'watchlist', 'unproven', 'degraded', 'disputed']);
   const hermesArtifact = objectSchema({
     artifact_id: stringSchema(),
     label: stringSchema(),
@@ -2556,13 +2608,44 @@ function componentSchemas(): Record<string, JsonSchema> {
   }, ['id', 'source_receipt_id', 'title', 'claim', 'status', 'confidence', 'evidence_summary', 'risk_notes', 'created_at']);
   const hermesClaimReviewState = enumSchema(['candidate', 'accepted', 'needs_more_evidence', 'disputed', 'rejected']);
   const hermesReputationImpact = objectSchema({
-    target_type: enumSchema(['route', 'provider', 'service', 'unknown']),
+    target_type: hermesReputationTargetType,
     target_id: stringSchema(),
-    direction: enumSchema(['positive', 'negative', 'neutral', 'watch']),
+    direction: hermesReputationDirection,
     magnitude: { type: 'number', minimum: 0, maximum: 1 },
     summary: stringSchema(),
     reputation_notes: arrayOf(stringSchema())
   }, ['target_type', 'direction', 'magnitude', 'summary', 'reputation_notes']);
+  const hermesReputationLedgerEvent = objectSchema({
+    id: stringSchema(),
+    at: dateTimeSchema(),
+    source_run_id: stringSchema(),
+    source_receipt_id: stringSchema(),
+    source_claim_id: stringSchema(),
+    decision: hermesDecisionState,
+    review_state: hermesClaimReviewState,
+    direction: hermesReputationDirection,
+    magnitude: { type: 'number', minimum: 0, maximum: 1 },
+    summary: stringSchema(),
+    notes: arrayOf(stringSchema())
+  }, ['id', 'at', 'source_run_id', 'source_receipt_id', 'source_claim_id', 'decision', 'review_state', 'direction', 'magnitude', 'summary', 'notes']);
+  const hermesReputationLedgerEntry = objectSchema({
+    target_type: hermesReputationTargetType,
+    target_id: stringSchema(),
+    label: stringSchema(),
+    current_state: hermesReputationState,
+    trust_score: { type: 'number', minimum: 0, maximum: 100 },
+    impact_total: { type: 'number' },
+    positive_count: integerSchema(),
+    negative_count: integerSchema(),
+    watch_count: integerSchema(),
+    neutral_count: integerSchema(),
+    disputed_count: integerSchema(),
+    latest_event_at: dateTimeSchema(),
+    decision_history: arrayOf(hermesReputationLedgerEvent),
+    source_claim_ids: arrayOf(stringSchema()),
+    source_receipt_ids: arrayOf(stringSchema()),
+    source_run_ids: arrayOf(stringSchema())
+  }, ['target_type', 'label', 'current_state', 'trust_score', 'impact_total', 'positive_count', 'negative_count', 'watch_count', 'neutral_count', 'disputed_count', 'decision_history', 'source_claim_ids', 'source_receipt_ids', 'source_run_ids']);
   const hermesPromotedClaim = objectSchema({
     id: stringSchema(),
     source: { const: 'hermes_agent_run' },
@@ -2633,7 +2716,25 @@ function componentSchemas(): Record<string, JsonSchema> {
     HermesRunReceipt: hermesRunReceipt,
     HermesClaimCandidate: hermesClaimCandidate,
     HermesClaimReviewState: hermesClaimReviewState,
+    HermesReputationTargetType: hermesReputationTargetType,
+    HermesReputationState: hermesReputationState,
+    HermesReputationDirection: hermesReputationDirection,
     HermesReputationImpact: hermesReputationImpact,
+    HermesReputationLedgerEvent: hermesReputationLedgerEvent,
+    HermesReputationLedgerEntry: hermesReputationLedgerEntry,
+    HermesReputationLedgerSummary: objectSchema({
+      generated_at: dateTimeSchema(),
+      entry_count: integerSchema(),
+      provider_count: integerSchema(),
+      route_count: integerSchema(),
+      service_count: integerSchema(),
+      unknown_count: integerSchema(),
+      trusted_count: integerSchema(),
+      watchlist_count: integerSchema(),
+      degraded_count: integerSchema(),
+      disputed_count: integerSchema(),
+      entries: arrayOf(hermesReputationLedgerEntry)
+    }, ['generated_at', 'entry_count', 'provider_count', 'route_count', 'service_count', 'unknown_count', 'trusted_count', 'watchlist_count', 'degraded_count', 'disputed_count', 'entries']),
     HermesPromotedClaim: hermesPromotedClaim,
     HermesClaimPromotionRequest: objectSchema({
       review_state: hermesClaimReviewState

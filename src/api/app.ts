@@ -163,6 +163,13 @@ import { checkHermesHealth, createLivePreSpendRun, getHermesDeskSummary, getHerm
 import { getHermesSkillById, getHermesSkillPack, listHermesSkillPackSkills } from '../data/hermesSkillPack';
 import { convertHermesRunToReceipt } from '../services/hermesReceiptConverter';
 import { isHermesClaimReviewState, promoteHermesClaimCandidate } from '../services/hermesClaimPromotion';
+import {
+  buildHermesReputationLedger,
+  getHermesReputationEntry,
+  listHermesProviderReputationEntries,
+  listHermesRouteReputationEntries,
+  listHermesServiceReputationEntries
+} from '../services/hermesReputationLedger';
 import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
@@ -1553,6 +1560,38 @@ export async function createApp(
     const skill = getHermesSkillById(req.params.skill_id);
     if (!skill) return reply.code(404).send({ error: 'hermes_skill_not_found' });
     return { data: safeJsonExport(skill) };
+  });
+  app.get('/v1/hermes/reputation-ledger', async () => ({ data: safeJsonExport(buildHermesReputationLedger()) }));
+  app.get('/v1/hermes/reputation-ledger/providers', async () => ({
+    data: safeJsonExport({
+      generated_at: buildHermesReputationLedger().generated_at,
+      count: listHermesProviderReputationEntries().length,
+      entries: listHermesProviderReputationEntries()
+    })
+  }));
+  app.get('/v1/hermes/reputation-ledger/routes', async () => ({
+    data: safeJsonExport({
+      generated_at: buildHermesReputationLedger().generated_at,
+      count: listHermesRouteReputationEntries().length,
+      entries: listHermesRouteReputationEntries()
+    })
+  }));
+  app.get('/v1/hermes/reputation-ledger/services', async () => ({
+    data: safeJsonExport({
+      generated_at: buildHermesReputationLedger().generated_at,
+      count: listHermesServiceReputationEntries().length,
+      entries: listHermesServiceReputationEntries()
+    })
+  }));
+  app.get<{ Params: { target_type: string; target_id: string } }>('/v1/hermes/reputation-ledger/:target_type/:target_id', async (req, reply) => {
+    const entry = getHermesReputationEntry(req.params.target_type, req.params.target_id);
+    if (!entry) {
+      return reply.code(404).send({
+        error: 'hermes_reputation_entry_not_found',
+        message: `No Hermes reputation ledger entry found for target_type=${req.params.target_type} target_id=${req.params.target_id}`
+      });
+    }
+    return { data: safeJsonExport(entry) };
   });
   app.get('/v1/hermes/runs', async () => ({
     data: safeJsonExport({

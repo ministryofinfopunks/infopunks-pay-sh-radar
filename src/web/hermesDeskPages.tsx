@@ -4,6 +4,7 @@ import type { HermesDecisionState, HermesDeskSummary, HermesRun, HermesRunState 
 import type { HermesSkillPack } from '../data/hermesSkillPack';
 import { convertHermesRunToReceipt, type HermesRunReceiptConversion } from '../services/hermesReceiptConverter';
 import { promoteHermesClaimCandidate, type HermesClaimReviewState } from '../services/hermesClaimPromotion';
+import type { HermesReputationLedgerEntry, HermesReputationLedgerSummary, HermesReputationState } from '../services/hermesReputationLedger';
 import { getNarrativeMetadataForPath } from '../shared/narrativeMetadata';
 
 const API_BASE_URL = getApiBaseUrl();
@@ -62,10 +63,25 @@ function reviewStateLabel(state: HermesClaimReviewState) {
   } as const)[state];
 }
 
+function reputationStateLabel(state: HermesReputationState) {
+  return ({
+    trusted: 'Trusted',
+    watchlist: 'Watchlist',
+    unproven: 'Unproven',
+    degraded: 'Degraded',
+    disputed: 'Disputed'
+  } as const)[state];
+}
+
+function formatLedgerNumber(value: number) {
+  return Number.isInteger(value) ? String(value) : value.toFixed(2);
+}
+
 function HermesNav({ current }: { current: string }) {
   const links = [
     { href: '/', label: 'Radar Home' },
     { href: '/hermes', label: 'Hermes Desk' },
+    { href: '/hermes/reputation-ledger', label: 'Reputation Ledger' },
     { href: '/hermes/skill-pack', label: 'Skill Pack' },
     { href: '/narratives/hermes-desk', label: 'Narrative' },
     { href: '/check', label: 'Proof Feed' },
@@ -75,6 +91,7 @@ function HermesNav({ current }: { current: string }) {
 
   function active(href: string) {
     if (href === '/hermes') return current === '/hermes';
+    if (href === '/hermes/reputation-ledger') return current === '/hermes/reputation-ledger';
     if (href === '/hermes/skill-pack') return current === '/hermes/skill-pack';
     if (href === '/narratives/hermes-desk') return current === '/narratives/hermes-desk';
     return current === href;
@@ -183,6 +200,94 @@ function SkillPackSection({ summary }: { summary: HermesDeskSummary }) {
   </section>;
 }
 
+function HermesLedgerEntryCard({ entry, compact = false }: { entry: HermesReputationLedgerEntry; compact?: boolean }) {
+  const firstEvent = entry.decision_history[0];
+  return <article className={`panel hermes-ledger-card state-${entry.current_state}`} aria-label={`${entry.label} reputation ledger entry`}>
+    <div className="abundance-card-head">
+      <p className="section-kicker">{entry.target_type}</p>
+      <span className={`hermes-review-badge review-${entry.current_state}`}>{reputationStateLabel(entry.current_state)}</span>
+    </div>
+    <h3>{entry.label}</h3>
+    <div className="machine-usage-list">
+      <p><span>target_id</span><small>{entry.target_id ?? 'unknown'}</small></p>
+      <p><span>trust_score</span><small>{entry.trust_score}</small></p>
+      <p><span>impact_total</span><small>{formatLedgerNumber(entry.impact_total)}</small></p>
+      <p><span>counts</span><small>positive={entry.positive_count} watch={entry.watch_count} negative={entry.negative_count} disputed={entry.disputed_count}</small></p>
+      <p><span>latest_event</span><small>{entry.latest_event_at ?? 'not available'}</small></p>
+      <p><span>source_claims</span><small>{entry.source_claim_ids.join(', ') || 'none'}</small></p>
+      <p><span>source_receipts</span><small>{entry.source_receipt_ids.join(', ') || 'none'}</small></p>
+      <p><span>source_runs</span><small>{entry.source_run_ids.join(', ') || 'none'}</small></p>
+    </div>
+    {!compact && <div className="hermes-ledger-history" aria-label={`${entry.label} decision history`}>
+      {entry.decision_history.map((event) => <div key={event.id} className="hermes-timeline-event">
+        <span>{event.direction} / {event.decision}</span>
+        <small>{event.review_state} at {event.at}</small>
+        <small>{event.summary}</small>
+        {event.notes.slice(0, 2).map((note) => <small key={`${event.id}-${note}`}>{note}</small>)}
+      </div>)}
+    </div>}
+    {compact && firstEvent && <p className="panel-caption">{firstEvent.direction} impact from {firstEvent.source_claim_id}</p>}
+  </article>;
+}
+
+function HermesReputationLedgerSection({ ledger }: { ledger: HermesReputationLedgerSummary | null }) {
+  if (!ledger) return <section className="panel"><p className="route-state">Loading Reputation Ledger...</p></section>;
+  const providerEntries = ledger.entries.filter((entry) => entry.target_type === 'provider');
+  const routeEntries = ledger.entries.filter((entry) => entry.target_type === 'route');
+
+  return <section className="panel hermes-runs-section hermes-ledger-section" aria-label="Reputation Ledger">
+    <div className="panel-head">
+      <div>
+        <p className="section-kicker">Reputation Ledger</p>
+        <h2>One receipt is evidence. One claim is judgment. Many judgments become reputation.</h2>
+      </div>
+      <a className="execute compact secondary" href="/v1/hermes/reputation-ledger">GET ledger</a>
+      <a className="execute compact secondary" href="/hermes/reputation-ledger">Open ledger</a>
+    </div>
+    <p className="copy">One receipt is evidence.</p>
+    <p className="copy">One claim is judgment.</p>
+    <p className="copy">Many judgments become reputation.</p>
+    <section className="grid four hermes-metric-grid" aria-label="Reputation Ledger summary">
+      <HermesMetric label="entries" value={ledger.entry_count} sub="targets with reviewed claims" />
+      <HermesMetric label="trusted" value={ledger.trusted_count} sub="evidence-backed trust" />
+      <HermesMetric label="watchlist" value={ledger.watchlist_count} sub="needs more evidence" />
+      <HermesMetric label="degraded" value={ledger.degraded_count} sub="negative movement" />
+      <HermesMetric label="disputed" value={ledger.disputed_count} sub="challenged memory" />
+    </section>
+    <div className="hermes-ledger-grid">
+      {ledger.entries.map((entry) => <HermesLedgerEntryCard key={`${entry.target_type}-${entry.target_id ?? 'unknown'}`} entry={entry} />)}
+    </div>
+    <div className="hermes-impact-surfaces">
+      <section className="panel hermes-impact-surface" aria-label="Provider Impact Surface">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Provider Impact Surface</p>
+            <h3>Provider trust from reviewed claims.</h3>
+          </div>
+          <a className="execute compact secondary" href="/v1/hermes/reputation-ledger/providers">GET providers</a>
+        </div>
+        <div className="hermes-ledger-grid compact">
+          {providerEntries.map((entry) => <HermesLedgerEntryCard key={`provider-${entry.target_id}`} entry={entry} compact />)}
+          {!providerEntries.length && <p className="route-state">No provider reputation entries yet.</p>}
+        </div>
+      </section>
+      <section className="panel hermes-impact-surface" aria-label="Route Impact Surface">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Route Impact Surface</p>
+            <h3>Route trust from reviewed claims.</h3>
+          </div>
+          <a className="execute compact secondary" href="/v1/hermes/reputation-ledger/routes">GET routes</a>
+        </div>
+        <div className="hermes-ledger-grid compact">
+          {routeEntries.map((entry) => <HermesLedgerEntryCard key={`route-${entry.target_id}`} entry={entry} compact />)}
+          {!routeEntries.length && <p className="route-state">No route reputation entries yet.</p>}
+        </div>
+      </section>
+    </div>
+  </section>;
+}
+
 function HermesNarrativePage() {
   useEffect(() => {
     syncHermesMetadata('/narratives/hermes-desk');
@@ -247,6 +352,15 @@ function HermesNarrativePage() {
         <h2>Receipts remember what happened. Claims decide what it means. Reputation decides who gets trusted next.</h2>
         <p>Hermes runs are pre-spend investigations. Agent Run Receipts preserve what happened. Claim Candidates propose what the evidence means. Claim Review decides whether the market should accept, dispute, reject, or request more evidence. Reputation Impact determines who gets trusted next.</p>
       </section>
+      <section className="panel hermes-narrative-copy" aria-label="Reputation Ledger">
+        <p className="section-kicker">Reputation Ledger</p>
+        <h2>One receipt is evidence. One claim is judgment. Many judgments become reputation.</h2>
+        <p>Agent Run Receipts preserve evidence. Claim Review decides what the evidence means. Reputation Ledger accumulates many reviewed claims.</p>
+        <p>Providers, routes, and services become more or less trusted based on evidence-backed history.</p>
+        <p>One receipt is evidence.</p>
+        <p>One claim is judgment.</p>
+        <p>Many judgments become reputation.</p>
+      </section>
     </main>
   </div>;
 }
@@ -254,6 +368,7 @@ function HermesNarrativePage() {
 function HermesDeskSurface() {
   const [summary, setSummary] = useState<HermesDeskSummary | null>(null);
   const [health, setHealth] = useState<HermesHealthResponse | null>(null);
+  const [ledger, setLedger] = useState<HermesReputationLedgerSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -272,6 +387,10 @@ function HermesDeskSurface() {
         mode: 'mock',
         error: 'health_check_failed'
       }));
+
+    api<HermesReputationLedgerSummary>('/v1/hermes/reputation-ledger')
+      .then((response) => setLedger(response.data))
+      .catch(() => setLedger(null));
   }, []);
 
   const activeRuns = useMemo(() => (summary?.runs ?? []).filter((run) => run.state === 'queued' || run.state === 'running'), [summary?.runs]);
@@ -426,6 +545,8 @@ function HermesDeskSurface() {
           </div>
         </section>
 
+        <HermesReputationLedgerSection ledger={ledger} />
+
         <section className="panel hermes-runs-section" aria-label="Completed Hermes runs">
           <div className="panel-head">
             <div>
@@ -574,12 +695,71 @@ function HermesSkillPackPage() {
             {['receipt generation', 'claim candidate creation', 'claim review', 'reputation impact'].map((item) => <span key={item}>{item}</span>)}
           </div>
         </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="Reputation-aware skill outputs">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Reputation-aware outputs</p>
+              <h2>Hermes skills should produce outputs that can update reputation over time.</h2>
+            </div>
+          </div>
+          <p className="copy">Hermes skills should produce outputs that can update reputation over time.</p>
+          <div className="abundance-chip-row">
+            {['route reputation', 'provider reputation', 'service reputation', 'disputed evidence', 'watchlist state'].map((item) => <span key={item}>{item}</span>)}
+          </div>
+        </section>
       </>}
     </main>
   </div>;
 }
 
-export function HermesDeskPage({ narrativeRoute = false, skillPackRoute = false }: { narrativeRoute?: boolean; skillPackRoute?: boolean }) {
+function HermesReputationLedgerPage() {
+  const [ledger, setLedger] = useState<HermesReputationLedgerSummary | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    syncHermesMetadata('/hermes/reputation-ledger');
+  }, []);
+
+  useEffect(() => {
+    api<HermesReputationLedgerSummary>('/v1/hermes/reputation-ledger')
+      .then((response) => setLedger(response.data))
+      .catch((err) => setError(err instanceof Error ? err.message : 'hermes_reputation_ledger_unavailable'));
+  }, []);
+
+  return <div className="shell narrative-shell hermes-shell">
+    <a className="skip-link" href="#hermes-ledger-content">Skip to content</a>
+    <header className="site-header">
+      <HermesNav current="/hermes/reputation-ledger" />
+    </header>
+    <main id="hermes-ledger-content" className="narrative-page hermes-page">
+      <section className="panel hero narrative-hero hermes-hero">
+        <div>
+          <p className="eyebrow">Provider and Route Memory</p>
+          <h1>Reputation Ledger</h1>
+          <p className="copy hermes-hero-copy">One receipt is evidence. One claim is judgment. Many judgments become reputation.</p>
+          <div className="panel-actions">
+            <a className="execute" href="/v1/hermes/reputation-ledger">Open Ledger JSON</a>
+            <a className="execute compact secondary" href="/hermes">Back to Hermes Desk</a>
+          </div>
+        </div>
+        <div className="panel narrative-hero-rail hermes-hero-rail">
+          <p className="section-kicker">Stateless ledger</p>
+          <p>Reputation Impact metadata is aggregated from deterministic promoted Hermes claims. No live Hermes sidecar is required.</p>
+        </div>
+      </section>
+      {error && <section className="panel"><p className="route-state error">{error}</p></section>}
+      {!error && <HermesReputationLedgerSection ledger={ledger} />}
+    </main>
+  </div>;
+}
+
+export function HermesDeskPage({
+  narrativeRoute = false,
+  skillPackRoute = false,
+  reputationLedgerRoute = false
+}: { narrativeRoute?: boolean; skillPackRoute?: boolean; reputationLedgerRoute?: boolean }) {
+  if (reputationLedgerRoute) return <HermesReputationLedgerPage />;
   if (skillPackRoute) return <HermesSkillPackPage />;
   return narrativeRoute ? <HermesNarrativePage /> : <HermesDeskSurface />;
 }

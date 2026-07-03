@@ -243,6 +243,81 @@ describe('Hermes Desk API', () => {
     await app.close();
   });
 
+  it('returns the Hermes Reputation Ledger summary', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({ method: 'GET', url: '/v1/hermes/reputation-ledger' });
+    const body = response.json();
+
+    expect(response.statusCode).toBe(200);
+    expect(body.data.entry_count).toBeGreaterThanOrEqual(3);
+    expect(body.data.provider_count).toBeGreaterThanOrEqual(1);
+    expect(body.data.route_count).toBeGreaterThanOrEqual(1);
+    expect(body.data.entries.map((entry: any) => entry.target_type)).toEqual(expect.arrayContaining(['provider', 'route', 'service']));
+
+    await app.close();
+  });
+
+  it('returns Hermes provider reputation entries', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({ method: 'GET', url: '/v1/hermes/reputation-ledger/providers' });
+    const body = response.json();
+
+    expect(response.statusCode).toBe(200);
+    expect(body.data.count).toBeGreaterThanOrEqual(1);
+    expect(body.data.entries.every((entry: any) => entry.target_type === 'provider')).toBe(true);
+    expect(body.data.entries.map((entry: any) => entry.target_id)).toContain('provider_pay_sh_lattice');
+
+    await app.close();
+  });
+
+  it('returns Hermes route reputation entries', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({ method: 'GET', url: '/v1/hermes/reputation-ledger/routes' });
+    const body = response.json();
+
+    expect(response.statusCode).toBe(200);
+    expect(body.data.count).toBeGreaterThanOrEqual(1);
+    expect(body.data.entries.every((entry: any) => entry.target_type === 'route')).toBe(true);
+    expect(body.data.entries.map((entry: any) => entry.target_id)).toContain('route_pay_sh_market_research_01');
+
+    await app.close();
+  });
+
+  it('returns one seeded Hermes reputation entry by target', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({
+      method: 'GET',
+      url: '/v1/hermes/reputation-ledger/provider/provider_pay_sh_lattice'
+    });
+    const body = response.json();
+
+    expect(response.statusCode).toBe(200);
+    expect(body.data).toEqual(expect.objectContaining({
+      target_type: 'provider',
+      target_id: 'provider_pay_sh_lattice'
+    }));
+    expect(body.data.decision_history.length).toBeGreaterThanOrEqual(1);
+
+    await app.close();
+  });
+
+  it('returns 404 for missing Hermes reputation entries', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({ method: 'GET', url: '/v1/hermes/reputation-ledger/provider/not-real' });
+
+    expect(response.statusCode).toBe(404);
+    expect(response.json()).toEqual(expect.objectContaining({
+      error: 'hermes_reputation_entry_not_found'
+    }));
+
+    await app.close();
+  });
+
   it('creates a mock pre-spend run without requiring Hermes sidecar', async () => {
     const app = await createApp();
 

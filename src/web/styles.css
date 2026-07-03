@@ -6995,7 +6995,9 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 .hermes-run-card,
 .hermes-skill-card,
 .hermes-receipt-card,
-.hermes-claim-review-card {
+.hermes-claim-review-card,
+.hermes-ledger-card,
+.hermes-impact-surface {
   min-width: 0;
 }
 
@@ -7006,6 +7008,8 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 .hermes-receipt-grid,
 .hermes-rule-grid,
 .hermes-claim-review-grid,
+.hermes-ledger-grid,
+.hermes-impact-surfaces,
 .hermes-flow-strip {
   display: grid;
   gap: 12px;
@@ -7025,14 +7029,25 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 
 .hermes-receipt-grid,
 .hermes-rule-grid,
-.hermes-claim-review-grid {
+.hermes-claim-review-grid,
+.hermes-ledger-grid,
+.hermes-impact-surfaces {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.hermes-impact-surfaces {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.hermes-ledger-grid.compact {
+  grid-template-columns: 1fr;
 }
 
 .hermes-run-card,
 .hermes-skill-card,
 .hermes-receipt-card,
 .hermes-claim-review-card,
+.hermes-ledger-card,
 .hermes-rule-grid article {
   display: grid;
   gap: 12px;
@@ -7042,6 +7057,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 .hermes-skill-card h3,
 .hermes-receipt-card h3,
 .hermes-claim-review-card h3,
+.hermes-ledger-card h3,
 .hermes-rule-grid h3,
 .hermes-narrative-flow h2 {
   margin: 0;
@@ -7053,6 +7069,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 .hermes-skill-card p,
 .hermes-receipt-card p,
 .hermes-claim-review-card p,
+.hermes-ledger-card p,
 .hermes-rule-grid p,
 .hermes-narrative-flow p,
 .hermes-narrative-copy p {
@@ -7167,14 +7184,22 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
   background: rgba(157,255,194,.08);
 }
 
+.hermes-review-badge.review-trusted {
+  border-color: rgba(157,255,194,.28);
+  background: rgba(157,255,194,.08);
+}
+
 .hermes-review-badge.review-needs_more_evidence,
-.hermes-review-badge.review-candidate {
+.hermes-review-badge.review-candidate,
+.hermes-review-badge.review-watchlist,
+.hermes-review-badge.review-unproven {
   border-color: rgba(242,207,122,.28);
   background: rgba(242,207,122,.07);
 }
 
 .hermes-review-badge.review-disputed,
-.hermes-review-badge.review-rejected {
+.hermes-review-badge.review-rejected,
+.hermes-review-badge.review-degraded {
   border-color: rgba(255,125,125,.28);
   background: rgba(255,125,125,.07);
 }
@@ -7192,6 +7217,15 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 }
 
 .hermes-timeline {
+  padding: 12px;
+  border: 1px solid rgba(124,199,255,.16);
+  border-radius: 14px;
+  background: rgba(7, 18, 23, .55);
+}
+
+.hermes-ledger-history {
+  display: grid;
+  gap: 8px;
   padding: 12px;
   border: 1px solid rgba(124,199,255,.16);
   border-radius: 14px;
@@ -7241,17 +7275,20 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
   font-weight: 900;
 }
 
-.hermes-page .state-trust {
+.hermes-page .state-trust,
+.hermes-page .state-trusted {
   border-color: rgba(157,255,194,.22);
 }
 
 .hermes-page .state-caution,
-.hermes-page .state-unproven {
+.hermes-page .state-unproven,
+.hermes-page .state-watchlist {
   border-color: rgba(242,207,122,.22);
 }
 
 .hermes-page .state-do_not_use_yet,
-.hermes-page .state-disputed {
+.hermes-page .state-disputed,
+.hermes-page .state-degraded {
   border-color: rgba(255,125,125,.24);
 }
 
@@ -7268,6 +7305,8 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
   .hermes-skill-grid,
   .hermes-receipt-grid,
   .hermes-claim-review-grid,
+  .hermes-ledger-grid,
+  .hermes-impact-surfaces,
   .hermes-rule-grid,
   .hermes-narrative-flow {
     grid-template-columns: 1fr;

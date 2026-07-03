@@ -1977,7 +1977,7 @@ function isAbundanceDeskRoute(pathname: string) {
 }
 
 function isHermesDeskRoute(pathname: string) {
-  return /^\/hermes\/?$/.test(pathname) || /^\/hermes\/skill-pack\/?$/.test(pathname) || /^\/narratives\/hermes-desk\/?$/.test(pathname);
+  return /^\/hermes\/?$/.test(pathname) || /^\/hermes\/skill-pack\/?$/.test(pathname) || /^\/hermes\/reputation-ledger\/?$/.test(pathname) || /^\/narratives\/hermes-desk\/?$/.test(pathname);
 }
 
 function routeAttentionMarketWatchSlug(pathname: string) {
@@ -14336,7 +14336,7 @@ export function App() {
   if (isAttentionMarketsRoute(window.location.pathname)) return <AttentionMarketsPage />;
   if (isAttentionMarketWatchRoute(window.location.pathname)) return <AttentionMarketWatchPage />;
   if (isAbundanceDeskRoute(window.location.pathname)) return <AbundanceDeskPage narrativeRoute={/^\/narratives\/abundance-desk\/?$/.test(window.location.pathname)} />;
-  if (isHermesDeskRoute(window.location.pathname)) return <HermesDeskPage narrativeRoute={/^\/narratives\/hermes-desk\/?$/.test(window.location.pathname)} skillPackRoute={/^\/hermes\/skill-pack\/?$/.test(window.location.pathname)} />;
+  if (isHermesDeskRoute(window.location.pathname)) return <HermesDeskPage narrativeRoute={/^\/narratives\/hermes-desk\/?$/.test(window.location.pathname)} skillPackRoute={/^\/hermes\/skill-pack\/?$/.test(window.location.pathname)} reputationLedgerRoute={/^\/hermes\/reputation-ledger\/?$/.test(window.location.pathname)} />;
   const attentionMarketWatchSlug = routeAttentionMarketWatchSlug(window.location.pathname);
   if (attentionMarketWatchSlug) return <AttentionMarketWatchProfilePage slug={attentionMarketWatchSlug} />;
   const signalUpdate = routeSignalUpdate(window.location.pathname);
