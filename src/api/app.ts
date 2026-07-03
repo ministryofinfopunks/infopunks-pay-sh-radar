@@ -176,6 +176,7 @@ import {
   resolveHermesPreSpendDecisionById
 } from '../services/hermesPreSpendDecision';
 import { createHermesDecisionReceipt, recordHermesDecisionOutcome } from '../services/hermesDecisionFeedback';
+import { buildHermesMemoryLoopSummary } from '../services/hermesMemoryLoop';
 import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
@@ -1578,6 +1579,17 @@ export async function createApp(
   app.get('/v1/narratives', async () => ({ data: listNarrativeAssets() }));
   app.get('/v1/hermes', async () => ({ data: safeJsonExport(getHermesDeskSummary()) }));
   app.get('/v1/hermes/skill-pack', async () => ({ data: safeJsonExport(getHermesSkillPack()) }));
+  app.get('/v1/hermes/memory-loop', async () => ({ data: safeJsonExport(buildHermesMemoryLoopSummary()) }));
+  app.get<{ Params: { loop_id: string } }>('/v1/hermes/memory-loop/:loop_id', async (req, reply) => {
+    const loop = buildHermesMemoryLoopSummary().loops.find((item) => item.id === req.params.loop_id);
+    if (!loop) {
+      return reply.code(404).send({
+        error: 'hermes_memory_loop_not_found',
+        message: `No Hermes memory loop found for loop_id=${req.params.loop_id}`
+      });
+    }
+    return { data: safeJsonExport(loop) };
+  });
   app.get('/v1/hermes/skill-pack/skills', async () => ({
     data: safeJsonExport({
       generated_at: '2026-07-03T00:00:00.000Z',

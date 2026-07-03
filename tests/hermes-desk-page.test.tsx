@@ -7,6 +7,7 @@ import { getHermesDeskSummary } from '../src/services/hermesBridge';
 import { getHermesSkillPack } from '../src/data/hermesSkillPack';
 import { buildHermesReputationLedger } from '../src/services/hermesReputationLedger';
 import { createHermesPreSpendDecisionExample } from '../src/services/hermesPreSpendDecision';
+import { buildHermesMemoryLoopSummary } from '../src/services/hermesMemoryLoop';
 import { App } from '../src/web/main';
 
 function json(data: unknown) {
@@ -42,6 +43,7 @@ describe('Hermes Desk page', () => {
     vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
       if (pathOf(input) === '/v1/hermes') return json(getHermesDeskSummary({}));
       if (pathOf(input) === '/v1/hermes/skill-pack') return json(getHermesSkillPack());
+      if (pathOf(input) === '/v1/hermes/memory-loop') return json(buildHermesMemoryLoopSummary());
       if (pathOf(input) === '/v1/hermes/reputation-ledger') return json(buildHermesReputationLedger());
       if (pathOf(input) === '/v1/hermes/pre-spend-decision/example') return json(createHermesPreSpendDecisionExample());
       if (pathOf(input) === '/v1/hermes/health') return json({
@@ -87,6 +89,10 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('signal hunt analyst');
     expect(text).toContain('carbon credit instrument check');
     expect(text).toContain('Agent Run Receipts');
+    expect(text).toContain('Agent Memory Loop');
+    expect(text).toContain('Agents do not need chat history.');
+    expect(text).toContain('Agents need memory that changes future action.');
+    expect(text).toContain('Open Memory Loop');
     expect(text).toContain('Every Hermes investigation can become a receipt');
     expect(text).toContain('receipt_hermes_hermes_pay_sh_route_pre_spend_check');
     expect(text).toContain('Receipt-ready');
@@ -151,6 +157,8 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('risk factors');
     expect(text).toContain('reputation inputs');
     expect(text).toContain('Feedback-ready skills');
+    expect(text).toContain('Memory-loop-ready skills');
+    expect(text).toContain('Hermes skills should produce outputs that can flow through: Run → Receipt → Claim → Review → Reputation → Decision → Outcome → Feedback');
     expect(text).toContain('expected result');
     expect(text).toContain('success criteria');
     expect(text).toContain('failure reasons');
@@ -205,7 +213,45 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('One receipt is evidence.');
     expect(text).toContain('One claim is judgment.');
     expect(text).toContain('Many judgments become reputation.');
+    expect(text).toContain('Agent Memory Loop');
+    expect(text).toContain('Hermes runs create evidence.');
+    expect(text).toContain('Receipts preserve what happened.');
+    expect(text).toContain('Claims interpret the evidence.');
+    expect(text).toContain('Reviews decide whether the claim should affect trust.');
+    expect(text).toContain('Reputation accumulates across claims.');
+    expect(text).toContain('Decisions use reputation before money moves.');
+    expect(text).toContain('Outcomes teach the next decision.');
+    expect(text).toContain('Agents do not need chat history.');
+    expect(text).toContain('Agents need memory that changes future action.');
     expect(container.querySelector('a[href="/narratives/hermes-desk"]')?.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('renders the Agent Memory Loop dashboard', async () => {
+    root = await renderPath(container, '/hermes/memory-loop');
+
+    const text = container.textContent ?? '';
+    expect(text).toContain('Agent Memory Loop');
+    expect(text).toContain('Agents do not need chat history.');
+    expect(text).toContain('Agents need memory that changes future action.');
+    expect(text).toContain('Run → Receipt → Claim → Review → Reputation → Decision → Outcome → Feedback');
+    expect(text).toContain('Pay.sh Route Pre-Spend Check');
+    expect(text).toContain('Receipt');
+    expect(text).toContain('Claim');
+    expect(text).toContain('Review');
+    expect(text).toContain('Reputation');
+    expect(text).toContain('Decision');
+    expect(text).toContain('Outcome');
+    expect(text).toContain('Feedback');
+    expect(text).toContain('Evidence count');
+    expect(text).toContain('Claim review state');
+    expect(text).toContain('Reputation state');
+    expect(text).toContain('Pre-spend decision');
+    expect(text).toContain('Required action');
+    expect(text).toContain('Outcome state');
+    expect(text).toContain('Feedback direction');
+    expect(text).toContain('What changed for the next spend?');
+    expect(text).toContain('The next agent does not start from zero. It inherits receipts, reviewed claims, reputation state, and feedback from previous outcomes.');
+    expect(container.querySelector('a[href="/hermes/memory-loop"]')?.getAttribute('aria-current')).toBe('page');
   });
 
   it('renders the expanded Hermes Reputation Ledger page', async () => {
@@ -237,6 +283,7 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Required action mapping');
     expect(text).toContain('Risk factors');
     expect(text).toContain('Inputs used');
+    expect(text).toContain('The decision engine is part of a larger memory loop. Decisions produce receipts. Outcomes produce feedback. Feedback changes future reputation.');
     expect(container.querySelector('a[href="/hermes/pre-spend-decision"]')?.getAttribute('aria-current')).toBe('page');
   });
 
@@ -252,6 +299,7 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Example Outcome');
     expect(text).toContain('Reputation Feedback');
     expect(text).toContain('What the system learns');
+    expect(text).toContain('Feedback is not the end of the loop. It becomes input for the next pre-spend decision.');
     expect(container.querySelector('a[href="/hermes/decision-feedback"]')?.getAttribute('aria-current')).toBe('page');
   });
 });

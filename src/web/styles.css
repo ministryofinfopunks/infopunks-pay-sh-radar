@@ -6996,6 +6996,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 .hermes-skill-card,
 .hermes-receipt-card,
 .hermes-claim-review-card,
+.hermes-memory-stage,
 .hermes-ledger-card,
 .hermes-impact-surface {
   min-width: 0;
@@ -7008,6 +7009,8 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 .hermes-receipt-grid,
 .hermes-rule-grid,
 .hermes-claim-review-grid,
+.hermes-memory-stage-grid,
+.hermes-memory-edge-list,
 .hermes-ledger-grid,
 .hermes-impact-surfaces,
 .hermes-flow-strip {
@@ -7030,6 +7033,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 .hermes-receipt-grid,
 .hermes-rule-grid,
 .hermes-claim-review-grid,
+.hermes-memory-stage-grid,
 .hermes-ledger-grid,
 .hermes-impact-surfaces {
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -7047,6 +7051,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 .hermes-skill-card,
 .hermes-receipt-card,
 .hermes-claim-review-card,
+.hermes-memory-stage,
 .hermes-ledger-card,
 .hermes-rule-grid article {
   display: grid;
@@ -7057,6 +7062,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 .hermes-skill-card h3,
 .hermes-receipt-card h3,
 .hermes-claim-review-card h3,
+.hermes-memory-stage h3,
 .hermes-ledger-card h3,
 .hermes-rule-grid h3,
 .hermes-narrative-flow h2 {
@@ -7069,6 +7075,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 .hermes-skill-card p,
 .hermes-receipt-card p,
 .hermes-claim-review-card p,
+.hermes-memory-stage p,
 .hermes-ledger-card p,
 .hermes-rule-grid p,
 .hermes-narrative-flow p,
@@ -7147,6 +7154,10 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
   background: rgba(7, 18, 23, .48);
 }
 
+.hermes-memory-flow {
+  grid-template-columns: repeat(15, auto);
+}
+
 .hermes-flow-strip span,
 .hermes-flow-strip b,
 .hermes-review-badge {
@@ -7192,6 +7203,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 .hermes-review-badge.review-needs_more_evidence,
 .hermes-review-badge.review-candidate,
 .hermes-review-badge.review-watchlist,
+.hermes-review-badge.review-watch,
 .hermes-review-badge.review-unproven {
   border-color: rgba(242,207,122,.28);
   background: rgba(242,207,122,.07);
@@ -7199,9 +7211,36 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 
 .hermes-review-badge.review-disputed,
 .hermes-review-badge.review-rejected,
+.hermes-review-badge.review-blocked,
 .hermes-review-badge.review-degraded {
   border-color: rgba(255,125,125,.28);
   background: rgba(255,125,125,.07);
+}
+
+.hermes-review-badge.review-complete,
+.hermes-review-badge.review-ready {
+  border-color: rgba(157,255,194,.28);
+  background: rgba(157,255,194,.08);
+}
+
+.hermes-review-badge.review-missing {
+  border-color: rgba(124,199,255,.25);
+  background: rgba(124,199,255,.08);
+}
+
+.hermes-memory-edge-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.hermes-memory-edge-list span {
+  border: 1px solid rgba(124,199,255,.14);
+  border-radius: 12px;
+  padding: 10px 12px;
+  color: rgba(220, 239, 226, .78);
+  background: rgba(7, 18, 23, .42);
+  font-size: .84rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 .hermes-bridge-status,
@@ -7276,19 +7315,24 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 }
 
 .hermes-page .state-trust,
-.hermes-page .state-trusted {
+.hermes-page .state-trusted,
+.hermes-page .state-complete,
+.hermes-page .state-ready {
   border-color: rgba(157,255,194,.22);
 }
 
 .hermes-page .state-caution,
 .hermes-page .state-unproven,
-.hermes-page .state-watchlist {
+.hermes-page .state-watchlist,
+.hermes-page .state-watch,
+.hermes-page .state-missing {
   border-color: rgba(242,207,122,.22);
 }
 
 .hermes-page .state-do_not_use_yet,
 .hermes-page .state-disputed,
-.hermes-page .state-degraded {
+.hermes-page .state-degraded,
+.hermes-page .state-blocked {
   border-color: rgba(255,125,125,.24);
 }
 
@@ -7305,6 +7349,8 @@ html { scroll-behavior: smooth; scroll-padding-top: 96px; }
   .hermes-skill-grid,
   .hermes-receipt-grid,
   .hermes-claim-review-grid,
+  .hermes-memory-stage-grid,
+  .hermes-memory-edge-list,
   .hermes-ledger-grid,
   .hermes-impact-surfaces,
   .hermes-rule-grid,

@@ -320,6 +320,35 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       tagline: 'Hermes runs the investigation. Infopunks keeps the receipts.'
     })
   });
+  add('get', '/v1/hermes/memory-loop', {
+    tags: ['Hermes'],
+    summary: 'Get Hermes Agent Memory Loop',
+    description: 'Returns one deterministic, stateless Agent Memory Loop stitched from seeded Hermes run evidence, receipt conversion, claim review, reputation ledger, pre-spend decision, decision receipt, outcome, and feedback. This endpoint does not require a live Hermes sidecar and does not mutate persistent memory.',
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesMemoryLoopSummary' }, {
+      generated_at: '2026-07-03T00:00:00.000Z',
+      loop_count: 1,
+      loops: [{
+        id: 'hermes_memory_loop_hermes_pay_sh_route_pre_spend_check',
+        title: 'Agent Memory Loop',
+        source_run_id: 'hermes_pay_sh_route_pre_spend_check',
+        stages: [{ id: 'memory_stage_run', label: 'Run', primitive: 'hermes_run', state: 'watch' }],
+        summary: { stage_count: 8, current_decision: 'do_not_spend', current_required_action: 'do_not_use_provider' }
+      }]
+    })
+  });
+  add('get', '/v1/hermes/memory-loop/{loop_id}', {
+    tags: ['Hermes'],
+    summary: 'Get Hermes Agent Memory Loop by id',
+    description: 'Returns the deterministic Agent Memory Loop by id. Unknown loop ids return hermes_memory_loop_not_found.',
+    parameters: [pathParam('loop_id', 'Hermes memory loop identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesMemoryLoop' }, {
+      id: 'hermes_memory_loop_hermes_pay_sh_route_pre_spend_check',
+      title: 'Agent Memory Loop',
+      source_run_id: 'hermes_pay_sh_route_pre_spend_check',
+      stages: [{ id: 'memory_stage_run', label: 'Run', primitive: 'hermes_run', state: 'watch' }],
+      summary: { stage_count: 8, current_decision: 'do_not_spend', current_required_action: 'do_not_use_provider' }
+    }, 'hermes_memory_loop_not_found')
+  });
   add('get', '/v1/hermes/skill-pack/skills', {
     tags: ['Hermes'],
     summary: 'List Hermes Skill Pack skills',
@@ -2862,6 +2891,70 @@ function componentSchemas(): Record<string, JsonSchema> {
       linked_infopunks_primitives: arrayOf(stringSchema()),
       skills: arrayOf(hermesSkill)
     }, ['id', 'title', 'summary', 'tagline', 'version', 'doctrine_rules', 'expected_output_schema', 'decision_state_mapping', 'linked_infopunks_primitives', 'skills']),
+    HermesMemoryLoopStageState: enumSchema(['complete', 'ready', 'watch', 'blocked', 'missing']),
+    HermesMemoryLoopStage: objectSchema({
+      id: stringSchema(),
+      label: stringSchema(),
+      primitive: enumSchema([
+        'hermes_run',
+        'agent_run_receipt',
+        'claim_candidate',
+        'reviewed_claim',
+        'reputation_entry',
+        'pre_spend_decision',
+        'decision_receipt',
+        'spend_outcome',
+        'reputation_feedback'
+      ]),
+      state: { $ref: '#/components/schemas/HermesMemoryLoopStageState' },
+      title: stringSchema(),
+      summary: stringSchema(),
+      source_id: stringSchema(),
+      decision: stringSchema(),
+      confidence: { type: 'number' },
+      evidence_count: integerSchema(),
+      target_type: stringSchema(),
+      target_id: stringSchema(),
+      metadata: freeformObject()
+    }, ['id', 'label', 'primitive', 'state', 'title', 'summary']),
+    HermesMemoryLoopEdge: objectSchema({
+      from: stringSchema(),
+      to: stringSchema(),
+      label: stringSchema(),
+      summary: stringSchema()
+    }, ['from', 'to', 'label', 'summary']),
+    HermesMemoryLoopSignal: objectSchema({
+      id: stringSchema(),
+      label: stringSchema(),
+      value: { oneOf: [stringSchema(), { type: 'number' }] },
+      summary: stringSchema()
+    }, ['id', 'label', 'value', 'summary']),
+    HermesMemoryLoop: objectSchema({
+      id: stringSchema(),
+      title: stringSchema(),
+      thesis: stringSchema(),
+      generated_at: dateTimeSchema(),
+      source_run_id: stringSchema(),
+      stages: arrayOf({ $ref: '#/components/schemas/HermesMemoryLoopStage' }),
+      edges: arrayOf({ $ref: '#/components/schemas/HermesMemoryLoopEdge' }),
+      signals: arrayOf({ $ref: '#/components/schemas/HermesMemoryLoopSignal' }),
+      summary: objectSchema({
+        stage_count: integerSchema(),
+        complete_count: integerSchema(),
+        watch_count: integerSchema(),
+        blocked_count: integerSchema(),
+        missing_count: integerSchema(),
+        current_decision: stringSchema(),
+        current_required_action: stringSchema(),
+        reputation_state: stringSchema(),
+        feedback_direction: stringSchema()
+      }, ['stage_count', 'complete_count', 'watch_count', 'blocked_count', 'missing_count'])
+    }, ['id', 'title', 'thesis', 'generated_at', 'source_run_id', 'stages', 'edges', 'signals', 'summary']),
+    HermesMemoryLoopSummary: objectSchema({
+      generated_at: dateTimeSchema(),
+      loop_count: integerSchema(),
+      loops: arrayOf({ $ref: '#/components/schemas/HermesMemoryLoop' })
+    }, ['generated_at', 'loop_count', 'loops']),
     HermesRunReceipt: hermesRunReceipt,
     HermesClaimCandidate: hermesClaimCandidate,
     HermesClaimReviewState: hermesClaimReviewState,

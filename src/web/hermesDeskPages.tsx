@@ -14,6 +14,7 @@ import type {
 } from '../services/hermesPreSpendDecision';
 import type { HermesDecisionFeedbackResult, HermesDecisionOutcomeState, HermesDecisionReceipt } from '../services/hermesDecisionFeedback';
 import { createHermesDecisionReceipt, recordHermesDecisionOutcome } from '../services/hermesDecisionFeedback';
+import type { HermesMemoryLoop, HermesMemoryLoopSummary } from '../services/hermesMemoryLoop';
 import { getNarrativeMetadataForPath } from '../shared/narrativeMetadata';
 
 const API_BASE_URL = getApiBaseUrl();
@@ -112,6 +113,7 @@ function HermesNav({ current }: { current: string }) {
   const links = [
     { href: '/', label: 'Radar Home' },
     { href: '/hermes', label: 'Hermes Desk' },
+    { href: '/hermes/memory-loop', label: 'Memory Loop' },
     { href: '/hermes/pre-spend-decision', label: 'Pre-Spend Decision' },
     { href: '/hermes/decision-feedback', label: 'Decision Feedback' },
     { href: '/hermes/reputation-ledger', label: 'Reputation Ledger' },
@@ -124,6 +126,7 @@ function HermesNav({ current }: { current: string }) {
 
   function active(href: string) {
     if (href === '/hermes') return current === '/hermes';
+    if (href === '/hermes/memory-loop') return current === '/hermes/memory-loop';
     if (href === '/hermes/pre-spend-decision') return current === '/hermes/pre-spend-decision';
     if (href === '/hermes/decision-feedback') return current === '/hermes/decision-feedback';
     if (href === '/hermes/reputation-ledger') return current === '/hermes/reputation-ledger';
@@ -471,6 +474,125 @@ function HermesDecisionFeedbackSection({ decision }: { decision: HermesPreSpendD
   </section>;
 }
 
+function HermesMemoryLoopStageCard({ stage }: { stage: HermesMemoryLoop['stages'][number] }) {
+  return <article className={`panel hermes-memory-stage state-${stage.state}`} aria-label={`${stage.label} memory stage`}>
+    <div className="abundance-card-head">
+      <p className="section-kicker">{stage.label}</p>
+      <span className={`hermes-review-badge review-${stage.state}`}>{stage.state}</span>
+    </div>
+    <h3>{stage.title}</h3>
+    <p>{stage.summary}</p>
+    <div className="machine-usage-list">
+      <p><span>primitive</span><small>{stage.primitive}</small></p>
+      <p><span>source_id</span><small>{stage.source_id ?? 'not available'}</small></p>
+      <p><span>decision</span><small>{stage.decision ?? 'not available'}</small></p>
+      <p><span>confidence</span><small>{typeof stage.confidence === 'number' ? stage.confidence : 'not available'}</small></p>
+      <p><span>evidence_count</span><small>{typeof stage.evidence_count === 'number' ? stage.evidence_count : 'not available'}</small></p>
+      <p><span>target</span><small>{stage.target_type ? `${stage.target_type}:${stage.target_id ?? 'unknown'}` : 'not available'}</small></p>
+    </div>
+  </article>;
+}
+
+function HermesMemoryLoopDashboardPage() {
+  const [memoryLoopSummary, setMemoryLoopSummary] = useState<HermesMemoryLoopSummary | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    syncHermesMetadata('/hermes/memory-loop');
+  }, []);
+
+  useEffect(() => {
+    api<HermesMemoryLoopSummary>('/v1/hermes/memory-loop')
+      .then((response) => setMemoryLoopSummary(response.data))
+      .catch((err) => setError(err instanceof Error ? err.message : 'hermes_memory_loop_unavailable'));
+  }, []);
+
+  const loop = memoryLoopSummary?.loops[0] ?? null;
+  const selectedSignals = loop?.signals.filter((signal) => [
+    'evidence_count',
+    'claim_review_state',
+    'reputation_state',
+    'pre_spend_decision',
+    'required_action',
+    'outcome_state',
+    'feedback_direction'
+  ].includes(signal.id)) ?? [];
+
+  return <div className="shell narrative-shell hermes-shell">
+    <a className="skip-link" href="#hermes-memory-loop-content">Skip to content</a>
+    <header className="site-header">
+      <HermesNav current="/hermes/memory-loop" />
+    </header>
+    <main id="hermes-memory-loop-content" className="narrative-page hermes-page">
+      <section className="panel hero narrative-hero hermes-hero">
+        <div>
+          <p className="eyebrow">Agent Memory Circuit</p>
+          <h1>Agent Memory Loop</h1>
+          <p className="copy hermes-hero-copy">Agents do not need chat history. Agents need memory that changes future action.</p>
+          <p className="copy">Run → Receipt → Claim → Review → Reputation → Decision → Outcome → Feedback</p>
+          <div className="panel-actions">
+            <a className="execute" href="/v1/hermes/memory-loop">Open Memory Loop JSON</a>
+            <a className="execute compact secondary" href="/hermes">Back to Hermes Desk</a>
+          </div>
+        </div>
+        <div className="panel narrative-hero-rail hermes-hero-rail">
+          <p className="section-kicker">Stateless build</p>
+          <p>No live Hermes sidecar is required.</p>
+          <p>No receipts, claims, reputation entries, decisions, or outcomes are persisted or mutated by this dashboard.</p>
+        </div>
+      </section>
+
+      {error && <section className="panel"><p className="route-state error">{error}</p></section>}
+      {!error && !loop && <section className="panel"><p className="route-state">Loading Agent Memory Loop...</p></section>}
+      {loop && <>
+        <section className="panel hermes-runs-section" aria-label="Complete agent memory loop">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">{loop.source_run_id}</p>
+              <h2>{loop.thesis}</h2>
+            </div>
+            <a className="execute compact secondary" href={`/v1/hermes/memory-loop/${encodeURIComponent(loop.id)}`}>GET loop</a>
+          </div>
+          <div className="hermes-flow-strip hermes-memory-flow" aria-label="Agent memory loop flow">
+            {loop.stages.map((stage, index) => (
+              <React.Fragment key={stage.id}>
+                <span>{stage.label}</span>
+                {index < loop.stages.length - 1 && <b aria-hidden="true">-&gt;</b>}
+              </React.Fragment>
+            ))}
+          </div>
+          <div className="hermes-memory-edge-list" aria-label="Memory loop edges">
+            {loop.edges.map((edge) => <span key={edge.label}>{edge.label}: {edge.summary}</span>)}
+          </div>
+          <div className="hermes-memory-stage-grid">
+            {loop.stages.map((stage) => <HermesMemoryLoopStageCard key={stage.id} stage={stage} />)}
+          </div>
+        </section>
+
+        <section className="grid four hermes-metric-grid" aria-label="Memory loop signal summary">
+          {selectedSignals.map((signal) => <HermesMetric key={signal.id} label={signal.label} value={signal.value} sub={signal.summary} />)}
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="What changed for the next spend?">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">What changed for the next spend?</p>
+              <h2>The next agent does not start from zero.</h2>
+            </div>
+          </div>
+          <p className="copy">The next agent does not start from zero. It inherits receipts, reviewed claims, reputation state, and feedback from previous outcomes.</p>
+          <div className="machine-usage-list">
+            <p><span>current_decision</span><small>{loop.summary.current_decision ?? 'not available'}</small></p>
+            <p><span>required_action</span><small>{loop.summary.current_required_action ?? 'not available'}</small></p>
+            <p><span>reputation_state</span><small>{loop.summary.reputation_state ?? 'not available'}</small></p>
+            <p><span>feedback_direction</span><small>{loop.summary.feedback_direction ?? 'not available'}</small></p>
+          </div>
+        </section>
+      </>}
+    </main>
+  </div>;
+}
+
 function HermesNarrativePage() {
   useEffect(() => {
     syncHermesMetadata('/narratives/hermes-desk');
@@ -565,6 +687,19 @@ function HermesNarrativePage() {
         <p>A decision without an outcome is advice.</p>
         <p>A decision with a receipt becomes intelligence.</p>
       </section>
+      <section className="panel hermes-narrative-copy" aria-label="Agent Memory Loop">
+        <p className="section-kicker">Agent Memory Loop</p>
+        <h2>Agents do not need chat history. Agents need memory that changes future action.</h2>
+        <p>Hermes runs create evidence.</p>
+        <p>Receipts preserve what happened.</p>
+        <p>Claims interpret the evidence.</p>
+        <p>Reviews decide whether the claim should affect trust.</p>
+        <p>Reputation accumulates across claims.</p>
+        <p>Decisions use reputation before money moves.</p>
+        <p>Outcomes teach the next decision.</p>
+        <p>Agents do not need chat history.</p>
+        <p>Agents need memory that changes future action.</p>
+      </section>
     </main>
   </div>;
 }
@@ -646,6 +781,26 @@ function HermesDeskSurface() {
           <HermesMetric label="active" value={summary.counts.active_runs} sub="queued or running" />
           <HermesMetric label="completed" value={summary.counts.completed_runs} sub="finished runs" />
           <HermesMetric label="sidecar" value={summary.sidecar.status} sub="optional runtime" />
+        </section>
+
+        <section className="panel hermes-runs-section" aria-label="Agent Memory Loop">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Agent Memory Loop</p>
+              <h2>Agents do not need chat history.</h2>
+            </div>
+            <a className="execute compact secondary" href="/hermes/memory-loop">Open Memory Loop</a>
+          </div>
+          <p className="copy">Agents do not need chat history.</p>
+          <p className="copy">Agents need memory that changes future action.</p>
+          <div className="hermes-flow-strip" aria-label="Agent Memory Loop flow">
+            {['Run', 'Receipt', 'Claim', 'Review', 'Reputation', 'Decision', 'Outcome', 'Feedback'].map((step, index) => (
+              <React.Fragment key={step}>
+                <span>{step}</span>
+                {index < 7 && <b aria-hidden="true">-&gt;</b>}
+              </React.Fragment>
+            ))}
+          </div>
         </section>
 
         <section className="panel hermes-bridge-status" aria-label="Hermes bridge status">
@@ -922,6 +1077,17 @@ function HermesSkillPackPage() {
           </div>
         </section>
 
+        <section className="panel hermes-skill-pack-detail" aria-label="Memory-loop-ready skills">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Memory-loop-ready skills</p>
+              <h2>Hermes skills should produce outputs that can flow through the full memory loop.</h2>
+            </div>
+            <a className="execute compact secondary" href="/hermes/memory-loop">Open Memory Loop</a>
+          </div>
+          <p className="copy">Hermes skills should produce outputs that can flow through: Run → Receipt → Claim → Review → Reputation → Decision → Outcome → Feedback</p>
+        </section>
+
         <section className="panel hermes-skill-pack-detail" aria-label="Decision-ready outputs">
           <div className="panel-head">
             <div>
@@ -978,6 +1144,7 @@ function HermesPreSpendDecisionPage() {
           <p className="copy hermes-hero-copy">Before an agent spends, it checks the ledger.</p>
           <div className="panel-actions">
             <a className="execute" href="/v1/hermes/pre-spend-decision/example">Open Example JSON</a>
+            <a className="execute compact secondary" href="/hermes/memory-loop">Open Memory Loop</a>
             <a className="execute compact secondary" href="/hermes/decision-feedback">Open feedback loop</a>
             <a className="execute compact secondary" href="/hermes">Back to Hermes Desk</a>
           </div>
@@ -994,6 +1161,16 @@ function HermesPreSpendDecisionPage() {
         <article><span>3</span><h2>Decision</h2><p>A deterministic state is returned: proceed, caution, test spend, stop, or request more evidence.</p></article>
         <article><span>4</span><h2>Required Action</h2><p>The engine recommends the next action the agent should take before money moves.</p></article>
         <article><span>5</span><h2>New Receipt</h2><p>The next run can create a new receipt, claim, and future ledger update.</p></article>
+      </section>
+      <section className="panel hermes-skill-pack-detail" aria-label="Memory loop note">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Memory loop</p>
+            <h2>The decision engine is part of a larger memory loop.</h2>
+          </div>
+          <a className="execute compact secondary" href="/hermes/memory-loop">Open Memory Loop</a>
+        </div>
+        <p className="copy">The decision engine is part of a larger memory loop. Decisions produce receipts. Outcomes produce feedback. Feedback changes future reputation.</p>
       </section>
       {error && <section className="panel"><p className="route-state error">{error}</p></section>}
       {!error && decision && <section className="panel hermes-runs-section" aria-label="Example decision card">
@@ -1091,6 +1268,7 @@ function HermesDecisionFeedbackPage() {
           <p className="copy hermes-hero-copy">A decision becomes intelligence when the outcome is recorded.</p>
           <div className="panel-actions">
             <a className="execute" href="/v1/hermes/pre-spend-decision/example">Open decision JSON</a>
+            <a className="execute compact secondary" href="/hermes/memory-loop">Open Memory Loop</a>
             <a className="execute compact secondary" href="/hermes/pre-spend-decision">Back to decision engine</a>
           </div>
         </div>
@@ -1106,6 +1284,16 @@ function HermesDecisionFeedbackPage() {
         <article><span>3</span><h2>Example Outcome</h2><p>The outcome records what actually happened after the recommendation.</p></article>
         <article><span>4</span><h2>Reputation Feedback</h2><p>The impact object turns the result into future route, provider, or service memory.</p></article>
         <article><span>5</span><h2>What the system learns</h2><p>The next spend inherits memory from both the recommendation and the outcome.</p></article>
+      </section>
+      <section className="panel hermes-skill-pack-detail" aria-label="Memory loop note">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Memory loop</p>
+            <h2>Feedback is not the end of the loop.</h2>
+          </div>
+          <a className="execute compact secondary" href="/hermes/memory-loop">Open Memory Loop</a>
+        </div>
+        <p className="copy">Feedback is not the end of the loop. It becomes input for the next pre-spend decision.</p>
       </section>
       {error && <section className="panel"><p className="route-state error">{error}</p></section>}
       {receipt && <section className="panel hermes-runs-section" aria-label="Example Decision Receipt">
@@ -1186,11 +1374,13 @@ function HermesReputationLedgerPage() {
 
 export function HermesDeskPage({
   narrativeRoute = false,
+  memoryLoopRoute = false,
   skillPackRoute = false,
   reputationLedgerRoute = false,
   preSpendDecisionRoute = false,
   decisionFeedbackRoute = false
-}: { narrativeRoute?: boolean; skillPackRoute?: boolean; reputationLedgerRoute?: boolean; preSpendDecisionRoute?: boolean; decisionFeedbackRoute?: boolean }) {
+}: { narrativeRoute?: boolean; memoryLoopRoute?: boolean; skillPackRoute?: boolean; reputationLedgerRoute?: boolean; preSpendDecisionRoute?: boolean; decisionFeedbackRoute?: boolean }) {
+  if (memoryLoopRoute) return <HermesMemoryLoopDashboardPage />;
   if (decisionFeedbackRoute) return <HermesDecisionFeedbackPage />;
   if (preSpendDecisionRoute) return <HermesPreSpendDecisionPage />;
   if (reputationLedgerRoute) return <HermesReputationLedgerPage />;

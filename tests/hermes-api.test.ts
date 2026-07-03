@@ -259,6 +259,59 @@ describe('Hermes Desk API', () => {
     await app.close();
   });
 
+  it('returns the Hermes Agent Memory Loop summary', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({ method: 'GET', url: '/v1/hermes/memory-loop' });
+    const body = response.json();
+
+    expect(response.statusCode).toBe(200);
+    expect(body.data.generated_at).toBe('2026-07-03T00:00:00.000Z');
+    expect(body.data.loop_count).toBeGreaterThanOrEqual(1);
+    expect(body.data.loops[0].source_run_id).toBe('hermes_pay_sh_route_pre_spend_check');
+    expect(body.data.loops[0].stages.map((stage: any) => stage.label)).toEqual([
+      'Run',
+      'Receipt',
+      'Claim',
+      'Review',
+      'Reputation',
+      'Decision',
+      'Outcome',
+      'Feedback'
+    ]);
+
+    await app.close();
+  });
+
+  it('returns one Hermes Agent Memory Loop by id', async () => {
+    const app = await createApp();
+    const loopId = 'hermes_memory_loop_hermes_pay_sh_route_pre_spend_check';
+
+    const response = await app.inject({ method: 'GET', url: `/v1/hermes/memory-loop/${loopId}` });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().data).toEqual(expect.objectContaining({
+      id: loopId,
+      title: 'Agent Memory Loop',
+      source_run_id: 'hermes_pay_sh_route_pre_spend_check'
+    }));
+
+    await app.close();
+  });
+
+  it('returns 404 for unknown Hermes Agent Memory Loop ids', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({ method: 'GET', url: '/v1/hermes/memory-loop/not-real' });
+
+    expect(response.statusCode).toBe(404);
+    expect(response.json()).toEqual(expect.objectContaining({
+      error: 'hermes_memory_loop_not_found'
+    }));
+
+    await app.close();
+  });
+
   it('returns a pre-spend decision for seeded Hermes IDs', async () => {
     const app = await createApp();
 
