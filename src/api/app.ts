@@ -199,6 +199,10 @@ import {
   createHermesWalletSafetyCheck,
   getHermesWalletSafetyExampleCheck
 } from '../services/hermesWalletSafetyBundle';
+import {
+  buildWalletSafetyIntegrationRegistry,
+  getWalletSafetyIntegrationById
+} from '../services/walletSafetyIntegrationRegistry';
 import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
@@ -1756,6 +1760,19 @@ export async function createApp(
   app.get('/v1/hermes/wallet-safety/example', async () => ({
     data: safeJsonExport(getHermesWalletSafetyExampleCheck())
   }));
+  app.get('/v1/hermes/wallet-safety/integrations', async () => ({
+    data: safeJsonExport(buildWalletSafetyIntegrationRegistry())
+  }));
+  app.get<{ Params: { integration_id: string } }>('/v1/hermes/wallet-safety/integrations/:integration_id', async (req, reply) => {
+    const integration = getWalletSafetyIntegrationById(req.params.integration_id);
+    if (!integration) {
+      return reply.code(404).send({
+        error: 'wallet_safety_integration_not_found',
+        message: `No Wallet Safety integration registry entry found for integration_id=${req.params.integration_id || 'unknown'}`
+      });
+    }
+    return { data: safeJsonExport(integration) };
+  });
   app.get('/v1/hermes/skill-pack/skills', async () => ({
     data: safeJsonExport({
       generated_at: '2026-07-03T00:00:00.000Z',

@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import { SignalGraphContextPanel, type SignalGraphContextNode } from './signalGraphContextPanel';
+import type { WalletSafetyIntegrationProfile } from '../data/walletSafetyIntegrations';
+import { buildWalletSafetyIntegrationRegistry } from '../services/walletSafetyIntegrationRegistry';
 
 type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
 type DecisionState = 'approved' | 'approved_with_warning' | 'use_with_caution' | 'requires_human_approval' | 'do_not_use';
@@ -807,6 +809,17 @@ Content-Type: application/json
         </div>
       </section>
 
+      <section className="panel builder-detail-panel" aria-label="Integration Registry">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Integration Registry</p>
+            <h2>A safety API is useful. A registry makes adoption visible.</h2>
+          </div>
+          <a className="execute compact secondary" href="/developers/wallet-safety/integrations">Open Integration Registry</a>
+        </div>
+        <p className="panel-caption">The registry shows agents, wallets, routers, and apps that are Wallet Safety-ready or moving toward compatibility.</p>
+      </section>
+
       <section className="panel builder-detail-panel" id="agent-example" aria-label="Developer links">
         <div className="panel-head">
           <div>
@@ -825,6 +838,151 @@ Content-Type: application/json
           </article>)}
         </div>
         <p className="panel-caption">Minimal agent example path in repo: <code>examples/pre-spend-agent/README.md</code></p>
+      </section>
+    </main>
+  </div>;
+}
+
+function walletSafetyBooleanLabel(value: boolean) {
+  return value ? 'yes' : 'no';
+}
+
+function walletSafetyReadinessTitle(state: WalletSafetyIntegrationProfile['readiness_state']) {
+  return ({
+    ready: 'Ready',
+    testing: 'Testing',
+    needs_receipts: 'Needs Receipts',
+    watch: 'Watch',
+    not_ready: 'Not Ready'
+  } as const)[state];
+}
+
+export function WalletSafetyIntegrationRegistryPage() {
+  useEffect(() => {
+    document.title = 'Wallet Safety Integration Registry | Infopunks Builder';
+  }, []);
+
+  const registry = useMemo(() => buildWalletSafetyIntegrationRegistry(), []);
+  const readinessStates = [
+    ['ready', 'Safety check is used, receipts are written, and fail-closed behavior is present.'],
+    ['testing', 'Integration is actively testing Wallet Safety flows but not yet ready for listing as compatible.'],
+    ['needs_receipts', 'Safety checks are wired, but receipt writing still needs to be implemented.'],
+    ['watch', 'Integration is close, but evidence still shows gaps in autonomous safety posture.'],
+    ['not_ready', 'Listing exists for visibility, but core Wallet Safety requirements are still missing.']
+  ] as const;
+  const checklist = [
+    'call POST /v1/hermes/wallet-safety/check before spend',
+    'respect final_recommendation',
+    'never treat API failure as approval',
+    'write an integration receipt',
+    'store policy_receipt_id, risk_score_id, and audit_trail_id',
+    'expose agent_action_taken',
+    'support fail-closed behavior'
+  ];
+
+  return <div className="shell builder-shell">
+    <main className="builder-page developers-page" aria-label="Wallet Safety Integration Registry">
+      <section className="panel hero builder-hero">
+        <div>
+          <p className="eyebrow">Developer Registry</p>
+          <h1>Wallet Safety Integration Registry</h1>
+          <p className="copy">A safety API is useful. A registry makes adoption visible.</p>
+          <p className="copy">Compatible agents, wallets, routers, and payment apps can show whether they check before spend, write integration receipts, and fail closed when safety is unavailable.</p>
+          <div className="panel-actions">
+            <a className="execute" href="/v1/hermes/wallet-safety/integrations">Open registry JSON</a>
+            <a className="execute compact secondary" href="/developers/wallet-safety">Open developer quickstart</a>
+            <a className="execute compact secondary" href="/hermes/wallet-safety">Open Wallet Safety API</a>
+          </div>
+        </div>
+        <div className="ticker" aria-label="Wallet safety registry states">
+          {readinessStates.map(([state]) => <span key={state}>{state}</span>)}
+        </div>
+      </section>
+
+      <section className="panel builder-detail-panel" aria-label="Registry Summary">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Registry Summary</p>
+            <h2>Deterministic seeded visibility for Wallet Safety adoption.</h2>
+          </div>
+        </div>
+        <div className="grid two builder-section-grid">
+          <div className="grid three builder-card-grid">
+            <article className="panel builder-card"><p className="section-kicker">Total integrations</p><h2>{registry.integration_count}</h2></article>
+            <article className="panel builder-card"><p className="section-kicker">Ready</p><h2>{registry.ready_count}</h2></article>
+            <article className="panel builder-card"><p className="section-kicker">Testing</p><h2>{registry.testing_count}</h2></article>
+            <article className="panel builder-card"><p className="section-kicker">Needs receipts</p><h2>{registry.needs_receipts_count}</h2></article>
+            <article className="panel builder-card"><p className="section-kicker">Watch</p><h2>{registry.watch_count}</h2></article>
+            <article className="panel builder-card"><p className="section-kicker">Not ready</p><h2>{registry.not_ready_count}</h2></article>
+          </div>
+          <section className="panel builder-detail-panel" aria-label="Generated metadata">
+            <div className="panel-head"><div><p className="section-kicker">Seed state</p><h2>Mock-safe and stateless.</h2></div></div>
+            <div className="builder-note-stack">
+              <p className="builder-note-row">generated_at: {registry.generated_at}</p>
+              <p className="builder-note-row">No persistence.</p>
+              <p className="builder-note-row">No live Hermes required.</p>
+              <p className="builder-note-row">Registry data is deterministic and seeded.</p>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section className="panel builder-detail-panel" aria-label="Integration Profiles">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Integration Profiles</p>
+            <h2>Seeded compatible surfaces.</h2>
+          </div>
+        </div>
+        <div className="builder-card-grid">
+          {registry.integrations.map((integration) => <article className="panel builder-card" key={integration.integration_id}>
+            <p className="section-kicker">{integration.integration_id}</p>
+            <h2>{integration.name}</h2>
+            <p className="panel-caption">{integration.summary}</p>
+            <div className="builder-detail-grid">
+              <article><span>agent_type</span><strong>{integration.agent_type}</strong></article>
+              <article><span>supported_chains</span><strong>{integration.supported_chains.join(', ')}</strong></article>
+              <article><span>supported_payment_rails</span><strong>{integration.supported_payment_rails.join(', ')}</strong></article>
+              <article><span>uses_wallet_safety_check</span><strong>{walletSafetyBooleanLabel(integration.uses_wallet_safety_check)}</strong></article>
+              <article><span>writes_integration_receipts</span><strong>{walletSafetyBooleanLabel(integration.writes_integration_receipts)}</strong></article>
+              <article><span>fail_closed_behavior</span><strong>{walletSafetyBooleanLabel(integration.fail_closed_behavior)}</strong></article>
+              <article><span>last_verified_at</span><strong>{integration.last_verified_at}</strong></article>
+              <article><span>readiness_state</span><strong>{walletSafetyReadinessTitle(integration.readiness_state)}</strong></article>
+            </div>
+            <div className="builder-note-stack">
+              {integration.readiness_notes.map((note) => <p className="builder-note-row" key={`${integration.integration_id}-${note}`}>{note}</p>)}
+            </div>
+          </article>)}
+        </div>
+      </section>
+
+      <section className="grid two builder-section-grid">
+        <section className="panel builder-detail-panel" aria-label="Readiness States">
+          <div className="panel-head"><div><p className="section-kicker">Readiness States</p><h2>Bounded status language.</h2></div></div>
+          <div className="builder-detail-grid">
+            {readinessStates.map(([state, copy]) => <article key={state}><span>{state}</span><strong>{copy}</strong></article>)}
+          </div>
+        </section>
+        <section className="panel builder-detail-panel" aria-label="What Wallet Safety-ready means">
+          <div className="panel-head"><div><p className="section-kicker">What “Wallet Safety-ready” means</p><h2>Checklist for compatible integrations.</h2></div></div>
+          <div className="builder-note-stack">
+            {checklist.map((item) => <p className="builder-note-row" key={item}>{item}</p>)}
+          </div>
+        </section>
+      </section>
+
+      <section className="grid two builder-section-grid">
+        <section className="panel builder-detail-panel" aria-label="How to get listed">
+          <div className="panel-head"><div><p className="section-kicker">How to get listed</p><h2>Evidence before visibility.</h2></div></div>
+          <p className="panel-caption">To become Wallet Safety-ready, builders should integrate the Wallet Safety API, store integration receipts, and provide evidence that their agent or wallet fails closed when safety checks are unavailable.</p>
+          <p className="panel-caption">This registry is currently seeded and deterministic. Future versions can accept submitted integration receipts, verification runs, and third-party attestations.</p>
+        </section>
+        <section className="panel builder-detail-panel" aria-label="Integration receipt requirements">
+          <div className="panel-head"><div><p className="section-kicker">Integration receipt requirements</p><h2>Store the evidence fields that prove readiness.</h2></div></div>
+          <div className="builder-detail-grid">
+            {['wallet_safety_check_id', 'policy_receipt_id', 'risk_score_id', 'audit_trail_id', 'agent_action_taken', 'timestamp'].map((field) => <article key={field}><span>{field}</span><strong>expected</strong></article>)}
+          </div>
+        </section>
       </section>
     </main>
   </div>;
@@ -1140,6 +1298,7 @@ await db.walletSafetyReceipts.insert(integrationReceipt);`;
             <a className="execute compact secondary" href="/openapi.json">Open OpenAPI schema</a>
             <a className="execute compact secondary" href="#sdk-snippets">View SDK snippets</a>
             <a className="execute compact secondary" href="#integration-receipt-pattern">Integration Receipt Pattern</a>
+            <a className="execute compact secondary" href="/developers/wallet-safety/integrations">Open Integration Registry</a>
             <a className="execute compact secondary" href="/developers">Back to Developers</a>
           </div>
         </div>

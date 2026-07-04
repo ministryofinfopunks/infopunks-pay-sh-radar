@@ -897,6 +897,33 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       }
     })
   });
+  add('get', '/v1/hermes/wallet-safety/integrations', {
+    tags: ['Hermes'],
+    summary: 'List Wallet Safety integration registry entries',
+    description: 'Returns the deterministic, seeded Wallet Safety Integration Registry. This surface is stateless, read-only, mock-safe, and does not require live Hermes.',
+    responses: envelopedResponses({ $ref: '#/components/schemas/WalletSafetyIntegrationRegistrySummary' }, {
+      generated_at: '2026-07-03T00:00:00.000Z',
+      integration_count: 4,
+      ready_count: 2,
+      testing_count: 0,
+      needs_receipts_count: 1,
+      watch_count: 1,
+      not_ready_count: 0,
+      integrations: [{ integration_id: 'agent_wallet_demo', readiness_state: 'ready', writes_integration_receipts: true }]
+    })
+  });
+  add('get', '/v1/hermes/wallet-safety/integrations/{integration_id}', {
+    tags: ['Hermes'],
+    summary: 'Get Wallet Safety integration registry entry',
+    description: 'Returns one deterministic Wallet Safety integration registry profile by integration_id. No persistence or live Hermes is required.',
+    parameters: [pathParam('integration_id', 'Wallet Safety integration identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/WalletSafetyIntegrationProfile' }, {
+      integration_id: 'agent_wallet_demo',
+      name: 'Agent Wallet Demo',
+      readiness_state: 'ready',
+      supported_chains: ['base', 'solana']
+    }, 'wallet_safety_integration_not_found')
+  });
   add('get', '/v1/hermes/skill-pack/skills', {
     tags: ['Hermes'],
     summary: 'List Hermes Skill Pack skills',
@@ -3992,6 +4019,35 @@ function componentSchemas(): Record<string, JsonSchema> {
       }, ['status', 'notes']),
       reputation_feedback: { $ref: '#/components/schemas/HermesDecisionOutcomeImpact' }
     }, ['decision_id', 'receipt', 'outcome', 'feedback', 'reputation_feedback']),
+    WalletSafetyIntegrationReadinessState: enumSchema(['ready', 'testing', 'needs_receipts', 'watch', 'not_ready']),
+    WalletSafetyIntegrationProfile: objectSchema({
+      integration_id: stringSchema(),
+      name: stringSchema(),
+      summary: stringSchema(),
+      agent_type: enumSchema(['agent_wallet', 'route_guard', 'service_router', 'research_agent', 'payment_app', 'unknown']),
+      supported_chains: arrayOf(stringSchema()),
+      supported_payment_rails: arrayOf(stringSchema()),
+      uses_wallet_safety_check: booleanSchema(),
+      writes_integration_receipts: booleanSchema(),
+      fail_closed_behavior: booleanSchema(),
+      last_verified_at: dateTimeSchema(),
+      readiness_state: { $ref: '#/components/schemas/WalletSafetyIntegrationReadinessState' },
+      readiness_notes: arrayOf(stringSchema()),
+      linked_routes: arrayOf(stringSchema()),
+      linked_providers: arrayOf(stringSchema()),
+      linked_services: arrayOf(stringSchema()),
+      example_receipt_fields: arrayOf(stringSchema())
+    }, ['integration_id', 'name', 'summary', 'agent_type', 'supported_chains', 'supported_payment_rails', 'uses_wallet_safety_check', 'writes_integration_receipts', 'fail_closed_behavior', 'last_verified_at', 'readiness_state', 'readiness_notes', 'example_receipt_fields']),
+    WalletSafetyIntegrationRegistrySummary: objectSchema({
+      generated_at: dateTimeSchema(),
+      integration_count: integerSchema(),
+      ready_count: integerSchema(),
+      testing_count: integerSchema(),
+      needs_receipts_count: integerSchema(),
+      watch_count: integerSchema(),
+      not_ready_count: integerSchema(),
+      integrations: arrayOf({ $ref: '#/components/schemas/WalletSafetyIntegrationProfile' })
+    }, ['generated_at', 'integration_count', 'ready_count', 'testing_count', 'needs_receipts_count', 'watch_count', 'not_ready_count', 'integrations']),
     HermesPromotedClaim: hermesPromotedClaim,
     HermesClaimPromotionRequest: objectSchema({
       review_state: hermesClaimReviewState

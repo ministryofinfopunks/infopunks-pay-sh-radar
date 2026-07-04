@@ -95,6 +95,14 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
     );
   }
 
+  if (/^\/developers\/wallet-safety\/integrations\/?$/.test(pathname)) {
+    return buildMetadata(
+      'Wallet Safety Integration Registry',
+      'A safety API is useful. A registry makes adoption visible.',
+      '/developers/wallet-safety/integrations'
+    );
+  }
+
   if (/^\/hermes\/pre-spend-decision\/?$/.test(pathname)) {
     return buildMetadata(
       'Pre-Spend Decision Engine',

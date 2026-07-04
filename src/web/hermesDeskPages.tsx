@@ -49,6 +49,7 @@ import type {
   HermesWalletSafetyCheckResult,
   HermesWalletSafetyDecision
 } from '../services/hermesWalletSafetyBundle';
+import { buildWalletSafetyIntegrationRegistry } from '../services/walletSafetyIntegrationRegistry';
 import { getNarrativeMetadataForPath } from '../shared/narrativeMetadata';
 
 const API_BASE_URL = getApiBaseUrl();
@@ -848,6 +849,7 @@ function HermesWalletSafetyCompactCard({ bundle }: { bundle: HermesWalletSafetyC
 function HermesWalletSafetyPage() {
   const [bundle, setBundle] = useState<HermesWalletSafetyCheckResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const registry = useMemo(() => buildWalletSafetyIntegrationRegistry(), []);
 
   useEffect(() => {
     syncHermesMetadata('/hermes/wallet-safety');
@@ -1025,6 +1027,21 @@ function HermesWalletSafetyPage() {
             <a className="execute compact secondary" href="/developers/wallet-safety">Open developer quickstart</a>
             <a className="execute compact secondary" href="/developers/wallet-safety#sdk-snippets">Open Wallet Safety SDK snippets</a>
             <a className="execute compact secondary" href="/developers/wallet-safety#integration-receipt-pattern">Open Integration Receipt Pattern</a>
+          </div>
+        </section>
+        <section className="panel hermes-skill-pack-detail" aria-label="Integration Registry">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Integration Registry</p>
+              <h2>See who is Wallet Safety-ready.</h2>
+              <p>Open the Integration Registry.</p>
+            </div>
+            <a className="execute compact secondary" href="/developers/wallet-safety/integrations">Open Integration Registry</a>
+          </div>
+          <div className="machine-usage-list">
+            <p><span>integration_count</span><small>{registry.integration_count}</small></p>
+            <p><span>ready_count</span><small>{registry.ready_count}</small></p>
+            <p><span>needs_receipts_count</span><small>{registry.needs_receipts_count}</small></p>
           </div>
         </section>
       </>}
@@ -1498,6 +1515,8 @@ function HermesMemoryLoopDashboardPage() {
 }
 
 function HermesNarrativePage() {
+  const registry = buildWalletSafetyIntegrationRegistry();
+
   useEffect(() => {
     syncHermesMetadata('/narratives/hermes-desk');
   }, []);
@@ -1676,6 +1695,17 @@ function HermesNarrativePage() {
         <p>A safety check protects the spend.</p>
         <p>An integration receipt proves the check happened.</p>
       </section>
+      <section className="panel hermes-narrative-copy" aria-label="Wallet Safety Integration Registry">
+        <p className="section-kicker">Wallet Safety Integration Registry</p>
+        <h2>The safety API gives builders a way to check before spend. The registry makes adoption visible.</h2>
+        <p>The safety API gives builders a way to check before spend.</p>
+        <p>Integration receipts prove the check happened.</p>
+        <p>The registry makes adoption visible.</p>
+        <p>Agents, wallets, routers, and payment apps can show whether they are ready, testing, missing receipts, or on watch.</p>
+        <p>A safety API is useful.</p>
+        <p>A registry makes adoption visible.</p>
+        <p>Seeded integrations listed today: {registry.integration_count} total with {registry.ready_count} ready and {registry.needs_receipts_count} missing receipts.</p>
+      </section>
     </main>
   </div>;
 }
@@ -1750,6 +1780,7 @@ function HermesDeskSurface() {
     if (!spendPolicyResult) return null;
     return previewHermesPolicyReconciliation(spendPolicyResult);
   }, [spendPolicyResult]);
+  const integrationRegistry = useMemo(() => buildWalletSafetyIntegrationRegistry(), []);
   const walletAuditTrail = walletAuditSummary?.trails[0] ?? null;
   const walletRiskScore = walletRiskSummary?.scores[0] ?? null;
 
@@ -1787,6 +1818,21 @@ function HermesDeskSurface() {
           <HermesMetric label="active" value={summary.counts.active_runs} sub="queued or running" />
           <HermesMetric label="completed" value={summary.counts.completed_runs} sub="finished runs" />
           <HermesMetric label="sidecar" value={summary.sidecar.status} sub="optional runtime" />
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="Wallet Safety Integration Registry">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Wallet Safety Integration Registry</p>
+              <h2>Deterministic visibility for compatible integrations.</h2>
+            </div>
+            <a className="execute compact secondary" href="/developers/wallet-safety/integrations">Open Integration Registry</a>
+          </div>
+          <div className="grid three hermes-metric-grid">
+            <HermesMetric label="integrations" value={integrationRegistry.integration_count} sub="seeded profiles" />
+            <HermesMetric label="ready" value={integrationRegistry.ready_count} sub="Wallet Safety-ready" />
+            <HermesMetric label="needs receipts" value={integrationRegistry.needs_receipts_count} sub="checks wired, receipt trail missing" />
+          </div>
         </section>
 
         <section className="panel hermes-runs-section" aria-label="Agent Memory Loop">
@@ -1986,6 +2032,7 @@ function HermesDeskSurface() {
 function HermesSkillPackPage() {
   const [skillPack, setSkillPack] = useState<HermesSkillPack | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const registry = useMemo(() => buildWalletSafetyIntegrationRegistry(), []);
 
   useEffect(() => {
     syncHermesMetadata('/hermes/skill-pack');
@@ -2222,6 +2269,20 @@ function HermesSkillPackPage() {
           <div className="abundance-chip-row">
             {['safety check id', 'recommendation', 'policy receipt reference', 'risk score reference', 'audit trail reference', 'action taken'].map((item) => <span key={item}>{item}</span>)}
           </div>
+        </section>
+
+      <section className="panel hermes-skill-pack-detail" aria-label="Registry-ready outputs">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Registry-ready outputs</p>
+              <h2>Hermes skills and wallet integrations should produce evidence that helps determine readiness.</h2>
+            </div>
+            <a className="execute compact secondary" href="/developers/wallet-safety/integrations">Open Integration Registry</a>
+          </div>
+          <div className="abundance-chip-row">
+            {['safety check usage', 'integration receipt writing', 'fail-closed behavior', 'supported chains', 'supported rails', 'last verified run'].map((item) => <span key={item}>{item}</span>)}
+          </div>
+          <p className="copy">Current seeded registry: {registry.integration_count} integrations, {registry.ready_count} ready, {registry.needs_receipts_count} missing receipts.</p>
         </section>
 
       <section className="panel hermes-skill-pack-detail" aria-label="Memory-loop-ready skills">

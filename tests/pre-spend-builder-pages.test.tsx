@@ -191,7 +191,10 @@ describe('pre-spend builder pages', () => {
     expect(text).toContain('Receipts capture route runs, cost, latency, status, validation, confidence delta, and evidence artifacts.');
     expect(text).toContain('Wallet Safety API');
     expect(text).toContain('Ask once before spend. Get decision, policy, audit trail, risk score, final recommendation, and copy-paste SDK snippets.');
+    expect(text).toContain('Integration Registry');
+    expect(text).toContain('A safety API is useful. A registry makes adoption visible.');
     expect(container.querySelector('a[href="/developers/wallet-safety"]')).toBeTruthy();
+    expect(container.querySelector('a[href="/developers/wallet-safety/integrations"]')).toBeTruthy();
     expect(container.querySelector('a[href="/spend-terminal"]')).toBeTruthy();
     expect(container.querySelector('a[href="/routes"]')).toBeTruthy();
     expect(container.querySelector('a[href="/providers"]')).toBeTruthy();
@@ -268,12 +271,30 @@ describe('pre-spend builder pages', () => {
     expect(text).toContain('GET /v1/hermes/wallet-safety/example');
     expect(text).toContain('Agent asks: Can I spend?');
     expect(text).toContain('Infopunks answers: yes, test first, review, block, or gather more evidence.');
+    expect(container.querySelector('a[href="/developers/wallet-safety/integrations"]')).toBeTruthy();
     expect(container.querySelector('a[href="/openapi.json"]')).toBeTruthy();
     expect(container.querySelector('a[href="/v1/hermes/wallet-safety/example"]')).toBeTruthy();
     expect(container.querySelector('#sdk-snippets')).toBeTruthy();
     expect(container.querySelector('a[href="#sdk-snippets"]')).toBeTruthy();
     expect(container.querySelector('#integration-receipt-pattern')).toBeTruthy();
     expect(container.querySelector('a[href="#integration-receipt-pattern"]')).toBeTruthy();
+
+    root.unmount();
+  });
+
+  it('renders the Wallet Safety Integration Registry page', async () => {
+    const { root, container } = await render('/developers/wallet-safety/integrations');
+    const text = container.textContent ?? '';
+
+    expect(text).toContain('Wallet Safety Integration Registry');
+    expect(text).toContain('A safety API is useful.');
+    expect(text).toContain('A registry makes adoption visible.');
+    expect(text).toContain('agent_wallet_demo');
+    expect(text).toContain('pay_sh_route_guard');
+    expect(text).toContain('x402_service_router');
+    expect(text).toContain('autonomous_research_agent');
+    expect(text).toContain('What “Wallet Safety-ready” means');
+    expect(container.querySelector('a[href="/v1/hermes/wallet-safety/integrations"]')).toBeTruthy();
 
     root.unmount();
   });

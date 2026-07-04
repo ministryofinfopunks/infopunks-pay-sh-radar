@@ -29,6 +29,7 @@ import {
   ServiceDetailPage,
   ServicesIndexPage,
   SpendTerminalPage,
+  WalletSafetyIntegrationRegistryPage,
   WalletSafetyDeveloperQuickstartPage
 } from './preSpendBuilderPages';
 import { ProofCheckDetailPage, ProofCheckPage } from './proofCheckPages';
@@ -1917,6 +1918,10 @@ function isDevelopersRoute(pathname: string) {
 
 function isWalletSafetyDeveloperRoute(pathname: string) {
   return /^\/developers\/wallet-safety\/?$/.test(pathname);
+}
+
+function isWalletSafetyIntegrationDeveloperRoute(pathname: string) {
+  return /^\/developers\/wallet-safety\/integrations\/?$/.test(pathname);
 }
 
 function isRoutesIndexRoute(pathname: string) {
@@ -14351,6 +14356,7 @@ export function App() {
   if (signalSlug === 'black-bull') return <NarrativeSignalReportPage slug={signalSlug} />;
   if (signalSlug === 'troll') return <NarrativeSignalReportPage slug={signalSlug} />;
   if (isSpendTerminalRoute(window.location.pathname)) return <SpendTerminalPage />;
+  if (isWalletSafetyIntegrationDeveloperRoute(window.location.pathname)) return <WalletSafetyIntegrationRegistryPage />;
   if (isWalletSafetyDeveloperRoute(window.location.pathname)) return <WalletSafetyDeveloperQuickstartPage />;
   if (isDevelopersRoute(window.location.pathname)) return <DevelopersPage />;
   if (isClaimsIndexRoute(window.location.pathname)) return <ClaimsPage />;
