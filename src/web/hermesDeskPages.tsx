@@ -1019,8 +1019,10 @@ function HermesWalletSafetyPage() {
             <div>
               <p className="section-kicker">Developer Quickstart</p>
               <h2>The quickstart explains how to plug Wallet Safety into agents and autonomous wallets.</h2>
+              <p>Need code? Open the Wallet Safety SDK snippets.</p>
             </div>
             <a className="execute compact secondary" href="/developers/wallet-safety">Open developer quickstart</a>
+            <a className="execute compact secondary" href="/developers/wallet-safety#sdk-snippets">Open Wallet Safety SDK snippets</a>
           </div>
         </section>
       </>}

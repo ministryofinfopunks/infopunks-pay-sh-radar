@@ -500,8 +500,10 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Developer Response Shape');
     expect(text).toContain('Developer Quickstart');
     expect(text).toContain('The quickstart explains how to plug Wallet Safety into agents and autonomous wallets.');
+    expect(text).toContain('Need code? Open the Wallet Safety SDK snippets.');
     expect(text).toContain('POST /v1/hermes/wallet-safety/check');
     expect(container.querySelector('a[href="/developers/wallet-safety"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/developers/wallet-safety#sdk-snippets"]')).not.toBeNull();
     expect(container.querySelector('a[href="/hermes/wallet-safety"]')?.getAttribute('aria-current')).toBe('page');
   });
 });

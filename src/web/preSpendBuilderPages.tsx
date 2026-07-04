@@ -692,8 +692,8 @@ Content-Type: application/json
     {
       href: '/developers/wallet-safety',
       title: 'Wallet Safety API',
-      copy: 'Ask once before spend. Get decision, policy, audit trail, risk score, and final recommendation.',
-      cta: 'Open quickstart'
+      copy: 'Ask once before spend. Get decision, policy, audit trail, risk score, final recommendation, and copy-paste SDK snippets.',
+      cta: 'Open quickstart + snippets'
     },
     { href: '/spend-terminal', title: 'Spend Terminal', copy: 'Run the receipt-backed pre-spend check UI.' },
     { href: '/check', title: 'Check', copy: 'Turn claims, routes, providers, wallets, and links into public receipt checks.' },
@@ -905,6 +905,151 @@ export function WalletSafetyDeveloperQuickstartPage() {
   return requestMoreEvidence(intent, safety);
 }`;
 
+  const typescriptFetchHelper = `type WalletSafetyIntent = {
+  route_id: string;
+  provider_id: string;
+  service_id: string;
+  amount_usd: number;
+  payment_rail: string;
+  chain: string;
+  agent_type?: string;
+  objective?: string;
+};
+
+type WalletSafetyResponse = {
+  final_recommendation: {
+    decision: "safe_to_spend" | "test_spend_required" | "manual_review_required" | "block_spend" | "insufficient_evidence";
+    allowed: boolean;
+    required_action: string;
+    risk_score: number;
+    safety_rating: string;
+    reason: string;
+  };
+  [key: string]: unknown;
+};
+
+export async function checkWalletSafety(intent: WalletSafetyIntent): Promise<WalletSafetyResponse> {
+  const response = await fetch("https://radar.infopunks.fun/v1/hermes/wallet-safety/check", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(intent)
+  });
+
+  if (!response.ok) {
+    const detail = await response.text().catch(() => "");
+    throw new Error(\`Wallet Safety API failed (\${response.status} \${response.statusText}): \${detail || "No error body returned."}\`);
+  }
+
+  return await response.json() as WalletSafetyResponse;
+}`;
+
+  const nodeHelper = `async function checkWalletSafety(intent) {
+  const response = await fetch("https://radar.infopunks.fun/v1/hermes/wallet-safety/check", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(intent)
+  });
+
+  if (!response.ok) {
+    const detail = await response.text().catch(() => "");
+    throw new Error(\`Wallet Safety API failed (\${response.status} \${response.statusText}): \${detail || "No error body returned."}\`);
+  }
+
+  return response.json();
+}
+
+module.exports = { checkWalletSafety };`;
+
+  const agentPolicyWrapper = `async function guardSpend(intent, wallet) {
+  const safety = await checkWalletSafety(intent);
+
+  switch (safety.final_recommendation.decision) {
+    case "safe_to_spend":
+      return wallet.spend(intent);
+    case "test_spend_required":
+      return wallet.spend({
+        ...intent,
+        amount_usd: Math.min(intent.amount_usd, 5)
+      });
+    case "manual_review_required":
+      return queueManualReview({ intent, safety });
+    case "block_spend":
+      return blockSpend({ intent, safety });
+    default:
+      return requestMoreEvidence({ intent, safety });
+  }
+}`;
+
+  const errorHandlingPattern = `async function safeCheckBeforeSpend(intent) {
+  try {
+    return await checkWalletSafety(intent);
+  } catch (error) {
+    return {
+      final_recommendation: {
+        decision: "manual_review_required",
+        allowed: false,
+        required_action: "request_more_evidence",
+        risk_score: 100,
+        safety_rating: "unknown",
+        reason: "Wallet Safety API unreachable. Do not treat missing safety evidence as approval."
+      },
+      error: error instanceof Error ? error.message : "wallet_safety_api_unreachable"
+    };
+  }
+}`;
+
+  const finalRecommendationSwitch = `switch (safety.final_recommendation.decision) {
+  case "safe_to_spend":
+    return wallet.spend(intent);
+  case "test_spend_required":
+    return runCappedTestSpend(intent, safety);
+  case "manual_review_required":
+    return queueManualReview({ intent, safety });
+  case "block_spend":
+    return blockSpend({ intent, safety });
+  case "insufficient_evidence":
+    return requestMoreEvidence({ intent, safety });
+  default:
+    return requestMoreEvidence({ intent, safety });
+}`;
+
+  const snippetCards = [
+    {
+      kicker: 'TypeScript fetch helper',
+      title: 'Strict helper for builder apps and browser-side control planes.',
+      copy: 'Use this when your agent runtime already speaks TypeScript and you want a single typed function around the public endpoint. It keeps the contract narrow: send JSON, fail loudly, and return the parsed bundle.',
+      code: typescriptFetchHelper
+    },
+    {
+      kicker: 'Node.js helper',
+      title: 'Drop-in helper for Node 18+ workers, bots, and spend routers.',
+      copy: 'Use this when you want the smallest CommonJS integration surface and native fetch is already available. It is intentionally plain so it can live inside queue workers, cron jobs, or wallet middleware without extra packaging.',
+      code: nodeHelper
+    },
+    {
+      kicker: 'Agent policy wrapper',
+      title: 'Turn the API decision into a real spend guard.',
+      copy: 'Use this when the caller already has a wallet object and needs deterministic policy behavior. The wrapper maps the recommendation into concrete wallet actions instead of leaving branch logic scattered across the agent.',
+      code: agentPolicyWrapper
+    },
+    {
+      kicker: 'Error handling pattern',
+      title: 'Fail closed when the safety check is unavailable.',
+      copy: 'Use this in autonomous payment paths where network trouble must never become silent approval. If the safety bundle cannot be fetched, downgrade to manual review or more evidence instead of spending blind.',
+      code: errorHandlingPattern
+    },
+    {
+      kicker: 'Final recommendation switch statement',
+      title: 'Keep the decision vocabulary explicit and exhaustive.',
+      copy: 'Use this when you only need the final action and not the full helper stack. A clean switch keeps the five supported decisions visible in one place and makes future policy review much easier.',
+      code: finalRecommendationSwitch
+    }
+  ] as const;
+
   const recommendationStates = [
     { state: 'safe_to_spend', copy: 'Spend can proceed without extra gating.', tone: 'ok' },
     { state: 'test_spend_required', copy: 'Run a small bounded spend before full execution.', tone: 'warn' },
@@ -945,6 +1090,7 @@ export function WalletSafetyDeveloperQuickstartPage() {
           <div className="panel-actions">
             <a className="execute" href="/v1/hermes/wallet-safety/example">Open example response</a>
             <a className="execute compact secondary" href="/openapi.json">Open OpenAPI schema</a>
+            <a className="execute compact secondary" href="#sdk-snippets">View SDK snippets</a>
             <a className="execute compact secondary" href="/developers">Back to Developers</a>
           </div>
         </div>
@@ -990,6 +1136,52 @@ export function WalletSafetyDeveloperQuickstartPage() {
           ))}
         </div>
       </section>
+
+      <section className="panel builder-detail-panel" id="sdk-snippets" aria-labelledby="sdk-snippets-heading">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">SDK Snippets</p>
+            <h2 id="sdk-snippets-heading">SDK Snippets</h2>
+          </div>
+        </div>
+        <p className="panel-caption">Copy-paste patterns for checking wallet safety before spend.</p>
+        <div className="grid two builder-section-grid">
+          <section className="panel builder-detail-panel" aria-label="Wallet safety response fields">
+            <div className="panel-head"><div><p className="section-kicker">Most agents only need</p><h2>Read the final recommendation first.</h2></div></div>
+            <div className="builder-note-stack">
+              <p className="builder-note-row">final_recommendation.decision</p>
+              <p className="builder-note-row">final_recommendation.allowed</p>
+              <p className="builder-note-row">final_recommendation.required_action</p>
+              <p className="builder-note-row">final_recommendation.risk_score</p>
+              <p className="builder-note-row">final_recommendation.safety_rating</p>
+              <p className="builder-note-row">final_recommendation.reason</p>
+            </div>
+          </section>
+          <section className="panel builder-detail-panel" aria-label="Wallet safety failure warning">
+            <div className="panel-head"><div><p className="section-kicker">Warning</p><h2>Do not treat API failure as approval.</h2></div></div>
+            <div className="builder-note-stack">
+              <p className="builder-note-row">Do not treat API failure as approval.</p>
+              <p className="builder-note-row">If the safety check fails, pause, request more evidence, or send the spend to manual review.</p>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      {snippetCards.map((snippet) => <section className="grid two builder-section-grid" key={snippet.kicker}>
+        <section className="panel builder-detail-panel" aria-labelledby={snippet.kicker.toLowerCase().replaceAll(' ', '-')}>
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">{snippet.kicker}</p>
+              <h2 id={snippet.kicker.toLowerCase().replaceAll(' ', '-')}>{snippet.title}</h2>
+            </div>
+          </div>
+          <pre className="builder-code-block"><code>{snippet.code}</code></pre>
+        </section>
+        <section className="panel builder-detail-panel" aria-label={`${snippet.kicker} explanation`}>
+          <div className="panel-head"><div><p className="section-kicker">When to use it</p><h2>{snippet.kicker}</h2></div></div>
+          <p className="panel-caption">{snippet.copy}</p>
+        </section>
+      </section>)}
 
       <section className="grid two builder-section-grid">
         <section className="panel builder-detail-panel" aria-label="Final recommendation states">
