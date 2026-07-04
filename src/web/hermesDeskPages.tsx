@@ -1020,9 +1020,11 @@ function HermesWalletSafetyPage() {
               <p className="section-kicker">Developer Quickstart</p>
               <h2>The quickstart explains how to plug Wallet Safety into agents and autonomous wallets.</h2>
               <p>Need code? Open the Wallet Safety SDK snippets.</p>
+              <p>Want proof the check happened? Use the Integration Receipt Pattern.</p>
             </div>
             <a className="execute compact secondary" href="/developers/wallet-safety">Open developer quickstart</a>
             <a className="execute compact secondary" href="/developers/wallet-safety#sdk-snippets">Open Wallet Safety SDK snippets</a>
+            <a className="execute compact secondary" href="/developers/wallet-safety#integration-receipt-pattern">Open Integration Receipt Pattern</a>
           </div>
         </section>
       </>}
@@ -1664,6 +1666,16 @@ function HermesNarrativePage() {
         <p>Builders do not need to stitch decision, policy, receipts, audit trail, and risk score manually.</p>
         <p>The quickstart explains how to plug Wallet Safety into agents and autonomous wallets.</p>
       </section>
+      <section className="panel hermes-narrative-copy" aria-label="Integration Receipts">
+        <p className="section-kicker">Integration Receipts</p>
+        <h2>A safety check protects the spend. An integration receipt proves the check happened.</h2>
+        <p>The Wallet Safety API protects the spend before action.</p>
+        <p>Integration receipts prove the safety check happened.</p>
+        <p>Builders can store safety check IDs, policy receipts, risk scores, audit trails, and the agent action taken.</p>
+        <p>This makes third-party wallet integrations compatible with Infopunks-style memory.</p>
+        <p>A safety check protects the spend.</p>
+        <p>An integration receipt proves the check happened.</p>
+      </section>
     </main>
   </div>;
 }
@@ -2196,6 +2208,19 @@ function HermesSkillPackPage() {
           </div>
           <div className="abundance-chip-row">
             {['final recommendation', 'required action', 'evidence references', 'safety rating', 'risk score', 'policy decision'].map((item) => <span key={item}>{item}</span>)}
+          </div>
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="Integration-receipt-ready outputs">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Integration-receipt-ready outputs</p>
+              <h2>Hermes skills should produce outputs that downstream apps can store.</h2>
+            </div>
+            <a className="execute compact secondary" href="/developers/wallet-safety#integration-receipt-pattern">Open Integration Receipt Pattern</a>
+          </div>
+          <div className="abundance-chip-row">
+            {['safety check id', 'recommendation', 'policy receipt reference', 'risk score reference', 'audit trail reference', 'action taken'].map((item) => <span key={item}>{item}</span>)}
           </div>
         </section>
 

@@ -225,6 +225,12 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Audit-ready outputs');
     expect(text).toContain('decision reason');
     expect(text).toContain('outcome criteria');
+    expect(text).toContain('Integration-receipt-ready outputs');
+    expect(text).toContain('safety check id');
+    expect(text).toContain('policy receipt reference');
+    expect(text).toContain('risk score reference');
+    expect(text).toContain('audit trail reference');
+    expect(text).toContain('action taken');
     expect(container.querySelector('a[href="/hermes/skill-pack"]')?.getAttribute('aria-current')).toBe('page');
   });
 
@@ -312,6 +318,13 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('The safety stack is now accessible through one developer endpoint.');
     expect(text).toContain('Builders do not need to stitch decision, policy, receipts, audit trail, and risk score manually.');
     expect(text).toContain('The quickstart explains how to plug Wallet Safety into agents and autonomous wallets.');
+    expect(text).toContain('Integration Receipts');
+    expect(text).toContain('The Wallet Safety API protects the spend before action.');
+    expect(text).toContain('Integration receipts prove the safety check happened.');
+    expect(text).toContain('Builders can store safety check IDs, policy receipts, risk scores, audit trails, and the agent action taken.');
+    expect(text).toContain('This makes third-party wallet integrations compatible with Infopunks-style memory.');
+    expect(text).toContain('A safety check protects the spend.');
+    expect(text).toContain('An integration receipt proves the check happened.');
     expect(container.querySelector('a[href="/narratives/hermes-desk"]')?.getAttribute('aria-current')).toBe('page');
   });
 
@@ -501,9 +514,11 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Developer Quickstart');
     expect(text).toContain('The quickstart explains how to plug Wallet Safety into agents and autonomous wallets.');
     expect(text).toContain('Need code? Open the Wallet Safety SDK snippets.');
+    expect(text).toContain('Want proof the check happened? Use the Integration Receipt Pattern.');
     expect(text).toContain('POST /v1/hermes/wallet-safety/check');
     expect(container.querySelector('a[href="/developers/wallet-safety"]')).not.toBeNull();
     expect(container.querySelector('a[href="/developers/wallet-safety#sdk-snippets"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/developers/wallet-safety#integration-receipt-pattern"]')).not.toBeNull();
     expect(container.querySelector('a[href="/hermes/wallet-safety"]')?.getAttribute('aria-current')).toBe('page');
   });
 });

@@ -1017,6 +1017,54 @@ module.exports = { checkWalletSafety };`;
     return requestMoreEvidence({ intent, safety });
 }`;
 
+  const integrationReceiptJson = `{
+  "wallet_safety_check_id": "wallet_safety_check_...",
+  "final_recommendation": {
+    "decision": "test_spend_required",
+    "allowed": true,
+    "required_action": "run_test_spend",
+    "safety_rating": "watch",
+    "risk_score": 68
+  },
+  "policy_receipt_id": "receipt_hermes_policy_...",
+  "risk_score_id": "wallet_risk_score_...",
+  "audit_trail_id": "wallet_audit_trail_...",
+  "agent_action_taken": "test_spend",
+  "timestamp": "2026-07-04T00:00:00.000Z"
+}`;
+
+  const integrationReceiptHelper = `type AgentActionTaken =
+  | "spent"
+  | "test_spend"
+  | "queued_review"
+  | "blocked"
+  | "requested_evidence"
+  | "paused";
+
+function buildWalletSafetyIntegrationReceipt(safety, agentActionTaken: AgentActionTaken) {
+  return {
+    wallet_safety_check_id: safety.id,
+    final_recommendation: {
+      decision: safety.final_recommendation.decision,
+      allowed: safety.final_recommendation.allowed,
+      required_action: safety.final_recommendation.required_action,
+      safety_rating: safety.final_recommendation.safety_rating,
+      risk_score: safety.final_recommendation.risk_score
+    },
+    policy_receipt_id: safety.policy_receipt?.receipt?.id,
+    risk_score_id: safety.wallet_risk_score?.id,
+    audit_trail_id: safety.wallet_audit_trail?.id,
+    agent_action_taken: agentActionTaken,
+    timestamp: new Date().toISOString()
+  };
+}`;
+
+  const integrationReceiptUsage = `const safety = await checkWalletSafety(intent);
+const action = chooseAgentAction(safety.final_recommendation);
+const integrationReceipt = buildWalletSafetyIntegrationReceipt(safety, action);
+
+await db.walletSafetyReceipts.insert(integrationReceipt);`;
+
   const snippetCards = [
     {
       kicker: 'TypeScript fetch helper',
@@ -1091,6 +1139,7 @@ module.exports = { checkWalletSafety };`;
             <a className="execute" href="/v1/hermes/wallet-safety/example">Open example response</a>
             <a className="execute compact secondary" href="/openapi.json">Open OpenAPI schema</a>
             <a className="execute compact secondary" href="#sdk-snippets">View SDK snippets</a>
+            <a className="execute compact secondary" href="#integration-receipt-pattern">Integration Receipt Pattern</a>
             <a className="execute compact secondary" href="/developers">Back to Developers</a>
           </div>
         </div>
@@ -1165,6 +1214,7 @@ module.exports = { checkWalletSafety };`;
             </div>
           </section>
         </div>
+        <p className="panel-caption">After acting on the final recommendation, write an integration receipt so future agents can verify the safety check happened.</p>
       </section>
 
       {snippetCards.map((snippet) => <section className="grid two builder-section-grid" key={snippet.kicker}>
@@ -1182,6 +1232,68 @@ module.exports = { checkWalletSafety };`;
           <p className="panel-caption">{snippet.copy}</p>
         </section>
       </section>)}
+
+      <section className="panel builder-detail-panel" id="integration-receipt-pattern" aria-labelledby="integration-receipt-pattern-heading">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Integration Receipt Pattern</p>
+            <h2 id="integration-receipt-pattern-heading">Integration Receipt Pattern</h2>
+          </div>
+        </div>
+        <p className="panel-caption">A safety check protects the spend. An integration receipt proves the check happened.</p>
+        <p className="panel-caption">When an agent or wallet calls the Wallet Safety API, builders should persist a lightweight integration receipt in their own app, database, wallet memory, or audit log. This proves the spend was checked before action and gives future agents a trail to inspect.</p>
+      </section>
+
+      <section className="grid two builder-section-grid">
+        <section className="panel builder-detail-panel" aria-label="Required integration receipt fields">
+          <div className="panel-head"><div><p className="section-kicker">Required receipt fields</p><h2>Store the proof, not just the action.</h2></div></div>
+          <div className="builder-detail-grid">
+            <article><span>wallet_safety_check_id</span><strong>The ID returned by /v1/hermes/wallet-safety/check.</strong></article>
+            <article><span>final_recommendation</span><strong>The final decision returned by Infopunks: safe_to_spend, test_spend_required, manual_review_required, block_spend, or insufficient_evidence.</strong></article>
+            <article><span>policy_receipt_id</span><strong>The receipt proving which policy decision was made.</strong></article>
+            <article><span>risk_score_id</span><strong>The safety score used when the agent decided what to do next.</strong></article>
+            <article><span>audit_trail_id</span><strong>The full wallet safety trail behind the recommendation.</strong></article>
+            <article><span>agent_action_taken</span><strong>What the agent actually did after receiving the recommendation: spent, test_spend, queued_review, blocked, requested_evidence, or paused.</strong></article>
+            <article><span>timestamp</span><strong>When the integration receipt was written.</strong></article>
+          </div>
+        </section>
+        <section className="panel builder-detail-panel" aria-labelledby="integration-receipt-json">
+          <div className="panel-head"><div><p className="section-kicker">JSON example</p><h2 id="integration-receipt-json">Persist a lightweight audit record.</h2></div></div>
+          <pre className="builder-code-block"><code>{integrationReceiptJson}</code></pre>
+        </section>
+      </section>
+
+      <section className="grid two builder-section-grid">
+        <section className="panel builder-detail-panel" aria-labelledby="integration-receipt-helper">
+          <div className="panel-head"><div><p className="section-kicker">TypeScript helper</p><h2 id="integration-receipt-helper">Build the receipt right after the safety decision.</h2></div></div>
+          <pre className="builder-code-block"><code>{integrationReceiptHelper}</code></pre>
+        </section>
+        <section className="panel builder-detail-panel" aria-labelledby="integration-receipt-usage">
+          <div className="panel-head"><div><p className="section-kicker">Usage example</p><h2 id="integration-receipt-usage">Store the proof next to the wallet action.</h2></div></div>
+          <pre className="builder-code-block"><code>{integrationReceiptUsage}</code></pre>
+        </section>
+      </section>
+
+      <section className="grid two builder-section-grid">
+        <section className="panel builder-detail-panel" aria-label="Integration receipt action mapping">
+          <div className="panel-head"><div><p className="section-kicker">Action mapping</p><h2>Map Infopunks recommendations to wallet actions.</h2></div></div>
+          <div className="builder-detail-grid">
+            <article><span>safe_to_spend</span><strong>spent</strong></article>
+            <article><span>test_spend_required</span><strong>test_spend</strong></article>
+            <article><span>manual_review_required</span><strong>queued_review</strong></article>
+            <article><span>block_spend</span><strong>blocked</strong></article>
+            <article><span>insufficient_evidence</span><strong>requested_evidence</strong></article>
+          </div>
+        </section>
+        <section className="panel builder-detail-panel" aria-label="Failure-safe integration receipts">
+          <div className="panel-head"><div><p className="section-kicker">Failure-safe default</p><h2>Do not fail open when the safety check is missing.</h2></div></div>
+          <div className="builder-note-stack">
+            <p className="builder-note-row">If the Wallet Safety API fails, do not fail open.</p>
+            <p className="builder-note-row">Store agent_action_taken as paused or requested_evidence.</p>
+            <p className="builder-note-row">The receipt should show that the spend was stopped because proof was missing, not because proof said yes.</p>
+          </div>
+        </section>
+      </section>
 
       <section className="grid two builder-section-grid">
         <section className="panel builder-detail-panel" aria-label="Final recommendation states">
