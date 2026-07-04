@@ -127,6 +127,14 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
     );
   }
 
+  if (/^\/hermes\/wallet-safety\/?$/.test(pathname)) {
+    return buildMetadata(
+      'Wallet Safety API',
+      'Agents should not stitch safety together. They should ask once before spend.',
+      '/hermes/wallet-safety'
+    );
+  }
+
   if (/^\/hermes\/?$/.test(pathname) || /^\/narratives\/hermes-desk\/?$/.test(pathname)) {
     return buildMetadata(
       'Hermes Desk',

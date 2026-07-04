@@ -45,6 +45,10 @@ import type {
   HermesWalletRiskScoreSummary,
   HermesWalletSafetyRating
 } from '../services/hermesWalletRiskScore';
+import type {
+  HermesWalletSafetyCheckResult,
+  HermesWalletSafetyDecision
+} from '../services/hermesWalletSafetyBundle';
 import { getNarrativeMetadataForPath } from '../shared/narrativeMetadata';
 
 const API_BASE_URL = getApiBaseUrl();
@@ -175,6 +179,10 @@ function walletRequiredActionLabel(action: HermesWalletRequiredNextAction) {
   return titleCaseWords(action);
 }
 
+function walletSafetyDecisionLabel(decision: HermesWalletSafetyDecision) {
+  return titleCaseWords(decision);
+}
+
 function HermesNav({ current }: { current: string }) {
   const links = [
     { href: '/', label: 'Radar Home' },
@@ -185,6 +193,7 @@ function HermesNav({ current }: { current: string }) {
     { href: '/hermes/decision-feedback', label: 'Decision Feedback' },
     { href: '/hermes/wallet-audit-trail', label: 'Wallet Audit Trail' },
     { href: '/hermes/wallet-risk-score', label: 'Wallet Risk Score' },
+    { href: '/hermes/wallet-safety', label: 'Wallet Safety API' },
     { href: '/hermes/reputation-ledger', label: 'Reputation Ledger' },
     { href: '/hermes/skill-pack', label: 'Skill Pack' },
     { href: '/narratives/hermes-desk', label: 'Narrative' },
@@ -201,6 +210,7 @@ function HermesNav({ current }: { current: string }) {
     if (href === '/hermes/decision-feedback') return current === '/hermes/decision-feedback';
     if (href === '/hermes/wallet-audit-trail') return current === '/hermes/wallet-audit-trail';
     if (href === '/hermes/wallet-risk-score') return current === '/hermes/wallet-risk-score';
+    if (href === '/hermes/wallet-safety') return current === '/hermes/wallet-safety';
     if (href === '/hermes/reputation-ledger') return current === '/hermes/reputation-ledger';
     if (href === '/hermes/skill-pack') return current === '/hermes/skill-pack';
     if (href === '/narratives/hermes-desk') return current === '/narratives/hermes-desk';
@@ -813,6 +823,200 @@ function HermesWalletRiskScoreCompactCard({ score }: { score: HermesWalletRiskSc
   </section>;
 }
 
+function HermesWalletSafetyCompactCard({ bundle }: { bundle: HermesWalletSafetyCheckResult }) {
+  return <section className="panel hermes-skill-pack-detail" aria-label="Wallet Safety API Bundle">
+    <div className="panel-head">
+      <div>
+        <p className="section-kicker">Wallet Safety API Bundle</p>
+        <h2>Agents should not stitch safety together.</h2>
+      </div>
+      <a className="execute compact secondary" href="/hermes/wallet-safety">Open Wallet Safety API</a>
+    </div>
+    <p className="copy">They should ask once before spend.</p>
+    <div className="machine-usage-list">
+      <p><span>final_decision</span><small>{walletSafetyDecisionLabel(bundle.final_recommendation.decision)}</small></p>
+      <p><span>allowed</span><small>{String(bundle.final_recommendation.allowed)}</small></p>
+      <p><span>risk_score</span><small>{bundle.final_recommendation.risk_score}</small></p>
+      <p><span>safety_rating</span><small>{walletSafetyRatingLabel(bundle.final_recommendation.safety_rating)}</small></p>
+      <p><span>required_action</span><small>{titleCaseWords(bundle.final_recommendation.required_action)}</small></p>
+      <p><span>confidence</span><small>{bundle.final_recommendation.confidence}</small></p>
+    </div>
+  </section>;
+}
+
+function HermesWalletSafetyPage() {
+  const [bundle, setBundle] = useState<HermesWalletSafetyCheckResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    syncHermesMetadata('/hermes/wallet-safety');
+  }, []);
+
+  useEffect(() => {
+    api<HermesWalletSafetyCheckResult>('/v1/hermes/wallet-safety/example')
+      .then((response) => setBundle(response.data))
+      .catch((err) => setError(err instanceof Error ? err.message : 'hermes_wallet_safety_unavailable'));
+  }, []);
+
+  const recommendation = bundle?.final_recommendation ?? null;
+  const codeSample = `POST /v1/hermes/wallet-safety/check\n\n${JSON.stringify({
+    route_id: 'route_pay_sh_market_research_01',
+    provider_id: 'provider_pay_sh_lattice',
+    service_id: 'service_market_research',
+    amount_usd: 25,
+    payment_rail: 'x402',
+    chain: 'base'
+  }, null, 2)}`;
+
+  return <div className="shell narrative-shell hermes-shell">
+    <a className="skip-link" href="#hermes-wallet-safety-content">Skip to content</a>
+    <header className="site-header">
+      <HermesNav current="/hermes/wallet-safety" />
+    </header>
+    <main id="hermes-wallet-safety-content" className="narrative-page hermes-page">
+      <section className="panel hero narrative-hero hermes-hero">
+        <div>
+          <p className="eyebrow">Developer Safety Surface</p>
+          <h1>Wallet Safety API</h1>
+          <p className="copy hermes-hero-copy">Agents should not stitch safety together. They should ask once before spend.</p>
+          <p className="copy">One endpoint returns the decision, policy check, audit trail, risk score, and final recommendation.</p>
+          <div className="panel-actions">
+            <a className="execute" href="/v1/hermes/wallet-safety/example">Open Example JSON</a>
+            <a className="execute compact secondary" href="/hermes">Back to Hermes Desk</a>
+          </div>
+        </div>
+        <div className="panel narrative-hero-rail hermes-hero-rail">
+          <p className="section-kicker">Endpoint</p>
+          <p>POST /v1/hermes/wallet-safety/check</p>
+          <p>Deterministic, stateless, mock-safe, and deploy-safe.</p>
+          <p>No live Hermes sidecar or persistence is required.</p>
+        </div>
+      </section>
+
+      {error && <section className="panel"><p className="route-state error">{error}</p></section>}
+      {!error && !bundle && <section className="panel"><p className="route-state">Loading Wallet Safety API example...</p></section>}
+      {bundle && recommendation && <>
+        <section className="panel hermes-skill-pack-detail" aria-label="Example Spend Intent">
+          <div className="panel-head"><div><p className="section-kicker">Example Spend Intent</p><h2>Seeded JSON input.</h2></div></div>
+          <div className="machine-usage-list">
+            <p><span>route_id</span><small>{bundle.input.route_id ?? 'not supplied'}</small></p>
+            <p><span>provider_id</span><small>{bundle.input.provider_id ?? 'not supplied'}</small></p>
+            <p><span>service_id</span><small>{bundle.input.service_id ?? 'not supplied'}</small></p>
+            <p><span>amount_usd</span><small>{typeof bundle.input.amount_usd === 'number' ? bundle.input.amount_usd.toFixed(2) : 'not supplied'}</small></p>
+            <p><span>payment_rail</span><small>{bundle.input.payment_rail ?? 'not supplied'}</small></p>
+            <p><span>chain</span><small>{bundle.input.chain ?? 'not supplied'}</small></p>
+          </div>
+        </section>
+
+        <section className="panel hermes-runs-section" aria-label="Final Recommendation">
+          <div className="panel-head"><div><p className="section-kicker">Final Recommendation</p><h2>{walletSafetyDecisionLabel(recommendation.decision)}</h2></div></div>
+          <div className="grid four hermes-metric-grid">
+            <HermesMetric label="Allowed" value={String(recommendation.allowed)} sub="Whether the agent may proceed automatically." />
+            <HermesMetric label="Confidence" value={recommendation.confidence} sub="Adjusted bundled confidence." />
+            <HermesMetric label="Safety rating" value={walletSafetyRatingLabel(recommendation.safety_rating)} sub="Wallet risk score rating." />
+            <HermesMetric label="Risk score" value={recommendation.risk_score} sub="Wallet risk score." />
+          </div>
+          <div className="machine-usage-list">
+            <p><span>required_action</span><small>{titleCaseWords(recommendation.required_action)}</small></p>
+            <p><span>reason</span><small>{recommendation.reason}</small></p>
+            <p><span>top_risk_count</span><small>{recommendation.top_risks.length}</small></p>
+            <p><span>positive_control_count</span><small>{recommendation.positive_controls.length}</small></p>
+          </div>
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="Top Risks">
+          <div className="panel-head"><div><p className="section-kicker">Top Risks</p><h2>Risks carried into the final recommendation.</h2></div></div>
+          <HermesWalletRiskFactorList items={recommendation.top_risks} empty="No top risks were raised." />
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="Positive Controls">
+          <div className="panel-head"><div><p className="section-kicker">Positive Controls</p><h2>Controls that improved confidence.</h2></div></div>
+          <HermesWalletRiskFactorList items={recommendation.positive_controls} empty="No positive controls were recorded." />
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="Pre-Spend Decision">
+          <div className="panel-head"><div><p className="section-kicker">Pre-Spend Decision</p><h2>{preSpendDecisionLabel(bundle.pre_spend_decision.decision)}</h2></div></div>
+          <div className="machine-usage-list">
+            <p><span>id</span><small>{bundle.pre_spend_decision.id}</small></p>
+            <p><span>confidence</span><small>{bundle.pre_spend_decision.confidence}</small></p>
+            <p><span>required_action</span><small>{requiredActionLabel(bundle.pre_spend_decision.required_action)}</small></p>
+            <p><span>reason</span><small>{bundle.pre_spend_decision.reason}</small></p>
+          </div>
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="Spend Policy Check">
+          <div className="panel-head"><div><p className="section-kicker">Spend Policy Check</p><h2>{spendPolicyDecisionLabel(bundle.spend_policy_check.decision)}</h2></div></div>
+          <div className="machine-usage-list">
+            <p><span>id</span><small>{bundle.spend_policy_check.id}</small></p>
+            <p><span>allowed</span><small>{String(bundle.spend_policy_check.allowed)}</small></p>
+            <p><span>required_action</span><small>{requiredActionLabel(bundle.spend_policy_check.required_action)}</small></p>
+            <p><span>policy_decision</span><small>{bundle.summary.policy_decision ?? 'not available'}</small></p>
+            <p><span>violations</span><small>{bundle.spend_policy_check.violations.length}</small></p>
+            <p><span>warnings</span><small>{bundle.spend_policy_check.warnings.length}</small></p>
+          </div>
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="Policy Receipt">
+          <div className="panel-head"><div><p className="section-kicker">Policy Receipt</p><h2>{bundle.policy_receipt.receipt.id}</h2></div></div>
+          <div className="machine-usage-list">
+            <p><span>check_id</span><small>{bundle.policy_receipt.check_id}</small></p>
+            <p><span>policy_receipt_id</span><small>{bundle.policy_receipt.receipt.id}</small></p>
+            <p><span>risk_level</span><small>{bundle.policy_receipt.receipt.risk_summary.risk_level}</small></p>
+            <p><span>audit_events</span><small>{bundle.policy_receipt.receipt.audit_trail.events.length}</small></p>
+          </div>
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="Reconciliation Preview">
+          <div className="panel-head"><div><p className="section-kicker">Reconciliation Preview</p><h2>{policyComplianceStateLabel(bundle.reconciliation_preview.compliance_state)}</h2></div></div>
+          <div className="machine-usage-list">
+            <p><span>check_id</span><small>{bundle.reconciliation_preview.check_id}</small></p>
+            <p><span>compliance_state</span><small>{bundle.summary.compliance_state ?? 'not available'}</small></p>
+            <p><span>outcome_state</span><small>{bundle.reconciliation_preview.outcome.outcome_state}</small></p>
+            <p><span>next_policy_action</span><small>{bundle.reconciliation_preview.feedback.next_policy_action}</small></p>
+          </div>
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="Wallet Audit Trail">
+          <div className="panel-head"><div><p className="section-kicker">Wallet Audit Trail</p><h2>{bundle.wallet_audit_trail.id}</h2></div></div>
+          <div className="machine-usage-list">
+            <p><span>source_check_id</span><small>{bundle.wallet_audit_trail.source_check_id}</small></p>
+            <p><span>risk_posture</span><small>{bundle.wallet_audit_trail.risk_posture.level}</small></p>
+            <p><span>audit_event_count</span><small>{bundle.summary.audit_event_count ?? bundle.wallet_audit_trail.events.length}</small></p>
+            <p><span>final_compliance_state</span><small>{bundle.wallet_audit_trail.summary.final_compliance_state ?? 'not available'}</small></p>
+          </div>
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="Wallet Risk Score">
+          <div className="panel-head"><div><p className="section-kicker">Wallet Risk Score</p><h2>{walletSafetyRatingLabel(bundle.wallet_risk_score.safety_rating)}</h2></div></div>
+          <div className="machine-usage-list">
+            <p><span>id</span><small>{bundle.wallet_risk_score.id}</small></p>
+            <p><span>risk_score</span><small>{bundle.wallet_risk_score.risk_score}</small></p>
+            <p><span>safety_rating</span><small>{bundle.wallet_risk_score.safety_rating}</small></p>
+            <p><span>required_next_action</span><small>{bundle.wallet_risk_score.required_next_action}</small></p>
+          </div>
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="References">
+          <div className="panel-head"><div><p className="section-kicker">References</p><h2>Primitive and evidence handles returned with the bundle.</h2></div></div>
+          <div className="machine-usage-list">
+            {recommendation.references.map((reference) => <p key={`${reference.kind}:${reference.id}`}><span>{`${reference.kind}:${reference.id}`}</span><small>{reference.summary}</small></p>)}
+          </div>
+        </section>
+
+        <section className="panel hermes-skill-pack-detail" aria-label="Developer Response Shape">
+          <div className="panel-head"><div><p className="section-kicker">Developer Response Shape</p><h2>One call before spend.</h2></div></div>
+          <pre className="safe-code-block" aria-label="Wallet Safety API code sample">{codeSample}</pre>
+          <div className="machine-usage-list">
+            {['pre_spend_decision', 'spend_policy_check', 'policy_receipt', 'reconciliation_preview', 'wallet_audit_trail', 'wallet_risk_score', 'final_recommendation'].map((field) => (
+              <p key={field}><span>{field}</span><small>{field === 'final_recommendation' ? recommendation.decision : 'included'}</small></p>
+            ))}
+          </div>
+        </section>
+      </>}
+    </main>
+  </div>;
+}
+
 function HermesWalletRiskScorePage() {
   const [riskSummary, setRiskSummary] = useState<HermesWalletRiskScoreSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -854,6 +1058,16 @@ function HermesWalletRiskScorePage() {
       {error && <section className="panel"><p className="route-state error">{error}</p></section>}
       {!error && !score && <section className="panel"><p className="route-state">Loading Wallet Risk Score...</p></section>}
       {score && <>
+        <section className="panel hermes-skill-pack-detail" aria-label="Wallet Safety API note">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Wallet Safety API</p>
+              <h2>The Wallet Safety API includes this risk score inside a complete pre-spend bundle.</h2>
+            </div>
+            <a className="execute compact secondary" href="/hermes/wallet-safety">Open Wallet Safety API</a>
+          </div>
+        </section>
+
         <section className="panel hermes-skill-pack-detail" aria-label="Score Summary">
           <div className="panel-head">
             <div>
@@ -1009,6 +1223,16 @@ function HermesWalletAuditTrailPage() {
       {error && <section className="panel"><p className="route-state error">{error}</p></section>}
       {!error && !trail && <section className="panel"><p className="route-state">Loading Autonomous Wallet Audit Trail...</p></section>}
       {trail && <>
+        <section className="panel hermes-skill-pack-detail" aria-label="Wallet Safety API note">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Wallet Safety API</p>
+              <h2>The Wallet Safety API includes the audit trail so agents can inspect the full reasoning chain behind the final recommendation.</h2>
+            </div>
+            <a className="execute compact secondary" href="/hermes/wallet-safety">Open Wallet Safety API</a>
+          </div>
+        </section>
+
         <section className="panel hermes-skill-pack-detail" aria-label="Audit Trail Summary">
           <div className="panel-head">
             <div>
@@ -1411,6 +1635,14 @@ function HermesNarrativePage() {
         <p>Agents and wallets can use the score to decide whether to proceed, test, request review, tighten policy, block providers, or pause.</p>
         <p>This makes the full Infopunks memory loop legible to agents, builders, communities, and users.</p>
       </section>
+      <section className="panel hermes-narrative-copy" aria-label="Wallet Safety API Bundle">
+        <p className="section-kicker">Wallet Safety API Bundle</p>
+        <h2>Agents should not need to call five different endpoints to know whether to spend.</h2>
+        <p>Agents should not stitch safety together.</p>
+        <p>They should ask once before spend.</p>
+        <p>The safety bundle returns decision, policy, audit trail, risk score, and final recommendation in one response.</p>
+        <p>This is the developer-facing surface for autonomous wallet safety.</p>
+      </section>
     </main>
   </div>;
 }
@@ -1423,6 +1655,7 @@ function HermesDeskSurface() {
   const [spendPolicyResult, setSpendPolicyResult] = useState<HermesSpendPolicyCheckResult | null>(null);
   const [walletAuditSummary, setWalletAuditSummary] = useState<HermesWalletAuditSummary | null>(null);
   const [walletRiskSummary, setWalletRiskSummary] = useState<HermesWalletRiskScoreSummary | null>(null);
+  const [walletSafetyBundle, setWalletSafetyBundle] = useState<HermesWalletSafetyCheckResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -1461,6 +1694,10 @@ function HermesDeskSurface() {
     api<HermesWalletRiskScoreSummary>('/v1/hermes/wallet-risk-score')
       .then((response) => setWalletRiskSummary(response.data))
       .catch(() => setWalletRiskSummary(null));
+
+    api<HermesWalletSafetyCheckResult>('/v1/hermes/wallet-safety/example')
+      .then((response) => setWalletSafetyBundle(response.data))
+      .catch(() => setWalletSafetyBundle(null));
   }, []);
 
   const activeRuns = useMemo(() => (summary?.runs ?? []).filter((run) => run.state === 'queued' || run.state === 'running'), [summary?.runs]);
@@ -1655,6 +1892,8 @@ function HermesDeskSurface() {
         {walletAuditTrail && <HermesWalletAuditCompactCard trail={walletAuditTrail} />}
 
         {walletRiskScore && <HermesWalletRiskScoreCompactCard score={walletRiskScore} />}
+
+        {walletSafetyBundle && <HermesWalletSafetyCompactCard bundle={walletSafetyBundle} />}
 
         {policyReceiptPreview && <section className="panel hermes-skill-pack-detail" aria-label="Policy Decision Receipts">
           <div className="panel-head">
@@ -1914,6 +2153,18 @@ function HermesSkillPackPage() {
             {['severity', 'confidence', 'compliance state', 'evidence completeness', 'policy trigger', 'outcome state', 'feedback action'].map((item) => <span key={item}>{item}</span>)}
           </div>
         </section>
+        <section className="panel hermes-skill-pack-detail" aria-label="Bundle-ready outputs">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Bundle-ready outputs</p>
+              <h2>Hermes skills should produce structured outputs that can be bundled into one wallet safety response.</h2>
+            </div>
+            <a className="execute compact secondary" href="/hermes/wallet-safety">Open Wallet Safety API</a>
+          </div>
+          <div className="abundance-chip-row">
+            {['decision', 'required action', 'policy trigger', 'evidence references', 'risk score inputs', 'final recommendation'].map((item) => <span key={item}>{item}</span>)}
+          </div>
+        </section>
 
       <section className="panel hermes-skill-pack-detail" aria-label="Memory-loop-ready skills">
           <div className="panel-head">
@@ -2148,6 +2399,15 @@ function HermesSpendPolicyPage() {
         </div>
         <p className="copy">Policy checks and reconciliation feed the wallet risk score, which tells the wallet whether to continue, test, review, tighten policy, or pause.</p>
       </section>
+      <section className="panel hermes-skill-pack-detail" aria-label="Wallet Safety API note">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Wallet Safety API</p>
+            <h2>The Spend Policy Layer is available directly, but agents can call the Wallet Safety API for the complete bundled answer before spend.</h2>
+          </div>
+          <a className="execute compact secondary" href="/hermes/wallet-safety">Open Wallet Safety API</a>
+        </div>
+      </section>
       {result && <section className="panel hermes-skill-pack-detail" aria-label="Violations and Warnings">
         <div className="panel-head">
           <div>
@@ -2236,6 +2496,8 @@ function HermesPreSpendDecisionPage() {
         <p className="copy">The decision engine is part of a larger memory loop. Decisions produce receipts. Outcomes produce feedback. Feedback changes future reputation.</p>
         <p className="copy">The Pre-Spend Decision Engine recommends action. The Spend Policy Layer converts that recommendation into an allow, test, review, or block decision.</p>
         <p className="copy">Policy reconciliation compares the policy receipt against the actual wallet outcome before feedback is used for the next spend.</p>
+        <p className="copy">For developers, the Wallet Safety API bundles the pre-spend decision with policy, receipts, reconciliation, audit trail, risk score, and final recommendation.</p>
+        <a className="execute compact secondary" href="/hermes/wallet-safety">Open Wallet Safety API</a>
       </section>
       {error && <section className="panel"><p className="route-state error">{error}</p></section>}
       {!error && decision && <section className="panel hermes-runs-section" aria-label="Example decision card">
@@ -2459,12 +2721,14 @@ export function HermesDeskPage({
   spendPolicyRoute = false,
   decisionFeedbackRoute = false,
   walletAuditTrailRoute = false,
-  walletRiskScoreRoute = false
-}: { narrativeRoute?: boolean; memoryLoopRoute?: boolean; skillPackRoute?: boolean; reputationLedgerRoute?: boolean; preSpendDecisionRoute?: boolean; spendPolicyRoute?: boolean; decisionFeedbackRoute?: boolean; walletAuditTrailRoute?: boolean; walletRiskScoreRoute?: boolean }) {
+  walletRiskScoreRoute = false,
+  walletSafetyRoute = false
+}: { narrativeRoute?: boolean; memoryLoopRoute?: boolean; skillPackRoute?: boolean; reputationLedgerRoute?: boolean; preSpendDecisionRoute?: boolean; spendPolicyRoute?: boolean; decisionFeedbackRoute?: boolean; walletAuditTrailRoute?: boolean; walletRiskScoreRoute?: boolean; walletSafetyRoute?: boolean }) {
   if (memoryLoopRoute) return <HermesMemoryLoopDashboardPage />;
   if (decisionFeedbackRoute) return <HermesDecisionFeedbackPage />;
   if (walletAuditTrailRoute) return <HermesWalletAuditTrailPage />;
   if (walletRiskScoreRoute) return <HermesWalletRiskScorePage />;
+  if (walletSafetyRoute) return <HermesWalletSafetyPage />;
   if (spendPolicyRoute) return <HermesSpendPolicyPage />;
   if (preSpendDecisionRoute) return <HermesPreSpendDecisionPage />;
   if (reputationLedgerRoute) return <HermesReputationLedgerPage />;

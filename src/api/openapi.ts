@@ -834,6 +834,69 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       }
     }, 'hermes_wallet_risk_score_not_found')
   });
+  add('post', '/v1/hermes/wallet-safety/check', {
+    tags: ['Hermes'],
+    summary: 'Create Wallet Safety API Bundle',
+    description: 'Returns one deterministic, stateless wallet safety bundle for a spend intent: pre-spend decision, policy check, policy receipt, reconciliation preview, audit trail, risk score, and final recommendation. Agents should not stitch safety together. They should ask once before spend.',
+    requestBody: jsonRequest({ $ref: '#/components/schemas/HermesWalletSafetyCheckInput' }, {
+      route_id: 'route_pay_sh_market_research_01',
+      provider_id: 'provider_pay_sh_lattice',
+      service_id: 'service_market_research',
+      amount_usd: 25,
+      payment_rail: 'x402',
+      chain: 'base'
+    }),
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesWalletSafetyCheckResult' }, {
+      id: 'hermes_wallet_safety_check_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective_default_policy',
+      generated_at: '2026-07-03T00:00:00.000Z',
+      input: { route_id: 'route_pay_sh_market_research_01', provider_id: 'provider_pay_sh_lattice', service_id: 'service_market_research', amount_usd: 25, payment_rail: 'x402', chain: 'base' },
+      pre_spend_decision: { id: 'hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective', decision: 'do_not_spend' },
+      spend_policy_check: { id: 'hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective', decision: 'block', allowed: false },
+      policy_receipt: { receipt: { id: 'receipt_hermes_policy_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective' } },
+      reconciliation_preview: { check_id: 'hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective', compliance_state: 'compliant' },
+      wallet_audit_trail: { id: 'hermes_wallet_audit_trail_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective', summary: { event_count: 8 } },
+      wallet_risk_score: { id: 'hermes_wallet_risk_score_hermes_wallet_audit_trail_hermes_spend_policy_check_policy_infopunks_default_agent_spend_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective', risk_score: 75, safety_rating: 'watch' },
+      final_recommendation: {
+        decision: 'block_spend',
+        allowed: false,
+        confidence: 0.49,
+        reason: 'Pre-spend and policy checks require the spend to stay blocked.',
+        required_action: 'block_spend',
+        safety_rating: 'watch',
+        risk_score: 75,
+        top_risks: [{ id: 'wallet_risk_policy_block' }],
+        positive_controls: [{ id: 'wallet_control_complete_audit_trail' }],
+        references: [{ kind: 'pre_spend_decision', id: 'hermes_pre_spend_decision_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective', summary: 'Pre-spend decision reference.' }]
+      },
+      summary: {
+        decision: 'block_spend',
+        allowed: false,
+        required_action: 'block_spend',
+        safety_rating: 'watch',
+        risk_score: 75,
+        policy_decision: 'block',
+        compliance_state: 'compliant',
+        audit_event_count: 8,
+        top_risk_count: 1,
+        positive_control_count: 1
+      }
+    })
+  });
+  add('get', '/v1/hermes/wallet-safety/example', {
+    tags: ['Hermes'],
+    summary: 'Get Wallet Safety API Bundle example',
+    description: 'Returns the deterministic example Wallet Safety API Bundle for the seeded spend intent. No live Hermes sidecar, persistence, or wallet mutation is required.',
+    responses: envelopedResponses({ $ref: '#/components/schemas/HermesWalletSafetyCheckResult' }, {
+      id: 'hermes_wallet_safety_check_route_pay_sh_market_research_01_provider_pay_sh_lattice_service_market_research_25_00_x402_base_no_agent_no_objective_default_policy',
+      final_recommendation: {
+        decision: 'block_spend',
+        allowed: false,
+        required_action: 'block_spend',
+        safety_rating: 'watch',
+        risk_score: 75
+      }
+    })
+  });
   add('get', '/v1/hermes/skill-pack/skills', {
     tags: ['Hermes'],
     summary: 'List Hermes Skill Pack skills',
@@ -3560,6 +3623,64 @@ function componentSchemas(): Record<string, JsonSchema> {
       score_count: integerSchema(),
       scores: arrayOf({ $ref: '#/components/schemas/HermesWalletRiskScore' })
     }, ['generated_at', 'score_count', 'scores']),
+    HermesWalletSafetyDecision: enumSchema(['safe_to_spend', 'test_spend_required', 'manual_review_required', 'block_spend', 'insufficient_evidence']),
+    HermesWalletSafetyReference: objectSchema({
+      kind: enumSchema(['pre_spend_decision', 'spend_policy_check', 'policy_receipt', 'reconciliation', 'wallet_audit_trail', 'wallet_risk_score', 'receipt', 'claim', 'run', 'reputation']),
+      id: stringSchema(),
+      summary: stringSchema()
+    }, ['kind', 'id', 'summary']),
+    HermesWalletSafetyCheckInput: objectSchema({
+      route_id: stringSchema(),
+      provider_id: stringSchema(),
+      service_id: stringSchema(),
+      amount_usd: { type: 'number', minimum: 0 },
+      payment_rail: stringSchema(),
+      chain: stringSchema(),
+      agent_type: stringSchema(),
+      objective: stringSchema(),
+      policy_id: stringSchema()
+    }),
+    HermesWalletFinalRecommendation: objectSchema({
+      decision: { $ref: '#/components/schemas/HermesWalletSafetyDecision' },
+      allowed: booleanSchema(),
+      confidence: { type: 'number', minimum: 0, maximum: 1 },
+      reason: stringSchema(),
+      required_action: enumSchema(['none', 'run_test_spend', 'manual_review_required', 'block_spend', 'request_more_evidence', 'pause_wallet']),
+      safety_rating: { $ref: '#/components/schemas/HermesWalletSafetyRating' },
+      risk_score: integerSchema(),
+      top_risks: arrayOf(freeformObject()),
+      positive_controls: arrayOf(freeformObject()),
+      references: arrayOf({ $ref: '#/components/schemas/HermesWalletSafetyReference' })
+    }, ['decision', 'allowed', 'confidence', 'reason', 'required_action', 'safety_rating', 'risk_score', 'top_risks', 'positive_controls', 'references']),
+    HermesWalletSafetyCheckResult: objectSchema({
+      id: stringSchema(),
+      generated_at: dateTimeSchema(),
+      input: { $ref: '#/components/schemas/HermesWalletSafetyCheckInput' },
+      pre_spend_decision: { $ref: '#/components/schemas/HermesPreSpendDecision' },
+      spend_policy_check: { $ref: '#/components/schemas/HermesSpendPolicyCheckResult' },
+      policy_receipt: { $ref: '#/components/schemas/HermesPolicyDecisionReceiptConversion' },
+      reconciliation_preview: { $ref: '#/components/schemas/HermesPolicyReconciliationResult' },
+      wallet_audit_trail: { $ref: '#/components/schemas/HermesWalletAuditTrail' },
+      wallet_risk_score: { $ref: '#/components/schemas/HermesWalletRiskScore' },
+      final_recommendation: { $ref: '#/components/schemas/HermesWalletFinalRecommendation' },
+      summary: objectSchema({
+        decision: { $ref: '#/components/schemas/HermesWalletSafetyDecision' },
+        allowed: booleanSchema(),
+        required_action: stringSchema(),
+        safety_rating: stringSchema(),
+        risk_score: integerSchema(),
+        policy_decision: stringSchema(),
+        compliance_state: stringSchema(),
+        audit_event_count: integerSchema(),
+        top_risk_count: integerSchema(),
+        positive_control_count: integerSchema()
+      }, ['decision', 'allowed', 'required_action', 'safety_rating', 'risk_score', 'top_risk_count', 'positive_control_count'])
+    }, ['id', 'generated_at', 'input', 'pre_spend_decision', 'spend_policy_check', 'policy_receipt', 'reconciliation_preview', 'wallet_audit_trail', 'wallet_risk_score', 'final_recommendation', 'summary']),
+    HermesWalletSafetyBundleSummary: objectSchema({
+      generated_at: dateTimeSchema(),
+      bundle_count: integerSchema(),
+      bundles: arrayOf({ $ref: '#/components/schemas/HermesWalletSafetyCheckResult' })
+    }, ['generated_at', 'bundle_count', 'bundles']),
     HermesRunReceipt: hermesRunReceipt,
     HermesClaimCandidate: hermesClaimCandidate,
     HermesClaimReviewState: hermesClaimReviewState,

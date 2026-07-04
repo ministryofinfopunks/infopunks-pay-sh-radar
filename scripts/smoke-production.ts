@@ -39,6 +39,7 @@ export const HERMES_PRE_SPEND_DECISION_PAYLOAD = {
 } as const;
 
 export const HERMES_SPEND_POLICY_PAYLOAD = HERMES_PRE_SPEND_DECISION_PAYLOAD;
+export const HERMES_WALLET_SAFETY_PAYLOAD = HERMES_PRE_SPEND_DECISION_PAYLOAD;
 export const HERMES_POLICY_OUTCOME_PAYLOAD = {
   outcome_state: 'blocked_as_required',
   outcome_summary: 'Wallet stayed blocked after policy denied autonomous spend.',
@@ -71,6 +72,8 @@ export type SmokePlan = {
   hermesDecisionOutcomePath: string;
   hermesWalletAuditTrailDetailPath: string;
   hermesWalletRiskScoreDetailPath: string;
+  hermesWalletSafetyCheckPath: string;
+  hermesWalletSafetyExamplePath: string;
   livePulsePath: string;
 };
 
@@ -147,6 +150,7 @@ export function buildSmokePlan(): SmokePlan {
       '/hermes/decision-feedback',
       '/hermes/wallet-audit-trail',
       '/hermes/wallet-risk-score',
+      '/hermes/wallet-safety',
       '/hermes/reputation-ledger',
       '/hermes/skill-pack',
       '/narratives/hermes-desk',
@@ -198,6 +202,7 @@ export function buildSmokePlan(): SmokePlan {
       `/v1/hermes/wallet-audit-trail/${encodeURIComponent(hermesWalletAuditTrailId)}`,
       '/v1/hermes/wallet-risk-score',
       `/v1/hermes/wallet-risk-score/${encodeURIComponent(hermesWalletRiskScoreId)}`,
+      '/v1/hermes/wallet-safety/example',
       `/v1/hermes/spend-policy/check/${encodeURIComponent(hermesPolicyCheckId)}/reconciliation-preview`,
       '/v1/hermes/pre-spend-decision/example',
       '/v1/hermes/reputation-ledger',
@@ -258,6 +263,8 @@ export function buildSmokePlan(): SmokePlan {
     hermesDecisionOutcomePath: `/v1/hermes/pre-spend-decision/${encodeURIComponent(HERMES_PRE_SPEND_DECISION_EXAMPLE_ID)}/outcome`,
     hermesWalletAuditTrailDetailPath: `/v1/hermes/wallet-audit-trail/${encodeURIComponent(hermesWalletAuditTrailId)}`,
     hermesWalletRiskScoreDetailPath: `/v1/hermes/wallet-risk-score/${encodeURIComponent(hermesWalletRiskScoreId)}`,
+    hermesWalletSafetyCheckPath: '/v1/hermes/wallet-safety/check',
+    hermesWalletSafetyExamplePath: '/v1/hermes/wallet-safety/example',
     livePulsePath: '/v1/pulse'
   };
 }
@@ -719,6 +726,24 @@ function assertHermesSpendPolicy(body: unknown): void {
   if (!Array.isArray(data.references)) throw new Error('missing data.references');
 }
 
+function assertHermesWalletSafetyBundle(body: unknown): void {
+  if (!hasDataEnvelope(body) || !isRecord(body.data)) {
+    throw new Error('missing Hermes wallet safety bundle payload');
+  }
+
+  const data = body.data;
+  if (!isRecord(data.pre_spend_decision)) throw new Error('missing data.pre_spend_decision');
+  if (!isRecord(data.spend_policy_check)) throw new Error('missing data.spend_policy_check');
+  if (!isRecord(data.policy_receipt)) throw new Error('missing data.policy_receipt');
+  if (!isRecord(data.reconciliation_preview)) throw new Error('missing data.reconciliation_preview');
+  if (!isRecord(data.wallet_audit_trail)) throw new Error('missing data.wallet_audit_trail');
+  if (!isRecord(data.wallet_risk_score)) throw new Error('missing data.wallet_risk_score');
+  if (!isRecord(data.final_recommendation)) throw new Error('missing data.final_recommendation');
+  if (typeof data.final_recommendation.decision !== 'string') throw new Error('missing final recommendation decision');
+  if (typeof data.final_recommendation.allowed !== 'boolean') throw new Error('missing final recommendation allowed');
+  if (!Array.isArray(data.final_recommendation.references)) throw new Error('missing final recommendation references');
+}
+
 function assertHermesDecisionReceipt(body: unknown): void {
   if (!hasDataEnvelope(body) || !isRecord(body.data)) throw new Error('missing Hermes decision receipt payload');
   const data = body.data;
@@ -1148,6 +1173,40 @@ export async function runSmoke(baseUrl = resolveBaseUrl(), config = resolveSmoke
   } catch (error) {
     failed = true;
     fail(`POST ${plan.hermesSpendPolicyCheckPath}`, toFailureDetail('POST', plan.hermesSpendPolicyCheckPath, error));
+  }
+
+  try {
+    const { response, elapsedMs } = await fetchWithRetry({
+      input: `${baseUrl}${plan.hermesWalletSafetyCheckPath}`,
+      method: 'POST',
+      path: plan.hermesWalletSafetyCheckPath,
+      timeoutMs: config.apiTimeoutMs,
+      init: {
+        method: 'POST',
+        headers: {
+          accept: 'application/json',
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify(HERMES_WALLET_SAFETY_PAYLOAD)
+      }
+    });
+
+    if (!response.ok) {
+      throw new SmokeRequestError({
+        method: 'POST',
+        path: plan.hermesWalletSafetyCheckPath,
+        status: response.status,
+        elapsedMs,
+        reason: 'expected 2xx'
+      });
+    }
+
+    const body = await parseJsonOrThrow('POST', plan.hermesWalletSafetyCheckPath, response, elapsedMs);
+    assertHermesWalletSafetyBundle(body);
+    pass(`POST ${plan.hermesWalletSafetyCheckPath}`, elapsedMs);
+  } catch (error) {
+    failed = true;
+    fail(`POST ${plan.hermesWalletSafetyCheckPath}`, toFailureDetail('POST', plan.hermesWalletSafetyCheckPath, error));
   }
 
   try {

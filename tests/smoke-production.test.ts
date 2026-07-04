@@ -9,6 +9,7 @@ import {
   HERMES_PRE_SPEND_DECISION_PAYLOAD,
   HERMES_POLICY_OUTCOME_PAYLOAD,
   HERMES_SPEND_POLICY_PAYLOAD,
+  HERMES_WALLET_SAFETY_PAYLOAD,
   PRE_SPEND_CHECK_PAYLOAD,
   assertSignalHuntDeployment,
   buildSmokePlan,
@@ -71,6 +72,7 @@ describe('production smoke plan', () => {
       '/hermes/decision-feedback',
       '/hermes/wallet-audit-trail',
       '/hermes/wallet-risk-score',
+      '/hermes/wallet-safety',
       '/hermes/reputation-ledger',
       '/hermes/skill-pack',
       '/narratives/hermes-desk',
@@ -115,6 +117,7 @@ describe('production smoke plan', () => {
       plan.hermesWalletAuditTrailDetailPath,
       '/v1/hermes/wallet-risk-score',
       plan.hermesWalletRiskScoreDetailPath,
+      '/v1/hermes/wallet-safety/example',
       plan.hermesPolicyReconciliationPreviewPath,
       '/v1/hermes/pre-spend-decision/example',
       '/v1/hermes/reputation-ledger',
@@ -181,6 +184,8 @@ describe('production smoke plan', () => {
     expect(plan.hermesDecisionOutcomePath).toContain('/outcome');
     expect(plan.hermesWalletAuditTrailDetailPath).toContain('/v1/hermes/wallet-audit-trail/');
     expect(plan.hermesWalletRiskScoreDetailPath).toContain('/v1/hermes/wallet-risk-score/');
+    expect(plan.hermesWalletSafetyCheckPath).toBe('/v1/hermes/wallet-safety/check');
+    expect(plan.hermesWalletSafetyExamplePath).toBe('/v1/hermes/wallet-safety/example');
     expect(plan.livePulsePath).toBe('/v1/pulse');
     expect(PRE_SPEND_CHECK_PAYLOAD).toEqual({
       agent_id: 'agent_001',
@@ -209,6 +214,7 @@ describe('production smoke plan', () => {
       chain: 'base'
     });
     expect(HERMES_SPEND_POLICY_PAYLOAD).toEqual(HERMES_PRE_SPEND_DECISION_PAYLOAD);
+    expect(HERMES_WALLET_SAFETY_PAYLOAD).toEqual(HERMES_PRE_SPEND_DECISION_PAYLOAD);
     expect(HERMES_POLICY_OUTCOME_PAYLOAD).toEqual({
       outcome_state: 'blocked_as_required',
       outcome_summary: 'Wallet stayed blocked after policy denied autonomous spend.',

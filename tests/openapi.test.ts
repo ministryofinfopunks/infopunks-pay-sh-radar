@@ -119,6 +119,8 @@ describe('openapi discovery', () => {
     expect(spec.paths['/v1/hermes/wallet-audit-trail/{trail_id}']?.get).toBeTruthy();
     expect(spec.paths['/v1/hermes/wallet-risk-score']?.get).toBeTruthy();
     expect(spec.paths['/v1/hermes/wallet-risk-score/{score_id}']?.get).toBeTruthy();
+    expect(spec.paths['/v1/hermes/wallet-safety/check']?.post).toBeTruthy();
+    expect(spec.paths['/v1/hermes/wallet-safety/example']?.get).toBeTruthy();
     expect(spec.paths['/v1/hermes/pre-spend-decision']?.post).toBeTruthy();
     expect(spec.paths['/v1/hermes/pre-spend-decision/example']?.get).toBeTruthy();
     expect(spec.paths['/v1/hermes/pre-spend-decision/{decision_id}/receipt']?.post).toBeTruthy();
@@ -166,6 +168,12 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.HermesWalletPositiveControl).toBeTruthy();
     expect(spec.components.schemas.HermesWalletRiskScoreInput).toBeTruthy();
     expect(spec.components.schemas.HermesWalletRiskScoreSummary).toBeTruthy();
+    expect(spec.components.schemas.HermesWalletSafetyCheckInput).toBeTruthy();
+    expect(spec.components.schemas.HermesWalletSafetyCheckResult).toBeTruthy();
+    expect(spec.components.schemas.HermesWalletFinalRecommendation).toBeTruthy();
+    expect(spec.components.schemas.HermesWalletSafetyDecision).toBeTruthy();
+    expect(spec.components.schemas.HermesWalletSafetyReference).toBeTruthy();
+    expect(spec.components.schemas.HermesWalletSafetyBundleSummary).toBeTruthy();
     expect(spec.components.schemas.HermesClaimCandidate).toBeTruthy();
     expect(spec.components.schemas.HermesRunReceiptConversion).toBeTruthy();
     expect(spec.components.schemas.HermesClaimReviewState).toBeTruthy();
@@ -290,6 +298,8 @@ describe('openapi discovery', () => {
     expect(JSON.stringify(spec.paths['/v1/hermes/wallet-audit-trail/{trail_id}'])).toContain('hermes_wallet_audit_trail_not_found');
     expect(JSON.stringify(spec.paths['/v1/hermes/wallet-risk-score'])).toContain('wallet risk score summary derived from the Autonomous Wallet Audit Trail');
     expect(JSON.stringify(spec.paths['/v1/hermes/wallet-risk-score/{score_id}'])).toContain('hermes_wallet_risk_score_not_found');
+    expect(JSON.stringify(spec.paths['/v1/hermes/wallet-safety/check'])).toContain('Agents should not stitch safety together');
+    expect(JSON.stringify(spec.paths['/v1/hermes/wallet-safety/example'])).toContain('deterministic example Wallet Safety API Bundle');
     expect(JSON.stringify(spec.paths['/v1/hermes/pre-spend-decision'])).toContain('deterministic spend recommendation');
     expect(JSON.stringify(spec.paths['/v1/hermes/pre-spend-decision/example'])).toContain('deterministic example pre-spend decision');
     expect(JSON.stringify(spec.paths['/v1/hermes/pre-spend-decision/{decision_id}/receipt'])).toContain('stateless, deterministic');

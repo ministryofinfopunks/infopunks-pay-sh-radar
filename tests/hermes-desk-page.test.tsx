@@ -11,6 +11,7 @@ import { buildHermesMemoryLoopSummary } from '../src/services/hermesMemoryLoop';
 import { createHermesSpendPolicyExample, listHermesSpendPolicies, listHermesSpendPolicyRules } from '../src/services/hermesSpendPolicy';
 import { buildHermesWalletAuditTrailSummary } from '../src/services/hermesWalletAuditTrail';
 import { buildHermesWalletRiskScoreSummary } from '../src/services/hermesWalletRiskScore';
+import { getHermesWalletSafetyExampleCheck } from '../src/services/hermesWalletSafetyBundle';
 import { App } from '../src/web/main';
 
 function json(data: unknown) {
@@ -49,6 +50,7 @@ describe('Hermes Desk page', () => {
       if (pathOf(input) === '/v1/hermes/memory-loop') return json(buildHermesMemoryLoopSummary());
       if (pathOf(input) === '/v1/hermes/wallet-audit-trail') return json(buildHermesWalletAuditTrailSummary());
       if (pathOf(input) === '/v1/hermes/wallet-risk-score') return json(buildHermesWalletRiskScoreSummary());
+      if (pathOf(input) === '/v1/hermes/wallet-safety/example') return json(getHermesWalletSafetyExampleCheck());
       if (pathOf(input) === '/v1/hermes/reputation-ledger') return json(buildHermesReputationLedger());
       if (pathOf(input) === '/v1/hermes/pre-spend-decision/example') return json(createHermesPreSpendDecisionExample());
       if (pathOf(input) === '/v1/hermes/spend-policy') return json({
@@ -125,6 +127,9 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Open Wallet Audit Trail');
     expect(text).toContain('Wallet Risk Score');
     expect(text).toContain('Open Wallet Risk Score');
+    expect(text).toContain('Wallet Safety API Bundle');
+    expect(text).toContain('Agents should not stitch safety together.');
+    expect(text).toContain('Open Wallet Safety API');
     expect(text).toContain('Before an agent spends, it checks the ledger.');
     expect(text).toContain('Reputation is not just displayed.');
     expect(text).toContain('Reputation now decides.');
@@ -191,6 +196,8 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Risk-score-ready outputs');
     expect(text).toContain('compliance state');
     expect(text).toContain('evidence completeness');
+    expect(text).toContain('Bundle-ready outputs');
+    expect(text).toContain('final recommendation');
     expect(text).toContain('expected result');
     expect(text).toContain('success criteria');
     expect(text).toContain('failure reasons');
@@ -292,6 +299,10 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Wallet Risk Score');
     expect(text).toContain('Audit trails explain what happened. Risk scores tell the wallet what to do next.');
     expect(text).toContain('Wallet risk scores compress the chain into a usable safety signal.');
+    expect(text).toContain('Wallet Safety API Bundle');
+    expect(text).toContain('Agents should not stitch safety together.');
+    expect(text).toContain('They should ask once before spend.');
+    expect(text).toContain('This is the developer-facing surface for autonomous wallet safety.');
     expect(container.querySelector('a[href="/narratives/hermes-desk"]')?.getAttribute('aria-current')).toBe('page');
   });
 
@@ -360,6 +371,8 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('The decision engine is part of a larger memory loop. Decisions produce receipts. Outcomes produce feedback. Feedback changes future reputation.');
     expect(text).toContain('The Pre-Spend Decision Engine recommends action. The Spend Policy Layer converts that recommendation into an allow, test, review, or block decision.');
     expect(text).toContain('Policy reconciliation compares the policy receipt against the actual wallet outcome before feedback is used for the next spend.');
+    expect(text).toContain('For developers, the Wallet Safety API bundles the pre-spend decision with policy, receipts, reconciliation, audit trail, risk score, and final recommendation.');
+    expect(container.querySelector('a[href="/hermes/wallet-safety"]')).not.toBeNull();
     expect(container.querySelector('a[href="/hermes/pre-spend-decision"]')?.getAttribute('aria-current')).toBe('page');
   });
 
@@ -387,8 +400,10 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Rule Map');
     expect(text).toContain('Policy checks, policy receipts, and reconciliations now roll up into one autonomous wallet audit trail.');
     expect(text).toContain('Policy checks and reconciliation feed the wallet risk score, which tells the wallet whether to continue, test, review, tighten policy, or pause.');
+    expect(text).toContain('The Spend Policy Layer is available directly, but agents can call the Wallet Safety API for the complete bundled answer before spend.');
     expect(container.querySelector('a[href="/hermes/wallet-audit-trail"]')).not.toBeNull();
     expect(container.querySelector('a[href="/hermes/wallet-risk-score"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/hermes/wallet-safety"]')).not.toBeNull();
     expect(container.querySelector('a[href="/hermes/spend-policy"]')?.getAttribute('aria-current')).toBe('page');
   });
 
@@ -426,6 +441,7 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('What builders can inspect');
     expect(text).toContain('Wallet Risk Score');
     expect(text).toContain('The audit trail now compresses into a safety score that agents and wallets can use before the next action.');
+    expect(text).toContain('The Wallet Safety API includes the audit trail so agents can inspect the full reasoning chain behind the final recommendation.');
     expect(text).toContain('Spend Intent');
     expect(text).toContain('Pre-Spend Decision');
     expect(text).toContain('Decision Receipt');
@@ -451,6 +467,29 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Score Breakdown');
     expect(text).toContain('Inputs Used');
     expect(text).toContain('How the score is calculated');
+    expect(text).toContain('The Wallet Safety API includes this risk score inside a complete pre-spend bundle.');
     expect(container.querySelector('a[href="/hermes/wallet-risk-score"]')?.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('renders the Wallet Safety API page', async () => {
+    root = await renderPath(container, '/hermes/wallet-safety');
+
+    const text = container.textContent ?? '';
+    expect(text).toContain('Wallet Safety API');
+    expect(text).toContain('Agents should not stitch safety together.');
+    expect(text).toContain('They should ask once before spend.');
+    expect(text).toContain('One endpoint returns the decision, policy check, audit trail, risk score, and final recommendation.');
+    expect(text).toContain('Example Spend Intent');
+    expect(text).toContain('Final Recommendation');
+    expect(text).toContain('Pre-Spend Decision');
+    expect(text).toContain('Spend Policy Check');
+    expect(text).toContain('Policy Receipt');
+    expect(text).toContain('Reconciliation Preview');
+    expect(text).toContain('Wallet Audit Trail');
+    expect(text).toContain('Wallet Risk Score');
+    expect(text).toContain('References');
+    expect(text).toContain('Developer Response Shape');
+    expect(text).toContain('POST /v1/hermes/wallet-safety/check');
+    expect(container.querySelector('a[href="/hermes/wallet-safety"]')?.getAttribute('aria-current')).toBe('page');
   });
 });

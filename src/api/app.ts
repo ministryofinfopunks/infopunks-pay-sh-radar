@@ -195,6 +195,10 @@ import {
   buildHermesWalletRiskScoreSummary,
   resolveHermesWalletRiskScoreById
 } from '../services/hermesWalletRiskScore';
+import {
+  createHermesWalletSafetyCheck,
+  getHermesWalletSafetyExampleCheck
+} from '../services/hermesWalletSafetyBundle';
 import { createOpenApiSpec } from './openapi';
 
 const IngestRequestSchema = z.object({ catalogUrl: z.string().url().optional() }).optional();
@@ -217,6 +221,7 @@ const HermesPreSpendDecisionInputSchema = z.object({
 const HermesSpendPolicyCheckInputSchema = HermesPreSpendDecisionInputSchema.extend({
   policy_id: z.string().min(1).optional()
 }).strict();
+const HermesWalletSafetyCheckInputSchema = HermesSpendPolicyCheckInputSchema;
 const HermesDecisionOutcomeRequestSchema = z.object({
   outcome_state: z.enum(['successful', 'failed', 'partial', 'blocked', 'manual_review', 'unknown']).optional(),
   outcome_summary: z.string().min(1).optional(),
@@ -1745,6 +1750,12 @@ export async function createApp(
     }
     return { data: safeJsonExport(score) };
   });
+  app.post('/v1/hermes/wallet-safety/check', async (req, reply) => handleParsed(req.body, HermesWalletSafetyCheckInputSchema, (input) => ({
+    data: safeJsonExport(createHermesWalletSafetyCheck(input))
+  }), reply));
+  app.get('/v1/hermes/wallet-safety/example', async () => ({
+    data: safeJsonExport(getHermesWalletSafetyExampleCheck())
+  }));
   app.get('/v1/hermes/skill-pack/skills', async () => ({
     data: safeJsonExport({
       generated_at: '2026-07-03T00:00:00.000Z',
