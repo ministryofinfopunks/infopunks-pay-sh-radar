@@ -689,6 +689,12 @@ Content-Type: application/json
   ];
 
   const resourceCards = [
+    {
+      href: '/developers/wallet-safety',
+      title: 'Wallet Safety API',
+      copy: 'Ask once before spend. Get decision, policy, audit trail, risk score, and final recommendation.',
+      cta: 'Open quickstart'
+    },
     { href: '/spend-terminal', title: 'Spend Terminal', copy: 'Run the receipt-backed pre-spend check UI.' },
     { href: '/check', title: 'Check', copy: 'Turn claims, routes, providers, wallets, and links into public receipt checks.' },
     { href: '/loops', title: 'Loops', copy: 'Inspect autonomous loops as proof-linked public memory objects.' },
@@ -814,11 +820,242 @@ Content-Type: application/json
               <p className="section-kicker">Public link</p>
               <h2>{card.title}</h2>
               <p className="panel-caption">{card.copy}</p>
-              <span className="builder-card-cta">Open</span>
+              <span className="builder-card-cta">{card.cta ?? 'Open'}</span>
             </a>
           </article>)}
         </div>
         <p className="panel-caption">Minimal agent example path in repo: <code>examples/pre-spend-agent/README.md</code></p>
+      </section>
+    </main>
+  </div>;
+}
+
+export function WalletSafetyDeveloperQuickstartPage() {
+  useEffect(() => {
+    document.title = 'Wallet Safety Developer Quickstart | Infopunks Builder';
+  }, []);
+
+  const requestJson = `{
+  "route_id": "route_pay_sh_market_research_01",
+  "provider_id": "provider_pay_sh_lattice",
+  "service_id": "service_market_research",
+  "amount_usd": 25,
+  "payment_rail": "x402",
+  "chain": "base",
+  "agent_type": "research_agent",
+  "objective": "Buy market research before routing an autonomous payment"
+}`;
+
+  const responseShape = `{
+  "id": "wallet_safety_check_...",
+  "pre_spend_decision": {},
+  "spend_policy_check": {},
+  "policy_receipt": {},
+  "reconciliation_preview": {},
+  "wallet_audit_trail": {},
+  "wallet_risk_score": {},
+  "final_recommendation": {
+    "decision": "test_spend_required",
+    "allowed": true,
+    "confidence": 0.72,
+    "required_action": "run_test_spend",
+    "safety_rating": "watch",
+    "risk_score": 68,
+    "reason": "Provider is on watchlist, so policy requires a small test spend before full execution."
+  }
+}`;
+
+  const curlExample = `curl -X POST "https://radar.infopunks.fun/v1/hermes/wallet-safety/check" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "route_id": "route_pay_sh_market_research_01",
+    "provider_id": "provider_pay_sh_lattice",
+    "service_id": "service_market_research",
+    "amount_usd": 25,
+    "payment_rail": "x402",
+    "chain": "base"
+  }'`;
+
+  const pseudocode = `async function checkBeforeSpend(intent) {
+  const response = await fetch("https://radar.infopunks.fun/v1/hermes/wallet-safety/check", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(intent)
+  });
+
+  const safety = await response.json();
+  const recommendation = safety.final_recommendation;
+
+  if (recommendation.decision === "safe_to_spend") {
+    return wallet.spend(intent);
+  }
+
+  if (recommendation.decision === "test_spend_required") {
+    return wallet.spend({ ...intent, amount_usd: Math.min(intent.amount_usd, 25) });
+  }
+
+  if (recommendation.decision === "manual_review_required") {
+    return queueManualReview(intent, safety);
+  }
+
+  if (recommendation.decision === "block_spend") {
+    return blockSpend(intent, safety);
+  }
+
+  return requestMoreEvidence(intent, safety);
+}`;
+
+  const recommendationStates = [
+    { state: 'safe_to_spend', copy: 'Spend can proceed without extra gating.', tone: 'ok' },
+    { state: 'test_spend_required', copy: 'Run a small bounded spend before full execution.', tone: 'warn' },
+    { state: 'manual_review_required', copy: 'Stop autonomous execution and queue human review.', tone: 'warn' },
+    { state: 'block_spend', copy: 'Do not sign or pay for this intent.', tone: 'error' },
+    { state: 'insufficient_evidence', copy: 'Gather more evidence before spend.', tone: 'warn' }
+  ];
+
+  const requiredActions = [
+    ['none', 'No extra action required before spend.'],
+    ['run_test_spend', 'Use a small test spend first.'],
+    ['manual_review_required', 'Queue human review before signing.'],
+    ['block_spend', 'Block this spend attempt.'],
+    ['request_more_evidence', 'Ask for stronger route, provider, receipt, or reputation evidence.'],
+    ['pause_wallet', 'Pause wallet activity until safety posture improves.']
+  ];
+
+  const flow = [
+    'Spend Intent',
+    'Pre-Spend Decision',
+    'Policy Check',
+    'Policy Receipt',
+    'Reconciliation Preview',
+    'Wallet Audit Trail',
+    'Wallet Risk Score',
+    'Final Recommendation'
+  ];
+
+  return <div className="shell builder-shell">
+    <main className="builder-page developers-page" aria-label="Wallet Safety Developer Quickstart">
+      <section className="panel hero builder-hero">
+        <div>
+          <p className="eyebrow">Developer Quickstart</p>
+          <h1>Wallet Safety Developer Quickstart</h1>
+          <p className="copy">The machinery is built. Now make it easy to plug into.</p>
+          <p className="copy">Agents should not stitch safety together. They should ask once before spend.</p>
+          <p className="copy">POST /v1/hermes/wallet-safety/check gives agent builders, wallet developers, autonomous payment apps, and service routers one safety answer before signing or paying.</p>
+          <div className="panel-actions">
+            <a className="execute" href="/v1/hermes/wallet-safety/example">Open example response</a>
+            <a className="execute compact secondary" href="/openapi.json">Open OpenAPI schema</a>
+            <a className="execute compact secondary" href="/developers">Back to Developers</a>
+          </div>
+        </div>
+        <div className="ticker" aria-label="Wallet safety decision states">
+          {recommendationStates.map((item) => <span key={item.state}>{item.state}</span>)}
+        </div>
+      </section>
+
+      <section className="panel builder-detail-panel" aria-label="What this endpoint does">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">What this endpoint does</p>
+            <h2>Ask Infopunks whether a spend should proceed before signing or paying.</h2>
+          </div>
+        </div>
+        <p className="panel-caption">The Wallet Safety API lets an agent or autonomous wallet ask Infopunks whether a spend should proceed before signing or paying.</p>
+        <div className="builder-card-grid">
+          {['pre-spend judgment', 'policy enforcement', 'audit receipt', 'reconciliation preview', 'wallet audit trail', 'risk score', 'final recommendation'].map((item) => (
+            <article className="panel builder-card" key={item}>
+              <p className="section-kicker">bundled</p>
+              <h2>{item}</h2>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="grid two builder-section-grid">
+        <section className="panel builder-detail-panel" aria-labelledby="wallet-safety-request-json">
+          <div className="panel-head"><div><p className="section-kicker">Request JSON</p><h2 id="wallet-safety-request-json">Spend intent input</h2></div></div>
+          <pre className="builder-code-block"><code>{requestJson}</code></pre>
+        </section>
+        <section className="panel builder-detail-panel" aria-labelledby="wallet-safety-response-shape">
+          <div className="panel-head"><div><p className="section-kicker">Response shape</p><h2 id="wallet-safety-response-shape">Bundled safety answer</h2></div></div>
+          <pre className="builder-code-block"><code>{responseShape}</code></pre>
+        </section>
+      </section>
+
+      <section className="panel builder-detail-panel" aria-label="Returned primitives">
+        <div className="panel-head"><div><p className="section-kicker">Endpoint</p><h2>POST /v1/hermes/wallet-safety/check</h2></div></div>
+        <div className="builder-detail-grid">
+          {['pre_spend_decision', 'spend_policy_check', 'policy_receipt', 'reconciliation_preview', 'wallet_audit_trail', 'wallet_risk_score', 'final_recommendation'].map((field) => (
+            <article key={field}><span>{field}</span><strong>included</strong></article>
+          ))}
+        </div>
+      </section>
+
+      <section className="grid two builder-section-grid">
+        <section className="panel builder-detail-panel" aria-label="Final recommendation states">
+          <div className="panel-head"><div><p className="section-kicker">Final recommendation states</p><h2>One bounded decision vocabulary.</h2></div></div>
+          <div className="builder-chip-row" aria-label="Wallet safety recommendation badges">
+            {recommendationStates.map((item) => <span className={`builder-decision-chip ${item.tone}`} key={item.state}>{item.state}</span>)}
+          </div>
+          <div className="builder-detail-grid">
+            {recommendationStates.map((item) => <article key={item.state}><span>{item.state}</span><strong>{item.copy}</strong></article>)}
+          </div>
+        </section>
+        <section className="panel builder-detail-panel" aria-label="Required actions">
+          <div className="panel-head"><div><p className="section-kicker">Required actions</p><h2>What the wallet should do next.</h2></div></div>
+          <div className="builder-detail-grid">
+            {requiredActions.map(([action, copy]) => <article key={action}><span>{action}</span><strong>{copy}</strong></article>)}
+          </div>
+        </section>
+      </section>
+
+      <section className="grid two builder-section-grid">
+        <section className="panel builder-detail-panel" aria-labelledby="wallet-safety-curl">
+          <div className="panel-head"><div><p className="section-kicker">Example curl</p><h2 id="wallet-safety-curl">Call the public endpoint</h2></div></div>
+          <pre className="builder-code-block"><code>{curlExample}</code></pre>
+        </section>
+        <section className="panel builder-detail-panel" aria-labelledby="wallet-safety-agent-code">
+          <div className="panel-head"><div><p className="section-kicker">Example agent integration pseudocode</p><h2 id="wallet-safety-agent-code">Check before spend</h2></div></div>
+          <pre className="builder-code-block"><code>{pseudocode}</code></pre>
+        </section>
+      </section>
+
+      <section className="panel builder-detail-panel" aria-label="How the pieces fit together">
+        <div className="panel-head"><div><p className="section-kicker">How the pieces fit together</p><h2>Spend Intent to Final Recommendation.</h2></div></div>
+        <p className="panel-caption">Spend Intent → Pre-Spend Decision → Policy Check → Policy Receipt → Reconciliation Preview → Wallet Audit Trail → Wallet Risk Score → Final Recommendation</p>
+        <div className="builder-chip-row" aria-label="Wallet safety flow">
+          {flow.map((step, index) => <React.Fragment key={step}>
+            <span className="builder-decision-chip ok">{step}</span>
+            {index < flow.length - 1 && <span aria-hidden="true">→</span>}
+          </React.Fragment>)}
+        </div>
+        <div className="builder-detail-grid">
+          <article><span>Pre-Spend Decision</span><strong>Judges the route/provider/service.</strong></article>
+          <article><span>Spend Policy Check</span><strong>Applies the wallet rules.</strong></article>
+          <article><span>Policy Receipt</span><strong>Makes the policy decision auditable.</strong></article>
+          <article><span>Reconciliation Preview</span><strong>Prepares outcome comparison.</strong></article>
+          <article><span>Wallet Audit Trail</span><strong>Shows the reasoning chain.</strong></article>
+          <article><span>Wallet Risk Score</span><strong>Compresses the trail into a safety signal.</strong></article>
+          <article><span>Final Recommendation</span><strong>Gives the agent one action.</strong></article>
+        </div>
+      </section>
+
+      <section className="grid two builder-section-grid">
+        <section className="panel builder-detail-panel" aria-label="Builder mental model">
+          <div className="panel-head"><div><p className="section-kicker">Builder mental model</p><h2>Simple contract.</h2></div></div>
+          <div className="builder-note-stack">
+            <p className="builder-note-row">Agent asks: Can I spend?</p>
+            <p className="builder-note-row">Infopunks answers: yes, test first, review, block, or gather more evidence.</p>
+          </div>
+        </section>
+        <section className="panel builder-detail-panel" aria-label="OpenAPI reference">
+          <div className="panel-head"><div><p className="section-kicker">OpenAPI reference</p><h2>The Wallet Safety API is included in the Radar OpenAPI schema.</h2></div></div>
+          <p className="panel-caption">Use GET /v1/hermes/wallet-safety/example to inspect a deterministic seeded safety response before wiring a live agent.</p>
+          <div className="panel-actions">
+            <a className="execute compact secondary" href="/openapi.json">Open /openapi.json</a>
+            <a className="execute compact secondary" href="/v1/hermes/wallet-safety/example">GET /v1/hermes/wallet-safety/example</a>
+          </div>
+        </section>
       </section>
     </main>
   </div>;

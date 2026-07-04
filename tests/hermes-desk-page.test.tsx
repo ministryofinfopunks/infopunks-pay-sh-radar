@@ -130,6 +130,7 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Wallet Safety API Bundle');
     expect(text).toContain('Agents should not stitch safety together.');
     expect(text).toContain('Open Wallet Safety API');
+    expect(text).toContain('Open developer quickstart');
     expect(text).toContain('Before an agent spends, it checks the ledger.');
     expect(text).toContain('Reputation is not just displayed.');
     expect(text).toContain('Reputation now decides.');
@@ -197,7 +198,9 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('compliance state');
     expect(text).toContain('evidence completeness');
     expect(text).toContain('Bundle-ready outputs');
+    expect(text).toContain('Developer-ready outputs');
     expect(text).toContain('final recommendation');
+    expect(text).toContain('safety rating');
     expect(text).toContain('expected result');
     expect(text).toContain('success criteria');
     expect(text).toContain('failure reasons');
@@ -303,6 +306,12 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Agents should not stitch safety together.');
     expect(text).toContain('They should ask once before spend.');
     expect(text).toContain('This is the developer-facing surface for autonomous wallet safety.');
+    expect(text).toContain('Developer Quickstart');
+    expect(text).toContain('The machinery is built.');
+    expect(text).toContain('Now make it easy to plug into.');
+    expect(text).toContain('The safety stack is now accessible through one developer endpoint.');
+    expect(text).toContain('Builders do not need to stitch decision, policy, receipts, audit trail, and risk score manually.');
+    expect(text).toContain('The quickstart explains how to plug Wallet Safety into agents and autonomous wallets.');
     expect(container.querySelector('a[href="/narratives/hermes-desk"]')?.getAttribute('aria-current')).toBe('page');
   });
 
@@ -489,7 +498,10 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Wallet Risk Score');
     expect(text).toContain('References');
     expect(text).toContain('Developer Response Shape');
+    expect(text).toContain('Developer Quickstart');
+    expect(text).toContain('The quickstart explains how to plug Wallet Safety into agents and autonomous wallets.');
     expect(text).toContain('POST /v1/hermes/wallet-safety/check');
+    expect(container.querySelector('a[href="/developers/wallet-safety"]')).not.toBeNull();
     expect(container.querySelector('a[href="/hermes/wallet-safety"]')?.getAttribute('aria-current')).toBe('page');
   });
 });

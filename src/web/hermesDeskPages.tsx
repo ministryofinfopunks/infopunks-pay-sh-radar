@@ -831,6 +831,7 @@ function HermesWalletSafetyCompactCard({ bundle }: { bundle: HermesWalletSafetyC
         <h2>Agents should not stitch safety together.</h2>
       </div>
       <a className="execute compact secondary" href="/hermes/wallet-safety">Open Wallet Safety API</a>
+      <a className="execute compact secondary" href="/developers/wallet-safety">Open developer quickstart</a>
     </div>
     <p className="copy">They should ask once before spend.</p>
     <div className="machine-usage-list">
@@ -882,6 +883,7 @@ function HermesWalletSafetyPage() {
           <p className="copy">One endpoint returns the decision, policy check, audit trail, risk score, and final recommendation.</p>
           <div className="panel-actions">
             <a className="execute" href="/v1/hermes/wallet-safety/example">Open Example JSON</a>
+            <a className="execute compact secondary" href="/developers/wallet-safety">Open developer quickstart</a>
             <a className="execute compact secondary" href="/hermes">Back to Hermes Desk</a>
           </div>
         </div>
@@ -1010,6 +1012,15 @@ function HermesWalletSafetyPage() {
             {['pre_spend_decision', 'spend_policy_check', 'policy_receipt', 'reconciliation_preview', 'wallet_audit_trail', 'wallet_risk_score', 'final_recommendation'].map((field) => (
               <p key={field}><span>{field}</span><small>{field === 'final_recommendation' ? recommendation.decision : 'included'}</small></p>
             ))}
+          </div>
+        </section>
+        <section className="panel hermes-skill-pack-detail" aria-label="Developer Quickstart">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Developer Quickstart</p>
+              <h2>The quickstart explains how to plug Wallet Safety into agents and autonomous wallets.</h2>
+            </div>
+            <a className="execute compact secondary" href="/developers/wallet-safety">Open developer quickstart</a>
           </div>
         </section>
       </>}
@@ -1643,6 +1654,14 @@ function HermesNarrativePage() {
         <p>The safety bundle returns decision, policy, audit trail, risk score, and final recommendation in one response.</p>
         <p>This is the developer-facing surface for autonomous wallet safety.</p>
       </section>
+      <section className="panel hermes-narrative-copy" aria-label="Developer Quickstart">
+        <p className="section-kicker">Developer Quickstart</p>
+        <h2>The safety stack is now accessible through one developer endpoint.</h2>
+        <p>The machinery is built.</p>
+        <p>Now make it easy to plug into.</p>
+        <p>Builders do not need to stitch decision, policy, receipts, audit trail, and risk score manually.</p>
+        <p>The quickstart explains how to plug Wallet Safety into agents and autonomous wallets.</p>
+      </section>
     </main>
   </div>;
 }
@@ -2163,6 +2182,18 @@ function HermesSkillPackPage() {
           </div>
           <div className="abundance-chip-row">
             {['decision', 'required action', 'policy trigger', 'evidence references', 'risk score inputs', 'final recommendation'].map((item) => <span key={item}>{item}</span>)}
+          </div>
+        </section>
+        <section className="panel hermes-skill-pack-detail" aria-label="Developer-ready outputs">
+          <div className="panel-head">
+            <div>
+              <p className="section-kicker">Developer-ready outputs</p>
+              <h2>Hermes skills should produce structured outputs that downstream developers can use directly.</h2>
+            </div>
+            <a className="execute compact secondary" href="/developers/wallet-safety">Open developer quickstart</a>
+          </div>
+          <div className="abundance-chip-row">
+            {['final recommendation', 'required action', 'evidence references', 'safety rating', 'risk score', 'policy decision'].map((item) => <span key={item}>{item}</span>)}
           </div>
         </section>
 

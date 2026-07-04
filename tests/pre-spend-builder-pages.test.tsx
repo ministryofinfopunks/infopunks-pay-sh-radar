@@ -189,6 +189,9 @@ describe('pre-spend builder pages', () => {
     expect(text).toContain('No receipt, no trust.');
     expect(text).toContain('Every decision should point back to receipts.');
     expect(text).toContain('Receipts capture route runs, cost, latency, status, validation, confidence delta, and evidence artifacts.');
+    expect(text).toContain('Wallet Safety API');
+    expect(text).toContain('Ask once before spend. Get decision, policy, audit trail, risk score, and final recommendation.');
+    expect(container.querySelector('a[href="/developers/wallet-safety"]')).toBeTruthy();
     expect(container.querySelector('a[href="/spend-terminal"]')).toBeTruthy();
     expect(container.querySelector('a[href="/routes"]')).toBeTruthy();
     expect(container.querySelector('a[href="/providers"]')).toBeTruthy();
@@ -196,6 +199,35 @@ describe('pre-spend builder pages', () => {
     expect(container.querySelector('a[href="/receipts"]')).toBeTruthy();
     expect(container.querySelector('a[href="/claim"]')).toBeTruthy();
     expect(container.querySelector('a[href="/openapi.json"]')).toBeTruthy();
+    root.unmount();
+  });
+
+  it('renders Wallet Safety Developer Quickstart with examples and integration guidance', async () => {
+    const { root, container } = await render('/developers/wallet-safety');
+    const text = container.textContent ?? '';
+
+    expect(text).toContain('Wallet Safety Developer Quickstart');
+    expect(text).toContain('The machinery is built. Now make it easy to plug into.');
+    expect(text).toContain('Agents should not stitch safety together. They should ask once before spend.');
+    expect(text).toContain('POST /v1/hermes/wallet-safety/check');
+    expect(text).toContain('"route_id": "route_pay_sh_market_research_01"');
+    expect(text).toContain('"agent_type": "research_agent"');
+    expect(text).toContain('final_recommendation');
+    expect(text).toContain('safe_to_spend');
+    expect(text).toContain('test_spend_required');
+    expect(text).toContain('manual_review_required');
+    expect(text).toContain('block_spend');
+    expect(text).toContain('insufficient_evidence');
+    expect(text).toContain('curl -X POST "https://radar.infopunks.fun/v1/hermes/wallet-safety/check"');
+    expect(text).toContain('async function checkBeforeSpend(intent)');
+    expect(text).toContain('Spend Intent → Pre-Spend Decision → Policy Check → Policy Receipt → Reconciliation Preview → Wallet Audit Trail → Wallet Risk Score → Final Recommendation');
+    expect(text).toContain('The Wallet Safety API is included in the Radar OpenAPI schema.');
+    expect(text).toContain('GET /v1/hermes/wallet-safety/example');
+    expect(text).toContain('Agent asks: Can I spend?');
+    expect(text).toContain('Infopunks answers: yes, test first, review, block, or gather more evidence.');
+    expect(container.querySelector('a[href="/openapi.json"]')).toBeTruthy();
+    expect(container.querySelector('a[href="/v1/hermes/wallet-safety/example"]')).toBeTruthy();
+
     root.unmount();
   });
 

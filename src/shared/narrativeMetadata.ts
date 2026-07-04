@@ -87,6 +87,14 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
     );
   }
 
+  if (/^\/developers\/wallet-safety\/?$/.test(pathname)) {
+    return buildMetadata(
+      'Wallet Safety Developer Quickstart',
+      'The machinery is built. Now make it easy to plug into.',
+      '/developers/wallet-safety'
+    );
+  }
+
   if (/^\/hermes\/pre-spend-decision\/?$/.test(pathname)) {
     return buildMetadata(
       'Pre-Spend Decision Engine',

@@ -129,6 +129,7 @@ export function buildSmokePlan(): SmokePlan {
     publicPaths: [
       '/',
       '/developers',
+      '/developers/wallet-safety',
       '/spend-terminal',
       '/routes',
       '/providers',

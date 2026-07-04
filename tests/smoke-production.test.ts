@@ -51,6 +51,7 @@ describe('production smoke plan', () => {
     expect(plan.publicPaths).toEqual(expect.arrayContaining([
       '/',
       '/developers',
+      '/developers/wallet-safety',
       '/spend-terminal',
       '/signal-hunt',
       '/loops',
