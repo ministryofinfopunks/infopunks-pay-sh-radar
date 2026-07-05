@@ -164,14 +164,26 @@ describe('pre-spend SDK', () => {
 
   it('works end-to-end against the live Fastify app contract', async () => {
     const app = await createApp(emptyIntelligenceStore());
-    await app.listen({ port: 0, host: '127.0.0.1' });
+    const client = createInfopunksPreSpendClient({
+      baseUrl: 'http://infopunks.test',
+      fetch: async (input, init) => {
+        const rawUrl = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
+        const url = new URL(rawUrl, 'http://infopunks.test');
+        const body = typeof init?.body === 'string' ? init.body : undefined;
+        const response = await app.inject({
+          method: init?.method ?? 'GET',
+          url: `${url.pathname}${url.search}`,
+          payload: body,
+          headers: init?.headers ? Object.fromEntries(new Headers(init.headers).entries()) : undefined
+        });
+        return new Response(response.body, {
+          status: response.statusCode,
+          headers: response.headers as Record<string, string>
+        });
+      }
+    });
 
     try {
-      const address = new URL(String(app.server.address() && `http://127.0.0.1:${(app.server.address() as { port: number }).port}`));
-      const client = createInfopunksPreSpendClient({
-        baseUrl: address.toString().replace(/\/$/, '')
-      });
-
       const RealDate = Date;
       const fixedMs = new RealDate('2026-06-20T00:00:00.000Z').getTime();
       class MockDate extends RealDate {

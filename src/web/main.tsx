@@ -29,6 +29,7 @@ import {
   ServiceDetailPage,
   ServicesIndexPage,
   SpendTerminalPage,
+  WalletSafetyIntegrationDetailPage,
   WalletSafetyIntegrationRegistryPage,
   WalletSafetyDeveloperQuickstartPage
 } from './preSpendBuilderPages';
@@ -1922,6 +1923,16 @@ function isWalletSafetyDeveloperRoute(pathname: string) {
 
 function isWalletSafetyIntegrationDeveloperRoute(pathname: string) {
   return /^\/developers\/wallet-safety\/integrations\/?$/.test(pathname);
+}
+
+function routeWalletSafetyIntegrationId(pathname: string) {
+  const match = pathname.match(/^\/developers\/wallet-safety\/integrations\/([^/]+)\/?$/);
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
 }
 
 function isRoutesIndexRoute(pathname: string) {
@@ -14356,6 +14367,8 @@ export function App() {
   if (signalSlug === 'black-bull') return <NarrativeSignalReportPage slug={signalSlug} />;
   if (signalSlug === 'troll') return <NarrativeSignalReportPage slug={signalSlug} />;
   if (isSpendTerminalRoute(window.location.pathname)) return <SpendTerminalPage />;
+  const walletSafetyIntegrationId = routeWalletSafetyIntegrationId(window.location.pathname);
+  if (walletSafetyIntegrationId) return <WalletSafetyIntegrationDetailPage integrationId={walletSafetyIntegrationId} />;
   if (isWalletSafetyIntegrationDeveloperRoute(window.location.pathname)) return <WalletSafetyIntegrationRegistryPage />;
   if (isWalletSafetyDeveloperRoute(window.location.pathname)) return <WalletSafetyDeveloperQuickstartPage />;
   if (isDevelopersRoute(window.location.pathname)) return <DevelopersPage />;

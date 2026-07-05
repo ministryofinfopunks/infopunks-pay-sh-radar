@@ -122,6 +122,7 @@ describe('openapi discovery', () => {
     expect(spec.paths['/v1/hermes/wallet-safety/check']?.post).toBeTruthy();
     expect(spec.paths['/v1/hermes/wallet-safety/example']?.get).toBeTruthy();
     expect(spec.paths['/v1/hermes/wallet-safety/integrations']?.get).toBeTruthy();
+    expect(spec.paths['/v1/hermes/wallet-safety/integrations/{integration_id}/readiness']?.get).toBeTruthy();
     expect(spec.paths['/v1/hermes/wallet-safety/integrations/{integration_id}']?.get).toBeTruthy();
     expect(spec.paths['/v1/hermes/pre-spend-decision']?.post).toBeTruthy();
     expect(spec.paths['/v1/hermes/pre-spend-decision/example']?.get).toBeTruthy();
@@ -177,8 +178,13 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.HermesWalletSafetyReference).toBeTruthy();
     expect(spec.components.schemas.HermesWalletSafetyBundleSummary).toBeTruthy();
     expect(spec.components.schemas.WalletSafetyIntegrationReadinessState).toBeTruthy();
+    expect(spec.components.schemas.WalletSafetyIntegrationRequirementStatus).toBeTruthy();
+    expect(spec.components.schemas.WalletSafetyIntegrationProofItemSource).toBeTruthy();
     expect(spec.components.schemas.WalletSafetyIntegrationProfile).toBeTruthy();
+    expect(spec.components.schemas.WalletSafetyIntegrationRequirement).toBeTruthy();
+    expect(spec.components.schemas.WalletSafetyIntegrationProofItem).toBeTruthy();
     expect(spec.components.schemas.WalletSafetyIntegrationRegistrySummary).toBeTruthy();
+    expect(spec.components.schemas.WalletSafetyIntegrationReadinessReport).toBeTruthy();
     expect(spec.components.schemas.HermesClaimCandidate).toBeTruthy();
     expect(spec.components.schemas.HermesRunReceiptConversion).toBeTruthy();
     expect(spec.components.schemas.HermesClaimReviewState).toBeTruthy();

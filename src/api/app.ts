@@ -200,6 +200,7 @@ import {
   getHermesWalletSafetyExampleCheck
 } from '../services/hermesWalletSafetyBundle';
 import {
+  buildWalletSafetyIntegrationReadinessReport,
   buildWalletSafetyIntegrationRegistry,
   getWalletSafetyIntegrationById
 } from '../services/walletSafetyIntegrationRegistry';
@@ -1763,6 +1764,16 @@ export async function createApp(
   app.get('/v1/hermes/wallet-safety/integrations', async () => ({
     data: safeJsonExport(buildWalletSafetyIntegrationRegistry())
   }));
+  app.get<{ Params: { integration_id: string } }>('/v1/hermes/wallet-safety/integrations/:integration_id/readiness', async (req, reply) => {
+    const report = buildWalletSafetyIntegrationReadinessReport(req.params.integration_id);
+    if (!report) {
+      return reply.code(404).send({
+        error: 'wallet_safety_integration_not_found',
+        message: `No Wallet Safety integration readiness report found for integration_id=${req.params.integration_id || 'unknown'}`
+      });
+    }
+    return { data: safeJsonExport(report) };
+  });
   app.get<{ Params: { integration_id: string } }>('/v1/hermes/wallet-safety/integrations/:integration_id', async (req, reply) => {
     const integration = getWalletSafetyIntegrationById(req.params.integration_id);
     if (!integration) {

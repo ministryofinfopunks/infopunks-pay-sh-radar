@@ -1035,8 +1035,10 @@ function HermesWalletSafetyPage() {
               <p className="section-kicker">Integration Registry</p>
               <h2>See who is Wallet Safety-ready.</h2>
               <p>Open the Integration Registry.</p>
+              <p>The Integration Registry now includes detail pages for each compatible agent, wallet, router, or app.</p>
             </div>
             <a className="execute compact secondary" href="/developers/wallet-safety/integrations">Open Integration Registry</a>
+            <a className="execute compact secondary" href="/developers/wallet-safety/integrations/agent_wallet_demo">Open Agent Wallet Demo detail</a>
           </div>
           <div className="machine-usage-list">
             <p><span>integration_count</span><small>{registry.integration_count}</small></p>
@@ -1705,6 +1707,15 @@ function HermesNarrativePage() {
         <p>A safety API is useful.</p>
         <p>A registry makes adoption visible.</p>
         <p>Seeded integrations listed today: {registry.integration_count} total with {registry.ready_count} ready and {registry.needs_receipts_count} missing receipts.</p>
+      </section>
+      <section className="panel hermes-narrative-copy" aria-label="Integration Detail Pages">
+        <p className="section-kicker">Integration Detail Pages</p>
+        <h2>The registry shows adoption. Detail pages show proof.</h2>
+        <p>The registry shows adoption.</p>
+        <p>Detail pages show proof.</p>
+        <p>Each integration can show safety-check usage, receipt behavior, fail-closed behavior, supported rails, supported chains, and readiness notes.</p>
+        <p>A registry shows adoption.</p>
+        <p>A detail page shows proof.</p>
       </section>
     </main>
   </div>;

@@ -103,6 +103,16 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
     );
   }
 
+  const walletSafetyIntegrationDetailMatch = pathname.match(/^\/developers\/wallet-safety\/integrations\/([^/]+)\/?$/);
+  if (walletSafetyIntegrationDetailMatch) {
+    const integrationId = decodePathPart(walletSafetyIntegrationDetailMatch[1]);
+    return buildMetadata(
+      'Integration Readiness Detail',
+      `Wallet Safety readiness detail for ${integrationId}. A registry shows adoption. A detail page shows proof.`,
+      `/developers/wallet-safety/integrations/${encodeURIComponent(integrationId)}`
+    );
+  }
+
   if (/^\/hermes\/pre-spend-decision\/?$/.test(pathname)) {
     return buildMetadata(
       'Pre-Spend Decision Engine',

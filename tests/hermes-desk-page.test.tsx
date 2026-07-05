@@ -335,6 +335,9 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('Wallet Safety Integration Registry');
     expect(text).toContain('The registry makes adoption visible.');
     expect(text).toContain('A registry makes adoption visible.');
+    expect(text).toContain('Integration Detail Pages');
+    expect(text).toContain('A registry shows adoption.');
+    expect(text).toContain('A detail page shows proof.');
     expect(container.querySelector('a[href="/narratives/hermes-desk"]')?.getAttribute('aria-current')).toBe('page');
   });
 
@@ -528,8 +531,10 @@ describe('Hermes Desk page', () => {
     expect(text).toContain('POST /v1/hermes/wallet-safety/check');
     expect(text).toContain('See who is Wallet Safety-ready.');
     expect(text).toContain('Open the Integration Registry.');
+    expect(text).toContain('The Integration Registry now includes detail pages for each compatible agent, wallet, router, or app.');
     expect(container.querySelector('a[href="/developers/wallet-safety"]')).not.toBeNull();
     expect(container.querySelector('a[href="/developers/wallet-safety/integrations"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/developers/wallet-safety/integrations/agent_wallet_demo"]')).not.toBeNull();
     expect(container.querySelector('a[href="/developers/wallet-safety#sdk-snippets"]')).not.toBeNull();
     expect(container.querySelector('a[href="/developers/wallet-safety#integration-receipt-pattern"]')).not.toBeNull();
     expect(container.querySelector('a[href="/hermes/wallet-safety"]')?.getAttribute('aria-current')).toBe('page');

@@ -2,7 +2,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import { SignalGraphContextPanel, type SignalGraphContextNode } from './signalGraphContextPanel';
 import type { WalletSafetyIntegrationProfile } from '../data/walletSafetyIntegrations';
-import { buildWalletSafetyIntegrationRegistry } from '../services/walletSafetyIntegrationRegistry';
+import {
+  buildWalletSafetyIntegrationReadinessReport,
+  buildWalletSafetyIntegrationRegistry,
+  type WalletSafetyIntegrationReadinessReport,
+  type WalletSafetyIntegrationRequirement
+} from '../services/walletSafetyIntegrationRegistry';
 
 type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
 type DecisionState = 'approved' | 'approved_with_warning' | 'use_with_caution' | 'requires_human_approval' | 'do_not_use';
@@ -857,6 +862,35 @@ function walletSafetyReadinessTitle(state: WalletSafetyIntegrationProfile['readi
   } as const)[state];
 }
 
+function walletSafetyRequirementStatusTitle(status: WalletSafetyIntegrationRequirement['status']) {
+  return ({
+    passed: 'Passed',
+    missing: 'Missing',
+    watch: 'Watch',
+    not_applicable: 'Not Applicable'
+  } as const)[status];
+}
+
+function walletSafetyDetailHint(state: WalletSafetyIntegrationProfile['readiness_state']) {
+  return ({
+    ready: 'This integration meets the seeded readiness requirements.',
+    needs_receipts: 'Add integration receipt writing to become ready.',
+    watch: 'Improve fail-closed behavior and continue verification.',
+    testing: 'Complete verification runs and receipt evidence.',
+    not_ready: 'Add Wallet Safety API usage, receipts, and fail-closed behavior.'
+  } as const)[state];
+}
+
+const walletSafetyCanonicalReceiptFields = [
+  'wallet_safety_check_id',
+  'final_recommendation',
+  'policy_receipt_id',
+  'risk_score_id',
+  'audit_trail_id',
+  'agent_action_taken',
+  'timestamp'
+] as const;
+
 export function WalletSafetyIntegrationRegistryPage() {
   useEffect(() => {
     document.title = 'Wallet Safety Integration Registry | Infopunks Builder';
@@ -952,6 +986,9 @@ export function WalletSafetyIntegrationRegistryPage() {
             <div className="builder-note-stack">
               {integration.readiness_notes.map((note) => <p className="builder-note-row" key={`${integration.integration_id}-${note}`}>{note}</p>)}
             </div>
+            <div className="panel-actions">
+              <a className="execute compact secondary" href={`/developers/wallet-safety/integrations/${encodeURIComponent(integration.integration_id)}`}>View readiness detail</a>
+            </div>
           </article>)}
         </div>
       </section>
@@ -983,6 +1020,191 @@ export function WalletSafetyIntegrationRegistryPage() {
             {['wallet_safety_check_id', 'policy_receipt_id', 'risk_score_id', 'audit_trail_id', 'agent_action_taken', 'timestamp'].map((field) => <article key={field}><span>{field}</span><strong>expected</strong></article>)}
           </div>
         </section>
+      </section>
+    </main>
+  </div>;
+}
+
+function WalletSafetyIntegrationNotFoundPage({ integrationId }: { integrationId: string }) {
+  return <div className="shell builder-shell">
+    <main className="builder-page developers-page" aria-label="Integration Readiness Detail">
+      <section className="panel hero builder-hero">
+        <div>
+          <p className="eyebrow">Developer Registry</p>
+          <h1>Integration Readiness Detail</h1>
+          <p className="copy">A registry shows adoption. A detail page shows proof.</p>
+          <p className="copy">No seeded Wallet Safety integration detail page exists for <code>{integrationId}</code>.</p>
+          <div className="panel-actions">
+            <a className="execute" href="/developers/wallet-safety/integrations">Back to Integration Registry</a>
+            <a className="execute compact secondary" href="/developers/wallet-safety">Open developer quickstart</a>
+          </div>
+        </div>
+      </section>
+      <section className="panel builder-detail-panel" aria-label="Integration not found">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Seeded surface</p>
+            <h2>Use one of the deterministic seeded integration IDs.</h2>
+          </div>
+        </div>
+        <div className="builder-note-stack">
+          {['agent_wallet_demo', 'pay_sh_route_guard', 'x402_service_router', 'autonomous_research_agent'].map((id) => (
+            <p className="builder-note-row" key={id}>{id}</p>
+          ))}
+        </div>
+      </section>
+    </main>
+  </div>;
+}
+
+function WalletSafetyIntegrationProofSection({ report }: { report: WalletSafetyIntegrationReadinessReport }) {
+  return <section className="panel builder-detail-panel" aria-label="Readiness Proof">
+    <div className="panel-head">
+      <div>
+        <p className="section-kicker">Readiness Proof</p>
+        <h2>Score, requirements, proof items, and missing items.</h2>
+      </div>
+    </div>
+    <div className="grid two builder-section-grid">
+      <section className="panel builder-detail-panel" aria-label="Readiness score and requirements">
+        <div className="panel-head"><div><p className="section-kicker">Readiness score</p><h2>{report.readiness_score} / 100</h2></div></div>
+        <div className="builder-detail-grid">
+          {report.requirements.map((requirement) => <article key={requirement.id}>
+            <span>{requirement.label}</span>
+            <strong>{walletSafetyRequirementStatusTitle(requirement.status)}</strong>
+          </article>)}
+        </div>
+      </section>
+      <section className="panel builder-detail-panel" aria-label="Readiness notes">
+        <div className="panel-head"><div><p className="section-kicker">Readiness notes</p><h2>Current seeded observations.</h2></div></div>
+        <div className="builder-note-stack">
+          {report.profile.readiness_notes.map((note) => <p className="builder-note-row" key={note}>{note}</p>)}
+        </div>
+      </section>
+    </div>
+    <div className="grid two builder-section-grid">
+      <section className="panel builder-detail-panel" aria-label="Proof items">
+        <div className="panel-head"><div><p className="section-kicker">Proof items</p><h2>Why this integration has its current state.</h2></div></div>
+        <div className="builder-detail-grid">
+          {report.proof_items.map((item) => <article key={item.id}>
+            <span>{item.label}</span>
+            <strong>{item.summary}</strong>
+          </article>)}
+        </div>
+      </section>
+      <section className="panel builder-detail-panel" aria-label="Missing items">
+        <div className="panel-head"><div><p className="section-kicker">Missing items</p><h2>What still needs work.</h2></div></div>
+        <div className="builder-detail-grid">
+          {report.missing_items.length > 0 ? report.missing_items.map((item) => <article key={item.id}>
+            <span>{item.label}</span>
+            <strong>{item.summary}</strong>
+          </article>) : <article><span>complete</span><strong>No seeded missing items remain.</strong></article>}
+        </div>
+      </section>
+    </div>
+  </section>;
+}
+
+export function WalletSafetyIntegrationDetailPage({ integrationId }: { integrationId: string }) {
+  const report = useMemo(() => buildWalletSafetyIntegrationReadinessReport(integrationId), [integrationId]);
+
+  useEffect(() => {
+    document.title = 'Integration Readiness Detail | Infopunks Builder';
+  }, []);
+
+  if (!report) return <WalletSafetyIntegrationNotFoundPage integrationId={integrationId} />;
+
+  const profile = report.profile;
+
+  return <div className="shell builder-shell">
+    <main className="builder-page developers-page" aria-label="Integration Readiness Detail">
+      <section className="panel hero builder-hero">
+        <div>
+          <p className="eyebrow">Developer Registry</p>
+          <h1>Integration Readiness Detail</h1>
+          <p className="copy">A registry shows adoption. A detail page shows proof.</p>
+          <p className="copy">{profile.name}</p>
+          <p className="copy">{profile.summary}</p>
+          <div className="panel-actions">
+            <a className="execute" href={`/v1/hermes/wallet-safety/integrations/${encodeURIComponent(profile.integration_id)}`}>Open profile JSON</a>
+            <a className="execute compact secondary" href={`/v1/hermes/wallet-safety/integrations/${encodeURIComponent(profile.integration_id)}/readiness`}>Open readiness JSON</a>
+            <a className="execute compact secondary" href="/developers/wallet-safety/integrations">Back to Integration Registry</a>
+          </div>
+        </div>
+        <div className="ticker" aria-label="Integration readiness detail">
+          <span>{profile.integration_id}</span>
+          <span>{profile.agent_type}</span>
+          <span>{profile.readiness_state}</span>
+          <span>score {report.readiness_score}</span>
+        </div>
+      </section>
+
+      <section className="grid two builder-section-grid">
+        <section className="panel builder-detail-panel" aria-label="Integration Profile">
+          <div className="panel-head"><div><p className="section-kicker">Integration Profile</p><h2>{profile.name}</h2></div></div>
+          <div className="builder-detail-grid">
+            <article><span>integration_id</span><strong>{profile.integration_id}</strong></article>
+            <article><span>name</span><strong>{profile.name}</strong></article>
+            <article><span>summary</span><strong>{profile.summary}</strong></article>
+            <article><span>agent_type</span><strong>{profile.agent_type}</strong></article>
+            <article><span>readiness_state</span><strong>{walletSafetyReadinessTitle(profile.readiness_state)}</strong></article>
+            <article><span>last_verified_at</span><strong>{profile.last_verified_at}</strong></article>
+          </div>
+        </section>
+        <section className="panel builder-detail-panel" aria-label="Supported Spend Surface">
+          <div className="panel-head"><div><p className="section-kicker">Supported Spend Surface</p><h2>Chains, rails, and linked spend surfaces.</h2></div></div>
+          <div className="builder-detail-grid">
+            <article><span>supported_chains</span><strong>{profile.supported_chains.join(', ') || 'none declared'}</strong></article>
+            <article><span>supported_payment_rails</span><strong>{profile.supported_payment_rails.join(', ') || 'none declared'}</strong></article>
+            <article><span>linked_routes</span><strong>{profile.linked_routes?.join(', ') || 'none linked'}</strong></article>
+            <article><span>linked_providers</span><strong>{profile.linked_providers?.join(', ') || 'none linked'}</strong></article>
+            <article><span>linked_services</span><strong>{profile.linked_services?.join(', ') || 'none linked'}</strong></article>
+          </div>
+        </section>
+      </section>
+
+      <section className="panel builder-detail-panel" aria-label="Safety Behavior">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">Safety Behavior</p>
+            <h2>Receipt behavior and fail-closed posture.</h2>
+          </div>
+        </div>
+        <div className="builder-detail-grid">
+          <article><span>uses_wallet_safety_check</span><strong>{walletSafetyBooleanLabel(profile.uses_wallet_safety_check)}</strong></article>
+          <article><span>writes_integration_receipts</span><strong>{walletSafetyBooleanLabel(profile.writes_integration_receipts)}</strong></article>
+          <article><span>fail_closed_behavior</span><strong>{walletSafetyBooleanLabel(profile.fail_closed_behavior)}</strong></article>
+          <article><span>readiness_state</span><strong>{walletSafetyReadinessTitle(profile.readiness_state)}</strong></article>
+        </div>
+      </section>
+
+      <WalletSafetyIntegrationProofSection report={report} />
+
+      <section className="grid two builder-section-grid">
+        <section className="panel builder-detail-panel" aria-label="Example Receipt Fields">
+          <div className="panel-head"><div><p className="section-kicker">Example Receipt Fields</p><h2>Canonical Wallet Safety receipt fields.</h2></div></div>
+          <div className="builder-detail-grid">
+            {walletSafetyCanonicalReceiptFields.map((field) => <article key={field}><span>{field}</span><strong>expected</strong></article>)}
+          </div>
+        </section>
+        <section className="panel builder-detail-panel" aria-label="Profile receipt fields">
+          <div className="panel-head"><div><p className="section-kicker">Profile receipt fields</p><h2>Fields declared by this integration profile.</h2></div></div>
+          <div className="builder-detail-grid">
+            {profile.example_receipt_fields.map((field) => <article key={field}><span>{field}</span><strong>declared</strong></article>)}
+          </div>
+        </section>
+      </section>
+
+      <section className="panel builder-detail-panel" aria-label="How To Become Ready">
+        <div className="panel-head">
+          <div>
+            <p className="section-kicker">How To Become Ready</p>
+            <h2>{walletSafetyDetailHint(profile.readiness_state)}</h2>
+          </div>
+        </div>
+        <div className="builder-note-stack">
+          {report.next_steps.map((step) => <p className="builder-note-row" key={step}>{step}</p>)}
+        </div>
       </section>
     </main>
   </div>;
@@ -1353,6 +1575,7 @@ await db.walletSafetyReceipts.insert(integrationReceipt);`;
           </div>
         </div>
         <p className="panel-caption">Copy-paste patterns for checking wallet safety before spend.</p>
+        <p className="panel-caption">Integration detail pages show proof for each Wallet Safety-ready integration. <a href="/developers/wallet-safety/integrations/agent_wallet_demo">Open the Agent Wallet Demo detail page</a>.</p>
         <div className="grid two builder-section-grid">
           <section className="panel builder-detail-panel" aria-label="Wallet safety response fields">
             <div className="panel-head"><div><p className="section-kicker">Most agents only need</p><h2>Read the final recommendation first.</h2></div></div>

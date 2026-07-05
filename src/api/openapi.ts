@@ -912,6 +912,22 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       integrations: [{ integration_id: 'agent_wallet_demo', readiness_state: 'ready', writes_integration_receipts: true }]
     })
   });
+  add('get', '/v1/hermes/wallet-safety/integrations/{integration_id}/readiness', {
+    tags: ['Hermes'],
+    summary: 'Get Wallet Safety integration readiness report',
+    description: 'Returns the deterministic readiness report for one seeded Wallet Safety integration. This surface is stateless, read-only, mock-safe, and does not require live Hermes.',
+    parameters: [pathParam('integration_id', 'Wallet Safety integration identifier.')],
+    responses: envelopedResponses({ $ref: '#/components/schemas/WalletSafetyIntegrationReadinessReport' }, {
+      integration_id: 'agent_wallet_demo',
+      generated_at: '2026-07-03T00:00:00.000Z',
+      readiness_state: 'ready',
+      readiness_score: 100,
+      requirements: [{ id: 'wallet_safety_api_usage', label: 'Wallet Safety API usage', status: 'passed' }],
+      proof_items: [{ id: 'wallet_safety_check_usage', label: 'Wallet Safety check usage', source: 'profile' }],
+      missing_items: [],
+      next_steps: ['This integration meets the seeded readiness requirements.']
+    }, 'wallet_safety_integration_not_found')
+  });
   add('get', '/v1/hermes/wallet-safety/integrations/{integration_id}', {
     tags: ['Hermes'],
     summary: 'Get Wallet Safety integration registry entry',
@@ -4020,6 +4036,8 @@ function componentSchemas(): Record<string, JsonSchema> {
       reputation_feedback: { $ref: '#/components/schemas/HermesDecisionOutcomeImpact' }
     }, ['decision_id', 'receipt', 'outcome', 'feedback', 'reputation_feedback']),
     WalletSafetyIntegrationReadinessState: enumSchema(['ready', 'testing', 'needs_receipts', 'watch', 'not_ready']),
+    WalletSafetyIntegrationRequirementStatus: enumSchema(['passed', 'missing', 'watch', 'not_applicable']),
+    WalletSafetyIntegrationProofItemSource: enumSchema(['profile', 'receipt_pattern', 'policy', 'registry', 'manual']),
     WalletSafetyIntegrationProfile: objectSchema({
       integration_id: stringSchema(),
       name: stringSchema(),
@@ -4038,6 +4056,18 @@ function componentSchemas(): Record<string, JsonSchema> {
       linked_services: arrayOf(stringSchema()),
       example_receipt_fields: arrayOf(stringSchema())
     }, ['integration_id', 'name', 'summary', 'agent_type', 'supported_chains', 'supported_payment_rails', 'uses_wallet_safety_check', 'writes_integration_receipts', 'fail_closed_behavior', 'last_verified_at', 'readiness_state', 'readiness_notes', 'example_receipt_fields']),
+    WalletSafetyIntegrationRequirement: objectSchema({
+      id: stringSchema(),
+      label: stringSchema(),
+      status: { $ref: '#/components/schemas/WalletSafetyIntegrationRequirementStatus' },
+      summary: stringSchema()
+    }, ['id', 'label', 'status', 'summary']),
+    WalletSafetyIntegrationProofItem: objectSchema({
+      id: stringSchema(),
+      label: stringSchema(),
+      summary: stringSchema(),
+      source: { $ref: '#/components/schemas/WalletSafetyIntegrationProofItemSource' }
+    }, ['id', 'label', 'summary', 'source']),
     WalletSafetyIntegrationRegistrySummary: objectSchema({
       generated_at: dateTimeSchema(),
       integration_count: integerSchema(),
@@ -4048,6 +4078,17 @@ function componentSchemas(): Record<string, JsonSchema> {
       not_ready_count: integerSchema(),
       integrations: arrayOf({ $ref: '#/components/schemas/WalletSafetyIntegrationProfile' })
     }, ['generated_at', 'integration_count', 'ready_count', 'testing_count', 'needs_receipts_count', 'watch_count', 'not_ready_count', 'integrations']),
+    WalletSafetyIntegrationReadinessReport: objectSchema({
+      integration_id: stringSchema(),
+      generated_at: dateTimeSchema(),
+      profile: { $ref: '#/components/schemas/WalletSafetyIntegrationProfile' },
+      readiness_state: { $ref: '#/components/schemas/WalletSafetyIntegrationReadinessState' },
+      readiness_score: integerSchema(),
+      requirements: arrayOf({ $ref: '#/components/schemas/WalletSafetyIntegrationRequirement' }),
+      proof_items: arrayOf({ $ref: '#/components/schemas/WalletSafetyIntegrationProofItem' }),
+      missing_items: arrayOf({ $ref: '#/components/schemas/WalletSafetyIntegrationRequirement' }),
+      next_steps: arrayOf(stringSchema())
+    }, ['integration_id', 'generated_at', 'profile', 'readiness_state', 'readiness_score', 'requirements', 'proof_items', 'missing_items', 'next_steps']),
     HermesPromotedClaim: hermesPromotedClaim,
     HermesClaimPromotionRequest: objectSchema({
       review_state: hermesClaimReviewState

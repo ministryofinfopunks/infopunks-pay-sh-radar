@@ -217,6 +217,7 @@ describe('pre-spend builder pages', () => {
     expect(text).toContain('Integration Receipt Pattern');
     expect(text).toContain('SDK Snippets');
     expect(text).toContain('Copy-paste patterns for checking wallet safety before spend.');
+    expect(text).toContain('Integration detail pages show proof for each Wallet Safety-ready integration.');
     expect(text).toContain('After acting on the final recommendation, write an integration receipt so future agents can verify the safety check happened.');
     expect(text).toContain('"route_id": "route_pay_sh_market_research_01"');
     expect(text).toContain('"agent_type": "research_agent"');
@@ -295,8 +296,39 @@ describe('pre-spend builder pages', () => {
     expect(text).toContain('autonomous_research_agent');
     expect(text).toContain('What “Wallet Safety-ready” means');
     expect(container.querySelector('a[href="/v1/hermes/wallet-safety/integrations"]')).toBeTruthy();
+    expect(container.querySelector('a[href="/developers/wallet-safety/integrations/agent_wallet_demo"]')).toBeTruthy();
 
     root.unmount();
+  });
+
+  it('renders the Agent Wallet Demo integration detail page', async () => {
+    const { root, container } = await render('/developers/wallet-safety/integrations/agent_wallet_demo');
+    const text = container.textContent ?? '';
+
+    expect(text).toContain('Integration Readiness Detail');
+    expect(text).toContain('A registry shows adoption.');
+    expect(text).toContain('A detail page shows proof.');
+    expect(text).toContain('Agent Wallet Demo');
+    expect(text).toContain('supported_chains');
+    expect(text).toContain('supported_payment_rails');
+    expect(text).toContain('writes_integration_receipts');
+    expect(text).toContain('fail_closed_behavior');
+    expect(text).toContain('wallet_safety_check_id');
+    expect(text).toContain('final_recommendation');
+    expect(text).toContain('How To Become Ready');
+    expect(container.querySelector('a[href="/v1/hermes/wallet-safety/integrations/agent_wallet_demo/readiness"]')).toBeTruthy();
+
+    root.unmount();
+  });
+
+  it('renders seeded state-specific integration detail pages', async () => {
+    const x402 = await render('/developers/wallet-safety/integrations/x402_service_router');
+    expect(x402.container.textContent ?? '').toContain('Needs Receipts');
+    x402.root.unmount();
+
+    const autonomous = await render('/developers/wallet-safety/integrations/autonomous_research_agent');
+    expect(autonomous.container.textContent ?? '').toContain('Watch');
+    autonomous.root.unmount();
   });
 
   it('renders claim page with claim loop copy and evidence language', async () => {
