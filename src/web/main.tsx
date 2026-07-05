@@ -9664,13 +9664,13 @@ function RadarApp() {
     { href: '/loops', label: 'Loops', external: false, className: undefined, active: isLoopsIndexRoute(pathname) || routeLoopId(pathname) !== null },
     { href: '/signal-hunt', label: 'Signal Hunt', external: false, className: undefined, active: isSignalHuntRoute(pathname) || routeSignalHuntId(pathname) !== null },
     { href: '/graph', label: 'Signal Graph', external: false, className: undefined, active: isGraphRoute(pathname) || routeSignalSlug(pathname) !== null || routeSignalUpdate(pathname) !== null },
-    { href: '/claim', label: 'Claims', external: false, className: undefined, active: isClaimsIndexRoute(pathname) || routeClaimId(pathname) !== null },
-    { href: '#agent-benchmark-api', label: 'Agent Benchmark API', external: false, className: undefined, active: agentBenchmarkActive }
+    { href: '/claim', label: 'Claims', external: false, className: undefined, active: isClaimsIndexRoute(pathname) || routeClaimId(pathname) !== null }
   ] as const;
   const sectionShortcutNav = [
     { id: 'global-pulse', label: 'Pulse' },
     { id: 'providers', label: 'Directory' },
     { id: 'benchmark-readiness', label: 'Benchmarks' },
+    { id: 'agent-benchmark-api', label: 'Agent Benchmark API' },
     { id: 'route-mapping-registry', label: 'Mappings' },
     { id: 'preflight', label: 'Preflight' },
     { id: 'compare', label: 'Compare' },
