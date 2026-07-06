@@ -62,6 +62,34 @@ describe('unicorn radar api', () => {
           'https://dexscreener.com/solana/f42tznkpavq1vucrl6ymhc6yqvpt84fwwgzbntv2wb3w'
         )), { status: 200, headers: { 'Content-Type': 'application/json' } }));
       }
+      if (url.includes('BcHEaaTCvycPwwsJ9yQTXdHP9X2gCLkznDbZ8VySpump')) {
+        return Promise.resolve(new Response(JSON.stringify(liveDexPair(
+          'BcHEaaTCvycPwwsJ9yQTXdHP9X2gCLkznDbZ8VySpump',
+          'akQYqgeifbBHqMaNukZRRuRgoKsKkbv8nvdCCc87FRR8',
+          'https://dexscreener.com/solana/akqyqgeifbbhqmanukzrrurgokskkbv8nvdccc87frr8'
+        )), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+      }
+      if (url.includes('8wxkvAfEns76yBzu4MnbV7VnXWjg3iDPA9uwAQ6cpump')) {
+        return Promise.resolve(new Response(JSON.stringify(liveDexPair(
+          '8wxkvAfEns76yBzu4MnbV7VnXWjg3iDPA9uwAQ6cpump',
+          'ak7hdcxdsocd2zgjbca1zwlcudqz5f6n747a7rqtpxe3',
+          'https://dexscreener.com/solana/ak7hdcxdsocd2zgjbca1zwlcudqz5f6n747a7rqtpxe3'
+        )), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+      }
+      if (url.includes('Dz9mQ9NzkBcCsuGPFJ3r1bS4wgqKMHBPiVuniW8Mbonk')) {
+        return Promise.resolve(new Response(JSON.stringify(liveDexPair(
+          'Dz9mQ9NzkBcCsuGPFJ3r1bS4wgqKMHBPiVuniW8Mbonk',
+          'q2sPHPDUwfmG7m7wWRQKLRN619CAucfrsmHVJffoDSP',
+          'https://dexscreener.com/solana/q2sphpduwfmg7m7wwrqklrn619caucfrsmhvjffodsp'
+        )), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+      }
+      if (url.includes('J8PSdNP3QewKq2Z1JJJFDMaqF7KcaiJhR7gbr5KZpump')) {
+        return Promise.resolve(new Response(JSON.stringify(liveDexPair(
+          'J8PSdNP3QewKq2Z1JJJFDMaqF7KcaiJhR7gbr5KZpump',
+          '3KfCgj5R3zSHw8htDBzJSRRkSryMKvSMfHc4vo4iDDXd',
+          'https://dexscreener.com/solana/3kfcgj5r3zshw8htdbzjsrrksrymkvsmfhc4vo4iddxd'
+        )), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+      }
       if (url.includes('/orders/v1/')) {
         return Promise.resolve(new Response(JSON.stringify({ orders: [], boosts: [] }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
       }
@@ -73,7 +101,7 @@ describe('unicorn radar api', () => {
     vi.unstubAllGlobals();
   });
 
-  it('returns the verified five-candidate production surface', async () => {
+  it('returns the verified nine-candidate production surface', async () => {
     const app = await createApp(emptyIntelligenceStore());
 
     try {
@@ -81,12 +109,12 @@ describe('unicorn radar api', () => {
       expect(summary.statusCode).toBe(200);
       expect(summary.json().data).toEqual(expect.objectContaining({
         counts: expect.objectContaining({
-          total: 5,
+          total: 9,
           by_status: expect.objectContaining({
-            high_signal_lowcap: 1,
-            watchlist: 2,
+            high_signal_lowcap: 2,
+            watchlist: 4,
             do_not_touch_yet: 1,
-            consensus_forming: 1
+            consensus_forming: 2
           })
         }),
         candidates: expect.arrayContaining([
@@ -116,6 +144,38 @@ describe('unicorn radar api', () => {
             verificationStatus: 'verified_live_market'
           }),
           expect.objectContaining({
+            id: 'ur_jotchua_money_dog',
+            ticker: 'JOTCHUA',
+            status: 'high_signal_lowcap',
+            displayVerdict: 'High-Signal Meme Lowcap, Culture Retention Monitored',
+            verificationStatus: 'verified_live_market',
+            productionReady: true
+          }),
+          expect.objectContaining({
+            id: 'ur_solangeles',
+            ticker: 'SolAngeles',
+            status: 'watchlist',
+            displayVerdict: 'Real Content Moat, Distribution Still Monitored',
+            verificationStatus: 'verified_live_market',
+            productionReady: true
+          }),
+          expect.objectContaining({
+            id: 'ur_useless_consensus',
+            ticker: 'USELESS',
+            status: 'consensus_forming',
+            displayVerdict: 'Battle-Tested Meme Benchmark',
+            verificationStatus: 'verified_live_market',
+            productionReady: true
+          }),
+          expect.objectContaining({
+            id: 'ur_triplet_sahur',
+            ticker: 'TRIPLET',
+            status: 'watchlist',
+            displayVerdict: 'Viral Meme Candidate, Longevity Unproven',
+            verificationStatus: 'verified_live_market',
+            productionReady: true
+          }),
+          expect.objectContaining({
             id: 'ur_manifest_ambiguity',
             ticker: 'MANIFEST',
             status: 'do_not_touch_yet',
@@ -127,7 +187,7 @@ describe('unicorn radar api', () => {
 
       const list = await app.inject({ method: 'GET', url: '/v1/unicorn-radar/candidates' });
       expect(list.statusCode).toBe(200);
-      expect(list.json().data.count).toBe(5);
+      expect(list.json().data.count).toBe(9);
       expect(list.json().data.candidates.every((candidate: { productionReady?: boolean }) => candidate.productionReady)).toBe(true);
 
       const detail = await app.inject({ method: 'GET', url: '/v1/unicorn-radar/candidates/ur_ai_rig_complex' });
@@ -201,6 +261,44 @@ describe('unicorn radar api', () => {
         ])
       }));
       expect(kinsDetail.json().data.tags).not.toContain('TOKEN_REVIEW_NEEDED');
+
+      const jotchuaDetail = await app.inject({ method: 'GET', url: '/v1/unicorn-radar/candidates/ur_jotchua_money_dog' });
+      expect(jotchuaDetail.statusCode).toBe(200);
+      expect(jotchuaDetail.json().data).toEqual(expect.objectContaining({
+        status: 'high_signal_lowcap',
+        displayVerdict: 'High-Signal Meme Lowcap, Culture Retention Monitored',
+        proof_of_shipping: expect.stringContaining('11k+ holder receipt'),
+        token_survivability_note: expect.stringContaining('liquidity depth'),
+        thesis: expect.stringContaining('clean pump.fun fair launch'),
+        risk_flags: expect.arrayContaining(['Pure meme with no product utility'])
+      }));
+
+      const solangelesDetail = await app.inject({ method: 'GET', url: '/v1/unicorn-radar/candidates/ur_solangeles' });
+      expect(solangelesDetail.statusCode).toBe(200);
+      expect(solangelesDetail.json().data).toEqual(expect.objectContaining({
+        status: 'watchlist',
+        displayVerdict: 'Real Content Moat, Distribution Still Monitored',
+        thesis: expect.stringContaining('content moat is real'),
+        risk_flags: expect.arrayContaining(['Adult/NSFW content creates platform and brand risk'])
+      }));
+
+      const uselessDetail = await app.inject({ method: 'GET', url: '/v1/unicorn-radar/candidates/ur_useless_consensus' });
+      expect(uselessDetail.statusCode).toBe(200);
+      expect(uselessDetail.json().data).toEqual(expect.objectContaining({
+        status: 'consensus_forming',
+        displayVerdict: 'Battle-Tested Meme Benchmark',
+        thesis: expect.stringContaining('survivability benchmark'),
+        token_survivability_note: expect.stringContaining('lower lowcap upside')
+      }));
+
+      const tripletDetail = await app.inject({ method: 'GET', url: '/v1/unicorn-radar/candidates/ur_triplet_sahur' });
+      expect(tripletDetail.statusCode).toBe(200);
+      expect(tripletDetail.json().data).toEqual(expect.objectContaining({
+        status: 'watchlist',
+        displayVerdict: 'Viral Meme Candidate, Longevity Unproven',
+        thesis: expect.stringContaining('strong viral meme roots'),
+        risk_flags: expect.arrayContaining(['Hype-cycle dependent'])
+      }));
 
       const manifestDetail = await app.inject({ method: 'GET', url: '/v1/unicorn-radar/candidates/ur_manifest_ambiguity' });
       expect(manifestDetail.statusCode).toBe(200);
@@ -293,7 +391,7 @@ describe('unicorn radar api', () => {
     const app = await createApp(emptyIntelligenceStore());
 
     try {
-      for (const candidateId of ['ur_ai_rig_complex', 'ur_troll_attention_asset', 'ur_black_bull_ansem', 'ur_kintara_kins', 'ur_manifest_ambiguity']) {
+      for (const candidateId of ['ur_ai_rig_complex', 'ur_troll_attention_asset', 'ur_black_bull_ansem', 'ur_kintara_kins', 'ur_jotchua_money_dog', 'ur_solangeles', 'ur_useless_consensus', 'ur_triplet_sahur', 'ur_manifest_ambiguity']) {
         const response = await app.inject({ method: 'GET', url: `/og/unicorn-radar/${candidateId}.png` });
         expect(response.statusCode).toBe(200);
         expect(response.headers['content-type']).toContain('image/png');
@@ -302,7 +400,7 @@ describe('unicorn radar api', () => {
     } finally {
       await app.close();
     }
-  }, 20000);
+  }, 30000);
 
   it('returns 404 for unknown Unicorn Radar OG image routes', async () => {
     const app = await createApp(emptyIntelligenceStore());
