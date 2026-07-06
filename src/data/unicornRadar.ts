@@ -209,19 +209,24 @@ export const unicornRadarCandidates: UnicornRadarCandidate[] = [
     ticker: 'KINS',
     sector: 'Gaming / Consumer',
     market_cap_range: 'Live market, verify current range from DexScreener',
-    thesis: 'Kintara now has stronger product/activity receipts: guild systems, player clustering, community wiki activity, full-server screenshots, and a live game route. This strengthens the High-Signal candidate case, but token survivability and sustained gameplay activity still need review before stronger conviction.',
+    thesis: 'Kintara has crossed the first High-Signal Lowcap threshold: playable browser MMO surface, live game route, guild/activity receipts, community wiki, full-server screenshots, verified Solana market, broad holder distribution, meaningful liquidity, fair pump.fun launch, and active in-game economy claims. Retention, marketplace depth, and execution remain the key risks.',
     what_it_actually_does: 'Kintara presents itself as an isometric MMO where players can play to earn, buy and sell with KINS, explore quests, and adventure with friends.',
-    proof_of_shipping: 'Official product surface, verified live Solana market, live spectate/play route, guild leaderboard, player-cluster screenshots, wiki activity, and server-full screenshots. Needs independent token distribution, marketplace/economy, and sustained retention receipts.',
+    proof_of_shipping: 'Official product surface, verified live Solana market, live spectate/play route, guild leaderboard, player-cluster screenshots, wiki activity, server-full screenshots, token distribution receipt, liquidity receipt, supply receipt, launch receipt, and economy/marketplace receipt.',
     attention_quality_note: 'CT intake created a useful lead, but attention quality still needs user/player evidence rather than price-led claims.',
-    token_survivability_note: 'The token has a live market and visible game-facing role, but survivability depends on distribution, liquidity, and whether players use KINS beyond narrative cycles.',
+    token_survivability_note: 'The token has passed the first survivability review on holder distribution, liquidity depth, supply, and launch receipts, but retention and real in-game economic depth still need active monitoring.',
     risk_flags: [
-      'Token distribution still needs review',
-      'Need sustained active-user receipts',
-      'Need marketplace/economy activity proof',
-      'Server fullness may be event-driven',
+      'Very new project',
+      'Retention still needs monitoring',
+      'GameFi tokens remain volatile',
+      'Anonymous or limited public team profile',
+      'Marketplace and economy activity must stay active',
       'Market cap may already price part of the gaming narrative'
     ],
     tags: [
+      'HIGH_SIGNAL_LOWCAP',
+      'TOKEN_REVIEW_PASSED',
+      'RETENTION_MONITORING',
+      'GAMEFI',
       'LIVE_GAME_ROUTE',
       'SPECTATE_MODE',
       'PRODUCT_SURFACE_CONFIRMED',
@@ -230,18 +235,26 @@ export const unicornRadarCandidates: UnicornRadarCandidate[] = [
       'COMMUNITY_WIKI',
       'SERVER_QUEUE_SIGNAL',
       'PLAYER_CLUSTER',
-      'TOKEN_REVIEW_NEEDED'
+      'MARKETPLACE_ECONOMY',
+      'HOLDER_DISTRIBUTION_HEALTHY',
+      'LIQUIDITY_DEPTH_REVIEWED',
+      'FAIR_LAUNCH_RECEIPT'
     ],
-    why_now: 'High-Signal Candidate Pending Token Review. KINS has stronger product/activity receipts now, but the desk is keeping it watchlist-only until token survivability and sustained gameplay evidence improve.',
+    why_now: 'High-Signal Lowcap. KINS has crossed the first threshold, but this is not certainty: retention, marketplace depth, and execution remain monitored before conviction can rise again.',
     receipts: [
       receipt('urr_kins_receipt_001', 'Token address verified', 'market', 'Solana token address recorded from Solscan via DexScreener before enabling live market enrichment.', 'https://solscan.io/token/Tqj8yFmagrg7oorpQkVGYR52r96RFTamvWfth9bpump'),
       receipt('urr_kins_receipt_002', 'Live DexScreener pair identified', 'market', 'Live KINS market pair recorded for enrichment, with verdict kept independent from market data.', 'https://dexscreener.com/solana/f42tznkpavq1vucrl6ymhc6yqvpt84fwwgzbntv2wb3w'),
-      receipt('urr_kins_receipt_003', 'Drop #001 CT intake note', 'note', 'Community intake is treated as a lead only. KINS needs gameplay/user receipts before higher conviction.'),
+      receipt('urr_kins_receipt_003', 'Drop #001 CT intake note', 'note', 'Community intake is treated as a lead. KINS now has enough product/activity and token-survivability receipts to cross the first High-Signal Lowcap threshold.'),
       receipt('urr_kins_receipt_004', 'Kintara live game route', 'LIVE_GAME_ROUTE', 'Kintara exposes a playable/spectate game route showing a KINTARA loading shell, game code loading state, and gameplay UI tip. This strengthens product-surface confidence but does not alone prove sustained player retention or token survivability.', 'https://kintara.com/play?spectate=1'),
       receipt('urr_kins_receipt_005', 'Guild leaderboard receipt', 'note', 'In-game guild leaderboard shows organized guilds, member counts, mob kills, PvP, bosses, and gold stats.'),
       receipt('urr_kins_receipt_006', 'Community wiki receipt', 'note', 'Kintara Wiki screenshot shows 201 articles, 221 files, 1,598 edits, and 8 active users.'),
       receipt('urr_kins_receipt_007', 'Player cluster receipt', 'note', 'In-game screenshot shows a crowded player gathering with visible levels, names, and guild tags.'),
-      receipt('urr_kins_receipt_008', 'Server queue receipt', 'note', 'Server selection screenshot shows multiple servers marked full, with queues on some servers.')
+      receipt('urr_kins_receipt_008', 'Server queue receipt', 'note', 'Server selection screenshot shows multiple servers marked full, with queues on some servers.'),
+      receipt('urr_kins_receipt_009', 'Holder distribution receipt', 'token', 'Solana Compass snapshot shows roughly 24k holders, top 10 holders around 14.84%, and top 25 around 28.74%.'),
+      receipt('urr_kins_receipt_010', 'Liquidity depth receipt', 'market', 'DexScreener/Solana Compass snapshots show roughly $480K-$650K liquidity and active volume on KINS markets.', 'https://dexscreener.com/solana/f42tznkpavq1vucrl6ymhc6yqvpt84fwwgzbntv2wb3w'),
+      receipt('urr_kins_receipt_011', 'Supply receipt', 'token', 'CoinGecko shows roughly 993.4M circulating KINS against a 1B max/FDV assumption.'),
+      receipt('urr_kins_receipt_012', 'Launch receipt', 'market', 'KINS launched through pump.fun/PumpSwap with a live KINS/SOL market and pair age around 1 month.'),
+      receipt('urr_kins_receipt_013', 'Economy receipt', 'shipping', 'Kintara public coverage describes a playable MMO economy with resources, trading, PvP wager, marketplace activity, and KINS-based activity.')
     ],
     linked_narratives: [
       { label: 'Signal Hunt', href: '/signal-hunt' },
@@ -257,14 +270,14 @@ export const unicornRadarCandidates: UnicornRadarCandidate[] = [
     verifiedAt: UPDATED_AT,
     verificationNotes: [
       'Live Solana market identified before production publication.',
-      'High-Signal Candidate Pending Token Review language is watchlist framing, not conviction.',
-      'Gameplay and activity receipts are stronger, but token survivability still needs review.'
+      'KINS has crossed the first High-Signal Lowcap threshold, but this is not certainty.',
+      'Retention, marketplace depth, and execution remain monitored.'
     ],
     productionReady: true,
     hunter_credit: communityHunter('CT community intake', 'CT community intake surfaced KINS for Drop #001 review. Infopunks added only framed, receipt-limited coverage.'),
     paid_evaluation_disclosure: unpaidDisclosure(),
-    status: 'watchlist',
-    verdict: 'interesting_needs_receipts',
+    status: 'high_signal_lowcap',
+    verdict: 'high_signal_early',
     scores: {
       shipping_proof: 54,
       attention_quality: 48,

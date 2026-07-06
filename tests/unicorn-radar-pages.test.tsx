@@ -99,9 +99,9 @@ const kinsCandidate = {
   project: 'Kintara',
   ticker: 'KINS',
   sector: 'Gaming / Consumer',
-  thesis: 'Kintara now has stronger product/activity receipts: guild systems, player clustering, community wiki activity, full-server screenshots, and a live game route. This strengthens the High-Signal candidate case, but token survivability and sustained gameplay activity still need review before stronger conviction.',
+  thesis: 'Kintara has crossed the first High-Signal Lowcap threshold: playable browser MMO surface, live game route, guild/activity receipts, community wiki, full-server screenshots, verified Solana market, broad holder distribution, meaningful liquidity, fair pump.fun launch, and active in-game economy claims. Retention, marketplace depth, and execution remain the key risks.',
   what_it_actually_does: 'Kintara presents itself as an isometric MMO where players can play to earn, buy and sell with KINS, explore quests, and adventure with friends.',
-  proof_of_shipping: 'Official product surface, verified live Solana market, live spectate/play route, guild leaderboard, player-cluster screenshots, wiki activity, and server-full screenshots. Needs independent token distribution, marketplace/economy, and sustained retention receipts.',
+  proof_of_shipping: 'Official product surface, verified live Solana market, live spectate/play route, guild leaderboard, player-cluster screenshots, wiki activity, server-full screenshots, token distribution receipt, liquidity receipt, supply receipt, launch receipt, and economy/marketplace receipt.',
   receipts: [
     ...baseCandidate.receipts,
     {
@@ -144,23 +144,64 @@ const kinsCandidate = {
       source: 'infopunks desk review',
       note: 'Server selection screenshot shows multiple servers marked full, with queues on some servers.',
       observed_at: '2026-07-06T08:30:00.000Z'
+    },
+    {
+      id: 'urr_kins_receipt_009',
+      label: 'Holder distribution receipt',
+      type: 'token',
+      source: 'infopunks desk review',
+      note: 'Solana Compass snapshot shows roughly 24k holders, top 10 holders around 14.84%, and top 25 around 28.74%.',
+      observed_at: '2026-07-06T08:30:00.000Z'
+    },
+    {
+      id: 'urr_kins_receipt_010',
+      label: 'Liquidity depth receipt',
+      type: 'market',
+      source: 'infopunks desk review',
+      note: 'DexScreener/Solana Compass snapshots show roughly $480K-$650K liquidity and active volume on KINS markets.',
+      observed_at: '2026-07-06T08:30:00.000Z'
+    },
+    {
+      id: 'urr_kins_receipt_011',
+      label: 'Supply receipt',
+      type: 'token',
+      source: 'infopunks desk review',
+      note: 'CoinGecko shows roughly 993.4M circulating KINS against a 1B max/FDV assumption.',
+      observed_at: '2026-07-06T08:30:00.000Z'
+    },
+    {
+      id: 'urr_kins_receipt_012',
+      label: 'Launch receipt',
+      type: 'market',
+      source: 'infopunks desk review',
+      note: 'KINS launched through pump.fun/PumpSwap with a live KINS/SOL market and pair age around 1 month.',
+      observed_at: '2026-07-06T08:30:00.000Z'
+    },
+    {
+      id: 'urr_kins_receipt_013',
+      label: 'Economy receipt',
+      type: 'shipping',
+      source: 'infopunks desk review',
+      note: 'Kintara public coverage describes a playable MMO economy with resources, trading, PvP wager, marketplace activity, and KINS-based activity.',
+      observed_at: '2026-07-06T08:30:00.000Z'
     }
   ],
   tokenAddress: 'Tqj8yFmagrg7oorpQkVGYR52r96RFTamvWfth9bpump',
   tokenAddressSource: 'Solscan via DexScreener',
   tokenAddressSourceUrl: 'https://solscan.io/token/Tqj8yFmagrg7oorpQkVGYR52r96RFTamvWfth9bpump',
   dexScreenerUrl: 'https://dexscreener.com/solana/f42tznkpavq1vucrl6ymhc6yqvpt84fwwgzbntv2wb3w',
-  status: 'watchlist',
-  verdict: 'interesting_needs_receipts',
+  status: 'high_signal_lowcap',
+  verdict: 'high_signal_early',
   risk_flags: [
-    'Token distribution still needs review',
-    'Server fullness may be event-driven',
-    'Need sustained active-user receipts',
-    'Need marketplace/economy activity proof',
+    'Very new project',
+    'Retention still needs monitoring',
+    'GameFi tokens remain volatile',
+    'Anonymous or limited public team profile',
+    'Marketplace and economy activity must stay active',
     'Market cap may already price part of the gaming narrative'
   ],
-  tags: ['LIVE_GAME_ROUTE', 'SPECTATE_MODE', 'PRODUCT_SURFACE_CONFIRMED', 'GAMEPLAY_RECEIPT', 'GUILD_ACTIVITY', 'COMMUNITY_WIKI', 'SERVER_QUEUE_SIGNAL', 'PLAYER_CLUSTER', 'TOKEN_REVIEW_NEEDED'],
-  why_now: 'High-Signal Candidate Pending Token Review. KINS has stronger product/activity receipts now, but the desk is keeping it watchlist-only until token survivability and sustained gameplay evidence improve.'
+  tags: ['HIGH_SIGNAL_LOWCAP', 'TOKEN_REVIEW_PASSED', 'RETENTION_MONITORING', 'GAMEFI', 'LIVE_GAME_ROUTE', 'SPECTATE_MODE', 'PRODUCT_SURFACE_CONFIRMED', 'GAMEPLAY_RECEIPT', 'GUILD_ACTIVITY', 'COMMUNITY_WIKI', 'SERVER_QUEUE_SIGNAL', 'PLAYER_CLUSTER', 'MARKETPLACE_ECONOMY', 'HOLDER_DISTRIBUTION_HEALTHY', 'LIQUIDITY_DEPTH_REVIEWED', 'FAIR_LAUNCH_RECEIPT'],
+  why_now: 'High-Signal Lowcap. KINS has crossed the first threshold, but this is not certainty: retention, marketplace depth, and execution remain monitored before conviction can rise again.'
 };
 
 const manifestCandidate = {
@@ -208,16 +249,16 @@ const summary = {
     total: 5,
     by_status: {
       unseen_signal: 0,
-      watchlist: 3,
-      high_signal_lowcap: 0,
+      watchlist: 2,
+      high_signal_lowcap: 1,
       consensus_forming: 1,
       do_not_touch_yet: 1,
       infopunks_missed_it: 0,
       paid_evaluation: 0
     },
     by_verdict: {
-      high_signal_early: 0,
-      interesting_needs_receipts: 1,
+      high_signal_early: 1,
+      interesting_needs_receipts: 0,
       real_product_weak_attention: 1,
       strong_attention_weak_proof: 1,
       do_not_touch_yet: 1,
@@ -296,7 +337,9 @@ describe('unicorn radar pages', () => {
     expect(container.textContent).toContain('Kintara');
     expect(container.textContent).toContain('MANIFEST / Manifesting');
     expect(container.textContent).toContain('Drop #001 candidate queue');
-    expect(container.textContent).toContain('KINS is watchlist-only pending gameplay and user receipts.');
+    expect(container.textContent).toContain('High-Signal Lowcap: KINS');
+    expect(container.textContent).toContain('Watchlist: TROLL');
+    expect(container.textContent).toContain('Do Not Touch Yet: MANIFEST');
     expect(container.textContent).toContain('Sector Coverage');
     expect(container.textContent).toContain('Revenue Receipts: see how paid evaluations are disclosed.');
     const sectorSection = container.querySelector('section[aria-label="Sector coverage"]');
@@ -321,7 +364,7 @@ describe('unicorn radar pages', () => {
     expect(container.textContent).toContain('Open DexScreener');
   });
 
-  it('renders KINS as watchlist with live game route and token review tags', async () => {
+  it('renders KINS as High-Signal Lowcap with live game route and token review tags', async () => {
     mockFetch(kinsCandidate, summary);
     window.history.pushState({}, '', '/unicorn-radar/ur_kintara_kins');
 
@@ -334,21 +377,39 @@ describe('unicorn radar pages', () => {
     });
 
     expect(container.textContent).toContain('Kintara');
-    expect(container.textContent).toContain('Watchlist');
+    expect(container.textContent).toContain('High Signal Lowcap');
+    expect(container.textContent).toContain('High-Signal, Retention Still Monitored');
     expect(container.textContent).toContain('live spectate/play route');
+    expect(container.textContent).toContain('token distribution receipt');
+    expect(container.textContent).toContain('liquidity receipt');
+    expect(container.textContent).toContain('supply receipt');
+    expect(container.textContent).toContain('launch receipt');
+    expect(container.textContent).toContain('economy/marketplace receipt');
     expect(container.textContent).toContain('Kintara live game route');
     expect(container.textContent).toContain('playable/spectate game route');
     expect(container.textContent).toContain('Guild leaderboard receipt');
     expect(container.textContent).toContain('Community wiki receipt');
     expect(container.textContent).toContain('Player cluster receipt');
     expect(container.textContent).toContain('Server queue receipt');
+    expect(container.textContent).toContain('Holder distribution receipt');
+    expect(container.textContent).toContain('Liquidity depth receipt');
+    expect(container.textContent).toContain('Supply receipt');
+    expect(container.textContent).toContain('Launch receipt');
+    expect(container.textContent).toContain('Economy receipt');
     expect(container.textContent).toContain('member counts, mob kills, PvP, bosses, and gold stats');
     expect(container.textContent).toContain('201 articles, 221 files, 1,598 edits, and 8 active users');
     expect(container.textContent).toContain('crowded player gathering with visible levels, names, and guild tags');
     expect(container.textContent).toContain('multiple servers marked full, with queues on some servers');
-    expect(container.textContent).toContain('TOKEN_REVIEW_NEEDED');
+    expect(container.textContent).toContain('roughly 24k holders');
+    expect(container.textContent).toContain('$480K-$650K liquidity');
+    expect(container.textContent).toContain('993.4M circulating KINS');
+    expect(container.textContent).toContain('pump.fun/PumpSwap');
+    expect(container.textContent).toContain('playable MMO economy');
+    expect(container.textContent).toContain('TOKEN_REVIEW_PASSED');
+    expect(container.textContent).toContain('RETENTION_MONITORING');
+    expect(container.textContent).not.toContain('TOKEN_REVIEW_NEEDED');
     expect(container.textContent).toContain('LIVE_GAME_ROUTE');
-    expect(container.textContent).toContain('High-Signal Candidate Pending Token Review');
+    expect(container.textContent).toContain('this is not certainty');
   });
 
   it('fails open when market data is unavailable and still renders the page', async () => {

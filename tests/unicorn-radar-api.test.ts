@@ -83,8 +83,8 @@ describe('unicorn radar api', () => {
         counts: expect.objectContaining({
           total: 5,
           by_status: expect.objectContaining({
-            high_signal_lowcap: 0,
-            watchlist: 3,
+            high_signal_lowcap: 1,
+            watchlist: 2,
             do_not_touch_yet: 1,
             consensus_forming: 1
           })
@@ -99,6 +99,7 @@ describe('unicorn radar api', () => {
           expect.objectContaining({
             id: 'ur_troll_attention_asset',
             ticker: 'TROLL',
+            status: 'watchlist',
             verificationStatus: 'verified_live_market'
           }),
           expect.objectContaining({
@@ -109,8 +110,8 @@ describe('unicorn radar api', () => {
           expect.objectContaining({
             id: 'ur_kintara_kins',
             ticker: 'KINS',
-            status: 'watchlist',
-            verdict: 'interesting_needs_receipts',
+            status: 'high_signal_lowcap',
+            verdict: 'high_signal_early',
             sector: 'Gaming / Consumer',
             verificationStatus: 'verified_live_market'
           }),
@@ -147,14 +148,14 @@ describe('unicorn radar api', () => {
       expect(kinsDetail.statusCode).toBe(200);
       expect(kinsDetail.json().data).toEqual(expect.objectContaining({
         id: 'ur_kintara_kins',
-        status: 'watchlist',
-        verdict: 'interesting_needs_receipts',
+        status: 'high_signal_lowcap',
+        verdict: 'high_signal_early',
         dexScreenerUrl: 'https://dexscreener.com/solana/f42tznkpavq1vucrl6ymhc6yqvpt84fwwgzbntv2wb3w',
         marketDataSource: 'dexscreener_official_api',
         verificationStatus: 'verified_live_market',
-        proof_of_shipping: expect.stringContaining('live spectate/play route'),
-        thesis: expect.stringContaining('High-Signal candidate case'),
-        tags: expect.arrayContaining(['LIVE_GAME_ROUTE', 'TOKEN_REVIEW_NEEDED', 'GUILD_ACTIVITY', 'COMMUNITY_WIKI', 'SERVER_QUEUE_SIGNAL', 'PLAYER_CLUSTER']),
+        proof_of_shipping: expect.stringContaining('token distribution receipt, liquidity receipt, supply receipt, launch receipt, and economy/marketplace receipt'),
+        thesis: expect.stringContaining('crossed the first High-Signal Lowcap threshold'),
+        tags: expect.arrayContaining(['HIGH_SIGNAL_LOWCAP', 'TOKEN_REVIEW_PASSED', 'RETENTION_MONITORING', 'LIVE_GAME_ROUTE', 'GUILD_ACTIVITY', 'COMMUNITY_WIKI', 'SERVER_QUEUE_SIGNAL', 'PLAYER_CLUSTER']),
         receipts: expect.arrayContaining([
           expect.objectContaining({
             label: 'Kintara live game route',
@@ -176,9 +177,30 @@ describe('unicorn radar api', () => {
           expect.objectContaining({
             label: 'Server queue receipt',
             note: expect.stringContaining('multiple servers marked full, with queues on some servers')
+          }),
+          expect.objectContaining({
+            label: 'Holder distribution receipt',
+            note: expect.stringContaining('top 10 holders around 14.84%')
+          }),
+          expect.objectContaining({
+            label: 'Liquidity depth receipt',
+            note: expect.stringContaining('$480K-$650K liquidity')
+          }),
+          expect.objectContaining({
+            label: 'Supply receipt',
+            note: expect.stringContaining('993.4M circulating KINS')
+          }),
+          expect.objectContaining({
+            label: 'Launch receipt',
+            note: expect.stringContaining('pump.fun/PumpSwap')
+          }),
+          expect.objectContaining({
+            label: 'Economy receipt',
+            note: expect.stringContaining('playable MMO economy')
           })
         ])
       }));
+      expect(kinsDetail.json().data.tags).not.toContain('TOKEN_REVIEW_NEEDED');
 
       const manifestDetail = await app.inject({ method: 'GET', url: '/v1/unicorn-radar/candidates/ur_manifest_ambiguity' });
       expect(manifestDetail.statusCode).toBe(200);

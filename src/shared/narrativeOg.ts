@@ -113,6 +113,7 @@ export function narrativeOgImageUrl(pathname: string) {
 }
 
 function formatOgLabel(value: string) {
+  if (value === 'high_signal_early') return 'High-Signal, Retention Still Monitored';
   return value.split('_').filter(Boolean).map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
 }
 
@@ -210,8 +211,8 @@ export function renderUnicornRadarOgImage(candidate: UnicornRadarCandidate) {
   ${titleMarkup}
   <rect x="72" y="226" width="212" height="42" rx="21" fill="#0a1916" stroke="${accent}" />
   <text x="94" y="253" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="17" font-weight="800" fill="#d3fff1">${escapeXml(status)}</text>
-  <rect x="300" y="226" width="342" height="42" rx="21" fill="#0a1916" stroke="#28584f" />
-  <text x="322" y="253" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="17" font-weight="800" fill="#d3fff1">${escapeXml(verdict)}</text>
+  <rect x="300" y="226" width="510" height="42" rx="21" fill="#0a1916" stroke="#28584f" />
+  <text x="322" y="253" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="15" font-weight="800" fill="#d3fff1">${escapeXml(verdict)}</text>
   ${thesisMarkup}
   <g>
     ${renderScoreTile(70, 358, 'Shipping Proof', candidate.scores.shipping_proof, accent)}
@@ -263,7 +264,7 @@ export function renderUnicornRadarIndexOgImage() {
   <text x="72" y="354" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="25" fill="#a9c8bc">Retail doesn’t need less risk.</text>
   <text x="72" y="390" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="25" fill="#a9c8bc">Retail needs better signal before taking risk.</text>
   <rect x="70" y="448" width="470" height="54" rx="14" fill="#071411" stroke="#173c35" />
-  <text x="92" y="482" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="18" font-weight="800" fill="#fef3c7">3 CANDIDATES · 2 WATCHLIST · 1 CONSENSUS FORMING</text>
+  <text x="92" y="482" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="18" font-weight="800" fill="#fef3c7">5 CANDIDATES · 1 HIGH-SIGNAL · 2 WATCHLIST · 1 CONSENSUS</text>
   <rect x="70" y="522" width="620" height="48" rx="14" fill="#071411" stroke="#173c35" />
   <text x="92" y="552" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="17" font-weight="800" fill="#9bf1cc">Projects can buy evaluation, not conviction.</text>
   <circle cx="1038" cy="172" r="96" fill="none" stroke="#173c35" stroke-width="1.5" />

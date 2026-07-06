@@ -108,8 +108,8 @@ describe('unicorn radar service', () => {
     const summary = await buildUnicornRadarSummary();
 
     expect(summary.counts.total).toBe(5);
-    expect(summary.counts.by_status.high_signal_lowcap).toBe(0);
-    expect(summary.counts.by_status.watchlist).toBe(3);
+    expect(summary.counts.by_status.high_signal_lowcap).toBe(1);
+    expect(summary.counts.by_status.watchlist).toBe(2);
     expect(summary.counts.by_status.do_not_touch_yet).toBe(1);
     expect(summary.counts.by_status.consensus_forming).toBe(1);
     expect(summary.counts.by_sector['AI / Agent Rails']).toBe(1);
@@ -139,27 +139,31 @@ describe('unicorn radar service', () => {
     expect(buildUnicornRadarRevenueReceipts()).toEqual([]);
   });
 
-  it('keeps KINS watchlist-only while recording the live game route receipt', async () => {
+  it('promotes KINS to High-Signal Lowcap with token review receipts', async () => {
     const candidate = await resolveEnrichedUnicornRadarCandidate('ur_kintara_kins');
     expect(candidate).toEqual(expect.objectContaining({
       id: 'ur_kintara_kins',
-      status: 'watchlist',
+      status: 'high_signal_lowcap',
       productionReady: true,
       verificationStatus: 'verified_live_market',
-      verdict: 'interesting_needs_receipts',
-      thesis: 'Kintara now has stronger product/activity receipts: guild systems, player clustering, community wiki activity, full-server screenshots, and a live game route. This strengthens the High-Signal candidate case, but token survivability and sustained gameplay activity still need review before stronger conviction.',
-      proof_of_shipping: 'Official product surface, verified live Solana market, live spectate/play route, guild leaderboard, player-cluster screenshots, wiki activity, and server-full screenshots. Needs independent token distribution, marketplace/economy, and sustained retention receipts.',
-      why_now: 'High-Signal Candidate Pending Token Review. KINS has stronger product/activity receipts now, but the desk is keeping it watchlist-only until token survivability and sustained gameplay evidence improve.',
+      verdict: 'high_signal_early',
+      thesis: expect.stringContaining('crossed the first High-Signal Lowcap threshold'),
+      proof_of_shipping: expect.stringContaining('token distribution receipt, liquidity receipt, supply receipt, launch receipt, and economy/marketplace receipt'),
+      why_now: expect.stringContaining('this is not certainty'),
       tags: expect.arrayContaining([
+        'HIGH_SIGNAL_LOWCAP',
+        'TOKEN_REVIEW_PASSED',
+        'RETENTION_MONITORING',
+        'GAMEFI',
         'LIVE_GAME_ROUTE',
-        'SPECTATE_MODE',
-        'PRODUCT_SURFACE_CONFIRMED',
-        'GAMEPLAY_RECEIPT',
         'GUILD_ACTIVITY',
         'COMMUNITY_WIKI',
         'SERVER_QUEUE_SIGNAL',
         'PLAYER_CLUSTER',
-        'TOKEN_REVIEW_NEEDED'
+        'MARKETPLACE_ECONOMY',
+        'HOLDER_DISTRIBUTION_HEALTHY',
+        'LIQUIDITY_DEPTH_REVIEWED',
+        'FAIR_LAUNCH_RECEIPT'
       ]),
       receipts: expect.arrayContaining([
         expect.objectContaining({
@@ -183,9 +187,30 @@ describe('unicorn radar service', () => {
         expect.objectContaining({
           label: 'Server queue receipt',
           note: expect.stringContaining('multiple servers marked full, with queues on some servers')
+        }),
+        expect.objectContaining({
+          label: 'Holder distribution receipt',
+          note: expect.stringContaining('top 10 holders around 14.84%')
+        }),
+        expect.objectContaining({
+          label: 'Liquidity depth receipt',
+          note: expect.stringContaining('$480K-$650K liquidity')
+        }),
+        expect.objectContaining({
+          label: 'Supply receipt',
+          note: expect.stringContaining('993.4M circulating KINS')
+        }),
+        expect.objectContaining({
+          label: 'Launch receipt',
+          note: expect.stringContaining('pump.fun/PumpSwap')
+        }),
+        expect.objectContaining({
+          label: 'Economy receipt',
+          note: expect.stringContaining('playable MMO economy')
         })
       ])
     }));
+    expect(candidate?.tags ?? []).not.toContain('TOKEN_REVIEW_NEEDED');
   });
 
   it('fails open when DexScreener is unavailable', async () => {

@@ -172,7 +172,7 @@ function statusTone(status: UnicornRadarStatus) {
 function verdictCopy(verdict: UnicornRadarVerdict) {
   switch (verdict) {
     case 'high_signal_early':
-      return 'High signal early';
+      return 'High-Signal, Retention Still Monitored';
     case 'interesting_needs_receipts':
       return 'Interesting, needs receipts';
     case 'real_product_weak_attention':
@@ -469,7 +469,7 @@ export function UnicornRadarPage() {
         <div>
           <p className="eyebrow">Drop #001 candidate queue</p>
           <h2>Two CT-intake candidates promoted to framed Radar records.</h2>
-          <p className="copy">KINS is watchlist-only pending gameplay and user receipts. MANIFEST is do-not-touch until canonical ticker, token, and market identity are confirmed.</p>
+          <p className="copy">High-Signal Lowcap: KINS. Watchlist: TROLL. Do Not Touch Yet: MANIFEST.</p>
         </div>
       </section>
 
