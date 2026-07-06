@@ -120,4 +120,21 @@ describe('narrative metadata helper', () => {
       twitterCard: 'summary_large_image'
     });
   });
+
+  it('returns candidate metadata for Unicorn Radar detail pages', () => {
+    expect(getNarrativeMetadataForPath('/unicorn-radar/ur_agent_escrow_rails')).toEqual({
+      title: 'Infopunks Unicorn Radar: Agent Escrow Rails / RAILS',
+      description: 'Agent Rails candidate marked high_signal_lowcap with verdict high_signal_early. Shipping proof, attention quality, token survivability, risk flags, receipts, and paid evaluation disclosure.',
+      canonicalPath: '/unicorn-radar/ur_agent_escrow_rails',
+      ogTitle: 'Infopunks Unicorn Radar: Agent Escrow Rails / RAILS',
+      ogDescription: 'Agent Rails candidate marked high_signal_lowcap with verdict high_signal_early. Shipping proof, attention quality, token survivability, risk flags, receipts, and paid evaluation disclosure.',
+      ogImageUrl: 'https://radar.infopunks.fun/og/unicorn-radar/ur_agent_escrow_rails.png',
+      ogImageWidth: 1200,
+      ogImageHeight: 630,
+      twitterTitle: 'Infopunks Unicorn Radar: Agent Escrow Rails / RAILS',
+      twitterDescription: 'Agent Rails candidate marked high_signal_lowcap with verdict high_signal_early. Shipping proof, attention quality, token survivability, risk flags, receipts, and paid evaluation disclosure.',
+      twitterImageUrl: 'https://radar.infopunks.fun/og/unicorn-radar/ur_agent_escrow_rails.png',
+      twitterCard: 'summary_large_image'
+    });
+  });
 });

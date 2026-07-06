@@ -124,7 +124,9 @@ describe('render-style SPA routing boundaries', () => {
       expect(unicornRadarDetail.statusCode).toBe(200);
       expect(unicornRadarDetail.headers['content-type']).toContain('text/html');
       expect(unicornRadarDetail.body).toContain('Radar SPA shell');
-      expect(unicornRadarDetail.body).toContain('Infopunks Unicorn Radar: ur_agent_memory_mesh');
+      expect(unicornRadarDetail.body).toContain('Infopunks Unicorn Radar: Agent Memory Mesh / MEMESH');
+      expect(unicornRadarDetail.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/unicorn-radar/ur_agent_memory_mesh.png"');
+      expect(unicornRadarDetail.body).toContain('name="twitter:image" content="https://radar.infopunks.fun/og/unicorn-radar/ur_agent_memory_mesh.png"');
 
       const graph = await app.inject({ method: 'GET', url: '/graph' });
       expect(graph.statusCode).toBe(200);

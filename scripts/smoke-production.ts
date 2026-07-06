@@ -252,6 +252,7 @@ export function buildSmokePlan(): SmokePlan {
       '/og/narratives.png',
       '/og/attention-market-watch.png',
       '/og/attention-market-watch/ansem.png',
+      `/og/unicorn-radar/${encodeURIComponent(unicornRadarCandidateId)}.png`,
       '/og/signals/black-bull.png',
       '/og/signals/black-bull/updates/seu_black_bull_007.png',
       '/og/signals/troll.png',

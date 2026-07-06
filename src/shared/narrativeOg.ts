@@ -1,5 +1,6 @@
 import { getSignalSurfaceBySlug } from '../data/narrativeIntel';
 import { getSignalUpdate } from '../data/signalUpdates';
+import type { UnicornRadarCandidate } from '../schemas/entities';
 
 export const OG_IMAGE_WIDTH = 1200;
 export const OG_IMAGE_HEIGHT = 630;
@@ -72,6 +73,11 @@ export function narrativeOgImageUrl(pathname: string) {
     return '/og/signal-hunt.png';
   }
 
+  const unicornRadarMatch = pathname.match(/^\/unicorn-radar\/([^/]+)\/?$/);
+  if (unicornRadarMatch) {
+    return `/og/unicorn-radar/${encodeURIComponent(unicornRadarMatch[1])}.png`;
+  }
+
   if (/^\/signals\/black-bull\/?$/.test(pathname)) {
     return '/og/signals/black-bull.png';
   }
@@ -91,6 +97,94 @@ export function narrativeOgImageUrl(pathname: string) {
   }
 
   return null;
+}
+
+function formatOgLabel(value: string) {
+  return value.split('_').filter(Boolean).map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
+}
+
+function clampText(value: string, maxChars: number) {
+  const clean = value.trim();
+  return clean.length <= maxChars ? clean : `${clean.slice(0, Math.max(0, maxChars - 1)).trimEnd()}…`;
+}
+
+function renderScoreTile(x: number, y: number, label: string, score: number, accent: string) {
+  return `<rect x="${x}" y="${y}" width="226" height="82" rx="14" fill="#071411" stroke="#173c35" />
+  <text x="${x + 18}" y="${y + 30}" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="15" fill="#8ab6a8" letter-spacing="1.1">${escapeXml(label.toUpperCase())}</text>
+  <text x="${x + 18}" y="${y + 64}" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="34" font-weight="800" fill="#f2fffb">${score}</text>
+  <rect x="${x + 72}" y="${y + 51}" width="124" height="8" rx="4" fill="#10261f" />
+  <rect x="${x + 72}" y="${y + 51}" width="${Math.max(0, Math.min(124, Math.round((score / 100) * 124)))}" height="8" rx="4" fill="${accent}" />`;
+}
+
+export function renderUnicornRadarOgImage(candidate: UnicornRadarCandidate) {
+  const accent = candidate.status === 'do_not_touch_yet'
+    ? '#ff7b7b'
+    : candidate.status === 'paid_evaluation'
+      ? '#ffd166'
+      : '#7effb0';
+  const title = `${candidate.project} / ${candidate.ticker}`;
+  const status = formatOgLabel(candidate.status);
+  const verdict = formatOgLabel(candidate.verdict);
+  const paidLine = candidate.paid_evaluation_disclosure.is_paid
+    ? `PAID EVALUATION DISCLOSED · ${clampText(candidate.paid_evaluation_disclosure.note, 56)}`
+    : candidate.paid_evaluation_disclosure.label.toUpperCase();
+  const hunter = candidate.hunter_credit?.handle ? `HUNTER ${candidate.hunter_credit.handle}` : 'HUNTER NOT RECORDED';
+  const receipts = `${candidate.receipts.length} RECEIPT${candidate.receipts.length === 1 ? '' : 'S'}`;
+  const titleLines = wrapText(title, 28).slice(0, 2);
+  const thesisLines = wrapText(candidate.thesis, 70).slice(0, 2);
+  const titleMarkup = titleLines.map((line, index) => (
+    `<text x="70" y="${154 + (index * 56)}" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="48" font-weight="800" fill="#f2fffb">${escapeXml(line)}</text>`
+  )).join('');
+  const thesisMarkup = thesisLines.map((line, index) => (
+    `<text x="72" y="${286 + (index * 28)}" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="21" fill="#a9c8bc">${escapeXml(line)}</text>`
+  )).join('');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" viewBox="0 0 ${OG_IMAGE_WIDTH} ${OG_IMAGE_HEIGHT}" role="img" aria-label="${escapeXml(title)}">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#030807" />
+      <stop offset="58%" stop-color="#071411" />
+      <stop offset="100%" stop-color="#0b1f1b" />
+    </linearGradient>
+    <radialGradient id="glow" cx="78%" cy="24%" r="44%">
+      <stop offset="0%" stop-color="${accent}" stop-opacity="0.32" />
+      <stop offset="100%" stop-color="${accent}" stop-opacity="0" />
+    </radialGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#17322d" stroke-width="1" opacity="0.72" />
+    </pattern>
+  </defs>
+  <rect width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" fill="url(#bg)" />
+  <rect width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" fill="url(#glow)" />
+  <rect width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" fill="url(#grid)" opacity="0.48" />
+  <rect x="42" y="34" width="1116" height="562" rx="28" fill="#04100d" fill-opacity="0.72" stroke="#1b5b4f" stroke-width="2" />
+  <rect x="70" y="60" width="346" height="38" rx="19" fill="#0d2420" stroke="#1b5b4f" />
+  <text x="94" y="85" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="18" font-weight="800" fill="#9bf1cc" letter-spacing="1.1">INFOPUNKS UNICORN RADAR</text>
+  <text x="70" y="124" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="18" fill="#5ee0af" letter-spacing="2.2">${escapeXml(candidate.sector.toUpperCase())}</text>
+  ${titleMarkup}
+  <rect x="72" y="226" width="212" height="42" rx="21" fill="#0a1916" stroke="${accent}" />
+  <text x="94" y="253" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="17" font-weight="800" fill="#d3fff1">${escapeXml(status)}</text>
+  <rect x="300" y="226" width="342" height="42" rx="21" fill="#0a1916" stroke="#28584f" />
+  <text x="322" y="253" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="17" font-weight="800" fill="#d3fff1">${escapeXml(verdict)}</text>
+  ${thesisMarkup}
+  <g>
+    ${renderScoreTile(70, 358, 'Shipping Proof', candidate.scores.shipping_proof, accent)}
+    ${renderScoreTile(318, 358, 'Attention Quality', candidate.scores.attention_quality, accent)}
+    ${renderScoreTile(566, 358, 'Token Survival', candidate.scores.token_survivability, accent)}
+    ${renderScoreTile(814, 358, 'Risk Score', candidate.scores.risk_score, '#ff8a6a')}
+  </g>
+  <rect x="70" y="468" width="492" height="54" rx="14" fill="#071411" stroke="#173c35" />
+  <text x="92" y="501" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="17" font-weight="800" fill="#fef3c7">${escapeXml(receipts)} · ${escapeXml(hunter)}</text>
+  <rect x="584" y="468" width="476" height="54" rx="14" fill="#071411" stroke="#173c35" />
+  <text x="606" y="501" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="15" font-weight="800" fill="#fef3c7">${escapeXml(paidLine)}</text>
+  <text x="72" y="552" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="19" font-weight="800" fill="#d3fff1">Projects can buy evaluation, not conviction.</text>
+  <text x="72" y="580" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="17" fill="#7fa195">Retail doesn’t need less risk. Retail needs better signal before taking risk.</text>
+  <circle cx="1044" cy="154" r="92" fill="none" stroke="#173c35" stroke-width="1.5" />
+  <circle cx="1044" cy="154" r="56" fill="none" stroke="#1e4c43" stroke-width="1.5" />
+  <path d="M968 214C1006 188 1036 166 1084 112" stroke="${accent}" stroke-width="4" stroke-linecap="round" />
+  <circle cx="1084" cy="112" r="8" fill="${accent}" />
+</svg>`;
 }
 
 function renderSignalCardSvg(payload: OgImagePayload) {

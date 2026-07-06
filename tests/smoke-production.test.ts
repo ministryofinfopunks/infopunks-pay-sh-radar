@@ -165,6 +165,7 @@ describe('production smoke plan', () => {
       '/og/narratives.png',
       '/og/attention-market-watch.png',
       '/og/attention-market-watch/ansem.png',
+      '/og/unicorn-radar/ur_agent_memory_mesh.png',
       '/og/signals/black-bull.png',
       '/og/signals/black-bull/updates/seu_black_bull_007.png',
       '/og/signals/troll.png',

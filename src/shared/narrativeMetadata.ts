@@ -1,5 +1,6 @@
 import { getSignalSurfaceBySlug } from '../data/narrativeIntel';
 import { getSignalUpdate } from '../data/signalUpdates';
+import { resolveUnicornRadarCandidate } from '../services/unicornRadarService';
 import { narrativeOgImageUrl, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH, signalUpdateTypeLabel } from './narrativeOg';
 
 export type NarrativeMetadata = {
@@ -209,6 +210,14 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
   const unicornRadarDetailMatch = pathname.match(/^\/unicorn-radar\/([^/]+)\/?$/);
   if (unicornRadarDetailMatch) {
     const candidateId = decodePathPart(unicornRadarDetailMatch[1]);
+    const candidate = resolveUnicornRadarCandidate(candidateId);
+    if (candidate) {
+      return buildMetadata(
+        `Infopunks Unicorn Radar: ${candidate.project} / ${candidate.ticker}`,
+        `${candidate.sector} candidate marked ${candidate.status} with verdict ${candidate.verdict}. Shipping proof, attention quality, token survivability, risk flags, receipts, and paid evaluation disclosure.`,
+        `/unicorn-radar/${encodeURIComponent(candidateId)}`
+      );
+    }
     return buildMetadata(
       `Infopunks Unicorn Radar: ${candidateId}`,
       'Low-cap Solana candidate detail with shipping proof, attention quality, token survivability, risk flags, receipts, hunter attribution, and Infopunks verdict.',

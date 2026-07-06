@@ -18,7 +18,7 @@ import {
   getAttentionMarketWatchIndex
 } from '../data/attentionMarketWatch';
 import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
-import { renderAttentionMarketWatchOgImage, renderNarrativesOgImage, renderSignalHuntOgImage, renderSignalReportOgImage, renderSignalUpdateOgImage } from '../shared/narrativeOg';
+import { renderAttentionMarketWatchOgImage, renderNarrativesOgImage, renderSignalHuntOgImage, renderSignalReportOgImage, renderSignalUpdateOgImage, renderUnicornRadarOgImage } from '../shared/narrativeOg';
 import { renderOgPng } from '../server/narrativeOgPng';
 import { applyPayShCatalogIngestion } from '../ingestion/payShCatalogAdapter';
 import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, IntelligenceStore, runPayShIngestion, runPayShIngestionWithOptions } from '../services/intelligenceStore';
@@ -2093,6 +2093,12 @@ export async function createApp(
   app.get('/og/signal-hunt.png', async (_req, reply) => {
     reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
     return reply.type('image/png').send(renderOgPng(renderSignalHuntOgImage()));
+  });
+  app.get<{ Params: { candidateId: string } }>('/og/unicorn-radar/:candidateId.png', async (req, reply) => {
+    const candidate = resolveUnicornRadarCandidate(req.params.candidateId);
+    if (!candidate) return reply.code(404).send({ error: 'og_image_not_found' });
+    reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
+    return reply.type('image/png').send(renderOgPng(renderUnicornRadarOgImage(candidate)));
   });
   app.get<{ Params: { slug: string } }>('/og/attention-market-watch/:slug.png', async (req, reply) => {
     const signal = getAttentionMarketSignalBySlug(req.params.slug);

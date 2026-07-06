@@ -2,6 +2,15 @@ import { describe, expect, it } from 'vitest';
 import { createApp } from '../src/api/app';
 import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
 
+const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+
+function expectPng(payload: Buffer) {
+  expect(payload.length).toBeGreaterThan(24);
+  expect(payload.subarray(0, 8)).toEqual(PNG_SIGNATURE);
+  expect(payload.readUInt32BE(16)).toBe(1200);
+  expect(payload.readUInt32BE(20)).toBe(630);
+}
+
 describe('unicorn radar api', () => {
   it('returns summary, candidate list, detail, and revenue receipts', async () => {
     const app = await createApp(emptyIntelligenceStore());
@@ -119,6 +128,32 @@ describe('unicorn radar api', () => {
         payload: { project: '', sector: 'not-real', thesis: '' }
       });
       expect(invalid.statusCode).toBe(400);
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('serves Unicorn Radar candidate OG image routes', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+
+    try {
+      const response = await app.inject({ method: 'GET', url: '/og/unicorn-radar/ur_agent_escrow_rails.png' });
+      expect(response.statusCode).toBe(200);
+      expect(response.headers['content-type']).toContain('image/png');
+      expect(response.headers['cache-control']).toContain('public');
+      expectPng(response.rawPayload);
+    } finally {
+      await app.close();
+    }
+  }, 10000);
+
+  it('returns 404 for unknown Unicorn Radar OG image routes', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+
+    try {
+      const response = await app.inject({ method: 'GET', url: '/og/unicorn-radar/not-real.png' });
+      expect(response.statusCode).toBe(404);
+      expect(response.json()).toEqual({ error: 'og_image_not_found' });
     } finally {
       await app.close();
     }
