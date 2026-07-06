@@ -45,7 +45,7 @@ type UnicornRadarScores = {
 type UnicornRadarReceipt = {
   id: string;
   label: string;
-  type: 'shipping' | 'attention' | 'token' | 'risk' | 'market' | 'payment' | 'note';
+  type: 'shipping' | 'attention' | 'token' | 'risk' | 'market' | 'payment' | 'note' | 'LIVE_GAME_ROUTE';
   source: string;
   url?: string;
   note: string;
@@ -64,6 +64,7 @@ type UnicornRadarCandidate = {
   attention_quality_note: string;
   token_survivability_note: string;
   risk_flags: string[];
+  tags?: string[];
   why_now: string;
   receipts: UnicornRadarReceipt[];
   linked_narratives: Array<{ label: string; href: string }>;
@@ -614,6 +615,19 @@ export function UnicornRadarDetailPage({ candidateId }: { candidateId: string })
           {candidate.risk_flags.map((flag) => <span key={flag}>{flag}</span>)}
         </div>
       </section>
+
+      {(candidate.tags?.length ?? 0) > 0 && <section className="panel unicorn-section" aria-label="Candidate tags">
+        <div className="proof-section-head">
+          <div>
+            <p className="eyebrow">Tags</p>
+            <h2>{candidate.tags?.length ?? 0}</h2>
+          </div>
+          <p className="panel-caption">Operational labels for current Radar review state.</p>
+        </div>
+        <div className="proof-flag-list unicorn-risk-list">
+          {candidate.tags?.map((tag) => <span key={tag}>{tag}</span>)}
+        </div>
+      </section>}
 
       <section className="panel unicorn-section">
         <div className="proof-section-head">

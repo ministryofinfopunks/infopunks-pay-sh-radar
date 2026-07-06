@@ -101,7 +101,19 @@ const kinsCandidate = {
   sector: 'Gaming / Consumer',
   thesis: 'Playable gaming/consumer candidate with a real MMO surface and active token market. Potential High-Signal Lowcap, but needs Infopunks receipts before stronger conviction.',
   what_it_actually_does: 'Kintara presents itself as an isometric MMO where players can play to earn, buy and sell with KINS, explore quests, and adventure with friends.',
-  proof_of_shipping: 'Official product site and live market pair identified. Needs gameplay/user receipts.',
+  proof_of_shipping: 'Official product surface, verified live Solana market, live spectate/play route, guild leaderboard, player-cluster screenshots, wiki activity, and server-full screenshots. Needs independent token distribution, marketplace/economy, and sustained retention receipts.',
+  receipts: [
+    ...baseCandidate.receipts,
+    {
+      id: 'urr_kins_receipt_004',
+      label: 'Kintara live game route',
+      type: 'LIVE_GAME_ROUTE',
+      source: 'infopunks desk review',
+      url: 'https://kintara.com/play?spectate=1',
+      note: 'Kintara exposes a playable/spectate game route showing a KINTARA loading shell, game code loading state, and gameplay UI tip. This strengthens product-surface confidence but does not alone prove sustained player retention or token survivability.',
+      observed_at: '2026-07-06T08:30:00.000Z'
+    }
+  ],
   tokenAddress: 'Tqj8yFmagrg7oorpQkVGYR52r96RFTamvWfth9bpump',
   tokenAddressSource: 'Solscan via DexScreener',
   tokenAddressSourceUrl: 'https://solscan.io/token/Tqj8yFmagrg7oorpQkVGYR52r96RFTamvWfth9bpump',
@@ -109,11 +121,13 @@ const kinsCandidate = {
   status: 'watchlist',
   verdict: 'interesting_needs_receipts',
   risk_flags: [
-    'Needs independent gameplay receipts',
-    'Needs token distribution review',
-    'Gaming traction may be speculative without user/player evidence',
-    'Market cap may already price some narrative strength'
-  ]
+    'Token distribution still needs review',
+    'Need sustained active-user receipts',
+    'Need marketplace/economy activity proof',
+    'Server fullness may be event-driven',
+    'Market cap may already price part of the gaming narrative'
+  ],
+  tags: ['LIVE_GAME_ROUTE', 'SPECTATE_MODE', 'PRODUCT_SURFACE_CONFIRMED', 'TOKEN_REVIEW_NEEDED']
 };
 
 const manifestCandidate = {
@@ -272,6 +286,27 @@ describe('unicorn radar pages', () => {
     expect(container.textContent).toContain('Verified live market');
     expect(container.textContent).toContain('Verification');
     expect(container.textContent).toContain('Open DexScreener');
+  });
+
+  it('renders KINS as watchlist with live game route and token review tags', async () => {
+    mockFetch(kinsCandidate, summary);
+    window.history.pushState({}, '', '/unicorn-radar/ur_kintara_kins');
+
+    await act(async () => {
+      root.render(<App />);
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(container.textContent).toContain('Kintara');
+    expect(container.textContent).toContain('Watchlist');
+    expect(container.textContent).toContain('live spectate/play route');
+    expect(container.textContent).toContain('Kintara live game route');
+    expect(container.textContent).toContain('playable/spectate game route');
+    expect(container.textContent).toContain('TOKEN_REVIEW_NEEDED');
+    expect(container.textContent).not.toContain('High Signal Lowcap');
   });
 
   it('fails open when market data is unavailable and still renders the page', async () => {

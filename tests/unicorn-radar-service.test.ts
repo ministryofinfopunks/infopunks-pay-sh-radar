@@ -139,6 +139,32 @@ describe('unicorn radar service', () => {
     expect(buildUnicornRadarRevenueReceipts()).toEqual([]);
   });
 
+  it('keeps KINS watchlist-only while recording the live game route receipt', async () => {
+    const candidate = await resolveEnrichedUnicornRadarCandidate('ur_kintara_kins');
+    expect(candidate).toEqual(expect.objectContaining({
+      id: 'ur_kintara_kins',
+      status: 'watchlist',
+      productionReady: true,
+      verificationStatus: 'verified_live_market',
+      verdict: 'interesting_needs_receipts',
+      proof_of_shipping: 'Official product surface, verified live Solana market, live spectate/play route, guild leaderboard, player-cluster screenshots, wiki activity, and server-full screenshots. Needs independent token distribution, marketplace/economy, and sustained retention receipts.',
+      tags: expect.arrayContaining([
+        'LIVE_GAME_ROUTE',
+        'SPECTATE_MODE',
+        'PRODUCT_SURFACE_CONFIRMED',
+        'TOKEN_REVIEW_NEEDED'
+      ]),
+      receipts: expect.arrayContaining([
+        expect.objectContaining({
+          label: 'Kintara live game route',
+          type: 'LIVE_GAME_ROUTE',
+          url: 'https://kintara.com/play?spectate=1',
+          note: expect.stringContaining('playable/spectate game route')
+        })
+      ])
+    }));
+  });
+
   it('fails open when DexScreener is unavailable', async () => {
     vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new Error('dex down'))));
     const summary = await buildUnicornRadarSummary();

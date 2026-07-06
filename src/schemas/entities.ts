@@ -571,7 +571,7 @@ export const UnicornRadarScoresSchema = z.object({
 export const UnicornRadarReceiptSchema = z.object({
   id: z.string(),
   label: z.string(),
-  type: z.enum(['shipping', 'attention', 'token', 'risk', 'market', 'payment', 'note']),
+  type: z.enum(['shipping', 'attention', 'token', 'risk', 'market', 'payment', 'note', 'LIVE_GAME_ROUTE']),
   source: z.string(),
   url: z.string().optional(),
   note: z.string(),
@@ -630,6 +630,7 @@ export const UnicornRadarCandidateSchema = z.object({
   attention_quality_note: z.string(),
   token_survivability_note: z.string(),
   risk_flags: z.array(z.string()),
+  tags: z.array(z.string()).optional(),
   why_now: z.string(),
   receipts: z.array(UnicornRadarReceiptSchema),
   linked_narratives: z.array(z.object({

@@ -4691,7 +4691,7 @@ function componentSchemas(): Record<string, JsonSchema> {
     UnicornRadarReceipt: objectSchema({
       id: stringSchema(),
       label: stringSchema(),
-      type: enumSchema(['shipping', 'attention', 'token', 'risk', 'market', 'payment', 'note']),
+      type: enumSchema(['shipping', 'attention', 'token', 'risk', 'market', 'payment', 'note', 'LIVE_GAME_ROUTE']),
       source: stringSchema(),
       url: stringSchema(),
       note: stringSchema(),
@@ -4739,6 +4739,7 @@ function componentSchemas(): Record<string, JsonSchema> {
       attention_quality_note: stringSchema(),
       token_survivability_note: stringSchema(),
       risk_flags: arrayOf(stringSchema()),
+      tags: arrayOf(stringSchema()),
       why_now: stringSchema(),
       receipts: arrayOf({ $ref: '#/components/schemas/UnicornRadarReceipt' }),
       linked_narratives: arrayOf(objectSchema({ label: stringSchema(), href: stringSchema() }, ['label', 'href'])),

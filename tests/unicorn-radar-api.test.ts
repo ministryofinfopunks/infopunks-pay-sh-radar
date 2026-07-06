@@ -147,9 +147,20 @@ describe('unicorn radar api', () => {
       expect(kinsDetail.statusCode).toBe(200);
       expect(kinsDetail.json().data).toEqual(expect.objectContaining({
         id: 'ur_kintara_kins',
+        status: 'watchlist',
+        verdict: 'interesting_needs_receipts',
         dexScreenerUrl: 'https://dexscreener.com/solana/f42tznkpavq1vucrl6ymhc6yqvpt84fwwgzbntv2wb3w',
         marketDataSource: 'dexscreener_official_api',
-        verificationStatus: 'verified_live_market'
+        verificationStatus: 'verified_live_market',
+        proof_of_shipping: expect.stringContaining('live spectate/play route'),
+        tags: expect.arrayContaining(['LIVE_GAME_ROUTE', 'TOKEN_REVIEW_NEEDED']),
+        receipts: expect.arrayContaining([
+          expect.objectContaining({
+            label: 'Kintara live game route',
+            type: 'LIVE_GAME_ROUTE',
+            url: 'https://kintara.com/play?spectate=1'
+          })
+        ])
       }));
 
       const manifestDetail = await app.inject({ method: 'GET', url: '/v1/unicorn-radar/candidates/ur_manifest_ambiguity' });
