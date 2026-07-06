@@ -121,18 +121,35 @@ describe('narrative metadata helper', () => {
     });
   });
 
+  it('returns production metadata for /unicorn-radar', () => {
+    expect(getNarrativeMetadataForPath('/unicorn-radar')).toEqual({
+      title: 'Infopunks Unicorn Radar',
+      description: 'Finding serious low-cap Solana projects before consensus does.',
+      canonicalPath: '/unicorn-radar',
+      ogTitle: 'Infopunks Unicorn Radar',
+      ogDescription: 'Finding serious low-cap Solana projects before consensus does.',
+      ogImageUrl: 'https://radar.infopunks.fun/og/unicorn-radar.png',
+      ogImageWidth: 1200,
+      ogImageHeight: 630,
+      twitterTitle: 'Infopunks Unicorn Radar',
+      twitterDescription: 'Finding serious low-cap Solana projects before consensus does.',
+      twitterImageUrl: 'https://radar.infopunks.fun/og/unicorn-radar.png',
+      twitterCard: 'summary_large_image'
+    });
+  });
+
   it('returns candidate metadata for Unicorn Radar detail pages', () => {
     expect(getNarrativeMetadataForPath('/unicorn-radar/ur_ai_rig_complex')).toEqual({
       title: 'Infopunks Unicorn Radar: AI Rig Complex / ARC',
-      description: 'AI / Agent Rails candidate marked watchlist with verdict real_product_weak_attention. Shipping proof, attention quality, token survivability, risk flags, receipts, and paid evaluation disclosure.',
+      description: 'AI Rig Complex (ARC) is an AI / Agent Rails candidate on Infopunks Unicorn Radar, currently marked watchlist with verdict real_product_weak_attention.',
       canonicalPath: '/unicorn-radar/ur_ai_rig_complex',
       ogTitle: 'Infopunks Unicorn Radar: AI Rig Complex / ARC',
-      ogDescription: 'AI / Agent Rails candidate marked watchlist with verdict real_product_weak_attention. Shipping proof, attention quality, token survivability, risk flags, receipts, and paid evaluation disclosure.',
+      ogDescription: 'AI Rig Complex (ARC) is an AI / Agent Rails candidate on Infopunks Unicorn Radar, currently marked watchlist with verdict real_product_weak_attention.',
       ogImageUrl: 'https://radar.infopunks.fun/og/unicorn-radar/ur_ai_rig_complex.png',
       ogImageWidth: 1200,
       ogImageHeight: 630,
       twitterTitle: 'Infopunks Unicorn Radar: AI Rig Complex / ARC',
-      twitterDescription: 'AI / Agent Rails candidate marked watchlist with verdict real_product_weak_attention. Shipping proof, attention quality, token survivability, risk flags, receipts, and paid evaluation disclosure.',
+      twitterDescription: 'AI Rig Complex (ARC) is an AI / Agent Rails candidate on Infopunks Unicorn Radar, currently marked watchlist with verdict real_product_weak_attention.',
       twitterImageUrl: 'https://radar.infopunks.fun/og/unicorn-radar/ur_ai_rig_complex.png',
       twitterCard: 'summary_large_image'
     });

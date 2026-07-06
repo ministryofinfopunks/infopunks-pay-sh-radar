@@ -73,6 +73,10 @@ export function narrativeOgImageUrl(pathname: string) {
     return '/og/signal-hunt.png';
   }
 
+  if (/^\/unicorn-radar\/?$/.test(pathname)) {
+    return '/og/unicorn-radar.png';
+  }
+
   const unicornRadarMatch = pathname.match(/^\/unicorn-radar\/([^/]+)\/?$/);
   if (unicornRadarMatch) {
     return `/og/unicorn-radar/${encodeURIComponent(unicornRadarMatch[1])}.png`;
@@ -203,6 +207,45 @@ export function renderUnicornRadarOgImage(candidate: UnicornRadarCandidate) {
   <circle cx="1044" cy="154" r="56" fill="none" stroke="#1e4c43" stroke-width="1.5" />
   <path d="M968 214C1006 188 1036 166 1084 112" stroke="${accent}" stroke-width="4" stroke-linecap="round" />
   <circle cx="1084" cy="112" r="8" fill="${accent}" />
+</svg>`;
+}
+
+export function renderUnicornRadarIndexOgImage() {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" viewBox="0 0 ${OG_IMAGE_WIDTH} ${OG_IMAGE_HEIGHT}" role="img" aria-label="Infopunks Unicorn Radar">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#030807" />
+      <stop offset="56%" stop-color="#071411" />
+      <stop offset="100%" stop-color="#0b1f1b" />
+    </linearGradient>
+    <radialGradient id="glow" cx="78%" cy="22%" r="44%">
+      <stop offset="0%" stop-color="#7effb0" stop-opacity="0.28" />
+      <stop offset="100%" stop-color="#7effb0" stop-opacity="0" />
+    </radialGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#17322d" stroke-width="1" opacity="0.72" />
+    </pattern>
+  </defs>
+  <rect width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" fill="url(#bg)" />
+  <rect width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" fill="url(#glow)" />
+  <rect width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" fill="url(#grid)" opacity="0.48" />
+  <rect x="42" y="34" width="1116" height="562" rx="28" fill="#04100d" fill-opacity="0.72" stroke="#1b5b4f" stroke-width="2" />
+  <rect x="70" y="60" width="346" height="38" rx="19" fill="#0d2420" stroke="#1b5b4f" />
+  <text x="94" y="85" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="18" font-weight="800" fill="#9bf1cc" letter-spacing="1.1">INFOPUNKS UNICORN RADAR</text>
+  <text x="70" y="152" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="62" font-weight="800" fill="#f2fffb">Finding serious low-cap</text>
+  <text x="70" y="222" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="62" font-weight="800" fill="#f2fffb">Solana projects before</text>
+  <text x="70" y="292" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="62" font-weight="800" fill="#f2fffb">consensus does.</text>
+  <text x="72" y="354" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="25" fill="#a9c8bc">Retail doesn’t need less risk.</text>
+  <text x="72" y="390" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="25" fill="#a9c8bc">Retail needs better signal before taking risk.</text>
+  <rect x="70" y="448" width="470" height="54" rx="14" fill="#071411" stroke="#173c35" />
+  <text x="92" y="482" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="18" font-weight="800" fill="#fef3c7">3 CANDIDATES · 2 WATCHLIST · 1 CONSENSUS FORMING</text>
+  <rect x="70" y="522" width="620" height="48" rx="14" fill="#071411" stroke="#173c35" />
+  <text x="92" y="552" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="17" font-weight="800" fill="#9bf1cc">Projects can buy evaluation, not conviction.</text>
+  <circle cx="1038" cy="172" r="96" fill="none" stroke="#173c35" stroke-width="1.5" />
+  <circle cx="1038" cy="172" r="60" fill="none" stroke="#1e4c43" stroke-width="1.5" />
+  <path d="M962 232C1000 206 1030 184 1078 130" stroke="#7effb0" stroke-width="4" stroke-linecap="round" />
+  <circle cx="1078" cy="130" r="8" fill="#7effb0" />
 </svg>`;
 }
 

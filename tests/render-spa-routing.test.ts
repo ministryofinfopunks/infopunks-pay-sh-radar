@@ -119,12 +119,20 @@ describe('render-style SPA routing boundaries', () => {
       expect(unicornRadar.headers['content-type']).toContain('text/html');
       expect(unicornRadar.body).toContain('Radar SPA shell');
       expect(unicornRadar.body).toContain('<title>Infopunks Unicorn Radar</title>');
+      expect(unicornRadar.body).toContain('name="description" content="Finding serious low-cap Solana projects before consensus does."');
+      expect(unicornRadar.body).toContain('property="og:title" content="Infopunks Unicorn Radar"');
+      expect(unicornRadar.body).toContain('property="og:description" content="Finding serious low-cap Solana projects before consensus does."');
+      expect(unicornRadar.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/unicorn-radar.png"');
+      expect(unicornRadar.body).toContain('name="twitter:card" content="summary_large_image"');
+      expect(unicornRadar.body).toContain('name="twitter:image" content="https://radar.infopunks.fun/og/unicorn-radar.png"');
+      expect(unicornRadar.body).not.toContain('Infopunks Pay.sh Radar is an evidence ledger for Pay.sh agent routes');
 
       const unicornRadarDetail = await app.inject({ method: 'GET', url: '/unicorn-radar/ur_ai_rig_complex' });
       expect(unicornRadarDetail.statusCode).toBe(200);
       expect(unicornRadarDetail.headers['content-type']).toContain('text/html');
       expect(unicornRadarDetail.body).toContain('Radar SPA shell');
       expect(unicornRadarDetail.body).toContain('Infopunks Unicorn Radar: AI Rig Complex / ARC');
+      expect(unicornRadarDetail.body).toContain('name="description" content="AI Rig Complex (ARC) is an AI / Agent Rails candidate on Infopunks Unicorn Radar, currently marked watchlist with verdict real_product_weak_attention."');
       expect(unicornRadarDetail.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/unicorn-radar/ur_ai_rig_complex.png"');
       expect(unicornRadarDetail.body).toContain('name="twitter:image" content="https://radar.infopunks.fun/og/unicorn-radar/ur_ai_rig_complex.png"');
 

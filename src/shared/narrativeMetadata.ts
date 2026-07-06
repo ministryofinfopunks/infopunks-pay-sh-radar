@@ -202,7 +202,7 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
   if (/^\/unicorn-radar\/?$/.test(pathname)) {
     return buildMetadata(
       'Infopunks Unicorn Radar',
-      'Finding serious low-cap Solana projects before consensus does. Projects can buy evaluation, not conviction.',
+      'Finding serious low-cap Solana projects before consensus does.',
       '/unicorn-radar'
     );
   }
@@ -214,7 +214,7 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
     if (candidate) {
       return buildMetadata(
         `Infopunks Unicorn Radar: ${candidate.project} / ${candidate.ticker}`,
-        `${candidate.sector} candidate marked ${candidate.status} with verdict ${candidate.verdict}. Shipping proof, attention quality, token survivability, risk flags, receipts, and paid evaluation disclosure.`,
+        `${candidate.project} (${candidate.ticker}) is an ${candidate.sector} candidate on Infopunks Unicorn Radar, currently marked ${candidate.status} with verdict ${candidate.verdict}.`,
         `/unicorn-radar/${encodeURIComponent(candidateId)}`
       );
     }

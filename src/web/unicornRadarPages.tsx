@@ -150,6 +150,15 @@ function titleCase(value: string) {
   return value.split('_').filter(Boolean).map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
 }
 
+function visibleVerifiedSectors(candidates: UnicornRadarCandidate[]) {
+  const visible = new Set<UnicornRadarSector>();
+  for (const candidate of candidates) {
+    if (!candidate.productionReady) continue;
+    visible.add(candidate.sector);
+  }
+  return SECTORS.filter((sector): sector is UnicornRadarSector => sector !== 'all' && visible.has(sector));
+}
+
 function statusTone(status: UnicornRadarStatus) {
   if (status === 'high_signal_lowcap') return 'ok';
   if (status === 'do_not_touch_yet') return 'danger';
@@ -354,7 +363,7 @@ function CandidateSection({ title, subtitle, candidates }: { title: string; subt
 }
 
 function SectorCoverageSection({ candidates }: { candidates: UnicornRadarCandidate[] }) {
-  const sectors = SECTORS.filter((sector): sector is UnicornRadarSector => sector !== 'all');
+  const sectors = visibleVerifiedSectors(candidates);
   return <section className="panel unicorn-section" aria-label="Sector coverage">
     <div className="proof-section-head">
       <div>
@@ -410,6 +419,11 @@ export function UnicornRadarPage() {
     });
   }, [sector, status, summary?.candidates, verdict]);
 
+  const sectorOptions = useMemo(() => {
+    const visibleSectors = visibleVerifiedSectors(summary?.candidates ?? []);
+    return ['all', ...visibleSectors] as Array<'all' | UnicornRadarSector>;
+  }, [summary?.candidates]);
+
   const groups = useMemo(() => ({
     highSignal: filtered.filter((candidate) => candidate.status === 'high_signal_lowcap'),
     watchlist: filtered.filter((candidate) => candidate.status === 'watchlist' || candidate.status === 'unseen_signal' || candidate.status === 'paid_evaluation'),
@@ -444,7 +458,7 @@ export function UnicornRadarPage() {
       {error && <section className="panel"><p className="route-state error">{error}</p></section>}
 
       <section className="panel unicorn-filter-panel" aria-label="Candidate filters">
-        <FilterSelect label="Sector" value={sector} values={SECTORS} onChange={setSector} />
+        <FilterSelect label="Sector" value={sector} values={sectorOptions} onChange={setSector} />
         <FilterSelect label="Status" value={status} values={STATUSES} onChange={setStatus} />
         <FilterSelect label="Verdict" value={verdict} values={VERDICTS} onChange={setVerdict} />
       </section>
