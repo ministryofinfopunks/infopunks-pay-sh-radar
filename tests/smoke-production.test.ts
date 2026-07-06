@@ -94,7 +94,7 @@ describe('production smoke plan', () => {
       '/claims/claim_001',
       '/loops/loop_pre_spend_route',
       '/signal-hunt/hunt_black_bull_coordination',
-      '/unicorn-radar/ur_agent_memory_mesh'
+      '/unicorn-radar/ur_ai_rig_complex'
     ]));
   });
 
@@ -142,7 +142,7 @@ describe('production smoke plan', () => {
       '/v1/signal-desk/candidates',
       '/v1/signal-desk/candidates/candidate_sol_persona_attention',
       '/v1/signal-hunt/hunt_black_bull_coordination',
-      '/v1/unicorn-radar/candidates/ur_agent_memory_mesh',
+      '/v1/unicorn-radar/candidates/ur_ai_rig_complex',
       '/v1/unicorn-radar/revenue-receipts',
       '/v1/narratives/black-bull',
       '/v1/signals',
@@ -165,7 +165,7 @@ describe('production smoke plan', () => {
       '/og/narratives.png',
       '/og/attention-market-watch.png',
       '/og/attention-market-watch/ansem.png',
-      '/og/unicorn-radar/ur_agent_memory_mesh.png',
+      '/og/unicorn-radar/ur_ai_rig_complex.png',
       '/og/signals/black-bull.png',
       '/og/signals/black-bull/updates/seu_black_bull_007.png',
       '/og/signals/troll.png',

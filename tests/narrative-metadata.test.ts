@@ -122,18 +122,18 @@ describe('narrative metadata helper', () => {
   });
 
   it('returns candidate metadata for Unicorn Radar detail pages', () => {
-    expect(getNarrativeMetadataForPath('/unicorn-radar/ur_agent_escrow_rails')).toEqual({
-      title: 'Infopunks Unicorn Radar: Agent Escrow Rails / RAILS',
-      description: 'Agent Rails candidate marked high_signal_lowcap with verdict high_signal_early. Shipping proof, attention quality, token survivability, risk flags, receipts, and paid evaluation disclosure.',
-      canonicalPath: '/unicorn-radar/ur_agent_escrow_rails',
-      ogTitle: 'Infopunks Unicorn Radar: Agent Escrow Rails / RAILS',
-      ogDescription: 'Agent Rails candidate marked high_signal_lowcap with verdict high_signal_early. Shipping proof, attention quality, token survivability, risk flags, receipts, and paid evaluation disclosure.',
-      ogImageUrl: 'https://radar.infopunks.fun/og/unicorn-radar/ur_agent_escrow_rails.png',
+    expect(getNarrativeMetadataForPath('/unicorn-radar/ur_ai_rig_complex')).toEqual({
+      title: 'Infopunks Unicorn Radar: AI Rig Complex / ARC',
+      description: 'AI / Agent Rails candidate marked watchlist with verdict real_product_weak_attention. Shipping proof, attention quality, token survivability, risk flags, receipts, and paid evaluation disclosure.',
+      canonicalPath: '/unicorn-radar/ur_ai_rig_complex',
+      ogTitle: 'Infopunks Unicorn Radar: AI Rig Complex / ARC',
+      ogDescription: 'AI / Agent Rails candidate marked watchlist with verdict real_product_weak_attention. Shipping proof, attention quality, token survivability, risk flags, receipts, and paid evaluation disclosure.',
+      ogImageUrl: 'https://radar.infopunks.fun/og/unicorn-radar/ur_ai_rig_complex.png',
       ogImageWidth: 1200,
       ogImageHeight: 630,
-      twitterTitle: 'Infopunks Unicorn Radar: Agent Escrow Rails / RAILS',
-      twitterDescription: 'Agent Rails candidate marked high_signal_lowcap with verdict high_signal_early. Shipping proof, attention quality, token survivability, risk flags, receipts, and paid evaluation disclosure.',
-      twitterImageUrl: 'https://radar.infopunks.fun/og/unicorn-radar/ur_agent_escrow_rails.png',
+      twitterTitle: 'Infopunks Unicorn Radar: AI Rig Complex / ARC',
+      twitterDescription: 'AI / Agent Rails candidate marked watchlist with verdict real_product_weak_attention. Shipping proof, attention quality, token survivability, risk flags, receipts, and paid evaluation disclosure.',
+      twitterImageUrl: 'https://radar.infopunks.fun/og/unicorn-radar/ur_ai_rig_complex.png',
       twitterCard: 'summary_large_image'
     });
   });

@@ -1960,31 +1960,38 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     responses: envelopedResponses('UnicornRadarSummary', {
       title: 'Infopunks Unicorn Radar',
       tagline: 'Finding serious low-cap Solana projects before consensus does.',
-      counts: { total: 9 },
-      candidates: [{ id: 'ur_agent_escrow_rails', project: 'Agent Escrow Rails', status: 'high_signal_lowcap' }]
+      counts: { total: 3 },
+      candidates: [{ id: 'ur_ai_rig_complex', project: 'AI Rig Complex', status: 'watchlist' }]
     })
   });
   add('get', '/v1/unicorn-radar/candidates', {
     tags: ['Intelligence'],
     summary: 'List Unicorn Radar candidates',
-    description: 'Returns production-shaped low-cap Solana candidate records, including shipping proof, attention quality, token survivability, risk flags, receipts, hunter attribution, paid evaluation disclosure, status, verdict, and scores.',
+    description: 'Returns production-shaped low-cap Solana candidate records, including shipping proof, attention quality, token survivability, risk flags, receipts, hunter attribution, paid evaluation disclosure, status, verdict, scores, and optional DexScreener market data enrichment.',
     responses: envelopedResponses('UnicornRadarCandidateList', {
       generated_at: '2026-07-06T08:30:00.000Z',
-      count: 9,
-      candidates: [{ id: 'ur_agent_escrow_rails', project: 'Agent Escrow Rails', ticker: 'RAILS', sector: 'Agent Rails' }]
+      count: 3,
+      candidates: [{ id: 'ur_troll_attention_asset', project: 'TROLL', ticker: 'TROLL', sector: 'Social / Attention Markets', chainId: 'solana', tokenAddress: '5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2' }]
     })
   });
   add('get', '/v1/unicorn-radar/candidates/{candidateId}', {
     tags: ['Intelligence'],
     summary: 'Get Unicorn Radar candidate detail',
-    description: 'Returns one Unicorn Radar candidate with full thesis, proof, scores, receipts, narrative links, graph node, hunter attribution, paid evaluation disclosure, and Infopunks verdict.',
+    description: 'Returns one Unicorn Radar candidate with full thesis, proof, scores, receipts, narrative links, graph node, hunter attribution, paid evaluation disclosure, Infopunks verdict, and optional DexScreener market data. Market data via DexScreener. Infopunks verdict is independent.',
     parameters: [pathParam('candidateId', 'Unicorn Radar candidate identifier.')],
     responses: envelopedResponses('UnicornRadarCandidate', {
-      id: 'ur_agent_escrow_rails',
-      project: 'Agent Escrow Rails',
-      ticker: 'RAILS',
-      status: 'high_signal_lowcap',
-      verdict: 'high_signal_early'
+      id: 'ur_ai_rig_complex',
+      project: 'AI Rig Complex',
+      ticker: 'ARC',
+      status: 'watchlist',
+      verdict: 'real_product_weak_attention',
+      marketDataSource: 'dexscreener_official_api',
+      dexScreenerData: {
+        marketCap: 17500000,
+        liquidityUsd: 654321.12,
+        volume24h: 123456.78,
+        priceChange24h: 18.5
+      }
     }, 'unicorn_radar_candidate_not_found')
   });
   add('post', '/v1/unicorn-radar/submit', {
@@ -2029,8 +2036,8 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     description: 'Returns disclosed commercial receipts for paid evaluations and comped review records.',
     responses: envelopedResponses('UnicornRadarRevenueReceiptList', {
       generated_at: '2026-07-06T08:30:00.000Z',
-      count: 1,
-      receipts: [{ id: 'urr_revenue_attn_001', project: 'Attention Clearinghouse', service: 'paid_evaluation', status: 'paid' }]
+      count: 0,
+      receipts: []
     })
   });
   add('get', '/v1/narratives/{slug}', {
@@ -4672,6 +4679,23 @@ function componentSchemas(): Record<string, JsonSchema> {
       paid_at: { oneOf: [dateTimeSchema(), { type: 'null' }] },
       receipt_id: { oneOf: [stringSchema(), { type: 'null' }] }
     }, ['is_paid', 'label', 'note']),
+    UnicornRadarDexScreenerData: objectSchema({
+      priceUsd: { oneOf: [{ type: 'number', minimum: 0 }, { type: 'null' }] },
+      marketCap: { oneOf: [{ type: 'number', minimum: 0 }, { type: 'null' }] },
+      fdv: { oneOf: [{ type: 'number', minimum: 0 }, { type: 'null' }] },
+      liquidityUsd: { oneOf: [{ type: 'number', minimum: 0 }, { type: 'null' }] },
+      volume24h: { oneOf: [{ type: 'number', minimum: 0 }, { type: 'null' }] },
+      txns24hBuys: { oneOf: [integerSchema(), { type: 'null' }] },
+      txns24hSells: { oneOf: [integerSchema(), { type: 'null' }] },
+      priceChange1h: { oneOf: [{ type: 'number' }, { type: 'null' }] },
+      priceChange6h: { oneOf: [{ type: 'number' }, { type: 'null' }] },
+      priceChange24h: { oneOf: [{ type: 'number' }, { type: 'null' }] },
+      pairCreatedAt: { oneOf: [dateTimeSchema(), { type: 'null' }] },
+      dexId: { oneOf: [stringSchema(), { type: 'null' }] },
+      boosts: { oneOf: [integerSchema(), { type: 'null' }] },
+      paidOrders: { oneOf: [integerSchema(), { type: 'null' }] },
+      rawUrl: { oneOf: [stringSchema(), { type: 'null' }] }
+    }),
     UnicornRadarCandidate: objectSchema({
       id: stringSchema(),
       project: stringSchema(),
@@ -4688,6 +4712,13 @@ function componentSchemas(): Record<string, JsonSchema> {
       receipts: arrayOf({ $ref: '#/components/schemas/UnicornRadarReceipt' }),
       linked_narratives: arrayOf(objectSchema({ label: stringSchema(), href: stringSchema() }, ['label', 'href'])),
       linked_graph_node: objectSchema({ id: stringSchema(), label: stringSchema(), href: stringSchema() }, ['id', 'label', 'href']),
+      chainId: stringSchema(),
+      tokenAddress: stringSchema(),
+      pairAddress: stringSchema(),
+      dexScreenerUrl: stringSchema(),
+      marketDataSource: stringSchema(),
+      marketDataUpdatedAt: dateTimeSchema(),
+      dexScreenerData: { $ref: '#/components/schemas/UnicornRadarDexScreenerData' },
       hunter_credit: { $ref: '#/components/schemas/UnicornRadarHunterCredit' },
       paid_evaluation_disclosure: { $ref: '#/components/schemas/UnicornRadarPaidEvaluationDisclosure' },
       status: { $ref: '#/components/schemas/UnicornRadarStatus' },

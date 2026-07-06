@@ -3,6 +3,7 @@ import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 
 type UnicornRadarSector =
   | 'AI'
+  | 'AI / Agent Rails'
   | 'RWA'
   | 'DeFi'
   | 'DePIN'
@@ -66,6 +67,35 @@ type UnicornRadarCandidate = {
   receipts: UnicornRadarReceipt[];
   linked_narratives: Array<{ label: string; href: string }>;
   linked_graph_node: { id: string; label: string; href: string };
+  chainId?: string;
+  tokenAddress?: string;
+  verificationStatus: 'verified_live_market' | 'pending_manual_review' | 'not_tokenized' | 'rejected';
+  tokenAddressSource?: string;
+  tokenAddressSourceUrl?: string;
+  verifiedAt?: string;
+  verificationNotes?: string[];
+  productionReady?: boolean;
+  pairAddress?: string;
+  dexScreenerUrl?: string;
+  marketDataSource?: string;
+  marketDataUpdatedAt?: string;
+  dexScreenerData?: {
+    priceUsd?: number | null;
+    marketCap?: number | null;
+    fdv?: number | null;
+    liquidityUsd?: number | null;
+    volume24h?: number | null;
+    txns24hBuys?: number | null;
+    txns24hSells?: number | null;
+    priceChange1h?: number | null;
+    priceChange6h?: number | null;
+    priceChange24h?: number | null;
+    pairCreatedAt?: string | null;
+    dexId?: string | null;
+    boosts?: number | null;
+    paidOrders?: number | null;
+    rawUrl?: string | null;
+  };
   hunter_credit: { handle: string; attribution: string; submitted_at: string; source: string };
   paid_evaluation_disclosure: { is_paid: boolean; label: string; note: string; paid_at?: string | null; receipt_id?: string | null };
   status: UnicornRadarStatus;
@@ -104,7 +134,7 @@ type UnicornRadarSummary = {
 };
 
 const API_BASE_URL = getApiBaseUrl();
-const SECTORS: Array<'all' | UnicornRadarSector> = ['all', 'AI', 'RWA', 'DeFi', 'DePIN', 'Consumer', 'Agent Rails', 'Payment Infrastructure', 'Social / Attention Markets', 'Tokenized Apps'];
+const SECTORS: Array<'all' | UnicornRadarSector> = ['all', 'AI', 'AI / Agent Rails', 'RWA', 'DeFi', 'DePIN', 'Consumer', 'Agent Rails', 'Payment Infrastructure', 'Social / Attention Markets', 'Tokenized Apps'];
 const STATUSES: Array<'all' | UnicornRadarStatus> = ['all', 'unseen_signal', 'watchlist', 'high_signal_lowcap', 'consensus_forming', 'do_not_touch_yet', 'infopunks_missed_it', 'paid_evaluation'];
 const VERDICTS: Array<'all' | UnicornRadarVerdict> = ['all', 'high_signal_early', 'interesting_needs_receipts', 'real_product_weak_attention', 'strong_attention_weak_proof', 'do_not_touch_yet', 'consensus_already_forming', 'missed_by_infopunks'];
 
@@ -156,6 +186,110 @@ function topScores(candidate: UnicornRadarCandidate) {
   ] as const;
 }
 
+function formatCompactMoney(value: number | null | undefined) {
+  if (typeof value !== 'number' || Number.isNaN(value)) return 'n/a';
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    notation: 'compact',
+    maximumFractionDigits: value >= 100 ? 1 : 2
+  }).format(value);
+}
+
+function formatPercent(value: number | null | undefined) {
+  if (typeof value !== 'number' || Number.isNaN(value)) return 'n/a';
+  return `${value > 0 ? '+' : ''}${value.toFixed(2)}%`;
+}
+
+function formatPairAge(value: string | null | undefined) {
+  if (!value) return 'n/a';
+  const ageMs = Date.now() - Date.parse(value);
+  if (!Number.isFinite(ageMs) || ageMs < 0) return 'n/a';
+  const days = Math.floor(ageMs / (24 * 60 * 60 * 1000));
+  if (days >= 365) return `${Math.floor(days / 365)}y`;
+  if (days >= 30) return `${Math.floor(days / 30)}mo`;
+  return `${days}d`;
+}
+
+function buildMarketRiskBadges(candidate: UnicornRadarCandidate) {
+  const data = candidate.dexScreenerData;
+  if (!data) return [];
+
+  const badges: string[] = [];
+  const marketCap = data.marketCap ?? null;
+  const liquidityUsd = data.liquidityUsd ?? null;
+  const volume24h = data.volume24h ?? null;
+  const priceChange24h = data.priceChange24h ?? null;
+
+  if (marketCap && liquidityUsd && marketCap > 0 && liquidityUsd / marketCap < 0.05) {
+    badges.push('Liquidity thin vs market cap');
+  }
+  if (volume24h && liquidityUsd && liquidityUsd < 250_000 && volume24h / liquidityUsd > 3) {
+    badges.push('Hot volume, thin liquidity');
+  }
+  if ((data.paidOrders ?? 0) > 0 || (data.boosts ?? 0) > 0) {
+    badges.push('Paid promotion detected');
+  }
+  if (typeof priceChange24h === 'number' && Math.abs(priceChange24h) >= 20 && candidate.receipts.length < 3) {
+    badges.push('Sharp move, receipts still thin');
+  }
+
+  return badges;
+}
+
+function MarketDataPanel({ candidate, compact = false }: { candidate: UnicornRadarCandidate; compact?: boolean }) {
+  const data = candidate.dexScreenerData;
+  const riskBadges = buildMarketRiskBadges(candidate);
+
+  if (!data) {
+    return <section className="panel unicorn-section" aria-label="Market data">
+      <div className="proof-section-head">
+        <div>
+          <p className="eyebrow">Market Data</p>
+          <h2>Unavailable</h2>
+        </div>
+        <p className="panel-caption">Market data via DexScreener. Infopunks verdict is independent.</p>
+      </div>
+      <p className="panel-caption">No DexScreener market data is attached to this candidate yet.</p>
+    </section>;
+  }
+
+  return <section className="panel unicorn-section" aria-label="Market data">
+    <div className="proof-section-head">
+      <div>
+        <p className="eyebrow">Market Data</p>
+        <h2>{formatCompactMoney(data.marketCap ?? null)}</h2>
+      </div>
+      <p className="panel-caption">Market data via DexScreener. Infopunks verdict is independent.</p>
+    </div>
+    <div className="unicorn-score-grid">
+      <p><span>Market Cap</span><strong>{formatCompactMoney(data.marketCap ?? null)}</strong></p>
+      <p><span>FDV</span><strong>{formatCompactMoney(data.fdv ?? null)}</strong></p>
+      <p><span>Liquidity</span><strong>{formatCompactMoney(data.liquidityUsd ?? null)}</strong></p>
+      <p><span>24h Volume</span><strong>{formatCompactMoney(data.volume24h ?? null)}</strong></p>
+      <p><span>24h Buys/Sells</span><strong>{`${data.txns24hBuys ?? 'n/a'} / ${data.txns24hSells ?? 'n/a'}`}</strong></p>
+      <p><span>24h Price Change</span><strong>{formatPercent(data.priceChange24h ?? null)}</strong></p>
+      {!compact && <p><span>Pair Age</span><strong>{formatPairAge(data.pairCreatedAt)}</strong></p>}
+      {!compact && <p><span>Dex</span><strong>{data.dexId ?? 'n/a'}</strong></p>}
+    </div>
+    {riskBadges.length > 0 && <div className="proof-flag-list unicorn-risk-list">
+      {riskBadges.map((badge) => <span key={badge}>{badge}</span>)}
+    </div>}
+    <div className="unicorn-card-meta">
+      <p><span>Source</span><strong>{candidate.marketDataSource ?? 'DexScreener'}</strong></p>
+      <p><span>Updated</span><strong>{candidate.marketDataUpdatedAt ? new Date(candidate.marketDataUpdatedAt).toLocaleString() : 'n/a'}</strong></p>
+    </div>
+    {(candidate.dexScreenerUrl || data.rawUrl) && <div className="signal-hunt-card-actions">
+      <a className="execute compact secondary" href={candidate.dexScreenerUrl ?? data.rawUrl ?? '#'} target="_blank" rel="noreferrer">Open DexScreener</a>
+    </div>}
+  </section>;
+}
+
+function VerificationBadge({ candidate }: { candidate: UnicornRadarCandidate }) {
+  if (!candidate.productionReady) return null;
+  return <span className="status-pill ok">Verified live market</span>;
+}
+
 function UnicornRadarNav() {
   const pathname = window.location.pathname;
   return <nav className="global-toolbar proof-check-toolbar unicorn-radar-nav" aria-label="Unicorn Radar navigation">
@@ -179,6 +313,7 @@ function CandidateCard({ candidate }: { candidate: UnicornRadarCandidate }) {
       <div>
         <span className={`status-pill ${statusTone(candidate.status)}`}>{titleCase(candidate.status)}</span>
         <span className="unicorn-sector-chip">{candidate.sector}</span>
+        <VerificationBadge candidate={candidate} />
       </div>
       <strong>{candidate.ticker}</strong>
     </div>
@@ -195,6 +330,7 @@ function CandidateCard({ candidate }: { candidate: UnicornRadarCandidate }) {
       <p><span>Receipts</span><strong>{candidate.receipts.length}</strong></p>
       <p><span>Hunter</span><strong>{candidate.hunter_credit.handle}</strong></p>
     </div>
+    <MarketDataPanel candidate={candidate} compact />
     {candidate.paid_evaluation_disclosure.is_paid && <p className="unicorn-paid-note">{candidate.paid_evaluation_disclosure.label}: {candidate.paid_evaluation_disclosure.note}</p>}
     <div className="signal-hunt-card-actions">
       <a className="execute compact secondary" href={`/unicorn-radar/${encodeURIComponent(candidate.id)}`}>Open candidate</a>
@@ -213,7 +349,33 @@ function CandidateSection({ title, subtitle, candidates }: { title: string; subt
     </div>
     {candidates.length
       ? <div className="unicorn-card-grid">{candidates.map((candidate) => <CandidateCard key={candidate.id} candidate={candidate} />)}</div>
-      : <p className="panel-caption">No candidates match this section under the current filters.</p>}
+      : <p className="panel-caption">No verified candidates yet. Submit a candidate with receipts.</p>}
+  </section>;
+}
+
+function SectorCoverageSection({ candidates }: { candidates: UnicornRadarCandidate[] }) {
+  const sectors = SECTORS.filter((sector): sector is UnicornRadarSector => sector !== 'all');
+  return <section className="panel unicorn-section" aria-label="Sector coverage">
+    <div className="proof-section-head">
+      <div>
+        <p className="eyebrow">Sector Coverage</p>
+        <h2>{candidates.length}</h2>
+      </div>
+      <p className="panel-caption">Verified live candidates can be sparse. Empty sectors stay explicit instead of being padded with placeholders.</p>
+    </div>
+    <div className="unicorn-card-grid">
+      {sectors.map((sector) => {
+        const count = candidates.filter((candidate) => candidate.sector === sector && candidate.productionReady).length;
+        return <article className="panel unicorn-candidate-card screenshot-card" key={sector}>
+          <div className="unicorn-card-head">
+            <div><span className="unicorn-sector-chip">{sector}</span></div>
+            <strong>{count}</strong>
+          </div>
+          <h3>{sector}</h3>
+          <p className="panel-caption">{count ? `${count} verified candidate${count === 1 ? '' : 's'} live.` : 'No verified candidates yet. Submit a candidate with receipts.'}</p>
+        </article>;
+      })}
+    </div>
   </section>;
 }
 
@@ -286,6 +448,8 @@ export function UnicornRadarPage() {
         <FilterSelect label="Status" value={status} values={STATUSES} onChange={setStatus} />
         <FilterSelect label="Verdict" value={verdict} values={VERDICTS} onChange={setVerdict} />
       </section>
+
+      <SectorCoverageSection candidates={summary?.candidates ?? []} />
 
       <CandidateSection title="High-Signal Lowcaps" subtitle="Serious early candidates where shipping, timing, and asymmetry are already legible." candidates={groups.highSignal} />
       <CandidateSection title="Watchlist" subtitle="Interesting candidates that need more receipts before conviction can rise." candidates={groups.watchlist} />
@@ -366,6 +530,7 @@ export function UnicornRadarDetailPage({ candidateId }: { candidateId: string })
           <p className="eyebrow">{candidate.sector} / {candidate.market_cap_range}</p>
           <h1>{candidate.project}</h1>
           <h2>{candidate.ticker}</h2>
+          <VerificationBadge candidate={candidate} />
           <p className="copy">{candidate.thesis}</p>
           <p className="panel-caption">{candidate.sample_disclosure}</p>
         </div>
@@ -377,6 +542,20 @@ export function UnicornRadarDetailPage({ candidateId }: { candidateId: string })
       </section>
 
       <ScorePanel scores={candidate.scores} />
+      <MarketDataPanel candidate={candidate} />
+
+      <section className="panel unicorn-section">
+        <div className="proof-section-head">
+          <div>
+            <p className="eyebrow">Verification</p>
+            <h2>{titleCase(candidate.verificationStatus)}</h2>
+          </div>
+          <p className="panel-caption">{candidate.verifiedAt ? `Verified at ${new Date(candidate.verifiedAt).toLocaleString()}` : 'Verification timestamp not recorded.'}</p>
+        </div>
+        <div className="proof-flag-list unicorn-risk-list">
+          {(candidate.verificationNotes ?? []).map((note) => <span key={note}>{note}</span>)}
+        </div>
+      </section>
 
       <section className="signal-hunt-detail-grid unicorn-detail-grid">
         <article className="panel">

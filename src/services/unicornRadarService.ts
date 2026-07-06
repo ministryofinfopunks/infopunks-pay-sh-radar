@@ -20,6 +20,7 @@ import {
   type UnicornRadarSubmissionResponse,
   type UnicornRadarSummary
 } from '../schemas/entities';
+import { enrichUnicornCandidate, enrichUnicornCandidates } from './dexScreenerService';
 
 export const UNICORN_RADAR_COPY = {
   title: 'Infopunks Unicorn Radar',
@@ -37,7 +38,7 @@ export const UNICORN_RADAR_REQUIREMENTS = [
   'Receipts: links, screenshots, docs, on-chain records, changelogs, or user evidence.'
 ];
 
-const GENERATED_AT = '2026-07-06T08:30:00.000Z';
+export const UNICORN_RADAR_GENERATED_AT = '2026-07-06T08:30:00.000Z';
 
 function emptyStatusCounts() {
   return Object.fromEntries(UnicornRadarStatusSchema.options.map((status) => [status, 0])) as Record<UnicornRadarCandidate['status'], number>;
@@ -51,8 +52,8 @@ function emptySectorCounts() {
   return Object.fromEntries(UnicornRadarSectorSchema.options.map((sector) => [sector, 0])) as Record<UnicornRadarCandidate['sector'], number>;
 }
 
-export function buildUnicornRadarSummary(): UnicornRadarSummary {
-  const candidates = listUnicornRadarCandidates();
+export async function buildUnicornRadarSummary(): Promise<UnicornRadarSummary> {
+  const candidates = await enrichUnicornCandidates(listUnicornRadarCandidates());
   const byStatus = emptyStatusCounts();
   const byVerdict = emptyVerdictCounts();
   const bySector = emptySectorCounts();
@@ -64,7 +65,7 @@ export function buildUnicornRadarSummary(): UnicornRadarSummary {
   }
 
   return UnicornRadarSummarySchema.parse({
-    generated_at: GENERATED_AT,
+    generated_at: UNICORN_RADAR_GENERATED_AT,
     ...UNICORN_RADAR_COPY,
     counts: {
       total: candidates.length,
@@ -77,10 +78,10 @@ export function buildUnicornRadarSummary(): UnicornRadarSummary {
   });
 }
 
-export function buildUnicornRadarCandidateList(): UnicornRadarCandidateList {
-  const candidates = listUnicornRadarCandidates();
+export async function buildUnicornRadarCandidateList(): Promise<UnicornRadarCandidateList> {
+  const candidates = await enrichUnicornCandidates(listUnicornRadarCandidates());
   return UnicornRadarCandidateListSchema.parse({
-    generated_at: GENERATED_AT,
+    generated_at: UNICORN_RADAR_GENERATED_AT,
     count: candidates.length,
     candidates
   });
@@ -90,13 +91,19 @@ export function resolveUnicornRadarCandidate(candidateId: string): UnicornRadarC
   return getUnicornRadarCandidate(candidateId) ?? null;
 }
 
+export async function resolveEnrichedUnicornRadarCandidate(candidateId: string): Promise<UnicornRadarCandidate | null> {
+  const candidate = getUnicornRadarCandidate(candidateId);
+  if (!candidate) return null;
+  return enrichUnicornCandidate(candidate);
+}
+
 export function buildUnicornRadarRevenueReceipts(): UnicornRadarRevenueReceipt[] {
   return listUnicornRadarRevenueReceipts();
 }
 
 function stableId(prefix: string, parts: string[]) {
   const raw = parts.join(' ').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48);
-  return `${prefix}_${raw || 'request'}_${GENERATED_AT.slice(0, 10).replace(/-/g, '')}`;
+  return `${prefix}_${raw || 'request'}_${UNICORN_RADAR_GENERATED_AT.slice(0, 10).replace(/-/g, '')}`;
 }
 
 export function createUnicornRadarSubmission(input: UnicornRadarSubmissionInput): UnicornRadarSubmissionResponse {
@@ -112,7 +119,7 @@ export function createUnicornRadarSubmission(input: UnicornRadarSubmissionInput)
     },
     default_requirements: UNICORN_RADAR_REQUIREMENTS,
     disclosure: 'Community submissions are intake only. Infopunks may investigate, ignore, reject, or promote based on receipts.',
-    submitted_at: GENERATED_AT
+    submitted_at: UNICORN_RADAR_GENERATED_AT
   });
 }
 
@@ -128,6 +135,6 @@ export function requestUnicornRadarEvaluation(input: UnicornRadarEvaluationReque
       'Paid status is shown beside the candidate if the project enters the public Radar.',
       'Risk flags and negative verdicts remain publishable.'
     ],
-    requested_at: GENERATED_AT
+    requested_at: UNICORN_RADAR_GENERATED_AT
   });
 }

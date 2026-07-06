@@ -120,13 +120,13 @@ describe('render-style SPA routing boundaries', () => {
       expect(unicornRadar.body).toContain('Radar SPA shell');
       expect(unicornRadar.body).toContain('<title>Infopunks Unicorn Radar</title>');
 
-      const unicornRadarDetail = await app.inject({ method: 'GET', url: '/unicorn-radar/ur_agent_memory_mesh' });
+      const unicornRadarDetail = await app.inject({ method: 'GET', url: '/unicorn-radar/ur_ai_rig_complex' });
       expect(unicornRadarDetail.statusCode).toBe(200);
       expect(unicornRadarDetail.headers['content-type']).toContain('text/html');
       expect(unicornRadarDetail.body).toContain('Radar SPA shell');
-      expect(unicornRadarDetail.body).toContain('Infopunks Unicorn Radar: Agent Memory Mesh / MEMESH');
-      expect(unicornRadarDetail.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/unicorn-radar/ur_agent_memory_mesh.png"');
-      expect(unicornRadarDetail.body).toContain('name="twitter:image" content="https://radar.infopunks.fun/og/unicorn-radar/ur_agent_memory_mesh.png"');
+      expect(unicornRadarDetail.body).toContain('Infopunks Unicorn Radar: AI Rig Complex / ARC');
+      expect(unicornRadarDetail.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/unicorn-radar/ur_ai_rig_complex.png"');
+      expect(unicornRadarDetail.body).toContain('name="twitter:image" content="https://radar.infopunks.fun/og/unicorn-radar/ur_ai_rig_complex.png"');
 
       const graph = await app.inject({ method: 'GET', url: '/graph' });
       expect(graph.statusCode).toBe(200);
@@ -237,7 +237,7 @@ describe('render-style SPA routing boundaries', () => {
         '/signal-hunt',
         '/signal-hunt/hunt_black_bull_coordination',
         '/unicorn-radar',
-        '/unicorn-radar/ur_agent_memory_mesh',
+        '/unicorn-radar/ur_ai_rig_complex',
         '/narratives',
         '/narratives/attention-markets',
         '/narratives/attention-market-watch',

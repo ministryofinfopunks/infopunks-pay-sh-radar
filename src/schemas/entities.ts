@@ -526,6 +526,7 @@ export const CandidateSignalSchema = z.object({
 
 export const UnicornRadarSectorSchema = z.enum([
   'AI',
+  'AI / Agent Rails',
   'RWA',
   'DeFi',
   'DePIN',
@@ -580,7 +581,7 @@ export const UnicornRadarHunterCreditSchema = z.object({
   handle: z.string(),
   attribution: z.string(),
   submitted_at: z.string().datetime(),
-  source: z.enum(['desk_seeded_sample', 'community', 'project', 'partner'])
+  source: z.enum(['desk_seeded_sample', 'community', 'project', 'partner', 'infopunks_desk'])
 });
 
 export const UnicornRadarPaidEvaluationDisclosureSchema = z.object({
@@ -590,6 +591,31 @@ export const UnicornRadarPaidEvaluationDisclosureSchema = z.object({
   paid_at: z.string().datetime().nullable().optional(),
   receipt_id: z.string().nullable().optional()
 });
+
+export const UnicornRadarDexScreenerDataSchema = z.object({
+  priceUsd: z.number().nonnegative().nullable().optional(),
+  marketCap: z.number().nonnegative().nullable().optional(),
+  fdv: z.number().nonnegative().nullable().optional(),
+  liquidityUsd: z.number().nonnegative().nullable().optional(),
+  volume24h: z.number().nonnegative().nullable().optional(),
+  txns24hBuys: z.number().int().nonnegative().nullable().optional(),
+  txns24hSells: z.number().int().nonnegative().nullable().optional(),
+  priceChange1h: z.number().nullable().optional(),
+  priceChange6h: z.number().nullable().optional(),
+  priceChange24h: z.number().nullable().optional(),
+  pairCreatedAt: z.string().datetime().nullable().optional(),
+  dexId: z.string().nullable().optional(),
+  boosts: z.number().int().nonnegative().nullable().optional(),
+  paidOrders: z.number().int().nonnegative().nullable().optional(),
+  rawUrl: z.string().nullable().optional()
+});
+
+export const UnicornRadarVerificationStatusSchema = z.enum([
+  'verified_live_market',
+  'pending_manual_review',
+  'not_tokenized',
+  'rejected'
+]);
 
 export const UnicornRadarCandidateSchema = z.object({
   id: z.string(),
@@ -614,6 +640,19 @@ export const UnicornRadarCandidateSchema = z.object({
     label: z.string(),
     href: z.string()
   }),
+  chainId: z.string().optional(),
+  tokenAddress: z.string().optional(),
+  verificationStatus: UnicornRadarVerificationStatusSchema,
+  tokenAddressSource: z.string().optional(),
+  tokenAddressSourceUrl: z.string().optional(),
+  verifiedAt: z.string().datetime().optional(),
+  verificationNotes: z.array(z.string()).optional(),
+  productionReady: z.boolean().optional(),
+  pairAddress: z.string().optional(),
+  dexScreenerUrl: z.string().optional(),
+  marketDataSource: z.string().optional(),
+  marketDataUpdatedAt: z.string().datetime().optional(),
+  dexScreenerData: UnicornRadarDexScreenerDataSchema.optional(),
   hunter_credit: UnicornRadarHunterCreditSchema,
   paid_evaluation_disclosure: UnicornRadarPaidEvaluationDisclosureSchema,
   status: UnicornRadarStatusSchema,
@@ -621,6 +660,87 @@ export const UnicornRadarCandidateSchema = z.object({
   scores: UnicornRadarScoresSchema,
   updated_at: z.string().datetime(),
   sample_disclosure: z.string()
+}).superRefine((candidate, ctx) => {
+  const namePattern = /(sample|demo|mock)/i;
+  const mockPattern = /mock/i;
+  const serializedReceipts = JSON.stringify(candidate.receipts);
+  const serializedRiskFlags = JSON.stringify(candidate.risk_flags);
+  const serializedVerificationNotes = JSON.stringify(candidate.verificationNotes ?? []);
+
+  if (candidate.productionReady) {
+    for (const [field, value] of [
+      ['id', candidate.id],
+      ['project', candidate.project],
+      ['ticker', candidate.ticker]
+    ] as const) {
+      if (namePattern.test(value)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `productionReady candidate ${field} must not contain sample/demo/mock language`,
+          path: [field]
+        });
+      }
+    }
+
+    for (const [field, value] of [
+      ['pairAddress', candidate.pairAddress],
+      ['dexScreenerUrl', candidate.dexScreenerUrl],
+      ['tokenAddressSourceUrl', candidate.tokenAddressSourceUrl]
+    ] as const) {
+      if (value && mockPattern.test(value)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `productionReady candidate ${field} must not contain mock`,
+          path: [field]
+        });
+      }
+    }
+
+    if (mockPattern.test(serializedReceipts)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'productionReady candidate receipts must not contain mock',
+        path: ['receipts']
+      });
+    }
+    if (mockPattern.test(serializedRiskFlags)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'productionReady candidate risk flags must not contain mock',
+        path: ['risk_flags']
+      });
+    }
+    if (mockPattern.test(serializedVerificationNotes)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'productionReady candidate verification notes must not contain mock',
+        path: ['verificationNotes']
+      });
+    }
+  }
+
+  if (candidate.productionReady && candidate.tokenAddress) {
+    if (!candidate.chainId) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'productionReady tokenized candidate must include chainId', path: ['chainId'] });
+    }
+    if (candidate.verificationStatus !== 'verified_live_market') {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'productionReady tokenized candidate must be verified_live_market', path: ['verificationStatus'] });
+    }
+    if (!candidate.verifiedAt) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'productionReady tokenized candidate must include verifiedAt', path: ['verifiedAt'] });
+    }
+    if (!candidate.tokenAddressSource && !candidate.tokenAddressSourceUrl) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'productionReady tokenized candidate must include tokenAddressSource or tokenAddressSourceUrl', path: ['tokenAddressSource'] });
+    }
+  }
+
+  if (candidate.verificationStatus !== 'verified_live_market' && (candidate.dexScreenerData || candidate.pairAddress || candidate.dexScreenerUrl || candidate.marketDataSource || candidate.marketDataUpdatedAt)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'unverified token addresses must not carry DexScreener enrichment fields',
+      path: ['verificationStatus']
+    });
+  }
 });
 
 export const UnicornRadarRevenueReceiptSchema = z.object({

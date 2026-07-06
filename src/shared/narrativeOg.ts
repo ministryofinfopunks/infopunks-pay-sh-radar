@@ -108,6 +108,19 @@ function clampText(value: string, maxChars: number) {
   return clean.length <= maxChars ? clean : `${clean.slice(0, Math.max(0, maxChars - 1)).trimEnd()}…`;
 }
 
+function formatCompactNumber(value: number | null | undefined, digits = 1) {
+  if (typeof value !== 'number' || Number.isNaN(value)) return 'N/A';
+  return new Intl.NumberFormat('en-US', {
+    notation: 'compact',
+    maximumFractionDigits: digits
+  }).format(value);
+}
+
+function formatPercent(value: number | null | undefined) {
+  if (typeof value !== 'number' || Number.isNaN(value)) return 'N/A';
+  return `${value > 0 ? '+' : ''}${value.toFixed(1)}%`;
+}
+
 function renderScoreTile(x: number, y: number, label: string, score: number, accent: string) {
   return `<rect x="${x}" y="${y}" width="226" height="82" rx="14" fill="#071411" stroke="#173c35" />
   <text x="${x + 18}" y="${y + 30}" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="15" fill="#8ab6a8" letter-spacing="1.1">${escapeXml(label.toUpperCase())}</text>
@@ -130,6 +143,10 @@ export function renderUnicornRadarOgImage(candidate: UnicornRadarCandidate) {
     : candidate.paid_evaluation_disclosure.label.toUpperCase();
   const hunter = candidate.hunter_credit?.handle ? `HUNTER ${candidate.hunter_credit.handle}` : 'HUNTER NOT RECORDED';
   const receipts = `${candidate.receipts.length} RECEIPT${candidate.receipts.length === 1 ? '' : 'S'}`;
+  const marketData = candidate.dexScreenerData;
+  const marketSummary = marketData
+    ? `MCAP ${formatCompactNumber(marketData.marketCap)} · LIQ ${formatCompactNumber(marketData.liquidityUsd)} · VOL ${formatCompactNumber(marketData.volume24h)} · 24H ${formatPercent(marketData.priceChange24h)}`
+    : 'NO DEXSCREENER MARKET DATA ATTACHED';
   const titleLines = wrapText(title, 28).slice(0, 2);
   const thesisLines = wrapText(candidate.thesis, 70).slice(0, 2);
   const titleMarkup = titleLines.map((line, index) => (
@@ -178,8 +195,10 @@ export function renderUnicornRadarOgImage(candidate: UnicornRadarCandidate) {
   <text x="92" y="501" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="17" font-weight="800" fill="#fef3c7">${escapeXml(receipts)} · ${escapeXml(hunter)}</text>
   <rect x="584" y="468" width="476" height="54" rx="14" fill="#071411" stroke="#173c35" />
   <text x="606" y="501" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="15" font-weight="800" fill="#fef3c7">${escapeXml(paidLine)}</text>
-  <text x="72" y="552" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="19" font-weight="800" fill="#d3fff1">Projects can buy evaluation, not conviction.</text>
-  <text x="72" y="580" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="17" fill="#7fa195">Retail doesn’t need less risk. Retail needs better signal before taking risk.</text>
+  <rect x="70" y="530" width="990" height="46" rx="14" fill="#071411" stroke="#173c35" />
+  <text x="92" y="559" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="16" font-weight="800" fill="#9bf1cc">${escapeXml(marketSummary)}</text>
+  <text x="72" y="598" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="18" font-weight="800" fill="#d3fff1">Market data via DexScreener. Infopunks verdict is independent.</text>
+  <text x="72" y="620" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="15" fill="#7fa195">Projects can buy evaluation, not conviction.</text>
   <circle cx="1044" cy="154" r="92" fill="none" stroke="#173c35" stroke-width="1.5" />
   <circle cx="1044" cy="154" r="56" fill="none" stroke="#1e4c43" stroke-width="1.5" />
   <path d="M968 214C1006 188 1036 166 1084 112" stroke="${accent}" stroke-width="4" stroke-linecap="round" />

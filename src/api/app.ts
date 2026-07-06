@@ -173,7 +173,8 @@ import {
   buildUnicornRadarSummary,
   createUnicornRadarSubmission,
   requestUnicornRadarEvaluation,
-  resolveUnicornRadarCandidate
+  resolveEnrichedUnicornRadarCandidate,
+  UNICORN_RADAR_GENERATED_AT
 } from '../services/unicornRadarService';
 import { checkHermesHealth, createLivePreSpendRun, getHermesDeskSummary, getHermesRunById, listHermesRuns } from '../services/hermesBridge';
 import { getHermesSkillById, getHermesSkillPack, listHermesSkillPackSkills } from '../data/hermesSkillPack';
@@ -2014,13 +2015,13 @@ export async function createApp(
     return { data: safeJsonExport(SignalHuntCandidateSchema.parse(candidate)) };
   }, reply));
   app.get('/v1/unicorn-radar', async () => ({
-    data: safeJsonExport(UnicornRadarSummarySchema.parse(buildUnicornRadarSummary()))
+    data: safeJsonExport(UnicornRadarSummarySchema.parse(await buildUnicornRadarSummary()))
   }));
   app.get('/v1/unicorn-radar/candidates', async () => ({
-    data: safeJsonExport(UnicornRadarCandidateListSchema.parse(buildUnicornRadarCandidateList()))
+    data: safeJsonExport(UnicornRadarCandidateListSchema.parse(await buildUnicornRadarCandidateList()))
   }));
   app.get<{ Params: { candidateId: string } }>('/v1/unicorn-radar/candidates/:candidateId', async (req, reply) => {
-    const candidate = resolveUnicornRadarCandidate(req.params.candidateId);
+    const candidate = await resolveEnrichedUnicornRadarCandidate(req.params.candidateId);
     if (!candidate) return reply.code(404).send({ error: 'unicorn_radar_candidate_not_found' });
     return { data: safeJsonExport(UnicornRadarCandidateSchema.parse(candidate)) };
   });
@@ -2034,7 +2035,7 @@ export async function createApp(
     const receipts = buildUnicornRadarRevenueReceipts().map((item) => UnicornRadarRevenueReceiptSchema.parse(item));
     return {
       data: safeJsonExport({
-        generated_at: buildUnicornRadarSummary().generated_at,
+        generated_at: UNICORN_RADAR_GENERATED_AT,
         count: receipts.length,
         receipts
       })
@@ -2095,7 +2096,7 @@ export async function createApp(
     return reply.type('image/png').send(renderOgPng(renderSignalHuntOgImage()));
   });
   app.get<{ Params: { candidateId: string } }>('/og/unicorn-radar/:candidateId.png', async (req, reply) => {
-    const candidate = resolveUnicornRadarCandidate(req.params.candidateId);
+    const candidate = await resolveEnrichedUnicornRadarCandidate(req.params.candidateId);
     if (!candidate) return reply.code(404).send({ error: 'og_image_not_found' });
     reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
     return reply.type('image/png').send(renderOgPng(renderUnicornRadarOgImage(candidate)));

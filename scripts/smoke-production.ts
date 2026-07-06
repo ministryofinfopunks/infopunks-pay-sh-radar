@@ -121,7 +121,7 @@ export function buildSmokePlan(): SmokePlan {
   const claimId = seed.claims[0]?.claim_id ?? 'claim_001';
   const loopId = createInMemoryLoopRepository().listLoops()[0]?.id ?? 'loop_pre_spend_route';
   const signalHuntId = listSignalHuntCandidates()[0]?.id ?? 'hunt_black_bull_coordination';
-  const unicornRadarCandidateId = listUnicornRadarCandidates()[0]?.id ?? 'ur_agent_memory_mesh';
+  const unicornRadarCandidateId = listUnicornRadarCandidates()[0]?.id ?? 'ur_ai_rig_complex';
   const hermesRunId = hermesRuns[0]?.id ?? 'hermes_pay_sh_route_pre_spend_check';
   const hermesPolicyCheckId = getHermesSpendPolicyExampleCheck().id;
   const hermesWalletAuditTrailId = buildHermesWalletAuditTrail().id;

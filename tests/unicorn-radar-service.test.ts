@@ -1,55 +1,112 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { listUnicornRadarCandidates } from '../src/data/unicornRadar';
 import {
   buildUnicornRadarCandidateList,
   buildUnicornRadarRevenueReceipts,
   buildUnicornRadarSummary,
   createUnicornRadarSubmission,
   requestUnicornRadarEvaluation,
-  resolveUnicornRadarCandidate
+  resolveEnrichedUnicornRadarCandidate
 } from '../src/services/unicornRadarService';
 
-const expectedSectors = [
-  'AI',
-  'RWA',
-  'DeFi',
-  'DePIN',
-  'Consumer',
-  'Agent Rails',
-  'Payment Infrastructure',
-  'Social / Attention Markets',
-  'Tokenized Apps'
-];
+const VERIFIED_TOKEN = '61V8vBaqAGMpgDQi4JcAwo1dmBGHsyhzodcPqnEVpump';
+
+function liveDexPair(baseTokenAddress = VERIFIED_TOKEN) {
+  return [{
+    chainId: 'solana',
+    dexId: 'raydium',
+    url: 'https://dexscreener.com/solana/arcpair111111111111111111111111111111111111',
+    pairAddress: 'ArcPair111111111111111111111111111111111111',
+    baseToken: { address: baseTokenAddress },
+    quoteToken: { address: 'So11111111111111111111111111111111111111112' },
+    priceUsd: '0.42',
+    txns: { h24: { buys: 80, sells: 45 } },
+    volume: { h24: 123456.78 },
+    priceChange: { h1: 2.5, h6: 8.25, h24: 18.5 },
+    liquidity: { usd: 654321.12 },
+    fdv: 21000000,
+    marketCap: 17500000,
+    pairCreatedAt: 1710000000000
+  }];
+}
 
 describe('unicorn radar service', () => {
-  it('returns seeded candidates across all requested sectors', () => {
-    const list = buildUnicornRadarCandidateList();
-
-    expect(list.count).toBeGreaterThanOrEqual(9);
-    expect(new Set(list.candidates.map((candidate) => candidate.sector))).toEqual(new Set(expectedSectors));
-    expect(list.candidates.every((candidate) => candidate.sample_disclosure.includes('Desk-seeded sample'))).toBe(true);
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn((input: RequestInfo | URL) => {
+      const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+      if (url.includes('/tokens/v1/')) {
+        if (url.includes('61V8vBaqAGMpgDQi4JcAwo1dmBGHsyhzodcPqnEVpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('61V8vBaqAGMpgDQi4JcAwo1dmBGHsyhzodcPqnEVpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+        if (url.includes('5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+        if (url.includes('9cRCn9rGT8V2imeM2BaKs13yhMEais3ruM3rPvTGpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('9cRCn9rGT8V2imeM2BaKs13yhMEais3ruM3rPvTGpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+      }
+      if (url.includes('/token-pairs/v1/')) {
+        if (url.includes('61V8vBaqAGMpgDQi4JcAwo1dmBGHsyhzodcPqnEVpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('61V8vBaqAGMpgDQi4JcAwo1dmBGHsyhzodcPqnEVpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+        if (url.includes('5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+        if (url.includes('9cRCn9rGT8V2imeM2BaKs13yhMEais3ruM3rPvTGpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('9cRCn9rGT8V2imeM2BaKs13yhMEais3ruM3rPvTGpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+      }
+      if (url.includes('/orders/v1/')) {
+        return Promise.resolve(new Response(JSON.stringify({ orders: [], boosts: [] }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+      }
+      return Promise.resolve(new Response(JSON.stringify([]), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+    }));
   });
 
-  it('keeps statuses, verdicts, and score ranges production-shaped', () => {
-    const summary = buildUnicornRadarSummary();
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
 
-    expect(Object.keys(summary.counts.by_status)).toEqual(expect.arrayContaining([
-      'unseen_signal',
-      'watchlist',
-      'high_signal_lowcap',
-      'consensus_forming',
-      'do_not_touch_yet',
-      'infopunks_missed_it',
-      'paid_evaluation'
+  it('returns the verified production candidate set and supports fewer than nine candidates', async () => {
+    const list = await buildUnicornRadarCandidateList();
+
+    expect(list.count).toBe(3);
+    expect(list.candidates.map((candidate) => candidate.id)).toEqual([
+      'ur_ai_rig_complex',
+      'ur_troll_attention_asset',
+      'ur_black_bull_ansem'
+    ]);
+    expect(new Set(list.candidates.map((candidate) => candidate.sector))).toEqual(new Set([
+      'AI / Agent Rails',
+      'Social / Attention Markets'
     ]));
-    expect(Object.keys(summary.counts.by_verdict)).toEqual(expect.arrayContaining([
-      'high_signal_early',
-      'interesting_needs_receipts',
-      'real_product_weak_attention',
-      'strong_attention_weak_proof',
-      'do_not_touch_yet',
-      'consensus_already_forming',
-      'missed_by_infopunks'
-    ]));
+  });
+
+  it('enforces production candidate trust rules', () => {
+    const candidates = listUnicornRadarCandidates().filter((candidate) => candidate.productionReady);
+
+    for (const candidate of candidates) {
+      expect(candidate.productionReady).toBe(true);
+      expect(candidate.id).not.toMatch(/mock/i);
+      expect(candidate.project).not.toMatch(/mock/i);
+      expect(candidate.ticker).not.toMatch(/mock/i);
+      expect(candidate.pairAddress ?? '').not.toMatch(/mock/i);
+      expect(candidate.dexScreenerUrl ?? '').not.toMatch(/mock/i);
+      expect(candidate.tokenAddressSourceUrl ?? '').not.toMatch(/mock/i);
+      expect(JSON.stringify(candidate.receipts)).not.toMatch(/mock/i);
+      expect(JSON.stringify(candidate.risk_flags)).not.toMatch(/mock/i);
+      expect(JSON.stringify(candidate.verificationNotes ?? [])).not.toMatch(/mock/i);
+    }
+  });
+
+  it('requires production-ready tokenized candidates to be verified live markets', () => {
+    const candidates = listUnicornRadarCandidates().filter((candidate) => candidate.productionReady && candidate.tokenAddress);
+
+    for (const candidate of candidates) {
+      expect(candidate.chainId).toBeTruthy();
+      expect(candidate.tokenAddress).toBeTruthy();
+      expect(candidate.verificationStatus).toBe('verified_live_market');
+      expect(candidate.verifiedAt).toBeTruthy();
+      expect(candidate.tokenAddressSource || candidate.tokenAddressSourceUrl).toBeTruthy();
+    }
+  });
+
+  it('keeps statuses, verdicts, and score ranges production-shaped', async () => {
+    const summary = await buildUnicornRadarSummary();
+
+    expect(summary.counts.total).toBe(3);
+    expect(summary.counts.by_status.watchlist).toBe(2);
+    expect(summary.counts.by_status.consensus_forming).toBe(1);
+    expect(summary.counts.by_sector['AI / Agent Rails']).toBe(1);
+    expect(summary.counts.by_sector['Social / Attention Markets']).toBe(2);
 
     for (const candidate of summary.candidates) {
       for (const score of Object.values(candidate.scores)) {
@@ -57,26 +114,28 @@ describe('unicorn radar service', () => {
         expect(score).toBeLessThanOrEqual(100);
       }
       expect(candidate.receipts.length).toBeGreaterThan(0);
-      expect(candidate.hunter_credit.handle.length).toBeGreaterThan(0);
     }
   });
 
-  it('resolves candidate detail and revenue receipts', () => {
-    const candidate = resolveUnicornRadarCandidate('ur_agent_escrow_rails');
+  it('resolves verified candidate detail and uses empty revenue receipts', async () => {
+    const candidate = await resolveEnrichedUnicornRadarCandidate('ur_ai_rig_complex');
     expect(candidate).toEqual(expect.objectContaining({
-      project: 'Agent Escrow Rails',
-      status: 'high_signal_lowcap',
-      verdict: 'high_signal_early'
+      project: 'AI Rig Complex',
+      status: 'watchlist',
+      verdict: 'real_product_weak_attention',
+      verificationStatus: 'verified_live_market',
+      productionReady: true
     }));
 
-    expect(resolveUnicornRadarCandidate('missing')).toBeNull();
-    expect(buildUnicornRadarRevenueReceipts()).toEqual(expect.arrayContaining([
-      expect.objectContaining({
-        id: 'urr_revenue_attn_001',
-        service: 'paid_evaluation',
-        disclosure: expect.stringContaining('not conviction')
-      })
-    ]));
+    expect(await resolveEnrichedUnicornRadarCandidate('missing')).toBeNull();
+    expect(buildUnicornRadarRevenueReceipts()).toEqual([]);
+  });
+
+  it('fails open when DexScreener is unavailable', async () => {
+    vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new Error('dex down'))));
+    const summary = await buildUnicornRadarSummary();
+    expect(summary.candidates).toHaveLength(3);
+    expect(summary.candidates.every((candidate) => candidate.productionReady)).toBe(true);
   });
 
   it('creates submit and paid evaluation request receipts', () => {
