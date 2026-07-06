@@ -114,6 +114,18 @@ describe('render-style SPA routing boundaries', () => {
       expect(signalHuntDetail.body).toContain('Radar SPA shell');
       expect(signalHuntDetail.body).toContain('Infopunks Signal Hunt: hunt_black_bull_coordination');
 
+      const unicornRadar = await app.inject({ method: 'GET', url: '/unicorn-radar' });
+      expect(unicornRadar.statusCode).toBe(200);
+      expect(unicornRadar.headers['content-type']).toContain('text/html');
+      expect(unicornRadar.body).toContain('Radar SPA shell');
+      expect(unicornRadar.body).toContain('<title>Infopunks Unicorn Radar</title>');
+
+      const unicornRadarDetail = await app.inject({ method: 'GET', url: '/unicorn-radar/ur_agent_memory_mesh' });
+      expect(unicornRadarDetail.statusCode).toBe(200);
+      expect(unicornRadarDetail.headers['content-type']).toContain('text/html');
+      expect(unicornRadarDetail.body).toContain('Radar SPA shell');
+      expect(unicornRadarDetail.body).toContain('Infopunks Unicorn Radar: ur_agent_memory_mesh');
+
       const graph = await app.inject({ method: 'GET', url: '/graph' });
       expect(graph.statusCode).toBe(200);
       expect(graph.headers['content-type']).toContain('text/html');
@@ -222,6 +234,8 @@ describe('render-style SPA routing boundaries', () => {
       for (const path of [
         '/signal-hunt',
         '/signal-hunt/hunt_black_bull_coordination',
+        '/unicorn-radar',
+        '/unicorn-radar/ur_agent_memory_mesh',
         '/narratives',
         '/narratives/attention-markets',
         '/narratives/attention-market-watch',

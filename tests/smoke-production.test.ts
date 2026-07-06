@@ -63,6 +63,7 @@ describe('production smoke plan', () => {
       '/services',
       '/receipts',
       '/claim',
+      '/unicorn-radar',
       '/graph',
       '/narratives',
       '/narratives/attention-markets',
@@ -92,7 +93,8 @@ describe('production smoke plan', () => {
       '/receipts/receipt_001',
       '/claims/claim_001',
       '/loops/loop_pre_spend_route',
-      '/signal-hunt/hunt_black_bull_coordination'
+      '/signal-hunt/hunt_black_bull_coordination',
+      '/unicorn-radar/ur_agent_memory_mesh'
     ]));
   });
 
@@ -104,6 +106,8 @@ describe('production smoke plan', () => {
       '/v1/graph/ripples',
       '/v1/loops',
       '/v1/signal-hunt',
+      '/v1/unicorn-radar',
+      '/v1/unicorn-radar/candidates',
       '/v1/routes',
       '/v1/narratives',
       '/v1/abundance',
@@ -138,6 +142,8 @@ describe('production smoke plan', () => {
       '/v1/signal-desk/candidates',
       '/v1/signal-desk/candidates/candidate_sol_persona_attention',
       '/v1/signal-hunt/hunt_black_bull_coordination',
+      '/v1/unicorn-radar/candidates/ur_agent_memory_mesh',
+      '/v1/unicorn-radar/revenue-receipts',
       '/v1/narratives/black-bull',
       '/v1/signals',
       '/v1/signals/black-bull',

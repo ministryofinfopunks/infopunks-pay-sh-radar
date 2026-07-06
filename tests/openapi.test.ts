@@ -87,6 +87,12 @@ describe('openapi discovery', () => {
     expect(spec.paths['/v1/signal-hunt/{signalId}']?.get).toBeTruthy();
     expect(spec.paths['/v1/signal-hunt/submit']?.post).toBeTruthy();
     expect(spec.paths['/v1/signal-hunt/{signalId}/verify']?.post).toBeTruthy();
+    expect(spec.paths['/v1/unicorn-radar']?.get).toBeTruthy();
+    expect(spec.paths['/v1/unicorn-radar/candidates']?.get).toBeTruthy();
+    expect(spec.paths['/v1/unicorn-radar/candidates/{candidateId}']?.get).toBeTruthy();
+    expect(spec.paths['/v1/unicorn-radar/submit']?.post).toBeTruthy();
+    expect(spec.paths['/v1/unicorn-radar/request-evaluation']?.post).toBeTruthy();
+    expect(spec.paths['/v1/unicorn-radar/revenue-receipts']?.get).toBeTruthy();
     expect(spec.paths['/v1/narratives/{slug}']?.get).toBeTruthy();
     expect(spec.paths['/v1/signals']?.get).toBeTruthy();
     expect(spec.paths['/v1/signals/{slug}']?.get).toBeTruthy();
@@ -153,6 +159,11 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.LoopDetail).toBeTruthy();
     expect(spec.components.schemas.LoopRun).toBeTruthy();
     expect(spec.components.schemas.LoopCheckInput).toBeTruthy();
+    expect(spec.components.schemas.UnicornRadarCandidate).toBeTruthy();
+    expect(spec.components.schemas.UnicornRadarSummary).toBeTruthy();
+    expect(spec.components.schemas.UnicornRadarSubmissionInput).toBeTruthy();
+    expect(spec.components.schemas.UnicornRadarEvaluationRequestInput).toBeTruthy();
+    expect(spec.components.schemas.UnicornRadarRevenueReceipt).toBeTruthy();
     expect(spec.components.schemas.HermesSkillPack).toBeTruthy();
     expect(spec.components.schemas.HermesSkill).toBeTruthy();
     expect(spec.components.schemas.HermesRunReceipt).toBeTruthy();

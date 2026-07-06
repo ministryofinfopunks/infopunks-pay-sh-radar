@@ -198,6 +198,24 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
     );
   }
 
+  if (/^\/unicorn-radar\/?$/.test(pathname)) {
+    return buildMetadata(
+      'Infopunks Unicorn Radar',
+      'Finding serious low-cap Solana projects before consensus does. Projects can buy evaluation, not conviction.',
+      '/unicorn-radar'
+    );
+  }
+
+  const unicornRadarDetailMatch = pathname.match(/^\/unicorn-radar\/([^/]+)\/?$/);
+  if (unicornRadarDetailMatch) {
+    const candidateId = decodePathPart(unicornRadarDetailMatch[1]);
+    return buildMetadata(
+      `Infopunks Unicorn Radar: ${candidateId}`,
+      'Low-cap Solana candidate detail with shipping proof, attention quality, token survivability, risk flags, receipts, hunter attribution, and Infopunks verdict.',
+      `/unicorn-radar/${encodeURIComponent(candidateId)}`
+    );
+  }
+
   if (/^\/signals\/ansem\/?$/.test(pathname)) {
     return buildMetadata(
       'Infopunks Signal Source: Ansem',

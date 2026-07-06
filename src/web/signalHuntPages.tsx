@@ -364,6 +364,12 @@ export function SignalHuntPage() {
           <p className="copy">Use <code>POST /v1/signal-hunt/:signalId/verify</code> to mark signal, noise, dispute, or continued review and attach linked checks or loops.</p>
           <a className="execute compact secondary" href="/check">Start with Proof Feed</a>
         </article>
+        <article className="panel signal-hunt-cta-card unicorn-signal-hunt-cta">
+          <p className="eyebrow">Low-cap candidates</p>
+          <h2>Send serious Solana projects to Unicorn Radar.</h2>
+          <p className="copy">Use <code>POST /v1/unicorn-radar/submit</code> when the signal is a low-cap project that needs shipping proof, token survivability, risk flags, and receipts.</p>
+          <a className="execute compact secondary" href="/unicorn-radar#submit-candidate">Submit to Unicorn Radar</a>
+        </article>
       </section>
     </main>
   </div>;

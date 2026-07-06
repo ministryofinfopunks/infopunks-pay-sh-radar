@@ -48,6 +48,14 @@ import {
   SignalGraphNodeDetailSchema,
   SignalGraphResponseSchema,
   SignalGraphRippleSchema,
+  UnicornRadarCandidateListSchema,
+  UnicornRadarCandidateSchema,
+  UnicornRadarEvaluationRequestInputSchema,
+  UnicornRadarEvaluationRequestResponseSchema,
+  UnicornRadarRevenueReceiptSchema,
+  UnicornRadarSubmissionInputSchema,
+  UnicornRadarSubmissionResponseSchema,
+  UnicornRadarSummarySchema,
   RadarComparisonRequestSchema,
   RadarEcosystemRiskSummarySchema,
   RadarBatchPreflightRequestSchema,
@@ -159,6 +167,14 @@ import { createProofCheckService } from '../services/proofCheckService';
 import { createInMemoryLoopRepository, loopRepository } from '../repositories/loopRepository';
 import { createLoopService } from '../services/loopService';
 import { checkSignalGraph, findSignalGraphNodesForEntity, getSignalGraph, getSignalGraphCluster, getSignalGraphClusters, getSignalGraphNode, getSignalGraphRipples, isSignalGraphEntityType } from '../services/signalGraphService';
+import {
+  buildUnicornRadarCandidateList,
+  buildUnicornRadarRevenueReceipts,
+  buildUnicornRadarSummary,
+  createUnicornRadarSubmission,
+  requestUnicornRadarEvaluation,
+  resolveUnicornRadarCandidate
+} from '../services/unicornRadarService';
 import { checkHermesHealth, createLivePreSpendRun, getHermesDeskSummary, getHermesRunById, listHermesRuns } from '../services/hermesBridge';
 import { getHermesSkillById, getHermesSkillPack, listHermesSkillPackSkills } from '../data/hermesSkillPack';
 import { convertHermesRunToReceipt } from '../services/hermesReceiptConverter';
@@ -1997,6 +2013,33 @@ export async function createApp(
     if (!candidate) return reply.code(404).send({ error: 'signal_hunt_not_found' });
     return { data: safeJsonExport(SignalHuntCandidateSchema.parse(candidate)) };
   }, reply));
+  app.get('/v1/unicorn-radar', async () => ({
+    data: safeJsonExport(UnicornRadarSummarySchema.parse(buildUnicornRadarSummary()))
+  }));
+  app.get('/v1/unicorn-radar/candidates', async () => ({
+    data: safeJsonExport(UnicornRadarCandidateListSchema.parse(buildUnicornRadarCandidateList()))
+  }));
+  app.get<{ Params: { candidateId: string } }>('/v1/unicorn-radar/candidates/:candidateId', async (req, reply) => {
+    const candidate = resolveUnicornRadarCandidate(req.params.candidateId);
+    if (!candidate) return reply.code(404).send({ error: 'unicorn_radar_candidate_not_found' });
+    return { data: safeJsonExport(UnicornRadarCandidateSchema.parse(candidate)) };
+  });
+  app.post('/v1/unicorn-radar/submit', async (req, reply) => handleParsed(req.body, UnicornRadarSubmissionInputSchema, (input) => ({
+    data: safeJsonExport(UnicornRadarSubmissionResponseSchema.parse(createUnicornRadarSubmission(input)))
+  }), reply));
+  app.post('/v1/unicorn-radar/request-evaluation', async (req, reply) => handleParsed(req.body, UnicornRadarEvaluationRequestInputSchema, (input) => ({
+    data: safeJsonExport(UnicornRadarEvaluationRequestResponseSchema.parse(requestUnicornRadarEvaluation(input)))
+  }), reply));
+  app.get('/v1/unicorn-radar/revenue-receipts', async () => {
+    const receipts = buildUnicornRadarRevenueReceipts().map((item) => UnicornRadarRevenueReceiptSchema.parse(item));
+    return {
+      data: safeJsonExport({
+        generated_at: buildUnicornRadarSummary().generated_at,
+        count: receipts.length,
+        receipts
+      })
+    };
+  });
   app.get<{ Params: { slug: string } }>('/v1/narratives/:slug', async (req, reply) => {
     const asset = getNarrativeAssetBySlug(req.params.slug);
     if (!asset) return reply.code(404).send({ error: 'narrative_not_found' });

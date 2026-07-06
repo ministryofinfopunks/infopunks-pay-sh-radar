@@ -1572,6 +1572,35 @@ function AttentionWatchModule({ watch }: { watch: AttentionMarketWatchIndex }) {
   </section>;
 }
 
+function UnicornRadarNarrativeModule() {
+  return <section className="panel narrative-desk-catalog unicorn-radar-module" aria-label="Unicorn Radar low-cap discovery layer">
+    <div className="narrative-desk-catalog-head">
+      <div>
+        <p className="section-kicker">Low-cap discovery layer</p>
+        <h2>Infopunks Unicorn Radar</h2>
+        <p>Finding serious low-cap Solana projects before consensus does. Narrative Intel tracks markets after the story has shape; Unicorn Radar watches candidates while uncertainty is still legible.</p>
+      </div>
+      <span className="source-badge">Solana lowcaps</span>
+    </div>
+    <div className="signal-hunt-detail-grid">
+      <article className="panel">
+        <p className="eyebrow">Doctrine</p>
+        <h3>Projects can buy evaluation, not conviction.</h3>
+        <p>Paid status, risk flags, and weak-proof verdicts stay visible.</p>
+      </article>
+      <article className="panel">
+        <p className="eyebrow">Scoring</p>
+        <h3>Shipping, attention, survivability.</h3>
+        <p>Candidates are scored on proof of shipping, attention quality, token survivability, category timing, asymmetry, and risk.</p>
+      </article>
+    </div>
+    <div className="panel-actions">
+      <a className="execute" href="/unicorn-radar">Open Unicorn Radar</a>
+      <a className="execute compact secondary" href="/unicorn-radar#submit-candidate">Submit low-cap candidate</a>
+    </div>
+  </section>;
+}
+
 function AttentionWatchSignalCard({ signal }: { signal: AttentionMarketSignal }) {
   const cta = signal.href === '/signals/black-bull' ? 'Open Signal' : 'Open Watch Profile';
   const evidenceLight = signal.slug === 'tjr' || signal.slug === 'luke' || signal.slug === 'superman';
@@ -1992,6 +2021,7 @@ export function NarrativesIndexPage() {
           onSearchChange={setSearch}
         />
         {attentionWatch && <AttentionWatchModule watch={attentionWatch} />}
+        <UnicornRadarNarrativeModule />
         {desk.featured_report && <FeaturedNarrativeReport
           report={desk.featured_report}
           latestDispatchHref={desk.latest_dispatches[0]?.href ?? null}

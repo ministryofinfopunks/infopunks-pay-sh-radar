@@ -524,6 +524,186 @@ export const CandidateSignalSchema = z.object({
   updated_at: z.string().datetime()
 });
 
+export const UnicornRadarSectorSchema = z.enum([
+  'AI',
+  'RWA',
+  'DeFi',
+  'DePIN',
+  'Consumer',
+  'Agent Rails',
+  'Payment Infrastructure',
+  'Social / Attention Markets',
+  'Tokenized Apps'
+]);
+
+export const UnicornRadarStatusSchema = z.enum([
+  'unseen_signal',
+  'watchlist',
+  'high_signal_lowcap',
+  'consensus_forming',
+  'do_not_touch_yet',
+  'infopunks_missed_it',
+  'paid_evaluation'
+]);
+
+export const UnicornRadarVerdictSchema = z.enum([
+  'high_signal_early',
+  'interesting_needs_receipts',
+  'real_product_weak_attention',
+  'strong_attention_weak_proof',
+  'do_not_touch_yet',
+  'consensus_already_forming',
+  'missed_by_infopunks'
+]);
+
+export const UnicornRadarScoresSchema = z.object({
+  shipping_proof: z.number().min(0).max(100),
+  attention_quality: z.number().min(0).max(100),
+  token_survivability: z.number().min(0).max(100),
+  category_timing: z.number().min(0).max(100),
+  asymmetry_potential: z.number().min(0).max(100),
+  overall_signal_score: z.number().min(0).max(100),
+  risk_score: z.number().min(0).max(100)
+});
+
+export const UnicornRadarReceiptSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  type: z.enum(['shipping', 'attention', 'token', 'risk', 'market', 'payment', 'note']),
+  source: z.string(),
+  url: z.string().optional(),
+  note: z.string(),
+  observed_at: z.string().datetime()
+});
+
+export const UnicornRadarHunterCreditSchema = z.object({
+  handle: z.string(),
+  attribution: z.string(),
+  submitted_at: z.string().datetime(),
+  source: z.enum(['desk_seeded_sample', 'community', 'project', 'partner'])
+});
+
+export const UnicornRadarPaidEvaluationDisclosureSchema = z.object({
+  is_paid: z.boolean(),
+  label: z.string(),
+  note: z.string(),
+  paid_at: z.string().datetime().nullable().optional(),
+  receipt_id: z.string().nullable().optional()
+});
+
+export const UnicornRadarCandidateSchema = z.object({
+  id: z.string(),
+  project: z.string(),
+  ticker: z.string(),
+  sector: UnicornRadarSectorSchema,
+  market_cap_range: z.string(),
+  thesis: z.string(),
+  what_it_actually_does: z.string(),
+  proof_of_shipping: z.string(),
+  attention_quality_note: z.string(),
+  token_survivability_note: z.string(),
+  risk_flags: z.array(z.string()),
+  why_now: z.string(),
+  receipts: z.array(UnicornRadarReceiptSchema),
+  linked_narratives: z.array(z.object({
+    label: z.string(),
+    href: z.string()
+  })),
+  linked_graph_node: z.object({
+    id: z.string(),
+    label: z.string(),
+    href: z.string()
+  }),
+  hunter_credit: UnicornRadarHunterCreditSchema,
+  paid_evaluation_disclosure: UnicornRadarPaidEvaluationDisclosureSchema,
+  status: UnicornRadarStatusSchema,
+  verdict: UnicornRadarVerdictSchema,
+  scores: UnicornRadarScoresSchema,
+  updated_at: z.string().datetime(),
+  sample_disclosure: z.string()
+});
+
+export const UnicornRadarRevenueReceiptSchema = z.object({
+  id: z.string(),
+  candidate_id: z.string().nullable(),
+  project: z.string(),
+  amount_usd: z.number().nonnegative(),
+  service: z.enum(['paid_evaluation', 'sponsored_receipt_review', 'research_retainer']),
+  disclosure: z.string(),
+  status: z.enum(['paid', 'comped', 'pending']),
+  paid_at: z.string().datetime()
+});
+
+export const UnicornRadarSummarySchema = z.object({
+  generated_at: z.string().datetime(),
+  title: z.literal('Infopunks Unicorn Radar'),
+  tagline: z.literal('Finding serious low-cap Solana projects before consensus does.'),
+  subline: z.literal('Retail doesn’t need less risk. Retail needs better signal before taking risk.'),
+  trust_line: z.literal('Projects can buy evaluation, not conviction.'),
+  doctrine_line: z.literal('Influencers sell certainty. Infopunks sells legible uncertainty.'),
+  counts: z.object({
+    total: z.number().int().nonnegative(),
+    by_status: z.record(UnicornRadarStatusSchema, z.number().int().nonnegative()),
+    by_verdict: z.record(UnicornRadarVerdictSchema, z.number().int().nonnegative()),
+    by_sector: z.record(UnicornRadarSectorSchema, z.number().int().nonnegative())
+  }),
+  candidates: z.array(UnicornRadarCandidateSchema),
+  revenue_receipts: z.array(UnicornRadarRevenueReceiptSchema)
+});
+
+export const UnicornRadarCandidateListSchema = z.object({
+  generated_at: z.string().datetime(),
+  count: z.number().int().nonnegative(),
+  candidates: z.array(UnicornRadarCandidateSchema)
+});
+
+export const UnicornRadarSubmissionInputSchema = z.object({
+  project: z.string().min(1),
+  ticker: z.string().min(1).optional(),
+  sector: UnicornRadarSectorSchema,
+  market_cap_range: z.string().min(1).optional(),
+  thesis: z.string().min(1),
+  what_it_actually_does: z.string().min(1).optional(),
+  proof_links: z.array(z.string().min(1)).optional(),
+  submitter_handle: z.string().min(1).optional(),
+  notes: z.string().min(1).optional()
+}).strict();
+
+export const UnicornRadarSubmissionResponseSchema = z.object({
+  submission_id: z.string(),
+  status: z.literal('staged_for_review'),
+  candidate_preview: z.object({
+    project: z.string(),
+    ticker: z.string(),
+    sector: UnicornRadarSectorSchema,
+    market_cap_range: z.string(),
+    thesis: z.string()
+  }),
+  default_requirements: z.array(z.string()),
+  disclosure: z.string(),
+  submitted_at: z.string().datetime()
+});
+
+export const UnicornRadarEvaluationRequestInputSchema = z.object({
+  project: z.string().min(1),
+  ticker: z.string().min(1).optional(),
+  sector: UnicornRadarSectorSchema.optional(),
+  contact: z.string().min(1),
+  requested_by: z.string().min(1).optional(),
+  budget_disclosure: z.string().min(1).optional(),
+  notes: z.string().min(1).optional()
+}).strict();
+
+export const UnicornRadarEvaluationRequestResponseSchema = z.object({
+  request_id: z.string(),
+  status: z.literal('evaluation_requested'),
+  project: z.string(),
+  disclosure: z.string(),
+  doctrine: z.literal('Projects can buy evaluation, not conviction.'),
+  next_steps: z.array(z.string()),
+  requested_at: z.string().datetime()
+});
+
 export const SignalDeskActivityTypeSchema = z.enum([
   'report_published',
   'dispatch_published',
@@ -2611,6 +2791,21 @@ export type CandidateSignalStatus = z.infer<typeof CandidateSignalStatusSchema>;
 export type CandidateSignalPriority = z.infer<typeof CandidateSignalPrioritySchema>;
 export type CandidateSignalRiskLevel = z.infer<typeof CandidateSignalRiskLevelSchema>;
 export type CandidateSignal = z.infer<typeof CandidateSignalSchema>;
+export type UnicornRadarSector = z.infer<typeof UnicornRadarSectorSchema>;
+export type UnicornRadarStatus = z.infer<typeof UnicornRadarStatusSchema>;
+export type UnicornRadarVerdict = z.infer<typeof UnicornRadarVerdictSchema>;
+export type UnicornRadarScores = z.infer<typeof UnicornRadarScoresSchema>;
+export type UnicornRadarReceipt = z.infer<typeof UnicornRadarReceiptSchema>;
+export type UnicornRadarHunterCredit = z.infer<typeof UnicornRadarHunterCreditSchema>;
+export type UnicornRadarPaidEvaluationDisclosure = z.infer<typeof UnicornRadarPaidEvaluationDisclosureSchema>;
+export type UnicornRadarCandidate = z.infer<typeof UnicornRadarCandidateSchema>;
+export type UnicornRadarRevenueReceipt = z.infer<typeof UnicornRadarRevenueReceiptSchema>;
+export type UnicornRadarSummary = z.infer<typeof UnicornRadarSummarySchema>;
+export type UnicornRadarCandidateList = z.infer<typeof UnicornRadarCandidateListSchema>;
+export type UnicornRadarSubmissionInput = z.infer<typeof UnicornRadarSubmissionInputSchema>;
+export type UnicornRadarSubmissionResponse = z.infer<typeof UnicornRadarSubmissionResponseSchema>;
+export type UnicornRadarEvaluationRequestInput = z.infer<typeof UnicornRadarEvaluationRequestInputSchema>;
+export type UnicornRadarEvaluationRequestResponse = z.infer<typeof UnicornRadarEvaluationRequestResponseSchema>;
 export type SignalDeskActivityType = z.infer<typeof SignalDeskActivityTypeSchema>;
 export type SignalDeskReportCard = z.infer<typeof SignalDeskReportCardSchema>;
 export type SignalDeskDispatchCard = z.infer<typeof SignalDeskDispatchCardSchema>;

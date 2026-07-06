@@ -1953,6 +1953,86 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       decision_state: 'signal'
     }, 'signal_hunt_not_found')
   });
+  add('get', '/v1/unicorn-radar', {
+    tags: ['Intelligence'],
+    summary: 'Get Unicorn Radar summary',
+    description: 'Returns the flagship low-cap Solana discovery surface with candidate counts, candidate cards, revenue receipts, and disclosure copy. Projects can buy evaluation, not conviction.',
+    responses: envelopedResponses('UnicornRadarSummary', {
+      title: 'Infopunks Unicorn Radar',
+      tagline: 'Finding serious low-cap Solana projects before consensus does.',
+      counts: { total: 9 },
+      candidates: [{ id: 'ur_agent_escrow_rails', project: 'Agent Escrow Rails', status: 'high_signal_lowcap' }]
+    })
+  });
+  add('get', '/v1/unicorn-radar/candidates', {
+    tags: ['Intelligence'],
+    summary: 'List Unicorn Radar candidates',
+    description: 'Returns production-shaped low-cap Solana candidate records, including shipping proof, attention quality, token survivability, risk flags, receipts, hunter attribution, paid evaluation disclosure, status, verdict, and scores.',
+    responses: envelopedResponses('UnicornRadarCandidateList', {
+      generated_at: '2026-07-06T08:30:00.000Z',
+      count: 9,
+      candidates: [{ id: 'ur_agent_escrow_rails', project: 'Agent Escrow Rails', ticker: 'RAILS', sector: 'Agent Rails' }]
+    })
+  });
+  add('get', '/v1/unicorn-radar/candidates/{candidateId}', {
+    tags: ['Intelligence'],
+    summary: 'Get Unicorn Radar candidate detail',
+    description: 'Returns one Unicorn Radar candidate with full thesis, proof, scores, receipts, narrative links, graph node, hunter attribution, paid evaluation disclosure, and Infopunks verdict.',
+    parameters: [pathParam('candidateId', 'Unicorn Radar candidate identifier.')],
+    responses: envelopedResponses('UnicornRadarCandidate', {
+      id: 'ur_agent_escrow_rails',
+      project: 'Agent Escrow Rails',
+      ticker: 'RAILS',
+      status: 'high_signal_lowcap',
+      verdict: 'high_signal_early'
+    }, 'unicorn_radar_candidate_not_found')
+  });
+  add('post', '/v1/unicorn-radar/submit', {
+    tags: ['Intelligence'],
+    summary: 'Submit a Unicorn Radar candidate',
+    description: 'Stages a low-cap Solana candidate for review. Submission does not imply listing, conviction, or endorsement.',
+    requestBody: jsonRequest({ $ref: '#/components/schemas/UnicornRadarSubmissionInput' }, {
+      project: 'New Solana Project',
+      ticker: 'NEW',
+      sector: 'AI',
+      market_cap_range: '$2M-$5M',
+      thesis: 'Shipping before consensus.',
+      proof_links: ['https://example.com/demo'],
+      submitter_handle: '@hunter'
+    }),
+    responses: envelopedResponses('UnicornRadarSubmissionResponse', {
+      submission_id: 'urs_new-solana-project_20260706',
+      status: 'staged_for_review',
+      disclosure: 'Community submissions are intake only.'
+    })
+  });
+  add('post', '/v1/unicorn-radar/request-evaluation', {
+    tags: ['Intelligence'],
+    summary: 'Request paid Unicorn Radar evaluation',
+    description: 'Stages a paid evaluation request. Paid status is disclosed publicly if the project enters the Radar. Payment buys evaluation time, not conviction.',
+    requestBody: jsonRequest({ $ref: '#/components/schemas/UnicornRadarEvaluationRequestInput' }, {
+      project: 'New Solana Project',
+      ticker: 'NEW',
+      sector: 'AI',
+      contact: 'founder@example.com',
+      notes: 'Requesting evaluation with receipts attached.'
+    }),
+    responses: envelopedResponses('UnicornRadarEvaluationRequestResponse', {
+      request_id: 'ure_new-solana-project_20260706',
+      status: 'evaluation_requested',
+      doctrine: 'Projects can buy evaluation, not conviction.'
+    })
+  });
+  add('get', '/v1/unicorn-radar/revenue-receipts', {
+    tags: ['Intelligence'],
+    summary: 'List Unicorn Radar revenue receipts',
+    description: 'Returns disclosed commercial receipts for paid evaluations and comped review records.',
+    responses: envelopedResponses('UnicornRadarRevenueReceiptList', {
+      generated_at: '2026-07-06T08:30:00.000Z',
+      count: 1,
+      receipts: [{ id: 'urr_revenue_attn_001', project: 'Attention Clearinghouse', service: 'paid_evaluation', status: 'paid' }]
+    })
+  });
   add('get', '/v1/narratives/{slug}', {
     tags: ['Intelligence'],
     summary: 'Get narrative asset',
@@ -4558,6 +4638,132 @@ function componentSchemas(): Record<string, JsonSchema> {
       input: stringSchema(),
       linked_check_id: { oneOf: [stringSchema(), { type: 'null' }] }
     }),
+    UnicornRadarSector: enumSchema(['AI', 'RWA', 'DeFi', 'DePIN', 'Consumer', 'Agent Rails', 'Payment Infrastructure', 'Social / Attention Markets', 'Tokenized Apps']),
+    UnicornRadarStatus: enumSchema(['unseen_signal', 'watchlist', 'high_signal_lowcap', 'consensus_forming', 'do_not_touch_yet', 'infopunks_missed_it', 'paid_evaluation']),
+    UnicornRadarVerdict: enumSchema(['high_signal_early', 'interesting_needs_receipts', 'real_product_weak_attention', 'strong_attention_weak_proof', 'do_not_touch_yet', 'consensus_already_forming', 'missed_by_infopunks']),
+    UnicornRadarScores: objectSchema({
+      shipping_proof: integerSchema(),
+      attention_quality: integerSchema(),
+      token_survivability: integerSchema(),
+      category_timing: integerSchema(),
+      asymmetry_potential: integerSchema(),
+      overall_signal_score: integerSchema(),
+      risk_score: integerSchema()
+    }, ['shipping_proof', 'attention_quality', 'token_survivability', 'category_timing', 'asymmetry_potential', 'overall_signal_score', 'risk_score']),
+    UnicornRadarReceipt: objectSchema({
+      id: stringSchema(),
+      label: stringSchema(),
+      type: enumSchema(['shipping', 'attention', 'token', 'risk', 'market', 'payment', 'note']),
+      source: stringSchema(),
+      url: stringSchema(),
+      note: stringSchema(),
+      observed_at: dateTimeSchema()
+    }, ['id', 'label', 'type', 'source', 'note', 'observed_at']),
+    UnicornRadarHunterCredit: objectSchema({
+      handle: stringSchema(),
+      attribution: stringSchema(),
+      submitted_at: dateTimeSchema(),
+      source: enumSchema(['desk_seeded_sample', 'community', 'project', 'partner'])
+    }, ['handle', 'attribution', 'submitted_at', 'source']),
+    UnicornRadarPaidEvaluationDisclosure: objectSchema({
+      is_paid: { type: 'boolean' },
+      label: stringSchema(),
+      note: stringSchema(),
+      paid_at: { oneOf: [dateTimeSchema(), { type: 'null' }] },
+      receipt_id: { oneOf: [stringSchema(), { type: 'null' }] }
+    }, ['is_paid', 'label', 'note']),
+    UnicornRadarCandidate: objectSchema({
+      id: stringSchema(),
+      project: stringSchema(),
+      ticker: stringSchema(),
+      sector: { $ref: '#/components/schemas/UnicornRadarSector' },
+      market_cap_range: stringSchema(),
+      thesis: stringSchema(),
+      what_it_actually_does: stringSchema(),
+      proof_of_shipping: stringSchema(),
+      attention_quality_note: stringSchema(),
+      token_survivability_note: stringSchema(),
+      risk_flags: arrayOf(stringSchema()),
+      why_now: stringSchema(),
+      receipts: arrayOf({ $ref: '#/components/schemas/UnicornRadarReceipt' }),
+      linked_narratives: arrayOf(objectSchema({ label: stringSchema(), href: stringSchema() }, ['label', 'href'])),
+      linked_graph_node: objectSchema({ id: stringSchema(), label: stringSchema(), href: stringSchema() }, ['id', 'label', 'href']),
+      hunter_credit: { $ref: '#/components/schemas/UnicornRadarHunterCredit' },
+      paid_evaluation_disclosure: { $ref: '#/components/schemas/UnicornRadarPaidEvaluationDisclosure' },
+      status: { $ref: '#/components/schemas/UnicornRadarStatus' },
+      verdict: { $ref: '#/components/schemas/UnicornRadarVerdict' },
+      scores: { $ref: '#/components/schemas/UnicornRadarScores' },
+      updated_at: dateTimeSchema(),
+      sample_disclosure: stringSchema()
+    }, ['id', 'project', 'ticker', 'sector', 'market_cap_range', 'thesis', 'what_it_actually_does', 'proof_of_shipping', 'attention_quality_note', 'token_survivability_note', 'risk_flags', 'why_now', 'receipts', 'linked_narratives', 'linked_graph_node', 'hunter_credit', 'paid_evaluation_disclosure', 'status', 'verdict', 'scores', 'updated_at']),
+    UnicornRadarRevenueReceipt: objectSchema({
+      id: stringSchema(),
+      candidate_id: { oneOf: [stringSchema(), { type: 'null' }] },
+      project: stringSchema(),
+      amount_usd: { type: 'number', minimum: 0 },
+      service: enumSchema(['paid_evaluation', 'sponsored_receipt_review', 'research_retainer']),
+      disclosure: stringSchema(),
+      status: enumSchema(['paid', 'comped', 'pending']),
+      paid_at: dateTimeSchema()
+    }, ['id', 'candidate_id', 'project', 'amount_usd', 'service', 'disclosure', 'status', 'paid_at']),
+    UnicornRadarSummary: objectSchema({
+      generated_at: dateTimeSchema(),
+      title: stringSchema(),
+      tagline: stringSchema(),
+      subline: stringSchema(),
+      trust_line: stringSchema(),
+      doctrine_line: stringSchema(),
+      counts: freeformObject(),
+      candidates: arrayOf({ $ref: '#/components/schemas/UnicornRadarCandidate' }),
+      revenue_receipts: arrayOf({ $ref: '#/components/schemas/UnicornRadarRevenueReceipt' })
+    }, ['generated_at', 'title', 'tagline', 'subline', 'trust_line', 'doctrine_line', 'counts', 'candidates', 'revenue_receipts']),
+    UnicornRadarCandidateList: objectSchema({
+      generated_at: dateTimeSchema(),
+      count: integerSchema(),
+      candidates: arrayOf({ $ref: '#/components/schemas/UnicornRadarCandidate' })
+    }, ['generated_at', 'count', 'candidates']),
+    UnicornRadarSubmissionInput: objectSchema({
+      project: stringSchema(),
+      ticker: stringSchema(),
+      sector: { $ref: '#/components/schemas/UnicornRadarSector' },
+      market_cap_range: stringSchema(),
+      thesis: stringSchema(),
+      what_it_actually_does: stringSchema(),
+      proof_links: arrayOf(stringSchema()),
+      submitter_handle: stringSchema(),
+      notes: stringSchema()
+    }, ['project', 'sector', 'thesis']),
+    UnicornRadarSubmissionResponse: objectSchema({
+      submission_id: stringSchema(),
+      status: enumSchema(['staged_for_review']),
+      candidate_preview: freeformObject(),
+      default_requirements: arrayOf(stringSchema()),
+      disclosure: stringSchema(),
+      submitted_at: dateTimeSchema()
+    }, ['submission_id', 'status', 'candidate_preview', 'default_requirements', 'disclosure', 'submitted_at']),
+    UnicornRadarEvaluationRequestInput: objectSchema({
+      project: stringSchema(),
+      ticker: stringSchema(),
+      sector: { $ref: '#/components/schemas/UnicornRadarSector' },
+      contact: stringSchema(),
+      requested_by: stringSchema(),
+      budget_disclosure: stringSchema(),
+      notes: stringSchema()
+    }, ['project', 'contact']),
+    UnicornRadarEvaluationRequestResponse: objectSchema({
+      request_id: stringSchema(),
+      status: enumSchema(['evaluation_requested']),
+      project: stringSchema(),
+      disclosure: stringSchema(),
+      doctrine: stringSchema(),
+      next_steps: arrayOf(stringSchema()),
+      requested_at: dateTimeSchema()
+    }, ['request_id', 'status', 'project', 'disclosure', 'doctrine', 'next_steps', 'requested_at']),
+    UnicornRadarRevenueReceiptList: objectSchema({
+      generated_at: dateTimeSchema(),
+      count: integerSchema(),
+      receipts: arrayOf({ $ref: '#/components/schemas/UnicornRadarRevenueReceipt' })
+    }, ['generated_at', 'count', 'receipts']),
     SignalHuntProofState: enumSchema(['unproven', 'receipts_attached', 'validated', 'challenged', 'rejected']),
     SignalHuntHuntState: enumSchema(['fresh_signal', 'under_review', 'verified_signal', 'noise', 'disputed']),
     SignalHuntDecisionState: enumSchema(['signal', 'noise', 'review']),

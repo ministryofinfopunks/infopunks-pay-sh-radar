@@ -2,6 +2,7 @@ import { createPreSpendSeedState } from '../src/repositories/preSpendSeedData';
 import { createInMemoryLoopRepository } from '../src/repositories/loopRepository';
 import { pathToFileURL } from 'node:url';
 import { listSignalHuntCandidates } from '../src/data/signalHunt';
+import { listUnicornRadarCandidates } from '../src/data/unicornRadar';
 import { hermesRuns } from '../src/data/hermesDesk';
 import { HERMES_PRE_SPEND_DECISION_EXAMPLE_ID } from '../src/services/hermesPreSpendDecision';
 import { getHermesSpendPolicyExampleCheck } from '../src/services/hermesSpendPolicy';
@@ -120,6 +121,7 @@ export function buildSmokePlan(): SmokePlan {
   const claimId = seed.claims[0]?.claim_id ?? 'claim_001';
   const loopId = createInMemoryLoopRepository().listLoops()[0]?.id ?? 'loop_pre_spend_route';
   const signalHuntId = listSignalHuntCandidates()[0]?.id ?? 'hunt_black_bull_coordination';
+  const unicornRadarCandidateId = listUnicornRadarCandidates()[0]?.id ?? 'ur_agent_memory_mesh';
   const hermesRunId = hermesRuns[0]?.id ?? 'hermes_pay_sh_route_pre_spend_check';
   const hermesPolicyCheckId = getHermesSpendPolicyExampleCheck().id;
   const hermesWalletAuditTrailId = buildHermesWalletAuditTrail().id;
@@ -141,6 +143,7 @@ export function buildSmokePlan(): SmokePlan {
       '/claim',
       '/loops',
       '/signal-hunt',
+      '/unicorn-radar',
       '/graph',
       '/narratives',
       '/narratives/attention-markets',
@@ -171,6 +174,7 @@ export function buildSmokePlan(): SmokePlan {
       `/claims/${encodeURIComponent(claimId)}`,
       `/loops/${encodeURIComponent(loopId)}`,
       `/signal-hunt/${encodeURIComponent(signalHuntId)}`,
+      `/unicorn-radar/${encodeURIComponent(unicornRadarCandidateId)}`,
       '/radar/cards',
       '/radar/cards/provider/coingecko-onchain',
       '/radar/cards/route/sol-price',
@@ -189,6 +193,8 @@ export function buildSmokePlan(): SmokePlan {
       '/v1/graph/ripples',
       '/v1/loops',
       '/v1/signal-hunt',
+      '/v1/unicorn-radar',
+      '/v1/unicorn-radar/candidates',
       '/v1/routes',
       '/v1/narratives',
       '/v1/abundance',
@@ -223,6 +229,8 @@ export function buildSmokePlan(): SmokePlan {
       '/v1/signal-desk/candidates',
       '/v1/signal-desk/candidates/candidate_sol_persona_attention',
       `/v1/signal-hunt/${encodeURIComponent(signalHuntId)}`,
+      `/v1/unicorn-radar/candidates/${encodeURIComponent(unicornRadarCandidateId)}`,
+      '/v1/unicorn-radar/revenue-receipts',
       '/v1/narratives/black-bull',
       '/v1/signals',
       '/v1/signals/black-bull',

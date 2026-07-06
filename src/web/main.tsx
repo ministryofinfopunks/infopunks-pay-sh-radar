@@ -36,6 +36,7 @@ import {
 import { ProofCheckDetailPage, ProofCheckPage } from './proofCheckPages';
 import { LoopDetailPage, LoopsPage } from './loopPages';
 import { SignalHuntDetailPage, SignalHuntPage } from './signalHuntPages';
+import { UnicornRadarDetailPage, UnicornRadarPage } from './unicornRadarPages';
 import { MachineMarketPreflightCardPage, PreflightCardIndexPage, RadarPreflightCardPage } from './preflightCardPages';
 import { AbundanceDeskPage, AttentionMarketWatchPage, AttentionMarketWatchProfilePage, AttentionMarketsPage, NarrativeSignalReportPage, NarrativesIndexPage, SignalSourcePage, SignalUpdatePermalinkPage } from './narrativePages';
 import { HermesDeskPage } from './hermesDeskPages';
@@ -1977,6 +1978,20 @@ function isSignalHuntRoute(pathname: string) {
 
 function routeSignalHuntId(pathname: string) {
   const match = pathname.match(/^\/signal-hunt\/([^/]+)\/?$/);
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+}
+
+function isUnicornRadarRoute(pathname: string) {
+  return /^\/unicorn-radar\/?$/.test(pathname);
+}
+
+function routeUnicornRadarCandidateId(pathname: string) {
+  const match = pathname.match(/^\/unicorn-radar\/([^/]+)\/?$/);
   if (!match) return null;
   try {
     return decodeURIComponent(match[1]);
@@ -9675,6 +9690,8 @@ function RadarApp() {
     { href: '/check', label: 'Check', external: false, className: undefined, active: isProofCheckIndexRoute(pathname) || routeProofCheckId(pathname) !== null },
     { href: '/loops', label: 'Loops', external: false, className: undefined, active: isLoopsIndexRoute(pathname) || routeLoopId(pathname) !== null },
     { href: '/signal-hunt', label: 'Signal Hunt', external: false, className: undefined, active: isSignalHuntRoute(pathname) || routeSignalHuntId(pathname) !== null },
+    { href: '/unicorn-radar', label: 'Unicorn Radar', external: false, className: undefined, active: isUnicornRadarRoute(pathname) || routeUnicornRadarCandidateId(pathname) !== null },
+    { href: '/#agent-benchmark-api', label: 'Agent Benchmark API', external: false, className: undefined, active: agentBenchmarkActive },
     { href: '/graph', label: 'Signal Graph', external: false, className: undefined, active: isGraphRoute(pathname) || routeSignalSlug(pathname) !== null || routeSignalUpdate(pathname) !== null },
     { href: '/claim', label: 'Claims', external: false, className: undefined, active: isClaimsIndexRoute(pathname) || routeClaimId(pathname) !== null }
   ] as const;
@@ -14372,6 +14389,9 @@ export function App() {
   if (isSignalHuntRoute(window.location.pathname)) return <SignalHuntPage />;
   const signalHuntId = routeSignalHuntId(window.location.pathname);
   if (signalHuntId) return <SignalHuntDetailPage signalId={signalHuntId} />;
+  if (isUnicornRadarRoute(window.location.pathname)) return <UnicornRadarPage />;
+  const unicornRadarCandidateId = routeUnicornRadarCandidateId(window.location.pathname);
+  if (unicornRadarCandidateId) return <UnicornRadarDetailPage candidateId={unicornRadarCandidateId} />;
   if (isGraphRoute(window.location.pathname)) return <SignalGraphPage />;
   if (isNarrativesRoute(window.location.pathname)) return <NarrativesIndexPage />;
   if (isAttentionMarketsRoute(window.location.pathname)) return <AttentionMarketsPage />;
