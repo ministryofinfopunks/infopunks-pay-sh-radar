@@ -11346,7 +11346,7 @@ select:focus {
 
   .site-header .terminal-action-cluster-tools {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     width: 100%;
   }
 
@@ -11357,7 +11357,7 @@ select:focus {
   }
 
   .site-header .terminal-actions .density-trigger {
-    grid-column: 1 / -1;
+    grid-column: auto;
   }
 
   h1 {
@@ -11379,5 +11379,279 @@ select:focus {
   .mission-subtitle {
     font-size: 14px;
     line-height: 1.42;
+  }
+}
+
+/* Imagegen re-imagined command-center layer. */
+.terminal-meta-strip {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+  gap: 1px;
+  margin: 0 0 12px;
+  border: 1px solid rgba(126, 255, 176, .16);
+  border-radius: 12px;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgba(126, 255, 176, .08), transparent 38%, rgba(124, 199, 255, .055)),
+    rgba(2, 8, 5, .74);
+  box-shadow: 0 16px 46px rgba(0, 0, 0, .24), inset 0 1px rgba(255, 255, 255, .025);
+}
+
+.terminal-meta-strip::before {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(126, 255, 176, .055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(126, 255, 176, .045) 1px, transparent 1px);
+  background-size: 18px 18px;
+  opacity: .38;
+}
+
+.terminal-meta-strip span,
+.terminal-meta-strip strong {
+  position: relative;
+  min-width: 0;
+  min-height: 42px;
+  padding: 8px 11px;
+  display: grid;
+  align-content: center;
+  background: rgba(0, 0, 0, .16);
+}
+
+.terminal-meta-strip b {
+  color: var(--radar-text-muted);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: .12em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.terminal-meta-strip span {
+  color: var(--radar-text-secondary);
+  font-size: 11px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.terminal-meta-strip strong {
+  color: #051109;
+  background: linear-gradient(180deg, var(--radar-green), #61d98e);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.mission-control {
+  position: relative;
+  grid-template-columns: minmax(0, 1.08fr) minmax(340px, .72fr);
+  gap: 28px;
+  min-height: 0;
+  padding: clamp(18px, 2vw, 28px);
+  overflow: hidden;
+}
+
+.mission-control::before {
+  content: 'PAY.SH / EVIDENCE / ROUTE / TRUST / SIGNAL';
+  position: absolute;
+  right: 18px;
+  top: 18px;
+  color: rgba(126, 255, 176, .07);
+  font-size: clamp(24px, 4.5vw, 58px);
+  font-weight: 900;
+  letter-spacing: .04em;
+  line-height: .9;
+  max-width: 44%;
+  text-align: right;
+  pointer-events: none;
+}
+
+.mission-control > * {
+  position: relative;
+  z-index: 1;
+}
+
+.mission-control .eyebrow + .eyebrow {
+  margin-top: 4px;
+}
+
+.mission-control h1 {
+  max-width: 760px;
+  font-size: clamp(54px, 5.2vw, 86px);
+  line-height: .9;
+}
+
+.mission-subtitle {
+  max-width: 760px;
+  margin: 18px 0 0;
+  color: var(--radar-text);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(19px, 1.7vw, 24px);
+  font-weight: 700;
+  line-height: 1.18;
+}
+
+.preflight-home-cta,
+.orientation-panel {
+  border-color: rgba(124, 199, 255, .16);
+  background:
+    linear-gradient(90deg, rgba(124, 199, 255, .07), transparent 46%),
+    rgba(0, 0, 0, .22);
+}
+
+.terminal-quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.terminal-quick-actions a {
+  min-width: 0;
+  min-height: 58px;
+  border: 1px solid rgba(203, 255, 221, .12);
+  border-left-color: rgba(126, 255, 176, .3);
+  border-radius: 10px;
+  padding: 10px;
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  color: inherit;
+  text-decoration: none;
+  background:
+    linear-gradient(90deg, rgba(126, 255, 176, .06), transparent 62%),
+    rgba(0, 0, 0, .2);
+}
+
+.terminal-quick-actions a:hover {
+  border-color: rgba(126, 255, 176, .28);
+  background:
+    linear-gradient(90deg, rgba(126, 255, 176, .1), transparent 62%),
+    rgba(0, 0, 0, .24);
+  transform: translateY(-1px);
+}
+
+.terminal-quick-actions b {
+  color: var(--radar-text);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px;
+  line-height: 1.1;
+}
+
+.terminal-quick-actions span {
+  color: var(--radar-text-muted);
+  font-size: 10.5px;
+  letter-spacing: .04em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.ticker.mission-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.ticker.mission-metrics .control-metric {
+  min-height: 104px !important;
+  border-left: 2px solid rgba(126, 255, 176, .38) !important;
+  background:
+    linear-gradient(135deg, rgba(126, 255, 176, .05), transparent 46%),
+    rgba(0, 0, 0, .24) !important;
+}
+
+.ticker.mission-metrics .control-metric small {
+  text-transform: uppercase;
+}
+
+.ticker.mission-metrics .control-metric strong {
+  font-size: clamp(20px, 2vw, 28px);
+}
+
+.machine-module-card,
+.signal-graph-teaser-card {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  min-height: 118px;
+  border-left: 3px solid rgba(126, 255, 176, .32);
+  background:
+    linear-gradient(90deg, rgba(126, 255, 176, .065), transparent 54%),
+    linear-gradient(180deg, rgba(10, 22, 15, .9), rgba(3, 8, 5, .9));
+}
+
+.signal-graph-teaser-card {
+  border-left-color: rgba(124, 199, 255, .34);
+  background:
+    linear-gradient(90deg, rgba(124, 199, 255, .065), transparent 54%),
+    linear-gradient(180deg, rgba(8, 18, 18, .9), rgba(3, 8, 5, .9));
+}
+
+@media (max-width: 1040px) {
+  .terminal-meta-strip,
+  .mission-control,
+  .machine-module-card,
+  .signal-graph-teaser-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .terminal-meta-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .terminal-meta-strip strong {
+    grid-column: 1 / -1;
+  }
+
+  .mission-control::before {
+    max-width: 72%;
+    opacity: .7;
+  }
+}
+
+@media (max-width: 680px) {
+  .terminal-meta-strip {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .terminal-meta-strip span,
+  .terminal-meta-strip strong {
+    min-height: 34px;
+  }
+
+  .mission-control {
+    padding: 14px;
+  }
+
+  .mission-control::before {
+    right: 10px;
+    top: 48px;
+    max-width: 90%;
+    font-size: 24px;
+  }
+
+  .mission-control h1 {
+    width: min(100%, 310px);
+    max-width: min(100%, 310px) !important;
+    font-size: clamp(31px, 9.2vw, 38px);
+    line-height: .98;
+  }
+
+  .mission-subtitle,
+  .mission-control .copy,
+  .preflight-home-cta,
+  .source-stack {
+    width: min(100%, 310px);
+    max-width: min(100%, 310px);
+  }
+
+  .terminal-quick-actions,
+  .ticker.mission-metrics {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

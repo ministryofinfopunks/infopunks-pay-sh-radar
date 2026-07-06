@@ -1496,9 +1496,11 @@ const PUBLIC_API_HOST = 'https://infopunks-pay-sh-radar.onrender.com';
 const API_TIMEOUT_MS = 8_000;
 const SECONDARY_TIMEOUT_MS = 12_000;
 const CRITICAL_PULSE_TIMEOUT_MS = 10_000;
+const INITIAL_PROVIDER_RISK_PREFETCH_LIMIT = 12;
 const DOSSIER_INTERACTION_HOLD_MS = 20_000;
 const ROUTE_INTERACTION_HOLD_MS = 60_000;
 const OPENAPI_PATH = '/openapi.json';
+const clientWarningKeys = new Set<string>();
 type DensityMode = 'comfortable' | 'dense';
 type CommandPaletteAction = {
   id: string;
@@ -1664,6 +1666,12 @@ function debugDiagnosticsEnabled() {
   } catch {
     return false;
   }
+}
+
+function warnClientOnce(key: string, message: string) {
+  if (clientWarningKeys.has(key)) return;
+  clientWarningKeys.add(key);
+  console.warn(message);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -8833,7 +8841,6 @@ function RadarApp() {
   const [selectionMode, setSelectionMode] = useState<'auto' | 'manual'>('auto');
   const [featuredProvider, setFeaturedProvider] = useState<FeaturedProvider | null>(null);
   const [nextRotationAt, setNextRotationAt] = useState<number | null>(null);
-  const [rotationNow, setRotationNow] = useState(() => Date.now());
   const [directoryQuery, setDirectoryQuery] = useState('');
   const [directoryCategory, setDirectoryCategory] = useState('all');
   const [directorySort, setDirectorySort] = useState('trust score');
@@ -9104,7 +9111,12 @@ function RadarApp() {
             setAgentReadiness(null);
           });
         if (providers?.length) {
-          void Promise.allSettled(providers.slice(0, 120).map((provider) => api<{ data: RadarRiskResponse }>(`/v1/radar/risk/providers/${provider.id}`, undefined, SECONDARY_TIMEOUT_MS)))
+          const providerRiskPrefetchIds = Array.from(new Set([
+            ...providers.slice(0, INITIAL_PROVIDER_RISK_PREFETCH_LIMIT).map((provider) => provider.id),
+            ...asArray<TrustAssessment>(safePulse.topTrust).slice(0, 4).map((assessment) => assessment.entityId),
+            ...asArray<SignalAssessment>(safePulse.topSignal).slice(0, 4).map((assessment) => assessment.entityId)
+          ].filter((value): value is string => typeof value === 'string' && value.length > 0)));
+          void Promise.allSettled(providerRiskPrefetchIds.map((providerId) => api<{ data: RadarRiskResponse }>(`/v1/radar/risk/providers/${providerId}`, undefined, SECONDARY_TIMEOUT_MS)))
             .then((riskResults) => {
               if (!active) return;
               const mapped: Record<string, RadarRiskResponse> = {};
@@ -9335,7 +9347,9 @@ function RadarApp() {
       pricingState
     };
   }, [endpointIntelligenceRows, providerIntel?.coordination_eligible, providerRisk, reportedEndpointCount, selectedProvider]);
-  const nextRotationLabel = featuredRotationEnabled && selectionMode === 'auto' && nextRotationAt ? formatRotationCountdown(nextRotationAt - rotationNow) : 'paused';
+  const nextRotationLabel = featuredRotationEnabled && selectionMode === 'auto' && nextRotationAt
+    ? formatShortDate(new Date(nextRotationAt).toISOString())
+    : 'paused';
   const isFeaturedProvider = selectionMode === 'auto' && featuredRotationEnabled && selectedProvider?.id === featuredProvider?.providerId;
   const filteredTimelineBatches = useMemo(() => {
     const visibleEvents = filterAndSortEvents(pulseSummary?.timeline ?? [], eventFilter, eventSort);
@@ -9374,14 +9388,12 @@ function RadarApp() {
   }, [featuredRotationEnabled, selectionMode, featuredProvider]);
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      const now = Date.now();
-      setRotationNow(now);
-      if (featuredRotationEnabledRef.current && selectionModeRef.current === 'auto' && nextRotationAt && now >= nextRotationAt) {
-        void fetchFeaturedProvider();
-      }
-    }, 1_000);
-    return () => window.clearInterval(timer);
+    if (!nextRotationAt) return;
+    const delayMs = Math.max(0, nextRotationAt - Date.now());
+    const timer = window.setTimeout(() => {
+      if (featuredRotationEnabledRef.current && selectionModeRef.current === 'auto') void fetchFeaturedProvider();
+    }, delayMs);
+    return () => window.clearTimeout(timer);
   }, [nextRotationAt]);
 
   useEffect(() => {
@@ -9771,6 +9783,13 @@ function RadarApp() {
     <MethodologyDrawer open={methodologyOpen} onClose={() => setMethodologyOpen(false)} />
 
     <main id="terminal-content">
+    {!agentMode && <section className="terminal-meta-strip" aria-label="Terminal session metadata">
+      <span><b>System Time</b>{formatDate(data.pulse.data_source.generated_at ?? data.pulse.data_source.last_ingested_at)}</span>
+      <span><b>Network</b>{data.pulse.data_source.mode === 'live_pay_sh_catalog' && !data.pulse.data_source.used_fixture ? 'online' : 'fixture fallback'}</span>
+      <span><b>Operator</b>Infopunks</span>
+      <span><b>Terminal ID</b>RADAR-{data.pulse.providerCount}-{data.pulse.endpointCount}</span>
+      <strong>No receipt, no trust</strong>
+    </section>}
     {bootError && <section className="panel" role="status" aria-live="polite">
       <p className="route-state error">{bootError}</p>
       <button className="execute compact secondary" type="button" onClick={() => window.location.reload()}>Retry</button>
@@ -9829,6 +9848,14 @@ function RadarApp() {
           <span className={`source-badge ${data.pulse.data_source.mode}`}>{data.pulse.data_source.mode === 'live_pay_sh_catalog' ? 'LIVE PAY.SH CATALOG' : 'FIXTURE-BACKED RADAR STATE'}</span>
           <small className="source-line">{formatDataSource(data.pulse.data_source, data.pulse.providerCount, data.pulse.endpointCount)}</small>
         </div>
+        <nav className="terminal-quick-actions" aria-label="Command briefing quick actions">
+          <a href="#preflight"><b>Run Preflight</b><span>Validate routes</span></a>
+          <a href="#compare"><b>Compare Providers</b><span>Cost and performance</span></a>
+          <a href="#benchmark-readiness"><b>View Benchmarks</b><span>Readiness scores</span></a>
+          <a href="#route-mapping-registry"><b>Check Mappings</b><span>Route intelligence</span></a>
+          <a href="/claim"><b>Browse Claims</b><span>Evidence trails</span></a>
+          <a href="#agent-benchmark-api"><b>Agent Benchmark API</b><span>Access API docs</span></a>
+        </nav>
       </div>
       <div className="ticker mission-metrics" aria-label="Live radar stats">
         <ControlStripMetric label="Providers" value={data.pulse.providerCount} />
@@ -10073,7 +10100,7 @@ function RadarApp() {
                 <span>Featured rotation</span>
               </label>
               {selectionMode === 'manual' && <button className="resume-rotate" type="button" onClick={resumeAutoRotation}>Resume featured rotation</button>}
-              <small>{selectionMode === 'manual' ? 'Paused by manual selection' : `Next provider in ${nextRotationLabel}`}</small>
+              <small>{selectionMode === 'manual' ? 'Paused by manual selection' : `Next provider window closes ${nextRotationLabel}`}</small>
             </div>
           </div>
           {selectedProvider && <>
@@ -12898,14 +12925,14 @@ function openExportRoute(path: string) {
 
 function formatPrice(price: unknown) {
   if (!isRecord(price)) {
-    console.warn('[radar-render:pricing] malformed pricing payload, using unknown');
+    warnClientOnce('pricing-malformed-payload', '[radar-render:pricing] malformed pricing payload, using unknown');
     return 'unknown';
   }
   const safeRange = getSafeRange(price, { min: -1, max: -1 });
   const hasNumericRange = Number.isFinite(price.min) && Number.isFinite(price.max);
   if (!hasNumericRange) {
     if (typeof price.raw === 'string' && price.raw.trim()) return price.raw;
-    console.warn('[radar-render:pricing] missing price range min/max, using unknown');
+    warnClientOnce('pricing-missing-range', '[radar-render:pricing] missing price range min/max, using unknown');
     return 'unknown';
   }
   if (safeRange.min === 0 && safeRange.max === 0) return 'free';
@@ -13333,13 +13360,6 @@ function componentValue(value: number | null | undefined) {
 
 function knownState(value: number | null | undefined) {
   return typeof value === 'number' ? `known ${value}/100` : 'unknown';
-}
-
-function formatRotationCountdown(valueMs: number) {
-  const totalSeconds = Math.max(0, Math.ceil(valueMs / 1000));
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
 function formatScoreDelta(delta: ScoreDelta) {
