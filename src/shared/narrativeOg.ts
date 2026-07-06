@@ -167,7 +167,14 @@ export function renderUnicornRadarOgImage(candidate: UnicornRadarCandidate) {
   const marketData = candidate.dexScreenerData;
   const marketSummary = marketData
     ? `MCAP ${formatCompactNumber(marketData.marketCap)} · LIQ ${formatCompactNumber(marketData.liquidityUsd)} · VOL ${formatCompactNumber(marketData.volume24h)} · 24H ${formatPercent(marketData.priceChange24h)}`
-    : 'NO DEXSCREENER MARKET DATA ATTACHED';
+    : candidate.verificationStatus === 'pending_manual_review'
+      ? 'PENDING MANUAL REVIEW · DO NOT TOUCH YET'
+      : 'NO DEXSCREENER MARKET DATA ATTACHED';
+  const marketFooter = marketData
+    ? 'Market data via DexScreener. Infopunks verdict is independent.'
+    : candidate.verificationStatus === 'pending_manual_review'
+      ? 'No DexScreener market panel: canonical token identity is not verified.'
+      : 'No DexScreener market data attached. Infopunks verdict is independent.';
   const titleLines = wrapText(title, 28).slice(0, 2);
   const thesisLines = wrapText(candidate.thesis, 70).slice(0, 2);
   const titleMarkup = titleLines.map((line, index) => (
@@ -218,7 +225,7 @@ export function renderUnicornRadarOgImage(candidate: UnicornRadarCandidate) {
   <text x="606" y="501" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="15" font-weight="800" fill="#fef3c7">${escapeXml(paidLine)}</text>
   <rect x="70" y="530" width="990" height="46" rx="14" fill="#071411" stroke="#173c35" />
   <text x="92" y="559" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="16" font-weight="800" fill="#9bf1cc">${escapeXml(marketSummary)}</text>
-  <text x="72" y="598" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="18" font-weight="800" fill="#d3fff1">Market data via DexScreener. Infopunks verdict is independent.</text>
+  <text x="72" y="598" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="18" font-weight="800" fill="#d3fff1">${escapeXml(marketFooter)}</text>
   <text x="72" y="620" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="15" fill="#7fa195">Projects can buy evaluation, not conviction.</text>
   <circle cx="1044" cy="154" r="92" fill="none" stroke="#173c35" stroke-width="1.5" />
   <circle cx="1044" cy="154" r="56" fill="none" stroke="#1e4c43" stroke-width="1.5" />

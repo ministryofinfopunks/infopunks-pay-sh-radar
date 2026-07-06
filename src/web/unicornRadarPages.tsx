@@ -8,6 +8,7 @@ type UnicornRadarSector =
   | 'DeFi'
   | 'DePIN'
   | 'Consumer'
+  | 'Gaming / Consumer'
   | 'Agent Rails'
   | 'Payment Infrastructure'
   | 'Social / Attention Markets'
@@ -134,7 +135,7 @@ type UnicornRadarSummary = {
 };
 
 const API_BASE_URL = getApiBaseUrl();
-const SECTORS: Array<'all' | UnicornRadarSector> = ['all', 'AI', 'AI / Agent Rails', 'RWA', 'DeFi', 'DePIN', 'Consumer', 'Agent Rails', 'Payment Infrastructure', 'Social / Attention Markets', 'Tokenized Apps'];
+const SECTORS: Array<'all' | UnicornRadarSector> = ['all', 'AI', 'AI / Agent Rails', 'RWA', 'DeFi', 'DePIN', 'Consumer', 'Gaming / Consumer', 'Agent Rails', 'Payment Infrastructure', 'Social / Attention Markets', 'Tokenized Apps'];
 const STATUSES: Array<'all' | UnicornRadarStatus> = ['all', 'unseen_signal', 'watchlist', 'high_signal_lowcap', 'consensus_forming', 'do_not_touch_yet', 'infopunks_missed_it', 'paid_evaluation'];
 const VERDICTS: Array<'all' | UnicornRadarVerdict> = ['all', 'high_signal_early', 'interesting_needs_receipts', 'real_product_weak_attention', 'strong_attention_weak_proof', 'do_not_touch_yet', 'consensus_already_forming', 'missed_by_infopunks'];
 
@@ -247,6 +248,8 @@ function buildMarketRiskBadges(candidate: UnicornRadarCandidate) {
 }
 
 function MarketDataPanel({ candidate, compact = false }: { candidate: UnicornRadarCandidate; compact?: boolean }) {
+  if (candidate.verificationStatus !== 'verified_live_market' || !candidate.tokenAddress) return null;
+
   const data = candidate.dexScreenerData;
   const riskBadges = buildMarketRiskBadges(candidate);
 
@@ -296,6 +299,9 @@ function MarketDataPanel({ candidate, compact = false }: { candidate: UnicornRad
 
 function VerificationBadge({ candidate }: { candidate: UnicornRadarCandidate }) {
   if (!candidate.productionReady) return null;
+  if (candidate.verificationStatus === 'pending_manual_review') return <span className="status-pill warn">Pending manual review</span>;
+  if (candidate.verificationStatus === 'rejected') return <span className="status-pill danger">Rejected</span>;
+  if (candidate.verificationStatus === 'not_tokenized') return <span className="status-pill review">Not tokenized</span>;
   return <span className="status-pill ok">Verified live market</span>;
 }
 
@@ -457,6 +463,14 @@ export function UnicornRadarPage() {
       </section>
 
       {error && <section className="panel"><p className="route-state error">{error}</p></section>}
+
+      <section className="panel unicorn-radar-module" aria-label="Drop #001 candidate queue">
+        <div>
+          <p className="eyebrow">Drop #001 candidate queue</p>
+          <h2>Two CT-intake candidates promoted to framed Radar records.</h2>
+          <p className="copy">KINS is watchlist-only pending gameplay and user receipts. MANIFEST is do-not-touch until canonical ticker, token, and market identity are confirmed.</p>
+        </div>
+      </section>
 
       <section className="panel unicorn-filter-panel" aria-label="Candidate filters">
         <FilterSelect label="Sector" value={sector} values={sectorOptions} onChange={setSector} />

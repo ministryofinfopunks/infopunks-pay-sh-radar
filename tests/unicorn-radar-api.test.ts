@@ -55,6 +55,13 @@ describe('unicorn radar api', () => {
           'https://dexscreener.com/solana/bullpair11111111111111111111111111111111111'
         )), { status: 200, headers: { 'Content-Type': 'application/json' } }));
       }
+      if (url.includes('Tqj8yFmagrg7oorpQkVGYR52r96RFTamvWfth9bpump')) {
+        return Promise.resolve(new Response(JSON.stringify(liveDexPair(
+          'Tqj8yFmagrg7oorpQkVGYR52r96RFTamvWfth9bpump',
+          'f42TZnKpavq1VUcrL6yMhc6yQvpt84FwwgzBnTv2wb3w',
+          'https://dexscreener.com/solana/f42tznkpavq1vucrl6ymhc6yqvpt84fwwgzbntv2wb3w'
+        )), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+      }
       if (url.includes('/orders/v1/')) {
         return Promise.resolve(new Response(JSON.stringify({ orders: [], boosts: [] }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
       }
@@ -66,7 +73,7 @@ describe('unicorn radar api', () => {
     vi.unstubAllGlobals();
   });
 
-  it('returns the verified three-candidate production surface', async () => {
+  it('returns the verified five-candidate production surface', async () => {
     const app = await createApp(emptyIntelligenceStore());
 
     try {
@@ -74,8 +81,13 @@ describe('unicorn radar api', () => {
       expect(summary.statusCode).toBe(200);
       expect(summary.json().data).toEqual(expect.objectContaining({
         counts: expect.objectContaining({
-          total: 3,
-          by_status: expect.objectContaining({ watchlist: 2, consensus_forming: 1 })
+          total: 5,
+          by_status: expect.objectContaining({
+            high_signal_lowcap: 0,
+            watchlist: 3,
+            do_not_touch_yet: 1,
+            consensus_forming: 1
+          })
         }),
         candidates: expect.arrayContaining([
           expect.objectContaining({
@@ -93,13 +105,28 @@ describe('unicorn radar api', () => {
             id: 'ur_black_bull_ansem',
             ticker: 'ANSEM',
             status: 'consensus_forming'
+          }),
+          expect.objectContaining({
+            id: 'ur_kintara_kins',
+            ticker: 'KINS',
+            status: 'watchlist',
+            verdict: 'interesting_needs_receipts',
+            sector: 'Gaming / Consumer',
+            verificationStatus: 'verified_live_market'
+          }),
+          expect.objectContaining({
+            id: 'ur_manifest_ambiguity',
+            ticker: 'MANIFEST',
+            status: 'do_not_touch_yet',
+            verdict: 'do_not_touch_yet',
+            verificationStatus: 'pending_manual_review'
           })
         ]),
       }));
 
       const list = await app.inject({ method: 'GET', url: '/v1/unicorn-radar/candidates' });
       expect(list.statusCode).toBe(200);
-      expect(list.json().data.count).toBe(3);
+      expect(list.json().data.count).toBe(5);
       expect(list.json().data.candidates.every((candidate: { productionReady?: boolean }) => candidate.productionReady)).toBe(true);
 
       const detail = await app.inject({ method: 'GET', url: '/v1/unicorn-radar/candidates/ur_ai_rig_complex' });
@@ -115,6 +142,26 @@ describe('unicorn radar api', () => {
           txns24hSells: 45
         })
       }));
+
+      const kinsDetail = await app.inject({ method: 'GET', url: '/v1/unicorn-radar/candidates/ur_kintara_kins' });
+      expect(kinsDetail.statusCode).toBe(200);
+      expect(kinsDetail.json().data).toEqual(expect.objectContaining({
+        id: 'ur_kintara_kins',
+        dexScreenerUrl: 'https://dexscreener.com/solana/f42tznkpavq1vucrl6ymhc6yqvpt84fwwgzbntv2wb3w',
+        marketDataSource: 'dexscreener_official_api',
+        verificationStatus: 'verified_live_market'
+      }));
+
+      const manifestDetail = await app.inject({ method: 'GET', url: '/v1/unicorn-radar/candidates/ur_manifest_ambiguity' });
+      expect(manifestDetail.statusCode).toBe(200);
+      expect(manifestDetail.json().data).toEqual(expect.objectContaining({
+        id: 'ur_manifest_ambiguity',
+        verificationStatus: 'pending_manual_review',
+        status: 'do_not_touch_yet',
+        verdict: 'do_not_touch_yet'
+      }));
+      expect(manifestDetail.json().data).not.toHaveProperty('tokenAddress');
+      expect(manifestDetail.json().data).not.toHaveProperty('dexScreenerData');
 
       const receipts = await app.inject({ method: 'GET', url: '/v1/unicorn-radar/revenue-receipts' });
       expect(receipts.statusCode).toBe(200);
@@ -196,7 +243,7 @@ describe('unicorn radar api', () => {
     const app = await createApp(emptyIntelligenceStore());
 
     try {
-      for (const candidateId of ['ur_ai_rig_complex', 'ur_troll_attention_asset', 'ur_black_bull_ansem']) {
+      for (const candidateId of ['ur_ai_rig_complex', 'ur_troll_attention_asset', 'ur_black_bull_ansem', 'ur_kintara_kins', 'ur_manifest_ambiguity']) {
         const response = await app.inject({ method: 'GET', url: `/og/unicorn-radar/${candidateId}.png` });
         expect(response.statusCode).toBe(200);
         expect(response.headers['content-type']).toContain('image/png');

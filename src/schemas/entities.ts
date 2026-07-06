@@ -531,6 +531,7 @@ export const UnicornRadarSectorSchema = z.enum([
   'DeFi',
   'DePIN',
   'Consumer',
+  'Gaming / Consumer',
   'Agent Rails',
   'Payment Infrastructure',
   'Social / Attention Markets',

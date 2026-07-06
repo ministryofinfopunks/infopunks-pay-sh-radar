@@ -38,11 +38,13 @@ describe('unicorn radar service', () => {
         if (url.includes('61V8vBaqAGMpgDQi4JcAwo1dmBGHsyhzodcPqnEVpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('61V8vBaqAGMpgDQi4JcAwo1dmBGHsyhzodcPqnEVpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
         if (url.includes('5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
         if (url.includes('9cRCn9rGT8V2imeM2BaKs13yhMEais3ruM3rPvTGpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('9cRCn9rGT8V2imeM2BaKs13yhMEais3ruM3rPvTGpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+        if (url.includes('Tqj8yFmagrg7oorpQkVGYR52r96RFTamvWfth9bpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('Tqj8yFmagrg7oorpQkVGYR52r96RFTamvWfth9bpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
       }
       if (url.includes('/token-pairs/v1/')) {
         if (url.includes('61V8vBaqAGMpgDQi4JcAwo1dmBGHsyhzodcPqnEVpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('61V8vBaqAGMpgDQi4JcAwo1dmBGHsyhzodcPqnEVpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
         if (url.includes('5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
         if (url.includes('9cRCn9rGT8V2imeM2BaKs13yhMEais3ruM3rPvTGpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('9cRCn9rGT8V2imeM2BaKs13yhMEais3ruM3rPvTGpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+        if (url.includes('Tqj8yFmagrg7oorpQkVGYR52r96RFTamvWfth9bpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('Tqj8yFmagrg7oorpQkVGYR52r96RFTamvWfth9bpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
       }
       if (url.includes('/orders/v1/')) {
         return Promise.resolve(new Response(JSON.stringify({ orders: [], boosts: [] }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
@@ -58,15 +60,18 @@ describe('unicorn radar service', () => {
   it('returns the verified production candidate set and supports fewer than nine candidates', async () => {
     const list = await buildUnicornRadarCandidateList();
 
-    expect(list.count).toBe(3);
+    expect(list.count).toBe(5);
     expect(list.candidates.map((candidate) => candidate.id)).toEqual([
       'ur_ai_rig_complex',
       'ur_troll_attention_asset',
-      'ur_black_bull_ansem'
+      'ur_black_bull_ansem',
+      'ur_kintara_kins',
+      'ur_manifest_ambiguity'
     ]);
     expect(new Set(list.candidates.map((candidate) => candidate.sector))).toEqual(new Set([
       'AI / Agent Rails',
-      'Social / Attention Markets'
+      'Social / Attention Markets',
+      'Gaming / Consumer'
     ]));
   });
 
@@ -102,11 +107,14 @@ describe('unicorn radar service', () => {
   it('keeps statuses, verdicts, and score ranges production-shaped', async () => {
     const summary = await buildUnicornRadarSummary();
 
-    expect(summary.counts.total).toBe(3);
-    expect(summary.counts.by_status.watchlist).toBe(2);
+    expect(summary.counts.total).toBe(5);
+    expect(summary.counts.by_status.high_signal_lowcap).toBe(0);
+    expect(summary.counts.by_status.watchlist).toBe(3);
+    expect(summary.counts.by_status.do_not_touch_yet).toBe(1);
     expect(summary.counts.by_status.consensus_forming).toBe(1);
     expect(summary.counts.by_sector['AI / Agent Rails']).toBe(1);
-    expect(summary.counts.by_sector['Social / Attention Markets']).toBe(2);
+    expect(summary.counts.by_sector['Social / Attention Markets']).toBe(3);
+    expect(summary.counts.by_sector['Gaming / Consumer']).toBe(1);
 
     for (const candidate of summary.candidates) {
       for (const score of Object.values(candidate.scores)) {
@@ -134,8 +142,20 @@ describe('unicorn radar service', () => {
   it('fails open when DexScreener is unavailable', async () => {
     vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new Error('dex down'))));
     const summary = await buildUnicornRadarSummary();
-    expect(summary.candidates).toHaveLength(3);
+    expect(summary.candidates).toHaveLength(5);
     expect(summary.candidates.every((candidate) => candidate.productionReady)).toBe(true);
+  });
+
+  it('keeps MANIFEST out of DexScreener enrichment until canonical token verification', async () => {
+    const candidate = await resolveEnrichedUnicornRadarCandidate('ur_manifest_ambiguity');
+    expect(candidate).toEqual(expect.objectContaining({
+      project: 'MANIFEST / Manifesting',
+      verificationStatus: 'pending_manual_review',
+      status: 'do_not_touch_yet',
+      verdict: 'do_not_touch_yet'
+    }));
+    expect(candidate).not.toHaveProperty('tokenAddress');
+    expect(candidate).not.toHaveProperty('dexScreenerData');
   });
 
   it('creates submit and paid evaluation request receipts', () => {

@@ -24,6 +24,15 @@ function hunter(handle: string, attribution: string): UnicornRadarCandidate['hun
   };
 }
 
+function communityHunter(handle: string, attribution: string): UnicornRadarCandidate['hunter_credit'] {
+  return {
+    handle,
+    attribution,
+    submitted_at: UPDATED_AT,
+    source: 'community'
+  };
+}
+
 function unpaidDisclosure(): UnicornRadarCandidate['paid_evaluation_disclosure'] {
   return {
     is_paid: false,
@@ -193,6 +202,115 @@ export const unicornRadarCandidates: UnicornRadarCandidate[] = [
     },
     updated_at: UPDATED_AT,
     sample_disclosure: LIVE_DISCLOSURE
+  },
+  {
+    id: 'ur_kintara_kins',
+    project: 'Kintara',
+    ticker: 'KINS',
+    sector: 'Gaming / Consumer',
+    market_cap_range: 'Live market, verify current range from DexScreener',
+    thesis: 'Playable gaming/consumer candidate with a real MMO surface and active token market. Potential High-Signal Lowcap, but needs Infopunks receipts before stronger conviction.',
+    what_it_actually_does: 'Kintara presents itself as an isometric MMO where players can play to earn, buy and sell with KINS, explore quests, and adventure with friends.',
+    proof_of_shipping: 'Official product site and live market pair identified. Needs gameplay/user receipts.',
+    attention_quality_note: 'CT intake created a useful lead, but attention quality still needs user/player evidence rather than price-led claims.',
+    token_survivability_note: 'The token has a live market and visible game-facing role, but survivability depends on distribution, liquidity, and whether players use KINS beyond narrative cycles.',
+    risk_flags: [
+      'Needs independent gameplay receipts',
+      'Needs token distribution review',
+      'Gaming traction may be speculative without user/player evidence',
+      'Market cap may already price some narrative strength'
+    ],
+    why_now: 'Drop #001 surfaced KINS as a High-Signal Lowcap Candidate Pending Receipts, but the desk is keeping it watchlist-only until Infopunks receipts improve.',
+    receipts: [
+      receipt('urr_kins_receipt_001', 'Token address verified', 'market', 'Solana token address recorded from Solscan via DexScreener before enabling live market enrichment.', 'https://solscan.io/token/Tqj8yFmagrg7oorpQkVGYR52r96RFTamvWfth9bpump'),
+      receipt('urr_kins_receipt_002', 'Live DexScreener pair identified', 'market', 'Live KINS market pair recorded for enrichment, with verdict kept independent from market data.', 'https://dexscreener.com/solana/f42tznkpavq1vucrl6ymhc6yqvpt84fwwgzbntv2wb3w'),
+      receipt('urr_kins_receipt_003', 'Drop #001 CT intake note', 'note', 'Community intake is treated as a lead only. KINS needs gameplay/user receipts before higher conviction.')
+    ],
+    linked_narratives: [
+      { label: 'Signal Hunt', href: '/signal-hunt' },
+      { label: 'Narrative Intel', href: '/narratives' }
+    ],
+    linked_graph_node: { id: 'consumer_crypto', label: 'Consumer Crypto', href: '/graph' },
+    chainId: 'solana',
+    tokenAddress: 'Tqj8yFmagrg7oorpQkVGYR52r96RFTamvWfth9bpump',
+    verificationStatus: 'verified_live_market',
+    tokenAddressSource: 'Solscan via DexScreener',
+    tokenAddressSourceUrl: 'https://solscan.io/token/Tqj8yFmagrg7oorpQkVGYR52r96RFTamvWfth9bpump',
+    dexScreenerUrl: 'https://dexscreener.com/solana/f42tznkpavq1vucrl6ymhc6yqvpt84fwwgzbntv2wb3w',
+    verifiedAt: UPDATED_AT,
+    verificationNotes: [
+      'Live Solana market identified before production publication.',
+      'High-Signal Lowcap Candidate Pending Receipts language is watchlist framing, not conviction.',
+      'Needs independent gameplay, user, and token-distribution receipts.'
+    ],
+    productionReady: true,
+    hunter_credit: communityHunter('CT community intake', 'CT community intake surfaced KINS for Drop #001 review. Infopunks added only framed, receipt-limited coverage.'),
+    paid_evaluation_disclosure: unpaidDisclosure(),
+    status: 'watchlist',
+    verdict: 'interesting_needs_receipts',
+    scores: {
+      shipping_proof: 54,
+      attention_quality: 48,
+      token_survivability: 47,
+      category_timing: 64,
+      asymmetry_potential: 62,
+      overall_signal_score: 55,
+      risk_score: 72
+    },
+    updated_at: UPDATED_AT,
+    sample_disclosure: LIVE_DISCLOSURE
+  },
+  {
+    id: 'ur_manifest_ambiguity',
+    project: 'MANIFEST / Manifesting',
+    ticker: 'MANIFEST',
+    sector: 'Social / Attention Markets',
+    market_cap_range: 'No canonical market attached',
+    thesis: 'Narrative has cultural stickiness, but token identity and market ambiguity are not clean enough for positive Radar treatment yet.',
+    what_it_actually_does: 'Multiple Manifest/Manifesting token markets appear to exist, and the meme narrative overlaps with other projects using similar naming.',
+    proof_of_shipping: 'Not enough verified proof for a positive verdict.',
+    attention_quality_note: 'The narrative is culturally legible, but identity ambiguity makes attention easy to spoof and hard to attribute to one canonical market.',
+    token_survivability_note: 'No survivability read until the canonical token address, ticker identity, liquidity, and market lineage are confirmed.',
+    risk_flags: [
+      'Ticker ambiguity',
+      'Multiple token markets',
+      'Low/unclear liquidity on some pairs',
+      'Narrative can be easily spoofed',
+      'Needs canonical token confirmation'
+    ],
+    why_now: 'Drop #001 intake is preserved as a Do Not Touch Yet record so the desk does not accidentally promote an ambiguous token market.',
+    receipts: [
+      receipt('urr_manifest_receipt_001', 'Drop #001 ambiguity note', 'risk', 'Community intake flagged MANIFEST, but no canonical token address has been verified. Do not DexScreener-enrich until identity is clean.'),
+      receipt('urr_manifest_receipt_002', 'Manual review required', 'note', 'Ticker, token, and market ambiguity block positive Radar treatment.')
+    ],
+    linked_narratives: [
+      { label: 'Attention Market Watch', href: '/narratives/attention-market-watch' },
+      { label: 'Signal Hunt', href: '/signal-hunt' }
+    ],
+    linked_graph_node: { id: 'ct_subcultures', label: 'CT Subcultures', href: '/graph' },
+    verificationStatus: 'pending_manual_review',
+    verifiedAt: UPDATED_AT,
+    verificationNotes: [
+      'Pending manual review due to ticker, token, and market ambiguity.',
+      'No token address is attached, by design.',
+      'Do not DexScreener-enrich MANIFEST until a canonical token address is verified.'
+    ],
+    productionReady: true,
+    hunter_credit: communityHunter('CT community intake', 'CT community intake surfaced MANIFEST for Drop #001 review. Infopunks retained only a negative ambiguity record.'),
+    paid_evaluation_disclosure: unpaidDisclosure(),
+    status: 'do_not_touch_yet',
+    verdict: 'do_not_touch_yet',
+    scores: {
+      shipping_proof: 8,
+      attention_quality: 36,
+      token_survivability: 5,
+      category_timing: 42,
+      asymmetry_potential: 12,
+      overall_signal_score: 14,
+      risk_score: 94
+    },
+    updated_at: UPDATED_AT,
+    sample_disclosure: 'Pending manual review. Do not touch yet: token identity and market ambiguity must be resolved before any positive Radar treatment.'
   }
 ];
 

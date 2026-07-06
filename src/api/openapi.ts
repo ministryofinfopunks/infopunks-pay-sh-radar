@@ -1960,7 +1960,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     responses: envelopedResponses('UnicornRadarSummary', {
       title: 'Infopunks Unicorn Radar',
       tagline: 'Finding serious low-cap Solana projects before consensus does.',
-      counts: { total: 3 },
+      counts: { total: 5 },
       candidates: [{ id: 'ur_ai_rig_complex', project: 'AI Rig Complex', status: 'watchlist' }]
     })
   });
@@ -4676,7 +4676,7 @@ function componentSchemas(): Record<string, JsonSchema> {
       input: stringSchema(),
       linked_check_id: { oneOf: [stringSchema(), { type: 'null' }] }
     }),
-    UnicornRadarSector: enumSchema(['AI', 'RWA', 'DeFi', 'DePIN', 'Consumer', 'Agent Rails', 'Payment Infrastructure', 'Social / Attention Markets', 'Tokenized Apps']),
+    UnicornRadarSector: enumSchema(['AI', 'RWA', 'DeFi', 'DePIN', 'Consumer', 'Gaming / Consumer', 'Agent Rails', 'Payment Infrastructure', 'Social / Attention Markets', 'Tokenized Apps']),
     UnicornRadarStatus: enumSchema(['unseen_signal', 'watchlist', 'high_signal_lowcap', 'consensus_forming', 'do_not_touch_yet', 'infopunks_missed_it', 'paid_evaluation']),
     UnicornRadarVerdict: enumSchema(['high_signal_early', 'interesting_needs_receipts', 'real_product_weak_attention', 'strong_attention_weak_proof', 'do_not_touch_yet', 'consensus_already_forming', 'missed_by_infopunks']),
     UnicornRadarScores: objectSchema({

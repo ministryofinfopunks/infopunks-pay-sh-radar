@@ -93,6 +93,63 @@ const bullCandidate = {
   verdict: 'consensus_already_forming'
 };
 
+const kinsCandidate = {
+  ...baseCandidate,
+  id: 'ur_kintara_kins',
+  project: 'Kintara',
+  ticker: 'KINS',
+  sector: 'Gaming / Consumer',
+  thesis: 'Playable gaming/consumer candidate with a real MMO surface and active token market. Potential High-Signal Lowcap, but needs Infopunks receipts before stronger conviction.',
+  what_it_actually_does: 'Kintara presents itself as an isometric MMO where players can play to earn, buy and sell with KINS, explore quests, and adventure with friends.',
+  proof_of_shipping: 'Official product site and live market pair identified. Needs gameplay/user receipts.',
+  tokenAddress: 'Tqj8yFmagrg7oorpQkVGYR52r96RFTamvWfth9bpump',
+  tokenAddressSource: 'Solscan via DexScreener',
+  tokenAddressSourceUrl: 'https://solscan.io/token/Tqj8yFmagrg7oorpQkVGYR52r96RFTamvWfth9bpump',
+  dexScreenerUrl: 'https://dexscreener.com/solana/f42tznkpavq1vucrl6ymhc6yqvpt84fwwgzbntv2wb3w',
+  status: 'watchlist',
+  verdict: 'interesting_needs_receipts',
+  risk_flags: [
+    'Needs independent gameplay receipts',
+    'Needs token distribution review',
+    'Gaming traction may be speculative without user/player evidence',
+    'Market cap may already price some narrative strength'
+  ]
+};
+
+const manifestCandidate = {
+  ...baseCandidate,
+  id: 'ur_manifest_ambiguity',
+  project: 'MANIFEST / Manifesting',
+  ticker: 'MANIFEST',
+  sector: 'Social / Attention Markets',
+  market_cap_range: 'No canonical market attached',
+  thesis: 'Narrative has cultural stickiness, but token identity and market ambiguity are not clean enough for positive Radar treatment yet.',
+  what_it_actually_does: 'Multiple Manifest/Manifesting token markets appear to exist, and the meme narrative overlaps with other projects using similar naming.',
+  proof_of_shipping: 'Not enough verified proof for a positive verdict.',
+  verificationStatus: 'pending_manual_review',
+  verificationNotes: [
+    'Pending manual review due to ticker, token, and market ambiguity.',
+    'No token address is attached, by design.',
+    'Do not DexScreener-enrich MANIFEST until a canonical token address is verified.'
+  ],
+  tokenAddress: undefined,
+  pairAddress: undefined,
+  dexScreenerUrl: undefined,
+  dexScreenerData: undefined,
+  marketDataSource: undefined,
+  marketDataUpdatedAt: undefined,
+  status: 'do_not_touch_yet',
+  verdict: 'do_not_touch_yet',
+  risk_flags: [
+    'Ticker ambiguity',
+    'Multiple token markets',
+    'Low/unclear liquidity on some pairs',
+    'Narrative can be easily spoofed',
+    'Needs canonical token confirmation'
+  ],
+  sample_disclosure: 'Pending manual review. Do not touch yet: token identity and market ambiguity must be resolved before any positive Radar treatment.'
+};
+
 const summary = {
   generated_at: '2026-07-06T08:30:00.000Z',
   title: 'Infopunks Unicorn Radar',
@@ -101,22 +158,22 @@ const summary = {
   trust_line: 'Projects can buy evaluation, not conviction.',
   doctrine_line: 'Influencers sell certainty. Infopunks sells legible uncertainty.',
   counts: {
-    total: 3,
+    total: 5,
     by_status: {
       unseen_signal: 0,
-      watchlist: 2,
+      watchlist: 3,
       high_signal_lowcap: 0,
       consensus_forming: 1,
-      do_not_touch_yet: 0,
+      do_not_touch_yet: 1,
       infopunks_missed_it: 0,
       paid_evaluation: 0
     },
     by_verdict: {
       high_signal_early: 0,
-      interesting_needs_receipts: 0,
+      interesting_needs_receipts: 1,
       real_product_weak_attention: 1,
       strong_attention_weak_proof: 1,
-      do_not_touch_yet: 0,
+      do_not_touch_yet: 1,
       consensus_already_forming: 1,
       missed_by_infopunks: 0
     },
@@ -127,13 +184,14 @@ const summary = {
       DeFi: 0,
       DePIN: 0,
       Consumer: 0,
+      'Gaming / Consumer': 1,
       'Agent Rails': 0,
       'Payment Infrastructure': 0,
-      'Social / Attention Markets': 2,
+      'Social / Attention Markets': 3,
       'Tokenized Apps': 0
     }
   },
-  candidates: [baseCandidate, trollCandidate, bullCandidate],
+  candidates: [baseCandidate, trollCandidate, bullCandidate, kinsCandidate, manifestCandidate],
   revenue_receipts: [
     { id: 'rr_open_evaluation_slot', candidate_id: null, project: 'Open', amount_usd: 100, service: 'paid_evaluation', disclosure: 'Projects can buy evaluation, not conviction.', status: 'paid', paid_at: '2026-07-06T10:00:00.000Z' },
     { id: 'rr_template_001', candidate_id: null, project: 'Example', amount_usd: 0, service: 'paid_evaluation', disclosure: 'Template receipt for the public ledger.', status: 'pending', paid_at: '2026-07-06T10:00:00.000Z' },
@@ -173,7 +231,7 @@ describe('unicorn radar pages', () => {
     window.history.pushState({}, '', '/');
   });
 
-  it('renders /unicorn-radar with only the three production candidates and sector empty states', async () => {
+  it('renders /unicorn-radar with only the five production candidates and sector empty states', async () => {
     window.history.pushState({}, '', '/unicorn-radar');
 
     await act(async () => {
@@ -188,11 +246,15 @@ describe('unicorn radar pages', () => {
     expect(container.textContent).toContain('AI Rig Complex');
     expect(container.textContent).toContain('TROLL');
     expect(container.textContent).toContain('The Black Bull');
+    expect(container.textContent).toContain('Kintara');
+    expect(container.textContent).toContain('MANIFEST / Manifesting');
+    expect(container.textContent).toContain('Drop #001 candidate queue');
+    expect(container.textContent).toContain('KINS is watchlist-only pending gameplay and user receipts.');
     expect(container.textContent).toContain('Sector Coverage');
     expect(container.textContent).toContain('Revenue Receipts: see how paid evaluations are disclosed.');
     const sectorSection = container.querySelector('section[aria-label="Sector coverage"]');
     const sectorHeadings = Array.from(sectorSection?.querySelectorAll('h3') ?? []).map((node) => node.textContent);
-    expect(sectorHeadings).toEqual(['AI / Agent Rails', 'Social / Attention Markets']);
+    expect(sectorHeadings).toEqual(['AI / Agent Rails', 'Gaming / Consumer', 'Social / Attention Markets']);
   });
 
   it('renders verified badges on candidate detail pages', async () => {
@@ -234,5 +296,25 @@ describe('unicorn radar pages', () => {
 
     expect(container.textContent).toContain('AI Rig Complex');
     expect(container.textContent).toContain('No DexScreener market data is attached to this candidate yet.');
+  });
+
+  it('renders MANIFEST as pending manual review without a DexScreener market panel', async () => {
+    mockFetch(manifestCandidate, { ...summary, candidates: [baseCandidate, trollCandidate, bullCandidate, kinsCandidate, manifestCandidate] });
+    window.history.pushState({}, '', '/unicorn-radar/ur_manifest_ambiguity');
+
+    await act(async () => {
+      root.render(<App />);
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(container.textContent).toContain('MANIFEST / Manifesting');
+    expect(container.textContent).toContain('Pending manual review');
+    expect(container.textContent).toContain('Do not touch yet');
+    expect(container.textContent).toContain('Do not DexScreener-enrich MANIFEST until a canonical token address is verified.');
+    expect(container.textContent).not.toContain('Open DexScreener');
+    expect(container.querySelector('section[aria-label="Market data"]')).toBeNull();
   });
 });
