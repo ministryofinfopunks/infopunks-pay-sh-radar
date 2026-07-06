@@ -154,4 +154,38 @@ describe('narrative metadata helper', () => {
       twitterCard: 'summary_large_image'
     });
   });
+
+  it('returns metadata for /revenue-receipts', () => {
+    expect(getNarrativeMetadataForPath('/revenue-receipts')).toEqual({
+      title: 'Infopunks Revenue Receipts',
+      description: 'Public ledger for paid evaluations, bounties, listings, reports, studio work, and API access.',
+      canonicalPath: '/revenue-receipts',
+      ogTitle: 'Infopunks Revenue Receipts',
+      ogDescription: 'Public ledger for paid evaluations, bounties, listings, reports, studio work, and API access.',
+      ogImageUrl: 'https://radar.infopunks.fun/og/revenue-receipts.png',
+      ogImageWidth: 1200,
+      ogImageHeight: 630,
+      twitterTitle: 'Infopunks Revenue Receipts',
+      twitterDescription: 'Public ledger for paid evaluations, bounties, listings, reports, studio work, and API access.',
+      twitterImageUrl: 'https://radar.infopunks.fun/og/revenue-receipts.png',
+      twitterCard: 'summary_large_image'
+    });
+  });
+
+  it('returns detail metadata for Revenue Receipt pages', () => {
+    expect(getNarrativeMetadataForPath('/revenue-receipts/rr_open_evaluation_slot')).toEqual({
+      title: 'Infopunks Revenue Receipt: Open Slot / Open Unicorn Radar Evaluation Slot',
+      description: 'Public receipt for Open, sponsored_radar_evaluation, USD 100, with disclosure and independence statement.',
+      canonicalPath: '/revenue-receipts/rr_open_evaluation_slot',
+      ogTitle: 'Infopunks Revenue Receipt: Open Slot / Open Unicorn Radar Evaluation Slot',
+      ogDescription: 'Public receipt for Open, sponsored_radar_evaluation, USD 100, with disclosure and independence statement.',
+      ogImageUrl: 'https://radar.infopunks.fun/og/revenue-receipts/rr_open_evaluation_slot.png',
+      ogImageWidth: 1200,
+      ogImageHeight: 630,
+      twitterTitle: 'Infopunks Revenue Receipt: Open Slot / Open Unicorn Radar Evaluation Slot',
+      twitterDescription: 'Public receipt for Open, sponsored_radar_evaluation, USD 100, with disclosure and independence statement.',
+      twitterImageUrl: 'https://radar.infopunks.fun/og/revenue-receipts/rr_open_evaluation_slot.png',
+      twitterCard: 'summary_large_image'
+    });
+  });
 });

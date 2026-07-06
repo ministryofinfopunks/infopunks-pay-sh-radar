@@ -185,6 +185,7 @@ describe('unicorn radar pages', () => {
     expect(container.textContent).toContain('TROLL');
     expect(container.textContent).toContain('The Black Bull');
     expect(container.textContent).toContain('Sector Coverage');
+    expect(container.textContent).toContain('Revenue Receipts: see how paid evaluations are disclosed.');
     const sectorSection = container.querySelector('section[aria-label="Sector coverage"]');
     const sectorHeadings = Array.from(sectorSection?.querySelectorAll('h3') ?? []).map((node) => node.textContent);
     expect(sectorHeadings).toEqual(['AI / Agent Rails', 'Social / Attention Markets']);

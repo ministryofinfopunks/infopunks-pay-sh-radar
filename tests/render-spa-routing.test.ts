@@ -136,6 +136,20 @@ describe('render-style SPA routing boundaries', () => {
       expect(unicornRadarDetail.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/unicorn-radar/ur_ai_rig_complex.png"');
       expect(unicornRadarDetail.body).toContain('name="twitter:image" content="https://radar.infopunks.fun/og/unicorn-radar/ur_ai_rig_complex.png"');
 
+      const revenueReceipts = await app.inject({ method: 'GET', url: '/revenue-receipts' });
+      expect(revenueReceipts.statusCode).toBe(200);
+      expect(revenueReceipts.headers['content-type']).toContain('text/html');
+      expect(revenueReceipts.body).toContain('<title>Infopunks Revenue Receipts</title>');
+      expect(revenueReceipts.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/revenue-receipts.png"');
+      expect(revenueReceipts.body).toContain('name="twitter:image" content="https://radar.infopunks.fun/og/revenue-receipts.png"');
+
+      const revenueReceiptDetail = await app.inject({ method: 'GET', url: '/revenue-receipts/rr_open_evaluation_slot' });
+      expect(revenueReceiptDetail.statusCode).toBe(200);
+      expect(revenueReceiptDetail.headers['content-type']).toContain('text/html');
+      expect(revenueReceiptDetail.body).toContain('Infopunks Revenue Receipt: Open Slot / Open Unicorn Radar Evaluation Slot');
+      expect(revenueReceiptDetail.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/revenue-receipts/rr_open_evaluation_slot.png"');
+      expect(revenueReceiptDetail.body).toContain('name="twitter:image" content="https://radar.infopunks.fun/og/revenue-receipts/rr_open_evaluation_slot.png"');
+
       const graph = await app.inject({ method: 'GET', url: '/graph' });
       expect(graph.statusCode).toBe(200);
       expect(graph.headers['content-type']).toContain('text/html');
@@ -246,6 +260,8 @@ describe('render-style SPA routing boundaries', () => {
         '/signal-hunt/hunt_black_bull_coordination',
         '/unicorn-radar',
         '/unicorn-radar/ur_ai_rig_complex',
+        '/revenue-receipts',
+        '/revenue-receipts/rr_open_evaluation_slot',
         '/narratives',
         '/narratives/attention-markets',
         '/narratives/attention-market-watch',

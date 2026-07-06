@@ -1,6 +1,6 @@
 import { getSignalSurfaceBySlug } from '../data/narrativeIntel';
 import { getSignalUpdate } from '../data/signalUpdates';
-import type { UnicornRadarCandidate } from '../schemas/entities';
+import type { RevenueReceipt, UnicornRadarCandidate } from '../schemas/entities';
 
 export const OG_IMAGE_WIDTH = 1200;
 export const OG_IMAGE_HEIGHT = 630;
@@ -77,9 +77,18 @@ export function narrativeOgImageUrl(pathname: string) {
     return '/og/unicorn-radar.png';
   }
 
+  if (/^\/revenue-receipts\/?$/.test(pathname)) {
+    return '/og/revenue-receipts.png';
+  }
+
   const unicornRadarMatch = pathname.match(/^\/unicorn-radar\/([^/]+)\/?$/);
   if (unicornRadarMatch) {
     return `/og/unicorn-radar/${encodeURIComponent(unicornRadarMatch[1])}.png`;
+  }
+
+  const revenueReceiptMatch = pathname.match(/^\/revenue-receipts\/([^/]+)\/?$/);
+  if (revenueReceiptMatch) {
+    return `/og/revenue-receipts/${encodeURIComponent(revenueReceiptMatch[1])}.png`;
   }
 
   if (/^\/signals\/black-bull\/?$/.test(pathname)) {
@@ -117,6 +126,14 @@ function formatCompactNumber(value: number | null | undefined, digits = 1) {
   return new Intl.NumberFormat('en-US', {
     notation: 'compact',
     maximumFractionDigits: digits
+  }).format(value);
+}
+
+function formatMoney(value: number, currency: string) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency,
+    maximumFractionDigits: value >= 100 ? 0 : 2
   }).format(value);
 }
 
@@ -246,6 +263,92 @@ export function renderUnicornRadarIndexOgImage() {
   <circle cx="1038" cy="172" r="60" fill="none" stroke="#1e4c43" stroke-width="1.5" />
   <path d="M962 232C1000 206 1030 184 1078 130" stroke="#7effb0" stroke-width="4" stroke-linecap="round" />
   <circle cx="1078" cy="130" r="8" fill="#7effb0" />
+</svg>`;
+}
+
+export function renderRevenueReceiptsIndexOgImage() {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" viewBox="0 0 ${OG_IMAGE_WIDTH} ${OG_IMAGE_HEIGHT}" role="img" aria-label="Infopunks Revenue Receipts">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b0905" />
+      <stop offset="56%" stop-color="#18130a" />
+      <stop offset="100%" stop-color="#271c10" />
+    </linearGradient>
+    <radialGradient id="glow" cx="78%" cy="22%" r="44%">
+      <stop offset="0%" stop-color="#ffd166" stop-opacity="0.24" />
+      <stop offset="100%" stop-color="#ffd166" stop-opacity="0" />
+    </radialGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#4f3920" stroke-width="1" opacity="0.72" />
+    </pattern>
+  </defs>
+  <rect width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" fill="url(#bg)" />
+  <rect width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" fill="url(#glow)" />
+  <rect width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" fill="url(#grid)" opacity="0.48" />
+  <rect x="42" y="34" width="1116" height="562" rx="28" fill="#120d07" fill-opacity="0.8" stroke="#8b5e1f" stroke-width="2" />
+  <rect x="70" y="60" width="406" height="38" rx="19" fill="#2a1d0e" stroke="#8b5e1f" />
+  <text x="94" y="85" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="18" font-weight="800" fill="#ffd166" letter-spacing="1.1">INFOPUNKS REVENUE RECEIPTS</text>
+  <text x="70" y="152" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="62" font-weight="800" fill="#fff7ea">No receipt, no trust.</text>
+  <text x="70" y="222" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="28" fill="#f2d8a7">Public ledger for paid evaluations, bounties, reports, listings, studio work, and API access.</text>
+  <rect x="70" y="316" width="542" height="54" rx="14" fill="#1a130b" stroke="#6f4d17" />
+  <text x="92" y="350" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="18" font-weight="800" fill="#fff1c7">PROJECTS CAN BUY EVALUATION, NOT CONVICTION.</text>
+  <rect x="70" y="394" width="690" height="48" rx="14" fill="#1a130b" stroke="#6f4d17" />
+  <text x="92" y="424" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="17" font-weight="800" fill="#ffd166">Open slots, templates, and internal build receipts only until paid work is real.</text>
+  <rect x="70" y="488" width="342" height="54" rx="14" fill="#1a130b" stroke="#6f4d17" />
+  <text x="92" y="522" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="18" font-weight="800" fill="#fff1c7">PUBLIC COMMERCIAL LEDGER</text>
+</svg>`;
+}
+
+export function renderRevenueReceiptOgImage(receipt: RevenueReceipt) {
+  const source = formatOgLabel(receipt.source);
+  const status = formatOgLabel(receipt.status);
+  const titleLines = wrapText(receipt.title, 30).slice(0, 2);
+  const titleMarkup = titleLines.map((line, index) => (
+    `<text x="70" y="${166 + (index * 52)}" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="46" font-weight="800" fill="#fff7ea">${escapeXml(line)}</text>`
+  )).join('');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" viewBox="0 0 ${OG_IMAGE_WIDTH} ${OG_IMAGE_HEIGHT}" role="img" aria-label="${escapeXml(receipt.title)}">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b0905" />
+      <stop offset="56%" stop-color="#18130a" />
+      <stop offset="100%" stop-color="#271c10" />
+    </linearGradient>
+    <radialGradient id="glow" cx="78%" cy="24%" r="44%">
+      <stop offset="0%" stop-color="#ffd166" stop-opacity="0.28" />
+      <stop offset="100%" stop-color="#ffd166" stop-opacity="0" />
+    </radialGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#4f3920" stroke-width="1" opacity="0.72" />
+    </pattern>
+  </defs>
+  <rect width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" fill="url(#bg)" />
+  <rect width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" fill="url(#glow)" />
+  <rect width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" fill="url(#grid)" opacity="0.48" />
+  <rect x="42" y="34" width="1116" height="562" rx="28" fill="#120d07" fill-opacity="0.8" stroke="#8b5e1f" stroke-width="2" />
+  <rect x="70" y="60" width="406" height="38" rx="19" fill="#2a1d0e" stroke="#8b5e1f" />
+  <text x="94" y="85" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="18" font-weight="800" fill="#ffd166" letter-spacing="1.1">INFOPUNKS REVENUE RECEIPT</text>
+  <text x="70" y="126" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="18" fill="#ffdd9b" letter-spacing="2">${escapeXml(receipt.receiptNumber.toUpperCase())}</text>
+  ${titleMarkup}
+  <rect x="72" y="282" width="262" height="42" rx="21" fill="#1a130b" stroke="#8b5e1f" />
+  <text x="94" y="309" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="17" font-weight="800" fill="#fff1c7">${escapeXml(status)}</text>
+  <rect x="352" y="282" width="386" height="42" rx="21" fill="#1a130b" stroke="#8b5e1f" />
+  <text x="374" y="309" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="17" font-weight="800" fill="#fff1c7">${escapeXml(source)}</text>
+  <rect x="70" y="358" width="430" height="72" rx="16" fill="#1a130b" stroke="#6f4d17" />
+  <text x="92" y="388" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="15" fill="#ffdd9b">CLIENT</text>
+  <text x="92" y="420" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="30" font-weight="800" fill="#fff7ea">${escapeXml(receipt.clientName)}</text>
+  <rect x="528" y="358" width="320" height="72" rx="16" fill="#1a130b" stroke="#6f4d17" />
+  <text x="550" y="388" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="15" fill="#ffdd9b">AMOUNT</text>
+  <text x="550" y="420" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="30" font-weight="800" fill="#fff7ea">${escapeXml(formatMoney(receipt.amount, receipt.currency))}</text>
+  <rect x="876" y="358" width="184" height="72" rx="16" fill="#1a130b" stroke="#6f4d17" />
+  <text x="898" y="388" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="15" fill="#ffdd9b">PRODUCT</text>
+  <text x="898" y="420" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="24" font-weight="800" fill="#fff7ea">${escapeXml(clampText(receipt.relatedProduct, 12))}</text>
+  <rect x="70" y="470" width="610" height="48" rx="14" fill="#1a130b" stroke="#6f4d17" />
+  <text x="92" y="500" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="18" font-weight="800" fill="#fff1c7">No receipt, no trust.</text>
+  <rect x="70" y="536" width="838" height="48" rx="14" fill="#1a130b" stroke="#6f4d17" />
+  <text x="92" y="566" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="18" font-weight="800" fill="#ffd166">Projects can buy evaluation, not conviction.</text>
 </svg>`;
 }
 

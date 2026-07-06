@@ -93,6 +93,8 @@ describe('openapi discovery', () => {
     expect(spec.paths['/v1/unicorn-radar/submit']?.post).toBeTruthy();
     expect(spec.paths['/v1/unicorn-radar/request-evaluation']?.post).toBeTruthy();
     expect(spec.paths['/v1/unicorn-radar/revenue-receipts']?.get).toBeTruthy();
+    expect(spec.paths['/v1/revenue-receipts']?.get).toBeTruthy();
+    expect(spec.paths['/v1/revenue-receipts/{receiptId}']?.get).toBeTruthy();
     expect(spec.paths['/v1/narratives/{slug}']?.get).toBeTruthy();
     expect(spec.paths['/v1/signals']?.get).toBeTruthy();
     expect(spec.paths['/v1/signals/{slug}']?.get).toBeTruthy();
@@ -164,6 +166,9 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.UnicornRadarSubmissionInput).toBeTruthy();
     expect(spec.components.schemas.UnicornRadarEvaluationRequestInput).toBeTruthy();
     expect(spec.components.schemas.UnicornRadarRevenueReceipt).toBeTruthy();
+    expect(spec.components.schemas.RevenueReceipt).toBeTruthy();
+    expect(spec.components.schemas.RevenueReceiptList).toBeTruthy();
+    expect(spec.components.schemas.RevenueReceiptSummary).toBeTruthy();
     expect(spec.components.schemas.HermesSkillPack).toBeTruthy();
     expect(spec.components.schemas.HermesSkill).toBeTruthy();
     expect(spec.components.schemas.HermesRunReceipt).toBeTruthy();

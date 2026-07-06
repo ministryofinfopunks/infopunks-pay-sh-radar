@@ -754,6 +754,81 @@ export const UnicornRadarRevenueReceiptSchema = z.object({
   paid_at: z.string().datetime()
 });
 
+export const RevenueReceiptStatusSchema = z.enum(['open_slot', 'pending', 'completed', 'cancelled', 'refunded', 'disputed']);
+export const RevenueReceiptSourceSchema = z.enum([
+  'sponsored_radar_evaluation',
+  'signal_hunt_bounty',
+  'radar_listing',
+  'weekly_report',
+  'studio_work',
+  'api_access',
+  'internal_build'
+]);
+export const RevenueReceiptUseOfFundsBucketSchema = z.enum([
+  'product_treasury',
+  'hunter_rewards',
+  'community_ops',
+  'content_design_bounties'
+]);
+export const RevenueReceiptUseOfFundsAllocationSchema = z.object({
+  bucket: RevenueReceiptUseOfFundsBucketSchema,
+  percentage: z.number().min(0).max(100),
+  amount_usd: z.number().nonnegative()
+});
+export const RevenueReceiptUseOfFundsPolicySchema = z.object({
+  bucket: RevenueReceiptUseOfFundsBucketSchema,
+  percentage: z.number().min(0).max(100)
+});
+export const RevenueReceiptSchema = z.object({
+  id: z.string(),
+  receiptNumber: z.string(),
+  title: z.string(),
+  source: RevenueReceiptSourceSchema,
+  clientName: z.string(),
+  clientType: z.string(),
+  amount: z.number().nonnegative(),
+  currency: z.literal('USD'),
+  status: RevenueReceiptStatusSchema,
+  publishedAt: z.string().datetime(),
+  completedAt: z.string().datetime().nullable(),
+  relatedProduct: z.string(),
+  relatedCandidateId: z.string().nullable(),
+  relatedCandidateUrl: z.string().nullable(),
+  disclosure: z.string(),
+  verdictIndependenceStatement: z.string(),
+  useOfFunds: z.array(RevenueReceiptUseOfFundsAllocationSchema).min(1),
+  hunterReward: z.number().nonnegative().nullable(),
+  txHash: z.string().nullable(),
+  paymentMethod: z.string().nullable(),
+  notes: z.array(z.string()),
+  ogImageUrl: z.string()
+}).superRefine((receipt, ctx) => {
+  if (receipt.id === 'rr_template_001' && receipt.receiptNumber === '001') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'template must not be published as Revenue Receipt #001',
+      path: ['receiptNumber']
+    });
+  }
+});
+
+export const RevenueReceiptListSchema = z.object({
+  generated_at: z.string().datetime(),
+  count: z.number().int().nonnegative(),
+  receipts: z.array(RevenueReceiptSchema)
+});
+
+export const RevenueReceiptSummarySchema = z.object({
+  generated_at: z.string().datetime(),
+  title: z.literal('Infopunks Revenue Receipts'),
+  tagline: z.literal('No receipt, no trust.'),
+  subline: z.literal('Public ledger for paid evaluations, bounties, reports, listings, studio work, and API access.'),
+  trust_line: z.literal('Projects can buy evaluation, not conviction.'),
+  warning_line: z.string(),
+  use_of_funds_policy: z.array(RevenueReceiptUseOfFundsPolicySchema),
+  receipts: z.array(RevenueReceiptSchema)
+});
+
 export const UnicornRadarSummarySchema = z.object({
   generated_at: z.string().datetime(),
   title: z.literal('Infopunks Unicorn Radar'),
@@ -2920,6 +2995,14 @@ export type UnicornRadarHunterCredit = z.infer<typeof UnicornRadarHunterCreditSc
 export type UnicornRadarPaidEvaluationDisclosure = z.infer<typeof UnicornRadarPaidEvaluationDisclosureSchema>;
 export type UnicornRadarCandidate = z.infer<typeof UnicornRadarCandidateSchema>;
 export type UnicornRadarRevenueReceipt = z.infer<typeof UnicornRadarRevenueReceiptSchema>;
+export type RevenueReceiptStatus = z.infer<typeof RevenueReceiptStatusSchema>;
+export type RevenueReceiptSource = z.infer<typeof RevenueReceiptSourceSchema>;
+export type RevenueReceiptUseOfFundsBucket = z.infer<typeof RevenueReceiptUseOfFundsBucketSchema>;
+export type RevenueReceiptUseOfFundsAllocation = z.infer<typeof RevenueReceiptUseOfFundsAllocationSchema>;
+export type RevenueReceiptUseOfFundsPolicy = z.infer<typeof RevenueReceiptUseOfFundsPolicySchema>;
+export type RevenueReceipt = z.infer<typeof RevenueReceiptSchema>;
+export type RevenueReceiptList = z.infer<typeof RevenueReceiptListSchema>;
+export type RevenueReceiptSummary = z.infer<typeof RevenueReceiptSummarySchema>;
 export type UnicornRadarSummary = z.infer<typeof UnicornRadarSummarySchema>;
 export type UnicornRadarCandidateList = z.infer<typeof UnicornRadarCandidateListSchema>;
 export type UnicornRadarSubmissionInput = z.infer<typeof UnicornRadarSubmissionInputSchema>;

@@ -1,5 +1,6 @@
 import { getSignalSurfaceBySlug } from '../data/narrativeIntel';
 import { getSignalUpdate } from '../data/signalUpdates';
+import { getRevenueReceipt } from '../services/revenueReceiptService';
 import { resolveUnicornRadarCandidate } from '../services/unicornRadarService';
 import { narrativeOgImageUrl, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH, signalUpdateTypeLabel } from './narrativeOg';
 
@@ -222,6 +223,32 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
       `Infopunks Unicorn Radar: ${candidateId}`,
       'Low-cap Solana candidate detail with shipping proof, attention quality, token survivability, risk flags, receipts, hunter attribution, and Infopunks verdict.',
       `/unicorn-radar/${encodeURIComponent(candidateId)}`
+    );
+  }
+
+  if (/^\/revenue-receipts\/?$/.test(pathname)) {
+    return buildMetadata(
+      'Infopunks Revenue Receipts',
+      'Public ledger for paid evaluations, bounties, listings, reports, studio work, and API access.',
+      '/revenue-receipts'
+    );
+  }
+
+  const revenueReceiptMatch = pathname.match(/^\/revenue-receipts\/([^/]+)\/?$/);
+  if (revenueReceiptMatch) {
+    const receiptId = decodePathPart(revenueReceiptMatch[1]);
+    const receipt = getRevenueReceipt(receiptId);
+    if (receipt) {
+      return buildMetadata(
+        `Infopunks Revenue Receipt: ${receipt.receiptNumber} / ${receipt.title}`,
+        `Public receipt for ${receipt.clientName}, ${receipt.source}, ${receipt.currency} ${receipt.amount}, with disclosure and independence statement.`,
+        `/revenue-receipts/${encodeURIComponent(receiptId)}`
+      );
+    }
+    return buildMetadata(
+      `Infopunks Revenue Receipt: ${receiptId}`,
+      'Public receipt page with disclosure, use-of-funds, and independence statement.',
+      `/revenue-receipts/${encodeURIComponent(receiptId)}`
     );
   }
 

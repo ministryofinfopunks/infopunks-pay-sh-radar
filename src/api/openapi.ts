@@ -2040,6 +2040,32 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       receipts: []
     })
   });
+  add('get', '/v1/revenue-receipts', {
+    tags: ['Intelligence'],
+    summary: 'List public revenue receipts',
+    description: 'Returns the public Infopunks revenue ledger. Open slots, templates, and internal build receipts may appear before real paid work exists.',
+    responses: envelopedResponses('RevenueReceiptSummary', {
+      title: 'Infopunks Revenue Receipts',
+      tagline: 'No receipt, no trust.',
+      receipts: [{ id: 'rr_open_evaluation_slot', receiptNumber: 'Open Slot', status: 'open_slot' }]
+    })
+  });
+  add('get', '/v1/revenue-receipts/{receiptId}', {
+    tags: ['Intelligence'],
+    summary: 'Get public revenue receipt detail',
+    description: 'Returns one public Infopunks revenue receipt with disclosure, independence statement, use-of-funds, and notes.',
+    parameters: [pathParam('receiptId', 'Revenue receipt identifier.')],
+    responses: envelopedResponses('RevenueReceipt', {
+      id: 'rr_open_evaluation_slot',
+      receiptNumber: 'Open Slot',
+      title: 'Open Unicorn Radar Evaluation Slot',
+      source: 'sponsored_radar_evaluation',
+      clientName: 'Open',
+      amount: 100,
+      currency: 'USD',
+      status: 'open_slot'
+    }, 'revenue_receipt_not_found')
+  });
   add('get', '/v1/narratives/{slug}', {
     tags: ['Intelligence'],
     summary: 'Get narrative asset',
@@ -4795,6 +4821,57 @@ function componentSchemas(): Record<string, JsonSchema> {
       count: integerSchema(),
       receipts: arrayOf({ $ref: '#/components/schemas/UnicornRadarRevenueReceipt' })
     }, ['generated_at', 'count', 'receipts']),
+    RevenueReceiptStatus: enumSchema(['open_slot', 'pending', 'completed', 'cancelled', 'refunded', 'disputed']),
+    RevenueReceiptSource: enumSchema(['sponsored_radar_evaluation', 'signal_hunt_bounty', 'radar_listing', 'weekly_report', 'studio_work', 'api_access', 'internal_build']),
+    RevenueReceiptUseOfFundsBucket: enumSchema(['product_treasury', 'hunter_rewards', 'community_ops', 'content_design_bounties']),
+    RevenueReceiptUseOfFundsAllocation: objectSchema({
+      bucket: { $ref: '#/components/schemas/RevenueReceiptUseOfFundsBucket' },
+      percentage: { type: 'number', minimum: 0, maximum: 100 },
+      amount_usd: { type: 'number', minimum: 0 }
+    }, ['bucket', 'percentage', 'amount_usd']),
+    RevenueReceiptUseOfFundsPolicy: objectSchema({
+      bucket: { $ref: '#/components/schemas/RevenueReceiptUseOfFundsBucket' },
+      percentage: { type: 'number', minimum: 0, maximum: 100 }
+    }, ['bucket', 'percentage']),
+    RevenueReceipt: objectSchema({
+      id: stringSchema(),
+      receiptNumber: stringSchema(),
+      title: stringSchema(),
+      source: { $ref: '#/components/schemas/RevenueReceiptSource' },
+      clientName: stringSchema(),
+      clientType: stringSchema(),
+      amount: { type: 'number', minimum: 0 },
+      currency: enumSchema(['USD']),
+      status: { $ref: '#/components/schemas/RevenueReceiptStatus' },
+      publishedAt: dateTimeSchema(),
+      completedAt: { oneOf: [dateTimeSchema(), { type: 'null' }] },
+      relatedProduct: stringSchema(),
+      relatedCandidateId: { oneOf: [stringSchema(), { type: 'null' }] },
+      relatedCandidateUrl: { oneOf: [stringSchema(), { type: 'null' }] },
+      disclosure: stringSchema(),
+      verdictIndependenceStatement: stringSchema(),
+      useOfFunds: arrayOf({ $ref: '#/components/schemas/RevenueReceiptUseOfFundsAllocation' }),
+      hunterReward: { oneOf: [{ type: 'number', minimum: 0 }, { type: 'null' }] },
+      txHash: { oneOf: [stringSchema(), { type: 'null' }] },
+      paymentMethod: { oneOf: [stringSchema(), { type: 'null' }] },
+      notes: arrayOf(stringSchema()),
+      ogImageUrl: stringSchema()
+    }, ['id', 'receiptNumber', 'title', 'source', 'clientName', 'clientType', 'amount', 'currency', 'status', 'publishedAt', 'completedAt', 'relatedProduct', 'relatedCandidateId', 'relatedCandidateUrl', 'disclosure', 'verdictIndependenceStatement', 'useOfFunds', 'hunterReward', 'txHash', 'paymentMethod', 'notes', 'ogImageUrl']),
+    RevenueReceiptList: objectSchema({
+      generated_at: dateTimeSchema(),
+      count: integerSchema(),
+      receipts: arrayOf({ $ref: '#/components/schemas/RevenueReceipt' })
+    }, ['generated_at', 'count', 'receipts']),
+    RevenueReceiptSummary: objectSchema({
+      generated_at: dateTimeSchema(),
+      title: stringSchema(),
+      tagline: stringSchema(),
+      subline: stringSchema(),
+      trust_line: stringSchema(),
+      warning_line: stringSchema(),
+      use_of_funds_policy: arrayOf({ $ref: '#/components/schemas/RevenueReceiptUseOfFundsPolicy' }),
+      receipts: arrayOf({ $ref: '#/components/schemas/RevenueReceipt' })
+    }, ['generated_at', 'title', 'tagline', 'subline', 'trust_line', 'warning_line', 'use_of_funds_policy', 'receipts']),
     SignalHuntProofState: enumSchema(['unproven', 'receipts_attached', 'validated', 'challenged', 'rejected']),
     SignalHuntHuntState: enumSchema(['fresh_signal', 'under_review', 'verified_signal', 'noise', 'disputed']),
     SignalHuntDecisionState: enumSchema(['signal', 'noise', 'review']),

@@ -18,7 +18,7 @@ import {
   getAttentionMarketWatchIndex
 } from '../data/attentionMarketWatch';
 import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
-import { renderAttentionMarketWatchOgImage, renderNarrativesOgImage, renderSignalHuntOgImage, renderSignalReportOgImage, renderSignalUpdateOgImage, renderUnicornRadarIndexOgImage, renderUnicornRadarOgImage } from '../shared/narrativeOg';
+import { renderAttentionMarketWatchOgImage, renderNarrativesOgImage, renderRevenueReceiptOgImage, renderRevenueReceiptsIndexOgImage, renderSignalHuntOgImage, renderSignalReportOgImage, renderSignalUpdateOgImage, renderUnicornRadarIndexOgImage, renderUnicornRadarOgImage } from '../shared/narrativeOg';
 import { renderOgPng } from '../server/narrativeOgPng';
 import { applyPayShCatalogIngestion } from '../ingestion/payShCatalogAdapter';
 import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, IntelligenceStore, runPayShIngestion, runPayShIngestionWithOptions } from '../services/intelligenceStore';
@@ -56,6 +56,8 @@ import {
   UnicornRadarSubmissionInputSchema,
   UnicornRadarSubmissionResponseSchema,
   UnicornRadarSummarySchema,
+  RevenueReceiptSchema,
+  RevenueReceiptSummarySchema,
   RadarComparisonRequestSchema,
   RadarEcosystemRiskSummarySchema,
   RadarBatchPreflightRequestSchema,
@@ -167,6 +169,10 @@ import { createProofCheckService } from '../services/proofCheckService';
 import { createInMemoryLoopRepository, loopRepository } from '../repositories/loopRepository';
 import { createLoopService } from '../services/loopService';
 import { checkSignalGraph, findSignalGraphNodesForEntity, getSignalGraph, getSignalGraphCluster, getSignalGraphClusters, getSignalGraphNode, getSignalGraphRipples, isSignalGraphEntityType } from '../services/signalGraphService';
+import {
+  buildRevenueReceiptSummary,
+  getRevenueReceipt
+} from '../services/revenueReceiptService';
 import {
   buildUnicornRadarCandidateList,
   buildUnicornRadarRevenueReceipts,
@@ -2041,6 +2047,14 @@ export async function createApp(
       })
     };
   });
+  app.get('/v1/revenue-receipts', async () => ({
+    data: safeJsonExport(RevenueReceiptSummarySchema.parse(buildRevenueReceiptSummary()))
+  }));
+  app.get<{ Params: { receiptId: string } }>('/v1/revenue-receipts/:receiptId', async (req, reply) => {
+    const receipt = getRevenueReceipt(req.params.receiptId);
+    if (!receipt) return reply.code(404).send({ error: 'revenue_receipt_not_found' });
+    return { data: safeJsonExport(RevenueReceiptSchema.parse(receipt)) };
+  });
   app.get<{ Params: { slug: string } }>('/v1/narratives/:slug', async (req, reply) => {
     const asset = getNarrativeAssetBySlug(req.params.slug);
     if (!asset) return reply.code(404).send({ error: 'narrative_not_found' });
@@ -2099,11 +2113,21 @@ export async function createApp(
     reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
     return reply.type('image/png').send(renderOgPng(renderUnicornRadarIndexOgImage()));
   });
+  app.get('/og/revenue-receipts.png', async (_req, reply) => {
+    reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
+    return reply.type('image/png').send(renderOgPng(renderRevenueReceiptsIndexOgImage()));
+  });
   app.get<{ Params: { candidateId: string } }>('/og/unicorn-radar/:candidateId.png', async (req, reply) => {
     const candidate = await resolveEnrichedUnicornRadarCandidate(req.params.candidateId);
     if (!candidate) return reply.code(404).send({ error: 'og_image_not_found' });
     reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
     return reply.type('image/png').send(renderOgPng(renderUnicornRadarOgImage(candidate)));
+  });
+  app.get<{ Params: { receiptId: string } }>('/og/revenue-receipts/:receiptId.png', async (req, reply) => {
+    const receipt = getRevenueReceipt(req.params.receiptId);
+    if (!receipt) return reply.code(404).send({ error: 'og_image_not_found' });
+    reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
+    return reply.type('image/png').send(renderOgPng(renderRevenueReceiptOgImage(receipt)));
   });
   app.get<{ Params: { slug: string } }>('/og/attention-market-watch/:slug.png', async (req, reply) => {
     const signal = getAttentionMarketSignalBySlug(req.params.slug);

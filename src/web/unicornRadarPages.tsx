@@ -308,6 +308,7 @@ function UnicornRadarNav() {
     </a>
     <div className="terminal-nav terminal-nav-scroll-rail" aria-label="Unicorn Radar routes">
       <a href="/unicorn-radar" aria-current={pathname === '/unicorn-radar' ? 'page' : undefined}>Unicorn Radar</a>
+      <a href="/revenue-receipts">Revenue Receipts</a>
       <a href="/narratives">Narrative Intel</a>
       <a href="/signal-hunt">Signal Hunt</a>
       <a href="/graph">Signal Graph</a>
@@ -470,21 +471,14 @@ export function UnicornRadarPage() {
       <CandidateSection title="Do Not Touch Yet" subtitle="Risk is too high, proof is too thin, or token survivability is not legible." candidates={groups.doNotTouch} />
       <CandidateSection title="Consensus Forming" subtitle="The early edge may already be closing, including explicit missed-it records." candidates={groups.consensus} />
 
-      <section className="panel unicorn-section" aria-label="Revenue Receipts">
-        <div className="proof-section-head">
-          <div>
-            <p className="eyebrow">Revenue Receipts</p>
-            <h2>{summary?.revenue_receipts.length ?? 0}</h2>
-          </div>
-          <p className="panel-caption">Projects can buy evaluation, not conviction. Receipts keep the commercial layer visible.</p>
+      <section className="panel unicorn-radar-module unicorn-revenue-module" aria-label="Revenue Receipts module">
+        <div>
+          <p className="eyebrow">Revenue Receipts</p>
+          <h2>Revenue Receipts: see how paid evaluations are disclosed.</h2>
+          <p className="copy">Public ledger for open slots, templates, internal build receipts, and future paid evaluations. No receipt, no trust.</p>
         </div>
-        <div className="unicorn-receipt-grid">
-          {(summary?.revenue_receipts ?? []).map((receipt) => <article className="panel unicorn-revenue-card" key={receipt.id}>
-            <p className="eyebrow">{receipt.status}</p>
-            <h3>{receipt.project}</h3>
-            <p><strong>${receipt.amount_usd}</strong> {titleCase(receipt.service)}</p>
-            <p className="panel-caption">{receipt.disclosure}</p>
-          </article>)}
+        <div className="signal-hunt-card-actions">
+          <a className="execute compact secondary" href="/revenue-receipts">Open Revenue Receipts</a>
         </div>
       </section>
 

@@ -64,6 +64,7 @@ describe('production smoke plan', () => {
       '/receipts',
       '/claim',
       '/unicorn-radar',
+      '/revenue-receipts',
       '/graph',
       '/narratives',
       '/narratives/attention-markets',
@@ -94,7 +95,8 @@ describe('production smoke plan', () => {
       '/claims/claim_001',
       '/loops/loop_pre_spend_route',
       '/signal-hunt/hunt_black_bull_coordination',
-      '/unicorn-radar/ur_ai_rig_complex'
+      '/unicorn-radar/ur_ai_rig_complex',
+      '/revenue-receipts/rr_open_evaluation_slot'
     ]));
   });
 
@@ -107,6 +109,7 @@ describe('production smoke plan', () => {
       '/v1/loops',
       '/v1/signal-hunt',
       '/v1/unicorn-radar',
+      '/v1/revenue-receipts',
       '/v1/unicorn-radar/candidates',
       '/v1/routes',
       '/v1/narratives',
@@ -143,6 +146,7 @@ describe('production smoke plan', () => {
       '/v1/signal-desk/candidates/candidate_sol_persona_attention',
       '/v1/signal-hunt/hunt_black_bull_coordination',
       '/v1/unicorn-radar/candidates/ur_ai_rig_complex',
+      '/v1/revenue-receipts/rr_open_evaluation_slot',
       '/v1/unicorn-radar/revenue-receipts',
       '/v1/narratives/black-bull',
       '/v1/signals',
@@ -166,6 +170,7 @@ describe('production smoke plan', () => {
       '/og/attention-market-watch.png',
       '/og/attention-market-watch/ansem.png',
       '/og/unicorn-radar/ur_ai_rig_complex.png',
+      '/og/revenue-receipts/rr_open_evaluation_slot.png',
       '/og/signals/black-bull.png',
       '/og/signals/black-bull/updates/seu_black_bull_007.png',
       '/og/signals/troll.png',

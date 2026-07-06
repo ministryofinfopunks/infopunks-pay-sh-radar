@@ -3,6 +3,7 @@ import { createInMemoryLoopRepository } from '../src/repositories/loopRepository
 import { pathToFileURL } from 'node:url';
 import { listSignalHuntCandidates } from '../src/data/signalHunt';
 import { listUnicornRadarCandidates } from '../src/data/unicornRadar';
+import { listRevenueReceipts } from '../src/services/revenueReceiptService';
 import { hermesRuns } from '../src/data/hermesDesk';
 import { HERMES_PRE_SPEND_DECISION_EXAMPLE_ID } from '../src/services/hermesPreSpendDecision';
 import { getHermesSpendPolicyExampleCheck } from '../src/services/hermesSpendPolicy';
@@ -122,6 +123,7 @@ export function buildSmokePlan(): SmokePlan {
   const loopId = createInMemoryLoopRepository().listLoops()[0]?.id ?? 'loop_pre_spend_route';
   const signalHuntId = listSignalHuntCandidates()[0]?.id ?? 'hunt_black_bull_coordination';
   const unicornRadarCandidateId = listUnicornRadarCandidates()[0]?.id ?? 'ur_ai_rig_complex';
+  const revenueReceiptId = listRevenueReceipts()[0]?.id ?? 'rr_open_evaluation_slot';
   const hermesRunId = hermesRuns[0]?.id ?? 'hermes_pay_sh_route_pre_spend_check';
   const hermesPolicyCheckId = getHermesSpendPolicyExampleCheck().id;
   const hermesWalletAuditTrailId = buildHermesWalletAuditTrail().id;
@@ -144,6 +146,7 @@ export function buildSmokePlan(): SmokePlan {
       '/loops',
       '/signal-hunt',
       '/unicorn-radar',
+      '/revenue-receipts',
       '/graph',
       '/narratives',
       '/narratives/attention-markets',
@@ -175,6 +178,7 @@ export function buildSmokePlan(): SmokePlan {
       `/loops/${encodeURIComponent(loopId)}`,
       `/signal-hunt/${encodeURIComponent(signalHuntId)}`,
       `/unicorn-radar/${encodeURIComponent(unicornRadarCandidateId)}`,
+      `/revenue-receipts/${encodeURIComponent(revenueReceiptId)}`,
       '/radar/cards',
       '/radar/cards/provider/coingecko-onchain',
       '/radar/cards/route/sol-price',
@@ -194,6 +198,7 @@ export function buildSmokePlan(): SmokePlan {
       '/v1/loops',
       '/v1/signal-hunt',
       '/v1/unicorn-radar',
+      '/v1/revenue-receipts',
       '/v1/unicorn-radar/candidates',
       '/v1/routes',
       '/v1/narratives',
@@ -230,6 +235,7 @@ export function buildSmokePlan(): SmokePlan {
       '/v1/signal-desk/candidates/candidate_sol_persona_attention',
       `/v1/signal-hunt/${encodeURIComponent(signalHuntId)}`,
       `/v1/unicorn-radar/candidates/${encodeURIComponent(unicornRadarCandidateId)}`,
+      `/v1/revenue-receipts/${encodeURIComponent(revenueReceiptId)}`,
       '/v1/unicorn-radar/revenue-receipts',
       '/v1/narratives/black-bull',
       '/v1/signals',
@@ -253,6 +259,7 @@ export function buildSmokePlan(): SmokePlan {
       '/og/attention-market-watch.png',
       '/og/attention-market-watch/ansem.png',
       `/og/unicorn-radar/${encodeURIComponent(unicornRadarCandidateId)}.png`,
+      `/og/revenue-receipts/${encodeURIComponent(revenueReceiptId)}.png`,
       '/og/signals/black-bull.png',
       '/og/signals/black-bull/updates/seu_black_bull_007.png',
       '/og/signals/troll.png',
