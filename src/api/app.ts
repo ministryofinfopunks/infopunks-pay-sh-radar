@@ -171,11 +171,11 @@ import { createLoopService } from '../services/loopService';
 import { checkSignalGraph, findSignalGraphNodesForEntity, getSignalGraph, getSignalGraphCluster, getSignalGraphClusters, getSignalGraphNode, getSignalGraphRipples, isSignalGraphEntityType } from '../services/signalGraphService';
 import {
   buildRevenueReceiptSummary,
-  getRevenueReceipt
+  getRevenueReceipt,
+  listRevenueReceipts
 } from '../services/revenueReceiptService';
 import {
   buildUnicornRadarCandidateList,
-  buildUnicornRadarRevenueReceipts,
   buildUnicornRadarSummary,
   createUnicornRadarSubmission,
   requestUnicornRadarEvaluation,
@@ -2038,9 +2038,12 @@ export async function createApp(
     data: safeJsonExport(UnicornRadarEvaluationRequestResponseSchema.parse(requestUnicornRadarEvaluation(input)))
   }), reply));
   app.get('/v1/unicorn-radar/revenue-receipts', async () => {
-    const receipts = buildUnicornRadarRevenueReceipts().map((item) => UnicornRadarRevenueReceiptSchema.parse(item));
+    const receipts = listRevenueReceipts();
     return {
       data: safeJsonExport({
+        deprecated: true,
+        canonical: '/v1/revenue-receipts',
+        message: 'Revenue Receipts now live at the canonical public ledger endpoint.',
         generated_at: UNICORN_RADAR_GENERATED_AT,
         count: receipts.length,
         receipts

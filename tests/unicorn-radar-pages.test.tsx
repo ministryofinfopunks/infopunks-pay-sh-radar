@@ -134,7 +134,11 @@ const summary = {
     }
   },
   candidates: [baseCandidate, trollCandidate, bullCandidate],
-  revenue_receipts: []
+  revenue_receipts: [
+    { id: 'rr_open_evaluation_slot', candidate_id: null, project: 'Open', amount_usd: 100, service: 'paid_evaluation', disclosure: 'Projects can buy evaluation, not conviction.', status: 'paid', paid_at: '2026-07-06T10:00:00.000Z' },
+    { id: 'rr_template_001', candidate_id: null, project: 'Example', amount_usd: 0, service: 'paid_evaluation', disclosure: 'Template receipt for the public ledger.', status: 'pending', paid_at: '2026-07-06T10:00:00.000Z' },
+    { id: 'rr_unicorn_radar_build', candidate_id: null, project: 'Infopunks', amount_usd: 0, service: 'research_retainer', disclosure: 'Internal build receipt.', status: 'comped', paid_at: '2026-07-06T10:00:00.000Z' }
+  ]
 };
 
 function pathOf(input: RequestInfo | URL) {

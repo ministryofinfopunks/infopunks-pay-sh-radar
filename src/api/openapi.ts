@@ -2033,11 +2033,16 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   add('get', '/v1/unicorn-radar/revenue-receipts', {
     tags: ['Intelligence'],
     summary: 'List Unicorn Radar revenue receipts',
-    description: 'Returns disclosed commercial receipts for paid evaluations and comped review records.',
+    description: 'Compatibility route for legacy clients. Returns disclosed commercial receipts for paid evaluations and comped review records. Clients should use /v1/revenue-receipts.',
+    deprecated: true,
     responses: envelopedResponses('UnicornRadarRevenueReceiptList', {
       generated_at: '2026-07-06T08:30:00.000Z',
-      count: 0,
-      receipts: []
+      count: 3,
+      receipts: [
+        { id: 'rr_open_evaluation_slot' },
+        { id: 'rr_template_001' },
+        { id: 'rr_unicorn_radar_build' }
+      ]
     })
   });
   add('get', '/v1/revenue-receipts', {

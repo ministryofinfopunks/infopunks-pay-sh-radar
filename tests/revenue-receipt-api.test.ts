@@ -20,9 +20,31 @@ describe('revenue receipt api', () => {
     const app = await createApp(emptyIntelligenceStore());
 
     try {
-      const list = await app.inject({ method: 'GET', url: '/v1/revenue-receipts' });
-      expect(list.statusCode).toBe(200);
-      expect(list.json().data).toEqual(expect.objectContaining({
+      const canonical = await app.inject({ method: 'GET', url: '/v1/revenue-receipts' });
+      const compatibility = await app.inject({ method: 'GET', url: '/v1/unicorn-radar/revenue-receipts' });
+      expect(canonical.statusCode).toBe(200);
+      expect(compatibility.statusCode).toBe(200);
+
+      const canonicalData = canonical.json().data;
+      const compatibilityData = compatibility.json().data;
+
+      expect(compatibilityData).toEqual(expect.objectContaining({
+        deprecated: true,
+        canonical: '/v1/revenue-receipts',
+        message: 'Revenue Receipts now live at the canonical public ledger endpoint.',
+        count: canonicalData.receipts.length,
+        receipts: expect.arrayContaining([
+          expect.objectContaining({ id: 'rr_open_evaluation_slot', status: 'open_slot' }),
+          expect.objectContaining({ id: 'rr_template_001', status: 'pending' }),
+          expect.objectContaining({ id: 'rr_unicorn_radar_build', status: 'completed' })
+        ])
+      }));
+      expect(compatibilityData.receipts).toHaveLength(canonicalData.receipts.length);
+      expect(compatibilityData.receipts.map((receipt: { id: string }) => receipt.id)).toEqual(
+        canonicalData.receipts.map((receipt: { id: string }) => receipt.id)
+      );
+
+      expect(canonicalData).toEqual(expect.objectContaining({
         title: 'Infopunks Revenue Receipts',
         receipts: expect.arrayContaining([
           expect.objectContaining({ id: 'rr_open_evaluation_slot', status: 'open_slot' }),
@@ -30,6 +52,9 @@ describe('revenue receipt api', () => {
           expect.objectContaining({ id: 'rr_unicorn_radar_build', status: 'completed' })
         ])
       }));
+      expect(canonicalData).not.toHaveProperty('deprecated');
+      expect(canonicalData).not.toHaveProperty('canonical');
+      expect(canonicalData).not.toHaveProperty('message');
 
       const detail = await app.inject({ method: 'GET', url: '/v1/revenue-receipts/rr_open_evaluation_slot' });
       expect(detail.statusCode).toBe(200);
@@ -73,4 +98,3 @@ describe('revenue receipt api', () => {
     }
   }, 20000);
 });
-

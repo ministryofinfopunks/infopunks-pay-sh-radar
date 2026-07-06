@@ -92,7 +92,11 @@ describe('openapi discovery', () => {
     expect(spec.paths['/v1/unicorn-radar/candidates/{candidateId}']?.get).toBeTruthy();
     expect(spec.paths['/v1/unicorn-radar/submit']?.post).toBeTruthy();
     expect(spec.paths['/v1/unicorn-radar/request-evaluation']?.post).toBeTruthy();
-    expect(spec.paths['/v1/unicorn-radar/revenue-receipts']?.get).toBeTruthy();
+    expect(spec.paths['/v1/unicorn-radar/revenue-receipts']?.get).toEqual(expect.objectContaining({
+      deprecated: true,
+      description: expect.stringContaining('Compatibility route'),
+      summary: 'List Unicorn Radar revenue receipts'
+    }));
     expect(spec.paths['/v1/revenue-receipts']?.get).toBeTruthy();
     expect(spec.paths['/v1/revenue-receipts/{receiptId}']?.get).toBeTruthy();
     expect(spec.paths['/v1/narratives/{slug}']?.get).toBeTruthy();

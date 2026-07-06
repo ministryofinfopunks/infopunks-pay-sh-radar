@@ -95,7 +95,6 @@ describe('unicorn radar api', () => {
             status: 'consensus_forming'
           })
         ]),
-        revenue_receipts: []
       }));
 
       const list = await app.inject({ method: 'GET', url: '/v1/unicorn-radar/candidates' });
@@ -120,8 +119,15 @@ describe('unicorn radar api', () => {
       const receipts = await app.inject({ method: 'GET', url: '/v1/unicorn-radar/revenue-receipts' });
       expect(receipts.statusCode).toBe(200);
       expect(receipts.json().data).toEqual(expect.objectContaining({
-        count: 0,
-        receipts: []
+        deprecated: true,
+        canonical: '/v1/revenue-receipts',
+        message: 'Revenue Receipts now live at the canonical public ledger endpoint.',
+        count: 3,
+        receipts: expect.arrayContaining([
+          expect.objectContaining({ id: 'rr_open_evaluation_slot' }),
+          expect.objectContaining({ id: 'rr_template_001' }),
+          expect.objectContaining({ id: 'rr_unicorn_radar_build' })
+        ])
       }));
     } finally {
       await app.close();
