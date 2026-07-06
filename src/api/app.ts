@@ -52,6 +52,7 @@ import {
   UnicornRadarCandidateSchema,
   UnicornRadarEvaluationRequestInputSchema,
   UnicornRadarEvaluationRequestResponseSchema,
+  EvaluationRequestResponseSchema,
   UnicornRadarRevenueReceiptSchema,
   UnicornRadarSubmissionInputSchema,
   UnicornRadarSubmissionResponseSchema,
@@ -182,6 +183,7 @@ import {
   resolveEnrichedUnicornRadarCandidate,
   UNICORN_RADAR_GENERATED_AT
 } from '../services/unicornRadarService';
+import { createEvaluationRequest, EvaluationRequestValidationError } from '../services/evaluationRequestService';
 import { checkHermesHealth, createLivePreSpendRun, getHermesDeskSummary, getHermesRunById, listHermesRuns } from '../services/hermesBridge';
 import { getHermesSkillById, getHermesSkillPack, listHermesSkillPackSkills } from '../data/hermesSkillPack';
 import { convertHermesRunToReceipt } from '../services/hermesReceiptConverter';
@@ -2037,6 +2039,31 @@ export async function createApp(
   app.post('/v1/unicorn-radar/request-evaluation', async (req, reply) => handleParsed(req.body, UnicornRadarEvaluationRequestInputSchema, (input) => ({
     data: safeJsonExport(UnicornRadarEvaluationRequestResponseSchema.parse(requestUnicornRadarEvaluation(input)))
   }), reply));
+  app.post('/v1/evaluation-request', async (req, reply) => {
+    try {
+      const result = await createEvaluationRequest(req.body, {
+        webhookUrl: process.env.EVALUATION_REQUEST_WEBHOOK_URL ?? null
+      });
+      if (result.status === 'accepted') reply.code(202);
+      return {
+        data: safeJsonExport(EvaluationRequestResponseSchema.parse(result))
+      };
+    } catch (error) {
+      if (error instanceof EvaluationRequestValidationError) {
+        if (error.code === 'DISCLOSURE_REQUIRED') {
+          return reply.code(400).send({
+            code: error.code,
+            message: error.message
+          });
+        }
+        return reply.code(400).send({
+          error: 'invalid_request',
+          issues: error.issues ?? [{ path: 'body', message: error.message }]
+        });
+      }
+      throw error;
+    }
+  });
   app.get('/v1/unicorn-radar/revenue-receipts', async () => {
     const receipts = listRevenueReceipts();
     return {
@@ -2115,6 +2142,10 @@ export async function createApp(
   app.get('/og/unicorn-radar.png', async (_req, reply) => {
     reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
     return reply.type('image/png').send(renderOgPng(renderUnicornRadarIndexOgImage()));
+  });
+  app.get('/og/evaluation-request.png', async (_req, reply) => {
+    reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
+    return reply.type('image/png').send(renderOgPng(renderRevenueReceiptsIndexOgImage()));
   });
   app.get('/og/revenue-receipts.png', async (_req, reply) => {
     reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');

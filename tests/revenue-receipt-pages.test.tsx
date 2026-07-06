@@ -127,6 +127,7 @@ describe('revenue receipt pages', () => {
     expect(container.textContent).toContain('Open Unicorn Radar Evaluation Slot');
     expect(container.textContent).toContain('Revenue Receipt Template');
     expect(container.textContent).toContain('Not real revenue.');
+    expect(container.querySelector('a[href="/evaluation-request"]')).toBeTruthy();
   });
 
   it('renders /revenue-receipts/:receiptId detail pages', async () => {

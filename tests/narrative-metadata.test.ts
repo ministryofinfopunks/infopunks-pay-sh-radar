@@ -138,6 +138,23 @@ describe('narrative metadata helper', () => {
     });
   });
 
+  it('returns metadata for /evaluation-request', () => {
+    expect(getNarrativeMetadataForPath('/evaluation-request')).toEqual({
+      title: 'Request an Infopunks Evaluation',
+      description: 'Submit receipts for paid evaluation. Payment buys evaluation, not conviction.',
+      canonicalPath: '/evaluation-request',
+      ogTitle: 'Request an Infopunks Evaluation',
+      ogDescription: 'Submit receipts for paid evaluation. Payment buys evaluation, not conviction.',
+      ogImageUrl: 'https://radar.infopunks.fun/og/evaluation-request.png',
+      ogImageWidth: 1200,
+      ogImageHeight: 630,
+      twitterTitle: 'Request an Infopunks Evaluation',
+      twitterDescription: 'Submit receipts for paid evaluation. Payment buys evaluation, not conviction.',
+      twitterImageUrl: 'https://radar.infopunks.fun/og/evaluation-request.png',
+      twitterCard: 'summary_large_image'
+    });
+  });
+
   it('returns candidate metadata for Unicorn Radar detail pages', () => {
     expect(getNarrativeMetadataForPath('/unicorn-radar/ur_ai_rig_complex')).toEqual({
       title: 'Infopunks Unicorn Radar: AI Rig Complex / ARC',

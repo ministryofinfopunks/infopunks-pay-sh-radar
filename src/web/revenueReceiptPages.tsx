@@ -156,7 +156,7 @@ export function RevenueReceiptsPage() {
           <p className="copy">{summary?.trust_line ?? 'Projects can buy evaluation, not conviction.'}</p>
           <p className="panel-caption">{summary?.warning_line ?? 'Template receipts are examples only. They are not real revenue.'}</p>
           <div className="signal-hunt-hero-actions">
-            <a className="execute" href="/unicorn-radar#request-evaluation">Request a paid evaluation</a>
+            <a className="execute" href="/evaluation-request">Open evaluation slot</a>
             <a className="execute compact secondary" href="/openapi.json">Open API schema</a>
           </div>
         </div>

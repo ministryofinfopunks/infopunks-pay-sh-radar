@@ -36,6 +36,7 @@ import {
 import { ProofCheckDetailPage, ProofCheckPage } from './proofCheckPages';
 import { LoopDetailPage, LoopsPage } from './loopPages';
 import { SignalHuntDetailPage, SignalHuntPage } from './signalHuntPages';
+import { EvaluationRequestPage } from './evaluationRequestPages';
 import { RevenueReceiptDetailPage, RevenueReceiptsPage } from './revenueReceiptPages';
 import { UnicornRadarDetailPage, UnicornRadarPage } from './unicornRadarPages';
 import { MachineMarketPreflightCardPage, PreflightCardIndexPage, RadarPreflightCardPage } from './preflightCardPages';
@@ -1989,6 +1990,10 @@ function routeSignalHuntId(pathname: string) {
 
 function isUnicornRadarRoute(pathname: string) {
   return /^\/unicorn-radar\/?$/.test(pathname);
+}
+
+function isEvaluationRequestRoute(pathname: string) {
+  return /^\/evaluation-request\/?$/.test(pathname);
 }
 
 function isRevenueReceiptsRoute(pathname: string) {
@@ -9706,6 +9711,7 @@ function RadarApp() {
     { href: '/loops', label: 'Loops', external: false, className: undefined, active: isLoopsIndexRoute(pathname) || routeLoopId(pathname) !== null },
     { href: '/signal-hunt', label: 'Signal Hunt', external: false, className: undefined, active: isSignalHuntRoute(pathname) || routeSignalHuntId(pathname) !== null },
     { href: '/unicorn-radar', label: 'Unicorn Radar', external: false, className: undefined, active: isUnicornRadarRoute(pathname) || routeUnicornRadarCandidateId(pathname) !== null },
+    { href: '/evaluation-request', label: 'Evaluation Request', external: false, className: undefined, active: isEvaluationRequestRoute(pathname) },
     { href: '/revenue-receipts', label: 'Revenue Receipts', external: false, className: undefined, active: isRevenueReceiptsRoute(pathname) || routeRevenueReceiptId(pathname) !== null },
     { href: '/#agent-benchmark-api', label: 'Agent Benchmark API', external: false, className: undefined, active: agentBenchmarkActive },
     { href: '/graph', label: 'Signal Graph', external: false, className: undefined, active: isGraphRoute(pathname) || routeSignalSlug(pathname) !== null || routeSignalUpdate(pathname) !== null },
@@ -14406,6 +14412,7 @@ export function App() {
   const signalHuntId = routeSignalHuntId(window.location.pathname);
   if (signalHuntId) return <SignalHuntDetailPage signalId={signalHuntId} />;
   if (isUnicornRadarRoute(window.location.pathname)) return <UnicornRadarPage />;
+  if (isEvaluationRequestRoute(window.location.pathname)) return <EvaluationRequestPage />;
   if (isRevenueReceiptsRoute(window.location.pathname)) return <RevenueReceiptsPage />;
   const revenueReceiptId = routeRevenueReceiptId(window.location.pathname);
   if (revenueReceiptId) return <RevenueReceiptDetailPage receiptId={revenueReceiptId} />;

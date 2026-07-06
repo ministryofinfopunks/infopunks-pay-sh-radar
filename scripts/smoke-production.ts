@@ -31,6 +31,16 @@ export const ATTENTION_MARKET_INTAKE_PAYLOAD = {
   evidence_links: ['/narratives/attention-market-watch']
 } as const;
 
+export const EVALUATION_REQUEST_PAYLOAD = {
+  projectName: 'Smoke Evaluation Project',
+  ticker: 'SMOKE',
+  chain: 'solana',
+  contact: 'founder@example.com',
+  upsideThesis: 'Receipts exist and the project needs an evaluation packet, not fake storage.',
+  riskFlags: 'Concentration risk, new market, limited runway.',
+  disclosureAcknowledged: true
+} as const;
+
 export const HERMES_PRE_SPEND_DECISION_PAYLOAD = {
   route_id: 'route_pay_sh_market_research_01',
   provider_id: 'provider_pay_sh_lattice',
@@ -61,6 +71,7 @@ export type SmokePlan = {
   preSpendPath: string;
   attentionMarketIntakePath: string;
   attentionMarketIntakeRequirementsPath: string;
+  evaluationRequestPath: string;
   graphCheckPath: string;
   hermesReceiptPath: string;
   hermesClaimPromotionPath: string;
@@ -146,6 +157,7 @@ export function buildSmokePlan(): SmokePlan {
       '/loops',
       '/signal-hunt',
       '/unicorn-radar',
+      '/evaluation-request',
       '/revenue-receipts',
       '/graph',
       '/narratives',
@@ -273,6 +285,7 @@ export function buildSmokePlan(): SmokePlan {
     preSpendPath: '/v1/pre-spend/check',
     attentionMarketIntakePath: '/v1/attention-market-watch/intake',
     attentionMarketIntakeRequirementsPath: '/v1/attention-market-watch/intake/requirements',
+    evaluationRequestPath: '/v1/evaluation-request',
     graphCheckPath: '/v1/graph/check',
     hermesReceiptPath: `/v1/hermes/runs/${encodeURIComponent(hermesRunId)}/receipt`,
     hermesClaimPromotionPath: `/v1/hermes/runs/${encodeURIComponent(hermesRunId)}/claim/promote`,
@@ -1023,6 +1036,45 @@ export async function runSmoke(baseUrl = resolveBaseUrl(), config = resolveSmoke
   } catch (error) {
     failed = true;
     fail(`POST ${plan.attentionMarketIntakePath}`, toFailureDetail('POST', plan.attentionMarketIntakePath, error));
+  }
+
+  try {
+    const { response, elapsedMs } = await fetchWithRetry({
+      input: `${baseUrl}${plan.evaluationRequestPath}`,
+      method: 'POST',
+      path: plan.evaluationRequestPath,
+      timeoutMs: config.apiTimeoutMs,
+      init: {
+        method: 'POST',
+        headers: {
+          accept: 'application/json',
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify(EVALUATION_REQUEST_PAYLOAD)
+      }
+    });
+
+    if (!response.ok) {
+      throw new SmokeRequestError({
+        method: 'POST',
+        path: plan.evaluationRequestPath,
+        status: response.status,
+        elapsedMs,
+        reason: 'expected 2xx'
+      });
+    }
+
+    const body = await parseJsonOrThrow('POST', plan.evaluationRequestPath, response, elapsedMs);
+    if (!hasDataEnvelope(body) || !isRecord(body.data)) {
+      throw new Error('missing evaluation request payload');
+    }
+    if (body.data.status !== 'manual_delivery_required' && body.data.status !== 'accepted') {
+      throw new Error(`unexpected evaluation request status: ${String(body.data.status)}`);
+    }
+    pass(`POST ${plan.evaluationRequestPath}`, elapsedMs);
+  } catch (error) {
+    failed = true;
+    fail(`POST ${plan.evaluationRequestPath}`, toFailureDetail('POST', plan.evaluationRequestPath, error));
   }
 
   try {

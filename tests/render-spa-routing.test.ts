@@ -127,6 +127,14 @@ describe('render-style SPA routing boundaries', () => {
       expect(unicornRadar.body).toContain('name="twitter:image" content="https://radar.infopunks.fun/og/unicorn-radar.png"');
       expect(unicornRadar.body).not.toContain('Infopunks Pay.sh Radar is an evidence ledger for Pay.sh agent routes');
 
+      const evaluationRequest = await app.inject({ method: 'GET', url: '/evaluation-request' });
+      expect(evaluationRequest.statusCode).toBe(200);
+      expect(evaluationRequest.headers['content-type']).toContain('text/html');
+      expect(evaluationRequest.body).toContain('<title>Request an Infopunks Evaluation</title>');
+      expect(evaluationRequest.body).toContain('name="description" content="Submit receipts for paid evaluation. Payment buys evaluation, not conviction."');
+      expect(evaluationRequest.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/evaluation-request.png"');
+      expect(evaluationRequest.body).toContain('name="twitter:image" content="https://radar.infopunks.fun/og/evaluation-request.png"');
+
       const unicornRadarDetail = await app.inject({ method: 'GET', url: '/unicorn-radar/ur_ai_rig_complex' });
       expect(unicornRadarDetail.statusCode).toBe(200);
       expect(unicornRadarDetail.headers['content-type']).toContain('text/html');
@@ -259,6 +267,7 @@ describe('render-style SPA routing boundaries', () => {
         '/signal-hunt',
         '/signal-hunt/hunt_black_bull_coordination',
         '/unicorn-radar',
+        '/evaluation-request',
         '/unicorn-radar/ur_ai_rig_complex',
         '/revenue-receipts',
         '/revenue-receipts/rr_open_evaluation_slot',

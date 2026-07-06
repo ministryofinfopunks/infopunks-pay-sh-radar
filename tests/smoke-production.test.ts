@@ -6,6 +6,7 @@ import {
   DEFAULT_PUBLIC_PAGE_RETRY_DELAY_MS,
   DEFAULT_PUBLIC_PAGE_TIMEOUT_MS,
   ATTENTION_MARKET_INTAKE_PAYLOAD,
+  EVALUATION_REQUEST_PAYLOAD,
   HERMES_PRE_SPEND_DECISION_PAYLOAD,
   HERMES_POLICY_OUTCOME_PAYLOAD,
   HERMES_SPEND_POLICY_PAYLOAD,
@@ -64,6 +65,7 @@ describe('production smoke plan', () => {
       '/receipts',
       '/claim',
       '/unicorn-radar',
+      '/evaluation-request',
       '/revenue-receipts',
       '/graph',
       '/narratives',
@@ -184,6 +186,7 @@ describe('production smoke plan', () => {
     expect(plan.preSpendPath).toBe('/v1/pre-spend/check');
     expect(plan.attentionMarketIntakePath).toBe('/v1/attention-market-watch/intake');
     expect(plan.attentionMarketIntakeRequirementsPath).toBe('/v1/attention-market-watch/intake/requirements');
+    expect(plan.evaluationRequestPath).toBe('/v1/evaluation-request');
     expect(plan.graphCheckPath).toBe('/v1/graph/check');
     expect(plan.hermesReceiptPath).toBe('/v1/hermes/runs/hermes_pay_sh_route_pre_spend_check/receipt');
     expect(plan.hermesClaimPromotionPath).toBe('/v1/hermes/runs/hermes_pay_sh_route_pre_spend_check/claim/promote');
@@ -223,6 +226,15 @@ describe('production smoke plan', () => {
       submitter_handle: '@smoke',
       why_it_matters: 'This attention-market object needs evidence review before any watch-profile promotion.',
       evidence_links: ['/narratives/attention-market-watch']
+    });
+    expect(EVALUATION_REQUEST_PAYLOAD).toEqual({
+      projectName: 'Smoke Evaluation Project',
+      ticker: 'SMOKE',
+      chain: 'solana',
+      contact: 'founder@example.com',
+      upsideThesis: 'Receipts exist and the project needs an evaluation packet, not fake storage.',
+      riskFlags: 'Concentration risk, new market, limited runway.',
+      disclosureAcknowledged: true
     });
     expect(HERMES_PRE_SPEND_DECISION_PAYLOAD).toEqual({
       route_id: 'route_pay_sh_market_research_01',

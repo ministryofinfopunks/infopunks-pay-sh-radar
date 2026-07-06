@@ -208,6 +208,14 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
     );
   }
 
+  if (/^\/evaluation-request\/?$/.test(pathname)) {
+    return buildMetadata(
+      'Request an Infopunks Evaluation',
+      'Submit receipts for paid evaluation. Payment buys evaluation, not conviction.',
+      '/evaluation-request'
+    );
+  }
+
   const unicornRadarDetailMatch = pathname.match(/^\/unicorn-radar\/([^/]+)\/?$/);
   if (unicornRadarDetailMatch) {
     const candidateId = decodePathPart(unicornRadarDetailMatch[1]);
