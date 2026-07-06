@@ -73,11 +73,34 @@ const trollCandidate = {
   project: 'TROLL',
   ticker: 'TROLL',
   sector: 'Social / Attention Markets',
+  thesis: 'TROLL has matured from raw attention asset into a consensus-forming IP-backed meme survivor. The survivability case is built on elite holder breadth, deep liquidity, improving top-holder distribution, one-year survivorship, multiple revival cycles, official Trollface IP/license narrative, and strong on-chain activity. It remains a pure meme/IP play, so upside depends on sustained meme culture momentum and community engagement rather than product utility.',
+  displayVerdict: 'Mature IP-Backed Meme Survivor',
+  what_it_actually_does: 'Functions as a live Trollface IP-backed meme and attention-market asset built on internet-native cultural persistence rather than conventional product utility.',
+  proof_of_shipping: 'Verified live Solana market, 64k+ holder survivability receipt, ~$3M liquidity-depth receipt, one-year age receipt, improving top-holder distribution receipt, fully circulating supply receipt, official Trollface IP/license narrative, merch/community surface, and multiple-cycle revival history.',
+  token_survivability_note: 'Submitted survivability receipts cite elite holder breadth, deep liquidity, improving top-holder concentration, one-year survivorship, multiple revival cycles, fully circulating supply, and strong on-chain activity. The pure meme/IP risk remains live because the token has no utility moat beyond Trollface branding.',
+  risk_flags: [
+    'Pure meme/IP play with no utility moat beyond Trollface branding',
+    'Large prior pumps and corrections create volatility risk',
+    'Upside depends on sustained meme culture momentum',
+    'At roughly $60M market cap, it has less lowcap asymmetry than newer candidates',
+    'Community engagement and top-holder trends need monitoring'
+  ],
+  tags: ['CONSENSUS_FORMING', 'MATURE_MEME_SURVIVOR', 'IP_BACKED_MEME', 'HOLDER_DISTRIBUTION_HEALTHY', 'DEEP_LIQUIDITY', 'MULTI_CYCLE_SURVIVOR', 'CULTURE_RETENTION_MONITORING', 'PURE_MEME_RISK'],
+  receipts: [
+    ...baseCandidate.receipts,
+    { id: 'urr_troll_receipt_002', label: 'Holder distribution receipt', type: 'token', source: 'CT survivability intake', note: 'TROLL shows 64k+ holders, an elite distribution profile for a Solana meme at this market cap.', observed_at: '2026-07-06T08:30:00.000Z' },
+    { id: 'urr_troll_receipt_003', label: 'Top-holder concentration receipt', type: 'token', source: 'CT survivability intake', note: 'Top 10 wallets are reported around 18-22% depending on excluded pool/exchange wallets, with concentration trending downward over recent months.', observed_at: '2026-07-06T08:30:00.000Z' },
+    { id: 'urr_troll_receipt_004', label: 'Liquidity depth receipt', type: 'market', source: 'CT survivability intake', note: 'Main PumpSwap liquidity is reported around $3M, roughly 5% of market cap, supporting deeper trading than typical lowcap memes.', observed_at: '2026-07-06T08:30:00.000Z' },
+    { id: 'urr_troll_receipt_005', label: 'Age/survivorship receipt', type: 'market', source: 'CT survivability intake', note: 'TROLL is around 1 year old and has survived multiple major pump/correction/revival cycles.', observed_at: '2026-07-06T08:30:00.000Z' },
+    { id: 'urr_troll_receipt_006', label: 'IP narrative receipt', type: 'attention', source: 'CT survivability intake', note: 'Official project positioning centers on Trollface IP/license ownership, memes/gifs, community channels, and merch/shop surface.', observed_at: '2026-07-06T08:30:00.000Z' }
+  ],
   tokenAddress: '5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2',
   pairAddress: 'TrollPair1111111111111111111111111111111111',
   dexScreenerUrl: 'https://dexscreener.com/solana/trollpair1111111111111111111111111111111111',
-  status: 'watchlist',
-  verdict: 'strong_attention_weak_proof'
+  hunter_credit: { handle: 'CT survivability intake', attribution: 'CT survivability intake submitted the TROLL survivability report. Infopunks upgraded the record to Consensus Forming while keeping pure meme/IP risk visible.', submitted_at: '2026-07-06T08:30:00.000Z', source: 'community' },
+  paid_evaluation_disclosure: { is_paid: false, label: 'Not paid.', note: 'Not paid.', paid_at: null, receipt_id: null },
+  status: 'consensus_forming',
+  verdict: 'consensus_already_forming'
 };
 
 const bullCandidate = {
@@ -322,20 +345,20 @@ const summary = {
     total: 9,
     by_status: {
       unseen_signal: 0,
-      watchlist: 4,
+      watchlist: 3,
       high_signal_lowcap: 2,
-      consensus_forming: 2,
+      consensus_forming: 3,
       do_not_touch_yet: 1,
       infopunks_missed_it: 0,
       paid_evaluation: 0
     },
     by_verdict: {
-      high_signal_early: 1,
+      high_signal_early: 2,
       interesting_needs_receipts: 0,
-      real_product_weak_attention: 1,
+      real_product_weak_attention: 2,
       strong_attention_weak_proof: 1,
       do_not_touch_yet: 1,
-      consensus_already_forming: 1,
+      consensus_already_forming: 3,
       missed_by_infopunks: 0
     },
     by_sector: {
@@ -416,8 +439,8 @@ describe('unicorn radar pages', () => {
     expect(container.textContent).toContain('Drop #001 candidate queue');
     expect(container.textContent).toContain('Drop #001 remains');
     expect(container.textContent).toContain('High-Signal Lowcap: KINS');
-    expect(container.textContent).toContain('Watchlist: TROLL');
     expect(container.textContent).toContain('Do Not Touch Yet: MANIFEST');
+    expect(container.textContent).toContain('Consensus Forming: TROLL / ANSEM');
     expect(container.textContent).toContain('Next batch under review');
     expect(container.textContent).toContain('Jotchua: High-Signal Lowcap');
     expect(container.textContent).toContain('SolAngeles: Watchlist');
@@ -497,6 +520,32 @@ describe('unicorn radar pages', () => {
   });
 
   it('renders CT survivability batch detail pages with source-framed statuses and risks', async () => {
+    mockFetch(trollCandidate, summary);
+    window.history.pushState({}, '', '/unicorn-radar/ur_troll_attention_asset');
+
+    await act(async () => {
+      root.render(<App />);
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(container.textContent).toContain('TROLL');
+    expect(container.textContent).toContain('Consensus Forming');
+    expect(container.textContent).toContain('Mature IP-Backed Meme Survivor');
+    expect(container.textContent).toContain('64k+ holder survivability receipt');
+    expect(container.textContent).toContain('Top-holder concentration receipt');
+    expect(container.textContent).toContain('Liquidity depth receipt');
+    expect(container.textContent).toContain('around 1 year old');
+    expect(container.textContent).toContain('Trollface IP/license ownership');
+    expect(container.textContent).toContain('Pure meme/IP play with no utility moat beyond Trollface branding');
+    expect(container.textContent).toContain('MATURE_MEME_SURVIVOR');
+    expect(container.textContent).toContain('IP_BACKED_MEME');
+    expect(container.textContent).not.toContain('TOKEN_REVIEW_NEEDED');
+
+    act(() => root.unmount());
+    root = createRoot(container);
     mockFetch(jotchuaCandidate, summary);
     window.history.pushState({}, '', '/unicorn-radar/ur_jotchua_money_dog');
 

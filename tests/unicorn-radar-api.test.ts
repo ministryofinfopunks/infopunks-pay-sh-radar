@@ -112,9 +112,9 @@ describe('unicorn radar api', () => {
           total: 9,
           by_status: expect.objectContaining({
             high_signal_lowcap: 2,
-            watchlist: 4,
+            watchlist: 3,
             do_not_touch_yet: 1,
-            consensus_forming: 2
+            consensus_forming: 3
           })
         }),
         candidates: expect.arrayContaining([
@@ -127,7 +127,9 @@ describe('unicorn radar api', () => {
           expect.objectContaining({
             id: 'ur_troll_attention_asset',
             ticker: 'TROLL',
-            status: 'watchlist',
+            status: 'consensus_forming',
+            verdict: 'consensus_already_forming',
+            displayVerdict: 'Mature IP-Backed Meme Survivor',
             verificationStatus: 'verified_live_market'
           }),
           expect.objectContaining({
@@ -261,6 +263,51 @@ describe('unicorn radar api', () => {
         ])
       }));
       expect(kinsDetail.json().data.tags).not.toContain('TOKEN_REVIEW_NEEDED');
+
+      const trollDetail = await app.inject({ method: 'GET', url: '/v1/unicorn-radar/candidates/ur_troll_attention_asset' });
+      expect(trollDetail.statusCode).toBe(200);
+      expect(trollDetail.json().data).toEqual(expect.objectContaining({
+        id: 'ur_troll_attention_asset',
+        status: 'consensus_forming',
+        verdict: 'consensus_already_forming',
+        displayVerdict: 'Mature IP-Backed Meme Survivor',
+        productionReady: true,
+        verificationStatus: 'verified_live_market',
+        tokenAddress: '5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2',
+        marketDataSource: 'dexscreener_official_api',
+        thesis: expect.stringContaining('consensus-forming IP-backed meme survivor'),
+        proof_of_shipping: expect.stringContaining('64k+ holder survivability receipt'),
+        token_survivability_note: expect.stringContaining('one-year survivorship'),
+        risk_flags: expect.arrayContaining([
+          'Pure meme/IP play with no utility moat beyond Trollface branding',
+          'Upside depends on sustained meme culture momentum'
+        ]),
+        tags: expect.arrayContaining(['CONSENSUS_FORMING', 'MATURE_MEME_SURVIVOR', 'IP_BACKED_MEME']),
+        receipts: expect.arrayContaining([
+          expect.objectContaining({
+            label: 'Holder distribution receipt',
+            note: expect.stringContaining('64k+ holders')
+          }),
+          expect.objectContaining({
+            label: 'Top-holder concentration receipt',
+            note: expect.stringContaining('18-22%')
+          }),
+          expect.objectContaining({
+            label: 'Liquidity depth receipt',
+            note: expect.stringContaining('$3M')
+          }),
+          expect.objectContaining({
+            label: 'Age/survivorship receipt',
+            note: expect.stringContaining('around 1 year old')
+          }),
+          expect.objectContaining({
+            label: 'IP narrative receipt',
+            note: expect.stringContaining('Trollface IP/license ownership')
+          })
+        ])
+      }));
+      expect(trollDetail.json().data.tags).not.toContain('WATCHLIST');
+      expect(trollDetail.json().data.tags).not.toContain('TOKEN_REVIEW_NEEDED');
 
       const jotchuaDetail = await app.inject({ method: 'GET', url: '/v1/unicorn-radar/candidates/ur_jotchua_money_dog' });
       expect(jotchuaDetail.statusCode).toBe(200);

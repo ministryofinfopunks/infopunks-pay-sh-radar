@@ -461,6 +461,7 @@ export function UnicornRadarPage() {
           <article className="panel loop-counter-card"><span>high signal</span><strong>{summary?.counts.by_status.high_signal_lowcap ?? 0}</strong></article>
           <article className="panel loop-counter-card"><span>watchlist</span><strong>{summary?.counts.by_status.watchlist ?? 0}</strong></article>
           <article className="panel loop-counter-card"><span>do not touch</span><strong>{summary?.counts.by_status.do_not_touch_yet ?? 0}</strong></article>
+          <article className="panel loop-counter-card"><span>consensus</span><strong>{summary?.counts.by_status.consensus_forming ?? 0}</strong></article>
         </div>
       </section>
 
@@ -470,7 +471,7 @@ export function UnicornRadarPage() {
         <div>
           <p className="eyebrow">Drop #001 candidate queue</p>
           <h2>Drop #001 remains receipt-framed.</h2>
-          <p className="copy">Drop #001 remains: High-Signal Lowcap: KINS. Watchlist: TROLL. Do Not Touch Yet: MANIFEST.</p>
+          <p className="copy">Drop #001 remains: High-Signal Lowcap: KINS. Do Not Touch Yet: MANIFEST. Consensus Forming: TROLL / ANSEM.</p>
           <p className="copy">Next batch under review: Jotchua: High-Signal Lowcap. SolAngeles: Watchlist. USELESS: Consensus Forming. TripleT: Watchlist.</p>
         </div>
       </section>

@@ -121,9 +121,9 @@ describe('unicorn radar service', () => {
 
     expect(summary.counts.total).toBe(9);
     expect(summary.counts.by_status.high_signal_lowcap).toBe(2);
-    expect(summary.counts.by_status.watchlist).toBe(4);
+    expect(summary.counts.by_status.watchlist).toBe(3);
     expect(summary.counts.by_status.do_not_touch_yet).toBe(1);
-    expect(summary.counts.by_status.consensus_forming).toBe(2);
+    expect(summary.counts.by_status.consensus_forming).toBe(3);
     expect(summary.counts.by_sector['AI / Agent Rails']).toBe(1);
     expect(summary.counts.by_sector['Social / Attention Markets']).toBe(7);
     expect(summary.counts.by_sector['Gaming / Consumer']).toBe(1);
@@ -226,6 +226,50 @@ describe('unicorn radar service', () => {
   });
 
   it('adds the CT survivability batch with explicit risk framing', async () => {
+    const troll = await resolveEnrichedUnicornRadarCandidate('ur_troll_attention_asset');
+    expect(troll).toEqual(expect.objectContaining({
+      project: 'TROLL',
+      status: 'consensus_forming',
+      verdict: 'consensus_already_forming',
+      displayVerdict: 'Mature IP-Backed Meme Survivor',
+      verificationStatus: 'verified_live_market',
+      productionReady: true,
+      tokenAddress: '5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2',
+      thesis: expect.stringContaining('consensus-forming IP-backed meme survivor'),
+      proof_of_shipping: expect.stringContaining('64k+ holder survivability receipt'),
+      token_survivability_note: expect.stringContaining('deep liquidity'),
+      risk_flags: expect.arrayContaining(['Pure meme/IP play with no utility moat beyond Trollface branding']),
+      tags: expect.arrayContaining(['CONSENSUS_FORMING', 'MATURE_MEME_SURVIVOR', 'IP_BACKED_MEME'])
+    }));
+    expect(troll?.tags ?? []).not.toContain('WATCHLIST');
+    expect(troll?.tags ?? []).not.toContain('TOKEN_REVIEW_NEEDED');
+    expect(troll?.receipts).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        label: 'Holder distribution receipt',
+        note: expect.stringContaining('64k+ holders')
+      }),
+      expect.objectContaining({
+        label: 'Top-holder concentration receipt',
+        note: expect.stringContaining('18-22%')
+      }),
+      expect.objectContaining({
+        label: 'Liquidity depth receipt',
+        note: expect.stringContaining('$3M')
+      }),
+      expect.objectContaining({
+        label: 'Age/survivorship receipt',
+        note: expect.stringContaining('around 1 year old')
+      }),
+      expect.objectContaining({
+        label: 'IP narrative receipt',
+        note: expect.stringContaining('Trollface IP/license ownership')
+      }),
+      expect.objectContaining({
+        label: 'Security receipt',
+        note: expect.stringContaining('97/100')
+      })
+    ]));
+
     const jotchua = await resolveEnrichedUnicornRadarCandidate('ur_jotchua_money_dog');
     expect(jotchua).toEqual(expect.objectContaining({
       project: 'Jotchua',

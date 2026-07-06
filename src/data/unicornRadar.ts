@@ -115,21 +115,38 @@ export const unicornRadarCandidates: UnicornRadarCandidate[] = [
     ticker: 'TROLL',
     sector: 'Social / Attention Markets',
     market_cap_range: 'Live market, verify current range from DexScreener',
-    thesis: 'Internet-native attention asset with strong cultural surface area, but weak product receipts.',
-    what_it_actually_does: 'Functions as a live attention-market asset built on internet-native cultural persistence rather than a conventional product surface.',
-    proof_of_shipping: 'Cultural longevity and market survival are visible, but the desk does not yet have strong product receipts to justify higher conviction.',
-    attention_quality_note: 'Attention is real and persistent, but reflexive attention markets can confuse cultural durability with durable utility.',
-    token_survivability_note: 'The token has cultural persistence, but intrinsic utility remains unclear and can disappear if attention breaks.',
+    thesis: 'TROLL has matured from raw attention asset into a consensus-forming IP-backed meme survivor. The survivability case is built on elite holder breadth, deep liquidity, improving top-holder distribution, one-year survivorship, multiple revival cycles, official Trollface IP/license narrative, and strong on-chain activity. It remains a pure meme/IP play, so upside depends on sustained meme culture momentum and community engagement rather than product utility.',
+    displayVerdict: 'Mature IP-Backed Meme Survivor',
+    what_it_actually_does: 'Functions as a live Trollface IP-backed meme and attention-market asset built on internet-native cultural persistence rather than conventional product utility.',
+    proof_of_shipping: 'Verified live Solana market, 64k+ holder survivability receipt, ~$3M liquidity-depth receipt, one-year age receipt, improving top-holder distribution receipt, fully circulating supply receipt, official Trollface IP/license narrative, merch/community surface, and multiple-cycle revival history.',
+    attention_quality_note: 'Attention is real and persistent, supported by old internet meme recognition and current community surfaces, but meme attention still needs ongoing culture retention.',
+    token_survivability_note: 'Submitted survivability receipts cite elite holder breadth, deep liquidity, improving top-holder concentration, one-year survivorship, multiple revival cycles, fully circulating supply, and strong on-chain activity. The pure meme/IP risk remains live because the token has no utility moat beyond Trollface branding.',
     risk_flags: [
-      'meme reflexivity',
-      'promotion risk',
-      'no clear intrinsic utility',
-      'attention can evaporate fast'
+      'Pure meme/IP play with no utility moat beyond Trollface branding',
+      'Large prior pumps and corrections create volatility risk',
+      'Upside depends on sustained meme culture momentum',
+      'At roughly $60M market cap, it has less lowcap asymmetry than newer candidates',
+      'Community engagement and top-holder trends need monitoring'
     ],
-    why_now: 'TROLL is a useful live case for distinguishing durable culture from durable product receipts.',
+    tags: [
+      'CONSENSUS_FORMING',
+      'MATURE_MEME_SURVIVOR',
+      'IP_BACKED_MEME',
+      'HOLDER_DISTRIBUTION_HEALTHY',
+      'DEEP_LIQUIDITY',
+      'MULTI_CYCLE_SURVIVOR',
+      'CULTURE_RETENTION_MONITORING',
+      'PURE_MEME_RISK'
+    ],
+    why_now: 'Consensus Forming. TROLL now reads as a mature IP-backed meme survivor, not a fresh lowcap discovery, while pure meme/IP risk and holder-trend monitoring stay explicit.',
     receipts: [
       receipt('urr_troll_receipt_001', 'Token address verified', 'market', 'Desk verified the live Solana token address before enabling market enrichment.'),
-      receipt('urr_troll_receipt_002', 'Attention thesis remains live', 'attention', 'TROLL continues to matter as a culture-layer attention asset, but the desk does not yet treat that as product proof.')
+      survivabilityReceipt('urr_troll_receipt_002', 'Holder distribution receipt', 'token', 'TROLL shows 64k+ holders, an elite distribution profile for a Solana meme at this market cap.'),
+      survivabilityReceipt('urr_troll_receipt_003', 'Top-holder concentration receipt', 'token', 'Top 10 wallets are reported around 18-22% depending on excluded pool/exchange wallets, with concentration trending downward over recent months.'),
+      survivabilityReceipt('urr_troll_receipt_004', 'Liquidity depth receipt', 'market', 'Main PumpSwap liquidity is reported around $3M, roughly 5% of market cap, supporting deeper trading than typical lowcap memes.'),
+      survivabilityReceipt('urr_troll_receipt_005', 'Age/survivorship receipt', 'market', 'TROLL is around 1 year old and has survived multiple major pump/correction/revival cycles.'),
+      survivabilityReceipt('urr_troll_receipt_006', 'IP narrative receipt', 'attention', 'Official project positioning centers on Trollface IP/license ownership, memes/gifs, community channels, and merch/shop surface.'),
+      survivabilityReceipt('urr_troll_receipt_007', 'Security receipt', 'risk', 'Reported security score is 97/100 in the submitted survivability report.')
     ],
     linked_narratives: [
       { label: 'TROLL Signal Report', href: '/signals/troll' },
@@ -143,21 +160,28 @@ export const unicornRadarCandidates: UnicornRadarCandidate[] = [
     verifiedAt: UPDATED_AT,
     verificationNotes: [
       'Live market token address verified before production launch.',
-      'Strong attention does not substitute for product receipts.'
+      'Consensus-forming status reflects survivability receipts, not product utility.',
+      'Pure meme/IP risk remains monitored alongside holder distribution and liquidity depth.'
     ],
     productionReady: true,
-    hunter_credit: hunter('@infopunks_desk', 'Infopunks desk verified TROLL as a live attention-market candidate with independent market checks.'),
-    paid_evaluation_disclosure: unpaidDisclosure(),
-    status: 'watchlist',
-    verdict: 'strong_attention_weak_proof',
+    hunter_credit: communityHunter('CT survivability intake', 'CT survivability intake submitted the TROLL survivability report. Infopunks upgraded the record to Consensus Forming while keeping pure meme/IP risk visible.'),
+    paid_evaluation_disclosure: {
+      is_paid: false,
+      label: 'Not paid.',
+      note: 'Not paid.',
+      paid_at: null,
+      receipt_id: null
+    },
+    status: 'consensus_forming',
+    verdict: 'consensus_already_forming',
     scores: {
-      shipping_proof: 34,
-      attention_quality: 85,
-      token_survivability: 44,
-      category_timing: 82,
-      asymmetry_potential: 57,
-      overall_signal_score: 59,
-      risk_score: 80
+      shipping_proof: 18,
+      attention_quality: 86,
+      token_survivability: 82,
+      category_timing: 62,
+      asymmetry_potential: 40,
+      overall_signal_score: 62,
+      risk_score: 74
     },
     updated_at: UPDATED_AT,
     sample_disclosure: LIVE_DISCLOSURE
