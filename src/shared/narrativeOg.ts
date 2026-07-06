@@ -77,6 +77,10 @@ export function narrativeOgImageUrl(pathname: string) {
     return '/og/unicorn-radar.png';
   }
 
+  if (/^\/evaluation-request\/?$/.test(pathname)) {
+    return '/og/evaluation-request.png';
+  }
+
   if (/^\/revenue-receipts\/?$/.test(pathname)) {
     return '/og/revenue-receipts.png';
   }
@@ -159,7 +163,7 @@ export function renderUnicornRadarOgImage(candidate: UnicornRadarCandidate) {
       : '#7effb0';
   const title = `${candidate.project} / ${candidate.ticker}`;
   const status = formatOgLabel(candidate.status);
-  const verdict = formatOgLabel(candidate.verdict);
+  const verdict = candidate.displayVerdict ?? formatOgLabel(candidate.verdict);
   const paidLine = candidate.paid_evaluation_disclosure.is_paid
     ? `PAID EVALUATION DISCLOSED · ${clampText(candidate.paid_evaluation_disclosure.note, 56)}`
     : candidate.paid_evaluation_disclosure.label.toUpperCase();

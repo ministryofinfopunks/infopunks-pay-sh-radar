@@ -625,6 +625,7 @@ export const UnicornRadarCandidateSchema = z.object({
   sector: UnicornRadarSectorSchema,
   market_cap_range: z.string(),
   thesis: z.string(),
+  displayVerdict: z.string().optional(),
   what_it_actually_does: z.string(),
   proof_of_shipping: z.string(),
   attention_quality_note: z.string(),
@@ -899,6 +900,92 @@ export const UnicornRadarEvaluationRequestResponseSchema = z.object({
   doctrine: z.literal('Projects can buy evaluation, not conviction.'),
   next_steps: z.array(z.string()),
   requested_at: z.string().datetime()
+});
+
+export const EvaluationRequestReviewTypeSchema = z.enum([
+  'unicorn_radar_evaluation',
+  'do_not_touch_risk_review',
+  'token_survivability_review',
+  'agent_readiness_review',
+  'narrative_positioning_review'
+]);
+
+export const EvaluationRequestInputSchema = z.object({
+  projectName: z.string().optional(),
+  ticker: z.string().optional(),
+  chain: z.string().optional(),
+  tokenAddress: z.string().optional(),
+  website: z.string().optional(),
+  xAccount: z.string().optional(),
+  contact: z.string().optional(),
+  dexScreenerUrl: z.string().optional(),
+  solscanUrl: z.string().optional(),
+  marketCap: z.string().optional(),
+  liquidity: z.string().optional(),
+  holderCount: z.string().optional(),
+  top10HolderConcentration: z.string().optional(),
+  top25HolderConcentration: z.string().optional(),
+  supplyNotes: z.string().optional(),
+  launchStructure: z.string().optional(),
+  teamTreasuryWallets: z.string().optional(),
+  productReceipts: z.string().optional(),
+  marketplaceEconomyReceipts: z.string().optional(),
+  communityReceipts: z.string().optional(),
+  upsideThesis: z.string().optional(),
+  riskFlags: z.string().optional(),
+  whyNow: z.string().optional(),
+  requestedReviewType: EvaluationRequestReviewTypeSchema.optional(),
+  paidEvaluationBudget: z.string().optional(),
+  disclosureAcknowledged: z.boolean().optional()
+}).strict();
+
+export const EvaluationRequestSchema = z.object({
+  id: z.string(),
+  projectName: z.string(),
+  ticker: z.string(),
+  chain: z.string(),
+  tokenAddress: z.string().nullable(),
+  website: z.string().nullable(),
+  xAccount: z.string().nullable(),
+  contact: z.string(),
+  dexScreenerUrl: z.string().nullable(),
+  solscanUrl: z.string().nullable(),
+  marketCap: z.string().nullable(),
+  liquidity: z.string().nullable(),
+  holderCount: z.string().nullable(),
+  top10HolderConcentration: z.string().nullable(),
+  top25HolderConcentration: z.string().nullable(),
+  supplyNotes: z.string().nullable(),
+  launchStructure: z.string().nullable(),
+  teamTreasuryWallets: z.string().nullable(),
+  productReceipts: z.string().nullable(),
+  marketplaceEconomyReceipts: z.string().nullable(),
+  communityReceipts: z.string().nullable(),
+  upsideThesis: z.string(),
+  riskFlags: z.string(),
+  whyNow: z.string().nullable(),
+  requestedReviewType: EvaluationRequestReviewTypeSchema,
+  paidEvaluationBudget: z.string().nullable(),
+  disclosureAcknowledged: z.literal(true),
+  submittedAt: z.string().datetime()
+});
+
+export const EvaluationRequestStatusSchema = z.enum(['accepted', 'manual_delivery_required']);
+
+export const EvaluationRequestResponseSchema = z.object({
+  request_id: z.string(),
+  status: EvaluationRequestStatusSchema,
+  generated_at: z.string().datetime(),
+  disclosure_acknowledged: z.literal(true),
+  revenue_receipt_policy: z.literal('Paid evaluations may receive public Revenue Receipts. Payment buys evaluation, not conviction.'),
+  next_steps: z.array(z.string()).min(1),
+  request_packet: z.string(),
+  evaluation_request: EvaluationRequestSchema
+});
+
+export const EvaluationRequestDisclosureErrorSchema = z.object({
+  code: z.literal('DISCLOSURE_REQUIRED'),
+  message: z.literal('You must acknowledge that payment buys evaluation, not conviction.')
 });
 
 export const SignalDeskActivityTypeSchema = z.enum([
@@ -3011,6 +3098,12 @@ export type UnicornRadarSubmissionInput = z.infer<typeof UnicornRadarSubmissionI
 export type UnicornRadarSubmissionResponse = z.infer<typeof UnicornRadarSubmissionResponseSchema>;
 export type UnicornRadarEvaluationRequestInput = z.infer<typeof UnicornRadarEvaluationRequestInputSchema>;
 export type UnicornRadarEvaluationRequestResponse = z.infer<typeof UnicornRadarEvaluationRequestResponseSchema>;
+export type EvaluationRequestReviewType = z.infer<typeof EvaluationRequestReviewTypeSchema>;
+export type EvaluationRequestInput = z.infer<typeof EvaluationRequestInputSchema>;
+export type EvaluationRequest = z.infer<typeof EvaluationRequestSchema>;
+export type EvaluationRequestStatus = z.infer<typeof EvaluationRequestStatusSchema>;
+export type EvaluationRequestResponse = z.infer<typeof EvaluationRequestResponseSchema>;
+export type EvaluationRequestDisclosureError = z.infer<typeof EvaluationRequestDisclosureErrorSchema>;
 export type SignalDeskActivityType = z.infer<typeof SignalDeskActivityTypeSchema>;
 export type SignalDeskReportCard = z.infer<typeof SignalDeskReportCardSchema>;
 export type SignalDeskDispatchCard = z.infer<typeof SignalDeskDispatchCardSchema>;

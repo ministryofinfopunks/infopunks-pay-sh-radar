@@ -15,6 +15,18 @@ function receipt(id: string, label: string, type: UnicornRadarCandidate['receipt
   };
 }
 
+function survivabilityReceipt(id: string, label: string, type: UnicornRadarCandidate['receipts'][number]['type'], note: string, url?: string): UnicornRadarCandidate['receipts'][number] {
+  return {
+    id,
+    label,
+    type,
+    source: 'CT survivability intake',
+    url,
+    note,
+    observed_at: UPDATED_AT
+  };
+}
+
 function hunter(handle: string, attribution: string): UnicornRadarCandidate['hunter_credit'] {
   return {
     handle,
@@ -286,6 +298,273 @@ export const unicornRadarCandidates: UnicornRadarCandidate[] = [
       asymmetry_potential: 62,
       overall_signal_score: 55,
       risk_score: 72
+    },
+    updated_at: UPDATED_AT,
+    sample_disclosure: LIVE_DISCLOSURE
+  },
+  {
+    id: 'ur_jotchua_money_dog',
+    project: 'Jotchua',
+    ticker: 'JOTCHUA',
+    sector: 'Social / Attention Markets',
+    market_cap_range: 'Live market, verify current range from DexScreener',
+    thesis: 'Jotchua has a strong lowcap meme survivability profile: broad holder base, healthy liquidity relative to market cap, clean pump.fun fair launch, revoked mint authority, high trading activity, and viral Money Dog cultural surface. It remains a pure narrative play, so retention and whale/influencer profit-taking must be monitored.',
+    displayVerdict: 'High-Signal Meme Lowcap, Culture Retention Monitored',
+    what_it_actually_does: 'Jotchua is a Money Dog attention-market meme on Solana with no product utility claim attached to the current Radar record.',
+    proof_of_shipping: 'Verified live Solana market, 11k+ holder receipt, liquidity-depth receipt, clean launch receipt, fully circulating supply receipt, and active volume/community receipt.',
+    attention_quality_note: 'Viral Money Dog culture gives Jotchua a visible attention surface, but the desk is treating that as culture retention to monitor rather than product evidence.',
+    token_survivability_note: 'Submitted survivability receipts cite broad holders, liquidity depth, clean launch structure, revoked mint authority, and fully circulating supply. The pure meme risk remains live if culture momentum or volume reverses.',
+    risk_flags: [
+      'Pure meme with no product utility',
+      'Meme longevity depends on sustained culture momentum',
+      'Whale or influencer profit-taking may create volatility',
+      'High 24h volume can reverse quickly'
+    ],
+    tags: [
+      'HIGH_SIGNAL_LOWCAP',
+      'MEME_SURVIVABILITY',
+      'FAIR_LAUNCH_RECEIPT',
+      'HOLDER_DISTRIBUTION_HEALTHY',
+      'LIQUIDITY_DEPTH_REVIEWED',
+      'CULTURE_RETENTION_MONITORING',
+      'PURE_MEME_RISK'
+    ],
+    why_now: 'High-Signal Lowcap from CT survivability receipts, with pure meme risk left explicit until retention and holder behavior stay durable across more cycles.',
+    receipts: [
+      survivabilityReceipt('urr_jotchua_receipt_001', 'Live market receipt', 'market', 'Verified live Solana market and DexScreener pair recorded for enrichment.', 'https://dexscreener.com/solana/akqyqgeifbbhqmanukzrrurgokskkbv8nvdccc87frr8'),
+      survivabilityReceipt('urr_jotchua_receipt_002', 'Holder base receipt', 'token', 'Submitted receipt cites an 11k+ holder base, supporting healthier distribution for a lowcap meme candidate.'),
+      survivabilityReceipt('urr_jotchua_receipt_003', 'Liquidity depth receipt', 'market', 'Submitted liquidity-depth receipt frames liquidity as healthy relative to market cap, but volatility remains monitored.'),
+      survivabilityReceipt('urr_jotchua_receipt_004', 'Clean launch receipt', 'market', 'Submitted launch receipt cites a clean pump.fun fair launch and revoked mint authority.'),
+      survivabilityReceipt('urr_jotchua_receipt_005', 'Culture and activity receipt', 'attention', 'Money Dog cultural surface, high trading activity, and community activity are live, but pure meme retention is not guaranteed.')
+    ],
+    linked_narratives: [
+      { label: 'Attention Market Watch', href: '/narratives/attention-market-watch' },
+      { label: 'Signal Hunt', href: '/signal-hunt' }
+    ],
+    linked_graph_node: { id: 'ct_subcultures', label: 'CT Subcultures', href: '/graph' },
+    chainId: 'solana',
+    tokenAddress: 'BcHEaaTCvycPwwsJ9yQTXdHP9X2gCLkznDbZ8VySpump',
+    verificationStatus: 'verified_live_market',
+    tokenAddressSource: 'CT survivability intake submitted token address and live DexScreener pair; Infopunks keeps source framing and risk notes visible.',
+    dexScreenerUrl: 'https://dexscreener.com/solana/akqyqgeifbbhqmanukzrrurgokskkbv8nvdccc87frr8',
+    verifiedAt: UPDATED_AT,
+    verificationNotes: [
+      'Live Solana market recorded from submitted survivability receipts.',
+      'High-Signal Lowcap status reflects token survivability receipts, not product utility.',
+      'Pure meme risk and culture retention remain monitored.'
+    ],
+    productionReady: true,
+    hunter_credit: communityHunter('CT survivability intake', 'CT survivability intake submitted Jotchua receipts. Infopunks added a source-framed High-Signal Lowcap record without erasing pure meme risk.'),
+    paid_evaluation_disclosure: unpaidDisclosure(),
+    status: 'high_signal_lowcap',
+    verdict: 'high_signal_early',
+    scores: {
+      shipping_proof: 18,
+      attention_quality: 78,
+      token_survivability: 74,
+      category_timing: 72,
+      asymmetry_potential: 76,
+      overall_signal_score: 69,
+      risk_score: 81
+    },
+    updated_at: UPDATED_AT,
+    sample_disclosure: LIVE_DISCLOSURE
+  },
+  {
+    id: 'ur_solangeles',
+    project: 'SolAngeles',
+    ticker: 'SolAngeles',
+    sector: 'Social / Attention Markets',
+    market_cap_range: 'Live market, verify current range from DexScreener',
+    thesis: 'SolAngeles has one of the strongest product/activity surfaces in the batch: cartoon universe, characters, episodes, website, rewards/airdrop tracker, and community takeover dynamics. It enters Watchlist because the content moat is real, but adult/NSFW brand risk and execution consistency need monitoring.',
+    displayVerdict: 'Real Content Moat, Distribution Still Monitored',
+    what_it_actually_does: 'SolAngeles is a cartoon/content attention-market project with characters, episodes, a website, rewards/airdrop tracking, and community takeover coordination.',
+    proof_of_shipping: 'Verified live market, community takeover receipt, cartoon/content product surface, episode/content activity, rewards/airdrop tracker, and liquidity-depth receipt.',
+    attention_quality_note: 'The content moat is stronger than a pure ticker meme, but distribution quality still depends on consistent episode output and community execution.',
+    token_survivability_note: 'Submitted receipts show a live market and liquidity-depth review, but token survival still depends on whether content activity and rewards loops produce durable participation.',
+    risk_flags: [
+      'Adult/NSFW content creates platform and brand risk',
+      'Community takeover execution risk',
+      'Smaller scale than established meme peers',
+      'Growth depends on consistent episode/content output'
+    ],
+    tags: [
+      'WATCHLIST',
+      'CONTENT_MOAT',
+      'COMMUNITY_TAKEOVER',
+      'REWARDS_ECONOMY',
+      'NSFW_BRAND_RISK',
+      'LIQUIDITY_DEPTH_REVIEWED'
+    ],
+    why_now: 'Watchlist. The content moat is real enough to track, but NSFW brand risk, community takeover execution, and output cadence keep conviction capped.',
+    receipts: [
+      survivabilityReceipt('urr_solangeles_receipt_001', 'Live market receipt', 'market', 'Verified live Solana market and DexScreener pair recorded for enrichment.', 'https://dexscreener.com/solana/ak7hdcxdsocd2zgjbca1zwlcudqz5f6n747a7rqtpxe3'),
+      survivabilityReceipt('urr_solangeles_receipt_002', 'Community takeover receipt', 'attention', 'Submitted receipts frame SolAngeles as a community takeover with active coordination risk and upside.'),
+      survivabilityReceipt('urr_solangeles_receipt_003', 'Cartoon content surface receipt', 'shipping', 'Cartoon universe, characters, episodes, and website surface are treated as real content/product evidence.'),
+      survivabilityReceipt('urr_solangeles_receipt_004', 'Rewards tracker receipt', 'token', 'Rewards/airdrop tracker supports an active rewards-economy surface, but retention still needs monitoring.'),
+      survivabilityReceipt('urr_solangeles_receipt_005', 'Liquidity depth receipt', 'market', 'Submitted liquidity-depth receipt supports Watchlist inclusion while execution consistency remains open.')
+    ],
+    linked_narratives: [
+      { label: 'Attention Market Watch', href: '/narratives/attention-market-watch' },
+      { label: 'Signal Hunt', href: '/signal-hunt' }
+    ],
+    linked_graph_node: { id: 'ct_subcultures', label: 'CT Subcultures', href: '/graph' },
+    chainId: 'solana',
+    tokenAddress: '8wxkvAfEns76yBzu4MnbV7VnXWjg3iDPA9uwAQ6cpump',
+    verificationStatus: 'verified_live_market',
+    tokenAddressSource: 'CT survivability intake submitted token address and live DexScreener pair; Infopunks keeps source framing and NSFW brand risk visible.',
+    dexScreenerUrl: 'https://dexscreener.com/solana/ak7hdcxdsocd2zgjbca1zwlcudqz5f6n747a7rqtpxe3',
+    verifiedAt: UPDATED_AT,
+    verificationNotes: [
+      'Live Solana market recorded from submitted survivability receipts.',
+      'Content moat is tracked separately from token conviction.',
+      'Adult/NSFW brand risk remains part of the public record.'
+    ],
+    productionReady: true,
+    hunter_credit: communityHunter('CT survivability intake', 'CT survivability intake submitted SolAngeles receipts. Infopunks added a Watchlist record with content moat and NSFW brand risk both visible.'),
+    paid_evaluation_disclosure: unpaidDisclosure(),
+    status: 'watchlist',
+    verdict: 'real_product_weak_attention',
+    scores: {
+      shipping_proof: 62,
+      attention_quality: 61,
+      token_survivability: 55,
+      category_timing: 66,
+      asymmetry_potential: 59,
+      overall_signal_score: 60,
+      risk_score: 70
+    },
+    updated_at: UPDATED_AT,
+    sample_disclosure: LIVE_DISCLOSURE
+  },
+  {
+    id: 'ur_useless_consensus',
+    project: 'USELESS',
+    ticker: 'USELESS',
+    sector: 'Social / Attention Markets',
+    market_cap_range: 'Live market, verify current range from DexScreener',
+    thesis: 'USELESS is a mature satirical Solana meme with established liquidity, long holder history, and sustained community activity. It is not an early lowcap candidate anymore, but it belongs as a consensus-forming survivability benchmark.',
+    displayVerdict: 'Battle-Tested Meme Benchmark',
+    what_it_actually_does: 'USELESS is a satirical Solana meme and attention-market benchmark rather than a product-utility candidate.',
+    proof_of_shipping: 'Verified live market, mature age receipt, deep liquidity/high-volume receipt, fully circulating supply receipt, and established community presence.',
+    attention_quality_note: 'Sustained community activity and mature market history make USELESS useful as a survivability benchmark, not a fresh undiscovered signal.',
+    token_survivability_note: 'Long holder history, deep liquidity, and mature age improve survivability confidence, while higher market cap creates lower lowcap upside than early candidates.',
+    risk_flags: [
+      'High market cap reduces asymmetric lowcap upside',
+      'Pure meme with no product moat beyond narrative',
+      'Satirical branding may cap mainstream crossover'
+    ],
+    tags: [
+      'CONSENSUS_FORMING',
+      'BATTLE_TESTED_MEME',
+      'SURVIVABILITY_BENCHMARK',
+      'DEEP_LIQUIDITY',
+      'PURE_MEME_RISK'
+    ],
+    why_now: 'Consensus Forming. USELESS belongs as a battle-tested meme survivability benchmark, but lower lowcap upside keeps it out of High-Signal Lowcap.',
+    receipts: [
+      survivabilityReceipt('urr_useless_receipt_001', 'Live market receipt', 'market', 'Verified live Solana market and DexScreener pair recorded for enrichment.', 'https://dexscreener.com/solana/q2sphpduwfmg7m7wwrqklrn619caucfrsmhvjffodsp'),
+      survivabilityReceipt('urr_useless_receipt_002', 'Mature age receipt', 'market', 'Submitted receipt frames USELESS as a mature meme with a longer holder and market history.'),
+      survivabilityReceipt('urr_useless_receipt_003', 'Deep liquidity receipt', 'market', 'Submitted deep liquidity/high-volume receipt supports benchmark status rather than early lowcap status.'),
+      survivabilityReceipt('urr_useless_receipt_004', 'Supply receipt', 'token', 'Submitted receipt cites fully circulating supply.'),
+      survivabilityReceipt('urr_useless_receipt_005', 'Community presence receipt', 'attention', 'Established community presence supports survivability benchmark framing.')
+    ],
+    linked_narratives: [
+      { label: 'Attention Market Watch', href: '/narratives/attention-market-watch' },
+      { label: 'Signal Hunt', href: '/signal-hunt' }
+    ],
+    linked_graph_node: { id: 'ct_subcultures', label: 'CT Subcultures', href: '/graph' },
+    chainId: 'solana',
+    tokenAddress: 'Dz9mQ9NzkBcCsuGPFJ3r1bS4wgqKMHBPiVuniW8Mbonk',
+    verificationStatus: 'verified_live_market',
+    tokenAddressSource: 'CT survivability intake submitted token address and live DexScreener pair; Infopunks keeps benchmark framing distinct from early lowcap promotion.',
+    dexScreenerUrl: 'https://dexscreener.com/solana/q2sphpduwfmg7m7wwrqklrn619caucfrsmhvjffodsp',
+    verifiedAt: UPDATED_AT,
+    verificationNotes: [
+      'Live Solana market recorded from submitted survivability receipts.',
+      'Consensus-forming benchmark, not a fresh early lowcap call.',
+      'Pure meme risk remains visible despite mature survivability receipts.'
+    ],
+    productionReady: true,
+    hunter_credit: communityHunter('CT survivability intake', 'CT survivability intake submitted USELESS receipts. Infopunks added a consensus-forming benchmark record instead of early-lowcap promotion.'),
+    paid_evaluation_disclosure: unpaidDisclosure(),
+    status: 'consensus_forming',
+    verdict: 'consensus_already_forming',
+    scores: {
+      shipping_proof: 12,
+      attention_quality: 82,
+      token_survivability: 82,
+      category_timing: 48,
+      asymmetry_potential: 34,
+      overall_signal_score: 58,
+      risk_score: 66
+    },
+    updated_at: UPDATED_AT,
+    sample_disclosure: LIVE_DISCLOSURE
+  },
+  {
+    id: 'ur_triplet_sahur',
+    project: 'TripleT',
+    ticker: 'TRIPLET',
+    sector: 'Social / Attention Markets',
+    market_cap_range: 'Live market, verify current range from DexScreener',
+    thesis: 'TripleT has strong viral meme roots, fair launch structure, meaningful liquidity, and active trading. It enters Watchlist rather than High-Signal because the project is pure meme, newer than more battle-tested peers, and still dependent on sustained brainrot/TikTok cultural momentum.',
+    displayVerdict: 'Viral Meme Candidate, Longevity Unproven',
+    what_it_actually_does: 'TripleT is a viral meme attention-market asset with no current product utility claim attached to the Radar record.',
+    proof_of_shipping: 'Verified live market, fair launch receipt, liquidity-depth receipt, viral cultural origin receipt, and active trading/community receipt.',
+    attention_quality_note: 'Viral meme origin gives TripleT strong attention, but attention quality remains hype-cycle dependent until culture retention is proven beyond the current cycle.',
+    token_survivability_note: 'Fair launch, liquidity depth, and active trading support Watchlist inclusion, but newer pure memes can lose survivability quickly when cultural momentum breaks.',
+    risk_flags: [
+      'Pure meme with no product utility',
+      'Hype-cycle dependent',
+      'Regional/niche meme concentration risk',
+      'Less battle-tested than older meme peers'
+    ],
+    tags: [
+      'WATCHLIST',
+      'VIRAL_MEME',
+      'FAIR_LAUNCH_RECEIPT',
+      'LIQUIDITY_DEPTH_REVIEWED',
+      'CULTURE_RETENTION_MONITORING',
+      'PURE_MEME_RISK'
+    ],
+    why_now: 'Watchlist. TripleT has viral meme traction and token survivability receipts, but hype-cycle risk and limited battle-testing block High-Signal promotion.',
+    receipts: [
+      survivabilityReceipt('urr_triplet_receipt_001', 'Live market receipt', 'market', 'Verified live Solana market and DexScreener pair recorded for enrichment.', 'https://dexscreener.com/solana/3kfcgj5r3zshw8htdbzjsrrksrymkvsmfhc4vo4iddxd'),
+      survivabilityReceipt('urr_triplet_receipt_002', 'Fair launch receipt', 'market', 'Submitted receipt cites fair launch structure.'),
+      survivabilityReceipt('urr_triplet_receipt_003', 'Liquidity depth receipt', 'market', 'Submitted liquidity-depth receipt supports Watchlist inclusion.'),
+      survivabilityReceipt('urr_triplet_receipt_004', 'Viral cultural origin receipt', 'attention', 'Submitted receipt ties TripleT to viral meme roots and brainrot/TikTok cultural momentum.'),
+      survivabilityReceipt('urr_triplet_receipt_005', 'Active trading/community receipt', 'attention', 'Submitted active trading/community receipt is monitored for retention rather than treated as durable product evidence.')
+    ],
+    linked_narratives: [
+      { label: 'Attention Market Watch', href: '/narratives/attention-market-watch' },
+      { label: 'Signal Hunt', href: '/signal-hunt' }
+    ],
+    linked_graph_node: { id: 'ct_subcultures', label: 'CT Subcultures', href: '/graph' },
+    chainId: 'solana',
+    tokenAddress: 'J8PSdNP3QewKq2Z1JJJFDMaqF7KcaiJhR7gbr5KZpump',
+    verificationStatus: 'verified_live_market',
+    tokenAddressSource: 'CT survivability intake submitted token address and live DexScreener pair; Infopunks keeps viral meme and hype-cycle risk visible.',
+    dexScreenerUrl: 'https://dexscreener.com/solana/3kfcgj5r3zshw8htdbzjsrrksrymkvsmfhc4vo4iddxd',
+    verifiedAt: UPDATED_AT,
+    verificationNotes: [
+      'Live Solana market recorded from submitted survivability receipts.',
+      'Watchlist status reflects viral meme survivability receipts, not product proof.',
+      'Hype-cycle and culture-retention risk remain monitored.'
+    ],
+    productionReady: true,
+    hunter_credit: communityHunter('CT survivability intake', 'CT survivability intake submitted TripleT receipts. Infopunks added a Watchlist record with viral meme and hype-cycle risks explicit.'),
+    paid_evaluation_disclosure: unpaidDisclosure(),
+    status: 'watchlist',
+    verdict: 'strong_attention_weak_proof',
+    scores: {
+      shipping_proof: 10,
+      attention_quality: 74,
+      token_survivability: 60,
+      category_timing: 70,
+      asymmetry_potential: 62,
+      overall_signal_score: 57,
+      risk_score: 84
     },
     updated_at: UPDATED_AT,
     sample_disclosure: LIVE_DISCLOSURE

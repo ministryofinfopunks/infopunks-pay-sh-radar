@@ -59,6 +59,7 @@ type UnicornRadarCandidate = {
   sector: UnicornRadarSector;
   market_cap_range: string;
   thesis: string;
+  displayVerdict?: string;
   what_it_actually_does: string;
   proof_of_shipping: string;
   attention_quality_note: string;
@@ -452,7 +453,7 @@ export function UnicornRadarPage() {
           <p className="panel-caption">{summary?.doctrine_line ?? 'Influencers sell certainty. Infopunks sells legible uncertainty.'}</p>
           <div className="signal-hunt-hero-actions">
             <a className="execute" href="#submit-candidate">Submit Candidate</a>
-            <a className="execute compact secondary" href="#request-evaluation">Request Paid Evaluation</a>
+            <a className="execute compact secondary" href="/evaluation-request">Request paid evaluation</a>
           </div>
         </div>
         <div className="signal-hunt-counter-grid unicorn-counter-grid" aria-label="Radar status counters">
@@ -468,8 +469,9 @@ export function UnicornRadarPage() {
       <section className="panel unicorn-radar-module" aria-label="Drop #001 candidate queue">
         <div>
           <p className="eyebrow">Drop #001 candidate queue</p>
-          <h2>Two CT-intake candidates promoted to framed Radar records.</h2>
-          <p className="copy">High-Signal Lowcap: KINS. Watchlist: TROLL. Do Not Touch Yet: MANIFEST.</p>
+          <h2>Drop #001 remains receipt-framed.</h2>
+          <p className="copy">Drop #001 remains: High-Signal Lowcap: KINS. Watchlist: TROLL. Do Not Touch Yet: MANIFEST.</p>
+          <p className="copy">Next batch under review: Jotchua: High-Signal Lowcap. SolAngeles: Watchlist. USELESS: Consensus Forming. TripleT: Watchlist.</p>
         </div>
       </section>
 
@@ -507,8 +509,8 @@ export function UnicornRadarPage() {
         <article id="request-evaluation" className="panel signal-hunt-cta-card">
           <p className="eyebrow">Request Paid Evaluation</p>
           <h2>Buy evaluation, not conviction.</h2>
-          <p className="copy">Use <code>POST /v1/unicorn-radar/request-evaluation</code>. Paid status is disclosed if a public candidate enters the Radar.</p>
-          <a className="execute compact secondary" href="/openapi.json">Open API schema</a>
+          <p className="copy">Use <code>POST /v1/evaluation-request</code>. If automated intake is not configured, the API returns a manual delivery packet instead of pretending it stored your request.</p>
+          <a className="execute compact secondary" href="/evaluation-request">Open evaluation slot</a>
         </article>
       </section>
     </main>
@@ -559,7 +561,7 @@ export function UnicornRadarDetailPage({ candidateId }: { candidateId: string })
         </div>
         <div className="panel unicorn-verdict-panel">
           <span className={`status-pill ${statusTone(candidate.status)}`}>{titleCase(candidate.status)}</span>
-          <h2>{verdictCopy(candidate.verdict)}</h2>
+          <h2>{candidate.displayVerdict ?? verdictCopy(candidate.verdict)}</h2>
           <p>{candidate.paid_evaluation_disclosure.note}</p>
         </div>
       </section>
@@ -614,6 +616,9 @@ export function UnicornRadarDetailPage({ candidateId }: { candidateId: string })
         <div className="proof-flag-list unicorn-risk-list">
           {candidate.risk_flags.map((flag) => <span key={flag}>{flag}</span>)}
         </div>
+        <div className="signal-hunt-card-actions">
+          <a className="execute compact secondary" href="/evaluation-request">Submit receipts for this candidate</a>
+        </div>
       </section>
 
       {(candidate.tags?.length ?? 0) > 0 && <section className="panel unicorn-section" aria-label="Candidate tags">
@@ -667,7 +672,7 @@ export function UnicornRadarDetailPage({ candidateId }: { candidateId: string })
         </article>
         <article className="panel">
           <p className="eyebrow">Final Infopunks verdict</p>
-          <h2>{verdictCopy(candidate.verdict)}</h2>
+          <h2>{candidate.displayVerdict ?? verdictCopy(candidate.verdict)}</h2>
           <p>Influencers sell certainty. Infopunks sells legible uncertainty.</p>
         </article>
       </section>

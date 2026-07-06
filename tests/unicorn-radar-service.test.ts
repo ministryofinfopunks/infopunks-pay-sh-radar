@@ -39,12 +39,20 @@ describe('unicorn radar service', () => {
         if (url.includes('5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
         if (url.includes('9cRCn9rGT8V2imeM2BaKs13yhMEais3ruM3rPvTGpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('9cRCn9rGT8V2imeM2BaKs13yhMEais3ruM3rPvTGpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
         if (url.includes('Tqj8yFmagrg7oorpQkVGYR52r96RFTamvWfth9bpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('Tqj8yFmagrg7oorpQkVGYR52r96RFTamvWfth9bpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+        if (url.includes('BcHEaaTCvycPwwsJ9yQTXdHP9X2gCLkznDbZ8VySpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('BcHEaaTCvycPwwsJ9yQTXdHP9X2gCLkznDbZ8VySpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+        if (url.includes('8wxkvAfEns76yBzu4MnbV7VnXWjg3iDPA9uwAQ6cpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('8wxkvAfEns76yBzu4MnbV7VnXWjg3iDPA9uwAQ6cpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+        if (url.includes('Dz9mQ9NzkBcCsuGPFJ3r1bS4wgqKMHBPiVuniW8Mbonk')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('Dz9mQ9NzkBcCsuGPFJ3r1bS4wgqKMHBPiVuniW8Mbonk')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+        if (url.includes('J8PSdNP3QewKq2Z1JJJFDMaqF7KcaiJhR7gbr5KZpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('J8PSdNP3QewKq2Z1JJJFDMaqF7KcaiJhR7gbr5KZpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
       }
       if (url.includes('/token-pairs/v1/')) {
         if (url.includes('61V8vBaqAGMpgDQi4JcAwo1dmBGHsyhzodcPqnEVpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('61V8vBaqAGMpgDQi4JcAwo1dmBGHsyhzodcPqnEVpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
         if (url.includes('5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
         if (url.includes('9cRCn9rGT8V2imeM2BaKs13yhMEais3ruM3rPvTGpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('9cRCn9rGT8V2imeM2BaKs13yhMEais3ruM3rPvTGpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
         if (url.includes('Tqj8yFmagrg7oorpQkVGYR52r96RFTamvWfth9bpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('Tqj8yFmagrg7oorpQkVGYR52r96RFTamvWfth9bpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+        if (url.includes('BcHEaaTCvycPwwsJ9yQTXdHP9X2gCLkznDbZ8VySpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('BcHEaaTCvycPwwsJ9yQTXdHP9X2gCLkznDbZ8VySpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+        if (url.includes('8wxkvAfEns76yBzu4MnbV7VnXWjg3iDPA9uwAQ6cpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('8wxkvAfEns76yBzu4MnbV7VnXWjg3iDPA9uwAQ6cpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+        if (url.includes('Dz9mQ9NzkBcCsuGPFJ3r1bS4wgqKMHBPiVuniW8Mbonk')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('Dz9mQ9NzkBcCsuGPFJ3r1bS4wgqKMHBPiVuniW8Mbonk')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+        if (url.includes('J8PSdNP3QewKq2Z1JJJFDMaqF7KcaiJhR7gbr5KZpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('J8PSdNP3QewKq2Z1JJJFDMaqF7KcaiJhR7gbr5KZpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
       }
       if (url.includes('/orders/v1/')) {
         return Promise.resolve(new Response(JSON.stringify({ orders: [], boosts: [] }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
@@ -57,15 +65,19 @@ describe('unicorn radar service', () => {
     vi.unstubAllGlobals();
   });
 
-  it('returns the verified production candidate set and supports fewer than nine candidates', async () => {
+  it('returns the verified production candidate set', async () => {
     const list = await buildUnicornRadarCandidateList();
 
-    expect(list.count).toBe(5);
+    expect(list.count).toBe(9);
     expect(list.candidates.map((candidate) => candidate.id)).toEqual([
       'ur_ai_rig_complex',
       'ur_troll_attention_asset',
       'ur_black_bull_ansem',
       'ur_kintara_kins',
+      'ur_jotchua_money_dog',
+      'ur_solangeles',
+      'ur_useless_consensus',
+      'ur_triplet_sahur',
       'ur_manifest_ambiguity'
     ]);
     expect(new Set(list.candidates.map((candidate) => candidate.sector))).toEqual(new Set([
@@ -107,13 +119,13 @@ describe('unicorn radar service', () => {
   it('keeps statuses, verdicts, and score ranges production-shaped', async () => {
     const summary = await buildUnicornRadarSummary();
 
-    expect(summary.counts.total).toBe(5);
-    expect(summary.counts.by_status.high_signal_lowcap).toBe(1);
-    expect(summary.counts.by_status.watchlist).toBe(2);
+    expect(summary.counts.total).toBe(9);
+    expect(summary.counts.by_status.high_signal_lowcap).toBe(2);
+    expect(summary.counts.by_status.watchlist).toBe(4);
     expect(summary.counts.by_status.do_not_touch_yet).toBe(1);
-    expect(summary.counts.by_status.consensus_forming).toBe(1);
+    expect(summary.counts.by_status.consensus_forming).toBe(2);
     expect(summary.counts.by_sector['AI / Agent Rails']).toBe(1);
-    expect(summary.counts.by_sector['Social / Attention Markets']).toBe(3);
+    expect(summary.counts.by_sector['Social / Attention Markets']).toBe(7);
     expect(summary.counts.by_sector['Gaming / Consumer']).toBe(1);
 
     for (const candidate of summary.candidates) {
@@ -213,10 +225,58 @@ describe('unicorn radar service', () => {
     expect(candidate?.tags ?? []).not.toContain('TOKEN_REVIEW_NEEDED');
   });
 
+  it('adds the CT survivability batch with explicit risk framing', async () => {
+    const jotchua = await resolveEnrichedUnicornRadarCandidate('ur_jotchua_money_dog');
+    expect(jotchua).toEqual(expect.objectContaining({
+      project: 'Jotchua',
+      status: 'high_signal_lowcap',
+      displayVerdict: 'High-Signal Meme Lowcap, Culture Retention Monitored',
+      verificationStatus: 'verified_live_market',
+      productionReady: true,
+      proof_of_shipping: expect.stringContaining('11k+ holder receipt'),
+      token_survivability_note: expect.stringContaining('liquidity depth'),
+      thesis: expect.stringContaining('clean pump.fun fair launch'),
+      risk_flags: expect.arrayContaining(['Pure meme with no product utility'])
+    }));
+
+    const solangeles = await resolveEnrichedUnicornRadarCandidate('ur_solangeles');
+    expect(solangeles).toEqual(expect.objectContaining({
+      project: 'SolAngeles',
+      status: 'watchlist',
+      displayVerdict: 'Real Content Moat, Distribution Still Monitored',
+      verificationStatus: 'verified_live_market',
+      productionReady: true,
+      thesis: expect.stringContaining('content moat is real'),
+      risk_flags: expect.arrayContaining(['Adult/NSFW content creates platform and brand risk'])
+    }));
+
+    const useless = await resolveEnrichedUnicornRadarCandidate('ur_useless_consensus');
+    expect(useless).toEqual(expect.objectContaining({
+      project: 'USELESS',
+      status: 'consensus_forming',
+      displayVerdict: 'Battle-Tested Meme Benchmark',
+      verificationStatus: 'verified_live_market',
+      productionReady: true,
+      thesis: expect.stringContaining('survivability benchmark'),
+      token_survivability_note: expect.stringContaining('lower lowcap upside')
+    }));
+
+    const triplet = await resolveEnrichedUnicornRadarCandidate('ur_triplet_sahur');
+    expect(triplet).toEqual(expect.objectContaining({
+      project: 'TripleT',
+      status: 'watchlist',
+      displayVerdict: 'Viral Meme Candidate, Longevity Unproven',
+      verificationStatus: 'verified_live_market',
+      productionReady: true,
+      thesis: expect.stringContaining('strong viral meme roots'),
+      risk_flags: expect.arrayContaining(['Hype-cycle dependent'])
+    }));
+  });
+
   it('fails open when DexScreener is unavailable', async () => {
     vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new Error('dex down'))));
     const summary = await buildUnicornRadarSummary();
-    expect(summary.candidates).toHaveLength(5);
+    expect(summary.candidates).toHaveLength(9);
     expect(summary.candidates.every((candidate) => candidate.productionReady)).toBe(true);
   });
 

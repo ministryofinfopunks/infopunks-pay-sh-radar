@@ -204,6 +204,79 @@ const kinsCandidate = {
   why_now: 'High-Signal Lowcap. KINS has crossed the first threshold, but this is not certainty: retention, marketplace depth, and execution remain monitored before conviction can rise again.'
 };
 
+const jotchuaCandidate = {
+  ...baseCandidate,
+  id: 'ur_jotchua_money_dog',
+  project: 'Jotchua',
+  ticker: 'JOTCHUA',
+  sector: 'Social / Attention Markets',
+  thesis: 'Jotchua has a strong lowcap meme survivability profile: broad holder base, healthy liquidity relative to market cap, clean pump.fun fair launch, revoked mint authority, high trading activity, and viral Money Dog cultural surface. It remains a pure narrative play, so retention and whale/influencer profit-taking must be monitored.',
+  displayVerdict: 'High-Signal Meme Lowcap, Culture Retention Monitored',
+  proof_of_shipping: 'Verified live Solana market, 11k+ holder receipt, liquidity-depth receipt, clean launch receipt, fully circulating supply receipt, and active volume/community receipt.',
+  token_survivability_note: 'Submitted survivability receipts cite broad holders, liquidity depth, clean launch structure, revoked mint authority, and fully circulating supply. The pure meme risk remains live if culture momentum or volume reverses.',
+  risk_flags: ['Pure meme with no product utility', 'Meme longevity depends on sustained culture momentum', 'Whale or influencer profit-taking may create volatility', 'High 24h volume can reverse quickly'],
+  tags: ['HIGH_SIGNAL_LOWCAP', 'MEME_SURVIVABILITY', 'FAIR_LAUNCH_RECEIPT', 'HOLDER_DISTRIBUTION_HEALTHY', 'LIQUIDITY_DEPTH_REVIEWED', 'CULTURE_RETENTION_MONITORING', 'PURE_MEME_RISK'],
+  tokenAddress: 'BcHEaaTCvycPwwsJ9yQTXdHP9X2gCLkznDbZ8VySpump',
+  dexScreenerUrl: 'https://dexscreener.com/solana/akqyqgeifbbhqmanukzrrurgokskkbv8nvdccc87frr8',
+  status: 'high_signal_lowcap',
+  verdict: 'high_signal_early',
+  why_now: 'High-Signal Lowcap from CT survivability receipts, with pure meme risk left explicit until retention and holder behavior stay durable across more cycles.'
+};
+
+const solangelesCandidate = {
+  ...baseCandidate,
+  id: 'ur_solangeles',
+  project: 'SolAngeles',
+  ticker: 'SolAngeles',
+  sector: 'Social / Attention Markets',
+  thesis: 'SolAngeles has one of the strongest product/activity surfaces in the batch: cartoon universe, characters, episodes, website, rewards/airdrop tracker, and community takeover dynamics. It enters Watchlist because the content moat is real, but adult/NSFW brand risk and execution consistency need monitoring.',
+  displayVerdict: 'Real Content Moat, Distribution Still Monitored',
+  proof_of_shipping: 'Verified live market, community takeover receipt, cartoon/content product surface, episode/content activity, rewards/airdrop tracker, and liquidity-depth receipt.',
+  risk_flags: ['Adult/NSFW content creates platform and brand risk', 'Community takeover execution risk', 'Smaller scale than established meme peers', 'Growth depends on consistent episode/content output'],
+  tags: ['WATCHLIST', 'CONTENT_MOAT', 'COMMUNITY_TAKEOVER', 'REWARDS_ECONOMY', 'NSFW_BRAND_RISK', 'LIQUIDITY_DEPTH_REVIEWED'],
+  tokenAddress: '8wxkvAfEns76yBzu4MnbV7VnXWjg3iDPA9uwAQ6cpump',
+  dexScreenerUrl: 'https://dexscreener.com/solana/ak7hdcxdsocd2zgjbca1zwlcudqz5f6n747a7rqtpxe3',
+  status: 'watchlist',
+  verdict: 'real_product_weak_attention',
+  why_now: 'Watchlist. The content moat is real enough to track, but NSFW brand risk, community takeover execution, and output cadence keep conviction capped.'
+};
+
+const uselessCandidate = {
+  ...baseCandidate,
+  id: 'ur_useless_consensus',
+  project: 'USELESS',
+  ticker: 'USELESS',
+  sector: 'Social / Attention Markets',
+  thesis: 'USELESS is a mature satirical Solana meme with established liquidity, long holder history, and sustained community activity. It is not an early lowcap candidate anymore, but it belongs as a consensus-forming survivability benchmark.',
+  displayVerdict: 'Battle-Tested Meme Benchmark',
+  token_survivability_note: 'Long holder history, deep liquidity, and mature age improve survivability confidence, while higher market cap creates lower lowcap upside than early candidates.',
+  risk_flags: ['High market cap reduces asymmetric lowcap upside', 'Pure meme with no product moat beyond narrative', 'Satirical branding may cap mainstream crossover'],
+  tags: ['CONSENSUS_FORMING', 'BATTLE_TESTED_MEME', 'SURVIVABILITY_BENCHMARK', 'DEEP_LIQUIDITY', 'PURE_MEME_RISK'],
+  tokenAddress: 'Dz9mQ9NzkBcCsuGPFJ3r1bS4wgqKMHBPiVuniW8Mbonk',
+  dexScreenerUrl: 'https://dexscreener.com/solana/q2sphpduwfmg7m7wwrqklrn619caucfrsmhvjffodsp',
+  status: 'consensus_forming',
+  verdict: 'consensus_already_forming',
+  why_now: 'Consensus Forming. USELESS belongs as a battle-tested meme survivability benchmark, but lower lowcap upside keeps it out of High-Signal Lowcap.'
+};
+
+const tripletCandidate = {
+  ...baseCandidate,
+  id: 'ur_triplet_sahur',
+  project: 'TripleT',
+  ticker: 'TRIPLET',
+  sector: 'Social / Attention Markets',
+  thesis: 'TripleT has strong viral meme roots, fair launch structure, meaningful liquidity, and active trading. It enters Watchlist rather than High-Signal because the project is pure meme, newer than more battle-tested peers, and still dependent on sustained brainrot/TikTok cultural momentum.',
+  displayVerdict: 'Viral Meme Candidate, Longevity Unproven',
+  attention_quality_note: 'Viral meme origin gives TripleT strong attention, but attention quality remains hype-cycle dependent until culture retention is proven beyond the current cycle.',
+  risk_flags: ['Pure meme with no product utility', 'Hype-cycle dependent', 'Regional/niche meme concentration risk', 'Less battle-tested than older meme peers'],
+  tags: ['WATCHLIST', 'VIRAL_MEME', 'FAIR_LAUNCH_RECEIPT', 'LIQUIDITY_DEPTH_REVIEWED', 'CULTURE_RETENTION_MONITORING', 'PURE_MEME_RISK'],
+  tokenAddress: 'J8PSdNP3QewKq2Z1JJJFDMaqF7KcaiJhR7gbr5KZpump',
+  dexScreenerUrl: 'https://dexscreener.com/solana/3kfcgj5r3zshw8htdbzjsrrksrymkvsmfhc4vo4iddxd',
+  status: 'watchlist',
+  verdict: 'strong_attention_weak_proof',
+  why_now: 'Watchlist. TripleT has viral meme traction and token survivability receipts, but hype-cycle risk and limited battle-testing block High-Signal promotion.'
+};
+
 const manifestCandidate = {
   ...baseCandidate,
   id: 'ur_manifest_ambiguity',
@@ -246,12 +319,12 @@ const summary = {
   trust_line: 'Projects can buy evaluation, not conviction.',
   doctrine_line: 'Influencers sell certainty. Infopunks sells legible uncertainty.',
   counts: {
-    total: 5,
+    total: 9,
     by_status: {
       unseen_signal: 0,
-      watchlist: 2,
-      high_signal_lowcap: 1,
-      consensus_forming: 1,
+      watchlist: 4,
+      high_signal_lowcap: 2,
+      consensus_forming: 2,
       do_not_touch_yet: 1,
       infopunks_missed_it: 0,
       paid_evaluation: 0
@@ -275,11 +348,11 @@ const summary = {
       'Gaming / Consumer': 1,
       'Agent Rails': 0,
       'Payment Infrastructure': 0,
-      'Social / Attention Markets': 3,
+      'Social / Attention Markets': 7,
       'Tokenized Apps': 0
     }
   },
-  candidates: [baseCandidate, trollCandidate, bullCandidate, kinsCandidate, manifestCandidate],
+  candidates: [baseCandidate, trollCandidate, bullCandidate, kinsCandidate, jotchuaCandidate, solangelesCandidate, uselessCandidate, tripletCandidate, manifestCandidate],
   revenue_receipts: [
     { id: 'rr_open_evaluation_slot', candidate_id: null, project: 'Open', amount_usd: 100, service: 'paid_evaluation', disclosure: 'Projects can buy evaluation, not conviction.', status: 'paid', paid_at: '2026-07-06T10:00:00.000Z' },
     { id: 'rr_template_001', candidate_id: null, project: 'Example', amount_usd: 0, service: 'paid_evaluation', disclosure: 'Template receipt for the public ledger.', status: 'pending', paid_at: '2026-07-06T10:00:00.000Z' },
@@ -319,7 +392,7 @@ describe('unicorn radar pages', () => {
     window.history.pushState({}, '', '/');
   });
 
-  it('renders /unicorn-radar with only the five production candidates and sector empty states', async () => {
+  it('renders /unicorn-radar with the nine production candidates and batch notes', async () => {
     window.history.pushState({}, '', '/unicorn-radar');
 
     await act(async () => {
@@ -335,13 +408,24 @@ describe('unicorn radar pages', () => {
     expect(container.textContent).toContain('TROLL');
     expect(container.textContent).toContain('The Black Bull');
     expect(container.textContent).toContain('Kintara');
+    expect(container.textContent).toContain('Jotchua');
+    expect(container.textContent).toContain('SolAngeles');
+    expect(container.textContent).toContain('USELESS');
+    expect(container.textContent).toContain('TripleT');
     expect(container.textContent).toContain('MANIFEST / Manifesting');
     expect(container.textContent).toContain('Drop #001 candidate queue');
+    expect(container.textContent).toContain('Drop #001 remains');
     expect(container.textContent).toContain('High-Signal Lowcap: KINS');
     expect(container.textContent).toContain('Watchlist: TROLL');
     expect(container.textContent).toContain('Do Not Touch Yet: MANIFEST');
+    expect(container.textContent).toContain('Next batch under review');
+    expect(container.textContent).toContain('Jotchua: High-Signal Lowcap');
+    expect(container.textContent).toContain('SolAngeles: Watchlist');
+    expect(container.textContent).toContain('USELESS: Consensus Forming');
+    expect(container.textContent).toContain('TripleT: Watchlist');
     expect(container.textContent).toContain('Sector Coverage');
     expect(container.textContent).toContain('Revenue Receipts: see how paid evaluations are disclosed.');
+    expect(container.querySelector('a[href="/evaluation-request"]')).toBeTruthy();
     const sectorSection = container.querySelector('section[aria-label="Sector coverage"]');
     const sectorHeadings = Array.from(sectorSection?.querySelectorAll('h3') ?? []).map((node) => node.textContent);
     expect(sectorHeadings).toEqual(['AI / Agent Rails', 'Gaming / Consumer', 'Social / Attention Markets']);
@@ -410,6 +494,84 @@ describe('unicorn radar pages', () => {
     expect(container.textContent).not.toContain('TOKEN_REVIEW_NEEDED');
     expect(container.textContent).toContain('LIVE_GAME_ROUTE');
     expect(container.textContent).toContain('this is not certainty');
+  });
+
+  it('renders CT survivability batch detail pages with source-framed statuses and risks', async () => {
+    mockFetch(jotchuaCandidate, summary);
+    window.history.pushState({}, '', '/unicorn-radar/ur_jotchua_money_dog');
+
+    await act(async () => {
+      root.render(<App />);
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(container.textContent).toContain('Jotchua');
+    expect(container.textContent).toContain('High Signal Lowcap');
+    expect(container.textContent).toContain('High-Signal Meme Lowcap, Culture Retention Monitored');
+    expect(container.textContent).toContain('11k+ holder receipt');
+    expect(container.textContent).toContain('liquidity-depth receipt');
+    expect(container.textContent).toContain('clean launch receipt');
+    expect(container.textContent).toContain('Pure meme with no product utility');
+
+    act(() => root.unmount());
+    root = createRoot(container);
+    mockFetch(solangelesCandidate, summary);
+    window.history.pushState({}, '', '/unicorn-radar/ur_solangeles');
+
+    await act(async () => {
+      root.render(<App />);
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(container.textContent).toContain('SolAngeles');
+    expect(container.textContent).toContain('Watchlist');
+    expect(container.textContent).toContain('Real Content Moat, Distribution Still Monitored');
+    expect(container.textContent).toContain('content moat is real');
+    expect(container.textContent).toContain('Adult/NSFW content creates platform and brand risk');
+
+    act(() => root.unmount());
+    root = createRoot(container);
+    mockFetch(uselessCandidate, summary);
+    window.history.pushState({}, '', '/unicorn-radar/ur_useless_consensus');
+
+    await act(async () => {
+      root.render(<App />);
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(container.textContent).toContain('USELESS');
+    expect(container.textContent).toContain('Consensus Forming');
+    expect(container.textContent).toContain('Battle-Tested Meme Benchmark');
+    expect(container.textContent).toContain('survivability benchmark');
+    expect(container.textContent).toContain('lower lowcap upside');
+
+    act(() => root.unmount());
+    root = createRoot(container);
+    mockFetch(tripletCandidate, summary);
+    window.history.pushState({}, '', '/unicorn-radar/ur_triplet_sahur');
+
+    await act(async () => {
+      root.render(<App />);
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(container.textContent).toContain('TripleT');
+    expect(container.textContent).toContain('Watchlist');
+    expect(container.textContent).toContain('Viral Meme Candidate, Longevity Unproven');
+    expect(container.textContent).toContain('strong viral meme roots');
+    expect(container.textContent).toContain('Hype-cycle dependent');
   });
 
   it('fails open when market data is unavailable and still renders the page', async () => {

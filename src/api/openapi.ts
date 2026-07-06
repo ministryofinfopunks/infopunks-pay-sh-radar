@@ -1960,8 +1960,8 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     responses: envelopedResponses('UnicornRadarSummary', {
       title: 'Infopunks Unicorn Radar',
       tagline: 'Finding serious low-cap Solana projects before consensus does.',
-      counts: { total: 5 },
-      candidates: [{ id: 'ur_ai_rig_complex', project: 'AI Rig Complex', status: 'watchlist' }]
+      counts: { total: 9 },
+      candidates: [{ id: 'ur_jotchua_money_dog', project: 'Jotchua', status: 'high_signal_lowcap' }]
     })
   });
   add('get', '/v1/unicorn-radar/candidates', {
@@ -1970,8 +1970,8 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     description: 'Returns production-shaped low-cap Solana candidate records, including shipping proof, attention quality, token survivability, risk flags, receipts, hunter attribution, paid evaluation disclosure, status, verdict, scores, and optional DexScreener market data enrichment.',
     responses: envelopedResponses('UnicornRadarCandidateList', {
       generated_at: '2026-07-06T08:30:00.000Z',
-      count: 3,
-      candidates: [{ id: 'ur_troll_attention_asset', project: 'TROLL', ticker: 'TROLL', sector: 'Social / Attention Markets', chainId: 'solana', tokenAddress: '5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2' }]
+      count: 9,
+      candidates: [{ id: 'ur_jotchua_money_dog', project: 'Jotchua', ticker: 'JOTCHUA', sector: 'Social / Attention Markets', chainId: 'solana', tokenAddress: 'BcHEaaTCvycPwwsJ9yQTXdHP9X2gCLkznDbZ8VySpump' }]
     })
   });
   add('get', '/v1/unicorn-radar/candidates/{candidateId}', {
@@ -2029,6 +2029,83 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       status: 'evaluation_requested',
       doctrine: 'Projects can buy evaluation, not conviction.'
     })
+  });
+  add('post', '/v1/evaluation-request', {
+    tags: ['Intelligence'],
+    summary: 'Request an Infopunks evaluation',
+    description: 'Creates a paid evaluation intake packet for Unicorn Radar and Revenue Receipts. Payment buys evaluation, not conviction. If no webhook intake is configured, the API returns a manual_delivery_required response with a copyable request packet instead of pretending the request was stored.',
+    requestBody: jsonRequest({ $ref: '#/components/schemas/EvaluationRequestInput' }, {
+      projectName: 'Example Project',
+      ticker: 'EXMPL',
+      chain: 'solana',
+      contact: 'founder@example.com',
+      upsideThesis: 'The product has a real onchain economy with retained users.',
+      riskFlags: 'Concentration risk, new market, team anonymity.',
+      requestedReviewType: 'unicorn_radar_evaluation',
+      disclosureAcknowledged: true
+    }),
+    responses: {
+      '200': {
+        description: 'Manual delivery fallback when webhook intake is absent or unavailable.',
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/EvaluationRequestResponseEnvelope' },
+            examples: {
+              success: {
+                value: {
+                  data: {
+                    request_id: 'er_20260706103000_a1b2c3',
+                    status: 'manual_delivery_required',
+                    disclosure_acknowledged: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '202': {
+        description: 'Accepted after successful delivery to a configured webhook intake.',
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/EvaluationRequestResponseEnvelope' },
+            examples: {
+              success: {
+                value: {
+                  data: {
+                    request_id: 'er_20260706103000_a1b2c3',
+                    status: 'accepted',
+                    disclosure_acknowledged: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '400': {
+        description: 'Disclosure acknowledgement is required. Other validation failures return invalid_request.',
+        content: {
+          'application/json': {
+            schema: {
+              oneOf: [
+                { $ref: '#/components/schemas/EvaluationRequestDisclosureError' },
+                { $ref: '#/components/schemas/InvalidRequestError' }
+              ]
+            },
+            examples: {
+              disclosure_required: {
+                value: {
+                  code: 'DISCLOSURE_REQUIRED',
+                  message: 'You must acknowledge that payment buys evaluation, not conviction.'
+                }
+              }
+            }
+          }
+        }
+      },
+      default: errorResponse()
+    }
   });
   add('get', '/v1/unicorn-radar/revenue-receipts', {
     tags: ['Intelligence'],
@@ -3576,6 +3653,13 @@ function componentSchemas(): Record<string, JsonSchema> {
       message: stringSchema(),
       details: freeformObject()
     }),
+    InvalidRequestError: objectSchema({
+      error: enumSchema(['invalid_request']),
+      issues: arrayOf(objectSchema({
+        path: stringSchema(),
+        message: stringSchema()
+      }, ['path', 'message']))
+    }, ['error', 'issues']),
     HermesArtifact: hermesArtifact,
     HermesRunLifecycleEvent: hermesRunLifecycleEvent,
     HermesSkillSummary: hermesSkillSummary,
@@ -4734,6 +4818,7 @@ function componentSchemas(): Record<string, JsonSchema> {
       sector: { $ref: '#/components/schemas/UnicornRadarSector' },
       market_cap_range: stringSchema(),
       thesis: stringSchema(),
+      displayVerdict: stringSchema(),
       what_it_actually_does: stringSchema(),
       proof_of_shipping: stringSchema(),
       attention_quality_note: stringSchema(),
@@ -4822,6 +4907,82 @@ function componentSchemas(): Record<string, JsonSchema> {
       next_steps: arrayOf(stringSchema()),
       requested_at: dateTimeSchema()
     }, ['request_id', 'status', 'project', 'disclosure', 'doctrine', 'next_steps', 'requested_at']),
+    EvaluationRequestReviewType: enumSchema(['unicorn_radar_evaluation', 'do_not_touch_risk_review', 'token_survivability_review', 'agent_readiness_review', 'narrative_positioning_review']),
+    EvaluationRequestInput: objectSchema({
+      projectName: stringSchema(),
+      ticker: stringSchema(),
+      chain: stringSchema(),
+      tokenAddress: stringSchema(),
+      website: stringSchema(),
+      xAccount: stringSchema(),
+      contact: stringSchema(),
+      dexScreenerUrl: stringSchema(),
+      solscanUrl: stringSchema(),
+      marketCap: stringSchema(),
+      liquidity: stringSchema(),
+      holderCount: stringSchema(),
+      top10HolderConcentration: stringSchema(),
+      top25HolderConcentration: stringSchema(),
+      supplyNotes: stringSchema(),
+      launchStructure: stringSchema(),
+      teamTreasuryWallets: stringSchema(),
+      productReceipts: stringSchema(),
+      marketplaceEconomyReceipts: stringSchema(),
+      communityReceipts: stringSchema(),
+      upsideThesis: stringSchema(),
+      riskFlags: stringSchema(),
+      whyNow: stringSchema(),
+      requestedReviewType: { $ref: '#/components/schemas/EvaluationRequestReviewType' },
+      paidEvaluationBudget: stringSchema(),
+      disclosureAcknowledged: { type: 'boolean' }
+    }),
+    EvaluationRequest: objectSchema({
+      id: stringSchema(),
+      projectName: stringSchema(),
+      ticker: stringSchema(),
+      chain: stringSchema(),
+      tokenAddress: { oneOf: [stringSchema(), { type: 'null' }] },
+      website: { oneOf: [stringSchema(), { type: 'null' }] },
+      xAccount: { oneOf: [stringSchema(), { type: 'null' }] },
+      contact: stringSchema(),
+      dexScreenerUrl: { oneOf: [stringSchema(), { type: 'null' }] },
+      solscanUrl: { oneOf: [stringSchema(), { type: 'null' }] },
+      marketCap: { oneOf: [stringSchema(), { type: 'null' }] },
+      liquidity: { oneOf: [stringSchema(), { type: 'null' }] },
+      holderCount: { oneOf: [stringSchema(), { type: 'null' }] },
+      top10HolderConcentration: { oneOf: [stringSchema(), { type: 'null' }] },
+      top25HolderConcentration: { oneOf: [stringSchema(), { type: 'null' }] },
+      supplyNotes: { oneOf: [stringSchema(), { type: 'null' }] },
+      launchStructure: { oneOf: [stringSchema(), { type: 'null' }] },
+      teamTreasuryWallets: { oneOf: [stringSchema(), { type: 'null' }] },
+      productReceipts: { oneOf: [stringSchema(), { type: 'null' }] },
+      marketplaceEconomyReceipts: { oneOf: [stringSchema(), { type: 'null' }] },
+      communityReceipts: { oneOf: [stringSchema(), { type: 'null' }] },
+      upsideThesis: stringSchema(),
+      riskFlags: stringSchema(),
+      whyNow: { oneOf: [stringSchema(), { type: 'null' }] },
+      requestedReviewType: { $ref: '#/components/schemas/EvaluationRequestReviewType' },
+      paidEvaluationBudget: { oneOf: [stringSchema(), { type: 'null' }] },
+      disclosureAcknowledged: { type: 'boolean', const: true },
+      submittedAt: dateTimeSchema()
+    }, ['id', 'projectName', 'ticker', 'chain', 'contact', 'upsideThesis', 'riskFlags', 'requestedReviewType', 'disclosureAcknowledged', 'submittedAt']),
+    EvaluationRequestResponse: objectSchema({
+      request_id: stringSchema(),
+      status: enumSchema(['accepted', 'manual_delivery_required']),
+      generated_at: dateTimeSchema(),
+      disclosure_acknowledged: { type: 'boolean', const: true },
+      revenue_receipt_policy: stringSchema(),
+      next_steps: arrayOf(stringSchema()),
+      request_packet: stringSchema(),
+      evaluation_request: { $ref: '#/components/schemas/EvaluationRequest' }
+    }, ['request_id', 'status', 'generated_at', 'disclosure_acknowledged', 'revenue_receipt_policy', 'next_steps', 'request_packet', 'evaluation_request']),
+    EvaluationRequestResponseEnvelope: objectSchema({
+      data: { $ref: '#/components/schemas/EvaluationRequestResponse' }
+    }, ['data']),
+    EvaluationRequestDisclosureError: objectSchema({
+      code: enumSchema(['DISCLOSURE_REQUIRED']),
+      message: stringSchema()
+    }, ['code', 'message']),
     UnicornRadarRevenueReceiptList: objectSchema({
       generated_at: dateTimeSchema(),
       count: integerSchema(),
