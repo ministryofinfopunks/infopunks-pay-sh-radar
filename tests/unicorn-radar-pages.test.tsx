@@ -99,7 +99,7 @@ const kinsCandidate = {
   project: 'Kintara',
   ticker: 'KINS',
   sector: 'Gaming / Consumer',
-  thesis: 'Playable gaming/consumer candidate with a real MMO surface and active token market. Potential High-Signal Lowcap, but needs Infopunks receipts before stronger conviction.',
+  thesis: 'Kintara now has stronger product/activity receipts: guild systems, player clustering, community wiki activity, full-server screenshots, and a live game route. This strengthens the High-Signal candidate case, but token survivability and sustained gameplay activity still need review before stronger conviction.',
   what_it_actually_does: 'Kintara presents itself as an isometric MMO where players can play to earn, buy and sell with KINS, explore quests, and adventure with friends.',
   proof_of_shipping: 'Official product surface, verified live Solana market, live spectate/play route, guild leaderboard, player-cluster screenshots, wiki activity, and server-full screenshots. Needs independent token distribution, marketplace/economy, and sustained retention receipts.',
   receipts: [
@@ -112,6 +112,38 @@ const kinsCandidate = {
       url: 'https://kintara.com/play?spectate=1',
       note: 'Kintara exposes a playable/spectate game route showing a KINTARA loading shell, game code loading state, and gameplay UI tip. This strengthens product-surface confidence but does not alone prove sustained player retention or token survivability.',
       observed_at: '2026-07-06T08:30:00.000Z'
+    },
+    {
+      id: 'urr_kins_receipt_005',
+      label: 'Guild leaderboard receipt',
+      type: 'note',
+      source: 'infopunks desk review',
+      note: 'In-game guild leaderboard shows organized guilds, member counts, mob kills, PvP, bosses, and gold stats.',
+      observed_at: '2026-07-06T08:30:00.000Z'
+    },
+    {
+      id: 'urr_kins_receipt_006',
+      label: 'Community wiki receipt',
+      type: 'note',
+      source: 'infopunks desk review',
+      note: 'Kintara Wiki screenshot shows 201 articles, 221 files, 1,598 edits, and 8 active users.',
+      observed_at: '2026-07-06T08:30:00.000Z'
+    },
+    {
+      id: 'urr_kins_receipt_007',
+      label: 'Player cluster receipt',
+      type: 'note',
+      source: 'infopunks desk review',
+      note: 'In-game screenshot shows a crowded player gathering with visible levels, names, and guild tags.',
+      observed_at: '2026-07-06T08:30:00.000Z'
+    },
+    {
+      id: 'urr_kins_receipt_008',
+      label: 'Server queue receipt',
+      type: 'note',
+      source: 'infopunks desk review',
+      note: 'Server selection screenshot shows multiple servers marked full, with queues on some servers.',
+      observed_at: '2026-07-06T08:30:00.000Z'
     }
   ],
   tokenAddress: 'Tqj8yFmagrg7oorpQkVGYR52r96RFTamvWfth9bpump',
@@ -122,12 +154,13 @@ const kinsCandidate = {
   verdict: 'interesting_needs_receipts',
   risk_flags: [
     'Token distribution still needs review',
+    'Server fullness may be event-driven',
     'Need sustained active-user receipts',
     'Need marketplace/economy activity proof',
-    'Server fullness may be event-driven',
     'Market cap may already price part of the gaming narrative'
   ],
-  tags: ['LIVE_GAME_ROUTE', 'SPECTATE_MODE', 'PRODUCT_SURFACE_CONFIRMED', 'TOKEN_REVIEW_NEEDED']
+  tags: ['LIVE_GAME_ROUTE', 'SPECTATE_MODE', 'PRODUCT_SURFACE_CONFIRMED', 'GAMEPLAY_RECEIPT', 'GUILD_ACTIVITY', 'COMMUNITY_WIKI', 'SERVER_QUEUE_SIGNAL', 'PLAYER_CLUSTER', 'TOKEN_REVIEW_NEEDED'],
+  why_now: 'High-Signal Candidate Pending Token Review. KINS has stronger product/activity receipts now, but the desk is keeping it watchlist-only until token survivability and sustained gameplay evidence improve.'
 };
 
 const manifestCandidate = {
@@ -305,8 +338,17 @@ describe('unicorn radar pages', () => {
     expect(container.textContent).toContain('live spectate/play route');
     expect(container.textContent).toContain('Kintara live game route');
     expect(container.textContent).toContain('playable/spectate game route');
+    expect(container.textContent).toContain('Guild leaderboard receipt');
+    expect(container.textContent).toContain('Community wiki receipt');
+    expect(container.textContent).toContain('Player cluster receipt');
+    expect(container.textContent).toContain('Server queue receipt');
+    expect(container.textContent).toContain('member counts, mob kills, PvP, bosses, and gold stats');
+    expect(container.textContent).toContain('201 articles, 221 files, 1,598 edits, and 8 active users');
+    expect(container.textContent).toContain('crowded player gathering with visible levels, names, and guild tags');
+    expect(container.textContent).toContain('multiple servers marked full, with queues on some servers');
     expect(container.textContent).toContain('TOKEN_REVIEW_NEEDED');
-    expect(container.textContent).not.toContain('High Signal Lowcap');
+    expect(container.textContent).toContain('LIVE_GAME_ROUTE');
+    expect(container.textContent).toContain('High-Signal Candidate Pending Token Review');
   });
 
   it('fails open when market data is unavailable and still renders the page', async () => {

@@ -209,7 +209,7 @@ export const unicornRadarCandidates: UnicornRadarCandidate[] = [
     ticker: 'KINS',
     sector: 'Gaming / Consumer',
     market_cap_range: 'Live market, verify current range from DexScreener',
-    thesis: 'Playable gaming/consumer candidate with a real MMO surface and active token market. Potential High-Signal Lowcap, but needs Infopunks receipts before stronger conviction.',
+    thesis: 'Kintara now has stronger product/activity receipts: guild systems, player clustering, community wiki activity, full-server screenshots, and a live game route. This strengthens the High-Signal candidate case, but token survivability and sustained gameplay activity still need review before stronger conviction.',
     what_it_actually_does: 'Kintara presents itself as an isometric MMO where players can play to earn, buy and sell with KINS, explore quests, and adventure with friends.',
     proof_of_shipping: 'Official product surface, verified live Solana market, live spectate/play route, guild leaderboard, player-cluster screenshots, wiki activity, and server-full screenshots. Needs independent token distribution, marketplace/economy, and sustained retention receipts.',
     attention_quality_note: 'CT intake created a useful lead, but attention quality still needs user/player evidence rather than price-led claims.',
@@ -225,14 +225,23 @@ export const unicornRadarCandidates: UnicornRadarCandidate[] = [
       'LIVE_GAME_ROUTE',
       'SPECTATE_MODE',
       'PRODUCT_SURFACE_CONFIRMED',
+      'GAMEPLAY_RECEIPT',
+      'GUILD_ACTIVITY',
+      'COMMUNITY_WIKI',
+      'SERVER_QUEUE_SIGNAL',
+      'PLAYER_CLUSTER',
       'TOKEN_REVIEW_NEEDED'
     ],
-    why_now: 'Drop #001 surfaced KINS as a High-Signal Lowcap Candidate Pending Receipts, but the desk is keeping it watchlist-only until Infopunks receipts improve.',
+    why_now: 'High-Signal Candidate Pending Token Review. KINS has stronger product/activity receipts now, but the desk is keeping it watchlist-only until token survivability and sustained gameplay evidence improve.',
     receipts: [
       receipt('urr_kins_receipt_001', 'Token address verified', 'market', 'Solana token address recorded from Solscan via DexScreener before enabling live market enrichment.', 'https://solscan.io/token/Tqj8yFmagrg7oorpQkVGYR52r96RFTamvWfth9bpump'),
       receipt('urr_kins_receipt_002', 'Live DexScreener pair identified', 'market', 'Live KINS market pair recorded for enrichment, with verdict kept independent from market data.', 'https://dexscreener.com/solana/f42tznkpavq1vucrl6ymhc6yqvpt84fwwgzbntv2wb3w'),
       receipt('urr_kins_receipt_003', 'Drop #001 CT intake note', 'note', 'Community intake is treated as a lead only. KINS needs gameplay/user receipts before higher conviction.'),
-      receipt('urr_kins_receipt_004', 'Kintara live game route', 'LIVE_GAME_ROUTE', 'Kintara exposes a playable/spectate game route showing a KINTARA loading shell, game code loading state, and gameplay UI tip. This strengthens product-surface confidence but does not alone prove sustained player retention or token survivability.', 'https://kintara.com/play?spectate=1')
+      receipt('urr_kins_receipt_004', 'Kintara live game route', 'LIVE_GAME_ROUTE', 'Kintara exposes a playable/spectate game route showing a KINTARA loading shell, game code loading state, and gameplay UI tip. This strengthens product-surface confidence but does not alone prove sustained player retention or token survivability.', 'https://kintara.com/play?spectate=1'),
+      receipt('urr_kins_receipt_005', 'Guild leaderboard receipt', 'note', 'In-game guild leaderboard shows organized guilds, member counts, mob kills, PvP, bosses, and gold stats.'),
+      receipt('urr_kins_receipt_006', 'Community wiki receipt', 'note', 'Kintara Wiki screenshot shows 201 articles, 221 files, 1,598 edits, and 8 active users.'),
+      receipt('urr_kins_receipt_007', 'Player cluster receipt', 'note', 'In-game screenshot shows a crowded player gathering with visible levels, names, and guild tags.'),
+      receipt('urr_kins_receipt_008', 'Server queue receipt', 'note', 'Server selection screenshot shows multiple servers marked full, with queues on some servers.')
     ],
     linked_narratives: [
       { label: 'Signal Hunt', href: '/signal-hunt' },
@@ -248,8 +257,8 @@ export const unicornRadarCandidates: UnicornRadarCandidate[] = [
     verifiedAt: UPDATED_AT,
     verificationNotes: [
       'Live Solana market identified before production publication.',
-      'High-Signal Lowcap Candidate Pending Receipts language is watchlist framing, not conviction.',
-      'Needs independent gameplay, user, and token-distribution receipts.'
+      'High-Signal Candidate Pending Token Review language is watchlist framing, not conviction.',
+      'Gameplay and activity receipts are stronger, but token survivability still needs review.'
     ],
     productionReady: true,
     hunter_credit: communityHunter('CT community intake', 'CT community intake surfaced KINS for Drop #001 review. Infopunks added only framed, receipt-limited coverage.'),

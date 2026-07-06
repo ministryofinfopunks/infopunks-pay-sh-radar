@@ -153,12 +153,29 @@ describe('unicorn radar api', () => {
         marketDataSource: 'dexscreener_official_api',
         verificationStatus: 'verified_live_market',
         proof_of_shipping: expect.stringContaining('live spectate/play route'),
-        tags: expect.arrayContaining(['LIVE_GAME_ROUTE', 'TOKEN_REVIEW_NEEDED']),
+        thesis: expect.stringContaining('High-Signal candidate case'),
+        tags: expect.arrayContaining(['LIVE_GAME_ROUTE', 'TOKEN_REVIEW_NEEDED', 'GUILD_ACTIVITY', 'COMMUNITY_WIKI', 'SERVER_QUEUE_SIGNAL', 'PLAYER_CLUSTER']),
         receipts: expect.arrayContaining([
           expect.objectContaining({
             label: 'Kintara live game route',
             type: 'LIVE_GAME_ROUTE',
             url: 'https://kintara.com/play?spectate=1'
+          }),
+          expect.objectContaining({
+            label: 'Guild leaderboard receipt',
+            note: expect.stringContaining('member counts, mob kills, PvP, bosses, and gold stats')
+          }),
+          expect.objectContaining({
+            label: 'Community wiki receipt',
+            note: expect.stringContaining('201 articles, 221 files, 1,598 edits, and 8 active users')
+          }),
+          expect.objectContaining({
+            label: 'Player cluster receipt',
+            note: expect.stringContaining('visible levels, names, and guild tags')
+          }),
+          expect.objectContaining({
+            label: 'Server queue receipt',
+            note: expect.stringContaining('multiple servers marked full, with queues on some servers')
           })
         ])
       }));

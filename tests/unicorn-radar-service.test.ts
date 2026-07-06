@@ -147,11 +147,18 @@ describe('unicorn radar service', () => {
       productionReady: true,
       verificationStatus: 'verified_live_market',
       verdict: 'interesting_needs_receipts',
+      thesis: 'Kintara now has stronger product/activity receipts: guild systems, player clustering, community wiki activity, full-server screenshots, and a live game route. This strengthens the High-Signal candidate case, but token survivability and sustained gameplay activity still need review before stronger conviction.',
       proof_of_shipping: 'Official product surface, verified live Solana market, live spectate/play route, guild leaderboard, player-cluster screenshots, wiki activity, and server-full screenshots. Needs independent token distribution, marketplace/economy, and sustained retention receipts.',
+      why_now: 'High-Signal Candidate Pending Token Review. KINS has stronger product/activity receipts now, but the desk is keeping it watchlist-only until token survivability and sustained gameplay evidence improve.',
       tags: expect.arrayContaining([
         'LIVE_GAME_ROUTE',
         'SPECTATE_MODE',
         'PRODUCT_SURFACE_CONFIRMED',
+        'GAMEPLAY_RECEIPT',
+        'GUILD_ACTIVITY',
+        'COMMUNITY_WIKI',
+        'SERVER_QUEUE_SIGNAL',
+        'PLAYER_CLUSTER',
         'TOKEN_REVIEW_NEEDED'
       ]),
       receipts: expect.arrayContaining([
@@ -160,6 +167,22 @@ describe('unicorn radar service', () => {
           type: 'LIVE_GAME_ROUTE',
           url: 'https://kintara.com/play?spectate=1',
           note: expect.stringContaining('playable/spectate game route')
+        }),
+        expect.objectContaining({
+          label: 'Guild leaderboard receipt',
+          note: expect.stringContaining('member counts, mob kills, PvP, bosses, and gold stats')
+        }),
+        expect.objectContaining({
+          label: 'Community wiki receipt',
+          note: expect.stringContaining('201 articles, 221 files, 1,598 edits, and 8 active users')
+        }),
+        expect.objectContaining({
+          label: 'Player cluster receipt',
+          note: expect.stringContaining('visible levels, names, and guild tags')
+        }),
+        expect.objectContaining({
+          label: 'Server queue receipt',
+          note: expect.stringContaining('multiple servers marked full, with queues on some servers')
         })
       ])
     }));
