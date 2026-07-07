@@ -415,7 +415,7 @@ describe('unicorn radar pages', () => {
     window.history.pushState({}, '', '/');
   });
 
-  it('renders /unicorn-radar with the nine production candidates and batch notes', async () => {
+  it('renders /unicorn-radar with the premium snapshot, featured calls, filters, and candidate sections', async () => {
     window.history.pushState({}, '', '/unicorn-radar');
 
     await act(async () => {
@@ -427,31 +427,60 @@ describe('unicorn radar pages', () => {
     });
 
     expect(container.textContent).toContain('Infopunks Unicorn Radar');
-    expect(container.textContent).toContain('AI Rig Complex');
-    expect(container.textContent).toContain('TROLL');
-    expect(container.textContent).toContain('The Black Bull');
-    expect(container.textContent).toContain('Kintara');
-    expect(container.textContent).toContain('Jotchua');
-    expect(container.textContent).toContain('SolAngeles');
-    expect(container.textContent).toContain('USELESS');
-    expect(container.textContent).toContain('TripleT');
-    expect(container.textContent).toContain('MANIFEST / Manifesting');
-    expect(container.textContent).toContain('Drop #001 candidate queue');
-    expect(container.textContent).toContain('Drop #001 remains');
-    expect(container.textContent).toContain('High-Signal Lowcap: KINS');
-    expect(container.textContent).toContain('Do Not Touch Yet: MANIFEST');
-    expect(container.textContent).toContain('Consensus Forming: TROLL / ANSEM');
-    expect(container.textContent).toContain('Next batch under review');
-    expect(container.textContent).toContain('Jotchua: High-Signal Lowcap');
-    expect(container.textContent).toContain('SolAngeles: Watchlist');
-    expect(container.textContent).toContain('USELESS: Consensus Forming');
-    expect(container.textContent).toContain('TripleT: Watchlist');
-    expect(container.textContent).toContain('Sector Coverage');
-    expect(container.textContent).toContain('Revenue Receipts: see how paid evaluations are disclosed.');
+    expect(container.textContent).toContain('COMMERCIAL SIGNAL DESK');
+    expect(container.textContent).toContain('Finding serious low-cap Solana projects before consensus does.');
+
+    const snapshot = container.querySelector('[aria-label="Radar Snapshot Panel"]');
+    expect(snapshot?.textContent).toContain('Candidates');
+    expect(snapshot?.textContent).toContain('High-Signal');
+    expect(snapshot?.textContent).toContain('Watchlist');
+    expect(snapshot?.textContent).toContain('Do Not Touch');
+    expect(snapshot?.textContent).toContain('Consensus');
+    expect(snapshot?.textContent).toContain('Last Updated');
+    const snapshotRows = Array.from(snapshot?.querySelectorAll('.radar-snapshot-counts p') ?? []).map((node) => node.textContent);
+    expect(snapshotRows).toEqual(expect.arrayContaining(['Candidates9', 'High-Signal2', 'Watchlist3', 'Do Not Touch1', 'Consensus3']));
+
+    const featured = container.querySelector('section[aria-label="Featured Radar Calls"]');
+    expect(featured?.textContent).toContain('Featured Radar Calls');
+    expect(featured?.textContent).toContain('KINS');
+    expect(featured?.textContent).toContain('MANIFEST');
+    expect(featured?.textContent).toContain('TROLL');
+    expect(featured?.querySelector('a[href="/unicorn-radar/ur_kintara_kins"]')).toBeTruthy();
+    expect(featured?.querySelector('a[href="/og/unicorn-radar/ur_kintara_kins.png"]')).toBeTruthy();
+
+    const dropSummary = container.querySelector('section[aria-label="Drop #001 summary"]');
+    expect(dropSummary?.textContent).toContain('Drop #001 remains receipt-framed.');
+    expect(dropSummary?.textContent).toContain('High-Signal');
+    expect(dropSummary?.textContent).toContain('KINS');
+    expect(dropSummary?.textContent).toContain('Do Not Touch Yet');
+    expect(dropSummary?.textContent).toContain('MANIFEST');
+    expect(dropSummary?.textContent).toContain('Consensus');
+    expect(dropSummary?.textContent).toContain('TROLL');
+    expect(dropSummary?.textContent).toContain('Jotchua, SolAngeles, USELESS, TripleT');
+
+    const filters = container.querySelector('section[aria-label="Candidate filters"]');
+    expect(filters?.textContent).toContain('All');
+    expect(filters?.textContent).toContain('High-Signal Lowcap');
+    expect(filters?.textContent).toContain('Share Mode');
+    expect(filters?.querySelector('input[placeholder="Project, ticker, tag"]')).toBeTruthy();
+
+    const highSignal = container.querySelector('section[aria-label="High-Signal Lowcaps"]');
+    const doNotTouch = container.querySelector('section[aria-label="Do Not Touch Yet"]');
+    const consensus = container.querySelector('section[aria-label="Consensus Forming"]');
+    expect(highSignal?.textContent).toContain('Kintara');
+    expect(highSignal?.textContent).toContain('KINS');
+    expect(doNotTouch?.textContent).toContain('MANIFEST / Manifesting');
+    expect(doNotTouch?.textContent).toContain('MANIFEST');
+    expect(consensus?.textContent).toContain('TROLL');
+    expect(consensus?.textContent).toContain('The Black Bull');
+    expect(container.querySelector('a[href="/unicorn-radar/ur_manifest_ambiguity"]')).toBeTruthy();
+    expect(container.querySelector('a[href="/og/unicorn-radar/ur_manifest_ambiguity.png"]')).toBeTruthy();
+
+    expect(container.textContent).toContain('Revenue Receipts');
+    expect(container.textContent).toContain('Evaluation Request');
+    expect(container.textContent).toContain('Submit Candidate');
+    expect(container.querySelector('a[href="/revenue-receipts"]')).toBeTruthy();
     expect(container.querySelector('a[href="/evaluation-request"]')).toBeTruthy();
-    const sectorSection = container.querySelector('section[aria-label="Sector coverage"]');
-    const sectorHeadings = Array.from(sectorSection?.querySelectorAll('h3') ?? []).map((node) => node.textContent);
-    expect(sectorHeadings).toEqual(['AI / Agent Rails', 'Gaming / Consumer', 'Social / Attention Markets']);
   });
 
   it('renders verified badges on candidate detail pages', async () => {

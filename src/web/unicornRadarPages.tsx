@@ -165,9 +165,58 @@ function visibleVerifiedSectors(candidates: UnicornRadarCandidate[]) {
 function statusTone(status: UnicornRadarStatus) {
   if (status === 'high_signal_lowcap') return 'ok';
   if (status === 'do_not_touch_yet') return 'danger';
-  if (status === 'consensus_forming' || status === 'infopunks_missed_it') return 'warn';
+  if (status === 'consensus_forming' || status === 'infopunks_missed_it') return 'info';
   if (status === 'paid_evaluation') return 'paid';
+  if (status === 'watchlist' || status === 'unseen_signal') return 'warn';
   return 'review';
+}
+
+function statusLabel(status: UnicornRadarStatus) {
+  switch (status) {
+    case 'high_signal_lowcap':
+      return 'High-Signal Lowcap';
+    case 'do_not_touch_yet':
+      return 'Do Not Touch Yet';
+    case 'consensus_forming':
+      return 'Consensus Forming';
+    case 'infopunks_missed_it':
+      return 'Infopunks Missed It';
+    case 'paid_evaluation':
+      return 'Paid Evaluation';
+    case 'unseen_signal':
+      return 'Unseen Signal';
+    case 'watchlist':
+      return 'Watchlist';
+  }
+}
+
+function shortText(value: string, maxLength = 168) {
+  const normalized = value.replace(/\s+/g, ' ').trim();
+  if (normalized.length <= maxLength) return normalized;
+  return `${normalized.slice(0, maxLength - 1).trim()}…`;
+}
+
+function formatRadarTimestamp(value: string | null | undefined) {
+  if (!value) return 'n/a';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'n/a';
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'UTC',
+    timeZoneName: 'short'
+  }).format(date);
+}
+
+function candidateVerdict(candidate: UnicornRadarCandidate) {
+  return candidate.displayVerdict ?? verdictCopy(candidate.verdict);
+}
+
+function candidateOgHref(candidate: UnicornRadarCandidate) {
+  return `/og/unicorn-radar/${encodeURIComponent(candidate.id)}.png`;
 }
 
 function verdictCopy(verdict: UnicornRadarVerdict) {
@@ -325,78 +374,6 @@ function UnicornRadarNav() {
   </nav>;
 }
 
-function CandidateCard({ candidate }: { candidate: UnicornRadarCandidate }) {
-  return <article className="panel unicorn-candidate-card screenshot-card" aria-label={`${candidate.project} Unicorn Radar card`}>
-    <div className="unicorn-card-head">
-      <div>
-        <span className={`status-pill ${statusTone(candidate.status)}`}>{titleCase(candidate.status)}</span>
-        <span className="unicorn-sector-chip">{candidate.sector}</span>
-        <VerificationBadge candidate={candidate} />
-      </div>
-      <strong>{candidate.ticker}</strong>
-    </div>
-    <h3>{candidate.project}</h3>
-    <p className="unicorn-market-cap">{candidate.market_cap_range}</p>
-    <p className="copy">{candidate.thesis}</p>
-    <div className="unicorn-score-grid">
-      {topScores(candidate).map(([label, value]) => <p key={label}><span>{label}</span><strong>{value}</strong></p>)}
-    </div>
-    <div className="proof-flag-list unicorn-risk-list">
-      {candidate.risk_flags.slice(0, 4).map((flag) => <span key={flag}>{flag}</span>)}
-    </div>
-    <div className="unicorn-card-meta">
-      <p><span>Receipts</span><strong>{candidate.receipts.length}</strong></p>
-      <p><span>Hunter</span><strong>{candidate.hunter_credit.handle}</strong></p>
-    </div>
-    <MarketDataPanel candidate={candidate} compact />
-    {candidate.paid_evaluation_disclosure.is_paid && <p className="unicorn-paid-note">{candidate.paid_evaluation_disclosure.label}: {candidate.paid_evaluation_disclosure.note}</p>}
-    <div className="signal-hunt-card-actions">
-      <a className="execute compact secondary" href={`/unicorn-radar/${encodeURIComponent(candidate.id)}`}>Open candidate</a>
-    </div>
-  </article>;
-}
-
-function CandidateSection({ title, subtitle, candidates }: { title: string; subtitle: string; candidates: UnicornRadarCandidate[] }) {
-  return <section className="panel unicorn-section" aria-label={title}>
-    <div className="proof-section-head">
-      <div>
-        <p className="eyebrow">{title}</p>
-        <h2>{candidates.length}</h2>
-      </div>
-      <p className="panel-caption">{subtitle}</p>
-    </div>
-    {candidates.length
-      ? <div className="unicorn-card-grid">{candidates.map((candidate) => <CandidateCard key={candidate.id} candidate={candidate} />)}</div>
-      : <p className="panel-caption">No verified candidates yet. Submit a candidate with receipts.</p>}
-  </section>;
-}
-
-function SectorCoverageSection({ candidates }: { candidates: UnicornRadarCandidate[] }) {
-  const sectors = visibleVerifiedSectors(candidates);
-  return <section className="panel unicorn-section" aria-label="Sector coverage">
-    <div className="proof-section-head">
-      <div>
-        <p className="eyebrow">Sector Coverage</p>
-        <h2>{candidates.length}</h2>
-      </div>
-      <p className="panel-caption">Verified live candidates can be sparse. Empty sectors stay explicit instead of being padded with placeholders.</p>
-    </div>
-    <div className="unicorn-card-grid">
-      {sectors.map((sector) => {
-        const count = candidates.filter((candidate) => candidate.sector === sector && candidate.productionReady).length;
-        return <article className="panel unicorn-candidate-card screenshot-card" key={sector}>
-          <div className="unicorn-card-head">
-            <div><span className="unicorn-sector-chip">{sector}</span></div>
-            <strong>{count}</strong>
-          </div>
-          <h3>{sector}</h3>
-          <p className="panel-caption">{count ? `${count} verified candidate${count === 1 ? '' : 's'} live.` : 'No verified candidates yet. Submit a candidate with receipts.'}</p>
-        </article>;
-      })}
-    </div>
-  </section>;
-}
-
 function FilterSelect<T extends string>({ label, value, values, onChange }: { label: string; value: T; values: T[]; onChange: (value: T) => void }) {
   return <label className="unicorn-filter">
     <span>{label}</span>
@@ -406,12 +383,264 @@ function FilterSelect<T extends string>({ label, value, values, onChange }: { la
   </label>;
 }
 
+function RadarSnapshotPanel({ summary }: { summary: UnicornRadarSummary | null }) {
+  const counts = summary?.counts;
+  const rows = [
+    ['Candidates', counts?.total ?? 0],
+    ['High-Signal', counts?.by_status.high_signal_lowcap ?? 0],
+    ['Watchlist', counts?.by_status.watchlist ?? 0],
+    ['Do Not Touch', counts?.by_status.do_not_touch_yet ?? 0],
+    ['Consensus', counts?.by_status.consensus_forming ?? 0]
+  ] as const;
+
+  return <aside className="radar-snapshot-panel" aria-label="Radar Snapshot Panel">
+    <div className="radar-snapshot-head">
+      <p className="eyebrow">Radar Snapshot</p>
+      <span>Drop #001</span>
+    </div>
+    <div className="radar-snapshot-counts">
+      {rows.map(([label, value]) => <p key={label}>
+        <span>{label}</span>
+        <strong>{value}</strong>
+      </p>)}
+    </div>
+    <div className="radar-snapshot-meta">
+      <p><span>Last Updated</span><strong>{formatRadarTimestamp(summary?.generated_at)}</strong></p>
+      <p><span>Drop #001 Summary</span><strong>KINS leads signal, MANIFEST stays blocked, TROLL shows consensus, ANSEM remains monitored.</strong></p>
+    </div>
+  </aside>;
+}
+
+function DropSummaryCard() {
+  return <section className="panel unicorn-drop-summary" aria-label="Drop #001 summary">
+    <div className="unicorn-drop-copy">
+      <p className="eyebrow">Drop #001</p>
+      <h2>Drop #001 remains receipt-framed.</h2>
+      <p className="panel-caption">A concise public frame for the current batch without pushing full analysis into the list page.</p>
+    </div>
+    <div className="unicorn-drop-grid">
+      <p><span>High-Signal</span><strong>KINS</strong></p>
+      <p><span>Do Not Touch Yet</span><strong>MANIFEST</strong></p>
+      <p><span>Consensus</span><strong>TROLL</strong></p>
+      <p><span>Next under review</span><strong>Jotchua, SolAngeles, USELESS, TripleT</strong></p>
+    </div>
+  </section>;
+}
+
+function featuredMetricSet(candidate: UnicornRadarCandidate) {
+  return [
+    ['Signal', `${candidate.scores.overall_signal_score}`],
+    ['Risk', `${candidate.scores.risk_score}`],
+    ['24h Vol', formatCompactMoney(candidate.dexScreenerData?.volume24h ?? null)]
+  ] as const;
+}
+
+function FeaturedCallCard({ label, candidate }: { label: string; candidate: UnicornRadarCandidate }) {
+  return <article className="panel featured-radar-card screenshot-card" aria-label={`${label}: ${candidate.project}`}>
+    <div className="featured-radar-head">
+      <span className={`status-pill ${statusTone(candidate.status)}`}>{label}</span>
+      <strong>{candidate.ticker}</strong>
+    </div>
+    <div>
+      <h3>{candidate.project}</h3>
+      <p>{shortText(candidateVerdict(candidate), 96)}</p>
+    </div>
+    <div className="featured-radar-metrics" aria-label={`${candidate.project} compact metrics`}>
+      {featuredMetricSet(candidate).map(([metric, value]) => <span key={metric}><b>{metric}</b>{value}</span>)}
+    </div>
+    <div className="featured-radar-footer">
+      <span>{candidate.receipts.length} receipts</span>
+      <a className="execute compact secondary" href={`/unicorn-radar/${encodeURIComponent(candidate.id)}`}>Open Candidate</a>
+      <a className="unicorn-og-link" href={candidateOgHref(candidate)}>Open OG Card</a>
+    </div>
+  </article>;
+}
+
+function FeaturedRadarCalls({ candidates }: { candidates: UnicornRadarCandidate[] }) {
+  const kins = candidates.find((candidate) => candidate.ticker === 'KINS');
+  const watchlist = candidates.find((candidate) => candidate.project === 'SolAngeles') ?? candidates.find((candidate) => candidate.ticker === 'ARC');
+  const manifest = candidates.find((candidate) => candidate.ticker === 'MANIFEST');
+  const troll = candidates.find((candidate) => candidate.ticker === 'TROLL');
+  const calls = [
+    kins && ['High-Signal Lowcap', kins],
+    watchlist && ['Watchlist', watchlist],
+    manifest && ['Do Not Touch Yet', manifest],
+    troll && ['Consensus Forming', troll]
+  ].filter((call): call is [string, UnicornRadarCandidate] => Boolean(call));
+
+  return <section className="unicorn-featured-section" aria-label="Featured Radar Calls">
+    <div className="unicorn-section-head">
+      <div>
+        <p className="eyebrow">Featured Radar Calls</p>
+        <h2>Featured Radar Calls</h2>
+      </div>
+      <p className="panel-caption">Four live examples of how Radar classifies signal, uncertainty, and risk.</p>
+    </div>
+    <div className="featured-radar-grid">
+      {calls.map(([label, candidate]) => <FeaturedCallCard key={`${label}-${candidate.id}`} label={label} candidate={candidate} />)}
+    </div>
+  </section>;
+}
+
+function CompactMarketStrip({ candidate }: { candidate: UnicornRadarCandidate }) {
+  const data = candidate.dexScreenerData;
+  const marketCap = data?.marketCap ?? null;
+  const fallbackMarketCap = candidate.market_cap_range.startsWith('Live market') ? 'n/a' : candidate.market_cap_range;
+  const source = candidate.marketDataSource || (candidate.verificationStatus === 'verified_live_market' ? 'DexScreener' : 'Market pending');
+
+  return <div className="unicorn-market-strip" aria-label={`${candidate.project} compact market data`}>
+    <p><span>Market Cap</span><strong>{marketCap ? formatCompactMoney(marketCap) : fallbackMarketCap}</strong></p>
+    <p><span>Liquidity</span><strong>{formatCompactMoney(data?.liquidityUsd ?? null)}</strong></p>
+    <p><span>24h Volume</span><strong>{formatCompactMoney(data?.volume24h ?? null)}</strong></p>
+    <p><span>24h</span><strong>{formatPercent(data?.priceChange24h ?? null)}</strong></p>
+    <span className="unicorn-card-source-chip">Market data: {source === 'dexscreener_official_api' ? 'DexScreener' : source}</span>
+  </div>;
+}
+
+function compactEvidenceChips(candidate: UnicornRadarCandidate) {
+  const unique = new Set<string>();
+  const source = [
+    ...candidate.receipts.map((receipt) => receipt.label),
+    ...(candidate.tags ?? []),
+    ...candidate.risk_flags
+  ];
+
+  for (const item of source) {
+    const clean = item.trim();
+    if (clean) unique.add(clean);
+  }
+
+  const all = [...unique];
+  return {
+    visible: all.slice(0, 4),
+    hiddenCount: Math.max(0, all.length - 4)
+  };
+}
+
+function CandidateCompactCard({ candidate }: { candidate: UnicornRadarCandidate }) {
+  const evidence = compactEvidenceChips(candidate);
+
+  return <article className="panel unicorn-candidate-card unicorn-candidate-compact-card screenshot-card" aria-label={`${candidate.project} Unicorn Radar card`}>
+    <div className="unicorn-card-head">
+      <div>
+        <span className={`status-pill ${statusTone(candidate.status)}`}>{statusLabel(candidate.status)}</span>
+        <span className="unicorn-sector-chip">{candidate.sector}</span>
+        <VerificationBadge candidate={candidate} />
+      </div>
+      <strong>{candidate.ticker}</strong>
+    </div>
+    <div className="unicorn-card-title">
+      <h3>{candidate.project}</h3>
+      <p className="unicorn-card-verdict">{candidateVerdict(candidate)}</p>
+      <p className="unicorn-compact-thesis">{shortText(candidate.thesis, 176)}</p>
+    </div>
+    <div className="unicorn-compact-metric-band">
+      {topScores(candidate).map(([label, value]) => <p key={label}><span>{label}</span><strong>{value}</strong></p>)}
+    </div>
+    <div className="proof-flag-list unicorn-risk-list unicorn-evidence-row">
+      {evidence.visible.map((flag) => <span key={flag}>{flag}</span>)}
+      {evidence.hiddenCount > 0 && <span>+{evidence.hiddenCount} more</span>}
+    </div>
+    <CompactMarketStrip candidate={candidate} />
+    {candidate.paid_evaluation_disclosure.is_paid && <p className="unicorn-paid-note">{candidate.paid_evaluation_disclosure.label}: {candidate.paid_evaluation_disclosure.note}</p>}
+    <div className="unicorn-card-footer">
+      <div className="unicorn-card-foot-meta">
+        <span>{candidate.receipts.length} receipts</span>
+        <span>{candidate.hunter_credit.handle}</span>
+      </div>
+      <div className="signal-hunt-card-actions">
+        <a className="execute compact secondary" href={`/unicorn-radar/${encodeURIComponent(candidate.id)}`}>Open Candidate</a>
+        <a className="unicorn-og-link" href={candidateOgHref(candidate)}>Open OG Card</a>
+      </div>
+    </div>
+  </article>;
+}
+
+function SectionHeaderWithMeta({ title, count, explainer, action }: { title: string; count: number; explainer: string; action?: string }) {
+  return <div className="unicorn-section-head">
+    <div>
+      <p className="eyebrow">{title}</p>
+      <h2>{title}</h2>
+    </div>
+    <div className="unicorn-section-meta">
+      <strong>{count}</strong>
+      <span>{count === 1 ? 'candidate' : 'candidates'}</span>
+    </div>
+    <p className="panel-caption">{explainer}</p>
+    {action && <span className="unicorn-section-action">{action}</span>}
+  </div>;
+}
+
+function CandidateSection({ title, subtitle, candidates }: { title: string; subtitle: string; candidates: UnicornRadarCandidate[] }) {
+  return <section className="unicorn-section unicorn-candidate-section" aria-label={title}>
+    <SectionHeaderWithMeta title={title} count={candidates.length} explainer={subtitle} action="Share-ready section" />
+    {candidates.length
+      ? <div className="unicorn-card-grid">{candidates.map((candidate) => <CandidateCompactCard key={candidate.id} candidate={candidate} />)}</div>
+      : <p className="panel-caption">No verified candidates yet. Submit a candidate with receipts.</p>}
+  </section>;
+}
+
+function UnicornFilterBar({
+  sector,
+  setSector,
+  status,
+  setStatus,
+  verdict,
+  setVerdict,
+  query,
+  setQuery,
+  shareMode,
+  setShareMode,
+  sectorOptions,
+  filteredCount
+}: {
+  sector: 'all' | UnicornRadarSector;
+  setSector: (value: 'all' | UnicornRadarSector) => void;
+  status: 'all' | UnicornRadarStatus;
+  setStatus: (value: 'all' | UnicornRadarStatus) => void;
+  verdict: 'all' | UnicornRadarVerdict;
+  setVerdict: (value: 'all' | UnicornRadarVerdict) => void;
+  query: string;
+  setQuery: (value: string) => void;
+  shareMode: boolean;
+  setShareMode: (value: boolean) => void;
+  sectorOptions: Array<'all' | UnicornRadarSector>;
+  filteredCount: number;
+}) {
+  return <section className="unicorn-filter-panel" aria-label="Candidate filters">
+    <div className="unicorn-status-segments" aria-label="Status filters">
+      {STATUSES.map((item) => <button
+        key={item}
+        type="button"
+        className={item === status ? 'active' : undefined}
+        aria-pressed={item === status}
+        onClick={() => setStatus(item)}
+      >
+        {item === 'all' ? 'All' : statusLabel(item)}
+      </button>)}
+    </div>
+    <FilterSelect label="Sector" value={sector} values={sectorOptions} onChange={setSector} />
+    <FilterSelect label="Verdict" value={verdict} values={VERDICTS} onChange={setVerdict} />
+    <label className="unicorn-filter unicorn-search-filter">
+      <span>Search</span>
+      <input value={query} placeholder="Project, ticker, tag" onChange={(event) => setQuery(event.target.value)} />
+    </label>
+    <label className="unicorn-share-toggle">
+      <input type="checkbox" checked={shareMode} onChange={(event) => setShareMode(event.target.checked)} />
+      <span>Share Mode</span>
+    </label>
+    <p className="unicorn-filter-count">{filteredCount} shown</p>
+  </section>;
+}
+
 export function UnicornRadarPage() {
   const [summary, setSummary] = useState<UnicornRadarSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [sector, setSector] = useState<'all' | UnicornRadarSector>('all');
   const [status, setStatus] = useState<'all' | UnicornRadarStatus>('all');
   const [verdict, setVerdict] = useState<'all' | UnicornRadarVerdict>('all');
+  const [query, setQuery] = useState('');
+  const [shareMode, setShareMode] = useState(false);
 
   useEffect(() => {
     api<{ data: UnicornRadarSummary }>('/v1/unicorn-radar')
@@ -420,13 +649,27 @@ export function UnicornRadarPage() {
   }, []);
 
   const filtered = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
     return (summary?.candidates ?? []).filter((candidate) => {
       if (sector !== 'all' && candidate.sector !== sector) return false;
       if (status !== 'all' && candidate.status !== status) return false;
       if (verdict !== 'all' && candidate.verdict !== verdict) return false;
+      if (normalizedQuery) {
+        const haystack = [
+          candidate.project,
+          candidate.ticker,
+          candidate.sector,
+          candidateVerdict(candidate),
+          candidate.status,
+          candidate.verdict,
+          ...(candidate.tags ?? []),
+          ...candidate.risk_flags
+        ].join(' ').toLowerCase();
+        if (!haystack.includes(normalizedQuery)) return false;
+      }
       return true;
     });
-  }, [sector, status, summary?.candidates, verdict]);
+  }, [query, sector, status, summary?.candidates, verdict]);
 
   const sectorOptions = useMemo(() => {
     const visibleSectors = visibleVerifiedSectors(summary?.candidates ?? []);
@@ -442,76 +685,66 @@ export function UnicornRadarPage() {
 
   return <div className="shell builder-shell proof-feed-shell unicorn-radar-shell">
     <UnicornRadarNav />
-    <main className="builder-page unicorn-radar-page" aria-label="Infopunks Unicorn Radar">
+    <main className={`builder-page unicorn-radar-page${shareMode ? ' share-mode' : ''}`} aria-label="Infopunks Unicorn Radar">
       <section className="panel hero unicorn-radar-hero">
-        <div>
-          <p className="eyebrow">Commercial signal wedge</p>
+        <div className="unicorn-hero-copy">
+          <p className="eyebrow">COMMERCIAL SIGNAL DESK</p>
           <h1>{summary?.title ?? 'Infopunks Unicorn Radar'}</h1>
           <h2>{summary?.tagline ?? 'Finding serious low-cap Solana projects before consensus does.'}</h2>
-          <p className="copy">{summary?.subline ?? 'Retail needs better signal before taking risk.'}</p>
-          <p className="copy">{summary?.trust_line ?? 'Projects can buy evaluation, not conviction.'}</p>
-          <p className="panel-caption">{summary?.doctrine_line ?? 'Influencers sell certainty. Infopunks sells legible uncertainty.'}</p>
+          <div className="unicorn-doctrine-lines">
+            <p>{summary?.subline ?? 'Retail doesn’t need less risk. Retail needs better signal before taking risk.'}</p>
+            <p>{summary?.trust_line ?? 'Projects can buy evaluation, not conviction.'}</p>
+          </div>
           <div className="signal-hunt-hero-actions">
             <a className="execute" href="#submit-candidate">Submit Candidate</a>
-            <a className="execute compact secondary" href="/evaluation-request">Request paid evaluation</a>
+            <a className="execute compact secondary" href="/evaluation-request">Request Paid Evaluation</a>
           </div>
         </div>
-        <div className="signal-hunt-counter-grid unicorn-counter-grid" aria-label="Radar status counters">
-          <article className="panel loop-counter-card"><span>candidates</span><strong>{summary?.counts.total ?? 0}</strong></article>
-          <article className="panel loop-counter-card"><span>high signal</span><strong>{summary?.counts.by_status.high_signal_lowcap ?? 0}</strong></article>
-          <article className="panel loop-counter-card"><span>watchlist</span><strong>{summary?.counts.by_status.watchlist ?? 0}</strong></article>
-          <article className="panel loop-counter-card"><span>do not touch</span><strong>{summary?.counts.by_status.do_not_touch_yet ?? 0}</strong></article>
-          <article className="panel loop-counter-card"><span>consensus</span><strong>{summary?.counts.by_status.consensus_forming ?? 0}</strong></article>
-        </div>
+        <RadarSnapshotPanel summary={summary} />
       </section>
 
       {error && <section className="panel"><p className="route-state error">{error}</p></section>}
 
-      <section className="panel unicorn-radar-module" aria-label="Drop #001 candidate queue">
-        <div>
-          <p className="eyebrow">Drop #001 candidate queue</p>
-          <h2>Drop #001 remains receipt-framed.</h2>
-          <p className="copy">Drop #001 remains: High-Signal Lowcap: KINS. Do Not Touch Yet: MANIFEST. Consensus Forming: TROLL / ANSEM.</p>
-          <p className="copy">Next batch under review: Jotchua: High-Signal Lowcap. SolAngeles: Watchlist. USELESS: Consensus Forming. TripleT: Watchlist.</p>
-        </div>
-      </section>
-
-      <section className="panel unicorn-filter-panel" aria-label="Candidate filters">
-        <FilterSelect label="Sector" value={sector} values={sectorOptions} onChange={setSector} />
-        <FilterSelect label="Status" value={status} values={STATUSES} onChange={setStatus} />
-        <FilterSelect label="Verdict" value={verdict} values={VERDICTS} onChange={setVerdict} />
-      </section>
-
-      <SectorCoverageSection candidates={summary?.candidates ?? []} />
+      <FeaturedRadarCalls candidates={summary?.candidates ?? []} />
+      <DropSummaryCard />
+      <UnicornFilterBar
+        sector={sector}
+        setSector={setSector}
+        status={status}
+        setStatus={setStatus}
+        verdict={verdict}
+        setVerdict={setVerdict}
+        query={query}
+        setQuery={setQuery}
+        shareMode={shareMode}
+        setShareMode={setShareMode}
+        sectorOptions={sectorOptions}
+        filteredCount={filtered.length}
+      />
 
       <CandidateSection title="High-Signal Lowcaps" subtitle="Serious early candidates where shipping, timing, and asymmetry are already legible." candidates={groups.highSignal} />
       <CandidateSection title="Watchlist" subtitle="Interesting candidates that need more receipts before conviction can rise." candidates={groups.watchlist} />
       <CandidateSection title="Do Not Touch Yet" subtitle="Risk is too high, proof is too thin, or token survivability is not legible." candidates={groups.doNotTouch} />
       <CandidateSection title="Consensus Forming" subtitle="The early edge may already be closing, including explicit missed-it records." candidates={groups.consensus} />
 
-      <section className="panel unicorn-radar-module unicorn-revenue-module" aria-label="Revenue Receipts module">
-        <div>
+      <section className="unicorn-commercial-grid" aria-label="Commercial radar actions">
+        <article className="panel unicorn-commercial-card">
           <p className="eyebrow">Revenue Receipts</p>
-          <h2>Revenue Receipts: see how paid evaluations are disclosed.</h2>
+          <h2>Revenue Receipts</h2>
           <p className="copy">Public ledger for open slots, templates, internal build receipts, and future paid evaluations. No receipt, no trust.</p>
-        </div>
-        <div className="signal-hunt-card-actions">
           <a className="execute compact secondary" href="/revenue-receipts">Open Revenue Receipts</a>
-        </div>
-      </section>
-
-      <section className="signal-hunt-cta-grid unicorn-cta-grid">
-        <article id="submit-candidate" className="panel signal-hunt-cta-card">
-          <p className="eyebrow">Submit Candidate</p>
-          <h2>Low-cap Solana signal intake.</h2>
-          <p className="copy">Use <code>POST /v1/unicorn-radar/submit</code> with thesis, sector, shipping proof, and evidence links.</p>
-          <a className="execute compact secondary" href="/developers">Open developer surface</a>
         </article>
-        <article id="request-evaluation" className="panel signal-hunt-cta-card">
+        <article id="request-evaluation" className="panel unicorn-commercial-card">
           <p className="eyebrow">Request Paid Evaluation</p>
-          <h2>Buy evaluation, not conviction.</h2>
+          <h2>Evaluation Request</h2>
           <p className="copy">Use <code>POST /v1/evaluation-request</code>. If automated intake is not configured, the API returns a manual delivery packet instead of pretending it stored your request.</p>
-          <a className="execute compact secondary" href="/evaluation-request">Open evaluation slot</a>
+          <a className="execute compact secondary" href="/evaluation-request">Open Evaluation Request</a>
+        </article>
+        <article id="submit-candidate" className="panel unicorn-commercial-card">
+          <p className="eyebrow">Submit Candidate</p>
+          <h2>Low-cap Solana signal intake</h2>
+          <p className="copy">Use <code>POST /v1/unicorn-radar/submit</code> with thesis, sector, shipping proof, and evidence links.</p>
+          <a className="execute compact secondary" href="/developers">Open Developer Surface</a>
         </article>
       </section>
     </main>
