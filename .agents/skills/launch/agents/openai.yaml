@@ -1,0 +1,4 @@
+interface:
+  display_name: "Launch Engine"
+  short_description: "Ship every feature with a complete launch packet."
+  default_prompt: "/launch this feature and produce the full launch packet."

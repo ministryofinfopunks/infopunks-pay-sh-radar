@@ -8,3 +8,7 @@ coverage/
 .runtime/
 *.log
 .data/
+
+# Generated launch videos / brag outputs
+brag-output-*/
+launch-assets/

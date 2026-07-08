@@ -13,6 +13,8 @@
     "start:render": "npm run start",
     "smoke:production": "tsx scripts/smoke-production.ts",
     "smoke:backend": "node scripts/smoke-backend.mjs",
+    "launch:scaffold": "python3 .agents/skills/launch/scripts/scaffold_launch_packet.py --root .",
+    "launch:data": "python3 .agents/skills/launch/scripts/fetch_radar_live_data.py --output-dir launch",
     "harness:machine-translation-general": "node scripts/run-alibaba-machine-translation-general-harness.mjs",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
