@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "lint": "tsc --noEmit --pretty false",
-    "build": "tsc -p tsconfig.server.json && vite build",
+    "build": "tsc -p tsconfig.server.json && node scripts/copy-server-assets.mjs && vite build",
     "start": "node dist/server/server.js",
     "start:render": "npm run start",
     "smoke:production": "tsx scripts/smoke-production.ts",

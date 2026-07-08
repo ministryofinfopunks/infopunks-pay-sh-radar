@@ -4,6 +4,7 @@ import type { RevenueReceipt, UnicornRadarCandidate } from '../schemas/entities'
 
 export const OG_IMAGE_WIDTH = 1200;
 export const OG_IMAGE_HEIGHT = 630;
+const OG_FONT_FAMILY = 'IBM Plex Mono, monospace';
 
 type OgImagePayload = {
   title: string;
@@ -147,96 +148,277 @@ function formatPercent(value: number | null | undefined) {
   return `${value > 0 ? '+' : ''}${value.toFixed(1)}%`;
 }
 
-function renderScoreTile(x: number, y: number, label: string, score: number, accent: string) {
-  return `<rect x="${x}" y="${y}" width="226" height="82" rx="14" fill="#071411" stroke="#173c35" />
-  <text x="${x + 18}" y="${y + 30}" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="15" fill="#8ab6a8" letter-spacing="1.1">${escapeXml(label.toUpperCase())}</text>
-  <text x="${x + 18}" y="${y + 64}" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="34" font-weight="800" fill="#f2fffb">${score}</text>
-  <rect x="${x + 72}" y="${y + 51}" width="124" height="8" rx="4" fill="#10261f" />
-  <rect x="${x + 72}" y="${y + 51}" width="${Math.max(0, Math.min(124, Math.round((score / 100) * 124)))}" height="8" rx="4" fill="${accent}" />`;
+function wrapOgText(value: string, maxChars: number, maxLines: number) {
+  const words = value.trim().replace(/\s+/g, ' ').split(' ').filter(Boolean);
+  const lines: string[] = [];
+  let current = '';
+
+  for (const rawWord of words) {
+    const word = rawWord.length > maxChars ? clampText(rawWord, maxChars) : rawWord;
+    const next = current ? `${current} ${word}` : word;
+    if (next.length <= maxChars || !current) {
+      current = next;
+      continue;
+    }
+    lines.push(current);
+    current = word;
+  }
+
+  if (current) lines.push(current);
+  if (lines.length <= maxLines) return lines;
+
+  const visible = lines.slice(0, maxLines);
+  visible[maxLines - 1] = clampText(`${visible[maxLines - 1]} ${lines.slice(maxLines).join(' ')}`, maxChars);
+  return visible;
 }
 
-export function renderUnicornRadarOgImage(candidate: UnicornRadarCandidate) {
-  const accent = candidate.status === 'do_not_touch_yet'
-    ? '#ff7b7b'
-    : candidate.status === 'paid_evaluation'
-      ? '#ffd166'
-      : '#7effb0';
-  const title = `${candidate.project} / ${candidate.ticker}`;
-  const status = formatOgLabel(candidate.status);
-  const verdict = candidate.displayVerdict ?? formatOgLabel(candidate.verdict);
-  const paidLine = candidate.paid_evaluation_disclosure.is_paid
-    ? `PAID EVALUATION DISCLOSED · ${clampText(candidate.paid_evaluation_disclosure.note, 56)}`
-    : candidate.paid_evaluation_disclosure.label.toUpperCase();
-  const hunter = candidate.hunter_credit?.handle ? `HUNTER ${candidate.hunter_credit.handle}` : 'HUNTER NOT RECORDED';
-  const receipts = `${candidate.receipts.length} RECEIPT${candidate.receipts.length === 1 ? '' : 'S'}`;
+function formatUnicornStatusLabel(status: UnicornRadarCandidate['status']) {
+  switch (status) {
+    case 'high_signal_lowcap':
+      return 'High-Signal Lowcap';
+    case 'watchlist':
+      return 'Watchlist';
+    case 'do_not_touch_yet':
+      return 'Do Not Touch Yet';
+    case 'consensus_forming':
+      return 'Consensus Forming';
+    case 'paid_evaluation':
+      return 'Paid Evaluation';
+    case 'infopunks_missed_it':
+      return 'Infopunks Missed It';
+    case 'unseen_signal':
+      return 'Unseen Signal';
+    default:
+      return formatOgLabel(status);
+  }
+}
+
+function formatUnicornVerdictLabel(verdict: UnicornRadarCandidate['verdict']) {
+  switch (verdict) {
+    case 'high_signal_early':
+      return 'High-Signal Early';
+    case 'interesting_needs_receipts':
+      return 'Interesting, Needs Receipts';
+    case 'real_product_weak_attention':
+      return 'Real Product, Weak Attention';
+    case 'strong_attention_weak_proof':
+      return 'Strong Attention, Weak Proof';
+    case 'do_not_touch_yet':
+      return 'Do Not Touch Yet';
+    case 'consensus_already_forming':
+      return 'Consensus Already Forming';
+    case 'missed_by_infopunks':
+      return 'Missed by Infopunks';
+    default:
+      return formatOgLabel(verdict);
+  }
+}
+
+function unicornStatusTheme(status: UnicornRadarCandidate['status']) {
+  switch (status) {
+    case 'high_signal_lowcap':
+      return { accent: '#7ef6b2', muted: '#214b38', fill: '#071b13' };
+    case 'watchlist':
+      return { accent: '#ffd166', muted: '#5b4720', fill: '#211807' };
+    case 'do_not_touch_yet':
+      return { accent: '#ff7b7b', muted: '#5a2a2a', fill: '#241010' };
+    case 'consensus_forming':
+      return { accent: '#8bd7ff', muted: '#20465e', fill: '#061824' };
+    default:
+      return { accent: '#9bf1cc', muted: '#1d4f43', fill: '#071b16' };
+  }
+}
+
+function formatMoneyCompact(value: number | null | undefined) {
+  const formatted = formatCompactNumber(value);
+  return formatted === 'N/A' ? formatted : `$${formatted}`;
+}
+
+function formatUpdatedDate(value: string | undefined) {
+  if (!value) return 'UPDATED PENDING';
+  const date = new Date(value);
+  if (Number.isNaN(date.valueOf())) return 'UPDATED PENDING';
+  return `UPDATED ${new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC'
+  }).format(date).toUpperCase()}`;
+}
+
+function renderTextLines(lines: string[], x: number, y: number, lineHeight: number, fontSize: number, fill: string, weight = 500) {
+  return lines.map((line, index) => (
+    `<text x="${x}" y="${y + (index * lineHeight)}" font-family="${OG_FONT_FAMILY}" font-size="${fontSize}" font-weight="${weight}" fill="${fill}">${escapeXml(line)}</text>`
+  )).join('');
+}
+
+function renderUnicornScoreTile(x: number, y: number, label: string, score: number, accent: string) {
+  const barWidth = Math.max(0, Math.min(126, Math.round((score / 100) * 126)));
+  return `<rect x="${x}" y="${y}" width="248" height="78" rx="10" fill="#061411" stroke="#163b32" />
+  <text x="${x + 18}" y="${y + 28}" font-family="${OG_FONT_FAMILY}" font-size="14" font-weight="600" fill="#8ab6a8">${escapeXml(label.toUpperCase())}</text>
+  <text x="${x + 18}" y="${y + 62}" font-family="${OG_FONT_FAMILY}" font-size="32" font-weight="700" fill="#f2fffb">${score}</text>
+  <rect x="${x + 86}" y="${y + 50}" width="126" height="8" rx="4" fill="#10261f" />
+  <rect x="${x + 86}" y="${y + 50}" width="${barWidth}" height="8" rx="4" fill="${accent}" />`;
+}
+
+function renderMarketCell(x: number, y: number, width: number, label: string, value: string, accent: string) {
+  return `<rect x="${x}" y="${y}" width="${width}" height="64" rx="10" fill="#061411" stroke="#163b32" />
+  <text x="${x + 18}" y="${y + 25}" font-family="${OG_FONT_FAMILY}" font-size="13" font-weight="600" fill="#8ab6a8">${escapeXml(label)}</text>
+  <text x="${x + 18}" y="${y + 51}" font-family="${OG_FONT_FAMILY}" font-size="21" font-weight="700" fill="${accent}">${escapeXml(value)}</text>`;
+}
+
+function normalizeEvidenceChip(value: string) {
+  return value
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
+
+function getEvidenceChips(candidate: UnicornRadarCandidate) {
+  const priority = [
+    'LIVE_GAME_ROUTE',
+    'TOKEN_REVIEW_PASSED',
+    'HOLDER_DISTRIBUTION_HEALTHY',
+    'CHARITY_NARRATIVE',
+    'REAL_WORLD_PRODUCT',
+    'MEME_WITH_PRODUCT',
+    'PRODUCT_SURFACE_CONFIRMED',
+    'GUILD_ACTIVITY',
+    'COMMUNITY_WIKI',
+    'FAIR_LAUNCH_RECEIPT',
+    'LIQUIDITY_DEPTH_REVIEWED',
+    'CONSENSUS_FORMING',
+    'WATCHLIST',
+    'PURE_MEME_RISK'
+  ];
+  const sourceLabels = [
+    ...(candidate.tags ?? []),
+    ...candidate.receipts.map((receipt) => receipt.type === 'LIVE_GAME_ROUTE' ? receipt.type : receipt.label)
+  ];
+  const unique = Array.from(new Set(sourceLabels.map(normalizeEvidenceChip).filter(Boolean)));
+  return [
+    ...priority.filter((label) => unique.includes(label)),
+    ...unique.filter((label) => !priority.includes(label))
+  ];
+}
+
+function renderEvidenceChips(candidate: UnicornRadarCandidate, accent: string) {
+  const chips = getEvidenceChips(candidate);
+  const visible = chips.slice(0, 4);
+  const more = chips.length - visible.length;
+  const chipMarkup = visible.map((chip, index) => {
+    const x = 70 + (index * 222);
+    return `<rect x="${x}" y="522" width="204" height="36" rx="8" fill="#081914" stroke="#1d4a3f" />
+  <text x="${x + 14}" y="545" font-family="${OG_FONT_FAMILY}" font-size="13" font-weight="700" fill="#d3fff1">${escapeXml(clampText(chip, 22))}</text>`;
+  }).join('');
+  const moreMarkup = more > 0
+    ? `<rect x="960" y="522" width="102" height="36" rx="8" fill="#0a1916" stroke="${accent}" />
+  <text x="978" y="545" font-family="${OG_FONT_FAMILY}" font-size="13" font-weight="700" fill="${accent}">+${more} MORE</text>`
+    : '';
+  return `${chipMarkup}${moreMarkup}`;
+}
+
+function renderUnicornMarketStrip(candidate: UnicornRadarCandidate, accent: string) {
   const marketData = candidate.dexScreenerData;
-  const marketSummary = marketData
-    ? `MCAP ${formatCompactNumber(marketData.marketCap)} · LIQ ${formatCompactNumber(marketData.liquidityUsd)} · VOL ${formatCompactNumber(marketData.volume24h)} · 24H ${formatPercent(marketData.priceChange24h)}`
-    : candidate.verificationStatus === 'pending_manual_review'
-      ? 'PENDING MANUAL REVIEW · DO NOT TOUCH YET'
-      : 'NO DEXSCREENER MARKET DATA ATTACHED';
-  const marketFooter = marketData
-    ? 'Market data via DexScreener. Infopunks verdict is independent.'
-    : candidate.verificationStatus === 'pending_manual_review'
-      ? 'No DexScreener market panel: canonical token identity is not verified.'
-      : 'No DexScreener market data attached. Infopunks verdict is independent.';
-  const titleLines = wrapText(title, 28).slice(0, 2);
-  const thesisLines = wrapText(candidate.thesis, 70).slice(0, 2);
-  const titleMarkup = titleLines.map((line, index) => (
-    `<text x="70" y="${154 + (index * 56)}" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="48" font-weight="800" fill="#f2fffb">${escapeXml(line)}</text>`
-  )).join('');
-  const thesisMarkup = thesisLines.map((line, index) => (
-    `<text x="72" y="${286 + (index * 28)}" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="21" fill="#a9c8bc">${escapeXml(line)}</text>`
-  )).join('');
+  if (!marketData) {
+    return `<rect x="70" y="442" width="992" height="64" rx="10" fill="#061411" stroke="#163b32" />
+  <text x="92" y="481" font-family="${OG_FONT_FAMILY}" font-size="22" font-weight="700" fill="#f2fffb">Market data: pending/manual review</text>
+  <text x="552" y="481" font-family="${OG_FONT_FAMILY}" font-size="17" font-weight="600" fill="#8ab6a8">${escapeXml(candidate.verificationStatus === 'pending_manual_review' ? 'Canonical token identity not verified' : 'DexScreener data not attached')}</text>`;
+  }
+
+  const fourthMetric = typeof marketData.priceChange24h === 'number'
+    ? { label: '24H CHANGE', value: formatPercent(marketData.priceChange24h) }
+    : { label: 'FDV', value: formatMoneyCompact(marketData.fdv) };
+
+  const metrics = [
+    { label: 'MARKET CAP', value: formatMoneyCompact(marketData.marketCap) },
+    { label: 'LIQUIDITY', value: formatMoneyCompact(marketData.liquidityUsd) },
+    { label: '24H VOLUME', value: formatMoneyCompact(marketData.volume24h) },
+    fourthMetric
+  ];
+
+  return metrics.map((metric, index) => renderMarketCell(70 + (index * 257), 442, 239, metric.label, metric.value, accent)).join('');
+}
+
+export function renderUnicornCandidateOgSvg(candidate: UnicornRadarCandidate) {
+  const theme = unicornStatusTheme(candidate.status);
+  const title = `${candidate.project} / ${candidate.ticker}`;
+  const titleLines = wrapOgText(title, 34, 2);
+  const thesisLines = wrapOgText(candidate.thesis, 82, 2);
+  const status = formatUnicornStatusLabel(candidate.status);
+  const verdict = candidate.displayVerdict ?? formatUnicornVerdictLabel(candidate.verdict);
+  const sectorLine = `${candidate.ticker} · ${candidate.sector}`;
+  const receiptCount = `${candidate.receipts.length} RECEIPT${candidate.receipts.length === 1 ? '' : 'S'}`;
+  const marketSource = candidate.dexScreenerData ? 'DEXSCREENER MARKET DATA' : 'MANUAL MARKET REVIEW';
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" viewBox="0 0 ${OG_IMAGE_WIDTH} ${OG_IMAGE_HEIGHT}" role="img" aria-label="${escapeXml(title)}">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#030807" />
-      <stop offset="58%" stop-color="#071411" />
-      <stop offset="100%" stop-color="#0b1f1b" />
+      <stop offset="0%" stop-color="#020504" />
+      <stop offset="58%" stop-color="#061411" />
+      <stop offset="100%" stop-color="#0b1d18" />
     </linearGradient>
-    <radialGradient id="glow" cx="78%" cy="24%" r="44%">
-      <stop offset="0%" stop-color="${accent}" stop-opacity="0.32" />
-      <stop offset="100%" stop-color="${accent}" stop-opacity="0" />
+    <radialGradient id="glow" cx="82%" cy="22%" r="48%">
+      <stop offset="0%" stop-color="${theme.accent}" stop-opacity="0.28" />
+      <stop offset="100%" stop-color="${theme.accent}" stop-opacity="0" />
     </radialGradient>
-    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
-      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#17322d" stroke-width="1" opacity="0.72" />
+    <linearGradient id="scan" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="${theme.accent}" stop-opacity="0.08" />
+      <stop offset="52%" stop-color="${theme.accent}" stop-opacity="0.32" />
+      <stop offset="100%" stop-color="${theme.accent}" stop-opacity="0.04" />
+    </linearGradient>
+    <pattern id="grid" width="34" height="34" patternUnits="userSpaceOnUse">
+      <path d="M 34 0 L 0 0 0 34" fill="none" stroke="#12352e" stroke-width="1" opacity="0.58" />
     </pattern>
   </defs>
   <rect width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" fill="url(#bg)" />
   <rect width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" fill="url(#glow)" />
-  <rect width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" fill="url(#grid)" opacity="0.48" />
-  <rect x="42" y="34" width="1116" height="562" rx="28" fill="#04100d" fill-opacity="0.72" stroke="#1b5b4f" stroke-width="2" />
-  <rect x="70" y="60" width="346" height="38" rx="19" fill="#0d2420" stroke="#1b5b4f" />
-  <text x="94" y="85" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="18" font-weight="800" fill="#9bf1cc" letter-spacing="1.1">INFOPUNKS UNICORN RADAR</text>
-  <text x="70" y="124" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="18" fill="#5ee0af" letter-spacing="2.2">${escapeXml(candidate.sector.toUpperCase())}</text>
-  ${titleMarkup}
-  <rect x="72" y="226" width="212" height="42" rx="21" fill="#0a1916" stroke="${accent}" />
-  <text x="94" y="253" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="17" font-weight="800" fill="#d3fff1">${escapeXml(status)}</text>
-  <rect x="300" y="226" width="510" height="42" rx="21" fill="#0a1916" stroke="#28584f" />
-  <text x="322" y="253" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="15" font-weight="800" fill="#d3fff1">${escapeXml(verdict)}</text>
-  ${thesisMarkup}
+  <rect width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" fill="url(#grid)" opacity="0.5" />
+  <rect x="42" y="34" width="1116" height="562" rx="18" fill="#03100d" fill-opacity="0.78" stroke="#1f5b4e" stroke-width="2" />
+  <rect x="64" y="56" width="1072" height="2" fill="url(#scan)" />
+
+  <circle cx="1018" cy="158" r="108" fill="none" stroke="#164137" stroke-width="1.4" opacity="0.82" />
+  <circle cx="1018" cy="158" r="68" fill="none" stroke="#1d5549" stroke-width="1.4" opacity="0.72" />
+  <path d="M930 220C974 190 1009 165 1064 104" stroke="${theme.accent}" stroke-width="4" stroke-linecap="round" opacity="0.94" />
+  <circle cx="1064" cy="104" r="8" fill="${theme.accent}" />
+
+  <text x="70" y="82" font-family="${OG_FONT_FAMILY}" font-size="18" font-weight="700" fill="#9bf1cc">INFOPUNKS UNICORN RADAR</text>
+  <text x="70" y="111" font-family="${OG_FONT_FAMILY}" font-size="15" font-weight="500" fill="#8ab6a8">Public Intelligence for Low-Cap Signal</text>
+  <text x="914" y="82" font-family="${OG_FONT_FAMILY}" font-size="13" font-weight="600" fill="#8ab6a8">${escapeXml(formatUpdatedDate(candidate.updated_at))}</text>
+  <text x="914" y="111" font-family="${OG_FONT_FAMILY}" font-size="13" font-weight="600" fill="#8ab6a8">${escapeXml(marketSource)}</text>
+
+  ${renderTextLines(titleLines, 70, 166, 50, 45, '#f2fffb', 700)}
+  <text x="72" y="238" font-family="${OG_FONT_FAMILY}" font-size="17" font-weight="600" fill="#8ab6a8">${escapeXml(clampText(sectorLine, 58))}</text>
+
+  <rect x="70" y="258" width="264" height="40" rx="8" fill="${theme.fill}" stroke="${theme.accent}" />
+  <text x="92" y="284" font-family="${OG_FONT_FAMILY}" font-size="16" font-weight="700" fill="${theme.accent}">${escapeXml(status)}</text>
+  <rect x="350" y="258" width="592" height="40" rx="8" fill="#061411" stroke="${theme.muted}" />
+  <text x="372" y="284" font-family="${OG_FONT_FAMILY}" font-size="15" font-weight="700" fill="#d3fff1">${escapeXml(clampText(verdict, 58))}</text>
+  <rect x="946" y="258" width="116" height="40" rx="8" fill="#061411" stroke="${theme.muted}" />
+  <text x="962" y="284" font-family="${OG_FONT_FAMILY}" font-size="15" font-weight="700" fill="#d3fff1">${escapeXml(receiptCount)}</text>
+
+  ${renderTextLines(thesisLines, 72, 318, 24, 20, '#b7d2c8', 500)}
+
   <g>
-    ${renderScoreTile(70, 358, 'Shipping Proof', candidate.scores.shipping_proof, accent)}
-    ${renderScoreTile(318, 358, 'Attention Quality', candidate.scores.attention_quality, accent)}
-    ${renderScoreTile(566, 358, 'Token Survival', candidate.scores.token_survivability, accent)}
-    ${renderScoreTile(814, 358, 'Risk Score', candidate.scores.risk_score, '#ff8a6a')}
+    ${renderUnicornScoreTile(70, 356, 'Signal', candidate.scores.overall_signal_score, theme.accent)}
+    ${renderUnicornScoreTile(334, 356, 'Shipping', candidate.scores.shipping_proof, theme.accent)}
+    ${renderUnicornScoreTile(598, 356, 'Asymmetry', candidate.scores.asymmetry_potential, theme.accent)}
+    ${renderUnicornScoreTile(862, 356, 'Risk', candidate.scores.risk_score, '#ff8a6a')}
   </g>
-  <rect x="70" y="468" width="492" height="54" rx="14" fill="#071411" stroke="#173c35" />
-  <text x="92" y="501" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="17" font-weight="800" fill="#fef3c7">${escapeXml(receipts)} · ${escapeXml(hunter)}</text>
-  <rect x="584" y="468" width="476" height="54" rx="14" fill="#071411" stroke="#173c35" />
-  <text x="606" y="501" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="15" font-weight="800" fill="#fef3c7">${escapeXml(paidLine)}</text>
-  <rect x="70" y="530" width="990" height="46" rx="14" fill="#071411" stroke="#173c35" />
-  <text x="92" y="559" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="16" font-weight="800" fill="#9bf1cc">${escapeXml(marketSummary)}</text>
-  <text x="72" y="598" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="18" font-weight="800" fill="#d3fff1">${escapeXml(marketFooter)}</text>
-  <text x="72" y="620" font-family="'SFMono-Regular', 'Menlo', monospace" font-size="15" fill="#7fa195">Projects can buy evaluation, not conviction.</text>
-  <circle cx="1044" cy="154" r="92" fill="none" stroke="#173c35" stroke-width="1.5" />
-  <circle cx="1044" cy="154" r="56" fill="none" stroke="#1e4c43" stroke-width="1.5" />
-  <path d="M968 214C1006 188 1036 166 1084 112" stroke="${accent}" stroke-width="4" stroke-linecap="round" />
-  <circle cx="1084" cy="112" r="8" fill="${accent}" />
+
+  ${renderUnicornMarketStrip(candidate, theme.accent)}
+  ${renderEvidenceChips(candidate, theme.accent)}
+
+  <text x="70" y="588" font-family="${OG_FONT_FAMILY}" font-size="16" font-weight="700" fill="#d3fff1">Projects can buy evaluation, not conviction.</text>
+  <text x="70" y="613" font-family="${OG_FONT_FAMILY}" font-size="16" font-weight="700" fill="#9bf1cc">No receipt, no trust.</text>
+  <text x="810" y="613" font-family="${OG_FONT_FAMILY}" font-size="16" font-weight="700" fill="#9bf1cc">radar.infopunks.fun/unicorn-radar</text>
 </svg>`;
+}
+
+export function renderUnicornRadarOgImage(candidate: UnicornRadarCandidate) {
+  return renderUnicornCandidateOgSvg(candidate);
 }
 
 export function renderUnicornRadarIndexOgImage() {

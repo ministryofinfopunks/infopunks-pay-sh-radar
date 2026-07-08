@@ -1,14 +1,22 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../src/api/app';
+import { renderUnicornCandidateOgSvg } from '../src/shared/narrativeOg';
 import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
+import { resolveEnrichedUnicornRadarCandidate } from '../src/services/unicornRadarService';
 
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
 function expectPng(payload: Buffer) {
-  expect(payload.length).toBeGreaterThan(24);
+  expect(payload.length).toBeGreaterThan(10_000);
   expect(payload.subarray(0, 8)).toEqual(PNG_SIGNATURE);
   expect(payload.readUInt32BE(16)).toBe(1200);
   expect(payload.readUInt32BE(20)).toBe(630);
+}
+
+async function renderCandidateSvg(candidateId: string) {
+  const candidate = await resolveEnrichedUnicornRadarCandidate(candidateId);
+  expect(candidate).not.toBeNull();
+  return renderUnicornCandidateOgSvg(candidate!);
 }
 
 function liveDexPair(baseTokenAddress: string, pairAddress: string, url: string) {
@@ -514,6 +522,29 @@ describe('unicorn radar api', () => {
       await app.close();
     }
   }, 60000);
+
+  it('renders data-driven Unicorn Radar candidate SVGs before PNG conversion', async () => {
+    const kins = await renderCandidateSvg('ur_kintara_kins');
+    expect(kins).toContain('Kintara');
+    expect(kins).toContain('KINS');
+    expect(kins).toContain('High-Signal');
+    expect(kins).toContain('No receipt, no trust');
+    expect(kins).toContain('LIVE_GAME_ROUTE');
+    expect(kins).not.toContain('<foreignObject');
+
+    const cupsey = await renderCandidateSvg('ur_cupsey_plushie');
+    expect(cupsey).toContain('CUPSEY');
+    expect(cupsey).toContain('Real-World Meme Product');
+
+    const jotchua = await renderCandidateSvg('ur_jotchua_money_dog');
+    expect(jotchua).toContain('Jotchua');
+    expect(jotchua).toContain('JOTCHUA');
+
+    const manifest = await renderCandidateSvg('ur_manifest_ambiguity');
+    expect(manifest).toContain('MANIFEST');
+    expect(manifest).toContain('Do Not Touch');
+    expect(manifest).toContain('Market data: pending/manual review');
+  });
 
   it('returns 404 for unknown Unicorn Radar OG image routes', async () => {
     const app = await createApp(emptyIntelligenceStore());
