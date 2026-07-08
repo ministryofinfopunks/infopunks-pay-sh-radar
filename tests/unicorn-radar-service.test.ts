@@ -41,6 +41,7 @@ describe('unicorn radar service', () => {
         if (url.includes('Tqj8yFmagrg7oorpQkVGYR52r96RFTamvWfth9bpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('Tqj8yFmagrg7oorpQkVGYR52r96RFTamvWfth9bpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
         if (url.includes('BcHEaaTCvycPwwsJ9yQTXdHP9X2gCLkznDbZ8VySpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('BcHEaaTCvycPwwsJ9yQTXdHP9X2gCLkznDbZ8VySpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
         if (url.includes('8wxkvAfEns76yBzu4MnbV7VnXWjg3iDPA9uwAQ6cpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('8wxkvAfEns76yBzu4MnbV7VnXWjg3iDPA9uwAQ6cpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+        if (url.includes('6NwarBvDkXhByqVp2Qkq5i9XbtA2B3Bwe8SWGu9vpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('6NwarBvDkXhByqVp2Qkq5i9XbtA2B3Bwe8SWGu9vpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
         if (url.includes('Dz9mQ9NzkBcCsuGPFJ3r1bS4wgqKMHBPiVuniW8Mbonk')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('Dz9mQ9NzkBcCsuGPFJ3r1bS4wgqKMHBPiVuniW8Mbonk')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
         if (url.includes('J8PSdNP3QewKq2Z1JJJFDMaqF7KcaiJhR7gbr5KZpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('J8PSdNP3QewKq2Z1JJJFDMaqF7KcaiJhR7gbr5KZpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
       }
@@ -51,6 +52,7 @@ describe('unicorn radar service', () => {
         if (url.includes('Tqj8yFmagrg7oorpQkVGYR52r96RFTamvWfth9bpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('Tqj8yFmagrg7oorpQkVGYR52r96RFTamvWfth9bpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
         if (url.includes('BcHEaaTCvycPwwsJ9yQTXdHP9X2gCLkznDbZ8VySpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('BcHEaaTCvycPwwsJ9yQTXdHP9X2gCLkznDbZ8VySpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
         if (url.includes('8wxkvAfEns76yBzu4MnbV7VnXWjg3iDPA9uwAQ6cpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('8wxkvAfEns76yBzu4MnbV7VnXWjg3iDPA9uwAQ6cpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+        if (url.includes('6NwarBvDkXhByqVp2Qkq5i9XbtA2B3Bwe8SWGu9vpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('6NwarBvDkXhByqVp2Qkq5i9XbtA2B3Bwe8SWGu9vpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
         if (url.includes('Dz9mQ9NzkBcCsuGPFJ3r1bS4wgqKMHBPiVuniW8Mbonk')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('Dz9mQ9NzkBcCsuGPFJ3r1bS4wgqKMHBPiVuniW8Mbonk')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
         if (url.includes('J8PSdNP3QewKq2Z1JJJFDMaqF7KcaiJhR7gbr5KZpump')) return Promise.resolve(new Response(JSON.stringify(liveDexPair('J8PSdNP3QewKq2Z1JJJFDMaqF7KcaiJhR7gbr5KZpump')), { status: 200, headers: { 'Content-Type': 'application/json' } }));
       }
@@ -68,7 +70,7 @@ describe('unicorn radar service', () => {
   it('returns the verified production candidate set', async () => {
     const list = await buildUnicornRadarCandidateList();
 
-    expect(list.count).toBe(9);
+    expect(list.count).toBe(10);
     expect(list.candidates.map((candidate) => candidate.id)).toEqual([
       'ur_ai_rig_complex',
       'ur_troll_attention_asset',
@@ -76,6 +78,7 @@ describe('unicorn radar service', () => {
       'ur_kintara_kins',
       'ur_jotchua_money_dog',
       'ur_solangeles',
+      'ur_cupsey_plushie',
       'ur_useless_consensus',
       'ur_triplet_sahur',
       'ur_manifest_ambiguity'
@@ -83,6 +86,7 @@ describe('unicorn radar service', () => {
     expect(new Set(list.candidates.map((candidate) => candidate.sector))).toEqual(new Set([
       'AI / Agent Rails',
       'Social / Attention Markets',
+      'Consumer / Social / Attention Markets',
       'Gaming / Consumer'
     ]));
   });
@@ -119,13 +123,14 @@ describe('unicorn radar service', () => {
   it('keeps statuses, verdicts, and score ranges production-shaped', async () => {
     const summary = await buildUnicornRadarSummary();
 
-    expect(summary.counts.total).toBe(9);
-    expect(summary.counts.by_status.high_signal_lowcap).toBe(2);
+    expect(summary.counts.total).toBe(10);
+    expect(summary.counts.by_status.high_signal_lowcap).toBe(3);
     expect(summary.counts.by_status.watchlist).toBe(3);
     expect(summary.counts.by_status.do_not_touch_yet).toBe(1);
     expect(summary.counts.by_status.consensus_forming).toBe(3);
     expect(summary.counts.by_sector['AI / Agent Rails']).toBe(1);
     expect(summary.counts.by_sector['Social / Attention Markets']).toBe(7);
+    expect(summary.counts.by_sector['Consumer / Social / Attention Markets']).toBe(1);
     expect(summary.counts.by_sector['Gaming / Consumer']).toBe(1);
 
     for (const candidate of summary.candidates) {
@@ -294,6 +299,62 @@ describe('unicorn radar service', () => {
       risk_flags: expect.arrayContaining(['Adult/NSFW content creates platform and brand risk'])
     }));
 
+    const cupsey = await resolveEnrichedUnicornRadarCandidate('ur_cupsey_plushie');
+    expect(cupsey).toEqual(expect.objectContaining({
+      project: 'CUPSEY',
+      ticker: 'CUPSEY',
+      sector: 'Consumer / Social / Attention Markets',
+      status: 'high_signal_lowcap',
+      verdict: 'high_signal_early',
+      displayVerdict: 'Real-World Meme Product, Brand Execution Monitored',
+      verificationStatus: 'verified_live_market',
+      productionReady: true,
+      tokenAddress: '6NwarBvDkXhByqVp2Qkq5i9XbtA2B3Bwe8SWGu9vpump',
+      thesis: expect.stringContaining('real-world meme product candidate'),
+      proof_of_shipping: expect.stringContaining('cupseyshop.com product surface'),
+      token_survivability_note: expect.stringContaining('not automatically token revenue or guaranteed token demand'),
+      risk_flags: expect.arrayContaining([
+        'Plushie revenue is not automatically token revenue',
+        'Liquidity is healthy for the tier but still small in absolute terms'
+      ]),
+      tags: expect.arrayContaining([
+        'HIGH_SIGNAL_LOWCAP',
+        'REAL_WORLD_PRODUCT',
+        'PHYSICAL_MERCH_RECEIPT',
+        'CHARITY_NARRATIVE',
+        'TOKEN_REVENUE_NOT_PROVEN'
+      ]),
+      receipts: expect.arrayContaining([
+        expect.objectContaining({
+          label: 'Holder receipt',
+          note: expect.stringContaining('10,850 holders')
+        }),
+        expect.objectContaining({
+          label: 'Liquidity receipt',
+          note: expect.stringContaining('$59K-$200K+')
+        }),
+        expect.objectContaining({
+          label: 'Launch receipt',
+          note: expect.stringContaining('pump.fun')
+        }),
+        expect.objectContaining({
+          label: 'Product receipt',
+          url: 'https://cupseyshop.com',
+          note: expect.stringContaining('weighted anxiety plushies')
+        }),
+        expect.objectContaining({
+          label: 'Charity receipt',
+          note: expect.stringContaining('donates one plush')
+        }),
+        expect.objectContaining({
+          label: 'Risk receipt',
+          note: expect.stringContaining('not automatically token revenue')
+        })
+      ])
+    }));
+    expect(listUnicornRadarCandidates().find((candidate) => candidate.id === 'ur_cupsey_plushie')?.dexScreenerUrl).toBeUndefined();
+    expect(cupsey?.dexScreenerUrl).toMatch(/^https:\/\/dexscreener\.com\/solana\//);
+
     const useless = await resolveEnrichedUnicornRadarCandidate('ur_useless_consensus');
     expect(useless).toEqual(expect.objectContaining({
       project: 'USELESS',
@@ -320,7 +381,7 @@ describe('unicorn radar service', () => {
   it('fails open when DexScreener is unavailable', async () => {
     vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new Error('dex down'))));
     const summary = await buildUnicornRadarSummary();
-    expect(summary.candidates).toHaveLength(9);
+    expect(summary.candidates).toHaveLength(10);
     expect(summary.candidates.every((candidate) => candidate.productionReady)).toBe(true);
   });
 

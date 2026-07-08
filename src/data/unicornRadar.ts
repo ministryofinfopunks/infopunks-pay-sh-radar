@@ -462,6 +462,90 @@ export const unicornRadarCandidates: UnicornRadarCandidate[] = [
     sample_disclosure: LIVE_DISCLOSURE
   },
   {
+    id: 'ur_cupsey_plushie',
+    project: 'CUPSEY',
+    ticker: 'CUPSEY',
+    sector: 'Consumer / Social / Attention Markets',
+    market_cap_range: 'Live market, verify current range from DexScreener',
+    thesis: 'CUPSEY stands out as a real-world meme product candidate: official Pump.fun plushie mascot, active e-commerce surface, plushies/apparel/accessories, charity donation loop, strong holder count for its tier, clean pump.fun launch, and healthy liquidity ratio. It remains a volatile micro/lowcap meme, and plushie revenue should not be treated as token revenue without direct proof, but the brand/product surface gives it more survivability than a pure digital meme.',
+    displayVerdict: 'Real-World Meme Product, Brand Execution Monitored',
+    what_it_actually_does: 'CUPSEY is a Solana meme/attention-market candidate tied to a physical Cupsey product surface: plushies, apparel, accessories, backpacks, keychains, wholesale/shipping claims, and a charity/donation narrative around plush distribution.',
+    proof_of_shipping: 'Verified live Solana market, pump.fun origin, clean launch/authority receipt, ~10.8K holder receipt, healthy liquidity-ratio receipt, official cupseyshop.com product surface, plushie/apparel/accessory catalog, worldwide shipping/wholesale surface, and charity/donation narrative.',
+    attention_quality_note: 'CUPSEY combines meme energy with a tangible brand surface. The official Pump.fun plushie mascot association and physical merchandise may broaden culture beyond crypto-native feeds, but brand execution and product momentum need monitoring.',
+    token_survivability_note: 'The survivability case is stronger than a pure digital meme because holders, liquidity ratio, clean launch receipts, and real-world product/brand activity all exist. Product sales and brand awareness may support culture, but they are not automatically token revenue or guaranteed token demand without direct proof.',
+    risk_flags: [
+      'Extremely volatile micro/lowcap MCAP range',
+      'Top-holder concentration needs stronger direct proof',
+      'Plushie revenue is not automatically token revenue',
+      'Brand execution and product momentum must continue',
+      'Meme-sector volatility remains high',
+      'Liquidity is healthy for the tier but still small in absolute terms',
+      'Product narrative may fade if sales/community activity slows'
+    ],
+    tags: [
+      'HIGH_SIGNAL_LOWCAP',
+      'REAL_WORLD_PRODUCT',
+      'MEME_WITH_PRODUCT',
+      'CONSUMER_BRAND',
+      'PHYSICAL_MERCH_RECEIPT',
+      'CHARITY_NARRATIVE',
+      'HOLDER_BASE_RECEIPT',
+      'LIQUIDITY_RATIO_HEALTHY',
+      'CLEAN_LAUNCH',
+      'BRAND_EXECUTION_MONITORING',
+      'TOKEN_REVENUE_NOT_PROVEN',
+      'MICROCAP_VOLATILITY'
+    ],
+    why_now: 'High-Signal Lowcap. CUPSEY has enough holder, liquidity, clean-launch, and physical product/brand receipts to track as a real-world meme product candidate, while token-revenue-not-proven and microcap volatility remain explicit.',
+    receipts: [
+      survivabilityReceipt('urr_cupsey_receipt_001', 'Holder receipt', 'token', 'CUPSEY report shows roughly 10,850 holders, a strong holder base for its micro/lowcap tier.'),
+      survivabilityReceipt('urr_cupsey_receipt_002', 'Liquidity receipt', 'market', 'Liquidity is reported around $59K-$200K+ across pools, often a strong ratio relative to its volatile MCAP range.'),
+      survivabilityReceipt('urr_cupsey_receipt_003', 'Launch receipt', 'market', 'CUPSEY originated through pump.fun with clean migration to Raydium/PumpSwap-style pools and no major authority red flags reported.'),
+      survivabilityReceipt('urr_cupsey_receipt_004', 'Product receipt', 'shipping', 'cupseyshop.com sells physical Cupsey products including weighted anxiety plushies, jumbo sizes, apparel, accessories, backpacks, and keychains.', 'https://cupseyshop.com'),
+      survivabilityReceipt('urr_cupsey_receipt_005', 'Charity receipt', 'attention', 'The report says every purchase donates one plush to someone in need, creating a positive real-world impact narrative.'),
+      survivabilityReceipt('urr_cupsey_receipt_006', 'Brand receipt', 'attention', 'CUPSEY is tied to the official Pump.fun plushie mascot and has potential mainstream/non-crypto crossover through physical merchandise.'),
+      survivabilityReceipt('urr_cupsey_receipt_007', 'Risk receipt', 'risk', 'Product sales and brand awareness may support culture, but they are not automatically token revenue or guaranteed token demand.')
+    ],
+    linked_narratives: [
+      { label: 'Attention Market Watch', href: '/narratives/attention-market-watch' },
+      { label: 'Signal Hunt', href: '/signal-hunt' }
+    ],
+    linked_graph_node: { id: 'ct_subcultures', label: 'CT Subcultures', href: '/graph' },
+    chainId: 'solana',
+    tokenAddress: '6NwarBvDkXhByqVp2Qkq5i9XbtA2B3Bwe8SWGu9vpump',
+    verificationStatus: 'verified_live_market',
+    tokenAddressSource: 'CT survivability intake submitted token address only; Infopunks relies on DexScreener token-address enrichment for canonical pair resolution and does not hardcode an unverified pair URL.',
+    tokenAddressSourceUrl: 'https://solscan.io/token/6NwarBvDkXhByqVp2Qkq5i9XbtA2B3Bwe8SWGu9vpump',
+    verifiedAt: UPDATED_AT,
+    verificationNotes: [
+      'Live Solana market recorded from submitted token-address survivability receipts.',
+      'DexScreener pair URL is resolved by token-address enrichment instead of hardcoded from an unverified pair.',
+      'Physical merchandise and charity receipts are brand/activity evidence, not proven token revenue.'
+    ],
+    productionReady: true,
+    hunter_credit: communityHunter('CT survivability intake', 'CT survivability intake submitted CUPSEY as a real-world meme product candidate. Infopunks added High-Signal Lowcap coverage while keeping token-revenue-not-proven risk explicit.'),
+    paid_evaluation_disclosure: {
+      is_paid: false,
+      label: 'Not paid.',
+      note: 'Not paid.',
+      paid_at: null,
+      receipt_id: null
+    },
+    status: 'high_signal_lowcap',
+    verdict: 'high_signal_early',
+    scores: {
+      shipping_proof: 58,
+      attention_quality: 72,
+      token_survivability: 68,
+      category_timing: 74,
+      asymmetry_potential: 78,
+      overall_signal_score: 70,
+      risk_score: 86
+    },
+    updated_at: UPDATED_AT,
+    sample_disclosure: LIVE_DISCLOSURE
+  },
+  {
     id: 'ur_useless_consensus',
     project: 'USELESS',
     ticker: 'USELESS',

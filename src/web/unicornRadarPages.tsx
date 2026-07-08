@@ -8,6 +8,7 @@ type UnicornRadarSector =
   | 'DeFi'
   | 'DePIN'
   | 'Consumer'
+  | 'Consumer / Social / Attention Markets'
   | 'Gaming / Consumer'
   | 'Agent Rails'
   | 'Payment Infrastructure'
@@ -137,7 +138,7 @@ type UnicornRadarSummary = {
 };
 
 const API_BASE_URL = getApiBaseUrl();
-const SECTORS: Array<'all' | UnicornRadarSector> = ['all', 'AI', 'AI / Agent Rails', 'RWA', 'DeFi', 'DePIN', 'Consumer', 'Gaming / Consumer', 'Agent Rails', 'Payment Infrastructure', 'Social / Attention Markets', 'Tokenized Apps'];
+const SECTORS: Array<'all' | UnicornRadarSector> = ['all', 'AI', 'AI / Agent Rails', 'RWA', 'DeFi', 'DePIN', 'Consumer', 'Consumer / Social / Attention Markets', 'Gaming / Consumer', 'Agent Rails', 'Payment Infrastructure', 'Social / Attention Markets', 'Tokenized Apps'];
 const STATUSES: Array<'all' | UnicornRadarStatus> = ['all', 'unseen_signal', 'watchlist', 'high_signal_lowcap', 'consensus_forming', 'do_not_touch_yet', 'infopunks_missed_it', 'paid_evaluation'];
 const VERDICTS: Array<'all' | UnicornRadarVerdict> = ['all', 'high_signal_early', 'interesting_needs_receipts', 'real_product_weak_attention', 'strong_attention_weak_proof', 'do_not_touch_yet', 'consensus_already_forming', 'missed_by_infopunks'];
 
@@ -406,7 +407,7 @@ function RadarSnapshotPanel({ summary }: { summary: UnicornRadarSummary | null }
     </div>
     <div className="radar-snapshot-meta">
       <p><span>Last Updated</span><strong>{formatRadarTimestamp(summary?.generated_at)}</strong></p>
-      <p><span>Drop #001 Summary</span><strong>KINS leads signal, MANIFEST stays blocked, TROLL shows consensus, ANSEM remains monitored.</strong></p>
+      <p><span>Drop #001 Summary</span><strong>KINS, Jotchua, and CUPSEY lead signal, MANIFEST stays blocked, TROLL shows consensus.</strong></p>
     </div>
   </aside>;
 }
@@ -419,10 +420,10 @@ function DropSummaryCard() {
       <p className="panel-caption">A concise public frame for the current batch without pushing full analysis into the list page.</p>
     </div>
     <div className="unicorn-drop-grid">
-      <p><span>High-Signal</span><strong>KINS</strong></p>
+      <p><span>High-Signal</span><strong>KINS, Jotchua, CUPSEY</strong></p>
       <p><span>Do Not Touch Yet</span><strong>MANIFEST</strong></p>
       <p><span>Consensus</span><strong>TROLL</strong></p>
-      <p><span>Next under review</span><strong>Jotchua, SolAngeles, USELESS, TripleT</strong></p>
+      <p><span>Recently added</span><strong>CUPSEY: High-Signal Lowcap, real-world meme product, brand execution monitored.</strong></p>
     </div>
   </section>;
 }

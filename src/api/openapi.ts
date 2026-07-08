@@ -1960,7 +1960,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     responses: envelopedResponses('UnicornRadarSummary', {
       title: 'Infopunks Unicorn Radar',
       tagline: 'Finding serious low-cap Solana projects before consensus does.',
-      counts: { total: 9 },
+      counts: { total: 10 },
       candidates: [{ id: 'ur_jotchua_money_dog', project: 'Jotchua', status: 'high_signal_lowcap' }]
     })
   });
@@ -1970,7 +1970,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     description: 'Returns production-shaped low-cap Solana candidate records, including shipping proof, attention quality, token survivability, risk flags, receipts, hunter attribution, paid evaluation disclosure, status, verdict, scores, and optional DexScreener market data enrichment.',
     responses: envelopedResponses('UnicornRadarCandidateList', {
       generated_at: '2026-07-06T08:30:00.000Z',
-      count: 9,
+      count: 10,
       candidates: [{ id: 'ur_jotchua_money_dog', project: 'Jotchua', ticker: 'JOTCHUA', sector: 'Social / Attention Markets', chainId: 'solana', tokenAddress: 'BcHEaaTCvycPwwsJ9yQTXdHP9X2gCLkznDbZ8VySpump' }]
     })
   });
@@ -4760,7 +4760,7 @@ function componentSchemas(): Record<string, JsonSchema> {
       input: stringSchema(),
       linked_check_id: { oneOf: [stringSchema(), { type: 'null' }] }
     }),
-    UnicornRadarSector: enumSchema(['AI', 'RWA', 'DeFi', 'DePIN', 'Consumer', 'Gaming / Consumer', 'Agent Rails', 'Payment Infrastructure', 'Social / Attention Markets', 'Tokenized Apps']),
+    UnicornRadarSector: enumSchema(['AI', 'AI / Agent Rails', 'RWA', 'DeFi', 'DePIN', 'Consumer', 'Consumer / Social / Attention Markets', 'Gaming / Consumer', 'Agent Rails', 'Payment Infrastructure', 'Social / Attention Markets', 'Tokenized Apps']),
     UnicornRadarStatus: enumSchema(['unseen_signal', 'watchlist', 'high_signal_lowcap', 'consensus_forming', 'do_not_touch_yet', 'infopunks_missed_it', 'paid_evaluation']),
     UnicornRadarVerdict: enumSchema(['high_signal_early', 'interesting_needs_receipts', 'real_product_weak_attention', 'strong_attention_weak_proof', 'do_not_touch_yet', 'consensus_already_forming', 'missed_by_infopunks']),
     UnicornRadarScores: objectSchema({

@@ -76,6 +76,13 @@ describe('unicorn radar api', () => {
           'https://dexscreener.com/solana/ak7hdcxdsocd2zgjbca1zwlcudqz5f6n747a7rqtpxe3'
         )), { status: 200, headers: { 'Content-Type': 'application/json' } }));
       }
+      if (url.includes('6NwarBvDkXhByqVp2Qkq5i9XbtA2B3Bwe8SWGu9vpump')) {
+        return Promise.resolve(new Response(JSON.stringify(liveDexPair(
+          '6NwarBvDkXhByqVp2Qkq5i9XbtA2B3Bwe8SWGu9vpump',
+          'CupseyPair111111111111111111111111111111111',
+          'https://dexscreener.com/solana/cupseypair111111111111111111111111111111111'
+        )), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+      }
       if (url.includes('Dz9mQ9NzkBcCsuGPFJ3r1bS4wgqKMHBPiVuniW8Mbonk')) {
         return Promise.resolve(new Response(JSON.stringify(liveDexPair(
           'Dz9mQ9NzkBcCsuGPFJ3r1bS4wgqKMHBPiVuniW8Mbonk',
@@ -101,7 +108,7 @@ describe('unicorn radar api', () => {
     vi.unstubAllGlobals();
   });
 
-  it('returns the verified nine-candidate production surface', async () => {
+  it('returns the verified ten-candidate production surface', async () => {
     const app = await createApp(emptyIntelligenceStore());
 
     try {
@@ -109,9 +116,9 @@ describe('unicorn radar api', () => {
       expect(summary.statusCode).toBe(200);
       expect(summary.json().data).toEqual(expect.objectContaining({
         counts: expect.objectContaining({
-          total: 9,
+          total: 10,
           by_status: expect.objectContaining({
-            high_signal_lowcap: 2,
+            high_signal_lowcap: 3,
             watchlist: 3,
             do_not_touch_yet: 1,
             consensus_forming: 3
@@ -162,6 +169,16 @@ describe('unicorn radar api', () => {
             productionReady: true
           }),
           expect.objectContaining({
+            id: 'ur_cupsey_plushie',
+            ticker: 'CUPSEY',
+            sector: 'Consumer / Social / Attention Markets',
+            status: 'high_signal_lowcap',
+            verdict: 'high_signal_early',
+            displayVerdict: 'Real-World Meme Product, Brand Execution Monitored',
+            verificationStatus: 'verified_live_market',
+            productionReady: true
+          }),
+          expect.objectContaining({
             id: 'ur_useless_consensus',
             ticker: 'USELESS',
             status: 'consensus_forming',
@@ -189,7 +206,7 @@ describe('unicorn radar api', () => {
 
       const list = await app.inject({ method: 'GET', url: '/v1/unicorn-radar/candidates' });
       expect(list.statusCode).toBe(200);
-      expect(list.json().data.count).toBe(9);
+      expect(list.json().data.count).toBe(10);
       expect(list.json().data.candidates.every((candidate: { productionReady?: boolean }) => candidate.productionReady)).toBe(true);
 
       const detail = await app.inject({ method: 'GET', url: '/v1/unicorn-radar/candidates/ur_ai_rig_complex' });
@@ -320,6 +337,55 @@ describe('unicorn radar api', () => {
         risk_flags: expect.arrayContaining(['Pure meme with no product utility'])
       }));
 
+      const cupseyDetail = await app.inject({ method: 'GET', url: '/v1/unicorn-radar/candidates/ur_cupsey_plushie' });
+      expect(cupseyDetail.statusCode).toBe(200);
+      expect(cupseyDetail.json().data).toEqual(expect.objectContaining({
+        id: 'ur_cupsey_plushie',
+        status: 'high_signal_lowcap',
+        verdict: 'high_signal_early',
+        displayVerdict: 'Real-World Meme Product, Brand Execution Monitored',
+        dexScreenerUrl: 'https://dexscreener.com/solana/cupseypair111111111111111111111111111111111',
+        marketDataSource: 'dexscreener_official_api',
+        verificationStatus: 'verified_live_market',
+        thesis: expect.stringContaining('real-world meme product candidate'),
+        proof_of_shipping: expect.stringContaining('cupseyshop.com product surface'),
+        what_it_actually_does: expect.stringContaining('plushies, apparel, accessories'),
+        token_survivability_note: expect.stringContaining('not automatically token revenue or guaranteed token demand'),
+        risk_flags: expect.arrayContaining([
+          'Plushie revenue is not automatically token revenue',
+          'Brand execution and product momentum must continue'
+        ]),
+        tags: expect.arrayContaining([
+          'REAL_WORLD_PRODUCT',
+          'PHYSICAL_MERCH_RECEIPT',
+          'CHARITY_NARRATIVE',
+          'TOKEN_REVENUE_NOT_PROVEN'
+        ]),
+        receipts: expect.arrayContaining([
+          expect.objectContaining({
+            label: 'Holder receipt',
+            note: expect.stringContaining('10,850 holders')
+          }),
+          expect.objectContaining({
+            label: 'Liquidity receipt',
+            note: expect.stringContaining('$59K-$200K+')
+          }),
+          expect.objectContaining({
+            label: 'Product receipt',
+            url: 'https://cupseyshop.com',
+            note: expect.stringContaining('weighted anxiety plushies')
+          }),
+          expect.objectContaining({
+            label: 'Charity receipt',
+            note: expect.stringContaining('donates one plush')
+          }),
+          expect.objectContaining({
+            label: 'Risk receipt',
+            note: expect.stringContaining('not automatically token revenue')
+          })
+        ])
+      }));
+
       const solangelesDetail = await app.inject({ method: 'GET', url: '/v1/unicorn-radar/candidates/ur_solangeles' });
       expect(solangelesDetail.statusCode).toBe(200);
       expect(solangelesDetail.json().data).toEqual(expect.objectContaining({
@@ -438,7 +504,7 @@ describe('unicorn radar api', () => {
     const app = await createApp(emptyIntelligenceStore());
 
     try {
-      for (const candidateId of ['ur_ai_rig_complex', 'ur_troll_attention_asset', 'ur_black_bull_ansem', 'ur_kintara_kins', 'ur_jotchua_money_dog', 'ur_solangeles', 'ur_useless_consensus', 'ur_triplet_sahur', 'ur_manifest_ambiguity']) {
+      for (const candidateId of ['ur_ai_rig_complex', 'ur_troll_attention_asset', 'ur_black_bull_ansem', 'ur_kintara_kins', 'ur_jotchua_money_dog', 'ur_solangeles', 'ur_cupsey_plushie', 'ur_useless_consensus', 'ur_triplet_sahur', 'ur_manifest_ambiguity']) {
         const response = await app.inject({ method: 'GET', url: `/og/unicorn-radar/${candidateId}.png` });
         expect(response.statusCode).toBe(200);
         expect(response.headers['content-type']).toContain('image/png');
@@ -447,7 +513,7 @@ describe('unicorn radar api', () => {
     } finally {
       await app.close();
     }
-  }, 30000);
+  }, 60000);
 
   it('returns 404 for unknown Unicorn Radar OG image routes', async () => {
     const app = await createApp(emptyIntelligenceStore());
