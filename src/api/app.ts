@@ -8,7 +8,7 @@ import { payShCatalogFixture } from '../data/payShCatalogFixture';
 import { getNarrativeAssetBySlug, getSignalSurfaceBySlug, listNarrativeAssets, listSignalSurfaces } from '../data/narrativeIntel';
 import { getCandidateSignal, listCandidateSignals } from '../data/candidateSignals';
 import { getSignalDeskIndex } from '../data/signalDesk';
-import { createRhChainSignalReviewPacket, getRhChainPayload, listRhChainMemes, listRhChainReceipts, listRhChainSignals } from '../data/rhChain';
+import { createRhChainSignalReviewPacket, getRhChainPayload, listRhChainSignals } from '../data/rhChain';
 import { getLatestSignalUpdate, getSignalUpdate, getSignalUpdateSummary, listSignalUpdates } from '../data/signalUpdates';
 import { abundanceClaimsFeed, getAbundanceDeskPayload, machineWorkReceipts } from '../data/abundanceDesk';
 import { createSignalHuntSubmission, getSignalHuntCandidate, getSignalHuntCounts, listSignalHuntCandidates, verifySignalHuntCandidate } from '../data/signalHunt';
@@ -176,6 +176,15 @@ import {
   getRevenueReceipt,
   listRevenueReceipts
 } from '../services/revenueReceiptService';
+import {
+  assembleRhChain4663Index,
+  assembleRhChainDailyReceipts,
+  assembleRhChainIntelligence,
+  assembleRhChainMemePulse,
+  assembleRhChainReceipts,
+  assembleRhChainReviewQueue,
+  buildRhChainApiResponse
+} from '../services/rhChainIntelligenceService';
 import {
   buildUnicornRadarCandidateList,
   buildUnicornRadarSummary,
@@ -1680,26 +1689,27 @@ export async function createApp(
     return { data: signal };
   });
   app.get('/v1/narratives', async () => ({ data: listNarrativeAssets() }));
-  app.get('/v1/rh-chain', async () => ({ data: safeJsonExport(getRhChainPayload()) }));
-  app.get('/v1/rh-chain/memes', async () => ({ data: safeJsonExport({
+  app.get('/v1/rh-chain', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainIntelligence())));
+  app.get('/v1/rh-chain/memes', async () => safeJsonExport(buildRhChainApiResponse({
     generated_at: getRhChainPayload().generated_at,
     source_policy: getRhChainPayload().source_policy,
-    memes: listRhChainMemes()
-  }) }));
-  app.get('/v1/rh-chain/signals', async () => ({ data: safeJsonExport({
+    memes: assembleRhChainMemePulse()
+  })));
+  app.get('/v1/rh-chain/signals', async () => safeJsonExport(buildRhChainApiResponse({
     generated_at: getRhChainPayload().generated_at,
     source_policy: getRhChainPayload().source_policy,
     ...listRhChainSignals()
-  }) }));
-  app.post('/v1/rh-chain/signals/submit', async (req, reply) => handleParsed(req.body, RhChainSignalSubmissionSchema, (input) => ({
-    data: safeJsonExport({
+  })));
+  app.get('/v1/rh-chain/4663-index', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChain4663Index())));
+  app.get('/v1/rh-chain/daily-receipts', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainDailyReceipts())));
+  app.get('/v1/rh-chain/review-queue', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainReviewQueue())));
+  app.post('/v1/rh-chain/signals/submit', async (req, reply) => handleParsed(req.body, RhChainSignalSubmissionSchema, (input) => safeJsonExport(buildRhChainApiResponse({
       review_packet: createRhChainSignalReviewPacket(input)
-    })
-  }), reply));
-  app.get('/v1/rh-chain/receipts', async () => ({ data: safeJsonExport({
+    })), reply));
+  app.get('/v1/rh-chain/receipts', async () => safeJsonExport(buildRhChainApiResponse({
     generated_at: getRhChainPayload().generated_at,
-    receipts: listRhChainReceipts()
-  }) }));
+    receipts: assembleRhChainReceipts()
+  })));
   app.get('/v1/hermes', async () => ({ data: safeJsonExport(getHermesDeskSummary()) }));
   app.get('/v1/hermes/skill-pack', async () => ({ data: safeJsonExport(getHermesSkillPack()) }));
   app.get('/v1/hermes/spend-policy', async () => ({

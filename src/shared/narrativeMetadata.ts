@@ -73,6 +73,38 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
     );
   }
 
+  if (/^\/rh-chain-signal-desk\/submit\/?$/.test(pathname)) {
+    return buildMetadata(
+      'Submit Signal | RH Chain Signal Desk',
+      'Submit a Robinhood Chain token or signal for Infopunks public intelligence review.',
+      '/rh-chain-signal-desk/submit'
+    );
+  }
+
+  if (/^\/rh-chain-signal-desk\/review-queue\/?$/.test(pathname)) {
+    return buildMetadata(
+      'RH Chain Review Queue',
+      'Public RH Chain intelligence queue where receipts decide what survives.',
+      '/rh-chain-signal-desk/review-queue'
+    );
+  }
+
+  if (/^\/rh-chain-signal-desk\/4663-index\/?$/.test(pathname)) {
+    return buildMetadata(
+      '4663 Signal Index',
+      'A living index of Robinhood Chain attention assets, risk states, and narrative mutations.',
+      '/rh-chain-signal-desk/4663-index'
+    );
+  }
+
+  if (/^\/rh-chain-signal-desk\/daily-receipts\/?$/.test(pathname)) {
+    return buildMetadata(
+      'Daily RH Chain Receipts',
+      'The market forgets. Infopunks keeps the memory.',
+      '/rh-chain-signal-desk/daily-receipts'
+    );
+  }
+
   if (/^\/rh-chain-signal-desk\/?$/.test(pathname) || /^\/narratives\/robinhood-chain\/?$/.test(pathname)) {
     return buildMetadata(
       'RH Chain Signal Desk',

@@ -2042,7 +2042,7 @@ function isAbundanceDeskRoute(pathname: string) {
 }
 
 function isRhChainSignalDeskRoute(pathname: string) {
-  return /^\/rh-chain-signal-desk\/?$/.test(pathname) || /^\/rh-chain-signal-desk\/submit\/?$/.test(pathname) || /^\/narratives\/robinhood-chain\/?$/.test(pathname);
+  return /^\/rh-chain-signal-desk\/?$/.test(pathname) || /^\/rh-chain-signal-desk\/submit\/?$/.test(pathname) || /^\/rh-chain-signal-desk\/review-queue\/?$/.test(pathname) || /^\/rh-chain-signal-desk\/4663-index\/?$/.test(pathname) || /^\/rh-chain-signal-desk\/daily-receipts\/?$/.test(pathname) || /^\/narratives\/robinhood-chain\/?$/.test(pathname);
 }
 
 function isHermesDeskRoute(pathname: string) {
@@ -14428,7 +14428,7 @@ export function App() {
   if (isAttentionMarketsRoute(window.location.pathname)) return <AttentionMarketsPage />;
   if (isAttentionMarketWatchRoute(window.location.pathname)) return <AttentionMarketWatchPage />;
   if (isAbundanceDeskRoute(window.location.pathname)) return <AbundanceDeskPage narrativeRoute={/^\/narratives\/abundance-desk\/?$/.test(window.location.pathname)} />;
-  if (isRhChainSignalDeskRoute(window.location.pathname)) return <RhChainSignalDeskPage narrativeRoute={/^\/narratives\/robinhood-chain\/?$/.test(window.location.pathname)} submitRoute={/^\/rh-chain-signal-desk\/submit\/?$/.test(window.location.pathname)} />;
+  if (isRhChainSignalDeskRoute(window.location.pathname)) return <RhChainSignalDeskPage narrativeRoute={/^\/narratives\/robinhood-chain\/?$/.test(window.location.pathname)} submitRoute={/^\/rh-chain-signal-desk\/submit\/?$/.test(window.location.pathname)} reviewQueueRoute={/^\/rh-chain-signal-desk\/review-queue\/?$/.test(window.location.pathname)} indexRoute={/^\/rh-chain-signal-desk\/4663-index\/?$/.test(window.location.pathname)} dailyReceiptsRoute={/^\/rh-chain-signal-desk\/daily-receipts\/?$/.test(window.location.pathname)} />;
   if (isHermesDeskRoute(window.location.pathname)) return <HermesDeskPage narrativeRoute={/^\/narratives\/hermes-desk\/?$/.test(window.location.pathname)} memoryLoopRoute={/^\/hermes\/memory-loop\/?$/.test(window.location.pathname)} skillPackRoute={/^\/hermes\/skill-pack\/?$/.test(window.location.pathname)} reputationLedgerRoute={/^\/hermes\/reputation-ledger\/?$/.test(window.location.pathname)} preSpendDecisionRoute={/^\/hermes\/pre-spend-decision\/?$/.test(window.location.pathname)} spendPolicyRoute={/^\/hermes\/spend-policy\/?$/.test(window.location.pathname)} decisionFeedbackRoute={/^\/hermes\/decision-feedback\/?$/.test(window.location.pathname)} walletAuditTrailRoute={/^\/hermes\/wallet-audit-trail\/?$/.test(window.location.pathname)} walletRiskScoreRoute={/^\/hermes\/wallet-risk-score\/?$/.test(window.location.pathname)} walletSafetyRoute={/^\/hermes\/wallet-safety\/?$/.test(window.location.pathname)} />;
   const attentionMarketWatchSlug = routeAttentionMarketWatchSlug(window.location.pathname);
   if (attentionMarketWatchSlug) return <AttentionMarketWatchProfilePage slug={attentionMarketWatchSlug} />;

@@ -1,12 +1,19 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import type {
+  RhChain4663Asset,
+  RhChain4663IndexPayload,
+  RhChain4663NarrativeClass,
+  RhChainDailyReceipt,
+  RhChainDailyReceiptsPayload,
   RhChainMemeToken,
   RhChainPayload,
   RhChainPulseMetric,
   RhChainReceipt,
+  RhChainReviewItem,
+  RhChainReviewQueuePayload,
+  RhChainReviewState,
   RhChainRiskState,
   RhChainSignalReviewPacket,
-  RhChainSignalIndexAsset,
   RhChainSignalLabel,
   RhChainSource
 } from '../data/rhChain';
@@ -39,10 +46,24 @@ async function postApi<T>(path: string, body: unknown) {
 }
 
 function syncPageMetadata(path: string) {
-  const title = path === '/rh-chain-signal-desk/submit' ? 'Submit Signal | RH Chain Signal Desk' : 'RH Chain Signal Desk';
-  const description = path === '/rh-chain-signal-desk/submit'
-    ? 'Submit a Robinhood Chain token or signal for Infopunks public intelligence review.'
-    : 'Wall Street rails. Meme liquidity. Infopunks intelligence.';
+  const title = path === '/rh-chain-signal-desk/daily-receipts'
+    ? 'Daily RH Chain Receipts'
+    : path === '/rh-chain-signal-desk/4663-index'
+    ? '4663 Signal Index'
+    : path === '/rh-chain-signal-desk/review-queue'
+    ? 'RH Chain Review Queue'
+    : path === '/rh-chain-signal-desk/submit'
+      ? 'Submit Signal | RH Chain Signal Desk'
+      : 'RH Chain Signal Desk';
+  const description = path === '/rh-chain-signal-desk/daily-receipts'
+    ? 'The market forgets. Infopunks keeps the memory.'
+    : path === '/rh-chain-signal-desk/4663-index'
+    ? 'A living index of Robinhood Chain attention assets, risk states, and narrative mutations.'
+    : path === '/rh-chain-signal-desk/review-queue'
+    ? 'Public RH Chain intelligence queue where receipts decide what survives.'
+    : path === '/rh-chain-signal-desk/submit'
+      ? 'Submit a Robinhood Chain token or signal for Infopunks public intelligence review.'
+      : 'Wall Street rails. Meme liquidity. Infopunks intelligence.';
   const canonical = `${NARRATIVE_PUBLIC_HOST}${path}`;
   document.title = title;
   setMeta('description', description);
@@ -72,12 +93,15 @@ function setCanonical(href: string) {
   link.href = href;
 }
 
-export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = false }: { narrativeRoute?: boolean; submitRoute?: boolean }) {
+export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = false, reviewQueueRoute = false, indexRoute = false, dailyReceiptsRoute = false }: { narrativeRoute?: boolean; submitRoute?: boolean; reviewQueueRoute?: boolean; indexRoute?: boolean; dailyReceiptsRoute?: boolean }) {
   const [desk, setDesk] = useState<RhChainPayload | null>(null);
+  const [reviewQueue, setReviewQueue] = useState<RhChainReviewQueuePayload | null>(null);
+  const [signalIndex, setSignalIndex] = useState<RhChain4663IndexPayload | null>(null);
+  const [dailyReceipts, setDailyReceipts] = useState<RhChainDailyReceiptsPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [risk, setRisk] = useState<RhChainRiskState | 'all'>('all');
-  const currentPath = submitRoute ? '/rh-chain-signal-desk/submit' : narrativeRoute ? '/narratives/robinhood-chain' : '/rh-chain-signal-desk';
+  const currentPath = dailyReceiptsRoute ? '/rh-chain-signal-desk/daily-receipts' : indexRoute ? '/rh-chain-signal-desk/4663-index' : reviewQueueRoute ? '/rh-chain-signal-desk/review-queue' : submitRoute ? '/rh-chain-signal-desk/submit' : narrativeRoute ? '/narratives/robinhood-chain' : '/rh-chain-signal-desk';
 
   useEffect(() => {
     syncPageMetadata(currentPath);
@@ -87,6 +111,15 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
     api<RhChainPayload>('/v1/rh-chain')
       .then((response) => setDesk(response.data))
       .catch((err) => setError(err instanceof Error ? err.message : 'rh_chain_desk_unavailable'));
+    api<RhChainReviewQueuePayload>('/v1/rh-chain/review-queue')
+      .then((response) => setReviewQueue(response.data))
+      .catch((err) => setError(err instanceof Error ? err.message : 'rh_chain_review_queue_unavailable'));
+    api<RhChain4663IndexPayload>('/v1/rh-chain/4663-index')
+      .then((response) => setSignalIndex(response.data))
+      .catch((err) => setError(err instanceof Error ? err.message : 'rh_chain_4663_index_unavailable'));
+    api<RhChainDailyReceiptsPayload>('/v1/rh-chain/daily-receipts')
+      .then((response) => setDailyReceipts(response.data))
+      .catch((err) => setError(err instanceof Error ? err.message : 'rh_chain_daily_receipts_unavailable'));
   }, []);
 
   const visibleMemes = useMemo(() => {
@@ -108,15 +141,16 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
       {desk && <>
         <section className="panel hero rh-chain-hero">
           <div>
-            <p className="eyebrow">Public Intelligence Desk</p>
-            <h1>{desk.title}</h1>
-            <p className="copy">{desk.subtitle}</p>
-            <p className="copy narrative-rally-line">Intelligence desk, not casino.</p>
+            <p className="eyebrow">{dailyReceiptsRoute ? 'Daily Market Memory' : indexRoute ? 'Public Market Memory' : reviewQueueRoute ? 'Public Review Pipeline' : 'Public Intelligence Desk'}</p>
+            <h1>{dailyReceiptsRoute ? 'Daily RH Chain Receipts' : indexRoute ? '4663 Signal Index' : reviewQueueRoute ? 'RH Chain Review Queue' : desk.title}</h1>
+            <p className="copy">{dailyReceiptsRoute ? 'The market forgets. Infopunks keeps the memory.' : indexRoute ? 'Wall Street rails. Meme liquidity. Ranked by receipts.' : reviewQueueRoute ? 'Signals enter the desk. Receipts decide what survives.' : desk.subtitle}</p>
+            <p className="copy narrative-rally-line">{dailyReceiptsRoute ? 'Receipts before narrative drift.' : indexRoute ? 'Intelligence index, not a token.' : reviewQueueRoute ? 'Public memory, not endorsement.' : 'Intelligence desk, not casino.'}</p>
             <div className="panel-actions">
-              <a className="execute" href="#meme-pulse">Open Meme Pulse</a>
+              <a className="execute" href={dailyReceiptsRoute ? '#latest-receipt' : indexRoute ? '#ranked-index' : reviewQueueRoute ? '#queue-board' : '#meme-pulse'}>{dailyReceiptsRoute ? 'Open Latest Receipt' : indexRoute ? 'Open Ranked Index' : reviewQueueRoute ? 'Open Queue Board' : 'Open Meme Pulse'}</a>
               <a className="execute compact secondary" href={submitRoute ? '#submit-signal' : '/rh-chain-signal-desk/submit'}>Submit Signal</a>
-              <a className="execute compact secondary" href="/v1/rh-chain">JSON</a>
-              <a className="execute compact secondary" href="/v1/rh-chain/receipts">Receipts</a>
+              <a className="execute compact secondary" href="/rh-chain-signal-desk/daily-receipts">Daily Receipts</a>
+              <a className="execute compact secondary" href="/rh-chain-signal-desk/4663-index">Open 4663 Index</a>
+              <a className="execute compact secondary" href="/rh-chain-signal-desk/review-queue">View Review Queue</a>
             </div>
           </div>
           <aside className="rh-chain-hero-rail" aria-label="Desk policy">
@@ -127,14 +161,16 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
           </aside>
         </section>
 
-        {submitRoute ? <SubmitSignalSection /> : <>
+        {dailyReceiptsRoute && dailyReceipts ? <RhChainDailyReceiptsPage feed={dailyReceipts} /> : indexRoute && signalIndex ? <RhChain4663IndexPage index={signalIndex} /> : reviewQueueRoute && reviewQueue ? <RhChainReviewQueuePage queue={reviewQueue} /> : submitRoute ? <SubmitSignalSection /> : <>
           <RhChainPulseSection desk={desk} />
+          {dailyReceipts && <DailyReceiptsPreview feed={dailyReceipts} />}
+          {signalIndex && <SignalIndexPreview index={signalIndex} />}
+          {reviewQueue && <ReviewQueuePreview queue={reviewQueue} />}
           <MemePulseSection memes={visibleMemes} allMemes={desk.meme_pulse} query={query} risk={risk} onQuery={setQuery} onRisk={setRisk} />
           <SignalClassifierSection desk={desk} />
           <RiskWallSection desk={desk} />
           <StockTokenSpilloverSection desk={desk} />
           <SubmitSignalSection />
-          <SignalIndexSection assets={desk.signal_index_4663} />
           <ReceiptsSection receipts={desk.receipts} />
         </>}
       </>}
@@ -143,13 +179,13 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
 }
 
 function RhChainNav({ current }: { current: string }) {
+  const activePath = current === '/narratives/robinhood-chain' ? '/rh-chain-signal-desk' : current;
   const links = [
-    { href: '/rh-chain-signal-desk', label: 'RH Chain Desk' },
+    { href: '/rh-chain-signal-desk', label: 'Signal Desk' },
     { href: '/rh-chain-signal-desk/submit', label: 'Submit Signal' },
-    { href: '/narratives/robinhood-chain', label: 'Narrative Alias' },
-    { href: '/narratives', label: 'Narrative Intel' },
-    { href: '/narratives/attention-market-watch', label: 'Attention Market Watch' },
-    { href: '/graph', label: 'Signal Graph' }
+    { href: '/rh-chain-signal-desk/review-queue', label: 'Review Queue' },
+    { href: '/rh-chain-signal-desk/4663-index', label: '4663 Index' },
+    { href: '/rh-chain-signal-desk/daily-receipts', label: 'Daily Receipts' }
   ];
   return <nav className="global-toolbar narrative-toolbar" aria-label="RH Chain Signal Desk navigation">
     <a className="nav-brand" href="/" aria-label="Infopunks Radar home">
@@ -157,12 +193,15 @@ function RhChainNav({ current }: { current: string }) {
       <strong>RH Chain</strong>
     </a>
     <div className="terminal-nav terminal-nav-scroll-rail" aria-label="RH Chain routes">
-      {links.map((link) => <a key={link.href} href={link.href} className={current === link.href ? 'active' : ''} aria-current={current === link.href ? 'page' : undefined}>{link.label}</a>)}
+      {links.map((link) => <a key={link.href} href={link.href} className={activePath === link.href ? 'active' : ''} aria-current={activePath === link.href ? 'page' : undefined}>{link.label}</a>)}
     </div>
     <div className="terminal-actions" aria-label="API links">
       <span className="terminal-action-cluster">
         <a className="methodology-trigger" href="/v1/rh-chain/memes">Memes API</a>
         <a className="methodology-trigger" href="/v1/rh-chain/signals">Signals API</a>
+        <a className="methodology-trigger" href="/v1/rh-chain/daily-receipts">Receipts Feed</a>
+        <a className="methodology-trigger" href="/v1/rh-chain/4663-index">4663 API</a>
+        <a className="methodology-trigger" href="/v1/rh-chain/review-queue">Queue API</a>
       </span>
     </div>
   </nav>;
@@ -214,6 +253,520 @@ function MetricCard({ metric }: { metric: RhChainPulseMetric }) {
     </div>
     <SourceLine source={metric.source} />
   </article>;
+}
+
+function DailyReceiptsPreview({ feed }: { feed: RhChainDailyReceiptsPayload }) {
+  const receipt = feed.latest_receipt;
+  return <section className="panel rh-chain-section rh-chain-daily-preview" aria-label="Daily RH Chain Receipts Preview">
+    <div className="rh-chain-section-head">
+      <div>
+        <p className="section-kicker">Daily RH Chain Receipts</p>
+        <h2>Daily RH Chain Receipts</h2>
+        <p>{feed.subtitle}</p>
+      </div>
+      <a className="execute compact secondary" href="/rh-chain-signal-desk/daily-receipts">Open Daily Receipts</a>
+    </div>
+    <article className="rh-chain-daily-preview-card">
+      <div className="rh-chain-card-head">
+        <div>
+          <p className="section-kicker">{receipt.date} / {receipt.status}</p>
+          <h3>{receipt.headline}</h3>
+        </div>
+        <span className={`rh-chain-daily-confidence confidence-${receipt.confidence_level}`}>{receipt.confidence_level}</span>
+      </div>
+      <p>{receipt.summary}</p>
+      <div className="rh-chain-daily-mini-grid">
+        <p><span>Top signal</span><strong>{receipt.top_signal}</strong></p>
+        <p><span>Biggest risk</span><strong>{receipt.biggest_risk}</strong></p>
+        <p><span>Verdict</span><strong>{receipt.infopunks_verdict}</strong></p>
+      </div>
+    </article>
+  </section>;
+}
+
+function RhChainDailyReceiptsPage({ feed }: { feed: RhChainDailyReceiptsPayload }) {
+  return <>
+    <LatestDailyReceiptSection receipt={feed.latest_receipt} />
+    <DailyReceiptTimeline receipts={feed.receipts} />
+    <DailyWatchlistSection receipt={feed.latest_receipt} />
+    <DailyDoNotTouchSection receipt={feed.latest_receipt} />
+    <DailySourceNotesSection feed={feed} />
+    <section className="panel rh-chain-section rh-chain-review-disclaimer" aria-label="Daily RH Chain Receipts Disclaimer">
+      <p>{feed.disclaimer}</p>
+      <p className="panel-caption">{feed.source_policy}</p>
+    </section>
+  </>;
+}
+
+function LatestDailyReceiptSection({ receipt }: { receipt: RhChainDailyReceipt }) {
+  return <section id="latest-receipt" className="panel rh-chain-section" aria-label="Latest Daily RH Chain Receipt">
+    <div className="rh-chain-section-head">
+      <div>
+        <p className="section-kicker">Latest Receipt</p>
+        <h2>Latest Receipt</h2>
+        <p>One daily memory object for signal, risk, narrative, liquidity, and verdict.</p>
+      </div>
+      <span className={`rh-chain-daily-confidence confidence-${receipt.confidence_level}`}>{receipt.confidence_level}</span>
+    </div>
+    <article className="rh-chain-daily-latest-card">
+      <div>
+        <p className="section-kicker">{receipt.date} / {receipt.status}</p>
+        <h3>{receipt.headline}</h3>
+        <p>{receipt.summary}</p>
+      </div>
+      <div className="rh-chain-daily-fact-grid">
+        <p><span>Top signal</span><strong>{receipt.top_signal}</strong></p>
+        <p><span>Biggest risk</span><strong>{receipt.biggest_risk}</strong></p>
+        <p><span>Strongest narrative</span><strong>{receipt.strongest_narrative}</strong></p>
+        <p><span>Infopunks verdict</span><strong>{receipt.infopunks_verdict}</strong></p>
+      </div>
+      <div className="rh-chain-daily-note-grid">
+        <p><b>Liquidity</b>{receipt.liquidity_note}</p>
+        <p><b>Stock-token spillover</b>{receipt.stock_token_spillover_note}</p>
+        <p><b>Solana base migration</b>{receipt.solana_base_migration_note}</p>
+        <p><b>Deployer watch</b>{receipt.deployer_watch_note}</p>
+      </div>
+    </article>
+  </section>;
+}
+
+function DailyReceiptTimeline({ receipts }: { receipts: RhChainDailyReceipt[] }) {
+  return <section className="panel rh-chain-section" aria-label="Daily Receipt Timeline">
+    <div className="rh-chain-section-head">
+      <div>
+        <p className="section-kicker">Receipt Timeline</p>
+        <h2>Receipt Timeline</h2>
+        <p>Chronological market memory. Calm by design, source-bound by rule.</p>
+      </div>
+      <a className="execute compact secondary" href="/v1/rh-chain/daily-receipts">Feed JSON</a>
+    </div>
+    <div className="rh-chain-daily-timeline">
+      {receipts.map((receipt) => <article key={receipt.receipt_id} className="rh-chain-daily-timeline-card">
+        <div className="rh-chain-card-head">
+          <div>
+            <p className="section-kicker">{receipt.date} / {receipt.status}</p>
+            <h3>{receipt.headline}</h3>
+          </div>
+          <span className={`rh-chain-daily-confidence confidence-${receipt.confidence_level}`}>{receipt.confidence_level}</span>
+        </div>
+        <p>{receipt.summary}</p>
+        <div className="rh-chain-daily-card-foot">
+          <span>{receipt.receipt_id}</span>
+          <span>generated {formatTimestamp(receipt.generated_at)}</span>
+        </div>
+      </article>)}
+    </div>
+  </section>;
+}
+
+function DailyWatchlistSection({ receipt }: { receipt: RhChainDailyReceipt }) {
+  return <section className="panel rh-chain-section" aria-label="Daily Receipt Watchlist">
+    <div className="rh-chain-section-head">
+      <div>
+        <p className="section-kicker">Watchlist</p>
+        <h2>Watchlist</h2>
+        <p>Assets and narratives to monitor next. Watch does not mean endorsement.</p>
+      </div>
+    </div>
+    <div className="rh-chain-daily-watch-grid">
+      {receipt.watchlist.map((item) => <DailyWatchItemCard key={item.item} item={item} />)}
+    </div>
+  </section>;
+}
+
+function DailyDoNotTouchSection({ receipt }: { receipt: RhChainDailyReceipt }) {
+  return <section className="panel rh-chain-section rh-chain-daily-warning" aria-label="Daily Receipt Do Not Touch Yet">
+    <div className="rh-chain-section-head">
+      <div>
+        <p className="section-kicker">Do Not Touch Yet</p>
+        <h2>Do Not Touch Yet</h2>
+        <p>Low-evidence or high-risk objects stay visible as warnings, not promotions.</p>
+      </div>
+    </div>
+    <div className="rh-chain-daily-watch-grid">
+      {receipt.do_not_touch_yet.map((item) => <DailyWatchItemCard key={item.item} item={item} warning />)}
+    </div>
+  </section>;
+}
+
+function DailyWatchItemCard({ item, warning = false }: { item: RhChainDailyReceipt['watchlist'][number]; warning?: boolean }) {
+  return <article className={`rh-chain-daily-watch-card${warning ? ' warning' : ''}`}>
+    <div className="rh-chain-card-head">
+      <h3>{item.item}</h3>
+      <RiskBadge state={item.risk_state} />
+    </div>
+    <p>{item.reason}</p>
+    <p className="panel-caption"><b>Next verify:</b> {item.next_thing_to_verify}</p>
+  </article>;
+}
+
+function DailySourceNotesSection({ feed }: { feed: RhChainDailyReceiptsPayload }) {
+  return <section className="panel rh-chain-section" aria-label="Daily Receipt Source Notes">
+    <div className="rh-chain-section-head">
+      <div>
+        <p className="section-kicker">Source Notes</p>
+        <h2>Source Notes</h2>
+        <p>Every daily receipt source carries an observed timestamp. Seeded/manual labels are explicit.</p>
+      </div>
+    </div>
+    <div className="rh-chain-daily-source-grid">
+      {feed.latest_receipt.sources.map((source) => <article key={`${source.name}-${source.observed_at}`} className="rh-chain-daily-source-card">
+        <p className="section-kicker">{source.data_mode} / {source.confidence_level} / {formatTimestamp(source.observed_at)}</p>
+        <h3>{source.source_url ? <a href={source.source_url}>{source.source_name}</a> : source.source_name}</h3>
+        <p>{source.note}</p>
+      </article>)}
+    </div>
+  </section>;
+}
+
+function SignalIndexPreview({ index }: { index: RhChain4663IndexPayload }) {
+  const topAssets = index.assets.slice(0, 3);
+  return <section className="panel rh-chain-section rh-chain-4663-preview" aria-label="4663 Signal Index Preview">
+    <div className="rh-chain-section-head">
+      <div>
+        <p className="section-kicker">4663 Signal Index</p>
+        <h2>4663 Signal Index</h2>
+        <p>{index.subtitle}</p>
+      </div>
+      <a className="execute compact secondary" href="/rh-chain-signal-desk/4663-index">Open 4663 Index</a>
+    </div>
+    <div className="rh-chain-4663-preview-grid">
+      {topAssets.map((asset) => <article key={asset.ticker} className="rh-chain-4663-preview-card">
+        <div className="rh-chain-card-head">
+          <div>
+            <p className="section-kicker">Rank {asset.rank}</p>
+            <h3>{asset.ticker}</h3>
+          </div>
+          <strong>{asset.signal_score}</strong>
+        </div>
+        <p>{asset.name}</p>
+        <span className={`rh-chain-4663-class class-${asset.classification}`}>{formatLabel(asset.classification)}</span>
+        <p className="panel-caption">{asset.infopunks_verdict}</p>
+      </article>)}
+    </div>
+  </section>;
+}
+
+function RhChain4663IndexPage({ index }: { index: RhChain4663IndexPayload }) {
+  return <>
+    <IndexOverviewSection index={index} />
+    <RankedIndexSection assets={index.assets} />
+    <ScoreBreakdownSection assets={index.assets} />
+    <NarrativeClassesSection classes={index.narrative_classes} />
+    <IndexMethodologySection index={index} />
+    <section className="panel rh-chain-section rh-chain-review-disclaimer" aria-label="4663 Signal Index Disclaimer">
+      <p>{index.disclaimer}</p>
+      <p>Index inclusion means an asset is visible to public intelligence memory. It does not mean safe to buy.</p>
+      <p className="panel-caption">{index.source_policy}</p>
+    </section>
+  </>;
+}
+
+function IndexOverviewSection({ index }: { index: RhChain4663IndexPayload }) {
+  const cards = [
+    {
+      label: 'Top signal',
+      value: index.overview.top_signal.ticker,
+      note: `${index.overview.top_signal.signal_score}/100 - ${formatLabel(index.overview.top_signal.classification)}`
+    },
+    {
+      label: 'Highest volume',
+      value: index.overview.highest_volume.ticker,
+      note: `${index.overview.highest_volume.volume_score}/25 - ${index.overview.highest_volume.volume_24h}`
+    },
+    {
+      label: 'Highest risk',
+      value: index.overview.highest_risk.ticker,
+      note: formatLabel(index.overview.highest_risk.risk_state)
+    },
+    {
+      label: 'Strongest durability',
+      value: index.overview.strongest_durability.ticker,
+      note: `${index.overview.strongest_durability.durability_score}/20 - ${index.overview.strongest_durability.pool_age}`
+    },
+    {
+      label: 'Last updated',
+      value: formatTimestamp(index.overview.last_updated),
+      note: 'seeded/manual intelligence'
+    }
+  ];
+  return <section className="panel rh-chain-section" aria-label="4663 Index Overview">
+    <div className="rh-chain-section-head">
+      <div>
+        <p className="section-kicker">Index Overview</p>
+        <h2>Index Overview</h2>
+        <p>Public market-memory snapshot for RH Chain attention assets. Metrics stay seeded/manual until receipts attach.</p>
+      </div>
+      <a className="execute compact secondary" href="/v1/rh-chain/4663-index">Index JSON</a>
+    </div>
+    <div className="rh-chain-4663-overview-grid">
+      {cards.map((card) => <article key={card.label} className="rh-chain-4663-overview-card">
+        <span>{card.label}</span>
+        <strong>{card.value}</strong>
+        <p>{card.note}</p>
+      </article>)}
+    </div>
+  </section>;
+}
+
+function RankedIndexSection({ assets }: { assets: RhChain4663Asset[] }) {
+  return <section id="ranked-index" className="panel rh-chain-section" aria-label="Ranked 4663 Signal Index">
+    <div className="rh-chain-section-head">
+      <div>
+        <p className="section-kicker">Ranked Index Table</p>
+        <h2>Ranked Index Table</h2>
+        <p>Ranked by computed signal score across attention, volume, holders, durability, and deployer trust.</p>
+      </div>
+    </div>
+    <div className="rh-chain-4663-table" role="table" aria-label="4663 Signal Index ranked assets">
+      <div className="rh-chain-4663-table-row head" role="row">
+        <span role="columnheader">Rank</span>
+        <span role="columnheader">Ticker</span>
+        <span role="columnheader">Score</span>
+        <span role="columnheader">Classification</span>
+        <span role="columnheader">Volume</span>
+        <span role="columnheader">Liquidity</span>
+        <span role="columnheader">Holders</span>
+        <span role="columnheader">Risk</span>
+        <span role="columnheader">Verdict</span>
+      </div>
+      {assets.map((asset) => <article key={asset.ticker} className="rh-chain-4663-table-row" role="row">
+        <span role="cell" data-label="Rank">{asset.rank}</span>
+        <span role="cell" data-label="Ticker"><b>{asset.ticker}</b><small>{asset.name}</small></span>
+        <span role="cell" data-label="Score"><strong>{asset.signal_score}</strong><small>/100</small></span>
+        <span role="cell" data-label="Classification"><span className={`rh-chain-4663-class class-${asset.classification}`}>{formatLabel(asset.classification)}</span></span>
+        <span role="cell" data-label="Volume">{asset.volume_24h}</span>
+        <span role="cell" data-label="Liquidity">{asset.liquidity}</span>
+        <span role="cell" data-label="Holders">{asset.holder_count}</span>
+        <span role="cell" data-label="Risk"><RiskBadge state={asset.risk_state} /></span>
+        <span role="cell" data-label="Verdict"><small>{asset.infopunks_verdict}</small></span>
+      </article>)}
+    </div>
+  </section>;
+}
+
+function ScoreBreakdownSection({ assets }: { assets: RhChain4663Asset[] }) {
+  return <section className="panel rh-chain-section" aria-label="4663 Score Breakdown">
+    <div className="rh-chain-section-head">
+      <div>
+        <p className="section-kicker">Score Breakdown</p>
+        <h2>Score Breakdown</h2>
+        <p>Each score is explainable at a glance. Components sum to 100.</p>
+      </div>
+    </div>
+    <div className="rh-chain-4663-score-grid">
+      {assets.map((asset) => <article key={`${asset.ticker}-score`} className="rh-chain-4663-score-card">
+        <div className="rh-chain-card-head">
+          <div>
+            <p className="section-kicker">Rank {asset.rank}</p>
+            <h3>{asset.ticker} / {asset.signal_score}</h3>
+          </div>
+          <span className={`rh-chain-4663-class class-${asset.classification}`}>{formatLabel(asset.classification)}</span>
+        </div>
+        <ScoreBar label="attention" value={asset.attention_score} max={25} />
+        <ScoreBar label="volume" value={asset.volume_score} max={25} />
+        <ScoreBar label="holders" value={asset.holder_score} max={20} />
+        <ScoreBar label="durability" value={asset.durability_score} max={20} />
+        <ScoreBar label="deployer trust" value={asset.deployer_trust_score} max={10} />
+        <div className="rh-chain-label-row">
+          {asset.narrative_class.map((label) => <NarrativeClassPill key={`${asset.ticker}-${label}`} label={label} />)}
+        </div>
+      </article>)}
+    </div>
+  </section>;
+}
+
+function ScoreBar({ label, value, max }: { label: string; value: number; max: number }) {
+  const width = `${Math.max(0, Math.min(100, (value / max) * 100))}%`;
+  return <div className="rh-chain-4663-score-line">
+    <div>
+      <span>{label}</span>
+      <strong>{value}/{max}</strong>
+    </div>
+    <i aria-hidden="true"><b style={{ width }} /></i>
+  </div>;
+}
+
+function NarrativeClassesSection({ classes }: { classes: readonly RhChain4663NarrativeClass[] }) {
+  return <section className="panel rh-chain-section" aria-label="4663 Narrative Classes">
+    <div className="rh-chain-section-head">
+      <div>
+        <p className="section-kicker">Narrative Classes</p>
+        <h2>Narrative Classes</h2>
+        <p>Mutations the desk is watching across RH Chain attention, liquidity, and risk memory.</p>
+      </div>
+    </div>
+    <div className="rh-chain-4663-class-cloud">
+      {classes.map((label) => <NarrativeClassPill key={label} label={label} />)}
+    </div>
+  </section>;
+}
+
+function NarrativeClassPill({ label }: { label: RhChain4663NarrativeClass }) {
+  return <span className={`rh-chain-4663-narrative narrative-${label}`}>{label}</span>;
+}
+
+function IndexMethodologySection({ index }: { index: RhChain4663IndexPayload }) {
+  const rows = [
+    ['Attention', `${index.scoring_model.attention_score}`, 'X mentions, KOL mentions, DexScreener trending, search and social velocity.'],
+    ['Volume', `${index.scoring_model.volume_score}`, '5m, 1h, 24h flow, volume/liquidity ratio, buy/sell distribution, repeat trading.'],
+    ['Holders', `${index.scoring_model.holder_score}`, 'Holder growth, top 10 concentration, dev wallet balance, unique buyer growth.'],
+    ['Durability', `${index.scoring_model.durability_score}`, 'Survives 24h and 72h, liquidity remains, community keeps posting, volume does not vanish.'],
+    ['Deployer trust', `${index.scoring_model.deployer_trust_score}`, 'Verified contract, clean deployer history, no serial-rug or clone trail.']
+  ];
+  return <section className="panel rh-chain-section" aria-label="4663 Methodology">
+    <div className="rh-chain-section-head">
+      <div>
+        <p className="section-kicker">Methodology</p>
+        <h2>Methodology</h2>
+        <p>Scores are public intelligence weights. They are not price targets, recommendations, or listing criteria.</p>
+      </div>
+    </div>
+    <div className="rh-chain-4663-method-grid">
+      {rows.map(([label, score, note]) => <article key={label} className="rh-chain-4663-method-card">
+        <span>{label}</span>
+        <strong>{score}</strong>
+        <p>{note}</p>
+      </article>)}
+    </div>
+    <div className="rh-chain-4663-thresholds">
+      {Object.entries(index.classification_thresholds).map(([classification, range]) => <p key={classification}>
+        <b>{range}</b>
+        <span>{formatLabel(classification)}</span>
+      </p>)}
+    </div>
+  </section>;
+}
+
+function ReviewQueuePreview({ queue }: { queue: RhChainReviewQueuePayload }) {
+  const previewItems = queue.items.slice(0, 3);
+  return <section className="panel rh-chain-section rh-chain-review-preview" aria-label="Review Queue Preview">
+    <div className="rh-chain-section-head">
+      <div>
+        <p className="section-kicker">Review Queue</p>
+        <h2>Review Queue</h2>
+        <p>Signals enter public review before promotion. Receipts, risk, and missing evidence decide the next step.</p>
+      </div>
+      <a className="execute compact secondary" href="/rh-chain-signal-desk/review-queue">View Review Queue</a>
+    </div>
+    <div className="rh-chain-review-preview-grid">
+      {previewItems.map((item) => <ReviewItemCard key={item.review_id} item={item} compact />)}
+    </div>
+  </section>;
+}
+
+function RhChainReviewQueuePage({ queue }: { queue: RhChainReviewQueuePayload }) {
+  return <>
+    <ReviewStatusOverview queue={queue} />
+    <ReviewQueueBoard queue={queue} />
+    <section className="panel rh-chain-section rh-chain-review-disclaimer" aria-label="Review Queue Disclaimer">
+      <p>{queue.disclaimer}</p>
+      <p>Approved signal means eligible for desk indexing and continued monitoring. It does not mean safe to buy.</p>
+      <p className="panel-caption">{queue.source_policy}</p>
+    </section>
+  </>;
+}
+
+function ReviewStatusOverview({ queue }: { queue: RhChainReviewQueuePayload }) {
+  const stats = [
+    { label: 'Queued', value: queue.counts.queued },
+    { label: 'Under receipt check', value: queue.counts.under_receipt_check },
+    { label: 'Approved signals', value: queue.counts.approved_signals },
+    { label: 'Do not touch yet', value: queue.counts.do_not_touch_yet },
+    { label: 'Rejected / low receipt quality', value: queue.counts.rejected_low_receipt_quality }
+  ];
+  return <section className="panel rh-chain-section" aria-label="Review Status Overview">
+    <div className="rh-chain-section-head">
+      <div>
+        <p className="section-kicker">Status Overview</p>
+        <h2>Status Overview</h2>
+        <p>Seeded and manual intelligence only. Public visibility is not endorsement.</p>
+      </div>
+      <span className="source-badge">{formatTimestamp(queue.generated_at)}</span>
+    </div>
+    <div className="rh-chain-review-stat-grid">
+      {stats.map((stat) => <article key={stat.label} className="rh-chain-review-stat">
+        <span>{stat.label}</span>
+        <strong>{stat.value}</strong>
+      </article>)}
+    </div>
+  </section>;
+}
+
+function ReviewQueueBoard({ queue }: { queue: RhChainReviewQueuePayload }) {
+  return <section id="queue-board" className="panel rh-chain-section" aria-label="Queue Board">
+    <div className="rh-chain-section-head">
+      <div>
+        <p className="section-kicker">Queue Board</p>
+        <h2>Queue Board</h2>
+        <p>Grouped by review state. Empty states stay visible so the pipeline remains auditable.</p>
+      </div>
+      <a className="execute compact secondary" href="/v1/rh-chain/review-queue">Queue JSON</a>
+    </div>
+    <div className="rh-chain-review-board">
+      {queue.review_states.map((state) => <section key={state} className="rh-chain-review-lane" aria-label={formatLabel(state)}>
+        <div className="rh-chain-review-lane-head">
+          <h3>{reviewStateLabel(state)}</h3>
+          <span>{queue.grouped[state].length}</span>
+        </div>
+        <div className="rh-chain-review-lane-items">
+          {queue.grouped[state].length
+            ? queue.grouped[state].map((item) => <ReviewItemCard key={item.review_id} item={item} />)
+            : <p className="panel-caption">No public items in this state.</p>}
+        </div>
+      </section>)}
+    </div>
+  </section>;
+}
+
+function ReviewItemCard({ item, compact = false }: { item: RhChainReviewItem; compact?: boolean }) {
+  return <article className={`rh-chain-review-card state-${item.review_state}${compact ? ' compact' : ''}`}>
+    <div className="rh-chain-card-head">
+      <div>
+        <p className="section-kicker">{item.source_type}</p>
+        <h3>{item.ticker}</h3>
+        <p className="rh-chain-contract">{shortContract(item.token_contract)}</p>
+      </div>
+      <div className="rh-chain-review-pill-stack">
+        <ReviewStatePill state={item.review_state} />
+        <RiskBadge state={item.risk_state} />
+      </div>
+    </div>
+    <p>{item.evidence_summary}</p>
+    {!compact && <div className="rh-chain-review-field">
+      <span>Missing evidence</span>
+      <div className="rh-chain-evidence-list">
+        {item.missing_evidence.map((evidence) => <span key={`${item.review_id}-${evidence}`}>{evidence}</span>)}
+      </div>
+    </div>}
+    <div className="rh-chain-review-verdict">
+      <span>Infopunks verdict</span>
+      <strong>{item.infopunks_verdict}</strong>
+    </div>
+    {!compact && <p className="panel-caption">{item.reviewer_note}</p>}
+    <ReviewLinks links={item.links} />
+    <div className="rh-chain-review-card-foot">
+      <span>{item.chain}</span>
+      <span>updated {formatTimestamp(item.updated_at)}</span>
+    </div>
+  </article>;
+}
+
+function ReviewLinks({ links }: { links: RhChainReviewItem['links'] }) {
+  const rows = [
+    { label: 'X', href: links.x },
+    { label: 'Website', href: links.website },
+    { label: 'Liquidity', href: links.liquidity },
+    { label: 'Explorer', href: links.explorer }
+  ].filter((link): link is { label: string; href: string } => Boolean(link.href));
+  if (!rows.length) return <p className="panel-caption">No public links attached.</p>;
+  return <div className="rh-chain-review-links" aria-label="Review item links">
+    {rows.map((link) => <a key={link.label} href={link.href}>{link.label}</a>)}
+  </div>;
+}
+
+function ReviewStatePill({ state }: { state: RhChainReviewState }) {
+  return <span className={`rh-chain-review-state state-${state}`}>{reviewStateLabel(state)}</span>;
 }
 
 function MemePulseSection({
@@ -271,14 +824,14 @@ function MemePulseSection({
 
 function MemeTokenRow({ token }: { token: RhChainMemeToken }) {
   return <article className="rh-chain-table-row" role="row">
-    <span role="cell">{token.rank}</span>
-    <span role="cell"><b>{token.ticker}</b><small>{token.name}</small></span>
-    <span role="cell" className="rh-chain-contract">{token.contract}</span>
-    <span role="cell">{token.market_cap}</span>
-    <span role="cell">{token.volume_24h}</span>
-    <span role="cell">{token.liquidity}</span>
-    <span role="cell"><RiskBadge state={token.risk_state} /></span>
-    <span role="cell">
+    <span role="cell" data-label="Rank">{token.rank}</span>
+    <span role="cell" data-label="Ticker"><b>{token.ticker}</b><small>{token.name}</small></span>
+    <span role="cell" data-label="Contract" className="rh-chain-contract">{token.contract}</span>
+    <span role="cell" data-label="Market Cap">{token.market_cap}</span>
+    <span role="cell" data-label="Volume">{token.volume_24h}</span>
+    <span role="cell" data-label="Liquidity">{token.liquidity}</span>
+    <span role="cell" data-label="Risk"><RiskBadge state={token.risk_state} /></span>
+    <span role="cell" data-label="Verdict">
       <small>{token.infopunks_verdict}</small>
       <div className="rh-chain-label-row">
         {token.signal_labels.map((label) => <SignalLabelChip key={`${token.ticker}-${label}`} label={label} />)}
@@ -349,6 +902,7 @@ function StockTokenSpilloverSection({ desk }: { desk: RhChainPayload }) {
         <h3>{theme.meme_mutation}</h3>
         <p>{theme.signal_read}</p>
         <small>{theme.risk_note}</small>
+        <SourceLine source={theme.source} />
       </article>)}
     </div>
   </section>;
@@ -499,33 +1053,6 @@ function humanizeSubmitError(value: string) {
   return value;
 }
 
-function SignalIndexSection({ assets }: { assets: RhChainSignalIndexAsset[] }) {
-  return <section className="panel rh-chain-section" aria-label="4663 Signal Index">
-    <div className="rh-chain-section-head">
-      <div>
-        <p className="section-kicker">4663 Signal Index</p>
-        <h2>4663 Signal Index</h2>
-        <p>Seeded index of top Robinhood Chain attention assets.</p>
-      </div>
-    </div>
-    <div className="rh-chain-index-grid">
-      {assets.map((asset) => <article key={`${asset.rank}-${asset.ticker}`} className="rh-chain-index-card">
-        <div className="rh-chain-card-head">
-          <p className="section-kicker">Rank {asset.rank}</p>
-          <strong>{asset.signal_score}/100</strong>
-        </div>
-        <h3>{asset.ticker} / {asset.asset}</h3>
-        <p>{asset.note}</p>
-        <p><b>Attention:</b> {asset.attention_source}</p>
-        <p><b>Receipts:</b> {asset.receipt_state}</p>
-        <div className="rh-chain-label-row">
-          {asset.labels.map((label) => <SignalLabelChip key={`${asset.ticker}-${label}`} label={label} />)}
-        </div>
-      </article>)}
-    </div>
-  </section>;
-}
-
 function ReceiptsSection({ receipts }: { receipts: RhChainReceipt[] }) {
   return <section className="panel rh-chain-section" aria-label="Receipts">
     <div className="rh-chain-section-head">
@@ -550,10 +1077,14 @@ function ReceiptsSection({ receipts }: { receipts: RhChainReceipt[] }) {
 }
 
 function SourceLine({ source }: { source: RhChainSource }) {
+  const sourceName = source.source_name ?? source.source ?? 'source_pending';
+  const sourceUrl = source.source_url ?? source.url ?? null;
+  const sourceNote = source.caveat ?? source.note ?? 'Source metadata pending.';
   return <p className="rh-chain-source">
-    <span>source: {source.url ? <a href={source.url}>{source.source}</a> : source.source}</span>
+    <span>source: {sourceUrl ? <a href={sourceUrl}>{sourceName}</a> : sourceName}</span>
     <span>observed_at: {formatTimestamp(source.observed_at)}</span>
-    <span>{source.caveat}</span>
+    <span>mode: {source.data_mode} / confidence: {source.confidence_level}</span>
+    <span>{sourceNote}</span>
   </p>;
 }
 
@@ -563,6 +1094,24 @@ function SignalLabelChip({ label }: { label: RhChainSignalLabel }) {
 
 function RiskBadge({ state }: { state: RhChainRiskState }) {
   return <span className={`rh-chain-risk-badge risk-${state}`}>{formatLabel(state)}</span>;
+}
+
+function reviewStateLabel(state: RhChainReviewState) {
+  const labels: Record<RhChainReviewState, string> = {
+    queued_for_manual_review: 'Queued',
+    under_receipt_check: 'Receipt check',
+    needs_more_evidence: 'Needs evidence',
+    watch_only: 'Watch only',
+    approved_signal: 'Approved signal',
+    do_not_touch_yet: 'Do not touch',
+    rejected_low_receipt_quality: 'Rejected'
+  };
+  return labels[state];
+}
+
+function shortContract(value: string) {
+  if (value.length <= 18) return value;
+  return `${value.slice(0, 8)}...${value.slice(-6)}`;
 }
 
 function formatLabel(value: string) {

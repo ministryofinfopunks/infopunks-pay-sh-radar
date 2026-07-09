@@ -10,11 +10,21 @@ export type RhChainSignalLabel =
 
 export type RhChainRiskState = 'low_watch' | 'medium_watch' | 'high_risk' | 'source_required' | 'do_not_touch_yet';
 
+export type RhChainDataFreshness = 'seeded' | 'manual' | 'cached' | 'live_future';
+
+export type RhChainConfidenceLevel = 'low' | 'medium' | 'high';
+
 export type RhChainSource = {
-  source: string;
+  source_name: string;
+  source_url?: string | null;
   observed_at: string;
-  url: string | null;
-  caveat: string;
+  updated_at: string;
+  data_mode: RhChainDataFreshness;
+  confidence_level: RhChainConfidenceLevel;
+  note?: string;
+  caveat?: string;
+  source?: string;
+  url?: string | null;
 };
 
 export type RhChainPulseMetric = {
@@ -25,6 +35,8 @@ export type RhChainPulseMetric = {
   note: string;
   source: RhChainSource;
 };
+
+export type RhChainMetric = RhChainPulseMetric;
 
 export type RhChainProtocolWatch = {
   name: string;
@@ -49,12 +61,17 @@ export type RhChainMemeToken = {
   source: RhChainSource;
 };
 
+export type RhChainMemeAsset = RhChainMemeToken;
+
 export type RhChainSignalClassifierItem = {
   label: RhChainSignalLabel;
   meaning: string;
   trigger: string;
   desk_action: string;
+  source: RhChainSource;
 };
+
+export type RhChainSignal = RhChainSignalClassifierItem;
 
 export type RhChainRiskWallItem = {
   id: string;
@@ -71,6 +88,7 @@ export type RhChainSpilloverTheme = {
   meme_mutation: string;
   signal_read: string;
   risk_note: string;
+  source: RhChainSource;
 };
 
 export type RhChainSignalIndexAsset = {
@@ -82,12 +100,14 @@ export type RhChainSignalIndexAsset = {
   attention_source: string;
   receipt_state: string;
   note: string;
+  source: RhChainSource;
 };
 
 export type RhChainReceipt = {
   receipt_id: string;
   timestamp: string;
   source: string;
+  source_metadata: RhChainSource;
   summary: string;
   linked_assets: string[];
   caveat: string;
@@ -123,6 +143,200 @@ export type RhChainSignalReviewPacket = {
   next_step: 'Infopunks will review the signal manually before adding it to the public desk.';
 };
 
+export const RH_CHAIN_REVIEW_STATES = [
+  'queued_for_manual_review',
+  'under_receipt_check',
+  'needs_more_evidence',
+  'watch_only',
+  'approved_signal',
+  'do_not_touch_yet',
+  'rejected_low_receipt_quality'
+] as const;
+
+export type RhChainReviewState = typeof RH_CHAIN_REVIEW_STATES[number];
+
+export type RhChainReviewSourceType = 'seeded' | 'community_submission' | 'manual_research';
+
+export type RhChainReviewLinks = {
+  x: string | null;
+  website: string | null;
+  liquidity: string | null;
+  explorer: string | null;
+};
+
+export type RhChainReviewItem = {
+  review_id: string;
+  review_state: RhChainReviewState;
+  submitted_at: string;
+  updated_at: string;
+  ticker: string;
+  token_contract: string;
+  chain: string;
+  source_type: RhChainReviewSourceType;
+  links: RhChainReviewLinks;
+  evidence_summary: string;
+  missing_evidence: string[];
+  risk_state: RhChainRiskState;
+  signal_state: RhChainSignalLabel;
+  infopunks_verdict: string;
+  reviewer_note: string;
+  next_step: string;
+  source: RhChainSource;
+};
+
+export type RhChainReviewQueueSummary = {
+  queued: number;
+  under_receipt_check: number;
+  approved_signals: number;
+  do_not_touch_yet: number;
+  rejected_low_receipt_quality: number;
+};
+
+export type RhChainReviewQueuePayload = {
+  generated_at: string;
+  source_policy: string;
+  disclaimer: string;
+  review_states: readonly RhChainReviewState[];
+  counts: RhChainReviewQueueSummary;
+  items: RhChainReviewItem[];
+  grouped: Record<RhChainReviewState, RhChainReviewItem[]>;
+};
+
+export const RH_CHAIN_4663_NARRATIVE_CLASSES = [
+  'mascot_meta',
+  'stock_token_spillover',
+  'robinhood_brand_mutation',
+  'solana_rotation',
+  'ai_native_finance',
+  'liquidity_mirage',
+  'deployer_cluster_risk'
+] as const;
+
+export type RhChain4663NarrativeClass = typeof RH_CHAIN_4663_NARRATIVE_CLASSES[number];
+
+export type RhChain4663Classification =
+  | 'durable_signal'
+  | 'strong_watch'
+  | 'active_speculation'
+  | 'high_risk_attention'
+  | 'do_not_touch_yet';
+
+export type RhChain4663ScoreComponents = {
+  attention_score: number;
+  volume_score: number;
+  holder_score: number;
+  durability_score: number;
+  deployer_trust_score: number;
+};
+
+export type RhChain4663Asset = RhChain4663ScoreComponents & {
+  rank: number;
+  ticker: string;
+  name: string;
+  token_contract: string;
+  pair: string;
+  chain: string;
+  category: string;
+  market_cap: string;
+  volume_24h: string;
+  liquidity: string;
+  holder_count: string;
+  pool_age: string;
+  signal_score: number;
+  classification: RhChain4663Classification;
+  risk_state: RhChainRiskState;
+  narrative_class: RhChain4663NarrativeClass[];
+  infopunks_verdict: string;
+  last_updated: string;
+  source_notes: string[];
+  source: RhChainSource;
+};
+
+export type RhChainIndexAsset = RhChain4663Asset;
+
+type RhChain4663SeedAsset = Omit<RhChain4663Asset, 'rank' | 'signal_score' | 'classification' | 'source'> & {
+  source?: RhChainSource;
+};
+
+export type RhChain4663IndexOverview = {
+  top_signal: Pick<RhChain4663Asset, 'ticker' | 'name' | 'signal_score' | 'classification'>;
+  highest_volume: Pick<RhChain4663Asset, 'ticker' | 'name' | 'volume_score' | 'volume_24h'>;
+  highest_risk: Pick<RhChain4663Asset, 'ticker' | 'name' | 'risk_state' | 'infopunks_verdict'>;
+  strongest_durability: Pick<RhChain4663Asset, 'ticker' | 'name' | 'durability_score' | 'pool_age'>;
+  last_updated: string;
+};
+
+export type RhChain4663IndexPayload = {
+  name: '4663 Signal Index';
+  subtitle: 'A living index of Robinhood Chain attention assets, risk states, and narrative mutations.';
+  generated_at: string;
+  last_updated: string;
+  source_policy: string;
+  disclaimer: 'The 4663 Signal Index is an intelligence index, not a tokenized product, endorsement, listing, or financial recommendation.';
+  scoring_model: {
+    total_score: 100;
+    attention_score: 25;
+    volume_score: 25;
+    holder_score: 20;
+    durability_score: 20;
+    deployer_trust_score: 10;
+  };
+  classification_thresholds: Record<RhChain4663Classification, string>;
+  narrative_classes: readonly RhChain4663NarrativeClass[];
+  overview: RhChain4663IndexOverview;
+  assets: RhChain4663Asset[];
+};
+
+export type RhChainDailyReceiptConfidence = RhChainConfidenceLevel;
+
+export type RhChainDailyReceiptStatus = RhChainDataFreshness;
+
+export type RhChainDailyReceiptSource = RhChainSource & {
+  name: string;
+  url: string | null;
+  note: string;
+};
+
+export type RhChainDailyReceiptWatchItem = {
+  item: string;
+  reason: string;
+  risk_state: RhChainRiskState;
+  next_thing_to_verify: string;
+};
+
+export type RhChainDailyReceipt = {
+  receipt_id: string;
+  date: string;
+  generated_at: string;
+  chain: string;
+  headline: string;
+  summary: string;
+  top_signal: string;
+  biggest_risk: string;
+  strongest_narrative: string;
+  liquidity_note: string;
+  stock_token_spillover_note: string;
+  solana_base_migration_note: string;
+  deployer_watch_note: string;
+  infopunks_verdict: string;
+  watchlist: RhChainDailyReceiptWatchItem[];
+  do_not_touch_yet: RhChainDailyReceiptWatchItem[];
+  sources: RhChainDailyReceiptSource[];
+  confidence_level: RhChainDailyReceiptConfidence;
+  status: RhChainDailyReceiptStatus;
+  data_mode: RhChainDataFreshness;
+};
+
+export type RhChainDailyReceiptsPayload = {
+  title: 'Daily RH Chain Receipts';
+  subtitle: 'The market forgets. Infopunks keeps the memory.';
+  generated_at: string;
+  source_policy: string;
+  disclaimer: string;
+  latest_receipt: RhChainDailyReceipt;
+  receipts: RhChainDailyReceipt[];
+};
+
 export type RhChainPayload = {
   title: string;
   subtitle: string;
@@ -145,19 +359,632 @@ export type RhChainPayload = {
 
 const OBSERVED_AT = '2026-07-09T03:45:00.000Z';
 
+export function createRhChainSource({
+  source_name,
+  source_url = null,
+  observed_at,
+  updated_at = observed_at,
+  data_mode,
+  confidence_level,
+  note,
+  caveat = note
+}: {
+  source_name: string;
+  source_url?: string | null;
+  observed_at: string;
+  updated_at?: string;
+  data_mode: RhChainDataFreshness;
+  confidence_level: RhChainConfidenceLevel;
+  note?: string;
+  caveat?: string;
+}): RhChainSource {
+  return {
+    source_name,
+    source_url,
+    observed_at,
+    updated_at,
+    data_mode,
+    confidence_level,
+    note,
+    caveat,
+    source: source_name,
+    url: source_url
+  };
+}
+
 const seededDeskSource: RhChainSource = {
-  source: 'Infopunks seeded RH Chain watchlist',
-  observed_at: OBSERVED_AT,
-  url: 'https://radar.infopunks.fun/rh-chain-signal-desk',
-  caveat: 'Seeded intelligence scaffold. Volatile market metrics require live source verification before use.'
+  ...createRhChainSource({
+    source_name: 'Infopunks seeded RH Chain watchlist',
+    source_url: 'https://radar.infopunks.fun/rh-chain-signal-desk',
+    observed_at: OBSERVED_AT,
+    data_mode: 'seeded',
+    confidence_level: 'low',
+    note: 'Seeded intelligence scaffold. Volatile market metrics require live source verification before use.'
+  })
 };
 
 const sourcePending: RhChainSource = {
-  source: 'source_pending',
-  observed_at: OBSERVED_AT,
-  url: null,
-  caveat: 'No canonical live source attached yet. Treat this field as a watch slot, not verified market data.'
+  ...createRhChainSource({
+    source_name: 'source_pending',
+    observed_at: OBSERVED_AT,
+    data_mode: 'seeded',
+    confidence_level: 'low',
+    note: 'No canonical live source attached yet. Treat this field as a watch slot, not verified market data.'
+  })
 };
+
+const manualDeskSource = createRhChainSource({
+  source_name: 'Infopunks RH Chain Signal Desk manual research',
+  source_url: 'https://radar.infopunks.fun/rh-chain-signal-desk',
+  observed_at: OBSERVED_AT,
+  updated_at: OBSERVED_AT,
+  data_mode: 'manual',
+  confidence_level: 'medium',
+  note: 'Manual desk research. Not live market indexing.'
+});
+
+function createRhChainDailyReceiptSource({
+  name,
+  observed_at,
+  url = null,
+  note,
+  data_mode = 'seeded',
+  confidence_level = 'low',
+  updated_at = observed_at
+}: {
+  name: string;
+  observed_at: string;
+  url?: string | null;
+  note: string;
+  data_mode?: RhChainDataFreshness;
+  confidence_level?: RhChainConfidenceLevel;
+  updated_at?: string;
+}): RhChainDailyReceiptSource {
+  return {
+    ...createRhChainSource({
+      source_name: name,
+      source_url: url,
+      observed_at,
+      updated_at,
+      data_mode,
+      confidence_level,
+      note
+    }),
+    name,
+    url,
+    note
+  };
+}
+
+export const rhChain4663SeedAssets: RhChain4663SeedAsset[] = [
+  {
+    ticker: 'HOOD',
+    name: 'Hood Rail',
+    token_contract: 'unverified_contract_required',
+    pair: 'source_pending',
+    chain: 'Robinhood Chain',
+    category: 'ticker_memory',
+    market_cap: 'seeded/manual: source pending',
+    volume_24h: 'seeded/manual: source pending',
+    liquidity: 'seeded/manual: source pending',
+    holder_count: 'seeded/manual: source pending',
+    pool_age: 'seeded/manual: source pending',
+    attention_score: 19,
+    volume_score: 10,
+    holder_score: 8,
+    durability_score: 12,
+    deployer_trust_score: 2,
+    risk_state: 'source_required',
+    narrative_class: ['stock_token_spillover', 'robinhood_brand_mutation'],
+    infopunks_verdict: 'Active speculation. Familiar ticker language is attention, not proof.',
+    last_updated: OBSERVED_AT,
+    source_notes: [
+      'Seeded/manual score from RH Chain desk memory.',
+      'No verified contract, pair, live market cap, holder count, or official affiliation receipt is attached.'
+    ]
+  },
+  {
+    ticker: 'RAILS',
+    name: 'Wall Street Rails',
+    token_contract: 'unverified_contract_required',
+    pair: 'source_pending',
+    chain: 'Robinhood Chain',
+    category: 'rail_meme',
+    market_cap: 'seeded/manual: source pending',
+    volume_24h: 'seeded/manual: source pending',
+    liquidity: 'seeded/manual: source pending',
+    holder_count: 'seeded/manual: source pending',
+    pool_age: 'seeded/manual: source pending',
+    attention_score: 18,
+    volume_score: 12,
+    holder_score: 9,
+    durability_score: 13,
+    deployer_trust_score: 3,
+    risk_state: 'medium_watch',
+    narrative_class: ['stock_token_spillover', 'solana_rotation'],
+    infopunks_verdict: 'Strong watch shape, but still receipt-gated. Liquidity and deployer proof decide.',
+    last_updated: OBSERVED_AT,
+    source_notes: [
+      'Seeded/manual rail-language candidate.',
+      'Volume, holders, and liquidity remain source pending until public receipts attach.'
+    ]
+  },
+  {
+    ticker: 'IPO',
+    name: 'Meme IPO Desk',
+    token_contract: 'unverified_contract_required',
+    pair: 'source_pending',
+    chain: 'Robinhood Chain',
+    category: 'finance_mutation',
+    market_cap: 'seeded/manual: source pending',
+    volume_24h: 'seeded/manual: source pending',
+    liquidity: 'seeded/manual: source pending',
+    holder_count: 'seeded/manual: source pending',
+    pool_age: 'seeded/manual: source pending',
+    attention_score: 16,
+    volume_score: 9,
+    holder_score: 8,
+    durability_score: 11,
+    deployer_trust_score: 2,
+    risk_state: 'source_required',
+    narrative_class: ['stock_token_spillover', 'liquidity_mirage'],
+    infopunks_verdict: 'High-risk attention until contract, pool, and non-affiliation receipts exist.',
+    last_updated: OBSERVED_AT,
+    source_notes: [
+      'Seeded/manual stock-token spillover marker.',
+      'Launch-window language can create urgency before receipts exist.'
+    ]
+  },
+  {
+    ticker: 'TICKR',
+    name: 'Ticker Memory',
+    token_contract: 'unverified_contract_required',
+    pair: 'source_pending',
+    chain: 'Robinhood Chain',
+    category: 'symbol_abstraction',
+    market_cap: 'seeded/manual: source pending',
+    volume_24h: 'seeded/manual: source pending',
+    liquidity: 'seeded/manual: source pending',
+    holder_count: 'seeded/manual: source pending',
+    pool_age: 'seeded/manual: source pending',
+    attention_score: 15,
+    volume_score: 8,
+    holder_score: 7,
+    durability_score: 12,
+    deployer_trust_score: 2,
+    risk_state: 'medium_watch',
+    narrative_class: ['mascot_meta', 'solana_rotation'],
+    infopunks_verdict: 'Watch-only memory object. Useful for signal tracking, not conviction.',
+    last_updated: OBSERVED_AT,
+    source_notes: [
+      'Seeded/manual abstraction for ticker-memory behavior.',
+      'No live market claim is made.'
+    ]
+  },
+  {
+    ticker: 'SHERW',
+    name: 'Sherwood Loop',
+    token_contract: 'unverified_contract_required',
+    pair: 'source_pending',
+    chain: 'Robinhood Chain',
+    category: 'brand_adjacent_myth',
+    market_cap: 'seeded/manual: source pending',
+    volume_24h: 'seeded/manual: source pending',
+    liquidity: 'seeded/manual: source pending',
+    holder_count: 'seeded/manual: source pending',
+    pool_age: 'seeded/manual: source pending',
+    attention_score: 12,
+    volume_score: 6,
+    holder_score: 5,
+    durability_score: 6,
+    deployer_trust_score: 1,
+    risk_state: 'high_risk',
+    narrative_class: ['robinhood_brand_mutation', 'deployer_cluster_risk', 'liquidity_mirage'],
+    infopunks_verdict: 'Do not touch yet. Risk evidence outruns signal evidence.',
+    last_updated: OBSERVED_AT,
+    source_notes: [
+      'Seeded/manual caution marker.',
+      'Requires deployer history, ownership controls, and contract similarity receipts.'
+    ]
+  },
+  {
+    ticker: 'ROUTE',
+    name: 'Route Memory',
+    token_contract: '0xmanualresearchseed000000000000000000000000',
+    pair: 'manual_seed_pair_pending_external_receipt',
+    chain: 'Robinhood Chain',
+    category: 'route_language',
+    market_cap: 'manual research: external market source pending',
+    volume_24h: 'manual research: external market source pending',
+    liquidity: 'manual research: internal seed receipt only',
+    holder_count: 'manual research: source pending',
+    pool_age: 'manual research: source pending',
+    attention_score: 17,
+    volume_score: 13,
+    holder_score: 11,
+    durability_score: 15,
+    deployer_trust_score: 4,
+    risk_state: 'low_watch',
+    narrative_class: ['ai_native_finance', 'stock_token_spillover'],
+    infopunks_verdict: 'Active speculation with usable desk memory. External receipts still required.',
+    last_updated: OBSERVED_AT,
+    source_notes: [
+      'Manual research seed from public desk memory.',
+      'Approved for intelligence tracking only, not safety, listing, or buy interpretation.'
+    ]
+  },
+  {
+    ticker: 'DIVY',
+    name: 'Dividend Mirage',
+    token_contract: 'unverified_contract_required',
+    pair: 'source_pending',
+    chain: 'Robinhood Chain',
+    category: 'yield_claim_risk',
+    market_cap: 'seeded/manual: source pending',
+    volume_24h: 'seeded/manual: source pending',
+    liquidity: 'seeded/manual: source pending',
+    holder_count: 'seeded/manual: source pending',
+    pool_age: 'seeded/manual: source pending',
+    attention_score: 10,
+    volume_score: 4,
+    holder_score: 4,
+    durability_score: 5,
+    deployer_trust_score: 1,
+    risk_state: 'do_not_touch_yet',
+    narrative_class: ['liquidity_mirage', 'deployer_cluster_risk'],
+    infopunks_verdict: 'Do not touch yet. Yield language needs hard receipts before memory.',
+    last_updated: OBSERVED_AT,
+    source_notes: [
+      'Seeded/manual risk object.',
+      'No payout mechanism, legal framing, contract, or liquidity receipt exists.'
+    ]
+  }
+];
+
+export const rhChainDailyReceipts: RhChainDailyReceipt[] = [
+  {
+    receipt_id: 'rh_daily_2026_07_09',
+    date: '2026-07-09',
+    generated_at: '2026-07-09T04:45:00.000Z',
+    chain: 'Robinhood Chain',
+    headline: 'Route language leads the desk, but receipts remain thin.',
+    summary: 'RH Chain attention is clustering around rails, routes, ticker memory, and stock-token spillover. The desk sees useful market-memory formation, but live liquidity, holders, and deployer receipts remain mostly source pending.',
+    top_signal: 'ROUTE',
+    biggest_risk: 'DIVY yield language without mechanism receipts',
+    strongest_narrative: 'Wall Street rails mutating into route and settlement memes',
+    liquidity_note: 'Liquidity is still seeded/manual. No public pool-depth receipt is strong enough to treat volume as durable.',
+    stock_token_spillover_note: 'Equity-ticker familiarity is driving attention faster than evidence. Non-affiliation context remains mandatory.',
+    solana_base_migration_note: 'Rotation language is present as a narrative input only. No verified migration route or bridge receipt is attached.',
+    deployer_watch_note: 'SHERW and DIVY remain blocked until deployer history, ownership controls, and contract similarity receipts appear.',
+    infopunks_verdict: 'Public memory is forming. Do not upgrade attention into conviction until receipts survive liquidity, holder, and deployer checks.',
+    watchlist: [
+      {
+        item: 'ROUTE',
+        reason: 'Highest 4663 score and clearest route-language memory.',
+        risk_state: 'low_watch',
+        next_thing_to_verify: 'External explorer, pool, and holder receipts.'
+      },
+      {
+        item: 'RAILS',
+        reason: 'Strong rail-language compression with incomplete proof.',
+        risk_state: 'medium_watch',
+        next_thing_to_verify: 'Pool reserves and deployer wallet history.'
+      },
+      {
+        item: 'HOOD',
+        reason: 'Ticker familiarity can pull attention into the desk quickly.',
+        risk_state: 'source_required',
+        next_thing_to_verify: 'Verified non-affiliation note and contract receipt.'
+      }
+    ],
+    do_not_touch_yet: [
+      {
+        item: 'DIVY',
+        reason: 'Yield and dividend framing without mechanism receipts.',
+        risk_state: 'do_not_touch_yet',
+        next_thing_to_verify: 'Legal framing, payout mechanism, contract, and liquidity receipts.'
+      },
+      {
+        item: 'SHERW',
+        reason: 'Brand-adjacent myth plus deployer-cluster uncertainty.',
+        risk_state: 'high_risk',
+        next_thing_to_verify: 'Deployer history, funding path, and ownership controls.'
+      }
+    ],
+    sources: [
+      createRhChainDailyReceiptSource({
+        name: 'Infopunks RH Chain Signal Desk seed',
+        observed_at: OBSERVED_AT,
+        url: 'https://radar.infopunks.fun/rh-chain-signal-desk',
+        note: 'Seeded/manual desk memory. Not live market indexing.',
+        data_mode: 'manual',
+        confidence_level: 'medium'
+      }),
+      createRhChainDailyReceiptSource({
+        name: '4663 Signal Index seeded model',
+        observed_at: '2026-07-09T04:30:00.000Z',
+        url: 'https://radar.infopunks.fun/rh-chain-signal-desk/4663-index',
+        note: 'Computed from seeded/manual score components until receipts attach.',
+        data_mode: 'seeded',
+        confidence_level: 'low'
+      }),
+      createRhChainDailyReceiptSource({
+        name: 'RH Chain Review Queue',
+        observed_at: '2026-07-09T04:34:00.000Z',
+        url: 'https://radar.infopunks.fun/rh-chain-signal-desk/review-queue',
+        note: 'Public review states are manual intelligence states, not endorsement.',
+        data_mode: 'manual',
+        confidence_level: 'medium'
+      })
+    ],
+    confidence_level: 'medium',
+    status: 'manual',
+    data_mode: 'manual'
+  },
+  {
+    receipt_id: 'rh_daily_2026_07_08',
+    date: '2026-07-08',
+    generated_at: '2026-07-08T22:00:00.000Z',
+    chain: 'Robinhood Chain',
+    headline: 'Ticker memory appears before trustworthy pool memory.',
+    summary: 'Early RH Chain watch slots show attention around HOOD, RAILS, IPO, and TICKR. The strongest signal is narrative legibility; the weakest layer is source-backed liquidity.',
+    top_signal: 'HOOD',
+    biggest_risk: 'Affiliation confusion around familiar ticker language',
+    strongest_narrative: 'Stock-token spillover into meme tickers',
+    liquidity_note: 'No verified liquidity source attached. Treat all market values as source pending.',
+    stock_token_spillover_note: 'Equity and brokerage language is acting as the main attention primitive.',
+    solana_base_migration_note: 'Migration chatter is unverified and should stay narrative-only until route receipts exist.',
+    deployer_watch_note: 'No clean deployer history is attached to seeded watch slots.',
+    infopunks_verdict: 'Track the vocabulary, not the trade. Receipts decide whether any signal survives first rotation.',
+    watchlist: [
+      {
+        item: 'HOOD',
+        reason: 'Most legible ticker-memory object.',
+        risk_state: 'source_required',
+        next_thing_to_verify: 'Contract, explorer, and non-affiliation receipt.'
+      },
+      {
+        item: 'TICKR',
+        reason: 'Useful abstraction for attention migration.',
+        risk_state: 'medium_watch',
+        next_thing_to_verify: 'Whether a real market surface appears.'
+      }
+    ],
+    do_not_touch_yet: [
+      {
+        item: 'SHERW',
+        reason: 'Brand-adjacent myth without deployer receipts.',
+        risk_state: 'high_risk',
+        next_thing_to_verify: 'Funding path and contract similarity review.'
+      }
+    ],
+    sources: [
+      createRhChainDailyReceiptSource({
+        name: 'Infopunks seeded RH Chain watchlist',
+        observed_at: '2026-07-08T22:00:00.000Z',
+        url: 'https://radar.infopunks.fun/rh-chain-signal-desk',
+        note: 'Manual seed receipt for market-memory setup.'
+      })
+    ],
+    confidence_level: 'low',
+    status: 'seeded',
+    data_mode: 'seeded'
+  },
+  {
+    receipt_id: 'rh_daily_2026_07_07',
+    date: '2026-07-07',
+    generated_at: '2026-07-07T22:00:00.000Z',
+    chain: 'Robinhood Chain',
+    headline: 'The desk opens with receipts-first constraints.',
+    summary: 'Initial RH Chain memory emphasizes source policy, non-affiliation language, and manual review before any public promotion.',
+    top_signal: 'RH Chain Signal Desk scaffold',
+    biggest_risk: 'Screenshots or ticker familiarity being mistaken for proof',
+    strongest_narrative: 'Receipts before attention',
+    liquidity_note: 'No live liquidity is indexed. Pool data must be source-linked before use.',
+    stock_token_spillover_note: 'Stock-token language is tracked as narrative, not market proof.',
+    solana_base_migration_note: 'No migration claim is accepted without route, bridge, and failure-mode receipts.',
+    deployer_watch_note: 'Deployer checks are required before any signal leaves watch state.',
+    infopunks_verdict: 'The first receipt is the rule: no source, no signal.',
+    watchlist: [
+      {
+        item: 'Chain pulse source policy',
+        reason: 'Volatile metrics need observed_at and source notes.',
+        risk_state: 'source_required',
+        next_thing_to_verify: 'Auditable explorer or pool source.'
+      }
+    ],
+    do_not_touch_yet: [
+      {
+        item: 'Unverified contracts',
+        reason: 'A contract-free token slot is a claim, not a market signal.',
+        risk_state: 'do_not_touch_yet',
+        next_thing_to_verify: 'Contract, explorer, deployer wallet, and pool address.'
+      }
+    ],
+    sources: [
+      createRhChainDailyReceiptSource({
+        name: 'Infopunks desk seed',
+        observed_at: '2026-07-07T22:00:00.000Z',
+        url: 'https://radar.infopunks.fun/rh-chain-signal-desk',
+        note: 'Seeded source policy receipt.'
+      })
+    ],
+    confidence_level: 'low',
+    status: 'seeded',
+    data_mode: 'seeded'
+  }
+];
+
+export const rhChainReviewQueueItems: RhChainReviewItem[] = [
+  {
+    review_id: 'rhq_hood_seed_manual_001',
+    review_state: 'queued_for_manual_review',
+    submitted_at: '2026-07-09T03:50:00.000Z',
+    updated_at: '2026-07-09T04:10:00.000Z',
+    ticker: 'HOOD',
+    token_contract: 'unverified_contract_required',
+    chain: 'Robinhood Chain',
+    source_type: 'seeded',
+    source: seededDeskSource,
+    links: {
+      x: null,
+      website: null,
+      liquidity: null,
+      explorer: null
+    },
+    evidence_summary: 'Seeded watch slot created from ticker-attention risk. No contract, pool, or explorer receipt is attached.',
+    missing_evidence: ['verified contract', 'explorer link', 'liquidity pool receipt', 'non-affiliation context'],
+    risk_state: 'source_required',
+    signal_state: 'fresh_signal',
+    infopunks_verdict: 'Queued for manual review. Ticker familiarity is not evidence.',
+    reviewer_note: 'Keep visible as an intake object only; do not imply Robinhood affiliation or market readiness.',
+    next_step: 'Attach contract and explorer receipts before any receipt check can begin.'
+  },
+  {
+    review_id: 'rhq_rails_manual_002',
+    review_state: 'under_receipt_check',
+    submitted_at: '2026-07-09T03:54:00.000Z',
+    updated_at: '2026-07-09T04:18:00.000Z',
+    ticker: 'RAILS',
+    token_contract: 'unverified_contract_required',
+    chain: 'Robinhood Chain',
+    source_type: 'manual_research',
+    source: manualDeskSource,
+    links: {
+      x: null,
+      website: null,
+      liquidity: null,
+      explorer: null
+    },
+    evidence_summary: 'Manual research notes show strong rail-language compression, but the desk has no canonical pool or contract receipt.',
+    missing_evidence: ['pool reserves', 'contract provenance', 'deployer wallet', 'holder distribution'],
+    risk_state: 'medium_watch',
+    signal_state: 'attention_spike',
+    infopunks_verdict: 'Under receipt check. Narrative shape is legible; proof layer is incomplete.',
+    reviewer_note: 'Receipt check should separate actual liquidity depth from screenshots and route chatter.',
+    next_step: 'Map pool and deployer receipts, then reclassify as watch-only or needs-more-evidence.'
+  },
+  {
+    review_id: 'rhq_ipo_seed_003',
+    review_state: 'needs_more_evidence',
+    submitted_at: '2026-07-09T03:58:00.000Z',
+    updated_at: '2026-07-09T04:20:00.000Z',
+    ticker: 'IPO',
+    token_contract: 'unverified_contract_required',
+    chain: 'Robinhood Chain',
+    source_type: 'seeded',
+    source: seededDeskSource,
+    links: {
+      x: null,
+      website: null,
+      liquidity: null,
+      explorer: null
+    },
+    evidence_summary: 'Seeded stock-token spillover candidate. Useful as a narrative marker, not a verified token signal.',
+    missing_evidence: ['contract receipt', 'website provenance', 'liquidity receipt', 'official non-affiliation note'],
+    risk_state: 'source_required',
+    signal_state: 'stock_token_spillover',
+    infopunks_verdict: 'Needs more evidence before the desk can remember it as anything beyond a theme.',
+    reviewer_note: 'IPO language can create early-entry pressure. Keep the proof threshold high.',
+    next_step: 'Wait for public contract and liquidity receipts with timestamps.'
+  },
+  {
+    review_id: 'rhq_tickr_seed_004',
+    review_state: 'watch_only',
+    submitted_at: '2026-07-09T04:02:00.000Z',
+    updated_at: '2026-07-09T04:22:00.000Z',
+    ticker: 'TICKR',
+    token_contract: 'unverified_contract_required',
+    chain: 'Robinhood Chain',
+    source_type: 'seeded',
+    source: seededDeskSource,
+    links: {
+      x: null,
+      website: null,
+      liquidity: null,
+      explorer: null
+    },
+    evidence_summary: 'Seeded abstraction for ticker-memory behavior. No live market claim is made.',
+    missing_evidence: ['market surface', 'contract', 'pool', 'independent holder receipts'],
+    risk_state: 'medium_watch',
+    signal_state: 'fresh_signal',
+    infopunks_verdict: 'Watch only. The object is useful for attention mapping, not conviction.',
+    reviewer_note: 'Keep as a memory primitive for how symbols propagate across finance memes.',
+    next_step: 'Track whether a real contract appears and whether receipts outlast first-rotation attention.'
+  },
+  {
+    review_id: 'rhq_sherw_manual_005',
+    review_state: 'do_not_touch_yet',
+    submitted_at: '2026-07-09T04:04:00.000Z',
+    updated_at: '2026-07-09T04:26:00.000Z',
+    ticker: 'SHERW',
+    token_contract: 'unverified_contract_required',
+    chain: 'Robinhood Chain',
+    source_type: 'manual_research',
+    source: manualDeskSource,
+    links: {
+      x: null,
+      website: null,
+      liquidity: null,
+      explorer: null
+    },
+    evidence_summary: 'Manual research flagged brand-adjacent myth risk and likely copycat gravity. No deployer receipts attached.',
+    missing_evidence: ['deployer history', 'funding path', 'ownership controls', 'contract similarity review'],
+    risk_state: 'high_risk',
+    signal_state: 'deployer_cluster_risk',
+    infopunks_verdict: 'Do not touch yet. Risk evidence is stronger than signal evidence.',
+    reviewer_note: 'Public visibility here is a caution marker, not promotion.',
+    next_step: 'Require deployer and ownership receipts before any upgrade.'
+  },
+  {
+    review_id: 'rhq_route_manual_006',
+    review_state: 'approved_signal',
+    submitted_at: '2026-07-09T04:06:00.000Z',
+    updated_at: '2026-07-09T04:30:00.000Z',
+    ticker: 'ROUTE',
+    token_contract: '0xmanualresearchseed000000000000000000000000',
+    chain: 'Robinhood Chain',
+    source_type: 'manual_research',
+    source: manualDeskSource,
+    links: {
+      x: null,
+      website: null,
+      liquidity: 'https://radar.infopunks.fun/rh-chain-signal-desk',
+      explorer: 'https://radar.infopunks.fun/rh-chain-signal-desk'
+    },
+    evidence_summary: 'Manual research packet has internally linked seed receipts for route-language monitoring, but no external market verification.',
+    missing_evidence: ['external explorer receipt', 'independent liquidity source', 'holder concentration review'],
+    risk_state: 'low_watch',
+    signal_state: 'durable_candidate',
+    infopunks_verdict: 'Approved signal for desk indexing only. This does not mean safe to buy.',
+    reviewer_note: 'Approved means the signal can be remembered and watched; it is not a listing or recommendation.',
+    next_step: 'Keep receipt freshness visible and downgrade if external proof does not arrive.'
+  },
+  {
+    review_id: 'rhq_divy_seed_007',
+    review_state: 'rejected_low_receipt_quality',
+    submitted_at: '2026-07-09T04:08:00.000Z',
+    updated_at: '2026-07-09T04:34:00.000Z',
+    ticker: 'DIVY',
+    token_contract: 'unverified_contract_required',
+    chain: 'Robinhood Chain',
+    source_type: 'seeded',
+    source: seededDeskSource,
+    links: {
+      x: null,
+      website: null,
+      liquidity: null,
+      explorer: null
+    },
+    evidence_summary: 'Seeded dividend/yield risk marker. Claim language is high-risk and no payout mechanism receipt exists.',
+    missing_evidence: ['contract', 'legal framing', 'payout mechanism receipt', 'liquidity source'],
+    risk_state: 'do_not_touch_yet',
+    signal_state: 'do_not_touch_yet',
+    infopunks_verdict: 'Rejected for low receipt quality until evidence materially changes.',
+    reviewer_note: 'Yield language without receipts should stay blocked from promotion.',
+    next_step: 'Do not upgrade without hard mechanism proof and source-linked risk notes.'
+  }
+];
 
 export const rhChainPayload: RhChainPayload = {
   title: 'RH Chain Signal Desk',
@@ -329,49 +1156,57 @@ export const rhChainPayload: RhChainPayload = {
       label: 'fresh_signal',
       meaning: 'A new RH Chain narrative asset or contract enters the desk.',
       trigger: 'First credible contract, pool, social burst, or receipt submission.',
-      desk_action: 'Stage it. Demand source, timestamp, contract, and non-affiliation language.'
+      desk_action: 'Stage it. Demand source, timestamp, contract, and non-affiliation language.',
+      source: seededDeskSource
     },
     {
       label: 'attention_spike',
       meaning: 'Attention moves faster than liquidity proof.',
       trigger: 'Mention velocity, search traffic, or DEX watchlist jumps without matching holder quality.',
-      desk_action: 'Track for 24-72 hours. Do not upgrade without receipts.'
+      desk_action: 'Track for 24-72 hours. Do not upgrade without receipts.',
+      source: seededDeskSource
     },
     {
       label: 'durable_candidate',
       meaning: 'Signal persists beyond the first reflexive rotation.',
       trigger: 'Repeated volume, stable liquidity, wider holder base, and narrative reuse.',
-      desk_action: 'Move from watch to candidate only after liquidity and holder checks.'
+      desk_action: 'Move from watch to candidate only after liquidity and holder checks.',
+      source: seededDeskSource
     },
     {
       label: 'liquidity_mirage',
       meaning: 'Market cap or volume overstates exit depth.',
       trigger: 'Thin pool, suspicious volume, one-sided LP, or vanishing route depth.',
-      desk_action: 'Mark high risk. Show pool receipts before allowing attention upgrade.'
+      desk_action: 'Mark high risk. Show pool receipts before allowing attention upgrade.',
+      source: seededDeskSource
     },
     {
       label: 'deployer_cluster_risk',
       meaning: 'A launch appears connected to repeated copycat or extraction deployers.',
       trigger: 'Shared deployer wallet, funding path, contract template, or clustered launches.',
-      desk_action: 'Move to Risk Wall until deployer history is explained.'
+      desk_action: 'Move to Risk Wall until deployer history is explained.',
+      source: seededDeskSource
     },
     {
       label: 'top_holder_risk',
       meaning: 'Supply control can overpower the meme.',
       trigger: 'Top wallets, team wallets, or fresh wallets hold concentrated supply.',
-      desk_action: 'Require holder receipts and unlock context.'
+      desk_action: 'Require holder receipts and unlock context.',
+      source: seededDeskSource
     },
     {
       label: 'stock_token_spillover',
       meaning: 'Finance-token language mutates into meme-market language.',
       trigger: 'Equity tickers, dividends, IPO, brokerage, or Wall Street rails become meme primitives.',
-      desk_action: 'Map theme mutation. Avoid official partnership implication.'
+      desk_action: 'Map theme mutation. Avoid official partnership implication.',
+      source: seededDeskSource
     },
     {
       label: 'do_not_touch_yet',
       meaning: 'The desk has enough risk to block promotion.',
       trigger: 'Unverified contract plus low liquidity, misleading claims, or deployer concentration.',
-      desk_action: 'Keep visible on Risk Wall. No signal upgrade.'
+      desk_action: 'Keep visible on Risk Wall. No signal upgrade.',
+      source: seededDeskSource
     }
   ],
   risk_wall: [
@@ -406,28 +1241,32 @@ export const rhChainPayload: RhChainPayload = {
       finance_theme: 'Equity tickers',
       meme_mutation: 'Ticker-as-tribe assets',
       signal_read: 'The symbol matters before the business logic. Attention compresses around recognizable market language.',
-      risk_note: 'Familiar ticker language can mislead users into assuming affiliation.'
+      risk_note: 'Familiar ticker language can mislead users into assuming affiliation.',
+      source: seededDeskSource
     },
     {
       id: 'brokerage-rails-to-culture',
       finance_theme: 'Brokerage rails',
       meme_mutation: 'Rails, route, desk, and settlement memes',
       signal_read: 'Infrastructure vocabulary becomes identity vocabulary once users can repeat it in one line.',
-      risk_note: 'Infrastructure claims need source receipts, not screenshots.'
+      risk_note: 'Infrastructure claims need source receipts, not screenshots.',
+      source: seededDeskSource
     },
     {
       id: 'dividend-yield-to-claim-risk',
       finance_theme: 'Dividends and yield',
       meme_mutation: 'Cashflow memes and fake payout narratives',
       signal_read: 'Yield language is powerful because it feels familiar to traditional-market users.',
-      risk_note: 'Any payout language is high-risk until receipts prove mechanism and legal framing.'
+      risk_note: 'Any payout language is high-risk until receipts prove mechanism and legal framing.',
+      source: seededDeskSource
     },
     {
       id: 'ipo-to-launch-meta',
       finance_theme: 'IPO access',
       meme_mutation: 'Launch-window speculation',
       signal_read: 'Primary-market mythology mutates into early-entry meme urgency.',
-      risk_note: 'Urgency is not proof. Contract and holder receipts come first.'
+      risk_note: 'Urgency is not proof. Contract and holder receipts come first.',
+      source: seededDeskSource
     }
   ],
   signal_index_4663: [
@@ -439,7 +1278,8 @@ export const rhChainPayload: RhChainPayload = {
       labels: ['fresh_signal', 'stock_token_spillover', 'top_holder_risk'],
       attention_source: 'Ticker familiarity',
       receipt_state: 'contract_required',
-      note: 'Most legible ticker. Highest affiliation-confusion risk.'
+      note: 'Most legible ticker. Highest affiliation-confusion risk.',
+      source: seededDeskSource
     },
     {
       rank: 2,
@@ -449,7 +1289,8 @@ export const rhChainPayload: RhChainPayload = {
       labels: ['attention_spike', 'stock_token_spillover'],
       attention_source: 'Rail narrative',
       receipt_state: 'pool_required',
-      note: 'Strong theme compression, incomplete proof.'
+      note: 'Strong theme compression, incomplete proof.',
+      source: seededDeskSource
     },
     {
       rank: 3,
@@ -459,7 +1300,8 @@ export const rhChainPayload: RhChainPayload = {
       labels: ['fresh_signal', 'stock_token_spillover'],
       attention_source: 'Launch-window language',
       receipt_state: 'contract_required',
-      note: 'Useful proxy for IPO/access memes.'
+      note: 'Useful proxy for IPO/access memes.',
+      source: seededDeskSource
     },
     {
       rank: 4,
@@ -469,7 +1311,8 @@ export const rhChainPayload: RhChainPayload = {
       labels: ['fresh_signal', 'attention_spike'],
       attention_source: 'Symbol abstraction',
       receipt_state: 'source_required',
-      note: 'Pure attention object. Needs market proof.'
+      note: 'Pure attention object. Needs market proof.',
+      source: seededDeskSource
     },
     {
       rank: 5,
@@ -479,7 +1322,8 @@ export const rhChainPayload: RhChainPayload = {
       labels: ['deployer_cluster_risk', 'liquidity_mirage', 'do_not_touch_yet'],
       attention_source: 'Brand-adjacent myth',
       receipt_state: 'risk_wall',
-      note: 'Keep visible as a risk marker, not a promoted signal.'
+      note: 'Keep visible as a risk marker, not a promoted signal.',
+      source: seededDeskSource
     }
   ],
   receipts: [
@@ -487,6 +1331,7 @@ export const rhChainPayload: RhChainPayload = {
       receipt_id: 'rh-chain-seed-2026-07-09',
       timestamp: OBSERVED_AT,
       source: 'Infopunks desk seed',
+      source_metadata: seededDeskSource,
       summary: 'Created RH Chain Signal Desk scaffold with source-pending slots for volatile metrics and contract-dependent meme assets.',
       linked_assets: ['HOOD', 'RAILS', 'IPO', 'TICKR', 'SHERW'],
       caveat: 'Seed receipt only. It does not verify market cap, liquidity, volume, contracts, or official affiliation.'
@@ -512,6 +1357,172 @@ export function listRhChainSignals() {
 
 export function listRhChainReceipts() {
   return rhChainPayload.receipts;
+}
+
+export function groupRhChainReviewItemsByState(items: RhChainReviewItem[] = rhChainReviewQueueItems): Record<RhChainReviewState, RhChainReviewItem[]> {
+  const grouped = RH_CHAIN_REVIEW_STATES.reduce((acc, state) => {
+    acc[state] = [];
+    return acc;
+  }, {} as Record<RhChainReviewState, RhChainReviewItem[]>);
+  for (const item of items) grouped[item.review_state].push(item);
+  return grouped;
+}
+
+export function getRhChainReviewStateCounts(items: RhChainReviewItem[] = rhChainReviewQueueItems): RhChainReviewQueueSummary {
+  const grouped = groupRhChainReviewItemsByState(items);
+  return {
+    queued: grouped.queued_for_manual_review.length,
+    under_receipt_check: grouped.under_receipt_check.length,
+    approved_signals: grouped.approved_signal.length,
+    do_not_touch_yet: grouped.do_not_touch_yet.length,
+    rejected_low_receipt_quality: grouped.rejected_low_receipt_quality.length
+  };
+}
+
+export function getRhChainReviewQueue(): RhChainReviewQueuePayload {
+  return {
+    generated_at: OBSERVED_AT,
+    source_policy: 'Public review queue contains seeded and manual intelligence objects. Submitted packets are manually reviewed before public promotion.',
+    disclaimer: 'The review queue is public intelligence infrastructure. It is not an endorsement, listing, partnership, or financial recommendation.',
+    review_states: RH_CHAIN_REVIEW_STATES,
+    counts: getRhChainReviewStateCounts(),
+    items: rhChainReviewQueueItems,
+    grouped: groupRhChainReviewItemsByState()
+  };
+}
+
+function clampScore(value: number, max: number) {
+  if (!Number.isFinite(value)) return 0;
+  return Math.max(0, Math.min(max, Math.round(value)));
+}
+
+export function calculateRhChain4663SignalScore(components: RhChain4663ScoreComponents) {
+  return clampScore(components.attention_score, 25)
+    + clampScore(components.volume_score, 25)
+    + clampScore(components.holder_score, 20)
+    + clampScore(components.durability_score, 20)
+    + clampScore(components.deployer_trust_score, 10);
+}
+
+export function classifyRhChain4663SignalScore(score: number): RhChain4663Classification {
+  const normalized = clampScore(score, 100);
+  if (normalized >= 80) return 'durable_signal';
+  if (normalized >= 65) return 'strong_watch';
+  if (normalized >= 50) return 'active_speculation';
+  if (normalized >= 35) return 'high_risk_attention';
+  return 'do_not_touch_yet';
+}
+
+export function buildRhChain4663Assets(seedAssets: RhChain4663SeedAsset[] = rhChain4663SeedAssets): RhChain4663Asset[] {
+  return seedAssets
+    .map((asset) => {
+      const signalScore = calculateRhChain4663SignalScore(asset);
+      return {
+        ...asset,
+        signal_score: signalScore,
+        classification: classifyRhChain4663SignalScore(signalScore),
+        source: asset.source ?? (asset.ticker === 'ROUTE' ? manualDeskSource : seededDeskSource)
+      };
+    })
+    .sort((left, right) => right.signal_score - left.signal_score || left.ticker.localeCompare(right.ticker))
+    .map((asset, index) => ({ ...asset, rank: index + 1 }));
+}
+
+function riskRank(state: RhChainRiskState) {
+  const weights: Record<RhChainRiskState, number> = {
+    do_not_touch_yet: 5,
+    high_risk: 4,
+    source_required: 3,
+    medium_watch: 2,
+    low_watch: 1
+  };
+  return weights[state];
+}
+
+export function getRhChain4663Overview(assets: RhChain4663Asset[]): RhChain4663IndexOverview {
+  const topSignal = assets[0];
+  const highestVolume = [...assets].sort((left, right) => right.volume_score - left.volume_score || right.signal_score - left.signal_score)[0];
+  const highestRisk = [...assets].sort((left, right) => riskRank(right.risk_state) - riskRank(left.risk_state) || left.signal_score - right.signal_score)[0];
+  const strongestDurability = [...assets].sort((left, right) => right.durability_score - left.durability_score || right.signal_score - left.signal_score)[0];
+  const lastUpdated = assets.map((asset) => asset.last_updated).sort().at(-1) ?? OBSERVED_AT;
+  return {
+    top_signal: {
+      ticker: topSignal.ticker,
+      name: topSignal.name,
+      signal_score: topSignal.signal_score,
+      classification: topSignal.classification
+    },
+    highest_volume: {
+      ticker: highestVolume.ticker,
+      name: highestVolume.name,
+      volume_score: highestVolume.volume_score,
+      volume_24h: highestVolume.volume_24h
+    },
+    highest_risk: {
+      ticker: highestRisk.ticker,
+      name: highestRisk.name,
+      risk_state: highestRisk.risk_state,
+      infopunks_verdict: highestRisk.infopunks_verdict
+    },
+    strongest_durability: {
+      ticker: strongestDurability.ticker,
+      name: strongestDurability.name,
+      durability_score: strongestDurability.durability_score,
+      pool_age: strongestDurability.pool_age
+    },
+    last_updated: lastUpdated
+  };
+}
+
+export function getRhChain4663Index(): RhChain4663IndexPayload {
+  const assets = buildRhChain4663Assets();
+  return {
+    name: '4663 Signal Index',
+    subtitle: 'A living index of Robinhood Chain attention assets, risk states, and narrative mutations.',
+    generated_at: OBSERVED_AT,
+    last_updated: getRhChain4663Overview(assets).last_updated,
+    source_policy: '4663 values are seeded/manual intelligence until live receipts attach. Inclusion means public market memory, not safety.',
+    disclaimer: 'The 4663 Signal Index is an intelligence index, not a tokenized product, endorsement, listing, or financial recommendation.',
+    scoring_model: {
+      total_score: 100,
+      attention_score: 25,
+      volume_score: 25,
+      holder_score: 20,
+      durability_score: 20,
+      deployer_trust_score: 10
+    },
+    classification_thresholds: {
+      durable_signal: '80-100',
+      strong_watch: '65-79',
+      active_speculation: '50-64',
+      high_risk_attention: '35-49',
+      do_not_touch_yet: '0-34'
+    },
+    narrative_classes: RH_CHAIN_4663_NARRATIVE_CLASSES,
+    overview: getRhChain4663Overview(assets),
+    assets
+  };
+}
+
+export function sortRhChainDailyReceiptsByDate(receipts: RhChainDailyReceipt[] = rhChainDailyReceipts): RhChainDailyReceipt[] {
+  return [...receipts].sort((left, right) => {
+    const byDate = right.date.localeCompare(left.date);
+    if (byDate !== 0) return byDate;
+    return right.generated_at.localeCompare(left.generated_at);
+  });
+}
+
+export function getRhChainDailyReceipts(): RhChainDailyReceiptsPayload {
+  const receipts = sortRhChainDailyReceiptsByDate();
+  return {
+    title: 'Daily RH Chain Receipts',
+    subtitle: 'The market forgets. Infopunks keeps the memory.',
+    generated_at: OBSERVED_AT,
+    source_policy: 'Daily receipts are seeded/manual intelligence until live indexing is implemented. Sources must include observed_at timestamps.',
+    disclaimer: 'Daily RH Chain receipts are public intelligence memory, not financial advice, endorsement, listing, or official Robinhood partnership.',
+    latest_receipt: receipts[0],
+    receipts
+  };
 }
 
 function compactOptional(value: string | undefined) {
