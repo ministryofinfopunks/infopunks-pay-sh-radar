@@ -73,6 +73,14 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
     );
   }
 
+  if (/^\/rh-chain-signal-desk\/?$/.test(pathname) || /^\/narratives\/robinhood-chain\/?$/.test(pathname)) {
+    return buildMetadata(
+      'RH Chain Signal Desk',
+      'Wall Street rails. Meme liquidity. Infopunks intelligence.',
+      '/rh-chain-signal-desk'
+    );
+  }
+
   if (/^\/abundance\/?$/.test(pathname) || /^\/narratives\/abundance-desk\/?$/.test(pathname)) {
     return buildMetadata(
       'Abundance Desk',
