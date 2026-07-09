@@ -41,6 +41,7 @@ import { RevenueReceiptDetailPage, RevenueReceiptsPage } from './revenueReceiptP
 import { UnicornRadarDetailPage, UnicornRadarPage } from './unicornRadarPages';
 import { MachineMarketPreflightCardPage, PreflightCardIndexPage, RadarPreflightCardPage } from './preflightCardPages';
 import { AbundanceDeskPage, AttentionMarketWatchPage, AttentionMarketWatchProfilePage, AttentionMarketsPage, NarrativeSignalReportPage, NarrativesIndexPage, SignalSourcePage, SignalUpdatePermalinkPage } from './narrativePages';
+import { RhChainSignalDeskPage } from './rhChainSignalDeskPages';
 import { HermesDeskPage } from './hermesDeskPages';
 import './styles.css';
 
@@ -2038,6 +2039,10 @@ function isAttentionMarketWatchRoute(pathname: string) {
 
 function isAbundanceDeskRoute(pathname: string) {
   return /^\/abundance\/?$/.test(pathname) || /^\/narratives\/abundance-desk\/?$/.test(pathname);
+}
+
+function isRhChainSignalDeskRoute(pathname: string) {
+  return /^\/rh-chain-signal-desk\/?$/.test(pathname) || /^\/narratives\/robinhood-chain\/?$/.test(pathname);
 }
 
 function isHermesDeskRoute(pathname: string) {
@@ -14423,6 +14428,7 @@ export function App() {
   if (isAttentionMarketsRoute(window.location.pathname)) return <AttentionMarketsPage />;
   if (isAttentionMarketWatchRoute(window.location.pathname)) return <AttentionMarketWatchPage />;
   if (isAbundanceDeskRoute(window.location.pathname)) return <AbundanceDeskPage narrativeRoute={/^\/narratives\/abundance-desk\/?$/.test(window.location.pathname)} />;
+  if (isRhChainSignalDeskRoute(window.location.pathname)) return <RhChainSignalDeskPage narrativeRoute={/^\/narratives\/robinhood-chain\/?$/.test(window.location.pathname)} />;
   if (isHermesDeskRoute(window.location.pathname)) return <HermesDeskPage narrativeRoute={/^\/narratives\/hermes-desk\/?$/.test(window.location.pathname)} memoryLoopRoute={/^\/hermes\/memory-loop\/?$/.test(window.location.pathname)} skillPackRoute={/^\/hermes\/skill-pack\/?$/.test(window.location.pathname)} reputationLedgerRoute={/^\/hermes\/reputation-ledger\/?$/.test(window.location.pathname)} preSpendDecisionRoute={/^\/hermes\/pre-spend-decision\/?$/.test(window.location.pathname)} spendPolicyRoute={/^\/hermes\/spend-policy\/?$/.test(window.location.pathname)} decisionFeedbackRoute={/^\/hermes\/decision-feedback\/?$/.test(window.location.pathname)} walletAuditTrailRoute={/^\/hermes\/wallet-audit-trail\/?$/.test(window.location.pathname)} walletRiskScoreRoute={/^\/hermes\/wallet-risk-score\/?$/.test(window.location.pathname)} walletSafetyRoute={/^\/hermes\/wallet-safety\/?$/.test(window.location.pathname)} />;
   const attentionMarketWatchSlug = routeAttentionMarketWatchSlug(window.location.pathname);
   if (attentionMarketWatchSlug) return <AttentionMarketWatchProfilePage slug={attentionMarketWatchSlug} />;

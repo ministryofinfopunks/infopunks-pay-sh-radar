@@ -8,6 +8,7 @@ import { payShCatalogFixture } from '../data/payShCatalogFixture';
 import { getNarrativeAssetBySlug, getSignalSurfaceBySlug, listNarrativeAssets, listSignalSurfaces } from '../data/narrativeIntel';
 import { getCandidateSignal, listCandidateSignals } from '../data/candidateSignals';
 import { getSignalDeskIndex } from '../data/signalDesk';
+import { getRhChainPayload, listRhChainMemes, listRhChainReceipts, listRhChainSignals } from '../data/rhChain';
 import { getLatestSignalUpdate, getSignalUpdate, getSignalUpdateSummary, listSignalUpdates } from '../data/signalUpdates';
 import { abundanceClaimsFeed, getAbundanceDeskPayload, machineWorkReceipts } from '../data/abundanceDesk';
 import { createSignalHuntSubmission, getSignalHuntCandidate, getSignalHuntCounts, listSignalHuntCandidates, verifySignalHuntCandidate } from '../data/signalHunt';
@@ -1655,6 +1656,21 @@ export async function createApp(
     return { data: signal };
   });
   app.get('/v1/narratives', async () => ({ data: listNarrativeAssets() }));
+  app.get('/v1/rh-chain', async () => ({ data: safeJsonExport(getRhChainPayload()) }));
+  app.get('/v1/rh-chain/memes', async () => ({ data: safeJsonExport({
+    generated_at: getRhChainPayload().generated_at,
+    source_policy: getRhChainPayload().source_policy,
+    memes: listRhChainMemes()
+  }) }));
+  app.get('/v1/rh-chain/signals', async () => ({ data: safeJsonExport({
+    generated_at: getRhChainPayload().generated_at,
+    source_policy: getRhChainPayload().source_policy,
+    ...listRhChainSignals()
+  }) }));
+  app.get('/v1/rh-chain/receipts', async () => ({ data: safeJsonExport({
+    generated_at: getRhChainPayload().generated_at,
+    receipts: listRhChainReceipts()
+  }) }));
   app.get('/v1/hermes', async () => ({ data: safeJsonExport(getHermesDeskSummary()) }));
   app.get('/v1/hermes/skill-pack', async () => ({ data: safeJsonExport(getHermesSkillPack()) }));
   app.get('/v1/hermes/spend-policy', async () => ({

@@ -1035,6 +1035,7 @@ function NarrativeIntelNav({ current }: { current: string }) {
     { href: '/narratives', label: 'Narrative Intel' },
     { href: '/narratives/attention-markets', label: 'Attention Markets' },
     { href: '/narratives/attention-market-watch', label: 'Attention Market Watch' },
+    { href: '/rh-chain-signal-desk', label: 'RH Chain' },
     { href: '/abundance', label: 'Abundance Desk' },
     { href: '/hermes', label: 'Hermes Desk' },
     { href: '/signals/ansem', label: 'Ansem' },
