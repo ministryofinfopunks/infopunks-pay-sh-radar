@@ -8,7 +8,7 @@ import { payShCatalogFixture } from '../data/payShCatalogFixture';
 import { getNarrativeAssetBySlug, getSignalSurfaceBySlug, listNarrativeAssets, listSignalSurfaces } from '../data/narrativeIntel';
 import { getCandidateSignal, listCandidateSignals } from '../data/candidateSignals';
 import { getSignalDeskIndex } from '../data/signalDesk';
-import { getRhChainPayload, listRhChainMemes, listRhChainReceipts, listRhChainSignals } from '../data/rhChain';
+import { createRhChainSignalReviewPacket, getRhChainPayload, listRhChainMemes, listRhChainReceipts, listRhChainSignals } from '../data/rhChain';
 import { getLatestSignalUpdate, getSignalUpdate, getSignalUpdateSummary, listSignalUpdates } from '../data/signalUpdates';
 import { abundanceClaimsFeed, getAbundanceDeskPayload, machineWorkReceipts } from '../data/abundanceDesk';
 import { createSignalHuntSubmission, getSignalHuntCandidate, getSignalHuntCounts, listSignalHuntCandidates, verifySignalHuntCandidate } from '../data/signalHunt';
@@ -464,6 +464,30 @@ const AttentionMarketIntakeRequestSchema = z.object({
   submitter_handle: z.string().min(1).optional(),
   why_it_matters: z.string().min(1),
   evidence_links: z.array(z.string()).optional()
+});
+const optionalRhChainText = z.preprocess((value) => {
+  if (typeof value !== 'string') return value;
+  const trimmed = value.trim();
+  return trimmed.length ? trimmed : undefined;
+}, z.string().min(1).optional());
+const RhChainSignalSubmissionSchema = z.object({
+  token_contract: z.string().trim().min(1),
+  ticker: z.string().trim().min(1),
+  chain: z.string().trim().min(1).default('Robinhood Chain'),
+  x_twitter_link: optionalRhChainText,
+  website_link: optionalRhChainText,
+  liquidity_link: optionalRhChainText,
+  deployer_notes: optionalRhChainText,
+  submitter_notes: optionalRhChainText,
+  disclosure_confirmed: z.boolean().refine((value) => value, { message: 'disclosure_must_be_confirmed' })
+}).strict().superRefine((value, ctx) => {
+  if (!value.x_twitter_link && !value.website_link && !value.liquidity_link && !value.deployer_notes) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'at_least_one_receipt_or_deployer_note_required',
+      path: ['x_twitter_link']
+    });
+  }
 });
 const MAX_INLINE_SUPPORTING_EVENT_IDS = 10;
 const DEFAULT_ALLOWED_ORIGINS = new Set([
@@ -1667,6 +1691,11 @@ export async function createApp(
     source_policy: getRhChainPayload().source_policy,
     ...listRhChainSignals()
   }) }));
+  app.post('/v1/rh-chain/signals/submit', async (req, reply) => handleParsed(req.body, RhChainSignalSubmissionSchema, (input) => ({
+    data: safeJsonExport({
+      review_packet: createRhChainSignalReviewPacket(input)
+    })
+  }), reply));
   app.get('/v1/rh-chain/receipts', async () => ({ data: safeJsonExport({
     generated_at: getRhChainPayload().generated_at,
     receipts: listRhChainReceipts()

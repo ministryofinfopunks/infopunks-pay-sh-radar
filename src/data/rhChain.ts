@@ -93,6 +93,36 @@ export type RhChainReceipt = {
   caveat: string;
 };
 
+export type RhChainSignalSubmissionInput = {
+  token_contract: string;
+  ticker: string;
+  chain?: string;
+  x_twitter_link?: string;
+  website_link?: string;
+  liquidity_link?: string;
+  deployer_notes?: string;
+  submitter_notes?: string;
+  disclosure_confirmed: boolean;
+};
+
+export type RhChainSignalReviewPacket = {
+  submission_id: string;
+  submitted_at: string;
+  token_contract: string;
+  ticker: string;
+  chain: string;
+  links: {
+    x_twitter: string | null;
+    website: string | null;
+    liquidity: string | null;
+  };
+  deployer_notes: string | null;
+  submitter_notes: string | null;
+  disclosure_confirmed: boolean;
+  review_status: 'queued_for_manual_review';
+  next_step: 'Infopunks will review the signal manually before adding it to the public desk.';
+};
+
 export type RhChainPayload = {
   title: string;
   subtitle: string;
@@ -482,4 +512,37 @@ export function listRhChainSignals() {
 
 export function listRhChainReceipts() {
   return rhChainPayload.receipts;
+}
+
+function compactOptional(value: string | undefined) {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
+
+function submissionId(ticker: string, submittedAt: string) {
+  const safeTicker = ticker.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'signal';
+  const stamp = submittedAt.replace(/[^0-9]/g, '').slice(0, 14);
+  return `rh-chain-${safeTicker}-${stamp}`;
+}
+
+export function createRhChainSignalReviewPacket(input: RhChainSignalSubmissionInput, submittedAt = new Date().toISOString()): RhChainSignalReviewPacket {
+  const ticker = input.ticker.trim().toUpperCase();
+  const chain = input.chain?.trim() || 'Robinhood Chain';
+  return {
+    submission_id: submissionId(ticker, submittedAt),
+    submitted_at: submittedAt,
+    token_contract: input.token_contract.trim(),
+    ticker,
+    chain,
+    links: {
+      x_twitter: compactOptional(input.x_twitter_link),
+      website: compactOptional(input.website_link),
+      liquidity: compactOptional(input.liquidity_link)
+    },
+    deployer_notes: compactOptional(input.deployer_notes),
+    submitter_notes: compactOptional(input.submitter_notes),
+    disclosure_confirmed: input.disclosure_confirmed,
+    review_status: 'queued_for_manual_review',
+    next_step: 'Infopunks will review the signal manually before adding it to the public desk.'
+  };
 }

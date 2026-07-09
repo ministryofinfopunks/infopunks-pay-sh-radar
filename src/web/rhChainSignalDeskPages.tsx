@@ -5,6 +5,7 @@ import type {
   RhChainPulseMetric,
   RhChainReceipt,
   RhChainRiskState,
+  RhChainSignalReviewPacket,
   RhChainSignalIndexAsset,
   RhChainSignalLabel,
   RhChainSource
@@ -22,9 +23,26 @@ async function api<T>(path: string) {
   return response.json() as Promise<{ data: T }>;
 }
 
+async function postApi<T>(path: string, body: unknown) {
+  const response = await fetch(toApiUrl(API_BASE_URL, path), {
+    method: 'POST',
+    headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  const payload = await response.json().catch(() => null) as { error?: string; issues?: Array<{ message?: string }>; data?: T } | null;
+  if (!response.ok) {
+    const issue = payload?.issues?.[0]?.message;
+    throw new Error(issue || payload?.error || `${path} ${response.status}`);
+  }
+  if (!payload || !('data' in payload)) throw new Error('invalid_api_response');
+  return payload as { data: T };
+}
+
 function syncPageMetadata(path: string) {
-  const title = 'RH Chain Signal Desk';
-  const description = 'Wall Street rails. Meme liquidity. Infopunks intelligence.';
+  const title = path === '/rh-chain-signal-desk/submit' ? 'Submit Signal | RH Chain Signal Desk' : 'RH Chain Signal Desk';
+  const description = path === '/rh-chain-signal-desk/submit'
+    ? 'Submit a Robinhood Chain token or signal for Infopunks public intelligence review.'
+    : 'Wall Street rails. Meme liquidity. Infopunks intelligence.';
   const canonical = `${NARRATIVE_PUBLIC_HOST}${path}`;
   document.title = title;
   setMeta('description', description);
@@ -54,12 +72,12 @@ function setCanonical(href: string) {
   link.href = href;
 }
 
-export function RhChainSignalDeskPage({ narrativeRoute = false }: { narrativeRoute?: boolean }) {
+export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = false }: { narrativeRoute?: boolean; submitRoute?: boolean }) {
   const [desk, setDesk] = useState<RhChainPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [risk, setRisk] = useState<RhChainRiskState | 'all'>('all');
-  const currentPath = narrativeRoute ? '/narratives/robinhood-chain' : '/rh-chain-signal-desk';
+  const currentPath = submitRoute ? '/rh-chain-signal-desk/submit' : narrativeRoute ? '/narratives/robinhood-chain' : '/rh-chain-signal-desk';
 
   useEffect(() => {
     syncPageMetadata(currentPath);
@@ -96,6 +114,7 @@ export function RhChainSignalDeskPage({ narrativeRoute = false }: { narrativeRou
             <p className="copy narrative-rally-line">Intelligence desk, not casino.</p>
             <div className="panel-actions">
               <a className="execute" href="#meme-pulse">Open Meme Pulse</a>
+              <a className="execute compact secondary" href={submitRoute ? '#submit-signal' : '/rh-chain-signal-desk/submit'}>Submit Signal</a>
               <a className="execute compact secondary" href="/v1/rh-chain">JSON</a>
               <a className="execute compact secondary" href="/v1/rh-chain/receipts">Receipts</a>
             </div>
@@ -108,14 +127,16 @@ export function RhChainSignalDeskPage({ narrativeRoute = false }: { narrativeRou
           </aside>
         </section>
 
-        <RhChainPulseSection desk={desk} />
-        <MemePulseSection memes={visibleMemes} allMemes={desk.meme_pulse} query={query} risk={risk} onQuery={setQuery} onRisk={setRisk} />
-        <SignalClassifierSection desk={desk} />
-        <RiskWallSection desk={desk} />
-        <StockTokenSpilloverSection desk={desk} />
-        <SubmitSignalSection />
-        <SignalIndexSection assets={desk.signal_index_4663} />
-        <ReceiptsSection receipts={desk.receipts} />
+        {submitRoute ? <SubmitSignalSection /> : <>
+          <RhChainPulseSection desk={desk} />
+          <MemePulseSection memes={visibleMemes} allMemes={desk.meme_pulse} query={query} risk={risk} onQuery={setQuery} onRisk={setRisk} />
+          <SignalClassifierSection desk={desk} />
+          <RiskWallSection desk={desk} />
+          <StockTokenSpilloverSection desk={desk} />
+          <SubmitSignalSection />
+          <SignalIndexSection assets={desk.signal_index_4663} />
+          <ReceiptsSection receipts={desk.receipts} />
+        </>}
       </>}
     </main>
   </div>;
@@ -124,6 +145,7 @@ export function RhChainSignalDeskPage({ narrativeRoute = false }: { narrativeRou
 function RhChainNav({ current }: { current: string }) {
   const links = [
     { href: '/rh-chain-signal-desk', label: 'RH Chain Desk' },
+    { href: '/rh-chain-signal-desk/submit', label: 'Submit Signal' },
     { href: '/narratives/robinhood-chain', label: 'Narrative Alias' },
     { href: '/narratives', label: 'Narrative Intel' },
     { href: '/narratives/attention-market-watch', label: 'Attention Market Watch' },
@@ -332,35 +354,149 @@ function StockTokenSpilloverSection({ desk }: { desk: RhChainPayload }) {
   </section>;
 }
 
+type RhChainSubmitForm = {
+  token_contract: string;
+  ticker: string;
+  chain: string;
+  x_twitter_link: string;
+  website_link: string;
+  liquidity_link: string;
+  deployer_notes: string;
+  submitter_notes: string;
+  disclosure_confirmed: boolean;
+};
+
+const RH_CHAIN_DISCLOSURE = 'I understand this is not an endorsement, listing, partnership, or financial recommendation. I am submitting this token for public intelligence review only.';
+
+const emptySubmitForm: RhChainSubmitForm = {
+  token_contract: '',
+  ticker: '',
+  chain: 'Robinhood Chain',
+  x_twitter_link: '',
+  website_link: '',
+  liquidity_link: '',
+  deployer_notes: '',
+  submitter_notes: '',
+  disclosure_confirmed: false
+};
+
 function SubmitSignalSection() {
-  const [submitted, setSubmitted] = useState(false);
-  const [disclosed, setDisclosed] = useState(false);
-  return <section className="panel rh-chain-section" aria-label="Submit Signal">
+  const [form, setForm] = useState<RhChainSubmitForm>(emptySubmitForm);
+  const [errors, setErrors] = useState<string[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [packet, setPacket] = useState<RhChainSignalReviewPacket | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  function setField<K extends keyof RhChainSubmitForm>(field: K, value: RhChainSubmitForm[K]) {
+    setForm((current) => ({ ...current, [field]: value }));
+    setErrors([]);
+    setCopied(false);
+  }
+
+  function validate(next: RhChainSubmitForm) {
+    const nextErrors: string[] = [];
+    if (!next.token_contract.trim()) nextErrors.push('Token contract address is required.');
+    if (!next.ticker.trim()) nextErrors.push('Ticker is required.');
+    if (!next.chain.trim()) nextErrors.push('Chain is required.');
+    if (!next.disclosure_confirmed) nextErrors.push('Disclosure must be confirmed.');
+    if (!next.x_twitter_link.trim() && !next.website_link.trim() && !next.liquidity_link.trim() && !next.deployer_notes.trim()) {
+      nextErrors.push('No receipt, no signal. Add an X link, website link, liquidity link, or deployer notes.');
+    }
+    return nextErrors;
+  }
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setCopied(false);
+    const nextErrors = validate(form);
+    if (nextErrors.length) {
+      setErrors(nextErrors);
+      return;
+    }
+    setSubmitting(true);
+    setErrors([]);
+    try {
+      const response = await postApi<{ review_packet: RhChainSignalReviewPacket }>('/v1/rh-chain/signals/submit', {
+        token_contract: form.token_contract.trim(),
+        ticker: form.ticker.trim(),
+        chain: form.chain.trim() || 'Robinhood Chain',
+        x_twitter_link: form.x_twitter_link.trim() || undefined,
+        website_link: form.website_link.trim() || undefined,
+        liquidity_link: form.liquidity_link.trim() || undefined,
+        deployer_notes: form.deployer_notes.trim() || undefined,
+        submitter_notes: form.submitter_notes.trim() || undefined,
+        disclosure_confirmed: form.disclosure_confirmed
+      });
+      setPacket(response.data.review_packet);
+    } catch (error) {
+      setErrors([error instanceof Error ? humanizeSubmitError(error.message) : 'submit_signal_unavailable']);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  const packetText = packet ? JSON.stringify(packet, null, 2) : '';
+
+  async function copyPacket() {
+    if (!packetText) return;
+    await navigator.clipboard?.writeText(packetText);
+    setCopied(true);
+  }
+
+  return <section id="submit-signal" className="panel rh-chain-section" aria-label="Submit Signal">
     <div className="rh-chain-section-head">
       <div>
-        <p className="section-kicker">Submit Signal</p>
+        <p className="section-kicker">Submit a signal</p>
         <h2>Submit Signal</h2>
-        <p>Stage a token for review. Promotion requires receipts, source timestamps, and risk disclosure.</p>
+        <p>Receipts before attention. Manual review required. Public intelligence, not endorsement.</p>
       </div>
+      <span className="rh-chain-risk-badge risk-source_required">No receipt, no signal</span>
     </div>
-    <form className="rh-chain-submit-form" onSubmit={(event) => {
-      event.preventDefault();
-      setSubmitted(true);
-    }}>
-      <label><span>Token contract</span><input name="contract" aria-label="Token contract" placeholder="0x... or explorer URL" /></label>
-      <label><span>Ticker</span><input name="ticker" aria-label="Ticker" placeholder="TICKR" /></label>
-      <label className="wide"><span>Links</span><textarea name="links" aria-label="Links" rows={4} placeholder="One source per line" /></label>
-      <label className="wide"><span>Notes</span><textarea name="notes" aria-label="Notes" rows={4} placeholder="Receipts, holder notes, deployer warnings, route context" /></label>
+    <p className="rh-chain-disclaimer">Submission does not mean the token is safe, ranked, endorsed, listed, partnered, or recommended. Infopunks will not auto-add submissions to the public desk.</p>
+    <form className="rh-chain-submit-form" onSubmit={handleSubmit}>
+      <label><span>Token contract address</span><input name="token_contract" aria-label="Token contract address" value={form.token_contract} onChange={(event) => setField('token_contract', event.target.value)} placeholder="0x... or explorer contract" required /></label>
+      <label><span>Ticker</span><input name="ticker" aria-label="Ticker" value={form.ticker} onChange={(event) => setField('ticker', event.target.value)} placeholder="TICKR" required /></label>
+      <label><span>Chain</span><input name="chain" aria-label="Chain" value={form.chain} onChange={(event) => setField('chain', event.target.value)} required /></label>
+      <label><span>X / Twitter link</span><input name="x_twitter_link" aria-label="X or Twitter link" value={form.x_twitter_link} onChange={(event) => setField('x_twitter_link', event.target.value)} placeholder="https://x.com/..." /></label>
+      <label><span>Website link</span><input name="website_link" aria-label="Website link" value={form.website_link} onChange={(event) => setField('website_link', event.target.value)} placeholder="https://..." /></label>
+      <label><span>Liquidity link</span><input name="liquidity_link" aria-label="Liquidity link" value={form.liquidity_link} onChange={(event) => setField('liquidity_link', event.target.value)} placeholder="DEX pool, explorer, or liquidity receipt" /></label>
+      <label className="wide"><span>Deployer notes</span><textarea name="deployer_notes" aria-label="Deployer notes" rows={4} value={form.deployer_notes} onChange={(event) => setField('deployer_notes', event.target.value)} placeholder="Deployer wallet, funding path, ownership controls, warnings" /></label>
+      <label className="wide"><span>Submitter notes</span><textarea name="submitter_notes" aria-label="Submitter notes" rows={4} value={form.submitter_notes} onChange={(event) => setField('submitter_notes', event.target.value)} placeholder="Why this belongs on the intelligence desk" /></label>
       <label className="rh-chain-checkbox wide">
-        <input type="checkbox" checked={disclosed} onChange={(event) => setDisclosed(event.target.checked)} />
-        <span>I disclose affiliation, holdings, paid promotion, and any deployer or market-maker connection.</span>
+        <input type="checkbox" checked={form.disclosure_confirmed} onChange={(event) => setField('disclosure_confirmed', event.target.checked)} />
+        <span>{RH_CHAIN_DISCLOSURE}</span>
       </label>
       <div className="panel-actions wide">
-        <button className="execute" type="submit" disabled={!disclosed}>Stage Signal</button>
+        <button className="execute" type="submit" disabled={submitting}>{submitting ? 'Queueing review...' : 'Submit a signal'}</button>
       </div>
     </form>
-    {submitted && <p className="route-state ok">Signal staged locally. Backend intake is not enabled for this desk yet.</p>}
+    {errors.length > 0 && <div className="route-state error rh-chain-submit-errors">
+      {errors.map((error) => <p key={error}>{error}</p>)}
+    </div>}
+    {packet && <div className="rh-chain-review-packet" aria-live="polite">
+      <div className="rh-chain-section-head">
+        <div>
+          <p className="section-kicker">Review packet</p>
+          <h3>Manual review required</h3>
+          <p>Queued for public intelligence review only. This packet is not a safety claim.</p>
+        </div>
+        <button className="execute compact secondary" type="button" onClick={copyPacket}>{copied ? 'Copied' : 'Copy packet'}</button>
+      </div>
+      <div className="rh-chain-packet-grid">
+        <p><span>submission_id</span><strong>{packet.submission_id}</strong></p>
+        <p><span>review_status</span><strong>{packet.review_status}</strong></p>
+        <p><span>ticker</span><strong>{packet.ticker}</strong></p>
+        <p><span>chain</span><strong>{packet.chain}</strong></p>
+      </div>
+      <pre className="rh-chain-packet-pre">{packetText}</pre>
+    </div>}
   </section>;
+}
+
+function humanizeSubmitError(value: string) {
+  if (value === 'at_least_one_receipt_or_deployer_note_required') return 'No receipt, no signal. Add an X link, website link, liquidity link, or deployer notes.';
+  if (value === 'invalid_request') return 'Submission failed validation.';
+  return value;
 }
 
 function SignalIndexSection({ assets }: { assets: RhChainSignalIndexAsset[] }) {
