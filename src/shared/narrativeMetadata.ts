@@ -104,6 +104,9 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
       '/rh-chain-signal-desk/daily-receipts'
     );
   }
+  if (/^\/rh-chain-signal-desk\/live-snapshot\/?$/.test(pathname)) {
+    return buildMetadata('RH Chain Live Snapshot', 'Cached external market context for the RH Chain intelligence desk.', '/rh-chain-signal-desk/live-snapshot');
+  }
 
   if (/^\/rh-chain-signal-desk\/?$/.test(pathname) || /^\/narratives\/robinhood-chain\/?$/.test(pathname)) {
     return buildMetadata(

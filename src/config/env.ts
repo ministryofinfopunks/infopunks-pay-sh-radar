@@ -19,6 +19,10 @@ export type RuntimeConfig = {
   monitorMaxProviders: number | null;
   featuredProviderRotationMs: number;
   machineDemoSeed: boolean;
+  rhChainLiveSnapshotsEnabled: boolean;
+  rhChainProviderTimeoutMs: number;
+  rhChainCacheTtlSeconds: number | null;
+  rhChainBlockscoutUrl: string | null;
   frontendOrigin: string | null;
   version: string;
 };
@@ -45,6 +49,10 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
     monitorMaxProviders: readOptionalPositiveInteger('MONITOR_MAX_PROVIDERS', env.MONITOR_MAX_PROVIDERS),
     featuredProviderRotationMs: readPositiveInteger('FEATURED_PROVIDER_ROTATION_MS', env.FEATURED_PROVIDER_ROTATION_MS, 10 * 60 * 1000),
     machineDemoSeed: readBoolean('MACHINE_DEMO_SEED', env.MACHINE_DEMO_SEED, nodeEnv === 'development'),
+    rhChainLiveSnapshotsEnabled: readBoolean('RH_CHAIN_LIVE_SNAPSHOTS_ENABLED', env.RH_CHAIN_LIVE_SNAPSHOTS_ENABLED, false),
+    rhChainProviderTimeoutMs: readPositiveInteger('RH_CHAIN_PROVIDER_TIMEOUT_MS', env.RH_CHAIN_PROVIDER_TIMEOUT_MS, 2_500),
+    rhChainCacheTtlSeconds: readOptionalPositiveInteger('RH_CHAIN_CACHE_TTL_SECONDS', env.RH_CHAIN_CACHE_TTL_SECONDS),
+    rhChainBlockscoutUrl: readOptionalUrl('RH_CHAIN_BLOCKSCOUT_URL', env.RH_CHAIN_BLOCKSCOUT_URL),
     frontendOrigin: readOptionalUrl('FRONTEND_ORIGIN', env.FRONTEND_ORIGIN),
     version: env.APP_VERSION ?? packageVersion()
   };
@@ -65,6 +73,7 @@ export function deploymentSummary(config: RuntimeConfig) {
     monitorEnabled: config.monitorEnabled,
     monitorMode: config.monitorMode,
     machineDemoSeed: config.machineDemoSeed,
+    rhChainLiveSnapshotsEnabled: config.rhChainLiveSnapshotsEnabled,
     ingestionEnabled: config.ingestionEnabled,
     dbMode: config.databaseUrl ? 'postgres' : 'memory',
     catalogSource: config.payShCatalogSource,
