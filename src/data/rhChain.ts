@@ -10,7 +10,7 @@ export type RhChainSignalLabel =
 
 export type RhChainRiskState = 'low_watch' | 'medium_watch' | 'high_risk' | 'source_required' | 'do_not_touch_yet';
 
-export type RhChainDataFreshness = 'seeded' | 'manual' | 'community_submission' | 'persisted' | 'cached' | 'live_future';
+export type RhChainDataFreshness = 'seeded' | 'manual' | 'community_submission' | 'persisted' | 'live_cached' | 'unavailable' | 'cached' | 'live_future';
 
 export type RhChainConfidenceLevel = 'low' | 'medium' | 'high';
 

@@ -44,6 +44,7 @@ describe('RH Chain Signal Desk pages', () => {
       if (pathOf(input) === '/v1/rh-chain/review-queue') return json(reviewQueue);
       if (pathOf(input) === '/v1/rh-chain/4663-index') return json(getRhChain4663Index());
       if (pathOf(input) === '/v1/rh-chain/daily-receipts') return json(getRhChainDailyReceipts());
+      if (pathOf(input) === '/v1/rh-chain/live-snapshot') return json({ title: 'RH Chain Live Snapshot', generated_at: '2026-07-11T00:00:00.000Z', live_snapshots_enabled: false, chain_metrics: { tvl_usd: null, dex_volume_24h_usd: null, stablecoin_market_cap_usd: null, protocol_count: null, source_timestamp: null, freshness: 'seeded' }, meme_category: { market_cap_usd: null, volume_24h_usd: null, top_assets: [], source_timestamp: null, freshness: 'seeded' }, provider_statuses: ['DefiLlama', 'CoinGecko', 'DexScreener', 'Blockscout'].map((provider_name) => ({ provider_name, status: 'disabled', fetched_at: null, expires_at: null, error_summary: 'Live snapshots are disabled.' })), cache_status: 'disabled', disclaimer: 'Live Snapshot data is external, cached, and informational. It is not an endorsement, listing, partnership, trading signal, or financial recommendation.' });
       return Promise.resolve(new Response('{}', { status: 404 }));
     });
   });
@@ -141,5 +142,13 @@ describe('RH Chain Signal Desk pages', () => {
     root = await renderPath(container, '/rh-chain-signal-desk/review-queue');
     expect(container.textContent).toContain('Community submission');
     expect(container.textContent).toContain('VAULT');
+  });
+
+  it('renders the Live Snapshot provider status route', async () => {
+    root = await renderPath(container, '/rh-chain-signal-desk/live-snapshot');
+    expect(container.textContent).toContain('RH Chain Live Snapshot');
+    expect(container.textContent).toContain('Provider Status');
+    expect(container.textContent).toContain('DefiLlama');
+    expect(container.textContent).toContain('Live Snapshot data is external, cached, and informational.');
   });
 });

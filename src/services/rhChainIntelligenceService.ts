@@ -157,7 +157,7 @@ function resolveRhChainDataMode(sources: RhChainSource[]): RhChainDataFreshness 
 function dataModeFor(data: unknown, sources: RhChainSource[]): RhChainDataFreshness {
   if (data && typeof data === 'object' && 'data_mode' in data) {
     const value = (data as { data_mode?: unknown }).data_mode;
-    if (value === 'seeded' || value === 'manual' || value === 'community_submission' || value === 'persisted' || value === 'cached' || value === 'live_future') return value;
+    if (value === 'seeded' || value === 'manual' || value === 'community_submission' || value === 'persisted' || value === 'live_cached' || value === 'unavailable' || value === 'cached' || value === 'live_future') return value;
   }
   return resolveRhChainDataMode(sources);
 }

@@ -19,6 +19,7 @@ import type {
 import { NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import type { RhChainSignalSubmission } from '../services/rhChainSignalVault';
+import type { RhChainLiveSnapshot } from '../services/rhChainLiveSnapshotService';
 
 const API_BASE_URL = getApiBaseUrl();
 
@@ -46,7 +47,9 @@ async function postApi<T>(path: string, body: unknown) {
 }
 
 function syncPageMetadata(path: string) {
-  const title = path === '/rh-chain-signal-desk/daily-receipts'
+  const title = path === '/rh-chain-signal-desk/live-snapshot'
+    ? 'RH Chain Live Snapshot'
+    : path === '/rh-chain-signal-desk/daily-receipts'
     ? 'Daily RH Chain Receipts'
     : path === '/rh-chain-signal-desk/4663-index'
     ? '4663 Signal Index'
@@ -55,7 +58,9 @@ function syncPageMetadata(path: string) {
     : path === '/rh-chain-signal-desk/submit'
       ? 'Submit Signal | RH Chain Signal Desk'
       : 'RH Chain Signal Desk';
-  const description = path === '/rh-chain-signal-desk/daily-receipts'
+  const description = path === '/rh-chain-signal-desk/live-snapshot'
+    ? 'Cached external market context for the RH Chain intelligence desk.'
+    : path === '/rh-chain-signal-desk/daily-receipts'
     ? 'The market forgets. Infopunks keeps the memory.'
     : path === '/rh-chain-signal-desk/4663-index'
     ? 'A living index of Robinhood Chain attention assets, risk states, and narrative mutations.'
@@ -93,15 +98,16 @@ function setCanonical(href: string) {
   link.href = href;
 }
 
-export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = false, reviewQueueRoute = false, indexRoute = false, dailyReceiptsRoute = false }: { narrativeRoute?: boolean; submitRoute?: boolean; reviewQueueRoute?: boolean; indexRoute?: boolean; dailyReceiptsRoute?: boolean }) {
+export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = false, reviewQueueRoute = false, indexRoute = false, dailyReceiptsRoute = false, liveSnapshotRoute = false }: { narrativeRoute?: boolean; submitRoute?: boolean; reviewQueueRoute?: boolean; indexRoute?: boolean; dailyReceiptsRoute?: boolean; liveSnapshotRoute?: boolean }) {
   const [desk, setDesk] = useState<RhChainPayload | null>(null);
   const [reviewQueue, setReviewQueue] = useState<RhChainReviewQueuePayload | null>(null);
   const [signalIndex, setSignalIndex] = useState<RhChain4663IndexPayload | null>(null);
   const [dailyReceipts, setDailyReceipts] = useState<RhChainDailyReceiptsPayload | null>(null);
+  const [liveSnapshot, setLiveSnapshot] = useState<RhChainLiveSnapshot | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [risk, setRisk] = useState<RhChainRiskState | 'all'>('all');
-  const currentPath = dailyReceiptsRoute ? '/rh-chain-signal-desk/daily-receipts' : indexRoute ? '/rh-chain-signal-desk/4663-index' : reviewQueueRoute ? '/rh-chain-signal-desk/review-queue' : submitRoute ? '/rh-chain-signal-desk/submit' : narrativeRoute ? '/narratives/robinhood-chain' : '/rh-chain-signal-desk';
+  const currentPath = liveSnapshotRoute ? '/rh-chain-signal-desk/live-snapshot' : dailyReceiptsRoute ? '/rh-chain-signal-desk/daily-receipts' : indexRoute ? '/rh-chain-signal-desk/4663-index' : reviewQueueRoute ? '/rh-chain-signal-desk/review-queue' : submitRoute ? '/rh-chain-signal-desk/submit' : narrativeRoute ? '/narratives/robinhood-chain' : '/rh-chain-signal-desk';
 
   useEffect(() => {
     syncPageMetadata(currentPath);
@@ -120,6 +126,9 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
     api<RhChainDailyReceiptsPayload>('/v1/rh-chain/daily-receipts')
       .then((response) => setDailyReceipts(response.data))
       .catch((err) => setError(err instanceof Error ? err.message : 'rh_chain_daily_receipts_unavailable'));
+    api<RhChainLiveSnapshot>('/v1/rh-chain/live-snapshot')
+      .then((response) => setLiveSnapshot(response.data))
+      .catch(() => undefined);
   }, []);
 
   const visibleMemes = useMemo(() => {
@@ -142,8 +151,8 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
         <section className="panel hero rh-chain-hero">
           <div>
             <p className="eyebrow">{dailyReceiptsRoute ? 'Daily Market Memory' : indexRoute ? 'Public Market Memory' : reviewQueueRoute ? 'Public Review Pipeline' : 'Public Intelligence Desk'}</p>
-            <h1>{dailyReceiptsRoute ? 'Daily RH Chain Receipts' : indexRoute ? '4663 Signal Index' : reviewQueueRoute ? 'RH Chain Review Queue' : desk.title}</h1>
-            <p className="copy">{dailyReceiptsRoute ? 'The market forgets. Infopunks keeps the memory.' : indexRoute ? 'Wall Street rails. Meme liquidity. Ranked by receipts.' : reviewQueueRoute ? 'Signals enter the desk. Receipts decide what survives.' : desk.subtitle}</p>
+            <h1>{liveSnapshotRoute ? 'RH Chain Live Snapshot' : dailyReceiptsRoute ? 'Daily RH Chain Receipts' : indexRoute ? '4663 Signal Index' : reviewQueueRoute ? 'RH Chain Review Queue' : desk.title}</h1>
+            <p className="copy">{liveSnapshotRoute ? 'External market context, cached with receipts.' : dailyReceiptsRoute ? 'The market forgets. Infopunks keeps the memory.' : indexRoute ? 'Wall Street rails. Meme liquidity. Ranked by receipts.' : reviewQueueRoute ? 'Signals enter the desk. Receipts decide what survives.' : desk.subtitle}</p>
             <p className="copy narrative-rally-line">{dailyReceiptsRoute ? 'Receipts before narrative drift.' : indexRoute ? 'Intelligence index, not a token.' : reviewQueueRoute ? 'Public memory, not endorsement.' : 'Intelligence desk, not casino.'}</p>
             <div className="panel-actions">
               <a className="execute" href={dailyReceiptsRoute ? '#latest-receipt' : indexRoute ? '#ranked-index' : reviewQueueRoute ? '#queue-board' : '#meme-pulse'}>{dailyReceiptsRoute ? 'Open Latest Receipt' : indexRoute ? 'Open Ranked Index' : reviewQueueRoute ? 'Open Queue Board' : 'Open Meme Pulse'}</a>
@@ -151,6 +160,7 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
               <a className="execute compact secondary" href="/rh-chain-signal-desk/daily-receipts">Daily Receipts</a>
               <a className="execute compact secondary" href="/rh-chain-signal-desk/4663-index">Open 4663 Index</a>
               <a className="execute compact secondary" href="/rh-chain-signal-desk/review-queue">View Review Queue</a>
+              <a className="execute compact secondary" href="/rh-chain-signal-desk/live-snapshot">Live Snapshot</a>
             </div>
           </div>
           <aside className="rh-chain-hero-rail" aria-label="Desk policy">
@@ -161,11 +171,12 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
           </aside>
         </section>
 
-        {dailyReceiptsRoute && dailyReceipts ? <RhChainDailyReceiptsPage feed={dailyReceipts} /> : indexRoute && signalIndex ? <RhChain4663IndexPage index={signalIndex} /> : reviewQueueRoute && reviewQueue ? <RhChainReviewQueuePage queue={reviewQueue} /> : submitRoute ? <SubmitSignalSection /> : <>
+        {liveSnapshotRoute && liveSnapshot ? <LiveSnapshotPage snapshot={liveSnapshot} /> : dailyReceiptsRoute && dailyReceipts ? <RhChainDailyReceiptsPage feed={dailyReceipts} /> : indexRoute && signalIndex ? <RhChain4663IndexPage index={signalIndex} /> : reviewQueueRoute && reviewQueue ? <RhChainReviewQueuePage queue={reviewQueue} /> : submitRoute ? <SubmitSignalSection /> : <>
           <RhChainPulseSection desk={desk} />
           {dailyReceipts && <DailyReceiptsPreview feed={dailyReceipts} />}
           {signalIndex && <SignalIndexPreview index={signalIndex} />}
           {reviewQueue && <ReviewQueuePreview queue={reviewQueue} />}
+          {liveSnapshot && <LiveSnapshotPreview snapshot={liveSnapshot} />}
           <MemePulseSection memes={visibleMemes} allMemes={desk.meme_pulse} query={query} risk={risk} onQuery={setQuery} onRisk={setRisk} />
           <SignalClassifierSection desk={desk} />
           <RiskWallSection desk={desk} />
@@ -186,6 +197,7 @@ function RhChainNav({ current }: { current: string }) {
     { href: '/rh-chain-signal-desk/review-queue', label: 'Review Queue' },
     { href: '/rh-chain-signal-desk/4663-index', label: '4663 Index' },
     { href: '/rh-chain-signal-desk/daily-receipts', label: 'Daily Receipts' }
+    , { href: '/rh-chain-signal-desk/live-snapshot', label: 'Live Snapshot' }
   ];
   return <nav className="global-toolbar narrative-toolbar" aria-label="RH Chain Signal Desk navigation">
     <a className="nav-brand" href="/" aria-label="Infopunks Radar home">
@@ -654,6 +666,51 @@ function ReviewQueuePreview({ queue }: { queue: RhChainReviewQueuePayload }) {
     </div>
   </section>;
 }
+
+type RhChainTokenSnapshotResponse = {
+  contract: string;
+  token_pair: { dex_url: string | null; pair_address: string | null; liquidity_usd: number | null; volume_24h_usd: number | null; fdv_usd: number | null; market_cap_usd: number | null; pair_created_at: string | null; source_timestamp: string | null } | null;
+  explorer: { explorer_url: string | null; contract_verified: boolean | null } | null;
+  disclaimer: string;
+  judgment_policy?: string;
+};
+
+function LiveSnapshotPreview({ snapshot }: { snapshot: RhChainLiveSnapshot }) {
+  return <section className="panel rh-chain-section" aria-label="Live Snapshot Preview">
+    <div className="rh-chain-section-head"><div><p className="section-kicker">Live Snapshot Layer</p><h2>External context, cached</h2><p>Provider data is read-only and timestamped. It does not change review decisions.</p></div><a className="execute compact secondary" href="/rh-chain-signal-desk/live-snapshot">Open Live Snapshot</a></div>
+    <div className="rh-chain-review-stat-grid">
+      {snapshot.provider_statuses.map((provider) => <article key={provider.provider_name} className="rh-chain-review-stat"><span>{provider.provider_name}</span><strong>{provider.status}</strong></article>)}
+    </div>
+  </section>;
+}
+
+function LiveSnapshotPage({ snapshot }: { snapshot: RhChainLiveSnapshot }) {
+  const [contract, setContract] = useState('');
+  const [result, setResult] = useState<RhChainTokenSnapshotResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  async function lookup(event: React.FormEvent) {
+    event.preventDefault();
+    if (!contract.trim()) return;
+    setError(null);
+    try { setResult((await api<RhChainTokenSnapshotResponse>(`/v1/rh-chain/live-snapshot/token/${encodeURIComponent(contract.trim())}`)).data); }
+    catch (lookupError) { setError(lookupError instanceof Error ? lookupError.message : 'token_snapshot_unavailable'); }
+  }
+  const metrics = snapshot.chain_metrics;
+  const category = snapshot.meme_category;
+  return <>
+    <section className="panel rh-chain-section" aria-label="Provider Status">
+      <div className="rh-chain-section-head"><div><p className="section-kicker">Provider status</p><h2>Provider Status</h2><p>Freshness describes a cached external read, not live certainty.</p></div><span className="source-badge">{snapshot.live_snapshots_enabled ? 'live reads enabled' : 'live reads disabled'}</span></div>
+      <div className="rh-chain-review-stat-grid">{snapshot.provider_statuses.map((provider) => <article className="rh-chain-review-stat" key={provider.provider_name}><span>{provider.provider_name}</span><strong>{provider.status}</strong><small>{provider.fetched_at ? `fetched ${formatTimestamp(provider.fetched_at)}` : provider.error_summary ?? 'No external request.'}</small></article>)}</div>
+    </section>
+    <section className="panel rh-chain-section" aria-label="Chain Metrics Snapshot"><div className="rh-chain-section-head"><div><p className="section-kicker">Chain metrics snapshot</p><h2>Chain Metrics Snapshot</h2><p>Source timestamp {metrics.source_timestamp ? formatTimestamp(metrics.source_timestamp) : 'unavailable'} / {metrics.freshness}</p></div></div><div className="rh-chain-metric-grid"><SnapshotMetric label="TVL" value={formatUsd(metrics.tvl_usd)} /><SnapshotMetric label="DEX volume" value={formatUsd(metrics.dex_volume_24h_usd)} /><SnapshotMetric label="Stablecoin market cap" value={formatUsd(metrics.stablecoin_market_cap_usd)} /><SnapshotMetric label="Protocol count" value={metrics.protocol_count?.toLocaleString() ?? 'unavailable'} /></div></section>
+    <section className="panel rh-chain-section" aria-label="Meme Category Snapshot"><div className="rh-chain-section-head"><div><p className="section-kicker">Meme category snapshot</p><h2>Meme Category Snapshot</h2><p>Source timestamp {category.source_timestamp ? formatTimestamp(category.source_timestamp) : 'unavailable'} / {category.freshness}</p></div></div><div className="rh-chain-metric-grid"><SnapshotMetric label="Category market cap" value={formatUsd(category.market_cap_usd)} /><SnapshotMetric label="24h volume" value={formatUsd(category.volume_24h_usd)} /></div><div className="rh-chain-list">{category.top_assets.map((asset) => <article className="rh-chain-list-item" key={asset.symbol}><div><h3>{asset.symbol}</h3><p>{asset.name}</p></div><span className="rh-chain-chip">{formatUsd(asset.market_cap_usd)}</span></article>) || <p className="panel-caption">No cached category assets available.</p>}</div></section>
+    <section className="panel rh-chain-section" aria-label="Token Lookup Tool"><div className="rh-chain-section-head"><div><p className="section-kicker">Token lookup</p><h2>Token Lookup Tool</h2><p>Fetches a cached, risk-neutral external snapshot. It does not approve a submission.</p></div></div><form className="rh-chain-submit-form" onSubmit={lookup}><label><span>Contract address</span><input value={contract} onChange={(event) => setContract(event.target.value)} placeholder="0x..." aria-label="Live snapshot contract address" /></label><div className="panel-actions"><button type="submit" className="execute">Fetch cached snapshot</button></div></form>{error && <p className="route-state error">{error}</p>}{result && <div className="rh-chain-packet-grid"><p><span>Top pair</span><strong>{result.token_pair?.pair_address ?? 'unavailable'}</strong></p><p><span>Liquidity</span><strong>{formatUsd(result.token_pair?.liquidity_usd ?? null)}</strong></p><p><span>24h volume</span><strong>{formatUsd(result.token_pair?.volume_24h_usd ?? null)}</strong></p><p><span>FDV / market cap</span><strong>{formatUsd(result.token_pair?.fdv_usd ?? result.token_pair?.market_cap_usd ?? null)}</strong></p>{result.token_pair?.dex_url && <p><a href={result.token_pair.dex_url}>DexScreener pair</a></p>}{result.explorer?.explorer_url && <p><a href={result.explorer.explorer_url}>Blockscout explorer</a></p>}</div>}</section>
+    <section className="panel rh-chain-section rh-chain-review-disclaimer"><p>{snapshot.judgment_policy}</p><p>{snapshot.disclaimer}</p></section>
+  </>;
+}
+
+function SnapshotMetric({ label, value }: { label: string; value: string }) { return <article className="rh-chain-metric"><p className="section-kicker">{label}</p><strong>{value}</strong></article>; }
+function formatUsd(value: number | null) { return value === null ? 'unavailable' : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value); }
 
 function RhChainReviewQueuePage({ queue }: { queue: RhChainReviewQueuePayload }) {
   return <>

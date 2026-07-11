@@ -10,6 +10,7 @@ import { getCandidateSignal, listCandidateSignals } from '../data/candidateSigna
 import { getSignalDeskIndex } from '../data/signalDesk';
 import { createRhChainSignalReviewPacket, getRhChainPayload, listRhChainSignals } from '../data/rhChain';
 import { asRhChainPersistedReviewItem, createRhChainSignalSubmission, InMemoryRhChainSubmissionStore, PostgresRhChainSubmissionStore, type RhChainSubmissionStore, UnconfiguredRhChainSubmissionStore } from '../services/rhChainSignalVault';
+import { RhChainLiveSnapshotService, type RhChainLiveSnapshotOptions } from '../services/rhChainLiveSnapshotService';
 import { getLatestSignalUpdate, getSignalUpdate, getSignalUpdateSummary, listSignalUpdates } from '../data/signalUpdates';
 import { abundanceClaimsFeed, getAbundanceDeskPayload, machineWorkReceipts } from '../data/abundanceDesk';
 import { createSignalHuntSubmission, getSignalHuntCandidate, getSignalHuntCounts, listSignalHuntCandidates, verifySignalHuntCandidate } from '../data/signalHunt';
@@ -516,6 +517,7 @@ const CORS_MAX_AGE_SECONDS = 86_400;
 export type CreateAppOptions = {
   clientDistDir?: string | null;
   rhChainSubmissionStore?: RhChainSubmissionStore;
+  rhChainLiveSnapshotOptions?: Partial<RhChainLiveSnapshotOptions>;
 };
 
 export async function createApp(
@@ -529,6 +531,13 @@ export async function createApp(
     ?? (config.databaseUrl ? new PostgresRhChainSubmissionStore(config.databaseUrl)
       : config.isProduction ? new UnconfiguredRhChainSubmissionStore()
         : new InMemoryRhChainSubmissionStore());
+  const rhChainLiveSnapshots = new RhChainLiveSnapshotService({
+    enabled: config.rhChainLiveSnapshotsEnabled,
+    timeoutMs: config.rhChainProviderTimeoutMs,
+    ttlSeconds: config.rhChainCacheTtlSeconds,
+    blockscoutUrl: config.rhChainBlockscoutUrl,
+    ...options.rhChainLiveSnapshotOptions
+  });
   const persistenceMode: 'postgres' | 'memory' = config.databaseUrl ? 'postgres' : 'memory';
   const ROUTE_TIMEOUT_MS = 2_500;
   const SEARCH_ROUTE_TIMEOUT_MS = 3_000;
@@ -1709,6 +1718,14 @@ export async function createApp(
   })));
   app.get('/v1/rh-chain/4663-index', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChain4663Index())));
   app.get('/v1/rh-chain/daily-receipts', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainDailyReceipts())));
+  app.get('/v1/rh-chain/live-snapshot', async () => {
+    const snapshot = await rhChainLiveSnapshots.getLiveSnapshot();
+    return safeJsonExport(buildRhChainApiResponse({ ...snapshot, data_mode: snapshot.live_snapshots_enabled && snapshot.cache_status === 'fresh' ? 'live_cached' as const : snapshot.live_snapshots_enabled ? 'unavailable' as const : 'seeded' as const }));
+  });
+  app.get<{ Params: { contract: string } }>('/v1/rh-chain/live-snapshot/token/:contract', async (req) => {
+    const snapshot = await rhChainLiveSnapshots.getTokenSnapshot(req.params.contract);
+    return safeJsonExport(buildRhChainApiResponse({ ...snapshot, data_mode: snapshot.live_snapshots_enabled && snapshot.cache_status === 'fresh' ? 'live_cached' as const : snapshot.live_snapshots_enabled ? 'unavailable' as const : 'seeded' as const }));
+  });
   app.get('/v1/rh-chain/review-queue', async () => {
     const submissions = await rhChainSubmissionStore.list();
     return safeJsonExport(buildRhChainApiResponse(assembleRhChainReviewQueue(submissions.map(asRhChainPersistedReviewItem))));
