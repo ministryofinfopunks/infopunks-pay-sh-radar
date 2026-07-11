@@ -4,6 +4,7 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getRhChain4663Index, getRhChainDailyReceipts, getRhChainPayload, getRhChainReviewQueue } from '../src/data/rhChain';
+import { asRhChainPersistedReviewItem, createRhChainSignalSubmission } from '../src/services/rhChainSignalVault';
 import { App } from '../src/web/main';
 
 function json(data: unknown) {
@@ -32,13 +33,15 @@ async function renderPath(container: HTMLDivElement, path: string) {
 describe('RH Chain Signal Desk pages', () => {
   let root: Root | undefined;
   let container: HTMLDivElement;
+  let reviewQueue = getRhChainReviewQueue();
 
   beforeEach(() => {
     container = document.createElement('div');
+    reviewQueue = getRhChainReviewQueue();
     document.body.append(container);
     vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
       if (pathOf(input) === '/v1/rh-chain') return json(getRhChainPayload());
-      if (pathOf(input) === '/v1/rh-chain/review-queue') return json(getRhChainReviewQueue());
+      if (pathOf(input) === '/v1/rh-chain/review-queue') return json(reviewQueue);
       if (pathOf(input) === '/v1/rh-chain/4663-index') return json(getRhChain4663Index());
       if (pathOf(input) === '/v1/rh-chain/daily-receipts') return json(getRhChainDailyReceipts());
       return Promise.resolve(new Response('{}', { status: 404 }));
@@ -121,5 +124,22 @@ describe('RH Chain Signal Desk pages', () => {
     expect(text).toContain('The review queue is public intelligence infrastructure. It is not an endorsement, listing, partnership, or financial recommendation.');
     expect(container.querySelector('a[href="/v1/rh-chain/review-queue"]')?.textContent).toContain('Queue');
     expect(container.querySelector('a[href="/rh-chain-signal-desk/review-queue"]')?.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('labels persisted community submissions in the public queue', async () => {
+    const submission = createRhChainSignalSubmission({
+      token_contract: '0xcommunity', ticker: 'vault', chain: 'Robinhood Chain', website_link: 'https://example.com', disclosure_confirmed: true
+    }, '2026-07-11T10:00:00.000Z');
+    const item = asRhChainPersistedReviewItem(submission);
+    reviewQueue = {
+      ...reviewQueue,
+      items: [...reviewQueue.items, item],
+      grouped: { ...reviewQueue.grouped, queued_for_manual_review: [...reviewQueue.grouped.queued_for_manual_review, item] },
+      counts: { ...reviewQueue.counts, queued: reviewQueue.counts.queued + 1 },
+      data_mode: 'persisted', persisted_submission_count: 1
+    };
+    root = await renderPath(container, '/rh-chain-signal-desk/review-queue');
+    expect(container.textContent).toContain('Community submission');
+    expect(container.textContent).toContain('VAULT');
   });
 });

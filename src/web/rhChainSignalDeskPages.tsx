@@ -13,12 +13,12 @@ import type {
   RhChainReviewQueuePayload,
   RhChainReviewState,
   RhChainRiskState,
-  RhChainSignalReviewPacket,
   RhChainSignalLabel,
   RhChainSource
 } from '../data/rhChain';
 import { NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
+import type { RhChainSignalSubmission } from '../services/rhChainSignalVault';
 
 const API_BASE_URL = getApiBaseUrl();
 
@@ -680,7 +680,7 @@ function ReviewStatusOverview({ queue }: { queue: RhChainReviewQueuePayload }) {
       <div>
         <p className="section-kicker">Status Overview</p>
         <h2>Status Overview</h2>
-        <p>Seeded and manual intelligence only. Public visibility is not endorsement.</p>
+        <p>Seeded/manual research and persisted community submissions are separated. Public visibility is not endorsement.</p>
       </div>
       <span className="source-badge">{formatTimestamp(queue.generated_at)}</span>
     </div>
@@ -723,11 +723,12 @@ function ReviewItemCard({ item, compact = false }: { item: RhChainReviewItem; co
   return <article className={`rh-chain-review-card state-${item.review_state}${compact ? ' compact' : ''}`}>
     <div className="rh-chain-card-head">
       <div>
-        <p className="section-kicker">{item.source_type}</p>
+        <p className="section-kicker">{item.source_type === 'community_submission' ? 'Community submission' : item.source_type}</p>
         <h3>{item.ticker}</h3>
         <p className="rh-chain-contract">{shortContract(item.token_contract)}</p>
       </div>
       <div className="rh-chain-review-pill-stack">
+        {item.source_type === 'community_submission' && <span className="rh-chain-chip">Community submission</span>}
         <ReviewStatePill state={item.review_state} />
         <RiskBadge state={item.risk_state} />
       </div>
@@ -938,7 +939,7 @@ function SubmitSignalSection() {
   const [form, setForm] = useState<RhChainSubmitForm>(emptySubmitForm);
   const [errors, setErrors] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
-  const [packet, setPacket] = useState<RhChainSignalReviewPacket | null>(null);
+  const [packet, setPacket] = useState<RhChainSignalSubmission | null>(null);
   const [copied, setCopied] = useState(false);
 
   function setField<K extends keyof RhChainSubmitForm>(field: K, value: RhChainSubmitForm[K]) {
@@ -970,7 +971,7 @@ function SubmitSignalSection() {
     setSubmitting(true);
     setErrors([]);
     try {
-      const response = await postApi<{ review_packet: RhChainSignalReviewPacket }>('/v1/rh-chain/signals/submit', {
+      const response = await postApi<{ submission: RhChainSignalSubmission }>('/v1/rh-chain/signals/submit', {
         token_contract: form.token_contract.trim(),
         ticker: form.ticker.trim(),
         chain: form.chain.trim() || 'Robinhood Chain',
@@ -981,7 +982,7 @@ function SubmitSignalSection() {
         submitter_notes: form.submitter_notes.trim() || undefined,
         disclosure_confirmed: form.disclosure_confirmed
       });
-      setPacket(response.data.review_packet);
+      setPacket(response.data.submission);
     } catch (error) {
       setErrors([error instanceof Error ? humanizeSubmitError(error.message) : 'submit_signal_unavailable']);
     } finally {
@@ -1031,17 +1032,19 @@ function SubmitSignalSection() {
       <div className="rh-chain-section-head">
         <div>
           <p className="section-kicker">Review packet</p>
-          <h3>Manual review required</h3>
+          <h3>Signal received and saved to the review ledger.</h3>
           <p>Queued for public intelligence review only. This packet is not a safety claim.</p>
         </div>
         <button className="execute compact secondary" type="button" onClick={copyPacket}>{copied ? 'Copied' : 'Copy packet'}</button>
       </div>
       <div className="rh-chain-packet-grid">
         <p><span>submission_id</span><strong>{packet.submission_id}</strong></p>
+        <p><span>submitted_at</span><strong>{formatTimestamp(packet.submitted_at)}</strong></p>
         <p><span>review_status</span><strong>{packet.review_status}</strong></p>
         <p><span>ticker</span><strong>{packet.ticker}</strong></p>
         <p><span>chain</span><strong>{packet.chain}</strong></p>
       </div>
+      <div className="panel-actions"><a className="execute compact secondary" href="/rh-chain-signal-desk/review-queue">Open Review Queue</a></div>
       <pre className="rh-chain-packet-pre">{packetText}</pre>
     </div>}
   </section>;

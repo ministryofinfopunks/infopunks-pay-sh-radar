@@ -9,6 +9,7 @@ import { getNarrativeAssetBySlug, getSignalSurfaceBySlug, listNarrativeAssets, l
 import { getCandidateSignal, listCandidateSignals } from '../data/candidateSignals';
 import { getSignalDeskIndex } from '../data/signalDesk';
 import { createRhChainSignalReviewPacket, getRhChainPayload, listRhChainSignals } from '../data/rhChain';
+import { asRhChainPersistedReviewItem, createRhChainSignalSubmission, InMemoryRhChainSubmissionStore, PostgresRhChainSubmissionStore, type RhChainSubmissionStore, UnconfiguredRhChainSubmissionStore } from '../services/rhChainSignalVault';
 import { getLatestSignalUpdate, getSignalUpdate, getSignalUpdateSummary, listSignalUpdates } from '../data/signalUpdates';
 import { abundanceClaimsFeed, getAbundanceDeskPayload, machineWorkReceipts } from '../data/abundanceDesk';
 import { createSignalHuntSubmission, getSignalHuntCandidate, getSignalHuntCounts, listSignalHuntCandidates, verifySignalHuntCandidate } from '../data/signalHunt';
@@ -514,6 +515,7 @@ const CORS_MAX_AGE_SECONDS = 86_400;
 
 export type CreateAppOptions = {
   clientDistDir?: string | null;
+  rhChainSubmissionStore?: RhChainSubmissionStore;
 };
 
 export async function createApp(
@@ -523,6 +525,10 @@ export async function createApp(
 ) {
   const config = loadRuntimeConfig();
   const app = Fastify({ logger: false });
+  const rhChainSubmissionStore: RhChainSubmissionStore = options.rhChainSubmissionStore
+    ?? (config.databaseUrl ? new PostgresRhChainSubmissionStore(config.databaseUrl)
+      : config.isProduction ? new UnconfiguredRhChainSubmissionStore()
+        : new InMemoryRhChainSubmissionStore());
   const persistenceMode: 'postgres' | 'memory' = config.databaseUrl ? 'postgres' : 'memory';
   const ROUTE_TIMEOUT_MS = 2_500;
   const SEARCH_ROUTE_TIMEOUT_MS = 3_000;
@@ -562,6 +568,7 @@ export async function createApp(
   );
   configureMachineDemoSeed(config.machineDemoSeed);
   const responseCache = createResponseCache();
+  app.addHook('onClose', async () => { await rhChainSubmissionStore.close?.(); });
   const allowedOrigins = new Set(DEFAULT_ALLOWED_ORIGINS);
   if (config.frontendOrigin) allowedOrigins.add(config.frontendOrigin);
   await app.register(cors, {
@@ -1702,10 +1709,38 @@ export async function createApp(
   })));
   app.get('/v1/rh-chain/4663-index', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChain4663Index())));
   app.get('/v1/rh-chain/daily-receipts', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainDailyReceipts())));
-  app.get('/v1/rh-chain/review-queue', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainReviewQueue())));
-  app.post('/v1/rh-chain/signals/submit', async (req, reply) => handleParsed(req.body, RhChainSignalSubmissionSchema, (input) => safeJsonExport(buildRhChainApiResponse({
-      review_packet: createRhChainSignalReviewPacket(input)
-    })), reply));
+  app.get('/v1/rh-chain/review-queue', async () => {
+    const submissions = await rhChainSubmissionStore.list();
+    return safeJsonExport(buildRhChainApiResponse(assembleRhChainReviewQueue(submissions.map(asRhChainPersistedReviewItem))));
+  });
+  app.get('/v1/rh-chain/signals/submissions', async () => {
+    const submissions = await rhChainSubmissionStore.list();
+    return safeJsonExport(buildRhChainApiResponse({
+      generated_at: submissions[0]?.updated_at ?? new Date().toISOString(),
+      data_mode: rhChainSubmissionStore.durable ? 'persisted' as const : 'community_submission' as const,
+      source_policy: 'Persisted community submissions only. Submission is not endorsement; review is not financial advice; inclusion is not safety.',
+      storage: { adapter: rhChainSubmissionStore.adapter, durable: rhChainSubmissionStore.durable },
+      submissions
+    }));
+  });
+  app.post('/v1/rh-chain/signals/submit', async (req, reply) => {
+    const parsed = RhChainSignalSubmissionSchema.safeParse(req.body);
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_request', issues: parsed.error.issues });
+    try {
+      const submission = await rhChainSubmissionStore.save(createRhChainSignalSubmission(parsed.data, new Date().toISOString(), rhChainSubmissionStore.durable ? 'persisted' : 'community_submission'));
+      return safeJsonExport(buildRhChainApiResponse({
+        data_mode: submission.data_mode,
+        review_packet: createRhChainSignalReviewPacket(parsed.data, submission.submitted_at),
+        submission,
+        storage: { adapter: rhChainSubmissionStore.adapter, durable: rhChainSubmissionStore.durable }
+      }));
+    } catch (error) {
+      if (error instanceof Error && error.message === 'rh_chain_submission_storage_not_configured') {
+        return reply.code(503).send({ error: 'rh_chain_submission_storage_not_configured', message: 'Signal Vault requires DATABASE_URL for durable production persistence.' });
+      }
+      throw error;
+    }
+  });
   app.get('/v1/rh-chain/receipts', async () => safeJsonExport(buildRhChainApiResponse({
     generated_at: getRhChainPayload().generated_at,
     receipts: assembleRhChainReceipts()

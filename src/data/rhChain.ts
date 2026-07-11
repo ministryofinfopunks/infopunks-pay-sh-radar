@@ -10,7 +10,7 @@ export type RhChainSignalLabel =
 
 export type RhChainRiskState = 'low_watch' | 'medium_watch' | 'high_risk' | 'source_required' | 'do_not_touch_yet';
 
-export type RhChainDataFreshness = 'seeded' | 'manual' | 'cached' | 'live_future';
+export type RhChainDataFreshness = 'seeded' | 'manual' | 'community_submission' | 'persisted' | 'cached' | 'live_future';
 
 export type RhChainConfidenceLevel = 'low' | 'medium' | 'high';
 
@@ -155,7 +155,7 @@ export const RH_CHAIN_REVIEW_STATES = [
 
 export type RhChainReviewState = typeof RH_CHAIN_REVIEW_STATES[number];
 
-export type RhChainReviewSourceType = 'seeded' | 'community_submission' | 'manual_research';
+export type RhChainReviewSourceType = 'seeded' | 'manual' | 'manual_research' | 'community_submission' | 'persisted';
 
 export type RhChainReviewLinks = {
   x: string | null;
@@ -200,6 +200,8 @@ export type RhChainReviewQueuePayload = {
   counts: RhChainReviewQueueSummary;
   items: RhChainReviewItem[];
   grouped: Record<RhChainReviewState, RhChainReviewItem[]>;
+  data_mode?: RhChainDataFreshness;
+  persisted_submission_count?: number;
 };
 
 export const RH_CHAIN_4663_NARRATIVE_CLASSES = [

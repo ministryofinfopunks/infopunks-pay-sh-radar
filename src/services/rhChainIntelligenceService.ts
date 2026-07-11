@@ -3,9 +3,12 @@ import {
   getRhChainDailyReceipts,
   getRhChainPayload,
   getRhChainReviewQueue,
+  getRhChainReviewStateCounts,
+  groupRhChainReviewItemsByState,
   listRhChainMemes,
   listRhChainReceipts,
   type RhChainDataFreshness,
+  type RhChainReviewItem,
   type RhChainSource
 } from '../data/rhChain';
 import {
@@ -57,8 +60,19 @@ export function assembleRhChainMemePulse() {
   return listRhChainMemes();
 }
 
-export function assembleRhChainReviewQueue() {
-  return getRhChainReviewQueue();
+export function assembleRhChainReviewQueue(persistedItems: RhChainReviewItem[] = []) {
+  const seedQueue = getRhChainReviewQueue();
+  const items = [...seedQueue.items, ...persistedItems];
+  return {
+    ...seedQueue,
+    generated_at: persistedItems.reduce((latest, item) => item.updated_at > latest ? item.updated_at : latest, seedQueue.generated_at),
+    source_policy: 'Public review queue separates seeded/manual research from persisted community submissions. Submission is not endorsement; review is not financial advice; inclusion is not safety.',
+    data_mode: persistedItems.some((item) => (item as { data_mode?: string }).data_mode === 'persisted') ? 'persisted' as const : persistedItems.length ? 'community_submission' as const : 'seeded' as const,
+    persisted_submission_count: persistedItems.length,
+    counts: getRhChainReviewStateCounts(items),
+    items,
+    grouped: groupRhChainReviewItemsByState(items)
+  };
 }
 
 export function assembleRhChainReceipts() {
@@ -99,7 +113,7 @@ export function buildRhChainApiResponse<T>(data: T): RhChainApiResponse<T> {
     },
     sources,
     generated_at: generatedAtFor(data),
-    data_mode: resolveRhChainDataMode(sources),
+    data_mode: dataModeFor(data, sources),
     disclaimer: disclaimerFor(data)
   };
 }
@@ -134,8 +148,18 @@ function resolveRhChainDataMode(sources: RhChainSource[]): RhChainDataFreshness 
   if (!sources.length) return 'seeded';
   if (sources.some((source) => source.data_mode === 'live_future')) return 'live_future';
   if (sources.some((source) => source.data_mode === 'cached')) return 'cached';
+  if (sources.some((source) => source.data_mode === 'persisted')) return 'persisted';
+  if (sources.some((source) => source.data_mode === 'community_submission')) return 'community_submission';
   if (sources.some((source) => source.data_mode === 'manual')) return 'manual';
   return 'seeded';
+}
+
+function dataModeFor(data: unknown, sources: RhChainSource[]): RhChainDataFreshness {
+  if (data && typeof data === 'object' && 'data_mode' in data) {
+    const value = (data as { data_mode?: unknown }).data_mode;
+    if (value === 'seeded' || value === 'manual' || value === 'community_submission' || value === 'persisted' || value === 'cached' || value === 'live_future') return value;
+  }
+  return resolveRhChainDataMode(sources);
 }
 
 function generatedAtFor(value: unknown) {

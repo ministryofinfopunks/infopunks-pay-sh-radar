@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createApp } from '../src/api/app';
 import { calculateRhChain4663SignalScore, classifyRhChain4663SignalScore, getRhChainPayload, sortRhChainDailyReceiptsByDate } from '../src/data/rhChain';
 import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
+import { InMemoryRhChainSubmissionStore, reviewRhChainSubmission } from '../src/services/rhChainSignalVault';
 
 describe('RH Chain Signal Desk API', () => {
   it('keeps source metadata on RH Chain metrics and signature objects', () => {
@@ -309,9 +310,55 @@ describe('RH Chain Signal Desk API', () => {
         liquidity: null
       });
       expect(response.json().data.review_packet.submission_id).toMatch(/^rh-chain-hood-\d{14}$/);
+      expect(response.json().data.submission).toEqual(expect.objectContaining({
+        source_type: 'community_submission',
+        data_mode: 'community_submission',
+        review_status: 'queued_for_manual_review',
+        updated_at: expect.any(String),
+        audit_events: [expect.objectContaining({ action: 'submitted', to_status: 'queued_for_manual_review' })]
+      }));
     } finally {
       await app.close();
     }
+  });
+
+  it('keeps persisted community submissions separate from seeded/manual queue items', async () => {
+    const vault = new InMemoryRhChainSubmissionStore();
+    const app = await createApp(emptyIntelligenceStore(), undefined, { rhChainSubmissionStore: vault });
+    try {
+      const submitted = await app.inject({
+        method: 'POST', url: '/v1/rh-chain/signals/submit', payload: {
+          token_contract: '0xvault123', ticker: 'vault', chain: 'Robinhood Chain',
+          website_link: 'https://example.com', disclosure_confirmed: true
+        }
+      });
+      const submission = submitted.json().data.submission;
+      const queue = await app.inject({ method: 'GET', url: '/v1/rh-chain/review-queue' });
+      const queueData = queue.json().data;
+      const persistedOnly = await app.inject({ method: 'GET', url: '/v1/rh-chain/signals/submissions' });
+
+      expect(queueData.data_mode).toBe('community_submission');
+      expect(queueData.persisted_submission_count).toBe(1);
+      expect(queueData.counts.queued).toBe(2);
+      expect(queueData.grouped.queued_for_manual_review).toEqual(expect.arrayContaining([
+        expect.objectContaining({ review_id: submission.submission_id, source_type: 'community_submission', data_mode: 'community_submission' })
+      ]));
+      expect(persistedOnly.json().data.submissions).toEqual([expect.objectContaining({ submission_id: submission.submission_id })]);
+    } finally { await app.close(); }
+  });
+
+  it('updates a stored submission through the non-public manual review service and records an audit event', async () => {
+    const vault = new InMemoryRhChainSubmissionStore();
+    const app = await createApp(emptyIntelligenceStore(), undefined, { rhChainSubmissionStore: vault });
+    try {
+      const response = await app.inject({ method: 'POST', url: '/v1/rh-chain/signals/submit', payload: {
+        token_contract: '0xaudit123', ticker: 'audit', chain: 'Robinhood Chain', deployer_notes: 'Known deployer wallet.', disclosure_confirmed: true
+      } });
+      const submissionId = response.json().data.submission.submission_id;
+      const updated = await reviewRhChainSubmission(vault, submissionId, 'under_receipt_check', 'Explorer receipt requested.');
+      expect(updated).toEqual(expect.objectContaining({ review_status: 'under_receipt_check', reviewer_note: 'Explorer receipt requested.' }));
+      expect(updated?.audit_events.at(-1)).toEqual(expect.objectContaining({ action: 'status_updated', from_status: 'queued_for_manual_review', to_status: 'under_receipt_check' }));
+    } finally { await app.close(); }
   });
 
   it('rejects submissions without receipt fields and disclosure', async () => {
