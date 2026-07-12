@@ -25,6 +25,9 @@ export type RhChainSignalSubmission = {
   submitter_notes: string | null;
   disclosure_confirmed: boolean;
   source_type: 'community_submission';
+  scout_handle: string | null;
+  scout_contact: string | null;
+  public_attribution_consent: boolean;
   data_mode: 'persisted' | 'community_submission';
   review_status: RhChainSubmissionStatus;
   reviewer_note?: string;
@@ -137,7 +140,7 @@ export function createRhChainSignalSubmission(input: RhChainSignalSubmissionInpu
     token_contract: input.token_contract.trim(), ticker, chain: input.chain?.trim() || 'Robinhood Chain',
     links: { x: optional(input.x_twitter_link), website: optional(input.website_link), liquidity: optional(input.liquidity_link), explorer: null },
     deployer_notes: optional(input.deployer_notes), submitter_notes: optional(input.submitter_notes), disclosure_confirmed: input.disclosure_confirmed,
-    source_type: 'community_submission', data_mode: dataMode, review_status: 'queued_for_manual_review',
+    source_type: 'community_submission', scout_handle: optional(input.scout_handle), scout_contact: optional(input.scout_contact), public_attribution_consent: input.public_attribution_consent === true, data_mode: dataMode, review_status: 'queued_for_manual_review',
     evidence_summary: 'Community submission received. Receipt review has not yet been completed.',
     missing_evidence: ['manual receipt review'], risk_state: 'source_required', signal_state: 'fresh_signal',
     infopunks_verdict: 'Submission is not endorsement. Review is not financial advice. Inclusion is not safety.', launch_context: claimedLaunchContext(input, submittedAt),

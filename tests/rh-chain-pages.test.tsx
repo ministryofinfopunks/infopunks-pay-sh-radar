@@ -4,6 +4,11 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getRhChain4663Index, getRhChainDailyReceipts, getRhChainLaunchSurfaces, getRhChainPayload, getRhChainReviewQueue } from '../src/data/rhChain';
+import { assembleRhChainMemePulseScreen } from '../src/services/rhChainMemePulseService';
+import { assembleRhChainTokenDossier } from '../src/services/rhChainTokenDossierService';
+import { assembleRhChainCloneRadar } from '../src/services/rhChainCloneRadarService';
+import { assembleRhChainScouts } from '../src/services/rhChainScoutsService';
+import { assembleRhChainDistributionPack } from '../src/services/rhChainDistributionPackService';
 import { asRhChainPersistedReviewItem, createRhChainSignalSubmission } from '../src/services/rhChainSignalVault';
 import { App } from '../src/web/main';
 
@@ -46,6 +51,11 @@ describe('RH Chain Signal Desk pages', () => {
       if (pathOf(input) === '/v1/rh-chain/daily-receipts') return json(getRhChainDailyReceipts());
       if (pathOf(input) === '/v1/rh-chain/launch-surfaces') return json(getRhChainLaunchSurfaces());
       if (pathOf(input) === '/v1/rh-chain/live-snapshot') return json({ title: 'RH Chain Live Snapshot', generated_at: '2026-07-11T00:00:00.000Z', live_snapshots_enabled: false, chain_metrics: { tvl_usd: null, dex_volume_24h_usd: null, stablecoin_market_cap_usd: null, protocol_count: null, source_timestamp: null, freshness: 'seeded' }, meme_category: { market_cap_usd: null, volume_24h_usd: null, top_assets: [], source_timestamp: null, freshness: 'seeded' }, provider_statuses: ['DefiLlama', 'CoinGecko', 'DexScreener', 'Blockscout'].map((provider_name) => ({ provider_name, status: 'disabled', fetched_at: null, expires_at: null, error_summary: 'Live snapshots are disabled.' })), cache_status: 'disabled', disclaimer: 'Live Snapshot data is external, cached, and informational. It is not an endorsement, listing, partnership, trading signal, or financial recommendation.' });
+      if (pathOf(input) === '/v1/rh-chain/meme-pulse') return json(assembleRhChainMemePulseScreen());
+      if (pathOf(input) === '/v1/rh-chain/tokens/0xabc/dossier') return json(assembleRhChainTokenDossier('0xabc', [], { contract: '0xabc', token_pair: null, explorer: null, provider_statuses: [], cache_status: 'disabled', generated_at: '2026-07-12T00:00:00.000Z', live_snapshots_enabled: false, judgment_policy: 'External data gives context.', disclaimer: 'context' }, { title: 'RH Chain Live Snapshot', generated_at: '2026-07-12T00:00:00.000Z', live_snapshots_enabled: false, judgment_policy: 'External data gives context.', chain_metrics: { tvl_usd: null, dex_volume_24h_usd: null, stablecoin_market_cap_usd: null, protocol_count: null, source_timestamp: null, freshness: 'seeded' }, meme_category: { market_cap_usd: null, volume_24h_usd: null, top_assets: [], source_timestamp: null, freshness: 'seeded' }, provider_statuses: [], cache_status: 'disabled', disclaimer: 'context' }));
+      if (pathOf(input) === '/v1/rh-chain/clone-radar') return json(assembleRhChainCloneRadar());
+      if (pathOf(input) === '/v1/rh-chain/scouts') return json(assembleRhChainScouts([]));
+      if (pathOf(input) === '/v1/rh-chain/distribution-pack') return json(assembleRhChainDistributionPack());
       return Promise.resolve(new Response('{}', { status: 404 }));
     });
   });
@@ -199,5 +209,63 @@ describe('RH Chain Signal Desk pages', () => {
     expect(container.textContent).toContain('Provider Status');
     expect(container.textContent).toContain('DefiLlama');
     expect(container.textContent).toContain('Live Snapshot data is external, cached, and informational.');
+  });
+
+  it('renders the public Meme Pulse surface and its safety doctrine', async () => {
+    root = await renderPath(container, '/rh-chain-signal-desk/meme-pulse');
+    const text = container.textContent ?? '';
+    expect(text).toContain('RH Meme Pulse');
+    expect(text).toContain('What’s moving. What’s risky. What the market is trying to say.');
+    expect(text).toContain('Top Attention Assets');
+    expect(text).toContain('Risk Strip');
+    expect(text).toContain('Meme → Market Translation');
+    expect(text).toContain('External data gives context. Infopunks gives judgment. Receipts create memory.');
+    expect(container.querySelector('a[href="/rh-chain-signal-desk/meme-pulse"]')?.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('renders a clean exact-contract token dossier', async () => {
+    root = await renderPath(container, '/rh-chain-signal-desk/tokens/0xabc');
+    const text = container.textContent ?? '';
+    expect(text).toContain('RH Chain token dossier');
+    expect(text).toContain('What the desk remembers');
+    expect(text).toContain('Provider context, never a verdict');
+    expect(text).toContain('Claims stay claims until receipted');
+    expect(text).toContain('Evidence before narrative.');
+    expect(text).toContain('Dossier inclusion is public intelligence memory, not endorsement');
+  });
+
+  it('renders Clone Radar with cautious risk framing', async () => {
+    root = await renderPath(container, '/rh-chain-signal-desk/clone-radar');
+    const text = container.textContent ?? '';
+    expect(text).toContain('Clone & Impersonator Radar');
+    expect(text).toContain('The market moves fast. The copies move faster.');
+    expect(text).toContain('Active Warnings');
+    expect(text).toContain('Duplicate Ticker Watch');
+    expect(text).toContain('How Infopunks Flags Risk');
+    expect(text).toContain('Suspected patterns. Receipts required.');
+    expect(container.querySelector('a[href="/rh-chain-signal-desk/clone-radar"]')?.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('renders the consent-aware Signal Scouts board', async () => {
+    root = await renderPath(container, '/rh-chain-signal-desk/scouts');
+    const text = container.textContent ?? '';
+    expect(text).toContain('Signal Scouts');
+    expect(text).toContain('The market forgets. Scouts bring receipts.');
+    expect(text).toContain('Scout Roles');
+    expect(text).toContain('Public Scout Board');
+    expect(text).toContain('Consented attribution only');
+    expect(text).toContain('No rewards. No raids. Just better memory.');
+    expect(container.querySelector('a[href="/rh-chain-signal-desk/scouts"]')?.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('renders copy-ready Distribution Pack cards with anti-spam guardrails', async () => {
+    root = await renderPath(container, '/rh-chain-signal-desk/distribution-pack');
+    const text = container.textContent ?? '';
+    expect(text).toContain('RH Chain Distribution Pack');
+    expect(text).toContain('Daily Receipt post');
+    expect(text).toContain('Clone Radar warning post');
+    expect(text).toContain('Token Dossier share post');
+    expect(text).toContain('Do not spam. Do not coordinate raids.');
+    expect(container.querySelector('a[href="/rh-chain-signal-desk/distribution-pack"]')?.getAttribute('aria-current')).toBe('page');
   });
 });

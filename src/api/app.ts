@@ -11,6 +11,10 @@ import { getSignalDeskIndex } from '../data/signalDesk';
 import { createRhChainSignalReviewPacket, getRhChainPayload, listRhChainSignals } from '../data/rhChain';
 import { asRhChainPersistedReviewItem, createRhChainSignalSubmission, InMemoryRhChainSubmissionStore, PostgresRhChainSubmissionStore, type RhChainSubmissionStore, UnconfiguredRhChainSubmissionStore } from '../services/rhChainSignalVault';
 import { RhChainLiveSnapshotService, type RhChainLiveSnapshotOptions } from '../services/rhChainLiveSnapshotService';
+import { assembleRhChainTokenDossier } from '../services/rhChainTokenDossierService';
+import { assembleRhChainCloneRadar } from '../services/rhChainCloneRadarService';
+import { assembleRhChainScouts } from '../services/rhChainScoutsService';
+import { assembleRhChainDistributionPack } from '../services/rhChainDistributionPackService';
 import { queryRhChainScout, RH_CHAIN_SCOUT_MODES } from '../services/rhChainScoutService';
 import { getLatestSignalUpdate, getSignalUpdate, getSignalUpdateSummary, listSignalUpdates } from '../data/signalUpdates';
 import { abundanceClaimsFeed, getAbundanceDeskPayload, machineWorkReceipts } from '../data/abundanceDesk';
@@ -185,6 +189,7 @@ import {
   assembleRhChainLaunchSurfaces,
   assembleRhChainIntelligence,
   assembleRhChainMemePulse,
+  assembleRhChainMemePulseScreen,
   assembleRhChainReceipts,
   assembleRhChainReviewQueue,
   buildRhChainApiResponse
@@ -497,6 +502,9 @@ const RhChainSignalSubmissionSchema = z.object({
   pair_address: optionalRhChainText,
   deployer_address: optionalRhChainText,
   lp_status_claim: z.enum(['unknown', 'locked_claimed', 'burned_claimed', 'unlocked', 'unavailable']).optional(),
+  scout_handle: optionalRhChainText.pipe(z.string().min(2).max(48).optional()),
+  scout_contact: optionalRhChainText.pipe(z.string().max(160).optional()),
+  public_attribution_consent: z.boolean().optional(),
   disclosure_confirmed: z.boolean().refine((value) => value, { message: 'disclosure_must_be_confirmed' })
 }).strict().superRefine((value, ctx) => {
   if (!value.x_twitter_link && !value.website_link && !value.liquidity_link && !value.deployer_notes) {
@@ -506,6 +514,7 @@ const RhChainSignalSubmissionSchema = z.object({
       path: ['x_twitter_link']
     });
   }
+  if (value.public_attribution_consent && !value.scout_handle) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'scout_handle_required_for_public_attribution', path: ['scout_handle'] });
 });
 const RhChainScoutQuerySchema = z.object({ query: z.string().trim().min(1).max(500), mode: z.enum(RH_CHAIN_SCOUT_MODES).optional() }).strict();
 const MAX_INLINE_SUPPORTING_EVENT_IDS = 10;
@@ -1726,6 +1735,7 @@ export async function createApp(
   })));
   app.get('/v1/rh-chain/4663-index', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChain4663Index())));
   app.get('/v1/rh-chain/daily-receipts', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainDailyReceipts())));
+  app.get('/v1/rh-chain/meme-pulse', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainMemePulseScreen(await rhChainLiveSnapshots.getLiveSnapshot()))));
   app.get('/v1/rh-chain/launch-surfaces', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainLaunchSurfaces())));
   app.post('/v1/rh-chain/scout/query', async (req, reply) => {
     const parsed = RhChainScoutQuerySchema.safeParse(req.body);
@@ -1741,10 +1751,24 @@ export async function createApp(
     const snapshot = await rhChainLiveSnapshots.getTokenSnapshot(req.params.contract);
     return safeJsonExport(buildRhChainApiResponse({ ...snapshot, data_mode: snapshot.live_snapshots_enabled && snapshot.cache_status === 'fresh' ? 'live_cached' as const : snapshot.live_snapshots_enabled ? 'unavailable' as const : 'seeded' as const }));
   });
+  app.get<{ Params: { contract: string } }>('/v1/rh-chain/tokens/:contract/dossier', async (req) => {
+    const [submissions, tokenSnapshot, liveSnapshot] = await Promise.all([
+      rhChainSubmissionStore.list(),
+      rhChainLiveSnapshots.getTokenSnapshot(req.params.contract),
+      rhChainLiveSnapshots.getLiveSnapshot()
+    ]);
+    return safeJsonExport(buildRhChainApiResponse(assembleRhChainTokenDossier(req.params.contract, submissions, tokenSnapshot, liveSnapshot)));
+  });
   app.get('/v1/rh-chain/review-queue', async () => {
     const submissions = await rhChainSubmissionStore.list();
     return safeJsonExport(buildRhChainApiResponse(assembleRhChainReviewQueue(submissions.map(asRhChainPersistedReviewItem))));
   });
+  app.get('/v1/rh-chain/clone-radar', async () => {
+    const submissions = await rhChainSubmissionStore.list();
+    return safeJsonExport(buildRhChainApiResponse(assembleRhChainCloneRadar(assembleRhChainReviewQueue(submissions.map(asRhChainPersistedReviewItem)).items)));
+  });
+  app.get('/v1/rh-chain/scouts', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainScouts(await rhChainSubmissionStore.list()))));
+  app.get('/v1/rh-chain/distribution-pack', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainDistributionPack())));
   app.get('/v1/rh-chain/signals/submissions', async () => {
     const submissions = await rhChainSubmissionStore.list();
     return safeJsonExport(buildRhChainApiResponse({
@@ -1752,7 +1776,7 @@ export async function createApp(
       data_mode: rhChainSubmissionStore.durable ? 'persisted' as const : 'community_submission' as const,
       source_policy: 'Persisted community submissions only. Submission is not endorsement; review is not financial advice; inclusion is not safety.',
       storage: { adapter: rhChainSubmissionStore.adapter, durable: rhChainSubmissionStore.durable },
-      submissions
+      submissions: submissions.map(({ scout_contact: _scoutContact, ...submission }) => submission)
     }));
   });
   app.post('/v1/rh-chain/signals/submit', async (req, reply) => {
@@ -1763,7 +1787,7 @@ export async function createApp(
       return safeJsonExport(buildRhChainApiResponse({
         data_mode: submission.data_mode,
         review_packet: createRhChainSignalReviewPacket(parsed.data, submission.submitted_at),
-        submission,
+        submission: { ...submission, scout_contact: null },
         storage: { adapter: rhChainSubmissionStore.adapter, durable: rhChainSubmissionStore.durable }
       }));
     } catch (error) {

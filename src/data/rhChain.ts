@@ -127,7 +127,54 @@ export type RhChainSignalSubmissionInput = {
   pair_address?: string;
   deployer_address?: string;
   lp_status_claim?: RhChainLpStatus;
+  scout_handle?: string;
+  scout_contact?: string;
+  public_attribution_consent?: boolean;
   disclosure_confirmed: boolean;
+};
+
+export type RhChainScoutReputationLabel = 'new_scout' | 'receipt_hunter' | 'risk_spotter' | 'narrative_mapper' | 'signal_archivist';
+export type RhChainSignalScout = {
+  scout_id: string;
+  display_handle: string;
+  submissions_count: number;
+  accepted_evidence_count: number;
+  approved_signal_mentions: number;
+  risk_warning_mentions: number;
+  latest_submission_at: string;
+  reputation_label: RhChainScoutReputationLabel;
+  public_notes: string[];
+  data_mode: RhChainDataFreshness;
+};
+
+export type RhChainScoutsPayload = {
+  title: 'Signal Scouts';
+  subtitle: 'The market forgets. Scouts bring receipts.';
+  generated_at: string;
+  doctrine: 'External data gives context. Infopunks gives judgment. Receipts create memory.';
+  disclaimer: string;
+  scouts: RhChainSignalScout[];
+  roles: Array<{ title: string; description: string }>;
+};
+
+export type RhChainDistributionSurface = 'x' | 'telegram' | 'discord' | 'generic';
+export type RhChainDistributionPacket = {
+  id: string;
+  title: string;
+  intended_surface: RhChainDistributionSurface;
+  copy_text: string;
+  link: string;
+  risk_disclaimer: string;
+  last_updated: string;
+  source_artifact: string;
+};
+export type RhChainDistributionPackPayload = {
+  title: 'RH Chain Distribution Pack';
+  subtitle: 'Copy the receipt. Keep the caveat.';
+  generated_at: string;
+  doctrine: 'External data gives context. Infopunks gives judgment. Receipts create memory.';
+  disclaimer: string;
+  packets: RhChainDistributionPacket[];
 };
 
 export type RhChainLaunchSurface = 'noxa_fun' | '20lab_erc20' | 'pump_fun_routed_rh_chain' | 'uniswap_direct_pool' | 'hardhat_foundry_custom' | 'unknown_manual';
@@ -392,6 +439,100 @@ export type RhChainDailyReceiptsPayload = {
   disclaimer: string;
   latest_receipt: RhChainDailyReceipt;
   receipts: RhChainDailyReceipt[];
+};
+
+export type RhChainMemePulseAsset = {
+  ticker: string;
+  name: string;
+  narrative_class: RhChain4663NarrativeClass[];
+  signal_score: number | null;
+  risk_state: RhChainRiskState;
+  launch_surface: string | null;
+  infopunks_verdict: string;
+  receipt_state: string;
+  source: RhChainSource;
+};
+
+export type RhChainMemePulsePayload = {
+  title: 'RH Meme Pulse';
+  subtitle: 'What’s moving. What’s risky. What the market is trying to say.';
+  generated_at: string;
+  last_updated: string;
+  doctrine: 'External data gives context. Infopunks gives judgment. Receipts create memory.';
+  disclaimer: string;
+  snapshot: {
+    flagship_signal: string;
+    top_volume_rotation: string;
+    highest_risk_attention: string;
+    strongest_narrative_mutation: string;
+    latest_receipt: string;
+    last_updated: string;
+  };
+  top_attention_assets: RhChainMemePulseAsset[];
+  risk_strip: Array<{ id: string; title: string; summary: string; risk_state: RhChainRiskState }>;
+  market_translation: Array<{ id: string; trend: string; translation: string; caveat: string }>;
+};
+
+export type RhChainTokenDossier = {
+  contract: string;
+  ticker: string | null;
+  name: string | null;
+  chain: string;
+  review_status: RhChainReviewState | 'not_found';
+  risk_state: RhChainRiskState | 'source_required';
+  data_mode: RhChainDataFreshness;
+  generated_at: string;
+  disclaimer: string;
+  doctrine: 'External data gives context. Infopunks gives judgment. Receipts create memory.';
+  memory: {
+    index: RhChain4663Asset | null;
+    review_items: RhChainReviewItem[];
+    submissions: Array<{ submission_id: string; submitted_at: string; evidence_summary: string; audit_events: Array<{ event_id: string; occurred_at: string; action: string; to_status: string; note?: string }> }>;
+    daily_receipts: Array<{ receipt_id: string; headline: string; date: string }>;
+    scout_summary: string;
+  };
+  external_context: {
+    token_pair: { pair_address: string | null; dex_url: string | null; liquidity_usd: number | null; volume_24h_usd: number | null; freshness: string; source_timestamp: string | null } | null;
+    explorer: { explorer_url: string | null; deployer_address: string | null; contract_verified: boolean | null; freshness: string; source_timestamp: string | null } | null;
+    category_relevance: { label: string; freshness: string; source_timestamp: string | null };
+  };
+  launch_context: RhChainLaunchContext | null;
+  risk_notes: string[];
+  receipt_trail: Array<{ id: string; label: string; timestamp: string; href: string | null }>;
+};
+
+export const RH_CHAIN_CLONE_SUSPICION_TYPES = ['duplicate_ticker', 'impersonator', 'fake_volume_trap', 'low_liquidity_clone', 'suspicious_launch_surface', 'deployer_cluster', 'unknown'] as const;
+export type RhChainCloneSuspicionType = typeof RH_CHAIN_CLONE_SUSPICION_TYPES[number];
+export type RhChainCloneRadarItem = {
+  id: string;
+  suspected_ticker: string;
+  claimed_identity: string;
+  token_contract: string;
+  chain: string;
+  suspicion_type: RhChainCloneSuspicionType;
+  evidence_summary: string;
+  evidence_links: Array<{ label: string; url: string | null }>;
+  related_tokens: string[];
+  launch_context: RhChainLaunchContext | null;
+  review_status: RhChainReviewState;
+  risk_state: RhChainRiskState;
+  confidence_level: RhChainConfidenceLevel;
+  observed_at: string;
+  updated_at: string;
+  data_mode: RhChainDataFreshness;
+  source_notes: string[];
+};
+
+export type RhChainCloneRadarPayload = {
+  title: 'Clone & Impersonator Radar';
+  subtitle: 'The market moves fast. The copies move faster.';
+  generated_at: string;
+  doctrine: 'External data gives context. Infopunks gives judgment. Receipts create memory.';
+  disclaimer: string;
+  active_warnings: RhChainCloneRadarItem[];
+  duplicate_ticker_watch: RhChainCloneRadarItem[];
+  liquidity_watch: RhChainCloneRadarItem[];
+  flagging_method: Array<{ signal: string; explanation: string }>;
 };
 
 export type RhChainPayload = {

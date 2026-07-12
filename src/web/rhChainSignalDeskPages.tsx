@@ -201,6 +201,10 @@ function RhChainNav({ current }: { current: string }) {
   const activePath = current === '/narratives/robinhood-chain' ? '/rh-chain-signal-desk' : current;
   const links = [
     { href: '/rh-chain-signal-desk', label: 'Signal Desk' },
+    { href: '/rh-chain-signal-desk/meme-pulse', label: 'Meme Pulse' },
+    { href: '/rh-chain-signal-desk/clone-radar', label: 'Clone Radar' },
+    { href: '/rh-chain-signal-desk/scouts', label: 'Signal Scouts' },
+    { href: '/rh-chain-signal-desk/distribution-pack', label: 'Distribution Pack' },
     { href: '/rh-chain-signal-desk/submit', label: 'Submit Signal' },
     { href: '/rh-chain-signal-desk/review-queue', label: 'Review Queue' },
     { href: '/rh-chain-signal-desk/4663-index', label: '4663 Index' },
@@ -1163,6 +1167,9 @@ type RhChainSubmitForm = {
   pair_address: string;
   deployer_address: string;
   lp_status_claim: string;
+  scout_handle: string;
+  scout_contact: string;
+  public_attribution_consent: boolean;
   disclosure_confirmed: boolean;
 };
 
@@ -1178,6 +1185,7 @@ const emptySubmitForm: RhChainSubmitForm = {
   deployer_notes: '',
   submitter_notes: '',
   launch_source: '', launch_surface_url: '', pair_address: '', deployer_address: '', lp_status_claim: '',
+  scout_handle: '', scout_contact: '', public_attribution_consent: false,
   disclosure_confirmed: false
 };
 
@@ -1231,6 +1239,9 @@ function SubmitSignalSection() {
         pair_address: form.pair_address.trim() || undefined,
         deployer_address: form.deployer_address.trim() || undefined,
         lp_status_claim: form.lp_status_claim || undefined,
+        scout_handle: form.scout_handle.trim() || undefined,
+        scout_contact: form.scout_contact.trim() || undefined,
+        public_attribution_consent: form.public_attribution_consent,
         disclosure_confirmed: form.disclosure_confirmed
       });
       setPacket(response.data.submission);
@@ -1268,6 +1279,7 @@ function SubmitSignalSection() {
       <label><span>Liquidity link</span><input name="liquidity_link" aria-label="Liquidity link" value={form.liquidity_link} onChange={(event) => setField('liquidity_link', event.target.value)} placeholder="DEX pool, explorer, or liquidity receipt" /></label>
       <label className="wide"><span>Deployer notes</span><textarea name="deployer_notes" aria-label="Deployer notes" rows={4} value={form.deployer_notes} onChange={(event) => setField('deployer_notes', event.target.value)} placeholder="Deployer wallet, funding path, ownership controls, warnings" /></label>
       <label className="wide"><span>Submitter notes</span><textarea name="submitter_notes" aria-label="Submitter notes" rows={4} value={form.submitter_notes} onChange={(event) => setField('submitter_notes', event.target.value)} placeholder="Why this belongs on the intelligence desk" /></label>
+      <details className="rh-chain-launch-context wide"><summary>Signal Scout attribution, optional</summary><p>Public attribution is opt-in. Contact information is private and never appears on the public Scout Board.</p><div className="rh-chain-daily-note-grid"><label><span>Scout handle</span><input aria-label="Scout handle" value={form.scout_handle} onChange={(event) => setField('scout_handle', event.target.value)} placeholder="@receipt-hunter" /></label><label><span>Scout contact, private</span><input aria-label="Scout contact" value={form.scout_contact} onChange={(event) => setField('scout_contact', event.target.value)} placeholder="Optional email or contact handle" /></label></div><label className="rh-chain-checkbox"><input type="checkbox" checked={form.public_attribution_consent} onChange={(event) => setField('public_attribution_consent', event.target.checked)} /><span>I consent to show my Scout handle publicly for this evidence contribution. My contact information stays private.</span></label></details>
       <details className="rh-chain-launch-context wide"><summary>Launch context, optional</summary><p>Submitter claims remain unverified until manual receipt review.</p><div className="rh-chain-daily-note-grid"><label><span>Launch source</span><select aria-label="Launch source" value={form.launch_source} onChange={(event) => setField('launch_source', event.target.value)}><option value="">Unknown / not supplied</option><option value="noxa_fun">NOXA Fun</option><option value="20lab_erc20">20lab-generated ERC-20</option><option value="pump_fun_routed_rh_chain">Pump.fun-routed RH Chain token</option><option value="uniswap_direct_pool">Uniswap direct pool launch</option><option value="hardhat_foundry_custom">Hardhat/Foundry custom deployment</option><option value="unknown_manual">Unknown/manual deployment</option></select></label><label><span>LP status claim</span><select aria-label="LP status claim" value={form.lp_status_claim} onChange={(event) => setField('lp_status_claim', event.target.value)}><option value="">Not supplied</option><option value="locked_claimed">Locked (claimed)</option><option value="burned_claimed">Burned (claimed)</option><option value="unlocked">Unlocked</option><option value="unknown">Unknown</option><option value="unavailable">Unavailable</option></select></label><label><span>Launch surface URL</span><input aria-label="Launch surface URL" value={form.launch_surface_url} onChange={(event) => setField('launch_surface_url', event.target.value)} /></label><label><span>Pair address</span><input aria-label="Pair address" value={form.pair_address} onChange={(event) => setField('pair_address', event.target.value)} /></label><label><span>Deployer address</span><input aria-label="Deployer address" value={form.deployer_address} onChange={(event) => setField('deployer_address', event.target.value)} /></label></div></details>
       <label className="rh-chain-checkbox wide">
         <input type="checkbox" checked={form.disclosure_confirmed} onChange={(event) => setField('disclosure_confirmed', event.target.checked)} />

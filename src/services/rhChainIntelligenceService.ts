@@ -21,6 +21,7 @@ import {
   createSocialSignalProvider,
   type RhChainProviderIdentity
 } from './rhChainProviderAdapters';
+export { assembleRhChainMemePulseScreen } from './rhChainMemePulseService';
 
 export type RhChainApiResponseMeta = {
   source_policy: string;
