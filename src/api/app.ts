@@ -11,6 +11,7 @@ import { getSignalDeskIndex } from '../data/signalDesk';
 import { createRhChainSignalReviewPacket, getRhChainPayload, listRhChainSignals } from '../data/rhChain';
 import { asRhChainPersistedReviewItem, createRhChainSignalSubmission, InMemoryRhChainSubmissionStore, PostgresRhChainSubmissionStore, type RhChainSubmissionStore, UnconfiguredRhChainSubmissionStore } from '../services/rhChainSignalVault';
 import { RhChainLiveSnapshotService, type RhChainLiveSnapshotOptions } from '../services/rhChainLiveSnapshotService';
+import { queryRhChainScout, RH_CHAIN_SCOUT_MODES } from '../services/rhChainScoutService';
 import { getLatestSignalUpdate, getSignalUpdate, getSignalUpdateSummary, listSignalUpdates } from '../data/signalUpdates';
 import { abundanceClaimsFeed, getAbundanceDeskPayload, machineWorkReceipts } from '../data/abundanceDesk';
 import { createSignalHuntSubmission, getSignalHuntCandidate, getSignalHuntCounts, listSignalHuntCandidates, verifySignalHuntCandidate } from '../data/signalHunt';
@@ -181,6 +182,7 @@ import {
 import {
   assembleRhChain4663Index,
   assembleRhChainDailyReceipts,
+  assembleRhChainLaunchSurfaces,
   assembleRhChainIntelligence,
   assembleRhChainMemePulse,
   assembleRhChainReceipts,
@@ -490,6 +492,11 @@ const RhChainSignalSubmissionSchema = z.object({
   liquidity_link: optionalRhChainText,
   deployer_notes: optionalRhChainText,
   submitter_notes: optionalRhChainText,
+  launch_source: z.enum(['noxa_fun', '20lab_erc20', 'pump_fun_routed_rh_chain', 'uniswap_direct_pool', 'hardhat_foundry_custom', 'unknown_manual']).optional(),
+  launch_surface_url: optionalRhChainText,
+  pair_address: optionalRhChainText,
+  deployer_address: optionalRhChainText,
+  lp_status_claim: z.enum(['unknown', 'locked_claimed', 'burned_claimed', 'unlocked', 'unavailable']).optional(),
   disclosure_confirmed: z.boolean().refine((value) => value, { message: 'disclosure_must_be_confirmed' })
 }).strict().superRefine((value, ctx) => {
   if (!value.x_twitter_link && !value.website_link && !value.liquidity_link && !value.deployer_notes) {
@@ -500,6 +507,7 @@ const RhChainSignalSubmissionSchema = z.object({
     });
   }
 });
+const RhChainScoutQuerySchema = z.object({ query: z.string().trim().min(1).max(500), mode: z.enum(RH_CHAIN_SCOUT_MODES).optional() }).strict();
 const MAX_INLINE_SUPPORTING_EVENT_IDS = 10;
 const DEFAULT_ALLOWED_ORIGINS = new Set([
   'https://radar.infopunks.fun',
@@ -1718,6 +1726,13 @@ export async function createApp(
   })));
   app.get('/v1/rh-chain/4663-index', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChain4663Index())));
   app.get('/v1/rh-chain/daily-receipts', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainDailyReceipts())));
+  app.get('/v1/rh-chain/launch-surfaces', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainLaunchSurfaces())));
+  app.post('/v1/rh-chain/scout/query', async (req, reply) => {
+    const parsed = RhChainScoutQuerySchema.safeParse(req.body);
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_request', issues: parsed.error.issues });
+    const submissions = await rhChainSubmissionStore.list();
+    return safeJsonExport(buildRhChainApiResponse(queryRhChainScout(parsed.data, assembleRhChainReviewQueue(submissions.map(asRhChainPersistedReviewItem)).items)));
+  });
   app.get('/v1/rh-chain/live-snapshot', async () => {
     const snapshot = await rhChainLiveSnapshots.getLiveSnapshot();
     return safeJsonExport(buildRhChainApiResponse({ ...snapshot, data_mode: snapshot.live_snapshots_enabled && snapshot.cache_status === 'fresh' ? 'live_cached' as const : snapshot.live_snapshots_enabled ? 'unavailable' as const : 'seeded' as const }));

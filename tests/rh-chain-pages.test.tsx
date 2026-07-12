@@ -3,7 +3,7 @@ import React from 'react';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { getRhChain4663Index, getRhChainDailyReceipts, getRhChainPayload, getRhChainReviewQueue } from '../src/data/rhChain';
+import { getRhChain4663Index, getRhChainDailyReceipts, getRhChainLaunchSurfaces, getRhChainPayload, getRhChainReviewQueue } from '../src/data/rhChain';
 import { asRhChainPersistedReviewItem, createRhChainSignalSubmission } from '../src/services/rhChainSignalVault';
 import { App } from '../src/web/main';
 
@@ -44,6 +44,7 @@ describe('RH Chain Signal Desk pages', () => {
       if (pathOf(input) === '/v1/rh-chain/review-queue') return json(reviewQueue);
       if (pathOf(input) === '/v1/rh-chain/4663-index') return json(getRhChain4663Index());
       if (pathOf(input) === '/v1/rh-chain/daily-receipts') return json(getRhChainDailyReceipts());
+      if (pathOf(input) === '/v1/rh-chain/launch-surfaces') return json(getRhChainLaunchSurfaces());
       if (pathOf(input) === '/v1/rh-chain/live-snapshot') return json({ title: 'RH Chain Live Snapshot', generated_at: '2026-07-11T00:00:00.000Z', live_snapshots_enabled: false, chain_metrics: { tvl_usd: null, dex_volume_24h_usd: null, stablecoin_market_cap_usd: null, protocol_count: null, source_timestamp: null, freshness: 'seeded' }, meme_category: { market_cap_usd: null, volume_24h_usd: null, top_assets: [], source_timestamp: null, freshness: 'seeded' }, provider_statuses: ['DefiLlama', 'CoinGecko', 'DexScreener', 'Blockscout'].map((provider_name) => ({ provider_name, status: 'disabled', fetched_at: null, expires_at: null, error_summary: 'Live snapshots are disabled.' })), cache_status: 'disabled', disclaimer: 'Live Snapshot data is external, cached, and informational. It is not an endorsement, listing, partnership, trading signal, or financial recommendation.' });
       return Promise.resolve(new Response('{}', { status: 404 }));
     });
@@ -63,7 +64,7 @@ describe('RH Chain Signal Desk pages', () => {
     expect(text).toContain('RH Chain Signal Desk');
     expect(text).toContain('Daily RH Chain Receipts');
     expect(text).toContain('The market forgets. Infopunks keeps the memory.');
-    expect(text).toContain('Route language leads the desk, but receipts remain thin.');
+    expect(text).toContain('RH Chain meme volume stays dominant while RWA rails mature underneath');
     expect(Array.from(container.querySelectorAll('a[href="/rh-chain-signal-desk/daily-receipts"]')).some((link) => link.textContent?.includes('Daily Receipts') || link.textContent?.includes('Open Daily Receipts'))).toBe(true);
     expect(text).toContain('4663 Signal Index');
     expect(text).toContain('A living index of Robinhood Chain attention assets, risk states, and narrative mutations.');
@@ -100,17 +101,65 @@ describe('RH Chain Signal Desk pages', () => {
     const text = container.textContent ?? '';
     expect(text).toContain('Daily RH Chain Receipts');
     expect(text).toContain('The market forgets. Infopunks keeps the memory.');
-    expect(text).toContain('Latest Receipt');
-    expect(text).toContain('Route language leads the desk, but receipts remain thin.');
+    expect(text).toContain('Daily Receipt #001');
+    expect(text).toContain('RH Chain meme volume stays dominant while RWA rails mature underneath');
+    expect(text).toContain('Chain Pulse');
+    expect(text).toContain('Meme Pulse');
+    expect(text).toContain('RWA Pulse');
+    expect(text).toContain('Risk Wall');
+    expect(text).toContain('Narrative Mutation');
+    expect(text).toContain('Infopunks Verdict');
+    expect(text).toContain('Copy receipt summary');
     expect(text).toContain('Receipt Timeline');
     expect(text).toContain('Watchlist');
     expect(text).toContain('Do Not Touch Yet');
     expect(text).toContain('Source Notes');
-    expect(text).toContain('Public memory is forming. Do not upgrade attention into conviction until receipts survive liquidity, holder, and deployer checks.');
-    expect(text).toContain('Infopunks RH Chain Signal Desk seed');
+    expect(text).toContain('Meme season is still the user-acquisition layer; the real question is whether attention converts into persistent RWA, DeFi, and Stock Token usage.');
+    expect(text).toContain('Infopunks manual 24-hour RH Chain rundown');
     expect(text).toContain('Daily RH Chain receipts are public intelligence memory, not financial advice, endorsement, listing, or official Robinhood partnership.');
     expect(Array.from(container.querySelectorAll('a[href="/v1/rh-chain/daily-receipts"]')).some((link) => link.textContent?.includes('Feed JSON'))).toBe(true);
     expect(container.querySelector('a[href="/rh-chain-signal-desk/daily-receipts"]')?.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('renders the receipt detail and screenshot-ready share card routes', async () => {
+    root = await renderPath(container, '/rh-chain-signal-desk/daily-receipts/rh_daily_001');
+
+    let text = container.textContent ?? '';
+    expect(text).toContain('Daily RH Chain Receipt #001');
+    expect(text).toContain('View share card');
+    expect(container.querySelector('a[href="/rh-chain-signal-desk/daily-receipts/rh_daily_001/card"]')).not.toBeNull();
+
+    act(() => root?.unmount());
+    root = await renderPath(container, '/rh-chain-signal-desk/daily-receipts/rh_daily_001/card');
+    text = container.textContent ?? '';
+    expect(text).toContain('RH Chain Receipt Card');
+    expect(text).toContain('INFOPUNKS');
+    expect(text).toContain('Receipt #001');
+    expect(text).toContain('CASHCAT remains the flagship attention asset');
+    expect(text).toContain('Meme season is onboarding attention. The test is whether attention converts into persistent RWA/DeFi usage.');
+    expect(text).toContain('Public intelligence, not endorsement.');
+    expect(text).toContain('No receipt, no signal.');
+    expect(text).toContain('Copy X post');
+  });
+
+  it('renders Launch Surface Watch with known surfaces and evidence doctrine', async () => {
+    root = await renderPath(container, '/rh-chain-signal-desk/launch-surfaces');
+    const text = container.textContent ?? '';
+    expect(text).toContain('Launch Surface Watch');
+    expect(text).toContain('Infopunks does not launch the token. Infopunks remembers the launch.');
+    expect(text).toContain('NOXA Fun');
+    expect(text).toContain('20lab-generated ERC-20');
+    expect(text).toContain('Claims are not receipts');
+    expect(text).toContain('External data gives context. Infopunks gives judgment. Receipts create memory.');
+    expect(container.querySelector('a[href="/rh-chain-signal-desk/launch-surfaces"]')?.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('renders the read-only Scout page', async () => {
+    root = await renderPath(container, '/rh-chain-signal-desk/scout');
+    const text = container.textContent ?? '';
+    expect(text).toContain('RH Chain Scout Agent');
+    expect(text).toContain('Reads the desk. Remembers the receipts. Never trades.');
+    expect(text).toContain('What changed in the last 24h?');
   });
 
   it('renders the public Review Queue route with grouped states and disclaimer', async () => {

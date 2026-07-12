@@ -122,7 +122,7 @@ describe('RH Chain Signal Desk API', () => {
           ])
         }),
         sources: expect.any(Array),
-        generated_at: '2026-07-09T03:45:00.000Z',
+        generated_at: '2026-07-12T00:00:00.000Z',
         data_mode: 'manual',
         disclaimer: 'Daily RH Chain receipts are public intelligence memory, not financial advice, endorsement, listing, or official Robinhood partnership.'
       }));
@@ -137,23 +137,40 @@ describe('RH Chain Signal Desk API', () => {
       expect(body.data).toEqual(expect.objectContaining({
         title: 'Daily RH Chain Receipts',
         subtitle: 'The market forgets. Infopunks keeps the memory.',
+        doctrine: 'External data gives context. Infopunks gives judgment. Receipts create memory.',
         disclaimer: 'Daily RH Chain receipts are public intelligence memory, not financial advice, endorsement, listing, or official Robinhood partnership.'
       }));
       expect(body.data.latest_receipt).toEqual(expect.objectContaining({
-        receipt_id: 'rh_daily_2026_07_09',
-        top_signal: 'ROUTE',
+        receipt_id: 'rh_daily_001',
+        receipt_type: 'daily_market_memory',
+        period: 'July 11 → July 12, 2026 UTC',
+        top_signal: 'CASHCAT remains the flagship RH Chain attention asset',
         confidence_level: 'medium',
         status: 'manual',
         data_mode: 'manual'
       }));
       expect(body.data.latest_receipt.sources[0]).toEqual(expect.objectContaining({
-        name: 'Infopunks RH Chain Signal Desk seed',
-        source_name: 'Infopunks RH Chain Signal Desk seed',
-        observed_at: '2026-07-09T03:45:00.000Z',
+        name: 'Infopunks manual 24-hour RH Chain rundown',
+        source_name: 'Infopunks manual 24-hour RH Chain rundown',
+        observed_at: '2026-07-12T00:00:00.000Z',
         data_mode: 'manual',
         confidence_level: 'medium'
       }));
+      expect(body.data.latest_receipt).toEqual(expect.objectContaining({
+        observed_at: expect.any(String),
+        source_notes: expect.any(String),
+        manual_context: expect.any(String),
+        receipt_sections: expect.arrayContaining([
+          expect.objectContaining({ section_id: 'chain_pulse' }),
+          expect.objectContaining({ section_id: 'meme_pulse' }),
+          expect.objectContaining({ section_id: 'rwa_pulse' }),
+          expect.objectContaining({ section_id: 'risk_wall' }),
+          expect.objectContaining({ section_id: 'narrative_mutation' }),
+          expect.objectContaining({ section_id: 'infopunks_verdict' })
+        ])
+      }));
       expect(body.data.receipts.map((receipt: { receipt_id: string }) => receipt.receipt_id)).toEqual([
+        'rh_daily_001',
         'rh_daily_2026_07_09',
         'rh_daily_2026_07_08',
         'rh_daily_2026_07_07'
@@ -291,6 +308,11 @@ describe('RH Chain Signal Desk API', () => {
           liquidity_link: '',
           deployer_notes: '',
           submitter_notes: 'Receipts before attention.',
+          launch_source: 'noxa_fun',
+          launch_surface_url: 'https://example.com/launch/hood',
+          pair_address: '0xpair123',
+          deployer_address: '0xdeployer123',
+          lp_status_claim: 'locked_claimed',
           disclosure_confirmed: true
         }
       });
@@ -317,9 +339,31 @@ describe('RH Chain Signal Desk API', () => {
         updated_at: expect.any(String),
         audit_events: [expect.objectContaining({ action: 'submitted', to_status: 'queued_for_manual_review' })]
       }));
+      expect(response.json().data.submission.launch_context).toEqual(expect.objectContaining({ launch_source: 'noxa_fun', pair_address: '0xpair123', lp_status: 'locked_claimed', contract_verified: 'unknown', confidence_level: 'low' }));
     } finally {
       await app.close();
     }
+  });
+
+  it('serves known launch surfaces as manual, source-stamped intelligence', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+    try {
+      const response = await app.inject({ method: 'GET', url: '/v1/rh-chain/launch-surfaces' });
+      expect(response.statusCode).toBe(200);
+      const body = response.json();
+      expect(body).toEqual(expect.objectContaining({ data_mode: 'manual', sources: expect.any(Array), disclaimer: expect.stringContaining('not endorsement') }));
+      expect(body.data).toEqual(expect.objectContaining({ title: 'Launch Surface Watch', surfaces: expect.arrayContaining([expect.objectContaining({ id: 'noxa_fun', name: 'NOXA Fun' }), expect.objectContaining({ id: 'unknown_manual' })]) }));
+      expect(body.data.surfaces.every((surface: { source: { observed_at: string } }) => Boolean(surface.source.observed_at))).toBe(true);
+    } finally { await app.close(); }
+  });
+
+  it('answers Scout queries through read-only receipt memory', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+    try {
+      const response = await app.inject({ method: 'POST', url: '/v1/rh-chain/scout/query', payload: { query: 'What changed in the last 24h?', mode: 'market_pulse' } });
+      expect(response.statusCode).toBe(200);
+      expect(response.json().data).toEqual(expect.objectContaining({ answer_type: 'market_pulse', limitations: expect.any(Array), disclaimer: expect.stringContaining('not endorsement'), data_mode: 'manual' }));
+    } finally { await app.close(); }
   });
 
   it('keeps persisted community submissions separate from seeded/manual queue items', async () => {

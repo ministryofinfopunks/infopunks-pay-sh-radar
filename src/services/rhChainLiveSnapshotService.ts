@@ -1,3 +1,4 @@
+import type { RhChainLaunchContext } from '../data/rhChain';
 export type RhChainSnapshotStatus = 'fresh' | 'stale' | 'unavailable' | 'disabled';
 export type RhChainSnapshotFreshness = 'live_cached' | 'seeded' | 'manual' | 'unavailable';
 export type RhChainProviderError = { code: string; message: string };
@@ -45,7 +46,9 @@ export class RhChainLiveSnapshotService {
   async getTokenSnapshot(contract: string) {
     if (!this.options.enabled) return { contract, token_pair: null, explorer: null, provider_statuses: providerNames.map((name) => this.disabledProvider(name)), cache_status: 'disabled' as const, generated_at: this.now().toISOString(), live_snapshots_enabled: false, judgment_policy: JUDGMENT_POLICY, disclaimer: DISCLAIMER };
     const [pair, explorer] = await Promise.all([this.cached(`dexscreener:token:${contract.toLowerCase()}`, 'DexScreener', this.ttl(120), () => this.clients.tokenPair(contract)), this.cached(`blockscout:token:${contract.toLowerCase()}`, 'Blockscout', this.ttl(600), () => this.clients.explorer(contract))]);
-    return { contract, token_pair: pair.value ? { contract, ...pair.value, freshness: pair.status === 'fresh' ? 'live_cached' as const : 'unavailable' as const } : null, explorer: explorer.value ? { ...explorer.value, freshness: explorer.status === 'fresh' ? 'live_cached' as const : 'unavailable' as const } : null,
+    const tokenPair = pair.value ? { contract, ...pair.value, freshness: pair.status === 'fresh' ? 'live_cached' as const : 'unavailable' as const } : null;
+    const explorerValue = explorer.value ? { ...explorer.value, freshness: explorer.status === 'fresh' ? 'live_cached' as const : 'unavailable' as const } : null;
+    return { contract, token_pair: tokenPair, explorer: explorerValue, launch_context: inferLaunchContext(tokenPair, explorerValue),
       provider_statuses: [this.idleProvider('DefiLlama'), this.idleProvider('CoinGecko'), this.providerStatus('DexScreener', pair), this.providerStatus('Blockscout', explorer)], cache_status: pair.status === 'fresh' || explorer.status === 'fresh' ? 'fresh' as const : 'unavailable' as const, generated_at: this.now().toISOString(), live_snapshots_enabled: true, judgment_policy: JUDGMENT_POLICY, disclaimer: DISCLAIMER };
   }
 
@@ -67,6 +70,12 @@ export class RhChainLiveSnapshotService {
   private idleProvider(name: RhChainProviderSnapshot['provider_name']): RhChainProviderSnapshot { return { provider_name: name, status: 'unavailable', fetched_at: null, expires_at: null, error_summary: 'No snapshot requested for this provider.' }; }
   private disabledProvider(name: RhChainProviderSnapshot['provider_name']): RhChainProviderSnapshot { return { provider_name: name, status: 'disabled', fetched_at: null, expires_at: null, error_summary: 'Live snapshots are disabled.' }; }
   private disabledSnapshot(): RhChainLiveSnapshot { return { title: 'RH Chain Live Snapshot', generated_at: this.now().toISOString(), live_snapshots_enabled: false, judgment_policy: JUDGMENT_POLICY, chain_metrics: { ...emptyMetrics(), freshness: 'seeded' }, meme_category: { ...emptyCategory(), freshness: 'seeded' }, provider_statuses: providerNames.map((name) => this.disabledProvider(name)), cache_status: 'disabled', disclaimer: DISCLAIMER }; }
+}
+
+function inferLaunchContext(pair: RhChainTokenPairSnapshot | null, explorer: RhChainExplorerSnapshot | null): RhChainLaunchContext | undefined {
+  if (!pair && !explorer) return undefined;
+  const observed_at = pair?.source_timestamp ?? explorer?.source_timestamp ?? new Date().toISOString();
+  return { launch_source: 'unknown_manual', launch_source_type: 'unknown_manual', launch_surface_url: pair?.dex_url ?? null, contract_verified: explorer?.contract_verified ?? 'unknown', liquidity_route: pair?.dex_url ? 'provider-observed DEX route' : null, pair_address: pair?.pair_address ?? null, lp_status: 'unknown', deployer_address: explorer?.deployer_address ?? null, creator_address: null, deployer_observed_at: explorer?.deployer_address ? observed_at : null, source_notes: 'Provider-observed pair/explorer context only. Launch surface remains unknown without a human-reviewed receipt.', evidence_links: [], confidence_level: 'low', data_mode: 'cached', observed_at, updated_at: observed_at };
 }
 
 function createPublicClients(options: RhChainLiveSnapshotOptions): RhChainLiveProviderClient {

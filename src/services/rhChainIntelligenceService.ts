@@ -1,6 +1,7 @@
 import {
   getRhChain4663Index,
   getRhChainDailyReceipts,
+  getRhChainLaunchSurfaces,
   getRhChainPayload,
   getRhChainReviewQueue,
   getRhChainReviewStateCounts,
@@ -86,6 +87,8 @@ export function assembleRhChain4663Index() {
 export function assembleRhChainDailyReceipts() {
   return getRhChainDailyReceipts();
 }
+
+export function assembleRhChainLaunchSurfaces() { return getRhChainLaunchSurfaces(); }
 
 export function assembleRhChainIntelligence() {
   const desk = getRhChainPayload();

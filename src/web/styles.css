@@ -475,6 +475,260 @@
   text-decoration: none;
 }
 
+.rh-chain-daily-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.rh-chain-daily-section-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 0.75rem;
+}
+
+.rh-chain-daily-section-card {
+  display: grid;
+  align-content: start;
+  gap: 0.8rem;
+  padding: clamp(1rem, 2vw, 1.35rem);
+  border: 1px solid rgba(124, 199, 255, 0.18);
+  border-radius: 10px;
+  background: linear-gradient(145deg, rgba(124, 199, 255, 0.055), rgba(5, 12, 10, 0.82));
+}
+
+.rh-chain-daily-section-card.section-infopunks_verdict {
+  border-color: rgba(246, 208, 111, 0.4);
+  background: linear-gradient(145deg, rgba(246, 208, 111, 0.09), rgba(5, 12, 10, 0.82));
+}
+
+.rh-chain-daily-section-card h3,
+.rh-chain-daily-section-card p {
+  margin: 0;
+}
+
+.rh-chain-daily-section-card h3 {
+  color: var(--text);
+  font-size: clamp(1.1rem, 1.8vw, 1.4rem);
+}
+
+.rh-chain-daily-section-card > p {
+  color: var(--rh-muted-text);
+  line-height: 1.5;
+}
+
+.rh-chain-daily-section-card dl {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+}
+
+.rh-chain-daily-section-card dl > div {
+  display: grid;
+  gap: 0.22rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid rgba(126, 255, 176, 0.1);
+}
+
+.rh-chain-daily-section-card dt {
+  color: var(--blue);
+  font-size: 0.68rem;
+  font-family: "IBM Plex Mono", monospace;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.rh-chain-daily-section-card dd {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.rh-chain-receipt-card-page {
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  padding: clamp(0.25rem, 2vw, 1.5rem) 0;
+}
+
+.rh-chain-share-card {
+  display: grid;
+  gap: clamp(1.1rem, 2.4vw, 1.8rem);
+  width: min(100%, 760px);
+  padding: clamp(1.25rem, 4vw, 3rem);
+  border: 1px solid rgba(124, 199, 255, 0.34);
+  border-radius: 16px;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 88% 8%, rgba(246, 208, 111, 0.16), transparent 24%),
+    linear-gradient(140deg, rgba(124, 199, 255, 0.13), rgba(5, 12, 10, 0.96) 48%, rgba(126, 255, 176, 0.055));
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.35);
+}
+
+.rh-chain-share-card header,
+.rh-chain-share-card footer,
+.rh-chain-card-page-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 1rem;
+}
+
+.rh-chain-x-post-block {
+  display: grid;
+  gap: 0.7rem;
+  width: min(100%, 760px);
+  padding: 1rem;
+  border: 1px solid rgba(126, 255, 176, 0.16);
+  border-radius: 10px;
+  background: rgba(5, 12, 10, 0.68);
+}
+
+.rh-chain-x-post-block h2,
+.rh-chain-x-post-block p {
+  margin: 0;
+}
+
+.rh-chain-x-post-block h2 {
+  font-size: 1rem;
+}
+
+.rh-chain-x-post-block textarea {
+  width: 100%;
+  min-height: 218px;
+  resize: vertical;
+  box-sizing: border-box;
+  padding: 0.8rem;
+  border: 1px solid rgba(124, 199, 255, 0.22);
+  border-radius: 7px;
+  color: var(--text);
+  background: rgba(2, 8, 7, 0.7);
+  font: 0.78rem/1.5 "IBM Plex Mono", monospace;
+}
+
+.rh-chain-share-card-brand,
+.rh-chain-share-card-number,
+.rh-chain-share-card-period,
+.rh-chain-share-card p,
+.rh-chain-share-card h2 {
+  margin: 0;
+}
+
+.rh-chain-share-card-brand {
+  color: var(--green);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.rh-chain-share-card-number {
+  color: var(--amber);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.rh-chain-share-card-period {
+  width: fit-content;
+  padding: 0.42rem 0.62rem;
+  border: 1px solid rgba(126, 255, 176, 0.2);
+  border-radius: 999px;
+  color: var(--muted);
+  font: 0.72rem "IBM Plex Mono", monospace;
+}
+
+.rh-chain-share-card h2 {
+  max-width: 680px;
+  font-size: clamp(1.8rem, 4.2vw, 3.35rem);
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+}
+
+.rh-chain-share-card-signals {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.65rem;
+}
+
+.rh-chain-share-card-signals p {
+  display: grid;
+  gap: 0.38rem;
+  padding: 0.78rem;
+  border-top: 1px solid rgba(126, 255, 176, 0.23);
+}
+
+.rh-chain-share-card-signals span {
+  color: var(--blue);
+  font: 0.65rem "IBM Plex Mono", monospace;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.rh-chain-share-card-signals strong {
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.rh-chain-share-card-verdict {
+  display: grid;
+  gap: 0.45rem;
+  padding: clamp(0.9rem, 2vw, 1.25rem);
+  border-left: 2px solid var(--amber);
+  background: rgba(246, 208, 111, 0.075);
+}
+
+.rh-chain-share-card-verdict > p:last-child {
+  color: var(--text);
+  font-size: clamp(1.02rem, 1.8vw, 1.25rem);
+  line-height: 1.38;
+}
+
+.rh-chain-share-card footer {
+  padding-top: 0.8rem;
+  border-top: 1px solid rgba(126, 255, 176, 0.16);
+  color: var(--muted);
+  font: 0.68rem "IBM Plex Mono", monospace;
+}
+
+.rh-chain-share-card footer strong {
+  color: var(--green);
+}
+
+.rh-chain-card-page-actions {
+  width: min(100%, 760px);
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .rh-chain-share-card {
+    gap: 1rem;
+    border-radius: 12px;
+  }
+
+  .rh-chain-share-card-signals {
+    grid-template-columns: 1fr;
+  }
+
+  .rh-chain-share-card footer {
+    display: grid;
+  }
+
+  .rh-chain-card-page-actions,
+  .rh-chain-daily-actions {
+    justify-content: stretch;
+  }
+
+  .rh-chain-card-page-actions .execute,
+  .rh-chain-daily-actions .execute {
+    flex: 1 1 150px;
+  }
+}
+
 .rh-chain-4663-preview {
   border-color: rgba(246, 208, 111, 0.22);
 }

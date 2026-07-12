@@ -1,5 +1,5 @@
 import pg from 'pg';
-import type { RhChainReviewItem, RhChainReviewState, RhChainRiskState, RhChainSignalLabel, RhChainSignalSubmissionInput } from '../data/rhChain';
+import type { RhChainLaunchContext, RhChainReviewItem, RhChainReviewState, RhChainRiskState, RhChainSignalLabel, RhChainSignalSubmissionInput } from '../data/rhChain';
 
 export type RhChainSubmissionStatus = RhChainReviewState;
 export type RhChainSubmissionSource = 'seeded' | 'manual' | 'community_submission' | 'persisted';
@@ -33,6 +33,7 @@ export type RhChainSignalSubmission = {
   risk_state?: RhChainRiskState;
   signal_state?: RhChainSignalLabel;
   infopunks_verdict?: string;
+  launch_context?: RhChainLaunchContext;
   audit_events: RhChainReviewAuditEvent[];
 };
 
@@ -121,6 +122,11 @@ export class PostgresRhChainSubmissionStore implements RhChainSubmissionStore {
 
 function optional(value: string | undefined) { const trimmed = value?.trim(); return trimmed || null; }
 
+function claimedLaunchContext(input: RhChainSignalSubmissionInput, observedAt: string): RhChainLaunchContext | undefined {
+  if (!input.launch_source && !input.launch_surface_url && !input.pair_address && !input.deployer_address && !input.lp_status_claim) return undefined;
+  return { launch_source: input.launch_source ?? 'unknown_manual', launch_source_type: input.launch_source === 'noxa_fun' ? 'launchpad' : input.launch_source === '20lab_erc20' ? 'token_generator' : input.launch_source === 'pump_fun_routed_rh_chain' ? 'routed_launchpad' : input.launch_source === 'uniswap_direct_pool' ? 'direct_dex_pool' : input.launch_source === 'hardhat_foundry_custom' ? 'custom_deployment' : 'unknown_manual', launch_surface_url: optional(input.launch_surface_url), contract_verified: 'unknown', liquidity_route: input.pair_address ? 'submitter-claimed pair route' : null, pair_address: optional(input.pair_address), lp_status: input.lp_status_claim ?? 'unknown', deployer_address: optional(input.deployer_address), creator_address: null, deployer_observed_at: input.deployer_address ? observedAt : null, source_notes: 'Submitter-provided launch context. Unverified until human receipt review.', evidence_links: [{ label: 'Submitter launch context', url: optional(input.launch_surface_url), note: 'Claim only; not an approval or safety determination.', observed_at: observedAt }], confidence_level: 'low', data_mode: 'community_submission', observed_at: observedAt, updated_at: observedAt };
+}
+
 export function createRhChainSignalSubmission(input: RhChainSignalSubmissionInput, submittedAt = new Date().toISOString(), dataMode: RhChainSignalSubmission['data_mode'] = 'persisted'): RhChainSignalSubmission {
   const ticker = input.ticker.trim().toUpperCase();
   const safeTicker = ticker.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'signal';
@@ -134,7 +140,7 @@ export function createRhChainSignalSubmission(input: RhChainSignalSubmissionInpu
     source_type: 'community_submission', data_mode: dataMode, review_status: 'queued_for_manual_review',
     evidence_summary: 'Community submission received. Receipt review has not yet been completed.',
     missing_evidence: ['manual receipt review'], risk_state: 'source_required', signal_state: 'fresh_signal',
-    infopunks_verdict: 'Submission is not endorsement. Review is not financial advice. Inclusion is not safety.',
+    infopunks_verdict: 'Submission is not endorsement. Review is not financial advice. Inclusion is not safety.', launch_context: claimedLaunchContext(input, submittedAt),
     audit_events: [{ event_id: `${submission_id}:submitted`, occurred_at: submittedAt, action: 'submitted', to_status: 'queued_for_manual_review', note: 'Signal received and saved to the review ledger.' }]
   };
 }
@@ -149,5 +155,5 @@ export function reviewRhChainSubmission(store: RhChainSubmissionStore, submissio
 }
 
 export function asRhChainPersistedReviewItem(submission: RhChainSignalSubmission): RhChainPersistedReviewItem {
-  return { review_id: submission.submission_id, submission_id: submission.submission_id, review_state: submission.review_status, submitted_at: submission.submitted_at, updated_at: submission.updated_at, ticker: submission.ticker, token_contract: submission.token_contract, chain: submission.chain, source_type: 'community_submission', data_mode: submission.data_mode, links: submission.links, evidence_summary: submission.evidence_summary ?? 'Community submission awaiting receipt review.', missing_evidence: submission.missing_evidence ?? ['manual receipt review'], risk_state: submission.risk_state ?? 'source_required', signal_state: submission.signal_state ?? 'fresh_signal', infopunks_verdict: submission.infopunks_verdict ?? 'Submission is not endorsement. Review is not financial advice. Inclusion is not safety.', reviewer_note: submission.reviewer_note ?? 'No reviewer note yet. This item is awaiting manual review.', next_step: 'Manual review only. This submission is not added to the 4663 Index.', source: { source_name: 'RH Chain Signal Vault', source_url: null, observed_at: submission.submitted_at, updated_at: submission.updated_at, data_mode: submission.data_mode, confidence_level: 'low', note: 'Community-submitted packet retained in the review ledger; not independently verified.' }, audit_events: submission.audit_events };
+  return { review_id: submission.submission_id, submission_id: submission.submission_id, review_state: submission.review_status, submitted_at: submission.submitted_at, updated_at: submission.updated_at, ticker: submission.ticker, token_contract: submission.token_contract, chain: submission.chain, source_type: 'community_submission', data_mode: submission.data_mode, links: submission.links, evidence_summary: submission.evidence_summary ?? 'Community submission awaiting receipt review.', missing_evidence: submission.missing_evidence ?? ['manual receipt review'], risk_state: submission.risk_state ?? 'source_required', signal_state: submission.signal_state ?? 'fresh_signal', infopunks_verdict: submission.infopunks_verdict ?? 'Submission is not endorsement. Review is not financial advice. Inclusion is not safety.', reviewer_note: submission.reviewer_note ?? 'No reviewer note yet. This item is awaiting manual review.', next_step: 'Manual review only. This submission is not added to the 4663 Index.', source: { source_name: 'RH Chain Signal Vault', source_url: null, observed_at: submission.submitted_at, updated_at: submission.updated_at, data_mode: submission.data_mode, confidence_level: 'low', note: 'Community-submitted packet retained in the review ledger; not independently verified.' }, launch_context: submission.launch_context, audit_events: submission.audit_events };
 }
