@@ -441,6 +441,15 @@ export type RhChainDailyReceiptsPayload = {
   receipts: RhChainDailyReceipt[];
 };
 
+export const RH_CHAIN_DAILY_RECEIPT_SECTION_IDS = ['chain_pulse', 'meme_pulse', 'rwa_pulse', 'risk_wall', 'narrative_mutation', 'infopunks_verdict'] as const;
+export type RhChainDailyReceiptAuthoringInput = RhChainDailyReceipt & {
+  period: string;
+  observed_at: string;
+  source_notes: string;
+  receipt_sections: RhChainDailyReceiptSection[];
+};
+export type RhChainDailyReceiptValidation = { valid: boolean; errors: string[] };
+
 export type RhChainMemePulseAsset = {
   ticker: string;
   name: string;
@@ -532,7 +541,20 @@ export type RhChainCloneRadarPayload = {
   active_warnings: RhChainCloneRadarItem[];
   duplicate_ticker_watch: RhChainCloneRadarItem[];
   liquidity_watch: RhChainCloneRadarItem[];
+  correlations?: RhChainRiskCorrelation[];
   flagging_method: Array<{ signal: string; explanation: string }>;
+};
+
+export type RhChainRiskCorrelationType = 'duplicate_ticker_multiple_contracts' | 'same_deployer_multiple_submissions' | 'repeated_launch_surface_low_evidence' | 'reused_liquidity_link' | 'missing_contract_verification' | 'repeated_lp_status_claim_without_evidence' | 'risk_wall_review_queue_overlap';
+export type RhChainRiskCorrelation = {
+  correlation_id: string;
+  correlation_type: RhChainRiskCorrelationType;
+  suspected_correlation: string;
+  related_records: Array<{ review_id: string; ticker: string; token_contract: string; review_state: RhChainReviewState }>;
+  evidence_summary: string;
+  confidence_level: RhChainConfidenceLevel;
+  review_status: 'requires_review';
+  recommended_next_review_step: string;
 };
 
 export type RhChainPayload = {
@@ -1821,16 +1843,60 @@ export function sortRhChainDailyReceiptsByDate(receipts: RhChainDailyReceipt[] =
   });
 }
 
+/** Validates the minimum manual-provenance contract before a daily receipt enters desk memory. */
+export function validateRhChainDailyReceipt(receipt: Partial<RhChainDailyReceipt>): RhChainDailyReceiptValidation {
+  const required: Array<keyof RhChainDailyReceipt> = ['receipt_id', 'period', 'headline', 'top_signal', 'biggest_risk', 'strongest_narrative', 'infopunks_verdict', 'source_notes', 'observed_at', 'data_mode', 'confidence_level'];
+  const errors = required.filter((field) => {
+    const value = receipt[field];
+    return value === undefined || value === null || (typeof value === 'string' && !value.trim());
+  }).map((field) => `missing_${field}`);
+  const sectionIds = new Set(receipt.receipt_sections?.map((section) => section.section_id) ?? []);
+  for (const sectionId of RH_CHAIN_DAILY_RECEIPT_SECTION_IDS) if (!sectionIds.has(sectionId)) errors.push(`missing_section_${sectionId}`);
+  return { valid: errors.length === 0, errors };
+}
+
+/** Authoring helper: rejects incomplete receipts before they can be added to public memory. */
+export function createRhChainDailyReceipt(input: RhChainDailyReceiptAuthoringInput): RhChainDailyReceipt {
+  const validation = validateRhChainDailyReceipt(input);
+  if (!validation.valid) throw new Error(`invalid_rh_chain_daily_receipt:${validation.errors.join(',')}`);
+  return structuredClone(input);
+}
+
+export function selectLatestRhChainDailyReceipt(receipts: RhChainDailyReceipt[] = rhChainDailyReceipts): RhChainDailyReceipt | null {
+  return sortRhChainDailyReceiptsByDate(receipts)[0] ?? null;
+}
+
+export function getRhChainDailyReceipt(receiptId: string, receipts: RhChainDailyReceipt[] = rhChainDailyReceipts): RhChainDailyReceipt | null {
+  return receipts.find((receipt) => receipt.receipt_id === receiptId) ?? null;
+}
+
+export function rhChainDailyReceiptRoute(receiptId: string, receipts: RhChainDailyReceipt[] = rhChainDailyReceipts): string | null {
+  return getRhChainDailyReceipt(receiptId, receipts) ? `/rh-chain-signal-desk/daily-receipts/${encodeURIComponent(receiptId)}` : null;
+}
+
+export function rhChainDailyReceiptShareCardRoute(receiptId: string): string {
+  return `/rh-chain-signal-desk/daily-receipts/${encodeURIComponent(receiptId)}/card`;
+}
+
+export function createRhChainDailyReceiptXPost(receipt: RhChainDailyReceipt): string {
+  return [
+    `Infopunks RH Chain Daily Receipt · ${receipt.period ?? receipt.date}`,
+    '', receipt.headline, '', `Top signal: ${receipt.top_signal}`, `Biggest risk: ${receipt.biggest_risk}`,
+    `Strongest narrative: ${receipt.strongest_narrative}`, `Infopunks verdict: ${receipt.infopunks_verdict}`,
+    '', 'No receipt, no signal.', '', 'Public intelligence, not endorsement or financial advice.'
+  ].join('\n');
+}
+
 export function getRhChainDailyReceipts(): RhChainDailyReceiptsPayload {
   const receipts = sortRhChainDailyReceiptsByDate();
   return {
     title: 'Daily RH Chain Receipts',
     subtitle: 'The market forgets. Infopunks keeps the memory.',
-    generated_at: receipts[0].generated_at,
+    generated_at: selectLatestRhChainDailyReceipt(receipts)?.generated_at ?? new Date(0).toISOString(),
     source_policy: 'Daily receipts are human-reviewed market memory. External data gives context; Infopunks gives judgment; receipts create memory. Do not let live data outrank human-reviewed receipts. Sources must include observed_at timestamps.',
     doctrine: 'External data gives context. Infopunks gives judgment. Receipts create memory.',
     disclaimer: 'Daily RH Chain receipts are public intelligence memory, not financial advice, endorsement, listing, or official Robinhood partnership.',
-    latest_receipt: receipts[0],
+    latest_receipt: selectLatestRhChainDailyReceipt(receipts)!,
     receipts
   };
 }

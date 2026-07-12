@@ -431,6 +431,33 @@ describe('openapi discovery', () => {
     await app.close();
   });
 
+  it('documents the full RH Chain public intelligence route family', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+    const spec = (await app.inject({ method: 'GET', url: '/openapi.json' })).json();
+    const expectedRoutes: Array<[string, 'get' | 'post']> = [
+      ['/v1/rh-chain', 'get'], ['/v1/rh-chain/memes', 'get'], ['/v1/rh-chain/signals', 'get'],
+      ['/v1/rh-chain/receipts', 'get'], ['/v1/rh-chain/4663-index', 'get'], ['/v1/rh-chain/daily-receipts', 'get'],
+      ['/v1/rh-chain/meme-pulse', 'get'], ['/v1/rh-chain/launch-surfaces', 'get'], ['/v1/rh-chain/live-snapshot', 'get'],
+      ['/v1/rh-chain/live-snapshot/token/{contract}', 'get'], ['/v1/rh-chain/tokens/{contract}/dossier', 'get'],
+      ['/v1/rh-chain/review-queue', 'get'], ['/v1/rh-chain/clone-radar', 'get'], ['/v1/rh-chain/scouts', 'get'],
+      ['/v1/rh-chain/distribution-pack', 'get'], ['/v1/rh-chain/signals/submissions', 'get'],
+      ['/v1/rh-chain/signals/submit', 'post'], ['/v1/rh-chain/scout/query', 'post']
+    ];
+
+    for (const [route, method] of expectedRoutes) {
+      const operation = spec.paths[route]?.[method];
+      expect(operation).toBeTruthy();
+      expect(operation.description).toContain('Public intelligence only');
+      expect(operation.description).toContain('never overrides human-reviewed receipts');
+      expect(operation.responses['200'].content['application/json'].schema.allOf[0].$ref).toBe('#/components/schemas/RhChainResponseEnvelope');
+    }
+
+    expect(spec.components.schemas.RhChainResponseEnvelope.required).toEqual(expect.arrayContaining(['data', 'meta', 'sources', 'generated_at', 'data_mode', 'disclaimer']));
+    expect(spec.paths['/v1/rh-chain/signals/submit'].post.requestBody).toBeTruthy();
+    expect(spec.paths['/v1/rh-chain/scout/query'].post.requestBody).toBeTruthy();
+    await app.close();
+  });
+
   it('documents machine execution receipt ingest and BigQuery fixture endpoints with strict caveats', async () => {
     const app = await createApp(emptyIntelligenceStore());
     const spec = (await app.inject({ method: 'GET', url: '/openapi.json' })).json();

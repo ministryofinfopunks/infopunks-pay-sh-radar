@@ -3312,6 +3312,38 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   addCsv(paths, '/v1/radar/export/route-candidates.csv', 'Export route candidates CSV', 'Route candidate CSV export with safe normalized fields only.');
   addCsv(paths, '/v1/radar/export/degradations.csv', 'Export degradations CSV', 'Safe metadata degradation CSV export.');
 
+  // RH Chain is a public intelligence desk. Keep its schema separate from the
+  // general Radar envelope because source provenance and data mode are part of
+  // the contract consumers use to decide how much weight to give a result.
+  const rhChain = (summary: string, description: string, payload: string, example: unknown, parameters?: unknown[], requestBody?: JsonSchema, errors?: Record<string, unknown>) => ({
+    tags: ['RH Chain'],
+    summary,
+    description: `Public intelligence only — not endorsement or financial advice. ${description} Live data is cached context only and never overrides human-reviewed receipts.`,
+    ...(parameters ? { parameters } : {}),
+    ...(requestBody ? { requestBody } : {}),
+    responses: rhChainResponses(payload, example, errors)
+  });
+  const rhExample = { generated_at: '2026-07-12T00:00:00.000Z', data_mode: 'seeded', disclaimer: 'Public intelligence only. Not endorsement or financial advice.' };
+  add('get', '/v1/rh-chain', rhChain('Get RH Chain Signal Desk', 'Returns the complete chain pulse, meme watch, signals, risk wall, receipts, and review context.', 'RhChainDeskPayload', { ...rhExample, title: 'RH Chain Signal Desk', chain_pulse: { metrics: [] } }));
+  add('get', '/v1/rh-chain/memes', rhChain('List RH Chain memes', 'Returns source-linked meme assets and their risk states.', 'RhChainMemesPayload', { ...rhExample, memes: [{ ticker: 'RH', contract: '0xexample', risk_state: 'source_required' }] }));
+  add('get', '/v1/rh-chain/signals', rhChain('List RH Chain signals', 'Returns the public signal classifier and its evidence requirements.', 'RhChainSignalsPayload', { ...rhExample, signals: [{ label: 'fresh_signal', meaning: 'New source-linked observation.' }] }));
+  add('get', '/v1/rh-chain/receipts', rhChain('List RH Chain receipts', 'Returns human-reviewed or source-linked public memory receipts.', 'RhChainReceiptsPayload', { ...rhExample, receipts: [{ receipt_id: 'rh-chain-seed-2026-07-09', timestamp: '2026-07-09T03:45:00.000Z' }] }));
+  add('get', '/v1/rh-chain/4663-index', rhChain('Get 4663 Signal Index', 'Returns the non-tokenized attention and risk index with its scoring context.', 'RhChain4663IndexPayload', { ...rhExample, name: '4663 Signal Index', assets: [{ ticker: 'RH', signal_score: 54, classification: 'active_speculation' }] }));
+  add('get', '/v1/rh-chain/daily-receipts', rhChain('List daily RH Chain receipts', 'Returns human-reviewed daily market memory; it is the authoritative reviewed record when live context conflicts.', 'RhChainDailyReceiptsPayload', { ...rhExample, title: 'Daily RH Chain Receipts', latest_receipt: { receipt_id: 'daily-rh-chain-2026-07-12', date: '2026-07-12' } }));
+  add('get', '/v1/rh-chain/daily-receipts/{receipt_id}', rhChain('Get daily RH Chain receipt', 'Returns one human-reviewed daily receipt by id. Unknown receipt ids return rh_chain_daily_receipt_not_found.', 'RhChainDailyReceiptPayload', { ...rhExample, receipt_id: 'rh_daily_001', period: 'July 11 → July 12, 2026 UTC', headline: 'RH Chain receipt memory.' }, [pathParam('receipt_id', 'Daily receipt identifier.')], undefined, { '404': errorResponse('rh_chain_daily_receipt_not_found') }));
+  add('get', '/v1/rh-chain/meme-pulse', rhChain('Get RH Meme Pulse', 'Returns the current meme pulse with cached live context where available.', 'RhChainMemePulsePayload', { ...rhExample, title: 'RH Meme Pulse', snapshot: { flagship_signal: 'Source verification required.' } }));
+  add('get', '/v1/rh-chain/launch-surfaces', rhChain('List launch surfaces', 'Returns the manual launch-surface taxonomy used for evidence review.', 'RhChainLaunchSurfacesPayload', { ...rhExample, title: 'Launch Surface Watch', surfaces: [{ id: 'noxa_fun', source_type: 'launchpad' }] }));
+  add('get', '/v1/rh-chain/live-snapshot', rhChain('Get cached live snapshot', 'Returns provider status and cached chain and meme context. Cache status and freshness must be checked before use.', 'RhChainLiveSnapshotPayload', { ...rhExample, title: 'RH Chain Live Snapshot', cache_status: 'fresh', live_snapshots_enabled: true }));
+  add('get', '/v1/rh-chain/live-snapshot/token/{contract}', rhChain('Get cached token snapshot', 'Returns cached token pair and explorer context for one contract.', 'RhChainTokenSnapshotPayload', { ...rhExample, contract: '0xexample', cache_status: 'fresh' }, [pathParam('contract', 'Token contract address.')]));
+  add('get', '/v1/rh-chain/tokens/{contract}/dossier', rhChain('Get token dossier', 'Returns reviewed memory, submissions, launch context, and non-authoritative cached external context for one contract.', 'RhChainTokenDossierPayload', { ...rhExample, contract: '0xexample', review_status: 'not_found', risk_state: 'source_required' }, [pathParam('contract', 'Token contract address.')]));
+  add('get', '/v1/rh-chain/review-queue', rhChain('Get review queue', 'Returns the public manual review queue and review states. Queue inclusion is not a safety finding.', 'RhChainReviewQueuePayload', { ...rhExample, counts: { queued: 1 }, items: [{ review_id: 'rh-review-001', review_state: 'queued_for_manual_review' }] }));
+  add('get', '/v1/rh-chain/clone-radar', rhChain('Get clone radar', 'Returns suspected duplicate, impersonator, liquidity, and deployer patterns that still require receipt review.', 'RhChainCloneRadarPayload', { ...rhExample, title: 'Clone & Impersonator Radar', active_warnings: [] }));
+  add('get', '/v1/rh-chain/scouts', rhChain('List Signal Scouts', 'Returns consented public contributor attribution and Scout roles; private contact information is never returned.', 'RhChainScoutsPayload', { ...rhExample, title: 'Signal Scouts', scouts: [] }));
+  add('get', '/v1/rh-chain/distribution-pack', rhChain('Get distribution pack', 'Returns public-intelligence share packets with their risk caveats.', 'RhChainDistributionPackPayload', { ...rhExample, title: 'RH Chain Distribution Pack', packets: [] }));
+  add('get', '/v1/rh-chain/signals/submissions', rhChain('List signal submissions', 'Returns sanitized community submissions. Submission is intake only, not endorsement or approval.', 'RhChainSubmissionsPayload', { ...rhExample, storage: { durable: false }, submissions: [] }));
+  add('post', '/v1/rh-chain/signals/submit', rhChain('Submit RH Chain signal', 'Stages a source-linked signal for manual review. At least one receipt link or deployer note is required; disclosure confirmation must be true.', 'RhChainSubmissionResponse', { ...rhExample, submission: { submission_id: 'rh-chain-rh-20260712000000', review_status: 'queued_for_manual_review' } }, undefined, jsonRequest({ $ref: '#/components/schemas/RhChainSignalSubmissionRequest' }, { token_contract: '0xexample', ticker: 'RH', liquidity_link: 'https://example.com/pair', launch_source: 'uniswap_direct_pool', disclosure_confirmed: true }), { '400': errorResponse('invalid_request'), '503': errorResponse('rh_chain_submission_storage_not_configured') }));
+  add('post', '/v1/rh-chain/scout/query', rhChain('Query Signal Scout', 'Searches public desk memory and review items; results are intelligence context, not a trading recommendation.', 'RhChainScoutQueryResponse', { ...rhExample, mode: 'token_context', answer: 'No reviewed receipt found.', citations: [] }, undefined, jsonRequest({ $ref: '#/components/schemas/RhChainScoutQueryRequest' }, { query: '0xexample', mode: 'token_context' }), { '400': errorResponse('invalid_request') }));
+
   return {
     openapi: '3.1.0',
     info: {
@@ -3339,7 +3371,8 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       { name: 'Loops' },
       { name: 'Hermes' },
       { name: 'Machine Economy' },
-      { name: 'Radar CSV Exports' }
+      { name: 'Radar CSV Exports' },
+      { name: 'RH Chain', description: 'Public RH Chain intelligence, source provenance, and reviewed receipt memory.' }
     ],
     paths,
     components: {
@@ -3648,6 +3681,43 @@ function componentSchemas(): Record<string, JsonSchema> {
   }, ['id', 'title', 'objective', 'state', 'decision', 'confidence', 'summary', 'risk_factors', 'artifacts', 'linked_receipt_id', 'linked_claim_id', 'linked_loop_id', 'created_at', 'completed_at']);
 
   return {
+    RhChainSource: objectSchema({
+      source_name: stringSchema(), source_url: nullableString(), observed_at: dateTimeSchema(), updated_at: dateTimeSchema(),
+      data_mode: enumSchema(['seeded', 'manual', 'community_submission', 'persisted', 'live_cached', 'unavailable', 'cached', 'live_future']),
+      confidence_level: enumSchema(['low', 'medium', 'high']), note: nullableString(), caveat: nullableString()
+    }, ['source_name', 'observed_at', 'updated_at', 'data_mode', 'confidence_level']),
+    RhChainResponseMeta: objectSchema({
+      source_policy: stringSchema(), record_count: { type: ['integer', 'null'], minimum: 0 }, provider_status: arrayOf(freeformObject()), live_indexing_enabled: { const: false }
+    }, ['source_policy', 'record_count', 'provider_status', 'live_indexing_enabled']),
+    RhChainResponseEnvelope: objectSchema({
+      data: freeformObject(), meta: { $ref: '#/components/schemas/RhChainResponseMeta' }, sources: arrayOf({ $ref: '#/components/schemas/RhChainSource' }),
+      generated_at: dateTimeSchema(), data_mode: enumSchema(['seeded', 'manual', 'community_submission', 'persisted', 'live_cached', 'unavailable', 'cached', 'live_future']), disclaimer: stringSchema()
+    }, ['data', 'meta', 'sources', 'generated_at', 'data_mode', 'disclaimer']),
+    RhChainSignalSubmissionRequest: objectSchema({
+      token_contract: stringSchema(), ticker: stringSchema(), chain: stringSchema(), x_twitter_link: stringSchema(), website_link: stringSchema(), liquidity_link: stringSchema(), deployer_notes: stringSchema(), submitter_notes: stringSchema(),
+      launch_source: enumSchema(['noxa_fun', '20lab_erc20', 'pump_fun_routed_rh_chain', 'uniswap_direct_pool', 'hardhat_foundry_custom', 'unknown_manual']), launch_surface_url: stringSchema(), pair_address: stringSchema(), deployer_address: stringSchema(),
+      lp_status_claim: enumSchema(['unknown', 'locked_claimed', 'burned_claimed', 'unlocked', 'unavailable']), scout_handle: stringSchema(), scout_contact: stringSchema(), public_attribution_consent: booleanSchema(), disclosure_confirmed: { const: true }
+    }, ['token_contract', 'ticker', 'disclosure_confirmed']),
+    RhChainScoutQueryRequest: objectSchema({ query: stringSchema(), mode: enumSchema(['market_pulse', 'risk_memory', 'narrative_mutation', 'token_context', 'launch_context']) }, ['query']),
+    RhChainDeskPayload: freeformObject(),
+    RhChainMemesPayload: objectSchema({ generated_at: dateTimeSchema(), source_policy: stringSchema(), memes: arrayOf(freeformObject()) }, ['generated_at', 'memes']),
+    RhChainSignalsPayload: objectSchema({ generated_at: dateTimeSchema(), source_policy: stringSchema(), signals: arrayOf(freeformObject()) }, ['generated_at', 'signals']),
+    RhChainReceiptsPayload: objectSchema({ generated_at: dateTimeSchema(), receipts: arrayOf(freeformObject()) }, ['generated_at', 'receipts']),
+    RhChain4663IndexPayload: objectSchema({ name: { const: '4663 Signal Index' }, generated_at: dateTimeSchema(), source_policy: stringSchema(), disclaimer: stringSchema(), assets: arrayOf(freeformObject()) }, ['name', 'generated_at', 'assets']),
+    RhChainDailyReceiptsPayload: objectSchema({ title: { const: 'Daily RH Chain Receipts' }, generated_at: dateTimeSchema(), source_policy: stringSchema(), disclaimer: stringSchema(), latest_receipt: freeformObject(), receipts: arrayOf(freeformObject()) }, ['title', 'generated_at', 'latest_receipt', 'receipts']),
+    RhChainDailyReceiptPayload: objectSchema({ receipt_id: stringSchema(), period: stringSchema(), headline: stringSchema(), top_signal: stringSchema(), biggest_risk: stringSchema(), strongest_narrative: stringSchema(), infopunks_verdict: stringSchema(), source_notes: stringSchema(), observed_at: dateTimeSchema(), data_mode: stringSchema(), confidence_level: stringSchema(), receipt_sections: arrayOf(freeformObject()), sources: arrayOf({ $ref: '#/components/schemas/RhChainSource' }) }, ['receipt_id', 'period', 'headline', 'top_signal', 'biggest_risk', 'strongest_narrative', 'infopunks_verdict', 'source_notes', 'observed_at', 'data_mode', 'confidence_level', 'receipt_sections']),
+    RhChainMemePulsePayload: objectSchema({ title: { const: 'RH Meme Pulse' }, generated_at: dateTimeSchema(), disclaimer: stringSchema(), snapshot: freeformObject(), top_attention_assets: arrayOf(freeformObject()) }, ['title', 'generated_at', 'snapshot']),
+    RhChainLaunchSurfacesPayload: objectSchema({ title: { const: 'Launch Surface Watch' }, generated_at: dateTimeSchema(), data_mode: stringSchema(), source_policy: stringSchema(), disclaimer: stringSchema(), surfaces: arrayOf(freeformObject()) }, ['title', 'generated_at', 'data_mode', 'surfaces']),
+    RhChainLiveSnapshotPayload: objectSchema({ title: { const: 'RH Chain Live Snapshot' }, generated_at: dateTimeSchema(), live_snapshots_enabled: booleanSchema(), judgment_policy: stringSchema(), cache_status: enumSchema(['fresh', 'stale', 'unavailable', 'disabled']), disclaimer: stringSchema() }, ['title', 'generated_at', 'live_snapshots_enabled', 'cache_status']),
+    RhChainTokenSnapshotPayload: freeformObject(),
+    RhChainTokenDossierPayload: objectSchema({ contract: stringSchema(), review_status: stringSchema(), risk_state: stringSchema(), data_mode: stringSchema(), generated_at: dateTimeSchema(), disclaimer: stringSchema(), memory: freeformObject(), external_context: freeformObject() }, ['contract', 'review_status', 'risk_state', 'data_mode', 'generated_at', 'memory', 'external_context']),
+    RhChainReviewQueuePayload: objectSchema({ generated_at: dateTimeSchema(), source_policy: stringSchema(), disclaimer: stringSchema(), data_mode: stringSchema(), counts: freeformObject(), items: arrayOf(freeformObject()), grouped: freeformObject() }, ['generated_at', 'counts', 'items', 'grouped']),
+    RhChainCloneRadarPayload: objectSchema({ title: { const: 'Clone & Impersonator Radar' }, generated_at: dateTimeSchema(), disclaimer: stringSchema(), active_warnings: arrayOf(freeformObject()), duplicate_ticker_watch: arrayOf(freeformObject()), liquidity_watch: arrayOf(freeformObject()) }, ['title', 'generated_at', 'active_warnings', 'duplicate_ticker_watch', 'liquidity_watch']),
+    RhChainScoutsPayload: objectSchema({ title: { const: 'Signal Scouts' }, generated_at: dateTimeSchema(), disclaimer: stringSchema(), scouts: arrayOf(freeformObject()), roles: arrayOf(freeformObject()) }, ['title', 'generated_at', 'scouts', 'roles']),
+    RhChainDistributionPackPayload: objectSchema({ title: { const: 'RH Chain Distribution Pack' }, generated_at: dateTimeSchema(), disclaimer: stringSchema(), packets: arrayOf(freeformObject()) }, ['title', 'generated_at', 'packets']),
+    RhChainSubmissionsPayload: objectSchema({ generated_at: dateTimeSchema(), data_mode: stringSchema(), source_policy: stringSchema(), storage: freeformObject(), submissions: arrayOf(freeformObject()) }, ['generated_at', 'data_mode', 'storage', 'submissions']),
+    RhChainSubmissionResponse: objectSchema({ data_mode: stringSchema(), review_packet: freeformObject(), submission: freeformObject(), storage: freeformObject() }, ['data_mode', 'review_packet', 'submission', 'storage']),
+    RhChainScoutQueryResponse: freeformObject(),
     ErrorEnvelope: objectSchema({
       error: stringSchema(),
       message: stringSchema(),
@@ -6847,6 +6917,27 @@ function envelopedResponses(schema: string | JsonSchema, example: unknown, notFo
     ...(notFoundError ? {
       '404': errorResponse(notFoundError)
     } : {}),
+    default: errorResponse()
+  };
+}
+
+function rhChainResponses(payload: string, example: unknown, errors?: Record<string, unknown>) {
+  return {
+    '200': {
+      description: 'Successful public-intelligence response. `data_mode` and source timestamps describe freshness; cached live data never overrides human-reviewed receipts.',
+      content: {
+        'application/json': {
+          schema: {
+            allOf: [
+              { $ref: '#/components/schemas/RhChainResponseEnvelope' },
+              objectSchema({ data: { $ref: `#/components/schemas/${payload}` } }, ['data'])
+            ]
+          },
+          examples: { success: { value: { data: example, meta: { source_policy: 'Public intelligence with source-linked provenance.', record_count: null, provider_status: [], live_indexing_enabled: false }, sources: [], generated_at: '2026-07-12T00:00:00.000Z', data_mode: 'seeded', disclaimer: 'Public intelligence only. Not endorsement or financial advice.' } } }
+        }
+      }
+    },
+    ...(errors ?? {}),
     default: errorResponse()
   };
 }

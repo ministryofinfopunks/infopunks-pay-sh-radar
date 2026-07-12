@@ -2,6 +2,7 @@ import {
   getRhChain4663Index,
   getRhChainDailyReceipts,
   getRhChainReviewQueue,
+  rhChainDailyReceiptRoute,
   type RhChainReviewItem,
   type RhChainTokenDossier
 } from '../data/rhChain';
@@ -34,7 +35,7 @@ export function assembleRhChainTokenDossier(contract: string, submissions: RhCha
   const scout = queryRhChainScout({ query: contract, mode: 'token_context' }, review_items);
   const firstReview = review_items[0];
   const receipt_trail = [
-    ...receipts.map((receipt) => ({ id: receipt.receipt_id, label: receipt.headline, timestamp: receipt.date, href: `/rh-chain-signal-desk/daily-receipts/${receipt.receipt_id === 'rh_daily_001' ? 'rh_daily_001' : ''}` || null })),
+    ...receipts.map((receipt) => ({ id: receipt.receipt_id, label: receipt.headline, timestamp: receipt.date, href: rhChainDailyReceiptRoute(receipt.receipt_id) })),
     ...review_items.map((item) => ({ id: item.review_id, label: `Review queue · ${item.review_state.replaceAll('_', ' ')}`, timestamp: item.updated_at, href: '/rh-chain-signal-desk/review-queue' })),
     ...matchedSubmission.flatMap((item) => item.audit_events.map((event) => ({ id: event.event_id, label: `Vault audit · ${event.action.replaceAll('_', ' ')}`, timestamp: event.occurred_at, href: null })))
   ];

@@ -152,6 +152,12 @@ describe('RH Chain Signal Desk pages', () => {
     expect(text).toContain('Copy X post');
   });
 
+  it('shows a clean not-found state for an unknown daily receipt route', async () => {
+    root = await renderPath(container, '/rh-chain-signal-desk/daily-receipts/not-real');
+    expect(container.textContent).toContain('Receipt not found');
+    expect(container.textContent).toContain('No Daily RH Chain Receipt matches “not-real”.');
+  });
+
   it('renders Launch Surface Watch with known surfaces and evidence doctrine', async () => {
     root = await renderPath(container, '/rh-chain-signal-desk/launch-surfaces');
     const text = container.textContent ?? '';

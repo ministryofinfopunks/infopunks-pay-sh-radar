@@ -8,8 +8,8 @@ import { payShCatalogFixture } from '../data/payShCatalogFixture';
 import { getNarrativeAssetBySlug, getSignalSurfaceBySlug, listNarrativeAssets, listSignalSurfaces } from '../data/narrativeIntel';
 import { getCandidateSignal, listCandidateSignals } from '../data/candidateSignals';
 import { getSignalDeskIndex } from '../data/signalDesk';
-import { createRhChainSignalReviewPacket, getRhChainPayload, listRhChainSignals } from '../data/rhChain';
-import { asRhChainPersistedReviewItem, createRhChainSignalSubmission, InMemoryRhChainSubmissionStore, PostgresRhChainSubmissionStore, type RhChainSubmissionStore, UnconfiguredRhChainSubmissionStore } from '../services/rhChainSignalVault';
+import { createRhChainSignalReviewPacket, getRhChainDailyReceipt, getRhChainPayload, listRhChainSignals } from '../data/rhChain';
+import { asRhChainPersistedReviewItem, createRhChainSignalSubmission, InMemoryRhChainSubmissionStore, PostgresRhChainSubmissionStore, redactRhChainSubmissionForReview, type RhChainSubmissionStore, UnconfiguredRhChainSubmissionStore, updateRhChainSubmissionReviewRecord } from '../services/rhChainSignalVault';
 import { RhChainLiveSnapshotService, type RhChainLiveSnapshotOptions } from '../services/rhChainLiveSnapshotService';
 import { assembleRhChainTokenDossier } from '../services/rhChainTokenDossierService';
 import { assembleRhChainCloneRadar } from '../services/rhChainCloneRadarService';
@@ -517,6 +517,16 @@ const RhChainSignalSubmissionSchema = z.object({
   if (value.public_attribution_consent && !value.scout_handle) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'scout_handle_required_for_public_attribution', path: ['scout_handle'] });
 });
 const RhChainScoutQuerySchema = z.object({ query: z.string().trim().min(1).max(500), mode: z.enum(RH_CHAIN_SCOUT_MODES).optional() }).strict();
+const RhChainReviewUpdateSchema = z.object({
+  review_status: z.enum(['queued_for_manual_review', 'under_receipt_check', 'needs_more_evidence', 'watch_only', 'approved_signal', 'do_not_touch_yet', 'rejected_low_receipt_quality']).optional(),
+  reviewer_note: optionalRhChainText,
+  evidence_summary: optionalRhChainText,
+  missing_evidence: z.array(z.string().trim().min(1).max(500)).max(30).optional(),
+  risk_state: z.enum(['low_watch', 'medium_watch', 'high_risk', 'source_required', 'do_not_touch_yet']).optional(),
+  signal_state: z.enum(['fresh_signal', 'attention_spike', 'durable_candidate', 'liquidity_mirage', 'deployer_cluster_risk', 'top_holder_risk', 'stock_token_spillover', 'do_not_touch_yet']).optional(),
+  infopunks_verdict: optionalRhChainText,
+  audit_note: z.string().trim().min(1).max(1_000)
+}).strict().refine((value) => Object.keys(value).some((key) => key !== 'audit_note'), { message: 'at_least_one_review_field_required' });
 const MAX_INLINE_SUPPORTING_EVENT_IDS = 10;
 const DEFAULT_ALLOWED_ORIGINS = new Set([
   'https://radar.infopunks.fun',
@@ -1722,6 +1732,35 @@ export async function createApp(
     return { data: signal };
   });
   app.get('/v1/narratives', async () => ({ data: listNarrativeAssets() }));
+  app.get<{ Querystring: { status?: string } }>('/internal/rh-chain/review-console/submissions', async (req, reply) => {
+    if (!config.rhChainReviewConsoleEnabled) return reply.code(404).send({ error: 'not_found' });
+    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send({ error: 'review_admin_token_required' });
+    const status = req.query.status;
+    const records = await rhChainSubmissionStore.list();
+    const submissions = (status ? records.filter((item) => item.review_status === status) : records).map(redactRhChainSubmissionForReview);
+    return { data: { submissions, storage: { adapter: rhChainSubmissionStore.adapter, durable: rhChainSubmissionStore.durable } } };
+  });
+  app.get<{ Params: { submissionId: string } }>('/internal/rh-chain/review-console/submissions/:submissionId', async (req, reply) => {
+    if (!config.rhChainReviewConsoleEnabled) return reply.code(404).send({ error: 'not_found' });
+    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send({ error: 'review_admin_token_required' });
+    const submission = (await rhChainSubmissionStore.list()).find((item) => item.submission_id === req.params.submissionId);
+    if (!submission) return reply.code(404).send({ error: 'rh_chain_submission_not_found' });
+    return { data: { submission: redactRhChainSubmissionForReview(submission) } };
+  });
+  app.patch<{ Params: { submissionId: string } }>('/internal/rh-chain/review-console/submissions/:submissionId', async (req, reply) => {
+    if (!config.rhChainReviewConsoleEnabled) return reply.code(404).send({ error: 'not_found' });
+    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send({ error: 'review_admin_token_required' });
+    const parsed = RhChainReviewUpdateSchema.safeParse(req.body);
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_request', issues: parsed.error.issues });
+    try {
+      const updated = await updateRhChainSubmissionReviewRecord(rhChainSubmissionStore, req.params.submissionId, parsed.data);
+      if (!updated) return reply.code(404).send({ error: 'rh_chain_submission_not_found' });
+      return { data: { submission: redactRhChainSubmissionForReview(updated) } };
+    } catch (error) {
+      if (error instanceof Error && error.message === 'rh_chain_submission_storage_not_configured') return reply.code(503).send({ error: 'rh_chain_submission_storage_not_configured' });
+      throw error;
+    }
+  });
   app.get('/v1/rh-chain', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainIntelligence())));
   app.get('/v1/rh-chain/memes', async () => safeJsonExport(buildRhChainApiResponse({
     generated_at: getRhChainPayload().generated_at,
@@ -1735,6 +1774,11 @@ export async function createApp(
   })));
   app.get('/v1/rh-chain/4663-index', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChain4663Index())));
   app.get('/v1/rh-chain/daily-receipts', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainDailyReceipts())));
+  app.get<{ Params: { receipt_id: string } }>('/v1/rh-chain/daily-receipts/:receipt_id', async (req, reply) => {
+    const receipt = getRhChainDailyReceipt(req.params.receipt_id);
+    if (!receipt) return reply.code(404).send({ error: 'rh_chain_daily_receipt_not_found' });
+    return safeJsonExport(buildRhChainApiResponse(receipt));
+  });
   app.get('/v1/rh-chain/meme-pulse', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainMemePulseScreen(await rhChainLiveSnapshots.getLiveSnapshot()))));
   app.get('/v1/rh-chain/launch-surfaces', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainLaunchSurfaces())));
   app.post('/v1/rh-chain/scout/query', async (req, reply) => {
@@ -2836,6 +2880,15 @@ function contentTypeFor(path: string) {
 function isAdmin(adminToken: string | null, authorization: string | undefined) {
   const match = authorization?.match(/^Bearer\s+(.+)$/i);
   return Boolean(adminToken && match?.[1] === adminToken);
+}
+
+function isRhChainReviewAdmin(reviewToken: string | null, authorization: string | undefined) {
+  // Enabling the internal console is an explicit deployment decision. When a
+  // dedicated token is configured, require Bearer auth; otherwise do not reuse
+  // a public/admin token implicitly.
+  if (!reviewToken) return true;
+  const match = authorization?.match(/^Bearer\s+(.+)$/i);
+  return match?.[1] === reviewToken;
 }
 
 function errorCode(error: unknown): string | null {

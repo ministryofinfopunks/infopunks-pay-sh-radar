@@ -1,0 +1,38 @@
+import React, { useEffect, useMemo, useState } from 'react';
+import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
+
+const STATUSES = ['queued_for_manual_review', 'under_receipt_check', 'needs_more_evidence', 'watch_only', 'approved_signal', 'do_not_touch_yet', 'rejected_low_receipt_quality'] as const;
+const API_BASE_URL = getApiBaseUrl();
+const RISK_STATES = ['low_watch', 'medium_watch', 'high_risk', 'source_required', 'do_not_touch_yet'] as const;
+const SIGNAL_STATES = ['fresh_signal', 'attention_spike', 'durable_candidate', 'liquidity_mirage', 'deployer_cluster_risk', 'top_holder_risk', 'stock_token_spillover', 'do_not_touch_yet'] as const;
+type Status = typeof STATUSES[number];
+type Submission = { submission_id: string; ticker: string; token_contract: string; submitted_at: string; review_status: Status; reviewer_note?: string; evidence_summary?: string; missing_evidence?: string[]; risk_state?: string; signal_state?: string; infopunks_verdict?: string; audit_events: Array<{ event_id: string; occurred_at: string; action: string; note?: string }> };
+
+export function RhChainReviewConsolePage() {
+  const [token, setToken] = useState('');
+  const [status, setStatus] = useState<Status | 'all'>('all');
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [selected, setSelected] = useState<Submission | null>(null);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const headers = useMemo(() => ({ Accept: 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }), [token]);
+  const load = async () => {
+    setLoading(true); setError('');
+    try {
+      const suffix = status === 'all' ? '' : `?status=${encodeURIComponent(status)}`;
+      const response = await fetch(toApiUrl(API_BASE_URL, `/internal/rh-chain/review-console/submissions${suffix}`), { headers });
+      if (!response.ok) throw new Error(response.status === 404 ? 'Review Console is disabled.' : response.status === 401 ? 'Reviewer token is required or invalid.' : `Console unavailable (${response.status}).`);
+      const body = await response.json() as { data: { submissions: Submission[] } };
+      setSubmissions(body.data.submissions); setSelected((current) => body.data.submissions.find((item) => item.submission_id === current?.submission_id) ?? null);
+    } catch (reason) { setError(reason instanceof Error ? reason.message : 'Console unavailable.'); } finally { setLoading(false); }
+  };
+  useEffect(() => { void load(); }, [status]); // The initial request safely reports disabled/token-gated state.
+  return <main className="narrative-page rh-chain-page"><section className="panel hero rh-chain-hero"><div><p className="eyebrow">Internal only</p><h1>RH Chain Review Console</h1><p className="copy">Manual desk-memory review. No approval implies safety, endorsement, or a recommendation.</p></div></section><section className="panel"><div className="rh-chain-controls"><label>Reviewer token<input type="password" value={token} onChange={(event) => setToken(event.target.value)} autoComplete="off" /></label><label>Status<select value={status} onChange={(event) => setStatus(event.target.value as Status | 'all')}><option value="all">All statuses</option>{STATUSES.map((value) => <option key={value}>{value}</option>)}</select></label><button className="execute" onClick={() => void load()} disabled={loading}>{loading ? 'Loading…' : 'Load submissions'}</button></div>{error && <p className="route-state error">{error}</p>}</section><section className="rh-chain-two-column"><section className="panel"><p className="section-kicker">Signal Vault</p>{submissions.map((item) => <button className="review-console-row" key={item.submission_id} onClick={() => setSelected(item)}><strong>{item.ticker}</strong><span>{item.review_status}</span><small>{item.token_contract}</small></button>)}{!loading && !error && !submissions.length && <p>No matching submissions.</p>}</section>{selected && <ReviewEditor submission={selected} headers={headers} onSaved={(updated) => { setSelected(updated); setSubmissions((items) => items.map((item) => item.submission_id === updated.submission_id ? updated : item)); }} onError={setError} />}</section></main>;
+}
+
+function ReviewEditor({ submission, headers, onSaved, onError }: { submission: Submission; headers: Record<string, string>; onSaved: (submission: Submission) => void; onError: (message: string) => void }) {
+  const [form, setForm] = useState({ review_status: submission.review_status, reviewer_note: submission.reviewer_note ?? '', evidence_summary: submission.evidence_summary ?? '', missing_evidence: (submission.missing_evidence ?? []).join('\n'), risk_state: submission.risk_state ?? 'source_required', signal_state: submission.signal_state ?? 'fresh_signal', infopunks_verdict: submission.infopunks_verdict ?? '', audit_note: '' });
+  useEffect(() => setForm({ review_status: submission.review_status, reviewer_note: submission.reviewer_note ?? '', evidence_summary: submission.evidence_summary ?? '', missing_evidence: (submission.missing_evidence ?? []).join('\n'), risk_state: submission.risk_state ?? 'source_required', signal_state: submission.signal_state ?? 'fresh_signal', infopunks_verdict: submission.infopunks_verdict ?? '', audit_note: '' }), [submission]);
+  const save = async () => { try { const response = await fetch(toApiUrl(API_BASE_URL, `/internal/rh-chain/review-console/submissions/${encodeURIComponent(submission.submission_id)}`), { method: 'PATCH', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify({ ...form, missing_evidence: form.missing_evidence.split('\n').map((value) => value.trim()).filter(Boolean) }) }); if (!response.ok) throw new Error(`Update failed (${response.status}).`); onSaved((await response.json() as { data: { submission: Submission } }).data.submission); } catch (reason) { onError(reason instanceof Error ? reason.message : 'Update failed.'); } };
+  return <section className="panel"><p className="section-kicker">Review packet</p><h2>{submission.ticker}</h2><p className="dossier-contract">{submission.token_contract}</p><div className="rh-chain-submit-form">{(['reviewer_note', 'evidence_summary', 'infopunks_verdict', 'audit_note'] as const).map((key) => <label key={key}>{key}<textarea value={form[key]} onChange={(event) => setForm({ ...form, [key]: event.target.value })} /></label>)}<label>missing_evidence (one per line)<textarea value={form.missing_evidence} onChange={(event) => setForm({ ...form, missing_evidence: event.target.value })} /></label><label>review_status<select value={form.review_status} onChange={(event) => setForm({ ...form, review_status: event.target.value as Status })}>{STATUSES.map((value) => <option key={value}>{value}</option>)}</select></label><label>risk_state<select value={form.risk_state} onChange={(event) => setForm({ ...form, risk_state: event.target.value })}>{RISK_STATES.map((value) => <option key={value}>{value}</option>)}</select></label><label>signal_state<select value={form.signal_state} onChange={(event) => setForm({ ...form, signal_state: event.target.value })}>{SIGNAL_STATES.map((value) => <option key={value}>{value}</option>)}</select></label><button className="execute" onClick={() => void save()} disabled={!form.audit_note.trim()}>Save review + audit event</button></div><p className="section-kicker">Audit trail</p>{submission.audit_events.map((event) => <p key={event.event_id}><small>{event.occurred_at} · {event.action} · {event.note}</small></p>)}</section>;
+}

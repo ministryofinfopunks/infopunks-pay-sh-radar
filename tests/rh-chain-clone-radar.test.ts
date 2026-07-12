@@ -6,7 +6,7 @@ import { assembleRhChainCloneRadar } from '../src/services/rhChainCloneRadarServ
 describe('RH Chain Clone & Impersonator Radar', () => {
   it('returns cautious, typed suspected-risk entries', () => {
     const radar = assembleRhChainCloneRadar();
-    expect(radar).toEqual(expect.objectContaining({ title: 'Clone & Impersonator Radar', active_warnings: expect.any(Array), liquidity_watch: expect.any(Array) }));
+    expect(radar).toEqual(expect.objectContaining({ title: 'Clone & Impersonator Radar', active_warnings: expect.any(Array), liquidity_watch: expect.any(Array), correlations: expect.any(Array) }));
     expect(radar.active_warnings).toEqual(expect.arrayContaining([expect.objectContaining({ suspicion_type: expect.any(String), confidence_level: expect.any(String), evidence_links: expect.any(Array) })]));
   });
 

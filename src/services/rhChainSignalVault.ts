@@ -7,10 +7,21 @@ export type RhChainSubmissionSource = 'seeded' | 'manual' | 'community_submissio
 export type RhChainReviewAuditEvent = {
   event_id: string;
   occurred_at: string;
-  action: 'submitted' | 'status_updated';
+  action: 'submitted' | 'status_updated' | 'review_updated';
   from_status?: RhChainSubmissionStatus;
   to_status: RhChainSubmissionStatus;
   note?: string;
+};
+
+export type RhChainReviewUpdate = {
+  review_status?: RhChainSubmissionStatus;
+  reviewer_note?: string;
+  evidence_summary?: string;
+  missing_evidence?: string[];
+  risk_state?: RhChainRiskState;
+  signal_state?: RhChainSignalLabel;
+  infopunks_verdict?: string;
+  audit_note?: string;
 };
 
 export type RhChainSignalSubmission = {
@@ -52,6 +63,7 @@ export interface RhChainSubmissionStore {
   save(submission: RhChainSignalSubmission): Promise<RhChainSignalSubmission>;
   list(): Promise<RhChainSignalSubmission[]>;
   updateStatus(submissionId: string, status: RhChainSubmissionStatus, reviewerNote?: string): Promise<RhChainSignalSubmission | null>;
+  updateReview(submissionId: string, update: RhChainReviewUpdate): Promise<RhChainSignalSubmission | null>;
   close?(): Promise<void>;
 }
 
@@ -76,6 +88,14 @@ export class InMemoryRhChainSubmissionStore implements RhChainSubmissionStore {
     this.entries.set(submissionId, updated);
     return structuredClone(updated);
   }
+
+  async updateReview(submissionId: string, update: RhChainReviewUpdate) {
+    const current = this.entries.get(submissionId);
+    if (!current) return null;
+    const updated = updateRhChainSubmissionReview(current, update);
+    this.entries.set(submissionId, updated);
+    return structuredClone(updated);
+  }
 }
 
 export class UnconfiguredRhChainSubmissionStore implements RhChainSubmissionStore {
@@ -84,6 +104,7 @@ export class UnconfiguredRhChainSubmissionStore implements RhChainSubmissionStor
   async save(): Promise<RhChainSignalSubmission> { throw new Error('rh_chain_submission_storage_not_configured'); }
   async list() { return []; }
   async updateStatus(_submissionId: string, _status: RhChainSubmissionStatus, _reviewerNote?: string): Promise<RhChainSignalSubmission | null> { throw new Error('rh_chain_submission_storage_not_configured'); }
+  async updateReview(_submissionId: string, _update: RhChainReviewUpdate): Promise<RhChainSignalSubmission | null> { throw new Error('rh_chain_submission_storage_not_configured'); }
 }
 
 export class PostgresRhChainSubmissionStore implements RhChainSubmissionStore {
@@ -111,6 +132,15 @@ export class PostgresRhChainSubmissionStore implements RhChainSubmissionStore {
     const existing = await this.pool.query<{ payload: RhChainSignalSubmission }>('select payload from rh_chain_signal_submissions where submission_id = $1 for update', [submissionId]);
     if (!existing.rows[0]) return null;
     const updated = updateRhChainSubmissionStatus(existing.rows[0].payload, status, reviewerNote);
+    await this.pool.query('update rh_chain_signal_submissions set updated_at = $2, payload = $3::jsonb where submission_id = $1', [submissionId, updated.updated_at, JSON.stringify(updated)]);
+    return updated;
+  }
+
+  async updateReview(submissionId: string, update: RhChainReviewUpdate) {
+    await this.ensureSchema();
+    const existing = await this.pool.query<{ payload: RhChainSignalSubmission }>('select payload from rh_chain_signal_submissions where submission_id = $1 for update', [submissionId]);
+    if (!existing.rows[0]) return null;
+    const updated = updateRhChainSubmissionReview(existing.rows[0].payload, update);
     await this.pool.query('update rh_chain_signal_submissions set updated_at = $2, payload = $3::jsonb where submission_id = $1', [submissionId, updated.updated_at, JSON.stringify(updated)]);
     return updated;
   }
@@ -149,12 +179,41 @@ export function createRhChainSignalSubmission(input: RhChainSignalSubmissionInpu
 }
 
 export function updateRhChainSubmissionStatus(submission: RhChainSignalSubmission, status: RhChainSubmissionStatus, reviewerNote?: string, updatedAt = new Date().toISOString()): RhChainSignalSubmission {
-  return { ...submission, updated_at: updatedAt, review_status: status, reviewer_note: reviewerNote ?? submission.reviewer_note, audit_events: [...submission.audit_events, { event_id: `${submission.submission_id}:${updatedAt}`, occurred_at: updatedAt, action: 'status_updated', from_status: submission.review_status, to_status: status, note: reviewerNote }] };
+  return updateRhChainSubmissionReview(submission, { review_status: status, reviewer_note: reviewerNote, audit_note: reviewerNote }, updatedAt, 'status_updated');
+}
+
+/** Applies a reviewer decision and always records an immutable audit event. */
+export function updateRhChainSubmissionReview(submission: RhChainSignalSubmission, update: RhChainReviewUpdate, updatedAt = new Date().toISOString(), action: RhChainReviewAuditEvent['action'] = 'review_updated'): RhChainSignalSubmission {
+  const review_status = update.review_status ?? submission.review_status;
+  const note = update.audit_note?.trim() || update.reviewer_note?.trim() || 'Reviewer updated the internal review record.';
+  return {
+    ...submission,
+    updated_at: updatedAt,
+    review_status,
+    ...(update.reviewer_note !== undefined ? { reviewer_note: update.reviewer_note } : {}),
+    ...(update.evidence_summary !== undefined ? { evidence_summary: update.evidence_summary } : {}),
+    ...(update.missing_evidence !== undefined ? { missing_evidence: update.missing_evidence } : {}),
+    ...(update.risk_state !== undefined ? { risk_state: update.risk_state } : {}),
+    ...(update.signal_state !== undefined ? { signal_state: update.signal_state } : {}),
+    ...(update.infopunks_verdict !== undefined ? { infopunks_verdict: update.infopunks_verdict } : {}),
+    audit_events: [...submission.audit_events, { event_id: `${submission.submission_id}:${updatedAt}:${submission.audit_events.length + 1}`, occurred_at: updatedAt, action, from_status: submission.review_status, to_status: review_status, note }]
+  };
 }
 
 /** Service-level manual-review operation. Deliberately not exposed as a public route. */
 export function reviewRhChainSubmission(store: RhChainSubmissionStore, submissionId: string, status: RhChainSubmissionStatus, reviewerNote?: string) {
   return store.updateStatus(submissionId, status, reviewerNote);
+}
+
+/** Internal console operation. It is intentionally service-level so public routes remain read-only. */
+export function updateRhChainSubmissionReviewRecord(store: RhChainSubmissionStore, submissionId: string, update: RhChainReviewUpdate) {
+  return store.updateReview(submissionId, update);
+}
+
+/** Removes private Scout contact data before any review record leaves a controlled surface. */
+export function redactRhChainSubmissionForReview(submission: RhChainSignalSubmission) {
+  const { scout_contact: _scoutContact, ...safeSubmission } = submission;
+  return safeSubmission;
 }
 
 export function asRhChainPersistedReviewItem(submission: RhChainSignalSubmission): RhChainPersistedReviewItem {

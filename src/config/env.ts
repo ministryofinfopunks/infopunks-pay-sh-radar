@@ -23,6 +23,8 @@ export type RuntimeConfig = {
   rhChainProviderTimeoutMs: number;
   rhChainCacheTtlSeconds: number | null;
   rhChainBlockscoutUrl: string | null;
+  rhChainReviewConsoleEnabled: boolean;
+  rhChainReviewAdminToken: string | null;
   frontendOrigin: string | null;
   version: string;
 };
@@ -53,6 +55,8 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
     rhChainProviderTimeoutMs: readPositiveInteger('RH_CHAIN_PROVIDER_TIMEOUT_MS', env.RH_CHAIN_PROVIDER_TIMEOUT_MS, 2_500),
     rhChainCacheTtlSeconds: readOptionalPositiveInteger('RH_CHAIN_CACHE_TTL_SECONDS', env.RH_CHAIN_CACHE_TTL_SECONDS),
     rhChainBlockscoutUrl: readOptionalUrl('RH_CHAIN_BLOCKSCOUT_URL', env.RH_CHAIN_BLOCKSCOUT_URL),
+    rhChainReviewConsoleEnabled: readBoolean('RH_CHAIN_REVIEW_CONSOLE_ENABLED', env.RH_CHAIN_REVIEW_CONSOLE_ENABLED, false),
+    rhChainReviewAdminToken: optionalString(env.RH_CHAIN_REVIEW_ADMIN_TOKEN),
     frontendOrigin: readOptionalUrl('FRONTEND_ORIGIN', env.FRONTEND_ORIGIN),
     version: env.APP_VERSION ?? packageVersion()
   };
@@ -74,6 +78,7 @@ export function deploymentSummary(config: RuntimeConfig) {
     monitorMode: config.monitorMode,
     machineDemoSeed: config.machineDemoSeed,
     rhChainLiveSnapshotsEnabled: config.rhChainLiveSnapshotsEnabled,
+    rhChainReviewConsoleEnabled: config.rhChainReviewConsoleEnabled,
     ingestionEnabled: config.ingestionEnabled,
     dbMode: config.databaseUrl ? 'postgres' : 'memory',
     catalogSource: config.payShCatalogSource,

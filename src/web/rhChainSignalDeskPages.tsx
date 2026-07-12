@@ -18,6 +18,7 @@ import type {
   RhChainSignalLabel,
   RhChainSource
 } from '../data/rhChain';
+import { createRhChainDailyReceiptXPost } from '../data/rhChain';
 import { NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import type { RhChainSignalSubmission } from '../services/rhChainSignalVault';
@@ -100,7 +101,7 @@ function setCanonical(href: string) {
   link.href = href;
 }
 
-export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = false, reviewQueueRoute = false, indexRoute = false, launchSurfacesRoute = false, scoutRoute = false, dailyReceiptsRoute = false, dailyReceiptDetailRoute = false, receiptCardRoute = false, liveSnapshotRoute = false }: { narrativeRoute?: boolean; submitRoute?: boolean; reviewQueueRoute?: boolean; indexRoute?: boolean; launchSurfacesRoute?: boolean; scoutRoute?: boolean; dailyReceiptsRoute?: boolean; dailyReceiptDetailRoute?: boolean; receiptCardRoute?: boolean; liveSnapshotRoute?: boolean }) {
+export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = false, reviewQueueRoute = false, indexRoute = false, launchSurfacesRoute = false, scoutRoute = false, dailyReceiptsRoute = false, dailyReceiptId, receiptCardRoute = false, liveSnapshotRoute = false }: { narrativeRoute?: boolean; submitRoute?: boolean; reviewQueueRoute?: boolean; indexRoute?: boolean; launchSurfacesRoute?: boolean; scoutRoute?: boolean; dailyReceiptsRoute?: boolean; dailyReceiptId?: string; receiptCardRoute?: boolean; liveSnapshotRoute?: boolean }) {
   const [desk, setDesk] = useState<RhChainPayload | null>(null);
   const [reviewQueue, setReviewQueue] = useState<RhChainReviewQueuePayload | null>(null);
   const [signalIndex, setSignalIndex] = useState<RhChain4663IndexPayload | null>(null);
@@ -110,7 +111,9 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [risk, setRisk] = useState<RhChainRiskState | 'all'>('all');
+  const dailyReceiptDetailRoute = Boolean(dailyReceiptId) && !receiptCardRoute;
   const isDailyReceiptRoute = dailyReceiptsRoute || dailyReceiptDetailRoute || receiptCardRoute;
+  const selectedDailyReceipt = dailyReceipts?.receipts.find((receipt) => receipt.receipt_id === dailyReceiptId) ?? null;
   const currentPath = scoutRoute ? '/rh-chain-signal-desk/scout' : liveSnapshotRoute ? '/rh-chain-signal-desk/live-snapshot' : isDailyReceiptRoute ? '/rh-chain-signal-desk/daily-receipts' : launchSurfacesRoute ? '/rh-chain-signal-desk/launch-surfaces' : indexRoute ? '/rh-chain-signal-desk/4663-index' : reviewQueueRoute ? '/rh-chain-signal-desk/review-queue' : submitRoute ? '/rh-chain-signal-desk/submit' : narrativeRoute ? '/narratives/robinhood-chain' : '/rh-chain-signal-desk';
 
   useEffect(() => {
@@ -158,7 +161,7 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
         <section className="panel hero rh-chain-hero">
           <div>
             <p className="eyebrow">{launchSurfacesRoute ? 'Launch Source Intelligence' : isDailyReceiptRoute ? 'Daily Market Memory' : indexRoute ? 'Public Market Memory' : reviewQueueRoute ? 'Public Review Pipeline' : 'Public Intelligence Desk'}</p>
-            <h1>{scoutRoute ? 'RH Chain Scout Agent' : liveSnapshotRoute ? 'RH Chain Live Snapshot' : launchSurfacesRoute ? 'Launch Surface Watch' : receiptCardRoute ? 'RH Chain Receipt Card' : dailyReceiptDetailRoute ? 'Daily RH Chain Receipt #001' : isDailyReceiptRoute ? 'Daily RH Chain Receipts' : indexRoute ? '4663 Signal Index' : reviewQueueRoute ? 'RH Chain Review Queue' : desk.title}</h1>
+            <h1>{scoutRoute ? 'RH Chain Scout Agent' : liveSnapshotRoute ? 'RH Chain Live Snapshot' : launchSurfacesRoute ? 'Launch Surface Watch' : receiptCardRoute ? 'RH Chain Receipt Card' : dailyReceiptDetailRoute ? `Daily RH Chain Receipt ${dailyReceiptId === 'rh_daily_001' ? '#001' : `· ${dailyReceiptId}`}` : isDailyReceiptRoute ? 'Daily RH Chain Receipts' : indexRoute ? '4663 Signal Index' : reviewQueueRoute ? 'RH Chain Review Queue' : desk.title}</h1>
             <p className="copy">{liveSnapshotRoute ? 'External market context, cached with receipts.' : receiptCardRoute ? 'A public-memory card made to travel without losing its caveats.' : dailyReceiptDetailRoute ? 'One human-reviewed market-memory object, preserved for reference.' : isDailyReceiptRoute ? 'The market forgets. Infopunks keeps the memory.' : indexRoute ? 'Wall Street rails. Meme liquidity. Ranked by receipts.' : reviewQueueRoute ? 'Signals enter the desk. Receipts decide what survives.' : desk.subtitle}</p>
             <p className="copy narrative-rally-line">{isDailyReceiptRoute ? 'Receipts before narrative drift.' : indexRoute ? 'Intelligence index, not a token.' : reviewQueueRoute ? 'Public memory, not endorsement.' : 'Intelligence desk, not casino.'}</p>
             <div className="panel-actions">
@@ -178,7 +181,7 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
           </aside>
         </section>
 
-        {scoutRoute ? <ScoutPage /> : liveSnapshotRoute && liveSnapshot ? <LiveSnapshotPage snapshot={liveSnapshot} /> : launchSurfacesRoute && launchSurfaces ? <LaunchSurfacesPage surfaceWatch={launchSurfaces} /> : receiptCardRoute && dailyReceipts ? <ReceiptCardPage receipt={dailyReceipts.latest_receipt} /> : dailyReceiptDetailRoute && dailyReceipts ? <ReceiptDetailPage receipt={dailyReceipts.latest_receipt} feed={dailyReceipts} /> : dailyReceiptsRoute && dailyReceipts ? <RhChainDailyReceiptsPage feed={dailyReceipts} /> : indexRoute && signalIndex ? <RhChain4663IndexPage index={signalIndex} /> : reviewQueueRoute && reviewQueue ? <RhChainReviewQueuePage queue={reviewQueue} /> : submitRoute ? <SubmitSignalSection /> : <>
+        {scoutRoute ? <ScoutPage /> : liveSnapshotRoute && liveSnapshot ? <LiveSnapshotPage snapshot={liveSnapshot} /> : launchSurfacesRoute && launchSurfaces ? <LaunchSurfacesPage surfaceWatch={launchSurfaces} /> : (receiptCardRoute || dailyReceiptDetailRoute) && selectedDailyReceipt ? receiptCardRoute ? <ReceiptCardPage receipt={selectedDailyReceipt} /> : <ReceiptDetailPage receipt={selectedDailyReceipt} feed={dailyReceipts!} /> : (receiptCardRoute || dailyReceiptDetailRoute) && dailyReceipts ? <DailyReceiptNotFound receiptId={dailyReceiptId ?? ''} /> : dailyReceiptsRoute && dailyReceipts ? <RhChainDailyReceiptsPage feed={dailyReceipts} /> : indexRoute && signalIndex ? <RhChain4663IndexPage index={signalIndex} /> : reviewQueueRoute && reviewQueue ? <RhChainReviewQueuePage queue={reviewQueue} /> : submitRoute ? <SubmitSignalSection /> : <>
           <RhChainPulseSection desk={desk} />
           {dailyReceipts && <DailyReceiptsPreview feed={dailyReceipts} />}
           {launchSurfaces && <LaunchSurfacesPreview surfaceWatch={launchSurfaces} />}
@@ -352,7 +355,7 @@ function LatestDailyReceiptSection({ receipt }: { receipt: RhChainDailyReceipt }
     <div className="rh-chain-section-head">
       <div>
         <p className="section-kicker">Latest Receipt / {receipt.receipt_id}</p>
-        <h2>Daily Receipt #001</h2>
+        <h2>{receipt.receipt_id === 'rh_daily_001' ? 'Daily Receipt #001' : `Daily Receipt · ${receipt.receipt_id}`}</h2>
         <p>{receipt.period ?? 'One daily memory object for signal, risk, narrative, liquidity, and verdict.'}</p>
       </div>
       <div className="rh-chain-daily-actions">
@@ -384,24 +387,7 @@ function LatestDailyReceiptSection({ receipt }: { receipt: RhChainDailyReceipt }
   </section>;
 }
 
-function receiptXPost(receipt: RhChainDailyReceipt) {
-  return [
-    'Infopunks RH Chain Daily Receipt #001',
-    '',
-    'Memes are onboarding attention.',
-    'Stock Tokens are onboarding assets.',
-    'DeFi is onboarding liquidity.',
-    'Infopunks is onboarding memory.',
-    '',
-    'Top signal: CASHCAT',
-    'Biggest risk: clone/fake-volume traps',
-    'Verdict: meme season is the user-acquisition layer.',
-    '',
-    'No receipt, no signal.',
-    '',
-    `Public intelligence, not endorsement. ${receipt.period ?? ''}`.trim()
-  ].join('\n');
-}
+function receiptXPost(receipt: RhChainDailyReceipt) { return createRhChainDailyReceiptXPost(receipt); }
 
 function CopyXPost({ receipt }: { receipt: RhChainDailyReceipt }) {
   const [copied, setCopied] = useState(false);
@@ -420,7 +406,7 @@ function CopyXPost({ receipt }: { receipt: RhChainDailyReceipt }) {
 function CopyReceiptSummary({ receipt }: { receipt: RhChainDailyReceipt }) {
   const [copied, setCopied] = useState(false);
   const summary = [
-    `Daily RH Chain Receipt #001 — ${receipt.period ?? receipt.date}`,
+    `Daily RH Chain Receipt · ${receipt.receipt_id} — ${receipt.period ?? receipt.date}`,
     receipt.headline,
     `Top signal: ${receipt.top_signal}`,
     `Risk: ${receipt.biggest_risk}`,
@@ -480,8 +466,12 @@ function ReceiptDetailPage({ receipt, feed }: { receipt: RhChainDailyReceipt; fe
   </>;
 }
 
+function DailyReceiptNotFound({ receiptId }: { receiptId: string }) {
+  return <section className="panel rh-chain-section" aria-label="Daily receipt not found"><p className="section-kicker">Receipt not found</p><h2>No Daily RH Chain Receipt matches “{receiptId}”.</h2><p>This route does not infer or fabricate market memory. Return to the receipt timeline to use a known receipt id.</p><a className="execute compact secondary" href="/rh-chain-signal-desk/daily-receipts">Open receipt timeline</a></section>;
+}
+
 function ReceiptCardPage({ receipt }: { receipt: RhChainDailyReceipt }) {
-  return <section id="latest-receipt" className="rh-chain-receipt-card-page" aria-label="RH Chain Receipt #001 share card">
+  return <section id="latest-receipt" className="rh-chain-receipt-card-page" aria-label={`RH Chain Receipt ${receipt.receipt_id} share card`}>
     <ReceiptShareCard receipt={receipt} standalone />
     <XPostBlock receipt={receipt} />
     <div className="rh-chain-card-page-actions">
@@ -503,24 +493,25 @@ function XPostBlock({ receipt }: { receipt: RhChainDailyReceipt }) {
 }
 
 function ReceiptShareCard({ receipt, standalone = false }: { receipt: RhChainDailyReceipt; standalone?: boolean }) {
+  const isReceipt001 = receipt.receipt_id === 'rh_daily_001';
   return <article className={`rh-chain-share-card${standalone ? ' standalone' : ''}`}>
     <header>
       <div>
         <p className="rh-chain-share-card-brand">INFOPUNKS</p>
         <p className="section-kicker">RH Chain Signal Desk</p>
       </div>
-      <p className="rh-chain-share-card-number">Receipt #001</p>
+      <p className="rh-chain-share-card-number">{receipt.receipt_id === 'rh_daily_001' ? 'Receipt #001' : `Receipt · ${receipt.receipt_id}`}</p>
     </header>
     <div className="rh-chain-share-card-period">{receipt.period ?? receipt.date}</div>
-    <h2>RH Chain meme volume stays dominant while RWA rails mature underneath</h2>
+    <h2>{receipt.headline}</h2>
     <div className="rh-chain-share-card-signals">
-      <p><span>Top Signal</span><strong>CASHCAT remains the flagship attention asset</strong></p>
-      <p><span>Biggest Risk</span><strong>Clone/impersonator tokens and fake-volume traps</strong></p>
-      <p><span>Strongest Narrative</span><strong>Robinhood distribution + meme liquidity + Stock Token future</strong></p>
+      <p><span>Top Signal</span><strong>{isReceipt001 ? 'CASHCAT remains the flagship attention asset' : receipt.top_signal}</strong></p>
+      <p><span>Biggest Risk</span><strong>{receipt.biggest_risk}</strong></p>
+      <p><span>Strongest Narrative</span><strong>{receipt.strongest_narrative}</strong></p>
     </div>
     <div className="rh-chain-share-card-verdict">
       <p className="section-kicker">Infopunks Verdict</p>
-      <p>Meme season is onboarding attention. The test is whether attention converts into persistent RWA/DeFi usage.</p>
+      <p>{isReceipt001 ? 'Meme season is onboarding attention. The test is whether attention converts into persistent RWA/DeFi usage.' : receipt.infopunks_verdict}</p>
     </div>
     <footer><span>Public intelligence, not endorsement.</span><strong>No receipt, no signal.</strong></footer>
   </article>;
@@ -541,7 +532,7 @@ function DailyReceiptTimeline({ receipts }: { receipts: RhChainDailyReceipt[] })
         <div className="rh-chain-card-head">
           <div>
             <p className="section-kicker">{receipt.date} / {receipt.status}</p>
-            <h3>{receipt.headline}</h3>
+            <h3><a href={`/rh-chain-signal-desk/daily-receipts/${receipt.receipt_id}`}>{receipt.headline}</a></h3>
           </div>
           <span className={`rh-chain-daily-confidence confidence-${receipt.confidence_level}`}>{receipt.confidence_level}</span>
         </div>
@@ -853,8 +844,8 @@ function ReviewQueuePreview({ queue }: { queue: RhChainReviewQueuePayload }) {
 
 type RhChainTokenSnapshotResponse = {
   contract: string;
-  token_pair: { dex_url: string | null; pair_address: string | null; liquidity_usd: number | null; volume_24h_usd: number | null; fdv_usd: number | null; market_cap_usd: number | null; pair_created_at: string | null; source_timestamp: string | null } | null;
-  explorer: { explorer_url: string | null; contract_verified: boolean | null } | null;
+  token_pair: { exact_contract_match: boolean; dex_url: string | null; pair_address: string | null; liquidity_usd: number | null; volume_24h_usd: number | null; fdv_usd: number | null; market_cap_usd: number | null; pair_created_at: string | null; source_timestamp: string | null; freshness: string } | null;
+  explorer: { exact_contract_match: boolean; explorer_url: string | null; contract_verified: boolean | null } | null;
   launch_context?: RhChainLaunchContext;
   disclaimer: string;
   judgment_policy?: string;
@@ -885,11 +876,11 @@ function LiveSnapshotPage({ snapshot }: { snapshot: RhChainLiveSnapshot }) {
   return <>
     <section className="panel rh-chain-section" aria-label="Provider Status">
       <div className="rh-chain-section-head"><div><p className="section-kicker">Provider status</p><h2>Provider Status</h2><p>Freshness describes a cached external read, not live certainty.</p></div><span className="source-badge">{snapshot.live_snapshots_enabled ? 'live reads enabled' : 'live reads disabled'}</span></div>
-      <div className="rh-chain-review-stat-grid">{snapshot.provider_statuses.map((provider) => <article className="rh-chain-review-stat" key={provider.provider_name}><span>{provider.provider_name}</span><strong>{provider.status}</strong><small>{provider.fetched_at ? `fetched ${formatTimestamp(provider.fetched_at)}` : provider.error_summary ?? 'No external request.'}</small></article>)}</div>
+      <div className="rh-chain-review-stat-grid">{snapshot.provider_statuses.map((provider) => <article className="rh-chain-review-stat" key={provider.provider_name}><span>{provider.provider_name}</span><strong>{provider.status}</strong><small>{provider.fetched_at ? `fetched ${formatTimestamp(provider.fetched_at)}${provider.status === 'stale' ? ' · stale fallback' : ''}` : provider.error ? `${provider.error.code}: ${provider.error.message}` : provider.error_summary ?? 'No external request.'}</small></article>)}</div>
     </section>
     <section className="panel rh-chain-section" aria-label="Chain Metrics Snapshot"><div className="rh-chain-section-head"><div><p className="section-kicker">Chain metrics snapshot</p><h2>Chain Metrics Snapshot</h2><p>Source timestamp {metrics.source_timestamp ? formatTimestamp(metrics.source_timestamp) : 'unavailable'} / {metrics.freshness}</p></div></div><div className="rh-chain-metric-grid"><SnapshotMetric label="TVL" value={formatUsd(metrics.tvl_usd)} /><SnapshotMetric label="DEX volume" value={formatUsd(metrics.dex_volume_24h_usd)} /><SnapshotMetric label="Stablecoin market cap" value={formatUsd(metrics.stablecoin_market_cap_usd)} /><SnapshotMetric label="Protocol count" value={metrics.protocol_count?.toLocaleString() ?? 'unavailable'} /></div></section>
     <section className="panel rh-chain-section" aria-label="Meme Category Snapshot"><div className="rh-chain-section-head"><div><p className="section-kicker">Meme category snapshot</p><h2>Meme Category Snapshot</h2><p>Source timestamp {category.source_timestamp ? formatTimestamp(category.source_timestamp) : 'unavailable'} / {category.freshness}</p></div></div><div className="rh-chain-metric-grid"><SnapshotMetric label="Category market cap" value={formatUsd(category.market_cap_usd)} /><SnapshotMetric label="24h volume" value={formatUsd(category.volume_24h_usd)} /></div><div className="rh-chain-list">{category.top_assets.map((asset) => <article className="rh-chain-list-item" key={asset.symbol}><div><h3>{asset.symbol}</h3><p>{asset.name}</p></div><span className="rh-chain-chip">{formatUsd(asset.market_cap_usd)}</span></article>) || <p className="panel-caption">No cached category assets available.</p>}</div></section>
-    <section className="panel rh-chain-section" aria-label="Token Lookup Tool"><div className="rh-chain-section-head"><div><p className="section-kicker">Token lookup</p><h2>Token Lookup Tool</h2><p>Fetches a cached, risk-neutral external snapshot. It does not approve a submission.</p></div></div><form className="rh-chain-submit-form" onSubmit={lookup}><label><span>Contract address</span><input value={contract} onChange={(event) => setContract(event.target.value)} placeholder="0x..." aria-label="Live snapshot contract address" /></label><div className="panel-actions"><button type="submit" className="execute">Fetch cached snapshot</button></div></form>{error && <p className="route-state error">{error}</p>}{result && <div className="rh-chain-packet-grid"><p><span>Top pair</span><strong>{result.token_pair?.pair_address ?? 'unavailable'}</strong></p><p><span>Liquidity</span><strong>{formatUsd(result.token_pair?.liquidity_usd ?? null)}</strong></p><p><span>24h volume</span><strong>{formatUsd(result.token_pair?.volume_24h_usd ?? null)}</strong></p><p><span>FDV / market cap</span><strong>{formatUsd(result.token_pair?.fdv_usd ?? result.token_pair?.market_cap_usd ?? null)}</strong></p>{result.launch_context && <p><span>Launch surface</span><strong>{result.launch_context.launch_source.replace(/_/g, ' ')} / {result.launch_context.confidence_level} confidence</strong></p>}{result.token_pair?.dex_url && <p><a href={result.token_pair.dex_url}>DexScreener pair</a></p>}{result.explorer?.explorer_url && <p><a href={result.explorer.explorer_url}>Blockscout explorer</a></p>}</div>}</section>
+    <section className="panel rh-chain-section" aria-label="Token Lookup Tool"><div className="rh-chain-section-head"><div><p className="section-kicker">Token lookup</p><h2>Token Lookup Tool</h2><p>Fetches a cached, risk-neutral external snapshot. It does not approve a submission or establish identity without an exact contract match.</p></div></div><form className="rh-chain-submit-form" onSubmit={lookup}><label><span>Contract address</span><input value={contract} onChange={(event) => setContract(event.target.value)} placeholder="0x..." aria-label="Live snapshot contract address" /></label><div className="panel-actions"><button type="submit" className="execute">Fetch cached snapshot</button></div></form>{error && <p className="route-state error">{error}</p>}{result && <div className="rh-chain-packet-grid"><p><span>Top pair</span><strong>{result.token_pair?.pair_address ?? 'unavailable'}</strong></p><p><span>Provider contract match</span><strong>{result.token_pair?.exact_contract_match ? 'exact contract context' : 'context only — identity unverified'}</strong></p><p><span>Liquidity</span><strong>{formatUsd(result.token_pair?.liquidity_usd ?? null)}</strong></p><p><span>24h volume</span><strong>{formatUsd(result.token_pair?.volume_24h_usd ?? null)}</strong></p><p><span>FDV / market cap</span><strong>{formatUsd(result.token_pair?.fdv_usd ?? result.token_pair?.market_cap_usd ?? null)}</strong></p>{result.launch_context && <p><span>Launch surface</span><strong>{result.launch_context.launch_source.replace(/_/g, ' ')} / {result.launch_context.confidence_level} confidence</strong></p>}{result.token_pair?.dex_url && <p><a href={result.token_pair.dex_url}>DexScreener pair</a></p>}{result.explorer?.explorer_url && <p><a href={result.explorer.explorer_url}>Blockscout explorer</a></p>}</div>}</section>
     <section className="panel rh-chain-section rh-chain-review-disclaimer"><p>{snapshot.judgment_policy}</p><p>{snapshot.disclaimer}</p></section>
   </>;
 }

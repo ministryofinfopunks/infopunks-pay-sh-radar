@@ -32,4 +32,18 @@ describe('RH Chain Token Dossier', () => {
       expect(response.json().data).toEqual(expect.objectContaining({ ticker: null, review_status: 'not_found', risk_state: 'source_required' }));
     } finally { await app.close(); }
   });
+
+  it('does not infer ticker, review status, or index identity from provider context', async () => {
+    const app = await createApp(emptyIntelligenceStore(), undefined, { rhChainLiveSnapshotOptions: { enabled: true, timeoutMs: 10, providers: {
+      chainMetrics: async () => ({ tvl_usd: null, dex_volume_24h_usd: null, stablecoin_market_cap_usd: null, protocol_count: null, source_timestamp: null }),
+      memeCategory: async () => ({ market_cap_usd: 1, volume_24h_usd: 1, top_assets: [{ name: 'Ticker-looking token', symbol: 'CASHCAT', market_cap_usd: 1, volume_24h_usd: 1 }], source_timestamp: '2026-07-12T00:00:00.000Z' }),
+      tokenPair: async () => ({ observed_contract: '0xdifferent', pair_address: 'pair-other', dex_url: 'https://dexscreener.example/pair-other', liquidity_usd: 1, volume_24h_usd: 1, fdv_usd: null, market_cap_usd: null, pair_created_at: null, source_timestamp: '2026-07-12T00:00:00.000Z' }),
+      explorer: async () => ({ observed_contract: '0xdifferent', explorer_url: 'https://explorer.example/address/0xdifferent', contract_verified: true, deployer_address: '0xdeployer', source_timestamp: '2026-07-12T00:00:00.000Z' })
+    } } });
+    try {
+      const response = await app.inject({ method: 'GET', url: '/v1/rh-chain/tokens/0xunknown/dossier' });
+      expect(response.json().data).toEqual(expect.objectContaining({ ticker: null, review_status: 'not_found', risk_state: 'source_required', memory: expect.objectContaining({ index: null }) }));
+      expect(response.json().data.external_context.token_pair).toEqual(expect.objectContaining({ exact_contract_match: false }));
+    } finally { await app.close(); }
+  });
 });

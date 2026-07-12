@@ -107,9 +107,9 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
   if (/^\/rh-chain-signal-desk\/launch-surfaces\/?$/.test(pathname)) {
     return buildMetadata('Launch Surface Watch | Infopunks', 'Read-only RH Chain launch-source intelligence with evidence and risk context.', '/rh-chain-signal-desk/launch-surfaces');
   }
-  if (/^\/rh-chain-signal-desk\/daily-receipts\/rh_daily_001(?:\/card)?\/?$/.test(pathname)) {
+  if (/^\/rh-chain-signal-desk\/daily-receipts\/[^/]+(?:\/card)?\/?$/.test(pathname)) {
     return buildMetadata(
-      'RH Chain Daily Receipt #001 | Infopunks',
+      'RH Chain Daily Receipt | Infopunks',
       'Public RH Chain market memory: signal, risk, narrative, and judgment without endorsement.',
       pathname.replace(/\/$/, '')
     );

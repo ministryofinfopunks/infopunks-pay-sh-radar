@@ -1,4 +1,5 @@
 import { getRhChainReviewQueue, type RhChainCloneRadarItem, type RhChainCloneRadarPayload, type RhChainReviewItem } from '../data/rhChain';
+import { findRhChainRiskCorrelations } from './rhChainRiskCorrelationService';
 
 const DOCTRINE = 'External data gives context. Infopunks gives judgment. Receipts create memory.' as const;
 const DISCLAIMER = 'Radar entries are suspected or unverified risk patterns, not definitive misconduct findings, token safety determinations, trading advice, or an official Robinhood partnership.';
@@ -33,7 +34,7 @@ export function assembleRhChainCloneRadar(reviewItems = getRhChainReviewQueue().
   const liquidity_watch = items.filter((item) => ['low_liquidity_clone', 'deployer_cluster', 'suspicious_launch_surface'].includes(item.suspicion_type) || /liquidity|pool|volume/i.test(item.evidence_summary));
   return {
     title: 'Clone & Impersonator Radar', subtitle: 'The market moves fast. The copies move faster.', generated_at: items.map((item) => item.updated_at).sort().at(-1) ?? new Date().toISOString(), doctrine: DOCTRINE, disclaimer: DISCLAIMER,
-    active_warnings, duplicate_ticker_watch, liquidity_watch,
+    active_warnings, duplicate_ticker_watch, liquidity_watch, correlations: findRhChainRiskCorrelations(reviewItems),
     flagging_method: [
       { signal: 'Repeated ticker', explanation: 'The same ticker appears against more than one disclosed contract; it remains unresolved until manual review.' },
       { signal: 'Unverifiable launch source', explanation: 'Launch claims without a reviewable contract, pair, or source link remain context, not identity.' },
