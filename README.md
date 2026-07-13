@@ -1050,6 +1050,12 @@ Future layers may include:
 
 ---
 
+# RH Chain frontend performance
+
+RH Chain feature surfaces load as route-level chunks: Meme Pulse, Token Dossiers, Clone Radar, Scouts, Distribution Pack, and the internal Review Console. The desk landing and its core public routes remain eagerly available so pathname-based metadata and route detection stay stable.
+
+Vite may still report a large shared entry chunk. That chunk is the existing application shell, which contains the broad non-RH route registry plus the eager RH Chain desk shell; it is intentionally not split until the wider router is decomposed. The production smoke plan covers RH Chain public and read-only API routes without submitting signals.
+
 # License
 
 MIT

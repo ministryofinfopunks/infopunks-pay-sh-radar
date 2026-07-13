@@ -531,8 +531,8 @@ export type RhChainTokenDossier = {
     scout_summary: string;
   };
   external_context: {
-    token_pair: { pair_address: string | null; dex_url: string | null; liquidity_usd: number | null; volume_24h_usd: number | null; freshness: string; source_timestamp: string | null } | null;
-    explorer: { explorer_url: string | null; deployer_address: string | null; contract_verified: boolean | null; freshness: string; source_timestamp: string | null } | null;
+    token_pair: { pair_address: string | null; dex_url: string | null; liquidity_usd: number | null; volume_24h_usd: number | null; exact_contract_match: boolean; chain_match_status: 'chain_verified' | 'chain_unverified' | 'chain_mismatch'; freshness: string; source_timestamp: string | null } | null;
+    explorer: { explorer_url: string | null; deployer_address: string | null; contract_exists: boolean | null; contract_verified: boolean | null; contract_type: string | null; availability: 'available' | 'unavailable'; exact_contract_match: boolean; freshness: string; source_timestamp: string | null } | null;
     category_relevance: { label: string; freshness: string; source_timestamp: string | null };
   };
   launch_context: RhChainLaunchContext | null;

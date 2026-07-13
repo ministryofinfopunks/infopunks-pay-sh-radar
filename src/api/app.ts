@@ -588,6 +588,7 @@ export async function createApp(
     timeoutMs: config.rhChainProviderTimeoutMs,
     ttlSeconds: config.rhChainCacheTtlSeconds,
     blockscoutUrl: config.rhChainBlockscoutUrl,
+    databaseUrl: config.databaseUrl,
     ...options.rhChainLiveSnapshotOptions
   });
   const rhChainPublicRateLimiter = new RhChainPublicRateLimiter(

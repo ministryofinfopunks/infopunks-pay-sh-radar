@@ -195,7 +195,21 @@ export function buildSmokePlan(): SmokePlan {
       '/radar/cards/provider/coingecko-onchain',
       '/radar/cards/route/sol-price',
       '/radar/cards/benchmark/web-search',
-      '/machine-market/cards/cloud-translation'
+      '/machine-market/cards/cloud-translation',
+      '/rh-chain-signal-desk',
+      '/rh-chain-signal-desk/submit',
+      '/rh-chain-signal-desk/review-queue',
+      '/rh-chain-signal-desk/4663-index',
+      '/rh-chain-signal-desk/daily-receipts',
+      '/rh-chain-signal-desk/daily-receipts/rh_daily_002',
+      '/rh-chain-signal-desk/daily-receipts/rh_daily_002/card',
+      '/rh-chain-signal-desk/live-snapshot',
+      '/rh-chain-signal-desk/launch-surfaces',
+      '/rh-chain-signal-desk/scout',
+      '/rh-chain-signal-desk/meme-pulse',
+      '/rh-chain-signal-desk/clone-radar',
+      '/rh-chain-signal-desk/scouts',
+      '/rh-chain-signal-desk/distribution-pack'
     ],
     publicHeadPaths: [
       '/radar/cards',
@@ -259,6 +273,13 @@ export function buildSmokePlan(): SmokePlan {
       '/v1/services',
       '/v1/receipts',
       '/v1/claims',
+      '/v1/rh-chain',
+      '/v1/rh-chain/meme-pulse',
+      '/v1/rh-chain/daily-receipts',
+      '/v1/rh-chain/launch-surfaces',
+      '/v1/rh-chain/clone-radar',
+      '/v1/rh-chain/scouts',
+      '/v1/rh-chain/distribution-pack',
       '/openapi.json'
     ],
     apiHeadJsonPaths: [

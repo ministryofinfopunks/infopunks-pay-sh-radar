@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { MethodologyDrawer } from './methodology';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
@@ -42,14 +42,23 @@ import { UnicornRadarDetailPage, UnicornRadarPage } from './unicornRadarPages';
 import { MachineMarketPreflightCardPage, PreflightCardIndexPage, RadarPreflightCardPage } from './preflightCardPages';
 import { AbundanceDeskPage, AttentionMarketWatchPage, AttentionMarketWatchProfilePage, AttentionMarketsPage, NarrativeSignalReportPage, NarrativesIndexPage, SignalSourcePage, SignalUpdatePermalinkPage } from './narrativePages';
 import { RhChainSignalDeskPage } from './rhChainSignalDeskPages';
-import { RhChainMemePulsePage } from './rhChainMemePulsePage';
-import { RhChainTokenDossierPage } from './rhChainTokenDossierPage';
-import { RhChainCloneRadarPage } from './rhChainCloneRadarPage';
-import { RhChainScoutsPage } from './rhChainScoutsPage';
-import { RhChainDistributionPackPage } from './rhChainDistributionPackPage';
-import { RhChainReviewConsolePage } from './rhChainReviewConsolePage';
 import { HermesDeskPage } from './hermesDeskPages';
 import './styles.css';
+
+const LazyRhChainMemePulsePage = lazy(() => import('./rhChainMemePulsePage').then((module) => ({ default: module.RhChainMemePulsePage })));
+const LazyRhChainTokenDossierPage = lazy(() => import('./rhChainTokenDossierPage').then((module) => ({ default: module.RhChainTokenDossierPage })));
+const LazyRhChainCloneRadarPage = lazy(() => import('./rhChainCloneRadarPage').then((module) => ({ default: module.RhChainCloneRadarPage })));
+const LazyRhChainScoutsPage = lazy(() => import('./rhChainScoutsPage').then((module) => ({ default: module.RhChainScoutsPage })));
+const LazyRhChainDistributionPackPage = lazy(() => import('./rhChainDistributionPackPage').then((module) => ({ default: module.RhChainDistributionPackPage })));
+const LazyRhChainReviewConsolePage = lazy(() => import('./rhChainReviewConsolePage').then((module) => ({ default: module.RhChainReviewConsolePage })));
+
+function RhChainFeatureLoading() {
+  return <main className="shell narrative-shell rh-chain-shell"><section className="panel rh-chain-section" aria-live="polite"><p className="section-kicker">Infopunks / RH Chain</p><h1>Opening intelligence file…</h1><p className="panel-caption">Loading a contained feature surface. Receipts remain the source of judgment.</p></section></main>;
+}
+
+function LazyRhChainFeature({ children }: { children: React.ReactNode }) {
+  return <Suspense fallback={<RhChainFeatureLoading />}>{children}</Suspense>;
+}
 
 type Severity = 'critical' | 'warning' | 'informational' | 'unknown';
 type EvidenceReceipt = { event_id?: string | null; eventId?: string | null; provider_id?: string | null; providerId?: string | null; endpoint_id?: string | null; endpointId?: string | null; observed_at?: string | null; observedAt?: string | null; catalog_generated_at?: string | null; catalogGeneratedAt?: string | null; ingested_at?: string | null; ingestedAt?: string | null; source?: string | null; derivation_reason?: string | null; derivationReason?: string | null; confidence?: number | null; severity?: Severity | string | null; severity_reason?: string | null; severityReason?: string | null; severity_score?: number | null; severityScore?: number | null; severity_window?: string | null; severityWindow?: string | null; summary?: string | null; evidence?: EvidenceReceipt | EvidenceReceipt[] | Record<string, EvidenceReceipt[]> | null };
@@ -14434,13 +14443,13 @@ export function App() {
   if (isAttentionMarketsRoute(window.location.pathname)) return <AttentionMarketsPage />;
   if (isAttentionMarketWatchRoute(window.location.pathname)) return <AttentionMarketWatchPage />;
   if (isAbundanceDeskRoute(window.location.pathname)) return <AbundanceDeskPage narrativeRoute={/^\/narratives\/abundance-desk\/?$/.test(window.location.pathname)} />;
-  if (/^\/rh-chain-signal-desk\/meme-pulse\/?$/.test(window.location.pathname)) return <RhChainMemePulsePage />;
-  if (/^\/rh-chain-signal-desk\/clone-radar\/?$/.test(window.location.pathname)) return <RhChainCloneRadarPage />;
-  if (/^\/rh-chain-signal-desk\/scouts\/?$/.test(window.location.pathname)) return <RhChainScoutsPage />;
-  if (/^\/rh-chain-signal-desk\/distribution-pack\/?$/.test(window.location.pathname)) return <RhChainDistributionPackPage />;
-  if (/^\/internal\/rh-chain\/review-console\/?$/.test(window.location.pathname)) return <RhChainReviewConsolePage />;
+  if (/^\/rh-chain-signal-desk\/meme-pulse\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainMemePulsePage /></LazyRhChainFeature>;
+  if (/^\/rh-chain-signal-desk\/clone-radar\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainCloneRadarPage /></LazyRhChainFeature>;
+  if (/^\/rh-chain-signal-desk\/scouts\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainScoutsPage /></LazyRhChainFeature>;
+  if (/^\/rh-chain-signal-desk\/distribution-pack\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainDistributionPackPage /></LazyRhChainFeature>;
+  if (/^\/internal\/rh-chain\/review-console\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainReviewConsolePage /></LazyRhChainFeature>;
   const dossierContract = window.location.pathname.match(/^\/rh-chain-signal-desk\/tokens\/([^/]+)\/?$/)?.[1];
-  if (dossierContract) return <RhChainTokenDossierPage contract={decodeURIComponent(dossierContract)} />;
+  if (dossierContract) return <LazyRhChainFeature><LazyRhChainTokenDossierPage contract={decodeURIComponent(dossierContract)} /></LazyRhChainFeature>;
   const dailyReceiptMatch = window.location.pathname.match(/^\/rh-chain-signal-desk\/daily-receipts\/([^/]+)(\/card)?\/?$/);
   if (isRhChainSignalDeskRoute(window.location.pathname)) return <RhChainSignalDeskPage narrativeRoute={/^\/narratives\/robinhood-chain\/?$/.test(window.location.pathname)} submitRoute={/^\/rh-chain-signal-desk\/submit\/?$/.test(window.location.pathname)} reviewQueueRoute={/^\/rh-chain-signal-desk\/review-queue\/?$/.test(window.location.pathname)} indexRoute={/^\/rh-chain-signal-desk\/4663-index\/?$/.test(window.location.pathname)} launchSurfacesRoute={/^\/rh-chain-signal-desk\/launch-surfaces\/?$/.test(window.location.pathname)} scoutRoute={/^\/rh-chain-signal-desk\/scout\/?$/.test(window.location.pathname)} dailyReceiptsRoute={/^\/rh-chain-signal-desk\/daily-receipts\/?$/.test(window.location.pathname)} dailyReceiptId={dailyReceiptMatch ? decodeURIComponent(dailyReceiptMatch[1]) : undefined} receiptCardRoute={Boolean(dailyReceiptMatch?.[2])} liveSnapshotRoute={/^\/rh-chain-signal-desk\/live-snapshot\/?$/.test(window.location.pathname)} />;
   if (isHermesDeskRoute(window.location.pathname)) return <HermesDeskPage narrativeRoute={/^\/narratives\/hermes-desk\/?$/.test(window.location.pathname)} memoryLoopRoute={/^\/hermes\/memory-loop\/?$/.test(window.location.pathname)} skillPackRoute={/^\/hermes\/skill-pack\/?$/.test(window.location.pathname)} reputationLedgerRoute={/^\/hermes\/reputation-ledger\/?$/.test(window.location.pathname)} preSpendDecisionRoute={/^\/hermes\/pre-spend-decision\/?$/.test(window.location.pathname)} spendPolicyRoute={/^\/hermes\/spend-policy\/?$/.test(window.location.pathname)} decisionFeedbackRoute={/^\/hermes\/decision-feedback\/?$/.test(window.location.pathname)} walletAuditTrailRoute={/^\/hermes\/wallet-audit-trail\/?$/.test(window.location.pathname)} walletRiskScoreRoute={/^\/hermes\/wallet-risk-score\/?$/.test(window.location.pathname)} walletSafetyRoute={/^\/hermes\/wallet-safety\/?$/.test(window.location.pathname)} />;

@@ -10,6 +10,7 @@ import { queryRhChainScout } from './rhChainScoutService';
 import type { RhChainLiveSnapshot } from './rhChainLiveSnapshotService';
 import type { RhChainSignalSubmission } from './rhChainSignalVault';
 import { isRhChainIdentityContract } from './rhChainTruthGuards';
+import { findRhChainCanonicalIdentity } from '../data/rhChainIdentityRegistry';
 
 const DOCTRINE = 'External data gives context. Infopunks gives judgment. Receipts create memory.' as const;
 const DISCLAIMER = 'Dossier inclusion is public intelligence memory, not endorsement, safety verification, listing, financial advice, or an official Robinhood partnership.';
@@ -31,7 +32,8 @@ export function assembleRhChainTokenDossier(contract: string, submissions: RhCha
   const review_items = [...getRhChainReviewQueue().items, ...persistedReview].filter((item) => normalize(item.token_contract) === normalized);
   const matchedSubmission = submissions.filter((item) => normalize(item.token_contract) === normalized);
   const index = getRhChain4663Index().assets.find((item) => normalize(item.token_contract) === normalized) ?? null;
-  const ticker = review_items[0]?.ticker ?? index?.ticker ?? null;
+  const canonical = findRhChainCanonicalIdentity(contract);
+  const ticker = canonical?.ticker ?? review_items[0]?.ticker ?? index?.ticker ?? null;
   const receipts = getRhChainDailyReceipts().receipts.filter((receipt) => ticker ? `${receipt.summary} ${receipt.top_signal} ${receipt.watchlist.map((item) => item.item).join(' ')}`.toLowerCase().includes(ticker.toLowerCase()) : false).map(({ receipt_id, headline, date }) => ({ receipt_id, headline, date }));
   const launch_context = review_items.find((item) => item.launch_context)?.launch_context ?? null;
   const risk_notes = [...new Set([
@@ -48,7 +50,7 @@ export function assembleRhChainTokenDossier(contract: string, submissions: RhCha
     ...matchedSubmission.flatMap((item) => item.audit_events.map((event) => ({ id: event.event_id, label: `Vault audit · ${event.action.replaceAll('_', ' ')}`, timestamp: event.occurred_at, href: null })))
   ];
   return {
-    contract, ticker, name: index?.name ?? null, chain: firstReview?.chain ?? index?.chain ?? 'Robinhood Chain', review_status: firstReview?.review_state ?? 'not_found', risk_state: firstReview?.risk_state ?? index?.risk_state ?? 'source_required', data_mode: firstReview?.source.data_mode ?? index?.source.data_mode ?? 'unavailable', identity_status: 'valid', generated_at: tokenSnapshot.generated_at, disclaimer: DISCLAIMER, doctrine: DOCTRINE,
+    contract, ticker, name: canonical?.name ?? index?.name ?? null, chain: firstReview?.chain ?? index?.chain ?? 'Robinhood Chain', review_status: firstReview?.review_state ?? 'not_found', risk_state: firstReview?.risk_state ?? index?.risk_state ?? 'source_required', data_mode: firstReview?.source.data_mode ?? index?.source.data_mode ?? 'unavailable', identity_status: 'valid', generated_at: tokenSnapshot.generated_at, disclaimer: DISCLAIMER, doctrine: DOCTRINE,
     memory: { index, review_items, submissions: matchedSubmission.map((item) => ({ submission_id: item.submission_id, submitted_at: item.submitted_at, evidence_summary: item.evidence_summary ?? 'Community submission awaiting receipt review.', audit_events: item.audit_events.map(({ reviewer_id: _reviewerId, ...event }) => event) })), daily_receipts: receipts, scout_summary: scout.answer },
     external_context: { token_pair: tokenSnapshot.token_pair, explorer: tokenSnapshot.explorer, category_relevance: { label: liveSnapshot.meme_category.top_assets.length ? 'Meme category context available; it does not establish token identity or relevance.' : 'CoinGecko category context unavailable.', freshness: liveSnapshot.meme_category.freshness, source_timestamp: liveSnapshot.meme_category.source_timestamp } },
     launch_context,

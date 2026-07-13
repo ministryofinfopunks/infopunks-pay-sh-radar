@@ -29,7 +29,7 @@ async function renderPath(container: HTMLDivElement, path: string) {
     root.render(<App />);
   });
   await act(async () => {
-    await Promise.resolve();
+    await vi.dynamicImportSettled();
     await Promise.resolve();
   });
   return root;
