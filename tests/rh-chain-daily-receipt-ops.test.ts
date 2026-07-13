@@ -15,14 +15,15 @@ describe('RH Chain Daily Receipt Ops Kit', () => {
   it('selects the latest receipt and generates known detail and share-card routes', () => {
     const feed = getRhChainDailyReceipts();
     const latest = selectLatestRhChainDailyReceipt(feed.receipts);
-    expect(latest?.receipt_id).toBe(feed.latest_receipt.receipt_id);
+    expect(latest?.receipt_id).toBe('rh_daily_002');
+    expect(feed.latest_receipt.receipt_id).toBe('rh_daily_002');
     expect(rhChainDailyReceiptRoute(feed.receipts[1].receipt_id, feed.receipts)).toBe(`/rh-chain-signal-desk/daily-receipts/${feed.receipts[1].receipt_id}`);
     expect(rhChainDailyReceiptRoute('unknown', feed.receipts)).toBeNull();
     expect(rhChainDailyReceiptShareCardRoute(feed.receipts[1].receipt_id)).toBe(`/rh-chain-signal-desk/daily-receipts/${feed.receipts[1].receipt_id}/card`);
   });
 
   it('builds field-driven X copy for any receipt', () => {
-    const receipt = getRhChainDailyReceipts().receipts[1];
+    const receipt = getRhChainDailyReceipts().latest_receipt;
     const post = createRhChainDailyReceiptXPost(receipt);
     expect(post).toContain(receipt.headline);
     expect(post).toContain(receipt.top_signal);
@@ -38,5 +39,16 @@ describe('RH Chain Daily Receipt Ops Kit', () => {
     expect(missing.statusCode).toBe(404);
     expect(missing.json()).toEqual({ error: 'rh_chain_daily_receipt_not_found' });
     await app.close();
+  });
+
+  it('keeps source-required access claims and all core receipt sections in #002', () => {
+    const receipt = getRhChainDailyReceipts().latest_receipt;
+    expect(receipt.receipt_id).toBe('rh_daily_002');
+    expect(receipt.receipt_sections?.map((section) => section.section_id)).toEqual(expect.arrayContaining([
+      'chain_pulse', 'meme_pulse', 'access_wallet_pulse', 'rwa_pulse', 'risk_wall', 'narrative_mutation', 'infopunks_verdict'
+    ]));
+    expect(receipt.source_notes).toContain('source_required');
+    expect(receipt.receipt_sections?.find((section) => section.section_id === 'access_wallet_pulse')?.fields.map((field) => field.value).join(' ')).toContain('source_required');
+    expect(JSON.stringify(receipt).toLowerCase()).not.toMatch(/\b(buy|sell)\b/);
   });
 });

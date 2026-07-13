@@ -44,6 +44,8 @@ export function assembleRhChainTokenDossier(contract: string, submissions: RhCha
     memory: { index, review_items, submissions: matchedSubmission.map((item) => ({ submission_id: item.submission_id, submitted_at: item.submitted_at, evidence_summary: item.evidence_summary ?? 'Community submission awaiting receipt review.', audit_events: item.audit_events })), daily_receipts: receipts, scout_summary: scout.answer },
     external_context: { token_pair: tokenSnapshot.token_pair, explorer: tokenSnapshot.explorer, category_relevance: { label: liveSnapshot.meme_category.top_assets.length ? 'Meme category context available; it does not establish token identity or relevance.' : 'CoinGecko category context unavailable.', freshness: liveSnapshot.meme_category.freshness, source_timestamp: liveSnapshot.meme_category.source_timestamp } },
     launch_context,
+    // Generic access surfaces never establish dossier relevance. Attach only a future exact contract/pair evidence match.
+    access_context: null,
     risk_notes,
     receipt_trail
   };

@@ -122,7 +122,7 @@ describe('RH Chain Signal Desk API', () => {
           ])
         }),
         sources: expect.any(Array),
-        generated_at: '2026-07-12T00:00:00.000Z',
+        generated_at: '2026-07-13T00:00:00.000Z',
         data_mode: 'manual',
         disclaimer: 'Daily RH Chain receipts are public intelligence memory, not financial advice, endorsement, listing, or official Robinhood partnership.'
       }));
@@ -141,9 +141,9 @@ describe('RH Chain Signal Desk API', () => {
         disclaimer: 'Daily RH Chain receipts are public intelligence memory, not financial advice, endorsement, listing, or official Robinhood partnership.'
       }));
       expect(body.data.latest_receipt).toEqual(expect.objectContaining({
-        receipt_id: 'rh_daily_001',
+        receipt_id: 'rh_daily_002',
         receipt_type: 'daily_market_memory',
-        period: 'July 11 → July 12, 2026 UTC',
+        period: 'July 12 → July 13, 2026 UTC',
         top_signal: 'CASHCAT remains the flagship RH Chain attention asset',
         confidence_level: 'medium',
         status: 'manual',
@@ -152,7 +152,7 @@ describe('RH Chain Signal Desk API', () => {
       expect(body.data.latest_receipt.sources[0]).toEqual(expect.objectContaining({
         name: 'Infopunks manual 24-hour RH Chain rundown',
         source_name: 'Infopunks manual 24-hour RH Chain rundown',
-        observed_at: '2026-07-12T00:00:00.000Z',
+        observed_at: '2026-07-13T00:00:00.000Z',
         data_mode: 'manual',
         confidence_level: 'medium'
       }));
@@ -163,6 +163,7 @@ describe('RH Chain Signal Desk API', () => {
         receipt_sections: expect.arrayContaining([
           expect.objectContaining({ section_id: 'chain_pulse' }),
           expect.objectContaining({ section_id: 'meme_pulse' }),
+          expect.objectContaining({ section_id: 'access_wallet_pulse' }),
           expect.objectContaining({ section_id: 'rwa_pulse' }),
           expect.objectContaining({ section_id: 'risk_wall' }),
           expect.objectContaining({ section_id: 'narrative_mutation' }),
@@ -170,6 +171,7 @@ describe('RH Chain Signal Desk API', () => {
         ])
       }));
       expect(body.data.receipts.map((receipt: { receipt_id: string }) => receipt.receipt_id)).toEqual([
+        'rh_daily_002',
         'rh_daily_001',
         'rh_daily_2026_07_09',
         'rh_daily_2026_07_08',
@@ -352,8 +354,9 @@ describe('RH Chain Signal Desk API', () => {
       expect(response.statusCode).toBe(200);
       const body = response.json();
       expect(body).toEqual(expect.objectContaining({ data_mode: 'manual', sources: expect.any(Array), disclaimer: expect.stringContaining('not endorsement') }));
-      expect(body.data).toEqual(expect.objectContaining({ title: 'Launch Surface Watch', surfaces: expect.arrayContaining([expect.objectContaining({ id: 'noxa_fun', name: 'NOXA Fun' }), expect.objectContaining({ id: 'unknown_manual' })]) }));
-      expect(body.data.surfaces.every((surface: { source: { observed_at: string } }) => Boolean(surface.source.observed_at))).toBe(true);
+      expect(body.data).toEqual(expect.objectContaining({ title: 'Launch Surface Watch', launch_surfaces: expect.arrayContaining([expect.objectContaining({ id: 'noxa_fun', name: 'NOXA Fun' }), expect.objectContaining({ id: 'unknown_manual' })]), access_surfaces: expect.arrayContaining([expect.objectContaining({ access_surface_name: 'Backpack Wallet', source_status: 'source_required' })]) }));
+      expect(body.data.launch_surfaces.every((surface: { source: { observed_at: string } }) => Boolean(surface.source.observed_at))).toBe(true);
+      expect(body.data.access_surfaces.every((surface: { observed_at: string; updated_at: string }) => Boolean(surface.observed_at) && Boolean(surface.updated_at))).toBe(true);
     } finally { await app.close(); }
   });
 

@@ -210,6 +210,27 @@ export type RhChainLaunchSurfaceRecord = {
   source: RhChainSource;
 };
 
+export type RhChainAccessSurfaceType = 'wallet' | 'bridge' | 'swap_router' | 'dex_app' | 'launch_app' | 'unknown';
+export type RhChainAccessSurfaceSourceStatus = 'verified_source' | 'source_required' | 'community_claim' | 'unavailable';
+export type RhChainAccessSurface = {
+  access_surface_name: string;
+  access_surface_type: RhChainAccessSurfaceType;
+  source_url?: string | null;
+  source_status: RhChainAccessSurfaceSourceStatus;
+  observed_at: string;
+  updated_at: string;
+  data_mode: RhChainDataFreshness;
+  confidence_level: RhChainConfidenceLevel;
+  risk_notes: string;
+  integration_notes: string;
+};
+/** Access context is descriptive only and attaches to a dossier only on exact reviewed evidence. */
+export type RhChainAccessContext = {
+  exact_contract_or_pair_match: boolean;
+  access_surfaces: RhChainAccessSurface[];
+  note: string;
+};
+
 export type RhChainSignalReviewPacket = {
   submission_id: string;
   submitted_at: string;
@@ -392,7 +413,7 @@ export type RhChainDailyReceiptWatchItem = {
   next_thing_to_verify: string;
 };
 
-export type RhChainDailyReceiptSectionId = 'chain_pulse' | 'meme_pulse' | 'rwa_pulse' | 'risk_wall' | 'narrative_mutation' | 'infopunks_verdict';
+export type RhChainDailyReceiptSectionId = 'chain_pulse' | 'meme_pulse' | 'access_wallet_pulse' | 'rwa_pulse' | 'risk_wall' | 'narrative_mutation' | 'infopunks_verdict';
 
 export type RhChainDailyReceiptSection = {
   section_id: RhChainDailyReceiptSectionId;
@@ -506,6 +527,7 @@ export type RhChainTokenDossier = {
     category_relevance: { label: string; freshness: string; source_timestamp: string | null };
   };
   launch_context: RhChainLaunchContext | null;
+  access_context: RhChainAccessContext | null;
   risk_notes: string[];
   receipt_trail: Array<{ id: string; label: string; timestamp: string; href: string | null }>;
 };
@@ -862,6 +884,123 @@ export const rhChain4663SeedAssets: RhChain4663SeedAsset[] = [
 ];
 
 export const rhChainDailyReceipts: RhChainDailyReceipt[] = [
+  {
+    receipt_id: 'rh_daily_002',
+    receipt_type: 'daily_market_memory',
+    date: '2026-07-13',
+    period: 'July 12 → July 13, 2026 UTC',
+    generated_at: '2026-07-13T00:00:00.000Z',
+    observed_at: '2026-07-13T00:00:00.000Z',
+    chain: 'Robinhood Chain',
+    headline: 'RH Chain meme bids rotate while access rails become the hidden story',
+    summary: 'CASHCAT remains the flagship RH Chain attention asset, while the deeper manually reviewed signal is distribution: wallet, bridge, and swap surfaces can turn meme attention into usable network access. Metrics remain source- and timestamp-dependent.',
+    top_signal: 'CASHCAT remains the flagship RH Chain attention asset',
+    biggest_risk: 'Fresh-launch exhaustion, clone tokens, impersonators, fake-volume traps, and source-required wallet/access claims',
+    strongest_narrative: 'Wallet access + meme liquidity + Stock Token future',
+    liquidity_note: 'Meme trading and DEX activity remain meaningful in the manual observation, but no exact liquidity, volume, or stablecoin figures are asserted without a timestamped source.',
+    stock_token_spillover_note: 'Stock Tokens/RWAs remain the long-term thesis; public meme conversation is still larger than demonstrated RWA usage.',
+    solana_base_migration_note: 'Wallet, bridge, and swap integrations are access context only. They do not establish a token, wallet, or bridge endorsement.',
+    deployer_watch_note: 'Fresh launches require contract, deployer, pool-depth, ticker, and transaction-quality verification before any signal is upgraded.',
+    infopunks_verdict: 'Memes are the spark. Wallets are the pipe. Stock Tokens are the thesis. Infopunks is the memory.',
+    manual_context: 'Manually authored from the supplied 24-hour RH Chain market memory for July 12 → July 13, 2026 UTC. This is a human-reviewed receipt, not a live index or endorsement.',
+    source_notes: 'Manual, source-dependent market memory. Meme names are public watchlist/context only and are not approved signals. Unverified wallet and access claims, including Backpack Wallet native support, remain source_required until primary sources are attached.',
+    receipt_sections: [
+      {
+        section_id: 'chain_pulse',
+        title: 'Chain Pulse',
+        summary: 'No major new official Robinhood announcement was confirmed in this period; activity remains meaningful across stablecoins, DEX volume, and meme trading without invented numerical claims.',
+        fields: [
+          { label: 'Official announcement', value: 'No major new official Robinhood announcement was confirmed in this period.' },
+          { label: 'Activity context', value: 'Meaningful stablecoin, DEX-volume, and meme-trading activity was manually observed.' },
+          { label: 'Metrics rule', value: 'All metrics remain source- and timestamp-dependent; no exact figures are asserted here.' }
+        ]
+      },
+      {
+        section_id: 'meme_pulse',
+        title: 'Meme Pulse',
+        summary: 'Cat meta remains dominant and the Hood/Robinhood-native narrative stays active, with rotation and exhaustion risk increasing in fresh launches.',
+        fields: [
+          { label: 'Flagship attention asset', value: 'CASHCAT remains the flagship attention asset.' },
+          { label: 'Watchlist context only', value: '4663, HOODRAT, JUGGERNAUT, HOODIE, SPINOR, Elves, HOODMARKET, FIDEL, TROLL, GREENWHALE, and other names are public watchlist/context only unless reviewed.' },
+          { label: 'Dominant meta', value: 'Cat meta remains dominant; Hood/Robinhood-native narrative remains active.' },
+          { label: 'Rotation risk', value: 'Fresh launches show rotation and exhaustion risk.' }
+        ]
+      },
+      {
+        section_id: 'access_wallet_pulse',
+        title: 'Access / Wallet Pulse',
+        summary: 'Access surfaces matter because they can convert meme attention into usable distribution; they are context, not endorsement.',
+        fields: [
+          { label: 'Swap and bridge access', value: 'LI.FI-powered Robinhood Chain swaps and bridge access are an important access-layer signal.' },
+          { label: 'Backpack Wallet', value: 'Native support claim is source_required until a primary Backpack source is added.' },
+          { label: 'Why access matters', value: 'Wallet and bridge integrations can convert meme attention into usable distribution.' },
+          { label: 'Interpretation rule', value: 'Access surfaces are context, not endorsement.' }
+        ]
+      },
+      {
+        section_id: 'rwa_pulse',
+        title: 'RWA Pulse',
+        summary: 'Stock Tokens/RWAs remain the long-term thesis, but meme attention still exceeds RWA usage in public conversation.',
+        fields: [
+          { label: 'Long-term thesis', value: 'Stock Tokens/RWAs remain the long-term thesis.' },
+          { label: 'Current tension', value: 'Can meme-led users convert into Stock Token, lending, and DeFi usage?' },
+          { label: 'Conversation vs usage', value: 'Meme attention remains larger in public conversation than demonstrated RWA usage.' }
+        ]
+      },
+      {
+        section_id: 'risk_wall',
+        title: 'Risk Wall',
+        summary: 'Attention is not verification. Fresh launches and access claims remain review gates.',
+        fields: [
+          { label: 'Token and launch risks', value: 'Clone tokens, impersonators, fake-volume traps, fresh-launch exhaustion, ticker confusion, and low-liquidity launches.' },
+          { label: 'Access-claim risk', value: 'Unverified wallet/access claims are source_required.' },
+          { label: 'Verification reminder', value: 'Verify exact contract, canonical source, deployer, pool depth, and transaction quality.' }
+        ]
+      },
+      {
+        section_id: 'narrative_mutation',
+        title: 'Narrative Mutation',
+        summary: 'RH Chain is shifting from pure new-chain meme season into distribution-layer competition.',
+        fields: [
+          { label: 'Memes', value: 'Memes create attention.' },
+          { label: 'Wallets and bridges', value: 'Wallets and bridges create access.' },
+          { label: 'Stock Tokens', value: 'Stock Tokens create the serious thesis.' },
+          { label: 'Infopunks', value: 'Infopunks preserves the memory layer.' }
+        ]
+      },
+      {
+        section_id: 'infopunks_verdict',
+        title: 'Infopunks Verdict',
+        summary: 'External data gives context. Infopunks gives judgment. Receipts create memory.',
+        fields: [
+          { label: 'Verdict', value: 'Memes are the spark. Wallets are the pipe. Stock Tokens are the thesis. Infopunks is the memory.' }
+        ]
+      }
+    ],
+    watchlist: [
+      { item: 'CASHCAT', reason: 'Flagship RH Chain attention asset in the manually authored receipt.', risk_state: 'medium_watch', next_thing_to_verify: 'Exact contract, pool depth, holder concentration, and sustained activity.' },
+      { item: 'Public meme watchlist names', reason: '4663, HOODRAT, JUGGERNAUT, HOODIE, SPINOR, Elves, HOODMARKET, FIDEL, TROLL, GREENWHALE, and other names are context only unless reviewed.', risk_state: 'source_required', next_thing_to_verify: 'Primary source, exact contract, liquidity context, and manual receipt review.' },
+      { item: 'Wallet and bridge access', reason: 'Distribution-layer context can matter, but integrations do not imply endorsement.', risk_state: 'source_required', next_thing_to_verify: 'Primary wallet or bridge source and timestamped integration evidence.' }
+    ],
+    do_not_touch_yet: [
+      { item: 'Fresh clone and impersonator launches', reason: 'Ticker, branding, and launch claims are not identity or liquidity proof.', risk_state: 'do_not_touch_yet', next_thing_to_verify: 'Verified contract, canonical channels, and deployer history.' },
+      { item: 'Fake-volume and low-liquidity traps', reason: 'Displayed activity can be unreliable where pools are shallow or trade quality is unreviewed.', risk_state: 'high_risk', next_thing_to_verify: 'Pool depth, trade distribution, and independent transaction review.' },
+      { item: 'Backpack Wallet native support claim', reason: 'The claim remains unverified without a primary Backpack source.', risk_state: 'source_required', next_thing_to_verify: 'Primary Backpack source confirming the claimed support.' }
+    ],
+    sources: [
+      createRhChainDailyReceiptSource({
+        name: 'Infopunks manual 24-hour RH Chain rundown',
+        observed_at: '2026-07-13T00:00:00.000Z',
+        url: 'https://radar.infopunks.fun/rh-chain-signal-desk/daily-receipts',
+        note: 'Human-reviewed, manually authored intelligence for July 12 → July 13, 2026 UTC. Meme names are watchlist/context only; unverified wallet/access claims remain source_required.',
+        data_mode: 'manual',
+        confidence_level: 'medium'
+      })
+    ],
+    confidence_level: 'medium',
+    status: 'manual',
+    data_mode: 'manual'
+  },
   {
     receipt_id: 'rh_daily_001',
     receipt_type: 'daily_market_memory',
@@ -1911,7 +2050,15 @@ export function getRhChainLaunchSurfaces() {
     ['hardhat_foundry_custom', 'Hardhat/Foundry custom deployment', 'custom_deployment', 'Custom-deployment claim; verify deployer, bytecode, and ownership controls.', 'Custom code increases the need for independent review.'],
     ['unknown_manual', 'Unknown/manual deployment', 'unknown_manual', 'No reliable launch surface is attached yet.', 'Unknown origin is a review state, not a neutral safety signal.']
   ].map(([id, name, source_type, description, risk_note]) => ({ id: id as RhChainLaunchSurface, name, source_type: source_type as RhChainLaunchSourceType, description, risk_note, source }));
-  return { title: 'Launch Surface Watch', subtitle: 'Infopunks does not launch the token. Infopunks remembers the launch.', generated_at: source.observed_at, data_mode: 'manual' as const, source_policy: 'Launch context is evidence-led and source-dependent. Submitter claims remain unverified until human review.', disclaimer: 'Launch Surface Watch is public intelligence, not endorsement, safety verification, financial advice, or an official Robinhood partnership.', doctrine: 'External data gives context. Infopunks gives judgment. Receipts create memory.', surfaces: records };
+  const access_surfaces: RhChainAccessSurface[] = [
+    ['Robinhood Wallet', 'wallet', 'https://robinhood.com/wallet', 'verified_source', 'Official wallet surface is access context only; wallet availability does not verify any token, route, or integration.', 'Wallet surface tracked as a distribution-layer observation.'],
+    ['LI.FI-powered swaps/bridges', 'swap_router', 'https://li.fi', 'verified_source', 'Router and bridge availability are not a safety, route-quality, or asset-legitimacy determination.', 'Swap and bridge access is tracked as an access-layer signal, not a trading flow.'],
+    ['Uniswap app', 'dex_app', 'https://app.uniswap.org', 'verified_source', 'A DEX app surface does not verify a token, pool, liquidity depth, or exit reliability.', 'App availability is context only; exact pair evidence is required for a dossier link.'],
+    ['Pump.fun routed RH Chain trading', 'launch_app', 'https://pump.fun', 'community_claim', 'Routed-trading claims require exact route, destination pair, and timestamp verification.', 'Tracked as a community-described launch/access surface; no routing flow is offered here.'],
+    ['Backpack Wallet', 'wallet', null, 'source_required', 'Native RH Chain support claim is source_required until a primary Backpack source is attached.', 'Unverified wallet-access claim retained as context only.'],
+    ['Unknown/manual access claim', 'unknown', null, 'unavailable', 'Unknown access claims are not neutral. Do not infer support, legitimacy, or safety.', 'Manual review state for claims without a primary source.']
+  ].map(([access_surface_name, access_surface_type, source_url, source_status, risk_notes, integration_notes]) => ({ access_surface_name: String(access_surface_name), access_surface_type: access_surface_type as RhChainAccessSurfaceType, source_url, source_status: source_status as RhChainAccessSurfaceSourceStatus, observed_at: source.observed_at, updated_at: source.updated_at, data_mode: 'manual' as const, confidence_level: source_status === 'verified_source' ? 'medium' as const : 'low' as const, risk_notes: String(risk_notes), integration_notes: String(integration_notes) }));
+  return { title: 'Launch Surface Watch', subtitle: 'Infopunks does not launch the token. Infopunks remembers the launch.', generated_at: source.observed_at, data_mode: 'manual' as const, source_policy: 'Launch and access context are evidence-led and source-dependent. Submitter claims remain unverified until human review. Access does not equal legitimacy.', disclaimer: 'Launch Surface Watch and Access Surface Watch are public intelligence, not endorsement, safety verification, financial advice, or an official Robinhood partnership.', doctrine: 'External data gives context. Infopunks gives judgment. Receipts create memory.', launch_surfaces: records, access_surfaces, surfaces: records };
 }
 
 function compactOptional(value: string | undefined) {
