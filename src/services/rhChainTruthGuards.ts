@@ -8,7 +8,12 @@ const IDENTITY_PLACEHOLDERS = new Set([
 
 /** A contract can establish a dossier identity only when it is not a desk placeholder. */
 export function isRhChainIdentityContract(value: string | null | undefined): boolean {
-  return typeof value === 'string' && !IDENTITY_PLACEHOLDERS.has(value.trim().toLowerCase());
+  if (typeof value !== 'string') return false;
+  const normalized = value.trim().toLowerCase();
+  if (IDENTITY_PLACEHOLDERS.has(normalized)) return false;
+  if (/^0x(?:manualresearchseed|placeholder|example|unknown|unverified)/.test(normalized)) return false;
+  if (/^0x0{40}$/.test(normalized)) return false;
+  return true;
 }
 
 /** Manual memory ages visibly: fresh ≤36h, aging ≤72h, stale thereafter. */

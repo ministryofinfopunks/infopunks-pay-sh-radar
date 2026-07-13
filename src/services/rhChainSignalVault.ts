@@ -1,5 +1,6 @@
 import pg from 'pg';
 import type { RhChainLaunchContext, RhChainReviewItem, RhChainReviewState, RhChainRiskState, RhChainSignalLabel, RhChainSignalSubmissionInput } from '../data/rhChain';
+import { isRhChainIdentityContract } from './rhChainTruthGuards';
 
 export type RhChainSubmissionStatus = RhChainReviewState;
 export type RhChainSubmissionSource = 'seeded' | 'manual' | 'community_submission' | 'persisted';
@@ -174,6 +175,7 @@ function claimedLaunchContext(input: RhChainSignalSubmissionInput, observedAt: s
 }
 
 export function createRhChainSignalSubmission(input: RhChainSignalSubmissionInput, submittedAt = new Date().toISOString(), dataMode: RhChainSignalSubmission['data_mode'] = 'persisted'): RhChainSignalSubmission {
+  if (!isRhChainIdentityContract(input.token_contract)) throw new Error('rh_chain_identity_contract_required');
   const ticker = input.ticker.trim().toUpperCase();
   const safeTicker = ticker.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'signal';
   const stamp = submittedAt.replace(/[^0-9]/g, '').slice(0, 14);

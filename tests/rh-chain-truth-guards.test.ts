@@ -4,7 +4,7 @@ import { getRhChainFreshnessState, isRhChainIdentityContract } from '../src/serv
 
 describe('RH Chain truth guards', () => {
   it('recognizes only non-placeholder contracts as identity values', () => {
-    for (const marker of ['unverified_contract_required', 'source_required', 'contract_required', 'unknown', 'TBD', '', ' undefined ']) expect(isRhChainIdentityContract(marker)).toBe(false);
+    for (const marker of ['unverified_contract_required', 'source_required', 'contract_required', 'unknown', 'TBD', '', ' undefined ', '0xmanualresearchseed000000000000000000000000', '0xexample', '0x0000000000000000000000000000000000000000']) expect(isRhChainIdentityContract(marker)).toBe(false);
     expect(isRhChainIdentityContract('0xAbC123')).toBe(true);
   });
 

@@ -455,6 +455,9 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.RhChainResponseEnvelope.required).toEqual(expect.arrayContaining(['data', 'meta', 'sources', 'generated_at', 'data_mode', 'disclaimer']));
     expect(spec.paths['/v1/rh-chain/signals/submit'].post.requestBody).toBeTruthy();
     expect(spec.paths['/v1/rh-chain/scout/query'].post.requestBody).toBeTruthy();
+    expect(spec.components.schemas.RhChainErrorEnvelope.required).toEqual(expect.arrayContaining(['data', 'error', 'meta', 'sources', 'generated_at', 'data_mode', 'disclaimer']));
+    expect(spec.paths['/internal/rh-chain/review-console/submissions'].get.security).toEqual([{ bearerAuth: [] }]);
+    expect(spec.paths['/internal/rh-chain/review-console/submissions/{submissionId}'].patch.description).toContain('optimistic concurrency');
     await app.close();
   });
 

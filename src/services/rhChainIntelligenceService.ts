@@ -39,6 +39,12 @@ export type RhChainApiResponse<T> = {
   disclaimer: string;
 };
 
+export type RhChainApiErrorResponse = RhChainApiResponse<null> & {
+  error: string;
+  message?: string;
+  issues?: unknown[];
+};
+
 const RH_CHAIN_DISCLAIMER = 'Independent Infopunks intelligence surface. Not affiliated with, endorsed by, or partnered with Robinhood. No buy, sell, or listing recommendation.';
 
 const providerStatus: RhChainProviderIdentity[] = [
@@ -119,6 +125,15 @@ export function buildRhChainApiResponse<T>(data: T): RhChainApiResponse<T> {
     generated_at: generatedAtFor(data),
     data_mode: dataModeFor(data, sources),
     disclaimer: disclaimerFor(data)
+  };
+}
+
+/** Keeps RH Chain failures machine-readable without dropping provenance policy. */
+export function buildRhChainApiErrorResponse(error: string, details: { message?: string; issues?: unknown[] } = {}): RhChainApiErrorResponse {
+  return {
+    ...buildRhChainApiResponse(null),
+    error,
+    ...details
   };
 }
 

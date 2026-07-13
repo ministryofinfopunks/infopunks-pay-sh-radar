@@ -51,7 +51,7 @@ describe('RH Chain Token Dossier', () => {
       explorer: async () => ({ observed_contract: '0xdifferent', explorer_url: 'https://explorer.example/address/0xdifferent', contract_verified: true, deployer_address: '0xdeployer', source_timestamp: '2026-07-12T00:00:00.000Z' })
     } } });
     try {
-      const response = await app.inject({ method: 'GET', url: '/v1/rh-chain/tokens/0xunknown/dossier' });
+      const response = await app.inject({ method: 'GET', url: '/v1/rh-chain/tokens/0xnotindexed/dossier' });
       expect(response.json().data).toEqual(expect.objectContaining({ ticker: null, review_status: 'not_found', risk_state: 'source_required', memory: expect.objectContaining({ index: null }) }));
       expect(response.json().data.external_context.token_pair).toEqual(expect.objectContaining({ exact_contract_match: false }));
     } finally { await app.close(); }

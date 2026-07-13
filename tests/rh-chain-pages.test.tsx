@@ -9,11 +9,12 @@ import { assembleRhChainTokenDossier } from '../src/services/rhChainTokenDossier
 import { assembleRhChainCloneRadar } from '../src/services/rhChainCloneRadarService';
 import { assembleRhChainScouts } from '../src/services/rhChainScoutsService';
 import { assembleRhChainDistributionPack } from '../src/services/rhChainDistributionPackService';
+import { buildRhChainApiResponse } from '../src/services/rhChainIntelligenceService';
 import { asRhChainPersistedReviewItem, createRhChainSignalSubmission } from '../src/services/rhChainSignalVault';
 import { App } from '../src/web/main';
 
 function json(data: unknown) {
-  return Promise.resolve(new Response(JSON.stringify({ data }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+  return Promise.resolve(new Response(JSON.stringify(buildRhChainApiResponse(data)), { status: 200, headers: { 'Content-Type': 'application/json' } }));
 }
 
 function pathOf(input: RequestInfo | URL) {
@@ -235,6 +236,10 @@ describe('RH Chain Signal Desk pages', () => {
     expect(text).toContain('Risk Strip');
     expect(text).toContain('Meme → Market Translation');
     expect(text).toContain('External data gives context. Infopunks gives judgment. Receipts create memory.');
+    expect(text).toContain('Source policy');
+    expect(text).toContain('Data mode');
+    expect(text).toContain('Freshness');
+    expect(container.querySelector('.rh-chain-primary-actions .execute')?.textContent).toContain('Read attention assets');
     expect(container.querySelector('a[href="/rh-chain-signal-desk/meme-pulse"]')?.getAttribute('aria-current')).toBe('page');
   });
 

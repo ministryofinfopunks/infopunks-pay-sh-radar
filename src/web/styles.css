@@ -3638,6 +3638,334 @@ select:hover {
   }
 }
 
+/* RH Chain suite unification: calm black glass, consistent provenance, native mobile rhythm. */
+.rh-chain-shell {
+  --rh-glass: rgba(7, 11, 10, 0.88);
+  --rh-glass-raised: rgba(12, 17, 15, 0.94);
+  --rh-hairline: rgba(224, 241, 231, 0.13);
+  --rh-hairline-strong: rgba(224, 241, 231, 0.22);
+  --rh-secondary: #91a399;
+  background:
+    radial-gradient(circle at 12% -8%, rgba(124, 199, 255, 0.08), transparent 28rem),
+    radial-gradient(circle at 92% 0%, rgba(126, 255, 176, 0.055), transparent 25rem),
+    #030504;
+}
+
+.rh-chain-shell .rh-chain-page {
+  gap: clamp(16px, 2vw, 24px);
+}
+
+.rh-chain-shell .panel,
+.rh-chain-shell .meme-pulse-section,
+.rh-chain-shell .dossier-section,
+.rh-chain-shell .clone-radar-section,
+.rh-chain-shell .scouts-section,
+.rh-chain-shell .distribution-section {
+  border: 1px solid var(--rh-hairline);
+  border-radius: 18px;
+  background: linear-gradient(180deg, var(--rh-glass-raised), var(--rh-glass));
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.26), inset 0 1px rgba(255, 255, 255, 0.025);
+}
+
+.rh-chain-shell .panel:hover {
+  border-color: var(--rh-hairline-strong);
+  transform: none;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.26), inset 0 1px rgba(255, 255, 255, 0.025);
+}
+
+.rh-chain-suite-nav {
+  border-color: var(--rh-hairline);
+  background: rgba(3, 5, 4, 0.82);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(22px) saturate(130%);
+}
+
+.rh-chain-suite-nav .terminal-nav a {
+  min-height: 36px;
+  border: 0;
+  border-radius: 9px;
+  color: #819188;
+  background: transparent;
+}
+
+.rh-chain-suite-nav .terminal-nav a.active {
+  color: #f0faf4;
+  background: rgba(232, 255, 240, 0.075);
+  box-shadow: inset 0 0 0 1px var(--rh-hairline);
+}
+
+.rh-chain-api-link {
+  flex: 0 0 auto;
+}
+
+.rh-chain-unified-hero,
+.rh-chain-shell .rh-chain-hero {
+  min-height: 420px;
+  padding: clamp(24px, 4vw, 52px);
+  border-color: var(--rh-hairline-strong);
+  background:
+    radial-gradient(circle at 82% 12%, rgba(124, 199, 255, 0.085), transparent 30%),
+    linear-gradient(135deg, rgba(13, 20, 17, 0.97), rgba(3, 6, 5, 0.96) 62%);
+}
+
+.rh-chain-hero-copy {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+}
+
+.rh-chain-shell .rh-chain-hero h1 {
+  max-width: 920px;
+  margin: 0;
+  color: #f3faf6;
+  font-size: clamp(42px, 6vw, 82px);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+}
+
+.rh-chain-shell .rh-chain-hero .copy {
+  max-width: 700px;
+  color: #a9bab0;
+  font-size: clamp(16px, 1.55vw, 21px);
+  line-height: 1.55;
+}
+
+.rh-chain-shell .narrative-rally-line {
+  color: #e2eee7 !important;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.rh-chain-shell .rh-chain-hero-rail {
+  align-content: start;
+  gap: 18px;
+  padding: clamp(16px, 2.2vw, 24px);
+  border-color: var(--rh-hairline);
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.rh-chain-provenance {
+  display: grid;
+  gap: 18px;
+}
+
+.rh-chain-provenance-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.rh-chain-provenance-grid > div,
+.rh-chain-policy-copy {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  margin: 0;
+  padding: 11px 12px;
+  border: 1px solid var(--rh-hairline);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.rh-chain-provenance span,
+.rh-chain-policy-copy > span {
+  color: #728078;
+  font: 700 10px/1.2 "IBM Plex Mono", monospace;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.rh-chain-provenance strong {
+  color: #dce9e1;
+  font: 500 12px/1.45 "IBM Plex Mono", monospace;
+  overflow-wrap: anywhere;
+  text-transform: capitalize;
+}
+
+.rh-chain-provenance .freshness-stale,
+.rh-chain-provenance .freshness-unavailable,
+.rh-chain-provenance .freshness-source-required {
+  color: var(--amber);
+}
+
+.rh-chain-policy-copy p {
+  margin: 0;
+  color: #a5b7ac;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.rh-chain-primary-actions {
+  margin-top: clamp(12px, 2vw, 22px);
+}
+
+.rh-chain-shell .execute {
+  min-height: 44px;
+  border-radius: 11px;
+  box-shadow: none;
+}
+
+.rh-chain-shell .execute:not(.secondary) {
+  color: #041008;
+  background: #dff8e8;
+}
+
+.rh-chain-shell .execute.secondary {
+  color: #c1d0c7;
+  border-color: var(--rh-hairline);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.rh-chain-state {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  min-height: 128px;
+}
+
+.rh-chain-state h2,
+.rh-chain-state p {
+  margin: 0;
+}
+
+.rh-chain-state-mark {
+  width: 10px;
+  height: 10px;
+  border: 1px solid var(--blue);
+  border-radius: 999px;
+  box-shadow: 0 0 0 5px rgba(124, 199, 255, 0.07);
+}
+
+.rh-chain-state-loading .rh-chain-state-mark {
+  border-right-color: transparent;
+  animation: rh-chain-state-spin 900ms linear infinite;
+}
+
+.rh-chain-state-stale .rh-chain-state-mark,
+.rh-chain-state-source_required .rh-chain-state-mark,
+.rh-chain-state-unavailable .rh-chain-state-mark {
+  border-color: var(--amber);
+  box-shadow: 0 0 0 5px rgba(246, 208, 111, 0.065);
+}
+
+@keyframes rh-chain-state-spin { to { transform: rotate(360deg); } }
+
+.rh-chain-shell .rh-chain-metric,
+.rh-chain-shell .rh-chain-classifier-card,
+.rh-chain-shell .rh-chain-risk-card,
+.rh-chain-shell .rh-chain-review-card,
+.rh-chain-shell .rh-chain-daily-section-card,
+.rh-chain-shell .meme-pulse-section article,
+.rh-chain-shell .dossier-section article,
+.rh-chain-shell .clone-radar-section article,
+.rh-chain-shell .scouts-section article,
+.rh-chain-shell .distribution-section article {
+  border-color: var(--rh-hairline);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.025);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.02);
+}
+
+.rh-chain-shell .rh-chain-section-head {
+  gap: 24px;
+  padding-bottom: 4px;
+}
+
+.rh-chain-shell .rh-chain-section-head > div {
+  max-width: 820px;
+}
+
+.rh-chain-shell .rh-chain-section-head h2 {
+  color: #eaf5ee;
+  font-size: clamp(22px, 2.5vw, 34px);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+
+.rh-chain-shell .rh-chain-section-head p,
+.rh-chain-shell .panel-caption {
+  color: var(--rh-secondary);
+  line-height: 1.6;
+}
+
+@media (max-width: 820px) {
+  .rh-chain-shell {
+    width: min(100% - 16px, 1560px);
+    padding-bottom: calc(32px + env(safe-area-inset-bottom));
+  }
+
+  .rh-chain-suite-nav {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .rh-chain-suite-nav .terminal-nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+    padding-bottom: 2px;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: inline proximity;
+  }
+
+  .rh-chain-suite-nav .terminal-nav a {
+    min-height: 42px;
+    scroll-snap-align: start;
+  }
+
+  .rh-chain-shell .rh-chain-hero {
+    min-height: auto;
+    padding: 22px 18px;
+  }
+
+  .rh-chain-shell .rh-chain-hero h1 {
+    font-size: clamp(36px, 11vw, 54px);
+  }
+
+  .rh-chain-primary-actions,
+  .rh-chain-shell .panel-actions {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .rh-chain-primary-actions .execute,
+  .rh-chain-shell .panel-actions .execute {
+    flex: 1 1 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .rh-chain-provenance-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rh-chain-state {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .rh-chain-state .execute {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .rh-chain-shell .rh-chain-section,
+  .rh-chain-shell .meme-pulse-section,
+  .rh-chain-shell .dossier-section,
+  .rh-chain-shell .clone-radar-section,
+  .rh-chain-shell .scouts-section,
+  .rh-chain-shell .distribution-section {
+    padding: 18px;
+  }
+}
+
 @media (max-width: 480px) {
   .shell {
     width: min(100% - 14px, 1560px);
@@ -14745,4 +15073,44 @@ select:focus {
     grid-template-columns: 1fr;
     gap: 4px;
   }
+}
+
+/* RH Chain unified frame — intentionally last in cascade. */
+.rh-chain-shell .rh-chain-hero,
+.rh-chain-shell .rh-chain-section,
+.rh-chain-shell .meme-pulse-section,
+.rh-chain-shell .dossier-section,
+.rh-chain-shell .clone-radar-section,
+.rh-chain-shell .scouts-section,
+.rh-chain-shell .distribution-section { border-radius: 18px; }
+
+.rh-chain-shell .rh-chain-hero h1 {
+  max-width: 920px;
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+}
+
+.rh-chain-shell .rh-chain-hero-rail,
+.rh-chain-shell .rh-chain-metric,
+.rh-chain-shell .rh-chain-classifier-card,
+.rh-chain-shell .rh-chain-risk-card,
+.rh-chain-shell .rh-chain-review-card,
+.rh-chain-shell .rh-chain-daily-section-card { border-radius: 14px; }
+
+@media (max-width: 520px) {
+  .rh-chain-shell .rh-chain-suite-nav .terminal-nav-scroll-rail {
+    display: flex;
+    grid-template-columns: none;
+    overflow-x: auto;
+    width: 100%;
+  }
+
+  .rh-chain-shell .rh-chain-suite-nav .terminal-nav-scroll-rail a {
+    flex: 0 0 auto;
+    min-width: max-content;
+    white-space: nowrap;
+  }
+
+  .rh-chain-shell .rh-chain-suite-nav .terminal-nav-scroll-rail a:last-child { grid-column: auto; }
 }

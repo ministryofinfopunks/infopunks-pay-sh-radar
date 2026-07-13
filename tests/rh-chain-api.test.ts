@@ -5,6 +5,16 @@ import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
 import { createRhChainSignalSubmission, InMemoryRhChainSubmissionStore, reviewRhChainSubmission, updateRhChainSubmissionReviewRecord } from '../src/services/rhChainSignalVault';
 
 describe('RH Chain Signal Desk API', () => {
+  it('rejects placeholder contract identities with the standard RH Chain envelope', async () => {
+    const app = await createApp(emptyIntelligenceStore(), undefined, { rhChainSubmissionStore: new InMemoryRhChainSubmissionStore() });
+    try {
+      const response = await app.inject({ method: 'POST', url: '/v1/rh-chain/signals/submit', payload: { token_contract: 'unverified_contract_required', ticker: 'UNKNOWN', liquidity_link: 'https://example.com/pair', disclosure_confirmed: true } });
+      expect(response.statusCode).toBe(400);
+      expect(response.json()).toEqual(expect.objectContaining({ data: null, error: 'invalid_request', meta: expect.objectContaining({ source_policy: expect.any(String) }), sources: expect.any(Array), generated_at: expect.any(String), data_mode: expect.any(String), disclaimer: expect.any(String) }));
+      expect(JSON.stringify(response.json().issues)).toContain('exact_non_placeholder_contract_required');
+    } finally { await app.close(); }
+  });
+
   it('keeps source metadata on RH Chain metrics and signature objects', () => {
     const desk = getRhChainPayload();
     const sources = [

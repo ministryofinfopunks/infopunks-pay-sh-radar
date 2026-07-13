@@ -62,7 +62,7 @@ describe('CORS preflight', () => {
     expect([200, 204]).toContain(response.statusCode);
     expect(response.headers['access-control-allow-origin']).toBe('https://radar.infopunks.fun');
     expect(response.headers['access-control-allow-methods']).toBe('GET, POST, PUT, PATCH, DELETE, OPTIONS');
-    expect(response.headers['access-control-allow-headers']).toBe('Content-Type, Authorization, X-Requested-With');
+    expect(response.headers['access-control-allow-headers']).toBe('Content-Type, Authorization, X-Requested-With, X-RH-Chain-Reviewer-Id');
     expect(response.headers['access-control-max-age']).toBe('86400');
     await app.close();
   });
@@ -82,7 +82,7 @@ describe('CORS preflight', () => {
     expect([200, 204]).toContain(response.statusCode);
     expect(response.headers['access-control-allow-origin']).toBe('https://radar.infopunks.fun');
     expect(response.headers['access-control-allow-methods']).toBe('GET, POST, PUT, PATCH, DELETE, OPTIONS');
-    expect(response.headers['access-control-allow-headers']).toBe('Content-Type, Authorization, X-Requested-With');
+    expect(response.headers['access-control-allow-headers']).toBe('Content-Type, Authorization, X-Requested-With, X-RH-Chain-Reviewer-Id');
     expect(response.headers['access-control-max-age']).toBe('86400');
     await app.close();
   });

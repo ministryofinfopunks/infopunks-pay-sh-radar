@@ -37,7 +37,7 @@ describe('RH Chain Daily Receipt Ops Kit', () => {
     expect(known.statusCode).toBe(200);
     expect(known.json()).toEqual(expect.objectContaining({ disclaimer: expect.any(String), data: expect.objectContaining({ receipt_id: 'rh_daily_001' }) }));
     expect(missing.statusCode).toBe(404);
-    expect(missing.json()).toEqual({ error: 'rh_chain_daily_receipt_not_found' });
+    expect(missing.json()).toEqual(expect.objectContaining({ data: null, error: 'rh_chain_daily_receipt_not_found', meta: expect.any(Object), sources: expect.any(Array), generated_at: expect.any(String), data_mode: expect.any(String), disclaimer: expect.any(String) }));
     await app.close();
   });
 

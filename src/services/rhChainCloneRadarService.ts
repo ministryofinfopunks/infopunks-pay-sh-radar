@@ -1,5 +1,6 @@
 import { getRhChainReviewQueue, type RhChainCloneRadarItem, type RhChainCloneRadarPayload, type RhChainReviewItem } from '../data/rhChain';
 import { findRhChainRiskCorrelations } from './rhChainRiskCorrelationService';
+import { isRhChainIdentityContract } from './rhChainTruthGuards';
 
 const DOCTRINE = 'External data gives context. Infopunks gives judgment. Receipts create memory.' as const;
 const DISCLAIMER = 'Radar entries are suspected or unverified risk patterns, not definitive misconduct findings, token safety determinations, trading advice, or an official Robinhood partnership.';
@@ -28,7 +29,7 @@ function toRadarItem(item: RhChainReviewItem): RhChainCloneRadarItem {
 export function assembleRhChainCloneRadar(reviewItems = getRhChainReviewQueue().items): RhChainCloneRadarPayload {
   const items = reviewItems.map(toRadarItem);
   const knownContracts = new Map<string, RhChainCloneRadarItem[]>();
-  for (const item of items.filter((item) => item.token_contract !== 'unverified_contract_required')) knownContracts.set(item.suspected_ticker, [...(knownContracts.get(item.suspected_ticker) ?? []), item]);
+  for (const item of items.filter((item) => isRhChainIdentityContract(item.token_contract))) knownContracts.set(item.suspected_ticker, [...(knownContracts.get(item.suspected_ticker) ?? []), item]);
   const duplicate_ticker_watch = [...knownContracts.values()].filter((items) => new Set(items.map((item) => item.token_contract)).size > 1).flat().map((item) => ({ ...item, suspicion_type: 'duplicate_ticker' as const, evidence_summary: `Suspected duplicate ticker pattern. ${item.evidence_summary}` }));
   const active_warnings = items.filter((item) => ['high_risk', 'do_not_touch_yet', 'source_required'].includes(item.risk_state));
   const liquidity_watch = items.filter((item) => ['low_liquidity_clone', 'deployer_cluster', 'suspicious_launch_surface'].includes(item.suspicion_type) || /liquidity|pool|volume/i.test(item.evidence_summary));

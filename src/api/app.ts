@@ -16,6 +16,7 @@ import { assembleRhChainCloneRadar } from '../services/rhChainCloneRadarService'
 import { assembleRhChainScouts } from '../services/rhChainScoutsService';
 import { assembleRhChainDistributionPack } from '../services/rhChainDistributionPackService';
 import { queryRhChainScout, RH_CHAIN_SCOUT_MODES } from '../services/rhChainScoutService';
+import { isRhChainIdentityContract } from '../services/rhChainTruthGuards';
 import { getLatestSignalUpdate, getSignalUpdate, getSignalUpdateSummary, listSignalUpdates } from '../data/signalUpdates';
 import { abundanceClaimsFeed, getAbundanceDeskPayload, machineWorkReceipts } from '../data/abundanceDesk';
 import { createSignalHuntSubmission, getSignalHuntCandidate, getSignalHuntCounts, listSignalHuntCandidates, verifySignalHuntCandidate } from '../data/signalHunt';
@@ -192,6 +193,7 @@ import {
   assembleRhChainMemePulseScreen,
   assembleRhChainReceipts,
   assembleRhChainReviewQueue,
+  buildRhChainApiErrorResponse,
   buildRhChainApiResponse
 } from '../services/rhChainIntelligenceService';
 import {
@@ -496,7 +498,7 @@ const optionalRhChainUrl = z.preprocess((value) => {
   try { return new URL(value).protocol === 'https:'; } catch { return false; }
 }, 'must_be_a_valid_https_url').optional());
 const RhChainSignalSubmissionSchema = z.object({
-  token_contract: z.string().trim().min(1).max(128),
+  token_contract: z.string().trim().min(1).max(128).refine(isRhChainIdentityContract, 'exact_non_placeholder_contract_required'),
   ticker: z.string().trim().min(1).max(24),
   chain: z.string().trim().min(1).max(64).default('Robinhood Chain'),
   x_twitter_link: optionalRhChainUrl,
@@ -1764,34 +1766,34 @@ export async function createApp(
   });
   app.get('/v1/narratives', async () => ({ data: listNarrativeAssets() }));
   app.get<{ Querystring: { status?: string } }>('/internal/rh-chain/review-console/submissions', async (req, reply) => {
-    if (!config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) return reply.code(404).send({ error: 'not_found' });
-    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send({ error: 'review_admin_token_required' });
+    if (!config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
+    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send(buildRhChainApiErrorResponse('review_admin_token_required'));
     const status = req.query.status;
     const records = await rhChainSubmissionStore.list();
     const submissions = (status ? records.filter((item) => item.review_status === status) : records).map(redactRhChainSubmissionForReview);
-    return { data: { submissions, storage: { adapter: rhChainSubmissionStore.adapter, durable: rhChainSubmissionStore.durable } } };
+    return safeJsonExport(buildRhChainApiResponse({ submissions, storage: { adapter: rhChainSubmissionStore.adapter, durable: rhChainSubmissionStore.durable } }));
   });
   app.get<{ Params: { submissionId: string } }>('/internal/rh-chain/review-console/submissions/:submissionId', async (req, reply) => {
-    if (!config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) return reply.code(404).send({ error: 'not_found' });
-    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send({ error: 'review_admin_token_required' });
+    if (!config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
+    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send(buildRhChainApiErrorResponse('review_admin_token_required'));
     const submission = (await rhChainSubmissionStore.list()).find((item) => item.submission_id === req.params.submissionId);
-    if (!submission) return reply.code(404).send({ error: 'rh_chain_submission_not_found' });
-    return { data: { submission: redactRhChainSubmissionForReview(submission) } };
+    if (!submission) return reply.code(404).send(buildRhChainApiErrorResponse('rh_chain_submission_not_found'));
+    return safeJsonExport(buildRhChainApiResponse({ submission: redactRhChainSubmissionForReview(submission) }));
   });
   app.patch<{ Params: { submissionId: string } }>('/internal/rh-chain/review-console/submissions/:submissionId', async (req, reply) => {
-    if (!config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) return reply.code(404).send({ error: 'not_found' });
-    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send({ error: 'review_admin_token_required' });
+    if (!config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
+    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send(buildRhChainApiErrorResponse('review_admin_token_required'));
     const parsed = RhChainReviewUpdateSchema.safeParse(req.body);
-    if (!parsed.success) return reply.code(400).send({ error: 'invalid_request', issues: parsed.error.issues });
+    if (!parsed.success) return reply.code(400).send(buildRhChainApiErrorResponse('invalid_request', { issues: parsed.error.issues }));
     try {
       const reviewerHeader = req.headers['x-rh-chain-reviewer-id'];
       const reviewer_id = typeof reviewerHeader === 'string' && reviewerHeader.trim().length <= 64 ? reviewerHeader.trim() : 'system_reviewer';
       const updated = await rhChainSubmissionStore.updateReview(req.params.submissionId, { ...parsed.data, reviewer_id });
-      if (!updated) return reply.code(404).send({ error: 'rh_chain_submission_not_found' });
-      if ('conflict' in updated) return reply.code(409).send({ error: 'rh_chain_review_conflict', submission: redactRhChainSubmissionForReview(updated.current) });
-      return { data: { submission: redactRhChainSubmissionForReview(updated) } };
+      if (!updated) return reply.code(404).send(buildRhChainApiErrorResponse('rh_chain_submission_not_found'));
+      if ('conflict' in updated) return reply.code(409).send({ ...buildRhChainApiErrorResponse('rh_chain_review_conflict'), submission: redactRhChainSubmissionForReview(updated.current) });
+      return safeJsonExport(buildRhChainApiResponse({ submission: redactRhChainSubmissionForReview(updated) }));
     } catch (error) {
-      if (error instanceof Error && error.message === 'rh_chain_submission_storage_not_configured') return reply.code(503).send({ error: 'rh_chain_submission_storage_not_configured' });
+      if (error instanceof Error && error.message === 'rh_chain_submission_storage_not_configured') return reply.code(503).send(buildRhChainApiErrorResponse('rh_chain_submission_storage_not_configured'));
       throw error;
     }
   });
@@ -1810,16 +1812,16 @@ export async function createApp(
   app.get('/v1/rh-chain/daily-receipts', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainDailyReceipts())));
   app.get<{ Params: { receipt_id: string } }>('/v1/rh-chain/daily-receipts/:receipt_id', async (req, reply) => {
     const receipt = getRhChainDailyReceipt(req.params.receipt_id);
-    if (!receipt) return reply.code(404).send({ error: 'rh_chain_daily_receipt_not_found' });
+    if (!receipt) return reply.code(404).send(buildRhChainApiErrorResponse('rh_chain_daily_receipt_not_found'));
     return safeJsonExport(buildRhChainApiResponse(receipt));
   });
   app.get('/v1/rh-chain/meme-pulse', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainMemePulseScreen(await rhChainLiveSnapshots.getLiveSnapshot()))));
   app.get('/v1/rh-chain/launch-surfaces', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainLaunchSurfaces())));
   app.post('/v1/rh-chain/scout/query', async (req, reply) => {
     const rate = rhChainPublicRateLimiter.consume(`scout:${req.ip}`);
-    if (!rate.allowed) return reply.header('Retry-After', String(Math.ceil(rate.retryAfterMs / 1000))).code(429).send({ error: 'rh_chain_public_rate_limit_exceeded' });
+    if (!rate.allowed) return reply.header('Retry-After', String(Math.ceil(rate.retryAfterMs / 1000))).code(429).send(buildRhChainApiErrorResponse('rh_chain_public_rate_limit_exceeded'));
     const parsed = RhChainScoutQuerySchema.safeParse(req.body);
-    if (!parsed.success) return reply.code(400).send({ error: 'invalid_request', issues: parsed.error.issues });
+    if (!parsed.success) return reply.code(400).send(buildRhChainApiErrorResponse('invalid_request', { issues: parsed.error.issues }));
     const submissions = await rhChainSubmissionStore.list();
     return safeJsonExport(buildRhChainApiResponse(queryRhChainScout(parsed.data, assembleRhChainReviewQueue(submissions.map(asRhChainPersistedReviewItem)).items)));
   });
@@ -1861,9 +1863,9 @@ export async function createApp(
   });
   app.post('/v1/rh-chain/signals/submit', async (req, reply) => {
     const rate = rhChainPublicRateLimiter.consume(`submit:${req.ip}`);
-    if (!rate.allowed) return reply.header('Retry-After', String(Math.ceil(rate.retryAfterMs / 1000))).code(429).send({ error: 'rh_chain_public_rate_limit_exceeded' });
+    if (!rate.allowed) return reply.header('Retry-After', String(Math.ceil(rate.retryAfterMs / 1000))).code(429).send(buildRhChainApiErrorResponse('rh_chain_public_rate_limit_exceeded'));
     const parsed = RhChainSignalSubmissionSchema.safeParse(req.body);
-    if (!parsed.success) return reply.code(400).send({ error: 'invalid_request', issues: parsed.error.issues });
+    if (!parsed.success) return reply.code(400).send(buildRhChainApiErrorResponse('invalid_request', { issues: parsed.error.issues }));
     try {
       const now = new Date();
       const normalizedContract = normalizeRhChainDuplicateField(parsed.data.token_contract);
@@ -1886,7 +1888,7 @@ export async function createApp(
       }));
     } catch (error) {
       if (error instanceof Error && error.message === 'rh_chain_submission_storage_not_configured') {
-        return reply.code(503).send({ error: 'rh_chain_submission_storage_not_configured', message: 'Signal Vault requires DATABASE_URL for durable production persistence.' });
+        return reply.code(503).send(buildRhChainApiErrorResponse('rh_chain_submission_storage_not_configured', { message: 'Signal Vault requires DATABASE_URL for durable production persistence.' }));
       }
       throw error;
     }

@@ -6,7 +6,7 @@ const SAFE_METADATA_NOTE = 'Safe metadata only: Radar uses catalog-derived intel
 export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   const paths: Record<string, unknown> = {};
 
-  const add = (method: 'get' | 'post', path: string, operation: Record<string, unknown>) => {
+  const add = (method: 'get' | 'post' | 'patch', path: string, operation: Record<string, unknown>) => {
     paths[path] = {
       ...(paths[path] as Record<string, unknown> | undefined),
       [method]: operation
@@ -3330,7 +3330,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   add('get', '/v1/rh-chain/receipts', rhChain('List RH Chain receipts', 'Returns human-reviewed or source-linked public memory receipts.', 'RhChainReceiptsPayload', { ...rhExample, receipts: [{ receipt_id: 'rh-chain-seed-2026-07-09', timestamp: '2026-07-09T03:45:00.000Z' }] }));
   add('get', '/v1/rh-chain/4663-index', rhChain('Get 4663 Signal Index', 'Returns the non-tokenized attention and risk index with its scoring context.', 'RhChain4663IndexPayload', { ...rhExample, name: '4663 Signal Index', assets: [{ ticker: 'RH', signal_score: 54, classification: 'active_speculation' }] }));
   add('get', '/v1/rh-chain/daily-receipts', rhChain('List daily RH Chain receipts', 'Returns human-reviewed daily market memory; it is the authoritative reviewed record when live context conflicts.', 'RhChainDailyReceiptsPayload', { ...rhExample, title: 'Daily RH Chain Receipts', latest_receipt: { receipt_id: 'daily-rh-chain-2026-07-12', date: '2026-07-12' } }));
-  add('get', '/v1/rh-chain/daily-receipts/{receipt_id}', rhChain('Get daily RH Chain receipt', 'Returns one human-reviewed daily receipt by id. Unknown receipt ids return rh_chain_daily_receipt_not_found.', 'RhChainDailyReceiptPayload', { ...rhExample, receipt_id: 'rh_daily_001', period: 'July 11 → July 12, 2026 UTC', headline: 'RH Chain receipt memory.' }, [pathParam('receipt_id', 'Daily receipt identifier.')], undefined, { '404': errorResponse('rh_chain_daily_receipt_not_found') }));
+  add('get', '/v1/rh-chain/daily-receipts/{receipt_id}', rhChain('Get daily RH Chain receipt', 'Returns one human-reviewed daily receipt by id. Unknown receipt ids return rh_chain_daily_receipt_not_found.', 'RhChainDailyReceiptPayload', { ...rhExample, receipt_id: 'rh_daily_001', period: 'July 11 → July 12, 2026 UTC', headline: 'RH Chain receipt memory.' }, [pathParam('receipt_id', 'Daily receipt identifier.')], undefined, { '404': rhChainErrorResponse('rh_chain_daily_receipt_not_found') }));
   add('get', '/v1/rh-chain/meme-pulse', rhChain('Get RH Meme Pulse', 'Returns the current meme pulse with cached live context where available.', 'RhChainMemePulsePayload', { ...rhExample, title: 'RH Meme Pulse', snapshot: { flagship_signal: 'Source verification required.' } }));
   add('get', '/v1/rh-chain/launch-surfaces', rhChain('List launch and access surfaces', 'Returns manual launch-origin and access-surface context used for evidence review. Access context never implies legitimacy or safety.', 'RhChainLaunchSurfacesPayload', { ...rhExample, title: 'Launch Surface Watch', launch_surfaces: [{ id: 'noxa_fun', source_type: 'launchpad' }], access_surfaces: [{ access_surface_name: 'Backpack Wallet', source_status: 'source_required' }] }));
   add('get', '/v1/rh-chain/live-snapshot', rhChain('Get cached live snapshot', 'Returns provider status and cached chain and meme context. Cache status and freshness must be checked before use.', 'RhChainLiveSnapshotPayload', { ...rhExample, title: 'RH Chain Live Snapshot', cache_status: 'fresh', live_snapshots_enabled: true }));
@@ -3341,8 +3341,28 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   add('get', '/v1/rh-chain/scouts', rhChain('List Signal Scouts', 'Returns consented public contributor attribution and Scout roles; private contact information is never returned.', 'RhChainScoutsPayload', { ...rhExample, title: 'Signal Scouts', scouts: [] }));
   add('get', '/v1/rh-chain/distribution-pack', rhChain('Get distribution pack', 'Returns public-intelligence share packets with their risk caveats.', 'RhChainDistributionPackPayload', { ...rhExample, title: 'RH Chain Distribution Pack', packets: [] }));
   add('get', '/v1/rh-chain/signals/submissions', rhChain('List signal submissions', 'Returns sanitized community submissions. Submission is intake only, not endorsement or approval.', 'RhChainSubmissionsPayload', { ...rhExample, storage: { durable: false }, submissions: [] }));
-  add('post', '/v1/rh-chain/signals/submit', rhChain('Submit RH Chain signal', 'Stages a source-linked signal for manual review. At least one receipt link or deployer note is required; disclosure confirmation must be true.', 'RhChainSubmissionResponse', { ...rhExample, submission: { submission_id: 'rh-chain-rh-20260712000000', review_status: 'queued_for_manual_review' } }, undefined, jsonRequest({ $ref: '#/components/schemas/RhChainSignalSubmissionRequest' }, { token_contract: '0xexample', ticker: 'RH', liquidity_link: 'https://example.com/pair', launch_source: 'uniswap_direct_pool', disclosure_confirmed: true }), { '400': errorResponse('invalid_request'), '503': errorResponse('rh_chain_submission_storage_not_configured') }));
-  add('post', '/v1/rh-chain/scout/query', rhChain('Query Signal Scout', 'Searches public desk memory and review items; results are intelligence context, not a trading recommendation.', 'RhChainScoutQueryResponse', { ...rhExample, mode: 'token_context', answer: 'No reviewed receipt found.', citations: [] }, undefined, jsonRequest({ $ref: '#/components/schemas/RhChainScoutQueryRequest' }, { query: '0xexample', mode: 'token_context' }), { '400': errorResponse('invalid_request') }));
+  add('post', '/v1/rh-chain/signals/submit', rhChain('Submit RH Chain signal', 'Stages a source-linked signal for manual review. Exact non-placeholder contract identity, at least one receipt link or deployer note, and disclosure confirmation are required.', 'RhChainSubmissionResponse', { ...rhExample, submission: { submission_id: 'rh-chain-rh-20260712000000', review_status: 'queued_for_manual_review' } }, undefined, jsonRequest({ $ref: '#/components/schemas/RhChainSignalSubmissionRequest' }, { token_contract: '0x1111111111111111111111111111111111111111', ticker: 'RH', liquidity_link: 'https://example.com/pair', launch_source: 'uniswap_direct_pool', disclosure_confirmed: true }), { '400': rhChainErrorResponse('invalid_request'), '503': rhChainErrorResponse('rh_chain_submission_storage_not_configured') }));
+  add('post', '/v1/rh-chain/scout/query', rhChain('Query Signal Scout', 'Searches public desk memory and review items; results are intelligence context, not a trading recommendation.', 'RhChainScoutQueryResponse', { ...rhExample, mode: 'token_context', answer: 'No reviewed receipt found.', citations: [] }, undefined, jsonRequest({ $ref: '#/components/schemas/RhChainScoutQueryRequest' }, { query: '0x1111111111111111111111111111111111111111', mode: 'token_context' }), { '400': rhChainErrorResponse('invalid_request') }));
+
+  const reviewConsole = (summary: string, description: string, payload: string, example: unknown, parameters?: unknown[], requestBody?: JsonSchema) => ({
+    tags: ['RH Chain Internal'],
+    summary,
+    description: `Fail-closed internal review surface. Dedicated reviewer bearer auth is required; the feature is disabled by default and never accepts provider writes. ${description}`,
+    security: [{ bearerAuth: [] }],
+    ...(parameters ? { parameters } : {}),
+    ...(requestBody ? { requestBody } : {}),
+    responses: {
+      ...rhChainResponses(payload, example, {
+        '400': rhChainErrorResponse('invalid_request'),
+        '401': rhChainErrorResponse('review_admin_token_required'),
+        '404': rhChainErrorResponse('not_found'),
+        '409': rhChainErrorResponse('rh_chain_review_conflict')
+      })
+    }
+  });
+  add('get', '/internal/rh-chain/review-console/submissions', reviewConsole('List review-console submissions', 'Returns redacted review packets and storage mode. Private Scout contact data is never returned.', 'RhChainReviewConsoleListPayload', { submissions: [], storage: { adapter: 'postgres', durable: true } }));
+  add('get', '/internal/rh-chain/review-console/submissions/{submissionId}', reviewConsole('Get a review-console submission', 'Returns one redacted review packet and its immutable audit trail.', 'RhChainReviewConsoleDetailPayload', { submission: { submission_id: 'rh-chain-example', review_status: 'queued_for_manual_review', audit_events: [] } }, [pathParam('submissionId', 'Signal Vault submission identifier.')]));
+  add('patch', '/internal/rh-chain/review-console/submissions/{submissionId}', reviewConsole('Update a review-console submission', 'Uses last_seen_updated_at for optimistic concurrency and requires audit_note so every accepted review write appends an audit event.', 'RhChainReviewConsoleDetailPayload', { submission: { submission_id: 'rh-chain-example', review_status: 'under_receipt_check', audit_events: [{ action: 'review_updated' }] } }, [pathParam('submissionId', 'Signal Vault submission identifier.')], jsonRequest({ $ref: '#/components/schemas/RhChainReviewUpdateRequest' }, { review_status: 'under_receipt_check', audit_note: 'Started source inspection.', last_seen_updated_at: '2026-07-12T00:00:00.000Z' })));
 
   return {
     openapi: '3.1.0',
@@ -3373,6 +3393,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       { name: 'Machine Economy' },
       { name: 'Radar CSV Exports' },
       { name: 'RH Chain', description: 'Public RH Chain intelligence, source provenance, and reviewed receipt memory.' }
+      , { name: 'RH Chain Internal', description: 'Fail-closed, bearer-gated manual review operations with optimistic concurrency and audit events.' }
     ],
     paths,
     components: {
@@ -3693,6 +3714,10 @@ function componentSchemas(): Record<string, JsonSchema> {
       data: freeformObject(), meta: { $ref: '#/components/schemas/RhChainResponseMeta' }, sources: arrayOf({ $ref: '#/components/schemas/RhChainSource' }),
       generated_at: dateTimeSchema(), data_mode: enumSchema(['seeded', 'manual', 'community_submission', 'persisted', 'live_cached', 'unavailable', 'cached', 'live_future']), disclaimer: stringSchema()
     }, ['data', 'meta', 'sources', 'generated_at', 'data_mode', 'disclaimer']),
+    RhChainErrorEnvelope: objectSchema({
+      data: { type: 'null' }, error: stringSchema(), message: stringSchema(), issues: arrayOf(freeformObject()), meta: { $ref: '#/components/schemas/RhChainResponseMeta' }, sources: arrayOf({ $ref: '#/components/schemas/RhChainSource' }),
+      generated_at: dateTimeSchema(), data_mode: enumSchema(['seeded', 'manual', 'community_submission', 'persisted', 'live_cached', 'unavailable', 'cached', 'live_future']), disclaimer: stringSchema()
+    }, ['data', 'error', 'meta', 'sources', 'generated_at', 'data_mode', 'disclaimer']),
     RhChainSignalSubmissionRequest: objectSchema({
       token_contract: stringSchema(), ticker: stringSchema(), chain: stringSchema(), x_twitter_link: stringSchema(), website_link: stringSchema(), liquidity_link: stringSchema(), deployer_notes: stringSchema(), submitter_notes: stringSchema(),
       launch_source: enumSchema(['noxa_fun', '20lab_erc20', 'pump_fun_routed_rh_chain', 'uniswap_direct_pool', 'hardhat_foundry_custom', 'unknown_manual']), launch_surface_url: stringSchema(), pair_address: stringSchema(), deployer_address: stringSchema(),
@@ -3718,6 +3743,9 @@ function componentSchemas(): Record<string, JsonSchema> {
     RhChainSubmissionsPayload: objectSchema({ generated_at: dateTimeSchema(), data_mode: stringSchema(), source_policy: stringSchema(), storage: freeformObject(), submissions: arrayOf(freeformObject()) }, ['generated_at', 'data_mode', 'storage', 'submissions']),
     RhChainSubmissionResponse: objectSchema({ data_mode: stringSchema(), review_packet: freeformObject(), submission: freeformObject(), storage: freeformObject() }, ['data_mode', 'review_packet', 'submission', 'storage']),
     RhChainScoutQueryResponse: freeformObject(),
+    RhChainReviewConsoleListPayload: objectSchema({ submissions: arrayOf(freeformObject()), storage: freeformObject() }, ['submissions', 'storage']),
+    RhChainReviewConsoleDetailPayload: objectSchema({ submission: freeformObject() }, ['submission']),
+    RhChainReviewUpdateRequest: objectSchema({ review_status: stringSchema(), reviewer_note: stringSchema(), evidence_summary: stringSchema(), missing_evidence: arrayOf(stringSchema()), risk_state: stringSchema(), signal_state: stringSchema(), infopunks_verdict: stringSchema(), audit_note: stringSchema(), last_seen_updated_at: dateTimeSchema() }, ['audit_note', 'last_seen_updated_at']),
     ErrorEnvelope: objectSchema({
       error: stringSchema(),
       message: stringSchema(),
@@ -6938,7 +6966,19 @@ function rhChainResponses(payload: string, example: unknown, errors?: Record<str
       }
     },
     ...(errors ?? {}),
-    default: errorResponse()
+    default: rhChainErrorResponse()
+  };
+}
+
+function rhChainErrorResponse(exampleError = 'bad_request') {
+  return {
+    description: 'Source-policy-preserving RH Chain error response.',
+    content: {
+      'application/json': {
+        schema: { $ref: '#/components/schemas/RhChainErrorEnvelope' },
+        examples: { error: { value: { data: null, error: exampleError, meta: { source_policy: 'Public intelligence with source-linked provenance.', record_count: null, provider_status: [], live_indexing_enabled: false }, sources: [], generated_at: '2026-07-12T00:00:00.000Z', data_mode: 'seeded', disclaimer: 'Public intelligence only. Not endorsement or financial advice.' } } }
+      }
+    }
   };
 }
 

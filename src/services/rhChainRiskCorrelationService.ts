@@ -1,4 +1,5 @@
 import { getRhChainPayload, type RhChainReviewItem, type RhChainRiskCorrelation, type RhChainRiskCorrelationType } from '../data/rhChain';
+import { isRhChainIdentityContract } from './rhChainTruthGuards';
 
 type Group = { key: string; items: RhChainReviewItem[] };
 const normalized = (value: string | null | undefined) => value?.trim().toLowerCase() ?? '';
@@ -20,7 +21,7 @@ function correlation(type: RhChainRiskCorrelationType, key: string, items: RhCha
  */
 export function findRhChainRiskCorrelations(reviewItems: RhChainReviewItem[], riskWall = getRhChainPayload().risk_wall): RhChainRiskCorrelation[] {
   const correlations: RhChainRiskCorrelation[] = [];
-  for (const group of grouped(reviewItems.filter((item) => item.token_contract !== 'unverified_contract_required'), (item) => normalized(item.ticker))) {
+  for (const group of grouped(reviewItems.filter((item) => isRhChainIdentityContract(item.token_contract)), (item) => normalized(item.ticker))) {
     if (new Set(group.items.map((item) => normalized(item.token_contract))).size > 1) correlations.push(correlation('duplicate_ticker_multiple_contracts', group.key, group.items, `The ticker “${group.items[0].ticker}” appears with multiple disclosed contracts. This is unresolved identity context, not a finding.`, 'medium', 'Compare exact contracts, canonical channels, and source-linked receipts manually.'));
   }
   for (const group of grouped(reviewItems, (item) => normalized(item.launch_context?.deployer_address))) correlations.push(correlation('same_deployer_multiple_submissions', group.key, group.items, 'A disclosed deployer address appears across multiple submissions. The relationship remains unverified without explorer and funding-path receipts.', 'low', 'Verify deployer history, funding paths, ownership controls, and exact contract relationships.'));

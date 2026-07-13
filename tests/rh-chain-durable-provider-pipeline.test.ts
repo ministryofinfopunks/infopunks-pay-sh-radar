@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { InMemoryRhChainSnapshotCache } from '../src/services/rhChainSnapshotCache';
 import { RhChainLiveSnapshotService } from '../src/services/rhChainLiveSnapshotService';
 import { findRhChainCanonicalIdentity, type RhChainCanonicalIdentity } from '../src/data/rhChainIdentityRegistry';
+import { getRhChain4663Index, getRhChainDailyReceipts, getRhChainReviewQueue } from '../src/data/rhChain';
 
 const pair = (chainId: string | null, observed_contract = '0xabc') => async () => ({ observed_contract, observed_chain_id: chainId, pair_address: 'pair', dex_url: 'https://dexscreener.example/pair', liquidity_usd: 10, volume_24h_usd: 2, fdv_usd: null, market_cap_usd: null, pair_created_at: null, source_timestamp: '2026-07-12T00:00:00.000Z' });
 
@@ -39,6 +40,14 @@ describe('RH Chain durable provider pipeline', () => {
     const snapshot = await service.getTokenSnapshot('0xabc');
     expect(snapshot.explorer).toBeNull();
     expect(snapshot.provider_statuses.find((status) => status.provider_name === 'Blockscout')).toEqual(expect.objectContaining({ status: 'unavailable' }));
+  });
+
+  it('keeps provider context incapable of mutating review, index, or receipt memory', async () => {
+    const before = structuredClone({ review: getRhChainReviewQueue(), index: getRhChain4663Index(), receipts: getRhChainDailyReceipts() });
+    const service = new RhChainLiveSnapshotService({ enabled: true, timeoutMs: 10, providers: { chainMetrics: async () => ({ tvl_usd: 999999, dex_volume_24h_usd: 999999, stablecoin_market_cap_usd: 999999, protocol_count: 999, source_timestamp: '2026-07-12T00:00:00.000Z' }), tokenPair: pair('robinhood') } });
+    await service.getLiveSnapshot();
+    await service.getTokenSnapshot('0xabc');
+    expect({ review: getRhChainReviewQueue(), index: getRhChain4663Index(), receipts: getRhChainDailyReceipts() }).toEqual(before);
   });
 
   it('looks up manual canonical identity records by exact contract only', () => {

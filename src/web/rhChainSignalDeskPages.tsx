@@ -25,6 +25,7 @@ import { NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import type { RhChainSignalSubmission } from '../services/rhChainSignalVault';
 import type { RhChainLiveSnapshot } from '../services/rhChainLiveSnapshotService';
+import { RhChainProvenance, RhChainRouteState, RhChainSuiteNav, type RhChainEnvelope } from './rhChainUi';
 
 const API_BASE_URL = getApiBaseUrl();
 
@@ -33,7 +34,7 @@ async function api<T>(path: string) {
     headers: { Accept: 'application/json', 'Content-Type': 'application/json' }
   });
   if (!response.ok) throw new Error(`${path} ${response.status}`);
-  return response.json() as Promise<{ data: T }>;
+  return response.json() as Promise<RhChainEnvelope<T>>;
 }
 
 async function postApi<T>(path: string, body: unknown) {
@@ -111,11 +112,13 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
   const [memePulse, setMemePulse] = useState<RhChainMemePulsePayload | null>(null);
   const [launchSurfaces, setLaunchSurfaces] = useState<{ title: string; subtitle: string; doctrine: string; disclaimer: string; launch_surfaces: RhChainLaunchSurfaceRecord[]; access_surfaces: RhChainAccessSurface[] } | null>(null);
   const [liveSnapshot, setLiveSnapshot] = useState<RhChainLiveSnapshot | null>(null);
+  const [routeEnvelope, setRouteEnvelope] = useState<RhChainEnvelope<unknown> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [risk, setRisk] = useState<RhChainRiskState | 'all'>('all');
   const dailyReceiptDetailRoute = Boolean(dailyReceiptId) && !receiptCardRoute;
   const isDailyReceiptRoute = dailyReceiptsRoute || dailyReceiptDetailRoute || receiptCardRoute;
+  const useDeskEnvelope = !reviewQueueRoute && !indexRoute && !isDailyReceiptRoute && !launchSurfacesRoute && !liveSnapshotRoute;
   const selectedDailyReceipt = dailyReceipts?.receipts.find((receipt) => receipt.receipt_id === dailyReceiptId) ?? null;
   const currentPath = scoutRoute ? '/rh-chain-signal-desk/scout' : liveSnapshotRoute ? '/rh-chain-signal-desk/live-snapshot' : isDailyReceiptRoute ? '/rh-chain-signal-desk/daily-receipts' : launchSurfacesRoute ? '/rh-chain-signal-desk/launch-surfaces' : indexRoute ? '/rh-chain-signal-desk/4663-index' : reviewQueueRoute ? '/rh-chain-signal-desk/review-queue' : submitRoute ? '/rh-chain-signal-desk/submit' : narrativeRoute ? '/narratives/robinhood-chain' : '/rh-chain-signal-desk';
 
@@ -125,23 +128,23 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
 
   useEffect(() => {
     api<RhChainPayload>('/v1/rh-chain')
-      .then((response) => setDesk(response.data))
+      .then((response) => { setDesk(response.data); if (useDeskEnvelope) setRouteEnvelope(response); })
       .catch((err) => setError(err instanceof Error ? err.message : 'rh_chain_desk_unavailable'));
     api<RhChainReviewQueuePayload>('/v1/rh-chain/review-queue')
-      .then((response) => setReviewQueue(response.data))
+      .then((response) => { setReviewQueue(response.data); if (reviewQueueRoute) setRouteEnvelope(response); })
       .catch((err) => setError(err instanceof Error ? err.message : 'rh_chain_review_queue_unavailable'));
     api<RhChain4663IndexPayload>('/v1/rh-chain/4663-index')
-      .then((response) => setSignalIndex(response.data))
+      .then((response) => { setSignalIndex(response.data); if (indexRoute) setRouteEnvelope(response); })
       .catch((err) => setError(err instanceof Error ? err.message : 'rh_chain_4663_index_unavailable'));
     api<RhChainDailyReceiptsPayload>('/v1/rh-chain/daily-receipts')
-      .then((response) => setDailyReceipts(response.data))
+      .then((response) => { setDailyReceipts(response.data); if (isDailyReceiptRoute) setRouteEnvelope(response); })
       .catch((err) => setError(err instanceof Error ? err.message : 'rh_chain_daily_receipts_unavailable'));
     api<RhChainMemePulsePayload>('/v1/rh-chain/meme-pulse').then((response) => setMemePulse(response.data)).catch(() => undefined);
     api<{ title: string; subtitle: string; doctrine: string; disclaimer: string; launch_surfaces: RhChainLaunchSurfaceRecord[]; access_surfaces: RhChainAccessSurface[] }>('/v1/rh-chain/launch-surfaces')
-      .then((response) => setLaunchSurfaces(response.data))
+      .then((response) => { setLaunchSurfaces(response.data); if (launchSurfacesRoute) setRouteEnvelope(response); })
       .catch((err) => setError(err instanceof Error ? err.message : 'rh_chain_launch_surfaces_unavailable'));
     api<RhChainLiveSnapshot>('/v1/rh-chain/live-snapshot')
-      .then((response) => setLiveSnapshot(response.data))
+      .then((response) => { setLiveSnapshot(response.data); if (liveSnapshotRoute) setRouteEnvelope(response); })
       .catch(() => undefined);
   }, []);
 
@@ -157,10 +160,11 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
   return <div className="shell narrative-shell rh-chain-shell">
     <a className="skip-link" href="#rh-chain-content">Skip to content</a>
     <header className="site-header">
-      <RhChainNav current={currentPath} />
+      <RhChainSuiteNav current={currentPath === '/narratives/robinhood-chain' ? '/rh-chain-signal-desk' : currentPath} />
     </header>
     <main id="rh-chain-content" className="narrative-page rh-chain-page">
-      {error && <section className="panel"><p className="route-state error">{error}</p></section>}
+      {error && <RhChainRouteState state="unavailable" detail={error} />}
+      {!desk && !error && <RhChainRouteState state="loading" />}
       {desk && <>
         <section className="panel hero rh-chain-hero">
           <div>
@@ -170,18 +174,12 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
             <p className="copy narrative-rally-line">{isDailyReceiptRoute ? 'Receipts before narrative drift.' : indexRoute ? 'Intelligence index, not a token.' : reviewQueueRoute ? 'Public memory, not endorsement.' : 'Intelligence desk, not casino.'}</p>
             <div className="panel-actions">
               <a className="execute" href={isDailyReceiptRoute ? '#latest-receipt' : indexRoute ? '#ranked-index' : reviewQueueRoute ? '#queue-board' : '#meme-pulse'}>{isDailyReceiptRoute ? 'Open Latest Receipt' : indexRoute ? 'Open Ranked Index' : reviewQueueRoute ? 'Open Queue Board' : 'Open Meme Pulse'}</a>
-              <a className="execute compact secondary" href={submitRoute ? '#submit-signal' : '/rh-chain-signal-desk/submit'}>Submit Signal</a>
-              <a className="execute compact secondary" href="/rh-chain-signal-desk/daily-receipts">Daily Receipts</a>
-              <a className="execute compact secondary" href="/rh-chain-signal-desk/4663-index">Open 4663 Index</a>
-              <a className="execute compact secondary" href="/rh-chain-signal-desk/review-queue">View Review Queue</a>
-              <a className="execute compact secondary" href="/rh-chain-signal-desk/live-snapshot">Live Snapshot</a>
+              <a className="execute compact secondary" href={submitRoute ? '/rh-chain-signal-desk/review-queue' : '/rh-chain-signal-desk/submit'}>{submitRoute ? 'View Review Queue' : 'Submit source evidence'}</a>
             </div>
           </div>
           <aside className="rh-chain-hero-rail" aria-label="Desk policy">
-            <p className="section-kicker">Source policy</p>
-            <p>{desk.source_policy}</p>
+            {routeEnvelope && <RhChainProvenance envelope={routeEnvelope} doctrine={isDailyReceiptRoute ? dailyReceipts?.doctrine : launchSurfacesRoute ? launchSurfaces?.doctrine : undefined} />}
             <p className="rh-chain-disclaimer">{desk.disclaimer}</p>
-            <p className="panel-caption">Last updated {formatTimestamp(desk.last_updated)}</p>
           </aside>
         </section>
 
@@ -202,42 +200,6 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
       </>}
     </main>
   </div>;
-}
-
-function RhChainNav({ current }: { current: string }) {
-  const activePath = current === '/narratives/robinhood-chain' ? '/rh-chain-signal-desk' : current;
-  const links = [
-    { href: '/rh-chain-signal-desk', label: 'Signal Desk' },
-    { href: '/rh-chain-signal-desk/meme-pulse', label: 'Meme Pulse' },
-    { href: '/rh-chain-signal-desk/clone-radar', label: 'Clone Radar' },
-    { href: '/rh-chain-signal-desk/scouts', label: 'Signal Scouts' },
-    { href: '/rh-chain-signal-desk/distribution-pack', label: 'Distribution Pack' },
-    { href: '/rh-chain-signal-desk/submit', label: 'Submit Signal' },
-    { href: '/rh-chain-signal-desk/review-queue', label: 'Review Queue' },
-    { href: '/rh-chain-signal-desk/4663-index', label: '4663 Index' },
-    { href: '/rh-chain-signal-desk/daily-receipts', label: 'Daily Receipts' }
-    , { href: '/rh-chain-signal-desk/launch-surfaces', label: 'Launch Surfaces' }
-    , { href: '/rh-chain-signal-desk/scout', label: 'Scout Agent' }
-    , { href: '/rh-chain-signal-desk/live-snapshot', label: 'Live Snapshot' }
-  ];
-  return <nav className="global-toolbar narrative-toolbar" aria-label="RH Chain Signal Desk navigation">
-    <a className="nav-brand" href="/" aria-label="Infopunks Radar home">
-      <span>Infopunks</span>
-      <strong>RH Chain</strong>
-    </a>
-    <div className="terminal-nav terminal-nav-scroll-rail" aria-label="RH Chain routes">
-      {links.map((link) => <a key={link.href} href={link.href} className={activePath === link.href ? 'active' : ''} aria-current={activePath === link.href ? 'page' : undefined}>{link.label}</a>)}
-    </div>
-    <div className="terminal-actions" aria-label="API links">
-      <span className="terminal-action-cluster">
-        <a className="methodology-trigger" href="/v1/rh-chain/memes">Memes API</a>
-        <a className="methodology-trigger" href="/v1/rh-chain/signals">Signals API</a>
-        <a className="methodology-trigger" href="/v1/rh-chain/daily-receipts">Receipts Feed</a>
-        <a className="methodology-trigger" href="/v1/rh-chain/4663-index">4663 API</a>
-        <a className="methodology-trigger" href="/v1/rh-chain/review-queue">Queue API</a>
-      </span>
-    </div>
-  </nav>;
 }
 
 function RhChainPulseSection({ desk }: { desk: RhChainPayload }) {
