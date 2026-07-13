@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createApp } from '../src/api/app';
 import { calculateRhChain4663SignalScore, classifyRhChain4663SignalScore, getRhChainPayload, sortRhChainDailyReceiptsByDate } from '../src/data/rhChain';
 import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
-import { InMemoryRhChainSubmissionStore, reviewRhChainSubmission } from '../src/services/rhChainSignalVault';
+import { createRhChainSignalSubmission, InMemoryRhChainSubmissionStore, reviewRhChainSubmission, updateRhChainSubmissionReviewRecord } from '../src/services/rhChainSignalVault';
 
 describe('RH Chain Signal Desk API', () => {
   it('keeps source metadata on RH Chain metrics and signature objects', () => {
@@ -431,5 +431,54 @@ describe('RH Chain Signal Desk API', () => {
     } finally {
       await app.close();
     }
+  });
+
+  it('rejects unsafe or oversized public submission fields', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+    try {
+      for (const website_link of ['javascript:alert(1)', 'data:text/html,x', 'file:///tmp/x', 'ftp://example.com/file', 'not a url']) {
+        const response = await app.inject({ method: 'POST', url: '/v1/rh-chain/signals/submit', payload: { token_contract: '0xsafe', ticker: 'SAFE', website_link, disclosure_confirmed: true } });
+        expect(response.statusCode).toBe(400);
+        expect(response.json().issues.map((issue: { message: string }) => issue.message)).toContain('must_be_a_valid_https_url');
+      }
+      const oversized = await app.inject({ method: 'POST', url: '/v1/rh-chain/signals/submit', payload: { token_contract: '0x'.padEnd(129, 'a'), ticker: 'T'.repeat(25), website_link: 'https://example.com', submitter_notes: 'x'.repeat(2001), scout_handle: 's'.repeat(65), scout_contact: 's'.repeat(257), disclosure_confirmed: true } });
+      expect(oversized.statusCode).toBe(400);
+    } finally { await app.close(); }
+  });
+
+  it('suppresses duplicate contracts within the configured submission window', async () => {
+    const vault = new InMemoryRhChainSubmissionStore();
+    const app = await createApp(emptyIntelligenceStore(), undefined, { rhChainSubmissionStore: vault });
+    try {
+      const payload = { token_contract: ' 0xDuplicate ', ticker: 'DUP', chain: 'Robinhood Chain', website_link: 'https://example.com', disclosure_confirmed: true };
+      const first = await app.inject({ method: 'POST', url: '/v1/rh-chain/signals/submit', payload });
+      const second = await app.inject({ method: 'POST', url: '/v1/rh-chain/signals/submit', payload: { ...payload, token_contract: '0xduplicate' } });
+      expect(first.statusCode).toBe(200); expect(second.statusCode).toBe(200);
+      expect(second.json().data).toEqual(expect.objectContaining({ duplicate_detected: true, existing_submission_id: first.json().data.submission.submission_id }));
+      expect((await vault.list())).toHaveLength(1);
+    } finally { await app.close(); }
+  });
+
+  it('limits public submit and scout routes with injected test configuration', async () => {
+    const app = await createApp(emptyIntelligenceStore(), undefined, { rhChainPublicRateLimit: { enabled: true, windowMs: 60_000, max: 1 } });
+    try {
+      const payload = { token_contract: '0xlimited', ticker: 'LIMIT', website_link: 'https://example.com', disclosure_confirmed: true };
+      expect((await app.inject({ method: 'POST', url: '/v1/rh-chain/signals/submit', payload })).statusCode).toBe(200);
+      expect((await app.inject({ method: 'POST', url: '/v1/rh-chain/signals/submit', payload: { ...payload, token_contract: '0xsecond' } })).statusCode).toBe(429);
+      expect((await app.inject({ method: 'POST', url: '/v1/rh-chain/scout/query', payload: { query: 'What changed?' } })).statusCode).toBe(200);
+      expect((await app.inject({ method: 'POST', url: '/v1/rh-chain/scout/query', payload: { query: 'What changed?' } })).statusCode).toBe(429);
+    } finally { await app.close(); }
+  });
+
+  it('does not expose internal reviewer identity on public submission surfaces', async () => {
+    const vault = new InMemoryRhChainSubmissionStore();
+    const record = createRhChainSignalSubmission({ token_contract: '0xprivacy', ticker: 'PRIV', website_link: 'https://example.com', disclosure_confirmed: true });
+    await vault.save(record);
+    await updateRhChainSubmissionReviewRecord(vault, record.submission_id, { review_status: 'under_receipt_check', audit_note: 'Internal note.', reviewer_id: 'private-reviewer' });
+    const app = await createApp(emptyIntelligenceStore(), undefined, { rhChainSubmissionStore: vault });
+    try {
+      const response = await app.inject({ method: 'GET', url: '/v1/rh-chain/signals/submissions' });
+      expect(JSON.stringify(response.json())).not.toContain('private-reviewer');
+    } finally { await app.close(); }
   });
 });

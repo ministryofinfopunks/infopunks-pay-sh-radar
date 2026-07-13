@@ -98,6 +98,7 @@ describe('RH Chain Signal Desk pages', () => {
     expect(text).toContain('Narrative Classes');
     expect(text).toContain('Methodology');
     expect(text).toContain('ROUTE');
+    expect(text).toContain('Manual index values require refresh.');
     expect(text).toContain('active speculation');
     expect(text).toContain('deployer_cluster_risk');
     expect(text).toContain('The 4663 Signal Index is an intelligence index, not a tokenized product, endorsement, listing, or financial recommendation.');

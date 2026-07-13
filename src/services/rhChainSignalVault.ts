@@ -11,6 +11,7 @@ export type RhChainReviewAuditEvent = {
   from_status?: RhChainSubmissionStatus;
   to_status: RhChainSubmissionStatus;
   note?: string;
+  reviewer_id?: string;
 };
 
 export type RhChainReviewUpdate = {
@@ -22,7 +23,11 @@ export type RhChainReviewUpdate = {
   signal_state?: RhChainSignalLabel;
   infopunks_verdict?: string;
   audit_note?: string;
+  reviewer_id?: string;
+  last_seen_updated_at?: string;
 };
+
+export type RhChainReviewConflict = { conflict: true; current: RhChainSignalSubmission };
 
 export type RhChainSignalSubmission = {
   submission_id: string;
@@ -63,7 +68,7 @@ export interface RhChainSubmissionStore {
   save(submission: RhChainSignalSubmission): Promise<RhChainSignalSubmission>;
   list(): Promise<RhChainSignalSubmission[]>;
   updateStatus(submissionId: string, status: RhChainSubmissionStatus, reviewerNote?: string): Promise<RhChainSignalSubmission | null>;
-  updateReview(submissionId: string, update: RhChainReviewUpdate): Promise<RhChainSignalSubmission | null>;
+  updateReview(submissionId: string, update: RhChainReviewUpdate): Promise<RhChainSignalSubmission | RhChainReviewConflict | null>;
   close?(): Promise<void>;
 }
 
@@ -89,9 +94,10 @@ export class InMemoryRhChainSubmissionStore implements RhChainSubmissionStore {
     return structuredClone(updated);
   }
 
-  async updateReview(submissionId: string, update: RhChainReviewUpdate) {
+  async updateReview(submissionId: string, update: RhChainReviewUpdate): Promise<RhChainSignalSubmission | RhChainReviewConflict | null> {
     const current = this.entries.get(submissionId);
     if (!current) return null;
+    if (update.last_seen_updated_at && update.last_seen_updated_at !== current.updated_at) return { conflict: true as const, current: structuredClone(current) };
     const updated = updateRhChainSubmissionReview(current, update);
     this.entries.set(submissionId, updated);
     return structuredClone(updated);
@@ -104,7 +110,7 @@ export class UnconfiguredRhChainSubmissionStore implements RhChainSubmissionStor
   async save(): Promise<RhChainSignalSubmission> { throw new Error('rh_chain_submission_storage_not_configured'); }
   async list() { return []; }
   async updateStatus(_submissionId: string, _status: RhChainSubmissionStatus, _reviewerNote?: string): Promise<RhChainSignalSubmission | null> { throw new Error('rh_chain_submission_storage_not_configured'); }
-  async updateReview(_submissionId: string, _update: RhChainReviewUpdate): Promise<RhChainSignalSubmission | null> { throw new Error('rh_chain_submission_storage_not_configured'); }
+  async updateReview(_submissionId: string, _update: RhChainReviewUpdate): Promise<RhChainSignalSubmission | RhChainReviewConflict | null> { throw new Error('rh_chain_submission_storage_not_configured'); }
 }
 
 export class PostgresRhChainSubmissionStore implements RhChainSubmissionStore {
@@ -136,12 +142,18 @@ export class PostgresRhChainSubmissionStore implements RhChainSubmissionStore {
     return updated;
   }
 
-  async updateReview(submissionId: string, update: RhChainReviewUpdate) {
+  async updateReview(submissionId: string, update: RhChainReviewUpdate): Promise<RhChainSignalSubmission | RhChainReviewConflict | null> {
     await this.ensureSchema();
     const existing = await this.pool.query<{ payload: RhChainSignalSubmission }>('select payload from rh_chain_signal_submissions where submission_id = $1 for update', [submissionId]);
     if (!existing.rows[0]) return null;
-    const updated = updateRhChainSubmissionReview(existing.rows[0].payload, update);
-    await this.pool.query('update rh_chain_signal_submissions set updated_at = $2, payload = $3::jsonb where submission_id = $1', [submissionId, updated.updated_at, JSON.stringify(updated)]);
+    const current = existing.rows[0].payload;
+    if (update.last_seen_updated_at && update.last_seen_updated_at !== current.updated_at) return { conflict: true as const, current };
+    const updated = updateRhChainSubmissionReview(current, update);
+    const saved = await this.pool.query('update rh_chain_signal_submissions set updated_at = $2, payload = $3::jsonb where submission_id = $1 and updated_at = $4 returning submission_id', [submissionId, updated.updated_at, JSON.stringify(updated), current.updated_at]);
+    if (!saved.rowCount) {
+      const latest = await this.pool.query<{ payload: RhChainSignalSubmission }>('select payload from rh_chain_signal_submissions where submission_id = $1', [submissionId]);
+      return latest.rows[0] ? { conflict: true as const, current: latest.rows[0].payload } : null;
+    }
     return updated;
   }
 
@@ -156,8 +168,9 @@ export class PostgresRhChainSubmissionStore implements RhChainSubmissionStore {
 function optional(value: string | undefined) { const trimmed = value?.trim(); return trimmed || null; }
 
 function claimedLaunchContext(input: RhChainSignalSubmissionInput, observedAt: string): RhChainLaunchContext | undefined {
-  if (!input.launch_source && !input.launch_surface_url && !input.pair_address && !input.deployer_address && !input.lp_status_claim) return undefined;
-  return { launch_source: input.launch_source ?? 'unknown_manual', launch_source_type: input.launch_source === 'noxa_fun' ? 'launchpad' : input.launch_source === '20lab_erc20' ? 'token_generator' : input.launch_source === 'pump_fun_routed_rh_chain' ? 'routed_launchpad' : input.launch_source === 'uniswap_direct_pool' ? 'direct_dex_pool' : input.launch_source === 'hardhat_foundry_custom' ? 'custom_deployment' : 'unknown_manual', launch_surface_url: optional(input.launch_surface_url), contract_verified: 'unknown', liquidity_route: input.pair_address ? 'submitter-claimed pair route' : null, pair_address: optional(input.pair_address), lp_status: input.lp_status_claim ?? 'unknown', deployer_address: optional(input.deployer_address), creator_address: null, deployer_observed_at: input.deployer_address ? observedAt : null, source_notes: 'Submitter-provided launch context. Unverified until human receipt review.', evidence_links: [{ label: 'Submitter launch context', url: optional(input.launch_surface_url), note: 'Claim only; not an approval or safety determination.', observed_at: observedAt }], confidence_level: 'low', data_mode: 'community_submission', observed_at: observedAt, updated_at: observedAt };
+  if (!input.launch_source && !input.launch_surface_url && !input.pair_address && !input.deployer_address && !input.lp_status_claim && !(input.evidence_links?.length)) return undefined;
+  const urls = [input.launch_surface_url, ...(input.evidence_links ?? [])].filter((url): url is string => Boolean(optional(url)));
+  return { launch_source: input.launch_source ?? 'unknown_manual', launch_source_type: input.launch_source === 'noxa_fun' ? 'launchpad' : input.launch_source === '20lab_erc20' ? 'token_generator' : input.launch_source === 'pump_fun_routed_rh_chain' ? 'routed_launchpad' : input.launch_source === 'uniswap_direct_pool' ? 'direct_dex_pool' : input.launch_source === 'hardhat_foundry_custom' ? 'custom_deployment' : 'unknown_manual', launch_surface_url: optional(input.launch_surface_url), contract_verified: 'unknown', liquidity_route: input.pair_address ? 'submitter-claimed pair route' : null, pair_address: optional(input.pair_address), lp_status: input.lp_status_claim ?? 'unknown', deployer_address: optional(input.deployer_address), creator_address: null, deployer_observed_at: input.deployer_address ? observedAt : null, source_notes: 'Submitter-provided launch context. Unverified until human receipt review.', evidence_links: urls.map((url, index) => ({ label: index === 0 ? 'Submitter launch context' : `Submitter evidence ${index}`, url, note: 'External, untrusted submitter-provided link. Claim only; not an approval or safety determination.', observed_at: observedAt })), confidence_level: 'low', data_mode: 'community_submission', observed_at: observedAt, updated_at: observedAt };
 }
 
 export function createRhChainSignalSubmission(input: RhChainSignalSubmissionInput, submittedAt = new Date().toISOString(), dataMode: RhChainSignalSubmission['data_mode'] = 'persisted'): RhChainSignalSubmission {
@@ -196,7 +209,7 @@ export function updateRhChainSubmissionReview(submission: RhChainSignalSubmissio
     ...(update.risk_state !== undefined ? { risk_state: update.risk_state } : {}),
     ...(update.signal_state !== undefined ? { signal_state: update.signal_state } : {}),
     ...(update.infopunks_verdict !== undefined ? { infopunks_verdict: update.infopunks_verdict } : {}),
-    audit_events: [...submission.audit_events, { event_id: `${submission.submission_id}:${updatedAt}:${submission.audit_events.length + 1}`, occurred_at: updatedAt, action, from_status: submission.review_status, to_status: review_status, note }]
+    audit_events: [...submission.audit_events, { event_id: `${submission.submission_id}:${updatedAt}:${submission.audit_events.length + 1}`, occurred_at: updatedAt, action, from_status: submission.review_status, to_status: review_status, note, reviewer_id: update.reviewer_id?.trim() || 'system_reviewer' }]
   };
 }
 
@@ -207,7 +220,7 @@ export function reviewRhChainSubmission(store: RhChainSubmissionStore, submissio
 
 /** Internal console operation. It is intentionally service-level so public routes remain read-only. */
 export function updateRhChainSubmissionReviewRecord(store: RhChainSubmissionStore, submissionId: string, update: RhChainReviewUpdate) {
-  return store.updateReview(submissionId, update);
+  return store.updateReview(submissionId, update) as Promise<RhChainSignalSubmission | null>;
 }
 
 /** Removes private Scout contact data before any review record leaves a controlled surface. */
@@ -217,5 +230,5 @@ export function redactRhChainSubmissionForReview(submission: RhChainSignalSubmis
 }
 
 export function asRhChainPersistedReviewItem(submission: RhChainSignalSubmission): RhChainPersistedReviewItem {
-  return { review_id: submission.submission_id, submission_id: submission.submission_id, review_state: submission.review_status, submitted_at: submission.submitted_at, updated_at: submission.updated_at, ticker: submission.ticker, token_contract: submission.token_contract, chain: submission.chain, source_type: 'community_submission', data_mode: submission.data_mode, links: submission.links, evidence_summary: submission.evidence_summary ?? 'Community submission awaiting receipt review.', missing_evidence: submission.missing_evidence ?? ['manual receipt review'], risk_state: submission.risk_state ?? 'source_required', signal_state: submission.signal_state ?? 'fresh_signal', infopunks_verdict: submission.infopunks_verdict ?? 'Submission is not endorsement. Review is not financial advice. Inclusion is not safety.', reviewer_note: submission.reviewer_note ?? 'No reviewer note yet. This item is awaiting manual review.', next_step: 'Manual review only. This submission is not added to the 4663 Index.', source: { source_name: 'RH Chain Signal Vault', source_url: null, observed_at: submission.submitted_at, updated_at: submission.updated_at, data_mode: submission.data_mode, confidence_level: 'low', note: 'Community-submitted packet retained in the review ledger; not independently verified.' }, launch_context: submission.launch_context, audit_events: submission.audit_events };
+  return { review_id: submission.submission_id, submission_id: submission.submission_id, review_state: submission.review_status, submitted_at: submission.submitted_at, updated_at: submission.updated_at, ticker: submission.ticker, token_contract: submission.token_contract, chain: submission.chain, source_type: 'community_submission', data_mode: submission.data_mode, links: submission.links, evidence_summary: submission.evidence_summary ?? 'Community submission awaiting receipt review.', missing_evidence: submission.missing_evidence ?? ['manual receipt review'], risk_state: submission.risk_state ?? 'source_required', signal_state: submission.signal_state ?? 'fresh_signal', infopunks_verdict: submission.infopunks_verdict ?? 'Submission is not endorsement. Review is not financial advice. Inclusion is not safety.', reviewer_note: submission.reviewer_note ?? 'No reviewer note yet. This item is awaiting manual review.', next_step: 'Manual review only. This submission is not added to the 4663 Index.', source: { source_name: 'RH Chain Signal Vault', source_url: null, observed_at: submission.submitted_at, updated_at: submission.updated_at, data_mode: submission.data_mode, confidence_level: 'low', note: 'Community-submitted packet retained in the review ledger; not independently verified.' }, launch_context: submission.launch_context, audit_events: submission.audit_events.map(({ reviewer_id: _reviewerId, ...event }) => event) };
 }

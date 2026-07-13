@@ -50,4 +50,32 @@ describe('RH Chain Review Console', () => {
     expect(JSON.stringify(response.json())).not.toContain('private@example.com');
     await app.close();
   });
+
+  it('fails closed when enabled without a dedicated token, and rejects a wrong token', async () => {
+    process.env.RH_CHAIN_REVIEW_CONSOLE_ENABLED = 'true';
+    delete process.env.RH_CHAIN_REVIEW_ADMIN_TOKEN;
+    let app = await createApp(emptyIntelligenceStore(), undefined, { rhChainSubmissionStore: new InMemoryRhChainSubmissionStore() });
+    expect((await app.inject({ method: 'GET', url: '/internal/rh-chain/review-console/submissions' })).statusCode).toBe(404);
+    await app.close();
+
+    process.env.RH_CHAIN_REVIEW_ADMIN_TOKEN = 'review-secret';
+    app = await createApp(emptyIntelligenceStore(), undefined, { rhChainSubmissionStore: new InMemoryRhChainSubmissionStore() });
+    expect((await app.inject({ method: 'GET', url: '/internal/rh-chain/review-console/submissions', headers: { authorization: 'Bearer wrong-token' } })).statusCode).toBe(401);
+    await app.close();
+  });
+
+  it('records reviewer identity and rejects stale review writes', async () => {
+    process.env.RH_CHAIN_REVIEW_CONSOLE_ENABLED = 'true';
+    process.env.RH_CHAIN_REVIEW_ADMIN_TOKEN = 'review-secret';
+    const store = new InMemoryRhChainSubmissionStore();
+    const record = submission(); await store.save(record);
+    const app = await createApp(emptyIntelligenceStore(), undefined, { rhChainSubmissionStore: store });
+    const headers = { authorization: 'Bearer review-secret', 'x-rh-chain-reviewer-id': 'desk-operator' };
+    const first = await app.inject({ method: 'PATCH', url: `/internal/rh-chain/review-console/submissions/${record.submission_id}`, headers, payload: { review_status: 'under_receipt_check', audit_note: 'Started receipt inspection.', last_seen_updated_at: record.updated_at } });
+    expect(first.statusCode).toBe(200);
+    expect(first.json().data.submission.audit_events.at(-1)).toEqual(expect.objectContaining({ reviewer_id: 'desk-operator' }));
+    const stale = await app.inject({ method: 'PATCH', url: `/internal/rh-chain/review-console/submissions/${record.submission_id}`, headers, payload: { review_status: 'watch_only', audit_note: 'Stale overwrite.', last_seen_updated_at: record.updated_at } });
+    expect(stale.statusCode).toBe(409);
+    await app.close();
+  });
 });

@@ -1,4 +1,5 @@
 import type { RhChainLaunchContext } from '../data/rhChain';
+import { isRhChainIdentityContract } from './rhChainTruthGuards';
 export type RhChainSnapshotStatus = 'fresh' | 'stale' | 'unavailable' | 'disabled';
 export type RhChainSnapshotFreshness = 'live_cached' | 'stale' | 'seeded' | 'manual' | 'unavailable';
 export type RhChainProviderError = { code: 'provider_unavailable' | 'provider_timeout' | 'provider_http_error' | 'invalid_provider_payload' | 'invalid_source_timestamp' | 'provider_contract_mismatch' | 'provider_not_configured'; message: string };
@@ -58,6 +59,7 @@ export class RhChainLiveSnapshotService {
   }
 
   async getTokenSnapshot(contract: string) {
+    if (!isRhChainIdentityContract(contract)) return { contract, token_pair: null, explorer: null, provider_statuses: providerNames.map((name) => this.idleProvider(name)), cache_status: 'unavailable' as const, generated_at: this.now().toISOString(), live_snapshots_enabled: this.options.enabled, source_required: true, judgment_policy: JUDGMENT_POLICY, disclaimer: DISCLAIMER };
     if (!this.options.enabled) return { contract, token_pair: null, explorer: null, provider_statuses: providerNames.map((name) => this.disabledProvider(name)), cache_status: 'disabled' as const, generated_at: this.now().toISOString(), live_snapshots_enabled: false, judgment_policy: JUDGMENT_POLICY, disclaimer: DISCLAIMER };
     const [pair, explorer] = await Promise.all([this.cached(`dexscreener:token:${contract.toLowerCase()}`, 'DexScreener', this.ttl(120), () => this.clients.tokenPair(contract)), this.cached(`blockscout:token:${contract.toLowerCase()}`, 'Blockscout', this.ttl(600), () => this.clients.explorer(contract))]);
     const tokenPair = pair.value ? normalizeRhChainTokenPair(contract, pair.value, pair.status, this.now()) : null;

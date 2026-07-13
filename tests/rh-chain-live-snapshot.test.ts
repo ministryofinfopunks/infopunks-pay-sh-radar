@@ -54,6 +54,14 @@ describe('RH Chain Live Snapshot Layer', () => {
     expect(validateRhChainSourceTimestamp('2999-01-01T00:00:00.000Z')).toBeNull();
   });
 
+  it('does not use a placeholder as a live token lookup target', async () => {
+    const tokenPair = vi.fn(async () => ({ pair_address: 'pair', dex_url: 'https://example.com/pair', liquidity_usd: 1, volume_24h_usd: 1, fdv_usd: null, market_cap_usd: null, pair_created_at: null, source_timestamp: '2026-07-11T00:00:00.000Z' }));
+    const service = new RhChainLiveSnapshotService({ enabled: true, timeoutMs: 10, providers: { tokenPair } });
+    const result = await service.getTokenSnapshot('unverified_contract_required');
+    expect(result).toEqual(expect.objectContaining({ source_required: true, token_pair: null, explorer: null }));
+    expect(tokenPair).not.toHaveBeenCalled();
+  });
+
   it('returns live snapshot and token lookup API envelopes through injected providers', async () => {
     const app = await createApp(emptyIntelligenceStore(), undefined, { rhChainLiveSnapshotOptions: { enabled: true, timeoutMs: 10, providers: {
       chainMetrics: async () => metrics, memeCategory: async () => category,

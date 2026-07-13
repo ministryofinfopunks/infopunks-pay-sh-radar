@@ -80,6 +80,7 @@ export type RhChainRiskWallItem = {
   summary: string;
   evidence_needed: string[];
   source: RhChainSource;
+  freshness_state?: import('../services/rhChainTruthGuards').RhChainFreshnessState;
 };
 
 export type RhChainSpilloverTheme = {
@@ -120,6 +121,7 @@ export type RhChainSignalSubmissionInput = {
   x_twitter_link?: string;
   website_link?: string;
   liquidity_link?: string;
+  evidence_links?: string[];
   deployer_notes?: string;
   submitter_notes?: string;
   launch_source?: RhChainLaunchSurface;
@@ -289,6 +291,7 @@ export type RhChainReviewItem = {
   next_step: string;
   source: RhChainSource;
   launch_context?: RhChainLaunchContext;
+  freshness_state?: import('../services/rhChainTruthGuards').RhChainFreshnessState;
 };
 
 export type RhChainReviewQueueSummary = {
@@ -359,6 +362,7 @@ export type RhChain4663Asset = RhChain4663ScoreComponents & {
   last_updated: string;
   source_notes: string[];
   source: RhChainSource;
+  freshness_state?: import('../services/rhChainTruthGuards').RhChainFreshnessState;
 };
 
 export type RhChainIndexAsset = RhChain4663Asset;
@@ -394,6 +398,7 @@ export type RhChain4663IndexPayload = {
   narrative_classes: readonly RhChain4663NarrativeClass[];
   overview: RhChain4663IndexOverview;
   assets: RhChain4663Asset[];
+  freshness_state?: import('../services/rhChainTruthGuards').RhChainFreshnessState;
 };
 
 export type RhChainDailyReceiptConfidence = RhChainConfidenceLevel;
@@ -449,6 +454,7 @@ export type RhChainDailyReceipt = {
   source_notes?: string;
   manual_context?: string;
   receipt_sections?: RhChainDailyReceiptSection[];
+  freshness_state?: import('../services/rhChainTruthGuards').RhChainFreshnessState;
 };
 
 export type RhChainDailyReceiptsPayload = {
@@ -460,6 +466,7 @@ export type RhChainDailyReceiptsPayload = {
   disclaimer: string;
   latest_receipt: RhChainDailyReceipt;
   receipts: RhChainDailyReceipt[];
+  freshness_state?: import('../services/rhChainTruthGuards').RhChainFreshnessState;
 };
 
 export const RH_CHAIN_DAILY_RECEIPT_SECTION_IDS = ['chain_pulse', 'meme_pulse', 'rwa_pulse', 'risk_wall', 'narrative_mutation', 'infopunks_verdict'] as const;
@@ -501,6 +508,7 @@ export type RhChainMemePulsePayload = {
   top_attention_assets: RhChainMemePulseAsset[];
   risk_strip: Array<{ id: string; title: string; summary: string; risk_state: RhChainRiskState }>;
   market_translation: Array<{ id: string; trend: string; translation: string; caveat: string }>;
+  freshness_state?: import('../services/rhChainTruthGuards').RhChainFreshnessState;
 };
 
 export type RhChainTokenDossier = {
@@ -511,6 +519,7 @@ export type RhChainTokenDossier = {
   review_status: RhChainReviewState | 'not_found';
   risk_state: RhChainRiskState | 'source_required';
   data_mode: RhChainDataFreshness;
+  identity_status: 'valid' | 'source_required';
   generated_at: string;
   disclaimer: string;
   doctrine: 'External data gives context. Infopunks gives judgment. Receipts create memory.';
@@ -1821,7 +1830,7 @@ export function listRhChainSignals() {
   return {
     classifier: rhChainPayload.signal_classifier,
     index_4663: rhChainPayload.signal_index_4663,
-    risk_wall: rhChainPayload.risk_wall
+    risk_wall: rhChainPayload.risk_wall.map((item) => ({ ...item, freshness_state: getRhChainFreshnessState(item.source.observed_at, item.source.data_mode) }))
   };
 }
 
@@ -1850,14 +1859,15 @@ export function getRhChainReviewStateCounts(items: RhChainReviewItem[] = rhChain
 }
 
 export function getRhChainReviewQueue(): RhChainReviewQueuePayload {
+  const items = rhChainReviewQueueItems.map((item) => ({ ...item, freshness_state: getRhChainFreshnessState(item.updated_at || item.submitted_at, item.source.data_mode) }));
   return {
     generated_at: OBSERVED_AT,
     source_policy: 'Public review queue contains seeded and manual intelligence objects. Submitted packets are manually reviewed before public promotion.',
     disclaimer: 'The review queue is public intelligence infrastructure. It is not an endorsement, listing, partnership, or financial recommendation.',
     review_states: RH_CHAIN_REVIEW_STATES,
     counts: getRhChainReviewStateCounts(),
-    items: rhChainReviewQueueItems,
-    grouped: groupRhChainReviewItemsByState()
+    items,
+    grouped: groupRhChainReviewItemsByState(items)
   };
 }
 
@@ -1887,11 +1897,13 @@ export function buildRhChain4663Assets(seedAssets: RhChain4663SeedAsset[] = rhCh
   return seedAssets
     .map((asset) => {
       const signalScore = calculateRhChain4663SignalScore(asset);
+      const source = asset.source ?? (asset.ticker === 'ROUTE' ? manualDeskSource : seededDeskSource);
       return {
         ...asset,
         signal_score: signalScore,
         classification: classifyRhChain4663SignalScore(signalScore),
-        source: asset.source ?? (asset.ticker === 'ROUTE' ? manualDeskSource : seededDeskSource)
+        source,
+        freshness_state: getRhChainFreshnessState(asset.last_updated, source.data_mode)
       };
     })
     .sort((left, right) => right.signal_score - left.signal_score || left.ticker.localeCompare(right.ticker))
@@ -1946,11 +1958,12 @@ export function getRhChain4663Overview(assets: RhChain4663Asset[]): RhChain4663I
 
 export function getRhChain4663Index(): RhChain4663IndexPayload {
   const assets = buildRhChain4663Assets();
+  const last_updated = getRhChain4663Overview(assets).last_updated;
   return {
     name: '4663 Signal Index',
     subtitle: 'A living index of Robinhood Chain attention assets, risk states, and narrative mutations.',
     generated_at: OBSERVED_AT,
-    last_updated: getRhChain4663Overview(assets).last_updated,
+    last_updated,
     source_policy: '4663 values are seeded/manual intelligence until live receipts attach. Inclusion means public market memory, not safety.',
     disclaimer: 'The 4663 Signal Index is an intelligence index, not a tokenized product, endorsement, listing, or financial recommendation.',
     scoring_model: {
@@ -1970,7 +1983,8 @@ export function getRhChain4663Index(): RhChain4663IndexPayload {
     },
     narrative_classes: RH_CHAIN_4663_NARRATIVE_CLASSES,
     overview: getRhChain4663Overview(assets),
-    assets
+    assets,
+    freshness_state: getRhChainFreshnessState(last_updated, assets[0]?.source.data_mode ?? 'unavailable')
   };
 }
 
@@ -2027,16 +2041,18 @@ export function createRhChainDailyReceiptXPost(receipt: RhChainDailyReceipt): st
 }
 
 export function getRhChainDailyReceipts(): RhChainDailyReceiptsPayload {
-  const receipts = sortRhChainDailyReceiptsByDate();
+  const receipts = sortRhChainDailyReceiptsByDate().map((receipt) => ({ ...receipt, freshness_state: getRhChainFreshnessState(receipt.observed_at ?? receipt.generated_at, receipt.data_mode) }));
+  const latest = selectLatestRhChainDailyReceipt(receipts)!;
   return {
     title: 'Daily RH Chain Receipts',
     subtitle: 'The market forgets. Infopunks keeps the memory.',
-    generated_at: selectLatestRhChainDailyReceipt(receipts)?.generated_at ?? new Date(0).toISOString(),
+    generated_at: latest.generated_at,
     source_policy: 'Daily receipts are human-reviewed market memory. External data gives context; Infopunks gives judgment; receipts create memory. Do not let live data outrank human-reviewed receipts. Sources must include observed_at timestamps.',
     doctrine: 'External data gives context. Infopunks gives judgment. Receipts create memory.',
     disclaimer: 'Daily RH Chain receipts are public intelligence memory, not financial advice, endorsement, listing, or official Robinhood partnership.',
-    latest_receipt: selectLatestRhChainDailyReceipt(receipts)!,
-    receipts
+    latest_receipt: latest,
+    receipts,
+    freshness_state: latest.freshness_state
   };
 }
 
@@ -2093,3 +2109,4 @@ export function createRhChainSignalReviewPacket(input: RhChainSignalSubmissionIn
     next_step: 'Infopunks will review the signal manually before adding it to the public desk.'
   };
 }
+import { getRhChainFreshnessState } from '../services/rhChainTruthGuards';

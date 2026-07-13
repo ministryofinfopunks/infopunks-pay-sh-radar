@@ -34,6 +34,14 @@ describe('runtime environment config', () => {
     expect(loadRuntimeConfig({ NODE_ENV: 'test', MACHINE_DEMO_SEED: 'true' }).machineDemoSeed).toBe(true);
   });
 
+  it('configures safe RH Chain public intake defaults', () => {
+    const config = loadRuntimeConfig({ NODE_ENV: 'test' });
+    expect(config.rhChainPublicRateLimitEnabled).toBe(true);
+    expect(config.rhChainPublicRateLimitWindowMs).toBe(60_000);
+    expect(config.rhChainPublicRateLimitMax).toBe(30);
+    expect(() => loadRuntimeConfig({ RH_CHAIN_PUBLIC_RATE_LIMIT_MAX: '0' })).toThrow('RH_CHAIN_PUBLIC_RATE_LIMIT_MAX');
+  });
+
   it('rejects malformed production env values', () => {
     expect(() => loadRuntimeConfig({ PORT: 'abc' })).toThrow('PORT');
     expect(() => loadRuntimeConfig({ MONITOR_ENABLED: 'yes' })).toThrow('MONITOR_ENABLED');

@@ -25,6 +25,10 @@ export type RuntimeConfig = {
   rhChainBlockscoutUrl: string | null;
   rhChainReviewConsoleEnabled: boolean;
   rhChainReviewAdminToken: string | null;
+  rhChainPublicRateLimitEnabled: boolean;
+  rhChainPublicRateLimitWindowMs: number;
+  rhChainPublicRateLimitMax: number;
+  rhChainDuplicateWindowMs: number;
   frontendOrigin: string | null;
   version: string;
 };
@@ -57,6 +61,10 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
     rhChainBlockscoutUrl: readOptionalUrl('RH_CHAIN_BLOCKSCOUT_URL', env.RH_CHAIN_BLOCKSCOUT_URL),
     rhChainReviewConsoleEnabled: readBoolean('RH_CHAIN_REVIEW_CONSOLE_ENABLED', env.RH_CHAIN_REVIEW_CONSOLE_ENABLED, false),
     rhChainReviewAdminToken: optionalString(env.RH_CHAIN_REVIEW_ADMIN_TOKEN),
+    rhChainPublicRateLimitEnabled: readBoolean('RH_CHAIN_PUBLIC_RATE_LIMIT_ENABLED', env.RH_CHAIN_PUBLIC_RATE_LIMIT_ENABLED, true),
+    rhChainPublicRateLimitWindowMs: readPositiveInteger('RH_CHAIN_PUBLIC_RATE_LIMIT_WINDOW_MS', env.RH_CHAIN_PUBLIC_RATE_LIMIT_WINDOW_MS, 60_000),
+    rhChainPublicRateLimitMax: readPositiveInteger('RH_CHAIN_PUBLIC_RATE_LIMIT_MAX', env.RH_CHAIN_PUBLIC_RATE_LIMIT_MAX, 30),
+    rhChainDuplicateWindowMs: readPositiveInteger('RH_CHAIN_DUPLICATE_WINDOW_MS', env.RH_CHAIN_DUPLICATE_WINDOW_MS, 15 * 60_000),
     frontendOrigin: readOptionalUrl('FRONTEND_ORIGIN', env.FRONTEND_ORIGIN),
     version: env.APP_VERSION ?? packageVersion()
   };

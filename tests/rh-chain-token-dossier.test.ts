@@ -33,6 +33,16 @@ describe('RH Chain Token Dossier', () => {
     } finally { await app.close(); }
   });
 
+  it('does not aggregate unrelated placeholder-contract records', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+    try {
+      const response = await app.inject({ method: 'GET', url: '/v1/rh-chain/tokens/unverified_contract_required/dossier' });
+      expect(response.statusCode).toBe(200);
+      expect(response.json().data).toEqual(expect.objectContaining({ identity_status: 'source_required', ticker: null, risk_state: 'source_required', memory: expect.objectContaining({ index: null, review_items: [] }) }));
+      expect(response.json().data.risk_notes.join(' ')).toContain('Placeholder contract values cannot be used');
+    } finally { await app.close(); }
+  });
+
   it('does not infer ticker, review status, or index identity from provider context', async () => {
     const app = await createApp(emptyIntelligenceStore(), undefined, { rhChainLiveSnapshotOptions: { enabled: true, timeoutMs: 10, providers: {
       chainMetrics: async () => ({ tvl_usd: null, dex_volume_24h_usd: null, stablecoin_market_cap_usd: null, protocol_count: null, source_timestamp: null }),

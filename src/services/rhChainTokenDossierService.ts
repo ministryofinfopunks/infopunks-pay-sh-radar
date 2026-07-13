@@ -9,6 +9,7 @@ import {
 import { queryRhChainScout } from './rhChainScoutService';
 import type { RhChainLiveSnapshot } from './rhChainLiveSnapshotService';
 import type { RhChainSignalSubmission } from './rhChainSignalVault';
+import { isRhChainIdentityContract } from './rhChainTruthGuards';
 
 const DOCTRINE = 'External data gives context. Infopunks gives judgment. Receipts create memory.' as const;
 const DISCLAIMER = 'Dossier inclusion is public intelligence memory, not endorsement, safety verification, listing, financial advice, or an official Robinhood partnership.';
@@ -17,6 +18,13 @@ const normalize = (value: string) => value.trim().toLowerCase();
 /** Assembles known records by exact contract only; ticker similarity never establishes identity. */
 export function assembleRhChainTokenDossier(contract: string, submissions: RhChainSignalSubmission[], tokenSnapshot: Awaited<ReturnType<import('./rhChainLiveSnapshotService').RhChainLiveSnapshotService['getTokenSnapshot']>>, liveSnapshot: RhChainLiveSnapshot): RhChainTokenDossier {
   const normalized = normalize(contract);
+  const identityValid = isRhChainIdentityContract(contract);
+  if (!identityValid) return {
+    contract, ticker: null, name: null, chain: 'Robinhood Chain', review_status: 'not_found', risk_state: 'source_required', data_mode: 'unavailable', identity_status: 'source_required', generated_at: tokenSnapshot.generated_at, disclaimer: DISCLAIMER, doctrine: DOCTRINE,
+    memory: { index: null, review_items: [], submissions: [], daily_receipts: [], scout_summary: 'Source required before identity-specific context. Placeholder contracts are not token identities.' },
+    external_context: { token_pair: null, explorer: null, category_relevance: { label: 'Source required before identity-specific context.', freshness: 'unavailable', source_timestamp: null } }, launch_context: null, access_context: null,
+    risk_notes: ['Source required before identity-specific context.', 'Placeholder contract values cannot be used to join review records, receipts, or index memory.'], receipt_trail: []
+  };
   const persistedReview = submissions.map((submission) => ({
     review_id: submission.submission_id, review_state: submission.review_status, submitted_at: submission.submitted_at, updated_at: submission.updated_at, ticker: submission.ticker, token_contract: submission.token_contract, chain: submission.chain, source_type: submission.source_type, links: submission.links, evidence_summary: submission.evidence_summary ?? 'Community submission awaiting receipt review.', missing_evidence: submission.missing_evidence ?? ['manual receipt review'], risk_state: submission.risk_state ?? 'source_required', signal_state: submission.signal_state ?? 'fresh_signal', infopunks_verdict: submission.infopunks_verdict ?? 'Submission is not endorsement.', reviewer_note: submission.reviewer_note ?? 'No reviewer note yet.', next_step: 'Manual review only.', source: { source_name: 'RH Chain Signal Vault', observed_at: submission.submitted_at, updated_at: submission.updated_at, data_mode: submission.data_mode, confidence_level: 'low' as const }, launch_context: submission.launch_context
   })) as RhChainReviewItem[];
@@ -40,8 +48,8 @@ export function assembleRhChainTokenDossier(contract: string, submissions: RhCha
     ...matchedSubmission.flatMap((item) => item.audit_events.map((event) => ({ id: event.event_id, label: `Vault audit · ${event.action.replaceAll('_', ' ')}`, timestamp: event.occurred_at, href: null })))
   ];
   return {
-    contract, ticker, name: index?.name ?? null, chain: firstReview?.chain ?? index?.chain ?? 'Robinhood Chain', review_status: firstReview?.review_state ?? 'not_found', risk_state: firstReview?.risk_state ?? index?.risk_state ?? 'source_required', data_mode: firstReview?.source.data_mode ?? index?.source.data_mode ?? 'unavailable', generated_at: tokenSnapshot.generated_at, disclaimer: DISCLAIMER, doctrine: DOCTRINE,
-    memory: { index, review_items, submissions: matchedSubmission.map((item) => ({ submission_id: item.submission_id, submitted_at: item.submitted_at, evidence_summary: item.evidence_summary ?? 'Community submission awaiting receipt review.', audit_events: item.audit_events })), daily_receipts: receipts, scout_summary: scout.answer },
+    contract, ticker, name: index?.name ?? null, chain: firstReview?.chain ?? index?.chain ?? 'Robinhood Chain', review_status: firstReview?.review_state ?? 'not_found', risk_state: firstReview?.risk_state ?? index?.risk_state ?? 'source_required', data_mode: firstReview?.source.data_mode ?? index?.source.data_mode ?? 'unavailable', identity_status: 'valid', generated_at: tokenSnapshot.generated_at, disclaimer: DISCLAIMER, doctrine: DOCTRINE,
+    memory: { index, review_items, submissions: matchedSubmission.map((item) => ({ submission_id: item.submission_id, submitted_at: item.submitted_at, evidence_summary: item.evidence_summary ?? 'Community submission awaiting receipt review.', audit_events: item.audit_events.map(({ reviewer_id: _reviewerId, ...event }) => event) })), daily_receipts: receipts, scout_summary: scout.answer },
     external_context: { token_pair: tokenSnapshot.token_pair, explorer: tokenSnapshot.explorer, category_relevance: { label: liveSnapshot.meme_category.top_assets.length ? 'Meme category context available; it does not establish token identity or relevance.' : 'CoinGecko category context unavailable.', freshness: liveSnapshot.meme_category.freshness, source_timestamp: liveSnapshot.meme_category.source_timestamp } },
     launch_context,
     // Generic access surfaces never establish dossier relevance. Attach only a future exact contract/pair evidence match.

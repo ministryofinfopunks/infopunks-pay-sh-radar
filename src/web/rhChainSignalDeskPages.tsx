@@ -9,6 +9,7 @@ import type {
   RhChainLaunchSurfaceRecord,
   RhChainLaunchContext,
   RhChainMemeToken,
+  RhChainMemePulsePayload,
   RhChainPayload,
   RhChainPulseMetric,
   RhChainReceipt,
@@ -107,6 +108,7 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
   const [reviewQueue, setReviewQueue] = useState<RhChainReviewQueuePayload | null>(null);
   const [signalIndex, setSignalIndex] = useState<RhChain4663IndexPayload | null>(null);
   const [dailyReceipts, setDailyReceipts] = useState<RhChainDailyReceiptsPayload | null>(null);
+  const [memePulse, setMemePulse] = useState<RhChainMemePulsePayload | null>(null);
   const [launchSurfaces, setLaunchSurfaces] = useState<{ title: string; subtitle: string; doctrine: string; disclaimer: string; launch_surfaces: RhChainLaunchSurfaceRecord[]; access_surfaces: RhChainAccessSurface[] } | null>(null);
   const [liveSnapshot, setLiveSnapshot] = useState<RhChainLiveSnapshot | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -134,6 +136,7 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
     api<RhChainDailyReceiptsPayload>('/v1/rh-chain/daily-receipts')
       .then((response) => setDailyReceipts(response.data))
       .catch((err) => setError(err instanceof Error ? err.message : 'rh_chain_daily_receipts_unavailable'));
+    api<RhChainMemePulsePayload>('/v1/rh-chain/meme-pulse').then((response) => setMemePulse(response.data)).catch(() => undefined);
     api<{ title: string; subtitle: string; doctrine: string; disclaimer: string; launch_surfaces: RhChainLaunchSurfaceRecord[]; access_surfaces: RhChainAccessSurface[] }>('/v1/rh-chain/launch-surfaces')
       .then((response) => setLaunchSurfaces(response.data))
       .catch((err) => setError(err instanceof Error ? err.message : 'rh_chain_launch_surfaces_unavailable'));
@@ -189,7 +192,7 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
           {signalIndex && <SignalIndexPreview index={signalIndex} />}
           {reviewQueue && <ReviewQueuePreview queue={reviewQueue} />}
           {liveSnapshot && <LiveSnapshotPreview snapshot={liveSnapshot} />}
-          <MemePulseSection memes={visibleMemes} allMemes={desk.meme_pulse} query={query} risk={risk} onQuery={setQuery} onRisk={setRisk} />
+          <MemePulseSection memes={visibleMemes} allMemes={desk.meme_pulse} freshnessState={memePulse?.freshness_state} query={query} risk={risk} onQuery={setQuery} onRisk={setRisk} />
           <SignalClassifierSection desk={desk} />
           <RiskWallSection desk={desk} />
           <StockTokenSpilloverSection desk={desk} />
@@ -296,6 +299,7 @@ function DailyReceiptsPreview({ feed }: { feed: RhChainDailyReceiptsPayload }) {
       </div>
       <a className="execute compact secondary" href="/rh-chain-signal-desk/daily-receipts">Open Daily Receipts</a>
     </div>
+    {feed.freshness_state !== 'fresh' && <p className="rh-chain-disclaimer">{feed.freshness_state === 'aging' ? 'Manual receipt is aging.' : 'Manual receipt is stale. Refresh required before treating it as current context.'}</p>}
     <article className="rh-chain-daily-preview-card">
       <div className="rh-chain-card-head">
         <div>
@@ -338,6 +342,7 @@ function ScoutPage() {
 
 function RhChainDailyReceiptsPage({ feed }: { feed: RhChainDailyReceiptsPayload }) {
   return <>
+    {feed.freshness_state !== 'fresh' && <section className="panel rh-chain-section rh-chain-daily-warning" aria-label="Receipt freshness"><p>{feed.freshness_state === 'aging' ? 'Manual receipt is aging.' : 'Manual receipt is stale. Freshness is part of truth.'}</p></section>}
     <LatestDailyReceiptSection receipt={feed.latest_receipt} />
     <DailyReceiptSections receipt={feed.latest_receipt} />
     <DailyReceiptTimeline receipts={feed.receipts} />
@@ -624,6 +629,7 @@ function SignalIndexPreview({ index }: { index: RhChain4663IndexPayload }) {
       </div>
       <a className="execute compact secondary" href="/rh-chain-signal-desk/4663-index">Open 4663 Index</a>
     </div>
+    {index.freshness_state !== 'fresh' && <p className="rh-chain-disclaimer">Manual index values require refresh.</p>}
     <div className="rh-chain-4663-preview-grid">
       {topAssets.map((asset) => <article key={asset.ticker} className="rh-chain-4663-preview-card">
         <div className="rh-chain-card-head">
@@ -643,6 +649,7 @@ function SignalIndexPreview({ index }: { index: RhChain4663IndexPayload }) {
 
 function RhChain4663IndexPage({ index }: { index: RhChain4663IndexPayload }) {
   return <>
+    {index.freshness_state !== 'fresh' && <section className="panel rh-chain-section rh-chain-daily-warning" aria-label="Index freshness"><p>Manual index values require refresh.</p></section>}
     <IndexOverviewSection index={index} />
     <RankedIndexSection assets={index.assets} />
     <ScoreBreakdownSection assets={index.assets} />
@@ -1015,6 +1022,7 @@ function ReviewStatePill({ state }: { state: RhChainReviewState }) {
 function MemePulseSection({
   memes,
   allMemes,
+  freshnessState,
   query,
   risk,
   onQuery,
@@ -1022,6 +1030,7 @@ function MemePulseSection({
 }: {
   memes: RhChainMemeToken[];
   allMemes: RhChainMemeToken[];
+  freshnessState?: RhChainMemePulsePayload['freshness_state'];
   query: string;
   risk: RhChainRiskState | 'all';
   onQuery: (value: string) => void;
@@ -1049,6 +1058,7 @@ function MemePulseSection({
         </label>
       </div>
     </div>
+    {freshnessState && freshnessState !== 'fresh' && <p className="rh-chain-disclaimer">Manual meme memory is {freshnessState}. Source timestamps require review before treating attention context as current.</p>}
     <div className="rh-chain-table" role="table" aria-label="Robinhood Chain meme token watchlist">
       <div className="rh-chain-table-row head" role="row">
         <span role="columnheader">Rank</span>
@@ -1114,6 +1124,7 @@ function RiskWallSection({ desk }: { desk: RhChainPayload }) {
         <p>Suspicious launches, low-liquidity traps, unverified contracts, and deployer warnings.</p>
       </div>
     </div>
+    <p className="rh-chain-disclaimer">Manual risk wall entries remain source-stamped context. Freshness requires review before treating them as current conditions.</p>
     <div className="rh-chain-risk-grid">
       {desk.risk_wall.map((item) => <article key={item.id} className={`rh-chain-risk-card risk-${item.risk_state}`}>
         <div className="rh-chain-card-head">
@@ -1209,6 +1220,12 @@ function SubmitSignalSection() {
     if (!next.x_twitter_link.trim() && !next.website_link.trim() && !next.liquidity_link.trim() && !next.deployer_notes.trim()) {
       nextErrors.push('No receipt, no signal. Add an X link, website link, liquidity link, or deployer notes.');
     }
+    const links = [next.x_twitter_link, next.website_link, next.liquidity_link, next.launch_surface_url].filter((value) => value.trim());
+    if (links.some((value) => value.trim().length > 500 || !/^https:\/\/[^\s]+$/i.test(value.trim()))) nextErrors.push('Links must be HTTPS URLs and are recorded as external, untrusted context.');
+    if (next.ticker.trim().length > 24) nextErrors.push('Ticker must be 24 characters or fewer.');
+    if (next.token_contract.trim().length > 128 || next.pair_address.trim().length > 128 || next.deployer_address.trim().length > 128) nextErrors.push('Contract and address fields must be 128 characters or fewer.');
+    if (next.deployer_notes.length > 2000 || next.submitter_notes.length > 2000) nextErrors.push('Notes must be 2,000 characters or fewer.');
+    if (next.scout_handle.trim().length > 64 || next.scout_contact.trim().length > 256) nextErrors.push('Scout handle/contact exceeds the permitted length.');
     return nextErrors;
   }
 
@@ -1272,13 +1289,13 @@ function SubmitSignalSection() {
       <label><span>Token contract address</span><input name="token_contract" aria-label="Token contract address" value={form.token_contract} onChange={(event) => setField('token_contract', event.target.value)} placeholder="0x... or explorer contract" required /></label>
       <label><span>Ticker</span><input name="ticker" aria-label="Ticker" value={form.ticker} onChange={(event) => setField('ticker', event.target.value)} placeholder="TICKR" required /></label>
       <label><span>Chain</span><input name="chain" aria-label="Chain" value={form.chain} onChange={(event) => setField('chain', event.target.value)} required /></label>
-      <label><span>X / Twitter link</span><input name="x_twitter_link" aria-label="X or Twitter link" value={form.x_twitter_link} onChange={(event) => setField('x_twitter_link', event.target.value)} placeholder="https://x.com/..." /></label>
-      <label><span>Website link</span><input name="website_link" aria-label="Website link" value={form.website_link} onChange={(event) => setField('website_link', event.target.value)} placeholder="https://..." /></label>
-      <label><span>Liquidity link</span><input name="liquidity_link" aria-label="Liquidity link" value={form.liquidity_link} onChange={(event) => setField('liquidity_link', event.target.value)} placeholder="DEX pool, explorer, or liquidity receipt" /></label>
-      <label className="wide"><span>Deployer notes</span><textarea name="deployer_notes" aria-label="Deployer notes" rows={4} value={form.deployer_notes} onChange={(event) => setField('deployer_notes', event.target.value)} placeholder="Deployer wallet, funding path, ownership controls, warnings" /></label>
-      <label className="wide"><span>Submitter notes</span><textarea name="submitter_notes" aria-label="Submitter notes" rows={4} value={form.submitter_notes} onChange={(event) => setField('submitter_notes', event.target.value)} placeholder="Why this belongs on the intelligence desk" /></label>
+      <label><span>X / Twitter link · external, untrusted</span><input name="x_twitter_link" aria-label="X or Twitter link" maxLength={500} value={form.x_twitter_link} onChange={(event) => setField('x_twitter_link', event.target.value)} placeholder="https://x.com/..." /></label>
+      <label><span>Website link · external, untrusted</span><input name="website_link" aria-label="Website link" maxLength={500} value={form.website_link} onChange={(event) => setField('website_link', event.target.value)} placeholder="https://..." /></label>
+      <label><span>Liquidity link · external, untrusted</span><input name="liquidity_link" aria-label="Liquidity link" maxLength={500} value={form.liquidity_link} onChange={(event) => setField('liquidity_link', event.target.value)} placeholder="DEX pool, explorer, or liquidity receipt" /></label>
+      <label className="wide"><span>Deployer notes</span><textarea name="deployer_notes" aria-label="Deployer notes" maxLength={2000} rows={4} value={form.deployer_notes} onChange={(event) => setField('deployer_notes', event.target.value)} placeholder="Deployer wallet, funding path, ownership controls, warnings" /></label>
+      <label className="wide"><span>Submitter notes</span><textarea name="submitter_notes" aria-label="Submitter notes" maxLength={2000} rows={4} value={form.submitter_notes} onChange={(event) => setField('submitter_notes', event.target.value)} placeholder="Why this belongs on the intelligence desk" /></label>
       <details className="rh-chain-launch-context wide"><summary>Signal Scout attribution, optional</summary><p>Public attribution is opt-in. Contact information is private and never appears on the public Scout Board.</p><div className="rh-chain-daily-note-grid"><label><span>Scout handle</span><input aria-label="Scout handle" value={form.scout_handle} onChange={(event) => setField('scout_handle', event.target.value)} placeholder="@receipt-hunter" /></label><label><span>Scout contact, private</span><input aria-label="Scout contact" value={form.scout_contact} onChange={(event) => setField('scout_contact', event.target.value)} placeholder="Optional email or contact handle" /></label></div><label className="rh-chain-checkbox"><input type="checkbox" checked={form.public_attribution_consent} onChange={(event) => setField('public_attribution_consent', event.target.checked)} /><span>I consent to show my Scout handle publicly for this evidence contribution. My contact information stays private.</span></label></details>
-      <details className="rh-chain-launch-context wide"><summary>Launch context, optional</summary><p>Submitter claims remain unverified until manual receipt review.</p><div className="rh-chain-daily-note-grid"><label><span>Launch source</span><select aria-label="Launch source" value={form.launch_source} onChange={(event) => setField('launch_source', event.target.value)}><option value="">Unknown / not supplied</option><option value="noxa_fun">NOXA Fun</option><option value="20lab_erc20">20lab-generated ERC-20</option><option value="pump_fun_routed_rh_chain">Pump.fun-routed RH Chain token</option><option value="uniswap_direct_pool">Uniswap direct pool launch</option><option value="hardhat_foundry_custom">Hardhat/Foundry custom deployment</option><option value="unknown_manual">Unknown/manual deployment</option></select></label><label><span>LP status claim</span><select aria-label="LP status claim" value={form.lp_status_claim} onChange={(event) => setField('lp_status_claim', event.target.value)}><option value="">Not supplied</option><option value="locked_claimed">Locked (claimed)</option><option value="burned_claimed">Burned (claimed)</option><option value="unlocked">Unlocked</option><option value="unknown">Unknown</option><option value="unavailable">Unavailable</option></select></label><label><span>Launch surface URL</span><input aria-label="Launch surface URL" value={form.launch_surface_url} onChange={(event) => setField('launch_surface_url', event.target.value)} /></label><label><span>Pair address</span><input aria-label="Pair address" value={form.pair_address} onChange={(event) => setField('pair_address', event.target.value)} /></label><label><span>Deployer address</span><input aria-label="Deployer address" value={form.deployer_address} onChange={(event) => setField('deployer_address', event.target.value)} /></label></div></details>
+      <details className="rh-chain-launch-context wide"><summary>Launch context, optional</summary><p>Submitter claims remain unverified until manual receipt review.</p><div className="rh-chain-daily-note-grid"><label><span>Launch source</span><select aria-label="Launch source" value={form.launch_source} onChange={(event) => setField('launch_source', event.target.value)}><option value="">Unknown / not supplied</option><option value="noxa_fun">NOXA Fun</option><option value="20lab_erc20">20lab-generated ERC-20</option><option value="pump_fun_routed_rh_chain">Pump.fun-routed RH Chain token</option><option value="uniswap_direct_pool">Uniswap direct pool launch</option><option value="hardhat_foundry_custom">Hardhat/Foundry custom deployment</option><option value="unknown_manual">Unknown/manual deployment</option></select></label><label><span>LP status claim</span><select aria-label="LP status claim" value={form.lp_status_claim} onChange={(event) => setField('lp_status_claim', event.target.value)}><option value="">Not supplied</option><option value="locked_claimed">Locked (claimed)</option><option value="burned_claimed">Burned (claimed)</option><option value="unlocked">Unlocked</option><option value="unknown">Unknown</option><option value="unavailable">Unavailable</option></select></label><label><span>Launch surface URL · external, untrusted</span><input aria-label="Launch surface URL" maxLength={500} value={form.launch_surface_url} onChange={(event) => setField('launch_surface_url', event.target.value)} /></label><label><span>Pair address</span><input aria-label="Pair address" maxLength={128} value={form.pair_address} onChange={(event) => setField('pair_address', event.target.value)} /></label><label><span>Deployer address</span><input aria-label="Deployer address" maxLength={128} value={form.deployer_address} onChange={(event) => setField('deployer_address', event.target.value)} /></label></div></details>
       <label className="rh-chain-checkbox wide">
         <input type="checkbox" checked={form.disclosure_confirmed} onChange={(event) => setField('disclosure_confirmed', event.target.checked)} />
         <span>{RH_CHAIN_DISCLOSURE}</span>

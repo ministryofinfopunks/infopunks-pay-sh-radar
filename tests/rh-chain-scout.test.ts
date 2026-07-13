@@ -21,4 +21,9 @@ describe('RH Chain Scout', () => {
     expect(result.answer).toContain('Backpack Wallet remains source_required');
     expect(result.supporting_access_context).toEqual(expect.arrayContaining([expect.objectContaining({ name: 'Robinhood Wallet' })]));
   });
+  it('does not treat placeholder contracts as token identity', () => {
+    const result = queryRhChainScout({ query: 'unverified_contract_required', mode: 'token_context' });
+    expect(result.answer).toContain('Source required before identity-specific context.');
+    expect(result.supporting_review_items).toEqual([]);
+  });
 });

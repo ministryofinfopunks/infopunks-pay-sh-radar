@@ -488,22 +488,32 @@ const optionalRhChainText = z.preprocess((value) => {
   const trimmed = value.trim();
   return trimmed.length ? trimmed : undefined;
 }, z.string().min(1).optional());
+const optionalRhChainUrl = z.preprocess((value) => {
+  if (typeof value !== 'string') return value;
+  const trimmed = value.trim();
+  return trimmed.length ? trimmed : undefined;
+}, z.string().min(1).max(500).refine((value) => {
+  try { return new URL(value).protocol === 'https:'; } catch { return false; }
+}, 'must_be_a_valid_https_url').optional());
 const RhChainSignalSubmissionSchema = z.object({
-  token_contract: z.string().trim().min(1),
-  ticker: z.string().trim().min(1),
-  chain: z.string().trim().min(1).default('Robinhood Chain'),
-  x_twitter_link: optionalRhChainText,
-  website_link: optionalRhChainText,
-  liquidity_link: optionalRhChainText,
-  deployer_notes: optionalRhChainText,
-  submitter_notes: optionalRhChainText,
+  token_contract: z.string().trim().min(1).max(128),
+  ticker: z.string().trim().min(1).max(24),
+  chain: z.string().trim().min(1).max(64).default('Robinhood Chain'),
+  x_twitter_link: optionalRhChainUrl,
+  website_link: optionalRhChainUrl,
+  liquidity_link: optionalRhChainUrl,
+  evidence_links: z.array(z.string().trim().min(1).max(500).refine((value) => {
+    try { return new URL(value).protocol === 'https:'; } catch { return false; }
+  }, 'must_be_a_valid_https_url')).max(12).optional(),
+  deployer_notes: optionalRhChainText.pipe(z.string().max(2_000).optional()),
+  submitter_notes: optionalRhChainText.pipe(z.string().max(2_000).optional()),
   launch_source: z.enum(['noxa_fun', '20lab_erc20', 'pump_fun_routed_rh_chain', 'uniswap_direct_pool', 'hardhat_foundry_custom', 'unknown_manual']).optional(),
-  launch_surface_url: optionalRhChainText,
-  pair_address: optionalRhChainText,
-  deployer_address: optionalRhChainText,
+  launch_surface_url: optionalRhChainUrl,
+  pair_address: optionalRhChainText.pipe(z.string().max(128).optional()),
+  deployer_address: optionalRhChainText.pipe(z.string().max(128).optional()),
   lp_status_claim: z.enum(['unknown', 'locked_claimed', 'burned_claimed', 'unlocked', 'unavailable']).optional(),
-  scout_handle: optionalRhChainText.pipe(z.string().min(2).max(48).optional()),
-  scout_contact: optionalRhChainText.pipe(z.string().max(160).optional()),
+  scout_handle: optionalRhChainText.pipe(z.string().min(2).max(64).optional()),
+  scout_contact: optionalRhChainText.pipe(z.string().max(256).optional()),
   public_attribution_consent: z.boolean().optional(),
   disclosure_confirmed: z.boolean().refine((value) => value, { message: 'disclosure_must_be_confirmed' })
 }).strict().superRefine((value, ctx) => {
@@ -525,8 +535,9 @@ const RhChainReviewUpdateSchema = z.object({
   risk_state: z.enum(['low_watch', 'medium_watch', 'high_risk', 'source_required', 'do_not_touch_yet']).optional(),
   signal_state: z.enum(['fresh_signal', 'attention_spike', 'durable_candidate', 'liquidity_mirage', 'deployer_cluster_risk', 'top_holder_risk', 'stock_token_spillover', 'do_not_touch_yet']).optional(),
   infopunks_verdict: optionalRhChainText,
-  audit_note: z.string().trim().min(1).max(1_000)
-}).strict().refine((value) => Object.keys(value).some((key) => key !== 'audit_note'), { message: 'at_least_one_review_field_required' });
+  audit_note: z.string().trim().min(1).max(2_000),
+  last_seen_updated_at: z.string().datetime().optional()
+}).strict().refine((value) => Object.keys(value).some((key) => key !== 'audit_note' && key !== 'last_seen_updated_at'), { message: 'at_least_one_review_field_required' });
 const MAX_INLINE_SUPPORTING_EVENT_IDS = 10;
 const DEFAULT_ALLOWED_ORIGINS = new Set([
   'https://radar.infopunks.fun',
@@ -538,14 +549,28 @@ const DEFAULT_ALLOWED_ORIGINS = new Set([
   'http://127.0.0.1:5173'
 ]);
 const CORS_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
-const CORS_ALLOWED_HEADERS = ['Content-Type', 'Authorization', 'X-Requested-With'];
+const CORS_ALLOWED_HEADERS = ['Content-Type', 'Authorization', 'X-Requested-With', 'X-RH-Chain-Reviewer-Id'];
 const CORS_MAX_AGE_SECONDS = 86_400;
 
 export type CreateAppOptions = {
   clientDistDir?: string | null;
   rhChainSubmissionStore?: RhChainSubmissionStore;
   rhChainLiveSnapshotOptions?: Partial<RhChainLiveSnapshotOptions>;
+  rhChainPublicRateLimit?: Partial<{ enabled: boolean; windowMs: number; max: number }>;
 };
+
+class RhChainPublicRateLimiter {
+  private readonly hits = new Map<string, { count: number; resetAt: number }>();
+  constructor(private readonly enabled: boolean, private readonly windowMs: number, private readonly max: number) {}
+  consume(key: string) {
+    if (!this.enabled) return { allowed: true, retryAfterMs: 0 };
+    const now = Date.now();
+    const prior = this.hits.get(key);
+    const entry = !prior || prior.resetAt <= now ? { count: 0, resetAt: now + this.windowMs } : prior;
+    entry.count += 1; this.hits.set(key, entry);
+    return { allowed: entry.count <= this.max, retryAfterMs: Math.max(0, entry.resetAt - now) };
+  }
+}
 
 export async function createApp(
   preloadedStore?: IntelligenceStore,
@@ -565,6 +590,11 @@ export async function createApp(
     blockscoutUrl: config.rhChainBlockscoutUrl,
     ...options.rhChainLiveSnapshotOptions
   });
+  const rhChainPublicRateLimiter = new RhChainPublicRateLimiter(
+    options.rhChainPublicRateLimit?.enabled ?? config.rhChainPublicRateLimitEnabled,
+    options.rhChainPublicRateLimit?.windowMs ?? config.rhChainPublicRateLimitWindowMs,
+    options.rhChainPublicRateLimit?.max ?? config.rhChainPublicRateLimitMax
+  );
   const persistenceMode: 'postgres' | 'memory' = config.databaseUrl ? 'postgres' : 'memory';
   const ROUTE_TIMEOUT_MS = 2_500;
   const SEARCH_ROUTE_TIMEOUT_MS = 3_000;
@@ -1733,7 +1763,7 @@ export async function createApp(
   });
   app.get('/v1/narratives', async () => ({ data: listNarrativeAssets() }));
   app.get<{ Querystring: { status?: string } }>('/internal/rh-chain/review-console/submissions', async (req, reply) => {
-    if (!config.rhChainReviewConsoleEnabled) return reply.code(404).send({ error: 'not_found' });
+    if (!config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) return reply.code(404).send({ error: 'not_found' });
     if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send({ error: 'review_admin_token_required' });
     const status = req.query.status;
     const records = await rhChainSubmissionStore.list();
@@ -1741,20 +1771,23 @@ export async function createApp(
     return { data: { submissions, storage: { adapter: rhChainSubmissionStore.adapter, durable: rhChainSubmissionStore.durable } } };
   });
   app.get<{ Params: { submissionId: string } }>('/internal/rh-chain/review-console/submissions/:submissionId', async (req, reply) => {
-    if (!config.rhChainReviewConsoleEnabled) return reply.code(404).send({ error: 'not_found' });
+    if (!config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) return reply.code(404).send({ error: 'not_found' });
     if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send({ error: 'review_admin_token_required' });
     const submission = (await rhChainSubmissionStore.list()).find((item) => item.submission_id === req.params.submissionId);
     if (!submission) return reply.code(404).send({ error: 'rh_chain_submission_not_found' });
     return { data: { submission: redactRhChainSubmissionForReview(submission) } };
   });
   app.patch<{ Params: { submissionId: string } }>('/internal/rh-chain/review-console/submissions/:submissionId', async (req, reply) => {
-    if (!config.rhChainReviewConsoleEnabled) return reply.code(404).send({ error: 'not_found' });
+    if (!config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) return reply.code(404).send({ error: 'not_found' });
     if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send({ error: 'review_admin_token_required' });
     const parsed = RhChainReviewUpdateSchema.safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_request', issues: parsed.error.issues });
     try {
-      const updated = await updateRhChainSubmissionReviewRecord(rhChainSubmissionStore, req.params.submissionId, parsed.data);
+      const reviewerHeader = req.headers['x-rh-chain-reviewer-id'];
+      const reviewer_id = typeof reviewerHeader === 'string' && reviewerHeader.trim().length <= 64 ? reviewerHeader.trim() : 'system_reviewer';
+      const updated = await rhChainSubmissionStore.updateReview(req.params.submissionId, { ...parsed.data, reviewer_id });
       if (!updated) return reply.code(404).send({ error: 'rh_chain_submission_not_found' });
+      if ('conflict' in updated) return reply.code(409).send({ error: 'rh_chain_review_conflict', submission: redactRhChainSubmissionForReview(updated.current) });
       return { data: { submission: redactRhChainSubmissionForReview(updated) } };
     } catch (error) {
       if (error instanceof Error && error.message === 'rh_chain_submission_storage_not_configured') return reply.code(503).send({ error: 'rh_chain_submission_storage_not_configured' });
@@ -1782,6 +1815,8 @@ export async function createApp(
   app.get('/v1/rh-chain/meme-pulse', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainMemePulseScreen(await rhChainLiveSnapshots.getLiveSnapshot()))));
   app.get('/v1/rh-chain/launch-surfaces', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainLaunchSurfaces())));
   app.post('/v1/rh-chain/scout/query', async (req, reply) => {
+    const rate = rhChainPublicRateLimiter.consume(`scout:${req.ip}`);
+    if (!rate.allowed) return reply.header('Retry-After', String(Math.ceil(rate.retryAfterMs / 1000))).code(429).send({ error: 'rh_chain_public_rate_limit_exceeded' });
     const parsed = RhChainScoutQuerySchema.safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_request', issues: parsed.error.issues });
     const submissions = await rhChainSubmissionStore.list();
@@ -1820,18 +1855,32 @@ export async function createApp(
       data_mode: rhChainSubmissionStore.durable ? 'persisted' as const : 'community_submission' as const,
       source_policy: 'Persisted community submissions only. Submission is not endorsement; review is not financial advice; inclusion is not safety.',
       storage: { adapter: rhChainSubmissionStore.adapter, durable: rhChainSubmissionStore.durable },
-      submissions: submissions.map(({ scout_contact: _scoutContact, ...submission }) => submission)
+      submissions: submissions.map(publicRhChainSubmission)
     }));
   });
   app.post('/v1/rh-chain/signals/submit', async (req, reply) => {
+    const rate = rhChainPublicRateLimiter.consume(`submit:${req.ip}`);
+    if (!rate.allowed) return reply.header('Retry-After', String(Math.ceil(rate.retryAfterMs / 1000))).code(429).send({ error: 'rh_chain_public_rate_limit_exceeded' });
     const parsed = RhChainSignalSubmissionSchema.safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_request', issues: parsed.error.issues });
     try {
-      const submission = await rhChainSubmissionStore.save(createRhChainSignalSubmission(parsed.data, new Date().toISOString(), rhChainSubmissionStore.durable ? 'persisted' : 'community_submission'));
+      const now = new Date();
+      const normalizedContract = normalizeRhChainDuplicateField(parsed.data.token_contract);
+      const normalizedChain = normalizeRhChainDuplicateField(parsed.data.chain ?? 'Robinhood Chain');
+      const existing = (await rhChainSubmissionStore.list()).find((item) =>
+        normalizeRhChainDuplicateField(item.token_contract) === normalizedContract
+        && normalizeRhChainDuplicateField(item.chain) === normalizedChain
+        && now.getTime() - Date.parse(item.submitted_at) <= config.rhChainDuplicateWindowMs
+      );
+      if (existing) return reply.code(200).send(safeJsonExport(buildRhChainApiResponse({
+        data_mode: existing.data_mode, duplicate_detected: true, duplicate_of: existing.submission_id, existing_submission_id: existing.submission_id,
+        submission: publicRhChainSubmission(existing), storage: { adapter: rhChainSubmissionStore.adapter, durable: rhChainSubmissionStore.durable }
+      })));
+      const submission = await rhChainSubmissionStore.save(createRhChainSignalSubmission(parsed.data, now.toISOString(), rhChainSubmissionStore.durable ? 'persisted' : 'community_submission'));
       return safeJsonExport(buildRhChainApiResponse({
         data_mode: submission.data_mode,
         review_packet: createRhChainSignalReviewPacket(parsed.data, submission.submitted_at),
-        submission: { ...submission, scout_contact: null },
+        submission: publicRhChainSubmission(submission),
         storage: { adapter: rhChainSubmissionStore.adapter, durable: rhChainSubmissionStore.durable }
       }));
     } catch (error) {
@@ -2883,12 +2932,20 @@ function isAdmin(adminToken: string | null, authorization: string | undefined) {
 }
 
 function isRhChainReviewAdmin(reviewToken: string | null, authorization: string | undefined) {
-  // Enabling the internal console is an explicit deployment decision. When a
-  // dedicated token is configured, require Bearer auth; otherwise do not reuse
-  // a public/admin token implicitly.
-  if (!reviewToken) return true;
+  // A console without its dedicated token is always closed. Never fall back to
+  // a public/admin token or an implicit allow.
+  if (!reviewToken) return false;
   const match = authorization?.match(/^Bearer\s+(.+)$/i);
   return match?.[1] === reviewToken;
+}
+
+function normalizeRhChainDuplicateField(value: string) {
+  return value.trim().toLowerCase();
+}
+
+function publicRhChainSubmission(submission: import('../services/rhChainSignalVault').RhChainSignalSubmission) {
+  const { scout_contact: _scoutContact, audit_events, ...safeSubmission } = submission;
+  return { ...safeSubmission, audit_events: audit_events.map(({ reviewer_id: _reviewerId, ...event }) => event) };
 }
 
 function errorCode(error: unknown): string | null {

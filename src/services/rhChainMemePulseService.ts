@@ -7,6 +7,7 @@ import {
   type RhChainMemePulsePayload
 } from '../data/rhChain';
 import type { RhChainLiveSnapshot } from './rhChainLiveSnapshotService';
+import { getRhChainFreshnessState } from './rhChainTruthGuards';
 
 const DISCLAIMER = 'RH Meme Pulse is public market memory for attention assets, not a trading dashboard, endorsement, safety claim, listing, or Robinhood partnership.';
 const DOCTRINE = 'External data gives context. Infopunks gives judgment. Receipts create memory.' as const;
@@ -44,6 +45,7 @@ export function assembleRhChainMemePulseScreen(liveSnapshot?: RhChainLiveSnapsho
     last_updated: index.last_updated,
     doctrine: DOCTRINE,
     disclaimer: DISCLAIMER,
+    freshness_state: getRhChainFreshnessState(index.last_updated, index.assets[0]?.source.data_mode ?? 'unavailable'),
     snapshot: {
       flagship_signal: `${index.overview.top_signal.ticker} · ${index.overview.top_signal.classification}`,
       top_volume_rotation: `${topVolume.ticker} · volume score ${topVolume.volume_score}/25`,
