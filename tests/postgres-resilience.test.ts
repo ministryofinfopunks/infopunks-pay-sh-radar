@@ -43,6 +43,13 @@ class UndefinedDiagnosticsRepository implements IntelligenceRepository {
   }
 }
 
+class BoundDiagnosticsRepository implements IntelligenceRepository {
+  private readonly status = 'ok' as const;
+  async loadSnapshot(): Promise<IntelligenceSnapshot | null> { return emptySnapshot(); }
+  async saveSnapshot(): Promise<void> { return; }
+  getDbStatus() { return this.status; }
+}
+
 afterEach(() => {
   vi.restoreAllMocks();
   vi.useRealTimers();
@@ -53,6 +60,17 @@ afterEach(() => {
 });
 
 describe('postgres resilience', () => {
+  it('preserves repository method binding when reading health diagnostics', async () => {
+    process.env.DATABASE_URL = 'postgres://example:test@localhost:5432/test';
+    process.env.PAYSH_BOOTSTRAP_ENABLED = 'false';
+    const app = await createApp(emptySnapshot(), new BoundDiagnosticsRepository());
+    try {
+      const health = await app.inject({ method: 'GET', url: '/health' });
+      expect(health.statusCode).toBe(200);
+      expect(health.json().db_status).toBe('ok');
+    } finally { await app.close(); }
+  });
+
   it('handles pool error events without throwing', () => {
     const repo = new PostgresRepository('postgres://example:test@localhost:5432/test');
     const pool = (repo as unknown as { pool: { emit: (event: string, error: Error) => boolean } }).pool;

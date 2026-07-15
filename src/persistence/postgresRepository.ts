@@ -180,10 +180,6 @@ export class PostgresRepository implements IntelligenceRepository {
         degraded_count integer,
         skipped_reasons jsonb not null default '[]'::jsonb
       );
-      alter table monitor_runs add column if not exists mode text;
-      alter table monitor_runs add column if not exists reachable_count integer;
-      alter table monitor_runs add column if not exists degraded_count integer;
-      alter table monitor_runs add column if not exists skipped_reasons jsonb not null default '[]'::jsonb;
       create table if not exists monitor_runs (
         id text primary key,
         started_at timestamptz not null,
@@ -197,6 +193,10 @@ export class PostgresRepository implements IntelligenceRepository {
         error_count integer not null,
         error text
       );
+      alter table monitor_runs add column if not exists mode text;
+      alter table monitor_runs add column if not exists reachable_count integer;
+      alter table monitor_runs add column if not exists degraded_count integer;
+      alter table monitor_runs add column if not exists skipped_reasons jsonb not null default '[]'::jsonb;
       create table if not exists intelligence_snapshots (
         id bigserial primary key,
         created_at timestamptz not null default now(),

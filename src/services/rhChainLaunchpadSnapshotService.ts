@@ -1,5 +1,6 @@
 import pg from 'pg';
 import { getRhChainDailyReceipts, type RhChainLaunchpadObservatoryPayload } from '../data/rhChain';
+import { resolvePostgresPool, RetryablePostgresSchema, type PostgresPoolSource } from '../persistence/retryablePostgresSchema';
 import { assembleRhChainCloneRadar } from './rhChainCloneRadarService';
 import { assembleRhChainLaunchpadObservatory } from './rhChainLaunchpadObservatoryService';
 import type { RhChainSubmissionStore } from './rhChainSignalVault';
@@ -28,12 +29,12 @@ export class InMemoryRhChainLaunchpadSnapshotStore implements RhChainLaunchpadSn
 
 export class PostgresRhChainLaunchpadSnapshotStore implements RhChainLaunchpadSnapshotStore {
   readonly adapter = 'postgres' as const; readonly durable = true;
-  private readonly pool: pg.Pool; private schemaReady: Promise<void> | null = null;
-  constructor(connectionString: string) { this.pool = new pg.Pool({ connectionString }); }
-  async save(snapshot: RhChainLaunchpadObservatorySnapshot) { await this.ensureSchema(); await this.pool.query('insert into rh_chain_launchpad_observatory_snapshots (snapshot_id, refreshed_at, payload) values ($1,$2,$3::jsonb)', [snapshot.snapshot_id, snapshot.refreshed_at, JSON.stringify(snapshot)]); }
+  private readonly pool: pg.Pool; private readonly ownsPool: boolean; private readonly schema = new RetryablePostgresSchema('rh_chain_launchpad_snapshot_store');
+  constructor(source: PostgresPoolSource) { const resolved = resolvePostgresPool(source); this.pool = resolved.pool; this.ownsPool = resolved.ownsPool; }
+  async save(snapshot: RhChainLaunchpadObservatorySnapshot) { await this.ensureSchema(); await this.pool.query('insert into rh_chain_launchpad_observatory_snapshots (snapshot_id, refreshed_at, payload) values ($1,$2,$3::jsonb)', [snapshot.snapshot_id, snapshot.refreshed_at, JSON.stringify(snapshot)]); await this.pool.query("delete from rh_chain_launchpad_observatory_snapshots where snapshot_id in (select snapshot_id from (select snapshot_id, row_number() over (order by refreshed_at desc) as row_number, refreshed_at from rh_chain_launchpad_observatory_snapshots) retained where retained.refreshed_at < now() - interval '7 days' or retained.row_number > 300)"); }
   async latest() { await this.ensureSchema(); const result = await this.pool.query<{ payload: RhChainLaunchpadObservatorySnapshot }>('select payload from rh_chain_launchpad_observatory_snapshots order by refreshed_at desc limit 1'); return result.rows[0]?.payload ?? null; }
-  async close() { await this.pool.end(); }
-  private ensureSchema() { this.schemaReady ??= this.pool.query('create table if not exists rh_chain_launchpad_observatory_snapshots (snapshot_id text primary key, refreshed_at timestamptz not null, payload jsonb not null); create index if not exists rh_chain_launchpad_observatory_snapshots_refreshed_at_idx on rh_chain_launchpad_observatory_snapshots (refreshed_at desc);').then(() => undefined); return this.schemaReady; }
+  async close() { if (this.ownsPool) await this.pool.end(); }
+  private ensureSchema() { return this.schema.ensure(this.pool, 'create table if not exists rh_chain_launchpad_observatory_snapshots (snapshot_id text primary key, refreshed_at timestamptz not null, payload jsonb not null); create index if not exists rh_chain_launchpad_observatory_snapshots_refreshed_at_idx on rh_chain_launchpad_observatory_snapshots (refreshed_at desc);'); }
 }
 
 /** Snapshot assembly is read-only: it preserves source-required claims and never creates launch functionality. */

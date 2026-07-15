@@ -1,5 +1,6 @@
 import pg from 'pg';
 import type { RhChainDataFreshness, RhChainSource } from '../data/rhChain';
+import { resolvePostgresPool, RetryablePostgresSchema, type PostgresPoolSource } from '../persistence/retryablePostgresSchema';
 import type { RhChainProviderSnapshot, RhChainLiveSnapshot } from './rhChainLiveSnapshotService';
 import type { RhChainFreshnessState } from './rhChainTruthGuards';
 
@@ -39,21 +40,22 @@ export class PostgresRhChainMetricsSnapshotStore implements RhChainMetricsSnapsh
   readonly adapter = 'postgres' as const;
   readonly durable = true;
   private readonly pool: pg.Pool;
-  private schemaReady: Promise<void> | null = null;
-  constructor(connectionString: string) { this.pool = new pg.Pool({ connectionString }); }
+  private readonly ownsPool: boolean;
+  private readonly schema = new RetryablePostgresSchema('rh_chain_metrics_snapshot_store');
+  constructor(source: PostgresPoolSource) { const resolved = resolvePostgresPool(source); this.pool = resolved.pool; this.ownsPool = resolved.ownsPool; }
   async save(snapshot: RhChainMetricsSnapshot) {
     await this.ensureSchema();
     await this.pool.query('insert into rh_chain_metrics_snapshots (snapshot_id, observed_at, fetched_at, payload) values ($1,$2,$3,$4::jsonb)', [snapshot.snapshot_id, snapshot.observed_at, snapshot.fetched_at, JSON.stringify(snapshot)]);
+    await this.pool.query("delete from rh_chain_metrics_snapshots where snapshot_id in (select snapshot_id from (select snapshot_id, row_number() over (order by fetched_at desc) as row_number, fetched_at from rh_chain_metrics_snapshots) retained where retained.fetched_at < now() - interval '7 days' or retained.row_number > 300)");
   }
   async latest() {
     await this.ensureSchema();
     const result = await this.pool.query<{ payload: RhChainMetricsSnapshot }>('select payload from rh_chain_metrics_snapshots order by fetched_at desc limit 1');
     return result.rows[0]?.payload ?? null;
   }
-  async close() { await this.pool.end(); }
+  async close() { if (this.ownsPool) await this.pool.end(); }
   private ensureSchema() {
-    this.schemaReady ??= this.pool.query('create table if not exists rh_chain_metrics_snapshots (snapshot_id text primary key, observed_at timestamptz not null, fetched_at timestamptz not null, payload jsonb not null); create index if not exists rh_chain_metrics_snapshots_fetched_at_idx on rh_chain_metrics_snapshots (fetched_at desc);').then(() => undefined);
-    return this.schemaReady;
+    return this.schema.ensure(this.pool, 'create table if not exists rh_chain_metrics_snapshots (snapshot_id text primary key, observed_at timestamptz not null, fetched_at timestamptz not null, payload jsonb not null); create index if not exists rh_chain_metrics_snapshots_fetched_at_idx on rh_chain_metrics_snapshots (fetched_at desc);');
   }
 }
 

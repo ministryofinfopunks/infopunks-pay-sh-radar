@@ -1,5 +1,6 @@
 import pg from 'pg';
 import type { RhChainLaunchContext, RhChainReviewItem, RhChainReviewState, RhChainRiskState, RhChainSignalLabel, RhChainSignalSubmissionInput } from '../data/rhChain';
+import { resolvePostgresPool, RetryablePostgresSchema, type PostgresPoolSource } from '../persistence/retryablePostgresSchema';
 import { isRhChainIdentityContract } from './rhChainTruthGuards';
 
 export type RhChainSubmissionStatus = RhChainReviewState;
@@ -118,9 +119,10 @@ export class PostgresRhChainSubmissionStore implements RhChainSubmissionStore {
   readonly adapter = 'postgres' as const;
   readonly durable = true;
   private readonly pool: pg.Pool;
-  private schemaReady: Promise<void> | null = null;
+  private readonly ownsPool: boolean;
+  private readonly schema = new RetryablePostgresSchema('rh_chain_submission_store');
 
-  constructor(connectionString: string) { this.pool = new pg.Pool({ connectionString }); }
+  constructor(source: PostgresPoolSource) { const resolved = resolvePostgresPool(source); this.pool = resolved.pool; this.ownsPool = resolved.ownsPool; }
 
   async save(submission: RhChainSignalSubmission) {
     await this.ensureSchema();
@@ -158,11 +160,10 @@ export class PostgresRhChainSubmissionStore implements RhChainSubmissionStore {
     return updated;
   }
 
-  async close() { await this.pool.end(); }
+  async close() { if (this.ownsPool) await this.pool.end(); }
 
   private async ensureSchema() {
-    if (!this.schemaReady) this.schemaReady = this.pool.query(`create table if not exists rh_chain_signal_submissions (submission_id text primary key, submitted_at timestamptz not null, updated_at timestamptz not null, payload jsonb not null); create index if not exists rh_chain_signal_submissions_submitted_at_idx on rh_chain_signal_submissions (submitted_at desc);`).then(() => undefined);
-    return this.schemaReady;
+    return this.schema.ensure(this.pool, `create table if not exists rh_chain_signal_submissions (submission_id text primary key, submitted_at timestamptz not null, updated_at timestamptz not null, payload jsonb not null); create index if not exists rh_chain_signal_submissions_submitted_at_idx on rh_chain_signal_submissions (submitted_at desc);`);
   }
 }
 

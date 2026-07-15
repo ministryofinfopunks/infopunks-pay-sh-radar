@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import pg from 'pg';
+import { resolvePostgresPool, RetryablePostgresSchema, type PostgresPoolSource } from '../persistence/retryablePostgresSchema';
 import { type RhChainSignalSubmission, type RhChainSubmissionStore } from './rhChainSignalVault';
 import type { RhChainLiveSnapshotService } from './rhChainLiveSnapshotService';
 import { assembleRhChainTokenDossier } from './rhChainTokenDossierService';
@@ -83,11 +84,13 @@ export class PostgresRhChainAutomationStore implements RhChainAutomationStore {
   readonly adapter = 'postgres' as const;
   readonly durable = true;
   private readonly pool: pg.Pool;
-  private schemaReady: Promise<void> | null = null;
-  constructor(connectionString: string) { this.pool = new pg.Pool({ connectionString }); }
+  private readonly ownsPool: boolean;
+  private readonly schema = new RetryablePostgresSchema('rh_chain_automation_store');
+  constructor(source: PostgresPoolSource) { const resolved = resolvePostgresPool(source); this.pool = resolved.pool; this.ownsPool = resolved.ownsPool; }
 
   async tryAcquireLock(jobName: RhChainAutomationJobName, instanceId: string, ttlMs: number) {
     await this.ensureSchema();
+    await this.pool.query("delete from rh_chain_automation_locks where locked_until < now() - interval '12 hours'");
     const result = await this.pool.query(
       `insert into rh_chain_automation_locks (job_name, locked_by, locked_until)
        values ($1, $2, now() + ($3 * interval '1 millisecond'))
@@ -110,6 +113,7 @@ export class PostgresRhChainAutomationStore implements RhChainAutomationStore {
        on conflict (job_id) do update set finished_at=excluded.finished_at, status=excluded.status, error_summary=excluded.error_summary, records_observed=excluded.records_observed, records_updated=excluded.records_updated, data_mode=excluded.data_mode, sources=excluded.sources`,
       [run.job_id, run.job_name, run.started_at, run.finished_at, run.status, run.error_summary, run.records_observed, run.records_updated, run.data_mode, JSON.stringify(run.sources)]
     );
+    await this.pool.query("delete from rh_chain_automation_runs where started_at < now() - interval '4 days'");
   }
   async listRuns() {
     await this.ensureSchema();
@@ -120,15 +124,14 @@ export class PostgresRhChainAutomationStore implements RhChainAutomationStore {
     await this.ensureSchema();
     await this.pool.query('insert into rh_chain_automation_drafts (draft_id, job_id, job_name, draft_type, created_at, data_mode, sources, payload) values ($1,$2,$3,$4,$5,$6,$7::jsonb,$8::jsonb)', [draft.draft_id, draft.job_id, draft.job_name, draft.draft_type, draft.created_at, draft.data_mode, JSON.stringify(draft.sources), JSON.stringify(draft.payload)]);
   }
-  async close() { await this.pool.end(); }
+  async close() { if (this.ownsPool) await this.pool.end(); }
   private ensureSchema() {
-    this.schemaReady ??= this.pool.query(`
+    return this.schema.ensure(this.pool, `
       create table if not exists rh_chain_automation_locks (job_name text primary key, locked_by text not null, locked_until timestamptz not null);
       create table if not exists rh_chain_automation_runs (job_id text primary key, job_name text not null, started_at timestamptz not null, finished_at timestamptz, status text not null check (status in ('success','failed','skipped','locked')), error_summary text, records_observed integer not null, records_updated integer not null, data_mode text not null, sources jsonb not null);
       create index if not exists rh_chain_automation_runs_started_at_idx on rh_chain_automation_runs (started_at desc);
       create table if not exists rh_chain_automation_drafts (draft_id text primary key, job_id text not null, job_name text not null, draft_type text not null, created_at timestamptz not null, data_mode text not null, sources jsonb not null, payload jsonb not null);
-    `).then(() => undefined);
-    return this.schemaReady;
+    `);
   }
 }
 

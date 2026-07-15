@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import pg from 'pg';
 import { createRhChainDailyReceipt, getRhChainDailyReceipts, sortRhChainDailyReceiptsByDate, type RhChainDailyReceipt, type RhChainDailyReceiptsPayload, type RhChainDailyReceiptSection, type RhChainDailyReceiptSource } from '../data/rhChain';
+import { resolvePostgresPool, RetryablePostgresSchema, type PostgresPoolSource } from '../persistence/retryablePostgresSchema';
 import { assembleRhChainCloneRadar } from './rhChainCloneRadarService';
 import type { RhChainChainPulseService } from './rhChainChainPulseService';
 import type { RhChainMemePulseSnapshotService } from './rhChainMemePulseSnapshotService';
@@ -53,15 +54,15 @@ export class InMemoryRhChainDailyReceiptDraftStore implements RhChainDailyReceip
 
 export class PostgresRhChainDailyReceiptDraftStore implements RhChainDailyReceiptDraftStore {
   readonly adapter = 'postgres' as const; readonly durable = true;
-  private readonly pool: pg.Pool; private schemaReady: Promise<void> | null = null;
-  constructor(connectionString: string) { this.pool = new pg.Pool({ connectionString }); }
-  async saveDraft(draft: RhChainDailyReceiptDraft) { await this.ready(); await this.pool.query('insert into rh_chain_daily_receipt_drafts (draft_id, generated_at, status, payload) values ($1,$2,$3,$4::jsonb) on conflict (draft_id) do update set status=excluded.status, payload=excluded.payload', [draft.draft_id, draft.generated_at, draft.status, JSON.stringify(draft)]); }
+  private readonly pool: pg.Pool; private readonly ownsPool: boolean; private readonly schema = new RetryablePostgresSchema('rh_chain_daily_receipt_store');
+  constructor(source: PostgresPoolSource) { const resolved = resolvePostgresPool(source); this.pool = resolved.pool; this.ownsPool = resolved.ownsPool; }
+  async saveDraft(draft: RhChainDailyReceiptDraft) { await this.ready(); await this.pool.query('insert into rh_chain_daily_receipt_drafts (draft_id, generated_at, status, payload) values ($1,$2,$3,$4::jsonb) on conflict (draft_id) do update set status=excluded.status, payload=excluded.payload', [draft.draft_id, draft.generated_at, draft.status, JSON.stringify(draft)]); await this.pool.query("delete from rh_chain_daily_receipt_drafts where status = 'rejected' and generated_at < now() - interval '10 days'"); }
   async getDraft(id: string) { await this.ready(); const result = await this.pool.query<{ payload: RhChainDailyReceiptDraft }>('select payload from rh_chain_daily_receipt_drafts where draft_id=$1', [id]); return result.rows[0]?.payload ?? null; }
   async listDrafts() { await this.ready(); const result = await this.pool.query<{ payload: RhChainDailyReceiptDraft }>('select payload from rh_chain_daily_receipt_drafts order by generated_at desc'); return result.rows.map((row) => row.payload); }
   async savePublished(receipt: RhChainDailyReceipt) { await this.ready(); await this.pool.query('insert into rh_chain_published_daily_receipts (receipt_id, generated_at, payload) values ($1,$2,$3::jsonb) on conflict (receipt_id) do update set payload=excluded.payload', [receipt.receipt_id, receipt.generated_at, JSON.stringify(receipt)]); }
   async publishedReceipts() { await this.ready(); const result = await this.pool.query<{ payload: RhChainDailyReceipt }>('select payload from rh_chain_published_daily_receipts order by generated_at desc'); return result.rows.map((row) => row.payload); }
-  async close() { await this.pool.end(); }
-  private ready() { this.schemaReady ??= this.pool.query('create table if not exists rh_chain_daily_receipt_drafts (draft_id text primary key, generated_at timestamptz not null, status text not null, payload jsonb not null); create table if not exists rh_chain_published_daily_receipts (receipt_id text primary key, generated_at timestamptz not null, payload jsonb not null);').then(() => undefined); return this.schemaReady; }
+  async close() { if (this.ownsPool) await this.pool.end(); }
+  private ready() { return this.schema.ensure(this.pool, 'create table if not exists rh_chain_daily_receipt_drafts (draft_id text primary key, generated_at timestamptz not null, status text not null, payload jsonb not null); create table if not exists rh_chain_published_daily_receipts (receipt_id text primary key, generated_at timestamptz not null, payload jsonb not null);'); }
 }
 
 export class RhChainDailyReceiptDraftService {

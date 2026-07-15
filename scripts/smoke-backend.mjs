@@ -9,7 +9,13 @@ const checks = [
   { path: '/v1/signal-hunt', expect: (json) => Array.isArray(json.data?.candidates) && typeof json.data?.counts?.total === 'number' },
   { path: '/v1/signal-hunt/hunt_black_bull_coordination', expect: (json) => json.data?.id === 'hunt_black_bull_coordination' },
   { path: '/v1/graph', expect: (json) => Array.isArray(json.data?.nodes) && Array.isArray(json.data?.edges) },
-  { path: '/v1/graph/ripples', expect: (json) => Array.isArray(json.data?.ripples) }
+  { path: '/v1/graph/ripples', expect: (json) => Array.isArray(json.data?.ripples) },
+  { path: '/v1/rh-chain', expect: (json) => json.data?.title === 'RH Chain Signal Desk' },
+  { path: '/v1/rh-chain/daily-receipts', expect: (json) => Array.isArray(json.data?.receipts) },
+  { path: '/v1/rh-chain/review-queue', expect: (json) => Array.isArray(json.data?.items) },
+  { path: '/v1/rh-chain/clone-radar', expect: (json) => typeof json.data?.title === 'string' },
+  { path: '/v1/rh-chain/scouts', expect: (json) => Array.isArray(json.data?.scouts) },
+  { path: '/v1/rh-chain/distribution-pack', expect: (json) => typeof json.data?.title === 'string' }
 ];
 
 function formatResult({ method, path, status, elapsedMs, reason }) {

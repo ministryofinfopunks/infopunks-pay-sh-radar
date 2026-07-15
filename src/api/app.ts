@@ -1,5 +1,6 @@
 import cors from '@fastify/cors';
 import Fastify, { FastifyReply, FastifyRequest } from 'fastify';
+import pg from 'pg';
 import { createReadStream, existsSync } from 'node:fs';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve } from 'node:path';
@@ -40,6 +41,7 @@ import { renderOgPng } from '../server/narrativeOgPng';
 import { applyPayShCatalogIngestion } from '../ingestion/payShCatalogAdapter';
 import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, IntelligenceStore, runPayShIngestion, runPayShIngestionWithOptions } from '../services/intelligenceStore';
 import { IntelligenceRepository } from '../persistence/repository';
+import { classifyPostgresFailure, postgresErrorCode, RhChainPostgresReadiness, safeOperationalErrorMessage, type RhChainStorageDiagnostics } from '../persistence/retryablePostgresSchema';
 import { recommendRoute } from '../services/routeService';
 import { semanticSearch } from '../services/searchService';
 import {
@@ -595,8 +597,33 @@ export async function createApp(
 ) {
   const config = loadRuntimeConfig();
   const app = Fastify({ logger: false });
+  const rhChainPostgresPool = config.databaseUrl
+    ? new pg.Pool({ connectionString: config.databaseUrl, max: config.databasePoolMax })
+    : null;
+  const rhChainPostgresReadiness = rhChainPostgresPool ? new RhChainPostgresReadiness() : null;
+  const rhChainExpectedTables = [
+    'rh_chain_signal_submissions',
+    'rh_chain_metrics_snapshots',
+    'rh_chain_daily_receipt_drafts',
+    'rh_chain_published_daily_receipts',
+    'rh_chain_risk_correlation_snapshots'
+  ] as const;
+  rhChainPostgresPool?.on('error', (error) => {
+    console.log(JSON.stringify({
+      event: 'rh_chain_storage_pool_error',
+      service: 'rh_chain_storage',
+      operation: 'idle_pool_client',
+      failure_kind: classifyPostgresFailure(error),
+      error_code: postgresErrorCode(error),
+      error: safeOperationalErrorMessage(error),
+      stack: safeOperationalStack(error)
+    }));
+  });
+  if (rhChainPostgresPool && rhChainPostgresReadiness) {
+    void rhChainPostgresReadiness.check(rhChainPostgresPool, rhChainExpectedTables);
+  }
   const rhChainSubmissionStore: RhChainSubmissionStore = options.rhChainSubmissionStore
-    ?? (config.databaseUrl ? new PostgresRhChainSubmissionStore(config.databaseUrl)
+    ?? (rhChainPostgresPool ? new PostgresRhChainSubmissionStore(rhChainPostgresPool)
       : config.isProduction ? new UnconfiguredRhChainSubmissionStore()
         : new InMemoryRhChainSubmissionStore());
   const rhChainLiveSnapshots = new RhChainLiveSnapshotService({
@@ -605,25 +632,26 @@ export async function createApp(
     ttlSeconds: config.rhChainCacheTtlSeconds,
     blockscoutUrl: config.rhChainBlockscoutUrl,
     databaseUrl: config.databaseUrl,
+    databasePool: rhChainPostgresPool,
     ...options.rhChainLiveSnapshotOptions
   });
   const rhChainMetricsSnapshotStore: RhChainMetricsSnapshotStore = options.rhChainMetricsSnapshotStore
-    ?? (config.databaseUrl ? new PostgresRhChainMetricsSnapshotStore(config.databaseUrl) : new InMemoryRhChainMetricsSnapshotStore());
+    ?? (rhChainPostgresPool ? new PostgresRhChainMetricsSnapshotStore(rhChainPostgresPool) : new InMemoryRhChainMetricsSnapshotStore());
   const rhChainChainPulse = new RhChainChainPulseService(rhChainMetricsSnapshotStore);
   const rhChainMemePulseSnapshotStore: RhChainMemePulseSnapshotStore = options.rhChainMemePulseSnapshotStore
-    ?? (config.databaseUrl ? new PostgresRhChainMemePulseSnapshotStore(config.databaseUrl) : new InMemoryRhChainMemePulseSnapshotStore());
+    ?? (rhChainPostgresPool ? new PostgresRhChainMemePulseSnapshotStore(rhChainPostgresPool) : new InMemoryRhChainMemePulseSnapshotStore());
   const rhChainMemePulse = new RhChainMemePulseSnapshotService(rhChainMemePulseSnapshotStore, rhChainLiveSnapshots, undefined, rhChainSubmissionStore);
   const rhChainLaunchpadSnapshotStore: RhChainLaunchpadSnapshotStore = options.rhChainLaunchpadSnapshotStore
-    ?? (config.databaseUrl ? new PostgresRhChainLaunchpadSnapshotStore(config.databaseUrl) : new InMemoryRhChainLaunchpadSnapshotStore());
+    ?? (rhChainPostgresPool ? new PostgresRhChainLaunchpadSnapshotStore(rhChainPostgresPool) : new InMemoryRhChainLaunchpadSnapshotStore());
   const rhChainLaunchpad = new RhChainLaunchpadSnapshotService(rhChainLaunchpadSnapshotStore, rhChainSubmissionStore);
   const rhChainDailyReceiptDraftStore: RhChainDailyReceiptDraftStore = options.rhChainDailyReceiptDraftStore
-    ?? (config.databaseUrl ? new PostgresRhChainDailyReceiptDraftStore(config.databaseUrl) : new InMemoryRhChainDailyReceiptDraftStore());
+    ?? (rhChainPostgresPool ? new PostgresRhChainDailyReceiptDraftStore(rhChainPostgresPool) : new InMemoryRhChainDailyReceiptDraftStore());
   const rhChainDailyReceiptDrafts = new RhChainDailyReceiptDraftService(rhChainDailyReceiptDraftStore, rhChainChainPulse, rhChainMemePulse, rhChainLaunchpad, rhChainLiveSnapshots, rhChainSubmissionStore);
   const rhChainRiskCorrelationSnapshotStore: RhChainRiskCorrelationSnapshotStore = options.rhChainRiskCorrelationSnapshotStore
-    ?? (config.databaseUrl ? new PostgresRhChainRiskCorrelationSnapshotStore(config.databaseUrl) : new InMemoryRhChainRiskCorrelationSnapshotStore());
+    ?? (rhChainPostgresPool ? new PostgresRhChainRiskCorrelationSnapshotStore(rhChainPostgresPool) : new InMemoryRhChainRiskCorrelationSnapshotStore());
   const rhChainRiskCorrelationSweep = new RhChainRiskCorrelationSweepService(rhChainRiskCorrelationSnapshotStore, rhChainSubmissionStore);
   const rhChainAutomationStore: RhChainAutomationStore = options.rhChainAutomationStore
-    ?? (config.databaseUrl ? new PostgresRhChainAutomationStore(config.databaseUrl) : new InMemoryRhChainAutomationStore());
+    ?? (rhChainPostgresPool ? new PostgresRhChainAutomationStore(rhChainPostgresPool) : new InMemoryRhChainAutomationStore());
   const rhChainAutomation = new RhChainAutomationService({
     enabled: config.rhChainAutomationEnabled,
     isProduction: config.isProduction,
@@ -690,6 +718,7 @@ export async function createApp(
     await rhChainLaunchpadSnapshotStore.close?.();
     await rhChainDailyReceiptDraftStore.close?.();
     await rhChainRiskCorrelationSnapshotStore.close?.();
+    await rhChainPostgresPool?.end();
   });
   const allowedOrigins = new Set(DEFAULT_ALLOWED_ORIGINS);
   if (config.frontendOrigin) allowedOrigins.add(config.frontendOrigin);
@@ -704,26 +733,54 @@ export async function createApp(
   });
   app.addHook('onRequest', async (req, _reply) => {
     const startedAtMs = Date.now();
-    console.log(JSON.stringify({ event: 'hook_enter', hook: 'onRequest', id: req.id, method: req.method, url: req.url }));
-    console.log(JSON.stringify({ event: 'request_start', id: req.id, method: req.method, url: req.url, started_at: new Date(startedAtMs).toISOString() }));
+    const route = safeRequestPath(req.url);
+    console.log(JSON.stringify({ event: 'hook_enter', hook: 'onRequest', id: req.id, method: req.method, route }));
+    console.log(JSON.stringify({ event: 'request_start', id: req.id, method: req.method, route, started_at: new Date(startedAtMs).toISOString() }));
     console.log(JSON.stringify({ event: 'hook_exit', hook: 'onRequest', id: req.id }));
   });
   app.addHook('onError', async (req, reply, error) => {
-    console.log(JSON.stringify({ event: 'hook_enter', hook: 'onError', id: req.id, method: req.method, url: req.url }));
-    console.log(JSON.stringify({ event: 'request_errored', id: req.id, method: req.method, url: req.url, status_code: reply.statusCode, error: error.message }));
+    const route = req.routeOptions.url || safeRequestPath(req.url);
+    const context = rhChainOperationContext(route);
+    console.log(JSON.stringify({ event: 'hook_enter', hook: 'onError', id: req.id, method: req.method, route }));
+    console.log(JSON.stringify({
+      event: 'request_errored',
+      id: req.id,
+      method: req.method,
+      route,
+      status_code: error.statusCode && error.statusCode >= 400 ? error.statusCode : Math.max(500, reply.statusCode),
+      ...context,
+      failure_kind: classifyPostgresFailure(error),
+      error_name: error.name,
+      error_code: postgresErrorCode(error),
+      error: safeOperationalErrorMessage(error),
+      stack: safeOperationalStack(error)
+    }));
     console.log(JSON.stringify({ event: 'hook_exit', hook: 'onError', id: req.id }));
   });
   app.addHook('onResponse', async (req, reply) => {
-    console.log(JSON.stringify({ event: 'hook_enter', hook: 'onResponse', id: req.id, method: req.method, url: req.url }));
-    console.log(JSON.stringify({ event: 'request_complete', id: req.id, method: req.method, url: req.url, status_code: reply.statusCode }));
+    const route = req.routeOptions.url || safeRequestPath(req.url);
+    console.log(JSON.stringify({ event: 'hook_enter', hook: 'onResponse', id: req.id, method: req.method, route }));
+    console.log(JSON.stringify({ event: 'request_complete', id: req.id, method: req.method, route, status_code: reply.statusCode }));
     console.log(JSON.stringify({ event: 'hook_exit', hook: 'onResponse', id: req.id }));
+  });
+  app.setErrorHandler((error, _req, reply) => {
+    const reportedStatus = error && typeof error === 'object' && 'statusCode' in error
+      ? (error as { statusCode?: unknown }).statusCode
+      : null;
+    const statusCode = typeof reportedStatus === 'number' && reportedStatus >= 400 ? reportedStatus : 500;
+    if (statusCode < 500) return reply.code(statusCode).send(error);
+    return reply.code(statusCode).send({
+      statusCode,
+      error: 'Internal Server Error',
+      message: 'Internal Server Error'
+    });
   });
   const store = preloadedStore ?? emptyIntelligenceStore();
   const repositoryDbStatus = (): 'ok' | 'degraded' | 'unavailable' | null => {
     try {
-      const getDbStatus = (repository as IntelligenceRepository & { getDbStatus?: () => 'ok' | 'degraded' | 'unavailable' }).getDbStatus;
-      if (typeof getDbStatus !== 'function') return null;
-      const status = getDbStatus?.();
+      const diagnosticRepository = repository as IntelligenceRepository & { getDbStatus?: () => 'ok' | 'degraded' | 'unavailable' };
+      if (typeof diagnosticRepository.getDbStatus !== 'function') return null;
+      const status = diagnosticRepository.getDbStatus();
       return status === 'ok' || status === 'degraded' || status === 'unavailable' ? status : null;
     } catch {
       return null;
@@ -792,6 +849,9 @@ export async function createApp(
   }
 
   app.get('/health', async () => {
+    if (rhChainPostgresPool && rhChainPostgresReadiness) {
+      void rhChainPostgresReadiness.check(rhChainPostgresPool, rhChainExpectedTables);
+    }
     const adapterDiagnostics: { receipt_count?: number; warning?: string | null } = machineReceiptAdapter.getDiagnostics
       ? await machineReceiptAdapter.getDiagnostics().catch((error) => ({
           receipt_count: undefined,
@@ -808,6 +868,14 @@ export async function createApp(
       lastIngestedAt: store.dataSource?.last_ingested_at ?? null,
       providerCount: store.providers.length,
       endpointCount: safeStoreEndpointCount(store),
+      rh_chain_storage: rhChainPostgresReadiness?.diagnostics() ?? ({
+        adapter: 'unconfigured',
+        durable: false,
+        readiness: 'not_configured',
+        failure_kind: null,
+        error_code: null,
+        missing_tables: []
+      } satisfies RhChainStorageDiagnostics),
       machine_receipts_storage: {
         adapter: machineReceiptStorage.adapter,
         mode: machineReceiptStorage.mode,
@@ -3117,6 +3185,28 @@ function normalizeRhChainDuplicateField(value: string) {
 function publicRhChainSubmission(submission: import('../services/rhChainSignalVault').RhChainSignalSubmission) {
   const { scout_contact: _scoutContact, audit_events, ...safeSubmission } = submission;
   return { ...safeSubmission, audit_events: audit_events.map(({ reviewer_id: _reviewerId, ...event }) => event) };
+}
+
+function safeRequestPath(url: string) {
+  return url.split('?', 1)[0] || '/';
+}
+
+function rhChainOperationContext(route: string) {
+  if (!route.startsWith('/v1/rh-chain') && !route.startsWith('/internal/rh-chain')) {
+    return { service: 'radar_api', operation: 'request' };
+  }
+  if (route === '/v1/rh-chain') return { service: 'rh_chain_signal_desk', operation: 'read_signal_desk' };
+  if (route.includes('/daily-receipts')) return { service: 'rh_chain_daily_receipts', operation: 'read_daily_receipts' };
+  if (route.endsWith('/review-queue')) return { service: 'rh_chain_review_queue', operation: 'read_review_queue' };
+  if (route.endsWith('/clone-radar')) return { service: 'rh_chain_clone_radar', operation: 'read_clone_radar' };
+  if (route.endsWith('/scouts')) return { service: 'rh_chain_scouts', operation: 'read_scouts' };
+  if (route.endsWith('/distribution-pack')) return { service: 'rh_chain_distribution_pack', operation: 'read_distribution_pack' };
+  if (route.includes('/jobs')) return { service: 'rh_chain_automation', operation: 'automation_job' };
+  return { service: 'rh_chain', operation: 'request' };
+}
+
+function safeOperationalStack(error: Error) {
+  return safeOperationalErrorMessage(error.stack ?? error.message, 1_200);
 }
 
 function errorCode(error: unknown): string | null {

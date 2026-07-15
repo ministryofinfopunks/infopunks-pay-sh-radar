@@ -9,6 +9,7 @@ describe('runtime environment config', () => {
     expect(config.monitorEnabled).toBe(false);
     expect(config.monitorMode).toBe('disabled');
     expect(config.databaseUrl).toBeNull();
+    expect(config.databasePoolMax).toBe(10);
     expect(config.featuredProviderRotationMs).toBe(600000);
     expect(config.machineDemoSeed).toBe(true);
     expect(config.rhChainAutomationEnabled).toBe(false);
@@ -29,6 +30,7 @@ describe('runtime environment config', () => {
     expect(loadRuntimeConfig({ NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'secret' }).rhChainLiveSnapshotsEnabled).toBe(false);
     expect(loadRuntimeConfig({ NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'secret', RH_CHAIN_LIVE_SNAPSHOTS_ENABLED: 'true', RH_CHAIN_PROVIDER_TIMEOUT_MS: '1200' }).rhChainLiveSnapshotsEnabled).toBe(true);
     expect(() => loadRuntimeConfig({ NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'secret', RH_CHAIN_AUTOMATION_ENABLED: 'true' })).toThrow('DATABASE_URL');
+    expect(() => loadRuntimeConfig({ NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'secret', RH_CHAIN_REVIEW_CONSOLE_ENABLED: 'true' })).toThrow('RH_CHAIN_REVIEW_ADMIN_TOKEN');
   });
 
   it('allows explicit machine demo seed toggle', () => {
@@ -51,6 +53,8 @@ describe('runtime environment config', () => {
     expect(() => loadRuntimeConfig({ MONITOR_MAX_PROVIDERS: '0' })).toThrow('MONITOR_MAX_PROVIDERS');
     expect(() => loadRuntimeConfig({ PAY_SH_INGEST_INTERVAL_MS: '0' })).toThrow('PAY_SH_INGEST_INTERVAL_MS');
     expect(() => loadRuntimeConfig({ FEATURED_PROVIDER_ROTATION_MS: '0' })).toThrow('FEATURED_PROVIDER_ROTATION_MS');
+    expect(() => loadRuntimeConfig({ DATABASE_POOL_MAX: '0' })).toThrow('DATABASE_POOL_MAX');
+    expect(loadRuntimeConfig({ DATABASE_POOL_MAX: '4' }).databasePoolMax).toBe(4);
     expect(() => loadRuntimeConfig({ FRONTEND_ORIGIN: 'not-a-url' })).toThrow('FRONTEND_ORIGIN');
     expect(() => loadRuntimeConfig({ RH_CHAIN_RECEIPT_DRAFT_CRON: 'every hour' })).toThrow('RH_CHAIN_RECEIPT_DRAFT_CRON');
   });

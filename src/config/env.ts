@@ -6,6 +6,7 @@ export type RuntimeConfig = {
   isProduction: boolean;
   port: number;
   databaseUrl: string | null;
+  databasePoolMax: number;
   adminToken: string | null;
   payShCatalogUrl: string | null;
   payShCatalogSource: 'live' | 'fixture';
@@ -49,6 +50,7 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
     isProduction,
     port,
     databaseUrl: optionalString(env.DATABASE_URL),
+    databasePoolMax: readPositiveInteger('DATABASE_POOL_MAX', env.DATABASE_POOL_MAX, 10),
     adminToken: optionalString(env.INFOPUNKS_ADMIN_TOKEN),
     payShCatalogUrl: readOptionalUrl('PAY_SH_CATALOG_URL', env.PAY_SH_CATALOG_URL),
     payShCatalogSource: readCatalogSource(env.PAYSH_CATALOG_SOURCE),
@@ -89,6 +91,9 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
   if (isProduction && config.rhChainAutomationEnabled && !config.databaseUrl) {
     throw new Error('DATABASE_URL is required for RH Chain automation when NODE_ENV=production');
   }
+  if (isProduction && config.rhChainReviewConsoleEnabled && !config.rhChainReviewAdminToken) {
+    throw new Error('RH_CHAIN_REVIEW_ADMIN_TOKEN is required when RH_CHAIN_REVIEW_CONSOLE_ENABLED=true in production');
+  }
 
   return config;
 }
@@ -107,6 +112,7 @@ export function deploymentSummary(config: RuntimeConfig) {
     rhChainAutomationEnabled: config.rhChainAutomationEnabled,
     ingestionEnabled: config.ingestionEnabled,
     dbMode: config.databaseUrl ? 'postgres' : 'memory',
+    databasePoolMax: config.databasePoolMax,
     catalogSource: config.payShCatalogSource,
     corsOrigin: config.frontendOrigin ?? 'development-open'
   };

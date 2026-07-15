@@ -793,6 +793,13 @@ Core tables include:
 - `monitor_runs`
 - `intelligence_snapshots`
 
+RH Chain durable tables are created idempotently by their owning storage
+adapters. They include `rh_chain_signal_submissions`, the metrics, meme,
+launchpad and risk snapshot tables, the receipt draft and published receipt
+tables, the snapshot cache, and the automation lock/run/draft tables. A failed
+initial schema check is retried by the next request; it is never downgraded to
+memory when `DATABASE_URL` is configured.
+
 Without `DATABASE_URL`, Radar uses an in-memory repository for fast local development and testing.
 
 ---
@@ -841,7 +848,12 @@ NODE_ENV=production PORT=8787 npm start
 | Variable | Purpose |
 |---|---|
 | `DATABASE_URL` | Enables Postgres persistence |
+| `DATABASE_POOL_MAX` | Maximum connections in the shared RH Chain Postgres pool (default `10`) |
 | `INFOPUNKS_ADMIN_TOKEN` | Required for admin ingestion and monitoring routes |
+| `RH_CHAIN_AUTOMATION_ENABLED` | Enables RH Chain draft/snapshot automation; production requires `DATABASE_URL` |
+| `RH_CHAIN_AUTOMATION_INSTANCE_ID` | Safe instance label recorded with durable automation locks |
+| `RH_CHAIN_REVIEW_CONSOLE_ENABLED` | Enables protected internal RH review routes |
+| `RH_CHAIN_REVIEW_ADMIN_TOKEN` | Dedicated bearer credential required when the production review console is enabled |
 | `PAY_SH_CATALOG_URL` | Live Pay.sh catalog source |
 | `PAY_SH_INGEST_INTERVAL_MS` | Enables scheduled ingestion |
 | `MONITOR_ENABLED` | Enables scheduled monitoring |
@@ -910,7 +922,16 @@ Render automatically provides:
 PORT
 ```
 
-Set `DATABASE_URL` to enable Postgres persistence.
+Set `DATABASE_URL` to enable Postgres persistence. It is mandatory when
+`RH_CHAIN_AUTOMATION_ENABLED=true`; Render must inject it at runtime from the
+attached Postgres service. `DATABASE_POOL_MAX` is runtime-only and may be set
+to the connection budget assigned to this web service. Do not expose either
+value through `VITE_` variables or build arguments.
+
+Before enabling RH Chain automation on Render, confirm the runtime database
+role can connect and can idempotently create tables and indexes in its target
+schema. No destructive migration is required for the RH recovery change: the
+existing `create table/index if not exists` statements preserve all records.
 
 The checked-in [render.yaml](/Users/ahdilm/Documents/Infopunks%20Pay.sh%20Intelligence%20Terminal/render.yaml:1) codifies the expected Render Web Service configuration.
 

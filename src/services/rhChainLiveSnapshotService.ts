@@ -1,4 +1,5 @@
 import type { RhChainLaunchContext } from '../data/rhChain';
+import type pg from 'pg';
 import { isRhChainIdentityContract } from './rhChainTruthGuards';
 import { createRhChainSnapshotCache, type RhChainSnapshotCache } from './rhChainSnapshotCache';
 export type RhChainSnapshotStatus = 'fresh' | 'stale' | 'unavailable' | 'disabled';
@@ -20,7 +21,7 @@ export type RhChainLiveProviderClient = {
   tokenPair(contract: string): Promise<Omit<RhChainTokenPairSnapshot, 'contract' | 'freshness' | 'exact_contract_match' | 'chain_match_status'> & { observed_contract?: string | null; observed_chain_id?: string | null }>;
   explorer(contract: string): Promise<Omit<RhChainExplorerSnapshot, 'freshness' | 'exact_contract_match' | 'availability' | 'contract_exists' | 'contract_type'> & Partial<Pick<RhChainExplorerSnapshot, 'contract_exists' | 'contract_type'>> & { observed_contract?: string | null }>;
 };
-export type RhChainLiveSnapshotOptions = { enabled: boolean; timeoutMs: number; ttlSeconds?: number | null; blockscoutUrl?: string | null; databaseUrl?: string | null; cache?: RhChainSnapshotCache; now?: () => Date; providers?: Partial<RhChainLiveProviderClient> };
+export type RhChainLiveSnapshotOptions = { enabled: boolean; timeoutMs: number; ttlSeconds?: number | null; blockscoutUrl?: string | null; databaseUrl?: string | null; databasePool?: pg.Pool | null; cache?: RhChainSnapshotCache; now?: () => Date; providers?: Partial<RhChainLiveProviderClient> };
 
 const DISCLAIMER = 'Live Snapshot data is external, cached, and informational. It is not an endorsement, listing, partnership, trading signal, or financial recommendation.';
 const JUDGMENT_POLICY = 'External data gives context. Infopunks gives judgment. Receipts create memory. Live data never overrides human-reviewed receipts, manual verdicts, review states, or index decisions.';
@@ -48,7 +49,7 @@ export class RhChainLiveSnapshotService {
   private readonly clients: RhChainLiveProviderClient;
   constructor(private readonly options: RhChainLiveSnapshotOptions) {
     this.now = options.now ?? (() => new Date());
-    this.cache = options.cache ?? createRhChainSnapshotCache(options.databaseUrl);
+    this.cache = options.cache ?? createRhChainSnapshotCache(options.databaseUrl, options.databasePool);
     this.clients = { ...createPublicClients(options), ...options.providers };
   }
 
