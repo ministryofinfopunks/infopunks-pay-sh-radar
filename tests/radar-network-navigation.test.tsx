@@ -47,6 +47,7 @@ describe('Radar network architecture', () => {
     expect(radarNetworkForPath('/rh-chain-signal-desk/meme-pulse')).toBe('robinhood-chain');
     expect(radarNetworkForPath('/narratives/robinhood-chain')).toBe('robinhood-chain');
     expect(radarNetworkForPath('/internal/rh-chain/review-console')).toBe('robinhood-chain');
+    expect(radarNetworkForPath('/not-a-radar-route')).toBe('universal');
   });
 
   it('renders the homepage as Infopunks Radar across all networks', () => {

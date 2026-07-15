@@ -184,14 +184,14 @@ describe('radar boot loading behavior', () => {
       root = createRoot(container);
       root.render(<App />);
     });
-    expect(container.textContent).toContain('INFOPUNKS//PAY.SH COGNITIVE LAYER BOOTING...');
+    expect(container.textContent).toContain('INFOPUNKS RADAR // INTELLIGENCE SYSTEM BOOTING...');
 
     await act(async () => {
       vi.advanceTimersByTime(10_100);
       await Promise.resolve();
     });
 
-    expect(container.textContent).not.toContain('INFOPUNKS//PAY.SH COGNITIVE LAYER BOOTING...');
+    expect(container.textContent).not.toContain('INFOPUNKS RADAR // INTELLIGENCE SYSTEM BOOTING...');
     expect(container.textContent).toContain('Radar degraded: unable to load live pulse');
     expect(container.textContent).toContain('Retry');
     expect(fetchState.calls).not.toContain('/v1/search');

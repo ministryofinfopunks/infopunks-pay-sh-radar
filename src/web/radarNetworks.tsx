@@ -1,7 +1,7 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
+import { radarNetworkForPath, type RadarNavigationContext, type RadarNetworkId } from './bootContext';
 
-export type RadarNetworkId = 'solana' | 'robinhood-chain';
-export type RadarNavigationContext = 'universal' | RadarNetworkId;
+export { radarNetworkForPath, type RadarNavigationContext, type RadarNetworkId } from './bootContext';
 
 export type RadarNetwork = {
   id: RadarNetworkId;
@@ -241,14 +241,6 @@ export const RADAR_NAVIGATION: Record<RadarNavigationContext, NetworkNavigation>
     ]
   }
 };
-
-export function radarNetworkForPath(pathname: string): RadarNavigationContext {
-  if (pathname === '/') return 'universal';
-  return /^\/(?:rh-chain-signal-desk|narratives\/robinhood-chain)(?:\/|$)/.test(pathname)
-    || /^\/internal\/rh-chain(?:\/|$)/.test(pathname)
-    ? 'robinhood-chain'
-    : 'solana';
-}
 
 function menuItems(menu: HTMLElement | null) {
   const compactNavigation = typeof window !== 'undefined' && typeof window.matchMedia === 'function'

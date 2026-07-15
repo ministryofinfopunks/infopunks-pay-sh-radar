@@ -45,6 +45,7 @@ import { RhChainSignalDeskPage } from './rhChainSignalDeskPages';
 import { HermesDeskPage } from './hermesDeskPages';
 import { formatAbsoluteUtc } from '../shared/timestamps';
 import { RADAR_NETWORK_LIST, RADAR_NETWORKS, RadarContextHeader, RadarHeaderIdentity, RadarProductNavigation } from './radarNetworks';
+import { BOOT_INITIALIZATION_DELAYED_LABEL, currentBootLoadingLabel } from './bootContext';
 import './styles.css';
 
 const LazyRhChainMemePulsePage = lazy(() => import('./rhChainMemePulsePage').then((module) => ({ default: module.RhChainMemePulsePage })));
@@ -1848,9 +1849,9 @@ class AppErrorBoundary extends React.Component<{ children: React.ReactNode }, Er
   retry = () => this.setState({ hasError: false });
   render() {
     if (this.state.hasError) {
-      return <main className="boot" aria-label="Radar fallback shell">
+      return <main className="boot" role="alert" aria-label="Infopunks Radar initialization delayed">
         <section className="panel">
-          <h1>Radar UI degraded: rendering fallback shell</h1>
+          <h1>{BOOT_INITIALIZATION_DELAYED_LABEL}</h1>
           <button className="execute compact secondary" type="button" onClick={this.retry}>Retry</button>
         </section>
       </main>;
@@ -9768,8 +9769,8 @@ function RadarApp() {
     if (editing) holdAutoRotation(DOSSIER_INTERACTION_HOLD_MS);
   }
 
-  if (isBootLoading) return <main className="boot" aria-label="Infopunks Pay.sh Radar loading state">INFOPUNKS//PAY.SH COGNITIVE LAYER BOOTING...</main>;
-  if (!data) return <main className="boot" aria-label="Infopunks Pay.sh Radar loading state">BOOT FAILED</main>;
+  if (isBootLoading) return <main className="boot" role="status" aria-live="polite" aria-atomic="true" aria-label="Infopunks Radar loading state">{currentBootLoadingLabel()}</main>;
+  if (!data) return <main className="boot" role="alert" aria-label="Infopunks Radar initialization delayed">{BOOT_INITIALIZATION_DELAYED_LABEL}</main>;
 
   const providerContextLabel = selectedProvider ? `${selectedProvider.name} / ${selectedProvider.category}`.toUpperCase() : 'PROVIDER / UNKNOWN';
   const ecosystemStatus = getEcosystemStatus(data.pulse, pulseSummary);
@@ -14492,5 +14493,5 @@ function readSummaryField(summary: Record<string, unknown> | null, keys: string[
   return null;
 }
 
-const rootElement = document.getElementById('root');
+const rootElement = typeof document === 'undefined' ? null : document.getElementById('root');
 if (rootElement) createRoot(rootElement).render(<AppErrorBoundary><App /></AppErrorBoundary>);

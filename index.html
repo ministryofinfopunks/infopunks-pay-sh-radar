@@ -33,6 +33,14 @@
       content="Infopunks Radar unifies Solana pre-spend intelligence with Robinhood Chain token, meme, liquidity and ecosystem signal intelligence in one evidence system."
     />
     <meta name="twitter:image" content="https://radar.infopunks.fun/og-radar.png" />
+    <style>
+      html { background: #020403; }
+      body { margin: 0; min-width: 320px; background: radial-gradient(circle at 20% 0%, rgba(126, 255, 176, .13), transparent 28%), radial-gradient(circle at 80% 20%, rgba(124, 199, 255, .12), transparent 30%), linear-gradient(135deg, #020403, #07120c 45%, #020403); color: #cbffdd; font-family: 'IBM Plex Mono', ui-monospace, monospace; }
+      body::before { position: fixed; inset: 0; z-index: -1; pointer-events: none; content: ''; background-image: linear-gradient(rgba(126,255,176,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(126,255,176,.035) 1px, transparent 1px); background-size: 34px 34px; mask-image: linear-gradient(to bottom, black, transparent 85%); }
+      .radar-initial-boot { display: grid; min-height: 100vh; place-items: center; padding: 24px; color: #7effb0; font-size: clamp(12px, 2.5vw, 16px); font-weight: 700; letter-spacing: .08em; line-height: 1.5; text-align: center; text-transform: uppercase; visibility: hidden; }
+      .radar-initial-boot[data-ready='true'] { visibility: visible; }
+      @media (prefers-reduced-motion: reduce) { .radar-initial-boot { scroll-behavior: auto; } }
+    </style>
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -57,7 +65,7 @@
     </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"><main class="radar-initial-boot" data-radar-initial-boot role="status" aria-live="polite" aria-atomic="true" aria-busy="true"><span data-radar-boot-label></span></main></div>
     <noscript>
       <main>
         <h1>Infopunks Radar</h1>
@@ -93,6 +101,7 @@
         </ul>
       </main>
     </noscript>
+    <!-- radar-boot-context -->
     <script type="module" src="/src/web/main.tsx"></script>
   </body>
 </html>
