@@ -155,6 +155,56 @@
   font-size: 1.35rem;
 }
 
+.rh-chain-metric-heading,
+.rh-chain-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.rh-chain-scope-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 0.45rem;
+  border: 1px solid rgba(126, 255, 176, 0.18);
+  border-radius: 999px;
+  color: var(--muted);
+  background: rgba(126, 255, 176, 0.04);
+  font: 700 0.58rem/1 "IBM Plex Mono", monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.rh-chain-scope-badge.scope-rh_chain { color: var(--green); }
+.rh-chain-scope-badge.scope-global_context,
+.rh-chain-scope-badge.scope-unknown,
+.rh-chain-scope-badge.scope-source_required { color: var(--amber); border-color: rgba(246, 208, 111, 0.2); background: rgba(246, 208, 111, 0.045); }
+
+.rh-chain-provenance-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 0.7rem;
+  border-top: 1px solid rgba(126, 255, 176, 0.1);
+  color: rgba(135, 163, 147, 0.78);
+  font: 500 0.62rem/1.45 "IBM Plex Mono", monospace;
+}
+
+.rh-chain-provenance-footer i { color: rgba(135, 163, 147, 0.36); font-style: normal; }
+.rh-chain-provenance-footer a { color: inherit; text-underline-offset: 3px; }
+.rh-chain-protocol-panel.is-scope-softened .rh-chain-list { opacity: 0.7; }
+.rh-chain-protocol-panel .rh-chain-list-item.is-scope-softened { opacity: 0.7; }
+.rh-chain-scope-note { margin: 0.5rem 0 0; max-width: 58ch; color: var(--amber); font-size: 0.78rem; }
+.rh-chain-protocol-value { color: var(--amber); font: 700 0.72rem/1.35 "IBM Plex Mono", monospace; }
+.rh-chain-source-details { padding-top: 0.25rem; color: var(--muted); font-size: 0.74rem; }
+.rh-chain-source-details summary { width: fit-content; cursor: pointer; color: rgba(232, 255, 240, 0.72); font: 700 0.65rem/1.4 "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: 0.05em; }
+.rh-chain-source-details p { margin: 0.55rem 0 0; max-width: 90ch; line-height: 1.55; }
+
 .rh-chain-list {
   display: grid;
   gap: 0.7rem;

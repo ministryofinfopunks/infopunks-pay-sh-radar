@@ -14,6 +14,8 @@ export type RhChainDataFreshness = 'seeded' | 'manual' | 'community_submission' 
 
 export type RhChainConfidenceLevel = 'low' | 'medium' | 'high';
 
+export type RhChainMetricScope = 'rh_chain' | 'global_context' | 'unknown' | 'source_required';
+
 export type RhChainSource = {
   source_name: string;
   source_url?: string | null;
@@ -33,6 +35,7 @@ export type RhChainPulseMetric = {
   value: string;
   state: 'live_required' | 'watching' | 'source_pending' | 'seeded';
   note: string;
+  metric_scope: RhChainMetricScope;
   source: RhChainSource;
 };
 
@@ -41,6 +44,10 @@ export type RhChainMetric = RhChainPulseMetric;
 export type RhChainProtocolWatch = {
   name: string;
   category: string;
+  value: string;
+  scope: 'rh_chain' | 'global_or_unknown';
+  metric_scope: RhChainMetricScope;
+  display_note: string;
   status: string;
   note: string;
   source: RhChainSource;
@@ -1704,6 +1711,7 @@ export const rhChainPayload: RhChainPayload = {
         label: 'TVL',
         value: 'source pending',
         state: 'live_required',
+        metric_scope: 'source_required',
         note: 'Desk slot reserved for chain-level TVL once an auditable explorer or DefiLlama-style source is attached.',
         source: sourcePending
       },
@@ -1712,6 +1720,7 @@ export const rhChainPayload: RhChainPayload = {
         label: 'DEX volume',
         value: 'source pending',
         state: 'live_required',
+        metric_scope: 'source_required',
         note: 'Requires pool-level receipts. Thin launch volume can be wash-heavy until routed through durable venues.',
         source: sourcePending
       },
@@ -1720,6 +1729,7 @@ export const rhChainPayload: RhChainPayload = {
         label: 'Stock Token activity',
         value: 'narrative watch',
         state: 'watching',
+        metric_scope: 'global_context',
         note: 'Tracking finance-token themes as narrative inputs before treating them as liquidity proof.',
         source: seededDeskSource
       },
@@ -1728,6 +1738,7 @@ export const rhChainPayload: RhChainPayload = {
         label: 'Stablecoin liquidity',
         value: 'source pending',
         state: 'live_required',
+        metric_scope: 'source_required',
         note: 'Bridgeable stable liquidity is the first proof line before meme assets become agent-spend relevant.',
         source: sourcePending
       },
@@ -1736,6 +1747,7 @@ export const rhChainPayload: RhChainPayload = {
         label: 'Attention velocity',
         value: '4663 watch active',
         state: 'seeded',
+        metric_scope: 'rh_chain',
         note: 'Seeded index watches tickers, contract disclosures, route chatter, and stock-token spillover language.',
         source: seededDeskSource
       }
@@ -1744,6 +1756,10 @@ export const rhChainPayload: RhChainPayload = {
       {
         name: 'Stock-token wrapper lanes',
         category: 'finance primitive',
+        value: 'source_required',
+        scope: 'global_or_unknown',
+        metric_scope: 'global_context',
+        display_note: 'Chain-specific protocol TVL not verified.',
         status: 'watching',
         note: 'Finance rails can become meme rails when ticker identity turns into trench language.',
         source: seededDeskSource
@@ -1751,6 +1767,10 @@ export const rhChainPayload: RhChainPayload = {
       {
         name: 'DEX launch venues',
         category: 'liquidity venue',
+        value: 'source_required',
+        scope: 'global_or_unknown',
+        metric_scope: 'source_required',
+        display_note: 'Chain-specific protocol TVL not verified.',
         status: 'source required',
         note: 'No pool should be promoted without contract, reserve, and holder receipts.',
         source: sourcePending
@@ -1758,6 +1778,10 @@ export const rhChainPayload: RhChainPayload = {
       {
         name: 'Bridge adapters',
         category: 'migration rail',
+        value: 'source_required',
+        scope: 'global_or_unknown',
+        metric_scope: 'source_required',
+        display_note: 'Chain-specific protocol TVL not verified.',
         status: 'source required',
         note: 'Bridge claims require proof of route, canonical asset, and failure mode before agent routing.',
         source: sourcePending

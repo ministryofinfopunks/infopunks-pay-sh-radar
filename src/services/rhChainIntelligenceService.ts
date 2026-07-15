@@ -14,7 +14,7 @@ import {
   type RhChainSource
 } from '../data/rhChain';
 import type { RhChainMetricsSnapshot } from './rhChainChainPulseService';
-import { rhChainMetricsSnapshotSource } from './rhChainChainPulseService';
+import { rhChainMetricsSnapshotSource, scopeSafeMetricsSnapshot } from './rhChainChainPulseService';
 import {
   createBlockscoutProvider,
   createCoinGeckoProvider,
@@ -66,6 +66,7 @@ const providerStatus: RhChainProviderIdentity[] = [
 export function assembleRhChainChainPulse(snapshot?: RhChainMetricsSnapshot | null) {
   const fallback = getRhChainPayload().chain_pulse;
   if (!snapshot) return fallback;
+  snapshot = scopeSafeMetricsSnapshot(snapshot);
   const source = rhChainMetricsSnapshotSource(snapshot);
   const metric = (id: string, label: string, value: number | null, note: string) => ({
     id,
@@ -73,11 +74,14 @@ export function assembleRhChainChainPulse(snapshot?: RhChainMetricsSnapshot | nu
     value: typeof value === 'number' ? formatUsd(value) : 'source required',
     state: snapshot.freshness_state === 'fresh' && typeof value === 'number' ? 'watching' as const : 'source_pending' as const,
     note: typeof value === 'number' ? note : 'No provider value is displayed without a source-stamped snapshot.',
+    metric_scope: typeof value === 'number' ? 'rh_chain' as const : 'source_required' as const,
     source
   });
   const top_protocols = snapshot.top_protocols.length
-    ? snapshot.top_protocols.map((protocol) => ({ name: protocol.name, category: protocol.category, status: snapshot.freshness_state === 'fresh' ? 'context observed' : 'stale context', note: typeof protocol.tvl === 'number' ? `Provider-reported TVL context: ${formatUsd(protocol.tvl)}. Context only; not an endorsement.` : 'Provider-listed protocol context; exact TVL was not supplied.', source }))
-    : fallback.top_protocols.map((protocol) => ({ ...protocol, source: snapshot.freshness_state === 'source_required' ? createRhChainSource({ source_name: 'RH Chain manual fallback', source_url: null, observed_at: snapshot.observed_at, updated_at: snapshot.fetched_at, data_mode: 'manual', confidence_level: 'low', note: snapshot.source_notes.join(' ') }) : source }));
+    ? snapshot.top_protocols.map((protocol) => ({ name: protocol.name, category: protocol.category, value: typeof protocol.value === 'number' ? formatUsd(protocol.value) : 'source_required', scope: protocol.scope, metric_scope: protocol.metric_scope, display_note: protocol.display_note, status: protocol.metric_scope === 'rh_chain' ? (snapshot.freshness_state === 'fresh' ? 'RH Chain context observed' : 'stale RH Chain context') : 'source required', note: protocol.metric_scope === 'rh_chain' && typeof protocol.value === 'number' ? `Provider-reported RH Chain TVL: ${formatUsd(protocol.value)}. Context only; not an endorsement.` : protocol.display_note, source }))
+    : snapshot.freshness_state === 'source_required'
+      ? fallback.top_protocols.map((protocol) => ({ ...protocol, source: createRhChainSource({ source_name: 'RH Chain manual fallback', source_url: null, observed_at: snapshot.observed_at, updated_at: snapshot.fetched_at, data_mode: 'manual', confidence_level: 'low', note: snapshot.source_notes.join(' ') }) }))
+      : [];
   return {
     metrics: [
       metric('tvl', 'TVL', snapshot.tvl, 'DefiLlama TVL context.'),

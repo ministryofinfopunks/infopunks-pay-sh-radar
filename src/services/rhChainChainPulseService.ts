@@ -1,5 +1,5 @@
 import pg from 'pg';
-import type { RhChainDataFreshness, RhChainSource } from '../data/rhChain';
+import type { RhChainDataFreshness, RhChainMetricScope, RhChainSource } from '../data/rhChain';
 import { resolvePostgresPool, RetryablePostgresSchema, type PostgresPoolSource } from '../persistence/retryablePostgresSchema';
 import type { RhChainProviderSnapshot, RhChainLiveSnapshot } from './rhChainLiveSnapshotService';
 import type { RhChainFreshnessState } from './rhChainTruthGuards';
@@ -10,7 +10,7 @@ export type RhChainMetricsSnapshot = {
   dex_volume_24h: number | null;
   stablecoin_market_cap: number | null;
   fees_24h: number | null;
-  top_protocols: Array<{ name: string; category: string; tvl: number | null }>;
+  top_protocols: Array<{ name: string; category: string; tvl: number | null; value: number | 'source_required'; scope: 'rh_chain' | 'global_or_unknown'; metric_scope: RhChainMetricScope; display_note: string }>;
   observed_at: string;
   fetched_at: string;
   provider_status: RhChainProviderSnapshot[];
@@ -62,7 +62,7 @@ export class PostgresRhChainMetricsSnapshotStore implements RhChainMetricsSnapsh
 export class RhChainChainPulseService {
   private readonly now: () => Date;
   constructor(private readonly store: RhChainMetricsSnapshotStore, now?: () => Date) { this.now = now ?? (() => new Date()); }
-  async getLatest() { return this.store.latest(); }
+  async getLatest() { const snapshot = await this.store.latest(); return snapshot ? scopeSafeMetricsSnapshot(snapshot) : null; }
 
   /** Saves numeric context only when DefiLlama returns it; otherwise preserves prior context as visibly stale. */
   async refresh(live: RhChainLiveSnapshot) {
@@ -77,7 +77,7 @@ export class RhChainChainPulseService {
         dex_volume_24h: metrics.dex_volume_24h_usd,
         stablecoin_market_cap: metrics.stablecoin_market_cap_usd,
         fees_24h: metrics.fees_24h_usd ?? null,
-        top_protocols: (metrics.top_protocols ?? []).map((protocol) => ({ name: protocol.name, category: protocol.category, tvl: protocol.tvl_usd })),
+        top_protocols: (metrics.top_protocols ?? []).map((protocol) => scopeSafeProtocol(protocol)),
         observed_at: metrics.source_timestamp ?? fetched_at,
         fetched_at,
         provider_status: live.provider_statuses,
@@ -89,7 +89,8 @@ export class RhChainChainPulseService {
       await this.store.save(snapshot);
       return snapshot;
     }
-    const previous = await this.store.latest();
+    const stored = await this.store.latest();
+    const previous = stored ? scopeSafeMetricsSnapshot(stored) : null;
     if (previous) {
       const stale: RhChainMetricsSnapshot = { ...previous, snapshot_id: `rh-chain-metrics-stale-${fetched_at.replace(/[^0-9]/g, '')}`, fetched_at, provider_status: live.provider_statuses, freshness_state: 'stale', confidence_level: 'low', data_mode: previous.data_mode === 'manual' ? 'manual' : 'cached', source_notes: [...previous.source_notes, 'Latest provider refresh was unavailable; values are preserved as stale context and require source review.'] };
       await this.store.save(stale);
@@ -102,7 +103,19 @@ export class RhChainChainPulseService {
 }
 
 function manualFallback(fetched_at: string, provider_status: RhChainProviderSnapshot[]): RhChainMetricsSnapshot {
-  return { snapshot_id: `rh-chain-metrics-fallback-${fetched_at.replace(/[^0-9]/g, '')}`, tvl: null, dex_volume_24h: null, stablecoin_market_cap: null, fees_24h: null, top_protocols: [], observed_at: fetched_at, fetched_at, provider_status, freshness_state: 'source_required', confidence_level: 'low', data_mode: 'manual', source_notes: ['No usable provider metrics are available. Manual desk context remains the fallback; no exact metric is inferred.'] };
+  return { snapshot_id: `rh-chain-metrics-fallback-${fetched_at.replace(/[^0-9]/g, '')}`, tvl: null, dex_volume_24h: null, stablecoin_market_cap: null, fees_24h: null, top_protocols: [], observed_at: fetched_at, fetched_at, provider_status, freshness_state: 'source_required', confidence_level: 'low', data_mode: 'manual', source_notes: ['No usable provider metrics are available. Manual desk context remains the fallback; no exact metric is inferred.', 'Provider context is informational and cannot change review, receipt, or index decisions.'] };
+}
+
+function scopeSafeProtocol(protocol: { name?: unknown; category?: unknown; tvl_usd?: unknown; tvl?: unknown; value?: unknown; scope?: unknown; metric_scope?: unknown; display_note?: unknown }): RhChainMetricsSnapshot['top_protocols'][number] {
+  const explicitlyRhChain = protocol.scope === 'rh_chain' && protocol.metric_scope === 'rh_chain';
+  const candidate = protocol.value === 'source_required' ? null : typeof protocol.value === 'number' ? protocol.value : typeof protocol.tvl_usd === 'number' ? protocol.tvl_usd : typeof protocol.tvl === 'number' ? protocol.tvl : null;
+  const scopedValue = explicitlyRhChain && candidate !== null && Number.isFinite(candidate) ? candidate : null;
+  if (scopedValue !== null) return { name: String(protocol.name ?? ''), category: String(protocol.category ?? 'protocol'), tvl: scopedValue, value: scopedValue, scope: 'rh_chain', metric_scope: 'rh_chain', display_note: typeof protocol.display_note === 'string' && protocol.display_note ? protocol.display_note : 'Provider explicitly scoped this protocol TVL to Robinhood Chain.' };
+  return { name: String(protocol.name ?? ''), category: String(protocol.category ?? 'protocol'), tvl: null, value: 'source_required', scope: 'global_or_unknown', metric_scope: 'source_required', display_note: 'Chain-specific protocol TVL not verified.' };
+}
+
+export function scopeSafeMetricsSnapshot(snapshot: RhChainMetricsSnapshot): RhChainMetricsSnapshot {
+  return { ...snapshot, top_protocols: (snapshot.top_protocols ?? []).map((protocol) => scopeSafeProtocol(protocol)) };
 }
 
 export function rhChainMetricsSnapshotSource(snapshot: RhChainMetricsSnapshot): RhChainSource {

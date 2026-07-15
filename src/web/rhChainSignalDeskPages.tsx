@@ -261,6 +261,8 @@ function RhChainPulseSection({ desk }: { desk: RhChainPayload }) {
   const pulse = desk.chain_pulse;
   const timestamp = pulse.fetched_at ?? pulse.observed_at ?? desk.last_updated;
   const isFresh = pulse.freshness_state === 'fresh';
+  const hasRhChainProtocols = pulse.top_protocols.some((protocol) => protocol.metric_scope === 'rh_chain');
+  const sourceCaveat = pulse.source_notes?.filter((note) => !note.startsWith('Provider context is informational')).join(' ') || 'Provider values are timestamped context and require source review.';
   return <section className="panel rh-chain-section rh-chain-section--primary" aria-label="Chain Pulse">
     <div className="rh-chain-section-head">
       <div>
@@ -275,16 +277,18 @@ function RhChainPulseSection({ desk }: { desk: RhChainPayload }) {
       {pulse.metrics.map((metric) => <MetricCard key={metric.id} metric={metric} />)}
     </div>
     <div className="rh-chain-two-column">
-      <div className="rh-chain-subpanel">
+      <div className={`rh-chain-subpanel rh-chain-protocol-panel${hasRhChainProtocols ? '' : ' is-scope-softened'}`}>
         <p className="section-kicker">Top protocols</p>
+        {!hasRhChainProtocols && <p className="rh-chain-scope-note">Chain-specific protocol TVL not verified. Protocol names are retained only as softened provider context.</p>}
         <div className="rh-chain-list">
-          {pulse.top_protocols.map((protocol) => <article key={protocol.name} className="rh-chain-list-item">
+          {pulse.top_protocols.map((protocol) => <article key={protocol.name} className={`rh-chain-list-item${protocol.metric_scope === 'rh_chain' ? '' : ' is-scope-softened'}`}>
             <div>
               <h3>{protocol.name}</h3>
-              <p>{protocol.note}</p>
+              <p className="rh-chain-protocol-value">{protocol.value}</p>
+              <p>{protocol.display_note}</p>
             </div>
-            <span className="rh-chain-chip">{protocol.category}</span>
-            <SourceLine source={protocol.source} />
+            <div className="rh-chain-label-row"><span className="rh-chain-chip">{protocol.category}</span><MetricScopeBadge scope={protocol.metric_scope} /></div>
+            <ProvenanceFooter source={protocol.source} scope={protocol.metric_scope} />
           </article>)}
         </div>
       </div>
@@ -295,18 +299,38 @@ function RhChainPulseSection({ desk }: { desk: RhChainPayload }) {
         </div>
       </div>
     </div>
+    <details className="rh-chain-source-details">
+      <summary>Source caveat</summary>
+      <p>{sourceCaveat} Provider context is informational and cannot change review, receipt, or index decisions.</p>
+    </details>
   </section>;
 }
 
 function MetricCard({ metric }: { metric: RhChainPulseMetric }) {
   return <article className={`rh-chain-metric state-${metric.state}`}>
     <div>
-      <p className="section-kicker">{metric.label}</p>
+      <div className="rh-chain-metric-heading"><p className="section-kicker">{metric.label}</p><MetricScopeBadge scope={metric.metric_scope} /></div>
       <strong>{metric.value}</strong>
       <p>{metric.note}</p>
     </div>
-    <SourceLine source={metric.source} />
+    <ProvenanceFooter source={metric.source} scope={metric.metric_scope} />
   </article>;
+}
+
+function MetricScopeBadge({ scope }: { scope: RhChainPulseMetric['metric_scope'] }) {
+  return <span className={`rh-chain-scope-badge scope-${scope}`}>{scope.replaceAll('_', ' ')}</span>;
+}
+
+function ProvenanceFooter({ source, scope }: { source: RhChainSource; scope: RhChainPulseMetric['metric_scope'] }) {
+  const sourceName = source.source_name ?? source.source ?? 'source_pending';
+  const sourceUrl = source.source_url ?? source.url ?? null;
+  return <footer className="rh-chain-provenance-footer" aria-label="Metric provenance footer">
+    <span>{sourceUrl ? <a href={sourceUrl}>{sourceName}</a> : sourceName}</span><i>·</i>
+    <span>observed_at: {formatTimestamp(source.observed_at)}</span><i>·</i>
+    <span>{source.data_mode}</span><i>·</i>
+    <span>{source.confidence_level}</span><i>·</i>
+    <span>{scope}</span>
+  </footer>;
 }
 
 function DailyReceiptsPreview({ feed }: { feed: RhChainDailyReceiptsPayload }) {

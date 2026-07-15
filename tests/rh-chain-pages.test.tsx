@@ -168,6 +168,23 @@ describe('RH Chain Signal Desk pages', () => {
     expect(text).toContain('observed_at: 2026-07-15 09:58');
   });
 
+  it('renders cached chain and fee context with compact scoped provenance', async () => {
+    const source = { ...desk.chain_pulse.metrics[0].source, source_name: 'DefiLlama chain metrics snapshot', observed_at: '2026-07-15T09:58:00.000Z', updated_at: '2026-07-15T10:00:00.000Z', data_mode: 'cached' as const, confidence_level: 'medium' as const };
+    desk = { ...desk, chain_pulse: { ...desk.chain_pulse, observed_at: source.observed_at, fetched_at: source.updated_at, freshness_state: 'fresh', data_mode: 'cached', confidence_level: 'medium', source_notes: ['Provider context is informational.'], metrics: [
+      { id: 'tvl', label: 'TVL', value: '$1,000,000', state: 'watching', note: 'DefiLlama TVL context.', metric_scope: 'rh_chain', source },
+      { id: 'fees_24h', label: 'Fees (24h)', value: '$1,200', state: 'watching', note: 'DefiLlama fee context.', metric_scope: 'rh_chain', source }
+    ], top_protocols: [{ name: 'Global giant', category: 'dex', value: 'source_required', scope: 'global_or_unknown', metric_scope: 'source_required', display_note: 'Chain-specific protocol TVL not verified.', status: 'source required', note: 'Chain-specific protocol TVL not verified.', source }] } };
+    root = await renderPath(container, '/rh-chain-signal-desk');
+    const text = container.textContent ?? '';
+    expect(text).toContain('$1,000,000');
+    expect(text).toContain('$1,200');
+    expect(text).toContain('source_required');
+    expect(text).not.toContain('Global giant$');
+    expect(container.querySelectorAll('[aria-label="Metric provenance footer"]').length).toBeGreaterThanOrEqual(3);
+    expect(text).toContain('DefiLlama chain metrics snapshot·observed_at:');
+    expect(text).toContain('Provider context is informational and cannot change review, receipt, or index decisions.');
+  });
+
   it('renders the 4663 Signal Index route with overview, ranking, scores, and disclaimer', async () => {
     root = await renderPath(container, '/rh-chain-signal-desk/4663-index');
 

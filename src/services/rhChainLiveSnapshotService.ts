@@ -1,4 +1,5 @@
 import type { RhChainLaunchContext } from '../data/rhChain';
+import type { RhChainMetricScope } from '../data/rhChain';
 import type pg from 'pg';
 import { isRhChainIdentityContract } from './rhChainTruthGuards';
 import { createRhChainSnapshotCache, type RhChainSnapshotCache } from './rhChainSnapshotCache';
@@ -7,7 +8,16 @@ export type RhChainSnapshotFreshness = 'live_cached' | 'stale' | 'seeded' | 'man
 export type RhChainProviderError = { code: 'provider_unavailable' | 'provider_timeout' | 'provider_http_error' | 'invalid_provider_payload' | 'invalid_source_timestamp' | 'provider_contract_mismatch' | 'provider_not_configured'; message: string };
 export type RhChainCacheEntry<T> = { cache_key: string; value: T; fetched_at: string; expires_at: string; provider_name: string; status: RhChainSnapshotStatus; error_summary?: string };
 export type RhChainProviderSnapshot = { provider_name: 'DefiLlama' | 'CoinGecko' | 'DexScreener' | 'Blockscout'; status: RhChainSnapshotStatus; fetched_at: string | null; expires_at: string | null; error_summary?: string; error?: RhChainProviderError };
-export type RhChainChainMetricsSnapshot = { tvl_usd: number | null; dex_volume_24h_usd: number | null; stablecoin_market_cap_usd: number | null; fees_24h_usd?: number | null; top_protocols?: Array<{ name: string; category: string; tvl_usd: number | null }>; protocol_count: number | null; source_timestamp: string | null; freshness: RhChainSnapshotFreshness };
+export type RhChainProtocolMetric = {
+  name: string;
+  category: string;
+  tvl_usd: number | null;
+  value: number | 'source_required';
+  scope: 'rh_chain' | 'global_or_unknown';
+  metric_scope: RhChainMetricScope;
+  display_note: string;
+};
+export type RhChainChainMetricsSnapshot = { tvl_usd: number | null; dex_volume_24h_usd: number | null; stablecoin_market_cap_usd: number | null; fees_24h_usd?: number | null; top_protocols?: RhChainProtocolMetric[]; protocol_count: number | null; source_timestamp: string | null; freshness: RhChainSnapshotFreshness };
 export type RhChainMemeCategorySnapshot = { market_cap_usd: number | null; volume_24h_usd: number | null; top_assets: Array<{ name: string; symbol: string; market_cap_usd: number | null; volume_24h_usd: number | null }>; source_timestamp: string | null; freshness: RhChainSnapshotFreshness };
 export type RhChainMemePairContext = { contract: string | null; chain_id: string | null; ticker: string; name: string; pair_address: string | null; liquidity_usd: number | null; volume_24h_usd: number | null; source_timestamp: string | null };
 export type RhChainTokenPairSnapshot = { contract: string; exact_contract_match: boolean; chain_match_status: 'chain_verified' | 'chain_unverified' | 'chain_mismatch'; pair_address: string | null; dex_url: string | null; liquidity_usd: number | null; volume_24h_usd: number | null; fdv_usd: number | null; market_cap_usd: number | null; pair_created_at: string | null; source_timestamp: string | null; freshness: RhChainSnapshotFreshness };
@@ -108,7 +118,14 @@ export class RhChainLiveSnapshotService {
 function snapshotFreshness(status: RhChainSnapshotStatus): RhChainSnapshotFreshness { return status === 'fresh' ? 'live_cached' : status === 'stale' ? 'stale' : 'unavailable'; }
 function finiteNumber(value: unknown): number | null { return typeof value === 'number' && Number.isFinite(value) ? value : null; }
 export function normalizeRhChainChainMetrics(value: Omit<RhChainChainMetricsSnapshot, 'freshness'>, status: RhChainSnapshotStatus, now: Date): RhChainChainMetricsSnapshot {
-  return { tvl_usd: finiteNumber(value.tvl_usd), dex_volume_24h_usd: finiteNumber(value.dex_volume_24h_usd), stablecoin_market_cap_usd: finiteNumber(value.stablecoin_market_cap_usd), fees_24h_usd: finiteNumber(value.fees_24h_usd), top_protocols: (value.top_protocols ?? []).map((protocol) => ({ name: String(protocol.name ?? ''), category: String(protocol.category ?? 'protocol'), tvl_usd: finiteNumber(protocol.tvl_usd) })).filter((protocol) => protocol.name), protocol_count: finiteNumber(value.protocol_count), source_timestamp: validateRhChainSourceTimestamp(value.source_timestamp, now), freshness: snapshotFreshness(status) };
+  return { tvl_usd: finiteNumber(value.tvl_usd), dex_volume_24h_usd: finiteNumber(value.dex_volume_24h_usd), stablecoin_market_cap_usd: finiteNumber(value.stablecoin_market_cap_usd), fees_24h_usd: finiteNumber(value.fees_24h_usd), top_protocols: (value.top_protocols ?? []).map(normalizeRhChainProtocolMetric).filter((protocol) => protocol.name), protocol_count: finiteNumber(value.protocol_count), source_timestamp: validateRhChainSourceTimestamp(value.source_timestamp, now), freshness: snapshotFreshness(status) };
+}
+
+function normalizeRhChainProtocolMetric(protocol: Partial<RhChainProtocolMetric>): RhChainProtocolMetric {
+  const explicitlyRhChain = protocol.scope === 'rh_chain' && protocol.metric_scope === 'rh_chain';
+  const scopedValue = explicitlyRhChain ? finiteNumber(protocol.value === 'source_required' ? null : protocol.value) ?? finiteNumber(protocol.tvl_usd) : null;
+  if (scopedValue !== null) return { name: String(protocol.name ?? ''), category: String(protocol.category ?? 'protocol'), tvl_usd: scopedValue, value: scopedValue, scope: 'rh_chain', metric_scope: 'rh_chain', display_note: protocol.display_note || 'Provider explicitly scoped this protocol TVL to Robinhood Chain.' };
+  return { name: String(protocol.name ?? ''), category: String(protocol.category ?? 'protocol'), tvl_usd: null, value: 'source_required', scope: 'global_or_unknown', metric_scope: 'source_required', display_note: 'Chain-specific protocol TVL not verified.' };
 }
 export function normalizeRhChainMemeCategory(value: Omit<RhChainMemeCategorySnapshot, 'freshness'>, status: RhChainSnapshotStatus, now: Date): RhChainMemeCategorySnapshot {
   return { market_cap_usd: finiteNumber(value.market_cap_usd), volume_24h_usd: finiteNumber(value.volume_24h_usd), top_assets: value.top_assets.map((asset) => ({ name: String(asset.name ?? ''), symbol: String(asset.symbol ?? '').toUpperCase(), market_cap_usd: finiteNumber(asset.market_cap_usd), volume_24h_usd: finiteNumber(asset.volume_24h_usd) })).filter((asset) => asset.name && asset.symbol), source_timestamp: validateRhChainSourceTimestamp(value.source_timestamp, now), freshness: snapshotFreshness(status) };
@@ -144,7 +161,11 @@ function createPublicClients(options: RhChainLiveSnapshotOptions): RhChainLivePr
       ]);
       const chain = chains.find((row) => /robinhood/i.test(row.name ?? ''));
       const stablecoin_market_cap_usd = stablecoins?.peggedAssets?.reduce((total, asset) => total + stablecoinValueForRobinhood(asset.chainCirculating), 0) ?? null;
-      const top_protocols = (protocols ?? []).filter((protocol) => Object.keys(protocol.chainTvls ?? {}).some((name) => /robinhood/i.test(name))).sort((left, right) => (right.tvl ?? 0) - (left.tvl ?? 0)).slice(0, 5).map((protocol) => ({ name: protocol.name ?? 'Unnamed protocol', category: protocol.category ?? 'protocol', tvl_usd: finiteNumber(protocol.tvl) }));
+      const top_protocols = (protocols ?? []).map((protocol) => {
+        const chainEntry = Object.entries(protocol.chainTvls ?? {}).find(([name]) => /^(robinhood|robinhood chain)$/i.test(name.trim()));
+        const chainTvl = finiteNumber(chainEntry?.[1]);
+        return chainTvl === null ? null : { name: protocol.name ?? 'Unnamed protocol', category: protocol.category ?? 'protocol', tvl_usd: chainTvl, value: chainTvl, scope: 'rh_chain' as const, metric_scope: 'rh_chain' as const, display_note: 'Provider explicitly scoped this protocol TVL to Robinhood Chain.' };
+      }).filter((protocol): protocol is NonNullable<typeof protocol> => protocol !== null).sort((left, right) => right.value - left.value).slice(0, 5);
       // These endpoints do not provide a reliable chain-level observation timestamp.
       // Keep it null so the pulse labels the fetch timestamp rather than inventing one.
       return { tvl_usd: finiteNumber(chain?.tvl), dex_volume_24h_usd: null, stablecoin_market_cap_usd: stablecoin_market_cap_usd && stablecoin_market_cap_usd > 0 ? stablecoin_market_cap_usd : null, fees_24h_usd: finiteNumber(fees?.total24h), top_protocols, protocol_count: top_protocols.length || null, source_timestamp: null };

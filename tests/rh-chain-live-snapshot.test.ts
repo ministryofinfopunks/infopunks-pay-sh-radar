@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createApp } from '../src/api/app';
 import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
-import { isExactRhChainContractMatch, RhChainLiveSnapshotService, validateRhChainSourceTimestamp } from '../src/services/rhChainLiveSnapshotService';
+import { isExactRhChainContractMatch, normalizeRhChainChainMetrics, RhChainLiveSnapshotService, validateRhChainSourceTimestamp } from '../src/services/rhChainLiveSnapshotService';
 
 const metrics = { tvl_usd: 1000, dex_volume_24h_usd: 200, stablecoin_market_cap_usd: 300, protocol_count: 4, source_timestamp: '2026-07-11T00:00:00.000Z' };
 const category = { market_cap_usd: 900, volume_24h_usd: 80, top_assets: [{ name: 'Example', symbol: 'EX', market_cap_usd: 900, volume_24h_usd: 80 }], source_timestamp: '2026-07-11T00:00:00.000Z' };
@@ -52,6 +52,11 @@ describe('RH Chain Live Snapshot Layer', () => {
     expect(isExactRhChainContractMatch('0xAbC', '0xdef')).toBe(false);
     expect(validateRhChainSourceTimestamp('not-a-date')).toBeNull();
     expect(validateRhChainSourceTimestamp('2999-01-01T00:00:00.000Z')).toBeNull();
+  });
+
+  it('normalizes unknown protocol scope to source_required instead of global TVL', () => {
+    const normalized = normalizeRhChainChainMetrics({ ...metrics, top_protocols: [{ name: 'Global giant', category: 'dex', tvl_usd: 8_000_000 } as never] }, 'fresh', new Date('2026-07-15T10:00:00.000Z'));
+    expect(normalized.top_protocols).toEqual([expect.objectContaining({ tvl_usd: null, value: 'source_required', scope: 'global_or_unknown', metric_scope: 'source_required', display_note: 'Chain-specific protocol TVL not verified.' })]);
   });
 
   it('does not use a placeholder as a live token lookup target', async () => {
