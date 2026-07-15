@@ -25,6 +25,13 @@ export type RuntimeConfig = {
   rhChainBlockscoutUrl: string | null;
   rhChainReviewConsoleEnabled: boolean;
   rhChainReviewAdminToken: string | null;
+  rhChainAutomationEnabled: boolean;
+  rhChainAutomationInstanceId: string;
+  rhChainJobLockTtlMs: number;
+  rhChainChainPulseIntervalMs: number;
+  rhChainMemePulseIntervalMs: number;
+  rhChainLaunchpadIntervalMs: number;
+  rhChainReceiptDraftCron: string | null;
   rhChainPublicRateLimitEnabled: boolean;
   rhChainPublicRateLimitWindowMs: number;
   rhChainPublicRateLimitMax: number;
@@ -61,6 +68,13 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
     rhChainBlockscoutUrl: readOptionalUrl('RH_CHAIN_BLOCKSCOUT_URL', env.RH_CHAIN_BLOCKSCOUT_URL),
     rhChainReviewConsoleEnabled: readBoolean('RH_CHAIN_REVIEW_CONSOLE_ENABLED', env.RH_CHAIN_REVIEW_CONSOLE_ENABLED, false),
     rhChainReviewAdminToken: optionalString(env.RH_CHAIN_REVIEW_ADMIN_TOKEN),
+    rhChainAutomationEnabled: readBoolean('RH_CHAIN_AUTOMATION_ENABLED', env.RH_CHAIN_AUTOMATION_ENABLED, false),
+    rhChainAutomationInstanceId: optionalString(env.RH_CHAIN_AUTOMATION_INSTANCE_ID) ?? `local-${process.pid}`,
+    rhChainJobLockTtlMs: readPositiveInteger('RH_CHAIN_JOB_LOCK_TTL_MS', env.RH_CHAIN_JOB_LOCK_TTL_MS, 5 * 60 * 1000),
+    rhChainChainPulseIntervalMs: readPositiveInteger('RH_CHAIN_CHAIN_PULSE_INTERVAL_MS', env.RH_CHAIN_CHAIN_PULSE_INTERVAL_MS, 5 * 60 * 1000),
+    rhChainMemePulseIntervalMs: readPositiveInteger('RH_CHAIN_MEME_PULSE_INTERVAL_MS', env.RH_CHAIN_MEME_PULSE_INTERVAL_MS, 10 * 60 * 1000),
+    rhChainLaunchpadIntervalMs: readPositiveInteger('RH_CHAIN_LAUNCHPAD_INTERVAL_MS', env.RH_CHAIN_LAUNCHPAD_INTERVAL_MS, 15 * 60 * 1000),
+    rhChainReceiptDraftCron: readOptionalCron('RH_CHAIN_RECEIPT_DRAFT_CRON', env.RH_CHAIN_RECEIPT_DRAFT_CRON),
     rhChainPublicRateLimitEnabled: readBoolean('RH_CHAIN_PUBLIC_RATE_LIMIT_ENABLED', env.RH_CHAIN_PUBLIC_RATE_LIMIT_ENABLED, true),
     rhChainPublicRateLimitWindowMs: readPositiveInteger('RH_CHAIN_PUBLIC_RATE_LIMIT_WINDOW_MS', env.RH_CHAIN_PUBLIC_RATE_LIMIT_WINDOW_MS, 60_000),
     rhChainPublicRateLimitMax: readPositiveInteger('RH_CHAIN_PUBLIC_RATE_LIMIT_MAX', env.RH_CHAIN_PUBLIC_RATE_LIMIT_MAX, 30),
@@ -71,6 +85,9 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
 
   if (isProduction && !config.adminToken) {
     throw new Error('INFOPUNKS_ADMIN_TOKEN is required when NODE_ENV=production');
+  }
+  if (isProduction && config.rhChainAutomationEnabled && !config.databaseUrl) {
+    throw new Error('DATABASE_URL is required for RH Chain automation when NODE_ENV=production');
   }
 
   return config;
@@ -87,6 +104,7 @@ export function deploymentSummary(config: RuntimeConfig) {
     machineDemoSeed: config.machineDemoSeed,
     rhChainLiveSnapshotsEnabled: config.rhChainLiveSnapshotsEnabled,
     rhChainReviewConsoleEnabled: config.rhChainReviewConsoleEnabled,
+    rhChainAutomationEnabled: config.rhChainAutomationEnabled,
     ingestionEnabled: config.ingestionEnabled,
     dbMode: config.databaseUrl ? 'postgres' : 'memory',
     catalogSource: config.payShCatalogSource,
@@ -150,6 +168,14 @@ function readOptionalUrl(name: string, value: string | undefined) {
   } catch {
     throw new Error(`${name} must be a valid URL`);
   }
+}
+
+function readOptionalCron(name: string, value: string | undefined) {
+  const trimmed = optionalString(value);
+  if (!trimmed) return null;
+  // The scheduler supports conventional five-field minute cron expressions.
+  if (trimmed.split(/\s+/).length !== 5) throw new Error(`${name} must be a five-field cron expression`);
+  return trimmed;
 }
 
 function optionalString(value: string | undefined) {

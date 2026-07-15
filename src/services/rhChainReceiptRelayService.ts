@@ -1,4 +1,4 @@
-import { getRhChainDailyReceipts, type RhChainReceiptRelayPacket, type RhChainReceiptRelayPayload, rhChainDailyReceiptRoute } from '../data/rhChain';
+import { getRhChainDailyReceipts, type RhChainDailyReceipt, type RhChainReceiptRelayPacket, type RhChainReceiptRelayPayload } from '../data/rhChain';
 import { assembleRhChainCloneRadar } from './rhChainCloneRadarService';
 import { assembleRhChainLaunchpadObservatory } from './rhChainLaunchpadObservatoryService';
 import { assembleRhChainMemePulseScreen } from './rhChainMemePulseService';
@@ -20,8 +20,8 @@ function variants(artifact: RelayArtifact): RhChainReceiptRelayPacket[] {
 }
 
 /** Exports reviewed desk memory in copy-ready forms. It does not send, schedule, target, or coordinate messages. */
-export function assembleRhChainReceiptRelay(): RhChainReceiptRelayPayload {
-  const receipts = getRhChainDailyReceipts();
+export function assembleRhChainReceiptRelay(latestReceipt?: RhChainDailyReceipt): RhChainReceiptRelayPayload {
+  const receipts = latestReceipt ? { ...getRhChainDailyReceipts(), latest_receipt: latestReceipt } : getRhChainDailyReceipts();
   const latest = receipts.latest_receipt;
   const meme = assembleRhChainMemePulseScreen();
   const observatory = assembleRhChainLaunchpadObservatory();
@@ -29,7 +29,7 @@ export function assembleRhChainReceiptRelay(): RhChainReceiptRelayPayload {
   const scout = queryRhChainScout({ query: 'What does the desk remember about launchpad fragmentation?', mode: 'launch_context' });
   const generated_at = latest.generated_at;
   const artifacts: RelayArtifact[] = [
-    { title: 'Daily Receipt latest', short_copy: latest.headline, long_copy: `${latest.headline}\n\n${latest.infopunks_verdict}\n\nContext only; read the reviewed receipt before repeating the claim.`, source_url: '/v1/rh-chain/daily-receipts', artifact_url: `${BASE}${rhChainDailyReceiptRoute(latest.receipt_id)}`, risk_disclaimer: RISK_DISCLAIMER, no_raid_notice: NO_RAID_NOTICE, generated_at, data_mode: 'manual' },
+    { title: 'Daily Receipt latest', short_copy: latest.headline, long_copy: `${latest.headline}\n\n${latest.infopunks_verdict}\n\nContext only; read the reviewed receipt before repeating the claim.`, source_url: '/v1/rh-chain/daily-receipts', artifact_url: `${BASE}/daily-receipts/${encodeURIComponent(latest.receipt_id)}`, risk_disclaimer: RISK_DISCLAIMER, no_raid_notice: NO_RAID_NOTICE, generated_at, data_mode: 'manual' },
     { title: 'Meme Pulse', short_copy: meme.subtitle, long_copy: `${meme.snapshot.strongest_narrative_mutation}\n\nMeme Pulse is attention context. Receipts remain the judgment layer.`, source_url: '/v1/rh-chain/meme-pulse', artifact_url: `${BASE}/meme-pulse`, risk_disclaimer: RISK_DISCLAIMER, no_raid_notice: NO_RAID_NOTICE, generated_at: meme.generated_at, data_mode: 'manual' },
     { title: 'Launchpad Observatory', short_copy: observatory.subtitle, long_copy: `Post-NOXA surface memory: ${observatory.post_noxa_stress_map[2].explanation}\n\nStatus and claim context remain source-required until receipted.`, source_url: '/v1/rh-chain/launchpad-observatory', artifact_url: `${BASE}/launchpad-observatory`, risk_disclaimer: RISK_DISCLAIMER, no_raid_notice: NO_RAID_NOTICE, generated_at: observatory.generated_at, data_mode: 'manual' },
     { title: 'Clone Radar', short_copy: 'Suspected patterns. Receipts required.', long_copy: `Clone Radar holds suspected and unverified patterns for review. ${radar.vampire_copycat_watch.length ? 'A visible pattern is a review cue, not a verdict.' : 'No pattern is promoted from absence.'}\n\nVerify exact identity and source receipts.`, source_url: '/v1/rh-chain/clone-radar', artifact_url: `${BASE}/risk-patterns`, risk_disclaimer: RISK_DISCLAIMER, no_raid_notice: NO_RAID_NOTICE, generated_at: radar.generated_at, data_mode: 'manual' },

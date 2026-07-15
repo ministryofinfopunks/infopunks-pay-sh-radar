@@ -42,13 +42,15 @@ describe('RH Chain Signal Desk pages', () => {
   let root: Root | undefined;
   let container: HTMLDivElement;
   let reviewQueue = getRhChainReviewQueue();
+  let desk = getRhChainPayload();
 
   beforeEach(() => {
     container = document.createElement('div');
     reviewQueue = getRhChainReviewQueue();
+    desk = getRhChainPayload();
     document.body.append(container);
     vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
-      if (pathOf(input) === '/v1/rh-chain') return json(getRhChainPayload());
+      if (pathOf(input) === '/v1/rh-chain') return json(desk);
       if (pathOf(input) === '/v1/rh-chain/review-queue') return json(reviewQueue);
       if (pathOf(input) === '/v1/rh-chain/4663-index') return json(getRhChain4663Index());
       if (pathOf(input) === '/v1/rh-chain/daily-receipts') return json(getRhChainDailyReceipts());
@@ -92,6 +94,25 @@ describe('RH Chain Signal Desk pages', () => {
     expect(text).toContain('Signals enter public review before promotion.');
     expect(text).toContain('Queued for manual review. Ticker familiarity is not evidence.');
     expect(Array.from(container.querySelectorAll('a[href="/rh-chain-signal-desk/review-queue"]')).some((link) => link.textContent?.includes('View Review Queue'))).toBe(true);
+  });
+
+  it('renders the Chain Pulse source timestamp and calm stale banner', async () => {
+    const source = desk.chain_pulse.metrics[0].source;
+    desk = {
+      ...desk,
+      chain_pulse: {
+        ...desk.chain_pulse,
+        observed_at: '2026-07-15T09:58:00.000Z',
+        fetched_at: '2026-07-15T10:00:00.000Z',
+        freshness_state: 'stale',
+        metrics: [{ ...desk.chain_pulse.metrics[0], value: '$1,000,000', source: { ...source, observed_at: '2026-07-15T09:58:00.000Z', updated_at: '2026-07-15T10:00:00.000Z', data_mode: 'cached' } }]
+      }
+    };
+    root = await renderPath(container, '/rh-chain-signal-desk');
+    const text = container.textContent ?? '';
+    expect(text).toContain('Chain metrics are stale context. Review the timestamp before using them.');
+    expect(text).toContain('Updated 2026-07-15 10:00');
+    expect(text).toContain('observed_at: 2026-07-15 09:58');
   });
 
   it('renders the 4663 Signal Index route with overview, ranking, scores, and disclaimer', async () => {
@@ -298,6 +319,8 @@ describe('RH Chain Signal Desk pages', () => {
     expect(text).toContain('Post-NOXA Stress Map');
     expect(text).toContain('Claim Ledger');
     expect(text).toContain('source required');
+    expect(text).toContain('Pons');
+    expect(text).toContain('flap.sh');
     expect(text).toContain('View Daily Receipt #003');
     expect(text).not.toMatch(/\b(buy|sell|snipe|launch[- ]now)\b/i);
     expect(container.querySelector('a[href="/rh-chain-signal-desk/launchpad-observatory"]')?.getAttribute('aria-current')).toBe('page');

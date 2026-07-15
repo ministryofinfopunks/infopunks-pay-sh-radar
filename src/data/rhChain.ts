@@ -517,6 +517,8 @@ export type RhChainMemePulseAsset = {
   infopunks_verdict: string;
   receipt_state: string;
   source: RhChainSource;
+  contract?: string | null;
+  context_origin?: 'auto_observed' | 'reviewed_memory';
 };
 
 export type RhChainMemePulsePayload = {
@@ -539,6 +541,7 @@ export type RhChainMemePulsePayload = {
   risk_strip: Array<{ id: string; title: string; summary: string; risk_state: RhChainRiskState }>;
   market_translation: Array<{ id: string; trend: string; translation: string; caveat: string }>;
   freshness_state?: import('../services/rhChainTruthGuards').RhChainFreshnessState;
+  refreshed_at?: string;
 };
 
 export type RhChainTokenDossier = {
@@ -569,6 +572,7 @@ export type RhChainTokenDossier = {
   access_context: RhChainAccessContext | null;
   risk_notes: string[];
   receipt_trail: Array<{ id: string; label: string; timestamp: string; href: string | null }>;
+  related_suspected_correlations?: Array<{ correlation_id: string; correlation_type: string; evidence_summary: string; confidence_level: RhChainConfidenceLevel; review_status: 'requires_review'; observed_at: string }>;
 };
 
 export const RH_CHAIN_CLONE_SUSPICION_TYPES = ['duplicate_ticker', 'impersonator', 'fake_volume_trap', 'low_liquidity_clone', 'suspicious_launch_surface', 'launchpad_displacement_risk', 'deployer_cluster', 'unknown'] as const;
@@ -624,6 +628,7 @@ export type RhChainCloneRadarPayload = {
   risk_categories: Array<{ category: RhChainCloneSuspicionType | RhChainRiskPatternCategory; title: string; explanation: string }>;
   correlations?: RhChainRiskCorrelation[];
   flagging_method: Array<{ signal: string; explanation: string }>;
+  correlation_sweep?: { observed_at: string; freshness_state: 'fresh' | 'aging' | 'stale'; correlation_count: number };
 };
 
 export type RhChainLaunchpadSurfaceStatus = 'active' | 'degraded' | 'paused' | 'offline' | 'migrating' | 'source_required' | 'unknown';
@@ -632,7 +637,7 @@ export type RhChainLaunchpadClaimType = 'launch_count' | 'fee_claim' | 'outage_c
 
 /** Read-only surface-memory record. It intentionally holds no launch, routing, or execution fields. */
 export type RhChainLaunchpadSurface = {
-  surface_id: 'noxa_fun' | 'flap_sh' | 'trensh_today' | 'bankr' | 'tokeny_fun' | 'vlad_fun' | 'robindotmarket' | 'uniswap_direct_launches' | 'unknown_manual';
+  surface_id: 'noxa_fun' | 'pons' | 'flap_sh' | 'trensh_today' | 'bankr' | 'tokeny_fun' | 'vlad_fun' | 'robindotmarket' | 'uniswap_direct_launches' | 'pump_fun_routed_rh_chain' | 'unknown_manual';
   name: string;
   surface_url?: string | null;
   status: RhChainLaunchpadSurfaceStatus;
@@ -648,6 +653,9 @@ export type RhChainLaunchpadSurface = {
   surface_risks: RhChainLaunchpadSurfaceRisk[];
   infopunks_note: string;
   source: RhChainSource;
+  related_receipts?: string[];
+  related_submissions?: string[];
+  source_required?: boolean;
 };
 
 export type RhChainLaunchpadClaim = {
@@ -697,6 +705,12 @@ export type RhChainPayload = {
     metrics: RhChainPulseMetric[];
     top_protocols: RhChainProtocolWatch[];
     bridge_notes: string[];
+    observed_at?: string;
+    fetched_at?: string;
+    freshness_state?: import('../services/rhChainTruthGuards').RhChainFreshnessState;
+    confidence_level?: RhChainConfidenceLevel;
+    data_mode?: RhChainDataFreshness;
+    source_notes?: string[];
   };
   meme_pulse: RhChainMemeToken[];
   signal_classifier: RhChainSignalClassifierItem[];

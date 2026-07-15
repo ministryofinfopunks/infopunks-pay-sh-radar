@@ -11,6 +11,7 @@ describe('runtime environment config', () => {
     expect(config.databaseUrl).toBeNull();
     expect(config.featuredProviderRotationMs).toBe(600000);
     expect(config.machineDemoSeed).toBe(true);
+    expect(config.rhChainAutomationEnabled).toBe(false);
   });
 
   it('supports explicit safe metadata monitor mode and legacy enabled compatibility', () => {
@@ -27,6 +28,7 @@ describe('runtime environment config', () => {
     expect(loadRuntimeConfig({ NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'secret' }).machineDemoSeed).toBe(false);
     expect(loadRuntimeConfig({ NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'secret' }).rhChainLiveSnapshotsEnabled).toBe(false);
     expect(loadRuntimeConfig({ NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'secret', RH_CHAIN_LIVE_SNAPSHOTS_ENABLED: 'true', RH_CHAIN_PROVIDER_TIMEOUT_MS: '1200' }).rhChainLiveSnapshotsEnabled).toBe(true);
+    expect(() => loadRuntimeConfig({ NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'secret', RH_CHAIN_AUTOMATION_ENABLED: 'true' })).toThrow('DATABASE_URL');
   });
 
   it('allows explicit machine demo seed toggle', () => {
@@ -50,6 +52,7 @@ describe('runtime environment config', () => {
     expect(() => loadRuntimeConfig({ PAY_SH_INGEST_INTERVAL_MS: '0' })).toThrow('PAY_SH_INGEST_INTERVAL_MS');
     expect(() => loadRuntimeConfig({ FEATURED_PROVIDER_ROTATION_MS: '0' })).toThrow('FEATURED_PROVIDER_ROTATION_MS');
     expect(() => loadRuntimeConfig({ FRONTEND_ORIGIN: 'not-a-url' })).toThrow('FRONTEND_ORIGIN');
+    expect(() => loadRuntimeConfig({ RH_CHAIN_RECEIPT_DRAFT_CRON: 'every hour' })).toThrow('RH_CHAIN_RECEIPT_DRAFT_CRON');
   });
 
   it('restricts CORS when FRONTEND_ORIGIN is configured', async () => {

@@ -6,8 +6,9 @@ export type RhChainSnapshotFreshness = 'live_cached' | 'stale' | 'seeded' | 'man
 export type RhChainProviderError = { code: 'provider_unavailable' | 'provider_timeout' | 'provider_http_error' | 'invalid_provider_payload' | 'invalid_source_timestamp' | 'provider_contract_mismatch' | 'provider_not_configured'; message: string };
 export type RhChainCacheEntry<T> = { cache_key: string; value: T; fetched_at: string; expires_at: string; provider_name: string; status: RhChainSnapshotStatus; error_summary?: string };
 export type RhChainProviderSnapshot = { provider_name: 'DefiLlama' | 'CoinGecko' | 'DexScreener' | 'Blockscout'; status: RhChainSnapshotStatus; fetched_at: string | null; expires_at: string | null; error_summary?: string; error?: RhChainProviderError };
-export type RhChainChainMetricsSnapshot = { tvl_usd: number | null; dex_volume_24h_usd: number | null; stablecoin_market_cap_usd: number | null; protocol_count: number | null; source_timestamp: string | null; freshness: RhChainSnapshotFreshness };
+export type RhChainChainMetricsSnapshot = { tvl_usd: number | null; dex_volume_24h_usd: number | null; stablecoin_market_cap_usd: number | null; fees_24h_usd?: number | null; top_protocols?: Array<{ name: string; category: string; tvl_usd: number | null }>; protocol_count: number | null; source_timestamp: string | null; freshness: RhChainSnapshotFreshness };
 export type RhChainMemeCategorySnapshot = { market_cap_usd: number | null; volume_24h_usd: number | null; top_assets: Array<{ name: string; symbol: string; market_cap_usd: number | null; volume_24h_usd: number | null }>; source_timestamp: string | null; freshness: RhChainSnapshotFreshness };
+export type RhChainMemePairContext = { contract: string | null; chain_id: string | null; ticker: string; name: string; pair_address: string | null; liquidity_usd: number | null; volume_24h_usd: number | null; source_timestamp: string | null };
 export type RhChainTokenPairSnapshot = { contract: string; exact_contract_match: boolean; chain_match_status: 'chain_verified' | 'chain_unverified' | 'chain_mismatch'; pair_address: string | null; dex_url: string | null; liquidity_usd: number | null; volume_24h_usd: number | null; fdv_usd: number | null; market_cap_usd: number | null; pair_created_at: string | null; source_timestamp: string | null; freshness: RhChainSnapshotFreshness };
 export type RhChainExplorerSnapshot = { exact_contract_match: boolean; explorer_url: string | null; contract_exists: boolean | null; contract_verified: boolean | null; deployer_address: string | null; contract_type: string | null; availability: 'available' | 'unavailable'; source_timestamp: string | null; freshness: RhChainSnapshotFreshness };
 export type RhChainLiveSnapshot = { title: 'RH Chain Live Snapshot'; generated_at: string; live_snapshots_enabled: boolean; judgment_policy: string; chain_metrics: RhChainChainMetricsSnapshot; meme_category: RhChainMemeCategorySnapshot; provider_statuses: RhChainProviderSnapshot[]; cache_status: RhChainSnapshotStatus; disclaimer: string };
@@ -15,6 +16,7 @@ export type RhChainLiveSnapshot = { title: 'RH Chain Live Snapshot'; generated_a
 export type RhChainLiveProviderClient = {
   chainMetrics(): Promise<Omit<RhChainChainMetricsSnapshot, 'freshness'>>;
   memeCategory(): Promise<Omit<RhChainMemeCategorySnapshot, 'freshness'>>;
+  memePairs(): Promise<RhChainMemePairContext[]>;
   tokenPair(contract: string): Promise<Omit<RhChainTokenPairSnapshot, 'contract' | 'freshness' | 'exact_contract_match' | 'chain_match_status'> & { observed_contract?: string | null; observed_chain_id?: string | null }>;
   explorer(contract: string): Promise<Omit<RhChainExplorerSnapshot, 'freshness' | 'exact_contract_match' | 'availability' | 'contract_exists' | 'contract_type'> & Partial<Pick<RhChainExplorerSnapshot, 'contract_exists' | 'contract_type'>> & { observed_contract?: string | null }>;
 };
@@ -23,7 +25,7 @@ export type RhChainLiveSnapshotOptions = { enabled: boolean; timeoutMs: number; 
 const DISCLAIMER = 'Live Snapshot data is external, cached, and informational. It is not an endorsement, listing, partnership, trading signal, or financial recommendation.';
 const JUDGMENT_POLICY = 'External data gives context. Infopunks gives judgment. Receipts create memory. Live data never overrides human-reviewed receipts, manual verdicts, review states, or index decisions.';
 const providerNames: RhChainProviderSnapshot['provider_name'][] = ['DefiLlama', 'CoinGecko', 'DexScreener', 'Blockscout'];
-const emptyMetrics = (): RhChainChainMetricsSnapshot => ({ tvl_usd: null, dex_volume_24h_usd: null, stablecoin_market_cap_usd: null, protocol_count: null, source_timestamp: null, freshness: 'unavailable' });
+const emptyMetrics = (): RhChainChainMetricsSnapshot => ({ tvl_usd: null, dex_volume_24h_usd: null, stablecoin_market_cap_usd: null, fees_24h_usd: null, top_protocols: [], protocol_count: null, source_timestamp: null, freshness: 'unavailable' });
 const emptyCategory = (): RhChainMemeCategorySnapshot => ({ market_cap_usd: null, volume_24h_usd: null, top_assets: [], source_timestamp: null, freshness: 'unavailable' });
 
 export function normalizeRhChainContract(value: string): string { return value.trim().toLowerCase(); }
@@ -72,6 +74,12 @@ export class RhChainLiveSnapshotService {
       provider_statuses: [this.idleProvider('DefiLlama'), this.idleProvider('CoinGecko'), this.providerStatus('DexScreener', pair), this.providerStatus('Blockscout', explorer)], cache_status: pair.status === 'fresh' || explorer.status === 'fresh' ? 'fresh' as const : pair.status === 'stale' || explorer.status === 'stale' ? 'stale' as const : 'unavailable' as const, generated_at: this.now().toISOString(), live_snapshots_enabled: true, judgment_policy: JUDGMENT_POLICY, disclaimer: DISCLAIMER };
   }
 
+  async getMemePairContext() {
+    if (!this.options.enabled) return { pairs: [] as RhChainMemePairContext[], provider_status: this.disabledProvider('DexScreener'), cache_status: 'disabled' as const, generated_at: this.now().toISOString() };
+    const result = await this.cached('dexscreener:rh-chain-meme-pairs', 'DexScreener', this.ttl(120), () => this.clients.memePairs());
+    return { pairs: result.value ?? [], provider_status: this.providerStatus('DexScreener', result), cache_status: result.status, generated_at: this.now().toISOString() };
+  }
+
   private ttl(defaultSeconds: number) { return (this.options.ttlSeconds ?? defaultSeconds) * 1000; }
   private async cached<T>(key: string, provider: RhChainProviderSnapshot['provider_name'], ttlMs: number, load: () => Promise<T>): Promise<{ value: T | null; status: RhChainSnapshotStatus; entry: RhChainCacheEntry<T> | null; error_summary?: string }> {
     // Cache durability is an optimization boundary; an unavailable DB must not make a read-only provider request fail.
@@ -99,7 +107,7 @@ export class RhChainLiveSnapshotService {
 function snapshotFreshness(status: RhChainSnapshotStatus): RhChainSnapshotFreshness { return status === 'fresh' ? 'live_cached' : status === 'stale' ? 'stale' : 'unavailable'; }
 function finiteNumber(value: unknown): number | null { return typeof value === 'number' && Number.isFinite(value) ? value : null; }
 export function normalizeRhChainChainMetrics(value: Omit<RhChainChainMetricsSnapshot, 'freshness'>, status: RhChainSnapshotStatus, now: Date): RhChainChainMetricsSnapshot {
-  return { tvl_usd: finiteNumber(value.tvl_usd), dex_volume_24h_usd: finiteNumber(value.dex_volume_24h_usd), stablecoin_market_cap_usd: finiteNumber(value.stablecoin_market_cap_usd), protocol_count: finiteNumber(value.protocol_count), source_timestamp: validateRhChainSourceTimestamp(value.source_timestamp, now), freshness: snapshotFreshness(status) };
+  return { tvl_usd: finiteNumber(value.tvl_usd), dex_volume_24h_usd: finiteNumber(value.dex_volume_24h_usd), stablecoin_market_cap_usd: finiteNumber(value.stablecoin_market_cap_usd), fees_24h_usd: finiteNumber(value.fees_24h_usd), top_protocols: (value.top_protocols ?? []).map((protocol) => ({ name: String(protocol.name ?? ''), category: String(protocol.category ?? 'protocol'), tvl_usd: finiteNumber(protocol.tvl_usd) })).filter((protocol) => protocol.name), protocol_count: finiteNumber(value.protocol_count), source_timestamp: validateRhChainSourceTimestamp(value.source_timestamp, now), freshness: snapshotFreshness(status) };
 }
 export function normalizeRhChainMemeCategory(value: Omit<RhChainMemeCategorySnapshot, 'freshness'>, status: RhChainSnapshotStatus, now: Date): RhChainMemeCategorySnapshot {
   return { market_cap_usd: finiteNumber(value.market_cap_usd), volume_24h_usd: finiteNumber(value.volume_24h_usd), top_assets: value.top_assets.map((asset) => ({ name: String(asset.name ?? ''), symbol: String(asset.symbol ?? '').toUpperCase(), market_cap_usd: finiteNumber(asset.market_cap_usd), volume_24h_usd: finiteNumber(asset.volume_24h_usd) })).filter((asset) => asset.name && asset.symbol), source_timestamp: validateRhChainSourceTimestamp(value.source_timestamp, now), freshness: snapshotFreshness(status) };
@@ -126,11 +134,35 @@ function inferLaunchContext(pair: RhChainTokenPairSnapshot | null, explorer: RhC
 function createPublicClients(options: RhChainLiveSnapshotOptions): RhChainLiveProviderClient {
   const request = async <T>(url: string) => requestJson<T>(url, options.timeoutMs);
   return {
-    async chainMetrics() { const chains = await request<Array<{ name?: string; tvl?: number; gecko_id?: string }>>('https://api.llama.fi/v2/chains'); const chain = chains.find((row) => /robinhood/i.test(row.name ?? '')); return { tvl_usd: chain?.tvl ?? null, dex_volume_24h_usd: null, stablecoin_market_cap_usd: null, protocol_count: null, source_timestamp: new Date().toISOString() }; },
+    async chainMetrics() {
+      const [chains, stablecoins, fees, protocols] = await Promise.all([
+        request<Array<{ name?: string; tvl?: number; gecko_id?: string }>>('https://api.llama.fi/v2/chains'),
+        request<{ peggedAssets?: Array<{ chainCirculating?: Record<string, unknown> }> }>('https://stablecoins.llama.fi/stablecoins?includePrices=true').catch(() => null),
+        request<{ total24h?: number }>('https://api.llama.fi/overview/fees/Robinhood?excludeTotalDataChart=true&excludeTotalDataChartBreakdown=true').catch(() => null),
+        request<Array<{ name?: string; category?: string; tvl?: number; chainTvls?: Record<string, number> }>>('https://api.llama.fi/protocols').catch(() => null)
+      ]);
+      const chain = chains.find((row) => /robinhood/i.test(row.name ?? ''));
+      const stablecoin_market_cap_usd = stablecoins?.peggedAssets?.reduce((total, asset) => total + stablecoinValueForRobinhood(asset.chainCirculating), 0) ?? null;
+      const top_protocols = (protocols ?? []).filter((protocol) => Object.keys(protocol.chainTvls ?? {}).some((name) => /robinhood/i.test(name))).sort((left, right) => (right.tvl ?? 0) - (left.tvl ?? 0)).slice(0, 5).map((protocol) => ({ name: protocol.name ?? 'Unnamed protocol', category: protocol.category ?? 'protocol', tvl_usd: finiteNumber(protocol.tvl) }));
+      // These endpoints do not provide a reliable chain-level observation timestamp.
+      // Keep it null so the pulse labels the fetch timestamp rather than inventing one.
+      return { tvl_usd: finiteNumber(chain?.tvl), dex_volume_24h_usd: null, stablecoin_market_cap_usd: stablecoin_market_cap_usd && stablecoin_market_cap_usd > 0 ? stablecoin_market_cap_usd : null, fees_24h_usd: finiteNumber(fees?.total24h), top_protocols, protocol_count: top_protocols.length || null, source_timestamp: null };
+    },
     async memeCategory() { const assets = await request<Array<{ name: string; symbol: string; market_cap?: number; total_volume?: number; last_updated?: string }>>('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&category=memes&order=market_cap_desc&per_page=10&page=1'); return { market_cap_usd: assets.reduce((sum, asset) => sum + (asset.market_cap ?? 0), 0), volume_24h_usd: assets.reduce((sum, asset) => sum + (asset.total_volume ?? 0), 0), top_assets: assets.map((asset) => ({ name: asset.name, symbol: asset.symbol.toUpperCase(), market_cap_usd: asset.market_cap ?? null, volume_24h_usd: asset.total_volume ?? null })), source_timestamp: assets[0]?.last_updated ?? new Date().toISOString() }; },
+    async memePairs() {
+      const pairs = await request<Array<{ chainId?: string; pairAddress?: string; baseToken?: { address?: string; symbol?: string; name?: string }; liquidity?: { usd?: number }; volume?: { h24?: number } }>>('https://api.dexscreener.com/latest/dex/search?q=robinhood');
+      return pairs.filter((pair) => /^(robinhood|rhchain|rh-chain|rhc)$/i.test(pair.chainId ?? '')).slice(0, 10).map((pair) => ({ contract: pair.baseToken?.address ?? null, chain_id: pair.chainId ?? null, ticker: pair.baseToken?.symbol?.toUpperCase() ?? 'UNKNOWN', name: pair.baseToken?.name ?? pair.baseToken?.symbol ?? 'Unknown asset', pair_address: pair.pairAddress ?? null, liquidity_usd: finiteNumber(pair.liquidity?.usd), volume_24h_usd: finiteNumber(pair.volume?.h24), source_timestamp: null }));
+    },
     async tokenPair(contract) { const pairs = await request<Array<{ chainId?: string; pairAddress?: string; url?: string; baseToken?: { address?: string }; quoteToken?: { address?: string }; liquidity?: { usd?: number }; volume?: { h24?: number }; fdv?: number; marketCap?: number; pairCreatedAt?: number }>>(`https://api.dexscreener.com/latest/dex/tokens/${encodeURIComponent(contract)}`); const pair = pairs.find((item) => isExactRhChainContractMatch(contract, item.baseToken?.address) || isExactRhChainContractMatch(contract, item.quoteToken?.address)); if (!pair) throw new Error('provider_contract_mismatch'); const observed_contract = isExactRhChainContractMatch(contract, pair.baseToken?.address) ? pair.baseToken?.address : pair.quoteToken?.address; return { observed_contract, observed_chain_id: pair.chainId ?? null, pair_address: pair.pairAddress ?? null, dex_url: pair.url ?? null, liquidity_usd: pair.liquidity?.usd ?? null, volume_24h_usd: pair.volume?.h24 ?? null, fdv_usd: pair.fdv ?? null, market_cap_usd: pair.marketCap ?? null, pair_created_at: pair.pairCreatedAt ? new Date(pair.pairCreatedAt).toISOString() : null, source_timestamp: new Date().toISOString() }; },
     async explorer(contract) { if (!options.blockscoutUrl) throw new Error('blockscout_endpoint_not_configured'); const base = options.blockscoutUrl.replace(/\/$/, ''); const explorer_url = `${base}/address/${encodeURIComponent(contract)}`; const payload = await request<{ address?: string; is_contract?: boolean; is_verified?: boolean; creator_address?: { hash?: string } | string; smart_contract?: { is_verified?: boolean; contract_type?: string } }>(`${base}/api/v2/addresses/${encodeURIComponent(contract)}`); const creator = typeof payload.creator_address === 'string' ? payload.creator_address : payload.creator_address?.hash ?? null; return { observed_contract: payload.address ?? null, explorer_url, contract_exists: true, contract_verified: payload.smart_contract?.is_verified ?? payload.is_verified ?? null, deployer_address: creator, contract_type: payload.smart_contract?.contract_type ?? (payload.is_contract ? 'contract' : null), source_timestamp: new Date().toISOString() }; }
   };
+}
+function stablecoinValueForRobinhood(chainCirculating: Record<string, unknown> | undefined) {
+  if (!chainCirculating) return 0;
+  const match = Object.entries(chainCirculating).find(([chain]) => /robinhood/i.test(chain))?.[1];
+  if (typeof match === 'number') return match;
+  if (match && typeof match === 'object' && 'current' in match && typeof (match as { current?: unknown }).current === 'number') return (match as { current: number }).current;
+  return 0;
 }
 async function requestJson<T>(url: string, timeoutMs: number): Promise<T> { const response = await fetch(url, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(timeoutMs) }); if (!response.ok) throw new Error(`provider_http_${response.status}`); const payload = await response.json() as T | { pairs?: T }; return (payload && typeof payload === 'object' && 'pairs' in payload ? payload.pairs : payload) as T; }
 function errorMessage(error: unknown) { return error instanceof Error ? error.message.slice(0, 160) : 'provider_unavailable'; }

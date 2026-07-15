@@ -148,6 +148,17 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
       .catch(() => undefined);
   }, []);
 
+  // The server refreshes Chain Pulse on its automation interval. Keep the desk
+  // aligned with that snapshot without polling review, receipt, or index state.
+  useEffect(() => {
+    const refreshPulse = () => api<RhChainPayload>('/v1/rh-chain')
+      .then((response) => { setDesk(response.data); if (useDeskEnvelope) setRouteEnvelope(response); })
+      .catch(() => undefined);
+    const refreshMemePulse = () => api<RhChainMemePulsePayload>('/v1/rh-chain/meme-pulse').then((response) => setMemePulse(response.data)).catch(() => undefined);
+    const timer = window.setInterval(() => { refreshPulse(); refreshMemePulse(); }, 60_000);
+    return () => window.clearInterval(timer);
+  }, [useDeskEnvelope]);
+
   const visibleMemes = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return (desk?.meme_pulse ?? []).filter((token) => {
@@ -190,7 +201,7 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
           {signalIndex && <SignalIndexPreview index={signalIndex} />}
           {reviewQueue && <ReviewQueuePreview queue={reviewQueue} />}
           {liveSnapshot && <LiveSnapshotPreview snapshot={liveSnapshot} />}
-          <MemePulseSection memes={visibleMemes} allMemes={desk.meme_pulse} freshnessState={memePulse?.freshness_state} query={query} risk={risk} onQuery={setQuery} onRisk={setRisk} />
+          <MemePulseSection memes={visibleMemes} allMemes={desk.meme_pulse} memePulse={memePulse} freshnessState={memePulse?.freshness_state} query={query} risk={risk} onQuery={setQuery} onRisk={setRisk} />
           <SignalClassifierSection desk={desk} />
           <RiskWallSection desk={desk} />
           <StockTokenSpilloverSection desk={desk} />
@@ -203,6 +214,9 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
 }
 
 function RhChainPulseSection({ desk }: { desk: RhChainPayload }) {
+  const pulse = desk.chain_pulse;
+  const timestamp = pulse.fetched_at ?? pulse.observed_at ?? desk.last_updated;
+  const isFresh = pulse.freshness_state === 'fresh';
   return <section className="panel rh-chain-section" aria-label="Chain Pulse">
     <div className="rh-chain-section-head">
       <div>
@@ -210,16 +224,17 @@ function RhChainPulseSection({ desk }: { desk: RhChainPayload }) {
         <h2>Chain Pulse</h2>
         <p>TVL, DEX volume, stock-token activity, stable liquidity, protocols, and bridge notes.</p>
       </div>
-      <span className="source-badge">{formatTimestamp(desk.last_updated)}</span>
+      <span className="source-badge">Updated {formatTimestamp(timestamp)}</span>
     </div>
+    {!isFresh && <p className="rh-chain-disclaimer">{pulse.freshness_state === 'stale' ? 'Chain metrics are stale context. Review the timestamp before using them.' : 'Chain metrics are source-required or unavailable. No unsupported exact values are shown.'} Observed {formatTimestamp(pulse.observed_at ?? timestamp)}.</p>}
     <div className="rh-chain-metric-grid">
-      {desk.chain_pulse.metrics.map((metric) => <MetricCard key={metric.id} metric={metric} />)}
+      {pulse.metrics.map((metric) => <MetricCard key={metric.id} metric={metric} />)}
     </div>
     <div className="rh-chain-two-column">
       <div className="rh-chain-subpanel">
         <p className="section-kicker">Top protocols</p>
         <div className="rh-chain-list">
-          {desk.chain_pulse.top_protocols.map((protocol) => <article key={protocol.name} className="rh-chain-list-item">
+          {pulse.top_protocols.map((protocol) => <article key={protocol.name} className="rh-chain-list-item">
             <div>
               <h3>{protocol.name}</h3>
               <p>{protocol.note}</p>
@@ -232,7 +247,7 @@ function RhChainPulseSection({ desk }: { desk: RhChainPayload }) {
       <div className="rh-chain-subpanel">
         <p className="section-kicker">Bridge notes</p>
         <div className="rh-chain-list">
-          {desk.chain_pulse.bridge_notes.map((note) => <p key={note} className="rh-chain-note">{note}</p>)}
+          {pulse.bridge_notes.map((note) => <p key={note} className="rh-chain-note">{note}</p>)}
         </div>
       </div>
     </div>
@@ -984,6 +999,7 @@ function ReviewStatePill({ state }: { state: RhChainReviewState }) {
 function MemePulseSection({
   memes,
   allMemes,
+  memePulse,
   freshnessState,
   query,
   risk,
@@ -992,6 +1008,7 @@ function MemePulseSection({
 }: {
   memes: RhChainMemeToken[];
   allMemes: RhChainMemeToken[];
+  memePulse: RhChainMemePulsePayload | null;
   freshnessState?: RhChainMemePulsePayload['freshness_state'];
   query: string;
   risk: RhChainRiskState | 'all';
@@ -1020,7 +1037,15 @@ function MemePulseSection({
         </label>
       </div>
     </div>
-    {freshnessState && freshnessState !== 'fresh' && <p className="rh-chain-disclaimer">Manual meme memory is {freshnessState}. Source timestamps require review before treating attention context as current.</p>}
+    {memePulse?.refreshed_at && <p className="panel-caption">Last refreshed {formatTimestamp(memePulse.refreshed_at)} · provider context and reviewed memory are kept distinct.</p>}
+    {freshnessState && freshnessState !== 'fresh' && <p className="rh-chain-disclaimer">Provider meme context is {freshnessState}. Source timestamps require review before treating attention context as current.</p>}
+    {memePulse && <div className="rh-chain-list" aria-label="Meme Pulse context priority">
+      {memePulse.top_attention_assets.map((asset, index) => <article className="rh-chain-list-item" key={`${asset.context_origin ?? 'memory'}-${asset.contract ?? asset.ticker}-${index}`}>
+        <div><p className="section-kicker">{asset.context_origin === 'auto_observed' ? 'auto-observed' : 'reviewed memory'}</p><h3>{asset.ticker} · {asset.name}</h3><p>{asset.infopunks_verdict}</p><p className="panel-caption">{asset.contract ? `Exact contract context: ${asset.contract}` : 'No exact contract supplied; source-required.'}</p></div>
+        <span className="rh-chain-chip">{asset.context_origin === 'auto_observed' ? 'auto-observed' : 'reviewed memory'}</span>
+        <SourceLine source={asset.source} />
+      </article>)}
+    </div>}
     <div className="rh-chain-table" role="table" aria-label="Robinhood Chain meme token watchlist">
       <div className="rh-chain-table-row head" role="row">
         <span role="columnheader">Rank</span>

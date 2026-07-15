@@ -11,6 +11,12 @@ import { getSignalDeskIndex } from '../data/signalDesk';
 import { createRhChainSignalReviewPacket, getRhChainDailyReceipt, getRhChainPayload, listRhChainSignals } from '../data/rhChain';
 import { asRhChainPersistedReviewItem, createRhChainSignalSubmission, InMemoryRhChainSubmissionStore, PostgresRhChainSubmissionStore, redactRhChainSubmissionForReview, type RhChainSubmissionStore, UnconfiguredRhChainSubmissionStore, updateRhChainSubmissionReviewRecord } from '../services/rhChainSignalVault';
 import { RhChainLiveSnapshotService, type RhChainLiveSnapshotOptions } from '../services/rhChainLiveSnapshotService';
+import { InMemoryRhChainMetricsSnapshotStore, PostgresRhChainMetricsSnapshotStore, RhChainChainPulseService, type RhChainMetricsSnapshotStore } from '../services/rhChainChainPulseService';
+import { InMemoryRhChainMemePulseSnapshotStore, PostgresRhChainMemePulseSnapshotStore, RhChainMemePulseSnapshotService, type RhChainMemePulseSnapshotStore } from '../services/rhChainMemePulseSnapshotService';
+import { InMemoryRhChainLaunchpadSnapshotStore, PostgresRhChainLaunchpadSnapshotStore, RhChainLaunchpadSnapshotService, type RhChainLaunchpadSnapshotStore } from '../services/rhChainLaunchpadSnapshotService';
+import { InMemoryRhChainDailyReceiptDraftStore, PostgresRhChainDailyReceiptDraftStore, RhChainDailyReceiptDraftService, type RhChainDailyReceiptDraftStore } from '../services/rhChainDailyReceiptDraftService';
+import { InMemoryRhChainRiskCorrelationSnapshotStore, PostgresRhChainRiskCorrelationSnapshotStore, RhChainRiskCorrelationSweepService, type RhChainRiskCorrelationSnapshotStore } from '../services/rhChainRiskCorrelationSweepService';
+import { InMemoryRhChainAutomationStore, isRhChainAutomationJobName, PostgresRhChainAutomationStore, RH_CHAIN_AUTOMATION_JOB_NAMES, RhChainAutomationService, type RhChainAutomationStore } from '../services/rhChainAutomationService';
 import { assembleRhChainTokenDossier } from '../services/rhChainTokenDossierService';
 import { assembleRhChainCloneRadar } from '../services/rhChainCloneRadarService';
 import { assembleRhChainLaunchpadObservatory } from '../services/rhChainLaunchpadObservatoryService';
@@ -561,6 +567,12 @@ export type CreateAppOptions = {
   rhChainSubmissionStore?: RhChainSubmissionStore;
   rhChainLiveSnapshotOptions?: Partial<RhChainLiveSnapshotOptions>;
   rhChainPublicRateLimit?: Partial<{ enabled: boolean; windowMs: number; max: number }>;
+  rhChainAutomationStore?: RhChainAutomationStore;
+  rhChainMetricsSnapshotStore?: RhChainMetricsSnapshotStore;
+  rhChainMemePulseSnapshotStore?: RhChainMemePulseSnapshotStore;
+  rhChainLaunchpadSnapshotStore?: RhChainLaunchpadSnapshotStore;
+  rhChainDailyReceiptDraftStore?: RhChainDailyReceiptDraftStore;
+  rhChainRiskCorrelationSnapshotStore?: RhChainRiskCorrelationSnapshotStore;
 };
 
 class RhChainPublicRateLimiter {
@@ -594,6 +606,37 @@ export async function createApp(
     blockscoutUrl: config.rhChainBlockscoutUrl,
     databaseUrl: config.databaseUrl,
     ...options.rhChainLiveSnapshotOptions
+  });
+  const rhChainMetricsSnapshotStore: RhChainMetricsSnapshotStore = options.rhChainMetricsSnapshotStore
+    ?? (config.databaseUrl ? new PostgresRhChainMetricsSnapshotStore(config.databaseUrl) : new InMemoryRhChainMetricsSnapshotStore());
+  const rhChainChainPulse = new RhChainChainPulseService(rhChainMetricsSnapshotStore);
+  const rhChainMemePulseSnapshotStore: RhChainMemePulseSnapshotStore = options.rhChainMemePulseSnapshotStore
+    ?? (config.databaseUrl ? new PostgresRhChainMemePulseSnapshotStore(config.databaseUrl) : new InMemoryRhChainMemePulseSnapshotStore());
+  const rhChainMemePulse = new RhChainMemePulseSnapshotService(rhChainMemePulseSnapshotStore, rhChainLiveSnapshots, undefined, rhChainSubmissionStore);
+  const rhChainLaunchpadSnapshotStore: RhChainLaunchpadSnapshotStore = options.rhChainLaunchpadSnapshotStore
+    ?? (config.databaseUrl ? new PostgresRhChainLaunchpadSnapshotStore(config.databaseUrl) : new InMemoryRhChainLaunchpadSnapshotStore());
+  const rhChainLaunchpad = new RhChainLaunchpadSnapshotService(rhChainLaunchpadSnapshotStore, rhChainSubmissionStore);
+  const rhChainDailyReceiptDraftStore: RhChainDailyReceiptDraftStore = options.rhChainDailyReceiptDraftStore
+    ?? (config.databaseUrl ? new PostgresRhChainDailyReceiptDraftStore(config.databaseUrl) : new InMemoryRhChainDailyReceiptDraftStore());
+  const rhChainDailyReceiptDrafts = new RhChainDailyReceiptDraftService(rhChainDailyReceiptDraftStore, rhChainChainPulse, rhChainMemePulse, rhChainLaunchpad, rhChainLiveSnapshots, rhChainSubmissionStore);
+  const rhChainRiskCorrelationSnapshotStore: RhChainRiskCorrelationSnapshotStore = options.rhChainRiskCorrelationSnapshotStore
+    ?? (config.databaseUrl ? new PostgresRhChainRiskCorrelationSnapshotStore(config.databaseUrl) : new InMemoryRhChainRiskCorrelationSnapshotStore());
+  const rhChainRiskCorrelationSweep = new RhChainRiskCorrelationSweepService(rhChainRiskCorrelationSnapshotStore, rhChainSubmissionStore);
+  const rhChainAutomationStore: RhChainAutomationStore = options.rhChainAutomationStore
+    ?? (config.databaseUrl ? new PostgresRhChainAutomationStore(config.databaseUrl) : new InMemoryRhChainAutomationStore());
+  const rhChainAutomation = new RhChainAutomationService({
+    enabled: config.rhChainAutomationEnabled,
+    isProduction: config.isProduction,
+    instanceId: config.rhChainAutomationInstanceId,
+    lockTtlMs: config.rhChainJobLockTtlMs,
+    store: rhChainAutomationStore,
+    snapshots: rhChainLiveSnapshots,
+    chainPulseSnapshots: rhChainChainPulse,
+    memePulseSnapshots: rhChainMemePulse,
+    launchpadSnapshots: rhChainLaunchpad,
+    dailyReceiptDrafts: rhChainDailyReceiptDrafts,
+    riskCorrelationSweep: rhChainRiskCorrelationSweep,
+    submissions: rhChainSubmissionStore
   });
   const rhChainPublicRateLimiter = new RhChainPublicRateLimiter(
     options.rhChainPublicRateLimit?.enabled ?? config.rhChainPublicRateLimitEnabled,
@@ -639,7 +682,15 @@ export async function createApp(
   );
   configureMachineDemoSeed(config.machineDemoSeed);
   const responseCache = createResponseCache();
-  app.addHook('onClose', async () => { await rhChainSubmissionStore.close?.(); });
+  app.addHook('onClose', async () => {
+    await rhChainSubmissionStore.close?.();
+    await rhChainAutomationStore.close?.();
+    await rhChainMetricsSnapshotStore.close?.();
+    await rhChainMemePulseSnapshotStore.close?.();
+    await rhChainLaunchpadSnapshotStore.close?.();
+    await rhChainDailyReceiptDraftStore.close?.();
+    await rhChainRiskCorrelationSnapshotStore.close?.();
+  });
   const allowedOrigins = new Set(DEFAULT_ALLOWED_ORIGINS);
   if (config.frontendOrigin) allowedOrigins.add(config.frontendOrigin);
   await app.register(cors, {
@@ -1799,7 +1850,57 @@ export async function createApp(
       throw error;
     }
   });
-  app.get('/v1/rh-chain', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainIntelligence())));
+  app.get('/internal/rh-chain/jobs', async (req, reply) => {
+    // Internal job visibility uses the same dedicated Review Console credential.
+    // Without that credential this route is deliberately undiscoverable.
+    if (!config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
+    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send(buildRhChainApiErrorResponse('review_admin_token_required'));
+    return safeJsonExport(buildRhChainApiResponse({
+      enabled: rhChainAutomation.enabled,
+      durable_lock_available: rhChainAutomation.durableLockAvailable,
+      jobs: RH_CHAIN_AUTOMATION_JOB_NAMES,
+      runs: await rhChainAutomation.listRuns()
+    }));
+  });
+  app.post<{ Params: { job_name: string } }>('/internal/rh-chain/jobs/:job_name/run', async (req, reply) => {
+    if (!config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
+    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send(buildRhChainApiErrorResponse('review_admin_token_required'));
+    if (!isRhChainAutomationJobName(req.params.job_name)) return reply.code(404).send(buildRhChainApiErrorResponse('rh_chain_automation_job_not_found'));
+    const run = await rhChainAutomation.run(req.params.job_name);
+    return safeJsonExport(buildRhChainApiResponse({ run }));
+  });
+  app.get('/internal/rh-chain/daily-receipt-drafts', async (req, reply) => {
+    if (!config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
+    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send(buildRhChainApiErrorResponse('review_admin_token_required'));
+    return safeJsonExport(buildRhChainApiResponse({ drafts: await rhChainDailyReceiptDrafts.listDrafts() }));
+  });
+  app.get('/internal/rh-chain/risk-correlations', async (req, reply) => {
+    if (!config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
+    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send(buildRhChainApiErrorResponse('review_admin_token_required'));
+    const snapshot = await rhChainRiskCorrelationSweep.getLatest();
+    return safeJsonExport(buildRhChainApiResponse({ observed_at: snapshot?.observed_at ?? null, correlations: snapshot?.suspected_correlations ?? [] }));
+  });
+  app.get<{ Params: { draft_id: string } }>('/internal/rh-chain/daily-receipt-drafts/:draft_id', async (req, reply) => {
+    if (!config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
+    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send(buildRhChainApiErrorResponse('review_admin_token_required'));
+    const draft = await rhChainDailyReceiptDrafts.getDraft(req.params.draft_id);
+    return draft ? safeJsonExport(buildRhChainApiResponse({ draft })) : reply.code(404).send(buildRhChainApiErrorResponse('rh_chain_daily_receipt_draft_not_found'));
+  });
+  app.post<{ Params: { draft_id: string } }>('/internal/rh-chain/daily-receipt-drafts/:draft_id/publish', async (req, reply) => {
+    if (!config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
+    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send(buildRhChainApiErrorResponse('review_admin_token_required'));
+    const reviewer = typeof req.headers['x-rh-chain-reviewer-id'] === 'string' ? req.headers['x-rh-chain-reviewer-id'].trim() : '';
+    if (!reviewer) return reply.code(400).send(buildRhChainApiErrorResponse('reviewer_id_required'));
+    try { const published = await rhChainDailyReceiptDrafts.publish(req.params.draft_id, reviewer, (req.body as { reviewer_edits?: Record<string, string> } | undefined)?.reviewer_edits); return safeJsonExport(buildRhChainApiResponse({ ...published, detail_route: `/rh-chain-signal-desk/daily-receipts/${published.receipt.receipt_id}`, share_card_route: `/rh-chain-signal-desk/daily-receipts/${published.receipt.receipt_id}/card`, distribution_copy: 'Receipt Relay and Distribution Pack read the reviewer-published Daily Receipt feed.' })); } catch (error) { return reply.code(409).send(buildRhChainApiErrorResponse(error instanceof Error ? error.message : 'rh_chain_daily_receipt_publish_failed')); }
+  });
+  app.post<{ Params: { draft_id: string } }>('/internal/rh-chain/daily-receipt-drafts/:draft_id/reject', async (req, reply) => {
+    if (!config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
+    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send(buildRhChainApiErrorResponse('review_admin_token_required'));
+    const reviewer = typeof req.headers['x-rh-chain-reviewer-id'] === 'string' ? req.headers['x-rh-chain-reviewer-id'].trim() : '';
+    if (!reviewer) return reply.code(400).send(buildRhChainApiErrorResponse('reviewer_id_required'));
+    try { return safeJsonExport(buildRhChainApiResponse({ draft: await rhChainDailyReceiptDrafts.reject(req.params.draft_id, reviewer) })); } catch (error) { return reply.code(409).send(buildRhChainApiErrorResponse(error instanceof Error ? error.message : 'rh_chain_daily_receipt_reject_failed')); }
+  });
+  app.get('/v1/rh-chain', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainIntelligence(await rhChainChainPulse.getLatest()))));
   app.get('/v1/rh-chain/memes', async () => safeJsonExport(buildRhChainApiResponse({
     generated_at: getRhChainPayload().generated_at,
     source_policy: getRhChainPayload().source_policy,
@@ -1811,22 +1912,25 @@ export async function createApp(
     ...listRhChainSignals()
   })));
   app.get('/v1/rh-chain/4663-index', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChain4663Index())));
-  app.get('/v1/rh-chain/daily-receipts', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainDailyReceipts())));
+  app.get('/v1/rh-chain/daily-receipts', async () => safeJsonExport(buildRhChainApiResponse(await rhChainDailyReceiptDrafts.publicFeed())));
   app.get<{ Params: { receipt_id: string } }>('/v1/rh-chain/daily-receipts/:receipt_id', async (req, reply) => {
-    const receipt = getRhChainDailyReceipt(req.params.receipt_id);
+    const receipt = await rhChainDailyReceiptDrafts.publicReceipt(req.params.receipt_id);
     if (!receipt) return reply.code(404).send(buildRhChainApiErrorResponse('rh_chain_daily_receipt_not_found'));
     return safeJsonExport(buildRhChainApiResponse(receipt));
   });
-  app.get('/v1/rh-chain/meme-pulse', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainMemePulseScreen(await rhChainLiveSnapshots.getLiveSnapshot()))));
+  app.get('/v1/rh-chain/meme-pulse', async () => {
+    const snapshot = await rhChainMemePulse.getLatest();
+    return safeJsonExport(buildRhChainApiResponse(snapshot?.pulse ?? assembleRhChainMemePulseScreen(await rhChainLiveSnapshots.getLiveSnapshot())));
+  });
   app.get('/v1/rh-chain/launch-surfaces', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainLaunchSurfaces())));
-  app.get('/v1/rh-chain/launchpad-observatory', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainLaunchpadObservatory())));
+  app.get('/v1/rh-chain/launchpad-observatory', async () => safeJsonExport(buildRhChainApiResponse((await rhChainLaunchpad.getLatest())?.observatory ?? assembleRhChainLaunchpadObservatory())));
   app.post('/v1/rh-chain/scout/query', async (req, reply) => {
     const rate = rhChainPublicRateLimiter.consume(`scout:${req.ip}`);
     if (!rate.allowed) return reply.header('Retry-After', String(Math.ceil(rate.retryAfterMs / 1000))).code(429).send(buildRhChainApiErrorResponse('rh_chain_public_rate_limit_exceeded'));
     const parsed = RhChainScoutQuerySchema.safeParse(req.body);
     if (!parsed.success) return reply.code(400).send(buildRhChainApiErrorResponse('invalid_request', { issues: parsed.error.issues }));
     const submissions = await rhChainSubmissionStore.list();
-    return safeJsonExport(buildRhChainApiResponse(queryRhChainScout(parsed.data, assembleRhChainReviewQueue(submissions.map(asRhChainPersistedReviewItem)).items)));
+    return safeJsonExport(buildRhChainApiResponse(queryRhChainScout(parsed.data, assembleRhChainReviewQueue(submissions.map(asRhChainPersistedReviewItem)).items, (await rhChainLaunchpad.getLatest())?.observatory)));
   });
   app.get('/v1/rh-chain/live-snapshot', async () => {
     const snapshot = await rhChainLiveSnapshots.getLiveSnapshot();
@@ -1837,12 +1941,15 @@ export async function createApp(
     return safeJsonExport(buildRhChainApiResponse({ ...snapshot, data_mode: snapshot.live_snapshots_enabled && snapshot.cache_status === 'fresh' ? 'live_cached' as const : snapshot.live_snapshots_enabled ? 'unavailable' as const : 'seeded' as const }));
   });
   app.get<{ Params: { contract: string } }>('/v1/rh-chain/tokens/:contract/dossier', async (req) => {
-    const [submissions, tokenSnapshot, liveSnapshot] = await Promise.all([
+    const [submissions, tokenSnapshot, liveSnapshot, sweep] = await Promise.all([
       rhChainSubmissionStore.list(),
       rhChainLiveSnapshots.getTokenSnapshot(req.params.contract),
-      rhChainLiveSnapshots.getLiveSnapshot()
+      rhChainLiveSnapshots.getLiveSnapshot(),
+      rhChainRiskCorrelationSweep.getLatest()
     ]);
-    return safeJsonExport(buildRhChainApiResponse(assembleRhChainTokenDossier(req.params.contract, submissions, tokenSnapshot, liveSnapshot)));
+    const dossier = assembleRhChainTokenDossier(req.params.contract, submissions, tokenSnapshot, liveSnapshot);
+    const related_suspected_correlations = sweep?.suspected_correlations.filter((correlation) => correlation.related_records.some((record) => record.token_contract.toLowerCase() === req.params.contract.toLowerCase())).map(({ correlation_id, correlation_type, evidence_summary, confidence_level, review_status, observed_at }) => ({ correlation_id, correlation_type, evidence_summary, confidence_level, review_status, observed_at }));
+    return safeJsonExport(buildRhChainApiResponse({ ...dossier, ...(related_suspected_correlations?.length ? { related_suspected_correlations } : {}) }));
   });
   app.get('/v1/rh-chain/review-queue', async () => {
     const submissions = await rhChainSubmissionStore.list();
@@ -1850,11 +1957,13 @@ export async function createApp(
   });
   app.get('/v1/rh-chain/clone-radar', async () => {
     const submissions = await rhChainSubmissionStore.list();
-    return safeJsonExport(buildRhChainApiResponse(assembleRhChainCloneRadar(assembleRhChainReviewQueue(submissions.map(asRhChainPersistedReviewItem)).items)));
+    const sweep = await rhChainRiskCorrelationSweep.getLatest();
+    const radar = sweep?.radar ?? assembleRhChainCloneRadar(assembleRhChainReviewQueue(submissions.map(asRhChainPersistedReviewItem)).items);
+    return safeJsonExport(buildRhChainApiResponse({ ...radar, ...(sweep ? { correlation_sweep: { observed_at: sweep.observed_at, freshness_state: sweep.freshness_state, correlation_count: sweep.suspected_correlations.length } } : {}) }));
   });
   app.get('/v1/rh-chain/scouts', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainScouts(await rhChainSubmissionStore.list()))));
-  app.get('/v1/rh-chain/distribution-pack', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainDistributionPack())));
-  app.get('/v1/rh-chain/receipt-relay', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainReceiptRelay())));
+  app.get('/v1/rh-chain/distribution-pack', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainDistributionPack((await rhChainDailyReceiptDrafts.publicFeed()).latest_receipt))));
+  app.get('/v1/rh-chain/receipt-relay', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainReceiptRelay((await rhChainDailyReceiptDrafts.publicFeed()).latest_receipt))));
   app.get('/v1/rh-chain/signals/submissions', async () => {
     const submissions = await rhChainSubmissionStore.list();
     return safeJsonExport(buildRhChainApiResponse({
@@ -2735,7 +2844,39 @@ export async function createApp(
     });
   }
 
+  if (config.rhChainAutomationEnabled) {
+    const schedule = (jobName: import('../services/rhChainAutomationService').RhChainAutomationJobName, intervalMs: number) => {
+      const timer = setInterval(() => { void runRhChainAutomationJob(jobName); }, intervalMs);
+      timer.unref();
+      app.addHook('onClose', async () => clearInterval(timer));
+    };
+    // Context refreshes are independently scheduled. A provider or job failure is
+    // recorded on that run and cannot prevent the next job from executing.
+    schedule('rh_chain_pulse_refresh', config.rhChainChainPulseIntervalMs);
+    schedule('rh_freshness_sweep', config.rhChainChainPulseIntervalMs);
+    schedule('rh_meme_pulse_refresh', config.rhChainMemePulseIntervalMs);
+    schedule('rh_launchpad_observatory_refresh', config.rhChainLaunchpadIntervalMs);
+    if (config.rhChainReceiptDraftCron) {
+      let lastReceiptDraftMinute = '';
+      const timer = setInterval(() => {
+        const now = new Date();
+        const minuteKey = now.toISOString().slice(0, 16);
+        if (minuteKey !== lastReceiptDraftMinute && cronMatches(config.rhChainReceiptDraftCron!, now)) {
+          lastReceiptDraftMinute = minuteKey;
+          void runRhChainAutomationJob('rh_daily_receipt_draft');
+        }
+      }, 30_000);
+      timer.unref();
+      app.addHook('onClose', async () => clearInterval(timer));
+    }
+  }
+
   return app;
+
+  async function runRhChainAutomationJob(jobName: import('../services/rhChainAutomationService').RhChainAutomationJobName) {
+    const run = await rhChainAutomation.run(jobName);
+    console.log(JSON.stringify({ event: 'rh_chain_automation_run', job_id: run.job_id, job_name: run.job_name, status: run.status, error_summary: run.error_summary, records_observed: run.records_observed, records_updated: run.records_updated }));
+  }
 
   function refreshBackgroundAnalytics() {
     setTimeout(() => {
@@ -2944,6 +3085,29 @@ function isRhChainReviewAdmin(reviewToken: string | null, authorization: string 
   if (!reviewToken) return false;
   const match = authorization?.match(/^Bearer\s+(.+)$/i);
   return match?.[1] === reviewToken;
+}
+
+/** Small, intentionally bounded five-field cron matcher for an optional local scheduler. */
+function cronMatches(expression: string, date: Date) {
+  const fields = expression.split(/\s+/);
+  if (fields.length !== 5) return false;
+  return cronFieldMatches(fields[0], date.getMinutes(), 0, 59)
+    && cronFieldMatches(fields[1], date.getHours(), 0, 23)
+    && cronFieldMatches(fields[2], date.getDate(), 1, 31)
+    && cronFieldMatches(fields[3], date.getMonth() + 1, 1, 12)
+    && cronFieldMatches(fields[4], date.getDay(), 0, 7);
+}
+
+function cronFieldMatches(field: string, value: number, min: number, max: number) {
+  return field.split(',').some((part) => {
+    if (part === '*') return true;
+    const stepped = part.match(/^\*\/(\d+)$/);
+    if (stepped) return Number(stepped[1]) > 0 && value % Number(stepped[1]) === 0;
+    const range = part.match(/^(\d+)-(\d+)$/);
+    if (range) return value >= Number(range[1]) && value <= Number(range[2]);
+    const numeric = Number(part);
+    return Number.isInteger(numeric) && numeric >= min && numeric <= max && (numeric === value || (max === 7 && numeric === 7 && value === 0));
+  });
 }
 
 function normalizeRhChainDuplicateField(value: string) {

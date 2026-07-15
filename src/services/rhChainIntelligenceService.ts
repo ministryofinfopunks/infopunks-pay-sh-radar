@@ -1,4 +1,5 @@
 import {
+  createRhChainSource,
   getRhChain4663Index,
   getRhChainDailyReceipts,
   getRhChainLaunchSurfaces,
@@ -12,6 +13,8 @@ import {
   type RhChainReviewItem,
   type RhChainSource
 } from '../data/rhChain';
+import type { RhChainMetricsSnapshot } from './rhChainChainPulseService';
+import { rhChainMetricsSnapshotSource } from './rhChainChainPulseService';
 import {
   createBlockscoutProvider,
   createCoinGeckoProvider,
@@ -60,8 +63,38 @@ const providerStatus: RhChainProviderIdentity[] = [
   live_indexing_enabled
 }));
 
-export function assembleRhChainChainPulse() {
-  return getRhChainPayload().chain_pulse;
+export function assembleRhChainChainPulse(snapshot?: RhChainMetricsSnapshot | null) {
+  const fallback = getRhChainPayload().chain_pulse;
+  if (!snapshot) return fallback;
+  const source = rhChainMetricsSnapshotSource(snapshot);
+  const metric = (id: string, label: string, value: number | null, note: string) => ({
+    id,
+    label,
+    value: typeof value === 'number' ? formatUsd(value) : 'source required',
+    state: snapshot.freshness_state === 'fresh' && typeof value === 'number' ? 'watching' as const : 'source_pending' as const,
+    note: typeof value === 'number' ? note : 'No provider value is displayed without a source-stamped snapshot.',
+    source
+  });
+  const top_protocols = snapshot.top_protocols.length
+    ? snapshot.top_protocols.map((protocol) => ({ name: protocol.name, category: protocol.category, status: snapshot.freshness_state === 'fresh' ? 'context observed' : 'stale context', note: typeof protocol.tvl === 'number' ? `Provider-reported TVL context: ${formatUsd(protocol.tvl)}. Context only; not an endorsement.` : 'Provider-listed protocol context; exact TVL was not supplied.', source }))
+    : fallback.top_protocols.map((protocol) => ({ ...protocol, source: snapshot.freshness_state === 'source_required' ? createRhChainSource({ source_name: 'RH Chain manual fallback', source_url: null, observed_at: snapshot.observed_at, updated_at: snapshot.fetched_at, data_mode: 'manual', confidence_level: 'low', note: snapshot.source_notes.join(' ') }) : source }));
+  return {
+    metrics: [
+      metric('tvl', 'TVL', snapshot.tvl, 'DefiLlama TVL context.'),
+      metric('dex_volume', 'DEX volume (24h)', snapshot.dex_volume_24h, 'DefiLlama DEX-volume context.'),
+      metric('stablecoin_liquidity', 'Stablecoin market cap', snapshot.stablecoin_market_cap, 'DefiLlama stablecoin context, when available.'),
+      metric('fees_24h', 'Fees (24h)', snapshot.fees_24h, 'DefiLlama fee context, when available.'),
+      ...fallback.metrics.filter((item) => ['stock_token_activity', 'attention_velocity'].includes(item.id))
+    ],
+    top_protocols,
+    bridge_notes: fallback.bridge_notes,
+    observed_at: snapshot.observed_at,
+    fetched_at: snapshot.fetched_at,
+    freshness_state: snapshot.freshness_state,
+    confidence_level: snapshot.confidence_level,
+    data_mode: snapshot.data_mode,
+    source_notes: snapshot.source_notes
+  };
 }
 
 export function assembleRhChainMemePulse() {
@@ -97,18 +130,23 @@ export function assembleRhChainDailyReceipts() {
 
 export function assembleRhChainLaunchSurfaces() { return getRhChainLaunchSurfaces(); }
 
-export function assembleRhChainIntelligence() {
+export function assembleRhChainIntelligence(snapshot?: RhChainMetricsSnapshot | null) {
   const desk = getRhChainPayload();
   return {
     ...desk,
+    ...(snapshot ? { generated_at: snapshot.fetched_at, last_updated: snapshot.fetched_at } : {}),
     provider_status: providerStatus,
-    chain_pulse: assembleRhChainChainPulse(),
+    chain_pulse: assembleRhChainChainPulse(snapshot),
     meme_pulse: assembleRhChainMemePulse(),
     review_queue: assembleRhChainReviewQueue(),
     receipts: assembleRhChainReceipts(),
     signal_index_4663_detail: assembleRhChain4663Index(),
     daily_receipts: assembleRhChainDailyReceipts()
   };
+}
+
+function formatUsd(value: number) {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value);
 }
 
 export function buildRhChainApiResponse<T>(data: T): RhChainApiResponse<T> {

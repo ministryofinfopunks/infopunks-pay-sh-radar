@@ -1,15 +1,14 @@
-import { createRhChainDailyReceiptXPost, getRhChainDailyReceipts, getRhChainLaunchSurfaces, getRhChainPayload, rhChainDailyReceiptRoute, type RhChainDistributionPackPayload, type RhChainDistributionPacket } from '../data/rhChain';
+import { createRhChainDailyReceiptXPost, getRhChainDailyReceipts, getRhChainLaunchSurfaces, getRhChainPayload, type RhChainDistributionPackPayload, type RhChainDistributionPacket } from '../data/rhChain';
 
 const DOCTRINE = 'External data gives context. Infopunks gives judgment. Receipts create memory.' as const;
 const DISCLAIMER = 'Public intelligence distribution only. Do not spam, coordinate raids, harass people, imply affiliation, or treat any packet as trading advice.';
 const BASE = '/rh-chain-signal-desk';
 
 /** Writes source-linked sharing packets; copy carries the caveat instead of separating it from the claim. */
-export function assembleRhChainDistributionPack(): RhChainDistributionPackPayload {
-  const receipt = getRhChainDailyReceipts().latest_receipt;
+export function assembleRhChainDistributionPack(receipt = getRhChainDailyReceipts().latest_receipt): RhChainDistributionPackPayload {
   const desk = getRhChainPayload();
   const packets: RhChainDistributionPacket[] = [
-    { id: 'daily-receipt', title: 'Daily Receipt post', intended_surface: 'x', copy_text: createRhChainDailyReceiptXPost(receipt), link: `${BASE}${rhChainDailyReceiptRoute(receipt.receipt_id)}`, risk_disclaimer: 'Receipt memory is not a token recommendation or safety claim.', last_updated: receipt.generated_at, source_artifact: 'Daily Receipts' },
+    { id: 'daily-receipt', title: 'Daily Receipt post', intended_surface: 'x', copy_text: createRhChainDailyReceiptXPost(receipt), link: `${BASE}/daily-receipts/${encodeURIComponent(receipt.receipt_id)}`, risk_disclaimer: 'Receipt memory is not a token recommendation or safety claim.', last_updated: receipt.generated_at, source_artifact: 'Daily Receipts' },
     { id: 'meme-pulse', title: 'Meme Pulse post', intended_surface: 'telegram', copy_text: `Most see noise.\nInfopunks reads the pulse.\n\nWhat’s moving. What’s risky. What the market is trying to say.\n\nExternal data gives context. Infopunks gives judgment.`, link: `${BASE}/meme-pulse`, risk_disclaimer: 'Attention is context, not an instruction to trade or promote a token.', last_updated: desk.last_updated, source_artifact: 'RH Meme Pulse' },
     { id: 'clone-radar', title: 'Clone Radar warning post', intended_surface: 'x', copy_text: `Copies move faster than memory.\n\nClone & Impersonator Radar tracks suspected, unverified risk patterns across RH Chain.\n\nVerify the exact contract. Read the receipts.\nNo pile-ons. No certainty without evidence.`, link: `${BASE}/clone-radar`, risk_disclaimer: 'Entries are suspected patterns requiring review, not definitive misconduct findings.', last_updated: desk.last_updated, source_artifact: 'Clone & Impersonator Radar' },
     { id: 'token-dossier', title: 'Token Dossier share post', intended_surface: 'discord', copy_text: `A ticker is not an identity.\n\nOpen the Infopunks token dossier for the exact contract: desk memory, receipts, launch context, and external context—kept separate.\n\nInclusion is not endorsement.`, link: `${BASE}/tokens/:contract`, risk_disclaimer: 'Use the exact contract route. A dossier does not call a token safe or add it to the index.', last_updated: desk.last_updated, source_artifact: 'Token Dossiers' },
