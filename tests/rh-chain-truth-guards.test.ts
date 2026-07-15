@@ -13,6 +13,9 @@ describe('RH Chain truth guards', () => {
     expect(getRhChainFreshnessState('2026-07-13T01:00:00.000Z', 'manual', now)).toBe('fresh');
     expect(getRhChainFreshnessState('2026-07-11T12:00:00.000Z', 'manual', now)).toBe('aging');
     expect(getRhChainFreshnessState('2026-07-09T00:00:00.000Z', 'manual', now)).toBe('stale');
+    expect(getRhChainFreshnessState(undefined, 'manual', now)).toBe('unknown');
+    expect(getRhChainFreshnessState('invalid', 'manual', now)).toBe('unknown');
+    expect(getRhChainFreshnessState('2026-07-14T12:00:00.000Z', 'manual', now)).toBe('unknown');
   });
 
   it('exposes freshness state on manual receipt and index payloads', () => {

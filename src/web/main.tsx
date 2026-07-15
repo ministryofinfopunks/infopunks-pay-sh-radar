@@ -43,6 +43,7 @@ import { MachineMarketPreflightCardPage, PreflightCardIndexPage, RadarPreflightC
 import { AbundanceDeskPage, AttentionMarketWatchPage, AttentionMarketWatchProfilePage, AttentionMarketsPage, NarrativeSignalReportPage, NarrativesIndexPage, SignalSourcePage, SignalUpdatePermalinkPage } from './narrativePages';
 import { RhChainSignalDeskPage } from './rhChainSignalDeskPages';
 import { HermesDeskPage } from './hermesDeskPages';
+import { formatAbsoluteUtc } from '../shared/timestamps';
 import { RADAR_NETWORK_LIST, RADAR_NETWORKS, RadarContextHeader, RadarHeaderIdentity, RadarProductNavigation } from './radarNetworks';
 import './styles.css';
 
@@ -59,7 +60,7 @@ function RadarHomepageHero() {
     <div className="radar-universal-copy">
       <p className="eyebrow">Infopunks Radar</p>
       <h1 id="radar-home-title">Intelligence before the wallet acts.</h1>
-      <p className="radar-universal-lede">Evidence, market memory and decision infrastructure across emerging onchain economies.</p>
+      <p className="radar-universal-lede">Solana evaluates agent spending. RH Chain maps onchain finance. Receipts preserve the memory.</p>
       <div className="panel-actions radar-universal-actions">
         <a className="execute compact" href={RADAR_NETWORKS.solana.href}>Open Solana Radar</a>
         <a className="execute compact secondary rh-entry-action" href={RADAR_NETWORKS['robinhood-chain'].href}>Explore Robinhood Chain</a>
@@ -69,7 +70,6 @@ function RadarHomepageHero() {
       <span className="radar-system-mark" aria-hidden="true" />
       <p className="section-kicker">System architecture</p>
       <strong>One evidence system.<br />Multiple chain intelligence surfaces.</strong>
-      <p>Solana evaluates agent spending. Robinhood Chain maps onchain finance signals. Receipts preserve the memory beneath both.</p>
     </aside>
   </section>;
 }
@@ -9762,6 +9762,11 @@ function RadarApp() {
   const ecosystemStatus = getEcosystemStatus(data.pulse, pulseSummary);
   const ecosystemReading = getEcosystemReading(data.pulse, pulseSummary);
   const providerDegradation = providerDegradationInfo(selectedProvider, providerIntel);
+  const catalogTiming = data.pulse.data_source.generated_at
+    ? { label: 'Catalog generated', value: formatAbsoluteUtc(data.pulse.data_source.generated_at) }
+    : data.pulse.data_source.last_ingested_at
+      ? { label: 'Last ingestion', value: formatAbsoluteUtc(data.pulse.data_source.last_ingested_at) }
+      : { label: 'Catalog timing', value: 'Timestamp unavailable' };
   return <div className={`shell ${agentMode ? 'agent-mode-shell' : ''} density-${densityMode}`}>
     <a className="skip-link" href="#terminal-content">Skip to content</a>
     <header className="site-header">
@@ -9782,7 +9787,7 @@ function RadarApp() {
     <main id="terminal-content">
     {!agentMode && <><RadarHomepageHero /><RadarNetworkEntrySection /></>}
     {!agentMode && <section className="terminal-meta-strip" aria-label="Terminal session metadata">
-      <span><b>System Time</b>{formatDate(data.pulse.data_source.generated_at ?? data.pulse.data_source.last_ingested_at)}</span>
+      <span><b>{catalogTiming.label}</b>{catalogTiming.value}</span>
       <span><b>Network</b>{data.pulse.data_source.mode === 'live_pay_sh_catalog' && !data.pulse.data_source.used_fixture ? 'online' : 'fixture fallback'}</span>
       <span><b>Operator</b>Infopunks</span>
       <span><b>Terminal ID</b>RADAR-{data.pulse.providerCount}-{data.pulse.endpointCount}</span>
@@ -9820,47 +9825,56 @@ function RadarApp() {
     </section>}
     {agentMode && <AgentModeBanner onExit={() => setAgentMode(false)} onOpenApiDocs={openApiDocs} />}
     {!agentMode && <section className="panel solana-evidence-brief" aria-labelledby="solana-evidence-title">
-      <div>
-        <p className="eyebrow">Solana Radar · Current evidence state</p>
-        <h2 id="solana-evidence-title">Proof before agent spend.</h2>
-        <p className="mission-subtitle">Mapped Pay.sh routes, provider evidence and benchmark readiness—kept distinct from the Robinhood Chain signal desk.</p>
-        <p className="copy">Pay.sh is the spend rail. Radar is the evidence ledger. Agents inspect evidence, request a non-executing plan, and record proof artifacts before trust compounds.</p>
-        <section className="preflight-home-cta" aria-label="Preflight card index call to action">
-          <div className="preflight-home-cta-copy">
-            <p className="section-kicker">New: Browse Preflight Cards</p>
-            <p>Agent spend safety labels for autonomous markets.</p>
-            <small>Discover → Check → Pay → Prove</small>
-            <small>No receipt, no trust.</small>
+      <div className="solana-evidence-primary">
+        <div className="solana-evidence-summary">
+          <p className="eyebrow">Solana Radar · Current evidence state</p>
+          <h2 id="solana-evidence-title">Proof before agent spend.</h2>
+          <p className="mission-subtitle">Mapped Pay.sh routes, provider evidence and benchmark readiness—kept distinct from the Robinhood Chain signal desk.</p>
+          <p className="copy">Pay.sh is the spend rail. Radar is the evidence ledger. Agents inspect evidence, request a non-executing plan, and record proof artifacts before trust compounds.</p>
+          <section className="preflight-home-cta" aria-label="Preflight card index call to action">
+            <div className="preflight-home-cta-copy">
+              <p className="section-kicker">New: Browse Preflight Cards</p>
+              <p>Agent spend safety labels for autonomous markets.</p>
+              <small>Discover → Check → Pay → Prove</small>
+              <small>No receipt, no trust.</small>
+            </div>
+            <a className="execute compact secondary" href="/radar/cards">Browse Preflight Cards</a>
+          </section>
+          <div className="solana-orientation-summary">
+            <ProofMetricsStrip summary={publicProofSummary(evidenceLedger)} />
+            <p className="panel-caption">Recorded means paid evidence exists. No winner means Radar refuses to infer superiority without criteria.</p>
+            <div className="orientation-panel" aria-label="Radar orientation">
+              <strong>Orientation</strong>
+              <p>Pulse shows live ecosystem intelligence. Benchmarks show artifact-backed route evidence.</p>
+            </div>
           </div>
-          <a className="execute compact secondary" href="/radar/cards">Browse Preflight Cards</a>
-        </section>
-        <ProofMetricsStrip summary={publicProofSummary(evidenceLedger)} />
-        <p className="panel-caption">Recorded means paid evidence exists. No winner means Radar refuses to infer superiority without criteria.</p>
-        <div className="orientation-panel" aria-label="Radar orientation">
-          <strong>Orientation</strong>
-          <p>Pulse shows live ecosystem intelligence. Benchmarks show artifact-backed route evidence.</p>
         </div>
-        <div className="source-stack">
-          <span className={`source-badge ${data.pulse.data_source.mode}`}>{data.pulse.data_source.mode === 'live_pay_sh_catalog' ? 'LIVE PAY.SH CATALOG' : 'FIXTURE-BACKED RADAR STATE'}</span>
-          <small className="source-line">{formatDataSource(data.pulse.data_source, data.pulse.providerCount, data.pulse.endpointCount)}</small>
-        </div>
-        <nav className="terminal-quick-actions" aria-label="Command briefing quick actions">
-          <a href="#preflight"><b>Run Preflight</b><span>Validate routes</span></a>
-          <a href="#compare"><b>Compare Providers</b><span>Cost and performance</span></a>
-          <a href="#benchmark-readiness"><b>View Benchmarks</b><span>Readiness scores</span></a>
-          <a href="#route-mapping-registry"><b>Check Mappings</b><span>Route intelligence</span></a>
-          <a href="/claim"><b>Browse Claims</b><span>Evidence trails</span></a>
-          <a href="#agent-benchmark-api"><b>Agent Benchmark API</b><span>Access API docs</span></a>
-        </nav>
+        <aside className="solana-evidence-rail" aria-label="Solana Radar metrics and monitoring state">
+          <div className="ticker mission-metrics solana-evidence-metrics" aria-label="Solana Radar evidence stats">
+            <ControlStripMetric label="Providers" value={data.pulse.providerCount} />
+            <ControlStripMetric label="Endpoints" value={data.pulse.endpointCount} />
+            <ControlStripMetric label="Avg Trust" value={data.pulse.averageTrust ?? 'unknown'} />
+            <ControlStripMetric label="Avg Signal" value={data.pulse.averageSignal ?? 'unknown'} />
+            <ControlStripMetric label="Monitoring Mode" value="Safe metadata" />
+            <ControlStripMetric label="Freshness" value={formatShortDate(data.pulse.data_source.last_ingested_at ?? data.pulse.data_source.generated_at)} />
+          </div>
+          <div className="solana-monitoring-state">
+            <p className="section-kicker">Monitoring state</p>
+            <div className="source-stack">
+              <span className={`source-badge ${data.pulse.data_source.mode}`}>{data.pulse.data_source.mode === 'live_pay_sh_catalog' ? 'LIVE PAY.SH CATALOG' : 'FIXTURE-BACKED RADAR STATE'}</span>
+              <small className="source-line">{formatDataSource(data.pulse.data_source, data.pulse.providerCount, data.pulse.endpointCount)}</small>
+            </div>
+            <a className="solana-priority-link" href="#preflight">Run a pre-spend check <span aria-hidden="true">→</span></a>
+          </div>
+        </aside>
       </div>
-      <div className="ticker mission-metrics solana-evidence-metrics" aria-label="Solana Radar evidence stats">
-        <ControlStripMetric label="Providers" value={data.pulse.providerCount} />
-        <ControlStripMetric label="Endpoints" value={data.pulse.endpointCount} />
-        <ControlStripMetric label="Avg Trust" value={data.pulse.averageTrust ?? 'unknown'} />
-        <ControlStripMetric label="Avg Signal" value={data.pulse.averageSignal ?? 'unknown'} />
-        <ControlStripMetric label="Monitoring Mode" value="Safe metadata" />
-        <ControlStripMetric label="Freshness" value={formatShortDate(data.pulse.data_source.last_ingested_at ?? data.pulse.data_source.generated_at)} />
-      </div>
+      <nav className="terminal-quick-actions solana-secondary-actions" aria-label="Secondary Solana Radar actions">
+        <a href="#compare"><b>Compare Providers</b><span>Cost and performance</span></a>
+        <a href="#benchmark-readiness"><b>View Benchmarks</b><span>Readiness scores</span></a>
+        <a href="#route-mapping-registry"><b>Check Mappings</b><span>Route intelligence</span></a>
+        <a href="/claim"><b>Browse Claims</b><span>Evidence trails</span></a>
+        <a href="#agent-benchmark-api"><b>Agent Benchmark API</b><span>Access API docs</span></a>
+      </nav>
     </section>}
 
     {!agentMode && <section className="panel machine-module-card" aria-label="Machine Economy Module">

@@ -221,6 +221,21 @@ describe('radar boot loading behavior', () => {
     expect(fetchState.calls).not.toContain('/v1/search');
   });
 
+  it('labels catalog metadata by its actual timestamp semantics', async () => {
+    installFetch({ corePulse: 'ok' });
+    await act(async () => {
+      root = createRoot(container);
+      root.render(<App />);
+    });
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(container.textContent).toContain('Catalog generatedMay 8, 2026, 10:00 AM UTC');
+    expect(container.textContent).not.toContain('System Time');
+  });
+
   it('failed core API renders degraded shell', async () => {
     const fetchState = installFetch({ corePulse: 'fail' });
 

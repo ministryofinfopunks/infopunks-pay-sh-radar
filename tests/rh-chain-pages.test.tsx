@@ -43,15 +43,20 @@ describe('RH Chain Signal Desk pages', () => {
   let container: HTMLDivElement;
   let reviewQueue = getRhChainReviewQueue();
   let desk = getRhChainPayload();
+  let reviewQueueFails = false;
 
   beforeEach(() => {
     container = document.createElement('div');
     reviewQueue = getRhChainReviewQueue();
     desk = getRhChainPayload();
+    reviewQueueFails = false;
     document.body.append(container);
     vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
       if (pathOf(input) === '/v1/rh-chain') return json(desk);
-      if (pathOf(input) === '/v1/rh-chain/review-queue') return json(reviewQueue);
+      if (pathOf(input) === '/v1/rh-chain/review-queue') {
+        if (reviewQueueFails) return Promise.resolve(new Response(JSON.stringify({ error: 'review_queue_unavailable' }), { status: 500, headers: { 'Content-Type': 'application/json', 'x-request-id': 'request-rh-review-500' } }));
+        return json(reviewQueue);
+      }
       if (pathOf(input) === '/v1/rh-chain/4663-index') return json(getRhChain4663Index());
       if (pathOf(input) === '/v1/rh-chain/daily-receipts') return json(getRhChainDailyReceipts());
       if (pathOf(input) === '/v1/rh-chain/launch-surfaces') return json(getRhChainLaunchSurfaces());
@@ -71,6 +76,7 @@ describe('RH Chain Signal Desk pages', () => {
     act(() => root?.unmount());
     container.remove();
     vi.restoreAllMocks();
+    vi.useRealTimers();
     window.history.pushState({}, '', '/');
   });
 
@@ -94,6 +100,53 @@ describe('RH Chain Signal Desk pages', () => {
     expect(text).toContain('Signals enter public review before promotion.');
     expect(text).toContain('Queued for manual review. Ticker familiarity is not evidence.');
     expect(Array.from(container.querySelectorAll('a[href="/rh-chain-signal-desk/review-queue"]')).some((link) => link.textContent?.includes('View Review Queue'))).toBe(true);
+  });
+
+  it('isolates a review queue 500 behind a compact module notice and opt-in diagnostics', async () => {
+    reviewQueueFails = true;
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    root = await renderPath(container, '/rh-chain-signal-desk');
+
+    const standardText = container.textContent ?? '';
+    expect(standardText).toContain('RH Chain Signal Desk');
+    expect(standardText).toContain('Chain Pulse');
+    expect(standardText).toContain('Review queue temporarily unavailable.');
+    expect(standardText).toContain('Other Signal Desk intelligence remains accessible.');
+    expect(container.querySelector('.rh-chain-module-notice')).not.toBeNull();
+    expect(container.querySelector('.rh-chain-state-unavailable')).toBeNull();
+    expect(standardText).not.toContain('/v1/rh-chain/review-queue');
+    expect(standardText).not.toContain('request-rh-review-500');
+
+    const detailsButton = Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Technical details');
+    await act(async () => detailsButton?.click());
+    const diagnosticText = container.textContent ?? '';
+    expect(diagnosticText).toContain('/v1/rh-chain/review-queue');
+    expect(diagnosticText).toContain('HTTP status500');
+    expect(diagnosticText).toContain('request-rh-review-500');
+    expect(consoleError).toHaveBeenCalled();
+  });
+
+  it('keeps the Review Queue route hero available when its optional request fails', async () => {
+    reviewQueueFails = true;
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    root = await renderPath(container, '/rh-chain-signal-desk/review-queue');
+    const text = container.textContent ?? '';
+    expect(text).toContain('RH Chain Review Queue');
+    expect(text).toContain('Signals enter the desk. Receipts decide what survives.');
+    expect(text).toContain('Review queue temporarily unavailable.');
+    expect(text).not.toContain('/v1/rh-chain/review-queue');
+    expect(text).not.toContain('Queue Board');
+  });
+
+  it('shows manual snapshot observation time, relative age, and stale status', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-07-15T12:00:00.000Z'));
+    root = await renderPath(container, '/rh-chain-signal-desk');
+    const text = container.textContent ?? '';
+    expect(text).toContain('Manual snapshot');
+    expect(text).toContain('ObservedJul 9, 2026, 3:45 AM UTC');
+    expect(text).toContain('Updated 6 days ago');
+    expect(text).toContain('StatusStale');
   });
 
   it('renders the Chain Pulse source timestamp and calm stale banner', async () => {
@@ -268,8 +321,8 @@ describe('RH Chain Signal Desk pages', () => {
     expect(text).toContain('Meme → Market Translation');
     expect(text).toContain('External data gives context. Infopunks gives judgment. Receipts create memory.');
     expect(text).toContain('Source policy');
-    expect(text).toContain('Data mode');
-    expect(text).toContain('Freshness');
+    expect(text).toContain('Source mode');
+    expect(text).toContain('Status');
     expect(container.querySelector('.rh-chain-primary-actions .execute')?.textContent).toContain('Read attention assets');
     expect(container.querySelector('a[href="/rh-chain-signal-desk/meme-pulse"]')?.getAttribute('aria-current')).toBe('page');
   });

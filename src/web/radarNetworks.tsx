@@ -48,12 +48,11 @@ export const RADAR_NETWORKS: Record<RadarNetworkId, RadarNetwork> = {
     href: '/#global-pulse',
     statusLabel: 'Core network',
     features: [
-      'Pay.sh route intelligence',
-      'Provider and endpoint evaluation',
-      'Preflight checks',
+      'Pre-Spend Intelligence',
+      'Providers and endpoints',
+      'Routes and claims',
       'Benchmarks and receipts',
-      'Unicorn Radar',
-      'Narrative intelligence'
+      'Signal Graph and LoopLab'
     ]
   },
   'robinhood-chain': {
@@ -68,11 +67,10 @@ export const RADAR_NETWORKS: Record<RadarNetworkId, RadarNetwork> = {
     statusLabel: 'New network',
     features: [
       'Meme Pulse',
-      'Token Dossiers',
-      'Clone Radar',
-      'Signal submissions',
-      'Review Queue',
-      'Live Snapshots'
+      'Token dossiers',
+      'Signal and risk review',
+      'Launchpad observatory',
+      'Receipts and live snapshots'
     ]
   }
 };

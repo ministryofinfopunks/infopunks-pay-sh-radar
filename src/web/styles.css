@@ -3788,8 +3788,19 @@ select:hover {
 
 .rh-chain-provenance .freshness-stale,
 .rh-chain-provenance .freshness-unavailable,
-.rh-chain-provenance .freshness-source-required {
+.rh-chain-provenance .freshness-source-required,
+.rh-chain-provenance .freshness-unknown,
+.rh-chain-provenance .freshness-aging {
   color: var(--amber);
+}
+
+.rh-chain-provenance .freshness-live,
+.rh-chain-provenance .freshness-fresh {
+  color: var(--green);
+}
+
+.rh-chain-observed-time {
+  grid-column: span 2;
 }
 
 .rh-chain-policy-copy p {
@@ -3851,6 +3862,80 @@ select:hover {
 .rh-chain-state-unavailable .rh-chain-state-mark {
   border-color: var(--amber);
   box-shadow: 0 0 0 5px rgba(246, 208, 111, 0.065);
+}
+
+.rh-chain-module-notice {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px 14px;
+  min-height: 0;
+  padding: 13px 15px;
+  border: 1px solid rgba(246, 208, 111, 0.22);
+  border-radius: 12px;
+  background: rgba(246, 208, 111, 0.045);
+}
+
+.rh-chain-module-notice h2,
+.rh-chain-module-notice p {
+  margin: 0;
+}
+
+.rh-chain-module-notice h2 {
+  margin-top: 2px;
+  color: #e6eae7;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.rh-chain-module-notice-copy > p:last-child {
+  margin-top: 3px;
+  color: #9eaaa3;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.rh-chain-diagnostic-trigger {
+  padding: 7px 9px;
+  border: 0;
+  background: transparent;
+  color: #9eaaa3;
+  cursor: pointer;
+  font: 600 10px/1.2 "IBM Plex Mono", monospace;
+  letter-spacing: 0.06em;
+  text-decoration: underline;
+  text-decoration-color: rgba(158, 170, 163, 0.35);
+  text-underline-offset: 3px;
+  text-transform: uppercase;
+}
+
+.rh-chain-module-diagnostics {
+  grid-column: 2 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 7px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(246, 208, 111, 0.12);
+}
+
+.rh-chain-module-diagnostics > div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.rh-chain-module-diagnostics span {
+  color: #728078;
+  font: 700 9px/1.2 "IBM Plex Mono", monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.rh-chain-module-diagnostics strong {
+  color: #b8c3bc;
+  font: 500 11px/1.45 "IBM Plex Mono", monospace;
+  overflow-wrap: anywhere;
 }
 
 @keyframes rh-chain-state-spin { to { transform: rotate(360deg); } }
@@ -3947,6 +4032,10 @@ select:hover {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .rh-chain-observed-time {
+    grid-column: auto;
+  }
+
   .rh-chain-state {
     grid-template-columns: auto minmax(0, 1fr);
   }
@@ -3954,6 +4043,15 @@ select:hover {
   .rh-chain-state .execute {
     grid-column: 1 / -1;
     width: 100%;
+  }
+
+  .rh-chain-module-notice {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .rh-chain-diagnostic-trigger,
+  .rh-chain-module-diagnostics {
+    grid-column: 1 / -1;
   }
 
   .rh-chain-shell .rh-chain-section,
@@ -4412,6 +4510,20 @@ select:hover {
   --premium-radius-sm: 12px;
   --premium-shadow: 0 18px 60px rgba(0,0,0,.26), inset 0 1px rgba(255,255,255,.025);
   --section-gap: 24px;
+  --space-xs: 6px;
+  --space-sm: 10px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 36px;
+  --radius-group: 12px;
+  --radius-section: 18px;
+  --border-subtle: rgba(203, 255, 221, .1);
+  --border-network-solana: rgba(126, 255, 176, .28);
+  --border-network-rh: rgba(159, 200, 255, .26);
+  --accent-solana: #7effb0;
+  --accent-rh: #9fc8ff;
+  --focus-ring: 0 0 0 5px rgba(246, 208, 111, .12);
+  --warning-surface: rgba(246, 208, 111, .045);
 }
 
 html {
@@ -16189,5 +16301,488 @@ select:focus {
   .radar-network-menu {
     scroll-behavior: auto !important;
     transition: none !important;
+  }
+}
+
+/* Homepage, Solana evidence, and RH Chain hierarchy refinement. */
+.radar-universal-hero {
+  align-items: center;
+  min-height: 380px;
+}
+
+.radar-system-note {
+  align-content: center;
+  min-height: 0;
+}
+
+.radar-universal-lede {
+  max-width: 690px;
+}
+
+.radar-network-card {
+  min-height: 388px;
+  box-shadow: 0 14px 42px rgba(0, 0, 0, .22), inset 0 1px rgba(255, 255, 255, .022);
+}
+
+.radar-network-status {
+  font-size: 10px;
+  letter-spacing: .075em;
+}
+
+.radar-network-label {
+  font-size: 11px;
+  letter-spacing: .13em;
+}
+
+.radar-network-card ul {
+  gap: var(--space-sm) var(--space-lg);
+  margin: var(--space-lg) 0;
+  padding-top: var(--space-md);
+}
+
+.radar-network-card li {
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.radar-network-card-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.radar-network-card:focus-within {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+  box-shadow: var(--focus-ring);
+}
+
+.solana-evidence-brief {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-lg);
+  padding: clamp(22px, 3vw, 36px);
+}
+
+.solana-evidence-primary {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(310px, .72fr);
+  gap: clamp(28px, 4vw, 54px);
+  align-items: start;
+}
+
+.solana-evidence-summary,
+.solana-evidence-rail,
+.solana-monitoring-state {
+  min-width: 0;
+}
+
+.solana-evidence-summary > .copy {
+  max-width: 720px;
+  color: var(--text-soft);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.solana-evidence-summary .preflight-home-cta {
+  width: 100%;
+  border: 0;
+  border-left: 2px solid var(--border-network-solana);
+  border-radius: 0;
+  background: rgba(126, 255, 176, .035);
+  box-shadow: none;
+}
+
+.solana-orientation-summary {
+  display: grid;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+}
+
+.solana-orientation-summary .proof-metrics-strip {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0;
+  margin: 0;
+  border-block: 1px solid var(--border-subtle);
+}
+
+.solana-orientation-summary .proof-metrics-strip span {
+  min-height: 72px;
+  border: 0;
+  border-right: 1px solid var(--border-subtle);
+  border-radius: 0;
+  background: transparent;
+}
+
+.solana-orientation-summary .proof-metrics-strip span:last-child {
+  border-right: 0;
+}
+
+.solana-orientation-summary .orientation-panel {
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-top: 1px solid rgba(124, 199, 255, .14);
+  border-radius: 0;
+  padding: var(--space-md) 0 0;
+  background: transparent;
+}
+
+.solana-evidence-rail {
+  display: grid;
+  gap: var(--space-lg);
+  border-left: 1px solid var(--border-subtle);
+  padding-left: clamp(20px, 3vw, 34px);
+}
+
+.ticker.mission-metrics.solana-evidence-metrics {
+  gap: 0;
+  border-block: 1px solid var(--border-subtle);
+}
+
+.ticker.mission-metrics.solana-evidence-metrics .control-metric {
+  min-height: 82px !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  padding: 14px 12px !important;
+}
+
+.ticker.mission-metrics.solana-evidence-metrics .control-metric:nth-last-child(-n + 2) {
+  border-bottom: 0 !important;
+}
+
+.ticker.mission-metrics.solana-evidence-metrics .control-metric:nth-child(odd) {
+  border-right: 1px solid var(--border-subtle) !important;
+}
+
+.solana-monitoring-state {
+  display: grid;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: rgba(126, 255, 176, .028);
+}
+
+.solana-monitoring-state .source-stack {
+  width: 100%;
+  margin: 0;
+}
+
+.solana-priority-link {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-md);
+  align-items: center;
+  min-height: 44px;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: var(--space-sm);
+  color: var(--text-strong);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.solana-priority-link span {
+  color: var(--accent-solana);
+}
+
+.terminal-quick-actions.solana-secondary-actions {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0;
+  margin-top: 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.terminal-quick-actions.solana-secondary-actions a {
+  min-height: 64px;
+  border: 0;
+  border-right: 1px solid var(--border-subtle);
+  border-radius: 0;
+  background: transparent;
+}
+
+.terminal-quick-actions.solana-secondary-actions a:last-child {
+  border-right: 0;
+}
+
+.terminal-quick-actions.solana-secondary-actions a:hover {
+  background: rgba(126, 255, 176, .045);
+  transform: none;
+}
+
+.rh-chain-shell {
+  --rh-surface-quiet: rgba(232, 255, 240, .024);
+  --rh-divider: rgba(157, 255, 201, .105);
+  --rh-copy: rgba(210, 228, 217, .82);
+  --rh-section-space: clamp(24px, 3vw, 38px);
+}
+
+.rh-chain-page {
+  gap: var(--rh-section-space);
+}
+
+.rh-chain-page .copy,
+.rh-chain-page .rh-chain-section-head p:not(.section-kicker),
+.rh-chain-page .rh-chain-card-head p:not(.section-kicker),
+.rh-chain-page article > p:not(.section-kicker):not(.panel-caption),
+.rh-chain-page .rh-chain-note,
+.rh-chain-page .rh-chain-policy-copy p,
+.rh-chain-page .rh-chain-review-disclaimer p,
+.rh-chain-page .rh-chain-disclaimer,
+.rh-chain-page .rh-chain-module-notice-copy > p:last-child {
+  color: var(--rh-copy);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.rh-chain-page .rh-chain-hero .copy {
+  font-family: 'Space Grotesk', sans-serif;
+  line-height: 1.5;
+}
+
+.rh-chain-page .rh-chain-hero .narrative-rally-line,
+.rh-chain-page .section-kicker,
+.rh-chain-page .panel-caption,
+.rh-chain-page .source-badge,
+.rh-chain-page .rh-chain-source,
+.rh-chain-page .rh-chain-table,
+.rh-chain-page .rh-chain-4663-table,
+.rh-chain-page .rh-chain-contract,
+.rh-chain-page .rh-chain-provenance-grid,
+.rh-chain-page .rh-chain-packet-grid,
+.rh-chain-page .rh-chain-daily-mini-grid,
+.rh-chain-page .rh-chain-daily-fact-grid {
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.rh-chain-legal-note {
+  display: grid;
+  gap: 4px;
+  border-top: 1px solid var(--rh-divider);
+  padding-top: var(--space-md);
+  color: rgba(188, 215, 199, .64);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.rh-chain-legal-note strong {
+  color: rgba(232, 255, 240, .78);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.rh-chain-legal-note small {
+  margin-top: 3px;
+  color: rgba(188, 215, 199, .54);
+  font-size: 11.5px;
+}
+
+.rh-chain-hero .rh-chain-disclaimer {
+  border-top: 1px solid var(--rh-divider);
+  padding-top: var(--space-md);
+  color: rgba(188, 215, 199, .62);
+  font-size: 12px;
+}
+
+.rh-chain-section--report {
+  border-color: var(--border-network-rh);
+  border-left-width: 2px;
+  padding: clamp(22px, 3vw, 34px);
+  background: linear-gradient(100deg, rgba(124, 199, 255, .055), transparent 58%), var(--rh-surface-strong);
+}
+
+.rh-chain-section--report .rh-chain-section-head h2 {
+  font-size: clamp(26px, 3vw, 40px);
+}
+
+.rh-chain-section--utility,
+.rh-chain-section--editorial {
+  border: 0;
+  border-top: 1px solid var(--rh-divider);
+  border-radius: 0 !important;
+  padding: var(--rh-section-space) 0 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.rh-chain-section--utility .execute.secondary,
+.rh-chain-section--metadata .execute.secondary {
+  min-height: 36px;
+  border: 0;
+  padding-inline: 4px;
+  background: transparent;
+  color: var(--accent-rh);
+  text-decoration: underline;
+  text-decoration-color: rgba(159, 200, 255, .28);
+  text-underline-offset: 4px;
+}
+
+.rh-chain-section--metadata {
+  border: 0;
+  padding: var(--space-lg);
+  background: var(--rh-surface-quiet);
+  box-shadow: none;
+}
+
+.rh-chain-section--metadata .rh-chain-section-head h2 {
+  font-size: clamp(20px, 2vw, 27px);
+}
+
+.rh-chain-section--primary .rh-chain-metric-grid,
+.rh-chain-section--utility .rh-chain-4663-preview-grid,
+.rh-chain-section--utility .rh-chain-review-preview-grid,
+.rh-chain-section--utility .rh-chain-daily-mini-grid,
+.rh-chain-section--editorial .rh-chain-classifier-grid,
+.rh-chain-section--editorial .rh-chain-spillover-grid {
+  gap: 0;
+  border-block: 1px solid var(--rh-divider);
+}
+
+.rh-chain-section--primary .rh-chain-metric,
+.rh-chain-section--utility .rh-chain-4663-preview-card,
+.rh-chain-section--utility .rh-chain-review-card,
+.rh-chain-section--utility .rh-chain-daily-mini-grid > p,
+.rh-chain-section--editorial .rh-chain-classifier-card,
+.rh-chain-section--editorial .rh-chain-spillover-card {
+  border: 0;
+  border-right: 1px solid var(--rh-divider);
+  border-radius: 0 !important;
+  background: transparent;
+  box-shadow: none;
+}
+
+.rh-chain-section--primary .rh-chain-metric:last-child,
+.rh-chain-section--utility .rh-chain-4663-preview-card:last-child,
+.rh-chain-section--utility .rh-chain-review-card:last-child,
+.rh-chain-section--utility .rh-chain-daily-mini-grid > p:last-child,
+.rh-chain-section--editorial .rh-chain-classifier-card:last-child,
+.rh-chain-section--editorial .rh-chain-spillover-card:last-child {
+  border-right: 0;
+}
+
+.rh-chain-section--primary .rh-chain-subpanel {
+  border: 0;
+  border-top: 1px solid var(--rh-divider);
+  border-radius: 0;
+  padding: var(--space-md) 0 0;
+  background: transparent;
+}
+
+.rh-chain-section--editorial .rh-chain-section-head {
+  max-width: 820px;
+}
+
+@media (max-width: 1100px) {
+  .solana-evidence-primary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .solana-evidence-rail {
+    grid-template-columns: minmax(0, 1.35fr) minmax(260px, .65fr);
+    border-top: 1px solid var(--border-subtle);
+    border-left: 0;
+    padding-top: var(--space-lg);
+    padding-left: 0;
+  }
+
+  .terminal-quick-actions.solana-secondary-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .terminal-quick-actions.solana-secondary-actions a:nth-child(3) {
+    border-right: 0;
+  }
+
+  .terminal-quick-actions.solana-secondary-actions a:nth-child(n + 4) {
+    border-top: 1px solid var(--border-subtle);
+  }
+}
+
+@media (max-width: 760px) {
+  .radar-network-card {
+    min-height: 0;
+  }
+
+  .solana-evidence-brief {
+    padding: 20px 16px;
+  }
+
+  .solana-evidence-rail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .solana-orientation-summary .proof-metrics-strip {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .solana-orientation-summary .proof-metrics-strip span,
+  .solana-orientation-summary .proof-metrics-strip span:last-child {
+    min-height: 54px;
+    border-right: 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .solana-orientation-summary .proof-metrics-strip span:last-child {
+    border-bottom: 0;
+  }
+
+  .terminal-quick-actions.solana-secondary-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .terminal-quick-actions.solana-secondary-actions a,
+  .terminal-quick-actions.solana-secondary-actions a:nth-child(3) {
+    border-right: 0;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .terminal-quick-actions.solana-secondary-actions a:first-child {
+    border-top: 0;
+  }
+
+  .rh-chain-section--primary .rh-chain-metric-grid,
+  .rh-chain-section--utility .rh-chain-4663-preview-grid,
+  .rh-chain-section--utility .rh-chain-review-preview-grid,
+  .rh-chain-section--utility .rh-chain-daily-mini-grid,
+  .rh-chain-section--editorial .rh-chain-classifier-grid,
+  .rh-chain-section--editorial .rh-chain-spillover-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rh-chain-section--primary .rh-chain-metric,
+  .rh-chain-section--utility .rh-chain-4663-preview-card,
+  .rh-chain-section--utility .rh-chain-review-card,
+  .rh-chain-section--utility .rh-chain-daily-mini-grid > p,
+  .rh-chain-section--editorial .rh-chain-classifier-card,
+  .rh-chain-section--editorial .rh-chain-spillover-card {
+    border-right: 0;
+    border-bottom: 1px solid var(--rh-divider);
+  }
+
+  .rh-chain-section--primary .rh-chain-metric:last-child,
+  .rh-chain-section--utility .rh-chain-4663-preview-card:last-child,
+  .rh-chain-section--utility .rh-chain-review-card:last-child,
+  .rh-chain-section--utility .rh-chain-daily-mini-grid > p:last-child,
+  .rh-chain-section--editorial .rh-chain-classifier-card:last-child,
+  .rh-chain-section--editorial .rh-chain-spillover-card:last-child {
+    border-bottom: 0;
+  }
+
+  .rh-chain-section--report,
+  .rh-chain-section--metadata {
+    padding: 20px 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .radar-network-card,
+  .radar-network-card-cta,
+  .terminal-quick-actions a {
+    transition: none;
   }
 }
