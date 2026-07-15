@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import { ProofReceiptCard, type ProofCheckResult } from './proofCheckPages';
 import { SignalGraphContextPanel, type SignalGraphContextNode } from './signalGraphContextPanel';
-import { RadarHeaderIdentity } from './radarNetworks';
+import { RadarProductNavigation } from './radarNetworks';
 
 type LoopProofState = 'verified' | 'partial' | 'failure_recorded' | 'memory_recorded' | 'unproven' | 'disputed';
 type ProofDecisionState = 'trust' | 'caution' | 'do_not_use_yet' | 'unproven' | 'disputed';
@@ -87,16 +87,7 @@ function isFailureWallLoop(loop: LoopDetail) {
 }
 
 function LoopNav() {
-  return <nav className="global-toolbar proof-check-toolbar" aria-label="Loop Check navigation">
-    <RadarHeaderIdentity active="solana" />
-    <div className="terminal-nav" aria-label="Loop Check routes">
-      <a href="/loops" aria-current={window.location.pathname === '/loops' ? 'page' : undefined}>Loops</a>
-      <a href="/check">Check</a>
-      <a href="/routes">Routes</a>
-      <a href="/providers">Providers</a>
-      <a href="/claim">Claims</a>
-    </div>
-  </nav>;
+  return <RadarProductNavigation context="solana" className="proof-check-toolbar" />;
 }
 
 function LoopToneClass(loop: Pick<LoopDetail, 'decision_state'>) {

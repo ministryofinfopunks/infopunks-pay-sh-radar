@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
 import type { AbundanceClaim, AbundanceDecisionState, AbundanceDeskPayload, AbundanceProofState } from '../data/abundanceDesk';
-import { RadarHeaderIdentity } from './radarNetworks';
+import { RadarProductNavigation } from './radarNetworks';
 
 type NarrativeDecisionState = 'strong_signal' | 'supportive_watch' | 'durable_re_index' | 'watch_closely' | 'concentrated_power' | 'high_reflexivity' | 'unproven' | 'do_not_chase';
 
@@ -1032,43 +1032,7 @@ function NarrativeLinkCluster({ links }: { links: Array<{ href: string; label: s
 }
 
 function NarrativeIntelNav({ current }: { current: string }) {
-  const links = [
-    { href: '/narratives', label: 'Narrative Intel' },
-    { href: '/narratives/attention-markets', label: 'Attention Markets' },
-    { href: '/narratives/attention-market-watch', label: 'Attention Market Watch' },
-    { href: '/rh-chain-signal-desk', label: 'RH Chain' },
-    { href: '/abundance', label: 'Abundance Desk' },
-    { href: '/hermes', label: 'Hermes Desk' },
-    { href: '/signals/ansem', label: 'Ansem' },
-    { href: '/signals/black-bull', label: 'Black Bull' },
-    { href: '/signals/troll', label: 'TROLL' }
-  ];
-
-  function isActive(href: string) {
-    if (href === '/narratives/attention-market-watch') {
-      return current === href || current.startsWith('/attention-market-watch/');
-    }
-    if (href === '/abundance') {
-      return current === href || current === '/narratives/abundance-desk';
-    }
-    if (href === '/hermes') {
-      return current === href || current === '/narratives/hermes-desk';
-    }
-    return current === href;
-  }
-
-  return <nav className="global-toolbar narrative-toolbar" aria-label="Narrative Intel navigation">
-    <RadarHeaderIdentity active="solana" />
-    <div className="terminal-nav terminal-nav-scroll-rail" aria-label="Narrative Intel routes">
-      {links.map((link) => <a key={link.href} href={link.href} className={isActive(link.href) ? 'active' : ''} aria-current={isActive(link.href) ? 'page' : undefined}>{link.label}</a>)}
-    </div>
-    <div className="terminal-actions" aria-label="Narrative Intel quick links">
-      <span className="terminal-action-cluster">
-        <a className="methodology-trigger" href="/">Radar Home</a>
-        <a className="methodology-trigger" href="/graph">Signal Graph</a>
-      </span>
-    </div>
-  </nav>;
+  return <RadarProductNavigation context="solana" current={current} className="narrative-toolbar" />;
 }
 
 function abundanceProofLabel(state: AbundanceProofState) {

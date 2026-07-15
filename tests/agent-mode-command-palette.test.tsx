@@ -195,26 +195,24 @@ describe('agent mode and command palette', () => {
     root = null;
   });
 
-  it('renders API Docs and Agent Mode controls', async () => {
+  it('renders a universal product header with route navigation separate from view controls', async () => {
     root = await renderApp(container);
 
     const header = container.querySelector('.site-header');
-    const primaryNav = header?.querySelector('[aria-label="Primary radar zones"]');
-    expect(primaryNav?.classList.contains('terminal-nav-scroll-rail')).toBe(true);
+    const primaryNav = header?.querySelector('[aria-label="Primary destinations"]');
+    expect(primaryNav?.textContent).toContain('Overview');
+    expect(primaryNav?.textContent).toContain('Networks');
+    expect(primaryNav?.textContent).not.toContain('Solana');
     expect(primaryNav?.textContent).not.toContain('Machine Economy');
-    for (const label of ['API Docs', 'Developers', 'Narrative Intel', 'Check', 'Loops', 'Signal Hunt', 'Signal Graph', 'Claims', 'Agent Benchmark API']) {
-      expect(primaryNav?.textContent).toContain(label);
-    }
-    expect(primaryNav?.textContent).not.toContain('Methodology');
+    expect(header?.querySelector('button[aria-label="All Networks. Choose Radar network"]')).not.toBeNull();
+    expect(header?.querySelector('button[aria-label="Open command palette (Command K or Control K)"]')).not.toBeNull();
+    expect(header?.querySelector('button[aria-label="Open view settings"]')).not.toBeNull();
     expect(container.textContent).toContain('API Docs');
-    expect(container.querySelector('a[href="/developers"]')?.textContent).toContain('Developers');
-    expect(container.querySelector('a[href="/narratives"]')?.textContent).toContain('Narrative Intel');
-    expect(container.querySelector('a[href="/signal-hunt"]')?.textContent).toContain('Signal Hunt');
-    expect(container.querySelector('a[href="/graph"]')?.textContent).toContain('Signal Graph');
-    expect(container.querySelector('a[href="/claim"]')?.textContent).toContain('Claims');
-    for (const label of ['Radar', 'More', 'Cmd+K', 'Agent Mode', 'Terminal Comfortable']) {
-      expect(header?.textContent).toContain(label);
-    }
+    expect(header?.textContent).toContain('InfopunksRadar');
+    expect(header?.textContent).toContain('All Networks');
+    expect(header?.textContent).toContain('Agent Mode');
+    expect(header?.textContent).toContain('Comfortable Density');
+    expect(header?.textContent).not.toContain('Terminal Comfortable');
     expect(header?.querySelector('.header-secondary-rail')).toBeNull();
     expect(container.textContent).toContain('Agent Mode');
     expect(container.textContent).toContain('Machine Economy Module');
@@ -227,31 +225,27 @@ describe('agent mode and command palette', () => {
     expect(Array.from(container.querySelectorAll('a[href="/graph"]')).some((node) => node.textContent?.includes('Open Signal Graph'))).toBe(true);
     expect(container.textContent).toContain('Open Machine Market');
     expect(container.querySelector('a[href="/machine-market"]')).not.toBeNull();
-    expect(container.querySelector('a[href="/machine-rail-coverage"]')).not.toBeNull();
-    expect(container.querySelector('a[href="/machine-route-risk-matrix"]')).not.toBeNull();
-    expect(container.querySelector('a[href="/machine-first-safe-routes"]')).not.toBeNull();
-    expect(container.querySelector('a[href="/machine-execution-shortlist"]')).not.toBeNull();
-    expect(container.querySelector('a[href="/machine-receipts"]')).not.toBeNull();
+    expect(header?.querySelector('a[href="/machine-market"]')).toBeNull();
   });
 
-  it('keeps primary header nav unique and utilities visible', async () => {
+  it('keeps the universal identity unique and avoids duplicated network state', async () => {
     root = await renderApp(container);
 
     const header = container.querySelector('.site-header');
-    const primaryLabels = Array.from(header?.querySelectorAll('[aria-label="Primary radar zones"] a') ?? []).map((node) => node.textContent?.trim()).filter(Boolean);
-    expect(primaryLabels).toContain('Narrative Intel');
-    expect(primaryLabels).toContain('Signal Hunt');
+    const primaryLabels = Array.from(header?.querySelectorAll('[aria-label="Primary destinations"] a') ?? []).map((node) => node.textContent?.trim()).filter(Boolean);
+    expect(primaryLabels).toEqual(['Overview', 'Networks']);
     expect(new Set(primaryLabels).size).toBe(primaryLabels.length);
     expect((header?.textContent?.match(/Infopunks/g) ?? []).length).toBe(1);
-    expect((header?.textContent?.match(/\/ Solana/g) ?? []).length).toBe(1);
+    expect((header?.textContent?.match(/Solana/g) ?? []).length).toBe(1);
+    expect(header?.textContent).not.toContain('/ Solana');
     for (const label of primaryLabels) {
       expect(primaryLabels.filter((item) => item === label)).toHaveLength(1);
     }
 
-    const utilityText = header?.querySelector('[aria-label="Utility actions"]')?.textContent ?? '';
-    for (const label of ['Radar', 'More', 'Cmd+K', 'Agent Mode', 'Terminal Comfortable']) {
-      expect(utilityText).toContain(label);
-    }
+    const utilityText = header?.querySelector('[aria-label="Interface controls"]')?.textContent ?? '';
+    expect(utilityText).toContain('Agent Mode');
+    expect(utilityText).toContain('Comfortable Density');
+    expect(utilityText).not.toContain('Overview');
     expect(header?.querySelector('.header-secondary-rail')).toBeNull();
   });
 

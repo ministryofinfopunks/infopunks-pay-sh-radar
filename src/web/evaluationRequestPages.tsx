@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
-import { RadarHeaderIdentity } from './radarNetworks';
+import { RadarProductNavigation } from './radarNetworks';
 
 type EvaluationRequestReviewType =
   | 'unicorn_radar_evaluation'
@@ -81,16 +81,7 @@ const INITIAL_FORM: EvaluationRequestFormState = {
 };
 
 function EvaluationRequestNav() {
-  const pathname = typeof window !== 'undefined' ? window.location.pathname : '/evaluation-request';
-  return <nav className="global-toolbar proof-check-toolbar unicorn-radar-nav revenue-receipts-nav" aria-label="Evaluation request navigation">
-    <RadarHeaderIdentity active="solana" />
-    <div className="terminal-nav terminal-nav-scroll-rail" aria-label="Evaluation request routes">
-      <a href="/evaluation-request" aria-current={pathname === '/evaluation-request' ? 'page' : undefined}>Evaluation Request</a>
-      <a href="/unicorn-radar">Unicorn Radar</a>
-      <a href="/revenue-receipts">Revenue Receipts</a>
-      <a href="/signal-hunt">Signal Hunt</a>
-    </div>
-  </nav>;
+  return <RadarProductNavigation context="solana" className="proof-check-toolbar unicorn-radar-nav revenue-receipts-nav" />;
 }
 
 function titleCase(value: string) {

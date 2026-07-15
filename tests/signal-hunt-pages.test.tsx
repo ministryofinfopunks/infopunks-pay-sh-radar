@@ -233,7 +233,7 @@ describe('signal hunt pages', () => {
     expect(container.textContent).toContain('Signal Graph context');
     expect(container.querySelector('a[href="/check/check_route_pay_sh_seed"]')?.textContent).toContain('check_route_pay_sh_seed');
     expect(container.querySelector('a[href="/loops/loop_pre_spend_route"]')?.textContent).toContain('loop_pre_spend_route');
-    expect(container.querySelector('a[href="/signals/black-bull"]')?.textContent).toContain('black-bull');
+    expect(Array.from(container.querySelectorAll('a[href="/signals/black-bull"]')).some((link) => link.textContent?.includes('black-bull'))).toBe(true);
     expect(Array.from(container.querySelectorAll('a[href="/spend-terminal"]')).some((node) => node.textContent?.includes('Open Pre-Spend Terminal'))).toBe(true);
   });
 });

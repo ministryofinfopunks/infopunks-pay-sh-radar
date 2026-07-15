@@ -269,10 +269,10 @@ describe('web accessibility landmarks', () => {
     expect(container.querySelector('header')).not.toBeNull();
     expect(container.querySelector('main#terminal-content')).not.toBeNull();
     expect(container.querySelector('footer')).not.toBeNull();
-    expect(container.querySelector('nav[aria-label="Global controls"]')).not.toBeNull();
+    expect(container.querySelector('nav[aria-label="Infopunks Radar navigation"]')).not.toBeNull();
     expect(container.querySelectorAll('h1')).toHaveLength(1);
     expect(container.querySelector('h1')?.textContent).toBe('Intelligence before the wallet acts.');
-    expect(container.querySelector('button[aria-label="Network: Solana. Switch Radar network"]')).not.toBeNull();
+    expect(container.querySelector('button[aria-label="All Networks. Choose Radar network"]')).not.toBeNull();
     expect(container.querySelector('section[aria-labelledby="radar-network-entry-title"]')).not.toBeNull();
     expect(Array.from(container.querySelectorAll('a[href="/#global-pulse"]')).some((link) => link.textContent?.includes('Open Solana Radar'))).toBe(true);
     expect(Array.from(container.querySelectorAll('a[href="/rh-chain-signal-desk"]')).some((link) => link.textContent?.includes('Explore Robinhood Chain'))).toBe(true);
@@ -282,7 +282,7 @@ describe('web accessibility landmarks', () => {
     expect(container.querySelector('section[aria-labelledby="ecosystem-zone-title"]')).not.toBeNull();
     expect(container.querySelector('section[aria-labelledby="provider-zone-title"]')).not.toBeNull();
 
-    expect(container.querySelector('button[aria-label="Open methodology drawer"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/#methodology"]')?.textContent).toContain('Methodology');
     expect(container.querySelector('input[aria-label="Filter providers by name tag FQN or category"]')).not.toBeNull();
     expect(container.querySelector('select[aria-label="Sort providers"]')).not.toBeNull();
     expect(container.querySelector('[role="group"][aria-label="Filter providers by category"]')).not.toBeNull();

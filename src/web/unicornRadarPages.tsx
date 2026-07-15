@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
-import { RadarHeaderIdentity } from './radarNetworks';
+import { RadarProductNavigation } from './radarNetworks';
 
 type UnicornRadarSector =
   | 'AI'
@@ -359,18 +359,7 @@ function VerificationBadge({ candidate }: { candidate: UnicornRadarCandidate }) 
 }
 
 function UnicornRadarNav() {
-  const pathname = window.location.pathname;
-  return <nav className="global-toolbar proof-check-toolbar unicorn-radar-nav" aria-label="Unicorn Radar navigation">
-    <RadarHeaderIdentity active="solana" />
-    <div className="terminal-nav terminal-nav-scroll-rail" aria-label="Unicorn Radar routes">
-      <a href="/unicorn-radar" aria-current={pathname === '/unicorn-radar' ? 'page' : undefined}>Unicorn Radar</a>
-      <a href="/revenue-receipts">Revenue Receipts</a>
-      <a href="/narratives">Narrative Intel</a>
-      <a href="/signal-hunt">Signal Hunt</a>
-      <a href="/graph">Signal Graph</a>
-      <a href="/check">Proof Feed</a>
-    </div>
-  </nav>;
+  return <RadarProductNavigation context="solana" className="proof-check-toolbar unicorn-radar-nav" />;
 }
 
 function FilterSelect<T extends string>({ label, value, values, onChange }: { label: string; value: T; values: T[]; onChange: (value: T) => void }) {

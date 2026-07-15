@@ -1,7 +1,7 @@
 import React from 'react';
 import type { RhChainDataFreshness, RhChainSource } from '../data/rhChain';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
-import { RadarHeaderIdentity } from './radarNetworks';
+import { RadarProductNavigation } from './radarNetworks';
 
 export const RH_CHAIN_DOCTRINE = 'External data gives context. Infopunks gives judgment. Receipts create memory.';
 
@@ -30,31 +30,8 @@ export async function fetchRhChain<T>(path: string, init?: RequestInit): Promise
   return payload;
 }
 
-const NAV_LINKS = [
-  ['/rh-chain-signal-desk', 'Signal Desk'],
-  ['/rh-chain-signal-desk/meme-pulse', 'Meme Pulse'],
-  ['/rh-chain-signal-desk/daily-receipts', 'Receipts'],
-  ['/rh-chain-signal-desk/4663-index', '4663 Index'],
-  ['/rh-chain-signal-desk/review-queue', 'Review'],
-  ['/rh-chain-signal-desk/clone-radar', 'Risk'],
-  ['/rh-chain-signal-desk/risk-patterns', 'Patterns'],
-  ['/rh-chain-signal-desk/scouts', 'Scouts'],
-  ['/rh-chain-signal-desk/scout', 'Scout'],
-  ['/rh-chain-signal-desk/launch-surfaces', 'Surfaces'],
-  ['/rh-chain-signal-desk/launchpad-observatory', 'Observatory'],
-  ['/rh-chain-signal-desk/live-snapshot', 'Snapshot'],
-  ['/rh-chain-signal-desk/distribution-pack', 'Distribution'],
-  ['/rh-chain-signal-desk/submit', 'Submit']
-] as const;
-
 export function RhChainSuiteNav({ current }: { current: string }) {
-  return <nav className="global-toolbar narrative-toolbar rh-chain-suite-nav" aria-label="RH Chain navigation">
-    <RadarHeaderIdentity active="robinhood-chain" />
-    <div className="terminal-nav terminal-nav-scroll-rail" aria-label="RH Chain routes">
-      {NAV_LINKS.map(([href, label]) => <a key={href} href={href} className={current === href ? 'active' : ''} aria-current={current === href ? 'page' : undefined}>{label}</a>)}
-    </div>
-    <a className="methodology-trigger rh-chain-api-link" href="/openapi.json">API</a>
-  </nav>;
+  return <RadarProductNavigation context="robinhood-chain" current={current} className="narrative-toolbar rh-chain-suite-nav" />;
 }
 
 function formatObservedAt(value: string) {

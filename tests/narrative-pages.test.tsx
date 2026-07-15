@@ -694,7 +694,7 @@ describe('narrative pages', () => {
     expect(Array.from(container.querySelectorAll('a[href="/narratives/attention-markets"]')).some((node) => node.textContent?.includes('Read Attention Markets Thesis'))).toBe(true);
     expect(Array.from(container.querySelectorAll('a[href="/signals/black-bull/updates/seu_black_bull_007"]')).some((node) => node.textContent?.includes('Open Dispatch'))).toBe(true);
     expect(Array.from(container.querySelectorAll('a[href="/signals/ansem"]')).some((node) => node.textContent?.includes('Ansem Signal Source'))).toBe(true);
-    expect(container.querySelector('a[href="/narratives"]')?.textContent).toContain('Narrative Intel');
+    expect(container.querySelector('a[href="/narratives"]')?.textContent).toContain('Narratives');
     expect(container.textContent).toContain('ANSEM / The Black Bull');
     expect(document.title).toBe('Infopunks Narrative Asset Intelligence');
     expect(metaContent('meta[name="description"]')).toBe('Signal reports, evidence updates, and sovereignty checks for narratives that become markets.');

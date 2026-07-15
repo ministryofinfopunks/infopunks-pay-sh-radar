@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import { SignalGraphContextPanel, type SignalGraphContextNode } from './signalGraphContextPanel';
-import { RadarHeaderIdentity } from './radarNetworks';
+import { RadarProductNavigation } from './radarNetworks';
 
 type SignalHuntProofState = 'unproven' | 'receipts_attached' | 'validated' | 'challenged' | 'rejected';
 type SignalHuntHuntState = 'fresh_signal' | 'under_review' | 'verified_signal' | 'noise' | 'disputed';
@@ -111,18 +111,7 @@ function decisionPanelKicker(signal: SignalHuntCandidate) {
 }
 
 function SignalHuntNav() {
-  const pathname = window.location.pathname;
-  const active = pathname === '/signal-hunt' || pathname.startsWith('/signal-hunt/');
-  return <nav className="global-toolbar proof-check-toolbar" aria-label="Signal Hunt navigation">
-    <RadarHeaderIdentity active="solana" />
-    <div className="terminal-nav terminal-nav-scroll-rail" aria-label="Signal Hunt routes">
-      <a href="/signal-hunt" aria-current={active ? 'page' : undefined}>Signal Hunt</a>
-      <a href="/check">Proof Feed</a>
-      <a href="/loops">LoopLab</a>
-      <a href="/graph">Signal Graph</a>
-      <a href="/spend-terminal">Pre-Spend Terminal</a>
-    </div>
-  </nav>;
+  return <RadarProductNavigation context="solana" className="proof-check-toolbar" />;
 }
 
 function LinkList({ title, values, hrefFor }: { title: string; values: string[]; hrefFor: (value: string) => string }) {

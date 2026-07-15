@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
-import { RadarHeaderIdentity } from './radarNetworks';
+import { RadarProductNavigation } from './radarNetworks';
 
 type ProofClaimType = 'agent_autonomy' | 'route_performance' | 'provider_reliability' | 'market_claim' | 'token_claim' | 'partnership_claim' | 'revenue_claim' | 'generic_claim';
 type EvidenceStrength = 'strong' | 'medium' | 'weak' | 'missing';
@@ -116,17 +116,7 @@ export function ProofReceiptCard({ check, compact = false }: { check: ProofCheck
 }
 
 function ProofCheckNav() {
-  return <nav className="global-toolbar proof-check-toolbar" aria-label="Proof Feed navigation">
-    <RadarHeaderIdentity active="solana" />
-    <div className="terminal-nav" aria-label="Proof Feed routes">
-      <a href="/check" aria-current={window.location.pathname === '/check' ? 'page' : undefined}>Check</a>
-      <a href="/loops">Loops</a>
-      <a href="/routes">Routes</a>
-      <a href="/providers">Providers</a>
-      <a href="/receipts">Receipts</a>
-      <a href="/claim">Claims</a>
-    </div>
-  </nav>;
+  return <RadarProductNavigation context="solana" className="proof-check-toolbar" />;
 }
 
 export function ProofCheckPage() {

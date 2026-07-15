@@ -14,7 +14,7 @@ import type {
 } from '../services/hermesPreSpendDecision';
 import type { HermesDecisionFeedbackResult, HermesDecisionOutcomeState, HermesDecisionReceipt } from '../services/hermesDecisionFeedback';
 import { createHermesDecisionReceipt, recordHermesDecisionOutcome } from '../services/hermesDecisionFeedback';
-import { RadarHeaderIdentity } from './radarNetworks';
+import { RadarProductNavigation } from './radarNetworks';
 import type { HermesMemoryLoop, HermesMemoryLoopSummary } from '../services/hermesMemoryLoop';
 import { createHermesPolicyDecisionReceipt, type HermesPolicyDecisionReceiptConversion } from '../services/hermesPolicyReceipt';
 import type {
@@ -186,51 +186,7 @@ function walletSafetyDecisionLabel(decision: HermesWalletSafetyDecision) {
 }
 
 function HermesNav({ current }: { current: string }) {
-  const links = [
-    { href: '/', label: 'Radar Home' },
-    { href: '/hermes', label: 'Hermes Desk' },
-    { href: '/hermes/memory-loop', label: 'Memory Loop' },
-    { href: '/hermes/pre-spend-decision', label: 'Pre-Spend Decision' },
-    { href: '/hermes/spend-policy', label: 'Spend Policy' },
-    { href: '/hermes/decision-feedback', label: 'Decision Feedback' },
-    { href: '/hermes/wallet-audit-trail', label: 'Wallet Audit Trail' },
-    { href: '/hermes/wallet-risk-score', label: 'Wallet Risk Score' },
-    { href: '/hermes/wallet-safety', label: 'Wallet Safety API' },
-    { href: '/hermes/reputation-ledger', label: 'Reputation Ledger' },
-    { href: '/hermes/skill-pack', label: 'Skill Pack' },
-    { href: '/narratives/hermes-desk', label: 'Narrative' },
-    { href: '/check', label: 'Proof Feed' },
-    { href: '/loops', label: 'Loops' },
-    { href: '/receipts', label: 'Receipts' }
-  ];
-
-  function active(href: string) {
-    if (href === '/hermes') return current === '/hermes';
-    if (href === '/hermes/memory-loop') return current === '/hermes/memory-loop';
-    if (href === '/hermes/pre-spend-decision') return current === '/hermes/pre-spend-decision';
-    if (href === '/hermes/spend-policy') return current === '/hermes/spend-policy';
-    if (href === '/hermes/decision-feedback') return current === '/hermes/decision-feedback';
-    if (href === '/hermes/wallet-audit-trail') return current === '/hermes/wallet-audit-trail';
-    if (href === '/hermes/wallet-risk-score') return current === '/hermes/wallet-risk-score';
-    if (href === '/hermes/wallet-safety') return current === '/hermes/wallet-safety';
-    if (href === '/hermes/reputation-ledger') return current === '/hermes/reputation-ledger';
-    if (href === '/hermes/skill-pack') return current === '/hermes/skill-pack';
-    if (href === '/narratives/hermes-desk') return current === '/narratives/hermes-desk';
-    return current === href;
-  }
-
-  return <nav className="global-toolbar narrative-toolbar hermes-toolbar" aria-label="Hermes Desk navigation">
-    <RadarHeaderIdentity active="solana" />
-    <div className="terminal-nav terminal-nav-scroll-rail" aria-label="Hermes Desk routes">
-      {links.map((link) => <a key={link.href} href={link.href} className={active(link.href) ? 'active' : ''} aria-current={active(link.href) ? 'page' : undefined}>{link.label}</a>)}
-    </div>
-    <div className="terminal-actions" aria-label="Hermes quick links">
-      <span className="terminal-action-cluster">
-        <a className="methodology-trigger" href="/v1/hermes">JSON</a>
-        <a className="methodology-trigger" href="/v1/hermes/health">Health</a>
-      </span>
-    </div>
-  </nav>;
+  return <RadarProductNavigation context="solana" current={current} className="narrative-toolbar hermes-toolbar" />;
 }
 
 function HermesMetric({ label, value, sub }: { label: string; value: string | number | boolean; sub: string }) {

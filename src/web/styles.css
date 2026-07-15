@@ -15855,3 +15855,339 @@ select:focus {
     transform: none;
   }
 }
+
+/* Network-aware product navigation. Route menus and view controls remain separate. */
+.site-header .radar-product-navigation {
+  display: grid;
+  grid-template-columns: minmax(210px, 230px) minmax(0, 1fr) auto auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px;
+}
+
+.radar-product-navigation .radar-network-identity {
+  grid-column: auto;
+}
+
+.radar-primary-navigation {
+  display: flex;
+  min-width: 0;
+  gap: 3px;
+  align-items: center;
+  overflow: hidden;
+  scrollbar-width: none;
+}
+
+.radar-primary-navigation > span {
+  display: contents;
+}
+
+.radar-primary-navigation a,
+.radar-menu-trigger,
+.radar-mobile-menu-trigger {
+  min-height: 38px;
+  white-space: nowrap;
+}
+
+.radar-primary-navigation a {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  border: 1px solid transparent;
+  padding: 8px 10px;
+  text-decoration: none;
+}
+
+.radar-overflow-menu,
+.radar-mobile-product-menu,
+.radar-settings-menu {
+  position: relative;
+}
+
+.radar-menu-trigger,
+.radar-mobile-menu-trigger,
+.radar-settings-trigger,
+.radar-command-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.radar-overflow-menu.active > .radar-menu-trigger,
+.radar-mobile-product-menu.active > .radar-mobile-menu-trigger {
+  border-color: rgba(126, 255, 176, .25);
+  color: var(--radar-text);
+  background: rgba(126, 255, 176, .07);
+  box-shadow: inset 0 -2px rgba(126, 255, 176, .36);
+}
+
+.context-robinhood-chain .radar-overflow-menu.active > .radar-menu-trigger,
+.context-robinhood-chain .radar-mobile-product-menu.active > .radar-mobile-menu-trigger {
+  border-color: rgba(159, 200, 255, .24);
+  background: rgba(124, 199, 255, .065);
+  box-shadow: inset 0 -2px rgba(159, 200, 255, .34);
+}
+
+.radar-grouped-menu[hidden] {
+  display: none !important;
+}
+
+.radar-grouped-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 130;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(150px, 1fr));
+  width: min(720px, calc(100vw - 28px));
+  max-height: min(680px, calc(100vh - 96px));
+  gap: 7px 12px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid rgba(203, 255, 221, .15);
+  border-radius: 14px;
+  padding: 12px;
+  background: rgba(4, 9, 7, .99);
+  box-shadow: 0 24px 72px rgba(0, 0, 0, .5), inset 0 1px rgba(255, 255, 255, .025);
+}
+
+.radar-menu-group {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+  align-content: start;
+}
+
+.radar-menu-heading {
+  margin: 4px 8px 5px;
+  color: var(--radar-text-muted, var(--muted));
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: .14em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.radar-menu-group a,
+.radar-menu-group button {
+  appearance: none;
+  display: flex;
+  width: 100%;
+  min-height: 36px;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 8px;
+  color: var(--radar-text-secondary, var(--text));
+  background: transparent;
+  font: inherit;
+  font-size: 10.5px;
+  font-weight: 720;
+  line-height: 1.25;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.radar-menu-group a:hover,
+.radar-menu-group a:focus-visible,
+.radar-menu-group a.active,
+.radar-menu-group button:hover,
+.radar-menu-group button:focus-visible {
+  border-color: rgba(126, 255, 176, .17);
+  color: var(--radar-text);
+  background: rgba(126, 255, 176, .06);
+}
+
+.context-robinhood-chain .radar-menu-group a:hover,
+.context-robinhood-chain .radar-menu-group a:focus-visible,
+.context-robinhood-chain .radar-menu-group a.active {
+  border-color: rgba(159, 200, 255, .19);
+  background: rgba(124, 199, 255, .055);
+}
+
+.radar-menu-group a.active {
+  box-shadow: inset 2px 0 rgba(126, 255, 176, .48);
+}
+
+.context-robinhood-chain .radar-menu-group a.active {
+  box-shadow: inset 2px 0 rgba(159, 200, 255, .5);
+}
+
+.radar-menu-group a small {
+  color: var(--radar-text-muted, var(--muted));
+}
+
+.radar-menu-group button strong {
+  color: var(--radar-text-muted, var(--muted));
+  font-size: 8px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.radar-compact-primary-group,
+.radar-mobile-product-menu {
+  display: none;
+}
+
+.radar-interface-actions {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.radar-command-trigger {
+  border-color: rgba(244, 207, 121, .2);
+  color: var(--radar-amber);
+  background: rgba(244, 207, 121, .045);
+}
+
+.radar-command-trigger kbd {
+  font: inherit;
+  font-size: 8.5px;
+  letter-spacing: .04em;
+}
+
+.radar-settings-trigger {
+  min-width: 58px;
+}
+
+.radar-settings-panel {
+  grid-template-columns: minmax(220px, 1fr);
+  width: 260px;
+}
+
+@media (max-width: 1180px) {
+  .site-header .radar-product-navigation {
+    grid-template-columns: minmax(210px, 226px) minmax(0, 1fr) auto auto;
+  }
+
+  .radar-primary-collapsible {
+    display: none !important;
+  }
+
+  .radar-compact-primary-group:not(:empty) {
+    display: grid;
+  }
+}
+
+@media (max-width: 900px) {
+  .radar-primary-navigation a {
+    padding-inline: 8px;
+    font-size: 10px !important;
+  }
+
+  .radar-grouped-menu {
+    grid-template-columns: repeat(2, minmax(150px, 1fr));
+    width: min(560px, calc(100vw - 24px));
+  }
+
+  .radar-settings-panel {
+    grid-template-columns: minmax(220px, 1fr);
+    width: 260px;
+  }
+}
+
+@media (max-width: 760px) {
+  .site-header .radar-product-navigation {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 7px;
+    padding: 7px;
+  }
+
+  .radar-product-navigation .radar-network-identity {
+    grid-column: 1;
+    grid-row: 1;
+    width: auto;
+  }
+
+  .radar-interface-actions {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .radar-primary-navigation,
+  .radar-overflow-menu {
+    display: none;
+  }
+
+  .radar-mobile-product-menu {
+    display: block;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    min-width: 0;
+  }
+
+  .radar-mobile-menu-trigger {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .radar-mobile-menu-panel {
+    right: 0;
+    left: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: auto;
+    max-height: calc(100vh - 142px);
+  }
+
+  .radar-menu-group a,
+  .radar-menu-group button,
+  .radar-command-trigger,
+  .radar-settings-trigger,
+  .radar-network-trigger {
+    min-height: 44px;
+  }
+
+  .radar-settings-panel {
+    right: 0;
+    left: auto;
+    grid-template-columns: minmax(220px, 1fr);
+    width: min(280px, calc(100vw - 20px));
+    max-height: calc(100vh - 84px);
+  }
+}
+
+@media (max-width: 520px) {
+  .site-header .radar-network-identity .nav-brand {
+    min-width: 70px;
+    padding-inline: 4px;
+  }
+
+  .radar-network-trigger {
+    min-width: 98px;
+    padding-left: 7px;
+  }
+
+  .radar-settings-trigger {
+    min-width: 44px;
+  }
+
+  .radar-settings-trigger-label,
+  .radar-command-trigger kbd {
+    display: none;
+  }
+
+  .radar-command-trigger {
+    min-width: 44px;
+  }
+
+  .radar-mobile-menu-panel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .radar-product-navigation *,
+  .radar-grouped-menu,
+  .radar-network-menu {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}
