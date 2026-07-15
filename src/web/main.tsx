@@ -9055,6 +9055,19 @@ function RadarApp() {
   }, []);
 
   useEffect(() => {
+    if (isBootLoading || !window.location.hash) return;
+    const target = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+    if (!target) return;
+    const alignTarget = () => target.scrollIntoView({ block: 'start' });
+    const frame = window.requestAnimationFrame(alignTarget);
+    const retry = window.setTimeout(alignTarget, 1200);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(retry);
+    };
+  }, [isBootLoading]);
+
+  useEffect(() => {
     let active = true;
     setIsBootLoading(true);
     setBootError(null);
@@ -14377,7 +14390,7 @@ export function App() {
   if (isAttentionMarketsRoute(window.location.pathname)) return <AttentionMarketsPage />;
   if (isAttentionMarketWatchRoute(window.location.pathname)) return <AttentionMarketWatchPage />;
   if (isAbundanceDeskRoute(window.location.pathname)) return <AbundanceDeskPage narrativeRoute={/^\/narratives\/abundance-desk\/?$/.test(window.location.pathname)} />;
-  if (/^\/rh-chain-signal-desk\/meme-pulse\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainMemePulsePage /></LazyRhChainFeature>;
+  if (/^\/(?:rh-chain-signal-desk\/meme-pulse|rh-chain-meme-pulse)\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainMemePulsePage /></LazyRhChainFeature>;
   if (/^\/rh-chain-signal-desk\/clone-radar\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainCloneRadarPage /></LazyRhChainFeature>;
   if (/^\/rh-chain-signal-desk\/risk-patterns\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainCloneRadarPage currentRoute="/rh-chain-signal-desk/risk-patterns" /></LazyRhChainFeature>;
   if (/^\/rh-chain-signal-desk\/launchpad-observatory\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainLaunchpadObservatoryPage /></LazyRhChainFeature>;

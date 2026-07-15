@@ -3568,7 +3568,7 @@ select:hover {
   }
 
   .feed-row {
-    gap: 8px;
+    gap: 12px;
     padding: 12px;
   }
 
@@ -4045,6 +4045,7 @@ select:hover {
     grid-column: 1 / -1;
     grid-row: 2;
     width: 100%;
+    gap: 8px;
     padding-bottom: 2px;
     overflow-x: auto;
     overscroll-behavior-inline: contain;
@@ -10483,10 +10484,16 @@ summary:focus-visible {
 
 .builder-card-anchor {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
   gap: 6px;
   color: inherit;
   text-decoration: none;
   height: 100%;
+}
+
+.builder-card-anchor h2 {
+  overflow-wrap: anywhere;
 }
 
 .builder-card-cta,
@@ -10537,8 +10544,15 @@ summary:focus-visible {
 
 .builder-card .builder-stat-list {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
   gap: 4px;
   margin: 12px 0;
+}
+
+.builder-card .builder-stat-list span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .builder-metrics {
@@ -16243,6 +16257,18 @@ select:focus {
   .radar-primary-navigation a {
     padding-inline: 8px;
     font-size: 10px !important;
+  }
+
+  /* Header navigation stays usable on touch-first tablet and mobile layouts. */
+  .site-header .nav-brand,
+  .site-header .radar-primary-navigation a,
+  .site-header .radar-network-trigger,
+  .site-header .radar-menu-trigger,
+  .site-header .radar-command-trigger,
+  .site-header .radar-settings-trigger,
+  .site-header .radar-menu-group a,
+  .site-header .radar-menu-group button {
+    min-height: 44px;
   }
 
   .radar-grouped-menu {
