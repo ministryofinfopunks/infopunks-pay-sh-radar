@@ -25,7 +25,7 @@ describe('evaluation request service', () => {
       ...validPayload,
       projectName: '',
       ticker: ''
-    })).rejects.toMatchObject<EvaluationRequestValidationError>({
+    })).rejects.toMatchObject({
       code: 'INVALID_REQUEST',
       issues: expect.arrayContaining([
         expect.objectContaining({ path: 'projectName' }),
@@ -38,7 +38,7 @@ describe('evaluation request service', () => {
     await expect(createEvaluationRequest({
       ...validPayload,
       disclosureAcknowledged: false
-    })).rejects.toMatchObject<EvaluationRequestValidationError>({
+    })).rejects.toMatchObject({
       code: 'DISCLOSURE_REQUIRED',
       message: 'You must acknowledge that payment buys evaluation, not conviction.'
     });

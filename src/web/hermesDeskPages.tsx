@@ -14,6 +14,7 @@ import type {
 } from '../services/hermesPreSpendDecision';
 import type { HermesDecisionFeedbackResult, HermesDecisionOutcomeState, HermesDecisionReceipt } from '../services/hermesDecisionFeedback';
 import { createHermesDecisionReceipt, recordHermesDecisionOutcome } from '../services/hermesDecisionFeedback';
+import { RadarHeaderIdentity } from './radarNetworks';
 import type { HermesMemoryLoop, HermesMemoryLoopSummary } from '../services/hermesMemoryLoop';
 import { createHermesPolicyDecisionReceipt, type HermesPolicyDecisionReceiptConversion } from '../services/hermesPolicyReceipt';
 import type {
@@ -219,10 +220,7 @@ function HermesNav({ current }: { current: string }) {
   }
 
   return <nav className="global-toolbar narrative-toolbar hermes-toolbar" aria-label="Hermes Desk navigation">
-    <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home">
-      <span>Infopunks</span>
-      <strong>Hermes Desk</strong>
-    </a>
+    <RadarHeaderIdentity active="solana" />
     <div className="terminal-nav terminal-nav-scroll-rail" aria-label="Hermes Desk routes">
       {links.map((link) => <a key={link.href} href={link.href} className={active(link.href) ? 'active' : ''} aria-current={active(link.href) ? 'page' : undefined}>{link.label}</a>)}
     </div>
@@ -2489,7 +2487,7 @@ function HermesSpendPolicyPage() {
           {receiptPreview.receipt.audit_trail.events.map((event) => <p key={event.id}><span>{event.label.toLowerCase()}</span><small>{event.summary}</small></p>)}
         </div>
       </section>}
-      {reconciliationPreview && <section className="panel hermes-runs-section" aria-label="Policy Outcome Reconciliation">
+      {reconciliationPreview && result && <section className="panel hermes-runs-section" aria-label="Policy Outcome Reconciliation">
         <div className="panel-head">
           <div>
             <p className="section-kicker">Policy Outcome Reconciliation</p>

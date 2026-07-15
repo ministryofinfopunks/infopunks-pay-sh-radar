@@ -1069,10 +1069,11 @@ describe('radar endpoint intelligence UI', () => {
     expect(container.querySelector('a[href="/machine-first-safe-routes"]')).not.toBeNull();
     expect(container.querySelector('a[href="/machine-execution-shortlist"]')).not.toBeNull();
     expect(container.querySelector('a[href="/machine-receipts"]')).not.toBeNull();
-    expect(container.textContent).toContain('Pay.sh routes are live. Agents need proof before spend.');
-    expect(container.textContent).toContain('Radar tracks mapped, proven, and benchmarked Pay.sh routes before agents route money through them.');
-    expect(container.textContent).toContain('Pay.sh is the spend rail. Radar is the evidence ledger. The Harness is the proof adapter.');
-    expect(container.textContent).toContain('Agents inspect the Evidence Ledger or Brief, request a non-executing Bundle Plan, then a Harness may execute later and return proof artifacts for Radar to record.');
+    expect(container.textContent).toContain('Intelligence before the wallet acts.');
+    expect(container.textContent).toContain('One Radar. Two economies.');
+    expect(container.textContent).toContain('Proof before agent spend.');
+    expect(container.textContent).toContain('Mapped Pay.sh routes, provider evidence and benchmark readiness—kept distinct from the Robinhood Chain signal desk.');
+    expect(container.textContent).toContain('Pay.sh is the spend rail. Radar is the evidence ledger. Agents inspect evidence, request a non-executing plan, and record proof artifacts before trust compounds.');
     expect(container.textContent).toContain('5 recorded benchmarks');
     expect(container.textContent).toContain('6 artifacts');
     expect(container.textContent).toContain('40 recorded route-runs');

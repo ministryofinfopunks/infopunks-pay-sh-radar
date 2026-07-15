@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import { SignalGraphContextPanel, type SignalGraphContextNode } from './signalGraphContextPanel';
+import { RadarHeaderIdentity } from './radarNetworks';
 
 type SignalHuntProofState = 'unproven' | 'receipts_attached' | 'validated' | 'challenged' | 'rejected';
 type SignalHuntHuntState = 'fresh_signal' | 'under_review' | 'verified_signal' | 'noise' | 'disputed';
@@ -113,10 +114,7 @@ function SignalHuntNav() {
   const pathname = window.location.pathname;
   const active = pathname === '/signal-hunt' || pathname.startsWith('/signal-hunt/');
   return <nav className="global-toolbar proof-check-toolbar" aria-label="Signal Hunt navigation">
-    <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home">
-      <span>Infopunks</span>
-      <strong>Signal Hunt</strong>
-    </a>
+    <RadarHeaderIdentity active="solana" />
     <div className="terminal-nav terminal-nav-scroll-rail" aria-label="Signal Hunt routes">
       <a href="/signal-hunt" aria-current={active ? 'page' : undefined}>Signal Hunt</a>
       <a href="/check">Proof Feed</a>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
+import { RadarHeaderIdentity } from './radarNetworks';
 
 type EvaluationRequestReviewType =
   | 'unicorn_radar_evaluation'
@@ -82,10 +83,7 @@ const INITIAL_FORM: EvaluationRequestFormState = {
 function EvaluationRequestNav() {
   const pathname = typeof window !== 'undefined' ? window.location.pathname : '/evaluation-request';
   return <nav className="global-toolbar proof-check-toolbar unicorn-radar-nav revenue-receipts-nav" aria-label="Evaluation request navigation">
-    <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home">
-      <span>Infopunks</span>
-      <strong>Evaluations</strong>
-    </a>
+    <RadarHeaderIdentity active="solana" />
     <div className="terminal-nav terminal-nav-scroll-rail" aria-label="Evaluation request routes">
       <a href="/evaluation-request" aria-current={pathname === '/evaluation-request' ? 'page' : undefined}>Evaluation Request</a>
       <a href="/unicorn-radar">Unicorn Radar</a>

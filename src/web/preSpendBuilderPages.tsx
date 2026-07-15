@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import { SignalGraphContextPanel, type SignalGraphContextNode } from './signalGraphContextPanel';
 import type { WalletSafetyIntegrationProfile } from '../data/walletSafetyIntegrations';
+import { RadarContextHeader } from './radarNetworks';
 import {
   buildWalletSafetyIntegrationReadinessReport,
   buildWalletSafetyIntegrationRegistry,
@@ -408,6 +409,7 @@ function DetailShell({
   children: React.ReactNode;
 }) {
   return <div className="shell builder-shell">
+    <RadarContextHeader />
     <main className="builder-page" aria-label={title}>
       <section className="panel hero builder-hero">
         <div>
@@ -434,6 +436,7 @@ function DetailNotFound({
   linkLabel: string;
 }) {
   return <div className="shell builder-shell">
+    <RadarContextHeader />
     <main className="builder-page" aria-label={title}>
       <section className="panel hero builder-hero">
         <div>
@@ -449,6 +452,7 @@ function DetailNotFound({
 
 function LoadingShell({ title }: { title: string }) {
   return <div className="shell builder-shell">
+    <RadarContextHeader />
     <main className="builder-page" aria-label={title}>
       <section className="panel hero builder-hero">
         <div>
@@ -558,6 +562,7 @@ export function SpendTerminalPage() {
   const hasWarnings = Boolean(result && (result.known_blockers.length || result.do_not_use.length || result.requires_human_approval || result.decision !== 'approved'));
 
   return <div className="shell builder-shell">
+    <RadarContextHeader />
     <main className="builder-page spend-terminal-page" aria-label="Pre-Spend Intelligence Terminal">
       <section className="panel hero builder-hero">
         <div>
@@ -715,6 +720,7 @@ Content-Type: application/json
   ];
 
   return <div className="shell builder-shell">
+    <RadarContextHeader />
     <main className="builder-page developers-page" aria-label="Developers">
       <section className="panel hero builder-hero">
         <div>
@@ -915,6 +921,7 @@ export function WalletSafetyIntegrationRegistryPage() {
   ];
 
   return <div className="shell builder-shell">
+    <RadarContextHeader />
     <main className="builder-page developers-page" aria-label="Wallet Safety Integration Registry">
       <section className="panel hero builder-hero">
         <div>
@@ -1027,6 +1034,7 @@ export function WalletSafetyIntegrationRegistryPage() {
 
 function WalletSafetyIntegrationNotFoundPage({ integrationId }: { integrationId: string }) {
   return <div className="shell builder-shell">
+    <RadarContextHeader />
     <main className="builder-page developers-page" aria-label="Integration Readiness Detail">
       <section className="panel hero builder-hero">
         <div>
@@ -1117,6 +1125,7 @@ export function WalletSafetyIntegrationDetailPage({ integrationId }: { integrati
   const profile = report.profile;
 
   return <div className="shell builder-shell">
+    <RadarContextHeader />
     <main className="builder-page developers-page" aria-label="Integration Readiness Detail">
       <section className="panel hero builder-hero">
         <div>
@@ -1507,6 +1516,7 @@ await db.walletSafetyReceipts.insert(integrationReceipt);`;
   ];
 
   return <div className="shell builder-shell">
+    <RadarContextHeader />
     <main className="builder-page developers-page" aria-label="Wallet Safety Developer Quickstart">
       <section className="panel hero builder-hero">
         <div>
@@ -1789,6 +1799,7 @@ export function ClaimsPage() {
   }
 
   return <div className="shell builder-shell">
+    <RadarContextHeader />
     <main className="builder-page" aria-label="Claims">
       <section className="panel hero builder-hero">
         <div>
@@ -1918,7 +1929,7 @@ export function RoutesIndexPage() {
       ? b.confidence_score - a.confidence_score
       : ['low', 'medium', 'high', 'critical'].indexOf(a.risk_level) - ['low', 'medium', 'high', 'critical'].indexOf(b.risk_level)), [routes, serviceFilter, sort]);
 
-  return <div className="shell builder-shell"><main className="builder-page" aria-label="Routes"><section className="panel hero builder-hero"><div><p className="eyebrow">Receipt-backed route intelligence</p><h1>Routes</h1><p className="copy">Before your agent pays, inspect the route. These cards show known blockers, safer route posture, and the receipts behind each economic action.</p></div></section><MetricsBand metrics={metrics} /><section className="panel builder-filter-panel"><label><span>service type</span><select value={serviceFilter} onChange={(event) => setServiceFilter(event.target.value)}><option value="all">all</option>{Array.from(new Set(routes.map((route) => route.service_id))).map((serviceId) => <option key={serviceId} value={serviceId}>{serviceId}</option>)}</select></label><label><span>sort</span><select value={sort} onChange={(event) => setSort(event.target.value as 'risk' | 'confidence')}><option value="confidence">confidence sorting</option><option value="risk">risk sorting</option></select></label></section><section className="builder-card-grid" aria-label="Route cards">{visible.map((route) => <article className="panel builder-card" key={route.route_id}><a className="builder-card-anchor" href={routeHref(route.route_id)}><p className="section-kicker">{route.recommended_use_case}</p><h2>{route.route_id}</h2><p>{route.endpoint}</p><div className="builder-stat-list"><span>risk {route.risk_level}</span><span>confidence {route.confidence_score}</span><span>cost {route.estimated_cost}</span><span>latency range {route.latency_ms_p50}-{route.latency_ms_p95} ms</span><span>last successful run {formatDate(route.last_successful_run)}</span></div><p className="panel-caption">Known blockers: {joined(route.known_blockers)}</p><span className="builder-card-cta">Inspect route evidence graph</span></a></article>)}</section></main></div>;
+  return <div className="shell builder-shell"><RadarContextHeader /><main className="builder-page" aria-label="Routes"><section className="panel hero builder-hero"><div><p className="eyebrow">Receipt-backed route intelligence</p><h1>Routes</h1><p className="copy">Before your agent pays, inspect the route. These cards show known blockers, safer route posture, and the receipts behind each economic action.</p></div></section><MetricsBand metrics={metrics} /><section className="panel builder-filter-panel"><label><span>service type</span><select value={serviceFilter} onChange={(event) => setServiceFilter(event.target.value)}><option value="all">all</option>{Array.from(new Set(routes.map((route) => route.service_id))).map((serviceId) => <option key={serviceId} value={serviceId}>{serviceId}</option>)}</select></label><label><span>sort</span><select value={sort} onChange={(event) => setSort(event.target.value as 'risk' | 'confidence')}><option value="confidence">confidence sorting</option><option value="risk">risk sorting</option></select></label></section><section className="builder-card-grid" aria-label="Route cards">{visible.map((route) => <article className="panel builder-card" key={route.route_id}><a className="builder-card-anchor" href={routeHref(route.route_id)}><p className="section-kicker">{route.recommended_use_case}</p><h2>{route.route_id}</h2><p>{route.endpoint}</p><div className="builder-stat-list"><span>risk {route.risk_level}</span><span>confidence {route.confidence_score}</span><span>cost {route.estimated_cost}</span><span>latency range {route.latency_ms_p50}-{route.latency_ms_p95} ms</span><span>last successful run {formatDate(route.last_successful_run)}</span></div><p className="panel-caption">Known blockers: {joined(route.known_blockers)}</p><span className="builder-card-cta">Inspect route evidence graph</span></a></article>)}</section></main></div>;
 }
 
 export function ProvidersIndexPage() {
@@ -1933,7 +1944,7 @@ export function ProvidersIndexPage() {
     }).catch(() => undefined);
   }, []);
 
-  return <div className="shell builder-shell"><main className="builder-page" aria-label="Providers"><section className="panel hero builder-hero"><div><p className="eyebrow">Providers scored</p><h1>Providers</h1><p className="copy">Provider pages show receipt-backed route intelligence, human validation, dispute history, and whether the provider belongs in a pre-spend decision at all.</p></div></section><MetricsBand metrics={metrics} /><section className="builder-card-grid" aria-label="Provider cards">{providers.map((provider) => <article className="panel builder-card" key={provider.provider_id}><a className="builder-card-anchor" href={providerHref(provider.provider_id)}><p className="section-kicker">{provider.service_categories.join(', ')}</p><h2>{provider.name}</h2><div className="builder-stat-list"><span>reliability score {provider.reliability_score}</span><span>route coverage {provider.route_coverage}</span><span>receipt count {provider.recent_receipt_count}</span><span>validation status {provider.human_validation_status}</span></div><p className="panel-caption">Known risks: {joined(provider.known_risks)}</p><p className="panel-caption">Dispute history: {joined(provider.dispute_history)}</p><span className="builder-card-cta">Inspect provider trust</span></a></article>)}</section></main></div>;
+  return <div className="shell builder-shell"><RadarContextHeader /><main className="builder-page" aria-label="Providers"><section className="panel hero builder-hero"><div><p className="eyebrow">Providers scored</p><h1>Providers</h1><p className="copy">Provider pages show receipt-backed route intelligence, human validation, dispute history, and whether the provider belongs in a pre-spend decision at all.</p></div></section><MetricsBand metrics={metrics} /><section className="builder-card-grid" aria-label="Provider cards">{providers.map((provider) => <article className="panel builder-card" key={provider.provider_id}><a className="builder-card-anchor" href={providerHref(provider.provider_id)}><p className="section-kicker">{provider.service_categories.join(', ')}</p><h2>{provider.name}</h2><div className="builder-stat-list"><span>reliability score {provider.reliability_score}</span><span>route coverage {provider.route_coverage}</span><span>receipt count {provider.recent_receipt_count}</span><span>validation status {provider.human_validation_status}</span></div><p className="panel-caption">Known risks: {joined(provider.known_risks)}</p><p className="panel-caption">Dispute history: {joined(provider.dispute_history)}</p><span className="builder-card-cta">Inspect provider trust</span></a></article>)}</section></main></div>;
 }
 
 export function ServicesIndexPage() {
@@ -1948,7 +1959,7 @@ export function ServicesIndexPage() {
     }).catch(() => undefined);
   }, []);
 
-  return <div className="shell builder-shell"><main className="builder-page" aria-label="Services"><section className="panel hero builder-hero"><div><p className="eyebrow">Service dossiers</p><h1>Services</h1><p className="copy">Service dossiers answer should this agent spend, which route is safer first, where the known blockers sit, and which receipt-backed alternatives remain available.</p></div></section><MetricsBand metrics={metrics} /><section className="builder-card-grid" aria-label="Service dossiers">{services.map((service) => <article className="panel builder-card" key={service.service_id}><a className="builder-card-anchor" href={serviceHref(service.service_id)}><p className="section-kicker">{service.category}</p><h2>{service.service_id}</h2><div className="builder-stat-list"><span>best observed route {service.best_observed_route ?? 'n/a'}</span><span>cheapest observed route {service.cheapest_observed_route ?? 'n/a'}</span><span>safest first attempt {service.safest_first_attempt ?? 'n/a'}</span><span>fastest repeatable route {service.fastest_repeatable_route ?? 'n/a'}</span><span>benchmark readiness {service.benchmark_readiness}</span></div><p className="panel-caption">Known blockers: {joined(service.known_blockers)}</p><p className="panel-caption">{service.pre_spend_recommendation}</p><span className="builder-card-cta">Inspect service dossier</span></a></article>)}</section><PlaceholderMarketPanel /></main></div>;
+  return <div className="shell builder-shell"><RadarContextHeader /><main className="builder-page" aria-label="Services"><section className="panel hero builder-hero"><div><p className="eyebrow">Service dossiers</p><h1>Services</h1><p className="copy">Service dossiers answer should this agent spend, which route is safer first, where the known blockers sit, and which receipt-backed alternatives remain available.</p></div></section><MetricsBand metrics={metrics} /><section className="builder-card-grid" aria-label="Service dossiers">{services.map((service) => <article className="panel builder-card" key={service.service_id}><a className="builder-card-anchor" href={serviceHref(service.service_id)}><p className="section-kicker">{service.category}</p><h2>{service.service_id}</h2><div className="builder-stat-list"><span>best observed route {service.best_observed_route ?? 'n/a'}</span><span>cheapest observed route {service.cheapest_observed_route ?? 'n/a'}</span><span>safest first attempt {service.safest_first_attempt ?? 'n/a'}</span><span>fastest repeatable route {service.fastest_repeatable_route ?? 'n/a'}</span><span>benchmark readiness {service.benchmark_readiness}</span></div><p className="panel-caption">Known blockers: {joined(service.known_blockers)}</p><p className="panel-caption">{service.pre_spend_recommendation}</p><span className="builder-card-cta">Inspect service dossier</span></a></article>)}</section><PlaceholderMarketPanel /></main></div>;
 }
 
 export function ReceiptsIndexPage() {
@@ -1963,7 +1974,7 @@ export function ReceiptsIndexPage() {
     }).catch(() => undefined);
   }, []);
 
-  return <div className="shell builder-shell"><main className="builder-page" aria-label="Receipts"><section className="panel hero builder-hero"><div><p className="eyebrow">Receipt-backed route intelligence</p><h1>Receipts</h1><p className="copy">Receipts are the proof layer behind route intelligence. No receipt, no trust. Every receipt should link back to route, provider, service, validation, and evidence graph context.</p></div></section><MetricsBand metrics={metrics} /><section className="builder-card-grid" aria-label="Receipt ledger rows">{receipts.map((receipt) => <article className="panel builder-card" key={receipt.receipt_id}><a className="builder-card-anchor" href={receiptHref(receipt.receipt_id)}><p className="section-kicker">{receipt.task_type}</p><h2>{receipt.receipt_id}</h2><div className="builder-stat-list"><span>status {receipt.status}</span><span>cost {receipt.cost}</span><span>latency {receipt.latency_ms} ms</span><span>validation state {receipt.validation_state}</span><span>linked route {receipt.route_id}</span><span>linked provider {receipt.provider_id}</span></div><p className="panel-caption">Failure reason: {receipt.failure_reason ?? 'none'}</p><p className="panel-caption">Evidence artifact: {receipt.evidence_artifact}</p><span className="builder-card-cta">Inspect receipt impact</span></a></article>)}</section></main></div>;
+  return <div className="shell builder-shell"><RadarContextHeader /><main className="builder-page" aria-label="Receipts"><section className="panel hero builder-hero"><div><p className="eyebrow">Receipt-backed route intelligence</p><h1>Receipts</h1><p className="copy">Receipts are the proof layer behind route intelligence. No receipt, no trust. Every receipt should link back to route, provider, service, validation, and evidence graph context.</p></div></section><MetricsBand metrics={metrics} /><section className="builder-card-grid" aria-label="Receipt ledger rows">{receipts.map((receipt) => <article className="panel builder-card" key={receipt.receipt_id}><a className="builder-card-anchor" href={receiptHref(receipt.receipt_id)}><p className="section-kicker">{receipt.task_type}</p><h2>{receipt.receipt_id}</h2><div className="builder-stat-list"><span>status {receipt.status}</span><span>cost {receipt.cost}</span><span>latency {receipt.latency_ms} ms</span><span>validation state {receipt.validation_state}</span><span>linked route {receipt.route_id}</span><span>linked provider {receipt.provider_id}</span></div><p className="panel-caption">Failure reason: {receipt.failure_reason ?? 'none'}</p><p className="panel-caption">Evidence artifact: {receipt.evidence_artifact}</p><span className="builder-card-cta">Inspect receipt impact</span></a></article>)}</section></main></div>;
 }
 
 export function RouteDetailPage({ routeId }: { routeId: string }) {

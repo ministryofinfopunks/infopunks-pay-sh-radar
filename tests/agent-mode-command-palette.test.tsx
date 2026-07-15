@@ -243,7 +243,7 @@ describe('agent mode and command palette', () => {
     expect(primaryLabels).toContain('Signal Hunt');
     expect(new Set(primaryLabels).size).toBe(primaryLabels.length);
     expect((header?.textContent?.match(/Infopunks/g) ?? []).length).toBe(1);
-    expect((header?.textContent?.match(/Pay\.sh Radar/g) ?? []).length).toBe(1);
+    expect((header?.textContent?.match(/\/ Solana/g) ?? []).length).toBe(1);
     for (const label of primaryLabels) {
       expect(primaryLabels.filter((item) => item === label)).toHaveLength(1);
     }

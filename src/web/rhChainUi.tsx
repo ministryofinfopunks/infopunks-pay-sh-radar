@@ -1,6 +1,7 @@
 import React from 'react';
 import type { RhChainDataFreshness, RhChainSource } from '../data/rhChain';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
+import { RadarHeaderIdentity } from './radarNetworks';
 
 export const RH_CHAIN_DOCTRINE = 'External data gives context. Infopunks gives judgment. Receipts create memory.';
 
@@ -48,7 +49,7 @@ const NAV_LINKS = [
 
 export function RhChainSuiteNav({ current }: { current: string }) {
   return <nav className="global-toolbar narrative-toolbar rh-chain-suite-nav" aria-label="RH Chain navigation">
-    <a className="nav-brand" href="/" aria-label="Infopunks Radar home"><span>Infopunks</span><strong>RH Chain</strong></a>
+    <RadarHeaderIdentity active="robinhood-chain" />
     <div className="terminal-nav terminal-nav-scroll-rail" aria-label="RH Chain routes">
       {NAV_LINKS.map(([href, label]) => <a key={href} href={href} className={current === href ? 'active' : ''} aria-current={current === href ? 'page' : undefined}>{label}</a>)}
     </div>

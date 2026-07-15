@@ -43,6 +43,7 @@ import { MachineMarketPreflightCardPage, PreflightCardIndexPage, RadarPreflightC
 import { AbundanceDeskPage, AttentionMarketWatchPage, AttentionMarketWatchProfilePage, AttentionMarketsPage, NarrativeSignalReportPage, NarrativesIndexPage, SignalSourcePage, SignalUpdatePermalinkPage } from './narrativePages';
 import { RhChainSignalDeskPage } from './rhChainSignalDeskPages';
 import { HermesDeskPage } from './hermesDeskPages';
+import { RADAR_NETWORK_LIST, RADAR_NETWORKS, RadarContextHeader, RadarHeaderIdentity } from './radarNetworks';
 import './styles.css';
 
 const LazyRhChainMemePulsePage = lazy(() => import('./rhChainMemePulsePage').then((module) => ({ default: module.RhChainMemePulsePage })));
@@ -52,6 +53,55 @@ const LazyRhChainLaunchpadObservatoryPage = lazy(() => import('./rhChainLaunchpa
 const LazyRhChainScoutsPage = lazy(() => import('./rhChainScoutsPage').then((module) => ({ default: module.RhChainScoutsPage })));
 const LazyRhChainDistributionPackPage = lazy(() => import('./rhChainDistributionPackPage').then((module) => ({ default: module.RhChainDistributionPackPage })));
 const LazyRhChainReviewConsolePage = lazy(() => import('./rhChainReviewConsolePage').then((module) => ({ default: module.RhChainReviewConsolePage })));
+
+function RadarHomepageHero() {
+  return <section className="panel radar-universal-hero" aria-labelledby="radar-home-title">
+    <div className="radar-universal-copy">
+      <p className="eyebrow">Infopunks Radar</p>
+      <h1 id="radar-home-title">Intelligence before the wallet acts.</h1>
+      <p className="radar-universal-lede">Evidence, market memory and decision infrastructure across emerging onchain economies.</p>
+      <div className="panel-actions radar-universal-actions">
+        <a className="execute compact" href={RADAR_NETWORKS.solana.href}>Open Solana Radar</a>
+        <a className="execute compact secondary rh-entry-action" href={RADAR_NETWORKS['robinhood-chain'].href}>Explore Robinhood Chain</a>
+      </div>
+    </div>
+    <aside className="radar-system-note" aria-label="Radar system architecture">
+      <span className="radar-system-mark" aria-hidden="true" />
+      <p className="section-kicker">System architecture</p>
+      <strong>One evidence system.<br />Multiple chain intelligence surfaces.</strong>
+      <p>Solana evaluates agent spending. Robinhood Chain maps onchain finance signals. Receipts preserve the memory beneath both.</p>
+    </aside>
+  </section>;
+}
+
+function RadarNetworkEntrySection() {
+  return <section className="radar-network-entry" aria-labelledby="radar-network-entry-title">
+    <div className="radar-network-entry-head">
+      <div>
+        <p className="section-kicker">Choose an intelligence surface</p>
+        <h2 id="radar-network-entry-title">One Radar. Two economies.</h2>
+      </div>
+      <p>Move between chain environments without losing the Infopunks evidence standard.</p>
+    </div>
+    <div className="radar-network-card-grid">
+      {RADAR_NETWORK_LIST.map((network) => <article key={network.id} className={`radar-network-card network-${network.id}`}>
+        <div className="radar-network-card-topline">
+          <span className="radar-network-card-mark" aria-hidden="true" />
+          <span className="radar-network-status"><span aria-hidden="true" />{network.statusLabel}</span>
+        </div>
+        <p className="radar-network-label">{network.label}</p>
+        <h3>{network.economy}</h3>
+        <p className="radar-network-description">{network.description}</p>
+        <ul aria-label={`${network.label} capabilities`}>
+          {network.features.map((feature) => <li key={feature}>{feature}</li>)}
+        </ul>
+        <a className={`radar-network-card-cta${network.id === 'robinhood-chain' ? ' rh-entry-action' : ''}`} href={network.href}>
+          {network.id === 'solana' ? 'Open Solana Radar' : 'Enter RH Chain Desk'}<span aria-hidden="true">↗</span>
+        </a>
+      </article>)}
+    </div>
+  </section>;
+}
 
 function RhChainFeatureLoading() {
   return <main className="shell narrative-shell rh-chain-shell"><section className="panel rh-chain-section" aria-live="polite"><p className="section-kicker">Infopunks / RH Chain</p><h1>Opening intelligence file…</h1><p className="panel-caption">Loading a contained feature surface. Receipts remain the source of judgment.</p></section></main>;
@@ -2224,6 +2274,23 @@ function setMetaTag(attr: 'property' | 'name', key: string, content: string) {
   node.setAttribute('content', content);
 }
 
+const RADAR_HOME_TITLE = 'Infopunks Radar | Intelligence Across Solana and Robinhood Chain';
+const RADAR_HOME_DESCRIPTION = 'Infopunks Radar unifies Solana pre-spend intelligence with Robinhood Chain token, meme, liquidity and ecosystem signal intelligence in one evidence system.';
+
+function updateRadarHomeMetadata() {
+  const canonical = 'https://radar.infopunks.fun/';
+  document.title = RADAR_HOME_TITLE;
+  setMetaTag('name', 'description', RADAR_HOME_DESCRIPTION);
+  setMetaTag('property', 'og:type', 'website');
+  setMetaTag('property', 'og:title', RADAR_HOME_TITLE);
+  setMetaTag('property', 'og:description', RADAR_HOME_DESCRIPTION);
+  setMetaTag('property', 'og:url', canonical);
+  setMetaTag('name', 'twitter:title', RADAR_HOME_TITLE);
+  setMetaTag('name', 'twitter:description', RADAR_HOME_DESCRIPTION);
+  const canonicalLink = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+  if (canonicalLink) canonicalLink.href = canonical;
+}
+
 function updateProviderPageMetadata(providerId: string, providerName: string | null, description: string | null) {
   const title = providerName ? `${providerName} Provider Intelligence | Infopunks Pay.sh Radar` : `${providerId} Provider Intelligence | Infopunks Pay.sh Radar`;
   const desc = description?.trim() || `Public provider intelligence dossier for ${providerName ?? providerId} on Infopunks Pay.sh Radar.`;
@@ -2762,6 +2829,7 @@ function PublicBenchmarksIndexPage() {
   ]
 }`;
   return <div className="shell public-provider-shell">
+    <RadarContextHeader />
     <main className="public-provider-page" aria-label="Public benchmark registry">
       <section className="panel benchmark-launch-hero">
         <p className="eyebrow">Infopunks Pay.sh Radar</p>
@@ -2990,7 +3058,7 @@ function PublicBenchmarkProofPage({ benchmarkId }: { benchmarkId: string }) {
 
   if (missing) return <main className="boot" aria-label="Benchmark not found"><section className="panel public-provider-page"><h1>Benchmark Not Found</h1><p className="copy">No benchmark exists for <code>{benchmarkId}</code> in the current dataset.</p></section></main>;
   if (!benchmark) return <main className="boot" aria-label="Benchmark loading">LOADING BENCHMARK PROOF...</main>;
-  return <div className="shell public-provider-shell"><main className="public-provider-page" aria-label="Public benchmark proof page"><BenchmarkProofContent benchmark={benchmark} history={history} routeHistory={routeHistory} /></main></div>;
+  return <div className="shell public-provider-shell"><RadarContextHeader /><main className="public-provider-page" aria-label="Public benchmark proof page"><BenchmarkProofContent benchmark={benchmark} history={history} routeHistory={routeHistory} /></main></div>;
 }
 
 function AgentReadinessProviderPage({ providerId }: { providerId: string }) {
@@ -4431,10 +4499,7 @@ function MachineMarketPage() {
     <a className="skip-link" href="#machine-market-content">Skip to content</a>
     <header className="site-header">
       <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Market navigation">
-        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home">
-          <span>Infopunks</span>
-          <strong>Pay.sh Radar</strong>
-        </a>
+        <RadarHeaderIdentity active="solana" />
         <div className="terminal-nav" aria-label="Machine Economy navigation">
           <MachineControlPlaneNavLinks current="machine-market" />
         </div>
@@ -4779,7 +4844,7 @@ function MachineEconomySnapshotPage() {
     <a className="skip-link" href="#machine-snapshot-content">Skip to content</a>
     <header className="site-header">
       <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Economy Snapshot navigation">
-        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <RadarHeaderIdentity active="solana" />
         <div className="terminal-nav" aria-label="Machine Economy navigation">
           <MachineControlPlaneNavLinks current="machine-economy-snapshot" />
         </div>
@@ -4987,7 +5052,7 @@ function MachineRouteRiskMatrixPage() {
     <a className="skip-link" href="#machine-route-risk-content">Skip to content</a>
     <header className="site-header">
       <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Route Risk Matrix navigation">
-        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <RadarHeaderIdentity active="solana" />
         <div className="terminal-nav" aria-label="Machine Economy navigation">
           <MachineControlPlaneNavLinks current="machine-route-risk-matrix" />
         </div>
@@ -5157,7 +5222,7 @@ function MachineRailCoveragePage() {
     <a className="skip-link" href="#machine-rail-coverage-content">Skip to content</a>
     <header className="site-header">
       <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Rail Coverage navigation">
-        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <RadarHeaderIdentity active="solana" />
         <div className="terminal-nav" aria-label="Machine Economy navigation">
           <MachineControlPlaneNavLinks current="machine-rail-coverage" />
         </div>
@@ -5324,7 +5389,7 @@ function MachineFirstSafeRoutesPage() {
     <a className="skip-link" href="#machine-first-safe-routes-content">Skip to content</a>
     <header className="site-header">
       <nav className="global-toolbar machine-market-toolbar" aria-label="Machine First Safe Route Queue navigation">
-        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <RadarHeaderIdentity active="solana" />
         <div className="terminal-nav" aria-label="Machine Economy navigation">
           <MachineControlPlaneNavLinks current="machine-first-safe-routes" />
         </div>
@@ -5528,7 +5593,7 @@ function MachineExecutionBlockersPage() {
     <a className="skip-link" href="#machine-execution-blockers-content">Skip to content</a>
     <header className="site-header">
       <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Execution Blockers navigation">
-        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <RadarHeaderIdentity active="solana" />
         <div className="terminal-nav" aria-label="Machine Economy navigation">
           <MachineControlPlaneNavLinks current="machine-execution-blockers" />
         </div>
@@ -5656,7 +5721,7 @@ function MachineBenchmarkReadinessPage() {
     <a className="skip-link" href="#machine-benchmark-readiness-content">Skip to content</a>
     <header className="site-header">
       <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Benchmark Readiness navigation">
-        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <RadarHeaderIdentity active="solana" />
         <div className="terminal-nav" aria-label="Machine Economy navigation">
           <MachineControlPlaneNavLinks current="machine-benchmark-readiness" />
         </div>
@@ -5747,7 +5812,7 @@ function MachineComparableRoutesPage() {
     <a className="skip-link" href="#machine-comparable-routes-content">Skip to content</a>
     <header className="site-header">
       <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Comparable Routes navigation">
-        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <RadarHeaderIdentity active="solana" />
         <div className="terminal-nav" aria-label="Machine Economy navigation">
           <MachineControlPlaneNavLinks current="machine-comparable-routes" />
         </div>
@@ -5846,7 +5911,7 @@ function MachineTranslationEvidencePage() {
     <a className="skip-link" href="#machine-translation-evidence-content">Skip to content</a>
     <header className="site-header">
       <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Translation Evidence navigation">
-        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <RadarHeaderIdentity active="solana" />
         <div className="terminal-nav" aria-label="Machine Economy navigation">
           <MachineControlPlaneNavLinks current="machine-translation-evidence" />
         </div>
@@ -6012,7 +6077,7 @@ function MachineProofLadderPage() {
     <a className="skip-link" href="#machine-proof-ladder-content">Skip to content</a>
     <header className="site-header">
       <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Proof Ladder navigation">
-        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <RadarHeaderIdentity active="solana" />
         <div className="terminal-nav" aria-label="Machine Economy navigation">
           <MachineControlPlaneNavLinks current="machine-proof-ladder" />
         </div>
@@ -6103,7 +6168,7 @@ function MachineBenchmarkMethodologyPage() {
     <a className="skip-link" href="#machine-benchmark-methodology-content">Skip to content</a>
     <header className="site-header">
       <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Benchmark Methodology navigation">
-        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <RadarHeaderIdentity active="solana" />
         <div className="terminal-nav" aria-label="Machine Economy navigation">
           <MachineControlPlaneNavLinks current="machine-benchmark-methodology" />
         </div>
@@ -6221,7 +6286,7 @@ function MachineMarketChangelogPage() {
     <a className="skip-link" href="#machine-market-changelog-content">Skip to content</a>
     <header className="site-header">
       <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Market Changelog navigation">
-        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <RadarHeaderIdentity active="solana" />
         <div className="terminal-nav" aria-label="Machine Economy navigation">
           <MachineControlPlaneNavLinks current="machine-market-changelog" />
         </div>
@@ -6296,7 +6361,7 @@ function MachineNoClaimLedgerPage() {
     <a className="skip-link" href="#machine-no-claim-ledger-content">Skip to content</a>
     <header className="site-header">
       <nav className="global-toolbar machine-market-toolbar" aria-label="Machine No-Claim Ledger navigation">
-        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <RadarHeaderIdentity active="solana" />
         <div className="terminal-nav" aria-label="Machine Economy navigation">
           <MachineControlPlaneNavLinks current="machine-no-claim-ledger" />
         </div>
@@ -6392,7 +6457,7 @@ function MachineReadinessMatrixPage() {
     <a className="skip-link" href="#machine-readiness-content">Skip to content</a>
     <header className="site-header">
       <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Readiness Matrix navigation">
-        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <RadarHeaderIdentity active="solana" />
         <div className="terminal-nav" aria-label="Machine Economy navigation">
           <MachineControlPlaneNavLinks current="machine-readiness-matrix" />
         </div>
@@ -6517,7 +6582,7 @@ function MachineMarketMapPage() {
     <a className="skip-link" href="#machine-market-map-content">Skip to content</a>
     <header className="site-header">
       <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Market Map navigation">
-        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <RadarHeaderIdentity active="solana" />
         <div className="terminal-nav" aria-label="Machine Economy navigation">
           <MachineControlPlaneNavLinks current="machine-market-map" />
         </div>
@@ -6721,10 +6786,7 @@ function AlibabaMachineExecutionDetailPage() {
     <a className="skip-link" href="#machine-execution-content">Skip to content</a>
     <header className="site-header">
       <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Execution navigation">
-        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home">
-          <span>Infopunks</span>
-          <strong>Pay.sh Radar</strong>
-        </a>
+        <RadarHeaderIdentity active="solana" />
         <div className="terminal-nav" aria-label="Machine Economy navigation">
           <MachineControlPlaneNavLinks current={null} />
         </div>
@@ -7178,7 +7240,7 @@ function MachineExecutionShortlistPage() {
     <a className="skip-link" href="#machine-shortlist-content">Skip to content</a>
     <header className="site-header">
       <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Execution Shortlist navigation">
-        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <RadarHeaderIdentity active="solana" />
         <div className="terminal-nav" aria-label="Machine Economy navigation">
           <MachineControlPlaneNavLinks current="machine-execution-shortlist" />
         </div>
@@ -7450,7 +7512,7 @@ function MachineExecutionProofPlanPage({ serviceId }: { serviceId: string }) {
     <a className="skip-link" href="#machine-execution-plan-content">Skip to content</a>
     <header className="site-header">
       <nav className="global-toolbar machine-market-toolbar" aria-label="Execution proof plan navigation">
-        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <RadarHeaderIdentity active="solana" />
         <div className="terminal-nav" aria-label="Machine Economy navigation">
           <MachineControlPlaneNavLinks current={null} />
         </div>
@@ -7721,7 +7783,7 @@ function MachineServiceDossierPage({ serviceId }: { serviceId: string }) {
     <a className="skip-link" href="#machine-service-content">Skip to content</a>
     <header className="site-header">
       <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Service Dossier navigation">
-        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <RadarHeaderIdentity active="solana" />
         <div className="terminal-nav" aria-label="Machine Economy navigation">
           <MachineControlPlaneNavLinks current={null} />
         </div>
@@ -8010,7 +8072,7 @@ function MachinePreflightPage() {
     <a className="skip-link" href="#machine-preflight-content">Skip to content</a>
     <header className="site-header">
       <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Preflight navigation">
-        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <RadarHeaderIdentity active="solana" />
         <div className="terminal-nav" aria-label="Machine Economy navigation">
           <MachineControlPlaneNavLinks current={null} />
         </div>
@@ -8210,7 +8272,7 @@ function MachineReceiptsPage() {
     <a className="skip-link" href="#machine-receipts-content">Skip to content</a>
     <header className="site-header">
       <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Receipts navigation">
-        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <RadarHeaderIdentity active="solana" />
         <div className="terminal-nav" aria-label="Machine Economy navigation">
           <MachineControlPlaneNavLinks current="machine-receipts" />
         </div>
@@ -8518,7 +8580,7 @@ function MachineDossierPage({ machineId }: { machineId: string }) {
     <a className="skip-link" href="#machine-dossier-content">Skip to content</a>
     <header className="site-header">
       <nav className="global-toolbar machine-market-toolbar" aria-label="Machine Dossier navigation">
-        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home"><span>Infopunks</span><strong>Pay.sh Radar</strong></a>
+        <RadarHeaderIdentity active="solana" />
         <div className="terminal-nav" aria-label="Machine Economy navigation">
           <MachineControlPlaneNavLinks current={null} />
         </div>
@@ -8963,6 +9025,10 @@ function RadarApp() {
   const routeInputFocusedRef = useRef(false);
   const dossierControlsEditingRef = useRef(false);
   const lastGoodPulseRef = useRef<Pulse | null>(null);
+
+  useEffect(() => {
+    if (window.location.pathname === '/') updateRadarHomeMetadata();
+  }, []);
 
   function applyFeaturedProvider(featured: FeaturedProvider, force = false) {
     setFeaturedProvider(featured);
@@ -9764,10 +9830,7 @@ function RadarApp() {
     <a className="skip-link" href="#terminal-content">Skip to content</a>
     <header className="site-header">
       <nav className="global-toolbar" aria-label="Global controls">
-        <a className="nav-brand" href="#terminal-content" aria-label="Infopunks Pay.sh Radar home">
-          <span>Infopunks</span>
-          <strong>Pay.sh Radar</strong>
-        </a>
+        <RadarHeaderIdentity active="solana" />
         <div className="terminal-nav terminal-nav-scroll-rail header-primary-nav" aria-label="Primary radar zones">
           {primaryHeaderNav.map(({ href, label, external, className, active }) => <a
             key={label}
@@ -9843,6 +9906,7 @@ function RadarApp() {
     <MethodologyDrawer open={methodologyOpen} onClose={() => setMethodologyOpen(false)} />
 
     <main id="terminal-content">
+    {!agentMode && <><RadarHomepageHero /><RadarNetworkEntrySection /></>}
     {!agentMode && <section className="terminal-meta-strip" aria-label="Terminal session metadata">
       <span><b>System Time</b>{formatDate(data.pulse.data_source.generated_at ?? data.pulse.data_source.last_ingested_at)}</span>
       <span><b>Network</b>{data.pulse.data_source.mode === 'live_pay_sh_catalog' && !data.pulse.data_source.used_fixture ? 'online' : 'fixture fallback'}</span>
@@ -9881,14 +9945,12 @@ function RadarApp() {
       </button>
     </section>}
     {agentMode && <AgentModeBanner onExit={() => setAgentMode(false)} onOpenApiDocs={openApiDocs} />}
-    {!agentMode && <section className="hero panel mission-control" aria-labelledby="terminal-title">
+    {!agentMode && <section className="panel solana-evidence-brief" aria-labelledby="solana-evidence-title">
       <div>
-        <p className="eyebrow">Infopunks Intelligence Terminal</p>
-        <p className="eyebrow">Radar Evidence Ledger</p>
-        <h1 id="terminal-title">Pay.sh routes are live. Agents need proof before spend.</h1>
-        <p className="mission-subtitle">Radar tracks mapped, proven, and benchmarked Pay.sh routes before agents route money through them.</p>
-        <p className="copy">Pay.sh is the spend rail. Radar is the evidence ledger. The Harness is the proof adapter.</p>
-        <p className="copy">Agents inspect the Evidence Ledger or Brief, request a non-executing Bundle Plan, then a Harness may execute later and return proof artifacts for Radar to record.</p>
+        <p className="eyebrow">Solana Radar · Current evidence state</p>
+        <h2 id="solana-evidence-title">Proof before agent spend.</h2>
+        <p className="mission-subtitle">Mapped Pay.sh routes, provider evidence and benchmark readiness—kept distinct from the Robinhood Chain signal desk.</p>
+        <p className="copy">Pay.sh is the spend rail. Radar is the evidence ledger. Agents inspect evidence, request a non-executing plan, and record proof artifacts before trust compounds.</p>
         <section className="preflight-home-cta" aria-label="Preflight card index call to action">
           <div className="preflight-home-cta-copy">
             <p className="section-kicker">New: Browse Preflight Cards</p>
@@ -9917,7 +9979,7 @@ function RadarApp() {
           <a href="#agent-benchmark-api"><b>Agent Benchmark API</b><span>Access API docs</span></a>
         </nav>
       </div>
-      <div className="ticker mission-metrics" aria-label="Live radar stats">
+      <div className="ticker mission-metrics solana-evidence-metrics" aria-label="Solana Radar evidence stats">
         <ControlStripMetric label="Providers" value={data.pulse.providerCount} />
         <ControlStripMetric label="Endpoints" value={data.pulse.endpointCount} />
         <ControlStripMetric label="Avg Trust" value={data.pulse.averageTrust ?? 'unknown'} />
@@ -14041,10 +14103,7 @@ function SignalGraphPage() {
     <a className="skip-link" href="#graph-content">Skip to content</a>
     <header className="site-header">
       <nav className="global-toolbar" aria-label="Signal Graph controls">
-        <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home">
-          <span>Infopunks</span>
-          <strong>Signal Graph</strong>
-        </a>
+        <RadarHeaderIdentity active="solana" />
         <div className="terminal-nav terminal-nav-scroll-rail" aria-label="Signal Graph navigation">
           <a href="/check">Check</a>
           <a href="/loops">Loops</a>

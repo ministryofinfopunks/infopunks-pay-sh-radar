@@ -179,7 +179,7 @@ describe('radar delayed malformed pricing range resilience', () => {
       await Promise.resolve();
     });
 
-    expect(container.textContent).toContain('Infopunks Intelligence Terminal');
+    expect(container.textContent).toContain('Intelligence before the wallet acts.');
     expect(container.textContent).toContain('Alpha Pay');
 
     await act(async () => {
@@ -188,7 +188,7 @@ describe('radar delayed malformed pricing range resilience', () => {
       await Promise.resolve();
     });
 
-    expect(container.textContent).toContain('Infopunks Intelligence Terminal');
+    expect(container.textContent).toContain('Intelligence before the wallet acts.');
     expect(container.textContent).toContain('Provider Intelligence Dossier');
     expect(container.textContent).toContain('Beta Pay');
     expect(container.textContent).not.toContain('Radar UI degraded: rendering fallback shell');

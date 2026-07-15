@@ -171,7 +171,7 @@ describe('pre-spend SDK', () => {
         const url = new URL(rawUrl, 'http://infopunks.test');
         const body = typeof init?.body === 'string' ? init.body : undefined;
         const response = await app.inject({
-          method: init?.method ?? 'GET',
+          method: (init?.method ?? 'GET') as 'GET' | 'POST',
           url: `${url.pathname}${url.search}`,
           payload: body,
           headers: init?.headers ? Object.fromEntries(new Headers(init.headers).entries()) : undefined

@@ -209,7 +209,7 @@ describe('radar boot loading behavior', () => {
       await Promise.resolve();
     });
 
-    expect(container.textContent).toContain('Infopunks Intelligence Terminal');
+    expect(container.textContent).toContain('Intelligence before the wallet acts.');
     expect(container.textContent).toContain('Provider Directory');
     expect(container.textContent).toContain('Radar live. Some enrichment panels are delayed.');
     expect(container.textContent).toContain('Open Developer diagnostics');
@@ -234,7 +234,7 @@ describe('radar boot loading behavior', () => {
     });
 
     expect(container.textContent).toContain('Radar degraded: unable to load live pulse');
-    expect(container.textContent).toContain('Infopunks Intelligence Terminal');
+    expect(container.textContent).toContain('Intelligence before the wallet acts.');
     expect(fetchState.calls).not.toContain('/v1/search');
   });
 
@@ -250,10 +250,11 @@ describe('radar boot loading behavior', () => {
       await Promise.resolve();
     });
 
-    expect(container.textContent).toContain('Infopunks Intelligence Terminal');
-    expect(container.textContent).toContain('Radar Evidence Ledger');
-    expect(container.textContent).toContain('Pay.sh routes are live. Agents need proof before spend.');
-    expect(container.textContent).toContain('Agents inspect the Evidence Ledger or Brief, request a non-executing Bundle Plan, then a Harness may execute later and return proof artifacts for Radar to record.');
+    expect(container.textContent).toContain('Intelligence before the wallet acts.');
+    expect(container.textContent).toContain('One Radar. Two economies.');
+    expect(container.textContent).toContain('Proof before agent spend.');
+    expect(container.textContent).toContain('Solana Radar');
+    expect(container.textContent).toContain('Robinhood Chain');
     expect(container.textContent).toContain('New: Browse Preflight Cards');
     expect(container.textContent).toContain('Agent spend safety labels for autonomous markets.');
     expect(container.textContent).toContain('Discover → Check → Pay → Prove');
@@ -337,7 +338,7 @@ describe('radar boot loading behavior', () => {
     });
 
     expect(fetchState.calls).toContain('/v1/providers/featured');
-    expect(container.textContent).toContain('Infopunks Intelligence Terminal');
+    expect(container.textContent).toContain('Intelligence before the wallet acts.');
     expect(container.textContent).toContain('Provider Directory');
     expect(container.textContent).not.toContain('Radar UI degraded: rendering fallback shell');
     expect(container.textContent).not.toContain("Cannot read properties of undefined (reading 'includes')");

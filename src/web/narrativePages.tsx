@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
 import type { AbundanceClaim, AbundanceDecisionState, AbundanceDeskPayload, AbundanceProofState } from '../data/abundanceDesk';
+import { RadarHeaderIdentity } from './radarNetworks';
 
 type NarrativeDecisionState = 'strong_signal' | 'supportive_watch' | 'durable_re_index' | 'watch_closely' | 'concentrated_power' | 'high_reflexivity' | 'unproven' | 'do_not_chase';
 
@@ -1057,10 +1058,7 @@ function NarrativeIntelNav({ current }: { current: string }) {
   }
 
   return <nav className="global-toolbar narrative-toolbar" aria-label="Narrative Intel navigation">
-    <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home">
-      <span>Infopunks</span>
-      <strong>Narrative Intel</strong>
-    </a>
+    <RadarHeaderIdentity active="solana" />
     <div className="terminal-nav terminal-nav-scroll-rail" aria-label="Narrative Intel routes">
       {links.map((link) => <a key={link.href} href={link.href} className={isActive(link.href) ? 'active' : ''} aria-current={isActive(link.href) ? 'page' : undefined}>{link.label}</a>)}
     </div>

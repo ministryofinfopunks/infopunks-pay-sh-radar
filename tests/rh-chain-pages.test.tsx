@@ -77,6 +77,9 @@ describe('RH Chain Signal Desk pages', () => {
 
     const text = container.textContent ?? '';
     expect(text).toContain('RH Chain Signal Desk');
+    expect(container.querySelector('a[aria-label="Infopunks / Robinhood Chain home"]')).not.toBeNull();
+    expect(container.querySelector('button[aria-label="Network: Robinhood Chain. Switch Radar network"]')).not.toBeNull();
+    expect(container.querySelector('a[role="menuitem"][href="/rh-chain-signal-desk"][aria-current="page"]')).not.toBeNull();
     expect(text).toContain('Daily RH Chain Receipts');
     expect(text).toContain('The market forgets. Infopunks keeps the memory.');
     expect(text).toContain('RH Chain survives NOXA stress as launchpad competition fragments the meme layer');

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
+import { RadarHeaderIdentity } from './radarNetworks';
 
 type RevenueReceiptStatus = 'open_slot' | 'pending' | 'completed' | 'cancelled' | 'refunded' | 'disputed';
 type RevenueReceiptSource =
@@ -75,10 +76,7 @@ function statusTone(status: RevenueReceiptStatus) {
 function RevenueReceiptsNav() {
   const pathname = typeof window !== 'undefined' ? window.location.pathname : '/revenue-receipts';
   return <nav className="global-toolbar proof-check-toolbar unicorn-radar-nav revenue-receipts-nav" aria-label="Revenue Receipts navigation">
-    <a className="nav-brand" href="/" aria-label="Infopunks Pay.sh Radar home">
-      <span>Infopunks</span>
-      <strong>Revenue</strong>
-    </a>
+    <RadarHeaderIdentity active="solana" />
     <div className="terminal-nav terminal-nav-scroll-rail" aria-label="Revenue Receipts routes">
       <a href="/revenue-receipts" aria-current={pathname === '/revenue-receipts' ? 'page' : undefined}>Revenue Receipts</a>
       <a href="/unicorn-radar">Unicorn Radar</a>

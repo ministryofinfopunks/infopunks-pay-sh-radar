@@ -431,7 +431,7 @@ function pathOf(input: RequestInfo | URL) {
   return new URL(raw, 'http://localhost').pathname;
 }
 
-function mockFetch(candidateDetail = baseCandidate, listSummary = summary) {
+function mockFetch(candidateDetail: { id: string } = baseCandidate, listSummary: unknown = summary) {
   vi.stubGlobal('fetch', vi.fn((input: RequestInfo | URL) => {
     const path = pathOf(input);
     if (path === '/v1/unicorn-radar') return Promise.resolve(new Response(JSON.stringify({ data: listSummary }), { status: 200, headers: { 'Content-Type': 'application/json' } }));

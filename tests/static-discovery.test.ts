@@ -7,13 +7,13 @@ const projectFileUrl = (path: string) => new URL(`../${path}`, import.meta.url);
 describe('static public discovery metadata', () => {
   it('exposes crawler and social metadata in the HTML shell', async () => {
     const html = await readProjectFile('index.html');
-    const expectedDescription = 'Infopunks Pay.sh Radar is an evidence ledger for Pay.sh agent routes, exposing recorded benchmarks, artifacts, route timelines, structured caveats, evidence health, and no-winner benchmark status before agents spend.';
+    const expectedDescription = 'Infopunks Radar unifies Solana pre-spend intelligence with Robinhood Chain token, meme, liquidity and ecosystem signal intelligence in one evidence system.';
 
-    expect(html).toContain('<title>Infopunks Pay.sh Radar | Evidence Ledger for Pay.sh Agent Routes</title>');
+    expect(html).toContain('<title>Infopunks Radar | Intelligence Across Solana and Robinhood Chain</title>');
     expect(html).toContain('name="description"');
     expect(html).toContain(`content="${expectedDescription}"`);
-    expect(html).toContain('Infopunks Pay.sh Radar is an evidence ledger for Pay.sh agent routes');
-    expect(html).toContain('recorded benchmarks, artifacts, route timelines, structured caveats, evidence health');
+    expect(html).toContain('Solana pre-spend intelligence');
+    expect(html).toContain('Robinhood Chain token, meme, liquidity and ecosystem signal intelligence');
     expect(html).not.toContain('live intelligence terminal');
     expect(html).not.toContain('provider intelligence, risk, cost, and routing readiness');
     expect(html).toContain('rel="canonical" href="https://radar.infopunks.fun/"');
@@ -37,8 +37,8 @@ describe('static public discovery metadata', () => {
     expect(html).toContain('type="application/ld+json"');
     expect(html).toContain('"@type": "SoftwareApplication"');
     expect(html).toContain('<noscript>');
-    expect(html).toContain('<h1>Infopunks Pay.sh Radar</h1>');
-    expect(html).toContain(expectedDescription);
+    expect(html).toContain('<h1>Infopunks Radar</h1>');
+    expect(html).toContain('One evidence system with chain-specific intelligence surfaces');
     expect(html).not.toMatch(/best route|top route|winner route|loser route|superiority proof|ranking authority/i);
     expect(html).toContain('/v1/radar/preflight/batch');
   });

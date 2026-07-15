@@ -270,6 +270,12 @@ describe('web accessibility landmarks', () => {
     expect(container.querySelector('main#terminal-content')).not.toBeNull();
     expect(container.querySelector('footer')).not.toBeNull();
     expect(container.querySelector('nav[aria-label="Global controls"]')).not.toBeNull();
+    expect(container.querySelectorAll('h1')).toHaveLength(1);
+    expect(container.querySelector('h1')?.textContent).toBe('Intelligence before the wallet acts.');
+    expect(container.querySelector('button[aria-label="Network: Solana. Switch Radar network"]')).not.toBeNull();
+    expect(container.querySelector('section[aria-labelledby="radar-network-entry-title"]')).not.toBeNull();
+    expect(Array.from(container.querySelectorAll('a[href="/#global-pulse"]')).some((link) => link.textContent?.includes('Open Solana Radar'))).toBe(true);
+    expect(Array.from(container.querySelectorAll('a[href="/rh-chain-signal-desk"]')).some((link) => link.textContent?.includes('Explore Robinhood Chain'))).toBe(true);
     expect(container.querySelector('aside[aria-label="Catalog-backed ecosystem intelligence sidebar"]')).not.toBeNull();
     expect(container.querySelector('section[aria-label="Anomaly Watch panel"]')).not.toBeNull();
     expect(container.querySelector('[aria-label="Advisory risk summary counts"]')?.textContent).toContain('low1');
