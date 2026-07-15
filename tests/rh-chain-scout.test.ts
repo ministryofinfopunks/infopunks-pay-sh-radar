@@ -7,7 +7,9 @@ describe('RH Chain Scout', () => {
     ['Show clone and LP risks', 'risk_memory'],
     ['Is this a larger meme narrative?', 'narrative_mutation'],
     ['What does this token contract know?', 'token_context'],
-    ['Show wallet and bridge access context', 'launch_context']
+    ['Show wallet and bridge access context', 'launch_context'],
+    ['What happened with NOXA?', 'launch_context'],
+    ['What does launchpad fragmentation mean?', 'launch_context']
   ] as const)('classifies %s', (query, mode) => expect(classifyRhChainScoutQuery(query)).toBe(mode));
   it('returns limitations, disclaimer, and no trading or approval language', () => {
     const result = queryRhChainScout({ query: 'What are the biggest risks right now?' });
@@ -25,5 +27,14 @@ describe('RH Chain Scout', () => {
     const result = queryRhChainScout({ query: 'unverified_contract_required', mode: 'token_context' });
     expect(result.answer).toContain('Source required before identity-specific context.');
     expect(result.supporting_review_items).toEqual([]);
+  });
+  it('answers NOXA and fragmentation questions with cautious source-bound wording', () => {
+    const noxa = queryRhChainScout({ query: 'What happened with NOXA?' });
+    const fragmentation = queryRhChainScout({ query: 'What does launchpad fragmentation mean?' });
+    const watched = queryRhChainScout({ query: 'Which launch surfaces are being watched?' });
+    expect(noxa.answer).toContain('source-dependent context');
+    expect(noxa.answer.toLowerCase()).not.toMatch(/rug|misconduct/);
+    expect(fragmentation.answer).toContain('multiple launch surfaces and direct pools');
+    expect(watched.answer).toContain('flap.sh');
   });
 });

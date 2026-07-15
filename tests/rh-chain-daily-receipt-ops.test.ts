@@ -15,8 +15,8 @@ describe('RH Chain Daily Receipt Ops Kit', () => {
   it('selects the latest receipt and generates known detail and share-card routes', () => {
     const feed = getRhChainDailyReceipts();
     const latest = selectLatestRhChainDailyReceipt(feed.receipts);
-    expect(latest?.receipt_id).toBe('rh_daily_002');
-    expect(feed.latest_receipt.receipt_id).toBe('rh_daily_002');
+    expect(latest?.receipt_id).toBe('rh_daily_003');
+    expect(feed.latest_receipt.receipt_id).toBe('rh_daily_003');
     expect(rhChainDailyReceiptRoute(feed.receipts[1].receipt_id, feed.receipts)).toBe(`/rh-chain-signal-desk/daily-receipts/${feed.receipts[1].receipt_id}`);
     expect(rhChainDailyReceiptRoute('unknown', feed.receipts)).toBeNull();
     expect(rhChainDailyReceiptShareCardRoute(feed.receipts[1].receipt_id)).toBe(`/rh-chain-signal-desk/daily-receipts/${feed.receipts[1].receipt_id}/card`);
@@ -41,14 +41,14 @@ describe('RH Chain Daily Receipt Ops Kit', () => {
     await app.close();
   });
 
-  it('keeps source-required access claims and all core receipt sections in #002', () => {
+  it('keeps source-required launchpad claims and the stress-test section in #003', () => {
     const receipt = getRhChainDailyReceipts().latest_receipt;
-    expect(receipt.receipt_id).toBe('rh_daily_002');
+    expect(receipt.receipt_id).toBe('rh_daily_003');
     expect(receipt.receipt_sections?.map((section) => section.section_id)).toEqual(expect.arrayContaining([
-      'chain_pulse', 'meme_pulse', 'access_wallet_pulse', 'rwa_pulse', 'risk_wall', 'narrative_mutation', 'infopunks_verdict'
+      'chain_pulse', 'meme_pulse', 'launchpad_stress_test', 'access_wallet_pulse', 'risk_wall', 'narrative_mutation', 'infopunks_verdict'
     ]));
     expect(receipt.source_notes).toContain('source_required');
-    expect(receipt.receipt_sections?.find((section) => section.section_id === 'access_wallet_pulse')?.fields.map((field) => field.value).join(' ')).toContain('source_required');
+    expect(receipt.receipt_sections?.find((section) => section.section_id === 'launchpad_stress_test')?.fields.map((field) => field.value).join(' ')).toContain('source_required');
     expect(JSON.stringify(receipt).toLowerCase()).not.toMatch(/\b(buy|sell)\b/);
   });
 });

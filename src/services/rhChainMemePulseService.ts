@@ -55,6 +55,12 @@ export function assembleRhChainMemePulseScreen(liveSnapshot?: RhChainLiveSnapsho
       last_updated: `${index.last_updated} · ${context}`
     },
     top_attention_assets,
+    launchpad_stress: [
+      { id: 'noxa-disruption', title: 'NOXA disruption', summary: 'Reported degradation is manual, source-dependent context only; it does not establish misconduct or intent.', risk_state: 'source_required' },
+      { id: 'rival-surface-rotation', title: 'Rival surface rotation', summary: 'flap.sh, trensh.today, bankr, tokeny.fun, vlad.fun, and robindotmarket are watched as source-required context unless primary evidence is attached.', risk_state: 'source_required' },
+      { id: 'direct-uniswap-liquidity', title: 'Direct Uniswap liquidity migration', summary: 'Direct-pool attention can move before reserves, LP status, and exit depth are independently receipted.', risk_state: 'medium_watch' },
+      { id: 'competitor-claims', title: 'Competitor claims', summary: 'Competitor activity and share claims remain source_required; no exact figures are inferred from desk memory.', risk_state: 'source_required' }
+    ],
     risk_strip: [
       ...desk.risk_wall.map((item) => ({ id: item.id, title: item.title, summary: item.summary, risk_state: item.risk_state })),
       ...receipts.latest_receipt.do_not_touch_yet.map((item) => ({ id: `receipt-${item.item}`, title: item.item, summary: item.reason, risk_state: item.risk_state }))

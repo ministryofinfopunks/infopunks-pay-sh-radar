@@ -179,8 +179,35 @@ export type RhChainDistributionPackPayload = {
   packets: RhChainDistributionPacket[];
 };
 
-export type RhChainLaunchSurface = 'noxa_fun' | '20lab_erc20' | 'pump_fun_routed_rh_chain' | 'uniswap_direct_pool' | 'hardhat_foundry_custom' | 'unknown_manual';
+export type RhChainReceiptRelaySurface = 'x' | 'telegram' | 'discord';
+/** Bot-friendly public-memory export. It intentionally has no audience, scheduling, or execution fields. */
+export type RhChainReceiptRelayPacket = {
+  packet_id: string;
+  surface: RhChainReceiptRelaySurface;
+  title: string;
+  short_copy: string;
+  long_copy: string;
+  source_url: string;
+  artifact_url: string;
+  risk_disclaimer: string;
+  no_raid_notice: string;
+  generated_at: string;
+  data_mode: RhChainDataFreshness;
+};
+export type RhChainReceiptRelayPayload = {
+  title: 'RH Chain Receipt Relay';
+  subtitle: 'Bot-friendly receipt memory. Caveat attached.';
+  generated_at: string;
+  data_mode: 'manual';
+  doctrine: 'External data gives context. Infopunks gives judgment. Receipts create memory.';
+  disclaimer: string;
+  packets: RhChainReceiptRelayPacket[];
+};
+
+export type RhChainLaunchSurface = 'noxa_fun' | 'flap_sh' | 'trensh_today' | 'bankr' | 'tokeny_fun' | 'vlad_fun' | 'robindotmarket' | '20lab_erc20' | 'pump_fun_routed_rh_chain' | 'uniswap_direct_pool' | 'hardhat_foundry_custom' | 'unknown_manual';
 export type RhChainLaunchSourceType = 'launchpad' | 'token_generator' | 'routed_launchpad' | 'direct_dex_pool' | 'custom_deployment' | 'unknown_manual';
+export type RhChainLaunchSurfaceStatus = 'active' | 'degraded' | 'paused' | 'offline' | 'migrating' | 'source_required';
+export type RhChainSurfaceRisk = 'front_end_dependency' | 'clone_flood' | 'creator_fee_claim_uncertainty' | 'launch_quality_filtering' | 'rival_surface_rotation' | 'unknown';
 export type RhChainLpStatus = 'unknown' | 'locked_claimed' | 'burned_claimed' | 'unlocked' | 'unavailable';
 export type RhChainLaunchConfidence = RhChainConfidenceLevel;
 export type RhChainLaunchEvidence = { label: string; url: string | null; note: string; observed_at: string | null };
@@ -209,6 +236,8 @@ export type RhChainLaunchSurfaceRecord = {
   source_type: RhChainLaunchSourceType;
   description: string;
   risk_note: string;
+  launch_surface_status?: RhChainLaunchSurfaceStatus;
+  surface_risk?: RhChainSurfaceRisk;
   source: RhChainSource;
 };
 
@@ -418,7 +447,7 @@ export type RhChainDailyReceiptWatchItem = {
   next_thing_to_verify: string;
 };
 
-export type RhChainDailyReceiptSectionId = 'chain_pulse' | 'meme_pulse' | 'access_wallet_pulse' | 'rwa_pulse' | 'risk_wall' | 'narrative_mutation' | 'infopunks_verdict';
+export type RhChainDailyReceiptSectionId = 'chain_pulse' | 'meme_pulse' | 'launchpad_stress_test' | 'access_wallet_pulse' | 'rwa_pulse' | 'risk_wall' | 'narrative_mutation' | 'infopunks_verdict';
 
 export type RhChainDailyReceiptSection = {
   section_id: RhChainDailyReceiptSectionId;
@@ -469,7 +498,7 @@ export type RhChainDailyReceiptsPayload = {
   freshness_state?: import('../services/rhChainTruthGuards').RhChainFreshnessState;
 };
 
-export const RH_CHAIN_DAILY_RECEIPT_SECTION_IDS = ['chain_pulse', 'meme_pulse', 'rwa_pulse', 'risk_wall', 'narrative_mutation', 'infopunks_verdict'] as const;
+export const RH_CHAIN_DAILY_RECEIPT_SECTION_IDS = ['chain_pulse', 'meme_pulse', 'launchpad_stress_test', 'risk_wall', 'narrative_mutation', 'infopunks_verdict'] as const;
 export type RhChainDailyReceiptAuthoringInput = RhChainDailyReceipt & {
   period: string;
   observed_at: string;
@@ -506,6 +535,7 @@ export type RhChainMemePulsePayload = {
     last_updated: string;
   };
   top_attention_assets: RhChainMemePulseAsset[];
+  launchpad_stress: Array<{ id: string; title: string; summary: string; risk_state: RhChainRiskState }>;
   risk_strip: Array<{ id: string; title: string; summary: string; risk_state: RhChainRiskState }>;
   market_translation: Array<{ id: string; trend: string; translation: string; caveat: string }>;
   freshness_state?: import('../services/rhChainTruthGuards').RhChainFreshnessState;
@@ -541,7 +571,7 @@ export type RhChainTokenDossier = {
   receipt_trail: Array<{ id: string; label: string; timestamp: string; href: string | null }>;
 };
 
-export const RH_CHAIN_CLONE_SUSPICION_TYPES = ['duplicate_ticker', 'impersonator', 'fake_volume_trap', 'low_liquidity_clone', 'suspicious_launch_surface', 'deployer_cluster', 'unknown'] as const;
+export const RH_CHAIN_CLONE_SUSPICION_TYPES = ['duplicate_ticker', 'impersonator', 'fake_volume_trap', 'low_liquidity_clone', 'suspicious_launch_surface', 'launchpad_displacement_risk', 'deployer_cluster', 'unknown'] as const;
 export type RhChainCloneSuspicionType = typeof RH_CHAIN_CLONE_SUSPICION_TYPES[number];
 export type RhChainCloneRadarItem = {
   id: string;
@@ -563,6 +593,24 @@ export type RhChainCloneRadarItem = {
   source_notes: string[];
 };
 
+export const RH_CHAIN_RISK_PATTERN_CATEGORIES = ['vampire_copycat_risk', 'fake_relaunch_risk', 'launchpad_displacement_risk', 'duplicate_social_claim', 'liquidity_claim_unverified', 'creator_fee_claim_uncertain', 'front_end_dependency_risk', 'direct_uniswap_low_liquidity_risk'] as const;
+export type RhChainRiskPatternCategory = typeof RH_CHAIN_RISK_PATTERN_CATEGORIES[number];
+/** Read-only review cue. It does not alter a submission, token, or public review decision. */
+export type RhChainRiskPatternItem = {
+  risk_pattern_id: string;
+  risk_category: RhChainRiskPatternCategory;
+  suspected_ticker: string;
+  contract?: string | null;
+  related_surface: RhChainLaunchSurface;
+  evidence_summary: string;
+  source_links: Array<{ label: string; url: string | null }>;
+  confidence_level: RhChainConfidenceLevel;
+  review_status: 'requires_review';
+  next_review_step: string;
+  data_mode: RhChainDataFreshness;
+  observed_at: string;
+};
+
 export type RhChainCloneRadarPayload = {
   title: 'Clone & Impersonator Radar';
   subtitle: 'The market moves fast. The copies move faster.';
@@ -572,8 +620,58 @@ export type RhChainCloneRadarPayload = {
   active_warnings: RhChainCloneRadarItem[];
   duplicate_ticker_watch: RhChainCloneRadarItem[];
   liquidity_watch: RhChainCloneRadarItem[];
+  vampire_copycat_watch: RhChainRiskPatternItem[];
+  risk_categories: Array<{ category: RhChainCloneSuspicionType | RhChainRiskPatternCategory; title: string; explanation: string }>;
   correlations?: RhChainRiskCorrelation[];
   flagging_method: Array<{ signal: string; explanation: string }>;
+};
+
+export type RhChainLaunchpadSurfaceStatus = 'active' | 'degraded' | 'paused' | 'offline' | 'migrating' | 'source_required' | 'unknown';
+export type RhChainLaunchpadSurfaceRisk = 'front_end_dependency' | 'clone_flood' | 'vampire_copycat_risk' | 'creator_fee_claim_uncertainty' | 'launch_quality_filtering' | 'rival_surface_rotation' | 'source_required';
+export type RhChainLaunchpadClaimType = 'launch_count' | 'fee_claim' | 'outage_claim' | 'rival_share_claim' | 'notable_token_claim';
+
+/** Read-only surface-memory record. It intentionally holds no launch, routing, or execution fields. */
+export type RhChainLaunchpadSurface = {
+  surface_id: 'noxa_fun' | 'flap_sh' | 'trensh_today' | 'bankr' | 'tokeny_fun' | 'vlad_fun' | 'robindotmarket' | 'uniswap_direct_launches' | 'unknown_manual';
+  name: string;
+  surface_url?: string | null;
+  status: RhChainLaunchpadSurfaceStatus;
+  status_confidence: RhChainConfidenceLevel;
+  last_observed_at: string;
+  data_mode: RhChainDataFreshness;
+  source_notes: string[];
+  known_tokens: string[];
+  notable_claims: string[];
+  fee_claims: string[];
+  launch_count_claims: string[];
+  risk_notes: string[];
+  surface_risks: RhChainLaunchpadSurfaceRisk[];
+  infopunks_note: string;
+  source: RhChainSource;
+};
+
+export type RhChainLaunchpadClaim = {
+  claim_id: string;
+  claim_type: RhChainLaunchpadClaimType;
+  surface_id: RhChainLaunchpadSurface['surface_id'];
+  claim: string;
+  status: 'source_required' | 'observed' | 'unverified';
+  source_notes: string;
+  last_observed_at: string;
+};
+
+export type RhChainLaunchpadObservatoryPayload = {
+  title: 'RH Chain Launchpad Observatory';
+  subtitle: 'Where tokens start. Where claims break. Where receipts matter.';
+  generated_at: string;
+  data_mode: 'manual';
+  doctrine: 'External data gives context. Infopunks gives judgment. Receipts create memory. Infopunks does not launch the token. Infopunks remembers the launch.';
+  source_policy: string;
+  disclaimer: string;
+  surfaces: RhChainLaunchpadSurface[];
+  claim_ledger: RhChainLaunchpadClaim[];
+  post_noxa_stress_map: Array<{ title: string; explanation: string }>;
+  risk_notes: Array<{ title: string; explanation: string }>;
 };
 
 export type RhChainRiskCorrelationType = 'duplicate_ticker_multiple_contracts' | 'same_deployer_multiple_submissions' | 'repeated_launch_surface_low_evidence' | 'reused_liquidity_link' | 'missing_contract_verification' | 'repeated_lp_status_claim_without_evidence' | 'risk_wall_review_queue_overlap';
@@ -893,6 +991,119 @@ export const rhChain4663SeedAssets: RhChain4663SeedAsset[] = [
 ];
 
 export const rhChainDailyReceipts: RhChainDailyReceipt[] = [
+  {
+    receipt_id: 'rh_daily_003',
+    receipt_type: 'daily_market_memory',
+    date: '2026-07-15',
+    period: 'July 13 → July 15, 2026 UTC',
+    generated_at: '2026-07-15T00:00:00.000Z',
+    observed_at: '2026-07-15T00:00:00.000Z',
+    chain: 'Robinhood Chain',
+    headline: 'RH Chain survives NOXA stress as launchpad competition fragments the meme layer',
+    summary: 'A manually authored market-memory receipt for the NOXA stress window: RH Chain meme activity stayed resilient despite reported NOXA downtime and launch restrictions, while direct Uniswap pools and competing launch surfaces increased the need for launch-origin memory.',
+    top_signal: 'RH Chain meme activity stayed resilient despite NOXA downtime and launch restrictions',
+    biggest_risk: 'launchpad dependency, clone floods, vampire/copycat launches, and platform-front-end fragility',
+    strongest_narrative: 'the chain is shifting from single-launchpad meme season to launch-surface competition',
+    liquidity_note: 'Direct Uniswap launches and liquidity migration are important context, but exact DEX volume, TVL, pool-depth, and competitor-share figures remain source- and timestamp-dependent.',
+    stock_token_spillover_note: 'The launch-surface shift changes distribution conditions, not the need for source-backed RWA, Stock Token, or DeFi usage evidence.',
+    solana_base_migration_note: 'Direct-pool and rival-surface rotation are tracked as RH Chain launch context only; no cross-chain migration or route claim is asserted without primary evidence.',
+    deployer_watch_note: 'Fragmented launch surfaces expand the need to track exact launch origin, pair, deployer, LP status, canonical channels, and source timestamp before a token record is upgraded.',
+    infopunks_verdict: 'The launchpad layer is fragmenting. The chain did not break. The memory layer becomes more important.',
+    manual_context: 'Human-reviewed memory for July 13 → July 15, 2026 UTC. Reported NOXA disruption and competitor claims remain cautious, source-required context unless primary, timestamped evidence is attached.',
+    source_notes: 'Manual market memory with medium confidence. Exact DEX volume, TVL, liquidity, and competitor-share figures are source/timestamp dependent unless primary links are present. Reported NOXA downtime, token-creation continuity, and rival launch-surface claims are source_required unless independently verified; this receipt makes no misconduct, rug, or intent claim.',
+    receipt_sections: [
+      {
+        section_id: 'chain_pulse',
+        title: 'Chain Pulse',
+        summary: 'RH Chain remains active after launch, even as a major launch surface was reportedly under stress.',
+        fields: [
+          { label: 'Activity read', value: 'RH Chain remains active after launch.' },
+          { label: 'Metrics rule', value: 'Treat exact DEX volume and TVL figures as source/timestamp dependent.' },
+          { label: 'No invented figures', value: 'No exact chain-level market numbers are asserted in this receipt.' }
+        ]
+      },
+      {
+        section_id: 'meme_pulse',
+        title: 'Meme Pulse',
+        summary: 'Meme activity remains the visible driver while launch origin becomes a more material part of risk context.',
+        fields: [
+          { label: 'Flagship attention asset', value: 'CASHCAT remains the flagship attention asset.' },
+          { label: 'Attention shift', value: 'Direct Uniswap launches and rival launch surfaces are gaining attention.' },
+          { label: 'Watchlist rule', value: 'Watchlist names remain context only unless reviewed.' }
+        ]
+      },
+      {
+        section_id: 'launchpad_stress_test',
+        title: 'Launchpad Stress Test',
+        summary: 'Reported NOXA stress is a launch-surface fragmentation signal, not a misconduct finding.',
+        fields: [
+          { label: 'NOXA report', value: 'NOXA reportedly went offline/down for roughly two days; source_required unless verified live.' },
+          { label: 'Creation report', value: 'New token creation reportedly continued at high levels; source_required unless primary evidence is attached.' },
+          { label: 'Rival surfaces', value: 'flap.sh, trensh.today, bankr, tokeny.fun, vlad.fun, and robindotmarket are context/source-required unless verified.' },
+          { label: 'Signal', value: 'This is a launch-surface fragmentation signal.' }
+        ]
+      },
+      {
+        section_id: 'access_wallet_pulse',
+        title: 'Launch + Access Surface Mutation',
+        summary: 'Launch surfaces show where tokens start. Access surfaces show how users arrive.',
+        fields: [
+          { label: 'Launch surfaces', value: 'Track launch origin, pair, deployer, LP status, and source timestamp.' },
+          { label: 'Access surfaces', value: 'Track how users discover, reach, and route to a token without treating access as legitimacy.' },
+          { label: 'Why it changed', value: 'Disruption increases the importance of source-stamped launch and access memory.' }
+        ]
+      },
+      {
+        section_id: 'risk_wall',
+        title: 'Risk Wall',
+        summary: 'Fragmentation raises the cost of weak provenance and multiplies the pathways for copycat attention.',
+        fields: [
+          { label: 'Identity risk', value: 'clone floods, impersonators, fake relaunches, and vampire/copycat tokens.' },
+          { label: 'Platform risk', value: 'launchpad-front-end dependency and creator-fee claim uncertainty.' },
+          { label: 'Liquidity risk', value: 'low-liquidity direct launches.' },
+          { label: 'Evidence rule', value: 'Competitor claims remain source_required unless primary evidence is attached.' }
+        ]
+      },
+      {
+        section_id: 'narrative_mutation',
+        title: 'Narrative Mutation',
+        summary: 'RH Chain is moving from “NOXA-led meme season” into “multi-surface launch competition.”',
+        fields: [
+          { label: 'What this validates', value: 'Infopunks’ Launch Surface Watch, Clone Radar, Token Dossiers, and Signal Vault.' },
+          { label: 'Memory rule', value: 'The memory layer matters more when launch surfaces fragment.' }
+        ]
+      },
+      {
+        section_id: 'infopunks_verdict',
+        title: 'Infopunks Verdict',
+        summary: 'External data gives context. Infopunks gives judgment. Receipts create memory.',
+        fields: [{ label: 'Verdict', value: 'The launchpad layer is fragmenting. The chain did not break. The memory layer becomes more important.' }]
+      }
+    ],
+    watchlist: [
+      { item: 'CASHCAT', reason: 'Flagship RH Chain attention asset while the meme layer remains resilient in manual desk memory.', risk_state: 'medium_watch', next_thing_to_verify: 'Exact contract, pair, pool depth, holder concentration, and sustained activity.' },
+      { item: 'Direct Uniswap pool launches', reason: 'Direct pools are gaining attention as an alternative launch route, but liquidity quality is not assumed.', risk_state: 'source_required', next_thing_to_verify: 'Exact pair, reserves, LP status, deployer, and source timestamp.' },
+      { item: 'Rival launch surfaces', reason: 'flap.sh, trensh.today, bankr, tokeny.fun, vlad.fun, and robindotmarket are tracked only as unverified context.', risk_state: 'source_required', next_thing_to_verify: 'Primary surface links, timestamped availability, and exact launch-to-pair evidence.' }
+    ],
+    do_not_touch_yet: [
+      { item: 'Clone floods and fake relaunches', reason: 'Fragmented launch surfaces can multiply ticker, branding, and canonical-channel confusion.', risk_state: 'do_not_touch_yet', next_thing_to_verify: 'Exact contract, canonical channels, deployer history, and launch origin.' },
+      { item: 'Vampire/copycat and low-liquidity direct launches', reason: 'Attention can move before pool depth, LP state, or launch quality is independently receipted.', risk_state: 'high_risk', next_thing_to_verify: 'Pair reserves, LP status, transaction quality, and deployer links.' },
+      { item: 'Unverified NOXA and competitor claims', reason: 'Reported downtime, continuity, and competitor-share claims are context, not established facts.', risk_state: 'source_required', next_thing_to_verify: 'Primary, timestamped source evidence.' }
+    ],
+    sources: [
+      createRhChainDailyReceiptSource({
+        name: 'Infopunks manual RH Chain NOXA stress watch',
+        observed_at: '2026-07-15T00:00:00.000Z',
+        url: 'https://radar.infopunks.fun/rh-chain-signal-desk/daily-receipts',
+        note: 'Human-reviewed, manually authored market memory for July 13 → July 15, 2026 UTC. NOXA disruption and competitor claims remain source_required absent primary links; no misconduct or intent is inferred.',
+        data_mode: 'manual',
+        confidence_level: 'medium'
+      })
+    ],
+    confidence_level: 'medium',
+    status: 'manual',
+    data_mode: 'manual'
+  },
   {
     receipt_id: 'rh_daily_002',
     receipt_type: 'daily_market_memory',
@@ -2057,15 +2268,21 @@ export function getRhChainDailyReceipts(): RhChainDailyReceiptsPayload {
 }
 
 export function getRhChainLaunchSurfaces() {
-  const source = createRhChainSource({ source_name: 'Infopunks Launch Surface Watch manual registry', source_url: 'https://radar.infopunks.fun/rh-chain-signal-desk/launch-surfaces', observed_at: '2026-07-12T00:00:00.000Z', data_mode: 'manual', confidence_level: 'medium', note: 'Known launch-surface taxonomy for manual evidence review. Inclusion does not verify a token or imply safety.' });
+  const source = createRhChainSource({ source_name: 'Infopunks Launch Surface Watch manual registry', source_url: 'https://radar.infopunks.fun/rh-chain-signal-desk/launch-surfaces', observed_at: '2026-07-15T00:00:00.000Z', data_mode: 'manual', confidence_level: 'medium', note: 'Manual launch-surface taxonomy for evidence review. NOXA disruption and competitor claims are source-dependent unless primary, timestamped evidence is attached. Inclusion does not verify a token, platform claim, or imply safety.' });
   const records: RhChainLaunchSurfaceRecord[] = [
-    ['noxa_fun', 'NOXA Fun', 'launchpad', 'Launchpad-origin claim; verify contract, creator, and route independently.', 'Launchpad labels can be copied or spoofed.'],
-    ['20lab_erc20', '20lab-generated ERC-20', 'token_generator', 'Generator-origin claim; inspect bytecode, ownership, and deployer history.', 'Template similarity is not proof of intent or safety.'],
-    ['pump_fun_routed_rh_chain', 'Pump.fun-routed RH Chain token', 'routed_launchpad', 'Routed-launch claim; verify the actual route and destination pair.', 'Cross-surface branding and route screenshots can be misleading.'],
-    ['uniswap_direct_pool', 'Uniswap direct pool launch', 'direct_dex_pool', 'Direct pool claim; verify pair, reserves, and LP state.', 'A pool does not establish trustworthy liquidity or exit depth.'],
-    ['hardhat_foundry_custom', 'Hardhat/Foundry custom deployment', 'custom_deployment', 'Custom-deployment claim; verify deployer, bytecode, and ownership controls.', 'Custom code increases the need for independent review.'],
-    ['unknown_manual', 'Unknown/manual deployment', 'unknown_manual', 'No reliable launch surface is attached yet.', 'Unknown origin is a review state, not a neutral safety signal.']
-  ].map(([id, name, source_type, description, risk_note]) => ({ id: id as RhChainLaunchSurface, name, source_type: source_type as RhChainLaunchSourceType, description, risk_note, source }));
+    { id: 'noxa_fun', name: 'NOXA Fun', source_type: 'launchpad', description: 'Reported launchpad disruption is tracked as manual, source-dependent context; verify contract, creator, route, and current availability independently.', risk_note: 'Front-end dependency and launchpad labels can create fragile or spoofable access assumptions. No misconduct claim is made.', launch_surface_status: 'degraded', surface_risk: 'front_end_dependency' },
+    { id: 'flap_sh', name: 'flap.sh', source_type: 'launchpad', description: 'Rival launch-surface claim tracked as context only until a primary source and exact launch evidence are attached.', risk_note: 'Potential rival-surface rotation is not market-share proof.', launch_surface_status: 'source_required', surface_risk: 'rival_surface_rotation' },
+    { id: 'trensh_today', name: 'trensh.today', source_type: 'launchpad', description: 'Rival launch-surface claim tracked as context only until a primary source and exact launch evidence are attached.', risk_note: 'Potential rival-surface rotation is not market-share proof.', launch_surface_status: 'source_required', surface_risk: 'rival_surface_rotation' },
+    { id: 'bankr', name: 'bankr', source_type: 'launchpad', description: 'Rival launch-surface claim tracked as context only until a primary source and exact launch evidence are attached.', risk_note: 'Creator-fee and launch-quality claims require independent receipts.', launch_surface_status: 'source_required', surface_risk: 'creator_fee_claim_uncertainty' },
+    { id: 'tokeny_fun', name: 'tokeny.fun', source_type: 'launchpad', description: 'Rival launch-surface claim tracked as context only until a primary source and exact launch evidence are attached.', risk_note: 'Potential rival-surface rotation is not market-share proof.', launch_surface_status: 'source_required', surface_risk: 'rival_surface_rotation' },
+    { id: 'vlad_fun', name: 'vlad.fun', source_type: 'launchpad', description: 'Rival launch-surface claim tracked as context only until a primary source and exact launch evidence are attached.', risk_note: 'Clone and copycat launch patterns require contract-level review.', launch_surface_status: 'source_required', surface_risk: 'clone_flood' },
+    { id: 'robindotmarket', name: 'robindotmarket', source_type: 'launchpad', description: 'Rival launch-surface claim tracked as context only until a primary source and exact launch evidence are attached.', risk_note: 'Potential rival-surface rotation is not market-share proof.', launch_surface_status: 'source_required', surface_risk: 'rival_surface_rotation' },
+    { id: '20lab_erc20', name: '20lab-generated ERC-20', source_type: 'token_generator', description: 'Generator-origin claim; inspect bytecode, ownership, and deployer history.', risk_note: 'Template similarity is not proof of intent or safety.', launch_surface_status: 'source_required', surface_risk: 'launch_quality_filtering' },
+    { id: 'pump_fun_routed_rh_chain', name: 'Pump.fun-routed RH Chain token', source_type: 'routed_launchpad', description: 'Routed-launch claim; verify the actual route and destination pair.', risk_note: 'Cross-surface branding and route screenshots can be misleading.', launch_surface_status: 'source_required', surface_risk: 'rival_surface_rotation' },
+    { id: 'uniswap_direct_pool', name: 'Uniswap direct pool launch', source_type: 'direct_dex_pool', description: 'Direct pool claim; verify pair, reserves, and LP state.', risk_note: 'A pool does not establish trustworthy liquidity or exit depth.', launch_surface_status: 'active', surface_risk: 'launch_quality_filtering' },
+    { id: 'hardhat_foundry_custom', name: 'Hardhat/Foundry custom deployment', source_type: 'custom_deployment', description: 'Custom-deployment claim; verify deployer, bytecode, and ownership controls.', risk_note: 'Custom code increases the need for independent review.', launch_surface_status: 'source_required', surface_risk: 'unknown' },
+    { id: 'unknown_manual', name: 'Unknown/manual deployment', source_type: 'unknown_manual', description: 'No reliable launch surface is attached yet.', risk_note: 'Unknown origin is a review state, not a neutral safety signal.', launch_surface_status: 'source_required', surface_risk: 'unknown' }
+  ].map((record) => ({ ...record, source } as RhChainLaunchSurfaceRecord));
   const access_surfaces: RhChainAccessSurface[] = [
     ['Robinhood Wallet', 'wallet', 'https://robinhood.com/wallet', 'verified_source', 'Official wallet surface is access context only; wallet availability does not verify any token, route, or integration.', 'Wallet surface tracked as a distribution-layer observation.'],
     ['LI.FI-powered swaps/bridges', 'swap_router', 'https://li.fi', 'verified_source', 'Router and bridge availability are not a safety, route-quality, or asset-legitimacy determination.', 'Swap and bridge access is tracked as an access-layer signal, not a trading flow.'],

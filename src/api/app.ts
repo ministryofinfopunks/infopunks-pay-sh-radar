@@ -13,8 +13,10 @@ import { asRhChainPersistedReviewItem, createRhChainSignalSubmission, InMemoryRh
 import { RhChainLiveSnapshotService, type RhChainLiveSnapshotOptions } from '../services/rhChainLiveSnapshotService';
 import { assembleRhChainTokenDossier } from '../services/rhChainTokenDossierService';
 import { assembleRhChainCloneRadar } from '../services/rhChainCloneRadarService';
+import { assembleRhChainLaunchpadObservatory } from '../services/rhChainLaunchpadObservatoryService';
 import { assembleRhChainScouts } from '../services/rhChainScoutsService';
 import { assembleRhChainDistributionPack } from '../services/rhChainDistributionPackService';
+import { assembleRhChainReceiptRelay } from '../services/rhChainReceiptRelayService';
 import { queryRhChainScout, RH_CHAIN_SCOUT_MODES } from '../services/rhChainScoutService';
 import { isRhChainIdentityContract } from '../services/rhChainTruthGuards';
 import { getLatestSignalUpdate, getSignalUpdate, getSignalUpdateSummary, listSignalUpdates } from '../data/signalUpdates';
@@ -509,7 +511,7 @@ const RhChainSignalSubmissionSchema = z.object({
   }, 'must_be_a_valid_https_url')).max(12).optional(),
   deployer_notes: optionalRhChainText.pipe(z.string().max(2_000).optional()),
   submitter_notes: optionalRhChainText.pipe(z.string().max(2_000).optional()),
-  launch_source: z.enum(['noxa_fun', '20lab_erc20', 'pump_fun_routed_rh_chain', 'uniswap_direct_pool', 'hardhat_foundry_custom', 'unknown_manual']).optional(),
+  launch_source: z.enum(['noxa_fun', 'flap_sh', 'trensh_today', 'bankr', 'tokeny_fun', 'vlad_fun', 'robindotmarket', '20lab_erc20', 'pump_fun_routed_rh_chain', 'uniswap_direct_pool', 'hardhat_foundry_custom', 'unknown_manual']).optional(),
   launch_surface_url: optionalRhChainUrl,
   pair_address: optionalRhChainText.pipe(z.string().max(128).optional()),
   deployer_address: optionalRhChainText.pipe(z.string().max(128).optional()),
@@ -1817,6 +1819,7 @@ export async function createApp(
   });
   app.get('/v1/rh-chain/meme-pulse', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainMemePulseScreen(await rhChainLiveSnapshots.getLiveSnapshot()))));
   app.get('/v1/rh-chain/launch-surfaces', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainLaunchSurfaces())));
+  app.get('/v1/rh-chain/launchpad-observatory', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainLaunchpadObservatory())));
   app.post('/v1/rh-chain/scout/query', async (req, reply) => {
     const rate = rhChainPublicRateLimiter.consume(`scout:${req.ip}`);
     if (!rate.allowed) return reply.header('Retry-After', String(Math.ceil(rate.retryAfterMs / 1000))).code(429).send(buildRhChainApiErrorResponse('rh_chain_public_rate_limit_exceeded'));
@@ -1851,6 +1854,7 @@ export async function createApp(
   });
   app.get('/v1/rh-chain/scouts', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainScouts(await rhChainSubmissionStore.list()))));
   app.get('/v1/rh-chain/distribution-pack', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainDistributionPack())));
+  app.get('/v1/rh-chain/receipt-relay', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainReceiptRelay())));
   app.get('/v1/rh-chain/signals/submissions', async () => {
     const submissions = await rhChainSubmissionStore.list();
     return safeJsonExport(buildRhChainApiResponse({

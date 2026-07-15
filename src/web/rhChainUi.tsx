@@ -36,9 +36,11 @@ const NAV_LINKS = [
   ['/rh-chain-signal-desk/4663-index', '4663 Index'],
   ['/rh-chain-signal-desk/review-queue', 'Review'],
   ['/rh-chain-signal-desk/clone-radar', 'Risk'],
+  ['/rh-chain-signal-desk/risk-patterns', 'Patterns'],
   ['/rh-chain-signal-desk/scouts', 'Scouts'],
   ['/rh-chain-signal-desk/scout', 'Scout'],
   ['/rh-chain-signal-desk/launch-surfaces', 'Surfaces'],
+  ['/rh-chain-signal-desk/launchpad-observatory', 'Observatory'],
   ['/rh-chain-signal-desk/live-snapshot', 'Snapshot'],
   ['/rh-chain-signal-desk/distribution-pack', 'Distribution'],
   ['/rh-chain-signal-desk/submit', 'Submit']

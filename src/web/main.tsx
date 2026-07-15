@@ -48,6 +48,7 @@ import './styles.css';
 const LazyRhChainMemePulsePage = lazy(() => import('./rhChainMemePulsePage').then((module) => ({ default: module.RhChainMemePulsePage })));
 const LazyRhChainTokenDossierPage = lazy(() => import('./rhChainTokenDossierPage').then((module) => ({ default: module.RhChainTokenDossierPage })));
 const LazyRhChainCloneRadarPage = lazy(() => import('./rhChainCloneRadarPage').then((module) => ({ default: module.RhChainCloneRadarPage })));
+const LazyRhChainLaunchpadObservatoryPage = lazy(() => import('./rhChainLaunchpadObservatoryPage').then((module) => ({ default: module.RhChainLaunchpadObservatoryPage })));
 const LazyRhChainScoutsPage = lazy(() => import('./rhChainScoutsPage').then((module) => ({ default: module.RhChainScoutsPage })));
 const LazyRhChainDistributionPackPage = lazy(() => import('./rhChainDistributionPackPage').then((module) => ({ default: module.RhChainDistributionPackPage })));
 const LazyRhChainReviewConsolePage = lazy(() => import('./rhChainReviewConsolePage').then((module) => ({ default: module.RhChainReviewConsolePage })));
@@ -2057,7 +2058,7 @@ function isAbundanceDeskRoute(pathname: string) {
 }
 
 function isRhChainSignalDeskRoute(pathname: string) {
-  return /^\/rh-chain-signal-desk\/?$/.test(pathname) || /^\/rh-chain-signal-desk\/(?:submit|review-queue|4663-index|launch-surfaces|scout|scouts|live-snapshot|meme-pulse|clone-radar|distribution-pack)\/?$/.test(pathname) || /^\/rh-chain-signal-desk\/tokens\/[^/]+\/?$/.test(pathname) || /^\/rh-chain-signal-desk\/daily-receipts(?:\/[^/]+(?:\/card)?)?\/?$/.test(pathname) || /^\/narratives\/robinhood-chain\/?$/.test(pathname);
+  return /^\/rh-chain-signal-desk\/?$/.test(pathname) || /^\/rh-chain-signal-desk\/(?:submit|review-queue|4663-index|launch-surfaces|launchpad-observatory|risk-patterns|scout|scouts|live-snapshot|meme-pulse|clone-radar|distribution-pack)\/?$/.test(pathname) || /^\/rh-chain-signal-desk\/tokens\/[^/]+\/?$/.test(pathname) || /^\/rh-chain-signal-desk\/daily-receipts(?:\/[^/]+(?:\/card)?)?\/?$/.test(pathname) || /^\/narratives\/robinhood-chain\/?$/.test(pathname);
 }
 
 function isHermesDeskRoute(pathname: string) {
@@ -14445,6 +14446,8 @@ export function App() {
   if (isAbundanceDeskRoute(window.location.pathname)) return <AbundanceDeskPage narrativeRoute={/^\/narratives\/abundance-desk\/?$/.test(window.location.pathname)} />;
   if (/^\/rh-chain-signal-desk\/meme-pulse\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainMemePulsePage /></LazyRhChainFeature>;
   if (/^\/rh-chain-signal-desk\/clone-radar\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainCloneRadarPage /></LazyRhChainFeature>;
+  if (/^\/rh-chain-signal-desk\/risk-patterns\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainCloneRadarPage currentRoute="/rh-chain-signal-desk/risk-patterns" /></LazyRhChainFeature>;
+  if (/^\/rh-chain-signal-desk\/launchpad-observatory\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainLaunchpadObservatoryPage /></LazyRhChainFeature>;
   if (/^\/rh-chain-signal-desk\/scouts\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainScoutsPage /></LazyRhChainFeature>;
   if (/^\/rh-chain-signal-desk\/distribution-pack\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainDistributionPackPage /></LazyRhChainFeature>;
   if (/^\/internal\/rh-chain\/review-console\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainReviewConsolePage /></LazyRhChainFeature>;

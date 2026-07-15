@@ -7,8 +7,10 @@ import { getRhChain4663Index, getRhChainDailyReceipts, getRhChainLaunchSurfaces,
 import { assembleRhChainMemePulseScreen } from '../src/services/rhChainMemePulseService';
 import { assembleRhChainTokenDossier } from '../src/services/rhChainTokenDossierService';
 import { assembleRhChainCloneRadar } from '../src/services/rhChainCloneRadarService';
+import { assembleRhChainLaunchpadObservatory } from '../src/services/rhChainLaunchpadObservatoryService';
 import { assembleRhChainScouts } from '../src/services/rhChainScoutsService';
 import { assembleRhChainDistributionPack } from '../src/services/rhChainDistributionPackService';
+import { assembleRhChainReceiptRelay } from '../src/services/rhChainReceiptRelayService';
 import { buildRhChainApiResponse } from '../src/services/rhChainIntelligenceService';
 import { asRhChainPersistedReviewItem, createRhChainSignalSubmission } from '../src/services/rhChainSignalVault';
 import { App } from '../src/web/main';
@@ -55,8 +57,10 @@ describe('RH Chain Signal Desk pages', () => {
       if (pathOf(input) === '/v1/rh-chain/meme-pulse') return json(assembleRhChainMemePulseScreen());
       if (pathOf(input) === '/v1/rh-chain/tokens/0xabc/dossier') return json(assembleRhChainTokenDossier('0xabc', [], { contract: '0xabc', token_pair: null, explorer: null, provider_statuses: [], cache_status: 'disabled', generated_at: '2026-07-12T00:00:00.000Z', live_snapshots_enabled: false, judgment_policy: 'External data gives context.', disclaimer: 'context' }, { title: 'RH Chain Live Snapshot', generated_at: '2026-07-12T00:00:00.000Z', live_snapshots_enabled: false, judgment_policy: 'External data gives context.', chain_metrics: { tvl_usd: null, dex_volume_24h_usd: null, stablecoin_market_cap_usd: null, protocol_count: null, source_timestamp: null, freshness: 'seeded' }, meme_category: { market_cap_usd: null, volume_24h_usd: null, top_assets: [], source_timestamp: null, freshness: 'seeded' }, provider_statuses: [], cache_status: 'disabled', disclaimer: 'context' }));
       if (pathOf(input) === '/v1/rh-chain/clone-radar') return json(assembleRhChainCloneRadar());
+      if (pathOf(input) === '/v1/rh-chain/launchpad-observatory') return json(assembleRhChainLaunchpadObservatory());
       if (pathOf(input) === '/v1/rh-chain/scouts') return json(assembleRhChainScouts([]));
       if (pathOf(input) === '/v1/rh-chain/distribution-pack') return json(assembleRhChainDistributionPack());
+      if (pathOf(input) === '/v1/rh-chain/receipt-relay') return json(assembleRhChainReceiptRelay());
       return Promise.resolve(new Response('{}', { status: 404 }));
     });
   });
@@ -75,7 +79,7 @@ describe('RH Chain Signal Desk pages', () => {
     expect(text).toContain('RH Chain Signal Desk');
     expect(text).toContain('Daily RH Chain Receipts');
     expect(text).toContain('The market forgets. Infopunks keeps the memory.');
-    expect(text).toContain('RH Chain meme bids rotate while access rails become the hidden story');
+    expect(text).toContain('RH Chain survives NOXA stress as launchpad competition fragments the meme layer');
     expect(Array.from(container.querySelectorAll('a[href="/rh-chain-signal-desk/daily-receipts"]')).some((link) => link.textContent?.includes('Daily Receipts') || link.textContent?.includes('Open Daily Receipts'))).toBe(true);
     expect(text).toContain('4663 Signal Index');
     expect(text).toContain('A living index of Robinhood Chain attention assets, risk states, and narrative mutations.');
@@ -113,12 +117,12 @@ describe('RH Chain Signal Desk pages', () => {
     const text = container.textContent ?? '';
     expect(text).toContain('Daily RH Chain Receipts');
     expect(text).toContain('The market forgets. Infopunks keeps the memory.');
-    expect(text).toContain('Daily Receipt #002');
-    expect(text).toContain('RH Chain meme bids rotate while access rails become the hidden story');
+    expect(text).toContain('Daily Receipt #003');
+    expect(text).toContain('RH Chain survives NOXA stress as launchpad competition fragments the meme layer');
     expect(text).toContain('Chain Pulse');
     expect(text).toContain('Meme Pulse');
-    expect(text).toContain('Access / Wallet Pulse');
-    expect(text).toContain('RWA Pulse');
+    expect(text).toContain('Launch + Access Surface Mutation');
+    expect(text).toContain('Launchpad Stress Test');
     expect(text).toContain('Risk Wall');
     expect(text).toContain('Narrative Mutation');
     expect(text).toContain('Infopunks Verdict');
@@ -127,30 +131,30 @@ describe('RH Chain Signal Desk pages', () => {
     expect(text).toContain('Watchlist');
     expect(text).toContain('Do Not Touch Yet');
     expect(text).toContain('Source Notes');
-    expect(text).toContain('Memes are the spark. Wallets are the pipe. Stock Tokens are the thesis. Infopunks is the memory.');
+    expect(text).toContain('The launchpad layer is fragmenting. The chain did not break. The memory layer becomes more important.');
     expect(text).toContain('source_required');
-    expect(text).toContain('Infopunks manual 24-hour RH Chain rundown');
+    expect(text).toContain('Infopunks manual RH Chain NOXA stress watch');
     expect(text).toContain('Daily RH Chain receipts are public intelligence memory, not financial advice, endorsement, listing, or official Robinhood partnership.');
     expect(Array.from(container.querySelectorAll('a[href="/v1/rh-chain/daily-receipts"]')).some((link) => link.textContent?.includes('Feed JSON'))).toBe(true);
     expect(container.querySelector('a[href="/rh-chain-signal-desk/daily-receipts"]')?.getAttribute('aria-current')).toBe('page');
   });
 
   it('renders the receipt detail and screenshot-ready share card routes', async () => {
-    root = await renderPath(container, '/rh-chain-signal-desk/daily-receipts/rh_daily_002');
+    root = await renderPath(container, '/rh-chain-signal-desk/daily-receipts/rh_daily_003');
 
     let text = container.textContent ?? '';
-    expect(text).toContain('Daily RH Chain Receipt #002');
+    expect(text).toContain('Daily RH Chain Receipt #003');
     expect(text).toContain('View share card');
-    expect(container.querySelector('a[href="/rh-chain-signal-desk/daily-receipts/rh_daily_002/card"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/rh-chain-signal-desk/daily-receipts/rh_daily_003/card"]')).not.toBeNull();
 
     act(() => root?.unmount());
-    root = await renderPath(container, '/rh-chain-signal-desk/daily-receipts/rh_daily_002/card');
+    root = await renderPath(container, '/rh-chain-signal-desk/daily-receipts/rh_daily_003/card');
     text = container.textContent ?? '';
     expect(text).toContain('RH Chain Receipt Card');
     expect(text).toContain('INFOPUNKS');
-    expect(text).toContain('Receipt #002');
-    expect(text).toContain('CASHCAT remains the flagship RH Chain attention asset');
-    expect(text).toContain('Memes are the spark. Wallets are the pipe. Stock Tokens are the thesis. Infopunks is the memory.');
+    expect(text).toContain('Receipt #003');
+    expect(text).toContain('RH Chain meme activity stayed resilient despite NOXA downtime and launch restrictions');
+    expect(text).toContain('The launchpad layer is fragmenting. The chain did not break. The memory layer becomes more important.');
     expect(text).toContain('Public intelligence, not endorsement.');
     expect(text).toContain('No receipt, no signal.');
     expect(text).toContain('Copy X post');
@@ -174,6 +178,8 @@ describe('RH Chain Signal Desk pages', () => {
     expect(text).toContain('Launch Surface Watch');
     expect(text).toContain('Infopunks does not launch the token. Infopunks remembers the launch.');
     expect(text).toContain('NOXA Fun');
+    expect(text).toContain('Launch surface status:');
+    expect(text).toContain('degraded');
     expect(text).toContain('20lab-generated ERC-20');
     expect(text).toContain('Claims are not receipts');
     expect(text).toContain('External data gives context. Infopunks gives judgment. Receipts create memory.');
@@ -234,6 +240,7 @@ describe('RH Chain Signal Desk pages', () => {
     expect(text).toContain('What’s moving. What’s risky. What the market is trying to say.');
     expect(text).toContain('Top Attention Assets');
     expect(text).toContain('Risk Strip');
+    expect(text).toContain('Launchpad Stress');
     expect(text).toContain('Meme → Market Translation');
     expect(text).toContain('External data gives context. Infopunks gives judgment. Receipts create memory.');
     expect(text).toContain('Source policy');
@@ -262,8 +269,35 @@ describe('RH Chain Signal Desk pages', () => {
     expect(text).toContain('Active Warnings');
     expect(text).toContain('Duplicate Ticker Watch');
     expect(text).toContain('How Infopunks Flags Risk');
+    expect(text).toContain('Launchpad displacement risk');
+    expect(text).toContain('Vampire / Rug Pattern Watch');
+    expect(text).toContain('Suspicion is a prompt to review, not a verdict.');
     expect(text).toContain('Suspected patterns. Receipts required.');
     expect(container.querySelector('a[href="/rh-chain-signal-desk/clone-radar"]')?.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('renders the Clone Radar pattern-watch route with amber review framing', async () => {
+    root = await renderPath(container, '/rh-chain-signal-desk/risk-patterns');
+    const text = container.textContent ?? '';
+    expect(text).toContain('Vampire / Rug Pattern Watch');
+    expect(text).toContain('requires review');
+    expect(text).toContain('Submit risk evidence');
+    expect(text).not.toMatch(/\b(is a scam|proven fraud|fraudulent)\b/i);
+    expect(container.querySelector('a[href="/rh-chain-signal-desk/risk-patterns"]')?.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('renders the post-NOXA Launchpad Observatory without launch or trading calls to action', async () => {
+    root = await renderPath(container, '/rh-chain-signal-desk/launchpad-observatory');
+    const text = container.textContent ?? '';
+    expect(text).toContain('RH Chain Launchpad Observatory');
+    expect(text).toContain('Where tokens start. Where claims break. Where receipts matter.');
+    expect(text).toContain('Surface Health Board');
+    expect(text).toContain('Post-NOXA Stress Map');
+    expect(text).toContain('Claim Ledger');
+    expect(text).toContain('source required');
+    expect(text).toContain('View Daily Receipt #003');
+    expect(text).not.toMatch(/\b(buy|sell|snipe|launch[- ]now)\b/i);
+    expect(container.querySelector('a[href="/rh-chain-signal-desk/launchpad-observatory"]')?.getAttribute('aria-current')).toBe('page');
   });
 
   it('renders Access Surface Watch as context without trading or bridge CTAs', async () => {
@@ -296,6 +330,11 @@ describe('RH Chain Signal Desk pages', () => {
     expect(text).toContain('Daily Receipt post');
     expect(text).toContain('Clone Radar warning post');
     expect(text).toContain('Token Dossier share post');
+    expect(text).toContain('Receipt Relay');
+    expect(text).toContain('Bot-friendly packets. Caveat attached.');
+    expect(text).toContain('Copy x');
+    expect(text).toContain('Copy telegram');
+    expect(text).toContain('Copy discord');
     expect(text).toContain('Do not spam. Do not coordinate raids.');
     expect(container.querySelector('a[href="/rh-chain-signal-desk/distribution-pack"]')?.getAttribute('aria-current')).toBe('page');
   });
