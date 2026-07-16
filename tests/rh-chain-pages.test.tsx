@@ -11,7 +11,9 @@ import { assembleRhChainLaunchpadObservatory } from '../src/services/rhChainLaun
 import { assembleRhChainScouts } from '../src/services/rhChainScoutsService';
 import { assembleRhChainDistributionPack } from '../src/services/rhChainDistributionPackService';
 import { assembleRhChainReceiptRelay } from '../src/services/rhChainReceiptRelayService';
+import { assembleRhChainTodayOn4663 } from '../src/services/rhChainTodayOn4663Service';
 import { buildRhChainApiResponse } from '../src/services/rhChainIntelligenceService';
+import { isRhChainContractAddress, rhChainTokenDossierRoute } from '../src/web/rhChainSignalDeskPages';
 import { asRhChainPersistedReviewItem, createRhChainSignalSubmission } from '../src/services/rhChainSignalVault';
 import { App } from '../src/web/main';
 
@@ -62,6 +64,7 @@ describe('RH Chain Signal Desk pages', () => {
       if (pathOf(input) === '/v1/rh-chain/launch-surfaces') return json(getRhChainLaunchSurfaces());
       if (pathOf(input) === '/v1/rh-chain/live-snapshot') return json({ title: 'RH Chain Live Snapshot', generated_at: '2026-07-11T00:00:00.000Z', live_snapshots_enabled: false, chain_metrics: { tvl_usd: null, dex_volume_24h_usd: null, stablecoin_market_cap_usd: null, protocol_count: null, source_timestamp: null, freshness: 'seeded' }, meme_category: { market_cap_usd: null, volume_24h_usd: null, top_assets: [], source_timestamp: null, freshness: 'seeded' }, provider_statuses: ['DefiLlama', 'CoinGecko', 'DexScreener', 'Blockscout'].map((provider_name) => ({ provider_name, status: 'disabled', fetched_at: null, expires_at: null, error_summary: 'Live snapshots are disabled.' })), cache_status: 'disabled', disclaimer: 'Live Snapshot data is external, cached, and informational. It is not an endorsement, listing, partnership, trading signal, or financial recommendation.' });
       if (pathOf(input) === '/v1/rh-chain/meme-pulse') return json(assembleRhChainMemePulseScreen());
+      if (pathOf(input) === '/v1/rh-chain/today-on-4663') return json(assembleRhChainTodayOn4663());
       if (pathOf(input) === '/v1/rh-chain/tokens/0xabc/dossier') return json(assembleRhChainTokenDossier('0xabc', [], { contract: '0xabc', token_pair: null, explorer: null, provider_statuses: [], cache_status: 'disabled', generated_at: '2026-07-12T00:00:00.000Z', live_snapshots_enabled: false, judgment_policy: 'External data gives context.', disclaimer: 'context' }, { title: 'RH Chain Live Snapshot', generated_at: '2026-07-12T00:00:00.000Z', live_snapshots_enabled: false, judgment_policy: 'External data gives context.', chain_metrics: { tvl_usd: null, dex_volume_24h_usd: null, stablecoin_market_cap_usd: null, protocol_count: null, source_timestamp: null, freshness: 'seeded' }, meme_category: { market_cap_usd: null, volume_24h_usd: null, top_assets: [], source_timestamp: null, freshness: 'seeded' }, provider_statuses: [], cache_status: 'disabled', disclaimer: 'context' }));
       if (pathOf(input) === '/v1/rh-chain/clone-radar') return json(assembleRhChainCloneRadar());
       if (pathOf(input) === '/v1/rh-chain/launchpad-observatory') return json(assembleRhChainLaunchpadObservatory());
@@ -100,6 +103,28 @@ describe('RH Chain Signal Desk pages', () => {
     expect(text).toContain('Signals enter public review before promotion.');
     expect(text).toContain('Queued for manual review. Ticker familiarity is not evidence.');
     expect(Array.from(container.querySelectorAll('a[href="/rh-chain-signal-desk/review-queue"]')).some((link) => link.textContent?.includes('View Review Queue'))).toBe(true);
+  });
+
+  it('routes a valid exact contract through the hero checker and keeps malformed input calm', async () => {
+    root = await renderPath(container, '/rh-chain-signal-desk');
+    const input = container.querySelector<HTMLInputElement>('#rh-chain-contract-checker');
+    const form = container.querySelector<HTMLFormElement>('.rh-chain-contract-checker');
+    expect(input).not.toBeNull();
+    expect(form).not.toBeNull();
+
+    await act(async () => {
+      input!.value = 'not-a-contract';
+      input!.dispatchEvent(new Event('input', { bubbles: true }));
+      form!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+    expect(container.textContent).toContain('Paste a valid RH Chain contract address.');
+    expect(form?.getAttribute('action')).toBeNull();
+
+    const contract = '0x1111111111111111111111111111111111111111';
+    expect(isRhChainContractAddress(contract)).toBe(true);
+    expect(isRhChainContractAddress('0x123')).toBe(false);
+    expect(rhChainTokenDossierRoute(contract)).toBe(`/rh-chain-signal-desk/tokens/${contract}`);
+    expect(rhChainTokenDossierRoute('0x123')).toBeNull();
   });
 
   it('isolates a review queue 500 behind a compact module notice and opt-in diagnostics', async () => {

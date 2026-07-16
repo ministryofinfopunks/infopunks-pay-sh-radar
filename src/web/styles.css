@@ -696,6 +696,10 @@
   font-size: clamp(1.8rem, 4.2vw, 3.35rem);
   letter-spacing: -0.055em;
   line-height: 0.98;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
 .rh-chain-share-card-signals {
@@ -721,6 +725,10 @@
 .rh-chain-share-card-signals strong {
   font-size: 0.88rem;
   line-height: 1.35;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
 .rh-chain-share-card-verdict {
@@ -735,6 +743,10 @@
   color: var(--text);
   font-size: clamp(1.02rem, 1.8vw, 1.25rem);
   line-height: 1.38;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
 }
 
 .rh-chain-share-card footer {
@@ -747,6 +759,39 @@
 .rh-chain-share-card footer strong {
   color: var(--green);
 }
+
+.rh-chain-share-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  color: var(--muted);
+  font: 0.68rem/1.4 "IBM Plex Mono", monospace;
+}
+
+.rh-chain-share-card-meta a { color: var(--blue); text-decoration: none; }
+.rh-chain-portable-card-wrap { display: grid; justify-items: center; margin: 0 0 20px; }
+.rh-chain-portable-card {
+  display: grid;
+  gap: 12px;
+  width: min(100%, 620px);
+  padding: clamp(18px, 3vw, 28px);
+  border: 1px solid rgba(124, 199, 255, .34);
+  border-radius: 14px;
+  background: radial-gradient(circle at 88% 8%, rgba(246, 208, 111, .14), transparent 26%), linear-gradient(135deg, rgba(124, 199, 255, .1), rgba(5, 12, 10, .96) 60%);
+  box-shadow: 0 18px 58px rgba(0, 0, 0, .28);
+}
+.rh-chain-portable-card header, .rh-chain-portable-card footer, .rh-chain-portable-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.rh-chain-portable-card header { color: var(--green); font: 700 11px/1.2 "IBM Plex Mono", monospace; letter-spacing: .08em; }
+.rh-chain-portable-card header strong { color: var(--amber); font-weight: 700; }
+.rh-chain-portable-label { margin: 0; color: var(--muted); font: 11px/1.35 "IBM Plex Mono", monospace; text-transform: uppercase; }
+.rh-chain-portable-finding, .rh-chain-portable-caveat { display: grid; gap: 5px; padding: 11px 0; border-top: 1px solid rgba(126, 255, 176, .15); }
+.rh-chain-portable-finding span, .rh-chain-portable-caveat span { color: var(--blue); font: 700 10px/1.2 "IBM Plex Mono", monospace; letter-spacing: .06em; text-transform: uppercase; }
+.rh-chain-portable-caveat span { color: var(--amber); }
+.rh-chain-portable-finding p, .rh-chain-portable-caveat p { display: -webkit-box; margin: 0; overflow: hidden; color: var(--text); font-size: clamp(16px, 2vw, 20px); line-height: 1.28; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+.rh-chain-portable-caveat p { color: var(--muted); font-size: 13px; -webkit-line-clamp: 2; }
+.rh-chain-portable-card footer { padding-top: 9px; border-top: 1px solid rgba(126, 255, 176, .15); color: var(--muted); font: 10px/1.35 "IBM Plex Mono", monospace; }
+.rh-chain-portable-actions a, .rh-chain-portable-actions button { border: 0; padding: 0; color: var(--blue); background: transparent; font: 700 11px/1.2 "IBM Plex Mono", monospace; text-decoration: none; cursor: pointer; }
+.rh-chain-portable-actions button { color: var(--green); }
 
 .rh-chain-card-page-actions {
   width: min(100%, 760px);
@@ -767,6 +812,8 @@
   .rh-chain-share-card footer {
     display: grid;
   }
+
+  .rh-chain-portable-card footer { display: grid; }
 
   .rh-chain-card-page-actions,
   .rh-chain-daily-actions {
@@ -10028,6 +10075,38 @@ summary:focus-visible {
 .machine-receipt-row > span:last-child {
   border-bottom: 0;
   padding-bottom: 0;
+}
+
+/* 4663 Growth Surface v1 */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.rh-chain-contract-checker { display: grid; gap: 8px; max-width: 780px; margin-top: 24px; padding: 14px; border: 1px solid rgba(124, 199, 255, .25); border-radius: 10px; background: rgba(2, 10, 9, .54); }
+.rh-chain-contract-checker > label { color: var(--rh-muted-text); font: 700 11px/1.2 "IBM Plex Mono", monospace; letter-spacing: .04em; text-transform: uppercase; }
+.rh-chain-contract-checker > div { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+.rh-chain-contract-checker input { min-width: 0; width: 100%; min-height: 42px; padding: 0 12px; border: 1px solid rgba(157, 255, 201, .18); border-radius: 8px; background: rgba(1, 6, 5, .72); color: var(--text); font: 13px/1.3 "IBM Plex Mono", monospace; }
+.rh-chain-contract-checker-error { margin: 0; color: #f7d06f; font-size: 13px; }
+.rh-chain-today-strip { border-color: rgba(124, 199, 255, .26); background: linear-gradient(135deg, rgba(124, 199, 255, .08), rgba(8, 17, 14, .76)); }
+.rh-chain-today-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.rh-chain-today-card { display: grid; min-width: 0; gap: 11px; padding: 16px; border: 1px solid var(--rh-border); border-radius: 8px; background: var(--rh-surface); }
+.rh-chain-today-card h3, .rh-chain-today-card p { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.rh-chain-today-card h3 { color: var(--text); font-size: 17px; line-height: 1.2; }
+.rh-chain-today-card > p:not(.section-kicker), .rh-chain-today-verdict { color: var(--rh-muted-text); font-size: 13px; line-height: 1.5; }
+.rh-chain-today-card .execute { align-self: end; }
+.rh-chain-today-card footer { display: flex; flex-wrap: wrap; gap: 5px 8px; color: var(--rh-muted-text); font: 11px/1.35 "IBM Plex Mono", monospace; }
+.rh-chain-today-card footer span + span::before { content: "·"; margin-right: 8px; color: var(--amber); }
+.rh-chain-today-card.state-requires_review { border-color: rgba(246, 208, 111, .28); }
+.rh-chain-today-card.state-attention_context { border-color: rgba(124, 199, 255, .26); }
+.rh-chain-clone-risk-preview .panel-actions, .rh-chain-4663-preview-card .panel-actions { margin-top: 2px; }
+.rh-chain-4663-preview-card .panel-actions { display: flex; flex-wrap: wrap; gap: 7px; }
+.rh-chain-desk-methodology { margin-bottom: 36px; }
+
+@media (max-width: 900px) {
+  .rh-chain-today-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 760px) {
+  .rh-chain-contract-checker > div, .rh-chain-today-grid { grid-template-columns: 1fr; }
+  .rh-chain-contract-checker .execute { width: 100%; }
+  .rh-chain-today-card { width: 100%; }
 }
 }
 

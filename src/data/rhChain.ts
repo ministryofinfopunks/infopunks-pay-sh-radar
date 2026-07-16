@@ -634,7 +634,7 @@ export type RhChainCloneRadarPayload = {
   vampire_copycat_watch: RhChainRiskPatternItem[];
   risk_categories: Array<{ category: RhChainCloneSuspicionType | RhChainRiskPatternCategory; title: string; explanation: string }>;
   correlations?: RhChainRiskCorrelation[];
-  flagging_method: Array<{ signal: string; explanation: string }>;
+  flagging_method: Array<{ signal: string; title?: string; explanation: string }>;
   correlation_sweep?: { observed_at: string; freshness_state: 'fresh' | 'aging' | 'stale'; correlation_count: number };
 };
 

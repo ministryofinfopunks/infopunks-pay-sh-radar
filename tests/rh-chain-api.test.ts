@@ -194,6 +194,38 @@ describe('RH Chain Signal Desk API', () => {
     }
   });
 
+  it('serves Today on 4663 with a static manual fallback when receipt storage is unavailable', async () => {
+    const unavailableReceiptStore = {
+      adapter: 'memory' as const,
+      durable: false,
+      async saveDraft() { throw new Error('storage_unavailable'); },
+      async getDraft() { throw new Error('storage_unavailable'); },
+      async listDrafts() { throw new Error('storage_unavailable'); },
+      async savePublished() { throw new Error('storage_unavailable'); },
+      async publishedReceipts() { throw new Error('storage_unavailable'); }
+    };
+    const app = await createApp(emptyIntelligenceStore(), undefined, { rhChainDailyReceiptDraftStore: unavailableReceiptStore });
+    try {
+      const response = await app.inject({ method: 'GET', url: '/v1/rh-chain/today-on-4663' });
+      expect(response.statusCode).toBe(200);
+      expect(response.json().data).toEqual(expect.objectContaining({
+        title: 'Today on 4663',
+        data_mode: 'manual_fallback',
+        freshness_state: 'source_required',
+        storage_status: 'unavailable',
+        latest_receipt: expect.objectContaining({ receipt_id: 'rh_daily_004' }),
+        cards: expect.arrayContaining([
+          expect.objectContaining({ title: 'Top Signal' }),
+          expect.objectContaining({ title: 'Biggest Risk' }),
+          expect.objectContaining({ title: 'Latest Receipt' }),
+          expect.objectContaining({ title: 'Highest Attention Move' })
+        ])
+      }));
+    } finally {
+      await app.close();
+    }
+  });
+
   it('classifies 4663 Signal Index scores by public methodology thresholds', () => {
     expect(classifyRhChain4663SignalScore(100)).toBe('durable_signal');
     expect(classifyRhChain4663SignalScore(80)).toBe('durable_signal');

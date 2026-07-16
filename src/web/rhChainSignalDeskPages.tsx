@@ -26,6 +26,8 @@ import { NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import type { RhChainSignalSubmission } from '../services/rhChainSignalVault';
 import type { RhChainLiveSnapshot } from '../services/rhChainLiveSnapshotService';
+import { assembleRhChainTodayOn4663, type RhChainTodayOn4663Payload } from '../services/rhChainTodayOn4663Service';
+import { RhChainPortableCard } from './rhChainPortableCard';
 import {
   fetchRhChain,
   RhChainApiError,
@@ -130,6 +132,7 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
   const [signalIndex, setSignalIndex] = useState<RhChain4663IndexPayload | null>(null);
   const [dailyReceipts, setDailyReceipts] = useState<RhChainDailyReceiptsPayload | null>(null);
   const [memePulse, setMemePulse] = useState<RhChainMemePulsePayload | null>(null);
+  const [todayOn4663, setTodayOn4663] = useState<RhChainTodayOn4663Payload | null>(null);
   const [launchSurfaces, setLaunchSurfaces] = useState<{ title: string; subtitle: string; doctrine: string; disclaimer: string; launch_surfaces: RhChainLaunchSurfaceRecord[]; access_surfaces: RhChainAccessSurface[] } | null>(null);
   const [liveSnapshot, setLiveSnapshot] = useState<RhChainLiveSnapshot | null>(null);
   const [routeEnvelope, setRouteEnvelope] = useState<RhChainEnvelope<unknown> | null>(null);
@@ -165,6 +168,7 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
       .then((response) => { setDailyReceipts(response.data); if (isDailyReceiptRoute) setRouteEnvelope(response); })
       .catch((error) => setDailyReceiptsFailure(requestFailure(error, '/v1/rh-chain/daily-receipts', 'daily receipts')));
     api<RhChainMemePulsePayload>('/v1/rh-chain/meme-pulse').then((response) => setMemePulse(response.data)).catch(() => undefined);
+    api<RhChainTodayOn4663Payload>('/v1/rh-chain/today-on-4663').then((response) => setTodayOn4663(response.data)).catch(() => undefined);
     api<{ title: string; subtitle: string; doctrine: string; disclaimer: string; launch_surfaces: RhChainLaunchSurfaceRecord[]; access_surfaces: RhChainAccessSurface[] }>('/v1/rh-chain/launch-surfaces')
       .then((response) => { setLaunchSurfaces(response.data); if (launchSurfacesRoute) setRouteEnvelope(response); })
       .catch((error) => setLaunchSurfacesFailure(requestFailure(error, '/v1/rh-chain/launch-surfaces', 'launch surfaces')));
@@ -209,20 +213,21 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
     else if (indexRoute) routeContent = signalIndex ? <RhChain4663IndexPage index={signalIndex} /> : signalIndexFailure ? degraded(signalIndexFailure, '4663 Signal Index') : loading('Opening 4663 Signal Index…');
     else if (reviewQueueRoute) routeContent = reviewQueue ? <RhChainReviewQueuePage queue={reviewQueue} /> : reviewQueueFailure ? degraded(reviewQueueFailure, 'Review queue') : loading('Opening review queue…');
     else if (submitRoute) routeContent = <SubmitSignalSection />;
-    else routeContent = <>
-      <RhChainPulseSection desk={desk} />
-      {dailyReceipts ? <DailyReceiptsPreview feed={dailyReceipts} /> : dailyReceiptsFailure ? degraded(dailyReceiptsFailure, 'Daily receipts') : null}
-      {launchSurfaces ? <LaunchSurfacesPreview surfaceWatch={launchSurfaces} /> : launchSurfacesFailure ? degraded(launchSurfacesFailure, 'Launch surfaces') : null}
-      {signalIndex ? <SignalIndexPreview index={signalIndex} /> : signalIndexFailure ? degraded(signalIndexFailure, '4663 Signal Index') : null}
-      {reviewQueue ? <ReviewQueuePreview queue={reviewQueue} /> : reviewQueueFailure ? degraded(reviewQueueFailure, 'Review queue') : null}
-      {liveSnapshot ? <LiveSnapshotPreview snapshot={liveSnapshot} /> : liveSnapshotFailure ? degraded(liveSnapshotFailure, 'Live snapshot', 'Reviewed Signal Desk memory remains accessible.') : null}
-      <MemePulseSection memes={visibleMemes} allMemes={desk.meme_pulse} memePulse={memePulse} freshnessState={memePulse?.freshness_state} query={query} risk={risk} onQuery={setQuery} onRisk={setRisk} />
-      <SignalClassifierSection desk={desk} />
-      <RiskWallSection desk={desk} />
-      <StockTokenSpilloverSection desk={desk} />
-      <SubmitSignalSection />
-      <ReceiptsSection receipts={desk.receipts} />
-    </>;
+    else {
+      const todayFallback = dailyReceipts && signalIndex ? assembleRhChainTodayOn4663({ dailyReceipts, index: signalIndex, memePulse: memePulse ?? undefined }) : null;
+      routeContent = <>
+        <TodayOn4663Strip payload={todayOn4663 ?? todayFallback} />
+        {dailyReceipts ? <LatestDailyReceiptSection receipt={dailyReceipts.latest_receipt} editorial /> : dailyReceiptsFailure ? degraded(dailyReceiptsFailure, 'Daily receipts') : null}
+        {dailyReceipts && signalIndex && <WeeklyStateOf4663Card receipt={dailyReceipts.latest_receipt} index={signalIndex} />}
+        {signalIndex ? <SignalIndexPreview index={signalIndex} /> : signalIndexFailure ? degraded(signalIndexFailure, '4663 Signal Index') : null}
+        <CloneRiskPreview desk={desk} />
+        <MemePulseSection memes={visibleMemes} allMemes={desk.meme_pulse} memePulse={memePulse} freshnessState={memePulse?.freshness_state} query={query} risk={risk} onQuery={setQuery} onRisk={setRisk} />
+        {launchSurfaces ? <LaunchSurfacesPreview surfaceWatch={launchSurfaces} /> : launchSurfacesFailure ? degraded(launchSurfacesFailure, 'Launchpad Observatory') : null}
+        {reviewQueue ? <ReviewQueuePreview queue={reviewQueue} /> : reviewQueueFailure ? degraded(reviewQueueFailure, 'Review queue') : null}
+        <RhChainPulseSection desk={desk} />
+        <DeskMethodology />
+      </>;
+    }
   }
 
   return <div className="shell narrative-shell rh-chain-shell">
@@ -240,6 +245,7 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
             <h1>{scoutRoute ? 'RH Chain Scout Agent' : liveSnapshotRoute ? 'RH Chain Live Snapshot' : launchSurfacesRoute ? 'Launch Surface Watch' : receiptCardRoute ? 'RH Chain Receipt Card' : dailyReceiptDetailRoute ? `Daily RH Chain Receipt ${dailyReceiptNumber(dailyReceiptId) ?? `· ${dailyReceiptId}`}` : isDailyReceiptRoute ? 'Daily RH Chain Receipts' : indexRoute ? '4663 Signal Index' : reviewQueueRoute ? 'RH Chain Review Queue' : desk.title}</h1>
             <p className="copy">{liveSnapshotRoute ? 'External market context, cached with receipts.' : receiptCardRoute ? 'A public-memory card made to travel without losing its caveats.' : dailyReceiptDetailRoute ? 'One human-reviewed market-memory object, preserved for reference.' : isDailyReceiptRoute ? 'The market forgets. Infopunks keeps the memory.' : indexRoute ? 'Wall Street rails. Meme liquidity. Ranked by receipts.' : reviewQueueRoute ? 'Signals enter the desk. Receipts decide what survives.' : desk.subtitle}</p>
             <p className="copy narrative-rally-line">{isDailyReceiptRoute ? 'Receipts before narrative drift.' : indexRoute ? 'Intelligence index, not a token.' : reviewQueueRoute ? 'Public memory, not endorsement.' : 'Intelligence desk, not casino.'}</p>
+            {!scoutRoute && !liveSnapshotRoute && !launchSurfacesRoute && !isDailyReceiptRoute && !indexRoute && !reviewQueueRoute && !submitRoute && <HeroContractChecker />}
             <div className="panel-actions">
               <a className="execute" href={reviewQueueRoute && reviewQueueFailure ? '/rh-chain-signal-desk' : isDailyReceiptRoute ? '#latest-receipt' : indexRoute ? '#ranked-index' : reviewQueueRoute ? '#queue-board' : '#meme-pulse'}>{reviewQueueRoute && reviewQueueFailure ? 'Open Signal Desk' : isDailyReceiptRoute ? 'Open Latest Receipt' : indexRoute ? 'Open Ranked Index' : reviewQueueRoute ? 'Open Queue Board' : 'Open Meme Pulse'}</a>
               <a className="execute compact secondary" href={submitRoute ? '/rh-chain-signal-desk/review-queue' : '/rh-chain-signal-desk/submit'}>{submitRoute ? 'View Review Queue' : 'Submit source evidence'}</a>
@@ -255,6 +261,88 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
       </>}
     </main>
   </div>;
+}
+
+export function isRhChainContractAddress(value: string) {
+  return /^0x[a-fA-F0-9]{40}$/.test(value.trim());
+}
+
+export function rhChainTokenDossierRoute(value: string) {
+  return isRhChainContractAddress(value) ? `/rh-chain-signal-desk/tokens/${encodeURIComponent(value.trim())}` : null;
+}
+
+function HeroContractChecker() {
+  const [contract, setContract] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  function checkContract(event: React.FormEvent) {
+    const normalized = contract.trim();
+    if (!isRhChainContractAddress(normalized)) {
+      event.preventDefault();
+      setError('Paste a valid RH Chain contract address.');
+      return;
+    }
+    setError(null);
+  }
+  const route = rhChainTokenDossierRoute(contract) ?? undefined;
+  return <form className="rh-chain-contract-checker" action={route} onSubmit={checkContract} noValidate>
+    <label htmlFor="rh-chain-contract-checker">Check an exact contract</label>
+    <div>
+      <input id="rh-chain-contract-checker" value={contract} onChange={(event) => setContract(event.target.value)} placeholder="Paste RH Chain contract address" aria-describedby={error ? 'rh-chain-contract-checker-error' : undefined} />
+      <button className="execute" type="submit">Check 4663</button>
+    </div>
+    {error && <p id="rh-chain-contract-checker-error" className="rh-chain-contract-checker-error" role="alert">{error}</p>}
+  </form>;
+}
+
+function TodayOn4663Strip({ payload }: { payload: RhChainTodayOn4663Payload | null }) {
+  if (!payload) return null;
+  return <section className="panel rh-chain-section rh-chain-today-strip" aria-label="Today on 4663">
+    <div className="rh-chain-section-head">
+      <div><p className="section-kicker">Daily conversion surface</p><h2>Today on 4663</h2><p>Four compact entry points into reviewed memory, risk cues, and attention context.</p></div>
+      <a className="execute compact secondary" href="/v1/rh-chain/today-on-4663">Today JSON</a>
+    </div>
+    {payload.data_mode === 'manual_fallback' && <p className="rh-chain-disclaimer">Manual fallback is active. Source refresh is required before treating this as current context.</p>}
+    <div className="rh-chain-today-grid">
+      {payload.cards.map((card) => <article key={card.id} className={`rh-chain-today-card state-${card.judgment_state}`}>
+        <p className="section-kicker">{card.title}</p>
+        <p className="rh-chain-today-verdict">{card.verdict}</p>
+        <footer><span>{card.source.source_name}</span><span>{card.freshness_state.replaceAll('_', ' ')}</span></footer>
+        <a className="execute compact secondary" href={card.href}>{card.id === 'latest_receipt' ? 'Read Receipt' : card.id === 'biggest_risk' ? 'Review Risk' : card.id === 'highest_attention_move' ? 'Open Meme Pulse' : 'Open 4663 Index'}</a>
+      </article>)}
+    </div>
+  </section>;
+}
+
+function CloneRiskPreview({ desk }: { desk: RhChainPayload }) {
+  const risks = desk.risk_wall.slice(0, 3);
+  return <section className="panel rh-chain-section rh-chain-section--utility rh-chain-clone-risk-preview" aria-label="Clone and Risk Alerts">
+    <div className="rh-chain-section-head"><div><p className="section-kicker">Clone / Risk Alerts</p><h2>Slow down where identity blurs.</h2><p>Risk cues stay visible without becoming a safety determination or a claim of misconduct.</p></div><a className="execute compact secondary" href="/rh-chain-signal-desk/clone-radar">Open Clone Radar</a></div>
+    <div className="rh-chain-today-grid">{risks.map((item) => <article key={item.id} className="rh-chain-today-card state-requires_review"><p className="section-kicker">{formatLabel(item.risk_state)}</p><h3>{item.title}</h3><p>{item.summary}</p><a className="execute compact secondary" href="/rh-chain-signal-desk/clone-radar">Review alert</a></article>)}</div>
+    <div className="panel-actions"><a className="execute compact secondary" href="/rh-chain-signal-desk/distribution-pack">Share risk context</a></div>
+  </section>;
+}
+
+function DeskMethodology() {
+  return <section className="panel rh-chain-section rh-chain-section--metadata rh-chain-desk-methodology" aria-label="How to use this desk and source policy">
+    <div className="rh-chain-section-head"><div><p className="section-kicker">Methodology / source policy</p><h2>How to use this desk</h2><p>Check a contract. Read the receipt. Submit missing evidence. Treat provider data as context, not judgment.</p></div></div>
+    <div className="panel-actions"><a className="execute" href="/rh-chain-signal-desk/submit">Submit missing evidence</a><a className="execute compact secondary" href="/rh-chain-signal-desk/daily-receipts">Read receipt policy</a><a className="execute compact secondary" href="/rh-chain-signal-desk/distribution-pack">Open Distribution Pack</a></div>
+    <p className="rh-chain-disclaimer">Infopunks is independent. The desk does not imply Robinhood affiliation, endorsement, partnership, token safety, or a financial recommendation.</p>
+  </section>;
+}
+
+function WeeklyStateOf4663Card({ receipt, index }: { receipt: RhChainDailyReceipt; index: RhChain4663IndexPayload }) {
+  const topSignal = index.assets[0];
+  return <section className="rh-chain-portable-card-wrap" aria-label="Weekly State of 4663 Card">
+    <RhChainPortableCard
+      type="Weekly State of 4663"
+      label={`Week ending ${receipt.date}`}
+      finding={receipt.strongest_narrative}
+      caveat={receipt.biggest_risk}
+      timestamp={formatTimestamp(receipt.generated_at)}
+      reference={`${receipt.receipt_id} · ${topSignal?.source.source_name ?? receipt.sources[0]?.source_name ?? 'source required'}`}
+      deskHref="/rh-chain-signal-desk"
+    />
+  </section>;
 }
 
 function RhChainPulseSection({ desk }: { desk: RhChainPayload }) {
@@ -364,7 +452,7 @@ function DailyReceiptsPreview({ feed }: { feed: RhChainDailyReceiptsPayload }) {
 }
 
 function LaunchSurfacesPreview({ surfaceWatch }: { surfaceWatch: { launch_surfaces: RhChainLaunchSurfaceRecord[]; access_surfaces: RhChainAccessSurface[] } }) {
-  return <section className="panel rh-chain-section rh-chain-section--utility" aria-label="Launch Surface Watch Preview"><div className="rh-chain-section-head"><div><p className="section-kicker">Launch + Access Surface Watch</p><h2>Remember the route</h2><p>Launch surfaces show where tokens start. Access surfaces show how users arrive.</p></div><a className="execute compact secondary" href="/rh-chain-signal-desk/launch-surfaces">Open Surface Watch</a></div><div className="rh-chain-daily-mini-grid">{surfaceWatch.launch_surfaces.slice(0, 2).map((surface) => <p key={surface.id}><span>{surface.source_type}</span><strong>{surface.name}</strong></p>)}{surfaceWatch.access_surfaces.slice(0, 1).map((surface) => <p key={surface.access_surface_name}><span>{surface.access_surface_type}</span><strong>{surface.access_surface_name}</strong></p>)}</div></section>;
+  return <section className="panel rh-chain-section rh-chain-section--utility" aria-label="Launchpad Observatory Preview"><div className="rh-chain-section-head"><div><p className="section-kicker">Launchpad Observatory</p><h2>Remember the route.</h2><p>Launch surfaces show where tokens start. Access surfaces show how users arrive.</p></div><a className="execute compact secondary" href="/rh-chain-signal-desk/launchpad-observatory">Open Observatory</a></div><div className="rh-chain-daily-mini-grid">{surfaceWatch.launch_surfaces.slice(0, 2).map((surface) => <p key={surface.id}><span>{surface.source_type}</span><strong>{surface.name}</strong></p>)}{surfaceWatch.access_surfaces.slice(0, 1).map((surface) => <p key={surface.access_surface_name}><span>{surface.access_surface_type}</span><strong>{surface.access_surface_name}</strong></p>)}</div></section>;
 }
 
 function LaunchSurfacesPage({ surfaceWatch }: { surfaceWatch: { title: string; subtitle: string; doctrine: string; disclaimer: string; launch_surfaces: RhChainLaunchSurfaceRecord[]; access_surfaces: RhChainAccessSurface[] } }) {
@@ -380,9 +468,9 @@ function LaunchSurfacesPage({ surfaceWatch }: { surfaceWatch: { title: string; s
 
 function ScoutPage() {
   const [query, setQuery] = useState('What changed in the last 24h on RH Chain?');
-  const [answer, setAnswer] = useState<{ answer: string; answer_type: string; supporting_receipts: Array<{ receipt_id: string; headline: string }>; limitations: string[]; disclaimer: string } | null>(null);
+  const [answer, setAnswer] = useState<{ answer: string; answer_type: string; supporting_receipts: Array<{ receipt_id: string; headline: string }>; limitations: string[]; disclaimer: string; generated_at: string } | null>(null);
   async function ask(next = query) { setQuery(next); const response = await postApi<typeof answer>('/v1/rh-chain/scout/query', { query: next }); setAnswer(response.data as NonNullable<typeof answer>); }
-  return <section className="panel rh-chain-section" aria-label="RH Chain Scout Agent"><div className="rh-chain-section-head"><div><p className="section-kicker">Read-only intelligence assistant</p><h2>RH Chain Scout Agent</h2><p>Reads the desk. Remembers the receipts. Never trades.</p></div></div><div className="rh-chain-scout-prompts">{['What changed in the last 24h?','What are the biggest risks right now?','What is the strongest RH Chain narrative?','What happened with NOXA?','What does launchpad fragmentation mean?','Which launch surfaces are being watched?','Check a token contract','Show launch surface context','Show access surface context'].map((prompt) => <button key={prompt} className="rh-chain-chip" onClick={() => ask(prompt)}>{prompt}</button>)}</div><form className="rh-chain-submit-form" onSubmit={(event) => { event.preventDefault(); void ask(); }}><label className="wide"><span>Ask the Scout</span><input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="Ask the RH Chain Scout" /></label><div className="panel-actions wide"><button className="execute" type="submit">Read desk memory</button></div></form>{answer && <article className="rh-chain-daily-latest-card"><p className="section-kicker">{answer.answer_type.replace(/_/g, ' ')}</p><h3>{answer.answer}</h3><div className="rh-chain-evidence-list">{answer.supporting_receipts.map((receipt) => <span key={receipt.receipt_id}>{receipt.receipt_id}: {receipt.headline}</span>)}</div><p className="panel-caption">{answer.limitations.join(' ')}</p><p className="rh-chain-disclaimer">{answer.disclaimer}</p></article>}</section>;
+  return <section className="panel rh-chain-section" aria-label="RH Chain Scout Agent"><div className="rh-chain-section-head"><div><p className="section-kicker">Read-only intelligence assistant</p><h2>RH Chain Scout Agent</h2><p>Reads the desk. Remembers the receipts. Never trades.</p></div></div><div className="rh-chain-scout-prompts">{['What changed in the last 24h?','What are the biggest risks right now?','What is the strongest RH Chain narrative?','What happened with NOXA?','What does launchpad fragmentation mean?','Which launch surfaces are being watched?','Check a token contract','Show launch surface context','Show access surface context'].map((prompt) => <button key={prompt} className="rh-chain-chip" onClick={() => ask(prompt)}>{prompt}</button>)}</div><form className="rh-chain-submit-form" onSubmit={(event) => { event.preventDefault(); void ask(); }}><label className="wide"><span>Ask the Scout</span><input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="Ask the RH Chain Scout" /></label><div className="panel-actions wide"><button className="execute" type="submit">Read desk memory</button></div></form>{answer && <><article className="rh-chain-daily-latest-card"><p className="section-kicker">{answer.answer_type.replace(/_/g, ' ')}</p><h3>{answer.answer}</h3><div className="rh-chain-evidence-list">{answer.supporting_receipts.map((receipt) => <span key={receipt.receipt_id}>{receipt.receipt_id}: {receipt.headline}</span>)}</div><p className="panel-caption">{answer.limitations.join(' ')}</p><p className="rh-chain-disclaimer">{answer.disclaimer}</p></article><div className="rh-chain-portable-card-wrap"><RhChainPortableCard type="Scout Receipt" label={answer.answer_type.replace(/_/g, ' ')} finding={answer.answer} caveat={answer.limitations[0] ?? 'Scout context can be incomplete.'} timestamp={formatTimestamp(answer.generated_at)} reference={answer.supporting_receipts[0] ? `${answer.supporting_receipts[0].receipt_id} · ${answer.supporting_receipts[0].headline}` : 'No supporting receipt'} deskHref="/rh-chain-signal-desk/scout" /></div></>}</section>;
 }
 
 function RhChainDailyReceiptsPage({ feed }: { feed: RhChainDailyReceiptsPayload }) {
@@ -407,18 +495,21 @@ function dailyReceiptNumber(receiptId: string | undefined): string | null {
   return match ? `#${match[1]}` : null;
 }
 
-function LatestDailyReceiptSection({ receipt }: { receipt: RhChainDailyReceipt }) {
-  return <section id="latest-receipt" className="panel rh-chain-section" aria-label="Latest Daily RH Chain Receipt">
+function LatestDailyReceiptSection({ receipt, editorial = false }: { receipt: RhChainDailyReceipt; editorial?: boolean }) {
+  return <section id="latest-receipt" className={`panel rh-chain-section${editorial ? ' rh-chain-section--report' : ''}`} aria-label="Latest Daily RH Chain Receipt">
     <div className="rh-chain-section-head">
       <div>
         <p className="section-kicker">Latest Receipt / {receipt.receipt_id}</p>
+        {editorial && <p className="sr-only">Daily RH Chain Receipts</p>}
         <h2>{dailyReceiptNumber(receipt.receipt_id) ? `Daily Receipt ${dailyReceiptNumber(receipt.receipt_id)}` : `Daily Receipt · ${receipt.receipt_id}`}</h2>
-        <p>{receipt.period ?? 'One daily memory object for signal, risk, narrative, liquidity, and verdict.'}</p>
+        <p>{editorial ? 'The market forgets. Infopunks keeps the memory.' : receipt.period ?? 'One daily memory object for signal, risk, narrative, liquidity, and verdict.'}</p>
       </div>
       <div className="rh-chain-daily-actions">
-        <a className="execute compact secondary" href={`/rh-chain-signal-desk/daily-receipts/${receipt.receipt_id}/card`}>View share card</a>
+        <a className="execute" href={`/rh-chain-signal-desk/daily-receipts/${receipt.receipt_id}`}>View Receipt</a>
+        <a className="execute compact secondary" href={`/rh-chain-signal-desk/daily-receipts/${receipt.receipt_id}/card`}>Share Receipt<span className="sr-only"> · View share card</span></a>
+        {editorial && <a className="execute compact secondary" href="/rh-chain-signal-desk/daily-receipts">Open Daily Receipts</a>}
         <CopyXPost receipt={receipt} />
-        <CopyReceiptSummary receipt={receipt} />
+        {!editorial && <CopyReceiptSummary receipt={receipt} />}
         <span className={`rh-chain-daily-confidence confidence-${receipt.confidence_level}`}>{receipt.confidence_level}</span>
       </div>
     </div>
@@ -486,6 +577,20 @@ function CopyReceiptSummary({ receipt }: { receipt: RhChainDailyReceipt }) {
   return <button type="button" className="execute compact secondary" onClick={copySummary}>{copied ? 'Copied receipt summary' : 'Copy receipt summary'}</button>;
 }
 
+function CopyPortableLink({ label, href }: { label: string; href: string }) {
+  const [copied, setCopied] = useState(false);
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(new URL(href, window.location.origin).toString());
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setCopied(false);
+    }
+  }
+  return <button type="button" className="execute compact secondary" onClick={copyLink}>{copied ? 'Copied link' : label}</button>;
+}
+
 function DailyReceiptSections({ receipt }: { receipt: RhChainDailyReceipt }) {
   if (!receipt.receipt_sections?.length) return null;
   return <section className="panel rh-chain-section" aria-label="Daily Receipt Intelligence Memo">
@@ -551,11 +656,12 @@ function XPostBlock({ receipt }: { receipt: RhChainDailyReceipt }) {
 
 function ReceiptShareCard({ receipt, standalone = false }: { receipt: RhChainDailyReceipt; standalone?: boolean }) {
   const isReceipt001 = receipt.receipt_id === 'rh_daily_001';
+  const source = receipt.sources[0];
   return <article className={`rh-chain-share-card${standalone ? ' standalone' : ''}`}>
     <header>
       <div>
         <p className="rh-chain-share-card-brand">INFOPUNKS</p>
-        <p className="section-kicker">RH Chain Signal Desk</p>
+        <p className="section-kicker">Daily Receipt Card</p>
       </div>
       <p className="rh-chain-share-card-number">{dailyReceiptNumber(receipt.receipt_id) ? `Receipt ${dailyReceiptNumber(receipt.receipt_id)}` : `Receipt · ${receipt.receipt_id}`}</p>
     </header>
@@ -570,6 +676,7 @@ function ReceiptShareCard({ receipt, standalone = false }: { receipt: RhChainDai
       <p className="section-kicker">Infopunks Verdict</p>
       <p>{isReceipt001 ? 'Meme season is onboarding attention. The test is whether attention converts into persistent RWA/DeFi usage.' : receipt.infopunks_verdict}</p>
     </div>
+    <div className="rh-chain-share-card-meta"><span>{formatTimestamp(receipt.generated_at)}</span><span>{source?.source_name ?? 'source required'}</span><a href={`/rh-chain-signal-desk/daily-receipts/${receipt.receipt_id}`}>radar.infopunks.fun/rh-chain-signal-desk</a></div>
     <footer><span>Public intelligence, not endorsement.</span><strong>No receipt, no signal.</strong></footer>
   </article>;
 }
@@ -668,8 +775,9 @@ function SignalIndexPreview({ index }: { index: RhChain4663IndexPayload }) {
   return <section className="panel rh-chain-section rh-chain-section--utility rh-chain-4663-preview" aria-label="4663 Signal Index Preview">
     <div className="rh-chain-section-head">
       <div>
-        <p className="section-kicker">4663 Signal Index</p>
-        <h2>4663 Signal Index</h2>
+        <p className="section-kicker">4663 Movers</p>
+        <p className="sr-only">4663 Signal Index</p>
+        <h2>4663 Movers / Signal Index</h2>
         <p>{index.subtitle}</p>
       </div>
       <a className="execute compact secondary" href="/rh-chain-signal-desk/4663-index">Open 4663 Index</a>
@@ -687,14 +795,17 @@ function SignalIndexPreview({ index }: { index: RhChain4663IndexPayload }) {
         <p>{asset.name}</p>
         <span className={`rh-chain-4663-class class-${asset.classification}`}>{formatLabel(asset.classification)}</span>
         <p className="panel-caption">{asset.infopunks_verdict}</p>
+        <div className="panel-actions"><a className="execute compact secondary" href={`/rh-chain-signal-desk/tokens/${encodeURIComponent(asset.token_contract)}`}>Open Dossier</a><CopyPortableLink label="Share Index Item" href={`/rh-chain-signal-desk/tokens/${encodeURIComponent(asset.token_contract)}`} /></div>
       </article>)}
     </div>
   </section>;
 }
 
 function RhChain4663IndexPage({ index }: { index: RhChain4663IndexPayload }) {
+  const top = index.assets[0];
   return <>
     {index.freshness_state !== 'fresh' && <section className="panel rh-chain-section rh-chain-daily-warning" aria-label="Index freshness"><p>Manual index values require refresh.</p></section>}
+    {top && <section className="rh-chain-portable-card-wrap" aria-label="4663 Signal Card"><RhChainPortableCard type="4663 Signal Card" label={`${top.ticker} · rank ${top.rank}`} finding={top.infopunks_verdict} caveat={`${formatLabel(top.risk_state)} · ${formatLabel(top.classification)} is desk context, not a safety finding.`} timestamp={formatTimestamp(index.last_updated)} reference={`4663 Signal Index · ${top.source.source_name}`} deskHref={`/rh-chain-signal-desk/tokens/${encodeURIComponent(top.token_contract)}`} /></section>}
     <IndexOverviewSection index={index} />
     <RankedIndexSection assets={index.assets} />
     <ScoreBreakdownSection assets={index.assets} />

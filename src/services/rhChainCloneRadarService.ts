@@ -96,12 +96,12 @@ export function assembleRhChainCloneRadar(reviewItems = getRhChainReviewQueue().
       { category: 'direct_uniswap_low_liquidity_risk', title: 'Direct Uniswap low-liquidity risk', explanation: 'A direct pool does not establish reliable liquidity, identity, or safety.' }
     ],
     flagging_method: [
-      { signal: 'Repeated ticker', explanation: 'The same ticker appears against more than one disclosed contract; it remains unresolved until manual review.' },
-      { signal: 'Unverifiable launch source', explanation: 'Launch claims without a reviewable contract, pair, or source link remain context, not identity.' },
-      { signal: 'Thin liquidity', explanation: 'Limited or unverified pool evidence can make surface activity unreliable.' },
-      { signal: 'Suspicious deployer', explanation: 'Deployer history or clustered claims are verification gates, not a definitive finding.' },
-      { signal: 'Fake social links', explanation: 'Social links must be source-checked; a link alone does not establish a canonical channel.' },
-      { signal: 'Conflicting contract claims', explanation: 'Different contract claims for one identity remain unresolved until receipts align.' }
+      { signal: 'Repeated ticker', title: 'Repeated ticker', explanation: 'The same ticker appears against more than one disclosed contract; it remains unresolved until manual review.' },
+      { signal: 'Unverifiable launch source', title: 'Unverifiable launch source', explanation: 'Launch claims without a reviewable contract, pair, or source link remain context, not identity.' },
+      { signal: 'Thin liquidity', title: 'Thin liquidity', explanation: 'Limited or unverified pool evidence can make surface activity unreliable.' },
+      { signal: 'Suspicious deployer', title: 'Suspicious deployer', explanation: 'Deployer history or clustered claims are verification gates, not a definitive finding.' },
+      { signal: 'Fake social links', title: 'Fake social links', explanation: 'Social links must be source-checked; a link alone does not establish a canonical channel.' },
+      { signal: 'Conflicting contract claims', title: 'Conflicting contract claims', explanation: 'Different contract claims for one identity remain unresolved until receipts align.' }
     ]
   };
 }

@@ -20,6 +20,7 @@ import { InMemoryRhChainRiskCorrelationSnapshotStore, PostgresRhChainRiskCorrela
 import { InMemoryRhChainAutomationStore, isRhChainAutomationJobName, PostgresRhChainAutomationStore, RH_CHAIN_AUTOMATION_JOB_NAMES, RhChainAutomationService, type RhChainAutomationStore } from '../services/rhChainAutomationService';
 import { assembleRhChainTokenDossier } from '../services/rhChainTokenDossierService';
 import { assembleRhChainCloneRadar } from '../services/rhChainCloneRadarService';
+import { assembleRhChainTodayOn4663 } from '../services/rhChainTodayOn4663Service';
 import { assembleRhChainLaunchpadObservatory } from '../services/rhChainLaunchpadObservatoryService';
 import { assembleRhChainScouts } from '../services/rhChainScoutsService';
 import { assembleRhChainDistributionPack } from '../services/rhChainDistributionPackService';
@@ -1980,6 +1981,33 @@ export async function createApp(
     ...listRhChainSignals()
   })));
   app.get('/v1/rh-chain/4663-index', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChain4663Index())));
+  app.get('/v1/rh-chain/today-on-4663', async () => {
+    try {
+      const [dailyReceipts, submissions] = await Promise.all([
+        rhChainDailyReceiptDrafts.publicFeed(),
+        rhChainSubmissionStore.list(),
+        rhChainMemePulse.getLatest()
+      ]);
+      const reviewQueue = assembleRhChainReviewQueue(submissions.map(asRhChainPersistedReviewItem));
+      return safeJsonExport(buildRhChainApiResponse(assembleRhChainTodayOn4663({
+        dailyReceipts,
+        index: assembleRhChain4663Index(),
+        cloneRadar: assembleRhChainCloneRadar(reviewQueue.items),
+        // Reading the automation snapshot is intentional: a failed snapshot read
+        // sends this convenience surface to its manual fallback. The public card
+        // remains derived from existing reviewed/manual desk memory.
+        memePulse: assembleRhChainMemePulseScreen(),
+        storage_status: 'available'
+      })));
+    } catch {
+      // This endpoint is a distribution convenience, never a reason to hide the reviewed static record.
+      return safeJsonExport(buildRhChainApiResponse(assembleRhChainTodayOn4663({
+        data_mode: 'manual_fallback',
+        freshness_state: 'source_required',
+        storage_status: 'unavailable'
+      })));
+    }
+  });
   app.get('/v1/rh-chain/daily-receipts', async () => safeJsonExport(buildRhChainApiResponse(await rhChainDailyReceiptDrafts.publicFeed())));
   app.get<{ Params: { receipt_id: string } }>('/v1/rh-chain/daily-receipts/:receipt_id', async (req, reply) => {
     const receipt = await rhChainDailyReceiptDrafts.publicReceipt(req.params.receipt_id);
@@ -3196,6 +3224,7 @@ function rhChainOperationContext(route: string) {
     return { service: 'radar_api', operation: 'request' };
   }
   if (route === '/v1/rh-chain') return { service: 'rh_chain_signal_desk', operation: 'read_signal_desk' };
+  if (route.endsWith('/today-on-4663')) return { service: 'rh_chain_today_on_4663', operation: 'read_today_on_4663' };
   if (route.includes('/daily-receipts')) return { service: 'rh_chain_daily_receipts', operation: 'read_daily_receipts' };
   if (route.endsWith('/review-queue')) return { service: 'rh_chain_review_queue', operation: 'read_review_queue' };
   if (route.endsWith('/clone-radar')) return { service: 'rh_chain_clone_radar', operation: 'read_clone_radar' };
