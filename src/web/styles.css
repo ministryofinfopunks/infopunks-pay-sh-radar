@@ -16074,6 +16074,11 @@ select:focus {
   text-decoration: none;
 }
 
+.radar-primary-navigation a strong {
+  color: inherit;
+  font: inherit;
+}
+
 .radar-overflow-menu,
 .radar-mobile-product-menu,
 .radar-settings-menu {
@@ -16119,7 +16124,7 @@ select:focus {
   z-index: 130;
   display: grid;
   grid-template-columns: repeat(3, minmax(150px, 1fr));
-  width: min(720px, calc(100vw - 28px));
+  width: min(1080px, calc(100vw - 28px));
   max-height: min(680px, calc(100vh - 96px));
   gap: 7px 12px;
   overflow: auto;
@@ -16155,7 +16160,7 @@ select:focus {
   width: 100%;
   min-height: 36px;
   gap: 10px;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   border: 1px solid transparent;
   border-radius: 8px;
@@ -16169,6 +16174,33 @@ select:focus {
   text-align: left;
   text-decoration: none;
   cursor: pointer;
+}
+
+.radar-navigation-link-copy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.radar-navigation-link-copy strong {
+  color: inherit;
+  font: inherit;
+  font-weight: 760;
+}
+
+.radar-navigation-link-copy small {
+  display: block;
+  color: var(--radar-text-muted, var(--muted));
+  font-size: 8.5px;
+  font-weight: 560;
+  letter-spacing: 0;
+  line-height: 1.35;
+}
+
+.radar-navigation-link-state {
+  flex: 0 0 auto;
+  color: var(--radar-green, var(--green));
+  font-size: 11px;
 }
 
 .radar-menu-group a:hover,
@@ -16198,6 +16230,110 @@ select:focus {
 
 .radar-menu-group a small {
   color: var(--radar-text-muted, var(--muted));
+}
+
+.radar-route-directory {
+  position: relative;
+  margin: 0 0 18px;
+  border: 1px solid rgba(203, 255, 221, .14);
+  border-radius: 18px;
+  padding: clamp(22px, 3vw, 34px);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(126, 255, 176, .055), transparent 28%),
+    linear-gradient(155deg, rgba(6, 13, 9, .98), rgba(2, 6, 4, .99));
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .28), inset 0 1px rgba(255, 255, 255, .025);
+  scroll-margin-top: 90px;
+}
+
+.radar-route-directory::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(203, 255, 221, .018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(203, 255, 221, .015) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(180deg, black, transparent 42%);
+}
+
+.radar-route-directory-head,
+.radar-route-directory-grid {
+  position: relative;
+  z-index: 1;
+}
+
+.radar-route-directory-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 32px;
+  align-items: end;
+  padding-bottom: 22px;
+  border-bottom: 1px solid rgba(203, 255, 221, .1);
+}
+
+.radar-route-directory-head h2 {
+  margin: 5px 0 0;
+  color: var(--radar-text, var(--text));
+  font-size: clamp(28px, 3vw, 42px);
+  font-weight: 600;
+  letter-spacing: -.04em;
+  line-height: 1;
+  text-transform: none;
+}
+
+.radar-route-directory-head > p {
+  max-width: 520px;
+  margin: 0;
+  color: var(--radar-text-muted, var(--muted));
+  font-size: 11.5px;
+  line-height: 1.55;
+  text-align: right;
+}
+
+.radar-route-directory-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px clamp(18px, 3vw, 44px);
+  padding-top: 26px;
+}
+
+.radar-directory-group {
+  gap: 3px;
+}
+
+.radar-directory-group .radar-menu-heading {
+  margin: 0 10px 8px;
+  color: rgba(183, 211, 192, .72);
+  font-size: 9px;
+  letter-spacing: .15em;
+}
+
+.radar-directory-group a {
+  min-height: 52px;
+  border-radius: 10px;
+  padding: 9px 10px;
+  font-size: 11.5px;
+}
+
+.radar-directory-group .radar-navigation-link-copy {
+  gap: 4px;
+}
+
+.radar-directory-group .radar-navigation-link-copy strong {
+  color: var(--radar-text-secondary, var(--text));
+  font-size: 12px;
+}
+
+.radar-directory-group .radar-navigation-link-copy small {
+  font-size: 9.5px;
+}
+
+.radar-directory-group a:hover .radar-navigation-link-copy strong,
+.radar-directory-group a:focus-visible .radar-navigation-link-copy strong,
+.radar-directory-group a.active .radar-navigation-link-copy strong {
+  color: var(--radar-text, var(--text));
 }
 
 .radar-menu-group button strong {
@@ -16276,6 +16412,10 @@ select:focus {
     width: min(560px, calc(100vw - 24px));
   }
 
+  .radar-route-directory-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .radar-settings-panel {
     grid-template-columns: minmax(220px, 1fr);
     width: 260px;
@@ -16300,8 +16440,8 @@ select:focus {
     grid-row: 1;
   }
 
-  .radar-primary-navigation,
-  .radar-overflow-menu {
+  .site-header .radar-primary-navigation,
+  .site-header .radar-overflow-menu {
     display: none;
   }
 
@@ -16340,6 +16480,16 @@ select:focus {
     width: min(280px, calc(100vw - 20px));
     max-height: calc(100vh - 84px);
   }
+
+  .radar-route-directory-head {
+    display: grid;
+    gap: 12px;
+  }
+
+  .radar-route-directory-head > p {
+    max-width: none;
+    text-align: left;
+  }
 }
 
 @media (max-width: 520px) {
@@ -16368,6 +16518,16 @@ select:focus {
 
   .radar-mobile-menu-panel {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .radar-route-directory {
+    border-radius: 14px;
+    padding: 20px 12px;
+  }
+
+  .radar-route-directory-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
   }
 }
 

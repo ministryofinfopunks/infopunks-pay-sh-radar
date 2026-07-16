@@ -7,6 +7,7 @@ import {
   RADAR_NETWORKS,
   RadarNetworkSelector,
   RadarProductNavigation,
+  SolanaRadarDirectory,
   navigationItemIsActive,
   radarNetworkForPath
 } from '../src/web/radarNetworks';
@@ -37,10 +38,10 @@ describe('Radar network architecture', () => {
     });
   }
 
-  it('keeps public deep links while assigning an explicit universal homepage context', () => {
+  it('keeps public deep links while assigning the homepage to Solana', () => {
     expect(RADAR_NETWORKS.solana.href).toBe('/#global-pulse');
     expect(RADAR_NETWORKS['robinhood-chain'].href).toBe('/rh-chain-signal-desk');
-    expect(radarNetworkForPath('/')).toBe('universal');
+    expect(radarNetworkForPath('/')).toBe('solana');
     expect(radarNetworkForPath('/providers/provider_alpha')).toBe('solana');
     expect(radarNetworkForPath('/benchmarks/finance-data-token-metadata')).toBe('solana');
     expect(radarNetworkForPath('/rh-chain-signal-desk')).toBe('robinhood-chain');
@@ -71,12 +72,12 @@ describe('Radar network architecture', () => {
     expect(RADAR_NAVIGATION['robinhood-chain'].primaryItems).toHaveLength(5);
   });
 
-  it('keeps all grouped Solana destinations discoverable in More', () => {
+  it('keeps all grouped Solana destinations discoverable in Explore', () => {
     render(<RadarProductNavigation context="solana" current="/signal-hunt" />);
 
-    const trigger = container.querySelector<HTMLButtonElement>('button[aria-label="Open Solana more destinations"]')!;
+    const trigger = container.querySelector<HTMLButtonElement>('button[aria-label="Explore Solana destinations"]')!;
     act(() => trigger.click());
-    const menu = container.querySelector<HTMLElement>('[role="menu"][aria-label="Solana more destinations"]')!;
+    const menu = container.querySelector<HTMLElement>('[role="menu"][aria-label="Solana destination directory"]')!;
     expect(menu.hidden).toBe(false);
     for (const group of ['Intelligence', 'Agent Tools', 'Hermes', 'Commercial', 'Machine Economy', 'Developers']) {
       expect(menu.querySelector(`[role="group"][aria-label="${group}"]`)).not.toBeNull();
@@ -88,19 +89,33 @@ describe('Radar network architecture', () => {
     expect(trigger.closest('.radar-overflow-menu')?.classList.contains('active')).toBe(true);
   });
 
+  it('renders the full Solana directory as a homepage launcher from the shared catalog', () => {
+    render(<SolanaRadarDirectory current="/" />);
+
+    expect(container.querySelector('#explore-solana-radar')).not.toBeNull();
+    expect(container.textContent).toContain('Explore Solana Radar');
+    for (const group of RADAR_NAVIGATION.solana.overflowGroups) {
+      expect(container.querySelector(`[role="group"][aria-label="${group.label}"]`)).not.toBeNull();
+      for (const item of group.items) {
+        expect(container.querySelector(`a[href="${item.href}"]`)).not.toBeNull();
+      }
+    }
+    expect(container.querySelector('a[href="/graph"] small')?.textContent).toBe('Claims, receipts and relationships');
+  });
+
   it('groups RH Chain routes by their actual purpose and disambiguates Scout labels', () => {
     render(<RadarProductNavigation context="robinhood-chain" current="/rh-chain-signal-desk/scouts" />);
 
-    const trigger = container.querySelector<HTMLButtonElement>('button[aria-label="Open Robinhood Chain more destinations"]')!;
+    const trigger = container.querySelector<HTMLButtonElement>('button[aria-label="Explore Robinhood Chain destinations"]')!;
     act(() => trigger.click());
-    const menu = container.querySelector<HTMLElement>('[role="menu"][aria-label="Robinhood Chain more destinations"]')!;
+    const menu = container.querySelector<HTMLElement>('[role="menu"][aria-label="Robinhood Chain destination directory"]')!;
     for (const group of ['Intelligence', 'Scouting', 'Operations', 'Developers']) {
       expect(menu.querySelector(`[role="group"][aria-label="${group}"]`)).not.toBeNull();
     }
-    expect(menu.querySelector('a[href="/rh-chain-signal-desk/scouts"]')?.textContent).toBe('Scout Network');
-    expect(menu.querySelector('a[href="/rh-chain-signal-desk/scout"]')?.textContent).toBe('Scout Agent');
-    expect(menu.querySelector('a[href="/rh-chain-signal-desk/review-queue"]')?.textContent).toBe('Review Queue');
-    expect(menu.querySelector('a[href="/internal/rh-chain/review-console"]')?.textContent).toBe('Review Console');
+    expect(menu.querySelector('a[href="/rh-chain-signal-desk/scouts"] strong')?.textContent).toBe('Scout Network');
+    expect(menu.querySelector('a[href="/rh-chain-signal-desk/scout"] strong')?.textContent).toBe('Scout Agent');
+    expect(menu.querySelector('a[href="/rh-chain-signal-desk/review-queue"] strong')?.textContent).toBe('Review Queue');
+    expect(menu.querySelector('a[href="/internal/rh-chain/review-console"] strong')?.textContent).toBe('Review Console');
     expect(menu.textContent).not.toMatch(/>Scouts?<|ScoutsScout/);
   });
 
@@ -127,12 +142,12 @@ describe('Radar network architecture', () => {
     expect(document.activeElement).toBe(trigger);
   });
 
-  it('supports arrow navigation in More and closes on Escape with focus restoration', () => {
+  it('supports arrow navigation in Explore and closes on Escape with focus restoration', () => {
     render(<RadarProductNavigation context="solana" current="/providers" />);
 
-    const trigger = container.querySelector<HTMLButtonElement>('button[aria-label="Open Solana more destinations"]')!;
+    const trigger = container.querySelector<HTMLButtonElement>('button[aria-label="Explore Solana destinations"]')!;
     act(() => trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })));
-    const menu = container.querySelector<HTMLElement>('[role="menu"][aria-label="Solana more destinations"]')!;
+    const menu = container.querySelector<HTMLElement>('[role="menu"][aria-label="Solana destination directory"]')!;
     const items = Array.from(menu.querySelectorAll<HTMLElement>('[role="menuitem"]:not(.compact-primary-duplicate)'));
     expect(document.activeElement).toBe(items[0]);
     act(() => items[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })));

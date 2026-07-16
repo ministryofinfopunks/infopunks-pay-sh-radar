@@ -77,7 +77,7 @@ function hasRoutePrefix(pathname: string, prefixes: readonly string[]) {
 
 export function radarNetworkForPath(pathname: string | null | undefined): RadarNavigationContext {
   const normalized = normalizedPathname(pathname);
-  if (normalized === '/') return 'universal';
+  if (normalized === '/') return 'solana';
   if (hasRoutePrefix(normalized, RH_CHAIN_ROUTE_PREFIXES)) return 'robinhood-chain';
   if (hasRoutePrefix(normalized, SOLANA_ROUTE_PREFIXES)) return 'solana';
   return 'universal';
@@ -99,5 +99,5 @@ export function initialBootShellScript() {
   const labels = JSON.stringify(BOOT_LOADING_LABELS);
   const rhPrefixes = JSON.stringify(RH_CHAIN_ROUTE_PREFIXES);
   const solanaPrefixes = JSON.stringify(SOLANA_ROUTE_PREFIXES);
-  return `(function(){var p=(window.location.pathname||'/').replace(/\\/{2,}/g,'/');var m=function(a){return a.some(function(x){return p===x||p.indexOf(x+'/')===0;});};var l=${labels};var c=p==='/'?'universal':m(${rhPrefixes})?'robinhood-chain':m(${solanaPrefixes})?'solana':'universal';var e=document.querySelector('[data-radar-boot-label]');if(e){e.textContent=l[c];var r=e.closest('[data-radar-initial-boot]');if(r)r.setAttribute('data-ready','true');}})();`;
+  return `(function(){var p=(window.location.pathname||'/').replace(/\\/{2,}/g,'/');var m=function(a){return a.some(function(x){return p===x||p.indexOf(x+'/')===0;});};var l=${labels};var c=p==='/'?'solana':m(${rhPrefixes})?'robinhood-chain':m(${solanaPrefixes})?'solana':'universal';var e=document.querySelector('[data-radar-boot-label]');if(e){e.textContent=l[c];var r=e.closest('[data-radar-initial-boot]');if(r)r.setAttribute('data-ready','true');}})();`;
 }

@@ -195,21 +195,25 @@ describe('agent mode and command palette', () => {
     root = null;
   });
 
-  it('renders a universal product header with route navigation separate from view controls', async () => {
+  it('renders the Solana product header with route navigation separate from view controls', async () => {
     root = await renderApp(container);
 
     const header = container.querySelector('.site-header');
     const primaryNav = header?.querySelector('[aria-label="Primary destinations"]');
     expect(primaryNav?.textContent).toContain('Overview');
-    expect(primaryNav?.textContent).toContain('Networks');
+    expect(primaryNav?.textContent).toContain('Providers');
+    expect(primaryNav?.textContent).toContain('Routes');
+    expect(primaryNav?.textContent).toContain('Receipts');
+    expect(primaryNav?.textContent).toContain('Benchmarks');
     expect(primaryNav?.textContent).not.toContain('Solana');
     expect(primaryNav?.textContent).not.toContain('Machine Economy');
-    expect(header?.querySelector('button[aria-label="All Networks. Choose Radar network"]')).not.toBeNull();
+    expect(header?.querySelector('button[aria-label="Solana network. Switch Radar network"]')).not.toBeNull();
+    expect(header?.querySelector('button[aria-label="Explore Solana destinations"]')?.textContent).toContain('Explore');
     expect(header?.querySelector('button[aria-label="Open command palette (Command K or Control K)"]')).not.toBeNull();
     expect(header?.querySelector('button[aria-label="Open view settings"]')).not.toBeNull();
     expect(container.textContent).toContain('API Docs');
     expect(header?.textContent).toContain('InfopunksRadar');
-    expect(header?.textContent).toContain('All Networks');
+    expect(header?.textContent).toContain('Solana');
     expect(header?.textContent).toContain('Agent Mode');
     expect(header?.textContent).toContain('Comfortable Density');
     expect(header?.textContent).not.toContain('Terminal Comfortable');
@@ -225,18 +229,19 @@ describe('agent mode and command palette', () => {
     expect(Array.from(container.querySelectorAll('a[href="/graph"]')).some((node) => node.textContent?.includes('Open Signal Graph'))).toBe(true);
     expect(container.textContent).toContain('Open Machine Market');
     expect(container.querySelector('a[href="/machine-market"]')).not.toBeNull();
-    expect(header?.querySelector('a[href="/machine-market"]')).toBeNull();
+    expect(header?.querySelector('a[href="/machine-market"]')).not.toBeNull();
   });
 
-  it('keeps the universal identity unique and avoids duplicated network state', async () => {
+  it('keeps the Solana identity unique and avoids duplicated primary routes', async () => {
     root = await renderApp(container);
 
     const header = container.querySelector('.site-header');
     const primaryLabels = Array.from(header?.querySelectorAll('[aria-label="Primary destinations"] a') ?? []).map((node) => node.textContent?.trim()).filter(Boolean);
-    expect(primaryLabels).toEqual(['Overview', 'Networks']);
+    expect(primaryLabels).toEqual(['Overview', 'Providers', 'Routes', 'Receipts', 'Benchmarks']);
     expect(new Set(primaryLabels).size).toBe(primaryLabels.length);
     expect((header?.textContent?.match(/Infopunks/g) ?? []).length).toBe(1);
-    expect((header?.textContent?.match(/Solana/g) ?? []).length).toBe(1);
+    expect((header?.textContent?.match(/Solana/g) ?? []).length).toBe(2);
+    expect((header?.textContent?.match(/Active/g) ?? []).length).toBe(1);
     expect(header?.textContent).not.toContain('/ Solana');
     for (const label of primaryLabels) {
       expect(primaryLabels.filter((item) => item === label)).toHaveLength(1);

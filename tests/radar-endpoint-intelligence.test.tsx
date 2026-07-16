@@ -1049,13 +1049,16 @@ describe('radar endpoint intelligence UI', () => {
 
     const primaryNav = container.querySelector('[aria-label="Primary destinations"]');
     expect(primaryNav?.textContent).toContain('Overview');
-    expect(primaryNav?.textContent).toContain('Networks');
+    expect(primaryNav?.textContent).toContain('Providers');
+    expect(primaryNav?.textContent).toContain('Routes');
+    expect(primaryNav?.textContent).toContain('Receipts');
+    expect(primaryNav?.textContent).toContain('Benchmarks');
     expect(primaryNav?.textContent).not.toContain('Machine Economy');
     expect(primaryNav?.textContent).not.toContain('Machine Preflight');
-    const radarMenu = container.querySelector('[aria-label="Radar more destinations"]');
+    const radarMenu = container.querySelector('[aria-label="Solana destination directory"]');
     expect(radarMenu?.textContent).toContain('Methodology');
     expect(radarMenu?.textContent).toContain('Events');
-    expect(container.querySelector('button[aria-label="All Networks. Choose Radar network"]')).not.toBeNull();
+    expect(container.querySelector('button[aria-label="Solana network. Switch Radar network"]')).not.toBeNull();
     expect(container.querySelector('.header-secondary-rail')).toBeNull();
     expect(container.textContent).toContain('Directory');
     expect(container.textContent).toContain('Events');
@@ -1064,7 +1067,8 @@ describe('radar endpoint intelligence UI', () => {
     expect(machineMenu).toBeNull();
     expect(container.querySelector('a[href="/machine-market"]')).not.toBeNull();
     expect(container.textContent).toContain('Intelligence before the wallet acts.');
-    expect(container.textContent).toContain('One Radar. Two economies.');
+    expect(container.textContent).toContain('Explore Solana Radar');
+    expect(container.textContent).toContain('Most see noise.Infopunks finds signal.');
     expect(container.textContent).toContain('Proof before agent spend.');
     expect(container.textContent).toContain('Mapped Pay.sh routes, provider evidence and benchmark readiness—kept distinct from the Robinhood Chain signal desk.');
     expect(container.textContent).toContain('Pay.sh is the spend rail. Radar is the evidence ledger. Agents inspect evidence, request a non-executing plan, and record proof artifacts before trust compounds.');

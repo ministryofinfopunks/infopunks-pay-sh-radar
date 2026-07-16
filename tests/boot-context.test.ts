@@ -4,8 +4,8 @@ import { describe, expect, it } from 'vitest';
 import { BOOT_LOADING_LABELS, bootLoadingLabelForPath, currentBootLoadingLabel, initialBootShellScript, radarNetworkForPath } from '../src/web/bootContext';
 
 describe('initial Radar boot context', () => {
-  it('resolves universal, Solana, RH Chain, and unknown paths deterministically', () => {
-    expect(radarNetworkForPath('/')).toBe('universal');
+  it('resolves the Solana homepage, RH Chain, and unknown paths deterministically', () => {
+    expect(radarNetworkForPath('/')).toBe('solana');
     expect(radarNetworkForPath('/rh-chain-signal-desk')).toBe('robinhood-chain');
     expect(radarNetworkForPath('/rh-chain-signal-desk/meme-pulse')).toBe('robinhood-chain');
     expect(radarNetworkForPath('/rh-chain-signal-desk/clone-radar')).toBe('robinhood-chain');
@@ -19,7 +19,7 @@ describe('initial Radar boot context', () => {
   });
 
   it('uses the exact loading copy for each network context', () => {
-    expect(bootLoadingLabelForPath('/')).toBe('INFOPUNKS RADAR // INTELLIGENCE SYSTEM BOOTING...');
+    expect(bootLoadingLabelForPath('/')).toBe('INFOPUNKS RADAR // SOLANA INTELLIGENCE BOOTING...');
     expect(bootLoadingLabelForPath('/providers')).toBe('INFOPUNKS RADAR // SOLANA INTELLIGENCE BOOTING...');
     expect(bootLoadingLabelForPath('/rh-chain-signal-desk/clone-radar')).toBe('INFOPUNKS RADAR // RH CHAIN INTELLIGENCE BOOTING...');
     expect(Object.values(BOOT_LOADING_LABELS)).toEqual([
@@ -48,7 +48,7 @@ describe('initial Radar boot context', () => {
   });
 
   it('falls back safely when no browser window is available', () => {
-    expect(currentBootLoadingLabel()).toBe('INFOPUNKS RADAR // INTELLIGENCE SYSTEM BOOTING...');
+    expect(currentBootLoadingLabel()).toBe('INFOPUNKS RADAR // SOLANA INTELLIGENCE BOOTING...');
   });
 
   it('keeps the static shell route-aware, accessible, and motion-safe without legacy product copy', async () => {

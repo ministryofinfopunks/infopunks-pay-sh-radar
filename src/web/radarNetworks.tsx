@@ -114,87 +114,87 @@ export const RADAR_NAVIGATION: Record<RadarNavigationContext, NetworkNavigation>
       {
         label: 'Intelligence',
         items: [
-          { href: '/signal-hunt', label: 'Signal Hunt', activePrefixes: ['/signal-hunt/'] },
-          { href: '/narratives', label: 'Narratives' },
-          { href: '/unicorn-radar', label: 'Unicorn Radar', activePrefixes: ['/unicorn-radar/'] },
-          { href: '/graph', label: 'Signal Graph' },
-          { href: '/narratives/attention-markets', label: 'Attention Markets' },
-          { href: '/narratives/attention-market-watch', label: 'Attention Market Watch', activePrefixes: ['/attention-market-watch/'] },
-          { href: '/abundance', label: 'Abundance Desk', activePrefixes: ['/narratives/abundance-desk'] },
-          { href: '/signals/ansem', label: 'Ansem' },
-          { href: '/signals/black-bull', label: 'Black Bull' },
-          { href: '/signals/troll', label: 'TROLL' }
+          { href: '/signal-hunt', label: 'Signal Hunt', description: 'Emerging signals with evidence', activePrefixes: ['/signal-hunt/'] },
+          { href: '/narratives', label: 'Narratives', description: 'Cultural intelligence desk' },
+          { href: '/unicorn-radar', label: 'Unicorn Radar', description: 'Early company and project watch', activePrefixes: ['/unicorn-radar/'] },
+          { href: '/graph', label: 'Signal Graph', description: 'Claims, receipts and relationships' },
+          { href: '/narratives/attention-markets', label: 'Attention Markets', description: 'Markets formed around attention' },
+          { href: '/narratives/attention-market-watch', label: 'Attention Market Watch', description: 'Live attention market profiles', activePrefixes: ['/attention-market-watch/'] },
+          { href: '/abundance', label: 'Abundance Desk', description: 'Machine abundance intelligence', activePrefixes: ['/narratives/abundance-desk'] },
+          { href: '/signals/ansem', label: 'Ansem', description: 'Source intelligence file' },
+          { href: '/signals/black-bull', label: 'Black Bull', description: 'Narrative signal report' },
+          { href: '/signals/troll', label: 'TROLL', description: 'Narrative signal report' }
         ]
       },
       {
         label: 'Agent Tools',
         items: [
-          { href: '/check', label: 'Check', activePrefixes: ['/check/'] },
-          { href: '/loops', label: 'Loops', activePrefixes: ['/loops/'] },
-          { href: '/hermes', label: 'Hermes Desk' },
-          { href: '/#agent-benchmark-api', label: 'Agent Benchmarks' },
-          { href: '/radar/cards', label: 'Preflight Cards', activePrefixes: ['/radar/cards/'] },
-          { href: '/claim', label: 'Claims', activePrefixes: ['/claim/'] },
-          { href: '/#route-mapping-registry', label: 'Route Mappings' },
-          { href: '/#preflight', label: 'Preflight' },
-          { href: '/#compare', label: 'Compare' },
-          { href: '/#dossier', label: 'Provider Dossier' },
-          { href: '/spend-terminal', label: 'Pre-Spend Terminal' }
+          { href: '/check', label: 'Check', description: 'Verify a claim before action', activePrefixes: ['/check/'] },
+          { href: '/loops', label: 'Loops', description: 'Run and inspect proof loops', activePrefixes: ['/loops/'] },
+          { href: '/hermes', label: 'Hermes Desk', description: 'Agentic investigations before spend' },
+          { href: '/#agent-benchmark-api', label: 'Agent Benchmarks', description: 'Benchmark agent readiness' },
+          { href: '/radar/cards', label: 'Preflight Cards', description: 'Shareable decision artifacts', activePrefixes: ['/radar/cards/'] },
+          { href: '/claim', label: 'Claims', description: 'Judgments backed by receipts', activePrefixes: ['/claim/'] },
+          { href: '/#route-mapping-registry', label: 'Route Mappings', description: 'Provider-to-endpoint coverage' },
+          { href: '/#preflight', label: 'Preflight', description: 'Check a route before payment' },
+          { href: '/#compare', label: 'Compare', description: 'Compare routes and providers' },
+          { href: '/#dossier', label: 'Provider Dossier', description: 'Inspect provider evidence' },
+          { href: '/spend-terminal', label: 'Pre-Spend Terminal', description: 'Decision surface for agents' }
         ]
       },
       {
         label: 'Hermes',
         items: [
-          { href: '/hermes/memory-loop', label: 'Memory Loop' },
-          { href: '/hermes/pre-spend-decision', label: 'Pre-Spend Decision' },
-          { href: '/hermes/spend-policy', label: 'Spend Policy' },
-          { href: '/hermes/decision-feedback', label: 'Decision Feedback' },
-          { href: '/hermes/wallet-audit-trail', label: 'Wallet Audit Trail' },
-          { href: '/hermes/wallet-risk-score', label: 'Wallet Risk Score' },
-          { href: '/hermes/wallet-safety', label: 'Wallet Safety API' },
-          { href: '/hermes/reputation-ledger', label: 'Reputation Ledger' },
-          { href: '/hermes/skill-pack', label: 'Skill Pack' },
-          { href: '/narratives/hermes-desk', label: 'Narrative' }
+          { href: '/hermes/memory-loop', label: 'Memory Loop', description: 'Outcomes that change future action' },
+          { href: '/hermes/pre-spend-decision', label: 'Pre-Spend Decision', description: 'Check the ledger before spend' },
+          { href: '/hermes/spend-policy', label: 'Spend Policy', description: 'Bound wallet authority' },
+          { href: '/hermes/decision-feedback', label: 'Decision Feedback', description: 'Record what happened next' },
+          { href: '/hermes/wallet-audit-trail', label: 'Wallet Audit Trail', description: 'Explain every wallet decision' },
+          { href: '/hermes/wallet-risk-score', label: 'Wallet Risk Score', description: 'Actionable wallet risk' },
+          { href: '/hermes/wallet-safety', label: 'Wallet Safety API', description: 'One safety check before spend' },
+          { href: '/hermes/reputation-ledger', label: 'Reputation Ledger', description: 'Judgment accumulated over time' },
+          { href: '/hermes/skill-pack', label: 'Skill Pack', description: 'Investigation skills for agents' },
+          { href: '/narratives/hermes-desk', label: 'Narrative', description: 'The Hermes intelligence thesis' }
         ]
       },
       {
         label: 'Commercial',
         items: [
-          { href: '/evaluation-request', label: 'Evaluation Request' },
-          { href: '/revenue-receipts', label: 'Revenue Receipts', activePrefixes: ['/revenue-receipts/'] }
+          { href: '/evaluation-request', label: 'Evaluation Request', description: 'Request a commercial evaluation' },
+          { href: '/revenue-receipts', label: 'Revenue Receipts', description: 'Evidence of commercial outcomes', activePrefixes: ['/revenue-receipts/'] }
         ]
       },
       {
         label: 'Machine Economy',
         items: [
-          { href: '/machine-market', label: 'Machine Market' },
-          { href: '/machine-rail-coverage', label: 'Rail Coverage' },
-          { href: '/machine-route-risk-matrix', label: 'Route Risk' },
-          { href: '/machine-first-safe-routes', label: 'First Safe Queue' },
-          { href: '/machine-benchmark-readiness', label: 'Benchmark Readiness' },
-          { href: '/machine-benchmark-methodology', label: 'Benchmark Methodology' },
-          { href: '/machine-comparable-routes', label: 'Comparable Routes' },
-          { href: '/machine-translation-evidence', label: 'Translation Evidence' },
-          { href: '/machine-proof-ladder', label: 'Proof Ladder' },
-          { href: '/machine-execution-shortlist', label: 'Proof Plans' },
-          { href: '/machine-execution-blockers', label: 'Execution Blockers' },
-          { href: '/machine-market-changelog', label: 'Changelog' },
-          { href: '/machine-no-claim-ledger', label: 'No-Claim Ledger' },
-          { href: '/machine-readiness-matrix', label: 'Readiness Matrix' },
-          { href: '/machine-market-map', label: 'Market Map' },
-          { href: '/machine-receipts', label: 'Machine Receipts' },
-          { href: '/machine-economy-snapshot', label: 'Snapshot' }
+          { href: '/machine-market', label: 'Machine Market', description: 'Machine-service market map' },
+          { href: '/machine-rail-coverage', label: 'Rail Coverage', description: 'Payment rail availability' },
+          { href: '/machine-route-risk-matrix', label: 'Route Risk', description: 'Risk across machine routes' },
+          { href: '/machine-first-safe-routes', label: 'First Safe Queue', description: 'Safest candidates to test first' },
+          { href: '/machine-benchmark-readiness', label: 'Benchmark Readiness', description: 'Evidence readiness by service' },
+          { href: '/machine-benchmark-methodology', label: 'Benchmark Methodology', description: 'How readiness is measured' },
+          { href: '/machine-comparable-routes', label: 'Comparable Routes', description: 'Like-for-like route evidence' },
+          { href: '/machine-translation-evidence', label: 'Translation Evidence', description: 'Translation route proof' },
+          { href: '/machine-proof-ladder', label: 'Proof Ladder', description: 'Progress from listing to proof' },
+          { href: '/machine-execution-shortlist', label: 'Proof Plans', description: 'Controlled execution shortlist' },
+          { href: '/machine-execution-blockers', label: 'Execution Blockers', description: 'What prevents a safe run' },
+          { href: '/machine-market-changelog', label: 'Changelog', description: 'Market intelligence changes' },
+          { href: '/machine-no-claim-ledger', label: 'No-Claim Ledger', description: 'Claims Radar refuses to make' },
+          { href: '/machine-readiness-matrix', label: 'Readiness Matrix', description: 'Readiness across the market' },
+          { href: '/machine-market-map', label: 'Market Map', description: 'Services, rails and sources' },
+          { href: '/machine-receipts', label: 'Machine Receipts', description: 'Execution evidence ledger' },
+          { href: '/machine-economy-snapshot', label: 'Snapshot', description: 'Current machine economy state' }
         ]
       },
       {
         label: 'Developers',
         items: [
-          { href: '/openapi.json', label: 'API', external: true },
-          { href: '/developers', label: 'Developer Documentation', activePrefixes: ['/developers/'] },
-          { href: '/v1/hermes', label: 'Hermes JSON', external: true },
-          { href: '/v1/hermes/health', label: 'Hermes Health', external: true },
-          { href: '/#methodology', label: 'Methodology' },
-          { href: '/#events', label: 'Events' }
+          { href: '/openapi.json', label: 'API', description: 'OpenAPI specification', external: true },
+          { href: '/developers', label: 'Developer Documentation', description: 'Integration guides and examples', activePrefixes: ['/developers/'] },
+          { href: '/v1/hermes', label: 'Hermes JSON', description: 'Machine-readable Hermes state', external: true },
+          { href: '/v1/hermes/health', label: 'Hermes Health', description: 'Service health endpoint', external: true },
+          { href: '/#methodology', label: 'Methodology', description: 'How Radar forms judgment' },
+          { href: '/#events', label: 'Events', description: 'Recent evidence events' }
         ]
       }
     ]
@@ -409,16 +409,34 @@ function NavigationLink({ item, current, onNavigate, compactDuplicate = false }:
     rel={item.external ? 'noreferrer' : undefined}
     onClick={onNavigate}
   >
-    <span>{item.label}</span>
-    {item.description && <small>{item.description}</small>}
+    <span className="radar-navigation-link-copy">
+      <strong>{item.label}</strong>
+      {item.description && <small>{item.description}</small>}
+    </span>
+    {item.external && <span className="radar-navigation-link-state" aria-label="Opens in a new tab">↗</span>}
   </a>;
 }
 
-function NavigationGroups({ groups, current, onNavigate }: { groups: readonly NavigationGroup[]; current: string; onNavigate: () => void }) {
-  return <>{groups.map((group) => <div className="radar-menu-group" key={group.label} role="group" aria-label={group.label}>
+function NavigationGroups({ groups, current, onNavigate, directory = false }: { groups: readonly NavigationGroup[]; current: string; onNavigate?: () => void; directory?: boolean }) {
+  return <>{groups.map((group) => <div className={`radar-menu-group${directory ? ' radar-directory-group' : ''}`} key={group.label} role="group" aria-label={group.label}>
     <span className="radar-menu-heading">{group.label}</span>
     {group.items.map((item) => <NavigationLink key={`${group.label}-${item.href}-${item.label}`} item={item} current={current} onNavigate={onNavigate} />)}
   </div>)}</>;
+}
+
+export function SolanaRadarDirectory({ current = currentLocation() }: { current?: string }) {
+  return <section className="radar-route-directory" id="explore-solana-radar" aria-labelledby="explore-solana-radar-title">
+    <div className="radar-route-directory-head">
+      <div>
+        <p className="section-kicker">All intelligence surfaces</p>
+        <h2 id="explore-solana-radar-title">Explore Solana Radar</h2>
+      </div>
+      <p>Signal extraction, pre-spend decisions, wallet memory and machine-economy evidence—organized by the job you need done.</p>
+    </div>
+    <div className="radar-route-directory-grid">
+      <NavigationGroups groups={RADAR_NAVIGATION.solana.overflowGroups} current={current} directory />
+    </div>
+  </section>;
 }
 
 export function RadarHeaderIdentity({ active, context = active ?? 'universal', homeHref = '/' }: { active?: RadarNetworkId; context?: RadarNavigationContext; homeHref?: string }) {
@@ -470,10 +488,10 @@ export function RadarProductNavigation({
     {hasOverflow && <PopupMenu
       className="radar-overflow-menu"
       triggerClassName="methodology-trigger radar-menu-trigger"
-      triggerLabel={<>More <span aria-hidden="true">⌄</span></>}
-      triggerAriaLabel={`Open ${contextLabel} more destinations`}
+      triggerLabel={<>Explore <span aria-hidden="true">⌄</span></>}
+      triggerAriaLabel={`Explore ${contextLabel} destinations`}
       menuClassName="radar-grouped-menu"
-      menuLabel={`${contextLabel} more destinations`}
+      menuLabel={`${contextLabel} destination directory`}
       active={overflowActive}
     >
       {(close) => <>

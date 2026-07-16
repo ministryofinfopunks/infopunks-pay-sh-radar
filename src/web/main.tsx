@@ -44,7 +44,7 @@ import { AbundanceDeskPage, AttentionMarketWatchPage, AttentionMarketWatchProfil
 import { RhChainSignalDeskPage } from './rhChainSignalDeskPages';
 import { HermesDeskPage } from './hermesDeskPages';
 import { formatAbsoluteUtc } from '../shared/timestamps';
-import { RADAR_NETWORK_LIST, RADAR_NETWORKS, RadarContextHeader, RadarHeaderIdentity, RadarProductNavigation } from './radarNetworks';
+import { RadarContextHeader, RadarHeaderIdentity, RadarProductNavigation, SolanaRadarDirectory } from './radarNetworks';
 import { BOOT_INITIALIZATION_DELAYED_LABEL, currentBootLoadingLabel } from './bootContext';
 import './styles.css';
 
@@ -59,48 +59,19 @@ const LazyRhChainReviewConsolePage = lazy(() => import('./rhChainReviewConsolePa
 function RadarHomepageHero() {
   return <section className="panel radar-universal-hero" aria-labelledby="radar-home-title">
     <div className="radar-universal-copy">
-      <p className="eyebrow">Infopunks Radar</p>
+      <p className="eyebrow">Infopunks / Solana Radar</p>
       <h1 id="radar-home-title">Intelligence before the wallet acts.</h1>
-      <p className="radar-universal-lede">Solana evaluates agent spending. RH Chain maps onchain finance. Receipts preserve the memory.</p>
+      <p className="radar-universal-lede">Before an agent spends on Solana, it checks Infopunks. Routes, providers and claims are refined into receipt-backed decisions.</p>
       <div className="panel-actions radar-universal-actions">
-        <a className="execute compact" href={RADAR_NETWORKS.solana.href}>Open Solana Radar</a>
-        <a className="execute compact secondary rh-entry-action" href={RADAR_NETWORKS['robinhood-chain'].href}>Explore Robinhood Chain</a>
+        <a className="execute compact" href="#global-pulse">Read the live signal</a>
+        <a className="execute compact secondary" href="#explore-solana-radar">Explore all surfaces</a>
       </div>
     </div>
-    <aside className="radar-system-note" aria-label="Radar system architecture">
+    <aside className="radar-system-note" aria-label="Solana Radar doctrine">
       <span className="radar-system-mark" aria-hidden="true" />
-      <p className="section-kicker">System architecture</p>
-      <strong>One evidence system.<br />Multiple chain intelligence surfaces.</strong>
+      <p className="section-kicker">Pre-spend intelligence</p>
+      <strong>Most see noise.<br />Infopunks finds signal.</strong>
     </aside>
-  </section>;
-}
-
-function RadarNetworkEntrySection() {
-  return <section className="radar-network-entry" aria-labelledby="radar-network-entry-title">
-    <div className="radar-network-entry-head">
-      <div>
-        <p className="section-kicker">Choose an intelligence surface</p>
-        <h2 id="radar-network-entry-title">One Radar. Two economies.</h2>
-      </div>
-      <p>Move between chain environments without losing the Infopunks evidence standard.</p>
-    </div>
-    <div className="radar-network-card-grid">
-      {RADAR_NETWORK_LIST.map((network) => <article key={network.id} className={`radar-network-card network-${network.id}`}>
-        <div className="radar-network-card-topline">
-          <span className="radar-network-card-mark" aria-hidden="true" />
-          <span className="radar-network-status"><span aria-hidden="true" />{network.statusLabel}</span>
-        </div>
-        <p className="radar-network-label">{network.label}</p>
-        <h3>{network.economy}</h3>
-        <p className="radar-network-description">{network.description}</p>
-        <ul aria-label={`${network.label} capabilities`}>
-          {network.features.map((feature) => <li key={feature}>{feature}</li>)}
-        </ul>
-        <a className={`radar-network-card-cta${network.id === 'robinhood-chain' ? ' rh-entry-action' : ''}`} href={network.href}>
-          {network.id === 'solana' ? 'Open Solana Radar' : 'Enter RH Chain Desk'}<span aria-hidden="true">↗</span>
-        </a>
-      </article>)}
-    </div>
   </section>;
 }
 
@@ -9785,7 +9756,7 @@ function RadarApp() {
     <a className="skip-link" href="#terminal-content">Skip to content</a>
     <header className="site-header">
       <RadarProductNavigation
-        context="universal"
+        context="solana"
         onOpenCommandPalette={() => setCommandPaletteOpen(true)}
         viewSettings={{
           agentMode,
@@ -9799,7 +9770,7 @@ function RadarApp() {
     <MethodologyDrawer open={methodologyOpen} onClose={() => setMethodologyOpen(false)} />
 
     <main id="terminal-content">
-    {!agentMode && <><RadarHomepageHero /><RadarNetworkEntrySection /></>}
+    {!agentMode && <><RadarHomepageHero /><SolanaRadarDirectory /></>}
     {!agentMode && <section className="terminal-meta-strip" aria-label="Terminal session metadata">
       <span><b>{catalogTiming.label}</b>{catalogTiming.value}</span>
       <span><b>Network</b>{data.pulse.data_source.mode === 'live_pay_sh_catalog' && !data.pulse.data_source.used_fixture ? 'online' : 'fixture fallback'}</span>
