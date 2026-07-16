@@ -40,18 +40,38 @@ async function renderPath(container: HTMLDivElement, path: string) {
   return root;
 }
 
+async function submitHeroContract(container: HTMLDivElement, contract: string) {
+  const input = container.querySelector<HTMLInputElement>('#rh-chain-contract-checker')!;
+  const form = container.querySelector<HTMLFormElement>('.rh-chain-contract-checker')!;
+  await act(async () => {
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(input, contract);
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  await act(async () => {
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    await Promise.resolve();
+    await Promise.resolve();
+  });
+}
+
 describe('RH Chain Signal Desk pages', () => {
   let root: Root | undefined;
   let container: HTMLDivElement;
   let reviewQueue = getRhChainReviewQueue();
   let desk = getRhChainPayload();
   let reviewQueueFails = false;
+  let tokenSnapshotFails = false;
+  let tokenSnapshotPending = false;
+  let tokenSnapshotOverride: Record<string, unknown> | null = null;
 
   beforeEach(() => {
     container = document.createElement('div');
     reviewQueue = getRhChainReviewQueue();
     desk = getRhChainPayload();
     reviewQueueFails = false;
+    tokenSnapshotFails = false;
+    tokenSnapshotPending = false;
+    tokenSnapshotOverride = null;
     document.body.append(container);
     vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
       if (pathOf(input) === '/v1/rh-chain') return json(desk);
@@ -63,6 +83,16 @@ describe('RH Chain Signal Desk pages', () => {
       if (pathOf(input) === '/v1/rh-chain/daily-receipts') return json(getRhChainDailyReceipts());
       if (pathOf(input) === '/v1/rh-chain/launch-surfaces') return json(getRhChainLaunchSurfaces());
       if (pathOf(input) === '/v1/rh-chain/live-snapshot') return json({ title: 'RH Chain Live Snapshot', generated_at: '2026-07-11T00:00:00.000Z', live_snapshots_enabled: false, chain_metrics: { tvl_usd: null, dex_volume_24h_usd: null, stablecoin_market_cap_usd: null, protocol_count: null, source_timestamp: null, freshness: 'seeded' }, meme_category: { market_cap_usd: null, volume_24h_usd: null, top_assets: [], source_timestamp: null, freshness: 'seeded' }, provider_statuses: ['DefiLlama', 'CoinGecko', 'DexScreener', 'Blockscout'].map((provider_name) => ({ provider_name, status: 'disabled', fetched_at: null, expires_at: null, error_summary: 'Live snapshots are disabled.' })), cache_status: 'disabled', disclaimer: 'Live Snapshot data is external, cached, and informational. It is not an endorsement, listing, partnership, trading signal, or financial recommendation.' });
+      if (pathOf(input).startsWith('/v1/rh-chain/live-snapshot/token/')) {
+        if (tokenSnapshotPending) return new Promise<Response>(() => undefined);
+        if (tokenSnapshotFails) return Promise.resolve(new Response(JSON.stringify({ error: 'provider_unavailable' }), { status: 503, headers: { 'Content-Type': 'application/json' } }));
+        return json(tokenSnapshotOverride ?? {
+        contract: decodeURIComponent(pathOf(input).split('/').at(-1) ?? ''),
+        token_pair: { exact_contract_match: true, chain_match_status: 'chain_verified', dex_url: 'https://dex.example/pair', pair_address: '0xpair', liquidity_usd: 125000, volume_24h_usd: 42000, source_timestamp: '2026-07-16T00:00:00.000Z', freshness: 'cached' },
+        explorer: { exact_contract_match: true, explorer_url: 'https://explorer.example/address', contract_exists: true, contract_verified: true, deployer_address: '0xdeployer', contract_type: 'ERC-20', availability: 'available' },
+        disclaimer: 'External context only.', judgment_policy: 'External data gives context. Reviewed memory gives judgment.'
+      });
+      }
       if (pathOf(input) === '/v1/rh-chain/meme-pulse') return json(assembleRhChainMemePulseScreen());
       if (pathOf(input) === '/v1/rh-chain/today-on-4663') return json(assembleRhChainTodayOn4663());
       if (pathOf(input) === '/v1/rh-chain/tokens/0xabc/dossier') return json(assembleRhChainTokenDossier('0xabc', [], { contract: '0xabc', token_pair: null, explorer: null, provider_statuses: [], cache_status: 'disabled', generated_at: '2026-07-12T00:00:00.000Z', live_snapshots_enabled: false, judgment_policy: 'External data gives context.', disclaimer: 'context' }, { title: 'RH Chain Live Snapshot', generated_at: '2026-07-12T00:00:00.000Z', live_snapshots_enabled: false, judgment_policy: 'External data gives context.', chain_metrics: { tvl_usd: null, dex_volume_24h_usd: null, stablecoin_market_cap_usd: null, protocol_count: null, source_timestamp: null, freshness: 'seeded' }, meme_category: { market_cap_usd: null, volume_24h_usd: null, top_assets: [], source_timestamp: null, freshness: 'seeded' }, provider_statuses: [], cache_status: 'disabled', disclaimer: 'context' }));
@@ -83,26 +113,32 @@ describe('RH Chain Signal Desk pages', () => {
     window.history.pushState({}, '', '/');
   });
 
-  it('renders the desk with a compact Review Queue preview and CTA', async () => {
+  it('renders the Brief desk in the required editorial order', async () => {
     root = await renderPath(container, '/rh-chain-signal-desk');
 
     const text = container.textContent ?? '';
-    expect(text).toContain('RH Chain Signal Desk');
+    expect(text).toContain('Know what is moving.Know what is real.');
     expect(container.querySelector('a[aria-label="Infopunks Radar home"]')).not.toBeNull();
     expect(container.querySelector('button[aria-label="Robinhood Chain network. Switch Radar network"]')).not.toBeNull();
     expect(container.querySelector('a[href="/rh-chain-signal-desk"][aria-current="page"]')).not.toBeNull();
-    expect(text).toContain('Daily RH Chain Receipts');
-    expect(text).toContain('The market forgets. Infopunks keeps the memory.');
+    expect(container.querySelectorAll('h1')).toHaveLength(1);
+    expect(container.querySelector<HTMLButtonElement>('.rh-v2-mode-control button[aria-pressed="true"]')?.textContent).toBe('brief');
+    expect(text).toContain('Today on 4663');
+    expect(text).toContain('The market forgets. 4663 remembers.');
     expect(text).toContain('NOXA shifts fee model as RH Chain launchpad wars accelerate');
-    expect(Array.from(container.querySelectorAll('a[href="/rh-chain-signal-desk/daily-receipts"]')).some((link) => link.textContent?.includes('Daily Receipts') || link.textContent?.includes('Open Daily Receipts'))).toBe(true);
-    expect(text).toContain('4663 Signal Index');
-    expect(text).toContain('A living index of Robinhood Chain attention assets, risk states, and narrative mutations.');
+    expect(container.querySelector('a[href="/rh-chain-signal-desk/daily-receipts/rh_daily_004"]')).not.toBeNull();
+    expect(text).toContain('What is moving');
     expect(text).toContain('Active speculation with usable desk memory. External receipts still required.');
-    expect(Array.from(container.querySelectorAll('a[href="/rh-chain-signal-desk/4663-index"]')).some((link) => link.textContent?.includes('Open 4663 Index'))).toBe(true);
+    expect(Array.from(container.querySelectorAll('a[href="/rh-chain-signal-desk/4663-index"]')).some((link) => link.textContent?.includes('View Full 4663 Index'))).toBe(true);
     expect(text).toContain('Review Queue');
-    expect(text).toContain('Signals enter public review before promotion.');
-    expect(text).toContain('Queued for manual review. Ticker familiarity is not evidence.');
+    expect(text).toContain('What still needs a receipt');
     expect(Array.from(container.querySelectorAll('a[href="/rh-chain-signal-desk/review-queue"]')).some((link) => link.textContent?.includes('View Review Queue'))).toBe(true);
+
+    const ordered = ['.rh-v2-hero', '.rh-v2-today', '.rh-v2-receipt', '.rh-v2-movers', '.rh-v2-risk-radar', '.rh-v2-memes', '.rh-v2-routes', '.rh-v2-review', '.rh-v2-chain-pulse', '.rh-v2-methodology'].map((selector) => container.querySelector(selector));
+    expect(ordered.every(Boolean)).toBe(true);
+    for (let index = 1; index < ordered.length; index += 1) {
+      expect(ordered[index - 1]!.compareDocumentPosition(ordered[index]!)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    }
   });
 
   it('routes a valid exact contract through the hero checker and keeps malformed input calm', async () => {
@@ -111,10 +147,13 @@ describe('RH Chain Signal Desk pages', () => {
     const form = container.querySelector<HTMLFormElement>('.rh-chain-contract-checker');
     expect(input).not.toBeNull();
     expect(form).not.toBeNull();
+    const setInput = (value: string) => {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(input, value);
+      input!.dispatchEvent(new Event('input', { bubbles: true }));
+    };
 
     await act(async () => {
-      input!.value = 'not-a-contract';
-      input!.dispatchEvent(new Event('input', { bubbles: true }));
+      setInput('not-a-contract');
       form!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     });
     expect(container.textContent).toContain('Paste a valid RH Chain contract address.');
@@ -125,6 +164,58 @@ describe('RH Chain Signal Desk pages', () => {
     expect(isRhChainContractAddress('0x123')).toBe(false);
     expect(rhChainTokenDossierRoute(contract)).toBe(`/rh-chain-signal-desk/tokens/${contract}`);
     expect(rhChainTokenDossierRoute('0x123')).toBeNull();
+
+    await submitHeroContract(container, contract);
+    expect(container.textContent).toContain('Exact contract context found');
+    expect(container.textContent).toContain('chain verified');
+    expect(container.textContent).toContain('$125,000');
+    expect(container.textContent).toContain('This check is not an approval or recommendation.');
+  });
+
+  it('keeps contract loading, chain mismatch, no-pair, and provider-unavailable states explicit', async () => {
+    const contract = '0x1111111111111111111111111111111111111111';
+    tokenSnapshotPending = true;
+    root = await renderPath(container, '/rh-chain-signal-desk');
+    await submitHeroContract(container, contract);
+    expect(container.textContent).toContain('Checking…');
+    expect(container.textContent).toContain('Checking contract context.');
+
+    act(() => root?.unmount());
+    container.replaceChildren();
+    tokenSnapshotPending = false;
+    tokenSnapshotOverride = {
+      contract,
+      token_pair: { exact_contract_match: true, chain_match_status: 'chain_mismatch', dex_url: null, pair_address: null, liquidity_usd: null, volume_24h_usd: null, source_timestamp: null, freshness: 'unavailable' },
+      explorer: { exact_contract_match: true, explorer_url: null, contract_exists: true, contract_verified: false, deployer_address: null, contract_type: null, availability: 'available' },
+      disclaimer: 'External context only.'
+    };
+    root = await renderPath(container, '/rh-chain-signal-desk');
+    await submitHeroContract(container, contract);
+    expect(container.textContent).toContain('chain mismatch');
+    expect(container.textContent).toContain('Liquidity contextUnavailable');
+
+    act(() => root?.unmount());
+    container.replaceChildren();
+    tokenSnapshotOverride = {
+      contract,
+      token_pair: null,
+      explorer: { exact_contract_match: false, explorer_url: null, contract_exists: null, contract_verified: null, deployer_address: null, contract_type: null, availability: 'unavailable' },
+      disclaimer: 'External context only.'
+    };
+    root = await renderPath(container, '/rh-chain-signal-desk');
+    await submitHeroContract(container, contract);
+    expect(container.textContent).toContain('Exact market pair unavailable');
+    expect(container.textContent).toContain('Provider unavailable');
+
+    act(() => root?.unmount());
+    container.replaceChildren();
+    tokenSnapshotOverride = null;
+    tokenSnapshotFails = true;
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    root = await renderPath(container, '/rh-chain-signal-desk');
+    await submitHeroContract(container, contract);
+    expect(container.textContent).toContain('Contract context is temporarily unavailable. Reviewed desk memory has not been changed.');
+    expect(container.textContent).not.toContain('provider_unavailable');
   });
 
   it('isolates a review queue 500 behind a compact module notice and opt-in diagnostics', async () => {
@@ -133,8 +224,8 @@ describe('RH Chain Signal Desk pages', () => {
     root = await renderPath(container, '/rh-chain-signal-desk');
 
     const standardText = container.textContent ?? '';
-    expect(standardText).toContain('RH Chain Signal Desk');
-    expect(standardText).toContain('Chain Pulse');
+    expect(standardText).toContain('Know what is moving.Know what is real.');
+    expect(standardText).toContain('Chain pulse');
     expect(standardText).toContain('Review queue temporarily unavailable.');
     expect(standardText).toContain('Other Signal Desk intelligence remains accessible.');
     expect(container.querySelector('.rh-chain-module-notice')).not.toBeNull();
@@ -163,15 +254,14 @@ describe('RH Chain Signal Desk pages', () => {
     expect(text).not.toContain('Queue Board');
   });
 
-  it('shows manual snapshot observation time, relative age, and stale status', async () => {
+  it('shows compact source policy, observed time, and explicit stale evidence', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-07-15T12:00:00.000Z'));
     root = await renderPath(container, '/rh-chain-signal-desk');
     const text = container.textContent ?? '';
-    expect(text).toContain('Manual snapshot');
-    expect(text).toContain('ObservedJul 9, 2026, 3:45 AM UTC');
-    expect(text).toContain('Updated 6 days ago');
-    expect(text).toContain('StatusStale');
+    expect(text).toContain('View source policy');
+    expect(text).toContain('Observed2026-07-16 00:00 UTC');
+    expect(text).toContain('stale');
   });
 
   it('renders the Chain Pulse source timestamp and calm stale banner', async () => {
@@ -183,14 +273,13 @@ describe('RH Chain Signal Desk pages', () => {
         observed_at: '2026-07-15T09:58:00.000Z',
         fetched_at: '2026-07-15T10:00:00.000Z',
         freshness_state: 'stale',
-        metrics: [{ ...desk.chain_pulse.metrics[0], value: '$1,000,000', source: { ...source, observed_at: '2026-07-15T09:58:00.000Z', updated_at: '2026-07-15T10:00:00.000Z', data_mode: 'cached' } }]
+        metrics: [{ ...desk.chain_pulse.metrics[0], value: '$1,000,000', state: 'watching', metric_scope: 'rh_chain', source: { ...source, source_name: 'Chain metrics source', source: undefined, observed_at: '2026-07-15T09:58:00.000Z', updated_at: '2026-07-15T10:00:00.000Z', data_mode: 'cached' } }]
       }
     };
     root = await renderPath(container, '/rh-chain-signal-desk');
     const text = container.textContent ?? '';
-    expect(text).toContain('Chain metrics are stale context. Review the timestamp before using them.');
-    expect(text).toContain('Updated 2026-07-15 10:00');
-    expect(text).toContain('observed_at: 2026-07-15 09:58');
+    expect(text).toContain('TVL$1,000,000stale');
+    expect(text).toContain('Observed 2026-07-15 09:58 UTC');
   });
 
   it('renders cached chain and fee context with compact scoped provenance', async () => {
@@ -200,14 +289,53 @@ describe('RH Chain Signal Desk pages', () => {
       { id: 'fees_24h', label: 'Fees (24h)', value: '$1,200', state: 'watching', note: 'DefiLlama fee context.', metric_scope: 'rh_chain', source }
     ], top_protocols: [{ name: 'Global giant', category: 'dex', value: 'source_required', scope: 'global_or_unknown', metric_scope: 'source_required', display_note: 'Chain-specific protocol TVL not verified.', status: 'source required', note: 'Chain-specific protocol TVL not verified.', source }] } };
     root = await renderPath(container, '/rh-chain-signal-desk');
+    const analyst = Array.from(container.querySelectorAll<HTMLButtonElement>('.rh-v2-mode-control button')).find((button) => button.textContent === 'analyst');
+    await act(async () => analyst?.click());
     const text = container.textContent ?? '';
     expect(text).toContain('$1,000,000');
     expect(text).toContain('$1,200');
-    expect(text).toContain('source_required');
+    expect(text).toContain('cached');
     expect(text).not.toContain('Global giant$');
-    expect(container.querySelectorAll('[aria-label="Metric provenance footer"]').length).toBeGreaterThanOrEqual(3);
-    expect(text).toContain('DefiLlama chain metrics snapshot·observed_at:');
-    expect(text).toContain('Provider context is informational and cannot change review, receipt, or index decisions.');
+    expect(container.querySelectorAll('.rh-v2-source-disclosure').length).toBeGreaterThan(0);
+    expect(text).toContain('DefiLlama chain metrics snapshot');
+    expect(text).toContain('Chain-specific protocol TVL not verified.');
+  });
+
+  it('switches to Analyst mode without changing the URL or removing Brief evidence', async () => {
+    root = await renderPath(container, '/rh-chain-signal-desk');
+    const analyst = Array.from(container.querySelectorAll<HTMLButtonElement>('.rh-v2-mode-control button')).find((button) => button.textContent === 'analyst');
+    expect(analyst?.getAttribute('aria-pressed')).toBe('false');
+    expect(container.querySelector('.rh-v2-analyst')).toBeNull();
+
+    await act(async () => analyst?.click());
+    expect(window.location.pathname).toBe('/rh-chain-signal-desk');
+    expect(analyst?.getAttribute('aria-pressed')).toBe('true');
+    expect(container.textContent).toContain('Evidence machinery');
+    expect(container.textContent).toContain('Full ranked 4663 index');
+    expect(container.textContent).toContain('Full review notes');
+    expect(container.textContent).toContain('Today on 4663');
+    expect(container.querySelector('.rh-v2-table')).not.toBeNull();
+  });
+
+  it('opens the Daily Receipt share menu, copies a permanent URL, and restores focus on Escape', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
+    root = await renderPath(container, '/rh-chain-signal-desk');
+    const trigger = Array.from(container.querySelectorAll<HTMLButtonElement>('button')).find((button) => button.textContent?.includes('Share Receipt'))!;
+    await act(async () => { trigger.click(); await Promise.resolve(); });
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+    expect(container.textContent).toContain('Copy X post');
+    expect(container.querySelector('a[href="/rh-chain-signal-desk/daily-receipts/rh_daily_004/card"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/rh-chain-signal-desk/distribution-pack"]')).not.toBeNull();
+
+    const copyUrl = Array.from(container.querySelectorAll<HTMLButtonElement>('.rh-v2-share-popover button')).find((button) => button.textContent === 'Copy permanent URL')!;
+    await act(async () => copyUrl.click());
+    expect(writeText).toHaveBeenCalledWith(`${window.location.origin}/rh-chain-signal-desk/daily-receipts/rh_daily_004`);
+
+    trigger.focus();
+    await act(async () => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })));
+    expect(container.querySelector('.rh-v2-share-popover')).toBeNull();
+    expect(document.activeElement).toBe(trigger);
   });
 
   it('renders the 4663 Signal Index route with overview, ranking, scores, and disclaimer', async () => {
@@ -364,6 +492,8 @@ describe('RH Chain Signal Desk pages', () => {
     expect(text).toContain('Source policy');
     expect(text).toContain('Source mode');
     expect(text).toContain('Status');
+    expect(document.title).toBe('RH Meme Pulse | Infopunks');
+    expect(document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.href).toBe('https://radar.infopunks.fun/rh-chain-meme-pulse');
     expect(container.querySelector('.rh-chain-primary-actions .execute')?.textContent).toContain('Read attention assets');
     expect(container.querySelector('a[href="/rh-chain-signal-desk/meme-pulse"]')?.getAttribute('aria-current')).toBe('page');
   });
