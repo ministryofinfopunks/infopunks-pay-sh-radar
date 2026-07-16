@@ -53,6 +53,7 @@ function PopupMenu({
   children: (close: () => void) => React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const [menuMotion, setMenuMotion] = useState<'anchored' | 'instant'>('instant');
   const controlRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -89,6 +90,7 @@ function PopupMenu({
   }
 
   function openAndFocus(index: number) {
+    setMenuMotion('instant');
     setOpen(true);
     window.requestAnimationFrame(() => focusItem(index));
   }
@@ -102,7 +104,11 @@ function PopupMenu({
       aria-haspopup="menu"
       aria-expanded={open}
       aria-controls={menuId}
-      onClick={() => setOpen((value) => !value)}
+      onClick={(event) => {
+        const willOpen = !open;
+        setMenuMotion(willOpen && event.detail > 0 ? 'anchored' : 'instant');
+        setOpen(willOpen);
+      }}
       onKeyDown={(event) => {
         if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
         event.preventDefault();
@@ -117,6 +123,7 @@ function PopupMenu({
       className={menuClassName}
       role="menu"
       aria-label={menuLabel}
+      data-motion={menuMotion}
       hidden={!open}
       onKeyDown={(event) => {
         const items = menuItems(menuRef.current);

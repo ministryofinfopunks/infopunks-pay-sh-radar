@@ -6280,11 +6280,9 @@ body::after { opacity: .18; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  *, *::before, *::after {
-    animation-duration: .001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: .001ms !important;
-  }
+  .execute:disabled,
+  .preflight-skeleton span,
+  .rh-chain-state-loading .rh-chain-state-mark { animation: none !important; }
 }
 
 @media (max-width: 1080px) {
@@ -16220,12 +16218,6 @@ select:focus {
   padding: 18px;
   background: rgba(4, 9, 7, .995);
   box-shadow: 0 22px 64px rgba(0, 0, 0, .44), inset 0 1px rgba(255, 255, 255, .025);
-  animation: radar-menu-enter .12s ease-out;
-}
-
-@keyframes radar-menu-enter {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 .context-universal .radar-grouped-menu {
@@ -16742,13 +16734,7 @@ select:focus {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .radar-product-navigation *,
-  .radar-grouped-menu,
-  .radar-network-menu {
-    scroll-behavior: auto !important;
-    transition: none !important;
-    animation: none !important;
-  }
+  .radar-product-navigation * { scroll-behavior: auto !important; }
 }
 
 /* Homepage, Solana evidence, and RH Chain hierarchy refinement. */
@@ -17849,4 +17835,478 @@ select:focus {
   .rh-v2-desk *,
   .rh-v2-desk *::before,
   .rh-v2-desk *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
+}
+
+/* Radar design foundations: Apple precision, Infopunks intelligence. */
+:root {
+  color-scheme: dark;
+
+  /* Typography roles: human-facing UI stays sans; machine truth stays mono. */
+  --font-ui: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+  --type-display-tracking: -.045em;
+  --type-heading-tracking: -.025em;
+  --type-body-leading: 1.55;
+  --type-label-tracking: .06em;
+
+  /* One spatial scale, expressed in rem so layout follows text sizing. */
+  --space-1: .25rem;
+  --space-2: .5rem;
+  --space-3: .75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+
+  /* Three radii: controls, surfaces, and large structural panels. */
+  --radius-control: .625rem;
+  --radius-surface: .875rem;
+  --radius-panel: 1.25rem;
+  --radius-pill: 999px;
+
+  /* Canvas → surface → raised chrome → inset evidence. */
+  --surface-canvas: #020503;
+  --surface-primary: rgba(7, 14, 10, .9);
+  --surface-secondary: rgba(12, 22, 16, .82);
+  --surface-raised: rgba(8, 16, 12, .78);
+  --surface-overlay: rgba(4, 9, 7, .985);
+  --surface-inset: rgba(0, 0, 0, .22);
+  --border-subtle: rgba(203, 255, 221, .1);
+  --border-emphasis: rgba(126, 255, 176, .24);
+  --shadow-surface: 0 14px 42px rgba(0, 0, 0, .22), inset 0 1px rgba(255, 255, 255, .022);
+  --shadow-floating: 0 20px 64px rgba(0, 0, 0, .4), inset 0 1px rgba(255, 255, 255, .035);
+
+  /* Crisp, critically damped-feeling UI motion. */
+  --ease-out: cubic-bezier(.23, 1, .32, 1);
+  --motion-press: 120ms;
+  --motion-menu: 160ms;
+
+  /* Backward-compatible aliases keep every product surface on this system. */
+  --radius: var(--radius-panel);
+  --radius-sm: var(--radius-surface);
+  --premium-radius: var(--radius-panel);
+  --premium-radius-sm: var(--radius-surface);
+  --radius-section: var(--radius-panel);
+  --radius-group: var(--radius-surface);
+  --radar-radius: var(--radius-surface);
+  --radar-radius-sm: var(--radius-control);
+  --radar-space-1: var(--space-1);
+  --radar-space-2: var(--space-2);
+  --radar-space-3: var(--space-3);
+  --radar-space-4: var(--space-4);
+  --radar-space-5: var(--space-5);
+  --radar-space-6: var(--space-6);
+  --space-xs: var(--space-1);
+  --space-sm: var(--space-2);
+  --space-md: var(--space-4);
+  --space-lg: var(--space-5);
+  --space-xl: var(--space-6);
+  --radar-bg-deep: var(--surface-canvas);
+  --radar-surface: var(--surface-primary);
+  --radar-surface-raised: var(--surface-secondary);
+  --radar-surface-recessed: var(--surface-inset);
+  --radar-line: var(--border-subtle);
+  --radar-line-strong: var(--border-emphasis);
+  --radar-shadow-card: var(--shadow-surface);
+}
+
+body {
+  background:
+    radial-gradient(circle at 12% -8%, rgba(126, 255, 176, .1), transparent 28%),
+    radial-gradient(circle at 88% 4%, rgba(124, 199, 255, .085), transparent 30%),
+    linear-gradient(145deg, var(--surface-canvas), #06100b 48%, var(--surface-canvas));
+  font-family: var(--font-ui);
+  font-optical-sizing: auto;
+  line-height: var(--type-body-leading);
+}
+
+body::before { opacity: .3; }
+body::after { opacity: .1; }
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-ui);
+  font-optical-sizing: auto;
+  text-wrap: balance;
+}
+
+h1 {
+  letter-spacing: var(--type-display-tracking);
+  line-height: .98;
+}
+
+h2,
+h3 {
+  letter-spacing: var(--type-heading-tracking);
+  line-height: 1.1;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: var(--font-ui);
+}
+
+code,
+pre,
+kbd,
+samp,
+.safe-code-block,
+.receipt-grid,
+.terminal-meta-strip,
+.source-line,
+.machine-receipt-row,
+.machine-service-row {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.section-kicker,
+.eyebrow,
+.zone-eyebrow,
+.scope-label,
+.status-pill,
+.severity-badge,
+.source-badge,
+.radar-network-trigger-label,
+.radar-network-status,
+.radar-menu-heading {
+  font-family: var(--font-mono);
+  letter-spacing: var(--type-label-tracking);
+}
+
+.execute,
+.methodology-trigger,
+.copy-chip,
+.collapse-toggle,
+.resume-rotate,
+.preflight-examples button,
+.site-header .terminal-nav a,
+.radar-menu-group a,
+.radar-menu-group button {
+  font-family: var(--font-ui);
+  letter-spacing: .01em;
+  text-transform: none;
+}
+
+/* Surface depth comes from elevation, not a border around every nested block. */
+.panel {
+  border-color: var(--border-subtle);
+  box-shadow: var(--shadow-surface);
+}
+
+.panel .panel,
+.panel .dossier-section,
+.panel .result,
+.panel .route,
+.panel .endpoint,
+.panel .change,
+.panel .metric,
+.panel .pulse-stat,
+.panel .dossier-stat {
+  box-shadow: none;
+}
+
+.receipt,
+.preflight-json,
+.curl-block,
+.safe-code-block,
+.endpoint-json-panel,
+.export-group {
+  border-color: var(--border-subtle);
+  border-radius: var(--radius-control);
+  background-color: var(--surface-inset);
+  box-shadow: none;
+}
+
+.preflight-header-actions {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.preflight-form {
+  border-color: transparent;
+  border-radius: var(--radius-surface);
+  background: var(--surface-inset);
+  box-shadow: inset 0 1px rgba(255, 255, 255, .02);
+}
+
+.preflight-candidate {
+  border-color: var(--border-subtle);
+  border-radius: var(--radius-surface);
+  background: rgba(255, 255, 255, .018);
+}
+
+/* The global toolbar is a single floating functional layer. */
+.site-header {
+  top: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.site-header .global-toolbar {
+  isolation: isolate;
+  border: 1px solid rgba(203, 255, 221, .14);
+  border-radius: var(--radius-panel);
+  padding: var(--space-2);
+  background:
+    linear-gradient(180deg, rgba(14, 24, 18, .82), rgba(3, 8, 5, .76)),
+    var(--surface-raised);
+  box-shadow: var(--shadow-floating);
+  -webkit-backdrop-filter: blur(22px) saturate(1.16);
+  backdrop-filter: blur(22px) saturate(1.16);
+}
+
+.site-header .radar-network-identity .nav-brand,
+.site-header .radar-primary-navigation a,
+.site-header .methodology-trigger,
+.site-header .radar-network-trigger {
+  border-radius: var(--radius-control);
+}
+
+.site-header .terminal-nav a[aria-current="page"],
+.site-header .terminal-nav a[aria-current="location"],
+.site-header .terminal-nav a.active {
+  color: var(--radar-text);
+  background: rgba(126, 255, 176, .08);
+  box-shadow: inset 0 -2px rgba(126, 255, 176, .46);
+}
+
+/* Immediate pointer/touch response; focus-visible keyboard activation stays still. */
+.execute,
+.methodology-trigger,
+.copy-chip,
+.collapse-toggle,
+.resume-rotate,
+.radar-network-trigger,
+.radar-menu-group a,
+.radar-menu-group button,
+.terminal-nav a,
+.preflight-examples button {
+  transition: transform var(--motion-press) var(--ease-out), opacity var(--motion-press) var(--ease-out);
+}
+
+.execute:hover:not(:disabled) { transform: none; }
+
+.execute:active:not(:disabled):not(:focus-visible),
+.methodology-trigger:active:not(:focus-visible),
+.copy-chip:active:not(:focus-visible),
+.collapse-toggle:active:not(:focus-visible),
+.resume-rotate:active:not(:focus-visible),
+.radar-network-trigger:active:not(:focus-visible),
+.radar-menu-group a:active:not(:focus-visible),
+.radar-menu-group button:active:not(:focus-visible),
+.terminal-nav a:active:not(:focus-visible),
+.preflight-examples button:active:not(:focus-visible) {
+  transform: scale(.97);
+}
+
+.execute:disabled,
+.methodology-trigger:disabled,
+.copy-chip:disabled,
+.collapse-toggle:disabled,
+.resume-rotate:disabled,
+.radar-network-trigger:disabled,
+.radar-menu-group button:disabled,
+.preflight-examples button:disabled {
+  transform: none;
+}
+
+/* Pointer-opened menus materialize from their trigger; keyboard opens are instant. */
+.radar-grouped-menu,
+.radar-network-menu {
+  border-radius: var(--radius-surface);
+  background: var(--surface-overlay);
+  transform-origin: var(--radar-menu-origin, top right);
+}
+
+.radar-network-menu { --radar-menu-origin: top left; }
+.radar-overflow-menu > .radar-grouped-menu,
+.radar-settings-menu > .radar-grouped-menu { --radar-menu-origin: top right; }
+.radar-mobile-product-menu > .radar-grouped-menu { --radar-menu-origin: top center; }
+
+.radar-grouped-menu[data-motion="anchored"],
+.radar-network-menu[data-motion="anchored"] {
+  transition: opacity var(--motion-menu) var(--ease-out), transform var(--motion-menu) var(--ease-out);
+}
+
+@starting-style {
+  .radar-grouped-menu[data-motion="anchored"],
+  .radar-network-menu[data-motion="anchored"] {
+    opacity: 0;
+    transform: translateY(-4px) scale(.97);
+  }
+}
+
+.radar-grouped-menu[data-motion="instant"],
+.radar-network-menu[data-motion="instant"] {
+  animation: none;
+  transition: none;
+  transform: none;
+}
+
+.radar-network-control:has(.radar-network-menu[data-motion="anchored"]) .radar-network-chevron {
+  transition: transform var(--motion-menu) var(--ease-out);
+}
+
+/* Keep Radar's product toolbar on one spatial plane until its mobile menu takes over. */
+@media (min-width: 821px) {
+  .site-header .radar-product-navigation .radar-primary-navigation {
+    grid-column: auto;
+    grid-row: auto;
+    justify-content: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  .radar-grouped-menu[data-motion="anchored"],
+  .radar-network-menu[data-motion="anchored"] {
+    transform: none;
+    transition: opacity 120ms var(--ease-out);
+  }
+
+  .execute,
+  .methodology-trigger,
+  .copy-chip,
+  .collapse-toggle,
+  .resume-rotate,
+  .radar-network-trigger,
+  .radar-menu-group a,
+  .radar-menu-group button,
+  .terminal-nav a,
+  .preflight-examples button,
+  .radar-network-chevron,
+  .benchmark-launch-card,
+  .benchmark-mini-card,
+  .feed-row,
+  .endpoint,
+  .change,
+  .delta-row,
+  .activity-row,
+  .mini-feed div,
+  .result,
+  .route,
+  .heat,
+  .dossier-stat,
+  .pulse-stat,
+  .timing-item,
+  .directory .row,
+  .radar-network-card,
+  .radar-network-card-cta span,
+  .terminal-quick-actions a {
+    transform: none !important;
+  }
+
+  .execute,
+  .methodology-trigger,
+  .copy-chip,
+  .collapse-toggle,
+  .resume-rotate,
+  .radar-network-trigger,
+  .radar-menu-group a,
+  .radar-menu-group button,
+  .terminal-nav a,
+  .preflight-examples button,
+  .radar-network-chevron {
+    transition-duration: 0ms;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .panel,
+  .provider-ribbon,
+  .rh-chain-suite-nav,
+  .site-header .global-toolbar,
+  .site-header .header-menu-panel,
+  .machine-market-toolbar,
+  .unicorn-filter-panel,
+  .radar-grouped-menu,
+  .radar-network-menu,
+  .command-palette-backdrop,
+  .methodology-overlay {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .panel,
+  .provider-ribbon,
+  .rh-chain-suite-nav,
+  .site-header .global-toolbar,
+  .machine-market-toolbar,
+  .unicorn-filter-panel { background: #07100b; }
+
+  .site-header .header-menu-panel,
+  .radar-grouped-menu,
+  .radar-network-menu { background: #040907; }
+
+  .command-palette-backdrop,
+  .methodology-overlay { background: rgba(0, 0, 0, .84); }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --border-subtle: rgba(239, 255, 244, .36);
+    --border-emphasis: rgba(142, 255, 185, .64);
+    --radar-line: var(--border-subtle);
+    --radar-line-strong: var(--border-emphasis);
+    --radar-text-muted: #c2d8c9;
+    --text-dim: #c2d8c9;
+    --muted: #c2d8c9;
+  }
+
+  .site-header .global-toolbar,
+  .radar-grouped-menu,
+  .radar-network-menu,
+  .panel,
+  input,
+  textarea,
+  select {
+    border-color: rgba(239, 255, 244, .5);
+    background-color: #030705;
+    box-shadow: none;
+  }
+
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  a:focus-visible,
+  summary:focus-visible {
+    outline-width: 3px;
+    outline-offset: 3px;
+  }
+}
+
+@media (forced-colors: active) {
+  .site-header .global-toolbar,
+  .radar-grouped-menu,
+  .radar-network-menu,
+  .panel,
+  button,
+  input,
+  textarea,
+  select {
+    border: 1px solid CanvasText;
+    background: Canvas;
+    color: CanvasText;
+    box-shadow: none;
+  }
+
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  a:focus-visible,
+  summary:focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 3px;
+    box-shadow: none;
+  }
 }
