@@ -1,6 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import type { RhChainMemePulsePayload } from '../data/rhChain';
+import { NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
 import { fetchRhChain, RhChainHero, type RhChainEnvelope, RhChainRouteState, RhChainSuiteNav } from './rhChainUi';
+
+function syncMemePulseMetadata() {
+  const title = 'RH Meme Pulse | Infopunks';
+  const description = 'Reviewed attention memory, risk context, and market translation for Robinhood Chain.';
+  const canonical = `${NARRATIVE_PUBLIC_HOST}/rh-chain-meme-pulse`;
+  document.title = title;
+  for (const [attribute, name, content] of [
+    ['name', 'description', description],
+    ['property', 'og:title', title],
+    ['property', 'og:description', description],
+    ['property', 'og:url', canonical]
+  ] as const) {
+    let tag = document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${name}"]`);
+    if (!tag) {
+      tag = document.createElement('meta');
+      tag.setAttribute(attribute, name);
+      document.head.appendChild(tag);
+    }
+    tag.content = content;
+  }
+  let link = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+  if (!link) {
+    link = document.createElement('link');
+    link.rel = 'canonical';
+    document.head.appendChild(link);
+  }
+  link.href = canonical;
+}
 
 export function RhChainMemePulsePage() {
   const [envelope, setEnvelope] = useState<RhChainEnvelope<RhChainMemePulsePayload> | null>(null);
@@ -12,7 +41,7 @@ export function RhChainMemePulsePage() {
       .catch((reason: unknown) => setError(reason instanceof Error ? reason.message : 'meme_pulse_unavailable'));
   };
   useEffect(() => {
-    document.title = 'RH Meme Pulse | Infopunks';
+    syncMemePulseMetadata();
     void load();
   }, []);
   const pulse = envelope?.data ?? null;

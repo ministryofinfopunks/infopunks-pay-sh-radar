@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type {
   RhChain4663Asset,
   RhChain4663IndexPayload,
@@ -28,6 +28,8 @@ import type { RhChainSignalSubmission } from '../services/rhChainSignalVault';
 import type { RhChainLiveSnapshot } from '../services/rhChainLiveSnapshotService';
 import { assembleRhChainTodayOn4663, type RhChainTodayOn4663Payload } from '../services/rhChainTodayOn4663Service';
 import { RhChainPortableCard } from './rhChainPortableCard';
+import { RhChainSignalDeskV2 } from './rhChainSignalDeskV2';
+export { isRhChainContractAddress, rhChainTokenDossierRoute } from './rhChainContract';
 import {
   fetchRhChain,
   RhChainApiError,
@@ -142,8 +144,6 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
   const [dailyReceiptsFailure, setDailyReceiptsFailure] = useState<RhChainRequestFailure | null>(null);
   const [launchSurfacesFailure, setLaunchSurfacesFailure] = useState<RhChainRequestFailure | null>(null);
   const [liveSnapshotFailure, setLiveSnapshotFailure] = useState<RhChainRequestFailure | null>(null);
-  const [query, setQuery] = useState('');
-  const [risk, setRisk] = useState<RhChainRiskState | 'all'>('all');
   const dailyReceiptDetailRoute = Boolean(dailyReceiptId) && !receiptCardRoute;
   const isDailyReceiptRoute = dailyReceiptsRoute || dailyReceiptDetailRoute || receiptCardRoute;
   const useDeskEnvelope = !reviewQueueRoute && !indexRoute && !isDailyReceiptRoute && !launchSurfacesRoute && !liveSnapshotRoute;
@@ -188,15 +188,6 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
     return () => window.clearInterval(timer);
   }, [useDeskEnvelope]);
 
-  const visibleMemes = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    return (desk?.meme_pulse ?? []).filter((token) => {
-      const matchesRisk = risk === 'all' || token.risk_state === risk;
-      const matchesQuery = !needle || [token.ticker, token.name, token.contract, token.infopunks_verdict].join(' ').toLowerCase().includes(needle);
-      return matchesRisk && matchesQuery;
-    });
-  }, [desk?.meme_pulse, query, risk]);
-
   const degraded = (failure: RhChainRequestFailure, moduleName: string, unaffectedCopy = 'Other Signal Desk intelligence remains accessible.') => (
     <RhChainModuleDegradedNotice failure={failure} moduleName={moduleName} unaffectedCopy={unaffectedCopy} />
   );
@@ -215,20 +206,22 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
     else if (submitRoute) routeContent = <SubmitSignalSection />;
     else {
       const todayFallback = dailyReceipts && signalIndex ? assembleRhChainTodayOn4663({ dailyReceipts, index: signalIndex, memePulse: memePulse ?? undefined }) : null;
-      routeContent = <>
-        <TodayOn4663Strip payload={todayOn4663 ?? todayFallback} />
-        {dailyReceipts ? <LatestDailyReceiptSection receipt={dailyReceipts.latest_receipt} editorial /> : dailyReceiptsFailure ? degraded(dailyReceiptsFailure, 'Daily receipts') : null}
-        {dailyReceipts && signalIndex && <WeeklyStateOf4663Card receipt={dailyReceipts.latest_receipt} index={signalIndex} />}
-        {signalIndex ? <SignalIndexPreview index={signalIndex} /> : signalIndexFailure ? degraded(signalIndexFailure, '4663 Signal Index') : null}
-        <CloneRiskPreview desk={desk} />
-        <MemePulseSection memes={visibleMemes} allMemes={desk.meme_pulse} memePulse={memePulse} freshnessState={memePulse?.freshness_state} query={query} risk={risk} onQuery={setQuery} onRisk={setRisk} />
-        {launchSurfaces ? <LaunchSurfacesPreview surfaceWatch={launchSurfaces} /> : launchSurfacesFailure ? degraded(launchSurfacesFailure, 'Launchpad Observatory') : null}
-        {reviewQueue ? <ReviewQueuePreview queue={reviewQueue} /> : reviewQueueFailure ? degraded(reviewQueueFailure, 'Review queue') : null}
-        <RhChainPulseSection desk={desk} />
-        <DeskMethodology />
-      </>;
+      routeContent = <RhChainSignalDeskV2
+        desk={desk}
+        envelope={routeEnvelope}
+        reviewQueue={reviewQueue}
+        signalIndex={signalIndex}
+        dailyReceipts={dailyReceipts}
+        memePulse={memePulse}
+        todayOn4663={todayOn4663 ?? todayFallback}
+        launchSurfaces={launchSurfaces}
+        liveSnapshot={liveSnapshot}
+        failures={{ reviewQueue: reviewQueueFailure, signalIndex: signalIndexFailure, dailyReceipts: dailyReceiptsFailure, launchSurfaces: launchSurfacesFailure }}
+      />;
     }
   }
+
+  const isDeskHome = !scoutRoute && !liveSnapshotRoute && !launchSurfacesRoute && !isDailyReceiptRoute && !indexRoute && !reviewQueueRoute && !submitRoute && !narrativeRoute;
 
   return <div className="shell narrative-shell rh-chain-shell">
     <a className="skip-link" href="#rh-chain-content">Skip to content</a>
@@ -238,14 +231,14 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
     <main id="rh-chain-content" className="narrative-page rh-chain-page">
       {deskFailure && <RhChainRouteState state="unavailable" title="Signal Desk temporarily unavailable" detail="The primary desk record could not be loaded. No fallback intelligence has been substituted." />}
       {!desk && !deskFailure && <RhChainRouteState state="loading" />}
-      {desk && <>
+      {desk && isDeskHome && routeContent}
+      {desk && !isDeskHome && <>
         <section className="panel hero rh-chain-hero">
           <div>
             <p className="eyebrow">{launchSurfacesRoute ? 'Launch Source Intelligence' : isDailyReceiptRoute ? 'Daily Market Memory' : indexRoute ? 'Public Market Memory' : reviewQueueRoute ? 'Public Review Pipeline' : 'Public Intelligence Desk'}</p>
             <h1>{scoutRoute ? 'RH Chain Scout Agent' : liveSnapshotRoute ? 'RH Chain Live Snapshot' : launchSurfacesRoute ? 'Launch Surface Watch' : receiptCardRoute ? 'RH Chain Receipt Card' : dailyReceiptDetailRoute ? `Daily RH Chain Receipt ${dailyReceiptNumber(dailyReceiptId) ?? `· ${dailyReceiptId}`}` : isDailyReceiptRoute ? 'Daily RH Chain Receipts' : indexRoute ? '4663 Signal Index' : reviewQueueRoute ? 'RH Chain Review Queue' : desk.title}</h1>
             <p className="copy">{liveSnapshotRoute ? 'External market context, cached with receipts.' : receiptCardRoute ? 'A public-memory card made to travel without losing its caveats.' : dailyReceiptDetailRoute ? 'One human-reviewed market-memory object, preserved for reference.' : isDailyReceiptRoute ? 'The market forgets. Infopunks keeps the memory.' : indexRoute ? 'Wall Street rails. Meme liquidity. Ranked by receipts.' : reviewQueueRoute ? 'Signals enter the desk. Receipts decide what survives.' : desk.subtitle}</p>
             <p className="copy narrative-rally-line">{isDailyReceiptRoute ? 'Receipts before narrative drift.' : indexRoute ? 'Intelligence index, not a token.' : reviewQueueRoute ? 'Public memory, not endorsement.' : 'Intelligence desk, not casino.'}</p>
-            {!scoutRoute && !liveSnapshotRoute && !launchSurfacesRoute && !isDailyReceiptRoute && !indexRoute && !reviewQueueRoute && !submitRoute && <HeroContractChecker />}
             <div className="panel-actions">
               <a className="execute" href={reviewQueueRoute && reviewQueueFailure ? '/rh-chain-signal-desk' : isDailyReceiptRoute ? '#latest-receipt' : indexRoute ? '#ranked-index' : reviewQueueRoute ? '#queue-board' : '#meme-pulse'}>{reviewQueueRoute && reviewQueueFailure ? 'Open Signal Desk' : isDailyReceiptRoute ? 'Open Latest Receipt' : indexRoute ? 'Open Ranked Index' : reviewQueueRoute ? 'Open Queue Board' : 'Open Meme Pulse'}</a>
               <a className="execute compact secondary" href={submitRoute ? '/rh-chain-signal-desk/review-queue' : '/rh-chain-signal-desk/submit'}>{submitRoute ? 'View Review Queue' : 'Submit source evidence'}</a>
@@ -261,37 +254,6 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
       </>}
     </main>
   </div>;
-}
-
-export function isRhChainContractAddress(value: string) {
-  return /^0x[a-fA-F0-9]{40}$/.test(value.trim());
-}
-
-export function rhChainTokenDossierRoute(value: string) {
-  return isRhChainContractAddress(value) ? `/rh-chain-signal-desk/tokens/${encodeURIComponent(value.trim())}` : null;
-}
-
-function HeroContractChecker() {
-  const [contract, setContract] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  function checkContract(event: React.FormEvent) {
-    const normalized = contract.trim();
-    if (!isRhChainContractAddress(normalized)) {
-      event.preventDefault();
-      setError('Paste a valid RH Chain contract address.');
-      return;
-    }
-    setError(null);
-  }
-  const route = rhChainTokenDossierRoute(contract) ?? undefined;
-  return <form className="rh-chain-contract-checker" action={route} onSubmit={checkContract} noValidate>
-    <label htmlFor="rh-chain-contract-checker">Check an exact contract</label>
-    <div>
-      <input id="rh-chain-contract-checker" value={contract} onChange={(event) => setContract(event.target.value)} placeholder="Paste RH Chain contract address" aria-describedby={error ? 'rh-chain-contract-checker-error' : undefined} />
-      <button className="execute" type="submit">Check 4663</button>
-    </div>
-    {error && <p id="rh-chain-contract-checker-error" className="rh-chain-contract-checker-error" role="alert">{error}</p>}
-  </form>;
 }
 
 function TodayOn4663Strip({ payload }: { payload: RhChainTodayOn4663Payload | null }) {
