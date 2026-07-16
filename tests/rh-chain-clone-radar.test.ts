@@ -9,7 +9,7 @@ describe('RH Chain Clone & Impersonator Radar', () => {
     expect(radar).toEqual(expect.objectContaining({ title: 'Clone & Impersonator Radar', active_warnings: expect.any(Array), liquidity_watch: expect.any(Array), vampire_copycat_watch: expect.any(Array), correlations: expect.any(Array) }));
     expect(radar.active_warnings).toEqual(expect.arrayContaining([expect.objectContaining({ suspicion_type: expect.any(String), confidence_level: expect.any(String), evidence_links: expect.any(Array) })]));
     expect(radar.risk_categories).toEqual(expect.arrayContaining([expect.objectContaining({ category: 'launchpad_displacement_risk' })]));
-    expect(radar.risk_categories.map((category) => category.category)).toEqual(expect.arrayContaining(['vampire_copycat_risk', 'fake_relaunch_risk', 'duplicate_social_claim', 'liquidity_claim_unverified', 'creator_fee_claim_uncertain', 'front_end_dependency_risk', 'direct_uniswap_low_liquidity_risk']));
+    expect(radar.risk_categories.map((category) => category.category)).toEqual(expect.arrayContaining(['vampire_copycat_risk', 'fake_relaunch_risk', 'duplicate_social_claim', 'liquidity_claim_unverified', 'creator_fee_claim_uncertain', 'fee_model_claim_unverified', 'burn_buyback_claim_unverified', 'creator_revenue_claim_uncertain', 'front_end_dependency_risk', 'direct_uniswap_low_liquidity_risk']));
     expect(radar.vampire_copycat_watch).toEqual(expect.arrayContaining([expect.objectContaining({ risk_category: 'vampire_copycat_risk', review_status: 'requires_review', source_links: expect.any(Array), next_review_step: expect.any(String) })]));
   });
 

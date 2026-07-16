@@ -214,7 +214,7 @@ export type RhChainReceiptRelayPayload = {
 export type RhChainLaunchSurface = 'noxa_fun' | 'flap_sh' | 'trensh_today' | 'bankr' | 'tokeny_fun' | 'vlad_fun' | 'robindotmarket' | '20lab_erc20' | 'pump_fun_routed_rh_chain' | 'uniswap_direct_pool' | 'hardhat_foundry_custom' | 'unknown_manual';
 export type RhChainLaunchSourceType = 'launchpad' | 'token_generator' | 'routed_launchpad' | 'direct_dex_pool' | 'custom_deployment' | 'unknown_manual';
 export type RhChainLaunchSurfaceStatus = 'active' | 'degraded' | 'paused' | 'offline' | 'migrating' | 'source_required';
-export type RhChainSurfaceRisk = 'front_end_dependency' | 'clone_flood' | 'creator_fee_claim_uncertainty' | 'launch_quality_filtering' | 'rival_surface_rotation' | 'unknown';
+export type RhChainSurfaceRisk = 'front_end_dependency' | 'clone_flood' | 'creator_fee_claim_uncertainty' | 'fee_model_mutation' | 'launch_quality_filtering' | 'rival_surface_rotation' | 'unknown';
 export type RhChainLpStatus = 'unknown' | 'locked_claimed' | 'burned_claimed' | 'unlocked' | 'unavailable';
 export type RhChainLaunchConfidence = RhChainConfidenceLevel;
 export type RhChainLaunchEvidence = { label: string; url: string | null; note: string; observed_at: string | null };
@@ -604,7 +604,7 @@ export type RhChainCloneRadarItem = {
   source_notes: string[];
 };
 
-export const RH_CHAIN_RISK_PATTERN_CATEGORIES = ['vampire_copycat_risk', 'fake_relaunch_risk', 'launchpad_displacement_risk', 'duplicate_social_claim', 'liquidity_claim_unverified', 'creator_fee_claim_uncertain', 'front_end_dependency_risk', 'direct_uniswap_low_liquidity_risk'] as const;
+export const RH_CHAIN_RISK_PATTERN_CATEGORIES = ['vampire_copycat_risk', 'fake_relaunch_risk', 'launchpad_displacement_risk', 'duplicate_social_claim', 'liquidity_claim_unverified', 'creator_fee_claim_uncertain', 'fee_model_claim_unverified', 'burn_buyback_claim_unverified', 'creator_revenue_claim_uncertain', 'front_end_dependency_risk', 'direct_uniswap_low_liquidity_risk'] as const;
 export type RhChainRiskPatternCategory = typeof RH_CHAIN_RISK_PATTERN_CATEGORIES[number];
 /** Read-only review cue. It does not alter a submission, token, or public review decision. */
 export type RhChainRiskPatternItem = {
@@ -639,8 +639,8 @@ export type RhChainCloneRadarPayload = {
 };
 
 export type RhChainLaunchpadSurfaceStatus = 'active' | 'degraded' | 'paused' | 'offline' | 'migrating' | 'source_required' | 'unknown';
-export type RhChainLaunchpadSurfaceRisk = 'front_end_dependency' | 'clone_flood' | 'vampire_copycat_risk' | 'creator_fee_claim_uncertainty' | 'launch_quality_filtering' | 'rival_surface_rotation' | 'source_required';
-export type RhChainLaunchpadClaimType = 'launch_count' | 'fee_claim' | 'outage_claim' | 'rival_share_claim' | 'notable_token_claim';
+export type RhChainLaunchpadSurfaceRisk = 'front_end_dependency' | 'clone_flood' | 'vampire_copycat_risk' | 'creator_fee_claim_uncertainty' | 'fee_model_mutation' | 'launch_quality_filtering' | 'rival_surface_rotation' | 'source_required';
+export type RhChainLaunchpadClaimType = 'launch_count' | 'fee_claim' | 'creator_revenue_shift' | 'outage_claim' | 'rival_share_claim' | 'notable_token_claim';
 
 /** Read-only surface-memory record. It intentionally holds no launch, routing, or execution fields. */
 export type RhChainLaunchpadSurface = {
@@ -1012,6 +1012,117 @@ export const rhChain4663SeedAssets: RhChain4663SeedAsset[] = [
 ];
 
 export const rhChainDailyReceipts: RhChainDailyReceipt[] = [
+  {
+    receipt_id: 'rh_daily_004',
+    receipt_type: 'daily_market_memory',
+    date: '2026-07-16',
+    period: 'July 15 → July 16, 2026 UTC',
+    generated_at: '2026-07-16T00:00:00.000Z',
+    observed_at: '2026-07-16T00:00:00.000Z',
+    chain: 'Robinhood Chain',
+    headline: 'NOXA shifts fee model as RH Chain launchpad wars accelerate',
+    summary: 'A manually reviewed Daily Receipt for July 15 → July 16, 2026 UTC: NOXA remains in a reported launch pause while fee-model claims shift toward creators, RH Chain activity stays resilient, rival launch surfaces capture rotation flow, and cross-surface memory becomes more valuable.',
+    top_signal: 'RH Chain volume remains resilient while NOXA pauses new launches and competitors capture rotation flow',
+    biggest_risk: 'unverified fee claims, launchpad downtime, clone launches, fake relaunches, creator-fee confusion, and direct-pool quality decay',
+    strongest_narrative: 'the launchpad war is shifting from speed and volume to trust, fee design, creator incentives, and surface reliability',
+    liquidity_note: 'RH Chain remains active two weeks after mainnet, but DEX volume and TVL figures stay source/timestamp dependent. Uniswap/direct pools remain important route context, with no exact values invented.',
+    stock_token_spillover_note: 'The launchpad economics shift is distribution context, not proof of RWA, Stock Token, or DeFi durability.',
+    solana_base_migration_note: 'Competitor launchpad rotation and direct Uniswap migration are tracked as RH Chain surface context only; no cross-chain route claim is promoted without reviewed evidence.',
+    deployer_watch_note: 'Fee, creator-revenue, burn, buyback, launch-origin, and rival-pad claims require primary/on-chain evidence before promotion.',
+    infopunks_verdict: 'NOXA’s pause did not break RH Chain. It exposed the next battlefield: launchpad economics. As fees, creators, direct pools, and rival pads compete for flow, RH Chain needs cross-surface memory more than another hype terminal.',
+    manual_context: 'Human-reviewed memory for July 15 → July 16, 2026 UTC. Reported NOXA pause, website/domain issues, fee-model shift, Pons/rival surface rotation, burn/buyback claims, and creator-revenue claims remain source_required unless primary or on-chain evidence is attached.',
+    source_notes: 'Manual market memory with medium confidence. External data gives context; automation drafts memory; Infopunks approves judgment; receipts create history. Live data does not outrank this human-reviewed receipt. Fee/revenue/burn/buyback and rival-surface claims are source_required unless primary/on-chain evidence exists. This receipt does not imply safety, endorsement, affiliation, misconduct, or official Robinhood partnership.',
+    receipt_sections: [
+      {
+        section_id: 'chain_pulse',
+        title: 'Chain Pulse',
+        summary: 'RH Chain remains active two weeks after mainnet while exact market metrics remain source/timestamp dependent.',
+        fields: [
+          { label: 'Activity read', value: 'RH Chain remains active two weeks after mainnet.' },
+          { label: 'Metrics rule', value: 'DEX volume and TVL figures must stay source/timestamp dependent.' },
+          { label: 'Route context', value: 'Uniswap/direct pools remain important route context.' },
+          { label: 'No invented values', value: 'No exact DEX volume, TVL, liquidity, or dominance values are asserted in this receipt.' }
+        ]
+      },
+      {
+        section_id: 'meme_pulse',
+        title: 'Meme Pulse',
+        summary: 'CASHCAT remains the flagship attention asset while meme activity stays dominant but rotates across rival pads and direct launches.',
+        fields: [
+          { label: 'Flagship attention asset', value: 'CASHCAT remains the flagship attention asset.' },
+          { label: 'Rotation read', value: 'Meme activity is still dominant but rotating.' },
+          { label: 'Surface shift', value: 'Competitor pads and direct launches are gaining attention.' },
+          { label: 'Watchlist rule', value: 'Watchlist tokens remain context only unless reviewed.' }
+        ]
+      },
+      {
+        section_id: 'launchpad_stress_test',
+        title: 'NOXA Fee Model Shift + Launchpad War Mutation',
+        summary: 'NOXA is tracked as a reported launch pause and reported fee-model mutation, while launchpad competition moves from volume toward trust, creator incentives, fee routing, uptime, and source verification.',
+        fields: [
+          { label: 'Launch pause', value: 'NOXA reportedly paused new token launches; source_required unless primary evidence confirms the state.' },
+          { label: 'Website/domain issues', value: 'Reported website/domain issues are retained cautiously as source_required context.' },
+          { label: 'Creator revenue shift', value: 'Reported shift toward redirecting transaction revenue to creators remains source_required unless primary/on-chain evidence exists.' },
+          { label: 'Fee/revenue rule', value: 'Fee, creator-revenue, burn, and buyback claims are source_required without primary or on-chain evidence.' },
+          { label: 'Rival surfaces', value: 'Pons and other rival surfaces remain source_required unless verified.' },
+          { label: 'Mutation', value: 'Launchpad competition is moving from volume to trust, creator incentives, fee routing, uptime, and source verification.' }
+        ]
+      },
+      {
+        section_id: 'risk_wall',
+        title: 'Risk Wall',
+        summary: 'The risk wall now centers on fee-claim uncertainty, launch-surface reliability, clone behavior, direct-pool quality, and claim laundering.',
+        fields: [
+          { label: 'Clone and relaunch risk', value: 'clone launches, fake relaunches, vampire/copycat mechanics, and rival-pad impersonation.' },
+          { label: 'Fee and creator risk', value: 'creator-fee confusion, unverified fee-model claims, and creator-revenue claims remain source_required.' },
+          { label: 'Frontend risk', value: 'frontend dependency and launchpad downtime can separate market memory from interface availability.' },
+          { label: 'Direct-pool risk', value: 'direct Uniswap low-liquidity traps and direct-pool quality decay.' },
+          { label: 'Claim laundering', value: 'unverified dominance claims and burn / buyback claim laundering.' }
+        ]
+      },
+      {
+        section_id: 'narrative_mutation',
+        title: 'Narrative Mutation',
+        summary: 'RH Chain is moving from single-launchpad meme season into multi-surface launchpad competition. The winning layer may not be the launchpad. It may be the memory layer across launchpads.',
+        fields: [
+          { label: 'Mutation', value: 'RH Chain is moving from single-launchpad meme season into multi-surface launchpad competition. The winning layer may not be the launchpad. It may be the memory layer across launchpads.' },
+          { label: 'Battlefield', value: 'Trust, fee design, creator incentives, surface reliability, and source verification matter more than raw launch speed.' }
+        ]
+      },
+      {
+        section_id: 'infopunks_verdict',
+        title: 'Infopunks Verdict',
+        summary: 'The launchpad layer is unstable. The chain is resilient. The memory layer becomes more valuable.',
+        fields: [
+          { label: 'Verdict', value: 'The launchpad layer is unstable. The chain is resilient. The memory layer becomes more valuable.' }
+        ]
+      }
+    ],
+    watchlist: [
+      { item: 'CASHCAT', reason: 'Flagship RH Chain attention asset while meme activity remains dominant but rotating.', risk_state: 'medium_watch', next_thing_to_verify: 'Exact contract, pair, pool depth, holder concentration, and sustained activity.' },
+      { item: 'NOXA fee-model shift', reason: 'Reported redirect of transaction revenue toward creators is important but unverified without primary or on-chain evidence.', risk_state: 'source_required', next_thing_to_verify: 'Primary NOXA terms, on-chain fee route, revenue destination, and timestamped source.' },
+      { item: 'Pons and rival surface rotation', reason: 'Competitor launchpads may be capturing flow, but share, launch-count, and quality claims remain source_required.', risk_state: 'source_required', next_thing_to_verify: 'Primary surface evidence, exact launch records, and pair-level route review.' },
+      { item: 'Direct Uniswap migration', reason: 'Direct pools are relevant route context but can decay in quality without liquidity, LP, and deployer review.', risk_state: 'source_required', next_thing_to_verify: 'Exact pair, reserves, LP status, deployer, transaction quality, and source timestamp.' }
+    ],
+    do_not_touch_yet: [
+      { item: 'Unverified fee and creator-revenue claims', reason: 'Fee-model, creator-revenue, burn, and buyback claims can be laundered through repetition without primary/on-chain proof.', risk_state: 'source_required', next_thing_to_verify: 'Primary terms, on-chain fee route, burn/buyback transaction evidence, and human review.' },
+      { item: 'Clone launches, fake relaunches, and rival-pad impersonation', reason: 'Multi-surface rotation increases origin confusion and copycat mechanics.', risk_state: 'do_not_touch_yet', next_thing_to_verify: 'Exact contract, canonical channels, launch origin, deployer history, and source timestamp.' },
+      { item: 'Direct Uniswap low-liquidity traps', reason: 'Direct pools can attract attention before reserves, LP status, and exit depth are independently receipted.', risk_state: 'high_risk', next_thing_to_verify: 'Pair reserves, LP status, trade quality, and deployer links.' }
+    ],
+    sources: [
+      createRhChainDailyReceiptSource({
+        name: 'Infopunks manual RH Chain launchpad economics watch',
+        observed_at: '2026-07-16T00:00:00.000Z',
+        url: 'https://radar.infopunks.fun/rh-chain-signal-desk/daily-receipts',
+        note: 'Human-reviewed, manually authored market memory for July 15 → July 16, 2026 UTC. NOXA launch-pause, fee-model, creator-revenue, website/domain, Pons/rival-surface, burn/buyback, and dominance claims remain source_required unless primary/on-chain evidence is attached.',
+        data_mode: 'manual',
+        confidence_level: 'medium'
+      })
+    ],
+    confidence_level: 'medium',
+    status: 'manual',
+    data_mode: 'manual'
+  },
   {
     receipt_id: 'rh_daily_003',
     receipt_type: 'daily_market_memory',

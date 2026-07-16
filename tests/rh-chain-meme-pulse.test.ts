@@ -14,6 +14,9 @@ describe('RH Meme Pulse', () => {
     }));
     expect(pulse.disclaimer).toContain('not a trading dashboard');
     expect(pulse.market_translation.find((item) => item.id === 'retail')?.caveat).toContain('does not imply a Robinhood relationship');
+    expect(pulse.launchpad_stress).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: 'launchpad-economics', title: 'Launchpad Economics', summary: expect.stringContaining('source-required fee/burn claims') })
+    ]));
   });
 
   it('serves the public meme pulse API with source metadata', async () => {

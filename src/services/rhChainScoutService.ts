@@ -9,7 +9,7 @@ export type RhChainScoutResponse = { answer: string; answer_type: RhChainScoutMo
 export function classifyRhChainScoutQuery(query: string, requested?: RhChainScoutMode): RhChainScoutMode {
   if (requested) return requested;
   const text = query.toLowerCase();
-  if (/surface|noxa|20lab|uniswap|foundry|hardhat|wallet|bridge|swap|li\.fi|backpack|access|launchpad|fragmentation|flap|trensh|bankr|tokeny|vlad|robindotmarket/.test(text)) return 'launch_context';
+  if (/surface|noxa|20lab|uniswap|foundry|hardhat|wallet|bridge|swap|li\.fi|backpack|access|launchpad|fragmentation|flap|trensh|bankr|tokeny|vlad|robindotmarket|fee model|fee change|fee claim|creator revenue|burn|buyback/.test(text)) return 'launch_context';
   if (/clone|risk|deployer|fake.volume|\blp\b|launch/.test(text)) return 'risk_memory';
   if (/narrative|theme|pump|meme/.test(text)) return 'narrative_mutation';
   if (/contract|ticker|token|0x[a-f0-9]/.test(text)) return 'token_context';
@@ -29,10 +29,14 @@ export function queryRhChainScout(input: RhChainScoutQuery, reviewItems = getRhC
   const index = getRhChain4663Index().assets.slice(0, 3);
   const noxaStatus = observatory?.surfaces.find((surface) => surface.surface_id === 'noxa_fun')?.status ?? surfaces.find((surface) => surface.id === 'noxa_fun')?.launch_surface_status ?? 'source_required';
   const watchedSurfaceNames = surfaces.filter((surface) => ['noxa_fun', 'flap_sh', 'trensh_today', 'bankr', 'tokeny_fun', 'vlad_fun', 'robindotmarket', 'uniswap_direct_pool'].includes(surface.id)).map((surface) => surface.name).join(', ');
-  const launchContextAnswer = /noxa/.test(needle)
-    ? `NOXA is recorded as ${noxaStatus} in the ${observatory ? 'latest Launchpad Observatory snapshot' : 'manual Launch Surface Watch'} after reported disruption. That report is source-dependent context, not a finding about intent or conduct. ${receipt.infopunks_verdict}`
-    : /fragmentation|launchpad/.test(needle)
-      ? `Launchpad fragmentation means token attention and origin are spreading across multiple launch surfaces and direct pools instead of one assumed venue. Track origin, pair, deployer, LP status, and timestamp per surface; source-required competitor claims do not become facts by repetition.`
+  const launchContextAnswer = /noxa/.test(needle) && /fee|creator|revenue/.test(needle)
+    ? `NOXA is recorded as ${noxaStatus} after a reported launch pause, with a reported fee-model shift toward creator revenue. That fee and revenue claim remains source_required unless primary terms or on-chain evidence exists. It matters because launchpad competition is moving from speed and volume toward trust, fee routing, creator incentives, uptime, and source verification.`
+    : /noxa/.test(needle)
+      ? `NOXA is recorded as ${noxaStatus} in the ${observatory ? 'latest Launchpad Observatory snapshot' : 'manual Launch Surface Watch'} after a reported launch pause and disruption. Reported website/domain issues and fee-model changes are source-dependent context, not findings about intent or conduct. ${receipt.infopunks_verdict}`
+      : /fee|creator|burn|buyback/.test(needle)
+        ? `Infopunks tracks fee, creator-revenue, burn, and buyback claims as source_required because those claims can reshape incentives before evidence catches up. Primary terms or on-chain routing evidence must exist before the desk promotes them from context into receipt memory.`
+        : /fragmentation|launchpad|war/.test(needle)
+          ? `Launchpad fragmentation means token attention and origin are spreading across multiple launch surfaces and direct pools instead of one assumed venue. The risks are clone launches, fake relaunches, vampire/copycat mechanics, creator-fee confusion, front-end dependency, direct Uniswap low-liquidity traps, unverified dominance claims, burn or buyback claim laundering, and rival-pad impersonation. Track origin, pair, deployer, LP status, fee claims, and timestamp per surface; source-required competitor claims do not become facts by repetition.`
       : /which|watched|watch/.test(needle)
         ? `The desk is watching ${watchedSurfaceNames}. NOXA is recorded as degraded in manual, source-dependent context; rival-surface claims remain source_required until primary evidence is attached.`
         : `Launch surfaces show where tokens start. Access surfaces show how users arrive. Wallet, bridge, router, and app surfaces are distribution context only; they do not establish token legitimacy, route safety, or endorsement. Backpack Wallet remains source_required until a primary source is attached.`;

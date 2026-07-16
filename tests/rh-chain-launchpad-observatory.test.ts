@@ -23,12 +23,15 @@ describe('RH Chain Launchpad Observatory', () => {
       claim_ledger: expect.arrayContaining([
         expect.objectContaining({ claim_type: 'launch_count', status: 'source_required' }),
         expect.objectContaining({ claim_type: 'fee_claim', status: 'source_required' }),
+        expect.objectContaining({ claim_type: 'creator_revenue_shift', status: 'source_required' }),
         expect.objectContaining({ claim_type: 'outage_claim', status: 'source_required' }),
         expect.objectContaining({ claim_type: 'rival_share_claim', status: 'source_required' }),
         expect.objectContaining({ claim_type: 'notable_token_claim', status: 'source_required' })
       ])
     }));
     expect(observatory.surfaces.every((surface) => Boolean(surface.last_observed_at) && surface.data_mode === 'manual' && surface.surface_risks.length > 0)).toBe(true);
+    expect(observatory.surfaces.find((surface) => surface.surface_id === 'noxa_fun')?.surface_risks).toEqual(expect.arrayContaining(['fee_model_mutation']));
+    expect(JSON.stringify(observatory)).toContain('creator-revenue');
   });
 
   it('keeps the source record cautious and free of execution language', () => {

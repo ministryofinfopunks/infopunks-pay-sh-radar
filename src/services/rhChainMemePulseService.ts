@@ -56,6 +56,7 @@ export function assembleRhChainMemePulseScreen(liveSnapshot?: RhChainLiveSnapsho
     },
     top_attention_assets,
     launchpad_stress: [
+      { id: 'launchpad-economics', title: 'Launchpad Economics', summary: 'NOXA creator-fee shift, rival surface rotation, direct Uniswap migration, and source-required fee/burn claims are tracked as context until primary evidence exists.', risk_state: 'source_required' },
       { id: 'noxa-disruption', title: 'NOXA disruption', summary: 'Reported degradation is manual, source-dependent context only; it does not establish misconduct or intent.', risk_state: 'source_required' },
       { id: 'rival-surface-rotation', title: 'Rival surface rotation', summary: 'flap.sh, trensh.today, bankr, tokeny.fun, vlad.fun, and robindotmarket are watched as source-required context unless primary evidence is attached.', risk_state: 'source_required' },
       { id: 'direct-uniswap-liquidity', title: 'Direct Uniswap liquidity migration', summary: 'Direct-pool attention can move before reserves, LP status, and exit depth are independently receipted.', risk_state: 'medium_watch' },

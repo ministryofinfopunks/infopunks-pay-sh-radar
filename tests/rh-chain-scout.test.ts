@@ -9,6 +9,8 @@ describe('RH Chain Scout', () => {
     ['What does this token contract know?', 'token_context'],
     ['Show wallet and bridge access context', 'launch_context'],
     ['What happened with NOXA?', 'launch_context'],
+    ['Why does NOXA fee change matter?', 'launch_context'],
+    ['Why track fee claims as source_required?', 'launch_context'],
     ['What does launchpad fragmentation mean?', 'launch_context']
   ] as const)('classifies %s', (query, mode) => expect(classifyRhChainScoutQuery(query)).toBe(mode));
   it('returns limitations, disclaimer, and no trading or approval language', () => {
@@ -36,5 +38,16 @@ describe('RH Chain Scout', () => {
     expect(noxa.answer.toLowerCase()).not.toMatch(/rug|misconduct/);
     expect(fragmentation.answer).toContain('multiple launch surfaces and direct pools');
     expect(watched.answer).toContain('flap.sh');
+  });
+  it('answers NOXA fee-model questions with source-required caveats', () => {
+    const changed = queryRhChainScout({ query: 'What changed with NOXA?' });
+    const fee = queryRhChainScout({ query: 'Why does NOXA’s fee change matter?' });
+    const risks = queryRhChainScout({ query: 'What are the launchpad war risks?' });
+    const sourceRequired = queryRhChainScout({ query: 'Why does Infopunks track fee claims as source_required?' });
+    expect(changed.answer).toContain('reported launch pause');
+    expect(fee.answer).toContain('reported fee-model shift toward creator revenue');
+    expect(fee.answer).toContain('source_required');
+    expect(risks.answer).toContain('creator-fee confusion');
+    expect(sourceRequired.answer).toContain('Primary terms or on-chain routing evidence');
   });
 });

@@ -74,7 +74,10 @@ export class RhChainMemePulseSnapshotService {
       freshness_state,
       top_attention_assets: [...reviewed, ...reviewedSubmissions, ...provider].slice(0, 12),
       snapshot: { ...base.snapshot, last_updated: `${refreshed_at} · ${freshness_state === 'fresh' ? 'Provider context attached; reviewed memory remains first.' : 'Provider context is stale or unavailable; reviewed memory remains first.'}` },
-      launchpad_stress: observatory.surfaces.filter((surface) => surface.status !== 'active').slice(0, 4).map((surface) => ({ id: `launchpad-${surface.surface_id}`, title: surface.name, summary: surface.source_notes[0] ?? 'Launchpad context is source-required.', risk_state: surface.status === 'degraded' ? 'medium_watch' as const : 'source_required' as const })),
+      launchpad_stress: [
+        ...base.launchpad_stress.filter((item) => item.id === 'launchpad-economics'),
+        ...observatory.surfaces.filter((surface) => surface.status !== 'active').slice(0, 4).map((surface) => ({ id: `launchpad-${surface.surface_id}`, title: surface.name, summary: surface.source_notes[0] ?? 'Launchpad context is source-required.', risk_state: surface.status === 'degraded' ? 'medium_watch' as const : 'source_required' as const }))
+      ],
       risk_strip: [...base.risk_strip, ...cloneRadar.active_warnings.slice(0, 3).map((item) => ({ id: item.id, title: item.suspected_ticker, summary: item.evidence_summary, risk_state: item.risk_state }))].slice(0, 8)
     };
     const snapshot: RhChainMemePulseSnapshot = { snapshot_id: `rh-meme-pulse-${refreshed_at.replace(/[^0-9]/g, '')}-${Math.random().toString(36).slice(2, 8)}`, refreshed_at, freshness_state, data_mode: freshness_state === 'fresh' ? 'cached' : freshness_state === 'unavailable' ? 'unavailable' : 'manual', provider_status, pulse };

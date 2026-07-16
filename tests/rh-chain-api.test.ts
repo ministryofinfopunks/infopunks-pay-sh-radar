@@ -132,11 +132,11 @@ describe('RH Chain Signal Desk API', () => {
           ])
         }),
         sources: expect.any(Array),
-        generated_at: '2026-07-15T00:00:00.000Z',
+        generated_at: '2026-07-16T00:00:00.000Z',
         data_mode: 'manual',
         disclaimer: 'Daily RH Chain receipts are public intelligence memory, not financial advice, endorsement, listing, or official Robinhood partnership.'
       }));
-      expect(body.data.latest_receipt).toEqual(expect.objectContaining({ receipt_id: 'rh_daily_003' }));
+      expect(body.data.latest_receipt).toEqual(expect.objectContaining({ receipt_id: 'rh_daily_004' }));
       expect(body.sources.length).toBeGreaterThan(0);
       expect(body.sources.every((source: Record<string, unknown>) => (
         typeof source.source_name === 'string'
@@ -152,18 +152,18 @@ describe('RH Chain Signal Desk API', () => {
         disclaimer: 'Daily RH Chain receipts are public intelligence memory, not financial advice, endorsement, listing, or official Robinhood partnership.'
       }));
       expect(body.data.latest_receipt).toEqual(expect.objectContaining({
-        receipt_id: 'rh_daily_003',
+        receipt_id: 'rh_daily_004',
         receipt_type: 'daily_market_memory',
-        period: 'July 13 → July 15, 2026 UTC',
-        top_signal: 'RH Chain meme activity stayed resilient despite NOXA downtime and launch restrictions',
+        period: 'July 15 → July 16, 2026 UTC',
+        top_signal: 'RH Chain volume remains resilient while NOXA pauses new launches and competitors capture rotation flow',
         confidence_level: 'medium',
         status: 'manual',
         data_mode: 'manual'
       }));
       expect(body.data.latest_receipt.sources[0]).toEqual(expect.objectContaining({
-        name: 'Infopunks manual RH Chain NOXA stress watch',
-        source_name: 'Infopunks manual RH Chain NOXA stress watch',
-        observed_at: '2026-07-15T00:00:00.000Z',
+        name: 'Infopunks manual RH Chain launchpad economics watch',
+        source_name: 'Infopunks manual RH Chain launchpad economics watch',
+        observed_at: '2026-07-16T00:00:00.000Z',
         data_mode: 'manual',
         confidence_level: 'medium'
       }));
@@ -175,13 +175,13 @@ describe('RH Chain Signal Desk API', () => {
           expect.objectContaining({ section_id: 'chain_pulse' }),
           expect.objectContaining({ section_id: 'meme_pulse' }),
           expect.objectContaining({ section_id: 'launchpad_stress_test' }),
-          expect.objectContaining({ section_id: 'access_wallet_pulse' }),
           expect.objectContaining({ section_id: 'risk_wall' }),
           expect.objectContaining({ section_id: 'narrative_mutation' }),
           expect.objectContaining({ section_id: 'infopunks_verdict' })
         ])
       }));
       expect(body.data.receipts.map((receipt: { receipt_id: string }) => receipt.receipt_id)).toEqual([
+        'rh_daily_004',
         'rh_daily_003',
         'rh_daily_002',
         'rh_daily_001',

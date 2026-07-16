@@ -59,6 +59,9 @@ function riskPatternsFor(reviewItems: RhChainReviewItem[]): RhChainRiskPatternIt
     if ((knownTickerContracts.get(item.ticker)?.size ?? 0) > 1) patterns.push(toRiskPattern(item, 'duplicate_social_claim', `Repeated ticker identity needs canonical social and contract review. ${item.evidence_summary}`));
     if (/liquidity|pool|volume/.test(text) && item.missing_evidence.some((evidence) => /liquidity|pool|reserve/i.test(evidence))) patterns.push(toRiskPattern(item, 'liquidity_claim_unverified', `Liquidity claim remains unverified. ${item.evidence_summary}`));
     if (/creator fee|launch fee|fee terms/.test(text)) patterns.push(toRiskPattern(item, 'creator_fee_claim_uncertain', `Creator-fee claim remains uncertain pending primary terms. ${item.evidence_summary}`));
+    if (/fee model|fee-model|fee claim|launch fee|fee terms|transaction revenue/.test(text)) patterns.push(toRiskPattern(item, 'fee_model_claim_unverified', `Fee-model claim remains unverified pending primary terms or on-chain evidence. ${item.evidence_summary}`));
+    if (/burn|buyback|buy-back/.test(text)) patterns.push(toRiskPattern(item, 'burn_buyback_claim_unverified', `Burn or buyback claim remains unverified pending transaction-level evidence. ${item.evidence_summary}`));
+    if (/creator revenue|transaction revenue|revenue redirect|redirecting transaction revenue/.test(text)) patterns.push(toRiskPattern(item, 'creator_revenue_claim_uncertain', `Creator-revenue claim remains uncertain pending primary terms or on-chain evidence. ${item.evidence_summary}`));
     if (/front-end|front end|interface dependency/.test(text)) patterns.push(toRiskPattern(item, 'front_end_dependency_risk', `Front-end dependency pattern requires a source-stamped availability check. ${item.evidence_summary}`));
     if (item.launch_context?.launch_source === 'uniswap_direct_pool' && /liquidity|pool|reserve/i.test(text)) patterns.push(toRiskPattern(item, 'direct_uniswap_low_liquidity_risk', `Direct Uniswap pool context requires liquidity and origin review. ${item.evidence_summary}`));
   }
@@ -86,6 +89,9 @@ export function assembleRhChainCloneRadar(reviewItems = getRhChainReviewQueue().
       { category: 'duplicate_social_claim', title: 'Duplicate social claim', explanation: 'Social resemblance or repeated handles must be matched to a canonical source before identity is inferred.' },
       { category: 'liquidity_claim_unverified', title: 'Liquidity claim unverified', explanation: 'A pool, screenshot, or volume claim does not establish reserves, depth, or exit reliability.' },
       { category: 'creator_fee_claim_uncertain', title: 'Creator-fee claim uncertain', explanation: 'Fee terms require primary terms and a dated receipt before they are promoted.' },
+      { category: 'fee_model_claim_unverified', title: 'Fee-model claim unverified', explanation: 'Fee-model changes require primary terms or on-chain evidence before promotion.' },
+      { category: 'burn_buyback_claim_unverified', title: 'Burn / buyback claim unverified', explanation: 'Burn and buyback claims require transaction-level evidence before they become desk memory.' },
+      { category: 'creator_revenue_claim_uncertain', title: 'Creator-revenue claim uncertain', explanation: 'Creator-revenue routing claims remain uncertain until primary terms or on-chain routing evidence exists.' },
       { category: 'front_end_dependency_risk', title: 'Front-end dependency risk', explanation: 'Interface availability and canonical launch origin can diverge; status alone is not proof.' },
       { category: 'direct_uniswap_low_liquidity_risk', title: 'Direct Uniswap low-liquidity risk', explanation: 'A direct pool does not establish reliable liquidity, identity, or safety.' }
     ],
