@@ -10,6 +10,7 @@ import { getNarrativeAssetBySlug, getSignalSurfaceBySlug, listNarrativeAssets, l
 import { getCandidateSignal, listCandidateSignals } from '../data/candidateSignals';
 import { getSignalDeskIndex } from '../data/signalDesk';
 import { createRhChainSignalReviewPacket, getRhChainDailyReceipt, getRhChainPayload, listRhChainSignals } from '../data/rhChain';
+import { getRhChain100ReceiptsCampaign } from '../data/rhChain100Receipts';
 import { asRhChainPersistedReviewItem, createRhChainSignalSubmission, InMemoryRhChainSubmissionStore, PostgresRhChainSubmissionStore, redactRhChainSubmissionForReview, type RhChainSubmissionStore, UnconfiguredRhChainSubmissionStore, updateRhChainSubmissionReviewRecord } from '../services/rhChainSignalVault';
 import { RhChainLiveSnapshotService, type RhChainLiveSnapshotOptions } from '../services/rhChainLiveSnapshotService';
 import { InMemoryRhChainMetricsSnapshotStore, PostgresRhChainMetricsSnapshotStore, RhChainChainPulseService, type RhChainMetricsSnapshotStore } from '../services/rhChainChainPulseService';
@@ -1981,6 +1982,7 @@ export async function createApp(
     ...listRhChainSignals()
   })));
   app.get('/v1/rh-chain/4663-index', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChain4663Index())));
+  app.get('/v1/rh-chain/campaigns/100-receipts', async () => safeJsonExport(buildRhChainApiResponse(getRhChain100ReceiptsCampaign())));
   app.get('/v1/rh-chain/today-on-4663', async () => {
     try {
       const [dailyReceipts, submissions] = await Promise.all([

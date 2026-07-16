@@ -273,6 +273,7 @@ export const RADAR_NAVIGATION: Readonly<Record<RadarNavigationContext, NetworkNa
         id: 'rh-operations',
         label: 'Operations',
         items: [
+          { id: 'rh-100-receipts', href: '/rh-chain-signal-desk/100-receipts', label: '100 Receipts' },
           { id: 'rh-review-queue', href: '/rh-chain-signal-desk/review-queue', label: 'Review Queue' },
           { id: 'rh-review-console', href: '/internal/rh-chain/review-console', label: 'Review Console' },
           { id: 'rh-surface-watch', href: '/rh-chain-signal-desk/launch-surfaces', label: 'Surface Watch' },

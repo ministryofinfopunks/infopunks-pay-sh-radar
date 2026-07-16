@@ -13,6 +13,7 @@ import {
 import { assembleRhChainCloneRadar } from './rhChainCloneRadarService';
 import { assembleRhChainMemePulseScreen } from './rhChainMemePulseService';
 import { getRhChainFreshnessState, type RhChainFreshnessState } from './rhChainTruthGuards';
+import { getRhChain100ReceiptsCampaign } from '../data/rhChain100Receipts';
 
 export type RhChainTodayOn4663Card = {
   id: 'top_signal' | 'biggest_risk' | 'latest_receipt' | 'highest_attention_move';
@@ -62,6 +63,8 @@ export function assembleRhChainTodayOn4663(options: TodayOptions = {}): RhChainT
   const index = options.index ?? getRhChain4663Index();
   const cloneRadar = options.cloneRadar ?? assembleRhChainCloneRadar();
   const memePulse = options.memePulse ?? assembleRhChainMemePulseScreen();
+  const campaign = getRhChain100ReceiptsCampaign();
+  const campaignTopSignal = campaign.assets.find((asset) => asset.ticker === 'CASHCAT') ?? campaign.assets[0];
   const latest = dailyReceipts.latest_receipt;
   const topSignal = index.assets[0];
   const risk = [...cloneRadar.active_warnings].sort((left, right) => riskPriority[left.risk_state] - riskPriority[right.risk_state])[0];
@@ -81,6 +84,15 @@ export function assembleRhChainTodayOn4663(options: TodayOptions = {}): RhChainT
   const indexFreshness = getRhChainFreshnessState(index.last_updated, topSignal?.source.data_mode ?? 'manual');
   const riskFreshness = risk ? getRhChainFreshnessState(risk.updated_at, risk.data_mode) : indexFreshness;
   const attentionFreshness = attention ? getRhChainFreshnessState(attention.source.updated_at, attention.source.data_mode) : indexFreshness;
+  const campaignSource = createRhChainSource({
+    source_name: '100 Receipts · Day 1 reviewed campaign memory',
+    source_url: '/rh-chain-signal-desk/100-receipts',
+    observed_at: campaign.generated_at,
+    updated_at: campaign.generated_at,
+    data_mode: 'manual',
+    confidence_level: 'medium',
+    note: campaign.source_policy
+  });
 
   return {
     title: 'Today on 4663',
@@ -100,9 +112,9 @@ export function assembleRhChainTodayOn4663(options: TodayOptions = {}): RhChainT
     cards: [
       {
         id: 'top_signal', title: 'Top Signal',
-        verdict: topSignal ? `${topSignal.ticker} · ${topSignal.infopunks_verdict}` : 'No reviewed 4663 index item is available.',
-        href: '/rh-chain-signal-desk/4663-index', source: topSignal?.source ?? fallbackSource,
-        freshness_state: indexFreshness, judgment_state: 'reviewed_memory'
+        verdict: campaignTopSignal ? `${campaignTopSignal.ticker} · ${campaignTopSignal.classification_note}` : topSignal ? `${topSignal.ticker} · ${topSignal.infopunks_verdict}` : 'No reviewed 4663 index item is available.',
+        href: campaignTopSignal?.dossier_route ?? '/rh-chain-signal-desk/4663-index', source: campaignTopSignal ? campaignSource : topSignal?.source ?? fallbackSource,
+        freshness_state: campaignTopSignal ? getRhChainFreshnessState(campaign.generated_at, 'manual') : indexFreshness, judgment_state: 'reviewed_memory'
       },
       {
         id: 'biggest_risk', title: 'Biggest Risk',

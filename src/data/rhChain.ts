@@ -1,3 +1,5 @@
+import { getRhChain100ReceiptsCampaign, type RhChain100ReceiptsAsset } from './rhChain100Receipts';
+
 export type RhChainSignalLabel =
   | 'fresh_signal'
   | 'attention_spike'
@@ -434,6 +436,15 @@ export type RhChain4663IndexPayload = {
   narrative_classes: readonly RhChain4663NarrativeClass[];
   overview: RhChain4663IndexOverview;
   assets: RhChain4663Asset[];
+  campaign_context: {
+    batch_id: string;
+    day_number: number;
+    theme: string;
+    reviewed_count: number;
+    total_reviewed_count: number;
+    source_policy: string;
+    assets: RhChain100ReceiptsAsset[];
+  };
   freshness_state?: import('../services/rhChainTruthGuards').RhChainFreshnessState;
 };
 
@@ -565,6 +576,7 @@ export type RhChainTokenDossier = {
   doctrine: 'External data gives context. Infopunks gives judgment. Receipts create memory.';
   memory: {
     index: RhChain4663Asset | null;
+    campaign_asset: RhChain100ReceiptsAsset | null;
     review_items: RhChainReviewItem[];
     submissions: Array<{ submission_id: string; submitted_at: string; evidence_summary: string; audit_events: Array<{ event_id: string; occurred_at: string; action: string; to_status: string; note?: string }> }>;
     daily_receipts: Array<{ receipt_id: string; headline: string; date: string }>;
@@ -2319,6 +2331,7 @@ export function getRhChain4663Overview(assets: RhChain4663Asset[]): RhChain4663I
 export function getRhChain4663Index(): RhChain4663IndexPayload {
   const assets = buildRhChain4663Assets();
   const last_updated = getRhChain4663Overview(assets).last_updated;
+  const campaign = getRhChain100ReceiptsCampaign();
   return {
     name: '4663 Signal Index',
     subtitle: 'A living index of Robinhood Chain attention assets, risk states, and narrative mutations.',
@@ -2344,6 +2357,11 @@ export function getRhChain4663Index(): RhChain4663IndexPayload {
     narrative_classes: RH_CHAIN_4663_NARRATIVE_CLASSES,
     overview: getRhChain4663Overview(assets),
     assets,
+    campaign_context: {
+      ...campaign.batch,
+      source_policy: campaign.source_policy,
+      assets: campaign.assets
+    },
     freshness_state: getRhChainFreshnessState(last_updated, assets[0]?.source.data_mode ?? 'unavailable')
   };
 }

@@ -807,6 +807,7 @@ function RhChain4663IndexPage({ index }: { index: RhChain4663IndexPayload }) {
     {index.freshness_state !== 'fresh' && <section className="panel rh-chain-section rh-chain-daily-warning" aria-label="Index freshness"><p>Manual index values require refresh.</p></section>}
     {top && <section className="rh-chain-portable-card-wrap" aria-label="4663 Signal Card"><RhChainPortableCard type="4663 Signal Card" label={`${top.ticker} · rank ${top.rank}`} finding={top.infopunks_verdict} caveat={`${formatLabel(top.risk_state)} · ${formatLabel(top.classification)} is desk context, not a safety finding.`} timestamp={formatTimestamp(index.last_updated)} reference={`4663 Signal Index · ${top.source.source_name}`} deskHref={`/rh-chain-signal-desk/tokens/${encodeURIComponent(top.token_contract)}`} /></section>}
     <IndexOverviewSection index={index} />
+    <CampaignIndexContextSection index={index} />
     <RankedIndexSection assets={index.assets} />
     <ScoreBreakdownSection assets={index.assets} />
     <NarrativeClassesSection classes={index.narrative_classes} />
@@ -817,6 +818,15 @@ function RhChain4663IndexPage({ index }: { index: RhChain4663IndexPayload }) {
       <p className="panel-caption">{index.source_policy}</p>
     </section>
   </>;
+}
+
+function CampaignIndexContextSection({ index }: { index: RhChain4663IndexPayload }) {
+  const context = index.campaign_context;
+  return <section className="panel rh-chain-section" aria-label="100 Receipts campaign context">
+    <div className="rh-chain-section-head"><div><p className="section-kicker">Day {context.day_number} / {context.batch_id}</p><h2>100 Receipts campaign context</h2><p>{context.theme}. These reviewed records are shown beside the scored index without inventing score components.</p></div><a className="execute compact secondary" href="/rh-chain-signal-desk/100-receipts">Open campaign</a></div>
+    <div className="campaign-top-grid">{context.assets.map((asset) => <article className="campaign-top-card" key={asset.contract}><p className="section-kicker">{formatLabel(asset.evidence_state)}</p><h3>{asset.ticker}</h3><p>{formatLabel(asset.classification)} · {formatLabel(asset.risk_state)}</p><a className="execute compact secondary" href={asset.dossier_route}>Open Token Dossier</a></article>)}</div>
+    <p className="panel-caption">{context.source_policy}</p>
+  </section>;
 }
 
 function IndexOverviewSection({ index }: { index: RhChain4663IndexPayload }) {
