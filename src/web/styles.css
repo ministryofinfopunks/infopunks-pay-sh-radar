@@ -16034,6 +16034,7 @@ select:focus {
 
 /* Network-aware product navigation. Route menus and view controls remain separate. */
 .site-header .radar-product-navigation {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(210px, 230px) minmax(0, 1fr) auto auto;
   gap: 10px;
@@ -16085,6 +16086,12 @@ select:focus {
   position: relative;
 }
 
+/* Anchor the desktop catalog to the header shell so it cannot drift past a
+   viewport edge when the Explore trigger sits near the right rail. */
+.radar-overflow-menu {
+  position: static;
+}
+
 .radar-menu-trigger,
 .radar-mobile-menu-trigger,
 .radar-settings-trigger,
@@ -16120,7 +16127,7 @@ select:focus {
 .radar-grouped-menu {
   position: absolute;
   top: calc(100% + 10px);
-  right: 0;
+  right: 8px;
   z-index: 130;
   display: grid;
   grid-template-columns: repeat(3, minmax(180px, 1fr));
