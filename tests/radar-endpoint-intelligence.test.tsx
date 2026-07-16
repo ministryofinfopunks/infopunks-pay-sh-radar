@@ -983,6 +983,7 @@ describe('radar endpoint intelligence UI', () => {
     act(() => root?.unmount());
     container.remove();
     vi.restoreAllMocks();
+    window.history.replaceState({}, '', '/');
   });
 
   it('renders selected provider endpoint intelligence from normalized endpoint export', async () => {
@@ -1045,6 +1046,7 @@ describe('radar endpoint intelligence UI', () => {
 
   it('renders premium navigation and runs agent preflight without executing paid APIs', async () => {
     installFetch({ endpoints: [normalizedEndpoint], detailEndpoints: [endpoint] });
+    window.history.replaceState({}, '', '/solana');
     root = await renderApp(container);
 
     const primaryNav = container.querySelector('[aria-label="Primary destinations"]');
@@ -1066,7 +1068,7 @@ describe('radar endpoint intelligence UI', () => {
     const machineMenu = container.querySelector('[aria-label="Machine Economy menu"]');
     expect(machineMenu).toBeNull();
     expect(container.querySelector('a[href="/machine-market"]')).not.toBeNull();
-    expect(container.textContent).toContain('Intelligence before the wallet acts.');
+    expect(container.textContent).toContain('Route intelligence, provider evidence, narrative memory and machine-market infrastructure for the Solana economy.');
     expect(container.textContent).toContain('Explore Solana Radar');
     expect(container.textContent).toContain('Most see noise.Infopunks finds signal.');
     expect(container.textContent).toContain('Proof before agent spend.');

@@ -1,246 +1,29 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { radarNetworkForPath, type RadarNavigationContext, type RadarNetworkId } from './bootContext';
+import {
+  RADAR_NAVIGATION,
+  RADAR_NETWORKS,
+  RADAR_NETWORK_LIST,
+  featuredItemsForGroup,
+  type NavigationGroup,
+  type NavigationItem
+} from './radarNavigationCatalog';
 
 export { radarNetworkForPath, type RadarNavigationContext, type RadarNetworkId } from './bootContext';
-
-export type RadarNetwork = {
-  id: RadarNetworkId;
-  label: string;
-  shortLabel: string;
-  contextLabel: string;
-  economy: string;
-  description: string;
-  selectorDescription: string;
-  href: string;
-  statusLabel: string;
-  features: readonly string[];
-};
-
-export type NavigationItem = {
-  label: string;
-  href: string;
-  description?: string;
-  compactPriority?: boolean;
-  external?: boolean;
-  activePrefixes?: readonly string[];
-};
-
-export type NavigationGroup = {
-  label: string;
-  items: readonly NavigationItem[];
-};
-
-export type NetworkNavigation = {
-  networkId: RadarNavigationContext;
-  primaryItems: readonly NavigationItem[];
-  overflowGroups: readonly NavigationGroup[];
-};
-
-export const RADAR_NETWORKS: Record<RadarNetworkId, RadarNetwork> = {
-  solana: {
-    id: 'solana',
-    label: 'Solana Radar',
-    shortLabel: 'Solana',
-    contextLabel: 'Solana',
-    economy: 'The agentic economy',
-    description: 'Pre-spend intelligence for services, providers, routes, projects and machine payments.',
-    selectorDescription: 'Agent routes, Pay.sh and project intelligence',
-    href: '/#global-pulse',
-    statusLabel: 'Core network',
-    features: [
-      'Pre-Spend Intelligence',
-      'Providers and endpoints',
-      'Routes and claims',
-      'Benchmarks and receipts',
-      'Signal Graph and LoopLab'
-    ]
-  },
-  'robinhood-chain': {
-    id: 'robinhood-chain',
-    label: 'Robinhood Chain',
-    shortLabel: 'RH Chain',
-    contextLabel: 'Robinhood Chain',
-    economy: 'The onchain finance economy',
-    description: 'Evidence-led intelligence for tokens, memes, liquidity, launchpads and emerging Robinhood Chain markets.',
-    selectorDescription: 'Tokens, memes and ecosystem signals',
-    href: '/rh-chain-signal-desk',
-    statusLabel: 'New network',
-    features: [
-      'Meme Pulse',
-      'Token dossiers',
-      'Signal and risk review',
-      'Launchpad observatory',
-      'Receipts and live snapshots'
-    ]
-  }
-};
-
-export const RADAR_NETWORK_LIST = [RADAR_NETWORKS.solana, RADAR_NETWORKS['robinhood-chain']] as const;
-
-export const RADAR_NAVIGATION: Record<RadarNavigationContext, NetworkNavigation> = {
-  universal: {
-    networkId: 'universal',
-    primaryItems: [
-      { href: '/', label: 'Overview', compactPriority: true },
-      { href: '/#radar-network-entry-title', label: 'Networks', compactPriority: true }
-    ],
-    overflowGroups: [
-      {
-        label: 'Radar',
-        items: [
-          { href: '/#methodology', label: 'Methodology' },
-          { href: '/#events', label: 'Events' }
-        ]
-      },
-      {
-        label: 'Developers',
-        items: [
-          { href: '/openapi.json', label: 'API', external: true },
-          { href: '/developers', label: 'Developer Documentation' }
-        ]
-      }
-    ]
-  },
-  solana: {
-    networkId: 'solana',
-    primaryItems: [
-      { href: '/#global-pulse', label: 'Overview', compactPriority: true },
-      { href: '/providers', label: 'Providers', compactPriority: true, activePrefixes: ['/providers/'] },
-      { href: '/routes', label: 'Routes', compactPriority: true, activePrefixes: ['/routes/'] },
-      { href: '/receipts', label: 'Receipts', activePrefixes: ['/receipts/'] },
-      { href: '/benchmarks', label: 'Benchmarks', activePrefixes: ['/benchmarks/'] }
-    ],
-    overflowGroups: [
-      {
-        label: 'Intelligence',
-        items: [
-          { href: '/signal-hunt', label: 'Signal Hunt', description: 'Emerging signals with evidence', activePrefixes: ['/signal-hunt/'] },
-          { href: '/narratives', label: 'Narratives', description: 'Cultural intelligence desk' },
-          { href: '/unicorn-radar', label: 'Unicorn Radar', description: 'Early company and project watch', activePrefixes: ['/unicorn-radar/'] },
-          { href: '/graph', label: 'Signal Graph', description: 'Claims, receipts and relationships' },
-          { href: '/narratives/attention-markets', label: 'Attention Markets', description: 'Markets formed around attention' },
-          { href: '/narratives/attention-market-watch', label: 'Attention Market Watch', description: 'Live attention market profiles', activePrefixes: ['/attention-market-watch/'] },
-          { href: '/abundance', label: 'Abundance Desk', description: 'Machine abundance intelligence', activePrefixes: ['/narratives/abundance-desk'] },
-          { href: '/signals/ansem', label: 'Ansem', description: 'Source intelligence file' },
-          { href: '/signals/black-bull', label: 'Black Bull', description: 'Narrative signal report' },
-          { href: '/signals/troll', label: 'TROLL', description: 'Narrative signal report' }
-        ]
-      },
-      {
-        label: 'Agent Tools',
-        items: [
-          { href: '/check', label: 'Check', description: 'Verify a claim before action', activePrefixes: ['/check/'] },
-          { href: '/loops', label: 'Loops', description: 'Run and inspect proof loops', activePrefixes: ['/loops/'] },
-          { href: '/hermes', label: 'Hermes Desk', description: 'Agentic investigations before spend' },
-          { href: '/#agent-benchmark-api', label: 'Agent Benchmarks', description: 'Benchmark agent readiness' },
-          { href: '/radar/cards', label: 'Preflight Cards', description: 'Shareable decision artifacts', activePrefixes: ['/radar/cards/'] },
-          { href: '/claim', label: 'Claims', description: 'Judgments backed by receipts', activePrefixes: ['/claim/'] },
-          { href: '/#route-mapping-registry', label: 'Route Mappings', description: 'Provider-to-endpoint coverage' },
-          { href: '/#preflight', label: 'Preflight', description: 'Check a route before payment' },
-          { href: '/#compare', label: 'Compare', description: 'Compare routes and providers' },
-          { href: '/#dossier', label: 'Provider Dossier', description: 'Inspect provider evidence' },
-          { href: '/spend-terminal', label: 'Pre-Spend Terminal', description: 'Decision surface for agents' }
-        ]
-      },
-      {
-        label: 'Hermes',
-        items: [
-          { href: '/hermes/memory-loop', label: 'Memory Loop', description: 'Outcomes that change future action' },
-          { href: '/hermes/pre-spend-decision', label: 'Pre-Spend Decision', description: 'Check the ledger before spend' },
-          { href: '/hermes/spend-policy', label: 'Spend Policy', description: 'Bound wallet authority' },
-          { href: '/hermes/decision-feedback', label: 'Decision Feedback', description: 'Record what happened next' },
-          { href: '/hermes/wallet-audit-trail', label: 'Wallet Audit Trail', description: 'Explain every wallet decision' },
-          { href: '/hermes/wallet-risk-score', label: 'Wallet Risk Score', description: 'Actionable wallet risk' },
-          { href: '/hermes/wallet-safety', label: 'Wallet Safety API', description: 'One safety check before spend' },
-          { href: '/hermes/reputation-ledger', label: 'Reputation Ledger', description: 'Judgment accumulated over time' },
-          { href: '/hermes/skill-pack', label: 'Skill Pack', description: 'Investigation skills for agents' },
-          { href: '/narratives/hermes-desk', label: 'Narrative', description: 'The Hermes intelligence thesis' }
-        ]
-      },
-      {
-        label: 'Commercial',
-        items: [
-          { href: '/evaluation-request', label: 'Evaluation Request', description: 'Request a commercial evaluation' },
-          { href: '/revenue-receipts', label: 'Revenue Receipts', description: 'Evidence of commercial outcomes', activePrefixes: ['/revenue-receipts/'] }
-        ]
-      },
-      {
-        label: 'Machine Economy',
-        items: [
-          { href: '/machine-market', label: 'Machine Market', description: 'Machine-service market map' },
-          { href: '/machine-rail-coverage', label: 'Rail Coverage', description: 'Payment rail availability' },
-          { href: '/machine-route-risk-matrix', label: 'Route Risk', description: 'Risk across machine routes' },
-          { href: '/machine-first-safe-routes', label: 'First Safe Queue', description: 'Safest candidates to test first' },
-          { href: '/machine-benchmark-readiness', label: 'Benchmark Readiness', description: 'Evidence readiness by service' },
-          { href: '/machine-benchmark-methodology', label: 'Benchmark Methodology', description: 'How readiness is measured' },
-          { href: '/machine-comparable-routes', label: 'Comparable Routes', description: 'Like-for-like route evidence' },
-          { href: '/machine-translation-evidence', label: 'Translation Evidence', description: 'Translation route proof' },
-          { href: '/machine-proof-ladder', label: 'Proof Ladder', description: 'Progress from listing to proof' },
-          { href: '/machine-execution-shortlist', label: 'Proof Plans', description: 'Controlled execution shortlist' },
-          { href: '/machine-execution-blockers', label: 'Execution Blockers', description: 'What prevents a safe run' },
-          { href: '/machine-market-changelog', label: 'Changelog', description: 'Market intelligence changes' },
-          { href: '/machine-no-claim-ledger', label: 'No-Claim Ledger', description: 'Claims Radar refuses to make' },
-          { href: '/machine-readiness-matrix', label: 'Readiness Matrix', description: 'Readiness across the market' },
-          { href: '/machine-market-map', label: 'Market Map', description: 'Services, rails and sources' },
-          { href: '/machine-receipts', label: 'Machine Receipts', description: 'Execution evidence ledger' },
-          { href: '/machine-economy-snapshot', label: 'Snapshot', description: 'Current machine economy state' }
-        ]
-      },
-      {
-        label: 'Developers',
-        items: [
-          { href: '/openapi.json', label: 'API', description: 'OpenAPI specification', external: true },
-          { href: '/developers', label: 'Developer Documentation', description: 'Integration guides and examples', activePrefixes: ['/developers/'] },
-          { href: '/v1/hermes', label: 'Hermes JSON', description: 'Machine-readable Hermes state', external: true },
-          { href: '/v1/hermes/health', label: 'Hermes Health', description: 'Service health endpoint', external: true },
-          { href: '/#methodology', label: 'Methodology', description: 'How Radar forms judgment' },
-          { href: '/#events', label: 'Events', description: 'Recent evidence events' }
-        ]
-      }
-    ]
-  },
-  'robinhood-chain': {
-    networkId: 'robinhood-chain',
-    primaryItems: [
-      { href: '/rh-chain-signal-desk', label: 'Signal Desk', compactPriority: true },
-      { href: '/rh-chain-signal-desk/meme-pulse', label: 'Meme Pulse', compactPriority: true },
-      { href: '/rh-chain-signal-desk/4663-index', label: '4663 Index' },
-      { href: '/rh-chain-signal-desk/daily-receipts', label: 'Receipts', compactPriority: true, activePrefixes: ['/rh-chain-signal-desk/daily-receipts/'] },
-      { href: '/rh-chain-signal-desk/submit', label: 'Submit' }
-    ],
-    overflowGroups: [
-      {
-        label: 'Intelligence',
-        items: [
-          { href: '/rh-chain-signal-desk/clone-radar', label: 'Risk' },
-          { href: '/rh-chain-signal-desk/risk-patterns', label: 'Patterns' },
-          { href: '/rh-chain-signal-desk/launchpad-observatory', label: 'Observatory' },
-          { href: '/rh-chain-signal-desk/live-snapshot', label: 'Snapshot' }
-        ]
-      },
-      {
-        label: 'Scouting',
-        items: [
-          { href: '/rh-chain-signal-desk/scouts', label: 'Scout Network' },
-          { href: '/rh-chain-signal-desk/scout', label: 'Scout Agent' }
-        ]
-      },
-      {
-        label: 'Operations',
-        items: [
-          { href: '/rh-chain-signal-desk/review-queue', label: 'Review Queue' },
-          { href: '/internal/rh-chain/review-console', label: 'Review Console' },
-          { href: '/rh-chain-signal-desk/launch-surfaces', label: 'Surface Watch' },
-          { href: '/rh-chain-signal-desk/distribution-pack', label: 'Distribution Packs' }
-        ]
-      },
-      {
-        label: 'Developers',
-        items: [{ href: '/openapi.json', label: 'API', external: true }]
-      }
-    ]
-  }
-};
+export {
+  RADAR_NAVIGATION,
+  RADAR_NETWORKS,
+  RADAR_NETWORK_LIST,
+  SOLANA_GROUP_ORDER,
+  SOLANA_SURFACE_GROUPS,
+  featuredItemsForGroup,
+  type NavigationGroup,
+  type NavigationItem,
+  type NetworkNavigation,
+  type RadarNetwork,
+  type RadarSurfaceGroup,
+  type RadarSurfaceStatus
+} from './radarNavigationCatalog';
 
 function menuItems(menu: HTMLElement | null) {
   const compactNavigation = typeof window !== 'undefined' && typeof window.matchMedia === 'function'
@@ -398,43 +181,67 @@ export function navigationItemIsActive(item: NavigationItem, current: string) {
   return item.activePrefixes?.some((prefix) => currentPath.startsWith(prefix)) ?? false;
 }
 
-function NavigationLink({ item, current, onNavigate, compactDuplicate = false }: { item: NavigationItem; current: string; onNavigate?: () => void; compactDuplicate?: boolean }) {
+function NavigationLink({ item, current, onNavigate, compactDuplicate = false, showDescription = false }: { item: NavigationItem; current: string; onNavigate?: () => void; compactDuplicate?: boolean; showDescription?: boolean }) {
   const active = navigationItemIsActive(item, current);
   return <a
     href={item.href}
     role={onNavigate ? 'menuitem' : undefined}
-    className={`${active ? 'active' : ''}${compactDuplicate ? ' compact-primary-duplicate' : ''}`.trim()}
+    className={`${active ? 'active ' : ''}${item.featured ? 'featured-route ' : 'secondary-route '}${compactDuplicate ? 'compact-primary-duplicate' : ''}`.trim()}
     aria-current={active ? 'page' : undefined}
+    data-route-id={item.id}
     target={item.external ? '_blank' : undefined}
     rel={item.external ? 'noreferrer' : undefined}
     onClick={onNavigate}
   >
     <span className="radar-navigation-link-copy">
       <strong>{item.label}</strong>
-      {item.description && <small>{item.description}</small>}
+      {showDescription && item.description && <small>{item.description}</small>}
     </span>
     {item.external && <span className="radar-navigation-link-state" aria-label="Opens in a new tab">↗</span>}
   </a>;
 }
 
-function NavigationGroups({ groups, current, onNavigate, directory = false }: { groups: readonly NavigationGroup[]; current: string; onNavigate?: () => void; directory?: boolean }) {
-  return <>{groups.map((group) => <div className={`radar-menu-group${directory ? ' radar-directory-group' : ''}`} key={group.label} role="group" aria-label={group.label}>
+function NavigationGroups({ groups, current, onNavigate }: { groups: readonly NavigationGroup[]; current: string; onNavigate?: () => void }) {
+  return <>{groups.map((group) => <div className="radar-menu-group" key={group.id} role="group" aria-label={group.label} data-group-id={group.id}>
     <span className="radar-menu-heading">{group.label}</span>
     {group.items.map((item) => <NavigationLink key={`${group.label}-${item.href}-${item.label}`} item={item} current={current} onNavigate={onNavigate} />)}
   </div>)}</>;
+}
+
+function SolanaExploreMenuIntro() {
+  return <div className="radar-menu-intro" role="presentation">
+    <strong>Explore Solana Radar</strong>
+    <span>Intelligence, agent tools, machine markets and evidence infrastructure.</span>
+  </div>;
 }
 
 export function SolanaRadarDirectory({ current = currentLocation() }: { current?: string }) {
   return <section className="radar-route-directory" id="explore-solana-radar" aria-labelledby="explore-solana-radar-title">
     <div className="radar-route-directory-head">
       <div>
-        <p className="section-kicker">All intelligence surfaces</p>
+        <p className="section-kicker">Featured product surfaces</p>
         <h2 id="explore-solana-radar-title">Explore Solana Radar</h2>
       </div>
-      <p>Signal extraction, pre-spend decisions, wallet memory and machine-economy evidence—organized by the job you need done.</p>
+      <p>A map of the intelligence, evidence and execution surfaces available across the Solana environment.</p>
     </div>
     <div className="radar-route-directory-grid">
-      <NavigationGroups groups={RADAR_NAVIGATION.solana.overflowGroups} current={current} directory />
+      {RADAR_NAVIGATION.solana.overflowGroups.map((group) => {
+        const featuredItems = featuredItemsForGroup(group);
+        const groupTitleId = `solana-directory-${group.id}`;
+        return <article className="radar-directory-card" key={group.id} aria-labelledby={groupTitleId} data-group-id={group.id}>
+          <div className="radar-directory-card-head">
+            <h3 id={groupTitleId}>{group.label}</h3>
+            <span>{featuredItems.length.toString().padStart(2, '0')}</span>
+          </div>
+          <p>{group.description}</p>
+          <div className="radar-directory-featured-routes">
+            {featuredItems.map((item) => <NavigationLink key={item.id} item={item} current={current} showDescription />)}
+          </div>
+          {featuredItems[0] && <a className="radar-directory-explore-action" href={featuredItems[0].href}>
+            Explore {group.label.toLocaleLowerCase()}<span aria-hidden="true"> →</span>
+          </a>}
+        </article>;
+      })}
     </div>
   </section>;
 }
@@ -475,8 +282,9 @@ export function RadarProductNavigation({
   const overflowActive = navigation.overflowGroups.some((group) => group.items.some((item) => navigationItemIsActive(item, current)));
   const hasOverflow = navigation.overflowGroups.length > 0;
 
+  const primaryGroup: NavigationGroup = { id: 'primary', label: 'Primary', items: navigation.primaryItems };
   const allGroups: NavigationGroup[] = [
-    { label: 'Primary', items: navigation.primaryItems },
+    primaryGroup,
     ...navigation.overflowGroups
   ];
 
@@ -495,6 +303,7 @@ export function RadarProductNavigation({
       active={overflowActive}
     >
       {(close) => <>
+        {context === 'solana' && <SolanaExploreMenuIntro />}
         <div className="radar-menu-group radar-compact-primary-group" role="group" aria-label="Collapsed primary destinations">
           <span className="radar-menu-heading">Primary</span>
           {navigation.primaryItems.filter((item) => !item.compactPriority).map((item) => <NavigationLink key={`compact-${item.href}`} item={item} current={current} onNavigate={close} compactDuplicate />)}
@@ -511,7 +320,11 @@ export function RadarProductNavigation({
       menuLabel={`${context === 'universal' ? 'Radar' : RADAR_NETWORKS[context].shortLabel} product navigation`}
       active={navigation.primaryItems.some((item) => navigationItemIsActive(item, current)) || overflowActive}
     >
-      {(close) => <NavigationGroups groups={allGroups} current={current} onNavigate={close} />}
+      {(close) => context === 'solana' ? <>
+        <NavigationGroups groups={[primaryGroup]} current={current} onNavigate={close} />
+        <SolanaExploreMenuIntro />
+        <NavigationGroups groups={navigation.overflowGroups} current={current} onNavigate={close} />
+      </> : <NavigationGroups groups={allGroups} current={current} onNavigate={close} />}
     </PopupMenu>
     {(onOpenCommandPalette || viewSettings) && <div className="radar-interface-actions" aria-label="Interface controls">
       {onOpenCommandPalette && <button

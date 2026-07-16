@@ -4,8 +4,9 @@ import { describe, expect, it } from 'vitest';
 import { BOOT_LOADING_LABELS, bootLoadingLabelForPath, currentBootLoadingLabel, initialBootShellScript, radarNetworkForPath } from '../src/web/bootContext';
 
 describe('initial Radar boot context', () => {
-  it('resolves the Solana homepage, RH Chain, and unknown paths deterministically', () => {
-    expect(radarNetworkForPath('/')).toBe('solana');
+  it('resolves the universal homepage, Solana landing, RH Chain, and unknown paths deterministically', () => {
+    expect(radarNetworkForPath('/')).toBe('universal');
+    expect(radarNetworkForPath('/solana')).toBe('solana');
     expect(radarNetworkForPath('/rh-chain-signal-desk')).toBe('robinhood-chain');
     expect(radarNetworkForPath('/rh-chain-signal-desk/meme-pulse')).toBe('robinhood-chain');
     expect(radarNetworkForPath('/rh-chain-signal-desk/clone-radar')).toBe('robinhood-chain');
@@ -19,7 +20,8 @@ describe('initial Radar boot context', () => {
   });
 
   it('uses the exact loading copy for each network context', () => {
-    expect(bootLoadingLabelForPath('/')).toBe('INFOPUNKS RADAR // SOLANA INTELLIGENCE BOOTING...');
+    expect(bootLoadingLabelForPath('/')).toBe('INFOPUNKS RADAR // INTELLIGENCE SYSTEM BOOTING...');
+    expect(bootLoadingLabelForPath('/solana')).toBe('INFOPUNKS RADAR // SOLANA INTELLIGENCE BOOTING...');
     expect(bootLoadingLabelForPath('/providers')).toBe('INFOPUNKS RADAR // SOLANA INTELLIGENCE BOOTING...');
     expect(bootLoadingLabelForPath('/rh-chain-signal-desk/clone-radar')).toBe('INFOPUNKS RADAR // RH CHAIN INTELLIGENCE BOOTING...');
     expect(Object.values(BOOT_LOADING_LABELS)).toEqual([
@@ -42,13 +44,14 @@ describe('initial Radar boot context', () => {
     };
 
     expect(renderStaticBootLabel('/')).toBe(bootLoadingLabelForPath('/'));
+    expect(renderStaticBootLabel('/solana')).toBe(bootLoadingLabelForPath('/solana'));
     expect(renderStaticBootLabel('/providers')).toBe(bootLoadingLabelForPath('/providers'));
     expect(renderStaticBootLabel('/rh-chain-signal-desk/launchpad-observatory')).toBe(bootLoadingLabelForPath('/rh-chain-signal-desk/launchpad-observatory'));
     expect(renderStaticBootLabel('/not-a-radar-route')).toBe(bootLoadingLabelForPath('/not-a-radar-route'));
   });
 
   it('falls back safely when no browser window is available', () => {
-    expect(currentBootLoadingLabel()).toBe('INFOPUNKS RADAR // SOLANA INTELLIGENCE BOOTING...');
+    expect(currentBootLoadingLabel()).toBe('INFOPUNKS RADAR // INTELLIGENCE SYSTEM BOOTING...');
   });
 
   it('keeps the static shell route-aware, accessible, and motion-safe without legacy product copy', async () => {

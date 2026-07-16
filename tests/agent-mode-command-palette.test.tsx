@@ -193,27 +193,29 @@ describe('agent mode and command palette', () => {
     container.remove();
     vi.restoreAllMocks();
     root = null;
+    window.history.replaceState({}, '', '/');
   });
 
-  it('renders the Solana product header with route navigation separate from view controls', async () => {
+  it('renders the universal product header with route navigation separate from view controls', async () => {
     root = await renderApp(container);
 
     const header = container.querySelector('.site-header');
     const primaryNav = header?.querySelector('[aria-label="Primary destinations"]');
     expect(primaryNav?.textContent).toContain('Overview');
-    expect(primaryNav?.textContent).toContain('Providers');
-    expect(primaryNav?.textContent).toContain('Routes');
-    expect(primaryNav?.textContent).toContain('Receipts');
-    expect(primaryNav?.textContent).toContain('Benchmarks');
+    expect(primaryNav?.textContent).toContain('Networks');
+    expect(primaryNav?.textContent).not.toContain('Providers');
+    expect(primaryNav?.textContent).not.toContain('Routes');
+    expect(primaryNav?.textContent).not.toContain('Receipts');
+    expect(primaryNav?.textContent).not.toContain('Benchmarks');
     expect(primaryNav?.textContent).not.toContain('Solana');
     expect(primaryNav?.textContent).not.toContain('Machine Economy');
-    expect(header?.querySelector('button[aria-label="Solana network. Switch Radar network"]')).not.toBeNull();
-    expect(header?.querySelector('button[aria-label="Explore Solana destinations"]')?.textContent).toContain('Explore');
+    expect(header?.querySelector('button[aria-label="All Networks. Choose Radar network"]')).not.toBeNull();
+    expect(header?.querySelector('button[aria-label="Explore Radar destinations"]')?.textContent).toContain('Explore');
     expect(header?.querySelector('button[aria-label="Open command palette (Command K or Control K)"]')).not.toBeNull();
     expect(header?.querySelector('button[aria-label="Open view settings"]')).not.toBeNull();
     expect(container.textContent).toContain('API Docs');
     expect(header?.textContent).toContain('InfopunksRadar');
-    expect(header?.textContent).toContain('Solana');
+    expect(header?.textContent).toContain('All Networks');
     expect(header?.textContent).toContain('Agent Mode');
     expect(header?.textContent).toContain('Comfortable Density');
     expect(header?.textContent).not.toContain('Terminal Comfortable');
@@ -229,19 +231,24 @@ describe('agent mode and command palette', () => {
     expect(Array.from(container.querySelectorAll('a[href="/graph"]')).some((node) => node.textContent?.includes('Open Signal Graph'))).toBe(true);
     expect(container.textContent).toContain('Open Machine Market');
     expect(container.querySelector('a[href="/machine-market"]')).not.toBeNull();
-    expect(header?.querySelector('a[href="/machine-market"]')).not.toBeNull();
+    expect(header?.querySelector('a[href="/machine-market"]')).toBeNull();
+    expect(container.textContent).toContain('One Radar. Two economies.');
+    expect(Array.from(container.querySelectorAll('a[href="/solana"]')).some((link) => link.textContent?.includes('Open Solana Radar'))).toBe(true);
+    expect(Array.from(container.querySelectorAll('a[href="/rh-chain-signal-desk"]')).some((link) => link.textContent?.includes('Explore Robinhood Chain'))).toBe(true);
+    expect(container.querySelector('#explore-solana-radar')).toBeNull();
+    expect(container.querySelector('#global-pulse')).not.toBeNull();
   });
 
-  it('keeps the Solana identity unique and avoids duplicated primary routes', async () => {
+  it('keeps the universal identity unique and avoids duplicated primary routes', async () => {
     root = await renderApp(container);
 
     const header = container.querySelector('.site-header');
     const primaryLabels = Array.from(header?.querySelectorAll('[aria-label="Primary destinations"] a') ?? []).map((node) => node.textContent?.trim()).filter(Boolean);
-    expect(primaryLabels).toEqual(['Overview', 'Providers', 'Routes', 'Receipts', 'Benchmarks']);
+    expect(primaryLabels).toEqual(['Overview', 'Networks']);
     expect(new Set(primaryLabels).size).toBe(primaryLabels.length);
     expect((header?.textContent?.match(/Infopunks/g) ?? []).length).toBe(1);
-    expect((header?.textContent?.match(/Solana/g) ?? []).length).toBe(2);
-    expect((header?.textContent?.match(/Active/g) ?? []).length).toBe(1);
+    expect((header?.textContent?.match(/Solana/g) ?? []).length).toBeGreaterThanOrEqual(1);
+    expect((header?.textContent?.match(/Active/g) ?? []).length).toBe(0);
     expect(header?.textContent).not.toContain('/ Solana');
     for (const label of primaryLabels) {
       expect(primaryLabels.filter((item) => item === label)).toHaveLength(1);
@@ -252,6 +259,25 @@ describe('agent mode and command palette', () => {
     expect(utilityText).toContain('Comfortable Density');
     expect(utilityText).not.toContain('Overview');
     expect(header?.querySelector('.header-secondary-rail')).toBeNull();
+  });
+
+  it('renders /solana with the Solana header, hero, and shared route directory', async () => {
+    window.history.replaceState({}, '', '/solana');
+    root = await renderApp(container);
+
+    const header = container.querySelector('.site-header');
+    const primaryLabels = Array.from(header?.querySelectorAll('[aria-label="Primary destinations"] a') ?? []).map((node) => node.textContent?.trim()).filter(Boolean);
+    expect(primaryLabels).toEqual(['Overview', 'Providers', 'Routes', 'Receipts', 'Benchmarks']);
+    expect(header?.querySelector('button[aria-label="Solana network. Switch Radar network"]')).not.toBeNull();
+    expect(container.querySelector('h1')?.textContent).toBe('Proof before agent spend.');
+    expect(container.textContent).toContain('Route intelligence, provider evidence, narrative memory and machine-market infrastructure for the Solana economy.');
+    expect(container.querySelectorAll('h1')).toHaveLength(1);
+    expect(container.querySelector('a[href="#global-pulse"]')?.textContent).toContain('Open Radar');
+    expect(container.querySelector('a[href="#preflight"]')?.textContent).toContain('Run Preflight');
+    expect(container.querySelector('section#explore-solana-radar')).not.toBeNull();
+    expect(container.textContent).toContain('Explore Solana Radar');
+    expect(document.title).toBe('Solana Radar | Infopunks Radar');
+    expect(document.querySelector('meta[name="description"]')?.getAttribute('content')).toBe('Evidence, route intelligence, provider evaluation and machine-market infrastructure for the Solana agentic economy.');
   });
 
   it('Agent Mode hides narrative panels and keeps preflight export and API docs visible', async () => {

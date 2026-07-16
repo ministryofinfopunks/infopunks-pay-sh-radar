@@ -86,6 +86,14 @@ describe('render-style SPA routing boundaries', () => {
     const app = await createApp(emptyIntelligenceStore(), undefined, { clientDistDir });
 
     try {
+      const solana = await app.inject({ method: 'GET', url: '/solana' });
+      expect(solana.statusCode).toBe(200);
+      expect(solana.headers['content-type']).toContain('text/html');
+      expect(solana.body).toContain('Radar SPA shell');
+      expect(solana.body).toContain('<title>Solana Radar | Infopunks Radar</title>');
+      expect(solana.body).toContain('name="description" content="Evidence, route intelligence, provider evaluation and machine-market infrastructure for the Solana agentic economy."');
+      expect(solana.body).toContain('<link rel="canonical" href="https://radar.infopunks.fun/solana"');
+
       const developers = await app.inject({ method: 'GET', url: '/developers' });
       expect(developers.statusCode).toBe(200);
       expect(developers.headers['content-type']).toContain('text/html');

@@ -2,6 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { getNarrativeMetadataForPath } from '../src/shared/narrativeMetadata';
 
 describe('narrative metadata helper', () => {
+  it('returns dedicated metadata for the Solana landing surface', () => {
+    expect(getNarrativeMetadataForPath('/solana')).toEqual(expect.objectContaining({
+      title: 'Solana Radar | Infopunks Radar',
+      description: 'Evidence, route intelligence, provider evaluation and machine-market infrastructure for the Solana agentic economy.',
+      canonicalPath: '/solana'
+    }));
+  });
+
   it('returns metadata for /narratives', () => {
     expect(getNarrativeMetadataForPath('/narratives')).toEqual({
       title: 'Infopunks Narrative Asset Intelligence',

@@ -49,6 +49,14 @@ function buildMetadata(title: string, description: string, canonicalPath: string
 }
 
 export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata | null {
+  if (/^\/solana\/?$/.test(pathname)) {
+    return buildMetadata(
+      'Solana Radar | Infopunks Radar',
+      'Evidence, route intelligence, provider evaluation and machine-market infrastructure for the Solana agentic economy.',
+      '/solana'
+    );
+  }
+
   if (/^\/narratives\/?$/.test(pathname)) {
     return buildMetadata(
       'Infopunks Narrative Asset Intelligence',
