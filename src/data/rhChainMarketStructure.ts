@@ -44,7 +44,7 @@ const reviewedIntakeClassifications: RhChainLayerClassification[] = [
     contract: '0x56910D4409F3a0C78C64DD8D0545FF0705389870', ticker: 'INDEX', display_name: 'The Index', dexscreener_pair: 'https://dexscreener.com/robinhood/0x00dd2df2f17d431cf3a0938f06c9cf9abc5e9643b6cc466ca3f71f3af246edf3',
     primary_layer: 'rwa', secondary_layers: ['defi', 'speculative_distribution', 'tokenized_equities'], cross_layer_category: 'defi_x_rwa', classification_source: 'manual_review', classification_confidence: 'medium', evidence_state: 'under_receipt_check',
     classification_reason: 'Exact RH Chain contract and DexScreener pair are now provided. The token positions around Robinhood Chain tokenized-equity/dividend mechanics, making it an early RWA x DeFi x speculative-distribution candidate.',
-    missing_evidence: ['protocol mechanics', 'dividend source', 'tokenized-stock integration proof', 'treasury flows', 'legal/economic structure', 'deployer trace'], caveat: 'Contract/pair visibility does not verify dividend mechanics or RWA backing.', reviewed_at: null, observed_at: '2026-07-17T00:00:00.000Z', data_mode: 'manual'
+    missing_evidence: ['protocol mechanics', 'dividend source', 'tokenized-stock integration proof', 'treasury flows', 'legal/economic structure', 'deployer trace'], caveat: 'Contract/pair visibility does not verify dividend mechanics, RWA backing, safety, or endorsement.', reviewed_at: null, observed_at: '2026-07-17T00:00:00.000Z', data_mode: 'manual'
   },
   {
     contract: '0xcA0Da673A451C84917d7dd0362109eFFf0f8825A', ticker: 'eBESS', display_name: 'eBESS', dexscreener_pair: 'https://dexscreener.com/robinhood/0x94ec3574c384447519992cf1400e2183b85acede',

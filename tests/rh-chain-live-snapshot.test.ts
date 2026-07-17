@@ -84,4 +84,12 @@ describe('RH Chain Live Snapshot Layer', () => {
       expect(token.json().data.explorer).toEqual(expect.objectContaining({ explorer_url: expect.stringContaining('explorer.example') }));
     } finally { await app.close(); }
   });
+
+  it('attaches the shared exact-contract reviewed-intake resolution to homepage checker context', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+    try {
+      const response = await app.inject({ method: 'GET', url: '/v1/rh-chain/live-snapshot/token/0x56910d4409f3a0c78c64dd8d0545ff0705389870' });
+      expect(response.json().data.resolved_context).toEqual(expect.objectContaining({ contract: '0x56910D4409F3a0C78C64DD8D0545FF0705389870', source: 'market_structure', name: 'The Index', review_status: 'under_receipt_check', risk_state: 'source_required' }));
+    } finally { await app.close(); }
+  });
 });

@@ -1,6 +1,6 @@
 import { getRhChain4663Index, getRhChainDailyReceipts, getRhChainLaunchSurfaces, getRhChainReviewQueue, type RhChainLaunchpadObservatoryPayload, type RhChainReviewItem } from '../data/rhChain';
-import { isRhChainIdentityContract } from './rhChainTruthGuards';
 import { getRhChain100ReceiptsCampaign } from '../data/rhChain100Receipts';
+import { resolveRhChainContractIntelligence } from './rhChainContractIntelligenceService';
 
 export const RH_CHAIN_SCOUT_MODES = ['market_pulse', 'risk_memory', 'narrative_mutation', 'token_context', 'launch_context'] as const;
 export type RhChainScoutMode = typeof RH_CHAIN_SCOUT_MODES[number];
@@ -26,10 +26,12 @@ export function queryRhChainScout(input: RhChainScoutQuery, reviewItems = getRhC
   const accessSurfaces = surfaceWatch.access_surfaces;
   const needle = input.query.toLowerCase();
   const campaign = getRhChain100ReceiptsCampaign();
-  const campaignMatches = campaign.assets.filter((item) => `${item.ticker} ${item.contract}`.toLowerCase().includes(needle) || needle.includes(item.ticker.toLowerCase()));
-  const campaignMatch = campaignMatches[0] ?? null;
-  const placeholderIdentity = mode === 'token_context' && !isRhChainIdentityContract(input.query);
-  const related = reviewItems.filter((item) => `${item.ticker} ${item.token_contract}`.toLowerCase().includes(needle) || (needle.includes(item.ticker.toLowerCase()))).slice(0, 5);
+  const requestedContract = input.query.trim();
+  const tokenResolution = mode === 'token_context' ? resolveRhChainContractIntelligence(requestedContract, { reviewItems }) : null;
+  const placeholderIdentity = mode === 'token_context' && !tokenResolution?.identity_valid;
+  const campaignMatches = tokenResolution?.campaign_asset ? [tokenResolution.campaign_asset] : [];
+  const campaignMatch = tokenResolution?.campaign_asset ?? null;
+  const related = tokenResolution?.review_items ?? [];
   const riskItems = reviewItems.filter((item) => ['high_risk', 'do_not_touch_yet', 'source_required'].includes(item.risk_state)).slice(0, 5);
   const index = getRhChain4663Index().assets.slice(0, 3);
   const noxaStatus = observatory?.surfaces.find((surface) => surface.surface_id === 'noxa_fun')?.status ?? surfaces.find((surface) => surface.id === 'noxa_fun')?.launch_surface_status ?? 'source_required';
@@ -56,7 +58,7 @@ export function queryRhChainScout(input: RhChainScoutQuery, reviewItems = getRhC
     market_pulse: `${receipt.headline}. ${receipt.infopunks_verdict} The current ranked memory is led by ${index.map((asset) => asset.ticker).join(', ')}; live context never overrides this reviewed receipt.`,
     risk_memory: `Visible risk memory centers on ${receipt.biggest_risk}. Day 1 campaign risk states preserve fee, utility, volatility, liquidity, and provenance checks as reviewed memory; no launch surface or LP claim is an approval signal.`,
     narrative_mutation: narrativeAnswer,
-    token_context: placeholderIdentity ? 'Source required before identity-specific context. Placeholder contracts are not token identities.' : campaignMatch ? `${campaignMatch.ticker} is in Day 1 campaign memory as ${campaignMatch.evidence_state.replace(/_/g, ' ')}, classified ${campaignMatch.classification.replace(/_/g, ' ')}, with ${campaignMatch.risk_state.replace(/_/g, ' ')} risk. Its record is public memory, not endorsement or a safety determination.` : related.length ? `${related[0].ticker} is in the desk as ${related[0].review_state.replace(/_/g, ' ')} with ${related[0].risk_state.replace(/_/g, ' ')} risk. Its record is memory, not a safety or trading determination.` : `No matching reviewed token record was found for that query. The Scout will not infer identity from a ticker alone; verify contract and source receipts.`,
+    token_context: placeholderIdentity ? 'Source required before identity-specific context. Paste one exact contract; tickers are not token identities.' : campaignMatch ? `${campaignMatch.ticker} is in Day 1 campaign memory as ${campaignMatch.evidence_state.replace(/_/g, ' ')}, classified ${campaignMatch.classification.replace(/_/g, ' ')}, with ${campaignMatch.risk_state.replace(/_/g, ' ')} risk. Its record is public memory, not endorsement or a safety determination.` : tokenResolution?.market_structure ? `${tokenResolution.name ?? tokenResolution.ticker ?? 'This token'} is a reviewed-intake Market Structure candidate under receipt check. It is classified ${tokenResolution.market_structure.primary_layer} with ${tokenResolution.market_structure.secondary_layers.join(', ')} context. ${tokenResolution.market_structure.caveat ?? 'Claims remain source_required.'} It is not an approved signal.` : related.length ? `${related[0].ticker} is in the desk as ${related[0].review_state.replace(/_/g, ' ')} with ${related[0].risk_state.replace(/_/g, ' ')} risk. Its record is memory, not a safety or trading determination.` : `No matching reviewed token record was found for that exact contract. The Scout will not infer identity from a ticker alone; verify contract and source receipts.`,
     launch_context: launchContextAnswer
   };
   const launchContext = observatory ? observatory.surfaces.slice(0, 8).map((surface) => ({ name: surface.name, risk_note: surface.risk_notes[0] ?? 'Source-required context.', launch_surface_status: surface.status })) : surfaces.slice(0, 8).map(({ name, risk_note, launch_surface_status }) => ({ name, risk_note, launch_surface_status }));

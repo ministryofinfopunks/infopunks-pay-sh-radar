@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { RhChain100ReceiptsCampaign } from '../data/rhChain100Receipts';
 import { RH_CHAIN_100_RECEIPTS_ROUTE } from '../data/rhChain100Receipts';
+import { resolveRhChainContractIntelligence } from '../services/rhChainContractIntelligenceService';
 import { fetchRhChain, RhChainHero, type RhChainEnvelope, RhChainRouteState, RhChainSuiteNav } from './rhChainUi';
 
 const label = (value: string) => value.replaceAll('_', ' ');
@@ -47,21 +48,23 @@ export function RhChain100ReceiptsCampaignPage() {
         <section id="daily-top-5" className="campaign-section" aria-label="Campaign Daily Top 5">
           <div className="rh-chain-section-head"><div><p className="section-kicker">Daily Top 5</p><h2>Five roles. Five exact contracts.</h2><p>Each card opens the matching Token Dossier and carries reviewed campaign memory into 4663 context.</p></div></div>
           <div className="campaign-top-grid">
-            {campaign.daily_top_5.map((item) => <article key={item.role} className="campaign-top-card" data-role={item.role}>
+            {campaign.daily_top_5.map((item) => { const intelligence = resolveRhChainContractIntelligence(item.contract); return <article key={item.role} className="campaign-top-card" data-role={item.role}>
               <p className="section-kicker">{item.role}</p>
               <h3>{item.ticker}</h3>
               <p className="campaign-contract">{item.contract}</p>
+              <p className="panel-caption">Resolver: {label(intelligence.source)} · {label(intelligence.review_status)}</p>
               <a className="execute compact secondary" href={item.dossier_route}>Open Token Dossier</a>
-            </article>)}
+            </article>; })}
           </div>
         </section>
 
         <section className="campaign-section" aria-label="Batch 001 reviewed assets">
           <div className="rh-chain-section-head"><div><p className="section-kicker">Batch 001</p><h2>Reviewed campaign memory</h2><p>{campaign.source_policy}</p></div><a className="execute compact secondary" href="/v1/rh-chain/campaigns/100-receipts">Campaign JSON</a></div>
           <div className="campaign-asset-grid">
-            {campaign.assets.map((asset) => <article key={asset.contract} className="campaign-asset-card" data-ticker={asset.ticker}>
+            {campaign.assets.map((asset) => { const intelligence = resolveRhChainContractIntelligence(asset.contract); return <article key={asset.contract} className="campaign-asset-card" data-ticker={asset.ticker}>
               <div className="campaign-card-head"><div><p className="section-kicker">{label(asset.evidence_state)}</p><h3>{asset.ticker}</h3></div><span>{label(asset.classification)}</span></div>
               <p className="campaign-contract">{asset.contract}</p>
+              <p className="panel-caption">Resolver: {label(intelligence.source)} · claims {label(intelligence.claim_status)}</p>
               <p>{asset.classification_note}</p>
               <dl>
                 <div><dt>risk_state</dt><dd>{asset.risk_state}</dd></div>
@@ -78,7 +81,7 @@ export function RhChain100ReceiptsCampaignPage() {
                 {asset.website_or_x && <span>{asset.website_or_x}</span>}
               </div>
               <a className="execute compact" href={asset.dossier_route}>Open {asset.ticker} Dossier</a>
-            </article>)}
+            </article>; })}
           </div>
         </section>
 

@@ -570,16 +570,22 @@ export type RhChainTokenDossier = {
   ticker: string | null;
   name: string | null;
   chain: string;
-  review_status: RhChainReviewState | 'not_found';
+  review_status: RhChainReviewState | 'source_required_for_claims' | 'not_reviewed' | 'not_found';
   risk_state: RhChainRiskState | 'source_required';
   data_mode: RhChainDataFreshness;
   identity_status: 'valid' | 'source_required';
   generated_at: string;
   disclaimer: string;
   doctrine: 'External data gives context. Infopunks gives judgment. Receipts create memory.';
+  contract_intelligence: {
+    source: import('../services/rhChainContractIntelligenceService').RhChainContractResolutionSource;
+    claim_status: 'source_required_for_claims' | 'reviewed';
+    display_name: string | null;
+  };
   memory: {
     index: RhChain4663Asset | null;
     campaign_asset: RhChain100ReceiptsAsset | null;
+    market_structure: import('../services/rhChainMarketStructureService').RhChainLayerClassification | null;
     review_items: RhChainReviewItem[];
     submissions: Array<{ submission_id: string; submitted_at: string; evidence_summary: string; audit_events: Array<{ event_id: string; occurred_at: string; action: string; to_status: string; note?: string }> }>;
     daily_receipts: Array<{ receipt_id: string; headline: string; date: string }>;

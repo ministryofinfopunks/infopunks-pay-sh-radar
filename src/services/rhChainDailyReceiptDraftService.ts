@@ -9,6 +9,7 @@ import type { RhChainLaunchpadSnapshotService } from './rhChainLaunchpadSnapshot
 import type { RhChainLiveSnapshotService } from './rhChainLiveSnapshotService';
 import type { RhChainSubmissionStore } from './rhChainSignalVault';
 import type { RhChainAttentionQualityHistory } from './rhChainMarketSnapshotService';
+import { resolveRhChainContractIntelligence } from './rhChainContractIntelligenceService';
 
 export type RhChainDailyReceiptDraftStatus = 'draft_generated' | 'under_review' | 'published' | 'rejected';
 export type RhChainDailyReceiptDraft = {
@@ -30,6 +31,7 @@ export type RhChainDailyReceiptDraft = {
   source_notes: string[];
   missing_evidence: string[];
   attention_quality_context?: Array<Pick<RhChainAttentionQualityHistory, 'contract' | 'state' | 'snapshot_count' | 'latest_snapshot_at' | 'paid_attention_context'>>;
+  contract_intelligence_context?: Array<{ contract: string; source: string; display_name: string | null; review_status: string; claim_status: 'source_required_for_claims' | 'reviewed' }>;
   reviewer_edits?: Partial<Record<'chain_pulse_summary' | 'meme_pulse_summary' | 'launchpad_surface_summary' | 'rwa_pulse_summary' | 'risk_wall_summary' | 'narrative_mutation_summary' | 'suggested_infopunks_verdict', string>>;
   audit_events: Array<{ event_id: string; occurred_at: string; action: 'generated' | 'published' | 'rejected'; reviewer_id?: string; note: string }>;
 };
@@ -84,6 +86,7 @@ export class RhChainDailyReceiptDraftService {
       risk_wall_summary: clone.active_warnings.length ? `${clone.active_warnings.length} clone-risk cues remain review prompts, not misconduct findings.` : 'No clone-risk cue is promoted from absence.',
       narrative_mutation_summary: meme?.pulse.snapshot.strongest_narrative_mutation ?? 'Narrative mutation requires current receipt context.',
       suggested_infopunks_verdict: 'Draft only: review sources and missing evidence before publication. This is not endorsement, safety verification, or financial advice.', confidence_level: missing_evidence.length ? 'low' : 'medium', source_notes: ['Automation assembled this draft from contextual snapshots and reviewed memory.', 'Attention history, when present, is provider context only; a reviewer decides whether to cite it.', 'Only a reviewer can publish a Daily Receipt.'], missing_evidence, attention_quality_context: attention.map(({ contract, state, snapshot_count, latest_snapshot_at, paid_attention_context }) => ({ contract, state, snapshot_count, latest_snapshot_at, paid_attention_context })),
+      contract_intelligence_context: attention.map(({ contract }) => { const intelligence = resolveRhChainContractIntelligence(contract); return { contract: intelligence.contract, source: intelligence.source, display_name: intelligence.display_name, review_status: intelligence.review_status, claim_status: intelligence.claim_status }; }),
       audit_events: [{ event_id: randomUUID(), occurred_at: generated_at, action: 'generated', note: 'Automation generated a receipt draft; no public receipt was created.' }] };
     await this.store.saveDraft(draft); return draft;
   }

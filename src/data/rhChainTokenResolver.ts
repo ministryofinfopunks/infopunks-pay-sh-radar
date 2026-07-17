@@ -1,0 +1,2 @@
+/** @deprecated Import the shared service from services/rhChainContractIntelligenceService. */
+export { normalizeRhChainContract as normalizeRhChainTokenContract, resolveRhChainContractIntelligence as resolveRhChainTokenContract, type RhChainContractIntelligence as RhChainTokenResolution, type RhChainContractResolutionSource as RhChainTokenResolutionSource } from '../services/rhChainContractIntelligenceService';

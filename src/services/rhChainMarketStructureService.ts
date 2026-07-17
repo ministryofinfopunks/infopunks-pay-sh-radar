@@ -3,6 +3,7 @@ import type { RhChainAttentionState } from './rhChainAttentionService';
 import type { RhChainMetricsSnapshot } from './rhChainChainPulseService';
 import type { RhChainMarketResponse, RhChainReviewedClassification } from './rhChainMarketDataService';
 import { RhChainMarketDataService } from './rhChainMarketDataService';
+import { resolveRhChainContractIntelligence } from './rhChainContractIntelligenceService';
 
 export const RH_CHAIN_MARKET_LAYERS = ['meme', 'rwa', 'agent', 'infrastructure', 'defi', 'unclassified'] as const;
 export type RhChainMarketLayer = typeof RH_CHAIN_MARKET_LAYERS[number];
@@ -137,16 +138,19 @@ export class RhChainMarketStructureService {
       const asset = snapshot.assets.find((item) => item.token.contract.toLowerCase() === contract) ?? await this.options.marketData.getToken(contract);
       const observation: AttentionObservation = { contract, boost_amount: boost.amount, total_boost_amount: boost.total, paid_order_types: asset.attention.paid_orders.map((order) => order.type).filter((value): value is string => Boolean(value)), observed_at: asset.market_snapshot?.capturedAt ?? this.now().toISOString(), pair_metrics: asset.market_snapshot };
       this.record(observation);
-      return { observation, quality: await this.quality(asset, observation) };
+      return { observation, quality: await this.quality(asset, observation), contract_intelligence: resolveRhChainContractIntelligence(contract) };
     }));
-    return { title: 'Paid Attention Watch', observations: assets.map((item) => item.observation), attention_quality: assets.map((item) => item.quality), observed_at: this.now().toISOString(), data_mode: boosts.status.fallback_mode ? 'unavailable' as const : 'live_cached' as const, caveats: ['Paid boosts are not misconduct. Boost rank is not organic conviction. Insufficient before/during/after history returns source_required.'] };
+    return { title: 'Paid Attention Watch', observations: assets.map((item) => item.observation), attention_quality: assets.map((item) => item.quality), contract_intelligence: assets.map((item) => ({ contract: item.observation.contract, source: item.contract_intelligence.source, display_name: item.contract_intelligence.display_name, review_status: item.contract_intelligence.review_status, claim_status: item.contract_intelligence.claim_status })), observed_at: this.now().toISOString(), data_mode: boosts.status.fallback_mode ? 'unavailable' as const : 'live_cached' as const, caveats: ['Paid boosts are not misconduct. Boost rank is not organic conviction. Insufficient before/during/after history returns source_required.'] };
   }
 
   private async safeSnapshot() {
     try {
       const [market, classifications] = await Promise.all([this.options.marketData.getTokens(), this.classifications()]);
       const byContract = new Map(classifications.map((item) => [item.contract.toLowerCase(), item]));
-      const assets: MarketStructureAsset[] = market.tokens.map((asset) => ({ ...asset, classification: byContract.get(asset.token.contract.toLowerCase()) ?? classificationFromLegacy(asset) }));
+      const assets: MarketStructureAsset[] = market.tokens.map((asset) => {
+        const intelligence = resolveRhChainContractIntelligence(asset.token.contract);
+        return { ...asset, classification: byContract.get(asset.token.contract.toLowerCase()) ?? intelligence.market_structure ?? classificationFromLegacy(asset) };
+      });
       for (const classification of classifications) if (!assets.some((asset) => asset.token.contract.toLowerCase() === classification.contract.toLowerCase())) assets.push(classificationOnlyAsset(classification));
       return { assets, fallback: market.status.fallback_mode };
     } catch { return { assets: [] as MarketStructureAsset[], fallback: true }; }

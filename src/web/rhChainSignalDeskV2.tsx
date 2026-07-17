@@ -72,6 +72,14 @@ export type RhChainSignalDeskV2Props = {
 
 type RhChainTokenSnapshotResponse = {
   contract: string;
+  resolved_context?: {
+    contract: string;
+    source: 'reviewed_dossier' | '100_receipts' | '4663_index' | 'market_structure' | 'snapshot_history' | 'dexscreener' | 'blockscout' | 'unknown';
+    ticker: string | null;
+    name: string | null;
+    review_status: string;
+    risk_state: string;
+  };
   token_pair: {
     exact_contract_match: boolean;
     chain_match_status: 'chain_verified' | 'chain_unverified' | 'chain_mismatch';
@@ -288,7 +296,7 @@ function RhChainContractCheck({ signalIndex, reviewQueue, latestReceipt }: {
     }
   }
 
-  const risk = result ? localRiskForContract(result.contract, signalIndex, reviewQueue) : 'source_required';
+  const risk = result?.resolved_context?.risk_state ?? (result ? localRiskForContract(result.contract, signalIndex, reviewQueue) : 'source_required');
   const exactStatus = result?.token_pair?.exact_contract_match || result?.explorer?.exact_contract_match ? 'Exact contract context found' : 'Exact market pair unavailable';
   const chainStatus = result?.token_pair?.chain_match_status ? formatLabel(result.token_pair.chain_match_status) : 'Chain verification unavailable';
   return <div className="rh-v2-contract-shell">
@@ -322,7 +330,7 @@ function RhChainContractCheck({ signalIndex, reviewQueue, latestReceipt }: {
         <div><dt>Risk classification</dt><dd>{formatLabel(risk)}</dd></div>
       </dl>
       <div className="rh-v2-result-actions">
-        {rhChainTokenDossierRoute(result.contract) && <a href={rhChainTokenDossierRoute(result.contract)!}>Open evidence dossier</a>}
+        {rhChainTokenDossierRoute(result.resolved_context?.contract ?? result.contract) && <a href={rhChainTokenDossierRoute(result.resolved_context?.contract ?? result.contract)!}>Open evidence dossier</a>}
         {latestReceipt && <a href={`/rh-chain-signal-desk/daily-receipts/${encodeURIComponent(latestReceipt.receipt_id)}`}>Latest receipt</a>}
         {result.token_pair?.dex_url && <a href={result.token_pair.dex_url}>Open pair source</a>}
         {result.explorer?.explorer_url && <a href={result.explorer.explorer_url}>Open explorer source</a>}

@@ -34,6 +34,14 @@ describe('RH Chain Scout', () => {
     expect(result.answer).toContain('Source required before identity-specific context.');
     expect(result.supporting_review_items).toEqual([]);
   });
+  it('retrieves The Index only by exact contract and keeps its intake caveat', () => {
+    const index = queryRhChainScout({ query: '0x56910d4409f3a0c78c64dd8d0545ff0705389870', mode: 'token_context' });
+    const tickerOnly = queryRhChainScout({ query: 'INDEX', mode: 'token_context' });
+    expect(index.answer).toContain('The Index');
+    expect(index.answer).toContain('under receipt check');
+    expect(index.answer).toContain('not an approved signal');
+    expect(tickerOnly.answer).toContain('Paste one exact contract');
+  });
   it('answers NOXA and fragmentation questions with cautious source-bound wording', () => {
     const noxa = queryRhChainScout({ query: 'What happened with NOXA?' });
     const fragmentation = queryRhChainScout({ query: 'What does launchpad fragmentation mean?' });

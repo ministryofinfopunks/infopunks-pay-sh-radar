@@ -11,6 +11,7 @@ import { getCandidateSignal, listCandidateSignals } from '../data/candidateSigna
 import { getSignalDeskIndex } from '../data/signalDesk';
 import { createRhChainSignalReviewPacket, getRhChainDailyReceipt, getRhChainDailyReceipts, getRhChainPayload, listRhChainSignals } from '../data/rhChain';
 import { rhChainReviewedLayerClassifications } from '../data/rhChainMarketStructure';
+import { resolveRhChainContractIntelligence } from '../services/rhChainContractIntelligenceService';
 import { getRhChain100ReceiptsCampaign } from '../data/rhChain100Receipts';
 import { asRhChainPersistedReviewItem, createRhChainSignalSubmission, InMemoryRhChainSubmissionStore, PostgresRhChainSubmissionStore, redactRhChainSubmissionForReview, type RhChainSubmissionStore, UnconfiguredRhChainSubmissionStore, updateRhChainSubmissionReviewRecord } from '../services/rhChainSignalVault';
 import { RhChainLiveSnapshotService, type RhChainLiveSnapshotOptions } from '../services/rhChainLiveSnapshotService';
@@ -19,6 +20,7 @@ import { BlockscoutProvider } from '../providers/blockscoutProvider';
 import { RhChainTokenRegistryService, type RhChainTokenRegistryOptions } from '../services/rhChainTokenRegistryService';
 import { RhChainMarketDataService, type RhChainMarketDataServiceOptions, type RhChainReviewedClassification } from '../services/rhChainMarketDataService';
 import { RhChainMarketStructureService, type RhChainMarketStructureOptions } from '../services/rhChainMarketStructureService';
+import { RhChainDiscoveryQueueService } from '../services/rhChainDiscoveryQueueService';
 import { InMemoryRhChainMarketSnapshotStore, PostgresRhChainMarketSnapshotStore, RhChainMarketSnapshotService, type RhChainMarketSnapshotServiceOptions, type RhChainMarketSnapshotStore } from '../services/rhChainMarketSnapshotService';
 import { InMemoryRhChainMetricsSnapshotStore, PostgresRhChainMetricsSnapshotStore, RhChainChainPulseService, type RhChainMetricsSnapshotStore } from '../services/rhChainChainPulseService';
 import { InMemoryRhChainMemePulseSnapshotStore, PostgresRhChainMemePulseSnapshotStore, RhChainMemePulseSnapshotService, type RhChainMemePulseSnapshotStore } from '../services/rhChainMemePulseSnapshotService';
@@ -677,10 +679,11 @@ export async function createApp(
   const rhChainMetricsSnapshotStore: RhChainMetricsSnapshotStore = options.rhChainMetricsSnapshotStore
     ?? (rhChainPostgresPool ? new PostgresRhChainMetricsSnapshotStore(rhChainPostgresPool) : new InMemoryRhChainMetricsSnapshotStore());
   const rhChainChainPulse = new RhChainChainPulseService(rhChainMetricsSnapshotStore);
+  let rhChainDiscoveryQueue: RhChainDiscoveryQueueService | null = null;
   const rhChainMarketStructure = new RhChainMarketStructureService({
     marketData: rhChainMarketData,
     metrics: () => rhChainChainPulse.getLatest(),
-    classifications: () => [...rhChainReviewedLayerClassifications],
+    classifications: () => [...rhChainReviewedLayerClassifications, ...(rhChainDiscoveryQueue?.marketStructureCandidates() ?? [])],
     latestReceipt: () => {
       const receipt = getRhChainDailyReceipts().receipts[0];
       return receipt ? { receipt_id: receipt.receipt_id, timestamp: receipt.observed_at ?? receipt.generated_at, summary: receipt.headline } : null;
@@ -706,6 +709,7 @@ export async function createApp(
     manualIntakeContracts: async () => (await rhChainSubmissionStore.list()).map((submission) => submission.token_contract),
     ...options.rhChainTokenRegistryOptions
   });
+  rhChainDiscoveryQueue = new RhChainDiscoveryQueueService({ provider: rhChainMarketProvider, marketData: rhChainMarketData, tokenRegistry: rhChainTokenRegistry });
   const rhChainMarketSnapshotStore: RhChainMarketSnapshotStore = options.rhChainMarketSnapshotStore
     ?? (rhChainPostgresPool ? new PostgresRhChainMarketSnapshotStore(rhChainPostgresPool) : new InMemoryRhChainMarketSnapshotStore());
   const rhChainMarketSnapshots = new RhChainMarketSnapshotService({
@@ -713,8 +717,8 @@ export async function createApp(
     provider: rhChainMarketProvider,
     enabled: options.rhChainMarketSnapshotOptions?.enabled ?? config.rhChainAutomationEnabled,
     // Snapshot history remains DEX Screener market data. Blockscout only adds exact-contract watchlist provenance/evidence.
-    watchlist: async () => [...new Set((await rhChainTokenRegistry.seedWatchlistFromBlockscout()).map((item) => item.contract))],
-    classificationFor: (contract) => rhChainReviewedLayerClassifications.find((classification) => classification.contract.toLowerCase() === contract.toLowerCase()) ?? null,
+    watchlist: async () => [...new Set([...(await rhChainTokenRegistry.seedWatchlistFromBlockscout()).map((item) => item.contract), ...(rhChainDiscoveryQueue?.watchedContracts() ?? [])])],
+    classificationFor: (contract) => [...rhChainReviewedLayerClassifications, ...(rhChainDiscoveryQueue?.marketStructureCandidates() ?? [])].find((classification) => classification.contract.toLowerCase() === contract.toLowerCase()) ?? null,
     ...options.rhChainMarketSnapshotOptions
   });
   const rhChainMemePulseSnapshotStore: RhChainMemePulseSnapshotStore = options.rhChainMemePulseSnapshotStore
@@ -1970,7 +1974,11 @@ export async function createApp(
     if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send(buildRhChainApiErrorResponse('review_admin_token_required'));
     const status = req.query.status;
     const records = await rhChainSubmissionStore.list();
-    const submissions = (status ? records.filter((item) => item.review_status === status) : records).map(redactRhChainSubmissionForReview);
+    const reviewItems = assembleRhChainReviewQueue(records.map(asRhChainPersistedReviewItem)).items;
+    const submissions = (status ? records.filter((item) => item.review_status === status) : records).map((item) => {
+      const intelligence = resolveRhChainContractIntelligence(item.token_contract, { reviewItems });
+      return { ...redactRhChainSubmissionForReview(item), contract_intelligence: { source: intelligence.source, display_name: intelligence.display_name, review_status: intelligence.review_status, claim_status: intelligence.claim_status } };
+    });
     return safeJsonExport(buildRhChainApiResponse({ submissions, storage: { adapter: rhChainSubmissionStore.adapter, durable: rhChainSubmissionStore.durable } }));
   });
   app.get<{ Params: { submissionId: string } }>('/internal/rh-chain/review-console/submissions/:submissionId', async (req, reply) => {
@@ -1978,7 +1986,9 @@ export async function createApp(
     if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send(buildRhChainApiErrorResponse('review_admin_token_required'));
     const submission = (await rhChainSubmissionStore.list()).find((item) => item.submission_id === req.params.submissionId);
     if (!submission) return reply.code(404).send(buildRhChainApiErrorResponse('rh_chain_submission_not_found'));
-    return safeJsonExport(buildRhChainApiResponse({ submission: redactRhChainSubmissionForReview(submission) }));
+    const reviewItems = assembleRhChainReviewQueue((await rhChainSubmissionStore.list()).map(asRhChainPersistedReviewItem)).items;
+    const intelligence = resolveRhChainContractIntelligence(submission.token_contract, { reviewItems });
+    return safeJsonExport(buildRhChainApiResponse({ submission: { ...redactRhChainSubmissionForReview(submission), contract_intelligence: { source: intelligence.source, display_name: intelligence.display_name, review_status: intelligence.review_status, claim_status: intelligence.claim_status } } }));
   });
   app.patch<{ Params: { submissionId: string } }>('/internal/rh-chain/review-console/submissions/:submissionId', async (req, reply) => {
     if (!config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
@@ -2112,8 +2122,9 @@ export async function createApp(
     return safeJsonExport(buildRhChainApiResponse({ ...snapshot, data_mode: snapshot.live_snapshots_enabled && snapshot.cache_status === 'fresh' ? 'live_cached' as const : snapshot.live_snapshots_enabled ? 'unavailable' as const : 'seeded' as const }));
   });
   app.get<{ Params: { contract: string } }>('/v1/rh-chain/live-snapshot/token/:contract', async (req) => {
-    const snapshot = await rhChainLiveSnapshots.getTokenSnapshot(req.params.contract);
-    return safeJsonExport(buildRhChainApiResponse({ ...snapshot, data_mode: snapshot.live_snapshots_enabled && snapshot.cache_status === 'fresh' ? 'live_cached' as const : snapshot.live_snapshots_enabled ? 'unavailable' as const : 'seeded' as const }));
+    const [snapshot, submissions, snapshotHistory, onchain] = await Promise.all([rhChainLiveSnapshots.getTokenSnapshot(req.params.contract), rhChainSubmissionStore.list(), rhChainMarketSnapshots.listSnapshots(req.params.contract), rhChainTokenRegistry.enrichToken(req.params.contract)]);
+    const reviewItems = assembleRhChainReviewQueue(submissions.map(asRhChainPersistedReviewItem)).items;
+    return safeJsonExport(buildRhChainApiResponse({ ...snapshot, resolved_context: resolveRhChainContractIntelligence(req.params.contract, { reviewItems, snapshotHistory, dexscreener: snapshot.token_pair, blockscout: snapshot.explorer, blockscoutToken: onchain.token }), data_mode: snapshot.live_snapshots_enabled && snapshot.cache_status === 'fresh' ? 'live_cached' as const : snapshot.live_snapshots_enabled ? 'unavailable' as const : 'seeded' as const }));
   });
   app.get('/v1/rh-chain/market/provider-status', async () => safeJsonExport(buildRhChainApiResponse(await rhChainMarketData.getProviderStatus())));
   app.get('/v1/rh-chain/onchain/provider-status', async () => safeJsonExport(buildRhChainApiResponse(await rhChainTokenRegistry.getProviderStatus())));
@@ -2145,14 +2156,32 @@ export async function createApp(
   app.get('/v1/rh-chain/market-structure', async () => safeJsonExport(buildRhChainApiResponse(await rhChainMarketStructure.marketStructure())));
   app.get('/v1/rh-chain/market-structure/cross-layer', async () => safeJsonExport(buildRhChainApiResponse(await rhChainMarketStructure.crossLayer())));
   app.get('/v1/rh-chain/market-structure/attention-quality', async () => safeJsonExport(buildRhChainApiResponse(await rhChainMarketStructure.attentionQuality())));
+  app.get('/v1/rh-chain/discovery-queue', async () => safeJsonExport(buildRhChainApiResponse(await rhChainDiscoveryQueue!.refresh())));
+  app.post('/v1/rh-chain/discovery-queue/refresh', async () => safeJsonExport(buildRhChainApiResponse(await rhChainDiscoveryQueue!.refresh())));
+  app.post<{ Params: { contract: string }; Body: { target?: 'market_structure' | '100_receipts' } }>('/v1/rh-chain/discovery-queue/:contract/promote', async (req, reply) => {
+    try { return safeJsonExport(buildRhChainApiResponse({ item: rhChainDiscoveryQueue!.promote(req.params.contract, req.body?.target === '100_receipts' ? '100_receipts' : 'market_structure') })); }
+    catch (error) { return reply.code(404).send(buildRhChainApiErrorResponse(error instanceof Error ? error.message : 'discovery_contract_not_found')); }
+  });
+  app.post<{ Params: { contract: string } }>('/v1/rh-chain/discovery-queue/:contract/ignore', async (req, reply) => {
+    try { return safeJsonExport(buildRhChainApiResponse({ item: rhChainDiscoveryQueue!.ignore(req.params.contract) })); }
+    catch (error) { return reply.code(404).send(buildRhChainApiErrorResponse(error instanceof Error ? error.message : 'discovery_contract_not_found')); }
+  });
+  app.post<{ Params: { contract: string } }>('/v1/rh-chain/discovery-queue/:contract/watch', async (req, reply) => {
+    try { return safeJsonExport(buildRhChainApiResponse({ item: rhChainDiscoveryQueue!.watch(req.params.contract) })); }
+    catch (error) { return reply.code(404).send(buildRhChainApiErrorResponse(error instanceof Error ? error.message : 'discovery_contract_not_found')); }
+  });
   app.get<{ Params: { contract: string } }>('/v1/rh-chain/tokens/:contract/dossier', async (req) => {
-    const [submissions, tokenSnapshot, liveSnapshot, sweep] = await Promise.all([
+    const [submissions, tokenSnapshot, liveSnapshot, sweep, snapshotHistory, onchain] = await Promise.all([
       rhChainSubmissionStore.list(),
       rhChainLiveSnapshots.getTokenSnapshot(req.params.contract),
       rhChainLiveSnapshots.getLiveSnapshot(),
-      rhChainRiskCorrelationSweep.getLatest()
+      rhChainRiskCorrelationSweep.getLatest(),
+      rhChainMarketSnapshots.listSnapshots(req.params.contract),
+      rhChainTokenRegistry.enrichToken(req.params.contract)
     ]);
-    const dossier = assembleRhChainTokenDossier(req.params.contract, submissions, tokenSnapshot, liveSnapshot);
+    const reviewItems = assembleRhChainReviewQueue(submissions.map(asRhChainPersistedReviewItem)).items;
+    const resolution = resolveRhChainContractIntelligence(req.params.contract, { reviewItems, snapshotHistory, dexscreener: tokenSnapshot.token_pair, blockscout: tokenSnapshot.explorer, blockscoutToken: onchain.token });
+    const dossier = assembleRhChainTokenDossier(req.params.contract, submissions, tokenSnapshot, liveSnapshot, resolution);
     const related_suspected_correlations = sweep?.suspected_correlations.filter((correlation) => correlation.related_records.some((record) => record.token_contract.toLowerCase() === req.params.contract.toLowerCase())).map(({ correlation_id, correlation_type, evidence_summary, confidence_level, review_status, observed_at }) => ({ correlation_id, correlation_type, evidence_summary, confidence_level, review_status, observed_at }));
     return safeJsonExport(buildRhChainApiResponse({ ...dossier, ...(related_suspected_correlations?.length ? { related_suspected_correlations } : {}) }));
   });
