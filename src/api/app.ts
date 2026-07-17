@@ -21,6 +21,7 @@ import { RhChainTokenRegistryService, type RhChainTokenRegistryOptions } from '.
 import { RhChainMarketDataService, type RhChainMarketDataServiceOptions, type RhChainReviewedClassification } from '../services/rhChainMarketDataService';
 import { RhChainMarketStructureService, type RhChainMarketStructureOptions } from '../services/rhChainMarketStructureService';
 import { RhChainDiscoveryQueueService } from '../services/rhChainDiscoveryQueueService';
+import { RhChainReviewPipelineService, type RhChainReviewClassification, type RhChainReviewSecondaryTag } from '../services/rhChainReviewPipelineService';
 import { InMemoryRhChainMarketSnapshotStore, PostgresRhChainMarketSnapshotStore, RhChainMarketSnapshotService, type RhChainMarketSnapshotServiceOptions, type RhChainMarketSnapshotStore } from '../services/rhChainMarketSnapshotService';
 import { InMemoryRhChainMetricsSnapshotStore, PostgresRhChainMetricsSnapshotStore, RhChainChainPulseService, type RhChainMetricsSnapshotStore } from '../services/rhChainChainPulseService';
 import { InMemoryRhChainMemePulseSnapshotStore, PostgresRhChainMemePulseSnapshotStore, RhChainMemePulseSnapshotService, type RhChainMemePulseSnapshotStore } from '../services/rhChainMemePulseSnapshotService';
@@ -680,10 +681,11 @@ export async function createApp(
     ?? (rhChainPostgresPool ? new PostgresRhChainMetricsSnapshotStore(rhChainPostgresPool) : new InMemoryRhChainMetricsSnapshotStore());
   const rhChainChainPulse = new RhChainChainPulseService(rhChainMetricsSnapshotStore);
   let rhChainDiscoveryQueue: RhChainDiscoveryQueueService | null = null;
+  let rhChainReviewPipeline: RhChainReviewPipelineService | null = null;
   const rhChainMarketStructure = new RhChainMarketStructureService({
     marketData: rhChainMarketData,
     metrics: () => rhChainChainPulse.getLatest(),
-    classifications: () => [...rhChainReviewedLayerClassifications, ...(rhChainDiscoveryQueue?.marketStructureCandidates() ?? [])],
+    classifications: () => [...rhChainReviewedLayerClassifications, ...(rhChainDiscoveryQueue?.marketStructureCandidates() ?? []), ...(rhChainReviewPipeline?.marketStructureCandidates() ?? [])],
     latestReceipt: () => {
       const receipt = getRhChainDailyReceipts().receipts[0];
       return receipt ? { receipt_id: receipt.receipt_id, timestamp: receipt.observed_at ?? receipt.generated_at, summary: receipt.headline } : null;
@@ -718,8 +720,13 @@ export async function createApp(
     enabled: options.rhChainMarketSnapshotOptions?.enabled ?? config.rhChainAutomationEnabled,
     // Snapshot history remains DEX Screener market data. Blockscout only adds exact-contract watchlist provenance/evidence.
     watchlist: async () => [...new Set([...(await rhChainTokenRegistry.seedWatchlistFromBlockscout()).map((item) => item.contract), ...(rhChainDiscoveryQueue?.watchedContracts() ?? [])])],
-    classificationFor: (contract) => [...rhChainReviewedLayerClassifications, ...(rhChainDiscoveryQueue?.marketStructureCandidates() ?? [])].find((classification) => classification.contract.toLowerCase() === contract.toLowerCase()) ?? null,
+    classificationFor: (contract) => [...rhChainReviewedLayerClassifications, ...(rhChainDiscoveryQueue?.marketStructureCandidates() ?? []), ...(rhChainReviewPipeline?.marketStructureCandidates() ?? [])].find((classification) => classification.contract.toLowerCase() === contract.toLowerCase()) ?? null,
     ...options.rhChainMarketSnapshotOptions
+  });
+  rhChainReviewPipeline = new RhChainReviewPipelineService({
+    discoveryQueue: rhChainDiscoveryQueue,
+    snapshots: rhChainMarketSnapshots,
+    classifications: () => [...rhChainReviewedLayerClassifications, ...(rhChainDiscoveryQueue?.marketStructureCandidates() ?? []), ...(rhChainReviewPipeline?.marketStructureCandidates() ?? [])]
   });
   const rhChainMemePulseSnapshotStore: RhChainMemePulseSnapshotStore = options.rhChainMemePulseSnapshotStore
     ?? (rhChainPostgresPool ? new PostgresRhChainMemePulseSnapshotStore(rhChainPostgresPool) : new InMemoryRhChainMemePulseSnapshotStore());
@@ -2170,6 +2177,35 @@ export async function createApp(
     try { return safeJsonExport(buildRhChainApiResponse({ item: rhChainDiscoveryQueue!.watch(req.params.contract) })); }
     catch (error) { return reply.code(404).send(buildRhChainApiErrorResponse(error instanceof Error ? error.message : 'discovery_contract_not_found')); }
   });
+  type ReviewPipelineBody = { reviewer_note?: string; missing_evidence?: string[]; caveats?: string[]; market_structure_layer?: RhChainReviewClassification; secondary_tags?: RhChainReviewSecondaryTag[]; day?: string; outcome_check_at?: string };
+  const reviewPipelineError = (reply: FastifyReply, error: unknown) => reply.code(error instanceof Error && error.message === 'exact_contract_required' ? 400 : 404).send(buildRhChainApiErrorResponse(error instanceof Error ? error.message : 'review_pipeline_action_failed'));
+  app.get<{ Querystring: { day?: string } }>('/v1/rh-chain/review-pipeline', async (req) => safeJsonExport(buildRhChainApiResponse(await rhChainReviewPipeline.pipeline(req.query.day))));
+  app.post<{ Body: { day?: string } }>('/v1/rh-chain/review-pipeline/start-daily-review', async (req) => safeJsonExport(buildRhChainApiResponse(await rhChainReviewPipeline.startDailyReview(req.body?.day))));
+  app.post<{ Params: { contract: string }; Body: ReviewPipelineBody }>('/v1/rh-chain/review-pipeline/:contract/classify', async (req, reply) => {
+    try { return safeJsonExport(buildRhChainApiResponse({ item: await rhChainReviewPipeline.classify(req.params.contract, req.body ?? {}) })); } catch (error) { return reviewPipelineError(reply, error); }
+  });
+  app.post<{ Params: { contract: string }; Body: ReviewPipelineBody }>('/v1/rh-chain/review-pipeline/:contract/promote-to-market-structure', async (req, reply) => {
+    try { return safeJsonExport(buildRhChainApiResponse({ item: await rhChainReviewPipeline.promoteToMarketStructure(req.params.contract, req.body ?? {}) })); } catch (error) { return reviewPipelineError(reply, error); }
+  });
+  app.post<{ Params: { contract: string }; Body: ReviewPipelineBody }>('/v1/rh-chain/review-pipeline/:contract/promote-to-100-receipts', async (req, reply) => {
+    try { return safeJsonExport(buildRhChainApiResponse({ item: await rhChainReviewPipeline.promoteTo100Receipts(req.params.contract, req.body ?? {}) })); } catch (error) { return reviewPipelineError(reply, error); }
+  });
+  app.post<{ Params: { contract: string }; Body: ReviewPipelineBody }>('/v1/rh-chain/review-pipeline/:contract/add-to-daily-draft', async (req, reply) => {
+    try { return safeJsonExport(buildRhChainApiResponse(await rhChainReviewPipeline.addToDailyDraft(req.params.contract, req.body ?? {}))); } catch (error) { return reviewPipelineError(reply, error); }
+  });
+  app.post<{ Params: { contract: string }; Body: ReviewPipelineBody }>('/v1/rh-chain/review-pipeline/:contract/set-outcome-check', async (req, reply) => {
+    try { return safeJsonExport(buildRhChainApiResponse({ item: await rhChainReviewPipeline.setOutcomeCheck(req.params.contract, req.body ?? {}) })); } catch (error) { return reviewPipelineError(reply, error); }
+  });
+  app.post<{ Params: { contract: string }; Body: ReviewPipelineBody }>('/v1/rh-chain/review-pipeline/:contract/watch', async (req, reply) => {
+    try { return safeJsonExport(buildRhChainApiResponse({ item: await rhChainReviewPipeline.watch(req.params.contract, req.body ?? {}) })); } catch (error) { return reviewPipelineError(reply, error); }
+  });
+  app.post<{ Params: { contract: string }; Body: ReviewPipelineBody }>('/v1/rh-chain/review-pipeline/:contract/source-required', async (req, reply) => {
+    try { return safeJsonExport(buildRhChainApiResponse({ item: await rhChainReviewPipeline.sourceRequired(req.params.contract, req.body ?? {}) })); } catch (error) { return reviewPipelineError(reply, error); }
+  });
+  app.post<{ Params: { contract: string }; Body: ReviewPipelineBody }>('/v1/rh-chain/review-pipeline/:contract/ignore-duplicate', async (req, reply) => {
+    try { return safeJsonExport(buildRhChainApiResponse({ item: await rhChainReviewPipeline.ignoreDuplicate(req.params.contract, req.body ?? {}) })); } catch (error) { return reviewPipelineError(reply, error); }
+  });
+  app.get<{ Querystring: { day?: string } }>('/v1/rh-chain/review-pipeline/daily-summary', async (req) => safeJsonExport(buildRhChainApiResponse(await rhChainReviewPipeline.dailySummary(req.query.day))));
   app.get<{ Params: { contract: string } }>('/v1/rh-chain/tokens/:contract/dossier', async (req) => {
     const [submissions, tokenSnapshot, liveSnapshot, sweep, snapshotHistory, onchain] = await Promise.all([
       rhChainSubmissionStore.list(),

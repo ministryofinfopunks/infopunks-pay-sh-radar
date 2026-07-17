@@ -18310,3 +18310,31 @@ samp,
     box-shadow: none;
   }
 }
+
+.rh-review-pipeline-board {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(16rem, 1fr));
+  gap: .9rem;
+  overflow-x: auto;
+  align-items: start;
+  padding-bottom: .5rem;
+}
+
+.rh-review-pipeline-column {
+  min-height: 18rem;
+  border: 1px solid var(--radar-line);
+  background: rgba(8, 20, 14, .58);
+  padding: .9rem;
+  display: grid;
+  gap: .7rem;
+}
+
+.rh-review-pipeline-column > div:first-child { border-bottom: 1px solid var(--radar-line); }
+.rh-review-pipeline-column h2 { margin: 0 0 .65rem; }
+.rh-review-pipeline-card { min-width: 0; }
+.rh-review-pipeline-card code { overflow-wrap: anywhere; font-size: .72rem; }
+.rh-review-pipeline-card small { display: block; margin-top: .45rem; }
+.rh-review-fields { display: grid; gap: .5rem; }
+.rh-review-fields summary { cursor: pointer; color: var(--radar-text-muted); }
+.rh-review-fields label { display: grid; gap: .25rem; font-size: .76rem; }
+.rh-review-fields textarea { min-height: 3.5rem; }
