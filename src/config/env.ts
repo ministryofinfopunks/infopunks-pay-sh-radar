@@ -29,6 +29,11 @@ export type RuntimeConfig = {
   dexScreenerTimeoutMs: number;
   dexScreenerCacheTtlSeconds: number;
   dexScreenerMaxBatchSize: number;
+  blockscoutEnabled: boolean;
+  blockscoutBaseUrl: string;
+  blockscoutTimeoutMs: number;
+  blockscoutCacheTtlSeconds: number;
+  blockscoutMaxPageSize: number;
   rhChainBlockscoutUrl: string | null;
   rhChainReviewConsoleEnabled: boolean;
   rhChainReviewAdminToken: string | null;
@@ -79,6 +84,11 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
     dexScreenerTimeoutMs: readPositiveInteger('DEXSCREENER_TIMEOUT_MS', env.DEXSCREENER_TIMEOUT_MS, 2_500),
     dexScreenerCacheTtlSeconds: readPositiveInteger('DEXSCREENER_CACHE_TTL_SECONDS', env.DEXSCREENER_CACHE_TTL_SECONDS, 120),
     dexScreenerMaxBatchSize: readBoundedPositiveInteger('DEXSCREENER_MAX_BATCH_SIZE', env.DEXSCREENER_MAX_BATCH_SIZE, 30, 30),
+    blockscoutEnabled: readBoolean('BLOCKSCOUT_ENABLED', env.BLOCKSCOUT_ENABLED, false),
+    blockscoutBaseUrl: readRequiredUrl('BLOCKSCOUT_BASE_URL', env.BLOCKSCOUT_BASE_URL, 'https://robinhoodchain.blockscout.com'),
+    blockscoutTimeoutMs: readPositiveInteger('BLOCKSCOUT_TIMEOUT_MS', env.BLOCKSCOUT_TIMEOUT_MS, 2_500),
+    blockscoutCacheTtlSeconds: readPositiveInteger('BLOCKSCOUT_CACHE_TTL_SECONDS', env.BLOCKSCOUT_CACHE_TTL_SECONDS, 120),
+    blockscoutMaxPageSize: readBoundedPositiveInteger('BLOCKSCOUT_MAX_PAGE_SIZE', env.BLOCKSCOUT_MAX_PAGE_SIZE, 50, 50),
     rhChainBlockscoutUrl: readOptionalUrl('RH_CHAIN_BLOCKSCOUT_URL', env.RH_CHAIN_BLOCKSCOUT_URL),
     rhChainReviewConsoleEnabled: readBoolean('RH_CHAIN_REVIEW_CONSOLE_ENABLED', env.RH_CHAIN_REVIEW_CONSOLE_ENABLED, false),
     rhChainReviewAdminToken: optionalString(env.RH_CHAIN_REVIEW_ADMIN_TOKEN),

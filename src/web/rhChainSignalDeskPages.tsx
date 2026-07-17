@@ -50,6 +50,10 @@ type RhChainMarketProviderStatus = {
   provider: 'dexscreener'; enabled: boolean; last_successful_capture: string | null; latest_boosts_observed: number;
   known_token_refresh_state: 'idle' | 'fresh' | 'partial_failure' | 'fallback' | 'disabled'; fallback_mode: boolean;
 };
+type RhChainOnchainProviderStatus = {
+  provider: 'blockscout'; enabled: boolean; last_successful_capture: string | null; observed_token_count: number; enriched_token_count: number;
+  unresolved_deployer_count: number; fallback_state: 'normal' | 'fallback' | 'disabled';
+};
 
 async function postApi<T>(path: string, body: unknown) {
   const response = await fetch(toApiUrl(API_BASE_URL, path), {
@@ -143,6 +147,7 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
   const [launchSurfaces, setLaunchSurfaces] = useState<{ title: string; subtitle: string; doctrine: string; disclaimer: string; launch_surfaces: RhChainLaunchSurfaceRecord[]; access_surfaces: RhChainAccessSurface[] } | null>(null);
   const [liveSnapshot, setLiveSnapshot] = useState<RhChainLiveSnapshot | null>(null);
   const [marketProviderStatus, setMarketProviderStatus] = useState<RhChainMarketProviderStatus | null>(null);
+  const [onchainProviderStatus, setOnchainProviderStatus] = useState<RhChainOnchainProviderStatus | null>(null);
   const [routeEnvelope, setRouteEnvelope] = useState<RhChainEnvelope<unknown> | null>(null);
   const [deskFailure, setDeskFailure] = useState<RhChainRequestFailure | null>(null);
   const [reviewQueueFailure, setReviewQueueFailure] = useState<RhChainRequestFailure | null>(null);
@@ -182,6 +187,7 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
       .then((response) => { setLiveSnapshot(response.data); if (liveSnapshotRoute) setRouteEnvelope(response); })
       .catch((error) => setLiveSnapshotFailure(requestFailure(error, '/v1/rh-chain/live-snapshot', 'live snapshot')));
     api<RhChainMarketProviderStatus>('/v1/rh-chain/market/provider-status').then((response) => setMarketProviderStatus(response.data)).catch(() => undefined);
+    api<RhChainOnchainProviderStatus>('/v1/rh-chain/onchain/provider-status').then((response) => setOnchainProviderStatus(response.data)).catch(() => undefined);
   }, []);
 
   // The server refreshes Chain Pulse on its automation interval. Keep the desk
@@ -202,7 +208,7 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
   let routeContent: React.ReactNode = null;
   if (desk) {
     if (scoutRoute) routeContent = <ScoutPage />;
-    else if (liveSnapshotRoute) routeContent = liveSnapshot ? <LiveSnapshotPage snapshot={liveSnapshot} marketProviderStatus={marketProviderStatus} /> : liveSnapshotFailure ? degraded(liveSnapshotFailure, 'Live snapshot', 'Reviewed Signal Desk memory remains accessible.') : loading('Opening live snapshot…');
+    else if (liveSnapshotRoute) routeContent = liveSnapshot ? <LiveSnapshotPage snapshot={liveSnapshot} marketProviderStatus={marketProviderStatus} onchainProviderStatus={onchainProviderStatus} /> : liveSnapshotFailure ? degraded(liveSnapshotFailure, 'Live snapshot', 'Reviewed Signal Desk memory remains accessible.') : loading('Opening live snapshot…');
     else if (launchSurfacesRoute) routeContent = launchSurfaces ? <LaunchSurfacesPage surfaceWatch={launchSurfaces} /> : launchSurfacesFailure ? degraded(launchSurfacesFailure, 'Launch surfaces') : loading('Opening launch surfaces…');
     else if (receiptCardRoute || dailyReceiptDetailRoute) routeContent = selectedDailyReceipt
       ? receiptCardRoute ? <ReceiptCardPage receipt={selectedDailyReceipt} /> : <ReceiptDetailPage receipt={selectedDailyReceipt} feed={dailyReceipts!} />
@@ -1009,7 +1015,7 @@ function LiveSnapshotPreview({ snapshot }: { snapshot: RhChainLiveSnapshot }) {
   </section>;
 }
 
-function LiveSnapshotPage({ snapshot, marketProviderStatus }: { snapshot: RhChainLiveSnapshot; marketProviderStatus: RhChainMarketProviderStatus | null }) {
+function LiveSnapshotPage({ snapshot, marketProviderStatus, onchainProviderStatus }: { snapshot: RhChainLiveSnapshot; marketProviderStatus: RhChainMarketProviderStatus | null; onchainProviderStatus: RhChainOnchainProviderStatus | null }) {
   const [contract, setContract] = useState('');
   const [result, setResult] = useState<RhChainTokenSnapshotResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -1030,6 +1036,16 @@ function LiveSnapshotPage({ snapshot, marketProviderStatus }: { snapshot: RhChai
         <article className="rh-chain-review-stat"><span>Latest boosts observed</span><strong>{marketProviderStatus?.latest_boosts_observed ?? 0}</strong></article>
         <article className="rh-chain-review-stat"><span>Known token refresh</span><strong>{marketProviderStatus?.known_token_refresh_state?.replaceAll('_', ' ') ?? 'unavailable'}</strong></article>
         <article className="rh-chain-review-stat"><span>Fallback mode</span><strong>{marketProviderStatus?.fallback_mode ? 'active' : 'normal'}</strong></article>
+      </div>
+    </section>
+    <section className="panel rh-chain-section" aria-label="Blockscout Onchain Evidence Status">
+      <div className="rh-chain-section-head"><div><p className="section-kicker">Onchain evidence</p><h2>Blockscout registry</h2><p>Exact-contract registry, deployer, holder, and transfer evidence only. Explorer visibility does not verify claims or approve an asset.</p></div><span className="source-badge">{onchainProviderStatus?.enabled ? 'enabled' : 'disabled'}</span></div>
+      <div className="rh-chain-review-stat-grid">
+        <article className="rh-chain-review-stat"><span>Last successful capture</span><strong>{onchainProviderStatus?.last_successful_capture ? formatTimestamp(onchainProviderStatus.last_successful_capture) : 'unavailable'}</strong></article>
+        <article className="rh-chain-review-stat"><span>Observed tokens</span><strong>{onchainProviderStatus?.observed_token_count ?? 0}</strong></article>
+        <article className="rh-chain-review-stat"><span>Enriched tokens</span><strong>{onchainProviderStatus?.enriched_token_count ?? 0}</strong></article>
+        <article className="rh-chain-review-stat"><span>Unresolved deployers</span><strong>{onchainProviderStatus?.unresolved_deployer_count ?? 0}</strong></article>
+        <article className="rh-chain-review-stat"><span>Fallback state</span><strong>{onchainProviderStatus?.fallback_state?.replaceAll('_', ' ') ?? 'unavailable'}</strong></article>
       </div>
     </section>
     <section className="panel rh-chain-section" aria-label="Provider Status">

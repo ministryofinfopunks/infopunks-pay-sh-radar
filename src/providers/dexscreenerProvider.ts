@@ -17,8 +17,8 @@ export type RhChainMarketSnapshot = {
   liquidityUsd: number | null;
   marketCap: number | null;
   fdv: number | null;
-  volume: { h24: number | null };
-  txns: { h24: { buys: number | null; sells: number | null } };
+  volume: { h24: number | null; h6?: number | null; h1?: number | null };
+  txns: { h24: { buys: number | null; sells: number | null }; h6?: { buys: number | null; sells: number | null } };
   priceChange: { h1: number | null; h6: number | null; h24: number | null };
   pairCreatedAt: string | null;
   activeBoosts: number;
@@ -194,7 +194,9 @@ export class DexScreenerProvider implements RhChainDexScreenerIngestionSource {
     if (!tokenAddress) return null;
     const liquidity = isRecord(pair.liquidity) ? pair.liquidity : {};
     const volume = isRecord(pair.volume) ? pair.volume : {};
-    const txns = isRecord(pair.txns) && isRecord(pair.txns.h24) ? pair.txns.h24 : {};
+    const txnsRoot = isRecord(pair.txns) ? pair.txns : {};
+    const txns = isRecord(txnsRoot.h24) ? txnsRoot.h24 : {};
+    const txnsH6 = isRecord(txnsRoot.h6) ? txnsRoot.h6 : {};
     const priceChange = isRecord(pair.priceChange) ? pair.priceChange : {};
     return {
       provider: 'dexscreener', chainId: this.chainId, capturedAt: this.now().toISOString(), tokenAddress,
@@ -202,7 +204,7 @@ export class DexScreenerProvider implements RhChainDexScreenerIngestionSource {
       quoteTokenSymbol: requested === baseAddress ? string(quoteToken.symbol) : string(baseToken.symbol),
       pairAddress: string(pair.pairAddress), dexId: string(pair.dexId), priceUsd: number(pair.priceUsd),
       liquidityUsd: number(liquidity.usd), marketCap: number(pair.marketCap), fdv: number(pair.fdv),
-      volume: { h24: number(volume.h24) }, txns: { h24: { buys: number(txns.buys), sells: number(txns.sells) } },
+      volume: { h24: number(volume.h24), h6: number(volume.h6), h1: number(volume.h1) }, txns: { h24: { buys: number(txns.buys), sells: number(txns.sells) }, h6: { buys: number(txnsH6.buys), sells: number(txnsH6.sells) } },
       priceChange: { h1: number(priceChange.h1), h6: number(priceChange.h6), h24: number(priceChange.h24) },
       pairCreatedAt: timestamp(pair.pairCreatedAt), activeBoosts: 0, paidOrders: [], dataMode: 'live_cached', sourceUrl: string(pair.url)
     };

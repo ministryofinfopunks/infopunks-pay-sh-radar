@@ -8,6 +8,7 @@ import type { RhChainMemePulseSnapshotService } from './rhChainMemePulseSnapshot
 import type { RhChainLaunchpadSnapshotService } from './rhChainLaunchpadSnapshotService';
 import type { RhChainLiveSnapshotService } from './rhChainLiveSnapshotService';
 import type { RhChainSubmissionStore } from './rhChainSignalVault';
+import type { RhChainAttentionQualityHistory } from './rhChainMarketSnapshotService';
 
 export type RhChainDailyReceiptDraftStatus = 'draft_generated' | 'under_review' | 'published' | 'rejected';
 export type RhChainDailyReceiptDraft = {
@@ -28,6 +29,7 @@ export type RhChainDailyReceiptDraft = {
   confidence_level: 'low' | 'medium' | 'high';
   source_notes: string[];
   missing_evidence: string[];
+  attention_quality_context?: Array<Pick<RhChainAttentionQualityHistory, 'contract' | 'state' | 'snapshot_count' | 'latest_snapshot_at' | 'paid_attention_context'>>;
   reviewer_edits?: Partial<Record<'chain_pulse_summary' | 'meme_pulse_summary' | 'launchpad_surface_summary' | 'rwa_pulse_summary' | 'risk_wall_summary' | 'narrative_mutation_summary' | 'suggested_infopunks_verdict', string>>;
   audit_events: Array<{ event_id: string; occurred_at: string; action: 'generated' | 'published' | 'rejected'; reviewer_id?: string; note: string }>;
 };
@@ -67,10 +69,10 @@ export class PostgresRhChainDailyReceiptDraftStore implements RhChainDailyReceip
 
 export class RhChainDailyReceiptDraftService {
   private readonly now: () => Date;
-  constructor(private readonly store: RhChainDailyReceiptDraftStore, private readonly chainPulse: RhChainChainPulseService, private readonly memePulse: RhChainMemePulseSnapshotService, private readonly launchpad: RhChainLaunchpadSnapshotService, private readonly live: RhChainLiveSnapshotService, private readonly submissions: Pick<RhChainSubmissionStore, 'list'>, now?: () => Date) { this.now = now ?? (() => new Date()); }
+  constructor(private readonly store: RhChainDailyReceiptDraftStore, private readonly chainPulse: RhChainChainPulseService, private readonly memePulse: RhChainMemePulseSnapshotService, private readonly launchpad: RhChainLaunchpadSnapshotService, private readonly live: RhChainLiveSnapshotService, private readonly submissions: Pick<RhChainSubmissionStore, 'list'>, private readonly attentionHistory?: { summarizeKnownWatchlistAttention(): Promise<RhChainAttentionQualityHistory[]> }, now?: () => Date) { this.now = now ?? (() => new Date()); }
   async generateDraft() {
     const generated_at = this.now().toISOString();
-    const [chain, meme, launchpad, live, submissions] = await Promise.all([this.chainPulse.getLatest(), this.memePulse.getLatest(), this.launchpad.getLatest(), this.live.getLiveSnapshot(), this.submissions.list()]);
+    const [chain, meme, launchpad, live, submissions, attention] = await Promise.all([this.chainPulse.getLatest(), this.memePulse.getLatest(), this.launchpad.getLatest(), this.live.getLiveSnapshot(), this.submissions.list(), this.attentionHistory?.summarizeKnownWatchlistAttention() ?? Promise.resolve([])]);
     const clone = assembleRhChainCloneRadar();
     const missing_evidence = [!chain && 'Chain Pulse snapshot unavailable.', !meme && 'Meme Pulse snapshot unavailable.', !launchpad && 'Launchpad Observatory snapshot unavailable.', live.cache_status !== 'fresh' && 'Live provider context is stale or unavailable.', submissions.some((submission) => submission.review_status !== 'approved_signal') && 'Review Queue contains unresolved submissions.'].filter(Boolean) as string[];
     const sources = ['Chain Pulse', 'Meme Pulse', 'Launchpad Observatory', 'Clone Radar', 'Token Dossiers', 'Review Queue', 'Live Snapshot'];
@@ -81,7 +83,7 @@ export class RhChainDailyReceiptDraftService {
       rwa_pulse_summary: 'RWA and stock-token themes remain narrative context until source-linked usage or route evidence is reviewed.',
       risk_wall_summary: clone.active_warnings.length ? `${clone.active_warnings.length} clone-risk cues remain review prompts, not misconduct findings.` : 'No clone-risk cue is promoted from absence.',
       narrative_mutation_summary: meme?.pulse.snapshot.strongest_narrative_mutation ?? 'Narrative mutation requires current receipt context.',
-      suggested_infopunks_verdict: 'Draft only: review sources and missing evidence before publication. This is not endorsement, safety verification, or financial advice.', confidence_level: missing_evidence.length ? 'low' : 'medium', source_notes: ['Automation assembled this draft from contextual snapshots and reviewed memory.', 'Only a reviewer can publish a Daily Receipt.'], missing_evidence,
+      suggested_infopunks_verdict: 'Draft only: review sources and missing evidence before publication. This is not endorsement, safety verification, or financial advice.', confidence_level: missing_evidence.length ? 'low' : 'medium', source_notes: ['Automation assembled this draft from contextual snapshots and reviewed memory.', 'Attention history, when present, is provider context only; a reviewer decides whether to cite it.', 'Only a reviewer can publish a Daily Receipt.'], missing_evidence, attention_quality_context: attention.map(({ contract, state, snapshot_count, latest_snapshot_at, paid_attention_context }) => ({ contract, state, snapshot_count, latest_snapshot_at, paid_attention_context })),
       audit_events: [{ event_id: randomUUID(), occurred_at: generated_at, action: 'generated', note: 'Automation generated a receipt draft; no public receipt was created.' }] };
     await this.store.saveDraft(draft); return draft;
   }

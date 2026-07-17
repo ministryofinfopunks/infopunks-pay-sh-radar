@@ -41,13 +41,13 @@ describe('RH Chain market data layer', () => {
   it('does not call a boosted token organic without history', async () => {
     const boosts = [{ tokenAddress: '0xabc', chainId: 'robinhood' as const, amount: 5, totalAmount: 5, observed_at: '2026-07-17T00:00:00.000Z', sourceUrl: null }];
     const service = new RhChainMarketDataService({ enabled: true, provider: provider({ getLatestBoosts: async () => boosts }) });
-    expect((await service.getToken('0xabc')).attention.attention_state).toBe('source_required');
+    expect((await service.getToken('0xabc')).attention.attention_state).toBe('insufficient_history');
   });
 
-  it('returns source_required until before/during/after snapshots exist', () => {
+  it('returns insufficient_history until before/during/after snapshots exist', () => {
     const attention = new RhChainAttentionService(() => new Date('2026-07-17T00:00:00.000Z'));
-    expect(attention.assess(snapshot('one')).attention_state).toBe('source_required');
-    expect(attention.assess(snapshot('two')).attention_state).toBe('source_required');
+    expect(attention.assess(snapshot('one')).attention_state).toBe('insufficient_history');
+    expect(attention.assess(snapshot('two')).attention_state).toBe('insufficient_history');
     expect(attention.assess(snapshot('three')).attention_state).toBe('organic_persistence');
   });
 

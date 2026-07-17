@@ -168,7 +168,7 @@ export class RhChainAutomationService {
     this.chainPulseSnapshots = options.chainPulseSnapshots ?? new RhChainChainPulseService(new InMemoryRhChainMetricsSnapshotStore(), this.now);
     this.memePulseSnapshots = options.memePulseSnapshots ?? new RhChainMemePulseSnapshotService(new InMemoryRhChainMemePulseSnapshotStore(), options.snapshots, this.now);
     this.launchpadSnapshots = options.launchpadSnapshots ?? new RhChainLaunchpadSnapshotService(new InMemoryRhChainLaunchpadSnapshotStore(), options.submissions, this.now);
-    this.dailyReceiptDrafts = options.dailyReceiptDrafts ?? new RhChainDailyReceiptDraftService(new InMemoryRhChainDailyReceiptDraftStore(), this.chainPulseSnapshots, this.memePulseSnapshots, this.launchpadSnapshots, options.snapshots, options.submissions, this.now);
+    this.dailyReceiptDrafts = options.dailyReceiptDrafts ?? new RhChainDailyReceiptDraftService(new InMemoryRhChainDailyReceiptDraftStore(), this.chainPulseSnapshots, this.memePulseSnapshots, this.launchpadSnapshots, options.snapshots, options.submissions, undefined, this.now);
     this.riskCorrelationSweep = options.riskCorrelationSweep ?? new RhChainRiskCorrelationSweepService(new InMemoryRhChainRiskCorrelationSnapshotStore(), options.submissions, this.now);
   }
   get durableLockAvailable() { return this.options.store.durable; }
