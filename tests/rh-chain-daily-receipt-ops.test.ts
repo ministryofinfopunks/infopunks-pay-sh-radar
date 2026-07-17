@@ -4,7 +4,7 @@ import { createRhChainDailyReceipt, createRhChainDailyReceiptXPost, getRhChainDa
 import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
 
 describe('RH Chain Daily Receipt Ops Kit', () => {
-  it('validates authoring requirements, including all six structured sections', () => {
+  it('validates authoring requirements, including the leadership narrative structured section', () => {
     const receipt = structuredClone(getRhChainDailyReceipts().latest_receipt);
     expect(validateRhChainDailyReceipt(receipt)).toEqual({ valid: true, errors: [] });
     const invalid = { ...receipt, source_notes: '', receipt_sections: receipt.receipt_sections?.filter((section) => section.section_id !== 'risk_wall') };
@@ -15,9 +15,9 @@ describe('RH Chain Daily Receipt Ops Kit', () => {
   it('selects the latest receipt and generates known detail and share-card routes', () => {
     const feed = getRhChainDailyReceipts();
     const latest = selectLatestRhChainDailyReceipt(feed.receipts);
-    expect(latest?.receipt_id).toBe('rh_daily_004');
-    expect(feed.latest_receipt.receipt_id).toBe('rh_daily_004');
-    expect(feed.receipts.map((receipt) => receipt.receipt_id)).toEqual(expect.arrayContaining(['rh_daily_001', 'rh_daily_002', 'rh_daily_003']));
+    expect(latest?.receipt_id).toBe('rh_daily_005');
+    expect(feed.latest_receipt.receipt_id).toBe('rh_daily_005');
+    expect(feed.receipts.map((receipt) => receipt.receipt_id)).toEqual(expect.arrayContaining(['rh_daily_001', 'rh_daily_002', 'rh_daily_003', 'rh_daily_004']));
     expect(rhChainDailyReceiptRoute(feed.receipts[1].receipt_id, feed.receipts)).toBe(`/rh-chain-signal-desk/daily-receipts/${feed.receipts[1].receipt_id}`);
     expect(rhChainDailyReceiptRoute('unknown', feed.receipts)).toBeNull();
     expect(rhChainDailyReceiptShareCardRoute(feed.receipts[1].receipt_id)).toBe(`/rh-chain-signal-desk/daily-receipts/${feed.receipts[1].receipt_id}/card`);
@@ -42,16 +42,17 @@ describe('RH Chain Daily Receipt Ops Kit', () => {
     await app.close();
   });
 
-  it('keeps source-required fee and launchpad claims in #004', () => {
+  it('keeps leadership, fee, and launchpad claims source-required in #005', () => {
     const receipt = getRhChainDailyReceipts().latest_receipt;
-    expect(receipt.receipt_id).toBe('rh_daily_004');
+    expect(receipt.receipt_id).toBe('rh_daily_005');
     expect(receipt.receipt_sections?.map((section) => section.section_id)).toEqual(expect.arrayContaining([
-      'chain_pulse', 'meme_pulse', 'launchpad_stress_test', 'risk_wall', 'narrative_mutation', 'infopunks_verdict'
+      'chain_pulse', 'meme_pulse', 'leadership_narrative_pulse', 'launchpad_stress_test', 'risk_wall', 'narrative_mutation', 'infopunks_verdict'
     ]));
     expect(receipt.source_notes).toContain('source_required');
-    expect(receipt.source_notes).toContain('primary/on-chain evidence');
+    expect(receipt.source_notes).toContain('primary or on-chain evidence');
     expect(receipt.receipt_sections?.find((section) => section.section_id === 'launchpad_stress_test')?.fields.map((field) => field.value).join(' ')).toContain('source_required');
-    expect(receipt.receipt_sections?.find((section) => section.section_id === 'risk_wall')?.fields.map((field) => field.value).join(' ')).toContain('burn / buyback claim laundering');
-    expect(JSON.stringify(receipt).toLowerCase()).not.toMatch(/\b(buy|sell)\b/);
+    expect(receipt.receipt_sections?.find((section) => section.section_id === 'leadership_narrative_pulse')?.fields.map((field) => field.value).join(' ')).toContain('Exact quotes and agent-volume figures are source_required');
+    expect(receipt.receipt_sections?.find((section) => section.section_id === 'risk_wall')?.fields.map((field) => field.value).join(' ')).toContain('fee/burn claim laundering');
+    expect(JSON.stringify(receipt).toLowerCase()).not.toMatch(/\b(buy|sell|ape|100x|raid)\b/);
   });
 });

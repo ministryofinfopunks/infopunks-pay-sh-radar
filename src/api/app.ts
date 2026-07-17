@@ -547,7 +547,7 @@ const RhChainReviewUpdateSchema = z.object({
   evidence_summary: optionalRhChainText,
   missing_evidence: z.array(z.string().trim().min(1).max(500)).max(30).optional(),
   risk_state: z.enum(['low_watch', 'medium_watch', 'high_risk', 'source_required', 'do_not_touch_yet']).optional(),
-  signal_state: z.enum(['fresh_signal', 'attention_spike', 'durable_candidate', 'liquidity_mirage', 'deployer_cluster_risk', 'top_holder_risk', 'stock_token_spillover', 'do_not_touch_yet']).optional(),
+  signal_state: z.enum(['fresh_signal', 'attention_spike', 'durable_candidate', 'liquidity_mirage', 'deployer_cluster_risk', 'top_holder_risk', 'stock_token_spillover', 'rwa_narrative_reassertion', 'agentic_economy_signal', 'meme_rwa_divergence', 'do_not_touch_yet']).optional(),
   infopunks_verdict: optionalRhChainText,
   audit_note: z.string().trim().min(1).max(2_000),
   last_seen_updated_at: z.string().datetime().optional()

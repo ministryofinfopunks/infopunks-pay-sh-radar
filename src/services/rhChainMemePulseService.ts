@@ -56,6 +56,7 @@ export function assembleRhChainMemePulseScreen(liveSnapshot?: RhChainLiveSnapsho
     },
     top_attention_assets,
     launchpad_stress: [
+      { id: 'meme-rwa-divergence', title: 'Meme / RWA divergence', summary: 'Meme liquidity remains dominant, but leadership narrative is re-centering RWAs and agents. Narrative reassertion is not usage proof.', risk_state: 'source_required' },
       { id: 'launchpad-economics', title: 'Launchpad Economics', summary: 'NOXA creator-fee shift, rival surface rotation, direct Uniswap migration, and source-required fee/burn claims are tracked as context until primary evidence exists.', risk_state: 'source_required' },
       { id: 'noxa-disruption', title: 'NOXA disruption', summary: 'Reported degradation is manual, source-dependent context only; it does not establish misconduct or intent.', risk_state: 'source_required' },
       { id: 'rival-surface-rotation', title: 'Rival surface rotation', summary: 'flap.sh, trensh.today, bankr, tokeny.fun, vlad.fun, and robindotmarket are watched as source-required context unless primary evidence is attached.', risk_state: 'source_required' },
@@ -70,6 +71,7 @@ export function assembleRhChainMemePulseScreen(liveSnapshot?: RhChainLiveSnapsho
       { id: 'hood', trend: 'Hood meta', translation: 'Brand-adjacent attention is competing for a familiar retail shorthand.', caveat: 'Familiarity is not affiliation, verification, or safety.' },
       { id: 'cat', trend: 'Cat meta', translation: 'Mascot repetition is concentrating attention into easily copied symbols.', caveat: 'Clone risk rises faster than identity certainty.' },
       { id: 'stock-token', trend: 'Stock-token spillover', translation: 'Markets are testing whether meme attention can point toward tokenized-equity narratives.', caveat: 'Narrative interest is not proof of product usage or partnership.' },
+      { id: 'leadership-rwa', trend: 'Leadership RWA Reassertion', translation: 'Leadership narrative is re-centering programmable assets, tokenized finance, and agentic activity while memes remain the visible flow engine.', caveat: 'Exact quotes and agent-volume figures are source_required unless primary links are attached.' },
       { id: 'solana', trend: 'Solana rotation', translation: 'Cross-chain attention may be looking for the next familiar liquidity pattern.', caveat: 'Rotation is context only; routes and liquidity require receipts.' },
       { id: 'ai-agent', trend: 'AI-agent angle', translation: 'Agentic finance framing is entering meme language as a distribution story.', caveat: 'No agent claim upgrades a token or market-memory record.' },
       { id: 'retail', trend: 'Robinhood retail onboarding', translation: 'Retail onboarding is the durable question under the attention layer.', caveat: 'Infopunks is independent and does not imply a Robinhood relationship.' }

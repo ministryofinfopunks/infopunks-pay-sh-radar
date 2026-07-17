@@ -36,6 +36,14 @@ describe('RH Chain Signal Desk API', () => {
       && ['seeded', 'manual', 'cached', 'live_future'].includes(source.data_mode)
       && ['low', 'medium', 'high'].includes(source.confidence_level)
     ))).toBe(true);
+    expect(desk.signal_classifier.map((signal) => signal.label)).toEqual(expect.arrayContaining([
+      'rwa_narrative_reassertion',
+      'agentic_economy_signal',
+      'meme_rwa_divergence'
+    ]));
+    expect(desk.stock_token_spillover_map).toEqual(expect.arrayContaining([
+      expect.objectContaining({ finance_theme: 'Leadership RWA Reassertion' })
+    ]));
   });
 
   it('sorts daily RH Chain receipts by date and generated timestamp', () => {
@@ -132,11 +140,11 @@ describe('RH Chain Signal Desk API', () => {
           ])
         }),
         sources: expect.any(Array),
-        generated_at: '2026-07-16T00:00:00.000Z',
+        generated_at: '2026-07-17T00:00:00.000Z',
         data_mode: 'manual',
         disclaimer: 'Daily RH Chain receipts are public intelligence memory, not financial advice, endorsement, listing, or official Robinhood partnership.'
       }));
-      expect(body.data.latest_receipt).toEqual(expect.objectContaining({ receipt_id: 'rh_daily_004' }));
+      expect(body.data.latest_receipt).toEqual(expect.objectContaining({ receipt_id: 'rh_daily_005' }));
       expect(body.sources.length).toBeGreaterThan(0);
       expect(body.sources.every((source: Record<string, unknown>) => (
         typeof source.source_name === 'string'
@@ -152,18 +160,18 @@ describe('RH Chain Signal Desk API', () => {
         disclaimer: 'Daily RH Chain receipts are public intelligence memory, not financial advice, endorsement, listing, or official Robinhood partnership.'
       }));
       expect(body.data.latest_receipt).toEqual(expect.objectContaining({
-        receipt_id: 'rh_daily_004',
+        receipt_id: 'rh_daily_005',
         receipt_type: 'daily_market_memory',
-        period: 'July 15 → July 16, 2026 UTC',
-        top_signal: 'RH Chain volume remains resilient while NOXA pauses new launches and competitors capture rotation flow',
+        period: 'July 16 → July 17, 2026 UTC',
+        top_signal: 'Leadership messaging is pulling attention back toward programmable assets, tokenized finance, and agentic activity while meme volume remains the chain’s visible engine',
         confidence_level: 'medium',
         status: 'manual',
         data_mode: 'manual'
       }));
       expect(body.data.latest_receipt.sources[0]).toEqual(expect.objectContaining({
-        name: 'Infopunks manual RH Chain launchpad economics watch',
-        source_name: 'Infopunks manual RH Chain launchpad economics watch',
-        observed_at: '2026-07-16T00:00:00.000Z',
+        name: 'Infopunks manual RH Chain narrative and liquidity watch',
+        source_name: 'Infopunks manual RH Chain narrative and liquidity watch',
+        observed_at: '2026-07-17T00:00:00.000Z',
         data_mode: 'manual',
         confidence_level: 'medium'
       }));
@@ -174,6 +182,7 @@ describe('RH Chain Signal Desk API', () => {
         receipt_sections: expect.arrayContaining([
           expect.objectContaining({ section_id: 'chain_pulse' }),
           expect.objectContaining({ section_id: 'meme_pulse' }),
+          expect.objectContaining({ section_id: 'leadership_narrative_pulse' }),
           expect.objectContaining({ section_id: 'launchpad_stress_test' }),
           expect.objectContaining({ section_id: 'risk_wall' }),
           expect.objectContaining({ section_id: 'narrative_mutation' }),
@@ -181,6 +190,7 @@ describe('RH Chain Signal Desk API', () => {
         ])
       }));
       expect(body.data.receipts.map((receipt: { receipt_id: string }) => receipt.receipt_id)).toEqual([
+        'rh_daily_005',
         'rh_daily_004',
         'rh_daily_003',
         'rh_daily_002',
@@ -213,7 +223,7 @@ describe('RH Chain Signal Desk API', () => {
         data_mode: 'manual_fallback',
         freshness_state: 'source_required',
         storage_status: 'unavailable',
-        latest_receipt: expect.objectContaining({ receipt_id: 'rh_daily_004' }),
+        latest_receipt: expect.objectContaining({ receipt_id: 'rh_daily_005' }),
         cards: expect.arrayContaining([
           expect.objectContaining({ title: 'Top Signal' }),
           expect.objectContaining({ title: 'Biggest Risk' }),

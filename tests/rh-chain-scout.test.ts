@@ -11,7 +11,11 @@ describe('RH Chain Scout', () => {
     ['What happened with NOXA?', 'launch_context'],
     ['Why does NOXA fee change matter?', 'launch_context'],
     ['Why track fee claims as source_required?', 'launch_context'],
-    ['What does launchpad fragmentation mean?', 'launch_context']
+    ['What does launchpad fragmentation mean?', 'launch_context'],
+    ['What changed in RH Chain narrative?', 'narrative_mutation'],
+    ['Why does Vlad’s RWA messaging matter?', 'narrative_mutation'],
+    ['How do memes, RWAs, and agents connect?', 'narrative_mutation'],
+    ['What is meme/RWA divergence?', 'narrative_mutation']
   ] as const)('classifies %s', (query, mode) => expect(classifyRhChainScoutQuery(query)).toBe(mode));
   it('returns limitations, disclaimer, and no trading or approval language', () => {
     const result = queryRhChainScout({ query: 'What are the biggest risks right now?' });
@@ -49,5 +53,15 @@ describe('RH Chain Scout', () => {
     expect(fee.answer).toContain('source_required');
     expect(risks.answer).toContain('creator-fee confusion');
     expect(sourceRequired.answer).toContain('Primary terms or on-chain routing evidence');
+  });
+  it('answers leadership narrative and meme/RWA divergence questions from reviewed memory', () => {
+    const changed = queryRhChainScout({ query: 'What changed in RH Chain narrative?' });
+    const vlad = queryRhChainScout({ query: 'Why does Vlad’s RWA messaging matter?' });
+    const connection = queryRhChainScout({ query: 'How do memes, RWAs, and agents connect?' });
+    const divergence = queryRhChainScout({ query: 'What is meme/RWA divergence?' });
+    expect(changed.answer).toContain('programmable RWAs');
+    expect(vlad.answer).toContain('source_required');
+    expect(connection.answer).toContain('automation primitive');
+    expect(divergence.answer).toContain('narrative momentum can outrun actual usage');
   });
 });

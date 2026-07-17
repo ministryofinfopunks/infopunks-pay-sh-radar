@@ -8,6 +8,9 @@ export type RhChainSignalLabel =
   | 'deployer_cluster_risk'
   | 'top_holder_risk'
   | 'stock_token_spillover'
+  | 'rwa_narrative_reassertion'
+  | 'agentic_economy_signal'
+  | 'meme_rwa_divergence'
   | 'do_not_touch_yet';
 
 export type RhChainRiskState = 'low_watch' | 'medium_watch' | 'high_risk' | 'source_required' | 'do_not_touch_yet';
@@ -465,7 +468,7 @@ export type RhChainDailyReceiptWatchItem = {
   next_thing_to_verify: string;
 };
 
-export type RhChainDailyReceiptSectionId = 'chain_pulse' | 'meme_pulse' | 'launchpad_stress_test' | 'access_wallet_pulse' | 'rwa_pulse' | 'risk_wall' | 'narrative_mutation' | 'infopunks_verdict';
+export type RhChainDailyReceiptSectionId = 'chain_pulse' | 'meme_pulse' | 'leadership_narrative_pulse' | 'launchpad_stress_test' | 'access_wallet_pulse' | 'rwa_pulse' | 'risk_wall' | 'narrative_mutation' | 'infopunks_verdict';
 
 export type RhChainDailyReceiptSection = {
   section_id: RhChainDailyReceiptSectionId;
@@ -516,7 +519,7 @@ export type RhChainDailyReceiptsPayload = {
   freshness_state?: import('../services/rhChainTruthGuards').RhChainFreshnessState;
 };
 
-export const RH_CHAIN_DAILY_RECEIPT_SECTION_IDS = ['chain_pulse', 'meme_pulse', 'launchpad_stress_test', 'risk_wall', 'narrative_mutation', 'infopunks_verdict'] as const;
+export const RH_CHAIN_DAILY_RECEIPT_SECTION_IDS = ['chain_pulse', 'meme_pulse', 'leadership_narrative_pulse', 'launchpad_stress_test', 'risk_wall', 'narrative_mutation', 'infopunks_verdict'] as const;
 export type RhChainDailyReceiptAuthoringInput = RhChainDailyReceipt & {
   period: string;
   observed_at: string;
@@ -1024,6 +1027,124 @@ export const rhChain4663SeedAssets: RhChain4663SeedAsset[] = [
 ];
 
 export const rhChainDailyReceipts: RhChainDailyReceipt[] = [
+  {
+    receipt_id: 'rh_daily_005',
+    receipt_type: 'daily_market_memory',
+    date: '2026-07-17',
+    period: 'July 16 → July 17, 2026 UTC',
+    generated_at: '2026-07-17T00:00:00.000Z',
+    observed_at: '2026-07-17T00:00:00.000Z',
+    chain: 'Robinhood Chain',
+    headline: 'Robinhood Chain re-centers RWAs and agents while meme liquidity stays dominant',
+    summary: 'A manually reviewed Daily Receipt for July 16 → July 17, 2026 UTC: leadership narrative is re-centering programmable assets, tokenized finance, global access, DeFi, and agentic activity while meme liquidity remains the chain’s visible onboarding and volume layer.',
+    top_signal: 'Leadership messaging is pulling attention back toward programmable assets, tokenized finance, and agentic activity while meme volume remains the chain’s visible engine',
+    biggest_risk: 'The market may over-index on meme velocity while underpricing launchpad fragility, source-required fee claims, and the gap between RWA narrative and actual usage',
+    strongest_narrative: 'RH Chain is becoming a three-layer attention market: memes onboard users, RWAs provide institutional thesis, and agents create the next automation primitive',
+    liquidity_note: 'Activity remains elevated by recent reports despite NOXA disruption. DEX volume and TVL figures remain source/timestamp dependent; no exact figures are asserted.',
+    stock_token_spillover_note: 'Leadership RWA reassertion is a thesis signal, not proof of tokenized-asset usage, global availability, DeFi adoption, or affiliation.',
+    solana_base_migration_note: 'Meme rotation across rival surfaces and direct pools remains chain-local route context; it does not establish cross-chain flow or durable usage.',
+    deployer_watch_note: 'Exact leadership quotes, agent-volume figures, fee/burn claims, creator-revenue claims, launch origin, and direct-pool quality all remain source_required without primary or on-chain evidence.',
+    infopunks_verdict: 'Memes are the attention layer. RWAs are the institutional thesis. Agents are the automation primitive. 4663 tracks the collision.',
+    manual_context: 'Human-reviewed memory for July 16 → July 17, 2026 UTC. External data gives context. Automation drafts memory. Infopunks approves judgment. Receipts create history. Do not let live data outrank this human-reviewed receipt.',
+    source_notes: 'Manual market memory with medium confidence. Leadership/official messaging around programmable RWAs, tokenized assets, global access, DeFi, and agents is tracked as narrative context. Exact quotes and agent-volume figures remain source_required unless primary links are attached. DEX volume, TVL, fee, burn, creator-revenue, uptime, and rival-surface claims remain source/timestamp dependent unless primary or on-chain evidence exists. This receipt does not imply safety, endorsement, affiliation, misconduct, or official Robinhood partnership.',
+    receipt_sections: [
+      {
+        section_id: 'chain_pulse',
+        title: 'Chain Pulse',
+        summary: 'Activity remains elevated by recent reports while the NOXA disruption has not erased visible flow.',
+        fields: [
+          { label: 'Activity read', value: 'Activity remains elevated by recent reports despite NOXA disruption.' },
+          { label: 'Metrics rule', value: 'DEX volume and TVL figures must remain source/timestamp dependent.' },
+          { label: 'No invented values', value: 'No exact DEX volume, TVL, liquidity, or dominance values are asserted in this receipt.' }
+        ]
+      },
+      {
+        section_id: 'meme_pulse',
+        title: 'Meme Pulse',
+        summary: 'CASHCAT remains the flagship attention asset while post-NOXA launchpad rotation and direct pools keep meme liquidity visible.',
+        fields: [
+          { label: 'Flagship attention asset', value: 'CASHCAT remains the flagship attention asset.' },
+          { label: 'Rotation signal', value: 'Pons and rival surfaces remain post-NOXA launchpad-rotation signals.' },
+          { label: 'Direct pools', value: 'Direct Uniswap launches remain important route context.' },
+          { label: 'Onboarding layer', value: 'Meme liquidity remains the visible onboarding layer.' }
+        ]
+      },
+      {
+        section_id: 'leadership_narrative_pulse',
+        title: 'Leadership Narrative Pulse',
+        summary: 'The leadership narrative is being tracked around programmable RWAs, tokenized assets, global access, DeFi, and agents without converting message-level context into usage proof.',
+        fields: [
+          { label: 'Tracked themes', value: 'Programmable RWAs, tokenized assets, global access, DeFi, and agents.' },
+          { label: 'Evidence rule', value: 'Exact quotes and agent-volume figures are source_required unless primary links are attached.' },
+          { label: 'Narrative split', value: 'Traders watch memes. Builders watch tools. Robinhood points to RWAs and agents. Infopunks tracks where these layers overlap.' },
+          { label: 'Usage rule', value: 'Narrative reassertion does not establish RWA usage, product availability, DeFi adoption, or agent activity.' }
+        ]
+      },
+      {
+        section_id: 'launchpad_stress_test',
+        title: 'Launchpad War Update',
+        summary: 'NOXA remains disrupted while rival pads and direct pools gain attention; the launchpad war is one layer, not the whole chain story.',
+        fields: [
+          { label: 'NOXA state', value: 'NOXA remains disrupted in manual, source-dependent context.' },
+          { label: 'Surface rotation', value: 'Rival pads and direct pools continue gaining attention.' },
+          { label: 'Claims rule', value: 'Fee, burn, and creator-revenue claims remain source_required without primary or on-chain evidence.' },
+          { label: 'Scope', value: 'The launchpad war is one layer, not the whole chain story.' }
+        ]
+      },
+      {
+        section_id: 'risk_wall',
+        title: 'Risk Wall',
+        summary: 'Risk remains concentrated in launch-surface reliability, origin ambiguity, claim laundering, narrative overextension, and direct-pool quality.',
+        fields: [
+          { label: 'Surface and origin risk', value: 'launchpad downtime, clone launches, fake relaunches, and direct-pool quality decay.' },
+          { label: 'Claim risk', value: 'fee/burn claim laundering and creator-revenue claim uncertainty.' },
+          { label: 'Liquidity risk', value: 'meme liquidity rotation can move faster than quality, provenance, or exit-depth review.' },
+          { label: 'Narrative risk', value: 'RWA narrative overextension and agent-volume claim source gaps.' }
+        ]
+      },
+      {
+        section_id: 'narrative_mutation',
+        title: 'Narrative Mutation',
+        summary: 'RH Chain is moving from new meme chain to launchpad war to meme liquidity sitting on top of an RWA and agentic-finance thesis.',
+        fields: [
+          { label: 'Mutation', value: 'RH Chain is moving from new meme chain to launchpad war to meme liquidity sitting on top of an RWA and agentic-finance thesis.' },
+          { label: 'Divergence', value: 'Visible meme liquidity can lead attention while RWA and agent narratives remain ahead of demonstrated usage.' }
+        ]
+      },
+      {
+        section_id: 'infopunks_verdict',
+        title: 'Infopunks Verdict',
+        summary: 'Memes are the attention layer. RWAs are the institutional thesis. Agents are the automation primitive. 4663 tracks the collision.',
+        fields: [
+          { label: 'Verdict', value: 'Memes are the attention layer. RWAs are the institutional thesis. Agents are the automation primitive. 4663 tracks the collision.' }
+        ]
+      }
+    ],
+    watchlist: [
+      { item: 'CASHCAT', reason: 'Flagship attention asset while meme liquidity remains the visible onboarding layer.', risk_state: 'medium_watch', next_thing_to_verify: 'Exact contract, pair, pool depth, holder concentration, and persistence of activity.' },
+      { item: 'Leadership RWA and agent narrative', reason: 'Narrative direction matters, but exact quotes, product scope, and agent-volume figures remain source_required without primary links.', risk_state: 'source_required', next_thing_to_verify: 'Primary leadership or official links, timestamps, and evidence of actual usage.' },
+      { item: 'Pons, rival pads, and direct pools', reason: 'Post-NOXA surface rotation is relevant attention context but share, quality, fee, burn, and creator-revenue claims remain source_required.', risk_state: 'source_required', next_thing_to_verify: 'Exact launch record, pool, contract, fee route, reserves, LP status, and timestamped primary evidence.' }
+    ],
+    do_not_touch_yet: [
+      { item: 'Launchpad downtime and relaunch ambiguity', reason: 'Disruption, clone launches, and fake relaunches can make origin and availability difficult to verify.', risk_state: 'do_not_touch_yet', next_thing_to_verify: 'Canonical launch origin, exact contract, deployer history, and primary surface status.' },
+      { item: 'Fee, burn, and creator-revenue claim laundering', reason: 'Repeated fee, burn, or creator-revenue claims do not establish a mechanism without primary terms or on-chain routing evidence.', risk_state: 'source_required', next_thing_to_verify: 'Primary terms, on-chain fee route, burn evidence, revenue destination, and human review.' },
+      { item: 'Meme/RWA divergence and agent-volume claims', reason: 'Meme liquidity can be visible while RWA usage, agent activity, and institutional adoption remain unproven.', risk_state: 'source_required', next_thing_to_verify: 'Source-linked usage evidence, primary quotes, agent-volume methodology, and timestamp.' },
+      { item: 'Direct-pool quality decay', reason: 'Direct pools can gather attention before liquidity quality, LP status, and exit depth are receipted.', risk_state: 'high_risk', next_thing_to_verify: 'Pair reserves, LP status, trade quality, deployer links, and source timestamp.' }
+    ],
+    sources: [
+      createRhChainDailyReceiptSource({
+        name: 'Infopunks manual RH Chain narrative and liquidity watch',
+        observed_at: '2026-07-17T00:00:00.000Z',
+        url: 'https://radar.infopunks.fun/rh-chain-signal-desk/daily-receipts',
+        note: 'Human-reviewed, manually authored market memory for July 16 → July 17, 2026 UTC. Leadership message context, exact quotes, agent-volume figures, RWA usage, DEX volume, TVL, fee/burn, creator-revenue, uptime, and rival-surface claims remain source_required unless primary/on-chain evidence is attached.',
+        data_mode: 'manual',
+        confidence_level: 'medium'
+      })
+    ],
+    confidence_level: 'medium',
+    status: 'manual',
+    data_mode: 'manual'
+  },
   {
     receipt_id: 'rh_daily_004',
     receipt_type: 'daily_market_memory',
@@ -2053,6 +2174,27 @@ export const rhChainPayload: RhChainPayload = {
       source: seededDeskSource
     },
     {
+      label: 'rwa_narrative_reassertion',
+      meaning: 'Leadership narrative re-emphasizes programmable RWAs and tokenized assets without proving usage.',
+      trigger: 'Official or leadership messaging returns to tokenized finance, global access, DeFi, or programmable assets.',
+      desk_action: 'Keep exact quotes and product-scope claims source_required until primary links are attached.',
+      source: manualDeskSource
+    },
+    {
+      label: 'agentic_economy_signal',
+      meaning: 'Agentic-finance framing enters the chain narrative as an automation primitive.',
+      trigger: 'Leadership or builder discussion points to agents, automation, or agent activity.',
+      desk_action: 'Separate narrative context from agent-volume or product-usage claims; require primary sources for both.',
+      source: manualDeskSource
+    },
+    {
+      label: 'meme_rwa_divergence',
+      meaning: 'Meme liquidity is visible while RWA and agent narratives remain ahead of demonstrated usage.',
+      trigger: 'Attention and volume stay meme-led as programmable-finance messaging reasserts itself.',
+      desk_action: 'Track where attention, tools, and usage overlap; do not treat narrative momentum as adoption proof.',
+      source: manualDeskSource
+    },
+    {
       label: 'do_not_touch_yet',
       meaning: 'The desk has enough risk to block promotion.',
       trigger: 'Unverified contract plus low liquidity, misleading claims, or deployer concentration.',
@@ -2118,6 +2260,14 @@ export const rhChainPayload: RhChainPayload = {
       signal_read: 'Primary-market mythology mutates into early-entry meme urgency.',
       risk_note: 'Urgency is not proof. Contract and holder receipts come first.',
       source: seededDeskSource
+    },
+    {
+      id: 'leadership-rwa-reassertion',
+      finance_theme: 'Leadership RWA Reassertion',
+      meme_mutation: 'Meme liquidity remains dominant while programmable-finance language returns to the foreground.',
+      signal_read: 'The desk tracks the overlap between meme-led onboarding, RWA institutional thesis, and agentic automation without converting leadership messaging into usage proof.',
+      risk_note: 'Exact quotes, agent-volume figures, product availability, and RWA usage remain source_required without primary links.',
+      source: manualDeskSource
     }
   ],
   signal_index_4663: [

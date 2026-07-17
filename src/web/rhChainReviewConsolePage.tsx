@@ -5,7 +5,7 @@ import { RH_CHAIN_DOCTRINE, type RhChainEnvelope, RhChainHero, RhChainRouteState
 const STATUSES = ['queued_for_manual_review', 'under_receipt_check', 'needs_more_evidence', 'watch_only', 'approved_signal', 'do_not_touch_yet', 'rejected_low_receipt_quality'] as const;
 const API_BASE_URL = getApiBaseUrl();
 const RISK_STATES = ['low_watch', 'medium_watch', 'high_risk', 'source_required', 'do_not_touch_yet'] as const;
-const SIGNAL_STATES = ['fresh_signal', 'attention_spike', 'durable_candidate', 'liquidity_mirage', 'deployer_cluster_risk', 'top_holder_risk', 'stock_token_spillover', 'do_not_touch_yet'] as const;
+const SIGNAL_STATES = ['fresh_signal', 'attention_spike', 'durable_candidate', 'liquidity_mirage', 'deployer_cluster_risk', 'top_holder_risk', 'stock_token_spillover', 'rwa_narrative_reassertion', 'agentic_economy_signal', 'meme_rwa_divergence', 'do_not_touch_yet'] as const;
 type Status = typeof STATUSES[number];
 type Submission = { submission_id: string; ticker: string; token_contract: string; submitted_at: string; updated_at: string; review_status: Status; reviewer_note?: string; evidence_summary?: string; missing_evidence?: string[]; risk_state?: string; signal_state?: string; infopunks_verdict?: string; audit_events: Array<{ event_id: string; occurred_at: string; action: string; note?: string; reviewer_id?: string }> };
 

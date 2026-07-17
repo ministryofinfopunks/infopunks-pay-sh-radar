@@ -26,9 +26,9 @@ describe('RH Chain Distribution Pack', () => {
   it('exports caveated Receipt Relay packets without coordination or market-promise language', () => {
     const relay = assembleRhChainReceiptRelay();
     expect(relay.packets).toHaveLength(18);
-    expect(relay.packets.map((packet) => packet.title)).toEqual(expect.arrayContaining(['Daily Receipt #004', 'Meme Pulse', 'Launchpad Observatory', 'Clone Radar', 'Token Dossier source-required state', 'Scout Agent answer excerpt']));
-    expect(relay.packets.filter((packet) => packet.title === 'Daily Receipt #004')).toEqual(expect.arrayContaining([
-      expect.objectContaining({ source_url: '/v1/rh-chain/daily-receipts/rh_daily_004', artifact_url: '/rh-chain-signal-desk/daily-receipts/rh_daily_004', long_copy: expect.stringContaining('source_required') })
+    expect(relay.packets.map((packet) => packet.title)).toEqual(expect.arrayContaining(['Daily Receipt #005', 'Meme Pulse', 'Launchpad Observatory', 'Clone Radar', 'Token Dossier source-required state', 'Scout Agent answer excerpt']));
+    expect(relay.packets.filter((packet) => packet.title === 'Daily Receipt #005')).toEqual(expect.arrayContaining([
+      expect.objectContaining({ source_url: '/v1/rh-chain/daily-receipts/rh_daily_005', artifact_url: '/rh-chain-signal-desk/daily-receipts/rh_daily_005', long_copy: expect.stringContaining('source_required') })
     ]));
     expect(relay.packets.every((packet) => packet.risk_disclaimer.length > 20 && packet.no_raid_notice.length > 20 && packet.source_url.startsWith('/v1/rh-chain/') && packet.artifact_url.startsWith('/rh-chain-signal-desk/'))).toBe(true);
     const values = relay.packets.flatMap((packet) => [packet.title, packet.short_copy, packet.long_copy, packet.risk_disclaimer, packet.no_raid_notice]).join(' ').toLowerCase();

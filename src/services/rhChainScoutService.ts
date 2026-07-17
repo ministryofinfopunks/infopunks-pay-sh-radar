@@ -10,9 +10,10 @@ export type RhChainScoutResponse = { answer: string; answer_type: RhChainScoutMo
 export function classifyRhChainScoutQuery(query: string, requested?: RhChainScoutMode): RhChainScoutMode {
   if (requested) return requested;
   const text = query.toLowerCase();
+  if (/rwa|tokenized|agentic|agents?|programmable|divergence|vlad.*messag|messag.*vlad/.test(text)) return 'narrative_mutation';
   if (/surface|noxa|20lab|uniswap|foundry|hardhat|wallet|bridge|swap|li\.fi|backpack|access|launchpad|fragmentation|flap|trensh|bankr|tokeny|vlad|robindotmarket|fee model|fee change|fee claim|creator revenue|burn|buyback/.test(text)) return 'launch_context';
   if (/clone|risk|deployer|fake.volume|\blp\b|launch/.test(text)) return 'risk_memory';
-  if (/narrative|theme|pump|meme/.test(text)) return 'narrative_mutation';
+  if (/narrative|theme|pump|meme|rwa|tokenized|agentic|agents?|vlad|programmable|divergence/.test(text)) return 'narrative_mutation';
   if (/contract|ticker|token|0x[a-f0-9]/.test(text)) return 'token_context';
   return 'market_pulse';
 }
@@ -44,10 +45,17 @@ export function queryRhChainScout(input: RhChainScoutQuery, reviewItems = getRhC
       : /which|watched|watch/.test(needle)
         ? `The desk is watching ${watchedSurfaceNames}. NOXA is recorded as degraded in manual, source-dependent context; rival-surface claims remain source_required until primary evidence is attached.`
         : `Launch surfaces show where tokens start. Access surfaces show how users arrive. Wallet, bridge, router, and app surfaces are distribution context only; they do not establish token legitimacy, route safety, or endorsement. Backpack Wallet remains source_required until a primary source is attached.`;
+  const narrativeAnswer = /what changed|vlad|rwa messaging|leadership/.test(needle)
+    ? `The reviewed change is a re-centering of programmable RWAs, tokenized assets, global access, DeFi, and agents while meme liquidity remains the visible flow engine. Exact leadership quotes and agent-volume figures are source_required unless primary links are attached; messaging does not establish product usage or availability.`
+    : /how.*memes.*rwas?.*agents?|memes?.*rwas?.*agents?/.test(needle)
+      ? `Memes are the attention and onboarding layer. RWAs are the institutional thesis. Agents are the automation primitive. Infopunks tracks where meme liquidity, builder tools, and demonstrated programmable-finance usage overlap; none of those layers proves the others.`
+      : /divergence|meme.*rwa|rwa.*meme/.test(needle)
+        ? `Meme/RWA divergence is the gap between visible meme-led liquidity and attention versus the less-demonstrated RWA, tokenized-finance, and agentic-activity thesis. It matters because narrative momentum can outrun actual usage. Exact metrics and quotes remain source_required without primary links.`
+        : `${receipt.strongest_narrative}. Infopunks reads meme activity as attention acquisition, while persistent RWA, DeFi, and Stock Token usage remain the durability test.`;
   const answers: Record<RhChainScoutMode, string> = {
     market_pulse: `${receipt.headline}. ${receipt.infopunks_verdict} The current ranked memory is led by ${index.map((asset) => asset.ticker).join(', ')}; live context never overrides this reviewed receipt.`,
     risk_memory: `Visible risk memory centers on ${receipt.biggest_risk}. Day 1 campaign risk states preserve fee, utility, volatility, liquidity, and provenance checks as reviewed memory; no launch surface or LP claim is an approval signal.`,
-    narrative_mutation: `${receipt.strongest_narrative}. Infopunks reads meme activity as attention acquisition, while persistent RWA, DeFi, and Stock Token usage remain the durability test.`,
+    narrative_mutation: narrativeAnswer,
     token_context: placeholderIdentity ? 'Source required before identity-specific context. Placeholder contracts are not token identities.' : campaignMatch ? `${campaignMatch.ticker} is in Day 1 campaign memory as ${campaignMatch.evidence_state.replace(/_/g, ' ')}, classified ${campaignMatch.classification.replace(/_/g, ' ')}, with ${campaignMatch.risk_state.replace(/_/g, ' ')} risk. Its record is public memory, not endorsement or a safety determination.` : related.length ? `${related[0].ticker} is in the desk as ${related[0].review_state.replace(/_/g, ' ')} with ${related[0].risk_state.replace(/_/g, ' ')} risk. Its record is memory, not a safety or trading determination.` : `No matching reviewed token record was found for that query. The Scout will not infer identity from a ticker alone; verify contract and source receipts.`,
     launch_context: launchContextAnswer
   };
