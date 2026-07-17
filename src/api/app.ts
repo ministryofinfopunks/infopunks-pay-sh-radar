@@ -13,6 +13,8 @@ import { createRhChainSignalReviewPacket, getRhChainDailyReceipt, getRhChainPayl
 import { getRhChain100ReceiptsCampaign } from '../data/rhChain100Receipts';
 import { asRhChainPersistedReviewItem, createRhChainSignalSubmission, InMemoryRhChainSubmissionStore, PostgresRhChainSubmissionStore, redactRhChainSubmissionForReview, type RhChainSubmissionStore, UnconfiguredRhChainSubmissionStore, updateRhChainSubmissionReviewRecord } from '../services/rhChainSignalVault';
 import { RhChainLiveSnapshotService, type RhChainLiveSnapshotOptions } from '../services/rhChainLiveSnapshotService';
+import { DexScreenerProvider, type RhChainDexScreenerIngestionSource } from '../providers/dexscreenerProvider';
+import { RhChainMarketDataService, type RhChainMarketDataServiceOptions, type RhChainReviewedClassification } from '../services/rhChainMarketDataService';
 import { InMemoryRhChainMetricsSnapshotStore, PostgresRhChainMetricsSnapshotStore, RhChainChainPulseService, type RhChainMetricsSnapshotStore } from '../services/rhChainChainPulseService';
 import { InMemoryRhChainMemePulseSnapshotStore, PostgresRhChainMemePulseSnapshotStore, RhChainMemePulseSnapshotService, type RhChainMemePulseSnapshotStore } from '../services/rhChainMemePulseSnapshotService';
 import { InMemoryRhChainLaunchpadSnapshotStore, PostgresRhChainLaunchpadSnapshotStore, RhChainLaunchpadSnapshotService, type RhChainLaunchpadSnapshotStore } from '../services/rhChainLaunchpadSnapshotService';
@@ -570,6 +572,7 @@ export type CreateAppOptions = {
   clientDistDir?: string | null;
   rhChainSubmissionStore?: RhChainSubmissionStore;
   rhChainLiveSnapshotOptions?: Partial<RhChainLiveSnapshotOptions>;
+  rhChainMarketDataOptions?: Partial<Omit<RhChainMarketDataServiceOptions, 'provider'>> & { provider?: RhChainDexScreenerIngestionSource };
   rhChainPublicRateLimit?: Partial<{ enabled: boolean; windowMs: number; max: number }>;
   rhChainAutomationStore?: RhChainAutomationStore;
   rhChainMetricsSnapshotStore?: RhChainMetricsSnapshotStore;
@@ -636,6 +639,31 @@ export async function createApp(
     databaseUrl: config.databaseUrl,
     databasePool: rhChainPostgresPool,
     ...options.rhChainLiveSnapshotOptions
+  });
+  const rhChainMarketProvider = options.rhChainMarketDataOptions?.provider ?? new DexScreenerProvider({
+    enabled: config.dexScreenerEnabled,
+    baseUrl: config.dexScreenerBaseUrl,
+    chainId: config.dexScreenerRhChainId,
+    timeoutMs: config.dexScreenerTimeoutMs,
+    cacheTtlSeconds: config.dexScreenerCacheTtlSeconds,
+    maxBatchSize: config.dexScreenerMaxBatchSize
+  });
+  const rhChainMarketData = new RhChainMarketDataService({
+    provider: rhChainMarketProvider,
+    enabled: config.dexScreenerEnabled,
+    knownTokenAddresses: async () => (await rhChainSubmissionStore.list()).map((submission) => submission.token_contract),
+    classificationFor: async (contract): Promise<RhChainReviewedClassification> => {
+      const record = (await rhChainSubmissionStore.list()).find((submission) => submission.token_contract.toLowerCase() === contract.toLowerCase());
+      if (!record || !['approved_signal', 'rejected', 'needs_evidence', 'queued_for_manual_review', 'under_review'].includes(record.review_status)) {
+        return { primary_layer: 'unknown', secondary_layers: [], confidence: null, source: 'review_required' };
+      }
+      return {
+        primary_layer: record.signal_state ?? 'unknown', secondary_layers: [],
+        confidence: record.review_status === 'approved_signal' ? 'reviewed' : null,
+        source: record.review_status === 'approved_signal' ? 'human_reviewed' : 'review_required'
+      };
+    },
+    ...options.rhChainMarketDataOptions
   });
   const rhChainMetricsSnapshotStore: RhChainMetricsSnapshotStore = options.rhChainMetricsSnapshotStore
     ?? (rhChainPostgresPool ? new PostgresRhChainMetricsSnapshotStore(rhChainPostgresPool) : new InMemoryRhChainMetricsSnapshotStore());
@@ -2037,6 +2065,17 @@ export async function createApp(
   app.get<{ Params: { contract: string } }>('/v1/rh-chain/live-snapshot/token/:contract', async (req) => {
     const snapshot = await rhChainLiveSnapshots.getTokenSnapshot(req.params.contract);
     return safeJsonExport(buildRhChainApiResponse({ ...snapshot, data_mode: snapshot.live_snapshots_enabled && snapshot.cache_status === 'fresh' ? 'live_cached' as const : snapshot.live_snapshots_enabled ? 'unavailable' as const : 'seeded' as const }));
+  });
+  app.get('/v1/rh-chain/market/provider-status', async () => safeJsonExport(buildRhChainApiResponse(await rhChainMarketData.getProviderStatus())));
+  app.get<{ Querystring: { contracts?: string } }>('/v1/rh-chain/market/tokens', async (req) => {
+    const contracts = req.query.contracts?.split(',').map((contract) => contract.trim()).filter(Boolean);
+    return safeJsonExport(buildRhChainApiResponse(await rhChainMarketData.getTokens(contracts)));
+  });
+  app.get<{ Params: { contract: string } }>('/v1/rh-chain/market/tokens/:contract', async (req) => safeJsonExport(buildRhChainApiResponse(await rhChainMarketData.getToken(req.params.contract))));
+  app.get('/v1/rh-chain/market/boosts', async () => safeJsonExport(buildRhChainApiResponse(await rhChainMarketData.getBoosts())));
+  app.get<{ Querystring: { contract?: string } }>('/v1/rh-chain/market/attention', async (req) => {
+    if (!req.query.contract) return safeJsonExport(buildRhChainApiResponse({ attention: null, caveats: ['An exact contract is required. Tickers are never used for identity.'] }));
+    return safeJsonExport(buildRhChainApiResponse({ token: { contract: req.query.contract }, attention: await rhChainMarketData.getAttention(req.query.contract), caveats: ['Attention is provider context only and cannot change reviewed classification.'] }));
   });
   app.get<{ Params: { contract: string } }>('/v1/rh-chain/tokens/:contract/dossier', async (req) => {
     const [submissions, tokenSnapshot, liveSnapshot, sweep] = await Promise.all([

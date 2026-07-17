@@ -23,6 +23,12 @@ export type RuntimeConfig = {
   rhChainLiveSnapshotsEnabled: boolean;
   rhChainProviderTimeoutMs: number;
   rhChainCacheTtlSeconds: number | null;
+  dexScreenerEnabled: boolean;
+  dexScreenerBaseUrl: string;
+  dexScreenerRhChainId: 'robinhood';
+  dexScreenerTimeoutMs: number;
+  dexScreenerCacheTtlSeconds: number;
+  dexScreenerMaxBatchSize: number;
   rhChainBlockscoutUrl: string | null;
   rhChainReviewConsoleEnabled: boolean;
   rhChainReviewAdminToken: string | null;
@@ -67,6 +73,12 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
     rhChainLiveSnapshotsEnabled: readBoolean('RH_CHAIN_LIVE_SNAPSHOTS_ENABLED', env.RH_CHAIN_LIVE_SNAPSHOTS_ENABLED, false),
     rhChainProviderTimeoutMs: readPositiveInteger('RH_CHAIN_PROVIDER_TIMEOUT_MS', env.RH_CHAIN_PROVIDER_TIMEOUT_MS, 2_500),
     rhChainCacheTtlSeconds: readOptionalPositiveInteger('RH_CHAIN_CACHE_TTL_SECONDS', env.RH_CHAIN_CACHE_TTL_SECONDS),
+    dexScreenerEnabled: readBoolean('DEXSCREENER_ENABLED', env.DEXSCREENER_ENABLED, false),
+    dexScreenerBaseUrl: readRequiredUrl('DEXSCREENER_BASE_URL', env.DEXSCREENER_BASE_URL, 'https://api.dexscreener.com'),
+    dexScreenerRhChainId: readDexScreenerChainId(env.DEXSCREENER_RH_CHAIN_ID),
+    dexScreenerTimeoutMs: readPositiveInteger('DEXSCREENER_TIMEOUT_MS', env.DEXSCREENER_TIMEOUT_MS, 2_500),
+    dexScreenerCacheTtlSeconds: readPositiveInteger('DEXSCREENER_CACHE_TTL_SECONDS', env.DEXSCREENER_CACHE_TTL_SECONDS, 120),
+    dexScreenerMaxBatchSize: readBoundedPositiveInteger('DEXSCREENER_MAX_BATCH_SIZE', env.DEXSCREENER_MAX_BATCH_SIZE, 30, 30),
     rhChainBlockscoutUrl: readOptionalUrl('RH_CHAIN_BLOCKSCOUT_URL', env.RH_CHAIN_BLOCKSCOUT_URL),
     rhChainReviewConsoleEnabled: readBoolean('RH_CHAIN_REVIEW_CONSOLE_ENABLED', env.RH_CHAIN_REVIEW_CONSOLE_ENABLED, false),
     rhChainReviewAdminToken: optionalString(env.RH_CHAIN_REVIEW_ADMIN_TOKEN),
@@ -174,6 +186,21 @@ function readOptionalUrl(name: string, value: string | undefined) {
   } catch {
     throw new Error(`${name} must be a valid URL`);
   }
+}
+
+function readRequiredUrl(name: string, value: string | undefined, defaultValue: string) {
+  return readOptionalUrl(name, value ?? defaultValue) ?? defaultValue;
+}
+
+function readDexScreenerChainId(value: string | undefined): 'robinhood' {
+  if (!value || value === 'robinhood') return 'robinhood';
+  throw new Error('DEXSCREENER_RH_CHAIN_ID must be "robinhood"');
+}
+
+function readBoundedPositiveInteger(name: string, value: string | undefined, defaultValue: number, maximum: number) {
+  const parsed = readPositiveInteger(name, value, defaultValue);
+  if (parsed > maximum) throw new Error(`${name} must be at most ${maximum}`);
+  return parsed;
 }
 
 function readOptionalCron(name: string, value: string | undefined) {

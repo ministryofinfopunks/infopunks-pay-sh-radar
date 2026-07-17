@@ -46,6 +46,11 @@ const API_BASE_URL = getApiBaseUrl();
 
 const api = fetchRhChain;
 
+type RhChainMarketProviderStatus = {
+  provider: 'dexscreener'; enabled: boolean; last_successful_capture: string | null; latest_boosts_observed: number;
+  known_token_refresh_state: 'idle' | 'fresh' | 'partial_failure' | 'fallback' | 'disabled'; fallback_mode: boolean;
+};
+
 async function postApi<T>(path: string, body: unknown) {
   const response = await fetch(toApiUrl(API_BASE_URL, path), {
     method: 'POST',
@@ -137,6 +142,7 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
   const [todayOn4663, setTodayOn4663] = useState<RhChainTodayOn4663Payload | null>(null);
   const [launchSurfaces, setLaunchSurfaces] = useState<{ title: string; subtitle: string; doctrine: string; disclaimer: string; launch_surfaces: RhChainLaunchSurfaceRecord[]; access_surfaces: RhChainAccessSurface[] } | null>(null);
   const [liveSnapshot, setLiveSnapshot] = useState<RhChainLiveSnapshot | null>(null);
+  const [marketProviderStatus, setMarketProviderStatus] = useState<RhChainMarketProviderStatus | null>(null);
   const [routeEnvelope, setRouteEnvelope] = useState<RhChainEnvelope<unknown> | null>(null);
   const [deskFailure, setDeskFailure] = useState<RhChainRequestFailure | null>(null);
   const [reviewQueueFailure, setReviewQueueFailure] = useState<RhChainRequestFailure | null>(null);
@@ -175,6 +181,7 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
     api<RhChainLiveSnapshot>('/v1/rh-chain/live-snapshot')
       .then((response) => { setLiveSnapshot(response.data); if (liveSnapshotRoute) setRouteEnvelope(response); })
       .catch((error) => setLiveSnapshotFailure(requestFailure(error, '/v1/rh-chain/live-snapshot', 'live snapshot')));
+    api<RhChainMarketProviderStatus>('/v1/rh-chain/market/provider-status').then((response) => setMarketProviderStatus(response.data)).catch(() => undefined);
   }, []);
 
   // The server refreshes Chain Pulse on its automation interval. Keep the desk
@@ -195,7 +202,7 @@ export function RhChainSignalDeskPage({ narrativeRoute = false, submitRoute = fa
   let routeContent: React.ReactNode = null;
   if (desk) {
     if (scoutRoute) routeContent = <ScoutPage />;
-    else if (liveSnapshotRoute) routeContent = liveSnapshot ? <LiveSnapshotPage snapshot={liveSnapshot} /> : liveSnapshotFailure ? degraded(liveSnapshotFailure, 'Live snapshot', 'Reviewed Signal Desk memory remains accessible.') : loading('Opening live snapshot…');
+    else if (liveSnapshotRoute) routeContent = liveSnapshot ? <LiveSnapshotPage snapshot={liveSnapshot} marketProviderStatus={marketProviderStatus} /> : liveSnapshotFailure ? degraded(liveSnapshotFailure, 'Live snapshot', 'Reviewed Signal Desk memory remains accessible.') : loading('Opening live snapshot…');
     else if (launchSurfacesRoute) routeContent = launchSurfaces ? <LaunchSurfacesPage surfaceWatch={launchSurfaces} /> : launchSurfacesFailure ? degraded(launchSurfacesFailure, 'Launch surfaces') : loading('Opening launch surfaces…');
     else if (receiptCardRoute || dailyReceiptDetailRoute) routeContent = selectedDailyReceipt
       ? receiptCardRoute ? <ReceiptCardPage receipt={selectedDailyReceipt} /> : <ReceiptDetailPage receipt={selectedDailyReceipt} feed={dailyReceipts!} />
@@ -1002,7 +1009,7 @@ function LiveSnapshotPreview({ snapshot }: { snapshot: RhChainLiveSnapshot }) {
   </section>;
 }
 
-function LiveSnapshotPage({ snapshot }: { snapshot: RhChainLiveSnapshot }) {
+function LiveSnapshotPage({ snapshot, marketProviderStatus }: { snapshot: RhChainLiveSnapshot; marketProviderStatus: RhChainMarketProviderStatus | null }) {
   const [contract, setContract] = useState('');
   const [result, setResult] = useState<RhChainTokenSnapshotResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -1016,6 +1023,15 @@ function LiveSnapshotPage({ snapshot }: { snapshot: RhChainLiveSnapshot }) {
   const metrics = snapshot.chain_metrics;
   const category = snapshot.meme_category;
   return <>
+    <section className="panel rh-chain-section" aria-label="DEX Screener Provider Status">
+      <div className="rh-chain-section-head"><div><p className="section-kicker">Market / attention provider</p><h2>DEX Screener status</h2><p>Market and paid-attention context only. It cannot change reviewed receipts or classifications.</p></div><span className="source-badge">{marketProviderStatus?.enabled ? 'enabled' : 'disabled'}</span></div>
+      <div className="rh-chain-review-stat-grid">
+        <article className="rh-chain-review-stat"><span>Last successful capture</span><strong>{marketProviderStatus?.last_successful_capture ? formatTimestamp(marketProviderStatus.last_successful_capture) : 'unavailable'}</strong></article>
+        <article className="rh-chain-review-stat"><span>Latest boosts observed</span><strong>{marketProviderStatus?.latest_boosts_observed ?? 0}</strong></article>
+        <article className="rh-chain-review-stat"><span>Known token refresh</span><strong>{marketProviderStatus?.known_token_refresh_state?.replaceAll('_', ' ') ?? 'unavailable'}</strong></article>
+        <article className="rh-chain-review-stat"><span>Fallback mode</span><strong>{marketProviderStatus?.fallback_mode ? 'active' : 'normal'}</strong></article>
+      </div>
+    </section>
     <section className="panel rh-chain-section" aria-label="Provider Status">
       <div className="rh-chain-section-head"><div><p className="section-kicker">Provider status</p><h2>Provider Status</h2><p>Freshness describes a cached external read, not live certainty.</p></div><span className="source-badge">{snapshot.live_snapshots_enabled ? 'live reads enabled' : 'live reads disabled'}</span></div>
       <div className="rh-chain-review-stat-grid">{snapshot.provider_statuses.map((provider) => <article className="rh-chain-review-stat" key={provider.provider_name}><span>{provider.provider_name}</span><strong>{provider.status}</strong><small>{provider.fetched_at ? `fetched ${formatTimestamp(provider.fetched_at)}${provider.status === 'stale' ? ' · stale fallback' : ''}` : provider.error ? `${provider.error.code}: ${provider.error.message}` : provider.error_summary ?? 'No external request.'}</small></article>)}</div>
