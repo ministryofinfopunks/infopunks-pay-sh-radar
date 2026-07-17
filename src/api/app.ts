@@ -9,12 +9,14 @@ import { payShCatalogFixture } from '../data/payShCatalogFixture';
 import { getNarrativeAssetBySlug, getSignalSurfaceBySlug, listNarrativeAssets, listSignalSurfaces } from '../data/narrativeIntel';
 import { getCandidateSignal, listCandidateSignals } from '../data/candidateSignals';
 import { getSignalDeskIndex } from '../data/signalDesk';
-import { createRhChainSignalReviewPacket, getRhChainDailyReceipt, getRhChainPayload, listRhChainSignals } from '../data/rhChain';
+import { createRhChainSignalReviewPacket, getRhChainDailyReceipt, getRhChainDailyReceipts, getRhChainPayload, listRhChainSignals } from '../data/rhChain';
+import { rhChainReviewedLayerClassifications } from '../data/rhChainMarketStructure';
 import { getRhChain100ReceiptsCampaign } from '../data/rhChain100Receipts';
 import { asRhChainPersistedReviewItem, createRhChainSignalSubmission, InMemoryRhChainSubmissionStore, PostgresRhChainSubmissionStore, redactRhChainSubmissionForReview, type RhChainSubmissionStore, UnconfiguredRhChainSubmissionStore, updateRhChainSubmissionReviewRecord } from '../services/rhChainSignalVault';
 import { RhChainLiveSnapshotService, type RhChainLiveSnapshotOptions } from '../services/rhChainLiveSnapshotService';
 import { DexScreenerProvider, type RhChainDexScreenerIngestionSource } from '../providers/dexscreenerProvider';
 import { RhChainMarketDataService, type RhChainMarketDataServiceOptions, type RhChainReviewedClassification } from '../services/rhChainMarketDataService';
+import { RhChainMarketStructureService, type RhChainMarketStructureOptions } from '../services/rhChainMarketStructureService';
 import { InMemoryRhChainMetricsSnapshotStore, PostgresRhChainMetricsSnapshotStore, RhChainChainPulseService, type RhChainMetricsSnapshotStore } from '../services/rhChainChainPulseService';
 import { InMemoryRhChainMemePulseSnapshotStore, PostgresRhChainMemePulseSnapshotStore, RhChainMemePulseSnapshotService, type RhChainMemePulseSnapshotStore } from '../services/rhChainMemePulseSnapshotService';
 import { InMemoryRhChainLaunchpadSnapshotStore, PostgresRhChainLaunchpadSnapshotStore, RhChainLaunchpadSnapshotService, type RhChainLaunchpadSnapshotStore } from '../services/rhChainLaunchpadSnapshotService';
@@ -573,6 +575,7 @@ export type CreateAppOptions = {
   rhChainSubmissionStore?: RhChainSubmissionStore;
   rhChainLiveSnapshotOptions?: Partial<RhChainLiveSnapshotOptions>;
   rhChainMarketDataOptions?: Partial<Omit<RhChainMarketDataServiceOptions, 'provider'>> & { provider?: RhChainDexScreenerIngestionSource };
+  rhChainMarketStructureOptions?: Partial<Omit<RhChainMarketStructureOptions, 'marketData'>>;
   rhChainPublicRateLimit?: Partial<{ enabled: boolean; windowMs: number; max: number }>;
   rhChainAutomationStore?: RhChainAutomationStore;
   rhChainMetricsSnapshotStore?: RhChainMetricsSnapshotStore;
@@ -651,7 +654,7 @@ export async function createApp(
   const rhChainMarketData = new RhChainMarketDataService({
     provider: rhChainMarketProvider,
     enabled: config.dexScreenerEnabled,
-    knownTokenAddresses: async () => (await rhChainSubmissionStore.list()).map((submission) => submission.token_contract),
+    knownTokenAddresses: async () => [...(await rhChainSubmissionStore.list()).map((submission) => submission.token_contract), ...rhChainReviewedLayerClassifications.map((classification) => classification.contract)],
     classificationFor: async (contract): Promise<RhChainReviewedClassification> => {
       const record = (await rhChainSubmissionStore.list()).find((submission) => submission.token_contract.toLowerCase() === contract.toLowerCase());
       if (!record || !['approved_signal', 'rejected', 'needs_evidence', 'queued_for_manual_review', 'under_review'].includes(record.review_status)) {
@@ -668,6 +671,16 @@ export async function createApp(
   const rhChainMetricsSnapshotStore: RhChainMetricsSnapshotStore = options.rhChainMetricsSnapshotStore
     ?? (rhChainPostgresPool ? new PostgresRhChainMetricsSnapshotStore(rhChainPostgresPool) : new InMemoryRhChainMetricsSnapshotStore());
   const rhChainChainPulse = new RhChainChainPulseService(rhChainMetricsSnapshotStore);
+  const rhChainMarketStructure = new RhChainMarketStructureService({
+    marketData: rhChainMarketData,
+    metrics: () => rhChainChainPulse.getLatest(),
+    classifications: () => [...rhChainReviewedLayerClassifications],
+    latestReceipt: () => {
+      const receipt = getRhChainDailyReceipts().receipts[0];
+      return receipt ? { receipt_id: receipt.receipt_id, timestamp: receipt.observed_at ?? receipt.generated_at, summary: receipt.headline } : null;
+    },
+    ...options.rhChainMarketStructureOptions
+  });
   const rhChainMemePulseSnapshotStore: RhChainMemePulseSnapshotStore = options.rhChainMemePulseSnapshotStore
     ?? (rhChainPostgresPool ? new PostgresRhChainMemePulseSnapshotStore(rhChainPostgresPool) : new InMemoryRhChainMemePulseSnapshotStore());
   const rhChainMemePulse = new RhChainMemePulseSnapshotService(rhChainMemePulseSnapshotStore, rhChainLiveSnapshots, undefined, rhChainSubmissionStore);
@@ -2077,6 +2090,9 @@ export async function createApp(
     if (!req.query.contract) return safeJsonExport(buildRhChainApiResponse({ attention: null, caveats: ['An exact contract is required. Tickers are never used for identity.'] }));
     return safeJsonExport(buildRhChainApiResponse({ token: { contract: req.query.contract }, attention: await rhChainMarketData.getAttention(req.query.contract), caveats: ['Attention is provider context only and cannot change reviewed classification.'] }));
   });
+  app.get('/v1/rh-chain/market-structure', async () => safeJsonExport(buildRhChainApiResponse(await rhChainMarketStructure.marketStructure())));
+  app.get('/v1/rh-chain/market-structure/cross-layer', async () => safeJsonExport(buildRhChainApiResponse(await rhChainMarketStructure.crossLayer())));
+  app.get('/v1/rh-chain/market-structure/attention-quality', async () => safeJsonExport(buildRhChainApiResponse(await rhChainMarketStructure.attentionQuality())));
   app.get<{ Params: { contract: string } }>('/v1/rh-chain/tokens/:contract/dossier', async (req) => {
     const [submissions, tokenSnapshot, liveSnapshot, sweep] = await Promise.all([
       rhChainSubmissionStore.list(),

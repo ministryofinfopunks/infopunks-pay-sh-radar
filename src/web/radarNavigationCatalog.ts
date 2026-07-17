@@ -258,6 +258,7 @@ export const RADAR_NAVIGATION: Readonly<Record<RadarNavigationContext, NetworkNa
           { id: 'rh-risk', href: '/rh-chain-signal-desk/clone-radar', label: 'Risk' },
           { id: 'rh-patterns', href: '/rh-chain-signal-desk/risk-patterns', label: 'Patterns' },
           { id: 'rh-observatory', href: '/rh-chain-signal-desk/launchpad-observatory', label: 'Observatory' },
+          { id: 'rh-market-structure', href: '/rh-chain-signal-desk/market-structure', label: 'Market Structure' },
           { id: 'rh-snapshot', href: '/rh-chain-signal-desk/live-snapshot', label: 'Snapshot' }
         ]
       },

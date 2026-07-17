@@ -56,6 +56,7 @@ const LazyRhChainScoutsPage = lazy(() => import('./rhChainScoutsPage').then((mod
 const LazyRhChainDistributionPackPage = lazy(() => import('./rhChainDistributionPackPage').then((module) => ({ default: module.RhChainDistributionPackPage })));
 const LazyRhChain100ReceiptsCampaignPage = lazy(() => import('./rhChain100ReceiptsCampaignPage').then((module) => ({ default: module.RhChain100ReceiptsCampaignPage })));
 const LazyRhChainReviewConsolePage = lazy(() => import('./rhChainReviewConsolePage').then((module) => ({ default: module.RhChainReviewConsolePage })));
+const LazyRhChainMarketStructurePage = lazy(() => import('./rhChainMarketStructurePage').then((module) => ({ default: module.RhChainMarketStructurePage })));
 
 function UniversalRadarHomepageHero() {
   return <section className="panel radar-universal-hero" aria-labelledby="radar-home-title">
@@ -2130,7 +2131,7 @@ function isAbundanceDeskRoute(pathname: string) {
 }
 
 function isRhChainSignalDeskRoute(pathname: string) {
-  return /^\/rh-chain-signal-desk\/?$/.test(pathname) || /^\/rh-chain-signal-desk\/(?:submit|review-queue|4663-index|100-receipts|launch-surfaces|launchpad-observatory|risk-patterns|scout|scouts|live-snapshot|meme-pulse|clone-radar|distribution-pack)\/?$/.test(pathname) || /^\/rh-chain-signal-desk\/tokens\/[^/]+\/?$/.test(pathname) || /^\/rh-chain-signal-desk\/daily-receipts(?:\/[^/]+(?:\/card)?)?\/?$/.test(pathname) || /^\/narratives\/robinhood-chain\/?$/.test(pathname);
+  return /^\/rh-chain-signal-desk\/?$/.test(pathname) || /^\/rh-chain-signal-desk\/(?:submit|review-queue|4663-index|100-receipts|launch-surfaces|launchpad-observatory|risk-patterns|scout|scouts|live-snapshot|meme-pulse|clone-radar|distribution-pack|market-structure(?:\/(?:cross-layer|attention-quality))?)\/?$/.test(pathname) || /^\/rh-chain-signal-desk\/tokens\/[^/]+\/?$/.test(pathname) || /^\/rh-chain-signal-desk\/daily-receipts(?:\/[^/]+(?:\/card)?)?\/?$/.test(pathname) || /^\/narratives\/robinhood-chain\/?$/.test(pathname);
 }
 
 function isHermesDeskRoute(pathname: string) {
@@ -14439,6 +14440,9 @@ export function App() {
   if (/^\/rh-chain-signal-desk\/scouts\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainScoutsPage /></LazyRhChainFeature>;
   if (/^\/rh-chain-signal-desk\/distribution-pack\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainDistributionPackPage /></LazyRhChainFeature>;
   if (/^\/rh-chain-signal-desk\/100-receipts\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChain100ReceiptsCampaignPage /></LazyRhChainFeature>;
+  if (/^\/rh-chain-signal-desk\/market-structure\/cross-layer\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainMarketStructurePage view="cross-layer" /></LazyRhChainFeature>;
+  if (/^\/rh-chain-signal-desk\/market-structure\/attention-quality\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainMarketStructurePage view="attention-quality" /></LazyRhChainFeature>;
+  if (/^\/rh-chain-signal-desk\/market-structure\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainMarketStructurePage /></LazyRhChainFeature>;
   if (/^\/internal\/rh-chain\/review-console\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainReviewConsolePage /></LazyRhChainFeature>;
   const dossierContract = window.location.pathname.match(/^\/rh-chain-signal-desk\/tokens\/([^/]+)\/?$/)?.[1];
   if (dossierContract) return <LazyRhChainFeature><LazyRhChainTokenDossierPage contract={decodeURIComponent(dossierContract)} /></LazyRhChainFeature>;

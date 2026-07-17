@@ -9,6 +9,8 @@ export type RhChainMarketSnapshot = {
   chainId: typeof DEXSCREENER_RH_CHAIN_ID;
   capturedAt: string;
   tokenAddress: string;
+  quoteTokenAddress?: string | null;
+  quoteTokenSymbol?: string | null;
   pairAddress: string | null;
   dexId: string | null;
   priceUsd: number | null;
@@ -196,6 +198,8 @@ export class DexScreenerProvider implements RhChainDexScreenerIngestionSource {
     const priceChange = isRecord(pair.priceChange) ? pair.priceChange : {};
     return {
       provider: 'dexscreener', chainId: this.chainId, capturedAt: this.now().toISOString(), tokenAddress,
+      quoteTokenAddress: requested === baseAddress ? quoteAddress || null : baseAddress || null,
+      quoteTokenSymbol: requested === baseAddress ? string(quoteToken.symbol) : string(baseToken.symbol),
       pairAddress: string(pair.pairAddress), dexId: string(pair.dexId), priceUsd: number(pair.priceUsd),
       liquidityUsd: number(liquidity.usd), marketCap: number(pair.marketCap), fdv: number(pair.fdv),
       volume: { h24: number(volume.h24) }, txns: { h24: { buys: number(txns.buys), sells: number(txns.sells) } },
