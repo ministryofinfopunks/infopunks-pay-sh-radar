@@ -49,6 +49,13 @@ function buildMetadata(title: string, description: string, canonicalPath: string
 }
 
 export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata | null {
+  if (/^\/rh-chain-signal-desk\/market-structure\/attention-quality\/?$/.test(pathname)) {
+    return buildMetadata(
+      'Robinhood Chain Attention Quality | Infopunks Radar',
+      'Evidence-backed separation of paid attention, organic retention, liquidity persistence, transaction persistence, and market-data completeness.',
+      '/rh-chain-signal-desk/market-structure/attention-quality'
+    );
+  }
   if (/^\/rh-chain-signal-desk\/market-structure\/cross-layer\/?$/.test(pathname)) {
     return buildMetadata(
       'Cross-Layer Intersections | Infopunks Radar',

@@ -62,6 +62,7 @@ export function signalUpdateTypeLabel(value: string) {
 }
 
 export function narrativeOgImageUrl(pathname: string) {
+  if (/^\/rh-chain-signal-desk\/market-structure\/attention-quality\/?$/.test(pathname)) return '/og/rh-chain/attention-quality.png';
   if (/^\/rh-chain-signal-desk\/market-structure\/cross-layer\/?$/.test(pathname)) {
     return '/og/rh-chain/cross-layer.png';
   }
@@ -648,6 +649,18 @@ export function renderRhChainCrossLayerOgImage(context?: { headline: string; rev
     accent: '#b8f7d4',
     eyebrow: 'ROBINHOOD CHAIN MARKET STRUCTURE',
     routeLabel: '/rh-chain-signal-desk/market-structure/cross-layer'
+  });
+}
+
+export function renderRhChainAttentionQualityOgImage(context?: { verdict: string; capturedAt: string | null } | null) {
+  return renderSignalCardSvg({
+    title: context?.verdict ?? 'Was attention retained?',
+    subtitle: 'Paid visibility is separated from durable market participation using reviewed identity and persisted market memory.',
+    badge: 'INFOPUNKS RADAR',
+    footer: `Exact contracts / paid versus organic / snapshot evidence / ${context?.capturedAt ? context.capturedAt.slice(0, 16).replace('T', ' ') + ' UTC' : 'history gated'}`,
+    accent: '#9fd6ff',
+    eyebrow: 'ROBINHOOD CHAIN ATTENTION QUALITY',
+    routeLabel: '/rh-chain-signal-desk/market-structure/attention-quality'
   });
 }
 

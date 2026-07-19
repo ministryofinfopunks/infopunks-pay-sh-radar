@@ -25,6 +25,7 @@ import { RhChainDiscoveryQueueService } from '../services/rhChainDiscoveryQueueS
 import { RhChainReviewPipelineService, type RhChainReviewClassification, type RhChainReviewSecondaryTag } from '../services/rhChainReviewPipelineService';
 import { InMemoryRhChainReviewedClassificationStore, PostgresRhChainReviewedClassificationStore, RhChainClassificationApprovalSchema, RhChainClassificationAuditPagingSchema, RhChainClassificationContractSchema, RhChainClassificationError, RhChainClassificationPagingSchema, RhChainClassificationProposalSchema, RhChainClassificationRejectionSchema, RhChainClassificationSupersessionSchema, RhChainReviewedClassificationService, type RhChainReviewedClassificationStore } from '../services/rhChainReviewedClassificationService';
 import { InMemoryRhChainMarketSnapshotStore, PostgresRhChainMarketSnapshotStore, RhChainMarketSnapshotService, type RhChainMarketSnapshotServiceOptions, type RhChainMarketSnapshotStore } from '../services/rhChainMarketSnapshotService';
+import { InMemoryRhChainAttentionReceiptStore, PostgresRhChainAttentionReceiptStore, RhChainAttentionQualityService, type RhChainAttentionReceiptStore, type RhChainAttentionWindow } from '../services/rhChainAttentionQualityService';
 import { InMemoryRhChainMetricsSnapshotStore, PostgresRhChainMetricsSnapshotStore, RhChainChainPulseService, type RhChainMetricsSnapshotStore } from '../services/rhChainChainPulseService';
 import { InMemoryRhChainMemePulseSnapshotStore, PostgresRhChainMemePulseSnapshotStore, RhChainMemePulseSnapshotService, type RhChainMemePulseSnapshotStore } from '../services/rhChainMemePulseSnapshotService';
 import { InMemoryRhChainLaunchpadSnapshotStore, PostgresRhChainLaunchpadSnapshotStore, RhChainLaunchpadSnapshotService, type RhChainLaunchpadSnapshotStore } from '../services/rhChainLaunchpadSnapshotService';
@@ -50,7 +51,7 @@ import {
   getAttentionMarketWatchIndex
 } from '../data/attentionMarketWatch';
 import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
-import { renderAttentionMarketWatchOgImage, renderNarrativesOgImage, renderRevenueReceiptOgImage, renderRevenueReceiptsIndexOgImage, renderRhChainCrossLayerOgImage, renderRhChainMarketPulseOgImage, renderSignalHuntOgImage, renderSignalReportOgImage, renderSignalUpdateOgImage, renderUnicornRadarIndexOgImage, renderUnicornRadarOgImage } from '../shared/narrativeOg';
+import { renderAttentionMarketWatchOgImage, renderNarrativesOgImage, renderRevenueReceiptOgImage, renderRevenueReceiptsIndexOgImage, renderRhChainAttentionQualityOgImage, renderRhChainCrossLayerOgImage, renderRhChainMarketPulseOgImage, renderSignalHuntOgImage, renderSignalReportOgImage, renderSignalUpdateOgImage, renderUnicornRadarIndexOgImage, renderUnicornRadarOgImage } from '../shared/narrativeOg';
 import { renderOgPng } from '../server/narrativeOgPng';
 import { applyPayShCatalogIngestion } from '../ingestion/payShCatalogAdapter';
 import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, IntelligenceStore, runPayShIngestion, runPayShIngestionWithOptions } from '../services/intelligenceStore';
@@ -588,6 +589,7 @@ export type CreateAppOptions = {
   rhChainTokenRegistryOptions?: Partial<Omit<RhChainTokenRegistryOptions, 'provider' | 'enabled' | 'receipts' | 'marketStructure'>> & { provider?: BlockscoutProvider; enabled?: boolean };
   rhChainMarketSnapshotStore?: RhChainMarketSnapshotStore;
   rhChainMarketSnapshotOptions?: Partial<Omit<RhChainMarketSnapshotServiceOptions, 'store' | 'provider' | 'watchlist' | 'classificationFor' | 'enabled'>> & { enabled?: boolean };
+  rhChainAttentionReceiptStore?: RhChainAttentionReceiptStore;
   rhChainPublicRateLimit?: Partial<{ enabled: boolean; windowMs: number; max: number }>;
   rhChainAutomationStore?: RhChainAutomationStore;
   rhChainMetricsSnapshotStore?: RhChainMetricsSnapshotStore;
@@ -749,6 +751,17 @@ export async function createApp(
     watchlist: async () => [...new Set([...(await rhChainTokenRegistry.seedWatchlistFromBlockscout()).map((item) => item.contract), ...(rhChainDiscoveryQueue?.watchedContracts() ?? [])])],
     classificationFor: (contract) => [...rhChainReviewedLayerClassifications, ...(rhChainDiscoveryQueue?.marketStructureCandidates() ?? []), ...(rhChainReviewPipeline?.marketStructureCandidates() ?? [])].find((classification) => classification.contract.toLowerCase() === contract.toLowerCase()) ?? null,
     ...options.rhChainMarketSnapshotOptions
+  });
+  const rhChainAttentionReceiptStore: RhChainAttentionReceiptStore = options.rhChainAttentionReceiptStore
+    ?? (rhChainPostgresPool ? new PostgresRhChainAttentionReceiptStore(rhChainPostgresPool) : new InMemoryRhChainAttentionReceiptStore());
+  const rhChainAttentionQuality = new RhChainAttentionQualityService({
+    snapshots: (contract) => rhChainMarketSnapshots.listSnapshots(contract),
+    curated: (contract) => rhChainReviewedLayerClassifications.find((item) => item.contract.toLowerCase() === contract.toLowerCase()) ?? null,
+    durable: async (contract) => {
+      if (!config.rhChainReviewedClassificationsEnabled) return null;
+      try { return rhChainReviewedClassifications.store.get(contract); } catch { return null; }
+    },
+    receipts: rhChainAttentionReceiptStore
   });
   rhChainReviewPipeline = new RhChainReviewPipelineService({
     discoveryQueue: rhChainDiscoveryQueue,
@@ -2066,6 +2079,39 @@ export async function createApp(
     if (!classificationFeatureAvailable()) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
     try { return safeJsonExport(buildRhChainApiResponse(await rhChainReviewedClassifications.listApproved(RhChainClassificationPagingSchema.omit({ status: true }).parse(req.query)))); } catch (error) { return classificationFailure(reply, error); }
   });
+  const attentionQualityInternalGuard = (reply: FastifyReply, authorization: string | undefined) => {
+    if (!config.rhChainAttentionQualityV2Enabled || !config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) { reply.code(404).send(buildRhChainApiErrorResponse('not_found')); return false; }
+    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, authorization)) { reply.code(401).send(buildRhChainApiErrorResponse('review_admin_token_required')); return false; }
+    return true;
+  };
+  app.get('/internal/rh-chain/attention-quality/assessments', async (req, reply) => {
+    if (!attentionQualityInternalGuard(reply, req.headers.authorization)) return;
+    const receipts = await rhChainAttentionReceiptStore.list();
+    return safeJsonExport(buildRhChainApiResponse({ assessments: receipts.map((item) => item.assessment), receipts, provider_requests_in_path: 0 }));
+  });
+  app.get<{ Params: { contract: string }; Querystring: { window?: RhChainAttentionWindow } }>('/internal/rh-chain/attention-quality/assessments/:contract', async (req, reply) => {
+    if (!attentionQualityInternalGuard(reply, req.headers.authorization)) return;
+    const window = req.query.window === '24h' || req.query.window === '30d' ? req.query.window : '7d';
+    return safeJsonExport(buildRhChainApiResponse({ assessment: await rhChainAttentionQuality.assess(req.params.contract, window), receipts: await rhChainAttentionReceiptStore.list(req.params.contract), provider_requests_in_path: 0 }));
+  });
+  app.post<{ Params: { contract: string }; Body: { window?: RhChainAttentionWindow } }>('/internal/rh-chain/attention-quality/assessments/:contract/receipts', async (req, reply) => {
+    if (!attentionQualityInternalGuard(reply, req.headers.authorization)) return;
+    const reviewer = classificationReviewer(req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return reply.code(400).send(buildRhChainApiErrorResponse('reviewer_id_required'));
+    const window = req.body?.window === '24h' || req.body?.window === '30d' ? req.body.window : '7d';
+    return safeJsonExport(buildRhChainApiResponse({ receipt: await rhChainAttentionQuality.createReceipt(req.params.contract, window, reviewer) }));
+  });
+  app.post<{ Params: { receipt_id: string } }>('/internal/rh-chain/attention-quality/receipts/:receipt_id/publish', async (req, reply) => {
+    if (!attentionQualityInternalGuard(reply, req.headers.authorization)) return;
+    const reviewer = classificationReviewer(req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return reply.code(400).send(buildRhChainApiErrorResponse('reviewer_id_required'));
+    const receipt = await rhChainAttentionQuality.publishReceipt(req.params.receipt_id, reviewer); if (!receipt) return reply.code(404).send(buildRhChainApiErrorResponse('rh_chain_attention_quality_receipt_not_found'));
+    return safeJsonExport(buildRhChainApiResponse({ receipt }));
+  });
+  app.post<{ Params: { receipt_id: string } }>('/internal/rh-chain/attention-quality/receipts/:receipt_id/reject', async (req, reply) => {
+    if (!attentionQualityInternalGuard(reply, req.headers.authorization)) return;
+    const reviewer = classificationReviewer(req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return reply.code(400).send(buildRhChainApiErrorResponse('reviewer_id_required'));
+    const receipt = await rhChainAttentionQuality.rejectReceipt(req.params.receipt_id, reviewer); if (!receipt) return reply.code(404).send(buildRhChainApiErrorResponse('rh_chain_attention_quality_receipt_not_found'));
+    return safeJsonExport(buildRhChainApiResponse({ receipt }));
+  });
   app.get<{ Querystring: { status?: string } }>('/internal/rh-chain/review-console/submissions', async (req, reply) => {
     if (!config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
     if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send(buildRhChainApiErrorResponse('review_admin_token_required'));
@@ -2252,6 +2298,9 @@ export async function createApp(
   app.get('/v1/rh-chain/market/boosts', async () => safeJsonExport(buildRhChainApiResponse(await rhChainMarketData.getBoosts())));
   app.get<{ Querystring: { contract?: string } }>('/v1/rh-chain/market/attention', async (req) => {
     if (!req.query.contract) return safeJsonExport(buildRhChainApiResponse({ attention: null, caveats: ['An exact contract is required. Tickers are never used for identity.'] }));
+    if (config.rhChainAttentionQualityV2Enabled) {
+      return safeJsonExport(buildRhChainApiResponse({ token: { contract: req.query.contract }, attention: null, attention_quality: await rhChainAttentionQuality.assess(req.query.contract), caveats: ['Attention Quality uses persisted snapshot memory only. No provider request occurs in this public path.'] }));
+    }
     return safeJsonExport(buildRhChainApiResponse({ token: { contract: req.query.contract }, attention: await rhChainMarketData.getAttention(req.query.contract), caveats: ['Attention is provider context only and cannot change reviewed classification.'] }));
   });
   app.post('/v1/rh-chain/market/snapshots/capture', async (req, reply) => {
@@ -2263,11 +2312,26 @@ export async function createApp(
     const snapshots = req.query.window ? await rhChainMarketSnapshots.getSnapshotWindow(req.params.contract, req.query.window) : await rhChainMarketSnapshots.listSnapshots(req.params.contract);
     return safeJsonExport(buildRhChainApiResponse({ token: { contract: req.params.contract }, snapshots, latest_snapshot: snapshots.at(-1) ?? null, snapshot_count: snapshots.length, caveats: ['Snapshots are low-frequency provider observations and do not change reviewed classification, receipts, or approved-signal status.'] }));
   });
-  app.get<{ Params: { contract: string } }>('/v1/rh-chain/market/attention-quality/:contract', async (req) => safeJsonExport(buildRhChainApiResponse(await rhChainMarketSnapshots.summarizeAttentionHistory(req.params.contract))));
+  app.get<{ Params: { contract: string }; Querystring: { window?: RhChainAttentionWindow } }>('/v1/rh-chain/market/attention-quality/:contract', async (req) => {
+    if (!config.rhChainAttentionQualityV2Enabled) return safeJsonExport(buildRhChainApiResponse(await rhChainMarketSnapshots.summarizeAttentionHistory(req.params.contract)));
+    const window = req.query.window === '24h' || req.query.window === '30d' ? req.query.window : '7d';
+    return safeJsonExport(buildRhChainApiResponse(await rhChainAttentionQuality.assess(req.params.contract, window)));
+  });
   app.get('/v1/rh-chain/market', async () => safeJsonExport(buildRhChainApiResponse(await rhChainMarketStructure.marketPulse())));
   app.get('/v1/rh-chain/market-structure', async () => safeJsonExport(buildRhChainApiResponse(await rhChainMarketStructure.marketStructure())));
   app.get('/v1/rh-chain/market-structure/cross-layer', async () => safeJsonExport(buildRhChainApiResponse(await rhChainMarketStructure.crossLayer())));
-  app.get('/v1/rh-chain/market-structure/attention-quality', async () => safeJsonExport(buildRhChainApiResponse(await rhChainMarketStructure.attentionQuality())));
+  app.get('/v1/rh-chain/market-structure/attention-quality', async () => {
+    if (!config.rhChainAttentionQualityV2Enabled) return safeJsonExport(buildRhChainApiResponse(await rhChainMarketStructure.attentionQuality()));
+    const contracts = rhChainReviewedLayerClassifications.map((item) => item.contract).slice(0, 100);
+    const attention_quality = await Promise.all(contracts.map((contract) => rhChainAttentionQuality.assess(contract)));
+    return safeJsonExport(buildRhChainApiResponse({ title: 'Attention Quality', observations: [], attention_quality, contract_intelligence: attention_quality.map((item) => ({ contract: item.contract, source: item.classification_provenance, display_name: item.reviewed_project_identity, review_status: item.classification_provenance === 'unknown' ? 'not_reviewed' : 'reviewed', claim_status: 'not_assessed' })), observed_at: new Date().toISOString(), data_mode: 'persisted_memory', provider_requests_in_path: 0, methodology_version: 'rh_chain_attention_quality_v2', caveats: ['Paid attention is provider-derived context captured in persisted snapshots. It never establishes identity, approval, organic demand, agent activity, or legitimacy.'] }));
+  });
+  app.get<{ Params: { receipt_id: string } }>('/v1/rh-chain/attention-quality/receipts/:receipt_id', async (req, reply) => {
+    if (!config.rhChainAttentionQualityV2Enabled) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
+    const receipt = await rhChainAttentionQuality.publicReceipt(req.params.receipt_id);
+    if (!receipt) return reply.code(404).send(buildRhChainApiErrorResponse('rh_chain_attention_quality_receipt_not_found'));
+    return safeJsonExport(buildRhChainApiResponse(receipt));
+  });
   app.get('/v1/rh-chain/discovery-queue', async () => safeJsonExport(buildRhChainApiResponse(await rhChainDiscoveryQueue!.refresh())));
   app.post('/v1/rh-chain/discovery-queue/refresh', async () => safeJsonExport(buildRhChainApiResponse(await rhChainDiscoveryQueue!.refresh())));
   app.post<{ Params: { contract: string }; Body: { target?: 'market_structure' | '100_receipts' } }>('/v1/rh-chain/discovery-queue/:contract/promote', async (req, reply) => {
@@ -2875,6 +2939,15 @@ export async function createApp(
       } catch { /* Static card remains available when reviewed storage is temporarily unavailable. */ }
     }
     return reply.type('image/png').send(renderOgPng(renderRhChainCrossLayerOgImage(context)));
+  });
+  app.get('/og/rh-chain/attention-quality.png', async (_req, reply) => {
+    reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
+    let context: { verdict: string; capturedAt: string | null } | null = null;
+    if (config.rhChainAttentionQualityV2Enabled) {
+      const first = rhChainReviewedLayerClassifications[0];
+      if (first) { try { const assessment = await rhChainAttentionQuality.assess(first.contract); context = { verdict: assessment.verdict, capturedAt: assessment.captured_at }; } catch { /* Static card is still useful when storage is unavailable. */ } }
+    }
+    return reply.type('image/png').send(renderOgPng(renderRhChainAttentionQualityOgImage(context)));
   });
   app.get('/og/attention-market-watch.png', async (_req, reply) => {
     reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');

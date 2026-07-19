@@ -45,6 +45,7 @@ export type RuntimeConfig = {
   rhChainReviewConsoleEnabled: boolean;
   rhChainReviewAdminToken: string | null;
   rhChainReviewedClassificationsEnabled: boolean;
+  rhChainAttentionQualityV2Enabled: boolean;
   rhChainAutomationEnabled: boolean;
   rhChainMarketIngestionEnabled: boolean;
   rhChainMarketHistoryEnabled: boolean;
@@ -110,6 +111,7 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
     rhChainReviewConsoleEnabled: readBoolean('RH_CHAIN_REVIEW_CONSOLE_ENABLED', env.RH_CHAIN_REVIEW_CONSOLE_ENABLED, false),
     rhChainReviewAdminToken: optionalString(env.RH_CHAIN_REVIEW_ADMIN_TOKEN),
     rhChainReviewedClassificationsEnabled: readBoolean('RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED', env.RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED, false),
+    rhChainAttentionQualityV2Enabled: readBoolean('RH_CHAIN_ATTENTION_QUALITY_V2_ENABLED', env.RH_CHAIN_ATTENTION_QUALITY_V2_ENABLED, false),
     rhChainAutomationEnabled: readBoolean('RH_CHAIN_AUTOMATION_ENABLED', env.RH_CHAIN_AUTOMATION_ENABLED, false),
     rhChainMarketIngestionEnabled: readBoolean('RH_CHAIN_MARKET_INGESTION_ENABLED', env.RH_CHAIN_MARKET_INGESTION_ENABLED, false),
     rhChainMarketHistoryEnabled: readBoolean('RH_CHAIN_MARKET_HISTORY_ENABLED', env.RH_CHAIN_MARKET_HISTORY_ENABLED, false),
@@ -142,6 +144,9 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
   if (isProduction && config.rhChainReviewedClassificationsEnabled && !config.databaseUrl) {
     throw new Error('DATABASE_URL is required when RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED=true in production');
   }
+  if (isProduction && config.rhChainAttentionQualityV2Enabled && !config.databaseUrl) {
+    throw new Error('DATABASE_URL is required when RH_CHAIN_ATTENTION_QUALITY_V2_ENABLED=true in production');
+  }
 
   return config;
 }
@@ -158,6 +163,7 @@ export function deploymentSummary(config: RuntimeConfig) {
     rhChainLiveSnapshotsEnabled: config.rhChainLiveSnapshotsEnabled,
     rhChainReviewConsoleEnabled: config.rhChainReviewConsoleEnabled,
     rhChainReviewedClassificationsEnabled: config.rhChainReviewedClassificationsEnabled,
+    rhChainAttentionQualityV2Enabled: config.rhChainAttentionQualityV2Enabled,
     rhChainAutomationEnabled: config.rhChainAutomationEnabled,
     rhChainMarketIngestionEnabled: config.rhChainMarketIngestionEnabled,
     rhChainMarketHistoryEnabled: config.rhChainMarketHistoryEnabled,

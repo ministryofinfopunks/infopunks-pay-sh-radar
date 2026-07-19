@@ -855,6 +855,7 @@ NODE_ENV=production PORT=8787 npm start
 | `RH_CHAIN_MARKET_INGESTION_ENABLED` | Independently enables admin-gated RH Chain DEX Screener snapshot capture; defaults to `false` |
 | `RH_CHAIN_MARKET_HISTORY_ENABLED` | Independently enables normalized historical snapshot writes; production requires `DATABASE_URL`; defaults to `false` |
 | `DEXSCREENER_ENABLED` | Enables the existing RH Chain DEX Screener market/attention adapter; defaults to `false` |
+| `RH_CHAIN_ATTENTION_QUALITY_V2_ENABLED` | Enables persisted-memory Attention Quality v2 behind the existing routes; defaults to `false` |
 | `DEXSCREENER_BASE_URL` | DEX Screener API origin; defaults to `https://api.dexscreener.com` |
 | `DEXSCREENER_RH_CHAIN_ID` | Fixed RH Chain identifier; the only accepted value is `robinhood` |
 | `DEXSCREENER_TIMEOUT_MS` | Abortable upstream request timeout; default `2500` |
