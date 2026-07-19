@@ -1185,6 +1185,14 @@ RH Chain feature surfaces load as route-level chunks: Market Pulse, Meme Pulse, 
 
 Vite may still report a large shared entry chunk. That chunk is the existing application shell, which contains the broad non-RH route registry plus the eager RH Chain desk shell; it is intentionally not split until the wider router is decomposed. The production smoke plan covers RH Chain public and read-only API routes without submitting signals.
 
+## RH Chain Project Claims and Intelligence Receipts
+
+Project Claims is gated by `RH_CHAIN_PROJECT_CLAIMS_ENABLED=false` by default. The public directory additionally requires `RH_CHAIN_PROJECT_DIRECTORY_ENABLED=true`; immutable project receipts additionally require `RH_CHAIN_INTELLIGENCE_RECEIPTS_ENABLED=true`. In production these flags require `DATABASE_URL` and the normal migration runner must apply `20260719_005_rh_chain_project_claims.up.sql` before enabling either surface.
+
+Public submissions only queue intake. They are not endorsements, verification, reviewed classifications, verdicts, Attention Quality inputs, or future scoring inputs. Exact Robinhood Chain contracts establish identity; names and slugs are presentation only. Reviewers use the existing Review Console token and reviewer attribution header to create observations, review claims, draft/approve verdicts, and publish receipts.
+
+Published project Intelligence Receipts carry a deterministic SHA-256 integrity hash. They are not edited or deleted: a correction publishes a replacement receipt and supersedes the original with a public reason and bidirectional linkage. Roll back safely by disabling the three flags first; this hides the public surfaces while preserving migrated records and existing Signal Vault, dossiers, classifications, Daily Receipts, and evaluation flows.
+
 # License
 
 MIT

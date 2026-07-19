@@ -60,6 +60,7 @@ const LazyRhChainMarketStructurePage = lazy(() => import('./rhChainMarketStructu
 const LazyRhChainMarketPulsePage = lazy(() => import('./rhChainMarketPulsePage').then((module) => ({ default: module.RhChainMarketPulsePage })));
 const LazyRhChainDiscoveryQueuePage = lazy(() => import('./rhChainDiscoveryQueuePage').then((module) => ({ default: module.RhChainDiscoveryQueuePage })));
 const LazyRhChainReviewPipelinePage = lazy(() => import('./rhChainReviewPipelinePage').then((module) => ({ default: module.RhChainReviewPipelinePage })));
+const LazyRhChainProjectClaimsPage = lazy(() => import('./rhChainProjectClaimsPage').then((module) => ({ default: module.RhChainProjectClaimsPage })));
 
 function UniversalRadarHomepageHero() {
   return <section className="panel radar-universal-hero" aria-labelledby="radar-home-title">
@@ -14451,6 +14452,12 @@ export function App() {
   if (/^\/rh-chain-signal-desk\/market-structure\/attention-quality\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainMarketStructurePage view="attention-quality" /></LazyRhChainFeature>;
   if (/^\/rh-chain-signal-desk\/market-structure\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainMarketStructurePage /></LazyRhChainFeature>;
   if (/^\/internal\/rh-chain\/review-console\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainReviewConsolePage /></LazyRhChainFeature>;
+  if (/^\/rh-chain-signal-desk\/projects\/claim\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainProjectClaimsPage mode="submit" /></LazyRhChainFeature>;
+  const receiptMatch = window.location.pathname.match(/^\/rh-chain-signal-desk\/intelligence-receipts\/([^/]+)\/?$/);
+  if (receiptMatch) return <LazyRhChainFeature><LazyRhChainProjectClaimsPage mode="receipt" receiptId={decodeURIComponent(receiptMatch[1])} /></LazyRhChainFeature>;
+  const projectMatch = window.location.pathname.match(/^\/rh-chain-signal-desk\/projects\/([^/]+)(?:\/(claims|receipts))?\/?$/);
+  if (projectMatch) return <LazyRhChainFeature><LazyRhChainProjectClaimsPage mode={projectMatch[2] === 'claims' ? 'claims' : projectMatch[2] === 'receipts' ? 'receipts' : 'project'} projectId={decodeURIComponent(projectMatch[1])} /></LazyRhChainFeature>;
+  if (/^\/rh-chain-signal-desk\/projects\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainProjectClaimsPage mode="directory" /></LazyRhChainFeature>;
   const dossierContract = window.location.pathname.match(/^\/rh-chain-signal-desk\/tokens\/([^/]+)\/?$/)?.[1];
   if (dossierContract) return <LazyRhChainFeature><LazyRhChainTokenDossierPage contract={decodeURIComponent(dossierContract)} /></LazyRhChainFeature>;
   const dailyReceiptMatch = window.location.pathname.match(/^\/rh-chain-signal-desk\/daily-receipts\/([^/]+)(\/card)?\/?$/);

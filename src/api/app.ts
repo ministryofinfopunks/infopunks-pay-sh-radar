@@ -24,6 +24,7 @@ import { RhChainCrossLayerIntegrationService } from '../services/rhChainCrossLay
 import { RhChainDiscoveryQueueService } from '../services/rhChainDiscoveryQueueService';
 import { RhChainReviewPipelineService, type RhChainReviewClassification, type RhChainReviewSecondaryTag } from '../services/rhChainReviewPipelineService';
 import { InMemoryRhChainReviewedClassificationStore, PostgresRhChainReviewedClassificationStore, RhChainClassificationApprovalSchema, RhChainClassificationAuditPagingSchema, RhChainClassificationContractSchema, RhChainClassificationError, RhChainClassificationPagingSchema, RhChainClassificationProposalSchema, RhChainClassificationRejectionSchema, RhChainClassificationSupersessionSchema, RhChainReviewedClassificationService, type RhChainReviewedClassificationStore } from '../services/rhChainReviewedClassificationService';
+import { InMemoryRhChainProjectClaimsStore, PostgresRhChainProjectClaimsStore, RhChainProjectClaimsError, RhChainProjectClaimsService, type RhChainProjectClaimsStore } from '../services/rhChainProjectClaimsService';
 import { InMemoryRhChainMarketSnapshotStore, PostgresRhChainMarketSnapshotStore, RhChainMarketSnapshotService, type RhChainMarketSnapshotServiceOptions, type RhChainMarketSnapshotStore } from '../services/rhChainMarketSnapshotService';
 import { InMemoryRhChainAttentionReceiptStore, PostgresRhChainAttentionReceiptStore, RhChainAttentionQualityService, type RhChainAttentionReceiptStore, type RhChainAttentionWindow } from '../services/rhChainAttentionQualityService';
 import { InMemoryRhChainMetricsSnapshotStore, PostgresRhChainMetricsSnapshotStore, RhChainChainPulseService, type RhChainMetricsSnapshotStore } from '../services/rhChainChainPulseService';
@@ -583,6 +584,7 @@ export type CreateAppOptions = {
   clientDistDir?: string | null;
   rhChainSubmissionStore?: RhChainSubmissionStore;
   rhChainReviewedClassificationStore?: RhChainReviewedClassificationStore;
+  rhChainProjectClaimsStore?: RhChainProjectClaimsStore;
   rhChainLiveSnapshotOptions?: Partial<RhChainLiveSnapshotOptions>;
   rhChainMarketDataOptions?: Partial<Omit<RhChainMarketDataServiceOptions, 'provider'>> & { provider?: RhChainDexScreenerIngestionSource };
   rhChainMarketStructureOptions?: Partial<Omit<RhChainMarketStructureOptions, 'marketData'>>;
@@ -631,6 +633,7 @@ export async function createApp(
     'rh_chain_risk_correlation_snapshots',
     ...((config.rhChainMarketHistoryEnabled || config.rhChainAutomationEnabled) ? ['rh_chain_market_snapshots'] as const : []),
     ...(config.rhChainReviewedClassificationsEnabled ? ['rh_chain_reviewed_classifications', 'rh_chain_reviewed_classification_audit'] as const : [])
+    ,...((config.rhChainProjectClaimsEnabled || config.rhChainIntelligenceReceiptsEnabled || config.rhChainProjectDirectoryEnabled) ? ['rh_chain_projects', 'rh_chain_project_claims', 'rh_chain_project_evidence', 'rh_chain_project_observations', 'rh_chain_project_verdicts', 'rh_chain_intelligence_receipts', 'rh_chain_project_audit'] as const : [])
   ] as const;
   rhChainPostgresPool?.on('error', (error) => {
     console.log(JSON.stringify({
@@ -653,6 +656,9 @@ export async function createApp(
   const rhChainReviewedClassificationStore: RhChainReviewedClassificationStore = options.rhChainReviewedClassificationStore
     ?? (rhChainPostgresPool ? new PostgresRhChainReviewedClassificationStore(rhChainPostgresPool) : new InMemoryRhChainReviewedClassificationStore());
   const rhChainReviewedClassifications = new RhChainReviewedClassificationService(rhChainReviewedClassificationStore);
+  const rhChainProjectClaimsStore: RhChainProjectClaimsStore = options.rhChainProjectClaimsStore
+    ?? (rhChainPostgresPool ? new PostgresRhChainProjectClaimsStore(rhChainPostgresPool) : new InMemoryRhChainProjectClaimsStore());
+  const rhChainProjectClaims = new RhChainProjectClaimsService(rhChainProjectClaimsStore);
   const rhChainLiveSnapshots = new RhChainLiveSnapshotService({
     enabled: config.rhChainLiveSnapshotsEnabled,
     timeoutMs: config.rhChainProviderTimeoutMs,
@@ -843,6 +849,7 @@ export async function createApp(
   app.addHook('onClose', async () => {
     await rhChainSubmissionStore.close?.();
     await rhChainReviewedClassificationStore.close?.();
+    await rhChainProjectClaimsStore.close?.();
     await rhChainAutomationStore.close?.();
     await rhChainMetricsSnapshotStore.close?.();
     await rhChainMemePulseSnapshotStore.close?.();
@@ -2079,6 +2086,62 @@ export async function createApp(
     if (!classificationFeatureAvailable()) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
     try { return safeJsonExport(buildRhChainApiResponse(await rhChainReviewedClassifications.listApproved(RhChainClassificationPagingSchema.omit({ status: true }).parse(req.query)))); } catch (error) { return classificationFailure(reply, error); }
   });
+  const projectClaimsEnabled = () => config.rhChainProjectClaimsEnabled;
+  const projectDirectoryEnabled = () => config.rhChainProjectDirectoryEnabled && projectClaimsEnabled();
+  const projectReceiptsEnabled = () => config.rhChainIntelligenceReceiptsEnabled && projectClaimsEnabled();
+  const projectClaimsInternalGuard = (reply: FastifyReply, authorization: string | undefined) => {
+    if (!projectClaimsEnabled() || !config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) { reply.code(404).send(buildRhChainApiErrorResponse('not_found')); return false; }
+    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, authorization)) { reply.code(401).send(buildRhChainApiErrorResponse('review_admin_token_required')); return false; }
+    return true;
+  };
+  const projectClaimsFailure = (reply: FastifyReply, error: unknown) => {
+    if (error instanceof z.ZodError) return reply.code(400).send(buildRhChainApiErrorResponse('invalid_request', { issues: error.issues }));
+    if (error instanceof RhChainProjectClaimsError) return reply.code(error.code.includes('not_found') ? 404 : error.code.includes('conflict') || error.code.includes('transition') ? 409 : 503).send(buildRhChainApiErrorResponse(error.code));
+    return reply.code(503).send(buildRhChainApiErrorResponse('rh_chain_project_claims_unavailable'));
+  };
+  app.get<{ Querystring: Record<string, unknown> }>('/v1/rh-chain/projects', async (req, reply) => {
+    if (!projectDirectoryEnabled()) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
+    try { return safeJsonExport(buildRhChainApiResponse(await rhChainProjectClaims.list(req.query))); } catch (error) { return projectClaimsFailure(reply, error); }
+  });
+  app.get<{ Params: { project_id: string } }>('/v1/rh-chain/projects/:project_id', async (req, reply) => {
+    if (!projectClaimsEnabled()) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
+    try { return safeJsonExport(buildRhChainApiResponse(await rhChainProjectClaims.project(req.params.project_id))); } catch (error) { return projectClaimsFailure(reply, error); }
+  });
+  app.get<{ Params: { project_id: string } }>('/v1/rh-chain/projects/:project_id/claims', async (req, reply) => {
+    if (!projectClaimsEnabled()) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
+    try { const p = await rhChainProjectClaims.project(req.params.project_id); return safeJsonExport(buildRhChainApiResponse({ project_id: req.params.project_id, project_submitted_claims: p.project_submitted_claims, not_financial_advice: true })); } catch (error) { return projectClaimsFailure(reply, error); }
+  });
+  app.get<{ Params: { project_id: string } }>('/v1/rh-chain/projects/:project_id/observations', async (req, reply) => {
+    if (!projectClaimsEnabled()) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
+    try { const p = await rhChainProjectClaims.project(req.params.project_id); return safeJsonExport(buildRhChainApiResponse({ project_id: req.params.project_id, infopunks_observations: p.infopunks_observations, onchain_evidence: p.onchain_evidence, not_financial_advice: true })); } catch (error) { return projectClaimsFailure(reply, error); }
+  });
+  app.get<{ Params: { project_id: string } }>('/v1/rh-chain/projects/:project_id/receipts', async (req, reply) => {
+    if (!projectReceiptsEnabled()) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
+    try { const p = await rhChainProjectClaims.project(req.params.project_id); return safeJsonExport(buildRhChainApiResponse({ project_id: req.params.project_id, receipts: p.receipts, not_financial_advice: true })); } catch (error) { return projectClaimsFailure(reply, error); }
+  });
+  app.get('/v1/rh-chain/intelligence-receipts', async (_req, reply) => {
+    if (!projectReceiptsEnabled()) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
+    return safeJsonExport(buildRhChainApiResponse({ receipts: (await rhChainProjectClaims.store.receipts()).filter((item) => item.reviewer_publication_state === 'published'), not_financial_advice: true }));
+  });
+  app.get<{ Params: { receipt_id: string } }>('/v1/rh-chain/intelligence-receipts/:receipt_id', async (req, reply) => {
+    if (!projectReceiptsEnabled()) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
+    const receipt = await rhChainProjectClaims.store.getReceipt(req.params.receipt_id);
+    if (!receipt || !['published', 'superseded'].includes(receipt.reviewer_publication_state)) return reply.code(404).send(buildRhChainApiErrorResponse('rh_chain_intelligence_receipt_not_found'));
+    return safeJsonExport(buildRhChainApiResponse({ receipt, not_financial_advice: true }));
+  });
+  app.post('/v1/rh-chain/projects/claims', async (req, reply) => {
+    if (!projectClaimsEnabled()) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
+    const limit = rhChainPublicRateLimiter.consume(`project_claim:${req.ip}`); if (!limit.allowed) return reply.code(429).header('Retry-After', String(Math.ceil(limit.retryAfterMs / 1000))).send(buildRhChainApiErrorResponse('rate_limited'));
+    try { return reply.code(202).send(safeJsonExport(buildRhChainApiResponse(await rhChainProjectClaims.submit(req.body)))); } catch (error) { return projectClaimsFailure(reply, error); }
+  });
+  app.get('/internal/rh-chain/projects', async (req, reply) => { if (!projectClaimsInternalGuard(reply, req.headers.authorization)) return; try { return safeJsonExport(buildRhChainApiResponse(await rhChainProjectClaims.list(req.query))); } catch (error) { return projectClaimsFailure(reply, error); } });
+  app.get<{ Params: { project_id: string } }>('/internal/rh-chain/projects/:project_id', async (req, reply) => { if (!projectClaimsInternalGuard(reply, req.headers.authorization)) return; try { return safeJsonExport(buildRhChainApiResponse({ ...(await rhChainProjectClaims.project(req.params.project_id)), audit: await rhChainProjectClaims.audit(req.params.project_id) })); } catch (error) { return projectClaimsFailure(reply, error); } });
+  app.post<{ Params: { project_id: string; claim_id: string } }>('/internal/rh-chain/projects/:project_id/claims/:claim_id/review', async (req, reply) => { if (!projectClaimsInternalGuard(reply, req.headers.authorization)) return; const reviewer = classificationReviewer(req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return reply.code(400).send(buildRhChainApiErrorResponse('reviewer_id_required')); try { return safeJsonExport(buildRhChainApiResponse(await rhChainProjectClaims.reviewClaim(req.params.project_id, req.params.claim_id, req.body, reviewer))); } catch (error) { return projectClaimsFailure(reply, error); } });
+  app.post<{ Params: { project_id: string } }>('/internal/rh-chain/projects/:project_id/observations', async (req, reply) => { if (!projectClaimsInternalGuard(reply, req.headers.authorization)) return; const reviewer = classificationReviewer(req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return reply.code(400).send(buildRhChainApiErrorResponse('reviewer_id_required')); try { return safeJsonExport(buildRhChainApiResponse(await rhChainProjectClaims.addObservation(req.params.project_id, req.body, reviewer))); } catch (error) { return projectClaimsFailure(reply, error); } });
+  app.post<{ Params: { project_id: string } }>('/internal/rh-chain/projects/:project_id/verdicts', async (req, reply) => { if (!projectClaimsInternalGuard(reply, req.headers.authorization)) return; const reviewer = classificationReviewer(req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return reply.code(400).send(buildRhChainApiErrorResponse('reviewer_id_required')); try { return safeJsonExport(buildRhChainApiResponse(await rhChainProjectClaims.createVerdict(req.params.project_id, req.body, reviewer))); } catch (error) { return projectClaimsFailure(reply, error); } });
+  app.post<{ Params: { project_id: string; verdict_id: string } }>('/internal/rh-chain/projects/:project_id/verdicts/:verdict_id/approve', async (req, reply) => { if (!projectClaimsInternalGuard(reply, req.headers.authorization)) return; const reviewer = classificationReviewer(req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return reply.code(400).send(buildRhChainApiErrorResponse('reviewer_id_required')); const parsed = z.object({ expected_version: z.number().int().positive() }).strict().safeParse(req.body); if (!parsed.success) return projectClaimsFailure(reply, parsed.error); try { return safeJsonExport(buildRhChainApiResponse(await rhChainProjectClaims.approveVerdict(req.params.project_id, req.params.verdict_id, parsed.data.expected_version, reviewer))); } catch (error) { return projectClaimsFailure(reply, error); } });
+  app.post<{ Params: { project_id: string; verdict_id: string } }>('/internal/rh-chain/projects/:project_id/verdicts/:verdict_id/publish', async (req, reply) => { if (!projectClaimsInternalGuard(reply, req.headers.authorization) || !projectReceiptsEnabled()) return; const reviewer = classificationReviewer(req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return reply.code(400).send(buildRhChainApiErrorResponse('reviewer_id_required')); try { return safeJsonExport(buildRhChainApiResponse(await rhChainProjectClaims.publishReceipt(req.params.project_id, req.params.verdict_id, req.body, reviewer))); } catch (error) { return projectClaimsFailure(reply, error); } });
+  app.post<{ Params: { receipt_id: string } }>('/internal/rh-chain/intelligence-receipts/:receipt_id/supersede', async (req, reply) => { if (!projectClaimsInternalGuard(reply, req.headers.authorization) || !projectReceiptsEnabled()) return; const reviewer = classificationReviewer(req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return reply.code(400).send(buildRhChainApiErrorResponse('reviewer_id_required')); try { return safeJsonExport(buildRhChainApiResponse(await rhChainProjectClaims.supersedeReceipt(req.params.receipt_id, req.body, reviewer))); } catch (error) { return projectClaimsFailure(reply, error); } });
   const attentionQualityInternalGuard = (reply: FastifyReply, authorization: string | undefined) => {
     if (!config.rhChainAttentionQualityV2Enabled || !config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) { reply.code(404).send(buildRhChainApiErrorResponse('not_found')); return false; }
     if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, authorization)) { reply.code(401).send(buildRhChainApiErrorResponse('review_admin_token_required')); return false; }
