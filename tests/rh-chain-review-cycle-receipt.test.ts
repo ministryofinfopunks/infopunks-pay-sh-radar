@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createRhChainReviewCycleReceipt } from '../src/services/rhChainDailyReceiptDraftService';
+import { createRhChainMarketStructureReceipt, createRhChainReviewCycleReceipt } from '../src/services/rhChainDailyReceiptDraftService';
 import type { RhChainDailyReviewSummary } from '../src/services/rhChainReviewPipelineService';
 
 function summary(overrides: Partial<RhChainDailyReviewSummary> = {}): RhChainDailyReviewSummary {
@@ -13,7 +13,7 @@ function summary(overrides: Partial<RhChainDailyReviewSummary> = {}): RhChainDai
 describe('RH Chain Review Cycle Receipt #007', () => {
   it('renders an empty daily summary as a system-readiness receipt without market promotions', () => {
     const receipt = createRhChainReviewCycleReceipt(summary(), '2026-07-19T12:00:00.000Z');
-    expect(receipt).toEqual(expect.objectContaining({ receipt_id: 'rh_daily_007', period: 'Review cycle · 2026-07-19 UTC' }));
+    expect(receipt).toEqual(expect.objectContaining({ receipt_id: 'rh_review_cycle_template', period: 'Review cycle · 2026-07-19 UTC' }));
     expect(receipt.summary).toContain('System-readiness receipt');
     expect(receipt.receipt_sections?.find((section) => section.title === 'Market Structure Pulse')?.summary).toBe('No new reviewed candidates were promoted in this cycle.');
     expect(receipt.receipt_sections?.find((section) => section.title === 'Attention Quality Pulse')?.summary).toBe('Attention quality remains history-gated.');
@@ -36,5 +36,17 @@ describe('RH Chain Review Cycle Receipt #007', () => {
     expect(receipt.receipt_sections?.find((section) => section.title === 'Attention Quality Pulse')?.summary).toContain('3 snapshot(s) · sustained_attention');
     expect(receipt.receipt_sections?.find((section) => section.title === 'Outcome Checks')?.summary).toContain('Layered (LAYR)');
     expect(JSON.stringify(receipt).toLowerCase()).not.toMatch(/\b(buy|sell|ape|100x|raid)\b/);
+  });
+
+  it('builds #007 as a market-structure receipt with all five layer rankings and source boundaries', () => {
+    const receipt = createRhChainMarketStructureReceipt('2026-07-19T12:00:00.000Z');
+    const ranking = receipt.receipt_sections?.find((section) => section.title === 'Layer Power Ranking');
+    expect(receipt).toEqual(expect.objectContaining({ receipt_id: 'rh_daily_007', receipt_type: 'market_structure_memory', headline: 'RH Chain shifts from meme monopoly to multi-layer market structure' }));
+    expect(ranking?.fields.map((field) => field.label)).toEqual(['Memes', 'RWAs', 'Agents', 'Infrastructure', 'Cross-Layer Flows']);
+    expect(ranking?.summary).toContain('reviewed market-structure estimate, not complete chain accounting');
+    expect(receipt.receipt_sections?.find((section) => section.title === 'RWA Layer')?.fields.map((field) => field.value).join(' ')).toContain('source_required');
+    expect(receipt.receipt_sections?.find((section) => section.title === 'Agent Layer')?.fields.map((field) => field.value).join(' ')).toContain('does not equal verified agent activity');
+    expect(receipt.receipt_sections?.find((section) => section.title === 'Cross-Layer Flows')?.fields.map((field) => field.value).join(' ')).toContain('GROKIUS');
+    expect(JSON.stringify(receipt).toLowerCase()).not.toMatch(/\b(buy|sell|ape|100x|raid|alpha|pump)\b/);
   });
 });

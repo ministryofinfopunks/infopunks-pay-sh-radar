@@ -468,7 +468,7 @@ export type RhChainDailyReceiptWatchItem = {
   next_thing_to_verify: string;
 };
 
-export type RhChainDailyReceiptSectionId = 'chain_pulse' | 'meme_pulse' | 'leadership_narrative_pulse' | 'launchpad_stress_test' | 'access_wallet_pulse' | 'rwa_pulse' | 'agent_pulse' | 'infrastructure_pulse' | 'risk_wall' | 'market_structure_note' | 'narrative_mutation' | 'outcome_checks' | 'infopunks_verdict';
+export type RhChainDailyReceiptSectionId = 'chain_pulse' | 'meme_pulse' | 'leadership_narrative_pulse' | 'launchpad_stress_test' | 'access_wallet_pulse' | 'rwa_pulse' | 'agent_pulse' | 'infrastructure_pulse' | 'layer_power_ranking' | 'cross_layer_flows' | 'risk_wall' | 'market_structure_note' | 'narrative_mutation' | 'outcome_checks' | 'infopunks_verdict';
 
 export type RhChainDailyReceiptSection = {
   section_id: RhChainDailyReceiptSectionId;
@@ -479,7 +479,7 @@ export type RhChainDailyReceiptSection = {
 
 export type RhChainDailyReceipt = {
   receipt_id: string;
-  receipt_type?: 'daily_market_memory';
+  receipt_type?: 'daily_market_memory' | 'market_structure_memory';
   date: string;
   period?: string;
   generated_at: string;

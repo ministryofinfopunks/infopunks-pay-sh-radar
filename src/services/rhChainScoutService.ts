@@ -10,7 +10,7 @@ export type RhChainScoutResponse = { answer: string; answer_type: RhChainScoutMo
 export function classifyRhChainScoutQuery(query: string, requested?: RhChainScoutMode): RhChainScoutMode {
   if (requested) return requested;
   const text = query.toLowerCase();
-  if (/past 36|post[- ]drama|still just a meme|4663.*(?:detected|reviewed)|(?:detected|reviewed).*4663|first 4663 review|discovery.*reviewed|ticker[- ]only|difference between detected and reviewed/.test(text)) return 'narrative_mutation';
+  if (/past 36|post[- ]drama|still just a meme|meme[- ]led|which.*layer.*gaining power|cross[- ]layer flows|narrative momentum.*verified adoption|chain is sorting|4663.*(?:detected|reviewed)|(?:detected|reviewed).*4663|first 4663 review|discovery.*reviewed|ticker[- ]only|difference between detected and reviewed/.test(text)) return 'narrative_mutation';
   if (/rwa|tokenized|agentic|agents?|programmable|divergence|vlad.*messag|messag.*vlad/.test(text)) return 'narrative_mutation';
   if (/surface|noxa|20lab|uniswap|foundry|hardhat|wallet|bridge|swap|li\.fi|backpack|access|launchpad|fragmentation|flap|trensh|bankr|tokeny|vlad|robindotmarket|fee model|fee change|fee claim|creator revenue|burn|buyback/.test(text)) return 'launch_context';
   if (/clone|risk|deployer|fake.volume|\blp\b|launch/.test(text)) return 'risk_memory';
@@ -48,7 +48,17 @@ export function queryRhChainScout(input: RhChainScoutQuery, reviewItems = getRhC
       : /which|watched|watch/.test(needle)
         ? `The desk is watching ${watchedSurfaceNames}. NOXA is recorded as degraded in manual, source-dependent context; rival-surface claims remain source_required until primary evidence is attached.`
         : `Launch surfaces show where tokens start. Access surfaces show how users arrive. Wallet, bridge, router, and app surfaces are distribution context only; they do not establish token legitimacy, route safety, or endorsement. Backpack Wallet remains source_required until a primary source is attached.`;
-  const narrativeAnswer = /first 4663 review/.test(needle)
+  const narrativeAnswer = /which.*layer.*gaining power/.test(needle)
+    ? `Memes remain the highest raw-power layer because they still distribute attention and liquidity. RWAs are gaining the most institutional and narrative gravity, agents have forward momentum from a smaller base, infrastructure is rebuilding through fragmented launchpads, direct pools, analytics, and tooling, and cross-layer flows are the most important thesis to watch. This is a reviewed market-structure estimate, not complete chain accounting.`
+    : /still meme[- ]led/.test(needle)
+      ? `RH Chain remains meme-led in raw attention and onboarding, with CASHCAT retained as the benchmark attention asset in reviewed memory. It is no longer only a meme story: RWAs, agents, infrastructure, and cross-layer flows are gaining relative narrative power. Those layers remain source_required where operational evidence is absent.`
+      : /what are cross[- ]layer flows/.test(needle)
+        ? `Cross-layer flows are the overlap points where an asset or route connects more than one market layer, such as Meme × RWA, DeFi × RWA, Agent × RWA, Meme × Infrastructure, or Infrastructure × RWA. The Index is tracked only as a DeFi × RWA under_receipt_check candidate. GROKIUS remains Meme × AI narrative, not verified Agent × Meme, without operational evidence.`
+        : /narrative momentum.*verified adoption/.test(needle)
+          ? `4663 separates narrative momentum from verified adoption because a label, provider observation, paid attention, or leadership message can precede evidence of backing, operational wallets, activity, or durable flows. Reviewed memory preserves the source state and caveat instead of converting momentum into adoption by assumption.`
+          : /chain is sorting/.test(needle)
+            ? `The chain is sorting means power is no longer concentrated in one launch-week meme trade. Memes still distribute attention, while RWAs create gravity, agents create automation, infrastructure connects the rails, and cross-layer flows reveal where those forces overlap. It is a structure read, not a claim about exact chain-wide metrics or capital migration.`
+    : /first 4663 review/.test(needle)
     ? `The first 4663 review cycle establishes the operational boundary: DEX Screener and Blockscout context feed exact-contract discovery, the Discovery Queue organizes that flow, and the Review Pipeline keeps source-required states, duplicate warnings, paid-attention context, and outcome checks visible. The operational review-cycle receipt remains unpublished until a reviewer approves it; no promotion is inferred from the draft.`
     : /how does discovery become reviewed memory/.test(needle)
       ? `Discovery becomes reviewed memory only after an exact contract moves from auto-discovered context into the Review Pipeline. Review can keep it source_required or watch_only, create a candidate for Market Structure or 100 Receipts, add it to a daily draft, or schedule an outcome check. Provider observations organize the review; they do not make the judgment.`

@@ -2045,6 +2045,12 @@ export async function createApp(
     const draft = await rhChainDailyReceiptDrafts.generateReviewCycleDraft(summary);
     return safeJsonExport(buildRhChainApiResponse({ draft, publication_status: 'unpublished', public_surface_unchanged: true }));
   });
+  app.post('/internal/rh-chain/market-structure-receipt-drafts', async (req, reply) => {
+    if (!config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
+    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send(buildRhChainApiErrorResponse('review_admin_token_required'));
+    const draft = await rhChainDailyReceiptDrafts.generateMarketStructureDraft();
+    return safeJsonExport(buildRhChainApiResponse({ draft, publication_status: 'unpublished', public_surface_unchanged: true }));
+  });
   app.get('/internal/rh-chain/risk-correlations', async (req, reply) => {
     if (!config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
     if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send(buildRhChainApiErrorResponse('review_admin_token_required'));

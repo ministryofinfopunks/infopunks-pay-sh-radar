@@ -23,7 +23,12 @@ describe('RH Chain Scout', () => {
     ['What happened in the first 4663 review cycle?', 'narrative_mutation'],
     ['How does discovery become reviewed memory?', 'narrative_mutation'],
     ['Why does 4663 not trust ticker-only discovery?', 'narrative_mutation'],
-    ['What is the difference between detected and reviewed?', 'narrative_mutation']
+    ['What is the difference between detected and reviewed?', 'narrative_mutation'],
+    ['Which RH Chain layer is gaining power?', 'narrative_mutation'],
+    ['Is RH Chain still meme-led?', 'narrative_mutation'],
+    ['What are cross-layer flows?', 'narrative_mutation'],
+    ['Why does 4663 separate narrative momentum from verified adoption?', 'narrative_mutation'],
+    ['What does it mean that the chain is sorting?', 'narrative_mutation']
   ] as const)('classifies %s', (query, mode) => expect(classifyRhChainScoutQuery(query)).toBe(mode));
   it('returns limitations, disclaimer, and no trading or approval language', () => {
     const result = queryRhChainScout({ query: 'What are the biggest risks right now?' });
@@ -99,5 +104,12 @@ describe('RH Chain Scout', () => {
     expect(memory.answer).toContain('exact contract');
     expect(ticker.answer).toContain('symbols can be duplicated');
     expect(detected.answer).toContain('Detection creates a review cue');
+  });
+  it('answers layer-power questions with source-bound Market Structure memory', () => {
+    expect(queryRhChainScout({ query: 'Which RH Chain layer is gaining power?' }).answer).toContain('RWAs are gaining the most institutional and narrative gravity');
+    expect(queryRhChainScout({ query: 'Is RH Chain still meme-led?' }).answer).toContain('CASHCAT');
+    expect(queryRhChainScout({ query: 'What are cross-layer flows?' }).answer).toContain('GROKIUS remains Meme × AI narrative');
+    expect(queryRhChainScout({ query: 'Why does 4663 separate narrative momentum from verified adoption?' }).answer).toContain('Reviewed memory preserves the source state');
+    expect(queryRhChainScout({ query: 'What does it mean that the chain is sorting?' }).answer).toContain('structure read');
   });
 });
