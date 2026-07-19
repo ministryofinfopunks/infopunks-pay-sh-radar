@@ -869,6 +869,7 @@ NODE_ENV=production PORT=8787 npm start
 | `DEXSCREENER_RATE_LIMIT_PER_SECOND` | Maximum provider request starts per second; default `20`, maximum `100` |
 | `RH_CHAIN_REVIEW_CONSOLE_ENABLED` | Enables protected internal RH review routes |
 | `RH_CHAIN_REVIEW_ADMIN_TOKEN` | Dedicated bearer credential required when the production review console is enabled |
+| `RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED` | Enables durable authoritative reviewed-classification APIs; defaults to `false` and requires `DATABASE_URL` in production |
 | `PAY_SH_CATALOG_URL` | Live Pay.sh catalog source |
 | `PAY_SH_INGEST_INTERVAL_MS` | Enables scheduled ingestion |
 | `MONITOR_ENABLED` | Enables scheduled monitoring |
@@ -922,6 +923,28 @@ DEX Screener coverage depends on pools it indexes and may be partial, delayed, c
 Layer composition comes only from reviewed Infopunks classifications. DEX Screener supplies market and paid-attention context, never the complete chain index or a classification decision. The headline and supporting interpretation use the versioned deterministic ruleset `deterministic_rules_v1`; no LLM runs in the request path and the output is not an investment recommendation. The existing `/rh-chain-signal-desk/live-snapshot` surface and API remain available and are cross-linked from Market Pulse.
 
 Market Pulse needs no additional environment variable or database migration beyond the separately flagged market ingestion and snapshot-history foundation above. With the provider or history disabled, it returns a calm partial or unavailable state and does not fabricate zero-valued market totals.
+
+### Durable reviewed classifications
+
+Durable reviewed classifications are a separate, feature-flagged authority boundary for future Robinhood Chain products. Exact contract identity and reviewed memory outrank provider context. Provider observations, Discovery Queue actions, and Review Pipeline actions may remain useful intake context, but they cannot approve, promote, publish, or write this repository. The repository is intentionally not connected to Market Structure, Market Pulse, 4663/RCCI, Signal Graph, or public project pages in this phase.
+
+The feature is disabled by default. In production, apply the additive migration first, then set `RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED=true`. Protected `/internal/rh-chain/classifications...` routes additionally require the existing `RH_CHAIN_REVIEW_CONSOLE_ENABLED=true`, `RH_CHAIN_REVIEW_ADMIN_TOKEN`, bearer authorization, and an `x-rh-chain-reviewer-id` header for writes. The read-only `GET /v1/rh-chain/classifications` route returns only active approved records and redacts reviewer audit metadata and manual-override rationale.
+
+```bash
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f migrations/20260719_002_rh_chain_reviewed_classifications.up.sql
+```
+
+Application startup never runs this migration or any classification DDL. Startup readiness checks only verify that the expected tables exist when the feature is enabled. Roll back before disabling or removing the feature with:
+
+```bash
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f migrations/20260719_002_rh_chain_reviewed_classifications.down.sql
+```
+
+The Postgres repository stores one current validated record per `(chain, contract)` and an immutable audit snapshot for every accepted transition. Row locking, version predicates, primary/foreign keys, unique constraints, and database checks protect concurrent updates. Local development and deterministic tests can use the matching in-memory implementation. All reads validate stored JSON before returning it, paging is capped at 100 records per request, and malformed storage fails closed without leaking raw database errors.
+
+Supported states are `proposed`, `source_required`, `under_review`, `approved`, `rejected`, `superseded`, and `archived`. Approval, rejection, and supersession require the caller's expected classification version; stale writers receive a conflict with the current validated record. Rejected, superseded, or archived records can be proposed again only with their expected version, retaining prior transitions in audit history.
+
+The public Discovery Queue and Review Pipeline routes remain available with their existing response envelopes and behavior. Their mutation routes remain non-authoritative and do not write the reviewed-classification tables. The public Intersections Index is deliberately not part of this foundation.
 
 ---
 

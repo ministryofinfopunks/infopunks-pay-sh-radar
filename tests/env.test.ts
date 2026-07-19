@@ -15,6 +15,7 @@ describe('runtime environment config', () => {
     expect(config.rhChainAutomationEnabled).toBe(false);
     expect(config.rhChainMarketIngestionEnabled).toBe(false);
     expect(config.rhChainMarketHistoryEnabled).toBe(false);
+    expect(config.rhChainReviewedClassificationsEnabled).toBe(false);
     expect(config.dexScreenerMaxRetries).toBe(2);
     expect(config.dexScreenerMaxConcurrency).toBe(4);
   });
@@ -35,7 +36,9 @@ describe('runtime environment config', () => {
     expect(loadRuntimeConfig({ NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'secret', RH_CHAIN_LIVE_SNAPSHOTS_ENABLED: 'true', RH_CHAIN_PROVIDER_TIMEOUT_MS: '1200' }).rhChainLiveSnapshotsEnabled).toBe(true);
     expect(() => loadRuntimeConfig({ NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'secret', RH_CHAIN_AUTOMATION_ENABLED: 'true' })).toThrow('DATABASE_URL');
     expect(() => loadRuntimeConfig({ NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'secret', RH_CHAIN_MARKET_HISTORY_ENABLED: 'true' })).toThrow('DATABASE_URL');
+    expect(() => loadRuntimeConfig({ NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'secret', RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED: 'true' })).toThrow('DATABASE_URL');
     expect(() => loadRuntimeConfig({ NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'secret', RH_CHAIN_REVIEW_CONSOLE_ENABLED: 'true' })).toThrow('RH_CHAIN_REVIEW_ADMIN_TOKEN');
+    expect(loadRuntimeConfig({ RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED: 'true' }).rhChainReviewedClassificationsEnabled).toBe(true);
   });
 
   it('allows explicit machine demo seed toggle', () => {

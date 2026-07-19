@@ -438,7 +438,7 @@ describe('openapi discovery', () => {
       ['/v1/rh-chain', 'get'], ['/v1/rh-chain/memes', 'get'], ['/v1/rh-chain/signals', 'get'],
       ['/v1/rh-chain/receipts', 'get'], ['/v1/rh-chain/4663-index', 'get'], ['/v1/rh-chain/daily-receipts', 'get'],
       ['/v1/rh-chain/meme-pulse', 'get'], ['/v1/rh-chain/launch-surfaces', 'get'], ['/v1/rh-chain/live-snapshot', 'get'],
-      ['/v1/rh-chain/live-snapshot/token/{contract}', 'get'], ['/v1/rh-chain/tokens/{contract}/dossier', 'get'],
+      ['/v1/rh-chain/live-snapshot/token/{contract}', 'get'], ['/v1/rh-chain/classifications', 'get'], ['/v1/rh-chain/tokens/{contract}/dossier', 'get'],
       ['/v1/rh-chain/review-queue', 'get'], ['/v1/rh-chain/clone-radar', 'get'], ['/v1/rh-chain/scouts', 'get'],
       ['/v1/rh-chain/distribution-pack', 'get'], ['/v1/rh-chain/signals/submissions', 'get'],
       ['/v1/rh-chain/signals/submit', 'post'], ['/v1/rh-chain/scout/query', 'post']
@@ -458,6 +458,25 @@ describe('openapi discovery', () => {
     expect(spec.components.schemas.RhChainErrorEnvelope.required).toEqual(expect.arrayContaining(['data', 'error', 'meta', 'sources', 'generated_at', 'data_mode', 'disclaimer']));
     expect(spec.paths['/internal/rh-chain/review-console/submissions'].get.security).toEqual([{ bearerAuth: [] }]);
     expect(spec.paths['/internal/rh-chain/review-console/submissions/{submissionId}'].patch.description).toContain('optimistic concurrency');
+    const classificationRoutes = [
+      ['/internal/rh-chain/classifications', 'get'],
+      ['/internal/rh-chain/classifications', 'post'],
+      ['/internal/rh-chain/classifications/{contract}', 'get'],
+      ['/internal/rh-chain/classifications/{contract}/approve', 'post'],
+      ['/internal/rh-chain/classifications/{contract}/reject', 'post'],
+      ['/internal/rh-chain/classifications/{contract}/supersede', 'post'],
+      ['/internal/rh-chain/classifications/{contract}/audit', 'get']
+    ] as const;
+    for (const [route, method] of classificationRoutes) {
+      expect(spec.paths[route]?.[method]).toBeTruthy();
+      expect(spec.paths[route][method].security).toEqual([{ bearerAuth: [] }]);
+    }
+    expect(spec.paths['/internal/rh-chain/classifications/{contract}/approve'].post.description).toContain('optimistic concurrency');
+    expect(spec.paths['/internal/rh-chain/classifications'].post.description).toContain('cannot approve, promote, or publish');
+    expect(spec.paths['/v1/rh-chain/classifications'].get.description).toContain('only active approved records');
+    expect(spec.components.schemas.RhChainReviewedClassification.additionalProperties).toBe(false);
+    expect(spec.components.schemas.RhChainClassificationProposalRequest.additionalProperties).toBe(false);
+    expect(spec.components.schemas.RhChainPublicClassification.properties.reviewer_audit).toBeUndefined();
     await app.close();
   });
 
