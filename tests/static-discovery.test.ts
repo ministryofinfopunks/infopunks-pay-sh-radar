@@ -56,10 +56,13 @@ describe('static public discovery metadata', () => {
     expect(sitemap).toContain('<loc>https://radar.infopunks.fun/openapi.json</loc>');
     expect(sitemap).toContain('<loc>https://radar.infopunks.fun/abundance</loc>');
     expect(sitemap).toContain('<loc>https://radar.infopunks.fun/narratives/abundance-desk</loc>');
+    expect(sitemap).toContain('<loc>https://radar.infopunks.fun/rh-chain-signal-desk/market</loc>');
     expect(llms).toContain('does not execute paid Pay.sh APIs');
     expect(llms).toContain('Route intelligence and preflight output are advisory');
     expect(llms).toContain('https://radar.infopunks.fun/openapi.json');
     expect(llms).toContain('https://radar.infopunks.fun/v1/abundance');
+    expect(llms).toContain('https://radar.infopunks.fun/rh-chain-signal-desk/market');
+    expect(llms).toContain('DEX Screener is a market and attention sensor, not a complete chain index');
     expect(wellKnown.name).toBe('Infopunks Pay.sh Radar');
     expect(wellKnown.openapi).toBe('https://radar.infopunks.fun/openapi.json');
     expect(wellKnown.safety).toBe('safe_metadata_only_no_paid_api_execution');

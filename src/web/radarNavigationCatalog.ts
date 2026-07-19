@@ -245,6 +245,7 @@ export const RADAR_NAVIGATION: Readonly<Record<RadarNavigationContext, NetworkNa
     networkId: 'robinhood-chain',
     primaryItems: [
       { id: 'rh-signal-desk', href: '/rh-chain-signal-desk', label: 'Signal Desk', compactPriority: true },
+      { id: 'rh-market-pulse', href: '/rh-chain-signal-desk/market', label: 'Market', compactPriority: true },
       { id: 'rh-meme-pulse', href: '/rh-chain-signal-desk/meme-pulse', label: 'Meme Pulse', compactPriority: true },
       { id: 'rh-4663-index', href: '/rh-chain-signal-desk/4663-index', label: '4663 Index' },
       { id: 'rh-receipts', href: '/rh-chain-signal-desk/daily-receipts', label: 'Receipts', compactPriority: true, activePrefixes: ['/rh-chain-signal-desk/daily-receipts/'] },

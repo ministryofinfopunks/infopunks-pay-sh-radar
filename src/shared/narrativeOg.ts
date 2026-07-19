@@ -62,6 +62,10 @@ export function signalUpdateTypeLabel(value: string) {
 }
 
 export function narrativeOgImageUrl(pathname: string) {
+  if (/^\/rh-chain-signal-desk\/market\/?$/.test(pathname)) {
+    return '/og/rh-chain/market.png';
+  }
+
   if (/^\/narratives\/?$/.test(pathname)) {
     return '/og/narratives.png';
   }
@@ -614,6 +618,18 @@ export function renderNarrativesOgImage() {
     accent: '#62ffc7',
     eyebrow: 'NARRATIVE INTEL INDEX',
     routeLabel: '/narratives'
+  });
+}
+
+export function renderRhChainMarketPulseOgImage() {
+  return renderSignalCardSvg({
+    title: 'Robinhood Chain Market Pulse',
+    subtitle: 'Where attention enters. Where liquidity forms. Which market layer is gaining power.',
+    badge: 'INFOPUNKS RADAR',
+    footer: 'Exact contracts / rolling 24h / provider freshness / deterministic interpretation',
+    accent: '#d8ff73',
+    eyebrow: 'MARKET-STRUCTURE INTELLIGENCE',
+    routeLabel: '/rh-chain-signal-desk/market'
   });
 }
 

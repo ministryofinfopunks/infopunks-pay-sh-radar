@@ -852,6 +852,21 @@ NODE_ENV=production PORT=8787 npm start
 | `INFOPUNKS_ADMIN_TOKEN` | Required for admin ingestion and monitoring routes |
 | `RH_CHAIN_AUTOMATION_ENABLED` | Enables RH Chain draft/snapshot automation; production requires `DATABASE_URL` |
 | `RH_CHAIN_AUTOMATION_INSTANCE_ID` | Safe instance label recorded with durable automation locks |
+| `RH_CHAIN_MARKET_INGESTION_ENABLED` | Independently enables admin-gated RH Chain DEX Screener snapshot capture; defaults to `false` |
+| `RH_CHAIN_MARKET_HISTORY_ENABLED` | Independently enables normalized historical snapshot writes; production requires `DATABASE_URL`; defaults to `false` |
+| `DEXSCREENER_ENABLED` | Enables the existing RH Chain DEX Screener market/attention adapter; defaults to `false` |
+| `DEXSCREENER_BASE_URL` | DEX Screener API origin; defaults to `https://api.dexscreener.com` |
+| `DEXSCREENER_RH_CHAIN_ID` | Fixed RH Chain identifier; the only accepted value is `robinhood` |
+| `DEXSCREENER_TIMEOUT_MS` | Abortable upstream request timeout; default `2500` |
+| `DEXSCREENER_CACHE_TTL_SECONDS` | Fresh in-memory provider-cache TTL; default `120` |
+| `DEXSCREENER_STALE_WHILE_REVALIDATE_SECONDS` | Bounded background-refresh window after fresh TTL; default `30` |
+| `DEXSCREENER_STALE_IF_ERROR_SECONDS` | Bounded stale fallback window after provider errors; default `300` |
+| `DEXSCREENER_MAX_STALE_SECONDS` | Absolute stale-data ceiling; default `900` |
+| `DEXSCREENER_MAX_BATCH_SIZE` | Maximum exact contracts per token batch; capped at `30` |
+| `DEXSCREENER_MAX_RETRIES` | Retry budget for 429, 5xx, timeout, and network failures; default `2`, maximum `5` |
+| `DEXSCREENER_RETRY_BASE_MS` | Base delay for exponential backoff with jitter; default `100` |
+| `DEXSCREENER_MAX_CONCURRENCY` | Maximum simultaneous upstream requests; default `4`, maximum `20` |
+| `DEXSCREENER_RATE_LIMIT_PER_SECOND` | Maximum provider request starts per second; default `20`, maximum `100` |
 | `RH_CHAIN_REVIEW_CONSOLE_ENABLED` | Enables protected internal RH review routes |
 | `RH_CHAIN_REVIEW_ADMIN_TOKEN` | Dedicated bearer credential required when the production review console is enabled |
 | `PAY_SH_CATALOG_URL` | Live Pay.sh catalog source |
@@ -877,6 +892,36 @@ MONITOR_ENABLED=true
 MONITOR_MODE=safe_metadata
 MONITOR_INTERVAL_MS=900000
 ```
+
+## RH Chain market-data provider setup
+
+DEX Screener is used only as a market and attention sensor. It does not define the complete Robinhood Chain index, establish token identity from a ticker, change reviewed classifications, or create approved signals. All provider calls run server-side through the existing adapter; browser components never call DEX Screener directly.
+
+Enable live market reads with `DEXSCREENER_ENABLED=true`. Enable the admin capture path separately with `RH_CHAIN_MARKET_INGESTION_ENABLED=true`. Enable writes separately with `RH_CHAIN_MARKET_HISTORY_ENABLED=true`; production history requires Postgres. Legacy `RH_CHAIN_AUTOMATION_ENABLED=true` continues to enable both capture and storage for backward compatibility.
+
+The adapter validates every upstream payload at runtime and supports token market lookup, token pool lookup, pair lookup, token profiles, latest/top boosts, paid token orders, ads, and community-takeover metadata on chain id `robinhood`. Requests use abortable timeouts, bounded retry with exponential backoff and jitter for 429/5xx/transient transport failures, a concurrency ceiling, provider start-rate limiting, and `Retry-After` when supplied.
+
+Apply the additive Postgres migration before enabling new production history:
+
+```bash
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f migrations/20260719_001_rh_chain_market_snapshot_memory.up.sql
+```
+
+The paired `.down.sql` removes only the new columns and indexes, retaining the legacy snapshot table and token/captured-at index.
+
+### Market-data provenance and limitations
+
+Normalized pair observations include provider, capture time, provider time when supplied, cache provenance/status, freshness, raw-data version, exact token and pair addresses, base/quote metadata, DEX/labels, price, liquidity, FDV/market cap, volume/transaction/price-change windows, boosts/orders, websites, and socials. Derived Infopunks fields remain separated from raw provider observations and include freshness and confidence.
+
+DEX Screener coverage depends on pools it indexes and may be partial, delayed, cached, or absent. Provider timestamps are not present on every endpoint. Boosts and paid orders describe paid visibility only; they do not prove manipulation or organic demand. Community-takeover/profile/order metadata can be missing or change independently of pair data. Stale responses are visibly marked, bounded by `DEXSCREENER_MAX_STALE_SECONDS`, and never promoted into reviewed truth.
+
+### Robinhood Chain Market Pulse
+
+`/rh-chain-signal-desk/market` is the public market-structure view backed by `GET /v1/rh-chain/market`. It aggregates the canonical pair for each exact tracked contract into a rolling 24-hour observation and compares it with the preceding stored observation window. Every metric carries capture time, freshness, confidence, and provenance; missing comparison history remains null and produces a visible warning instead of an inferred trend.
+
+Layer composition comes only from reviewed Infopunks classifications. DEX Screener supplies market and paid-attention context, never the complete chain index or a classification decision. The headline and supporting interpretation use the versioned deterministic ruleset `deterministic_rules_v1`; no LLM runs in the request path and the output is not an investment recommendation. The existing `/rh-chain-signal-desk/live-snapshot` surface and API remain available and are cross-linked from Market Pulse.
+
+Market Pulse needs no additional environment variable or database migration beyond the separately flagged market ingestion and snapshot-history foundation above. With the provider or history disabled, it returns a calm partial or unavailable state and does not fabricate zero-valued market totals.
 
 ---
 
@@ -1073,7 +1118,7 @@ Future layers may include:
 
 # RH Chain frontend performance
 
-RH Chain feature surfaces load as route-level chunks: Meme Pulse, Token Dossiers, Clone Radar, Scouts, Distribution Pack, and the internal Review Console. The desk landing and its core public routes remain eagerly available so pathname-based metadata and route detection stay stable.
+RH Chain feature surfaces load as route-level chunks: Market Pulse, Meme Pulse, Token Dossiers, Clone Radar, Scouts, Distribution Pack, and the internal Review Console. The desk landing and its core public routes remain eagerly available so pathname-based metadata and route detection stay stable.
 
 Vite may still report a large shared entry chunk. That chunk is the existing application shell, which contains the broad non-RH route registry plus the eager RH Chain desk shell; it is intentionally not split until the wider router is decomposed. The production smoke plan covers RH Chain public and read-only API routes without submitting signals.
 

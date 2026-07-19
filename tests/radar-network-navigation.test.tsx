@@ -85,10 +85,11 @@ describe('Radar network architecture', () => {
       'Overview', 'Providers', 'Routes', 'Receipts', 'Benchmarks'
     ]);
     expect(RADAR_NAVIGATION['robinhood-chain'].primaryItems.map((item) => item.label)).toEqual([
-      'Signal Desk', 'Meme Pulse', '4663 Index', 'Receipts', 'Submit'
+      'Signal Desk', 'Market', 'Meme Pulse', '4663 Index', 'Receipts', 'Submit'
     ]);
     expect(RADAR_NAVIGATION.solana.primaryItems).toHaveLength(5);
-    expect(RADAR_NAVIGATION['robinhood-chain'].primaryItems).toHaveLength(5);
+    expect(RADAR_NAVIGATION['robinhood-chain'].primaryItems).toHaveLength(6);
+    expect(navigationItemIsActive(RADAR_NAVIGATION['robinhood-chain'].primaryItems[1], '/rh-chain-signal-desk/market')).toBe(true);
     expect(navigationItemIsActive(RADAR_NAVIGATION.solana.primaryItems[0], '/solana')).toBe(true);
     expect(RADAR_NAVIGATION.solana.overflowGroups.flatMap((group) => group.items).some((item) => item.href === '/#agent-benchmark-api')).toBe(true);
   });

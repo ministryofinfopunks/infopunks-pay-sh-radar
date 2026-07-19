@@ -481,6 +481,7 @@ describe('RH Chain Signal Desk pages', () => {
     expect(container.textContent).toContain('Provider Status');
     expect(container.textContent).toContain('DefiLlama');
     expect(container.textContent).toContain('Live Snapshot data is external, cached, and informational.');
+    expect([...container.querySelectorAll('a[href="/rh-chain-signal-desk/market"]')].some((link) => link.textContent?.includes('Market Pulse'))).toBe(true);
   });
 
   it('renders the public Meme Pulse surface and its safety doctrine', async () => {

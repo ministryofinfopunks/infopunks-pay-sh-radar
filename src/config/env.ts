@@ -28,7 +28,14 @@ export type RuntimeConfig = {
   dexScreenerRhChainId: 'robinhood';
   dexScreenerTimeoutMs: number;
   dexScreenerCacheTtlSeconds: number;
+  dexScreenerStaleWhileRevalidateSeconds: number;
+  dexScreenerStaleIfErrorSeconds: number;
+  dexScreenerMaxStaleSeconds: number;
   dexScreenerMaxBatchSize: number;
+  dexScreenerMaxRetries: number;
+  dexScreenerRetryBaseMs: number;
+  dexScreenerMaxConcurrency: number;
+  dexScreenerRateLimitPerSecond: number;
   blockscoutEnabled: boolean;
   blockscoutBaseUrl: string;
   blockscoutTimeoutMs: number;
@@ -38,6 +45,8 @@ export type RuntimeConfig = {
   rhChainReviewConsoleEnabled: boolean;
   rhChainReviewAdminToken: string | null;
   rhChainAutomationEnabled: boolean;
+  rhChainMarketIngestionEnabled: boolean;
+  rhChainMarketHistoryEnabled: boolean;
   rhChainAutomationInstanceId: string;
   rhChainJobLockTtlMs: number;
   rhChainChainPulseIntervalMs: number;
@@ -83,7 +92,14 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
     dexScreenerRhChainId: readDexScreenerChainId(env.DEXSCREENER_RH_CHAIN_ID),
     dexScreenerTimeoutMs: readPositiveInteger('DEXSCREENER_TIMEOUT_MS', env.DEXSCREENER_TIMEOUT_MS, 2_500),
     dexScreenerCacheTtlSeconds: readPositiveInteger('DEXSCREENER_CACHE_TTL_SECONDS', env.DEXSCREENER_CACHE_TTL_SECONDS, 120),
+    dexScreenerStaleWhileRevalidateSeconds: readPositiveInteger('DEXSCREENER_STALE_WHILE_REVALIDATE_SECONDS', env.DEXSCREENER_STALE_WHILE_REVALIDATE_SECONDS, 30),
+    dexScreenerStaleIfErrorSeconds: readPositiveInteger('DEXSCREENER_STALE_IF_ERROR_SECONDS', env.DEXSCREENER_STALE_IF_ERROR_SECONDS, 300),
+    dexScreenerMaxStaleSeconds: readPositiveInteger('DEXSCREENER_MAX_STALE_SECONDS', env.DEXSCREENER_MAX_STALE_SECONDS, 900),
     dexScreenerMaxBatchSize: readBoundedPositiveInteger('DEXSCREENER_MAX_BATCH_SIZE', env.DEXSCREENER_MAX_BATCH_SIZE, 30, 30),
+    dexScreenerMaxRetries: readBoundedNonNegativeInteger('DEXSCREENER_MAX_RETRIES', env.DEXSCREENER_MAX_RETRIES, 2, 5),
+    dexScreenerRetryBaseMs: readPositiveInteger('DEXSCREENER_RETRY_BASE_MS', env.DEXSCREENER_RETRY_BASE_MS, 100),
+    dexScreenerMaxConcurrency: readBoundedPositiveInteger('DEXSCREENER_MAX_CONCURRENCY', env.DEXSCREENER_MAX_CONCURRENCY, 4, 20),
+    dexScreenerRateLimitPerSecond: readBoundedPositiveInteger('DEXSCREENER_RATE_LIMIT_PER_SECOND', env.DEXSCREENER_RATE_LIMIT_PER_SECOND, 20, 100),
     blockscoutEnabled: readBoolean('BLOCKSCOUT_ENABLED', env.BLOCKSCOUT_ENABLED, false),
     blockscoutBaseUrl: readRequiredUrl('BLOCKSCOUT_BASE_URL', env.BLOCKSCOUT_BASE_URL, 'https://robinhoodchain.blockscout.com'),
     blockscoutTimeoutMs: readPositiveInteger('BLOCKSCOUT_TIMEOUT_MS', env.BLOCKSCOUT_TIMEOUT_MS, 2_500),
@@ -93,6 +109,8 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
     rhChainReviewConsoleEnabled: readBoolean('RH_CHAIN_REVIEW_CONSOLE_ENABLED', env.RH_CHAIN_REVIEW_CONSOLE_ENABLED, false),
     rhChainReviewAdminToken: optionalString(env.RH_CHAIN_REVIEW_ADMIN_TOKEN),
     rhChainAutomationEnabled: readBoolean('RH_CHAIN_AUTOMATION_ENABLED', env.RH_CHAIN_AUTOMATION_ENABLED, false),
+    rhChainMarketIngestionEnabled: readBoolean('RH_CHAIN_MARKET_INGESTION_ENABLED', env.RH_CHAIN_MARKET_INGESTION_ENABLED, false),
+    rhChainMarketHistoryEnabled: readBoolean('RH_CHAIN_MARKET_HISTORY_ENABLED', env.RH_CHAIN_MARKET_HISTORY_ENABLED, false),
     rhChainAutomationInstanceId: optionalString(env.RH_CHAIN_AUTOMATION_INSTANCE_ID) ?? `local-${process.pid}`,
     rhChainJobLockTtlMs: readPositiveInteger('RH_CHAIN_JOB_LOCK_TTL_MS', env.RH_CHAIN_JOB_LOCK_TTL_MS, 5 * 60 * 1000),
     rhChainChainPulseIntervalMs: readPositiveInteger('RH_CHAIN_CHAIN_PULSE_INTERVAL_MS', env.RH_CHAIN_CHAIN_PULSE_INTERVAL_MS, 5 * 60 * 1000),
@@ -113,6 +131,9 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
   if (isProduction && config.rhChainAutomationEnabled && !config.databaseUrl) {
     throw new Error('DATABASE_URL is required for RH Chain automation when NODE_ENV=production');
   }
+  if (isProduction && config.rhChainMarketHistoryEnabled && !config.databaseUrl) {
+    throw new Error('DATABASE_URL is required for RH Chain market history when NODE_ENV=production');
+  }
   if (isProduction && config.rhChainReviewConsoleEnabled && !config.rhChainReviewAdminToken) {
     throw new Error('RH_CHAIN_REVIEW_ADMIN_TOKEN is required when RH_CHAIN_REVIEW_CONSOLE_ENABLED=true in production');
   }
@@ -132,6 +153,8 @@ export function deploymentSummary(config: RuntimeConfig) {
     rhChainLiveSnapshotsEnabled: config.rhChainLiveSnapshotsEnabled,
     rhChainReviewConsoleEnabled: config.rhChainReviewConsoleEnabled,
     rhChainAutomationEnabled: config.rhChainAutomationEnabled,
+    rhChainMarketIngestionEnabled: config.rhChainMarketIngestionEnabled,
+    rhChainMarketHistoryEnabled: config.rhChainMarketHistoryEnabled,
     ingestionEnabled: config.ingestionEnabled,
     dbMode: config.databaseUrl ? 'postgres' : 'memory',
     databasePoolMax: config.databasePoolMax,
@@ -210,6 +233,12 @@ function readDexScreenerChainId(value: string | undefined): 'robinhood' {
 function readBoundedPositiveInteger(name: string, value: string | undefined, defaultValue: number, maximum: number) {
   const parsed = readPositiveInteger(name, value, defaultValue);
   if (parsed > maximum) throw new Error(`${name} must be at most ${maximum}`);
+  return parsed;
+}
+
+function readBoundedNonNegativeInteger(name: string, value: string | undefined, defaultValue: number, maximum: number) {
+  const parsed = value === undefined || value === '' ? defaultValue : Number(value);
+  if (!Number.isInteger(parsed) || parsed < 0 || parsed > maximum) throw new Error(`${name} must be an integer from 0 to ${maximum}`);
   return parsed;
 }
 

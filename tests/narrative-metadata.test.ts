@@ -2,6 +2,23 @@ import { describe, expect, it } from 'vitest';
 import { getNarrativeMetadataForPath } from '../src/shared/narrativeMetadata';
 
 describe('narrative metadata helper', () => {
+  it('returns share-ready metadata for Robinhood Chain Market Pulse', () => {
+    expect(getNarrativeMetadataForPath('/rh-chain-signal-desk/market')).toEqual({
+      title: 'Robinhood Chain Market Pulse | Infopunks Radar',
+      description: 'Where Robinhood Chain attention, liquidity, and market power are moving—measured from exact-contract observations with freshness and confidence.',
+      canonicalPath: '/rh-chain-signal-desk/market',
+      ogTitle: 'Robinhood Chain Market Pulse | Infopunks Radar',
+      ogDescription: 'Where Robinhood Chain attention, liquidity, and market power are moving—measured from exact-contract observations with freshness and confidence.',
+      ogImageUrl: 'https://radar.infopunks.fun/og/rh-chain/market.png',
+      ogImageWidth: 1200,
+      ogImageHeight: 630,
+      twitterTitle: 'Robinhood Chain Market Pulse | Infopunks Radar',
+      twitterDescription: 'Where Robinhood Chain attention, liquidity, and market power are moving—measured from exact-contract observations with freshness and confidence.',
+      twitterImageUrl: 'https://radar.infopunks.fun/og/rh-chain/market.png',
+      twitterCard: 'summary_large_image'
+    });
+  });
+
   it('returns dedicated metadata for the Solana landing surface', () => {
     expect(getNarrativeMetadataForPath('/solana')).toEqual(expect.objectContaining({
       title: 'Solana Radar | Infopunks Radar',

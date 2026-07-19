@@ -32,6 +32,39 @@ describe('response cache utility', () => {
     expect(second.metadata.hit).toBe(true);
     expect(second.metadata.stale).toBe(true);
   });
+
+  it('serves stale-while-revalidate with explicit provenance and refreshes in the background', async () => {
+    let now = 1_000;
+    const cache = createResponseCache({ now: () => now });
+    const policy = { freshTtlMs: 10, staleWhileRevalidateMs: 20, staleIfErrorMs: 100, maxStaleMs: 100, provenance: 'provider-cache' };
+    await cache.getOrSet('k', policy, async () => 1);
+    now += 15;
+    const stale = await cache.getOrSet('k', policy, async () => 2);
+    expect(stale).toMatchObject({ value: 1, metadata: { status: 'stale_while_revalidate', stale: true, provenance: 'provider-cache', ageMs: 15 } });
+    await Promise.resolve();
+    await Promise.resolve();
+    expect((await cache.getOrSet('k', policy, async () => 3)).value).toBe(2);
+  });
+
+  it('uses stale-if-error only inside the absolute maximum stale age', async () => {
+    let now = 1_000;
+    const cache = createResponseCache({ now: () => now });
+    const policy = { freshTtlMs: 10, staleIfErrorMs: 100, maxStaleMs: 50, provenance: 'provider-cache' };
+    await cache.getOrSet('k', policy, async () => 1);
+    now += 40;
+    const stale = await cache.getOrSet('k', policy, async () => { throw new Error('provider-down'); });
+    expect(stale.metadata.status).toBe('stale_if_error');
+    now += 20;
+    await expect(cache.getOrSet('k', policy, async () => { throw new Error('provider-down'); })).rejects.toThrow('provider-down');
+  });
+
+  it('deduplicates concurrent cache misses', async () => {
+    const cache = createResponseCache();
+    const compute = vi.fn(async () => { await new Promise((resolve) => setTimeout(resolve, 5)); return 7; });
+    const values = await Promise.all([cache.getOrSet('shared', 100, compute), cache.getOrSet('shared', 100, compute), cache.getOrSet('shared', 100, compute)]);
+    expect(values.map((item) => item.value)).toEqual([7, 7, 7]);
+    expect(compute).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('radar secondary route caching safety', () => {

@@ -57,6 +57,7 @@ const LazyRhChainDistributionPackPage = lazy(() => import('./rhChainDistribution
 const LazyRhChain100ReceiptsCampaignPage = lazy(() => import('./rhChain100ReceiptsCampaignPage').then((module) => ({ default: module.RhChain100ReceiptsCampaignPage })));
 const LazyRhChainReviewConsolePage = lazy(() => import('./rhChainReviewConsolePage').then((module) => ({ default: module.RhChainReviewConsolePage })));
 const LazyRhChainMarketStructurePage = lazy(() => import('./rhChainMarketStructurePage').then((module) => ({ default: module.RhChainMarketStructurePage })));
+const LazyRhChainMarketPulsePage = lazy(() => import('./rhChainMarketPulsePage').then((module) => ({ default: module.RhChainMarketPulsePage })));
 const LazyRhChainDiscoveryQueuePage = lazy(() => import('./rhChainDiscoveryQueuePage').then((module) => ({ default: module.RhChainDiscoveryQueuePage })));
 const LazyRhChainReviewPipelinePage = lazy(() => import('./rhChainReviewPipelinePage').then((module) => ({ default: module.RhChainReviewPipelinePage })));
 
@@ -2133,7 +2134,7 @@ function isAbundanceDeskRoute(pathname: string) {
 }
 
 function isRhChainSignalDeskRoute(pathname: string) {
-  return /^\/rh-chain-signal-desk\/?$/.test(pathname) || /^\/rh-chain-signal-desk\/(?:submit|review-queue|4663-index|100-receipts|launch-surfaces|launchpad-observatory|risk-patterns|scout|scouts|live-snapshot|meme-pulse|clone-radar|distribution-pack|discovery-queue|review-pipeline(?:\/day\/\d{4}-\d{2}-\d{2})?|market-structure(?:\/(?:cross-layer|attention-quality))?)\/?$/.test(pathname) || /^\/rh-chain-signal-desk\/tokens\/[^/]+\/?$/.test(pathname) || /^\/rh-chain-signal-desk\/daily-receipts(?:\/[^/]+(?:\/card)?)?\/?$/.test(pathname) || /^\/narratives\/robinhood-chain\/?$/.test(pathname);
+  return /^\/rh-chain-signal-desk\/?$/.test(pathname) || /^\/rh-chain-signal-desk\/(?:submit|review-queue|4663-index|100-receipts|launch-surfaces|launchpad-observatory|risk-patterns|scout|scouts|live-snapshot|market|meme-pulse|clone-radar|distribution-pack|discovery-queue|review-pipeline(?:\/day\/\d{4}-\d{2}-\d{2})?|market-structure(?:\/(?:cross-layer|attention-quality))?)\/?$/.test(pathname) || /^\/rh-chain-signal-desk\/tokens\/[^/]+\/?$/.test(pathname) || /^\/rh-chain-signal-desk\/daily-receipts(?:\/[^/]+(?:\/card)?)?\/?$/.test(pathname) || /^\/narratives\/robinhood-chain\/?$/.test(pathname);
 }
 
 function isHermesDeskRoute(pathname: string) {
@@ -14445,6 +14446,7 @@ export function App() {
   if (/^\/rh-chain-signal-desk\/discovery-queue\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainDiscoveryQueuePage /></LazyRhChainFeature>;
   const reviewPipelineDayMatch = window.location.pathname.match(/^\/rh-chain-signal-desk\/review-pipeline\/day\/(\d{4}-\d{2}-\d{2})\/?$/);
   if (/^\/rh-chain-signal-desk\/review-pipeline\/?$/.test(window.location.pathname) || reviewPipelineDayMatch) return <LazyRhChainFeature><LazyRhChainReviewPipelinePage day={reviewPipelineDayMatch?.[1]} /></LazyRhChainFeature>;
+  if (/^\/rh-chain-signal-desk\/market\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainMarketPulsePage /></LazyRhChainFeature>;
   if (/^\/rh-chain-signal-desk\/market-structure\/cross-layer\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainMarketStructurePage view="cross-layer" /></LazyRhChainFeature>;
   if (/^\/rh-chain-signal-desk\/market-structure\/attention-quality\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainMarketStructurePage view="attention-quality" /></LazyRhChainFeature>;
   if (/^\/rh-chain-signal-desk\/market-structure\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRhChainMarketStructurePage /></LazyRhChainFeature>;

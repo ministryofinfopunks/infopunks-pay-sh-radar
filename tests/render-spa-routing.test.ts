@@ -94,6 +94,14 @@ describe('render-style SPA routing boundaries', () => {
       expect(solana.body).toContain('name="description" content="Evidence, route intelligence, provider evaluation and machine-market infrastructure for the Solana agentic economy."');
       expect(solana.body).toContain('<link rel="canonical" href="https://radar.infopunks.fun/solana"');
 
+      const rhMarketPulse = await app.inject({ method: 'GET', url: '/rh-chain-signal-desk/market' });
+      expect(rhMarketPulse.statusCode).toBe(200);
+      expect(rhMarketPulse.headers['content-type']).toContain('text/html');
+      expect(rhMarketPulse.body).toContain('<title>Robinhood Chain Market Pulse | Infopunks Radar</title>');
+      expect(rhMarketPulse.body).toContain('<link rel="canonical" href="https://radar.infopunks.fun/rh-chain-signal-desk/market"');
+      expect(rhMarketPulse.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/rh-chain/market.png"');
+      expect(rhMarketPulse.body).toContain('name="twitter:card" content="summary_large_image"');
+
       const developers = await app.inject({ method: 'GET', url: '/developers' });
       expect(developers.statusCode).toBe(200);
       expect(developers.headers['content-type']).toContain('text/html');

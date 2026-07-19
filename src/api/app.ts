@@ -48,7 +48,7 @@ import {
   getAttentionMarketWatchIndex
 } from '../data/attentionMarketWatch';
 import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
-import { renderAttentionMarketWatchOgImage, renderNarrativesOgImage, renderRevenueReceiptOgImage, renderRevenueReceiptsIndexOgImage, renderSignalHuntOgImage, renderSignalReportOgImage, renderSignalUpdateOgImage, renderUnicornRadarIndexOgImage, renderUnicornRadarOgImage } from '../shared/narrativeOg';
+import { renderAttentionMarketWatchOgImage, renderNarrativesOgImage, renderRevenueReceiptOgImage, renderRevenueReceiptsIndexOgImage, renderRhChainMarketPulseOgImage, renderSignalHuntOgImage, renderSignalReportOgImage, renderSignalUpdateOgImage, renderUnicornRadarIndexOgImage, renderUnicornRadarOgImage } from '../shared/narrativeOg';
 import { renderOgPng } from '../server/narrativeOgPng';
 import { applyPayShCatalogIngestion } from '../ingestion/payShCatalogAdapter';
 import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, IntelligenceStore, runPayShIngestion, runPayShIngestionWithOptions } from '../services/intelligenceStore';
@@ -623,7 +623,8 @@ export async function createApp(
     'rh_chain_metrics_snapshots',
     'rh_chain_daily_receipt_drafts',
     'rh_chain_published_daily_receipts',
-    'rh_chain_risk_correlation_snapshots'
+    'rh_chain_risk_correlation_snapshots',
+    ...((config.rhChainMarketHistoryEnabled || config.rhChainAutomationEnabled) ? ['rh_chain_market_snapshots'] as const : [])
   ] as const;
   rhChainPostgresPool?.on('error', (error) => {
     console.log(JSON.stringify({
@@ -658,7 +659,15 @@ export async function createApp(
     chainId: config.dexScreenerRhChainId,
     timeoutMs: config.dexScreenerTimeoutMs,
     cacheTtlSeconds: config.dexScreenerCacheTtlSeconds,
-    maxBatchSize: config.dexScreenerMaxBatchSize
+    staleWhileRevalidateSeconds: config.dexScreenerStaleWhileRevalidateSeconds,
+    staleIfErrorSeconds: config.dexScreenerStaleIfErrorSeconds,
+    maxStaleSeconds: config.dexScreenerMaxStaleSeconds,
+    maxBatchSize: config.dexScreenerMaxBatchSize,
+    maxRetries: config.dexScreenerMaxRetries,
+    retryBaseMs: config.dexScreenerRetryBaseMs,
+    maxConcurrency: config.dexScreenerMaxConcurrency,
+    rateLimitPerSecond: config.dexScreenerRateLimitPerSecond,
+    log: (entry) => console.warn(JSON.stringify(entry))
   });
   const rhChainMarketData = new RhChainMarketDataService({
     provider: rhChainMarketProvider,
@@ -682,6 +691,7 @@ export async function createApp(
   const rhChainChainPulse = new RhChainChainPulseService(rhChainMetricsSnapshotStore);
   let rhChainDiscoveryQueue: RhChainDiscoveryQueueService | null = null;
   let rhChainReviewPipeline: RhChainReviewPipelineService | null = null;
+  let rhChainMarketSnapshots: RhChainMarketSnapshotService;
   const rhChainMarketStructure = new RhChainMarketStructureService({
     marketData: rhChainMarketData,
     metrics: () => rhChainChainPulse.getLatest(),
@@ -690,6 +700,7 @@ export async function createApp(
       const receipt = getRhChainDailyReceipts().receipts[0];
       return receipt ? { receipt_id: receipt.receipt_id, timestamp: receipt.observed_at ?? receipt.generated_at, summary: receipt.headline } : null;
     },
+    snapshotHistoryForContracts: (contracts) => rhChainMarketSnapshots.listSnapshotsForContracts(contracts),
     ...options.rhChainMarketStructureOptions
   });
   const rhChainBlockscoutProvider = options.rhChainTokenRegistryOptions?.provider ?? new BlockscoutProvider({
@@ -714,10 +725,13 @@ export async function createApp(
   rhChainDiscoveryQueue = new RhChainDiscoveryQueueService({ provider: rhChainMarketProvider, marketData: rhChainMarketData, tokenRegistry: rhChainTokenRegistry });
   const rhChainMarketSnapshotStore: RhChainMarketSnapshotStore = options.rhChainMarketSnapshotStore
     ?? (rhChainPostgresPool ? new PostgresRhChainMarketSnapshotStore(rhChainPostgresPool) : new InMemoryRhChainMarketSnapshotStore());
-  const rhChainMarketSnapshots = new RhChainMarketSnapshotService({
+  const rhChainMarketCaptureEnabled = options.rhChainMarketSnapshotOptions?.enabled ?? (config.rhChainAutomationEnabled || config.rhChainMarketIngestionEnabled);
+  const rhChainMarketHistoryEnabled = options.rhChainMarketSnapshotOptions?.storageEnabled ?? (config.rhChainAutomationEnabled || config.rhChainMarketHistoryEnabled);
+  rhChainMarketSnapshots = new RhChainMarketSnapshotService({
     store: rhChainMarketSnapshotStore,
     provider: rhChainMarketProvider,
-    enabled: options.rhChainMarketSnapshotOptions?.enabled ?? config.rhChainAutomationEnabled,
+    enabled: rhChainMarketCaptureEnabled,
+    storageEnabled: rhChainMarketHistoryEnabled,
     // Snapshot history remains DEX Screener market data. Blockscout only adds exact-contract watchlist provenance/evidence.
     watchlist: async () => [...new Set([...(await rhChainTokenRegistry.seedWatchlistFromBlockscout()).map((item) => item.contract), ...(rhChainDiscoveryQueue?.watchedContracts() ?? [])])],
     classificationFor: (contract) => [...rhChainReviewedLayerClassifications, ...(rhChainDiscoveryQueue?.marketStructureCandidates() ?? []), ...(rhChainReviewPipeline?.marketStructureCandidates() ?? [])].find((classification) => classification.contract.toLowerCase() === contract.toLowerCase()) ?? null,
@@ -2153,9 +2167,10 @@ export async function createApp(
   app.get<{ Params: { contract: string } }>('/v1/rh-chain/onchain/tokens/:contract/transfers', async (req) => safeJsonExport(buildRhChainApiResponse(await rhChainTokenRegistry.getTokenTransfers(req.params.contract))));
   app.get<{ Params: { contract: string } }>('/v1/rh-chain/onchain/tokens/:contract/holders', async (req) => safeJsonExport(buildRhChainApiResponse(await rhChainTokenRegistry.getTokenHolders(req.params.contract))));
   app.get('/v1/rh-chain/onchain/watchlist-diff', async () => safeJsonExport(buildRhChainApiResponse({ dex_screener: await rhChainTokenRegistry.compareWithDexScreenerWatchlist(), market_structure: await rhChainTokenRegistry.compareWithMarketStructureRegistry(), caveats: ['Snapshot history uses Blockscout only for exact-contract watchlist seeding and onchain evidence. Market data remains DEX Screener.'] })));
-  app.get<{ Querystring: { contracts?: string } }>('/v1/rh-chain/market/tokens', async (req) => {
+  app.get<{ Querystring: { contracts?: string } }>('/v1/rh-chain/market/tokens', async (req, reply) => {
     const contracts = req.query.contracts?.split(',').map((contract) => contract.trim()).filter(Boolean);
-    return safeJsonExport(buildRhChainApiResponse(await rhChainMarketData.getTokens(contracts)));
+    try { return safeJsonExport(buildRhChainApiResponse(await rhChainMarketData.getTokens(contracts))); }
+    catch (error) { return reply.code(error instanceof Error && error.message === 'rh_chain_market_contract_limit_exceeded' ? 400 : 503).send(buildRhChainApiErrorResponse(error instanceof Error && error.message === 'rh_chain_market_contract_limit_exceeded' ? error.message : 'rh_chain_market_request_failed')); }
   });
   app.get<{ Params: { contract: string } }>('/v1/rh-chain/market/tokens/:contract', async (req) => safeJsonExport(buildRhChainApiResponse(await rhChainMarketData.getToken(req.params.contract))));
   app.get('/v1/rh-chain/market/boosts', async () => safeJsonExport(buildRhChainApiResponse(await rhChainMarketData.getBoosts())));
@@ -2164,7 +2179,7 @@ export async function createApp(
     return safeJsonExport(buildRhChainApiResponse({ token: { contract: req.query.contract }, attention: await rhChainMarketData.getAttention(req.query.contract), caveats: ['Attention is provider context only and cannot change reviewed classification.'] }));
   });
   app.post('/v1/rh-chain/market/snapshots/capture', async (req, reply) => {
-    if (!(options.rhChainMarketSnapshotOptions?.enabled ?? config.rhChainAutomationEnabled)) return reply.code(503).send(buildRhChainApiErrorResponse('rh_chain_snapshot_capture_disabled'));
+    if (!rhChainMarketCaptureEnabled) return reply.code(503).send(buildRhChainApiErrorResponse('rh_chain_snapshot_capture_disabled'));
     if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send(buildRhChainApiErrorResponse('admin_token_required'));
     return safeJsonExport(buildRhChainApiResponse(await rhChainMarketSnapshots.captureKnownWatchlistSnapshot()));
   });
@@ -2173,6 +2188,7 @@ export async function createApp(
     return safeJsonExport(buildRhChainApiResponse({ token: { contract: req.params.contract }, snapshots, latest_snapshot: snapshots.at(-1) ?? null, snapshot_count: snapshots.length, caveats: ['Snapshots are low-frequency provider observations and do not change reviewed classification, receipts, or approved-signal status.'] }));
   });
   app.get<{ Params: { contract: string } }>('/v1/rh-chain/market/attention-quality/:contract', async (req) => safeJsonExport(buildRhChainApiResponse(await rhChainMarketSnapshots.summarizeAttentionHistory(req.params.contract))));
+  app.get('/v1/rh-chain/market', async () => safeJsonExport(buildRhChainApiResponse(await rhChainMarketStructure.marketPulse())));
   app.get('/v1/rh-chain/market-structure', async () => safeJsonExport(buildRhChainApiResponse(await rhChainMarketStructure.marketStructure())));
   app.get('/v1/rh-chain/market-structure/cross-layer', async () => safeJsonExport(buildRhChainApiResponse(await rhChainMarketStructure.crossLayer())));
   app.get('/v1/rh-chain/market-structure/attention-quality', async () => safeJsonExport(buildRhChainApiResponse(await rhChainMarketStructure.attentionQuality())));
@@ -2768,6 +2784,10 @@ export async function createApp(
   app.get('/og/narratives.png', async (_req, reply) => {
     reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
     return reply.type('image/png').send(renderOgPng(renderNarrativesOgImage()));
+  });
+  app.get('/og/rh-chain/market.png', async (_req, reply) => {
+    reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
+    return reply.type('image/png').send(renderOgPng(renderRhChainMarketPulseOgImage()));
   });
   app.get('/og/attention-market-watch.png', async (_req, reply) => {
     reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');

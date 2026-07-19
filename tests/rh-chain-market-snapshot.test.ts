@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { RhChainDexScreenerIngestionSource, RhChainMarketSnapshot as DexSnapshot, RhChainPaidOrder } from '../src/providers/dexscreenerProvider';
-import { InMemoryRhChainMarketSnapshotStore, RhChainMarketSnapshotService, type RhChainMarketSnapshot } from '../src/services/rhChainMarketSnapshotService';
+import { InMemoryRhChainMarketSnapshotStore, PostgresRhChainMarketSnapshotStore, RhChainMarketSnapshotService, type RhChainMarketSnapshot } from '../src/services/rhChainMarketSnapshotService';
 import type { RhChainLayerClassification } from '../src/services/rhChainMarketStructureService';
 import { createApp } from '../src/api/app';
 
@@ -26,6 +26,35 @@ describe('RH Chain market snapshot history', () => {
     expect(result.status).toBe('captured');
     expect(result.captured[0]).toMatchObject({ token_address: contract, ticker: 'MEMORY', pair_address: 'canonical', liquidity_usd: 100, volume_h6: 50, txns_h6_buys: 4, paid_order_types: ['tokenProfile'] });
     expect((await snapshots.list(contract))).toHaveLength(1);
+  });
+
+  it('deduplicates repeated observations by deterministic snapshot identity in memory', async () => {
+    const snapshots = new InMemoryRhChainMarketSnapshotStore();
+    const capture = service(snapshots);
+    const first = await capture.captureKnownWatchlistSnapshot();
+    const second = await capture.captureKnownWatchlistSnapshot();
+    expect(first.captured[0].snapshot_id).toBe(second.captured[0].snapshot_id);
+    expect(await snapshots.list(contract)).toHaveLength(1);
+  });
+
+  it('can ingest without writing when historical storage is independently disabled', async () => {
+    const snapshots = new InMemoryRhChainMarketSnapshotStore();
+    const capture = new RhChainMarketSnapshotService({ store: snapshots, provider: provider(), enabled: true, storageEnabled: false, watchlist: () => [contract] });
+    const result = await capture.captureKnownWatchlistSnapshot();
+    expect(result).toMatchObject({ status: 'captured', storage: { enabled: false, adapter: 'memory', durable: false, written: 0 } });
+    expect(await snapshots.list(contract)).toEqual([]);
+  });
+
+  it('uses conflict-safe Postgres writes and creates pair/provider/captured indexes', async () => {
+    const statements: string[] = [];
+    const pool = { query: async (sql: string) => { statements.push(sql); return { rows: [], rowCount: 0 }; }, end: async () => undefined };
+    const store = new PostgresRhChainMarketSnapshotStore(pool as any);
+    await store.save(snapshot('stable-id', '2026-07-17T00:00:00.000Z'));
+    await store.save(snapshot('stable-id', '2026-07-17T00:00:00.000Z'));
+    expect(statements.filter((sql) => sql.includes('on conflict (snapshot_id) do nothing'))).toHaveLength(2);
+    expect(statements.join(' ')).toMatch(/pair_captured_idx/);
+    expect(statements.join(' ')).toMatch(/provider_captured_idx/);
+    expect(statements.join(' ')).toMatch(/captured_at_idx/);
   });
 
   it('fails soft when the public provider is unavailable', async () => {
@@ -81,5 +110,20 @@ describe('RH Chain market snapshot history', () => {
       expect((await app.inject({ method: 'GET', url: `/v1/rh-chain/market/attention-quality/${contract}` })).json().data).toMatchObject({ state: 'source_required', score: null });
       expect((await app.inject({ method: 'POST', url: '/v1/rh-chain/market/snapshots/capture' })).statusCode).toBe(503);
     } finally { await app.close(); }
+  });
+
+  it('keeps the capture API available with ingestion enabled while reporting disabled historical writes', async () => {
+    const previous = process.env.INFOPUNKS_ADMIN_TOKEN;
+    process.env.INFOPUNKS_ADMIN_TOKEN = 'market-test-token';
+    const app = await createApp(undefined, undefined, { rhChainMarketDataOptions: { enabled: true, provider: provider() }, rhChainTokenRegistryOptions: { enabled: false }, rhChainMarketSnapshotOptions: { enabled: true, storageEnabled: false } });
+    try {
+      const response = await app.inject({ method: 'POST', url: '/v1/rh-chain/market/snapshots/capture', headers: { authorization: 'Bearer market-test-token' } });
+      expect(response.statusCode).toBe(200);
+      expect(response.json().data).toEqual(expect.objectContaining({ status: 'captured', storage: { enabled: false, adapter: 'memory', durable: false, written: 0 } }));
+    } finally {
+      await app.close();
+      if (previous === undefined) delete process.env.INFOPUNKS_ADMIN_TOKEN;
+      else process.env.INFOPUNKS_ADMIN_TOKEN = previous;
+    }
   });
 });

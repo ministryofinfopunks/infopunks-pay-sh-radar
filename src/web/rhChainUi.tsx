@@ -93,6 +93,7 @@ function serviceNameForPath(path: string): string {
   if (path.includes('/daily-receipts')) return 'daily receipts';
   if (path.includes('/launch-surfaces')) return 'launch surfaces';
   if (path.includes('/live-snapshot')) return 'live snapshot';
+  if (path === '/v1/rh-chain/market') return 'market pulse';
   if (path.includes('/meme-pulse')) return 'meme pulse';
   return 'signal desk';
 }

@@ -1013,7 +1013,7 @@ type RhChainTokenSnapshotResponse = {
 
 function LiveSnapshotPreview({ snapshot }: { snapshot: RhChainLiveSnapshot }) {
   return <section className="panel rh-chain-section rh-chain-section--metadata" aria-label="Live Snapshot Preview">
-    <div className="rh-chain-section-head"><div><p className="section-kicker">Live Snapshot Layer</p><h2>External context, cached</h2><p>Provider data is read-only and timestamped. It does not change review decisions.</p></div><a className="execute compact secondary" href="/rh-chain-signal-desk/live-snapshot">Open Live Snapshot</a></div>
+    <div className="rh-chain-section-head"><div><p className="section-kicker">Live Snapshot Layer</p><h2>External context, cached</h2><p>Provider data is read-only and timestamped. It does not change review decisions.</p></div><div className="panel-actions"><a className="execute compact secondary" href="/rh-chain-signal-desk/market">Open Market Pulse</a><a className="execute compact secondary" href="/rh-chain-signal-desk/live-snapshot">Open Live Snapshot</a></div></div>
     <div className="rh-chain-review-stat-grid">
       {snapshot.provider_statuses.map((provider) => <article key={provider.provider_name} className="rh-chain-review-stat"><span>{provider.provider_name}</span><strong>{provider.status}</strong></article>)}
     </div>
@@ -1035,7 +1035,7 @@ function LiveSnapshotPage({ snapshot, marketProviderStatus, onchainProviderStatu
   const category = snapshot.meme_category;
   return <>
     <section className="panel rh-chain-section" aria-label="DEX Screener Provider Status">
-      <div className="rh-chain-section-head"><div><p className="section-kicker">Market / attention provider</p><h2>DEX Screener status</h2><p>Market and paid-attention context only. It cannot change reviewed receipts or classifications.</p></div><span className="source-badge">{marketProviderStatus?.enabled ? 'enabled' : 'disabled'}</span></div>
+      <div className="rh-chain-section-head"><div><p className="section-kicker">Market / attention provider</p><h2>DEX Screener status</h2><p>Market and paid-attention context only. It cannot change reviewed receipts or classifications.</p></div><div className="panel-actions"><a className="execute compact secondary" href="/rh-chain-signal-desk/market">Read Market Pulse</a><span className="source-badge">{marketProviderStatus?.enabled ? 'enabled' : 'disabled'}</span></div></div>
       <div className="rh-chain-review-stat-grid">
         <article className="rh-chain-review-stat"><span>Last successful capture</span><strong>{marketProviderStatus?.last_successful_capture ? formatTimestamp(marketProviderStatus.last_successful_capture) : 'unavailable'}</strong></article>
         <article className="rh-chain-review-stat"><span>Latest boosts observed</span><strong>{marketProviderStatus?.latest_boosts_observed ?? 0}</strong></article>

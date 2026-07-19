@@ -49,6 +49,14 @@ function buildMetadata(title: string, description: string, canonicalPath: string
 }
 
 export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata | null {
+  if (/^\/rh-chain-signal-desk\/market\/?$/.test(pathname)) {
+    return buildMetadata(
+      'Robinhood Chain Market Pulse | Infopunks Radar',
+      'Where Robinhood Chain attention, liquidity, and market power are moving—measured from exact-contract observations with freshness and confidence.',
+      '/rh-chain-signal-desk/market'
+    );
+  }
+
   if (/^\/solana\/?$/.test(pathname)) {
     return buildMetadata(
       'Solana Radar | Infopunks Radar',

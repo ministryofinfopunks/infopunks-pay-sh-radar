@@ -4,6 +4,8 @@ Infopunks Pay.sh Radar is an intelligence terminal for the Pay.sh agent economy 
 
 Radar uses safe metadata only and does not execute paid Pay.sh APIs. Route intelligence and preflight output are advisory signals for agent operators and developers.
 
+Robinhood Chain Market Pulse is a bounded exact-contract market-structure observation. DEX Screener is a market and attention sensor, not a complete chain index; deterministic interpretations are not investment recommendations.
+
 OpenAPI: https://radar.infopunks.fun/openapi.json
 
 Key public routes:
@@ -20,3 +22,5 @@ Key public routes:
 - https://radar.infopunks.fun/v1/abundance
 - https://radar.infopunks.fun/v1/abundance/claims
 - https://radar.infopunks.fun/v1/abundance/receipts
+- https://radar.infopunks.fun/rh-chain-signal-desk/market
+- https://radar.infopunks.fun/v1/rh-chain/market

@@ -13,6 +13,10 @@ describe('runtime environment config', () => {
     expect(config.featuredProviderRotationMs).toBe(600000);
     expect(config.machineDemoSeed).toBe(true);
     expect(config.rhChainAutomationEnabled).toBe(false);
+    expect(config.rhChainMarketIngestionEnabled).toBe(false);
+    expect(config.rhChainMarketHistoryEnabled).toBe(false);
+    expect(config.dexScreenerMaxRetries).toBe(2);
+    expect(config.dexScreenerMaxConcurrency).toBe(4);
   });
 
   it('supports explicit safe metadata monitor mode and legacy enabled compatibility', () => {
@@ -30,6 +34,7 @@ describe('runtime environment config', () => {
     expect(loadRuntimeConfig({ NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'secret' }).rhChainLiveSnapshotsEnabled).toBe(false);
     expect(loadRuntimeConfig({ NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'secret', RH_CHAIN_LIVE_SNAPSHOTS_ENABLED: 'true', RH_CHAIN_PROVIDER_TIMEOUT_MS: '1200' }).rhChainLiveSnapshotsEnabled).toBe(true);
     expect(() => loadRuntimeConfig({ NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'secret', RH_CHAIN_AUTOMATION_ENABLED: 'true' })).toThrow('DATABASE_URL');
+    expect(() => loadRuntimeConfig({ NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'secret', RH_CHAIN_MARKET_HISTORY_ENABLED: 'true' })).toThrow('DATABASE_URL');
     expect(() => loadRuntimeConfig({ NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'secret', RH_CHAIN_REVIEW_CONSOLE_ENABLED: 'true' })).toThrow('RH_CHAIN_REVIEW_ADMIN_TOKEN');
   });
 
@@ -57,6 +62,8 @@ describe('runtime environment config', () => {
     expect(loadRuntimeConfig({ DATABASE_POOL_MAX: '4' }).databasePoolMax).toBe(4);
     expect(() => loadRuntimeConfig({ FRONTEND_ORIGIN: 'not-a-url' })).toThrow('FRONTEND_ORIGIN');
     expect(() => loadRuntimeConfig({ RH_CHAIN_RECEIPT_DRAFT_CRON: 'every hour' })).toThrow('RH_CHAIN_RECEIPT_DRAFT_CRON');
+    expect(() => loadRuntimeConfig({ DEXSCREENER_MAX_RETRIES: '6' })).toThrow('DEXSCREENER_MAX_RETRIES');
+    expect(() => loadRuntimeConfig({ DEXSCREENER_MAX_CONCURRENCY: '21' })).toThrow('DEXSCREENER_MAX_CONCURRENCY');
   });
 
   it('restricts CORS when FRONTEND_ORIGIN is configured', async () => {

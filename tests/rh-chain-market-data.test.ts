@@ -68,14 +68,29 @@ describe('RH Chain market data layer', () => {
       expect(response.json().data).toEqual(expect.objectContaining({
         raw_provider_observation: expect.any(Object), infopunks_analysis: expect.any(Object), classification: expect.any(Object), provenance: expect.any(Object), caveats: expect.any(Array)
       }));
+      expect(response.json().data.provenance).toEqual(expect.objectContaining({ freshness: 'fresh', confidence: 'medium', cache_status: 'unavailable' }));
+    } finally { await app.close(); }
+  });
+
+  it('exposes backward-compatible provider status with the additive health model', async () => {
+    const app = await createApp(undefined, undefined, { rhChainMarketDataOptions: { enabled: true, provider: provider() } });
+    try {
+      const response = await app.inject({ method: 'GET', url: '/v1/rh-chain/market/provider-status' });
+      expect(response.statusCode).toBe(200);
+      expect(response.json().data).toEqual(expect.objectContaining({ provider: 'dexscreener', enabled: true, fallback_mode: false, health: expect.objectContaining({ enabled: true, healthy: true, degraded: false, currentFreshness: 'fresh' }) }));
     } finally { await app.close(); }
   });
 
   it('documents market endpoints as context-only and avoids trading or endorsement language', () => {
     const paths = (createOpenApiSpec() as { paths: Record<string, unknown> }).paths;
-    for (const path of ['/v1/rh-chain/market/provider-status', '/v1/rh-chain/market/tokens', '/v1/rh-chain/market/tokens/{contract}', '/v1/rh-chain/market/boosts', '/v1/rh-chain/market/attention']) expect(paths[path]).toBeDefined();
+    for (const path of ['/v1/rh-chain/market', '/v1/rh-chain/market/provider-status', '/v1/rh-chain/market/tokens', '/v1/rh-chain/market/tokens/{contract}', '/v1/rh-chain/market/boosts', '/v1/rh-chain/market/attention']) expect(paths[path]).toBeDefined();
     const docs = JSON.stringify(paths['/v1/rh-chain/market/tokens/{contract}']);
     expect(docs).toMatch(/context/i);
     expect(docs).not.toMatch(/buy|sell|ape|guaranteed return/i);
+    const schemas = (createOpenApiSpec() as any).components.schemas;
+    expect(schemas.RhChainMarketProviderHealth).toBeDefined();
+    expect(schemas.RhChainNormalizedMarketSnapshot).toBeDefined();
+    expect(schemas.RhChainMarketPulsePayload).toBeDefined();
+    expect(schemas.RhChainMarketPulseMetric).toBeDefined();
   });
 });

@@ -1,6 +1,8 @@
-import { DEXSCREENER_RH_CHAIN_ID, type RhChainBoostObservation, type RhChainDexScreenerIngestionSource, type RhChainMarketSnapshot } from '../providers/dexscreenerProvider';
+import { DEXSCREENER_RH_CHAIN_ID, type DexScreenerProviderHealth, type RhChainBoostObservation, type RhChainDexScreenerIngestionSource, type RhChainMarketSnapshot } from '../providers/dexscreenerProvider';
 import { RhChainAttentionService, type RhChainAttentionContext } from './rhChainAttentionService';
 import { isRhChainIdentityContract } from './rhChainTruthGuards';
+
+export const RH_CHAIN_MARKET_MAX_CONTRACTS_PER_REQUEST = 300;
 
 export type RhChainReviewedClassification = {
   primary_layer: string;
@@ -16,6 +18,7 @@ export type RhChainMarketProviderStatus = {
   latest_boosts_observed: number;
   known_token_refresh_state: 'idle' | 'fresh' | 'partial_failure' | 'fallback' | 'disabled';
   fallback_mode: boolean;
+  health: DexScreenerProviderHealth;
   caveats: string[];
 };
 export type RhChainMarketResponse = {
@@ -27,7 +30,7 @@ export type RhChainMarketResponse = {
   classification: RhChainReviewedClassification;
   raw_provider_observation: { canonical_pair: RhChainMarketSnapshot | null; secondary_pairs: RhChainMarketSnapshot[] };
   infopunks_analysis: { provider_role: 'market_and_attention_context'; liquidity_fragmented: boolean; attention_state: RhChainAttentionContext['attention_state']; judgment: 'review_required' };
-  provenance: { provider: 'dexscreener'; captured_at: string | null; chain_id: typeof DEXSCREENER_RH_CHAIN_ID };
+  provenance: { provider: 'dexscreener'; captured_at: string | null; provider_timestamp: string | null; chain_id: typeof DEXSCREENER_RH_CHAIN_ID; freshness: 'fresh' | 'stale' | 'unavailable'; confidence: 'medium' | 'low'; raw_data_version: string | null; cache_status: string };
   caveats: string[];
 };
 
@@ -64,12 +67,13 @@ export class RhChainMarketDataService {
   async refreshKnownTokens() {
     if (!this.options.enabled) return { tokens: [] as RhChainMarketResponse[], status: this.status('disabled') };
     const supplied = await this.options.knownTokenAddresses?.() ?? [];
-    const contracts = [...new Set(supplied.filter(isRhChainIdentityContract).map((contract) => contract.toLowerCase()))];
+    const suppliedContracts = [...new Set(supplied.filter(isRhChainIdentityContract).map((contract) => contract.toLowerCase()))];
+    const contracts = suppliedContracts.slice(0, RH_CHAIN_MARKET_MAX_CONTRACTS_PER_REQUEST);
     try {
       const batch = await this.options.provider.getTokenBatch(contracts);
       const tokens = await Promise.all(contracts.map((contract) => this.responseForPairs(contract, batch[contract] ?? [])));
-      this.refreshState = 'fresh'; this.lastSuccessfulCapture = this.now().toISOString();
-      return { tokens, status: this.status('fresh') };
+      this.refreshState = suppliedContracts.length > contracts.length ? 'partial_failure' : 'fresh'; this.lastSuccessfulCapture = this.now().toISOString();
+      return { tokens, status: this.status(this.refreshState) };
     } catch {
       this.refreshState = 'fallback';
       return { tokens: [] as RhChainMarketResponse[], status: this.status('fallback') };
@@ -79,9 +83,15 @@ export class RhChainMarketDataService {
   async getTokens(contracts?: string[]) {
     if (contracts?.length) {
       const clean = [...new Set(contracts.filter(isRhChainIdentityContract).map((contract) => contract.toLowerCase()))];
+      if (clean.length > RH_CHAIN_MARKET_MAX_CONTRACTS_PER_REQUEST) throw new Error('rh_chain_market_contract_limit_exceeded');
       if (!this.options.enabled) return { tokens: clean.map((contract) => this.fallback(contract)), status: this.status('disabled') };
-      const batch = await this.options.provider.getTokenBatch(clean);
-      return { tokens: await Promise.all(clean.map((contract) => this.responseForPairs(contract, batch[contract] ?? []))), status: this.status('fresh') };
+      try {
+        const batch = await this.options.provider.getTokenBatch(clean);
+        return { tokens: await Promise.all(clean.map((contract) => this.responseForPairs(contract, batch[contract] ?? []))), status: this.status('fresh') };
+      } catch {
+        this.refreshState = 'fallback';
+        return { tokens: clean.map((contract) => this.fallback(contract)), status: this.status('fallback') };
+      }
     }
     return this.refreshKnownTokens();
   }
@@ -125,7 +135,7 @@ export class RhChainMarketDataService {
     return { token: { contract }, market_snapshot: canonical, secondary_pairs: secondary, liquidity_fragmented, attention, classification,
       raw_provider_observation: { canonical_pair: canonical, secondary_pairs: secondary },
       infopunks_analysis: { provider_role: 'market_and_attention_context', liquidity_fragmented, attention_state: attention.attention_state, judgment: 'review_required' },
-      provenance: { provider: 'dexscreener', captured_at: canonical?.capturedAt ?? null, chain_id: DEXSCREENER_RH_CHAIN_ID }, caveats };
+      provenance: { provider: 'dexscreener', captured_at: canonical?.capturedAt ?? null, provider_timestamp: canonical?.providerTimestamp ?? null, chain_id: DEXSCREENER_RH_CHAIN_ID, freshness: canonical?.freshness ?? 'fresh', confidence: canonical ? 'medium' : 'low', raw_data_version: canonical?.rawDataVersion ?? null, cache_status: canonical?.cache?.status ?? 'unavailable' }, caveats };
   }
 
   private fallback(contract: string): RhChainMarketResponse {
@@ -133,14 +143,15 @@ export class RhChainMarketDataService {
     const classification: RhChainReviewedClassification = { primary_layer: 'unknown', secondary_layers: [], confidence: null, source: 'review_required' };
     return { token: { contract }, market_snapshot: null, secondary_pairs: [], liquidity_fragmented: false, attention, classification,
       raw_provider_observation: { canonical_pair: null, secondary_pairs: [] }, infopunks_analysis: { provider_role: 'market_and_attention_context', liquidity_fragmented: false, attention_state: 'source_required', judgment: 'review_required' },
-      provenance: { provider: 'dexscreener', captured_at: null, chain_id: DEXSCREENER_RH_CHAIN_ID }, caveats: ['Provider unavailable or disabled. Reviewed receipts, dossiers, and classifications remain authoritative.'] };
+      provenance: { provider: 'dexscreener', captured_at: null, provider_timestamp: null, chain_id: DEXSCREENER_RH_CHAIN_ID, freshness: 'unavailable', confidence: 'low', raw_data_version: null, cache_status: this.options.enabled ? 'unavailable' : 'disabled' }, caveats: ['Provider unavailable or disabled. Reviewed receipts, dossiers, and classifications remain authoritative.'] };
   }
 
   private async classification(contract: string) {
     return this.options.classificationFor?.(contract) ?? { primary_layer: 'unknown', secondary_layers: [], confidence: null, source: 'review_required' as const };
   }
   private status(state: RhChainMarketProviderStatus['known_token_refresh_state']): RhChainMarketProviderStatus {
-    return { provider: 'dexscreener', enabled: this.options.enabled, chain_id: DEXSCREENER_RH_CHAIN_ID, last_successful_capture: this.lastSuccessfulCapture, latest_boosts_observed: this.latestBoostsObserved, known_token_refresh_state: state, fallback_mode: state === 'fallback' || state === 'disabled', caveats: ['Provider observations are context, not endorsement, approved signals, or reviewed classification.'] };
+    const health = this.options.provider.getHealth?.() ?? fallbackHealth(this.options.enabled, state, this.lastSuccessfulCapture);
+    return { provider: 'dexscreener', enabled: this.options.enabled, chain_id: DEXSCREENER_RH_CHAIN_ID, last_successful_capture: this.lastSuccessfulCapture, latest_boosts_observed: this.latestBoostsObserved, known_token_refresh_state: state, fallback_mode: state === 'fallback' || state === 'disabled', health, caveats: ['Provider observations are context, not endorsement, approved signals, or reviewed classification.'] };
   }
 }
 
@@ -158,3 +169,8 @@ function isLiquidityFragmented(canonical: RhChainMarketSnapshot | null, secondar
   return secondary.some((pair) => (pair.liquidityUsd ?? 0) >= liquidity * 0.2);
 }
 function emptyAttention(now: () => Date): RhChainAttentionContext { return { active_boosts: 0, paid_orders: [], attention_state: 'source_required', observed_at: now().toISOString(), caveats: ['Insufficient provider history. Source review is required.'] }; }
+function fallbackHealth(enabled: boolean, state: RhChainMarketProviderStatus['known_token_refresh_state'], lastSuccess: string | null): DexScreenerProviderHealth {
+  const disabled = !enabled;
+  const degraded = enabled && state === 'fallback';
+  return { provider: 'dexscreener', enabled, healthy: enabled && !degraded && Boolean(lastSuccess), degraded, disabled, state: disabled ? 'disabled' : degraded ? 'degraded' : lastSuccess ? 'healthy' : 'enabled', lastSuccess, lastFailure: null, latestLatencyMs: null, rollingFailureCount: degraded ? 1 : 0, activeCacheStatus: disabled ? 'disabled' : degraded ? 'unavailable' : lastSuccess ? 'fresh' : 'unavailable', currentFreshness: disabled ? 'disabled' : degraded ? 'unavailable' : lastSuccess ? 'fresh' : 'unavailable' };
+}
