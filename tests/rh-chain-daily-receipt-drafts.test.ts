@@ -20,6 +20,21 @@ async function setup() {
 }
 
 describe('RH Chain Daily Receipt Draft Engine', () => {
+  it('keeps the Review Pipeline #007 receipt internal until a reviewer publishes it', async () => {
+    const { app, headers } = await setup();
+    try {
+      const created = await app.inject({ method: 'POST', url: '/internal/rh-chain/review-cycle-receipt-drafts', headers, payload: { day: '2026-07-19' } });
+      expect(created.statusCode).toBe(200);
+      expect(created.json().data).toEqual(expect.objectContaining({ publication_status: 'unpublished', public_surface_unchanged: true, draft: expect.objectContaining({ suggested_receipt_id: 'rh_daily_007', status: 'under_review', review_cycle_summary: expect.any(Object), review_cycle_receipt: expect.objectContaining({ headline: '4663 begins converting RH Chain discovery flow into reviewed market memory' }) }) }));
+      const feed = await app.inject({ method: 'GET', url: '/v1/rh-chain/daily-receipts' });
+      const detail = await app.inject({ method: 'GET', url: '/v1/rh-chain/daily-receipts/rh_daily_007' });
+      const relay = await app.inject({ method: 'GET', url: '/v1/rh-chain/receipt-relay' });
+      expect(feed.json().data.latest_receipt.receipt_id).toBe('rh_daily_006');
+      expect(detail.statusCode).toBe(404);
+      expect(relay.json().data.packets.some((packet: { title: string }) => packet.title === 'Daily Receipt #007')).toBe(false);
+    } finally { await app.close(); }
+  });
+
   it('generates an internal draft from latest snapshot sources with visible missing evidence', async () => {
     const { app, headers, draft } = await setup();
     try {

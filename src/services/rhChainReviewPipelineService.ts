@@ -55,7 +55,10 @@ export type RhChainDailyReviewSummary = {
   watch_only_count: number;
   ignored_count: number;
   top_attention_tokens: Array<Pick<RhChainReviewRecord, 'contract' | 'token_name' | 'symbol' | 'attention_quality_state'>>;
+  attention_quality_context: Array<Pick<RhChainReviewRecord, 'contract' | 'token_name' | 'snapshot_count' | 'attention_quality_state'>>;
   cross_layer_candidates: Array<Pick<RhChainReviewRecord, 'contract' | 'token_name' | 'market_structure_layer' | 'secondary_tags'>>;
+  promoted_market_structure_candidates: Array<Pick<RhChainReviewRecord, 'contract' | 'token_name' | 'symbol' | 'market_structure_layer'>>;
+  outcome_checks: Array<Pick<RhChainReviewRecord, 'contract' | 'token_name' | 'symbol' | 'outcome_check_at'>>;
   paid_attention_detected: boolean;
   duplicate_ticker_warnings: Array<{ contract: string; duplicate_ticker_contracts: string[] }>;
   suggested_daily_receipt_headline: string;
@@ -123,7 +126,10 @@ export class RhChainReviewPipelineService {
       promoted_to_market_structure_count: count('promoted_to_market_structure'), promoted_to_100_receipts_count: count('promoted_to_100_receipts_candidate'),
       source_required_count: count('source_required'), watch_only_count: count('watch_only'), ignored_count: count('ignored_duplicate'),
       top_attention_tokens: [...all].sort((a, b) => attentionScore(b) - attentionScore(a)).slice(0, 5).map(({ contract, token_name, symbol, attention_quality_state }) => ({ contract, token_name, symbol, attention_quality_state })),
+      attention_quality_context: all.map(({ contract, token_name, snapshot_count, attention_quality_state }) => ({ contract, token_name, snapshot_count, attention_quality_state })),
       cross_layer_candidates: all.filter((item) => item.secondary_tags.length > 0 && item.market_structure_layer !== 'unknown').map(({ contract, token_name, market_structure_layer, secondary_tags }) => ({ contract, token_name, market_structure_layer, secondary_tags })),
+      promoted_market_structure_candidates: all.filter((item) => item.promotion_targets.includes('market_structure')).map(({ contract, token_name, symbol, market_structure_layer }) => ({ contract, token_name, symbol, market_structure_layer })),
+      outcome_checks: all.filter((item) => item.outcome_check_at).map(({ contract, token_name, symbol, outcome_check_at }) => ({ contract, token_name, symbol, outcome_check_at })),
       paid_attention_detected: paid.length > 0,
       duplicate_ticker_warnings: all.filter((item) => item.duplicate_ticker_contracts.length).map(({ contract, duplicate_ticker_contracts }) => ({ contract, duplicate_ticker_contracts })),
       suggested_daily_receipt_headline: paid.length ? 'Signal Desk review: attention context and source gaps remain under review.' : 'Signal Desk review: exact-contract evidence remains under review.'

@@ -1,0 +1,40 @@
+import { describe, expect, it } from 'vitest';
+import { createRhChainReviewCycleReceipt } from '../src/services/rhChainDailyReceiptDraftService';
+import type { RhChainDailyReviewSummary } from '../src/services/rhChainReviewPipelineService';
+
+function summary(overrides: Partial<RhChainDailyReviewSummary> = {}): RhChainDailyReviewSummary {
+  return {
+    day: '2026-07-19', reviewed_count: 0, promoted_to_market_structure_count: 0, promoted_to_100_receipts_count: 0, source_required_count: 0, watch_only_count: 0, ignored_count: 0,
+    top_attention_tokens: [], attention_quality_context: [], cross_layer_candidates: [], promoted_market_structure_candidates: [], outcome_checks: [], paid_attention_detected: false, duplicate_ticker_warnings: [], suggested_daily_receipt_headline: 'source-limited',
+    ...overrides
+  };
+}
+
+describe('RH Chain Review Cycle Receipt #007', () => {
+  it('renders an empty daily summary as a system-readiness receipt without market promotions', () => {
+    const receipt = createRhChainReviewCycleReceipt(summary(), '2026-07-19T12:00:00.000Z');
+    expect(receipt).toEqual(expect.objectContaining({ receipt_id: 'rh_daily_007', period: 'Review cycle · 2026-07-19 UTC' }));
+    expect(receipt.summary).toContain('System-readiness receipt');
+    expect(receipt.receipt_sections?.find((section) => section.title === 'Market Structure Pulse')?.summary).toBe('No new reviewed candidates were promoted in this cycle.');
+    expect(receipt.receipt_sections?.find((section) => section.title === 'Attention Quality Pulse')?.summary).toBe('Attention quality remains history-gated.');
+    expect(receipt.receipt_sections?.find((section) => section.title === 'Outcome Checks')?.summary).toBe('No outcome checks scheduled yet.');
+  });
+
+  it('renders exact daily-summary counts, warnings, history, promotions, and outcome checks', () => {
+    const receipt = createRhChainReviewCycleReceipt(summary({
+      reviewed_count: 4, promoted_to_market_structure_count: 1, promoted_to_100_receipts_count: 2, source_required_count: 3, watch_only_count: 1, ignored_count: 1, paid_attention_detected: true,
+      duplicate_ticker_warnings: [{ contract: '0x1111111111111111111111111111111111111111', duplicate_ticker_contracts: ['0x2222222222222222222222222222222222222222'] }],
+      cross_layer_candidates: [{ contract: '0x1111111111111111111111111111111111111111', token_name: 'Layered', market_structure_layer: 'infrastructure', secondary_tags: ['data'] }],
+      promoted_market_structure_candidates: [{ contract: '0x1111111111111111111111111111111111111111', token_name: 'Layered', symbol: 'LAYR', market_structure_layer: 'infrastructure' }],
+      attention_quality_context: [{ contract: '0x1111111111111111111111111111111111111111', token_name: 'Layered', snapshot_count: 3, attention_quality_state: 'sustained_attention' }],
+      outcome_checks: [{ contract: '0x1111111111111111111111111111111111111111', token_name: 'Layered', symbol: 'LAYR', outcome_check_at: '2026-07-26T12:00:00.000Z' }]
+    }), '2026-07-19T12:00:00.000Z');
+    const review = receipt.receipt_sections?.find((section) => section.title === 'Review Cycle Summary');
+    expect(review?.fields).toEqual(expect.arrayContaining([{ label: 'reviewed_count', value: '4' }, { label: 'duplicate_ticker_warnings', value: '1' }, { label: 'paid_attention_detected', value: 'true' }, { label: 'cross_layer_candidates', value: '1' }]));
+    expect(review?.fields.find((field) => field.label === 'duplicate_ticker_warning_detail')?.value).toContain('0x2222222222222222222222222222222222222222');
+    expect(receipt.receipt_sections?.find((section) => section.title === 'Market Structure Pulse')?.summary).toContain('Layered (LAYR) · infrastructure');
+    expect(receipt.receipt_sections?.find((section) => section.title === 'Attention Quality Pulse')?.summary).toContain('3 snapshot(s) · sustained_attention');
+    expect(receipt.receipt_sections?.find((section) => section.title === 'Outcome Checks')?.summary).toContain('Layered (LAYR)');
+    expect(JSON.stringify(receipt).toLowerCase()).not.toMatch(/\b(buy|sell|ape|100x|raid)\b/);
+  });
+});

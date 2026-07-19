@@ -10,6 +10,7 @@ import type { RhChainLiveSnapshotService } from './rhChainLiveSnapshotService';
 import type { RhChainSubmissionStore } from './rhChainSignalVault';
 import type { RhChainAttentionQualityHistory } from './rhChainMarketSnapshotService';
 import { resolveRhChainContractIntelligence } from './rhChainContractIntelligenceService';
+import type { RhChainDailyReviewSummary } from './rhChainReviewPipelineService';
 
 export type RhChainDailyReceiptDraftStatus = 'draft_generated' | 'under_review' | 'published' | 'rejected';
 export type RhChainDailyReceiptDraft = {
@@ -32,6 +33,8 @@ export type RhChainDailyReceiptDraft = {
   missing_evidence: string[];
   attention_quality_context?: Array<Pick<RhChainAttentionQualityHistory, 'contract' | 'state' | 'snapshot_count' | 'latest_snapshot_at' | 'paid_attention_context'>>;
   contract_intelligence_context?: Array<{ contract: string; source: string; display_name: string | null; review_status: string; claim_status: 'source_required_for_claims' | 'reviewed' }>;
+  review_cycle_summary?: RhChainDailyReviewSummary;
+  review_cycle_receipt?: RhChainDailyReceipt;
   reviewer_edits?: Partial<Record<'chain_pulse_summary' | 'meme_pulse_summary' | 'launchpad_surface_summary' | 'rwa_pulse_summary' | 'risk_wall_summary' | 'narrative_mutation_summary' | 'suggested_infopunks_verdict', string>>;
   audit_events: Array<{ event_id: string; occurred_at: string; action: 'generated' | 'published' | 'rejected'; reviewer_id?: string; note: string }>;
 };
@@ -90,6 +93,22 @@ export class RhChainDailyReceiptDraftService {
       audit_events: [{ event_id: randomUUID(), occurred_at: generated_at, action: 'generated', note: 'Automation generated a receipt draft; no public receipt was created.' }] };
     await this.store.saveDraft(draft); return draft;
   }
+  /** Builds the operational #007 receipt from Review Pipeline summary data. It remains internal until a reviewer publishes it. */
+  async generateReviewCycleDraft(summary: RhChainDailyReviewSummary) {
+    const generated_at = this.now().toISOString();
+    const receipt = createRhChainReviewCycleReceipt(summary, generated_at);
+    const draft: RhChainDailyReceiptDraft = {
+      draft_id: randomUUID(), suggested_receipt_id: receipt.receipt_id, period_start: `${summary.day}T00:00:00.000Z`, period_end: `${summary.day}T23:59:59.999Z`,
+      status: 'under_review', generated_at, generated_from_sources: ['Review Pipeline daily summary', 'DEX Screener Provider', 'Blockscout Registry', 'Snapshot History', 'Discovery Queue', 'Market Structure'],
+      chain_pulse_summary: receipt.top_signal, meme_pulse_summary: attentionSummary(summary), launchpad_surface_summary: 'Discovery flow is organized through exact-contract review; provider context remains context only.',
+      rwa_pulse_summary: 'RWA and agent claims remain source_required unless backed by primary or operational on-chain evidence.', risk_wall_summary: receipt.biggest_risk,
+      narrative_mutation_summary: receipt.strongest_narrative, suggested_infopunks_verdict: receipt.infopunks_verdict, confidence_level: 'medium',
+      source_notes: ['Review Pipeline daily summary is the primary context for this operational draft.', 'Provider data remains context only and never outranks reviewed memory.', 'This draft is human-reviewable and unpublished; only a reviewer can publish a Daily Receipt.'],
+      missing_evidence: reviewCycleMissingEvidence(summary), review_cycle_summary: structuredClone(summary), review_cycle_receipt: receipt,
+      audit_events: [{ event_id: randomUUID(), occurred_at: generated_at, action: 'generated', note: `Generated ${receipt.receipt_id} from the Review Pipeline daily summary; no public receipt was created.` }]
+    };
+    await this.store.saveDraft(draft); return draft;
+  }
   async listDrafts() { return this.store.listDrafts(); }
   async getDraft(id: string) { return this.store.getDraft(id); }
   async reject(id: string, reviewer_id: string) { const draft = await this.requireDraft(id); if (draft.status === 'published') throw new Error('published_draft_cannot_be_rejected'); const updated = { ...draft, status: 'rejected' as const, audit_events: [...draft.audit_events, { event_id: randomUUID(), occurred_at: this.now().toISOString(), action: 'rejected' as const, reviewer_id, note: 'Reviewer rejected this internal draft.' }] }; await this.store.saveDraft(updated); return updated; }
@@ -100,7 +119,9 @@ export class RhChainDailyReceiptDraftService {
     const sections: RhChainDailyReceiptSection[] = [
       ['chain_pulse', 'Chain Pulse', text('chain_pulse_summary', edited.chain_pulse_summary)], ['meme_pulse', 'Meme Pulse', text('meme_pulse_summary', edited.meme_pulse_summary)], ['leadership_narrative_pulse', 'Leadership Narrative Pulse', 'Leadership, RWA, tokenized-asset, and agentic-economy context remains source_required until a reviewer attaches primary links.'], ['launchpad_stress_test', 'Launchpad Surface', text('launchpad_surface_summary', edited.launchpad_surface_summary)], ['risk_wall', 'Risk Wall', text('risk_wall_summary', edited.risk_wall_summary)], ['narrative_mutation', 'Narrative Mutation', text('narrative_mutation_summary', edited.narrative_mutation_summary)], ['infopunks_verdict', 'Infopunks Verdict', text('suggested_infopunks_verdict', edited.suggested_infopunks_verdict)]
     ].map(([section_id, title, summary]) => ({ section_id: section_id as RhChainDailyReceiptSection['section_id'], title, summary, fields: [] }));
-    const receipt = createRhChainDailyReceipt({ receipt_id: edited.suggested_receipt_id, receipt_type: 'daily_market_memory', date: now.slice(0, 10), period: `${edited.period_start} – ${edited.period_end}`, generated_at: now, observed_at: edited.period_end, chain: 'Robinhood Chain', headline: 'RH Chain Daily Receipt · reviewer-published memory', summary: text('chain_pulse_summary', edited.chain_pulse_summary), top_signal: text('meme_pulse_summary', edited.meme_pulse_summary), biggest_risk: text('risk_wall_summary', edited.risk_wall_summary), strongest_narrative: text('narrative_mutation_summary', edited.narrative_mutation_summary), liquidity_note: text('chain_pulse_summary', edited.chain_pulse_summary), stock_token_spillover_note: text('rwa_pulse_summary', edited.rwa_pulse_summary), solana_base_migration_note: 'No cross-chain route claim is promoted without reviewed evidence.', deployer_watch_note: text('launchpad_surface_summary', edited.launchpad_surface_summary), infopunks_verdict: text('suggested_infopunks_verdict', edited.suggested_infopunks_verdict), watchlist: [], do_not_touch_yet: edited.missing_evidence.map((item) => ({ item, reason: 'Missing evidence remains visible after publication.', risk_state: 'source_required' as const, next_thing_to_verify: 'Attach source-linked evidence.' })), sources, confidence_level: edited.confidence_level, status: 'manual', data_mode: 'manual', source_notes: edited.source_notes.join(' '), manual_context: `Published by ${reviewer_id}.`, receipt_sections: sections });
+    const receipt = edited.review_cycle_receipt
+      ? { ...edited.review_cycle_receipt, generated_at: now, observed_at: edited.period_end, manual_context: `Published by ${reviewer_id}. Review Pipeline summary remained the primary context.`, status: 'manual' as const, data_mode: 'manual' as const }
+      : createRhChainDailyReceipt({ receipt_id: edited.suggested_receipt_id, receipt_type: 'daily_market_memory', date: now.slice(0, 10), period: `${edited.period_start} – ${edited.period_end}`, generated_at: now, observed_at: edited.period_end, chain: 'Robinhood Chain', headline: 'RH Chain Daily Receipt · reviewer-published memory', summary: text('chain_pulse_summary', edited.chain_pulse_summary), top_signal: text('meme_pulse_summary', edited.meme_pulse_summary), biggest_risk: text('risk_wall_summary', edited.risk_wall_summary), strongest_narrative: text('narrative_mutation_summary', edited.narrative_mutation_summary), liquidity_note: text('chain_pulse_summary', edited.chain_pulse_summary), stock_token_spillover_note: text('rwa_pulse_summary', edited.rwa_pulse_summary), solana_base_migration_note: 'No cross-chain route claim is promoted without reviewed evidence.', deployer_watch_note: text('launchpad_surface_summary', edited.launchpad_surface_summary), infopunks_verdict: text('suggested_infopunks_verdict', edited.suggested_infopunks_verdict), watchlist: [], do_not_touch_yet: edited.missing_evidence.map((item) => ({ item, reason: 'Missing evidence remains visible after publication.', risk_state: 'source_required' as const, next_thing_to_verify: 'Attach source-linked evidence.' })), sources, confidence_level: edited.confidence_level, status: 'manual', data_mode: 'manual', source_notes: edited.source_notes.join(' '), manual_context: `Published by ${reviewer_id}.`, receipt_sections: sections });
     await this.store.savePublished(receipt); const published = { ...edited, status: 'published' as const, audit_events: [...edited.audit_events, { event_id: randomUUID(), occurred_at: now, action: 'published' as const, reviewer_id, note: `Reviewer published ${receipt.receipt_id}.` }] }; await this.store.saveDraft(published); return { draft: published, receipt };
   }
   async publicFeed(): Promise<RhChainDailyReceiptsPayload> { const base = getRhChainDailyReceipts(); const receipts = sortRhChainDailyReceiptsByDate([...base.receipts, ...await this.store.publishedReceipts()]); const latest = receipts[0] ?? base.latest_receipt; return { ...base, generated_at: latest.generated_at, latest_receipt: latest, receipts }; }
@@ -108,3 +129,48 @@ export class RhChainDailyReceiptDraftService {
   private async requireDraft(id: string) { const draft = await this.store.getDraft(id); if (!draft) throw new Error('rh_chain_daily_receipt_draft_not_found'); return draft; }
 }
 function value(input: number | null) { return typeof input === 'number' ? `$${Math.round(input).toLocaleString()}` : 'source required'; }
+
+export function createRhChainReviewCycleReceipt(summary: RhChainDailyReviewSummary, generated_at: string): RhChainDailyReceipt {
+  const empty = reviewCycleIsEmpty(summary);
+  const marketStructure = summary.promoted_market_structure_candidates.length
+    ? summary.promoted_market_structure_candidates.map((item) => `${item.token_name}${item.symbol ? ` (${item.symbol})` : ''} · ${item.market_structure_layer}`).join('; ')
+    : 'No new reviewed candidates were promoted in this cycle.';
+  const attention = attentionSummary(summary);
+  const outcomes = summary.outcome_checks.length
+    ? summary.outcome_checks.map((item) => `${item.token_name}${item.symbol ? ` (${item.symbol})` : ''} · ${item.contract} · ${item.outcome_check_at}`).join('; ')
+    : 'No outcome checks scheduled yet.';
+  const summaryText = empty
+    ? 'System-readiness receipt: the Review Pipeline is ready to route discovery through exact-contract review, but this cycle has no reviewed activity to turn into a market verdict.'
+    : 'Operational review-cycle receipt: Discovery flow is being converted into source-bound, exact-contract market memory without treating provider context as judgment.';
+  return createRhChainDailyReceipt({
+    receipt_id: 'rh_daily_007', receipt_type: 'daily_market_memory', date: summary.day, period: `Review cycle · ${summary.day} UTC`, generated_at, observed_at: generated_at, chain: 'Robinhood Chain',
+    headline: '4663 begins converting RH Chain discovery flow into reviewed market memory', summary: summaryText,
+    top_signal: 'Discovery flow is now being routed through exact-contract review instead of ticker-based attention.',
+    biggest_risk: 'Token velocity, duplicate tickers, paid attention, and narrative claims can overwhelm reviewers unless source-required states and outcome checks remain strict.',
+    strongest_narrative: 'RH Chain is becoming too fast to track manually; the edge is no longer just detecting tokens, but deciding which discovered signals deserve memory.',
+    liquidity_note: 'Provider liquidity and attention observations remain context only; reviewed memory determines what is retained.', stock_token_spillover_note: 'RWA narrative remains source_required unless backing proof is attached.', solana_base_migration_note: 'AI narrative does not establish agent activity.', deployer_watch_note: 'Exact-contract review is required before discovery can become reviewed memory.',
+    infopunks_verdict: 'The market moves every minute. 4663 reviews what mattered.',
+    manual_context: 'Operational review-cycle draft. Human review is required before publication; no public receipt, Relay packet, or Today card is changed by this draft.',
+    source_notes: 'Primary context: Review Pipeline daily summary. DEX Screener and Blockscout context feed discovery but remain context only. Provider data never outranks reviewed memory. This draft does not imply endorsement or a safety determination.',
+    receipt_sections: [
+      { section_id: 'narrative_mutation', title: 'Review Cycle Summary', summary: empty ? 'No review activity was available; this is a system-readiness receipt.' : 'Review Pipeline daily-summary counts for this cycle.', fields: reviewCycleCountFields(summary) },
+      { section_id: 'chain_pulse', title: 'Discovery Pulse', summary: 'DEX Screener and Blockscout context now feed the Discovery Queue through exact contracts.', fields: [{ label: 'Provider boundary', value: 'Provider data remains context only and never outranks reviewed memory.' }] },
+      { section_id: 'launchpad_stress_test', title: 'Review Pipeline Pulse', summary: 'Tokens move through a controlled review path rather than ticker-only attention.', fields: [{ label: 'Flow', value: 'auto_discovered → needs_review → source_required / watch_only / promoted candidate / daily draft / outcome check' }] },
+      { section_id: 'leadership_narrative_pulse', title: 'Market Structure Pulse', summary: marketStructure, fields: [{ label: 'Promotion rule', value: 'Only daily-summary promotions are listed; no promotion is inferred from discovery context.' }] },
+      { section_id: 'meme_pulse', title: 'Attention Quality Pulse', summary: attention, fields: [{ label: 'History rule', value: 'Attention quality remains history-gated when sufficient snapshot history is unavailable.' }] },
+      { section_id: 'risk_wall', title: 'Risk Wall', summary: 'Review discipline protects memory from velocity and surface-level signals.', fields: [{ label: 'Identity risk', value: 'duplicate ticker risk and clone/pair confusion.' }, { label: 'Attention risk', value: 'paid attention mistaken for conviction.' }, { label: 'Narrative risk', value: 'RWA narrative without backing proof and AI narrative mistaken for agent activity.' }, { label: 'Market and desk risk', value: 'liquidity fragmentation, source gaps, and review overload.' }] },
+      { section_id: 'outcome_checks', title: 'Outcome Checks', summary: outcomes, fields: [{ label: 'Review horizon', value: 'Scheduled outcome checks are assessed seven days after review.' }] },
+      { section_id: 'infopunks_verdict', title: 'Infopunks Verdict', summary: 'The market moves every minute. 4663 reviews what mattered.', fields: [{ label: 'Verdict', value: 'The market moves every minute. 4663 reviews what mattered.' }] }
+    ],
+    watchlist: [], do_not_touch_yet: [], sources: [{ name: 'Review Pipeline daily summary', source_name: 'Review Pipeline daily summary', source_url: '/v1/rh-chain/review-pipeline/daily-summary', url: '/v1/rh-chain/review-pipeline/daily-summary', note: 'Primary operational context for this unpublished review-cycle draft.', observed_at: generated_at, updated_at: generated_at, data_mode: 'manual', confidence_level: 'medium' }], confidence_level: 'medium', status: 'manual', data_mode: 'manual'
+  });
+}
+function reviewCycleCountFields(summary: RhChainDailyReviewSummary) {
+  const counts = [
+    ['reviewed_count', summary.reviewed_count], ['promoted_to_market_structure_count', summary.promoted_to_market_structure_count], ['promoted_to_100_receipts_count', summary.promoted_to_100_receipts_count], ['source_required_count', summary.source_required_count], ['watch_only_count', summary.watch_only_count], ['ignored_count', summary.ignored_count], ['duplicate_ticker_warnings', summary.duplicate_ticker_warnings.length], ['paid_attention_detected', summary.paid_attention_detected], ['cross_layer_candidates', summary.cross_layer_candidates.length]
+  ].map(([label, value]) => ({ label: String(label), value: String(value) }));
+  return summary.duplicate_ticker_warnings.length ? [...counts, { label: 'duplicate_ticker_warning_detail', value: summary.duplicate_ticker_warnings.map((warning) => `${warning.contract} ↔ ${warning.duplicate_ticker_contracts.join(', ')}`).join('; ') }] : counts;
+}
+function reviewCycleIsEmpty(summary: RhChainDailyReviewSummary) { return summary.reviewed_count === 0 && summary.promoted_to_market_structure_count === 0 && summary.promoted_to_100_receipts_count === 0 && summary.source_required_count === 0 && summary.watch_only_count === 0 && summary.ignored_count === 0 && !summary.paid_attention_detected && summary.duplicate_ticker_warnings.length === 0 && summary.cross_layer_candidates.length === 0 && summary.outcome_checks.length === 0; }
+function attentionSummary(summary: RhChainDailyReviewSummary) { const historical = summary.attention_quality_context.filter((item) => item.snapshot_count > 0); return historical.length ? historical.map((item) => `${item.token_name} · ${item.snapshot_count} snapshot(s) · ${item.attention_quality_state}`).join('; ') : 'Attention quality remains history-gated.'; }
+function reviewCycleMissingEvidence(summary: RhChainDailyReviewSummary) { return [summary.reviewed_count === 0 && 'No reviewed activity is available for a market-verdict receipt.', summary.attention_quality_context.every((item) => item.snapshot_count === 0) && 'Attention quality remains history-gated.', summary.paid_attention_detected && 'Paid-attention context requires source review before it can be treated as conviction.'].filter(Boolean) as string[]; }

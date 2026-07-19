@@ -2038,6 +2038,13 @@ export async function createApp(
     if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send(buildRhChainApiErrorResponse('review_admin_token_required'));
     return safeJsonExport(buildRhChainApiResponse({ drafts: await rhChainDailyReceiptDrafts.listDrafts() }));
   });
+  app.post<{ Body: { day?: string } }>('/internal/rh-chain/review-cycle-receipt-drafts', async (req, reply) => {
+    if (!config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
+    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send(buildRhChainApiErrorResponse('review_admin_token_required'));
+    const summary = await rhChainReviewPipeline.dailySummary(req.body?.day);
+    const draft = await rhChainDailyReceiptDrafts.generateReviewCycleDraft(summary);
+    return safeJsonExport(buildRhChainApiResponse({ draft, publication_status: 'unpublished', public_surface_unchanged: true }));
+  });
   app.get('/internal/rh-chain/risk-correlations', async (req, reply) => {
     if (!config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
     if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send(buildRhChainApiErrorResponse('review_admin_token_required'));

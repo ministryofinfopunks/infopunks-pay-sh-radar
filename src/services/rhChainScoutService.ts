@@ -10,7 +10,7 @@ export type RhChainScoutResponse = { answer: string; answer_type: RhChainScoutMo
 export function classifyRhChainScoutQuery(query: string, requested?: RhChainScoutMode): RhChainScoutMode {
   if (requested) return requested;
   const text = query.toLowerCase();
-  if (/past 36|post[- ]drama|still just a meme|4663.*(?:detected|reviewed)|(?:detected|reviewed).*4663/.test(text)) return 'narrative_mutation';
+  if (/past 36|post[- ]drama|still just a meme|4663.*(?:detected|reviewed)|(?:detected|reviewed).*4663|first 4663 review|discovery.*reviewed|ticker[- ]only|difference between detected and reviewed/.test(text)) return 'narrative_mutation';
   if (/rwa|tokenized|agentic|agents?|programmable|divergence|vlad.*messag|messag.*vlad/.test(text)) return 'narrative_mutation';
   if (/surface|noxa|20lab|uniswap|foundry|hardhat|wallet|bridge|swap|li\.fi|backpack|access|launchpad|fragmentation|flap|trensh|bankr|tokeny|vlad|robindotmarket|fee model|fee change|fee claim|creator revenue|burn|buyback/.test(text)) return 'launch_context';
   if (/clone|risk|deployer|fake.volume|\blp\b|launch/.test(text)) return 'risk_memory';
@@ -48,7 +48,15 @@ export function queryRhChainScout(input: RhChainScoutQuery, reviewItems = getRhC
       : /which|watched|watch/.test(needle)
         ? `The desk is watching ${watchedSurfaceNames}. NOXA is recorded as degraded in manual, source-dependent context; rival-surface claims remain source_required until primary evidence is attached.`
         : `Launch surfaces show where tokens start. Access surfaces show how users arrive. Wallet, bridge, router, and app surfaces are distribution context only; they do not establish token legitimacy, route safety, or endorsement. Backpack Wallet remains source_required until a primary source is attached.`;
-  const narrativeAnswer = /past 36|what changed in rh chain over/.test(needle)
+  const narrativeAnswer = /first 4663 review/.test(needle)
+    ? `The first 4663 review cycle establishes the operational boundary: DEX Screener and Blockscout context feed exact-contract discovery, the Discovery Queue organizes that flow, and the Review Pipeline keeps source-required states, duplicate warnings, paid-attention context, and outcome checks visible. The operational review-cycle receipt remains unpublished until a reviewer approves it; no promotion is inferred from the draft.`
+    : /how does discovery become reviewed memory/.test(needle)
+      ? `Discovery becomes reviewed memory only after an exact contract moves from auto-discovered context into the Review Pipeline. Review can keep it source_required or watch_only, create a candidate for Market Structure or 100 Receipts, add it to a daily draft, or schedule an outcome check. Provider observations organize the review; they do not make the judgment.`
+      : /ticker[- ]only/.test(needle)
+        ? `4663 does not trust ticker-only discovery because symbols can be duplicated across contracts and pairs. Exact contract, canonical pair, Blockscout context, source-linked claims, and review state keep a detected label from becoming a mistaken identity or reviewed memory.`
+        : /difference between detected and reviewed/.test(needle)
+          ? `Detected means a provider or discovery surface observed activity that may still be incomplete, duplicated, paid, or unverified. Reviewed means a human process preserved exact-contract evidence, caveats, and a defined state in desk memory. Detection creates a review cue; it does not create a receipt or market-structure judgment.`
+    : /past 36|what changed in rh chain over/.test(needle)
     ? `Over the past 36 hours, the reviewed read is post-drama stabilization: volume remains strong after the NOXA disruption, but behavior is separating into meme, RWA, agent, and infrastructure layers instead of moving as one launch-week trade. Chain-wide metrics remain source/timestamp dependent. The chain is not cooling. It is sorting.`
     : /what does post[- ]drama stabilization mean/.test(needle)
       ? `Post-drama stabilization means the initial launchpad shock no longer explains every move. Visible volume can remain strong while attention becomes more selective and each layer—memes, RWAs, agents, and infrastructure—needs its own evidence. It is a market-structure read, not a claim about exact chain-wide metrics.`

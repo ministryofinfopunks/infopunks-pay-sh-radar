@@ -19,7 +19,11 @@ describe('RH Chain Scout', () => {
     ['What changed in RH Chain over the past 36 hours?', 'narrative_mutation'],
     ['Is RH Chain still just a meme chain?', 'narrative_mutation'],
     ['What does post-drama stabilization mean?', 'narrative_mutation'],
-    ['Why does 4663 separate detected activity from reviewed memory?', 'narrative_mutation']
+    ['Why does 4663 separate detected activity from reviewed memory?', 'narrative_mutation'],
+    ['What happened in the first 4663 review cycle?', 'narrative_mutation'],
+    ['How does discovery become reviewed memory?', 'narrative_mutation'],
+    ['Why does 4663 not trust ticker-only discovery?', 'narrative_mutation'],
+    ['What is the difference between detected and reviewed?', 'narrative_mutation']
   ] as const)('classifies %s', (query, mode) => expect(classifyRhChainScoutQuery(query)).toBe(mode));
   it('returns limitations, disclaimer, and no trading or approval language', () => {
     const result = queryRhChainScout({ query: 'What are the biggest risks right now?' });
@@ -85,5 +89,15 @@ describe('RH Chain Scout', () => {
     expect(memeChain.answer).toContain('CASHCAT as the benchmark attention asset');
     expect(stabilization.answer).toContain('market-structure read');
     expect(reviewBoundary.answer).toContain('Provider context never outranks a reviewed receipt');
+  });
+  it('answers review-cycle questions without turning discovery into a promotion', () => {
+    const cycle = queryRhChainScout({ query: 'What happened in the first 4663 review cycle?' });
+    const memory = queryRhChainScout({ query: 'How does discovery become reviewed memory?' });
+    const ticker = queryRhChainScout({ query: 'Why does 4663 not trust ticker-only discovery?' });
+    const detected = queryRhChainScout({ query: 'What is the difference between detected and reviewed?' });
+    expect(cycle.answer).toContain('remains unpublished until a reviewer approves it');
+    expect(memory.answer).toContain('exact contract');
+    expect(ticker.answer).toContain('symbols can be duplicated');
+    expect(detected.answer).toContain('Detection creates a review cue');
   });
 });
