@@ -102,6 +102,12 @@ describe('render-style SPA routing boundaries', () => {
       expect(rhMarketPulse.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/rh-chain/market.png"');
       expect(rhMarketPulse.body).toContain('name="twitter:card" content="summary_large_image"');
 
+      const crossLayer = await app.inject({ method: 'GET', url: '/rh-chain-signal-desk/market-structure/cross-layer' });
+      expect(crossLayer.statusCode).toBe(200);
+      expect(crossLayer.body).toContain('<title>Cross-Layer Intersections | Infopunks Radar</title>');
+      expect(crossLayer.body).toContain('<link rel="canonical" href="https://radar.infopunks.fun/rh-chain-signal-desk/market-structure/cross-layer"');
+      expect(crossLayer.body).toContain('property="og:image" content="https://radar.infopunks.fun/og/rh-chain/cross-layer.png"');
+
       const developers = await app.inject({ method: 'GET', url: '/developers' });
       expect(developers.statusCode).toBe(200);
       expect(developers.headers['content-type']).toContain('text/html');

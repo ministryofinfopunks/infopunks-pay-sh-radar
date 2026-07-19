@@ -2,6 +2,16 @@ import { describe, expect, it } from 'vitest';
 import { getNarrativeMetadataForPath } from '../src/shared/narrativeMetadata';
 
 describe('narrative metadata helper', () => {
+  it('keeps Cross-Layer Intersections on its canonical existing route', () => {
+    expect(getNarrativeMetadataForPath('/rh-chain-signal-desk/market-structure/cross-layer')).toEqual(expect.objectContaining({
+      title: 'Cross-Layer Intersections | Infopunks Radar',
+      canonicalPath: '/rh-chain-signal-desk/market-structure/cross-layer',
+      ogImageUrl: 'https://radar.infopunks.fun/og/rh-chain/cross-layer.png',
+      twitterImageUrl: 'https://radar.infopunks.fun/og/rh-chain/cross-layer.png',
+      twitterCard: 'summary_large_image'
+    }));
+  });
+
   it('returns share-ready metadata for Robinhood Chain Market Pulse', () => {
     expect(getNarrativeMetadataForPath('/rh-chain-signal-desk/market')).toEqual({
       title: 'Robinhood Chain Market Pulse | Infopunks Radar',

@@ -62,6 +62,10 @@ export function signalUpdateTypeLabel(value: string) {
 }
 
 export function narrativeOgImageUrl(pathname: string) {
+  if (/^\/rh-chain-signal-desk\/market-structure\/cross-layer\/?$/.test(pathname)) {
+    return '/og/rh-chain/cross-layer.png';
+  }
+
   if (/^\/rh-chain-signal-desk\/market\/?$/.test(pathname)) {
     return '/og/rh-chain/market.png';
   }
@@ -630,6 +634,20 @@ export function renderRhChainMarketPulseOgImage() {
     accent: '#d8ff73',
     eyebrow: 'MARKET-STRUCTURE INTELLIGENCE',
     routeLabel: '/rh-chain-signal-desk/market'
+  });
+}
+
+export function renderRhChainCrossLayerOgImage(context?: { headline: string; reviewedProjectCount: number; capturedAt: string } | null) {
+  const captured = context ? new Date(context.capturedAt) : null;
+  const capturedLabel = captured && !Number.isNaN(captured.getTime()) ? captured.toISOString().slice(0, 16).replace('T', ' ') + ' UTC' : 'LATEST REVIEWED OBSERVATION';
+  return renderSignalCardSvg({
+    title: context?.headline ?? 'Cross-Layer Intersections',
+    subtitle: context ? `${context.reviewedProjectCount} eligible exact-contract project${context.reviewedProjectCount === 1 ? '' : 's'} in the bounded reviewed set.` : 'Where reviewed layers meet—and persisted market evidence shows whether liquidity follows.',
+    badge: 'INFOPUNKS RADAR',
+    footer: `Exact contracts / reviewed evidence / persisted snapshots / ${capturedLabel}`,
+    accent: '#b8f7d4',
+    eyebrow: 'ROBINHOOD CHAIN MARKET STRUCTURE',
+    routeLabel: '/rh-chain-signal-desk/market-structure/cross-layer'
   });
 }
 

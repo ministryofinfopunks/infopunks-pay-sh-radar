@@ -49,6 +49,14 @@ function buildMetadata(title: string, description: string, canonicalPath: string
 }
 
 export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata | null {
+  if (/^\/rh-chain-signal-desk\/market-structure\/cross-layer\/?$/.test(pathname)) {
+    return buildMetadata(
+      'Cross-Layer Intersections | Infopunks Radar',
+      'Reviewed exact-contract intersections across Robinhood Chain, enriched from persisted market memory with visible provenance, freshness, and evidence limits.',
+      '/rh-chain-signal-desk/market-structure/cross-layer'
+    );
+  }
+
   if (/^\/rh-chain-signal-desk\/market\/?$/.test(pathname)) {
     return buildMetadata(
       'Robinhood Chain Market Pulse | Infopunks Radar',

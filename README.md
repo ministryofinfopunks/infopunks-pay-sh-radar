@@ -869,7 +869,7 @@ NODE_ENV=production PORT=8787 npm start
 | `DEXSCREENER_RATE_LIMIT_PER_SECOND` | Maximum provider request starts per second; default `20`, maximum `100` |
 | `RH_CHAIN_REVIEW_CONSOLE_ENABLED` | Enables protected internal RH review routes |
 | `RH_CHAIN_REVIEW_ADMIN_TOKEN` | Dedicated bearer credential required when the production review console is enabled |
-| `RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED` | Enables durable authoritative reviewed-classification APIs; defaults to `false` and requires `DATABASE_URL` in production |
+| `RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED` | Enables durable authoritative reviewed-classification APIs and the read-only Cross-Layer integration; defaults to `false` and requires `DATABASE_URL` in production |
 | `PAY_SH_CATALOG_URL` | Live Pay.sh catalog source |
 | `PAY_SH_INGEST_INTERVAL_MS` | Enables scheduled ingestion |
 | `MONITOR_ENABLED` | Enables scheduled monitoring |
@@ -926,25 +926,64 @@ Market Pulse needs no additional environment variable or database migration beyo
 
 ### Durable reviewed classifications
 
-Durable reviewed classifications are a separate, feature-flagged authority boundary for future Robinhood Chain products. Exact contract identity and reviewed memory outrank provider context. Provider observations, Discovery Queue actions, and Review Pipeline actions may remain useful intake context, but they cannot approve, promote, publish, or write this repository. The repository is intentionally not connected to Market Structure, Market Pulse, 4663/RCCI, Signal Graph, or public project pages in this phase.
+Durable reviewed classifications are a separate, feature-flagged authority boundary for Robinhood Chain products. Exact contract identity and reviewed memory outrank provider context. Provider observations, Discovery Queue actions, and Review Pipeline actions may remain useful intake context, but they cannot approve, promote, publish, or write this repository. The repository remains isolated from Market Pulse, 4663/RCCI, Signal Graph, and public project pages. The only downstream integration is the separately described, read-only Cross-Layer adapter, and it is active only under the same reviewed-classification feature flag.
 
 The feature is disabled by default. In production, apply the additive migration first, then set `RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED=true`. Protected `/internal/rh-chain/classifications...` routes additionally require the existing `RH_CHAIN_REVIEW_CONSOLE_ENABLED=true`, `RH_CHAIN_REVIEW_ADMIN_TOKEN`, bearer authorization, and an `x-rh-chain-reviewer-id` header for writes. The read-only `GET /v1/rh-chain/classifications` route returns only active approved records and redacts reviewer audit metadata and manual-override rationale.
 
 ```bash
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f migrations/20260719_002_rh_chain_reviewed_classifications.up.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f migrations/20260719_003_rh_chain_classification_layer_vocabulary.up.sql
 ```
 
 Application startup never runs this migration or any classification DDL. Startup readiness checks only verify that the expected tables exist when the feature is enabled. Roll back before disabling or removing the feature with:
 
 ```bash
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f migrations/20260719_003_rh_chain_classification_layer_vocabulary.down.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f migrations/20260719_002_rh_chain_reviewed_classifications.down.sql
 ```
+
+Migration `20260719_003` additively admits `consumer` as a primary reviewed layer. Its down migration refuses to proceed while any consumer-primary record exists, preventing a destructive vocabulary rollback. Apply its down migration before `20260719_002` only after those records have been deliberately reclassified.
 
 The Postgres repository stores one current validated record per `(chain, contract)` and an immutable audit snapshot for every accepted transition. Row locking, version predicates, primary/foreign keys, unique constraints, and database checks protect concurrent updates. Local development and deterministic tests can use the matching in-memory implementation. All reads validate stored JSON before returning it, paging is capped at 100 records per request, and malformed storage fails closed without leaking raw database errors.
 
 Supported states are `proposed`, `source_required`, `under_review`, `approved`, `rejected`, `superseded`, and `archived`. Approval, rejection, and supersession require the caller's expected classification version; stale writers receive a conflict with the current validated record. Rejected, superseded, or archived records can be proposed again only with their expected version, retaining prior transitions in audit history.
 
-The public Discovery Queue and Review Pipeline routes remain available with their existing response envelopes and behavior. Their mutation routes remain non-authoritative and do not write the reviewed-classification tables. The public Intersections Index is deliberately not part of this foundation.
+The public Discovery Queue and Review Pipeline routes remain available with their existing response envelopes and behavior. Their mutation routes remain non-authoritative and do not write the reviewed-classification tables.
+
+### Cross-Layer Intersections integration
+
+The canonical public surfaces remain `GET /v1/rh-chain/market-structure/cross-layer` and `/rh-chain-signal-desk/market-structure/cross-layer`. No parallel Intersections API or classification flow exists. With `RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED` unset or `false`, the established Cross-Layer service and UI response are preserved. With it enabled, a read-only adapter joins reviewed exact-contract classifications to the latest persisted market snapshots in one bounded preload; it never calls DEX Screener or another provider from the public request path.
+
+Classification precedence is explicit:
+
+1. Existing curated reviewed memory.
+2. Durable, approved, effective, non-superseded, non-archived exact-contract classifications.
+3. Provider context, which may enrich market fields but cannot establish a layer.
+4. Unknown.
+
+If curated and durable reviewed memory disagree, the curated classification remains public, the public record carries a conflict warning, and the disagreement is available to authenticated reviewers at `GET /internal/rh-chain/market-structure/cross-layer/conflicts`. That route is read-only and uses the existing Review Console bearer guard. Reviewers resolve the underlying classification through the existing protected `/internal/rh-chain/classifications...` operations; there is no second mutation flow.
+
+Public eligibility requires exact contract identity, a curated or approved-active durable classification, at least two meaningful reviewed layers, evidence supporting the displayed classification, and no critical identity conflict. `ai-narrative` is a secondary context label and never proves agent activity. Unknown and incomplete classifications remain counted in coverage and source-required disclosures but stay outside the public project list. A reviewed project without a validated persisted snapshot remains visible with an explicit market-data-unavailable state.
+
+Aggregates use methodology `cross_layer_intersections_v1`. Counts, liquidity, volume, concentration, classification coverage, and market-data coverage describe at most 100 reviewed exact contracts and their latest persisted snapshots. They are not complete Robinhood Chain totals. Derived responses are cached for 60 seconds with capture time, freshness, confidence, classification provenance, provider provenance, warnings, and the bounded-universe disclosure retained.
+
+#### Conflict-resolution runbook
+
+1. Enable the existing Review Console guard and query the internal conflict endpoint with the reviewer bearer token.
+2. Verify the exact contract and compare the curated and durable layer evidence; never resolve from ticker, branding, socials, or DEX descriptions alone.
+3. Use the existing classification audit endpoint to inspect history, then use the existing approve, reject, supersede, or re-propose operation with the current classification version.
+4. Update curated reviewed memory through its established review process if it is the stale side. The integration deliberately continues to warn until both authorities agree.
+5. Re-check the internal conflict endpoint and canonical public Cross-Layer response. No provider refresh is required for a classification resolution.
+
+#### Safe staging rollout
+
+1. Back up the database and apply migrations `20260719_002` and `20260719_003` explicitly; application startup never runs them.
+2. Keep `RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED=false`, deploy, and verify Market Pulse, Live Snapshot, 4663, RCCI, Signal Graph, Discovery Queue, Review Pipeline, Review Console, and the legacy Cross-Layer response.
+3. Seed and approve a small exact-contract staging set through the existing protected classification API. Capture market history separately if enrichment is desired.
+4. Enable `RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED=true` in staging. Verify the conflict surface, classification and market-data coverage, zero provider requests in the Cross-Layer path, canonical metadata, social card, mobile layout, and accessibility states.
+5. Resolve curated/durable disagreements or accept their visible warning state, then enable production during a reversible window. Roll back by setting the flag to `false`; this immediately restores the legacy Cross-Layer path without deleting durable memory.
+
+Known limitations: the integration is deliberately bounded to 100 reviewed records, uses the latest persisted snapshot rather than request-time provider data, and does not infer a complete chain index. Curated memory has no durable classification version, so conflicts require reviewer interpretation. Sparse evidence summaries can keep otherwise approved records out of public intersections. Provider coverage may be delayed or absent, and market-data unavailability does not invalidate reviewed classification evidence.
 
 ---
 

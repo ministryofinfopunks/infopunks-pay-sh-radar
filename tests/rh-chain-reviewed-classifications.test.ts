@@ -38,6 +38,13 @@ describe('durable RH Chain reviewed classifications', () => {
     expect((await reviewed.listApproved({})).classifications).toEqual([expect.objectContaining({ contract: CONTRACT, review_status: 'approved' })]);
   });
 
+  it('accepts the reviewed Cross-Layer vocabulary without treating AI narrative as an agent layer', async () => {
+    const reviewed = service();
+    const created = await reviewed.propose(proposal(CONTRACT, { primary_layer: 'consumer', secondary_layers: ['payments', 'ai-narrative'] }), 'desk-reviewer');
+    expect(created.classification).toMatchObject({ primary_layer: 'consumer', secondary_layers: ['payments', 'ai-narrative'], review_status: 'proposed' });
+    expect(created.classification.secondary_layers).not.toContain('agent');
+  });
+
   it('rejects invalid transitions and stale optimistic-concurrency writes', async () => {
     const reviewed = service();
     await reviewed.propose(proposal(), 'proposer');

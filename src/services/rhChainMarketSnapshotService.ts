@@ -54,6 +54,7 @@ export interface RhChainMarketSnapshotStore {
   save(snapshot: RhChainMarketSnapshot): Promise<void>;
   list(contract: string): Promise<RhChainMarketSnapshot[]>;
   listMany?(contracts: string[]): Promise<Record<string, RhChainMarketSnapshot[]>>;
+  latestMany?(contracts: string[]): Promise<Record<string, RhChainMarketSnapshot | null>>;
   close?(): Promise<void>;
 }
 
@@ -69,6 +70,7 @@ export class InMemoryRhChainMarketSnapshotStore implements RhChainMarketSnapshot
   }
   async list(contract: string) { return structuredClone(this.snapshots.get(contract.toLowerCase()) ?? []); }
   async listMany(contracts: string[]) { return Object.fromEntries(contracts.slice(0, 300).map((contract) => [contract.toLowerCase(), structuredClone(this.snapshots.get(contract.toLowerCase()) ?? [])])); }
+  async latestMany(contracts: string[]) { return Object.fromEntries(contracts.slice(0, 300).map((contract) => [contract.toLowerCase(), structuredClone(this.snapshots.get(contract.toLowerCase())?.at(-1) ?? null)])); }
 }
 
 export class PostgresRhChainMarketSnapshotStore implements RhChainMarketSnapshotStore {
@@ -96,6 +98,15 @@ export class PostgresRhChainMarketSnapshotStore implements RhChainMarketSnapshot
     const grouped = Object.fromEntries(normalized.map((contract) => [contract, [] as RhChainMarketSnapshot[]]));
     for (const row of result.rows) grouped[row.token_address.toLowerCase()]?.push(row.payload);
     return grouped;
+  }
+  async latestMany(contracts: string[]) {
+    const normalized = [...new Set(contracts.map(normalize).filter(Boolean))].slice(0, 300);
+    if (!normalized.length) return {};
+    await this.ready();
+    const result = await this.pool.query<{ token_address: string; payload: RhChainMarketSnapshot }>('select distinct on (token_address) token_address, payload from rh_chain_market_snapshots where token_address = any($1::text[]) order by token_address, captured_at desc', [normalized]);
+    const latest = Object.fromEntries(normalized.map((contract) => [contract, null as RhChainMarketSnapshot | null]));
+    for (const row of result.rows) latest[row.token_address.toLowerCase()] = row.payload;
+    return latest;
   }
   async close() { if (this.ownsPool) await this.pool.end(); }
   private ready() { return this.schema.ensure(this.pool, `
@@ -178,6 +189,12 @@ export class RhChainMarketSnapshotService {
     if (this.options.store.listMany) return this.options.store.listMany(normalized);
     const entries = await mapWithConcurrency(normalized, 6, async (contract) => [contract, await this.options.store.list(contract)] as const);
     return Object.fromEntries(entries);
+  }
+  async getLatestSnapshotsForContracts(contracts: string[]) {
+    const normalized = [...new Set(contracts.map(normalize).filter(Boolean))].slice(0, 300);
+    if (this.options.store.latestMany) return this.options.store.latestMany(normalized);
+    const histories = await this.listSnapshotsForContracts(normalized);
+    return Object.fromEntries(normalized.map((contract) => [contract, histories[contract]?.at(-1) ?? null]));
   }
   async getLatestSnapshot(contract: string) { return (await this.listSnapshots(contract)).at(-1) ?? null; }
   async getSnapshotWindow(contract: string, window: string | number) {

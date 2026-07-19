@@ -465,7 +465,8 @@ describe('openapi discovery', () => {
       ['/internal/rh-chain/classifications/{contract}/approve', 'post'],
       ['/internal/rh-chain/classifications/{contract}/reject', 'post'],
       ['/internal/rh-chain/classifications/{contract}/supersede', 'post'],
-      ['/internal/rh-chain/classifications/{contract}/audit', 'get']
+      ['/internal/rh-chain/classifications/{contract}/audit', 'get'],
+      ['/internal/rh-chain/market-structure/cross-layer/conflicts', 'get']
     ] as const;
     for (const [route, method] of classificationRoutes) {
       expect(spec.paths[route]?.[method]).toBeTruthy();
@@ -474,6 +475,13 @@ describe('openapi discovery', () => {
     expect(spec.paths['/internal/rh-chain/classifications/{contract}/approve'].post.description).toContain('optimistic concurrency');
     expect(spec.paths['/internal/rh-chain/classifications'].post.description).toContain('cannot approve, promote, or publish');
     expect(spec.paths['/v1/rh-chain/classifications'].get.description).toContain('only active approved records');
+    expect(spec.paths['/v1/rh-chain/market-structure/cross-layer'].get.description).toContain('no provider request');
+    expect(spec.paths['/internal/rh-chain/market-structure/cross-layer/conflicts'].get.description).toContain('Read-only reviewer surface');
+    expect(spec.components.schemas.RhChainCrossLayerPayload.properties.classification_coverage).toBeTruthy();
+    expect(spec.components.schemas.RhChainCrossLayerPayload.properties.bounded_universe).toBeTruthy();
+    expect(spec.components.schemas.RhChainCrossLayerConflictPayload.additionalProperties).toBe(false);
+    expect(spec.components.schemas.RhChainClassificationProposalRequest.properties.primary_layer.enum).toContain('consumer');
+    expect(spec.components.schemas.RhChainClassificationProposalRequest.properties.secondary_layers.items.enum).toContain('ai-narrative');
     expect(spec.components.schemas.RhChainReviewedClassification.additionalProperties).toBe(false);
     expect(spec.components.schemas.RhChainClassificationProposalRequest.additionalProperties).toBe(false);
     expect(spec.components.schemas.RhChainPublicClassification.properties.reviewer_audit).toBeUndefined();

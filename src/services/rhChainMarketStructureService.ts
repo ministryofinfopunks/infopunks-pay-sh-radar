@@ -47,6 +47,16 @@ export type RhChainAttentionQuality = {
   caveats: string[];
 };
 
+type RhChainCrossLayerIntegratedPayload = {
+  title: string;
+  entries: Array<{ category: string; contract: string; display_name: string | null; dexscreener_pair: string | null; primary_layer: string; secondary_layers: string[]; explanation: string; evidence_state: string; latest_receipt: { receipt_id: string; timestamp: string; summary: string } | null; attention_quality_state: string; missing_evidence: string[]; caveat: string | null; [key: string]: unknown }>;
+  categories: string[];
+  observed_at: string;
+  data_mode: 'unavailable' | 'live_cached';
+  caveats: string[];
+  [key: string]: unknown;
+};
+
 export type RhChainMarketStructureOptions = {
   marketData: RhChainMarketDataService;
   metrics?: () => Promise<RhChainMetricsSnapshot | null>;
@@ -54,6 +64,7 @@ export type RhChainMarketStructureOptions = {
   attentionEvidence?: (contract: string) => Promise<Partial<Pick<RhChainAttentionQuality['components'], 'narrative_persistence' | 'evidence_quality' | 'contract_deployer_clarity'>> | null> | Partial<Pick<RhChainAttentionQuality['components'], 'narrative_persistence' | 'evidence_quality' | 'contract_deployer_clarity'>> | null;
   latestReceipt?: () => Promise<{ receipt_id: string; timestamp: string; summary: string } | null> | { receipt_id: string; timestamp: string; summary: string } | null;
   snapshotHistoryForContracts?: (contracts: string[]) => Promise<Record<string, StoredMarketSnapshot[]>>;
+  crossLayerIntegration?: { build: (latestReceipt: { receipt_id: string; timestamp: string; summary: string } | null) => Promise<RhChainCrossLayerIntegratedPayload> };
   now?: () => Date;
 };
 
@@ -236,6 +247,10 @@ export class RhChainMarketStructureService {
   }
 
   async crossLayer() {
+    if (this.options.crossLayerIntegration) {
+      const receipt = await this.receipts();
+      return this.options.crossLayerIntegration.build(receipt[0] ?? null);
+    }
     const snapshot = await this.safeSnapshot();
     const receipt = await this.receipts();
     const entries = snapshot.assets.flatMap((asset) => {

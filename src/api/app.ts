@@ -20,6 +20,7 @@ import { BlockscoutProvider } from '../providers/blockscoutProvider';
 import { RhChainTokenRegistryService, type RhChainTokenRegistryOptions } from '../services/rhChainTokenRegistryService';
 import { RhChainMarketDataService, type RhChainMarketDataServiceOptions, type RhChainReviewedClassification } from '../services/rhChainMarketDataService';
 import { RhChainMarketStructureService, type RhChainMarketStructureOptions } from '../services/rhChainMarketStructureService';
+import { RhChainCrossLayerIntegrationService } from '../services/rhChainCrossLayerIntegrationService';
 import { RhChainDiscoveryQueueService } from '../services/rhChainDiscoveryQueueService';
 import { RhChainReviewPipelineService, type RhChainReviewClassification, type RhChainReviewSecondaryTag } from '../services/rhChainReviewPipelineService';
 import { InMemoryRhChainReviewedClassificationStore, PostgresRhChainReviewedClassificationStore, RhChainClassificationApprovalSchema, RhChainClassificationAuditPagingSchema, RhChainClassificationContractSchema, RhChainClassificationError, RhChainClassificationPagingSchema, RhChainClassificationProposalSchema, RhChainClassificationRejectionSchema, RhChainClassificationSupersessionSchema, RhChainReviewedClassificationService, type RhChainReviewedClassificationStore } from '../services/rhChainReviewedClassificationService';
@@ -49,7 +50,7 @@ import {
   getAttentionMarketWatchIndex
 } from '../data/attentionMarketWatch';
 import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
-import { renderAttentionMarketWatchOgImage, renderNarrativesOgImage, renderRevenueReceiptOgImage, renderRevenueReceiptsIndexOgImage, renderRhChainMarketPulseOgImage, renderSignalHuntOgImage, renderSignalReportOgImage, renderSignalUpdateOgImage, renderUnicornRadarIndexOgImage, renderUnicornRadarOgImage } from '../shared/narrativeOg';
+import { renderAttentionMarketWatchOgImage, renderNarrativesOgImage, renderRevenueReceiptOgImage, renderRevenueReceiptsIndexOgImage, renderRhChainCrossLayerOgImage, renderRhChainMarketPulseOgImage, renderSignalHuntOgImage, renderSignalReportOgImage, renderSignalUpdateOgImage, renderUnicornRadarIndexOgImage, renderUnicornRadarOgImage } from '../shared/narrativeOg';
 import { renderOgPng } from '../server/narrativeOgPng';
 import { applyPayShCatalogIngestion } from '../ingestion/payShCatalogAdapter';
 import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, IntelligenceStore, runPayShIngestion, runPayShIngestionWithOptions } from '../services/intelligenceStore';
@@ -698,6 +699,11 @@ export async function createApp(
   let rhChainDiscoveryQueue: RhChainDiscoveryQueueService | null = null;
   let rhChainReviewPipeline: RhChainReviewPipelineService | null = null;
   let rhChainMarketSnapshots: RhChainMarketSnapshotService;
+  const rhChainCrossLayerIntegration = config.rhChainReviewedClassificationsEnabled ? new RhChainCrossLayerIntegrationService({
+    reviewedClassifications: rhChainReviewedClassifications,
+    curatedClassifications: rhChainReviewedLayerClassifications,
+    latestSnapshotsForContracts: (contracts) => rhChainMarketSnapshots.getLatestSnapshotsForContracts(contracts)
+  }) : null;
   const rhChainMarketStructure = new RhChainMarketStructureService({
     marketData: rhChainMarketData,
     metrics: () => rhChainChainPulse.getLatest(),
@@ -707,7 +713,8 @@ export async function createApp(
       return receipt ? { receipt_id: receipt.receipt_id, timestamp: receipt.observed_at ?? receipt.generated_at, summary: receipt.headline } : null;
     },
     snapshotHistoryForContracts: (contracts) => rhChainMarketSnapshots.listSnapshotsForContracts(contracts),
-    ...options.rhChainMarketStructureOptions
+    ...options.rhChainMarketStructureOptions,
+    crossLayerIntegration: config.rhChainReviewedClassificationsEnabled ? options.rhChainMarketStructureOptions?.crossLayerIntegration ?? rhChainCrossLayerIntegration ?? undefined : undefined
   });
   const rhChainBlockscoutProvider = options.rhChainTokenRegistryOptions?.provider ?? new BlockscoutProvider({
     enabled: options.rhChainTokenRegistryOptions?.enabled ?? config.blockscoutEnabled,
@@ -2049,6 +2056,12 @@ export async function createApp(
     if (!internalClassificationGuard(reply, req.headers.authorization)) return;
     try { return safeJsonExport(buildRhChainApiResponse(await rhChainReviewedClassifications.audit(RhChainClassificationContractSchema.parse(req.params), RhChainClassificationAuditPagingSchema.parse(req.query)))); } catch (error) { return classificationFailure(reply, error); }
   });
+  app.get('/internal/rh-chain/market-structure/cross-layer/conflicts', async (req, reply) => {
+    if (!internalClassificationGuard(reply, req.headers.authorization)) return;
+    if (!rhChainCrossLayerIntegration) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
+    try { return safeJsonExport(buildRhChainApiResponse(await rhChainCrossLayerIntegration.inspectConflicts())); }
+    catch { return reply.code(503).send(buildRhChainApiErrorResponse('rh_chain_cross_layer_conflicts_unavailable')); }
+  });
   app.get<{ Querystring: Record<string, unknown> }>('/v1/rh-chain/classifications', async (req, reply) => {
     if (!classificationFeatureAvailable()) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
     try { return safeJsonExport(buildRhChainApiResponse(await rhChainReviewedClassifications.listApproved(RhChainClassificationPagingSchema.omit({ status: true }).parse(req.query)))); } catch (error) { return classificationFailure(reply, error); }
@@ -2851,6 +2864,17 @@ export async function createApp(
   app.get('/og/rh-chain/market.png', async (_req, reply) => {
     reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
     return reply.type('image/png').send(renderOgPng(renderRhChainMarketPulseOgImage()));
+  });
+  app.get('/og/rh-chain/cross-layer.png', async (_req, reply) => {
+    reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
+    let context: { headline: string; reviewedProjectCount: number; capturedAt: string } | null = null;
+    if (rhChainCrossLayerIntegration) {
+      try {
+        const data = await rhChainCrossLayerIntegration.build();
+        context = { headline: data.headline, reviewedProjectCount: data.reviewed_project_count, capturedAt: data.captured_at };
+      } catch { /* Static card remains available when reviewed storage is temporarily unavailable. */ }
+    }
+    return reply.type('image/png').send(renderOgPng(renderRhChainCrossLayerOgImage(context)));
   });
   app.get('/og/attention-market-watch.png', async (_req, reply) => {
     reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');

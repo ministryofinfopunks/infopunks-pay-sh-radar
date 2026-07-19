@@ -4,7 +4,10 @@ import { z } from 'zod';
 import { resolvePostgresPool, type PostgresPoolSource } from '../persistence/retryablePostgresSchema';
 
 export const RH_CHAIN_CLASSIFICATION_STATES = ['proposed', 'source_required', 'under_review', 'approved', 'rejected', 'superseded', 'archived'] as const;
-export const RH_CHAIN_CLASSIFICATION_LAYERS = ['meme', 'rwa', 'agent', 'infrastructure', 'defi', 'unknown'] as const;
+export const RH_CHAIN_CLASSIFICATION_PRIMARY_LAYERS = ['meme', 'rwa', 'agent', 'infrastructure', 'defi', 'consumer', 'unknown'] as const;
+/** Backward-compatible export retained for existing primary-layer consumers. */
+export const RH_CHAIN_CLASSIFICATION_LAYERS = RH_CHAIN_CLASSIFICATION_PRIMARY_LAYERS;
+export const RH_CHAIN_CLASSIFICATION_SECONDARY_LAYERS = ['meme', 'rwa', 'agent', 'infrastructure', 'defi', 'lending', 'payments', 'data', 'identity', 'launchpad', 'energy', 'trading', 'consumer', 'ai-narrative', 'unknown'] as const;
 export const RH_CHAIN_CLASSIFICATION_SOURCES = ['manual_review', 'internal_research', 'provider_observation', 'community_submission', 'review_pipeline'] as const;
 export const RH_CHAIN_CLASSIFICATION_EVIDENCE_KINDS = ['primary_source', 'onchain', 'market_context', 'social', 'receipt', 'manual_note'] as const;
 
@@ -34,8 +37,8 @@ export const RhChainClassificationReviewerAuditSchema = z.object({
 const RhChainReviewedClassificationBaseSchema = z.object({
   chain: z.literal('robinhood'),
   contract: exactContract,
-  primary_layer: z.enum(RH_CHAIN_CLASSIFICATION_LAYERS),
-  secondary_layers: z.array(z.enum(RH_CHAIN_CLASSIFICATION_LAYERS)).max(5),
+  primary_layer: z.enum(RH_CHAIN_CLASSIFICATION_PRIMARY_LAYERS),
+  secondary_layers: z.array(z.enum(RH_CHAIN_CLASSIFICATION_SECONDARY_LAYERS)).max(5),
   confidence: z.enum(['low', 'medium', 'high']),
   classification_evidence: z.array(RhChainClassificationEvidenceSchema).max(50),
   classification_version: z.number().int().positive(),
@@ -73,8 +76,8 @@ const initialState = z.enum(['proposed', 'source_required', 'under_review']);
 export const RhChainClassificationProposalSchema = z.object({
   chain: z.literal('robinhood').default('robinhood'),
   contract: exactContract,
-  primary_layer: z.enum(RH_CHAIN_CLASSIFICATION_LAYERS),
-  secondary_layers: z.array(z.enum(RH_CHAIN_CLASSIFICATION_LAYERS)).max(5).default([]),
+  primary_layer: z.enum(RH_CHAIN_CLASSIFICATION_PRIMARY_LAYERS),
+  secondary_layers: z.array(z.enum(RH_CHAIN_CLASSIFICATION_SECONDARY_LAYERS)).max(5).default([]),
   confidence: z.enum(['low', 'medium', 'high']),
   classification_evidence: z.array(RhChainClassificationEvidenceSchema).max(50).default([]),
   review_status: initialState.default('proposed'),

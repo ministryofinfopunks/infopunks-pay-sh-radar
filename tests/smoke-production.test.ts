@@ -186,6 +186,7 @@ describe('production smoke plan', () => {
       '/v1/rh-chain/daily-receipts/rh_daily_002',
       '/v1/rh-chain/launch-surfaces',
       '/v1/rh-chain/market',
+      '/v1/rh-chain/market-structure/cross-layer',
       '/v1/rh-chain/live-snapshot',
       '/v1/rh-chain/live-snapshot/token/0x1111111111111111111111111111111111111111',
       '/v1/rh-chain/tokens/0x1111111111111111111111111111111111111111/dossier',
@@ -203,6 +204,7 @@ describe('production smoke plan', () => {
     ]);
     expect(plan.pngPaths).toEqual([
       '/og/rh-chain/market.png',
+      '/og/rh-chain/cross-layer.png',
       '/og/narratives.png',
       '/og/attention-market-watch.png',
       '/og/attention-market-watch/ansem.png',

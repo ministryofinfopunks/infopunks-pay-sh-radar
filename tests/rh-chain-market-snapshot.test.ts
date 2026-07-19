@@ -37,6 +37,30 @@ describe('RH Chain market snapshot history', () => {
     expect(await snapshots.list(contract)).toHaveLength(1);
   });
 
+  it('preloads only the latest persisted snapshot for bounded exact-contract joins', async () => {
+    const second = '0x2222222222222222222222222222222222222222';
+    const store = new InMemoryRhChainMarketSnapshotStore();
+    await store.save(snapshot('old', '2026-07-17T00:00:00.000Z'));
+    await store.save(snapshot('new', '2026-07-17T02:00:00.000Z', { liquidity_usd: 250 }));
+    await store.save(snapshot('second', '2026-07-17T01:00:00.000Z', { token_address: second }));
+    const rows = await service(store).getLatestSnapshotsForContracts([contract, second]);
+    expect(rows[contract]).toMatchObject({ snapshot_id: 'new', liquidity_usd: 250 });
+    expect(rows[second]).toMatchObject({ snapshot_id: 'second' });
+  });
+
+  it('uses one bounded Postgres latest-snapshot query for classification joins', async () => {
+    const statements: Array<{ sql: string; values?: unknown[] }> = [];
+    const row = snapshot('latest', '2026-07-17T02:00:00.000Z');
+    const pool = { query: async (sql: string, values?: unknown[]) => { statements.push({ sql, values }); return { rows: [{ token_address: contract, payload: row }], rowCount: 1 }; }, end: async () => undefined };
+    const store = new PostgresRhChainMarketSnapshotStore(pool as any);
+    const rows = await store.latestMany([contract]);
+    expect(rows[contract]).toMatchObject({ snapshot_id: 'latest' });
+    const latestQueries = statements.filter(({ sql }) => sql.includes('distinct on (token_address)'));
+    expect(latestQueries).toHaveLength(1);
+    expect(latestQueries[0].sql).toContain('token_address = any($1::text[])');
+    expect(latestQueries[0].values).toEqual([[contract]]);
+  });
+
   it('can ingest without writing when historical storage is independently disabled', async () => {
     const snapshots = new InMemoryRhChainMarketSnapshotStore();
     const capture = new RhChainMarketSnapshotService({ store: snapshots, provider: provider(), enabled: true, storageEnabled: false, watchlist: () => [contract] });
