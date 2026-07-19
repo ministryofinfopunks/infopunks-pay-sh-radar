@@ -140,11 +140,11 @@ describe('RH Chain Signal Desk API', () => {
           ])
         }),
         sources: expect.any(Array),
-        generated_at: '2026-07-17T00:00:00.000Z',
+        generated_at: '2026-07-19T00:00:00.000Z',
         data_mode: 'manual',
         disclaimer: 'Daily RH Chain receipts are public intelligence memory, not financial advice, endorsement, listing, or official Robinhood partnership.'
       }));
-      expect(body.data.latest_receipt).toEqual(expect.objectContaining({ receipt_id: 'rh_daily_005' }));
+      expect(body.data.latest_receipt).toEqual(expect.objectContaining({ receipt_id: 'rh_daily_006' }));
       expect(body.sources.length).toBeGreaterThan(0);
       expect(body.sources.every((source: Record<string, unknown>) => (
         typeof source.source_name === 'string'
@@ -160,18 +160,18 @@ describe('RH Chain Signal Desk API', () => {
         disclaimer: 'Daily RH Chain receipts are public intelligence memory, not financial advice, endorsement, listing, or official Robinhood partnership.'
       }));
       expect(body.data.latest_receipt).toEqual(expect.objectContaining({
-        receipt_id: 'rh_daily_005',
+        receipt_id: 'rh_daily_006',
         receipt_type: 'daily_market_memory',
-        period: 'July 16 → July 17, 2026 UTC',
-        top_signal: 'Leadership messaging is pulling attention back toward programmable assets, tokenized finance, and agentic activity while meme volume remains the chain’s visible engine',
+        period: 'July 17 → July 19, 2026 UTC',
+        top_signal: 'Volume remains resilient after the NOXA disruption, but the market is now separating into meme, RWA, agent, and infrastructure layers rather than moving as one launch-week trade.',
         confidence_level: 'medium',
         status: 'manual',
         data_mode: 'manual'
       }));
       expect(body.data.latest_receipt.sources[0]).toEqual(expect.objectContaining({
-        name: 'Infopunks manual RH Chain narrative and liquidity watch',
-        source_name: 'Infopunks manual RH Chain narrative and liquidity watch',
-        observed_at: '2026-07-17T00:00:00.000Z',
+        name: 'Infopunks manual RH Chain stabilization watch',
+        source_name: 'Infopunks manual RH Chain stabilization watch',
+        observed_at: '2026-07-19T00:00:00.000Z',
         data_mode: 'manual',
         confidence_level: 'medium'
       }));
@@ -190,6 +190,7 @@ describe('RH Chain Signal Desk API', () => {
         ])
       }));
       expect(body.data.receipts.map((receipt: { receipt_id: string }) => receipt.receipt_id)).toEqual([
+        'rh_daily_006',
         'rh_daily_005',
         'rh_daily_004',
         'rh_daily_003',
@@ -223,7 +224,7 @@ describe('RH Chain Signal Desk API', () => {
         data_mode: 'manual_fallback',
         freshness_state: 'source_required',
         storage_status: 'unavailable',
-        latest_receipt: expect.objectContaining({ receipt_id: 'rh_daily_005' }),
+        latest_receipt: expect.objectContaining({ receipt_id: 'rh_daily_006' }),
         cards: expect.arrayContaining([
           expect.objectContaining({ title: 'Top Signal' }),
           expect.objectContaining({ title: 'Biggest Risk' }),

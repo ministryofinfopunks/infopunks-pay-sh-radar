@@ -468,7 +468,7 @@ export type RhChainDailyReceiptWatchItem = {
   next_thing_to_verify: string;
 };
 
-export type RhChainDailyReceiptSectionId = 'chain_pulse' | 'meme_pulse' | 'leadership_narrative_pulse' | 'launchpad_stress_test' | 'access_wallet_pulse' | 'rwa_pulse' | 'risk_wall' | 'narrative_mutation' | 'infopunks_verdict';
+export type RhChainDailyReceiptSectionId = 'chain_pulse' | 'meme_pulse' | 'leadership_narrative_pulse' | 'launchpad_stress_test' | 'access_wallet_pulse' | 'rwa_pulse' | 'agent_pulse' | 'infrastructure_pulse' | 'risk_wall' | 'market_structure_note' | 'narrative_mutation' | 'infopunks_verdict';
 
 export type RhChainDailyReceiptSection = {
   section_id: RhChainDailyReceiptSectionId;
@@ -1033,6 +1033,97 @@ export const rhChain4663SeedAssets: RhChain4663SeedAsset[] = [
 ];
 
 export const rhChainDailyReceipts: RhChainDailyReceipt[] = [
+  {
+    receipt_id: 'rh_daily_006',
+    receipt_type: 'daily_market_memory',
+    date: '2026-07-19',
+    period: 'July 17 → July 19, 2026 UTC',
+    generated_at: '2026-07-19T00:00:00.000Z',
+    observed_at: '2026-07-19T00:00:00.000Z',
+    chain: 'Robinhood Chain',
+    headline: 'Robinhood Chain stabilizes after launchpad shock as memes, RWAs and agents split into distinct market layers',
+    summary: 'A manually reviewed Daily Receipt for July 17 → July 19, 2026 UTC: RH Chain has entered post-drama stabilization. Volume remains strong, but market behavior is separating into meme, RWA, agent, and infrastructure layers rather than moving as one launch-week trade.',
+    top_signal: 'Volume remains resilient after the NOXA disruption, but the market is now separating into meme, RWA, agent, and infrastructure layers rather than moving as one launch-week trade.',
+    biggest_risk: 'Launchpad fragmentation, duplicate tickers, paid attention, and unverified RWA or agent claims can make surface-level momentum look stronger than reviewed signal.',
+    strongest_narrative: 'RH Chain is maturing from meme rocket ship into a multi-layer attention market: memes onboard users, RWAs create institutional gravity, and agents become the next automation primitive.',
+    liquidity_note: 'Volume remains strong but below peak launch-week frenzy. Chain-wide metrics are source/timestamp dependent; no exact chain-wide values are asserted. Uniswap remains a major venue in existing source context.',
+    stock_token_spillover_note: 'Leadership messaging continues to re-center programmable real-world assets and tokenized finance, but that narrative is source_required unless primary or on-chain evidence supports the claim.',
+    solana_base_migration_note: 'Layer separation is RH Chain market-structure context, not proof of cross-chain migration, lasting usage, or token quality.',
+    deployer_watch_note: 'Launchpad market-share, RWA, agent, oracle, and data-infrastructure claims remain source_required unless provider receipts, primary sources, or operational on-chain evidence are attached.',
+    infopunks_verdict: 'Memes onboard attention. RWAs create gravity. Agents create the next primitive. 4663 tracks which layer gains power next.',
+    manual_context: 'Human-reviewed memory for July 17 → July 19, 2026 UTC. This is a post-drama stabilization read, not a market-wide performance claim. External data gives context. Automation drafts memory. Infopunks approves judgment. Receipts create history. Do not let live data outrank this human-reviewed receipt.',
+    source_notes: 'Manual market memory with medium confidence. Chain-wide metrics are source/timestamp dependent. Provider data remains context only. Launchpad market-share, RWA, agent, oracle, and data-infrastructure claims remain source_required unless backed by primary or on-chain evidence; provider receipts can supply context but do not replace review. The Index remains under_receipt_check where represented in Market Structure. This receipt does not imply safety, endorsement, affiliation, listing, or official Robinhood partnership.',
+    receipt_sections: [
+      { section_id: 'chain_pulse', title: 'Chain Pulse', summary: 'Post-drama stabilization is holding: visible volume remains strong, while the launch-week peak has cooled into more selective behavior.', fields: [
+        { label: 'Phase', value: 'RH Chain is in a post-drama stabilization phase.' },
+        { label: 'Activity read', value: 'Volume remains strong but below peak launch-week frenzy.' },
+        { label: 'Venue context', value: 'Uniswap remains a major venue in existing source context.' },
+        { label: 'Metrics rule', value: 'Chain-wide metrics are source/timestamp dependent; no exact chain-wide values are asserted.' }
+      ] },
+      { section_id: 'launchpad_stress_test', title: 'Launchpad Pulse', summary: 'The NOXA disruption still shapes behavior as newer launchpads and direct Uniswap launches gain visibility.', fields: [
+        { label: 'NOXA context', value: 'The NOXA disruption continues to shape launch and discovery behavior.' },
+        { label: 'Surface visibility', value: 'Newer launchpads and direct Uniswap launches are gaining visibility.' },
+        { label: 'Market-share rule', value: 'Launchpad market-share claims are source_required unless backed by provider receipts.' },
+        { label: 'Scarcity context', value: 'Older NOXA launches may gain a scarcity narrative; this is narrative context, not proof of quality.' }
+      ] },
+      { section_id: 'meme_pulse', title: 'Meme Pulse', summary: 'Memes remain the primary attention and liquidity engine, but rotation is more selective than the peak frenzy.', fields: [
+        { label: 'Attention engine', value: 'Memes remain the primary attention and liquidity engine.' },
+        { label: 'Benchmark', value: 'CASHCAT remains the benchmark attention asset.' },
+        { label: 'Rotation', value: 'Rotation is more selective than peak frenzy.' }
+      ] },
+      { section_id: 'leadership_narrative_pulse', title: 'Leadership Narrative Pulse', summary: 'Leadership messaging keeps programmable real-world assets, tokenized finance, and agentic economy in view without substituting message-level context for operational evidence.', fields: [
+        { label: 'Tracked themes', value: 'Programmable real-world assets, tokenized finance, and agentic economy.' },
+        { label: 'Evidence rule', value: 'Exact leadership claims, RWA usage, and agent activity remain source_required unless primary or on-chain evidence is attached.' }
+      ] },
+      { section_id: 'rwa_pulse', title: 'RWA Pulse', summary: 'Leadership messaging continues to re-center programmable real-world assets and tokenized finance without converting narrative into proof.', fields: [
+        { label: 'Narrative layer', value: 'Leadership messaging continues to re-center programmable real-world assets and tokenized finance.' },
+        { label: 'Evidence rule', value: 'RWA claims are source_required unless backed by primary or on-chain evidence.' },
+        { label: 'Market Structure candidate', value: 'The Index is an under_receipt_check RWA x DeFi candidate where already represented in Market Structure.' }
+      ] },
+      { section_id: 'agent_pulse', title: 'Agent Pulse', summary: 'The agentic economy remains a leadership-backed narrative layer, while demonstrated activity needs its own evidence.', fields: [
+        { label: 'Narrative layer', value: 'Agentic economy remains a leadership-backed narrative layer.' },
+        { label: 'Activity rule', value: 'AI narrative does not prove agent activity.' },
+        { label: 'Evidence rule', value: 'Agent claims remain source_required unless operational wallet or activity evidence exists.' }
+      ] },
+      { section_id: 'infrastructure_pulse', title: 'Infrastructure Pulse', summary: 'Launchpads, analytics, direct pools, and data and infrastructure narratives are becoming more important as the market sorts.', fields: [
+        { label: 'Infrastructure read', value: 'Launchpads, analytics, direct pools, and data/infrastructure narratives are becoming more important.' },
+        { label: 'Evidence rule', value: 'Oracle and data-token claims remain source_required unless operational infrastructure is verified.' }
+      ] },
+      { section_id: 'risk_wall', title: 'Risk Wall', summary: 'The sorting phase increases the cost of treating surface attention as reviewed memory.', fields: [
+        { label: 'Launch and identity risk', value: 'launchpad fragmentation, duplicate ticker confusion, and clone/pair confusion.' },
+        { label: 'Attention risk', value: 'paid attention mistaken for conviction.' },
+        { label: 'Narrative risk', value: 'RWA narrative without backing proof and AI narrative mistaken for agent activity.' },
+        { label: 'Market and desk risk', value: 'liquidity fragmentation, review overload, and source gaps.' }
+      ] },
+      { section_id: 'market_structure_note', title: 'Market Structure Note', summary: 'The chain is not cooling. It is sorting.', fields: [
+        { label: 'Structure read', value: 'The chain is not cooling. It is sorting.' },
+        { label: 'Layer read', value: 'Memes, RWAs, agents, and infrastructure are becoming distinct layers with different evidence needs.' }
+      ] },
+      { section_id: 'narrative_mutation', title: 'Narrative Mutation', summary: 'The edge is shifting from a single launch-week trade to tracking which layer gains power and which projects cross layers.', fields: [
+        { label: 'Mutation', value: 'RH Chain is maturing from meme rocket ship into a multi-layer attention market.' },
+        { label: 'Graduation test', value: 'Track whether meme liquidity graduates into RWA, agent, DeFi, or infrastructure activity.' }
+      ] },
+      { section_id: 'infopunks_verdict', title: 'Infopunks Verdict', summary: 'Memes onboard attention. RWAs create gravity. Agents create the next primitive. 4663 tracks which layer gains power next.', fields: [
+        { label: 'Verdict', value: 'Memes onboard attention. RWAs create gravity. Agents create the next primitive. 4663 tracks which layer gains power next.' }
+      ] }
+    ],
+    watchlist: [
+      { item: 'CASHCAT attention benchmark', reason: 'CASHCAT remains the benchmark attention asset while meme rotation becomes more selective.', risk_state: 'medium_watch', next_thing_to_verify: 'Exact contract, canonical pair, liquidity depth, holder concentration, and source timestamp.' },
+      { item: 'The Index', reason: 'RWA x DeFi candidate under_receipt_check where represented in Market Structure.', risk_state: 'source_required', next_thing_to_verify: 'Exact contract, primary RWA or DeFi evidence, and operational on-chain activity.' },
+      { item: 'Agent and infrastructure claims', reason: 'Leadership-backed narrative can lead evidence of operational activity.', risk_state: 'source_required', next_thing_to_verify: 'Operational wallet, activity, oracle, data, or infrastructure evidence with timestamps.' }
+    ],
+    do_not_touch_yet: [
+      { item: 'Duplicate tickers and clone/pair ambiguity', reason: 'A ticker, launch label, or pair screenshot does not establish canonical identity.', risk_state: 'do_not_touch_yet', next_thing_to_verify: 'Exact contract, canonical pair, deployer history, and source-linked launch origin.' },
+      { item: 'Paid attention and fragmented liquidity', reason: 'Surface visibility can be paid or split across venues before conviction, depth, or provenance is reviewed.', risk_state: 'source_required', next_thing_to_verify: 'Attention provenance, pool reserves, LP status, holder distribution, and timestamp.' },
+      { item: 'Unverified RWA and agent activity', reason: 'Narrative claims can outrun backing proof or operational evidence.', risk_state: 'source_required', next_thing_to_verify: 'Primary documentation, operational wallets, activity evidence, and human review.' }
+    ],
+    sources: [
+      createRhChainDailyReceiptSource({ name: 'Infopunks manual RH Chain stabilization watch', observed_at: '2026-07-19T00:00:00.000Z', url: 'https://radar.infopunks.fun/rh-chain-signal-desk/daily-receipts', note: 'Human-reviewed, manually authored market memory for July 17 → July 19, 2026 UTC. Chain-wide metrics remain source/timestamp dependent. Provider data is context only; launchpad share, RWA, agent, oracle, and data-infrastructure claims remain source_required unless primary, provider-receipted, or operational on-chain evidence is attached.', data_mode: 'manual', confidence_level: 'medium' })
+    ],
+    confidence_level: 'medium',
+    status: 'manual',
+    data_mode: 'manual'
+  },
   {
     receipt_id: 'rh_daily_005',
     receipt_type: 'daily_market_memory',

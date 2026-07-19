@@ -10,6 +10,7 @@ export type RhChainScoutResponse = { answer: string; answer_type: RhChainScoutMo
 export function classifyRhChainScoutQuery(query: string, requested?: RhChainScoutMode): RhChainScoutMode {
   if (requested) return requested;
   const text = query.toLowerCase();
+  if (/past 36|post[- ]drama|still just a meme|4663.*(?:detected|reviewed)|(?:detected|reviewed).*4663/.test(text)) return 'narrative_mutation';
   if (/rwa|tokenized|agentic|agents?|programmable|divergence|vlad.*messag|messag.*vlad/.test(text)) return 'narrative_mutation';
   if (/surface|noxa|20lab|uniswap|foundry|hardhat|wallet|bridge|swap|li\.fi|backpack|access|launchpad|fragmentation|flap|trensh|bankr|tokeny|vlad|robindotmarket|fee model|fee change|fee claim|creator revenue|burn|buyback/.test(text)) return 'launch_context';
   if (/clone|risk|deployer|fake.volume|\blp\b|launch/.test(text)) return 'risk_memory';
@@ -47,7 +48,15 @@ export function queryRhChainScout(input: RhChainScoutQuery, reviewItems = getRhC
       : /which|watched|watch/.test(needle)
         ? `The desk is watching ${watchedSurfaceNames}. NOXA is recorded as degraded in manual, source-dependent context; rival-surface claims remain source_required until primary evidence is attached.`
         : `Launch surfaces show where tokens start. Access surfaces show how users arrive. Wallet, bridge, router, and app surfaces are distribution context only; they do not establish token legitimacy, route safety, or endorsement. Backpack Wallet remains source_required until a primary source is attached.`;
-  const narrativeAnswer = /what changed|vlad|rwa messaging|leadership/.test(needle)
+  const narrativeAnswer = /past 36|what changed in rh chain over/.test(needle)
+    ? `Over the past 36 hours, the reviewed read is post-drama stabilization: volume remains strong after the NOXA disruption, but behavior is separating into meme, RWA, agent, and infrastructure layers instead of moving as one launch-week trade. Chain-wide metrics remain source/timestamp dependent. The chain is not cooling. It is sorting.`
+    : /what does post[- ]drama stabilization mean/.test(needle)
+      ? `Post-drama stabilization means the initial launchpad shock no longer explains every move. Visible volume can remain strong while attention becomes more selective and each layer—memes, RWAs, agents, and infrastructure—needs its own evidence. It is a market-structure read, not a claim about exact chain-wide metrics.`
+      : /still just a meme/.test(needle)
+        ? `No. Memes remain RH Chain's primary attention and liquidity engine, with CASHCAT as the benchmark attention asset, but they are no longer the only layer worth tracking. RWAs create institutional gravity, agents are the next automation primitive, and launchpads, analytics, direct pools, and data infrastructure shape how those layers develop. None of those narratives proves activity without source-linked evidence.`
+        : /4663.*(?:detected|reviewed)|(?:detected|reviewed).*4663/.test(needle)
+          ? `4663 separates detected activity from reviewed memory because provider observations, paid attention, and fragmented surface signals can be incomplete, duplicated, or misleading. Detected activity is context for review; reviewed memory is a human-approved record with sources, evidence states, and caveats. Provider context never outranks a reviewed receipt or Market Structure classification.`
+    : /what changed|vlad|rwa messaging|leadership/.test(needle)
     ? `The reviewed change is a re-centering of programmable RWAs, tokenized assets, global access, DeFi, and agents while meme liquidity remains the visible flow engine. Exact leadership quotes and agent-volume figures are source_required unless primary links are attached; messaging does not establish product usage or availability.`
     : /how.*memes.*rwas?.*agents?|memes?.*rwas?.*agents?/.test(needle)
       ? `Memes are the attention and onboarding layer. RWAs are the institutional thesis. Agents are the automation primitive. Infopunks tracks where meme liquidity, builder tools, and demonstrated programmable-finance usage overlap; none of those layers proves the others.`

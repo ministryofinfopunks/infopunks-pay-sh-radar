@@ -72,7 +72,7 @@ export function assembleRhChainTodayOn4663(options: TodayOptions = {}): RhChainT
   const attention = memePulse.top_attention_assets[0] ?? null;
   const fallbackSource = createRhChainSource({
     source_name: 'Infopunks manual 4663 fallback',
-    source_url: '/rh-chain-signal-desk/daily-receipts/rh_daily_005',
+    source_url: `/rh-chain-signal-desk/daily-receipts/${encodeURIComponent(latest.receipt_id)}`,
     observed_at: latest.observed_at ?? latest.generated_at,
     updated_at: latest.generated_at,
     data_mode: 'manual',

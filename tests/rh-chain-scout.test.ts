@@ -15,7 +15,11 @@ describe('RH Chain Scout', () => {
     ['What changed in RH Chain narrative?', 'narrative_mutation'],
     ['Why does Vlad’s RWA messaging matter?', 'narrative_mutation'],
     ['How do memes, RWAs, and agents connect?', 'narrative_mutation'],
-    ['What is meme/RWA divergence?', 'narrative_mutation']
+    ['What is meme/RWA divergence?', 'narrative_mutation'],
+    ['What changed in RH Chain over the past 36 hours?', 'narrative_mutation'],
+    ['Is RH Chain still just a meme chain?', 'narrative_mutation'],
+    ['What does post-drama stabilization mean?', 'narrative_mutation'],
+    ['Why does 4663 separate detected activity from reviewed memory?', 'narrative_mutation']
   ] as const)('classifies %s', (query, mode) => expect(classifyRhChainScoutQuery(query)).toBe(mode));
   it('returns limitations, disclaimer, and no trading or approval language', () => {
     const result = queryRhChainScout({ query: 'What are the biggest risks right now?' });
@@ -71,5 +75,15 @@ describe('RH Chain Scout', () => {
     expect(vlad.answer).toContain('source_required');
     expect(connection.answer).toContain('automation primitive');
     expect(divergence.answer).toContain('narrative momentum can outrun actual usage');
+  });
+  it('answers post-drama stabilization questions with reviewed-memory boundaries', () => {
+    const changed = queryRhChainScout({ query: 'What changed in RH Chain over the past 36 hours?' });
+    const memeChain = queryRhChainScout({ query: 'Is RH Chain still just a meme chain?' });
+    const stabilization = queryRhChainScout({ query: 'What does post-drama stabilization mean?' });
+    const reviewBoundary = queryRhChainScout({ query: 'Why does 4663 separate detected activity from reviewed memory?' });
+    expect(changed.answer).toContain('The chain is not cooling. It is sorting.');
+    expect(memeChain.answer).toContain('CASHCAT as the benchmark attention asset');
+    expect(stabilization.answer).toContain('market-structure read');
+    expect(reviewBoundary.answer).toContain('Provider context never outranks a reviewed receipt');
   });
 });
