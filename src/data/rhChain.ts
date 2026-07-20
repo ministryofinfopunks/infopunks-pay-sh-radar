@@ -2616,7 +2616,9 @@ export function getRhChain4663Index(): RhChain4663IndexPayload {
 }
 
 export function sortRhChainDailyReceiptsByDate(receipts: RhChainDailyReceipt[] = rhChainDailyReceipts): RhChainDailyReceipt[] {
-  return [...receipts].sort((left, right) => {
+  // Daily receipts are public memory. Return detached snapshots so a renderer,
+  // relay, or test cannot mutate the module-level fixture used by later reads.
+  return receipts.map((receipt) => structuredClone(receipt)).sort((left, right) => {
     const byDate = right.date.localeCompare(left.date);
     if (byDate !== 0) return byDate;
     return right.generated_at.localeCompare(left.generated_at);
@@ -2647,7 +2649,8 @@ export function selectLatestRhChainDailyReceipt(receipts: RhChainDailyReceipt[] 
 }
 
 export function getRhChainDailyReceipt(receiptId: string, receipts: RhChainDailyReceipt[] = rhChainDailyReceipts): RhChainDailyReceipt | null {
-  return receipts.find((receipt) => receipt.receipt_id === receiptId) ?? null;
+  const receipt = receipts.find((item) => item.receipt_id === receiptId);
+  return receipt ? structuredClone(receipt) : null;
 }
 
 export function rhChainDailyReceiptRoute(receiptId: string, receipts: RhChainDailyReceipt[] = rhChainDailyReceipts): string | null {

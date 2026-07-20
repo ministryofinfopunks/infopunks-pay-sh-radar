@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createRhChainMarketStructureReceipt, createRhChainReviewCycleReceipt } from '../src/services/rhChainDailyReceiptDraftService';
+import { createRhChainAgenticMarketStructureReceipt, createRhChainMarketStructureReceipt, createRhChainReviewCycleReceipt } from '../src/services/rhChainDailyReceiptDraftService';
 import type { RhChainDailyReviewSummary } from '../src/services/rhChainReviewPipelineService';
 
 function summary(overrides: Partial<RhChainDailyReviewSummary> = {}): RhChainDailyReviewSummary {
@@ -48,5 +48,21 @@ describe('RH Chain Review Cycle Receipt #007', () => {
     expect(receipt.receipt_sections?.find((section) => section.title === 'Agent Layer')?.fields.map((field) => field.value).join(' ')).toContain('does not equal verified agent activity');
     expect(receipt.receipt_sections?.find((section) => section.title === 'Cross-Layer Flows')?.fields.map((field) => field.value).join(' ')).toContain('GROKIUS');
     expect(JSON.stringify(receipt).toLowerCase()).not.toMatch(/\b(buy|sell|ape|100x|raid|alpha|pump)\b/);
+  });
+
+  it('builds #008 as source-bound agentic market-structure memory without claiming RH Chain adoption', () => {
+    const receipt = createRhChainAgenticMarketStructureReceipt('2026-07-20T12:00:00.000Z');
+    const pulse = receipt.receipt_sections?.find((section) => section.title === 'Agentic Trading Pulse');
+    const layers = receipt.receipt_sections?.find((section) => section.title === 'Layer Power Update');
+    const flows = receipt.receipt_sections?.find((section) => section.title === 'Cross-Layer Flow Watch');
+    expect(receipt).toEqual(expect.objectContaining({ receipt_id: 'rh_daily_008', receipt_type: 'agentic_market_structure_memory', period: 'July 19 → July 20, 2026 UTC', headline: 'Robinhood opens the agent rail as RH Chain’s agent layer gains structural power' }));
+    expect(pulse?.fields.map((field) => field.value).join(' ')).toContain('long equities and options orders');
+    expect(pulse?.fields.map((field) => field.value).join(' ')).toContain('source_required unless exact current primary documentation verifies support');
+    expect(layers?.fields.map((field) => field.label)).toEqual(['Memes', 'RWAs', 'Agents', 'Infrastructure', 'Cross-Layer Flows']);
+    expect(layers?.fields.find((field) => field.label === 'Agents')?.value).toContain('low for RH Chain-specific adoption');
+    expect(flows?.fields.every((field) => field.value === 'source_required')).toBe(true);
+    expect(receipt.manual_context).toContain('Human approval is required');
+    expect(receipt.sources.map((source) => source.source_url)).toEqual(expect.arrayContaining(['https://robinhood.com/us/en/agentic-trading/', 'https://robinhood.com/us/en/support/articles/trading-with-your-agent/']));
+    expect(JSON.stringify(receipt).toLowerCase()).not.toMatch(/\b(buy|sell|ape|100x|raid|alpha|pump|front-run)\b/);
   });
 });
