@@ -583,7 +583,7 @@ function DailyReceiptSections({ receipt }: { receipt: RhChainDailyReceipt }) {
           <h3>{section.title}</h3>
         </div>
         <p>{section.summary}</p>
-        {section.section_id === 'layer_power_ranking' ? <LayerPowerRankingTable fields={section.fields} /> : <dl>
+        {section.section_id === 'layer_power_ranking' ? <LayerPowerRankingTable title={section.title} fields={section.fields} /> : <dl>
           {section.fields.map((field) => <div key={field.label}>
             <dt>{field.label}</dt>
             <dd>{field.value}</dd>
@@ -594,8 +594,10 @@ function DailyReceiptSections({ receipt }: { receipt: RhChainDailyReceipt }) {
   </section>;
 }
 
-function LayerPowerRankingTable({ fields }: { fields: Array<{ label: string; value: string }> }) {
-  const headings = ['current_power_level', 'direction_last_7_to_10_days', 'key_driver', 'flow_note', 'confidence', 'caveat'];
+function LayerPowerRankingTable({ title, fields }: { title: string; fields: Array<{ label: string; value: string }> }) {
+  const headings = title === 'Layer Power Update'
+    ? ['power_level', 'momentum_24h', 'dominant_driver', 'flow_status', 'confidence', 'caveat']
+    : ['current_power_level', 'direction_last_7_to_10_days', 'key_driver', 'flow_note', 'confidence', 'caveat'];
   return <div className="rh-chain-daily-table-wrap"><table><thead><tr><th>Layer</th>{headings.map((heading) => <th key={heading}>{heading.replaceAll('_', ' ')}</th>)}</tr></thead><tbody>{fields.map((field) => <tr key={field.label}><th>{field.label}</th>{field.value.split(' | ').map((value, index) => <td key={headings[index] ?? index}>{value}</td>)}</tr>)}</tbody></table></div>;
 }
 

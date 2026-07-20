@@ -28,7 +28,9 @@ describe('RH Chain Scout', () => {
     ['Is RH Chain still meme-led?', 'narrative_mutation'],
     ['What are cross-layer flows?', 'narrative_mutation'],
     ['Why does 4663 separate narrative momentum from verified adoption?', 'narrative_mutation'],
-    ['What does it mean that the chain is sorting?', 'narrative_mutation']
+    ['What does it mean that the chain is sorting?', 'narrative_mutation'],
+    ['What does Robinhood Agentic Trading change?', 'narrative_mutation'],
+    ['Does Agentic Trading prove RH Chain agent adoption?', 'narrative_mutation']
   ] as const)('classifies %s', (query, mode) => expect(classifyRhChainScoutQuery(query)).toBe(mode));
   it('returns limitations, disclaimer, and no trading or approval language', () => {
     const result = queryRhChainScout({ query: 'What are the biggest risks right now?' });
@@ -111,5 +113,20 @@ describe('RH Chain Scout', () => {
     expect(queryRhChainScout({ query: 'What are cross-layer flows?' }).answer).toContain('GROKIUS remains Meme × AI narrative');
     expect(queryRhChainScout({ query: 'Why does 4663 separate narrative momentum from verified adoption?' }).answer).toContain('Reviewed memory preserves the source state');
     expect(queryRhChainScout({ query: 'What does it mean that the chain is sorting?' }).answer).toContain('structure read');
+  });
+  it('answers Agentic Trading questions without turning brokerage access into RH Chain adoption', () => {
+    const change = queryRhChainScout({ query: 'What does Robinhood Agentic Trading change?' });
+    const power = queryRhChainScout({ query: 'Why is the agent layer gaining power?' });
+    const adoption = queryRhChainScout({ query: 'Does Agentic Trading prove RH Chain agent adoption?' });
+    const bridge = queryRhChainScout({ query: 'What is the bridge from brokerage agents to RH Chain?' });
+    const next = queryRhChainScout({ query: 'What should 4663 track next for agents?' });
+    const usage = queryRhChainScout({ query: 'What is the difference between agent visibility and agent usage?' });
+    expect(change.answer).toContain('dedicated Agentic Account');
+    expect(change.answer).toContain('crypto support remains source_required');
+    expect(power.answer).toContain('documented platform infrastructure');
+    expect(adoption.answer).toContain('not proof of RH Chain agent adoption');
+    expect(bridge.answer).toContain('monitoring thesis');
+    expect(next.answer).toContain('MCP tooling to RH Chain contract interaction');
+    expect(usage.answer).toContain('documented surface');
   });
 });

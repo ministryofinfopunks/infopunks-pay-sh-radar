@@ -41,6 +41,7 @@ import { assembleRhChainLaunchpadObservatory } from '../services/rhChainLaunchpa
 import { assembleRhChainScouts } from '../services/rhChainScoutsService';
 import { assembleRhChainDistributionPack } from '../services/rhChainDistributionPackService';
 import { assembleRhChainReceiptRelay } from '../services/rhChainReceiptRelayService';
+import { buildRhChainProjectReceiptShare } from '../services/rhChainShareService';
 import { queryRhChainScout, RH_CHAIN_SCOUT_MODES } from '../services/rhChainScoutService';
 import { isRhChainIdentityContract } from '../services/rhChainTruthGuards';
 import { getLatestSignalUpdate, getSignalUpdate, getSignalUpdateSummary, listSignalUpdates } from '../data/signalUpdates';
@@ -53,7 +54,7 @@ import {
   getAttentionMarketWatchIndex
 } from '../data/attentionMarketWatch';
 import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
-import { renderAttentionMarketWatchOgImage, renderNarrativesOgImage, renderRevenueReceiptOgImage, renderRevenueReceiptsIndexOgImage, renderRhChainAttentionQualityOgImage, renderRhChainCrossLayerOgImage, renderRhChainMarketPulseOgImage, renderSignalHuntOgImage, renderSignalReportOgImage, renderSignalUpdateOgImage, renderUnicornRadarIndexOgImage, renderUnicornRadarOgImage } from '../shared/narrativeOg';
+import { renderAttentionMarketWatchOgImage, renderNarrativesOgImage, renderRevenueReceiptOgImage, renderRevenueReceiptsIndexOgImage, renderRhChainAttentionQualityOgImage, renderRhChainCrossLayerOgImage, renderRhChainMarketPulseOgImage, renderRhChainShareOgImage, renderSignalHuntOgImage, renderSignalReportOgImage, renderSignalUpdateOgImage, renderUnicornRadarIndexOgImage, renderUnicornRadarOgImage } from '../shared/narrativeOg';
 import { renderOgPng } from '../server/narrativeOgPng';
 import { applyPayShCatalogIngestion } from '../ingestion/payShCatalogAdapter';
 import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, IntelligenceStore, runPayShIngestion, runPayShIngestionWithOptions } from '../services/intelligenceStore';
@@ -2143,7 +2144,7 @@ export async function createApp(
     if (!projectReceiptsEnabled()) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
     const receipt = await rhChainProjectClaims.store.getReceipt(req.params.receipt_id);
     if (!receipt || !['published', 'superseded'].includes(receipt.reviewer_publication_state)) return reply.code(404).send(buildRhChainApiErrorResponse('rh_chain_intelligence_receipt_not_found'));
-    return safeJsonExport(buildRhChainApiResponse({ receipt: publicReceipt(receipt), not_financial_advice: true }));
+    return safeJsonExport(buildRhChainApiResponse({ receipt: publicReceipt(receipt), share: buildRhChainProjectReceiptShare(receipt), not_financial_advice: true }));
   });
   app.post('/v1/rh-chain/projects/claims', async (req, reply) => {
     if (!projectClaimsEnabled()) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
@@ -2285,6 +2286,12 @@ export async function createApp(
     if (!config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
     if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send(buildRhChainApiErrorResponse('review_admin_token_required'));
     const draft = await rhChainDailyReceiptDrafts.generateMarketStructureDraft();
+    return safeJsonExport(buildRhChainApiResponse({ draft, publication_status: 'unpublished', public_surface_unchanged: true }));
+  });
+  app.post('/internal/rh-chain/agentic-market-structure-receipt-drafts', async (req, reply) => {
+    if (!config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
+    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send(buildRhChainApiErrorResponse('review_admin_token_required'));
+    const draft = await rhChainDailyReceiptDrafts.generateAgenticMarketStructureDraft();
     return safeJsonExport(buildRhChainApiResponse({ draft, publication_status: 'unpublished', public_surface_unchanged: true }));
   });
   app.get('/internal/rh-chain/risk-correlations', async (req, reply) => {
@@ -3048,6 +3055,15 @@ export async function createApp(
       if (first) { try { const assessment = await rhChainAttentionQuality.assess(first.contract); context = { verdict: assessment.verdict, capturedAt: assessment.captured_at }; } catch { /* Static card is still useful when storage is unavailable. */ } }
     }
     return reply.type('image/png').send(renderOgPng(renderRhChainAttentionQualityOgImage(context)));
+  });
+  app.get<{ Params: { receipt_id: string } }>('/og/rh-chain/share/:receipt_id.png', async (req, reply) => {
+    // A receipt card is a public projection only. Drafts, rejected receipts, and reviewer-only data have no card route.
+    if (!projectReceiptsEnabled()) return reply.code(404).send({ error: 'not_found' });
+    const receipt = await rhChainProjectClaims.store.getReceipt(req.params.receipt_id);
+    if (!receipt || !['published', 'superseded'].includes(receipt.reviewer_publication_state)) return reply.code(404).send({ error: 'rh_chain_intelligence_receipt_not_found' });
+    const share = buildRhChainProjectReceiptShare(receipt);
+    reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
+    return reply.type('image/png').send(renderOgPng(renderRhChainShareOgImage(share)));
   });
   app.get('/og/attention-market-watch.png', async (_req, reply) => {
     reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');

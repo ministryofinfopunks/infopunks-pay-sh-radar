@@ -36,6 +36,7 @@ export type RhChainDailyReceiptDraft = {
   review_cycle_summary?: RhChainDailyReviewSummary;
   review_cycle_receipt?: RhChainDailyReceipt;
   market_structure_receipt?: RhChainDailyReceipt;
+  agentic_market_structure_receipt?: RhChainDailyReceipt;
   reviewer_edits?: Partial<Record<'chain_pulse_summary' | 'meme_pulse_summary' | 'launchpad_surface_summary' | 'rwa_pulse_summary' | 'risk_wall_summary' | 'narrative_mutation_summary' | 'suggested_infopunks_verdict', string>>;
   audit_events: Array<{ event_id: string; occurred_at: string; action: 'generated' | 'published' | 'rejected'; reviewer_id?: string; note: string }>;
 };
@@ -126,6 +127,22 @@ export class RhChainDailyReceiptDraftService {
     };
     await this.store.saveDraft(draft); return draft;
   }
+  /** Builds Daily Receipt #008 as an internal, approval-gated agentic Market Structure draft. */
+  async generateAgenticMarketStructureDraft() {
+    const generated_at = this.now().toISOString();
+    const receipt = createRhChainAgenticMarketStructureReceipt(generated_at);
+    const draft: RhChainDailyReceiptDraft = {
+      draft_id: randomUUID(), suggested_receipt_id: receipt.receipt_id, period_start: '2026-07-19T00:00:00.000Z', period_end: '2026-07-20T23:59:59.999Z',
+      status: 'under_review', generated_at, generated_from_sources: ['Robinhood Agentic Trading product page', 'Robinhood Agentic Trading Help Center', 'Robinhood Trading with your agent Help Center', 'Market Structure', 'Daily Receipt #007'],
+      chain_pulse_summary: receipt.top_signal, meme_pulse_summary: receipt.receipt_sections?.find((section) => section.section_id === 'meme_pulse')?.summary ?? '', launchpad_surface_summary: receipt.receipt_sections?.find((section) => section.section_id === 'infrastructure_pulse')?.summary ?? '',
+      rwa_pulse_summary: receipt.receipt_sections?.find((section) => section.section_id === 'rwa_pulse')?.summary ?? '', risk_wall_summary: receipt.biggest_risk,
+      narrative_mutation_summary: receipt.strongest_narrative, suggested_infopunks_verdict: receipt.infopunks_verdict, confidence_level: 'medium',
+      source_notes: ['Primary Robinhood product and Help Center pages establish the Agentic Trading product surface and currently documented order scope.', 'This draft remains under review: it does not make Agentic Trading evidence of RH Chain adoption or update public receipt, Today, or Relay pointers.'],
+      missing_evidence: ['Crypto support remains source_required unless exact current support is verified from primary Robinhood documentation.', 'RH Chain-specific agent adoption, wallet activity, capital migration, and cross-layer execution remain under_receipt_check until source-linked operational receipts exist.'], agentic_market_structure_receipt: receipt,
+      audit_events: [{ event_id: randomUUID(), occurred_at: generated_at, action: 'generated', note: 'Generated Agentic Market Structure Daily Receipt #008 as an unpublished internal draft.' }]
+    };
+    await this.store.saveDraft(draft); return draft;
+  }
   async listDrafts() { return this.store.listDrafts(); }
   async getDraft(id: string) { return this.store.getDraft(id); }
   async reject(id: string, reviewer_id: string) { const draft = await this.requireDraft(id); if (draft.status === 'published') throw new Error('published_draft_cannot_be_rejected'); const updated = { ...draft, status: 'rejected' as const, audit_events: [...draft.audit_events, { event_id: randomUUID(), occurred_at: this.now().toISOString(), action: 'rejected' as const, reviewer_id, note: 'Reviewer rejected this internal draft.' }] }; await this.store.saveDraft(updated); return updated; }
@@ -136,9 +153,9 @@ export class RhChainDailyReceiptDraftService {
     const sections: RhChainDailyReceiptSection[] = [
       ['chain_pulse', 'Chain Pulse', text('chain_pulse_summary', edited.chain_pulse_summary)], ['meme_pulse', 'Meme Pulse', text('meme_pulse_summary', edited.meme_pulse_summary)], ['leadership_narrative_pulse', 'Leadership Narrative Pulse', 'Leadership, RWA, tokenized-asset, and agentic-economy context remains source_required until a reviewer attaches primary links.'], ['launchpad_stress_test', 'Launchpad Surface', text('launchpad_surface_summary', edited.launchpad_surface_summary)], ['risk_wall', 'Risk Wall', text('risk_wall_summary', edited.risk_wall_summary)], ['narrative_mutation', 'Narrative Mutation', text('narrative_mutation_summary', edited.narrative_mutation_summary)], ['infopunks_verdict', 'Infopunks Verdict', text('suggested_infopunks_verdict', edited.suggested_infopunks_verdict)]
     ].map(([section_id, title, summary]) => ({ section_id: section_id as RhChainDailyReceiptSection['section_id'], title, summary, fields: [] }));
-    const preparedReceipt = edited.market_structure_receipt ?? edited.review_cycle_receipt;
+    const preparedReceipt = edited.agentic_market_structure_receipt ?? edited.market_structure_receipt ?? edited.review_cycle_receipt;
     const receipt = preparedReceipt
-      ? { ...preparedReceipt, generated_at: now, observed_at: edited.period_end, manual_context: `Published by ${reviewer_id}. ${edited.market_structure_receipt ? 'Market Structure remained the primary reviewed context.' : 'Review Pipeline summary remained the primary context.'}`, status: 'manual' as const, data_mode: 'manual' as const }
+      ? { ...preparedReceipt, generated_at: now, observed_at: edited.period_end, manual_context: `Published by ${reviewer_id}. ${edited.agentic_market_structure_receipt ? 'Agentic Market Structure remained the primary reviewed context.' : edited.market_structure_receipt ? 'Market Structure remained the primary reviewed context.' : 'Review Pipeline summary remained the primary context.'}`, status: 'manual' as const, data_mode: 'manual' as const }
       : createRhChainDailyReceipt({ receipt_id: edited.suggested_receipt_id, receipt_type: 'daily_market_memory', date: now.slice(0, 10), period: `${edited.period_start} – ${edited.period_end}`, generated_at: now, observed_at: edited.period_end, chain: 'Robinhood Chain', headline: 'RH Chain Daily Receipt · reviewer-published memory', summary: text('chain_pulse_summary', edited.chain_pulse_summary), top_signal: text('meme_pulse_summary', edited.meme_pulse_summary), biggest_risk: text('risk_wall_summary', edited.risk_wall_summary), strongest_narrative: text('narrative_mutation_summary', edited.narrative_mutation_summary), liquidity_note: text('chain_pulse_summary', edited.chain_pulse_summary), stock_token_spillover_note: text('rwa_pulse_summary', edited.rwa_pulse_summary), solana_base_migration_note: 'No cross-chain route claim is promoted without reviewed evidence.', deployer_watch_note: text('launchpad_surface_summary', edited.launchpad_surface_summary), infopunks_verdict: text('suggested_infopunks_verdict', edited.suggested_infopunks_verdict), watchlist: [], do_not_touch_yet: edited.missing_evidence.map((item) => ({ item, reason: 'Missing evidence remains visible after publication.', risk_state: 'source_required' as const, next_thing_to_verify: 'Attach source-linked evidence.' })), sources, confidence_level: edited.confidence_level, status: 'manual', data_mode: 'manual', source_notes: edited.source_notes.join(' '), manual_context: `Published by ${reviewer_id}.`, receipt_sections: sections });
     await this.store.savePublished(receipt); const published = { ...edited, status: 'published' as const, audit_events: [...edited.audit_events, { event_id: randomUUID(), occurred_at: now, action: 'published' as const, reviewer_id, note: `Reviewer published ${receipt.receipt_id}.` }] }; await this.store.saveDraft(published); return { draft: published, receipt };
   }
@@ -220,6 +237,73 @@ export function createRhChainMarketStructureReceipt(generated_at: string): RhCha
     watchlist: [{ item: 'The Index', reason: 'DeFi × RWA candidate under_receipt_check in Market Structure.', risk_state: 'source_required', next_thing_to_verify: 'Primary RWA or DeFi evidence and operational on-chain activity.' }, { item: 'GROKIUS', reason: 'Meme × AI narrative context; operational agent activity is not verified.', risk_state: 'source_required', next_thing_to_verify: 'Source links and operational wallet or activity receipts.' }],
     do_not_touch_yet: [{ item: 'Cross-layer labels without evidence', reason: 'Narrative combinations do not establish adoption, capital migration, or durability.', risk_state: 'source_required', next_thing_to_verify: 'Snapshot history, wallet-flow evidence, primary sources, and human review.' }],
     sources: [{ name: 'Infopunks Market Structure reviewed memory', source_name: 'Infopunks Market Structure reviewed memory', source_url: '/v1/rh-chain/market-structure', url: '/v1/rh-chain/market-structure', note: 'Primary reviewed context for this Market Structure draft.', observed_at: generated_at, updated_at: generated_at, data_mode: 'manual', confidence_level: 'medium' }], confidence_level: 'medium', status: 'manual', data_mode: 'manual'
+  });
+}
+
+/** Source-bound #008. Its platform evidence is explicit; RH Chain adoption remains under receipt check. */
+export function createRhChainAgenticMarketStructureReceipt(generated_at: string): RhChainDailyReceipt {
+  const layerPower = [
+    ['Memes', 'Very High', 'Stable / slight relative dip', 'Volume and new launches', 'Still the main liquidity and onboarding engine', 'Medium', 'Meme dominance is based on visible market activity and reviewed context, not complete chain accounting.'],
+    ['RWAs', 'Low to Medium', 'Stable but strategically important', 'Tokenized-asset thesis and leadership positioning', 'Still more narrative-led than volume-led', 'Low to Medium', 'RWA labels and stock-token narratives require primary/onchain evidence before stronger classification.'],
+    ['Agents', 'Rising Fast', 'Strongly gaining', 'Robinhood Agentic Trading and MCP account integration', 'Biggest structural winner of the window', 'Medium for platform-level agent infrastructure, low for RH Chain-specific adoption', 'Agentic brokerage access does not prove on-chain agent activity.'],
+    ['Infrastructure', 'Rising', 'Gaining', 'MCP rails, data layers, launchpads, direct pools and tooling', 'Building connective tissue between platform agents and on-chain markets', 'Low to Medium', 'Infrastructure claims require source/provider receipts.'],
+    ['Cross-Layer Flows', 'Nascent but increasingly important', 'Accelerating as a thesis', 'Potential bridge between brokerage agents, tokenized assets, DeFi and RH Chain markets', 'The main thing 4663 must monitor next', 'Low', 'Actual capital migration requires snapshot history, wallet-flow evidence, and receipts.']
+  ];
+  const primarySources: RhChainDailyReceiptSource[] = [
+    { name: 'Robinhood Agentic Trading product page', source_name: 'Robinhood Agentic Trading product page', source_url: 'https://robinhood.com/us/en/agentic-trading/', url: 'https://robinhood.com/us/en/agentic-trading/', note: 'Primary product page: MCP connection, dedicated Agentic Account and budget, notifications, activity visibility, and disconnect control.', observed_at: generated_at, updated_at: generated_at, data_mode: 'manual', confidence_level: 'high' },
+    { name: 'Robinhood Help Center · Agentic Trading overview', source_name: 'Robinhood Help Center · Agentic Trading overview', source_url: 'https://robinhood.com/us/en/support/articles/agentic-trading-overview/', url: 'https://robinhood.com/us/en/support/articles/agentic-trading-overview/', note: 'Primary Help Center documentation for the Robinhood Trading MCP and dedicated Agentic Account.', observed_at: generated_at, updated_at: generated_at, data_mode: 'manual', confidence_level: 'high' },
+    { name: 'Robinhood Help Center · Trading with your agent', source_name: 'Robinhood Help Center · Trading with your agent', source_url: 'https://robinhood.com/us/en/support/articles/trading-with-your-agent/', url: 'https://robinhood.com/us/en/support/articles/trading-with-your-agent/', note: 'Primary Help Center documentation: agents currently place long equities and options orders; more assets are planned.', observed_at: generated_at, updated_at: generated_at, data_mode: 'manual', confidence_level: 'high' }
+  ];
+  return createRhChainDailyReceipt({
+    receipt_id: 'rh_daily_008', receipt_type: 'agentic_market_structure_memory', date: '2026-07-20', period: 'July 19 → July 20, 2026 UTC', generated_at, observed_at: generated_at, chain: 'Robinhood Chain',
+    headline: 'Robinhood opens the agent rail as RH Chain’s agent layer gains structural power',
+    summary: 'Approval-gated Agentic Market Structure memory for July 19 → July 20, 2026 UTC. Primary Robinhood documentation establishes a formal Agentic Trading product surface; it does not establish agent adoption on RH Chain.',
+    top_signal: 'Robinhood’s Agentic Trading surface gives AI agents a formal execution path through dedicated Agentic Accounts and MCP integration, strengthening the agent layer beyond on-chain narrative alone.',
+    biggest_risk: 'Agent visibility, MCP access, and brokerage execution can be mistaken for verified agent adoption on RH Chain. The bridge from main-platform agents to on-chain RWAs, DeFi, and tokenized assets still requires receipts.',
+    strongest_narrative: 'Robinhood is no longer only building a chain for tokenized assets. It is building a broader agentic finance stack where agents can research, allocate, execute, and eventually interact with on-chain markets.',
+    liquidity_note: 'No agent usage metric, wallet rotation, or capital migration is asserted. Provider data remains context only.',
+    stock_token_spillover_note: 'Tokenized-stock and RWA connections remain source_required until primary and operational evidence establishes an actual route or activity.',
+    solana_base_migration_note: 'Brokerage-agent activity is not RH Chain activity. Any bridge into DeFi, RWAs, or tokenized assets remains under_receipt_check.',
+    deployer_watch_note: 'MCP rails, data layers, launchpads, direct pools, and tooling require source/provider receipts before stronger infrastructure claims.',
+    infopunks_verdict: 'This upgrades the agent layer from narrative to platform-level infrastructure. The next signal is whether agent activity remains inside brokerage accounts or starts flowing into Robinhood Chain’s RWA, DeFi, and infrastructure layers.',
+    manual_context: 'Agentic Market Structure draft. Human approval is required before this receipt becomes public or updates Today on 4663 and Receipt Relay.',
+    source_notes: 'Robinhood primary product and Help Center documentation establish the Agentic Trading product surface and its currently documented order scope. Reviewed memory remains authoritative. Crypto support remains source_required unless exact current primary documentation verifies it. This receipt does not imply endorsement, safety, affiliation, or investment advice.',
+    receipt_sections: [
+      { section_id: 'agentic_trading_pulse', title: 'Agentic Trading Pulse', summary: 'Robinhood now has a formal Agentic Trading surface. A user connects a third-party AI agent through the Robinhood Trading MCP and opens a dedicated Agentic Account with a dedicated budget. Activity is visible, notifications are available, and the user can disconnect the agent.', fields: [
+        { label: 'MCP connection', value: 'AI agents can connect through Robinhood’s MCP server.' },
+        { label: 'Account boundary', value: 'The agent operates in a dedicated Agentic Account funded with a dedicated budget.' },
+        { label: 'Controls', value: 'Users can monitor activity, receive notifications, and disconnect the agent.' },
+        { label: 'Current documented scope', value: 'Robinhood Help Center says agents can currently place long equities and options orders; more tools and assets are planned.' },
+        { label: 'Crypto', value: 'source_required unless exact current primary documentation verifies support.' }
+      ] },
+      { section_id: 'layer_power_ranking', title: 'Layer Power Update', summary: 'A reviewed structure estimate for this window, not complete chain accounting or verified cross-layer capital migration.', fields: layerPower.map(([layer, power, momentum, driver, flow, confidence, caveat]) => ({ label: layer, value: [power, momentum, driver, flow, confidence, caveat].join(' | ') })) },
+      { section_id: 'agent_pulse', title: 'Main-Platform Agent Rail', summary: 'This is not only an RH Chain event. It is a Robinhood platform event that can eventually affect RH Chain.', fields: [
+        { label: 'Platform read', value: 'Dedicated Agentic Accounts and MCP integration create a possible bridge from traditional brokerage activity into tokenized, RWA, and on-chain markets.' },
+        { label: 'Boundary', value: 'A possible bridge is not evidence that funds, users, or strategies have reached RH Chain.' }
+      ] },
+      { section_id: 'rwa_pulse', title: 'RH Chain Implication', summary: 'Agents are now more than an on-chain narrative wrapper. RH Chain becomes more interesting if agents begin interacting with tokenized stocks, DeFi routes, prediction or event markets, or infrastructure contracts.', fields: [
+        { label: 'Current state', value: 'The bridge from Agentic Trading to RH Chain remains under_receipt_check.' },
+        { label: 'Evidence needed', value: 'Primary route documentation, operational activity, and source-linked receipts.' }
+      ] },
+      { section_id: 'cross_layer_flows', title: 'Cross-Layer Flow Watch', summary: 'Track these flows as source_required. They are the test of whether platform-level agent infrastructure becomes RH Chain market structure.', fields: [
+        { label: 'Brokerage agent → tokenized stock interest', value: 'source_required' }, { label: 'Agent research → RH Chain RWA activity', value: 'source_required' }, { label: 'Agent-managed portfolio → on-chain DeFi route', value: 'source_required' }, { label: 'Meme liquidity → agent strategy', value: 'source_required' }, { label: 'Agent infrastructure → RWA execution', value: 'source_required' }, { label: 'MCP tooling → RH Chain contract interaction', value: 'source_required' }
+      ] },
+      { section_id: 'infrastructure_pulse', title: 'Infrastructure Layer', summary: 'MCP rails add a formal connection layer between agents and Robinhood’s brokerage surface. On-chain infrastructure claims still need provider and operational receipts.', fields: [{ label: 'Infrastructure boundary', value: 'MCP access does not establish RH Chain contract interaction.' }] },
+      { section_id: 'launchpad_stress_test', title: 'Launchpad and Tooling Boundary', summary: 'Launchpads, direct pools, and tooling can become part of a future agent route, but no launch surface or contract interaction is inferred from Agentic Trading.', fields: [{ label: 'Evidence rule', value: 'Any MCP-to-launchpad or MCP-to-contract claim remains source_required until a provider or operational receipt is attached.' }] },
+      { section_id: 'meme_pulse', title: 'Meme Layer', summary: 'Memes remain the main liquidity and onboarding engine while their relative narrative control has a slight dip.', fields: [{ label: 'Boundary', value: 'Visible market activity and reviewed context do not equal complete chain accounting.' }] },
+      { section_id: 'risk_wall', title: 'Risk Wall', summary: 'The new product rail sharpens the difference between visible agent capability and verified agent behavior.', fields: [
+        { label: 'Adoption risk', value: 'agent visibility mistaken for agent usage; MCP access mistaken for adoption; brokerage execution mistaken for on-chain activity; AI narrative mistaken for operational agent behavior.' },
+        { label: 'Evidence risk', value: 'RWA labels without backing proof; off-chain activity not visible in wallet data; privacy limits around agent-managed accounts; source gaps.' },
+        { label: 'Execution risk', value: 'compliance and execution risk; review overload.' }
+      ] },
+      { section_id: 'narrative_mutation', title: 'Market Structure Takeaway', summary: 'Robinhood just gave agents an account. 4663 now has to track what agents do with it.', fields: [{ label: 'Next test', value: 'Separate platform capability, visible activity, operational usage, and RH Chain adoption with receipts.' }] },
+      { section_id: 'chain_pulse', title: 'Chain Boundary', summary: 'This receipt strengthens the platform-level agent thesis without asserting a change in verified RH Chain agent activity.', fields: [{ label: 'No leap', value: 'Agentic brokerage access does not become RH Chain adoption without receipts.' }] },
+      { section_id: 'leadership_narrative_pulse', title: 'Narrative Boundary', summary: 'A formal product surface is stronger than general AI narrative, but it still does not prove on-chain execution or capital migration.', fields: [{ label: 'Authority', value: 'Primary Robinhood documentation supports the product-surface claim; reviewed memory governs market-structure judgment.' }] },
+      { section_id: 'infopunks_verdict', title: 'Infopunks Verdict', summary: 'Memes distribute attention. RWAs create gravity. Agents now have platform rails. Infrastructure connects the system. Cross-layer receipts will prove whether the agentic thesis reaches RH Chain.', fields: [{ label: 'Verdict', value: 'Memes distribute attention. RWAs create gravity. Agents now have platform rails. Infrastructure connects the system. Cross-layer receipts will prove whether the agentic thesis reaches RH Chain.' }] }
+    ],
+    watchlist: [{ item: 'Brokerage-agent to RH Chain bridge', reason: 'Platform-level agent infrastructure is now documented, but RH Chain adoption is not.', risk_state: 'source_required', next_thing_to_verify: 'Source-linked route, operational on-chain activity, and snapshot history.' }],
+    do_not_touch_yet: [{ item: 'Crypto-support or RH Chain-adoption claims', reason: 'Current primary documentation establishes long equities and options order scope, not an RH Chain flow.', risk_state: 'source_required', next_thing_to_verify: 'Exact current primary documentation and operational receipts.' }],
+    sources: primarySources, confidence_level: 'medium', status: 'manual', data_mode: 'manual'
   });
 }
 function reviewCycleCountFields(summary: RhChainDailyReviewSummary) {

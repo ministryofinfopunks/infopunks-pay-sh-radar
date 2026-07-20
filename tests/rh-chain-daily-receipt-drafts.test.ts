@@ -50,6 +50,23 @@ describe('RH Chain Daily Receipt Draft Engine', () => {
     } finally { await app.close(); }
   });
 
+  it('keeps Agentic Market Structure #008 private until approval, then updates public receipt, Today, and Relay together', async () => {
+    const { app, headers } = await setup();
+    try {
+      const created = await app.inject({ method: 'POST', url: '/internal/rh-chain/agentic-market-structure-receipt-drafts', headers });
+      const draft = created.json().data.draft;
+      expect(created.json().data).toEqual(expect.objectContaining({ publication_status: 'unpublished', public_surface_unchanged: true, draft: expect.objectContaining({ suggested_receipt_id: 'rh_daily_008', status: 'under_review', agentic_market_structure_receipt: expect.objectContaining({ receipt_type: 'agentic_market_structure_memory' }) }) }));
+      expect((await app.inject({ method: 'GET', url: '/v1/rh-chain/daily-receipts' })).json().data.latest_receipt.receipt_id).toBe('rh_daily_006');
+      expect((await app.inject({ method: 'GET', url: '/v1/rh-chain/today-on-4663' })).json().data.latest_receipt.receipt_id).toBe('rh_daily_006');
+      expect((await app.inject({ method: 'GET', url: '/v1/rh-chain/receipt-relay' })).json().data.packets.some((packet: { title: string }) => packet.title === 'Daily Receipt #008')).toBe(false);
+      const published = await app.inject({ method: 'POST', url: `/internal/rh-chain/daily-receipt-drafts/${draft.draft_id}/publish`, headers, payload: { reviewer_edits: {} } });
+      expect(published.statusCode).toBe(200);
+      expect((await app.inject({ method: 'GET', url: '/v1/rh-chain/daily-receipts' })).json().data.latest_receipt).toEqual(expect.objectContaining({ receipt_id: 'rh_daily_008', receipt_type: 'agentic_market_structure_memory' }));
+      expect((await app.inject({ method: 'GET', url: '/v1/rh-chain/today-on-4663' })).json().data.latest_receipt.receipt_id).toBe('rh_daily_008');
+      expect((await app.inject({ method: 'GET', url: '/v1/rh-chain/receipt-relay' })).json().data.packets.some((packet: { title: string }) => packet.title === 'Daily Receipt #008')).toBe(true);
+    } finally { await app.close(); }
+  });
+
   it('generates an internal draft from latest snapshot sources with visible missing evidence', async () => {
     const { app, headers, draft } = await setup();
     try {

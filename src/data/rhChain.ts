@@ -189,6 +189,8 @@ export type RhChainDistributionPackPayload = {
   doctrine: 'External data gives context. Infopunks gives judgment. Receipts create memory.';
   disclaimer: string;
   packets: RhChainDistributionPacket[];
+  /** Candidates are eligible public records, not automatically promoted distribution posts. */
+  eligible_share_objects?: Array<{ object_type: string; canonical_url: string; receipt_id: string | null; requires_supersession_label: boolean }>;
 };
 
 export type RhChainReceiptRelaySurface = 'x' | 'telegram' | 'discord';
@@ -468,7 +470,7 @@ export type RhChainDailyReceiptWatchItem = {
   next_thing_to_verify: string;
 };
 
-export type RhChainDailyReceiptSectionId = 'chain_pulse' | 'meme_pulse' | 'leadership_narrative_pulse' | 'launchpad_stress_test' | 'access_wallet_pulse' | 'rwa_pulse' | 'agent_pulse' | 'infrastructure_pulse' | 'layer_power_ranking' | 'cross_layer_flows' | 'risk_wall' | 'market_structure_note' | 'narrative_mutation' | 'outcome_checks' | 'infopunks_verdict';
+export type RhChainDailyReceiptSectionId = 'chain_pulse' | 'meme_pulse' | 'leadership_narrative_pulse' | 'launchpad_stress_test' | 'access_wallet_pulse' | 'rwa_pulse' | 'agent_pulse' | 'agentic_trading_pulse' | 'infrastructure_pulse' | 'layer_power_ranking' | 'cross_layer_flows' | 'risk_wall' | 'market_structure_note' | 'narrative_mutation' | 'outcome_checks' | 'infopunks_verdict';
 
 export type RhChainDailyReceiptSection = {
   section_id: RhChainDailyReceiptSectionId;
@@ -479,7 +481,7 @@ export type RhChainDailyReceiptSection = {
 
 export type RhChainDailyReceipt = {
   receipt_id: string;
-  receipt_type?: 'daily_market_memory' | 'market_structure_memory';
+  receipt_type?: 'daily_market_memory' | 'market_structure_memory' | 'agentic_market_structure_memory';
   date: string;
   period?: string;
   generated_at: string;
