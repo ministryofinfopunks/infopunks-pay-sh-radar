@@ -897,6 +897,8 @@ MONITOR_INTERVAL_MS=900000
 
 ## RH Chain market-data provider setup
 
+For the gated migration sequence, authenticated readiness endpoint, Render variable matrix, pilot receipt procedure, and flag-first rollback, see [the RH Chain production rollout runbook](docs/rh-chain-production-rollout.md). The non-mutating schema check is `npm run rh-chain:migration-status -- --environment=staging --require-ready`.
+
 DEX Screener is used only as a market and attention sensor. It does not define the complete Robinhood Chain index, establish token identity from a ticker, change reviewed classifications, or create approved signals. All provider calls run server-side through the existing adapter; browser components never call DEX Screener directly.
 
 Enable live market reads with `DEXSCREENER_ENABLED=true`. Enable the admin capture path separately with `RH_CHAIN_MARKET_INGESTION_ENABLED=true`. Enable writes separately with `RH_CHAIN_MARKET_HISTORY_ENABLED=true`; production history requires Postgres. Legacy `RH_CHAIN_AUTOMATION_ENABLED=true` continues to enable both capture and storage for backward compatibility.

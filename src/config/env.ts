@@ -156,6 +156,18 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
   if (isProduction && (config.rhChainProjectClaimsEnabled || config.rhChainIntelligenceReceiptsEnabled || config.rhChainProjectDirectoryEnabled) && !config.databaseUrl) {
     throw new Error('DATABASE_URL is required when RH Chain project claims or Intelligence Receipts are enabled in production');
   }
+  if (isProduction && config.rhChainAttentionQualityV2Enabled && !config.rhChainMarketHistoryEnabled) {
+    throw new Error('RH_CHAIN_MARKET_HISTORY_ENABLED=true is required when RH_CHAIN_ATTENTION_QUALITY_V2_ENABLED=true in production');
+  }
+  if (isProduction && config.rhChainProjectClaimsEnabled && (!config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken)) {
+    throw new Error('RH_CHAIN_REVIEW_CONSOLE_ENABLED=true and RH_CHAIN_REVIEW_ADMIN_TOKEN are required when RH_CHAIN_PROJECT_CLAIMS_ENABLED=true in production');
+  }
+  if (isProduction && config.rhChainIntelligenceReceiptsEnabled && (!config.rhChainProjectClaimsEnabled || !config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken)) {
+    throw new Error('Project Claims and authenticated Review Console are required when RH_CHAIN_INTELLIGENCE_RECEIPTS_ENABLED=true in production');
+  }
+  if (isProduction && config.rhChainProjectDirectoryEnabled && !config.rhChainProjectClaimsEnabled) {
+    throw new Error('RH_CHAIN_PROJECT_CLAIMS_ENABLED=true is required when RH_CHAIN_PROJECT_DIRECTORY_ENABLED=true in production');
+  }
 
   return config;
 }
