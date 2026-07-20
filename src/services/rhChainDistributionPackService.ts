@@ -1,4 +1,6 @@
 import { createRhChainDailyReceiptXPost, getRhChainDailyReceipts, getRhChainLaunchSurfaces, getRhChainPayload, type RhChainDistributionPackPayload, type RhChainDistributionPacket } from '../data/rhChain';
+import { buildRhChainDailyReceiptShare } from './rhChainShareService';
+import { selectRhChainDistributionCandidates } from '../shared/rhChainSharing';
 
 const DOCTRINE = 'External data gives context. Infopunks gives judgment. Receipts create memory.' as const;
 const DISCLAIMER = 'Public intelligence distribution only. Do not spam, coordinate raids, harass people, imply affiliation, or treat any packet as trading advice.';
@@ -7,6 +9,9 @@ const BASE = '/rh-chain-signal-desk';
 /** Writes source-linked sharing packets; copy carries the caveat instead of separating it from the claim. */
 export function assembleRhChainDistributionPack(receipt = getRhChainDailyReceipts().latest_receipt): RhChainDistributionPackPayload {
   const desk = getRhChainPayload();
+  // Daily receipts already have a reviewer-controlled public publication path.
+  // This surfaces eligibility without auto-promoting project receipts or drafts.
+  const eligible_share_objects = selectRhChainDistributionCandidates([buildRhChainDailyReceiptShare(receipt)]).map(({ share, requires_supersession_label }) => ({ object_type: share.object_type, canonical_url: share.canonical_url, receipt_id: share.receipt_id, requires_supersession_label }));
   const packets: RhChainDistributionPacket[] = [
     { id: 'daily-receipt', title: 'Daily Receipt post', intended_surface: 'x', copy_text: createRhChainDailyReceiptXPost(receipt), link: `${BASE}/daily-receipts/${encodeURIComponent(receipt.receipt_id)}`, risk_disclaimer: 'Receipt memory is not a token recommendation or safety claim.', last_updated: receipt.generated_at, source_artifact: 'Daily Receipts' },
     { id: 'meme-pulse', title: 'Meme Pulse post', intended_surface: 'telegram', copy_text: `Most see noise.\nInfopunks reads the pulse.\n\nWhat’s moving. What’s risky. What the market is trying to say.\n\nExternal data gives context. Infopunks gives judgment.`, link: `${BASE}/meme-pulse`, risk_disclaimer: 'Attention is context, not an instruction to trade or promote a token.', last_updated: desk.last_updated, source_artifact: 'RH Meme Pulse' },
@@ -16,5 +21,5 @@ export function assembleRhChainDistributionPack(receipt = getRhChainDailyReceipt
     { id: 'scout-agent', title: 'Scout Agent demo post', intended_surface: 'telegram', copy_text: `The market forgets in public.\nScout remembers the desk.\n\nAsk about risk memory, launch context, narrative mutation, or a token contract.\n\nRead-only intelligence. Never trades.`, link: `${BASE}/scout`, risk_disclaimer: 'Scout summarizes existing memory; it does not verify identity or make recommendations.', last_updated: desk.last_updated, source_artifact: 'Scout Agent' },
     { id: 'launch-surface', title: 'Launch Surface Watch post', intended_surface: 'discord', copy_text: `Infopunks does not launch the token.\nInfopunks remembers the launch.\n\nLaunch source, pair, LP claim, deployer, and timestamp—context before narrative.`, link: `${BASE}/launch-surfaces`, risk_disclaimer: `${getRhChainLaunchSurfaces().disclaimer} A launch label is never an approval.`, last_updated: getRhChainLaunchSurfaces().generated_at, source_artifact: 'Launch Surface Watch' }
   ];
-  return { title: 'RH Chain Distribution Pack', subtitle: 'Copy the receipt. Keep the caveat.', generated_at: receipt.generated_at, doctrine: DOCTRINE, disclaimer: DISCLAIMER, packets };
+  return { title: 'RH Chain Distribution Pack', subtitle: 'Copy the receipt. Keep the caveat.', generated_at: receipt.generated_at, doctrine: DOCTRINE, disclaimer: DISCLAIMER, packets, eligible_share_objects };
 }

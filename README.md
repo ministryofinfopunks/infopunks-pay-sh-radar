@@ -1195,6 +1195,12 @@ Public submissions only queue intake. They are not endorsements, verification, r
 
 Published project Intelligence Receipts carry a deterministic SHA-256 integrity hash. They are not edited or deleted: a correction publishes a replacement receipt and supersedes the original with a public reason and bidirectional linkage. Roll back safely by disabling the three flags first; this hides the public surfaces while preserving migrated records and existing Signal Vault, dossiers, classifications, Daily Receipts, and evaluation flows.
 
+## Unified RH Chain sharing
+
+Market Pulse, Cross-Layer, Attention Quality, Project Claims, Project Intelligence Receipts, Daily Receipts, and 4663 use a single public-only deterministic sharing model. It reuses canonical URLs, freshness, confidence, methodology, receipt hashes, and correction history; it does not create a second receipt engine or call providers on a share read path. Published Project Intelligence Receipt cards are server-rendered at `/og/rh-chain/share/:receipt_id.png`; drafts and reviewer-only material return no card.
+
+Share controls support native share, copy insight, and canonical receipt links with accessible feedback. Distribution Pack eligibility is separate from promotion, so public records are never auto-amplified. Full privacy, deterministic-template, card-cache, feature-flag, rollout, and rollback details are in [the RH Chain sharing architecture](docs/rh-chain-sharing.md).
+
 # License
 
 MIT

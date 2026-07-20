@@ -1,6 +1,7 @@
 import { getSignalSurfaceBySlug } from '../data/narrativeIntel';
 import { getSignalUpdate } from '../data/signalUpdates';
 import type { RevenueReceipt, UnicornRadarCandidate } from '../schemas/entities';
+import type { RhChainShareObject } from './rhChainSharing';
 
 export const OG_IMAGE_WIDTH = 1200;
 export const OG_IMAGE_HEIGHT = 630;
@@ -70,6 +71,9 @@ export function narrativeOgImageUrl(pathname: string) {
   if (/^\/rh-chain-signal-desk\/market\/?$/.test(pathname)) {
     return '/og/rh-chain/market.png';
   }
+
+  const projectReceiptMatch = pathname.match(/^\/rh-chain-signal-desk\/intelligence-receipts\/([^/]+)\/?$/);
+  if (projectReceiptMatch) return `/og/rh-chain/share/${encodeURIComponent(projectReceiptMatch[1])}.png`;
 
   if (/^\/narratives\/?$/.test(pathname)) {
     return '/og/narratives.png';
@@ -661,6 +665,26 @@ export function renderRhChainAttentionQualityOgImage(context?: { verdict: string
     accent: '#9fd6ff',
     eyebrow: 'ROBINHOOD CHAIN ATTENTION QUALITY',
     routeLabel: '/rh-chain-signal-desk/market-structure/attention-quality'
+  });
+}
+
+/** Shared card renderer keeps product color and public evidence state without exposing draft/audit content. */
+export function renderRhChainShareOgImage(share: RhChainShareObject) {
+  const accent = share.object_type === 'attention_quality' ? '#9fd6ff'
+    : share.object_type === 'cross_layer_insight' ? '#b8f7d4'
+      : share.object_type === 'market_pulse' ? '#d8ff73'
+        : share.object_type === 'project_intelligence_receipt' || share.object_type === 'project_claim_verdict' ? '#f3c77a'
+          : '#9bf1cc';
+  const receipt = share.receipt_id ? `Receipt ${share.receipt_id}` : 'Canonical public record';
+  const correction = share.supersession_state === 'superseded' ? 'SUPERSEDED · correction and replacement linked' : 'CURRENT PUBLIC RECORD';
+  return renderSignalCardSvg({
+    title: share.deterministic_headline,
+    subtitle: `${share.principal_finding} Caveat: ${share.material_caveat}`,
+    badge: 'INFOPUNKS RADAR',
+    footer: `${receipt} / ${share.freshness} / ${share.confidence} confidence / ${correction}`,
+    accent,
+    eyebrow: share.public_title.toUpperCase(),
+    routeLabel: share.canonical_url.replace('https://radar.infopunks.fun', '')
   });
 }
 

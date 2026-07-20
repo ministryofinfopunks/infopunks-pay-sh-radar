@@ -145,6 +145,15 @@ export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata
       pathname.replace(/\/$/, '')
     );
   }
+  const projectReceiptMatch = pathname.match(/^\/rh-chain-signal-desk\/intelligence-receipts\/([^/]+)\/?$/);
+  if (projectReceiptMatch) {
+    const receiptId = decodePathPart(projectReceiptMatch[1]);
+    return buildMetadata(
+      `Robinhood Chain Intelligence Receipt ${receiptId} | Infopunks Radar`,
+      'Published Infopunks project intelligence receipt with evidence state, freshness, confidence, and correction history where applicable.',
+      `/rh-chain-signal-desk/intelligence-receipts/${encodeURIComponent(receiptId)}`
+    );
+  }
   if (/^\/rh-chain-signal-desk\/live-snapshot\/?$/.test(pathname)) {
     return buildMetadata('RH Chain Live Snapshot', 'Cached external market context for the RH Chain intelligence desk.', '/rh-chain-signal-desk/live-snapshot');
   }

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
 import type { RhChainMarketPulse as Pulse, RhChainMarketPulseConfidence as Confidence, RhChainMarketPulseFinding as Finding, RhChainMarketPulseFreshness as Freshness, RhChainMarketPulseMetric as Metric } from '../services/rhChainMarketStructureService';
+import { buildRhChainMarketPulseShare } from '../services/rhChainShareService';
 import { fetchRhChain, type RhChainEnvelope, RhChainRouteState, RhChainSuiteNav } from './rhChainUi';
+import { RhChainShareControls, RhChainShareSummary } from './rhChainShareControls';
 
 type Layer = Pulse['layer_composition'][number];
 
@@ -11,18 +13,10 @@ const CANONICAL_URL = `${NARRATIVE_PUBLIC_HOST}${CANONICAL_PATH}`;
 export function RhChainMarketPulsePage() {
   const [envelope, setEnvelope] = useState<RhChainEnvelope<Pulse> | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [actionState, setActionState] = useState<'idle' | 'copied' | 'shared'>('idle');
   const load = () => { setError(null); return fetchRhChain<Pulse>('/v1/rh-chain/market').then(setEnvelope).catch(() => setError('Market Pulse is temporarily unavailable. The last trusted observation has not been replaced.')); };
   useEffect(() => { syncMetadata(); void load(); }, []);
   const pulse = envelope?.data ?? null;
-  const insight = pulse ? `${pulse.interpretation.headline} ${pulse.interpretation.conclusion} — ${formatTime(pulse.captured_at)} · ${pulse.observation_window.label} · Infopunks Radar` : '';
-  async function copyInsight() { if (await copyText(insight)) setActionState('copied'); }
-  async function shareInsight() {
-    if (navigator.share) {
-      try { await navigator.share({ title: pulse?.title, text: insight, url: CANONICAL_URL }); setActionState('shared'); return; } catch { /* A cancelled native share is not an error state. */ }
-    }
-    await copyInsight();
-  }
+  const share = pulse ? buildRhChainMarketPulseShare(pulse) : null;
 
   return <div className="shell narrative-shell rh-chain-shell market-pulse-shell">
     <a className="skip-link" href="#market-pulse-content">Skip to Market Pulse</a>
@@ -35,12 +29,7 @@ export function RhChainMarketPulsePage() {
           <div className="market-pulse-hero-top"><p className="section-kicker">Infopunks Radar · Robinhood Chain</p><FreshnessBadge freshness={pulse.freshness} confidence={pulse.confidence} /></div>
           <div className="market-pulse-hero-copy"><p className="market-pulse-product-name">Market Pulse</p><h1 id="market-pulse-title">{pulse.interpretation.headline}</h1><p className="market-pulse-conclusion">{pulse.interpretation.conclusion}</p></div>
           <div className="market-pulse-meta" aria-label="Observation details"><span>{pulse.observation_window.label}</span><span>Captured {formatTime(pulse.captured_at)}</span><span>{pulse.metrics.active_tracked_tokens.value ?? 0} tracked tokens</span></div>
-          <div className="market-pulse-actions" role="group" aria-label="Share Market Pulse insight">
-            <button type="button" className="execute compact" onClick={() => void shareInsight()} aria-label="Share Market Pulse insight">Share insight</button>
-            <button type="button" className="execute compact secondary" onClick={() => void copyInsight()} aria-label="Copy Market Pulse insight">{actionState === 'copied' ? 'Insight copied' : 'Copy insight'}</button>
-            <a className="execute compact secondary" href="/rh-chain-signal-desk/live-snapshot">Live Snapshot</a>
-          </div>
-          <p className="market-pulse-action-status" aria-live="polite">{actionState === 'shared' ? 'Share sheet opened.' : actionState === 'copied' ? 'Insight copied to clipboard.' : ''}</p>
+          {share && <RhChainShareControls share={share} className="market-pulse-actions" shareAriaLabel="Share Market Pulse insight" copyInsightAriaLabel="Copy Market Pulse insight" hideReceiptLink trailingAction={<a className="execute compact secondary" href="/rh-chain-signal-desk/live-snapshot">Live Snapshot</a>} />}
         </section>
 
         {(pulse.freshness !== 'fresh' || pulse.warnings.length > 0) && <section className={`market-pulse-data-state state-${pulse.freshness}`} role="status" aria-label="Market data quality"><strong>{dataStateTitle(pulse.freshness)}</strong><span>{pulse.warnings[0] ?? 'Check source detail before relying on this observation.'}</span></section>}
@@ -88,6 +77,7 @@ export function RhChainMarketPulsePage() {
         <aside className="market-pulse-social-card" aria-label="Compact Market Pulse social card">
           <p>Infopunks / Market Pulse</p><strong>{pulse.interpretation.headline}</strong><span>{pulse.observation_window.label} · {formatTime(pulse.captured_at)} · {humanize(pulse.freshness)}</span>
         </aside>
+        {share && <RhChainShareSummary share={share} />}
 
         <details className="market-pulse-sources"><summary>Source, freshness, and methodology details</summary><div><dl><div><dt>Provider</dt><dd>DEX Screener / chain id robinhood</dd></div><div><dt>Role</dt><dd>Market and attention sensor, not a complete chain index</dd></div><div><dt>Cache</dt><dd>{humanize(pulse.provider_provenance.health.activeCacheStatus)}</dd></div><div><dt>Confidence</dt><dd>{humanize(pulse.confidence)}</dd></div><div><dt>Canonical URL</dt><dd><a href={CANONICAL_PATH}>{CANONICAL_URL}</a></dd></div></dl><p>{pulse.disclaimer}</p>{pulse.warnings.length > 0 && <ul>{pulse.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul>}<p><a href="/v1/rh-chain/market">Open Market Pulse JSON</a> · <a href="/rh-chain-signal-desk/live-snapshot">Open Live Snapshot</a> · <a href="/rh-chain-signal-desk/market-structure">Open 4663 Market Structure</a></p></div></details>
       </>}
@@ -118,7 +108,6 @@ function syncMetadata() {
   canonical.href = CANONICAL_URL;
 }
 function setMeta(attribute: 'name' | 'property', name: string, content: string) { let tag = document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${name}"]`); if (!tag) { tag = document.createElement('meta'); tag.setAttribute(attribute, name); document.head.appendChild(tag); } tag.content = content; }
-async function copyText(value: string) { if (!value) return false; try { await navigator.clipboard?.writeText(value); return Boolean(navigator.clipboard); } catch { return false; } }
 function formatMetric(metric: Metric) { if (metric.value === null) return 'Unavailable'; if (metric.unit === 'usd') return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: metric.value >= 1_000_000 ? 'compact' : 'standard', maximumFractionDigits: metric.value >= 1_000 ? 0 : 2 }).format(metric.value); if (metric.unit === 'percent') return `${metric.value.toFixed(1)}%`; if (metric.unit === 'score') return `${metric.value.toFixed(0)} / 100`; return new Intl.NumberFormat('en-US').format(metric.value); }
 function formatPercent(value: number | null) { return value === null ? '—' : `${value.toFixed(1)}%`; }
 function formatTime(value: string) { const parsed = new Date(value); return Number.isNaN(parsed.getTime()) ? 'Timestamp unavailable' : new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'UTC' }).format(parsed).replace(' at ', ' · ') + ' UTC'; }
