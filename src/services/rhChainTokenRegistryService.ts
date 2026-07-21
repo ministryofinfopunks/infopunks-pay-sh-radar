@@ -1,6 +1,6 @@
 import type { RhChain100ReceiptsAsset } from '../data/rhChain100Receipts';
 import type { RhChainLayerClassification } from './rhChainMarketStructureService';
-import { BLOCKSCOUT_RH_CHAIN, BlockscoutProvider, normalizeBlockscoutAddress, type BlockscoutListParams, type BlockscoutPage } from '../providers/blockscoutProvider';
+import { BLOCKSCOUT_RH_CHAIN, BlockscoutProvider, normalizeBlockscoutAddress, type BlockscoutListParams, type BlockscoutPage, type BlockscoutRequestContext } from '../providers/blockscoutProvider';
 
 export type RhChainWatchlistSource = 'campaign' | 'market_structure' | 'dexscreener' | 'blockscout' | 'manual_intake';
 export type RhChainWatchlistEntry = { contract: string; source: RhChainWatchlistSource; observed_at: string; provenance: string; review_state: 'source_required' | 'reviewed'; };
@@ -48,18 +48,22 @@ export class RhChainTokenRegistryService {
     } catch { this.fallback = true; return { tokens: [] as RhChainObservedToken[], next_page_params: null, status: await this.getProviderStatus(), caveats: ['Blockscout registry is temporarily unavailable; this does not affect reviewed records.'] }; }
   }
 
-  async enrichToken(contract: string) {
+  async enrichToken(contract: string, context?: BlockscoutRequestContext) {
     const normalized = exact(contract);
     if (!normalized || !this.options.enabled) return this.fallbackToken(contract);
     try {
-      const [token, address, contractMetadata] = await Promise.all([this.options.provider.getToken(normalized), this.options.provider.getAddress(normalized), this.options.provider.getContract(normalized)]);
+      const [token, address, contractMetadata] = await Promise.all([this.options.provider.getToken(normalized, context), this.options.provider.getAddress(normalized, context), this.options.provider.getContract(normalized, context)]);
       if (!token) return this.fallbackToken(normalized);
       const observed = this.observed(normalized, token, address?.isVerified ?? contractMetadata?.isVerified ?? null, address?.creatorAddress ?? null, address?.creationTransactionHash ?? null);
       this.enrichedTokenCount += 1;
       if (!observed.deployer_address || !observed.creation_tx_hash) this.unresolvedDeployerCount += 1;
       this.lastSuccessfulCapture = this.now().toISOString(); this.fallback = false;
       return { token: observed, contract: contractMetadata, address, fallback: false, caveats: [CAVEAT, ...(!observed.deployer_address || !observed.creation_tx_hash ? ['Creation context is source_required until both deployer and creation transaction are resolvable.'] : [])] };
-    } catch { this.fallback = true; return this.fallbackToken(normalized); }
+    } catch (error) {
+      if (context?.signal?.aborted) throw context.signal.reason ?? error;
+      this.fallback = true;
+      return this.fallbackToken(normalized);
+    }
   }
 
   async getTokenTransfers(contract: string, params: BlockscoutListParams = {}) { return this.optionalPage(contract, params, 'transfers'); }

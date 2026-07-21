@@ -18,6 +18,7 @@ export type BlockscoutProviderOptions = {
   fetchImpl?: typeof fetch;
   now?: () => Date;
 };
+export type BlockscoutRequestContext = { signal?: AbortSignal };
 
 type RecordValue = Record<string, unknown>;
 const isRecord = (value: unknown): value is RecordValue => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -45,9 +46,9 @@ export class BlockscoutProvider {
     this.fetchImpl = options.fetchImpl ?? fetch;
   }
 
-  async getToken(contract: string): Promise<BlockscoutToken | null> {
+  async getToken(contract: string, context?: BlockscoutRequestContext): Promise<BlockscoutToken | null> {
     const address = this.requireAddress(contract);
-    try { return this.token(await this.request(`token:${address}`, `/api/v2/tokens/${encodeURIComponent(address)}`)); }
+    try { return this.token(await this.request(`token:${address}`, `/api/v2/tokens/${encodeURIComponent(address)}`, context)); }
     catch (error) { if (isNotFound(error)) return null; throw error; }
   }
 
@@ -66,19 +67,19 @@ export class BlockscoutProvider {
     return this.records(await this.request(`holders:${address}:${JSON.stringify(params)}`, `/api/v2/tokens/${encodeURIComponent(address)}/holders${this.query(params)}`));
   }
 
-  async getContract(contract: string): Promise<BlockscoutContract | null> {
+  async getContract(contract: string, context?: BlockscoutRequestContext): Promise<BlockscoutContract | null> {
     const address = this.requireAddress(contract);
     try {
-      const raw = await this.request(`contract:${address}`, `/api/v2/smart-contracts/${encodeURIComponent(address)}`);
+      const raw = await this.request(`contract:${address}`, `/api/v2/smart-contracts/${encodeURIComponent(address)}`, context);
       const row = isRecord(raw) ? raw : {};
       return { address, isVerified: asString(row.creation_status) === 'success' ? true : null, creationStatus: asString(row.creation_status), raw: row };
     } catch (error) { if (isNotFound(error)) return null; throw error; }
   }
 
-  async getAddress(value: string): Promise<BlockscoutAddress | null> {
+  async getAddress(value: string, context?: BlockscoutRequestContext): Promise<BlockscoutAddress | null> {
     const address = this.requireAddress(value);
     try {
-      const raw = await this.request(`address:${address}`, `/api/v2/addresses/${encodeURIComponent(address)}`);
+      const raw = await this.request(`address:${address}`, `/api/v2/addresses/${encodeURIComponent(address)}`, context);
       const row = isRecord(raw) ? raw : {};
       return {
         address: normalizeBlockscoutAddress(asString(row.hash) ?? address), isContract: typeof row.is_contract === 'boolean' ? row.is_contract : null,
@@ -124,13 +125,15 @@ export class BlockscoutProvider {
     return result ? `?${result}` : '';
   }
   private requireAddress(value: string) { const address = normalizeBlockscoutAddress(value); if (!/^0x[a-f0-9]{40}$/.test(address)) throw new Error('exact_contract_required'); return address; }
-  private async request<T = unknown>(key: string, path: string): Promise<T> {
+  private async request<T = unknown>(key: string, path: string, context?: BlockscoutRequestContext): Promise<T> {
     if (!this.enabled) throw new Error('blockscout_disabled');
     const cached = await this.cache.getOrSet(`blockscout:robinhood:${key}`, this.ttlMs, async () => {
       const existing = this.inFlight.get(key) as Promise<T> | undefined;
       if (existing) return existing;
       const request = (async () => {
-        const response = await this.fetchImpl(`${this.baseUrl}${path}`, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(this.timeoutMs) });
+        const providerTimeout = AbortSignal.timeout(this.timeoutMs);
+        const signal = context?.signal ? AbortSignal.any([context.signal, providerTimeout]) : providerTimeout;
+        const response = await this.fetchImpl(`${this.baseUrl}${path}`, { headers: { Accept: 'application/json' }, signal });
         if (!response.ok) throw new Error(`blockscout_http_${response.status}`);
         return response.json() as Promise<T>;
       })();

@@ -992,6 +992,8 @@ Known limitations: the integration is deliberately bounded to 100 reviewed recor
 
 # Deployment
 
+The existing `GET /v1/rh-chain/live-snapshot/token/:contract` route uses a single request-scoped deadline. Its production-safe internal budget defaults to 3.8 seconds through `RH_CHAIN_LIVE_TOKEN_ROUTE_TIMEOUT_MS`; configuration above 4 seconds is rejected, leaving headroom beneath the five-second production smoke deadline. Provider timeouts remain governed by `RH_CHAIN_PROVIDER_TIMEOUT_MS` but are capped by the remaining route budget. Slow providers produce explicit partial or unavailable sections while completed and valid cached observations retain provenance and freshness. Cache writes and stale refreshes never block the public response.
+
 ## Unified Render Deployment
 
 `https://radar.infopunks.fun` should point at the full Node/Fastify app, not a Render Static Site.

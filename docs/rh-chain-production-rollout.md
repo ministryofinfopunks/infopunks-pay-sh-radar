@@ -48,6 +48,7 @@ Use flags first; do not run destructive down migrations during an incident.
 
 | System | Required variables | Safe default | Dependency |
 | --- | --- | --- | --- |
+| Live Snapshot token lookup | `RH_CHAIN_LIVE_SNAPSHOTS_ENABLED`, `RH_CHAIN_PROVIDER_TIMEOUT_MS`, optional `RH_CHAIN_LIVE_TOKEN_ROUTE_TIMEOUT_MS`, `RH_CHAIN_BLOCKSCOUT_URL` | live flag `false`; route timeout `3800ms` (bounded to `4000ms`) | external context only; provider and durable-cache work is deadline bounded |
 | Market Memory | `DATABASE_URL`, `RH_CHAIN_MARKET_INGESTION_ENABLED`, `RH_CHAIN_MARKET_HISTORY_ENABLED`, `DEXSCREENER_ENABLED` | all flags `false` | migration `001` |
 | Reviewed Classifications | `DATABASE_URL`, `RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED` | `false` | migrations `002`, `003`; reviewer workflow recommended |
 | Attention Quality V2 | `DATABASE_URL`, `RH_CHAIN_MARKET_HISTORY_ENABLED`, `RH_CHAIN_ATTENTION_QUALITY_V2_ENABLED` | `false` | migrations `001`, `004` |
@@ -57,6 +58,8 @@ Use flags first; do not run destructive down migrations during an incident.
 | Review Console | `RH_CHAIN_REVIEW_CONSOLE_ENABLED`, `RH_CHAIN_REVIEW_ADMIN_TOKEN` | `false` | dedicated bearer token; never expose it to clients |
 
 `DATABASE_URL`, `RH_CHAIN_REVIEW_ADMIN_TOKEN`, and `INFOPUNKS_ADMIN_TOKEN` are Render secrets. Do not place values in this document, source, logs, screenshots, or client-side variables.
+
+The Live Snapshot token route has a 3.8-second internal SLO budget so the public five-second smoke deadline retains proxy and serialization headroom. Keep `RH_CHAIN_LIVE_TOKEN_ROUTE_TIMEOUT_MS` unset for the production-safe default. Explicit values above 4 seconds fail configuration validation. Provider, cache, Market Memory, and reviewed-context failures return typed partial or unavailable context; they never become zero or fabricated token data.
 
 ## Deployment checklist
 

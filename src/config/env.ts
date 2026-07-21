@@ -22,6 +22,7 @@ export type RuntimeConfig = {
   machineDemoSeed: boolean;
   rhChainLiveSnapshotsEnabled: boolean;
   rhChainProviderTimeoutMs: number;
+  rhChainLiveTokenRouteTimeoutMs: number;
   rhChainCacheTtlSeconds: number | null;
   dexScreenerEnabled: boolean;
   dexScreenerBaseUrl: string;
@@ -91,6 +92,8 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
     machineDemoSeed: readBoolean('MACHINE_DEMO_SEED', env.MACHINE_DEMO_SEED, nodeEnv === 'development'),
     rhChainLiveSnapshotsEnabled: readBoolean('RH_CHAIN_LIVE_SNAPSHOTS_ENABLED', env.RH_CHAIN_LIVE_SNAPSHOTS_ENABLED, false),
     rhChainProviderTimeoutMs: readPositiveInteger('RH_CHAIN_PROVIDER_TIMEOUT_MS', env.RH_CHAIN_PROVIDER_TIMEOUT_MS, 2_500),
+    // Kept below the production smoke client's 5s deadline to reserve proxy and serialization time.
+    rhChainLiveTokenRouteTimeoutMs: readBoundedPositiveInteger('RH_CHAIN_LIVE_TOKEN_ROUTE_TIMEOUT_MS', env.RH_CHAIN_LIVE_TOKEN_ROUTE_TIMEOUT_MS, 3_800, 4_000),
     rhChainCacheTtlSeconds: readOptionalPositiveInteger('RH_CHAIN_CACHE_TTL_SECONDS', env.RH_CHAIN_CACHE_TTL_SECONDS),
     dexScreenerEnabled: readBoolean('DEXSCREENER_ENABLED', env.DEXSCREENER_ENABLED, false),
     dexScreenerBaseUrl: readRequiredUrl('DEXSCREENER_BASE_URL', env.DEXSCREENER_BASE_URL, 'https://api.dexscreener.com'),
@@ -182,6 +185,7 @@ export function deploymentSummary(config: RuntimeConfig) {
     monitorMode: config.monitorMode,
     machineDemoSeed: config.machineDemoSeed,
     rhChainLiveSnapshotsEnabled: config.rhChainLiveSnapshotsEnabled,
+    rhChainLiveTokenRouteTimeoutMs: config.rhChainLiveTokenRouteTimeoutMs,
     rhChainReviewConsoleEnabled: config.rhChainReviewConsoleEnabled,
     rhChainReviewedClassificationsEnabled: config.rhChainReviewedClassificationsEnabled,
     rhChainAttentionQualityV2Enabled: config.rhChainAttentionQualityV2Enabled,

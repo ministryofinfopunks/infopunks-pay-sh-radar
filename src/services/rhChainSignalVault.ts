@@ -30,6 +30,7 @@ export type RhChainReviewUpdate = {
 };
 
 export type RhChainReviewConflict = { conflict: true; current: RhChainSignalSubmission };
+export type RhChainReadOperation = { timeoutMs?: number };
 
 export type RhChainSignalSubmission = {
   submission_id: string;
@@ -68,7 +69,7 @@ export interface RhChainSubmissionStore {
   readonly adapter: 'memory' | 'postgres' | 'unconfigured';
   readonly durable: boolean;
   save(submission: RhChainSignalSubmission): Promise<RhChainSignalSubmission>;
-  list(): Promise<RhChainSignalSubmission[]>;
+  list(operation?: RhChainReadOperation): Promise<RhChainSignalSubmission[]>;
   updateStatus(submissionId: string, status: RhChainSubmissionStatus, reviewerNote?: string): Promise<RhChainSignalSubmission | null>;
   updateReview(submissionId: string, update: RhChainReviewUpdate): Promise<RhChainSignalSubmission | RhChainReviewConflict | null>;
   close?(): Promise<void>;
@@ -84,7 +85,7 @@ export class InMemoryRhChainSubmissionStore implements RhChainSubmissionStore {
     return structuredClone(submission);
   }
 
-  async list() {
+  async list(_operation?: RhChainReadOperation) {
     return [...this.entries.values()].sort((a, b) => b.submitted_at.localeCompare(a.submitted_at)).map((entry) => structuredClone(entry));
   }
 
@@ -110,7 +111,7 @@ export class UnconfiguredRhChainSubmissionStore implements RhChainSubmissionStor
   readonly adapter = 'unconfigured' as const;
   readonly durable = false;
   async save(): Promise<RhChainSignalSubmission> { throw new Error('rh_chain_submission_storage_not_configured'); }
-  async list() { return []; }
+  async list(_operation?: RhChainReadOperation) { return []; }
   async updateStatus(_submissionId: string, _status: RhChainSubmissionStatus, _reviewerNote?: string): Promise<RhChainSignalSubmission | null> { throw new Error('rh_chain_submission_storage_not_configured'); }
   async updateReview(_submissionId: string, _update: RhChainReviewUpdate): Promise<RhChainSignalSubmission | RhChainReviewConflict | null> { throw new Error('rh_chain_submission_storage_not_configured'); }
 }
@@ -130,9 +131,9 @@ export class PostgresRhChainSubmissionStore implements RhChainSubmissionStore {
     return submission;
   }
 
-  async list() {
+  async list(operation?: RhChainReadOperation) {
     await this.ensureSchema();
-    const result = await this.pool.query<{ payload: RhChainSignalSubmission }>('select payload from rh_chain_signal_submissions order by submitted_at desc');
+    const result = await this.pool.query({ text: 'select payload from rh_chain_signal_submissions order by submitted_at desc', query_timeout: operation?.timeoutMs } as pg.QueryConfig & { query_timeout?: number }) as pg.QueryResult<{ payload: RhChainSignalSubmission }>;
     return result.rows.map((row) => row.payload);
   }
 

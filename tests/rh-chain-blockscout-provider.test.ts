@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { BlockscoutProvider } from '../src/providers/blockscoutProvider';
 
 const CONTRACT = '0x1111111111111111111111111111111111111111';
@@ -31,5 +31,17 @@ describe('RH Chain Blockscout provider', () => {
   it('does not substitute a visual explorer page when an API endpoint fails', async () => {
     const provider = new BlockscoutProvider({ enabled: true, fetchImpl: async () => new Response('unavailable', { status: 503 }) });
     await expect(provider.getToken(CONTRACT)).rejects.toThrow('blockscout_http_503');
+  });
+
+  it('propagates request abortion and does not retry', async () => {
+    const controller = new AbortController();
+    const fetchImpl = vi.fn((_input: string | URL | Request, init?: RequestInit) => new Promise<Response>((_resolve, reject) => {
+      init?.signal?.addEventListener('abort', () => reject(init.signal?.reason), { once: true });
+    }));
+    const provider = new BlockscoutProvider({ enabled: true, timeoutMs: 5_000, fetchImpl });
+    const pending = provider.getToken(CONTRACT, { signal: controller.signal });
+    controller.abort(new Error('request_deadline_exhausted'));
+    await expect(pending).rejects.toThrow('request_deadline_exhausted');
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 });

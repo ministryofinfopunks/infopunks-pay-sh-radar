@@ -18,6 +18,7 @@ describe('runtime environment config', () => {
     expect(config.rhChainReviewedClassificationsEnabled).toBe(false);
     expect(config.dexScreenerMaxRetries).toBe(2);
     expect(config.dexScreenerMaxConcurrency).toBe(4);
+    expect(config.rhChainLiveTokenRouteTimeoutMs).toBe(3_800);
   });
 
   it('supports explicit safe metadata monitor mode and legacy enabled compatibility', () => {
@@ -67,6 +68,8 @@ describe('runtime environment config', () => {
     expect(() => loadRuntimeConfig({ RH_CHAIN_RECEIPT_DRAFT_CRON: 'every hour' })).toThrow('RH_CHAIN_RECEIPT_DRAFT_CRON');
     expect(() => loadRuntimeConfig({ DEXSCREENER_MAX_RETRIES: '6' })).toThrow('DEXSCREENER_MAX_RETRIES');
     expect(() => loadRuntimeConfig({ DEXSCREENER_MAX_CONCURRENCY: '21' })).toThrow('DEXSCREENER_MAX_CONCURRENCY');
+    expect(loadRuntimeConfig({ RH_CHAIN_LIVE_TOKEN_ROUTE_TIMEOUT_MS: '3500' }).rhChainLiveTokenRouteTimeoutMs).toBe(3_500);
+    expect(() => loadRuntimeConfig({ RH_CHAIN_LIVE_TOKEN_ROUTE_TIMEOUT_MS: '4001' })).toThrow('RH_CHAIN_LIVE_TOKEN_ROUTE_TIMEOUT_MS');
   });
 
   it('restricts CORS when FRONTEND_ORIGIN is configured', async () => {

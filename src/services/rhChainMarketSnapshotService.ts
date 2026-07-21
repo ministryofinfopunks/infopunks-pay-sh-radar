@@ -52,7 +52,7 @@ export interface RhChainMarketSnapshotStore {
   readonly adapter: 'memory' | 'postgres';
   readonly durable: boolean;
   save(snapshot: RhChainMarketSnapshot): Promise<void>;
-  list(contract: string): Promise<RhChainMarketSnapshot[]>;
+  list(contract: string, operation?: { timeoutMs?: number }): Promise<RhChainMarketSnapshot[]>;
   listMany?(contracts: string[]): Promise<Record<string, RhChainMarketSnapshot[]>>;
   latestMany?(contracts: string[]): Promise<Record<string, RhChainMarketSnapshot | null>>;
   close?(): Promise<void>;
@@ -86,7 +86,7 @@ export class PostgresRhChainMarketSnapshotStore implements RhChainMarketSnapshot
       values ($1,$2,$3,$4,$5,$6,$7,$8::jsonb) on conflict (snapshot_id) do nothing`, [snapshot.snapshot_id, snapshot.token_address.toLowerCase(), snapshot.pair_address?.toLowerCase() ?? null, snapshot.provider, snapshot.captured_at, snapshot.provider_timestamp ?? null, snapshot.raw_data_version ?? 'legacy-v1', JSON.stringify(snapshot)]);
     await this.pool.query("delete from rh_chain_market_snapshots where snapshot_id in (select snapshot_id from (select snapshot_id, row_number() over (partition by token_address order by captured_at desc) as row_number, captured_at from rh_chain_market_snapshots) retained where retained.captured_at < now() - interval '30 days' or retained.row_number > 300)");
   }
-  async list(contract: string) { await this.ready(); const result = await this.pool.query<{ payload: RhChainMarketSnapshot }>('select payload from rh_chain_market_snapshots where token_address=$1 order by captured_at asc limit 300', [contract.toLowerCase()]); return result.rows.map((row) => row.payload); }
+  async list(contract: string, operation?: { timeoutMs?: number }) { await this.ready(); const result = await this.pool.query({ text: 'select payload from rh_chain_market_snapshots where token_address=$1 order by captured_at asc limit 300', values: [contract.toLowerCase()], query_timeout: operation?.timeoutMs } as pg.QueryConfig & { query_timeout?: number }) as pg.QueryResult<{ payload: RhChainMarketSnapshot }>; return result.rows.map((row) => row.payload); }
   async listMany(contracts: string[]) {
     const normalized = [...new Set(contracts.map(normalize).filter(Boolean))].slice(0, 300);
     if (!normalized.length) return {};
@@ -183,7 +183,7 @@ export class RhChainMarketSnapshotService {
     } catch { return { snapshot: null, status: 'unavailable' as const, caveats: ['Provider unavailable; no snapshot was inferred or written.'] }; }
   }
 
-  async listSnapshots(contract: string) { return this.options.store.list(normalize(contract)); }
+  async listSnapshots(contract: string, operation?: { timeoutMs?: number }) { return this.options.store.list(normalize(contract), operation); }
   async listSnapshotsForContracts(contracts: string[]) {
     const normalized = [...new Set(contracts.map(normalize).filter(Boolean))].slice(0, 300);
     if (this.options.store.listMany) return this.options.store.listMany(normalized);

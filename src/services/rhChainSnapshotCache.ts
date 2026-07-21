@@ -3,11 +3,12 @@ import { resolvePostgresPool, RetryablePostgresSchema, type PostgresPoolSource }
 import type { RhChainCacheEntry, RhChainSnapshotStatus } from './rhChainLiveSnapshotService';
 
 export type RhChainSnapshotCacheStatus = { status: RhChainSnapshotStatus | 'miss'; expires_at: string | null; fetched_at: string | null; durable: boolean };
+export type RhChainSnapshotCacheOperation = { timeoutMs?: number };
 
 /** Shared boundary for external context snapshots. Values never contain review or index decisions. */
 export interface RhChainSnapshotCache {
-  get<T>(key: string): Promise<RhChainCacheEntry<T> | null>;
-  set<T>(key: string, value: RhChainCacheEntry<T>, ttlMs: number): Promise<void>;
+  get<T>(key: string, operation?: RhChainSnapshotCacheOperation): Promise<RhChainCacheEntry<T> | null>;
+  set<T>(key: string, value: RhChainCacheEntry<T>, ttlMs: number, operation?: RhChainSnapshotCacheOperation): Promise<void>;
   delete(key: string): Promise<void>;
   getStatus(key: string): Promise<RhChainSnapshotCacheStatus>;
   close?(): Promise<void>;
@@ -29,8 +30,8 @@ export class PostgresRhChainSnapshotCache implements RhChainSnapshotCache {
   private readonly ownsPool: boolean;
   private readonly schema = new RetryablePostgresSchema('rh_chain_snapshot_cache');
   constructor(source: PostgresPoolSource) { const resolved = resolvePostgresPool(source); this.pool = resolved.pool; this.ownsPool = resolved.ownsPool; }
-  async get<T>(key: string) { await this.ensureSchema(); const result = await this.pool.query('select entry from rh_chain_snapshot_cache where cache_key = $1', [key]); return (result.rows[0]?.entry as RhChainCacheEntry<T> | undefined) ?? null; }
-  async set<T>(key: string, value: RhChainCacheEntry<T>, _ttlMs: number) { await this.ensureSchema(); await this.pool.query('insert into rh_chain_snapshot_cache (cache_key, entry, expires_at) values ($1, $2::jsonb, $3) on conflict (cache_key) do update set entry = excluded.entry, expires_at = excluded.expires_at', [key, JSON.stringify(value), value.expires_at]); }
+  async get<T>(key: string, operation?: RhChainSnapshotCacheOperation) { await this.ensureSchema(); const result = await this.pool.query({ text: 'select entry from rh_chain_snapshot_cache where cache_key = $1', values: [key], query_timeout: operation?.timeoutMs } as pg.QueryConfig & { query_timeout?: number }) as pg.QueryResult<{ entry: RhChainCacheEntry<T> }>; return result.rows[0]?.entry ?? null; }
+  async set<T>(key: string, value: RhChainCacheEntry<T>, _ttlMs: number, operation?: RhChainSnapshotCacheOperation) { await this.ensureSchema(); await this.pool.query({ text: 'insert into rh_chain_snapshot_cache (cache_key, entry, expires_at) values ($1, $2::jsonb, $3) on conflict (cache_key) do update set entry = excluded.entry, expires_at = excluded.expires_at', values: [key, JSON.stringify(value), value.expires_at], query_timeout: operation?.timeoutMs } as pg.QueryConfig & { query_timeout?: number }); }
   async delete(key: string) { await this.ensureSchema(); await this.pool.query('delete from rh_chain_snapshot_cache where cache_key = $1', [key]); }
   async getStatus(key: string): Promise<RhChainSnapshotCacheStatus> { const entry = await this.get<unknown>(key); return entry ? { status: new Date(entry.expires_at).getTime() > Date.now() ? entry.status : 'stale', expires_at: entry.expires_at, fetched_at: entry.fetched_at, durable: true } : { status: 'miss', expires_at: null, fetched_at: null, durable: true }; }
   async close() { if (this.ownsPool) await this.pool.end(); }

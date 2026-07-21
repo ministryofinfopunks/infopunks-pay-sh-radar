@@ -161,6 +161,7 @@ import { buildEcosystemHistory, buildEndpointHistory, buildProviderHistory, norm
 import { buildEcosystemRiskSummary, buildEndpointRiskAssessment, buildProviderRiskAssessment } from '../services/radarRiskService';
 import { buildAgentSpendReadiness, getAgentSpendReadinessCard } from '../services/radarAgentReadinessService';
 import { createResponseCache } from '../services/responseCache';
+import { createRequestDeadline, runWithinDeadline } from '../services/requestDeadline';
 import { DEFAULT_LIVE_CATALOG_URL } from '../ingestion/payShCatalogAdapter';
 import { degradationsCsv, endpointsCsv, providersCsv, routeCandidatesCsv } from '../services/radarCsvService';
 import { listRouteMappings } from '../services/providerEndpointMap';
@@ -588,6 +589,7 @@ export type CreateAppOptions = {
   rhChainReviewedClassificationStore?: RhChainReviewedClassificationStore;
   rhChainProjectClaimsStore?: RhChainProjectClaimsStore;
   rhChainLiveSnapshotOptions?: Partial<RhChainLiveSnapshotOptions>;
+  rhChainLiveTokenRouteTimeoutMs?: number;
   rhChainMarketDataOptions?: Partial<Omit<RhChainMarketDataServiceOptions, 'provider'>> & { provider?: RhChainDexScreenerIngestionSource };
   rhChainMarketStructureOptions?: Partial<Omit<RhChainMarketStructureOptions, 'marketData'>>;
   rhChainTokenRegistryOptions?: Partial<Omit<RhChainTokenRegistryOptions, 'provider' | 'enabled' | 'receipts' | 'marketStructure'>> & { provider?: BlockscoutProvider; enabled?: boolean };
@@ -602,6 +604,20 @@ export type CreateAppOptions = {
   rhChainDailyReceiptDraftStore?: RhChainDailyReceiptDraftStore;
   rhChainRiskCorrelationSnapshotStore?: RhChainRiskCorrelationSnapshotStore;
 };
+
+const RH_CHAIN_LIVE_TOKEN_ROUTE_RESERVE_MS = 1_000;
+const RH_CHAIN_LIVE_TOKEN_CONTEXT_READ_MAX_MS = 800;
+const RH_CHAIN_LIVE_TOKEN_CACHE_READ_MAX_MS = 300;
+
+export function liveTokenRouteBudgets(totalMs: number, configuredProviderMs: number) {
+  const total = Math.max(1, Math.floor(totalMs));
+  return {
+    totalMs: total,
+    providerMs: Math.max(1, Math.min(configuredProviderMs, total - Math.min(RH_CHAIN_LIVE_TOKEN_ROUTE_RESERVE_MS, Math.floor(total / 2)))),
+    contextReadMs: Math.max(1, Math.min(RH_CHAIN_LIVE_TOKEN_CONTEXT_READ_MAX_MS, total - 1)),
+    cacheReadMs: Math.max(1, Math.min(RH_CHAIN_LIVE_TOKEN_CACHE_READ_MAX_MS, total - 1))
+  };
+}
 
 class RhChainPublicRateLimiter {
   private readonly hits = new Map<string, { count: number; resetAt: number }>();
@@ -668,6 +684,7 @@ export async function createApp(
     blockscoutUrl: config.rhChainBlockscoutUrl,
     databaseUrl: config.databaseUrl,
     databasePool: rhChainPostgresPool,
+    log: (entry) => console.log(JSON.stringify(entry)),
     ...options.rhChainLiveSnapshotOptions
   });
   const rhChainMarketProvider = options.rhChainMarketDataOptions?.provider ?? new DexScreenerProvider({
@@ -2385,9 +2402,56 @@ export async function createApp(
     return safeJsonExport(buildRhChainApiResponse({ ...snapshot, data_mode: snapshot.live_snapshots_enabled && snapshot.cache_status === 'fresh' ? 'live_cached' as const : snapshot.live_snapshots_enabled ? 'unavailable' as const : 'seeded' as const }));
   });
   app.get<{ Params: { contract: string } }>('/v1/rh-chain/live-snapshot/token/:contract', async (req) => {
-    const [snapshot, submissions, snapshotHistory, onchain] = await Promise.all([rhChainLiveSnapshots.getTokenSnapshot(req.params.contract), rhChainSubmissionStore.list(), rhChainMarketSnapshots.listSnapshots(req.params.contract), rhChainTokenRegistry.enrichToken(req.params.contract)]);
-    const reviewItems = assembleRhChainReviewQueue(submissions.map(asRhChainPersistedReviewItem)).items;
-    return safeJsonExport(buildRhChainApiResponse({ ...snapshot, resolved_context: resolveRhChainContractIntelligence(req.params.contract, { reviewItems, snapshotHistory, dexscreener: snapshot.token_pair, blockscout: snapshot.explorer, blockscoutToken: onchain.token }), data_mode: snapshot.live_snapshots_enabled && snapshot.cache_status === 'fresh' ? 'live_cached' as const : snapshot.live_snapshots_enabled ? 'unavailable' as const : 'seeded' as const }));
+    const startedAtMs = Date.now();
+    const budgets = liveTokenRouteBudgets(options.rhChainLiveTokenRouteTimeoutMs ?? config.rhChainLiveTokenRouteTimeoutMs, config.rhChainProviderTimeoutMs);
+    const deadline = createRequestDeadline(budgets.totalMs);
+    try {
+      const [snapshotOutcome, submissionsOutcome, snapshotHistoryOutcome, onchainOutcome] = await Promise.all([
+        runWithinDeadline(deadline, budgets.totalMs - 1, () => rhChainLiveSnapshots.getTokenSnapshot(req.params.contract, { deadline, providerTimeoutMs: budgets.providerMs, cacheLookupTimeoutMs: budgets.cacheReadMs })),
+        runWithinDeadline(deadline, budgets.contextReadMs, () => rhChainSubmissionStore.list({ timeoutMs: budgets.contextReadMs })),
+        runWithinDeadline(deadline, budgets.contextReadMs, () => rhChainMarketSnapshots.listSnapshots(req.params.contract, { timeoutMs: budgets.contextReadMs })),
+        runWithinDeadline(deadline, budgets.providerMs, (signal) => rhChainTokenRegistry.enrichToken(req.params.contract, { signal }))
+      ]);
+      const snapshot = snapshotOutcome.ok ? snapshotOutcome.value : rhChainLiveSnapshots.unavailableTokenSnapshot(req.params.contract);
+      const submissions = submissionsOutcome.ok ? submissionsOutcome.value : [];
+      const snapshotHistory = snapshotHistoryOutcome.ok ? snapshotHistoryOutcome.value : [];
+      const onchain = onchainOutcome.ok ? onchainOutcome.value : { token: null };
+      const reviewItems = assembleRhChainReviewQueue(submissions.map(asRhChainPersistedReviewItem)).items;
+      const contextWarnings = [
+        !submissionsOutcome.ok && 'Reviewed submission context exceeded its bounded read budget.',
+        !snapshotHistoryOutcome.ok && 'Market Memory context exceeded its bounded read budget.',
+        !onchainOutcome.ok && 'Blockscout token enrichment exceeded its bounded provider budget.'
+      ].filter((value): value is string => Boolean(value));
+      const snapshotWarnings = 'warnings' in snapshot && Array.isArray(snapshot.warnings) ? snapshot.warnings : [];
+      const responseStatus = contextWarnings.length
+        ? ('token_pair' in snapshot && (snapshot.token_pair || snapshot.explorer) ? 'partial' : 'unavailable')
+        : ('response_status' in snapshot ? snapshot.response_status : snapshot.cache_status === 'unavailable' ? 'unavailable' : 'complete');
+      const providerTimeoutCount = snapshot.provider_statuses.filter((provider) => provider.error?.code === 'provider_timeout').length + (onchainOutcome.ok ? 0 : 1);
+      const deadlineExhausted = deadline.signal.aborted || [snapshotOutcome, submissionsOutcome, snapshotHistoryOutcome, onchainOutcome].some((outcome) => !outcome.ok && outcome.reason === 'timeout');
+      console.log(JSON.stringify({
+        event: 'rh_chain_live_token_route', route: '/v1/rh-chain/live-snapshot/token/:contract', duration_ms: Date.now() - startedAtMs,
+        route_budget_ms: budgets.totalMs, provider_budget_ms: budgets.providerMs, response_status: responseStatus,
+        cache_status: snapshot.cache_status, stale_cache_used: snapshot.cache_status === 'stale', partial_response: responseStatus === 'partial',
+        provider_timeout_count: providerTimeoutCount, deadline_exhausted: deadlineExhausted,
+        operations: {
+          live_snapshot: { outcome: snapshotOutcome.ok ? 'completed' : snapshotOutcome.reason, duration_ms: snapshotOutcome.durationMs },
+          reviewed_context: { outcome: submissionsOutcome.ok ? 'completed' : submissionsOutcome.reason, duration_ms: submissionsOutcome.durationMs },
+          market_memory: { outcome: snapshotHistoryOutcome.ok ? 'completed' : snapshotHistoryOutcome.reason, duration_ms: snapshotHistoryOutcome.durationMs },
+          blockscout_enrichment: { outcome: onchainOutcome.ok ? 'completed' : onchainOutcome.reason, duration_ms: onchainOutcome.durationMs }
+        }
+      }));
+      return safeJsonExport(buildRhChainApiResponse({
+        ...snapshot,
+        response_status: responseStatus,
+        warnings: [...snapshotWarnings, ...contextWarnings],
+        deadline_exhausted: deadlineExhausted,
+        resolved_context: resolveRhChainContractIntelligence(req.params.contract, { reviewItems, snapshotHistory, dexscreener: snapshot.token_pair, blockscout: snapshot.explorer, blockscoutToken: onchain.token }),
+        data_mode: snapshot.live_snapshots_enabled && snapshot.cache_status === 'fresh' ? 'live_cached' as const : snapshot.live_snapshots_enabled ? 'unavailable' as const : 'seeded' as const
+      }));
+    } finally {
+      deadline.abort('route_response_complete');
+      deadline.dispose();
+    }
   });
   app.get('/v1/rh-chain/market/provider-status', async () => safeJsonExport(buildRhChainApiResponse(await rhChainMarketData.getProviderStatus())));
   app.get('/v1/rh-chain/onchain/provider-status', async () => safeJsonExport(buildRhChainApiResponse(await rhChainTokenRegistry.getProviderStatus())));
