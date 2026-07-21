@@ -100,7 +100,7 @@ export class RhChainLiveSnapshotService {
       error: normalizeRhChainProviderError(new Error(errorSummary))
     });
     return {
-      contract, token_pair: null, explorer: null, response_status: 'unavailable' as const, warnings: [`Live token context: ${errorSummary}`],
+      contract, token_pair: null, explorer: null, launch_context: undefined, response_status: 'unavailable' as const, warnings: [`Live token context: ${errorSummary}`],
       provider_statuses: [this.idleProvider('DefiLlama'), this.idleProvider('CoinGecko'), unavailable('DexScreener'), unavailable('Blockscout')],
       cache_status: 'unavailable' as const, generated_at: this.now().toISOString(), live_snapshots_enabled: this.options.enabled,
       judgment_policy: JUDGMENT_POLICY, disclaimer: DISCLAIMER

@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createApp, liveTokenRouteBudgets } from '../src/api/app';
+import { BlockscoutProvider } from '../src/providers/blockscoutProvider';
 import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
 import { RhChainLiveSnapshotService, type RhChainCacheEntry, type RhChainLiveProviderClient } from '../src/services/rhChainLiveSnapshotService';
 import { InMemoryRhChainSnapshotCache } from '../src/services/rhChainSnapshotCache';
@@ -217,6 +218,44 @@ describe('RH Chain Live Snapshot token request deadline', () => {
         data: expect.objectContaining({ contract: CONTRACT, response_status: 'partial', token_pair: expect.objectContaining({ liquidity_usd: 44 }), explorer: null }),
         data_mode: 'live_cached',
         disclaimer: expect.any(String)
+      }));
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('bounds optional Blockscout dossier enrichment with the shared route budget', async () => {
+    const blockscout = new BlockscoutProvider({
+      enabled: true,
+      timeoutMs: 10_000,
+      fetchImpl: (_input, init) => aborted<Response>({ signal: init?.signal ?? undefined })
+    });
+    const app = await createApp(emptyIntelligenceStore(), undefined, {
+      rhChainLiveTokenRouteTimeoutMs: 60,
+      rhChainLiveSnapshotOptions: {
+        enabled: true,
+        timeoutMs: 40,
+        providers: {
+          chainMetrics: async () => ({ tvl_usd: null, dex_volume_24h_usd: null, stablecoin_market_cap_usd: null, protocol_count: null, source_timestamp: null }),
+          memeCategory: async () => ({ market_cap_usd: null, volume_24h_usd: null, top_assets: [], source_timestamp: null }),
+          tokenPair: async () => pair,
+          explorer: async () => explorer
+        }
+      },
+      rhChainTokenRegistryOptions: { enabled: true, provider: blockscout }
+    });
+    try {
+      const pending = app.inject({ method: 'GET', url: `/v1/rh-chain/tokens/${CONTRACT}/dossier` });
+      await vi.advanceTimersByTimeAsync(61);
+      const response = await pending;
+      expect(response.statusCode).toBe(200);
+      expect(response.json()).toEqual(expect.objectContaining({
+        data: expect.objectContaining({
+          contract: CONTRACT,
+          response_status: 'partial',
+          warnings: ['Blockscout token enrichment exceeded its bounded provider budget.'],
+          external_context: expect.objectContaining({ token_pair: expect.objectContaining({ liquidity_usd: 44 }) })
+        })
       }));
     } finally {
       await app.close();

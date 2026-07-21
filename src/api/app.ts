@@ -2547,19 +2547,47 @@ export async function createApp(
   });
   app.get<{ Querystring: { day?: string } }>('/v1/rh-chain/review-pipeline/daily-summary', async (req) => safeJsonExport(buildRhChainApiResponse(await rhChainReviewPipeline.dailySummary(req.query.day))));
   app.get<{ Params: { contract: string } }>('/v1/rh-chain/tokens/:contract/dossier', async (req) => {
-    const [submissions, tokenSnapshot, liveSnapshot, sweep, snapshotHistory, onchain] = await Promise.all([
-      rhChainSubmissionStore.list(),
-      rhChainLiveSnapshots.getTokenSnapshot(req.params.contract),
-      rhChainLiveSnapshots.getLiveSnapshot(),
-      rhChainRiskCorrelationSweep.getLatest(),
-      rhChainMarketSnapshots.listSnapshots(req.params.contract),
-      rhChainTokenRegistry.enrichToken(req.params.contract)
-    ]);
-    const reviewItems = assembleRhChainReviewQueue(submissions.map(asRhChainPersistedReviewItem)).items;
-    const resolution = resolveRhChainContractIntelligence(req.params.contract, { reviewItems, snapshotHistory, dexscreener: tokenSnapshot.token_pair, blockscout: tokenSnapshot.explorer, blockscoutToken: onchain.token });
-    const dossier = assembleRhChainTokenDossier(req.params.contract, submissions, tokenSnapshot, liveSnapshot, resolution);
-    const related_suspected_correlations = sweep?.suspected_correlations.filter((correlation) => correlation.related_records.some((record) => record.token_contract.toLowerCase() === req.params.contract.toLowerCase())).map(({ correlation_id, correlation_type, evidence_summary, confidence_level, review_status, observed_at }) => ({ correlation_id, correlation_type, evidence_summary, confidence_level, review_status, observed_at }));
-    return safeJsonExport(buildRhChainApiResponse({ ...dossier, ...(related_suspected_correlations?.length ? { related_suspected_correlations } : {}) }));
+    const startedAtMs = Date.now();
+    const budgets = liveTokenRouteBudgets(options.rhChainLiveTokenRouteTimeoutMs ?? config.rhChainLiveTokenRouteTimeoutMs, config.rhChainProviderTimeoutMs);
+    const deadline = createRequestDeadline(budgets.totalMs);
+    try {
+      const [submissions, tokenSnapshotOutcome, liveSnapshot, sweep, snapshotHistory, onchainOutcome] = await Promise.all([
+        rhChainSubmissionStore.list(),
+        runWithinDeadline(deadline, budgets.totalMs - 1, () => rhChainLiveSnapshots.getTokenSnapshot(req.params.contract, { deadline, providerTimeoutMs: budgets.providerMs, cacheLookupTimeoutMs: budgets.cacheReadMs })),
+        rhChainLiveSnapshots.getLiveSnapshot(),
+        rhChainRiskCorrelationSweep.getLatest(),
+        rhChainMarketSnapshots.listSnapshots(req.params.contract),
+        runWithinDeadline(deadline, budgets.providerMs, (signal) => rhChainTokenRegistry.enrichToken(req.params.contract, { signal }))
+      ]);
+      const tokenSnapshot = tokenSnapshotOutcome.ok ? tokenSnapshotOutcome.value : rhChainLiveSnapshots.unavailableTokenSnapshot(req.params.contract);
+      const onchain = onchainOutcome.ok ? onchainOutcome.value : { token: null };
+      const warnings = [
+        !tokenSnapshotOutcome.ok && 'Live token context exceeded its bounded provider budget.',
+        !onchainOutcome.ok && 'Blockscout token enrichment exceeded its bounded provider budget.'
+      ].filter((value): value is string => Boolean(value));
+      const reviewItems = assembleRhChainReviewQueue(submissions.map(asRhChainPersistedReviewItem)).items;
+      const resolution = resolveRhChainContractIntelligence(req.params.contract, { reviewItems, snapshotHistory, dexscreener: tokenSnapshot.token_pair, blockscout: tokenSnapshot.explorer, blockscoutToken: onchain.token });
+      const dossier = assembleRhChainTokenDossier(req.params.contract, submissions, tokenSnapshot, liveSnapshot, resolution);
+      const related_suspected_correlations = sweep?.suspected_correlations.filter((correlation) => correlation.related_records.some((record) => record.token_contract.toLowerCase() === req.params.contract.toLowerCase())).map(({ correlation_id, correlation_type, evidence_summary, confidence_level, review_status, observed_at }) => ({ correlation_id, correlation_type, evidence_summary, confidence_level, review_status, observed_at }));
+      console.log(JSON.stringify({
+        event: 'rh_chain_token_dossier_route', route: '/v1/rh-chain/tokens/:contract/dossier', duration_ms: Date.now() - startedAtMs,
+        route_budget_ms: budgets.totalMs, provider_budget_ms: budgets.providerMs, response_status: warnings.length ? 'partial' : 'complete',
+        provider_timeout_count: [tokenSnapshotOutcome, onchainOutcome].filter((outcome) => !outcome.ok && outcome.reason === 'timeout').length,
+        deadline_exhausted: deadline.signal.aborted,
+        operations: {
+          live_token_context: { outcome: tokenSnapshotOutcome.ok ? 'completed' : tokenSnapshotOutcome.reason, duration_ms: tokenSnapshotOutcome.durationMs },
+          blockscout_enrichment: { outcome: onchainOutcome.ok ? 'completed' : onchainOutcome.reason, duration_ms: onchainOutcome.durationMs }
+        }
+      }));
+      return safeJsonExport(buildRhChainApiResponse({
+        ...dossier,
+        ...(warnings.length ? { response_status: 'partial' as const, warnings } : {}),
+        ...(related_suspected_correlations?.length ? { related_suspected_correlations } : {})
+      }));
+    } finally {
+      deadline.abort('route_response_complete');
+      deadline.dispose();
+    }
   });
   app.get('/v1/rh-chain/review-queue', async () => {
     const submissions = await rhChainSubmissionStore.list();
