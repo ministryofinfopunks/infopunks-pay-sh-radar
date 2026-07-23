@@ -19,5 +19,9 @@ services:
         value: "300"
       - key: RH_PULSE_INTERNAL_TOKEN
         sync: false
+      - key: RH_PULSE_RATE_LIMIT_SECRET
+        sync: false
+      - key: RH_PULSE_PHYSICAL_WALLET_GATE_PASSED
+        value: "false"
       - key: VITE_WALLETCONNECT_PROJECT_ID
         sync: false
