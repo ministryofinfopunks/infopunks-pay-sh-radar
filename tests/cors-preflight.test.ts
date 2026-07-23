@@ -47,6 +47,21 @@ describe('CORS preflight', () => {
     await app.close();
   });
 
+  it('includes CORS headers on RH Pulse reads for the configured public host', async () => {
+    const app = await createApp();
+    const response = await app.inject({
+      method: 'GET',
+      url: '/v1/rh-pulse',
+      headers: {
+        origin: 'https://pulse.infopunks.fun'
+      }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.headers['access-control-allow-origin']).toBe('https://pulse.infopunks.fun');
+    await app.close();
+  });
+
   it('handles OPTIONS /v1/pulse from radar frontend origin', async () => {
     const app = await createApp();
     const response = await app.inject({

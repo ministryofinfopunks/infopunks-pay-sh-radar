@@ -12,6 +12,35 @@
   --muted: #87a393;
 }
 
+.rh-pulse-boot-shell {
+  min-height: 100dvh;
+  display: grid;
+  align-content: center;
+  gap: 1rem;
+  padding: max(2rem, env(safe-area-inset-top)) 1.25rem max(2rem, env(safe-area-inset-bottom));
+  overflow-x: hidden;
+  background: #050807;
+  color: #eef6f0;
+  font-family: "Space Grotesk", system-ui, sans-serif;
+}
+
+.rh-pulse-boot-shell p,
+.rh-pulse-boot-shell span {
+  margin: 0;
+  color: #91a99a;
+  font: 500 0.72rem/1.4 "IBM Plex Mono", monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.rh-pulse-boot-shell h1 {
+  max-width: 18ch;
+  margin: 0;
+  font-size: clamp(2rem, 10vw, 4rem);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+}
+
 /* RH Chain Signal Desk */
 .rh-chain-shell {
   background:
