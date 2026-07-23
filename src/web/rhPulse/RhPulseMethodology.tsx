@@ -63,6 +63,15 @@ export function RhPulseMethodology({
           <p><strong>Correlation boundary</strong><span>{methodology.correlation_warning}</span></p>
         </div>
 
+        <div className="rh-pulse-methodology-doctrine" aria-label="Rotation resolution methodology">
+          <p><strong>Resolution weights</strong><span>Every directional candidate uses 40% reviewed cross-layer evidence, 35% market-activity acceleration and 25% narrative momentum.</span></p>
+          <p><strong>Qualification</strong><span>A direction needs at least 60 points, a five-point lead, Medium confidence, acceptable critical-source health and qualified cross-layer evidence.</span></p>
+          <p><strong>No Qualified Rotation</strong><span>A valid market result used only when evidence is complete and healthy but no direction qualifies or separates. It does not mean nothing happened.</span></p>
+          <p><strong>Unable to Resolve</strong><span>A system state caused by missing, stale or inconsistent critical evidence. It publishes no winner and never makes No Qualified Rotation correct.</span></p>
+          <p><strong>Observation tolerances</strong><span>Baseline observations must fall from 15 minutes before to five minutes after open. Closing observations must fall from five minutes before to 15 minutes after close.</span></p>
+          <p><strong>Approval boundary</strong><span>Calculation produces a reviewable draft. A separate approval is required before an immutable Rotation Receipt can be published.</span></p>
+        </div>
+
         <div className="rh-pulse-source-health" aria-labelledby="rh-pulse-source-health-title">
           <div className="rh-pulse-source-health-heading">
             <h3 id="rh-pulse-source-health-title">Source health</h3>

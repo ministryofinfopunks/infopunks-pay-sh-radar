@@ -24,6 +24,17 @@ import {
   type RhPulsePostgresObservation
 } from '../src/services/rhPulseParticipationStore';
 import { RhPulseService } from '../src/services/rhPulseService';
+import {
+  calculateRhPulseResolution,
+  resolutionManifestHash,
+  RhPulseResolutionService
+} from '../src/services/rhPulseResolutionService';
+import {
+  PostgresRhPulseResolutionStore,
+  type RhPulseResolutionFailureStage,
+  type RhPulseResolutionObservation
+} from '../src/services/rhPulseResolutionStore';
+import { resolutionManifest } from '../tests/fixtures/rhPulseResolution';
 
 const GATE_URL = 'postgresql://postgres@127.0.0.1:55463/rh_pulse_gate';
 const ADMIN_URL = 'postgresql://postgres@127.0.0.1:55463/postgres';
@@ -46,6 +57,17 @@ const failureStages: RhPulsePostgresFailureStage[] = [
   'after_challenge_used_update',
   'after_audit_event_insertion'
 ];
+const resolutionDraftFailureStages: RhPulseResolutionFailureStage[] = [
+  'after_resolution_run_insertion',
+  'after_resolution_draft_audit_insertion'
+];
+const resolutionPublicationFailureStages: RhPulseResolutionFailureStage[] = [
+  'after_resolution_run_lock',
+  'after_rotation_receipt_insertion',
+  'after_resolution_run_update',
+  'after_resolution_window_update',
+  'after_resolution_audit_insertion'
+];
 
 type Signed = {
   account: PrivateKeyAccount;
@@ -56,19 +78,37 @@ type Signed = {
 type GateReport = {
   postgres_version?: string;
   migration_007_ms?: number;
+  migration_008_ms?: number;
   migrations_tracked?: number;
   unique_batches: Array<{ attempted: number; accepted: number; range: string }>;
   duplicate_races: Array<{ clients: number; accepted: number; rejected: number }>;
   forced_rollbacks: number;
-  multi_process?: { processes: number; attempted: number; accepted: number; stale_read_cache_ms: number };
+  multi_process?: {
+    processes: number;
+    attempted: number;
+    accepted: number;
+    stale_read_cache_ms: number;
+    resolution_publication_attempts: number;
+    resolution_receipts: number;
+  };
   query_timings_ms: Record<string, number>;
   database_recovery?: string;
+  resolution?: {
+    draft_clients: number;
+    publication_clients: number;
+    published_receipts: number;
+    calculation_ms: number;
+    publication_ms: number;
+    receipt_hash: string;
+  };
+  resolution_forced_rollbacks: number;
 };
 
 const report: GateReport = {
   unique_batches: [],
   duplicate_races: [],
   forced_rollbacks: 0,
+  resolution_forced_rollbacks: 0,
   query_timings_ms: {}
 };
 
@@ -90,7 +130,7 @@ describeGate('RH Pulse Phase 2.5 real PostgreSQL production gate', () => {
     report.postgres_version = version.rows[0]?.version;
     const ledger = await pool.query<{ count: string }>('select count(*) from infopunks_schema_migrations');
     report.migrations_tracked = Number(ledger.rows[0]?.count ?? 0);
-    expect(report.migrations_tracked).toBe(7);
+    expect(report.migrations_tracked).toBe(8);
     readModel = await new RhPulseService({
       crossLayer: async () => ({ entries: [] }),
       cacheTtlMs: 0
@@ -133,7 +173,7 @@ describeGate('RH Pulse Phase 2.5 real PostgreSQL production gate', () => {
     const tracked = JSON.parse(trackedRerun.stdout) as {
       migrations: Array<{ state: string }>;
     };
-    expect(tracked.migrations).toHaveLength(7);
+    expect(tracked.migrations).toHaveLength(8);
     expect(tracked.migrations.every(({ state }) => state === 'already_applied')).toBe(true);
 
     await withTemporaryDatabase('rh_pulse_gate_migration', async (migrationPool) => {
@@ -215,6 +255,27 @@ describeGate('RH Pulse Phase 2.5 real PostgreSQL production gate', () => {
       expect(await scalar(migrationPool, "select count(*) from rh_chain_market_snapshots where snapshot_id='existing_before_007'")).toBe(1);
       await migrationPool.query(migration007);
       expect(await scalar(migrationPool, "select count(*) from pg_tables where schemaname='public' and tablename='rh_pulse_calls'")).toBe(1);
+      const migration008 = await migrationSql('20260723_008_rh_pulse_rotation_resolutions.up.sql');
+      const resolutionMigrationStartedAt = performance.now();
+      await migrationPool.query(migration008);
+      report.migration_008_ms = Math.round(performance.now() - resolutionMigrationStartedAt);
+      expect(await scalar(migrationPool, "select count(*) from pg_tables where schemaname='public' and tablename in ('rh_pulse_resolution_runs','rh_pulse_rotation_receipts')")).toBe(2);
+      const resolutionObjects = await migrationPool.query<{ name: string }>(
+        `select indexname as name from pg_indexes
+         where schemaname='public' and indexname like 'rh_pulse_resolution_%'
+         union all
+         select conname from pg_constraint
+         where connamespace='public'::regnamespace
+           and conname like 'rh_pulse_rotation_receipts_%'`
+      );
+      expect(resolutionObjects.rows.some(({ name }) => name === 'rh_pulse_resolution_runs_window_status_idx')).toBe(true);
+      expect(resolutionObjects.rows.some(({ name }) => name === 'rh_pulse_rotation_receipts_window_id_key')).toBe(true);
+      const down008 = await migrationSql('20260723_008_rh_pulse_rotation_resolutions.down.sql');
+      await migrationPool.query(down008);
+      expect(await scalar(migrationPool, "select count(*) from pg_tables where schemaname='public' and tablename in ('rh_pulse_resolution_runs','rh_pulse_rotation_receipts')")).toBe(0);
+      expect(await scalar(migrationPool, "select count(*) from pg_tables where schemaname='public' and tablename='rh_pulse_calls'")).toBe(1);
+      await migrationPool.query(migration008);
+      expect(await scalar(migrationPool, "select count(*) from pg_tables where schemaname='public' and tablename='rh_pulse_rotation_receipts'")).toBe(1);
     });
   }, 60_000);
 
@@ -473,6 +534,250 @@ describeGate('RH Pulse Phase 2.5 real PostgreSQL production gate', () => {
     expect(postgresResult.receipt_hash_valid).toBe(true);
   }, 30_000);
 
+  it('publishes one deterministic Rotation Receipt under concurrent drafts and two-run contention', async () => {
+    const participation = serviceFor(postgresStore());
+    const window = await createOpenWindow(participation, 'resolution-concurrency', 250);
+    const prepared = await Promise.all([
+      signed(participation, privateKeyToAccount(generatePrivateKey()), 'memes_to_agents', 'resolution-correct-a'),
+      signed(participation, privateKeyToAccount(generatePrivateKey()), 'memes_to_agents', 'resolution-correct-b'),
+      signed(participation, privateKeyToAccount(generatePrivateKey()), 'agents_to_rwas', 'resolution-incorrect')
+    ]);
+    const accepted = await Promise.all(prepared.map(({ challenge, signature }, index) => (
+      participation.submitCall(
+        { challenge_id: challenge.challenge_id, signature },
+        `resolution-submit-${index}`
+      )
+    )));
+    await delay(275);
+    await pool.query(
+      `with boundary as (
+         select clock_timestamp()-interval '1 millisecond' as closed_at
+       )
+       update rh_pulse_windows
+       set closes_at=boundary.closed_at,
+           call_submission_closes_at=boundary.closed_at,
+           updated_at=clock_timestamp()
+       from boundary
+       where id=$1`,
+      [window.id]
+    );
+    const closed = await participation.closeWindow(window.id, {
+      audit_note: 'Close deterministic resolution concurrency window.'
+    });
+    const observations: RhPulseResolutionObservation[] = [];
+    const store = resolutionStore({ observe: (entry) => observations.push(entry) });
+    const service = resolutionService(store);
+    const manifest = resolutionManifest({ strong: 'memes_to_agents' }, closed);
+    const calculationStartedAt = performance.now();
+    const calculated = calculateRhPulseResolution(manifest);
+    const calculationMs = Number((performance.now() - calculationStartedAt).toFixed(3));
+    expect(calculated).toMatchObject({
+      state: 'resolved',
+      proposed_outcome: 'memes_to_agents'
+    });
+    const hash = resolutionManifestHash(manifest);
+    expect(resolutionManifestHash(structuredClone(manifest))).toBe(hash);
+    const preview = await service.preview(window.id, {
+      manifest,
+      audit_note: 'Preview identified deterministic gate observations.'
+    });
+    expect(preview).toMatchObject({
+      persisted: false,
+      input_manifest_hash: hash,
+      calculation: { proposed_outcome: 'memes_to_agents' }
+    });
+    expect(await scalar(pool, 'select count(*) from rh_pulse_resolution_runs where window_id=$1', [window.id])).toBe(0);
+
+    const draftResults = await Promise.all(Array.from({ length: 20 }, () => (
+      service.createResolutionDraft(window.id, {
+        manifest,
+        audit_note: 'Create concurrency-safe deterministic gate draft.'
+      })
+    )));
+    expect(new Set(draftResults.map(({ run }) => run.id)).size).toBe(1);
+    expect(await scalar(pool, 'select count(*) from rh_pulse_resolution_runs where window_id=$1', [window.id])).toBe(1);
+    const firstRun = draftResults[0]!.run;
+    expect(firstRun.input_manifest).toEqual(manifest);
+    expect(firstRun.input_manifest_hash).toBe(hash);
+    expect(firstRun.candidate_scores).toEqual(calculated.candidate_scores);
+    expect(calculateRhPulseResolution(firstRun.input_manifest)).toEqual(calculated);
+    const secondManifest = {
+      ...manifest,
+      narrative_observation_ids: [...manifest.narrative_observation_ids, 'fixture_narrative_review_pass_002']
+    };
+    const secondRun = (await service.createResolutionDraft(window.id, {
+      manifest: secondManifest,
+      audit_note: 'Create independent reviewed draft for publication contention.'
+    })).run;
+    await Promise.all([
+      service.approveResolutionDraft(firstRun.id, { audit_note: 'Approve first gate draft.' }, 'gate-reviewer-a'),
+      service.approveResolutionDraft(secondRun.id, { audit_note: 'Approve second gate draft.' }, 'gate-reviewer-b')
+    ]);
+
+    const publicationStartedAt = performance.now();
+    const publicationAttempts = await Promise.allSettled([
+      ...Array.from({ length: 5 }, () => service.publishRotationReceipt(firstRun.id, {
+        audit_note: 'Concurrent publication attempt for first draft.'
+      })),
+      ...Array.from({ length: 5 }, () => service.publishRotationReceipt(secondRun.id, {
+        audit_note: 'Concurrent publication attempt for second draft.'
+      }))
+    ]);
+    const publicationMs = Number((performance.now() - publicationStartedAt).toFixed(3));
+    const publishedCount = await scalar(pool, 'select count(*) from rh_pulse_rotation_receipts where window_id=$1', [window.id]);
+    expect(publishedCount).toBe(1);
+    expect(publicationAttempts.some(({ status }) => status === 'fulfilled')).toBe(true);
+    expect(publicationAttempts.some(({ status }) => status === 'rejected')).toBe(true);
+    expect(await scalar(pool, "select count(*) from rh_pulse_resolution_runs where window_id=$1 and status='published'", [window.id])).toBe(1);
+    expect(await scalar(pool, "select count(*) from rh_pulse_windows where id=$1 and status='resolved'", [window.id])).toBe(1);
+
+    const receipt = (await store.getReceiptForWindow(window.id))!;
+    const publicResult = await service.getPublicResolution(window.id);
+    expect(publicResult).toMatchObject({
+      outcome: 'memes_to_agents',
+      community: {
+        total_verified_calls: 3,
+        correct_calls: 2,
+        incorrect_calls: 1,
+        correct_percentage: 66.67
+      }
+    });
+    expect(receipt.receipt_hash.slice('sha256:'.length)).toBe(
+      hashInFreshProcess(receipt.receipt_payload)
+    );
+    const acceptedCall = await postgresStore().getCall(accepted[0]!.call.call_id);
+    expect(await service.resolutionStateForCall(acceptedCall!)).toMatchObject({ status: 'correct' });
+    const incorrectCall = await postgresStore().getCall(accepted[2]!.call.call_id);
+    expect(await service.resolutionStateForCall(incorrectCall!)).toMatchObject({ status: 'incorrect' });
+
+    await expect(pool.query(
+      'update rh_pulse_rotation_receipts set receipt_hash=receipt_hash where id=$1',
+      [receipt.id]
+    )).rejects.toMatchObject({ code: 'P0001' });
+    await expect(pool.query(
+      'delete from rh_pulse_rotation_receipts where id=$1',
+      [receipt.id]
+    )).rejects.toMatchObject({ code: 'P0001' });
+    await expect(pool.query(
+      `update rh_pulse_resolution_runs
+       set outcome_explanation='mutated after publication' where id=$1`,
+      [receipt.resolution_run_id]
+    )).rejects.toMatchObject({
+      code: 'P0001',
+      message: 'Published RH Pulse resolution runs are immutable'
+    });
+    await expect(pool.query(
+      'delete from rh_pulse_resolution_runs where id=$1',
+      [receipt.resolution_run_id]
+    )).rejects.toMatchObject({
+      code: 'P0001',
+      message: 'Published RH Pulse resolution runs are immutable'
+    });
+    await expect(pool.query(
+      `insert into rh_pulse_rotation_receipts
+        (id,window_id,resolution_run_id,receipt_version,public_slug,winning_outcome,
+         receipt_payload,receipt_hash,supersedes_receipt_id,published_at,created_at)
+       select $1,window_id,$2,receipt_version,$3,winning_outcome,
+              receipt_payload,$4,id,published_at,created_at
+       from rh_pulse_rotation_receipts where id=$5`,
+      [
+        `rhp_rotation_receipt_supersede_${randomUUID()}`,
+        secondRun.id,
+        `rotation-${String(closed.sequence_number).padStart(3, '0')}-supersede01`,
+        `sha256:${'f'.repeat(64)}`,
+        receipt.id
+      ]
+    )).rejects.toBeDefined();
+    expect(await scalar(pool, 'select count(*) from rh_pulse_rotation_receipts where window_id=$1', [window.id])).toBe(1);
+    const down = await migrationSql('20260723_008_rh_pulse_rotation_resolutions.down.sql');
+    const downClient = await pool.connect();
+    try {
+      await expect(downClient.query(down)).rejects.toMatchObject({
+        code: 'P0001',
+        message: 'unsafe rollback: published RH Pulse Rotation Receipts exist'
+      });
+      await downClient.query('rollback');
+    } finally {
+      downClient.release();
+    }
+    expect(await scalar(pool, 'select count(*) from rh_pulse_rotation_receipts where id=$1', [receipt.id])).toBe(1);
+    const serializedAudit = JSON.stringify((await pool.query(
+      'select event_type,payload from rh_pulse_audit_events where window_id=$1',
+      [window.id]
+    )).rows);
+    expect(serializedAudit).not.toContain(JSON.stringify(manifest));
+    expect(serializedAudit).not.toContain('signed_message');
+    expect(observations.some(({ operation, outcome }) => operation === 'publication' && outcome === 'committed')).toBe(true);
+    const receiptLookup = await explain(pool,
+      'select * from rh_pulse_rotation_receipts where id=$1 or public_slug=$1 limit 1',
+      [receipt.id]
+    );
+    report.query_timings_ms.plan_rotation_receipt = receiptLookup.executionTime;
+    report.resolution = {
+      draft_clients: 20,
+      publication_clients: 10,
+      published_receipts: publishedCount,
+      calculation_ms: calculationMs,
+      publication_ms: publicationMs,
+      receipt_hash: receipt.receipt_hash
+    };
+  }, 120_000);
+
+  it('rolls back resolution draft and publication failures without partial public state', async () => {
+    for (const [index, stage] of resolutionDraftFailureStages.entries()) {
+      const window = await createClosedResolutionWindow(`resolution-draft-rollback-${index}`);
+      let failed = false;
+      const failing = resolutionService(resolutionStore({
+        integrationTestFailureHook: (observed) => {
+          if (!failed && observed === stage) {
+            failed = true;
+            throw new Error(`forced_${stage}`);
+          }
+        }
+      }));
+      await expect(failing.createResolutionDraft(window.id, {
+        manifest: resolutionManifest({ strong: 'memes_to_rwas' }, window),
+        audit_note: `Force ${stage}.`
+      })).rejects.toThrow(`forced_${stage}`);
+      expect(await scalar(pool, 'select count(*) from rh_pulse_resolution_runs where window_id=$1', [window.id])).toBe(0);
+      expect(await scalar(pool, 'select count(*) from rh_pulse_rotation_receipts where window_id=$1', [window.id])).toBe(0);
+      expect(await scalar(pool, "select count(*) from rh_pulse_windows where id=$1 and status='closed'", [window.id])).toBe(1);
+      report.resolution_forced_rollbacks += 1;
+    }
+
+    for (const [index, stage] of resolutionPublicationFailureStages.entries()) {
+      const window = await createClosedResolutionWindow(`resolution-publish-rollback-${index}`);
+      const normal = resolutionService(resolutionStore());
+      const run = (await normal.createResolutionDraft(window.id, {
+        manifest: resolutionManifest({ strong: 'agents_to_rwas' }, window),
+        audit_note: `Create publication rollback fixture ${stage}.`
+      })).run;
+      await normal.approveResolutionDraft(run.id, { audit_note: 'Approve rollback fixture.' }, 'gate-reviewer');
+      let failed = false;
+      const failing = resolutionService(resolutionStore({
+        integrationTestFailureHook: (observed) => {
+          if (!failed && observed === stage) {
+            failed = true;
+            throw new Error(`forced_${stage}`);
+          }
+        }
+      }));
+      await expect(failing.publishRotationReceipt(run.id, {
+        audit_note: `Force ${stage}.`
+      })).rejects.toThrow(`forced_${stage}`);
+      expect(await scalar(pool, 'select count(*) from rh_pulse_rotation_receipts where window_id=$1', [window.id])).toBe(0);
+      expect(await scalar(pool, "select count(*) from rh_pulse_resolution_runs where id=$1 and status='approved'", [run.id])).toBe(1);
+      expect(await scalar(pool, "select count(*) from rh_pulse_windows where id=$1 and status='closed'", [window.id])).toBe(1);
+      const retry = await normal.publishRotationReceipt(run.id, { audit_note: 'Retry after full rollback.' });
+      expect(retry).toMatchObject({ idempotent: false, receipt: { winning_outcome: 'agents_to_rwas' } });
+      expect(await scalar(pool, 'select count(*) from rh_pulse_rotation_receipts where window_id=$1', [window.id])).toBe(1);
+      report.resolution_forced_rollbacks += 1;
+    }
+    expect(report.resolution_forced_rollbacks).toBe(7);
+    expect(await scalar(pool, `select count(*) from rh_pulse_audit_events where event_type='resolution_transaction_rolled_back'`))
+      .toBeGreaterThanOrEqual(7);
+  }, 120_000);
+
   it('uses an exclusive deadline and closes correctly across window lock races', async () => {
     const service = serviceFor(postgresStore());
     const beforeDeadline = await createOpenWindow(service, 'before-deadline', 1_000);
@@ -610,7 +915,9 @@ describeGate('RH Pulse Phase 2.5 real PostgreSQL production gate', () => {
         accepted: 41,
         stale_read_cache_ms: staleRead.data.state === 'open'
           ? Math.round(performance.now() - closeStartedAt)
-          : 0
+          : 0,
+        resolution_publication_attempts: 0,
+        resolution_receipts: 0
       };
       const closedSubmission = await postJson(
         18_882,
@@ -618,6 +925,53 @@ describeGate('RH Pulse Phase 2.5 real PostgreSQL production gate', () => {
         { challenge_id: pending.challenge.challenge_id, signature: pending.signature }
       );
       expect(closedSubmission).toMatchObject({ status: 409, json: { error: 'window_not_open' } });
+
+      await pool.query(
+        `with boundary as (
+           select clock_timestamp()-interval '1 millisecond' as closed_at
+         )
+         update rh_pulse_windows
+         set closes_at=boundary.closed_at,
+             call_submission_closes_at=boundary.closed_at,
+             updated_at=clock_timestamp()
+         from boundary
+         where id=$1`,
+        [window.id]
+      );
+      const closedWindow = (await resolutionStore().getWindow(window.id))!;
+      const resolver = resolutionService(resolutionStore());
+      const firstManifest = resolutionManifest({ strong: 'memes_to_agents' }, closedWindow);
+      const secondManifest = {
+        ...firstManifest,
+        narrative_observation_ids: [...firstManifest.narrative_observation_ids, 'fixture_narrative_review_pass_002']
+      };
+      const [firstDraft, secondDraft] = await Promise.all([
+        resolver.createResolutionDraft(window.id, {
+          manifest: firstManifest,
+          audit_note: 'Create first two-process publication draft.'
+        }),
+        resolver.createResolutionDraft(window.id, {
+          manifest: secondManifest,
+          audit_note: 'Create second two-process publication draft.'
+        })
+      ]);
+      await Promise.all([
+        resolver.approveResolutionDraft(firstDraft.run.id, { audit_note: 'Approve process draft A.' }, 'gate-process-reviewer-a'),
+        resolver.approveResolutionDraft(secondDraft.run.id, { audit_note: 'Approve process draft B.' }, 'gate-process-reviewer-b')
+      ]);
+      const publicationResponses = await Promise.all(Array.from({ length: 12 }, (_, index) => (
+        postJson(
+          index % 2 ? 18_881 : 18_882,
+          `/internal/rh-pulse/resolution-runs/${index % 3 ? firstDraft.run.id : secondDraft.run.id}/publish`,
+          { audit_note: `Two-process publication attempt ${index}.` },
+          tokenA
+        )
+      )));
+      expect(publicationResponses.some(({ status }) => status === 200)).toBe(true);
+      expect(publicationResponses.some(({ status }) => status === 409)).toBe(true);
+      expect(await scalar(pool, 'select count(*) from rh_pulse_rotation_receipts where window_id=$1', [window.id])).toBe(1);
+      report.multi_process.resolution_publication_attempts = publicationResponses.length;
+      report.multi_process.resolution_receipts = 1;
 
       const pendingA = await service.createWindow(windowRequest('multi-open-a'));
       const pendingB = await service.createWindow(windowRequest('multi-open-b'));
@@ -854,6 +1208,21 @@ function postgresStore(options: {
   });
 }
 
+function resolutionStore(options: {
+  pool?: pg.Pool;
+  integrationTestFailureHook?: (stage: RhPulseResolutionFailureStage) => void | Promise<void>;
+  observe?: (observation: RhPulseResolutionObservation) => void;
+} = {}) {
+  return new PostgresRhPulseResolutionStore(options.pool ?? pool, {
+    integrationTestFailureHook: options.integrationTestFailureHook,
+    observe: options.observe ?? (() => undefined)
+  });
+}
+
+function resolutionService(store: PostgresRhPulseResolutionStore) {
+  return new RhPulseResolutionService({ store });
+}
+
 function serviceFor(store: RhPulseParticipationStore, options: {
   now?: () => Date;
   callsEnabled?: boolean;
@@ -870,6 +1239,34 @@ function serviceFor(store: RhPulseParticipationStore, options: {
       maxEntries: 30_000
     }
   });
+}
+
+async function createClosedResolutionWindow(label: string) {
+  const id = `rhp_window_${label.replaceAll(/[^a-z0-9_-]/g, '_')}_${randomUUID().slice(0, 8)}`;
+  const sequence = await scalar(pool, 'select coalesce(max(sequence_number),0)+1 from rh_pulse_windows');
+  await pool.query(
+    `insert into rh_pulse_windows
+      (id,sequence_number,opens_at,closes_at,call_submission_closes_at,status,
+       methodology_version,source_health,audit_metadata,created_at,updated_at,closed_at)
+     values ($1,$2,clock_timestamp()-interval '24 hours',
+       clock_timestamp()-interval '1 minute',clock_timestamp()-interval '1 minute','closed',
+       'rh-pulse-v1.0',
+       jsonb_build_object(
+         'state','live',
+         'observed_at',to_char(clock_timestamp()-interval '1 minute','YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+         'detail','Deterministic real-Postgres resolution fixture.'
+       ),
+       jsonb_build_object('fixture',true),clock_timestamp()-interval '24 hours',
+       clock_timestamp(),clock_timestamp())`,
+    [id, sequence]
+  );
+  await pool.query(
+    `update rh_pulse_counters
+     set current_value=greatest(current_value,$1),updated_at=clock_timestamp()
+     where counter_name='rh_pulse_window_sequence'`,
+    [sequence]
+  );
+  return (await resolutionStore().getWindow(id))!;
 }
 
 async function createOpenWindow(service: RhPulseParticipationService, label: string, deadlineMs = 300_000) {
@@ -987,7 +1384,8 @@ async function applyMigrationFiles(databasePool: pg.Pool, count: number) {
     '20260719_004_rh_chain_attention_quality_receipts.up.sql',
     '20260719_005_rh_chain_project_claims.up.sql',
     '20260720_006_rh_chain_reviewer_workflow.up.sql',
-    '20260723_007_rh_pulse_signed_calls.up.sql'
+    '20260723_007_rh_pulse_signed_calls.up.sql',
+    '20260723_008_rh_pulse_rotation_resolutions.up.sql'
   ];
   for (const filename of files.slice(0, count)) {
     await databasePool.query(await migrationSql(filename));

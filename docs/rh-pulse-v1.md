@@ -1,4 +1,4 @@
-# RH Pulse: Call the Rotation — Phase 1 + Phase 2.5
+# RH Pulse: Call the Rotation — Phase 1 through Phase 3A
 
 ## Product boundary
 
@@ -12,8 +12,8 @@ Independent public-intelligence product built by Infopunks. Not affiliated with 
 
 RH Pulse uses the existing Fastify/Vite application:
 
-- `pulse.infopunks.fun/*` serves the Pulse shell and maps `/`, `/methodology`, `/calls/:callId`, and `/receipts/:receiptId`.
-- `/rh-pulse`, `/rh-pulse/methodology`, `/rh-pulse/calls/:callId`, and `/rh-pulse/receipts/:receiptId` serve the same shell on local or Radar hosts.
+- `pulse.infopunks.fun/*` serves the Pulse shell and maps `/`, `/methodology`, `/calls/:callId`, `/resolutions/:windowId`, `/rotation-receipts/:receiptId`, and the reserved `/receipts/:receiptId`.
+- The same routes under `/rh-pulse` serve the Pulse shell on local or Radar hosts.
 - `radar.infopunks.fun/*` continues to use the existing Radar router unless the explicit `/rh-pulse` prefix is present.
 - One server-side metadata injector and one React entry choose the surface. There is no second Vite build.
 - `PULSE_PUBLIC_HOST` is the only canonical Pulse authority and defaults to `pulse.infopunks.fun`. Canonical URLs never use an arbitrary request host.
@@ -62,6 +62,9 @@ Public request and response models are validated with Zod. Timestamps are UTC IS
 | `POST /v1/rh-pulse/calls` | Verify and atomically commit a call and receipt | `no-store` |
 | `GET /v1/rh-pulse/calls/:callId` | Shortened-wallet public call projection | short public record cache |
 | `GET /v1/rh-pulse/calls/:callId/receipt` | Immutable receipt payload and SHA-256 hash | short public record cache |
+| `GET /v1/rh-pulse/resolutions` | Published resolutions only; never private drafts | short public record cache |
+| `GET /v1/rh-pulse/resolutions/:windowId` | Published result, evidence, scores and community accuracy | short public record cache |
+| `GET /v1/rh-pulse/rotation-receipts/:receiptId` | Immutable Rotation Receipt and public projection | short public record cache |
 
 All public endpoints use the existing RH Chain response envelope and error conventions and are documented in `/openapi.json`.
 
@@ -181,11 +184,25 @@ The main shared JavaScript gzip increase is 14.40 KiB, below the 15 KiB target. 
 
 The Phase 2.5 production build reproduces the Phase 2 sizes above byte-for-byte using the same `stat` plus `gzip -c` measurement. Its changes are server, migration, test-harness, and documentation only. The emitted import graph remains entry → RH Pulse page → wallet bridge → WalletConnect provider. An emitted-asset scan must find no gate database URL, integration failure marker, internal-token identifier/value, or test project ID.
 
+Phase 3A adds no dependency and keeps resolution rendering in the asynchronous Pulse route:
+
+| Asset boundary | Phase 2 / 2.5 | Phase 3A | Phase 3A change |
+| --- | ---: | ---: | ---: |
+| Shared entry JavaScript | 1,781,077 B / 376,837 B gzip | 1,782,409 B / 377,204 B gzip | +1,332 B / +367 B gzip |
+| Shared entry CSS | 417,893 B / 74,549 B gzip | 417,893 B / 74,549 B gzip | unchanged |
+| Lightweight routing chunk | 10,545 B / 4,030 B gzip | 10,857 B / 4,079 B gzip | +312 B / +49 B gzip |
+| RH Pulse page | 48,750 B / 12,778 B gzip | 69,730 B / 16,905 B gzip | +20,980 B / +4,127 B gzip |
+| RH Pulse page CSS | 28,830 B / 6,357 B gzip | 33,198 B / 6,976 B gzip | +4,368 B / +619 B gzip |
+| Wallet bridge | 2,978 B / 1,341 B gzip | 2,978 B / 1,341 B gzip | unchanged |
+| WalletConnect primary provider | 332,601 B / 95,375 B gzip | 332,601 B / 95,374 B gzip | raw unchanged |
+
+The shared-entry increase is 0.36 KiB gzip. Radar visitors still request neither the Pulse page nor wallet chunks. Pulse visitors load the resolution UI with the route, but the wallet bridge remains behind `Sign My Call`, and WalletConnect remains behind an explicit provider selection. The production asset scan finds no internal token name/value, test database URL, Postgres-gate marker, or visual-QA token.
+
 The bottom sheet keeps the non-custodial trust statement visible before signing. It handles module loading, options, connection, missing account, challenge creation, message review, signature request/pending/rejection, invalid signature, expiry, closed window, duplicate call, server failure, atomic acceptance, receipt loading and sealed receipt. Motion is state-bearing and removed by `prefers-reduced-motion`.
 
 ## Data model and migration
 
-Apply `migrations/20260723_007_rh_pulse_signed_calls.up.sql` through the normal external migration runner. Application startup never executes DDL.
+Apply `migrations/20260723_007_rh_pulse_signed_calls.up.sql` and then `migrations/20260723_008_rh_pulse_rotation_resolutions.up.sql` through the normal external migration runner. Application startup never executes DDL.
 
 - `rh_pulse_windows`: global window authority and source-health/audit metadata.
 - `rh_pulse_call_challenges`: single-use signed-message authority. It retains no separate plaintext nonce.
@@ -193,8 +210,10 @@ Apply `migrations/20260723_007_rh_pulse_signed_calls.up.sql` through the normal 
 - `rh_pulse_call_receipts`: canonical immutable payloads and hashes, with optional supersession linkage.
 - `rh_pulse_counters`: row-locked committed-call and window-sequence counters.
 - `rh_pulse_audit_events`: hashed wallet/origin provenance and bounded operational facts.
+- `rh_pulse_resolution_runs`: exact manifests, hashes, deterministic scores, lifecycle, approval and blocked reasons.
+- `rh_pulse_rotation_receipts`: one immutable published result and publication-time community snapshot per window.
 
-The migration enforces foreign keys, status/outcome/methodology vocabularies, time ordering, one open window, unique public numbers/slugs, one call per wallet/window, deterministic Genesis rank, and immutable receipt updates/deletes.
+The migration enforces foreign keys, status/outcome/methodology vocabularies, time ordering, one open window, unique public numbers/slugs, one call per wallet/window, deterministic Genesis rank, immutable receipt updates/deletes, and immutable published resolution-run inputs and output prose.
 
 Rollback:
 
@@ -204,6 +223,8 @@ psql "$DATABASE_URL" -v ON_ERROR_STOP=1 \
 ```
 
 The down migration refuses to run after any signed call exists. Operational rollback is flag-first: set `RH_PULSE_CALLS_ENABLED=false`, preserve the records, diagnose forward, and only use the down file on an empty pilot database.
+
+Migration `008` is additive and transactional. Its down migration removes Phase 3A audit events, triggers and tables only when no Rotation Receipt exists. Once a receipt is published it refuses with `P0001: unsafe rollback: published RH Pulse Rotation Receipts exist`. Recovery is fix-forward: preserve the receipt and calls, keep participation disabled, inspect the audit/hash and deploy a corrective additive migration.
 
 ## Phase 2.5 real-Postgres production gate
 
@@ -219,7 +240,7 @@ The production gate uses a dedicated local PostgreSQL 14.x cluster, not the deve
 | Data directory | OS temporary directory scoped by Postgres major and user ID |
 | Teardown | fast stop followed by removal of only the validated gate directory |
 
-The runner checks `postgres --version`, rejects every database URL except the exact target above, initializes a clean database, applies all `.up.sql` migrations in filename order, records their SHA-256 hashes and timings in `infopunks_schema_migrations`, and uses a migration advisory lock. A second migration pass must report all seven files as `already_applied`; changed SQL for a recorded migration fails as hash drift.
+The runner checks `postgres --version`, rejects every database URL except the exact target above, initializes a clean database, applies all `.up.sql` migrations in filename order, records their SHA-256 hashes and timings in `infopunks_schema_migrations`, and uses a migration advisory lock. A second migration pass must report all eight files as `already_applied`; changed SQL for a recorded migration fails as hash drift.
 
 The isolated cluster disables `fsync`, `synchronous_commit`, and full-page writes for test speed. Those settings are never applied to application or production Postgres. The gate never reads `DATABASE_URL`, never connects to the default local port, and destroys the cluster in a `finally` path.
 
@@ -244,7 +265,7 @@ npm run test:postgres:down
 
 ### Migration and rollback proof
 
-The gate applies migrations 001–007 against an empty database, inserts a representative existing RH Chain market snapshot before migration 007, and confirms that record survives the migration and both rollback paths. It directly exercises all six RH Pulse tables, the one-open-window partial unique index, foreign keys, time-order checks, Genesis rules, receipt triggers, and lookup indexes.
+The gate applies migrations 001–008 against an empty database, inserts a representative existing RH Chain market snapshot before migration 007, and confirms that record survives both additive migrations and rollback checks. It directly exercises all eight RH Pulse tables, the one-open-window partial unique index, foreign keys, time-order checks, Genesis rules, both receipt trigger sets, and lookup indexes.
 
 For an empty RH Pulse state, the 007 down migration removes only Phase 2 objects and its own optional `infopunks_schema_migrations` ledger row. Migration 007 can then be reapplied. If any row exists in `rh_pulse_calls`, down fails with PostgreSQL code `P0001` and:
 
@@ -253,6 +274,8 @@ unsafe rollback: signed RH Pulse calls exist
 ```
 
 Because the down file is transactional and performs this check before dropping anything, the call, receipt, migration record, and unrelated RH tables remain intact. Operator recovery is to keep calls disabled, preserve the database, inspect the failure, and fix forward. Do not delete the call to force a rollback.
+
+For an empty Phase 3A state, the `008` down migration removes the two resolution tables and restores the Phase 2 audit vocabulary while preserving signed calls and RH Chain tables. Once a Rotation Receipt exists, `008` down refuses before any destructive statement and the original receipt remains readable.
 
 ### Database behavior proved by the gate
 
@@ -271,10 +294,16 @@ The real-Postgres suite additionally covers:
 - direct receipt `UPDATE` and `DELETE` rejection plus superseding receipt insertion;
 - community aggregation at 100, 1,000, and 10,000 stored calls;
 - audit and process-log checks for signatures, messages, nonces, raw origins, and full wallet addresses.
+- Phase 3 migration `008` empty down/reapply and destructive rollback refusal after publication;
+- 20 concurrent exact-manifest draft requests collapsing to one run;
+- ten concurrent publication requests across two approved runs producing one receipt;
+- publication contention routed through two real application server processes;
+- deterministic score/manifest reproduction, community accuracy and public correct/incorrect call projections;
+- direct Rotation Receipt and published-run mutation/deletion rejection, rejected replacement/supersession, and seven forced draft/publication rollback points.
 
 The deadline interval is precisely `[opens_at, call_submission_closes_at)`: a database timestamp equal to the deadline is rejected. `clock_timestamp()` is read after the challenge lock; the locked window status and database time—not an application clock or cached public read—decide acceptance. Public reads may remain cacheable for their documented short TTL, but every write re-reads durable authority. The multi-process gate records any observed read-cache delay separately.
 
-Integration-only failure injection exists at challenge lock, window lock, duplicate check, counter allocation, call insert, receipt insert, challenge-used update, and audit insert. The constructor rejects this hook unless both `NODE_ENV=test` and `RH_PULSE_POSTGRES_GATE=1`; it is not reachable through HTTP or production configuration. Every injected failure must roll back the call, receipt, challenge-use update, counter, Genesis rank, audit inserts, and community count before a retry is attempted.
+Integration-only failure injection exists at challenge lock, window lock, duplicate check, counter allocation, call insert, receipt insert, challenge-used update, audit insert, resolution-run insert, draft-audit insert, resolution-run lock, Rotation Receipt insert, run/window publication updates and publication-audit insert. Constructors reject these hooks unless both `NODE_ENV=test` and `RH_PULSE_POSTGRES_GATE=1`; they are not reachable through HTTP or production configuration. Every injected failure must roll back the complete relevant transaction. A bounded `resolution_transaction_rolled_back` audit event is attempted afterward and never masks the original database error.
 
 Critical queries are inspected with `EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON)`. The suite asserts use of the wallet/window uniqueness index, counter primary key, receipt call/time index, window/outcome call index, and Genesis-rank unique index. New indexes are added only when the observed plan justifies them.
 
@@ -319,6 +348,117 @@ Community conviction is absent from the first-page read model and standard DOM b
 - A zero-call distribution explicitly returns four zero counts and zero percentages.
 - Community conviction never influences resolution.
 
+## Phase 3A resolution lifecycle
+
+Resolution is manual and approval-gated in Phase 3A:
+
+```text
+closed window
+→ readiness inspection
+→ deterministic preview
+→ persisted draft or blocked run
+→ separate reviewer approval
+→ atomic immutable publication
+→ public correct/incorrect call projections
+```
+
+Only a stored `closed` window whose call-submission deadline has passed may be previewed or drafted. Server time is authoritative at the service boundary; publication re-locks the durable window and checks database time. A preview calculates and appends a bounded audit fact, but creates no resolution run or public result. An exact manifest hash is idempotent for draft creation. A healthy `draft` alone cannot publish. Approval records `approved_at` and the internal reviewer identifier; publication is a separate operation.
+
+Resolution run states are `not_ready`, `ready`, `calculating`, `blocked`, `draft`, `approved`, `published`, and `cancelled`. A published run and its receipt cannot be replaced or mutated. A blocked run preserves its reason and can be followed by a new run using a newly complete manifest. A cancelled run remains in internal history and cannot publish.
+
+Internal routes use the existing fail-closed `RH_PULSE_INTERNAL_TOKEN`:
+
+- `GET /internal/rh-pulse/windows/:windowId/resolution-readiness`
+- `POST /internal/rh-pulse/windows/:windowId/resolution-preview`
+- `POST /internal/rh-pulse/windows/:windowId/resolution-drafts`
+- `GET /internal/rh-pulse/windows/:windowId/resolution-runs`
+- `GET /internal/rh-pulse/resolution-runs/:runId`
+- `POST /internal/rh-pulse/resolution-runs/:runId/approve`
+- `POST /internal/rh-pulse/resolution-runs/:runId/cancel`
+- `POST /internal/rh-pulse/resolution-runs/:runId/publish`
+
+Approval additionally requires `x-rh-pulse-reviewer-id`. Reviewer identity remains internal and is not included in public responses.
+
+## Persisted input manifest
+
+No resolution request calls a provider or reads an unrecorded mutable “latest” value. The operator supplies an exact, Zod-validated manifest assembled from reviewed Radar/RH Chain observations. A draft persists:
+
+- window ID, sequence and exact open/close/submission times;
+- methodology and manifest versions;
+- one candidate input for each directional outcome;
+- baseline and closing observation IDs, normalized values, source references, review state, freshness, confidence and explanation;
+- exact baseline, closing, connection, market and narrative record identifiers;
+- source-health observations and criticality;
+- reviewed classification identifiers, status, layer, effective time and source;
+- calculation timestamp.
+
+Canonical JSON recursively sorts object keys, preserves array order and is hashed with the existing SHA-256 implementation. Object insertion order cannot change the manifest or Rotation Receipt hash. All identified observations and reviewed classifications must exist no later than `calculation_at`; future evidence blocks a deterministic result. The same manifest and methodology reproduce the same component and weighted scores.
+
+Phase 3A deliberately does not create another ingestion pipeline. Preparing a manifest is an internal review operation over existing reviewed snapshots, classifications and receipts. Test fixtures are explicitly marked and are never production evidence.
+
+## Baseline, closing and component scoring
+
+The tolerances are inclusive:
+
+- baseline: `opens_at − 15 minutes` through `opens_at + 5 minutes`;
+- closing: `closes_at − 5 minutes` through `closes_at + 15 minutes`.
+
+An observation outside tolerance, unreviewed, stale/unavailable, after the calculation timestamp, or carrying a null normalized value makes that component `null`. Missing data is never converted to zero.
+
+Each valid component uses the bounded explainable transform:
+
+```text
+component score = clamp(50 + 2 × (closing normalized value − baseline normalized value), 0, 100)
+```
+
+The directional weighted score is:
+
+```text
+40% cross-layer evidence
++ 35% market-activity acceleration
++ 25% narrative momentum
+```
+
+The same transform, weights, qualification thresholds and tie rules apply to `agents_to_rwas`, `memes_to_agents`, and `memes_to_rwas`. `Connection Under Watch` is editorial metadata only. It cannot alter a score, threshold, confidence, lead, or selection.
+
+Cross-layer evidence requires a reviewed qualified interaction. `agents_to_rwas` additionally requires an attributable RWA or methodology-approved financial interaction. Virtuals/agent-launch activity can strengthen the Agents layer or activity component; by itself it cannot qualify Agent → RWA. Narrative momentum is visibly narrative and cannot independently qualify any direction.
+
+## Qualification, confidence and outcome authority
+
+A directional result requires:
+
+- weighted score at least `60`;
+- at least a `5` point lead over the next evidence/confidence-eligible direction;
+- cross-layer score at least `55` and the connection-specific qualified interaction;
+- overall confidence at least `Medium`;
+- complete reproducible inputs and acceptable critical source health.
+
+Confidence is the minimum reviewed observation confidence across all required candidate components. An unreviewed observation becomes `Insufficient`. A delayed critical source caps otherwise High confidence at Medium. Stale or unavailable critical sources, incomplete classification coverage, missing component values, observation-time anomalies, or overall Low/Insufficient confidence block the result.
+
+`No Qualified Rotation` and `Unable to Resolve` are intentionally disjoint:
+
+- **No Qualified Rotation** is a valid market outcome. Inputs are complete and healthy, but no direction reaches 60, no qualified leader has a five-point lead, or activity remains in-layer without sufficient cross-layer conversion. Calls for `no_qualified_rotation` are correct when this is published.
+- **Unable to Resolve** is a system state. Critical evidence is missing, stale, inconsistent or insufficiently confident. The run is stored as `blocked`, publishes no winner or Rotation Receipt, and marks no call correct or incorrect. It may be retried later with an approved complete manifest. An outage can never make `no_qualified_rotation` win.
+
+Community calls are never an input to candidate scoring or winner selection.
+
+## Rotation Receipt and public call states
+
+Publication runs in one Postgres transaction. It locks the approved run, checks for an existing window receipt, locks and revalidates the closed window with database time, reads accepted verified calls, inserts the Rotation Receipt, marks the run published, marks the window resolved and appends bounded audit events. Unique window/run constraints and the publication trigger are final authority across application processes.
+
+The canonical `rh_pulse_rotation` v1.0 receipt contains the window, winning outcome and confidence, all three candidate component/weighted scores, evidence statements and limitations, methodology, manifest hash, publication time, full outcome distribution, correct/incorrect counts and publication-time correct percentage. It is recursively canonicalized and SHA-256 hashed by the same implementation used for signed-call receipts.
+
+Postgres rejects Rotation Receipt `UPDATE` and `DELETE`. There is one published Rotation Receipt per window. The schema retains `supersedes_receipt_id` for an explicitly designed future correction policy, but Phase 3A exposes no correction endpoint and never mutates or aliases the original.
+
+After publication:
+
+- a matching public call shows `I Called the Rotation` and `correct`;
+- a nonmatching public call shows `Call Resolved` and `incorrect`;
+- an unpublished window remains `Resolution pending`;
+- a blocked run exposes only a bounded `Resolution delayed` reason on its public calls; it never exposes the draft manifest, community accuracy, or a fabricated outcome.
+
+The original signed-call receipt is unchanged in every state. The public call projection links to the immutable Rotation Receipt. The public resolution page uses semantic HTML and lightweight CSS—no charting or client-side scoring dependency.
+
 ## Security assumptions and limitations
 
 - Challenge TTL, secure nonce generation, nonce hashing, single use, exact authority-field comparison, EIP-191 recovery and atomic replay prevention.
@@ -342,17 +482,19 @@ RH_PULSE_INTERNAL_TOKEN=
 VITE_WALLETCONNECT_PROJECT_ID=
 ```
 
-No new service, framework, Postgres instance, scheduler or market-data pipeline is required. Apply migration `007` before any production pilot. `RH_PULSE_INTERNAL_TOKEN` is server-only. `VITE_WALLETCONNECT_PROJECT_ID` is intentionally public build configuration and grants no signing authority.
+No new service, framework, Postgres instance, scheduler or market-data pipeline is required. Apply migrations `007` and `008` in order before any production pilot. `RH_PULSE_INTERNAL_TOKEN` is server-only. `VITE_WALLETCONNECT_PROJECT_ID` is intentionally public build configuration and grants no signing authority.
 
 ## Operational pilot checklist
 
 Keep this local or staging-only until production review.
 
-1. Apply the migration:
+1. Apply the migrations:
 
    ```bash
    psql "$DATABASE_URL" -v ON_ERROR_STOP=1 \
      -f migrations/20260723_007_rh_pulse_signed_calls.up.sql
+   psql "$DATABASE_URL" -v ON_ERROR_STOP=1 \
+     -f migrations/20260723_008_rh_pulse_rotation_resolutions.up.sql
    ```
 
 2. Configure and restart locally:
@@ -397,7 +539,52 @@ Keep this local or staging-only until production review.
      --data '{"audit_note":"Close completed local pilot."}'
    ```
 
-9. Set `RH_PULSE_CALLS_ENABLED=false` and restart. Confirm read/receipt pages remain available while new challenges return `calls_disabled`.
+9. Build `/tmp/rh-pulse-resolution-request.json` from actual reviewed baseline, closing, connection, market, narrative, source-health and classification records. Its top level is `{"manifest":{...},"audit_note":"..."}` and must validate against `RhPulseResolutionDraftRequestSchema`. Never substitute fixture IDs or fabricate production evidence.
+
+10. Inspect readiness and preview without creating a public result:
+
+    ```bash
+    curl -sS "http://localhost:8787/internal/rh-pulse/windows/$WINDOW_ID/resolution-readiness" \
+      -H "Authorization: Bearer $RH_PULSE_INTERNAL_TOKEN"
+    curl -sS -X POST "http://localhost:8787/internal/rh-pulse/windows/$WINDOW_ID/resolution-preview" \
+      -H "Authorization: Bearer $RH_PULSE_INTERNAL_TOKEN" \
+      -H "Content-Type: application/json" \
+      --data @/tmp/rh-pulse-resolution-request.json
+    ```
+
+11. Create the draft with the same request, record `RUN_ID`, and inspect the persisted manifest hash and all three candidate scores:
+
+    ```bash
+    curl -sS -X POST "http://localhost:8787/internal/rh-pulse/windows/$WINDOW_ID/resolution-drafts" \
+      -H "Authorization: Bearer $RH_PULSE_INTERNAL_TOKEN" \
+      -H "Content-Type: application/json" \
+      --data @/tmp/rh-pulse-resolution-request.json
+    curl -sS "http://localhost:8787/internal/rh-pulse/resolution-runs/$RUN_ID" \
+      -H "Authorization: Bearer $RH_PULSE_INTERNAL_TOKEN"
+    ```
+
+12. If the run is a healthy `draft`, approve it separately. A `blocked` run publishes no winner; repair the evidence manifest and create a new run instead.
+
+    ```bash
+    curl -sS -X POST "http://localhost:8787/internal/rh-pulse/resolution-runs/$RUN_ID/approve" \
+      -H "Authorization: Bearer $RH_PULSE_INTERNAL_TOKEN" \
+      -H "x-rh-pulse-reviewer-id: local-pilot-reviewer" \
+      -H "Content-Type: application/json" \
+      --data '{"audit_note":"Reviewed exact manifest, classifications, scores and limitations."}'
+    ```
+
+13. Publish the approved run:
+
+    ```bash
+    curl -sS -X POST "http://localhost:8787/internal/rh-pulse/resolution-runs/$RUN_ID/publish" \
+      -H "Authorization: Bearer $RH_PULSE_INTERNAL_TOKEN" \
+      -H "Content-Type: application/json" \
+      --data '{"audit_note":"Publish approved local Rotation Receipt."}'
+    ```
+
+14. Inspect `/rh-pulse/resolutions/:windowId`, both correct and incorrect `/rh-pulse/calls/:callId` states, and `/v1/rh-pulse/rotation-receipts/:receiptId`. Recompute the canonical receipt hash and verify publication-time community totals against verified calls.
+
+15. Set `RH_PULSE_CALLS_ENABLED=false` and restart. Confirm new challenges and submissions stop while calls, signed-call receipts, resolutions and Rotation Receipts remain readable. Tear down only the isolated test database after preserving the pilot log.
 
 ## Operational failure and recovery
 
@@ -409,6 +596,9 @@ Keep this local or staging-only until production review.
 | Window opened accidentally | Set `RH_PULSE_CALLS_ENABLED=false` immediately, then close or cancel through the authenticated internal route |
 | Flag disabled while window open | New challenges and submissions stop; public calls/receipts and window history remain readable |
 | Internal token rotated | Restart with the new server-only token; old bearer fails and public endpoints are unaffected |
+| Resolution input incomplete or critical source stale | Store a blocked run with the reason; publish no outcome; retry later with identified healthy evidence |
+| Publication request fails mid-transaction | No receipt, run transition or resolved-window state survives; approved run can be retried |
+| Concurrent publication | Database locks/constraints permit one receipt; same-run retries are idempotent and competing runs conflict |
 
 The database-loss gate stops the actual Postgres process between operations and restarts the same cluster. Pool errors are contained, operations reject, and no partial state appears after recovery.
 
@@ -430,18 +620,17 @@ Use wallets created solely for this test with no meaningful funds. For every row
 
 Do not claim the production mobile-wallet gate complete until the outstanding rows record device, OS, browser/wallet version, outcome, and receipt ID in a local/staging pilot log. Never paste project credentials, seed phrases, raw signatures, or full signed messages into that log.
 
-## Current Phase 2.5 limitations and Phase 3 handoff
+## Current Phase 3A limitations and Phase 3B handoff
 
-Phase 2 intentionally excludes:
+Phase 3A intentionally excludes:
 
-- final movement scoring and prediction resolution;
-- scheduled window creation/closure/resolution;
-- Called It and incorrect-result cards;
-- dynamic per-call OG/share images;
+- scheduled window creation, closure or resolution;
+- dynamic per-call/result OG and social images;
+- one-click X sharing and “Called It” image generation;
 - EIP-1271 contract-wallet verification;
 - distributed rate limiting;
 - profiles, accuracy histories, points, rewards, referrals, NFTs or token gating;
 - public admin controls;
 - agent transaction attribution or new market-data ingestion.
 
-Phase 3 should add deterministic resolution, scheduler/operational review, distributed abuse controls if traffic requires them, contract-wallet verification only with an explicit chain/RPC trust policy, superseding-receipt operations if corrections become necessary, and resolved share assets derived only from persisted facts.
+Phase 3B may add result/share assets derived only from published immutable facts and explicit X sharing. Later operational work may add scheduling, distributed abuse controls if traffic requires them, EIP-1271 only with an explicit chain/RPC trust policy, and a separately reviewed correction/supersession policy. The outstanding physical-device wallet matrix continues to block production call enablement.

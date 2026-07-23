@@ -3379,6 +3379,36 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     parameters: [pathParam('callId', 'Public RH Pulse call identifier or slug.')],
     responses: rhChainResponses('RhPulsePublicReceiptPayload', { receipt: { receipt_version: '1.0', receipt_hash: 'sha256:…' }, immutable: true })
   });
+  add('get', '/v1/rh-pulse/resolutions', {
+    tags: ['RH Pulse'],
+    summary: 'List published RH Pulse resolutions',
+    description: 'Returns immutable published market results only. Draft, blocked, approved and cancelled resolution runs are never public.',
+    responses: rhChainResponses('RhPulseResolutionListPayload', {
+      resolutions: [],
+      generated_at: '2026-07-24T12:10:00.000Z'
+    })
+  });
+  add('get', '/v1/rh-pulse/resolutions/{windowId}', {
+    tags: ['RH Pulse'],
+    summary: 'Get a published window resolution',
+    description: 'Returns the deterministic published outcome, common-weight candidate scores, evidence, limitations, community accuracy and immutable receipt proof. A source outage never appears as No Qualified Rotation.',
+    parameters: [pathParam('windowId', 'Durable RH Pulse window identifier.')],
+    responses: rhChainResponses('RhPulsePublicResolution', {
+      outcome: 'memes_to_agents',
+      confidence: 'medium',
+      receipt_hash: 'sha256:…'
+    })
+  });
+  add('get', '/v1/rh-pulse/rotation-receipts/{receiptId}', {
+    tags: ['RH Pulse'],
+    summary: 'Get an immutable Rotation Receipt',
+    description: 'Returns the canonical published Rotation Receipt and public resolution projection. Published payloads cannot be updated or deleted.',
+    parameters: [pathParam('receiptId', 'Rotation Receipt identifier or public slug.')],
+    responses: rhChainResponses('RhPulsePublicRotationReceipt', {
+      receipt: { receipt_type: 'rh_pulse_rotation', receipt_version: '1.0' },
+      immutable: true
+    })
+  });
   add('get', '/v1/rh-chain', rhChain('Get RH Chain Signal Desk', 'Returns the complete chain pulse, meme watch, signals, risk wall, receipts, and review context.', 'RhChainDeskPayload', { ...rhExample, title: 'RH Chain Signal Desk', chain_pulse: { metrics: [] } }));
   add('get', '/v1/rh-chain/memes', rhChain('List RH Chain memes', 'Returns source-linked meme assets and their risk states.', 'RhChainMemesPayload', { ...rhExample, memes: [{ ticker: 'RH', contract: '0xexample', risk_state: 'source_required' }] }));
   add('get', '/v1/rh-chain/signals', rhChain('List RH Chain signals', 'Returns the public signal classifier and its evidence requirements.', 'RhChainSignalsPayload', { ...rhExample, signals: [{ label: 'fresh_signal', meaning: 'New source-linked observation.' }] }));
@@ -3451,6 +3481,83 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       })
     }
   });
+  const rhPulseInternal = (
+    summary: string,
+    description: string,
+    parameters?: unknown[],
+    requestBody?: JsonSchema
+  ) => ({
+    tags: ['RH Pulse Internal'],
+    summary,
+    description: `Fail-closed RH_PULSE_INTERNAL_TOKEN bearer auth is required. ${description}`,
+    security: [{ bearerAuth: [] }],
+    ...(parameters ? { parameters } : {}),
+    ...(requestBody ? { requestBody } : {}),
+    responses: rhChainResponses('RhPulseInternalPayload', {}, {
+      '400': rhChainErrorResponse('invalid_request'),
+      '401': rhChainErrorResponse('rh_pulse_internal_token_required'),
+      '404': rhChainErrorResponse('not_found'),
+      '409': rhChainErrorResponse('rh_pulse_resolution_conflict')
+    })
+  });
+  const resolutionWindowParam = [pathParam('windowId', 'Durable RH Pulse window identifier.')];
+  const resolutionRunParam = [pathParam('runId', 'Durable RH Pulse resolution-run identifier.')];
+  const resolutionActionBody = jsonRequest({
+    ...objectSchema({ audit_note: stringSchema() }, ['audit_note']),
+    additionalProperties: false
+  }, {
+    audit_note: 'Operator review note.'
+  });
+  add('get', '/internal/rh-pulse/windows/{windowId}/resolution-readiness', rhPulseInternal(
+    'Inspect RH Pulse resolution readiness',
+    'Checks durable window status and server time without fetching providers or publishing a result.',
+    resolutionWindowParam
+  ));
+  add('post', '/internal/rh-pulse/windows/{windowId}/resolution-preview', rhPulseInternal(
+    'Preview deterministic RH Pulse resolution',
+    'Calculates against the supplied exact input manifest, appends a bounded audit event and creates no durable public result.',
+    resolutionWindowParam,
+    jsonRequest({ $ref: '#/components/schemas/RhPulseResolutionDraftRequest' }, {})
+  ));
+  add('post', '/internal/rh-pulse/windows/{windowId}/resolution-drafts', rhPulseInternal(
+    'Create RH Pulse resolution draft',
+    'Persists the exact input manifest, canonical hash, candidate scores and blocked or draft state using concurrency protection.',
+    resolutionWindowParam,
+    jsonRequest({ $ref: '#/components/schemas/RhPulseResolutionDraftRequest' }, {})
+  ));
+  add('get', '/internal/rh-pulse/windows/{windowId}/resolution-runs', rhPulseInternal(
+    'List RH Pulse resolution runs',
+    'Lists private draft, blocked, approved, cancelled and published runs for one window.',
+    resolutionWindowParam
+  ));
+  add('get', '/internal/rh-pulse/resolution-runs/{runId}', rhPulseInternal(
+    'Get RH Pulse resolution run',
+    'Returns one private persisted resolution run for internal review.',
+    resolutionRunParam
+  ));
+  add('post', '/internal/rh-pulse/resolution-runs/{runId}/approve', rhPulseInternal(
+    'Approve RH Pulse resolution draft',
+    'Separately approves a healthy draft. Requires the x-rh-pulse-reviewer-id audit header and does not publish.',
+    [...resolutionRunParam, {
+      name: 'x-rh-pulse-reviewer-id',
+      in: 'header',
+      required: true,
+      schema: stringSchema()
+    }],
+    resolutionActionBody
+  ));
+  add('post', '/internal/rh-pulse/resolution-runs/{runId}/cancel', rhPulseInternal(
+    'Cancel RH Pulse resolution run',
+    'Cancels a draft, blocked or approved run without deleting it.',
+    resolutionRunParam,
+    resolutionActionBody
+  ));
+  add('post', '/internal/rh-pulse/resolution-runs/{runId}/publish', rhPulseInternal(
+    'Publish immutable RH Pulse Rotation Receipt',
+    'Atomically locks the approved run and closed window, snapshots verified community calls, inserts one immutable receipt, marks the run published and the window resolved.',
+    resolutionRunParam,
+    resolutionActionBody
+  ));
   const classificationContract = [pathParam('contract', 'Exact 0x contract address on Robinhood Chain. Tickers are never accepted as identity.')];
   const classificationPaging = (withStatus = false) => [
     { name: 'page', in: 'query', required: false, schema: { type: 'integer', minimum: 1, maximum: 10000 } },
@@ -3946,9 +4053,29 @@ function componentSchemas(): Record<string, JsonSchema> {
       }, ['is_genesis', 'rank', 'limit', 'label']),
       receipt_url: stringSchema(),
       public_url: stringSchema(),
-      resolution_status: { const: 'unresolved' },
+      resolution_status: enumSchema(['unresolved', 'correct', 'incorrect']),
+      resolution: {
+        oneOf: [
+          strictObject({
+            status: enumSchema(['correct', 'incorrect']),
+            winning_outcome: enumSchema(['agents_to_rwas', 'memes_to_agents', 'memes_to_rwas', 'no_qualified_rotation']),
+            winning_outcome_label: stringSchema(),
+            confidence: enumSchema(['high', 'medium', 'low', 'insufficient']),
+            rotation_receipt_id: stringSchema(),
+            rotation_receipt_url: stringSchema(),
+            published_at: dateTimeSchema()
+          }, ['status', 'winning_outcome', 'winning_outcome_label', 'confidence', 'rotation_receipt_id', 'rotation_receipt_url', 'published_at']),
+          strictObject({
+            status: { const: 'delayed' },
+            window_status: { const: 'closed' },
+            blocked_reason: stringSchema(),
+            retryable: { const: true }
+          }, ['status', 'window_status', 'blocked_reason', 'retryable']),
+          { type: 'null' }
+        ]
+      },
       methodology_version: { const: 'rh-pulse-v1.0' }
-    }, ['call_id', 'public_call_number', 'public_slug', 'wallet_display', 'selected_outcome', 'selected_outcome_label', 'recorded_at', 'window', 'verification_status', 'genesis', 'receipt_url', 'public_url', 'resolution_status', 'methodology_version']),
+    }, ['call_id', 'public_call_number', 'public_slug', 'wallet_display', 'selected_outcome', 'selected_outcome_label', 'recorded_at', 'window', 'verification_status', 'genesis', 'receipt_url', 'public_url', 'resolution_status', 'resolution', 'methodology_version']),
     RhPulseCallReceipt: strictObject({
       id: stringSchema(),
       call_id: stringSchema(),
@@ -3992,6 +4119,73 @@ function componentSchemas(): Record<string, JsonSchema> {
       immutable: { const: true },
       disclaimer: stringSchema()
     }, ['receipt', 'call', 'immutable', 'disclaimer']),
+    RhPulseCandidateScore: strictObject({
+      outcome: enumSchema(['agents_to_rwas', 'memes_to_agents', 'memes_to_rwas']),
+      cross_layer_score: { type: ['number', 'null'], minimum: 0, maximum: 100 },
+      market_activity_score: { type: ['number', 'null'], minimum: 0, maximum: 100 },
+      narrative_momentum_score: { type: ['number', 'null'], minimum: 0, maximum: 100 },
+      weighted_score: { type: ['number', 'null'], minimum: 0, maximum: 100 },
+      qualification_status: enumSchema(['qualified', 'below_threshold', 'insufficient_cross_layer_evidence', 'insufficient_confidence', 'blocked_by_source_health']),
+      confidence: enumSchema(['high', 'medium', 'low', 'insufficient']),
+      evidence_summary: arrayOf(stringSchema()),
+      limitations: arrayOf(stringSchema())
+    }, ['outcome', 'cross_layer_score', 'market_activity_score', 'narrative_momentum_score', 'weighted_score', 'qualification_status', 'confidence', 'evidence_summary', 'limitations']),
+    RhPulseCommunityAccuracy: strictObject({
+      total_verified_calls: { type: 'integer', minimum: 0 },
+      correct_calls: { type: 'integer', minimum: 0 },
+      incorrect_calls: { type: 'integer', minimum: 0 },
+      correct_percentage: { type: 'number', minimum: 0, maximum: 100 },
+      distribution: { $ref: '#/components/schemas/RhPulseCommunityDistribution' }
+    }, ['total_verified_calls', 'correct_calls', 'incorrect_calls', 'correct_percentage', 'distribution']),
+    RhPulsePublicResolution: strictObject({
+      window: { $ref: '#/components/schemas/RhPulsePublicWindowSummary' },
+      outcome: enumSchema(['agents_to_rwas', 'memes_to_agents', 'memes_to_rwas', 'no_qualified_rotation']),
+      outcome_label: stringSchema(),
+      confidence: enumSchema(['high', 'medium', 'low', 'insufficient']),
+      winning_score: { type: ['number', 'null'], minimum: 0, maximum: 100 },
+      candidate_scores: { type: 'array', minItems: 3, maxItems: 3, items: { $ref: '#/components/schemas/RhPulseCandidateScore' } },
+      evidence_summary: arrayOf(stringSchema()),
+      evidence: strictObject({
+        what_moved: arrayOf(stringSchema()),
+        what_connected: arrayOf(stringSchema()),
+        what_proved_it: arrayOf(stringSchema()),
+        limitations: arrayOf(stringSchema())
+      }, ['what_moved', 'what_connected', 'what_proved_it', 'limitations']),
+      limitations: arrayOf(stringSchema()),
+      supporting_evidence: arrayOf(strictObject({
+        reference: stringSchema(),
+        url: nullableString()
+      }, ['reference', 'url'])),
+      outcome_explanation: stringSchema(),
+      observation_period: strictObject({
+        opens_at: dateTimeSchema(),
+        closes_at: dateTimeSchema()
+      }, ['opens_at', 'closes_at']),
+      source_health: enumSchema(['live', 'delayed', 'stale', 'unavailable']),
+      community: { $ref: '#/components/schemas/RhPulseCommunityAccuracy' },
+      methodology_version: { const: 'rh-pulse-v1.0' },
+      input_manifest_hash: { type: 'string', pattern: '^sha256:[a-f0-9]{64}$' },
+      receipt_id: stringSchema(),
+      receipt_url: stringSchema(),
+      receipt_hash: { type: 'string', pattern: '^sha256:[a-f0-9]{64}$' },
+      published_at: dateTimeSchema(),
+      disclaimer: stringSchema()
+    }, ['window', 'outcome', 'outcome_label', 'confidence', 'winning_score', 'candidate_scores', 'evidence_summary', 'evidence', 'limitations', 'supporting_evidence', 'outcome_explanation', 'observation_period', 'source_health', 'community', 'methodology_version', 'input_manifest_hash', 'receipt_id', 'receipt_url', 'receipt_hash', 'published_at', 'disclaimer']),
+    RhPulseResolutionListPayload: strictObject({
+      resolutions: arrayOf({ $ref: '#/components/schemas/RhPulsePublicResolution' }),
+      generated_at: dateTimeSchema()
+    }, ['resolutions', 'generated_at']),
+    RhPulsePublicRotationReceipt: strictObject({
+      receipt: freeformObject(),
+      immutable: { const: true },
+      public_resolution: { $ref: '#/components/schemas/RhPulsePublicResolution' },
+      disclaimer: stringSchema()
+    }, ['receipt', 'immutable', 'public_resolution', 'disclaimer']),
+    RhPulseResolutionDraftRequest: strictObject({
+      manifest: freeformObject(),
+      audit_note: stringSchema()
+    }, ['manifest', 'audit_note']),
+    RhPulseInternalPayload: freeformObject(),
     RhPulseMethodology: objectSchema({
       version: { const: 'rh_pulse_layer_flow_v1' },
       layer_definitions: freeformObject(),

@@ -905,7 +905,7 @@ RH_PULSE_INTERNAL_TOKEN=
 VITE_WALLETCONNECT_PROJECT_ID=
 ```
 
-## RH Pulse Phase 1 + Phase 2.5
+## RH Pulse Phase 1 through Phase 3A
 
 RH Pulse is a separate public front door over the shared Radar engine. The production hostname is `https://pulse.infopunks.fun/`; local and Radar-host fallback access is `/rh-pulse`. The same Fastify/Vite application chooses the public shell from the trusted hostname or fallback path, while all existing Radar routes retain their current behavior.
 
@@ -917,9 +917,17 @@ The evidence API remains read-only:
 - `GET /v1/rh-pulse/methodology`
 - `GET /v1/rh-pulse/source-health`
 
-Phase 2 adds single-use EIP-191 challenges, atomic calls, public calls/receipts and authenticated pilot-window controls. Apply `migrations/20260723_007_rh_pulse_signed_calls.up.sql` before a pilot. Calls remain disabled by default; there is no transaction, chain switch, prediction resolution, scheduler or dynamic receipt image. Wallet and WalletConnect code are asynchronous and do not enter the initial Radar/Pulse bundles. See [docs/rh-pulse-v1.md](docs/rh-pulse-v1.md) for the signature, migration, security and pilot runbooks and [the host-routing ADR](docs/architecture/rh-pulse-host-routing.md) for canonical-host authority.
+Phase 2 adds single-use EIP-191 challenges, atomic calls, public calls/receipts and authenticated pilot-window controls. Phase 3A adds deterministic exact-input resolution drafts, separate approval, one immutable Rotation Receipt per window, community accuracy and public correct/incorrect call states:
 
-Phase 2.5 adds a destructive-safe, real-Postgres production gate. It requires local PostgreSQL 14.x command-line tools and creates only the exact isolated database `postgresql://postgres@127.0.0.1:55463/rh_pulse_gate`. The all-in-one gate applies every migration in order, runs the concurrency/rollback/immutability/multi-process suite, and destroys the temporary cluster even after failure:
+- `GET /v1/rh-pulse/resolutions`
+- `GET /v1/rh-pulse/resolutions/:windowId`
+- `GET /v1/rh-pulse/rotation-receipts/:receiptId`
+- `/rh-pulse/resolutions/:windowId`
+- `https://pulse.infopunks.fun/resolutions/:windowId`
+
+Apply `migrations/20260723_007_rh_pulse_signed_calls.up.sql` and `migrations/20260723_008_rh_pulse_rotation_resolutions.up.sql` in order before a pilot. Calls remain disabled by default, and the outstanding physical-device wallet matrix continues to block production enablement. There is no transaction, chain switch, automatic scheduler or dynamic receipt image. Wallet and WalletConnect code remain asynchronous and do not enter the initial Radar/Pulse bundles. See [docs/rh-pulse-v1.md](docs/rh-pulse-v1.md) for scoring, input-manifest, approval, receipt, migration, security and pilot runbooks and [the host-routing ADR](docs/architecture/rh-pulse-host-routing.md) for canonical-host authority.
+
+The destructive-safe real-Postgres production gate requires local PostgreSQL 14.x command-line tools and creates only the exact isolated database `postgresql://postgres@127.0.0.1:55463/rh_pulse_gate`. The all-in-one gate applies every migration in order, runs signed-call plus resolution concurrency/rollback/immutability/multi-process suites, and destroys the temporary cluster even after failure:
 
 ```bash
 npm run test:rh-pulse:postgres
@@ -1079,7 +1087,7 @@ existing `create table/index if not exists` statements preserve all records.
 
 The checked-in [render.yaml](/Users/ahdilm/Documents/Infopunks%20Pay.sh%20Intelligence%20Terminal/render.yaml:1) codifies the expected Render Web Service configuration.
 
-Attach both custom domains to that same service. Keep `PULSE_PUBLIC_HOST=pulse.infopunks.fun` and `RH_PULSE_CALLS_ENABLED=false` for the public ship until the Phase 2 migration and pilot checklist pass. DNS for `pulse.infopunks.fun` should use the target Render provides for the attached custom domain; no second service or database is required.
+Attach both custom domains to that same service. Keep `PULSE_PUBLIC_HOST=pulse.infopunks.fun` and `RH_PULSE_CALLS_ENABLED=false` until migrations `007`/`008`, the resolution pilot, and the outstanding physical-device wallet matrix all pass. DNS for `pulse.infopunks.fun` should use the target Render provides for the attached custom domain; no second service or database is required.
 
 Production sanity check:
 

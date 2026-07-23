@@ -108,6 +108,14 @@ describe('RH Pulse server metadata dispatch', () => {
       const receipt = await app.inject({ method: 'GET', url: '/rh-pulse/receipts/receipt-01', headers: { host: 'radar.infopunks.fun' } });
       expect(receipt.body).toContain('<title>RH Pulse Receipt receipt-01 | Infopunks</title>');
       expect(receipt.body).toContain('<link rel="canonical" href="https://pulse.infopunks.fun/receipts/receipt-01"');
+
+      const resolution = await app.inject({ method: 'GET', url: '/resolutions/window-01', headers: { host: 'pulse.infopunks.fun' } });
+      expect(resolution.body).toContain('<title>RH Pulse Resolution window-01 | Infopunks</title>');
+      expect(resolution.body).toContain('<link rel="canonical" href="https://pulse.infopunks.fun/resolutions/window-01"');
+
+      const rotationReceipt = await app.inject({ method: 'GET', url: '/rh-pulse/rotation-receipts/rotation-01', headers: { host: 'radar.infopunks.fun' } });
+      expect(rotationReceipt.body).toContain('<title>RH Pulse Rotation Receipt rotation-01 | Infopunks</title>');
+      expect(rotationReceipt.body).toContain('<link rel="canonical" href="https://pulse.infopunks.fun/rotation-receipts/rotation-01"');
     } finally {
       await app.close();
       rmSync(clientDistDir, { recursive: true, force: true });

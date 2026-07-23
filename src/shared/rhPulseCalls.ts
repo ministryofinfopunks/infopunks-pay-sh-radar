@@ -2,6 +2,7 @@ import { z } from 'zod';
 import {
   RH_PULSE_INDEPENDENCE_DISCLAIMER,
   RhPulseCallOptionIdSchema,
+  RhPulseConfidenceSchema,
   RhPulseFreshnessSchema,
   RhPulsePredictionWindowSchema
 } from './rhPulse';
@@ -176,6 +177,28 @@ export const RhPulseCommunityDistributionSchema = z.object({
   observed_at: z.string().datetime()
 }).strict();
 
+export const RhPulseResolvedPublicCallResolutionSchema = z.object({
+  status: z.enum(['correct', 'incorrect']),
+  winning_outcome: RhPulseCallOutcomeSchema,
+  winning_outcome_label: z.string().min(1),
+  confidence: RhPulseConfidenceSchema,
+  rotation_receipt_id: z.string().min(1),
+  rotation_receipt_url: z.string().min(1),
+  published_at: z.string().datetime()
+}).strict();
+
+export const RhPulseDelayedPublicCallResolutionSchema = z.object({
+  status: z.literal('delayed'),
+  window_status: z.literal('closed'),
+  blocked_reason: z.string().trim().min(1).max(1_000),
+  retryable: z.literal(true)
+}).strict();
+
+export const RhPulsePublicCallResolutionSchema = z.discriminatedUnion('status', [
+  RhPulseResolvedPublicCallResolutionSchema,
+  RhPulseDelayedPublicCallResolutionSchema
+]);
+
 export const RhPulsePublicCallSchema = z.object({
   call_id: z.string().min(1),
   public_call_number: z.number().int().positive(),
@@ -194,7 +217,8 @@ export const RhPulsePublicCallSchema = z.object({
   }).strict(),
   receipt_url: z.string().min(1),
   public_url: z.string().min(1),
-  resolution_status: z.literal('unresolved'),
+  resolution_status: z.enum(['unresolved', 'correct', 'incorrect']),
+  resolution: RhPulsePublicCallResolutionSchema.nullable(),
   methodology_version: z.literal(RH_PULSE_CALL_METHODOLOGY_VERSION)
 }).strict();
 
@@ -257,7 +281,16 @@ export const RhPulseAuditEventTypeSchema = z.enum([
   'window_opened',
   'window_closed',
   'window_cancelled',
-  'abuse_check_triggered'
+  'abuse_check_triggered',
+  'resolution_previewed',
+  'resolution_blocked',
+  'resolution_draft_created',
+  'resolution_approved',
+  'resolution_cancelled',
+  'resolution_published',
+  'resolution_publication_conflict',
+  'rotation_receipt_created',
+  'resolution_transaction_rolled_back'
 ]);
 
 export const RhPulseAuditEventSchema = z.object({
@@ -304,4 +337,5 @@ export type RhPulseCallReceiptPayload = z.infer<typeof RhPulseCallReceiptPayload
 export type RhPulseCallReceiptRecord = z.infer<typeof RhPulseCallReceiptRecordSchema>;
 export type RhPulseCommunityDistribution = z.infer<typeof RhPulseCommunityDistributionSchema>;
 export type RhPulsePublicCall = z.infer<typeof RhPulsePublicCallSchema>;
+export type RhPulsePublicCallResolution = z.infer<typeof RhPulsePublicCallResolutionSchema>;
 export type RhPulseAuditEvent = z.infer<typeof RhPulseAuditEventSchema>;

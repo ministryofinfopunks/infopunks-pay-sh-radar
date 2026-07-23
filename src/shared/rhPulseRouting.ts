@@ -38,11 +38,22 @@ export type RhPulseCallMetadataRecord = {
   selectedOutcomeLabel: string;
   walletDisplay: string;
   recordedAt: string;
+  resolutionStatus?: 'unresolved' | 'correct' | 'incorrect';
+  winningOutcomeLabel?: string | null;
+  resolutionDelayed?: boolean;
+};
+
+export type RhPulseResolutionMetadataRecord = {
+  windowSequenceNumber: number;
+  outcomeLabel: string;
+  confidence: string;
+  publishedAt: string;
 };
 
 export function getRhPulseMetadata(
   resolution: RhPulseRequestResolution,
-  callRecord?: RhPulseCallMetadataRecord | null
+  callRecord?: RhPulseCallMetadataRecord | null,
+  resolutionRecord?: RhPulseResolutionMetadataRecord | null
 ): RhPulseMetadata | null {
   if (resolution.surface !== 'rh-pulse' || !resolution.route) return null;
   const base = `https://${resolution.publicHost}`;
@@ -57,6 +68,14 @@ export function getRhPulseMetadata(
           : `RH Pulse Call ${route.id} | Infopunks`
         : route.kind === 'receipt'
           ? `RH Pulse Receipt ${route.id} | Infopunks`
+          : route.kind === 'resolution'
+            ? resolutionRecord
+              ? `${resolutionRecord.outcomeLabel} | RH Pulse Rotation Receipt ${String(resolutionRecord.windowSequenceNumber).padStart(3, '0')}`
+              : `RH Pulse Resolution ${route.id} | Infopunks`
+            : route.kind === 'rotation_receipt'
+              ? resolutionRecord
+                ? `${resolutionRecord.outcomeLabel} | RH Pulse Rotation Receipt ${String(resolutionRecord.windowSequenceNumber).padStart(3, '0')}`
+                : `RH Pulse Rotation Receipt ${route.id} | Infopunks`
           : 'RH Pulse | Infopunks';
   const description = route.kind === 'home'
     ? RH_PULSE_PRODUCT_DESCRIPTION
@@ -64,10 +83,18 @@ export function getRhPulseMetadata(
       ? 'How RH Pulse separates reviewed overlap, activity coupling, narrative movement and insufficient evidence without calling correlation capital flow.'
       : route.kind === 'call'
         ? callRecord
-          ? `${callRecord.walletDisplay} signed ${callRecord.selectedOutcomeLabel}. Verified public prediction; resolution remains pending.`
+          ? callRecord.resolutionStatus === 'correct' || callRecord.resolutionStatus === 'incorrect'
+            ? `${callRecord.walletDisplay} signed ${callRecord.selectedOutcomeLabel}. Published result: ${callRecord.winningOutcomeLabel ?? 'available in the Rotation Receipt'}; this call resolved ${callRecord.resolutionStatus}.`
+            : callRecord.resolutionDelayed
+              ? `${callRecord.walletDisplay} signed ${callRecord.selectedOutcomeLabel}. Resolution is delayed; no winner has been published.`
+              : `${callRecord.walletDisplay} signed ${callRecord.selectedOutcomeLabel}. Verified public prediction; resolution remains pending.`
           : 'Verified RH Pulse call receipt. Public call details load only when an immutable signed record exists.'
         : route.kind === 'receipt'
           ? 'Immutable RH Pulse signed-call receipt and reproducible verification hash.'
+          : route.kind === 'resolution' || route.kind === 'rotation_receipt'
+            ? resolutionRecord
+              ? `${resolutionRecord.outcomeLabel} resolved RH Pulse window ${String(resolutionRecord.windowSequenceNumber).padStart(3, '0')} with ${resolutionRecord.confidence} confidence. Evidence, limitations and community accuracy are preserved in an immutable Rotation Receipt.`
+              : 'Published RH Pulse evidence-based resolution and immutable Rotation Receipt.'
           : RH_PULSE_PRODUCT_DESCRIPTION;
   const canonicalUrl = `${base}${route.canonicalPath}`;
   return {
@@ -115,6 +142,13 @@ export function getRhPulseMetadata(
             name: callRecord.walletDisplay
           },
           text: callRecord.selectedOutcomeLabel
+        }
+      } : resolutionRecord ? {
+        mainEntity: {
+          '@type': 'Report',
+          headline: resolutionRecord.outcomeLabel,
+          datePublished: resolutionRecord.publishedAt,
+          about: 'Robinhood Chain structural rotation'
         }
       } : {})
     }

@@ -47,3 +47,30 @@ describe('RH Pulse Phase 2 migration contract', () => {
     expect(sql).toContain("delete from infopunks_schema_migrations where migration_id = ''20260723_007''");
   });
 });
+
+describe('RH Pulse Phase 3A migration contract', () => {
+  it('adds deterministic resolution runs, one immutable Rotation Receipt per window and publication guards', async () => {
+    const sql = await readFile(join(process.cwd(), 'migrations/20260723_008_rh_pulse_rotation_resolutions.up.sql'), 'utf8');
+    expect(sql).toContain('create table if not exists rh_pulse_resolution_runs');
+    expect(sql).toContain('create table if not exists rh_pulse_rotation_receipts');
+    expect(sql).toContain('unique (window_id, input_manifest_hash)');
+    expect(sql).toContain('unique (window_id)');
+    expect(sql).toContain('rotation receipt requires an approved resolution run');
+    expect(sql).toContain('rotation receipt requires a closed window');
+    expect(sql).toContain('RH Pulse Rotation Receipts are immutable after publication');
+    expect(sql).toContain('Published RH Pulse resolution runs are immutable');
+    expect(sql).toContain('rh_pulse_resolution_runs_published_immutable');
+    expect(sql).toContain("'resolution_published'");
+    expect(sql).toContain("'rotation_receipt_created'");
+    expect(sql).not.toContain('update rh_pulse_calls');
+  });
+
+  it('refuses destructive rollback after publication and restores the Phase 2 audit constraint', async () => {
+    const sql = await readFile(join(process.cwd(), 'migrations/20260723_008_rh_pulse_rotation_resolutions.down.sql'), 'utf8');
+    expect(sql).toContain('unsafe rollback: published RH Pulse Rotation Receipts exist');
+    expect(sql).toContain('drop table if exists rh_pulse_rotation_receipts');
+    expect(sql).toContain('drop table if exists rh_pulse_resolution_runs');
+    expect(sql).toContain("delete from infopunks_schema_migrations where migration_id = ''20260723_008''");
+    expect(sql.indexOf('unsafe rollback')).toBeLessThan(sql.indexOf('drop table if exists'));
+  });
+});

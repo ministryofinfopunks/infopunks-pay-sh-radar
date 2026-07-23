@@ -16,6 +16,7 @@ import { RhPulseHero } from './RhPulseHero';
 import { RhPulseLayerFlowMap } from './RhPulseLayerFlowMap';
 import { RhPulseMethodology } from './RhPulseMethodology';
 import { RhPulsePublicCallPage } from './RhPulsePublicCallPage';
+import { RhPulsePublicResolutionPage } from './RhPulsePublicResolutionPage';
 import { RhPulseSigningSheet } from './RhPulseSigningSheet';
 import { RhPulseStructureStrip } from './RhPulseStructureStrip';
 import type { RhPulseCallOption, RhPulsePageData } from './rhPulseTypes';
@@ -80,6 +81,15 @@ export function RhPulsePage({ route }: { route: RhPulseRoute }) {
   if (route.kind === 'call') {
     return <RhPulsePublicCallPage
       callId={route.id}
+      homeHref={homeHref}
+      methodologyHref={methodologyHref}
+    />;
+  }
+
+  if (route.kind === 'resolution' || route.kind === 'rotation_receipt') {
+    return <RhPulsePublicResolutionPage
+      recordId={route.id}
+      recordKind={route.kind}
       homeHref={homeHref}
       methodologyHref={methodologyHref}
     />;

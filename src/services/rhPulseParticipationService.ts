@@ -38,6 +38,7 @@ import {
   type RhPulseCallRecord,
   type RhPulseCommunityDistribution,
   type RhPulsePublicCall,
+  type RhPulsePublicCallResolution,
   type RhPulseWindowRecord
 } from '../shared/rhPulseCalls';
 import { DEFAULT_PULSE_PUBLIC_HOST, normalizePublicHostname } from '../shared/rhPulseRouting';
@@ -46,7 +47,7 @@ import type {
   RhPulseParticipationStore
 } from './rhPulseParticipationStore';
 
-const OUTCOME_LABELS: Record<RhPulseCallOutcome, string> = {
+export const RH_PULSE_OUTCOME_LABELS: Record<RhPulseCallOutcome, string> = {
   agents_to_rwas: 'Agents → RWAs',
   memes_to_agents: 'Memes → Agents',
   memes_to_rwas: 'Memes → RWAs',
@@ -63,6 +64,7 @@ export type RhPulseParticipationServiceOptions = {
   id?: () => string;
   nonce?: () => string;
   verify?: typeof verifyMessage;
+  resolutionForCall?: (call: RhPulseCallRecord) => Promise<RhPulsePublicCallResolution | null>;
   challengeRateLimit?: {
     walletMax?: number;
     originMax?: number;
@@ -112,6 +114,7 @@ export class RhPulseParticipationService {
   private readonly id: () => string;
   private readonly nonce: () => string;
   private readonly verify: typeof verifyMessage;
+  private readonly resolutionForCall: (call: RhPulseCallRecord) => Promise<RhPulsePublicCallResolution | null>;
   private readonly walletLimiter: BoundedFixedWindowLimiter;
   private readonly originLimiter: BoundedFixedWindowLimiter;
 
@@ -126,6 +129,7 @@ export class RhPulseParticipationService {
     this.id = options.id ?? randomUUID;
     this.nonce = options.nonce ?? (() => randomBytes(32).toString('base64url'));
     this.verify = options.verify ?? verifyMessage;
+    this.resolutionForCall = options.resolutionForCall ?? (async () => null);
     const limit = options.challengeRateLimit ?? {};
     this.walletLimiter = new BoundedFixedWindowLimiter(
       limit.walletMax ?? 3,
@@ -387,14 +391,15 @@ export class RhPulseParticipationService {
   async getPublicCall(callIdOrSlug: string) {
     const call = await this.store.getCall(callIdOrSlug);
     if (!call) throw new RhPulseParticipationError('call_not_found', 'No verified RH Pulse call exists at this address.');
-    const [window, receipt] = await Promise.all([
+    const [window, receipt, resolution] = await Promise.all([
       this.store.getWindow(call.window_id),
-      this.store.getReceiptForCall(call.id)
+      this.store.getReceiptForCall(call.id),
+      this.resolutionForCall(call)
     ]);
     if (!window) throw new RhPulseParticipationError('window_not_found', 'The call window is unavailable.');
     if (!receipt) throw new RhPulseParticipationError('receipt_not_found', 'The immutable call receipt is unavailable.');
     return RhPulsePublicCallPayloadSchema.parse({
-      call: this.publicCall(call, window, receipt),
+      call: this.publicCall(call, window, receipt, resolution),
       structural_snapshot: receipt.receipt_payload.structural_snapshot,
       receipt_hash: receipt.receipt_hash,
       disclaimer: RH_PULSE_INDEPENDENCE_DISCLAIMER
@@ -404,15 +409,16 @@ export class RhPulseParticipationService {
   async getPublicReceipt(callIdOrSlug: string) {
     const call = await this.store.getCall(callIdOrSlug);
     if (!call) throw new RhPulseParticipationError('call_not_found', 'No verified RH Pulse call exists at this address.');
-    const [window, receipt] = await Promise.all([
+    const [window, receipt, resolution] = await Promise.all([
       this.store.getWindow(call.window_id),
-      this.store.getReceiptForCall(call.id)
+      this.store.getReceiptForCall(call.id),
+      this.resolutionForCall(call)
     ]);
     if (!window) throw new RhPulseParticipationError('window_not_found', 'The call window is unavailable.');
     if (!receipt) throw new RhPulseParticipationError('receipt_not_found', 'The immutable call receipt is unavailable.');
     return RhPulsePublicReceiptPayloadSchema.parse({
       receipt,
-      call: this.publicCall(call, window, receipt),
+      call: this.publicCall(call, window, receipt, resolution),
       immutable: true,
       disclaimer: RH_PULSE_INDEPENDENCE_DISCLAIMER
     });
@@ -619,7 +625,7 @@ export class RhPulseParticipationService {
         display_address: displayAddress(call.wallet_address)
       },
       selected_outcome: call.selected_outcome,
-      selected_outcome_label: OUTCOME_LABELS[call.selected_outcome],
+      selected_outcome_label: RH_PULSE_OUTCOME_LABELS[call.selected_outcome],
       recorded_at: call.recorded_at,
       methodology_version: call.methodology_version,
       signature_scheme: RH_PULSE_SIGNATURE_SCHEME,
@@ -676,7 +682,8 @@ export class RhPulseParticipationService {
   private publicCall(
     call: RhPulseCallRecord,
     window: RhPulseWindowRecord,
-    receipt: RhPulseCallReceiptRecord
+    receipt: RhPulseCallReceiptRecord,
+    resolution: RhPulsePublicCallResolution | null = null
   ): RhPulsePublicCall {
     const publicUrl = `https://${this.publicHost}/calls/${encodeURIComponent(call.id)}`;
     return RhPulsePublicCallSchema.parse({
@@ -685,7 +692,7 @@ export class RhPulseParticipationService {
       public_slug: call.public_slug,
       wallet_display: displayAddress(call.wallet_address),
       selected_outcome: call.selected_outcome,
-      selected_outcome_label: OUTCOME_LABELS[call.selected_outcome],
+      selected_outcome_label: RH_PULSE_OUTCOME_LABELS[call.selected_outcome],
       recorded_at: call.recorded_at,
       window: publicWindowSummary(window, this.callsEnabled, this.now()),
       verification_status: call.verification_status,
@@ -699,7 +706,10 @@ export class RhPulseParticipationService {
       },
       receipt_url: `${publicUrl}#receipt`,
       public_url: publicUrl,
-      resolution_status: 'unresolved',
+      resolution_status: resolution?.status === 'correct' || resolution?.status === 'incorrect'
+        ? resolution.status
+        : 'unresolved',
+      resolution,
       methodology_version: call.methodology_version
     });
   }
@@ -798,7 +808,7 @@ export function buildRhPulseCallMessage(input: {
     `URI: ${input.uri}`,
     `Chain ID: ${RH_PULSE_CHAIN_ID}`,
     `Wallet: ${input.wallet}`,
-    `Call: ${OUTCOME_LABELS[input.selectedOutcome]}`,
+    `Call: ${RH_PULSE_OUTCOME_LABELS[input.selectedOutcome]}`,
     `Call ID: ${input.selectedOutcome}`,
     `Window ID: ${input.window.id}`,
     `Window Opens: ${input.window.opens_at}`,
@@ -857,7 +867,11 @@ export function communityDistribution(calls: RhPulseCallRecord[], observedAt: st
 }
 
 export function receiptHash(payload: RhPulseCallReceiptPayload) {
-  return `sha256:${sha256(canonicalJson(RhPulseCallReceiptPayloadSchema.parse(payload)))}`;
+  return canonicalSha256(RhPulseCallReceiptPayloadSchema.parse(payload));
+}
+
+export function canonicalSha256(value: unknown) {
+  return `sha256:${sha256(canonicalJson(value))}`;
 }
 
 function publicWindow(window: RhPulseWindowRecord, callsEnabled: boolean, now: Date): RhPulsePredictionWindow {
@@ -889,7 +903,7 @@ function publicWindow(window: RhPulseWindowRecord, callsEnabled: boolean, now: D
   };
 }
 
-function publicWindowSummary(window: RhPulseWindowRecord, callsEnabled: boolean, now: Date) {
+export function publicWindowSummary(window: RhPulseWindowRecord, callsEnabled: boolean, now: Date) {
   const publicValue = publicWindow(window, callsEnabled, now);
   return {
     id: publicValue.id,

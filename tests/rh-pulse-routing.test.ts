@@ -28,6 +28,16 @@ describe('RH Pulse host-aware routing', () => {
       kind: 'receipt',
       id: 'receipt-01'
     });
+    expect(parseRhPulseRoute('/resolutions/rhp_window_01', true)).toMatchObject({
+      kind: 'resolution',
+      id: 'rhp_window_01',
+      canonicalPath: '/resolutions/rhp_window_01'
+    });
+    expect(parseRhPulseRoute('/rh-pulse/rotation-receipts/rotation-01', false)).toMatchObject({
+      kind: 'rotation_receipt',
+      id: 'rotation-01',
+      canonicalPath: '/rotation-receipts/rotation-01'
+    });
   });
 
   it('maps /rh-pulse and methodology regardless of host without changing Radar root', () => {
@@ -121,5 +131,49 @@ describe('RH Pulse host-aware routing', () => {
     });
     expect(metadata?.description).toContain('0x1234…5678');
     expect(JSON.stringify(metadata)).not.toContain('signature');
+  });
+
+  it('describes resolved and delayed public calls without claiming a pending state', () => {
+    const resolution = resolveRhPulseRequest({
+      pathname: '/calls/rhp_call_example',
+      host: 'pulse.infopunks.fun',
+      isProduction: true
+    });
+    const base = {
+      publicCallNumber: 482,
+      selectedOutcomeLabel: 'Memes → Agents',
+      walletDisplay: '0x1234…5678',
+      recordedAt: '2026-07-23T12:10:00.000Z'
+    };
+    expect(getRhPulseMetadata(resolution, {
+      ...base,
+      resolutionStatus: 'correct',
+      winningOutcomeLabel: 'Memes → Agents'
+    })?.description).toContain('this call resolved correct');
+    expect(getRhPulseMetadata(resolution, {
+      ...base,
+      resolutionDelayed: true
+    })?.description).toContain('no winner has been published');
+  });
+
+  it('renders canonical published-resolution metadata from trusted authority only', () => {
+    const resolution = resolveRhPulseRequest({
+      pathname: '/resolutions/rhp_window_01',
+      host: 'pulse.infopunks.fun',
+      isProduction: true
+    });
+    const metadata = getRhPulseMetadata(resolution, null, {
+      windowSequenceNumber: 12,
+      outcomeLabel: 'Memes → Agents',
+      confidence: 'medium',
+      publishedAt: '2026-07-24T12:10:00.000Z'
+    });
+    expect(metadata).toMatchObject({
+      title: 'Memes → Agents | RH Pulse Rotation Receipt 012',
+      canonicalUrl: 'https://pulse.infopunks.fun/resolutions/rhp_window_01',
+      ogUrl: 'https://pulse.infopunks.fun/resolutions/rhp_window_01'
+    });
+    expect(metadata?.description).toContain('medium confidence');
+    expect(JSON.stringify(metadata)).not.toContain('reviewer');
   });
 });

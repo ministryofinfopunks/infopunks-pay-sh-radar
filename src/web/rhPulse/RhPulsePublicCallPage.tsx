@@ -50,6 +50,11 @@ export function RhPulsePublicCallPage({
 
   const call = payload.call;
   const snapshot = payload.structural_snapshot;
+  const resolved = call.resolution?.status === 'correct' || call.resolution?.status === 'incorrect'
+    ? call.resolution
+    : null;
+  const delayed = call.resolution?.status === 'delayed' ? call.resolution : null;
+  const correct = call.resolution_status === 'correct';
   return <div className="rh-pulse-app">
     <div className="rh-pulse-ambient" aria-hidden="true" />
     <main className="rh-pulse-shell">
@@ -58,7 +63,16 @@ export function RhPulsePublicCallPage({
         <header>
           <p className="rh-pulse-kicker">RH PULSE / PUBLIC CALL #{String(call.public_call_number).padStart(4, '0')}</p>
           <span className="rh-pulse-verified-state"><span aria-hidden="true">✓</span> EIP-191 VERIFIED</span>
-          <h1>{call.selected_outcome_label}</h1>
+          <h1>{resolved
+            ? (correct ? 'I Called the Rotation' : 'Call Resolved')
+            : delayed
+              ? 'Resolution delayed'
+              : call.selected_outcome_label}</h1>
+          {resolved && <p className={`rh-pulse-call-resolution-state rh-pulse-call-resolution-${call.resolution_status}`}>
+            <strong>{correct ? 'Correct call' : 'Incorrect call'}</strong>
+            <span>Your call: {call.selected_outcome_label}</span>
+            <span>Published result: {resolved.winning_outcome_label}</span>
+          </p>}
           <p>{outcomeThesis(call.selected_outcome)}</p>
         </header>
 
@@ -76,8 +90,15 @@ export function RhPulsePublicCallPage({
             <div><dt>Window</dt><dd>#{String(call.window.sequence_number).padStart(3, '0')}</dd></div>
             <div><dt>Window closes</dt><dd>{call.window.closes_at ? formatUtc(call.window.closes_at) : 'Unavailable'}</dd></div>
             <div><dt>Methodology</dt><dd>{call.methodology_version}</dd></div>
-            <div><dt>Resolution</dt><dd>Unresolved</dd></div>
+            <div><dt>Resolution</dt><dd>{resolved ? (correct ? 'Correct' : 'Incorrect') : delayed ? 'Delayed' : 'Pending'}</dd></div>
+            {resolved && <div><dt>Resolution confidence</dt><dd>{resolved.confidence}</dd></div>}
+            {resolved && <div><dt>Published</dt><dd>{formatUtc(resolved.published_at)}</dd></div>}
           </dl>
+          {delayed && <p><strong>Resolution delayed.</strong> {delayed.blocked_reason} No winner has been published; the approved methodology permits a later retry.</p>}
+          {!resolved && !delayed && <p>Resolution pending. No result is inferred before an approved Rotation Receipt is published.</p>}
+          {resolved && <p>
+            The original prediction remains on the record. <a href={resolved.rotation_receipt_url}>Read the Rotation Receipt.</a>
+          </p>}
         </section>
 
         <section className="rh-pulse-public-snapshot" aria-labelledby="rh-pulse-snapshot-title">

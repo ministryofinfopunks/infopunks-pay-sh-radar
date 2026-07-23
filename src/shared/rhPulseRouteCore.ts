@@ -10,6 +10,8 @@ export type RhPulseRoute =
   | { kind: 'methodology'; id: null; canonicalPath: '/methodology' }
   | { kind: 'call'; id: string; canonicalPath: string }
   | { kind: 'receipt'; id: string; canonicalPath: string }
+  | { kind: 'resolution'; id: string; canonicalPath: string }
+  | { kind: 'rotation_receipt'; id: string; canonicalPath: string }
   | { kind: 'not_found'; id: null; canonicalPath: '/' };
 
 export type RhPulseRequestResolution = {
@@ -86,6 +88,20 @@ export function parseRhPulseRoute(pathname: string, pulseHostRoute: boolean): Rh
   if (receipt) {
     const id = decodeIdentifier(receipt[1]);
     return { kind: 'receipt', id, canonicalPath: `/receipts/${encodeURIComponent(id)}` };
+  }
+  const resolution = routePath.match(/^\/resolutions\/([^/]+)$/);
+  if (resolution) {
+    const id = decodeIdentifier(resolution[1]);
+    return { kind: 'resolution', id, canonicalPath: `/resolutions/${encodeURIComponent(id)}` };
+  }
+  const rotationReceipt = routePath.match(/^\/rotation-receipts\/([^/]+)$/);
+  if (rotationReceipt) {
+    const id = decodeIdentifier(rotationReceipt[1]);
+    return {
+      kind: 'rotation_receipt',
+      id,
+      canonicalPath: `/rotation-receipts/${encodeURIComponent(id)}`
+    };
   }
   return { kind: 'not_found', id: null, canonicalPath: '/' };
 }
