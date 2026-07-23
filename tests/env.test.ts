@@ -19,6 +19,10 @@ describe('runtime environment config', () => {
     expect(config.dexScreenerMaxRetries).toBe(2);
     expect(config.dexScreenerMaxConcurrency).toBe(4);
     expect(config.rhChainLiveTokenRouteTimeoutMs).toBe(3_800);
+    expect(config.pulsePublicHost).toBe('pulse.infopunks.fun');
+    expect(config.rhPulseCallsEnabled).toBe(false);
+    expect(config.rhPulseChallengeTtlSeconds).toBe(300);
+    expect(config.rhPulseInternalToken).toBeNull();
   });
 
   it('supports explicit safe metadata monitor mode and legacy enabled compatibility', () => {
@@ -70,6 +74,33 @@ describe('runtime environment config', () => {
     expect(() => loadRuntimeConfig({ DEXSCREENER_MAX_CONCURRENCY: '21' })).toThrow('DEXSCREENER_MAX_CONCURRENCY');
     expect(loadRuntimeConfig({ RH_CHAIN_LIVE_TOKEN_ROUTE_TIMEOUT_MS: '3500' }).rhChainLiveTokenRouteTimeoutMs).toBe(3_500);
     expect(() => loadRuntimeConfig({ RH_CHAIN_LIVE_TOKEN_ROUTE_TIMEOUT_MS: '4001' })).toThrow('RH_CHAIN_LIVE_TOKEN_ROUTE_TIMEOUT_MS');
+    expect(loadRuntimeConfig({ PULSE_PUBLIC_HOST: 'preview-pulse.example.com', RH_PULSE_CALLS_ENABLED: 'true' })).toMatchObject({
+      pulsePublicHost: 'preview-pulse.example.com',
+      rhPulseCallsEnabled: true
+    });
+    expect(loadRuntimeConfig({ RH_PULSE_CHALLENGE_TTL_SECONDS: '120', RH_PULSE_INTERNAL_TOKEN: 'pilot-secret' })).toMatchObject({
+      rhPulseChallengeTtlSeconds: 120,
+      rhPulseInternalToken: 'pilot-secret'
+    });
+    expect(() => loadRuntimeConfig({ RH_PULSE_CHALLENGE_TTL_SECONDS: '901' })).toThrow('RH_PULSE_CHALLENGE_TTL_SECONDS');
+    expect(() => loadRuntimeConfig({ PULSE_PUBLIC_HOST: 'https://pulse.infopunks.fun/' })).toThrow('PULSE_PUBLIC_HOST');
+    expect(() => loadRuntimeConfig({ PULSE_PUBLIC_HOST: 'pulse.infopunks.fun,attacker.example' })).toThrow('PULSE_PUBLIC_HOST');
+  });
+
+  it('requires durable storage and an internal pilot token when production calls are enabled', () => {
+    const base = {
+      NODE_ENV: 'production',
+      PORT: '8787',
+      INFOPUNKS_ADMIN_TOKEN: 'admin',
+      RH_PULSE_CALLS_ENABLED: 'true'
+    };
+    expect(() => loadRuntimeConfig(base)).toThrow('DATABASE_URL');
+    expect(() => loadRuntimeConfig({ ...base, DATABASE_URL: 'postgres://localhost/radar' })).toThrow('RH_PULSE_INTERNAL_TOKEN');
+    expect(loadRuntimeConfig({
+      ...base,
+      DATABASE_URL: 'postgres://localhost/radar',
+      RH_PULSE_INTERNAL_TOKEN: 'pilot-secret'
+    }).rhPulseCallsEnabled).toBe(true);
   });
 
   it('restricts CORS when FRONTEND_ORIGIN is configured', async () => {

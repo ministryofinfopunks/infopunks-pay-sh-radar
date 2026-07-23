@@ -14,6 +14,20 @@ describe('openapi discovery', () => {
     expect(spec.openapi).toBe('3.1.0');
     expect(spec.info.title).toContain('Infopunks Pay.sh Radar');
     expect(spec.components.schemas.ErrorEnvelope).toBeTruthy();
+    expect(spec.paths['/v1/rh-pulse']?.get).toBeTruthy();
+    expect(spec.paths['/v1/rh-pulse/connections']?.get).toBeTruthy();
+    expect(spec.paths['/v1/rh-pulse/current-window']?.get).toBeTruthy();
+    expect(spec.paths['/v1/rh-pulse/methodology']?.get).toBeTruthy();
+    expect(spec.paths['/v1/rh-pulse/source-health']?.get).toBeTruthy();
+    expect(spec.paths['/v1/rh-pulse/calls/challenge']?.post).toBeTruthy();
+    expect(spec.paths['/v1/rh-pulse/calls']?.post).toBeTruthy();
+    expect(spec.paths['/v1/rh-pulse/calls/{callId}']?.get).toBeTruthy();
+    expect(spec.paths['/v1/rh-pulse/calls/{callId}/receipt']?.get).toBeTruthy();
+    expect(spec.components.schemas.RhPulseConnection.properties).not.toHaveProperty('dollar_flow');
+    expect(spec.components.schemas.RhPulseCurrentWindowPayload.properties.generated_at.format).toBe('date-time');
+    expect(spec.components.schemas.RhPulseCallSubmissionRequest.required).toEqual(['challenge_id', 'signature']);
+    expect(spec.components.schemas.RhPulseCallSubmissionRequest.properties).not.toHaveProperty('wallet_address');
+    expect(spec.components.schemas.RhPulseCommunityDistribution).toBeTruthy();
 
     await app.close();
   });

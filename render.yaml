@@ -7,6 +7,17 @@ services:
     healthCheckPath: /openapi.json
     domains:
       - radar.infopunks.fun
+      - pulse.infopunks.fun
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PULSE_PUBLIC_HOST
+        value: pulse.infopunks.fun
+      - key: RH_PULSE_CALLS_ENABLED
+        value: "false"
+      - key: RH_PULSE_CHALLENGE_TTL_SECONDS
+        value: "300"
+      - key: RH_PULSE_INTERNAL_TOKEN
+        sync: false
+      - key: VITE_WALLETCONNECT_PROJECT_ID
+        sync: false

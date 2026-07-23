@@ -1,0 +1,169 @@
+import { useEffect, useState } from 'react';
+import {
+  RH_PULSE_INDEPENDENCE_DISCLAIMER
+} from '../../shared/rhPulse';
+import { RhPulsePublicCallResponseSchema } from '../../shared/rhPulseCalls';
+import { getApiBaseUrl, toApiUrl } from '../apiBaseUrl';
+import { RhPulseHeader } from './RhPulseHeader';
+
+type PublicPayload = ReturnType<typeof RhPulsePublicCallResponseSchema.parse>['data'];
+
+export function RhPulsePublicCallPage({
+  callId,
+  homeHref,
+  methodologyHref
+}: {
+  callId: string;
+  homeHref: string;
+  methodologyHref: string;
+}) {
+  const [payload, setPayload] = useState<PublicPayload | null>(null);
+  const [notFound, setNotFound] = useState(false);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch(toApiUrl(getApiBaseUrl(), `/v1/rh-pulse/calls/${encodeURIComponent(callId)}`), {
+      headers: { Accept: 'application/json' },
+      signal: controller.signal
+    }).then(async (response) => {
+      if (!response.ok) throw new Error('call_not_found');
+      const parsed = RhPulsePublicCallResponseSchema.parse(await response.json());
+      setPayload(parsed.data);
+      document.title = `${parsed.data.call.selected_outcome_label} | RH Pulse Call #${String(parsed.data.call.public_call_number).padStart(4, '0')}`;
+    }).catch(() => {
+      if (!controller.signal.aborted) setNotFound(true);
+    });
+    return () => controller.abort();
+  }, [callId]);
+
+  if (notFound) return <RhPulsePublicCallMissing homeHref={homeHref} />;
+  if (!payload) return <div className="rh-pulse-app">
+    <main className="rh-pulse-shell">
+      <RhPulseHeader freshness="unavailable" loading homeHref={homeHref} />
+      <section className="rh-pulse-public-call-loading" aria-live="polite">
+        <p className="rh-pulse-kicker">VERIFIED CALL RECEIPT</p>
+        <h1>Reading the immutable record.</h1>
+        <p>No call details are inferred while the receipt is loading.</p>
+      </section>
+    </main>
+  </div>;
+
+  const call = payload.call;
+  const snapshot = payload.structural_snapshot;
+  return <div className="rh-pulse-app">
+    <div className="rh-pulse-ambient" aria-hidden="true" />
+    <main className="rh-pulse-shell">
+      <RhPulseHeader freshness={snapshot.source_health} homeHref={homeHref} />
+      <article className="rh-pulse-public-call">
+        <header>
+          <p className="rh-pulse-kicker">RH PULSE / PUBLIC CALL #{String(call.public_call_number).padStart(4, '0')}</p>
+          <span className="rh-pulse-verified-state"><span aria-hidden="true">✓</span> EIP-191 VERIFIED</span>
+          <h1>{call.selected_outcome_label}</h1>
+          <p>{outcomeThesis(call.selected_outcome)}</p>
+        </header>
+
+        {call.genesis.is_genesis && <section className="rh-pulse-public-genesis" aria-label="Genesis call status">
+          <span>GENESIS CALL</span>
+          <strong>#{String(call.genesis.rank).padStart(4, '0')} / 4663</strong>
+          <p>Permanent public sequence status. It implies no token, reward, eligibility or financial benefit.</p>
+        </section>}
+
+        <section className="rh-pulse-public-call-facts" aria-labelledby="rh-pulse-call-facts-title">
+          <h2 id="rh-pulse-call-facts-title">On the record</h2>
+          <dl>
+            <div><dt>Wallet</dt><dd>{call.wallet_display}</dd></div>
+            <div><dt>Recorded</dt><dd>{formatUtc(call.recorded_at)}</dd></div>
+            <div><dt>Window</dt><dd>#{String(call.window.sequence_number).padStart(3, '0')}</dd></div>
+            <div><dt>Window closes</dt><dd>{call.window.closes_at ? formatUtc(call.window.closes_at) : 'Unavailable'}</dd></div>
+            <div><dt>Methodology</dt><dd>{call.methodology_version}</dd></div>
+            <div><dt>Resolution</dt><dd>Unresolved</dd></div>
+          </dl>
+        </section>
+
+        <section className="rh-pulse-public-snapshot" aria-labelledby="rh-pulse-snapshot-title">
+          <p className="rh-pulse-kicker">STRUCTURAL SNAPSHOT AT CALL TIME</p>
+          <h2 id="rh-pulse-snapshot-title">What RH Pulse could support.</h2>
+          <dl>
+            <div>
+              <dt>Strongest current signal</dt>
+              <dd>{snapshot.strongest_current_signal ? connectionLabel(snapshot.strongest_current_signal) : 'Insufficient evidence'}</dd>
+            </div>
+            <div>
+              <dt>Connection under watch</dt>
+              <dd>Agents ↔ RWAs</dd>
+            </div>
+            <div>
+              <dt>Source health</dt>
+              <dd>{snapshot.source_health}</dd>
+            </div>
+            <div>
+              <dt>Observed</dt>
+              <dd>{formatUtc(snapshot.generated_at)}</dd>
+            </div>
+          </dl>
+          <p>Editorial importance and measured strength remain separate. Correlation is not capital flow.</p>
+        </section>
+
+        <section className="rh-pulse-public-hash" id="receipt" aria-labelledby="rh-pulse-receipt-hash-title">
+          <p className="rh-pulse-kicker">IMMUTABLE RECEIPT</p>
+          <h2 id="rh-pulse-receipt-hash-title">SHA-256</h2>
+          <code>{payload.receipt_hash}</code>
+          <p>The canonical receipt payload is insert-only. Any future correction must preserve this record and create a superseding receipt.</p>
+        </section>
+
+        <nav className="rh-pulse-public-call-links" aria-label="RH Pulse receipt links">
+          <a href={homeHref}>Read current Pulse</a>
+          <a href={methodologyHref}>Read methodology</a>
+        </nav>
+      </article>
+      <footer className="rh-pulse-footer">
+        <div><span>RH PULSE / INFOPUNKS</span><a href={methodologyHref}>Methodology</a></div>
+        <p>{RH_PULSE_INDEPENDENCE_DISCLAIMER}</p>
+      </footer>
+    </main>
+  </div>;
+}
+
+function RhPulsePublicCallMissing({ homeHref }: { homeHref: string }) {
+  return <div className="rh-pulse-app">
+    <main className="rh-pulse-shell">
+      <RhPulseHeader freshness="unavailable" homeHref={homeHref} />
+      <section className="rh-pulse-reserved-route">
+        <p className="rh-pulse-kicker">RECEIPT NOT FOUND</p>
+        <h1>No verified call exists here.</h1>
+        <p>RH Pulse does not invent missing calls, signatures or receipt hashes.</p>
+        <a href={homeHref}>Return to Call the Rotation</a>
+      </section>
+    </main>
+  </div>;
+}
+
+function outcomeThesis(outcome: string) {
+  return {
+    agents_to_rwas: 'Agent coordination becomes the next bridge into reviewed real-world-asset markets.',
+    memes_to_agents: 'Meme liquidity rotates into agent coordination and new market formation.',
+    memes_to_rwas: 'Speculative liquidity seeks reviewed tokenized-finance structure.',
+    no_qualified_rotation: 'No connection clears the evidence standard for a structural rotation.'
+  }[outcome] ?? 'A verified RH Pulse public prediction.';
+}
+
+function connectionLabel(connection: string) {
+  return {
+    agents_to_rwas: 'Agents ↔ RWAs',
+    memes_to_agents: 'Memes ↔ Agents',
+    memes_to_rwas: 'Memes ↔ RWAs'
+  }[connection] ?? connection;
+}
+
+function formatUtc(value: string) {
+  return new Intl.DateTimeFormat('en', {
+    timeZone: 'UTC',
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }).format(new Date(value)) + ' UTC';
+}

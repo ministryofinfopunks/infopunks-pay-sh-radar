@@ -871,6 +871,11 @@ NODE_ENV=production PORT=8787 npm start
 | `RH_CHAIN_REVIEW_CONSOLE_ENABLED` | Enables protected internal RH review routes |
 | `RH_CHAIN_REVIEW_ADMIN_TOKEN` | Dedicated bearer credential required when the production review console is enabled |
 | `RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED` | Enables durable authoritative reviewed-classification APIs and the read-only Cross-Layer integration; defaults to `false` and requires `DATABASE_URL` in production |
+| `PULSE_PUBLIC_HOST` | Trusted canonical RH Pulse hostname without a scheme or path; defaults to `pulse.infopunks.fun` |
+| `RH_PULSE_CALLS_ENABLED` | Enables signed-call APIs and UI only when a durable window is also open; defaults to `false`; production requires Postgres and the internal token |
+| `RH_PULSE_CHALLENGE_TTL_SECONDS` | Single-use EIP-191 challenge lifetime; defaults to `300`, bounded from `60` to `900` |
+| `RH_PULSE_INTERNAL_TOKEN` | Server-only bearer credential for pilot-window controls; never expose through `VITE_` |
+| `VITE_WALLETCONNECT_PROJECT_ID` | Optional public WalletConnect project ID; injected wallets keep working when omitted |
 | `PAY_SH_CATALOG_URL` | Live Pay.sh catalog source |
 | `PAY_SH_INGEST_INTERVAL_MS` | Enables scheduled ingestion |
 | `MONITOR_ENABLED` | Enables scheduled monitoring |
@@ -893,7 +898,34 @@ PAY_SH_CATALOG_URL=https://pay.sh/api/catalog
 MONITOR_ENABLED=true
 MONITOR_MODE=safe_metadata
 MONITOR_INTERVAL_MS=900000
+PULSE_PUBLIC_HOST=pulse.infopunks.fun
+RH_PULSE_CALLS_ENABLED=false
+RH_PULSE_CHALLENGE_TTL_SECONDS=300
+RH_PULSE_INTERNAL_TOKEN=
+VITE_WALLETCONNECT_PROJECT_ID=
 ```
+
+## RH Pulse Phase 1 + Phase 2.5
+
+RH Pulse is a separate public front door over the shared Radar engine. The production hostname is `https://pulse.infopunks.fun/`; local and Radar-host fallback access is `/rh-pulse`. The same Fastify/Vite application chooses the public shell from the trusted hostname or fallback path, while all existing Radar routes retain their current behavior.
+
+The evidence API remains read-only:
+
+- `GET /v1/rh-pulse`
+- `GET /v1/rh-pulse/connections`
+- `GET /v1/rh-pulse/current-window`
+- `GET /v1/rh-pulse/methodology`
+- `GET /v1/rh-pulse/source-health`
+
+Phase 2 adds single-use EIP-191 challenges, atomic calls, public calls/receipts and authenticated pilot-window controls. Apply `migrations/20260723_007_rh_pulse_signed_calls.up.sql` before a pilot. Calls remain disabled by default; there is no transaction, chain switch, prediction resolution, scheduler or dynamic receipt image. Wallet and WalletConnect code are asynchronous and do not enter the initial Radar/Pulse bundles. See [docs/rh-pulse-v1.md](docs/rh-pulse-v1.md) for the signature, migration, security and pilot runbooks and [the host-routing ADR](docs/architecture/rh-pulse-host-routing.md) for canonical-host authority.
+
+Phase 2.5 adds a destructive-safe, real-Postgres production gate. It requires local PostgreSQL 14.x command-line tools and creates only the exact isolated database `postgresql://postgres@127.0.0.1:55463/rh_pulse_gate`. The all-in-one gate applies every migration in order, runs the concurrency/rollback/immutability/multi-process suite, and destroys the temporary cluster even after failure:
+
+```bash
+npm run test:rh-pulse:postgres
+```
+
+For inspection or an explicit lifecycle, use `npm run test:postgres:up`, `npm run test:postgres:migrate`, and `npm run test:postgres:down`. The gate fails when PostgreSQL is absent, has the wrong major version, or the database URL is not the exact isolated target; it never falls back to mocks or the in-memory adapter.
 
 ## RH Chain market-data provider setup
 
@@ -996,16 +1028,16 @@ The existing `GET /v1/rh-chain/live-snapshot/token/:contract` route uses a singl
 
 ## Unified Render Deployment
 
-`https://radar.infopunks.fun` should point at the full Node/Fastify app, not a Render Static Site.
+`https://radar.infopunks.fun` and `https://pulse.infopunks.fun` should point at the same full Node/Fastify app, not a Render Static Site.
 
 Use a Render Web Service so one process serves:
 
 - `/v1/*`
 - `/openapi.json`
 - frontend static assets from `dist/client`
-- SPA fallback for frontend pages only
+- host-aware SPA fallback for Radar and RH Pulse frontend pages only
 
-Do not deploy `radar.infopunks.fun` as a Static Site publishing `dist/client`, or the HTML shell will swallow API URLs.
+Do not deploy either public hostname as a Static Site publishing `dist/client`, or the HTML shell will swallow API URLs and Pulse cannot receive server-injected canonical metadata.
 
 ---
 
@@ -1047,11 +1079,15 @@ existing `create table/index if not exists` statements preserve all records.
 
 The checked-in [render.yaml](/Users/ahdilm/Documents/Infopunks%20Pay.sh%20Intelligence%20Terminal/render.yaml:1) codifies the expected Render Web Service configuration.
 
+Attach both custom domains to that same service. Keep `PULSE_PUBLIC_HOST=pulse.infopunks.fun` and `RH_PULSE_CALLS_ENABLED=false` for the public ship until the Phase 2 migration and pilot checklist pass. DNS for `pulse.infopunks.fun` should use the target Render provides for the attached custom domain; no second service or database is required.
+
 Production sanity check:
 
 - `https://infopunks-pay-sh-radar.onrender.com/openapi.json` should return `application/json`
 - `https://infopunks-pay-sh-radar.onrender.com/v1/loops` should return `application/json`
 - `https://infopunks-pay-sh-radar.onrender.com/v1/checks` should return `application/json`
+- `https://infopunks-pay-sh-radar.onrender.com/rh-pulse` should return the RH Pulse HTML shell
+- `https://pulse.infopunks.fun/v1/rh-pulse` should return `application/json`
 
 If the `onrender.com` service returns JSON but `https://radar.infopunks.fun/...` returns `text/html`, the custom domain is attached to the wrong Render service, usually a Static Site that serves `dist/client`. Reattach `radar.infopunks.fun` to the Node Web Service defined in `render.yaml` and redeploy the blueprint.
 

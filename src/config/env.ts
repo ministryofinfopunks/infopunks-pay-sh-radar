@@ -63,6 +63,10 @@ export type RuntimeConfig = {
   rhChainPublicRateLimitWindowMs: number;
   rhChainPublicRateLimitMax: number;
   rhChainDuplicateWindowMs: number;
+  pulsePublicHost: string;
+  rhPulseCallsEnabled: boolean;
+  rhPulseChallengeTtlSeconds: number;
+  rhPulseInternalToken: string | null;
   frontendOrigin: string | null;
   version: string;
 };
@@ -134,6 +138,10 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
     rhChainPublicRateLimitWindowMs: readPositiveInteger('RH_CHAIN_PUBLIC_RATE_LIMIT_WINDOW_MS', env.RH_CHAIN_PUBLIC_RATE_LIMIT_WINDOW_MS, 60_000),
     rhChainPublicRateLimitMax: readPositiveInteger('RH_CHAIN_PUBLIC_RATE_LIMIT_MAX', env.RH_CHAIN_PUBLIC_RATE_LIMIT_MAX, 30),
     rhChainDuplicateWindowMs: readPositiveInteger('RH_CHAIN_DUPLICATE_WINDOW_MS', env.RH_CHAIN_DUPLICATE_WINDOW_MS, 15 * 60_000),
+    pulsePublicHost: readHostname('PULSE_PUBLIC_HOST', env.PULSE_PUBLIC_HOST, 'pulse.infopunks.fun'),
+    rhPulseCallsEnabled: readBoolean('RH_PULSE_CALLS_ENABLED', env.RH_PULSE_CALLS_ENABLED, false),
+    rhPulseChallengeTtlSeconds: readBoundedPositiveInteger('RH_PULSE_CHALLENGE_TTL_SECONDS', env.RH_PULSE_CHALLENGE_TTL_SECONDS, 300, 900),
+    rhPulseInternalToken: optionalString(env.RH_PULSE_INTERNAL_TOKEN),
     frontendOrigin: readOptionalUrl('FRONTEND_ORIGIN', env.FRONTEND_ORIGIN),
     version: env.APP_VERSION ?? packageVersion()
   };
@@ -171,6 +179,12 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
   if (isProduction && config.rhChainProjectDirectoryEnabled && !config.rhChainProjectClaimsEnabled) {
     throw new Error('RH_CHAIN_PROJECT_CLAIMS_ENABLED=true is required when RH_CHAIN_PROJECT_DIRECTORY_ENABLED=true in production');
   }
+  if (isProduction && config.rhPulseCallsEnabled && !config.databaseUrl) {
+    throw new Error('DATABASE_URL is required when RH_PULSE_CALLS_ENABLED=true in production');
+  }
+  if (isProduction && config.rhPulseCallsEnabled && !config.rhPulseInternalToken) {
+    throw new Error('RH_PULSE_INTERNAL_TOKEN is required when RH_PULSE_CALLS_ENABLED=true in production');
+  }
 
   return config;
 }
@@ -195,6 +209,9 @@ export function deploymentSummary(config: RuntimeConfig) {
     rhChainAutomationEnabled: config.rhChainAutomationEnabled,
     rhChainMarketIngestionEnabled: config.rhChainMarketIngestionEnabled,
     rhChainMarketHistoryEnabled: config.rhChainMarketHistoryEnabled,
+    pulsePublicHost: config.pulsePublicHost,
+    rhPulseCallsEnabled: config.rhPulseCallsEnabled,
+    rhPulseChallengeTtlSeconds: config.rhPulseChallengeTtlSeconds,
     ingestionEnabled: config.ingestionEnabled,
     dbMode: config.databaseUrl ? 'postgres' : 'memory',
     databasePoolMax: config.databasePoolMax,
@@ -258,6 +275,22 @@ function readOptionalUrl(name: string, value: string | undefined) {
     return new URL(trimmed).origin === trimmed ? trimmed : new URL(trimmed).toString();
   } catch {
     throw new Error(`${name} must be a valid URL`);
+  }
+}
+
+function readHostname(name: string, value: string | undefined, defaultValue: string) {
+  const candidate = optionalString(value) ?? defaultValue;
+  if (candidate.includes('/') || candidate.includes('@') || candidate.includes(',')) {
+    throw new Error(`${name} must be a hostname without a scheme or path`);
+  }
+  try {
+    const parsed = new URL(`https://${candidate}`);
+    if (parsed.hostname !== candidate.toLowerCase() || parsed.port || parsed.pathname !== '/') {
+      throw new Error('invalid_hostname');
+    }
+    return parsed.hostname;
+  } catch {
+    throw new Error(`${name} must be a valid hostname without a scheme or path`);
   }
 }
 

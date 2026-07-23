@@ -24,10 +24,13 @@ describe('initial Radar boot context', () => {
     expect(bootLoadingLabelForPath('/solana')).toBe('INFOPUNKS RADAR // SOLANA INTELLIGENCE BOOTING...');
     expect(bootLoadingLabelForPath('/providers')).toBe('INFOPUNKS RADAR // SOLANA INTELLIGENCE BOOTING...');
     expect(bootLoadingLabelForPath('/rh-chain-signal-desk/clone-radar')).toBe('INFOPUNKS RADAR // RH CHAIN INTELLIGENCE BOOTING...');
+    expect(bootLoadingLabelForPath('/rh-pulse')).toBe('INFOPUNKS / RH PULSE // REFINING SIGNAL...');
+    expect(bootLoadingLabelForPath('/rh-pulse/methodology')).toBe('INFOPUNKS / RH PULSE // REFINING SIGNAL...');
     expect(Object.values(BOOT_LOADING_LABELS)).toEqual([
       'INFOPUNKS RADAR // INTELLIGENCE SYSTEM BOOTING...',
       'INFOPUNKS RADAR // SOLANA INTELLIGENCE BOOTING...',
-      'INFOPUNKS RADAR // RH CHAIN INTELLIGENCE BOOTING...'
+      'INFOPUNKS RADAR // RH CHAIN INTELLIGENCE BOOTING...',
+      'INFOPUNKS / RH PULSE // REFINING SIGNAL...'
     ]);
   });
 
@@ -47,6 +50,7 @@ describe('initial Radar boot context', () => {
     expect(renderStaticBootLabel('/solana')).toBe(bootLoadingLabelForPath('/solana'));
     expect(renderStaticBootLabel('/providers')).toBe(bootLoadingLabelForPath('/providers'));
     expect(renderStaticBootLabel('/rh-chain-signal-desk/launchpad-observatory')).toBe(bootLoadingLabelForPath('/rh-chain-signal-desk/launchpad-observatory'));
+    expect(renderStaticBootLabel('/rh-pulse')).toBe(bootLoadingLabelForPath('/rh-pulse'));
     expect(renderStaticBootLabel('/not-a-radar-route')).toBe(bootLoadingLabelForPath('/not-a-radar-route'));
   });
 

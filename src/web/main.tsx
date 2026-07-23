@@ -46,8 +46,10 @@ import { HermesDeskPage } from './hermesDeskPages';
 import { formatAbsoluteUtc } from '../shared/timestamps';
 import { RADAR_NETWORK_LIST, RadarContextHeader, RadarHeaderIdentity, RadarProductNavigation, SolanaRadarDirectory } from './radarNetworks';
 import { BOOT_INITIALIZATION_DELAYED_LABEL, currentBootLoadingLabel } from './bootContext';
+import { getRhPulseClientResolution } from '../shared/rhPulseRouteCore';
 import './styles.css';
 
+const LazyRhPulsePage = lazy(() => import('./rhPulse/RhPulsePage').then((module) => ({ default: module.RhPulsePage })));
 const LazyRhChainMemePulsePage = lazy(() => import('./rhChainMemePulsePage').then((module) => ({ default: module.RhChainMemePulsePage })));
 const LazyRhChainTokenDossierPage = lazy(() => import('./rhChainTokenDossierPage').then((module) => ({ default: module.RhChainTokenDossierPage })));
 const LazyRhChainCloneRadarPage = lazy(() => import('./rhChainCloneRadarPage').then((module) => ({ default: module.RhChainCloneRadarPage })));
@@ -136,6 +138,14 @@ function RhChainFeatureLoading() {
 
 function LazyRhChainFeature({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<RhChainFeatureLoading />}>{children}</Suspense>;
+}
+
+function RhPulseFeatureLoading() {
+  return <main className="rh-pulse-boot-shell" aria-live="polite">
+    <p>INFOPUNKS / RH PULSE</p>
+    <h1>The agent economy is live. What does it become next?</h1>
+    <span>Loading reviewed connection memory.</span>
+  </main>;
 }
 
 type Severity = 'critical' | 'warning' | 'informational' | 'unknown';
@@ -14412,6 +14422,12 @@ function SignalGraphPage() {
 }
 
 export function App() {
+  const rhPulseResolution = getRhPulseClientResolution(window.location, window.__RH_PULSE_CONTEXT__);
+  if (rhPulseResolution.surface === 'rh-pulse' && rhPulseResolution.route) {
+    return <Suspense fallback={<RhPulseFeatureLoading />}>
+      <LazyRhPulsePage route={rhPulseResolution.route} />
+    </Suspense>;
+  }
   if (/^\/solana\/?$/.test(window.location.pathname)) return <RadarApp landingContext="solana" />;
   if (isRadarCardIndexRoute(window.location.pathname)) return <PreflightCardIndexPage />;
   const radarCard = routeRadarCard(window.location.pathname);
