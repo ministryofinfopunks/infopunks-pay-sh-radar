@@ -60,6 +60,7 @@ export async function connectWalletConnect(): Promise<RhPulseWalletSession> {
     );
   }
   try {
+    const walletMetadataOrigin = window.location.origin;
     const { default: EthereumProvider } = await import('@walletconnect/ethereum-provider');
     const provider = await EthereumProvider.init({
       projectId,
@@ -72,8 +73,8 @@ export async function connectWalletConnect(): Promise<RhPulseWalletSession> {
       metadata: {
         name: 'RH Pulse',
         description: 'Call the Rotation — public prediction receipts by Infopunks.',
-        url: 'https://pulse.infopunks.fun/',
-        icons: ['https://pulse.infopunks.fun/favicon.svg']
+        url: `${walletMetadataOrigin}/`,
+        icons: [`${walletMetadataOrigin}/favicon.svg`]
       }
     });
     await provider.connect();

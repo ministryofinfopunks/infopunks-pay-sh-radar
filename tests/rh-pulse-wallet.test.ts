@@ -119,7 +119,11 @@ describe('RH Pulse wallet bridge', () => {
       optionalChains: [4663],
       methods: [],
       optionalMethods: ['personal_sign'],
-      showQrModal: true
+      showQrModal: true,
+      metadata: expect.objectContaining({
+        url: `${window.location.origin}/`,
+        icons: [`${window.location.origin}/favicon.svg`]
+      })
     }));
     const initialization = walletConnectInit.mock.calls[0]?.[0] as {
       methods: string[];

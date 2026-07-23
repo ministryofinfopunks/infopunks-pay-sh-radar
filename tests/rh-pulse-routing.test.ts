@@ -76,6 +76,24 @@ describe('RH Pulse host-aware routing', () => {
     });
     expect(resolveRhPulseRequest({
       pathname: '/',
+      host: 'radar.infopunks.fun',
+      forwardedHost: 'pulse.infopunks.fun',
+      isProduction: true
+    })).toMatchObject({
+      surface: 'radar',
+      effectiveHost: 'radar.infopunks.fun'
+    });
+    expect(resolveRhPulseRequest({
+      pathname: '/',
+      host: 'pulse.infopunks.fun',
+      forwardedHost: 'radar.infopunks.fun',
+      isProduction: true
+    })).toMatchObject({
+      surface: 'rh-pulse',
+      effectiveHost: 'pulse.infopunks.fun'
+    });
+    expect(resolveRhPulseRequest({
+      pathname: '/',
       host: ['radar.infopunks.fun', 'attacker.example'],
       forwardedHost: 'pulse.infopunks.fun',
       isProduction: true

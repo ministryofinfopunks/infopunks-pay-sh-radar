@@ -1402,18 +1402,18 @@ async function createClosedResolutionWindow(label: string) {
   const sequence = await scalar(pool, 'select coalesce(max(sequence_number),0)+1 from rh_pulse_windows');
   await pool.query(
     `insert into rh_pulse_windows
-      (id,sequence_number,opens_at,closes_at,call_submission_closes_at,status,
+     (id,sequence_number,opens_at,closes_at,call_submission_closes_at,status,
        methodology_version,source_health,audit_metadata,created_at,updated_at,closed_at)
-     values ($1,$2,clock_timestamp()-interval '24 hours',
-       clock_timestamp()-interval '1 minute',clock_timestamp()-interval '1 minute','closed',
+     values ($1,$2,statement_timestamp()-interval '24 hours',
+       statement_timestamp()-interval '1 minute',statement_timestamp()-interval '1 minute','closed',
        'rh-pulse-v1.0',
        jsonb_build_object(
          'state','live',
-         'observed_at',to_char(clock_timestamp()-interval '1 minute','YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+         'observed_at',to_char(statement_timestamp()-interval '1 minute','YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
          'detail','Deterministic real-Postgres resolution fixture.'
        ),
-       jsonb_build_object('fixture',true),clock_timestamp()-interval '24 hours',
-       clock_timestamp(),clock_timestamp())`,
+       jsonb_build_object('fixture',true),statement_timestamp()-interval '24 hours',
+       statement_timestamp(),statement_timestamp())`,
     [id, sequence]
   );
   await pool.query(

@@ -27,6 +27,59 @@ This is the operator runbook for `RH Pulse: Call the Rotation`. It does not auth
 
 5. Confirm the Pulse host has Pulse title/canonical/OG metadata and the Radar root retains Radar metadata.
 
+## HTTPS physical-wallet staging candidate
+
+Physical-wallet testing must run on a release-candidate service that is isolated from production. Use `https://pulse-staging.infopunks.fun` when that hostname is available, or the exact HTTPS Render preview hostname assigned to the candidate. Do not attach or change production DNS during this procedure.
+
+The staging service must use:
+
+- the exact release-candidate commit under test;
+- a separate Render branch preview or staging Web Service;
+- a dedicated staging Postgres database with no production credentials or network alias;
+- staging-only internal and rate-limit secrets generated independently from production;
+- a WalletConnect project configured to allow the exact staging HTTPS origin;
+- disposable EOAs containing no meaningful funds;
+- `NODE_ENV=staging`, so the production-only physical-attestation startup lock remains intact while the matrix that earns that attestation is performed;
+- `PULSE_PUBLIC_HOST` set to the exact staging hostname without a scheme or path;
+- `PAYSH_ALLOW_FIXTURE_FALLBACK=false`;
+- migrations `007`, `008`, and `009` applied to the isolated staging database;
+- calls disabled and the physical-wallet attestation false on the first deployment.
+
+Use this staging environment matrix:
+
+| Variable | Staging value |
+|---|---|
+| `NODE_ENV` | `staging` |
+| `DATABASE_URL` | isolated staging Postgres URL |
+| `PULSE_PUBLIC_HOST` | exact staging hostname |
+| `RH_PULSE_CALLS_ENABLED` | `false` until the controlled test window |
+| `RH_PULSE_PHYSICAL_WALLET_GATE_PASSED` | `false` throughout staging testing |
+| `RH_PULSE_CHALLENGE_TTL_SECONDS` | `300` |
+| `RH_PULSE_INTERNAL_TOKEN` | staging-only random value, at least 32 characters |
+| `RH_PULSE_RATE_LIMIT_SECRET` | staging-only random value, at least 32 characters |
+| `VITE_WALLETCONNECT_PROJECT_ID` | public staging WalletConnect project ID |
+| `PAYSH_ALLOW_FIXTURE_FALLBACK` | `false` |
+
+Do not reuse the production service, database URL, internal token, rate-limit secret, or WalletConnect session material. The WalletConnect project ID is intentionally browser-visible, but it must still belong to the staging-origin configuration.
+
+### Staging execution
+
+1. Deploy the release candidate with calls disabled and the physical-wallet attestation false.
+2. Verify the exact HTTPS hostname, valid TLS, Pulse metadata/canonical URL, `/rh-pulse` fallback, and unchanged production Radar/Pulse behavior.
+3. Verify the staging process reports the isolated database identity and that its migration ledger contains `20260723_007`, `20260723_008`, and `20260723_009`.
+4. Confirm `/v1/rh-pulse/calls/challenge` rejects while calls are disabled and historic staging reads remain available.
+5. Confirm every internal endpoint rejects a missing, production, or incorrect bearer token and accepts only the staging token.
+6. Create a `not_open` pilot window lasting 15–30 minutes. Keep its methodology at `rh-pulse-v1.0`; do not create a 24-hour public window.
+7. Inspect the window ID, UTC timestamps, source-health record, methodology, and audit note before opening it.
+8. Set only staging `RH_PULSE_CALLS_ENABLED=true`, restart, and verify the process still uses the isolated database and staging hostname.
+9. Open the reviewed pilot window. Create one challenge and confirm the wallet message says the exact staging domain and `https://<staging-host>/` URI, chain ID `4663`, selected call, window, methodology, nonce, and timestamps.
+10. Execute every mandatory row in [rh-pulse-wallet-launch-gate.md](rh-pulse-wallet-launch-gate.md). Preserve bounded evidence references, not credentials or session secrets.
+11. Close or cancel the staging window, then set staging calls back to `false` and restart.
+12. Preserve staging calls, receipts, audit records, screenshots, and recordings until the test report is reviewed. Never import them into production provenance.
+13. Archive or destroy the isolated staging database only after the report is complete and its evidence references have been retained intentionally.
+
+Staging artifacts and signed messages must carry the staging hostname. They are test provenance and must never be presented as production RH Pulse receipts.
+
 ## Environment authority
 
 | Variable | Exposure | Read-only mode | Required before production calls |

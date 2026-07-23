@@ -110,13 +110,8 @@ export function resolveRhPulseRequest(input: ResolveRhPulseRequestInput): RhPuls
   const pulsePublicHost = normalizePublicHostname(input.pulsePublicHost) ?? DEFAULT_PULSE_PUBLIC_HOST;
   const directHost = normalizePublicHostname(headerValue(input.host));
   const forwardedHost = normalizePublicHostname(headerValue(input.forwardedHost));
-  const trustedDirectHosts = new Set([
-    pulsePublicHost,
-    RADAR_PUBLIC_HOST,
-    ...RADAR_RENDER_HOSTS,
-    ...(!input.isProduction ? ['localhost', '127.0.0.1', '::1'] : [])
-  ]);
-  const mayTrustForwarded = Boolean(forwardedHost && trustedDirectHosts.has(directHost ?? ''));
+  const trustedForwardingHosts = new Set<string>(RADAR_RENDER_HOSTS);
+  const mayTrustForwarded = Boolean(forwardedHost && trustedForwardingHosts.has(directHost ?? ''));
   const effectiveHost = mayTrustForwarded ? forwardedHost : directHost;
   const isPulseHost = effectiveHost === pulsePublicHost;
   const pathname = normalizedPathname(input.pathname);

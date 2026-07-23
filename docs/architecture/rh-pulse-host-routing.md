@@ -32,7 +32,7 @@ The server injects Pulse title, description, canonical, Open Graph, Twitter, the
 
 `PULSE_PUBLIC_HOST` is parsed as a hostname without a scheme, credentials, path, comma list, or port. It defaults to `pulse.infopunks.fun`.
 
-The direct `Host` header is normalized before comparison. `X-Forwarded-Host` is considered only when the direct host is a known Pulse, Radar, or Render service host; localhost loopback is additionally accepted outside production. Multi-value or malformed headers fail closed.
+The direct `Host` header is normalized before comparison. `X-Forwarded-Host` is considered only when the direct host is one of the known Render service hosts. A public Pulse or Radar custom domain remains authoritative even if a client supplies a conflicting forwarded-host header. Multi-value or malformed headers fail closed.
 
 Canonical and structured-data URLs always use `PULSE_PUBLIC_HOST`. An unknown request host can reach the explicit `/rh-pulse` fallback, but it cannot change canonical identity. Unknown hosts at `/` retain the generic Radar shell.
 
