@@ -7,6 +7,9 @@ import {
 } from '../../shared/rhPulseResolution';
 import { getApiBaseUrl, toApiUrl } from '../apiBaseUrl';
 import { RhPulseHeader } from './RhPulseHeader';
+import { RhPulseShareActions } from './RhPulseShareActions';
+import { applyRhPulseDocumentMetadata } from './rhPulseMetadata';
+import type { RhPulseShareDescriptor } from './rhPulseShare';
 
 export function RhPulsePublicResolutionPage({
   recordId,
@@ -37,7 +40,12 @@ export function RhPulsePublicResolutionPage({
         ? RhPulseResolutionResponseSchema.parse(json).data
         : RhPulseRotationReceiptResponseSchema.parse(json).data.public_resolution;
       setResolution(parsed);
-      document.title = `${parsed.outcome_label} | RH Pulse Rotation Receipt ${String(parsed.window.sequence_number).padStart(3, '0')}`;
+      applyRhPulseDocumentMetadata(null, {
+        windowSequenceNumber: parsed.window.sequence_number!,
+        outcomeLabel: parsed.outcome_label,
+        confidence: parsed.confidence,
+        publishedAt: parsed.published_at
+      });
     }).catch(() => {
       if (!controller.signal.aborted) setUnavailable(true);
     });
@@ -161,6 +169,8 @@ export function RhPulsePublicResolutionPage({
           </p>}
         </section>
 
+        <RhPulseShareActions descriptor={resolutionShareDescriptor(resolution)} resolution />
+
         <nav className="rh-pulse-public-call-links" aria-label="RH Pulse resolution links">
           <a href={homeHref}>Read current Pulse</a>
           <a href={methodologyHref}>Read methodology</a>
@@ -229,4 +239,33 @@ function formatUtc(value: string) {
     minute: '2-digit',
     hour12: false
   }).format(new Date(value)) + ' UTC';
+}
+
+function resolutionShareDescriptor(resolution: RhPulsePublicResolution): RhPulseShareDescriptor {
+  const sequence = String(resolution.window.sequence_number).padStart(3, '0');
+  const canonicalUrl = new URL(
+    `/resolutions/${encodeURIComponent(resolution.window.id)}`,
+    resolution.receipt_url
+  ).toString();
+  return {
+    artifactType: resolution.outcome === 'no_qualified_rotation'
+      ? 'no_qualified_rotation'
+      : 'rotation_result',
+    callOutcome: null,
+    callOutcomeLabel: null,
+    winningOutcome: resolution.outcome,
+    winningOutcomeLabel: resolution.outcome_label,
+    publicCallNumber: null,
+    windowSequenceNumber: resolution.window.sequence_number!,
+    communityCorrectPercentage: resolution.community.total_verified_calls
+      ? resolution.community.correct_percentage
+      : null,
+    communityTotalVerifiedCalls: resolution.community.total_verified_calls,
+    canonicalUrl,
+    landscapePath: `/v1/rh-pulse/resolutions/${encodeURIComponent(resolution.window.id)}/share.png`,
+    portraitPath: `/v1/rh-pulse/resolutions/${encodeURIComponent(resolution.window.id)}/share-portrait.png`,
+    landscapeFilename: `rh-pulse-rotation-receipt-${sequence}.png`,
+    portraitFilename: `rh-pulse-rotation-receipt-${sequence}-portrait.png`,
+    genesis: false
+  };
 }

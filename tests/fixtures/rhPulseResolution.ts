@@ -127,10 +127,33 @@ export function resolutionManifest(options: {
 }
 
 function observation(id: string, observedAt: string, value: number, explanation: string) {
+  const kind = id.includes('_cross_')
+    ? 'cross_layer'
+    : id.includes('_narrative_')
+      ? 'narrative'
+      : 'activity';
   return {
     observation_id: id,
     observed_at: observedAt,
-    normalized_value: value,
+    normalized_metric: {
+      metric_id: `${id}_normalized_index`,
+      value,
+      scale: 'normalized_0_100' as const,
+      unit: 'index_points' as const,
+      normalization_method: kind === 'cross_layer'
+        ? 'reviewed_overlap_index_v1' as const
+        : kind === 'narrative'
+          ? 'filtered_narrative_index_v1' as const
+          : 'activity_acceleration_index_v1' as const,
+      baseline_window: 'RH Pulse window baseline/closing tolerance v1',
+      source_classification: kind === 'cross_layer'
+        ? 'reviewed_cross_layer' as const
+        : kind === 'narrative'
+          ? 'filtered_narrative' as const
+          : 'reviewed_market_activity' as const,
+      observed_at: observedAt,
+      methodology_version: 'rh-pulse-v1.0' as const
+    },
     confidence: 'high' as const,
     freshness: 'live' as const,
     reviewed: true,

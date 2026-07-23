@@ -98,8 +98,28 @@ import {
   PostgresRhPulseResolutionStore,
   type RhPulseResolutionStore
 } from '../services/rhPulseResolutionStore';
+import {
+  InMemoryRhPulseRateLimitStore,
+  PostgresRhPulseRateLimitStore,
+  RhPulseDistributedRateLimiter
+} from '../services/rhPulseRateLimitService';
+import { inspectRhPulseProductionReadiness } from '../services/rhPulseProductionReadiness';
+import {
+  RhPulseShareArtifactError,
+  RhPulseShareArtifactService,
+  rhPulseShareArtifactEtag
+} from '../services/rhPulseShareArtifactService';
+import {
+  RH_PULSE_SHARE_LANDSCAPE,
+  RH_PULSE_SHARE_PORTRAIT,
+  renderRhPulseDefaultOgSvg,
+  renderRhPulseShareSvg,
+  type RhPulseShareArtifactData,
+  type RhPulseShareDimensions
+} from '../shared/rhPulseShareArtifacts';
 import { renderAttentionMarketWatchOgImage, renderNarrativesOgImage, renderRevenueReceiptOgImage, renderRevenueReceiptsIndexOgImage, renderRhChainAttentionQualityOgImage, renderRhChainCrossLayerOgImage, renderRhChainMarketPulseOgImage, renderRhChainShareOgImage, renderSignalHuntOgImage, renderSignalReportOgImage, renderSignalUpdateOgImage, renderUnicornRadarIndexOgImage, renderUnicornRadarOgImage } from '../shared/narrativeOg';
-import { renderOgPng } from '../server/narrativeOgPng';
+import { renderOgPng, renderSvgPng } from '../server/narrativeOgPng';
+import { renderRhPulseSharePng } from '../server/rhPulseSharePng';
 import { applyPayShCatalogIngestion } from '../ingestion/payShCatalogAdapter';
 import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, IntelligenceStore, runPayShIngestion, runPayShIngestionWithOptions } from '../services/intelligenceStore';
 import { IntelligenceRepository } from '../persistence/repository';
@@ -652,6 +672,8 @@ export type CreateAppOptions = {
   rhPulseParticipationService?: RhPulseParticipationService;
   rhPulseResolutionStore?: RhPulseResolutionStore;
   rhPulseResolutionService?: RhPulseResolutionService;
+  rhPulseShareArtifactService?: RhPulseShareArtifactService;
+  rhPulseRateLimiter?: RhPulseDistributedRateLimiter | null;
 };
 
 const RH_CHAIN_LIVE_TOKEN_ROUTE_RESERVE_MS = 1_000;
@@ -709,7 +731,8 @@ export async function createApp(
       'rh_pulse_counters',
       'rh_pulse_audit_events',
       'rh_pulse_resolution_runs',
-      'rh_pulse_rotation_receipts'
+      'rh_pulse_rotation_receipts',
+      'rh_pulse_rate_limit_buckets'
     ] as const : [])
   ] as const;
   rhChainPostgresPool?.on('error', (error) => {
@@ -867,6 +890,24 @@ export async function createApp(
     ?? (rhChainPostgresPool
       ? new PostgresRhPulseResolutionStore(rhChainPostgresPool)
       : new InMemoryRhPulseResolutionStore(rhPulseParticipationStore));
+  const rhPulseRateLimiter = options.rhPulseRateLimiter ?? (
+    config.rhPulseRateLimitSecret
+      ? new RhPulseDistributedRateLimiter(
+        rhChainPostgresPool
+          ? new PostgresRhPulseRateLimitStore(rhChainPostgresPool)
+          : new InMemoryRhPulseRateLimitStore(),
+        config.rhPulseRateLimitSecret,
+        'v1',
+        (entry) => console.log(JSON.stringify({
+          event: entry.allowed ? 'rh_pulse_rate_limit_allowed' : 'rh_pulse_rate_limit_triggered',
+          bucket_type: entry.bucketType,
+          request_count: entry.requestCount,
+          retry_after_seconds: entry.retryAfterSeconds,
+          adapter: entry.adapter
+        }))
+      )
+      : null
+  );
   let rhPulseParticipation: RhPulseParticipationService;
   let rhPulseResolution: RhPulseResolutionService;
   const rhPulse = options.rhPulseService ?? new RhPulseService({
@@ -892,12 +933,32 @@ export async function createApp(
     publicHost: config.pulsePublicHost,
     challengeTtlSeconds: config.rhPulseChallengeTtlSeconds,
     readModel: () => rhPulse.getReadModel(),
-    resolutionForCall: async (call) => rhPulseResolution.resolutionStateForCall(call)
+    resolutionForCall: async (call) => rhPulseResolution.resolutionStateForCall(call),
+    distributedRateLimiter: rhPulseRateLimiter
   });
   rhPulseResolution = options.rhPulseResolutionService ?? new RhPulseResolutionService({
     store: rhPulseResolutionStore,
     publicHost: config.pulsePublicHost
   });
+  const rhPulseShareArtifacts = options.rhPulseShareArtifactService ?? new RhPulseShareArtifactService({
+    participation: rhPulseParticipation,
+    resolution: rhPulseResolution,
+    publicHost: config.pulsePublicHost
+  });
+  if (config.isProduction && config.rhPulseCallsEnabled) {
+    const readiness = await inspectRhPulseProductionReadiness({
+      pool: rhChainPostgresPool,
+      config
+    });
+    if (!readiness.launch_allowed) {
+      console.log(JSON.stringify({
+        event: 'rh_pulse_readiness_failed',
+        blockers: readiness.blockers
+      }));
+      await rhChainPostgresPool?.end().catch(() => undefined);
+      throw new Error(`RH Pulse production readiness failed: ${readiness.blockers.join(',')}`);
+    }
+  }
   const rhChainDailyReceiptDraftStore: RhChainDailyReceiptDraftStore = options.rhChainDailyReceiptDraftStore
     ?? (rhChainPostgresPool ? new PostgresRhChainDailyReceiptDraftStore(rhChainPostgresPool) : new InMemoryRhChainDailyReceiptDraftStore());
   const rhChainDailyReceiptDrafts = new RhChainDailyReceiptDraftService(rhChainDailyReceiptDraftStore, rhChainChainPulse, rhChainMemePulse, rhChainLaunchpad, rhChainLiveSnapshots, rhChainSubmissionStore, rhChainMarketSnapshots);
@@ -2468,6 +2529,7 @@ export async function createApp(
     }
     if (error instanceof RhPulseParticipationError) {
       const status = error.code === 'rate_limited' ? 429
+        : error.code === 'participation_unavailable' ? 503
         : ['call_not_found', 'receipt_not_found', 'window_not_found'].includes(error.code) ? 404
           : ['signature_invalid', 'contract_wallet_signature_unsupported', 'challenge_tampered'].includes(error.code) ? 422
             : 409;
@@ -2556,6 +2618,186 @@ export async function createApp(
       return rhPulseFailure(reply, error);
     }
   });
+  const RhPulseCallArtifactIdSchema = z.string().trim().min(1).max(180).regex(
+    /^(?:rhp_call_[a-zA-Z0-9_-]{8,128}|call-[0-9]{6}-[a-z0-9]{8,32})$/
+  );
+  const RhPulseWindowArtifactIdSchema = z.string().trim().min(1).max(180).regex(
+    /^rhp_window_[a-zA-Z0-9_-]{8,96}$/
+  );
+  const RhPulseRotationArtifactIdSchema = z.string().trim().min(1).max(180).regex(
+    /^(?:rhp_rotation_receipt_[a-zA-Z0-9_-]{8,128}|rotation-[0-9]{3,12}-[a-z0-9]{8,32})$/
+  );
+  const sendRhPulseArtifact = async (
+    req: FastifyRequest,
+    reply: FastifyReply,
+    load: () => Promise<RhPulseShareArtifactData>,
+    dimensions: RhPulseShareDimensions,
+    format: 'svg' | 'png'
+  ) => {
+    const startedAt = performance.now();
+    try {
+      const artifact = await load();
+      const etag = rhPulseShareArtifactEtag(artifact, dimensions, format);
+      const immutable = ![
+        'signed_call',
+        'genesis_signed_call',
+        'resolution_delayed'
+      ].includes(artifact.artifact_type);
+      reply
+        .header('etag', etag)
+        .header(
+          'cache-control',
+          immutable
+            ? 'public, max-age=31536000, s-maxage=31536000, immutable'
+            : 'public, max-age=60, s-maxage=60, stale-while-revalidate=300'
+        )
+        .header('x-rh-pulse-artifact-type', artifact.artifact_type)
+        .header('x-rh-pulse-renderer-version', artifact.renderer_version)
+        .header('x-content-type-options', 'nosniff');
+      if (req.headers['if-none-match'] === etag) {
+        console.log(JSON.stringify({
+          event: 'rh_pulse_share_artifact_rendered',
+          format,
+          artifact_type: artifact.artifact_type,
+          cache: 'conditional_hit',
+          duration_ms: Math.max(0, Math.round(performance.now() - startedAt))
+        }));
+        return reply.code(304).send();
+      }
+      const body = format === 'svg'
+        ? renderRhPulseShareSvg(artifact, dimensions)
+        : renderRhPulseSharePng(artifact, dimensions);
+      console.log(JSON.stringify({
+        event: 'rh_pulse_share_artifact_rendered',
+        format,
+        artifact_type: artifact.artifact_type,
+        width: dimensions.width,
+        height: dimensions.height,
+        cache: 'miss',
+        duration_ms: Math.max(0, Math.round(performance.now() - startedAt))
+      }));
+      return reply
+        .type(format === 'svg' ? 'image/svg+xml; charset=utf-8' : 'image/png')
+        .send(body);
+    } catch (error) {
+      const publicMissing = error instanceof RhPulseShareArtifactError
+        && error.code !== 'artifact_source_unavailable';
+      console.log(JSON.stringify({
+        event: 'rh_pulse_share_artifact_render_failed',
+        format,
+        reason: error instanceof RhPulseShareArtifactError
+          ? error.code
+          : 'renderer_unavailable',
+        duration_ms: Math.max(0, Math.round(performance.now() - startedAt))
+      }));
+      if (publicMissing) {
+        return reply.code(404).send({ error: error.code, message: error.publicMessage });
+      }
+      try {
+        const fallbackSvg = renderRhPulseDefaultOgSvg(dimensions);
+        const fallbackBody = format === 'svg'
+          ? fallbackSvg
+          : renderSvgPng(fallbackSvg, dimensions.width);
+        console.log(JSON.stringify({
+          event: 'rh_pulse_share_artifact_fallback',
+          format,
+          reason: error instanceof RhPulseShareArtifactError
+            ? error.code
+            : 'renderer_unavailable',
+          duration_ms: Math.max(0, Math.round(performance.now() - startedAt))
+        }));
+        return reply
+          .header('cache-control', 'no-store')
+          .header('x-rh-pulse-artifact-fallback', 'generic')
+          .header('x-content-type-options', 'nosniff')
+          .type(format === 'svg' ? 'image/svg+xml; charset=utf-8' : 'image/png')
+          .send(fallbackBody);
+      } catch {
+        // A renderer outage may also prevent the generic card from rendering.
+      }
+      return reply.code(503).send({
+        error: 'artifact_render_unavailable',
+        message: 'The receipt remains valid, but its share artifact is temporarily unavailable.'
+      });
+    }
+  };
+  app.get<{ Params: { callId: string } }>('/v1/rh-pulse/calls/:callId/share.svg', async (req, reply) => {
+    const parsed = RhPulseCallArtifactIdSchema.safeParse(req.params.callId);
+    if (!parsed.success) return reply.code(400).send({ error: 'artifact_id_invalid' });
+    return sendRhPulseArtifact(
+      req,
+      reply,
+      () => rhPulseShareArtifacts.getCallArtifact(parsed.data),
+      RH_PULSE_SHARE_LANDSCAPE,
+      'svg'
+    );
+  });
+  app.get<{ Params: { callId: string } }>('/v1/rh-pulse/calls/:callId/share.png', async (req, reply) => {
+    const parsed = RhPulseCallArtifactIdSchema.safeParse(req.params.callId);
+    if (!parsed.success) return reply.code(400).send({ error: 'artifact_id_invalid' });
+    return sendRhPulseArtifact(
+      req,
+      reply,
+      () => rhPulseShareArtifacts.getCallArtifact(parsed.data),
+      RH_PULSE_SHARE_LANDSCAPE,
+      'png'
+    );
+  });
+  app.get<{ Params: { callId: string } }>('/v1/rh-pulse/calls/:callId/share-portrait.png', async (req, reply) => {
+    const parsed = RhPulseCallArtifactIdSchema.safeParse(req.params.callId);
+    if (!parsed.success) return reply.code(400).send({ error: 'artifact_id_invalid' });
+    return sendRhPulseArtifact(
+      req,
+      reply,
+      () => rhPulseShareArtifacts.getCallArtifact(parsed.data),
+      RH_PULSE_SHARE_PORTRAIT,
+      'png'
+    );
+  });
+  app.get<{ Params: { windowId: string } }>('/v1/rh-pulse/resolutions/:windowId/share.svg', async (req, reply) => {
+    const parsed = RhPulseWindowArtifactIdSchema.safeParse(req.params.windowId);
+    if (!parsed.success) return reply.code(400).send({ error: 'artifact_id_invalid' });
+    return sendRhPulseArtifact(
+      req,
+      reply,
+      () => rhPulseShareArtifacts.getResolutionArtifact(parsed.data),
+      RH_PULSE_SHARE_LANDSCAPE,
+      'svg'
+    );
+  });
+  app.get<{ Params: { windowId: string } }>('/v1/rh-pulse/resolutions/:windowId/share.png', async (req, reply) => {
+    const parsed = RhPulseWindowArtifactIdSchema.safeParse(req.params.windowId);
+    if (!parsed.success) return reply.code(400).send({ error: 'artifact_id_invalid' });
+    return sendRhPulseArtifact(
+      req,
+      reply,
+      () => rhPulseShareArtifacts.getResolutionArtifact(parsed.data),
+      RH_PULSE_SHARE_LANDSCAPE,
+      'png'
+    );
+  });
+  app.get<{ Params: { windowId: string } }>('/v1/rh-pulse/resolutions/:windowId/share-portrait.png', async (req, reply) => {
+    const parsed = RhPulseWindowArtifactIdSchema.safeParse(req.params.windowId);
+    if (!parsed.success) return reply.code(400).send({ error: 'artifact_id_invalid' });
+    return sendRhPulseArtifact(
+      req,
+      reply,
+      () => rhPulseShareArtifacts.getResolutionArtifact(parsed.data),
+      RH_PULSE_SHARE_PORTRAIT,
+      'png'
+    );
+  });
+  app.get<{ Params: { receiptId: string } }>('/v1/rh-pulse/rotation-receipts/:receiptId/share.png', async (req, reply) => {
+    const parsed = RhPulseRotationArtifactIdSchema.safeParse(req.params.receiptId);
+    if (!parsed.success) return reply.code(400).send({ error: 'artifact_id_invalid' });
+    return sendRhPulseArtifact(
+      req,
+      reply,
+      () => rhPulseShareArtifacts.getRotationReceiptArtifact(parsed.data),
+      RH_PULSE_SHARE_LANDSCAPE,
+      'png'
+    );
+  });
   const rhPulseInternalGuard = (reply: FastifyReply, authorization: string | undefined) => {
     if (!config.rhPulseInternalToken) {
       reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
@@ -2566,6 +2808,23 @@ export async function createApp(
       return false;
     }
     return true;
+  };
+  const rhPulseInternalThrottle = async (req: FastifyRequest, reply: FastifyReply) => {
+    if (!rhPulseRateLimiter) return true;
+    try {
+      const decision = await rhPulseRateLimiter.consume(
+        'internal_mutation',
+        `${req.ip}\u0000${req.headers.authorization ?? 'missing'}`,
+        { maximum: 30, windowMs: 60_000 }
+      );
+      if (decision.allowed) return true;
+      reply.header('Retry-After', String(decision.retryAfterSeconds));
+      reply.code(429).send(buildRhChainApiErrorResponse('rate_limited'));
+      return false;
+    } catch {
+      reply.code(503).send(buildRhChainApiErrorResponse('rate_limit_storage_unavailable'));
+      return false;
+    }
   };
   const rhPulseInternalFailure = (reply: FastifyReply, error: unknown) => {
     if (error instanceof z.ZodError) return reply.code(400).send(buildRhChainApiErrorResponse('invalid_request'));
@@ -2587,6 +2846,7 @@ export async function createApp(
   };
   app.post('/internal/rh-pulse/windows', { bodyLimit: 16_384 }, async (req, reply) => {
     if (!rhPulseInternalGuard(reply, req.headers.authorization)) return;
+    if (!await rhPulseInternalThrottle(req, reply)) return;
     try {
       const window = RhPulseWindowRecordSchema.parse(await rhPulseParticipation.createWindow(req.body));
       rhPulse.invalidateCache();
@@ -2599,6 +2859,7 @@ export async function createApp(
   });
   app.post<{ Params: { windowId: string } }>('/internal/rh-pulse/windows/:windowId/open', { bodyLimit: 8_192 }, async (req, reply) => {
     if (!rhPulseInternalGuard(reply, req.headers.authorization)) return;
+    if (!await rhPulseInternalThrottle(req, reply)) return;
     try {
       const window = RhPulseWindowRecordSchema.parse(await rhPulseParticipation.openWindow(req.params.windowId, req.body));
       rhPulse.invalidateCache();
@@ -2611,6 +2872,7 @@ export async function createApp(
   });
   app.post<{ Params: { windowId: string } }>('/internal/rh-pulse/windows/:windowId/close', { bodyLimit: 8_192 }, async (req, reply) => {
     if (!rhPulseInternalGuard(reply, req.headers.authorization)) return;
+    if (!await rhPulseInternalThrottle(req, reply)) return;
     try {
       const window = RhPulseWindowRecordSchema.parse(await rhPulseParticipation.closeWindow(req.params.windowId, req.body));
       rhPulse.invalidateCache();
@@ -2623,6 +2885,7 @@ export async function createApp(
   });
   app.post<{ Params: { windowId: string } }>('/internal/rh-pulse/windows/:windowId/cancel', { bodyLimit: 8_192 }, async (req, reply) => {
     if (!rhPulseInternalGuard(reply, req.headers.authorization)) return;
+    if (!await rhPulseInternalThrottle(req, reply)) return;
     try {
       const window = RhPulseWindowRecordSchema.parse(await rhPulseParticipation.cancelWindow(req.params.windowId, req.body));
       rhPulse.invalidateCache();
@@ -2654,6 +2917,7 @@ export async function createApp(
   });
   app.post<{ Params: { windowId: string } }>('/internal/rh-pulse/windows/:windowId/resolution-preview', { bodyLimit: 262_144 }, async (req, reply) => {
     if (!rhPulseInternalGuard(reply, req.headers.authorization)) return;
+    if (!await rhPulseInternalThrottle(req, reply)) return;
     reply.header('cache-control', 'no-store');
     try {
       return safeJsonExport(buildRhChainApiResponse({
@@ -2665,6 +2929,7 @@ export async function createApp(
   });
   app.post<{ Params: { windowId: string } }>('/internal/rh-pulse/windows/:windowId/resolution-drafts', { bodyLimit: 262_144 }, async (req, reply) => {
     if (!rhPulseInternalGuard(reply, req.headers.authorization)) return;
+    if (!await rhPulseInternalThrottle(req, reply)) return;
     reply.header('cache-control', 'no-store');
     try {
       return safeJsonExport(buildRhChainApiResponse(
@@ -2698,6 +2963,7 @@ export async function createApp(
   });
   app.post<{ Params: { runId: string } }>('/internal/rh-pulse/resolution-runs/:runId/approve', { bodyLimit: 8_192 }, async (req, reply) => {
     if (!rhPulseInternalGuard(reply, req.headers.authorization)) return;
+    if (!await rhPulseInternalThrottle(req, reply)) return;
     reply.header('cache-control', 'no-store');
     const reviewer = typeof req.headers['x-rh-pulse-reviewer-id'] === 'string'
       ? req.headers['x-rh-pulse-reviewer-id'].trim()
@@ -2713,6 +2979,7 @@ export async function createApp(
   });
   app.post<{ Params: { runId: string } }>('/internal/rh-pulse/resolution-runs/:runId/cancel', { bodyLimit: 8_192 }, async (req, reply) => {
     if (!rhPulseInternalGuard(reply, req.headers.authorization)) return;
+    if (!await rhPulseInternalThrottle(req, reply)) return;
     reply.header('cache-control', 'no-store');
     try {
       return safeJsonExport(buildRhChainApiResponse({
@@ -2724,6 +2991,7 @@ export async function createApp(
   });
   app.post<{ Params: { runId: string } }>('/internal/rh-pulse/resolution-runs/:runId/publish', { bodyLimit: 8_192 }, async (req, reply) => {
     if (!rhPulseInternalGuard(reply, req.headers.authorization)) return;
+    if (!await rhPulseInternalThrottle(req, reply)) return;
     reply.header('cache-control', 'no-store');
     try {
       const publication = await rhPulseResolution.publishRotationReceipt(req.params.runId, req.body);
@@ -2732,6 +3000,14 @@ export async function createApp(
     } catch (error) {
       return rhPulseInternalFailure(reply, error);
     }
+  });
+  app.get('/internal/rh-pulse/production-readiness', async (req, reply) => {
+    if (!rhPulseInternalGuard(reply, req.headers.authorization)) return;
+    reply.header('cache-control', 'no-store');
+    return safeJsonExport(buildRhChainApiResponse(await inspectRhPulseProductionReadiness({
+      pool: rhChainPostgresPool,
+      config
+    })));
   });
   app.get('/v1/rh-chain', async () => safeJsonExport(buildRhChainApiResponse(assembleRhChainIntelligence(await rhChainChainPulse.getLatest()))));
   app.get('/v1/rh-chain/memes', async () => safeJsonExport(buildRhChainApiResponse({
@@ -3523,6 +3799,12 @@ export async function createApp(
   app.get('/og/rh-chain/market.png', async (_req, reply) => {
     reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
     return reply.type('image/png').send(renderOgPng(renderRhChainMarketPulseOgImage()));
+  });
+  app.get('/og/rh-pulse.png', async (_req, reply) => {
+    reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
+    return reply.type('image/png').send(renderOgPng(
+      renderRhPulseDefaultOgSvg(RH_PULSE_SHARE_LANDSCAPE)
+    ));
   });
   app.get('/og/rh-chain/cross-layer.png', async (_req, reply) => {
     reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
@@ -5093,6 +5375,13 @@ function injectRhPulseRouteMetadata(
   ensure(/<meta\s+name="twitter:description"/i, `<meta name="twitter:description" content="${escapeHtml(metadata.twitterDescription)}" />`);
   ensure(/<link\s+rel="canonical"/i, `<link rel="canonical" href="${escapeHtml(metadata.canonicalUrl)}" />`);
   ensure(/<script\s+type="application\/ld\+json"/i, `<script type="application/ld+json">${serializeInlineJson(metadata.structuredData)}</script>`);
+  if (metadata.ogImageUrl) {
+    ensure(/<meta\s+property="og:image"/i, `<meta property="og:image" content="${escapeHtml(metadata.ogImageUrl)}" />`);
+    ensure(/<meta\s+property="og:image:width"/i, `<meta property="og:image:width" content="${metadata.ogImageWidth}" />`);
+    ensure(/<meta\s+property="og:image:height"/i, `<meta property="og:image:height" content="${metadata.ogImageHeight}" />`);
+    ensure(/<meta\s+property="og:image:alt"/i, `<meta property="og:image:alt" content="${escapeHtml(metadata.ogImageAlt ?? 'RH Pulse receipt artifact')}" />`);
+    ensure(/<meta\s+name="twitter:image"/i, `<meta name="twitter:image" content="${escapeHtml(metadata.twitterImageUrl ?? metadata.ogImageUrl)}" />`);
+  }
 
   const context = {
     surface: resolution.surface,

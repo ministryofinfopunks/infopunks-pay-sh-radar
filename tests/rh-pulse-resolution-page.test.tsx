@@ -13,6 +13,8 @@ describe('RH Pulse published resolution UI', () => {
   let container: HTMLDivElement;
 
   beforeEach(() => {
+    (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean })
+      .IS_REACT_ACT_ENVIRONMENT = true;
     container = document.createElement('div');
     document.body.append(container);
     window.history.pushState({}, '', '/rh-pulse/resolutions/rhp_window_resolution_fixture');
@@ -53,12 +55,16 @@ describe('RH Pulse published resolution UI', () => {
     expect(container.querySelector('canvas')).toBeNull();
     expect(container.querySelector('.rh-pulse-resolution-support a')?.getAttribute('href'))
       .toContain('radar.infopunks.fun');
+    expect(document.title).toBe('Memes → Agents Won | RH Pulse Rotation Receipt 012');
+    expect(document.head.querySelector<HTMLMetaElement>('meta[property="og:image"]')?.content)
+      .toBe('https://pulse.infopunks.fun/v1/rh-pulse/resolutions/rhp_window_resolution_fixture/share.png');
   });
 
   it.each([
     ['correct', 'I Called the Rotation', 'Correct call', 'Memes → Agents'],
     ['incorrect', 'Call Resolved', 'Incorrect call', 'Agents → RWAs']
   ] as const)('renders the %s public call state without altering the original call', async (state, heading, status, userCall) => {
+    window.history.pushState({}, '', '/rh-pulse/calls/rhp_call_resolution_fixture');
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(
       JSON.stringify(buildRhChainApiResponse(publicCall(state))),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
@@ -76,6 +82,8 @@ describe('RH Pulse published resolution UI', () => {
     expect(container.textContent).toContain(`Your call: ${userCall}`);
     expect(container.textContent).toContain('Published result: Memes → Agents');
     expect(container.textContent).toContain('The original prediction remains on the record.');
+    expect(document.head.querySelector<HTMLMetaElement>('meta[property="og:image"]')?.content)
+      .toBe('https://pulse.infopunks.fun/v1/rh-pulse/calls/rhp_call_resolution_fixture/share.png');
   });
 
   it('renders an honest blocked state without inventing a winner or community accuracy', async () => {

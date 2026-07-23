@@ -1,4 +1,4 @@
-# RH Pulse: Call the Rotation — Phase 1 through Phase 3A
+# RH Pulse: Call the Rotation — Phase 1 through Phase 3B
 
 ## Product boundary
 
@@ -65,6 +65,13 @@ Public request and response models are validated with Zod. Timestamps are UTC IS
 | `GET /v1/rh-pulse/resolutions` | Published resolutions only; never private drafts | short public record cache |
 | `GET /v1/rh-pulse/resolutions/:windowId` | Published result, evidence, scores and community accuracy | short public record cache |
 | `GET /v1/rh-pulse/rotation-receipts/:receiptId` | Immutable Rotation Receipt and public projection | short public record cache |
+| `GET /v1/rh-pulse/calls/:callId/share.svg` | Accessible 1200 × 630 signed/resolved call artifact | 60-second unresolved or immutable resolved cache |
+| `GET /v1/rh-pulse/calls/:callId/share.png` | Canonical 1200 × 630 signed/resolved call image | 60-second unresolved or immutable resolved cache |
+| `GET /v1/rh-pulse/calls/:callId/share-portrait.png` | Optional 1080 × 1350 mobile-feed artifact | 60-second unresolved or immutable resolved cache |
+| `GET /v1/rh-pulse/resolutions/:windowId/share.svg` | Published result or honest delayed-state SVG | immutable published or short delayed cache |
+| `GET /v1/rh-pulse/resolutions/:windowId/share.png` | Canonical result/delayed image | immutable published or short delayed cache |
+| `GET /v1/rh-pulse/resolutions/:windowId/share-portrait.png` | Optional portrait result/delayed image | immutable published or short delayed cache |
+| `GET /v1/rh-pulse/rotation-receipts/:receiptId/share.png` | Published Rotation Receipt image | public immutable |
 
 All public endpoints use the existing RH Chain response envelope and error conventions and are documented in `/openapi.json`.
 
@@ -198,6 +205,19 @@ Phase 3A adds no dependency and keeps resolution rendering in the asynchronous P
 
 The shared-entry increase is 0.36 KiB gzip. Radar visitors still request neither the Pulse page nor wallet chunks. Pulse visitors load the resolution UI with the route, but the wallet bridge remains behind `Sign My Call`, and WalletConnect remains behind an explicit provider selection. The production asset scan finds no internal token name/value, test database URL, Postgres-gate marker, or visual-QA token.
 
+Phase 3B keeps all SVG and PNG rendering on the server. Only the lightweight sharing controls and metadata adapter enter the asynchronous Pulse route:
+
+| Asset boundary | Phase 3A | Phase 3B | Phase 3B change |
+| --- | ---: | ---: | ---: |
+| Shared entry JavaScript | 1,782,409 B / 377,204 B gzip | 1,782,409 B / 377,204 B gzip | unchanged |
+| Lightweight routing chunk | 10,857 B / 4,079 B gzip | 10,857 B / 4,079 B gzip | unchanged |
+| RH Pulse page | 69,730 B / 16,905 B gzip | 79,765 B / 19,478 B gzip | +10,035 B / +2,573 B gzip |
+| RH Pulse page CSS | 33,198 B / 6,976 B gzip | 35,300 B / 7,344 B gzip | +2,102 B / +368 B gzip |
+| Wallet bridge | 2,978 B / 1,341 B gzip | 2,978 B / 1,341 B gzip | unchanged |
+| WalletConnect primary provider | 332,601 B / 95,374 B gzip | 332,601 B / 95,372 B gzip | raw unchanged |
+
+The shared entry and wallet bridge are byte-for-byte unchanged. Radar visitors still avoid the Pulse route; Pulse visitors do not load the wallet bridge until `Sign My Call`, and WalletConnect remains behind explicit provider selection. The client asset scan contains no server-only internal-token, rate-limit-secret, or physical-wallet-attestation variable names.
+
 The bottom sheet keeps the non-custodial trust statement visible before signing. It handles module loading, options, connection, missing account, challenge creation, message review, signature request/pending/rejection, invalid signature, expiry, closed window, duplicate call, server failure, atomic acceptance, receipt loading and sealed receipt. Motion is state-bearing and removed by `prefers-reduced-motion`.
 
 ## Data model and migration
@@ -265,7 +285,7 @@ npm run test:postgres:down
 
 ### Migration and rollback proof
 
-The gate applies migrations 001–008 against an empty database, inserts a representative existing RH Chain market snapshot before migration 007, and confirms that record survives both additive migrations and rollback checks. It directly exercises all eight RH Pulse tables, the one-open-window partial unique index, foreign keys, time-order checks, Genesis rules, both receipt trigger sets, and lookup indexes.
+The gate applies migrations 001–009 against an empty database, inserts a representative existing RH Chain market snapshot before migration 007, and confirms that record survives the additive migrations and rollback checks. It directly exercises all nine RH Pulse tables, the one-open-window partial unique index, foreign keys, time-order checks, Genesis rules, both receipt trigger sets, the distributed-throttle path, and lookup indexes.
 
 For an empty RH Pulse state, the 007 down migration removes only Phase 2 objects and its own optional `infopunks_schema_migrations` ledger row. Migration 007 can then be reapplied. If any row exists in `rh_pulse_calls`, down fails with PostgreSQL code `P0001` and:
 
@@ -463,11 +483,11 @@ The original signed-call receipt is unchanged in every state. The public call pr
 
 - Challenge TTL, secure nonce generation, nonce hashing, single use, exact authority-field comparison, EIP-191 recovery and atomic replay prevention.
 - Strict address/outcome/signature schemas and 16 KiB public request limits.
-- Per-wallet and request-origin fixed-window challenge throttles. Keys are SHA-256 hashes; raw IP addresses are not written to audit storage.
+- Per-wallet and request-origin fixed-window challenge throttles. Production buckets use versioned HMAC-SHA-256 keys; raw IP addresses, origins and wallet addresses are never stored in the throttle table.
 - The in-memory limiter is bounded to 2,000 entries by default and evicts expired/oldest keys.
-- The limiter is process-local. Distributed throttling requires shared infrastructure and is a Phase 3 hardening item; database uniqueness and transaction locks remain cross-instance authorities.
+- Migration `009` adds atomic Postgres buckets shared by every application process for wallet/origin challenges, challenge submissions, repeated invalid signatures and internal mutations. Rows expire and bounded cleanup removes at most 1,000 per operation.
 - Audit payloads omit messages, signatures, nonces, tokens and raw request origins.
-- Calls-enabled production startup requires both `DATABASE_URL` and `RH_PULSE_INTERNAL_TOKEN`.
+- Calls-enabled production startup requires Postgres, migrations `007`–`009`, a valid trusted Pulse host, 32+ character internal/rate-limit secrets, WalletConnect configuration, a healthy supported window/methodology/source state, server-side receipt rendering and the explicit physical-wallet attestation.
 - Postgres operation observations report only a fixed event/operation/outcome, rounded duration, safe rejection code, public call number where committed, and PostgreSQL error code where applicable. They never include a message, signature, nonce, full wallet, token, or origin.
 
 ## Deployment
@@ -479,10 +499,12 @@ PULSE_PUBLIC_HOST=pulse.infopunks.fun
 RH_PULSE_CALLS_ENABLED=false
 RH_PULSE_CHALLENGE_TTL_SECONDS=300
 RH_PULSE_INTERNAL_TOKEN=
+RH_PULSE_RATE_LIMIT_SECRET=
+RH_PULSE_PHYSICAL_WALLET_GATE_PASSED=false
 VITE_WALLETCONNECT_PROJECT_ID=
 ```
 
-No new service, framework, Postgres instance, scheduler or market-data pipeline is required. Apply migrations `007` and `008` in order before any production pilot. `RH_PULSE_INTERNAL_TOKEN` is server-only. `VITE_WALLETCONNECT_PROJECT_ID` is intentionally public build configuration and grants no signing authority.
+No new service, framework, Postgres instance, scheduler or market-data pipeline is required. Apply migrations `007`, `008`, and `009` in order before any production pilot. `RH_PULSE_INTERNAL_TOKEN` and `RH_PULSE_RATE_LIMIT_SECRET` are server-only. `VITE_WALLETCONNECT_PROJECT_ID` is intentionally public build configuration and grants no signing authority. The authoritative launch sequence and emergency controls are in [rh-pulse-launch-runbook.md](rh-pulse-launch-runbook.md).
 
 ## Operational pilot checklist
 
@@ -495,6 +517,8 @@ Keep this local or staging-only until production review.
      -f migrations/20260723_007_rh_pulse_signed_calls.up.sql
    psql "$DATABASE_URL" -v ON_ERROR_STOP=1 \
      -f migrations/20260723_008_rh_pulse_rotation_resolutions.up.sql
+   psql "$DATABASE_URL" -v ON_ERROR_STOP=1 \
+     -f migrations/20260723_009_rh_pulse_launch_throttles.up.sql
    ```
 
 2. Configure and restart locally:
@@ -502,6 +526,8 @@ Keep this local or staging-only until production review.
    ```env
    RH_PULSE_CALLS_ENABLED=true
    RH_PULSE_INTERNAL_TOKEN=<strong-random-local-secret>
+   RH_PULSE_RATE_LIMIT_SECRET=<strong-random-local-hmac-secret>
+   RH_PULSE_PHYSICAL_WALLET_GATE_PASSED=false
    RH_PULSE_CHALLENGE_TTL_SECONDS=300
    PULSE_PUBLIC_HOST=pulse.infopunks.fun
    ```
@@ -620,17 +646,63 @@ Use wallets created solely for this test with no meaningful funds. For every row
 
 Do not claim the production mobile-wallet gate complete until the outstanding rows record device, OS, browser/wallet version, outcome, and receipt ID in a local/staging pilot log. Never paste project credentials, seed phrases, raw signatures, or full signed messages into that log.
 
-## Current Phase 3A limitations and Phase 3B handoff
+## Phase 3B share artifacts and launch hardening
 
-Phase 3A intentionally excludes:
+Artifact-data assembly, SVG rendering, PNG conversion and HTTP handling are separate. The renderer version is `rh-pulse-share-v1.0`; the artifact schema is `1.0`. The same immutable receipt source, renderer version, dimensions and format produce the same ETag. Generation time comes from signed-call recording, Rotation Receipt publication or the durable blocked run—not wall-clock render time.
+
+Artifact truth authority is deliberately narrow:
+
+- unresolved and Genesis cards read the immutable signed-call receipt and its call-time structural snapshot;
+- correct/incorrect cards read that signed receipt plus the published immutable Rotation Receipt;
+- result and No Qualified Rotation cards read only the published Rotation Receipt;
+- Resolution Delayed reads a durable blocked run for a closed window and publishes no winner or community accuracy;
+- drafts, previews and unapproved runs have no public result artifact.
+
+The canonical image is `1200 × 630`; the optional portrait is `1080 × 1350`. SVG is escaped, control characters are removed, public copy uses canonical labels only, and no user free text, arbitrary external image, host header or query claim is rendered. A generic `/og/rh-pulse.png` is the non-claiming metadata/failure fallback. Published/resolved artifacts use long-lived immutable caching. Unresolved and delayed artifacts use a 60-second cache because their public state can change; the state-bound ETag changes after publication.
+
+Public pages provide `Post to X`, Web Share, download and copy-link actions. X uses an editable `https://x.com/intent/post` URL and requests no X permission. Web Share tries the portrait file only after explicit user action and falls back to canonical text/URL. Artifact failure never affects signing, accepted calls, resolution or receipt validity.
+
+## Methodology normalization freeze
+
+Every baseline and closing component now carries a `RhPulseNormalizedMetric` with:
+
+- `scale: normalized_0_100`;
+- `unit: index_points`;
+- a bounded `value` from 0 through 100;
+- an identified normalization method and source classification;
+- baseline window, observation timestamp and `rh-pulse-v1.0`.
+
+Raw wallet counts, dollar volume and mention counts cannot validate as component inputs. Missing metrics remain `null`. The common 40/35/25 formula and all qualification rules are unchanged, and Agents → RWAs receives no normalization advantage. Existing published receipts are not rewritten.
+
+## Migration 009 and rollback
+
+Migration `009` is additive and creates only `rh_pulse_rate_limit_buckets` plus an expiry index. Bucket keys must match `vN:<64 lowercase hex>` and bucket types are constrained. It does not touch call, receipt, resolution or RH Chain provenance.
+
+The `009` down migration deletes disposable throttle buckets and its migration-ledger row. It is safe independently of public provenance, but application rollback must remain compatible with migrations `007` and `008`; their destructive down migrations continue to refuse after signed calls or published Rotation Receipts.
+
+## Production readiness
+
+`GET /internal/rh-pulse/production-readiness` uses the existing bearer guard and reports:
+
+- Postgres and migrations `007`–`009`;
+- trusted Pulse host;
+- strength/presence of server-only secrets without returning them;
+- WalletConnect project configuration;
+- server-side renderer availability;
+- one valid server-time open-window authority at most;
+- supported methodology and acceptable source health;
+- the physical-device operator attestation.
+
+With calls disabled, read-only Pulse and historic provenance remain available while the endpoint still reports every missing launch prerequisite. In production, setting `RH_PULSE_CALLS_ENABLED=true` makes incomplete static configuration fail during config loading and incomplete runtime readiness fail application startup. `RH_PULSE_PHYSICAL_WALLET_GATE_PASSED` defaults to `false`; this repository has not attested it.
+
+## Current limitations and launch handoff
+
+Phase 3B intentionally excludes:
 
 - scheduled window creation, closure or resolution;
-- dynamic per-call/result OG and social images;
-- one-click X sharing and “Called It” image generation;
 - EIP-1271 contract-wallet verification;
-- distributed rate limiting;
 - profiles, accuracy histories, points, rewards, referrals, NFTs or token gating;
 - public admin controls;
 - agent transaction attribution or new market-data ingestion.
 
-Phase 3B may add result/share assets derived only from published immutable facts and explicit X sharing. Later operational work may add scheduling, distributed abuse controls if traffic requires them, EIP-1271 only with an explicit chain/RPC trust policy, and a separately reviewed correction/supersession policy. The outstanding physical-device wallet matrix continues to block production call enablement.
+The final launch gate is operational, not a feature phase: apply migrations, attach the Render-provided DNS target, complete and record [the physical-device matrix](rh-pulse-wallet-launch-gate.md), inspect readiness, and follow [the launch runbook](rh-pulse-launch-runbook.md). Later work may add scheduling, EIP-1271 only with an explicit chain/RPC trust policy, and a separately reviewed correction/supersession policy. The outstanding physical-device wallet matrix continues to block production call enablement.

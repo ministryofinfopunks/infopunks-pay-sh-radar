@@ -872,10 +872,12 @@ NODE_ENV=production PORT=8787 npm start
 | `RH_CHAIN_REVIEW_ADMIN_TOKEN` | Dedicated bearer credential required when the production review console is enabled |
 | `RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED` | Enables durable authoritative reviewed-classification APIs and the read-only Cross-Layer integration; defaults to `false` and requires `DATABASE_URL` in production |
 | `PULSE_PUBLIC_HOST` | Trusted canonical RH Pulse hostname without a scheme or path; defaults to `pulse.infopunks.fun` |
-| `RH_PULSE_CALLS_ENABLED` | Enables signed-call APIs and UI only when a durable window is also open; defaults to `false`; production requires Postgres and the internal token |
+| `RH_PULSE_CALLS_ENABLED` | Enables signed-call APIs and UI only when every production-readiness gate and durable window authority pass; defaults to `false` |
 | `RH_PULSE_CHALLENGE_TTL_SECONDS` | Single-use EIP-191 challenge lifetime; defaults to `300`, bounded from `60` to `900` |
-| `RH_PULSE_INTERNAL_TOKEN` | Server-only bearer credential for pilot-window controls; never expose through `VITE_` |
-| `VITE_WALLETCONNECT_PROJECT_ID` | Optional public WalletConnect project ID; injected wallets keep working when omitted |
+| `RH_PULSE_INTERNAL_TOKEN` | Server-only bearer credential for pilot-window/resolution controls; production calls require at least 32 characters; never expose through `VITE_` |
+| `RH_PULSE_RATE_LIMIT_SECRET` | Server-only HMAC secret for Postgres-backed multi-instance throttling; production calls require at least 32 characters |
+| `RH_PULSE_PHYSICAL_WALLET_GATE_PASSED` | Operator attestation for the documented physical-device matrix; defaults to `false` and must never be set from an automated test |
+| `VITE_WALLETCONNECT_PROJECT_ID` | The only browser-exposed wallet configuration; optional in read-only mode and required before production calls |
 | `PAY_SH_CATALOG_URL` | Live Pay.sh catalog source |
 | `PAY_SH_INGEST_INTERVAL_MS` | Enables scheduled ingestion |
 | `MONITOR_ENABLED` | Enables scheduled monitoring |
@@ -902,10 +904,12 @@ PULSE_PUBLIC_HOST=pulse.infopunks.fun
 RH_PULSE_CALLS_ENABLED=false
 RH_PULSE_CHALLENGE_TTL_SECONDS=300
 RH_PULSE_INTERNAL_TOKEN=
+RH_PULSE_RATE_LIMIT_SECRET=
+RH_PULSE_PHYSICAL_WALLET_GATE_PASSED=false
 VITE_WALLETCONNECT_PROJECT_ID=
 ```
 
-## RH Pulse Phase 1 through Phase 3A
+## RH Pulse Phase 1 through Phase 3B
 
 RH Pulse is a separate public front door over the shared Radar engine. The production hostname is `https://pulse.infopunks.fun/`; local and Radar-host fallback access is `/rh-pulse`. The same Fastify/Vite application chooses the public shell from the trusted hostname or fallback path, while all existing Radar routes retain their current behavior.
 
@@ -917,15 +921,21 @@ The evidence API remains read-only:
 - `GET /v1/rh-pulse/methodology`
 - `GET /v1/rh-pulse/source-health`
 
-Phase 2 adds single-use EIP-191 challenges, atomic calls, public calls/receipts and authenticated pilot-window controls. Phase 3A adds deterministic exact-input resolution drafts, separate approval, one immutable Rotation Receipt per window, community accuracy and public correct/incorrect call states:
+Phase 2 adds single-use EIP-191 challenges, atomic calls, public calls/receipts and authenticated pilot-window controls. Phase 3A adds deterministic exact-input resolution drafts, separate approval, one immutable Rotation Receipt per window, community accuracy and public correct/incorrect call states. Phase 3B adds receipt-derived server-rendered share artifacts, editable X intents, Web Share/download fallbacks, normalized-metric enforcement, shared-Postgres throttling and an explicit launch-readiness gate:
 
 - `GET /v1/rh-pulse/resolutions`
 - `GET /v1/rh-pulse/resolutions/:windowId`
 - `GET /v1/rh-pulse/rotation-receipts/:receiptId`
+- `GET /v1/rh-pulse/calls/:callId/share.svg`
+- `GET /v1/rh-pulse/calls/:callId/share.png`
+- `GET /v1/rh-pulse/calls/:callId/share-portrait.png`
+- `GET /v1/rh-pulse/resolutions/:windowId/share.svg`
+- `GET /v1/rh-pulse/resolutions/:windowId/share.png`
+- `GET /v1/rh-pulse/resolutions/:windowId/share-portrait.png`
 - `/rh-pulse/resolutions/:windowId`
 - `https://pulse.infopunks.fun/resolutions/:windowId`
 
-Apply `migrations/20260723_007_rh_pulse_signed_calls.up.sql` and `migrations/20260723_008_rh_pulse_rotation_resolutions.up.sql` in order before a pilot. Calls remain disabled by default, and the outstanding physical-device wallet matrix continues to block production enablement. There is no transaction, chain switch, automatic scheduler or dynamic receipt image. Wallet and WalletConnect code remain asynchronous and do not enter the initial Radar/Pulse bundles. See [docs/rh-pulse-v1.md](docs/rh-pulse-v1.md) for scoring, input-manifest, approval, receipt, migration, security and pilot runbooks and [the host-routing ADR](docs/architecture/rh-pulse-host-routing.md) for canonical-host authority.
+Apply migrations `007`, `008`, and `009` in production order before a pilot. Calls remain disabled by default, and the outstanding physical-device wallet matrix continues to block production enablement. There is no transaction, chain switch, automatic scheduler, X OAuth or automatic posting. Wallet and WalletConnect code remain asynchronous; image rendering stays server-side. See [docs/rh-pulse-v1.md](docs/rh-pulse-v1.md), [the launch runbook](docs/rh-pulse-launch-runbook.md), [the physical-wallet gate](docs/rh-pulse-wallet-launch-gate.md), and [the host-routing ADR](docs/architecture/rh-pulse-host-routing.md).
 
 The destructive-safe real-Postgres production gate requires local PostgreSQL 14.x command-line tools and creates only the exact isolated database `postgresql://postgres@127.0.0.1:55463/rh_pulse_gate`. The all-in-one gate applies every migration in order, runs signed-call plus resolution concurrency/rollback/immutability/multi-process suites, and destroys the temporary cluster even after failure:
 
@@ -1087,7 +1097,7 @@ existing `create table/index if not exists` statements preserve all records.
 
 The checked-in [render.yaml](/Users/ahdilm/Documents/Infopunks%20Pay.sh%20Intelligence%20Terminal/render.yaml:1) codifies the expected Render Web Service configuration.
 
-Attach both custom domains to that same service. Keep `PULSE_PUBLIC_HOST=pulse.infopunks.fun` and `RH_PULSE_CALLS_ENABLED=false` until migrations `007`/`008`, the resolution pilot, and the outstanding physical-device wallet matrix all pass. DNS for `pulse.infopunks.fun` should use the target Render provides for the attached custom domain; no second service or database is required.
+Attach both custom domains to that same service. Keep `PULSE_PUBLIC_HOST=pulse.infopunks.fun`, `RH_PULSE_CALLS_ENABLED=false`, and `RH_PULSE_PHYSICAL_WALLET_GATE_PASSED=false` until migrations `007`/`008`/`009`, the resolution pilot, production-readiness inspection, and the outstanding physical-device wallet matrix all pass. DNS for `pulse.infopunks.fun` should use the target Render provides for the attached custom domain; no second service or database is required.
 
 Production sanity check:
 

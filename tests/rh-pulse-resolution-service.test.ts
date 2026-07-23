@@ -11,6 +11,7 @@ import { InMemoryRhPulseParticipationStore } from '../src/services/rhPulsePartic
 import type { RhPulseCallRecord } from '../src/shared/rhPulseCalls';
 import {
   RH_PULSE_RESOLUTION_WEIGHTS,
+  RhPulseNormalizedMetricSchema,
   RhPulseResolutionInputManifestSchema
 } from '../src/shared/rhPulseResolution';
 import {
@@ -89,7 +90,7 @@ describe('RH Pulse deterministic resolution calculation', () => {
 
   it('keeps missing evidence null and distinguishes Unable to Resolve from No Qualified Rotation', () => {
     const manifest = structuredClone(resolutionManifest({ strong: 'memes_to_agents' }));
-    manifest.candidates[1]!.market_activity.closing.normalized_value = null;
+    manifest.candidates[1]!.market_activity.closing.normalized_metric = null;
     const result = calculateRhPulseResolution(RhPulseResolutionInputManifestSchema.parse(manifest));
     expect(result).toMatchObject({
       state: 'unable_to_resolve',
@@ -105,6 +106,7 @@ describe('RH Pulse deterministic resolution calculation', () => {
     }],
     ['missing closing tolerance', (manifest: ReturnType<typeof resolutionManifest>) => {
       manifest.candidates[0]!.cross_layer.closing.observed_at = '2026-07-24T13:00:00.000Z';
+      manifest.candidates[0]!.cross_layer.closing.normalized_metric!.observed_at = '2026-07-24T13:00:00.000Z';
     }],
     ['low evidence confidence', (manifest: ReturnType<typeof resolutionManifest>) => {
       manifest.candidates[0]!.cross_layer.closing.confidence = 'low';
@@ -114,6 +116,7 @@ describe('RH Pulse deterministic resolution calculation', () => {
     }],
     ['observation after calculation', (manifest: ReturnType<typeof resolutionManifest>) => {
       manifest.candidates[0]!.cross_layer.closing.observed_at = '2026-07-24T12:00:01.000Z';
+      manifest.candidates[0]!.cross_layer.closing.normalized_metric!.observed_at = '2026-07-24T12:00:01.000Z';
     }]
   ])('blocks publication for %s', (_label, mutate) => {
     const manifest = structuredClone(resolutionManifest({ strong: 'agents_to_rwas' }));
@@ -133,6 +136,30 @@ describe('RH Pulse deterministic resolution calculation', () => {
       ...manifest,
       calculation_at: '2026-07-24T12:05:01.000Z'
     })).not.toBe(resolutionManifestHash(manifest));
+  });
+
+  it('accepts only dimensionless, methodology-bound normalized component inputs', () => {
+    const accepted = resolutionManifest({ strong: 'agents_to_rwas' })
+      .candidates[0]!.cross_layer.closing.normalized_metric!;
+    expect(RhPulseNormalizedMetricSchema.parse(accepted)).toEqual(accepted);
+    for (const incompatible of [
+      { ...accepted, scale: 'raw_count', unit: 'wallets', value: 80 },
+      { ...accepted, scale: 'raw_value', unit: 'usd', value: 80 },
+      { ...accepted, scale: 'raw_count', unit: 'mentions', value: 80 }
+    ]) {
+      expect(RhPulseNormalizedMetricSchema.safeParse(incompatible).success).toBe(false);
+    }
+    expect(RhPulseNormalizedMetricSchema.safeParse({ ...accepted, value: 101 }).success).toBe(false);
+    expect(RhPulseNormalizedMetricSchema.safeParse({
+      ...accepted,
+      methodology_version: 'rh-pulse-v0.9'
+    }).success).toBe(false);
+  });
+
+  it('reproduces the same result from the same normalized manifest', () => {
+    const manifest = resolutionManifest({ strong: 'memes_to_rwas' });
+    expect(calculateRhPulseResolution(structuredClone(manifest)))
+      .toEqual(calculateRhPulseResolution(structuredClone(manifest)));
   });
 });
 

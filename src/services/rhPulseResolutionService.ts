@@ -380,6 +380,35 @@ export class RhPulseResolutionService {
     });
   }
 
+  async getPublicDelayedResolution(windowId: string) {
+    const [window, receipt, runs] = await Promise.all([
+      this.store.getWindow(windowId),
+      this.store.getReceiptForWindow(windowId),
+      this.store.listRuns(windowId)
+    ]);
+    if (!window || receipt || window.status !== 'closed') {
+      throw new RhPulseResolutionError(
+        'resolution_not_found',
+        'No public delayed RH Pulse resolution exists for this window.'
+      );
+    }
+    const blocked = runs.find(({ status }) => status === 'blocked');
+    if (!blocked?.blocked_reason) {
+      throw new RhPulseResolutionError(
+        'resolution_not_found',
+        'No public delayed RH Pulse resolution exists for this window.'
+      );
+    }
+    return {
+      window: publicWindowSummary(window, false, this.now()),
+      run_id: blocked.id,
+      input_manifest_hash: blocked.input_manifest_hash,
+      blocked_reason: blocked.blocked_reason,
+      calculated_at: blocked.calculated_at,
+      methodology_version: blocked.methodology_version
+    };
+  }
+
   async resolutionStateForCall(call: RhPulseCallRecord) {
     const receipt = await this.store.getReceiptForWindow(call.window_id);
     if (receipt) {
@@ -752,8 +781,8 @@ function scoreComponent(
     limitations.push(`${label} includes an unreviewed observation.`);
   }
   if (
-    component.baseline.normalized_value === null
-    || component.closing.normalized_value === null
+    component.baseline.normalized_metric === null
+    || component.closing.normalized_metric === null
   ) {
     limitations.push(`${label} is unknown; missing evidence remains null.`);
   }
@@ -768,12 +797,12 @@ function scoreComponent(
     || !closingWithin
     || !component.baseline.reviewed
     || !component.closing.reviewed
-    || component.baseline.normalized_value === null
-    || component.closing.normalized_value === null
+    || component.baseline.normalized_metric === null
+    || component.closing.normalized_metric === null
     || freshnessRank[component.baseline.freshness] < freshnessRank.delayed
     || freshnessRank[component.closing.freshness] < freshnessRank.delayed
   ) return null;
-  const delta = component.closing.normalized_value - component.baseline.normalized_value;
+  const delta = component.closing.normalized_metric.value - component.baseline.normalized_metric.value;
   return round2(clamp(50 + 2 * delta, 0, 100));
 }
 

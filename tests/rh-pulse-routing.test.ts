@@ -127,9 +127,13 @@ describe('RH Pulse host-aware routing', () => {
     expect(metadata).toMatchObject({
       title: 'Agents → RWAs | RH Pulse Call #0482',
       canonicalUrl: 'https://pulse.infopunks.fun/calls/rhp_call_example',
-      ogUrl: 'https://pulse.infopunks.fun/calls/rhp_call_example'
+      ogUrl: 'https://pulse.infopunks.fun/calls/rhp_call_example',
+      ogImageUrl: 'https://pulse.infopunks.fun/v1/rh-pulse/calls/rhp_call_example/share.png',
+      twitterCard: 'summary_large_image'
     });
-    expect(metadata?.description).toContain('0x1234…5678');
+    expect(metadata?.description).toBe(
+      'A signed public call on the next structural rotation on Robinhood Chain.'
+    );
     expect(JSON.stringify(metadata)).not.toContain('signature');
   });
 
@@ -149,7 +153,10 @@ describe('RH Pulse host-aware routing', () => {
       ...base,
       resolutionStatus: 'correct',
       winningOutcomeLabel: 'Memes → Agents'
-    })?.description).toContain('this call resolved correct');
+    })).toMatchObject({
+      title: 'I Called Memes → Agents | RH Pulse',
+      description: 'Call #0482 matched RH Pulse Rotation Receipt Memes → Agents.'
+    });
     expect(getRhPulseMetadata(resolution, {
       ...base,
       resolutionDelayed: true
@@ -169,9 +176,11 @@ describe('RH Pulse host-aware routing', () => {
       publishedAt: '2026-07-24T12:10:00.000Z'
     });
     expect(metadata).toMatchObject({
-      title: 'Memes → Agents | RH Pulse Rotation Receipt 012',
+      title: 'Memes → Agents Won | RH Pulse Rotation Receipt 012',
       canonicalUrl: 'https://pulse.infopunks.fun/resolutions/rhp_window_01',
-      ogUrl: 'https://pulse.infopunks.fun/resolutions/rhp_window_01'
+      ogUrl: 'https://pulse.infopunks.fun/resolutions/rhp_window_01',
+      ogImageUrl: 'https://pulse.infopunks.fun/v1/rh-pulse/resolutions/rhp_window_01/share.png',
+      twitterCard: 'summary_large_image'
     });
     expect(metadata?.description).toContain('medium confidence');
     expect(JSON.stringify(metadata)).not.toContain('reviewer');

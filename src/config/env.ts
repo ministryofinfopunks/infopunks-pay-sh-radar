@@ -67,6 +67,9 @@ export type RuntimeConfig = {
   rhPulseCallsEnabled: boolean;
   rhPulseChallengeTtlSeconds: number;
   rhPulseInternalToken: string | null;
+  rhPulseRateLimitSecret: string | null;
+  rhPulsePhysicalWalletGatePassed: boolean;
+  walletConnectProjectId: string | null;
   frontendOrigin: string | null;
   version: string;
 };
@@ -142,6 +145,13 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
     rhPulseCallsEnabled: readBoolean('RH_PULSE_CALLS_ENABLED', env.RH_PULSE_CALLS_ENABLED, false),
     rhPulseChallengeTtlSeconds: readBoundedPositiveInteger('RH_PULSE_CHALLENGE_TTL_SECONDS', env.RH_PULSE_CHALLENGE_TTL_SECONDS, 300, 900),
     rhPulseInternalToken: optionalString(env.RH_PULSE_INTERNAL_TOKEN),
+    rhPulseRateLimitSecret: optionalString(env.RH_PULSE_RATE_LIMIT_SECRET),
+    rhPulsePhysicalWalletGatePassed: readBoolean(
+      'RH_PULSE_PHYSICAL_WALLET_GATE_PASSED',
+      env.RH_PULSE_PHYSICAL_WALLET_GATE_PASSED,
+      false
+    ),
+    walletConnectProjectId: optionalString(env.VITE_WALLETCONNECT_PROJECT_ID),
     frontendOrigin: readOptionalUrl('FRONTEND_ORIGIN', env.FRONTEND_ORIGIN),
     version: env.APP_VERSION ?? packageVersion()
   };
@@ -185,6 +195,26 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
   if (isProduction && config.rhPulseCallsEnabled && !config.rhPulseInternalToken) {
     throw new Error('RH_PULSE_INTERNAL_TOKEN is required when RH_PULSE_CALLS_ENABLED=true in production');
   }
+  if (
+    isProduction
+    && config.rhPulseCallsEnabled
+    && (config.rhPulseInternalToken?.length ?? 0) < 32
+  ) {
+    throw new Error('RH_PULSE_INTERNAL_TOKEN must contain at least 32 characters when production calls are enabled');
+  }
+  if (
+    isProduction
+    && config.rhPulseCallsEnabled
+    && (config.rhPulseRateLimitSecret?.length ?? 0) < 32
+  ) {
+    throw new Error('RH_PULSE_RATE_LIMIT_SECRET must contain at least 32 characters when production calls are enabled');
+  }
+  if (isProduction && config.rhPulseCallsEnabled && !config.walletConnectProjectId) {
+    throw new Error('VITE_WALLETCONNECT_PROJECT_ID is required when production calls are enabled');
+  }
+  if (isProduction && config.rhPulseCallsEnabled && !config.rhPulsePhysicalWalletGatePassed) {
+    throw new Error('RH_PULSE_PHYSICAL_WALLET_GATE_PASSED=true is required when production calls are enabled');
+  }
 
   return config;
 }
@@ -212,6 +242,7 @@ export function deploymentSummary(config: RuntimeConfig) {
     pulsePublicHost: config.pulsePublicHost,
     rhPulseCallsEnabled: config.rhPulseCallsEnabled,
     rhPulseChallengeTtlSeconds: config.rhPulseChallengeTtlSeconds,
+    rhPulsePhysicalWalletGatePassed: config.rhPulsePhysicalWalletGatePassed,
     ingestionEnabled: config.ingestionEnabled,
     dbMode: config.databaseUrl ? 'postgres' : 'memory',
     databasePoolMax: config.databasePoolMax,

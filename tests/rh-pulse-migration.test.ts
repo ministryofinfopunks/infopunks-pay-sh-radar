@@ -74,3 +74,35 @@ describe('RH Pulse Phase 3A migration contract', () => {
     expect(sql.indexOf('unsafe rollback')).toBeLessThan(sql.indexOf('drop table if exists'));
   });
 });
+
+describe('RH Pulse Phase 3B migration contract', () => {
+  it('adds only bounded, HMAC-keyed multi-instance throttle buckets', async () => {
+    const sql = await readFile(join(
+      process.cwd(),
+      'migrations/20260723_009_rh_pulse_launch_throttles.up.sql'
+    ), 'utf8');
+    expect(sql).toContain('create table if not exists rh_pulse_rate_limit_buckets');
+    expect(sql).toContain("bucket_key ~ '^v[0-9]+:[a-f0-9]{64}$'");
+    expect(sql).toContain('rh_pulse_rate_limit_time_order_check');
+    expect(sql).toContain('rh_pulse_rate_limit_buckets_expiry_idx');
+    expect(sql).toContain("'internal_mutation'");
+    expect(sql).not.toMatch(/\bip_address\b/);
+    expect(sql).not.toMatch(/\borigin\s+text\b/);
+    expect(sql).not.toMatch(/\bwallet_address\b/);
+    expect(sql.trimEnd()).toMatch(/commit;$/);
+  });
+
+  it('treats throttle state as disposable during rollback', async () => {
+    const sql = await readFile(join(
+      process.cwd(),
+      'migrations/20260723_009_rh_pulse_launch_throttles.down.sql'
+    ), 'utf8');
+    expect(sql).toContain('drop table if exists rh_pulse_rate_limit_buckets');
+    expect(sql).toContain(
+      "delete from infopunks_schema_migrations where migration_id = ''20260723_009''"
+    );
+    expect(sql).not.toContain('rh_pulse_calls');
+    expect(sql).not.toContain('rh_pulse_call_receipts');
+    expect(sql).not.toContain('rh_pulse_rotation_receipts');
+  });
+});

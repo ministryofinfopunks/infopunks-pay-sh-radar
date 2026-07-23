@@ -5,6 +5,9 @@ import {
 import { RhPulsePublicCallResponseSchema } from '../../shared/rhPulseCalls';
 import { getApiBaseUrl, toApiUrl } from '../apiBaseUrl';
 import { RhPulseHeader } from './RhPulseHeader';
+import { RhPulseShareActions } from './RhPulseShareActions';
+import { applyRhPulseDocumentMetadata } from './rhPulseMetadata';
+import type { RhPulseShareDescriptor } from './rhPulseShare';
 
 type PublicPayload = ReturnType<typeof RhPulsePublicCallResponseSchema.parse>['data'];
 
@@ -29,7 +32,18 @@ export function RhPulsePublicCallPage({
       if (!response.ok) throw new Error('call_not_found');
       const parsed = RhPulsePublicCallResponseSchema.parse(await response.json());
       setPayload(parsed.data);
-      document.title = `${parsed.data.call.selected_outcome_label} | RH Pulse Call #${String(parsed.data.call.public_call_number).padStart(4, '0')}`;
+      applyRhPulseDocumentMetadata({
+        publicCallNumber: parsed.data.call.public_call_number,
+        selectedOutcomeLabel: parsed.data.call.selected_outcome_label,
+        walletDisplay: parsed.data.call.wallet_display,
+        recordedAt: parsed.data.call.recorded_at,
+        resolutionStatus: parsed.data.call.resolution_status,
+        winningOutcomeLabel: parsed.data.call.resolution?.status === 'correct'
+          || parsed.data.call.resolution?.status === 'incorrect'
+          ? parsed.data.call.resolution.winning_outcome_label
+          : null,
+        resolutionDelayed: parsed.data.call.resolution?.status === 'delayed'
+      });
     }).catch(() => {
       if (!controller.signal.aborted) setNotFound(true);
     });
@@ -132,6 +146,12 @@ export function RhPulsePublicCallPage({
           <p>The canonical receipt payload is insert-only. Any future correction must preserve this record and create a superseding receipt.</p>
         </section>
 
+        <RhPulseShareActions
+          descriptor={callShareDescriptor(payload)}
+          resolvedCorrect={correct}
+          resolvedIncorrect={call.resolution_status === 'incorrect'}
+        />
+
         <nav className="rh-pulse-public-call-links" aria-label="RH Pulse receipt links">
           <a href={homeHref}>Read current Pulse</a>
           <a href={methodologyHref}>Read methodology</a>
@@ -187,4 +207,42 @@ function formatUtc(value: string) {
     second: '2-digit',
     hour12: false
   }).format(new Date(value)) + ' UTC';
+}
+
+function callShareDescriptor(payload: PublicPayload): RhPulseShareDescriptor {
+  const { call } = payload;
+  const resolved = call.resolution?.status === 'correct' || call.resolution?.status === 'incorrect'
+    ? call.resolution
+    : null;
+  const delayed = call.resolution?.status === 'delayed';
+  const artifactType = resolved
+    ? resolved.status === 'correct' ? 'correct_call' as const : 'incorrect_call' as const
+    : delayed
+      ? 'resolution_delayed' as const
+      : call.genesis.is_genesis
+        ? 'genesis_signed_call' as const
+        : 'signed_call' as const;
+  const number = String(call.public_call_number).padStart(4, '0');
+  const filenameStem = resolved?.status === 'correct'
+    ? `rh-pulse-called-it-${number}`
+    : resolved?.status === 'incorrect'
+      ? `rh-pulse-call-${number}-resolved`
+      : `rh-pulse-call-${number}`;
+  return {
+    artifactType,
+    callOutcome: call.selected_outcome,
+    callOutcomeLabel: call.selected_outcome_label,
+    winningOutcome: resolved?.winning_outcome ?? null,
+    winningOutcomeLabel: resolved?.winning_outcome_label ?? null,
+    publicCallNumber: call.public_call_number,
+    windowSequenceNumber: call.window.sequence_number!,
+    communityCorrectPercentage: null,
+    communityTotalVerifiedCalls: null,
+    canonicalUrl: call.public_url,
+    landscapePath: `/v1/rh-pulse/calls/${encodeURIComponent(call.call_id)}/share.png`,
+    portraitPath: `/v1/rh-pulse/calls/${encodeURIComponent(call.call_id)}/share-portrait.png`,
+    landscapeFilename: `${filenameStem}.png`,
+    portraitFilename: `${filenameStem}-portrait.png`,
+    genesis: call.genesis.is_genesis
+  };
 }

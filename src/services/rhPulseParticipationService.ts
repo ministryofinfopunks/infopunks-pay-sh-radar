@@ -46,6 +46,10 @@ import type {
   RhPulseAcceptedArtifacts,
   RhPulseParticipationStore
 } from './rhPulseParticipationStore';
+import {
+  RhPulseDistributedRateLimiter,
+  RhPulseRateLimitUnavailableError
+} from './rhPulseRateLimitService';
 
 export const RH_PULSE_OUTCOME_LABELS: Record<RhPulseCallOutcome, string> = {
   agents_to_rwas: 'Agents → RWAs',
@@ -65,6 +69,7 @@ export type RhPulseParticipationServiceOptions = {
   nonce?: () => string;
   verify?: typeof verifyMessage;
   resolutionForCall?: (call: RhPulseCallRecord) => Promise<RhPulsePublicCallResolution | null>;
+  distributedRateLimiter?: RhPulseDistributedRateLimiter | null;
   challengeRateLimit?: {
     walletMax?: number;
     originMax?: number;
@@ -95,6 +100,7 @@ export class RhPulseParticipationError extends Error {
       | 'call_not_found'
       | 'receipt_not_found'
       | 'rate_limited'
+      | 'participation_unavailable'
       | 'invalid_transition',
     readonly publicMessage = 'RH Pulse could not record this call.',
     readonly retryAfterSeconds?: number
@@ -115,6 +121,7 @@ export class RhPulseParticipationService {
   private readonly nonce: () => string;
   private readonly verify: typeof verifyMessage;
   private readonly resolutionForCall: (call: RhPulseCallRecord) => Promise<RhPulsePublicCallResolution | null>;
+  private readonly distributedRateLimiter: RhPulseDistributedRateLimiter | null;
   private readonly walletLimiter: BoundedFixedWindowLimiter;
   private readonly originLimiter: BoundedFixedWindowLimiter;
 
@@ -130,6 +137,7 @@ export class RhPulseParticipationService {
     this.nonce = options.nonce ?? (() => randomBytes(32).toString('base64url'));
     this.verify = options.verify ?? verifyMessage;
     this.resolutionForCall = options.resolutionForCall ?? (async () => null);
+    this.distributedRateLimiter = options.distributedRateLimiter ?? null;
     const limit = options.challengeRateLimit ?? {};
     this.walletLimiter = new BoundedFixedWindowLimiter(
       limit.walletMax ?? 3,
@@ -160,16 +168,36 @@ export class RhPulseParticipationService {
       throw new RhPulseParticipationError('challenge_tampered', 'Use a valid Ethereum wallet address.');
     }
 
-    const originHash = sha256(requestOrigin || 'unknown');
-    const walletHash = sha256(wallet.toLowerCase());
+    const originIdentifier = requestOrigin || 'unknown';
+    const walletIdentifier = wallet.toLowerCase();
+    const originHash = this.auditDigest('request_origin', originIdentifier);
+    const walletHash = this.auditDigest('wallet', walletIdentifier);
+    const distributed = await Promise.all([
+      this.consumeDistributed('challenge_wallet', walletIdentifier, 3, 5 * 60_000),
+      this.consumeDistributed('challenge_origin', originIdentifier, 12, 5 * 60_000)
+    ]);
     const walletLimit = this.walletLimiter.consume(walletHash);
     const originLimit = this.originLimiter.consume(originHash);
-    if (!walletLimit.allowed || !originLimit.allowed) {
-      const retryAfterSeconds = Math.max(walletLimit.retryAfterSeconds, originLimit.retryAfterSeconds);
+    if (
+      !distributed[0].allowed
+      || !distributed[1].allowed
+      || !walletLimit.allowed
+      || !originLimit.allowed
+    ) {
+      const retryAfterSeconds = Math.max(
+        distributed[0].retryAfterSeconds,
+        distributed[1].retryAfterSeconds,
+        walletLimit.retryAfterSeconds,
+        originLimit.retryAfterSeconds
+      );
       await this.audit('abuse_check_triggered', {
         walletHash,
         requestOriginHash: originHash,
-        payload: { scope: !walletLimit.allowed ? 'wallet' : 'request_origin', retry_after_seconds: retryAfterSeconds }
+        payload: {
+          scope: !distributed[0].allowed || !walletLimit.allowed ? 'wallet' : 'request_origin',
+          enforcement: this.distributedRateLimiter ? 'postgres_distributed' : 'process_local',
+          retry_after_seconds: retryAfterSeconds
+        }
       });
       throw new RhPulseParticipationError(
         'rate_limited',
@@ -259,8 +287,21 @@ export class RhPulseParticipationService {
   async submitCall(input: unknown, requestOrigin: string) {
     this.requireCallsEnabled();
     const parsed = RhPulseCallSubmissionRequestSchema.parse(input);
+    const challengeLimit = await this.consumeDistributed(
+      'call_challenge',
+      parsed.challenge_id,
+      10,
+      5 * 60_000
+    );
+    if (!challengeLimit.allowed) {
+      throw new RhPulseParticipationError(
+        'rate_limited',
+        'Too many signing attempts. Wait briefly and try again.',
+        challengeLimit.retryAfterSeconds
+      );
+    }
     const challenge = await this.store.getChallenge(parsed.challenge_id);
-    const originHash = sha256(requestOrigin || 'unknown');
+    const originHash = this.auditDigest('request_origin', requestOrigin || 'unknown');
     if (!challenge) {
       await this.audit('signature_rejected', {
         challengeId: null,
@@ -269,7 +310,7 @@ export class RhPulseParticipationService {
       });
       throw new RhPulseParticipationError('challenge_not_found', 'The signing request is no longer available.');
     }
-    const walletHash = sha256(challenge.wallet_address.toLowerCase());
+    const walletHash = this.auditDigest('wallet', challenge.wallet_address.toLowerCase());
     const now = this.now();
     if (challenge.used_at) {
       await this.rejectChallenge(challenge, originHash, 'challenge_used');
@@ -306,6 +347,7 @@ export class RhPulseParticipationService {
       throw new RhPulseParticipationError('challenge_tampered', 'The signing request did not match its stored receipt.');
     }
     if (parsed.signature.length !== 132) {
+      await this.rejectInvalidSignatureRate(challenge.id);
       await this.rejectChallenge(challenge, originHash, 'signature_invalid');
       throw new RhPulseParticipationError('signature_invalid', 'The wallet signature could not be verified.');
     }
@@ -321,6 +363,7 @@ export class RhPulseParticipationService {
       verified = false;
     }
     if (!verified) {
+      await this.rejectInvalidSignatureRate(challenge.id);
       await this.rejectChallenge(challenge, originHash, 'signature_invalid');
       throw new RhPulseParticipationError('signature_invalid', 'The wallet signature could not be verified.');
     }
@@ -750,7 +793,7 @@ export class RhPulseParticipationService {
     await this.audit('signature_rejected', {
       windowId: challenge.window_id,
       challengeId: challenge.id,
-      walletHash: sha256(challenge.wallet_address.toLowerCase()),
+      walletHash: this.auditDigest('wallet', challenge.wallet_address.toLowerCase()),
       requestOriginHash,
       payload: { reason }
     });
@@ -779,6 +822,52 @@ export class RhPulseParticipationService {
       payload: input.payload,
       created_at: createdAt
     });
+  }
+
+  private auditDigest(scope: string, identifier: string) {
+    return this.distributedRateLimiter?.digest(`audit_${scope}`, identifier) ?? sha256(identifier);
+  }
+
+  private async consumeDistributed(
+    bucketType: Parameters<RhPulseDistributedRateLimiter['consume']>[0],
+    identifier: string,
+    maximum: number,
+    windowMs: number
+  ) {
+    if (!this.distributedRateLimiter) {
+      return { allowed: true, retryAfterSeconds: 0 };
+    }
+    try {
+      return await this.distributedRateLimiter.consume(
+        bucketType,
+        identifier,
+        { maximum, windowMs }
+      );
+    } catch (error) {
+      if (error instanceof RhPulseRateLimitUnavailableError) {
+        throw new RhPulseParticipationError(
+          'participation_unavailable',
+          'Signed calls are temporarily unavailable. No challenge or call was recorded.'
+        );
+      }
+      throw error;
+    }
+  }
+
+  private async rejectInvalidSignatureRate(challengeId: string) {
+    const decision = await this.consumeDistributed(
+      'invalid_signature',
+      challengeId,
+      4,
+      5 * 60_000
+    );
+    if (!decision.allowed) {
+      throw new RhPulseParticipationError(
+        'rate_limited',
+        'Too many invalid signing attempts. Create a new challenge later.',
+        decision.retryAfterSeconds
+      );
+    }
   }
 }
 

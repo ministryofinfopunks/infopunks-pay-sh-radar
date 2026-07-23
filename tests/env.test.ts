@@ -23,6 +23,9 @@ describe('runtime environment config', () => {
     expect(config.rhPulseCallsEnabled).toBe(false);
     expect(config.rhPulseChallengeTtlSeconds).toBe(300);
     expect(config.rhPulseInternalToken).toBeNull();
+    expect(config.rhPulseRateLimitSecret).toBeNull();
+    expect(config.rhPulsePhysicalWalletGatePassed).toBe(false);
+    expect(config.walletConnectProjectId).toBeNull();
   });
 
   it('supports explicit safe metadata monitor mode and legacy enabled compatibility', () => {
@@ -87,7 +90,7 @@ describe('runtime environment config', () => {
     expect(() => loadRuntimeConfig({ PULSE_PUBLIC_HOST: 'pulse.infopunks.fun,attacker.example' })).toThrow('PULSE_PUBLIC_HOST');
   });
 
-  it('requires durable storage and an internal pilot token when production calls are enabled', () => {
+  it('requires every production launch gate before calls can be enabled', () => {
     const base = {
       NODE_ENV: 'production',
       PORT: '8787',
@@ -96,10 +99,34 @@ describe('runtime environment config', () => {
     };
     expect(() => loadRuntimeConfig(base)).toThrow('DATABASE_URL');
     expect(() => loadRuntimeConfig({ ...base, DATABASE_URL: 'postgres://localhost/radar' })).toThrow('RH_PULSE_INTERNAL_TOKEN');
-    expect(loadRuntimeConfig({
+    expect(() => loadRuntimeConfig({
       ...base,
       DATABASE_URL: 'postgres://localhost/radar',
-      RH_PULSE_INTERNAL_TOKEN: 'pilot-secret'
+      RH_PULSE_INTERNAL_TOKEN: 'weak'
+    })).toThrow('at least 32 characters');
+    const databaseAndInternal = {
+      ...base,
+      DATABASE_URL: 'postgres://localhost/radar',
+      RH_PULSE_INTERNAL_TOKEN: 'internal-token-that-is-at-least-32-characters'
+    };
+    expect(() => loadRuntimeConfig(databaseAndInternal)).toThrow('RH_PULSE_RATE_LIMIT_SECRET');
+    expect(() => loadRuntimeConfig({
+      ...databaseAndInternal,
+      RH_PULSE_RATE_LIMIT_SECRET: 'weak'
+    })).toThrow('at least 32 characters');
+    const withRateLimit = {
+      ...databaseAndInternal,
+      RH_PULSE_RATE_LIMIT_SECRET: 'rate-limit-secret-that-is-at-least-32-characters'
+    };
+    expect(() => loadRuntimeConfig(withRateLimit)).toThrow('VITE_WALLETCONNECT_PROJECT_ID');
+    const withWalletConnect = {
+      ...withRateLimit,
+      VITE_WALLETCONNECT_PROJECT_ID: 'walletconnect-project-fixture'
+    };
+    expect(() => loadRuntimeConfig(withWalletConnect)).toThrow('RH_PULSE_PHYSICAL_WALLET_GATE_PASSED');
+    expect(loadRuntimeConfig({
+      ...withWalletConnect,
+      RH_PULSE_PHYSICAL_WALLET_GATE_PASSED: 'true'
     }).rhPulseCallsEnabled).toBe(true);
   });
 

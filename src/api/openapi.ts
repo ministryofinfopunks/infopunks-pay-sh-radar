@@ -3379,6 +3379,38 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     parameters: [pathParam('callId', 'Public RH Pulse call identifier or slug.')],
     responses: rhChainResponses('RhPulsePublicReceiptPayload', { receipt: { receipt_version: '1.0', receipt_hash: 'sha256:…' }, immutable: true })
   });
+  const rhPulseArtifactResponse = (contentType: 'image/svg+xml' | 'image/png') => ({
+    '200': {
+      description: 'Deterministic RH Pulse receipt-derived share artifact.',
+      headers: {
+        ETag: { schema: stringSchema() },
+        'Cache-Control': { schema: stringSchema() },
+        'X-RH-Pulse-Renderer-Version': { schema: stringSchema() }
+      },
+      content: {
+        [contentType]: {
+          schema: { type: 'string', format: 'binary' }
+        }
+      }
+    },
+    '304': { description: 'The supplied ETag matches the current immutable artifact identity.' },
+    '400': rhChainErrorResponse('artifact_id_invalid'),
+    '404': rhChainErrorResponse('artifact_not_found'),
+    '503': rhChainErrorResponse('artifact_render_unavailable')
+  });
+  for (const [path, contentType, description] of [
+    ['/v1/rh-pulse/calls/{callId}/share.svg', 'image/svg+xml', 'Accessible 1200 × 630 signed-call or resolved-call SVG.'],
+    ['/v1/rh-pulse/calls/{callId}/share.png', 'image/png', 'Canonical 1200 × 630 signed-call or resolved-call image.'],
+    ['/v1/rh-pulse/calls/{callId}/share-portrait.png', 'image/png', 'Optional 1080 × 1350 signed-call or resolved-call mobile-feed image.']
+  ] as const) {
+    add('get', path, {
+      tags: ['RH Pulse'],
+      summary: 'Get a deterministic RH Pulse call share artifact',
+      description: `${description} Claims derive from the immutable signed-call receipt and, after resolution, the immutable Rotation Receipt. Artifact failure cannot alter either receipt.`,
+      parameters: [pathParam('callId', 'Public RH Pulse call identifier or slug.')],
+      responses: rhPulseArtifactResponse(contentType)
+    });
+  }
   add('get', '/v1/rh-pulse/resolutions', {
     tags: ['RH Pulse'],
     summary: 'List published RH Pulse resolutions',
@@ -3409,6 +3441,20 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       immutable: true
     })
   });
+  for (const [path, contentType, parameters, description] of [
+    ['/v1/rh-pulse/resolutions/{windowId}/share.svg', 'image/svg+xml', [pathParam('windowId', 'Durable RH Pulse window identifier.')], 'Accessible 1200 × 630 published result or honest delayed-resolution SVG.'],
+    ['/v1/rh-pulse/resolutions/{windowId}/share.png', 'image/png', [pathParam('windowId', 'Durable RH Pulse window identifier.')], 'Canonical 1200 × 630 published result or honest delayed-resolution image.'],
+    ['/v1/rh-pulse/resolutions/{windowId}/share-portrait.png', 'image/png', [pathParam('windowId', 'Durable RH Pulse window identifier.')], 'Optional 1080 × 1350 published result or delayed-resolution image.'],
+    ['/v1/rh-pulse/rotation-receipts/{receiptId}/share.png', 'image/png', [pathParam('receiptId', 'Published Rotation Receipt identifier or slug.')], 'Canonical published Rotation Receipt image.']
+  ] as const) {
+    add('get', path, {
+      tags: ['RH Pulse'],
+      summary: 'Get a deterministic RH Pulse resolution share artifact',
+      description: `${description} Unpublished drafts and unapproved runs cannot produce a winning artifact.`,
+      parameters,
+      responses: rhPulseArtifactResponse(contentType)
+    });
+  }
   add('get', '/v1/rh-chain', rhChain('Get RH Chain Signal Desk', 'Returns the complete chain pulse, meme watch, signals, risk wall, receipts, and review context.', 'RhChainDeskPayload', { ...rhExample, title: 'RH Chain Signal Desk', chain_pulse: { metrics: [] } }));
   add('get', '/v1/rh-chain/memes', rhChain('List RH Chain memes', 'Returns source-linked meme assets and their risk states.', 'RhChainMemesPayload', { ...rhExample, memes: [{ ticker: 'RH', contract: '0xexample', risk_state: 'source_required' }] }));
   add('get', '/v1/rh-chain/signals', rhChain('List RH Chain signals', 'Returns the public signal classifier and its evidence requirements.', 'RhChainSignalsPayload', { ...rhExample, signals: [{ label: 'fresh_signal', meaning: 'New source-linked observation.' }] }));
@@ -3557,6 +3603,10 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     'Atomically locks the approved run and closed window, snapshots verified community calls, inserts one immutable receipt, marks the run published and the window resolved.',
     resolutionRunParam,
     resolutionActionBody
+  ));
+  add('get', '/internal/rh-pulse/production-readiness', rhPulseInternal(
+    'Inspect RH Pulse production launch readiness',
+    'Reports Postgres, migrations 007–009, trusted host, secrets, WalletConnect, renderer, window authority, methodology, source health and the manual physical-wallet attestation. It never enables calls.'
   ));
   const classificationContract = [pathParam('contract', 'Exact 0x contract address on Robinhood Chain. Tickers are never accepted as identity.')];
   const classificationPaging = (withStatus = false) => [

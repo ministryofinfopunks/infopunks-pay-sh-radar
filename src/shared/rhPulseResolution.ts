@@ -52,16 +52,51 @@ export const RhPulseCandidateQualificationSchema = z.enum([
   'blocked_by_source_health'
 ]);
 
+export const RhPulseNormalizationMethodSchema = z.enum([
+  'reviewed_overlap_index_v1',
+  'activity_acceleration_index_v1',
+  'filtered_narrative_index_v1'
+]);
+
+export const RhPulseNormalizedSourceClassificationSchema = z.enum([
+  'reviewed_cross_layer',
+  'reviewed_market_activity',
+  'filtered_narrative'
+]);
+
+export const RhPulseNormalizedMetricSchema = z.object({
+  metric_id: z.string().trim().min(1).max(160),
+  value: z.number().min(0).max(100),
+  scale: z.literal('normalized_0_100'),
+  unit: z.literal('index_points'),
+  normalization_method: RhPulseNormalizationMethodSchema,
+  baseline_window: z.string().trim().min(1).max(240),
+  source_classification: RhPulseNormalizedSourceClassificationSchema,
+  observed_at: z.string().datetime(),
+  methodology_version: z.literal(RH_PULSE_RESOLUTION_METHODOLOGY_VERSION)
+}).strict();
+
 export const RhPulseResolutionObservationSchema = z.object({
   observation_id: z.string().trim().min(1).max(160),
   observed_at: z.string().datetime(),
-  normalized_value: z.number().min(0).max(100).nullable(),
+  normalized_metric: RhPulseNormalizedMetricSchema.nullable(),
   confidence: RhPulseConfidenceSchema,
   freshness: RhPulseFreshnessSchema,
   reviewed: z.boolean(),
   source_references: z.array(z.string().trim().min(1).max(240)).min(1).max(30),
   explanation: z.string().trim().min(1).max(1_000)
-}).strict();
+}).strict().superRefine((observation, context) => {
+  if (
+    observation.normalized_metric
+    && observation.normalized_metric.observed_at !== observation.observed_at
+  ) {
+    context.addIssue({
+      code: 'custom',
+      path: ['normalized_metric', 'observed_at'],
+      message: 'normalized_metric_timestamp_must_match_observation'
+    });
+  }
+});
 
 export const RhPulseResolutionComponentWindowSchema = z.object({
   baseline: RhPulseResolutionObservationSchema,
@@ -327,6 +362,7 @@ export const RhPulseRotationReceiptResponseSchema = responseSchema(RhPulsePublic
 
 export type RhPulseDirectionalOutcome = z.infer<typeof RhPulseDirectionalOutcomeSchema>;
 export type RhPulseResolutionStatus = z.infer<typeof RhPulseResolutionStatusSchema>;
+export type RhPulseNormalizedMetric = z.infer<typeof RhPulseNormalizedMetricSchema>;
 export type RhPulseResolutionInputManifest = z.infer<typeof RhPulseResolutionInputManifestSchema>;
 export type RhPulseCandidateScore = z.infer<typeof RhPulseCandidateScoreSchema>;
 export type RhPulseResolutionCalculation = z.infer<typeof RhPulseResolutionCalculationSchema>;

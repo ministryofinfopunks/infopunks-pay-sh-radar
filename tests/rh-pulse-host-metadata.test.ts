@@ -45,7 +45,8 @@ describe('RH Pulse server metadata dispatch', () => {
       expect(response.body).toContain('See the emerging connections between Memes, Agents and RWAs on Robinhood Chain.');
       expect(response.body).toContain('<link rel="canonical" href="https://pulse.infopunks.fun/"');
       expect(response.body).toContain('property="og:url" content="https://pulse.infopunks.fun/"');
-      expect(response.body).toContain('name="twitter:card" content="summary"');
+      expect(response.body).toContain('name="twitter:card" content="summary_large_image"');
+      expect(response.body).toContain('property="og:image" content="https://pulse.infopunks.fun/og/rh-pulse.png"');
       expect(response.body).toContain('name="theme-color" content="#050807"');
       expect(response.body).toContain('"name":"RH Pulse"');
       expect(response.body).toContain('data-rh-pulse-context');

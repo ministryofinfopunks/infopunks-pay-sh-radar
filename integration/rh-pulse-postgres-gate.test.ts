@@ -7,6 +7,7 @@ import { generatePrivateKey, privateKeyToAccount, type PrivateKeyAccount } from 
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import {
   RH_PULSE_CALL_METHODOLOGY_VERSION,
+  type RhPulseCallRecord,
   type RhPulseCallOutcome,
   type RhPulseCallReceiptPayload
 } from '../src/shared/rhPulseCalls';
@@ -34,6 +35,11 @@ import {
   type RhPulseResolutionFailureStage,
   type RhPulseResolutionObservation
 } from '../src/services/rhPulseResolutionStore';
+import {
+  PostgresRhPulseRateLimitStore,
+  RhPulseDistributedRateLimiter
+} from '../src/services/rhPulseRateLimitService';
+import { RhPulseShareArtifactService } from '../src/services/rhPulseShareArtifactService';
 import { resolutionManifest } from '../tests/fixtures/rhPulseResolution';
 
 const GATE_URL = 'postgresql://postgres@127.0.0.1:55463/rh_pulse_gate';
@@ -79,6 +85,7 @@ type GateReport = {
   postgres_version?: string;
   migration_007_ms?: number;
   migration_008_ms?: number;
+  migration_009_ms?: number;
   migrations_tracked?: number;
   unique_batches: Array<{ attempted: number; accepted: number; range: string }>;
   duplicate_races: Array<{ clients: number; accepted: number; rejected: number }>;
@@ -102,6 +109,14 @@ type GateReport = {
     receipt_hash: string;
   };
   resolution_forced_rollbacks: number;
+  distributed_throttle?: {
+    processes: number;
+    attempted: number;
+    allowed: number;
+    blocked: number;
+    stored_raw_identifiers: number;
+    reset_allowed: boolean;
+  };
 };
 
 const report: GateReport = {
@@ -130,7 +145,7 @@ describeGate('RH Pulse Phase 2.5 real PostgreSQL production gate', () => {
     report.postgres_version = version.rows[0]?.version;
     const ledger = await pool.query<{ count: string }>('select count(*) from infopunks_schema_migrations');
     report.migrations_tracked = Number(ledger.rows[0]?.count ?? 0);
-    expect(report.migrations_tracked).toBe(8);
+    expect(report.migrations_tracked).toBe(9);
     readModel = await new RhPulseService({
       crossLayer: async () => ({ entries: [] }),
       cacheTtlMs: 0
@@ -173,7 +188,7 @@ describeGate('RH Pulse Phase 2.5 real PostgreSQL production gate', () => {
     const tracked = JSON.parse(trackedRerun.stdout) as {
       migrations: Array<{ state: string }>;
     };
-    expect(tracked.migrations).toHaveLength(8);
+    expect(tracked.migrations).toHaveLength(9);
     expect(tracked.migrations.every(({ state }) => state === 'already_applied')).toBe(true);
 
     await withTemporaryDatabase('rh_pulse_gate_migration', async (migrationPool) => {
@@ -276,8 +291,122 @@ describeGate('RH Pulse Phase 2.5 real PostgreSQL production gate', () => {
       expect(await scalar(migrationPool, "select count(*) from pg_tables where schemaname='public' and tablename='rh_pulse_calls'")).toBe(1);
       await migrationPool.query(migration008);
       expect(await scalar(migrationPool, "select count(*) from pg_tables where schemaname='public' and tablename='rh_pulse_rotation_receipts'")).toBe(1);
+      const migration009 = await migrationSql('20260723_009_rh_pulse_launch_throttles.up.sql');
+      const throttleMigrationStartedAt = performance.now();
+      await migrationPool.query(migration009);
+      await migrationPool.query(migration009);
+      report.migration_009_ms = Math.round(performance.now() - throttleMigrationStartedAt);
+      expect(await scalar(
+        migrationPool,
+        "select count(*) from pg_tables where schemaname='public' and tablename='rh_pulse_rate_limit_buckets'"
+      )).toBe(1);
+      const throttleObjects = await migrationPool.query<{ name: string }>(
+        `select indexname as name from pg_indexes
+         where schemaname='public' and indexname='rh_pulse_rate_limit_buckets_expiry_idx'
+         union all
+         select conname from pg_constraint
+         where connamespace='public'::regnamespace
+           and conname='rh_pulse_rate_limit_time_order_check'`
+      );
+      expect(throttleObjects.rows.map(({ name }) => name).sort()).toEqual([
+        'rh_pulse_rate_limit_buckets_expiry_idx',
+        'rh_pulse_rate_limit_time_order_check'
+      ]);
+      const down009 = await migrationSql('20260723_009_rh_pulse_launch_throttles.down.sql');
+      await migrationPool.query(down009);
+      expect(await scalar(
+        migrationPool,
+        "select count(*) from pg_tables where schemaname='public' and tablename='rh_pulse_rate_limit_buckets'"
+      )).toBe(0);
+      expect(await scalar(
+        migrationPool,
+        "select count(*) from pg_tables where schemaname='public' and tablename='rh_pulse_rotation_receipts'"
+      )).toBe(1);
+      await migrationPool.query(migration009);
     });
   }, 60_000);
+
+  it('enforces one distributed throttle across process-equivalent PostgreSQL clients', async () => {
+    await pool.query('delete from rh_pulse_rate_limit_buckets');
+    const secret = 'gate-rate-limit-secret-that-is-at-least-32-characters';
+    const first = new RhPulseDistributedRateLimiter(
+      new PostgresRhPulseRateLimitStore(pool),
+      secret,
+      'v1'
+    );
+    const second = new RhPulseDistributedRateLimiter(
+      new PostgresRhPulseRateLimitStore(pool),
+      secret,
+      'v1'
+    );
+    const rawOrigin = '198.51.100.207';
+    const attempts = await Promise.all(Array.from({ length: 25 }, (_, index) => (
+      (index % 2 ? first : second).consume('challenge_origin', rawOrigin, {
+        maximum: 10,
+        windowMs: 60_000
+      })
+    )));
+    expect(attempts.filter(({ allowed }) => allowed)).toHaveLength(10);
+    expect(attempts.filter(({ allowed }) => !allowed)).toHaveLength(15);
+    const stored = await pool.query<{
+      bucket_key: string;
+      request_count: number;
+      blocked_until: Date | null;
+    }>(
+      `select bucket_key,request_count,blocked_until
+       from rh_pulse_rate_limit_buckets where bucket_type='challenge_origin'`
+    );
+    expect(stored.rows).toHaveLength(1);
+    expect(stored.rows[0]).toMatchObject({
+      request_count: 25,
+      blocked_until: expect.any(Date)
+    });
+    expect(stored.rows[0]?.bucket_key).toMatch(/^v1:[a-f0-9]{64}$/);
+    expect(JSON.stringify(stored.rows)).not.toContain(rawOrigin);
+
+    const resetOrigin = '198.51.100.208';
+    await first.consume('challenge_origin', resetOrigin, {
+      maximum: 1,
+      windowMs: 25
+    });
+    await expect(second.consume('challenge_origin', resetOrigin, {
+      maximum: 1,
+      windowMs: 25
+    })).resolves.toMatchObject({ allowed: false });
+    await delay(35);
+    const reset = await second.consume('challenge_origin', resetOrigin, {
+      maximum: 1,
+      windowMs: 25
+    });
+    expect(reset).toMatchObject({ allowed: true, requestCount: 1 });
+
+    const versioned = new RhPulseDistributedRateLimiter(
+      new PostgresRhPulseRateLimitStore(pool),
+      secret,
+      'v2'
+    );
+    expect((await versioned.consume('challenge_origin', rawOrigin, {
+      maximum: 10,
+      windowMs: 60_000
+    })).allowed).toBe(true);
+    await pool.query(
+      `update rh_pulse_rate_limit_buckets
+       set window_started_at=clock_timestamp()-interval '1 second',
+           expires_at=clock_timestamp()-interval '1 millisecond',
+           blocked_until=null,
+           updated_at=clock_timestamp()-interval '500 milliseconds'
+       where bucket_type='challenge_origin'`
+    );
+    expect(await first.cleanup(100)).toBeGreaterThanOrEqual(2);
+    report.distributed_throttle = {
+      processes: 2,
+      attempted: attempts.length,
+      allowed: attempts.filter(({ allowed }) => allowed).length,
+      blocked: attempts.filter(({ allowed }) => !allowed).length,
+      stored_raw_identifiers: JSON.stringify(stored.rows).includes(rawOrigin) ? 1 : 0,
+      reset_allowed: reset.allowed
+    };
+  }, 30_000);
 
   it('keeps the in-memory and PostgreSQL adapters behaviorally aligned', async () => {
     const memory = await adapterContract(new InMemoryRhPulseParticipationStore());
@@ -649,6 +778,29 @@ describeGate('RH Pulse Phase 2.5 real PostgreSQL production gate', () => {
     expect(await service.resolutionStateForCall(acceptedCall!)).toMatchObject({ status: 'correct' });
     const incorrectCall = await postgresStore().getCall(accepted[2]!.call.call_id);
     expect(await service.resolutionStateForCall(incorrectCall!)).toMatchObject({ status: 'incorrect' });
+    const shareArtifacts = new RhPulseShareArtifactService({
+      participation: serviceFor(postgresStore(), {
+        resolutionForCall: (call) => service.resolutionStateForCall(call)
+      }),
+      resolution: service,
+      publicHost: 'pulse.infopunks.fun'
+    });
+    await expect(shareArtifacts.getCallArtifact(accepted[0]!.call.call_id)).resolves.toMatchObject({
+      artifact_type: 'correct_call',
+      source_records: [
+        { kind: 'signed_call_receipt' },
+        { kind: 'rotation_receipt', hash: receipt.receipt_hash }
+      ]
+    });
+    await expect(shareArtifacts.getCallArtifact(accepted[2]!.call.call_id)).resolves.toMatchObject({
+      artifact_type: 'incorrect_call',
+      winning_outcome: 'memes_to_agents'
+    });
+    await expect(shareArtifacts.getResolutionArtifact(window.id)).resolves.toMatchObject({
+      artifact_type: 'rotation_result',
+      receipt_hash: receipt.receipt_hash,
+      community_correct_percentage: 66.67
+    });
 
     await expect(pool.query(
       'update rh_pulse_rotation_receipts set receipt_hash=receipt_hash where id=$1',
@@ -1226,11 +1378,15 @@ function resolutionService(store: PostgresRhPulseResolutionStore) {
 function serviceFor(store: RhPulseParticipationStore, options: {
   now?: () => Date;
   callsEnabled?: boolean;
+  resolutionForCall?: (call: RhPulseCallRecord) => Promise<
+    Awaited<ReturnType<RhPulseResolutionService['resolutionStateForCall']>>
+  >;
 } = {}) {
   return new RhPulseParticipationService({
     store,
     callsEnabled: options.callsEnabled ?? true,
     now: options.now,
+    resolutionForCall: options.resolutionForCall,
     readModel: async () => readModel,
     challengeRateLimit: {
       walletMax: 100,
@@ -1480,6 +1636,7 @@ async function startServer(port: number, internalToken: string): Promise<ServerH
         DATABASE_POOL_MAX: '20',
         RH_PULSE_CALLS_ENABLED: 'true',
         RH_PULSE_INTERNAL_TOKEN: internalToken,
+        RH_PULSE_RATE_LIMIT_SECRET: 'gate-rate-limit-secret-that-is-at-least-32-characters',
         PAYSH_CATALOG_SOURCE: 'fixture',
         PAYSH_ALLOW_FIXTURE_FALLBACK: 'true',
         INGESTION_ENABLED: 'false',
