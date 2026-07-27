@@ -24,21 +24,23 @@ function resolveOgFontFiles() {
 
 const ogFontFiles = resolveOgFontFiles();
 
-const RESVG_OPTIONS = {
-  font: {
-    fontFiles: ogFontFiles,
-    loadSystemFonts: ogFontFiles.length === 0,
-    defaultFontFamily: 'IBM Plex Mono',
-    monospaceFamily: 'IBM Plex Mono',
-    sansSerifFamily: 'IBM Plex Mono'
-  },
-  fitTo: {
-    mode: 'width' as const,
-    value: OG_IMAGE_WIDTH
-  }
-};
-
 export function renderOgPng(svg: string) {
-  const renderer = new Resvg(svg, RESVG_OPTIONS);
+  return renderSvgPng(svg, OG_IMAGE_WIDTH);
+}
+
+export function renderSvgPng(svg: string, width: number) {
+  const renderer = new Resvg(svg, {
+    font: {
+      fontFiles: ogFontFiles,
+      loadSystemFonts: ogFontFiles.length === 0,
+      defaultFontFamily: 'IBM Plex Mono',
+      monospaceFamily: 'IBM Plex Mono',
+      sansSerifFamily: 'IBM Plex Mono'
+    },
+    fitTo: {
+      mode: 'width' as const,
+      value: width
+    }
+  });
   return Buffer.from(renderer.render().asPng());
 }

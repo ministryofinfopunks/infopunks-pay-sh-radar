@@ -1,0 +1,223 @@
+import { useEffect, useMemo, useState } from 'react';
+import {
+  RH_PULSE_INDEPENDENCE_DISCLAIMER,
+  RhPulseResponseSchema
+} from '../../shared/rhPulse';
+import {
+  getRhPulseClientResolution,
+  type RhPulseRoute
+} from '../../shared/rhPulseRouting';
+import { getApiBaseUrl, toApiUrl } from '../apiBaseUrl';
+import { RhPulseCallCards } from './RhPulseCallCards';
+import { RhPulseCallPreview } from './RhPulseCallPreview';
+import { RhPulseHeader } from './RhPulseHeader';
+import { RhPulseHero } from './RhPulseHero';
+import { RhPulseLayerFlowMap } from './RhPulseLayerFlowMap';
+import { RhPulseMethodology } from './RhPulseMethodology';
+import { RhPulsePublicCallPage } from './RhPulsePublicCallPage';
+import { RhPulsePublicResolutionPage } from './RhPulsePublicResolutionPage';
+import { applyRhPulseDocumentMetadata } from './rhPulseMetadata';
+import { RhPulseSigningSheet } from './RhPulseSigningSheet';
+import { RhPulseStructureStrip } from './RhPulseStructureStrip';
+import type { RhPulseCallOption, RhPulsePageData } from './rhPulseTypes';
+import './rhPulse.css';
+
+const PULSE_API_TIMEOUT_MS = 5_000;
+
+export function RhPulsePage({ route }: { route: RhPulseRoute }) {
+  const [data, setData] = useState<RhPulsePageData | null>(null);
+  const [error, setError] = useState(false);
+  const [selectedId, setSelectedId] = useState<RhPulseCallOption['id'] | null>(null);
+  const [signingOpen, setSigningOpen] = useState(false);
+  const reservedRoute = route.kind === 'receipt' || route.kind === 'not_found';
+  const readsFirstPage = route.kind === 'home' || route.kind === 'methodology';
+  const clientResolution = useMemo(() => getRhPulseClientResolution(window.location, window.__RH_PULSE_CONTEXT__), []);
+  const homeHref = clientResolution.isPulseHost ? '/' : '/rh-pulse';
+  const methodologyHref = clientResolution.isPulseHost ? '/methodology' : '/rh-pulse/methodology';
+
+  useEffect(() => {
+    document.body.classList.add('rh-pulse-document');
+    applyRhPulseDocumentMetadata();
+    return () => document.body.classList.remove('rh-pulse-document');
+  }, []);
+
+  useEffect(() => {
+    const window = data?.current_window;
+    if (!window || window.state === 'preview') return;
+    if (isHistoricalWindow(window.state)) {
+      expireCallSelection(window.id, window.methodology_version);
+      setSelectedId(null);
+      return;
+    }
+    setSelectedId(restoredCallSelection(window.id, window.methodology_version));
+  }, [data?.current_window.id, data?.current_window.methodology_version, data?.current_window.state]);
+
+  function selectCall(id: RhPulseCallOption['id']) {
+    const window = data?.current_window;
+    setSelectedId(id);
+    if (!window || window.state === 'preview' || isHistoricalWindow(window.state)) return;
+    persistCallSelection(window.id, window.methodology_version, id);
+  }
+
+  useEffect(() => {
+    if (!readsFirstPage) return;
+    const controller = new AbortController();
+    let active = true;
+    const timeout = window.setTimeout(() => {
+      if (active) setError(true);
+      controller.abort();
+    }, PULSE_API_TIMEOUT_MS);
+    setError(false);
+    fetch(toApiUrl(getApiBaseUrl(), '/v1/rh-pulse'), {
+      headers: { Accept: 'application/json' },
+      signal: controller.signal
+    })
+      .then(async (response) => {
+        if (!response.ok || (response.headers.get('content-type') ?? '').includes('text/html')) {
+          throw new Error('rh_pulse_read_unavailable');
+        }
+        const parsed = RhPulseResponseSchema.safeParse(await response.json());
+        if (!parsed.success) throw new Error('rh_pulse_schema_mismatch');
+        setData(parsed.data.data);
+      })
+      .catch(() => {
+        if (active && !controller.signal.aborted) setError(true);
+      })
+      .finally(() => window.clearTimeout(timeout));
+    return () => {
+      active = false;
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [readsFirstPage]);
+
+  if (route.kind === 'call') {
+    return <RhPulsePublicCallPage
+      callId={route.id}
+      homeHref={homeHref}
+      methodologyHref={methodologyHref}
+    />;
+  }
+
+  if (route.kind === 'resolution' || route.kind === 'rotation_receipt') {
+    return <RhPulsePublicResolutionPage
+      recordId={route.id}
+      recordKind={route.kind}
+      homeHref={homeHref}
+      methodologyHref={methodologyHref}
+    />;
+  }
+
+  if (reservedRoute) {
+    return <div className="rh-pulse-app">
+      <div className="rh-pulse-ambient" aria-hidden="true" />
+      <main className="rh-pulse-shell">
+        <RhPulseHeader freshness="unavailable" homeHref={homeHref} />
+        <section className="rh-pulse-reserved-route">
+          <p className="rh-pulse-kicker">Public record boundary</p>
+          <h1>{route.kind === 'receipt' ? 'Receipt route reserved.' : 'Signal route not found.'}</h1>
+          <p>
+            {route.kind === 'receipt'
+                ? `Receipt ${route.id} has not been generated. RH Pulse does not invent receipts.`
+                : 'This RH Pulse path is not part of the public surface.'}
+          </p>
+          <a href={homeHref}>Return to Call the Rotation</a>
+        </section>
+        <RhPulseFooter methodologyHref={methodologyHref} />
+      </main>
+    </div>;
+  }
+
+  const selected = data?.call_options.find((option) => option.id === selectedId) ?? null;
+  return <div className="rh-pulse-app">
+    <div className="rh-pulse-ambient" aria-hidden="true" />
+    <main className="rh-pulse-shell">
+      <RhPulseHeader freshness={data?.source_health.overall ?? 'unavailable'} loading={!data && !error} homeHref={homeHref} />
+      <RhPulseHero hero={data?.hero} />
+      {error && <div className="rh-pulse-read-notice" role="status">
+        <strong>Reviewed connection memory is temporarily unavailable.</strong>
+        <span>RH Pulse is withholding live strength and structural claims until a validated read returns.</span>
+      </div>}
+      <RhPulseLayerFlowMap
+        connections={data?.connections}
+        strongest={data?.strongest_current_signal}
+      />
+
+      {data && <>
+        <RhPulseStructureStrip statements={data.structural_statements} />
+        <RhPulseCallCards options={data.call_options} selectedId={selectedId} onSelect={selectCall} />
+        <RhPulseMethodology
+          methodology={data.methodology}
+          sourceHealth={data.source_health}
+          expanded={route.kind === 'methodology'}
+        />
+      </>}
+
+      {!data && !error && <p className="rh-pulse-loading-detail" role="status" aria-live="polite">
+        Loading reviewed memory. No connection strength is inferred while the read is pending.
+      </p>}
+      <RhPulseFooter methodologyHref={methodologyHref} />
+    </main>
+    {selected && <RhPulseCallPreview
+      selected={selected}
+      onMakePublic={() => setSigningOpen(true)}
+    />}
+    {selected && signingOpen && <RhPulseSigningSheet selected={selected} onClose={() => setSigningOpen(false)} />}
+  </div>;
+}
+
+function RhPulseFooter({ methodologyHref }: { methodologyHref: string }) {
+  return <footer className="rh-pulse-footer">
+    <div>
+      <span>RH PULSE / INFOPUNKS</span>
+      <a href={methodologyHref}>Methodology</a>
+      <a href="https://radar.infopunks.fun/rh-chain-signal-desk">Shared Radar engine</a>
+    </div>
+    <p>{RH_PULSE_INDEPENDENCE_DISCLAIMER}</p>
+  </footer>;
+}
+
+const RH_PULSE_SELECTION_KEY = 'rh-pulse:private-call';
+const RH_PULSE_CALL_IDS: RhPulseCallOption['id'][] = [
+  'agents_to_rwas',
+  'memes_to_agents',
+  'memes_to_rwas',
+  'no_qualified_rotation'
+];
+
+function selectionKey(windowId: string, methodologyVersion: string) {
+  return `${RH_PULSE_SELECTION_KEY}:${windowId}:${methodologyVersion}`;
+}
+
+function restoredCallSelection(windowId: string, methodologyVersion: string): RhPulseCallOption['id'] | null {
+  try {
+    const stored = window.localStorage.getItem(selectionKey(windowId, methodologyVersion));
+    return isCallId(stored) ? stored : null;
+  } catch {
+    return null;
+  }
+}
+
+function persistCallSelection(windowId: string, methodologyVersion: string, id: RhPulseCallOption['id']) {
+  try {
+    window.localStorage.setItem(selectionKey(windowId, methodologyVersion), id);
+  } catch {
+    // Selection remains in React state when privacy mode blocks storage.
+  }
+}
+
+function expireCallSelection(windowId: string, methodologyVersion: string) {
+  try {
+    window.localStorage.removeItem(selectionKey(windowId, methodologyVersion));
+  } catch {
+    // Storage may be unavailable in privacy mode.
+  }
+}
+
+function isHistoricalWindow(state: RhPulsePageData['current_window']['state']) {
+  return state === 'resolved' || state === 'cancelled';
+}
+
+function isCallId(value: string | null): value is RhPulseCallOption['id'] {
+  return Boolean(value && RH_PULSE_CALL_IDS.includes(value as RhPulseCallOption['id']));
+}
