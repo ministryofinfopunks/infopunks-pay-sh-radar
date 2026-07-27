@@ -1,5 +1,5 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
-import { getAddress, verifyMessage, type Hex } from 'viem';
+import { getAddress, recoverMessageAddress, verifyMessage, type Hex } from 'viem';
 import {
   RH_PULSE_INDEPENDENCE_DISCLAIMER,
   RhPulseCallOptionIdSchema,
@@ -161,11 +161,14 @@ export class RhPulseParticipationService {
   async createChallenge(input: unknown, requestOrigin: string) {
     this.requireCallsEnabled();
     const parsed = RhPulseCallChallengeRequestSchema.parse(input);
-    let wallet: `0x${string}`;
-    try {
-      wallet = getAddress(parsed.wallet_address);
-    } catch {
-      throw new RhPulseParticipationError('challenge_tampered', 'Use a valid Ethereum wallet address.');
+    const walletBound = Boolean(parsed.wallet_address);
+    let wallet: `0x${string}` = RH_PULSE_UNBOUND_CHALLENGE_WALLET;
+    if (parsed.wallet_address) {
+      try {
+        wallet = getAddress(parsed.wallet_address);
+      } catch {
+        throw new RhPulseParticipationError('challenge_tampered', 'Use a valid Ethereum wallet address.');
+      }
     }
 
     const originIdentifier = requestOrigin || 'unknown';
@@ -221,8 +224,9 @@ export class RhPulseParticipationService {
       });
       throw error;
     }
-    const duplicate = (await this.store.listVerifiedCalls(window!.id))
-      .find((call) => call.wallet_address === wallet);
+    const duplicate = walletBound
+      ? (await this.store.listVerifiedCalls(window!.id)).find((call) => call.wallet_address === wallet)
+      : undefined;
     if (duplicate) {
       await this.audit('duplicate_call_rejected', {
         windowId: window!.id,
@@ -244,7 +248,7 @@ export class RhPulseParticipationService {
     const signedMessage = buildRhPulseCallMessage({
       domain: this.publicHost,
       uri: this.canonicalUri,
-      wallet,
+      wallet: walletBound ? wallet : RH_PULSE_SIGNATURE_DERIVED_WALLET,
       selectedOutcome: parsed.selected_outcome,
       window: window!,
       nonce,
@@ -270,7 +274,7 @@ export class RhPulseParticipationService {
     await this.store.createChallenge(challenge, this.auditEvent('challenge_created', {
       windowId: window!.id,
       challengeId,
-      walletHash,
+      walletHash: walletBound ? walletHash : null,
       requestOriginHash: originHash,
       payload: { selected_outcome: parsed.selected_outcome, expires_at: expiresAt }
     }, issuedAt));
@@ -310,7 +314,7 @@ export class RhPulseParticipationService {
       });
       throw new RhPulseParticipationError('challenge_not_found', 'The signing request is no longer available.');
     }
-    const walletHash = this.auditDigest('wallet', challenge.wallet_address.toLowerCase());
+    let walletHash = this.auditDigest('wallet', challenge.wallet_address.toLowerCase());
     const now = this.now();
     if (challenge.used_at) {
       await this.rejectChallenge(challenge, originHash, 'challenge_used');
@@ -335,7 +339,7 @@ export class RhPulseParticipationService {
     const expectedMessage = buildRhPulseCallMessage({
       domain: this.publicHost,
       uri: this.canonicalUri,
-      wallet: challenge.wallet_address as `0x${string}`,
+      wallet: challengeMessageWallet(challenge.wallet_address),
       selectedOutcome: challenge.selected_outcome,
       window,
       nonce,
@@ -352,13 +356,23 @@ export class RhPulseParticipationService {
       throw new RhPulseParticipationError('signature_invalid', 'The wallet signature could not be verified.');
     }
 
+    const unboundChallenge = challenge.wallet_address === RH_PULSE_UNBOUND_CHALLENGE_WALLET;
+    let signingWallet = challenge.wallet_address as `0x${string}`;
     let verified = false;
     try {
-      verified = await this.verify({
-        address: challenge.wallet_address as `0x${string}`,
-        message: challenge.signed_message,
-        signature: parsed.signature as Hex
-      });
+      if (unboundChallenge) {
+        signingWallet = getAddress(await recoverMessageAddress({
+          message: challenge.signed_message,
+          signature: parsed.signature as Hex
+        }));
+        verified = true;
+      } else {
+        verified = await this.verify({
+          address: signingWallet,
+          message: challenge.signed_message,
+          signature: parsed.signature as Hex
+        });
+      }
     } catch {
       verified = false;
     }
@@ -367,6 +381,7 @@ export class RhPulseParticipationService {
       await this.rejectChallenge(challenge, originHash, 'signature_invalid');
       throw new RhPulseParticipationError('signature_invalid', 'The wallet signature could not be verified.');
     }
+    walletHash = this.auditDigest('wallet', signingWallet.toLowerCase());
 
     const model = await this.readModel();
     const snapshot = {
@@ -379,6 +394,7 @@ export class RhPulseParticipationService {
     const result = await this.store.acceptCall({
       challengeId: challenge.id,
       acceptedAt,
+      walletAddress: signingWallet,
       expectedChallenge: {
         window_id: challenge.window_id,
         wallet_address: challenge.wallet_address,
@@ -879,6 +895,13 @@ type AuditInput = {
   requestOriginHash?: string | null;
   payload: Record<string, unknown>;
 };
+
+const RH_PULSE_UNBOUND_CHALLENGE_WALLET = '0x0000000000000000000000000000000000000000';
+const RH_PULSE_SIGNATURE_DERIVED_WALLET = 'Signature-derived at publication';
+
+function challengeMessageWallet(wallet: string) {
+  return wallet === RH_PULSE_UNBOUND_CHALLENGE_WALLET ? RH_PULSE_SIGNATURE_DERIVED_WALLET : wallet;
+}
 
 export function buildRhPulseCallMessage(input: {
   domain: string;

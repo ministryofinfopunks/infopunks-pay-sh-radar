@@ -147,7 +147,7 @@ export const RhPulseHeroSchema = z.object({
   eyebrow: z.literal('INFOPUNKS / RH PULSE'),
   question: z.literal('The agent economy is live. What does it become next?'),
   supporting_copy: z.literal('Memes brought liquidity. Agents brought coordination and new markets. RWAs remain the structural destination.'),
-  cta_supporting_line: z.literal('See the connections. Call the next twenty-four hours.')
+  cta_supporting_line: z.literal('See the rotation. Choose your call. Publish only when you’re ready.')
 }).strict();
 
 export const RhPulseReadModelSchema = z.object({

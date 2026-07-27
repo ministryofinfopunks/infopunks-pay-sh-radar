@@ -82,6 +82,7 @@ export interface RhPulseParticipationStore {
   acceptCall(input: {
     challengeId: string;
     acceptedAt: string;
+    walletAddress: string;
     expectedChallenge: Pick<RhPulseCallChallengeRecord, 'window_id' | 'wallet_address' | 'selected_outcome' | 'signed_message' | 'domain' | 'uri' | 'chain_id' | 'methodology_version'>;
     buildArtifacts: (
       publicCallNumber: number,
@@ -208,6 +209,7 @@ export class InMemoryRhPulseParticipationStore implements RhPulseParticipationSt
   async acceptCall(input: {
     challengeId: string;
     acceptedAt: string;
+    walletAddress: string;
     expectedChallenge: Pick<RhPulseCallChallengeRecord, 'window_id' | 'wallet_address' | 'selected_outcome' | 'signed_message' | 'domain' | 'uri' | 'chain_id' | 'methodology_version'>;
     buildArtifacts: (
       publicCallNumber: number,
@@ -230,12 +232,12 @@ export class InMemoryRhPulseParticipationStore implements RhPulseParticipationSt
         return rejected('window_closed');
       }
       const duplicate = [...this.state.calls.values()].find((call) => (
-        call.window_id === window.id && call.wallet_address === challenge.wallet_address
+        call.window_id === window.id && call.wallet_address === input.walletAddress
       ));
       if (duplicate) return { accepted: false, code: 'duplicate_call', existingCall: clone(duplicate) };
 
       const publicCallNumber = this.state.publicCallCounter + 1;
-      const built = input.buildArtifacts(publicCallNumber, clone(challenge), clone(window), input.acceptedAt);
+      const built = input.buildArtifacts(publicCallNumber, { ...clone(challenge), wallet_address: input.walletAddress }, clone(window), input.acceptedAt);
       const artifacts = {
         call: RhPulseCallRecordSchema.parse(built.call),
         receipt: RhPulseCallReceiptRecordSchema.parse(built.receipt),
@@ -467,6 +469,7 @@ export class PostgresRhPulseParticipationStore implements RhPulseParticipationSt
   async acceptCall(input: {
     challengeId: string;
     acceptedAt: string;
+    walletAddress: string;
     expectedChallenge: Pick<RhPulseCallChallengeRecord, 'window_id' | 'wallet_address' | 'selected_outcome' | 'signed_message' | 'domain' | 'uri' | 'chain_id' | 'methodology_version'>;
     buildArtifacts: (
       publicCallNumber: number,
@@ -517,7 +520,7 @@ export class PostgresRhPulseParticipationStore implements RhPulseParticipationSt
 
       const duplicateResult = await client.query<CallRow>(
         'select * from rh_pulse_calls where window_id=$1 and wallet_address=$2 for update',
-        [window.id, challenge.wallet_address]
+        [window.id, input.walletAddress]
       );
       if (duplicateResult.rows[0]) {
         await client.query('rollback');
@@ -535,7 +538,7 @@ export class PostgresRhPulseParticipationStore implements RhPulseParticipationSt
 
       const publicCallNumber = await nextCounter(client, 'rh_pulse_public_call_number');
       await this.runIntegrationFailureHook('after_counter_allocation');
-      const built = input.buildArtifacts(publicCallNumber, challenge, window, databaseAcceptedAt);
+      const built = input.buildArtifacts(publicCallNumber, { ...challenge, wallet_address: input.walletAddress }, window, databaseAcceptedAt);
       const call = RhPulseCallRecordSchema.parse(built.call);
       const receipt = RhPulseCallReceiptRecordSchema.parse(built.receipt);
       const events = built.auditEvents.map((event) => RhPulseAuditEventSchema.parse(event));
@@ -591,7 +594,7 @@ export class PostgresRhPulseParticipationStore implements RhPulseParticipationSt
         if (challenge) {
           const existing = await this.pool.query<CallRow>(
             'select * from rh_pulse_calls where window_id=$1 and wallet_address=$2 limit 1',
-            [challenge.window_id, challenge.wallet_address]
+            [challenge.window_id, input.walletAddress]
           );
           if (existing.rows[0]) {
             return { accepted: false, code: 'duplicate_call', existingCall: parseCallRow(existing.rows[0]) };

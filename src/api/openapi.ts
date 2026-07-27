@@ -3338,7 +3338,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   add('post', '/v1/rh-pulse/calls/challenge', {
     tags: ['RH Pulse'],
     summary: 'Create a signed-call challenge',
-    description: 'Creates a five-minute, single-use EIP-191 challenge bound to the canonical wallet, open durable window, exact outcome, trusted Pulse domain and URI, chain 4663, and window methodology.',
+    description: 'Creates a five-minute, single-use EIP-191 challenge for the open durable window, exact outcome, trusted Pulse domain and URI, chain 4663, and window methodology. A legacy wallet address may be supplied; wallet-last publication otherwise derives the signing wallet from the verified signature.',
     requestBody: jsonRequest({ $ref: '#/components/schemas/RhPulseCallChallengeRequest' }, {
       wallet_address: '0x1111111111111111111111111111111111111111',
       selected_outcome: 'agents_to_rwas'
@@ -4062,7 +4062,7 @@ function componentSchemas(): Record<string, JsonSchema> {
     RhPulseCallChallengeRequest: strictObject({
       wallet_address: { type: 'string', pattern: '^0x[0-9a-fA-F]{40}$' },
       selected_outcome: enumSchema(['agents_to_rwas', 'memes_to_agents', 'memes_to_rwas', 'no_qualified_rotation'])
-    }, ['wallet_address', 'selected_outcome']),
+    }, ['selected_outcome']),
     RhPulseCallSubmissionRequest: strictObject({
       challenge_id: stringSchema(),
       signature: { type: 'string', pattern: '^0x[0-9a-fA-F]+$', maxLength: 2050 }

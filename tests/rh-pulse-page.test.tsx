@@ -28,11 +28,31 @@ describe('RH Pulse mobile page', () => {
   let container: HTMLDivElement;
 
   beforeEach(async () => {
+    const values = new Map<string, string>();
+    Object.defineProperty(window, 'localStorage', {
+      configurable: true,
+      value: {
+        getItem: (key: string) => values.get(key) ?? null,
+        setItem: (key: string, value: string) => values.set(key, value),
+        removeItem: (key: string) => values.delete(key),
+        clear: () => values.clear()
+      }
+    });
     container = document.createElement('div');
     document.body.append(container);
     window.history.pushState({}, '', '/rh-pulse');
-    window.sessionStorage.clear();
+    window.localStorage.clear();
     const model = await readModel();
+    model.current_window = {
+      ...model.current_window,
+      id: 'rhp_window_page_0001',
+      sequence_number: 1,
+      state: 'open',
+      opens_at: '2026-07-23T00:00:00.000Z',
+      closes_at: '2026-07-24T00:00:00.000Z',
+      call_submission_closes_at: '2026-07-24T00:00:00.000Z',
+      accepting_calls: false
+    };
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(
       JSON.stringify(buildRhChainApiResponse(model)),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
@@ -44,7 +64,7 @@ describe('RH Pulse mobile page', () => {
     container.remove();
     vi.restoreAllMocks();
     window.history.pushState({}, '', '/');
-    window.sessionStorage.clear();
+    window.localStorage.clear();
     document.body.classList.remove('rh-pulse-document');
   });
 
@@ -76,7 +96,7 @@ describe('RH Pulse mobile page', () => {
     expect(container.querySelector('.rh-pulse-freshness-delayed')).not.toBeNull();
   });
 
-  it('renders four equal unselected call options and preserves local selection in the sticky preview', async () => {
+  it('renders four equal unselected call options and saves the selection privately without a wallet', async () => {
     await renderPulse();
 
     const cards = Array.from(container.querySelectorAll<HTMLButtonElement>('.rh-pulse-call-card'));
@@ -89,11 +109,19 @@ describe('RH Pulse mobile page', () => {
     expect(cards[2].getAttribute('aria-checked')).toBe('true');
     expect(container.querySelector('.rh-pulse-call-preview strong')?.textContent).toBe('Memes → RWAs');
     expect(container.querySelector<HTMLButtonElement>('.rh-pulse-call-preview button')).toMatchObject({
-      disabled: true,
-      textContent: 'Call window opening soon'
+      disabled: false,
+      textContent: 'Make This Public'
     });
-    expect(window.sessionStorage.getItem('rh-pulse:selected-outcome:v1')).toBe('memes_to_rwas');
-    expect(new URL(window.location.href).searchParams.get('call')).toBe('memes_to_rwas');
+    expect(container.textContent).toContain('Saved privately on this device.');
+    expect(container.textContent).toContain('Not published. No wallet connected.');
+    expect(window.localStorage.getItem('rh-pulse:private-call:rhp_window_page_0001:rh-pulse-v1.0')).toBe('memes_to_rwas');
+  });
+
+  it('restores only the private selection belonging to the current window', async () => {
+    window.localStorage.setItem('rh-pulse:private-call:rhp_window_page_0001:rh-pulse-v1.0', 'agents_to_rwas');
+    window.localStorage.setItem('rh-pulse:private-call:rhp_window_other:rh-pulse-v1.0', 'memes_to_rwas');
+    await renderPulse();
+    expect(container.querySelector('.rh-pulse-call-preview strong')?.textContent).toBe('Agents → RWAs');
   });
 
   it('contains no wallet workflow, community percentages, fake countdown, or participation totals', async () => {

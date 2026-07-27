@@ -10,19 +10,23 @@ import { RH_PULSE_CALL_METHODOLOGY_VERSION } from '../src/shared/rhPulseCalls';
 import { RhPulseSigningSheet } from '../src/web/rhPulse/RhPulseSigningSheet';
 import * as wallet from '../src/web/rhPulse/rhPulseWallet';
 
-vi.mock('../src/web/rhPulse/rhPulseWallet', () => ({
+vi.mock('../src/web/rhPulse/rhPulseWallet', async () => {
+  const { privateKeyToAccount } = await import('viem/accounts');
+  const account = privateKeyToAccount('0x59c6995e998f97a5a0044976f0945389dc9e86dae88c7a8416088b20b6de5a8d');
+  return {
   hasInjectedWallet: vi.fn(() => true),
   walletConnectConfigured: vi.fn(() => false),
   connectInjectedWallet: vi.fn(async () => ({
     kind: 'injected',
-    address: '0x82b3C2C59621F9470E7BE242ec4F5b390b05BD00',
+    address: account.address,
     provider: { request: vi.fn() }
   })),
   connectWalletConnect: vi.fn(async () => {
     throw Object.assign(new Error('not configured'), { code: 'walletconnect_unavailable' });
   }),
-  signRhPulseMessage: vi.fn(async () => `0x${'11'.repeat(65)}`)
-}));
+  signRhPulseMessage: vi.fn(async (_session, message: string) => account.signMessage({ message }))
+  };
+});
 
 const NOW = new Date('2026-07-23T12:00:00.000Z');
 const selected = {
@@ -84,7 +88,7 @@ describe('RH Pulse mobile signing sheet', () => {
     await participation.openWindow(window.id, { audit_note: 'Open UI test window.' });
     vi.spyOn(globalThis, 'fetch').mockImplementation(async (_input, init) => {
       const body = JSON.parse(String(init?.body ?? '{}'));
-      const payload = 'wallet_address' in body
+      const payload = 'selected_outcome' in body
         ? await participation.createChallenge(body, 'ui-test')
         : await participation.submitCall(body, 'ui-test');
       return new Response(JSON.stringify(buildRhChainApiResponse(payload)), {
@@ -96,28 +100,33 @@ describe('RH Pulse mobile signing sheet', () => {
       root = createRoot(container);
       root.render(<RhPulseSigningSheet selected={selected} onClose={vi.fn()} />);
     });
-    await vi.waitFor(() => {
-      expect(container.querySelector('.rh-pulse-wallet-options')).not.toBeNull();
-    });
+  }
+
+  async function reviewThenConfirmPublishing() {
+    await act(async () => container.querySelector<HTMLButtonElement>('.rh-pulse-sign-action')!.click());
+    await vi.waitFor(() => expect(container.querySelector('.rh-pulse-message-review pre')).not.toBeNull());
+    const message = container.querySelector('.rh-pulse-message-review pre')?.textContent ?? '';
+    await act(async () => container.querySelector<HTMLButtonElement>('.rh-pulse-sign-action')!.click());
+    await vi.waitFor(() => expect(container.querySelector('.rh-pulse-wallet-options')).not.toBeNull());
+    return message;
   }
 
   it('uses a bottom sheet, honest wallet states and reveals conviction only after a committed call', async () => {
     await renderWithAuthority();
     expect(container.querySelector('[role="dialog"].rh-pulse-signing-sheet')).not.toBeNull();
-    expect(container.textContent).toContain('This signature records your prediction. It cannot move funds or approve transactions.');
+    expect(container.textContent).toContain('Publishing creates a permanent');
+    expect(container.textContent).toContain('Community conviction is revealed only after a public call is recorded.');
+    expect(container.textContent).not.toContain('100%');
+    expect(vi.mocked(wallet.connectInjectedWallet)).not.toHaveBeenCalled();
+
+    const message = await reviewThenConfirmPublishing();
+    expect(message).toContain('Domain: pulse.infopunks.fun');
+    expect(message).toContain('Call ID: agents_to_rwas');
+    expect(vi.mocked(wallet.connectInjectedWallet)).not.toHaveBeenCalled();
     expect(container.textContent).toContain('Unavailable — project ID not configured');
-    expect(container.textContent).not.toContain('Community conviction');
 
     const injected = Array.from(container.querySelectorAll<HTMLButtonElement>('.rh-pulse-wallet-options button'))[0];
     await act(async () => injected.click());
-    await vi.waitFor(() => {
-      expect(container.querySelector('.rh-pulse-message-review pre')?.textContent).toContain('Domain: pulse.infopunks.fun');
-    });
-    expect(container.querySelector('.rh-pulse-message-review pre')?.textContent).toContain('Call ID: agents_to_rwas');
-    expect(container.querySelector('.rh-pulse-message-review pre')?.textContent).toContain('It cannot move funds or approve transactions.');
-
-    const sign = container.querySelector<HTMLButtonElement>('.rh-pulse-sign-action')!;
-    await act(async () => sign.click());
     await vi.waitFor(() => {
       expect(container.querySelector('.rh-pulse-accepted-receipt.is-sealed')).not.toBeNull();
     });
@@ -133,11 +142,11 @@ describe('RH Pulse mobile signing sheet', () => {
       Object.assign(new Error('User rejected'), { code: 'user_rejected' })
     );
     await renderWithAuthority();
+    await reviewThenConfirmPublishing();
     const injected = Array.from(container.querySelectorAll<HTMLButtonElement>('.rh-pulse-wallet-options button'))[0];
     await act(async () => injected.click());
-    await vi.waitFor(() => expect(container.querySelector('.rh-pulse-sign-action')).not.toBeNull());
-    await act(async () => container.querySelector<HTMLButtonElement>('.rh-pulse-sign-action')!.click());
     await vi.waitFor(() => expect(container.textContent).toContain('Nothing was recorded.'));
     expect(container.querySelector('.rh-pulse-accepted-receipt')).toBeNull();
+    expect(container.textContent).toContain('Try Publishing Again');
   });
 });

@@ -12,12 +12,13 @@ type WalletSession = import('./rhPulseWallet').RhPulseWalletSession;
 type AcceptedCall = ReturnType<typeof RhPulseCallSubmissionResponseSchema.parse>['data'];
 
 type SigningState =
+  | 'trust'
+  | 'challenge_creating'
+  | 'message_ready'
   | 'wallet_module_loading'
   | 'wallet_options'
   | 'wallet_connecting'
   | 'account_unavailable'
-  | 'challenge_creating'
-  | 'message_ready'
   | 'signature_requested'
   | 'signature_pending'
   | 'signature_rejected'
@@ -37,32 +38,12 @@ export function RhPulseSigningSheet({
   selected: RhPulseCallOption;
   onClose: () => void;
 }) {
-  const [state, setState] = useState<SigningState>('wallet_module_loading');
+  const [state, setState] = useState<SigningState>('trust');
   const [walletModule, setWalletModule] = useState<WalletModule | null>(null);
-  const [walletSession, setWalletSession] = useState<WalletSession | null>(null);
   const [challenge, setChallenge] = useState<ReturnType<typeof RhPulseCallChallengeResponseSchema.parse>['data'] | null>(null);
   const [accepted, setAccepted] = useState<AcceptedCall | null>(null);
-  const [detail, setDetail] = useState('Preparing secure wallet options.');
+  const [detail, setDetail] = useState('Your saved call stays private unless you publish it.');
   const sheetRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    let active = true;
-    import('./rhPulseWallet')
-      .then((module) => {
-        if (!active) return;
-        setWalletModule(module);
-        setState('wallet_options');
-        setDetail('Choose an available wallet path.');
-      })
-      .catch(() => {
-        if (!active) return;
-        setState('server_unavailable');
-        setDetail('The wallet module could not load. Reload and try again.');
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
 
   useEffect(() => {
     const priorOverflow = document.body.style.overflow;
@@ -73,7 +54,41 @@ export function RhPulseSigningSheet({
     };
   }, []);
 
-  async function connect(kind: 'injected' | 'walletconnect') {
+  async function reviewMessage() {
+    setState('challenge_creating');
+    setDetail('Requesting the exact server-issued message for this call.');
+    try {
+      const response = await fetch(toApiUrl(getApiBaseUrl(), '/v1/rh-pulse/calls/challenge'), {
+        method: 'POST',
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ selected_outcome: selected.id })
+      });
+      const payload = await response.json();
+      if (!response.ok) throw apiError(payload);
+      const parsed = RhPulseCallChallengeResponseSchema.parse(payload);
+      setChallenge(parsed.data);
+      setState('message_ready');
+      setDetail('Review the exact server-provided message before choosing a wallet.');
+    } catch (error) {
+      handleApiFailure(error);
+    }
+  }
+
+  async function beginPublishing() {
+    setState('wallet_module_loading');
+    setDetail('Loading wallet choices only after your publishing confirmation.');
+    try {
+      const module = await import('./rhPulseWallet');
+      setWalletModule(module);
+      setState('wallet_options');
+      setDetail('Choose a wallet to publish this exact message.');
+    } catch {
+      setState('server_unavailable');
+      setDetail('The wallet module could not load. Your private call is still saved.');
+    }
+  }
+
+  async function connectAndSign(kind: 'injected' | 'walletconnect') {
     if (!walletModule) return;
     setState('wallet_connecting');
     setDetail(kind === 'injected' ? 'Waiting for the injected wallet.' : 'Opening the WalletConnect handoff.');
@@ -81,8 +96,7 @@ export function RhPulseSigningSheet({
       const session = kind === 'injected'
         ? await walletModule.connectInjectedWallet()
         : await walletModule.connectWalletConnect();
-      setWalletSession(session);
-      await createChallenge(session);
+      await sign(session);
     } catch (error) {
       const code = walletErrorCode(error);
       if (code === 'account_unavailable' || code === 'wallet_unavailable') {
@@ -98,36 +112,13 @@ export function RhPulseSigningSheet({
     }
   }
 
-  async function createChallenge(session: WalletSession) {
-    setState('challenge_creating');
-    setDetail('Binding the selected call to the current window and wallet.');
-    try {
-      const response = await fetch(toApiUrl(getApiBaseUrl(), '/v1/rh-pulse/calls/challenge'), {
-        method: 'POST',
-        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          wallet_address: session.address,
-          selected_outcome: selected.id
-        })
-      });
-      const payload = await response.json();
-      if (!response.ok) throw apiError(payload);
-      const parsed = RhPulseCallChallengeResponseSchema.parse(payload);
-      setChallenge(parsed.data);
-      setState('message_ready');
-      setDetail('Review the exact server-issued message. Your wallet will sign this text without a transaction.');
-    } catch (error) {
-      handleApiFailure(error);
-    }
-  }
-
-  async function sign() {
-    if (!walletModule || !walletSession || !challenge) return;
+  async function sign(session: WalletSession) {
+    if (!walletModule || !challenge) return;
     setState('signature_requested');
     setDetail('Your wallet will ask for a personal signature. No chain switch is requested.');
     try {
       setState('signature_pending');
-      const signature = await walletModule.signRhPulseMessage(walletSession, challenge.message);
+      const signature = await walletModule.signRhPulseMessage(session, challenge.message);
       const response = await fetch(toApiUrl(getApiBaseUrl(), '/v1/rh-pulse/calls'), {
         method: 'POST',
         headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
@@ -179,7 +170,7 @@ export function RhPulseSigningSheet({
     }
   }
 
-  const canRetry = ['account_unavailable', 'signature_rejected', 'challenge_expired', 'server_unavailable'].includes(state);
+  const canRetry = ['account_unavailable', 'signature_rejected', 'challenge_expired', 'server_unavailable', 'signature_invalid', 'window_closed'].includes(state);
   const receipt = accepted;
   return <div className="rh-pulse-sheet-backdrop" role="presentation" onMouseDown={(event) => {
     if (event.target === event.currentTarget && !receipt) onClose();
@@ -195,31 +186,45 @@ export function RhPulseSigningSheet({
       <div className="rh-pulse-sheet-handle" aria-hidden="true" />
       <header className="rh-pulse-sheet-header">
         <div>
-          <span>SIGN A PUBLIC CALL</span>
+          <span>{receipt ? 'CALL PUBLISHED' : 'MAKE YOUR CALL PUBLIC'}</span>
           <h2 id="rh-pulse-signing-title">{receipt ? 'Your call is on the record.' : selected.label}</h2>
         </div>
         <button type="button" onClick={onClose} aria-label="Close signing sheet">×</button>
       </header>
 
-      {!receipt && <p className="rh-pulse-signing-trust">
-        <span aria-hidden="true">✓</span>
-        This signature records your prediction. It cannot move funds or approve transactions.
-      </p>}
+      {!receipt && <p className="rh-pulse-signing-trust">Your call is saved privately. A wallet is needed only to publish it as a permanent receipt.</p>}
+      {!receipt && <p className="rh-pulse-community-boundary">Community conviction is revealed only after a public call is recorded.</p>}
 
       <div className="rh-pulse-signing-status" role="status" aria-live="polite">
         <span className="rh-pulse-signing-status-mark" aria-hidden="true" />
         <p><strong>{stateLabel(state)}</strong>{detail}</p>
       </div>
 
+      {state === 'trust' && <div className="rh-pulse-public-trust">
+        <p>Publishing creates a permanent,<br />timestamped Infopunks receipt.</p>
+        <p>Your wallet will sign a message only.</p>
+        <ul>
+          <li>No transaction</li>
+          <li>No gas</li>
+          <li>No token approval</li>
+          <li>No funds can move</li>
+          <li>One public call per wallet</li>
+        </ul>
+        <div className="rh-pulse-sheet-actions">
+          <button type="button" className="rh-pulse-sign-action" onClick={reviewMessage}>Review Message</button>
+          <button type="button" className="rh-pulse-sheet-secondary" onClick={onClose}>Keep Private</button>
+        </div>
+      </div>}
+
       {state === 'wallet_module_loading' && <div className="rh-pulse-signing-skeleton" aria-hidden="true" />}
 
       {state === 'wallet_options' && walletModule && <div className="rh-pulse-wallet-options">
-        <button type="button" onClick={() => connect('injected')} disabled={!walletModule.hasInjectedWallet()}>
+        <button type="button" onClick={() => connectAndSign('injected')} disabled={!walletModule.hasInjectedWallet()}>
           <span>INJECTED</span>
           <strong>{walletModule.hasInjectedWallet() ? 'Browser wallet' : 'No injected wallet found'}</strong>
           <small>MetaMask, Rabby or another EIP-1193 wallet</small>
         </button>
-        <button type="button" onClick={() => connect('walletconnect')} disabled={!walletModule.walletConnectConfigured()}>
+        <button type="button" onClick={() => connectAndSign('walletconnect')} disabled={!walletModule.walletConnectConfigured()}>
           <span>MOBILE HANDOFF</span>
           <strong>WalletConnect</strong>
           <small>{walletModule.walletConnectConfigured() ? 'Open a supported mobile wallet' : 'Unavailable — project ID not configured'}</small>
@@ -232,15 +237,13 @@ export function RhPulseSigningSheet({
           <span>Expires {formatUtc(challenge.expires_at)}</span>
         </div>
         <pre>{challenge.message}</pre>
-        <button type="button" className="rh-pulse-sign-action" onClick={sign}>Sign exact message</button>
+        <button type="button" className="rh-pulse-sign-action" onClick={beginPublishing}>Publish My Call</button>
       </div>}
 
-      {canRetry && <button type="button" className="rh-pulse-sheet-retry" onClick={() => {
+      {canRetry && <div className="rh-pulse-sheet-actions"><button type="button" className="rh-pulse-sheet-retry" onClick={() => {
         setChallenge(null);
-        setWalletSession(null);
-        setState(walletModule ? 'wallet_options' : 'wallet_module_loading');
-        setDetail('Choose an available wallet path.');
-      }}>Try again</button>}
+        void reviewMessage();
+      }}>Try Publishing Again</button><button type="button" className="rh-pulse-sheet-secondary" onClick={onClose}>Keep Private</button></div>}
 
       {receipt && <RhPulseAcceptedReceipt payload={receipt} state={state} />}
     </aside>
@@ -311,6 +314,7 @@ function RhPulseCommunityConviction({
 
 function stateLabel(state: SigningState) {
   const labels: Record<SigningState, string> = {
+    trust: 'Private call ready',
     wallet_module_loading: 'Loading wallet module',
     wallet_options: 'Wallet options ready',
     wallet_connecting: 'Connecting wallet',

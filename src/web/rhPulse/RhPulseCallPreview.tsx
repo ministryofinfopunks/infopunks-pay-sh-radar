@@ -2,26 +2,22 @@ import type { RhPulseCallOption } from './rhPulseTypes';
 
 export function RhPulseCallPreview({
   selected,
-  callsEnabled,
-  acceptingCalls,
-  onSign
+  onMakePublic
 }: {
   selected: RhPulseCallOption;
-  callsEnabled: boolean;
-  acceptingCalls: boolean;
-  onSign: () => void;
+  onMakePublic: () => void;
 }) {
   return <aside className="rh-pulse-call-preview" aria-label="Selected call preview">
     <div className="rh-pulse-call-preview-copy">
-      <span>YOUR CALL / PRESERVED</span>
+      <span>YOUR CALL</span>
       <strong>{selected.label}</strong>
+      <small>Saved privately on this device.<br />Not published. No wallet connected.</small>
     </div>
     <button
       type="button"
-      disabled={!callsEnabled || !acceptingCalls}
-      onClick={onSign}
+      onClick={onMakePublic}
     >
-      {callsEnabled && acceptingCalls ? 'Sign My Call' : callsEnabled ? 'Call window not open' : 'Call window opening soon'}
+      Make This Public
     </button>
   </aside>;
 }

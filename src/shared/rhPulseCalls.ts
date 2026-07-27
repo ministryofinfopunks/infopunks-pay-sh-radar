@@ -70,7 +70,7 @@ export const RhPulsePublicWindowSummarySchema = RhPulsePredictionWindowSchema.pi
 }).strict();
 
 export const RhPulseCallChallengeRequestSchema = z.object({
-  wallet_address: z.string().trim().regex(/^0x[0-9a-fA-F]{40}$/, 'wallet_address_invalid'),
+  wallet_address: z.string().trim().regex(/^0x[0-9a-fA-F]{40}$/, 'wallet_address_invalid').optional(),
   selected_outcome: RhPulseCallOutcomeSchema
 }).strict();
 

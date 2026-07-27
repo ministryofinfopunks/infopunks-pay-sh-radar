@@ -146,6 +146,21 @@ describe('RH Pulse signature authority', () => {
     expect((await h.store.listVerifiedCalls(accepted.call.window.id))).toHaveLength(1);
   });
 
+  it('issues the exact server message before wallet access and derives the publishing wallet from its signature', async () => {
+    const h = harness();
+    await h.openWindow();
+    const challenge = await h.service.createChallenge({ selected_outcome: 'memes_to_rwas' }, 'wallet-last-origin');
+    expect(challenge.message).toContain('Wallet: Signature-derived at publication');
+    expect(challenge.message).toContain('Call ID: memes_to_rwas');
+
+    const accepted = await h.service.submitCall({
+      challenge_id: challenge.challenge_id,
+      signature: await firstAccount.signMessage({ message: challenge.message })
+    }, 'wallet-last-origin');
+    expect(accepted.call.wallet_display).toBe(`${firstAccount.address.slice(0, 6)}…${firstAccount.address.slice(-4)}`);
+    expect(accepted.call.public_call_number).toBe(1);
+  });
+
   it('rejects the wrong wallet signature, modified challenge fields and invalid formats', async () => {
     const h = harness();
     await h.openWindow();

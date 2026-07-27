@@ -4,7 +4,7 @@ const FALLBACK_HERO: RhPulseReadModel['hero'] = {
   eyebrow: 'INFOPUNKS / RH PULSE',
   question: 'The agent economy is live. What does it become next?',
   supporting_copy: 'Memes brought liquidity. Agents brought coordination and new markets. RWAs remain the structural destination.',
-  cta_supporting_line: 'See the connections. Call the next twenty-four hours.'
+  cta_supporting_line: 'See the rotation. Choose your call. Publish only when you’re ready.'
 };
 
 export function RhPulseHero({ hero = FALLBACK_HERO }: { hero?: RhPulseReadModel['hero'] }) {

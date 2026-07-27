@@ -27,7 +27,7 @@ const PULSE_API_TIMEOUT_MS = 5_000;
 export function RhPulsePage({ route }: { route: RhPulseRoute }) {
   const [data, setData] = useState<RhPulsePageData | null>(null);
   const [error, setError] = useState(false);
-  const [selectedId, setSelectedId] = useState<RhPulseCallOption['id'] | null>(() => restoredCallSelection());
+  const [selectedId, setSelectedId] = useState<RhPulseCallOption['id'] | null>(null);
   const [signingOpen, setSigningOpen] = useState(false);
   const reservedRoute = route.kind === 'receipt' || route.kind === 'not_found';
   const readsFirstPage = route.kind === 'home' || route.kind === 'methodology';
@@ -42,9 +42,22 @@ export function RhPulsePage({ route }: { route: RhPulseRoute }) {
   }, []);
 
   useEffect(() => {
-    if (!selectedId) return;
-    persistCallSelection(selectedId);
-  }, [selectedId]);
+    const window = data?.current_window;
+    if (!window || window.state === 'preview') return;
+    if (isHistoricalWindow(window.state)) {
+      expireCallSelection(window.id, window.methodology_version);
+      setSelectedId(null);
+      return;
+    }
+    setSelectedId(restoredCallSelection(window.id, window.methodology_version));
+  }, [data?.current_window.id, data?.current_window.methodology_version, data?.current_window.state]);
+
+  function selectCall(id: RhPulseCallOption['id']) {
+    const window = data?.current_window;
+    setSelectedId(id);
+    if (!window || window.state === 'preview' || isHistoricalWindow(window.state)) return;
+    persistCallSelection(window.id, window.methodology_version, id);
+  }
 
   useEffect(() => {
     if (!readsFirstPage) return;
@@ -132,7 +145,7 @@ export function RhPulsePage({ route }: { route: RhPulseRoute }) {
 
       {data && <>
         <RhPulseStructureStrip statements={data.structural_statements} />
-        <RhPulseCallCards options={data.call_options} selectedId={selectedId} onSelect={setSelectedId} />
+        <RhPulseCallCards options={data.call_options} selectedId={selectedId} onSelect={selectCall} />
         <RhPulseMethodology
           methodology={data.methodology}
           sourceHealth={data.source_health}
@@ -147,9 +160,7 @@ export function RhPulsePage({ route }: { route: RhPulseRoute }) {
     </main>
     {selected && <RhPulseCallPreview
       selected={selected}
-      callsEnabled={data?.calls_enabled ?? false}
-      acceptingCalls={data?.current_window.accepting_calls ?? false}
-      onSign={() => setSigningOpen(true)}
+      onMakePublic={() => setSigningOpen(true)}
     />}
     {selected && signingOpen && <RhPulseSigningSheet selected={selected} onClose={() => setSigningOpen(false)} />}
   </div>;
@@ -166,7 +177,7 @@ function RhPulseFooter({ methodologyHref }: { methodologyHref: string }) {
   </footer>;
 }
 
-const RH_PULSE_SELECTION_KEY = 'rh-pulse:selected-outcome:v1';
+const RH_PULSE_SELECTION_KEY = 'rh-pulse:private-call';
 const RH_PULSE_CALL_IDS: RhPulseCallOption['id'][] = [
   'agents_to_rwas',
   'memes_to_agents',
@@ -174,26 +185,37 @@ const RH_PULSE_CALL_IDS: RhPulseCallOption['id'][] = [
   'no_qualified_rotation'
 ];
 
-function restoredCallSelection(): RhPulseCallOption['id'] | null {
+function selectionKey(windowId: string, methodologyVersion: string) {
+  return `${RH_PULSE_SELECTION_KEY}:${windowId}:${methodologyVersion}`;
+}
+
+function restoredCallSelection(windowId: string, methodologyVersion: string): RhPulseCallOption['id'] | null {
   try {
-    const queryValue = new URL(window.location.href).searchParams.get('call');
-    if (isCallId(queryValue)) return queryValue;
-    const stored = window.sessionStorage.getItem(RH_PULSE_SELECTION_KEY);
+    const stored = window.localStorage.getItem(selectionKey(windowId, methodologyVersion));
     return isCallId(stored) ? stored : null;
   } catch {
     return null;
   }
 }
 
-function persistCallSelection(id: RhPulseCallOption['id']) {
+function persistCallSelection(windowId: string, methodologyVersion: string, id: RhPulseCallOption['id']) {
   try {
-    window.sessionStorage.setItem(RH_PULSE_SELECTION_KEY, id);
-    const url = new URL(window.location.href);
-    url.searchParams.set('call', id);
-    window.history.replaceState(window.history.state, '', `${url.pathname}${url.search}${url.hash}`);
+    window.localStorage.setItem(selectionKey(windowId, methodologyVersion), id);
   } catch {
-    // Selection remains in React state when privacy mode blocks storage/history.
+    // Selection remains in React state when privacy mode blocks storage.
   }
+}
+
+function expireCallSelection(windowId: string, methodologyVersion: string) {
+  try {
+    window.localStorage.removeItem(selectionKey(windowId, methodologyVersion));
+  } catch {
+    // Storage may be unavailable in privacy mode.
+  }
+}
+
+function isHistoricalWindow(state: RhPulsePageData['current_window']['state']) {
+  return state === 'resolved' || state === 'cancelled';
 }
 
 function isCallId(value: string | null): value is RhPulseCallOption['id'] {
