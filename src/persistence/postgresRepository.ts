@@ -13,7 +13,9 @@ type JsonContext = {
 
 export class PostgresRepository implements IntelligenceRepository {
   private pool: pg.Pool;
-  private dbStatus: 'ok' | 'degraded' | 'unavailable' = 'ok';
+  // A configured URL is not proof of a usable persistence layer. Readiness
+  // becomes healthy only after the first successful database operation.
+  private dbStatus: 'ok' | 'degraded' | 'unavailable' = 'degraded';
 
   constructor(connectionString: string) {
     this.pool = new Pool({ connectionString });

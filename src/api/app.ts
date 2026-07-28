@@ -946,7 +946,9 @@ export async function createApp(
   const dbStatusWithFallback = (): 'ok' | 'degraded' | 'unavailable' => {
     const status = repositoryDbStatus();
     if (status) return status;
-    return persistenceMode === 'postgres' ? 'degraded' : 'unavailable';
+    // An intentionally memory-backed public terminal is available but not
+    // durable, so readiness is degraded rather than unavailable.
+    return 'degraded';
   };
   const healthDbDiagnostics = () => ({
     persistence: persistenceMode,
@@ -954,6 +956,12 @@ export async function createApp(
     dbStatus: dbStatusWithFallback(),
     db_status: dbStatusWithFallback()
   });
+  const readinessState = (): 'healthy' | 'degraded' | 'unavailable' => {
+    const dbStatus = dbStatusWithFallback();
+    if (dbStatus === 'unavailable') return 'unavailable';
+    if (dbStatus === 'ok') return 'healthy';
+    return 'degraded';
+  };
   let bootstrapped = Boolean(preloadedStore);
   const liveBootstrapEnabled = process.env.PAYSH_BOOTSTRAP_ENABLED === 'true'
     || (process.env.PAYSH_BOOTSTRAP_ENABLED !== 'false' && process.env.NODE_ENV !== 'test');
@@ -1005,6 +1013,21 @@ export async function createApp(
     refreshBackgroundAnalytics();
   }
 
+  // Render's liveness probe must be cheap and independent of Postgres or any
+  // market/provider integration. Readiness below covers persistence separately.
+  app.get('/healthz', async () => ({ ok: true, status: 'live', service: 'infopunks-pay-sh-radar' }));
+  app.get('/readyz', async (_req, reply) => {
+    const status = readinessState();
+    const body = {
+      ok: status !== 'unavailable',
+      status,
+      service: 'infopunks-pay-sh-radar',
+      persistence: persistenceMode,
+      db_status: dbStatusWithFallback(),
+      disabled_features: Object.keys(config.disabledFeatures).sort()
+    };
+    return reply.code(status === 'unavailable' ? 503 : 200).send(body);
+  });
   app.get('/health', async () => {
     if (rhChainPostgresPool && rhChainPostgresReadiness) {
       void rhChainPostgresReadiness.check(rhChainPostgresPool, rhChainExpectedTables);
@@ -2043,6 +2066,12 @@ export async function createApp(
     return { data: signal };
   });
   app.get('/v1/narratives', async () => ({ data: listNarrativeAssets() }));
+  const optionalFeatureUnavailable = (reply: FastifyReply, feature: string) => {
+    const reason = config.disabledFeatures[feature];
+    if (!reason) return false;
+    reply.code(503).send(buildRhChainApiErrorResponse('feature_unavailable', { message: `${feature}: ${reason}` }));
+    return true;
+  };
   const classificationFeatureAvailable = () => config.rhChainReviewedClassificationsEnabled;
   const classificationReviewAccess = (authorization: string | undefined) => classificationFeatureAvailable() && config.rhChainReviewConsoleEnabled && Boolean(config.rhChainReviewAdminToken) && isRhChainReviewAdmin(config.rhChainReviewAdminToken, authorization);
   const classificationReviewer = (value: string | string[] | undefined) => {
@@ -2102,6 +2131,7 @@ export async function createApp(
     catch { return reply.code(503).send(buildRhChainApiErrorResponse('rh_chain_cross_layer_conflicts_unavailable')); }
   });
   app.get<{ Querystring: Record<string, unknown> }>('/v1/rh-chain/classifications', async (req, reply) => {
+    if (optionalFeatureUnavailable(reply, 'rh_chain_reviewed_classifications')) return;
     if (!classificationFeatureAvailable()) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
     try { return safeJsonExport(buildRhChainApiResponse(await rhChainReviewedClassifications.listApproved(RhChainClassificationPagingSchema.omit({ status: true }).parse(req.query)))); } catch (error) { return classificationFailure(reply, error); }
   });
@@ -2134,36 +2164,44 @@ export async function createApp(
     return reply.code(503).send(buildRhChainApiErrorResponse('rh_chain_project_claims_unavailable'));
   };
   app.get<{ Querystring: Record<string, unknown> }>('/v1/rh-chain/projects', async (req, reply) => {
+    if (optionalFeatureUnavailable(reply, 'rh_chain_project_directory') || optionalFeatureUnavailable(reply, 'rh_chain_project_claims')) return;
     if (!projectDirectoryEnabled()) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
     try { return safeJsonExport(buildRhChainApiResponse(await rhChainProjectClaims.list(req.query))); } catch (error) { return projectClaimsFailure(reply, error); }
   });
   app.get<{ Params: { project_id: string } }>('/v1/rh-chain/projects/:project_id', async (req, reply) => {
+    if (optionalFeatureUnavailable(reply, 'rh_chain_project_claims')) return;
     if (!projectClaimsEnabled()) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
     try { return safeJsonExport(buildRhChainApiResponse(await rhChainProjectClaims.project(req.params.project_id))); } catch (error) { return projectClaimsFailure(reply, error); }
   });
   app.get<{ Params: { project_id: string } }>('/v1/rh-chain/projects/:project_id/claims', async (req, reply) => {
+    if (optionalFeatureUnavailable(reply, 'rh_chain_project_claims')) return;
     if (!projectClaimsEnabled()) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
     try { const p = await rhChainProjectClaims.project(req.params.project_id); return safeJsonExport(buildRhChainApiResponse({ project_id: req.params.project_id, project_submitted_claims: p.project_submitted_claims, not_financial_advice: true })); } catch (error) { return projectClaimsFailure(reply, error); }
   });
   app.get<{ Params: { project_id: string } }>('/v1/rh-chain/projects/:project_id/observations', async (req, reply) => {
+    if (optionalFeatureUnavailable(reply, 'rh_chain_project_claims')) return;
     if (!projectClaimsEnabled()) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
     try { const p = await rhChainProjectClaims.project(req.params.project_id); return safeJsonExport(buildRhChainApiResponse({ project_id: req.params.project_id, infopunks_observations: p.infopunks_observations, onchain_evidence: p.onchain_evidence, not_financial_advice: true })); } catch (error) { return projectClaimsFailure(reply, error); }
   });
   app.get<{ Params: { project_id: string } }>('/v1/rh-chain/projects/:project_id/receipts', async (req, reply) => {
+    if (optionalFeatureUnavailable(reply, 'rh_chain_intelligence_receipts')) return;
     if (!projectReceiptsEnabled()) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
     try { const p = await rhChainProjectClaims.project(req.params.project_id); return safeJsonExport(buildRhChainApiResponse({ project_id: req.params.project_id, receipts: p.receipts, not_financial_advice: true })); } catch (error) { return projectClaimsFailure(reply, error); }
   });
   app.get('/v1/rh-chain/intelligence-receipts', async (_req, reply) => {
+    if (optionalFeatureUnavailable(reply, 'rh_chain_intelligence_receipts')) return;
     if (!projectReceiptsEnabled()) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
     return safeJsonExport(buildRhChainApiResponse({ receipts: (await rhChainProjectClaims.store.receipts()).filter((item) => ['published', 'superseded'].includes(item.reviewer_publication_state)).map(publicReceipt), not_financial_advice: true }));
   });
   app.get<{ Params: { receipt_id: string } }>('/v1/rh-chain/intelligence-receipts/:receipt_id', async (req, reply) => {
+    if (optionalFeatureUnavailable(reply, 'rh_chain_intelligence_receipts')) return;
     if (!projectReceiptsEnabled()) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
     const receipt = await rhChainProjectClaims.store.getReceipt(req.params.receipt_id);
     if (!receipt || !['published', 'superseded'].includes(receipt.reviewer_publication_state)) return reply.code(404).send(buildRhChainApiErrorResponse('rh_chain_intelligence_receipt_not_found'));
     return safeJsonExport(buildRhChainApiResponse({ receipt: publicReceipt(receipt), share: buildRhChainProjectReceiptShare(receipt), not_financial_advice: true }));
   });
   app.post('/v1/rh-chain/projects/claims', async (req, reply) => {
+    if (optionalFeatureUnavailable(reply, 'rh_chain_project_claims')) return;
     if (!projectClaimsEnabled()) return reply.code(404).send(buildRhChainApiErrorResponse('not_found'));
     const limit = rhChainPublicRateLimiter.consume(`project_claim:${req.ip}`); if (!limit.allowed) return reply.code(429).header('Retry-After', String(Math.ceil(limit.retryAfterMs / 1000))).send(buildRhChainApiErrorResponse('rate_limited'));
     try { return reply.code(202).send(safeJsonExport(buildRhChainApiResponse(await rhChainProjectClaims.submit(req.body)))); } catch (error) { return projectClaimsFailure(reply, error); }
@@ -2483,7 +2521,8 @@ export async function createApp(
     const snapshots = req.query.window ? await rhChainMarketSnapshots.getSnapshotWindow(req.params.contract, req.query.window) : await rhChainMarketSnapshots.listSnapshots(req.params.contract);
     return safeJsonExport(buildRhChainApiResponse({ token: { contract: req.params.contract }, snapshots, latest_snapshot: snapshots.at(-1) ?? null, snapshot_count: snapshots.length, caveats: ['Snapshots are low-frequency provider observations and do not change reviewed classification, receipts, or approved-signal status.'] }));
   });
-  app.get<{ Params: { contract: string }; Querystring: { window?: RhChainAttentionWindow } }>('/v1/rh-chain/market/attention-quality/:contract', async (req) => {
+  app.get<{ Params: { contract: string }; Querystring: { window?: RhChainAttentionWindow } }>('/v1/rh-chain/market/attention-quality/:contract', async (req, reply) => {
+    if (optionalFeatureUnavailable(reply, 'rh_chain_attention_quality_v2')) return;
     if (!config.rhChainAttentionQualityV2Enabled) return safeJsonExport(buildRhChainApiResponse(await rhChainMarketSnapshots.summarizeAttentionHistory(req.params.contract)));
     const window = req.query.window === '24h' || req.query.window === '30d' ? req.query.window : '7d';
     return safeJsonExport(buildRhChainApiResponse(await rhChainAttentionQuality.assess(req.params.contract, window)));
@@ -2491,7 +2530,8 @@ export async function createApp(
   app.get('/v1/rh-chain/market', async () => safeJsonExport(buildRhChainApiResponse(await rhChainMarketStructure.marketPulse())));
   app.get('/v1/rh-chain/market-structure', async () => safeJsonExport(buildRhChainApiResponse(await rhChainMarketStructure.marketStructure())));
   app.get('/v1/rh-chain/market-structure/cross-layer', async () => safeJsonExport(buildRhChainApiResponse(await rhChainMarketStructure.crossLayer())));
-  app.get('/v1/rh-chain/market-structure/attention-quality', async () => {
+  app.get('/v1/rh-chain/market-structure/attention-quality', async (_req, reply) => {
+    if (optionalFeatureUnavailable(reply, 'rh_chain_attention_quality_v2')) return;
     if (!config.rhChainAttentionQualityV2Enabled) return safeJsonExport(buildRhChainApiResponse(await rhChainMarketStructure.attentionQuality()));
     const contracts = rhChainReviewedLayerClassifications.map((item) => item.contract).slice(0, 100);
     const attention_quality = await Promise.all(contracts.map((contract) => rhChainAttentionQuality.assess(contract)));
@@ -3447,7 +3487,7 @@ export async function createApp(
     app.get('/*', async (req, reply) => {
       if (req.method !== 'GET' && req.method !== 'HEAD') return reply.code(404).send({ error: 'not_found' });
       const urlPath = (req.raw.url ?? '/').split('?')[0] ?? '/';
-      if (urlPath.startsWith('/v1/') || urlPath === '/health' || urlPath === '/version' || urlPath === '/status' || urlPath === '/openapi.json') {
+      if (urlPath.startsWith('/v1/') || urlPath === '/health' || urlPath === '/healthz' || urlPath === '/readyz' || urlPath === '/version' || urlPath === '/status' || urlPath === '/openapi.json') {
         return reply.code(404).send({ error: 'not_found' });
       }
       const relative = urlPath === '/' ? 'index.html' : urlPath.replace(/^\/+/, '');
