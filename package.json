@@ -11,6 +11,7 @@
     "build": "tsc -p tsconfig.server.json && node scripts/copy-server-assets.mjs && vite build",
     "start": "node dist/server/server.js",
     "start:render": "npm run start",
+    "verify:runtime-config": "node dist/server/config/verifyRuntimeConfig.js",
     "smoke:production": "tsx scripts/smoke-production.ts",
     "rh-chain:migration-status": "tsx scripts/rh-chain-migration-status.ts",
     "smoke:backend": "node scripts/smoke-backend.mjs",

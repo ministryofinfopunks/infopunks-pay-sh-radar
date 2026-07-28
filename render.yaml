@@ -1,12 +1,25 @@
 services:
   - type: web
     name: infopunks-pay-sh-radar
-    runtime: node
-    buildCommand: npm ci && npm run build
-    startCommand: npm run start:render
-    healthCheckPath: /openapi.json
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /healthz
     domains:
       - radar.infopunks.fun
     envVars:
       - key: NODE_ENV
         value: production
+      - key: INFOPUNKS_ADMIN_TOKEN
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: RH_CHAIN_REVIEW_ADMIN_TOKEN
+        sync: false
+      - key: PAY_SH_TRANSLATION_AUTH_TOKEN
+        sync: false
+      - key: PAY_SH_TRANSLATION_PAYMENT_VALUE
+        sync: false
+      - key: HERMES_API_KEY
+        sync: false
+      - key: EVALUATION_REQUEST_WEBHOOK_URL
+        sync: false

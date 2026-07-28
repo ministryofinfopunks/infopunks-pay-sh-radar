@@ -45,11 +45,11 @@ describe('RH Chain production readiness', () => {
     await app.close();
   });
 
-  it('fails closed only when production flags have unsatisfied dependencies', () => {
+  it('degrades optional production features when their dependencies are absent', () => {
     const production = { NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'admin', DATABASE_URL: 'postgres://user:password@localhost:5432/radar' };
-    expect(() => loadRuntimeConfig({ ...production, RH_CHAIN_ATTENTION_QUALITY_V2_ENABLED: 'true' })).toThrow('RH_CHAIN_MARKET_HISTORY_ENABLED');
-    expect(() => loadRuntimeConfig({ ...production, RH_CHAIN_PROJECT_CLAIMS_ENABLED: 'true' })).toThrow('RH_CHAIN_REVIEW_CONSOLE_ENABLED');
-    expect(() => loadRuntimeConfig({ ...production, RH_CHAIN_PROJECT_DIRECTORY_ENABLED: 'true' })).toThrow('RH_CHAIN_PROJECT_CLAIMS_ENABLED');
+    expect(loadRuntimeConfig({ ...production, RH_CHAIN_ATTENTION_QUALITY_V2_ENABLED: 'true' }).disabledFeatures.rh_chain_attention_quality_v2).toContain('RH_CHAIN_MARKET_HISTORY_ENABLED');
+    expect(loadRuntimeConfig({ ...production, RH_CHAIN_PROJECT_CLAIMS_ENABLED: 'true' }).disabledFeatures.rh_chain_project_claims).toContain('authenticated RH Chain review console');
+    expect(loadRuntimeConfig({ ...production, RH_CHAIN_PROJECT_DIRECTORY_ENABLED: 'true' }).disabledFeatures.rh_chain_project_directory).toContain('RH_CHAIN_PROJECT_CLAIMS_ENABLED');
     expect(loadRuntimeConfig(production).rhChainProjectClaimsEnabled).toBe(false);
   });
 });

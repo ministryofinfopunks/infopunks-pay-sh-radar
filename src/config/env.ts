@@ -65,6 +65,17 @@ export type RuntimeConfig = {
   rhChainDuplicateWindowMs: number;
   frontendOrigin: string | null;
   version: string;
+  /** Features requested by configuration but deliberately unavailable at runtime. */
+  disabledFeatures: Record<string, string>;
+};
+
+export type RuntimeConfigurationVerification = {
+  event: 'runtime_configuration_verification';
+  status: 'valid' | 'degraded' | 'invalid';
+  environment: string;
+  requirements: Array<{ name: string; state: 'configured' | 'missing' | 'defaulted' | 'invalid' }>;
+  disabled_features: Array<{ feature: string; reason: string }>;
+  errors: string[];
 };
 
 export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): RuntimeConfig {
@@ -135,45 +146,90 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
     rhChainPublicRateLimitMax: readPositiveInteger('RH_CHAIN_PUBLIC_RATE_LIMIT_MAX', env.RH_CHAIN_PUBLIC_RATE_LIMIT_MAX, 30),
     rhChainDuplicateWindowMs: readPositiveInteger('RH_CHAIN_DUPLICATE_WINDOW_MS', env.RH_CHAIN_DUPLICATE_WINDOW_MS, 15 * 60_000),
     frontendOrigin: readOptionalUrl('FRONTEND_ORIGIN', env.FRONTEND_ORIGIN),
-    version: env.APP_VERSION ?? packageVersion()
+    version: env.APP_VERSION ?? packageVersion(),
+    disabledFeatures: {}
   };
 
-  if (isProduction && !config.adminToken) {
-    throw new Error('INFOPUNKS_ADMIN_TOKEN is required when NODE_ENV=production');
-  }
-  if (isProduction && config.rhChainAutomationEnabled && !config.databaseUrl) {
-    throw new Error('DATABASE_URL is required for RH Chain automation when NODE_ENV=production');
-  }
-  if (isProduction && config.rhChainMarketHistoryEnabled && !config.databaseUrl) {
-    throw new Error('DATABASE_URL is required for RH Chain market history when NODE_ENV=production');
-  }
-  if (isProduction && config.rhChainReviewConsoleEnabled && !config.rhChainReviewAdminToken) {
-    throw new Error('RH_CHAIN_REVIEW_ADMIN_TOKEN is required when RH_CHAIN_REVIEW_CONSOLE_ENABLED=true in production');
-  }
-  if (isProduction && config.rhChainReviewedClassificationsEnabled && !config.databaseUrl) {
-    throw new Error('DATABASE_URL is required when RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED=true in production');
-  }
-  if (isProduction && config.rhChainAttentionQualityV2Enabled && !config.databaseUrl) {
-    throw new Error('DATABASE_URL is required when RH_CHAIN_ATTENTION_QUALITY_V2_ENABLED=true in production');
-  }
-  if (isProduction && (config.rhChainProjectClaimsEnabled || config.rhChainIntelligenceReceiptsEnabled || config.rhChainProjectDirectoryEnabled) && !config.databaseUrl) {
-    throw new Error('DATABASE_URL is required when RH Chain project claims or Intelligence Receipts are enabled in production');
-  }
-  if (isProduction && config.rhChainAttentionQualityV2Enabled && !config.rhChainMarketHistoryEnabled) {
-    throw new Error('RH_CHAIN_MARKET_HISTORY_ENABLED=true is required when RH_CHAIN_ATTENTION_QUALITY_V2_ENABLED=true in production');
-  }
-  if (isProduction && config.rhChainProjectClaimsEnabled && (!config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken)) {
-    throw new Error('RH_CHAIN_REVIEW_CONSOLE_ENABLED=true and RH_CHAIN_REVIEW_ADMIN_TOKEN are required when RH_CHAIN_PROJECT_CLAIMS_ENABLED=true in production');
-  }
-  if (isProduction && config.rhChainIntelligenceReceiptsEnabled && (!config.rhChainProjectClaimsEnabled || !config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken)) {
-    throw new Error('Project Claims and authenticated Review Console are required when RH_CHAIN_INTELLIGENCE_RECEIPTS_ENABLED=true in production');
-  }
-  if (isProduction && config.rhChainProjectDirectoryEnabled && !config.rhChainProjectClaimsEnabled) {
-    throw new Error('RH_CHAIN_PROJECT_CLAIMS_ENABLED=true is required when RH_CHAIN_PROJECT_DIRECTORY_ENABLED=true in production');
-  }
+  // Optional production capabilities fail closed, rather than taking down the
+  // public terminal. Their routes report 503 (where public) or remain hidden
+  // (where reviewer/admin-only); no secret is ever substituted or bypassed.
+  if (isProduction) resolveOptionalProductionFeatures(config);
 
   return config;
 }
+
+/**
+ * A deterministic, non-secret diagnostic suitable for CI and Render's shell.
+ * It intentionally reports only variable names and state, never values.
+ */
+export function verifyRuntimeConfiguration(env: NodeJS.ProcessEnv = process.env): RuntimeConfigurationVerification {
+  const environment = env.NODE_ENV ?? 'development';
+  const requirements = RUNTIME_ENVIRONMENT_DEPENDENCIES.map(({ name, hasDefault }) => ({
+    name,
+    state: optionalString(env[name]) ? 'configured' as const : hasDefault ? 'defaulted' as const : 'missing' as const
+  }));
+  try {
+    const config = loadRuntimeConfig(env);
+    const disabledFeatures = Object.entries(config.disabledFeatures)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([feature, reason]) => ({ feature, reason }));
+    return {
+      event: 'runtime_configuration_verification',
+      status: disabledFeatures.length ? 'degraded' : 'valid',
+      environment: config.env,
+      requirements,
+      disabled_features: disabledFeatures,
+      errors: []
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    const invalidName = RUNTIME_ENVIRONMENT_DEPENDENCIES.find(({ name }) => message.startsWith(name))?.name;
+    return {
+      event: 'runtime_configuration_verification',
+      status: 'invalid',
+      environment,
+      requirements: requirements.map((requirement) => requirement.name === invalidName ? { ...requirement, state: 'invalid' as const } : requirement),
+      disabled_features: [],
+      errors: [message]
+    };
+  }
+}
+
+function resolveOptionalProductionFeatures(config: RuntimeConfig) {
+  const disable = (feature: string, reason: string, setDisabled: () => void) => {
+    setDisabled();
+    config.disabledFeatures[feature] = reason;
+  };
+  if (!config.adminToken) config.disabledFeatures.admin_routes = 'INFOPUNKS_ADMIN_TOKEN is missing; admin routes remain closed';
+  if (config.rhChainReviewConsoleEnabled && !config.rhChainReviewAdminToken) {
+    disable('rh_chain_review_console', 'RH_CHAIN_REVIEW_ADMIN_TOKEN is missing; reviewer routes remain hidden', () => { config.rhChainReviewConsoleEnabled = false; });
+  }
+  if (config.rhChainAutomationEnabled && !config.databaseUrl) {
+    disable('rh_chain_automation', 'DATABASE_URL is missing', () => { config.rhChainAutomationEnabled = false; });
+  }
+  if (config.rhChainMarketHistoryEnabled && !config.databaseUrl) {
+    disable('rh_chain_market_history', 'DATABASE_URL is missing', () => { config.rhChainMarketHistoryEnabled = false; });
+  }
+  if (config.rhChainReviewedClassificationsEnabled && !config.databaseUrl) {
+    disable('rh_chain_reviewed_classifications', 'DATABASE_URL is missing', () => { config.rhChainReviewedClassificationsEnabled = false; });
+  }
+  if (config.rhChainAttentionQualityV2Enabled && (!config.databaseUrl || !config.rhChainMarketHistoryEnabled)) {
+    disable('rh_chain_attention_quality_v2', !config.databaseUrl ? 'DATABASE_URL is missing' : 'RH_CHAIN_MARKET_HISTORY_ENABLED is required', () => { config.rhChainAttentionQualityV2Enabled = false; });
+  }
+  if (config.rhChainProjectClaimsEnabled && (!config.databaseUrl || !config.rhChainReviewConsoleEnabled || !config.rhChainReviewAdminToken)) {
+    disable('rh_chain_project_claims', !config.databaseUrl ? 'DATABASE_URL is missing' : 'authenticated RH Chain review console is required', () => { config.rhChainProjectClaimsEnabled = false; });
+  }
+  if (config.rhChainIntelligenceReceiptsEnabled && !config.rhChainProjectClaimsEnabled) {
+    disable('rh_chain_intelligence_receipts', 'RH_CHAIN_PROJECT_CLAIMS_ENABLED with authenticated review is required', () => { config.rhChainIntelligenceReceiptsEnabled = false; });
+  }
+  if (config.rhChainProjectDirectoryEnabled && !config.rhChainProjectClaimsEnabled) {
+    disable('rh_chain_project_directory', 'RH_CHAIN_PROJECT_CLAIMS_ENABLED with authenticated review is required', () => { config.rhChainProjectDirectoryEnabled = false; });
+  }
+}
+
+const RUNTIME_ENVIRONMENT_DEPENDENCIES: Array<{ name: string; hasDefault: boolean }> = [
+  'NODE_ENV', 'PORT', 'INFOPUNKS_ADMIN_TOKEN', 'DATABASE_URL', 'DATABASE_POOL_MAX', 'PAY_SH_CATALOG_URL', 'PAYSH_CATALOG_SOURCE', 'PAYSH_ALLOW_FIXTURE_FALLBACK', 'PAYSH_BOOTSTRAP_ENABLED', 'PAY_SH_INGEST_INTERVAL_MS', 'INGESTION_ENABLED', 'MONITOR_ENABLED', 'MONITOR_MODE', 'MONITOR_INTERVAL_MS', 'MONITOR_TIMEOUT_MS', 'MONITOR_MAX_PROVIDERS', 'MONITOR_ALLOW_PAID_ENDPOINTS', 'FEATURED_PROVIDER_ROTATION_MS', 'MACHINE_DEMO_SEED', 'MACHINE_RECEIPTS_JSONL_PATH', 'INFOPUNKS_BIGQUERY_LIVE_CREDENTIALS_CONFIGURED', 'INFOPUNKS_BIGQUERY_LIVE_HARNESS_ENABLED', 'INFOPUNKS_BIGQUERY_LIVE_HARNESS_MODE', 'INFOPUNKS_BIGQUERY_LIVE_HARNESS_VERSION', 'INFOPUNKS_BIGQUERY_LIVE_RAIL_CONFIGURED', 'RH_CHAIN_LIVE_SNAPSHOTS_ENABLED', 'RH_CHAIN_PROVIDER_TIMEOUT_MS', 'RH_CHAIN_LIVE_TOKEN_ROUTE_TIMEOUT_MS', 'RH_CHAIN_CACHE_TTL_SECONDS', 'RH_CHAIN_BLOCKSCOUT_URL', 'DEXSCREENER_ENABLED', 'DEXSCREENER_BASE_URL', 'DEXSCREENER_RH_CHAIN_ID', 'DEXSCREENER_TIMEOUT_MS', 'DEXSCREENER_CACHE_TTL_SECONDS', 'DEXSCREENER_STALE_WHILE_REVALIDATE_SECONDS', 'DEXSCREENER_STALE_IF_ERROR_SECONDS', 'DEXSCREENER_MAX_STALE_SECONDS', 'DEXSCREENER_MAX_BATCH_SIZE', 'DEXSCREENER_MAX_RETRIES', 'DEXSCREENER_RETRY_BASE_MS', 'DEXSCREENER_MAX_CONCURRENCY', 'DEXSCREENER_RATE_LIMIT_PER_SECOND', 'BLOCKSCOUT_ENABLED', 'BLOCKSCOUT_BASE_URL', 'BLOCKSCOUT_TIMEOUT_MS', 'BLOCKSCOUT_CACHE_TTL_SECONDS', 'BLOCKSCOUT_MAX_PAGE_SIZE', 'RH_CHAIN_REVIEW_CONSOLE_ENABLED', 'RH_CHAIN_REVIEW_ADMIN_TOKEN', 'RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED', 'RH_CHAIN_ATTENTION_QUALITY_V2_ENABLED', 'RH_CHAIN_PROJECT_CLAIMS_ENABLED', 'RH_CHAIN_INTELLIGENCE_RECEIPTS_ENABLED', 'RH_CHAIN_PROJECT_DIRECTORY_ENABLED', 'RH_CHAIN_AUTOMATION_ENABLED', 'RH_CHAIN_MARKET_INGESTION_ENABLED', 'RH_CHAIN_MARKET_HISTORY_ENABLED', 'RH_CHAIN_AUTOMATION_INSTANCE_ID', 'RH_CHAIN_JOB_LOCK_TTL_MS', 'RH_CHAIN_CHAIN_PULSE_INTERVAL_MS', 'RH_CHAIN_MEME_PULSE_INTERVAL_MS', 'RH_CHAIN_LAUNCHPAD_INTERVAL_MS', 'RH_CHAIN_RECEIPT_DRAFT_CRON', 'RH_CHAIN_PUBLIC_RATE_LIMIT_ENABLED', 'RH_CHAIN_PUBLIC_RATE_LIMIT_WINDOW_MS', 'RH_CHAIN_PUBLIC_RATE_LIMIT_MAX', 'RH_CHAIN_DUPLICATE_WINDOW_MS', 'FRONTEND_ORIGIN', 'EVALUATION_REQUEST_WEBHOOK_URL', 'MACHINE_EXECUTION_ENABLED', 'PAY_SH_TRANSLATION_URL', 'PAY_SH_TRANSLATION_AUTH_MODE', 'PAY_SH_TRANSLATION_AUTH_HEADER', 'PAY_SH_TRANSLATION_AUTH_TOKEN', 'PAY_SH_TRANSLATION_PAYMENT_HEADER', 'PAY_SH_TRANSLATION_PAYMENT_VALUE', 'PAY_SH_TRANSLATION_TIMEOUT_MS', 'HERMES_ENABLED', 'HERMES_BASE_URL', 'HERMES_API_KEY', 'HERMES_MODE', 'APP_VERSION'
+].sort().map((name) => ({ name, hasDefault: !['PORT', 'INFOPUNKS_ADMIN_TOKEN', 'DATABASE_URL', 'RH_CHAIN_REVIEW_ADMIN_TOKEN'].includes(name) }));
 
 export function deploymentSummary(config: RuntimeConfig) {
   return {
@@ -197,6 +253,7 @@ export function deploymentSummary(config: RuntimeConfig) {
     rhChainMarketHistoryEnabled: config.rhChainMarketHistoryEnabled,
     ingestionEnabled: config.ingestionEnabled,
     dbMode: config.databaseUrl ? 'postgres' : 'memory',
+    disabledFeatures: Object.keys(config.disabledFeatures).sort(),
     databasePoolMax: config.databasePoolMax,
     catalogSource: config.payShCatalogSource,
     corsOrigin: config.frontendOrigin ?? 'development-open'
