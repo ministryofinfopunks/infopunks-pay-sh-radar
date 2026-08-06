@@ -3,7 +3,7 @@ import React from 'react';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { App } from '../src/web/main';
+import { App } from '../src/web/radarApp';
 
 function json(data: unknown, status = 200) {
   return Promise.resolve(new Response(JSON.stringify({ data }), { status, headers: { 'Content-Type': 'application/json' } }));

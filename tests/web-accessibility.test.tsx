@@ -2,7 +2,7 @@
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { App } from '../src/web/main';
+import { App } from '../src/web/radarApp';
 
 const now = '2026-05-08T10:00:00.000Z';
 

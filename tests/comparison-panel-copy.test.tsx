@@ -3,7 +3,7 @@ import React from 'react';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { ComparisonPanel } from '../src/web/main';
+import { ComparisonPanel } from '../src/web/radarApp';
 
 describe('comparison panel route copy and spacing', () => {
   let root: Root | null = null;

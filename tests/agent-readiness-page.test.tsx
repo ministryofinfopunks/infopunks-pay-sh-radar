@@ -3,7 +3,7 @@ import React from 'react';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { App } from '../src/web/main';
+import { App } from '../src/web/radarApp';
 
 const observedAt = '2026-05-19T00:00:00.000Z';
 const bannedLanguage = /best route|top route|winner route|loser route|superiority proof|ranking authority|guaranteed trust|safest provider|recorded bundle|production briefing/i;

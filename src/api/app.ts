@@ -3496,13 +3496,16 @@ export async function createApp(
       try {
         const file = await stat(target);
         if (file.isFile()) {
+          if (relative === 'index.html') reply.header('Cache-Control', 'no-cache');
+          else if (relative.startsWith('assets/')) reply.header('Cache-Control', 'public, max-age=31536000, immutable');
+          else reply.header('Cache-Control', 'public, max-age=86400');
           return reply.type(contentTypeFor(target)).send(createReadStream(target));
         }
       } catch {
         // fall through to SPA index
       }
       const html = await readFile(clientIndexPath, 'utf8');
-      return reply.type('text/html; charset=utf-8').send(injectNarrativeRouteMetadata(html, urlPath));
+      return reply.header('Cache-Control', 'no-cache').type('text/html; charset=utf-8').send(injectNarrativeRouteMetadata(html, urlPath));
     });
   }
 

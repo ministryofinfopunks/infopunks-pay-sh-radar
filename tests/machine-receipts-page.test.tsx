@@ -3,7 +3,7 @@ import React from 'react';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { App } from '../src/web/main';
+import { App } from '../src/web/radarApp';
 
 const baseReceipt = {
   receipt_id: 'mrx_202605220001_0001',

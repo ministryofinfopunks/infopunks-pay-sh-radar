@@ -15,7 +15,7 @@ import { assembleRhChainTodayOn4663 } from '../src/services/rhChainTodayOn4663Se
 import { buildRhChainApiResponse } from '../src/services/rhChainIntelligenceService';
 import { isRhChainContractAddress, rhChainTokenDossierRoute } from '../src/web/rhChainSignalDeskPages';
 import { asRhChainPersistedReviewItem, createRhChainSignalSubmission } from '../src/services/rhChainSignalVault';
-import { App } from '../src/web/main';
+import { App } from '../src/web/radarApp';
 
 function json(data: unknown) {
   return Promise.resolve(new Response(JSON.stringify(buildRhChainApiResponse(data)), { status: 200, headers: { 'Content-Type': 'application/json' } }));

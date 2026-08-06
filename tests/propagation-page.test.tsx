@@ -3,7 +3,7 @@ import React from 'react';
 import { createRoot, Root } from 'react-dom/client';
 import { act } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { App } from '../src/web/main';
+import { App } from '../src/web/radarApp';
 
 function response(data: unknown) {
   return Promise.resolve({ ok: true, json: () => Promise.resolve({ data }) } as Response);

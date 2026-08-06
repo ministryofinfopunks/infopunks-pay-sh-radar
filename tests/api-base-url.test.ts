@@ -10,16 +10,24 @@ describe('resolveApiBaseUrl', () => {
     expect(result).toBe('');
   });
 
-  it('uses the static production API host when the public radar site has no injected base URL', () => {
+  it('uses same-origin relative URLs on the public radar hostname', () => {
     const result = resolveApiBaseUrl({
       envApiBaseUrl: '',
       locationHost: 'radar.infopunks.fun'
     });
 
-    expect(result).toBe('https://infopunks-pay-sh-radar.onrender.com');
+    expect(result).toBe('');
   });
 
-  it('uses configured absolute API base URL when set', () => {
+  it('uses same-origin relative URLs on the direct Render hostname', () => {
+    expect(resolveApiBaseUrl({ envApiBaseUrl: '', locationHost: 'infopunks-pay-sh-radar.onrender.com' })).toBe('');
+  });
+
+  it('uses same-origin relative URLs during localhost development', () => {
+    expect(resolveApiBaseUrl({ envApiBaseUrl: '', locationHost: 'localhost:5173' })).toBe('');
+  });
+
+  it('uses Vite environment API base URL when set', () => {
     const result = resolveApiBaseUrl({
       envApiBaseUrl: 'https://api.example.com'
     });

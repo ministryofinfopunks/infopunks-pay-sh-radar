@@ -3,7 +3,7 @@ import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildRhChainApiResponse } from '../src/services/rhChainIntelligenceService';
-import { App } from '../src/web/main';
+import { App } from '../src/web/radarApp';
 
 const CAPTURED_AT = '2026-07-19T12:00:00.000Z';
 

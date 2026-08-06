@@ -4,7 +4,7 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getAbundanceDeskPayload } from '../src/data/abundanceDesk';
-import { App } from '../src/web/main';
+import { App } from '../src/web/radarApp';
 
 function json(data: unknown) {
   return Promise.resolve(new Response(JSON.stringify({ data }), { status: 200, headers: { 'Content-Type': 'application/json' } }));

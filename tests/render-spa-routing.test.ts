@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { describe, expect, it } from 'vitest';
@@ -8,10 +8,32 @@ import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
 function createClientDistFixture() {
   const dir = mkdtempSync(join(tmpdir(), 'radar-client-dist-'));
   writeFileSync(join(dir, 'index.html'), '<!doctype html><html><head><title>Infopunks Pay.sh Radar | Evidence Ledger for Pay.sh Agent Routes</title><meta name="description" content="Generic shell description." /><meta property="og:title" content="Infopunks Pay.sh Radar | Evidence Ledger for Pay.sh Agent Routes" /><meta property="og:description" content="Generic shell description." /><meta property="og:type" content="website" /><meta property="og:url" content="https://radar.infopunks.fun/" /><meta name="twitter:card" content="summary_large_image" /><meta name="twitter:title" content="Infopunks Pay.sh Radar | Evidence Ledger for Pay.sh Agent Routes" /><meta name="twitter:description" content="Generic shell description." /><link rel="canonical" href="https://radar.infopunks.fun/" /></head><body><div id="app">Radar SPA shell</div></body></html>');
+  mkdirSync(join(dir, 'assets'));
+  writeFileSync(join(dir, 'assets', 'index-abcdef12.js'), 'console.log("radar")');
+  writeFileSync(join(dir, 'favicon.svg'), '<svg xmlns="http://www.w3.org/2000/svg"/>');
   return dir;
 }
 
 describe('render-style SPA routing boundaries', () => {
+  it('uses immutable caching for Vite assets and revalidates HTML', async () => {
+    const clientDistDir = createClientDistFixture();
+    const app = await createApp(emptyIntelligenceStore(), undefined, { clientDistDir });
+    try {
+      const [asset, root, deepRoute, icon] = await Promise.all([
+        app.inject({ method: 'GET', url: '/assets/index-abcdef12.js' }),
+        app.inject({ method: 'GET', url: '/' }),
+        app.inject({ method: 'GET', url: '/solana' }),
+        app.inject({ method: 'GET', url: '/favicon.svg' })
+      ]);
+      expect(asset.headers['cache-control']).toBe('public, max-age=31536000, immutable');
+      expect(root.headers['cache-control']).toBe('no-cache');
+      expect(deepRoute.headers['cache-control']).toBe('no-cache');
+      expect(icon.headers['cache-control']).toBe('public, max-age=86400');
+    } finally {
+      await app.close();
+      rmSync(clientDistDir, { recursive: true, force: true });
+    }
+  });
   it('serves JSON for /v1/routes even when SPA fallback is enabled', async () => {
     const clientDistDir = createClientDistFixture();
     const app = await createApp(emptyIntelligenceStore(), undefined, { clientDistDir });

@@ -12,7 +12,7 @@ import { createHermesSpendPolicyExample, listHermesSpendPolicies, listHermesSpen
 import { buildHermesWalletAuditTrailSummary } from '../src/services/hermesWalletAuditTrail';
 import { buildHermesWalletRiskScoreSummary } from '../src/services/hermesWalletRiskScore';
 import { getHermesWalletSafetyExampleCheck } from '../src/services/hermesWalletSafetyBundle';
-import { App } from '../src/web/main';
+import { App } from '../src/web/radarApp';
 
 function json(data: unknown) {
   return Promise.resolve(new Response(JSON.stringify({ data }), { status: 200, headers: { 'Content-Type': 'application/json' } }));

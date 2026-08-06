@@ -3,7 +3,7 @@ import React from 'react';
 import { act } from 'react';
 import { createRoot, Root } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { App } from '../src/web/main';
+import { App } from '../src/web/radarApp';
 
 const observedAt = '2026-05-08T10:00:00.000Z';
 

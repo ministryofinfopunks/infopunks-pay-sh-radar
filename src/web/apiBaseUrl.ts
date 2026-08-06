@@ -4,15 +4,11 @@ type ResolveApiBaseUrlOptions = {
   locationHost?: string;
 };
 
-const STATIC_PUBLIC_HOST = 'radar.infopunks.fun';
-const RENDER_API_HOST = 'https://infopunks-pay-sh-radar.onrender.com';
-
 export function resolveApiBaseUrl(options: ResolveApiBaseUrlOptions): string {
   const runtimeBaseUrl = options.runtimeApiBaseUrl?.trim();
   if (runtimeBaseUrl) return runtimeBaseUrl.replace(/\/+$/, '');
   const configuredBaseUrl = options.envApiBaseUrl?.trim();
   if (configuredBaseUrl) return configuredBaseUrl.replace(/\/+$/, '');
-  if (options.locationHost === STATIC_PUBLIC_HOST) return RENDER_API_HOST;
   return '';
 }
 
