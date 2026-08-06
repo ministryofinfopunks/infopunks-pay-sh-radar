@@ -1863,28 +1863,6 @@ function toPulseSummary(candidate: unknown): PulseSummary | null {
   };
 }
 
-class AppErrorBoundary extends React.Component<{ children: React.ReactNode }, ErrorBoundaryState> {
-  state: ErrorBoundaryState = { hasError: false };
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-  componentDidCatch(error: unknown) {
-    console.error('[radar-ui-error-boundary]', error);
-  }
-  retry = () => this.setState({ hasError: false });
-  render() {
-    if (this.state.hasError) {
-      return <main className="boot" role="alert" aria-label="Infopunks Radar initialization delayed">
-        <section className="panel">
-          <h1>{BOOT_INITIALIZATION_DELAYED_LABEL}</h1>
-          <button className="execute compact secondary" type="button" onClick={this.retry}>Retry</button>
-        </section>
-      </main>;
-    }
-    return this.props.children;
-  }
-}
-
 function routeProviderId(pathname: string) {
   const match = pathname.match(/^\/providers\/([^/]+)\/?$/);
   if (!match) return null;

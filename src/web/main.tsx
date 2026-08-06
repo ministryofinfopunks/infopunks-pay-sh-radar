@@ -1,6 +1,7 @@
 import React, { lazy, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import { UniversalHomepage } from './homepage';
+import { AppErrorBoundary } from './appErrorBoundary';
 import { installDevelopmentPerformanceSummary, markHtmlShellReady } from './performanceSummary';
 import './homepage.css';
 
@@ -14,4 +15,4 @@ export function App() {
 markHtmlShellReady();
 installDevelopmentPerformanceSummary();
 const rootElement = typeof document === 'undefined' ? null : document.getElementById('root');
-if (rootElement) createRoot(rootElement).render(<App />);
+if (rootElement) createRoot(rootElement).render(<AppErrorBoundary><App /></AppErrorBoundary>);
