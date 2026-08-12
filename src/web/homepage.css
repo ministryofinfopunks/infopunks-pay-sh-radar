@@ -1,1 +1,599 @@
-:root{color-scheme:dark}*{box-sizing:border-box}.radar-homepage{min-height:100vh;color:#cbffdd}.radar-home-header,.radar-home-shell{width:min(1180px,calc(100% - 40px));margin:auto}.radar-home-header{display:flex;align-items:center;gap:24px;padding:22px 0;border-bottom:1px solid rgba(126,255,176,.15)}.radar-home-brand{color:#d8ffe5;text-decoration:none;letter-spacing:.02em}.radar-home-brand span{font-size:14px}.radar-home-brand strong{display:block;font-size:20px}.radar-home-header nav{display:flex;gap:18px}.radar-home-header nav a,.radar-home-actions a,.radar-home-cards a{color:#caffdc;text-decoration:none}.radar-home-header nav a:hover,.radar-home-cards a:hover{text-decoration:underline}.radar-live-status{margin-left:auto;color:#a4b3a8;font-size:12px}.radar-live-status.live{color:#7effb0}.radar-live-status.degraded{color:#ffc97a}.radar-home-shell{padding:68px 0}.radar-home-hero{display:grid;grid-template-columns:1.5fr .8fr;gap:36px;padding:48px;border:1px solid rgba(126,255,176,.25);border-radius:24px;background:linear-gradient(135deg,rgba(18,46,31,.8),rgba(4,14,10,.7));box-shadow:0 20px 80px rgba(0,0,0,.22)}.radar-home-eyebrow,.radar-home-entry>div>p,.radar-home-hero aside p,.radar-home-cards p{text-transform:uppercase;letter-spacing:.12em;font-size:12px;color:#7effb0;margin:0 0 14px}.radar-home-hero h1{font-size:clamp(42px,6vw,76px);line-height:.96;letter-spacing:-.055em;margin:0;max-width:760px}.radar-home-lede{font-size:18px;line-height:1.55;max-width:620px;color:#b9cfc0;margin:24px 0}.radar-home-actions{display:flex;gap:12px;flex-wrap:wrap}.radar-home-actions a,.radar-home-cards a{display:inline-flex;align-items:center;gap:10px;padding:13px 17px;border:1px solid #7effb0;border-radius:999px;background:#7effb0;color:#04200f;font-weight:700}.radar-home-actions a+a{background:transparent;color:#caffdc;border-color:rgba(202,255,220,.45)}.radar-home-hero aside{border-left:1px solid rgba(126,255,176,.28);padding-left:30px;align-self:center}.radar-home-hero aside strong{font-size:22px;line-height:1.2}.radar-home-hero aside span{display:block;color:#8fa59a;line-height:1.5;margin-top:18px}.radar-home-entry{padding-top:72px}.radar-home-entry h2{font-size:36px;margin:0}.radar-home-cards{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:25px}.radar-home-cards article{min-height:265px;display:flex;flex-direction:column;align-items:flex-start;padding:28px;border:1px solid rgba(126,255,176,.18);border-radius:18px;background:rgba(5,18,12,.72)}.radar-home-cards article.rh{border-color:rgba(143,171,255,.4)}.radar-home-cards h3{font-size:28px;margin:0 0 12px}.radar-home-cards span{line-height:1.55;color:#a9bcaf;max-width:390px}.radar-home-cards a{margin-top:auto}@media(max-width:720px){.radar-home-header{align-items:flex-start;flex-wrap:wrap}.radar-home-header nav{order:3;width:100%;overflow:auto}.radar-live-status{margin-left:0}.radar-home-shell{padding:28px 0}.radar-home-hero,.radar-home-cards{grid-template-columns:1fr}.radar-home-hero{padding:28px}.radar-home-hero aside{border-left:0;border-top:1px solid rgba(126,255,176,.28);padding:24px 0 0}.radar-home-entry{padding-top:44px}}
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.radar-homepage {
+  --home-bg: #020403;
+  --home-surface: #06100b;
+  --home-surface-strong: #08150e;
+  --home-line: rgba(126, 255, 176, 0.18);
+  --home-line-strong: rgba(126, 255, 176, 0.42);
+  --home-green: #7effb0;
+  --home-text: #e6ffef;
+  --home-muted: #8ea498;
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background: var(--home-bg);
+  color: var(--home-text);
+  font-family: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, monospace;
+}
+
+.radar-homepage::before {
+  position: absolute;
+  inset: 0;
+  width: 1px;
+  height: 100%;
+  margin: auto;
+  background: rgba(126, 255, 176, 0.035);
+  content: "";
+  pointer-events: none;
+}
+
+.radar-home-header,
+.radar-home-shell,
+.radar-home-footer {
+  position: relative;
+  width: min(1180px, calc(100% - 40px));
+  margin-inline: auto;
+}
+
+.radar-home-skip {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 20;
+  translate: 0 calc(-100% - 24px);
+  border: 1px solid var(--home-green);
+  padding: 10px 14px;
+  background: var(--home-bg);
+  color: var(--home-green);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.radar-home-skip:focus {
+  translate: 0;
+}
+
+.radar-home-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  min-height: 76px;
+  border-bottom: 1px solid var(--home-line);
+}
+
+.radar-home-brand {
+  flex: none;
+  color: var(--home-text);
+  letter-spacing: 0.02em;
+  text-decoration: none;
+}
+
+.radar-home-brand span {
+  display: block;
+  color: var(--home-muted);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.radar-home-brand strong {
+  display: block;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  font-size: 20px;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+.radar-home-header nav {
+  display: flex;
+  gap: 20px;
+}
+
+.radar-home-header nav a,
+.radar-home-actions a,
+.radar-home-cards a {
+  color: var(--home-text);
+  text-decoration: none;
+}
+
+.radar-home-header nav a {
+  padding-block: 10px;
+  color: #b7c9be;
+  font-size: 12px;
+}
+
+.radar-home-header nav a:hover,
+.radar-home-header nav a:focus-visible,
+.radar-home-cards a:hover,
+.radar-home-cards a:focus-visible {
+  color: var(--home-green);
+}
+
+.radar-live-status {
+  position: relative;
+  margin: 0 0 0 auto;
+  padding-left: 14px;
+  color: var(--home-muted);
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.radar-live-status::before {
+  position: absolute;
+  top: 0.35em;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  content: "";
+}
+
+.radar-live-status.live {
+  color: var(--home-green);
+}
+
+.radar-live-status.live::before {
+  background: currentColor;
+}
+
+.radar-live-status.degraded {
+  color: #ffc97a;
+}
+
+.radar-home-shell {
+  padding: 80px 0 96px;
+}
+
+.radar-home-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.28fr) minmax(310px, 0.72fr);
+  gap: clamp(48px, 8vw, 112px);
+  align-items: center;
+  min-height: 610px;
+  padding-block: 40px 72px;
+  border-bottom: 1px solid var(--home-line);
+}
+
+.radar-home-eyebrow,
+.radar-category-sequence > p,
+.radar-home-section-heading > p,
+.radar-home-entry > div > p,
+.radar-home-cards article > p,
+.radar-home-proof-grid article > p {
+  margin: 0 0 16px;
+  color: var(--home-green);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.radar-home-hero h1 {
+  margin: 0;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  font-size: clamp(58px, 8vw, 112px);
+  letter-spacing: -0.065em;
+  line-height: 0.86;
+  text-wrap: balance;
+}
+
+.radar-home-hero h1 span,
+.radar-home-hero h1 strong {
+  display: block;
+}
+
+.radar-home-hero h1 span {
+  color: #aab8af;
+  font-weight: 520;
+}
+
+.radar-home-hero h1 strong {
+  color: var(--home-green);
+  font-weight: 760;
+}
+
+.radar-home-lede {
+  max-width: 590px;
+  margin: 30px 0 0;
+  color: var(--home-muted);
+  font-size: clamp(15px, 1.5vw, 18px);
+  line-height: 1.65;
+}
+
+.radar-home-lede strong {
+  color: var(--home-text);
+  font-weight: 500;
+}
+
+.radar-home-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.radar-home-actions a,
+.radar-home-cards a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--home-green);
+  padding: 11px 16px;
+  background: var(--home-green);
+  color: #03150a;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.035em;
+}
+
+.radar-home-actions a + a {
+  border-color: var(--home-line-strong);
+  background: transparent;
+  color: var(--home-text);
+}
+
+.radar-home-actions a:active,
+.radar-home-cards a:active {
+  transform: scale(0.98);
+}
+
+.radar-category-sequence {
+  border-left: 1px solid var(--home-line);
+  padding-left: clamp(24px, 4vw, 48px);
+}
+
+.radar-category-sequence ol {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.radar-category-sequence li {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(88px, 0.8fr) minmax(110px, 1fr);
+  gap: 16px;
+  align-items: baseline;
+  padding: 13px 0 22px;
+  border-top: 1px solid rgba(126, 255, 176, 0.1);
+}
+
+.radar-category-sequence li span {
+  color: var(--home-muted);
+  font-size: 11px;
+}
+
+.radar-category-sequence li strong {
+  color: #c9d9cf;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  font-size: 17px;
+  letter-spacing: -0.02em;
+}
+
+.radar-category-sequence li b {
+  position: absolute;
+  bottom: 4px;
+  left: 2px;
+  color: rgba(126, 255, 176, 0.42);
+  font-size: 10px;
+  font-weight: 400;
+}
+
+.radar-category-sequence li.intelligence {
+  border-color: var(--home-line-strong);
+}
+
+.radar-category-sequence li.intelligence span,
+.radar-category-sequence li.intelligence strong {
+  color: var(--home-green);
+  font-weight: 750;
+}
+
+.radar-home-proof,
+.radar-home-entry {
+  padding-top: 88px;
+}
+
+.radar-home-section-heading,
+.radar-home-entry > div {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.35fr) minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+
+.radar-home-section-heading h2,
+.radar-home-entry h2 {
+  max-width: 760px;
+  margin: 0;
+  color: var(--home-text);
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  font-size: clamp(32px, 4.6vw, 58px);
+  font-weight: 660;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  text-wrap: balance;
+}
+
+.radar-home-proof-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 52px;
+  border-top: 1px solid var(--home-line);
+  border-bottom: 1px solid var(--home-line);
+}
+
+.radar-home-proof-grid article {
+  min-height: 228px;
+  padding: 24px 26px 28px;
+  border-left: 1px solid var(--home-line);
+}
+
+.radar-home-proof-grid article:first-child {
+  border-left: 0;
+}
+
+.radar-home-proof-grid article > span {
+  display: block;
+  margin-bottom: 54px;
+  color: #526359;
+  font-size: 10px;
+}
+
+.radar-home-proof-grid article > p {
+  margin-bottom: 8px;
+}
+
+.radar-home-proof-grid h3,
+.radar-home-cards h3 {
+  margin: 0;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+
+.radar-home-proof-grid h3 {
+  max-width: 260px;
+  font-size: clamp(23px, 2.4vw, 34px);
+}
+
+.radar-home-proof-grid small {
+  display: block;
+  margin-top: 14px;
+  color: var(--home-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.radar-home-proof-line {
+  margin: 28px 0 0;
+  color: var(--home-muted);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-align: right;
+}
+
+.radar-home-proof-line strong {
+  color: var(--home-green);
+}
+
+.radar-home-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 36px;
+}
+
+.radar-home-cards article {
+  display: flex;
+  min-height: 320px;
+  flex-direction: column;
+  align-items: flex-start;
+  border: 1px solid var(--home-line);
+  padding: 30px;
+  background: var(--home-surface);
+}
+
+.radar-home-cards article.rh {
+  background: var(--home-surface-strong);
+}
+
+.radar-home-cards h3 {
+  max-width: 440px;
+  font-size: clamp(30px, 3.4vw, 46px);
+}
+
+.radar-home-cards article > span {
+  max-width: 460px;
+  margin-top: 18px;
+  color: var(--home-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.radar-home-cards a {
+  margin-top: auto;
+}
+
+.radar-home-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 32px;
+  justify-content: space-between;
+  border-top: 1px solid var(--home-line);
+  padding: 28px 0 36px;
+  color: #72847a;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.radar-homepage a:focus-visible {
+  outline: 2px solid #f6d06f;
+  outline-offset: 4px;
+}
+
+@media (max-width: 820px) {
+  .radar-home-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    padding-block: 18px;
+  }
+
+  .radar-home-header nav {
+    order: 3;
+    width: 100%;
+    gap: 18px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .radar-home-header nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .radar-live-status {
+    margin-left: auto;
+    max-width: 180px;
+    text-align: right;
+  }
+
+  .radar-home-shell {
+    padding: 42px 0 72px;
+  }
+
+  .radar-home-hero {
+    grid-template-columns: 1fr;
+    gap: 52px;
+    min-height: 0;
+    padding-bottom: 56px;
+  }
+
+  .radar-home-hero h1 {
+    font-size: clamp(54px, 14vw, 88px);
+  }
+
+  .radar-category-sequence {
+    border-top: 1px solid var(--home-line);
+    border-left: 0;
+    padding: 34px 0 0;
+  }
+
+  .radar-home-proof,
+  .radar-home-entry {
+    padding-top: 68px;
+  }
+
+  .radar-home-section-heading,
+  .radar-home-entry > div {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .radar-home-proof-grid {
+    grid-template-columns: 1fr;
+    margin-top: 36px;
+  }
+
+  .radar-home-proof-grid article {
+    min-height: 0;
+    border-top: 1px solid var(--home-line);
+    border-left: 0;
+    padding: 24px 0 28px;
+  }
+
+  .radar-home-proof-grid article:first-child {
+    border-top: 0;
+  }
+
+  .radar-home-proof-grid article > span {
+    margin-bottom: 26px;
+  }
+
+  .radar-home-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .radar-home-header,
+  .radar-home-shell,
+  .radar-home-footer {
+    width: min(100% - 28px, 1180px);
+  }
+
+  .radar-home-header nav a {
+    white-space: nowrap;
+  }
+
+  .radar-home-hero h1 {
+    font-size: clamp(48px, 15.5vw, 72px);
+    letter-spacing: -0.06em;
+    line-height: 0.9;
+  }
+
+  .radar-home-lede {
+    margin-top: 24px;
+    font-size: 14px;
+  }
+
+  .radar-home-actions {
+    display: grid;
+  }
+
+  .radar-home-actions a {
+    width: 100%;
+  }
+
+  .radar-category-sequence li {
+    grid-template-columns: minmax(82px, 0.7fr) minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .radar-home-section-heading h2,
+  .radar-home-entry h2 {
+    font-size: 36px;
+  }
+
+  .radar-home-cards article {
+    min-height: 300px;
+    padding: 24px;
+  }
+
+  .radar-home-footer {
+    display: grid;
+    justify-content: start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .radar-homepage {
+    --home-line: rgba(126, 255, 176, 0.55);
+    --home-muted: #b7c9be;
+  }
+}
