@@ -38,7 +38,7 @@ const RESVG_OPTIONS = {
   }
 };
 
-export function renderOgPng(svg: string) {
-  const renderer = new Resvg(svg, RESVG_OPTIONS);
+export function renderOgPng(svg: string, width = OG_IMAGE_WIDTH) {
+  const renderer = new Resvg(svg, { ...RESVG_OPTIONS, fitTo: { mode: 'width' as const, value: width } });
   return Buffer.from(renderer.render().asPng());
 }

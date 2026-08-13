@@ -143,6 +143,7 @@ export function buildSmokePlan(): SmokePlan {
   return {
     publicPaths: [
       '/',
+      '/solana',
       '/developers',
       '/developers/wallet-safety',
       '/developers/wallet-safety/integrations',
@@ -181,6 +182,11 @@ export function buildSmokePlan(): SmokePlan {
       '/signals/ansem',
       '/signals/black-bull',
       '/signals/troll',
+      '/4663',
+      '/4663/pulse',
+      '/4663/today',
+      '/4663/signals',
+      '/4663/receipts',
       '/openapi.json',
       `/routes/${encodeURIComponent(routeId)}`,
       `/providers/${encodeURIComponent(providerId)}`,
@@ -294,6 +300,13 @@ export function buildSmokePlan(): SmokePlan {
       '/v1/rh-chain/scouts',
       '/v1/rh-chain/distribution-pack',
       '/v1/rh-chain/signals/submissions',
+      '/v1/4663',
+      '/v1/4663/pulse',
+      '/v1/4663/today',
+      '/v1/4663/today/archive',
+      '/v1/4663/signals',
+      '/v1/4663/events',
+      '/v1/4663/receipts',
       '/openapi.json'
     ],
     apiHeadJsonPaths: [

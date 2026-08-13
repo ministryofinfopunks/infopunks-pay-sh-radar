@@ -51,6 +51,7 @@ describe('production smoke plan', () => {
 
     expect(plan.publicPaths).toEqual(expect.arrayContaining([
       '/',
+      '/solana',
       '/developers',
       '/developers/wallet-safety',
       '/developers/wallet-safety/integrations',
@@ -89,6 +90,11 @@ describe('production smoke plan', () => {
       '/signals/ansem',
       '/signals/black-bull',
       '/signals/troll',
+      '/4663',
+      '/4663/pulse',
+      '/4663/today',
+      '/4663/signals',
+      '/4663/receipts',
       '/openapi.json',
       '/routes/route_pay_sh_market_research_01',
       '/providers/provider_pay_sh_lattice',
@@ -195,6 +201,13 @@ describe('production smoke plan', () => {
       '/v1/rh-chain/scouts',
       '/v1/rh-chain/distribution-pack',
       '/v1/rh-chain/signals/submissions',
+      '/v1/4663',
+      '/v1/4663/pulse',
+      '/v1/4663/today',
+      '/v1/4663/today/archive',
+      '/v1/4663/signals',
+      '/v1/4663/events',
+      '/v1/4663/receipts',
       '/openapi.json'
     ]);
     expect(plan.apiHeadJsonPaths).toEqual([

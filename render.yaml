@@ -15,6 +15,20 @@ services:
         sync: false
       - key: RH_CHAIN_REVIEW_ADMIN_TOKEN
         sync: false
+      - key: RH_4663_PHASE2_ENABLED
+        value: "false"
+      - key: RH_4663_RESOLUTION_PRIVATE_KEY
+        sync: false
+      - key: RH_4663_RESOLUTION_KEY_ID
+        value: rh4663-resolution-v1
+      - key: RH_4663_ANCHOR_RPC_URL
+        sync: false
+      - key: RH_4663_ANCHOR_CONTRACT
+        sync: false
+      - key: RH_4663_ANCHOR_PRIVATE_KEY
+        sync: false
+      - key: RH_4663_ANCHOR_CONFIRMATIONS
+        value: "2"
       - key: PAY_SH_TRANSLATION_AUTH_TOKEN
         sync: false
       - key: PAY_SH_TRANSLATION_PAYMENT_VALUE

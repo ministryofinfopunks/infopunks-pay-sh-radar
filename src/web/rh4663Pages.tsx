@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import type { Rh4663CallReceipt, Rh4663RotationOption, Rh4663Signal, Rh4663SignalCategory, Rh4663TodayEdition } from '../services/rh4663Service';
+import type { Rh4663MerkleProof, Rh4663ResolutionReceipt } from '../services/rh4663ResolutionService';
 import './rh4663.css';
 
 const API_BASE_URL = getApiBaseUrl();
@@ -25,8 +26,11 @@ type Overview = {
   signal_hunt: { count: number; signals: Rh4663Signal[] };
   genesis: GenesisData;
 };
-type PulseData = { window: { window_id: string; opens_at: string; closes_at: string }; consensus: { total_calls: number; leading_rotation: Rh4663RotationOption | null; confidence_average: number | null; state: string }; options: Rh4663RotationOption[] };
+type PulseData = { window: { window_id: string; opens_at: string; closes_at: string }; consensus: { total_calls: number; leading_rotation: Rh4663RotationOption | null; confidence_average: number | null; state: string; counts?: Record<Rh4663RotationOption, number>; percentages?: Record<Rh4663RotationOption, number> }; options: Rh4663RotationOption[] };
 type GenesisData = { limit: number; recorded: number; remaining: number; progress: number; policy: string };
+type ReputationEvidence = { window_id: string; call_receipt_id: string; resolution_receipt_id: string | null; called_category: Rh4663RotationOption; resolved_category: Rh4663RotationOption | null; outcome: 'CORRECT' | 'INCORRECT' | 'UNRESOLVED'; confidence: number; genesis_ordinal: number | null };
+type Reputation = { wallet: string; calls: number; resolved_calls: number; correct_calls: number; accuracy: number | null; current_streak: number; genesis_position: number | null; evidence: ReputationEvidence[] };
+type TodayPulse = { current: PulseData['consensus']; prior: { consensus: PulseData['consensus']; resolution: { window_id: string; resolved_category: Rh4663RotationOption; consensus_correct: boolean; resolution_path: string } | null }; precision_notice: string | null };
 
 function useApi<T>(path: string) {
   const [state, setState] = useState<{ data: T | null; status: 'loading' | 'ready' | 'degraded'; message?: string }>({ data: null, status: 'loading' });
@@ -42,16 +46,27 @@ function useApi<T>(path: string) {
   return state;
 }
 
+function useOptionalApi<T>(path: string | null, refresh = 0) {
+  const [state, setState] = useState<{ data: T | null; status: 'idle' | 'loading' | 'ready' | 'degraded' }>({ data: null, status: 'idle' });
+  useEffect(() => {
+    if (!path) { setState({ data: null, status: 'idle' }); return; }
+    const controller = new AbortController(); const timeout = window.setTimeout(() => controller.abort(), 4_000); setState((prior) => ({ ...prior, status: 'loading' }));
+    fetch(toApiUrl(API_BASE_URL, path), { signal: controller.signal, headers: { accept: 'application/json' } }).then(async (response) => { if (!response.ok) throw new Error(); return response.json() as Promise<{ data: T }>; }).then((body) => setState({ data: body.data, status: 'ready' })).catch(() => setState({ data: null, status: 'degraded' })).finally(() => window.clearTimeout(timeout));
+    return () => { window.clearTimeout(timeout); controller.abort(); };
+  }, [path, refresh]); return state;
+}
+
 export function Rh4663Page() {
   const path = window.location.pathname.replace(/\/$/, '') || '/4663';
-  const view = path === '/4663/pulse' ? 'pulse' : path === '/4663/today' ? 'today' : path === '/4663/signals' ? 'signals' : path === '/4663/receipts' ? 'receipts' : 'home';
+  const proofId = path.match(/^\/4663\/proof\/([^/]+)$/)?.[1];
+  const view = proofId ? 'proof' : path === '/4663/pulse' ? 'pulse' : path === '/4663/today' ? 'today' : path === '/4663/signals' ? 'signals' : path === '/4663/receipts' ? 'receipts' : 'home';
   return <div className="i4663-app">
     <header className="i4663-header">
       <a className="i4663-wordmark" href="/4663" aria-label="Infopunks 4663 home"><span>INFOPUNKS</span><b>//4663</b></a>
       <a className="i4663-radar-link" href="/rh-chain-signal-desk">RH DESK ↗</a>
     </header>
     <nav className="i4663-nav" aria-label="4663 navigation">{NAV.map((item) => <a key={item.href} href={item.href} aria-current={(path || '/4663') === item.href ? 'page' : undefined}>{item.label}</a>)}</nav>
-    {view === 'home' ? <Home /> : view === 'pulse' ? <Pulse /> : view === 'today' ? <Today /> : view === 'signals' ? <Signals /> : <Receipts />}
+    {view === 'home' ? <Home /> : view === 'pulse' ? <Pulse /> : view === 'today' ? <Today /> : view === 'signals' ? <Signals /> : view === 'proof' && proofId ? <ProofPage receiptId={decodeURIComponent(proofId)} /> : <Receipts />}
     <footer className="i4663-footer"><span>AFTER ATTENTION, INTELLIGENCE.</span><span>UTC / RH CHAIN / PUBLIC MEMORY</span></footer>
   </div>;
 }
@@ -94,25 +109,29 @@ function Home() {
 
 function Pulse() {
   const api = useApi<PulseData>('/v1/4663/pulse');
+  const [wallet, setWallet] = useState<string | null>(null); const [reputationRefresh, setReputationRefresh] = useState(0);
+  const reputation = useOptionalApi<Reputation>(wallet ? `/v1/4663/pulse/reputation/${encodeURIComponent(wallet)}` : null, reputationRefresh);
   const [rotation, setRotation] = useState<Rh4663RotationOption>('MEMES'); const [confidence, setConfidence] = useState(70); const [digest, setDigest] = useState('');
   const [result, setResult] = useState<{ state: 'idle' | 'working' | 'success' | 'error'; message?: string; receipt?: Rh4663CallReceipt }>({ state: 'idle' });
+  useEffect(() => { const ethereum = (window as Window & { ethereum?: { request(args: { method: string }): Promise<unknown> } }).ethereum; if (!ethereum) return; void ethereum.request({ method: 'eth_accounts' }).then((accounts) => { const walletAddress = Array.isArray(accounts) && typeof accounts[0] === 'string' ? accounts[0] : null; setWallet(walletAddress); }).catch(() => undefined); }, []);
   async function makeCall() {
     setResult({ state: 'working', message: 'Requesting wallet signature…' });
     try {
       const ethereum = (window as Window & { ethereum?: { request(args: { method: string; params?: unknown[] }): Promise<unknown> } }).ethereum;
       if (!ethereum) throw new Error('No EVM wallet found. Open 4663 in a wallet-enabled browser.');
-      const accounts = await ethereum.request({ method: 'eth_requestAccounts' }) as string[]; const wallet = accounts[0]; if (!wallet) throw new Error('Wallet access was not granted.');
-      const payloadResponse = await fetch(toApiUrl(API_BASE_URL, '/v1/4663/pulse/payload'), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ wallet, rotation, confidence, evidence_digest: digest || null, window_id: api.data?.window.window_id }) });
+      const accounts = await ethereum.request({ method: 'eth_requestAccounts' }) as string[]; const connectedWallet = accounts[0]; if (!connectedWallet) throw new Error('Wallet access was not granted.'); setWallet(connectedWallet);
+      const payloadResponse = await fetch(toApiUrl(API_BASE_URL, '/v1/4663/pulse/payload'), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ wallet: connectedWallet, rotation, confidence, evidence_digest: digest || null, window_id: api.data?.window.window_id }) });
       const payloadBody = await payloadResponse.json() as { data?: { canonical_serialization: string }; error?: string }; if (!payloadResponse.ok || !payloadBody.data) throw new Error(readableError(payloadBody.error));
-      const signature = await ethereum.request({ method: 'personal_sign', params: [payloadBody.data.canonical_serialization, wallet] });
-      const callResponse = await fetch(toApiUrl(API_BASE_URL, '/v1/4663/pulse/calls'), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ wallet, rotation, confidence, evidence_digest: digest || null, window_id: api.data?.window.window_id, signature }) });
+      const signature = await ethereum.request({ method: 'personal_sign', params: [payloadBody.data.canonical_serialization, connectedWallet] });
+      const callResponse = await fetch(toApiUrl(API_BASE_URL, '/v1/4663/pulse/calls'), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ wallet: connectedWallet, rotation, confidence, evidence_digest: digest || null, window_id: api.data?.window.window_id, signature }) });
       const callBody = await callResponse.json() as { data?: Rh4663CallReceipt; error?: string }; if (!callResponse.ok || !callBody.data) throw new Error(readableError(callBody.error));
-      setResult({ state: 'success', message: 'Call recorded. The receipt will not change.', receipt: callBody.data });
+      setResult({ state: 'success', message: 'Call recorded. The receipt will not change.', receipt: callBody.data }); setReputationRefresh((value) => value + 1);
     } catch (error) { setResult({ state: 'error', message: error instanceof Error ? error.message : 'Call could not be recorded.' }); }
   }
   return <main className="i4663-main i4663-subpage">
     <PageHead index="01" title="RH PULSE" lede="CALL THE ROTATION." />
     <DataState status={api.status} message={api.message} />
+    {reputation.data && <PulseMemory reputation={reputation.data} currentWindowId={api.data?.window.window_id} />}
     <div className="i4663-window"><span>WINDOW</span><strong>{api.data?.window.window_id ?? 'UTC DAILY'}</strong><time>{api.data ? `${machineTime(api.data.window.opens_at)} → ${machineTime(api.data.window.closes_at)}` : 'FIXED UTC BOUNDARY'}</time></div>
     <section className="i4663-pulse-grid" aria-label="Rotation options">{ROTATIONS.map((item) => <button type="button" key={item.value} aria-pressed={rotation === item.value} onClick={() => setRotation(item.value)}><i />{item.label}</button>)}</section>
     <label className="i4663-range"><span>CONFIDENCE <b>{confidence}</b></span><input aria-label="Confidence" type="range" min="1" max="100" value={confidence} onChange={(event) => setConfidence(Number(event.target.value))} /></label>
@@ -124,8 +143,22 @@ function Pulse() {
   </main>;
 }
 
+function PulseMemory({ reputation, currentWindowId }: { reputation: Reputation; currentWindowId?: string }) {
+  const current = reputation.evidence.find((item) => item.window_id === currentWindowId); const latestResolved = reputation.evidence.find((item) => item.outcome !== 'UNRESOLVED');
+  return <section className="i4663-memory" aria-label="Your Pulse history">
+    {current?.outcome === 'UNRESOLVED' && <article className="i4663-current-call"><p className="i4663-micro">YOUR CALL</p><h2>{labelRotation(current.called_category)}</h2><strong>{current.confidence}%</strong><div><span>STATUS</span><b>OBSERVATION WINDOW</b></div><code>{current.call_receipt_id}</code><a href={`/4663/proof/${encodeURIComponent(current.call_receipt_id)}`}>VIEW RECEIPT →</a></article>}
+    {latestResolved && <ResolvedResult result={latestResolved} reputation={reputation} />}
+  </section>;
+}
+
+function ResolvedResult({ result, reputation }: { result: ReputationEvidence; reputation: Reputation }) {
+  const [shared, setShared] = useState(false); const proofPath = `/4663/proof/${encodeURIComponent(result.call_receipt_id)}`;
+  async function share() { const url = new URL(proofPath, window.location.origin).toString(); const text = result.outcome === 'CORRECT' ? `Called it: ${labelRotation(result.called_category)} on Pulse //4663.` : `My Pulse //4663 call resolved: ${labelRotation(result.called_category)} → ${labelRotation(result.resolved_category)}.`; try { if (navigator.share) await navigator.share({ title: 'Pulse //4663', text, url }); else await navigator.clipboard.writeText(`${text} ${url}`); setShared(true); } catch { /* A cancelled native share leaves the result unchanged. */ } }
+  return <article className={`i4663-resolved is-${result.outcome.toLowerCase()}`}><p className="i4663-micro">RESOLVED</p><div className="i4663-call-actual"><span><small>YOUR CALL</small><b>{labelRotation(result.called_category)}</b></span><i>→</i><span><small>ACTUAL</small><b>{labelRotation(result.resolved_category)}</b></span></div><h2>{result.outcome === 'CORRECT' ? 'CORRECT ✓' : 'MISSED'}</h2><section className="i4663-record"><div><small>YOUR RECORD</small><strong>{reputation.correct_calls} / {reputation.resolved_calls}</strong><span>{reputation.accuracy === null ? '—' : `${(reputation.accuracy * 100).toFixed(1)}%`}</span></div><div><small>CURRENT STREAK</small><strong>{reputation.current_streak}</strong></div>{reputation.genesis_position && <div><small>GENESIS</small><strong>#{String(reputation.genesis_position).padStart(4, '0')}</strong></div>}</section><button className="i4663-primary-action" type="button" onClick={share}>{shared ? 'LINK COPIED' : 'SHARE RESULT'} <span>↗</span></button><a className="i4663-secondary-action" href={proofPath}>INSPECT PROOF</a><a className="i4663-next-call" href="/4663/pulse">CALL TODAY <span>→</span></a></article>;
+}
+
 function Today() {
-  const api = useApi<Rh4663TodayEdition>('/v1/4663/today'); const edition = api.data;
+  const api = useApi<Rh4663TodayEdition & { rh_pulse?: TodayPulse | null }>('/v1/4663/today'); const edition = api.data;
   return <main className="i4663-main i4663-subpage">
     <PageHead index="02" title="TODAY ON 4663" lede={edition?.date ?? 'DAILY INTELLIGENCE'} />
     <DataState status={api.status} message={api.message} />
@@ -134,10 +167,18 @@ function Today() {
       <section className="i4663-key-signal"><p className="i4663-micro">KEY SIGNAL / CONFIDENCE {edition.confidence}</p><h2>{edition.key_signal}</h2><p>{edition.data_notice}</p></section>
       <section className="i4663-flow-list"><h2>CATEGORY FLOW</h2>{edition.category_flows.length ? edition.category_flows.map((flow) => <article key={`${flow.category}:${flow.summary}`}><span>{flow.category.replaceAll('_', ' ').toUpperCase()}</span><strong>{flow.summary}</strong><b>{flow.confidence}</b></article>) : <Empty text="Category flow unavailable. No live data has been inferred." />}</section>
       <section className="i4663-event-list"><h2>TOP EVENTS</h2>{edition.top_events.length ? edition.top_events.map((event) => <article key={event.event_id}><div><span>{event.category.toUpperCase()}</span><time>{machineTime(event.detected_at)}</time></div><strong>{event.title}</strong><p>{event.source_status.toUpperCase()} / SIGNIFICANCE {event.significance_score}</p></article>) : <Empty text="No normalized public events were recorded for this edition." />}</section>
+      {edition.rh_pulse && <TodayPulseBlock pulse={edition.rh_pulse} />}
       <section className="i4663-evidence"><h2>EVIDENCE REFERENCES</h2>{edition.evidence_references.map((reference) => <a key={reference.reference_id} href={reference.href}><span>{reference.reference_type.replaceAll('_', ' ').toUpperCase()}</span><strong>{reference.label}</strong><code>{reference.source_status.toUpperCase()} · {machineTime(reference.observed_at)}</code></a>)}</section>
       <a className="i4663-text-link" href="/v1/4663/today/archive">OPEN EDITION ARCHIVE →</a>
     </>}
   </main>;
+}
+
+function TodayPulseBlock({ pulse }: { pulse: TodayPulse }) { const options = ROTATIONS.map((item) => item.value); return <section className="i4663-today-pulse"><p className="i4663-micro">RH PULSE</p><h2>{pulse.current.total_calls.toLocaleString()} CALLS</h2><div>{options.map((option) => <p key={option}><span>{labelRotation(option)}</span><b>{pulse.current.counts?.[option] ?? 0}</b><strong>{pulse.current.percentages?.[option] ?? 0}%</strong></p>)}</div><small>{pulse.precision_notice}</small><article><span>CONSENSUS</span><strong>{labelRotation(pulse.current.leading_rotation) || 'NO CALLS YET'}</strong></article>{pulse.prior.resolution && <article><span>YESTERDAY / PULSE CALLED</span><strong>{labelRotation(pulse.prior.consensus.leading_rotation) || 'NO CONSENSUS'}</strong><span>ACTUAL</span><strong>{labelRotation(pulse.prior.resolution.resolved_category)} {pulse.prior.resolution.consensus_correct ? '✓' : ''}</strong><a href={pulse.prior.resolution.resolution_path}>OPEN RESOLUTION →</a></article>}</section>; }
+
+function ProofPage({ receiptId }: { receiptId: string }) {
+  const call = useApi<Rh4663CallReceipt | Rh4663ResolutionReceipt>(`/v1/4663/receipts/${encodeURIComponent(receiptId)}`); const proof = useOptionalApi<Rh4663MerkleProof>(`/v1/4663/pulse/receipts/${encodeURIComponent(receiptId)}/proof`);
+  return <main className="i4663-main i4663-subpage"><PageHead index="05" title="PROOF" lede="CANONICAL PUBLIC MEMORY." /><DataState status={call.status} message={call.message} />{call.data && <section className="i4663-proof"><p className="i4663-micro">{call.data.protocol_receipt_type} RECEIPT</p><h2>{call.data.receipt_id}</h2><dl><div><dt>IMMUTABLE</dt><dd>TRUE</dd></div><div><dt>WINDOW</dt><dd>{call.data.window_id}</dd></div><div><dt>PAYLOAD HASH</dt><dd>{call.data.payload_hash}</dd></div>{call.data.protocol_receipt_type === 'CALL' && <><div><dt>CALLED</dt><dd>{labelRotation(call.data.rotation)}</dd></div><div><dt>SIGNATURE</dt><dd>VERIFIED</dd></div></>}{call.data.protocol_receipt_type === 'RESOLUTION' && <><div><dt>ACTUAL</dt><dd>{labelRotation(call.data.resolved_category)}</dd></div><div><dt>RESULT</dt><dd>{call.data.outcome}</dd></div><div><dt>CALL RECEIPT</dt><dd><a href={`/4663/proof/${encodeURIComponent(call.data.call_receipt_id)}`}>{call.data.call_receipt_id}</a></dd></div></>}</dl>{proof.data && <div className="i4663-merkle"><span>WINDOW ACCEPTANCE</span><strong>{proof.data.verified ? 'INCLUSION VERIFIED ✓' : 'PROOF INVALID'}</strong><code>{proof.data.acceptance_root}</code><small>ANCHOR / {proof.data.anchor.state.toUpperCase()}</small></div>}<a className="i4663-next-call" href="/4663/pulse">CALL TODAY <span>→</span></a></section>}</main>;
 }
 
 function Signals() {

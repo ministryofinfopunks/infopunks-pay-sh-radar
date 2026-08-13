@@ -12,6 +12,10 @@ Apply, in this exact order, through the normal staging/production migration job:
 4. `20260719_004_rh_chain_attention_quality_receipts.up.sql`
 5. `20260719_005_rh_chain_project_claims.up.sql`
 6. `20260720_006_rh_chain_reviewer_workflow.up.sql`
+7. `20260813_007_infopunks_4663_phase1.up.sql`
+8. `20260813_008_infopunks_4663_close_the_loop.up.sql`
+
+The //4663 migrations have protocol-history rollback guards. Follow `docs/infopunks-4663-close-the-loop-rollout.md`; never use a destructive rollback once real CALL, Genesis, RESOLUTION, or anchor history exists.
 
 Verify without applying anything:
 

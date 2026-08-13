@@ -16,7 +16,7 @@ describe('RH Chain production readiness', () => {
     const ledger = await inspectRhChainMigrationLedger(null);
     expect(ledger.database_reachable).toBe(false);
     expect(ledger.migration_runner).toBe('external_only');
-    expect(ledger.pending_migrations).toEqual(['20260719_001', '20260719_002', '20260719_003', '20260719_004', '20260719_005', '20260720_006', '20260813_007']);
+    expect(ledger.pending_migrations).toEqual(['20260719_001', '20260719_002', '20260719_003', '20260719_004', '20260719_005', '20260720_006', '20260813_007', '20260813_008']);
   });
 
   it('builds a provider-free readiness result from schema signatures', async () => {

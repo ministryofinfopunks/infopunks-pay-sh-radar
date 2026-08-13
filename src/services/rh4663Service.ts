@@ -1,11 +1,20 @@
 import { createHash, randomUUID } from 'node:crypto';
 import type pg from 'pg';
 import { z } from 'zod';
-import { resolvePostgresPool, RetryablePostgresSchema, type PostgresPoolSource } from '../persistence/retryablePostgresSchema';
+import { resolvePostgresPool, type PostgresPoolSource } from '../persistence/retryablePostgresSchema';
 
 export const RH_4663_PROTOCOL_VERSION = 'infopunks.rh-pulse.call.v1' as const;
 export const RH_4663_GENESIS_LIMIT = 4_663;
 export const RH_4663_PULSE_WINDOW_MS = 24 * 60 * 60 * 1_000;
+export const RH_4663_GENESIS_POLICY = {
+  version: 'infopunks.rh-pulse.genesis-eligibility.v1',
+  scope: 'global_distinct_wallet',
+  qualifying_receipt: 'verified_signed_call_receipt',
+  ordinal_order: 'first_committed_wallet',
+  maximum_positions: RH_4663_GENESIS_LIMIT,
+  repeat_wallet_positions: 0,
+  economic_entitlement: false
+} as const;
 export type Hex = `0x${string}`;
 
 export const Rh4663RotationOptionSchema = z.enum([
@@ -169,6 +178,7 @@ export type Rh4663TodayEdition = {
   storage_status: 'durable' | 'memory' | 'unavailable';
   archive_path: string;
   data_notice: string;
+  rh_pulse?: unknown;
 };
 
 type Rh4663CallReceiptDraft = Omit<Rh4663CallReceipt, 'genesis_eligible' | 'genesis_ordinal'>;
@@ -179,6 +189,7 @@ export interface Rh4663Store {
   createCall(receipt: Rh4663CallReceiptDraft): Promise<Rh4663CallReceipt>;
   getCall(receiptId: string): Promise<Rh4663CallReceipt | null>;
   listCalls(windowId?: string, limit?: number): Promise<Rh4663CallReceipt[]>;
+  listCallsByWallet(wallet: string, limit?: number): Promise<Rh4663CallReceipt[]>;
   genesisCount(): Promise<number>;
   appendEvent(event: Rh4663NormalizedEvent): Promise<void>;
   listEvents(limit?: number, date?: string): Promise<Rh4663NormalizedEvent[]>;
@@ -209,7 +220,7 @@ export function getRh4663PulseWindow(now: Date = new Date()): Rh4663PulseWindow 
 }
 
 export function serializeRh4663CallPayload(payload: Rh4663CanonicalCallPayload): string {
-  return JSON.stringify({
+  return serializeRh4663Canonical({
     version: payload.version,
     wallet: payload.wallet.toLowerCase(),
     window_id: payload.window_id,
@@ -220,6 +231,11 @@ export function serializeRh4663CallPayload(payload: Rh4663CanonicalCallPayload):
     evidence_digest: payload.evidence_digest?.toLowerCase() ?? null
   });
 }
+
+/** The single deterministic JSON/hash primitive shared by all 4663 protocol receipts. */
+export function serializeRh4663Canonical(value: unknown): string { return JSON.stringify(value); }
+export function hashRh4663Canonical(serialization: string): Hex { return `0x${createHash('sha256').update(serialization).digest('hex')}`; }
+export const RH_4663_GENESIS_POLICY_HASH = hashRh4663Canonical(serializeRh4663Canonical(RH_4663_GENESIS_POLICY));
 
 export function buildRh4663CallPayload(input: z.infer<typeof Rh4663PulsePayloadInputSchema>, now: Date = new Date()): { payload: Rh4663CanonicalCallPayload; canonical_serialization: string; payload_hash: Hex } {
   const parsed = Rh4663PulsePayloadInputSchema.parse(input);
@@ -236,7 +252,7 @@ export function buildRh4663CallPayload(input: z.infer<typeof Rh4663PulsePayloadI
     evidence_digest: parsed.evidence_digest?.toLowerCase() ?? null
   };
   const canonical_serialization = serializeRh4663CallPayload(payload);
-  return { payload, canonical_serialization, payload_hash: `0x${createHash('sha256').update(canonical_serialization).digest('hex')}` };
+  return { payload, canonical_serialization, payload_hash: hashRh4663Canonical(canonical_serialization) };
 }
 
 const pulseOptionOrder = Rh4663RotationOptionSchema.options;
@@ -275,6 +291,7 @@ export class InMemoryRh4663Store implements Rh4663Store {
   }
   async getCall(id: string) { const value = this.calls.get(id); return value ? structuredClone(value) : null; }
   async listCalls(windowId?: string, limit = 100) { return [...this.calls.values()].filter((item) => !windowId || item.window_id === windowId).sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, limit).map((item) => structuredClone(item)); }
+  async listCallsByWallet(wallet: string, limit = 1_000) { return [...this.calls.values()].filter((item) => item.wallet.toLowerCase() === wallet.toLowerCase()).sort((a, b) => b.canonical_payload.window_opens_at.localeCompare(a.canonical_payload.window_opens_at)).slice(0, limit).map((item) => structuredClone(item)); }
   async genesisCount() { return this.genesis.size; }
   async appendEvent(event: Rh4663NormalizedEvent) { if (!this.events.has(event.event_id)) this.events.set(event.event_id, structuredClone(event)); }
   async listEvents(limit = 100, date?: string) { return [...this.events.values()].filter((item) => !date || item.detected_at.slice(0, 10) === date).sort((a, b) => b.detected_at.localeCompare(a.detected_at)).slice(0, limit).map((item) => structuredClone(item)); }
@@ -292,9 +309,8 @@ export class PostgresRh4663Store implements Rh4663Store {
   readonly durable = true;
   private readonly pool: pg.Pool;
   private readonly ownsPool: boolean;
-  private readonly schema = new RetryablePostgresSchema('rh_4663_store');
   constructor(source: PostgresPoolSource) { const resolved = resolvePostgresPool(source); this.pool = resolved.pool; this.ownsPool = resolved.ownsPool; }
-  private ready() { return this.schema.ensure(this.pool, RH_4663_SCHEMA_SQL); }
+  private async ready() { const result = await this.pool.query<{ missing: string | null }>(`select string_agg(name, ',') as missing from unnest(array['rh_4663_genesis_wallets','rh_4663_pulse_calls','rh_4663_events','rh_4663_today_editions','rh_4663_signals']) name where to_regclass(name) is null`); if (result.rows[0]?.missing) throw new Rh4663ServiceError('phase1_migration_not_applied', 503); }
   async createCall(draft: Rh4663CallReceiptDraft) {
     await this.ready(); const client = await this.pool.connect();
     try {
@@ -318,6 +334,7 @@ export class PostgresRh4663Store implements Rh4663Store {
   }
   async getCall(id: string) { await this.ready(); const result = await this.pool.query<{ payload: Rh4663CallReceipt }>('select payload from rh_4663_pulse_calls where receipt_id=$1', [id]); return result.rows[0]?.payload ?? null; }
   async listCalls(windowId?: string, limit = 100) { await this.ready(); const result = windowId ? await this.pool.query<{ payload: Rh4663CallReceipt }>('select payload from rh_4663_pulse_calls where window_id=$1 order by created_at desc limit $2', [windowId, limit]) : await this.pool.query<{ payload: Rh4663CallReceipt }>('select payload from rh_4663_pulse_calls order by created_at desc limit $1', [limit]); return result.rows.map((row) => row.payload); }
+  async listCallsByWallet(wallet: string, limit = 1_000) { await this.ready(); const result = await this.pool.query<{ payload: Rh4663CallReceipt }>('select payload from rh_4663_pulse_calls where lower(wallet)=lower($1) order by window_id desc limit $2', [wallet, limit]); return result.rows.map((row) => row.payload); }
   async genesisCount() { await this.ready(); const result = await this.pool.query<{ count: string }>('select count(*)::text as count from rh_4663_genesis_wallets'); return Number(result.rows[0]?.count ?? 0); }
   async appendEvent(event: Rh4663NormalizedEvent) { await this.ready(); await this.pool.query('insert into rh_4663_events (event_id, detected_at, category, publication_state, payload) values ($1,$2,$3,$4,$5::jsonb) on conflict (event_id) do nothing', [event.event_id, event.detected_at, event.category, event.publication_state, JSON.stringify(event)]); }
   async listEvents(limit = 100, date?: string) { await this.ready(); const result = date ? await this.pool.query<{ payload: Rh4663NormalizedEvent }>("select payload from rh_4663_events where detected_at >= $1::date and detected_at < ($1::date + interval '1 day') order by detected_at desc limit $2", [date, limit]) : await this.pool.query<{ payload: Rh4663NormalizedEvent }>('select payload from rh_4663_events order by detected_at desc limit $1', [limit]); return result.rows.map((row) => row.payload); }
@@ -364,7 +381,7 @@ export class Rh4663Service {
     return receipt;
   }
 
-  async pulse() { const window = this.pulseWindow(); const calls = await this.store.listCalls(window.window_id, 10_000); return { window, consensus: resolveRh4663Consensus(calls, window.window_id), options: pulseOptionOrder, mechanics: { version: RH_4663_PROTOCOL_VERSION, one_call_per_wallet_per_window: true, signature_required: true, immutable_call_receipts: true, genesis_limit: RH_4663_GENESIS_LIMIT } }; }
+  async pulse() { const window = this.pulseWindow(); const calls = await this.store.listCalls(window.window_id, 10_000); return { window, consensus: resolveRh4663Consensus(calls, window.window_id), options: pulseOptionOrder, mechanics: { version: RH_4663_PROTOCOL_VERSION, one_call_per_wallet_per_window: true, signature_required: true, immutable_call_receipts: true, genesis_limit: RH_4663_GENESIS_LIMIT, genesis_policy_version: RH_4663_GENESIS_POLICY.version, genesis_policy_hash: RH_4663_GENESIS_POLICY_HASH, genesis_scope: RH_4663_GENESIS_POLICY.scope, genesis_economic_entitlement: false } }; }
   async genesis() { const count = await this.store.genesisCount(); return { limit: RH_4663_GENESIS_LIMIT, recorded: Math.min(count, RH_4663_GENESIS_LIMIT), remaining: Math.max(0, RH_4663_GENESIS_LIMIT - count), progress: Number((Math.min(count, RH_4663_GENESIS_LIMIT) / RH_4663_GENESIS_LIMIT).toFixed(4)), policy: 'The first 4,663 distinct wallets with a verified signed Call Receipt receive a permanent Genesis ordinal. No token, reward, or financial entitlement is implied.' }; }
 
   async submitSignal(input: unknown) {
@@ -441,14 +458,3 @@ function eventTitle(event: Rh4663NormalizedEvent) { return event.subjects[0]?.la
 function dedupeEvidence(evidence: Rh4663EvidenceReference[]) { const seen = new Set<string>(); return evidence.filter((item) => { const key = `${item.reference_type}:${item.reference_id}`; if (seen.has(key)) return false; seen.add(key); return true; }).slice(0, 40); }
 function postgresCode(error: unknown) { return error && typeof error === 'object' && 'code' in error ? String((error as { code?: unknown }).code ?? '') : ''; }
 function isEvmAddress(value: string) { return /^0x[0-9a-fA-F]{40}$/.test(value.trim()); }
-
-const RH_4663_SCHEMA_SQL = `
-create table if not exists rh_4663_genesis_wallets (wallet text primary key, ordinal integer not null unique check (ordinal between 1 and 4663), created_at timestamptz not null);
-create table if not exists rh_4663_pulse_calls (receipt_id text primary key, wallet text not null, window_id text not null, created_at timestamptz not null, payload jsonb not null, unique (wallet, window_id));
-create table if not exists rh_4663_events (event_id text primary key, detected_at timestamptz not null, category text not null, publication_state text not null, payload jsonb not null);
-create table if not exists rh_4663_today_editions (edition_id text primary key, edition_date date not null unique, generated_at timestamptz not null, payload jsonb not null);
-create table if not exists rh_4663_signals (signal_id text primary key, lifecycle_state text not null, original_submitter text not null, submitted_at timestamptz not null, updated_at timestamptz not null, payload jsonb not null);
-create index if not exists rh_4663_pulse_calls_window_idx on rh_4663_pulse_calls (window_id, created_at desc);
-create index if not exists rh_4663_events_detected_idx on rh_4663_events (detected_at desc);
-create index if not exists rh_4663_signals_updated_idx on rh_4663_signals (updated_at desc);
-`;
