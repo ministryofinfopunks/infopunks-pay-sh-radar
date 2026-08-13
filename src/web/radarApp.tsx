@@ -60,6 +60,7 @@ const LazyRhChainMarketPulsePage = lazy(() => import('./rhChainMarketPulsePage')
 const LazyRhChainDiscoveryQueuePage = lazy(() => import('./rhChainDiscoveryQueuePage').then((module) => ({ default: module.RhChainDiscoveryQueuePage })));
 const LazyRhChainReviewPipelinePage = lazy(() => import('./rhChainReviewPipelinePage').then((module) => ({ default: module.RhChainReviewPipelinePage })));
 const LazyRhChainProjectClaimsPage = lazy(() => import('./rhChainProjectClaimsPage').then((module) => ({ default: module.RhChainProjectClaimsPage })));
+const LazyRh4663Page = lazy(() => import('./rh4663Pages').then((module) => ({ default: module.Rh4663Page })));
 
 function UniversalRadarHomepageHero() {
   return <section className="panel radar-universal-hero" aria-labelledby="radar-home-title">
@@ -14390,6 +14391,7 @@ function SignalGraphPage() {
 
 export function App() {
   if (/^\/solana\/?$/.test(window.location.pathname)) return <RadarApp landingContext="solana" />;
+  if (/^\/4663(?:\/(?:pulse|today|signals|receipts))?\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRh4663Page /></LazyRhChainFeature>;
   if (isRadarCardIndexRoute(window.location.pathname)) return <PreflightCardIndexPage />;
   const radarCard = routeRadarCard(window.location.pathname);
   if (radarCard) return <RadarPreflightCardPage type={radarCard.type} id={radarCard.id} />;

@@ -49,6 +49,16 @@ function buildMetadata(title: string, description: string, canonicalPath: string
 }
 
 export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata | null {
+  const rh4663Route = pathname.match(/^\/4663(?:\/(pulse|today|signals|receipts))?\/?$/);
+  if (rh4663Route) {
+    const section = rh4663Route[1];
+    const titles: Record<string, string> = { pulse: 'RH Pulse', today: 'Today on 4663', signals: '4663 Signal Hunt', receipts: '4663 Receipts' };
+    return buildMetadata(
+      `${section ? titles[section] : 'Infopunks // 4663'} | Infopunks Radar`,
+      section === 'pulse' ? 'Make one signed rotation call per fixed UTC window and preserve it as an immutable protocol receipt.' : section === 'today' ? 'The durable daily Robinhood Chain intelligence edition, with cited evidence and explicit provider state.' : section === 'signals' ? 'Submit early Robinhood Chain signals with permanent original attribution.' : section === 'receipts' ? 'Public 4663 protocol receipts, clearly separated from signal cards and evidence observations.' : 'The canonical mobile-first Infopunks operating surface for Robinhood Chain flow, signals, receipts, and Genesis provenance.',
+      section ? `/4663/${section}` : '/4663'
+    );
+  }
   if (/^\/rh-chain-signal-desk\/market-structure\/attention-quality\/?$/.test(pathname)) {
     return buildMetadata(
       'Robinhood Chain Attention Quality | Infopunks Radar',
