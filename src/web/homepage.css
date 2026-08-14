@@ -437,6 +437,17 @@ html {
   margin-top: auto;
 }
 
+.radar-home-cards a.radar-home-card-secondary {
+  min-height: 44px;
+  justify-content: flex-start;
+  margin-top: 4px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--home-muted);
+  font-weight: 600;
+}
+
 .radar-home-footer {
   display: flex;
   flex-wrap: wrap;

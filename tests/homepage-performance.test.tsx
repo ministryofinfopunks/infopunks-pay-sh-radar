@@ -82,7 +82,12 @@ describe('universal homepage performance boundary', () => {
     expect(rhCard?.textContent).toContain('Robinhood Chain');
     expect(rhCard?.querySelector('h3')?.textContent).toBe('//4663');
     expect(rhCard?.querySelector('span')?.textContent).toBe('Pulse · Today · Signals · Receipts · Market memory');
-    expect(rhCard?.querySelector('a[href="/4663"]')?.textContent).toContain('Enter //4663');
+    const primaryRhLink = rhCard?.querySelector('a[href="/4663"]');
+    const signalDeskLink = rhCard?.querySelector('a[href="/rh-chain-signal-desk"]');
+    expect(primaryRhLink?.textContent).toContain('Enter //4663');
+    expect(primaryRhLink?.classList.contains('radar-home-card-secondary')).toBe(false);
+    expect(signalDeskLink?.textContent).toContain('Signal Desk');
+    expect(signalDeskLink?.classList.contains('radar-home-card-secondary')).toBe(true);
 
     expect(container.textContent).toContain('After attention,intelligence.');
     expect(container.textContent).toContain('Intelligence before the wallet acts.');
