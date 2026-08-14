@@ -110,6 +110,10 @@ html {
 }
 
 .radar-home-header nav a {
+  display: inline-flex;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
   padding-block: 10px;
   color: #b7c9be;
   font-size: 12px;

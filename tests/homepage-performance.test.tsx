@@ -32,7 +32,7 @@ describe('universal homepage performance boundary', () => {
 
     expect(container.textContent).toContain('Intelligence before the wallet acts.');
     expect(container.textContent).toContain('Open Solana Radar');
-    expect(container.textContent).toContain('Enter RH Chain Desk');
+    expect(container.textContent).toContain('Enter //4663');
     expect(container.querySelector('[role="status"]')?.textContent).toContain('Live status connecting');
     expect(performance.getEntriesByName('radar_homepage_rendered')).toHaveLength(1);
     expect(performance.getEntriesByName('radar_live_status_started')).toHaveLength(1);
@@ -57,5 +57,37 @@ describe('universal homepage performance boundary', () => {
     expect(source).not.toContain('preSpendBuilderPages');
     expect(source).not.toContain('rhChainUi');
     expect(source).not.toContain('providerRisk');
+  });
+
+  it('preserves mobile navigation touch targets without adding homepage overflow behavior', async () => {
+    const css = await readFile(join(process.cwd(), 'src/web/homepage.css'), 'utf8');
+    expect(css).toMatch(/\.radar-home-header nav a \{[^}]*min-width: 44px;[^}]*min-height: 44px;/s);
+    expect(css).toContain('width: min(100% - 28px, 1180px);');
+    expect(css).toContain('grid-template-columns: 1fr;');
+  });
+
+  it('connects Robinhood Chain to //4663 without changing the existing homepage navigation', async () => {
+    vi.spyOn(globalThis, 'fetch').mockReturnValue(new Promise(() => {}));
+    await act(async () => {
+      root = createRoot(container);
+      root.render(<UniversalHomepage />);
+    });
+
+    const primaryNav = container.querySelector('nav[aria-label="Primary navigation"]');
+    expect(primaryNav?.querySelector('a[href="/solana"]')?.textContent).toBe('Solana');
+    expect(primaryNav?.querySelector('a[href="/4663"]')?.textContent).toBe('//4663');
+    expect(primaryNav?.querySelector('a[href="/radar/cards"]')?.textContent).toBe('Pre-Spend Intelligence');
+
+    const rhCard = container.querySelector('.radar-home-cards article.rh');
+    expect(rhCard?.textContent).toContain('Robinhood Chain');
+    expect(rhCard?.querySelector('h3')?.textContent).toBe('//4663');
+    expect(rhCard?.querySelector('span')?.textContent).toBe('Pulse · Today · Signals · Receipts · Market memory');
+    expect(rhCard?.querySelector('a[href="/4663"]')?.textContent).toContain('Enter //4663');
+
+    expect(container.textContent).toContain('After attention,intelligence.');
+    expect(container.textContent).toContain('Intelligence before the wallet acts.');
+    expect(container.textContent).toContain('Culture → intelligence → infrastructure.');
+    expect(container.textContent).toContain('One Radar. Two economies.');
+    expect(container.querySelector('.radar-home-cards a[href="/solana"]')?.textContent).toContain('Open Solana Radar');
   });
 });

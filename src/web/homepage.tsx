@@ -43,7 +43,7 @@ export function UniversalHomepage() {
       <a className="radar-home-brand" href="/" aria-label="Infopunks Radar home"><span>Infopunks</span><strong>Radar</strong></a>
       <nav aria-label="Primary navigation">
         <a href="/solana">Solana</a>
-        <a href="/rh-chain-signal-desk">RH Chain</a>
+        <a href="/4663">//4663</a>
         <a href="/radar/cards">Pre-Spend Intelligence</a>
       </nav>
       <p className={`radar-live-status ${status}`} role="status" aria-live="polite">
@@ -90,7 +90,7 @@ export function UniversalHomepage() {
         <div><p>Choose an intelligence surface</p><h2 id="radar-home-entry-title">One Radar. Two economies.</h2></div>
         <div className="radar-home-cards">
           <article><p>Solana Radar</p><h3>Pre-Spend Intelligence</h3><span>Routes · Providers · Receipts · Machine-market evidence</span><a href="/solana">Open Solana Radar <b aria-hidden="true">→</b></a></article>
-          <article className="rh"><p>Robinhood Chain</p><h3>Signal Desk</h3><span>Attention Market Watch · Signal Graph · LoopLab · Claims</span><a href="/rh-chain-signal-desk">Enter RH Chain Desk <b aria-hidden="true">→</b></a></article>
+          <article className="rh"><p>Robinhood Chain</p><h3>//4663</h3><span>Pulse · Today · Signals · Receipts · Market memory</span><a href="/4663">Enter //4663 <b aria-hidden="true">→</b></a></article>
         </div>
       </section>
     </main>
