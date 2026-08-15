@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import type { Rh4663CallReceipt, Rh4663RotationOption, Rh4663Signal, Rh4663SignalCategory, Rh4663TodayEdition } from '../services/rh4663Service';
 import type { Rh4663MerkleProof, Rh4663ResolutionReceipt } from '../services/rh4663ResolutionService';
+import type { Published4663Signal } from '../services/rh4663IntelligenceService';
 import './rh4663.css';
 
 const API_BASE_URL = getApiBaseUrl();
@@ -24,6 +25,7 @@ type Overview = {
   pulse: PulseData;
   today: Rh4663TodayEdition;
   signal_hunt: { count: number; signals: Rh4663Signal[] };
+  live_signals?: { count: number; signals: Published4663Signal[] };
   genesis: GenesisData;
 };
 type PulseData = { window: { window_id: string; opens_at: string; closes_at: string }; consensus: { total_calls: number; leading_rotation: Rh4663RotationOption | null; confidence_average: number | null; state: string; counts?: Record<Rh4663RotationOption, number>; percentages?: Record<Rh4663RotationOption, number> }; options: Rh4663RotationOption[] };
@@ -59,14 +61,15 @@ function useOptionalApi<T>(path: string | null, refresh = 0) {
 export function Rh4663Page() {
   const path = window.location.pathname.replace(/\/$/, '') || '/4663';
   const proofId = path.match(/^\/4663\/proof\/([^/]+)$/)?.[1];
-  const view = proofId ? 'proof' : path === '/4663/pulse' ? 'pulse' : path === '/4663/today' ? 'today' : path === '/4663/signals' ? 'signals' : path === '/4663/receipts' ? 'receipts' : 'home';
+  const signalId = path.match(/^\/4663\/signals\/([^/]+)$/)?.[1];
+  const view = proofId ? 'proof' : signalId ? 'signal_detail' : path === '/4663/pulse' ? 'pulse' : path === '/4663/today' ? 'today' : path === '/4663/signals' ? 'signals' : path === '/4663/receipts' ? 'receipts' : 'home';
   return <div className="i4663-app">
     <header className="i4663-header">
       <a className="i4663-wordmark" href="/4663" aria-label="Infopunks 4663 home"><span>INFOPUNKS</span><b>//4663</b></a>
       <a className="i4663-radar-link" href="/rh-chain-signal-desk">RH DESK ↗</a>
     </header>
     <nav className="i4663-nav" aria-label="4663 navigation">{NAV.map((item) => <a key={item.href} href={item.href} aria-current={(path || '/4663') === item.href ? 'page' : undefined}>{item.label}</a>)}</nav>
-    {view === 'home' ? <Home /> : view === 'pulse' ? <Pulse /> : view === 'today' ? <Today /> : view === 'signals' ? <Signals /> : view === 'proof' && proofId ? <ProofPage receiptId={decodeURIComponent(proofId)} /> : <Receipts />}
+    {view === 'home' ? <Home /> : view === 'pulse' ? <Pulse /> : view === 'today' ? <Today /> : view === 'signals' ? <Signals /> : view === 'signal_detail' && signalId ? <SignalProofPage signalId={decodeURIComponent(signalId)} /> : view === 'proof' && proofId ? <ProofPage receiptId={decodeURIComponent(proofId)} /> : <Receipts />}
     <footer className="i4663-footer"><span>AFTER ATTENTION, INTELLIGENCE.</span><span>UTC / RH CHAIN / PUBLIC MEMORY</span></footer>
   </div>;
 }
@@ -98,8 +101,13 @@ function Home() {
       <a href="/4663/today" className="i4663-home-link"><SectionNumber n="03" label="Today on 4663" /><strong>{compactSignal(data?.today.key_signal) ?? 'Open the daily intelligence edition.'}</strong><span>READ EDITION →</span></a>
       <a href="/4663/signals" className="i4663-home-link"><SectionNumber n="04" label="Signal Hunt" /><strong>See the move before it becomes consensus.</strong><span>{data?.signal_hunt.count ?? 0} ACTIVE / SUBMIT →</span></a>
     </section>
+    <section className="i4663-live-signals" aria-labelledby="live-signals-title">
+      <SectionNumber n="05" label="Live signals" />
+      <div className="i4663-live-signals-head"><h2 id="live-signals-title">THE CHAIN, STRUCTURED.</h2><a href="/4663/signals">VIEW ALL SIGNALS →</a></div>
+      {data?.live_signals?.signals.length ? data.live_signals.signals.map((signal) => <PublishedSignalCard key={signal.signal_id} signal={signal} compact />) : <Empty text="Automated publication is gated. No Signal has been inferred." />}
+    </section>
     <section className="i4663-genesis">
-      <SectionNumber n="05" label="Genesis provenance" />
+      <SectionNumber n="06" label="Genesis provenance" />
       <div className="i4663-progress-copy"><strong>{data?.genesis.recorded ?? 0}<small> / 4,663</small></strong><span>{data?.genesis.remaining ?? 4663} IDENTITIES REMAIN</span></div>
       <div className="i4663-progress" role="progressbar" aria-valuemin={0} aria-valuemax={4663} aria-valuenow={data?.genesis.recorded ?? 0}><i style={{ width: `${Math.min(100, (data?.genesis.progress ?? 0) * 100)}%` }} /></div>
       <p>Provenance, not a reward promise. Genesis records early verified participation.</p>
@@ -182,16 +190,21 @@ function ProofPage({ receiptId }: { receiptId: string }) {
 }
 
 function Signals() {
-  const api = useApi<{ signals: Rh4663Signal[] }>('/v1/4663/signals'); const [open, setOpen] = useState(false); const [submitted, setSubmitted] = useState<Rh4663Signal | null>(null); const [error, setError] = useState('');
+  const api = useApi<{ signals: Array<Published4663Signal | Rh4663Signal>; watching?: Rh4663Signal[]; signal_hunt?: Rh4663Signal[] }>('/v1/4663/signals'); const [open, setOpen] = useState(false); const [submitted, setSubmitted] = useState<Rh4663Signal | null>(null); const [error, setError] = useState('');
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault(); setError(''); const form = new FormData(event.currentTarget); const payload = Object.fromEntries(form.entries()); if (!payload.evidence_note) delete payload.evidence_note;
     try { const response = await fetch(toApiUrl(API_BASE_URL, '/v1/4663/signals'), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) }); const body = await response.json() as { data?: Rh4663Signal; error?: string }; if (!response.ok || !body.data) throw new Error(readableError(body.error)); setSubmitted(body.data); setOpen(false); }
     catch (cause) { setError(cause instanceof Error ? cause.message : 'Signal could not be submitted.'); }
   }
-  const signals = useMemo(() => submitted ? [submitted, ...(api.data?.signals ?? []).filter((item) => item.signal_id !== submitted.signal_id)] : api.data?.signals ?? [], [api.data, submitted]);
+  const published = useMemo(() => (api.data?.signals ?? []).filter(isPublishedSignal), [api.data]);
+  const legacyCommunity = useMemo(() => (api.data?.signals ?? []).filter((signal): signal is Rh4663Signal => !isPublishedSignal(signal)), [api.data]);
+  const watching = useMemo(() => submitted ? [submitted, ...(api.data?.watching ?? api.data?.signal_hunt ?? legacyCommunity).filter((item) => item.signal_id !== submitted.signal_id)] : api.data?.watching ?? api.data?.signal_hunt ?? legacyCommunity, [api.data, legacyCommunity, submitted]);
   return <main className="i4663-main i4663-subpage">
-    <PageHead index="03" title="SIGNAL HUNT" lede="SEE THE MOVE EARLY." />
-    <p className="i4663-intro">Submit the source. Preserve the attribution. Let evidence decide what survives.</p>
+    <PageHead index="03" title="SIGNALS // 4663" lede="EVIDENCE, THEN CLAIM." />
+    <section className="i4663-signal-surface"><div className="i4663-surface-title"><span>LIVE</span><p>{published.length} PUBLISHED</p></div>{published.length ? published.slice(0, 6).map((signal) => <PublishedSignalCard key={signal.signal_id} signal={signal} />) : <Empty text="Automated publication remains gated. Persisted watches continue below." />}</section>
+    <section className="i4663-signal-surface"><div className="i4663-surface-title"><span>WATCHING</span><p>PUBLIC-SAFE / UNPUBLISHED</p></div><section className="i4663-signal-list">{watching.length ? watching.map((signal) => <CommunitySignalCard key={signal.signal_id} signal={signal} />) : <Empty text="No public watch items are active." />}</section></section>
+    <section className="i4663-signal-surface"><div className="i4663-surface-title"><span>ARCHIVE</span><p>IMMUTABLE PUBLIC MEMORY</p></div>{published.length > 6 ? published.slice(6).map((signal) => <PublishedSignalCard key={signal.signal_id} signal={signal} compact />) : <Empty text="Published Signals will remain here permanently." />}</section>
+    <p className="i4663-intro">SIGNAL HUNT / Submit the source. Preserve the attribution. Let evidence decide what survives.</p>
     <button className="i4663-primary-action i4663-button" type="button" onClick={() => setOpen((value) => !value)}>{open ? 'CLOSE SUBMISSION' : 'SUBMIT A SIGNAL'} <span>{open ? '×' : '↗'}</span></button>
     {open && <form className="i4663-signal-form" onSubmit={submit}>
       <label className="i4663-field"><span>TITLE</span><input name="title" required minLength={3} maxLength={180} placeholder="What changed?" /></label>
@@ -205,10 +218,15 @@ function Signals() {
       <p className="i4663-protocol-note">Your original attribution is retained permanently. Submission does not imply confirmation.</p>
     </form>}
     <DataState status={api.status} message={api.message} />
-    <section className="i4663-signal-list">{signals.length ? signals.map((signal) => <article key={signal.signal_id}>
-      <div><span>{signal.category.replaceAll('_', ' ').toUpperCase()}</span><b>{signal.lifecycle_state.replaceAll('_', ' ').toUpperCase()}</b></div><h2>{signal.title}</h2><p>{signal.thesis}</p><footer><span>BY / {signal.original_submitter}</span><time>{machineTime(signal.submitted_at)}</time></footer><small>SIGNAL CARD / EDITORIAL INTELLIGENCE</small>
-    </article>) : api.status === 'ready' ? <Empty text="No 4663 signals have been submitted." /> : null}</section>
   </main>;
+}
+
+function PublishedSignalCard({ signal, compact = false }: { signal: Published4663Signal; compact?: boolean }) { return <a className={`i4663-published-signal${compact ? ' is-compact' : ''}`} href={`/4663/signals/${encodeURIComponent(signal.signal_id)}`}><header><span>SIGNAL // {signal.signal_id.replace('SIGNAL-4663-', '')}</span><time>{machineTime(signal.published_at)}</time></header><p>{signal.category.replaceAll('_', ' ')}</p><h2>{signal.headline}</h2>{!compact && <p className="i4663-signal-summary">{signal.summary}</p>}<footer><span>SIGNIFICANCE <b>{signal.significance_score}</b></span><span>ANOMALY <b>{signal.anomaly_score}</b></span><span>{signal.source_count} SOURCE{signal.source_count === 1 ? '' : 'S'}</span></footer></a>; }
+function CommunitySignalCard({ signal }: { signal: Rh4663Signal }) { return <article><div><span>{signal.category.replaceAll('_', ' ').toUpperCase()}</span><b>{signal.lifecycle_state.replaceAll('_', ' ').toUpperCase()}</b></div><h2>{signal.title}</h2><p>{signal.thesis}</p><footer><span>FIRST SUBMITTED BY / {signal.original_submitter}</span><time>{machineTime(signal.submitted_at)}</time></footer><small>SIGNAL CARD / EDITORIAL INTELLIGENCE</small></article>; }
+
+function SignalProofPage({ signalId }: { signalId: string }) {
+  const api = useApi<Published4663Signal & { correction_state?: string; corrections?: Array<{ correction_id: string; correction_type: string; note: string; created_at: string }> }>(`/v1/4663/signals/${encodeURIComponent(signalId)}`); const signal = api.data;
+  return <main className="i4663-main i4663-subpage"><PageHead index="03" title="SIGNAL PROOF" lede="EVIDENCE BEFORE CLAIM." /><DataState status={api.status} message={api.message} />{signal && <article className="i4663-signal-proof"><header><span>SIGNAL // 4663</span><code>{signal.signal_id}</code></header><p className="i4663-micro">{signal.category.replaceAll('_', ' ')} / {signal.signal_type.replaceAll('_', ' ')}</p><h1>{signal.headline}</h1><p>{signal.summary}</p><dl><div><dt>SIGNIFICANCE</dt><dd>{signal.significance_score}</dd></div><div><dt>ANOMALY</dt><dd>{signal.anomaly_score}</dd></div><div><dt>SOURCES</dt><dd>{signal.source_count}</dd></div><div><dt>HEURISTIC</dt><dd>{signal.heuristic_version}</dd></div><div><dt>DETECTED</dt><dd>{machineTime(signal.detected_at)}</dd></div><div><dt>PUBLISHED</dt><dd>{machineTime(signal.published_at)}</dd></div></dl>{signal.finder_attribution && <div className="i4663-finder"><span>FIRST SUBMITTED BY</span><strong>{signal.finder_attribution.submitted_by}</strong><time>{machineTime(signal.finder_attribution.submitted_at)}</time></div>}<section className="i4663-evidence"><h2>EVIDENCE</h2>{signal.evidence.map((reference) => <a key={reference.reference_id} href={reference.href}><span>{reference.source?.toUpperCase() ?? reference.reference_type.toUpperCase()}</span><strong>{reference.metric ?? reference.label}</strong><code>{formatEvidenceValue(reference.previous_value)} → {formatEvidenceValue(reference.current_value)} · {reference.confidence ?? '—'} CONF</code></a>)}</section>{signal.corrections?.length ? <section className="i4663-corrections"><h2>ADDITIVE RECORD</h2>{signal.corrections.map((correction) => <article key={correction.correction_id}><span>{correction.correction_type}</span><p>{correction.note}</p><time>{machineTime(correction.created_at)}</time></article>)}</section> : null}<footer><span>ORIGINAL PUBLICATION / IMMUTABLE</span><code>{signal.publication_hash}</code></footer><div className="i4663-share-links"><a href={signal.share.landscape}>LANDSCAPE</a><a href={signal.share.square}>SQUARE</a><a href={signal.share.portrait}>PORTRAIT</a></div></article>}</main>;
 }
 
 function Receipts() {
@@ -232,3 +250,5 @@ function shortWallet(value: string) { return `${value.slice(0, 8)}…${value.sli
 function labelRotation(value: Rh4663RotationOption | null | undefined) { return ROTATIONS.find((item) => item.value === value)?.label.toUpperCase() ?? ''; }
 function readableError(value?: string) { return value ? value.replaceAll('_', ' ') : 'The operation could not be completed.'; }
 function compactSignal(value?: string) { if (!value) return null; const sentence = value.split(/(?<=[.!?])\s/)[0] ?? value; return sentence.length > 120 ? `${sentence.slice(0, 117).trim()}…` : sentence; }
+function isPublishedSignal(signal: Published4663Signal | Rh4663Signal): signal is Published4663Signal { return 'immutable' in signal && signal.immutable === true && 'headline' in signal; }
+function formatEvidenceValue(value: unknown) { if (value === undefined || value === null) return '—'; if (typeof value === 'number') return Number.isInteger(value) ? value.toLocaleString() : value.toFixed(2); return String(value); }

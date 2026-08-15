@@ -31,6 +31,20 @@ export const Rh4663SignalCategorySchema = z.enum([
 ]);
 export type Rh4663SignalCategory = z.infer<typeof Rh4663SignalCategorySchema>;
 
+/** Phase 3 intelligence vocabulary. Pulse prediction options above remain frozen. */
+export const Rh4663IntelligenceCategorySchema = z.enum([
+  'MEMES', 'STOCK_TOKENS', 'RWA_DEFI', 'STABLES', 'CULTURE_NFT', 'UTILITY', 'AGENT', 'WALLET', 'LIQUIDITY', 'INTEGRATION', 'SECURITY', 'OTHER'
+]);
+export type Rh4663IntelligenceCategory = z.infer<typeof Rh4663IntelligenceCategorySchema>;
+
+export const Rh4663EventTypeSchema = z.enum([
+  'PRICE_MOVE', 'VOLUME_SPIKE', 'LIQUIDITY_CHANGE', 'BRIDGE_FLOW', 'HOLDER_CHANGE', 'WALLET_CONCENTRATION_CHANGE',
+  'NEW_PAIR', 'NEW_CONTRACT', 'NEW_LISTING', 'NEW_PROJECT', 'NEW_INTEGRATION', 'NEW_AGENT', 'NFT_ACTIVITY_SPIKE',
+  'MINT_ACTIVITY', 'MARKET_ROTATION', 'PROVIDER_CHANGE', 'ROUTE_CHANGE', 'ANOMALOUS_FLOW', 'EXPLOIT_INDICATOR',
+  'CONTRACT_RISK', 'COMMUNITY_SIGNAL'
+]);
+export type Rh4663EventType = z.infer<typeof Rh4663EventTypeSchema>;
+
 export const Rh4663SignalLifecycleSchema = z.enum([
   'submitted', 'watching', 'evidence_added', 'confirmed', 'rejected', 'unresolved'
 ]);
@@ -42,24 +56,46 @@ export const Rh4663EvidenceReferenceSchema = z.object({
   label: z.string().min(1),
   href: z.string().min(1),
   observed_at: z.string().datetime(),
-  source_status: z.enum(['fresh', 'stale', 'degraded', 'unavailable'])
+  source_status: z.enum(['fresh', 'stale', 'degraded', 'unavailable']),
+  source: z.string().min(1).optional(),
+  source_type: z.string().min(1).optional(),
+  subject: z.string().min(1).optional(),
+  metric: z.string().min(1).optional(),
+  previous_value: z.union([z.string(), z.number(), z.boolean(), z.null()]).optional(),
+  current_value: z.union([z.string(), z.number(), z.boolean(), z.null()]).optional(),
+  change: z.number().finite().optional().nullable(),
+  units: z.string().max(40).optional().nullable(),
+  provider_reference: z.string().max(500).optional(),
+  confidence: z.number().int().min(0).max(100).optional(),
+  freshness: z.enum(['fresh', 'stale', 'expired']).optional()
 });
 export type Rh4663EvidenceReference = z.infer<typeof Rh4663EvidenceReferenceSchema>;
 
 export const Rh4663NormalizedEventSchema = z.object({
   event_id: z.string().min(1),
   detected_at: z.string().datetime(),
+  observed_at: z.string().datetime().optional(),
   type: z.string().min(1),
+  event_type: Rh4663EventTypeSchema.optional(),
   subjects: z.array(z.object({ subject_type: z.string().min(1), subject_id: z.string().min(1), label: z.string().min(1).optional() })).min(1),
   category: Rh4663SignalCategorySchema,
+  intelligence_category: Rh4663IntelligenceCategorySchema.optional(),
   metrics: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()])),
   evidence: z.array(Rh4663EvidenceReferenceSchema),
+  source_ids: z.array(z.string().min(1)).optional(),
   source_confidence: z.number().int().min(0).max(100),
   anomaly_score: z.number().int().min(0).max(100),
   significance_score: z.number().int().min(0).max(100),
-  lifecycle_state: z.enum(['detected', 'reviewing', 'confirmed', 'rejected', 'unresolved']),
+  score_components: z.record(z.string(), z.number().min(0).max(100)).optional(),
+  anomaly_basis: z.string().max(300).optional(),
+  heuristic_version: z.string().min(1).optional(),
+  event_fingerprint: z.string().min(1).optional(),
+  freshness_state: z.enum(['fresh', 'stale', 'expired']).optional(),
+  lifecycle_state: z.enum(['detected', 'normalized', 'candidate', 'held', 'review_required', 'published', 'reviewing', 'confirmed', 'rejected', 'unresolved']),
   publication_state: z.enum(['private', 'public']),
-  source_status: z.enum(['fresh', 'stale', 'degraded', 'unavailable'])
+  source_status: z.enum(['fresh', 'stale', 'degraded', 'unavailable']),
+  created_at: z.string().datetime().optional(),
+  updated_at: z.string().datetime().optional()
 });
 export type Rh4663NormalizedEvent = z.infer<typeof Rh4663NormalizedEventSchema>;
 
@@ -178,6 +214,8 @@ export type Rh4663TodayEdition = {
   storage_status: 'durable' | 'memory' | 'unavailable';
   archive_path: string;
   data_notice: string;
+  edition_state?: 'draft' | 'ready' | 'published' | 'degraded';
+  intelligence_signal_ids?: string[];
   rh_pulse?: unknown;
 };
 
@@ -192,6 +230,8 @@ export interface Rh4663Store {
   listCallsByWallet(wallet: string, limit?: number): Promise<Rh4663CallReceipt[]>;
   genesisCount(): Promise<number>;
   appendEvent(event: Rh4663NormalizedEvent): Promise<void>;
+  getEvent(eventId: string): Promise<Rh4663NormalizedEvent | null>;
+  upsertEvent(event: Rh4663NormalizedEvent): Promise<Rh4663NormalizedEvent>;
   listEvents(limit?: number, date?: string): Promise<Rh4663NormalizedEvent[]>;
   createSignal(signal: Rh4663Signal): Promise<Rh4663Signal>;
   getSignal(signalId: string): Promise<Rh4663Signal | null>;
@@ -294,6 +334,8 @@ export class InMemoryRh4663Store implements Rh4663Store {
   async listCallsByWallet(wallet: string, limit = 1_000) { return [...this.calls.values()].filter((item) => item.wallet.toLowerCase() === wallet.toLowerCase()).sort((a, b) => b.canonical_payload.window_opens_at.localeCompare(a.canonical_payload.window_opens_at)).slice(0, limit).map((item) => structuredClone(item)); }
   async genesisCount() { return this.genesis.size; }
   async appendEvent(event: Rh4663NormalizedEvent) { if (!this.events.has(event.event_id)) this.events.set(event.event_id, structuredClone(event)); }
+  async getEvent(id: string) { const value = this.events.get(id); return value ? structuredClone(value) : null; }
+  async upsertEvent(event: Rh4663NormalizedEvent) { this.events.set(event.event_id, structuredClone(event)); return structuredClone(event); }
   async listEvents(limit = 100, date?: string) { return [...this.events.values()].filter((item) => !date || item.detected_at.slice(0, 10) === date).sort((a, b) => b.detected_at.localeCompare(a.detected_at)).slice(0, limit).map((item) => structuredClone(item)); }
   async createSignal(signal: Rh4663Signal) { if (this.signals.has(signal.signal_id)) throw new Rh4663ServiceError('signal_already_exists', 409); this.signals.set(signal.signal_id, structuredClone(signal)); return structuredClone(signal); }
   async getSignal(id: string) { const value = this.signals.get(id); return value ? structuredClone(value) : null; }
@@ -337,6 +379,19 @@ export class PostgresRh4663Store implements Rh4663Store {
   async listCallsByWallet(wallet: string, limit = 1_000) { await this.ready(); const result = await this.pool.query<{ payload: Rh4663CallReceipt }>('select payload from rh_4663_pulse_calls where lower(wallet)=lower($1) order by window_id desc limit $2', [wallet, limit]); return result.rows.map((row) => row.payload); }
   async genesisCount() { await this.ready(); const result = await this.pool.query<{ count: string }>('select count(*)::text as count from rh_4663_genesis_wallets'); return Number(result.rows[0]?.count ?? 0); }
   async appendEvent(event: Rh4663NormalizedEvent) { await this.ready(); await this.pool.query('insert into rh_4663_events (event_id, detected_at, category, publication_state, payload) values ($1,$2,$3,$4,$5::jsonb) on conflict (event_id) do nothing', [event.event_id, event.detected_at, event.category, event.publication_state, JSON.stringify(event)]); }
+  async getEvent(id: string) { await this.ready(); const result = await this.pool.query<{ payload: Rh4663NormalizedEvent }>('select payload from rh_4663_events where event_id=$1', [id]); return result.rows[0]?.payload ?? null; }
+  async upsertEvent(event: Rh4663NormalizedEvent) {
+    await this.ready(); const client = await this.pool.connect();
+    try {
+      await client.query('begin');
+      await client.query("select pg_advisory_xact_lock(hashtext('rh4663-event:' || $1))", [event.event_id]);
+      await client.query(`insert into rh_4663_events (event_id, detected_at, category, publication_state, payload)
+        values ($1,$2,$3,$4,$5::jsonb)
+        on conflict (event_id) do update set detected_at=excluded.detected_at, category=excluded.category, publication_state=excluded.publication_state, payload=excluded.payload`,
+      [event.event_id, event.detected_at, event.category, event.publication_state, JSON.stringify(event)]);
+      await client.query('commit'); return event;
+    } catch (error) { await client.query('rollback').catch(() => undefined); throw error; } finally { client.release(); }
+  }
   async listEvents(limit = 100, date?: string) { await this.ready(); const result = date ? await this.pool.query<{ payload: Rh4663NormalizedEvent }>("select payload from rh_4663_events where detected_at >= $1::date and detected_at < ($1::date + interval '1 day') order by detected_at desc limit $2", [date, limit]) : await this.pool.query<{ payload: Rh4663NormalizedEvent }>('select payload from rh_4663_events order by detected_at desc limit $1', [limit]); return result.rows.map((row) => row.payload); }
   async createSignal(signal: Rh4663Signal) { await this.ready(); try { await this.pool.query('insert into rh_4663_signals (signal_id, lifecycle_state, original_submitter, submitted_at, updated_at, payload) values ($1,$2,$3,$4,$5,$6::jsonb)', [signal.signal_id, signal.lifecycle_state, signal.original_submitter, signal.submitted_at, signal.updated_at, JSON.stringify(signal)]); return signal; } catch (error) { if (postgresCode(error) === '23505') throw new Rh4663ServiceError('signal_already_exists', 409); throw error; } }
   async getSignal(id: string) { await this.ready(); const result = await this.pool.query<{ payload: Rh4663Signal }>('select payload from rh_4663_signals where signal_id=$1', [id]); return result.rows[0]?.payload ?? null; }
@@ -417,19 +472,22 @@ export class Rh4663Service {
     const saved = await this.store.saveSignal(next); await this.safeEvent(signalEvent(saved, 'rh_4663.signal_transitioned', parsed.state === 'confirmed' ? 'confirmed' : parsed.state === 'rejected' ? 'rejected' : parsed.state === 'unresolved' ? 'unresolved' : 'reviewing')); return saved;
   }
 
-  async today(input: { date?: string; keySignal: string; categoryFlows: Rh4663TodayEdition['category_flows']; evidence: Rh4663EvidenceReference[]; providerState: Rh4663TodayEdition['provider_state']; confidence: number }) {
+  async today(input: { date?: string; keySignal: string; categoryFlows: Rh4663TodayEdition['category_flows']; evidence: Rh4663EvidenceReference[]; providerState: Rh4663TodayEdition['provider_state']; confidence: number; intelligenceSignals?: Array<{ signal_id: string; event_id: string; headline: string; category: Rh4663SignalCategory; significance_score: number; detected_at: string; evidence: Rh4663EvidenceReference[] }> }) {
     const date = input.date ?? this.now().toISOString().slice(0, 10); const stored = await this.store.getToday(date); if (stored) return stored;
     const events = await this.store.listEvents(20, date); const windowId = `rh4663:${date}`; const calls = await this.store.listCalls(windowId, 10_000); const consensus = resolveRh4663Consensus(calls, windowId);
-    const evidence = dedupeEvidence([...input.evidence, ...events.flatMap((event) => event.evidence)]);
+    const intelligenceSignals = input.intelligenceSignals ?? [];
+    const evidence = dedupeEvidence([...input.evidence, ...intelligenceSignals.flatMap((signal) => signal.evidence), ...events.flatMap((event) => event.evidence)]);
     const sourceTimestamps = [...new Set(evidence.map((item) => item.observed_at))].sort();
     const generated_at = this.now().toISOString();
     const edition: Rh4663TodayEdition = {
       edition_id: `today_4663_${date.replaceAll('-', '')}_v1`, date, generated_at,
-      top_events: events.slice(0, 5).map((event) => ({ event_id: event.event_id, title: eventTitle(event), category: event.category, significance_score: event.significance_score, detected_at: event.detected_at, source_status: event.source_status })),
-      category_flows: input.categoryFlows, key_signal: input.keySignal, rh_pulse_consensus: consensus.state === 'available' ? consensus : null,
+      top_events: [...intelligenceSignals.map((signal) => ({ event_id: signal.event_id, title: signal.headline, category: signal.category, significance_score: signal.significance_score, detected_at: signal.detected_at, source_status: 'fresh' as const })), ...events.filter((event) => !intelligenceSignals.some((signal) => signal.event_id === event.event_id)).map((event) => ({ event_id: event.event_id, title: eventTitle(event), category: event.category, significance_score: event.significance_score, detected_at: event.detected_at, source_status: event.source_status }))].slice(0, 5),
+      category_flows: input.categoryFlows, key_signal: intelligenceSignals[0]?.headline ?? input.keySignal, rh_pulse_consensus: consensus.state === 'available' ? consensus : null,
       evidence_references: evidence, confidence: Math.max(0, Math.min(100, Math.round(input.confidence))), source_timestamps: sourceTimestamps,
       provider_state: input.providerState, storage_status: this.store.durable ? 'durable' : 'memory', archive_path: `/v1/4663/today/${date}`,
-      data_notice: input.providerState === 'available' ? 'Built from persisted Infopunks memory and cited observations.' : `Provider state: ${input.providerState}. No missing live observation has been fabricated.`
+      data_notice: input.providerState === 'available' ? 'Built from persisted Infopunks memory and cited observations.' : `Provider state: ${input.providerState}. No missing live observation has been fabricated.`,
+      edition_state: input.providerState === 'available' && evidence.length ? 'published' : 'degraded',
+      intelligence_signal_ids: intelligenceSignals.map((signal) => signal.signal_id)
     };
     return this.store.saveToday(edition);
   }

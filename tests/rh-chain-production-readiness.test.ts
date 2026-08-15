@@ -16,7 +16,7 @@ describe('RH Chain production readiness', () => {
     const ledger = await inspectRhChainMigrationLedger(null);
     expect(ledger.database_reachable).toBe(false);
     expect(ledger.migration_runner).toBe('external_only');
-    expect(ledger.pending_migrations).toEqual(['20260719_001', '20260719_002', '20260719_003', '20260719_004', '20260719_005', '20260720_006', '20260813_007', '20260813_008']);
+    expect(ledger.pending_migrations).toEqual(['20260719_001', '20260719_002', '20260719_003', '20260719_004', '20260719_005', '20260720_006', '20260813_007', '20260813_008', '20260814_009']);
   });
 
   it('builds a provider-free readiness result from schema signatures', async () => {
@@ -51,5 +51,11 @@ describe('RH Chain production readiness', () => {
     expect(loadRuntimeConfig({ ...production, RH_CHAIN_PROJECT_CLAIMS_ENABLED: 'true' }).disabledFeatures.rh_chain_project_claims).toContain('authenticated RH Chain review console');
     expect(loadRuntimeConfig({ ...production, RH_CHAIN_PROJECT_DIRECTORY_ENABLED: 'true' }).disabledFeatures.rh_chain_project_directory).toContain('RH_CHAIN_PROJECT_CLAIMS_ENABLED');
     expect(loadRuntimeConfig(production).rhChainProjectClaimsEnabled).toBe(false);
+  });
+
+  it('keeps Phase 3 publication fail-closed until the Phase 2 production proof marker is explicit', () => {
+    const production = { NODE_ENV: 'production', PORT: '8787', DATABASE_URL: 'postgres://user:password@localhost:5432/radar', RH_CHAIN_REVIEW_ADMIN_TOKEN: 'review-secret', RH_4663_RESOLUTION_PRIVATE_KEY: `0x${'11'.repeat(32)}`, RH_4663_PHASE2_ENABLED: 'true', RH_4663_PHASE3_ENABLED: 'true', RH_4663_PHASE3_INGESTION_ENABLED: 'true', RH_4663_PHASE3_CANDIDATE_GENERATION_ENABLED: 'true', RH_4663_PHASE3_PUBLICATION_ENABLED: 'true', RH_4663_AUTO_PUBLICATION_ENABLED: 'true' };
+    const closed = loadRuntimeConfig(production); expect(closed.rh4663Phase3Enabled).toBe(true); expect(closed.rh4663Phase3IngestionEnabled).toBe(true); expect(closed.rh4663Phase3CandidateGenerationEnabled).toBe(true); expect(closed.rh4663Phase3PublicationEnabled).toBe(false); expect(closed.rh4663Phase3AutoPublicationEnabled).toBe(false); expect(closed.disabledFeatures.infopunks_4663_phase3_publication).toContain('proof chain');
+    const opened = loadRuntimeConfig({ ...production, RH_4663_PHASE2_PRODUCTION_PROOF_VERIFIED: 'true' }); expect(opened.rh4663Phase3PublicationEnabled).toBe(true); expect(opened.rh4663Phase3AutoPublicationEnabled).toBe(true);
   });
 });

@@ -48,11 +48,25 @@ import {
   Rh4663SignalSubmissionSchema,
   Rh4663SignalTransitionInputSchema,
   Rh4663RotationOptionSchema,
+  Rh4663EvidenceReferenceSchema,
   resolveRh4663Consensus,
   type Rh4663EvidenceReference,
   type Rh4663Store,
-  type Rh4663TodayEdition
+  type Rh4663TodayEdition,
+  Rh4663EventTypeSchema,
+  Rh4663IntelligenceCategorySchema
 } from '../services/rh4663Service';
+import {
+  InMemoryRh4663IntelligenceStore,
+  PostgresRh4663IntelligenceStore,
+  Rh4663IntelligenceService,
+  Rh4663RawObservationInputSchema,
+  rankPublishedSignalsForToday,
+  intelligenceCategory,
+  type Rh4663IntelligenceStore,
+  type Rh4663ProviderAdapter,
+  type Rh4663RawObservationInput
+} from '../services/rh4663IntelligenceService';
 import {
   DisabledRh4663AnchorAdapter,
   InMemoryRh4663ResolutionStore,
@@ -636,6 +650,7 @@ export type CreateAppOptions = {
   rh4663ResolutionStore?: Rh4663ResolutionStore;
   rh4663ResolutionSigner?: Rh4663ResolutionSigner;
   rh4663AnchorAdapter?: Rh4663AnchorAdapter;
+  rh4663IntelligenceStore?: Rh4663IntelligenceStore;
 };
 
 const RH_CHAIN_LIVE_TOKEN_ROUTE_RESERVE_MS = 1_000;
@@ -690,6 +705,7 @@ export async function createApp(
     'rh_4663_pulse_window_resolutions',
     'rh_4663_resolution_receipts',
     'rh_4663_window_anchors',
+    ...(config.rh4663Phase3Enabled ? ['rh_4663_observations', 'rh_4663_signal_candidates', 'rh_4663_signal_publications', 'rh_4663_signal_distribution', 'rh_4663_signal_corrections', 'rh_4663_provider_health'] as const : []),
     ...((config.rhChainMarketHistoryEnabled || config.rhChainAutomationEnabled) ? ['rh_chain_market_snapshots'] as const : []),
     ...(config.rhChainReviewedClassificationsEnabled ? ['rh_chain_reviewed_classifications', 'rh_chain_reviewed_classification_audit'] as const : [])
     ,...((config.rhChainProjectClaimsEnabled || config.rhChainIntelligenceReceiptsEnabled || config.rhChainProjectDirectoryEnabled) ? ['rh_chain_projects', 'rh_chain_project_claims', 'rh_chain_project_evidence', 'rh_chain_project_observations', 'rh_chain_project_verdicts', 'rh_chain_intelligence_receipts', 'rh_chain_project_audit', 'rh_chain_project_contract_relationships'] as const : [])
@@ -848,20 +864,6 @@ export async function createApp(
   const rhChainRiskCorrelationSweep = new RhChainRiskCorrelationSweepService(rhChainRiskCorrelationSnapshotStore, rhChainSubmissionStore);
   const rhChainAutomationStore: RhChainAutomationStore = options.rhChainAutomationStore
     ?? (rhChainPostgresPool ? new PostgresRhChainAutomationStore(rhChainPostgresPool) : new InMemoryRhChainAutomationStore());
-  const rhChainAutomation = new RhChainAutomationService({
-    enabled: config.rhChainAutomationEnabled,
-    isProduction: config.isProduction,
-    instanceId: config.rhChainAutomationInstanceId,
-    lockTtlMs: config.rhChainJobLockTtlMs,
-    store: rhChainAutomationStore,
-    snapshots: rhChainLiveSnapshots,
-    chainPulseSnapshots: rhChainChainPulse,
-    memePulseSnapshots: rhChainMemePulse,
-    launchpadSnapshots: rhChainLaunchpad,
-    dailyReceiptDrafts: rhChainDailyReceiptDrafts,
-    riskCorrelationSweep: rhChainRiskCorrelationSweep,
-    submissions: rhChainSubmissionStore
-  });
   const rh4663Store: Rh4663Store = options.rh4663Store
     ?? (rhChainPostgresPool ? new PostgresRh4663Store(rhChainPostgresPool) : new InMemoryRh4663Store());
   const rh4663 = new Rh4663Service(rh4663Store);
@@ -879,6 +881,92 @@ export async function createApp(
     ? new ViemRh4663AnchorAdapter(anchorRpc, anchorContract as `0x${string}`, anchorKey as `0x${string}`, Number(process.env.RH_4663_ANCHOR_CONFIRMATIONS ?? 2))
     : new DisabledRh4663AnchorAdapter());
   const rh4663Phase2 = new Rh4663ResolutionService(rh4663Store, rh4663ResolutionStore, rh4663ResolutionSigner, rh4663AnchorAdapter);
+  const rh4663IntelligenceStore: Rh4663IntelligenceStore = options.rh4663IntelligenceStore
+    ?? (rhChainPostgresPool ? new PostgresRh4663IntelligenceStore(rhChainPostgresPool) : new InMemoryRh4663IntelligenceStore());
+  const rh4663Intelligence = new Rh4663IntelligenceService(rh4663Store, rh4663IntelligenceStore, {
+    enabled: config.rh4663Phase3Enabled,
+    ingestion_enabled: config.rh4663Phase3IngestionEnabled,
+    candidate_generation_enabled: config.rh4663Phase3CandidateGenerationEnabled,
+    publication_enabled: config.rh4663Phase3PublicationEnabled,
+    auto_publication_enabled: config.rh4663Phase3AutoPublicationEnabled,
+    external_distribution_enabled: config.rh4663Phase3ExternalDistributionEnabled,
+    shadow_mode: config.rh4663Phase3ShadowMode,
+    is_production: config.isProduction,
+    phase2_production_proof_verified: config.rh4663Phase2ProductionProofVerified,
+    log: (entry) => console.log(JSON.stringify(entry))
+  });
+  const phase3Classifications = () => [...rhChainReviewedLayerClassifications, ...(rhChainDiscoveryQueue?.marketStructureCandidates() ?? []), ...(rhChainReviewPipeline?.marketStructureCandidates() ?? [])];
+  const phase3CategoryFor = (contract: string) => {
+    const classification = phase3Classifications().find((item) => item.contract.toLowerCase() === contract.toLowerCase());
+    if (classification?.secondary_layers.includes('tokenized_equities')) return 'STOCK_TOKENS' as const;
+    if (classification?.primary_layer === 'meme') return 'MEMES' as const;
+    if (classification?.primary_layer === 'rwa' || classification?.primary_layer === 'defi') return 'RWA_DEFI' as const;
+    if (classification?.primary_layer === 'agent') return 'AGENT' as const;
+    if (classification?.primary_layer === 'infrastructure') return 'UTILITY' as const;
+    return 'OTHER' as const;
+  };
+  const phase3Providers: Rh4663ProviderAdapter[] = [{
+    name: 'dexscreener', enabled: config.dexScreenerEnabled, timeout_ms: Math.max(1_000, config.dexScreenerTimeoutMs * 3), max_retries: config.dexScreenerMaxRetries,
+    collect: async () => {
+      const capture = await rhChainMarketSnapshots.captureKnownWatchlistSnapshot(); const observations: Rh4663RawObservationInput[] = [];
+      for (const snapshot of capture.captured) {
+        const history = await rhChainMarketSnapshots.listSnapshots(snapshot.token_address); const prior = [...history].reverse().find((item) => item.snapshot_id !== snapshot.snapshot_id) ?? null;
+        const baselineFor = (key: 'volume_h24' | 'liquidity_usd' | 'price_usd') => {
+          const values = history.slice(0, -1).map((item) => item[key]).filter((value): value is number => typeof value === 'number').slice(-30);
+          if (values.length < 5) return undefined; const mean = values.reduce((sum, value) => sum + value, 0) / values.length; const variance = values.reduce((sum, value) => sum + (value - mean) ** 2, 0) / values.length;
+          return { mean, standard_deviation: Math.sqrt(variance), sample_size: values.length, window: 'last_30_persisted_snapshots' };
+        };
+        const base = { provider: 'dexscreener', source_type: 'dex_market' as const, observed_at: snapshot.provider_timestamp ?? snapshot.captured_at, category: phase3CategoryFor(snapshot.token_address), subject: { subject_type: 'token_contract', subject_id: snapshot.token_address, ...(snapshot.ticker ? { label: snapshot.ticker } : {}) }, confidence: snapshot.freshness_state === 'fresh' ? 82 : 55, freshness: snapshot.freshness_state === 'fresh' ? 'fresh' as const : 'stale' as const, provider_reference: snapshot.pair_address ?? snapshot.token_address, source_url: snapshot.source_url ?? `${config.dexScreenerBaseUrl}/latest/dex/tokens/${snapshot.token_address}`, dimensions: { persistence_windows: Math.min(5, history.length), subject_importance: 50 } };
+        if (snapshot.volume_h24 !== null) observations.push({ ...base, provider_observation_id: `${snapshot.snapshot_id}:volume_h24`, metric: 'volume_24h_usd', current_value: snapshot.volume_h24, previous_value: prior?.volume_h24 ?? undefined, units: 'USD', event_type: 'VOLUME_SPIKE', baseline: baselineFor('volume_h24') });
+        if (snapshot.liquidity_usd !== null) observations.push({ ...base, provider_observation_id: `${snapshot.snapshot_id}:liquidity_usd`, metric: 'liquidity_usd', current_value: snapshot.liquidity_usd, previous_value: prior?.liquidity_usd ?? undefined, units: 'USD', event_type: 'LIQUIDITY_CHANGE', baseline: baselineFor('liquidity_usd') });
+        if (snapshot.price_change_h24 !== null) observations.push({ ...base, provider_observation_id: `${snapshot.snapshot_id}:price_change_h24`, metric: 'price_change_24h_percent', current_value: snapshot.price_change_h24, previous_value: 0, units: 'percent', event_type: 'PRICE_MOVE' });
+        if (snapshot.pair_created_at && !prior?.pair_created_at) observations.push({ ...base, provider_observation_id: `${snapshot.snapshot_id}:new_pair`, metric: 'new_pair', current_value: true, units: null, event_type: 'NEW_PAIR' });
+      }
+      return observations;
+    }
+  }, {
+    name: 'blockscout', enabled: config.blockscoutEnabled, timeout_ms: config.blockscoutTimeoutMs * 2, max_retries: 1,
+    collect: async () => {
+      const registry = await rhChainTokenRegistry.listObservedTokens();
+      return registry.tokens.map((token): Rh4663RawObservationInput => ({ provider: 'blockscout', provider_observation_id: `token:${token.contract}`, source_type: 'chain_explorer', observed_at: token.captured_at, category: phase3CategoryFor(token.contract), subject: { subject_type: 'token_contract', subject_id: token.contract, ...(token.symbol ? { label: token.symbol } : {}) }, metric: 'new_contract', current_value: true, units: null, provider_reference: token.contract, source_url: token.source_url, confidence: 72, freshness: 'fresh', event_type: 'NEW_CONTRACT', dimensions: { holders_count: token.holders_count, token_type: token.token_type } }));
+    }
+  }, {
+    name: 'defillama_persisted', enabled: true, timeout_ms: 1_000, max_retries: 0,
+    collect: async () => {
+      const snapshot = await rhChainChainPulse.getLatest(); if (!snapshot) return [];
+      const base = { provider: 'defillama_persisted', source_type: 'defi_metrics' as const, observed_at: snapshot.observed_at, subject: { subject_type: 'chain', subject_id: 'robinhood-chain', label: 'ROBINHOOD CHAIN' }, provider_reference: snapshot.snapshot_id, source_url: 'https://defillama.com', confidence: snapshot.confidence_level === 'high' ? 85 : snapshot.confidence_level === 'medium' ? 70 : 45, freshness: snapshot.freshness_state === 'fresh' ? 'fresh' as const : 'stale' as const, dimensions: { persistence_windows: 1, subject_importance: 90 } };
+      return [
+        ...(snapshot.tvl === null ? [] : [{ ...base, provider_observation_id: `${snapshot.snapshot_id}:tvl`, category: 'RWA_DEFI' as const, metric: 'tvl_usd', current_value: snapshot.tvl, units: 'USD', event_type: 'LIQUIDITY_CHANGE' as const }]),
+        ...(snapshot.dex_volume_24h === null ? [] : [{ ...base, provider_observation_id: `${snapshot.snapshot_id}:dex_volume`, category: 'LIQUIDITY' as const, metric: 'dex_volume_24h_usd', current_value: snapshot.dex_volume_24h, units: 'USD', event_type: 'VOLUME_SPIKE' as const }]),
+        ...(snapshot.stablecoin_market_cap === null ? [] : [{ ...base, provider_observation_id: `${snapshot.snapshot_id}:stable_supply`, category: 'STABLES' as const, metric: 'stablecoin_supply_usd', current_value: snapshot.stablecoin_market_cap, units: 'USD', event_type: 'LIQUIDITY_CHANGE' as const }])
+      ];
+    }
+  }];
+  const runPhase3Intelligence = async () => {
+    const providerResult = await rh4663Intelligence.runProviders(phase3Providers); let communityObservations = 0; let communityEvents = 0; let communityCandidates = 0; let communityPublications = 0;
+    for (const signal of await rh4663Store.listSignals(1_000)) for (const result of await rh4663Intelligence.ingestCommunitySignal(signal)) { communityObservations += Number(result.observation_created); communityEvents += Number(Boolean(result.event)); communityCandidates += Number(Boolean(result.candidate)); communityPublications += Number(Boolean(result.publication)); }
+    return { observations: providerResult.observations + communityObservations, events: providerResult.events + communityEvents, candidates: providerResult.candidates + communityCandidates, publications: providerResult.publications + communityPublications, providers: [...providerResult.providers, { provider: 'community_signal_hunt', state: 'healthy' }] };
+  };
+  const enabledAutomationJobs = [
+    ...(config.rhChainAutomationEnabled ? RH_CHAIN_AUTOMATION_JOB_NAMES.filter((job) => job !== 'rh_4663_intelligence_refresh') : []),
+    ...(config.rh4663Phase3Enabled && config.rh4663Phase3IngestionEnabled ? ['rh_4663_intelligence_refresh' as const] : [])
+  ];
+  const rhChainAutomation = new RhChainAutomationService({
+    enabled: config.rhChainAutomationEnabled || (config.rh4663Phase3Enabled && config.rh4663Phase3IngestionEnabled),
+    enabledJobs: enabledAutomationJobs,
+    isProduction: config.isProduction,
+    instanceId: config.rhChainAutomationInstanceId,
+    lockTtlMs: config.rhChainJobLockTtlMs,
+    store: rhChainAutomationStore,
+    snapshots: rhChainLiveSnapshots,
+    chainPulseSnapshots: rhChainChainPulse,
+    memePulseSnapshots: rhChainMemePulse,
+    launchpadSnapshots: rhChainLaunchpad,
+    dailyReceiptDrafts: rhChainDailyReceiptDrafts,
+    riskCorrelationSweep: rhChainRiskCorrelationSweep,
+    submissions: rhChainSubmissionStore,
+    rh4663IntelligenceRun: runPhase3Intelligence
+  });
   const rhChainPublicRateLimiter = new RhChainPublicRateLimiter(
     options.rhChainPublicRateLimit?.enabled ?? config.rhChainPublicRateLimitEnabled,
     options.rhChainPublicRateLimit?.windowMs ?? config.rhChainPublicRateLimitWindowMs,
@@ -935,6 +1023,7 @@ export async function createApp(
     await rhChainRiskCorrelationSnapshotStore.close?.();
     await rh4663Store.close?.();
     await rh4663ResolutionStore.close?.();
+    await rh4663IntelligenceStore.close?.();
     await rhChainPostgresPool?.end();
   });
   const allowedOrigins = new Set(DEFAULT_ALLOWED_ORIGINS);
@@ -2471,8 +2560,14 @@ export async function createApp(
   };
   const rh4663TodayInput = async (date?: string) => {
     const index = assembleRhChain4663Index();
+    const editionDate = date ?? new Date().toISOString().slice(0, 10);
+    const priorEdition = await rh4663Store.getToday(editionDate).catch(() => null);
     try {
-      const dailyReceipts = await rhChainDailyReceiptDrafts.publicFeed();
+      const [dailyReceipts, publishedIntelligence] = await Promise.all([
+        rhChainDailyReceiptDrafts.publicFeed(),
+        rh4663Intelligence.publicSignals({ since: `${editionDate}T00:00:00.000Z`, limit: 100 }).catch(() => [])
+      ]);
+      const rankedIntelligence = rankPublishedSignalsForToday(publishedIntelligence, 5);
       const legacy = assembleRhChainTodayOn4663({ dailyReceipts, index, storage_status: 'available' });
       const providerState = rh4663ProviderState(legacy.freshness_state);
       const evidence: Rh4663EvidenceReference[] = legacy.cards.map((card) => ({
@@ -2489,20 +2584,23 @@ export async function createApp(
         summary: `${asset.ticker} · ${asset.infopunks_verdict}`,
         confidence: asset.signal_score
       }));
-      const edition = await rh4663.today({ date, keySignal: legacy.cards.find((card) => card.id === 'top_signal')?.verdict ?? legacy.latest_receipt.top_signal, categoryFlows, evidence, providerState, confidence: legacy.latest_receipt.confidence_level === 'high' ? 85 : legacy.latest_receipt.confidence_level === 'medium' ? 65 : 45 });
+      const edition = await rh4663.today({ date, keySignal: legacy.cards.find((card) => card.id === 'top_signal')?.verdict ?? legacy.latest_receipt.top_signal, categoryFlows, evidence, providerState, confidence: legacy.latest_receipt.confidence_level === 'high' ? 85 : legacy.latest_receipt.confidence_level === 'medium' ? 65 : 45,
+        intelligenceSignals: rankedIntelligence.map((signal) => ({ signal_id: signal.signal_id, event_id: signal.event_ids[0] ?? signal.signal_id, headline: signal.headline, category: rh4663LegacyCategory(signal.category), significance_score: signal.significance_score, detected_at: signal.detected_at, evidence: signal.evidence }))
+      });
+      if (!priorEdition) rh4663Intelligence.recordToday(edition.edition_state === 'degraded' ? 'degraded' : 'generated', { edition_id: edition.edition_id, date: edition.date, provider_state: edition.provider_state, intelligence_signal_count: edition.intelligence_signal_ids?.length ?? 0 });
       return { ...edition, rh_pulse: await rh4663Phase2.todayPulse(edition.date).catch(() => null) };
-    } catch {
-      const editionDate = date ?? new Date().toISOString().slice(0, 10);
+    } catch (error) {
+      rh4663Intelligence.recordToday('degraded', { date: editionDate, error_code: error instanceof Rh4663ServiceError ? error.code : 'today_generation_failed' });
       return { edition_id: `today_4663_${editionDate.replaceAll('-', '')}_unavailable`, date: editionDate, generated_at: new Date().toISOString(), top_events: [], category_flows: [], key_signal: 'Current reviewed intelligence is unavailable. No live flow is asserted.', rh_pulse_consensus: null, evidence_references: [], confidence: 0, source_timestamps: [], provider_state: 'unavailable' as const, storage_status: 'unavailable' as const, archive_path: `/v1/4663/today/${editionDate}`, data_notice: 'Provider or storage state is unavailable. No missing live observation has been fabricated.' };
     }
   };
   app.get('/v1/4663', async () => {
-    const [pulse, genesis, today, signals] = await Promise.all([rh4663PulseRead(), rh4663GenesisRead(), rh4663TodayInput(), rh4663Store.listSignals(5).catch(() => [])]);
+    const [pulse, genesis, today, signals, liveSignals] = await Promise.all([rh4663PulseRead(), rh4663GenesisRead(), rh4663TodayInput(), rh4663Store.listSignals(5).catch(() => []), rh4663Intelligence.publicSignals({ limit: 3 }).catch(() => [])]);
     const index = assembleRhChain4663Index();
     return { data: safeJsonExport({
       identity: 'INFOPUNKS // 4663', thesis: 'WE WATCH THE FLOW.',
       rotation_snapshot: { top_signal: index.overview.top_signal, highest_volume: index.overview.highest_volume, highest_risk: index.overview.highest_risk, last_updated: index.last_updated, source_status: rh4663SourceStatus(index.freshness_state) },
-      pulse, today, signal_hunt: { count: signals.length, signals }, genesis,
+      pulse, today, live_signals: { count: liveSignals.length, signals: liveSignals }, signal_hunt: { count: signals.length, signals }, genesis,
       semantics: { signal_card: 'Editorial intelligence representation.', evidence_receipt: 'Machine-verifiable observation object.', protocol_receipt: 'Canonical CALL / RESOLUTION / GENESIS FINALIZATION object.' }
     }) };
   });
@@ -2558,7 +2656,18 @@ export async function createApp(
     if (!edition) return reply.code(404).send({ error: 'today_edition_not_found' });
     return { data: safeJsonExport({ ...edition, rh_pulse: await rh4663Phase2.todayPulse(req.params.date).catch(() => null) }) };
   });
-  app.get('/v1/4663/signals', async () => ({ data: safeJsonExport({ signals: await rh4663Store.listSignals(100).catch(() => []), guarantee_notice: 'Signal Cards are editorial intelligence, not Evidence Receipts or Protocol Receipts.' }) }));
+  app.get<{ Querystring: { category?: string; subject?: string; signal_type?: string; since?: string; publication_state?: string; limit?: string } }>('/v1/4663/signals', async (req, reply) => {
+    const category = req.query.category ? Rh4663IntelligenceCategorySchema.safeParse(req.query.category.toUpperCase()) : null;
+    const signalType = req.query.signal_type ? Rh4663EventTypeSchema.safeParse(req.query.signal_type.toUpperCase()) : null;
+    if ((category && !category.success) || (signalType && !signalType.success) || (req.query.publication_state && req.query.publication_state !== 'published') || (req.query.since && !Number.isFinite(Date.parse(req.query.since)))) return reply.code(400).send({ error: 'invalid_4663_signal_filter' });
+    const limit = Math.min(200, Math.max(1, Number(req.query.limit ?? 100) || 100));
+    const [signals, community] = await Promise.all([
+      rh4663Intelligence.publicSignals({ ...(category?.success ? { category: category.data } : {}), ...(signalType?.success ? { signal_type: signalType.data } : {}), ...(req.query.subject ? { subject: req.query.subject } : {}), ...(req.query.since ? { since: new Date(req.query.since).toISOString() } : {}), limit }).catch(() => []),
+      rh4663Store.listSignals(100).catch(() => [])
+    ]);
+    const watching = community.filter((signal) => ['watching', 'evidence_added', 'unresolved', 'confirmed'].includes(signal.lifecycle_state));
+    return { data: safeJsonExport({ signals, watching, signal_hunt: community, archive_count: signals.length, publication_state: 'published', provider_requests_in_path: 0, guarantee_notice: 'Signal Cards are editorial intelligence, not Evidence Receipts or Protocol Receipts.' }) };
+  });
   app.post('/v1/4663/signals', async (req, reply) => {
     try { return reply.code(201).send({ data: safeJsonExport(await rh4663.submitSignal(Rh4663SignalSubmissionSchema.parse(req.body))) }); }
     catch (error) { return rh4663Failure(reply, error); }
@@ -2568,13 +2677,51 @@ export async function createApp(
     try { return { data: safeJsonExport(await rh4663.addSignalEvidence(req.params.signalId, Rh4663SignalEvidenceInputSchema.parse(req.body), actor)) }; }
     catch (error) { return rh4663Failure(reply, error); }
   });
+  app.get<{ Params: { signalId: string } }>('/v1/4663/signals/:signalId', async (req, reply) => {
+    const published = await rh4663Intelligence.publicSignal(req.params.signalId).catch(() => null);
+    if (published) return { data: safeJsonExport(published) };
+    const community = await rh4663Store.getSignal(req.params.signalId).catch(() => null);
+    if (!community) return reply.code(404).send({ error: 'signal_not_found' });
+    return { data: safeJsonExport({ ...community, publication_state: 'community_watch', proof_status: 'not_published' }) };
+  });
+  app.get<{ Params: { signalId: string } }>('/v1/4663/signals/:signalId/evidence', async (req, reply) => {
+    const evidence = await rh4663Intelligence.evidence(req.params.signalId).catch(() => null);
+    if (!evidence) return reply.code(404).send({ error: 'published_signal_not_found' });
+    return { data: safeJsonExport(evidence) };
+  });
+  app.get<{ Params: { lens: string }; Querystring: { since?: string } }>('/v1/4663/lenses/:lens', async (req, reply) => {
+    const aliases: Record<string, string> = { meme: 'MEMES', memes: 'MEMES', stock_tokens: 'STOCK_TOKENS', rwa_defi: 'RWA_DEFI', stables: 'STABLES', stablecoin: 'STABLES', culture: 'CULTURE_NFT', nft: 'CULTURE_NFT', agent: 'AGENT', utility: 'UTILITY' };
+    const category = Rh4663IntelligenceCategorySchema.safeParse(aliases[req.params.lens.toLowerCase()] ?? req.params.lens.toUpperCase());
+    if (!category.success || (req.query.since && !Number.isFinite(Date.parse(req.query.since)))) return reply.code(400).send({ error: 'invalid_4663_lens' });
+    return { data: safeJsonExport(await rh4663Intelligence.lens(category.data, req.query.since ? { since: new Date(req.query.since).toISOString() } : {})) };
+  });
+  app.get<{ Querystring: { since?: string } }>('/v1/4663/rotation', async (req, reply) => {
+    if (req.query.since && !Number.isFinite(Date.parse(req.query.since))) return reply.code(400).send({ error: 'invalid_since' });
+    return { data: safeJsonExport(await rh4663Intelligence.rotation(req.query.since ? new Date(req.query.since).toISOString() : undefined)) };
+  });
   app.post<{ Params: { signalId: string } }>('/internal/4663/signals/:signalId/transition', async (req, reply) => {
     if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send({ error: 'review_admin_token_required' });
     const actor = classificationReviewer(req.headers['x-rh-chain-reviewer-id']); if (!actor) return reply.code(400).send({ error: 'reviewer_id_required' });
     try { return { data: safeJsonExport(await rh4663.transitionSignal(req.params.signalId, Rh4663SignalTransitionInputSchema.parse(req.body), actor)) }; }
     catch (error) { return rh4663Failure(reply, error); }
   });
-  app.get('/v1/4663/events', async () => ({ data: safeJsonExport({ events: await rh4663Store.listEvents(100).catch(() => []) }) }));
+  const rh4663Phase3Reviewer = (req: FastifyRequest, reply: FastifyReply) => {
+    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) { reply.code(401).send({ error: 'review_admin_token_required' }); return null; }
+    const reviewer = classificationReviewer(req.headers['x-rh-chain-reviewer-id']); if (!reviewer) { reply.code(400).send({ error: 'reviewer_id_required' }); return null; } return reviewer;
+  };
+  app.post('/internal/4663/intelligence/run', async (req, reply) => { const reviewer = rh4663Phase3Reviewer(req, reply); if (!reviewer) return; if (!rh4663Intelligence.activation().ingestion_enabled) return reply.code(503).send({ error: 'phase3_ingestion_disabled' }); const result = await runPhase3Intelligence(); return { data: safeJsonExport({ ...result, requested_by: reviewer }) }; });
+  app.post('/internal/4663/intelligence/observations', async (req, reply) => { const reviewer = rh4663Phase3Reviewer(req, reply); if (!reviewer) return; try { const result = await rh4663Intelligence.ingest(Rh4663RawObservationInputSchema.parse(req.body)); return reply.code(201).send({ data: safeJsonExport({ ...result, requested_by: reviewer }) }); } catch (error) { return rh4663Failure(reply, error); } });
+  app.get('/internal/4663/intelligence/candidates', async (req, reply) => { if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send({ error: 'review_admin_token_required' }); return { data: safeJsonExport({ candidates: await rh4663IntelligenceStore.listCandidates(1_000), storage: { adapter: rh4663IntelligenceStore.adapter, durable: rh4663IntelligenceStore.durable } }) }; });
+  app.post<{ Params: { candidateId: string } }>('/internal/4663/intelligence/candidates/:candidateId/action', async (req, reply) => {
+    const reviewer = rh4663Phase3Reviewer(req, reply); if (!reviewer) return; const parsed = z.object({ action: z.enum(['publish', 'hold', 'reject', 'false_positive']), note: z.string().trim().min(3).max(1_000) }).strict().safeParse(req.body); if (!parsed.success) return reply.code(400).send({ error: 'invalid_candidate_action', details: parsed.error.flatten() });
+    try { if (parsed.data.action === 'publish') return { data: safeJsonExport({ signal: await rh4663Intelligence.publish(req.params.candidateId, reviewer) }) }; const candidate = await rh4663IntelligenceStore.getCandidate(req.params.candidateId); if (!candidate) return reply.code(404).send({ error: 'candidate_not_found' }); const state = parsed.data.action === 'hold' ? 'held' as const : 'rejected' as const; const outcome = parsed.data.action === 'false_positive' ? 'false_positive' as const : parsed.data.action === 'reject' ? 'rejected' as const : 'held' as const; const updated = await rh4663IntelligenceStore.updateCandidate({ ...candidate, publication_state: state, outcome, updated_at: new Date().toISOString(), policy_reasons: [...candidate.policy_reasons, `reviewer:${parsed.data.action}:${parsed.data.note}`] }); rh4663Intelligence.recordCandidateAction(candidate.candidate_id,state,outcome,reviewer); return { data: safeJsonExport({ candidate: updated }) }; } catch (error) { return rh4663Failure(reply, error); }
+  });
+  app.post<{ Params: { signalId: string } }>('/internal/4663/intelligence/signals/:signalId/corrections', async (req, reply) => { const reviewer = rh4663Phase3Reviewer(req, reply); if (!reviewer) return; const parsed = z.object({ correction_type: z.enum(['CORRECTION', 'SUPERSEDED', 'UPDATED_EVIDENCE']), note: z.string().trim().min(3).max(1_000), evidence: z.array(Rh4663EvidenceReferenceSchema).max(50).optional() }).strict().safeParse(req.body); if (!parsed.success) return reply.code(400).send({ error: 'invalid_correction', details: parsed.error.flatten() }); try { return { data: safeJsonExport(await rh4663Intelligence.correct(req.params.signalId, parsed.data, reviewer)) }; } catch (error) { return rh4663Failure(reply, error); } });
+  app.post<{ Params: { signalId: string } }>('/internal/4663/intelligence/signals/:signalId/distribution', async (req, reply) => { const reviewer = rh4663Phase3Reviewer(req, reply); if (!reviewer) return; try { return { data: safeJsonExport({ ...(await rh4663Intelligence.queueDistribution(req.params.signalId)), requested_by: reviewer }) }; } catch (error) { return rh4663Failure(reply, error); } });
+  app.post('/internal/4663/intelligence/backtest', async (req, reply) => { const reviewer = rh4663Phase3Reviewer(req, reply); if (!reviewer) return; const parsed = z.object({ since: z.string().datetime().optional(), until: z.string().datetime().optional(), heuristic_version: z.string().min(1).max(120).optional() }).strict().safeParse(req.body ?? {}); if (!parsed.success) return reply.code(400).send({ error: 'invalid_backtest_request', details: parsed.error.flatten() }); return { data: safeJsonExport({ ...(await rh4663Intelligence.backtest(parsed.data)), requested_by: reviewer }) }; });
+  app.get('/internal/4663/intelligence/metrics', async (req, reply) => { if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send({ error: 'review_admin_token_required' }); return { data: safeJsonExport(await rh4663Intelligence.metrics()) }; });
+  app.get('/internal/4663/intelligence/activation', async (req, reply) => { if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send({ error: 'review_admin_token_required' }); return { data: safeJsonExport(rh4663Intelligence.activation()) }; });
+  app.get('/v1/4663/events', async () => ({ data: safeJsonExport({ events: (await rh4663Store.listEvents(500).catch(() => [])).filter((event) => event.publication_state === 'public') }) }));
   app.get('/v1/4663/receipts', async () => ({ data: safeJsonExport({ receipt_kind: 'PROTOCOL_RECEIPT', receipts: await rh4663Store.listCalls(undefined, 100).catch(() => []), immutable: true }) }));
   app.get<{ Params: { receiptId: string } }>('/v1/4663/receipts/:receiptId', async (req, reply) => {
     try { return { data: safeJsonExport(await rh4663Phase2.receipt(req.params.receiptId)) }; } catch (error) { return rh4663Failure(reply, error); }
@@ -3371,6 +3518,10 @@ export async function createApp(
     try { const format = parseRh4663ShareFormat(req.query.format); const share = await rh4663Phase2.windowShare(req.params.windowId); reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800'); return reply.type('image/png').send(renderOgPng(renderRh4663ShareSvg(share, format), format === 'landscape' ? 1200 : 1080)); }
     catch (error) { console.log(JSON.stringify({ event: 'share_render_failed', service: 'rh_4663_resolution', window_id: req.params.windowId, error_code: error instanceof Rh4663ServiceError ? error.code : 'render_failed' })); return rh4663Failure(reply, error); }
   });
+  app.get<{ Params: { signalId: string }; Querystring: { format?: string } }>('/og/4663/signals/:signalId.png', async (req, reply) => {
+    try { const format = parseRh4663ShareFormat(req.query.format); const signal = await rh4663Intelligence.publicSignal(req.params.signalId); if (!signal) return reply.code(404).send({ error: 'published_signal_not_found' }); reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800'); return reply.type('image/png').send(renderOgPng(renderRh4663ShareSvg(signal, format), format === 'landscape' ? 1200 : 1080)); }
+    catch (error) { rh4663Intelligence.recordShareRenderFailed(req.params.signalId, error instanceof Rh4663ServiceError ? error.code : 'render_failed'); return rh4663Failure(reply, error); }
+  });
   app.get('/og/rh-chain/market.png', async (_req, reply) => {
     reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
     return reply.type('image/png').send(renderOgPng(renderRhChainMarketPulseOgImage()));
@@ -3765,7 +3916,7 @@ export async function createApp(
     });
   }
 
-  if (config.rhChainAutomationEnabled) {
+  if (config.rhChainAutomationEnabled || (config.rh4663Phase3Enabled && config.rh4663Phase3IngestionEnabled)) {
     const schedule = (jobName: import('../services/rhChainAutomationService').RhChainAutomationJobName, intervalMs: number) => {
       const timer = setInterval(() => { void runRhChainAutomationJob(jobName); }, intervalMs);
       timer.unref();
@@ -3773,11 +3924,14 @@ export async function createApp(
     };
     // Context refreshes are independently scheduled. A provider or job failure is
     // recorded on that run and cannot prevent the next job from executing.
-    schedule('rh_chain_pulse_refresh', config.rhChainChainPulseIntervalMs);
-    schedule('rh_freshness_sweep', config.rhChainChainPulseIntervalMs);
-    schedule('rh_meme_pulse_refresh', config.rhChainMemePulseIntervalMs);
-    schedule('rh_launchpad_observatory_refresh', config.rhChainLaunchpadIntervalMs);
-    if (config.rhChainReceiptDraftCron) {
+    if (config.rhChainAutomationEnabled) {
+      schedule('rh_chain_pulse_refresh', config.rhChainChainPulseIntervalMs);
+      schedule('rh_freshness_sweep', config.rhChainChainPulseIntervalMs);
+      schedule('rh_meme_pulse_refresh', config.rhChainMemePulseIntervalMs);
+      schedule('rh_launchpad_observatory_refresh', config.rhChainLaunchpadIntervalMs);
+    }
+    if (config.rh4663Phase3Enabled && config.rh4663Phase3IngestionEnabled) schedule('rh_4663_intelligence_refresh', config.rh4663Phase3IntervalMs);
+    if (config.rhChainAutomationEnabled && config.rhChainReceiptDraftCron) {
       let lastReceiptDraftMinute = '';
       const timer = setInterval(() => {
         const now = new Date();
@@ -4014,6 +4168,10 @@ function rh4663CategoryFromNarrative(classes: readonly string[]) {
   if (classes.some((value) => value.includes('liquidity'))) return 'liquidity' as const;
   if (classes.some((value) => value.includes('risk') || value.includes('deployer'))) return 'risk' as const;
   return 'meme' as const;
+}
+
+function rh4663LegacyCategory(category: import('../services/rh4663Service').Rh4663IntelligenceCategory): import('../services/rh4663Service').Rh4663SignalCategory {
+  return ({ MEMES: 'meme', STOCK_TOKENS: 'stock_token', RWA_DEFI: 'defi', STABLES: 'liquidity', CULTURE_NFT: 'nft_culture', UTILITY: 'utility', AGENT: 'agent', WALLET: 'wallet', LIQUIDITY: 'liquidity', INTEGRATION: 'integration', SECURITY: 'risk', OTHER: 'other' } as const)[category];
 }
 
 /** Small, intentionally bounded five-field cron matcher for an optional local scheduler. */

@@ -65,6 +65,15 @@ export type RuntimeConfig = {
   rhChainDuplicateWindowMs: number;
   rh4663Phase2Enabled: boolean;
   rh4663ResolutionSigningConfigured: boolean;
+  rh4663Phase3Enabled: boolean;
+  rh4663Phase3IngestionEnabled: boolean;
+  rh4663Phase3CandidateGenerationEnabled: boolean;
+  rh4663Phase3PublicationEnabled: boolean;
+  rh4663Phase3AutoPublicationEnabled: boolean;
+  rh4663Phase3ExternalDistributionEnabled: boolean;
+  rh4663Phase3ShadowMode: boolean;
+  rh4663Phase3IntervalMs: number;
+  rh4663Phase2ProductionProofVerified: boolean;
   frontendOrigin: string | null;
   version: string;
   /** Features requested by configuration but deliberately unavailable at runtime. */
@@ -149,6 +158,15 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
     rhChainDuplicateWindowMs: readPositiveInteger('RH_CHAIN_DUPLICATE_WINDOW_MS', env.RH_CHAIN_DUPLICATE_WINDOW_MS, 15 * 60_000),
     rh4663Phase2Enabled: readBoolean('RH_4663_PHASE2_ENABLED', env.RH_4663_PHASE2_ENABLED, !isProduction),
     rh4663ResolutionSigningConfigured: Boolean(optionalString(env.RH_4663_RESOLUTION_PRIVATE_KEY)),
+    rh4663Phase3Enabled: readBoolean('RH_4663_PHASE3_ENABLED', env.RH_4663_PHASE3_ENABLED, false),
+    rh4663Phase3IngestionEnabled: readBoolean('RH_4663_PHASE3_INGESTION_ENABLED', env.RH_4663_PHASE3_INGESTION_ENABLED, false),
+    rh4663Phase3CandidateGenerationEnabled: readBoolean('RH_4663_PHASE3_CANDIDATE_GENERATION_ENABLED', env.RH_4663_PHASE3_CANDIDATE_GENERATION_ENABLED, false),
+    rh4663Phase3PublicationEnabled: readBoolean('RH_4663_PHASE3_PUBLICATION_ENABLED', env.RH_4663_PHASE3_PUBLICATION_ENABLED, false),
+    rh4663Phase3AutoPublicationEnabled: readBoolean('RH_4663_AUTO_PUBLICATION_ENABLED', env.RH_4663_AUTO_PUBLICATION_ENABLED, false),
+    rh4663Phase3ExternalDistributionEnabled: readBoolean('RH_4663_EXTERNAL_DISTRIBUTION_ENABLED', env.RH_4663_EXTERNAL_DISTRIBUTION_ENABLED, false),
+    rh4663Phase3ShadowMode: readBoolean('RH_4663_PHASE3_SHADOW_MODE', env.RH_4663_PHASE3_SHADOW_MODE, true),
+    rh4663Phase3IntervalMs: readPositiveInteger('RH_4663_PHASE3_INTERVAL_MS', env.RH_4663_PHASE3_INTERVAL_MS, 10 * 60_000),
+    rh4663Phase2ProductionProofVerified: readBoolean('RH_4663_PHASE2_PRODUCTION_PROOF_VERIFIED', env.RH_4663_PHASE2_PRODUCTION_PROOF_VERIFIED, false),
     frontendOrigin: readOptionalUrl('FRONTEND_ORIGIN', env.FRONTEND_ORIGIN),
     version: env.APP_VERSION ?? packageVersion(),
     disabledFeatures: {}
@@ -232,10 +250,25 @@ function resolveOptionalProductionFeatures(config: RuntimeConfig) {
   if (config.rh4663Phase2Enabled && (!config.databaseUrl || !config.rhChainReviewAdminToken || !config.rh4663ResolutionSigningConfigured)) {
     disable('infopunks_4663_phase2', !config.databaseUrl ? 'DATABASE_URL is missing' : !config.rhChainReviewAdminToken ? 'authenticated RH Chain reviewer infrastructure is required' : 'RH_4663_RESOLUTION_PRIVATE_KEY is missing', () => { config.rh4663Phase2Enabled = false; });
   }
+  if (config.rh4663Phase3Enabled && !config.databaseUrl) {
+    disable('infopunks_4663_phase3', 'DATABASE_URL is missing; Phase 3 remains off', () => {
+      config.rh4663Phase3Enabled = false; config.rh4663Phase3IngestionEnabled = false; config.rh4663Phase3CandidateGenerationEnabled = false;
+      config.rh4663Phase3PublicationEnabled = false; config.rh4663Phase3AutoPublicationEnabled = false; config.rh4663Phase3ExternalDistributionEnabled = false;
+    });
+  }
+  if (config.rh4663Phase3PublicationEnabled && (!config.rh4663Phase2ProductionProofVerified || !config.rhChainReviewAdminToken || !config.rh4663Phase2Enabled)) {
+    disable('infopunks_4663_phase3_publication', !config.rh4663Phase2ProductionProofVerified ? 'Phase 2 production proof chain is not explicitly verified' : !config.rhChainReviewAdminToken ? 'authenticated RH Chain reviewer infrastructure is required' : 'Phase 2 must remain enabled', () => { config.rh4663Phase3PublicationEnabled = false; config.rh4663Phase3AutoPublicationEnabled = false; config.rh4663Phase3ExternalDistributionEnabled = false; });
+  }
+  if (config.rh4663Phase3AutoPublicationEnabled && !config.rh4663Phase3PublicationEnabled) {
+    disable('infopunks_4663_phase3_auto_publication', 'RH_4663_PHASE3_PUBLICATION_ENABLED is required', () => { config.rh4663Phase3AutoPublicationEnabled = false; });
+  }
+  if (config.rh4663Phase3ExternalDistributionEnabled && !config.rh4663Phase3PublicationEnabled) {
+    disable('infopunks_4663_external_distribution', 'public Signal publication is required; external distribution remains off', () => { config.rh4663Phase3ExternalDistributionEnabled = false; });
+  }
 }
 
 const RUNTIME_ENVIRONMENT_DEPENDENCIES: Array<{ name: string; hasDefault: boolean }> = [
-  'NODE_ENV', 'PORT', 'INFOPUNKS_ADMIN_TOKEN', 'DATABASE_URL', 'DATABASE_POOL_MAX', 'PAY_SH_CATALOG_URL', 'PAYSH_CATALOG_SOURCE', 'PAYSH_ALLOW_FIXTURE_FALLBACK', 'PAYSH_BOOTSTRAP_ENABLED', 'PAY_SH_INGEST_INTERVAL_MS', 'INGESTION_ENABLED', 'MONITOR_ENABLED', 'MONITOR_MODE', 'MONITOR_INTERVAL_MS', 'MONITOR_TIMEOUT_MS', 'MONITOR_MAX_PROVIDERS', 'MONITOR_ALLOW_PAID_ENDPOINTS', 'FEATURED_PROVIDER_ROTATION_MS', 'MACHINE_DEMO_SEED', 'MACHINE_RECEIPTS_JSONL_PATH', 'INFOPUNKS_BIGQUERY_LIVE_CREDENTIALS_CONFIGURED', 'INFOPUNKS_BIGQUERY_LIVE_HARNESS_ENABLED', 'INFOPUNKS_BIGQUERY_LIVE_HARNESS_MODE', 'INFOPUNKS_BIGQUERY_LIVE_HARNESS_VERSION', 'INFOPUNKS_BIGQUERY_LIVE_RAIL_CONFIGURED', 'RH_CHAIN_LIVE_SNAPSHOTS_ENABLED', 'RH_CHAIN_PROVIDER_TIMEOUT_MS', 'RH_CHAIN_LIVE_TOKEN_ROUTE_TIMEOUT_MS', 'RH_CHAIN_CACHE_TTL_SECONDS', 'RH_CHAIN_BLOCKSCOUT_URL', 'DEXSCREENER_ENABLED', 'DEXSCREENER_BASE_URL', 'DEXSCREENER_RH_CHAIN_ID', 'DEXSCREENER_TIMEOUT_MS', 'DEXSCREENER_CACHE_TTL_SECONDS', 'DEXSCREENER_STALE_WHILE_REVALIDATE_SECONDS', 'DEXSCREENER_STALE_IF_ERROR_SECONDS', 'DEXSCREENER_MAX_STALE_SECONDS', 'DEXSCREENER_MAX_BATCH_SIZE', 'DEXSCREENER_MAX_RETRIES', 'DEXSCREENER_RETRY_BASE_MS', 'DEXSCREENER_MAX_CONCURRENCY', 'DEXSCREENER_RATE_LIMIT_PER_SECOND', 'BLOCKSCOUT_ENABLED', 'BLOCKSCOUT_BASE_URL', 'BLOCKSCOUT_TIMEOUT_MS', 'BLOCKSCOUT_CACHE_TTL_SECONDS', 'BLOCKSCOUT_MAX_PAGE_SIZE', 'RH_CHAIN_REVIEW_CONSOLE_ENABLED', 'RH_CHAIN_REVIEW_ADMIN_TOKEN', 'RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED', 'RH_CHAIN_ATTENTION_QUALITY_V2_ENABLED', 'RH_CHAIN_PROJECT_CLAIMS_ENABLED', 'RH_CHAIN_INTELLIGENCE_RECEIPTS_ENABLED', 'RH_CHAIN_PROJECT_DIRECTORY_ENABLED', 'RH_CHAIN_AUTOMATION_ENABLED', 'RH_CHAIN_MARKET_INGESTION_ENABLED', 'RH_CHAIN_MARKET_HISTORY_ENABLED', 'RH_CHAIN_AUTOMATION_INSTANCE_ID', 'RH_CHAIN_JOB_LOCK_TTL_MS', 'RH_CHAIN_CHAIN_PULSE_INTERVAL_MS', 'RH_CHAIN_MEME_PULSE_INTERVAL_MS', 'RH_CHAIN_LAUNCHPAD_INTERVAL_MS', 'RH_CHAIN_RECEIPT_DRAFT_CRON', 'RH_CHAIN_PUBLIC_RATE_LIMIT_ENABLED', 'RH_CHAIN_PUBLIC_RATE_LIMIT_WINDOW_MS', 'RH_CHAIN_PUBLIC_RATE_LIMIT_MAX', 'RH_CHAIN_DUPLICATE_WINDOW_MS', 'RH_4663_PHASE2_ENABLED', 'RH_4663_RESOLUTION_PRIVATE_KEY', 'RH_4663_RESOLUTION_KEY_ID', 'RH_4663_ANCHOR_RPC_URL', 'RH_4663_ANCHOR_CONTRACT', 'RH_4663_ANCHOR_PRIVATE_KEY', 'RH_4663_ANCHOR_CONFIRMATIONS', 'FRONTEND_ORIGIN', 'EVALUATION_REQUEST_WEBHOOK_URL', 'MACHINE_EXECUTION_ENABLED', 'PAY_SH_TRANSLATION_URL', 'PAY_SH_TRANSLATION_AUTH_MODE', 'PAY_SH_TRANSLATION_AUTH_HEADER', 'PAY_SH_TRANSLATION_AUTH_TOKEN', 'PAY_SH_TRANSLATION_PAYMENT_HEADER', 'PAY_SH_TRANSLATION_PAYMENT_VALUE', 'PAY_SH_TRANSLATION_TIMEOUT_MS', 'HERMES_ENABLED', 'HERMES_BASE_URL', 'HERMES_API_KEY', 'HERMES_MODE', 'APP_VERSION'
+  'NODE_ENV', 'PORT', 'INFOPUNKS_ADMIN_TOKEN', 'DATABASE_URL', 'DATABASE_POOL_MAX', 'PAY_SH_CATALOG_URL', 'PAYSH_CATALOG_SOURCE', 'PAYSH_ALLOW_FIXTURE_FALLBACK', 'PAYSH_BOOTSTRAP_ENABLED', 'PAY_SH_INGEST_INTERVAL_MS', 'INGESTION_ENABLED', 'MONITOR_ENABLED', 'MONITOR_MODE', 'MONITOR_INTERVAL_MS', 'MONITOR_TIMEOUT_MS', 'MONITOR_MAX_PROVIDERS', 'MONITOR_ALLOW_PAID_ENDPOINTS', 'FEATURED_PROVIDER_ROTATION_MS', 'MACHINE_DEMO_SEED', 'MACHINE_RECEIPTS_JSONL_PATH', 'INFOPUNKS_BIGQUERY_LIVE_CREDENTIALS_CONFIGURED', 'INFOPUNKS_BIGQUERY_LIVE_HARNESS_ENABLED', 'INFOPUNKS_BIGQUERY_LIVE_HARNESS_MODE', 'INFOPUNKS_BIGQUERY_LIVE_HARNESS_VERSION', 'INFOPUNKS_BIGQUERY_LIVE_RAIL_CONFIGURED', 'RH_CHAIN_LIVE_SNAPSHOTS_ENABLED', 'RH_CHAIN_PROVIDER_TIMEOUT_MS', 'RH_CHAIN_LIVE_TOKEN_ROUTE_TIMEOUT_MS', 'RH_CHAIN_CACHE_TTL_SECONDS', 'RH_CHAIN_BLOCKSCOUT_URL', 'DEXSCREENER_ENABLED', 'DEXSCREENER_BASE_URL', 'DEXSCREENER_RH_CHAIN_ID', 'DEXSCREENER_TIMEOUT_MS', 'DEXSCREENER_CACHE_TTL_SECONDS', 'DEXSCREENER_STALE_WHILE_REVALIDATE_SECONDS', 'DEXSCREENER_STALE_IF_ERROR_SECONDS', 'DEXSCREENER_MAX_STALE_SECONDS', 'DEXSCREENER_MAX_BATCH_SIZE', 'DEXSCREENER_MAX_RETRIES', 'DEXSCREENER_RETRY_BASE_MS', 'DEXSCREENER_MAX_CONCURRENCY', 'DEXSCREENER_RATE_LIMIT_PER_SECOND', 'BLOCKSCOUT_ENABLED', 'BLOCKSCOUT_BASE_URL', 'BLOCKSCOUT_TIMEOUT_MS', 'BLOCKSCOUT_CACHE_TTL_SECONDS', 'BLOCKSCOUT_MAX_PAGE_SIZE', 'RH_CHAIN_REVIEW_CONSOLE_ENABLED', 'RH_CHAIN_REVIEW_ADMIN_TOKEN', 'RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED', 'RH_CHAIN_ATTENTION_QUALITY_V2_ENABLED', 'RH_CHAIN_PROJECT_CLAIMS_ENABLED', 'RH_CHAIN_INTELLIGENCE_RECEIPTS_ENABLED', 'RH_CHAIN_PROJECT_DIRECTORY_ENABLED', 'RH_CHAIN_AUTOMATION_ENABLED', 'RH_CHAIN_MARKET_INGESTION_ENABLED', 'RH_CHAIN_MARKET_HISTORY_ENABLED', 'RH_CHAIN_AUTOMATION_INSTANCE_ID', 'RH_CHAIN_JOB_LOCK_TTL_MS', 'RH_CHAIN_CHAIN_PULSE_INTERVAL_MS', 'RH_CHAIN_MEME_PULSE_INTERVAL_MS', 'RH_CHAIN_LAUNCHPAD_INTERVAL_MS', 'RH_CHAIN_RECEIPT_DRAFT_CRON', 'RH_CHAIN_PUBLIC_RATE_LIMIT_ENABLED', 'RH_CHAIN_PUBLIC_RATE_LIMIT_WINDOW_MS', 'RH_CHAIN_PUBLIC_RATE_LIMIT_MAX', 'RH_CHAIN_DUPLICATE_WINDOW_MS', 'RH_4663_PHASE2_ENABLED', 'RH_4663_RESOLUTION_PRIVATE_KEY', 'RH_4663_RESOLUTION_KEY_ID', 'RH_4663_ANCHOR_RPC_URL', 'RH_4663_ANCHOR_CONTRACT', 'RH_4663_ANCHOR_PRIVATE_KEY', 'RH_4663_ANCHOR_CONFIRMATIONS', 'RH_4663_PHASE3_ENABLED', 'RH_4663_PHASE3_INGESTION_ENABLED', 'RH_4663_PHASE3_CANDIDATE_GENERATION_ENABLED', 'RH_4663_PHASE3_PUBLICATION_ENABLED', 'RH_4663_AUTO_PUBLICATION_ENABLED', 'RH_4663_EXTERNAL_DISTRIBUTION_ENABLED', 'RH_4663_PHASE3_SHADOW_MODE', 'RH_4663_PHASE3_INTERVAL_MS', 'RH_4663_PHASE2_PRODUCTION_PROOF_VERIFIED', 'FRONTEND_ORIGIN', 'EVALUATION_REQUEST_WEBHOOK_URL', 'MACHINE_EXECUTION_ENABLED', 'PAY_SH_TRANSLATION_URL', 'PAY_SH_TRANSLATION_AUTH_MODE', 'PAY_SH_TRANSLATION_AUTH_HEADER', 'PAY_SH_TRANSLATION_AUTH_TOKEN', 'PAY_SH_TRANSLATION_PAYMENT_HEADER', 'PAY_SH_TRANSLATION_PAYMENT_VALUE', 'PAY_SH_TRANSLATION_TIMEOUT_MS', 'HERMES_ENABLED', 'HERMES_BASE_URL', 'HERMES_API_KEY', 'HERMES_MODE', 'APP_VERSION'
 ].sort().map((name) => ({ name, hasDefault: !['PORT', 'INFOPUNKS_ADMIN_TOKEN', 'DATABASE_URL', 'RH_CHAIN_REVIEW_ADMIN_TOKEN'].includes(name) }));
 
 export function deploymentSummary(config: RuntimeConfig) {
@@ -259,6 +292,16 @@ export function deploymentSummary(config: RuntimeConfig) {
     rhChainMarketIngestionEnabled: config.rhChainMarketIngestionEnabled,
     rhChainMarketHistoryEnabled: config.rhChainMarketHistoryEnabled,
     rh4663Phase2Enabled: config.rh4663Phase2Enabled,
+    rh4663Phase3: {
+      enabled: config.rh4663Phase3Enabled,
+      ingestionEnabled: config.rh4663Phase3IngestionEnabled,
+      candidateGenerationEnabled: config.rh4663Phase3CandidateGenerationEnabled,
+      publicationEnabled: config.rh4663Phase3PublicationEnabled,
+      autoPublicationEnabled: config.rh4663Phase3AutoPublicationEnabled,
+      externalDistributionEnabled: config.rh4663Phase3ExternalDistributionEnabled,
+      shadowMode: config.rh4663Phase3ShadowMode,
+      phase2ProductionProofVerified: config.rh4663Phase2ProductionProofVerified
+    },
     ingestionEnabled: config.ingestionEnabled,
     dbMode: config.databaseUrl ? 'postgres' : 'memory',
     disabledFeatures: Object.keys(config.disabledFeatures).sort(),

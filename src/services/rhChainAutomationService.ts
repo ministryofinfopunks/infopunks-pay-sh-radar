@@ -18,7 +18,8 @@ export const RH_CHAIN_AUTOMATION_JOB_NAMES = [
   'rh_token_dossier_enrichment',
   'rh_clone_risk_correlation',
   'rh_daily_receipt_draft',
-  'rh_freshness_sweep'
+  'rh_freshness_sweep',
+  'rh_4663_intelligence_refresh'
 ] as const;
 
 export type RhChainAutomationJobName = typeof RH_CHAIN_AUTOMATION_JOB_NAMES[number];
@@ -40,7 +41,7 @@ export type RhChainAutomationDraft = {
   draft_id: string;
   job_id: string;
   job_name: RhChainAutomationJobName;
-  draft_type: 'context_observation' | 'token_dossier_draft' | 'risk_correlation_draft' | 'daily_receipt_draft' | 'freshness_observation';
+  draft_type: 'context_observation' | 'token_dossier_draft' | 'risk_correlation_draft' | 'daily_receipt_draft' | 'freshness_observation' | '4663_intelligence_run';
   created_at: string;
   data_mode: string;
   sources: string[];
@@ -149,6 +150,8 @@ export type RhChainAutomationServiceOptions = {
   dailyReceiptDrafts?: RhChainDailyReceiptDraftService;
   riskCorrelationSweep?: RhChainRiskCorrelationSweepService;
   submissions: Pick<RhChainSubmissionStore, 'list'>;
+  enabledJobs?: readonly RhChainAutomationJobName[];
+  rh4663IntelligenceRun?: () => Promise<{ observations: number; events: number; candidates: number; publications: number; providers: Array<{ provider: string; state: string }> }>;
   now?: () => Date;
 };
 
@@ -179,6 +182,7 @@ export class RhChainAutomationService {
     const startedAt = this.now().toISOString();
     const jobId = randomUUID();
     if (!this.options.enabled) return this.complete({ job_id: jobId, job_name: jobName, started_at: startedAt, finished_at: null, status: 'skipped', error_summary: 'rh_chain_automation_disabled', records_observed: 0, records_updated: 0, data_mode: 'unavailable', sources: [] });
+    if (this.options.enabledJobs && !this.options.enabledJobs.includes(jobName)) return this.complete({ job_id: jobId, job_name: jobName, started_at: startedAt, finished_at: null, status: 'skipped', error_summary: 'automation_job_disabled', records_observed: 0, records_updated: 0, data_mode: 'unavailable', sources: [] });
     if (this.options.isProduction && !this.options.store.durable) return this.complete({ job_id: jobId, job_name: jobName, started_at: startedAt, finished_at: null, status: 'skipped', error_summary: 'durable_lock_required_in_production', records_observed: 0, records_updated: 0, data_mode: 'unavailable', sources: [] });
     let locked = false;
     try {
@@ -202,6 +206,12 @@ export class RhChainAutomationService {
     await this.options.store.saveDraft({ draft_id: randomUUID(), job_id: jobId, job_name: jobName, draft_type, created_at: this.now().toISOString(), data_mode: dataMode, sources, payload });
   }
   private async execute(jobName: RhChainAutomationJobName, jobId: string): Promise<JobResult> {
+    if (jobName === 'rh_4663_intelligence_refresh') {
+      if (!this.options.rh4663IntelligenceRun) throw new Error('rh_4663_intelligence_runner_unavailable');
+      const result = await this.options.rh4663IntelligenceRun(); const sources = result.providers.map((provider) => provider.provider);
+      await this.draft(jobId, jobName, '4663_intelligence_run', result, 'persisted', sources);
+      return { recordsObserved: result.observations, recordsUpdated: result.events + result.candidates + result.publications, dataMode: 'persisted', sources };
+    }
     if (jobName === 'rh_chain_pulse_refresh') {
       const snapshot = await this.options.snapshots.getLiveSnapshot(); const sources = snapshot.provider_statuses.map((item) => item.provider_name);
       const chainPulse = await this.chainPulseSnapshots.refresh(snapshot);
