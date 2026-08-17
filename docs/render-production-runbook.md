@@ -112,9 +112,332 @@ It contains feature and reason only, never configuration values.
    outside the application. The service never performs RH Chain migrations at
    startup.
 
+## Production PostgreSQL restoration gate
+
+This section is the guarded runbook for reconnecting the existing Render
+PostgreSQL database to `radar.infopunks.fun`. It is documentation for human
+operators only. Do not connect to production automatically, do not alter Render
+environment variables from this repository, do not run migrations from
+application startup, do not rerun `20260719_001`, and do not apply
+`20260814_009` during initial restoration.
+
+The existing production database is not empty. Live schema inspection confirmed
+that it already contains Pay.sh Radar, Solana Radar, and Robinhood Chain data,
+with this migration state:
+
+| Migration | Production state |
+| --- | --- |
+| `20260719_001` | APPLIED |
+| `20260719_002` | ABSENT |
+| `20260719_003` | ABSENT |
+| `20260719_004` | ABSENT |
+| `20260719_005` | ABSENT |
+| `20260720_006` | ABSENT |
+| `20260813_007` | ABSENT |
+| `20260813_008` | ABSENT |
+| `20260814_009` | ABSENT |
+
+### Required gated sequence
+
+```text
+A. Deploy the resilience code with `DATABASE_URL` absent.
+B. Verify memory-mode production stability.
+C. Create or confirm a recoverable production database backup.
+D. Apply `20260719_002`.
+E. Verify.
+F. Apply `20260719_003`.
+G. Verify.
+H. Apply `20260719_004`.
+I. Verify.
+J. Apply `20260719_005`.
+K. Verify.
+L. Apply `20260720_006`.
+M. Verify complete pre-4663 RH schema.
+N. Configure production `DATABASE_URL` using the Render PostgreSQL internal URL.
+O. Set `DATABASE_POOL_MAX=2`.
+P. Keep all recurring jobs disabled.
+Q. Redeploy.
+R. Verify DB-backed persistence and no restart loop.
+S. Observe a stable web + Postgres period.
+T. Only then consider `20260813_007`.
+```
+
+### First reconnection environment
+
+At the first DB-backed web deploy, keep the environment narrow:
+
+```text
+DATABASE_POOL_MAX=2
+
+INGESTION_ENABLED=false
+MONITOR_ENABLED=false
+RH_CHAIN_AUTOMATION_ENABLED=false
+
+RH_4663_PHASE2_ENABLED=false
+
+RH_4663_PHASE3_ENABLED=false
+RH_4663_PHASE3_INGESTION_ENABLED=false
+RH_4663_PHASE3_CANDIDATE_GENERATION_ENABLED=false
+RH_4663_PHASE3_PUBLICATION_ENABLED=false
+RH_4663_AUTO_PUBLICATION_ENABLED=false
+RH_4663_EXTERNAL_DISTRIBUTION_ENABLED=false
+RH_4663_PHASE3_SHADOW_MODE=true
+RH_4663_PHASE2_PRODUCTION_PROOF_VERIFIED=false
+```
+
+Use the Render PostgreSQL internal URL for `DATABASE_URL`; never record the
+value in docs, source, tickets, screenshots, or logs.
+
+### Migration guardrails for 002-006
+
+Run these commands only from an operator-controlled environment that can reach
+the Render internal PostgreSQL database, such as a temporary Render shell/job on
+the same private network. They are not application startup commands and are not
+part of a web-service deploy.
+
+Set `DATABASE_URL` in the shell from the Render internal PostgreSQL URL without
+printing it. Stop immediately on the first error. Do not apply a later
+migration as a speculative fix.
+
+```sh
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f migrations/20260719_002_rh_chain_reviewed_classifications.up.sql
+```
+
+Verify, then:
+
+```sh
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f migrations/20260719_003_rh_chain_classification_layer_vocabulary.up.sql
+```
+
+Verify, then:
+
+```sh
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f migrations/20260719_004_rh_chain_attention_quality_receipts.up.sql
+```
+
+Verify, then:
+
+```sh
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f migrations/20260719_005_rh_chain_project_claims.up.sql
+```
+
+Verify, then:
+
+```sh
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f migrations/20260720_006_rh_chain_reviewer_workflow.up.sql
+```
+
+Stop after `20260720_006`. Do not include `20260813_007`,
+`20260813_008`, or `20260814_009` in the initial reconnection batch.
+
+### Schema verification after 002-006
+
+Use read-only SQL after each migration and after `20260720_006`. The final
+pre-4663 schema check must show no missing tables, no missing indexes, and the
+classification constraint must include `consumer`.
+
+```sh
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "
+with expected(table_name) as (
+  values
+    ('rh_chain_reviewed_classifications'),
+    ('rh_chain_reviewed_classification_audit'),
+    ('rh_chain_attention_receipts'),
+    ('rh_chain_projects'),
+    ('rh_chain_project_claims'),
+    ('rh_chain_project_evidence'),
+    ('rh_chain_project_observations'),
+    ('rh_chain_project_verdicts'),
+    ('rh_chain_intelligence_receipts'),
+    ('rh_chain_project_audit'),
+    ('rh_chain_project_contract_relationships')
+)
+select e.table_name,
+       case when n.oid is null then 'missing' else 'present' end as status
+from expected e
+left join pg_class c
+  on c.relname = e.table_name
+ and c.relkind = 'r'
+left join pg_namespace n
+  on n.oid = c.relnamespace
+ and n.nspname = 'public'
+order by e.table_name;"
+```
+
+```sh
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "
+select conname,
+       pg_get_constraintdef(oid) as definition
+from pg_constraint
+where conname = 'rh_chain_reviewed_classifications_primary_layer_check';"
+```
+
+The returned constraint definition must include `consumer`.
+
+```sh
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "
+with expected(index_name) as (
+  values
+    ('rh_chain_reviewed_classifications_status_updated_idx'),
+    ('rh_chain_reviewed_classifications_approved_effective_idx'),
+    ('rh_chain_reviewed_classification_audit_contract_time_idx'),
+    ('rh_chain_attention_receipts_contract_created_idx'),
+    ('rh_chain_attention_receipts_status_idx'),
+    ('rh_chain_projects_slug_idx'),
+    ('rh_chain_projects_review_idx'),
+    ('rh_chain_project_claims_project_idx'),
+    ('rh_chain_project_evidence_project_idx'),
+    ('rh_chain_project_observations_project_idx'),
+    ('rh_chain_project_verdicts_project_idx'),
+    ('rh_chain_intelligence_receipts_project_idx'),
+    ('rh_chain_intelligence_receipts_integrity_hash_idx'),
+    ('rh_chain_project_audit_project_idx'),
+    ('rh_chain_project_contract_relationships_project_idx'),
+    ('rh_chain_project_contract_relationships_contract_idx'),
+    ('rh_chain_project_contract_relationships_active_contract_idx'),
+    ('rh_chain_project_contract_relationships_active_primary_idx')
+)
+select e.index_name,
+       case when n.oid is null then 'missing' else 'present' end as status
+from expected e
+left join pg_class c
+  on c.relname = e.index_name
+ and c.relkind = 'i'
+left join pg_namespace n
+  on n.oid = c.relnamespace
+ and n.nspname = 'public'
+order by e.index_name;"
+```
+
+### First reconnection verification
+
+After configuring `DATABASE_URL`, `DATABASE_POOL_MAX=2`, and the disabled-job
+flags, redeploy once and verify these public surfaces:
+
+```sh
+curl -fsS https://radar.infopunks.fun/healthz
+curl -fsS https://radar.infopunks.fun/readyz
+curl -fsS https://radar.infopunks.fun/status
+curl -fsS https://radar.infopunks.fun/
+curl -fsS https://radar.infopunks.fun/solana
+curl -fsS https://radar.infopunks.fun/4663
+curl -fsS https://radar.infopunks.fun/4663/pulse
+curl -fsS https://radar.infopunks.fun/4663/today
+curl -fsS https://radar.infopunks.fun/4663/signals
+curl -fsS https://radar.infopunks.fun/4663/receipts
+curl -fsS https://radar.infopunks.fun/rh-chain-signal-desk
+RADAR_VERIFY_BASE_URL=https://radar.infopunks.fun npm run verify:production
+SMOKE_BASE_URL=https://radar.infopunks.fun npm run smoke:production
+```
+
+Confirm from responses and Render logs:
+
+- Process remains stable with no restart loop.
+- `/healthz` is live.
+- `/readyz` reports `persistence`/`dbMode` as Postgres and database reachable.
+- No `database_circuit_opened` loop or repeated recovery failures.
+- All recurring jobs are still off.
+- Existing Pay.sh Radar, Solana Radar, and RH Chain public surfaces have not
+  regressed.
+
+### Failure during reconnection
+
+If attaching `DATABASE_URL` causes a process crash, restart loop, pool
+exhaustion, DB connection storm, or existing Solana/Radar regression:
+
+1. Disable or remove `DATABASE_URL`.
+2. Redeploy the known-good memory-mode web service.
+3. Leave the database untouched.
+4. Preserve Render application logs and PostgreSQL logs.
+5. Investigate before retrying.
+
+Do not apply additional migrations as a speculative fix. The containment action
+is returning the web process to memory mode while preserving the database.
+
+### Post-reconnection observation
+
+Require a deliberate observation period with only web + Postgres enabled before
+any recurring job is enabled. Track:
+
+- process restarts;
+- PostgreSQL connection count;
+- pool waiting count when available in runtime diagnostics;
+- database failure events;
+- `database_circuit_opened` events;
+- recovery probe and `database_recovered` events;
+- request latency;
+- `/healthz`;
+- `/readyz`.
+
+### Later recurring-job reactivation
+
+Only after stable DB-backed web operation, enable one recurring job at a time:
+
+```text
+INGESTION_ENABLED
+↓
+observe
+
+MONITOR_ENABLED
+↓
+observe
+
+RH_CHAIN_AUTOMATION_ENABLED
+↓
+observe
+```
+
+Do not enable all three together. If `20260813_007` or `20260813_008` protocol
+work is prioritized first, keep these legacy jobs off until the complete Phase 2
+proof run is done.
+
+### //4663 Phase 2 to 009 gate
+
+Do not apply `20260814_009` before the complete Phase 2 proof. The later
+protocol gate is:
+
+```text
+20260813_007
+↓
+controlled real CALL
+↓
+verify persistent IP-CALL
+↓
+verify Genesis
+↓
+verify duplicate rejection
+↓
+restart/redeploy
+↓
+prove CALL survives
+↓
+20260813_008
+↓
+resolution signer
+↓
+controlled resolution
+↓
+IP-RES
+↓
+Merkle proof
+↓
+real Chain 4663 anchor
+↓
+RH_4663_PHASE2_PRODUCTION_PROOF_VERIFIED=true
+↓
+20260814_009
+↓
+Phase 3.1 shadow ingestion
+```
+
+See `docs/infopunks-4663-close-the-loop-rollout.md` and
+`docs/infopunks-4663-make-the-chain-speak-rollout.md` for the detailed protocol
+runbooks. `20260814_009` remains forbidden before the Phase 2 proof is complete.
+
 ## Safe re-enablement order
 
-1. `DATABASE_URL`, then confirm durable persistence through `/readyz`.
+1. `DATABASE_URL` with `DATABASE_POOL_MAX=2`, then confirm durable persistence
+   through `/readyz` while all recurring jobs remain disabled.
 2. `RH_CHAIN_REVIEW_CONSOLE_ENABLED=true` and its dedicated review token.
 3. Market history and reviewed classifications.
 4. Attention Quality v2.

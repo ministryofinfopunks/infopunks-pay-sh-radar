@@ -1,6 +1,5 @@
 import cors from '@fastify/cors';
 import Fastify, { FastifyReply, FastifyRequest } from 'fastify';
-import pg from 'pg';
 import { createReadStream, existsSync } from 'node:fs';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve } from 'node:path';
@@ -102,6 +101,7 @@ import { parseRh4663ShareFormat, renderRh4663ShareSvg } from '../shared/rh4663Sh
 import { applyPayShCatalogIngestion } from '../ingestion/payShCatalogAdapter';
 import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, IntelligenceStore, runPayShIngestion, runPayShIngestionWithOptions } from '../services/intelligenceStore';
 import { IntelligenceRepository } from '../persistence/repository';
+import { closeDatabasePool, getDatabaseCircuitDiagnostics, getDatabasePool, isPersistenceUnavailable, probeDatabaseRecovery } from '../persistence/databasePool';
 import { classifyPostgresFailure, postgresErrorCode, RhChainPostgresReadiness, safeOperationalErrorMessage, type RhChainStorageDiagnostics } from '../persistence/retryablePostgresSchema';
 import { recommendRoute } from '../services/routeService';
 import { semanticSearch } from '../services/searchService';
@@ -682,14 +682,15 @@ class RhChainPublicRateLimiter {
 
 export async function createApp(
   preloadedStore?: IntelligenceStore,
-  repository: IntelligenceRepository = defaultRepository(),
+  repositoryInput?: IntelligenceRepository,
   options: CreateAppOptions = {}
 ) {
   const config = loadRuntimeConfig();
   const app = Fastify({ logger: false });
   const rhChainPostgresPool = config.databaseUrl
-    ? new pg.Pool({ connectionString: config.databaseUrl, max: config.databasePoolMax })
+    ? getDatabasePool({ connectionString: config.databaseUrl, max: config.databasePoolMax })
     : null;
+  const repository = repositoryInput ?? defaultRepository(rhChainPostgresPool ?? undefined);
   const rhChainPostgresReadiness = rhChainPostgresPool ? new RhChainPostgresReadiness() : null;
   const rhChainExpectedTables = [
     'rh_chain_signal_submissions',
@@ -722,7 +723,7 @@ export async function createApp(
     }));
   });
   if (rhChainPostgresPool && rhChainPostgresReadiness) {
-    void rhChainPostgresReadiness.check(rhChainPostgresPool, rhChainExpectedTables);
+    void probeDatabaseRecovery(rhChainPostgresPool);
   }
   const rhChainSubmissionStore: RhChainSubmissionStore = options.rhChainSubmissionStore
     ?? (rhChainPostgresPool ? new PostgresRhChainSubmissionStore(rhChainPostgresPool)
@@ -984,8 +985,8 @@ export async function createApp(
   const PROVIDER_LIST_MAX = 100;
   const machineReceiptAdapter: MachinePreflightReceiptStorageAdapter = process.env.NODE_ENV === 'test'
     ? new MemoryMachinePreflightReceiptStorageAdapter()
-    : config.databaseUrl
-      ? new PostgresMachinePreflightReceiptStorageAdapter(config.databaseUrl)
+    : rhChainPostgresPool
+      ? new PostgresMachinePreflightReceiptStorageAdapter(rhChainPostgresPool)
       : new JsonlMachinePreflightReceiptStorageAdapter({
           filePath: process.env.MACHINE_RECEIPTS_JSONL_PATH ?? join(process.cwd(), '.data', 'machine-preflight-receipts.jsonl')
         });
@@ -1024,7 +1025,7 @@ export async function createApp(
     await rh4663Store.close?.();
     await rh4663ResolutionStore.close?.();
     await rh4663IntelligenceStore.close?.();
-    await rhChainPostgresPool?.end();
+    await closeDatabasePool();
   });
   const allowedOrigins = new Set(DEFAULT_ALLOWED_ORIGINS);
   if (config.frontendOrigin) allowedOrigins.add(config.frontendOrigin);
@@ -1070,6 +1071,13 @@ export async function createApp(
     console.log(JSON.stringify({ event: 'hook_exit', hook: 'onResponse', id: req.id }));
   });
   app.setErrorHandler((error, _req, reply) => {
+    if (isPersistenceUnavailable(error)) {
+      return reply.code(503).send({
+        error: 'persistence_unavailable',
+        code: 'persistence_unavailable',
+        message: 'Durable persistence is temporarily unavailable.'
+      });
+    }
     const reportedStatus = error && typeof error === 'object' && 'statusCode' in error
       ? (error as { statusCode?: unknown }).statusCode
       : null;
@@ -1095,6 +1103,8 @@ export async function createApp(
   const dbStatusWithFallback = (): 'ok' | 'degraded' | 'unavailable' => {
     const status = repositoryDbStatus();
     if (status) return status;
+    const circuit = getDatabaseCircuitDiagnostics();
+    if (config.databaseUrl && circuit.dbMode === 'postgres') return circuit.dbStatus;
     // An intentionally memory-backed public terminal is available but not
     // durable, so readiness is degraded rather than unavailable.
     return 'degraded';
@@ -1103,13 +1113,32 @@ export async function createApp(
     persistence: persistenceMode,
     persistence_mode: persistenceMode,
     dbStatus: dbStatusWithFallback(),
-    db_status: dbStatusWithFallback()
+    db_status: dbStatusWithFallback(),
+    ...databaseRuntimeStatus()
   });
   const readinessState = (): 'healthy' | 'degraded' | 'unavailable' => {
     const dbStatus = dbStatusWithFallback();
-    if (dbStatus === 'unavailable') return 'unavailable';
     if (dbStatus === 'ok') return 'healthy';
     return 'degraded';
+  };
+  const databaseRuntimeStatus = () => {
+    const circuit = getDatabaseCircuitDiagnostics();
+    if (!config.databaseUrl) {
+      return {
+        dbMode: 'memory' as const,
+        dbCircuitState: 'degraded' as const,
+        dbLastSuccessAt: null,
+        dbLastFailureAt: null,
+        databasePoolMax: null
+      };
+    }
+    return {
+      dbMode: 'postgres' as const,
+      dbCircuitState: circuit.dbCircuitState,
+      dbLastSuccessAt: circuit.dbLastSuccessAt,
+      dbLastFailureAt: circuit.dbLastFailureAt,
+      databasePoolMax: config.databasePoolMax
+    };
   };
   let bootstrapped = Boolean(preloadedStore);
   const liveBootstrapEnabled = process.env.PAYSH_BOOTSTRAP_ENABLED === 'true'
@@ -1173,14 +1202,13 @@ export async function createApp(
       service: 'infopunks-pay-sh-radar',
       persistence: persistenceMode,
       db_status: dbStatusWithFallback(),
+      ...databaseRuntimeStatus(),
       disabled_features: Object.keys(config.disabledFeatures).sort()
     };
     return reply.code(status === 'unavailable' ? 503 : 200).send(body);
   });
   app.get('/health', async () => {
-    if (rhChainPostgresPool && rhChainPostgresReadiness) {
-      void rhChainPostgresReadiness.check(rhChainPostgresPool, rhChainExpectedTables);
-    }
+    if (rhChainPostgresPool && rhChainPostgresReadiness) void probeDatabaseRecovery(rhChainPostgresPool);
     const adapterDiagnostics: { receipt_count?: number; warning?: string | null } = machineReceiptAdapter.getDiagnostics
       ? await machineReceiptAdapter.getDiagnostics().catch((error) => ({
           receipt_count: undefined,
@@ -1197,6 +1225,7 @@ export async function createApp(
       lastIngestedAt: store.dataSource?.last_ingested_at ?? null,
       providerCount: store.providers.length,
       endpointCount: safeStoreEndpointCount(store),
+      databasePoolMax: config.databasePoolMax,
       rh_chain_storage: rhChainPostgresReadiness?.diagnostics() ?? ({
         adapter: 'unconfigured',
         durable: false,
@@ -1220,8 +1249,8 @@ export async function createApp(
     ok: true,
     catalogSource: config.payShCatalogSource,
     ingestionEnabled: config.ingestionEnabled,
-    dbMode: persistenceMode,
     dbStatus: dbStatusWithFallback(),
+    ...databaseRuntimeStatus(),
     lastIngestedAt: store.dataSource?.last_ingested_at ?? null,
     providerCount: store.providers.length,
     endpointCount: safeStoreEndpointCount(store),
@@ -1230,8 +1259,8 @@ export async function createApp(
     ok: true,
     catalogSource: config.payShCatalogSource,
     ingestionEnabled: config.ingestionEnabled,
-    dbMode: persistenceMode,
     dbStatus: dbStatusWithFallback(),
+    ...databaseRuntimeStatus(),
     lastIngestedAt: store.dataSource?.last_ingested_at ?? null,
     providerCount: store.providers.length,
     endpointCount: safeStoreEndpointCount(store),
@@ -3949,30 +3978,44 @@ export async function createApp(
   return app;
 
   async function runRhChainAutomationJob(jobName: import('../services/rhChainAutomationService').RhChainAutomationJobName) {
-    const run = await rhChainAutomation.run(jobName);
-    console.log(JSON.stringify({ event: 'rh_chain_automation_run', job_id: run.job_id, job_name: run.job_name, status: run.status, error_summary: run.error_summary, records_observed: run.records_observed, records_updated: run.records_updated }));
+    try {
+      const run = await rhChainAutomation.run(jobName);
+      console.log(JSON.stringify({ event: 'rh_chain_automation_run', job_id: run.job_id, job_name: run.job_name, status: run.status, error_summary: run.error_summary, records_observed: run.records_observed, records_updated: run.records_updated }));
+    } catch (error) {
+      console.log(JSON.stringify({
+        event: 'rh_chain_automation_job_failed',
+        job_name: jobName,
+        code: errorCode(error),
+        message: errorMessage(error),
+        persistence_unavailable: isPersistenceUnavailable(error)
+      }));
+    }
   }
 
   function refreshBackgroundAnalytics() {
     setTimeout(() => {
-      const generatedAt = new Date().toISOString();
-      const propagationStartMs = Date.now();
-      cachedPropagation = analyzePropagation(store, generatedAt);
-      logTiming('propagation_build', propagationStartMs);
-      const interpretationStartMs = Date.now();
-      cachedInterpretations = pulseSummary(store, generatedAt, config.payShIngestIntervalMs, { includePropagation: false, includeInterpretations: true, propagationFallback: cachedPropagation }).interpretations;
-      logTiming('interpretation_build', interpretationStartMs);
-      cachedPulseDashboard = buildPulseDashboard(store, cachedInterpretations, bootstrapped, generatedAt);
-      console.log(JSON.stringify({
-        event: 'ingestion_state',
-        catalogSource: config.payShCatalogSource,
-        ingestionEnabled: config.ingestionEnabled,
-        dbMode: config.databaseUrl ? 'postgres' : 'memory',
-        providerCount: store.providers.length,
-        endpointCount: store.endpoints.length,
-        lastIngestedAt: store.dataSource?.last_ingested_at ?? null,
-        catalogStatus: catalogStatusFromDataSource(store.dataSource)
-      }));
+      try {
+        const generatedAt = new Date().toISOString();
+        const propagationStartMs = Date.now();
+        cachedPropagation = analyzePropagation(store, generatedAt);
+        logTiming('propagation_build', propagationStartMs);
+        const interpretationStartMs = Date.now();
+        cachedInterpretations = pulseSummary(store, generatedAt, config.payShIngestIntervalMs, { includePropagation: false, includeInterpretations: true, propagationFallback: cachedPropagation }).interpretations;
+        logTiming('interpretation_build', interpretationStartMs);
+        cachedPulseDashboard = buildPulseDashboard(store, cachedInterpretations, bootstrapped, generatedAt);
+        console.log(JSON.stringify({
+          event: 'ingestion_state',
+          catalogSource: config.payShCatalogSource,
+          ingestionEnabled: config.ingestionEnabled,
+          dbMode: config.databaseUrl ? 'postgres' : 'memory',
+          providerCount: store.providers.length,
+          endpointCount: store.endpoints.length,
+          lastIngestedAt: store.dataSource?.last_ingested_at ?? null,
+          catalogStatus: catalogStatusFromDataSource(store.dataSource)
+        }));
+      } catch (error) {
+        console.log(JSON.stringify({ event: 'background_analytics_failed', code: errorCode(error), message: errorMessage(error) }));
+      }
     }, 0);
   }
 

@@ -1,9 +1,8 @@
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import pg from 'pg';
+import { resolvePostgresPool, type PostgresPoolSource } from '../persistence/retryablePostgresSchema';
 import type { MachinePreflightReceipt, MachinePreflightReceiptFilters } from './machinePreflightService';
-
-const { Pool } = pg;
 
 export type MachineReceiptStorageMetadata = {
   mode: 'durable' | 'memory' | 'test';
@@ -134,9 +133,12 @@ export class JsonlMachinePreflightReceiptStorageAdapter implements MachinePrefli
 
 export class PostgresMachinePreflightReceiptStorageAdapter implements MachinePreflightReceiptStorageAdapter {
   private pool: pg.Pool;
+  private ownsPool: boolean;
 
-  constructor(connectionString: string) {
-    this.pool = new Pool({ connectionString });
+  constructor(source: PostgresPoolSource) {
+    const resolved = resolvePostgresPool(source);
+    this.pool = resolved.pool;
+    this.ownsPool = resolved.ownsPool;
   }
 
   async appendMachinePreflightReceipt(receipt: MachinePreflightReceipt) {
@@ -176,7 +178,7 @@ export class PostgresMachinePreflightReceiptStorageAdapter implements MachinePre
   }
 
   async close() {
-    await this.pool.end();
+    if (this.ownsPool) await this.pool.end();
   }
 
   async getDiagnostics() {

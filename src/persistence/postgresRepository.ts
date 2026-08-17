@@ -1,8 +1,7 @@
 import pg from 'pg';
 import { IntelligenceRepository, IntelligenceSnapshot } from './repository';
 import { logPostgres22P02, safeJsonbParam } from './jsonb';
-
-const { Pool } = pg;
+import { getDatabaseCircuitDiagnostics, getDatabasePool, parseDatabasePoolMax } from './databasePool';
 
 type JsonContext = {
   operation: string;
@@ -17,8 +16,10 @@ export class PostgresRepository implements IntelligenceRepository {
   // becomes healthy only after the first successful database operation.
   private dbStatus: 'ok' | 'degraded' | 'unavailable' = 'degraded';
 
-  constructor(connectionString: string) {
-    this.pool = new Pool({ connectionString });
+  constructor(source: string | pg.Pool) {
+    this.pool = typeof source === 'string'
+      ? getDatabasePool({ connectionString: source, max: parseDatabasePoolMax(process.env.DATABASE_POOL_MAX, 10) })
+      : source;
     this.pool.on('error', (error) => {
       this.markDbStatus(connectionErrorStatus(error), 'pool_error', error);
       console.log(JSON.stringify({
@@ -144,6 +145,8 @@ export class PostgresRepository implements IntelligenceRepository {
   }
 
   getDbStatus(): 'ok' | 'degraded' | 'unavailable' {
+    const circuit = getDatabaseCircuitDiagnostics();
+    if (circuit.dbMode === 'postgres') return circuit.dbStatus;
     return this.dbStatus;
   }
 

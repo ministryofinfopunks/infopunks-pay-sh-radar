@@ -19,6 +19,7 @@
     "launch:data": "python3 .agents/skills/launch/scripts/fetch_radar_live_data.py --output-dir launch",
     "harness:machine-translation-general": "node scripts/run-alibaba-machine-translation-general-harness.mjs",
     "test": "vitest run",
+    "test:postgres-resilience": "vitest run tests/postgres-resilience.test.ts tests/postgres-resilience-failure-matrix.test.ts tests/health-readiness.test.ts",
     "typecheck": "tsc --noEmit",
     "verify:production": "tsx scripts/verify-production.ts"
   },

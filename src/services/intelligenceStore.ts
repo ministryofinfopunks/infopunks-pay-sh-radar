@@ -4,6 +4,7 @@ import { computeSignalAssessment, buildNarrativeClusters } from '../engines/sign
 import { computeTrustAssessment } from '../engines/trustEngine';
 import { IntelligenceRepository, IntelligenceSnapshot, MemoryRepository } from '../persistence/repository';
 import { PostgresRepository } from '../persistence/postgresRepository';
+import type pg from 'pg';
 import { InfopunksEvent, SignalAssessment, TrustAssessment } from '../schemas/entities';
 import { classifyScoreChangeSeverity } from '../engines/severityEngine';
 import { resolveEventObservedAt } from './eventTimestamp';
@@ -235,7 +236,8 @@ function stableJson(value: unknown): unknown {
   return value ?? null;
 }
 
-export function defaultRepository(): IntelligenceRepository {
+export function defaultRepository(databasePool?: pg.Pool): IntelligenceRepository {
+  if (databasePool) return new PostgresRepository(databasePool);
   if (process.env.DATABASE_URL) return new PostgresRepository(process.env.DATABASE_URL);
   return new MemoryRepository();
 }

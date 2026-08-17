@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { parseDatabasePoolMax } from '../persistence/databasePool';
 
 export type RuntimeConfig = {
   env: string;
@@ -98,7 +99,7 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
     isProduction,
     port,
     databaseUrl: optionalString(env.DATABASE_URL),
-    databasePoolMax: readPositiveInteger('DATABASE_POOL_MAX', env.DATABASE_POOL_MAX, 10),
+    databasePoolMax: parseDatabasePoolMax(env.DATABASE_POOL_MAX, 10),
     adminToken: optionalString(env.INFOPUNKS_ADMIN_TOKEN),
     payShCatalogUrl: readOptionalUrl('PAY_SH_CATALOG_URL', env.PAY_SH_CATALOG_URL),
     payShCatalogSource: readCatalogSource(env.PAYSH_CATALOG_SOURCE),

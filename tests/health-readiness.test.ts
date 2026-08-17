@@ -29,8 +29,8 @@ describe('deployment health endpoints', () => {
 
     const unavailable = await createApp(emptyIntelligenceStore(), repositoryWithStatus('unavailable'));
     const response = await unavailable.inject({ method: 'GET', url: '/readyz' });
-    expect(response.statusCode).toBe(503);
-    expect(response.json()).toMatchObject({ ok: false, status: 'unavailable' });
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toMatchObject({ ok: true, status: 'degraded' });
     await unavailable.close();
   });
 });
