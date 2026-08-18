@@ -2,6 +2,7 @@ import { EventEmitter } from 'node:events';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
 import { join } from 'node:path';
+import pg from 'pg';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../src/api/app';
 import {
@@ -30,14 +31,43 @@ function emptySnapshot(): IntelligenceSnapshot {
   };
 }
 
+class MatrixClient extends EventEmitter {
+  readonly id: number;
+  release!: (error?: Error | boolean) => void;
+  releaseCalls = 0;
+
+  constructor(private readonly pool: MatrixPool, id: number) {
+    super();
+    this.id = id;
+  }
+
+  prepareForCheckout() {
+    this.release = (error?: Error | boolean) => {
+      this.releaseCalls += 1;
+      this.pool.releaseClient(this, error);
+    };
+  }
+
+  async query(_sql?: string, _values?: unknown[]) {
+    this.pool.queryCount += 1;
+    if (this.pool.queryDelayMs) await new Promise((resolve) => setTimeout(resolve, this.pool.queryDelayMs));
+    if (this.pool.queryError) throw this.pool.queryError;
+    return { rows: [{ ok: 1 }], rowCount: 1 };
+  }
+}
+
 class MatrixPool extends EventEmitter {
   connectCount = 0;
   queryCount = 0;
   releaseCount = 0;
+  discardedCount = 0;
   endCount = 0;
   queryDelayMs = 0;
   connectError: unknown = null;
   queryError: unknown = null;
+  readonly clients: MatrixClient[] = [];
+  readonly idleClients: MatrixClient[] = [];
+  readonly checkedOutClients = new Set<MatrixClient>();
 
   async query(sql: string, values?: unknown[]) {
     const client = await this.connect();
@@ -51,15 +81,21 @@ class MatrixPool extends EventEmitter {
   async connect() {
     this.connectCount += 1;
     if (this.connectError) throw this.connectError;
-    return {
-      query: async (_sql?: string, _values?: unknown[]) => {
-        this.queryCount += 1;
-        if (this.queryDelayMs) await new Promise((resolve) => setTimeout(resolve, this.queryDelayMs));
-        if (this.queryError) throw this.queryError;
-        return { rows: [{ ok: 1 }], rowCount: 1 };
-      },
-      release: () => { this.releaseCount += 1; }
-    };
+    const client = this.idleClients.shift() ?? new MatrixClient(this, this.clients.length + 1);
+    if (!this.clients.includes(client)) this.clients.push(client);
+    client.prepareForCheckout();
+    this.checkedOutClients.add(client);
+    return client;
+  }
+
+  releaseClient(client: MatrixClient, error?: Error | boolean) {
+    this.releaseCount += 1;
+    this.checkedOutClients.delete(client);
+    if (error) {
+      this.discardedCount += 1;
+      return;
+    }
+    this.idleClients.push(client);
   }
 
   async end() {
@@ -207,6 +243,134 @@ describe('PostgreSQL resilience failure matrix', () => {
     }
   });
 
+  it('contains a checked-out client error event, discards that client, and recovers without a restart', async () => {
+    const pool = new MatrixPool();
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never);
+    const processEmitSpy = vi.spyOn(process, 'emit');
+    const app = await createPoolBackedApp(pool);
+    try {
+      await vi.waitFor(() => expect(getDatabaseCircuitDiagnostics().dbCircuitState).toBe('healthy'));
+      const client = await getDatabasePool({ connectionString: TEST_URL, max: 2 }).connect() as unknown as MatrixClient;
+      const checkoutListenerCount = client.listenerCount('error');
+      const releasesBeforeFailure = client.releaseCalls;
+      expect(pool.checkedOutClients).toContain(client);
+
+      expect(() => client.emit('error', new Error('Connection terminated unexpectedly'))).not.toThrow();
+      expect(getDatabaseCircuitDiagnostics()).toMatchObject({ dbCircuitState: 'degraded', dbLastFailureAt: expect.any(String) });
+      await expect(client.query('select must_not_succeed_after_checked_out_client_error')).rejects.toThrow('Connection terminated unexpectedly');
+      expect(exitSpy).not.toHaveBeenCalled();
+      expect(processEmitSpy.mock.calls.some(([event]) => event === 'uncaughtException')).toBe(false);
+      expect(processEmitSpy.mock.calls.some(([event]) => event === 'unhandledRejection')).toBe(false);
+      expect((await app.inject({ method: 'GET', url: '/healthz' })).statusCode).toBe(200);
+      expect((await app.inject({ method: 'GET', url: '/readyz' })).json()).toMatchObject({ status: 'degraded', dbMode: 'postgres' });
+      expect(client.listenerCount('error')).toBe(checkoutListenerCount);
+
+      client.release();
+      expect(client.releaseCalls).toBe(releasesBeforeFailure + 1);
+      expect(client.listenerCount('error')).toBe(0);
+      expect(pool.discardedCount).toBe(1);
+      expect(pool.idleClients).not.toContain(client);
+      expect(pool.checkedOutClients).toHaveLength(0);
+
+      await expect(probeDatabaseRecovery(pool as unknown as import('pg').Pool)).resolves.toBe(true);
+      await expect(getDatabasePool({ connectionString: TEST_URL, max: 2 }).query('select 1')).resolves.toMatchObject({ rowCount: 1 });
+      expect(getDatabaseCircuitDiagnostics().dbCircuitState).toBe('healthy');
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('does not double-count an async client error racing a rejected query, and transaction cleanup remains safe', async () => {
+    const pool = new MatrixPool();
+    const app = await createPoolBackedApp(pool);
+    try {
+      await vi.waitFor(() => expect(getDatabaseCircuitDiagnostics().dbCircuitState).toBe('healthy'));
+      const client = await getDatabasePool({ connectionString: TEST_URL, max: 2 }).connect() as unknown as MatrixClient;
+      await client.query('begin');
+      const failuresBeforeRace = getDatabaseCircuitDiagnostics().consecutiveFailures;
+      pool.queryDelayMs = 5;
+      pool.queryError = operationalError('Connection terminated unexpectedly');
+      const activeQuery = client.query('insert into transaction_test values (1)');
+      await Promise.resolve();
+      expect(() => client.emit('error', new Error('Connection terminated unexpectedly'))).not.toThrow();
+      await expect(activeQuery).rejects.toThrow('Connection terminated unexpectedly');
+      expect(getDatabaseCircuitDiagnostics().consecutiveFailures).toBe(failuresBeforeRace + 1);
+
+      await expect(client.query('rollback')).rejects.toThrow('Connection terminated unexpectedly');
+      client.release();
+      expect(pool.discardedCount).toBe(1);
+      expect((await app.inject({ method: 'GET', url: '/healthz' })).statusCode).toBe(200);
+
+      pool.queryDelayMs = 0;
+      pool.queryError = null;
+      await expect(probeDatabaseRecovery(pool as unknown as import('pg').Pool)).resolves.toBe(true);
+      await expect(getDatabasePool({ connectionString: TEST_URL, max: 2 }).query('select after_transaction')).resolves.toMatchObject({ rowCount: 1 });
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('rejects active work and discards the connection when an async client error arrives during or after a query', async () => {
+    const pool = new MatrixPool();
+    const app = await createPoolBackedApp(pool);
+    try {
+      await vi.waitFor(() => expect(getDatabaseCircuitDiagnostics().dbCircuitState).toBe('healthy'));
+      const duringQuery = await getDatabasePool({ connectionString: TEST_URL, max: 2 }).connect() as unknown as MatrixClient;
+      pool.queryDelayMs = 5;
+      const activeQuery = duringQuery.query('select active_query');
+      await Promise.resolve();
+      expect(() => duringQuery.emit('error', new Error('Connection terminated unexpectedly'))).not.toThrow();
+      await expect(activeQuery).rejects.toThrow('Connection terminated unexpectedly');
+      duringQuery.release();
+      expect(pool.discardedCount).toBe(1);
+
+      pool.queryDelayMs = 0;
+      await expect(probeDatabaseRecovery(pool as unknown as import('pg').Pool)).resolves.toBe(true);
+      const afterQuery = await getDatabasePool({ connectionString: TEST_URL, max: 2 }).connect() as unknown as MatrixClient;
+      await expect(afterQuery.query('select completed_query')).resolves.toMatchObject({ rowCount: 1 });
+      expect(() => afterQuery.emit('error', new Error('Connection terminated unexpectedly'))).not.toThrow();
+      afterQuery.release();
+      expect(pool.discardedCount).toBe(2);
+      expect((await app.inject({ method: 'GET', url: '/healthz' })).statusCode).toBe(200);
+
+      await expect(probeDatabaseRecovery(pool as unknown as import('pg').Pool)).resolves.toBe(true);
+      await expect(getDatabasePool({ connectionString: TEST_URL, max: 2 }).query('select recovered_again')).resolves.toMatchObject({ rowCount: 1 });
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('cleans listeners across healthy and broken checkout cycles without recycling broken clients', async () => {
+    const pool = new MatrixPool();
+    await installDatabasePoolForTests(pool as unknown as import('pg').Pool, { connectionString: TEST_URL, max: 2 });
+
+    const healthyClient = await getDatabasePool({ connectionString: TEST_URL, max: 2 }).connect() as unknown as MatrixClient;
+    expect(healthyClient.listenerCount('error')).toBe(1);
+    await expect(healthyClient.query('select healthy')).resolves.toMatchObject({ rowCount: 1 });
+    healthyClient.release();
+    expect(healthyClient.listenerCount('error')).toBe(0);
+    expect(pool.idleClients).toContain(healthyClient);
+
+    for (let cycle = 0; cycle < 3; cycle += 1) {
+      const client = await getDatabasePool({ connectionString: TEST_URL, max: 2 }).connect() as unknown as MatrixClient;
+      const releasesBefore = client.releaseCalls;
+      expect(client.listenerCount('error')).toBe(1);
+      expect(() => client.emit('error', new Error('Connection terminated unexpectedly'))).not.toThrow();
+      expect(() => client.emit('error', new Error('Connection terminated unexpectedly'))).not.toThrow();
+      client.release();
+      client.release();
+      expect(client.releaseCalls).toBe(releasesBefore + 1);
+      expect(client.listenerCount('error')).toBe(0);
+      expect(pool.idleClients).not.toContain(client);
+      await expect(probeDatabaseRecovery(pool as unknown as import('pg').Pool)).resolves.toBe(true);
+    }
+
+    expect(pool.discardedCount).toBe(3);
+    await expect(getDatabasePool({ connectionString: TEST_URL, max: 2 }).query('select final_healthy_operation')).resolves.toMatchObject({ rowCount: 1 });
+    await resetDatabasePoolForTests();
+    expect(pool.endCount).toBe(1);
+  });
+
   it('contains checked-out termination, reset, connection timeout, and query timeout failures', async () => {
     const pool = new MatrixPool();
     const app = await createPoolBackedApp(pool);
@@ -224,8 +388,10 @@ describe('PostgreSQL resilience failure matrix', () => {
       pool.queryError = operationalError('read ECONNRESET', 'ECONNRESET');
       await expect(getDatabasePool({ connectionString: TEST_URL, max: 2 }).query('select 1')).rejects.toThrow('read ECONNRESET');
 
+      const discardedBeforeStatementTimeout = pool.discardedCount;
       pool.queryError = operationalError('canceling statement due to statement timeout', '57014');
       await expect(getDatabasePool({ connectionString: TEST_URL, max: 2 }).query('select pg_sleep(10)')).rejects.toThrow('statement timeout');
+      expect(pool.discardedCount).toBe(discardedBeforeStatementTimeout);
 
       pool.connectError = operationalError('connection timeout', 'ETIMEDOUT');
       pool.queryError = null;
@@ -404,6 +570,51 @@ describe('PostgreSQL failures in background schedulers', () => {
 });
 
 describe('process fatal boundary', () => {
+  it('proves an actual pg.Client error is fatal when unguarded but safe after shared-pool checkout guarding', async () => {
+    const unguarded = await runChildProgram(`
+      import pg from 'pg';
+      const client = new pg.Client();
+      setImmediate(() => client.emit('error', new Error('Connection terminated unexpectedly')));
+      setTimeout(() => console.log('UNGUARDED_CLIENT_UNEXPECTEDLY_SURVIVED'), 50);
+    `);
+    expect(unguarded).toMatchObject({ code: 1, signal: null });
+    expect(unguarded.output).toContain('Connection terminated unexpectedly');
+    expect(unguarded.output).not.toContain('UNGUARDED_CLIENT_UNEXPECTEDLY_SURVIVED');
+
+    const databasePoolModule = join(process.cwd(), 'src', 'persistence', 'databasePool.ts');
+    const guarded = await runChildProgram(`
+      import { EventEmitter } from 'node:events';
+      import pg from 'pg';
+      import { getDatabasePool, installDatabasePoolForTests } from ${JSON.stringify(databasePoolModule)};
+
+      class SingleClientPool extends EventEmitter {
+        constructor() { super(); this.client = new pg.Client(); this.releaseCount = 0; this.destroyed = false; }
+        async connect() {
+          this.client.release = (error) => { this.releaseCount += 1; this.destroyed = Boolean(error); };
+          return this.client;
+        }
+        async query() { return { rows: [], rowCount: 0 }; }
+        async end() {}
+      }
+
+      void (async () => {
+        const pool = new SingleClientPool();
+        await installDatabasePoolForTests(pool, { connectionString: 'postgres://radar:test@resilience.invalid:5432/radar', max: 2 });
+        const client = await getDatabasePool({ connectionString: 'postgres://radar:test@resilience.invalid:5432/radar', max: 2 }).connect();
+        if (client.listenerCount('error') !== 1) throw new Error('checkout_error_listener_missing');
+        setImmediate(() => client.emit('error', new Error('Connection terminated unexpectedly')));
+        setTimeout(() => {
+          client.release();
+          if (pool.releaseCount !== 1 || !pool.destroyed || client.listenerCount('error') !== 0) throw new Error('guarded_client_cleanup_failed');
+          console.log('GUARDED_CHECKED_OUT_PG_CLIENT_SURVIVED');
+        }, 25);
+      })().catch((error) => { console.error(error); process.exitCode = 1; });
+    `);
+    expect(guarded).toMatchObject({ code: 0, signal: null });
+    expect(guarded.output).toContain('GUARDED_CHECKED_OUT_PG_CLIENT_SURVIVED');
+    expect(guarded.output).toContain('database_checked_out_client_error');
+  }, 10_000);
+
   it('keeps unrelated uncaught exceptions fatal in the real server entrypoint', async () => {
     const port = await freePort();
     const child = spawn(join(process.cwd(), 'node_modules', '.bin', 'tsx'), ['-e', `
@@ -436,6 +647,77 @@ describe('process fatal boundary', () => {
     expect(output.join('')).toContain('fatal_probe_unknown_runtime_error');
   }, 10_000);
 });
+
+describe('optional real PostgreSQL checked-out-client termination', () => {
+  it('contains a real node-postgres backend termination only when a safe test URL is explicitly supplied', async (context) => {
+    const connectionString = process.env.POSTGRES_RESILIENCE_TEST_URL;
+    if (!connectionString) {
+      context.skip('POSTGRES_RESILIENCE_TEST_URL is not configured; real PostgreSQL termination harness is unsupported');
+      return;
+    }
+    assertSafePostgresResilienceTestUrl(connectionString);
+
+    const pool = getDatabasePool({ connectionString, max: 2 });
+    const checkedOutClient = await pool.connect();
+    const terminator = new pg.Client({ connectionString });
+    let observedError: Error | null = null;
+    const observeError = (error: Error) => { observedError = error; };
+    checkedOutClient.once('error', observeError);
+    try {
+      expect(checkedOutClient.listenerCount('error')).toBeGreaterThanOrEqual(2);
+      const pidResult = await checkedOutClient.query<{ pid: number }>('select pg_backend_pid() as pid');
+      const pid = pidResult.rows[0]?.pid;
+      if (!pid) throw new Error('postgres_test_backend_pid_missing');
+
+      await terminator.connect();
+      let terminated = false;
+      try {
+        const result = await terminator.query<{ terminated: boolean }>('select pg_terminate_backend($1) as terminated', [pid]);
+        terminated = result.rows[0]?.terminated === true;
+      } catch {
+        context.skip('PostgreSQL test role cannot terminate a separate backend; real termination harness is unsupported');
+      }
+      if (!terminated) context.skip('PostgreSQL declined backend termination; real termination harness is unsupported');
+
+      await vi.waitFor(() => expect(observedError).toBeInstanceOf(Error), { timeout: 5_000 });
+      expect(getDatabaseCircuitDiagnostics()).toMatchObject({ dbCircuitState: 'degraded', dbLastFailureAt: expect.any(String) });
+    } finally {
+      checkedOutClient.removeListener('error', observeError);
+      checkedOutClient.release();
+      await terminator.end().catch(() => undefined);
+    }
+
+    expect(checkedOutClient.listenerCount('error')).toBe(0);
+    await expect(probeDatabaseRecovery(pool)).resolves.toBe(true);
+    await expect(pool.query('select 1')).resolves.toMatchObject({ rowCount: 1 });
+    expect(getDatabaseCircuitDiagnostics().dbCircuitState).toBe('healthy');
+  }, 15_000);
+});
+
+async function runChildProgram(source: string) {
+  const child = spawn(join(process.cwd(), 'node_modules', '.bin', 'tsx'), ['-e', source], {
+    cwd: process.cwd(),
+    env: { ...process.env, NODE_ENV: 'test', DATABASE_URL: '' },
+    stdio: ['ignore', 'pipe', 'pipe']
+  });
+  const output: string[] = [];
+  child.stdout.on('data', (chunk) => output.push(String(chunk)));
+  child.stderr.on('data', (chunk) => output.push(String(chunk)));
+  const result = await new Promise<{ code: number | null; signal: NodeJS.Signals | null }>((resolve) => {
+    child.on('exit', (code, signal) => resolve({ code, signal }));
+  });
+  return { ...result, output: output.join('') };
+}
+
+function assertSafePostgresResilienceTestUrl(connectionString: string) {
+  const url = new URL(connectionString);
+  if (!['postgres:', 'postgresql:'].includes(url.protocol)) throw new Error('POSTGRES_RESILIENCE_TEST_URL must be a PostgreSQL URL');
+  const host = url.hostname.toLowerCase();
+  const isObviousRenderHost = host.includes('render.com') || host.includes('oregon-postgres');
+  if (isObviousRenderHost && process.env.POSTGRES_RESILIENCE_TEST_ALLOW_UNSAFE_HOST !== 'true') {
+    throw new Error('POSTGRES_RESILIENCE_TEST_URL refuses obvious Render PostgreSQL hosts without POSTGRES_RESILIENCE_TEST_ALLOW_UNSAFE_HOST=true');
+  }
+}
 
 async function freePort() {
   return new Promise<number>((resolve, reject) => {

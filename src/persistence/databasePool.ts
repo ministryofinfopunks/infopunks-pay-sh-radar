@@ -47,6 +47,17 @@ let sharedPool: SharedPoolState | null = null;
 const rawPoolQueries = new WeakMap<pg.Pool, pg.Pool['query']>();
 const rawPoolConnects = new WeakMap<pg.Pool, pg.Pool['connect']>();
 
+type CheckedOutClientState = {
+  broken: boolean;
+  failureRecorded: boolean;
+  queryFailureRecorded: boolean;
+  released: boolean;
+  failureError: Error | null;
+  errorListener: (error: Error) => void;
+};
+
+const checkedOutClients = new WeakMap<pg.PoolClient, CheckedOutClientState>();
+
 class DatabaseCircuit {
   state: DatabaseCircuitState = 'degraded';
   lastSuccessAt: string | null = null;
@@ -246,7 +257,7 @@ function instrumentPool(pool: pg.Pool) {
     const startedAt = Date.now();
     try {
       const client = await rawConnect();
-      instrumentClient(client);
+      guardCheckedOutClient(client);
       circuit.recordSuccess('connect', Date.now() - startedAt);
       return client;
     } catch (error) {
@@ -278,6 +289,7 @@ async function queryWithCircuit(
     let result: unknown;
     if (rawConnect) {
       client = await rawConnect();
+      guardCheckedOutClient(client);
       result = rawArgs ? await client.query(...rawArgs) : await client.query(queryText as string, values as unknown[]);
     } else {
       const query = rawPoolQueries.get(pool) ?? (pool.query.bind(pool) as pg.Pool['query']);
@@ -286,11 +298,55 @@ async function queryWithCircuit(
     circuit.recordSuccess(operation, Date.now() - startedAt);
     return result;
   } catch (error) {
-    circuit.recordFailure(error, operation, Date.now() - startedAt);
+    const checkout = client ? checkedOutClients.get(client) : undefined;
+    if (!isPersistenceUnavailable(error) && !checkout?.failureRecorded && !checkout?.queryFailureRecorded) {
+      circuit.recordFailure(error, operation, Date.now() - startedAt);
+    }
     throw error;
   } finally {
     client?.release();
   }
+}
+
+function guardCheckedOutClient(client: pg.PoolClient) {
+  if (checkedOutClients.has(client)) return client;
+  instrumentClient(client);
+
+  const rawRelease = client.release.bind(client);
+  const state: CheckedOutClientState = {
+    broken: false,
+    failureRecorded: false,
+    queryFailureRecorded: false,
+    released: false,
+    failureError: null,
+    errorListener: () => undefined
+  };
+  state.errorListener = (error) => {
+    try {
+      if (!recordCheckedOutClientFailure(state, error, 'checked_out_client_error')) return;
+      logDatabaseEvent('database_checked_out_client_error', {
+        failure_kind: classifyPostgresFailure(error),
+        error_code: postgresErrorCode(error),
+        error: safeOperationalErrorMessage(error),
+        circuit_state: circuit.state,
+        consecutive_failures: circuit.consecutiveFailures
+      });
+    } catch {
+      // EventEmitter error listeners must never rethrow into Node's fatal path.
+    }
+  };
+
+  checkedOutClients.set(client, state);
+  client.on('error', state.errorListener);
+  client.release = ((error?: Error | boolean) => {
+    if (state.released) return;
+    state.released = true;
+    client.removeListener('error', state.errorListener);
+    checkedOutClients.delete(client);
+    // pg-pool's public PoolClient.release(error) removes a failed client instead of idling it.
+    rawRelease(state.broken ? state.failureError ?? true : error);
+  }) as pg.PoolClient['release'];
+  return client;
 }
 
 function instrumentClient(client: pg.PoolClient) {
@@ -300,16 +356,51 @@ function instrumentClient(client: pg.PoolClient) {
   const rawQuery = client.query.bind(client) as pg.PoolClient['query'];
   client.query = (async (...args: Parameters<pg.PoolClient['query']>) => {
     circuit.beforeOperation('client_query');
+    const checkout = checkedOutClients.get(client);
+    if (checkout?.broken) throw checkout.failureError ?? new Error('postgres_client_connection_broken');
     const startedAt = Date.now();
     try {
       const result = await rawQuery(...args);
+      if (checkout?.broken) throw checkout.failureError ?? new Error('postgres_client_connection_broken');
       circuit.recordSuccess('client_query', Date.now() - startedAt);
       return result;
     } catch (error) {
-      circuit.recordFailure(error, 'client_query', Date.now() - startedAt);
+      if (checkout) {
+        checkout.queryFailureRecorded = true;
+        if (isBrokenConnectionFailure(error)) {
+          recordCheckedOutClientFailure(checkout, error, 'client_query');
+        } else {
+          circuit.recordFailure(error, 'client_query', Date.now() - startedAt);
+        }
+      } else {
+        circuit.recordFailure(error, 'client_query', Date.now() - startedAt);
+      }
       throw error;
     }
   }) as pg.PoolClient['query'];
+}
+
+function recordCheckedOutClientFailure(state: CheckedOutClientState, error: unknown, operation: string) {
+  if (state.failureRecorded) return false;
+  state.broken = true;
+  state.failureRecorded = true;
+  state.failureError = asError(error);
+  circuit.recordFailure(error, operation);
+  return true;
+}
+
+function asError(error: unknown): Error {
+  return error instanceof Error ? error : new Error(safeOperationalErrorMessage(error));
+}
+
+function isBrokenConnectionFailure(error: unknown) {
+  const code = postgresErrorCode(error);
+  if (code && (code.startsWith('08') || ['57P01', '57P02', '57P03', 'ECONNREFUSED', 'ECONNRESET', 'ETIMEDOUT', 'EHOSTUNREACH', 'ENETUNREACH'].includes(code))) return true;
+  const message = safeOperationalErrorMessage(error).toLowerCase();
+  return message.includes('connection terminated')
+    || message.includes('connection reset')
+    || message.includes('connection refused')
+    || message.includes('connection timeout');
 }
 
 function logDatabaseEvent(event: string, fields: Record<string, unknown>) {
