@@ -38,6 +38,7 @@ import { assembleRhChainCloneRadar } from '../services/rhChainCloneRadarService'
 import { assembleRhChainTodayOn4663 } from '../services/rhChainTodayOn4663Service';
 import { getLatestRh4663Print, getRh4663Print } from '../services/rh4663PrintService';
 import { Rh4663CampaignEventSchema, Rh4663CampaignTelemetry } from '../services/rh4663CampaignTelemetry';
+import { InMemoryRh4663PrintStore, PostgresRh4663PrintStore, Rh4663PrintGeneratorError, Rh4663PrintGeneratorService, type Rh4663ObservationFreshness, type Rh4663PrintStore, type Rh4663VerifiedObservation } from '../services/rh4663PrintGeneratorService';
 import {
   InMemoryRh4663Store,
   PostgresRh4663Store,
@@ -653,6 +654,7 @@ export type CreateAppOptions = {
   rh4663ResolutionSigner?: Rh4663ResolutionSigner;
   rh4663AnchorAdapter?: Rh4663AnchorAdapter;
   rh4663IntelligenceStore?: Rh4663IntelligenceStore;
+  rh4663PrintStore?: Rh4663PrintStore;
 };
 
 const RH_CHAIN_LIVE_TOKEN_ROUTE_RESERVE_MS = 1_000;
@@ -784,6 +786,35 @@ export async function createApp(
   const rhChainMetricsSnapshotStore: RhChainMetricsSnapshotStore = options.rhChainMetricsSnapshotStore
     ?? (rhChainPostgresPool ? new PostgresRhChainMetricsSnapshotStore(rhChainPostgresPool) : new InMemoryRhChainMetricsSnapshotStore());
   const rhChainChainPulse = new RhChainChainPulseService(rhChainMetricsSnapshotStore);
+  const rh4663PrintStore = options.rh4663PrintStore ?? (rhChainPostgresPool ? new PostgresRh4663PrintStore(rhChainPostgresPool) : new InMemoryRh4663PrintStore());
+  const rh4663PrintGenerator = new Rh4663PrintGeneratorService({
+    store: rh4663PrintStore,
+    log: (entry) => console.log(JSON.stringify(entry)),
+    observations: async (requestedDate) => {
+      const metrics = await rhChainChainPulse.getLatest();
+      if (!metrics) {
+        const live = await rhChainLiveSnapshots.getLiveSnapshot(); const provider = live.provider_statuses.find((item) => item.provider_name === 'DefiLlama'); const observedAt = live.chain_metrics.source_timestamp ?? live.generated_at;
+        if (requestedDate && requestedDate !== observedAt.slice(0, 10)) return { observations: [], warnings: [`No cached provider snapshot matches ${requestedDate}; latest observed snapshot is ${observedAt.slice(0, 10)}.`] };
+        if (provider?.status !== 'fresh') return { observations: [], warnings: ['No persisted DefiLlama metrics snapshot is available.', `Live DefiLlama cache is ${provider?.status ?? 'unavailable'}; no candidate observation is inferred.`] };
+        const start = new Date(new Date(observedAt).getTime() - 86_400_000).toISOString(); const liveObservations: Rh4663VerifiedObservation[] = [];
+        const addLive = (metric: string, value: number | null, unit: Rh4663VerifiedObservation['unit'], window_type: Rh4663VerifiedObservation['window_type'], methodology: string) => { if (typeof value === 'number' && Number.isFinite(value)) liveObservations.push({ observation_id: `defillama:live:${observedAt}:${metric}`, chain_id: 4663, metric, value, unit, provider: 'DefiLlama', source_url: 'https://defillama.com/chain/Robinhood', observed_at: observedAt, fetched_at: live.generated_at, window_start: window_type === 'LIVE_SNAPSHOT' ? observedAt : start, window_end: observedAt, window_type, methodology, freshness: 'LIVE', confidence: live.chain_metrics.source_timestamp ? 70 : 55, status: 'PROVISIONAL' }); };
+        addLive('dex_volume_rolling_24h_usd', live.chain_metrics.dex_volume_24h_usd, 'USD', 'ROLLING_24H', 'Fresh cached DefiLlama rolling 24-hour chain DEX-volume context.'); addLive('tvl_usd', live.chain_metrics.tvl_usd, 'USD', 'LIVE_SNAPSHOT', 'Fresh cached DefiLlama chain TVL context.'); addLive('stablecoin_market_cap_usd', live.chain_metrics.stablecoin_market_cap_usd, 'USD', 'LIVE_SNAPSHOT', 'Fresh cached DefiLlama stablecoin market-cap context.');
+        return { observations: liveObservations, warnings: ['Using a fresh cached provider observation; it remains provisional until a completed UTC-day source is available.', 'Blockscout chain-wide UTC transaction totals and DefiLlama UTC-day DEX volume are not currently exposed by the existing snapshot surfaces.'] };
+      }
+      const observedDate = metrics.observed_at.slice(0, 10);
+      if (requestedDate && requestedDate !== observedDate) return { observations: [], warnings: [`No persisted provider snapshot matches ${requestedDate}; latest observed snapshot is ${observedDate}.`] };
+      const freshness: Rh4663ObservationFreshness = metrics.freshness_state === 'fresh' ? 'RECENT' : metrics.freshness_state === 'stale' ? 'STALE' : 'UNAVAILABLE';
+      const end = metrics.observed_at; const start = new Date(new Date(end).getTime() - 86_400_000).toISOString(); const observations: Rh4663VerifiedObservation[] = [];
+      const add = (metric: string, value: number | null, unit: Rh4663VerifiedObservation['unit'], window_type: Rh4663VerifiedObservation['window_type'], methodology: string) => { if (typeof value === 'number' && Number.isFinite(value)) observations.push({ observation_id: `defillama:${metrics.snapshot_id}:${metric}`, chain_id: 4663, metric, value, unit, provider: 'DefiLlama', source_url: 'https://defillama.com/chain/Robinhood', observed_at: metrics.observed_at, fetched_at: metrics.fetched_at, window_start: window_type === 'LIVE_SNAPSHOT' ? metrics.observed_at : start, window_end: end, window_type, methodology, freshness, confidence: metrics.confidence_level === 'high' ? 85 : metrics.confidence_level === 'medium' ? 70 : 45, status: 'PROVISIONAL' }); };
+      add('dex_volume_rolling_24h_usd', metrics.dex_volume_24h, 'USD', 'ROLLING_24H', 'Persisted DefiLlama rolling 24-hour chain DEX-volume context.');
+      add('tvl_usd', metrics.tvl, 'USD', 'LIVE_SNAPSHOT', 'Persisted DefiLlama chain TVL context.');
+      add('stablecoin_market_cap_usd', metrics.stablecoin_market_cap, 'USD', 'LIVE_SNAPSHOT', 'Persisted DefiLlama chain stablecoin market-cap context.');
+      const warnings = [...metrics.source_notes];
+      if (metrics.freshness_state !== 'fresh') warnings.push(`Provider snapshot is ${metrics.freshness_state}; it cannot qualify a Print for freezing.`);
+      warnings.push('Blockscout chain-wide UTC transaction totals are not currently available through the existing snapshot surface.', 'DefiLlama snapshot provides rolling 24-hour DEX context, not a verified UTC calendar-day DEX total.');
+      return { observations, warnings };
+    }
+  });
   let rhChainDiscoveryQueue: RhChainDiscoveryQueueService | null = null;
   let rhChainReviewPipeline: RhChainReviewPipelineService | null = null;
   let rhChainMarketSnapshots: RhChainMarketSnapshotService;
@@ -886,6 +917,13 @@ export async function createApp(
     : new DisabledRh4663AnchorAdapter());
   const rh4663Phase2 = new Rh4663ResolutionService(rh4663Store, rh4663ResolutionStore, rh4663ResolutionSigner, rh4663AnchorAdapter);
   const rh4663PublicRouteMetadata = async (urlPath: string): Promise<NarrativeMetadata | null> => {
+    const printMatch = urlPath.match(/^\/4663\/print\/([^/?]+)\/?$/);
+    if (printMatch) {
+      const print = await rh4663PrintRead(printMatch[1]);
+      if (!print) return null;
+      const imagePath = `/og/4663/prints/${encodeURIComponent(print.print_id)}.png`;
+      return { title: `//4663 PRINT · ${print.title} | Infopunks Radar`, description: `${print.regime}. Frozen market-state evidence with explicit source windows and methodology.`, canonicalPath: print.canonical_path, ogTitle: `//4663 PRINT · ${print.title}`, ogDescription: `${print.regime}. Inspect the evidence windows.`, ogImageUrl: `${NARRATIVE_PUBLIC_HOST}${imagePath}`, ogImageWidth: 1200, ogImageHeight: 630, twitterTitle: `//4663 PRINT · ${print.title}`, twitterDescription: `${print.regime}. Inspect the evidence windows.`, twitterImageUrl: `${NARRATIVE_PUBLIC_HOST}${imagePath}`, twitterCard: 'summary_large_image' };
+    }
     const match = urlPath.match(/^\/4663\/(call|resolution)\/([^/?]+)\/?$/);
     if (!match) return null;
     const [_, route, rawReceiptId] = match;
@@ -2648,24 +2686,39 @@ export async function createApp(
       return { edition_id: `today_4663_${editionDate.replaceAll('-', '')}_unavailable`, date: editionDate, generated_at: new Date().toISOString(), top_events: [], category_flows: [], key_signal: 'Current reviewed intelligence is unavailable. No live flow is asserted.', rh_pulse_consensus: null, evidence_references: [], confidence: 0, source_timestamps: [], provider_state: 'unavailable' as const, storage_status: 'unavailable' as const, archive_path: `/v1/4663/today/${editionDate}`, data_notice: 'Provider or storage state is unavailable. No missing live observation has been fabricated.' };
     }
   };
+  const rh4663PrintRead = async (printId: string) => await rh4663PrintGenerator.get(printId) ?? getRh4663Print(printId);
+  const rh4663LatestPrintRead = async () => await rh4663PrintGenerator.latest() ?? getLatestRh4663Print();
   app.get('/v1/4663', async () => {
-    const [pulse, genesis, today, signals, liveSignals] = await Promise.all([rh4663PulseRead(), rh4663GenesisRead(), rh4663TodayInput(), rh4663Store.listSignals(5).catch(() => []), rh4663Intelligence.publicSignals({ limit: 3 }).catch(() => [])]);
+    const [pulse, genesis, today, signals, liveSignals, latestPrint] = await Promise.all([rh4663PulseRead(), rh4663GenesisRead(), rh4663TodayInput(), rh4663Store.listSignals(5).catch(() => []), rh4663Intelligence.publicSignals({ limit: 3 }).catch(() => []), rh4663LatestPrintRead()]);
     const index = assembleRhChain4663Index();
     return { data: safeJsonExport({
       identity: 'INFOPUNKS // 4663', thesis: 'WE WATCH THE FLOW.',
       rotation_snapshot: { top_signal: index.overview.top_signal, highest_volume: index.overview.highest_volume, highest_risk: index.overview.highest_risk, last_updated: index.last_updated, source_status: rh4663SourceStatus(index.freshness_state) },
-      pulse, today, latest_print: getLatestRh4663Print(), live_signals: { count: liveSignals.length, signals: liveSignals }, signal_hunt: { count: signals.length, signals }, genesis,
+      pulse, today, latest_print: latestPrint, live_signals: { count: liveSignals.length, signals: liveSignals }, signal_hunt: { count: signals.length, signals }, genesis,
       semantics: { signal_card: 'Editorial intelligence representation.', evidence_receipt: 'Machine-verifiable observation object.', protocol_receipt: 'Canonical CALL / RESOLUTION / GENESIS FINALIZATION object.' }
     }) };
   });
-  app.get('/v1/4663/prints/latest', async () => ({ data: safeJsonExport(getLatestRh4663Print()) }));
+  app.get('/v1/4663/prints', async () => ({ data: safeJsonExport({ prints: [...await rh4663PrintGenerator.list(), getLatestRh4663Print()].sort((a, b) => b.canonical_path.localeCompare(a.canonical_path)), storage: { adapter: rh4663PrintStore.adapter, durable: rh4663PrintStore.durable } }) }));
+  app.get('/v1/4663/prints/latest', async () => ({ data: safeJsonExport(await rh4663LatestPrintRead()) }));
   app.get<{ Params: { printId: string } }>('/v1/4663/prints/:printId', async (req, reply) => {
-    const print = getRh4663Print(req.params.printId);
+    const print = await rh4663PrintRead(req.params.printId);
     return print ? { data: safeJsonExport(print) } : reply.code(404).send({ error: '4663_print_not_found' });
   });
   app.get<{ Params: { printId: string } }>('/v1/4663/prints/:printId/share', async (req, reply) => {
-    const print = getRh4663Print(req.params.printId);
+    const print = await rh4663PrintRead(req.params.printId);
     return print ? { data: safeJsonExport({ object_version: 'infopunks.rh4663.print.share.v1', object_type: 'market_state_print', print_id: print.print_id, canonical_path: print.canonical_path, images: print.share, verified_property: 'Campaign snapshot preserves its published source windows and methodology.' }) } : reply.code(404).send({ error: '4663_print_not_found' });
+  });
+  app.get<{ Querystring: { date?: string } }>('/v1/4663/print-candidate', async (req) => {
+    const candidate = await rh4663PrintGenerator.candidate(req.query.date); rh4663CampaignTelemetry.record({ event: candidate.lifecycle === 'READY' ? '4663_print_candidate_generated' : '4663_print_candidate_incomplete' });
+    for (const disagreement of candidate.disagreements.filter((item) => item.kind === 'SOURCE_DISAGREEMENT')) rh4663CampaignTelemetry.record({ event: '4663_print_provider_disagreement' });
+    return { data: safeJsonExport(candidate) };
+  });
+  app.post<{ Params: { candidateId: string }; Body: { fingerprint?: string } }>('/internal/4663/prints/:candidateId/freeze', async (req, reply) => {
+    const reviewer = rh4663OperationalGuard(reply, req.headers.authorization, req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return;
+    const date = req.params.candidateId.match(/^rh-print-candidate-(\d{4}-\d{2}-\d{2})$/)?.[1]; if (!date) return reply.code(400).send({ error: 'invalid_print_candidate_id' });
+    if (!req.body?.fingerprint) return reply.code(400).send({ error: 'candidate_fingerprint_required' });
+    try { const candidate = await rh4663PrintGenerator.candidate(date); const print = await rh4663PrintGenerator.freeze(candidate, req.body.fingerprint); rh4663CampaignTelemetry.record({ event: '4663_print_frozen', print_id: print.print_id }); return reply.code(201).send({ data: safeJsonExport({ print, requested_by: reviewer }) }); }
+    catch (error) { if (error instanceof Rh4663PrintGeneratorError) return reply.code(error.statusCode).send({ error: error.code }); throw error; }
   });
   app.post('/v1/4663/campaign/events', async (req, reply) => {
     try { return reply.code(202).send({ data: rh4663CampaignTelemetry.record(Rh4663CampaignEventSchema.parse(req.body)) }); }
@@ -3572,7 +3625,7 @@ export async function createApp(
     return reply.type('image/png').send(renderOgPng(renderNarrativesOgImage()));
   });
   app.get<{ Params: { printId: string }; Querystring: { format?: string } }>('/og/4663/prints/:printId.png', async (req, reply) => {
-    const print = getRh4663Print(req.params.printId);
+    const print = await rh4663PrintRead(req.params.printId);
     if (!print) return reply.code(404).send({ error: '4663_print_not_found' });
     const format = parseRh4663ShareFormat(req.query.format);
     reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');

@@ -35,17 +35,25 @@ export type Rh4663PrintLayerRead = {
 };
 
 export type Rh4663PrintEvidenceReference = { id: string; label: string; href: string; note: string };
+export type Rh4663FrozenPrintMemory = {
+  created_at: string;
+  frozen_at: string;
+  generator_version: string;
+  methodology_version: string;
+  accepted_observations: Array<{ observation_id: string; metric: string; value: number; unit: string; provider: string; source_url: string; observed_at: string; fetched_at: string; window_start: string; window_end: string; window_type: string; methodology: string; freshness: string; confidence: number; status: string; notes?: string }>;
+  qualification_notes: string[];
+};
 
 export type Rh4663Print = {
-  print_id: 'rh-print-2026-08-30';
-  canonical_path: '/4663/print/2026-08-30';
+  print_id: string;
+  canonical_path: string;
   printed_at: string;
-  status: 'published';
+  status: 'published' | 'frozen';
   receipt_kind: 'MARKET_STATE_EVIDENCE';
-  campaign_snapshot: true;
-  data_mode: 'editorial_campaign_snapshot';
-  title: 'ROBINHOOD CHAIN IS RUNNING HOT';
-  regime: 'SPECULATIVE EXPANSION';
+  campaign_snapshot: boolean;
+  data_mode: 'editorial_campaign_snapshot' | 'verified_provider_snapshot';
+  title: string;
+  regime: string;
   methodology_notice: string;
   correction_notice: string;
   metrics: Rh4663PrintMetric[];
@@ -55,7 +63,8 @@ export type Rh4663Print = {
   campaign_copy: { primary: string; secondary: string; call_to_action: string; receipt_line: string };
   share: { landscape: string; square: string; portrait: string };
   interpretation: string;
-  call: { question: string; evidence_path: '/4663/print/2026-08-30'; default_confidence: 74 };
+  call: { question: string; evidence_path: string; default_confidence: number };
+  frozen_memory?: Rh4663FrozenPrintMemory;
 };
 
 const august30Start = '2026-08-30T00:00:00.000Z';

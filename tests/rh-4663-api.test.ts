@@ -5,6 +5,8 @@ import { MemoryRepository } from '../src/persistence/repository';
 import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
 import { InMemoryRh4663Store, Rh4663Service, type Rh4663NormalizedEvent } from '../src/services/rh4663Service';
 import { InMemoryRh4663ResolutionStore } from '../src/services/rh4663ResolutionService';
+import { InMemoryRh4663PrintStore } from '../src/services/rh4663PrintGeneratorService';
+import { RH_4663_PRINT_0830 } from '../src/services/rh4663PrintService';
 
 const account = privateKeyToAccount('0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d');
 afterEach(() => { delete process.env.NODE_ENV; delete process.env.RH_CHAIN_REVIEW_ADMIN_TOKEN; delete process.env.RH_4663_PHASE2_ENABLED; });
@@ -52,8 +54,19 @@ describe('Infopunks //4663 API', () => {
       ]));
       for (const metric of print.metrics) expect(metric).toEqual(expect.objectContaining({ source: expect.any(Object), observed_at: expect.any(String), window_start: expect.any(String), window_end: expect.any(String), methodology: expect.any(String), freshness: expect.any(String), confidence: expect.any(Number) }));
       expect((await app.inject({ method: 'GET', url: '/v1/4663/prints/latest' })).json().data.print_id).toBe('rh-print-2026-08-30');
+      const candidate = await app.inject({ method: 'GET', url: '/v1/4663/print-candidate' }); expect(candidate.statusCode).toBe(200); expect(candidate.json().data.lifecycle).toBe('CANDIDATE'); expect(candidate.json().data.observations.some((item: { value: unknown }) => item.value === 0)).toBe(false);
       expect((await app.inject({ method: 'GET', url: '/v1/4663/prints/rh-print-2026-08-30/share' })).json().data.images.landscape).toContain('/og/4663/prints/');
       const image = await app.inject({ method: 'GET', url: '/og/4663/prints/rh-print-2026-08-30.png?format=portrait' }); expect(image.statusCode).toBe(200); expect(image.headers['content-type']).toContain('image/png');
+    } finally { await app.close(); }
+  });
+
+  it('selects the latest frozen Print for /4663 while keeping the Aug 30 campaign object addressable', async () => {
+    process.env.NODE_ENV = 'test'; const printStore = new InMemoryRh4663PrintStore();
+    await printStore.freeze({ ...structuredClone(RH_4663_PRINT_0830), print_id: 'rh-print-2026-09-01', canonical_path: '/4663/print/2026-09-01', printed_at: '2026-09-02T00:00:00.000Z', status: 'frozen', campaign_snapshot: false, data_mode: 'verified_provider_snapshot' });
+    const app = await createApp(emptyIntelligenceStore(), new MemoryRepository(), { rh4663Store: new InMemoryRh4663Store(), rh4663PrintStore: printStore });
+    try {
+      expect((await app.inject({ method: 'GET', url: '/v1/4663' })).json().data.latest_print.print_id).toBe('rh-print-2026-09-01');
+      expect((await app.inject({ method: 'GET', url: '/v1/4663/prints/rh-print-2026-08-30' })).json().data.metrics.find((item: { id: string }) => item.id === 'utc_dex_volume').value).toBe('$874.8M');
     } finally { await app.close(); }
   });
 
@@ -103,7 +116,7 @@ describe('Infopunks //4663 API', () => {
     process.env.NODE_ENV = 'test'; const app = await createApp(emptyIntelligenceStore(), new MemoryRepository(), { rh4663Store: new InMemoryRh4663Store() });
     try {
       const paths = (await app.inject({ method: 'GET', url: '/openapi.json' })).json().paths;
-      for (const path of ['/v1/4663', '/v1/4663/prints/latest', '/v1/4663/prints/{printId}', '/v1/4663/prints/{printId}/share', '/v1/4663/campaign/events', '/v1/4663/pulse', '/v1/4663/pulse/payload', '/v1/4663/pulse/calls', '/v1/4663/pulse/windows/{windowId}', '/v1/4663/pulse/windows/{windowId}/resolution', '/v1/4663/pulse/windows/{windowId}/share', '/v1/4663/pulse/receipts/{receiptId}/proof', '/v1/4663/pulse/receipts/{receiptId}/share', '/v1/4663/pulse/reputation/{wallet}', '/v1/4663/today', '/v1/4663/today/archive', '/v1/4663/signals', '/v1/4663/events', '/v1/4663/receipts']) expect(paths[path]).toBeDefined();
+      for (const path of ['/v1/4663', '/v1/4663/prints', '/v1/4663/prints/latest', '/v1/4663/prints/{printId}', '/v1/4663/prints/{printId}/share', '/v1/4663/print-candidate', '/internal/4663/prints/{candidateId}/freeze', '/v1/4663/campaign/events', '/v1/4663/pulse', '/v1/4663/pulse/payload', '/v1/4663/pulse/calls', '/v1/4663/pulse/windows/{windowId}', '/v1/4663/pulse/windows/{windowId}/resolution', '/v1/4663/pulse/windows/{windowId}/share', '/v1/4663/pulse/receipts/{receiptId}/proof', '/v1/4663/pulse/receipts/{receiptId}/share', '/v1/4663/pulse/reputation/{wallet}', '/v1/4663/today', '/v1/4663/today/archive', '/v1/4663/signals', '/v1/4663/events', '/v1/4663/receipts']) expect(paths[path]).toBeDefined();
     } finally { await app.close(); }
   });
 

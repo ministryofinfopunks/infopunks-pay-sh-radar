@@ -36,6 +36,7 @@ export function renderRh4663ShareSvg(share: Rh4663UniversalShareObject, format: 
 }
 
 function renderPrintShareSvg(print: Rh4663Print, format: Rh4663ShareFormat) {
+  if (!print.campaign_snapshot) return renderFrozenPrintShareSvg(print, format);
   const { width, height } = dimensions[format]; const pons = print.metrics.find((metric) => metric.id === 'pons_volume'); const dex = print.metrics.find((metric) => metric.id === 'utc_dex_volume'); const transactions = print.metrics.find((metric) => metric.id === 'transactions');
   const titleSize = format === 'landscape' ? 62 : 78; const left = 72;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${xml('4663 PRINT Robinhood Chain is running hot')}">
@@ -48,6 +49,18 @@ function renderPrintShareSvg(print: Rh4663Print, format: Rh4663ShareFormat) {
   <rect x="${left}" y="${height - (format === 'landscape' ? 170 : 290)}" width="${width - left * 2}" height="${format === 'landscape' ? 82 : 150}" fill="#0b150e"/><text x="${left + 24}" y="${height - (format === 'landscape' ? 118 : 220)}" class="strong">PONS ≈ 51%</text><text x="${left + 24}" y="${height - (format === 'landscape' ? 85 : 180)}" class="meta">${xml(`${pons?.value ?? '$445.98M'} OF ${dex?.value ?? '$874.8M'} · SELECTED UTC WINDOW`)}</text>
   <text x="${left}" y="${height - 38}" class="footer">THE INTERNET STARTED TRADING ATTENTION.</text><text x="${width - left}" y="${height - 38}" class="footer" text-anchor="end">INFOPUNKS //4663</text>
   </svg>`;
+}
+
+function renderFrozenPrintShareSvg(print: Rh4663Print, format: Rh4663ShareFormat) {
+  const { width, height } = dimensions[format]; const left = 72; const primary = print.metrics[0]; const secondary = print.metrics[1]; const date = print.canonical_path.split('/').at(-1) ?? 'FROZEN';
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${xml(`4663 PRINT ${print.title}`)}">
+  <style>@font-face{font-family:IBM;src:local('IBM Plex Mono')}text{font-family:IBM,monospace;fill:#f2f5f0}.micro{font-size:22px;letter-spacing:3px;fill:#74ff9b}.title{font-size:${format === 'landscape' ? 58 : 72}px;font-weight:700;letter-spacing:-3px}.metric{font-size:${format === 'landscape' ? 54 : 66}px;font-weight:700}.meta{font-size:19px;letter-spacing:2px;fill:#919991}.footer{font-size:18px;letter-spacing:2px;fill:#919991}</style>
+  <rect width="100%" height="100%" fill="#050605"/><path d="M0 0H${Math.round(width * .012)}V${height}H0Z" fill="#74ff9b"/>
+  <text x="${left}" y="72" class="micro">//4663 PRINT · ${xml(date)}</text><text x="${width - left}" y="72" class="footer" text-anchor="end">FROZEN MARKET MEMORY</text>
+  <text x="${left}" y="${format === 'landscape' ? 170 : 220}" class="title">${xml(compact(print.title, format === 'landscape' ? 31 : 25))}</text><text x="${left}" y="${format === 'landscape' ? 220 : 295}" class="meta">${xml(print.regime)}</text>
+  <text x="${left}" y="${format === 'landscape' ? 335 : 430}" class="metric">${xml(primary?.value ?? '—')}</text><text x="${left}" y="${format === 'landscape' ? 370 : 465}" class="meta">${xml(primary?.label ?? 'SOURCE REQUIRED')}</text>
+  <text x="${format === 'landscape' ? Math.round(width * .55) : left}" y="${format === 'landscape' ? 335 : 565}" class="metric">${xml(secondary?.value ?? '—')}</text><text x="${format === 'landscape' ? Math.round(width * .55) : left}" y="${format === 'landscape' ? 370 : 600}" class="meta">${xml(secondary?.label ?? 'SOURCE REQUIRED')}</text>
+  <line x1="${left}" y1="${height - 95}" x2="${width - left}" y2="${height - 95}" stroke="#282d29"/><text x="${left}" y="${height - 42}" class="footer">LIVE DATA CHANGES. MARKET MEMORY DOES NOT.</text><text x="${width - left}" y="${height - 42}" class="footer" text-anchor="end">INFOPUNKS //4663</text></svg>`;
 }
 
 function renderSignalShareSvg(signal: Published4663Signal, format: Rh4663ShareFormat) {
