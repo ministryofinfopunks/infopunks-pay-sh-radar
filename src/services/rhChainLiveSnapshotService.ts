@@ -283,7 +283,7 @@ function inferLaunchContext(pair: RhChainTokenPairSnapshot | null, explorer: RhC
 }
 
 function createPublicClients(options: RhChainLiveSnapshotOptions): RhChainLiveProviderClient {
-  const request = async <T>(url: string, context?: RhChainProviderRequestContext) => requestJson<T>(url, options.timeoutMs, context?.signal);
+  const request = async <T>(url: string, context?: RhChainProviderRequestContext) => requestRhChainProviderJson<T>(url, options.timeoutMs, context?.signal);
   return {
     async chainMetrics() {
       const [chains, stablecoins, fees, protocols] = await Promise.all([
@@ -343,7 +343,8 @@ const BlockscoutAddressSchema = z.object({
   smart_contract: z.object({ is_verified: z.boolean().optional(), contract_type: z.string().optional() }).passthrough().nullable().optional()
 }).passthrough().refine((value) => Boolean(value.address || value.hash), 'invalid_blockscout_address_payload');
 
-async function requestJson<T>(url: string, timeoutMs: number, parentSignal?: AbortSignal): Promise<T> {
+/** Shared bounded JSON transport for RH Chain providers. Provider-specific services keep their own schemas. */
+export async function requestRhChainProviderJson<T>(url: string, timeoutMs: number, parentSignal?: AbortSignal): Promise<T> {
   const timeoutSignal = AbortSignal.timeout(timeoutMs);
   const signal = parentSignal ? AbortSignal.any([parentSignal, timeoutSignal]) : timeoutSignal;
   const response = await fetch(url, { headers: { Accept: 'application/json' }, signal });

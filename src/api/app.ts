@@ -39,6 +39,7 @@ import { assembleRhChainTodayOn4663 } from '../services/rhChainTodayOn4663Servic
 import { getLatestRh4663Print, getRh4663Print } from '../services/rh4663PrintService';
 import { Rh4663CampaignEventSchema, Rh4663CampaignTelemetry } from '../services/rh4663CampaignTelemetry';
 import { InMemoryRh4663PrintStore, PostgresRh4663PrintStore, Rh4663PrintGeneratorError, Rh4663PrintGeneratorService, type Rh4663ObservationFreshness, type Rh4663PrintStore, type Rh4663VerifiedObservation } from '../services/rh4663PrintGeneratorService';
+import { createRh4663UtcDayProviders, InMemoryRh4663UtcDayObservationStore, isValidRh4663UtcDate, PostgresRh4663UtcDayObservationStore, Rh4663UtcDayObservationError, Rh4663UtcDayObservationService, type Rh4663UtcDayObservationStore } from '../services/rh4663UtcDayObservationService';
 import {
   InMemoryRh4663Store,
   PostgresRh4663Store,
@@ -655,6 +656,7 @@ export type CreateAppOptions = {
   rh4663AnchorAdapter?: Rh4663AnchorAdapter;
   rh4663IntelligenceStore?: Rh4663IntelligenceStore;
   rh4663PrintStore?: Rh4663PrintStore;
+  rh4663UtcDayObservationStore?: Rh4663UtcDayObservationStore;
 };
 
 const RH_CHAIN_LIVE_TOKEN_ROUTE_RESERVE_MS = 1_000;
@@ -786,23 +788,27 @@ export async function createApp(
   const rhChainMetricsSnapshotStore: RhChainMetricsSnapshotStore = options.rhChainMetricsSnapshotStore
     ?? (rhChainPostgresPool ? new PostgresRhChainMetricsSnapshotStore(rhChainPostgresPool) : new InMemoryRhChainMetricsSnapshotStore());
   const rhChainChainPulse = new RhChainChainPulseService(rhChainMetricsSnapshotStore);
+  const rh4663UtcDayObservationStore = options.rh4663UtcDayObservationStore ?? (rhChainPostgresPool ? new PostgresRh4663UtcDayObservationStore(rhChainPostgresPool) : new InMemoryRh4663UtcDayObservationStore());
+  const rh4663UtcDayObservations = new Rh4663UtcDayObservationService({ store: rh4663UtcDayObservationStore, providers: createRh4663UtcDayProviders({ blockscoutUrl: config.rhChainBlockscoutUrl, timeoutMs: config.rhChainProviderTimeoutMs }), log: (entry) => console.log(JSON.stringify(entry)) });
   const rh4663PrintStore = options.rh4663PrintStore ?? (rhChainPostgresPool ? new PostgresRh4663PrintStore(rhChainPostgresPool) : new InMemoryRh4663PrintStore());
   const rh4663PrintGenerator = new Rh4663PrintGeneratorService({
     store: rh4663PrintStore,
     log: (entry) => console.log(JSON.stringify(entry)),
     observations: async (requestedDate) => {
       const metrics = await rhChainChainPulse.getLatest();
+      const completedDate = requestedDate ?? metrics?.observed_at.slice(0, 10) ?? new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
+      const completed = await rh4663UtcDayObservations.observations(completedDate);
       if (!metrics) {
         const live = await rhChainLiveSnapshots.getLiveSnapshot(); const provider = live.provider_statuses.find((item) => item.provider_name === 'DefiLlama'); const observedAt = live.chain_metrics.source_timestamp ?? live.generated_at;
-        if (requestedDate && requestedDate !== observedAt.slice(0, 10)) return { observations: [], warnings: [`No cached provider snapshot matches ${requestedDate}; latest observed snapshot is ${observedAt.slice(0, 10)}.`] };
-        if (provider?.status !== 'fresh') return { observations: [], warnings: ['No persisted DefiLlama metrics snapshot is available.', `Live DefiLlama cache is ${provider?.status ?? 'unavailable'}; no candidate observation is inferred.`] };
+        if (requestedDate && requestedDate !== observedAt.slice(0, 10)) return { observations: completed, warnings: [`No cached provider snapshot matches ${requestedDate}; latest observed snapshot is ${observedAt.slice(0, 10)}.`] };
+        if (provider?.status !== 'fresh') return { observations: completed, warnings: ['No persisted DefiLlama metrics snapshot is available.', `Live DefiLlama cache is ${provider?.status ?? 'unavailable'}; no candidate observation is inferred.`] };
         const start = new Date(new Date(observedAt).getTime() - 86_400_000).toISOString(); const liveObservations: Rh4663VerifiedObservation[] = [];
         const addLive = (metric: string, value: number | null, unit: Rh4663VerifiedObservation['unit'], window_type: Rh4663VerifiedObservation['window_type'], methodology: string) => { if (typeof value === 'number' && Number.isFinite(value)) liveObservations.push({ observation_id: `defillama:live:${observedAt}:${metric}`, chain_id: 4663, metric, value, unit, provider: 'DefiLlama', source_url: 'https://defillama.com/chain/Robinhood', observed_at: observedAt, fetched_at: live.generated_at, window_start: window_type === 'LIVE_SNAPSHOT' ? observedAt : start, window_end: observedAt, window_type, methodology, freshness: 'LIVE', confidence: live.chain_metrics.source_timestamp ? 70 : 55, status: 'PROVISIONAL' }); };
         addLive('dex_volume_rolling_24h_usd', live.chain_metrics.dex_volume_24h_usd, 'USD', 'ROLLING_24H', 'Fresh cached DefiLlama rolling 24-hour chain DEX-volume context.'); addLive('tvl_usd', live.chain_metrics.tvl_usd, 'USD', 'LIVE_SNAPSHOT', 'Fresh cached DefiLlama chain TVL context.'); addLive('stablecoin_market_cap_usd', live.chain_metrics.stablecoin_market_cap_usd, 'USD', 'LIVE_SNAPSHOT', 'Fresh cached DefiLlama stablecoin market-cap context.');
-        return { observations: liveObservations, warnings: ['Using a fresh cached provider observation; it remains provisional until a completed UTC-day source is available.', 'Blockscout chain-wide UTC transaction totals and DefiLlama UTC-day DEX volume are not currently exposed by the existing snapshot surfaces.'] };
+        return { observations: [...completed, ...liveObservations], warnings: ['Using a fresh cached provider observation; it remains provisional until a completed UTC-day source is available.', 'Blockscout chain-wide UTC transaction totals and DefiLlama UTC-day DEX volume are not currently exposed by the existing snapshot surfaces.'] };
       }
       const observedDate = metrics.observed_at.slice(0, 10);
-      if (requestedDate && requestedDate !== observedDate) return { observations: [], warnings: [`No persisted provider snapshot matches ${requestedDate}; latest observed snapshot is ${observedDate}.`] };
+      if (requestedDate && requestedDate !== observedDate) return { observations: completed, warnings: [`No persisted provider snapshot matches ${requestedDate}; latest observed snapshot is ${observedDate}.`] };
       const freshness: Rh4663ObservationFreshness = metrics.freshness_state === 'fresh' ? 'RECENT' : metrics.freshness_state === 'stale' ? 'STALE' : 'UNAVAILABLE';
       const end = metrics.observed_at; const start = new Date(new Date(end).getTime() - 86_400_000).toISOString(); const observations: Rh4663VerifiedObservation[] = [];
       const add = (metric: string, value: number | null, unit: Rh4663VerifiedObservation['unit'], window_type: Rh4663VerifiedObservation['window_type'], methodology: string) => { if (typeof value === 'number' && Number.isFinite(value)) observations.push({ observation_id: `defillama:${metrics.snapshot_id}:${metric}`, chain_id: 4663, metric, value, unit, provider: 'DefiLlama', source_url: 'https://defillama.com/chain/Robinhood', observed_at: metrics.observed_at, fetched_at: metrics.fetched_at, window_start: window_type === 'LIVE_SNAPSHOT' ? metrics.observed_at : start, window_end: end, window_type, methodology, freshness, confidence: metrics.confidence_level === 'high' ? 85 : metrics.confidence_level === 'medium' ? 70 : 45, status: 'PROVISIONAL' }); };
@@ -811,8 +817,8 @@ export async function createApp(
       add('stablecoin_market_cap_usd', metrics.stablecoin_market_cap, 'USD', 'LIVE_SNAPSHOT', 'Persisted DefiLlama chain stablecoin market-cap context.');
       const warnings = [...metrics.source_notes];
       if (metrics.freshness_state !== 'fresh') warnings.push(`Provider snapshot is ${metrics.freshness_state}; it cannot qualify a Print for freezing.`);
-      warnings.push('Blockscout chain-wide UTC transaction totals are not currently available through the existing snapshot surface.', 'DefiLlama snapshot provides rolling 24-hour DEX context, not a verified UTC calendar-day DEX total.');
-      return { observations, warnings };
+      warnings.push('Rolling snapshot data is contextual only. Final UTC-day observations, when available, are loaded separately from the completed-day observation store.');
+      return { observations: [...completed, ...observations], warnings };
     }
   });
   let rhChainDiscoveryQueue: RhChainDiscoveryQueueService | null = null;
@@ -2713,6 +2719,14 @@ export async function createApp(
     for (const disagreement of candidate.disagreements.filter((item) => item.kind === 'SOURCE_DISAGREEMENT')) rh4663CampaignTelemetry.record({ event: '4663_print_provider_disagreement' });
     return { data: safeJsonExport(candidate) };
   });
+  app.get<{ Querystring: { date?: string } }>('/v1/4663/observations', async (req, reply) => {
+    const date = req.query.date;
+    if (!date || !isValidRh4663UtcDate(date)) return reply.code(400).send({ error: 'invalid_utc_date' });
+    const observations = await rh4663UtcDayObservationStore.current(date);
+    const transactions = observations.find((item) => item.metric === 'transactions_utc_day') ?? null;
+    const dex_volume = observations.find((item) => item.metric === 'dex_volume_utc_day_usd') ?? null;
+    return { data: safeJsonExport({ date, transactions, dex_volume, status: transactions && dex_volume ? 'FINALIZED' : 'INCOMPLETE', warnings: [transactions ? null : 'MISSING_FINAL_UTC_TRANSACTIONS', dex_volume ? null : 'MISSING_FINAL_UTC_DEX_VOLUME'].filter((item): item is string => item !== null), storage: { adapter: rh4663UtcDayObservationStore.adapter, durable: rh4663UtcDayObservationStore.durable } }) };
+  });
   app.post<{ Params: { candidateId: string }; Body: { fingerprint?: string } }>('/internal/4663/prints/:candidateId/freeze', async (req, reply) => {
     const reviewer = rh4663OperationalGuard(reply, req.headers.authorization, req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return;
     const date = req.params.candidateId.match(/^rh-print-candidate-(\d{4}-\d{2}-\d{2})$/)?.[1]; if (!date) return reply.code(400).send({ error: 'invalid_print_candidate_id' });
@@ -2756,6 +2770,11 @@ export async function createApp(
     if (!config.rh4663Phase2Enabled) { reply.code(503).send({ error: 'phase2_not_enabled' }); return null; }
     const reviewer = classificationReviewer(reviewerHeader as string | string[] | undefined); if (!reviewer) { reply.code(400).send({ error: 'reviewer_id_required' }); return null; } return reviewer;
   };
+  app.post<{ Params: { date: string } }>('/internal/4663/observations/utc-day/:date/refresh', async (req, reply) => {
+    const reviewer = rh4663OperationalGuard(reply, req.headers.authorization, req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return;
+    try { const result = await rh4663UtcDayObservations.refresh(req.params.date); return { data: safeJsonExport({ ...result, requested_by: reviewer, storage: { adapter: rh4663UtcDayObservationStore.adapter, durable: rh4663UtcDayObservationStore.durable } }) }; }
+    catch (error) { if (error instanceof Rh4663UtcDayObservationError) return reply.code(error.statusCode).send({ error: error.code }); throw error; }
+  });
   app.post<{ Params: { windowId: string } }>('/internal/4663/pulse/windows/:windowId/resolve', async (req, reply) => {
     const reviewer = rh4663OperationalGuard(reply, req.headers.authorization, req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return;
     try { return { data: safeJsonExport({ resolution: await rh4663Phase2.resolve(req.params.windowId), requested_by: reviewer }) }; } catch (error) { return rh4663Failure(reply, error); }

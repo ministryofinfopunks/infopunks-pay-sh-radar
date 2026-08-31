@@ -114,7 +114,8 @@ export class Rh4663PrintGeneratorService {
     const missing = required.filter((metric) => !present.includes(metric));
     const regime = classifyRegime(observations);
     const layers = classifyLayers(observations);
-    const warnings = [...(source.warnings ?? []), ...missing.map((metric) => `Missing required verified observation: ${metric}.`), ...disagreements.filter((item) => item.kind === 'SOURCE_DISAGREEMENT').map((item) => `Provider disagreement requires review: ${item.metric}.`)];
+    const requiredGap = (metric: string) => metric === 'transactions_utc_day' ? 'MISSING_FINAL_UTC_TRANSACTIONS' : metric === 'dex_volume_utc_day_usd' ? 'MISSING_FINAL_UTC_DEX_VOLUME' : `MISSING_REQUIRED_OBSERVATION:${metric}`;
+    const warnings = [...(source.warnings ?? []), ...missing.map(requiredGap), ...disagreements.filter((item) => item.kind === 'SOURCE_DISAGREEMENT').map((item) => `Provider disagreement requires review: ${item.metric}.`)];
     const lifecycle = missing.length === 0 && observations.every((item) => item.freshness !== 'STALE' && item.freshness !== 'UNAVAILABLE') && !disagreements.some((item) => item.kind === 'SOURCE_DISAGREEMENT') ? 'READY' as const : 'CANDIDATE' as const;
     const base = { candidate_id: `rh-print-candidate-${candidateDate}`, date: candidateDate, lifecycle, generated_at: generatedAt, generator_version: RH_4663_PRINT_GENERATOR_VERSION, methodology_version: RH_4663_PRINT_METHODOLOGY_VERSION, observations, regime, regime_rules: regimeRules(regime, observations), layer_read: layers, completeness: { required, present, missing, ratio: required.length ? present.length / required.length : 0 }, freshness: aggregateFreshness(observations), warnings, disagreements, qualification_notes: qualificationNotes(observations, disagreements) };
     const candidate = { ...base, fingerprint: fingerprint(base) };

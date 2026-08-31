@@ -70,6 +70,19 @@ describe('Infopunks //4663 API', () => {
     } finally { await app.close(); }
   });
 
+  it('exposes only persisted final UTC-day observations and protects ingestion', async () => {
+    process.env.NODE_ENV = 'test'; process.env.RH_CHAIN_REVIEW_ADMIN_TOKEN = 'phase2-review-token'; process.env.RH_4663_PHASE2_ENABLED = 'true';
+    const app = await createApp(emptyIntelligenceStore(), new MemoryRepository(), { rh4663Store: new InMemoryRh4663Store() });
+    try {
+      const observations = await app.inject({ method: 'GET', url: '/v1/4663/observations?date=2026-08-31' });
+      expect(observations.statusCode).toBe(200); expect(observations.json().data).toMatchObject({ date: '2026-08-31', transactions: null, dex_volume: null, status: 'INCOMPLETE', warnings: expect.arrayContaining(['MISSING_FINAL_UTC_TRANSACTIONS', 'MISSING_FINAL_UTC_DEX_VOLUME']) });
+      expect((await app.inject({ method: 'GET', url: '/v1/4663/observations?date=2026-02-30' })).statusCode).toBe(400);
+      expect((await app.inject({ method: 'POST', url: '/internal/4663/observations/utc-day/2026-08-31/refresh' })).statusCode).toBe(401);
+      const guarded = await app.inject({ method: 'POST', url: '/internal/4663/observations/utc-day/2026-08-30/refresh', headers: { authorization: 'Bearer phase2-review-token', 'x-rh-chain-reviewer-id': 'ops-test' } });
+      expect(guarded.statusCode).toBe(200); expect(guarded.json().data.status).toBe('INCOMPLETE');
+    } finally { await app.close(); }
+  });
+
   it('builds, verifies, stores, and re-reads an immutable protocol receipt', async () => {
     process.env.NODE_ENV = 'test'; const app = await createApp(emptyIntelligenceStore(), new MemoryRepository(), { rh4663Store: new InMemoryRh4663Store() });
     try {
@@ -116,7 +129,7 @@ describe('Infopunks //4663 API', () => {
     process.env.NODE_ENV = 'test'; const app = await createApp(emptyIntelligenceStore(), new MemoryRepository(), { rh4663Store: new InMemoryRh4663Store() });
     try {
       const paths = (await app.inject({ method: 'GET', url: '/openapi.json' })).json().paths;
-      for (const path of ['/v1/4663', '/v1/4663/prints', '/v1/4663/prints/latest', '/v1/4663/prints/{printId}', '/v1/4663/prints/{printId}/share', '/v1/4663/print-candidate', '/internal/4663/prints/{candidateId}/freeze', '/v1/4663/campaign/events', '/v1/4663/pulse', '/v1/4663/pulse/payload', '/v1/4663/pulse/calls', '/v1/4663/pulse/windows/{windowId}', '/v1/4663/pulse/windows/{windowId}/resolution', '/v1/4663/pulse/windows/{windowId}/share', '/v1/4663/pulse/receipts/{receiptId}/proof', '/v1/4663/pulse/receipts/{receiptId}/share', '/v1/4663/pulse/reputation/{wallet}', '/v1/4663/today', '/v1/4663/today/archive', '/v1/4663/signals', '/v1/4663/events', '/v1/4663/receipts']) expect(paths[path]).toBeDefined();
+      for (const path of ['/v1/4663', '/v1/4663/prints', '/v1/4663/prints/latest', '/v1/4663/prints/{printId}', '/v1/4663/prints/{printId}/share', '/v1/4663/print-candidate', '/v1/4663/observations', '/internal/4663/observations/utc-day/{date}/refresh', '/internal/4663/prints/{candidateId}/freeze', '/v1/4663/campaign/events', '/v1/4663/pulse', '/v1/4663/pulse/payload', '/v1/4663/pulse/calls', '/v1/4663/pulse/windows/{windowId}', '/v1/4663/pulse/windows/{windowId}/resolution', '/v1/4663/pulse/windows/{windowId}/share', '/v1/4663/pulse/receipts/{receiptId}/proof', '/v1/4663/pulse/receipts/{receiptId}/share', '/v1/4663/pulse/reputation/{wallet}', '/v1/4663/today', '/v1/4663/today/archive', '/v1/4663/signals', '/v1/4663/events', '/v1/4663/receipts']) expect(paths[path]).toBeDefined();
     } finally { await app.close(); }
   });
 
