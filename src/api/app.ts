@@ -36,6 +36,8 @@ import { InMemoryRhChainAutomationStore, isRhChainAutomationJobName, PostgresRhC
 import { assembleRhChainTokenDossier } from '../services/rhChainTokenDossierService';
 import { assembleRhChainCloneRadar } from '../services/rhChainCloneRadarService';
 import { assembleRhChainTodayOn4663 } from '../services/rhChainTodayOn4663Service';
+import { getLatestRh4663Print, getRh4663Print } from '../services/rh4663PrintService';
+import { Rh4663CampaignEventSchema, Rh4663CampaignTelemetry } from '../services/rh4663CampaignTelemetry';
 import {
   InMemoryRh4663Store,
   PostgresRh4663Store,
@@ -94,7 +96,7 @@ import {
   getAttentionMarketSignalBySlug,
   getAttentionMarketWatchIndex
 } from '../data/attentionMarketWatch';
-import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST } from '../shared/narrativeMetadata';
+import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST, type NarrativeMetadata } from '../shared/narrativeMetadata';
 import { renderAttentionMarketWatchOgImage, renderNarrativesOgImage, renderRevenueReceiptOgImage, renderRevenueReceiptsIndexOgImage, renderRhChainAttentionQualityOgImage, renderRhChainCrossLayerOgImage, renderRhChainMarketPulseOgImage, renderRhChainShareOgImage, renderSignalHuntOgImage, renderSignalReportOgImage, renderSignalUpdateOgImage, renderUnicornRadarIndexOgImage, renderUnicornRadarOgImage } from '../shared/narrativeOg';
 import { renderOgPng } from '../server/narrativeOgPng';
 import { parseRh4663ShareFormat, renderRh4663ShareSvg } from '../shared/rh4663Share';
@@ -687,6 +689,7 @@ export async function createApp(
 ) {
   const config = loadRuntimeConfig();
   const app = Fastify({ logger: false });
+  const rh4663CampaignTelemetry = new Rh4663CampaignTelemetry();
   const rhChainPostgresPool = config.databaseUrl
     ? getDatabasePool({ connectionString: config.databaseUrl, max: config.databasePoolMax })
     : null;
@@ -882,6 +885,28 @@ export async function createApp(
     ? new ViemRh4663AnchorAdapter(anchorRpc, anchorContract as `0x${string}`, anchorKey as `0x${string}`, Number(process.env.RH_4663_ANCHOR_CONFIRMATIONS ?? 2))
     : new DisabledRh4663AnchorAdapter());
   const rh4663Phase2 = new Rh4663ResolutionService(rh4663Store, rh4663ResolutionStore, rh4663ResolutionSigner, rh4663AnchorAdapter);
+  const rh4663PublicRouteMetadata = async (urlPath: string): Promise<NarrativeMetadata | null> => {
+    const match = urlPath.match(/^\/4663\/(call|resolution)\/([^/?]+)\/?$/);
+    if (!match) return null;
+    const [_, route, rawReceiptId] = match;
+    let receiptId = rawReceiptId;
+    try { receiptId = decodeURIComponent(rawReceiptId); } catch { /* Use the raw public path component. */ }
+    const receipt = await rh4663Phase2.receipt(receiptId);
+    const imagePath = `/og/4663/pulse/${encodeURIComponent(receipt.receipt_id)}.png`;
+    const canonicalPath = `/4663/${route}/${encodeURIComponent(receipt.receipt_id)}`;
+    const make = (title: string, description: string): NarrativeMetadata => ({
+      title, description, canonicalPath, ogTitle: title, ogDescription: description,
+      ogImageUrl: `${NARRATIVE_PUBLIC_HOST}${imagePath}`, ogImageWidth: 1200, ogImageHeight: 630,
+      twitterTitle: title, twitterDescription: description, twitterImageUrl: `${NARRATIVE_PUBLIC_HOST}${imagePath}`, twitterCard: 'summary_large_image'
+    });
+    if (route === 'call' && 'rotation' in receipt) {
+      return make(`I'm calling ${receipt.rotation} | Infopunks //4663`, `${receipt.confidence}% confidence for the next Robinhood Chain window. Canonical Call Receipt ${receipt.receipt_id.slice(0, 16)}…`);
+    }
+    if (route === 'resolution' && 'resolved_category' in receipt) {
+      return make(`Resolved: ${receipt.resolved_category} | Infopunks //4663`, `Outcome ${receipt.resolved_category}. This Resolution Receipt preserves the original call, deterministic result, and public proof.`);
+    }
+    return null;
+  };
   const rh4663IntelligenceStore: Rh4663IntelligenceStore = options.rh4663IntelligenceStore
     ?? (rhChainPostgresPool ? new PostgresRh4663IntelligenceStore(rhChainPostgresPool) : new InMemoryRh4663IntelligenceStore());
   const rh4663Intelligence = new Rh4663IntelligenceService(rh4663Store, rh4663IntelligenceStore, {
@@ -2629,9 +2654,22 @@ export async function createApp(
     return { data: safeJsonExport({
       identity: 'INFOPUNKS // 4663', thesis: 'WE WATCH THE FLOW.',
       rotation_snapshot: { top_signal: index.overview.top_signal, highest_volume: index.overview.highest_volume, highest_risk: index.overview.highest_risk, last_updated: index.last_updated, source_status: rh4663SourceStatus(index.freshness_state) },
-      pulse, today, live_signals: { count: liveSignals.length, signals: liveSignals }, signal_hunt: { count: signals.length, signals }, genesis,
+      pulse, today, latest_print: getLatestRh4663Print(), live_signals: { count: liveSignals.length, signals: liveSignals }, signal_hunt: { count: signals.length, signals }, genesis,
       semantics: { signal_card: 'Editorial intelligence representation.', evidence_receipt: 'Machine-verifiable observation object.', protocol_receipt: 'Canonical CALL / RESOLUTION / GENESIS FINALIZATION object.' }
     }) };
+  });
+  app.get('/v1/4663/prints/latest', async () => ({ data: safeJsonExport(getLatestRh4663Print()) }));
+  app.get<{ Params: { printId: string } }>('/v1/4663/prints/:printId', async (req, reply) => {
+    const print = getRh4663Print(req.params.printId);
+    return print ? { data: safeJsonExport(print) } : reply.code(404).send({ error: '4663_print_not_found' });
+  });
+  app.get<{ Params: { printId: string } }>('/v1/4663/prints/:printId/share', async (req, reply) => {
+    const print = getRh4663Print(req.params.printId);
+    return print ? { data: safeJsonExport({ object_version: 'infopunks.rh4663.print.share.v1', object_type: 'market_state_print', print_id: print.print_id, canonical_path: print.canonical_path, images: print.share, verified_property: 'Campaign snapshot preserves its published source windows and methodology.' }) } : reply.code(404).send({ error: '4663_print_not_found' });
+  });
+  app.post('/v1/4663/campaign/events', async (req, reply) => {
+    try { return reply.code(202).send({ data: rh4663CampaignTelemetry.record(Rh4663CampaignEventSchema.parse(req.body)) }); }
+    catch (error) { return rh4663Failure(reply, error); }
   });
   app.get('/v1/4663/pulse', async () => ({ data: safeJsonExport(await rh4663PulseRead()) }));
   app.post('/v1/4663/pulse/payload', async (req, reply) => {
@@ -3533,6 +3571,13 @@ export async function createApp(
     reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
     return reply.type('image/png').send(renderOgPng(renderNarrativesOgImage()));
   });
+  app.get<{ Params: { printId: string }; Querystring: { format?: string } }>('/og/4663/prints/:printId.png', async (req, reply) => {
+    const print = getRh4663Print(req.params.printId);
+    if (!print) return reply.code(404).send({ error: '4663_print_not_found' });
+    const format = parseRh4663ShareFormat(req.query.format);
+    reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
+    return reply.type('image/png').send(renderOgPng(renderRh4663ShareSvg(print, format), format === 'landscape' ? 1200 : 1080));
+  });
   app.get<{ Params: { receiptId: string }; Querystring: { format?: string } }>('/og/4663/pulse/:receiptId.png', async (req, reply) => {
     try {
       const format = parseRh4663ShareFormat(req.query.format); const share = await rh4663Phase2.share(req.params.receiptId);
@@ -3892,7 +3937,8 @@ export async function createApp(
         // fall through to SPA index
       }
       const html = await readFile(clientIndexPath, 'utf8');
-      return reply.header('Cache-Control', 'no-cache').type('text/html; charset=utf-8').send(injectNarrativeRouteMetadata(html, urlPath));
+      const campaignMetadata = await rh4663PublicRouteMetadata(urlPath).catch(() => null);
+      return reply.header('Cache-Control', 'no-cache').type('text/html; charset=utf-8').send(injectNarrativeRouteMetadata(html, urlPath, campaignMetadata));
     });
   }
 
@@ -5043,8 +5089,8 @@ function replaceTag(html: string, pattern: RegExp, replacement: string) {
   return pattern.test(html) ? html.replace(pattern, replacement) : html;
 }
 
-function injectNarrativeRouteMetadata(html: string, urlPath: string) {
-  const metadata = getNarrativeMetadataForPath(urlPath);
+function injectNarrativeRouteMetadata(html: string, urlPath: string, metadataOverride?: NarrativeMetadata | null) {
+  const metadata = metadataOverride ?? getNarrativeMetadataForPath(urlPath);
   if (!metadata) return html;
 
   const absoluteCanonical = `${NARRATIVE_PUBLIC_HOST}${metadata.canonicalPath}`;

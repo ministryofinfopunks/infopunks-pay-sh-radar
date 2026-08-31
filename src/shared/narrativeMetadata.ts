@@ -49,6 +49,13 @@ function buildMetadata(title: string, description: string, canonicalPath: string
 }
 
 export function getNarrativeMetadataForPath(pathname: string): NarrativeMetadata | null {
+  if (/^\/4663\/print\/(?:0830|2026-08-30|rh-print-2026-08-30)\/?$/.test(pathname)) {
+    return buildMetadata(
+      '//4663 PRINT · Robinhood Chain Is Running Hot | Infopunks Radar',
+      '5.52M transactions, $874.8M Aug 30 UTC-day DEX volume, and launchpad activity that dominated the tape. Inspect the source windows before making the call.',
+      '/4663/print/2026-08-30'
+    );
+  }
   const rh4663Route = pathname.match(/^\/4663(?:\/(pulse|today|signals|receipts))?\/?$/);
   if (rh4663Route) {
     const section = rh4663Route[1];

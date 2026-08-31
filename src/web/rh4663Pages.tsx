@@ -8,6 +8,7 @@ import './rh4663.css';
 const API_BASE_URL = getApiBaseUrl();
 const NAV = [
   { href: '/4663', label: '4663' },
+  { href: '/4663/print/2026-08-30', label: 'Print' },
   { href: '/4663/pulse', label: 'Pulse' },
   { href: '/4663/today', label: 'Today' },
   { href: '/4663/signals', label: 'Signals' },
@@ -23,7 +24,8 @@ type Overview = {
   thesis: string;
   rotation_snapshot: { top_signal: { ticker: string; name: string; signal_score: number }; highest_volume: { ticker: string }; highest_risk: { ticker: string }; last_updated: string; source_status: string };
   pulse: PulseData;
-  today: Rh4663TodayEdition;
+  today: Rh4663TodayEdition & { rh_pulse?: TodayPulse | null };
+  latest_print?: PrintData;
   signal_hunt: { count: number; signals: Rh4663Signal[] };
   live_signals?: { count: number; signals: Published4663Signal[] };
   genesis: GenesisData;
@@ -33,8 +35,18 @@ type GenesisData = { limit: number; recorded: number; remaining: number; progres
 type ReputationEvidence = { window_id: string; call_receipt_id: string; resolution_receipt_id: string | null; called_category: Rh4663RotationOption; resolved_category: Rh4663RotationOption | null; outcome: 'CORRECT' | 'INCORRECT' | 'UNRESOLVED'; confidence: number; genesis_ordinal: number | null };
 type Reputation = { wallet: string; calls: number; resolved_calls: number; correct_calls: number; accuracy: number | null; current_streak: number; genesis_position: number | null; evidence: ReputationEvidence[] };
 type TodayPulse = { current: PulseData['consensus']; prior: { consensus: PulseData['consensus']; resolution: { window_id: string; resolved_category: Rh4663RotationOption; consensus_correct: boolean; resolution_path: string } | null }; precision_notice: string | null };
+type PrintMetric = { id: string; label: string; value: string; unit: string; qualifier?: string; source: { label: string; href: string }; window_type: string; observed_at: string; window_start: string; window_end: string; methodology: string; freshness: string; confidence: number };
+type PrintData = { print_id: string; canonical_path: string; printed_at: string; status: string; receipt_kind: string; campaign_snapshot: boolean; data_mode: string; title: string; regime: string; methodology_notice: string; correction_notice: string; metrics: PrintMetric[]; drivers: Array<{ category: string; direction: string; detail: string }>; layer_read: Array<{ layer: string; state: string; direction: string; explanation: string; evidence_ids: string[] }>; evidence_references: Array<{ id: string; label: string; href: string; note: string }>; campaign_copy: { primary: string; secondary: string; call_to_action: string; receipt_line: string }; share: { landscape: string; square: string; portrait: string }; interpretation: string; call: { question: string; evidence_path: string; default_confidence: number } };
+type WindowView = { window: PulseData['window']; state: string; consensus: PulseData['consensus']; resolution: { resolved_category: Rh4663RotationOption; consensus: PulseData['consensus']; observations: unknown[] } | null };
 
-function useApi<T>(path: string) {
+type CampaignEvent = '4663_print_viewed' | '4663_print_provenance_opened' | '4663_make_call_clicked' | '4663_call_started' | '4663_call_signed' | '4663_call_accepted' | '4663_call_share_clicked' | '4663_call_share_completed' | '4663_consensus_viewed' | '4663_resolution_viewed' | '4663_resolution_shared' | '4663_returning_caller';
+function trackCampaign(event: CampaignEvent, data: { surface: 'print' | 'pulse' | 'call' | 'consensus' | 'resolution' | 'home'; print_id?: string; window_id?: string }) {
+  const payload = JSON.stringify({ event, ...data }); const endpoint = toApiUrl(API_BASE_URL, '/v1/4663/campaign/events');
+  if (navigator.sendBeacon) { navigator.sendBeacon(endpoint, new Blob([payload], { type: 'application/json' })); return; }
+  void fetch(endpoint, { method: 'POST', headers: { 'content-type': 'application/json' }, body: payload, keepalive: true }).catch(() => undefined);
+}
+
+function useApi<T>(path: string, refresh = 0) {
   const [state, setState] = useState<{ data: T | null; status: 'loading' | 'ready' | 'degraded'; message?: string }>({ data: null, status: 'loading' });
   useEffect(() => {
     const controller = new AbortController(); const timeout = window.setTimeout(() => controller.abort(), 4_000);
@@ -44,7 +56,7 @@ function useApi<T>(path: string) {
       .catch(() => setState({ data: null, status: 'degraded', message: 'Persisted intelligence is temporarily unavailable.' }))
       .finally(() => window.clearTimeout(timeout));
     return () => { window.clearTimeout(timeout); controller.abort(); };
-  }, [path]);
+  }, [path, refresh]);
   return state;
 }
 
@@ -61,69 +73,87 @@ function useOptionalApi<T>(path: string | null, refresh = 0) {
 export function Rh4663Page() {
   const path = window.location.pathname.replace(/\/$/, '') || '/4663';
   const proofId = path.match(/^\/4663\/proof\/([^/]+)$/)?.[1];
+  const callId = path.match(/^\/4663\/call\/([^/]+)$/)?.[1];
+  const resolutionId = path.match(/^\/4663\/resolution\/([^/]+)$/)?.[1];
+  const consensusWindowId = path.match(/^\/4663\/consensus\/([^/]+)$/)?.[1];
   const signalId = path.match(/^\/4663\/signals\/([^/]+)$/)?.[1];
-  const view = proofId ? 'proof' : signalId ? 'signal_detail' : path === '/4663/pulse' ? 'pulse' : path === '/4663/today' ? 'today' : path === '/4663/signals' ? 'signals' : path === '/4663/receipts' ? 'receipts' : 'home';
+  const printId = path.match(/^\/4663\/print\/([^/]+)$/)?.[1];
+  const view = proofId || callId || resolutionId ? 'proof' : consensusWindowId ? 'consensus' : signalId ? 'signal_detail' : printId ? 'print' : path === '/4663/pulse' ? 'pulse' : path === '/4663/today' ? 'today' : path === '/4663/signals' ? 'signals' : path === '/4663/receipts' ? 'receipts' : 'home';
   return <div className="i4663-app">
     <header className="i4663-header">
       <a className="i4663-wordmark" href="/4663" aria-label="Infopunks 4663 home"><span>INFOPUNKS</span><b>//4663</b></a>
       <a className="i4663-radar-link" href="/rh-chain-signal-desk">RH DESK ↗</a>
     </header>
     <nav className="i4663-nav" aria-label="4663 navigation">{NAV.map((item) => <a key={item.href} href={item.href} aria-current={(path || '/4663') === item.href ? 'page' : undefined}>{item.label}</a>)}</nav>
-    {view === 'home' ? <Home /> : view === 'pulse' ? <Pulse /> : view === 'today' ? <Today /> : view === 'signals' ? <Signals /> : view === 'signal_detail' && signalId ? <SignalProofPage signalId={decodeURIComponent(signalId)} /> : view === 'proof' && proofId ? <ProofPage receiptId={decodeURIComponent(proofId)} /> : <Receipts />}
+    {view === 'home' ? <Home /> : view === 'print' && printId ? <Print printId={decodeURIComponent(printId)} /> : view === 'pulse' ? <Pulse /> : view === 'consensus' && consensusWindowId ? <ConsensusPage windowId={decodeURIComponent(consensusWindowId)} /> : view === 'today' ? <Today /> : view === 'signals' ? <Signals /> : view === 'signal_detail' && signalId ? <SignalProofPage signalId={decodeURIComponent(signalId)} /> : view === 'proof' && (proofId || callId || resolutionId) ? <ProofPage receiptId={decodeURIComponent(proofId ?? callId ?? resolutionId ?? '')} campaignRoute={callId ? 'call' : resolutionId ? 'resolution' : 'proof'} /> : <Receipts />}
     <footer className="i4663-footer"><span>AFTER ATTENTION, INTELLIGENCE.</span><span>UTC / RH CHAIN / PUBLIC MEMORY</span></footer>
   </div>;
 }
 
 function Home() {
   const { data, status, message } = useApi<Overview>('/v1/4663');
+  useEffect(() => { if (data?.latest_print) trackCampaign('4663_print_viewed', { surface: 'home', print_id: data.latest_print.print_id }); }, [data?.latest_print]);
+  const prior = data?.today.rh_pulse?.prior;
   return <main className="i4663-main i4663-home">
     <section className="i4663-hero" aria-labelledby="i4663-title">
       <p className="i4663-kicker">INFOPUNKS // 4663</p>
-      <h1 id="i4663-title">WE WATCH<br />THE FLOW.</h1>
-      <p>Signal extraction for the Robinhood Chain economy.</p>
+      <h1 id="i4663-title">MARKET<br />MEMORY.</h1>
+      <p>Radar remembers what happened, what people thought would happen next, and who was right.</p>
     </section>
     <DataState status={status} message={message} />
-    <section className="i4663-rotation" aria-labelledby="rotation-title">
-      <SectionNumber n="01" label="Current chain rotation" />
-      <div className="i4663-rotation-line">
-        <div><p className="i4663-micro">LEADING SIGNAL</p><h2 id="rotation-title">{data?.rotation_snapshot.top_signal.ticker ?? 'AWAITING MEMORY'}</h2></div>
-        <strong>{data ? pad(data.rotation_snapshot.top_signal.signal_score) : '--'}<small>/100</small></strong>
-      </div>
-      <div className="i4663-tape"><span>VOLUME / {data?.rotation_snapshot.highest_volume.ticker ?? '—'}</span><span>RISK / {data?.rotation_snapshot.highest_risk.ticker ?? '—'}</span><span>{data?.rotation_snapshot.source_status.toUpperCase() ?? 'CONNECTING'}</span></div>
-    </section>
-    <section className="i4663-call-block">
-      <SectionNumber n="02" label="RH Pulse" />
-      <p>One wallet. One UTC window. One immutable call.</p>
-      <a className="i4663-primary-action" href="/4663/pulse">CALL THE ROTATION <span>↗</span></a>
-      <p className="i4663-machine">WINDOW / {data?.pulse.window.window_id ?? 'UTC DAILY'} · {data?.pulse.consensus.total_calls ?? 0} CALLS</p>
-    </section>
-    <section className="i4663-split">
-      <a href="/4663/today" className="i4663-home-link"><SectionNumber n="03" label="Today on 4663" /><strong>{compactSignal(data?.today.key_signal) ?? 'Open the daily intelligence edition.'}</strong><span>READ EDITION →</span></a>
-      <a href="/4663/signals" className="i4663-home-link"><SectionNumber n="04" label="Signal Hunt" /><strong>See the move before it becomes consensus.</strong><span>{data?.signal_hunt.count ?? 0} ACTIVE / SUBMIT →</span></a>
-    </section>
-    <section className="i4663-live-signals" aria-labelledby="live-signals-title">
-      <SectionNumber n="05" label="Live signals" />
-      <div className="i4663-live-signals-head"><h2 id="live-signals-title">THE CHAIN, STRUCTURED.</h2><a href="/4663/signals">VIEW ALL SIGNALS →</a></div>
-      {data?.live_signals?.signals.length ? data.live_signals.signals.map((signal) => <PublishedSignalCard key={signal.signal_id} signal={signal} compact />) : <Empty text="Automated publication is gated. No Signal has been inferred." />}
-    </section>
-    <section className="i4663-genesis">
-      <SectionNumber n="06" label="Genesis provenance" />
-      <div className="i4663-progress-copy"><strong>{data?.genesis.recorded ?? 0}<small> / 4,663</small></strong><span>{data?.genesis.remaining ?? 4663} IDENTITIES REMAIN</span></div>
-      <div className="i4663-progress" role="progressbar" aria-valuemin={0} aria-valuemax={4663} aria-valuenow={data?.genesis.recorded ?? 0}><i style={{ width: `${Math.min(100, (data?.genesis.progress ?? 0) * 100)}%` }} /></div>
-      <p>Provenance, not a reward promise. Genesis records early verified participation.</p>
-    </section>
+    <section className="i4663-home-chapter is-print"><SectionNumber n="01" label="What just happened?" /><p className="i4663-micro">//4663 PRINT · AUG 30</p><h2>{data?.latest_print?.title ?? 'ROBINHOOD CHAIN IS RUNNING HOT'}</h2><p>{data?.latest_print?.campaign_copy.primary ?? 'THE CHAIN WAS BUILT FOR STOCKS.'}<br />{data?.latest_print?.campaign_copy.secondary ?? 'THE INTERNET STARTED TRADING ATTENTION.'}</p><a href={data?.latest_print?.canonical_path ?? '/4663/print/2026-08-30'}>OPEN THE PRINT <span>→</span></a></section>
+    <section className="i4663-home-chapter is-call"><SectionNumber n="02" label="What does the network think happens next?" /><p className="i4663-micro">RH PULSE / {data?.pulse.window.window_id ?? 'UTC DAILY'}</p><h2>{data?.latest_print?.campaign_copy.call_to_action ?? 'WHAT OWNS THE NEXT 24 HOURS?'}</h2><p>Sign your view before the window closes. Infopunks remembers the call and resolves it against published methodology.</p><a className="i4663-primary-action" href={`/4663/pulse?evidence=${encodeURIComponent(data?.latest_print?.canonical_path ?? '/4663/print/2026-08-30')}&confidence=${data?.latest_print?.call.default_confidence ?? 74}`} onClick={() => trackCampaign('4663_make_call_clicked', { surface: 'home', print_id: data?.latest_print?.print_id, window_id: data?.pulse.window.window_id })}>MAKE THE CALL <span>↗</span></a></section>
+    <section className="i4663-home-chapter is-resolution"><SectionNumber n="03" label="What did yesterday's network get right?" />{prior?.resolution ? <><p className="i4663-micro">//4663 RESOLUTION</p><h2>{prior.resolution.consensus_correct ? 'THE CROWD WAS RIGHT.' : 'THE CROWD MISSED.'}</h2><p>Consensus called <b>{labelRotation(prior.consensus.leading_rotation) || 'NO QUALIFIED ROTATION'}</b>. The deterministic outcome was <b>{labelRotation(prior.resolution.resolved_category)}</b>.</p><a href={`/4663/consensus/${encodeURIComponent(prior.resolution.window_id)}`}>OPEN RESOLUTION <span>→</span></a></> : <><p className="i4663-micro">RESOLUTION PENDING</p><h2>THE NEXT RECEIPT IS FORMING.</h2><p>After the UTC observation window closes, the deterministic resolution engine publishes the outcome and preserves every accepted call.</p></>}</section>
+    <section className="i4663-genesis"><SectionNumber n="04" label="Genesis provenance" /><div className="i4663-progress-copy"><strong>{data?.genesis.recorded ?? 0}<small> / 4,663</small></strong><span>{data?.genesis.remaining ?? 4663} IDENTITIES REMAIN</span></div><div className="i4663-progress" role="progressbar" aria-valuemin={0} aria-valuemax={4663} aria-valuenow={data?.genesis.recorded ?? 0}><i style={{ width: `${Math.min(100, (data?.genesis.progress ?? 0) * 100)}%` }} /></div><p>Provenance, not a reward promise. Genesis records early verified participation.</p></section>
   </main>;
 }
 
+function Print({ printId }: { printId: string }) {
+  const api = useApi<PrintData>(`/v1/4663/prints/${encodeURIComponent(printId)}`);
+  const print = api.data;
+  useEffect(() => { if (print) trackCampaign('4663_print_viewed', { surface: 'print', print_id: print.print_id }); }, [print]);
+  const heroMetrics = print?.metrics.filter((metric) => ['transactions', 'utc_dex_volume', 'rolling_dex_volume', 'pons_volume'].includes(metric.id)) ?? [];
+  const pons = print?.metrics.find((metric) => metric.id === 'pons_volume'); const dex = print?.metrics.find((metric) => metric.id === 'utc_dex_volume');
+  const campaignCopy = print?.campaign_copy ?? { primary: 'THE CHAIN WAS BUILT FOR STOCKS.', secondary: 'THE INTERNET STARTED TRADING ATTENTION.', call_to_action: 'WHAT OWNS THE NEXT 24 HOURS?', receipt_line: 'EVERYONE HAS AN OPINION. INFOPUNKS HAS THE RECEIPT.' };
+  async function sharePrint() {
+    if (!print) return;
+    const url = new URL(print.canonical_path, window.location.origin).toString(); const text = `${campaignCopy.primary}\n${campaignCopy.secondary}\n${pons?.value ?? '$445.98M'} / ${dex?.value ?? '$874.8M'}\n${url}`;
+    try { if (navigator.share) await navigator.share({ title: '//4663 PRINT', text, url }); else await navigator.clipboard.writeText(text); } catch { /* A cancelled native sheet is not an error state. */ }
+  }
+  return <main className="i4663-main i4663-subpage i4663-print">
+    <PageHead index="PRINT" title="//4663 PRINT 0830" lede={print?.campaign_snapshot ? 'CAMPAIGN SNAPSHOT / MARKET-STATE EVIDENCE' : print?.receipt_kind.replaceAll('_', ' ') ?? 'MARKET-STATE EVIDENCE'} />
+    <DataState status={api.status} message={api.message} />
+    {print ? <>
+      <section className="i4663-print-head"><p className="i4663-micro">//4663 PRINT · AUG 30 / REGIME <b>{print.regime}</b></p><h2>{print.title}</h2><p>5.52M transactions. ~$875M UTC-day DEX volume. Launchpad activity dominated the tape while financial infrastructure kept expanding underneath it.</p><small>{print.correction_notice}</small></section>
+      <section className="i4663-print-metrics" aria-label="Market-state evidence">{heroMetrics.map((metric) => <MetricEvidence key={metric.id} metric={metric} featured />)}</section>
+      {pons && dex && <section className="i4663-pons-share"><p className="i4663-micro">THE SHAREABLE FACT</p><h2>ONE LAUNCHPAD TOUCHED ROUGHLY HALF THE DAY'S DEX FLOW.</h2><div><span><small>PONS.FAMILY</small><strong>{pons.value}</strong></span><i>÷</i><span><small>ROBINHOOD CHAIN</small><strong>{dex.value}</strong></span><b>≈51%</b></div><p>Based on the selected Aug 30 UTC source/window. <button type="button" onClick={() => { const node = document.getElementById('pons-volume-provenance'); node?.querySelector('details')?.setAttribute('open', ''); node?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }}>TAP FOR PROVENANCE</button></p><button className="i4663-secondary-action" type="button" onClick={sharePrint}>SHARE THE FACT ↗</button></section>}
+      <section className="i4663-print-delta" aria-labelledby="calendar-ath-title"><h2 id="calendar-ath-title">WINDOW DISCIPLINE</h2>{print.metrics.filter((metric) => metric.id === 'calendar_day_ath').map((metric) => <MetricEvidence key={metric.id} metric={metric} />)}<p>{print.methodology_notice}</p></section>
+      <section className="i4663-layer-read"><p className="i4663-micro">MARKET LAYER READ</p>{(print.layer_read ?? []).map((layer) => <article key={layer.layer}><div><strong>{layer.layer}</strong><b>{layer.state}</b></div><i>{layer.direction}</i><p>{layer.explanation}</p>{layer.evidence_ids?.length ? <footer>{layer.evidence_ids.map((id) => { const reference = print.evidence_references?.find((item) => item.id === id); return reference ? <a key={id} href={reference.href} onClick={() => trackCampaign('4663_print_provenance_opened', { surface: 'print', print_id: print.print_id })}>{reference.label} ↗</a> : <span key={id}>{id}</span>; })}</footer> : null}</article>)}</section>
+      <section className="i4663-print-thesis"><p className="i4663-micro">RADAR INTELLIGENCE</p><h2>{print.interpretation}</h2><p>The interesting question is not whether RWAs disappear. It is which economic layer absorbs the next marginal dollar, transaction and unit of attention.</p></section>
+      <section className="i4663-print-call"><p className="i4663-micro">NEXT 24H // MAKE THE CALL</p><h2>{campaignCopy.call_to_action}</h2><p>{print.call.question} Sign your view before the window closes. Infopunks remembers the call and resolves it against the published methodology.</p><a className="i4663-primary-action" href={`/4663/pulse?evidence=${encodeURIComponent(print.canonical_path)}&confidence=${print.call.default_confidence}`} onClick={() => trackCampaign('4663_make_call_clicked', { surface: 'print', print_id: print.print_id })}>MAKE THE CALL <span>↗</span></a></section>
+    </> : <Empty text="This PRINT is not available. No market state is inferred." />}
+  </main>;
+}
+
+function MetricEvidence({ metric, featured = false }: { metric: PrintMetric; featured?: boolean }) {
+  return <article id={metric.id === 'pons_volume' ? 'pons-volume-provenance' : undefined} className={`i4663-metric-evidence${featured ? ' is-featured' : ''}`}>
+    <p>{metric.label}{metric.qualifier && <b>{metric.qualifier}</b>}</p><strong>{metric.value}</strong><span>{metric.unit}</span>
+    <details><summary>PROVENANCE · {(metric.window_type ?? 'reported_observation').replaceAll('_', ' ').toUpperCase()}</summary><a href={metric.source.href} target="_blank" rel="noreferrer" onClick={() => trackCampaign('4663_print_provenance_opened', { surface: 'print', print_id: 'rh-print-2026-08-30' })}>{metric.source.label} ↗</a><dl><div><dt>OBSERVED</dt><dd>{machineTime(metric.observed_at)}</dd></div><div><dt>WINDOW</dt><dd>{(metric.window_type ?? 'reported_observation').replaceAll('_', ' ').toUpperCase()} · {machineTime(metric.window_start)} → {machineTime(metric.window_end)}</dd></div><div><dt>METHOD</dt><dd>{metric.methodology}</dd></div><div><dt>STATE</dt><dd>{metric.freshness.toUpperCase()} / {metric.confidence}% CONF.</dd></div></dl></details>
+  </article>;
+}
+
 function Pulse() {
-  const api = useApi<PulseData>('/v1/4663/pulse');
+  const [pulseRefresh, setPulseRefresh] = useState(0);
+  const api = useApi<PulseData>('/v1/4663/pulse', pulseRefresh);
   const [wallet, setWallet] = useState<string | null>(null); const [reputationRefresh, setReputationRefresh] = useState(0);
   const reputation = useOptionalApi<Reputation>(wallet ? `/v1/4663/pulse/reputation/${encodeURIComponent(wallet)}` : null, reputationRefresh);
-  const [rotation, setRotation] = useState<Rh4663RotationOption>('MEMES'); const [confidence, setConfidence] = useState(70); const [digest, setDigest] = useState('');
+  const params = useMemo(() => new URLSearchParams(window.location.search), []);
+  const [rotation, setRotation] = useState<Rh4663RotationOption>('MEMES'); const [confidence, setConfidence] = useState(() => Math.min(100, Math.max(1, Number(params.get('confidence')) || 70))); const [digest, setDigest] = useState('');
   const [result, setResult] = useState<{ state: 'idle' | 'working' | 'success' | 'error'; message?: string; receipt?: Rh4663CallReceipt }>({ state: 'idle' });
   useEffect(() => { const ethereum = (window as Window & { ethereum?: { request(args: { method: string }): Promise<unknown> } }).ethereum; if (!ethereum) return; void ethereum.request({ method: 'eth_accounts' }).then((accounts) => { const walletAddress = Array.isArray(accounts) && typeof accounts[0] === 'string' ? accounts[0] : null; setWallet(walletAddress); }).catch(() => undefined); }, []);
   async function makeCall() {
     setResult({ state: 'working', message: 'Requesting wallet signature…' });
+    trackCampaign('4663_call_started', { surface: 'pulse', window_id: api.data?.window.window_id });
     try {
       const ethereum = (window as Window & { ethereum?: { request(args: { method: string; params?: unknown[] }): Promise<unknown> } }).ethereum;
       if (!ethereum) throw new Error('No EVM wallet found. Open 4663 in a wallet-enabled browser.');
@@ -131,9 +161,10 @@ function Pulse() {
       const payloadResponse = await fetch(toApiUrl(API_BASE_URL, '/v1/4663/pulse/payload'), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ wallet: connectedWallet, rotation, confidence, evidence_digest: digest || null, window_id: api.data?.window.window_id }) });
       const payloadBody = await payloadResponse.json() as { data?: { canonical_serialization: string }; error?: string }; if (!payloadResponse.ok || !payloadBody.data) throw new Error(readableError(payloadBody.error));
       const signature = await ethereum.request({ method: 'personal_sign', params: [payloadBody.data.canonical_serialization, connectedWallet] });
+      trackCampaign('4663_call_signed', { surface: 'pulse', window_id: api.data?.window.window_id });
       const callResponse = await fetch(toApiUrl(API_BASE_URL, '/v1/4663/pulse/calls'), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ wallet: connectedWallet, rotation, confidence, evidence_digest: digest || null, window_id: api.data?.window.window_id, signature }) });
       const callBody = await callResponse.json() as { data?: Rh4663CallReceipt; error?: string }; if (!callResponse.ok || !callBody.data) throw new Error(readableError(callBody.error));
-      setResult({ state: 'success', message: 'Call recorded. The receipt will not change.', receipt: callBody.data }); setReputationRefresh((value) => value + 1);
+      setResult({ state: 'success', message: 'Call recorded. The receipt will not change.', receipt: callBody.data }); setReputationRefresh((value) => value + 1); setPulseRefresh((value) => value + 1); trackCampaign('4663_call_accepted', { surface: 'call', window_id: callBody.data.window_id });
     } catch (error) { setResult({ state: 'error', message: error instanceof Error ? error.message : 'Call could not be recorded.' }); }
   }
   return <main className="i4663-main i4663-subpage">
@@ -143,12 +174,45 @@ function Pulse() {
     <div className="i4663-window"><span>WINDOW</span><strong>{api.data?.window.window_id ?? 'UTC DAILY'}</strong><time>{api.data ? `${machineTime(api.data.window.opens_at)} → ${machineTime(api.data.window.closes_at)}` : 'FIXED UTC BOUNDARY'}</time></div>
     <section className="i4663-pulse-grid" aria-label="Rotation options">{ROTATIONS.map((item) => <button type="button" key={item.value} aria-pressed={rotation === item.value} onClick={() => setRotation(item.value)}><i />{item.label}</button>)}</section>
     <label className="i4663-range"><span>CONFIDENCE <b>{confidence}</b></span><input aria-label="Confidence" type="range" min="1" max="100" value={confidence} onChange={(event) => setConfidence(Number(event.target.value))} /></label>
+    {params.get('evidence') && <p className="i4663-evidence-link">EVIDENCE ATTACHED <a href={params.get('evidence') ?? '/4663/print/0830'}>{params.get('evidence')}</a></p>}
     <label className="i4663-field"><span>EVIDENCE DIGEST <i>OPTIONAL / 32-BYTE HEX</i></span><input value={digest} onChange={(event) => setDigest(event.target.value)} placeholder="0x…" pattern="0x[0-9a-fA-F]{64}" /></label>
     <button className="i4663-primary-action i4663-button" type="button" onClick={makeCall} disabled={result.state === 'working'}>{result.state === 'working' ? 'SIGNING…' : 'SIGN + RECORD CALL'} <span>↗</span></button>
-    {result.message && <div className={`i4663-result is-${result.state}`} role="status"><strong>{result.message}</strong>{result.receipt && <><code>{result.receipt.receipt_id}</code><code>{shortHash(result.receipt.payload_hash)}</code><a href={`/v1/4663/receipts/${result.receipt.receipt_id}`}>OPEN PROTOCOL RECEIPT →</a></>}</div>}
-    <section className="i4663-consensus"><p className="i4663-micro">CURRENT CONSENSUS</p><strong>{labelRotation(api.data?.consensus.leading_rotation) || 'NO CALLS YET'}</strong><div><span>{api.data?.consensus.total_calls ?? 0} CALLS</span><span>{api.data?.consensus.confidence_average ?? '—'} AVG CONFIDENCE</span></div></section>
+    {result.message && <CallIssued result={result} />}
+    {result.state === 'success' && <Consensus consensus={api.data?.consensus} />}
+    {result.state !== 'success' && <section className="i4663-consensus is-gated"><p className="i4663-micro">INFOPUNKS CONSENSUS</p><strong>LOCKED UNTIL YOU CALL</strong><p>Make an independent signed call first. Then see where the crowd stands.</p></section>}
     <p className="i4663-protocol-note">Signed Call Mechanics v1. Calls are unique per eligible wallet per fixed UTC window. Existing CALL RECEIPTS are immutable. <a href="/openapi.json">Protocol contract ↗</a></p>
   </main>;
+}
+
+function CallIssued({ result }: { result: { state: 'idle' | 'working' | 'success' | 'error'; message?: string; receipt?: Rh4663CallReceipt } }) {
+  const [shared, setShared] = useState(false); const receipt = result.receipt;
+  async function share() {
+    if (!receipt) return;
+    const url = new URL(`/4663/proof/${encodeURIComponent(receipt.receipt_id)}`, window.location.origin).toString(); const text = `I called ${labelRotation(receipt.rotation)} at ${receipt.confidence}% on Infopunks //4663.\nEvidence: //4663 PRINT 0830.`;
+    try { trackCampaign('4663_call_share_clicked', { surface: 'call', window_id: receipt.window_id }); if (navigator.share) await navigator.share({ title: 'My //4663 Call', text, url }); else await navigator.clipboard.writeText(`${text}\n${url}`); setShared(true); trackCampaign('4663_call_share_completed', { surface: 'call', window_id: receipt.window_id }); } catch { /* Cancelling the native sheet does not change state. */ }
+  }
+  if (!receipt) return <div className={`i4663-result is-${result.state}`} role="status"><strong>{result.message}</strong></div>;
+  return <section className="i4663-call-issued" role="status"><p className="i4663-micro">CALL RECEIPT</p><h2>I'M CALLING <b>{labelRotation(receipt.rotation)}</b></h2><div><span>PROFILE <b>{shortWallet(receipt.wallet)}</b></span><span>CONFIDENCE <b>{receipt.confidence}%</b></span><span>WINDOW <b>{receipt.window_id.replace('rh4663:', 'UTC / ')}</b></span><span>SUBMITTED <b>{machineTime(receipt.created_at)}</b></span></div><code>{receipt.receipt_id}</code><p>Your call is permanently linked to this observation window.</p><button type="button" className="i4663-primary-action" onClick={share}>{shared ? 'LINK COPIED' : 'SHARE YOUR CALL ↗'} <span>↗</span></button><a className="i4663-secondary-action" href={`/4663/call/${encodeURIComponent(receipt.receipt_id)}`}>VIEW RECEIPT</a><small>EVERYONE HAS AN OPINION. INFOPUNKS HAS THE RECEIPT.</small></section>;
+}
+
+function Consensus({ consensus }: { consensus?: PulseData['consensus'] }) {
+  useEffect(() => { if (consensus) trackCampaign('4663_consensus_viewed', { surface: 'consensus' }); }, [consensus]);
+  const total = consensus?.total_calls ?? 0;
+  const rows = ROTATIONS.map((option) => ({ ...option, count: consensus?.counts?.[option.value] ?? 0 })).map((row) => ({ ...row, percentage: total ? Math.round((row.count / total) * 100) : 0 }));
+  const leading = rows.reduce((prior, row) => row.percentage > prior.percentage ? row : prior, rows[0]); const contrarian = [...rows].sort((left, right) => right.percentage - left.percentage)[1];
+  return <section className="i4663-consensus is-revealed"><p className="i4663-micro">INFOPUNKS CONSENSUS // NEXT 24H</p>{rows.map((row) => <div className="i4663-consensus-row" key={row.value}><span>{row.label}</span><i><b style={{ width: `${row.percentage}%` }} /></i><strong>{row.percentage}%</strong></div>)}<p><b>{total.toLocaleString()} VALID CALL{total === 1 ? '' : 'S'}</b> · {total ? <>Consensus is most positioned toward <strong>{leading.label.toUpperCase()}</strong>{contrarian?.percentage ? `; ${contrarian.label.toUpperCase()} is the largest contrarian cluster.` : '.'}</> : 'Consensus will form from accepted calls only.'}</p></section>;
+}
+
+function ConsensusPage({ windowId }: { windowId: string }) {
+  const api = useApi<WindowView>(`/v1/4663/pulse/windows/${encodeURIComponent(windowId)}`); const view = api.data;
+  useEffect(() => { if (view?.resolution) trackCampaign('4663_resolution_viewed', { surface: 'resolution', window_id: windowId }); else if (view) trackCampaign('4663_consensus_viewed', { surface: 'consensus', window_id: windowId }); }, [view, windowId]);
+  const resolved = view?.resolution;
+  const consensusCorrect = resolved && view?.consensus.leading_rotation ? view.consensus.leading_rotation === resolved.resolved_category : null;
+  async function share() {
+    if (!view) return; const url = new URL(`/4663/consensus/${encodeURIComponent(windowId)}`, window.location.origin).toString(); const text = resolved ? `${consensusCorrect ? 'THE CROWD WAS RIGHT' : 'THE CROWD MISSED'}\nOutcome: ${labelRotation(resolved.resolved_category)}\n${url}` : `Infopunks consensus is forming for ${windowId}.\n${url}`;
+    try { if (resolved) trackCampaign('4663_resolution_shared', { surface: 'resolution', window_id: windowId }); if (navigator.share) await navigator.share({ title: resolved ? '//4663 RESOLUTION' : 'Infopunks Consensus', text, url }); else await navigator.clipboard.writeText(text); } catch { /* A cancelled native share has no side effect. */ }
+  }
+  return <main className="i4663-main i4663-subpage"><PageHead index={resolved ? 'RESOLUTION' : 'CONSENSUS'} title={resolved ? '//4663 RESOLUTION' : 'INFOPUNKS CONSENSUS'} lede={view?.state.toUpperCase() ?? 'LOADING WINDOW'} /><DataState status={api.status} message={api.message} />{view && <section className="i4663-resolution-page">{resolved ? <><p className="i4663-micro">{consensusCorrect ? 'THE CROWD WAS RIGHT' : 'THE CROWD MISSED'}</p><h2>{labelRotation(resolved.resolved_category)}</h2><div className="i4663-resolution-stats"><span><small>WINNING ROTATION</small><b>{labelRotation(resolved.resolved_category)}</b></span><span><small>NETWORK CONSENSUS</small><b>{labelRotation(view.consensus.leading_rotation) || 'NO CALLS'}</b></span><span><small>VALID CALLS</small><b>{view.consensus.total_calls.toLocaleString()}</b></span></div><p>Outcome is derived from the published deterministic methodology. Consensus describes accepted calls; it does not determine the result.</p></> : <><p className="i4663-micro">NEXT 24H</p><h2>THE NETWORK IS CALLING.</h2><Consensus consensus={view.consensus} /></>}<button type="button" className="i4663-primary-action" onClick={share}>{resolved ? 'SHARE RESOLUTION' : 'SHARE CONSENSUS'} <span>↗</span></button>{resolved && <a className="i4663-secondary-action" href={`/v1/4663/pulse/windows/${encodeURIComponent(windowId)}/resolution`}>VIEW DETERMINISTIC METHODOLOGY</a>}</section>}</main>;
 }
 
 function PulseMemory({ reputation, currentWindowId }: { reputation: Reputation; currentWindowId?: string }) {
@@ -161,8 +225,8 @@ function PulseMemory({ reputation, currentWindowId }: { reputation: Reputation; 
 
 function ResolvedResult({ result, reputation }: { result: ReputationEvidence; reputation: Reputation }) {
   const [shared, setShared] = useState(false); const proofPath = `/4663/proof/${encodeURIComponent(result.call_receipt_id)}`;
-  async function share() { const url = new URL(proofPath, window.location.origin).toString(); const text = result.outcome === 'CORRECT' ? `Called it: ${labelRotation(result.called_category)} on Pulse //4663.` : `My Pulse //4663 call resolved: ${labelRotation(result.called_category)} → ${labelRotation(result.resolved_category)}.`; try { if (navigator.share) await navigator.share({ title: 'Pulse //4663', text, url }); else await navigator.clipboard.writeText(`${text} ${url}`); setShared(true); } catch { /* A cancelled native share leaves the result unchanged. */ } }
-  return <article className={`i4663-resolved is-${result.outcome.toLowerCase()}`}><p className="i4663-micro">RESOLVED</p><div className="i4663-call-actual"><span><small>YOUR CALL</small><b>{labelRotation(result.called_category)}</b></span><i>→</i><span><small>ACTUAL</small><b>{labelRotation(result.resolved_category)}</b></span></div><h2>{result.outcome === 'CORRECT' ? 'CORRECT ✓' : 'MISSED'}</h2><section className="i4663-record"><div><small>YOUR RECORD</small><strong>{reputation.correct_calls} / {reputation.resolved_calls}</strong><span>{reputation.accuracy === null ? '—' : `${(reputation.accuracy * 100).toFixed(1)}%`}</span></div><div><small>CURRENT STREAK</small><strong>{reputation.current_streak}</strong></div>{reputation.genesis_position && <div><small>GENESIS</small><strong>#{String(reputation.genesis_position).padStart(4, '0')}</strong></div>}</section><button className="i4663-primary-action" type="button" onClick={share}>{shared ? 'LINK COPIED' : 'SHARE RESULT'} <span>↗</span></button><a className="i4663-secondary-action" href={proofPath}>INSPECT PROOF</a><a className="i4663-next-call" href="/4663/pulse">CALL TODAY <span>→</span></a></article>;
+  async function share() { const url = new URL(`/4663/resolution/${encodeURIComponent(result.resolution_receipt_id ?? result.call_receipt_id)}`, window.location.origin).toString(); const text = result.outcome === 'CORRECT' ? `YOU CALLED IT. ${labelRotation(result.called_category)} on Pulse //4663.` : `My Pulse //4663 call resolved: ${labelRotation(result.called_category)} → ${labelRotation(result.resolved_category)}.`; try { trackCampaign('4663_resolution_shared', { surface: 'resolution', window_id: result.window_id }); if (navigator.share) await navigator.share({ title: 'Pulse //4663', text, url }); else await navigator.clipboard.writeText(`${text} ${url}`); setShared(true); } catch { /* A cancelled native share leaves the result unchanged. */ } }
+  return <article className={`i4663-resolved is-${result.outcome.toLowerCase()}`}><p className="i4663-micro">RESOLVED</p><div className="i4663-call-actual"><span><small>YOUR CALL</small><b>{labelRotation(result.called_category)}</b></span><i>→</i><span><small>ACTUAL</small><b>{labelRotation(result.resolved_category)}</b></span></div><h2>{result.outcome === 'CORRECT' ? 'YOU CALLED IT.' : 'RESOLVED'}</h2><section className="i4663-record"><div><small>YOUR RECORD</small><strong>{reputation.correct_calls} / {reputation.resolved_calls}</strong><span>{reputation.accuracy === null ? '—' : `${(reputation.accuracy * 100).toFixed(1)}%`}</span></div><div><small>CURRENT STREAK</small><strong>{reputation.current_streak}</strong></div>{reputation.genesis_position && <div><small>GENESIS</small><strong>#{String(reputation.genesis_position).padStart(4, '0')}</strong></div>}</section><button className="i4663-primary-action" type="button" onClick={share}>{shared ? 'LINK COPIED' : 'SHARE RESULT'} <span>↗</span></button><a className="i4663-secondary-action" href={`/4663/resolution/${encodeURIComponent(result.resolution_receipt_id ?? result.call_receipt_id)}`}>VIEW RECEIPT</a><a className="i4663-next-call" href="/4663/pulse">CALL TODAY <span>→</span></a></article>;
 }
 
 function Today() {
@@ -184,9 +248,10 @@ function Today() {
 
 function TodayPulseBlock({ pulse }: { pulse: TodayPulse }) { const options = ROTATIONS.map((item) => item.value); return <section className="i4663-today-pulse"><p className="i4663-micro">RH PULSE</p><h2>{pulse.current.total_calls.toLocaleString()} CALLS</h2><div>{options.map((option) => <p key={option}><span>{labelRotation(option)}</span><b>{pulse.current.counts?.[option] ?? 0}</b><strong>{pulse.current.percentages?.[option] ?? 0}%</strong></p>)}</div><small>{pulse.precision_notice}</small><article><span>CONSENSUS</span><strong>{labelRotation(pulse.current.leading_rotation) || 'NO CALLS YET'}</strong></article>{pulse.prior.resolution && <article><span>YESTERDAY / PULSE CALLED</span><strong>{labelRotation(pulse.prior.consensus.leading_rotation) || 'NO CONSENSUS'}</strong><span>ACTUAL</span><strong>{labelRotation(pulse.prior.resolution.resolved_category)} {pulse.prior.resolution.consensus_correct ? '✓' : ''}</strong><a href={pulse.prior.resolution.resolution_path}>OPEN RESOLUTION →</a></article>}</section>; }
 
-function ProofPage({ receiptId }: { receiptId: string }) {
+function ProofPage({ receiptId, campaignRoute = 'proof' }: { receiptId: string; campaignRoute?: 'call' | 'resolution' | 'proof' }) {
   const call = useApi<Rh4663CallReceipt | Rh4663ResolutionReceipt>(`/v1/4663/receipts/${encodeURIComponent(receiptId)}`); const proof = useOptionalApi<Rh4663MerkleProof>(`/v1/4663/pulse/receipts/${encodeURIComponent(receiptId)}/proof`);
-  return <main className="i4663-main i4663-subpage"><PageHead index="05" title="PROOF" lede="CANONICAL PUBLIC MEMORY." /><DataState status={call.status} message={call.message} />{call.data && <section className="i4663-proof"><p className="i4663-micro">{call.data.protocol_receipt_type} RECEIPT</p><h2>{call.data.receipt_id}</h2><dl><div><dt>IMMUTABLE</dt><dd>TRUE</dd></div><div><dt>WINDOW</dt><dd>{call.data.window_id}</dd></div><div><dt>PAYLOAD HASH</dt><dd>{call.data.payload_hash}</dd></div>{call.data.protocol_receipt_type === 'CALL' && <><div><dt>CALLED</dt><dd>{labelRotation(call.data.rotation)}</dd></div><div><dt>SIGNATURE</dt><dd>VERIFIED</dd></div></>}{call.data.protocol_receipt_type === 'RESOLUTION' && <><div><dt>ACTUAL</dt><dd>{labelRotation(call.data.resolved_category)}</dd></div><div><dt>RESULT</dt><dd>{call.data.outcome}</dd></div><div><dt>CALL RECEIPT</dt><dd><a href={`/4663/proof/${encodeURIComponent(call.data.call_receipt_id)}`}>{call.data.call_receipt_id}</a></dd></div></>}</dl>{proof.data && <div className="i4663-merkle"><span>WINDOW ACCEPTANCE</span><strong>{proof.data.verified ? 'INCLUSION VERIFIED ✓' : 'PROOF INVALID'}</strong><code>{proof.data.acceptance_root}</code><small>ANCHOR / {proof.data.anchor.state.toUpperCase()}</small></div>}<a className="i4663-next-call" href="/4663/pulse">CALL TODAY <span>→</span></a></section>}</main>;
+  useEffect(() => { if (call.data?.protocol_receipt_type === 'RESOLUTION') trackCampaign('4663_resolution_viewed', { surface: 'resolution', window_id: call.data.window_id }); }, [call.data]);
+  return <main className="i4663-main i4663-subpage"><PageHead index={campaignRoute === 'call' ? 'CALL' : campaignRoute === 'resolution' ? 'RESOLUTION' : 'PROOF'} title={campaignRoute === 'call' ? 'CALL RECEIPT' : campaignRoute === 'resolution' ? 'RESOLUTION RECEIPT' : 'PROOF'} lede="CANONICAL PUBLIC MEMORY." /><DataState status={call.status} message={call.message} />{call.data && <section className="i4663-proof"><p className="i4663-micro">{call.data.protocol_receipt_type} RECEIPT</p><h2>{call.data.receipt_id}</h2><dl><div><dt>IMMUTABLE</dt><dd>TRUE</dd></div><div><dt>WINDOW</dt><dd>{call.data.window_id}</dd></div><div><dt>PAYLOAD HASH</dt><dd>{call.data.payload_hash}</dd></div>{call.data.protocol_receipt_type === 'CALL' && <><div><dt>CALLED</dt><dd>{labelRotation(call.data.rotation)}</dd></div><div><dt>CONFIDENCE</dt><dd>{call.data.confidence}%</dd></div><div><dt>SIGNATURE</dt><dd>VERIFIED</dd></div></>}{call.data.protocol_receipt_type === 'RESOLUTION' && <><div><dt>ACTUAL</dt><dd>{labelRotation(call.data.resolved_category)}</dd></div><div><dt>RESULT</dt><dd>{call.data.outcome}</dd></div><div><dt>CALL RECEIPT</dt><dd><a href={`/4663/call/${encodeURIComponent(call.data.call_receipt_id)}`}>{call.data.call_receipt_id}</a></dd></div></>}</dl>{proof.data && <div className="i4663-merkle"><span>WINDOW ACCEPTANCE</span><strong>{proof.data.verified ? 'INCLUSION VERIFIED ✓' : 'PROOF INVALID'}</strong><code>{proof.data.acceptance_root}</code><small>ANCHOR / {proof.data.anchor.state.toUpperCase()}</small></div>}<a className="i4663-next-call" href="/4663/pulse">CALL TODAY <span>→</span></a></section>}</main>;
 }
 
 function Signals() {

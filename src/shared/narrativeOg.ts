@@ -63,6 +63,7 @@ export function signalUpdateTypeLabel(value: string) {
 }
 
 export function narrativeOgImageUrl(pathname: string) {
+  if (/^\/4663\/print\/(?:0830|2026-08-30|rh-print-2026-08-30)\/?$/.test(pathname)) return '/og/4663/prints/rh-print-2026-08-30.png';
   if (/^\/rh-chain-signal-desk\/market-structure\/attention-quality\/?$/.test(pathname)) return '/og/rh-chain/attention-quality.png';
   if (/^\/rh-chain-signal-desk\/market-structure\/cross-layer\/?$/.test(pathname)) {
     return '/og/rh-chain/cross-layer.png';

@@ -37,12 +37,34 @@ describe('Infopunks //4663 API', () => {
     } finally { await app.close(); }
   });
 
+  it('publishes the 0830 PRINT as sourced market-state evidence without calling Aug 30 the DEX-volume ATH', async () => {
+    process.env.NODE_ENV = 'test'; const app = await createApp(emptyIntelligenceStore(), new MemoryRepository(), { rh4663Store: new InMemoryRh4663Store() });
+    try {
+      const response = await app.inject({ method: 'GET', url: '/v1/4663/prints/0830' });
+      expect(response.statusCode).toBe(200);
+      const print = response.json().data;
+      expect(print).toMatchObject({ print_id: 'rh-print-2026-08-30', canonical_path: '/4663/print/2026-08-30', campaign_snapshot: true, receipt_kind: 'MARKET_STATE_EVIDENCE', regime: 'SPECULATIVE EXPANSION', call: { evidence_path: '/4663/print/2026-08-30', default_confidence: 74 } });
+      expect(print.metrics).toEqual(expect.arrayContaining([
+        expect.objectContaining({ id: 'transactions', value: '5.52M', qualifier: 'ATH', window_start: '2026-08-30T00:00:00.000Z' }),
+        expect.objectContaining({ id: 'utc_dex_volume', value: '$874.8M' }),
+        expect.objectContaining({ id: 'calendar_day_ath', value: '~$920–944M', qualifier: 'AUG 25' }),
+        expect.objectContaining({ id: 'pons_volume', value: '$445.98M', qualifier: '~51% of Aug 30 chain DEX volume' })
+      ]));
+      for (const metric of print.metrics) expect(metric).toEqual(expect.objectContaining({ source: expect.any(Object), observed_at: expect.any(String), window_start: expect.any(String), window_end: expect.any(String), methodology: expect.any(String), freshness: expect.any(String), confidence: expect.any(Number) }));
+      expect((await app.inject({ method: 'GET', url: '/v1/4663/prints/latest' })).json().data.print_id).toBe('rh-print-2026-08-30');
+      expect((await app.inject({ method: 'GET', url: '/v1/4663/prints/rh-print-2026-08-30/share' })).json().data.images.landscape).toContain('/og/4663/prints/');
+      const image = await app.inject({ method: 'GET', url: '/og/4663/prints/rh-print-2026-08-30.png?format=portrait' }); expect(image.statusCode).toBe(200); expect(image.headers['content-type']).toContain('image/png');
+    } finally { await app.close(); }
+  });
+
   it('builds, verifies, stores, and re-reads an immutable protocol receipt', async () => {
     process.env.NODE_ENV = 'test'; const app = await createApp(emptyIntelligenceStore(), new MemoryRepository(), { rh4663Store: new InMemoryRh4663Store() });
     try {
       const payload = { wallet: account.address, rotation: 'STOCK_TOKENS', confidence: 91 };
       const canonicalResponse = await app.inject({ method: 'POST', url: '/v1/4663/pulse/payload', payload });
       expect(canonicalResponse.statusCode).toBe(200);
+      expect(canonicalResponse.json().data.payload).not.toHaveProperty('print_id');
+      expect((await app.inject({ method: 'POST', url: '/v1/4663/pulse/payload', payload: { ...payload, print_id: 'rh-print-2026-08-30' } })).statusCode).toBe(400);
       const signature = await account.signMessage({ message: canonicalResponse.json().data.canonical_serialization });
       const created = await app.inject({ method: 'POST', url: '/v1/4663/pulse/calls', payload: { ...payload, signature } });
       expect(created.statusCode).toBe(201);
@@ -50,6 +72,15 @@ describe('Infopunks //4663 API', () => {
       const receipt = await app.inject({ method: 'GET', url: `/v1/4663/receipts/${created.json().data.receipt_id}` });
       expect(receipt.json().data).toEqual(created.json().data);
       expect((await app.inject({ method: 'POST', url: '/v1/4663/pulse/calls', payload: { ...payload, signature } })).statusCode).toBe(409);
+    } finally { await app.close(); }
+  });
+
+  it('accepts only allowlisted privacy-preserving campaign telemetry', async () => {
+    process.env.NODE_ENV = 'test'; const app = await createApp(emptyIntelligenceStore(), new MemoryRepository(), { rh4663Store: new InMemoryRh4663Store() });
+    try {
+      expect((await app.inject({ method: 'POST', url: '/v1/4663/campaign/events', payload: { event: '4663_print_viewed', surface: 'print', print_id: 'rh-print-2026-08-30' } })).statusCode).toBe(202);
+      expect((await app.inject({ method: 'POST', url: '/v1/4663/campaign/events', payload: { event: '4663_print_viewed', wallet: account.address } })).statusCode).toBe(400);
+      expect((await app.inject({ method: 'POST', url: '/v1/4663/campaign/events', payload: { event: 'not_a_campaign_event' } })).statusCode).toBe(400);
     } finally { await app.close(); }
   });
 
@@ -72,7 +103,7 @@ describe('Infopunks //4663 API', () => {
     process.env.NODE_ENV = 'test'; const app = await createApp(emptyIntelligenceStore(), new MemoryRepository(), { rh4663Store: new InMemoryRh4663Store() });
     try {
       const paths = (await app.inject({ method: 'GET', url: '/openapi.json' })).json().paths;
-      for (const path of ['/v1/4663', '/v1/4663/pulse', '/v1/4663/pulse/payload', '/v1/4663/pulse/calls', '/v1/4663/pulse/windows/{windowId}', '/v1/4663/pulse/windows/{windowId}/resolution', '/v1/4663/pulse/windows/{windowId}/share', '/v1/4663/pulse/receipts/{receiptId}/proof', '/v1/4663/pulse/receipts/{receiptId}/share', '/v1/4663/pulse/reputation/{wallet}', '/v1/4663/today', '/v1/4663/today/archive', '/v1/4663/signals', '/v1/4663/events', '/v1/4663/receipts']) expect(paths[path]).toBeDefined();
+      for (const path of ['/v1/4663', '/v1/4663/prints/latest', '/v1/4663/prints/{printId}', '/v1/4663/prints/{printId}/share', '/v1/4663/campaign/events', '/v1/4663/pulse', '/v1/4663/pulse/payload', '/v1/4663/pulse/calls', '/v1/4663/pulse/windows/{windowId}', '/v1/4663/pulse/windows/{windowId}/resolution', '/v1/4663/pulse/windows/{windowId}/share', '/v1/4663/pulse/receipts/{receiptId}/proof', '/v1/4663/pulse/receipts/{receiptId}/share', '/v1/4663/pulse/reputation/{wallet}', '/v1/4663/today', '/v1/4663/today/archive', '/v1/4663/signals', '/v1/4663/events', '/v1/4663/receipts']) expect(paths[path]).toBeDefined();
     } finally { await app.close(); }
   });
 
