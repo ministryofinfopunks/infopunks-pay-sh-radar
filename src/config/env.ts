@@ -44,6 +44,7 @@ export type RuntimeConfig = {
   blockscoutCacheTtlSeconds: number;
   blockscoutMaxPageSize: number;
   rhChainBlockscoutUrl: string | null;
+  rhChainRpcUrl: string | null;
   rhChainReviewConsoleEnabled: boolean;
   rhChainReviewAdminToken: string | null;
   rhChainReviewedClassificationsEnabled: boolean;
@@ -137,6 +138,7 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
     blockscoutCacheTtlSeconds: readPositiveInteger('BLOCKSCOUT_CACHE_TTL_SECONDS', env.BLOCKSCOUT_CACHE_TTL_SECONDS, 120),
     blockscoutMaxPageSize: readBoundedPositiveInteger('BLOCKSCOUT_MAX_PAGE_SIZE', env.BLOCKSCOUT_MAX_PAGE_SIZE, 50, 50),
     rhChainBlockscoutUrl: readOptionalUrl('RH_CHAIN_BLOCKSCOUT_URL', env.RH_CHAIN_BLOCKSCOUT_URL),
+    rhChainRpcUrl: readOptionalUrl('RH_CHAIN_RPC_URL', env.RH_CHAIN_RPC_URL),
     rhChainReviewConsoleEnabled: readBoolean('RH_CHAIN_REVIEW_CONSOLE_ENABLED', env.RH_CHAIN_REVIEW_CONSOLE_ENABLED, false),
     rhChainReviewAdminToken: optionalString(env.RH_CHAIN_REVIEW_ADMIN_TOKEN),
     rhChainReviewedClassificationsEnabled: readBoolean('RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED', env.RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED, false),

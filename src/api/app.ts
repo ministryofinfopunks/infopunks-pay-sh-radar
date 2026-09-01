@@ -86,7 +86,7 @@ import { assembleRhChainLaunchpadObservatory } from '../services/rhChainLaunchpa
 import { assembleRhChainScouts } from '../services/rhChainScoutsService';
 import { assembleRhChainDistributionPack } from '../services/rhChainDistributionPackService';
 import { assembleRhChainReceiptRelay } from '../services/rhChainReceiptRelayService';
-import { InMemoryReflexiveStore, PostgresReflexiveStore, ReflexiveRadarService, type ReflexiveProvider } from '../services/rhChainReflexiveRadarService';
+import { InMemoryReflexiveStore, PairV5DiscoveryAdapter, PairV5OnchainVerifier, PostgresReflexiveStore, ReflexiveRadarService, stableId, type ReflexiveProvider } from '../services/rhChainReflexiveRadarService';
 import { buildRhChainProjectReceiptShare } from '../services/rhChainShareService';
 import { queryRhChainScout, RH_CHAIN_SCOUT_MODES } from '../services/rhChainScoutService';
 import { isRhChainIdentityContract } from '../services/rhChainTruthGuards';
@@ -703,11 +703,28 @@ export async function createApp(
   const rhChainPostgresReadiness = rhChainPostgresPool ? new RhChainPostgresReadiness() : null;
   // Reflexive observations are a separate evidence stream; this does not read or
   // mutate any CALL, RESOLUTION, PRINT, Genesis, signature, or Merkle state.
+  const reflexiveRpcUrl = config.rhChainRpcUrl ?? (!config.isProduction ? 'https://rpc.mainnet.chain.robinhood.com' : null);
+  const reflexiveVerifier = reflexiveRpcUrl ? new PairV5OnchainVerifier({ rpcUrl: reflexiveRpcUrl, providerName: config.rhChainRpcUrl ? 'configured_rh_chain_rpc' : 'robinhood_public_rpc_development_fallback' }) : null;
   const reflexiveProvider: ReflexiveProvider = {
     async assets() {
       const response = await fetch('https://api.robinhood.com/rhj/assets', { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(config.rhChainProviderTimeoutMs) });
       if (!response.ok) throw new Error(`rhj_assets_http_${response.status}`);
       return response.json();
+    },
+    async discover(assets) {
+      if (!reflexiveVerifier) return [];
+      return new PairV5DiscoveryAdapter({ verifyPool: (candidate) => reflexiveVerifier.verify(candidate, assets) }).discover(assets);
+    },
+    async observations(pairs, assets) {
+      if (!reflexiveVerifier) return [];
+      const now = new Date().toISOString(); const observations = [];
+      for (const pair of pairs) {
+        const verification = await reflexiveVerifier.verify({ protocol: pair.protocol, venue: pair.venue, pool_id: pair.pool_id, mission_contract: pair.mission_contract, mission_symbol: pair.mission_symbol, quote_contract: pair.quote_contract, launched_at: pair.launched_at, launch_tx_hash: pair.launch_id, hook: pair.verification.pool_key?.hooks ?? null, evidence: pair.evidence }, assets);
+        if (verification.verification_status !== 'VERIFIED') continue;
+        const asset = assets.find((item) => item.asset_id === pair.stock_asset_id);
+        observations.push({ observation_id: stableId('v4-observation', pair.pair_id, String(verification.state_observed_block)), pair_id: pair.pair_id, observed_at: verification.state_observed_at ?? now, fetched_at: now, observed_block: verification.state_observed_block, sqrt_price_x96: verification.sqrt_price_x96, tick: verification.tick, active_liquidity: verification.active_liquidity, mission_stock_price: null, multiplier_context: asset?.current_multiplier ?? null, mission_usd_price: null, stock_dex_usd_price: null, underlying_usd_price: null, underlying_observed_at: null, liquidity_usd: null, volume_24h_usd: null, quote_inventory_raw: null, quote_inventory_share_equivalent: null, inventory_method: 'unavailable' as const, fresh: true, provenance: pair.evidence, immutable: true as const });
+      }
+      return observations;
     }
   };
   const reflexiveRadar = new ReflexiveRadarService(rhChainPostgresPool ? new PostgresReflexiveStore(rhChainPostgresPool) : new InMemoryReflexiveStore(), reflexiveProvider);
@@ -2857,7 +2874,7 @@ export async function createApp(
   });
   app.get<{ Params: { id: string } }>('/v1/4663/reflexive/pairs/:id', async (req, reply) => {
     const pair = await reflexiveRadar.pair(req.params.id); if (!pair) return reply.code(404).send({ error: 'reflexive_pair_not_found' });
-    const state = await reflexiveRadar.snapshot(); return { data: safeJsonExport({ pair, observations: state.observations.filter((item) => item.pair_id === pair.pair_id), events: state.events.filter((item) => item.subject_id === pair.pair_id) }) };
+    const state = await reflexiveRadar.snapshot(); return { data: safeJsonExport({ pair, birth: state.births.find((item) => item.mission_pair_id === pair.pair_id) ?? null, lifecycle: state.lifecycle.filter((item) => item.pair_id === pair.pair_id), observations: state.observations.filter((item) => item.pair_id === pair.pair_id), events: state.events.filter((item) => item.subject_id === pair.pair_id) }) };
   });
   app.get<{ Params: { symbol: string } }>('/v1/4663/reflexive/stocks/:symbol', async (req, reply) => {
     const stock = await reflexiveRadar.stock(req.params.symbol); if (!stock) return reply.code(404).send({ error: 'reflexive_stock_not_found' }); return { data: safeJsonExport(stock) };
@@ -3700,6 +3717,7 @@ export async function createApp(
   });
   app.get<{ Params: { pairId: string }; Querystring: { format?: string } }>('/og/4663/reflexive/birth/:pairId.png', async (req, reply) => {
     const pair = await reflexiveRadar.pair(req.params.pairId); if (!pair) return reply.code(404).send({ error: 'reflexive_pair_not_found' });
+    if (pair.verification.verification_status !== 'VERIFIED') return reply.code(409).send({ error: 'reflexive_pair_not_verified' });
     const snapshot = await reflexiveRadar.snapshot(); const ticker = snapshot.assets.find((asset) => asset.asset_id === pair.stock_asset_id)?.ticker; if (!ticker) return reply.code(404).send({ error: 'reflexive_quote_asset_not_found' });
     const format = req.query.format === 'portrait' ? 'portrait' : 'landscape'; reply.header('cache-control', 'public, max-age=31536000, immutable');
     return reply.type('image/png').send(renderOgPng(renderReflexiveBirthCardSvg(pair, ticker, format), format === 'landscape' ? 1200 : 1080));
