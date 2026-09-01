@@ -87,7 +87,7 @@ import { assembleRhChainScouts } from '../services/rhChainScoutsService';
 import { assembleRhChainDistributionPack } from '../services/rhChainDistributionPackService';
 import { assembleRhChainReceiptRelay } from '../services/rhChainReceiptRelayService';
 import { InMemoryReflexiveStore, PairV5DiscoveryAdapter, PairV5OnchainVerifier, PostgresReflexiveStore, ReflexiveRadarService, stableId, type ReflexiveProvider } from '../services/rhChainReflexiveRadarService';
-import { unresolvedLongInventory, verifyLongMarketCandidate } from '../services/rhChainCrossVenueAuditService';
+import { LongDopplerVerifier } from '../services/rhChainCrossVenueAuditService';
 import { buildRhChainProjectReceiptShare } from '../services/rhChainShareService';
 import { queryRhChainScout, RH_CHAIN_SCOUT_MODES } from '../services/rhChainScoutService';
 import { isRhChainIdentityContract } from '../services/rhChainTruthGuards';
@@ -706,6 +706,7 @@ export async function createApp(
   // mutate any CALL, RESOLUTION, PRINT, Genesis, signature, or Merkle state.
   const reflexiveRpcUrl = config.rhChainRpcUrl ?? (!config.isProduction ? 'https://rpc.mainnet.chain.robinhood.com' : null);
   const reflexiveVerifier = reflexiveRpcUrl ? new PairV5OnchainVerifier({ rpcUrl: reflexiveRpcUrl, providerName: config.rhChainRpcUrl ? 'configured_rh_chain_rpc' : 'robinhood_public_rpc_development_fallback' }) : null;
+  const longDopplerVerifier = reflexiveRpcUrl ? new LongDopplerVerifier({ rpcUrl: reflexiveRpcUrl, providerName: config.rhChainRpcUrl ? 'configured_rh_chain_rpc' : 'robinhood_public_rpc_development_fallback' }) : null;
   const reflexiveProvider: ReflexiveProvider = {
     async assets() {
       const response = await fetch('https://api.robinhood.com/rhj/assets', { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(config.rhChainProviderTimeoutMs) });
@@ -2891,9 +2892,8 @@ export async function createApp(
   app.get('/v1/4663/reflexive/events', async () => ({ data: safeJsonExport({ events: (await reflexiveRadar.snapshot()).events }) }));
   app.get('/v1/4663/reflexive/thesis', async () => ({ data: safeJsonExport({ thesis: (await reflexiveRadar.snapshot()).thesis }) }));
   app.get('/v1/4663/reflexive/audits/long-ai-nvda', async (_req, reply) => {
-    if (!reflexiveVerifier) return reply.code(503).send({ error: 'long_audit_rpc_unavailable' }); const snapshot = await reflexiveRadar.snapshot(); const nvda = snapshot.assets.find((asset) => asset.ticker === 'NVDA'); if (!nvda) return reply.code(409).send({ error: 'long_audit_canonical_registry_not_refreshed' });
-    try { const state = await reflexiveVerifier.stateViewPoolState('0xcbdfea90430a30ee4469c9902e120a77e7c7e4711d5643671c1d1957f2f1ce27'); const source = { source: 'GeckoTerminal AI/NVDA discovery context', href: 'https://www.geckoterminal.com/robinhood/pools/0xcbdfea90430a30ee4469c9902e120a77e7c7e4711d5643671c1d1957f2f1ce27', observed_at: state.observed_at, fetched_at: state.observed_at, note: 'Public index identifies AI/NVDA as LONG context. Onchain StateView independently verifies only the V4 pool state.', quality: 'indexed_context' as const }; const market = verifyLongMarketCandidate({ market_id: 'long-ai-nvda-v4', mission_contract: '0x2e8c31162b855a2ffa90f6f8634643ad6f111e18', mission_symbol: 'AI', quote_contract: nvda.canonical_contract, quote_symbol: 'NVDA', pool_id: '0xcbdfea90430a30ee4469c9902e120a77e7c7e4711d5643671c1d1957f2f1ce27', source, launch_tx: null, launch_block: null, launch_timestamp: '2026-07-14T17:48:31.000Z', venue_version: 'LONG_V4_UNVERIFIED_FACTORY' }, [nvda], state); return { data: safeJsonExport({ market, inventory: unresolvedLongInventory(market), architecture_status: 'LIQUIDITY_CONTAINER_UNRESOLVED' }) }; }
-    catch { return reply.code(503).send({ error: 'long_audit_pool_state_unavailable' }); }
+    if (!longDopplerVerifier) return reply.code(503).send({ error: 'long_audit_rpc_unavailable' }); const snapshot = await reflexiveRadar.snapshot(); const nvda = snapshot.assets.find((asset) => asset.ticker === 'NVDA'); if (!nvda) return reply.code(409).send({ error: 'long_audit_canonical_registry_not_refreshed' });
+    return { data: safeJsonExport(await longDopplerVerifier.observeAiNvda(nvda)) };
   });
   app.post('/internal/4663/reflexive/refresh', async (req, reply) => {
     if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send({ error: 'review_admin_token_required' });

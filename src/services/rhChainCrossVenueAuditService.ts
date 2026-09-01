@@ -1,5 +1,5 @@
 import { normalizeBlockscoutAddress } from '../providers/blockscoutProvider';
-import { REFLEXIVE_CHAIN_ID, formatTokenUnits, type CanonicalStockAsset, type Evidence } from './rhChainReflexiveRadarService';
+import { REFLEXIVE_CHAIN_ID, formatTokenUnits, reconstructPositionPrincipal, stateViewAbi, type CanonicalStockAsset, type Evidence } from './rhChainReflexiveRadarService';
 
 /** v0.4 deliberately separates a venue's identity proof from its inventory proof. */
 export type MissionMarketVenue = 'PAIR' | 'LONG';
@@ -42,4 +42,119 @@ export function aggregateCrossVenueStockInventory(asset: CanonicalStockAsset, ob
   const reference = unique[0]; const aligned = Boolean(reference) && unique.every((item) => item.observed_block === reference.observed_block && item.stock_total_supply_raw === reference.stock_total_supply_raw); const pair = aligned ? unique.filter((item) => item.venue === 'PAIR').reduce((sum, item) => sum + BigInt(item.stock_principal_raw!), 0n) : null; const long = aligned ? unique.filter((item) => item.venue === 'LONG').reduce((sum, item) => sum + BigInt(item.stock_principal_raw!), 0n) : null; const total = pair !== null && long !== null ? pair + long : null; const supply = aligned && reference ? BigInt(reference.stock_total_supply_raw!) : null;
   const decimals = reference?.stock_decimals; const display = (amount: bigint | null) => amount === null || decimals === null || decimals === undefined ? null : formatTokenUnits(amount, decimals);
   return { stock_asset_id: asset.asset_id, stock_symbol: asset.ticker, stock_contract: asset.canonical_contract, status: aligned ? 'ALIGNED' : 'INCOMPLETE', reference_block: aligned ? reference!.observed_block : null, included_observation_ids: aligned ? unique.map((item) => item.observation_id) : [], duplicate_inventory_ids: duplicate, pair_raw_units: display(pair), long_raw_units: display(long), total_raw_units: display(total), total_supply_raw: supply === null ? null : String(supply), coverage_pct: total === null || supply === null ? null : percent(total, supply), unclassified_pct: total === null || supply === null ? null : percent(supply - total, supply), methodology_version: version, immutable: true };
+}
+
+/**
+ * Pinned from the Whetstone Airlock source.  These are deliberately small read-only
+ * ABIs; Radar does not bring in a Doppler SDK or make any write-capable call.
+ * https://github.com/whetstoneresearch/doppler/blob/main/src/Airlock.sol
+ */
+export const LONG_DOPPLER_DEPLOYMENTS = {
+  airlock: '0xeb7c034704ef8dcd2d32324c1545f62fb4ad0862',
+  tokenFactory: '0x1b37d3a72082029c44b35b604ea473617580b69a',
+  hookInitializer: '0x4e3468951d49f2eea976ed0d6e75ffcb44a9a544',
+  rehypeHookInitializer: '0x5f9eb5f6726fe88d5e39867967f5b833d2fa3215',
+  streamableFeesLockerV2: '0x7b6147ac3f615bdb764e7ebd5f517dac1ad163b8',
+  uniswapV4Initializer: '0x6cce158b6d1747617fc218592b4d60b239b957ea',
+  longLauncher: '0x22e99278308b393ea1260859b181ad7e78f5eeed',
+  poolManager: '0x8366a39cc670b4001a1121b8f6a443a643e40951',
+  stateView: '0xf3334192d15450cdd385c8b70e03f9a6bd9e673b',
+  dead: '0x000000000000000000000000000000000000dead',
+  migrationSentinel: '0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddead'
+} as const;
+
+const erc20ReadAbi = [
+  { type: 'function', name: 'decimals', stateMutability: 'view', inputs: [], outputs: [{ type: 'uint8' }] },
+  { type: 'function', name: 'totalSupply', stateMutability: 'view', inputs: [], outputs: [{ type: 'uint256' }] }
+] as const;
+
+const airlockReadAbi = [
+  { type: 'function', name: 'getAssetData', stateMutability: 'view', inputs: [{ type: 'address' }], outputs: [{ type: 'tuple', components: [
+    { name: 'numeraire', type: 'address' }, { name: 'timelock', type: 'address' }, { name: 'governance', type: 'address' }, { name: 'liquidityMigrator', type: 'address' }, { name: 'poolInitializer', type: 'address' }, { name: 'pool', type: 'address' }, { name: 'migrationPool', type: 'address' }, { name: 'numTokensToSell', type: 'uint256' }, { name: 'totalSupply', type: 'uint256' }, { name: 'integrator', type: 'address' }
+  ] }] },
+  { type: 'function', name: 'getModuleState', stateMutability: 'view', inputs: [{ type: 'address' }], outputs: [{ type: 'uint8' }] }
+] as const;
+
+const dopplerInitializerReadAbi = [
+  // The Solidity mapping getter omits the two dynamic-array members, but retains
+  // graduation calldata. Its deployed return order is pinned here rather than guessed.
+  { type: 'function', name: 'getState', stateMutability: 'view', inputs: [{ type: 'address' }], outputs: [
+    { name: 'numeraire', type: 'address' }, { name: 'totalTokensOnBondingCurve', type: 'uint256' }, { name: 'dopplerHook', type: 'address' }, { name: 'graduationDopplerHookCalldata', type: 'bytes' }, { name: 'status', type: 'uint8' },
+    { name: 'currency0', type: 'address' }, { name: 'currency1', type: 'address' }, { name: 'fee', type: 'uint24' }, { name: 'tickSpacing', type: 'int24' }, { name: 'hooks', type: 'address' }, { name: 'farTick', type: 'int24' }
+  ] }
+] as const;
+
+const longLauncherCreateAbi = [{ type: 'function', name: 'create', stateMutability: 'nonpayable', inputs: [{ name: 'createData', type: 'tuple', components: [
+  { name: 'initialSupply', type: 'uint256' }, { name: 'numTokensToSell', type: 'uint256' }, { name: 'numeraire', type: 'address' }, { name: 'tokenFactory', type: 'address' }, { name: 'tokenFactoryData', type: 'bytes' }, { name: 'governanceFactory', type: 'address' }, { name: 'governanceFactoryData', type: 'bytes' }, { name: 'poolInitializer', type: 'address' }, { name: 'poolInitializerData', type: 'bytes' }, { name: 'liquidityMigrator', type: 'address' }, { name: 'liquidityMigratorData', type: 'bytes' }, { name: 'integrator', type: 'address' }, { name: 'salt', type: 'bytes32' }
+] }], outputs: [] }] as const;
+
+const airlockCreateTopic = '0x68ff1cfcdcf76864161555fc0de1878d8f83ec6949bf351df74d8a4a1a2679ab';
+const modifyLiquidityTopic = '0xf208f4912782fd25c7f114ca3723a2d5dd6f3bcc3ac8db5af63baa85f711d5ec';
+const lower = (value: string) => value.toLowerCase();
+const paddedAddress = (value: string) => `0x${'0'.repeat(24)}${lower(value).slice(2)}`;
+
+export type DopplerAssetData = { numeraire: string; timelock: string; governance: string; liquidity_migrator: string; pool_initializer: string; pool: string; migration_pool: string; num_tokens_to_sell_raw: string; total_supply_raw: string; integrator: string };
+export type DopplerLaunchPosition = { salt: string; tick_lower: number; tick_upper: number; launch_liquidity_raw: string; core_liquidity_raw: string | null; core_status: 'CORE_POSITION_OBSERVED' | 'CORE_POSITION_UNAVAILABLE'; launch_state: 'UNCHANGED_SINCE_LAUNCH' | 'CHANGED_SINCE_LAUNCH' | 'UNKNOWN'; mission_principal_raw: string | null; stock_principal_raw: string | null; range_state: 'BELOW_RANGE' | 'IN_RANGE' | 'ABOVE_RANGE' | null };
+export type DopplerLongAudit = {
+  market_id: 'long-ai-nvda'; chain_id: number; mission_contract: string; mission_symbol: 'AI'; stock_contract: string; stock_symbol: 'NVDA'; pool_id: string;
+  deployment_bytecode_verified: boolean; deployment_code_bytes: Record<string, number>; airlock_asset_data: DopplerAssetData | null; canonical_numeraire_verified: boolean;
+  token_factory_verified: boolean; creation_tx: string | null; creation_block: number | null; creation_timestamp: string | null; launcher_involvement: 'DIRECT_LONG_LAUNCHER_TRANSACTION' | 'UNVERIFIED'; integrator_attribution: 'AIRLOCK_INTEGRATOR_VERIFIED' | 'UNVERIFIED'; long_attribution_method: 'LONG_LAUNCHER_AND_AIRLOCK_INTEGRATOR' | 'LONG_LAUNCHER_ONLY' | 'AIRLOCK_INTEGRATOR_ONLY' | 'UNVERIFIED';
+  pool_initializer: string | null; initializer_module_state: number | null; doppler_generation: 'DOPPLER_HOOK_INITIALIZER_V1' | 'UNRESOLVED'; migration_state: 'PRE_MIGRATION' | 'POST_MIGRATION' | 'UNKNOWN'; liquidity_owner: string | null; initializer_pool_state: { status: number; currency0: string; currency1: string; fee: number; tick_spacing: number; hooks: string; far_tick: number } | null;
+  positions: DopplerLaunchPosition[]; positions_enumerated: number; core_positions_observed: number; inventory_status: 'AVAILABLE' | 'UNAVAILABLE'; inventory_scope: 'LONG_CANONICAL_LAUNCH_POSITION_INVENTORY'; mission_principal_raw: string | null; mission_principal_units: string | null; stock_principal_raw: string | null; stock_principal_units: string | null; stock_total_supply_raw: string | null; stock_total_supply_units: string | null; scoped_absorption_pct: string | null; current_tick: number | null; sqrt_price_x96: string | null; external_liquidity_coverage: 'PARTIAL'; external_liquidity_state: 'EXTERNAL_LIQUIDITY_POSSIBLE'; observed_block: number | null; observed_at: string; methodology_version: 'rmm-v0.4.1'; evidence: Evidence[]; immutable: true;
+};
+
+export function verifyDopplerAttribution(input: { creation_to: string | null; launcher: string; asset_numeraire: string; canonical_stock: string; asset_integrator: string; launch_integrator: string | null; token_factory: string | null; expected_factory: string; initializer: string | null; expected_initializer: string }): { canonical_numeraire_verified: boolean; token_factory_verified: boolean; launcher_involvement: DopplerLongAudit['launcher_involvement']; integrator_attribution: DopplerLongAudit['integrator_attribution']; long_attribution_method: DopplerLongAudit['long_attribution_method']; doppler_generation: DopplerLongAudit['doppler_generation'] } {
+  const canonical_numeraire_verified = lower(input.asset_numeraire) === lower(input.canonical_stock);
+  const token_factory_verified = input.token_factory !== null && lower(input.token_factory) === lower(input.expected_factory);
+  const launcher = input.creation_to !== null && lower(input.creation_to) === lower(input.launcher);
+  const integrator = input.launch_integrator !== null && lower(input.asset_integrator) === lower(input.launch_integrator);
+  return { canonical_numeraire_verified, token_factory_verified, launcher_involvement: launcher ? 'DIRECT_LONG_LAUNCHER_TRANSACTION' : 'UNVERIFIED', integrator_attribution: integrator ? 'AIRLOCK_INTEGRATOR_VERIFIED' : 'UNVERIFIED', long_attribution_method: launcher && integrator ? 'LONG_LAUNCHER_AND_AIRLOCK_INTEGRATOR' : launcher ? 'LONG_LAUNCHER_ONLY' : integrator ? 'AIRLOCK_INTEGRATOR_ONLY' : 'UNVERIFIED', doppler_generation: input.initializer !== null && lower(input.initializer) === lower(input.expected_initializer) ? 'DOPPLER_HOOK_INITIALIZER_V1' : 'UNRESOLVED' };
+}
+
+/** Principal comes only from current StateView liquidity.  Launch liquidity is provenance evidence, never a reserve proxy. */
+export function reconstructDopplerLaunchPositions(input: { launch: Array<{ salt: string; tick_lower: number; tick_upper: number; launch_liquidity_raw: string }>; core: Array<string | null>; sqrt_price_x96: bigint; stock_is_currency0: boolean }): DopplerLaunchPosition[] {
+  const seen = new Set<string>();
+  return input.launch.map((position, index) => {
+    if (seen.has(position.salt)) throw new Error('DUPLICATE_DOPPLER_POSITION_SALT'); seen.add(position.salt);
+    const core = input.core[index]; if (core === null) return { ...position, core_liquidity_raw: null, core_status: 'CORE_POSITION_UNAVAILABLE', launch_state: 'UNKNOWN', mission_principal_raw: null, stock_principal_raw: null, range_state: null };
+    const principal = reconstructPositionPrincipal(BigInt(core), position.tick_lower, position.tick_upper, input.sqrt_price_x96);
+    return { ...position, core_liquidity_raw: core, core_status: 'CORE_POSITION_OBSERVED', launch_state: BigInt(core) === BigInt(position.launch_liquidity_raw) ? 'UNCHANGED_SINCE_LAUNCH' : 'CHANGED_SINCE_LAUNCH', mission_principal_raw: String(input.stock_is_currency0 ? principal.amount1 : principal.amount0), stock_principal_raw: String(input.stock_is_currency0 ? principal.amount0 : principal.amount1), range_state: principal.range_state };
+  });
+}
+
+/** Read-only production adapter for the one onchain-proven LONG/Doppler generation. */
+export class LongDopplerVerifier {
+  private client: Promise<any>;
+  constructor(private readonly options: { rpcUrl: string; providerName: string }) {
+    this.client = import('viem').then(({ createPublicClient, defineChain, http }) => createPublicClient({ chain: defineChain({ id: REFLEXIVE_CHAIN_ID, name: 'Robinhood Chain', nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 }, rpcUrls: { default: { http: [options.rpcUrl] } } }), transport: http(options.rpcUrl, { timeout: 12_000, retryCount: 1 }) }));
+  }
+  async observeAiNvda(stock: CanonicalStockAsset): Promise<DopplerLongAudit> {
+    const d = LONG_DOPPLER_DEPLOYMENTS; const ai = '0x2e8c31162b855a2ffa90f6f8634643ad6f111e18' as `0x${string}`; const poolId = '0xcbdfea90430a30ee4469c9902e120a77e7c7e4711d5643671c1d1957f2f1ce27' as `0x${string}`;
+    const empty = (note: string): DopplerLongAudit => ({ market_id: 'long-ai-nvda', chain_id: REFLEXIVE_CHAIN_ID, mission_contract: ai, mission_symbol: 'AI', stock_contract: stock.canonical_contract, stock_symbol: stock.ticker as 'NVDA', pool_id: poolId, deployment_bytecode_verified: false, deployment_code_bytes: {}, airlock_asset_data: null, canonical_numeraire_verified: false, token_factory_verified: false, creation_tx: null, creation_block: null, creation_timestamp: null, launcher_involvement: 'UNVERIFIED', integrator_attribution: 'UNVERIFIED', long_attribution_method: 'UNVERIFIED', pool_initializer: null, initializer_module_state: null, doppler_generation: 'UNRESOLVED', migration_state: 'UNKNOWN', liquidity_owner: null, initializer_pool_state: null, positions: [], positions_enumerated: 0, core_positions_observed: 0, inventory_status: 'UNAVAILABLE', inventory_scope: 'LONG_CANONICAL_LAUNCH_POSITION_INVENTORY', mission_principal_raw: null, mission_principal_units: null, stock_principal_raw: null, stock_principal_units: null, stock_total_supply_raw: null, stock_total_supply_units: null, scoped_absorption_pct: null, current_tick: null, sqrt_price_x96: null, external_liquidity_coverage: 'PARTIAL', external_liquidity_state: 'EXTERNAL_LIQUIDITY_POSSIBLE', observed_block: null, observed_at: new Date().toISOString(), methodology_version: 'rmm-v0.4.1', evidence: [{ source: 'LONG/Doppler adapter', href: '', observed_at: new Date().toISOString(), fetched_at: new Date().toISOString(), note, quality: 'unavailable' }], immutable: true });
+    if (stock.chain_id !== REFLEXIVE_CHAIN_ID || lower(stock.canonical_contract) !== '0xd0601ce157db5bdc3162bbac2a2c8af5320d9eec') return empty('Canonical NVDA registry entry unavailable.');
+    try {
+      const client = await this.client; const blockNumber = await client.getBlockNumber(); const addresses = [d.airlock, d.tokenFactory, d.hookInitializer, d.rehypeHookInitializer, d.streamableFeesLockerV2, d.uniswapV4Initializer, d.longLauncher];
+      const [codes, assetDataRaw, factoryModule, initializerModule, slot0, block, missionDecimals, stockDecimals, stockSupply, creationTx, creationReceipt] = await Promise.all([
+        Promise.all(addresses.map((address) => client.getCode({ address: address as `0x${string}`, blockNumber }))),
+        client.readContract({ address: d.airlock as `0x${string}`, abi: airlockReadAbi, functionName: 'getAssetData', args: [ai], blockNumber }),
+        client.readContract({ address: d.airlock as `0x${string}`, abi: airlockReadAbi, functionName: 'getModuleState', args: [d.tokenFactory], blockNumber }),
+        client.readContract({ address: d.airlock as `0x${string}`, abi: airlockReadAbi, functionName: 'getModuleState', args: [d.hookInitializer], blockNumber }),
+        client.readContract({ address: d.stateView as `0x${string}`, abi: stateViewAbi, functionName: 'getSlot0', args: [poolId], blockNumber }), client.getBlock({ blockNumber }),
+        client.readContract({ address: ai, abi: erc20ReadAbi, functionName: 'decimals', blockNumber }), client.readContract({ address: stock.canonical_contract as `0x${string}`, abi: erc20ReadAbi, functionName: 'decimals', blockNumber }), client.readContract({ address: stock.canonical_contract as `0x${string}`, abi: erc20ReadAbi, functionName: 'totalSupply', blockNumber }),
+        client.getTransaction({ hash: '0x7632524cd4cec7cabc574b58c54095a2ca33a2a1b037b1486e8b88b79bd3bf1b' }), client.getTransactionReceipt({ hash: '0x7632524cd4cec7cabc574b58c54095a2ca33a2a1b037b1486e8b88b79bd3bf1b' })
+      ]);
+      const assetTuple = assetDataRaw as unknown as Record<string, unknown>; const asset: DopplerAssetData = { numeraire: lower(String(assetTuple.numeraire)), timelock: lower(String(assetTuple.timelock)), governance: lower(String(assetTuple.governance)), liquidity_migrator: lower(String(assetTuple.liquidityMigrator)), pool_initializer: lower(String(assetTuple.poolInitializer)), pool: lower(String(assetTuple.pool)), migration_pool: lower(String(assetTuple.migrationPool)), num_tokens_to_sell_raw: String(assetTuple.numTokensToSell), total_supply_raw: String(assetTuple.totalSupply), integrator: lower(String(assetTuple.integrator)) };
+      const { decodeAbiParameters, decodeFunctionData } = await import('viem');
+      let launchData: any = null; try { launchData = decodeFunctionData({ abi: longLauncherCreateAbi, data: creationTx.input }); } catch { /* direct target and Airlock event still remain evidence */ }
+      const params = launchData?.args?.[0] as Record<string, unknown> | undefined;
+      const attribution = verifyDopplerAttribution({ creation_to: creationTx.to, launcher: d.longLauncher, asset_numeraire: asset.numeraire, canonical_stock: stock.canonical_contract, asset_integrator: asset.integrator, launch_integrator: params ? String(params.integrator) : null, token_factory: params ? String(params.tokenFactory) : null, expected_factory: d.tokenFactory, initializer: params ? String(params.poolInitializer) : null, expected_initializer: d.hookInitializer });
+      const airlockCreate = creationReceipt.logs.some((log: any) => lower(log.address) === d.airlock && lower(log.topics[0] ?? '') === airlockCreateTopic && lower(`0x${String(log.data).slice(26, 66)}`) === ai);
+      const owner = d.hookInitializer; const launch = creationReceipt.logs.filter((log: any) => lower(log.address) === d.poolManager && lower(log.topics[0] ?? '') === modifyLiquidityTopic && lower(log.topics[1] ?? '') === poolId && lower(log.topics[2] ?? '') === paddedAddress(owner)).map((log: any) => { const decoded = decodeAbiParameters([{ type: 'int24' }, { type: 'int24' }, { type: 'int256' }, { type: 'bytes32' }], log.data); return { tick_lower: Number(decoded[0]), tick_upper: Number(decoded[1]), launch_liquidity_raw: String(decoded[2]), salt: String(decoded[3]) }; }).filter((position: any) => BigInt(position.launch_liquidity_raw) > 0n);
+      const unique = new Set<string>(); if (launch.some((position: any) => unique.has(position.salt) || !unique.add(position.salt))) return empty('Duplicate position salt in launch receipt.');
+      const core = await Promise.all(launch.map((position: any) => client.readContract({ address: d.stateView as `0x${string}`, abi: stateViewAbi, functionName: 'getPositionInfo', args: [poolId, owner as `0x${string}`, position.tick_lower, position.tick_upper, position.salt as `0x${string}`], blockNumber }).then((value: readonly unknown[]) => String(value[0])).catch(() => null)));
+      const positions = reconstructDopplerLaunchPositions({ launch, core, sqrt_price_x96: BigInt((slot0 as readonly unknown[])[0] as string | number | bigint), stock_is_currency0: lower(asset.numeraire) < lower(ai) });
+      const allCore = positions.every((position) => position.core_status === 'CORE_POSITION_OBSERVED'); const stockRaw = allCore ? positions.reduce((sum, position) => sum + BigInt(position.stock_principal_raw!), 0n) : null; const missionRaw = allCore ? positions.reduce((sum, position) => sum + BigInt(position.mission_principal_raw!), 0n) : null; const supply = BigInt(stockSupply); const stateRaw = await client.readContract({ address: d.hookInitializer as `0x${string}`, abi: dopplerInitializerReadAbi, functionName: 'getState', args: [ai], blockNumber }) as readonly unknown[]; const byteSizes = Object.fromEntries(addresses.map((address, index) => [address, Math.max(0, (String(codes[index] ?? '0x').length - 2) / 2)])); const observedAt = new Date(Number(block.timestamp) * 1000).toISOString();
+      return { market_id: 'long-ai-nvda', chain_id: REFLEXIVE_CHAIN_ID, mission_contract: ai, mission_symbol: 'AI', stock_contract: stock.canonical_contract, stock_symbol: stock.ticker as 'NVDA', pool_id: poolId, deployment_bytecode_verified: Object.values(byteSizes).every((size) => size > 0), deployment_code_bytes: byteSizes, airlock_asset_data: asset, canonical_numeraire_verified: attribution.canonical_numeraire_verified && airlockCreate, token_factory_verified: attribution.token_factory_verified && Number(factoryModule) === 1 && airlockCreate, creation_tx: creationTx.hash, creation_block: Number(creationReceipt.blockNumber), creation_timestamp: new Date(Number((await client.getBlock({ blockNumber: creationReceipt.blockNumber })).timestamp) * 1000).toISOString(), launcher_involvement: attribution.launcher_involvement, integrator_attribution: attribution.integrator_attribution, long_attribution_method: attribution.long_attribution_method, pool_initializer: asset.pool_initializer, initializer_module_state: Number(initializerModule), doppler_generation: attribution.doppler_generation, migration_state: asset.migration_pool === d.migrationSentinel || asset.migration_pool === d.dead ? 'PRE_MIGRATION' : 'POST_MIGRATION', liquidity_owner: owner, initializer_pool_state: { status: Number(stateRaw[4]), currency0: lower(String(stateRaw[5])), currency1: lower(String(stateRaw[6])), fee: Number(stateRaw[7]), tick_spacing: Number(stateRaw[8]), hooks: lower(String(stateRaw[9])), far_tick: Number(stateRaw[10]) }, positions, positions_enumerated: positions.length, core_positions_observed: positions.filter((position) => position.core_status === 'CORE_POSITION_OBSERVED').length, inventory_status: allCore && attribution.canonical_numeraire_verified ? 'AVAILABLE' : 'UNAVAILABLE', inventory_scope: 'LONG_CANONICAL_LAUNCH_POSITION_INVENTORY', mission_principal_raw: missionRaw === null ? null : String(missionRaw), mission_principal_units: missionRaw === null ? null : formatTokenUnits(missionRaw, Number(missionDecimals)), stock_principal_raw: stockRaw === null ? null : String(stockRaw), stock_principal_units: stockRaw === null ? null : formatTokenUnits(stockRaw, Number(stockDecimals)), stock_total_supply_raw: String(supply), stock_total_supply_units: formatTokenUnits(supply, Number(stockDecimals)), scoped_absorption_pct: stockRaw === null || supply <= 0n ? null : formatTokenUnits(stockRaw * 100n * 10n ** 10n / supply, 10), current_tick: Number((slot0 as readonly unknown[])[1]), sqrt_price_x96: String((slot0 as readonly unknown[])[0]), external_liquidity_coverage: 'PARTIAL', external_liquidity_state: 'EXTERNAL_LIQUIDITY_POSSIBLE', observed_block: Number(blockNumber), observed_at: observedAt, methodology_version: 'rmm-v0.4.1', evidence: [{ source: 'Whetstone Doppler Airlock + LongLauncher launch receipt', href: `https://robinhoodchain.blockscout.com/tx/${creationTx.hash}`, observed_at: new Date(Number((await client.getBlock({ blockNumber: creationReceipt.blockNumber })).timestamp) * 1000).toISOString(), fetched_at: observedAt, note: 'Launch receipt establishes the shared Airlock create, canonical factory/initializer parameters and the initial V4 positions.', quality: 'onchain' }, { source: 'V4 StateView current core positions', href: `https://robinhoodchain.blockscout.com/address/${d.stateView}`, observed_at: observedAt, fetched_at: observedAt, note: 'Every launch-position key is read at the observation block. Current principal is derived only from these core liquidity values.', quality: 'onchain' }], immutable: true };
+    } catch (error) { return empty(`Read-only Doppler proof unavailable: ${error instanceof Error ? error.message : 'unknown RPC error'}`); }
+  }
 }

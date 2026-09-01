@@ -29,3 +29,13 @@ curl -fsS https://radar.infopunks.fun/v1/4663/reflexive/stocks/AAPL
 Run the protected `POST /internal/4663/reflexive/refresh` operation after the checks above. When production configuration is absent, this refresh may be used for read-only development verification only; it does not claim durable persistence.
 
 The exact public inventory vocabulary is `TRACKED PAIR LOCKED INVENTORY` and `TRACKED PAIR LOCKED ABSORPTION`—equivalently, “% of Robinhood onchain AAPL Token supply.” It is not float absorption, total mission-market absorption, net quote demand, or a PoolManager balance.
+
+## v0.4.1 LONG/Doppler AI/NVDA audit
+
+The bounded LONG read is separate from PAIR. It first reads Airlock `getAssetData(AI)`, requires its numeraire to be the canonical NVDA registry contract, then verifies the AI creation receipt reached Airlock from the LongLauncher and supplied the canonical Doppler token factory and the actual pool initializer. It reads the launch receipt's V4 `ModifyLiquidity` keys and reads each current key through StateView with the initializer as owner.
+
+```sh
+curl -fsS https://radar.infopunks.fun/v1/4663/reflexive/audits/long-ai-nvda
+```
+
+Check `canonical_numeraire_verified`, `token_factory_verified`, `long_attribution_method`, `positions`, and `inventory_status`. The only present scope is `LONG_CANONICAL_LAUNCH_POSITION_INVENTORY`. `external_liquidity_coverage: PARTIAL` means Radar has not proven all possible third-party V4 positions, so the result must never be relabeled total pool or total LONG inventory. Historical claims remain temporally unavailable with the public prospective-only RPC.
