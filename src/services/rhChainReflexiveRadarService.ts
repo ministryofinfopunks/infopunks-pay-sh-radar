@@ -213,6 +213,7 @@ export class PairV5OnchainVerifier {
     } catch { return this.failed(['RPC_UNAVAILABLE']); }
   }
   async currentBlock() { return (await this.client).getBlockNumber() as Promise<bigint>; }
+  async stateViewPoolState(poolId: `0x${string}`) { const client = await this.client; const blockNumber = await client.getBlockNumber(); const [slot0, block] = await Promise.all([client.readContract({ address: (this.options.deployments ?? PAIR_V5_DEPLOYMENTS).stateView as `0x${string}`, abi: stateViewAbi, functionName: 'getSlot0', args: [poolId], blockNumber }) as Promise<readonly unknown[]>, client.getBlock({ blockNumber })]); return { pool_initialized: BigInt(slot0[0] as bigint) > 0n, observed_block: Number(blockNumber), observed_at: new Date(Number(block.timestamp) * 1000).toISOString(), sqrt_price_x96: String(slot0[0]), tick: Number(slot0[1]) }; }
   /** A historical eth_call check; full lifecycle backfills remain disabled when it fails. */
   async archiveCapability(poolId: `0x${string}`): Promise<'ARCHIVE_CAPABLE' | 'PROSPECTIVE_ONLY'> {
     try { const client = await this.client; const latest = await client.getBlockNumber(); if (latest < 10_000n) return 'PROSPECTIVE_ONLY'; await client.readContract({ address: (this.options.deployments ?? PAIR_V5_DEPLOYMENTS).stateView as `0x${string}`, abi: stateViewAbi, functionName: 'getSlot0', args: [poolId], blockNumber: latest - 10_000n }); return 'ARCHIVE_CAPABLE'; } catch { return 'PROSPECTIVE_ONLY'; }
