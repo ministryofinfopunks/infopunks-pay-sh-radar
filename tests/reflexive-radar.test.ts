@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { InMemoryReflexiveStore, PairV5DiscoveryAdapter, ReflexiveRadarService, deriveUniswapV4PoolId, formatTokenUnits, isCanonicalStockContract, missionAlpha, missionPerStockFromSqrtPrice, normalizePoolKey, normalizeShareEquivalent, quoteInventory, reconstructPositionPrincipal, sqrtRatioAtTick, stockTokenBasis, type CanonicalStockAsset, type ReflexiveProvider } from '../src/services/rhChainReflexiveRadarService';
-import { renderReflexiveInventoryCardSvg } from '../src/shared/rhChainReflexiveShare';
+import { InMemoryReflexiveStore, PairV5DiscoveryAdapter, ReflexiveRadarService, aggregateTrackedPairInventory, archiveCapabilityStatus, derivePositionInventoryDelta, deriveUniswapV4PoolId, formatTokenUnits, isCanonicalStockContract, missionAlpha, missionPerStockFromSqrtPrice, normalizePoolKey, normalizeShareEquivalent, positionTokenIdSalt, quoteInventory, reconcilePositionLiquidity, reconstructPositionPrincipal, sqrtRatioAtTick, stockTokenBasis, type CanonicalStockAsset, type ReflexiveProvider } from '../src/services/rhChainReflexiveRadarService';
+import { renderReflexiveInventoryCardSvg, renderReflexiveStockMoneyCardSvg } from '../src/shared/rhChainReflexiveShare';
 
 const CONTRACT = '0x1111111111111111111111111111111111111111';
 const MISSION = '0x2222222222222222222222222222222222222222';
 const asset = (): CanonicalStockAsset => ({ asset_id: 'asset-nvda', ticker: 'NVDA', name: 'NVIDIA', chain_id: 4663, canonical_contract: CONTRACT, status: 'ASSET_STATUS_ACTIVE', current_multiplier: '4', pending_multiplier: null, pending_multiplier_effective_at: null, trading_capabilities: null, logo: null, observed_at: '2026-09-01T00:00:00.000Z', fetched_at: '2026-09-01T00:00:00.000Z', provenance: 'test', first_party_asset: false });
+const inventory = (overrides: Record<string, unknown> = {}) => ({ observation_id: 'ob-1', mission_pair_id: 'pair-1', position_identity_id: 'identity-1', position_state_proof_id: 'proof-1', status: 'AVAILABLE', accounting_classification: 'VERIFIED_POSITION_ACCOUNTING', reason: null, scope: 'CANONICAL_LOCKED_POSITION', method: 'VERIFIED_LOCKED_POSITION_RECONSTRUCTION_V1', token_id: '1', position_manager: CONTRACT, stock_asset_id: 'asset-nvda', stock_symbol: 'NVDA', stock_contract: CONTRACT, stock_decimals: 0, mission_principal_raw: '0', mission_principal_units: '0', stock_principal_raw: '20', stock_principal_units: '20', stock_share_equivalent_units: '80', amount0_raw: '20', amount1_raw: '0', stock_total_supply_raw: '1000', stock_total_supply_units: '1000', stock_total_supply_share_equivalent_units: '4000', absorption_pct: '2', range_state: 'IN_RANGE', tick_lower: -10, tick_upper: 10, current_tick: 0, sqrt_price_x96: String(2n ** 96n), position_liquidity_raw: '10', core_position_liquidity_raw: '10', multiplier: '4', pending_multiplier: null, pending_multiplier_effective_at: null, observed_block: 100, observed_at: '2026-09-01T00:00:00.000Z', rpc_provider: 'test', evidence: [], methodology_version: 'rmm-v0.3.1', immutable: true, ...overrides }) as any;
 
 describe('Reflexive Radar maths and identity guards', () => {
   it('rejects a fake same-ticker contract while accepting the exact canonical deployment', () => {
@@ -61,5 +62,35 @@ describe('Reflexive Radar maths and identity guards', () => {
   it('keeps inventory share-card language scoped to Robinhood onchain token supply', () => {
     const card = renderReflexiveInventoryCardSvg({ mission_symbol: 'PEAR' } as any, { stock_symbol: 'AAPL', stock_principal_units: '18.33', absorption_pct: '0.1694', observed_block: 51_765_748 } as any);
     expect(card).toContain('ROBINHOOD ONCHAIN AAPL TOKEN SUPPLY'); expect(card).toContain('CANONICAL LOCKED POSITION');
+  });
+  it('encodes the PositionManager NFT id as the exact bytes32 core-position salt', () => {
+    expect(positionTokenIdSalt('948804')).toBe('0x00000000000000000000000000000000000000000000000000000000000e7a44');
+  });
+  it('requires an exact PositionManager/core liquidity match and fails closed otherwise', () => {
+    expect(reconcilePositionLiquidity('34040728973133066586329', '34040728973133066586329').match_status).toBe('POSITIONMANAGER_CORE_MATCH');
+    expect(reconcilePositionLiquidity(11n, 10n).match_status).toBe('POSITION_STATE_MISMATCH');
+    expect(reconcilePositionLiquidity(11n, null).match_status).toBe('CORE_POSITION_UNAVAILABLE');
+  });
+  it('aggregates only same-block verified positions for the same canonical Stock Token', () => {
+    const aggregate = aggregateTrackedPairInventory(asset(), [inventory(), inventory({ observation_id: 'ob-2', mission_pair_id: 'pair-2', token_id: '2', stock_principal_raw: '30', stock_principal_units: '30' })]);
+    expect(aggregate).toMatchObject({ status: 'ALIGNED', raw_stock_token_units: '50', tracked_pair_locked_absorption_pct: '5', position_count: 2, mission_pair_count: 2, aggregation_scope: 'TRACKED_PAIR_CANONICAL_LOCKED_POSITIONS' });
+  });
+  it('rejects mismatched blocks and duplicate token ids from a public category aggregate', () => {
+    const mismatch = aggregateTrackedPairInventory(asset(), [inventory(), inventory({ observation_id: 'ob-2', mission_pair_id: 'pair-2', token_id: '2', observed_block: 101 })]);
+    expect(mismatch.status).toBe('INCOMPLETE'); expect(mismatch.raw_stock_token_units).toBeNull(); expect(mismatch.excluded_observations.some((item) => item.reason === 'MISMATCHED_BLOCK')).toBe(true);
+    const duplicate = aggregateTrackedPairInventory(asset(), [inventory(), inventory({ observation_id: 'ob-older', observed_at: '2026-08-31T00:00:00.000Z' })]);
+    expect(duplicate).toMatchObject({ status: 'ALIGNED', position_count: 1 }); expect(duplicate.excluded_observations.some((item) => item.reason === 'DUPLICATE_TOKEN_ID')).toBe(true);
+  });
+  it('keeps inventory change neutral and includes range state rather than inferring demand', () => {
+    const delta = derivePositionInventoryDelta(inventory(), inventory({ observation_id: 'ob-2', stock_principal_raw: '15', stock_principal_units: '15', observed_at: '2026-09-01T00:05:00.000Z', range_state: 'ABOVE_RANGE' }));
+    expect(delta).toMatchObject({ delta_raw: '-5', delta_pct: '-25', label: 'POSITION INVENTORY CHANGED', previous_range_state: 'IN_RANGE', current_range_state: 'ABOVE_RANGE' });
+    expect(JSON.stringify(delta)).not.toContain('demand');
+  });
+  it('renders an immutable aligned stock-money share card with tracked scope', () => {
+    const aggregate = aggregateTrackedPairInventory(asset(), [inventory()]); const card = renderReflexiveStockMoneyCardSvg(aggregate);
+    expect(card).toContain('TRACKED CANONICAL LOCKED POSITIONS'); expect(card).toContain('ROBINHOOD ONCHAIN NVDA TOKEN SUPPLY');
+  });
+  it('keeps lifecycle accounting prospective when archive eth_call is unavailable', () => {
+    expect(archiveCapabilityStatus(false)).toBe('PROSPECTIVE_ONLY'); expect(archiveCapabilityStatus(true)).toBe('ARCHIVE_CAPABLE');
   });
 });
