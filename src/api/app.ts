@@ -86,6 +86,7 @@ import { assembleRhChainLaunchpadObservatory } from '../services/rhChainLaunchpa
 import { assembleRhChainScouts } from '../services/rhChainScoutsService';
 import { assembleRhChainDistributionPack } from '../services/rhChainDistributionPackService';
 import { assembleRhChainReceiptRelay } from '../services/rhChainReceiptRelayService';
+import { InMemoryReflexiveStore, PostgresReflexiveStore, ReflexiveRadarService, type ReflexiveProvider } from '../services/rhChainReflexiveRadarService';
 import { buildRhChainProjectReceiptShare } from '../services/rhChainShareService';
 import { queryRhChainScout, RH_CHAIN_SCOUT_MODES } from '../services/rhChainScoutService';
 import { isRhChainIdentityContract } from '../services/rhChainTruthGuards';
@@ -102,6 +103,7 @@ import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST, type NarrativeMetad
 import { renderAttentionMarketWatchOgImage, renderNarrativesOgImage, renderRevenueReceiptOgImage, renderRevenueReceiptsIndexOgImage, renderRhChainAttentionQualityOgImage, renderRhChainCrossLayerOgImage, renderRhChainMarketPulseOgImage, renderRhChainShareOgImage, renderSignalHuntOgImage, renderSignalReportOgImage, renderSignalUpdateOgImage, renderUnicornRadarIndexOgImage, renderUnicornRadarOgImage } from '../shared/narrativeOg';
 import { renderOgPng } from '../server/narrativeOgPng';
 import { parseRh4663ShareFormat, renderRh4663ShareSvg } from '../shared/rh4663Share';
+import { renderReflexiveBirthCardSvg } from '../shared/rhChainReflexiveShare';
 import { applyPayShCatalogIngestion } from '../ingestion/payShCatalogAdapter';
 import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, IntelligenceStore, runPayShIngestion, runPayShIngestionWithOptions } from '../services/intelligenceStore';
 import { IntelligenceRepository } from '../persistence/repository';
@@ -699,6 +701,16 @@ export async function createApp(
     : null;
   const repository = repositoryInput ?? defaultRepository(rhChainPostgresPool ?? undefined);
   const rhChainPostgresReadiness = rhChainPostgresPool ? new RhChainPostgresReadiness() : null;
+  // Reflexive observations are a separate evidence stream; this does not read or
+  // mutate any CALL, RESOLUTION, PRINT, Genesis, signature, or Merkle state.
+  const reflexiveProvider: ReflexiveProvider = {
+    async assets() {
+      const response = await fetch('https://api.robinhood.com/rhj/assets', { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(config.rhChainProviderTimeoutMs) });
+      if (!response.ok) throw new Error(`rhj_assets_http_${response.status}`);
+      return response.json();
+    }
+  };
+  const reflexiveRadar = new ReflexiveRadarService(rhChainPostgresPool ? new PostgresReflexiveStore(rhChainPostgresPool) : new InMemoryReflexiveStore(), reflexiveProvider);
   const rhChainExpectedTables = [
     'rh_chain_signal_submissions',
     'rh_chain_metrics_snapshots',
@@ -2838,6 +2850,24 @@ export async function createApp(
     if (req.query.since && !Number.isFinite(Date.parse(req.query.since))) return reply.code(400).send({ error: 'invalid_since' });
     return { data: safeJsonExport(await rh4663Intelligence.rotation(req.query.since ? new Date(req.query.since).toISOString() : undefined)) };
   });
+  // RMM observations are public evidence objects, never receipt protocol objects.
+  app.get('/v1/4663/reflexive', async () => ({ data: safeJsonExport(await reflexiveRadar.snapshot()) }));
+  app.get('/v1/4663/reflexive/pairs', async () => {
+    const state = await reflexiveRadar.snapshot(); return { data: safeJsonExport({ pairs: state.pairs, refreshed_at: state.refreshed_at, methodology_version: 'rmm-v0.1.0' }) };
+  });
+  app.get<{ Params: { id: string } }>('/v1/4663/reflexive/pairs/:id', async (req, reply) => {
+    const pair = await reflexiveRadar.pair(req.params.id); if (!pair) return reply.code(404).send({ error: 'reflexive_pair_not_found' });
+    const state = await reflexiveRadar.snapshot(); return { data: safeJsonExport({ pair, observations: state.observations.filter((item) => item.pair_id === pair.pair_id), events: state.events.filter((item) => item.subject_id === pair.pair_id) }) };
+  });
+  app.get<{ Params: { symbol: string } }>('/v1/4663/reflexive/stocks/:symbol', async (req, reply) => {
+    const stock = await reflexiveRadar.stock(req.params.symbol); if (!stock) return reply.code(404).send({ error: 'reflexive_stock_not_found' }); return { data: safeJsonExport(stock) };
+  });
+  app.get('/v1/4663/reflexive/events', async () => ({ data: safeJsonExport({ events: (await reflexiveRadar.snapshot()).events }) }));
+  app.get('/v1/4663/reflexive/thesis', async () => ({ data: safeJsonExport({ thesis: (await reflexiveRadar.snapshot()).thesis }) }));
+  app.post('/internal/4663/reflexive/refresh', async (req, reply) => {
+    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send({ error: 'review_admin_token_required' });
+    try { return { data: safeJsonExport(await reflexiveRadar.refresh()) }; } catch (error) { return reply.code(503).send({ error: error instanceof Error ? error.message : 'reflexive_refresh_failed' }); }
+  });
   app.post<{ Params: { signalId: string } }>('/internal/4663/signals/:signalId/transition', async (req, reply) => {
     if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send({ error: 'review_admin_token_required' });
     const actor = classificationReviewer(req.headers['x-rh-chain-reviewer-id']); if (!actor) return reply.code(400).send({ error: 'reviewer_id_required' });
@@ -3667,6 +3697,12 @@ export async function createApp(
   app.get<{ Params: { signalId: string }; Querystring: { format?: string } }>('/og/4663/signals/:signalId.png', async (req, reply) => {
     try { const format = parseRh4663ShareFormat(req.query.format); const signal = await rh4663Intelligence.publicSignal(req.params.signalId); if (!signal) return reply.code(404).send({ error: 'published_signal_not_found' }); reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800'); return reply.type('image/png').send(renderOgPng(renderRh4663ShareSvg(signal, format), format === 'landscape' ? 1200 : 1080)); }
     catch (error) { rh4663Intelligence.recordShareRenderFailed(req.params.signalId, error instanceof Rh4663ServiceError ? error.code : 'render_failed'); return rh4663Failure(reply, error); }
+  });
+  app.get<{ Params: { pairId: string }; Querystring: { format?: string } }>('/og/4663/reflexive/birth/:pairId.png', async (req, reply) => {
+    const pair = await reflexiveRadar.pair(req.params.pairId); if (!pair) return reply.code(404).send({ error: 'reflexive_pair_not_found' });
+    const snapshot = await reflexiveRadar.snapshot(); const ticker = snapshot.assets.find((asset) => asset.asset_id === pair.stock_asset_id)?.ticker; if (!ticker) return reply.code(404).send({ error: 'reflexive_quote_asset_not_found' });
+    const format = req.query.format === 'portrait' ? 'portrait' : 'landscape'; reply.header('cache-control', 'public, max-age=31536000, immutable');
+    return reply.type('image/png').send(renderOgPng(renderReflexiveBirthCardSvg(pair, ticker, format), format === 'landscape' ? 1200 : 1080));
   });
   app.get('/og/rh-chain/market.png', async (_req, reply) => {
     reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
