@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { InMemoryReflexiveStore, PairV5DiscoveryAdapter, ReflexiveRadarService, deriveUniswapV4PoolId, isCanonicalStockContract, missionAlpha, missionPerStockFromSqrtPrice, normalizePoolKey, normalizeShareEquivalent, quoteInventory, stockTokenBasis, type CanonicalStockAsset, type ReflexiveProvider } from '../src/services/rhChainReflexiveRadarService';
+import { InMemoryReflexiveStore, PairV5DiscoveryAdapter, ReflexiveRadarService, deriveUniswapV4PoolId, formatTokenUnits, isCanonicalStockContract, missionAlpha, missionPerStockFromSqrtPrice, normalizePoolKey, normalizeShareEquivalent, quoteInventory, reconstructPositionPrincipal, sqrtRatioAtTick, stockTokenBasis, type CanonicalStockAsset, type ReflexiveProvider } from '../src/services/rhChainReflexiveRadarService';
+import { renderReflexiveInventoryCardSvg } from '../src/shared/rhChainReflexiveShare';
 
 const CONTRACT = '0x1111111111111111111111111111111111111111';
 const MISSION = '0x2222222222222222222222222222222222222222';
@@ -26,7 +27,7 @@ describe('Reflexive Radar maths and identity guards', () => {
     expect(stockTokenBasis(30, 120, '4', '2026-09-01T00:00:00.000Z', '2026-09-01T00:04:01.000Z')).toBeNull();
   });
   it('discovers a canonical pair deterministically and rejects a ticker-only candidate', async () => {
-    const verified = { verification_status: 'VERIFIED' as const, failure_reasons: [], verified_at: '2026-09-01T00:00:00.000Z', verification_block: 10, observed_block: 7, confirmed_block: 10, launch_provenance_method: 'launchpad_registry_and_receipt' as const, launch_implementation_observed: null, pool_key: { currency0: CONTRACT, currency1: MISSION, fee: 10_000, tick_spacing: 200, hooks: CONTRACT }, state_view_address: CONTRACT, state_observed_block: 10, state_observed_at: '2026-09-01T00:00:00.000Z', rpc_provider: 'test', sqrt_price_x96: '1', tick: 0, active_liquidity: '1', position_verification_status: 'NOT_ATTEMPTED' as const };
+    const verified = { verification_status: 'VERIFIED' as const, failure_reasons: [], verified_at: '2026-09-01T00:00:00.000Z', verification_block: 10, observed_block: 7, confirmed_block: 10, launch_provenance_method: 'launchpad_registry_and_receipt' as const, launch_implementation_observed: null, pool_key: { currency0: CONTRACT, currency1: MISSION, fee: 10_000, tick_spacing: 200, hooks: CONTRACT }, state_view_address: CONTRACT, state_observed_block: 10, state_observed_at: '2026-09-01T00:00:00.000Z', rpc_provider: 'test', sqrt_price_x96: '1', tick: 0, active_liquidity: '1', position_token_id: null, position_verification_status: 'NOT_ATTEMPTED' as const };
     const provider: ReflexiveProvider = { assets: async () => ({ assets: [{ id: 'asset-nvda', tokenSymbol: 'NVDA', tokenName: 'NVIDIA', deployments: [{ chainId: 4663, contractAddress: CONTRACT }], currentMultiplier: '1', status: 'ASSET_STATUS_ACTIVE' }] }), discover: async () => [{ protocol: 'pair-v5', venue: 'PAIR', pool_id: 'pool-a', mission_contract: MISSION, mission_symbol: 'AI', quote_contract: CONTRACT, launched_at: '2026-09-01T00:00:00.000Z', evidence: [], onchain: verified }, { protocol: 'pair-v5', venue: 'PAIR', pool_id: 'pool-b', mission_contract: MISSION, mission_symbol: 'FAKE', quote_contract: '0x3333333333333333333333333333333333333333', launched_at: '2026-09-01T00:00:00.000Z', evidence: [], onchain: verified }] };
     const service = new ReflexiveRadarService(new InMemoryReflexiveStore(), provider, () => new Date('2026-09-01T01:00:00.000Z'));
     const snapshot = await service.refresh();
@@ -48,5 +49,17 @@ describe('Reflexive Radar maths and identity guards', () => {
     expect(missionPerStockFromSqrtPrice(q96 * 2n, true, 18, 18)).toBe('4');
     expect(missionPerStockFromSqrtPrice(q96 * 2n, false, 18, 18)).toBe('0.25');
     expect(missionPerStockFromSqrtPrice(q96, true, 6, 18)).toBe('1e-12');
+  });
+  it('reconstructs concentrated-liquidity principal with bigint arithmetic and range semantics', () => {
+    expect(sqrtRatioAtTick(0)).toBe(2n ** 96n); expect(sqrtRatioAtTick(-887272)).toBe(4295128739n);
+    const lower = sqrtRatioAtTick(-100); const upper = sqrtRatioAtTick(100); const below = reconstructPositionPrincipal(1_000_000n, -100, 100, lower - 1n); const inside = reconstructPositionPrincipal(1_000_000n, -100, 100, 2n ** 96n); const above = reconstructPositionPrincipal(1_000_000n, -100, 100, upper + 1n);
+    expect(below).toMatchObject({ amount1: 0n, range_state: 'BELOW_RANGE' }); expect(inside.amount0).toBeGreaterThan(0n); expect(inside.amount1).toBeGreaterThan(0n); expect(inside.range_state).toBe('IN_RANGE'); expect(above).toMatchObject({ amount0: 0n, range_state: 'ABOVE_RANGE' });
+  });
+  it('keeps raw amounts exact and never passes pool active liquidity into principal accounting', () => {
+    expect(formatTokenUnits(18333825370768304861n, 18)).toBe('18.333825370768304861'); expect(() => reconstructPositionPrincipal(0n, 10, 10, 2n ** 96n)).toThrow('invalid_position_state');
+  });
+  it('keeps inventory share-card language scoped to Robinhood onchain token supply', () => {
+    const card = renderReflexiveInventoryCardSvg({ mission_symbol: 'PEAR' } as any, { stock_symbol: 'AAPL', stock_principal_units: '18.33', absorption_pct: '0.1694', observed_block: 51_765_748 } as any);
+    expect(card).toContain('ROBINHOOD ONCHAIN AAPL TOKEN SUPPLY'); expect(card).toContain('CANONICAL LOCKED POSITION');
   });
 });

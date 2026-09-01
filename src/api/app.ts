@@ -103,7 +103,7 @@ import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST, type NarrativeMetad
 import { renderAttentionMarketWatchOgImage, renderNarrativesOgImage, renderRevenueReceiptOgImage, renderRevenueReceiptsIndexOgImage, renderRhChainAttentionQualityOgImage, renderRhChainCrossLayerOgImage, renderRhChainMarketPulseOgImage, renderRhChainShareOgImage, renderSignalHuntOgImage, renderSignalReportOgImage, renderSignalUpdateOgImage, renderUnicornRadarIndexOgImage, renderUnicornRadarOgImage } from '../shared/narrativeOg';
 import { renderOgPng } from '../server/narrativeOgPng';
 import { parseRh4663ShareFormat, renderRh4663ShareSvg } from '../shared/rh4663Share';
-import { renderReflexiveBirthCardSvg } from '../shared/rhChainReflexiveShare';
+import { renderReflexiveBirthCardSvg, renderReflexiveInventoryCardSvg } from '../shared/rhChainReflexiveShare';
 import { applyPayShCatalogIngestion } from '../ingestion/payShCatalogAdapter';
 import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, IntelligenceStore, runPayShIngestion, runPayShIngestionWithOptions } from '../services/intelligenceStore';
 import { IntelligenceRepository } from '../persistence/repository';
@@ -725,6 +725,12 @@ export async function createApp(
         observations.push({ observation_id: stableId('v4-observation', pair.pair_id, String(verification.state_observed_block)), pair_id: pair.pair_id, observed_at: verification.state_observed_at ?? now, fetched_at: now, observed_block: verification.state_observed_block, sqrt_price_x96: verification.sqrt_price_x96, tick: verification.tick, active_liquidity: verification.active_liquidity, mission_stock_price: null, multiplier_context: asset?.current_multiplier ?? null, mission_usd_price: null, stock_dex_usd_price: null, underlying_usd_price: null, underlying_observed_at: null, liquidity_usd: null, volume_24h_usd: null, quote_inventory_raw: null, quote_inventory_share_equivalent: null, inventory_method: 'unavailable' as const, fresh: true, provenance: pair.evidence, immutable: true as const });
       }
       return observations;
+    },
+    async inventory(pairs, assets) {
+      if (!reflexiveVerifier) return { identities: [], observations: [] };
+      const identities = []; const observations = [];
+      for (const pair of pairs) { const asset = assets.find((item) => item.asset_id === pair.stock_asset_id); if (!asset || pair.verification.verification_status !== 'VERIFIED') continue; const accounted = await reflexiveVerifier.observeLockedPosition(pair, asset); if (accounted.identity) identities.push(accounted.identity); observations.push(accounted.observation); }
+      return { identities, observations };
     }
   };
   const reflexiveRadar = new ReflexiveRadarService(rhChainPostgresPool ? new PostgresReflexiveStore(rhChainPostgresPool) : new InMemoryReflexiveStore(), reflexiveProvider);
@@ -2870,11 +2876,11 @@ export async function createApp(
   // RMM observations are public evidence objects, never receipt protocol objects.
   app.get('/v1/4663/reflexive', async () => ({ data: safeJsonExport(await reflexiveRadar.snapshot()) }));
   app.get('/v1/4663/reflexive/pairs', async () => {
-    const state = await reflexiveRadar.snapshot(); return { data: safeJsonExport({ pairs: state.pairs, refreshed_at: state.refreshed_at, methodology_version: 'rmm-v0.1.0' }) };
+    const state = await reflexiveRadar.snapshot(); return { data: safeJsonExport({ pairs: state.pairs, refreshed_at: state.refreshed_at, methodology_version: 'rmm-v0.3.0' }) };
   });
   app.get<{ Params: { id: string } }>('/v1/4663/reflexive/pairs/:id', async (req, reply) => {
     const pair = await reflexiveRadar.pair(req.params.id); if (!pair) return reply.code(404).send({ error: 'reflexive_pair_not_found' });
-    const state = await reflexiveRadar.snapshot(); return { data: safeJsonExport({ pair, birth: state.births.find((item) => item.mission_pair_id === pair.pair_id) ?? null, lifecycle: state.lifecycle.filter((item) => item.pair_id === pair.pair_id), observations: state.observations.filter((item) => item.pair_id === pair.pair_id), events: state.events.filter((item) => item.subject_id === pair.pair_id) }) };
+    const state = await reflexiveRadar.snapshot(); return { data: safeJsonExport({ pair, birth: state.births.find((item) => item.mission_pair_id === pair.pair_id) ?? null, lifecycle: state.lifecycle.filter((item) => item.pair_id === pair.pair_id), observations: state.observations.filter((item) => item.pair_id === pair.pair_id), position_identities: state.position_identities.filter((item) => item.mission_pair_id === pair.pair_id), inventory: state.inventory_observations.filter((item) => item.mission_pair_id === pair.pair_id).at(-1) ?? { status: 'UNAVAILABLE', reason: 'POSITION_UNRESOLVED' }, events: state.events.filter((item) => item.subject_id === pair.pair_id) }) };
   });
   app.get<{ Params: { symbol: string } }>('/v1/4663/reflexive/stocks/:symbol', async (req, reply) => {
     const stock = await reflexiveRadar.stock(req.params.symbol); if (!stock) return reply.code(404).send({ error: 'reflexive_stock_not_found' }); return { data: safeJsonExport(stock) };
@@ -3721,6 +3727,11 @@ export async function createApp(
     const snapshot = await reflexiveRadar.snapshot(); const ticker = snapshot.assets.find((asset) => asset.asset_id === pair.stock_asset_id)?.ticker; if (!ticker) return reply.code(404).send({ error: 'reflexive_quote_asset_not_found' });
     const format = req.query.format === 'portrait' ? 'portrait' : 'landscape'; reply.header('cache-control', 'public, max-age=31536000, immutable');
     return reply.type('image/png').send(renderOgPng(renderReflexiveBirthCardSvg(pair, ticker, format), format === 'landscape' ? 1200 : 1080));
+  });
+  app.get<{ Params: { observationId: string }; Querystring: { format?: string } }>('/og/4663/reflexive/inventory/:observationId.png', async (req, reply) => {
+    const snapshot = await reflexiveRadar.snapshot(); const inventory = snapshot.inventory_observations.find((item) => item.observation_id === req.params.observationId); if (!inventory) return reply.code(404).send({ error: 'reflexive_inventory_observation_not_found' });
+    if (inventory.status !== 'AVAILABLE') return reply.code(409).send({ error: 'reflexive_inventory_unavailable', reason: inventory.reason }); const pair = snapshot.pairs.find((item) => item.pair_id === inventory.mission_pair_id); if (!pair) return reply.code(404).send({ error: 'reflexive_pair_not_found' });
+    const format = req.query.format === 'portrait' ? 'portrait' : 'landscape'; reply.header('cache-control', 'public, max-age=31536000, immutable'); return reply.type('image/png').send(renderOgPng(renderReflexiveInventoryCardSvg(pair, inventory, format), format === 'landscape' ? 1200 : 1080));
   });
   app.get('/og/rh-chain/market.png', async (_req, reply) => {
     reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
