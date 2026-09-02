@@ -90,6 +90,7 @@ import { InMemoryReflexiveStore, PairV5DiscoveryAdapter, PairV5OnchainVerifier, 
 import { LongDopplerVerifier, StockTokenSupplyIndexer } from '../services/rhChainCrossVenueAuditService';
 import { CANONICAL_UNISWAP_V4_POOL_MANAGER_4663, classifyPltrRelationship, pltrBasis, recoverV4PoolKeyFromInitialize, v4PriceFromSqrtPriceX96, verifyPltrV4Market } from '../services/rhChainPltrPreflightService';
 import { InMemoryIpxPltrSimulationStore, IpxPltrPreflightSimulatorService, IpxPltrSimulationError, PLTR_PREFLIGHT_DEMO_FIXTURE, PLTR_PREFLIGHT_DEMO_OBSERVATION_ID, PostgresIpxPltrSimulationStore, type IpxPltrSimulationStore } from '../services/ipxPltrPreflightSimulatorService';
+import { InMemoryIpxPltrShadowLabStore, IpxPltrShadowLabService, PostgresIpxPltrShadowLabStore, type IpxPltrShadowLabStore } from '../services/ipxPltrShadowLabService';
 import { quoteMarketFromRaw } from '../services/rhChainQuotePersistenceService';
 import { buildRhChainProjectReceiptShare } from '../services/rhChainShareService';
 import { queryRhChainScout, RH_CHAIN_SCOUT_MODES } from '../services/rhChainScoutService';
@@ -664,6 +665,7 @@ export type CreateAppOptions = {
   rh4663PrintStore?: Rh4663PrintStore;
   rh4663UtcDayObservationStore?: Rh4663UtcDayObservationStore;
   ipxPltrSimulationStore?: IpxPltrSimulationStore;
+  ipxPltrShadowLabStore?: IpxPltrShadowLabStore;
   ipxPltrSnapshotResolver?: (observationId: string) => Promise<import('../services/rhChainPltrPreflightService').PltrPreflightState | null>;
 };
 
@@ -784,13 +786,15 @@ export async function createApp(
   };
   const reflexiveRadar = new ReflexiveRadarService(rhChainPostgresPool ? new PostgresReflexiveStore(rhChainPostgresPool) : new InMemoryReflexiveStore(), reflexiveProvider);
   const ipxPltrSimulationStore = options.ipxPltrSimulationStore ?? (rhChainPostgresPool ? new PostgresIpxPltrSimulationStore(rhChainPostgresPool) : new InMemoryIpxPltrSimulationStore());
-  const ipxPltrSimulator = new IpxPltrPreflightSimulatorService(options.ipxPltrSnapshotResolver ?? (async (observationId) => {
+  const ipxPltrSnapshotResolver = options.ipxPltrSnapshotResolver ?? (async (observationId) => {
     const persisted = await reflexiveRadar.pltrPreflight(observationId);
     if (persisted) return persisted;
     // The canonical v0.4.5 fixture is available only as an exact-id development
     // fixture. Production never falls back and there is intentionally no latest alias.
     return !config.isProduction && observationId === PLTR_PREFLIGHT_DEMO_OBSERVATION_ID ? structuredClone(PLTR_PREFLIGHT_DEMO_FIXTURE) : null;
-  }), ipxPltrSimulationStore);
+  });
+  const ipxPltrSimulator = new IpxPltrPreflightSimulatorService(ipxPltrSnapshotResolver, ipxPltrSimulationStore);
+  const ipxPltrShadowLab = new IpxPltrShadowLabService(ipxPltrSnapshotResolver, ipxPltrSimulationStore, options.ipxPltrShadowLabStore ?? (rhChainPostgresPool ? new PostgresIpxPltrShadowLabStore(rhChainPostgresPool) : new InMemoryIpxPltrShadowLabStore()));
   const rhChainExpectedTables = [
     'rh_chain_signal_submissions',
     'rh_chain_metrics_snapshots',
@@ -2956,6 +2960,19 @@ export async function createApp(
   app.get<{ Params: { id: string } }>('/v1/4663/reflexive/preflight/ipx-pltr/simulations/:id', async (req, reply) => {
     const record = await ipxPltrSimulator.get(req.params.id); return record ? { data: safeJsonExport(record) } : reply.code(404).send({ error: 'SIMULATION_NOT_FOUND' });
   });
+  app.get('/v1/4663/reflexive/preflight/ipx-pltr/shadow/candidates', async () => ({ data: safeJsonExport(await ipxPltrShadowLab.candidates()) }));
+  app.post('/v1/4663/reflexive/preflight/ipx-pltr/shadow/replay', async (req, reply) => {
+    try { const body = (req.body ?? {}) as { state_snapshot_id?: string }; return reply.code(201).send({ data: safeJsonExport(await ipxPltrShadowLab.replay(body.state_snapshot_id ?? '')) }); }
+    catch (error) { if (!(error instanceof IpxPltrSimulationError)) return reply.code(500).send({ error: 'SHADOW_REPLAY_FAILED' }); return reply.code(error.code === 'STATE_SNAPSHOT_NOT_FOUND' ? 404 : 400).send({ error: error.code, detail: error.message }); }
+  });
+  app.get<{ Params: { configuration_hash: string } }>('/v1/4663/reflexive/preflight/ipx-pltr/shadow/series/:configuration_hash', async (req, reply) => {
+    const candidates = await ipxPltrShadowLab.candidates(); if (!candidates.some((candidate) => candidate.configuration_hash === req.params.configuration_hash)) return reply.code(404).send({ error: 'SHADOW_CANDIDATE_NOT_FOUND' }); return { data: safeJsonExport({ configuration_hash: req.params.configuration_hash, series: await ipxPltrShadowLab.series(req.params.configuration_hash), transitions: await ipxPltrShadowLab.transitions(req.params.configuration_hash), summary: await ipxPltrShadowLab.summary(req.params.configuration_hash) }) };
+  });
+  app.post('/v1/4663/reflexive/preflight/ipx-pltr/capacity-sweeps', async (req, reply) => {
+    try { const body = (req.body ?? {}) as { state_snapshot_id?: string; candidate_id?: 'CANDIDATE_NATIVE_V1' | 'CANDIDATE_ANCHOR_V1' | 'CANDIDATE_RESERVE_ANCHOR_V1' }; if (!body.state_snapshot_id) throw new IpxPltrSimulationError('EXPLICIT_SNAPSHOT_REQUIRED'); return reply.code(201).send({ data: safeJsonExport(await ipxPltrShadowLab.capacitySweep(body.state_snapshot_id, body.candidate_id) ) }); }
+    catch (error) { if (!(error instanceof IpxPltrSimulationError)) return reply.code(500).send({ error: 'CAPACITY_SWEEP_FAILED' }); return reply.code(error.code === 'STATE_SNAPSHOT_NOT_FOUND' ? 404 : 400).send({ error: error.code, detail: error.message }); }
+  });
+  app.get<{ Params: { id: string } }>('/v1/4663/reflexive/preflight/ipx-pltr/capacity-sweeps/:id', async (req, reply) => { const record = await ipxPltrShadowLab.getSweep(req.params.id); return record ? { data: safeJsonExport(record) } : reply.code(404).send({ error: 'CAPACITY_SWEEP_NOT_FOUND' }); });
   app.get('/v1/4663/reflexive/events', async () => ({ data: safeJsonExport({ events: (await reflexiveRadar.snapshot()).events }) }));
   app.get('/v1/4663/reflexive/thesis', async () => ({ data: safeJsonExport({ thesis: (await reflexiveRadar.snapshot()).thesis }) }));
   app.get('/v1/4663/reflexive/audits/long-ai-nvda', async (_req, reply) => {

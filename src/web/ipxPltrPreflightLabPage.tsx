@@ -1,5 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import './ipxPltrPreflightLab.css';
+import './ipxPltrShadowLab.css';
 
 type Architecture = 'PLTR_NATIVE' | 'PLTR_ANCHOR' | 'PLTR_RESERVE_ANCHOR';
 type FormState = { snapshot: string; architecture: Architecture; price: string; pltrLp: string; ipxLp: string; reserve: string; totalSupply: string; circulatingSupply: string; tickLower: string; tickUpper: string; fee: string; tickSpacing: string; usdg: boolean; weth: boolean; pltrCapital: string; usdgCapital: string; wethCapital: string };
@@ -31,8 +32,9 @@ function configuration(form: FormState) {
 }
 
 export function IpxPltrPreflightLabPage() {
-  const [form, setForm] = useState(initial); const [result, setResult] = useState<Simulation | null>(null); const [error, setError] = useState<string | null>(null); const [pending, setPending] = useState(false);
+  const [form, setForm] = useState(initial); const [result, setResult] = useState<Simulation | null>(null); const [error, setError] = useState<string | null>(null); const [pending, setPending] = useState(false); const [candidates, setCandidates] = useState<any[]>([]);
   const payload = useMemo(() => configuration(form), [form]);
+  useEffect(() => { let active = true; fetch('/v1/4663/reflexive/preflight/ipx-pltr/shadow/candidates').then((response) => response.ok ? response.json() : null).then((body) => { if (active && Array.isArray(body?.data)) setCandidates(body.data); }).catch(() => undefined); return () => { active = false; }; }, []);
   const update = (key: keyof FormState, value: string | boolean) => setForm((current) => ({ ...current, [key]: value }));
   const simulate = async (event: React.FormEvent) => { event.preventDefault(); setPending(true); setError(null); try { const response = await fetch('/v1/4663/reflexive/preflight/ipx-pltr/simulate', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ state_snapshot_id: form.snapshot, hypothetical_configuration: payload }) }); const body = await response.json(); if (!response.ok || !body.data) throw new Error(body.detail ?? body.error ?? 'SIMULATION_FAILED'); setResult(body.data); } catch (cause) { setResult(null); setError(cause instanceof Error ? cause.message : 'SIMULATION_FAILED'); } finally { setPending(false); } };
   const footprint = result?.result?.first_party_pltr_footprint; const verdict = result?.result?.draft_simulation_verdict; const maxImpact = result ? Math.max(...[...result.result.trade_impact.buys, ...result.result.trade_impact.sells].map((trade: any) => Math.abs(Number(trade.price_impact_pct)))) : null;
@@ -52,6 +54,12 @@ export function IpxPltrPreflightLabPage() {
           </div><details><summary>EXECUTION TOPOLOGY</summary><div className="ipx-topology"><label><input type="checkbox" checked={form.usdg} onChange={(event) => update('usdg', event.target.checked)} /> USDG EXECUTION MARKET</label><label><input type="checkbox" checked={form.weth} onChange={(event) => update('weth', event.target.checked)} /> WETH EXECUTION MARKET</label><LabInput label="PLTR CAPITAL %" value={form.pltrCapital} onChange={(value) => update('pltrCapital', value)} /><LabInput label="USDG CAPITAL %" value={form.usdgCapital} onChange={(value) => update('usdgCapital', value)} /><LabInput label="WETH CAPITAL %" value={form.wethCapital} onChange={(value) => update('wethCapital', value)} /></div></details></fieldset>
           <button className="ipx-simulate" disabled={pending}>{pending ? 'SIMULATING FROZEN WORLD…' : 'SIMULATE'}<span aria-hidden="true">→</span></button>
         </form>{error && <div role="alert" className="ipx-lab-error"><b>SIMULATION REJECTED</b><span>{error}</span></div>}
+      </section>
+      <section className="ipx-shadow-lab" aria-label="Shadow Lab">
+        <header><span>IPX / PLTR PREFLIGHT LAB v0.5.1</span><h2>SHADOW LAB</h2><p>Pinned designs replay unchanged against explicit READY PLTR states. Research only—no best launch, no allocation recommendation.</p></header>
+        <div className="ipx-shadow-grid">{(['CANDIDATE_NATIVE_V1', 'CANDIDATE_ANCHOR_V1', 'CANDIDATE_RESERVE_ANCHOR_V1'] as const).map((candidate) => { const record = candidates.find((item) => item.candidate_id === candidate); return <article key={candidate}><small>{candidate.replace('CANDIDATE_', '').replace('_V1', '').replaceAll('_', ' ')}</small><b>{record?.architecture?.replaceAll('_', ' ') ?? 'PINNED SHADOW CANDIDATE'}</b><span>VERDICT: SHADOW WINDOW INSUFFICIENT</span><span>N SNAPSHOTS: 0+</span><code>{record?.configuration_hash ?? 'HASH LOADING…'}</code><em>CONCENTRATION · USABLE MODELED CAPACITY · BASIS · SESSION · IMPACT STATE</em></article>; })}</div>
+        <div className="ipx-shadow-frontier"><div><span>RESEARCH ONLY</span><h3>CONCENTRATION /<br />CAPACITY FRONTIER</h3><p>More PLTR can model more IPX/PLTR support while increasing first-party concentration. The lab does not select an “optimal” point.</p></div><div className="ipx-frontier-axis"><i>MODELED USABLE MARKET CAPACITY ↑</i><b>•</b><b>•</b><b>•</b><small>FIRST-PARTY PLTR CONCENTRATION →</small></div></div>
+        <div className="ipx-shadow-timeline"><span>PLTR STATE</span><b>→</b><span>SIMULATION</span><b>→</b><span>DRAFT VERDICT</span><b>→</b><span>NEXT PLTR STATE</span><p>Timeline records associated supply, basis, session and market-structure changes. It does not assert causation.</p></div>
       </section>
       {result && <section className="ipx-results" aria-live="polite">
         <div className="ipx-result-head"><div><span>DETERMINISTIC RECORD</span><h2>{result.configuration.architecture.replaceAll('_', ' ')}</h2></div><code>{result.simulation_id}</code></div>
