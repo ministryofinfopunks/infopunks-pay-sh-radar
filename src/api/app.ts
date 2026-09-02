@@ -87,7 +87,8 @@ import { assembleRhChainScouts } from '../services/rhChainScoutsService';
 import { assembleRhChainDistributionPack } from '../services/rhChainDistributionPackService';
 import { assembleRhChainReceiptRelay } from '../services/rhChainReceiptRelayService';
 import { InMemoryReflexiveStore, PairV5DiscoveryAdapter, PairV5OnchainVerifier, PostgresReflexiveStore, ReflexiveRadarService, stableId, type ReflexiveProvider } from '../services/rhChainReflexiveRadarService';
-import { LongDopplerVerifier } from '../services/rhChainCrossVenueAuditService';
+import { LongDopplerVerifier, StockTokenSupplyIndexer } from '../services/rhChainCrossVenueAuditService';
+import { quoteMarketFromRaw } from '../services/rhChainQuotePersistenceService';
 import { buildRhChainProjectReceiptShare } from '../services/rhChainShareService';
 import { queryRhChainScout, RH_CHAIN_SCOUT_MODES } from '../services/rhChainScoutService';
 import { isRhChainIdentityContract } from '../services/rhChainTruthGuards';
@@ -104,7 +105,7 @@ import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST, type NarrativeMetad
 import { renderAttentionMarketWatchOgImage, renderNarrativesOgImage, renderRevenueReceiptOgImage, renderRevenueReceiptsIndexOgImage, renderRhChainAttentionQualityOgImage, renderRhChainCrossLayerOgImage, renderRhChainMarketPulseOgImage, renderRhChainShareOgImage, renderSignalHuntOgImage, renderSignalReportOgImage, renderSignalUpdateOgImage, renderUnicornRadarIndexOgImage, renderUnicornRadarOgImage } from '../shared/narrativeOg';
 import { renderOgPng } from '../server/narrativeOgPng';
 import { parseRh4663ShareFormat, renderRh4663ShareSvg } from '../shared/rh4663Share';
-import { renderReflexiveBirthCardSvg, renderReflexiveInventoryCardSvg, renderReflexiveStockMoneyCardSvg } from '../shared/rhChainReflexiveShare';
+import { renderCapitalVsFlowCardSvg, renderMissionFootprintCardSvg, renderReflexiveBirthCardSvg, renderReflexiveInventoryCardSvg, renderReflexiveStockMoneyCardSvg } from '../shared/rhChainReflexiveShare';
 import { applyPayShCatalogIngestion } from '../ingestion/payShCatalogAdapter';
 import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, IntelligenceStore, runPayShIngestion, runPayShIngestionWithOptions } from '../services/intelligenceStore';
 import { IntelligenceRepository } from '../persistence/repository';
@@ -707,6 +708,7 @@ export async function createApp(
   const reflexiveRpcUrl = config.rhChainRpcUrl ?? (!config.isProduction ? 'https://rpc.mainnet.chain.robinhood.com' : null);
   const reflexiveVerifier = reflexiveRpcUrl ? new PairV5OnchainVerifier({ rpcUrl: reflexiveRpcUrl, providerName: config.rhChainRpcUrl ? 'configured_rh_chain_rpc' : 'robinhood_public_rpc_development_fallback' }) : null;
   const longDopplerVerifier = reflexiveRpcUrl ? new LongDopplerVerifier({ rpcUrl: reflexiveRpcUrl, providerName: config.rhChainRpcUrl ? 'configured_rh_chain_rpc' : 'robinhood_public_rpc_development_fallback' }) : null;
+  const stockSupplyIndexer = reflexiveRpcUrl ? new StockTokenSupplyIndexer({ rpcUrl: reflexiveRpcUrl, providerName: config.rhChainRpcUrl ? 'configured_rh_chain_rpc' : 'robinhood_public_rpc_development_fallback' }) : null;
   const reflexiveProvider: ReflexiveProvider = {
     async assets() {
       const response = await fetch('https://api.robinhood.com/rhj/assets', { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(config.rhChainProviderTimeoutMs) });
@@ -735,7 +737,22 @@ export async function createApp(
       const referenceBlock = await reflexiveVerifier.currentBlock(); const identities = []; const proofs = []; const observations = [];
       for (const pair of pairs) { const asset = assets.find((item) => item.asset_id === pair.stock_asset_id); if (!asset || pair.verification.verification_status !== 'VERIFIED') continue; const accounted = await reflexiveVerifier.observeLockedPosition(pair, asset, referenceBlock); if (accounted.identity) identities.push(accounted.identity); if (accounted.proof) proofs.push(accounted.proof); observations.push(accounted.observation); }
       return { identities, proofs, observations };
-    }
+    },
+    async supplyEvents(assets, prior) {
+      const nvda = assets.find((asset) => asset.ticker === 'NVDA'); return nvda && stockSupplyIndexer ? stockSupplyIndexer.scan(nvda, prior) : [];
+    },
+    async quoteMarkets(missionContract) {
+      // Exact-contract taxonomy, pinned here until a first-party quote registry exists.
+      let records; try { records = await rhChainMarketProvider.getTokenPairs(missionContract); } catch { return []; }
+      return records.flatMap((record) => {
+        const mission = missionContract.toLowerCase(); const base = record.baseToken?.address?.toLowerCase(); const quote = (record.quoteTokenAddress ?? record.quoteToken?.address)?.toLowerCase(); if (!base || !quote || !record.pairAddress) return [];
+        const quoteContract = base === mission ? quote : quote === mission ? base : null; if (!quoteContract) return [];
+        const quoteSymbol = base === mission ? (record.quoteTokenSymbol ?? record.quoteToken?.symbol ?? null) : (record.baseToken?.symbol ?? null);
+        const transactions = record.txns.h24.buys === null || record.txns.h24.sells === null ? null : record.txns.h24.buys + record.txns.h24.sells;
+        return [quoteMarketFromRaw({ pool_id: record.pairAddress, protocol: record.dexId ?? 'unknown_amm', dex: record.dexId, mission_contract: mission, mission_symbol: 'AI', base_contract: base, quote_contract: quoteContract, quote_symbol: quoteSymbol, liquidity_usd: record.liquidityUsd, volume_24h_usd: record.volume.h24, transaction_count: transactions, observed_at: record.providerTimestamp ?? record.capturedAt, source_url: record.sourceUrl, freshness: record.freshness ?? 'unavailable' }, { canonical_stock_contracts: ['0xd0601ce157db5bdc3162bbac2a2c8af5320d9eec'], weth_contracts: ['0x0bd7d308f8e1639fab988df18a8011f41eacad73', '0x0000000000000000000000000000000000000000'], stablecoin_contracts: ['0x5fc5360d0400a0fd4f2af552add042d716f1d168'], mission_contracts: [mission], derivative_equity_contracts: [] })];
+      });
+    },
+    async longAudit(asset) { return longDopplerVerifier ? longDopplerVerifier.observeAiNvda(asset) : null; }
   };
   const reflexiveRadar = new ReflexiveRadarService(rhChainPostgresPool ? new PostgresReflexiveStore(rhChainPostgresPool) : new InMemoryReflexiveStore(), reflexiveProvider);
   const rhChainExpectedTables = [
@@ -2893,7 +2910,9 @@ export async function createApp(
   app.get('/v1/4663/reflexive/thesis', async () => ({ data: safeJsonExport({ thesis: (await reflexiveRadar.snapshot()).thesis }) }));
   app.get('/v1/4663/reflexive/audits/long-ai-nvda', async (_req, reply) => {
     if (!longDopplerVerifier) return reply.code(503).send({ error: 'long_audit_rpc_unavailable' }); const snapshot = await reflexiveRadar.snapshot(); const nvda = snapshot.assets.find((asset) => asset.ticker === 'NVDA'); if (!nvda) return reply.code(409).send({ error: 'long_audit_canonical_registry_not_refreshed' });
-    return { data: safeJsonExport(await longDopplerVerifier.observeAiNvda(nvda)) };
+    // The direct audit remains the authoritative onchain read. v0.4.2 appends
+    // durable market-context and longitudinal evidence without changing that scope.
+    return { data: safeJsonExport({ ...await longDopplerVerifier.observeAiNvda(nvda), ...await reflexiveRadar.aiNvdaAudit() }) };
   });
   app.post('/internal/4663/reflexive/refresh', async (req, reply) => {
     if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send({ error: 'review_admin_token_required' });
@@ -3745,6 +3764,12 @@ export async function createApp(
     const snapshot = await reflexiveRadar.snapshot(); const aggregate = snapshot.inventory_aggregates.find((item) => item.aggregate_observation_id === req.params.observationId);
     if (!aggregate) return reply.code(404).send({ error: 'reflexive_stock_money_observation_not_found' }); if (aggregate.status !== 'ALIGNED') return reply.code(409).send({ error: 'reflexive_stock_money_incomplete' });
     const format = req.query.format === 'portrait' ? 'portrait' : 'landscape'; reply.header('cache-control', 'public, max-age=31536000, immutable'); return reply.type('image/png').send(renderOgPng(renderReflexiveStockMoneyCardSvg(aggregate, format), format === 'landscape' ? 1200 : 1080));
+  });
+  app.get<{ Params: { observationId: string }; Querystring: { format?: string } }>('/og/4663/reflexive/capital-flow/:observationId.png', async (req, reply) => {
+    const observation = (await reflexiveRadar.snapshot()).quote_persistence.find((item) => item.observation_id === req.params.observationId); if (!observation) return reply.code(404).send({ error: 'capital_flow_observation_not_found' }); if (observation.source_alignment !== 'ALIGNED') return reply.code(409).send({ error: 'capital_flow_observation_unaligned' }); const format = req.query.format === 'portrait' ? 'portrait' : 'landscape'; reply.header('cache-control', 'public, max-age=31536000, immutable'); return reply.type('image/png').send(renderOgPng(renderCapitalVsFlowCardSvg(observation, format), format === 'landscape' ? 1200 : 1080));
+  });
+  app.get<{ Params: { footprintId: string }; Querystring: { format?: string } }>('/og/4663/reflexive/footprint/:footprintId.png', async (req, reply) => {
+    const footprint = (await reflexiveRadar.snapshot()).mission_stock_footprints.find((item) => item.footprint_id === req.params.footprintId); if (!footprint) return reply.code(404).send({ error: 'mission_stock_footprint_not_found' }); if (footprint.combined_units === null) return reply.code(409).send({ error: 'mission_stock_footprint_unavailable' }); const format = req.query.format === 'portrait' ? 'portrait' : 'landscape'; reply.header('cache-control', 'public, max-age=31536000, immutable'); return reply.type('image/png').send(renderOgPng(renderMissionFootprintCardSvg(footprint, format), format === 'landscape' ? 1200 : 1080));
   });
   app.get('/og/rh-chain/market.png', async (_req, reply) => {
     reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');

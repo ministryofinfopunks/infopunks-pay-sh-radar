@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { InMemoryReflexiveStore, PairV5DiscoveryAdapter, ReflexiveRadarService, aggregateTrackedPairInventory, archiveCapabilityStatus, derivePositionInventoryDelta, deriveUniswapV4PoolId, formatTokenUnits, isCanonicalStockContract, missionAlpha, missionPerStockFromSqrtPrice, normalizePoolKey, normalizeShareEquivalent, positionTokenIdSalt, quoteInventory, reconcilePositionLiquidity, reconstructPositionPrincipal, sqrtRatioAtTick, stockTokenBasis, type CanonicalStockAsset, type ReflexiveProvider } from '../src/services/rhChainReflexiveRadarService';
-import { renderReflexiveInventoryCardSvg, renderReflexiveStockMoneyCardSvg } from '../src/shared/rhChainReflexiveShare';
+import { renderCapitalVsFlowCardSvg, renderMissionFootprintCardSvg, renderReflexiveInventoryCardSvg, renderReflexiveStockMoneyCardSvg } from '../src/shared/rhChainReflexiveShare';
+import { classifyQuoteContract, quoteMarketFromRaw, quotePersistence, quoteRegime, resolveQuoteLifecycle } from '../src/services/rhChainQuotePersistenceService';
+import { missionFootprintMultiple, missionStockFootprint, reconcileSupplyDelta, unavailableAiVault, verifyCommunityVaultCandidate } from '../src/services/rhChainReflexiveRadarService';
 
 const CONTRACT = '0x1111111111111111111111111111111111111111';
 const MISSION = '0x2222222222222222222222222222222222222222';
@@ -92,5 +94,33 @@ describe('Reflexive Radar maths and identity guards', () => {
   });
   it('keeps lifecycle accounting prospective when archive eth_call is unavailable', () => {
     expect(archiveCapabilityStatus(false)).toBe('PROSPECTIVE_ONLY'); expect(archiveCapabilityStatus(true)).toBe('ARCHIVE_CAPABLE');
+  });
+  it('classifies quote families with exact addresses, not ticker strings', () => {
+    const taxonomy = { canonical_stock_contracts: [CONTRACT], weth_contracts: ['0x4444444444444444444444444444444444444444'], stablecoin_contracts: ['0x5555555555555555555555555555555555555555'], mission_contracts: [MISSION], derivative_equity_contracts: ['0x6666666666666666666666666666666666666666'] };
+    expect(classifyQuoteContract(CONTRACT, taxonomy)).toBe('CANONICAL_STOCK_TOKEN'); expect(classifyQuoteContract('0x4444444444444444444444444444444444444444', taxonomy)).toBe('WETH'); expect(classifyQuoteContract('0x5555555555555555555555555555555555555555', taxonomy)).toBe('STABLECOIN'); expect(classifyQuoteContract(MISSION, taxonomy)).toBe('MISSION_TOKEN'); expect(classifyQuoteContract('0x6666666666666666666666666666666666666666', taxonomy)).toBe('DERIVATIVE_EQUITY_TOKEN'); expect(classifyQuoteContract('0x7777777777777777777777777777777777777777', taxonomy)).toBe('OTHER_CRYPTO');
+  });
+  it('deduplicates by deterministic pool identity and excludes dust without deleting discovery', () => {
+    const raw = (pool: string, quote: string, liquidity: number | null, volume: number | null) => quoteMarketFromRaw({ pool_id: pool, protocol: 'v4', dex: 'uniswap', mission_contract: MISSION, mission_symbol: 'AI', base_contract: MISSION, quote_contract: quote, quote_symbol: 'Q', liquidity_usd: liquidity, volume_24h_usd: volume, transaction_count: 3, observed_at: '2026-09-01T00:00:00.000Z', source_url: null, freshness: 'fresh' }, { canonical_stock_contracts: [CONTRACT], weth_contracts: ['0x4444444444444444444444444444444444444444'], stablecoin_contracts: [] });
+    const dust = raw('0xabc', CONTRACT, 100, 100); expect(dust.eligible).toBe(false); expect(dust.exclusion_reasons).toContain('INSUFFICIENT_LIQUIDITY'); const first = raw('0xdef', CONTRACT, 20_000, 50_000); const duplicate = raw('0xdef', CONTRACT, 20_000, 50_000); expect(first.pool_identity).toBe(duplicate.pool_identity);
+  });
+  it('requires aligned rolling windows before calculating capital-versus-flow shares', () => {
+    const raw = (pool: string, quote: string, liquidity: number, volume: number, observedAt = '2026-09-01T00:00:00.000Z') => quoteMarketFromRaw({ pool_id: pool, protocol: 'v4', dex: 'uniswap', mission_contract: MISSION, mission_symbol: 'AI', base_contract: MISSION, quote_contract: quote, quote_symbol: 'Q', liquidity_usd: liquidity, volume_24h_usd: volume, transaction_count: 3, observed_at: observedAt, source_url: null, freshness: 'fresh' }, { canonical_stock_contracts: [CONTRACT], weth_contracts: ['0x4444444444444444444444444444444444444444'], stablecoin_contracts: [] });
+    const aligned = quotePersistence([raw('0x1', CONTRACT, 80_000, 20_000), raw('0x2', '0x4444444444444444444444444444444444444444', 20_000, 80_000)])!; expect(aligned.stock_quote_liquidity_share).toBe(.8); expect(aligned.stock_quote_volume_share).toBe(.2); expect(aligned.capital_flow_divergence).toBeCloseTo(.6); expect(aligned.quote_regime).toBe('STOCK_CAPITAL_ANCHOR_FLOW_MIGRATED');
+    const mismatch = quotePersistence([raw('0x3', CONTRACT, 80_000, 20_000), raw('0x4', '0x4444444444444444444444444444444444444444', 20_000, 80_000, '2026-09-01T00:10:00.000Z')])!; expect(mismatch.source_alignment).toBe('UNAVAILABLE'); expect(mismatch.stock_quote_volume_share).toBeNull();
+  });
+  it('uses deterministic regime boundaries and prospective quote lifecycle checkpoints', () => {
+    expect(quoteRegime(.6, .4)).toBe('STOCK_CAPITAL_ANCHOR_FLOW_MIGRATED'); expect(quoteRegime(.59, .59)).toBe('BALANCED_QUOTE_ECONOMY'); expect(quoteRegime(null, .8)).toBe('INSUFFICIENT_DATA'); const lifecycle = resolveQuoteLifecycle('2026-09-01T00:00:00.000Z', MISSION, [], [], '2026-09-02T00:00:00.000Z'); expect(lifecycle.find((item) => item.checkpoint === 'D1')?.state).toBe('PROSPECTIVE_ONLY'); expect(lifecycle.find((item) => item.checkpoint === 'D3')?.state).toBe('PENDING');
+  });
+  it('keeps an unresolved community vault out of the verified mission footprint', () => {
+    const vault = unavailableAiVault(asset(), '2026-09-01T00:00:00.000Z'); const audit = { inventory_status: 'AVAILABLE', stock_principal_raw: '200', stock_principal_units: '200', stock_total_supply_raw: '1000', stock_total_supply_units: '1000', observed_block: 100 } as any; const footprint = missionStockFootprint(audit, vault, asset()); expect(vault.status).toBe('UNAVAILABLE'); expect(verifyCommunityVaultCandidate('0x3333333333333333333333333333333333333333', CONTRACT)).toBe('UNAVAILABLE'); expect(footprint).toMatchObject({ status: 'PARTIAL', lp_launch_position_raw: '200', vault_raw: null, combined_raw: '200', scoped_footprint_pct: '20', external_liquidity_included: 'NO' }); expect(JSON.stringify(footprint)).not.toContain('backing');
+  });
+  it('renders immutable cards with source scope and without backing language', () => {
+    const quote = { observation_id: 'quote-1', mission_symbol: 'AI', stock_quote_liquidity_share: .8, stock_quote_volume_share: .2, quote_regime: 'STOCK_CAPITAL_ANCHOR_FLOW_MIGRATED', methodology_version: 'rmm-v0.4.2-quote-persistence-v1', observed_at: '2026-09-01T00:00:00.000Z' } as any; const capital = renderCapitalVsFlowCardSvg(quote); expect(capital).toContain('NVDA HOLDS THE CAPITAL.'); expect(capital).toContain('PROVIDER-INDEXED ROLLING 24H'); const footprint = renderMissionFootprintCardSvg({ combined_units: '200', lp_launch_position_units: '200', vault_units: null, scoped_footprint_pct: '20', external_liquidity_included: 'NO', observation_block: 100 } as any); expect(footprint).toContain('NOT BACKING'); expect(footprint.toLowerCase()).not.toContain('backed');
+  });
+  it('reconciles canonical mint/burn candidates to observed totalSupply change without causal language', () => {
+    const history = [{ observed_block: 10, stock_total_supply_raw: '100', observed_at: '2026-09-01T00:00:00.000Z' }, { observed_block: 20, stock_total_supply_raw: '130', observed_at: '2026-09-01T01:00:00.000Z' }] as any; const event = { event_id: 'mint', asset_id: 'asset-nvda', event_type: 'mint', raw_token_amount: '30', block: 15 } as any; const result = reconcileSupplyDelta(history, [event], 'asset-nvda'); expect(result).toMatchObject({ status: 'RECONCILED', observed_total_supply_delta_raw: '30', scanned_mint_burn_net_raw: '30' }); expect(JSON.stringify(result)).not.toContain('caused');
+  });
+  it('prepares a footprint multiple only with synchronized descriptive inputs', () => {
+    expect(missionFootprintMultiple(1_000_000, 100_000, '2026-09-01T00:00:00.000Z', '2026-09-01T00:01:00.000Z')).toBe(10); expect(missionFootprintMultiple(1_000_000, 100_000, '2026-09-01T00:00:00.000Z', '2026-09-01T00:04:01.000Z')).toBeNull();
   });
 });

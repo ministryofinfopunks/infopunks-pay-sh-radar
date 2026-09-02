@@ -1,5 +1,5 @@
 import { normalizeBlockscoutAddress } from '../providers/blockscoutProvider';
-import { REFLEXIVE_CHAIN_ID, formatTokenUnits, reconstructPositionPrincipal, stateViewAbi, type CanonicalStockAsset, type Evidence } from './rhChainReflexiveRadarService';
+import { REFLEXIVE_CHAIN_ID, formatTokenUnits, reconstructPositionPrincipal, stateViewAbi, type CanonicalStockAsset, type Evidence, type StockSupplyEvent } from './rhChainReflexiveRadarService';
 
 /** v0.4 deliberately separates a venue's identity proof from its inventory proof. */
 export type MissionMarketVenue = 'PAIR' | 'LONG';
@@ -67,6 +67,19 @@ const erc20ReadAbi = [
   { type: 'function', name: 'decimals', stateMutability: 'view', inputs: [], outputs: [{ type: 'uint8' }] },
   { type: 'function', name: 'totalSupply', stateMutability: 'view', inputs: [], outputs: [{ type: 'uint256' }] }
 ] as const;
+const transferTopic = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
+const zeroTopic = `0x${'0'.repeat(64)}`;
+
+/** Read-only canonical Transfer scanner. A mint/burn candidate is never attributed to a mission. */
+export class StockTokenSupplyIndexer {
+  private readonly client: Promise<any>;
+  constructor(private readonly options: { rpcUrl: string; providerName: string; maxLookbackBlocks?: number }) { this.client = import('viem').then(({ createPublicClient, defineChain, http }) => createPublicClient({ chain: defineChain({ id: REFLEXIVE_CHAIN_ID, name: 'Robinhood Chain', nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 }, rpcUrls: { default: { http: [options.rpcUrl] } } }), transport: http(options.rpcUrl, { timeout: 12_000, retryCount: 1 }) })); }
+  async scan(asset: CanonicalStockAsset, prior: StockSupplyEvent[]): Promise<StockSupplyEvent[]> {
+    try { const client = await this.client; const latest = await client.getBlockNumber(); const priorBlocks = prior.filter((event) => event.asset_id === asset.asset_id && event.block !== null).map((event) => BigInt(event.block!)); const fromBlock = priorBlocks.length ? (priorBlocks.reduce((a, b) => a > b ? a : b) + 1n) : (latest > BigInt(this.options.maxLookbackBlocks ?? 100_000) ? latest - BigInt(this.options.maxLookbackBlocks ?? 100_000) : 0n); const logs = await client.getLogs({ address: asset.canonical_contract as `0x${string}`, event: { type: 'event', name: 'Transfer', inputs: [{ indexed: true, name: 'from', type: 'address' }, { indexed: true, name: 'to', type: 'address' }, { indexed: false, name: 'value', type: 'uint256' }] }, fromBlock, toBlock: latest }); const blocks = new Map<string, any>(); const getBlock = async (block: bigint) => { const key = String(block); if (!blocks.has(key)) blocks.set(key, await client.getBlock({ blockNumber: block })); return blocks.get(key); };
+      return (await Promise.all(logs.flatMap(async (log: any) => { const from = String(log.args?.from ?? '').toLowerCase(); const to = String(log.args?.to ?? '').toLowerCase(); const type = from === '0x0000000000000000000000000000000000000000' ? 'mint' : to === '0x0000000000000000000000000000000000000000' ? 'burn' : null; if (!type) return []; const block = await getBlock(log.blockNumber); const timestamp = new Date(Number(block.timestamp) * 1000).toISOString(); const amount = String(log.args?.value); return [{ event_id: `${asset.asset_id}|${type}|${log.transactionHash}|${log.logIndex}`, asset_id: asset.asset_id, event_type: type, raw_token_amount: amount, share_equivalent_amount: null, block: Number(log.blockNumber), tx_hash: log.transactionHash, timestamp, before_supply_raw: null, after_supply_raw: null, provenance: { source: 'Canonical ERC-20 Transfer log', href: `https://robinhoodchain.blockscout.com/tx/${log.transactionHash}`, observed_at: timestamp, fetched_at: new Date().toISOString(), note: `${type} candidate: Transfer ${type === 'mint' ? 'from' : 'to'} zero address. Historical totalSupply was not assumed available.`, quality: 'onchain' as const } } satisfies StockSupplyEvent]; }))).flat();
+    } catch { return []; }
+  }
+}
 
 const airlockReadAbi = [
   { type: 'function', name: 'getAssetData', stateMutability: 'view', inputs: [{ type: 'address' }], outputs: [{ type: 'tuple', components: [
