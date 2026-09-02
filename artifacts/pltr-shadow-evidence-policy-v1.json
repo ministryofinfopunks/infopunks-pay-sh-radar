@@ -1,0 +1,31 @@
+{
+  "record_type": "SHADOW_EVIDENCE_POLICY_FREEZE",
+  "policy_id": "SHADOW_EVIDENCE_POLICY_V1",
+  "frozen_at": "2026-09-02T14:00:00.000Z",
+  "purpose": "Threshold for saying enough shadow evidence exists to analyze persistence; not final launch policy.",
+  "evidence_window": {
+    "version": "IPX_PLTR_SHADOW_EVIDENCE_WINDOW_V1",
+    "minimum_calendar_window_days": 7,
+    "target_calendar_window_days": [
+      7,
+      14
+    ],
+    "minimum_ready_snapshots": 7,
+    "required_snapshot_freshness": "READY_FOR_SIMULATION_IMMUTABLE_EXPLICIT_OBSERVATION",
+    "allowed_missed_observations": "NATURALLY_MISSED_OBSERVATIONS_ALLOWED_BUT_NOT_COUNTED_AS_READY_SNAPSHOTS",
+    "minimum_session_diversity": "RECORDED_IF_NATURALLY_OBSERVED_NOT_REQUIRED_FOR_THRESHOLD",
+    "grants_launch_authorization": false
+  },
+  "candidate_hashes": {
+    "CANDIDATE_ANCHOR_V1": "sha256:76110f1968645a4e16b5f3143ae8d557e58abdfba0138d78c8b691c502881f10",
+    "CANDIDATE_NATIVE_V1": "sha256:b1cda6abe5ddf48bbed092f14c3df21a188fb6d405101d1914932506a6fd7505",
+    "CANDIDATE_RESERVE_ANCHOR_V1": "sha256:13bc3fd34095c6391a0ddb0bf5858b8a2f7cf0840161003341013dbb33bca212"
+  },
+  "simulator_version": "ipx-pltr-preflight-simulator-v0.5.0",
+  "draft_policy_version": "DRAFT_IPX_PLTR_PREFLIGHT_POLICY_V0",
+  "shadow_lab_version": "ipx-pltr-shadow-preflight-v0.5.1",
+  "immutable": true,
+  "no_launch_authorization": true,
+  "not_an_optimizer": true,
+  "policy_hash": "sha256:c7a67c48217864f2ec273e250608eba652b042ec5e6a660efce1e367c2aa9ccd"
+}
