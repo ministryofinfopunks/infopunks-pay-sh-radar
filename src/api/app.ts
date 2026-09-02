@@ -89,6 +89,7 @@ import { assembleRhChainReceiptRelay } from '../services/rhChainReceiptRelayServ
 import { InMemoryReflexiveStore, PairV5DiscoveryAdapter, PairV5OnchainVerifier, PostgresReflexiveStore, ReflexiveRadarService, stableId, type ReflexiveProvider } from '../services/rhChainReflexiveRadarService';
 import { LongDopplerVerifier, StockTokenSupplyIndexer } from '../services/rhChainCrossVenueAuditService';
 import { CANONICAL_UNISWAP_V4_POOL_MANAGER_4663, classifyPltrRelationship, pltrBasis, recoverV4PoolKeyFromInitialize, v4PriceFromSqrtPriceX96, verifyPltrV4Market } from '../services/rhChainPltrPreflightService';
+import { InMemoryIpxPltrSimulationStore, IpxPltrPreflightSimulatorService, IpxPltrSimulationError, PLTR_PREFLIGHT_DEMO_FIXTURE, PLTR_PREFLIGHT_DEMO_OBSERVATION_ID, PostgresIpxPltrSimulationStore, type IpxPltrSimulationStore } from '../services/ipxPltrPreflightSimulatorService';
 import { quoteMarketFromRaw } from '../services/rhChainQuotePersistenceService';
 import { buildRhChainProjectReceiptShare } from '../services/rhChainShareService';
 import { queryRhChainScout, RH_CHAIN_SCOUT_MODES } from '../services/rhChainScoutService';
@@ -662,6 +663,8 @@ export type CreateAppOptions = {
   rh4663IntelligenceStore?: Rh4663IntelligenceStore;
   rh4663PrintStore?: Rh4663PrintStore;
   rh4663UtcDayObservationStore?: Rh4663UtcDayObservationStore;
+  ipxPltrSimulationStore?: IpxPltrSimulationStore;
+  ipxPltrSnapshotResolver?: (observationId: string) => Promise<import('../services/rhChainPltrPreflightService').PltrPreflightState | null>;
 };
 
 const RH_CHAIN_LIVE_TOKEN_ROUTE_RESERVE_MS = 1_000;
@@ -780,6 +783,14 @@ export async function createApp(
     async longAudit(asset) { return longDopplerVerifier ? longDopplerVerifier.observeAiNvda(asset) : null; }
   };
   const reflexiveRadar = new ReflexiveRadarService(rhChainPostgresPool ? new PostgresReflexiveStore(rhChainPostgresPool) : new InMemoryReflexiveStore(), reflexiveProvider);
+  const ipxPltrSimulationStore = options.ipxPltrSimulationStore ?? (rhChainPostgresPool ? new PostgresIpxPltrSimulationStore(rhChainPostgresPool) : new InMemoryIpxPltrSimulationStore());
+  const ipxPltrSimulator = new IpxPltrPreflightSimulatorService(options.ipxPltrSnapshotResolver ?? (async (observationId) => {
+    const persisted = await reflexiveRadar.pltrPreflight(observationId);
+    if (persisted) return persisted;
+    // The canonical v0.4.5 fixture is available only as an exact-id development
+    // fixture. Production never falls back and there is intentionally no latest alias.
+    return !config.isProduction && observationId === PLTR_PREFLIGHT_DEMO_OBSERVATION_ID ? structuredClone(PLTR_PREFLIGHT_DEMO_FIXTURE) : null;
+  }), ipxPltrSimulationStore);
   const rhChainExpectedTables = [
     'rh_chain_signal_submissions',
     'rh_chain_metrics_snapshots',
@@ -2933,6 +2944,17 @@ export async function createApp(
   });
   app.get<{ Querystring: { observation_id?: string } }>('/v1/4663/reflexive/stocks/PLTR/preflight', async (req, reply) => {
     const state = await reflexiveRadar.pltrPreflight(req.query.observation_id); if (!state) return reply.code(req.query.observation_id ? 404 : 409).send({ error: req.query.observation_id ? 'pltr_preflight_observation_not_found' : 'pltr_canonical_registry_not_refreshed' }); return { data: safeJsonExport(state) };
+  });
+  app.post('/v1/4663/reflexive/preflight/ipx-pltr/simulate', async (req, reply) => {
+    try { const body = (req.body ?? {}) as Record<string, unknown>; const record = Array.isArray(body.hypothetical_configurations) ? await ipxPltrSimulator.compare(body as Parameters<IpxPltrPreflightSimulatorService['compare']>[0]) : await ipxPltrSimulator.simulate(body as Parameters<IpxPltrPreflightSimulatorService['simulate']>[0]); return reply.code(201).send({ data: safeJsonExport(record) }); }
+    catch (error) {
+      if (!(error instanceof IpxPltrSimulationError)) return reply.code(500).send({ error: 'SIMULATION_FAILED' });
+      const status = error.code === 'STATE_SNAPSHOT_NOT_FOUND' ? 404 : error.code === 'SIMULATION_RECORD_CONFLICT' ? 409 : 400;
+      return reply.code(status).send({ error: error.code, detail: error.message });
+    }
+  });
+  app.get<{ Params: { id: string } }>('/v1/4663/reflexive/preflight/ipx-pltr/simulations/:id', async (req, reply) => {
+    const record = await ipxPltrSimulator.get(req.params.id); return record ? { data: safeJsonExport(record) } : reply.code(404).send({ error: 'SIMULATION_NOT_FOUND' });
   });
   app.get('/v1/4663/reflexive/events', async () => ({ data: safeJsonExport({ events: (await reflexiveRadar.snapshot()).events }) }));
   app.get('/v1/4663/reflexive/thesis', async () => ({ data: safeJsonExport({ thesis: (await reflexiveRadar.snapshot()).thesis }) }));
