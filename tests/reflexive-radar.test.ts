@@ -3,6 +3,7 @@ import { InMemoryReflexiveStore, PairV5DiscoveryAdapter, ReflexiveRadarService, 
 import { renderCapitalVsFlowCardSvg, renderMissionFootprintCardSvg, renderReflexiveInventoryCardSvg, renderReflexiveStockMoneyCardSvg } from '../src/shared/rhChainReflexiveShare';
 import { classifyQuoteContract, quoteMarketFromRaw, quotePersistence, quoteRegime, resolveQuoteLifecycle } from '../src/services/rhChainQuotePersistenceService';
 import { missionFootprintMultiple, missionStockFootprint, reconcileSupplyDelta, unavailableAiVault, verifyCommunityVaultCandidate } from '../src/services/rhChainReflexiveRadarService';
+import { buildPltrPreflightState, classifyPltrRelationship, PLTR_CONCENTRATION_SCENARIO_BANDS, proposedFirstPartyPltrFootprintSchema } from '../src/services/rhChainPltrPreflightService';
 
 const CONTRACT = '0x1111111111111111111111111111111111111111';
 const MISSION = '0x2222222222222222222222222222222222222222';
@@ -122,5 +123,15 @@ describe('Reflexive Radar maths and identity guards', () => {
   });
   it('prepares a footprint multiple only with synchronized descriptive inputs', () => {
     expect(missionFootprintMultiple(1_000_000, 100_000, '2026-09-01T00:00:00.000Z', '2026-09-01T00:01:00.000Z')).toBe(10); expect(missionFootprintMultiple(1_000_000, 100_000, '2026-09-01T00:00:00.000Z', '2026-09-01T00:04:01.000Z')).toBeNull();
+  });
+  it('classifies PLTR topology only when direction and exact contracts support it', () => {
+    expect(classifyPltrRelationship({ pltr_contract: CONTRACT, base_contract: MISSION, quote_contract: CONTRACT, mission_provenance_verified: true })).toBe('MISSION_QUOTE');
+    expect(classifyPltrRelationship({ pltr_contract: CONTRACT, base_contract: CONTRACT, quote_contract: '0x4444444444444444444444444444444444444444', base_is_canonical_stock: true })).toBe('STOCK_STOCK');
+    expect(classifyPltrRelationship({ pltr_contract: CONTRACT, base_contract: CONTRACT, quote_contract: '0x5555555555555555555555555555555555555555' })).toBe('DIRECT_PRICE_DISCOVERY');
+  });
+  it('constructs a scoped PLTR_PREFLIGHT_STATE and never invents first-party values', () => {
+    const pltr = { ...asset(), asset_id: 'asset-pltr', ticker: 'PLTR', canonical_contract: CONTRACT, current_multiplier: '1' }; const pair = { pair_id: 'pair-pltr', stock_asset_id: 'asset-pltr', canonicality: 'verified', verification: { verification_status: 'VERIFIED' }, mission_symbol: 'MISSION', venue: 'PAIR', pool_id: 'pool', } as any;
+    const state = buildPltrPreflightState({ asset: pltr, supply: { total_supply_raw: '1000', total_supply_units: '1000', share_equivalent_supply: '1000', observed_block: 100, observed_at: '2026-09-01T00:00:00.000Z', source: 'test', freshness: 'fresh' }, pairs: [pair], inventory: [inventory({ mission_pair_id: 'pair-pltr', stock_asset_id: 'asset-pltr', stock_symbol: 'PLTR', observed_block: 100, stock_principal_raw: '200', stock_principal_units: '200', stock_decimals: 0 })], events: [], markets: [{ relationship: 'DIRECT_PRICE_DISCOVERY', freshness: 'fresh', pool_id: 'direct', pool_address: null, venue: 'V4', dex_version: 'V4', base_contract: CONTRACT, quote_contract: '0x4444444444444444444444444444444444444444', base_symbol: 'PLTR', quote_symbol: 'USDG', quote_direction_verified: false, verification_state: 'DISCOVERED_UNVERIFIED', liquidity_usd: 10, volume_24h_usd: 20, transaction_count: 1, observed_at: '2026-09-01T00:00:00.000Z', source: 'test', pool_state: null, depth_primitive: null }], basis: { value: 0, dex_source: 'test', reference_source: 'test', dex_observed_at: '2026-09-01T00:00:00.000Z', reference_observed_at: '2026-09-01T00:00:00.000Z', status: 'AVAILABLE' }, now: new Date('2026-09-01T01:00:00.000Z') })!;
+    expect(state).toMatchObject({ state_type: 'PLTR_PREFLIGHT_STATE', tracked_mission_inventory: { absorption_pct: '20' }, inventory_coverage: { unclassified_raw: '800' }, readiness: { status: 'READY_FOR_SIMULATION' } }); expect(state.first_party_footprint.values_populated).toBe(false); expect(PLTR_CONCENTRATION_SCENARIO_BANDS).toEqual([1, 3, 5, 10, 15, 25]); expect(proposedFirstPartyPltrFootprintSchema().denominator).toBe('CANONICAL_PLTR_TOTAL_SUPPLY_SAME_BLOCK');
   });
 });

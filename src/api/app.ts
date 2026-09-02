@@ -88,6 +88,7 @@ import { assembleRhChainDistributionPack } from '../services/rhChainDistribution
 import { assembleRhChainReceiptRelay } from '../services/rhChainReceiptRelayService';
 import { InMemoryReflexiveStore, PairV5DiscoveryAdapter, PairV5OnchainVerifier, PostgresReflexiveStore, ReflexiveRadarService, stableId, type ReflexiveProvider } from '../services/rhChainReflexiveRadarService';
 import { LongDopplerVerifier, StockTokenSupplyIndexer } from '../services/rhChainCrossVenueAuditService';
+import { classifyPltrRelationship } from '../services/rhChainPltrPreflightService';
 import { quoteMarketFromRaw } from '../services/rhChainQuotePersistenceService';
 import { buildRhChainProjectReceiptShare } from '../services/rhChainShareService';
 import { queryRhChainScout, RH_CHAIN_SCOUT_MODES } from '../services/rhChainScoutService';
@@ -739,7 +740,24 @@ export async function createApp(
       return { identities, proofs, observations };
     },
     async supplyEvents(assets, prior) {
-      const nvda = assets.find((asset) => asset.ticker === 'NVDA'); return nvda && stockSupplyIndexer ? stockSupplyIndexer.scan(nvda, prior) : [];
+      const nvda = assets.find((asset) => asset.ticker === 'NVDA'); const pltr = assets.find((asset) => asset.ticker === 'PLTR');
+      const selected = [nvda, pltr].filter((asset): asset is NonNullable<typeof asset> => Boolean(asset));
+      return stockSupplyIndexer ? (await Promise.all(selected.map((asset) => stockSupplyIndexer.scan(asset, prior)))).flat() : [];
+    },
+    async canonicalSupply(asset) {
+      const observed = stockSupplyIndexer ? await stockSupplyIndexer.observeSupply(asset) : null;
+      return observed ? { ...observed, share_equivalent_supply: observed.total_supply_units } : null;
+    },
+    async pltrMarkets(asset, assets) {
+      let records; try { records = await rhChainMarketProvider.getTokenPairs(asset.canonical_contract); } catch { return []; }
+      const canonical = new Set(assets.map((item) => item.canonical_contract));
+      return records.flatMap((record) => {
+        const base = record.baseToken?.address?.toLowerCase(); const quote = (record.quoteTokenAddress ?? record.quoteToken?.address)?.toLowerCase(); if (!base || !quote || !record.pairAddress || (base !== asset.canonical_contract && quote !== asset.canonical_contract)) return [];
+        const matchingPair = false; // Provider listings are discovery context; launch provenance is not inferred.
+        const relationship = classifyPltrRelationship({ pltr_contract: asset.canonical_contract, base_contract: base, quote_contract: quote, base_is_canonical_stock: canonical.has(base), quote_is_canonical_stock: canonical.has(quote), mission_provenance_verified: matchingPair });
+        const transactions = record.txns.h24.buys === null || record.txns.h24.sells === null ? null : record.txns.h24.buys + record.txns.h24.sells;
+        return [{ pool_id: record.pairAddress.toLowerCase(), pool_address: record.pairAddress.toLowerCase(), venue: record.dexId ?? 'unknown_amm', dex_version: null, base_contract: base, quote_contract: quote, base_symbol: record.baseToken?.symbol ?? null, quote_symbol: record.quoteTokenSymbol ?? record.quoteToken?.symbol ?? null, relationship, quote_direction_verified: false, verification_state: 'DISCOVERED_UNVERIFIED' as const, liquidity_usd: record.liquidityUsd, volume_24h_usd: record.volume.h24, transaction_count: transactions, observed_at: record.providerTimestamp ?? record.capturedAt, source: 'DexScreener token-pairs discovery context', freshness: record.freshness ?? 'unavailable', pool_state: null, depth_primitive: null }];
+      });
     },
     async quoteMarkets(missionContract) {
       // Exact-contract taxonomy, pinned here until a first-party quote registry exists.
@@ -2905,6 +2923,9 @@ export async function createApp(
   });
   app.get<{ Params: { symbol: string } }>('/v1/4663/reflexive/stocks/:symbol', async (req, reply) => {
     const stock = await reflexiveRadar.stock(req.params.symbol); if (!stock) return reply.code(404).send({ error: 'reflexive_stock_not_found' }); return { data: safeJsonExport(stock) };
+  });
+  app.get('/v1/4663/reflexive/stocks/PLTR/preflight', async (_req, reply) => {
+    const state = await reflexiveRadar.pltrPreflight(); if (!state) return reply.code(409).send({ error: 'pltr_canonical_registry_not_refreshed' }); return { data: safeJsonExport(state) };
   });
   app.get('/v1/4663/reflexive/events', async () => ({ data: safeJsonExport({ events: (await reflexiveRadar.snapshot()).events }) }));
   app.get('/v1/4663/reflexive/thesis', async () => ({ data: safeJsonExport({ thesis: (await reflexiveRadar.snapshot()).thesis }) }));
