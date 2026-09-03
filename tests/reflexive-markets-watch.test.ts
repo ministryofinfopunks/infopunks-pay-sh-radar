@@ -15,6 +15,8 @@ import {
 } from '../src/services/rhChainReflexiveWatchService';
 
 const now = '2026-09-03T00:00:00.000Z';
+const AI = '0x2e8c31162b855a2ffa90f6f8634643ad6f111e18';
+const NVDA = '0xd0601ce157db5bdc3162bbac2a2c8af5320d9eec';
 const claimInput = (overrides: Partial<ReflexiveWatchClaimInput> = {}): ReflexiveWatchClaimInput => ({
   captured_at: now,
   source_type: 'THIRD_PARTY_RESEARCH',
@@ -37,10 +39,21 @@ const claimInput = (overrides: Partial<ReflexiveWatchClaimInput> = {}): Reflexiv
   ...overrides
 });
 
-async function watched(snapshot?: Partial<ReflexiveSnapshot>) {
+async function watched(snapshot?: Partial<ReflexiveSnapshot>, at = now) {
   const store = new InMemoryReflexiveStore();
   if (snapshot) await store.save({ ...await store.load(), ...snapshot });
-  return new ReflexiveMarketsWatchService(() => store.load(), new InMemoryReflexiveWatchStore(), () => new Date(now));
+  return new ReflexiveMarketsWatchService(() => store.load(), new InMemoryReflexiveWatchStore(), () => new Date(at));
+}
+
+const raw = (units: number) => String(BigInt(units) * 10n ** 18n);
+const nvdaAsset = { asset_id: 'asset-nvda', ticker: 'NVDA', name: 'NVIDIA', chain_id: 4663, canonical_contract: NVDA, status: 'ASSET_STATUS_ACTIVE', current_multiplier: '1', pending_multiplier: null, pending_multiplier_effective_at: null, trading_capabilities: null, logo: null, observed_at: now, fetched_at: now, provenance: 'test', first_party_asset: false } as const;
+function longAudit(units: number, supply: number, observedAt: string, block: number) {
+  return { market_id: 'long-ai-nvda', inventory_status: 'AVAILABLE', stock_principal_raw: raw(units), stock_principal_units: String(units), stock_total_supply_raw: raw(supply), stock_total_supply_units: String(supply), scoped_absorption_pct: String(units / supply * 100), observed_block: block, observed_at: observedAt, positions: [{ stock_principal_raw: raw(Math.floor(units / 2)), range_state: 'IN_RANGE', core_status: 'CORE_POSITION_OBSERVED', launch_state: 'UNCHANGED_SINCE_LAUNCH' }, { stock_principal_raw: raw(units - Math.floor(units / 2)), range_state: 'IN_RANGE', core_status: 'CORE_POSITION_OBSERVED', launch_state: 'UNCHANGED_SINCE_LAUNCH' }] } as any;
+}
+function quote(id: string, observedAt: string, stockLiquidity: number, stockVolume: number, wethLiquidity: number, wethVolume: number) {
+  const stockMarket = { market_id: `stock-${id}`, mission_contract: AI, quote_class: 'CANONICAL_STOCK_TOKEN', liquidity_usd: stockLiquidity, volume_usd: stockVolume } as any;
+  const wethMarket = { market_id: `weth-${id}`, mission_contract: AI, quote_class: 'WETH', liquidity_usd: wethLiquidity, volume_usd: wethVolume } as any;
+  return { markets: [stockMarket, wethMarket], observation: { observation_id: `quote-${id}`, mission_contract: AI, mission_symbol: 'AI', observed_at: observedAt, window: 'ROLLING_24H', eligible_market_ids: [stockMarket.market_id, wethMarket.market_id], excluded_market_ids: [], stock_quote_market_ids: [stockMarket.market_id], stock_quote_volume_usd: stockVolume, total_eligible_volume_usd: stockVolume + wethVolume, stock_quote_volume_share: stockVolume / (stockVolume + wethVolume), stock_quote_liquidity_usd: stockLiquidity, total_eligible_liquidity_usd: stockLiquidity + wethLiquidity, stock_quote_liquidity_share: stockLiquidity / (stockLiquidity + wethLiquidity), capital_flow_divergence: stockLiquidity / (stockLiquidity + wethLiquidity) - stockVolume / (stockVolume + wethVolume), quote_regime: 'STOCK_CAPITAL_ANCHOR_FLOW_MIGRATED', source_alignment: 'ALIGNED', methodology_version: 'rmm-v0.4.2-quote-persistence-v1', immutable: true } as any };
 }
 
 describe('Reflexive Markets Watch v0.1', () => {
@@ -104,6 +117,43 @@ describe('Reflexive Markets Watch v0.1', () => {
     expect(ai?.activation_dimensions.CAPITAL_PERSISTENCE).toBe('SUPPORTING_EVIDENCE');
     expect(ai?.activation_dimensions.FLOW_PERSISTENCE).toBe('MIXED');
     expect(ai?.current_evidence_state).toBe('MIXED');
+  });
+
+  it('precommits the AI/NVDA D7 re-audit before the checkpoint exists', async () => {
+    const service = await watched({ assets: [nvdaAsset], long_inventory_history: [longAudit(8782, 57300, '2026-09-01T00:00:00.000Z', 100)] });
+    const audit = (await service.case('AI_NVDA_CAPITAL_VS_FLOW'))?.research_observations[0];
+    expect(audit).toMatchObject({ object_type: 'AI_NVDA_D7_RE_AUDIT', status: 'PENDING', target_at: '2026-09-08T00:00:00.000Z', h2b_verdict: 'OBSERVING', h2b_policy: { policy_version: 'H2B_D7_PRECOMMIT_V1', frozen_before_d7_fetch: true } });
+    expect(audit?.baseline?.verified_long_launch_position_nvda).toBe('8782');
+    expect(audit?.d7).toBeNull();
+  });
+
+  it('moves H2B toward support when D7 principal retention survives multi-rail flow', async () => {
+    const baseQuote = quote('base', '2026-09-01T00:00:00.000Z', 80_000, 20_000, 20_000, 80_000);
+    const d7Quote = quote('d7', '2026-09-08T00:00:00.000Z', 70_000, 20_000, 30_000, 80_000);
+    const service = await watched({ assets: [nvdaAsset], long_inventory_history: [longAudit(8782, 57300, '2026-09-01T00:00:00.000Z', 100), longAudit(8500, 90000, '2026-09-08T00:00:00.000Z', 200)], quote_markets: [...baseQuote.markets, ...d7Quote.markets], quote_persistence: [baseQuote.observation, d7Quote.observation], vault_observations: [], supply_events: [{ event_id: 'mint-1', asset_id: 'asset-nvda', event_type: 'mint', raw_token_amount: raw(32700), share_equivalent_amount: null, block: 150, tx_hash: '0xmint', timestamp: '2026-09-04T00:00:00.000Z', before_supply_raw: null, after_supply_raw: null, provenance: { source: 'test', href: '', observed_at: '2026-09-04T00:00:00.000Z', fetched_at: '2026-09-04T00:00:00.000Z', note: 'test', quality: 'onchain' } }] as any }, '2026-09-09T00:00:00.000Z');
+    const ai = await service.case('AI_NVDA_CAPITAL_VS_FLOW');
+    const audit = ai?.research_observations[0];
+    expect(audit?.status).toBe('OBSERVED');
+    expect(Number(audit?.change.nvda_principal_retention_pct)).toBeCloseTo(96.7889, 4);
+    expect(audit?.h2b_verdict).toBe('SUPPORTING_EVIDENCE');
+    expect(audit?.capital_regime).toBe('STOCK_CAPITAL_PERSISTS');
+    expect(audit?.flow_regime).toBe('MULTIRAIL_FLOW');
+    expect(audit?.capital_vs_flow_regime).toBe('STOCK_CAPITAL_MULTIRAIL_FLOW');
+    expect(audit?.d7?.position_range_liquidity_state).toHaveLength(2);
+    expect(audit?.d7?.vault_status).toBe('UNAVAILABLE');
+    expect(audit?.change.mint_burn_events).toHaveLength(1);
+    expect(ai?.current_evidence_state).toBe('PARTIALLY_VERIFIED');
+  });
+
+  it('emits falsifying evidence when D7 principal unwinds and stock quote context decays', async () => {
+    const baseQuote = quote('base', '2026-09-01T00:00:00.000Z', 80_000, 20_000, 20_000, 80_000);
+    const d7Quote = quote('d7', '2026-09-08T00:00:00.000Z', 20_000, 20_000, 80_000, 80_000);
+    const service = await watched({ assets: [nvdaAsset], long_inventory_history: [longAudit(8782, 57300, '2026-09-01T00:00:00.000Z', 100), longAudit(2000, 57300, '2026-09-08T00:00:00.000Z', 200)], quote_markets: [...baseQuote.markets, ...d7Quote.markets], quote_persistence: [baseQuote.observation, d7Quote.observation] }, '2026-09-09T00:00:00.000Z');
+    const snapshot = await service.snapshot();
+    const ai = snapshot.cases.find((item) => item.case_id === 'AI_NVDA_CAPITAL_VS_FLOW');
+    expect(ai?.research_observations[0]).toMatchObject({ h2b_verdict: 'FALSIFYING_EVIDENCE', capital_regime: 'STOCK_CAPITAL_UNWINDING', capital_vs_flow_regime: 'STOCK_RELATIONSHIP_DECAYING' });
+    expect(ai?.current_evidence_state).toBe('FALSIFIED');
+    expect(snapshot.falsification_queue.map((item) => item.case_id)).toContain('AI_NVDA_CAPITAL_VS_FLOW');
   });
 
   it('keeps BONER/HIMS historical, LongX unverified, RMM mapped, RA1 unconfirmed, and falsification visible', async () => {

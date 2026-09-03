@@ -52,8 +52,9 @@ describe('Reflexive Markets Watch pages', () => {
     const rendered = await render('/4663/reflexive/watch/AI_NVDA_CAPITAL_VS_FLOW', <ReflexiveRadarPage />);
     root = rendered.root;
     const text = rendered.container.textContent ?? '';
-    for (const label of ['WHAT HAPPENED', 'WATCH INTERPRETATION', 'RADAR EVIDENCE', 'PERSISTENCE', 'WHAT WOULD FALSIFY THIS?', 'OPEN GAPS', 'THESIS IMPACT', 'TIMELINE']) expect(text).toContain(label);
+    for (const label of ['WHAT HAPPENED', 'WATCH INTERPRETATION', 'RADAR EVIDENCE', 'PERSISTENCE', 'AI/NVDA D7 RE-AUDIT', 'WHAT WOULD FALSIFY THIS?', 'OPEN GAPS', 'THESIS IMPACT', 'TIMELINE']) expect(text).toContain(label);
     expect(text).toContain('WATCH_INTERPRETATION');
+    expect(text).toContain('H2B_D7_PRECOMMIT_V1');
     expect(text).not.toMatch(/buy now|trade now|execute trade|trading CTA/i);
   });
 
