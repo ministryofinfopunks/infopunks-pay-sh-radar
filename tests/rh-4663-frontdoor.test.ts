@@ -50,6 +50,27 @@ describe('4663 Front Door read model', () => {
     expect(first.frontdoor_version).toMatchObject({ object_type: 'FRONTDOOR_VERSION', version: 1, changed: expect.arrayContaining(['RMM_CENSUS', 'AI_NVDA_CASE', 'PULSE']) });
     expect(unchanged.frontdoor_version).toMatchObject({ version: 1, changed: [] });
     expect(changed.frontdoor_version).toMatchObject({ version: 2, changed: ['PULSE'] });
+    expect(first.frontdoor_version_durability).toBe('EPHEMERAL');
+  });
+
+  it('fails closed when production requires a durable shared version counter', async () => {
+    const service = new Rh4663FrontdoorService({ ...dependencies(), require_durable_version: true });
+    await expect(service.read()).rejects.toMatchObject({ code: 'frontdoor_version_durability_required', statusCode: 503 });
+  });
+
+  it('does not publish a shared front door from production memory mode', async () => {
+    const priorNodeEnv = process.env.NODE_ENV; const priorPort = process.env.PORT; const priorDatabaseUrl = process.env.DATABASE_URL;
+    process.env.NODE_ENV = 'production'; process.env.PORT = '8787'; delete process.env.DATABASE_URL;
+    const app = await createApp(emptyIntelligenceStore(), new MemoryRepository());
+    try {
+      const response = await app.inject({ method: 'GET', url: '/v1/4663/frontdoor' });
+      expect(response.statusCode).toBe(503); expect(response.json()).toEqual({ error: 'frontdoor_version_durability_required' });
+    } finally {
+      await app.close();
+      if (priorNodeEnv === undefined) delete process.env.NODE_ENV; else process.env.NODE_ENV = priorNodeEnv;
+      if (priorPort === undefined) delete process.env.PORT; else process.env.PORT = priorPort;
+      if (priorDatabaseUrl === undefined) delete process.env.DATABASE_URL; else process.env.DATABASE_URL = priorDatabaseUrl;
+    }
   });
 
   it('sends a compact cacheable HTTP snapshot with ETag revalidation', async () => {
@@ -58,7 +79,11 @@ describe('4663 Front Door read model', () => {
       const first = await app.inject({ method: 'GET', url: '/v1/4663/frontdoor' });
       expect(first.statusCode).toBe(200); expect(first.headers.etag).toMatch(/^"frontdoor-\d+"$/); expect(first.headers['cache-control']).toContain('stale-while-revalidate');
       expect(first.json().data.object_type).toBe('RH_4663_FRONTDOOR_STATE');
-      const cached = await app.inject({ method: 'GET', url: '/v1/4663/frontdoor', headers: { 'if-none-match': first.headers.etag! } }); expect(cached.statusCode).toBe(304);
+      expect(first.json().data.frontdoor_version_durability).toBe('EPHEMERAL');
+      const personalizedHeaders = { authorization: 'Bearer wallet-specific-token', cookie: 'wallet=wallet-specific-value' };
+      const sameGlobalState = await app.inject({ method: 'GET', url: '/v1/4663/frontdoor', headers: personalizedHeaders });
+      expect(sameGlobalState.statusCode).toBe(200); expect(sameGlobalState.json().data).toEqual(first.json().data); expect(sameGlobalState.headers.etag).toBe(first.headers.etag);
+      const cached = await app.inject({ method: 'GET', url: '/v1/4663/frontdoor', headers: { ...personalizedHeaders, 'if-none-match': first.headers.etag! } }); expect(cached.statusCode).toBe(304);
     } finally { await app.close(); }
   });
 });

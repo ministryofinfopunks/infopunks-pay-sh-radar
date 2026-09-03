@@ -1,4 +1,4 @@
-import type { Rh4663ResolutionService } from '../services/rh4663ResolutionService';
+import type { Rh4663ProofProfile, Rh4663ResolutionService } from '../services/rh4663ResolutionService';
 import type { Published4663Signal } from '../services/rh4663IntelligenceService';
 import type { Rh4663Print } from '../services/rh4663PrintService';
 
@@ -12,6 +12,23 @@ const dimensions: Record<Rh4663ShareFormat, { width: number; height: number }> =
 };
 
 export function parseRh4663ShareFormat(value: unknown): Rh4663ShareFormat { return value === 'square' || value === 'portrait' ? value : 'landscape'; }
+
+export function renderRh4663ProofProfileSvg(profile: Rh4663ProofProfile, format: Rh4663ShareFormat = 'landscape') {
+  const { width, height } = dimensions[format];
+  const percent = profile.high_confidence_accuracy === null ? '—' : `${Math.round(profile.high_confidence_accuracy * 100)}%`;
+  const genesis = profile.genesis ? `GENESIS #${String(profile.genesis.ordinal).padStart(4, '0')}` : 'RECEIPT-BACKED RECORD';
+  const category = profile.best_supported_category.category ? `SUPPORTED CATEGORY / ${label(profile.best_supported_category.category)}` : 'CATEGORY / INSUFFICIENT SAMPLE';
+  const titleY = format === 'landscape' ? 175 : 235;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${xml(`4663 proof profile ${profile.display_name}`)}">
+  <style>@font-face{font-family:IBM;src:local('IBM Plex Mono')}text{font-family:IBM,monospace;fill:#f2f5f0}.micro{font-size:22px;letter-spacing:3px;fill:#74ff9b}.title{font-size:${format === 'landscape' ? 62 : 76}px;font-weight:700;letter-spacing:-3px}.metric{font-size:${format === 'landscape' ? 54 : 68}px;font-weight:700}.meta{font-size:20px;letter-spacing:2px;fill:#919991}.footer{font-size:19px;letter-spacing:2px;fill:#919991}.accent{font-size:28px;font-weight:700;fill:#74ff9b}</style>
+  <rect width="100%" height="100%" fill="#050605"/><path d="M0 0H${Math.round(width * .012)}V${height}H0Z" fill="#74ff9b"/>
+  <text x="72" y="72" class="micro">PROOF // 4663</text><text x="${width - 72}" y="72" class="footer" text-anchor="end">${xml(profile.display_name)}</text>
+  <text x="72" y="${titleY}" class="title">${profile.resolved} RESOLVED CALLS</text><text x="72" y="${titleY + 78}" class="metric">${profile.correct} CORRECT</text>
+  <text x="${format === 'landscape' ? Math.round(width * .58) : 72}" y="${format === 'landscape' ? titleY + 78 : titleY + 185}" class="accent">${xml(percent)} HIGH-CONFIDENCE ACCURACY</text>
+  <text x="72" y="${format === 'landscape' ? height - 175 : height - 280}" class="meta">${xml(category)}</text><text x="72" y="${format === 'landscape' ? height - 125 : height - 230}" class="accent">${xml(genesis)}</text>
+  <line x1="72" y1="${height - 88}" x2="${width - 72}" y2="${height - 88}" stroke="#282d29"/><text x="72" y="${height - 38}" class="footer">NO RECEIPT, NO TRUST.</text><text x="${width - 72}" y="${height - 38}" class="footer" text-anchor="end">INFOPUNKS //4663</text>
+  </svg>`;
+}
 
 export function renderRh4663ShareSvg(share: Rh4663UniversalShareObject, format: Rh4663ShareFormat = 'landscape') {
   if ('receipt_kind' in share && share.receipt_kind === 'MARKET_STATE_EVIDENCE') return renderPrintShareSvg(share, format);

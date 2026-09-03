@@ -20,6 +20,9 @@ export const RH_4663_RESOLUTION_VERSION = 'infopunks.rh-pulse.resolution.v1' as 
 export const RH_4663_MERKLE_VERSION = 'infopunks.rh-pulse.acceptance-merkle.v1' as const;
 export const RH_4663_ANCHOR_VERSION = 'infopunks.rh-pulse.anchor.v1' as const;
 export const RH_4663_CHAIN_ID = 4_663 as const;
+export const RH_4663_PROOF_PROFILE_VERSION = 'infopunks.rh-pulse.proof-profile.v1' as const;
+export const RH_4663_HIGH_CONFIDENCE_THRESHOLD = 75 as const;
+export const RH_4663_PROOF_CATEGORY_MIN_RESOLVED = 2 as const;
 
 const rotationOrder = Rh4663RotationOptionSchema.options;
 const categoryRules = {
@@ -156,6 +159,72 @@ export type Rh4663ResolutionReceipt = {
   signer_key_id: string;
   publication_state: 'published';
   resolved_at: string;
+};
+
+export type Rh4663ProofReceiptLink = {
+  receipt_id: string;
+  receipt_url: string;
+  resolution_receipt_id: string | null;
+  resolution_receipt_url: string | null;
+};
+
+export type Rh4663ProofCategory = {
+  calls: number;
+  resolved: number;
+  correct: number;
+  incorrect: number;
+  unresolved: number;
+  accuracy: number | null;
+  sample_status: 'MEANINGFUL' | 'INSUFFICIENT_SAMPLE';
+  receipt_links: Rh4663ProofReceiptLink[];
+};
+
+export type Rh4663ProofProfile = {
+  object_type: 'PROOF_PROFILE';
+  profile_version: typeof RH_4663_PROOF_PROFILE_VERSION;
+  wallet: `0x${string}`;
+  display_name: string;
+  calls: number;
+  resolved: number;
+  correct: number;
+  incorrect: number;
+  unresolved: number;
+  accuracy: number | null;
+  high_confidence_accuracy: number | null;
+  high_confidence: {
+    threshold: typeof RH_4663_HIGH_CONFIDENCE_THRESHOLD;
+    resolved: number;
+    correct: number;
+    incorrect: number;
+    unresolved: number;
+    accuracy: number | null;
+    methodology_version: typeof RH_4663_PROOF_PROFILE_VERSION;
+    receipt_links: Rh4663ProofReceiptLink[];
+  };
+  category_breakdown: Record<Rh4663RotationOption, Rh4663ProofCategory>;
+  best_supported_category: { category: Rh4663RotationOption; accuracy: number; resolved: number; receipt_links: Rh4663ProofReceiptLink[] } | { category: null; accuracy: null; resolved: 0; status: 'INSUFFICIENT_SAMPLE' };
+  genesis: { ordinal: number; call_receipt_id: string; receipt_url: string } | null;
+  genesis_receipt: { ordinal: number; call_receipt_id: string; receipt_url: string } | null;
+  recent_calls: Array<{
+    window_id: string;
+    call_receipt_id: string;
+    call_receipt_url: string;
+    resolution_receipt_id: string | null;
+    resolution_receipt_url: string | null;
+    called_category: Rh4663RotationOption;
+    resolved_category: Rh4663RotationOption | null;
+    confidence: number;
+    submitted_at: string;
+    outcome: 'CORRECT' | 'INCORRECT' | 'UNRESOLVED';
+  }>;
+  streak: { current_correct: number; methodology_version: typeof RH_4663_PROOF_PROFILE_VERSION };
+  methodology: {
+    accuracy: 'correct / resolved; unresolved calls are excluded';
+    high_confidence_threshold: typeof RH_4663_HIGH_CONFIDENCE_THRESHOLD;
+    category_min_resolved: typeof RH_4663_PROOF_CATEGORY_MIN_RESOLVED;
+    version: typeof RH_4663_PROOF_PROFILE_VERSION;
+  };
+  receipt_links: Rh4663ProofReceiptLink[];
 };
 
 export type Rh4663MerkleProof = {
@@ -415,6 +484,71 @@ export class Rh4663ResolutionService {
     return { wallet: wallet.toLowerCase(), calls: calls.length, resolved_calls: resolved.length, correct_calls: correct.length, accuracy: resolved.length ? Number((correct.length / resolved.length).toFixed(4)) : null, current_streak: streak, genesis_position: genesis, first_call_date: evidence[0]?.window_id.slice(-10) ?? null, last_call_date: evidence.at(-1)?.window_id.slice(-10) ?? null, definitions: { accuracy: 'correct_calls / resolved_calls; unresolved calls are excluded', current_streak: 'consecutive correctly resolved calls ordered by Pulse window; unresolved calls do not break the streak; an incorrect result resets it' }, evidence: evidence.reverse() };
   }
 
+  /**
+   * Builds the public-safe identity surface from immutable CALL receipts and
+   * published RESOLUTION receipts. This is deliberately a read model: it
+   * never writes, scores, rewards, or changes either protocol receipt.
+   */
+  async proofProfile(wallet: string): Promise<Rh4663ProofProfile> {
+    if (!/^0x[0-9a-fA-F]{40}$/.test(wallet)) throw new Rh4663ServiceError('valid_evm_wallet_required', 400);
+    const calls = [...await this.phase1.listCallsByWallet(wallet, 10_000)].sort((a, b) => a.canonical_payload.window_opens_at.localeCompare(b.canonical_payload.window_opens_at) || a.receipt_id.localeCompare(b.receipt_id));
+    const resolutions = await this.store.listReceiptsByWallet(wallet);
+    const byCall = new Map(resolutions.map((receipt) => [receipt.call_receipt_id, receipt]));
+    const records = calls.map((call) => {
+      const resolution = byCall.get(call.receipt_id) ?? null;
+      const callReceiptUrl = `/4663/proof/${encodeURIComponent(call.receipt_id)}`;
+      const resolutionReceiptUrl = resolution ? `/4663/resolution/${encodeURIComponent(resolution.receipt_id)}` : null;
+      return {
+        call,
+        resolution,
+        outcome: resolution?.outcome ?? 'UNRESOLVED' as const,
+        links: { receipt_id: call.receipt_id, receipt_url: callReceiptUrl, resolution_receipt_id: resolution?.receipt_id ?? null, resolution_receipt_url: resolutionReceiptUrl }
+      };
+    });
+    const resolved = records.filter((record) => record.resolution);
+    const correct = resolved.filter((record) => record.outcome === 'CORRECT');
+    const incorrect = resolved.filter((record) => record.outcome === 'INCORRECT');
+    const unresolved = records.filter((record) => !record.resolution);
+    const accuracy = ratio(correct.length, resolved.length);
+    const highConfidence = records.filter((record) => record.call.confidence >= RH_4663_HIGH_CONFIDENCE_THRESHOLD);
+    const highConfidenceResolved = highConfidence.filter((record) => record.resolution);
+    const highConfidenceCorrect = highConfidenceResolved.filter((record) => record.outcome === 'CORRECT');
+    const categories = Object.fromEntries(rotationOrder.map((category) => {
+      const categoryRecords = records.filter((record) => record.call.rotation === category);
+      const categoryResolved = categoryRecords.filter((record) => record.resolution);
+      const categoryCorrect = categoryResolved.filter((record) => record.outcome === 'CORRECT');
+      return [category, {
+        calls: categoryRecords.length,
+        resolved: categoryResolved.length,
+        correct: categoryCorrect.length,
+        incorrect: categoryResolved.length - categoryCorrect.length,
+        unresolved: categoryRecords.length - categoryResolved.length,
+        accuracy: ratio(categoryCorrect.length, categoryResolved.length),
+        sample_status: categoryResolved.length >= RH_4663_PROOF_CATEGORY_MIN_RESOLVED ? 'MEANINGFUL' as const : 'INSUFFICIENT_SAMPLE' as const,
+        receipt_links: categoryRecords.map((record) => record.links)
+      }];
+    })) as Record<Rh4663RotationOption, Rh4663ProofCategory>;
+    const supported = rotationOrder.map((category) => ({ category, data: categories[category] })).filter((item) => item.data.sample_status === 'MEANINGFUL');
+    supported.sort((left, right) => right.data.resolved - left.data.resolved || (right.data.accuracy ?? 0) - (left.data.accuracy ?? 0) || rotationOrder.indexOf(left.category) - rotationOrder.indexOf(right.category));
+    const bestSupportedCategory = supported[0] ? { category: supported[0].category, accuracy: supported[0].data.accuracy ?? 0, resolved: supported[0].data.resolved, receipt_links: supported[0].data.receipt_links } : { category: null, accuracy: null, resolved: 0 as const, status: 'INSUFFICIENT_SAMPLE' as const };
+    let currentCorrect = 0;
+    for (const record of records) { if (record.outcome === 'CORRECT') currentCorrect += 1; else if (record.outcome === 'INCORRECT') currentCorrect = 0; }
+    const links = records.map((record) => record.links);
+    const genesisRecord = [...records].sort((left, right) => (left.call.genesis_ordinal ?? Number.MAX_SAFE_INTEGER) - (right.call.genesis_ordinal ?? Number.MAX_SAFE_INTEGER))[0];
+    const genesis = genesisRecord?.call.genesis_ordinal ? { ordinal: genesisRecord.call.genesis_ordinal, call_receipt_id: genesisRecord.call.receipt_id, receipt_url: genesisRecord.links.receipt_url } : null;
+    const recentCalls = records.slice(-10).reverse().map((record) => ({ window_id: record.call.window_id, call_receipt_id: record.call.receipt_id, call_receipt_url: record.links.receipt_url, resolution_receipt_id: record.links.resolution_receipt_id, resolution_receipt_url: record.links.resolution_receipt_url, called_category: record.call.rotation, resolved_category: record.resolution?.resolved_category ?? null, confidence: record.call.confidence, submitted_at: record.call.created_at, outcome: record.outcome }));
+    return {
+      object_type: 'PROOF_PROFILE', profile_version: RH_4663_PROOF_PROFILE_VERSION, wallet: wallet.toLowerCase() as `0x${string}`, display_name: shortProofWallet(wallet),
+      calls: records.length, resolved: resolved.length, correct: correct.length, incorrect: incorrect.length, unresolved: unresolved.length, accuracy,
+      high_confidence_accuracy: ratio(highConfidenceCorrect.length, highConfidenceResolved.length),
+      high_confidence: { threshold: RH_4663_HIGH_CONFIDENCE_THRESHOLD, resolved: highConfidenceResolved.length, correct: highConfidenceCorrect.length, incorrect: highConfidenceResolved.length - highConfidenceCorrect.length, unresolved: highConfidence.length - highConfidenceResolved.length, accuracy: ratio(highConfidenceCorrect.length, highConfidenceResolved.length), methodology_version: RH_4663_PROOF_PROFILE_VERSION, receipt_links: highConfidence.map((record) => record.links) },
+      category_breakdown: categories, best_supported_category: bestSupportedCategory, genesis, genesis_receipt: genesis, recent_calls: recentCalls,
+      streak: { current_correct: currentCorrect, methodology_version: RH_4663_PROOF_PROFILE_VERSION },
+      methodology: { accuracy: 'correct / resolved; unresolved calls are excluded', high_confidence_threshold: RH_4663_HIGH_CONFIDENCE_THRESHOLD, category_min_resolved: RH_4663_PROOF_CATEGORY_MIN_RESOLVED, version: RH_4663_PROOF_PROFILE_VERSION },
+      receipt_links: links
+    };
+  }
+
   async share(callReceiptId: string) {
     const call = await this.phase1.getCall(callReceiptId); if (!call) throw new Rh4663ServiceError('call_receipt_not_found', 404); const receipt = await this.store.getReceiptForCall(callReceiptId); const reputation = await this.reputation(call.wallet);
     const object_type: 'pending_call' | 'resolved_correct_call' | 'resolved_incorrect_call' = receipt ? (receipt.outcome === 'CORRECT' ? 'resolved_correct_call' : 'resolved_incorrect_call') : 'pending_call';
@@ -491,6 +625,8 @@ function merkleProof(levels: Hex[][], leafIndex: number) { const proof: Rh4663Me
 function initialAnchor(commitment: Rh4663AcceptanceCommitment): Rh4663AnchorRecord { return { version: RH_4663_ANCHOR_VERSION, chain_id: RH_4663_CHAIN_ID, window_id: commitment.window_id, acceptance_root: commitment.root, receipt_count: commitment.receipt_count, commitment_timestamp: commitment.created_at, state: 'not_submitted', transaction_hash: null, block_number: null, block_hash: null, submitted_at: null, confirmed_at: null, failed_at: null, failure_code: null }; }
 function parseWindow(windowId: string) { const match = /^rh4663:(\d{4}-\d{2}-\d{2})$/.exec(windowId); if (!match) throw new Rh4663ServiceError('invalid_pulse_window_id', 400); const date = new Date(`${match[1]}T12:00:00.000Z`); if (Number.isNaN(date.getTime()) || getRh4663PulseWindow(date).window_id !== windowId) throw new Rh4663ServiceError('invalid_pulse_window_id', 400); return getRh4663PulseWindow(date); }
 function consensusWithPercentages(calls: Rh4663CallReceipt[], windowId: string) { const consensus = resolveRh4663Consensus(calls, windowId); const max = Math.max(...Object.values(consensus.counts)); const tied = consensus.total_calls ? rotationOrder.filter((item) => consensus.counts[item] === max) : []; return { ...consensus, percentages: Object.fromEntries(rotationOrder.map((option) => [option, consensus.total_calls ? Number((consensus.counts[option] / consensus.total_calls * 100).toFixed(1)) : 0])) as Record<Rh4663RotationOption, number>, tie_break_reason: tied.length > 1 ? 'option_order_v1' as const : 'not_required' as const }; }
+function ratio(numerator: number, denominator: number) { return denominator ? Number((numerator / denominator).toFixed(4)) : null; }
+function shortProofWallet(wallet: string) { return `${wallet.slice(0, 8)}…${wallet.slice(-6)}`; }
 function resolutionMaterialHash(value: Rh4663WindowResolution) { return hashObject({ version: value.version, window_id: value.window_id, resolved_category: value.resolved_category, category_scores: value.category_scores, determination: value.determination, observations: value.observations, observation_set_hash: value.observation_set_hash, dependencies: value.dependencies, acceptance: value.acceptance }); }
 function hashObject(value: unknown): Hex { return hashRh4663Canonical(serializeRh4663Canonical(value)); }
 function clone<T>(value: T): T { return value === null || value === undefined ? value : structuredClone(value); }

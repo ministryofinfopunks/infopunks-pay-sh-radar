@@ -38,7 +38,7 @@ import { assembleRhChainCloneRadar } from '../services/rhChainCloneRadarService'
 import { assembleRhChainTodayOn4663 } from '../services/rhChainTodayOn4663Service';
 import { getLatestRh4663Print, getRh4663Print } from '../services/rh4663PrintService';
 import { Rh4663CampaignEventSchema, Rh4663CampaignTelemetry } from '../services/rh4663CampaignTelemetry';
-import { PostgresFrontdoorVersionStore, Rh4663FrontdoorService } from '../services/rh4663FrontdoorService';
+import { PostgresFrontdoorVersionStore, Rh4663FrontdoorError, Rh4663FrontdoorService } from '../services/rh4663FrontdoorService';
 import { InMemoryRh4663PrintStore, PostgresRh4663PrintStore, Rh4663PrintGeneratorError, Rh4663PrintGeneratorService, type Rh4663ObservationFreshness, type Rh4663PrintStore, type Rh4663VerifiedObservation } from '../services/rh4663PrintGeneratorService';
 import { createRh4663UtcDayProviders, InMemoryRh4663UtcDayObservationStore, isValidRh4663UtcDate, PostgresRh4663UtcDayObservationStore, Rh4663UtcDayObservationError, Rh4663UtcDayObservationService, type Rh4663UtcDayObservationStore } from '../services/rh4663UtcDayObservationService';
 import {
@@ -111,7 +111,7 @@ import {
 import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST, type NarrativeMetadata } from '../shared/narrativeMetadata';
 import { renderAttentionMarketWatchOgImage, renderNarrativesOgImage, renderRevenueReceiptOgImage, renderRevenueReceiptsIndexOgImage, renderRhChainAttentionQualityOgImage, renderRhChainCrossLayerOgImage, renderRhChainMarketPulseOgImage, renderRhChainShareOgImage, renderSignalHuntOgImage, renderSignalReportOgImage, renderSignalUpdateOgImage, renderUnicornRadarIndexOgImage, renderUnicornRadarOgImage } from '../shared/narrativeOg';
 import { renderOgPng } from '../server/narrativeOgPng';
-import { parseRh4663ShareFormat, renderRh4663ShareSvg } from '../shared/rh4663Share';
+import { parseRh4663ShareFormat, renderRh4663ProofProfileSvg, renderRh4663ShareSvg } from '../shared/rh4663Share';
 import { renderCapitalVsFlowCardSvg, renderMissionFootprintCardSvg, renderReflexiveBirthCardSvg, renderReflexiveInventoryCardSvg, renderReflexiveStockMoneyCardSvg } from '../shared/rhChainReflexiveShare';
 import { applyPayShCatalogIngestion } from '../ingestion/payShCatalogAdapter';
 import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, IntelligenceStore, runPayShIngestion, runPayShIngestionWithOptions } from '../services/intelligenceStore';
@@ -1046,6 +1046,14 @@ export async function createApp(
       const imagePath = `/og/4663/prints/${encodeURIComponent(print.print_id)}.png`;
       return { title: `//4663 PRINT · ${print.title} | Infopunks Radar`, description: `${print.regime}. Frozen market-state evidence with explicit source windows and methodology.`, canonicalPath: print.canonical_path, ogTitle: `//4663 PRINT · ${print.title}`, ogDescription: `${print.regime}. Inspect the evidence windows.`, ogImageUrl: `${NARRATIVE_PUBLIC_HOST}${imagePath}`, ogImageWidth: 1200, ogImageHeight: 630, twitterTitle: `//4663 PRINT · ${print.title}`, twitterDescription: `${print.regime}. Inspect the evidence windows.`, twitterImageUrl: `${NARRATIVE_PUBLIC_HOST}${imagePath}`, twitterCard: 'summary_large_image' };
     }
+    const proofProfileMatch = urlPath.match(/^\/4663\/proof\/(0x[0-9a-fA-F]{40})\/?$/);
+    if (proofProfileMatch) {
+      const profile = await rh4663Phase2.proofProfile(proofProfileMatch[1]);
+      const imagePath = `/og/4663/proof/${encodeURIComponent(proofProfileMatch[1])}.png`;
+      const title = `Proof Profile ${profile.display_name} | Infopunks //4663`;
+      const description = `${profile.resolved} resolved calls, ${profile.correct} correct. Receipt-backed judgment record. No receipt, no trust.`;
+      return { title, description, canonicalPath: `/4663/proof/${encodeURIComponent(proofProfileMatch[1])}`, ogTitle: title, ogDescription: description, ogImageUrl: `${NARRATIVE_PUBLIC_HOST}${imagePath}`, ogImageWidth: 1200, ogImageHeight: 630, twitterTitle: title, twitterDescription: description, twitterImageUrl: `${NARRATIVE_PUBLIC_HOST}${imagePath}`, twitterCard: 'summary_large_image' };
+    }
     const match = urlPath.match(/^\/4663\/(call|resolution)\/([^/?]+)\/?$/);
     if (!match) return null;
     const [_, route, rawReceiptId] = match;
@@ -1083,13 +1091,40 @@ export async function createApp(
   });
   // Read-only, bounded Front Door assembly. All dependencies below select latest
   // persisted state; none refreshes Radar, runs a preflight, or reconstructs history.
+  const rh4663FrontdoorPulseRead = async () => {
+    const pulse = await rh4663PulseRead();
+    try {
+      // Phase 2 is the authority for open/closed/published state. The global
+      // frontdoor may consume that state, but it never reconstructs or writes
+      // CALL/RESOLUTION receipts.
+      const window = await rh4663Phase2.window(pulse.window.window_id);
+      // Keep the shared snapshot stable while a window is open. Participant
+      // counts and leading choices are user-generated activity, so the public
+      // shell only exposes the canonical consensus once the window closes.
+      const consensus = window.state === 'open'
+        ? { ...window.consensus, total_calls: 0, leading_rotation: null, state: 'unavailable' as const }
+        : window.consensus;
+      return {
+        ...pulse,
+        state: window.state,
+        consensus,
+        resolution: window.resolution ? { state: window.resolution.state, resolved_category: window.resolution.resolved_category, published_at: window.resolution.published_at } : null
+      };
+    } catch {
+      return pulse;
+    }
+  };
   const rh4663Frontdoor = new Rh4663FrontdoorService({
     census: () => rmmCensus.latest(),
     watch: () => reflexiveWatch.snapshot(),
     preflight: () => reflexiveRadar.pltrPreflight(),
-    pulse: () => rh4663PulseRead(),
+    pulse: rh4663FrontdoorPulseRead,
     signals: () => rh4663Intelligence.publicSignals({ limit: 5 }),
-    version_store: rhChainPostgresPool ? new PostgresFrontdoorVersionStore(rhChainPostgresPool) : undefined
+    // Production must never silently turn the shared ETag namespace into an
+    // ephemeral process-local counter. Development/test may use memory.
+    version_store: rhChainPostgresPool ? new PostgresFrontdoorVersionStore(rhChainPostgresPool, { allow_ephemeral_fallback: !config.isProduction }) : undefined,
+    require_durable_version: config.isProduction,
+    ignore_personal_pulse_changes: true
   });
   const phase3Classifications = () => [...rhChainReviewedLayerClassifications, ...(rhChainDiscoveryQueue?.marketStructureCandidates() ?? []), ...(rhChainReviewPipeline?.marketStructureCandidates() ?? [])];
   const phase3CategoryFor = (contract: string) => {
@@ -2829,12 +2864,61 @@ export async function createApp(
   const rh4663PrintRead = async (printId: string) => await rh4663PrintGenerator.get(printId) ?? getRh4663Print(printId);
   const rh4663LatestPrintRead = async () => await rh4663PrintGenerator.latest() ?? getLatestRh4663Print();
   app.get('/v1/4663/frontdoor', async (req, reply) => {
-    const state = await rh4663Frontdoor.read();
-    const data = safeJsonExport(state);
-    const etag = `"frontdoor-${state.frontdoor_version.version}"`;
-    reply.header('ETag', etag).header('Cache-Control', 'public, max-age=15, stale-while-revalidate=45');
-    if (req.headers['if-none-match'] === etag) return reply.code(304).send();
-    return { data };
+    try {
+      // This route is deliberately request-identity agnostic. User-scoped
+      // CALLs, receipts, accuracy, follows, and account state belong under
+      // /v1/4663/me/* and must never enter this shared response.
+      const state = await rh4663Frontdoor.read();
+      const data = safeJsonExport(state);
+      const etag = `"frontdoor-${state.frontdoor_version.version}"`;
+      reply.header('ETag', etag).header('Cache-Control', 'public, max-age=15, stale-while-revalidate=45');
+      if (req.headers['if-none-match'] === etag) return reply.code(304).send();
+      return { data };
+    } catch (error) {
+      if (error instanceof Rh4663FrontdoorError) return reply.code(error.statusCode).send({ error: error.code });
+      throw error;
+    }
+  });
+  app.get<{ Querystring: { wallet?: string } }>('/v1/4663/me/call', async (req, reply) => {
+    const headerWallet = req.headers['x-wallet-address'];
+    const wallet = (Array.isArray(headerWallet) ? headerWallet[0] : headerWallet) ?? req.query.wallet;
+    // This endpoint is intentionally private even for an anonymous response.
+    // It must never share the public frontdoor cache namespace.
+    reply.header('Cache-Control', 'private, no-store').header('Vary', 'X-Wallet-Address, Authorization');
+    if (!wallet || !/^0x[0-9a-fA-F]{40}$/.test(wallet)) {
+      return { data: safeJsonExport({ authenticated: false, window_id: rh4663.pulseWindow().window_id, has_called: false, call_receipt_reference: null, selection: null, confidence: null, submitted_at: null, resolution_state: null, resolution_receipt: null, my_4663_version: '0' }) };
+    }
+    try {
+      const window = rh4663.pulseWindow();
+      const calls = await rh4663Store.listCallsByWallet(wallet, 10_000);
+      const call = calls.find((item) => item.window_id === window.window_id) ?? null;
+      const resolution = call ? await rh4663ResolutionStore.getReceiptForCall(call.receipt_id) : null;
+      const phaseState = await rh4663Phase2.window(window.window_id).catch(() => null);
+      const resolutionState = resolution?.outcome ?? (call ? 'UNRESOLVED' : null);
+      return { data: safeJsonExport({
+        authenticated: true,
+        window_id: window.window_id,
+        window: { window_id: window.window_id, opens_at: window.opens_at, closes_at: window.closes_at, state: phaseState?.state ?? (Date.now() < Date.parse(window.closes_at) ? 'open' : 'closed') },
+        has_called: Boolean(call),
+        call_receipt_reference: call?.receipt_id ?? null,
+        selection: call?.rotation ?? null,
+        confidence: call?.confidence ?? null,
+        submitted_at: call?.created_at ?? null,
+        resolution_state: resolutionState,
+        resolution_receipt: resolution,
+        my_4663_version: call ? `${call.receipt_id}:${resolution?.receipt_id ?? 'pending'}` : '0'
+      }) };
+    } catch (error) {
+      return reply.code(503).send({ error: error instanceof Error ? error.message : 'personal_call_state_unavailable' });
+    }
+  });
+  app.get<{ Querystring: { wallet?: string } }>('/v1/4663/me/proof', async (req, reply) => {
+    const headerWallet = req.headers['x-wallet-address'];
+    const wallet = (Array.isArray(headerWallet) ? headerWallet[0] : headerWallet) ?? req.query.wallet;
+    reply.header('Cache-Control', 'private, no-store').header('Vary', 'X-Wallet-Address, Authorization');
+    if (!wallet || !/^0x[0-9a-fA-F]{40}$/.test(wallet)) return { data: safeJsonExport({ authenticated: false, profile: null, my_4663_version: '0' }) };
+    try { const profile = await rh4663Phase2.proofProfile(wallet); return { data: safeJsonExport({ authenticated: true, profile, my_4663_version: `${profile.profile_version}:${profile.calls}:${profile.resolved}:${profile.correct}` }) }; }
+    catch (error) { return reply.code(503).send({ error: error instanceof Error ? error.message : 'personal_proof_state_unavailable' }); }
   });
   app.get('/v1/4663', async () => {
     const [pulse, genesis, today, signals, liveSignals, latestPrint] = await Promise.all([rh4663PulseRead(), rh4663GenesisRead(), rh4663TodayInput(), rh4663Store.listSignals(5).catch(() => []), rh4663Intelligence.publicSignals({ limit: 3 }).catch(() => []), rh4663LatestPrintRead()]);
@@ -2905,7 +2989,16 @@ export async function createApp(
     try { return { data: safeJsonExport(await rh4663Phase2.windowShare(req.params.windowId)) }; } catch (error) { return rh4663Failure(reply, error); }
   });
   app.get<{ Params: { wallet: string } }>('/v1/4663/pulse/reputation/:wallet', async (req, reply) => {
+    reply.header('Cache-Control', 'private, no-store');
     try { return { data: safeJsonExport(await rh4663Phase2.reputation(req.params.wallet)) }; } catch (error) { return rh4663Failure(reply, error); }
+  });
+  app.get<{ Params: { wallet: string } }>('/v1/4663/proof/:wallet', async (req, reply) => {
+    try {
+      // A public proof profile contains receipt-backed judgment history only;
+      // it is never a portfolio, balance, or trading-history endpoint.
+      reply.header('Cache-Control', 'private, no-store');
+      return { data: safeJsonExport(await rh4663Phase2.proofProfile(req.params.wallet)) };
+    } catch (error) { return rh4663Failure(reply, error); }
   });
   const rh4663OperationalGuard = (reply: FastifyReply, authorization: string | undefined, reviewerHeader: unknown) => {
     if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, authorization)) { reply.code(401).send({ error: 'review_admin_token_required' }); return null; }
@@ -3889,6 +3982,16 @@ export async function createApp(
       return reply.type('image/png').send(renderOgPng(renderRh4663ShareSvg(share, format), format === 'landscape' ? 1200 : 1080));
     } catch (error) {
       console.log(JSON.stringify({ event: 'share_render_failed', service: 'rh_4663_resolution', receipt_id: req.params.receiptId, error_code: error instanceof Rh4663ServiceError ? error.code : 'render_failed' }));
+      return rh4663Failure(reply, error);
+    }
+  });
+  app.get<{ Params: { wallet: string }; Querystring: { format?: string } }>('/og/4663/proof/:wallet.png', async (req, reply) => {
+    try {
+      const format = parseRh4663ShareFormat(req.query.format); const profile = await rh4663Phase2.proofProfile(req.params.wallet);
+      reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
+      return reply.type('image/png').send(renderOgPng(renderRh4663ProofProfileSvg(profile, format), format === 'landscape' ? 1200 : 1080));
+    } catch (error) {
+      console.log(JSON.stringify({ event: 'proof_profile_share_render_failed', service: 'rh_4663_resolution', wallet: req.params.wallet, error_code: error instanceof Rh4663ServiceError ? error.code : 'render_failed' }));
       return rh4663Failure(reply, error);
     }
   });

@@ -6,6 +6,7 @@ import pg from 'pg';
 import { resolvePostgresPool, type PostgresPoolSource } from '../persistence/retryablePostgresSchema';
 
 export const RH_4663_FRONTDOOR_STATE = 'RH_4663_FRONTDOOR_STATE' as const;
+export type FrontdoorVersionDurability = 'PERSISTENT' | 'EPHEMERAL';
 
 export type FrontdoorEvidenceState = 'VERIFIED' | 'MIXED' | 'WATCH' | 'UNRESOLVED' | 'BLOCK' | 'DEGRADE' | 'INSUFFICIENT_DATA';
 export type FrontdoorSourceHealth = { status: 'available' | 'degraded' | 'unavailable'; observed_at: string | null; detail?: string };
@@ -22,8 +23,9 @@ export type OpenLoop = {
 export type Rh4663FrontdoorState = {
   object_type: typeof RH_4663_FRONTDOOR_STATE; generated_at: string; freshness: { state: FrontdoorEvidenceState; source_observed_at: string | null };
   frontdoor_version: { object_type: 'FRONTDOOR_VERSION'; version: number; changed: string[]; generated_at: string };
+  frontdoor_version_durability: FrontdoorVersionDurability;
   now_cards: FrontdoorCard[]; watch_cards: FrontdoorCard[]; open_loops: OpenLoop[];
-  current_call: { window_id: string; state: string; leading_rotation: string | null; total_calls: number; opens_at: string; closes_at: string; deep_link: string; source_ref: FrontdoorSourceRef };
+  current_call: { window_id: string; state: string; leading_rotation: string | null; total_calls: number; opens_at: string; closes_at: string; resolution_state?: string | null; resolved_category?: string | null; deep_link: string; source_ref: FrontdoorSourceRef };
   proof_summary: { total_calls: number; resolved_calls: null; note: string; deep_link: string; source_ref: FrontdoorSourceRef };
   system_status: { state: 'available' | 'partial' | 'degraded'; source_health: Record<'census' | 'watch' | 'preflight' | 'pulse' | 'signals', FrontdoorSourceHealth> };
   source_refs: FrontdoorSourceRef[];
@@ -33,18 +35,29 @@ type Census = { census_id: string; observed_at: string; verified_pair_count: num
 type WatchCase = { case_id: string; title: string; opened_at: string; updated_at: string; current_evidence_state: string; audit_priority: string; candidate_next_audit: string; open_evidence_gaps: string[]; falsification_notes: string[] };
 type Watch = { generated_at: string; cases: WatchCase[]; feed: Array<{ case_id: string; case_title: string; key_claim: string; why_it_matters: string; last_updated: string; evidence_status: string; radar_state: string; next_proof_needed: string }>; falsification_queue: WatchCase[] };
 type Preflight = { observation_id: string; observation: { observed_at: string; freshness: string } | null; readiness: { status: string; missing_prerequisites: string[] }; verified_mission_markets: unknown[]; data_gaps: string[] };
-type Pulse = { window: { window_id: string; opens_at: string; closes_at: string }; consensus: { state: string; leading_rotation: string | null; total_calls: number } };
+type Pulse = { window: { window_id: string; opens_at: string; closes_at: string }; state?: string; consensus: { state: string; leading_rotation: string | null; total_calls: number }; resolution?: { state: string; resolved_category: string | null; published_at: string | null } | null };
 type Signal = { signal_id: string; headline: string; summary: string; category: string; significance_score: number; published_at: string; proof_url: string };
 
 export type Rh4663FrontdoorDependencies = {
   census: () => Promise<Census | null>; watch: () => Promise<Watch>; preflight: () => Promise<Preflight | null>; pulse: () => Promise<Pulse>; signals: () => Promise<Signal[]>; now?: () => Date; ttl_ms?: number;
   version_store?: FrontdoorVersionStore;
+  require_durable_version?: boolean;
+  /**
+   * The public Pulse summary may contain live call counts, but a single
+   * person's accepted CALL is private state. Production passes this switch so
+   * the shared FRONTDOOR_VERSION only moves for global Pulse transitions.
+   */
+  ignore_personal_pulse_changes?: boolean;
 };
 
 export type FrontdoorVersionRecord = { fingerprint: string; sources: Record<string, string>; version: number };
-export interface FrontdoorVersionStore { advance(fingerprint: string, sources: Record<string, string>): Promise<{ version: number; changed: string[] }>; }
+export interface FrontdoorVersionStore {
+  readonly durability: FrontdoorVersionDurability;
+  advance(fingerprint: string, sources: Record<string, string>): Promise<{ version: number; changed: string[] }>;
+}
 export class InMemoryFrontdoorVersionStore implements FrontdoorVersionStore {
   private current: FrontdoorVersionRecord | null = null;
+  readonly durability = 'EPHEMERAL' as const;
   async advance(fingerprint: string, sources: Record<string, string>) {
     const prior = this.current;
     if (prior?.fingerprint === fingerprint) return { version: prior.version, changed: [] };
@@ -55,9 +68,11 @@ export class InMemoryFrontdoorVersionStore implements FrontdoorVersionStore {
 }
 /** Durable singleton counter for production; the in-memory store remains the local/test fallback. */
 export class PostgresFrontdoorVersionStore implements FrontdoorVersionStore {
-  private readonly pool: pg.Pool; private readonly fallback = new InMemoryFrontdoorVersionStore(); private initialized: Promise<void> | null = null;
-  constructor(source: PostgresPoolSource) { this.pool = resolvePostgresPool(source).pool; }
+  private readonly pool: pg.Pool; private readonly fallback = new InMemoryFrontdoorVersionStore(); private readonly allowEphemeralFallback: boolean; private initialized: Promise<void> | null = null; private fallbackActive = false;
+  constructor(source: PostgresPoolSource, options: { allow_ephemeral_fallback?: boolean } = {}) { this.pool = resolvePostgresPool(source).pool; this.allowEphemeralFallback = options.allow_ephemeral_fallback ?? true; }
+  get durability(): FrontdoorVersionDurability { return this.fallbackActive ? 'EPHEMERAL' : 'PERSISTENT'; }
   async advance(fingerprint: string, sources: Record<string, string>) {
+    if (this.fallbackActive) return this.fallback.advance(fingerprint, sources);
     try {
       await this.ensure(); const client = await this.pool.connect();
       try {
@@ -67,7 +82,11 @@ export class PostgresFrontdoorVersionStore implements FrontdoorVersionStore {
         const changed = Object.keys(sources).filter((key) => !row || row.sources[key] !== sources[key]); const version = Number(row?.version ?? 0) + 1;
         await client.query('insert into rh4663_frontdoor_version (singleton, fingerprint, sources, version) values (true, $1, $2::jsonb, $3) on conflict (singleton) do update set fingerprint = excluded.fingerprint, sources = excluded.sources, version = excluded.version, updated_at = now()', [fingerprint, JSON.stringify(sources), version]); await client.query('commit'); return { version, changed };
       } catch (error) { await client.query('rollback').catch(() => undefined); throw error; } finally { client.release(); }
-    } catch { return this.fallback.advance(fingerprint, sources); }
+    } catch (error) {
+      if (!this.allowEphemeralFallback) throw error;
+      this.fallbackActive = true;
+      return this.fallback.advance(fingerprint, sources);
+    }
   }
   private ensure() { if (!this.initialized) this.initialized = this.pool.query('create table if not exists rh4663_frontdoor_version (singleton boolean primary key default true check (singleton), fingerprint text not null, sources jsonb not null, version bigint not null, updated_at timestamptz not null default now())').then(() => undefined).catch((error) => { this.initialized = null; throw error; }); return this.initialized; }
 }
@@ -76,11 +95,13 @@ export class Rh4663FrontdoorService {
   private cached: { expires_at: number; state: Rh4663FrontdoorState } | null = null;
   private readonly now: () => Date;
   private readonly ttlMs: number;
-  private readonly versions: FrontdoorVersionStore; private readonly fallbackVersions = new InMemoryFrontdoorVersionStore();
-  constructor(private readonly deps: Rh4663FrontdoorDependencies) { this.now = deps.now ?? (() => new Date()); this.ttlMs = deps.ttl_ms ?? 15_000; this.versions = deps.version_store ?? new InMemoryFrontdoorVersionStore(); }
+  private readonly versions: FrontdoorVersionStore;
+  private readonly requireDurableVersion: boolean;
+  constructor(private readonly deps: Rh4663FrontdoorDependencies) { this.now = deps.now ?? (() => new Date()); this.ttlMs = deps.ttl_ms ?? 15_000; this.versions = deps.version_store ?? new InMemoryFrontdoorVersionStore(); this.requireDurableVersion = deps.require_durable_version ?? false; }
   async read() {
     const at = this.now();
     if (this.cached && this.cached.expires_at > at.getTime()) return structuredClone(this.cached.state);
+    if (this.requireDurableVersion && this.versions.durability !== 'PERSISTENT') throw new Rh4663FrontdoorError('frontdoor_version_durability_required', 503);
     const [census, watch, preflight, pulse, signals] = await Promise.allSettled([this.deps.census(), this.deps.watch(), this.deps.preflight(), this.deps.pulse(), this.deps.signals()]);
     const state = assembleFrontdoor({
       now: at,
@@ -91,13 +112,25 @@ export class Rh4663FrontdoorService {
       signals: signals.status === 'fulfilled' ? signals.value : null,
       failures: { census: failure(census), watch: failure(watch), preflight: failure(preflight), pulse: failure(pulse), signals: failure(signals) }
     });
-    const sources = semanticSources(state);
+    const sources = semanticSources(state, this.deps.ignore_personal_pulse_changes ?? false);
     const fingerprint = JSON.stringify(sources);
-    const version = await this.versions.advance(fingerprint, sources).catch(() => this.fallbackVersions.advance(fingerprint, sources));
+    let version: { version: number; changed: string[] };
+    try {
+      version = await this.versions.advance(fingerprint, sources);
+    } catch (error) {
+      if (this.requireDurableVersion) throw new Rh4663FrontdoorError('frontdoor_version_durability_required', 503);
+      throw error;
+    }
+    if (this.requireDurableVersion && this.versions.durability !== 'PERSISTENT') throw new Rh4663FrontdoorError('frontdoor_version_durability_required', 503);
     state.frontdoor_version = { object_type: 'FRONTDOOR_VERSION', version: version.version, changed: version.changed, generated_at: at.toISOString() };
+    state.frontdoor_version_durability = this.versions.durability;
     this.cached = { expires_at: at.getTime() + this.ttlMs, state };
     return structuredClone(state);
   }
+}
+
+export class Rh4663FrontdoorError extends Error {
+  constructor(readonly code: string, readonly statusCode: number) { super(code); }
 }
 
 function assembleFrontdoor(input: { now: Date; census: Census | null; watch: Watch | null; preflight: Preflight | null; pulse: Pulse | null; signals: Signal[] | null; failures: Record<'census' | 'watch' | 'preflight' | 'pulse' | 'signals', string | null> }): Rh4663FrontdoorState {
@@ -125,13 +158,13 @@ function assembleFrontdoor(input: { now: Date; census: Census | null; watch: Wat
   const unavailable = Object.values(health).filter((item) => item.status === 'unavailable').length;
   const degraded = Object.values(health).filter((item) => item.status === 'degraded').length;
   const system = unavailable || degraded ? (refs.length ? 'partial' : 'degraded') : 'available';
-  const defaultPulse = { window: { window_id: 'unavailable', opens_at: input.now.toISOString(), closes_at: input.now.toISOString() }, consensus: { state: 'unavailable', leading_rotation: null, total_calls: 0 } };
+  const defaultPulse: Pulse = { window: { window_id: 'unavailable', opens_at: input.now.toISOString(), closes_at: input.now.toISOString() }, state: 'unavailable', consensus: { state: 'unavailable', leading_rotation: null, total_calls: 0 }, resolution: null };
   const current = input.pulse ?? defaultPulse;
   const callRef = pulseRef ?? ref('pulse_window', current.window.window_id, '/4663/pulse', null);
-  return { object_type: RH_4663_FRONTDOOR_STATE, generated_at: input.now.toISOString(), freshness: { state: unavailable ? 'DEGRADE' : freshnessState(observed, input.now), source_observed_at: observed }, frontdoor_version: { object_type: 'FRONTDOOR_VERSION', version: 0, changed: [], generated_at: input.now.toISOString() }, now_cards: nowCards, watch_cards: watchCards, open_loops: openLoops, current_call: { window_id: current.window.window_id, state: current.consensus.state, leading_rotation: current.consensus.leading_rotation, total_calls: current.consensus.total_calls, opens_at: current.window.opens_at, closes_at: current.window.closes_at, deep_link: '/4663/pulse', source_ref: callRef }, proof_summary: { total_calls: current.consensus.total_calls, resolved_calls: null, note: 'Personal proof is available after a signed CALL; this read model does not infer a wallet record.', deep_link: '/4663/receipts', source_ref: callRef }, system_status: { state: system, source_health: health }, source_refs: refs };
+  return { object_type: RH_4663_FRONTDOOR_STATE, generated_at: input.now.toISOString(), freshness: { state: unavailable ? 'DEGRADE' : freshnessState(observed, input.now), source_observed_at: observed }, frontdoor_version: { object_type: 'FRONTDOOR_VERSION', version: 0, changed: [], generated_at: input.now.toISOString() }, frontdoor_version_durability: 'EPHEMERAL', now_cards: nowCards, watch_cards: watchCards, open_loops: openLoops, current_call: { window_id: current.window.window_id, state: current.state ?? current.consensus.state, leading_rotation: current.consensus.leading_rotation, total_calls: current.consensus.total_calls, opens_at: current.window.opens_at, closes_at: current.window.closes_at, resolution_state: current.resolution?.state ?? null, resolved_category: current.resolution?.resolved_category ?? null, deep_link: '/4663/pulse', source_ref: callRef }, proof_summary: { total_calls: current.consensus.total_calls, resolved_calls: null, note: 'Personal proof is available after a signed CALL; this read model does not infer a wallet record.', deep_link: '/4663/receipts', source_ref: callRef }, system_status: { state: system, source_health: health }, source_refs: refs };
 }
 
-function semanticSources(state: Rh4663FrontdoorState) {
+function semanticSources(state: Rh4663FrontdoorState, ignorePersonalPulseChanges = false) {
   const loops = state.open_loops.map(loopFingerprint);
   return {
     RMM_CENSUS: JSON.stringify({ cards: state.now_cards.filter((card) => card.source_type === 'rmm_census').map(cardFingerprint), loops: loops.filter((loop) => loop.deep_link === '/4663/reflexive/census') }),
@@ -139,7 +172,9 @@ function semanticSources(state: Rh4663FrontdoorState) {
     AI_NVDA_CASE: JSON.stringify({ cards: state.watch_cards.filter((card) => card.id.includes('AI_NVDA')).map(cardFingerprint), loops: loops.filter((loop) => loop.loop_id.includes('AI_NVDA')) }),
     PLTR_PREFLIGHT: JSON.stringify({ cards: state.now_cards.filter((card) => card.id.includes('pltr')).map(cardFingerprint), loops: loops.filter((loop) => loop.deep_link === '/4663/reflexive/preflight/ipx-pltr') }),
     SIGNALS: JSON.stringify(state.now_cards.filter((card) => card.source_type === 'signal_card').map(cardFingerprint)),
-    PULSE: JSON.stringify({ current_call: state.current_call, proof_summary: state.proof_summary }),
+    PULSE: JSON.stringify(ignorePersonalPulseChanges
+      ? { window_id: state.current_call.window_id, opens_at: state.current_call.opens_at, closes_at: state.current_call.closes_at, state: state.current_call.state, resolution_state: state.current_call.resolution_state, resolved_category: state.current_call.resolved_category }
+      : { current_call: state.current_call, proof_summary: state.proof_summary }),
     SYSTEM: JSON.stringify(state.system_status.source_health)
   };
 }
