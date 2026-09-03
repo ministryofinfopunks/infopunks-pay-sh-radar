@@ -88,7 +88,7 @@ import { assembleRhChainDistributionPack } from '../services/rhChainDistribution
 import { assembleRhChainReceiptRelay } from '../services/rhChainReceiptRelayService';
 import { InMemoryReflexiveStore, PairV5DiscoveryAdapter, PairV5OnchainVerifier, PostgresReflexiveStore, ReflexiveRadarService, stableId, type ReflexiveProvider } from '../services/rhChainReflexiveRadarService';
 import { InMemoryReflexiveWatchStore, ReflexiveMarketsWatchService, ReflexiveWatchError, type ReflexiveWatchClaimInput } from '../services/rhChainReflexiveWatchService';
-import { InMemoryRmmCategoryCensusStore, PostgresRmmCategoryCensusStore, RmmCategoryCensusService } from '../services/rmmCategoryCensusService';
+import { canonicalAssetsFromRhj, InMemoryRmmCategoryCensusStore, PostgresRmmCategoryCensusStore, RmmCategoryCensusService } from '../services/rmmCategoryCensusService';
 import { LongDopplerVerifier, StockTokenSupplyIndexer } from '../services/rhChainCrossVenueAuditService';
 import { CANONICAL_UNISWAP_V4_POOL_MANAGER_4663, classifyPltrRelationship, pltrBasis, recoverV4PoolKeyFromInitialize, v4PriceFromSqrtPriceX96, verifyPltrV4Market } from '../services/rhChainPltrPreflightService';
 import { InMemoryIpxPltrSimulationStore, IpxPltrPreflightSimulatorService, IpxPltrSimulationError, PLTR_PREFLIGHT_DEMO_FIXTURE, PLTR_PREFLIGHT_DEMO_OBSERVATION_ID, PostgresIpxPltrSimulationStore, type IpxPltrSimulationStore } from '../services/ipxPltrPreflightSimulatorService';
@@ -793,7 +793,10 @@ export async function createApp(
   const reflexiveWatch = new ReflexiveMarketsWatchService(() => reflexiveRadar.snapshot(), options.reflexiveWatchStore);
   // A separate append-only breadth lane. It reads Radar's immutable observations but
   // never triggers inventory reconstruction, PLTR preflight, or shadow simulation.
-  const rmmCensus = new RmmCategoryCensusService(() => reflexiveRadar.snapshot(), rhChainPostgresPool ? new PostgresRmmCategoryCensusStore(rhChainPostgresPool) : new InMemoryRmmCategoryCensusStore());
+  const rmmCensus = new RmmCategoryCensusService(() => reflexiveRadar.snapshot(), rhChainPostgresPool ? new PostgresRmmCategoryCensusStore(rhChainPostgresPool) : new InMemoryRmmCategoryCensusStore(), undefined, async () => {
+    const fetchedAt = new Date().toISOString(); const response = await fetch('https://api.robinhood.com/rhj/assets', { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(config.rhChainProviderTimeoutMs) });
+    if (!response.ok) throw new Error(`rhj_assets_http_${response.status}`); return canonicalAssetsFromRhj(await response.json(), fetchedAt);
+  });
   const ipxPltrSimulationStore = options.ipxPltrSimulationStore ?? (rhChainPostgresPool ? new PostgresIpxPltrSimulationStore(rhChainPostgresPool) : new InMemoryIpxPltrSimulationStore());
   const ipxPltrSnapshotResolver = options.ipxPltrSnapshotResolver ?? (async (observationId) => {
     const persisted = await reflexiveRadar.pltrPreflight(observationId);

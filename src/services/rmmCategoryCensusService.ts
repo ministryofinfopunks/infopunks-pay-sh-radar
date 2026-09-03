@@ -12,6 +12,7 @@ export type RmmActivityState = 'ACTIVE' | 'LOW_ACTIVITY' | 'INACTIVE' | 'UNKNOWN
 export type RmmVenue = 'LONG' | 'DOPPLER' | 'PAIR' | 'PONS' | 'BANKR' | 'UNISWAP_DIRECT' | 'OTHER' | 'UNKNOWN';
 export type RmmCategory = 'SEMICONDUCTORS' | 'AI_SOFTWARE' | 'HEALTHCARE' | 'SPACE' | 'CRYPTO_FINANCIAL' | 'CONSUMER_TECH' | 'INDEX_ETF' | 'COMMODITY_GOLD_EXPOSURE' | 'OTHER';
 export type ClaimedRmmPair = { claimed_stock_symbol: string; claimed_mission_symbol: string; source_reference: string };
+type RhjAssetPayload = { id?: unknown; tokenSymbol?: unknown; tokenName?: unknown; deployments?: unknown; currentMultiplier?: unknown; pendingMultiplier?: unknown; pendingMultiplierEffectiveTime?: unknown; tradingCapabilities?: unknown; logoUrl?: unknown; status?: unknown };
 export type RmmCensusPairRecord = {
   object_type: 'RMM_CENSUS_PAIR_RECORD'; record_id: string; claimed_stock_symbol: string; claimed_mission_symbol: string;
   canonical_stock_asset_id: string | null; canonical_stock_contract: string | null; mission_contract: string | null; pool_id: string | null; pool_address: string | null;
@@ -50,14 +51,21 @@ export const WATCH_RMM_CLAIMS: readonly ClaimedRmmPair[] = [
 ].map(([claimed_stock_symbol, claimed_mission_symbol]) => ({ claimed_stock_symbol, claimed_mission_symbol, source_reference: 'RH_STOCK_MEME_MAP_20260903' }));
 
 export class RmmCategoryCensusService {
-  constructor(private readonly snapshot: () => Promise<ReflexiveSnapshot>, private readonly store: RmmCategoryCensusStore, private readonly now = () => new Date()) {}
-  async refresh() { const prior = await this.store.latest(); const requested = this.now(); const at = prior && Date.parse(prior.observed_at) >= requested.getTime() ? new Date(Date.parse(prior.observed_at) + 1) : requested; const census = buildRmmCategoryCensus(await this.snapshot(), at); await this.store.append(census); return census; }
+  constructor(private readonly snapshot: () => Promise<ReflexiveSnapshot>, private readonly store: RmmCategoryCensusStore, private readonly now = () => new Date(), private readonly canonicalAssets?: () => Promise<CanonicalStockAsset[]>) {}
+  async refresh() { const prior = await this.store.latest(); const requested = this.now(); const at = prior && Date.parse(prior.observed_at) >= requested.getTime() ? new Date(Date.parse(prior.observed_at) + 1) : requested; const state = await this.snapshot(); const assets = this.canonicalAssets ? await this.canonicalAssets() : state.assets; const census = buildRmmCategoryCensus({ ...state, assets }, at); await this.store.append(census); return census; }
   async latest() { return this.store.latest(); }
   async pairs() { return (await this.latest())?.pairs ?? []; }
   async stock(symbol: string) { const latest = await this.latest(); if (!latest) return null; return { stock: latest.canonical_stock_token_universe.assets.find((asset) => asset.ticker.toUpperCase() === symbol.toUpperCase()) ?? null, pairs: latest.pairs.filter((pair) => pair.claimed_stock_symbol.toUpperCase() === symbol.toUpperCase()), census_id: latest.census_id }; }
 }
 
 export function activeCanonicalStockTokens(assets: readonly CanonicalStockAsset[]) { const seen = new Set<string>(); return assets.filter((asset) => asset.chain_id === REFLEXIVE_CHAIN_ID && asset.status === 'ASSET_STATUS_ACTIVE' && /^0x[a-f0-9]{40}$/i.test(asset.canonical_contract) && !isExcludedAsset(asset) && !seen.has(asset.canonical_contract.toLowerCase()) && (seen.add(asset.canonical_contract.toLowerCase()) || true)); }
+/** Registry-only normalization: no pool discovery, position accounting, or preflight work. */
+export function canonicalAssetsFromRhj(payload: unknown, fetchedAt = new Date().toISOString()): CanonicalStockAsset[] {
+  const raw = (payload as { assets?: unknown })?.assets; if (!Array.isArray(raw)) return [];
+  const deduped = new Map<string, CanonicalStockAsset>();
+  for (const item of raw as RhjAssetPayload[]) { const deployment = Array.isArray(item.deployments) ? item.deployments.find((entry: any) => entry?.chainId === REFLEXIVE_CHAIN_ID) as { contractAddress?: unknown } | undefined : undefined; const contract = typeof deployment?.contractAddress === 'string' ? deployment.contractAddress.toLowerCase() : null; if (!contract || !/^0x[a-f0-9]{40}$/.test(contract) || typeof item.id !== 'string' || typeof item.tokenSymbol !== 'string' || typeof item.tokenName !== 'string') continue; const pending = typeof item.pendingMultiplier === 'string' && item.pendingMultiplier ? item.pendingMultiplier : null; deduped.set(contract, { asset_id: item.id, ticker: item.tokenSymbol, name: item.tokenName, chain_id: REFLEXIVE_CHAIN_ID, canonical_contract: contract, status: typeof item.status === 'string' ? item.status : 'UNKNOWN', current_multiplier: typeof item.currentMultiplier === 'string' ? item.currentMultiplier : '1', pending_multiplier: pending, pending_multiplier_effective_at: typeof item.pendingMultiplierEffectiveTime === 'string' && item.pendingMultiplierEffectiveTime ? item.pendingMultiplierEffectiveTime : null, trading_capabilities: item.tradingCapabilities && typeof item.tradingCapabilities === 'object' ? item.tradingCapabilities as Record<string, unknown> : null, logo: typeof item.logoUrl === 'string' ? item.logoUrl : null, observed_at: fetchedAt, fetched_at: fetchedAt, provenance: 'RHJ /assets canonical registry', first_party_asset: true }); }
+  return [...deduped.values()].sort((a, b) => a.ticker.localeCompare(b.ticker));
+}
 export function buildRmmCategoryCensus(snapshot: ReflexiveSnapshot, at = new Date()): RmmCategoryCensus {
   const observed_at = at.toISOString(); const assets = activeCanonicalStockTokens(snapshot.assets); const byTicker = new Map(assets.map((asset) => [asset.ticker.toUpperCase(), asset]));
   const seenClaims = new Set<string>(); const records: RmmCensusPairRecord[] = WATCH_RMM_CLAIMS.map((claim) => {
