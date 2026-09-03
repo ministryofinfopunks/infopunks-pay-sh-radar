@@ -87,6 +87,7 @@ import { assembleRhChainScouts } from '../services/rhChainScoutsService';
 import { assembleRhChainDistributionPack } from '../services/rhChainDistributionPackService';
 import { assembleRhChainReceiptRelay } from '../services/rhChainReceiptRelayService';
 import { InMemoryReflexiveStore, PairV5DiscoveryAdapter, PairV5OnchainVerifier, PostgresReflexiveStore, ReflexiveRadarService, stableId, type ReflexiveProvider } from '../services/rhChainReflexiveRadarService';
+import { InMemoryReflexiveWatchStore, ReflexiveMarketsWatchService, ReflexiveWatchError, type ReflexiveWatchClaimInput } from '../services/rhChainReflexiveWatchService';
 import { LongDopplerVerifier, StockTokenSupplyIndexer } from '../services/rhChainCrossVenueAuditService';
 import { CANONICAL_UNISWAP_V4_POOL_MANAGER_4663, classifyPltrRelationship, pltrBasis, recoverV4PoolKeyFromInitialize, v4PriceFromSqrtPriceX96, verifyPltrV4Market } from '../services/rhChainPltrPreflightService';
 import { InMemoryIpxPltrSimulationStore, IpxPltrPreflightSimulatorService, IpxPltrSimulationError, PLTR_PREFLIGHT_DEMO_FIXTURE, PLTR_PREFLIGHT_DEMO_OBSERVATION_ID, PostgresIpxPltrSimulationStore, type IpxPltrSimulationStore } from '../services/ipxPltrPreflightSimulatorService';
@@ -669,6 +670,7 @@ export type CreateAppOptions = {
   ipxPltrShadowLabStore?: IpxPltrShadowLabStore;
   ipxPltrSnapshotResolver?: (observationId: string) => Promise<import('../services/rhChainPltrPreflightService').PltrPreflightState | null>;
   ipxPltrShadowObservation?: Partial<{ enabled: boolean; capacitySweepEnabled: boolean; intervalMs: number; now: () => Date }>;
+  reflexiveWatchStore?: InMemoryReflexiveWatchStore;
 };
 
 const RH_CHAIN_LIVE_TOKEN_ROUTE_RESERVE_MS = 1_000;
@@ -787,6 +789,7 @@ export async function createApp(
     async longAudit(asset) { return longDopplerVerifier ? longDopplerVerifier.observeAiNvda(asset) : null; }
   };
   const reflexiveRadar = new ReflexiveRadarService(rhChainPostgresPool ? new PostgresReflexiveStore(rhChainPostgresPool) : new InMemoryReflexiveStore(), reflexiveProvider);
+  const reflexiveWatch = new ReflexiveMarketsWatchService(() => reflexiveRadar.snapshot(), options.reflexiveWatchStore);
   const ipxPltrSimulationStore = options.ipxPltrSimulationStore ?? (rhChainPostgresPool ? new PostgresIpxPltrSimulationStore(rhChainPostgresPool) : new InMemoryIpxPltrSimulationStore());
   const ipxPltrSnapshotResolver = options.ipxPltrSnapshotResolver ?? (async (observationId) => {
     const persisted = await reflexiveRadar.pltrPreflight(observationId);
@@ -2743,6 +2746,14 @@ export async function createApp(
     if (error instanceof z.ZodError) return reply.code(400).send({ error: 'invalid_4663_request', details: error.flatten() });
     throw error;
   };
+  const reflexiveWatchFailure = (reply: FastifyReply, error: unknown) => {
+    if (error instanceof ReflexiveWatchError) {
+      const status = error.code === 'duplicate_watch_claim' ? 409 : error.code === 'watch_claim_not_found' || error.code === 'watch_case_not_found' ? 404 : 400;
+      return reply.code(status).send({ error: error.code });
+    }
+    if (error instanceof TypeError) return reply.code(400).send({ error: 'invalid_reflexive_watch_request' });
+    throw error;
+  };
   const rh4663SourceStatus = (freshness: string | undefined): Rh4663EvidenceReference['source_status'] => {
     if (freshness === 'live' || freshness === 'fresh') return 'fresh';
     if (freshness === 'aging' || freshness === 'stale') return 'stale';
@@ -2945,6 +2956,25 @@ export async function createApp(
   });
   // RMM observations are public evidence objects, never receipt protocol objects.
   app.get('/v1/4663/reflexive', async () => ({ data: safeJsonExport(await reflexiveRadar.snapshot()) }));
+  app.get('/v1/4663/reflexive/watch', async () => ({ data: safeJsonExport(await reflexiveWatch.snapshot()) }));
+  app.get('/v1/4663/reflexive/watch/cases', async () => {
+    const watch = await reflexiveWatch.snapshot(); return { data: safeJsonExport({ cases: watch.cases, casebook: watch.casebook, falsification_queue: watch.falsification_queue, thesis_board: watch.thesis_board, methodology_version: watch.methodology_version }) };
+  });
+  app.get<{ Params: { id: string } }>('/v1/4663/reflexive/watch/cases/:id', async (req, reply) => {
+    const watchCase = await reflexiveWatch.case(req.params.id); if (!watchCase) return reply.code(404).send({ error: 'reflexive_watch_case_not_found' });
+    const watch = await reflexiveWatch.snapshot(); return { data: safeJsonExport({ case: watchCase, claims: watch.claims.filter((claim) => watchCase.watch_claims.includes(claim.claim_id)), audit_targets: watch.audit_targets.filter((target) => target.case_id === watchCase.case_id), thesis_board: watch.thesis_board.filter((entry) => watchCase.thesis_mapping.includes(entry.hypothesis_id)), doctrine: watch.doctrine }) };
+  });
+  app.get('/v1/4663/reflexive/watch/claims', async () => ({ data: safeJsonExport({ claims: await reflexiveWatch.claims(), methodology_version: 'reflexive-markets-watch-v0.1' }) }));
+  app.post('/internal/4663/reflexive/watch/claims', async (req, reply) => {
+    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send({ error: 'review_admin_token_required' });
+    try { return reply.code(201).send({ data: safeJsonExport(await reflexiveWatch.createClaim(req.body as ReflexiveWatchClaimInput)) }); }
+    catch (error) { return reflexiveWatchFailure(reply, error); }
+  });
+  app.post('/internal/4663/reflexive/watch/audit-targets', async (req, reply) => {
+    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send({ error: 'review_admin_token_required' });
+    try { return reply.code(201).send({ data: safeJsonExport(await reflexiveWatch.promoteClaim(req.body as Parameters<ReflexiveMarketsWatchService['promoteClaim']>[0])) }); }
+    catch (error) { return reflexiveWatchFailure(reply, error); }
+  });
   app.get('/v1/4663/reflexive/pairs', async () => {
     const state = await reflexiveRadar.snapshot(); return { data: safeJsonExport({ pairs: state.pairs, refreshed_at: state.refreshed_at, methodology_version: 'rmm-v0.3.1' }) };
   });
