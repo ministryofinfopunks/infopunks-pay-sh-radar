@@ -91,6 +91,7 @@ import { LongDopplerVerifier, StockTokenSupplyIndexer } from '../services/rhChai
 import { CANONICAL_UNISWAP_V4_POOL_MANAGER_4663, classifyPltrRelationship, pltrBasis, recoverV4PoolKeyFromInitialize, v4PriceFromSqrtPriceX96, verifyPltrV4Market } from '../services/rhChainPltrPreflightService';
 import { InMemoryIpxPltrSimulationStore, IpxPltrPreflightSimulatorService, IpxPltrSimulationError, PLTR_PREFLIGHT_DEMO_FIXTURE, PLTR_PREFLIGHT_DEMO_OBSERVATION_ID, PostgresIpxPltrSimulationStore, type IpxPltrSimulationStore } from '../services/ipxPltrPreflightSimulatorService';
 import { InMemoryIpxPltrShadowLabStore, IpxPltrShadowLabService, PostgresIpxPltrShadowLabStore, type IpxPltrShadowLabStore } from '../services/ipxPltrShadowLabService';
+import { IpxPltrShadowObservationService } from '../services/ipxPltrShadowObservationService';
 import { quoteMarketFromRaw } from '../services/rhChainQuotePersistenceService';
 import { buildRhChainProjectReceiptShare } from '../services/rhChainShareService';
 import { queryRhChainScout, RH_CHAIN_SCOUT_MODES } from '../services/rhChainScoutService';
@@ -667,6 +668,7 @@ export type CreateAppOptions = {
   ipxPltrSimulationStore?: IpxPltrSimulationStore;
   ipxPltrShadowLabStore?: IpxPltrShadowLabStore;
   ipxPltrSnapshotResolver?: (observationId: string) => Promise<import('../services/rhChainPltrPreflightService').PltrPreflightState | null>;
+  ipxPltrShadowObservation?: Partial<{ enabled: boolean; capacitySweepEnabled: boolean; intervalMs: number; now: () => Date }>;
 };
 
 const RH_CHAIN_LIVE_TOKEN_ROUTE_RESERVE_MS = 1_000;
@@ -795,6 +797,13 @@ export async function createApp(
   });
   const ipxPltrSimulator = new IpxPltrPreflightSimulatorService(ipxPltrSnapshotResolver, ipxPltrSimulationStore);
   const ipxPltrShadowLab = new IpxPltrShadowLabService(ipxPltrSnapshotResolver, ipxPltrSimulationStore, options.ipxPltrShadowLabStore ?? (rhChainPostgresPool ? new PostgresIpxPltrShadowLabStore(rhChainPostgresPool) : new InMemoryIpxPltrShadowLabStore()));
+  const ipxPltrShadowObservation = new IpxPltrShadowObservationService({
+    enabled: options.ipxPltrShadowObservation?.enabled ?? config.ipxPltrShadowObservationEnabled,
+    capacitySweepEnabled: options.ipxPltrShadowObservation?.capacitySweepEnabled ?? config.ipxPltrShadowCapacitySweepEnabled,
+    refreshPltrPreflight: () => reflexiveRadar.refreshPltrPreflight(),
+    shadowLab: ipxPltrShadowLab,
+    now: options.ipxPltrShadowObservation?.now
+  });
   const rhChainExpectedTables = [
     'rh_chain_signal_submissions',
     'rh_chain_metrics_snapshots',
@@ -2961,9 +2970,18 @@ export async function createApp(
     const record = await ipxPltrSimulator.get(req.params.id); return record ? { data: safeJsonExport(record) } : reply.code(404).send({ error: 'SIMULATION_NOT_FOUND' });
   });
   app.get('/v1/4663/reflexive/preflight/ipx-pltr/shadow/candidates', async () => ({ data: safeJsonExport(await ipxPltrShadowLab.candidates()) }));
+  app.get('/v1/4663/reflexive/preflight/ipx-pltr/shadow/status', async (_req, reply) => {
+    try { return { data: safeJsonExport(await ipxPltrShadowObservation.status()) }; }
+    catch (error) { return reply.code(503).send({ error: 'SHADOW_OBSERVATION_STATUS_UNAVAILABLE', detail: error instanceof Error ? error.message : String(error) }); }
+  });
   app.post('/v1/4663/reflexive/preflight/ipx-pltr/shadow/replay', async (req, reply) => {
     try { const body = (req.body ?? {}) as { state_snapshot_id?: string }; return reply.code(201).send({ data: safeJsonExport(await ipxPltrShadowLab.replay(body.state_snapshot_id ?? '')) }); }
     catch (error) { if (!(error instanceof IpxPltrSimulationError)) return reply.code(500).send({ error: 'SHADOW_REPLAY_FAILED' }); return reply.code(error.code === 'STATE_SNAPSHOT_NOT_FOUND' ? 404 : 400).send({ error: error.code, detail: error.message }); }
+  });
+  app.post('/internal/4663/reflexive/preflight/ipx-pltr/shadow/observe', async (req, reply) => {
+    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send({ error: 'review_admin_token_required' });
+    try { return { data: safeJsonExport(await ipxPltrShadowObservation.observeOnce()) }; }
+    catch (error) { return reply.code(503).send({ error: 'SHADOW_OBSERVATION_FAILED', detail: error instanceof Error ? error.message : String(error) }); }
   });
   app.get<{ Params: { configuration_hash: string } }>('/v1/4663/reflexive/preflight/ipx-pltr/shadow/series/:configuration_hash', async (req, reply) => {
     const candidates = await ipxPltrShadowLab.candidates(); if (!candidates.some((candidate) => candidate.configuration_hash === req.params.configuration_hash)) return reply.code(404).send({ error: 'SHADOW_CANDIDATE_NOT_FOUND' }); return { data: safeJsonExport({ configuration_hash: req.params.configuration_hash, series: await ipxPltrShadowLab.series(req.params.configuration_hash), transitions: await ipxPltrShadowLab.transitions(req.params.configuration_hash), summary: await ipxPltrShadowLab.summary(req.params.configuration_hash) }) };
@@ -4265,6 +4283,23 @@ export async function createApp(
       timer.unref();
       app.addHook('onClose', async () => clearInterval(timer));
     }
+  }
+  const ipxPltrShadowObservationEnabled = options.ipxPltrShadowObservation?.enabled ?? config.ipxPltrShadowObservationEnabled;
+  const ipxPltrShadowObservationIntervalMs = options.ipxPltrShadowObservation?.intervalMs ?? config.ipxPltrShadowObservationIntervalMs;
+  if (ipxPltrShadowObservationEnabled && ipxPltrShadowObservationIntervalMs > 0) {
+    const runShadowObservation = () => {
+      void ipxPltrShadowObservation.observeOnce()
+        .then((status) => {
+          console.log(JSON.stringify({ event: 'ipx_pltr_shadow_observation_run', latest_ready_snapshot: status.latest_ready_snapshot?.observation_id ?? null, ready_snapshot_count: status.ready_snapshot_count, evidence_window_satisfied: status.evidence_window.satisfied, next_action: status.next_action, last_error: status.last_error?.code ?? null }));
+        })
+        .catch((error) => {
+          console.log(JSON.stringify({ event: 'ipx_pltr_shadow_observation_failed', code: errorCode(error), message: errorMessage(error) }));
+        });
+    };
+    runShadowObservation();
+    const timer = setInterval(runShadowObservation, ipxPltrShadowObservationIntervalMs);
+    timer.unref();
+    app.addHook('onClose', async () => clearInterval(timer));
   }
 
   return app;

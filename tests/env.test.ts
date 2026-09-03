@@ -19,6 +19,8 @@ describe('runtime environment config', () => {
     expect(config.dexScreenerMaxRetries).toBe(2);
     expect(config.dexScreenerMaxConcurrency).toBe(4);
     expect(config.rhChainLiveTokenRouteTimeoutMs).toBe(3_800);
+    expect(config.ipxPltrShadowObservationEnabled).toBe(false);
+    expect(config.ipxPltrShadowObservationIntervalMs).toBe(1_800_000);
   });
 
   it('supports explicit safe metadata monitor mode and legacy enabled compatibility', () => {
@@ -40,6 +42,7 @@ describe('runtime environment config', () => {
     expect(loadRuntimeConfig({ NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'secret', RH_CHAIN_MARKET_HISTORY_ENABLED: 'true' }).disabledFeatures.rh_chain_market_history).toContain('DATABASE_URL');
     expect(loadRuntimeConfig({ NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'secret', RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED: 'true' }).disabledFeatures.rh_chain_reviewed_classifications).toContain('DATABASE_URL');
     expect(loadRuntimeConfig({ NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'secret', RH_CHAIN_REVIEW_CONSOLE_ENABLED: 'true' }).disabledFeatures.rh_chain_review_console).toContain('RH_CHAIN_REVIEW_ADMIN_TOKEN');
+    expect(loadRuntimeConfig({ NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'secret', IPX_PLTR_SHADOW_OBSERVATION_ENABLED: 'true' }).disabledFeatures.ipx_pltr_shadow_observation_worker).toContain('DATABASE_URL');
     expect(loadRuntimeConfig({ RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED: 'true' }).rhChainReviewedClassificationsEnabled).toBe(true);
   });
 
@@ -71,6 +74,8 @@ describe('runtime environment config', () => {
     expect(() => loadRuntimeConfig({ DEXSCREENER_MAX_CONCURRENCY: '21' })).toThrow('DEXSCREENER_MAX_CONCURRENCY');
     expect(loadRuntimeConfig({ RH_CHAIN_LIVE_TOKEN_ROUTE_TIMEOUT_MS: '3500' }).rhChainLiveTokenRouteTimeoutMs).toBe(3_500);
     expect(() => loadRuntimeConfig({ RH_CHAIN_LIVE_TOKEN_ROUTE_TIMEOUT_MS: '4001' })).toThrow('RH_CHAIN_LIVE_TOKEN_ROUTE_TIMEOUT_MS');
+    expect(() => loadRuntimeConfig({ IPX_PLTR_SHADOW_OBSERVATION_ENABLED: 'yes' })).toThrow('IPX_PLTR_SHADOW_OBSERVATION_ENABLED');
+    expect(() => loadRuntimeConfig({ IPX_PLTR_SHADOW_OBSERVATION_INTERVAL_MS: '0' })).toThrow('IPX_PLTR_SHADOW_OBSERVATION_INTERVAL_MS');
   });
 
   it('emits deterministic non-secret production configuration verification', () => {
