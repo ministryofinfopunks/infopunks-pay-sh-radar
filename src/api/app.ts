@@ -88,6 +88,7 @@ import { assembleRhChainDistributionPack } from '../services/rhChainDistribution
 import { assembleRhChainReceiptRelay } from '../services/rhChainReceiptRelayService';
 import { InMemoryReflexiveStore, PairV5DiscoveryAdapter, PairV5OnchainVerifier, PostgresReflexiveStore, ReflexiveRadarService, stableId, type ReflexiveProvider } from '../services/rhChainReflexiveRadarService';
 import { InMemoryReflexiveWatchStore, ReflexiveMarketsWatchService, ReflexiveWatchError, type ReflexiveWatchClaimInput } from '../services/rhChainReflexiveWatchService';
+import { InMemoryRmmCategoryCensusStore, PostgresRmmCategoryCensusStore, RmmCategoryCensusService } from '../services/rmmCategoryCensusService';
 import { LongDopplerVerifier, StockTokenSupplyIndexer } from '../services/rhChainCrossVenueAuditService';
 import { CANONICAL_UNISWAP_V4_POOL_MANAGER_4663, classifyPltrRelationship, pltrBasis, recoverV4PoolKeyFromInitialize, v4PriceFromSqrtPriceX96, verifyPltrV4Market } from '../services/rhChainPltrPreflightService';
 import { InMemoryIpxPltrSimulationStore, IpxPltrPreflightSimulatorService, IpxPltrSimulationError, PLTR_PREFLIGHT_DEMO_FIXTURE, PLTR_PREFLIGHT_DEMO_OBSERVATION_ID, PostgresIpxPltrSimulationStore, type IpxPltrSimulationStore } from '../services/ipxPltrPreflightSimulatorService';
@@ -790,6 +791,9 @@ export async function createApp(
   };
   const reflexiveRadar = new ReflexiveRadarService(rhChainPostgresPool ? new PostgresReflexiveStore(rhChainPostgresPool) : new InMemoryReflexiveStore(), reflexiveProvider);
   const reflexiveWatch = new ReflexiveMarketsWatchService(() => reflexiveRadar.snapshot(), options.reflexiveWatchStore);
+  // A separate append-only breadth lane. It reads Radar's immutable observations but
+  // never triggers inventory reconstruction, PLTR preflight, or shadow simulation.
+  const rmmCensus = new RmmCategoryCensusService(() => reflexiveRadar.snapshot(), rhChainPostgresPool ? new PostgresRmmCategoryCensusStore(rhChainPostgresPool) : new InMemoryRmmCategoryCensusStore());
   const ipxPltrSimulationStore = options.ipxPltrSimulationStore ?? (rhChainPostgresPool ? new PostgresIpxPltrSimulationStore(rhChainPostgresPool) : new InMemoryIpxPltrSimulationStore());
   const ipxPltrSnapshotResolver = options.ipxPltrSnapshotResolver ?? (async (observationId) => {
     const persisted = await reflexiveRadar.pltrPreflight(observationId);
@@ -2956,7 +2960,10 @@ export async function createApp(
   });
   // RMM observations are public evidence objects, never receipt protocol objects.
   app.get('/v1/4663/reflexive', async () => ({ data: safeJsonExport(await reflexiveRadar.snapshot()) }));
-  app.get('/v1/4663/reflexive/watch', async () => ({ data: safeJsonExport(await reflexiveWatch.snapshot()) }));
+  app.get('/v1/4663/reflexive/watch', async () => ({ data: safeJsonExport({ ...await reflexiveWatch.snapshot(), rmm_category_census: await rmmCensus.latest() }) }));
+  app.get('/v1/4663/reflexive/census', async (_req, reply) => { const census = await rmmCensus.latest(); return census ? { data: safeJsonExport(census) } : reply.code(409).send({ error: 'rmm_census_not_refreshed' }); });
+  app.get('/v1/4663/reflexive/census/pairs', async () => ({ data: safeJsonExport({ census: await rmmCensus.latest(), pairs: await rmmCensus.pairs() }) }));
+  app.get<{ Params: { symbol: string } }>('/v1/4663/reflexive/census/stocks/:symbol', async (req, reply) => { const stock = await rmmCensus.stock(req.params.symbol); return stock ? { data: safeJsonExport(stock) } : reply.code(409).send({ error: 'rmm_census_not_refreshed' }); });
   app.get('/v1/4663/reflexive/watch/cases', async () => {
     const watch = await reflexiveWatch.snapshot(); return { data: safeJsonExport({ cases: watch.cases, casebook: watch.casebook, falsification_queue: watch.falsification_queue, thesis_board: watch.thesis_board, methodology_version: watch.methodology_version }) };
   });
@@ -3032,6 +3039,10 @@ export async function createApp(
   app.post('/internal/4663/reflexive/refresh', async (req, reply) => {
     if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send({ error: 'review_admin_token_required' });
     try { return { data: safeJsonExport(await reflexiveRadar.refresh()) }; } catch (error) { return reply.code(503).send({ error: error instanceof Error ? error.message : 'reflexive_refresh_failed' }); }
+  });
+  app.post('/internal/4663/reflexive/census/refresh', async (req, reply) => {
+    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send({ error: 'review_admin_token_required' });
+    try { return { data: safeJsonExport(await rmmCensus.refresh()) }; } catch (error) { return reply.code(503).send({ error: error instanceof Error ? error.message : 'rmm_census_refresh_failed' }); }
   });
   app.post('/internal/4663/reflexive/stocks/PLTR/preflight/refresh', async (req, reply) => {
     if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send({ error: 'review_admin_token_required' });
