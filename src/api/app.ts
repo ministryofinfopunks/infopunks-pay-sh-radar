@@ -38,6 +38,7 @@ import { assembleRhChainCloneRadar } from '../services/rhChainCloneRadarService'
 import { assembleRhChainTodayOn4663 } from '../services/rhChainTodayOn4663Service';
 import { getLatestRh4663Print, getRh4663Print } from '../services/rh4663PrintService';
 import { Rh4663CampaignEventSchema, Rh4663CampaignTelemetry } from '../services/rh4663CampaignTelemetry';
+import { PostgresFrontdoorVersionStore, Rh4663FrontdoorService } from '../services/rh4663FrontdoorService';
 import { InMemoryRh4663PrintStore, PostgresRh4663PrintStore, Rh4663PrintGeneratorError, Rh4663PrintGeneratorService, type Rh4663ObservationFreshness, type Rh4663PrintStore, type Rh4663VerifiedObservation } from '../services/rh4663PrintGeneratorService';
 import { createRh4663UtcDayProviders, InMemoryRh4663UtcDayObservationStore, isValidRh4663UtcDate, PostgresRh4663UtcDayObservationStore, Rh4663UtcDayObservationError, Rh4663UtcDayObservationService, type Rh4663UtcDayObservationStore } from '../services/rh4663UtcDayObservationService';
 import {
@@ -1079,6 +1080,16 @@ export async function createApp(
     is_production: config.isProduction,
     phase2_production_proof_verified: config.rh4663Phase2ProductionProofVerified,
     log: (entry) => console.log(JSON.stringify(entry))
+  });
+  // Read-only, bounded Front Door assembly. All dependencies below select latest
+  // persisted state; none refreshes Radar, runs a preflight, or reconstructs history.
+  const rh4663Frontdoor = new Rh4663FrontdoorService({
+    census: () => rmmCensus.latest(),
+    watch: () => reflexiveWatch.snapshot(),
+    preflight: () => reflexiveRadar.pltrPreflight(),
+    pulse: () => rh4663PulseRead(),
+    signals: () => rh4663Intelligence.publicSignals({ limit: 5 }),
+    version_store: rhChainPostgresPool ? new PostgresFrontdoorVersionStore(rhChainPostgresPool) : undefined
   });
   const phase3Classifications = () => [...rhChainReviewedLayerClassifications, ...(rhChainDiscoveryQueue?.marketStructureCandidates() ?? []), ...(rhChainReviewPipeline?.marketStructureCandidates() ?? [])];
   const phase3CategoryFor = (contract: string) => {
@@ -2817,6 +2828,14 @@ export async function createApp(
   };
   const rh4663PrintRead = async (printId: string) => await rh4663PrintGenerator.get(printId) ?? getRh4663Print(printId);
   const rh4663LatestPrintRead = async () => await rh4663PrintGenerator.latest() ?? getLatestRh4663Print();
+  app.get('/v1/4663/frontdoor', async (req, reply) => {
+    const state = await rh4663Frontdoor.read();
+    const data = safeJsonExport(state);
+    const etag = `"frontdoor-${state.frontdoor_version.version}"`;
+    reply.header('ETag', etag).header('Cache-Control', 'public, max-age=15, stale-while-revalidate=45');
+    if (req.headers['if-none-match'] === etag) return reply.code(304).send();
+    return { data };
+  });
   app.get('/v1/4663', async () => {
     const [pulse, genesis, today, signals, liveSignals, latestPrint] = await Promise.all([rh4663PulseRead(), rh4663GenesisRead(), rh4663TodayInput(), rh4663Store.listSignals(5).catch(() => []), rh4663Intelligence.publicSignals({ limit: 3 }).catch(() => []), rh4663LatestPrintRead()]);
     const index = assembleRhChain4663Index();

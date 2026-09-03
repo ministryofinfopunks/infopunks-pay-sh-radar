@@ -3,33 +3,16 @@ import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import type { Rh4663CallReceipt, Rh4663RotationOption, Rh4663Signal, Rh4663SignalCategory, Rh4663TodayEdition } from '../services/rh4663Service';
 import type { Rh4663MerkleProof, Rh4663ResolutionReceipt } from '../services/rh4663ResolutionService';
 import type { Published4663Signal } from '../services/rh4663IntelligenceService';
+import { Frontdoor } from './frontdoor4663';
+import type { Rh4663FrontdoorState } from '../services/rh4663FrontdoorService';
 import './rh4663.css';
 
 const API_BASE_URL = getApiBaseUrl();
-const NAV = [
-  { href: '/4663', label: '4663' },
-  { href: '/4663/print/2026-08-30', label: 'Print' },
-  { href: '/4663/pulse', label: 'Pulse' },
-  { href: '/4663/today', label: 'Today' },
-  { href: '/4663/signals', label: 'Signals' },
-  { href: '/4663/receipts', label: 'Receipts' }
-] as const;
 const ROTATIONS: Array<{ value: Rh4663RotationOption; label: string }> = [
   { value: 'MEMES', label: 'Memes' }, { value: 'STOCK_TOKENS', label: 'Stock Tokens' }, { value: 'RWA_DEFI', label: 'RWA / DeFi' }, { value: 'STABLES', label: 'Stables' }, { value: 'NO_QUALIFIED_ROTATION', label: 'No Qualified Rotation' }
 ];
 const SIGNAL_CATEGORIES: Rh4663SignalCategory[] = ['meme', 'nft_culture', 'utility', 'agent', 'stock_token', 'defi', 'wallet', 'liquidity', 'risk', 'integration', 'other'];
 
-type Overview = {
-  identity: string;
-  thesis: string;
-  rotation_snapshot: { top_signal: { ticker: string; name: string; signal_score: number }; highest_volume: { ticker: string }; highest_risk: { ticker: string }; last_updated: string; source_status: string };
-  pulse: PulseData;
-  today: Rh4663TodayEdition & { rh_pulse?: TodayPulse | null };
-  latest_print?: PrintData;
-  signal_hunt: { count: number; signals: Rh4663Signal[] };
-  live_signals?: { count: number; signals: Published4663Signal[] };
-  genesis: GenesisData;
-};
 type PulseData = { window: { window_id: string; opens_at: string; closes_at: string }; consensus: { total_calls: number; leading_rotation: Rh4663RotationOption | null; confidence_average: number | null; state: string; counts?: Record<Rh4663RotationOption, number>; percentages?: Record<Rh4663RotationOption, number> }; options: Rh4663RotationOption[] };
 type GenesisData = { limit: number; recorded: number; remaining: number; progress: number; policy: string };
 type ReputationEvidence = { window_id: string; call_receipt_id: string; resolution_receipt_id: string | null; called_category: Rh4663RotationOption; resolved_category: Rh4663RotationOption | null; outcome: 'CORRECT' | 'INCORRECT' | 'UNRESOLVED'; confidence: number; genesis_ordinal: number | null };
@@ -79,33 +62,21 @@ export function Rh4663Page() {
   const signalId = path.match(/^\/4663\/signals\/([^/]+)$/)?.[1];
   const printId = path.match(/^\/4663\/print\/([^/]+)$/)?.[1];
   const view = proofId || callId || resolutionId ? 'proof' : consensusWindowId ? 'consensus' : signalId ? 'signal_detail' : printId ? 'print' : path === '/4663/pulse' ? 'pulse' : path === '/4663/today' ? 'today' : path === '/4663/signals' ? 'signals' : path === '/4663/receipts' ? 'receipts' : 'home';
+  if (view === 'home') return <Home />;
   return <div className="i4663-app">
     <header className="i4663-header">
       <a className="i4663-wordmark" href="/4663" aria-label="Infopunks 4663 home"><span>INFOPUNKS</span><b>//4663</b></a>
       <a className="i4663-radar-link" href="/rh-chain-signal-desk">RH DESK ↗</a>
     </header>
-    <nav className="i4663-nav" aria-label="4663 navigation">{NAV.map((item) => <a key={item.href} href={item.href} aria-current={(path || '/4663') === item.href ? 'page' : undefined}>{item.label}</a>)}</nav>
-    {view === 'home' ? <Home /> : view === 'print' && printId ? <Print printId={decodeURIComponent(printId)} /> : view === 'pulse' ? <Pulse /> : view === 'consensus' && consensusWindowId ? <ConsensusPage windowId={decodeURIComponent(consensusWindowId)} /> : view === 'today' ? <Today /> : view === 'signals' ? <Signals /> : view === 'signal_detail' && signalId ? <SignalProofPage signalId={decodeURIComponent(signalId)} /> : view === 'proof' && (proofId || callId || resolutionId) ? <ProofPage receiptId={decodeURIComponent(proofId ?? callId ?? resolutionId ?? '')} campaignRoute={callId ? 'call' : resolutionId ? 'resolution' : 'proof'} /> : <Receipts />}
+    <nav className="i4663-nav" aria-label="4663 navigation"><a href="/4663#now">Now</a><a href="/4663#watch">Watch</a><a href="/4663#call">Call</a><a href="/4663#proof">Proof</a></nav>
+    {view === 'print' && printId ? <Print printId={decodeURIComponent(printId)} /> : view === 'pulse' ? <Pulse /> : view === 'consensus' && consensusWindowId ? <ConsensusPage windowId={decodeURIComponent(consensusWindowId)} /> : view === 'today' ? <Today /> : view === 'signals' ? <Signals /> : view === 'signal_detail' && signalId ? <SignalProofPage signalId={decodeURIComponent(signalId)} /> : view === 'proof' && (proofId || callId || resolutionId) ? <ProofPage receiptId={decodeURIComponent(proofId ?? callId ?? resolutionId ?? '')} campaignRoute={callId ? 'call' : resolutionId ? 'resolution' : 'proof'} /> : <Receipts />}
     <footer className="i4663-footer"><span>AFTER ATTENTION, INTELLIGENCE.</span><span>UTC / RH CHAIN / PUBLIC MEMORY</span></footer>
   </div>;
 }
 
 function Home() {
-  const { data, status, message } = useApi<Overview>('/v1/4663');
-  useEffect(() => { if (data?.latest_print) trackCampaign('4663_print_viewed', { surface: 'home', print_id: data.latest_print.print_id }); }, [data?.latest_print]);
-  const prior = data?.today.rh_pulse?.prior;
-  return <main className="i4663-main i4663-home">
-    <section className="i4663-hero" aria-labelledby="i4663-title">
-      <p className="i4663-kicker">INFOPUNKS // 4663</p>
-      <h1 id="i4663-title">MARKET<br />MEMORY.</h1>
-      <p>Radar remembers what happened, what people thought would happen next, and who was right.</p>
-    </section>
-    <DataState status={status} message={message} />
-    <section className="i4663-home-chapter is-print"><SectionNumber n="01" label="What just happened?" /><p className="i4663-micro">//4663 PRINT · AUG 30</p><h2>{data?.latest_print?.title ?? 'ROBINHOOD CHAIN IS RUNNING HOT'}</h2><p>{data?.latest_print?.campaign_copy.primary ?? 'THE CHAIN WAS BUILT FOR STOCKS.'}<br />{data?.latest_print?.campaign_copy.secondary ?? 'THE INTERNET STARTED TRADING ATTENTION.'}</p><a href={data?.latest_print?.canonical_path ?? '/4663/print/2026-08-30'}>OPEN THE PRINT <span>→</span></a></section>
-    <section className="i4663-home-chapter is-call"><SectionNumber n="02" label="What does the network think happens next?" /><p className="i4663-micro">RH PULSE / {data?.pulse.window.window_id ?? 'UTC DAILY'}</p><h2>{data?.latest_print?.campaign_copy.call_to_action ?? 'WHAT OWNS THE NEXT 24 HOURS?'}</h2><p>Sign your view before the window closes. Infopunks remembers the call and resolves it against published methodology.</p><a className="i4663-primary-action" href={`/4663/pulse?evidence=${encodeURIComponent(data?.latest_print?.canonical_path ?? '/4663/print/2026-08-30')}&confidence=${data?.latest_print?.call.default_confidence ?? 74}`} onClick={() => trackCampaign('4663_make_call_clicked', { surface: 'home', print_id: data?.latest_print?.print_id, window_id: data?.pulse.window.window_id })}>MAKE THE CALL <span>↗</span></a></section>
-    <section className="i4663-home-chapter is-resolution"><SectionNumber n="03" label="What did yesterday's network get right?" />{prior?.resolution ? <><p className="i4663-micro">//4663 RESOLUTION</p><h2>{prior.resolution.consensus_correct ? 'THE CROWD WAS RIGHT.' : 'THE CROWD MISSED.'}</h2><p>Consensus called <b>{labelRotation(prior.consensus.leading_rotation) || 'NO QUALIFIED ROTATION'}</b>. The deterministic outcome was <b>{labelRotation(prior.resolution.resolved_category)}</b>.</p><a href={`/4663/consensus/${encodeURIComponent(prior.resolution.window_id)}`}>OPEN RESOLUTION <span>→</span></a></> : <><p className="i4663-micro">RESOLUTION PENDING</p><h2>THE NEXT RECEIPT IS FORMING.</h2><p>After the UTC observation window closes, the deterministic resolution engine publishes the outcome and preserves every accepted call.</p></>}</section>
-    <section className="i4663-genesis"><SectionNumber n="04" label="Genesis provenance" /><div className="i4663-progress-copy"><strong>{data?.genesis.recorded ?? 0}<small> / 4,663</small></strong><span>{data?.genesis.remaining ?? 4663} IDENTITIES REMAIN</span></div><div className="i4663-progress" role="progressbar" aria-valuemin={0} aria-valuemax={4663} aria-valuenow={data?.genesis.recorded ?? 0}><i style={{ width: `${Math.min(100, (data?.genesis.progress ?? 0) * 100)}%` }} /></div><p>Provenance, not a reward promise. Genesis records early verified participation.</p></section>
-  </main>;
+  const { data, status, message } = useApi<Rh4663FrontdoorState>('/v1/4663/frontdoor');
+  return <Frontdoor data={data} status={status} message={message} />;
 }
 
 function Print({ printId }: { printId: string }) {

@@ -12,14 +12,14 @@ describe('Infopunks //4663 mobile surface', () => {
   beforeEach(() => { Object.defineProperty(window, 'innerWidth', { configurable: true, value: 390 }); container = document.createElement('div'); document.body.append(container); });
   afterEach(() => { act(() => root?.unmount()); container.remove(); vi.restoreAllMocks(); delete (window as Window & { ethereum?: unknown }).ethereum; window.history.replaceState({}, '', '/'); });
 
-  it('renders the required mobile-first homepage hierarchy and all six destinations before data is required', async () => {
+  it('renders the four-surface mobile front door before data is required', async () => {
     window.history.replaceState({}, '', '/4663'); vi.spyOn(globalThis, 'fetch').mockReturnValue(new Promise(() => {}));
     await act(async () => { root = createRoot(container); root.render(<Rh4663Page />); });
     const text = container.textContent ?? '';
-    expect(text).toContain('INFOPUNKS//4663'); expect(text).toContain('MARKETMEMORY.');
-    for (const label of ['What just happened?', 'What does the network think happens next?', 'What did yesterday\'s network get right?', 'Genesis provenance']) expect(text).toContain(label);
-    expect(Array.from(container.querySelectorAll('.i4663-nav a')).map((node) => node.getAttribute('href'))).toEqual(['/4663', '/4663/print/2026-08-30', '/4663/pulse', '/4663/today', '/4663/signals', '/4663/receipts']);
-    expect(container.querySelector('.i4663-home-chapter.is-call a[href^="/4663/pulse"]')?.textContent).toContain('MAKE THE CALL');
+    expect(text).toContain('INFOPUNKS4663'); expect(text).toContain('Robinhood Chain,right now.');
+    for (const label of ['What matters right now?', 'What is developing?', 'What still needs to be proved?', 'How good is your record?']) expect(text).toContain(label);
+    expect(Array.from(container.querySelectorAll('.fd-nav a')).map((node) => node.getAttribute('href'))).toEqual(['#now', '#watch', '#call', '#proof']);
+    expect(container.querySelector('.fd-call-action[href^="/4663/pulse"]')?.textContent).toContain('Make the call');
   });
 
   it('renders an explicit unavailable Today state without invented events', async () => {
@@ -48,11 +48,14 @@ describe('Infopunks //4663 mobile surface', () => {
     expect(container.textContent).not.toContain('PROTOCOL RECEIPT / CALL');
   });
 
-  it('keeps the three-question campaign hierarchy above tertiary Radar surfaces', async () => {
+  it('keeps NOW, WATCH, OPEN LOOPS, CALL, and PROOF in the same mobile order', async () => {
     window.history.replaceState({}, '', '/4663');
     vi.spyOn(globalThis, 'fetch').mockImplementation(() => json({ identity: 'INFOPUNKS // 4663', thesis: 'WE WATCH THE FLOW.', rotation_snapshot: { top_signal: { ticker: 'RH', name: 'RH', signal_score: 70 }, highest_volume: { ticker: 'RH' }, highest_risk: { ticker: '—' }, last_updated: '2026-08-14T15:42:00.000Z', source_status: 'fresh' }, pulse: { window: { window_id: 'rh4663:2026-08-14', opens_at: '2026-08-14T00:00:00.000Z', closes_at: '2026-08-15T00:00:00.000Z' }, consensus: { total_calls: 0 }, options: [] }, today: { key_signal: 'Persisted intelligence.' }, live_signals: { count: 0, signals: [] }, signal_hunt: { count: 0, signals: [] }, genesis: { recorded: 0, remaining: 4663, progress: 0 } }));
     await act(async () => { root = createRoot(container); root.render(<Rh4663Page />); await Promise.resolve(); await Promise.resolve(); });
-    const print = container.querySelector('.i4663-home-chapter.is-print'); const call = container.querySelector('.i4663-home-chapter.is-call'); const resolution = container.querySelector('.i4663-home-chapter.is-resolution'); expect(print).not.toBeNull(); expect(call).not.toBeNull(); expect(resolution).not.toBeNull(); expect(print!.compareDocumentPosition(call!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy(); expect(call!.compareDocumentPosition(resolution!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy(); expect(call?.textContent).toContain('MAKE THE CALL');
+    const now = container.querySelector('#now'); const watch = container.querySelector('#watch'); const loops = container.querySelector('#loops-title')?.closest('section'); const call = container.querySelector('#call'); const proof = container.querySelector('#proof');
+    expect(now).not.toBeNull(); expect(watch).not.toBeNull(); expect(loops).not.toBeNull(); expect(call).not.toBeNull(); expect(proof).not.toBeNull();
+    for (const [first, second] of [[now, watch], [watch, loops], [loops, call], [call, proof]] as const) expect(first!.compareDocumentPosition(second!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(call?.textContent).toContain('Make the call');
   });
 
   it('renders published Signals, public-safe watching, and immutable archive semantics on mobile', async () => {
