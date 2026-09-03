@@ -47,6 +47,16 @@ describe('4663 front door', () => {
     expect(container.querySelector('a[href="/4663/receipts"]')).not.toBeNull();
   });
 
+  it('keeps follows toggleable and accessible when local storage is unavailable', async () => {
+    await render();
+    const control = container.querySelector('.fd-now-card .fd-follow') as HTMLButtonElement;
+    expect(control).not.toBeNull(); expect(control.getAttribute('aria-pressed')).toBe('false');
+    await act(async () => { control.click(); await Promise.resolve(); });
+    expect(control.getAttribute('aria-pressed')).toBe('true');
+    await act(async () => { control.click(); await Promise.resolve(); });
+    expect(control.getAttribute('aria-pressed')).toBe('false');
+  });
+
   it('ships reduced-motion handling without changing the deep Pulse and receipt routes', () => {
     const styles = readFileSync(resolve(process.cwd(), 'src/web/rh4663.css'), 'utf8');
     expect(styles).toContain('@media (prefers-reduced-motion: reduce)');

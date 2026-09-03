@@ -39,6 +39,7 @@ import { assembleRhChainTodayOn4663 } from '../services/rhChainTodayOn4663Servic
 import { getLatestRh4663Print, getRh4663Print } from '../services/rh4663PrintService';
 import { Rh4663CampaignEventSchema, Rh4663CampaignTelemetry } from '../services/rh4663CampaignTelemetry';
 import { InMemoryFrontdoorChangeEventStore, PostgresFrontdoorChangeEventStore, PostgresFrontdoorVersionStore, Rh4663FrontdoorError, Rh4663FrontdoorService, type FrontdoorChangeEventStore } from '../services/rh4663FrontdoorService';
+import { buildMy4663State, normalizeMy4663Follows } from '../services/rh4663My4663Service';
 import { InMemoryRh4663PrintStore, PostgresRh4663PrintStore, Rh4663PrintGeneratorError, Rh4663PrintGeneratorService, type Rh4663ObservationFreshness, type Rh4663PrintStore, type Rh4663VerifiedObservation } from '../services/rh4663PrintGeneratorService';
 import { createRh4663UtcDayProviders, InMemoryRh4663UtcDayObservationStore, isValidRh4663UtcDate, PostgresRh4663UtcDayObservationStore, Rh4663UtcDayObservationError, Rh4663UtcDayObservationService, type Rh4663UtcDayObservationStore } from '../services/rh4663UtcDayObservationService';
 import {
@@ -2937,6 +2938,17 @@ export async function createApp(
       const pendingChanges = pending && frontdoor ? frontdoor.change_events.filter((event) => Date.parse(event.occurred_at) > Date.parse(pending.created_at)).slice(0, 20) : [];
       return { data: safeJsonExport({ authenticated: true, resolved_call: resolvedCall, personal_events: resolvedCall ? [{ event_id: `CALL_RESOLVED:${resolvedCall.resolution_receipt_id}`, event_type: 'CALL_RESOLVED', occurred_at: resolvedCall.resolved_at, headline: 'Your CALL resolved', deep_link: resolvedCall.deep_link }] : [], pending_call: pending ? { call_receipt_id: pending.receipt_id, submitted_at: pending.created_at, changes: pendingChanges, context_only: true } : null, my_4663_version: resolvedCall ? `${resolvedCall.resolution_receipt_id}:${resolvedCall.resolved_at}` : pending ? `${pending.receipt_id}:pending` : '0' }) };
     } catch (error) { return reply.code(503).send({ error: error instanceof Error ? error.message : 'personal_change_state_unavailable' }); }
+  });
+  app.get<{ Querystring: { follows?: string; last_seen_my4663_event_id?: string } }>('/v1/4663/me', async (req, reply) => {
+    // Local-first follows are supplied only for this private projection. They
+    // are never written into, ranked within, or used to vary /frontdoor.
+    reply.header('Cache-Control', 'private, no-store').header('Vary', 'Authorization, X-Wallet-Address');
+    let follows: unknown = [];
+    try { follows = req.query.follows ? JSON.parse(req.query.follows) : []; } catch { follows = []; }
+    try {
+      const frontdoor = await rh4663Frontdoor.read();
+      return { data: safeJsonExport(buildMy4663State(frontdoor, normalizeMy4663Follows(follows), req.query.last_seen_my4663_event_id)) };
+    } catch (error) { return reply.code(503).send({ error: error instanceof Error ? error.message : 'my_4663_state_unavailable' }); }
   });
   app.get('/v1/4663', async () => {
     const [pulse, genesis, today, signals, liveSignals, latestPrint] = await Promise.all([rh4663PulseRead(), rh4663GenesisRead(), rh4663TodayInput(), rh4663Store.listSignals(5).catch(() => []), rh4663Intelligence.publicSignals({ limit: 3 }).catch(() => []), rh4663LatestPrintRead()]);

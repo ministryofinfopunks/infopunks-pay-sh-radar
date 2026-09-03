@@ -11,6 +11,7 @@ export const Rh4663CampaignEventSchema = z.object({
     'call_shared', 'call_resolution_viewed', 'call_again_started',
     'open_loop_viewed', 'open_loop_opened', 'open_loop_source_opened', 'return_change_summary_viewed', 'return_change_opened',
     'pending_call_changes_viewed', 'resolved_call_return_viewed', 'frontdoor_return_visit',
+    'follow_created', 'follow_removed', 'my4663_viewed', 'followed_change_viewed', 'followed_open_loop_viewed', 'followed_subject_return',
     '4663_print_candidate_generated', '4663_print_candidate_incomplete', '4663_print_frozen', '4663_print_provider_disagreement'
   ]),
   surface: z.enum(['print', 'pulse', 'call', 'consensus', 'resolution', 'home']).optional(),
