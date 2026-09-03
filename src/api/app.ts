@@ -38,7 +38,7 @@ import { assembleRhChainCloneRadar } from '../services/rhChainCloneRadarService'
 import { assembleRhChainTodayOn4663 } from '../services/rhChainTodayOn4663Service';
 import { getLatestRh4663Print, getRh4663Print } from '../services/rh4663PrintService';
 import { Rh4663CampaignEventSchema, Rh4663CampaignTelemetry } from '../services/rh4663CampaignTelemetry';
-import { PostgresFrontdoorVersionStore, Rh4663FrontdoorError, Rh4663FrontdoorService } from '../services/rh4663FrontdoorService';
+import { InMemoryFrontdoorChangeEventStore, PostgresFrontdoorChangeEventStore, PostgresFrontdoorVersionStore, Rh4663FrontdoorError, Rh4663FrontdoorService, type FrontdoorChangeEventStore } from '../services/rh4663FrontdoorService';
 import { InMemoryRh4663PrintStore, PostgresRh4663PrintStore, Rh4663PrintGeneratorError, Rh4663PrintGeneratorService, type Rh4663ObservationFreshness, type Rh4663PrintStore, type Rh4663VerifiedObservation } from '../services/rh4663PrintGeneratorService';
 import { createRh4663UtcDayProviders, InMemoryRh4663UtcDayObservationStore, isValidRh4663UtcDate, PostgresRh4663UtcDayObservationStore, Rh4663UtcDayObservationError, Rh4663UtcDayObservationService, type Rh4663UtcDayObservationStore } from '../services/rh4663UtcDayObservationService';
 import {
@@ -673,6 +673,7 @@ export type CreateAppOptions = {
   ipxPltrSnapshotResolver?: (observationId: string) => Promise<import('../services/rhChainPltrPreflightService').PltrPreflightState | null>;
   ipxPltrShadowObservation?: Partial<{ enabled: boolean; capacitySweepEnabled: boolean; intervalMs: number; now: () => Date }>;
   reflexiveWatchStore?: InMemoryReflexiveWatchStore;
+  frontdoorChangeEventStore?: FrontdoorChangeEventStore;
 };
 
 const RH_CHAIN_LIVE_TOKEN_ROUTE_RESERVE_MS = 1_000;
@@ -1120,9 +1121,11 @@ export async function createApp(
     preflight: () => reflexiveRadar.pltrPreflight(),
     pulse: rh4663FrontdoorPulseRead,
     signals: () => rh4663Intelligence.publicSignals({ limit: 5 }),
+    shadow: () => ipxPltrShadowObservation.status(),
     // Production must never silently turn the shared ETag namespace into an
     // ephemeral process-local counter. Development/test may use memory.
     version_store: rhChainPostgresPool ? new PostgresFrontdoorVersionStore(rhChainPostgresPool, { allow_ephemeral_fallback: !config.isProduction }) : undefined,
+    change_event_store: options.frontdoorChangeEventStore ?? (rhChainPostgresPool ? new PostgresFrontdoorChangeEventStore(rhChainPostgresPool) : new InMemoryFrontdoorChangeEventStore()),
     require_durable_version: config.isProduction,
     ignore_personal_pulse_changes: true
   });
@@ -2919,6 +2922,21 @@ export async function createApp(
     if (!wallet || !/^0x[0-9a-fA-F]{40}$/.test(wallet)) return { data: safeJsonExport({ authenticated: false, profile: null, my_4663_version: '0' }) };
     try { const profile = await rh4663Phase2.proofProfile(wallet); return { data: safeJsonExport({ authenticated: true, profile, my_4663_version: `${profile.profile_version}:${profile.calls}:${profile.resolved}:${profile.correct}` }) }; }
     catch (error) { return reply.code(503).send({ error: error instanceof Error ? error.message : 'personal_proof_state_unavailable' }); }
+  });
+  app.get<{ Querystring: { wallet?: string } }>('/v1/4663/me/changes', async (req, reply) => {
+    const headerWallet = req.headers['x-wallet-address'];
+    const wallet = (Array.isArray(headerWallet) ? headerWallet[0] : headerWallet) ?? req.query.wallet;
+    reply.header('Cache-Control', 'private, no-store').header('Vary', 'X-Wallet-Address, Authorization');
+    if (!wallet || !/^0x[0-9a-fA-F]{40}$/.test(wallet)) return { data: safeJsonExport({ authenticated: false, resolved_call: null, personal_events: [], pending_call: null, my_4663_version: '0' }) };
+    try {
+      const [calls, frontdoor] = await Promise.all([rh4663Store.listCallsByWallet(wallet, 100), rh4663Frontdoor.read().catch(() => null)]);
+      const resolvedRows = await Promise.all(calls.map(async (call) => ({ call, resolution: await rh4663ResolutionStore.getReceiptForCall(call.receipt_id) })));
+      const resolved = resolvedRows.find((row) => row.resolution)?.resolution ? resolvedRows.find((row) => row.resolution)! : null;
+      const currentWindow = rh4663.pulseWindow(); const pending = calls.find((call) => call.window_id === currentWindow.window_id) ?? null;
+      const resolvedCall = resolved ? { call_receipt_id: resolved.call.receipt_id, resolution_receipt_id: resolved.resolution!.receipt_id, window_id: resolved.call.window_id, called_category: resolved.call.rotation, resolved_category: resolved.resolution!.resolved_category, outcome: resolved.resolution!.outcome, confidence: resolved.call.confidence, submitted_at: resolved.call.created_at, resolved_at: resolved.resolution!.resolved_at, deep_link: `/4663/resolution/${encodeURIComponent(resolved.resolution!.receipt_id)}` } : null;
+      const pendingChanges = pending && frontdoor ? frontdoor.change_events.filter((event) => Date.parse(event.occurred_at) > Date.parse(pending.created_at)).slice(0, 20) : [];
+      return { data: safeJsonExport({ authenticated: true, resolved_call: resolvedCall, personal_events: resolvedCall ? [{ event_id: `CALL_RESOLVED:${resolvedCall.resolution_receipt_id}`, event_type: 'CALL_RESOLVED', occurred_at: resolvedCall.resolved_at, headline: 'Your CALL resolved', deep_link: resolvedCall.deep_link }] : [], pending_call: pending ? { call_receipt_id: pending.receipt_id, submitted_at: pending.created_at, changes: pendingChanges, context_only: true } : null, my_4663_version: resolvedCall ? `${resolvedCall.resolution_receipt_id}:${resolvedCall.resolved_at}` : pending ? `${pending.receipt_id}:pending` : '0' }) };
+    } catch (error) { return reply.code(503).send({ error: error instanceof Error ? error.message : 'personal_change_state_unavailable' }); }
   });
   app.get('/v1/4663', async () => {
     const [pulse, genesis, today, signals, liveSignals, latestPrint] = await Promise.all([rh4663PulseRead(), rh4663GenesisRead(), rh4663TodayInput(), rh4663Store.listSignals(5).catch(() => []), rh4663Intelligence.publicSignals({ limit: 3 }).catch(() => []), rh4663LatestPrintRead()]);

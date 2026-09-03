@@ -9,6 +9,8 @@ export const Rh4663CampaignEventSchema = z.object({
     'call_card_viewed', 'call_option_selected', 'call_confidence_changed', 'call_review_opened',
     'call_sign_started', 'call_sign_succeeded', 'call_sign_failed', 'call_receipt_opened',
     'call_shared', 'call_resolution_viewed', 'call_again_started',
+    'open_loop_viewed', 'open_loop_opened', 'open_loop_source_opened', 'return_change_summary_viewed', 'return_change_opened',
+    'pending_call_changes_viewed', 'resolved_call_return_viewed', 'frontdoor_return_visit',
     '4663_print_candidate_generated', '4663_print_candidate_incomplete', '4663_print_frozen', '4663_print_provider_disagreement'
   ]),
   surface: z.enum(['print', 'pulse', 'call', 'consensus', 'resolution', 'home']).optional(),
