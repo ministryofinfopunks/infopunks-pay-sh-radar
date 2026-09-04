@@ -298,6 +298,35 @@
 .fd-loop-detail p { display: grid; gap: .25rem; margin: 0; color: var(--fd-text-secondary); font-size: .72rem; line-height: 1.4; }
 .fd-loop-detail b { color: var(--fd-text-tertiary); font-size: .6rem; letter-spacing: .08em; }
 .fd-loop-detail a { color: var(--fd-accent); text-decoration: none; }
+.fd-share { min-height: 2rem; padding: 0; color: var(--fd-text-secondary); background: transparent; border: 0; font: inherit; font-size: .64rem; font-weight: 750; letter-spacing: .08em; cursor: pointer; }.fd-share:hover { color: var(--fd-accent); }.fd-share:active { transform: scale(.97); }
+
+/* Phase 7: a compact recipient-first landing shell. Evidence remains above the
+   fold; research stays one intentional step deeper. */
+.i4663-social-shell { width: min(100% - 2rem, 52rem); min-height: 100vh; margin: 0 auto; padding: 1.25rem 0 3rem; color: #f2f5f0; background: #090c0d; }
+.i4663-social-shell > header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-bottom: 2.5rem; }
+.i4663-share-control { position: relative; }
+.i4663-share-control > button, .i4663-share-menu button, .i4663-share-menu a { min-height: 2.5rem; padding: 0 .85rem; color: #e8efeb; background: #13191a; border: 1px solid #334143; border-radius: .65rem; font: inherit; font-size: .7rem; font-weight: 750; letter-spacing: .09em; text-decoration: none; cursor: pointer; }
+.i4663-share-control > button:active, .i4663-share-menu button:active { transform: scale(.97); }
+.i4663-share-menu { position: absolute; z-index: 2; top: calc(100% + .5rem); right: 0; display: grid; min-width: 11rem; gap: .35rem; padding: .4rem; background: #13191a; border: 1px solid #334143; border-radius: .8rem; box-shadow: 0 16px 40px rgba(0,0,0,.36); transform-origin: top right; }
+.i4663-share-menu button, .i4663-share-menu a { justify-content: flex-start; width: 100%; background: transparent; border-color: transparent; border-radius: .45rem; text-align: left; }
+.i4663-share-menu button:hover, .i4663-share-menu a:hover { background: #20292a; }
+.i4663-social-object { display: grid; gap: 1.25rem; padding: clamp(1.5rem, 6vw, 4rem); background: #101617; border: 1px solid #334143; border-left: 3px solid #9dd9ff; border-radius: 1.1rem; }
+.i4663-social-answer { display: grid; gap: .55rem; }.i4663-social-question { margin: 0; color: #89958c; font-size: .63rem; font-weight: 750; letter-spacing: .11em; }
+.i4663-social-object h1 { max-width: 18ch; margin: 0; font-size: clamp(2.35rem, 8vw, 5.5rem); font-weight: 680; letter-spacing: -.075em; line-height: .91; text-wrap: balance; }
+.i4663-social-metric { color: #9dd9ff; font-size: clamp(1.25rem, 3.5vw, 2.25rem); letter-spacing: -.05em; }
+.i4663-social-summary { max-width: 48rem; margin: 0; color: #b8c2bd; font-size: 1rem; line-height: 1.55; }
+.i4663-social-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; margin: .5rem 0; border-block: 1px solid #334143; }
+.i4663-social-facts > div { display: grid; gap: .45rem; min-height: 5rem; padding: 1rem; border-right: 1px solid #334143; }
+.i4663-social-facts > div:last-child { border-right: 0; }
+.i4663-social-facts dt, .i4663-social-provenance { color: #89958c; font-size: .61rem; font-weight: 750; letter-spacing: .1em; }
+.i4663-social-facts dd { margin: 0; color: #f2f5f0; font-size: .77rem; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
+.i4663-social-facts dd a { color: #9dd9ff; text-decoration: none; }.i4663-social-facts small { color: #a3aea5; font-size: .62rem; letter-spacing: .06em; }
+.i4663-social-provenance { margin: 0; text-transform: uppercase; }.i4663-social-provenance a { color: #9dd9ff; text-decoration: none; }
+.i4663-social-object .i4663-primary-action { width: max-content; min-width: 13rem; }
+.i4663-social-deeper { display: grid; gap: .8rem; margin-top: 1.25rem; padding: 1.5rem 0; color: #a3aea5; border-bottom: 1px solid #27302a; }.i4663-social-deeper p { max-width: 42rem; margin: 0; line-height: 1.55; }.i4663-social-deeper a { color: #9dd9ff; font-size: .72rem; font-weight: 750; letter-spacing: .08em; text-decoration: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+@media (prefers-reduced-motion: no-preference) { .i4663-share-control > button, .i4663-share-menu { transition: transform 160ms cubic-bezier(.23,1,.32,1), opacity 160ms cubic-bezier(.23,1,.32,1), background 160ms ease; } }
+@media (max-width: 720px) { .i4663-social-shell { width: min(100% - 1.25rem, 52rem); padding-top: .85rem; }.i4663-social-shell > header { padding-bottom: 1.5rem; }.i4663-social-object { padding: 1.3rem; border-radius: .9rem; }.i4663-social-facts { grid-template-columns: 1fr; }.i4663-social-facts > div { min-height: 0; border-right: 0; border-bottom: 1px solid #334143; }.i4663-social-facts > div:last-child { border-bottom: 0; }.i4663-social-object .i4663-primary-action { justify-content: space-between; width: 100%; } }
 .fd-loop-progress { color: var(--fd-text-tertiary); font-size: .65rem; }
 .fd-call-changed small { color: var(--fd-text-tertiary); font-size: .66rem; line-height: 1.4; }
 @media (max-width: 720px) { .fd-return-summary { margin-bottom: var(--fd-space-4); }.fd-global-return h2 { font-size: 1.35rem; }.fd-loop { min-height: 0; }.fd-loop footer { align-items: flex-start; }.fd-change-list a span { align-items: flex-start; flex-direction: column; gap: .25rem; } }

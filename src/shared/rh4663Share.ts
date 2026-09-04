@@ -1,6 +1,7 @@
 import type { Rh4663ProofProfile, Rh4663ResolutionService } from '../services/rh4663ResolutionService';
 import type { Published4663Signal } from '../services/rh4663IntelligenceService';
 import type { Rh4663Print } from '../services/rh4663PrintService';
+import type { Rh4663ShareObject as Rh4663SocialShareObject } from '../services/rh4663ShareObjectService';
 
 export type Rh4663ShareObject = Awaited<ReturnType<Rh4663ResolutionService['share']>>;
 export type Rh4663WindowShareObject = Awaited<ReturnType<Rh4663ResolutionService['windowShare']>>;
@@ -49,6 +50,36 @@ export function renderRh4663ShareSvg(share: Rh4663UniversalShareObject, format: 
   <text x="72" y="${format === 'landscape' ? 360 : 455}" class="meta">CONFIDENCE</text><text x="72" y="${format === 'landscape' ? 415 : 520}" class="number">${callShare.call.confidence}</text>
   ${actual}<text x="${width - 72}" y="${height - 205}" class="meta" text-anchor="end">RESULT</text><text x="${width - 72}" y="${height - 150}" class="result" text-anchor="end">${xml(result)}</text>
   <line x1="72" y1="${height - 105}" x2="${width - 72}" y2="${height - 105}" stroke="#282d29"/><text x="72" y="${height - 54}" class="footer">${xml(genesis)}</text><text x="${width - 72}" y="${height - 54}" class="footer" text-anchor="end">${xml(callShare.call.receipt_id)}</text>
+  </svg>`;
+}
+
+/** The Phase 7 card grammar. It is intentionally data-only: no HTML, URLs, or
+ * remote assets are interpreted while an OG image is rendered. */
+export function renderRh4663SocialCardSvg(share: Rh4663SocialShareObject, format: Rh4663ShareFormat = 'landscape') {
+  const { width, height } = dimensions[format]; const left = 72;
+  const claim = lines(share.primary_statement, format === 'landscape' ? 34 : 24, 2);
+  const category = compact(share.title.toUpperCase(), format === 'landscape' ? 42 : 30);
+  const metric = compact(share.primary_metric ?? '—', format === 'landscape' ? 28 : 23);
+  const observed = share.observed_at ? new Date(share.observed_at).toISOString().slice(0, 10).replaceAll('-', ' ') : 'SOURCE TIME UNAVAILABLE';
+  const why = lines(share.secondary_statement ?? 'The public source record remains inspectable.', format === 'landscape' ? 72 : 45, 2);
+  const proof = compact(`${share.source_ref.source_type.replaceAll('_', ' ')} · ${share.source_ref.source_id}`, format === 'landscape' ? 42 : 28);
+  const claimStart = format === 'landscape' ? 154 : 190; const lineStep = format === 'landscape' ? 53 : 64;
+  const claimSize = format === 'landscape' ? 46 : 56;
+  const whyStart = format === 'landscape' ? 330 : 410; const whyStep = format === 'landscape' ? 27 : 33;
+  const splitX = format === 'landscape' ? Math.round(width * .56) : left;
+  const certaintyY = format === 'landscape' ? height - 112 : height - 196;
+  const proofY = format === 'landscape' ? height - 112 : height - 115;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${xml(`4663 ${share.evidence_state}: ${share.primary_statement}`)}">
+  <style>@font-face{font-family:IBM;src:local('IBM Plex Mono')}text{font-family:IBM,monospace;fill:#f2f5f0}.micro{font-size:20px;letter-spacing:3px;fill:#9dd9ff}.question{font-size:16px;font-weight:700;letter-spacing:2px;fill:#89958c}.title{font-size:${claimSize}px;font-weight:700;letter-spacing:-2.4px}.metric{font-size:${format === 'landscape' ? 23 : 29}px;font-weight:700;fill:#9dd9ff}.state{font-size:20px;font-weight:700;letter-spacing:1.5px;fill:#9dd9ff}.why{font-size:${format === 'landscape' ? 20 : 24}px;fill:#c5cec9}.meta{font-size:17px;letter-spacing:1.3px;fill:#a3aea5}.footer{font-size:16px;letter-spacing:1.5px;fill:#89958c}</style>
+  <rect width="100%" height="100%" fill="#090c0d"/><path d="M0 0H14V${height}H0Z" fill="#9dd9ff"/>
+  <text x="${left}" y="68" class="micro">//4663</text><text x="${width - left}" y="68" class="footer" text-anchor="end">${xml(category)}</text>
+  <text x="${left}" y="112" class="question">WHAT HAPPENED?</text>${claim.map((line, index) => `<text x="${left}" y="${claimStart + index * lineStep}" class="title">${xml(line)}</text>`).join('')}
+  <text x="${left}" y="${format === 'landscape' ? 275 : 347}" class="metric">${xml(metric)}</text>
+  <text x="${left}" y="${format === 'landscape' ? 305 : 385}" class="question">WHY DOES IT MATTER?</text>${why.map((line, index) => `<text x="${left}" y="${whyStart + index * whyStep}" class="why">${xml(line)}</text>`).join('')}
+  <line x1="${left}" y1="${format === 'landscape' ? height - 146 : height - 238}" x2="${width - left}" y2="${format === 'landscape' ? height - 146 : height - 238}" stroke="#293234"/>
+  <text x="${left}" y="${certaintyY}" class="question">HOW CERTAIN ARE WE?</text><text x="${left}" y="${certaintyY + 31}" class="state">${xml(share.evidence_state)}</text>
+  <text x="${splitX}" y="${proofY}" class="question">WHERE IS THE PROOF?</text><text x="${splitX}" y="${proofY + 31}" class="meta">${xml(proof)}</text>
+  <text x="${left}" y="${height - 32}" class="footer">OBSERVED ${xml(observed)}</text><text x="${width - left}" y="${height - 32}" class="footer" text-anchor="end">INFOPUNKS RADAR</text>
   </svg>`;
 }
 
@@ -106,4 +137,5 @@ function renderWindowShareSvg(share: Rh4663WindowShareObject, format: Rh4663Shar
 
 function label(value: string) { return value.replaceAll('_', ' '); }
 function compact(value: string, limit: number) { return value.length <= limit ? value : `${value.slice(0, Math.max(1, limit - 1)).trim()}…`; }
+function lines(value: string, max: number, count: number) { const words = value.split(/\s+/); const rows: string[] = ['']; for (const word of words) { const row = rows.at(-1) ?? ''; if (`${row} ${word}`.trim().length > max && rows.length < count) rows.push(word); else rows[rows.length - 1] = `${row} ${word}`.trim(); } return rows.map((item, index) => index === rows.length - 1 ? compact(item, max) : item); }
 function xml(value: string) { return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&apos;'); }

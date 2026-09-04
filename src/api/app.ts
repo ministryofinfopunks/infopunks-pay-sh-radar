@@ -112,7 +112,8 @@ import {
 import { getNarrativeMetadataForPath, NARRATIVE_PUBLIC_HOST, type NarrativeMetadata } from '../shared/narrativeMetadata';
 import { renderAttentionMarketWatchOgImage, renderNarrativesOgImage, renderRevenueReceiptOgImage, renderRevenueReceiptsIndexOgImage, renderRhChainAttentionQualityOgImage, renderRhChainCrossLayerOgImage, renderRhChainMarketPulseOgImage, renderRhChainShareOgImage, renderSignalHuntOgImage, renderSignalReportOgImage, renderSignalUpdateOgImage, renderUnicornRadarIndexOgImage, renderUnicornRadarOgImage } from '../shared/narrativeOg';
 import { renderOgPng } from '../server/narrativeOgPng';
-import { parseRh4663ShareFormat, renderRh4663ProofProfileSvg, renderRh4663ShareSvg } from '../shared/rh4663Share';
+import { parseRh4663ShareFormat, renderRh4663ProofProfileSvg, renderRh4663ShareSvg, renderRh4663SocialCardSvg } from '../shared/rh4663Share';
+import { buildRh4663CallShareObject, buildRh4663FrontdoorShareObjects, buildRh4663ProofProfileShareObject, findRh4663ShareObject, type Rh4663ShareObject } from '../services/rh4663ShareObjectService';
 import { renderCapitalVsFlowCardSvg, renderMissionFootprintCardSvg, renderReflexiveBirthCardSvg, renderReflexiveInventoryCardSvg, renderReflexiveStockMoneyCardSvg } from '../shared/rhChainReflexiveShare';
 import { applyPayShCatalogIngestion } from '../ingestion/payShCatalogAdapter';
 import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, IntelligenceStore, runPayShIngestion, runPayShIngestionWithOptions } from '../services/intelligenceStore';
@@ -1041,6 +1042,14 @@ export async function createApp(
     : new DisabledRh4663AnchorAdapter());
   const rh4663Phase2 = new Rh4663ResolutionService(rh4663Store, rh4663ResolutionStore, rh4663ResolutionSigner, rh4663AnchorAdapter);
   const rh4663PublicRouteMetadata = async (urlPath: string): Promise<NarrativeMetadata | null> => {
+    const shareMatch = urlPath.match(/^\/4663\/share\/([^/?]+)\/?$/);
+    if (shareMatch) {
+      let object: Rh4663ShareObject | null = null;
+      try { object = await rh4663ShareObject(decodeURIComponent(shareMatch[1])); } catch { return null; }
+      if (!object) return null;
+      const canonicalPath = `/4663/share/${encodeURIComponent(object.share_object_id)}`;
+      return { title: `${object.primary_statement} | Infopunks //4663`, description: object.secondary_statement ?? `${object.evidence_state}. Inspect the source evidence.`, canonicalPath, ogTitle: object.title, ogDescription: object.primary_statement, ogImageUrl: object.og_image_url, ogImageWidth: 1200, ogImageHeight: 630, twitterTitle: object.title, twitterDescription: object.primary_statement, twitterImageUrl: object.og_image_url, twitterCard: 'summary_large_image' };
+    }
     const printMatch = urlPath.match(/^\/4663\/print\/([^/?]+)\/?$/);
     if (printMatch) {
       const print = await rh4663PrintRead(printMatch[1]);
@@ -1062,7 +1071,7 @@ export async function createApp(
     let receiptId = rawReceiptId;
     try { receiptId = decodeURIComponent(rawReceiptId); } catch { /* Use the raw public path component. */ }
     const receipt = await rh4663Phase2.receipt(receiptId);
-    const imagePath = `/og/4663/pulse/${encodeURIComponent(receipt.receipt_id)}.png`;
+    const imagePath = `/og/4663/${route}/${encodeURIComponent(receipt.receipt_id)}.png`;
     const canonicalPath = `/4663/${route}/${encodeURIComponent(receipt.receipt_id)}`;
     const make = (title: string, description: string): NarrativeMetadata => ({
       title, description, canonicalPath, ogTitle: title, ogDescription: description,
@@ -1130,6 +1139,28 @@ export async function createApp(
     require_durable_version: config.isProduction,
     ignore_personal_pulse_changes: true
   });
+  // Phase 7 is a projection layer only. It reads canonical objects and the
+  // cacheable Front Door; it never refreshes Census/Radar or reconstructs a
+  // receipt while someone requests a social card.
+  const rh4663ShareObject = async (shareObjectId: string): Promise<Rh4663ShareObject | null> => {
+    const normalized = decodeURIComponent(shareObjectId);
+    const frontdoor = await rh4663Frontdoor.read();
+    const frontdoorObject = findRh4663ShareObject(buildRh4663FrontdoorShareObjects(frontdoor, NARRATIVE_PUBLIC_HOST), normalized);
+    if (frontdoorObject) return frontdoorObject;
+    const separator = normalized.indexOf(':'); if (separator < 1) return null;
+    const type = normalized.slice(0, separator).toUpperCase(); const id = normalized.slice(separator + 1);
+    if (type === 'CALL_RECEIPT' || type === 'RESOLUTION_RECEIPT') {
+      try { const receipt = await rh4663Phase2.receipt(id); const share = buildRh4663CallShareObject(receipt, NARRATIVE_PUBLIC_HOST); return share.share_type === type ? share : null; } catch { return null; }
+    }
+    if (type === 'PROOF_PROFILE') {
+      try { return buildRh4663ProofProfileShareObject(await rh4663Phase2.proofProfile(id), NARRATIVE_PUBLIC_HOST); } catch { return null; }
+    }
+    return null;
+  };
+  const rh4663ShareIdForOg = (kind: string, id: string) => {
+    const type: Record<string, string> = { now: 'now_finding', watch: 'watch_case', loop: 'open_loop', call: 'call_receipt', resolution: 'resolution_receipt', proof: 'proof_profile', census: 'rmm_census_observation', radar: 'radar_verification', 'ai-nvda': 'ai_nvda_checkpoint', falsification: 'radar_falsification', shadow: 'pltr_shadow_observation', change: 'frontdoor_change_event' };
+    return type[kind] ? `${type[kind]}:${id}` : null;
+  };
   const phase3Classifications = () => [...rhChainReviewedLayerClassifications, ...(rhChainDiscoveryQueue?.marketStructureCandidates() ?? []), ...(rhChainReviewPipeline?.marketStructureCandidates() ?? [])];
   const phase3CategoryFor = (contract: string) => {
     const classification = phase3Classifications().find((item) => item.contract.toLowerCase() === contract.toLowerCase());
@@ -2883,6 +2914,13 @@ export async function createApp(
       throw error;
     }
   });
+  app.get<{ Params: { shareObjectId: string } }>('/v1/4663/share/:shareObjectId', async (req, reply) => {
+    let object: Rh4663ShareObject | null = null;
+    try { object = await rh4663ShareObject(req.params.shareObjectId); } catch (error) { return rh4663Failure(reply, error); }
+    if (!object) return reply.code(404).send({ error: '4663_share_object_not_found' });
+    reply.header('cache-control', object.immutability_state === 'IMMUTABLE' ? 'public, max-age=31536000, immutable' : 'public, max-age=60, s-maxage=300, stale-while-revalidate=900');
+    return { data: safeJsonExport(object) };
+  });
   app.get<{ Querystring: { wallet?: string } }>('/v1/4663/me/call', async (req, reply) => {
     const headerWallet = req.headers['x-wallet-address'];
     const wallet = (Array.isArray(headerWallet) ? headerWallet[0] : headerWallet) ?? req.query.wallet;
@@ -3997,6 +4035,28 @@ export async function createApp(
   app.get('/og/narratives.png', async (_req, reply) => {
     reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
     return reply.type('image/png').send(renderOgPng(renderNarrativesOgImage()));
+  });
+  const renderRh4663ShareObjectOg = async (kind: string, id: string, formatInput: unknown, reply: FastifyReply) => {
+    const shareId = rh4663ShareIdForOg(kind, id);
+    if (!shareId) return reply.code(404).send({ error: '4663_share_object_not_found' });
+    let object: Rh4663ShareObject | null = null;
+    try { object = await rh4663ShareObject(shareId); } catch (error) { return rh4663Failure(reply, error); }
+    if (!object) return reply.code(404).send({ error: '4663_share_object_not_found' });
+    const format = parseRh4663ShareFormat(formatInput);
+    reply.header('cache-control', object.immutability_state === 'IMMUTABLE' ? 'public, max-age=31536000, immutable' : 'public, max-age=60, s-maxage=300, stale-while-revalidate=900');
+    return reply.type('image/png').send(renderOgPng(renderRh4663SocialCardSvg(object, format), format === 'landscape' ? 1200 : 1080));
+  };
+  // The named aliases keep social URLs legible and map one-to-one to the
+  // registry. They render only persisted/read-model data.
+  for (const kind of ['now', 'watch', 'loop', 'call', 'resolution', 'census', 'radar', 'ai-nvda', 'falsification', 'shadow', 'change'] as const) {
+    app.get<{ Params: { id: string }; Querystring: { format?: string } }>(`/og/4663/${kind}/:id.png`, async (req, reply) => renderRh4663ShareObjectOg(kind, req.params.id, req.query.format, reply));
+  }
+  app.get<{ Params: { shareObjectId: string }; Querystring: { format?: string } }>('/og/4663/share/:shareObjectId.png', async (req, reply) => {
+    let object: Rh4663ShareObject | null = null;
+    try { object = await rh4663ShareObject(req.params.shareObjectId); } catch (error) { return rh4663Failure(reply, error); }
+    if (!object) return reply.code(404).send({ error: '4663_share_object_not_found' });
+    const format = parseRh4663ShareFormat(req.query.format); reply.header('cache-control', object.immutability_state === 'IMMUTABLE' ? 'public, max-age=31536000, immutable' : 'public, max-age=60, s-maxage=300, stale-while-revalidate=900');
+    return reply.type('image/png').send(renderOgPng(renderRh4663SocialCardSvg(object, format), format === 'landscape' ? 1200 : 1080));
   });
   app.get<{ Params: { printId: string }; Querystring: { format?: string } }>('/og/4663/prints/:printId.png', async (req, reply) => {
     const print = await rh4663PrintRead(req.params.printId);

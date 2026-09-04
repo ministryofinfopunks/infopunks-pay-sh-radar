@@ -153,6 +153,8 @@ describe('Infopunks //4663 API', () => {
       const windowShare = await app.inject({ method: 'GET', url: `/v1/4663/pulse/windows/${windowId}/share` }); expect(windowShare.json().data).toMatchObject({ object_type: 'window_result', consensus_category: 'STOCK_TOKENS', resolved_category: 'STOCK_TOKENS', consensus_correct: true });
       const today = await app.inject({ method: 'GET', url: '/v1/4663/today/2026-08-13' }); expect(today.json().data.rh_pulse.prior).toMatchObject({ consensus: { total_calls: 1, leading_rotation: 'STOCK_TOKENS' }, resolution: { resolved_category: 'STOCK_TOKENS', consensus_correct: true } });
       const image = await app.inject({ method: 'GET', url: `/og/4663/pulse/${callReceipt.receipt_id}.png?format=square` }); expect(image.statusCode).toBe(200); expect(image.headers['content-type']).toContain('image/png');
+      const social = await app.inject({ method: 'GET', url: `/v1/4663/share/resolution_receipt:${encodeURIComponent(published.json().data.receipts[0].receipt_id)}` }); expect(social.statusCode).toBe(200); expect(social.json().data).toMatchObject({ share_type: 'RESOLUTION_RECEIPT', share_version: 'rh4663.share.v1', privacy_state: 'PUBLIC', immutability_state: 'IMMUTABLE' }); expect(social.headers['cache-control']).toContain('immutable');
+      const socialImage = await app.inject({ method: 'GET', url: `/og/4663/resolution/${published.json().data.receipts[0].receipt_id}.png` }); expect(socialImage.statusCode).toBe(200); expect(socialImage.headers['cache-control']).toContain('immutable');
       expect((await app.inject({ method: 'POST', url: `/internal/4663/pulse/windows/${windowId}/publish`, headers: auth })).json().data.receipts).toEqual(published.json().data.receipts);
     } finally { await app.close(); }
   });

@@ -5,6 +5,7 @@ import type { Rh4663MerkleProof, Rh4663ProofProfile, Rh4663ResolutionReceipt } f
 import type { Published4663Signal } from '../services/rh4663IntelligenceService';
 import { Frontdoor } from './frontdoor4663';
 import type { Rh4663FrontdoorState } from '../services/rh4663FrontdoorService';
+import type { Rh4663ShareObject } from '../services/rh4663ShareObjectService';
 import './rh4663.css';
 
 const API_BASE_URL = getApiBaseUrl();
@@ -22,8 +23,9 @@ type PrintMetric = { id: string; label: string; value: string; unit: string; qua
 type PrintData = { print_id: string; canonical_path: string; printed_at: string; status: string; receipt_kind: string; campaign_snapshot: boolean; data_mode: string; title: string; regime: string; methodology_notice: string; correction_notice: string; metrics: PrintMetric[]; drivers: Array<{ category: string; direction: string; detail: string }>; layer_read: Array<{ layer: string; state: string; direction: string; explanation: string; evidence_ids: string[] }>; evidence_references: Array<{ id: string; label: string; href: string; note: string }>; campaign_copy: { primary: string; secondary: string; call_to_action: string; receipt_line: string }; share: { landscape: string; square: string; portrait: string }; interpretation: string; call: { question: string; evidence_path: string; default_confidence: number } };
 type WindowView = { window: PulseData['window']; state: string; consensus: PulseData['consensus']; resolution: { resolved_category: Rh4663RotationOption; consensus: PulseData['consensus']; observations: unknown[] } | null };
 
-type CampaignEvent = '4663_print_viewed' | '4663_print_provenance_opened' | '4663_make_call_clicked' | '4663_call_started' | '4663_call_signed' | '4663_call_accepted' | '4663_call_share_clicked' | '4663_call_share_completed' | '4663_consensus_viewed' | '4663_resolution_viewed' | '4663_resolution_shared' | '4663_returning_caller';
-function trackCampaign(event: CampaignEvent, data: { surface: 'print' | 'pulse' | 'call' | 'consensus' | 'resolution' | 'home'; print_id?: string; window_id?: string }) {
+type CampaignEvent = '4663_print_viewed' | '4663_print_provenance_opened' | '4663_make_call_clicked' | '4663_call_started' | '4663_call_signed' | '4663_call_accepted' | '4663_call_share_clicked' | '4663_call_share_completed' | '4663_consensus_viewed' | '4663_resolution_viewed' | '4663_resolution_shared' | '4663_returning_caller' | 'share_clicked' | 'share_link_copied' | 'share_text_copied' | 'share_native_completed' | 'share_card_viewed' | 'social_landing_viewed' | 'social_landing_source_opened' | 'social_landing_call_started' | 'social_landing_follow_created' | 'social_landing_proof_opened';
+type CampaignData = { surface: 'print' | 'pulse' | 'call' | 'consensus' | 'resolution' | 'home' | 'now' | 'watch' | 'open_loop' | 'proof' | 'census' | 'radar' | 'shadow' | 'social_landing'; print_id?: string; window_id?: string; share_object_id?: string; share_source?: 'NOW' | 'WATCH' | 'OPEN_LOOP' | 'CALL' | 'PROOF' | 'CENSUS' | 'RADAR' | 'SHADOW' };
+function trackCampaign(event: CampaignEvent, data: CampaignData) {
   const payload = JSON.stringify({ event, ...data }); const endpoint = toApiUrl(API_BASE_URL, '/v1/4663/campaign/events');
   if (navigator.sendBeacon) { navigator.sendBeacon(endpoint, new Blob([payload], { type: 'application/json' })); return; }
   void fetch(endpoint, { method: 'POST', headers: { 'content-type': 'application/json' }, body: payload, keepalive: true }).catch(() => undefined);
@@ -55,6 +57,7 @@ function useOptionalApi<T>(path: string | null, refresh = 0) {
 
 export function Rh4663Page() {
   const path = window.location.pathname.replace(/\/$/, '') || '/4663';
+  const shareId = path.match(/^\/4663\/share\/([^/]+)$/)?.[1];
   const proofId = path.match(/^\/4663\/proof\/([^/]+)$/)?.[1];
   const proofWallet = path.match(/^\/4663\/proof\/(0x[0-9a-fA-F]{40})$/)?.[1];
   const callId = path.match(/^\/4663\/call\/([^/]+)$/)?.[1];
@@ -63,6 +66,7 @@ export function Rh4663Page() {
   const signalId = path.match(/^\/4663\/signals\/([^/]+)$/)?.[1];
   const printId = path.match(/^\/4663\/print\/([^/]+)$/)?.[1];
   const view = proofWallet ? 'proof_profile' : proofId || callId || resolutionId ? 'proof' : consensusWindowId ? 'consensus' : signalId ? 'signal_detail' : printId ? 'print' : path === '/4663/pulse' ? 'pulse' : path === '/4663/today' ? 'today' : path === '/4663/signals' ? 'signals' : path === '/4663/receipts' ? 'receipts' : 'home';
+  if (shareId) return <SocialLanding shareObjectId={decodeURIComponent(shareId)} />;
   if (view === 'home') return <Home />;
   return <div className="i4663-app">
     <header className="i4663-header">
@@ -79,6 +83,35 @@ function Home() {
   const { data, status, message } = useApi<Rh4663FrontdoorState>('/v1/4663/frontdoor');
   return <Frontdoor data={data} status={status} message={message} />;
 }
+
+function SocialLanding({ shareObjectId }: { shareObjectId: string }) {
+  const api = useApi<Rh4663ShareObject>(`/v1/4663/share/${encodeURIComponent(shareObjectId)}`); const object = api.data;
+  useEffect(() => { if (object) trackCampaign('social_landing_viewed', { surface: 'social_landing', share_object_id: object.share_object_id, share_source: shareSource(object.share_type) }); }, [object]);
+  if (!object) return <main className="i4663-social-shell"><a className="i4663-wordmark" href="/4663"><span>INFOPUNKS</span><b>//4663</b></a><DataState status={api.status} message={api.message} /></main>;
+  const action = socialAction(object);
+  return <main className="i4663-social-shell" aria-labelledby="social-object-title">
+    <header><a className="i4663-wordmark" href="/4663" aria-label="Infopunks 4663 home"><span>INFOPUNKS</span><b>//4663</b></a><ShareControl object={object} /></header>
+    <article className="i4663-social-object">
+      <p className="i4663-micro">//4663 · {object.share_type.replaceAll('_', ' ')}</p>
+      <section className="i4663-social-answer"><p className="i4663-social-question">WHAT HAPPENED?</p><h1 id="social-object-title">{object.primary_statement}</h1>{object.primary_metric && <strong className="i4663-social-metric">{object.primary_metric}</strong>}</section>
+      <section className="i4663-social-answer"><p className="i4663-social-question">WHY DOES IT MATTER?</p><p className="i4663-social-summary">{object.secondary_statement ?? 'The public source record remains inspectable.'}</p></section>
+      <dl className="i4663-social-facts"><div><dt>HOW CERTAIN ARE WE?</dt><dd>{object.evidence_state}</dd><small>{object.source_freshness ?? 'SOURCE FRESHNESS UNAVAILABLE'}</small></div><div><dt>{object.share_type.includes('RESOLUTION') ? 'RESOLVED' : 'OBSERVED'}</dt><dd>{object.observed_at ? machineTime(object.observed_at) : 'SOURCE TIME UNAVAILABLE'}</dd></div><div><dt>WHERE IS THE PROOF?</dt><dd><a href={object.source_ref.href} target={object.source_ref.href.startsWith('/') ? undefined : '_blank'} rel={object.source_ref.href.startsWith('/') ? undefined : 'noreferrer'} onClick={() => trackCampaign('social_landing_source_opened', { surface: 'social_landing', share_object_id: object.share_object_id, share_source: shareSource(object.share_type) })}>{object.source_ref.source_type.replaceAll('_', ' ')}</a></dd></div></dl>
+      <a className="i4663-primary-action" href={action.href} onClick={() => trackCampaign(action.event, { surface: 'social_landing', share_object_id: object.share_object_id, share_source: shareSource(object.share_type) })}>{action.label} <span>↗</span></a>
+    </article>
+    <section className="i4663-social-deeper"><p className="i4663-micro">WHY IT MATTERS</p><p>Infopunks separates what is being watched from what Radar has verified. The source record remains inspectable.</p><a href={object.deep_link}>OPEN THE FULL EVIDENCE →</a></section>
+  </main>;
+}
+
+function ShareControl({ object }: { object: Rh4663ShareObject }) {
+  const [open, setOpen] = useState(false); const [notice, setNotice] = useState('');
+  const telemetry = (event: Extract<CampaignEvent, 'share_clicked' | 'share_link_copied' | 'share_text_copied' | 'share_native_completed' | 'share_card_viewed'>) => trackCampaign(event, { surface: 'social_landing', share_object_id: object.share_object_id, share_source: shareSource(object.share_type) });
+  async function nativeShare() { telemetry('share_clicked'); if (navigator.share) { try { await navigator.share({ title: object.title, text: object.share_text, url: object.canonical_url }); telemetry('share_native_completed'); setNotice('Share sheet closed.'); } catch { /* cancellation is not an error */ } return; } setOpen((value) => !value); }
+  async function copy(value: string, event: 'share_link_copied' | 'share_text_copied', label: string) { try { await navigator.clipboard.writeText(value); telemetry(event); setNotice(label); } catch { setNotice('Copy is unavailable in this browser.'); } }
+  return <div className="i4663-share-control"><button type="button" onClick={nativeShare} aria-expanded={open} aria-controls="share-menu">SHARE</button>{open && <div className="i4663-share-menu" id="share-menu" role="menu"><button type="button" role="menuitem" onClick={() => void copy(object.canonical_url, 'share_link_copied', 'Link copied.')}>COPY LINK</button><button type="button" role="menuitem" onClick={() => void copy(object.share_text, 'share_text_copied', 'Summary copied.')}>COPY SUMMARY</button><a role="menuitem" href={object.og_image_url} target="_blank" rel="noreferrer" onClick={() => telemetry('share_card_viewed')}>VIEW CARD</a></div>}<span className="sr-only" role="status" aria-live="polite">{notice}</span></div>;
+}
+
+function shareSource(type: Rh4663ShareObject['share_type']): CampaignData['share_source'] { if (type === 'NOW_FINDING' || type === 'FRONTDOOR_CHANGE_EVENT') return 'NOW'; if (type === 'WATCH_CASE') return 'WATCH'; if (type === 'OPEN_LOOP' || type === 'AI_NVDA_CHECKPOINT' || type === 'RADAR_FALSIFICATION') return 'OPEN_LOOP'; if (type === 'CALL_RECEIPT' || type === 'RESOLUTION_RECEIPT') return 'CALL'; if (type === 'PROOF_PROFILE') return 'PROOF'; if (type === 'RMM_CENSUS_OBSERVATION') return 'CENSUS'; if (type === 'PLTR_SHADOW_OBSERVATION') return 'SHADOW'; return 'RADAR'; }
+function socialAction(object: Rh4663ShareObject) { if (object.share_type === 'CALL_RECEIPT' || object.share_type === 'RESOLUTION_RECEIPT') return { label: 'MAKE YOUR OWN CALL', href: '/4663/pulse', event: 'social_landing_call_started' as const }; if (object.share_type === 'WATCH_CASE') return { label: 'FOLLOW CASE', href: object.deep_link, event: 'social_landing_follow_created' as const }; if (object.share_type === 'OPEN_LOOP' || object.share_type === 'AI_NVDA_CHECKPOINT') return { label: 'FOLLOW QUESTION', href: object.deep_link, event: 'social_landing_follow_created' as const }; if (object.share_type === 'PROOF_PROFILE') return { label: 'VIEW PROOF', href: object.deep_link, event: 'social_landing_proof_opened' as const }; if (object.share_type === 'RMM_CENSUS_OBSERVATION') return { label: 'VIEW CATEGORY', href: object.deep_link, event: 'social_landing_source_opened' as const }; return { label: 'VIEW EVIDENCE', href: object.deep_link, event: 'social_landing_source_opened' as const }; }
 
 function Print({ printId }: { printId: string }) {
   const api = useApi<PrintData>(`/v1/4663/prints/${encodeURIComponent(printId)}`);
