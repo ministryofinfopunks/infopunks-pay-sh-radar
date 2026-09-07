@@ -40,6 +40,7 @@ import { getLatestRh4663Print, getRh4663Print } from '../services/rh4663PrintSer
 import { Rh4663CampaignEventSchema, Rh4663CampaignTelemetry } from '../services/rh4663CampaignTelemetry';
 import { InMemoryFrontdoorChangeEventStore, PostgresFrontdoorChangeEventStore, PostgresFrontdoorVersionStore, Rh4663FrontdoorError, Rh4663FrontdoorService, type FrontdoorChangeEventStore } from '../services/rh4663FrontdoorService';
 import { buildMy4663State, normalizeMy4663Follows } from '../services/rh4663My4663Service';
+import { Rh4663FrontdoorTelemetry } from '../services/rh4663FrontdoorTelemetry';
 import { InMemoryRh4663PrintStore, PostgresRh4663PrintStore, Rh4663PrintGeneratorError, Rh4663PrintGeneratorService, type Rh4663ObservationFreshness, type Rh4663PrintStore, type Rh4663VerifiedObservation } from '../services/rh4663PrintGeneratorService';
 import { createRh4663UtcDayProviders, InMemoryRh4663UtcDayObservationStore, isValidRh4663UtcDate, PostgresRh4663UtcDayObservationStore, Rh4663UtcDayObservationError, Rh4663UtcDayObservationService, type Rh4663UtcDayObservationStore } from '../services/rh4663UtcDayObservationService';
 import {
@@ -713,6 +714,7 @@ export async function createApp(
   const config = loadRuntimeConfig();
   const app = Fastify({ logger: false });
   const rh4663CampaignTelemetry = new Rh4663CampaignTelemetry();
+  const rh4663FrontdoorTelemetry = new Rh4663FrontdoorTelemetry();
   const rhChainPostgresPool = config.databaseUrl
     ? getDatabasePool({ connectionString: config.databaseUrl, max: config.databasePoolMax })
     : null;
@@ -818,6 +820,18 @@ export async function createApp(
     shadowLab: ipxPltrShadowLab,
     now: options.ipxPltrShadowObservation?.now
   });
+  // Timers run in every web replica. The durable advisory lock makes the
+  // observation itself single-leader without introducing a second scheduler.
+  const observeShadowWithLease = async () => {
+    if (!config.isProduction || !rhChainPostgresPool) return ipxPltrShadowObservation.observeOnce();
+    const client = await rhChainPostgresPool.connect();
+    try {
+      const locked = await client.query<{ acquired: boolean }>("select pg_try_advisory_lock(hashtext('ipx-pltr-shadow-observation')) as acquired");
+      if (!locked.rows[0]?.acquired) return ipxPltrShadowObservation.status();
+      try { return await ipxPltrShadowObservation.observeOnce(); }
+      finally { await client.query("select pg_advisory_unlock(hashtext('ipx-pltr-shadow-observation'))").catch(() => undefined); }
+    } finally { client.release(); }
+  };
   const rhChainExpectedTables = [
     'rh_chain_signal_submissions',
     'rh_chain_metrics_snapshots',
@@ -1303,8 +1317,10 @@ export async function createApp(
     preflight: true,
     strictPreflight: true
   });
+  const requestStartedAt = new WeakMap<FastifyRequest, number>();
   app.addHook('onRequest', async (req, _reply) => {
     const startedAtMs = Date.now();
+    requestStartedAt.set(req, startedAtMs);
     const route = safeRequestPath(req.url);
     console.log(JSON.stringify({ event: 'hook_enter', hook: 'onRequest', id: req.id, method: req.method, route }));
     console.log(JSON.stringify({ event: 'request_start', id: req.id, method: req.method, route, started_at: new Date(startedAtMs).toISOString() }));
@@ -1332,8 +1348,19 @@ export async function createApp(
   app.addHook('onResponse', async (req, reply) => {
     const route = req.routeOptions.url || safeRequestPath(req.url);
     console.log(JSON.stringify({ event: 'hook_enter', hook: 'onResponse', id: req.id, method: req.method, route }));
-    console.log(JSON.stringify({ event: 'request_complete', id: req.id, method: req.method, route, status_code: reply.statusCode }));
+    console.log(JSON.stringify({ event: 'request_complete', request_id: req.id, method: req.method, route, status_code: reply.statusCode, duration_ms: Math.max(0, Date.now() - (requestStartedAt.get(req) ?? Date.now())) }));
     console.log(JSON.stringify({ event: 'hook_exit', hook: 'onResponse', id: req.id }));
+  });
+  app.addHook('onSend', async (req, reply, payload) => {
+    // Safe defaults for API responses. CSP is intentionally owned by the HTML
+    // shell, where nonces can be applied without weakening the policy.
+    reply.header('X-Content-Type-Options', 'nosniff');
+    reply.header('Referrer-Policy', 'strict-origin-when-cross-origin');
+    reply.header('X-Frame-Options', 'SAMEORIGIN');
+    reply.header('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    if (config.isProduction) reply.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    if ((req.routeOptions.url ?? req.url).startsWith('/internal/4663/')) reply.header('Cache-Control', 'private, no-store');
+    return payload;
   });
   app.setErrorHandler((error, _req, reply) => {
     if (isPersistenceUnavailable(error)) {
@@ -2899,17 +2926,29 @@ export async function createApp(
   const rh4663PrintRead = async (printId: string) => await rh4663PrintGenerator.get(printId) ?? getRh4663Print(printId);
   const rh4663LatestPrintRead = async () => await rh4663PrintGenerator.latest() ?? getLatestRh4663Print();
   app.get('/v1/4663/frontdoor', async (req, reply) => {
+    const startedAt = performance.now();
     try {
       // This route is deliberately request-identity agnostic. User-scoped
       // CALLs, receipts, accuracy, follows, and account state belong under
       // /v1/4663/me/* and must never enter this shared response.
+      const cacheBefore = rh4663Frontdoor.metrics().cache_hits;
       const state = await rh4663Frontdoor.read();
       const data = safeJsonExport(state);
       const etag = `"frontdoor-${state.frontdoor_version.version}"`;
-      reply.header('ETag', etag).header('Cache-Control', 'public, max-age=15, stale-while-revalidate=45');
-      if (req.headers['if-none-match'] === etag) return reply.code(304).send();
+      const etagHit = req.headers['if-none-match'] === etag;
+      const cacheHit = etagHit || rh4663Frontdoor.metrics().cache_hits > cacheBefore;
+      const sourceHealth = Object.fromEntries(Object.entries(state.system_status.source_health).map(([source, health]) => [source, health.health_state ?? (health.status === 'available' ? 'HEALTHY' : health.status.toUpperCase())]));
+      const telemetry = rh4663FrontdoorTelemetry.record({ duration_ms: performance.now() - startedAt, cache_hit: cacheHit, response_state: state.system_status.state, source_health: sourceHealth, card_count: state.now_cards.length + state.watch_cards.length, open_loop_count: state.open_loops.length });
+      const cacheControl = config.rh4663FrontdoorHardeningEnabled
+        ? 'public, max-age=15, s-maxage=15, stale-while-revalidate=45, stale-if-error=300'
+        : 'public, max-age=15, stale-while-revalidate=45';
+      reply.header('ETag', etag).header('Cache-Control', cacheControl).header('Vary', 'Accept-Encoding').header('X-Frontdoor-Version', String(state.frontdoor_version.version));
+      console.log(JSON.stringify({ event: 'rh4663_frontdoor_request', request_id: req.id, frontdoor_version: state.frontdoor_version.version, version_durability: state.frontdoor_version_durability, cache_hit: cacheHit, etag_hit: etagHit, source_health: sourceHealth, source_latency_ms: rh4663Frontdoor.metrics().last_source_reads, query_count: null, response_state: state.system_status.state, card_count: state.now_cards.length + state.watch_cards.length, open_loop_count: state.open_loops.length, duration_ms: Math.round(performance.now() - startedAt), metrics: telemetry }));
+      if (etagHit) return reply.code(304).send();
       return { data };
     } catch (error) {
+      const metrics = rh4663FrontdoorTelemetry.failure();
+      console.log(JSON.stringify({ event: 'rh4663_frontdoor_failure', request_id: req.id, response_state: 'error', failure_reason: error instanceof Rh4663FrontdoorError ? error.code : 'frontdoor_read_failed', metrics }));
       if (error instanceof Rh4663FrontdoorError) return reply.code(error.statusCode).send({ error: error.code });
       throw error;
     }
@@ -2950,8 +2989,8 @@ export async function createApp(
         resolution_receipt: resolution,
         my_4663_version: call ? `${call.receipt_id}:${resolution?.receipt_id ?? 'pending'}` : '0'
       }) };
-    } catch (error) {
-      return reply.code(503).send({ error: error instanceof Error ? error.message : 'personal_call_state_unavailable' });
+    } catch {
+      return reply.code(503).send({ error: 'personal_call_state_unavailable' });
     }
   });
   app.get<{ Querystring: { wallet?: string } }>('/v1/4663/me/proof', async (req, reply) => {
@@ -2960,7 +2999,7 @@ export async function createApp(
     reply.header('Cache-Control', 'private, no-store').header('Vary', 'X-Wallet-Address, Authorization');
     if (!wallet || !/^0x[0-9a-fA-F]{40}$/.test(wallet)) return { data: safeJsonExport({ authenticated: false, profile: null, my_4663_version: '0' }) };
     try { const profile = await rh4663Phase2.proofProfile(wallet); return { data: safeJsonExport({ authenticated: true, profile, my_4663_version: `${profile.profile_version}:${profile.calls}:${profile.resolved}:${profile.correct}` }) }; }
-    catch (error) { return reply.code(503).send({ error: error instanceof Error ? error.message : 'personal_proof_state_unavailable' }); }
+    catch { return reply.code(503).send({ error: 'personal_proof_state_unavailable' }); }
   });
   app.get<{ Querystring: { wallet?: string } }>('/v1/4663/me/changes', async (req, reply) => {
     const headerWallet = req.headers['x-wallet-address'];
@@ -2975,7 +3014,7 @@ export async function createApp(
       const resolvedCall = resolved ? { call_receipt_id: resolved.call.receipt_id, resolution_receipt_id: resolved.resolution!.receipt_id, window_id: resolved.call.window_id, called_category: resolved.call.rotation, resolved_category: resolved.resolution!.resolved_category, outcome: resolved.resolution!.outcome, confidence: resolved.call.confidence, submitted_at: resolved.call.created_at, resolved_at: resolved.resolution!.resolved_at, deep_link: `/4663/resolution/${encodeURIComponent(resolved.resolution!.receipt_id)}` } : null;
       const pendingChanges = pending && frontdoor ? frontdoor.change_events.filter((event) => Date.parse(event.occurred_at) > Date.parse(pending.created_at)).slice(0, 20) : [];
       return { data: safeJsonExport({ authenticated: true, resolved_call: resolvedCall, personal_events: resolvedCall ? [{ event_id: `CALL_RESOLVED:${resolvedCall.resolution_receipt_id}`, event_type: 'CALL_RESOLVED', occurred_at: resolvedCall.resolved_at, headline: 'Your CALL resolved', deep_link: resolvedCall.deep_link }] : [], pending_call: pending ? { call_receipt_id: pending.receipt_id, submitted_at: pending.created_at, changes: pendingChanges, context_only: true } : null, my_4663_version: resolvedCall ? `${resolvedCall.resolution_receipt_id}:${resolvedCall.resolved_at}` : pending ? `${pending.receipt_id}:pending` : '0' }) };
-    } catch (error) { return reply.code(503).send({ error: error instanceof Error ? error.message : 'personal_change_state_unavailable' }); }
+    } catch { return reply.code(503).send({ error: 'personal_change_state_unavailable' }); }
   });
   app.get<{ Querystring: { follows?: string; last_seen_my4663_event_id?: string } }>('/v1/4663/me', async (req, reply) => {
     // Local-first follows are supplied only for this private projection. They
@@ -2986,7 +3025,7 @@ export async function createApp(
     try {
       const frontdoor = await rh4663Frontdoor.read();
       return { data: safeJsonExport(buildMy4663State(frontdoor, normalizeMy4663Follows(follows), req.query.last_seen_my4663_event_id)) };
-    } catch (error) { return reply.code(503).send({ error: error instanceof Error ? error.message : 'my_4663_state_unavailable' }); }
+    } catch { return reply.code(503).send({ error: 'my_4663_state_unavailable' }); }
   });
   app.get('/v1/4663', async () => {
     const [pulse, genesis, today, signals, liveSignals, latestPrint] = await Promise.all([rh4663PulseRead(), rh4663GenesisRead(), rh4663TodayInput(), rh4663Store.listSignals(5).catch(() => []), rh4663Intelligence.publicSignals({ limit: 3 }).catch(() => []), rh4663LatestPrintRead()]);
@@ -3032,12 +3071,17 @@ export async function createApp(
     try { return reply.code(202).send({ data: rh4663CampaignTelemetry.record(Rh4663CampaignEventSchema.parse(req.body)) }); }
     catch (error) { return rh4663Failure(reply, error); }
   });
-  app.get('/v1/4663/pulse', async () => ({ data: safeJsonExport(await rh4663PulseRead()) }));
+  app.get('/v1/4663/pulse', async (_req, reply) => {
+    reply.header('Cache-Control', 'public, max-age=15, s-maxage=15, stale-while-revalidate=45, stale-if-error=300').header('Vary', 'Accept-Encoding');
+    return { data: safeJsonExport(await rh4663PulseRead()) };
+  });
   app.post('/v1/4663/pulse/payload', async (req, reply) => {
+    const rate = rhChainPublicRateLimiter.consume(`4663_call_payload:${req.ip}`); if (!rate.allowed) return reply.header('Retry-After', String(Math.ceil(rate.retryAfterMs / 1000))).code(429).send({ error: 'rate_limited' });
     try { return { data: safeJsonExport(rh4663.pulsePayload(Rh4663PulsePayloadInputSchema.parse(req.body))) }; }
     catch (error) { return rh4663Failure(reply, error); }
   });
   app.post('/v1/4663/pulse/calls', async (req, reply) => {
+    const rate = rhChainPublicRateLimiter.consume(`4663_call_submit:${req.ip}`); if (!rate.allowed) return reply.header('Retry-After', String(Math.ceil(rate.retryAfterMs / 1000))).code(429).send({ error: 'rate_limited' });
     try { return reply.code(201).send({ data: safeJsonExport(await rh4663.call(Rh4663PulseCallInputSchema.parse(req.body))) }); }
     catch (error) { return rh4663Failure(reply, error); }
   });
@@ -3045,10 +3089,10 @@ export async function createApp(
     try { return { data: safeJsonExport(await rh4663Phase2.window(req.params.windowId)) }; } catch (error) { return rh4663Failure(reply, error); }
   });
   app.get<{ Params: { windowId: string } }>('/v1/4663/pulse/windows/:windowId/resolution', async (req, reply) => {
-    try { return { data: safeJsonExport(await rh4663Phase2.publicResolution(req.params.windowId)) }; } catch (error) { return rh4663Failure(reply, error); }
+    try { reply.header('Cache-Control', 'public, max-age=31536000, immutable'); return { data: safeJsonExport(await rh4663Phase2.publicResolution(req.params.windowId)) }; } catch (error) { return rh4663Failure(reply, error); }
   });
   app.get<{ Params: { receiptId: string } }>('/v1/4663/pulse/receipts/:receiptId/proof', async (req, reply) => {
-    try { return { data: safeJsonExport(await rh4663Phase2.proof(req.params.receiptId)) }; } catch (error) { return rh4663Failure(reply, error); }
+    try { reply.header('Cache-Control', 'public, max-age=31536000, immutable'); return { data: safeJsonExport(await rh4663Phase2.proof(req.params.receiptId)) }; } catch (error) { return rh4663Failure(reply, error); }
   });
   app.get<{ Params: { receiptId: string } }>('/v1/4663/pulse/receipts/:receiptId/share', async (req, reply) => {
     try { return { data: safeJsonExport(await rh4663Phase2.share(req.params.receiptId)) }; } catch (error) { return rh4663Failure(reply, error); }
@@ -3073,6 +3117,10 @@ export async function createApp(
     if (!config.rh4663Phase2Enabled) { reply.code(503).send({ error: 'phase2_not_enabled' }); return null; }
     const reviewer = classificationReviewer(reviewerHeader as string | string[] | undefined); if (!reviewer) { reply.code(400).send({ error: 'reviewer_id_required' }); return null; } return reviewer;
   };
+  app.get('/internal/4663/frontdoor/metrics', async (req, reply) => {
+    const reviewer = rh4663OperationalGuard(reply, req.headers.authorization, req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return;
+    return { data: safeJsonExport({ telemetry: rh4663FrontdoorTelemetry.snapshot(), cache: rh4663Frontdoor.metrics(), requested_by: reviewer }) };
+  });
   app.post<{ Params: { date: string } }>('/internal/4663/observations/utc-day/:date/refresh', async (req, reply) => {
     const reviewer = rh4663OperationalGuard(reply, req.headers.authorization, req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return;
     try { const result = await rh4663UtcDayObservations.refresh(req.params.date); return { data: safeJsonExport({ ...result, requested_by: reviewer, storage: { adapter: rh4663UtcDayObservationStore.adapter, durable: rh4663UtcDayObservationStore.durable } }) }; }
@@ -3192,7 +3240,7 @@ export async function createApp(
   app.get('/v1/4663/reflexive/preflight/ipx-pltr/shadow/candidates', async () => ({ data: safeJsonExport(await ipxPltrShadowLab.candidates()) }));
   app.get('/v1/4663/reflexive/preflight/ipx-pltr/shadow/status', async (_req, reply) => {
     try { return { data: safeJsonExport(await ipxPltrShadowObservation.status()) }; }
-    catch (error) { return reply.code(503).send({ error: 'SHADOW_OBSERVATION_STATUS_UNAVAILABLE', detail: error instanceof Error ? error.message : String(error) }); }
+    catch { return reply.code(503).send({ error: 'SHADOW_OBSERVATION_STATUS_UNAVAILABLE' }); }
   });
   app.post('/v1/4663/reflexive/preflight/ipx-pltr/shadow/replay', async (req, reply) => {
     try { const body = (req.body ?? {}) as { state_snapshot_id?: string }; return reply.code(201).send({ data: safeJsonExport(await ipxPltrShadowLab.replay(body.state_snapshot_id ?? '')) }); }
@@ -3200,8 +3248,8 @@ export async function createApp(
   });
   app.post('/internal/4663/reflexive/preflight/ipx-pltr/shadow/observe', async (req, reply) => {
     if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send({ error: 'review_admin_token_required' });
-    try { return { data: safeJsonExport(await ipxPltrShadowObservation.observeOnce()) }; }
-    catch (error) { return reply.code(503).send({ error: 'SHADOW_OBSERVATION_FAILED', detail: error instanceof Error ? error.message : String(error) }); }
+    try { return { data: safeJsonExport(await observeShadowWithLease()) }; }
+    catch { return reply.code(503).send({ error: 'SHADOW_OBSERVATION_FAILED' }); }
   });
   app.get<{ Params: { configuration_hash: string } }>('/v1/4663/reflexive/preflight/ipx-pltr/shadow/series/:configuration_hash', async (req, reply) => {
     const candidates = await ipxPltrShadowLab.candidates(); if (!candidates.some((candidate) => candidate.configuration_hash === req.params.configuration_hash)) return reply.code(404).send({ error: 'SHADOW_CANDIDATE_NOT_FOUND' }); return { data: safeJsonExport({ configuration_hash: req.params.configuration_hash, series: await ipxPltrShadowLab.series(req.params.configuration_hash), transitions: await ipxPltrShadowLab.transitions(req.params.configuration_hash), summary: await ipxPltrShadowLab.summary(req.params.configuration_hash) }) };
@@ -4078,7 +4126,12 @@ export async function createApp(
   app.get<{ Params: { wallet: string }; Querystring: { format?: string } }>('/og/4663/proof/:wallet.png', async (req, reply) => {
     try {
       const format = parseRh4663ShareFormat(req.query.format); const profile = await rh4663Phase2.proofProfile(req.params.wallet);
-      reply.header('cache-control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
+      // Wallet-only proof profiles evolve with new resolutions. A frozen share
+      // object is immutable; this canonical current-profile URL is deliberately
+      // short-lived and versioned by ETag instead.
+      const etag = `"proof-${profile.profile_version}"`;
+      reply.header('ETag', etag).header('cache-control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=900').header('Vary', 'Accept-Encoding');
+      if (req.headers['if-none-match'] === etag) return reply.code(304).send();
       return reply.type('image/png').send(renderOgPng(renderRh4663ProofProfileSvg(profile, format), format === 'landscape' ? 1200 : 1080));
     } catch (error) {
       console.log(JSON.stringify({ event: 'proof_profile_share_render_failed', service: 'rh_4663_resolution', wallet: req.params.wallet, error_code: error instanceof Rh4663ServiceError ? error.code : 'render_failed' }));
@@ -4544,7 +4597,7 @@ export async function createApp(
   const ipxPltrShadowObservationIntervalMs = options.ipxPltrShadowObservation?.intervalMs ?? config.ipxPltrShadowObservationIntervalMs;
   if (ipxPltrShadowObservationEnabled && ipxPltrShadowObservationIntervalMs > 0) {
     const runShadowObservation = () => {
-      void ipxPltrShadowObservation.observeOnce()
+      void observeShadowWithLease()
         .then((status) => {
           console.log(JSON.stringify({ event: 'ipx_pltr_shadow_observation_run', latest_ready_snapshot: status.latest_ready_snapshot?.observation_id ?? null, ready_snapshot_count: status.ready_snapshot_count, evidence_window_satisfied: status.evidence_window.satisfied, next_action: status.next_action, last_error: status.last_error?.code ?? null }));
         })

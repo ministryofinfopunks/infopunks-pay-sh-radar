@@ -27,9 +27,10 @@ describe('4663 Front Door read model', () => {
 
   it('keeps partial state and source health when a module fails', async () => {
     const service = new Rh4663FrontdoorService(dependencies({ census: async () => { throw new Error('census store down'); } })); const state = await service.read();
-    expect(state.system_status.state).toBe('partial'); expect(state.system_status.source_health.census).toMatchObject({ status: 'unavailable', detail: 'census store down' });
+    expect(state.system_status.state).toBe('partial'); expect(state.system_status.source_health.census).toMatchObject({ status: 'unavailable', detail: 'Source unavailable. Persisted evidence remains visible where available.' });
     expect(state.now_cards.some((card) => card.id === 'pltr-preflight')).toBe(true);
     expect(state.open_loops.some((loop) => loop.question.includes('PLTR'))).toBe(true);
+    expect(service.metrics().source_failures).toBe(1);
   });
 
   it('uses one cached, batched read and never invents resolution dates', async () => {
@@ -37,6 +38,7 @@ describe('4663 Front Door read model', () => {
     const service = new Rh4663FrontdoorService(dependencies({ census })); const before = JSON.stringify(await dependencies().census()); await service.read(); await service.read();
     expect(calls).toBe(1); expect(JSON.stringify(await dependencies().census())).toBe(before);
     expect((await service.read()).open_loops.every((loop) => loop.expected_resolution_at === null)).toBe(true);
+    expect(service.metrics()).toMatchObject({ cache_hits: 2, cache_misses: 1, source_failures: 0, cached: true });
   });
 
   it('propagates stale source time instead of calling the newly generated read LIVE', async () => {
@@ -78,6 +80,7 @@ describe('4663 Front Door read model', () => {
     try {
       const first = await app.inject({ method: 'GET', url: '/v1/4663/frontdoor' });
       expect(first.statusCode).toBe(200); expect(first.headers.etag).toMatch(/^"frontdoor-\d+"$/); expect(first.headers['cache-control']).toContain('stale-while-revalidate');
+      expect(first.headers['cache-control']).toContain('stale-if-error'); expect(first.headers.vary).toContain('Accept-Encoding'); expect(first.headers['x-content-type-options']).toBe('nosniff'); expect(first.headers['referrer-policy']).toBe('strict-origin-when-cross-origin');
       expect(first.json().data.object_type).toBe('RH_4663_FRONTDOOR_STATE');
       expect(first.json().data.frontdoor_version_durability).toBe('EPHEMERAL');
       const personalizedHeaders = { authorization: 'Bearer wallet-specific-token', cookie: 'wallet=wallet-specific-value' };

@@ -365,10 +365,13 @@ export class InMemoryRh4663ResolutionStore implements Rh4663ResolutionStore {
 export class PostgresRh4663ResolutionStore implements Rh4663ResolutionStore {
   readonly adapter = 'postgres' as const; readonly durable = true;
   private readonly pool: pg.Pool; private readonly ownsPool: boolean;
+  private indexesReady: Promise<void> | null = null;
   constructor(source: PostgresPoolSource) { const resolved = resolvePostgresPool(source); this.pool = resolved.pool; this.ownsPool = resolved.ownsPool; }
   private async ready() {
     const result = await this.pool.query<{ missing: string | null }>(`select string_agg(name, ',') as missing from unnest(array['rh_4663_pulse_window_resolutions','rh_4663_resolution_receipts','rh_4663_window_anchors']) name where to_regclass(name) is null`);
     if (result.rows[0]?.missing) throw new Rh4663ServiceError('phase2_migration_not_applied', 503);
+    if (!this.indexesReady) this.indexesReady = this.pool.query('create index if not exists rh_4663_resolution_receipts_wallet_window_idx on rh_4663_resolution_receipts (lower(wallet), window_id); create index if not exists rh_4663_resolution_receipts_window_idx on rh_4663_resolution_receipts (window_id)').then(() => undefined).catch((error) => { this.indexesReady = null; throw error; });
+    await this.indexesReady;
   }
   async getResolution(id: string) { await this.ready(); const result = await this.pool.query<{ payload: Rh4663WindowResolution }>('select payload from rh_4663_pulse_window_resolutions where window_id=$1', [id]); return result.rows[0]?.payload ?? null; }
   async saveResolution(value: Rh4663WindowResolution) {

@@ -76,6 +76,8 @@ export type RuntimeConfig = {
   rh4663Phase3ShadowMode: boolean;
   rh4663Phase3IntervalMs: number;
   rh4663Phase2ProductionProofVerified: boolean;
+  /** Enables Phase 8 HTTP hardening independently of evidence semantics. */
+  rh4663FrontdoorHardeningEnabled: boolean;
   ipxPltrShadowObservationEnabled: boolean;
   ipxPltrShadowObservationIntervalMs: number;
   ipxPltrShadowCapacitySweepEnabled: boolean;
@@ -173,6 +175,7 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
     rh4663Phase3ShadowMode: readBoolean('RH_4663_PHASE3_SHADOW_MODE', env.RH_4663_PHASE3_SHADOW_MODE, true),
     rh4663Phase3IntervalMs: readPositiveInteger('RH_4663_PHASE3_INTERVAL_MS', env.RH_4663_PHASE3_INTERVAL_MS, 10 * 60_000),
     rh4663Phase2ProductionProofVerified: readBoolean('RH_4663_PHASE2_PRODUCTION_PROOF_VERIFIED', env.RH_4663_PHASE2_PRODUCTION_PROOF_VERIFIED, false),
+    rh4663FrontdoorHardeningEnabled: readBoolean('RH_4663_FRONTDOOR_HARDENING_ENABLED', env.RH_4663_FRONTDOOR_HARDENING_ENABLED, true),
     ipxPltrShadowObservationEnabled: readBoolean('IPX_PLTR_SHADOW_OBSERVATION_ENABLED', env.IPX_PLTR_SHADOW_OBSERVATION_ENABLED, false),
     ipxPltrShadowObservationIntervalMs: readPositiveInteger('IPX_PLTR_SHADOW_OBSERVATION_INTERVAL_MS', env.IPX_PLTR_SHADOW_OBSERVATION_INTERVAL_MS, 30 * 60_000),
     ipxPltrShadowCapacitySweepEnabled: readBoolean('IPX_PLTR_SHADOW_CAPACITY_SWEEP_ENABLED', env.IPX_PLTR_SHADOW_CAPACITY_SWEEP_ENABLED, false),
@@ -304,6 +307,7 @@ export function deploymentSummary(config: RuntimeConfig) {
     rhChainMarketIngestionEnabled: config.rhChainMarketIngestionEnabled,
     rhChainMarketHistoryEnabled: config.rhChainMarketHistoryEnabled,
     rh4663Phase2Enabled: config.rh4663Phase2Enabled,
+    rh4663FrontdoorHardeningEnabled: config.rh4663FrontdoorHardeningEnabled,
     rh4663Phase3: {
       enabled: config.rh4663Phase3Enabled,
       ingestionEnabled: config.rh4663Phase3IngestionEnabled,

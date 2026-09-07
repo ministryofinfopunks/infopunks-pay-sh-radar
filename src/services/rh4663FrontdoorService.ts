@@ -9,7 +9,14 @@ export const RH_4663_FRONTDOOR_STATE = 'RH_4663_FRONTDOOR_STATE' as const;
 export type FrontdoorVersionDurability = 'PERSISTENT' | 'EPHEMERAL';
 
 export type FrontdoorEvidenceState = 'VERIFIED' | 'MIXED' | 'WATCH' | 'UNRESOLVED' | 'BLOCK' | 'DEGRADE' | 'INSUFFICIENT_DATA';
-export type FrontdoorSourceHealth = { status: 'available' | 'degraded' | 'unavailable'; observed_at: string | null; detail?: string };
+export type FrontdoorHealthState = 'HEALTHY' | 'STALE' | 'DEGRADED' | 'UNAVAILABLE';
+export type FrontdoorSourceHealth = {
+  /** Legacy-compatible transport state. Prefer health_state for consumer copy. */
+  status: 'available' | 'degraded' | 'unavailable'; health_state?: FrontdoorHealthState;
+  observed_at: string | null; current_observation_at?: string | null; last_success_at?: string | null;
+  last_attempt_at?: string; stale_after?: string; failure_class?: 'TIMEOUT' | 'PROVIDER' | 'UNKNOWN' | null;
+  source_latency_ms?: number; detail?: string;
+};
 export type FrontdoorSourceRef = { source_type: string; source_id: string; href: string; observed_at: string | null };
 export type FrontdoorCard = {
   id: string; topic: string; headline: string; summary: string; primary_metric: string; delta: string | null;
@@ -44,7 +51,7 @@ export type Rh4663FrontdoorState = {
   now_cards: FrontdoorCard[]; watch_cards: FrontdoorCard[]; open_loops: OpenLoop[]; change_events: FrontdoorChangeEvent[];
   current_call: { window_id: string; state: string; leading_rotation: string | null; total_calls: number; opens_at: string; closes_at: string; resolution_state?: string | null; resolved_category?: string | null; deep_link: string; source_ref: FrontdoorSourceRef };
   proof_summary: { total_calls: number; resolved_calls: null; note: string; deep_link: string; source_ref: FrontdoorSourceRef };
-  system_status: { state: 'available' | 'partial' | 'degraded'; source_health: Record<'census' | 'watch' | 'preflight' | 'pulse' | 'signals', FrontdoorSourceHealth> };
+  system_status: { state: 'available' | 'partial' | 'stale' | 'degraded'; source_health: Record<'census' | 'watch' | 'preflight' | 'pulse' | 'signals', FrontdoorSourceHealth> };
   source_refs: FrontdoorSourceRef[];
 };
 
@@ -67,6 +74,8 @@ export type Rh4663FrontdoorDependencies = {
    * the shared FRONTDOOR_VERSION only moves for global Pulse transitions.
    */
   ignore_personal_pulse_changes?: boolean;
+  /** Each source is separately bounded; public reads never wait indefinitely. */
+  source_timeout_ms?: number;
 };
 
 export type FrontdoorVersionRecord = { fingerprint: string; sources: Record<string, string>; version: number };
@@ -136,26 +145,39 @@ export class PostgresFrontdoorChangeEventStore implements FrontdoorChangeEventSt
 
 export class Rh4663FrontdoorService {
   private cached: { expires_at: number; state: Rh4663FrontdoorState } | null = null;
+  private cacheHits = 0; private cacheMisses = 0; private sourceFailures = 0;
   private readonly now: () => Date;
   private readonly ttlMs: number;
   private readonly versions: FrontdoorVersionStore;
   private readonly requireDurableVersion: boolean;
   private readonly changeEvents: FrontdoorChangeEventStore;
+  private lastSourceReads: Record<string, { duration_ms: number; failure_class: string | null }> = {};
   constructor(private readonly deps: Rh4663FrontdoorDependencies) { this.now = deps.now ?? (() => new Date()); this.ttlMs = deps.ttl_ms ?? 15_000; this.versions = deps.version_store ?? new InMemoryFrontdoorVersionStore(); this.changeEvents = deps.change_event_store ?? new InMemoryFrontdoorChangeEventStore(); this.requireDurableVersion = deps.require_durable_version ?? false; }
   async read() {
     const at = this.now();
-    if (this.cached && this.cached.expires_at > at.getTime()) return structuredClone(this.cached.state);
+    if (this.cached && this.cached.expires_at > at.getTime()) { this.cacheHits += 1; return structuredClone(this.cached.state); }
+    this.cacheMisses += 1;
     if (this.requireDurableVersion && this.versions.durability !== 'PERSISTENT') throw new Rh4663FrontdoorError('frontdoor_version_durability_required', 503);
-    const [census, watch, preflight, pulse, signals, shadow] = await Promise.allSettled([this.deps.census(), this.deps.watch(), this.deps.preflight(), this.deps.pulse(), this.deps.signals(), this.deps.shadow?.() ?? Promise.resolve(null)]);
+    const [census, watch, preflight, pulse, signals, shadow] = await Promise.all([
+      boundedSourceRead(this.deps.census, this.deps.source_timeout_ms ?? 250),
+      boundedSourceRead(this.deps.watch, this.deps.source_timeout_ms ?? 250),
+      boundedSourceRead(this.deps.preflight, this.deps.source_timeout_ms ?? 250),
+      boundedSourceRead(this.deps.pulse, this.deps.source_timeout_ms ?? 250),
+      boundedSourceRead(this.deps.signals, this.deps.source_timeout_ms ?? 250),
+      boundedSourceRead(this.deps.shadow ?? (() => Promise.resolve(null)), this.deps.source_timeout_ms ?? 250)
+    ]);
+    this.lastSourceReads = Object.fromEntries(Object.entries({ census, watch, preflight, pulse, signals, shadow }).map(([source, result]) => [source, { duration_ms: result.duration_ms, failure_class: result.failure_class }]));
+    this.sourceFailures += [census, watch, preflight, pulse, signals, shadow].filter((item) => item.result.status === 'rejected').length;
     const state = assembleFrontdoor({
       now: at,
-      census: census.status === 'fulfilled' ? census.value : null,
-      watch: watch.status === 'fulfilled' ? watch.value : null,
-      preflight: preflight.status === 'fulfilled' ? preflight.value : null,
-      pulse: pulse.status === 'fulfilled' ? pulse.value : null,
-      signals: signals.status === 'fulfilled' ? signals.value : null,
-      shadow: shadow.status === 'fulfilled' ? shadow.value : null,
-      failures: { census: failure(census), watch: failure(watch), preflight: failure(preflight), pulse: failure(pulse), signals: failure(signals) }
+      census: census.result.status === 'fulfilled' ? census.result.value : null,
+      watch: watch.result.status === 'fulfilled' ? watch.result.value : null,
+      preflight: preflight.result.status === 'fulfilled' ? preflight.result.value : null,
+      pulse: pulse.result.status === 'fulfilled' ? pulse.result.value : null,
+      signals: signals.result.status === 'fulfilled' ? signals.result.value : null,
+      shadow: shadow.result.status === 'fulfilled' ? shadow.result.value : null,
+      source_reads: { census, watch, preflight, pulse, signals },
+      failures: { census: failure(census.result), watch: failure(watch.result), preflight: failure(preflight.result), pulse: failure(pulse.result), signals: failure(signals.result) }
     });
     const sources = semanticSources(state, this.deps.ignore_personal_pulse_changes ?? false);
     const fingerprint = JSON.stringify(sources);
@@ -179,13 +201,26 @@ export class Rh4663FrontdoorService {
     this.cached = { expires_at: at.getTime() + this.ttlMs, state };
     return structuredClone(state);
   }
+  metrics() { return { cache_hits: this.cacheHits, cache_misses: this.cacheMisses, source_failures: this.sourceFailures, cache_hit_rate: this.cacheHits + this.cacheMisses ? this.cacheHits / (this.cacheHits + this.cacheMisses) : 0, cached: Boolean(this.cached), last_source_reads: this.lastSourceReads }; }
 }
 
 export class Rh4663FrontdoorError extends Error {
   constructor(readonly code: string, readonly statusCode: number) { super(code); }
 }
 
-function assembleFrontdoor(input: { now: Date; census: Census | null; watch: Watch | null; preflight: Preflight | null; pulse: Pulse | null; signals: Signal[] | null; shadow: ShadowObservation | null; failures: Record<'census' | 'watch' | 'preflight' | 'pulse' | 'signals', string | null> }): Rh4663FrontdoorState {
+type BoundedSourceRead<T> = { result: PromiseSettledResult<T>; duration_ms: number; failure_class: 'TIMEOUT' | 'PROVIDER' | 'UNKNOWN' | null };
+async function boundedSourceRead<T>(read: () => Promise<T>, timeoutMs: number): Promise<BoundedSourceRead<T>> {
+  const started = performance.now(); let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const timeout = new Promise<never>((_, reject) => { timer = setTimeout(() => reject(new Error('frontdoor_source_timeout')), Math.max(1, timeoutMs)); timer.unref?.(); });
+    const value = await Promise.race([Promise.resolve().then(read), timeout]);
+    return { result: { status: 'fulfilled', value }, duration_ms: Math.round(performance.now() - started), failure_class: null };
+  } catch (reason) {
+    const message = reason instanceof Error ? reason.message : String(reason);
+    return { result: { status: 'rejected', reason }, duration_ms: Math.round(performance.now() - started), failure_class: /timeout|deadline/i.test(message) ? 'TIMEOUT' : /provider|rpc|rhj|fetch|http_/i.test(message) ? 'PROVIDER' : 'UNKNOWN' };
+  } finally { if (timer) clearTimeout(timer); }
+}
+function assembleFrontdoor(input: { now: Date; census: Census | null; watch: Watch | null; preflight: Preflight | null; pulse: Pulse | null; signals: Signal[] | null; shadow: ShadowObservation | null; source_reads: Record<'census' | 'watch' | 'preflight' | 'pulse' | 'signals', BoundedSourceRead<unknown>>; failures: Record<'census' | 'watch' | 'preflight' | 'pulse' | 'signals', string | null> }): Rh4663FrontdoorState {
   const censusRef = input.census && ref('rmm_census', input.census.census_id, '/v1/4663/reflexive/census', input.census.observed_at);
   const preflightRef = input.preflight && ref('pltr_preflight', input.preflight.observation_id, `/v1/4663/reflexive/stocks/PLTR/preflight?observation_id=${encodeURIComponent(input.preflight.observation_id)}`, input.preflight.observation?.observed_at ?? null);
   const pulseRef = input.pulse && ref('pulse_window', input.pulse.window.window_id, `/v1/4663/pulse/windows/${encodeURIComponent(input.pulse.window.window_id)}`, input.pulse.window.opens_at);
@@ -194,7 +229,7 @@ function assembleFrontdoor(input: { now: Date; census: Census | null; watch: Wat
   const shadowRef = input.shadow && ref('pltr_shadow', input.shadow.latest_ready_snapshot?.observation_id ?? 'shadow-status', '/v1/4663/reflexive/preflight/ipx-pltr/shadow/status', input.shadow.latest_ready_snapshot?.observed_at ?? input.shadow.last_refresh_at ?? null);
   const signalRefs = (input.signals ?? []).map((signal) => ref('signal_card', signal.signal_id, signal.proof_url, signal.published_at));
   const health = {
-    census: sourceHealth(input.census?.observed_at ?? null, input.failures.census, input.now), watch: sourceHealth(watchObservedAt, input.failures.watch, input.now), preflight: sourceHealth(input.preflight?.observation?.observed_at ?? null, input.failures.preflight, input.now), pulse: sourceHealth(input.pulse?.window.opens_at ?? null, input.failures.pulse, input.now), signals: sourceHealth((input.signals ?? []).map((item) => item.published_at).sort().at(-1) ?? null, input.failures.signals, input.now)
+    census: sourceHealth('census', input.census?.observed_at ?? null, input.source_reads.census, input.failures.census, input.now), watch: sourceHealth('watch', watchObservedAt, input.source_reads.watch, input.failures.watch, input.now), preflight: sourceHealth('preflight', input.preflight?.observation?.observed_at ?? null, input.source_reads.preflight, input.failures.preflight, input.now), pulse: sourceHealth('pulse', input.pulse?.window.opens_at ?? null, input.source_reads.pulse, input.failures.pulse, input.now), signals: sourceHealth('signals', (input.signals ?? []).map((item) => item.published_at).sort().at(-1) ?? null, input.source_reads.signals, input.failures.signals, input.now)
   };
   const candidates: Array<FrontdoorCard & { rank: readonly number[] }> = [];
   if (input.census && censusRef) candidates.push({ id: 'rmm-census', topic: 'RMM SPREADING', headline: `${input.census.verified_pair_count} stock-paired markets are verified.`, summary: `${input.census.distinct_verified_stock_tickers} canonical Stock Tokens have deterministic direct-market evidence. Breadth is not persistence.`, primary_metric: `${input.census.verified_pair_count} verified pairs`, delta: `${input.census.distinct_verified_stock_tickers} canonical tokens`, evidence_state: input.census.verification_coverage.percentage >= 100 ? 'VERIFIED' : 'MIXED', freshness: input.census.observed_at, source_type: censusRef.source_type, source_ref: censusRef, deep_link: '/4663/reflexive/census', priority_reason: 'Fresh persisted census with deterministic quote-direction verification; breadth is material but persistence remains separate.', rank: [freshnessRank(input.census.observed_at, input.now), 90, evidenceRank(input.census.verification_coverage.percentage >= 100 ? 'VERIFIED' : 'MIXED'), 2] });
@@ -208,9 +243,10 @@ function assembleFrontdoor(input: { now: Date; census: Census | null; watch: Wat
   const openLoops = rankOpenLoops(openLoopsFrom(input.census, censusRef, input.watch, watchRef, input.preflight, preflightRef, input.pulse, pulseRef, input.shadow, input.now), input.now).filter((loop) => !['RESOLVED', 'FALSIFIED'].includes(loop.state)).slice(0, 4);
   const refs = [censusRef, watchRef, preflightRef, shadowRef, pulseRef, ...signalRefs].filter((item): item is FrontdoorSourceRef => Boolean(item));
   const observed = refs.map((item) => item.observed_at).filter((item): item is string => Boolean(item)).sort().at(-1) ?? null;
-  const unavailable = Object.values(health).filter((item) => item.status === 'unavailable').length;
-  const degraded = Object.values(health).filter((item) => item.status === 'degraded').length;
-  const system = unavailable || degraded ? (refs.length ? 'partial' : 'degraded') : 'available';
+  const unavailable = Object.values(health).filter((item) => item.health_state === 'UNAVAILABLE').length;
+  const degraded = Object.values(health).filter((item) => item.health_state === 'DEGRADED').length;
+  const stale = Object.values(health).filter((item) => item.health_state === 'STALE').length;
+  const system = unavailable || degraded ? (refs.length ? 'partial' : 'degraded') : stale ? 'stale' : 'available';
   const defaultPulse: Pulse = { window: { window_id: 'unavailable', opens_at: input.now.toISOString(), closes_at: input.now.toISOString() }, state: 'unavailable', consensus: { state: 'unavailable', leading_rotation: null, total_calls: 0 }, resolution: null };
   const current = input.pulse ?? defaultPulse;
   const callRef = pulseRef ?? ref('pulse_window', current.window.window_id, '/4663/pulse', null);
@@ -301,8 +337,16 @@ function openLoopsFrom(census: Census | null, censusRef: FrontdoorSourceRef | nu
 }
 
 function ref(source_type: string, source_id: string, href: string, observed_at: string | null): FrontdoorSourceRef { return { source_type, source_id, href, observed_at }; }
-function failure(result: PromiseSettledResult<unknown>) { return result.status === 'rejected' ? (result.reason instanceof Error ? result.reason.message : 'source_unavailable') : null; }
-function sourceHealth(observed_at: string | null, issue: string | null, now: Date): FrontdoorSourceHealth { if (issue) return { status: 'unavailable', observed_at, detail: issue }; if (!observed_at) return { status: 'degraded', observed_at: null, detail: 'No persisted observation is available.' }; return freshnessState(observed_at, now) === 'DEGRADE' ? { status: 'degraded', observed_at, detail: 'Latest persisted observation is stale.' } : { status: 'available', observed_at }; }
+function failure(result: PromiseSettledResult<unknown>) { return result.status === 'rejected' ? 'source_unavailable' : null; }
+const SOURCE_STALE_AFTER_MS: Record<'census' | 'watch' | 'preflight' | 'pulse' | 'signals', number> = { census: 24 * 60 * 60_000, watch: 6 * 60 * 60_000, preflight: 6 * 60 * 60_000, pulse: 10 * 60_000, signals: 24 * 60 * 60_000 };
+function sourceHealth(source: keyof typeof SOURCE_STALE_AFTER_MS, observed_at: string | null, read: BoundedSourceRead<unknown>, issue: string | null, now: Date): FrontdoorSourceHealth {
+  const staleAfter = new Date(now.getTime() - SOURCE_STALE_AFTER_MS[source]).toISOString();
+  const base = { observed_at, current_observation_at: observed_at, last_success_at: read.result.status === 'fulfilled' ? now.toISOString() : null, last_attempt_at: now.toISOString(), stale_after: staleAfter, source_latency_ms: read.duration_ms };
+  if (issue) return { ...base, status: 'unavailable', health_state: 'UNAVAILABLE', failure_class: read.failure_class ?? 'UNKNOWN', detail: 'Source unavailable. Persisted evidence remains visible where available.' };
+  if (!observed_at) return { ...base, status: 'degraded', health_state: 'DEGRADED', failure_class: null, detail: 'No persisted observation is available.' };
+  if (Date.parse(observed_at) < Date.parse(staleAfter)) return { ...base, status: 'degraded', health_state: 'STALE', failure_class: null, detail: 'Latest persisted observation is stale.' };
+  return { ...base, status: 'available', health_state: 'HEALTHY', failure_class: null };
+}
 function freshnessState(value: string | null, now: Date): FrontdoorEvidenceState { if (!value || !Number.isFinite(Date.parse(value))) return 'INSUFFICIENT_DATA'; const age = Math.max(0, now.getTime() - Date.parse(value)); return age > 6 * 3_600_000 ? 'DEGRADE' : age > 15 * 60_000 ? 'MIXED' : 'VERIFIED'; }
 function freshnessRank(value: string | null, now: Date) { const at = value ? Date.parse(value) : NaN; if (!Number.isFinite(at)) return 0; const age = Math.max(0, now.getTime() - at); return age < 15 * 60_000 ? 3 : age < 6 * 3_600_000 ? 2 : 1; }
 function evidenceRank(state: FrontdoorEvidenceState) { return state === 'VERIFIED' ? 3 : state === 'MIXED' ? 2 : state === 'WATCH' ? 1 : 0; }
