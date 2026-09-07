@@ -15,8 +15,10 @@ export const Rh4663CampaignEventSchema = z.object({
     '4663_print_candidate_generated', '4663_print_candidate_incomplete', '4663_print_frozen', '4663_print_provider_disagreement',
     'share_clicked', 'share_link_copied', 'share_text_copied', 'share_native_completed', 'share_card_viewed',
     'social_landing_viewed', 'social_landing_source_opened', 'social_landing_call_started', 'social_landing_follow_created', 'social_landing_proof_opened'
+    , 'campaign_viewed', 'campaign_hero_opened', 'campaign_evidence_opened', 'campaign_open_loop_followed', 'campaign_call_started', 'campaign_call_completed', 'campaign_shared', 'campaign_resolution_return', 'campaign_completed_viewed'
   ]),
-  surface: z.enum(['print', 'pulse', 'call', 'consensus', 'resolution', 'home', 'now', 'watch', 'open_loop', 'proof', 'census', 'radar', 'shadow', 'social_landing']).optional(),
+  surface: z.enum(['print', 'pulse', 'call', 'consensus', 'resolution', 'home', 'now', 'watch', 'open_loop', 'proof', 'census', 'radar', 'shadow', 'social_landing', 'campaign']).optional(),
+  campaign_id: z.string().max(180).regex(/^[a-z0-9:._-]+$/i).optional(),
   print_id: z.string().max(80).optional(),
   window_id: z.string().max(80).optional(),
   share_object_id: z.string().max(220).regex(/^[a-z0-9:._-]+$/i).optional(),
@@ -32,7 +34,7 @@ export class Rh4663CampaignTelemetry {
     const event = Rh4663CampaignEventSchema.parse(input);
     const total = (this.totals.get(event.event) ?? 0) + 1;
     this.totals.set(event.event, total);
-    this.log({ event: 'rh4663_campaign_funnel', funnel_event: event.event, surface: event.surface ?? null, print_id: event.print_id ?? null, window_id: event.window_id ?? null, share_object_id: event.share_object_id ?? null, share_source: event.share_source ?? null, total });
+    this.log({ event: 'rh4663_campaign_funnel', funnel_event: event.event, surface: event.surface ?? null, campaign_id: event.campaign_id ?? null, print_id: event.print_id ?? null, window_id: event.window_id ?? null, share_object_id: event.share_object_id ?? null, share_source: event.share_source ?? null, total });
     return { accepted: true as const };
   }
 

@@ -4,6 +4,7 @@
  */
 import pg from 'pg';
 import { resolvePostgresPool, type PostgresPoolSource } from '../persistence/retryablePostgresSchema';
+import type { Rh4663CampaignProjection } from './rh4663CampaignService';
 
 export const RH_4663_FRONTDOOR_STATE = 'RH_4663_FRONTDOOR_STATE' as const;
 export type FrontdoorVersionDurability = 'PERSISTENT' | 'EPHEMERAL';
@@ -53,6 +54,8 @@ export type Rh4663FrontdoorState = {
   proof_summary: { total_calls: number; resolved_calls: null; note: string; deep_link: string; source_ref: FrontdoorSourceRef };
   system_status: { state: 'available' | 'partial' | 'stale' | 'degraded'; source_health: Record<'census' | 'watch' | 'preflight' | 'pulse' | 'signals', FrontdoorSourceHealth> };
   source_refs: FrontdoorSourceRef[];
+  /** Optional Phase 9 presentation lens. It is public, derived, and never personalised. */
+  campaign?: Rh4663CampaignProjection;
 };
 
 type Census = { census_id: string; observed_at: string; verified_pair_count: number; distinct_verified_stock_tickers: number; verification_coverage: { percentage: number }; category_evidence: { breadth_state: string; persistence_state: string }; persistent_rmm_penetration: { status: string }; source_claims?: { claimed_pair_count: number; parsed_pair_count?: number }; pairs?: Array<{ verification_state?: string }> };
@@ -76,6 +79,8 @@ export type Rh4663FrontdoorDependencies = {
   ignore_personal_pulse_changes?: boolean;
   /** Each source is separately bounded; public reads never wait indefinitely. */
   source_timeout_ms?: number;
+  /** Campaign reads persisted presentation records only; no provider or chain work is allowed here. */
+  campaign?: (frontdoor: Rh4663FrontdoorState) => Promise<Rh4663CampaignProjection>;
 };
 
 export type FrontdoorVersionRecord = { fingerprint: string; sources: Record<string, string>; version: number };
@@ -179,6 +184,14 @@ export class Rh4663FrontdoorService {
       source_reads: { census, watch, preflight, pulse, signals },
       failures: { census: failure(census.result), watch: failure(watch.result), preflight: failure(preflight.result), pulse: failure(pulse.result), signals: failure(signals.result) }
     });
+    if (this.deps.campaign) {
+      try { state.campaign = await this.deps.campaign(structuredClone(state)); }
+      catch {
+        // Campaign is optional presentation. Its storage failure must never
+        // interrupt canonical NOW/WATCH/LOOPS.
+        state.campaign = { active: false, campaign_id: null, state: null, hero: null, open_loop: null, call_ref: null, share_ref: null };
+      }
+    }
     const sources = semanticSources(state, this.deps.ignore_personal_pulse_changes ?? false);
     const fingerprint = JSON.stringify(sources);
     let version: { version: number; changed: string[]; previous_sources?: Record<string, string> };
@@ -202,6 +215,8 @@ export class Rh4663FrontdoorService {
     return structuredClone(state);
   }
   metrics() { return { cache_hits: this.cacheHits, cache_misses: this.cacheMisses, source_failures: this.sourceFailures, cache_hit_rate: this.cacheHits + this.cacheMisses ? this.cacheHits / (this.cacheHits + this.cacheMisses) : 0, cached: Boolean(this.cached), last_source_reads: this.lastSourceReads }; }
+  /** Presentation-only writes use this to force the next shared read/version calculation. */
+  invalidate() { this.cached = null; }
 }
 
 export class Rh4663FrontdoorError extends Error {
@@ -265,6 +280,7 @@ function semanticSources(state: Rh4663FrontdoorState, ignorePersonalPulseChanges
     PULSE: JSON.stringify(ignorePersonalPulseChanges
       ? { window_id: state.current_call.window_id, opens_at: state.current_call.opens_at, closes_at: state.current_call.closes_at, state: state.current_call.state, resolution_state: state.current_call.resolution_state, resolved_category: state.current_call.resolved_category }
       : { current_call: state.current_call, proof_summary: state.proof_summary }),
+    CAMPAIGN: JSON.stringify(state.campaign ?? null),
     SYSTEM: JSON.stringify(state.system_status.source_health)
   };
 }

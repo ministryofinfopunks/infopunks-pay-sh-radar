@@ -6,10 +6,11 @@ import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
 import { InMemoryRh4663Store, Rh4663Service, type Rh4663NormalizedEvent } from '../src/services/rh4663Service';
 import { InMemoryRh4663ResolutionStore } from '../src/services/rh4663ResolutionService';
 import { InMemoryRh4663PrintStore } from '../src/services/rh4663PrintGeneratorService';
+import { InMemoryRh4663CampaignStore } from '../src/services/rh4663CampaignService';
 import { RH_4663_PRINT_0830 } from '../src/services/rh4663PrintService';
 
 const account = privateKeyToAccount('0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d');
-afterEach(() => { delete process.env.NODE_ENV; delete process.env.RH_CHAIN_REVIEW_ADMIN_TOKEN; delete process.env.RH_4663_PHASE2_ENABLED; });
+afterEach(() => { delete process.env.NODE_ENV; delete process.env.RH_CHAIN_REVIEW_ADMIN_TOKEN; delete process.env.RH_4663_PHASE2_ENABLED; delete process.env.RH_4663_CAMPAIGN_MODE_ENABLED; });
 
 describe('Infopunks //4663 API', () => {
   it('fails soft when persisted 4663 observations are unavailable', async () => {
@@ -107,6 +108,22 @@ describe('Infopunks //4663 API', () => {
       expect((await app.inject({ method: 'POST', url: '/v1/4663/campaign/events', payload: { event: '4663_print_viewed', surface: 'print', print_id: 'rh-print-2026-08-30' } })).statusCode).toBe(202);
       expect((await app.inject({ method: 'POST', url: '/v1/4663/campaign/events', payload: { event: '4663_print_viewed', wallet: account.address } })).statusCode).toBe(400);
       expect((await app.inject({ method: 'POST', url: '/v1/4663/campaign/events', payload: { event: 'not_a_campaign_event' } })).statusCode).toBe(400);
+    } finally { await app.close(); }
+  });
+
+  it('keeps campaign administration private and advances the public frontdoor version only for a valid LIVE lens', async () => {
+    process.env.NODE_ENV = 'test'; process.env.RH_CHAIN_REVIEW_ADMIN_TOKEN = 'phase2-review-token'; process.env.RH_4663_CAMPAIGN_MODE_ENABLED = 'true';
+    const app = await createApp(emptyIntelligenceStore(), new MemoryRepository(), { rh4663Store: new InMemoryRh4663Store(), rh4663CampaignStore: new InMemoryRh4663CampaignStore() });
+    try {
+      const before = await app.inject({ method: 'GET', url: '/v1/4663/frontdoor' }); const frontdoor = before.json().data; const source = [...frontdoor.now_cards, ...frontdoor.watch_cards][0];
+      const auth = { authorization: 'Bearer phase2-review-token', 'x-rh-chain-reviewer-id': 'ops-test' };
+      expect((await app.inject({ method: 'GET', url: '/internal/4663/campaigns' })).statusCode).toBe(401);
+      const created = await app.inject({ method: 'POST', url: '/internal/4663/campaigns', headers: auth, payload: { campaign_id: 'frontdoor-campaign', title: 'Canonical source lens', short_title: 'Lens', priority: 90, starts_at: '2020-01-01T00:00:00.000Z', hero_subject_type: 'SOURCE', hero_subject_id: source.source_ref.source_id, hero_statement: 'A compact lens over canonical evidence.', primary_source_ref: source.source_ref } });
+      expect(created.statusCode).toBe(201); expect(created.json().data.campaign.hero_evidence_state).toBeNull();
+      expect((await app.inject({ method: 'POST', url: '/internal/4663/campaigns/frontdoor-campaign/schedule', headers: auth })).statusCode).toBe(200);
+      expect((await app.inject({ method: 'POST', url: '/internal/4663/campaigns/frontdoor-campaign/activate', headers: auth })).statusCode).toBe(200);
+      const after = await app.inject({ method: 'GET', url: '/v1/4663/frontdoor' }); expect(after.json().data.campaign).toMatchObject({ active: true, campaign_id: 'frontdoor-campaign', hero: { evidence_state: source.evidence_state } }); expect(after.headers.etag).not.toBe(before.headers.etag);
+      expect((await app.inject({ method: 'GET', url: '/v1/4663/campaigns/frontdoor-campaign' })).json().data.snapshots[0].stage).toBe('LIVE_START');
     } finally { await app.close(); }
   });
 

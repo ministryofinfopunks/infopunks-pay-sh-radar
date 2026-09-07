@@ -38,6 +38,7 @@ import { assembleRhChainCloneRadar } from '../services/rhChainCloneRadarService'
 import { assembleRhChainTodayOn4663 } from '../services/rhChainTodayOn4663Service';
 import { getLatestRh4663Print, getRh4663Print } from '../services/rh4663PrintService';
 import { Rh4663CampaignEventSchema, Rh4663CampaignTelemetry } from '../services/rh4663CampaignTelemetry';
+import { InMemoryRh4663CampaignStore, PostgresRh4663CampaignStore, Rh4663CampaignError, Rh4663CampaignService, type Rh4663CampaignStore } from '../services/rh4663CampaignService';
 import { InMemoryFrontdoorChangeEventStore, PostgresFrontdoorChangeEventStore, PostgresFrontdoorVersionStore, Rh4663FrontdoorError, Rh4663FrontdoorService, type FrontdoorChangeEventStore } from '../services/rh4663FrontdoorService';
 import { buildMy4663State, normalizeMy4663Follows } from '../services/rh4663My4663Service';
 import { Rh4663FrontdoorTelemetry } from '../services/rh4663FrontdoorTelemetry';
@@ -677,6 +678,7 @@ export type CreateAppOptions = {
   ipxPltrShadowObservation?: Partial<{ enabled: boolean; capacitySweepEnabled: boolean; intervalMs: number; now: () => Date }>;
   reflexiveWatchStore?: InMemoryReflexiveWatchStore;
   frontdoorChangeEventStore?: FrontdoorChangeEventStore;
+  rh4663CampaignStore?: Rh4663CampaignStore;
 };
 
 const RH_CHAIN_LIVE_TOKEN_ROUTE_RESERVE_MS = 1_000;
@@ -718,6 +720,7 @@ export async function createApp(
   const rhChainPostgresPool = config.databaseUrl
     ? getDatabasePool({ connectionString: config.databaseUrl, max: config.databasePoolMax })
     : null;
+  const rh4663Campaigns = new Rh4663CampaignService(options.rh4663CampaignStore ?? (rhChainPostgresPool ? new PostgresRh4663CampaignStore(rhChainPostgresPool) : new InMemoryRh4663CampaignStore()));
   const repository = repositoryInput ?? defaultRepository(rhChainPostgresPool ?? undefined);
   const rhChainPostgresReadiness = rhChainPostgresPool ? new RhChainPostgresReadiness() : null;
   // Reflexive observations are a separate evidence stream; this does not read or
@@ -1151,7 +1154,12 @@ export async function createApp(
     version_store: rhChainPostgresPool ? new PostgresFrontdoorVersionStore(rhChainPostgresPool, { allow_ephemeral_fallback: !config.isProduction }) : undefined,
     change_event_store: options.frontdoorChangeEventStore ?? (rhChainPostgresPool ? new PostgresFrontdoorChangeEventStore(rhChainPostgresPool) : new InMemoryFrontdoorChangeEventStore()),
     require_durable_version: config.isProduction,
-    ignore_personal_pulse_changes: true
+    ignore_personal_pulse_changes: true,
+    // The projection receives the already-built Front Door and only reads the
+    // persisted campaign record. It therefore adds no provider/chain reads.
+    campaign: config.rh4663CampaignModeEnabled
+      ? (frontdoor) => rh4663Campaigns.project(frontdoor, buildRh4663FrontdoorShareObjects(frontdoor, NARRATIVE_PUBLIC_HOST))
+      : undefined
   });
   // Phase 7 is a projection layer only. It reads canonical objects and the
   // cacheable Front Door; it never refreshes Census/Radar or reconstructs a
@@ -3117,6 +3125,47 @@ export async function createApp(
     if (!config.rh4663Phase2Enabled) { reply.code(503).send({ error: 'phase2_not_enabled' }); return null; }
     const reviewer = classificationReviewer(reviewerHeader as string | string[] | undefined); if (!reviewer) { reply.code(400).send({ error: 'reviewer_id_required' }); return null; } return reviewer;
   };
+  const rh4663CampaignGuard = (reply: FastifyReply, authorization: string | undefined, reviewerHeader: unknown) => {
+    if (!config.rh4663CampaignModeEnabled) { reply.code(404).send({ error: 'campaign_mode_not_enabled' }); return null; }
+    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, authorization)) { reply.code(401).send({ error: 'review_admin_token_required' }); return null; }
+    const reviewer = classificationReviewer(reviewerHeader as string | string[] | undefined); if (!reviewer) { reply.code(400).send({ error: 'reviewer_id_required' }); return null; }
+    return reviewer;
+  };
+  const campaignShares = (frontdoor: Awaited<ReturnType<typeof rh4663Frontdoor.read>>) => buildRh4663FrontdoorShareObjects(frontdoor, NARRATIVE_PUBLIC_HOST);
+  app.get('/v1/4663/campaigns/:campaignId', async (req, reply) => {
+    if (!config.rh4663CampaignModeEnabled) return reply.code(404).send({ error: 'campaign_mode_not_enabled' });
+    try { const history = await rh4663Campaigns.history((req.params as { campaignId: string }).campaignId); reply.header('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=900'); return { data: safeJsonExport(history) }; }
+    catch (error) { if (error instanceof Rh4663CampaignError) return reply.code(error.statusCode).send({ error: error.code }); throw error; }
+  });
+  app.get('/internal/4663/campaigns', async (req, reply) => {
+    const reviewer = rh4663CampaignGuard(reply, req.headers.authorization, req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return;
+    return { data: safeJsonExport({ campaigns: await rh4663Campaigns.list(), requested_by: reviewer }) };
+  });
+  app.post('/internal/4663/campaigns', async (req, reply) => {
+    const reviewer = rh4663CampaignGuard(reply, req.headers.authorization, req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return;
+    try { return reply.code(201).send({ data: safeJsonExport({ campaign: await rh4663Campaigns.create(req.body), requested_by: reviewer }) }); }
+    catch (error) { if (error instanceof Rh4663CampaignError) return reply.code(error.statusCode).send({ error: error.code }); return rh4663Failure(reply, error); }
+  });
+  app.post<{ Params: { campaignId: string } }>('/internal/4663/campaigns/:campaignId/schedule', async (req, reply) => {
+    const reviewer = rh4663CampaignGuard(reply, req.headers.authorization, req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return;
+    try { return { data: safeJsonExport({ campaign: await rh4663Campaigns.schedule(req.params.campaignId), requested_by: reviewer }) }; }
+    catch (error) { if (error instanceof Rh4663CampaignError) return reply.code(error.statusCode).send({ error: error.code }); throw error; }
+  });
+  app.post<{ Params: { campaignId: string } }>('/internal/4663/campaigns/:campaignId/activate', async (req, reply) => {
+    const reviewer = rh4663CampaignGuard(reply, req.headers.authorization, req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return;
+    try { const frontdoor = await rh4663Frontdoor.read(); const campaign = await rh4663Campaigns.activate(req.params.campaignId, frontdoor, campaignShares(frontdoor)); rh4663Frontdoor.invalidate(); return { data: safeJsonExport({ campaign, requested_by: reviewer }) }; }
+    catch (error) { if (error instanceof Rh4663CampaignError) return reply.code(error.statusCode).send({ error: error.code }); throw error; }
+  });
+  app.post<{ Params: { campaignId: string } }>('/internal/4663/campaigns/:campaignId/complete', async (req, reply) => {
+    const reviewer = rh4663CampaignGuard(reply, req.headers.authorization, req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return;
+    try { const frontdoor = await rh4663Frontdoor.read(); const campaign = await rh4663Campaigns.complete(req.params.campaignId, frontdoor, campaignShares(frontdoor)); rh4663Frontdoor.invalidate(); return { data: safeJsonExport({ campaign, requested_by: reviewer }) }; }
+    catch (error) { if (error instanceof Rh4663CampaignError) return reply.code(error.statusCode).send({ error: error.code }); throw error; }
+  });
+  app.post<{ Params: { campaignId: string } }>('/internal/4663/campaigns/:campaignId/cancel', async (req, reply) => {
+    const reviewer = rh4663CampaignGuard(reply, req.headers.authorization, req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return;
+    try { const campaign = await rh4663Campaigns.cancel(req.params.campaignId); rh4663Frontdoor.invalidate(); return { data: safeJsonExport({ campaign, requested_by: reviewer }) }; }
+    catch (error) { if (error instanceof Rh4663CampaignError) return reply.code(error.statusCode).send({ error: error.code }); throw error; }
+  });
   app.get('/internal/4663/frontdoor/metrics', async (req, reply) => {
     const reviewer = rh4663OperationalGuard(reply, req.headers.authorization, req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return;
     return { data: safeJsonExport({ telemetry: rh4663FrontdoorTelemetry.snapshot(), cache: rh4663Frontdoor.metrics(), requested_by: reviewer }) };

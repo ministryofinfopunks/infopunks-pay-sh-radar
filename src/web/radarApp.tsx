@@ -14395,7 +14395,7 @@ export function App() {
   if (/^\/solana\/?$/.test(window.location.pathname)) return <RadarApp landingContext="solana" />;
   if (/^\/4663\/reflexive\/preflight\/ipx-pltr\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyIpxPltrPreflightLabPage /></LazyRhChainFeature>;
   if (/^\/4663\/reflexive(?:\/(?:pair\/[^/]+|stock\/[^/]+|watch(?:\/[^/]+)?|census))?\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyReflexiveRadarPage /></LazyRhChainFeature>;
-  if (/^\/4663(?:\/(?:pulse|today|signals|receipts)|\/(?:print|call|resolution|consensus|signals|proof)\/[^/]+)?\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRh4663Page /></LazyRhChainFeature>;
+  if (/^\/4663(?:\/(?:pulse|today|signals|receipts)|\/(?:print|call|resolution|consensus|signals|proof|campaign)\/[^/]+)?\/?$/.test(window.location.pathname)) return <LazyRhChainFeature><LazyRh4663Page /></LazyRhChainFeature>;
   if (isRadarCardIndexRoute(window.location.pathname)) return <PreflightCardIndexPage />;
   const radarCard = routeRadarCard(window.location.pathname);
   if (radarCard) return <RadarPreflightCardPage type={radarCard.type} id={radarCard.id} />;

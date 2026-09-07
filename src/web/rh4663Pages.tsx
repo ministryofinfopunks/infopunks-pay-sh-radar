@@ -6,6 +6,7 @@ import type { Published4663Signal } from '../services/rh4663IntelligenceService'
 import { Frontdoor } from './frontdoor4663';
 import type { Rh4663FrontdoorState } from '../services/rh4663FrontdoorService';
 import type { Rh4663ShareObject } from '../services/rh4663ShareObjectService';
+import type { CampaignPresentationSnapshot, Rh4663Campaign } from '../services/rh4663CampaignService';
 import './rh4663.css';
 
 const API_BASE_URL = getApiBaseUrl();
@@ -65,7 +66,8 @@ export function Rh4663Page() {
   const consensusWindowId = path.match(/^\/4663\/consensus\/([^/]+)$/)?.[1];
   const signalId = path.match(/^\/4663\/signals\/([^/]+)$/)?.[1];
   const printId = path.match(/^\/4663\/print\/([^/]+)$/)?.[1];
-  const view = proofWallet ? 'proof_profile' : proofId || callId || resolutionId ? 'proof' : consensusWindowId ? 'consensus' : signalId ? 'signal_detail' : printId ? 'print' : path === '/4663/pulse' ? 'pulse' : path === '/4663/today' ? 'today' : path === '/4663/signals' ? 'signals' : path === '/4663/receipts' ? 'receipts' : 'home';
+  const campaignId = path.match(/^\/4663\/campaign\/([^/]+)$/)?.[1];
+  const view = proofWallet ? 'proof_profile' : proofId || callId || resolutionId ? 'proof' : consensusWindowId ? 'consensus' : signalId ? 'signal_detail' : printId ? 'print' : campaignId ? 'campaign' : path === '/4663/pulse' ? 'pulse' : path === '/4663/today' ? 'today' : path === '/4663/signals' ? 'signals' : path === '/4663/receipts' ? 'receipts' : 'home';
   if (shareId) return <SocialLanding shareObjectId={decodeURIComponent(shareId)} />;
   if (view === 'home') return <Home />;
   return <div className="i4663-app">
@@ -74,9 +76,16 @@ export function Rh4663Page() {
       <a className="i4663-radar-link" href="/rh-chain-signal-desk">RH DESK ↗</a>
     </header>
     <nav className="i4663-nav" aria-label="4663 navigation"><a href="/4663#now">Now</a><a href="/4663#watch">Watch</a><a href="/4663#call">Call</a><a href="/4663#proof">Proof</a></nav>
-    {view === 'print' && printId ? <Print printId={decodeURIComponent(printId)} /> : view === 'pulse' ? <Pulse /> : view === 'consensus' && consensusWindowId ? <ConsensusPage windowId={decodeURIComponent(consensusWindowId)} /> : view === 'today' ? <Today /> : view === 'signals' ? <Signals /> : view === 'signal_detail' && signalId ? <SignalProofPage signalId={decodeURIComponent(signalId)} /> : view === 'proof_profile' && proofWallet ? <ProofProfilePage wallet={proofWallet} /> : view === 'proof' && (proofId || callId || resolutionId) ? <ProofPage receiptId={decodeURIComponent(proofId ?? callId ?? resolutionId ?? '')} campaignRoute={callId ? 'call' : resolutionId ? 'resolution' : 'proof'} /> : <Receipts />}
+    {view === 'campaign' && campaignId ? <CampaignLanding campaignId={decodeURIComponent(campaignId)} /> : view === 'print' && printId ? <Print printId={decodeURIComponent(printId)} /> : view === 'pulse' ? <Pulse /> : view === 'consensus' && consensusWindowId ? <ConsensusPage windowId={decodeURIComponent(consensusWindowId)} /> : view === 'today' ? <Today /> : view === 'signals' ? <Signals /> : view === 'signal_detail' && signalId ? <SignalProofPage signalId={decodeURIComponent(signalId)} /> : view === 'proof_profile' && proofWallet ? <ProofProfilePage wallet={proofWallet} /> : view === 'proof' && (proofId || callId || resolutionId) ? <ProofPage receiptId={decodeURIComponent(proofId ?? callId ?? resolutionId ?? '')} campaignRoute={callId ? 'call' : resolutionId ? 'resolution' : 'proof'} /> : <Receipts />}
     <footer className="i4663-footer"><span>AFTER ATTENTION, INTELLIGENCE.</span><span>UTC / RH CHAIN / PUBLIC MEMORY</span></footer>
   </div>;
+}
+
+function CampaignLanding({ campaignId }: { campaignId: string }) {
+  const api = useApi<{ campaign: Rh4663Campaign; snapshots: CampaignPresentationSnapshot[] }>(`/v1/4663/campaigns/${encodeURIComponent(campaignId)}`); const data = api.data;
+  if (!data) return <DataState status={api.status} message={api.message} />;
+  const latest = data.snapshots.at(-1)?.presentation;
+  return <main className="i4663-social-shell" aria-labelledby="campaign-history-title"><a className="i4663-wordmark" href="/4663"><span>INFOPUNKS</span><b>//4663</b></a><article className="i4663-social-object"><p className="i4663-micro">CAMPAIGN HISTORY · {data.campaign.state}</p><section className="i4663-social-answer"><p className="i4663-social-question">WHAT WAS KNOWN THEN?</p><h1 id="campaign-history-title">{data.campaign.hero_statement}</h1></section>{latest?.hero && <><section className="i4663-social-answer"><p className="i4663-social-question">WHAT DID RADAR KNOW?</p><p className="i4663-social-summary">{latest.hero.why_it_matters}</p></section><dl className="i4663-social-facts"><div><dt>CANONICAL EVIDENCE</dt><dd>{latest.hero.evidence_state}</dd><small>{latest.hero.source_freshness ?? 'SOURCE FRESHNESS UNAVAILABLE'}</small></div><div><dt>WHAT REMAINED OPEN?</dt><dd>{latest.open_loop?.question ?? 'No campaign-specific open loop was recorded.'}</dd></div><div><dt>VIEW EVIDENCE</dt><dd><a href={latest.hero.deep_link}>Canonical source ↗</a></dd></div></dl></>}<p className="i4663-micro">Snapshots preserve the presentation available at each meaningful stage; they do not rewrite earlier knowledge.</p></article></main>;
 }
 
 function Home() {
