@@ -3,6 +3,10 @@
  * intentionally opt-in for private overlays.
  *
  * BASE_URL=http://127.0.0.1:8787 REQUESTS=100 CONCURRENCY=10 npm run load:4663
+ *
+ * Campaign rehearsal example (local/staging only):
+ * PROFILES=campaign,etag,campaign_landing,campaign_og,resolution_burst npm run load:4663
+ * Results are measurements of this target, never a production-SLO claim.
  */
 const baseUrl = (process.env.BASE_URL ?? 'http://127.0.0.1:8787').replace(/\/$/, '');
 const total = positiveInt('REQUESTS', 100);
@@ -14,6 +18,10 @@ const paths = {
   landing: process.env.LANDING_PATH ?? '/4663',
   og: process.env.OG_PATH ?? '/og/4663/prints/rh-print-2026-08-30.png',
   pulse: process.env.PULSE_PATH ?? '/v1/4663/pulse',
+  campaign: process.env.CAMPAIGN_PATH ?? '/v1/4663/frontdoor',
+  campaign_landing: process.env.CAMPAIGN_LANDING_PATH ?? '/4663/campaign/rehearsal',
+  campaign_og: process.env.CAMPAIGN_OG_PATH ?? '/og/4663/prints/rh-print-2026-08-30.png',
+  resolution_burst: process.env.RESOLUTION_PATH ?? '/v1/4663/pulse/windows/rh4663%3A2026-08-30/resolution',
   private: process.env.PRIVATE_PATH ?? '/v1/4663/me/call'
 };
 

@@ -111,6 +111,33 @@ describe('Infopunks //4663 API', () => {
     } finally { await app.close(); }
   });
 
+  it('keeps Product Intelligence aggregate-only and reviewer-only', async () => {
+    process.env.NODE_ENV = 'test'; process.env.RH_CHAIN_REVIEW_ADMIN_TOKEN = 'phase2-review-token'; const app = await createApp(emptyIntelligenceStore(), new MemoryRepository(), { rh4663Store: new InMemoryRh4663Store() });
+    try {
+      expect((await app.inject({ method: 'GET', url: '/internal/4663/product-intelligence' })).statusCode).toBe(401);
+      await app.inject({ method: 'POST', url: '/v1/4663/campaign/events', payload: { event: 'call_card_viewed', surface: 'home' } });
+      const response = await app.inject({ method: 'GET', url: '/internal/4663/product-intelligence', headers: { authorization: 'Bearer phase2-review-token', 'x-rh-chain-reviewer-id': 'ops-test' } });
+      expect(response.statusCode).toBe(200); expect(response.headers['cache-control']).toContain('private'); expect(response.json().data).toMatchObject({ object_type: 'RH_4663_PRODUCT_INTELLIGENCE', call_card_viewers: 1, resolution_return_rate: { rate: null, coverage: 'INSUFFICIENT_DATA' } });
+    } finally { await app.close(); }
+  });
+
+  it('deduplicates opaque telemetry retries and keeps rehearsal fixtures outside canonical state', async () => {
+    process.env.NODE_ENV = 'test'; process.env.RH_CHAIN_REVIEW_ADMIN_TOKEN = 'phase2-review-token'; const app = await createApp(emptyIntelligenceStore(), new MemoryRepository(), { rh4663Store: new InMemoryRh4663Store() });
+    try {
+      const auth = { authorization: 'Bearer phase2-review-token', 'x-rh-chain-reviewer-id': 'ops-test' };
+      const event = { event: 'call_card_viewed', surface: 'home', event_id: 'retry-safe-1', entry_source: 'DIRECT' };
+      expect((await app.inject({ method: 'POST', url: '/v1/4663/campaign/events', payload: event })).statusCode).toBe(202);
+      const duplicate = await app.inject({ method: 'POST', url: '/v1/4663/campaign/events', payload: event }); expect(duplicate.statusCode).toBe(202); expect(duplicate.json().data.deduplicated).toBe(true);
+      const aggregate = await app.inject({ method: 'GET', url: '/internal/4663/product-intelligence', headers: auth });
+      expect(aggregate.json().data.call_card_viewers).toBe(1);
+      const blocked = await app.inject({ method: 'POST', url: '/internal/4663/campaign-rehearsal/preview', headers: auth, payload: { state: 'LIVE', evidence_state: 'BLOCK' } });
+      expect(blocked.statusCode).toBe(200); expect(blocked.json().data).toMatchObject({ namespace: 'REHEARSAL_ONLY', production_safe: true, render_target: '/4663', hero: { evidence_state: 'BLOCK', action: 'VIEW EVIDENCE' }, call: { canonical_receipt_created: false, fixture_receipt_id: 'rehearsal:call-receipt' }, full_funnel: { deterministic: true }, normal_now_below: true, mobile_preview: true });
+      const allow = await app.inject({ method: 'POST', url: '/internal/4663/campaign-rehearsal/preview', headers: auth, payload: { state: 'RESOLVING', evidence_state: 'ALLOW' } });
+      expect(allow.json().data.hero).toMatchObject({ evidence_state: 'ALLOW', action: 'MAKE CALL' });
+      expect((await app.inject({ method: 'POST', url: '/internal/4663/campaign-rehearsal/preview', headers: auth, payload: { state: 'LIVE', evidence_state: 'BLOCK', wallet: account.address } })).statusCode).toBe(400);
+    } finally { await app.close(); }
+  });
+
   it('keeps campaign administration private and advances the public frontdoor version only for a valid LIVE lens', async () => {
     process.env.NODE_ENV = 'test'; process.env.RH_CHAIN_REVIEW_ADMIN_TOKEN = 'phase2-review-token'; process.env.RH_4663_CAMPAIGN_MODE_ENABLED = 'true';
     const app = await createApp(emptyIntelligenceStore(), new MemoryRepository(), { rh4663Store: new InMemoryRh4663Store(), rh4663CampaignStore: new InMemoryRh4663CampaignStore() });

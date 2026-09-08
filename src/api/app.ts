@@ -39,6 +39,7 @@ import { assembleRhChainTodayOn4663 } from '../services/rhChainTodayOn4663Servic
 import { getLatestRh4663Print, getRh4663Print } from '../services/rh4663PrintService';
 import { Rh4663CampaignEventSchema, Rh4663CampaignTelemetry } from '../services/rh4663CampaignTelemetry';
 import { InMemoryRh4663CampaignStore, PostgresRh4663CampaignStore, Rh4663CampaignError, Rh4663CampaignService, type Rh4663CampaignStore } from '../services/rh4663CampaignService';
+import { Rh4663ProductIntelligenceService } from '../services/rh4663ProductIntelligenceService';
 import { InMemoryFrontdoorChangeEventStore, PostgresFrontdoorChangeEventStore, PostgresFrontdoorVersionStore, Rh4663FrontdoorError, Rh4663FrontdoorService, type FrontdoorChangeEventStore } from '../services/rh4663FrontdoorService';
 import { buildMy4663State, normalizeMy4663Follows } from '../services/rh4663My4663Service';
 import { Rh4663FrontdoorTelemetry } from '../services/rh4663FrontdoorTelemetry';
@@ -716,6 +717,7 @@ export async function createApp(
   const config = loadRuntimeConfig();
   const app = Fastify({ logger: false });
   const rh4663CampaignTelemetry = new Rh4663CampaignTelemetry();
+  const rh4663ProductIntelligence = new Rh4663ProductIntelligenceService();
   const rh4663FrontdoorTelemetry = new Rh4663FrontdoorTelemetry();
   const rhChainPostgresPool = config.databaseUrl
     ? getDatabasePool({ connectionString: config.databaseUrl, max: config.databasePoolMax })
@@ -1260,6 +1262,9 @@ export async function createApp(
     options.rhChainPublicRateLimit?.windowMs ?? config.rhChainPublicRateLimitWindowMs,
     options.rhChainPublicRateLimit?.max ?? config.rhChainPublicRateLimitMax
   );
+  // Product Intelligence is an internal aggregate read, not a reporting
+  // export. Keep it bounded independently of public traffic.
+  const rh4663ProductRateLimiter = new RhChainPublicRateLimiter(true, 60_000, 120);
   const persistenceMode: 'postgres' | 'memory' = config.databaseUrl ? 'postgres' : 'memory';
   const ROUTE_TIMEOUT_MS = 2_500;
   const SEARCH_ROUTE_TIMEOUT_MS = 3_000;
@@ -3020,6 +3025,7 @@ export async function createApp(
       const resolved = resolvedRows.find((row) => row.resolution)?.resolution ? resolvedRows.find((row) => row.resolution)! : null;
       const currentWindow = rh4663.pulseWindow(); const pending = calls.find((call) => call.window_id === currentWindow.window_id) ?? null;
       const resolvedCall = resolved ? { call_receipt_id: resolved.call.receipt_id, resolution_receipt_id: resolved.resolution!.receipt_id, window_id: resolved.call.window_id, called_category: resolved.call.rotation, resolved_category: resolved.resolution!.resolved_category, outcome: resolved.resolution!.outcome, confidence: resolved.call.confidence, submitted_at: resolved.call.created_at, resolved_at: resolved.resolution!.resolved_at, deep_link: `/4663/resolution/${encodeURIComponent(resolved.resolution!.receipt_id)}` } : null;
+      if (resolvedCall) { try { rh4663ProductIntelligence.recordResolutionReturn({ wallet, call_receipt_id: resolvedCall.call_receipt_id, resolution_receipt_id: resolvedCall.resolution_receipt_id }); } catch { /* personal return remains functional if analytics fails */ } }
       const pendingChanges = pending && frontdoor ? frontdoor.change_events.filter((event) => Date.parse(event.occurred_at) > Date.parse(pending.created_at)).slice(0, 20) : [];
       return { data: safeJsonExport({ authenticated: true, resolved_call: resolvedCall, personal_events: resolvedCall ? [{ event_id: `CALL_RESOLVED:${resolvedCall.resolution_receipt_id}`, event_type: 'CALL_RESOLVED', occurred_at: resolvedCall.resolved_at, headline: 'Your CALL resolved', deep_link: resolvedCall.deep_link }] : [], pending_call: pending ? { call_receipt_id: pending.receipt_id, submitted_at: pending.created_at, changes: pendingChanges, context_only: true } : null, my_4663_version: resolvedCall ? `${resolvedCall.resolution_receipt_id}:${resolvedCall.resolved_at}` : pending ? `${pending.receipt_id}:pending` : '0' }) };
     } catch { return reply.code(503).send({ error: 'personal_change_state_unavailable' }); }
@@ -3076,7 +3082,7 @@ export async function createApp(
     catch (error) { if (error instanceof Rh4663PrintGeneratorError) return reply.code(error.statusCode).send({ error: error.code }); throw error; }
   });
   app.post('/v1/4663/campaign/events', async (req, reply) => {
-    try { return reply.code(202).send({ data: rh4663CampaignTelemetry.record(Rh4663CampaignEventSchema.parse(req.body)) }); }
+    try { const event = Rh4663CampaignEventSchema.parse(req.body); const recorded = rh4663CampaignTelemetry.record(event); try { rh4663ProductIntelligence.recordTelemetry(event, { event_id: event.event_id, occurred_at: event.occurred_at, entry_source: event.entry_source }); } catch { /* analytics is never a product dependency */ } return reply.code(202).send({ data: recorded }); }
     catch (error) { return rh4663Failure(reply, error); }
   });
   app.get('/v1/4663/pulse', async (_req, reply) => {
@@ -3090,7 +3096,7 @@ export async function createApp(
   });
   app.post('/v1/4663/pulse/calls', async (req, reply) => {
     const rate = rhChainPublicRateLimiter.consume(`4663_call_submit:${req.ip}`); if (!rate.allowed) return reply.header('Retry-After', String(Math.ceil(rate.retryAfterMs / 1000))).code(429).send({ error: 'rate_limited' });
-    try { return reply.code(201).send({ data: safeJsonExport(await rh4663.call(Rh4663PulseCallInputSchema.parse(req.body))) }); }
+    try { const input = Rh4663PulseCallInputSchema.parse(req.body); const receipt = await rh4663.call(input); try { rh4663ProductIntelligence.recordCanonicalCall(receipt); } catch { /* receipt success never waits for analytics */ } return reply.code(201).send({ data: safeJsonExport(receipt) }); }
     catch (error) { return rh4663Failure(reply, error); }
   });
   app.get<{ Params: { windowId: string } }>('/v1/4663/pulse/windows/:windowId', async (req, reply) => {
@@ -3125,6 +3131,45 @@ export async function createApp(
     if (!config.rh4663Phase2Enabled) { reply.code(503).send({ error: 'phase2_not_enabled' }); return null; }
     const reviewer = classificationReviewer(reviewerHeader as string | string[] | undefined); if (!reviewer) { reply.code(400).send({ error: 'reviewer_id_required' }); return null; } return reviewer;
   };
+  const rh4663ProductGuard = (reply: FastifyReply, authorization: string | undefined, reviewerHeader: unknown) => {
+    if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, authorization)) { reply.code(401).send({ error: 'review_admin_token_required' }); return null; }
+    const reviewer = classificationReviewer(reviewerHeader as string | string[] | undefined); if (!reviewer) { reply.code(400).send({ error: 'reviewer_id_required' }); return null; } return reviewer;
+  };
+  app.get<{ Querystring: { window_start?: string; window_end?: string; campaign_id?: string; cohort?: string } }>('/internal/4663/product-intelligence', async (req, reply) => {
+    const reviewer = rh4663ProductGuard(reply, req.headers.authorization, req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return;
+    const rate = rh4663ProductRateLimiter.consume(`4663_product:${req.ip}`); if (!rate.allowed) return reply.header('Retry-After', String(Math.ceil(rate.retryAfterMs / 1000))).code(429).send({ error: 'rate_limited' });
+    const query = z.object({ window_start: z.string().datetime({ offset: true }).optional(), window_end: z.string().datetime({ offset: true }).optional(), campaign_id: z.string().max(180).regex(/^[a-z0-9:._-]+$/i).optional(), cohort: z.enum(['first_valid_call_week', 'first_visit_week', 'campaign_vs_non_campaign', 'anonymous_vs_connected', 'genesis_vs_non_genesis']).optional() }).strict().safeParse(req.query);
+    if (!query.success) return reply.code(400).send({ error: 'invalid_product_intelligence_query' });
+    return { data: safeJsonExport({ ...rh4663ProductIntelligence.read(query.data), requested_by: reviewer, cohort: query.data.cohort ?? null }) };
+  });
+  app.get<{ Params: { campaignId: string } }>('/internal/4663/campaigns/:campaignId/readiness', async (req, reply) => {
+    const reviewer = rh4663ProductGuard(reply, req.headers.authorization, req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return;
+    const campaign = await rh4663Campaigns.get(req.params.campaignId); if (!campaign) return reply.code(404).send({ error: 'campaign_not_found' });
+    const frontdoor = await rh4663Frontdoor.read(); const shares = campaignShares(frontdoor); const blockers = new Set<string>(); const warnings = new Set<string>();
+    try { rh4663Campaigns.validate(campaign, frontdoor, shares); } catch (error) {
+      const code = error instanceof Rh4663CampaignError ? error.code : 'campaign_source_missing';
+      blockers.add(({ campaign_source_missing: 'SOURCE_MISSING', campaign_source_not_public_safe: 'PUBLIC_SAFETY_FAILURE', campaign_open_loop_missing: 'SOURCE_MISSING', campaign_watch_case_missing: 'SOURCE_MISSING', campaign_share_object_missing: 'SHARE_OBJECT_MISSING', campaign_call_window_missing: 'CALL_WINDOW_INVALID' } as Record<string, string>)[code] ?? 'SOURCE_MISSING');
+    }
+    if (frontdoor.frontdoor_version_durability !== 'PERSISTENT') blockers.add('DURABILITY_UNAVAILABLE');
+    if (frontdoor.system_status.state === 'degraded') blockers.add('FRONTDOOR_DEGRADED'); else if (frontdoor.system_status.state !== 'available') warnings.add('FRONTDOOR_PARTIAL');
+    const source = [...frontdoor.now_cards, ...frontdoor.watch_cards].find((item) => item.source_ref.source_type === campaign.primary_source_ref.source_type && item.source_ref.source_id === campaign.primary_source_ref.source_id);
+    const loop = frontdoor.open_loops.find((item) => item.source_ref.source_type === campaign.primary_source_ref.source_type && item.source_ref.source_id === campaign.primary_source_ref.source_id);
+    const evidence = source?.evidence_state ?? (loop?.state === 'BLOCKED_BY_DATA' ? 'BLOCK' : loop?.state === 'STALE' ? 'DEGRADE' : loop?.state === 'FALSIFIED' ? 'FALSIFIED' : null);
+    if (evidence === 'BLOCK' && campaign.action_label && campaign.action_label !== 'VIEW EVIDENCE') blockers.add('PREFLIGHT_BLOCK_CONFLICT');
+    if (evidence === 'DEGRADE' || frontdoor.freshness.state === 'DEGRADE') warnings.add('SOURCE_STALE');
+    if (campaign.primary_share_object_ids.some((id) => !shares.find((share) => share.share_object_id === id)?.og_image_url)) blockers.add('SHARE_OBJECT_MISSING');
+    const blockerList = [...blockers].sort(); const warningList = [...warnings].sort(); const status = blockerList.length ? 'BLOCKED' : warningList.length ? 'READY_WITH_WARNINGS' : 'READY';
+    return { data: safeJsonExport({ object_type: 'CAMPAIGN_READINESS_REPORT', campaign_id: campaign.campaign_id, status, blockers: blockerList, warnings: warningList, checks: { source_exists: !blockers.has('SOURCE_MISSING'), source_public_safe: !blockers.has('PUBLIC_SAFETY_FAILURE'), share_objects_resolve: !blockers.has('SHARE_OBJECT_MISSING'), og_resolves_from_persisted_share: !blockers.has('SHARE_OBJECT_MISSING'), deep_links_public_safe: campaign.primary_source_ref.href.startsWith('/'), frontdoor_version_healthy: frontdoor.frontdoor_version_durability === 'PERSISTENT', no_preflight_block_override: !blockers.has('PREFLIGHT_BLOCK_CONFLICT') }, requested_by: reviewer }) };
+  });
+  app.post('/internal/4663/campaign-rehearsal/preview', async (req, reply) => {
+    if (config.isProduction && !config.rh4663CampaignRehearsalEnabled) return reply.code(404).send({ error: 'campaign_rehearsal_not_enabled' });
+    const reviewer = rh4663ProductGuard(reply, req.headers.authorization, req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return;
+    const preview = z.object({ state: z.enum(['DRAFT', 'SCHEDULED', 'LIVE', 'RESOLVING', 'COMPLETE', 'ARCHIVED']).default('LIVE'), evidence_state: z.enum(['BLOCK', 'ALLOW', 'VERIFIED', 'DEGRADE']).default('VERIFIED') }).strict().safeParse(req.body ?? {});
+    if (!preview.success) return reply.code(400).send({ error: 'invalid_campaign_rehearsal_preview' });
+    const state = preview.data.state; const evidence = preview.data.evidence_state;
+    const action = evidence === 'BLOCK' ? 'VIEW EVIDENCE' : 'MAKE CALL';
+    return { data: safeJsonExport({ object_type: 'CAMPAIGN_REHEARSAL', namespace: 'REHEARSAL_ONLY', production_safe: true, render_target: '/4663', campaign_id: `rehearsal:${state.toLowerCase()}`, state, hero: { statement: 'Rehearsal fixture: canonical evidence is simulated only.', evidence_state: evidence, action }, open_loop: { loop_id: 'rehearsal:open-loop', state: state === 'COMPLETE' ? 'RESOLVED' : 'OPEN' }, call: { window_id: 'rehearsal:window', canonical_receipt_created: false, fixture_receipt_id: 'rehearsal:call-receipt' }, share: { share_object_id: 'rehearsal:share', public: false }, full_funnel: { deterministic: true, steps: ['LANDING', 'EVIDENCE_OPEN', 'TEST_CALL_FIXTURE', 'RECEIPT_FIXTURE', 'SHARE_FIXTURE', 'RETURN', 'RESOLUTION_FIXTURE', 'PROOF_FIXTURE', 'SECOND_CALL_FIXTURE'] }, normal_now_below: true, mobile_preview: true, requested_by: reviewer }) };
+  });
   const rh4663CampaignGuard = (reply: FastifyReply, authorization: string | undefined, reviewerHeader: unknown) => {
     if (!config.rh4663CampaignModeEnabled) { reply.code(404).send({ error: 'campaign_mode_not_enabled' }); return null; }
     if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, authorization)) { reply.code(401).send({ error: 'review_admin_token_required' }); return null; }
@@ -3181,7 +3226,7 @@ export async function createApp(
   });
   app.post<{ Params: { windowId: string } }>('/internal/4663/pulse/windows/:windowId/publish', async (req, reply) => {
     const reviewer = rh4663OperationalGuard(reply, req.headers.authorization, req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return;
-    try { return { data: safeJsonExport({ ...(await rh4663Phase2.publish(req.params.windowId)), requested_by: reviewer }) }; } catch (error) { return rh4663Failure(reply, error); }
+    try { const published = await rh4663Phase2.publish(req.params.windowId); try { for (const receipt of published.receipts) rh4663ProductIntelligence.recordCanonicalResolution(receipt); } catch { /* analytics never affects resolution publication */ } return { data: safeJsonExport({ ...published, requested_by: reviewer }) }; } catch (error) { return rh4663Failure(reply, error); }
   });
   app.get('/internal/4663/pulse/metrics', async (req, reply) => {
     if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send({ error: 'review_admin_token_required' });

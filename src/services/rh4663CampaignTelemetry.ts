@@ -22,20 +22,30 @@ export const Rh4663CampaignEventSchema = z.object({
   print_id: z.string().max(80).optional(),
   window_id: z.string().max(80).optional(),
   share_object_id: z.string().max(220).regex(/^[a-z0-9:._-]+$/i).optional(),
-  share_source: z.enum(['NOW', 'WATCH', 'OPEN_LOOP', 'CALL', 'PROOF', 'CENSUS', 'RADAR', 'SHADOW']).optional()
+  share_source: z.enum(['NOW', 'WATCH', 'OPEN_LOOP', 'CALL', 'RESOLUTION', 'PROOF', 'CENSUS', 'RADAR', 'CAMPAIGN', 'SHADOW']).optional(),
+  // Optional client-generated id permits harmless retry de-duplication. It is
+  // deliberately opaque and cannot carry a wallet, signature, or free text.
+  event_id: z.string().max(180).regex(/^[a-z0-9:._-]+$/).optional(),
+  // The server accepts only ISO timestamps and bounds their analytic use.
+  // Product paths never depend on this value.
+  occurred_at: z.string().datetime({ offset: true }).optional(),
+  entry_source: z.enum(['DIRECT', 'NOW_SHARE', 'WATCH_SHARE', 'OPEN_LOOP_SHARE', 'CALL_SHARE', 'RESOLUTION_SHARE', 'PROOF_SHARE', 'CENSUS_SHARE', 'RADAR_SHARE', 'CAMPAIGN_SHARE', 'UNKNOWN']).optional()
 }).strict();
 export type Rh4663CampaignEvent = z.infer<typeof Rh4663CampaignEventSchema>;
 
 export class Rh4663CampaignTelemetry {
   private readonly totals = new Map<Rh4663CampaignEvent['event'], number>();
+  private readonly acceptedEventIds = new Set<string>();
   constructor(private readonly log: (entry: Record<string, unknown>) => void = (entry) => console.log(JSON.stringify(entry))) {}
 
   record(input: Rh4663CampaignEvent) {
     const event = Rh4663CampaignEventSchema.parse(input);
+    if (event.event_id && this.acceptedEventIds.has(event.event_id)) return { accepted: true as const, deduplicated: true as const };
+    if (event.event_id) this.acceptedEventIds.add(event.event_id);
     const total = (this.totals.get(event.event) ?? 0) + 1;
     this.totals.set(event.event, total);
-    this.log({ event: 'rh4663_campaign_funnel', funnel_event: event.event, surface: event.surface ?? null, campaign_id: event.campaign_id ?? null, print_id: event.print_id ?? null, window_id: event.window_id ?? null, share_object_id: event.share_object_id ?? null, share_source: event.share_source ?? null, total });
-    return { accepted: true as const };
+    this.log({ event: 'rh4663_campaign_funnel', funnel_event: event.event, surface: event.surface ?? null, campaign_id: event.campaign_id ?? null, print_id: event.print_id ?? null, window_id: event.window_id ?? null, share_object_id: event.share_object_id ?? null, share_source: event.share_source ?? null, entry_source: event.entry_source ?? null, total });
+    return { accepted: true as const, deduplicated: false as const };
   }
 
   metrics() { return Object.fromEntries(this.totals); }
