@@ -106,6 +106,7 @@ describe('Infopunks //4663 API', () => {
     process.env.NODE_ENV = 'test'; const app = await createApp(emptyIntelligenceStore(), new MemoryRepository(), { rh4663Store: new InMemoryRh4663Store() });
     try {
       expect((await app.inject({ method: 'POST', url: '/v1/4663/campaign/events', payload: { event: '4663_print_viewed', surface: 'print', print_id: 'rh-print-2026-08-30' } })).statusCode).toBe(202);
+      expect((await app.inject({ method: 'POST', url: '/v1/4663/campaign/events', payload: { event: 'follow_created', anonymous_session_id: 'local-session-1', subject_id: 'open-loop-ai-nvda' } })).statusCode).toBe(202);
       expect((await app.inject({ method: 'POST', url: '/v1/4663/campaign/events', payload: { event: '4663_print_viewed', wallet: account.address } })).statusCode).toBe(400);
       expect((await app.inject({ method: 'POST', url: '/v1/4663/campaign/events', payload: { event: 'not_a_campaign_event' } })).statusCode).toBe(400);
     } finally { await app.close(); }

@@ -21,9 +21,10 @@ to support a separate decision.
 
 ## Product Intelligence and notification gate
 
-- Product Intelligence retains only categorical, aggregate-friendly event
-  records in the current operational window. It never stores a wallet address,
-  signature, balance, holdings, private draft, or follow-list contents.
+- Product Intelligence persists only bounded categorical event primitives for
+  90 days. Apply migration `20260908_010_rh4663_product_intelligence.up.sql`
+  before production deployment. It never stores a wallet address, signature,
+  balance, holdings, private draft, raw event payload, or follow-list contents.
 - Connected identities are one-way, service-local pseudonyms used only to link
   a canonical CALL, its published RESOLUTION, and a meaningful return. Anonymous
   events remain aggregate-only; they are never fingerprinted.
@@ -40,3 +41,13 @@ to support a separate decision.
   enables an outbound channel. Review observed rates, sample sizes, coverage,
   and trend in the internal Product Intelligence endpoint before a separately
   authorized notification decision.
+
+## Observation-window freeze
+
+After the durable baseline deploys, freeze feature work for a real observation
+window. Keep Product Intelligence at `INSUFFICIENT_DATA` until its denominators
+exist; do not use that state to justify a new notification channel. Review, in
+order: Resolution Return Rate, Second Call Rate, Open Loop follow-to-return,
+share-to-evidence-open, MY 4663 followed-change return, and campaign versus
+normal entry. Rehearse one existing non-economic evidence story before any
+public campaign; IPX is excluded.

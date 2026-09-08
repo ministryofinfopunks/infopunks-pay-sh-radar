@@ -39,7 +39,7 @@ import { assembleRhChainTodayOn4663 } from '../services/rhChainTodayOn4663Servic
 import { getLatestRh4663Print, getRh4663Print } from '../services/rh4663PrintService';
 import { Rh4663CampaignEventSchema, Rh4663CampaignTelemetry } from '../services/rh4663CampaignTelemetry';
 import { InMemoryRh4663CampaignStore, PostgresRh4663CampaignStore, Rh4663CampaignError, Rh4663CampaignService, type Rh4663CampaignStore } from '../services/rh4663CampaignService';
-import { Rh4663ProductIntelligenceService } from '../services/rh4663ProductIntelligenceService';
+import { InMemoryRh4663ProductIntelligenceStore, PostgresRh4663ProductIntelligenceStore, Rh4663ProductIntelligenceService, type Rh4663ProductIntelligenceStore } from '../services/rh4663ProductIntelligenceService';
 import { InMemoryFrontdoorChangeEventStore, PostgresFrontdoorChangeEventStore, PostgresFrontdoorVersionStore, Rh4663FrontdoorError, Rh4663FrontdoorService, type FrontdoorChangeEventStore } from '../services/rh4663FrontdoorService';
 import { buildMy4663State, normalizeMy4663Follows } from '../services/rh4663My4663Service';
 import { Rh4663FrontdoorTelemetry } from '../services/rh4663FrontdoorTelemetry';
@@ -680,6 +680,7 @@ export type CreateAppOptions = {
   reflexiveWatchStore?: InMemoryReflexiveWatchStore;
   frontdoorChangeEventStore?: FrontdoorChangeEventStore;
   rh4663CampaignStore?: Rh4663CampaignStore;
+  rh4663ProductIntelligenceStore?: Rh4663ProductIntelligenceStore;
 };
 
 const RH_CHAIN_LIVE_TOKEN_ROUTE_RESERVE_MS = 1_000;
@@ -717,11 +718,11 @@ export async function createApp(
   const config = loadRuntimeConfig();
   const app = Fastify({ logger: false });
   const rh4663CampaignTelemetry = new Rh4663CampaignTelemetry();
-  const rh4663ProductIntelligence = new Rh4663ProductIntelligenceService();
   const rh4663FrontdoorTelemetry = new Rh4663FrontdoorTelemetry();
   const rhChainPostgresPool = config.databaseUrl
     ? getDatabasePool({ connectionString: config.databaseUrl, max: config.databasePoolMax })
     : null;
+  const rh4663ProductIntelligence = new Rh4663ProductIntelligenceService(options.rh4663ProductIntelligenceStore ?? (rhChainPostgresPool ? new PostgresRh4663ProductIntelligenceStore(rhChainPostgresPool) : new InMemoryRh4663ProductIntelligenceStore()));
   const rh4663Campaigns = new Rh4663CampaignService(options.rh4663CampaignStore ?? (rhChainPostgresPool ? new PostgresRh4663CampaignStore(rhChainPostgresPool) : new InMemoryRh4663CampaignStore()));
   const repository = repositoryInput ?? defaultRepository(rhChainPostgresPool ?? undefined);
   const rhChainPostgresReadiness = rhChainPostgresPool ? new RhChainPostgresReadiness() : null;
@@ -851,6 +852,7 @@ export async function createApp(
     'rh_4663_pulse_window_resolutions',
     'rh_4663_resolution_receipts',
     'rh_4663_window_anchors',
+    'rh4663_product_intelligence_events',
     ...(config.rh4663Phase3Enabled ? ['rh_4663_observations', 'rh_4663_signal_candidates', 'rh_4663_signal_publications', 'rh_4663_signal_distribution', 'rh_4663_signal_corrections', 'rh_4663_provider_health'] as const : []),
     ...((config.rhChainMarketHistoryEnabled || config.rhChainAutomationEnabled) ? ['rh_chain_market_snapshots'] as const : []),
     ...(config.rhChainReviewedClassificationsEnabled ? ['rh_chain_reviewed_classifications', 'rh_chain_reviewed_classification_audit'] as const : [])
@@ -3025,7 +3027,7 @@ export async function createApp(
       const resolved = resolvedRows.find((row) => row.resolution)?.resolution ? resolvedRows.find((row) => row.resolution)! : null;
       const currentWindow = rh4663.pulseWindow(); const pending = calls.find((call) => call.window_id === currentWindow.window_id) ?? null;
       const resolvedCall = resolved ? { call_receipt_id: resolved.call.receipt_id, resolution_receipt_id: resolved.resolution!.receipt_id, window_id: resolved.call.window_id, called_category: resolved.call.rotation, resolved_category: resolved.resolution!.resolved_category, outcome: resolved.resolution!.outcome, confidence: resolved.call.confidence, submitted_at: resolved.call.created_at, resolved_at: resolved.resolution!.resolved_at, deep_link: `/4663/resolution/${encodeURIComponent(resolved.resolution!.receipt_id)}` } : null;
-      if (resolvedCall) { try { rh4663ProductIntelligence.recordResolutionReturn({ wallet, call_receipt_id: resolvedCall.call_receipt_id, resolution_receipt_id: resolvedCall.resolution_receipt_id }); } catch { /* personal return remains functional if analytics fails */ } }
+      if (resolvedCall) void rh4663ProductIntelligence.recordResolutionReturn({ wallet, call_receipt_id: resolvedCall.call_receipt_id, resolution_receipt_id: resolvedCall.resolution_receipt_id }).catch(() => undefined);
       const pendingChanges = pending && frontdoor ? frontdoor.change_events.filter((event) => Date.parse(event.occurred_at) > Date.parse(pending.created_at)).slice(0, 20) : [];
       return { data: safeJsonExport({ authenticated: true, resolved_call: resolvedCall, personal_events: resolvedCall ? [{ event_id: `CALL_RESOLVED:${resolvedCall.resolution_receipt_id}`, event_type: 'CALL_RESOLVED', occurred_at: resolvedCall.resolved_at, headline: 'Your CALL resolved', deep_link: resolvedCall.deep_link }] : [], pending_call: pending ? { call_receipt_id: pending.receipt_id, submitted_at: pending.created_at, changes: pendingChanges, context_only: true } : null, my_4663_version: resolvedCall ? `${resolvedCall.resolution_receipt_id}:${resolvedCall.resolved_at}` : pending ? `${pending.receipt_id}:pending` : '0' }) };
     } catch { return reply.code(503).send({ error: 'personal_change_state_unavailable' }); }
@@ -3082,7 +3084,7 @@ export async function createApp(
     catch (error) { if (error instanceof Rh4663PrintGeneratorError) return reply.code(error.statusCode).send({ error: error.code }); throw error; }
   });
   app.post('/v1/4663/campaign/events', async (req, reply) => {
-    try { const event = Rh4663CampaignEventSchema.parse(req.body); const recorded = rh4663CampaignTelemetry.record(event); try { rh4663ProductIntelligence.recordTelemetry(event, { event_id: event.event_id, occurred_at: event.occurred_at, entry_source: event.entry_source }); } catch { /* analytics is never a product dependency */ } return reply.code(202).send({ data: recorded }); }
+    try { const event = Rh4663CampaignEventSchema.parse(req.body); const recorded = rh4663CampaignTelemetry.record(event); void rh4663ProductIntelligence.recordTelemetry(event, { event_id: event.event_id, occurred_at: event.occurred_at, entry_source: event.entry_source }).catch(() => undefined); return reply.code(202).send({ data: recorded }); }
     catch (error) { return rh4663Failure(reply, error); }
   });
   app.get('/v1/4663/pulse', async (_req, reply) => {
@@ -3096,7 +3098,7 @@ export async function createApp(
   });
   app.post('/v1/4663/pulse/calls', async (req, reply) => {
     const rate = rhChainPublicRateLimiter.consume(`4663_call_submit:${req.ip}`); if (!rate.allowed) return reply.header('Retry-After', String(Math.ceil(rate.retryAfterMs / 1000))).code(429).send({ error: 'rate_limited' });
-    try { const input = Rh4663PulseCallInputSchema.parse(req.body); const receipt = await rh4663.call(input); try { rh4663ProductIntelligence.recordCanonicalCall(receipt); } catch { /* receipt success never waits for analytics */ } return reply.code(201).send({ data: safeJsonExport(receipt) }); }
+    try { const input = Rh4663PulseCallInputSchema.parse(req.body); const receipt = await rh4663.call(input); void rh4663ProductIntelligence.recordCanonicalCall(receipt).catch(() => undefined); return reply.code(201).send({ data: safeJsonExport(receipt) }); }
     catch (error) { return rh4663Failure(reply, error); }
   });
   app.get<{ Params: { windowId: string } }>('/v1/4663/pulse/windows/:windowId', async (req, reply) => {
@@ -3140,7 +3142,7 @@ export async function createApp(
     const rate = rh4663ProductRateLimiter.consume(`4663_product:${req.ip}`); if (!rate.allowed) return reply.header('Retry-After', String(Math.ceil(rate.retryAfterMs / 1000))).code(429).send({ error: 'rate_limited' });
     const query = z.object({ window_start: z.string().datetime({ offset: true }).optional(), window_end: z.string().datetime({ offset: true }).optional(), campaign_id: z.string().max(180).regex(/^[a-z0-9:._-]+$/i).optional(), cohort: z.enum(['first_valid_call_week', 'first_visit_week', 'campaign_vs_non_campaign', 'anonymous_vs_connected', 'genesis_vs_non_genesis']).optional() }).strict().safeParse(req.query);
     if (!query.success) return reply.code(400).send({ error: 'invalid_product_intelligence_query' });
-    return { data: safeJsonExport({ ...rh4663ProductIntelligence.read(query.data), requested_by: reviewer, cohort: query.data.cohort ?? null }) };
+    return { data: safeJsonExport({ ...await rh4663ProductIntelligence.read(query.data), requested_by: reviewer, cohort: query.data.cohort ?? null }) };
   });
   app.get<{ Params: { campaignId: string } }>('/internal/4663/campaigns/:campaignId/readiness', async (req, reply) => {
     const reviewer = rh4663ProductGuard(reply, req.headers.authorization, req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return;
@@ -3226,7 +3228,7 @@ export async function createApp(
   });
   app.post<{ Params: { windowId: string } }>('/internal/4663/pulse/windows/:windowId/publish', async (req, reply) => {
     const reviewer = rh4663OperationalGuard(reply, req.headers.authorization, req.headers['x-rh-chain-reviewer-id']); if (!reviewer) return;
-    try { const published = await rh4663Phase2.publish(req.params.windowId); try { for (const receipt of published.receipts) rh4663ProductIntelligence.recordCanonicalResolution(receipt); } catch { /* analytics never affects resolution publication */ } return { data: safeJsonExport({ ...published, requested_by: reviewer }) }; } catch (error) { return rh4663Failure(reply, error); }
+    try { const published = await rh4663Phase2.publish(req.params.windowId); for (const receipt of published.receipts) void rh4663ProductIntelligence.recordCanonicalResolution(receipt).catch(() => undefined); return { data: safeJsonExport({ ...published, requested_by: reviewer }) }; } catch (error) { return rh4663Failure(reply, error); }
   });
   app.get('/internal/4663/pulse/metrics', async (req, reply) => {
     if (!isRhChainReviewAdmin(config.rhChainReviewAdminToken, req.headers.authorization)) return reply.code(401).send({ error: 'review_admin_token_required' });

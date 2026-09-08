@@ -22,6 +22,11 @@ export const Rh4663CampaignEventSchema = z.object({
   print_id: z.string().max(80).optional(),
   window_id: z.string().max(80).optional(),
   share_object_id: z.string().max(220).regex(/^[a-z0-9:._-]+$/i).optional(),
+  // Locally generated, rotating session token. It is one-way transformed by
+  // Product Intelligence and is never logged or returned.
+  anonymous_session_id: z.string().max(180).regex(/^[a-z0-9:._-]+$/i).optional(),
+  // A public-safe canonical subject reference only; no follow list is sent.
+  subject_id: z.string().max(180).regex(/^[a-z0-9:._-]+$/i).optional(),
   share_source: z.enum(['NOW', 'WATCH', 'OPEN_LOOP', 'CALL', 'RESOLUTION', 'PROOF', 'CENSUS', 'RADAR', 'CAMPAIGN', 'SHADOW']).optional(),
   // Optional client-generated id permits harmless retry de-duplication. It is
   // deliberately opaque and cannot carry a wallet, signature, or free text.

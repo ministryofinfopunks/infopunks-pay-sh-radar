@@ -20,7 +20,7 @@ The executable matrix is `RH4663_ROUTE_CACHE_MATRIX` in `src/services/rh4663Cach
 
 Wallet-only proof URLs are current profiles, not permanent historical snapshots: they use a short shared TTL and profile-version ETag. Immutable historical proof cards must use a frozen share object ID.
 
-Production requires durable Postgres for frontdoor version/change events, Census and Shadow observations, CALL/RESOLUTION/Genesis receipts, frozen Radar observations, and required frozen share/proof snapshots. Missing required durability fails closed. Memory stores are development/test fallbacks only.
+Production requires durable Postgres for frontdoor version/change events, Census and Shadow observations, CALL/RESOLUTION/Genesis receipts, frozen Radar observations, required frozen share/proof snapshots, and Phase 10.1 Product Intelligence primitives. Apply migration `20260908_010_rh4663_product_intelligence.up.sql` before enabling the observation window. Product Intelligence retains only 90 days of categorical/pseudonymous loop primitives; it is never read by public evidence or protocol paths. Missing required durability fails closed. Memory stores are development/test fallbacks only.
 
 ## Health and degradation
 
