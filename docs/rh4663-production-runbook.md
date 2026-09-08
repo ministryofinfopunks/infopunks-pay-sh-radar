@@ -47,3 +47,34 @@ Required production configuration: `DATABASE_URL`, `PORT`, `RH_CHAIN_REVIEW_ADMI
 Run `npm run verify:runtime-config`, migration/readiness checks, the focused test suite, and the GET-only load profile before promotion. Roll back HTTP hardening with `RH_4663_FRONTDOOR_HARDENING_ENABLED=false`; it changes cache behavior only. No rollback drops data, changes receipts, or invalidates old deep links.
 
 SSE is deliberately deferred. ETag revalidation is the portable default; a durable event fan-out layer is not yet justified. Product telemetry is best-effort and must not gate responses.
+
+### Phase 10.1 incident-isolation and promotion gate
+
+Treat a non-200 current production health response as an incident in the
+currently deployed release. Do not apply `20260908_010` or deploy Phase 10.1
+as a speculative repair: that would make the cause of a recovery ambiguous.
+
+The required order is:
+
+1. Restore the *current* deployed release. Confirm both `GET /healthz` and
+   `GET /readyz` return HTTP 200 before changing the schema.
+2. From an operator-controlled production migration environment, apply
+   `20260908_010_rh4663_product_intelligence.up.sql` once. It is additive and
+   the old application must remain healthy while the new table is unused.
+3. Verify the migration ledger, the Product Intelligence table and indexes,
+   database connectivity, unchanged canonical tables, and `GET /readyz` still
+   returning HTTP 200. Check database monitoring for lock or latency impact.
+4. Deploy the Phase 10.1 application. Verify readiness first, then the
+   public frontdoor, private overlays, CALL configuration, immutable and
+   mutable OG/share surfaces, and reviewer-authenticated Product Intelligence
+   read. Its initial aggregate state may correctly be `INSUFFICIENT_DATA`.
+5. Deliberately exercise the existing analytics-failure injection or an
+   equivalent controlled failure. A dropped analytics write must not affect
+   frontdoor, CALL, receipt, resolution, Proof, or Campaign behavior.
+
+For an application rollback, roll back the application first. Do not run the
+`010` down migration merely because the application was rolled back: it may
+already contain valid analytics events, and leaving an additive unused table
+is safer. Schema reversal requires an explicit operational decision accepting
+the loss of those analytics events; canonical receipts and evidence are not
+part of either decision.

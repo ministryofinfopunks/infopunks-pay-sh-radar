@@ -45,9 +45,11 @@ to support a separate decision.
 ## Observation-window freeze
 
 After the durable baseline deploys, freeze feature work for a real observation
-window. Keep Product Intelligence at `INSUFFICIENT_DATA` until its denominators
-exist; do not use that state to justify a new notification channel. Review, in
-order: Resolution Return Rate, Second Call Rate, Open Loop follow-to-return,
-share-to-evidence-open, MY 4663 followed-change return, and campaign versus
-normal entry. Rehearse one existing non-economic evidence story before any
-public campaign; IPX is excluded.
+window. Record that deployment timestamp as `PRODUCT OBSERVATION T0`. Keep
+Product Intelligence at `INSUFFICIENT_DATA` until its denominators exist; do
+not use that state to justify a new notification channel. Review directional
+D1 signal, useful D7 behavior, then D30 behavior. Review, in order: Resolution
+Return Rate, Second Call Rate, Open Loop follow-to-return, Share → Evidence
+Open, MY 4663 followed-change return, and campaign versus normal entry.
+Rehearse one existing non-economic evidence story before any public campaign;
+IPX is excluded.
