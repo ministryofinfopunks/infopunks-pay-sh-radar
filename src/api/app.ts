@@ -92,6 +92,8 @@ import { assembleRhChainScouts } from '../services/rhChainScoutsService';
 import { assembleRhChainDistributionPack } from '../services/rhChainDistributionPackService';
 import { assembleRhChainReceiptRelay } from '../services/rhChainReceiptRelayService';
 import { InMemoryReflexiveStore, PairV5DiscoveryAdapter, PairV5OnchainVerifier, PostgresReflexiveStore, ReflexiveRadarService, stableId, type ReflexiveProvider } from '../services/rhChainReflexiveRadarService';
+import { RhChainSpendPreflightService, type RhChainSpendOptions } from '../services/rhChainSpendPreflightService';
+import { InMemoryRhChainSpendReceiptStore, PostgresRhChainSpendReceiptStore, type RhChainSpendReceiptStore } from '../services/rhChainSpendReceiptStore';
 import { InMemoryReflexiveWatchStore, ReflexiveMarketsWatchService, ReflexiveWatchError, type ReflexiveWatchClaimInput } from '../services/rhChainReflexiveWatchService';
 import { canonicalAssetsFromRhj, InMemoryRmmCategoryCensusStore, PostgresRmmCategoryCensusStore, RmmCategoryCensusService } from '../services/rmmCategoryCensusService';
 import { LongDopplerVerifier, StockTokenSupplyIndexer } from '../services/rhChainCrossVenueAuditService';
@@ -647,6 +649,8 @@ const CORS_ALLOWED_HEADERS = ['Content-Type', 'Authorization', 'X-Requested-With
 const CORS_MAX_AGE_SECONDS = 86_400;
 
 export type CreateAppOptions = {
+  rhChainSpendOptions?: Partial<Omit<RhChainSpendOptions, 'receipts'>>;
+  rhChainSpendReceiptStore?: RhChainSpendReceiptStore;
   clientDistDir?: string | null;
   rhChainSubmissionStore?: RhChainSubmissionStore;
   rhChainReviewedClassificationStore?: RhChainReviewedClassificationStore;
@@ -1025,6 +1029,14 @@ export async function createApp(
       try { return rhChainReviewedClassifications.store.get(contract); } catch { return null; }
     },
     receipts: rhChainAttentionReceiptStore
+  });
+  const rhChainSpend = new RhChainSpendPreflightService({
+    snapshot: () => reflexiveRadar.snapshot(),
+    clones: async () => assembleRhChainCloneRadar(assembleRhChainReviewQueue((await rhChainSubmissionStore.list()).map(asRhChainPersistedReviewItem)).items),
+    attention: (contract) => rhChainAttentionQuality.assess(contract, '24h'),
+    onchain: rhChainBlockscoutProvider,
+    ...options.rhChainSpendOptions,
+    receipts: options.rhChainSpendReceiptStore ?? (rhChainPostgresPool ? new PostgresRhChainSpendReceiptStore(rhChainPostgresPool) : new InMemoryRhChainSpendReceiptStore())
   });
   rhChainReviewPipeline = new RhChainReviewPipelineService({
     discoveryQueue: rhChainDiscoveryQueue,
@@ -3508,6 +3520,26 @@ export async function createApp(
     }
   });
   app.get('/v1/rh-chain/market/provider-status', async () => safeJsonExport(buildRhChainApiResponse(await rhChainMarketData.getProviderStatus())));
+  const spendFailure = (reply: FastifyReply, error: unknown) => error instanceof z.ZodError
+    ? reply.code(400).send({ error: 'invalid_rh_spend_input', issues: error.issues })
+    : reply.code(503).send({ error: 'rh_spend_receipt_unavailable' });
+  app.get<{ Params: { ticker: string } }>('/v1/rh-chain/assets/:ticker', async (req, reply) => {
+    const rate = rhChainPublicRateLimiter.consume(`rh_spend:${req.ip}`);
+    if (!rate.allowed) return reply.code(429).header('Retry-After', String(Math.ceil(rate.retryAfterMs / 1000))).send({ error: 'rate_limited' });
+    try { return { data: await rhChainSpend.asset(req.params.ticker) }; } catch (error) { return spendFailure(reply, error); }
+  });
+  app.post('/v1/rh-chain/preflight', async (req, reply) => {
+    const rate = rhChainPublicRateLimiter.consume(`rh_spend:${req.ip}`);
+    if (!rate.allowed) return reply.code(429).header('Retry-After', String(Math.ceil(rate.retryAfterMs / 1000))).send({ error: 'rate_limited' });
+    try { return { data: await rhChainSpend.preflight(req.body) }; } catch (error) { return spendFailure(reply, error); }
+  });
+  app.get<{ Params: { id: string } }>('/v1/rh-chain/preflight/receipts/:id', async (req, reply) => {
+    if (!/^rhsp_[\da-f]{64}$/.test(req.params.id)) return reply.code(400).send({ error: 'invalid_receipt_id' });
+    try {
+      const receipt = await rhChainSpend.receipt(req.params.id);
+      return receipt ? { data: receipt } : reply.code(404).send({ error: 'rh_spend_receipt_not_found' });
+    } catch (error) { return spendFailure(reply, error); }
+  });
   app.get('/v1/rh-chain/onchain/provider-status', async () => safeJsonExport(buildRhChainApiResponse(await rhChainTokenRegistry.getProviderStatus())));
   app.get<{ Querystring: { type?: string; page_size?: string } }>('/v1/rh-chain/onchain/tokens', async (req) => safeJsonExport(buildRhChainApiResponse(await rhChainTokenRegistry.listObservedTokens({ type: req.query.type, pageSize: req.query.page_size ? Number(req.query.page_size) : undefined }))));
   app.get<{ Params: { contract: string } }>('/v1/rh-chain/onchain/tokens/:contract', async (req) => safeJsonExport(buildRhChainApiResponse(await rhChainTokenRegistry.enrichToken(req.params.contract))));
