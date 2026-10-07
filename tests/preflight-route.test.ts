@@ -1091,7 +1091,7 @@ describe('preflight API', () => {
     });
     expect(response.statusCode).toBe(200);
     const body = response.json().data;
-    expect(body.decision).toBe('route_approved');
+    expect(body.decision).toBe('route_blocked');
     expect(body.selectedProvider).not.toBe('quicknode-rpc');
     expect(body.requiredCapabilities).toEqual([]);
     expect(body.capabilityInferenceReason).toBeNull();
@@ -1111,8 +1111,8 @@ describe('preflight API', () => {
     });
     expect(response.statusCode).toBe(200);
     const body = response.json().data;
-    expect(body.decision).toBe('route_approved');
-    expect(body.selectedProvider).toBe('stablecrypto');
+    expect(body.decision).toBe('route_blocked');
+    expect(body.selectedProvider).toBeNull();
     expect(body.requiredCapabilities).toEqual(['market_data', 'pricing']);
     await app.close();
   });
@@ -1510,7 +1510,7 @@ describe('preflight API', () => {
       }
     });
     expect(placesResponse.statusCode).toBe(200);
-    expect(placesResponse.json().data.selectedProvider).toBe('solana-foundation-google-places');
+    expect(placesResponse.json().data.selectedProvider).toBeNull();
 
     const visionResponse = await app.inject({
       method: 'POST',
@@ -1522,7 +1522,7 @@ describe('preflight API', () => {
       }
     });
     expect(visionResponse.statusCode).toBe(200);
-    expect(visionResponse.json().data.selectedProvider).toBe('solana-foundation-google-vision');
+    expect(visionResponse.json().data.selectedProvider).toBeNull();
     await app.close();
   });
 

@@ -847,7 +847,11 @@ NODE_ENV=production PORT=8787 npm start
 
 | Variable | Purpose |
 |---|---|
-| `DATABASE_URL` | Enables Postgres persistence |
+| `DATABASE_URL` | Required PostgreSQL URL in production; enables Postgres persistence locally |
+| `PAYSH_CATALOG_SOURCE` | Must be `live` in production; development/test fixtures remain available |
+| `PAY_SH_CATALOG_URL` | Required HTTPS live catalog URL in production (`https://pay.sh/api/catalog`) |
+| `PAYSH_ALLOW_FIXTURE_FALLBACK` | Must be explicitly `false` in production |
+| `ADMIN_TOKEN` | Ordinary admin token binding; takes precedence over `INFOPUNKS_ADMIN_TOKEN` |
 | `DATABASE_POOL_MAX` | Maximum connections in the shared RH Chain Postgres pool (default `10`) |
 | `INFOPUNKS_ADMIN_TOKEN` | Required for admin ingestion and monitoring routes |
 | `RH_CHAIN_AUTOMATION_ENABLED` | Enables RH Chain draft/snapshot automation; production requires `DATABASE_URL` |
@@ -994,6 +998,16 @@ Known limitations: the integration is deliberately bounded to 100 reviewed recor
 
 The existing `GET /v1/rh-chain/live-snapshot/token/:contract` route uses a single request-scoped deadline. Its production-safe internal budget defaults to 3.8 seconds through `RH_CHAIN_LIVE_TOKEN_ROUTE_TIMEOUT_MS`; configuration above 4 seconds is rejected, leaving headroom beneath the five-second production smoke deadline. Provider timeouts remain governed by `RH_CHAIN_PROVIDER_TIMEOUT_MS` but are capped by the remaining route budget. Slow providers produce explicit partial or unavailable sections while completed and valid cached observations retain provenance and freshness. Cache writes and stale refreshes never block the public response.
 
+## Railway compatibility
+
+The existing Dockerfile and `npm start` support container deployment with the
+platform's `PORT` and ordinary environment variables. `/healthz` is liveness;
+`/readyz` returns 503 with safe reasons when production dependencies, migration
+signatures, or live catalog evidence are unavailable. No production catalog
+failure loads fixtures. Use the ordered parity/backup/rollback procedure in
+[the production runbook](docs/rh4663-production-runbook.md#railway-parity-and-traffic-migration)
+before traffic changes. Configuration preparation does not constitute a migration.
+
 ## Unified Render Deployment
 
 `https://radar.infopunks.fun` should point at the full Node/Fastify app, not a Render Static Site.
@@ -1034,9 +1048,9 @@ Render automatically provides:
 PORT
 ```
 
-Set `DATABASE_URL` to enable Postgres persistence. It is mandatory when
-`RH_CHAIN_AUTOMATION_ENABLED=true`; Render must inject it at runtime from the
-attached Postgres service. `DATABASE_POOL_MAX` is runtime-only and may be set
+Production always requires a PostgreSQL `DATABASE_URL`, live catalog source,
+an HTTPS catalog URL, and explicitly disabled fixture fallback. The platform
+must inject the database URL at runtime from the attached PostgreSQL service. `DATABASE_POOL_MAX` is runtime-only and may be set
 to the connection budget assigned to this web service. Do not expose either
 value through `VITE_` variables or build arguments.
 

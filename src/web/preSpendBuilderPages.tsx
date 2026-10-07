@@ -107,7 +107,10 @@ type Metrics = {
 };
 
 type PreSpendCheckResponse = {
+  subject?: string | null;
   intent: string;
+  preferred_settlement?: string;
+  required_confidence?: number;
   decision: DecisionState;
   recommended_route: string | null;
   confidence_score: number;
@@ -117,9 +120,20 @@ type PreSpendCheckResponse = {
   known_blockers: string[];
   requires_human_approval: boolean;
   receipt_references: string[];
+  linked_check_id?: string | null;
+  proof_check_reference?: string | null;
   safer_alternatives: string[];
   do_not_use: Array<{ provider: string; reason: string }>;
   rationale: string[];
+  judgment?: {
+    receipt_id: string;
+    decision: 'ALLOW' | 'DEGRADE' | 'BLOCK';
+    primary_reason: string;
+    reasons: string[];
+    confidence: number;
+    evidence_references: string[];
+    outcome_status: 'NOT_VERIFIED' | 'PENDING' | 'VERIFIED';
+  };
 };
 
 type RouteTrustSummary = {
@@ -526,13 +540,19 @@ export function SpendTerminalPage() {
   const [result, setResult] = useState<PreSpendCheckResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [form, setForm] = useState({
-    agent_id: 'agent_001',
-    intent: 'buy_market_research',
-    budget: 25,
-    risk_tolerance: 'low' as RiskLevel,
-    preferred_settlement: 'stablecoin',
-    required_confidence: 75
+  const [form, setForm] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const subject = params.get('subject') || undefined;
+    return {
+      agent_id: subject ? 'infopunks_launch_surface' : 'agent_001',
+      intent: params.get('intent') || 'buy_market_research',
+      budget: 25,
+      risk_tolerance: 'low' as RiskLevel,
+      preferred_settlement: subject ? 'tokenized_pltr' : 'stablecoin',
+      required_confidence: 75,
+      subject_id: subject,
+      linked_check_id: subject
+    };
   });
 
   useEffect(() => {
@@ -540,8 +560,7 @@ export function SpendTerminalPage() {
     api<{ data: { metrics: Metrics } }>('/v1/routes').then((response) => setMetrics(response.data.metrics)).catch(() => undefined);
   }, []);
 
-  async function runCheck(event: React.FormEvent) {
-    event.preventDefault();
+  async function requestDecision() {
     setLoading(true);
     setError(null);
     try {
@@ -557,14 +576,25 @@ export function SpendTerminalPage() {
     }
   }
 
+  useEffect(() => {
+    if (form.subject_id !== 'monitor') return;
+    void requestDecision();
+  }, [form.subject_id]);
+
+  async function runCheck(event: React.FormEvent) {
+    event.preventDefault();
+    await requestDecision();
+  }
+
   const resultTone = result ? decisionTone(result.decision) : 'warn';
   const hasReceipts = Boolean(result?.receipt_references.length);
   const hasWarnings = Boolean(result && (result.known_blockers.length || result.do_not_use.length || result.requires_human_approval || result.decision !== 'approved'));
+  const isMonitorSurface = form.subject_id === 'monitor';
 
   return <div className="shell builder-shell">
     <RadarContextHeader />
     <main className="builder-page spend-terminal-page" aria-label="Pre-Spend Intelligence Terminal">
-      <section className="panel hero builder-hero">
+      {!isMonitorSurface && <section className="panel hero builder-hero">
         <div>
           <p className="eyebrow">Pre-Spend Intelligence</p>
           <h1>Should this agent spend?</h1>
@@ -576,9 +606,9 @@ export function SpendTerminalPage() {
           <span>Verified Pre-Spend Decisions</span>
           <span>No receipt, no trust</span>
         </div>
-      </section>
-      <MetricsBand metrics={metrics} />
-      <section className="grid two builder-terminal-grid">
+      </section>}
+      {!isMonitorSurface && <MetricsBand metrics={metrics} />}
+      <section className={`grid two builder-terminal-grid ${isMonitorSurface ? 'monitor-terminal-grid' : ''}`}>
         <form className="panel builder-form-panel" onSubmit={runCheck}>
           <div className="panel-head"><div><p className="section-kicker">Agent Intent</p><h2>Pre-spend input flow</h2></div></div>
           <p className="panel-caption">Run a receipt-backed preflight before any paid route call. No receipt, no trust.</p>
@@ -623,14 +653,24 @@ export function SpendTerminalPage() {
                     : 'Decision is not a silent approval. Review rationale before spend.'}
             </p>}
             <div className="builder-result-grid">
+              <article><span>subject</span><strong>{result.subject ?? 'none'}</strong></article>
+              <article><span>intent</span><strong>{result.intent}</strong></article>
+              <article><span>settlement</span><strong>{result.preferred_settlement ?? form.preferred_settlement}</strong></article>
+              <article><span>required confidence</span><strong>{result.required_confidence ?? form.required_confidence}</strong></article>
               <article><span>decision</span><strong>{result.decision}</strong></article>
+              <article><span>canonical judgment</span><strong>{result.judgment?.decision ?? 'unavailable'}</strong></article>
               <article><span>recommended route</span><strong>{result.recommended_route ? <BuilderLink href={routeHref(result.recommended_route)}>{result.recommended_route}</BuilderLink> : 'none'}</strong></article>
               <article><span>confidence score</span><strong>{result.confidence_score}</strong></article>
+              <article><span>judgment receipt</span><strong>{result.judgment?.receipt_id ?? 'unavailable'}</strong></article>
+              <article><span>outcome status</span><strong>{result.judgment?.outcome_status ?? 'unavailable'}</strong></article>
               <article><span>risk level</span><strong>{result.risk_level}</strong></article>
               <article><span>estimated cost</span><strong>{result.estimated_cost ?? 'n/a'}</strong></article>
               <article><span>last successful run</span><strong>{formatDate(result.last_successful_run)}</strong></article>
               <article><span>human approval</span><strong>{result.requires_human_approval ? 'required' : 'not required'}</strong></article>
               <article><span>receipts</span><strong><LinkedIds items={result.receipt_references} buildHref={receiptHref} /></strong></article>
+              <article className="wide"><span>linked Proof Check</span><strong>{result.proof_check_reference
+                ? <BuilderLink href={result.proof_check_reference}>{result.linked_check_id ?? result.proof_check_reference}</BuilderLink>
+                : result.linked_check_id ?? 'none'}</strong></article>
               <article className="wide"><span>known blockers</span><strong>{joined(result.known_blockers)}</strong></article>
               <article className="wide"><span>safer alternatives</span><strong><LinkedIds items={result.safer_alternatives} buildHref={routeHref} /></strong></article>
               <article className="wide"><span>do-not-use warnings</span><strong>{result.do_not_use.length
@@ -641,7 +681,7 @@ export function SpendTerminalPage() {
           </>}
         </section>
       </section>
-      <PlaceholderMarketPanel />
+      {!isMonitorSurface && <PlaceholderMarketPanel />}
     </main>
   </div>;
 }

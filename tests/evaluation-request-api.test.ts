@@ -106,6 +106,24 @@ describe('evaluation request api', () => {
     }
   });
 
+  it('rejects public score delta authoring fields', async () => {
+    const app = await createApp(emptyIntelligenceStore());
+
+    try {
+      for (const field of ['score_delta', 'scoreDelta', 'confidence_delta', 'confidenceDelta']) {
+        const response = await app.inject({
+          method: 'POST',
+          url: '/v1/evaluation-request',
+          payload: { ...validPayload, [field]: 99 }
+        });
+        expect(response.statusCode).toBe(400);
+        expect(response.json().error).toBe('invalid_request');
+      }
+    } finally {
+      await app.close();
+    }
+  });
+
   it('webhook path can be mocked', async () => {
     process.env.EVALUATION_REQUEST_WEBHOOK_URL = 'https://example.com/intake';
     vi.stubGlobal('fetch', vi.fn(() => Promise.resolve(new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } }))));

@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { createIntelligenceStore } from '../src/services/intelligenceStore';
 
 describe('deterministic scoring', () => {
-  it('computes bounded trust and signal assessments from available evidence', async () => {
+  it('keeps telemetry non-authoritative while retaining bounded attention scores', async () => {
     const store = await createIntelligenceStore();
-    for (const assessment of [...store.trustAssessments, ...store.signalAssessments]) {
+    expect(store.trustAssessments.every((assessment) => assessment.score === null && assessment.grade === 'unknown')).toBe(true);
+    expect(store.events.some((event) => event.type === 'score_assessment_created' && event.entityType === 'trust_assessment')).toBe(false);
+    for (const assessment of store.signalAssessments) {
       expect(assessment.score).not.toBeNull();
       expect(assessment.score!).toBeGreaterThanOrEqual(0);
       expect(assessment.score!).toBeLessThanOrEqual(100);

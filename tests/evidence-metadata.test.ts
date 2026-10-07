@@ -88,15 +88,7 @@ describe('evidence audit metadata', () => {
     expect(providerTimelineEvent.catalog_generated_at).toBeNull();
     expect(providerTimelineEvent.ingested_at).toBe('2026-01-01T00:05:00.000Z');
     expect(providerTimelineEvent.ingested_at).toBe(providerTimelineEvent.observed_at);
-    expect(summary.trustDeltas[0]).toMatchObject({
-      event_id: expect.any(String),
-      provider_id: 'receipt',
-      endpoint_id: null,
-      observed_at: '2026-01-01T00:05:00.000Z',
-      source: 'infopunks:deterministic-scoring',
-      derivation_reason: expect.any(String),
-      confidence: expect.any(Number)
-    });
+    expect(summary.trustDeltas).toEqual([]); // Observations cannot author reputation events.
     expect(summary.providerActivity['24h'][0]).toMatchObject({
       provider_id: 'receipt',
       observed_at: '2026-01-01T00:05:00.000Z',

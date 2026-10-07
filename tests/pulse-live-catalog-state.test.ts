@@ -204,7 +204,9 @@ describe('pulse and radar live catalog state wiring', () => {
     expect(timedOut.dataSource.error).toBe('live_catalog_timeout');
   });
 
-  it('returns fixture-backed pulse data instead of hanging when live bootstrap times out', async () => {
+  it('returns unavailable live evidence without fixtures when live bootstrap times out', async () => {
+    const previousDatabaseUrl = process.env.DATABASE_URL;
+    const previousCatalogUrl = process.env.PAY_SH_CATALOG_URL;
     const previousNodeEnv = process.env.NODE_ENV;
     const previousBootstrap = process.env.PAYSH_BOOTSTRAP_ENABLED;
     const previousCatalogSource = process.env.PAYSH_CATALOG_SOURCE;
@@ -212,6 +214,8 @@ describe('pulse and radar live catalog state wiring', () => {
     const previousPort = process.env.PORT;
     const previousAdminToken = process.env.INFOPUNKS_ADMIN_TOKEN;
 
+    process.env.DATABASE_URL = 'postgres://user:password@localhost:5432/radar';
+    process.env.PAY_SH_CATALOG_URL = 'https://pay.sh/api/catalog';
     process.env.NODE_ENV = 'production';
     process.env.PORT = '8787';
     process.env.INFOPUNKS_ADMIN_TOKEN = 'test-token';
@@ -232,20 +236,19 @@ describe('pulse and radar live catalog state wiring', () => {
       expect(response.statusCode).toBe(200);
       expect(response.headers['content-type']).toContain('application/json');
       expect(durationMs).toBeLessThan(1_000);
-      expect(response.json().data.providerCount).toBeGreaterThan(0);
+      expect(response.json().data.providerCount).toBe(0);
       expect(response.json().data.endpointCount).toBeGreaterThanOrEqual(0);
-      expect(response.json().data.data_source.used_fixture).toBe(true);
-      expect(response.json().data.data_source.error).toBe('bootstrap_pending');
-      expect(response.json().data.pulse_source).toBe('fixture_backed');
-      expect(response.json().data.live_catalog_state).toBe('fixture_fallback');
+      expect(response.json().data.data_source.used_fixture).toBe(false);
+      expect(response.json().data.data_source.error).toBe('live_catalog_unavailable');
+      expect(response.json().data.pulse_source).toBe('live_pay_sh_catalog');
+      expect(response.json().data.live_catalog_state).toBe('unavailable');
       expect(response.json().data.bootstrap_state).toBe('pending');
-      expect(response.json().data.fallback_reason).toBe('bootstrap_pending');
-      expect(response.json().data.status).toMatchObject({
-        backend: 'healthy',
-        radar: { state: 'fixture_backed' }
-      });
+      expect(response.json().data.fallback_reason).toBe('live_catalog_unavailable');
+      expect(response.json().data.status.backend).toBe('healthy');
     } finally {
       await app.close();
+      if (previousDatabaseUrl === undefined) delete process.env.DATABASE_URL; else process.env.DATABASE_URL = previousDatabaseUrl;
+      if (previousCatalogUrl === undefined) delete process.env.PAY_SH_CATALOG_URL; else process.env.PAY_SH_CATALOG_URL = previousCatalogUrl;
       if (previousNodeEnv === undefined) delete process.env.NODE_ENV;
       else process.env.NODE_ENV = previousNodeEnv;
       if (previousBootstrap === undefined) delete process.env.PAYSH_BOOTSTRAP_ENABLED;

@@ -60,19 +60,12 @@ describe('4663 Front Door read model', () => {
     await expect(service.read()).rejects.toMatchObject({ code: 'frontdoor_version_durability_required', statusCode: 503 });
   });
 
-  it('does not publish a shared front door from production memory mode', async () => {
-    const priorNodeEnv = process.env.NODE_ENV; const priorPort = process.env.PORT; const priorDatabaseUrl = process.env.DATABASE_URL;
-    process.env.NODE_ENV = 'production'; process.env.PORT = '8787'; delete process.env.DATABASE_URL;
-    const app = await createApp(emptyIntelligenceStore(), new MemoryRepository());
+  it('rejects production memory mode before publishing a shared front door', async () => {
+    const prior = { ...process.env };
     try {
-      const response = await app.inject({ method: 'GET', url: '/v1/4663/frontdoor' });
-      expect(response.statusCode).toBe(503); expect(response.json()).toEqual({ error: 'frontdoor_version_durability_required' });
-    } finally {
-      await app.close();
-      if (priorNodeEnv === undefined) delete process.env.NODE_ENV; else process.env.NODE_ENV = priorNodeEnv;
-      if (priorPort === undefined) delete process.env.PORT; else process.env.PORT = priorPort;
-      if (priorDatabaseUrl === undefined) delete process.env.DATABASE_URL; else process.env.DATABASE_URL = priorDatabaseUrl;
-    }
+      process.env.NODE_ENV = 'production'; process.env.PORT = '8787'; delete process.env.DATABASE_URL;
+      await expect(createApp(emptyIntelligenceStore(), new MemoryRepository())).rejects.toMatchObject({ code: 'INVALID_RUNTIME_CONFIGURATION' });
+    } finally { process.env = prior; }
   });
 
   it('sends a compact cacheable HTTP snapshot with ETag revalidation', async () => {

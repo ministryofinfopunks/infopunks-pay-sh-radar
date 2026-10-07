@@ -53,3 +53,32 @@ Return Rate, Second Call Rate, Open Loop follow-to-return, Share → Evidence
 Open, MY 4663 followed-change return, and campaign versus normal entry.
 Rehearse one existing non-economic evidence story before any public campaign;
 IPX is excluded.
+
+## Railway infrastructure parity gate
+
+- [ ] Separate Railway PostgreSQL provisioned; source backup and target restore verified.
+- [ ] Write freeze/final synchronization and rollback reconciliation rehearsed.
+- [ ] Existing additive migrations applied only where pending; migration-status gate passes.
+- [ ] Same reviewed API commit deployed using the existing Dockerfile and ordinary bindings.
+- [ ] Production live/HTTPS/no-fallback/database invariants pass runtime verification.
+- [ ] Admin/reviewer/signing/RPC settings retained for enabled capabilities.
+- [ ] `/healthz` and `/readyz` return 200; staging outages produce readiness 503 only.
+- [ ] API parity smoke tests pass against the target; public response shapes unchanged.
+- [ ] Receipt integrity, persistence after restart, and any JSONL volume are verified.
+- [ ] Live catalog provenance/freshness verified; no fixtures on catalog failure.
+- [ ] Traffic/DNS changes occur only after all preceding gates; duplicate workers prevented.
+- [ ] Prior host/commit and backup retained; rollback and target-write reconciliation documented.
+- [ ] Actual deployment/migration/cutover recorded separately from configuration preparation.
+- [ ] No Phase 1 receipt-schema or protocol changes included.
+
+Follow the ordered Railway procedure in `docs/rh4663-production-runbook.md`.
+
+## Phase 1 receipt authority gate
+
+- [ ] Phase 0 gates passed independently; production live catalog and PostgreSQL readiness verified.
+- [ ] External migration `20261007_011_canonical_receipt_spine.up.sql` applied to the deployment database after backup.
+- [ ] Four receipt tables, normalized observation membership, parent FKs and immutable triggers verified under the application role.
+- [ ] Authenticated append/read/restart/replay smoke confirms only EvaluationReceipt changes canonical score.
+- [ ] Nonzero legacy confidence delta rejected; community claim/validation/Proof Check/Loop Check intake retained without reputation authority.
+- [ ] Typecheck, lint, unit/integration tests, build and diff checks pass; dedicated PostgreSQL tests executed.
+- [ ] Rollback preserves append-only memory. No automatic legacy backfill or Phase 2 work.

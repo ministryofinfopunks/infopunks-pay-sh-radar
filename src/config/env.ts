@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseDatabasePoolMax } from '../persistence/databasePool';
@@ -9,6 +10,14 @@ export type RuntimeConfig = {
   databaseUrl: string | null;
   databasePoolMax: number;
   adminToken: string | null;
+  receiptProceedConfidenceThreshold: number;
+  judgmentTtlMs: number;
+  judgmentPaymentEnabled: boolean;
+  judgmentFacilitatorUrl: string | null;
+  judgmentPayTo: string | null;
+  judgmentResourceUrl: string | null;
+  judgmentPriceUsdc: string;
+  executionProofBaseRpcUrl: string | null;
   payShCatalogUrl: string | null;
   payShCatalogSource: 'live' | 'fixture';
   ingestionEnabled: boolean;
@@ -100,17 +109,71 @@ export type RuntimeConfigurationVerification = {
   errors: string[];
 };
 
+// Values are validated before normalization. Diagnostics contain names, never inputs.
+export const ProductionCatalogSchema = z.object({
+  PAYSH_CATALOG_SOURCE: z.literal('live'),
+  PAY_SH_CATALOG_URL: z.string().url().refine((value) => {
+    try {
+      const url = new URL(value);
+      return url.protocol === 'https:' && !url.username && !url.password;
+    } catch { return false; }
+  }, 'must be an HTTPS URL without credentials'),
+  PAYSH_ALLOW_FIXTURE_FALLBACK: z.literal('false')
+});
+export const ProductionEnvironmentSchema = ProductionCatalogSchema.extend({
+  DATABASE_URL: z.string().url().refine((value) => {
+    try {
+      const url = new URL(value);
+      // node-postgres decodes these components before creating its client.
+      for (const component of [url.username, url.password, url.pathname]) decodeURIComponent(component);
+      return ['postgres:', 'postgresql:'].includes(url.protocol) && Boolean(url.hostname) && url.pathname.length > 1;
+    } catch { return false; }
+  }, 'must be a PostgreSQL connection URL with a database')
+});
+
+export class RuntimeConfigurationError extends Error {
+  readonly code = 'INVALID_RUNTIME_CONFIGURATION';
+  readonly issues: Array<{ variable: string; code: string }>;
+  constructor(issues: Array<{ variable: string; code: string }>) {
+    super(issues.map((issue) => `${issue.variable}: ${issue.code}`).join('; '));
+    this.name = 'RuntimeConfigurationError';
+    this.issues = issues;
+  }
+}
+
+export function productionConfigurationIssues(env: NodeJS.ProcessEnv, catalogOnly = false) {
+  const result = (catalogOnly ? ProductionCatalogSchema : ProductionEnvironmentSchema).safeParse(env);
+  return result.success ? [] : result.error.issues.map((issue) => ({ variable: String(issue.path[0]), code: issue.code }));
+}
+
+export function assertProductionCatalog(env: NodeJS.ProcessEnv) {
+  const issues = productionConfigurationIssues(env, true);
+  if (issues.length) throw new RuntimeConfigurationError(issues);
+}
+
 export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): RuntimeConfig {
   const nodeEnv = env.NODE_ENV ?? 'development';
   const isProduction = nodeEnv === 'production';
   const port = readPort(env.PORT, isProduction);
+  if (isProduction) {
+    const issues = productionConfigurationIssues(env);
+    if (issues.length) throw new RuntimeConfigurationError(issues);
+  }
   const config: RuntimeConfig = {
     env: nodeEnv,
     isProduction,
     port,
     databaseUrl: optionalString(env.DATABASE_URL),
     databasePoolMax: parseDatabasePoolMax(env.DATABASE_POOL_MAX, 10),
-    adminToken: optionalString(env.INFOPUNKS_ADMIN_TOKEN),
+    adminToken: optionalString(env.ADMIN_TOKEN) ?? optionalString(env.INFOPUNKS_ADMIN_TOKEN),
+    receiptProceedConfidenceThreshold: readBoundedPositiveInteger('RECEIPT_PROCEED_CONFIDENCE_THRESHOLD', env.RECEIPT_PROCEED_CONFIDENCE_THRESHOLD, 80, 100),
+    judgmentTtlMs: readPositiveInteger('JUDGMENT_TTL_MS', env.JUDGMENT_TTL_MS, 60_000),
+    judgmentPaymentEnabled: readBoolean('JUDGMENT_PAYMENT_ENABLED', env.JUDGMENT_PAYMENT_ENABLED, false),
+    judgmentFacilitatorUrl: readOptionalUrl('JUDGMENT_FACILITATOR_URL', env.JUDGMENT_FACILITATOR_URL),
+    judgmentPayTo: optionalString(env.JUDGMENT_PAY_TO),
+    judgmentResourceUrl: readOptionalUrl('JUDGMENT_RESOURCE_URL', env.JUDGMENT_RESOURCE_URL),
+    judgmentPriceUsdc: env.JUDGMENT_PRICE_USDC ?? '0.01',
+    executionProofBaseRpcUrl: readOptionalUrl('EXECUTION_PROOF_BASE_RPC_URL', env.EXECUTION_PROOF_BASE_RPC_URL),
     payShCatalogUrl: readOptionalUrl('PAY_SH_CATALOG_URL', env.PAY_SH_CATALOG_URL),
     payShCatalogSource: readCatalogSource(env.PAYSH_CATALOG_SOURCE),
     ingestionEnabled: readBoolean('INGESTION_ENABLED', env.INGESTION_ENABLED, true),
@@ -195,6 +258,9 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
   // (where reviewer/admin-only); no secret is ever substituted or bypassed.
   if (isProduction) resolveOptionalProductionFeatures(config);
 
+  if (!/^(0|[1-9][0-9]*)(\.[0-9]{1,6})?$/.test(config.judgmentPriceUsdc) || Number(config.judgmentPriceUsdc) <= 0) throw new RuntimeConfigurationError([{ variable: 'JUDGMENT_PRICE_USDC', code: 'invalid_price' }]);
+  if (env.JUDGMENT_NETWORK && env.JUDGMENT_NETWORK !== 'eip155:8453') throw new RuntimeConfigurationError([{ variable: 'JUDGMENT_NETWORK', code: 'unsupported_network' }]);
+  if (config.judgmentPaymentEnabled && (!config.databaseUrl || !config.judgmentFacilitatorUrl || !config.judgmentResourceUrl || !/^0x[a-fA-F0-9]{40}$/.test(config.judgmentPayTo ?? ''))) throw new RuntimeConfigurationError([{ variable: 'JUDGMENT_PAYMENT_ENABLED', code: 'payment_configuration_incomplete' }]);
   return config;
 }
 
@@ -289,7 +355,7 @@ function resolveOptionalProductionFeatures(config: RuntimeConfig) {
 }
 
 const RUNTIME_ENVIRONMENT_DEPENDENCIES: Array<{ name: string; hasDefault: boolean }> = [
-  'NODE_ENV', 'PORT', 'INFOPUNKS_ADMIN_TOKEN', 'DATABASE_URL', 'DATABASE_POOL_MAX', 'PAY_SH_CATALOG_URL', 'PAYSH_CATALOG_SOURCE', 'PAYSH_ALLOW_FIXTURE_FALLBACK', 'PAYSH_BOOTSTRAP_ENABLED', 'PAY_SH_INGEST_INTERVAL_MS', 'INGESTION_ENABLED', 'MONITOR_ENABLED', 'MONITOR_MODE', 'MONITOR_INTERVAL_MS', 'MONITOR_TIMEOUT_MS', 'MONITOR_MAX_PROVIDERS', 'MONITOR_ALLOW_PAID_ENDPOINTS', 'FEATURED_PROVIDER_ROTATION_MS', 'MACHINE_DEMO_SEED', 'MACHINE_RECEIPTS_JSONL_PATH', 'INFOPUNKS_BIGQUERY_LIVE_CREDENTIALS_CONFIGURED', 'INFOPUNKS_BIGQUERY_LIVE_HARNESS_ENABLED', 'INFOPUNKS_BIGQUERY_LIVE_HARNESS_MODE', 'INFOPUNKS_BIGQUERY_LIVE_RAIL_CONFIGURED', 'RH_CHAIN_LIVE_SNAPSHOTS_ENABLED', 'RH_CHAIN_PROVIDER_TIMEOUT_MS', 'RH_CHAIN_LIVE_TOKEN_ROUTE_TIMEOUT_MS', 'RH_CHAIN_CACHE_TTL_SECONDS', 'RH_CHAIN_BLOCKSCOUT_URL', 'DEXSCREENER_ENABLED', 'DEXSCREENER_BASE_URL', 'DEXSCREENER_RH_CHAIN_ID', 'DEXSCREENER_TIMEOUT_MS', 'DEXSCREENER_CACHE_TTL_SECONDS', 'DEXSCREENER_STALE_WHILE_REVALIDATE_SECONDS', 'DEXSCREENER_MAX_STALE_SECONDS', 'DEXSCREENER_MAX_BATCH_SIZE', 'DEXSCREENER_MAX_RETRIES', 'DEXSCREENER_RETRY_BASE_MS', 'DEXSCREENER_MAX_CONCURRENCY', 'DEXSCREENER_RATE_LIMIT_PER_SECOND', 'BLOCKSCOUT_ENABLED', 'BLOCKSCOUT_BASE_URL', 'BLOCKSCOUT_TIMEOUT_MS', 'BLOCKSCOUT_CACHE_TTL_SECONDS', 'BLOCKSCOUT_MAX_PAGE_SIZE', 'RH_CHAIN_REVIEW_CONSOLE_ENABLED', 'RH_CHAIN_REVIEW_ADMIN_TOKEN', 'RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED', 'RH_CHAIN_ATTENTION_QUALITY_V2_ENABLED', 'RH_CHAIN_PROJECT_CLAIMS_ENABLED', 'RH_CHAIN_INTELLIGENCE_RECEIPTS_ENABLED', 'RH_CHAIN_PROJECT_DIRECTORY_ENABLED', 'RH_CHAIN_AUTOMATION_ENABLED', 'RH_CHAIN_MARKET_INGESTION_ENABLED', 'RH_CHAIN_MARKET_HISTORY_ENABLED', 'RH_CHAIN_AUTOMATION_INSTANCE_ID', 'RH_CHAIN_JOB_LOCK_TTL_MS', 'RH_CHAIN_CHAIN_PULSE_INTERVAL_MS', 'RH_CHAIN_MEME_PULSE_INTERVAL_MS', 'RH_CHAIN_LAUNCHPAD_INTERVAL_MS', 'RH_CHAIN_RECEIPT_DRAFT_CRON', 'RH_CHAIN_PUBLIC_RATE_LIMIT_ENABLED', 'RH_CHAIN_PUBLIC_RATE_LIMIT_WINDOW_MS', 'RH_CHAIN_PUBLIC_RATE_LIMIT_MAX', 'RH_CHAIN_DUPLICATE_WINDOW_MS', 'RH_4663_PHASE2_ENABLED', 'RH_4663_RESOLUTION_PRIVATE_KEY', 'RH_4663_RESOLUTION_KEY_ID', 'RH_4663_ANCHOR_RPC_URL', 'RH_4663_ANCHOR_CONTRACT', 'RH_4663_ANCHOR_PRIVATE_KEY', 'RH_4663_ANCHOR_CONFIRMATIONS', 'RH_4663_PHASE3_ENABLED', 'RH_4663_PHASE3_INGESTION_ENABLED', 'RH_4663_PHASE3_CANDIDATE_GENERATION_ENABLED', 'RH_4663_PHASE3_PUBLICATION_ENABLED', 'RH_4663_AUTO_PUBLICATION_ENABLED', 'RH_4663_EXTERNAL_DISTRIBUTION_ENABLED', 'RH_4663_PHASE3_SHADOW_MODE', 'RH_4663_PHASE3_INTERVAL_MS', 'RH_4663_PHASE2_PRODUCTION_PROOF_VERIFIED', 'RH_4663_CAMPAIGN_MODE_ENABLED', 'RH_4663_CAMPAIGN_REHEARSAL_ENABLED', 'IPX_PLTR_SHADOW_OBSERVATION_ENABLED', 'IPX_PLTR_SHADOW_OBSERVATION_INTERVAL_MS', 'IPX_PLTR_SHADOW_CAPACITY_SWEEP_ENABLED', 'FRONTEND_ORIGIN', 'EVALUATION_REQUEST_WEBHOOK_URL', 'MACHINE_EXECUTION_ENABLED', 'PAY_SH_TRANSLATION_URL', 'PAY_SH_TRANSLATION_AUTH_MODE', 'PAY_SH_TRANSLATION_AUTH_HEADER', 'PAY_SH_TRANSLATION_AUTH_TOKEN', 'PAY_SH_TRANSLATION_PAYMENT_HEADER', 'PAY_SH_TRANSLATION_PAYMENT_VALUE', 'PAY_SH_TRANSLATION_TIMEOUT_MS', 'HERMES_ENABLED', 'HERMES_BASE_URL', 'HERMES_API_KEY', 'HERMES_MODE', 'APP_VERSION'
+  'RECEIPT_PROCEED_CONFIDENCE_THRESHOLD', 'NODE_ENV', 'PORT', 'ADMIN_TOKEN', 'INFOPUNKS_ADMIN_TOKEN', 'DATABASE_URL', 'DATABASE_POOL_MAX', 'PAY_SH_CATALOG_URL', 'PAYSH_CATALOG_SOURCE', 'PAYSH_ALLOW_FIXTURE_FALLBACK', 'PAYSH_BOOTSTRAP_ENABLED', 'PAY_SH_INGEST_INTERVAL_MS', 'INGESTION_ENABLED', 'MONITOR_ENABLED', 'MONITOR_MODE', 'MONITOR_INTERVAL_MS', 'MONITOR_TIMEOUT_MS', 'MONITOR_MAX_PROVIDERS', 'MONITOR_ALLOW_PAID_ENDPOINTS', 'FEATURED_PROVIDER_ROTATION_MS', 'MACHINE_DEMO_SEED', 'MACHINE_RECEIPTS_JSONL_PATH', 'INFOPUNKS_BIGQUERY_LIVE_CREDENTIALS_CONFIGURED', 'INFOPUNKS_BIGQUERY_LIVE_HARNESS_ENABLED', 'INFOPUNKS_BIGQUERY_LIVE_HARNESS_MODE', 'INFOPUNKS_BIGQUERY_LIVE_RAIL_CONFIGURED', 'RH_CHAIN_LIVE_SNAPSHOTS_ENABLED', 'RH_CHAIN_PROVIDER_TIMEOUT_MS', 'RH_CHAIN_LIVE_TOKEN_ROUTE_TIMEOUT_MS', 'RH_CHAIN_CACHE_TTL_SECONDS', 'RH_CHAIN_BLOCKSCOUT_URL', 'DEXSCREENER_ENABLED', 'DEXSCREENER_BASE_URL', 'DEXSCREENER_RH_CHAIN_ID', 'DEXSCREENER_TIMEOUT_MS', 'DEXSCREENER_CACHE_TTL_SECONDS', 'DEXSCREENER_STALE_WHILE_REVALIDATE_SECONDS', 'DEXSCREENER_MAX_STALE_SECONDS', 'DEXSCREENER_MAX_BATCH_SIZE', 'DEXSCREENER_MAX_RETRIES', 'DEXSCREENER_RETRY_BASE_MS', 'DEXSCREENER_MAX_CONCURRENCY', 'DEXSCREENER_RATE_LIMIT_PER_SECOND', 'BLOCKSCOUT_ENABLED', 'BLOCKSCOUT_BASE_URL', 'BLOCKSCOUT_TIMEOUT_MS', 'BLOCKSCOUT_CACHE_TTL_SECONDS', 'BLOCKSCOUT_MAX_PAGE_SIZE', 'RH_CHAIN_REVIEW_CONSOLE_ENABLED', 'RH_CHAIN_REVIEW_ADMIN_TOKEN', 'RH_CHAIN_REVIEWED_CLASSIFICATIONS_ENABLED', 'RH_CHAIN_ATTENTION_QUALITY_V2_ENABLED', 'RH_CHAIN_PROJECT_CLAIMS_ENABLED', 'RH_CHAIN_INTELLIGENCE_RECEIPTS_ENABLED', 'RH_CHAIN_PROJECT_DIRECTORY_ENABLED', 'RH_CHAIN_AUTOMATION_ENABLED', 'RH_CHAIN_MARKET_INGESTION_ENABLED', 'RH_CHAIN_MARKET_HISTORY_ENABLED', 'RH_CHAIN_AUTOMATION_INSTANCE_ID', 'RH_CHAIN_JOB_LOCK_TTL_MS', 'RH_CHAIN_CHAIN_PULSE_INTERVAL_MS', 'RH_CHAIN_MEME_PULSE_INTERVAL_MS', 'RH_CHAIN_LAUNCHPAD_INTERVAL_MS', 'RH_CHAIN_RECEIPT_DRAFT_CRON', 'RH_CHAIN_PUBLIC_RATE_LIMIT_ENABLED', 'RH_CHAIN_PUBLIC_RATE_LIMIT_WINDOW_MS', 'RH_CHAIN_PUBLIC_RATE_LIMIT_MAX', 'RH_CHAIN_DUPLICATE_WINDOW_MS', 'RH_4663_PHASE2_ENABLED', 'RH_4663_RESOLUTION_PRIVATE_KEY', 'RH_4663_RESOLUTION_KEY_ID', 'RH_4663_ANCHOR_RPC_URL', 'RH_4663_ANCHOR_CONTRACT', 'RH_4663_ANCHOR_PRIVATE_KEY', 'RH_4663_ANCHOR_CONFIRMATIONS', 'RH_4663_PHASE3_ENABLED', 'RH_4663_PHASE3_INGESTION_ENABLED', 'RH_4663_PHASE3_CANDIDATE_GENERATION_ENABLED', 'RH_4663_PHASE3_PUBLICATION_ENABLED', 'RH_4663_AUTO_PUBLICATION_ENABLED', 'RH_4663_EXTERNAL_DISTRIBUTION_ENABLED', 'RH_4663_PHASE3_SHADOW_MODE', 'RH_4663_PHASE3_INTERVAL_MS', 'RH_4663_PHASE2_PRODUCTION_PROOF_VERIFIED', 'RH_4663_CAMPAIGN_MODE_ENABLED', 'RH_4663_CAMPAIGN_REHEARSAL_ENABLED', 'IPX_PLTR_SHADOW_OBSERVATION_ENABLED', 'IPX_PLTR_SHADOW_OBSERVATION_INTERVAL_MS', 'IPX_PLTR_SHADOW_CAPACITY_SWEEP_ENABLED', 'FRONTEND_ORIGIN', 'EVALUATION_REQUEST_WEBHOOK_URL', 'MACHINE_EXECUTION_ENABLED', 'PAY_SH_TRANSLATION_URL', 'PAY_SH_TRANSLATION_AUTH_MODE', 'PAY_SH_TRANSLATION_AUTH_HEADER', 'PAY_SH_TRANSLATION_AUTH_TOKEN', 'PAY_SH_TRANSLATION_PAYMENT_HEADER', 'PAY_SH_TRANSLATION_PAYMENT_VALUE', 'PAY_SH_TRANSLATION_TIMEOUT_MS', 'HERMES_ENABLED', 'HERMES_BASE_URL', 'HERMES_API_KEY', 'HERMES_MODE', 'APP_VERSION'
   // Kept separately to make additions to this intentionally long dependency
   // inventory reviewable without dropping established diagnostics.
   , 'INFOPUNKS_BIGQUERY_LIVE_HARNESS_VERSION',

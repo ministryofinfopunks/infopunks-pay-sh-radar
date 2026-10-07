@@ -1227,6 +1227,18 @@ export const SearchRequestSchema = z.object({
 
 export const RiskLevelSchema = z.enum(['low', 'medium', 'high', 'critical']);
 export const DecisionStateSchema = z.enum(['approved', 'approved_with_warning', 'use_with_caution', 'requires_human_approval', 'do_not_use']);
+export const JudgmentDecisionSchema = z.enum(['ALLOW', 'DEGRADE', 'BLOCK']);
+export const JudgmentOutcomeStatusSchema = z.enum(['NOT_VERIFIED', 'PENDING', 'VERIFIED']);
+export const PreSpendJudgmentSchema = z.object({
+  receipt_id: z.string().min(1),
+  subject: z.string().min(1),
+  decision: JudgmentDecisionSchema,
+  primary_reason: z.string().min(1),
+  reasons: z.array(z.string()),
+  confidence: z.number().min(0).max(100),
+  evidence_references: z.array(z.string()),
+  outcome_status: JudgmentOutcomeStatusSchema
+});
 export const ValidationStateSchema = z.enum(['unvalidated', 'machine_checked', 'human_validated', 'disputed', 'rejected', 'stale']);
 export const ClaimTargetTypeSchema = z.enum(['route', 'provider', 'service', 'receipt', 'counterparty', 'claim']);
 export const ClaimStatusSchema = z.enum(['submitted', 'under_review', 'supported', 'challenged', 'rejected', 'resolved', 'stale']);
@@ -1236,6 +1248,7 @@ export const ProofClaimTypeSchema = z.enum([
   'route_performance',
   'provider_reliability',
   'market_claim',
+  'market_narrative',
   'token_claim',
   'partnership_claim',
   'revenue_claim',
@@ -1362,11 +1375,16 @@ export const PreSpendCheckRequestSchema = z.object({
   budget: z.number().nonnegative(),
   risk_tolerance: RiskLevelSchema,
   preferred_settlement: z.string().min(1),
-  required_confidence: z.number().min(0).max(100)
+  required_confidence: z.number().min(0).max(100),
+  subject_id: z.string().min(1).optional(),
+  linked_check_id: z.string().min(1).optional()
 });
 
 export const PreSpendCheckResponseSchema = z.object({
+  subject: z.string().nullable().optional(),
   intent: z.string(),
+  preferred_settlement: z.string().optional(),
+  required_confidence: z.number().min(0).max(100).optional(),
   decision: DecisionStateSchema,
   recommended_route: z.string().nullable(),
   confidence_score: z.number().min(0).max(100),
@@ -1376,12 +1394,19 @@ export const PreSpendCheckResponseSchema = z.object({
   known_blockers: z.array(z.string()),
   requires_human_approval: z.boolean(),
   receipt_references: z.array(z.string()),
+  linked_check_id: z.string().nullable().optional(),
+  proof_check_reference: z.string().nullable().optional(),
   safer_alternatives: z.array(z.string()),
   do_not_use: z.array(z.object({
     provider: z.string(),
     reason: z.string()
   })),
-  rationale: z.array(z.string())
+  rationale: z.array(z.string()),
+  judgment: PreSpendJudgmentSchema.optional()
+});
+// The public response remains backwards-compatible, while completed decisions use this invariant-enforcing schema internally.
+export const PreSpendDecisionResponseSchema = PreSpendCheckResponseSchema.extend({
+  judgment: PreSpendJudgmentSchema
 });
 
 export const HumanValidationSubmissionSchema = z.object({
@@ -1454,11 +1479,42 @@ export const ClaimDetailSchema = ClaimSchema.extend({
   challenges: z.array(ClaimChallengeSchema)
 });
 
-export const ProofCheckInputSchema = z.object({
+export const ProofCheckSubjectSchema = z.object({
+  subject_id: z.string().min(1).optional(),
+  ticker: z.string().min(1),
+  name: z.string().min(1),
+  chain: z.string().min(1),
+  contract: z.string().min(1),
+  pair: z.string().min(1),
+  site: z.string().url(),
+  x: z.string().url()
+});
+
+export const ProofCheckReceiptInputSchema = z.object({
+  type: z.string().min(1),
+  url: z.string().url()
+});
+
+const ProofCheckLegacyInputSchema = z.object({
   input: z.string().min(1),
   sourceUrl: z.string().url().optional(),
   submittedBy: z.string().min(1).optional()
 });
+
+const ProofCheckMarketNarrativeInputSchema = z.object({
+  claim: z.string().min(1),
+  claim_type: z.literal('market_narrative'),
+  subject: ProofCheckSubjectSchema,
+  receipts: z.array(ProofCheckReceiptInputSchema),
+  missing_receipts: z.array(z.string().min(1)),
+  sourceUrl: z.string().url().optional(),
+  submittedBy: z.string().min(1).optional()
+});
+
+export const ProofCheckInputSchema = z.union([
+  ProofCheckLegacyInputSchema,
+  ProofCheckMarketNarrativeInputSchema
+]);
 
 export const ProofCheckSchema = z.object({
   check_id: z.string(),
@@ -1470,7 +1526,10 @@ export const ProofCheckSchema = z.object({
   claim_type: ProofClaimTypeSchema,
   claim_summary: z.string(),
   subject_label: z.string(),
+  subject_id: z.string().nullable().default(null),
+  subject: ProofCheckSubjectSchema.extend({ subject_id: z.string().min(1) }).nullable().default(null),
   receipts_found: z.array(z.string()),
+  missing_receipts: z.array(z.string()).default([]),
   evidence_artifacts: z.array(z.string()),
   evidence_strength: EvidenceStrengthSchema,
   receipt_strength: ReceiptStrengthSchema,
@@ -1582,7 +1641,7 @@ export const SignalHuntSummarySchema = z.object({
   candidates: z.array(SignalHuntCandidateSchema)
 });
 
-export const SignalHuntSubmissionInputSchema = z.object({
+const LegacySignalHuntSubmissionInputSchema = z.object({
   title: z.string().min(1),
   handle_or_source: z.string().min(1),
   category: z.string().min(1),
@@ -1592,6 +1651,19 @@ export const SignalHuntSubmissionInputSchema = z.object({
   submitted_by: z.string().min(1),
   tags: z.array(z.string().min(1)).default([])
 });
+
+const MarketSignalHuntSubmissionInputSchema = z.object({
+  headline: z.string().min(1),
+  source: z.string().min(1),
+  category: z.string().min(1),
+  assets: z.array(z.string().min(1)).min(1),
+  linked_check_id: z.string().optional()
+});
+
+export const SignalHuntSubmissionInputSchema = z.union([
+  LegacySignalHuntSubmissionInputSchema,
+  MarketSignalHuntSubmissionInputSchema
+]);
 
 export const SignalHuntVerifyInputSchema = z.object({
   verifier: z.string().min(1),
@@ -3192,6 +3264,8 @@ export type PreSpendReceipt = z.infer<typeof PreSpendReceiptSchema>;
 export type PreSpendMetrics = z.infer<typeof PreSpendMetricsSchema>;
 export type PreSpendCheckRequest = z.infer<typeof PreSpendCheckRequestSchema>;
 export type PreSpendCheckResponse = z.infer<typeof PreSpendCheckResponseSchema>;
+export type PreSpendDecisionResponse = z.infer<typeof PreSpendDecisionResponseSchema>;
+export type PreSpendJudgment = z.infer<typeof PreSpendJudgmentSchema>;
 export type HumanValidationSubmission = z.infer<typeof HumanValidationSubmissionSchema>;
 export type ClaimTargetType = z.infer<typeof ClaimTargetTypeSchema>;
 export type ClaimStatus = z.infer<typeof ClaimStatusSchema>;

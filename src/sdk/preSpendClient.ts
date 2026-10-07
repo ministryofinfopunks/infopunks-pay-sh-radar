@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { CanonicalJudgmentResponseSchema, type CanonicalJudgmentResponse } from '../schemas/preSpend';
 import {
   PreSpendCheckRequestSchema,
   PreSpendCheckResponseSchema,
@@ -7,7 +8,7 @@ import {
 } from '../schemas/entities';
 
 const PreSpendCheckEnvelopeSchema = z.object({
-  data: PreSpendCheckResponseSchema
+  data: PreSpendCheckResponseSchema.extend({ canonical_judgment: CanonicalJudgmentResponseSchema.optional() })
 });
 
 const ErrorEnvelopeSchema = z.object({
@@ -25,7 +26,7 @@ export type CreateInfopunksPreSpendClientOptions = {
 };
 
 export type InfopunksPreSpendClient = {
-  checkPreSpend(input: PreSpendCheckRequest): Promise<PreSpendCheckResponse>;
+  checkPreSpend(input: PreSpendCheckRequest): Promise<PreSpendCheckResponse & { canonical_judgment?: CanonicalJudgmentResponse }>;
 };
 
 export class InfopunksPreSpendClientError extends Error {

@@ -11,7 +11,7 @@ afterEach(() => {
 });
 
 describe('production optional feature degradation', () => {
-  it('keeps public service alive, returns 503 for requested public claims, and hides review routes', async () => {
+  it('rejects production startup without required database and catalog bindings', async () => {
     process.env.NODE_ENV = 'production';
     process.env.PORT = '10000';
     process.env.INFOPUNKS_ADMIN_TOKEN = 'admin';
@@ -20,13 +20,6 @@ describe('production optional feature degradation', () => {
     delete process.env.RH_CHAIN_REVIEW_ADMIN_TOKEN;
     process.env.RH_CHAIN_PROJECT_CLAIMS_ENABLED = 'true';
     process.env.RH_CHAIN_INTELLIGENCE_RECEIPTS_ENABLED = 'true';
-    const app = await createApp(emptyIntelligenceStore());
-
-    expect((await app.inject({ method: 'GET', url: '/healthz' })).statusCode).toBe(200);
-    const claims = await app.inject({ method: 'GET', url: '/v1/rh-chain/projects/example' });
-    expect(claims.statusCode).toBe(503);
-    expect(claims.json()).toMatchObject({ error: 'feature_unavailable' });
-    expect((await app.inject({ method: 'GET', url: '/internal/rh-chain/projects' })).statusCode).toBe(404);
-    await app.close();
+    await expect(createApp(emptyIntelligenceStore())).rejects.toMatchObject({ code: 'INVALID_RUNTIME_CONFIGURATION' });
   });
 });

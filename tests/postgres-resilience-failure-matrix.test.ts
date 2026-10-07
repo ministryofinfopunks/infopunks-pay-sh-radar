@@ -396,7 +396,7 @@ describe('PostgreSQL resilience failure matrix', () => {
       pool.connectError = operationalError('connection timeout', 'ETIMEDOUT');
       pool.queryError = null;
       await expect(getDatabasePool({ connectionString: TEST_URL, max: 2 }).query('select 1')).rejects.toThrow('connection timeout');
-      expect((await app.inject({ method: 'GET', url: '/readyz' })).json().status).toBe('degraded');
+      expect((await app.inject({ method: 'GET', url: '/readyz' })).json().status).toBe('unavailable');
     } finally {
       await app.close();
     }
@@ -421,7 +421,7 @@ describe('PostgreSQL resilience failure matrix', () => {
       expect(Date.now() - openStartedAt).toBeLessThan(100);
       expect(pool.queryCount).toBe(initialQueries);
       expect((await app.inject({ method: 'GET', url: '/healthz' })).statusCode).toBe(200);
-      expect((await app.inject({ method: 'GET', url: '/readyz' })).json()).toMatchObject({ status: 'degraded', dbCircuitState: 'circuit_open' });
+      expect((await app.inject({ method: 'GET', url: '/readyz' })).json()).toMatchObject({ status: 'unavailable', dbCircuitState: 'circuit_open' });
 
       pool.queryDelayMs = 25;
       vi.advanceTimersByTime(31_000);
@@ -441,7 +441,7 @@ describe('PostgreSQL resilience failure matrix', () => {
       pool.emit('error', operationalError('read ECONNRESET', 'ECONNRESET'));
       pool.emit('error', operationalError('connection timeout', 'ETIMEDOUT'));
       expect((await app.inject({ method: 'GET', url: '/healthz' })).statusCode).toBe(200);
-      expect((await app.inject({ method: 'GET', url: '/readyz' })).json()).toMatchObject({ status: 'degraded', dbCircuitState: 'circuit_open' });
+      expect((await app.inject({ method: 'GET', url: '/readyz' })).json()).toMatchObject({ status: 'unavailable', dbCircuitState: 'circuit_open' });
     } finally {
       await app.close();
     }
@@ -659,6 +659,7 @@ describe('optional real PostgreSQL checked-out-client termination', () => {
 
     const pool = getDatabasePool({ connectionString, max: 2 });
     const checkedOutClient = await pool.connect();
+    const checkoutErrorListeners = checkedOutClient.listeners('error');
     const terminator = new pg.Client({ connectionString });
     let observedError: Error | null = null;
     const observeError = (error: Error) => { observedError = error; };
@@ -687,7 +688,11 @@ describe('optional real PostgreSQL checked-out-client termination', () => {
       await terminator.end().catch(() => undefined);
     }
 
-    expect(checkedOutClient.listenerCount('error')).toBe(0);
+    // pg-pool installs its own idle error listener during release, including for
+    // a discarded connection. Verify our checkout guard is removed without
+    // requiring removal of the driver's connection safety listener.
+    for (const listener of checkoutErrorListeners) expect(checkedOutClient.listeners('error')).not.toContain(listener);
+    expect(checkedOutClient.listeners('error')).not.toContain(observeError);
     await expect(probeDatabaseRecovery(pool)).resolves.toBe(true);
     await expect(pool.query('select 1')).resolves.toMatchObject({ rowCount: 1 });
     expect(getDatabaseCircuitDiagnostics().dbCircuitState).toBe('healthy');

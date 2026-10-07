@@ -62,8 +62,6 @@ type MutableLedgerEntry = Omit<
   HermesReputationLedgerEntry,
   'current_state' | 'trust_score' | 'impact_total' | 'latest_event_at' | 'decision_history' | 'source_claim_ids' | 'source_receipt_ids' | 'source_run_ids'
 > & {
-  raw_score: number;
-  raw_impact_total: number;
   decision_history: HermesReputationLedgerEvent[];
   source_claim_ids: Set<string>;
   source_receipt_ids: Set<string>;
@@ -76,28 +74,6 @@ const targetRank: Record<HermesReputationTargetType, number> = {
   service: 2,
   unknown: 3
 };
-
-function clampScore(value: number): number {
-  return Math.max(0, Math.min(100, Math.round(value)));
-}
-
-function roundImpact(value: number): number {
-  return Number(value.toFixed(2));
-}
-
-function signedImpact(impact: HermesReputationImpact): number {
-  if (impact.direction === 'positive') return impact.magnitude;
-  if (impact.direction === 'negative') return -impact.magnitude;
-  if (impact.direction === 'watch') return -impact.magnitude * 0.25;
-  return 0;
-}
-
-function scoreDelta(impact: HermesReputationImpact): number {
-  if (impact.direction === 'positive') return impact.magnitude * 50;
-  if (impact.direction === 'negative') return -impact.magnitude * 50;
-  if (impact.direction === 'watch') return -impact.magnitude * 15;
-  return 0;
-}
 
 function normalizeTargetType(value: string): HermesReputationTargetType | null {
   const normalized = value.trim().toLowerCase();
@@ -198,8 +174,6 @@ export function buildHermesReputationLedgerFromRuns(
       target_type: target.target_type,
       target_id: target.target_id,
       label: labelForTarget(target.target_type, target.target_id),
-      raw_score: 50,
-      raw_impact_total: 0,
       positive_count: 0,
       negative_count: 0,
       watch_count: 0,
@@ -211,8 +185,7 @@ export function buildHermesReputationLedgerFromRuns(
       source_run_ids: new Set<string>()
     };
 
-    entry.raw_score += scoreDelta(impact);
-    entry.raw_impact_total += signedImpact(impact);
+    // Claim/run intake has zero reputation authority; canonical evaluations own deltas.
     if (impact.direction === 'positive') entry.positive_count += 1;
     if (impact.direction === 'negative') entry.negative_count += 1;
     if (impact.direction === 'watch') entry.watch_count += 1;
@@ -227,7 +200,7 @@ export function buildHermesReputationLedgerFromRuns(
 
   const entries = [...grouped.values()]
     .map((entry): HermesReputationLedgerEntry => {
-      const score = clampScore(entry.raw_score);
+      const score = 0; // Canonical evaluations are the sole reputation authority.
       const decisionHistory = [...entry.decision_history].sort((a, b) => b.at.localeCompare(a.at) || a.id.localeCompare(b.id));
       return {
         target_type: entry.target_type,
@@ -235,7 +208,7 @@ export function buildHermesReputationLedgerFromRuns(
         label: entry.label,
         current_state: currentStateFor(entry, score),
         trust_score: score,
-        impact_total: roundImpact(entry.raw_impact_total),
+        impact_total: 0,
         positive_count: entry.positive_count,
         negative_count: entry.negative_count,
         watch_count: entry.watch_count,

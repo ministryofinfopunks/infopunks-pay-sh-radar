@@ -41,7 +41,7 @@ describe('pre-spend intelligence service', () => {
       required_confidence: 70
     }));
 
-    expect(result.decision).toBe('approved');
+    expect(result.decision).toBe('use_with_caution');
     expect(result.recommended_route).toBe('route_pay_sh_token_quote_01');
     expect(result.rationale.length).toBeGreaterThan(0);
   });

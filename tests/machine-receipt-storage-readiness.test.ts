@@ -43,22 +43,10 @@ describe('machine receipt storage readiness', () => {
     await app.close();
   });
 
-  it('production jsonl returns explicit warning in health', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'machine-health-jsonl-'));
+  it('rejects production JSONL fallback without PostgreSQL configuration', async () => {
     process.env.NODE_ENV = 'production';
     process.env.PORT = '8787';
-    process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
-    process.env.MACHINE_RECEIPTS_JSONL_PATH = join(dir, 'receipts.jsonl');
-
-    const app = await createApp(emptyIntelligenceStore());
-    const health = await app.inject({ method: 'GET', url: '/health' });
-
-    expect(health.statusCode).toBe(200);
-    expect(health.json().machine_receipts_storage.adapter).toBe('jsonl');
-    expect(health.json().machine_receipts_storage.warning).toContain('Configure DATABASE_URL for Postgres-backed durability');
-
-    await app.close();
-    rmSync(dir, { recursive: true, force: true });
+    await expect(createApp(emptyIntelligenceStore())).rejects.toMatchObject({ code: 'INVALID_RUNTIME_CONFIGURATION' });
   });
 
   it('selects postgres adapter when DATABASE_URL is set', async () => {
@@ -66,6 +54,9 @@ describe('machine receipt storage readiness', () => {
     process.env.PORT = '8787';
     process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
     process.env.DATABASE_URL = 'postgres://example:test@localhost:5432/test';
+    process.env.PAYSH_CATALOG_SOURCE = 'live';
+    process.env.PAY_SH_CATALOG_URL = 'https://pay.sh/api/catalog';
+    process.env.PAYSH_ALLOW_FIXTURE_FALLBACK = 'false';
 
     const app = await createApp(emptyIntelligenceStore());
     const health = await app.inject({ method: 'GET', url: '/health' });

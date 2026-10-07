@@ -2,11 +2,21 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import { RadarProductNavigation } from './radarNetworks';
 
-type ProofClaimType = 'agent_autonomy' | 'route_performance' | 'provider_reliability' | 'market_claim' | 'token_claim' | 'partnership_claim' | 'revenue_claim' | 'generic_claim';
+type ProofClaimType = 'agent_autonomy' | 'route_performance' | 'provider_reliability' | 'market_claim' | 'market_narrative' | 'token_claim' | 'partnership_claim' | 'revenue_claim' | 'generic_claim';
 type EvidenceStrength = 'strong' | 'medium' | 'weak' | 'missing';
 type ReceiptStrength = 'verified_receipts' | 'partial_receipts' | 'weak_receipts' | 'no_receipts';
 type ValidationStatus = 'human_validated' | 'community_pending' | 'disputed' | 'unvalidated';
 type ProofDecisionState = 'trust' | 'caution' | 'do_not_use_yet' | 'unproven' | 'disputed';
+type ProofSubject = {
+  subject_id: string;
+  ticker: string;
+  name: string;
+  chain: string;
+  contract: string;
+  pair: string;
+  site: string;
+  x: string;
+};
 
 export type ProofCheckResult = {
   check_id: string;
@@ -18,7 +28,10 @@ export type ProofCheckResult = {
   claim_type: ProofClaimType;
   claim_summary: string;
   subject_label: string;
+  subject_id?: string | null;
+  subject?: ProofSubject | null;
   receipts_found: string[];
+  missing_receipts?: string[];
   evidence_artifacts: string[];
   evidence_strength: EvidenceStrength;
   receipt_strength: ReceiptStrength;
@@ -32,6 +45,24 @@ export type ProofCheckResult = {
   decision_summary: string;
   headline: string;
   public_cta: string;
+};
+
+type MonitorPreSpendResponse = {
+  subject?: string | null;
+  intent: string;
+  preferred_settlement?: string;
+  required_confidence?: number;
+  decision: string;
+  confidence_score: number;
+  known_blockers: string[];
+  requires_human_approval: boolean;
+  linked_check_id?: string | null;
+  proof_check_reference?: string | null;
+  judgment?: {
+    receipt_id: string;
+    decision: 'ALLOW' | 'DEGRADE' | 'BLOCK';
+    outcome_status: 'NOT_VERIFIED' | 'PENDING' | 'VERIFIED';
+  };
 };
 
 const API_BASE_URL = getApiBaseUrl();
@@ -62,8 +93,8 @@ function formatDateTime(value: string) {
   return value.replace('T', ' ').slice(0, 16);
 }
 
-function shareHref(checkId: string) {
-  return `/check/${encodeURIComponent(checkId)}`;
+function shareHref(check: Pick<ProofCheckResult, 'check_id' | 'share_url'>) {
+  return check.share_url || `/check/${encodeURIComponent(check.check_id)}`;
 }
 
 function copyText(value: string) {
@@ -79,18 +110,49 @@ function proofToneClass(decision: ProofDecisionState) {
   return 'proof-unproven';
 }
 
-export function ProofReceiptCard({ check, compact = false }: { check: ProofCheckResult; compact?: boolean }) {
+function monitorReceiptLabel(value: string) {
+  if (value === 'onchain_pair' || value.startsWith('onchain_pair:')) return 'pair';
+  if (value === 'public_site' || value.startsWith('public_site:')) return 'site';
+  if (value === 'social' || value.startsWith('social:')) return 'X';
+  return humanize(value);
+}
+
+function monitorMissingReceiptLabel(value: string) {
+  if (value === 'team_dox') return 'team';
+  if (value === 'utility_commitment') return 'utility';
+  if (value === 'paid_route_benchmark') return 'paid route';
+  return humanize(value);
+}
+
+function monitorIntentLabel(value: string) {
+  if (value === 'allocate_to_pltr_paired_narrative_token') return 'allocate to PLTR-paired narrative token';
+  return humanize(value);
+}
+
+function monitorSettlementLabel(value: string) {
+  if (value === 'tokenized_pltr') return 'tokenized PLTR';
+  return humanize(value);
+}
+
+export function ProofReceiptCard({ check, compact = false, showShareLink = false }: { check: ProofCheckResult; compact?: boolean; showShareLink?: boolean }) {
+  const isMonitor = check.check_id === 'check_monitor' || check.subject?.ticker === 'MONITOR';
   return <article className={`panel proof-receipt-card ${proofToneClass(check.decision_state)} ${compact ? 'compact' : ''}`} aria-label="Infopunks Receipt Check">
     <div className="proof-card-head">
       <p className="eyebrow">{check.headline}</p>
       <span className="proof-decision-pill">{decisionLabel(check.decision_state)}</span>
     </div>
-    <h2>{check.claim}</h2>
-    <p className="copy">{check.claim_summary}</p>
+    <h2>{isMonitor && check.subject ? `${check.subject.ticker} / ${check.subject.name}` : check.claim}</h2>
+    <p className="copy">{isMonitor ? check.claim : check.claim_summary}</p>
+    {check.subject && <div className="proof-card-grid">
+      <p><span>Subject</span><strong>{check.subject.ticker} / {check.subject.name}</strong></p>
+      <p><span>Subject ID</span><strong>{isMonitor ? 'monitor' : check.subject.subject_id}</strong></p>
+      <p><span>Chain</span><strong>{check.subject.chain}</strong></p>
+      {isMonitor && <p><span>Check ID</span><strong>{check.check_id}</strong></p>}
+    </div>}
     <div className="proof-card-grid">
       <p><span>Type</span><strong>{humanize(check.claim_type)}</strong></p>
-      <p><span>Receipts</span><strong>{humanize(check.receipt_strength)}</strong></p>
-      <p><span>Evidence</span><strong>{check.evidence_strength.toUpperCase()}</strong></p>
+      <p><span>{isMonitor ? 'Receipts found' : 'Receipts'}</span><strong>{isMonitor ? check.receipts_found.map(monitorReceiptLabel).join(' / ') : humanize(check.receipt_strength)}</strong></p>
+      <p><span>Evidence strength</span><strong>{isMonitor && check.evidence_strength === 'weak' ? 'LOW' : check.evidence_strength.toUpperCase()}</strong></p>
       <p><span>Validation</span><strong>{humanize(check.validation_status)}</strong></p>
     </div>
     <div className="proof-card-section">
@@ -102,6 +164,11 @@ export function ProofReceiptCard({ check, compact = false }: { check: ProofCheck
     <div className="proof-card-section">
       <h3>Evidence Summary</h3>
       <p>{check.evidence_summary}</p>
+      {check.receipts_found.length > 0 && <ul className="proof-list">{check.receipts_found.map((item) => <li key={item}>{isMonitor ? monitorReceiptLabel(item) : item}</li>)}</ul>}
+      <h3>Missing Receipts</h3>
+      {check.missing_receipts?.length
+        ? <div className="proof-flag-list">{check.missing_receipts.map((item) => <span key={item}>{isMonitor ? monitorMissingReceiptLabel(item) : humanize(item)}</span>)}</div>
+        : <p className="panel-caption">No missing receipts recorded in this scope.</p>}
     </div>
     {!compact && <div className="proof-card-section">
       <h3>Validation + Decision</h3>
@@ -110,8 +177,50 @@ export function ProofReceiptCard({ check, compact = false }: { check: ProofCheck
     </div>}
     <footer className="proof-card-foot">
       <span>No receipt, no trust.</span>
-      <small>{formatDateTime(check.created_at)}</small>
+      <span className="proof-card-foot-actions">
+        {showShareLink && isMonitor && <a className="builder-link" href="/check/monitor">Share /check/monitor</a>}
+        <small>{formatDateTime(check.created_at)}</small>
+      </span>
     </footer>
+  </article>;
+}
+
+export function MonitorPreSpendDecisionCard({ result }: { result: MonitorPreSpendResponse }) {
+  const terminalHref = `/spend-terminal?intent=${encodeURIComponent(result.intent)}&subject=${encodeURIComponent(result.subject ?? 'monitor')}`;
+  return <article className="panel proof-receipt-card monitor-decision-card proof-caution" aria-label="MONITOR Pre-Spend Decision">
+    <div className="proof-card-head">
+      <p className="eyebrow">Pre-Spend Decision</p>
+      <span className="proof-decision-pill">{result.decision.replaceAll('_', ' ').toUpperCase()}</span>
+    </div>
+    <h2>USE WITH CAUTION</h2>
+    <p className="copy">The linked Proof Check does not support unrestricted spend for this target.</p>
+    <div className="proof-card-grid">
+      <p><span>Subject ID</span><strong>{result.subject ?? 'monitor'}</strong></p>
+      <p><span>Intent</span><strong>{monitorIntentLabel(result.intent)}</strong></p>
+      <p><span>Settlement</span><strong>{monitorSettlementLabel(result.preferred_settlement ?? 'tokenized_pltr')}</strong></p>
+      <p><span>Confidence</span><strong>{result.confidence_score} / {result.required_confidence ?? 'n/a'}</strong></p>
+      <p><span>Canonical judgment</span><strong>{result.judgment?.decision ?? 'DEGRADE'}</strong></p>
+      <p><span>Outcome</span><strong>{(result.judgment?.outcome_status ?? 'NOT_VERIFIED').replaceAll('_', ' ')}</strong></p>
+      <p><span>Human approval</span><strong>{result.requires_human_approval ? 'required' : 'not required'}</strong></p>
+    </div>
+    <div className="proof-card-section">
+      <h3>Known Blockers</h3>
+      <ul className="proof-list">{result.known_blockers.map((blocker) => <li key={blocker}>{blocker}</li>)}</ul>
+    </div>
+    <div className="proof-card-section">
+      <h3>Linked Proof Check</h3>
+      <p>{result.proof_check_reference
+        ? <a className="builder-link" href={result.proof_check_reference}>{result.linked_check_id ?? 'check_monitor'}</a>
+        : result.linked_check_id ?? 'check_monitor'}</p>
+    </div>
+    <div className="proof-card-section">
+      <h3>Judgment Receipt</h3>
+      <p>{result.judgment?.receipt_id ?? 'unavailable'}</p>
+    </div>
+    <div className="monitor-decision-actions">
+      <a className="execute compact" href={terminalHref}>Open Spend Terminal</a>
+    </div>
+    <footer className="proof-card-foot"><span>Pay.sh spends. Radar decides.</span></footer>
   </article>;
 }
 
@@ -198,7 +307,7 @@ export function ProofCheckPage() {
         <div className="panel proof-share-panel">
           <h2>Share This Check</h2>
           <p>{result.public_cta}</p>
-          <p><a className="execute compact secondary" href={shareHref(result.check_id)}>Open public share page</a></p>
+          <p><a className="execute compact secondary" href={shareHref(result)}>Open public share page</a></p>
           <button className="execute compact secondary" type="button" onClick={copyShareText}>Copy share text</button>
           {copied && <p className="panel-caption">{copied}</p>}
           <pre className="proof-share-block">{shareText}</pre>
@@ -216,7 +325,7 @@ export function ProofCheckPage() {
         {loading
           ? <p className="panel-caption">Loading proof feed...</p>
           : <div className="proof-check-grid">
-            {checks.map((check) => <a className="proof-check-link" key={check.check_id} href={shareHref(check.check_id)}>
+            {checks.map((check) => <a className="proof-check-link" key={check.check_id} href={shareHref(check)}>
               <ProofReceiptCard check={check} compact />
             </a>)}
           </div>}
@@ -227,6 +336,8 @@ export function ProofCheckPage() {
 
 export function ProofCheckDetailPage({ checkId }: { checkId: string }) {
   const [check, setCheck] = useState<ProofCheckResult | null>(null);
+  const [preSpend, setPreSpend] = useState<MonitorPreSpendResponse | null>(null);
+  const [preSpendError, setPreSpendError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [missing, setMissing] = useState(false);
   const [copyState, setCopyState] = useState<string | null>(null);
@@ -238,6 +349,23 @@ export function ProofCheckDetailPage({ checkId }: { checkId: string }) {
         if (isNotFoundError(err)) setMissing(true);
         else setError(err instanceof Error ? err.message : 'proof_check_detail_unavailable');
       });
+  }, [checkId]);
+
+  useEffect(() => {
+    if (checkId !== 'check_monitor') return;
+    api<{ data: MonitorPreSpendResponse }>('/v1/pre-spend/check', {
+      method: 'POST',
+      body: JSON.stringify({
+        agent_id: 'infopunks_launch_surface',
+        intent: 'allocate_to_pltr_paired_narrative_token',
+        subject_id: 'monitor',
+        budget: 25,
+        risk_tolerance: 'low',
+        preferred_settlement: 'tokenized_pltr',
+        required_confidence: 75,
+        linked_check_id: 'check_monitor'
+      })
+    }).then((response) => setPreSpend(response.data)).catch((err) => setPreSpendError(err instanceof Error ? err.message : 'pre_spend_unavailable'));
   }, [checkId]);
 
   async function copyShareText() {
@@ -265,7 +393,12 @@ export function ProofCheckDetailPage({ checkId }: { checkId: string }) {
     <ProofCheckNav />
     <main className="builder-page" aria-label="Proof check public page">
       {error && <section className="panel" role="alert"><p className="route-state error">{error}</p></section>}
-      {check && <>
+      {check && checkId === 'check_monitor' ? <section className="proof-check-output monitor-launch-grid" aria-label="MONITOR Infopunks check">
+        <ProofReceiptCard check={check} showShareLink />
+        {preSpend
+          ? <MonitorPreSpendDecisionCard result={preSpend} />
+          : <section className="panel proof-share-panel" aria-live="polite"><p className="eyebrow">Pre-Spend Decision</p><h2>{preSpendError ? 'Decision unavailable' : 'Loading decision'}</h2><p>{preSpendError ?? 'Loading the linked pre-spend decision.'}</p></section>}
+      </section> : check && <>
         <section className="proof-check-output">
           <ProofReceiptCard check={check} />
           <aside className="panel proof-share-panel">
@@ -286,6 +419,10 @@ export function ProofCheckDetailPage({ checkId }: { checkId: string }) {
             <h3>Receipts found</h3>
             {check.receipts_found.length ? <ul className="proof-list">{check.receipts_found.map((item) => <li key={item}>{item}</li>)}</ul> : <p>None recorded yet.</p>}
             <p className="panel-caption">{check.evidence_summary}</p>
+            <h3>Missing receipts</h3>
+            {check.missing_receipts?.length
+              ? <ul className="proof-list">{check.missing_receipts.map((item) => <li key={item}>{humanize(item)}</li>)}</ul>
+              : <p>None recorded in this scope.</p>}
           </article>
           <article className="panel">
             <p className="eyebrow">Validation Status</p>

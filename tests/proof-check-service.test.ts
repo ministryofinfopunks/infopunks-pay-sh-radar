@@ -42,4 +42,38 @@ describe('proof check service', () => {
     expect(result.decision_state).toBe('unproven');
     expect(result.receipt_strength).toBe('no_receipts');
   });
+
+  it('keeps the MONITOR market narrative deterministic and cautious', () => {
+    const service = createProofCheckService(createInMemoryProofCheckRepository([]));
+    const result = service.createProofCheck({
+      claim: '$MONITOR is a live global-situation intelligence product paired with tokenized PLTR',
+      claim_type: 'market_narrative',
+      subject: {
+        ticker: 'MONITOR',
+        name: 'The Situation',
+        chain: 'robinhood',
+        contract: '0x1a911bb954dAA9CB38513423075bE74450351e18',
+        pair: '0xcfa7bb34e23a7022c3de3e1618e1ff29cde8f16a76c341eca19d16f928968a3d',
+        site: 'https://www.monitorsituation.xyz/',
+        x: 'https://x.com/monitoringmeme'
+      },
+      receipts: [
+        { type: 'onchain_pair', url: 'https://dexscreener.com/robinhood/0xcfa7bb34e23a7022c3de3e1618e1ff29cde8f16a76c341eca19d16f928968a3d' },
+        { type: 'public_site', url: 'https://www.monitorsituation.xyz/' },
+        { type: 'social', url: 'https://x.com/monitoringmeme' }
+      ],
+      missing_receipts: ['audit', 'team_dox', 'utility_commitment', 'paid_route_benchmark']
+    });
+
+    expect(result.check_id).toBe('check_monitor');
+    expect(result.subject_id).toBe('subject_monitor');
+    expect(result.subject?.subject_id).toBe('subject_monitor');
+    expect(result.receipts_found).toHaveLength(3);
+    expect(result.missing_receipts).toEqual(['audit', 'team_dox', 'utility_commitment', 'paid_route_benchmark']);
+    expect(result.evidence_strength).toBe('weak');
+    expect(result.validation_status).toBe('unvalidated');
+    expect(result.decision_state).toBe('caution');
+    expect(result.risk_flags).toEqual(['narrative_over_evidence', 'no_human_validation', 'weak_onchain_evidence', 'route_not_repeatable']);
+    expect(result.share_url).toBe('/check/monitor');
+  });
 });

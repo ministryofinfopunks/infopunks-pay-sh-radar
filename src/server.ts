@@ -1,5 +1,5 @@
 import { createApp } from './api/app';
-import { deploymentSummary, loadRuntimeConfig, verifyRuntimeConfiguration } from './config/env';
+import { RuntimeConfigurationError, loadRuntimeConfig, verifyRuntimeConfiguration } from './config/env';
 
 async function main() {
   const config = loadRuntimeConfig();
@@ -26,7 +26,9 @@ async function main() {
   process.once('SIGTERM', () => { void shutdown('SIGTERM'); });
   process.once('SIGINT', () => { void shutdown('SIGINT'); });
   await app.listen({ port: config.port, host: '0.0.0.0' });
-  console.log(JSON.stringify({ event: 'startup', ...deploymentSummary(config) }));
+  app.log.info({ event: 'startup', environment: config.env,
+    catalog_source: config.payShCatalogSource, fixture_fallback_enabled: config.allowFixtureFallback,
+    database_configured: Boolean(config.databaseUrl), service_version: config.version });
 }
 
 process.on('unhandledRejection', (reason) => {
@@ -42,7 +44,7 @@ process.on('uncaughtException', (error) => {
 });
 
 main().catch((error) => {
-  console.error(JSON.stringify({ event: 'startup_failed', error: safeRuntimeError(error) }));
+  console.error(JSON.stringify({ event: 'startup_failed', error: safeRuntimeError(error), ...(error instanceof RuntimeConfigurationError ? { code: error.code, issues: error.issues } : {}) }));
   process.exit(1);
 });
 

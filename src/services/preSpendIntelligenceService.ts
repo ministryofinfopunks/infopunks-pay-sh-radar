@@ -4,6 +4,9 @@ import {
   ClaimSchema,
   HumanValidationSubmissionSchema,
   PreSpendCheckRequestSchema,
+  PreSpendDecisionResponseSchema,
+  type PreSpendCheckResponse,
+  type PreSpendJudgment,
   PreSpendProviderListResponseSchema
 } from '../schemas/entities';
 import {
@@ -19,6 +22,13 @@ import {
   ServiceDossier,
   makePreSpendDecision
 } from './preSpendDecisionService';
+import type { LinkedProofCheck } from './preSpendDecisionService';
+import type { ProofCheckResult } from '../schemas/entities';
+
+export type ProofCheckReader = {
+  getProofCheck(checkId: string): ProofCheckResult | undefined;
+  listProofChecks(): ProofCheckResult[];
+};
 
 type RouteTrustSummary = {
   receipt_freshness: string;
@@ -68,6 +78,70 @@ function matchesIntent(service: ServiceDossier, route: RouteIntelligence, reques
     (intent.includes('compliance') && service.category === 'compliance') ||
     (intent.includes('profile') && service.category === 'private_profile_scrape')
   );
+}
+
+function stableJudgmentReceiptId(subject: string, intent: string, linkedCheckId: string | null) {
+  const value = [subject, intent, linkedCheckId ?? 'unlinked']
+    .join('_')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_|_$/g, '');
+  return `judgment_${value}`;
+}
+
+function makePreSpendJudgment(input: {
+  subject: string;
+  intent: string;
+  decision: PreSpendCheckResponse['decision'];
+  confidence: number;
+  requires_human_approval: boolean;
+  known_blockers: string[];
+  rationale: string[];
+  receipt_references: string[];
+  linked_check_id: string | null;
+  proof_check_reference: string | null;
+}, linkedProofCheck: LinkedProofCheck | null): PreSpendJudgment {
+  const reasons = Array.from(new Set([...input.known_blockers, ...input.rationale]));
+  const hasIncompleteLinkedEvidence = Boolean(linkedProofCheck && linkedProofCheck.decision_state !== 'trust');
+  const decision = input.decision === 'do_not_use'
+    ? 'BLOCK'
+    : input.decision === 'approved' && !input.requires_human_approval && !input.known_blockers.length && !hasIncompleteLinkedEvidence
+      ? 'ALLOW'
+      : 'DEGRADE';
+  const primary_reason = reasons[0]
+    ?? (decision === 'ALLOW' ? 'Evidence and policy checks support the requested action.' : 'Evidence is insufficient for unrestricted spend.');
+  return {
+    receipt_id: stableJudgmentReceiptId(input.subject, input.intent, input.linked_check_id),
+    subject: input.subject,
+    decision,
+    primary_reason,
+    reasons,
+    confidence: input.confidence,
+    evidence_references: Array.from(new Set([
+      ...input.receipt_references,
+      ...(input.linked_check_id ? [input.linked_check_id] : []),
+      ...(input.proof_check_reference ? [input.proof_check_reference] : [])
+    ])),
+    outcome_status: 'NOT_VERIFIED'
+  };
+}
+
+function resolveLinkedProofCheck(reader: ProofCheckReader | undefined, linkedCheckId: string | undefined) {
+  if (!reader || !linkedCheckId) return null;
+  return reader.getProofCheck(linkedCheckId)
+    ?? reader.listProofChecks().find((check) => check.share_url === `/check/${linkedCheckId}`)
+    ?? null;
+}
+
+function proofCheckBlockers(check: ProofCheckResult) {
+  const blockers = new Set<string>();
+  if (check.missing_receipts.includes('audit')) blockers.add('The target is unaudited; no audit receipt is attached.');
+  if (check.missing_receipts.includes('paid_route_benchmark')) blockers.add('No Pay.sh paid route benchmark is attached for this spend target.');
+  if (check.missing_receipts.includes('utility_commitment')) blockers.add('Utility is explicitly disclaimed or otherwise not substantiated by a utility commitment receipt.');
+  if (check.risk_flags.includes('weak_onchain_evidence')) blockers.add('The PLTR pair establishes existence, not pool depth or volatility safety; treat liquidity as thin or volatile until evidenced.');
+  if (check.risk_flags.includes('narrative_over_evidence')) blockers.add('Narrative heat currently outruns evidence-ledger coverage.');
+  if (check.risk_flags.includes('no_human_validation')) blockers.add('No human validation is attached to the linked Proof Check.');
+  return Array.from(blockers);
 }
 
 function metrics(repository: PreSpendRepository) {
@@ -175,12 +249,9 @@ function buildRouteTrustSummary(repository: PreSpendRepository, route: RouteInte
 }
 
 function buildProviderTrustProfile(provider: ProviderIntelligenceRecord, routes: RouteIntelligence[], receipts: PreSpendReceipt[]): ProviderTrustProfile {
-  const safeForFirstAttempt = provider.reliability_score >= 85 &&
-    provider.human_validation_status === 'human_validated' &&
-    provider.dispute_history.length === 0 &&
-    receipts.some((receipt) => receipt.status === 'succeeded' && daysSince(receipt.timestamp) <= 14);
+  const safeForFirstAttempt = false; // Legacy observations cannot authorize spending.
   const betterForRepeatableRoutes = routes.filter((route) => route.success_rate >= 0.9 && route.receipt_references.length >= 2).length > 0;
-  const requiresHumanApproval = provider.human_validation_status === 'stale' || routes.some((route) => route.risk_level === 'high' || route.risk_level === 'critical');
+  const requiresHumanApproval = true;
   const notRecommended = provider.dispute_history.length > 0 || provider.recent_receipt_count === 0 || provider.human_validation_status === 'disputed' || provider.human_validation_status === 'rejected';
   const summary = notRecommended
     ? 'Not recommended for autonomous spend because disputes, weak evidence, or rejected validation remain unresolved.'
@@ -216,15 +287,11 @@ function buildServiceDecisionMap(service: ServiceDossier): ServiceDecisionMap {
 
 function buildReceiptImpact(receipt: PreSpendReceipt): ReceiptImpact {
   const freshness = daysSince(receipt.timestamp) <= 14 ? 'fresh' : 'stale';
-  const improves = receipt.confidence_delta > 0 && receipt.status === 'succeeded';
-  const reduces = receipt.confidence_delta < 0 || receipt.status !== 'succeeded';
+  const improves = false;
+  const reduces = false;
   const humanValidated = receipt.validation_state === 'human_validated';
-  const shouldAffectFutureDecisions = humanValidated || freshness === 'fresh' || reduces;
-  const summary = improves
-    ? `This receipt improves route confidence by ${receipt.confidence_delta} and should strengthen future pre-spend decisions while it remains ${freshness}.`
-    : reduces
-      ? `This receipt reduces route confidence by ${Math.abs(receipt.confidence_delta)} and should constrain future pre-spend decisions${humanValidated ? ' even more because it is human validated' : ''}.`
-      : `This receipt is ${freshness} evidence and should be considered alongside newer route receipts.`;
+  const shouldAffectFutureDecisions = false;
+  const summary = 'Legacy receipt intake has no reputation authority. Only a verified EvaluationReceipt can change the score projection.';
   return {
     improves_route_confidence: improves,
     reduces_route_confidence: reduces,
@@ -235,7 +302,7 @@ function buildReceiptImpact(receipt: PreSpendReceipt): ReceiptImpact {
   };
 }
 
-export function createPreSpendIntelligenceService(repository: PreSpendRepository = preSpendRepository) {
+export function createPreSpendIntelligenceService(repository: PreSpendRepository = preSpendRepository, proofCheckReader?: ProofCheckReader) {
   function receiptsForRoute(routeId: string) {
     return repository.listReceipts().filter((receipt) => receipt.route_id === routeId);
   }
@@ -276,7 +343,7 @@ export function createPreSpendIntelligenceService(repository: PreSpendRepository
         metrics: metrics(repository),
         validation_state: provider ? routeValidationState(repository, route, receipts) : null,
         decision_implications: [
-          route.confidence_score >= 85 ? 'Confidence is high enough for autonomous first-pass routing when spend conditions match.' : 'Confidence is below silent-autonomy grade and should be inspected before spend.',
+          route.confidence_score >= 85 ? 'Legacy confidence has no canonical spending authority.' : 'Confidence is below silent-autonomy grade and should be inspected before spend.',
           route.risk_level === 'low' ? 'Risk is currently low relative to observed route evidence.' : `Risk is ${route.risk_level}, so blockers and receipt freshness should gate spend.`,
           route.known_blockers.length ? `Known blockers remain active: ${route.known_blockers.join('; ')}.` : 'No blocker is currently recorded for this route.',
           route.avoid_conditions.length ? `Avoid under these conditions: ${route.avoid_conditions.join('; ')}.` : 'No avoid condition is currently recorded.',
@@ -347,6 +414,15 @@ export function createPreSpendIntelligenceService(repository: PreSpendRepository
     getMetrics: () => metrics(repository),
     check(request: PreSpendCheckRequest) {
       const parsed = PreSpendCheckRequestSchema.parse(request);
+      const linkedProof = resolveLinkedProofCheck(proofCheckReader, parsed.linked_check_id);
+      const linkedProofCheck: LinkedProofCheck | null = linkedProof
+        ? {
+            check_id: linkedProof.check_id,
+            decision_state: linkedProof.decision_state,
+            share_url: linkedProof.share_url,
+            blockers: proofCheckBlockers(linkedProof)
+          }
+        : null;
       const candidates = repository.listRoutes()
         .map((route) => {
           const service = repository.getService(route.service_id);
@@ -360,7 +436,8 @@ export function createPreSpendIntelligenceService(repository: PreSpendRepository
           };
         })
         .filter((item): item is NonNullable<typeof item> => Boolean(item))
-        .filter((item) => matchesIntent(item.service, item.route, parsed));
+        .filter((item) => matchesIntent(item.service, item.route, parsed))
+        .filter((item) => !parsed.subject_id || [item.route.route_id, item.provider.provider_id, item.service.service_id].includes(parsed.subject_id));
       const fallbackCandidates = candidates.length ? candidates : repository.listRoutes()
         .map((route) => {
           const service = repository.getService(route.service_id);
@@ -374,9 +451,42 @@ export function createPreSpendIntelligenceService(repository: PreSpendRepository
           };
         })
         .filter((item): item is NonNullable<typeof item> => Boolean(item));
-      const result = makePreSpendDecision(parsed, fallbackCandidates);
-      repository.recordPreSpendCheck(result.decision);
-      return result;
+      const result = makePreSpendDecision(parsed, fallbackCandidates, linkedProofCheck);
+      const settlementBlocker = parsed.preferred_settlement && !repository.listRoutes().some((route) => route.payment_method === parsed.preferred_settlement)
+        ? `No existing pre-spend route supports the requested ${parsed.preferred_settlement} settlement.`
+        : null;
+      const blockers = Array.from(new Set([
+        ...result.known_blockers,
+        ...(settlementBlocker ? [settlementBlocker] : [])
+      ]));
+      const rationale = settlementBlocker
+        ? [...result.rationale, `Settlement blocker: ${settlementBlocker}`]
+        : result.rationale;
+      const subject = parsed.subject_id ?? result.subject ?? 'unknown';
+      const linked_check_id = linkedProof?.check_id ?? parsed.linked_check_id ?? null;
+      const proof_check_reference = linkedProof?.share_url ?? null;
+      const response = PreSpendDecisionResponseSchema.parse({
+        ...result,
+        subject,
+        linked_check_id,
+        proof_check_reference,
+        known_blockers: blockers,
+        rationale,
+        judgment: makePreSpendJudgment({
+          subject,
+          intent: result.intent,
+          decision: result.decision,
+          confidence: result.confidence_score,
+          requires_human_approval: result.requires_human_approval,
+          known_blockers: blockers,
+          rationale,
+          receipt_references: result.receipt_references,
+          linked_check_id,
+          proof_check_reference
+        }, linkedProofCheck)
+      });
+      repository.recordPreSpendCheck(response.decision);
+      return response;
     },
     createReceipt(payload: Omit<PreSpendReceipt, 'receipt_id' | 'timestamp'> & { receipt_id?: string; timestamp?: string }) {
       return repository.createReceipt(payload);

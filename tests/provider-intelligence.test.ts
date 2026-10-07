@@ -102,10 +102,10 @@ describe('provider intelligence API', () => {
     const summary = response.json().data;
 
     expect(response.statusCode).toBe(200);
-    expect(summary.latest_trust_score).toBeTypeOf('number');
+    expect(summary.latest_trust_score).toBeNull();
     expect(summary.latest_signal_score).toBeTypeOf('number');
-    expect(summary.risk_level).toMatch(/^(low|medium|high)$/);
-    expect(summary.coordination_eligible).toBeTypeOf('boolean');
+    expect(summary.risk_level).toBe('unknown');
+    expect(summary.coordination_eligible).toBeNull();
     expect(summary.endpoint_count).toBe(1);
     expect(summary.category_tags).toContain('Data');
     expect(summary.category_tags).toContain('alpha');

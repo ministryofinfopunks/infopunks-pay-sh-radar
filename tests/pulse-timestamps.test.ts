@@ -48,11 +48,24 @@ function provider(slug: string, name: string): PayShCatalogItem {
   };
 }
 
+// Explicit historical events preserve compatibility; current observations author no trust score.
+function withHistoricalTrustEvents(snapshot: IntelligenceSnapshot): IntelligenceSnapshot {
+  for (const item of snapshot.providers) {
+    if (snapshot.events.some((event) => event.entityType === 'trust_assessment' && event.payload.entityId === item.id)) continue;
+    snapshot.events.push({
+      id: 'historical-trust-' + item.id, type: 'score_assessment_created', source: 'infopunks:deterministic-scoring', entityType: 'trust_assessment', entityId: 'trust-' + item.id,
+      observedAt: item.firstSeenAt, observed_at: item.firstSeenAt,
+      payload: { entityId: item.id, providerId: item.id, score: 80, previousScore: 75, delta: 5, evidenceEventIds: item.evidence.map((evidence) => evidence.eventId) }
+    } as InfopunksEvent);
+  }
+  return snapshot;
+}
+
 describe('pulse event timestamps', () => {
   it('keeps Trust Changes on each score event timestamp after a newer batch arrives', () => {
-    const first = recomputeAssessments(applyPayShCatalogIngestion(emptySnapshot(), [provider('alpha', 'Alpha API')], { observedAt: T1, source: 'pay.sh:test' }).snapshot);
+    const first = withHistoricalTrustEvents(recomputeAssessments(applyPayShCatalogIngestion(emptySnapshot(), [provider('alpha', 'Alpha API')], { observedAt: T1, source: 'pay.sh:test' }).snapshot));
     const secondIngestion = applyPayShCatalogIngestion(first, [provider('alpha', 'Alpha API'), provider('beta', 'Beta API')], { observedAt: T2, source: 'pay.sh:test' });
-    const store = recomputeAssessments(secondIngestion.snapshot);
+    const store = withHistoricalTrustEvents(recomputeAssessments(secondIngestion.snapshot));
     const summary = pulseSummary(store, T3);
 
     expect(summary.latest_event_at).toBe(T2);
@@ -61,9 +74,9 @@ describe('pulse event timestamps', () => {
   });
 
   it('does not mutate historical Trust Changes during UI refreshes or assessment recomputes', () => {
-    const first = recomputeAssessments(applyPayShCatalogIngestion(emptySnapshot(), [provider('alpha', 'Alpha API')], { observedAt: T1, source: 'pay.sh:test' }).snapshot);
+    const first = withHistoricalTrustEvents(recomputeAssessments(applyPayShCatalogIngestion(emptySnapshot(), [provider('alpha', 'Alpha API')], { observedAt: T1, source: 'pay.sh:test' }).snapshot));
     const secondIngestion = applyPayShCatalogIngestion(first, [provider('alpha', 'Alpha API'), provider('beta', 'Beta API')], { observedAt: T2, source: 'pay.sh:test' });
-    const store = recomputeAssessments(secondIngestion.snapshot);
+    const store = withHistoricalTrustEvents(recomputeAssessments(secondIngestion.snapshot));
     const beforeRefresh = pulseSummary(store, T3);
     const afterRefresh = pulseSummary(store, T4);
     const afterRecompute = pulseSummary(recomputeAssessments(store), T4);
@@ -74,7 +87,7 @@ describe('pulse event timestamps', () => {
   });
 
   it('backfills legacy score event timestamps from their stored evidence events', () => {
-    const base = recomputeAssessments(applyPayShCatalogIngestion(emptySnapshot(), [provider('alpha', 'Alpha API')], { observedAt: T1, source: 'pay.sh:test' }).snapshot);
+    const base = withHistoricalTrustEvents(recomputeAssessments(applyPayShCatalogIngestion(emptySnapshot(), [provider('alpha', 'Alpha API')], { observedAt: T1, source: 'pay.sh:test' }).snapshot));
     const trustEvent = base.events.find((event) => event.type === 'score_assessment_created' && event.entityType === 'trust_assessment' && event.payload.entityId === 'alpha');
     expect(trustEvent).toBeTruthy();
 
@@ -86,7 +99,7 @@ describe('pulse event timestamps', () => {
   });
 
   it('keeps distinct timestamps for events in the same ingestion batch', () => {
-    const base = recomputeAssessments(applyPayShCatalogIngestion(emptySnapshot(), [provider('alpha', 'Alpha API')], { observedAt: T1, source: 'pay.sh:test' }).snapshot);
+    const base = withHistoricalTrustEvents(recomputeAssessments(applyPayShCatalogIngestion(emptySnapshot(), [provider('alpha', 'Alpha API')], { observedAt: T1, source: 'pay.sh:test' }).snapshot));
     const withBatch = {
       ...base,
       events: [
@@ -103,7 +116,7 @@ describe('pulse event timestamps', () => {
   });
 
   it('preserves score event observed_at during recompute normalization', () => {
-    const base = recomputeAssessments(applyPayShCatalogIngestion(emptySnapshot(), [provider('alpha', 'Alpha API')], { observedAt: T1, source: 'pay.sh:test' }).snapshot);
+    const base = withHistoricalTrustEvents(recomputeAssessments(applyPayShCatalogIngestion(emptySnapshot(), [provider('alpha', 'Alpha API')], { observedAt: T1, source: 'pay.sh:test' }).snapshot));
     const trustEvent = base.events.find((event) => event.type === 'score_assessment_created' && event.entityType === 'trust_assessment' && event.payload.entityId === 'alpha');
     expect(trustEvent).toBeTruthy();
 

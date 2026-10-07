@@ -1,4 +1,5 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { PostgresMachinePreflightReceiptStorageAdapter } from '../src/services/machinePreflightReceiptStorage';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../src/api/app';
 import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
 import { clearMachinePreflightReceiptsForTests } from '../src/services/machinePreflightService';
@@ -258,10 +259,16 @@ describe('machine preflight API', () => {
     process.env.NODE_ENV = 'production';
     process.env.PORT = '8787';
     process.env.INFOPUNKS_ADMIN_TOKEN = 'secret';
+    process.env.DATABASE_URL = 'postgres://user:password@localhost:5432/radar';
+    process.env.PAYSH_CATALOG_SOURCE = 'live';
+    process.env.PAY_SH_CATALOG_URL = 'https://pay.sh/api/catalog';
+    process.env.PAYSH_ALLOW_FIXTURE_FALLBACK = 'false';
     delete process.env.MACHINE_DEMO_SEED;
     const app = await createApp(emptyIntelligenceStore());
 
+    const receiptRead = vi.spyOn(PostgresMachinePreflightReceiptStorageAdapter.prototype, 'listMachinePreflightReceipts').mockResolvedValue([]);
     const recent = await app.inject({ method: 'GET', url: '/v1/machine-preflight/receipts/recent' });
+    receiptRead.mockRestore();
     expect(recent.statusCode).toBe(200);
     expect(recent.json().data.receipts).toHaveLength(0);
 

@@ -57,16 +57,16 @@ describe('search and route API', () => {
     const response = await app.inject({ method: 'POST', url: '/v1/recommend-route', payload: { task: 'transcribe voice audio for an AI agent', category: 'AI/ML', maxPrice: 0.05, trustThreshold: 60, latencySensitivity: 'high', preference: 'highest_signal', preferredProviderId: 'stableenrich' } });
     expect(response.statusCode).toBe(200);
     const body = response.json();
-    expect(body.data.bestProvider).toBeTruthy();
+    expect(body.data.bestProvider).toBeNull();
     expect(body.data.reasoning.length).toBeGreaterThan(0);
-    expect(body.data.evidence.length).toBeGreaterThan(0);
-    expect(body.data.riskNotes.some((note: string) => note.includes('unknown') || note.includes('unavailable'))).toBe(true);
+    expect(body.data.evidence).toEqual([]);
+    expect(body.data.riskNotes).toBeInstanceOf(Array);
     expect(body.data.scoringInputs).toMatchObject({ preference: 'highest_signal', source: 'LIVE PAY.SH CATALOG', preferredProviderIncluded: true });
     expect(body.data.fallbackProviders).toBeInstanceOf(Array);
     expect(body.data.excludedProviders).toBeInstanceOf(Array);
     expect(body.data.unknownTelemetry).toBeInstanceOf(Array);
     expect(body.data.rationale.length).toBeGreaterThan(0);
-    expect(typeof body.data.coordinationScore).toBe('number');
+    expect(body.data.coordinationScore).toBeNull();
     await app.close();
   });
 
@@ -108,7 +108,7 @@ describe('search and route API', () => {
     expect(response.statusCode).toBe(200);
     const body = response.json().data;
     expect(body.scoringInputs.trustThreshold).toBe(0);
-    expect(body.bestProvider).toBeTruthy();
+    expect(body.bestProvider).toBeNull();
     await app.close();
   });
 
@@ -132,11 +132,11 @@ describe('search and route API', () => {
     expect(summary.counters.providers).toBeGreaterThan(0);
     expect(summary.counters.events).toBeGreaterThan(0);
     expect(summary.eventGroups.discovery.count).toBeGreaterThan(0);
-    expect(summary.eventGroups.trust.count).toBeGreaterThan(0);
+    expect(summary.eventGroups.trust.count).toBe(0);
     expect(summary.eventGroups.signal.count).toBeGreaterThan(0);
     expect(summary.timeline[0]).toMatchObject({ id: expect.any(String), category: expect.any(String), summary: expect.any(String) });
     expect(summary.providerActivity['24h']).toBeInstanceOf(Array);
-    expect(summary.trustDeltas[0]).toMatchObject({ providerId: expect.any(String), direction: expect.any(String) });
+    expect(summary.trustDeltas).toEqual([]);
     expect(summary.latest_event_at).toEqual(expect.any(String));
     expect(summary.latest_batch_event_count).toEqual(expect.any(Number));
     expect(summary.ingest_interval_ms === null || typeof summary.ingest_interval_ms === 'number').toBe(true);

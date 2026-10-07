@@ -67,24 +67,24 @@ describe('Hermes Reputation Ledger', () => {
     }));
   });
 
-  it('clamps trust scores between 0 and 100', () => {
+  it('keeps all legacy trust scores at zero', () => {
     const ledger = buildHermesReputationLedgerFromRuns([
       runFixture('trust', 100, { provider_id: 'provider_alpha' }),
       runFixture('do_not_use_yet', 100, { provider_id: 'provider_beta' })
     ]);
 
-    expect(ledger.entries.map((entry) => entry.trust_score)).toEqual(expect.arrayContaining([100, 0]));
+    expect(ledger.entries.map((entry) => entry.trust_score)).toEqual(expect.arrayContaining([0, 0]));
     expect(ledger.entries.every((entry) => entry.trust_score >= 0 && entry.trust_score <= 100)).toBe(true);
   });
 
-  it('increases score for positive impacts and decreases score for negative impacts', () => {
+  it('gives positive and negative legacy impacts zero score authority', () => {
     const ledger = buildHermesReputationLedgerFromRuns([
       runFixture('trust', 80, { provider_id: 'provider_positive' }),
       runFixture('do_not_use_yet', 80, { provider_id: 'provider_negative' })
     ]);
 
-    expect(ledger.entries.find((entry) => entry.target_id === 'provider_positive')?.trust_score).toBe(90);
-    expect(ledger.entries.find((entry) => entry.target_id === 'provider_negative')?.trust_score).toBe(10);
+    expect(ledger.entries.find((entry) => entry.target_id === 'provider_positive')?.trust_score).toBe(0);
+    expect(ledger.entries.find((entry) => entry.target_id === 'provider_negative')?.trust_score).toBe(0);
   });
 
   it('maps watch impacts to watchlist behavior', () => {
@@ -96,7 +96,7 @@ describe('Hermes Reputation Ledger', () => {
     expect(entry).toEqual(expect.objectContaining({
       current_state: 'watchlist',
       watch_count: 1,
-      trust_score: 38
+      trust_score: 0
     }));
   });
 

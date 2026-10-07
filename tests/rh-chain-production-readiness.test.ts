@@ -16,7 +16,7 @@ describe('RH Chain production readiness', () => {
     const ledger = await inspectRhChainMigrationLedger(null);
     expect(ledger.database_reachable).toBe(false);
     expect(ledger.migration_runner).toBe('external_only');
-    expect(ledger.pending_migrations).toEqual(['20260719_001', '20260719_002', '20260719_003', '20260719_004', '20260719_005', '20260720_006', '20260813_007', '20260813_008', '20260814_009', '20260908_010']);
+    expect(ledger.pending_migrations).toEqual(['20260719_001', '20260719_002', '20260719_003', '20260719_004', '20260719_005', '20260720_006', '20260813_007', '20260813_008', '20260814_009', '20260908_010', '20261007_011']);
   });
 
   it('builds a provider-free readiness result from schema signatures', async () => {
@@ -28,6 +28,12 @@ describe('RH Chain production readiness', () => {
     expect(readiness.reviewed_classifications).toEqual(expect.objectContaining({ approved_count: 3, conflict_count: 1 }));
     expect(readiness.provider_requests_in_path).toBe(0);
     expect(JSON.stringify(readiness)).not.toContain('review-secret');
+  });
+
+  it('marks the receipt migration pending when an immutability guard is missing', async () => {
+    const pool = { query: async (sql: string) => sql.includes('pg_trigger') ? { rows: [{ name: 'evaluation_receipts_immutable' }] } : sql.includes('pg_get_constraintdef') ? { rows: [{ definition: "CHECK ('consumer')" }] } : { rows: [] } } as any;
+    const ledger = await inspectRhChainMigrationLedger(pool);
+    expect(ledger.migrations.find((migration) => migration.id === '20261007_011')).toMatchObject({ state: 'pending', missing_checks: ['evaluation_receipts_immutable'] });
   });
 
   it('keeps the operational readiness endpoint internal and bearer-authenticated', async () => {
@@ -46,7 +52,7 @@ describe('RH Chain production readiness', () => {
   });
 
   it('degrades optional production features when their dependencies are absent', () => {
-    const production = { NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'admin', DATABASE_URL: 'postgres://user:password@localhost:5432/radar' };
+    const production = { PAYSH_CATALOG_SOURCE: 'live', PAY_SH_CATALOG_URL: 'https://pay.sh/api/catalog', PAYSH_ALLOW_FIXTURE_FALLBACK: 'false', NODE_ENV: 'production', PORT: '8787', INFOPUNKS_ADMIN_TOKEN: 'admin', DATABASE_URL: 'postgres://user:password@localhost:5432/radar' };
     expect(loadRuntimeConfig({ ...production, RH_CHAIN_ATTENTION_QUALITY_V2_ENABLED: 'true' }).disabledFeatures.rh_chain_attention_quality_v2).toContain('RH_CHAIN_MARKET_HISTORY_ENABLED');
     expect(loadRuntimeConfig({ ...production, RH_CHAIN_PROJECT_CLAIMS_ENABLED: 'true' }).disabledFeatures.rh_chain_project_claims).toContain('authenticated RH Chain review console');
     expect(loadRuntimeConfig({ ...production, RH_CHAIN_PROJECT_DIRECTORY_ENABLED: 'true' }).disabledFeatures.rh_chain_project_directory).toContain('RH_CHAIN_PROJECT_CLAIMS_ENABLED');
@@ -54,7 +60,7 @@ describe('RH Chain production readiness', () => {
   });
 
   it('keeps Phase 3 publication fail-closed until the Phase 2 production proof marker is explicit', () => {
-    const production = { NODE_ENV: 'production', PORT: '8787', DATABASE_URL: 'postgres://user:password@localhost:5432/radar', RH_CHAIN_REVIEW_ADMIN_TOKEN: 'review-secret', RH_4663_RESOLUTION_PRIVATE_KEY: `0x${'11'.repeat(32)}`, RH_4663_PHASE2_ENABLED: 'true', RH_4663_PHASE3_ENABLED: 'true', RH_4663_PHASE3_INGESTION_ENABLED: 'true', RH_4663_PHASE3_CANDIDATE_GENERATION_ENABLED: 'true', RH_4663_PHASE3_PUBLICATION_ENABLED: 'true', RH_4663_AUTO_PUBLICATION_ENABLED: 'true' };
+    const production = { PAYSH_CATALOG_SOURCE: 'live', PAY_SH_CATALOG_URL: 'https://pay.sh/api/catalog', PAYSH_ALLOW_FIXTURE_FALLBACK: 'false', NODE_ENV: 'production', PORT: '8787', DATABASE_URL: 'postgres://user:password@localhost:5432/radar', RH_CHAIN_REVIEW_ADMIN_TOKEN: 'review-secret', RH_4663_RESOLUTION_PRIVATE_KEY: `0x${'11'.repeat(32)}`, RH_4663_PHASE2_ENABLED: 'true', RH_4663_PHASE3_ENABLED: 'true', RH_4663_PHASE3_INGESTION_ENABLED: 'true', RH_4663_PHASE3_CANDIDATE_GENERATION_ENABLED: 'true', RH_4663_PHASE3_PUBLICATION_ENABLED: 'true', RH_4663_AUTO_PUBLICATION_ENABLED: 'true' };
     const closed = loadRuntimeConfig(production); expect(closed.rh4663Phase3Enabled).toBe(true); expect(closed.rh4663Phase3IngestionEnabled).toBe(true); expect(closed.rh4663Phase3CandidateGenerationEnabled).toBe(true); expect(closed.rh4663Phase3PublicationEnabled).toBe(false); expect(closed.rh4663Phase3AutoPublicationEnabled).toBe(false); expect(closed.disabledFeatures.infopunks_4663_phase3_publication).toContain('proof chain');
     const opened = loadRuntimeConfig({ ...production, RH_4663_PHASE2_PRODUCTION_PROOF_VERIFIED: 'true' }); expect(opened.rh4663Phase3PublicationEnabled).toBe(true); expect(opened.rh4663Phase3AutoPublicationEnabled).toBe(true);
   });

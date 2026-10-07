@@ -134,6 +134,40 @@ const SEEDED_LOOPS = [
       decision_state: 'unproven',
       linked_check_id: 'check_token_narrative_seed'
     }]
+  },
+  {
+    id: 'monitor-narrative-pre-spend',
+    name: 'MONITOR Narrative Pre-Spend Loop',
+    objective: 'Keep the MONITOR market narrative linked to Proof Feed and pre-spend caution before any payment is attempted.',
+    hypothesis: 'A high-heat narrative with weak evidence should remain unproven until the missing safety, identity, utility, and route receipts exist.',
+    action_taken: 'Recorded the Signal Hunt intake, linked Proof Check, and pre-spend decision reference. No payment was executed.',
+    evidence_artifacts: [
+      'artifact://signal-hunt/hunt_monitor_narrative_pltr',
+      'artifact://proof-feed/check_monitor',
+      'artifact://pre-spend/check_monitor'
+    ],
+    score: 0,
+    failure_reason: 'No payment executed; outcome remains NOT_VERIFIED.',
+    proof_state: 'unproven',
+    decision_state: 'caution',
+    linked_check_id: 'check_monitor',
+    runs: [{
+      run_id: 'monitor-narrative-pre-spend_run_001',
+      started_at: '2026-09-25T00:00:00.000Z',
+      completed_at: '2026-09-25T00:00:00.000Z',
+      hypothesis: 'A high-heat narrative with weak evidence should remain unproven until the missing safety, identity, utility, and route receipts exist.',
+      action_taken: 'Recorded the Signal Hunt intake, linked Proof Check, and pre-spend decision reference. No payment was executed.',
+      evidence_artifacts: [
+        'artifact://signal-hunt/hunt_monitor_narrative_pltr',
+        'artifact://proof-feed/check_monitor',
+        'artifact://pre-spend/check_monitor'
+      ],
+      score: 0,
+      failure_reason: 'No payment executed; outcome remains NOT_VERIFIED.',
+      proof_state: 'unproven',
+      decision_state: 'caution',
+      linked_check_id: 'check_monitor'
+    }]
   }
 ] satisfies LoopDetail[];
 
@@ -144,19 +178,20 @@ export interface LoopRepository {
 }
 
 export function createInMemoryLoopRepository(seedLoops: LoopDetail[] = SEEDED_LOOPS.map((loop) => LoopDetailSchema.parse(loop))): LoopRepository {
-  const state = seedLoops.slice();
+  const neutralLoop = (loop: LoopDetail): LoopDetail => ({ ...structuredClone(loop), runs: loop.runs.map((run) => ({ ...structuredClone(run), score: 0 })) });
+  const state = seedLoops.map(neutralLoop);
 
   return {
     listLoops() {
-      return state.slice();
+      return structuredClone(state);
     },
     getLoop(loopId) {
-      return state.find((loop) => loop.id === loopId) ?? null;
+      return structuredClone(state.find((loop) => loop.id === loopId) ?? null);
     },
     createLoop(loop) {
-      const parsed = LoopDetailSchema.parse(loop);
+      const parsed = neutralLoop(LoopDetailSchema.parse(loop));
       state.unshift(parsed);
-      return parsed;
+      return structuredClone(parsed);
     }
   };
 }

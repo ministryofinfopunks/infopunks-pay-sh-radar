@@ -7,19 +7,22 @@ import type {
   SignalHuntSubmissionInput,
   SignalHuntVerifyInput
 } from '../schemas/entities';
+import { SignalHuntSubmissionInputSchema } from '../schemas/entities';
 
 type SignalHuntSeed = SignalHuntCandidate;
 
-const SignalHuntSubmissionInputSchema = z.object({
-  title: z.string().min(1),
-  handle_or_source: z.string().min(1),
-  category: z.string().min(1),
-  thesis: z.string().min(1),
-  why_it_matters: z.string().min(1),
-  evidence: z.array(z.string().min(1)).min(1),
-  submitted_by: z.string().min(1),
-  tags: z.array(z.string().min(1)).default([])
-});
+type NormalizedSignalHuntSubmission = {
+  title: string;
+  handle_or_source: string;
+  category: string;
+  thesis: string;
+  why_it_matters: string;
+  evidence: string[];
+  submitted_by: string;
+  tags: string[];
+  linked_check_ids: string[];
+  linked_loop_ids: string[];
+};
 
 const SignalHuntVerifyInputSchema = z.object({
   verifier: z.string().min(1),
@@ -222,29 +225,60 @@ export function getSignalHuntCandidate(signalId: string): SignalHuntCandidate | 
 export function createSignalHuntSubmission(input: SignalHuntSubmissionInput): SignalHuntCandidate {
   const parsed = SignalHuntSubmissionInputSchema.parse(input);
   const now = new Date().toISOString();
+  const isMarketInput = 'headline' in parsed;
+  const marketInput = isMarketInput ? parsed : null;
+  const isMonitorFixture = Boolean(marketInput && marketInput.assets.some((asset) => asset.toUpperCase() === 'MONITOR'));
+  const normalized: NormalizedSignalHuntSubmission = isMarketInput
+    ? {
+        title: parsed.headline,
+        handle_or_source: parsed.source,
+        category: parsed.category,
+        thesis: 'MONITOR is entering Signal Hunt as a high-heat market narrative that must pass through Proof Feed before any spend decision.',
+        why_it_matters: 'The event is linked to a Proof Feed check so existence, missing evidence, and spend suitability remain separate questions.',
+        evidence: [parsed.source],
+        submitted_by: 'infopunks_launch_surface',
+        tags: [...parsed.assets.map((asset) => asset.toLowerCase()), 'pre-spend'],
+        linked_check_ids: parsed.linked_check_id ? [parsed.linked_check_id] : [],
+        linked_loop_ids: isMonitorFixture && parsed.linked_check_id ? ['monitor-narrative-pre-spend'] : []
+      }
+    : {
+        title: parsed.title,
+        handle_or_source: parsed.handle_or_source,
+        category: parsed.category,
+        thesis: parsed.thesis,
+        why_it_matters: parsed.why_it_matters,
+        evidence: [...parsed.evidence],
+        submitted_by: parsed.submitted_by,
+        tags: [...parsed.tags],
+        linked_check_ids: [],
+        linked_loop_ids: []
+      };
+  const stableFixtureId = isMonitorFixture ? 'hunt_monitor_narrative_pltr' : null;
+  const existing = stableFixtureId ? runtimeSignals.find((signal) => signal.id === stableFixtureId) : null;
+  if (existing) return cloneSignal(existing);
   const signal: SignalHuntCandidate = {
-    id: asId('hunt'),
-    title: parsed.title,
-    handle_or_source: parsed.handle_or_source,
-    category: parsed.category,
-    thesis: parsed.thesis,
-    why_it_matters: parsed.why_it_matters,
-    evidence: [...parsed.evidence],
-    evidence_count: parsed.evidence.length,
+    id: stableFixtureId ?? asId('hunt'),
+    title: normalized.title,
+    handle_or_source: normalized.handle_or_source,
+    category: normalized.category,
+    thesis: normalized.thesis,
+    why_it_matters: normalized.why_it_matters,
+    evidence: [...normalized.evidence],
+    evidence_count: normalized.evidence.length,
     signal_score: 64,
     velocity_score: 58,
     risk_score: 55,
     proof_state: 'receipts_attached',
     hunt_state: 'fresh_signal',
     decision_state: 'review',
-    submitted_by: parsed.submitted_by,
+    submitted_by: normalized.submitted_by,
     submitted_at: now,
     updated_at: now,
-    linked_check_ids: [],
-    linked_loop_ids: [],
+    linked_check_ids: [...normalized.linked_check_ids],
+    linked_loop_ids: [...normalized.linked_loop_ids],
     linked_signal_ids: [],
     linked_route_ids: [],
-    tags: [...parsed.tags]
+    tags: [...normalized.tags]
   };
   runtimeSignals = [signal, ...runtimeSignals];
   return cloneSignal(signal);

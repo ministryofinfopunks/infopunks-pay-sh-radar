@@ -71,7 +71,7 @@ describe('pre-spend repository', () => {
     expect(repository.getReceipt('receipt_missing')).toBeNull();
   });
 
-  it('creates receipts and updates linked route and provider state', () => {
+  it('creates intake receipts without changing route or provider projections', () => {
     const repository = createPreSpendRepository();
     const providerReceiptCountBefore = repository.getProvider('provider_pay_sh_quartz')?.recent_receipt_count ?? 0;
     const receipt = repository.createReceipt({
@@ -89,15 +89,15 @@ describe('pre-spend repository', () => {
       failure_reason: null,
       validation_state: 'machine_checked',
       human_notes: [],
-      confidence_delta: 3,
+      confidence_delta: 0,
       evidence_artifact: 'artifact_token_quote_run_004'
     });
 
     expect(receipt.receipt_id).toBe('receipt_012');
     expect(repository.listReceipts()[0]?.receipt_id).toBe(receipt.receipt_id);
-    expect(repository.getRoute('route_pay_sh_token_quote_01')?.receipt_references[0]).toBe(receipt.receipt_id);
-    expect(repository.getRoute('route_pay_sh_token_quote_01')?.last_successful_run).toBe(receipt.timestamp);
-    expect(repository.getProvider('provider_pay_sh_quartz')?.recent_receipt_count).toBe(providerReceiptCountBefore + 1);
+    expect(repository.getRoute('route_pay_sh_token_quote_01')?.receipt_references).not.toContain(receipt.receipt_id);
+    expect(repository.getRoute('route_pay_sh_token_quote_01')?.last_successful_run).not.toBe(receipt.timestamp);
+    expect(repository.getProvider('provider_pay_sh_quartz')?.recent_receipt_count).toBe(providerReceiptCountBefore);
   });
 
   it('lists validations and filters validations by target', () => {
@@ -109,7 +109,7 @@ describe('pre-spend repository', () => {
     expect(repository.getValidationsForTarget('service', 'service_missing')).toHaveLength(0);
   });
 
-  it('submits validation and mutates target state consistently', () => {
+  it('appends validation without mutating its receipt target', () => {
     const repository = createPreSpendRepository();
     const createdReceipt = repository.createReceipt({
       agent_id: 'agent_020',
@@ -126,7 +126,7 @@ describe('pre-spend repository', () => {
       failure_reason: null,
       validation_state: 'machine_checked',
       human_notes: [],
-      confidence_delta: 3,
+      confidence_delta: 0,
       evidence_artifact: 'artifact_token_quote_run_004'
     });
 
@@ -144,9 +144,9 @@ describe('pre-spend repository', () => {
 
     expect(validation.validation_state).toBe('human_validated');
     expect(repository.listValidations()[0]?.target_id).toBe(createdReceipt.receipt_id);
-    expect(repository.getReceipt(createdReceipt.receipt_id)?.validation_state).toBe('human_validated');
-    expect(repository.getReceipt(createdReceipt.receipt_id)?.confidence_delta).toBe(8);
-    expect(repository.getReceipt(createdReceipt.receipt_id)?.human_notes).toContain('Looks good.');
+    expect(repository.getReceipt(createdReceipt.receipt_id)?.validation_state).toBe('machine_checked');
+    expect(repository.getReceipt(createdReceipt.receipt_id)?.confidence_delta).toBe(0);
+    expect(repository.getReceipt(createdReceipt.receipt_id)?.human_notes).not.toContain('Looks good.');
     expect(repository.getMetricsState().human_validations_submitted).toBe(4);
   });
 
@@ -215,7 +215,7 @@ describe('pre-spend repository', () => {
       failure_reason: null,
       validation_state: 'machine_checked',
       human_notes: [],
-      confidence_delta: 3,
+      confidence_delta: 0,
       evidence_artifact: 'artifact_token_quote_run_004'
     });
 
@@ -243,7 +243,7 @@ describe('pre-spend repository', () => {
       failure_reason: null,
       validation_state: 'machine_checked',
       human_notes: [],
-      confidence_delta: 2,
+      confidence_delta: 0,
       evidence_artifact: 'artifact_token_quote_run_005'
     });
 
@@ -259,7 +259,7 @@ describe('pre-spend repository', () => {
       human_notes: 'Validated in first repository.'
     });
 
-    expect(first.getReceipt(created.receipt_id)?.validation_state).toBe('human_validated');
+    expect(first.getReceipt(created.receipt_id)?.validation_state).toBe('machine_checked');
     expect(second.getReceipt(created.receipt_id)).toBeNull();
     expect(first.listValidations()).toHaveLength(second.listValidations().length + 1);
   });

@@ -1,3 +1,7 @@
+import { z } from 'zod';
+import { CanonicalJudgmentResponseSchema } from '../schemas/preSpend';
+import { ExecuteProofRequestSchema } from '../schemas/executeProof';
+import { ExecutionReceiptSchema } from '../schemas/receipts';
 type JsonSchema = Record<string, unknown>;
 type OpenApiSpec = Record<string, unknown>;
 
@@ -1492,30 +1496,59 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   add('post', '/v1/pre-spend/check', {
     tags: ['Pre-Spend Intelligence'],
     summary: 'Run pre-spend decision check',
-    description: 'Core decision endpoint for agents. Returns a receipt-backed recommendation about whether an agent should spend on a route now.',
+    description: 'Canonical paid judgment boundary. Top-level decision is proceed, test_spend_first, do_not_spend or insufficient_evidence. The legacy data envelope is preserved with additive canonical_judgment. Insufficient evidence returns 200 with zero cost and no receipt or challenge. Sufficient judgments require x402 V2 PAYMENT-REQUIRED / PAYMENT-SIGNATURE / PAYMENT-RESPONSE. Accepts Idempotency-Key; paid retries replay one receipt. Settlement is disabled until an operational Base USDC facilitator and durable journal are configured. Solana is unsupported.',
     requestBody: jsonRequest({ $ref: '#/components/schemas/PreSpendCheckRequest' }, {
-      agent_id: 'agent_001',
-      intent: 'buy_market_research',
+      agent_id: 'infopunks_launch_surface',
+      intent: 'allocate_to_pltr_paired_narrative_token',
       budget: 25,
       risk_tolerance: 'low',
-      preferred_settlement: 'stablecoin',
-      required_confidence: 75
+      preferred_settlement: 'tokenized_pltr',
+      required_confidence: 75,
+      subject_id: 'monitor',
+      linked_check_id: 'monitor'
     }),
     responses: envelopedResponses({ $ref: '#/components/schemas/PreSpendCheckResponse' }, {
-      intent: 'buy_market_research',
-      decision: 'approved_with_warning',
-      recommended_route: 'route_pay_sh_market_research_01',
-      confidence_score: 82,
+      subject: 'monitor',
+      intent: 'allocate_to_pltr_paired_narrative_token',
+      preferred_settlement: 'tokenized_pltr',
+      required_confidence: 75,
+      decision: 'use_with_caution',
+      recommended_route: 'route_pay_sh_token_quote_01',
+      confidence_score: 69,
       risk_level: 'medium',
-      estimated_cost: '0.25 USDC',
-      last_successful_run: '2026-06-14T09:40:00.000Z',
-      known_blockers: ['occasional timeout under high load', 'output quality varies by prompt specificity'],
+      estimated_cost: '0.07 USDC',
+      last_successful_run: '2026-06-16T03:58:00.000Z',
+      known_blockers: ['The target is unaudited; no audit receipt is attached.', 'No Pay.sh paid route benchmark is attached for this spend target.'],
       requires_human_approval: false,
       receipt_references: ['receipt_001', 'receipt_002'],
+      linked_check_id: 'check_monitor',
+      proof_check_reference: '/check/monitor',
       safer_alternatives: ['route_pay_sh_market_research_03'],
       do_not_use: [{ provider: 'provider_x', reason: 'no recent successful receipt' }],
-      rationale: ['Confidence meets required threshold.', 'Recent successful receipts exist.', 'Known blockers are present, so the route is approved with warning.']
+      rationale: ['Confidence score is 69 against required confidence 75.', 'Linked Proof Check check_monitor is caution.', 'Autonomous approval is blocked until the linked proof state is stronger.']
     })
+  });
+  const canonicalEnvelopeSchema = z.toJSONSchema(CanonicalJudgmentResponseSchema.extend({ data: z.record(z.string(), z.json()) }), { target: 'draft-2020-12' });
+  const preSpendOperation = (paths['/v1/pre-spend/check'] as { post: Record<string, unknown> }).post;
+  preSpendOperation.parameters = [
+    { name: 'Idempotency-Key', in: 'header', required: false, schema: { type: 'string', maxLength: 128 } },
+    { name: 'PAYMENT-SIGNATURE', in: 'header', required: false, description: 'Official base64 x402 V2 payment payload.', schema: stringSchema() }
+  ];
+  preSpendOperation.responses = {
+    '200': { description: 'Canonical judgment or free insufficient evidence, with the compatible legacy data envelope.', headers: { 'PAYMENT-RESPONSE': { description: 'Present only after successful settlement.', schema: stringSchema() } }, content: { 'application/json': { schema: canonicalEnvelopeSchema } } },
+    '402': { description: 'Sufficient judgment requires payment. No authoritative judgment receipt has been issued.', headers: { 'PAYMENT-REQUIRED': { required: true, schema: stringSchema() } }, content: { 'application/json': { schema: canonicalEnvelopeSchema } } },
+    '400': errorResponse('invalid_payment_signature'), '409': errorResponse('idempotency_conflict'), '429': errorResponse('judgment_rate_limited'), '503': errorResponse('judgment_payment_unavailable')
+  };
+  add('post', '/v1/execute-proof', {
+    tags: ['Pre-Spend Intelligence'], summary: 'Submit external execution proof for a canonical judgment',
+    description: 'Free proof intake. Radar never purchases or calls Pay.sh here. Requires a scoped unexpired-at-execution judgment, a supported Base USDC profile, EIP-191 signer binding and finalized chain settlement. Hashes and execution status remain signed external claims. Same idempotency key and payload replay one append-only receipt; conflicts return 409. No score mutation. Solana and reference-only settlement profiles are unsupported.',
+    requestBody: { required: true, content: { 'application/json': { schema: z.toJSONSchema(ExecuteProofRequestSchema, { target: 'draft-2020-12' }) } } },
+    responses: {
+      '200': { description: 'Verified execution receipt, or identical replay.', content: { 'application/json': { schema: z.toJSONSchema(z.object({ data: ExecutionReceiptSchema }), { target: 'draft-2020-12' }) } } },
+      '400': errorResponse('invalid_execution_proof'), '401': errorResponse('invalid_execution_payload_signature'),
+      '403': errorResponse('judgment_blocks_execution'), '404': errorResponse('judgment_not_found'),
+      '409': errorResponse('execution_idempotency_conflict'), '429': errorResponse('execution_proof_rate_limited'), '503': errorResponse('settlement_proof_verifier_unavailable')
+    }
   });
   add('get', '/v1/providers/{id}/history', {
     tags: ['Providers'],
@@ -1915,14 +1948,11 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     summary: 'Submit Signal Hunt intake',
     description: 'Stages a new public Signal Hunt candidate. This is cultural intake, not a financial promise.',
     requestBody: jsonRequest({ $ref: '#/components/schemas/SignalHuntSubmissionInput' }, {
-      title: 'Machine-wallet infra is becoming public culture instead of back-office plumbing',
-      handle_or_source: 'Machine market stack / Signal Graph',
-      category: 'agent_infra',
-      thesis: 'Machine identity, wallet rails, and preflight policy are starting to compress into one memetic stack.',
-      why_it_matters: 'Signal Hunt is the intake layer that lets culture-facing discovery attach to the serious machine-market and pre-spend stack before claims harden.',
-      evidence: ['Machine market coverage has expanded into route risk, receipts, and first-safe planning.'],
-      submitted_by: 'desk',
-      tags: ['machine-markets', 'wallets']
+      headline: '$MONITOR pumping on Robinhood vs tokenized PLTR',
+      source: 'https://x.com/monitoringmeme',
+      category: 'narrative_market',
+      assets: ['MONITOR', 'PLTR'],
+      linked_check_id: ''
     }),
     responses: envelopedResponses('SignalHuntCandidate', {
       id: 'hunt_newsignal',
@@ -4823,10 +4853,15 @@ function componentSchemas(): Record<string, JsonSchema> {
       budget: { type: 'number', minimum: 0 },
       risk_tolerance: enumSchema(['low', 'medium', 'high', 'critical']),
       preferred_settlement: stringSchema(),
-      required_confidence: { type: 'number', minimum: 0, maximum: 100 }
+      required_confidence: { type: 'number', minimum: 0, maximum: 100 },
+      subject_id: { oneOf: [stringSchema(), { type: 'null' }] },
+      linked_check_id: { oneOf: [stringSchema(), { type: 'null' }] }
     }),
     PreSpendCheckResponse: objectSchema({
+      subject: { oneOf: [stringSchema(), { type: 'null' }] },
       intent: stringSchema(),
+      preferred_settlement: stringSchema(),
+      required_confidence: { type: 'number', minimum: 0, maximum: 100 },
       decision: enumSchema(['approved', 'approved_with_warning', 'use_with_caution', 'requires_human_approval', 'do_not_use']),
       recommended_route: { oneOf: [stringSchema(), { type: 'null' }] },
       confidence_score: { type: 'number', minimum: 0, maximum: 100 },
@@ -4836,9 +4871,21 @@ function componentSchemas(): Record<string, JsonSchema> {
       known_blockers: arrayOf(stringSchema()),
       requires_human_approval: booleanSchema(),
       receipt_references: arrayOf(stringSchema()),
+      linked_check_id: { oneOf: [stringSchema(), { type: 'null' }] },
+      proof_check_reference: { oneOf: [stringSchema(), { type: 'null' }] },
       safer_alternatives: arrayOf(stringSchema()),
       do_not_use: arrayOf(objectSchema({ provider: stringSchema(), reason: stringSchema() })),
-      rationale: arrayOf(stringSchema())
+      rationale: arrayOf(stringSchema()),
+      judgment: objectSchema({
+        receipt_id: stringSchema(),
+        subject: stringSchema(),
+        decision: enumSchema(['ALLOW', 'DEGRADE', 'BLOCK']),
+        primary_reason: stringSchema(),
+        reasons: arrayOf(stringSchema()),
+        confidence: { type: 'number', minimum: 0, maximum: 100 },
+        evidence_references: arrayOf(stringSchema()),
+        outcome_status: enumSchema(['NOT_VERIFIED', 'PENDING', 'VERIFIED'])
+      })
     }),
     RouteTrustSummary: objectSchema({
       receipt_freshness: stringSchema(),
@@ -5024,11 +5071,43 @@ function componentSchemas(): Record<string, JsonSchema> {
       human_notes: arrayOf(stringSchema()),
       challenges: arrayOf({ $ref: '#/components/schemas/ClaimChallenge' })
     }),
-    ProofCheckInput: objectSchema({
-      input: stringSchema(),
-      sourceUrl: { oneOf: [{ type: 'string', format: 'uri' }, { type: 'null' }] },
-      submittedBy: { oneOf: [stringSchema(), { type: 'null' }] }
+    ProofCheckSubject: objectSchema({
+      subject_id: { oneOf: [stringSchema(), { type: 'null' }] },
+      ticker: stringSchema(),
+      name: stringSchema(),
+      chain: stringSchema(),
+      contract: stringSchema(),
+      pair: stringSchema(),
+      site: { type: 'string', format: 'uri' },
+      x: { type: 'string', format: 'uri' }
     }),
+    ProofCheckInput: {
+      oneOf: [
+        objectSchema({
+          input: stringSchema(),
+          sourceUrl: { oneOf: [{ type: 'string', format: 'uri' }, { type: 'null' }] },
+          submittedBy: { oneOf: [stringSchema(), { type: 'null' }] }
+        }),
+        objectSchema({
+          claim: stringSchema(),
+          claim_type: { type: 'string', enum: ['market_narrative'] },
+          subject: objectSchema({
+            subject_id: { oneOf: [stringSchema(), { type: 'null' }] },
+            ticker: stringSchema(),
+            name: stringSchema(),
+            chain: stringSchema(),
+            contract: stringSchema(),
+            pair: stringSchema(),
+            site: { type: 'string', format: 'uri' },
+            x: { type: 'string', format: 'uri' }
+          }),
+          receipts: arrayOf(objectSchema({ type: stringSchema(), url: { type: 'string', format: 'uri' } })),
+          missing_receipts: arrayOf(stringSchema()),
+          sourceUrl: { oneOf: [{ type: 'string', format: 'uri' }, { type: 'null' }] },
+          submittedBy: { oneOf: [stringSchema(), { type: 'null' }] }
+        })
+      ]
+    },
     ProofCheck: objectSchema({
       check_id: stringSchema(),
       created_at: dateTimeSchema(),
@@ -5036,10 +5115,13 @@ function componentSchemas(): Record<string, JsonSchema> {
       source_url: { oneOf: [{ type: 'string', format: 'uri' }, { type: 'null' }] },
       input: stringSchema(),
       claim: stringSchema(),
-      claim_type: enumSchema(['agent_autonomy', 'route_performance', 'provider_reliability', 'market_claim', 'token_claim', 'partnership_claim', 'revenue_claim', 'generic_claim']),
+      claim_type: enumSchema(['agent_autonomy', 'route_performance', 'provider_reliability', 'market_claim', 'market_narrative', 'token_claim', 'partnership_claim', 'revenue_claim', 'generic_claim']),
       claim_summary: stringSchema(),
       subject_label: stringSchema(),
+      subject_id: { oneOf: [stringSchema(), { type: 'null' }] },
+      subject: { oneOf: [{ $ref: '#/components/schemas/ProofCheckSubject' }, { type: 'null' }] },
       receipts_found: arrayOf(stringSchema()),
+      missing_receipts: arrayOf(stringSchema()),
       evidence_artifacts: arrayOf(stringSchema()),
       evidence_strength: enumSchema(['strong', 'medium', 'weak', 'missing']),
       receipt_strength: enumSchema(['verified_receipts', 'partial_receipts', 'weak_receipts', 'no_receipts']),
@@ -5059,10 +5141,13 @@ function componentSchemas(): Record<string, JsonSchema> {
       source_url: { oneOf: [{ type: 'string', format: 'uri' }, { type: 'null' }] },
       input: stringSchema(),
       claim: stringSchema(),
-      claim_type: enumSchema(['agent_autonomy', 'route_performance', 'provider_reliability', 'market_claim', 'token_claim', 'partnership_claim', 'revenue_claim', 'generic_claim']),
+      claim_type: enumSchema(['agent_autonomy', 'route_performance', 'provider_reliability', 'market_claim', 'market_narrative', 'token_claim', 'partnership_claim', 'revenue_claim', 'generic_claim']),
       claim_summary: stringSchema(),
       subject_label: stringSchema(),
+      subject_id: { oneOf: [stringSchema(), { type: 'null' }] },
+      subject: { oneOf: [{ $ref: '#/components/schemas/ProofCheckSubject' }, { type: 'null' }] },
       receipts_found: arrayOf(stringSchema()),
+      missing_receipts: arrayOf(stringSchema()),
       evidence_artifacts: arrayOf(stringSchema()),
       evidence_strength: enumSchema(['strong', 'medium', 'weak', 'missing']),
       receipt_strength: enumSchema(['verified_receipts', 'partial_receipts', 'weak_receipts', 'no_receipts']),
@@ -5439,16 +5524,27 @@ function componentSchemas(): Record<string, JsonSchema> {
       }),
       candidates: arrayOf({ $ref: '#/components/schemas/SignalHuntCandidate' })
     }),
-    SignalHuntSubmissionInput: objectSchema({
-      title: stringSchema(),
-      handle_or_source: stringSchema(),
-      category: stringSchema(),
-      thesis: stringSchema(),
-      why_it_matters: stringSchema(),
-      evidence: arrayOf(stringSchema()),
-      submitted_by: stringSchema(),
-      tags: arrayOf(stringSchema())
-    }),
+    SignalHuntSubmissionInput: {
+      oneOf: [
+        objectSchema({
+          title: stringSchema(),
+          handle_or_source: stringSchema(),
+          category: stringSchema(),
+          thesis: stringSchema(),
+          why_it_matters: stringSchema(),
+          evidence: arrayOf(stringSchema()),
+          submitted_by: stringSchema(),
+          tags: arrayOf(stringSchema())
+        }),
+        objectSchema({
+          headline: stringSchema(),
+          source: stringSchema(),
+          category: stringSchema(),
+          assets: arrayOf(stringSchema()),
+          linked_check_id: stringSchema()
+        })
+      ]
+    },
     SignalHuntVerifyInput: objectSchema({
       verifier: stringSchema(),
       verdict: enumSchema(['verified_signal', 'noise', 'disputed', 'under_review']),

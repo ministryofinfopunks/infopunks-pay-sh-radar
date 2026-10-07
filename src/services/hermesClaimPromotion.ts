@@ -129,7 +129,7 @@ function buildReputationImpact(
   target: TargetSelection
 ): HermesReputationImpact {
   const direction = reputationDirection(decision, reviewState);
-  const magnitude = Number((Math.max(0, Math.min(100, confidence)) / 100).toFixed(2));
+  const magnitude = 0; // Legacy claims never carry authoritative reputation impact.
   const reputationNotes = [
     `review_state=${reviewState}`,
     `source_decision=${decision}`,
@@ -151,7 +151,7 @@ function buildReputationImpact(
     ...target,
     direction,
     magnitude,
-    summary: reputationSummary(direction, target),
+    summary: 'Legacy claim intake has no reputation authority; a verified EvaluationReceipt is required.',
     reputation_notes: reputationNotes
   };
 }

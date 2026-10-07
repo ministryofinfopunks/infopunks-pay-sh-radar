@@ -78,3 +78,88 @@ already contain valid analytics events, and leaving an additive unused table
 is safer. Schema reversal requires an explicit operational decision accepting
 the loss of those analytics events; canonical receipts and evidence are not
 part of either decision.
+
+## Railway parity and traffic migration
+
+This pass prepares configuration only. A passing local build does not mean a
+Railway deployment or database migration has occurred. Keep infrastructure
+migration separate from application protocol/receipt-schema changes.
+
+Use the existing Dockerfile (`npm run build`, `npm start`); Fastify listens on
+`0.0.0.0` and the injected `PORT`. Railway consumes ordinary environment variables;
+no Railway SDK, hard-coded hostname, or credential is required. Preserve all
+existing feature flags, tokens, signing material, RPC URLs and origin settings.
+`ADMIN_TOKEN` is supported; the existing `INFOPUNKS_ADMIN_TOKEN` alias remains
+supported, with `ADMIN_TOKEN` taking precedence.
+
+Required bindings (use Railway's actual PostgreSQL connection binding):
+
+```text
+NODE_ENV=production
+PORT=<platform-assigned port>
+DATABASE_URL=<Railway PostgreSQL URL>
+PAYSH_CATALOG_SOURCE=live
+PAY_SH_CATALOG_URL=https://pay.sh/api/catalog
+PAYSH_ALLOW_FIXTURE_FALLBACK=false
+PAY_SH_INGEST_INTERVAL_MS=300000
+ADMIN_TOKEN=<existing admin token>
+```
+
+Unsafe production catalog/database configuration fails startup with
+`INVALID_RUNTIME_CONFIGURATION` and variable names/codes, never secret values.
+There is no local HTTP exception in production. Catalog fetch/parse/empty/stale
+failures retain unavailable/degraded evidence and never substitute fixtures.
+The catalog freshness budget is 10 minutes (generation time if supplied and
+last ingestion time); keep the ingestion interval within that budget. Historical
+machine-market policy metadata remains caveated metadata, never live catalog proof.
+
+`/healthz` confirms process liveness only. `/readyz` returns HTTP 503 with
+machine-readable `reasons` for database/schema failure, pending migrations,
+unsafe production bindings, missing dependencies, fixture evidence, or catalog
+failure/staleness. It reads the existing external-only migration signatures and
+bootstrap schema; it never applies migrations. Monitor both endpoints and use
+readiness as the promotion gate. Missing optional admin/reviewer settings can
+leave public routes alive while production readiness remains blocked.
+
+Operator procedure, in order:
+
+1. Provision Railway PostgreSQL without changing existing production traffic.
+2. Create and verify a recoverable source backup using the existing guarded
+   production restoration procedure in `docs/render-production-runbook.md`.
+   Restore/copy it to the separate empty target with the operator's established
+   PostgreSQL backup tooling. Never drop, clean, reset, or overwrite the source.
+   Rehearse restoration and compare canonical receipt counts/integrity. A live
+   copy needs a controlled write freeze/final synchronization before cutover;
+   never assume a snapshot captures later receipts.
+3. From an operator-controlled checkout, run the existing migration status
+   command against the target and apply only pending reviewed additive `.up.sql`
+   files in order with `psql` and `ON_ERROR_STOP=1`, following the restoration
+   runbook's per-migration checks. Do not replay applied migrations. Confirm
+   `npm run rh-chain:migration-status -- --require-ready --environment=production`.
+4. Deploy the same reviewed API commit and Dockerfile with the bindings above.
+5. Check target `/healthz` and `/readyz`; both must return HTTP 200 before promotion.
+6. Against the target run `SMOKE_BASE_URL=<target URL> npm run smoke:production`
+   and the existing production verification/parity checks. Compare route status
+   codes, response shapes, and public evidence to the current host. Do not enable
+   optional smoke writes against production without a controlled rehearsal.
+7. Verify existing canonical receipts re-read identically; use an authorized
+   staging receipt flow and process restart to verify durable writes. Check any
+   configured JSONL receipt storage separately: container-local files need
+   durable storage or the existing PostgreSQL adapter. Do not alter receipt schema.
+8. Verify `/v1/pulse` and `/health` report live Pay.sh provenance, no fixture use,
+   fresh ingestion, and expected provider counts. Rehearse catalog/database
+   outage in staging: liveness stays 200, readiness becomes 503, no fixtures appear.
+9. Only after parity, durable receipts, and live evidence pass, finalize write
+   synchronization and change traffic/DNS. Prevent duplicate worker execution;
+   preserve existing advisory leases and worker settings.
+10. Keep the original host and verified backup available for rollback. Revert
+    traffic/application to the prior host/commit if gates fail. Reconcile any
+    target-only writes before rollback; never discard receipts or run destructive
+    down migrations as an application rollback. Record operator timestamps,
+    target commit, backup identifier, parity results, and the actual cutover.
+
+## Canonical receipt authority rollout (Phase 1)
+
+After Phase 0 gates pass, follow [canonical receipt spine](canonical-receipt-spine.md) for the separate application authority change. Apply `20261007_011_canonical_receipt_spine.up.sql` using the external migration procedure before deploying this API version. Verify all five tables' immutability triggers and the application role's privileges. Test authenticated four-receipt append, read, restart/replay and evaluation-derived score. Public legacy intake cannot update reputation. Production deployment/data migration has not been performed by this configuration change.
+
+For rollback, restore prior traffic/code and preserve the canonical tables and receipts. The down migration refuses populated receipt memory; do not delete receipts to bypass it. Historical legacy records are not automatically promoted into canonical authority.

@@ -1,3 +1,13 @@
+import { createReceiptAuthorityService, ReceiptAuthorityError } from '../services/receiptAuthorityService';
+import { createEvaluationService } from '../services/evaluationService';
+import { createJudgmentService, JudgmentError } from '../services/judgmentService';
+import { hashCanonical } from '../services/receiptIntegrityService';
+import { createExecutionProofService, ExecutionProofError } from '../services/executionProofService';
+import { baseProofClient, createBaseSettlementProofVerifier, type SettlementProofVerifier } from '../security/settlementProofVerifier';
+import { createX402JudgmentGateway, type JudgmentPaymentGateway } from '../middleware/x402JudgmentMiddleware';
+import { MemoryJudgmentRequestRepository, PostgresJudgmentRequestRepository } from '../repositories/judgmentRequestRepository';
+import { MemoryCanonicalReceiptStore, PostgresCanonicalReceiptStore } from '../persistence/canonicalReceiptStore';
+import { ObservationReceiptSchema, JudgmentReceiptSchema, ExecutionReceiptSchema, EvaluationReceiptSchema, type ReceiptKind } from '../schemas/receipts';
 import cors from '@fastify/cors';
 import Fastify, { FastifyReply, FastifyRequest } from 'fastify';
 import { createReadStream, existsSync } from 'node:fs';
@@ -24,7 +34,7 @@ import { RhChainDiscoveryQueueService } from '../services/rhChainDiscoveryQueueS
 import { RhChainReviewPipelineService, type RhChainReviewClassification, type RhChainReviewSecondaryTag } from '../services/rhChainReviewPipelineService';
 import { InMemoryRhChainReviewedClassificationStore, PostgresRhChainReviewedClassificationStore, RhChainClassificationApprovalSchema, RhChainClassificationAuditPagingSchema, RhChainClassificationContractSchema, RhChainClassificationError, RhChainClassificationPagingSchema, RhChainClassificationProposalSchema, RhChainClassificationRejectionSchema, RhChainClassificationSupersessionSchema, RhChainReviewedClassificationService, type RhChainReviewedClassificationStore } from '../services/rhChainReviewedClassificationService';
 import { InMemoryRhChainProjectClaimsStore, PostgresRhChainProjectClaimsStore, RhChainProjectClaimsError, RhChainProjectClaimsService, publicReceipt, type RhChainProjectClaimsStore } from '../services/rhChainProjectClaimsService';
-import { inspectRhChainOperationalReadiness } from '../services/rhChainProductionReadiness';
+import { inspectRhChainOperationalReadiness, inspectRhChainMigrationLedger } from '../services/rhChainProductionReadiness';
 import { InMemoryRhChainMarketSnapshotStore, PostgresRhChainMarketSnapshotStore, RhChainMarketSnapshotService, type RhChainMarketSnapshotServiceOptions, type RhChainMarketSnapshotStore } from '../services/rhChainMarketSnapshotService';
 import { InMemoryRhChainAttentionReceiptStore, PostgresRhChainAttentionReceiptStore, RhChainAttentionQualityService, type RhChainAttentionReceiptStore, type RhChainAttentionWindow } from '../services/rhChainAttentionQualityService';
 import { InMemoryRhChainMetricsSnapshotStore, PostgresRhChainMetricsSnapshotStore, RhChainChainPulseService, type RhChainMetricsSnapshotStore } from '../services/rhChainChainPulseService';
@@ -119,7 +129,7 @@ import { parseRh4663ShareFormat, renderRh4663ProofProfileSvg, renderRh4663ShareS
 import { buildRh4663CallShareObject, buildRh4663FrontdoorShareObjects, buildRh4663ProofProfileShareObject, findRh4663ShareObject, type Rh4663ShareObject } from '../services/rh4663ShareObjectService';
 import { renderCapitalVsFlowCardSvg, renderMissionFootprintCardSvg, renderReflexiveBirthCardSvg, renderReflexiveInventoryCardSvg, renderReflexiveStockMoneyCardSvg } from '../shared/rhChainReflexiveShare';
 import { applyPayShCatalogIngestion } from '../ingestion/payShCatalogAdapter';
-import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, IntelligenceStore, runPayShIngestion, runPayShIngestionWithOptions } from '../services/intelligenceStore';
+import { createIntelligenceStore, defaultRepository, emptyIntelligenceStore, hasFixtureCatalogEvidence, IntelligenceStore, runPayShIngestion, runPayShIngestionWithOptions } from '../services/intelligenceStore';
 import { IntelligenceRepository } from '../persistence/repository';
 import { closeDatabasePool, getDatabaseCircuitDiagnostics, getDatabasePool, isPersistenceUnavailable, probeDatabaseRecovery } from '../persistence/databasePool';
 import { classifyPostgresFailure, postgresErrorCode, RhChainPostgresReadiness, safeOperationalErrorMessage, type RhChainStorageDiagnostics } from '../persistence/retryablePostgresSchema';
@@ -193,7 +203,7 @@ import {
 } from '../schemas/entities';
 import { endpointHistory, findEndpoint, findProvider, providerHistory, providerIntelligence } from '../services/providerIntelligenceService';
 import { endpointMonitorSummary, isMonitorEnabled, monitorIntervalMs, monitorMaxProviders, monitorTimeoutMs, providerMonitorSummary, runMonitor } from '../services/endpointMonitorService';
-import { loadRuntimeConfig } from '../config/env';
+import { loadRuntimeConfig, productionConfigurationIssues } from '../config/env';
 import { dataSourceState, PULSE_CAPS, pulseSummary } from '../services/pulseService';
 import { recomputeAssessments } from '../services/intelligenceStore';
 import { featuredProviderRotation } from '../services/featuredProviderService';
@@ -643,10 +653,12 @@ const DEFAULT_ALLOWED_ORIGINS = new Set([
   'http://127.0.0.1:5173'
 ]);
 const CORS_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
-const CORS_ALLOWED_HEADERS = ['Content-Type', 'Authorization', 'X-Requested-With', 'X-RH-Chain-Reviewer-Id'];
+const CORS_ALLOWED_HEADERS = ['Content-Type', 'Authorization', 'X-Requested-With', 'X-RH-Chain-Reviewer-Id', 'PAYMENT-SIGNATURE', 'Idempotency-Key'];
 const CORS_MAX_AGE_SECONDS = 86_400;
 
 export type CreateAppOptions = {
+  judgmentGateway?: JudgmentPaymentGateway;
+  executionProofVerifier?: SettlementProofVerifier;
   clientDistDir?: string | null;
   rhChainSubmissionStore?: RhChainSubmissionStore;
   rhChainReviewedClassificationStore?: RhChainReviewedClassificationStore;
@@ -716,7 +728,7 @@ export async function createApp(
   options: CreateAppOptions = {}
 ) {
   const config = loadRuntimeConfig();
-  const app = Fastify({ logger: false });
+  const app = Fastify({ logger: config.isProduction, disableRequestLogging: true });
   const rh4663CampaignTelemetry = new Rh4663CampaignTelemetry();
   const rh4663FrontdoorTelemetry = new Rh4663FrontdoorTelemetry();
   const rhChainPostgresPool = config.databaseUrl
@@ -1295,11 +1307,13 @@ export async function createApp(
   const machineReceiptStorageWarning = config.env === 'production' && machineReceiptStorage.adapter === 'jsonl'
     ? 'Production is using JSONL machine receipt storage. Configure DATABASE_URL for Postgres-backed durability.'
     : null;
-  const preSpendIntelligence = createPreSpendIntelligenceService(
-    process.env.NODE_ENV === 'test' ? createInMemoryPreSpendRepository() : preSpendRepository
-  );
+  const proofCheckStore = process.env.NODE_ENV === 'test' ? createInMemoryProofCheckRepository() : proofCheckRepository;
   const proofCheckService = createProofCheckService(
-    process.env.NODE_ENV === 'test' ? createInMemoryProofCheckRepository() : proofCheckRepository
+    proofCheckStore
+  );
+  const preSpendIntelligence = createPreSpendIntelligenceService(
+    process.env.NODE_ENV === 'test' ? createInMemoryPreSpendRepository() : preSpendRepository,
+    proofCheckService
   );
   const loopService = createLoopService(
     process.env.NODE_ENV === 'test' ? createInMemoryLoopRepository() : loopRepository
@@ -1327,6 +1341,7 @@ export async function createApp(
     origin: (origin, callback) => callback(null, !origin || allowedOrigins.has(origin)),
     methods: CORS_METHODS,
     allowedHeaders: CORS_ALLOWED_HEADERS,
+    exposedHeaders: ['PAYMENT-REQUIRED', 'PAYMENT-RESPONSE', 'Idempotency-Key', 'Server-Timing'],
     maxAge: CORS_MAX_AGE_SECONDS,
     optionsSuccessStatus: 204,
     preflight: true,
@@ -1374,10 +1389,12 @@ export async function createApp(
     reply.header('X-Frame-Options', 'SAMEORIGIN');
     reply.header('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
     if (config.isProduction) reply.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-    if ((req.routeOptions.url ?? req.url).startsWith('/internal/4663/')) reply.header('Cache-Control', 'private, no-store');
+    if (['/internal/4663/', '/internal/receipt-spine/'].some((prefix) => (req.routeOptions.url ?? req.url).startsWith(prefix))) reply.header('Cache-Control', 'private, no-store');
     return payload;
   });
   app.setErrorHandler((error, _req, reply) => {
+    if (error instanceof z.ZodError && _req.url.startsWith('/internal/receipt-spine/')) return reply.code(400).send({ error: 'invalid_canonical_receipt' });
+    if (error instanceof ReceiptAuthorityError) return reply.code(error.statusCode).send({ error: error.code });
     if (isPersistenceUnavailable(error)) {
       return reply.code(503).send({
         error: 'persistence_unavailable',
@@ -1397,6 +1414,11 @@ export async function createApp(
     });
   });
   const store = preloadedStore ?? emptyIntelligenceStore();
+  if (config.isProduction && (!store.dataSource || hasFixtureCatalogEvidence(store) || store.dataSource.mode !== 'live_pay_sh_catalog')) {
+    Object.assign(store, emptyIntelligenceStore());
+    store.dataSource = { mode: 'live_pay_sh_catalog', url: config.payShCatalogUrl, generated_at: null,
+      provider_count: 0, last_ingested_at: null, used_fixture: false, error: 'live_catalog_unavailable' };
+  }
   const repositoryDbStatus = (): 'ok' | 'degraded' | 'unavailable' | null => {
     try {
       const diagnosticRepository = repository as IntelligenceRepository & { getDbStatus?: () => 'ok' | 'degraded' | 'unavailable' };
@@ -1426,7 +1448,7 @@ export async function createApp(
   const readinessState = (): 'healthy' | 'degraded' | 'unavailable' => {
     const dbStatus = dbStatusWithFallback();
     if (dbStatus === 'ok') return 'healthy';
-    return 'degraded';
+    return dbStatus === 'unavailable' ? 'unavailable' : 'degraded';
   };
   const databaseRuntimeStatus = () => {
     const circuit = getDatabaseCircuitDiagnostics();
@@ -1463,7 +1485,7 @@ export async function createApp(
     { includePropagation: false, includeInterpretations: true, propagationFallback: cachedPropagation }
   ).interpretations;
   let cachedPulseDashboard = buildPulseDashboard(store, cachedInterpretations, bootstrapped);
-  const fixturePulseStore = createFixturePulseStore();
+  const fixturePulseStore = config.isProduction ? store : createFixturePulseStore();
   const fixturePulseInterpretations = pulseSummary(
     fixturePulseStore,
     new Date().toISOString(),
@@ -1502,7 +1524,23 @@ export async function createApp(
   // market/provider integration. Readiness below covers persistence separately.
   app.get('/healthz', async () => ({ ok: true, status: 'live', service: 'infopunks-pay-sh-radar' }));
   app.get('/readyz', async (_req, reply) => {
-    const status = readinessState();
+    const reasons: Array<{ code: string; variable?: string }> = [];
+    if (dbStatusWithFallback() === 'unavailable') reasons.push({ code: 'database_unavailable' });
+    if (config.isProduction) {
+      // Recheck the active bindings too: an unsafe change must never become ready.
+      reasons.push(...productionConfigurationIssues(process.env).map((issue) => ({ code: 'unsafe_production_configuration', variable: issue.variable })));
+      const migrations = await withTimeout(() => inspectRhChainMigrationLedger(rhChainPostgresPool), 4_000, 'readiness_timeout').catch(() => null);
+      if (!migrations?.database_reachable) reasons.push({ code: 'database_unavailable' });
+      else if (migrations.pending_migrations.length) reasons.push(...migrations.pending_migrations.map((id) => ({ code: `pending_migration:${id}` })));
+      const catalog = store.dataSource;
+      if (!catalog || catalog.used_fixture || catalog.mode !== 'live_pay_sh_catalog') reasons.push({ code: 'live_catalog_unavailable' });
+      else if (catalog.error || !store.providers.length) reasons.push({ code: 'live_catalog_degraded' });
+      else if (!catalog.last_ingested_at || [catalog.last_ingested_at, ...(catalog.generated_at ? [catalog.generated_at] : [])].some((value) => !Number.isFinite(Date.parse(value)) || Date.now() - Date.parse(value) > 10 * 60_000)) reasons.push({ code: 'live_catalog_stale' });
+      for (const feature of Object.keys(config.disabledFeatures)) reasons.push({ code: `dependency_not_configured:${feature}` });
+    }
+    const probe = (repository as IntelligenceRepository & { checkReadiness?: () => Promise<boolean> }).checkReadiness;
+    if (config.isProduction && probe && !await withTimeout(() => probe.call(repository), 4_000, 'readiness_timeout').catch(() => false)) reasons.push({ code: 'database_schema_unavailable' });
+    const status = reasons.length ? 'unavailable' : readinessState();
     const body = {
       ok: status !== 'unavailable',
       status,
@@ -1510,7 +1548,8 @@ export async function createApp(
       persistence: persistenceMode,
       db_status: dbStatusWithFallback(),
       ...databaseRuntimeStatus(),
-      disabled_features: Object.keys(config.disabledFeatures).sort()
+      disabled_features: Object.keys(config.disabledFeatures).sort(),
+      reasons
     };
     return reply.code(status === 'unavailable' ? 503 : 200).send(body);
   });
@@ -1593,6 +1632,11 @@ export async function createApp(
     }
 
     void ensureLiveBootstrap('route:/v1/pulse');
+    if (config.isProduction) return { data: {
+      ...buildPulseDashboard(store, cachedInterpretations, bootstrapped, generatedAt),
+      ...pulseDiagnostics(dataSourceState(store), routeBootstrapState, liveBootstrapError ?? 'live_catalog_unavailable', generatedAt),
+      status: pulseRouteStatus(store, routeBootstrapState, liveBootstrapError ?? 'live_catalog_unavailable')
+    } };
     const status = pulseRouteStatus(fixturePulseStore, routeBootstrapState, liveBootstrapError);
     const fixtureStore = pulseFixtureStoreWithStatus(fixturePulseStore, status.upstream.reason);
     const diagnostics = pulseDiagnostics(dataSourceState(fixtureStore), routeBootstrapState, status.upstream.reason, generatedAt);
@@ -1607,13 +1651,13 @@ export async function createApp(
   }, () => ({
     data: {
       ...buildPulseDashboard(
-        pulseFixtureStoreWithStatus(fixturePulseStore, liveBootstrapError ?? 'pulse_timeout'),
+        config.isProduction ? store : pulseFixtureStoreWithStatus(fixturePulseStore, liveBootstrapError ?? 'pulse_timeout'),
         fixturePulseInterpretations,
         true,
         new Date().toISOString()
       ),
       ...pulseDiagnostics(dataSourceState(fixturePulseStore), liveBootstrapStatus === 'idle' ? 'pending' : liveBootstrapStatus, liveBootstrapError ?? 'pulse_timeout', new Date().toISOString()),
-      catalog_status: 'fixture_fallback',
+      catalog_status: config.isProduction ? 'live_fetch_failed' : 'fixture_fallback',
       status: pulseRouteStatus(fixturePulseStore, liveBootstrapStatus === 'idle' ? 'pending' : liveBootstrapStatus, liveBootstrapError ?? 'pulse_timeout')
     }
   })));
@@ -1732,10 +1776,33 @@ export async function createApp(
     if (!detail) return reply.code(404).send({ error: 'service_not_found' });
     return { data: safeJsonExport(detail) };
   });
-  app.post('/v1/pre-spend/check', async (req, reply) => {
+  const judgmentRateLimiter = new RhChainPublicRateLimiter(true, 60_000, 30);
+  app.post('/v1/pre-spend/check', { bodyLimit: 16_384 }, async (req, reply) => {
+    const started = performance.now();
+    const rate = judgmentRateLimiter.consume(req.ip);
+    if (!rate.allowed) return reply.code(429).header('Retry-After', String(Math.ceil(rate.retryAfterMs / 1000))).send({ error: 'judgment_rate_limited' });
     const parsed = PreSpendCheckRequestSchema.safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_pre_spend_check_request', details: parsed.error.flatten() });
-    return { data: safeJsonExport(preSpendIntelligence.check(parsed.data)) };
+    try {
+      const key = req.headers['idempotency-key'];
+      const signature = req.headers['payment-signature'];
+      if ((key && typeof key !== 'string') || (signature && typeof signature !== 'string')) return reply.code(400).send({ error: 'invalid_judgment_headers' });
+      const stableKey = key ?? hashCanonical(parsed.data);
+      reply.header('Idempotency-Key', stableKey);
+      const result = await judgments.check(parsed.data, stableKey, signature);
+      for (const [name, value] of Object.entries(result.headers)) if (value) reply.header(name, value);
+      reply.header('Server-Timing', `judgment;dur=${(performance.now() - started).toFixed(2)}`);
+      // Preserve the original SDK envelope; canonical fields are also available at the top level.
+      return reply.code(result.status).send(safeJsonExport({ ...result.response, data: { ...result.legacy, canonical_judgment: result.response } }));
+    } catch (error) {
+      if (error instanceof JudgmentError) return reply.code(error.statusCode).send({ error: error.code });
+      req.log.error({ event: 'judgment_unavailable' });
+      return reply.code(503).send({ error: 'judgment_unavailable' });
+    } finally {
+      const duration = performance.now() - started;
+      reply.header('Server-Timing', `judgment;dur=${duration.toFixed(2)}`);
+      req.log.info({ event: 'judgment_timing', duration_ms: duration });
+    }
   });
   app.get<{ Params: { id: string } }>('/v1/providers/:id/history', async (req, reply) => {
     const provider = findProvider(store, req.params.id);
@@ -4064,7 +4131,15 @@ export async function createApp(
     return { data: safeJsonExport(SignalHuntCandidateSchema.parse(candidate)) };
   });
   app.post('/v1/signal-hunt/submit', async (req, reply) => handleParsed(req.body, SignalHuntSubmissionInputSchema, (input) => ({
-    data: safeJsonExport(SignalHuntCandidateSchema.parse(createSignalHuntSubmission(input)))
+    data: safeJsonExport(SignalHuntCandidateSchema.parse(createSignalHuntSubmission(
+      'headline' in input
+        ? {
+            ...input,
+            linked_check_id: input.linked_check_id?.trim() || proofCheckService.listProofChecks()
+              .find((check) => input.assets.some((asset) => check.subject?.ticker?.toUpperCase() === asset.toUpperCase()))?.check_id
+          }
+        : input
+    )))
   }), reply));
   app.post<{ Params: { signalId: string } }>('/v1/signal-hunt/:signalId/verify', async (req, reply) => handleParsed(req.body, SignalHuntVerifyInputSchema, (input) => {
     const candidate = verifySignalHuntCandidate(req.params.signalId, input);
@@ -4360,6 +4435,80 @@ export async function createApp(
       return { data: [], degraded: true, reason: 'search_timeout' };
     }
   }, reply));
+  const canonicalReceiptStore = rhChainPostgresPool
+    ? new PostgresCanonicalReceiptStore(rhChainPostgresPool, config.receiptProceedConfidenceThreshold)
+    : new MemoryCanonicalReceiptStore(config.receiptProceedConfidenceThreshold);
+  const receiptAuthority = createReceiptAuthorityService(canonicalReceiptStore, config.receiptProceedConfidenceThreshold);
+  const evaluationService = createEvaluationService(canonicalReceiptStore, config.receiptProceedConfidenceThreshold);
+  const judgmentGateway = options.judgmentGateway ?? (config.judgmentPaymentEnabled ? await createX402JudgmentGateway({
+    facilitatorUrl: config.judgmentFacilitatorUrl!, payTo: config.judgmentPayTo!, amount: config.judgmentPriceUsdc, resourceUrl: config.judgmentResourceUrl!
+  }) : null);
+  const judgmentJournal = rhChainPostgresPool ? new PostgresJudgmentRequestRepository(rhChainPostgresPool) : new MemoryJudgmentRequestRepository();
+  if (config.judgmentPaymentEnabled) await rhChainPostgresPool!.query('select request_key from judgment_requests limit 0');
+  const judgments = createJudgmentService({
+    store: canonicalReceiptStore, journal: judgmentJournal, gateway: judgmentGateway,
+    legacyCheck: input => preSpendIntelligence.check(input), threshold: config.receiptProceedConfidenceThreshold,
+    ttlMs: config.judgmentTtlMs, amount: config.judgmentPriceUsdc,
+    onTiming: timing => app.log.info({ event: 'judgment_hot_path_timing', ...timing }),
+    observations: async (subject, intentHash) => {
+      // The latest scoped materialized policy supersedes historical snapshots.
+      // Do not filter out negative/stale latest states to find an older approval.
+      if (rhChainPostgresPool) return (await rhChainPostgresPool.query("select receipt from observation_receipts where subject_id=$1 and receipt->>'intent_hash'=$2 order by observed_at desc, observation_id desc limit 1", [subject, intentHash])).rows.map(row => ObservationReceiptSchema.parse(row.receipt));
+      return (await canonicalReceiptStore.list('observation')).map(row => ObservationReceiptSchema.parse(row)).filter(row => row.subject_id === subject && row.intent_hash === intentHash)
+        .sort((a, b) => Date.parse(b.observed_at) - Date.parse(a.observed_at) || b.observation_id.localeCompare(a.observation_id)).slice(0, 1);
+    }
+  });
+  const executionClient = config.executionProofBaseRpcUrl ? await baseProofClient(config.executionProofBaseRpcUrl) : null;
+  if (executionClient && await executionClient.getChainId() !== 8453) throw new Error('execution_proof_base_rpc_network_mismatch');
+  if (executionClient && rhChainPostgresPool) await rhChainPostgresPool.query("select indexname from pg_indexes where schemaname=current_schema() and indexname in ('execution_proof_one_authorization_idx','execution_proof_one_settlement_idx')").then(result => {
+    if (result.rows.length !== 2) throw new Error('execution_proof_migration_required');
+  });
+  const executionProofs = createExecutionProofService({ store: canonicalReceiptStore, threshold: config.receiptProceedConfidenceThreshold,
+    verifier: options.executionProofVerifier ?? (executionClient ? createBaseSettlementProofVerifier(executionClient) : null) });
+  const executionProofLimiter = new RhChainPublicRateLimiter(true, 60_000, 20);
+  app.post('/v1/execute-proof', { bodyLimit: 16_384 }, async (req, reply) => {
+    const limit = executionProofLimiter.consume(req.ip);
+    if (!limit.allowed) return reply.code(429).header('Retry-After', String(Math.ceil(limit.retryAfterMs / 1000))).send({ error: 'execution_proof_rate_limited' });
+    try {
+      const receipt = await executionProofs.submit(req.body);
+      req.log.info({ event: 'execution_proof_accepted', execution_id: receipt.execution_id, judgment_id: receipt.judgment_id, settlement_verification: 'verified', score_delta: 0 });
+      return { data: safeJsonExport(receipt) };
+    } catch (error) {
+      const code = error instanceof ExecutionProofError ? error.code : 'execution_proof_unavailable';
+      req.log.info({ event: 'execution_proof_rejected', code });
+      return reply.code(error instanceof ExecutionProofError ? error.statusCode : 503).send({ error: code });
+    }
+  });
+  // Canonical writes are reviewed server authority. Community intake below remains public.
+  const canonicalWrites = [
+    ['observation', z.object(ObservationReceiptSchema.shape).strict().omit({ schema_version: true, payload_hash: true, receipt_hash: true }), receiptAuthority.appendObservation],
+    ['judgment', z.object(JudgmentReceiptSchema.shape).strict().omit({ schema_version: true, policy_version: true, proceed_confidence_threshold: true, parent_hashes: true, receipt_hash: true }), receiptAuthority.appendJudgment],
+    ['execution', z.object(ExecutionReceiptSchema.shape).strict().omit({ schema_version: true, parent_hash: true, receipt_hash: true }), receiptAuthority.appendExecution],
+    ['evaluation', z.object(EvaluationReceiptSchema.shape).strict().omit({ schema_version: true, policy_version: true, score_delta: true, parent_hash: true, receipt_hash: true }), evaluationService.createEvaluation]
+  ] as const;
+  for (const [kind, schema, append] of canonicalWrites) {
+    app.post(`/internal/receipt-spine/${kind}`, async (req, reply) => {
+      if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'unauthorized' });
+      if (kind === 'evaluation' && req.body && typeof req.body === 'object' && ('score_delta' in req.body || 'scoreDelta' in req.body || 'confidence_delta' in req.body || 'confidenceDelta' in req.body)) {
+        return reply.code(400).send({ error: 'score_delta_authoring_forbidden' });
+      }
+      const parsed = schema.safeParse(req.body);
+      if (!parsed.success) return reply.code(400).send({ error: 'invalid_canonical_receipt' });
+      if (kind === 'judgment' && 'payment_required' in parsed.data && (parsed.data.payment_required || parsed.data.payment_receipt_ref !== null || Number(parsed.data.charge) !== 0)) {
+        return reply.code(400).send({ error: 'paid_judgments_require_verified_payment_boundary' });
+      }
+      // The tuple binds each strict schema to its matching typed writer.
+      return { data: safeJsonExport(await (append as (input: typeof parsed.data) => Promise<unknown>)(parsed.data)) };
+    });
+  }
+  app.get<{ Params: { kind: string; id: string } }>('/v1/receipt-spine/:kind/:id', async (req, reply) => {
+    if (!['observation', 'judgment', 'execution', 'evaluation'].includes(req.params.kind)) return reply.code(404).send({ error: 'receipt_kind_not_found' });
+    const receipt = await canonicalReceiptStore.get(req.params.kind as ReceiptKind, req.params.id);
+    if (!receipt) return reply.code(404).send({ error: 'canonical_receipt_not_found' });
+    return { data: safeJsonExport(receipt) };
+  });
+  app.get<{ Params: { subject_type: string; subject_id: string } }>('/v1/receipt-spine/scores/:subject_type/:subject_id', async (req) => ({ data: await receiptAuthority.projectScore(req.params.subject_type, req.params.subject_id) }));
+
   app.get('/v1/receipts', async () => ({ data: safeJsonExport({
     generated_at: new Date().toISOString(),
     source: 'infopunks-pay-sh-radar',
@@ -4369,6 +4518,7 @@ export async function createApp(
   app.post('/v1/receipts', async (req, reply) => {
     const parsed = PreSpendReceiptSchema.omit({ receipt_id: true, timestamp: true }).partial({ human_notes: true }).safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_pre_spend_receipt', details: parsed.error.flatten() });
+    if (parsed.data.confidence_delta !== 0) return reply.code(400).send({ error: 'legacy_score_mutation_forbidden' });
     return { data: safeJsonExport(preSpendIntelligence.createReceipt({
       ...parsed.data,
       human_notes: parsed.data.human_notes ?? []
@@ -4753,7 +4903,7 @@ export async function createApp(
 
   async function ensureLiveBootstrap(reason: 'startup' | 'route:/v1/pulse' | 'route:/v1/providers' | 'route:/v1/radar/endpoints') {
     if (startupLoadPromise) await startupLoadPromise;
-    if (isLiveBootstrapSatisfied(store)) {
+    if (isLiveBootstrapSatisfied(store) && (!config.isProduction || (!store.dataSource?.error && store.dataSource?.last_ingested_at && Date.now() - Date.parse(store.dataSource.last_ingested_at) <= 10 * 60_000))) {
       bootstrapped = true;
       liveBootstrapStatus = 'ready';
       liveBootstrapError = null;
@@ -4762,12 +4912,12 @@ export async function createApp(
     if (!liveBootstrapEnabled) {
       if (!store.dataSource || store.dataSource.error === null) {
         store.dataSource = {
-          mode: 'fixture_fallback',
+          mode: config.isProduction ? 'live_pay_sh_catalog' : 'fixture_fallback',
           url: liveCatalogUrl,
           generated_at: null,
           provider_count: store.providers.length,
-          last_ingested_at: new Date().toISOString(),
-          used_fixture: true,
+          last_ingested_at: null,
+          used_fixture: !config.isProduction,
           error: 'bootstrap_not_called'
         };
       }
@@ -4820,7 +4970,7 @@ export async function createApp(
         bootstrapped = store.providers.length > 0;
         liveBootstrapStatus = 'failed';
         liveBootstrapError = reasonLabel;
-        if (!store.providers.length) {
+        if (!config.isProduction && config.allowFixtureFallback && !store.providers.length) {
           try {
             await runPayShIngestionWithOptions(store, repository, {
               catalogSource: 'fixture',
@@ -5185,7 +5335,7 @@ function pulseFixtureStoreWithStatus(store: IntelligenceStore, error: string | n
 
 function pulseRouteStatus(store: IntelligenceStore, state: 'idle' | 'pending' | 'ready' | 'failed', error: string | null) {
   const dataSource = dataSourceState(store);
-  const fixtureBacked = dataSource.used_fixture === true || store.providers.length === 0;
+  const fixtureBacked = dataSource.used_fixture === true || (process.env.NODE_ENV !== 'production' && store.providers.length === 0);
   const liveReady = dataSource.mode === 'live_pay_sh_catalog' && store.providers.length > 0 && dataSource.used_fixture === false;
   const upstreamState = state === 'ready'
     ? fixtureBacked ? 'unavailable' : 'ready'
@@ -5214,7 +5364,7 @@ function pulseDiagnostics(
   generatedAt: string
 ) {
   const liveCatalogState = dataSource.mode === 'live_pay_sh_catalog' && dataSource.used_fixture === false
-    ? 'live'
+    ? process.env.NODE_ENV === 'production' && dataSource.error ? 'unavailable' : 'live'
     : dataSource.used_fixture
       ? 'fixture_fallback'
       : 'unavailable';
@@ -5430,7 +5580,7 @@ function graphNodes(store: IntelligenceStore) {
         summary: provider.description ?? `Provider node for ${provider.name}.`,
         cluster_id: clusterIdForCategory(provider.category),
         proof_state: proofState,
-        confidence_score: trustScore ?? Math.round((provider.confidence ?? 0.7) * 100),
+        confidence_score: trustScore ?? 0,
         velocity_score: signalScore ?? 58,
         linked_provider_ids: [provider.id],
         created_at: provider.firstSeenAt,

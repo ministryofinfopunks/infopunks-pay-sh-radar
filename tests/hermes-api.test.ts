@@ -143,7 +143,7 @@ describe('Hermes Desk API', () => {
     }));
     expect(body.data.promoted_claim.reputation_impact).toEqual(expect.objectContaining({
       direction: 'watch',
-      magnitude: 0.82
+      magnitude: 0
     }));
     expect(body.data.review).toEqual(expect.objectContaining({
       state: 'needs_more_evidence',

@@ -1,3 +1,4 @@
+import { assertProductionCatalog } from '../config/env';
 import { createHash, randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { Endpoint, Evidence, InfopunksEvent, IngestionRun, PricingModel, Provider } from '../schemas/entities';
@@ -195,41 +196,51 @@ export async function loadPayShCatalog(
   url = process.env.PAY_SH_CATALOG_URL,
   options: { catalogSource?: 'live' | 'fixture'; allowFixtureFallback?: boolean } = {}
 ): Promise<PayShCatalogSourceResult> {
+  if (process.env.NODE_ENV === 'production') {
+    assertProductionCatalog({
+      ...process.env,
+      PAYSH_CATALOG_SOURCE: options.catalogSource ?? process.env.PAYSH_CATALOG_SOURCE,
+      PAY_SH_CATALOG_URL: url,
+      PAYSH_ALLOW_FIXTURE_FALLBACK: options.allowFixtureFallback === undefined
+        ? process.env.PAYSH_ALLOW_FIXTURE_FALLBACK : String(options.allowFixtureFallback)
+    });
+  }
   const sourceMode = options.catalogSource ?? (url ? 'live' : 'fixture');
-  const allowFixtureFallback = options.allowFixtureFallback ?? true;
+  const allowFixtureFallback = options.allowFixtureFallback ?? (process.env.NODE_ENV === 'production' ? false : true);
   const liveUrl = url ?? DEFAULT_LIVE_CATALOG_URL;
   if (sourceMode === 'fixture') return fixtureResult(url ?? null, 'bootstrap_not_called');
 
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), LIVE_CATALOG_FETCH_TIMEOUT_MS);
-    let response: Response;
     try {
-      response = await fetch(liveUrl, {
+      const response = await fetch(liveUrl, {
         headers: { accept: 'application/json' },
         signal: controller.signal
       });
+      if (!response.ok) throw new Error(`Pay.sh catalog returned ${response.status}`);
+      const body = await response.json();
+      const normalized = normalizePayShCatalog(body);
+      if (process.env.NODE_ENV === 'production' && normalized.generatedAt !== null
+        && (!Number.isFinite(Date.parse(normalized.generatedAt)) || Date.now() - Date.parse(normalized.generatedAt) > 10 * 60_000)) throw new Error('live_catalog_stale');
+      if (normalized.items.length === 0) throw new Error('live_catalog_empty_provider_array');
+      return {
+        items: normalized.items,
+        source: `${LIVE_SOURCE}:${liveUrl}`,
+        usedFixture: false,
+        dataSource: {
+          mode: 'live_pay_sh_catalog',
+          url: liveUrl,
+          generated_at: normalized.generatedAt,
+          provider_count: normalized.providerCount,
+          last_ingested_at: null,
+          used_fixture: false,
+          error: null
+        }
+      };
     } finally {
       clearTimeout(timer);
     }
-    if (!response.ok) throw new Error(`Pay.sh catalog returned ${response.status}`);
-    const body = await response.json();
-    const normalized = normalizePayShCatalog(body);
-    if (normalized.items.length === 0) throw new Error('live_catalog_empty_provider_array');
-    return {
-      items: normalized.items,
-      source: `${LIVE_SOURCE}:${liveUrl}`,
-      usedFixture: false,
-      dataSource: {
-        mode: 'live_pay_sh_catalog',
-        url: liveUrl,
-        generated_at: normalized.generatedAt,
-        provider_count: normalized.providerCount,
-        last_ingested_at: null,
-        used_fixture: false,
-        error: null
-      }
-    };
   } catch (error) {
     const message = normalizeCatalogErrorCode(error);
     if (!allowFixtureFallback) {
@@ -281,6 +292,7 @@ function sanitizeCatalogError(error: unknown) {
 function normalizeCatalogErrorCode(error: unknown) {
   if (error instanceof DOMException && error.name === 'AbortError') return 'live_catalog_timeout';
   const message = sanitizeCatalogError(error);
+  if (message === 'live_catalog_stale') return message;
   if (message === 'live_catalog_empty_provider_array') return message;
   if (message === 'Aborted') return 'live_catalog_timeout';
   if (message.startsWith('Pay.sh catalog returned')) return 'live_catalog_fetch_failed';
@@ -385,6 +397,7 @@ export function normalizeProviderId(value: string) {
 }
 
 export function ingestPayShCatalog(items: PayShCatalogItem[] = payShCatalogFixture, observedAt = new Date().toISOString(), source = FIXTURE_SOURCE): { events: InfopunksEvent[]; providers: Provider[]; endpoints: Endpoint[] } {
+  if (process.env.NODE_ENV === 'production' && source.includes('fixture')) throw new Error('production_fixture_catalog_forbidden');
   const empty = emptySnapshot();
   return applyPayShCatalogIngestion(empty, items, { observedAt, source }).snapshot;
 }
@@ -392,6 +405,7 @@ export function ingestPayShCatalog(items: PayShCatalogItem[] = payShCatalogFixtu
 export function applyPayShCatalogIngestion(snapshot: IntelligenceSnapshot, items: PayShCatalogItem[], options: { observedAt?: string; source?: string; dataSource?: DataSourceState } = {}): PayShIngestionResult {
   const observedAt = options.observedAt ?? new Date().toISOString();
   const source = options.source ?? FIXTURE_SOURCE;
+  if (process.env.NODE_ENV === 'production' && (source.includes('fixture') || options.dataSource?.used_fixture)) throw new Error('production_fixture_catalog_forbidden');
   const run: IngestionRun = {
     id: randomUUID(),
     startedAt: observedAt,

@@ -5,6 +5,7 @@ export {
   type InfopunksPreSpendClient,
   type InfopunksPreSpendClientFetch
 } from './preSpendClient';
+export type { CanonicalDecision, CanonicalJudgmentResponse } from '../schemas/preSpend';
 
 export type {
   HumanValidationSubmission,

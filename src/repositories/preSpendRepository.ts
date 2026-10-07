@@ -1,3 +1,4 @@
+import { ReceiptAuthorityError } from '../services/receiptAuthorityService';
 import { z } from 'zod';
 import {
   ClaimChallengeCreateRequestSchema,
@@ -61,7 +62,11 @@ export interface PreSpendRepository {
 }
 
 export function createInMemoryPreSpendRepository(seedState: PreSpendSeedState = createPreSpendSeedState()): PreSpendRepository {
-  const state = seedState;
+  const state = structuredClone(seedState);
+  // Historical compatibility records are intake, never reputation deltas.
+  state.routes = state.routes.map((route) => ({ ...route, confidence_score: 0 }));
+  state.providers = state.providers.map((provider) => ({ ...provider, reliability_score: 0 }));
+  state.receipts = state.receipts.map((receipt) => ({ ...receipt, confidence_delta: 0 }));
   let receiptSequence = state.receipts.reduce((max, receipt) => {
     const match = /^receipt_(\d+)$/.exec(receipt.receipt_id);
     return match ? Math.max(max, Number(match[1])) : max;
@@ -94,15 +99,16 @@ export function createInMemoryPreSpendRepository(seedState: PreSpendSeedState = 
   }
 
   return {
-    listRoutes: () => state.routes,
-    getRoute: (routeId) => state.routes.find((route) => route.route_id === routeId) ?? null,
-    listProviders: () => state.providers,
-    getProvider: (providerId) => state.providers.find((provider) => provider.provider_id === providerId) ?? null,
-    listServices: () => state.services,
-    getService: (serviceId) => state.services.find((service) => service.service_id === serviceId) ?? null,
-    listReceipts: () => state.receipts.slice().sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp)),
-    getReceipt: (receiptId) => state.receipts.find((receipt) => receipt.receipt_id === receiptId) ?? null,
+    listRoutes: () => structuredClone(state.routes),
+    getRoute: (routeId) => structuredClone(state.routes.find((route) => route.route_id === routeId) ?? null),
+    listProviders: () => structuredClone(state.providers),
+    getProvider: (providerId) => structuredClone(state.providers.find((provider) => provider.provider_id === providerId) ?? null),
+    listServices: () => structuredClone(state.services),
+    getService: (serviceId) => structuredClone(state.services.find((service) => service.service_id === serviceId) ?? null),
+    listReceipts: () => structuredClone(state.receipts).sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp)),
+    getReceipt: (receiptId) => structuredClone(state.receipts.find((receipt) => receipt.receipt_id === receiptId) ?? null),
     createReceipt(input) {
+      if (input.confidence_delta !== 0) throw new ReceiptAuthorityError('legacy_score_mutation_forbidden');
       const receipt = PreSpendReceiptSchema.parse({
         ...input,
         receipt_id: input.receipt_id ?? nextReceiptId(),
@@ -110,19 +116,9 @@ export function createInMemoryPreSpendRepository(seedState: PreSpendSeedState = 
       });
       state.receipts.unshift(receipt);
 
-      const route = state.routes.find((item) => item.route_id === receipt.route_id);
-      if (route) {
-        route.receipt_references = [receipt.receipt_id, ...route.receipt_references].slice(0, 10);
-        if (receipt.status === 'succeeded') route.last_successful_run = receipt.timestamp;
-        else route.last_failed_run = receipt.timestamp;
-      }
-
-      const provider = state.providers.find((item) => item.provider_id === receipt.provider_id);
-      if (provider) provider.recent_receipt_count += 1;
-
-      return receipt;
+      return structuredClone(receipt);
     },
-    listValidations: () => state.validations,
+    listValidations: () => structuredClone(state.validations),
     getValidationsForTarget(targetType, targetId) {
       return state.validations.filter((validation) => validation.target_type === targetType && validation.target_id === targetId);
     },
@@ -131,39 +127,10 @@ export function createInMemoryPreSpendRepository(seedState: PreSpendSeedState = 
       state.validations.unshift(validation);
       state.metrics.human_validations_submitted += 1;
 
-      if (validation.target_type === 'receipt') {
-        const receipt = state.receipts.find((item) => item.receipt_id === validation.target_id);
-        if (receipt) {
-          receipt.validation_state = validation.validation_state;
-          receipt.confidence_delta += validation.confidence_adjustment;
-          if (validation.human_notes) receipt.human_notes = [...receipt.human_notes, validation.human_notes];
-        }
-      }
+      // Validation is append-only community intake. Review annotations cannot
+      // mutate receipts, provider trust, route blockers, or service readiness.
 
-      if (validation.target_type === 'provider') {
-        const provider = state.providers.find((item) => item.provider_id === validation.target_id);
-        if (provider) {
-          provider.human_validation_status = validation.validation_state;
-          if (validation.output_quality_note) provider.output_quality_notes.push(validation.output_quality_note);
-          if (validation.blocker_note) provider.known_risks.push(validation.blocker_note);
-          if (validation.dispute_note) provider.dispute_history.push(validation.dispute_note);
-        }
-      }
-
-      if (validation.target_type === 'route') {
-        const route = state.routes.find((item) => item.route_id === validation.target_id);
-        if (route && validation.blocker_note) route.known_blockers.push(validation.blocker_note);
-      }
-
-      if (validation.target_type === 'service') {
-        const service = state.services.find((item) => item.service_id === validation.target_id);
-        if (service) {
-          service.benchmark_readiness = validation.validation_state;
-          if (validation.blocker_note) service.known_blockers.push(validation.blocker_note);
-        }
-      }
-
-      return validation;
+      return structuredClone(validation);
     },
     listClaims: () => state.claims.slice().sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)),
     getClaim: (claimId) => state.claims.find((claim) => claim.claim_id === claimId) ?? null,

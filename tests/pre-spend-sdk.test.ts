@@ -214,7 +214,7 @@ describe('pre-spend SDK', () => {
         globalThis.Date = RealDate;
       }
 
-      expect(decision.decision).toBe('approved_with_warning');
+      expect(decision.decision).toBe('use_with_caution');
       expect(decision.recommended_route).toBe('route_pay_sh_market_research_01');
       expect(decision.known_blockers).toEqual([
         'occasional timeout under high load',

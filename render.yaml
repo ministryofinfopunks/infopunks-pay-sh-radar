@@ -9,6 +9,14 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PAYSH_CATALOG_SOURCE
+        value: live
+      - key: PAY_SH_CATALOG_URL
+        value: https://pay.sh/api/catalog
+      - key: PAYSH_ALLOW_FIXTURE_FALLBACK
+        value: "false"
+      - key: PAY_SH_INGEST_INTERVAL_MS
+        value: "300000"
       - key: INFOPUNKS_ADMIN_TOKEN
         sync: false
       - key: DATABASE_URL

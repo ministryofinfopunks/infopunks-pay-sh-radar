@@ -197,10 +197,76 @@ function publicCta(decision: ProofDecisionState) {
   return 'No receipt, no trust.';
 }
 
+type MarketNarrativeInput = Extract<ProofCheckInput, { claim_type: 'market_narrative' }>;
+
+function isMarketNarrativeInput(input: ProofCheckInput): input is MarketNarrativeInput {
+  return 'claim_type' in input;
+}
+
+function createMarketNarrativeCheck(input: MarketNarrativeInput): ProofCheckResult {
+  const ticker = input.subject.ticker.toLowerCase();
+  const subjectId = input.subject.subject_id ?? `subject_${ticker}`;
+  const checkId = `check_${ticker}`;
+  const receiptsFound = input.receipts.map((receipt) => `${receipt.type}: ${receipt.url}`);
+  const riskFlags: ProofRiskFlag[] = ['narrative_over_evidence', 'no_human_validation'];
+
+  if (input.receipts.some((receipt) => receipt.type === 'onchain_pair')) riskFlags.push('weak_onchain_evidence');
+  if (input.missing_receipts.includes('paid_route_benchmark')) riskFlags.push('route_not_repeatable');
+  if (!input.receipts.length) riskFlags.push('hype_without_receipts');
+
+  const decisionState: ProofDecisionState = receiptsFound.length ? 'caution' : 'unproven';
+  const evidenceStrength = receiptsFound.length === 0
+    ? 'missing' as const
+    : input.missing_receipts.length > 0
+      ? 'weak' as const
+      : 'medium' as const;
+  const subject = { ...input.subject, subject_id: subjectId };
+  const claimSummary = 'Public surfaces and an onchain pair establish that the object exists. They do not establish safety, team identity, committed utility, paid route reliability, or suitability as a spend target.';
+
+  return ProofCheckResultSchema.parse({
+    check_id: checkId,
+    created_at: new Date().toISOString(),
+    submitted_by: input.submittedBy ?? null,
+    source_url: input.sourceUrl ?? input.subject.site,
+    input: input.claim,
+    claim: input.claim,
+    claim_type: input.claim_type,
+    claim_summary: claimSummary,
+    subject_label: `${input.subject.ticker} / ${input.subject.name}`,
+    subject_id: subjectId,
+    subject,
+    receipts_found: receiptsFound,
+    missing_receipts: input.missing_receipts,
+    evidence_artifacts: [],
+    evidence_strength: evidenceStrength,
+    receipt_strength: receiptsFound.length ? 'partial_receipts' : 'no_receipts',
+    validation_status: 'unvalidated',
+    risk_flags: riskFlags,
+    decision_state: decisionState,
+    share_url: ticker === 'monitor' ? '/check/monitor' : `/check/${checkId}`,
+    share_text: `INFOPUNKS RECEIPT CHECK\nClaim: ${input.claim}\nDecision: ${decisionLabel(decisionState)}\nBefore agents spend, they check Infopunks.`,
+    evidence_summary: receiptsFound.length
+      ? `${receiptsFound.length} public receipt${receiptsFound.length === 1 ? '' : 's'} establish existence only. They do not close the missing evidence listed below.`
+      : 'No inspectable receipts were attached to this market narrative.',
+    validation_summary: 'Validation is unvalidated. No audit, team identity, utility commitment, or paid route benchmark is attached.',
+    decision_summary: decisionState === 'caution'
+      ? 'Caution because existence is supported, while safety, identity, utility, route reliability, and spend suitability remain unproven.'
+      : 'Unproven because no public receipt establishes the market narrative.',
+    headline: 'INFOPUNKS RECEIPT CHECK',
+    public_cta: 'Before an agent spends, it checks Infopunks.'
+  });
+}
+
 export function createProofCheckService(repository: ProofCheckRepository = proofCheckRepository) {
   return {
     createProofCheck(input: ProofCheckInput): ProofCheckResult {
       const parsedInput = ProofCheckInputSchema.parse(input);
+      if (isMarketNarrativeInput(parsedInput)) {
+        const result = createMarketNarrativeCheck(parsedInput);
+        const existing = repository.getProofCheck(result.check_id);
+        if (existing) return existing;
+        return repository.createProofCheck(result);
+      }
       const profile = deriveProfile(parsedInput.input, parsedInput.sourceUrl);
       const result = ProofCheckResultSchema.parse({
         check_id: stableId(parsedInput.input, parsedInput.sourceUrl),

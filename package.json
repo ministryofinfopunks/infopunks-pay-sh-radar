@@ -29,6 +29,8 @@
     "@fastify/cors": "^11.2.0",
     "@resvg/resvg-js": "^2.6.2",
     "@vitejs/plugin-react": "latest",
+    "@x402/core": "^2.28.0",
+    "@x402/evm": "^2.28.0",
     "fastify": "^5.8.5",
     "pg": "^8.20.0",
     "react": "latest",

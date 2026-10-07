@@ -1930,7 +1930,8 @@ function routeProofCheckId(pathname: string) {
   const match = pathname.match(/^\/check\/([^/]+)\/?$/);
   if (!match) return null;
   try {
-    return decodeURIComponent(match[1]);
+    const id = decodeURIComponent(match[1]);
+    return id === 'monitor' ? 'check_monitor' : id;
   } catch {
     return match[1];
   }

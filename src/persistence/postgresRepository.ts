@@ -144,6 +144,19 @@ export class PostgresRepository implements IntelligenceRepository {
     }
   }
 
+  // Read-only compatibility probe for the existing bootstrap schema.
+  async checkReadiness(): Promise<boolean> {
+    try {
+      await this.pool.query(`select e.payload, s.snapshot, i.error_count, m.skipped_reasons
+        from infopunks_events e, intelligence_snapshots s, ingestion_runs i, monitor_runs m limit 0`);
+      this.markDbStatus('ok', 'readiness');
+      return true;
+    } catch (error) {
+      this.markDbStatus(connectionErrorStatus(error), 'readiness', error);
+      return false;
+    }
+  }
+
   getDbStatus(): 'ok' | 'degraded' | 'unavailable' {
     const circuit = getDatabaseCircuitDiagnostics();
     if (circuit.dbMode === 'postgres') return circuit.dbStatus;

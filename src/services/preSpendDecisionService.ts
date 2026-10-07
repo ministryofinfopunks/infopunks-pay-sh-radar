@@ -41,6 +41,13 @@ type CandidateEvaluation = DecisionContext & {
   requires_human_approval: boolean;
 };
 
+export type LinkedProofCheck = {
+  check_id: string;
+  decision_state: 'trust' | 'caution' | 'do_not_use_yet' | 'unproven' | 'disputed';
+  share_url: string;
+  blockers: string[];
+};
+
 const NOW = () => new Date();
 const DAY_MS = 24 * 60 * 60 * 1000;
 const SENSITIVE_INTENT_PATTERN = /(claim|compliance|legal|medical|identity|intellectual[_ -]?property|ip[_ -]claim|ip[_ -]review)/i;
@@ -142,52 +149,10 @@ function validationScore(receipts: PreSpendReceipt[], provider: ProviderIntellig
   return Math.round((receiptAverage * 0.65) + (weights[provider.human_validation_status] * 0.2) + (weights[service.benchmark_readiness] * 0.15));
 }
 
-function outputQualitySignal(provider: ProviderIntelligenceRecord, receipts: PreSpendReceipt[]) {
-  const noteText = provider.output_quality_notes.join(' ').toLowerCase();
-  const receiptText = receipts.flatMap((receipt) => receipt.human_notes).join(' ').toLowerCase();
-  let score = 68;
-  if (/repeatable|precise|clean|validated|strong/.test(noteText)) score += 12;
-  if (/varies|mixed|prompt-specific|manual cleanup/.test(noteText)) score -= 10;
-  if (/useful|high quality/.test(receiptText)) score += 6;
-  if (/invalid|hallucinat|bad provider/.test(receiptText)) score -= 12;
-  return clamp(score, 0, 100);
-}
-
-export function calculateConfidenceScore(context: DecisionContext) {
-  const { route, provider, service, receipts } = context;
-  const facts = summarizeDecisionFacts({
-    agent_id: 'scoring_context',
-    intent: route.recommended_use_case,
-    budget: 0,
-    risk_tolerance: 'high',
-    preferred_settlement: route.payment_method,
-    required_confidence: 0
-  }, context);
-  const humanValidation = validationScore(receipts, provider, service);
-  const benchmarkReadiness = service.benchmark_readiness === 'human_validated'
-    ? 10
-    : service.benchmark_readiness === 'machine_checked'
-      ? 6
-      : service.benchmark_readiness === 'stale'
-        ? -8
-        : service.benchmark_readiness === 'disputed' || service.benchmark_readiness === 'rejected'
-          ? -16
-          : 0;
-  const quality = Math.round((outputQualitySignal(provider, receipts) - 50) / 6);
-  let confidence = 35;
-  confidence += Math.round(route.success_rate * 25);
-  confidence += Math.round(provider.reliability_score * 0.2);
-  confidence += Math.min(facts.recent_successful_receipt_count * 10, 20);
-  confidence += Math.min(facts.recent_human_validated_receipt_count * 8, 16);
-  confidence += Math.round((humanValidation - 50) * 0.15);
-  confidence += benchmarkReadiness;
-  confidence += quality;
-  if (facts.stale_receipts) confidence -= 18;
-  if (!facts.has_recent_successful_receipt) confidence -= 12;
-  if (facts.failed_receipt_count > 0) confidence -= Math.min(facts.failed_receipt_count * 6, 18);
-  if (facts.unresolved_disputes) confidence -= 16;
-  if (facts.has_known_blockers) confidence -= 6;
-  return Math.round(clamp(confidence, 0, 100));
+export function calculateConfidenceScore(_context: DecisionContext) {
+  // Legacy fields are historical metadata, not independently authored confidence.
+  // Authoritative subject scores are replayed through receiptAuthorityService.
+  return 0;
 }
 
 export function calculateRiskLevel(request: PreSpendCheckRequest, context: DecisionContext): RiskLevel {
@@ -214,53 +179,20 @@ export function calculateRiskLevel(request: PreSpendCheckRequest, context: Decis
   return 'low';
 }
 
-export function calculateAgentReadinessScore(request: PreSpendCheckRequest, context: DecisionContext) {
-  const { route, provider, service, receipts } = context;
-  const serviceCompatibility = service.category === request.intent || service.pre_spend_recommendation.toLowerCase().includes(request.intent.toLowerCase())
-    ? 90
-    : service.supported_inputs.some((input: string) => request.intent.toLowerCase().includes(input.toLowerCase()))
-      ? 82
-      : 72;
-  const routeStability = Math.round((route.success_rate * 100) - (route.known_blockers.length * 4));
-  const paymentCompatibility = route.payment_method === request.preferred_settlement ? 100 : 54;
-  const supportedInputs = service.supported_inputs.length >= 3 ? 88 : 70;
-  const observedSuccess = receipts.filter((receipt) => receipt.status === 'succeeded').length >= 2 ? 90 : 60;
-  const blockersPenalty = Math.min(route.known_blockers.length * 7, 28);
-  const repeatability = ageInDays(route.last_successful_run) <= 14 && receipts.filter((receipt) => receipt.status === 'succeeded').length >= 2 ? 88 : 58;
-
-  return Math.round(clamp(
-    (serviceCompatibility * 0.18) +
-    (routeStability * 0.22) +
-    (paymentCompatibility * 0.15) +
-    (supportedInputs * 0.1) +
-    (observedSuccess * 0.17) +
-    (repeatability * 0.18) -
-    blockersPenalty,
-    0,
-    100
-  ));
+export function calculateAgentReadinessScore(_request: PreSpendCheckRequest, _context: DecisionContext) {
+  // Legacy intake cannot author a readiness/confidence projection.
+  return 0;
 }
 
 function decisionFromScores(request: PreSpendCheckRequest, candidate: Omit<CandidateEvaluation, 'decision' | 'requires_human_approval'>, facts: DecisionFacts) {
   if (!facts.has_recent_successful_receipt && ((facts.unresolved_disputes && !facts.has_any_successful_receipt) || facts.repeated_failures)) {
     return { decision: 'do_not_use' as const, requires_human_approval: false };
   }
-  if (facts.budget_requires_human_approval || (facts.sensitive_intent && facts.has_recent_successful_receipt) || (facts.risk_tolerance_exceeded && facts.has_recent_successful_receipt && candidate.confidence_score >= 60)) {
+  if (facts.budget_requires_human_approval || (facts.sensitive_intent && facts.has_recent_successful_receipt)) {
     return { decision: 'requires_human_approval' as const, requires_human_approval: true };
   }
-  if (!facts.required_confidence_met && (!facts.has_recent_successful_receipt || facts.stale_receipts || facts.has_known_blockers || candidate.risk_level === 'medium' || candidate.risk_level === 'high')) {
-    return { decision: 'use_with_caution' as const, requires_human_approval: false };
-  }
-  if (facts.has_known_blockers && facts.required_confidence_met && candidate.risk_level !== 'high' && candidate.risk_level !== 'critical') {
-    return { decision: 'approved_with_warning' as const, requires_human_approval: false };
-  }
-  if (facts.required_confidence_met && !facts.has_known_blockers && candidate.risk_level === 'low' && facts.has_recent_successful_receipt) {
-    return { decision: 'approved' as const, requires_human_approval: false };
-  }
-  if (!facts.has_recent_successful_receipt || facts.stale_receipts || facts.has_any_successful_receipt) {
-    return { decision: 'use_with_caution' as const, requires_human_approval: false };
-  }
-  return { decision: 'do_not_use' as const, requires_human_approval: false };
+  // Legacy receipts cannot grant autonomous approval. Canonical judgments own that authority.
+  return { decision: 'use_with_caution' as const, requires_human_approval: false };
 }
 
 function parseEstimatedCost(cost: string | null) {
@@ -277,8 +209,8 @@ function buildRationale(request: PreSpendCheckRequest, candidate: CandidateEvalu
   rationale.push(facts.has_recent_successful_receipt
     ? `Recent successful receipts exist (${facts.recent_successful_receipt_count} within 14 days).`
     : 'No recent successful receipt exists.');
-  if (facts.recent_human_validated_receipt_count > 0) rationale.push(`Recent human validation increases confidence (${facts.recent_human_validated_receipt_count} recent validations).`);
-  if (facts.stale_receipts) rationale.push('Stale receipts reduce confidence.');
+  if (facts.recent_human_validated_receipt_count > 0) rationale.push(`Legacy human validation is intake only (${facts.recent_human_validated_receipt_count} recent validations).`);
+  if (facts.stale_receipts) rationale.push('Stale receipts remain non-authoritative evidence.');
   if (facts.unresolved_disputes) rationale.push('Unresolved disputes increase risk.');
   if (facts.has_known_blockers) rationale.push(`Known blockers prevent silent approval: ${candidate.route.known_blockers.join('; ')}.`);
   if (facts.budget_requires_human_approval) rationale.push(`Budget ${request.budget} requires human approval.`);
@@ -289,7 +221,8 @@ function buildRationale(request: PreSpendCheckRequest, candidate: CandidateEvalu
 
 export function makePreSpendDecision(
   request: PreSpendCheckRequest,
-  candidates: DecisionContext[]
+  candidates: DecisionContext[],
+  linkedProofCheck: LinkedProofCheck | null = null
 ): PreSpendCheckResponse {
   const evaluated = candidates.map((context) => {
     const confidence_score = calculateConfidenceScore(context);
@@ -341,19 +274,36 @@ export function makePreSpendDecision(
       reason: candidate.rationale[candidate.rationale.length - 1] ?? 'insufficient evidence'
     }));
 
+  const proofBlocksAutonomousApproval = Boolean(linkedProofCheck && linkedProofCheck.decision_state !== 'trust');
+  const linkedDecision = proofBlocksAutonomousApproval && (recommended.decision === 'approved' || recommended.decision === 'approved_with_warning')
+    ? 'requires_human_approval' as const
+    : recommended.decision;
+  const linkedRationale = linkedProofCheck
+    ? [
+        `Linked Proof Check ${linkedProofCheck.check_id} is ${linkedProofCheck.decision_state}.`,
+        ...(proofBlocksAutonomousApproval ? ['Autonomous approval is blocked until the linked proof state is stronger.'] : []),
+        ...linkedProofCheck.blockers.map((blocker) => `Proof blocker: ${blocker}`)
+      ]
+    : [];
+
   return {
+    subject: request.subject_id ?? null,
     intent: request.intent,
-    decision: recommended.decision,
+    preferred_settlement: request.preferred_settlement,
+    required_confidence: request.required_confidence,
+    decision: linkedDecision,
     recommended_route: recommended.route.route_id,
     confidence_score: recommended.confidence_score,
     risk_level: recommended.risk_level,
     estimated_cost: recommended.route.estimated_cost,
     last_successful_run: recommended.route.last_successful_run,
-    known_blockers: recommended.route.known_blockers,
-    requires_human_approval: recommended.requires_human_approval,
+    known_blockers: [...recommended.route.known_blockers, ...(linkedProofCheck?.blockers ?? [])],
+    requires_human_approval: linkedDecision === 'requires_human_approval' || recommended.requires_human_approval,
     receipt_references: recommended.route.receipt_references,
+    linked_check_id: linkedProofCheck?.check_id ?? request.linked_check_id ?? null,
+    proof_check_reference: linkedProofCheck?.share_url ?? null,
     safer_alternatives,
     do_not_use,
-    rationale: recommended.rationale
+    rationale: [...recommended.rationale, ...linkedRationale]
   };
 }

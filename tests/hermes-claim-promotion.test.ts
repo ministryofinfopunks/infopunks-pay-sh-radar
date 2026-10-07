@@ -31,7 +31,7 @@ function runFixture(decision: HermesDecisionState, extra: Record<string, unknown
 }
 
 describe('Hermes claim promotion', () => {
-  it('promotes trust runs to accepted claims with positive reputation impact', () => {
+  it('promotes trust runs to accepted claims with zero reputation authority', () => {
     const result = promoteHermesClaimCandidate(runFixture('trust', { provider_id: 'provider_alpha' }));
 
     expect(result.promoted_claim.review_state).toBe('accepted');
@@ -40,7 +40,7 @@ describe('Hermes claim promotion', () => {
       target_type: 'provider',
       target_id: 'provider_alpha',
       direction: 'positive',
-      magnitude: 0.8
+      magnitude: 0
     }));
   });
 

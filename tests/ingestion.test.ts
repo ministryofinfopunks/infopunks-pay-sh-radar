@@ -1,4 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { runPreflight } from '../src/services/preflightService';
+import { createIntelligenceStore, emptyIntelligenceStore, runPayShIngestionWithOptions } from '../src/services/intelligenceStore';
+import { MemoryRepository } from '../src/persistence/repository';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { applyPayShCatalogIngestion, ingestPayShCatalog, loadPayShCatalog, normalizePayShCatalog, parseCatalogPrice } from '../src/ingestion/payShCatalogAdapter';
 import { PayShCatalogItem } from '../src/data/payShCatalogFixture';
 import { IntelligenceSnapshot } from '../src/persistence/repository';
@@ -200,5 +203,66 @@ describe('Pay.sh catalog ingestion', () => {
     expect(types).toContain('price.changed');
     expect(types).toContain('category.changed');
     expect(types).toContain('endpoint_count.changed');
+  });
+});
+
+
+describe('production catalog isolation', () => {
+  afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); });
+  function production() {
+    vi.stubEnv('NODE_ENV', 'production');
+    vi.stubEnv('PAYSH_CATALOG_SOURCE', 'live');
+    vi.stubEnv('PAY_SH_CATALOG_URL', 'https://pay.sh/api/catalog');
+    vi.stubEnv('PAYSH_ALLOW_FIXTURE_FALLBACK', 'false');
+  }
+  it.each(['offline', 'invalid', 'empty', 'stale'])('never substitutes fixtures for %s live evidence', async (failure) => {
+    production();
+    vi.stubGlobal('fetch', vi.fn(async () => {
+      if (failure === 'offline') throw new Error('offline');
+      return new Response(JSON.stringify(failure === 'invalid' ? { providers: [{}] }
+        : failure === 'empty' ? { providers: [] }
+        : { generated_at: '2020-01-01T00:00:00Z', providers: [{ fqn: 'live/api', title: 'Live', category: 'Data' }] }), { status: 200 });
+    }));
+    const loaded = await loadPayShCatalog();
+    expect(loaded.items).toEqual([]);
+    expect(loaded.usedFixture).toBe(false);
+    expect(loaded.liveFetchFailed).toBe(true);
+    const repository = new MemoryRepository();
+    const store = await createIntelligenceStore(repository);
+    expect(store.providers).toEqual([]);
+    expect(store.dataSource).toMatchObject({ used_fixture: false, mode: 'live_pay_sh_catalog' });
+    await runPayShIngestionWithOptions(store, repository);
+    expect(store.providers).toEqual([]);
+    expect(store.events.some((event) => event.source.includes('fixture'))).toBe(false);
+    expect(runPreflight({ intent: 'market data', category: 'Data', constraints: {} }, store).decision).toBe('route_blocked');
+  });
+  it('uses live data when it succeeds', async () => {
+    production();
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ generated_at: new Date().toISOString(), providers: [{ fqn: 'live/api', title: 'Live', category: 'Data' }] }))));
+    const store = await createIntelligenceStore(new MemoryRepository());
+    expect(store.providers.map((provider) => provider.id)).toEqual(['live-api']);
+    expect(store.dataSource?.used_fixture).toBe(false);
+  });
+  it('rejects explicit fixture overrides and direct fixture ingestion in production', async () => {
+    production();
+    await expect(loadPayShCatalog(undefined, { catalogSource: 'fixture' })).rejects.toMatchObject({ code: 'INVALID_RUNTIME_CONFIGURATION' });
+    await expect(loadPayShCatalog(undefined, { allowFixtureFallback: true })).rejects.toMatchObject({ code: 'INVALID_RUNTIME_CONFIGURATION' });
+    expect(() => ingestPayShCatalog()).toThrow('production_fixture_catalog_forbidden');
+  });
+  it('does not reuse a persisted fixture snapshot in production', async () => {
+    vi.stubEnv('NODE_ENV', 'test');
+    const repository = new MemoryRepository();
+    await createIntelligenceStore(repository);
+    production();
+    vi.stubGlobal('fetch', vi.fn(async () => { throw new Error('offline'); }));
+    const store = await createIntelligenceStore(repository);
+    expect(store.providers).toEqual([]);
+    expect(store.dataSource?.used_fixture).toBe(false);
+  });
+  it('keeps explicit test fixtures available', async () => {
+    vi.stubEnv('NODE_ENV', 'test');
+    const result = await loadPayShCatalog(undefined, { catalogSource: 'fixture' });
+    expect(result.usedFixture).toBe(true);
+    expect(result.items.length).toBeGreaterThan(0);
   });
 });

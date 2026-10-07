@@ -10964,6 +10964,10 @@ summary:focus-visible {
   gap: 6px;
 }
 
+.proof-card-grid strong {
+  overflow-wrap: anywhere;
+}
+
 .proof-card-grid span,
 .proof-card-section h3,
 .proof-share-panel .eyebrow {
@@ -11008,6 +11012,23 @@ summary:focus-visible {
   padding-top: 8px;
   border-top: 1px solid rgba(126, 255, 176, 0.12);
   color: #dcebe0;
+}
+
+.proof-card-foot-actions,
+.monitor-decision-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.monitor-decision-card .proof-list {
+  display: grid;
+  gap: 8px;
+}
+
+.monitor-decision-card .proof-card-foot {
+  justify-content: flex-start;
 }
 
 .proof-card-foot small {

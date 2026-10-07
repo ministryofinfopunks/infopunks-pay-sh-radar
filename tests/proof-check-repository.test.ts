@@ -13,5 +13,6 @@ describe('proof check repository', () => {
     expect(decisions.has('do_not_use_yet')).toBe(true);
     expect(decisions.has('unproven')).toBe(true);
     expect(decisions.has('disputed')).toBe(true);
+    expect(checks.find((check) => check.check_id === 'check_monitor')?.subject_id).toBe('subject_monitor');
   });
 });

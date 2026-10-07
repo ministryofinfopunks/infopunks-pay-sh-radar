@@ -15,15 +15,20 @@ export function emptyIntelligenceStore(): IntelligenceStore {
   return { events: [], providers: [], endpoints: [], trustAssessments: [], signalAssessments: [], narratives: [], ingestionRuns: [], monitorRuns: [] };
 }
 
+export function hasFixtureCatalogEvidence(snapshot: IntelligenceSnapshot): boolean {
+  return Boolean(snapshot.dataSource?.used_fixture || snapshot.dataSource?.mode === 'fixture_fallback'
+    || snapshot.events.some((event) => event.source.startsWith('pay.sh:') && event.source.includes('fixture')));
+}
+
 export async function createIntelligenceStore(repository: IntelligenceRepository = defaultRepository()): Promise<IntelligenceStore> {
   const existing = await repository.loadSnapshot();
-  if (existing) return normalizeSnapshot(existing);
+  if (existing && !(process.env.NODE_ENV === 'production' && (existing.dataSource?.used_fixture || existing.dataSource?.mode !== 'live_pay_sh_catalog' || hasFixtureCatalogEvidence(existing)))) return normalizeSnapshot(existing);
 
   const { items, source, dataSource } = await loadPayShCatalog(undefined, {
     catalogSource: process.env.PAYSH_CATALOG_SOURCE === 'live' ? 'live' : 'fixture',
     allowFixtureFallback: process.env.PAYSH_ALLOW_FIXTURE_FALLBACK === 'true' || process.env.NODE_ENV !== 'production'
   });
-  if (items.length === 0 && dataSource.mode === 'live_pay_sh_catalog' && dataSource.error) {
+  if (process.env.NODE_ENV !== 'production' && items.length === 0 && dataSource.mode === 'live_pay_sh_catalog' && dataSource.error) {
     const fixture = await loadPayShCatalog(undefined, {
       catalogSource: 'fixture',
       allowFixtureFallback: true
@@ -61,6 +66,7 @@ export async function runPayShIngestionWithOptions(
     allowFixtureFallback?: boolean;
   } = {}
 ) {
+  if (process.env.NODE_ENV === 'production' && hasFixtureCatalogEvidence(store)) replaceStore(store, emptyIntelligenceStore());
   const { items, source, usedFixture, dataSource } = await loadPayShCatalog(options.catalogUrl, {
     catalogSource: options.catalogSource ?? (process.env.PAYSH_CATALOG_SOURCE === 'live' ? 'live' : 'fixture'),
     allowFixtureFallback: options.allowFixtureFallback ?? (process.env.PAYSH_ALLOW_FIXTURE_FALLBACK === 'true' || process.env.NODE_ENV !== 'production')
@@ -91,7 +97,7 @@ export function recomputeAssessments(snapshot: IntelligenceSnapshot): Intelligen
 }
 
 export function normalizeSnapshot(snapshot: IntelligenceSnapshot): IntelligenceSnapshot {
-  const normalized = { ...emptySnapshot(), ...snapshot, ingestionRuns: snapshot.ingestionRuns ?? [], monitorRuns: snapshot.monitorRuns ?? [] };
+  const normalized = { ...emptySnapshot(), ...snapshot, trustAssessments: snapshot.trustAssessments.map((assessment) => ({ ...assessment, score: null, grade: 'unknown' as const })), ingestionRuns: snapshot.ingestionRuns ?? [], monitorRuns: snapshot.monitorRuns ?? [] };
   const events = normalizeScoreEventTimestamps(normalized.events);
   return { ...normalized, events: appendScoreAssessmentEvents(events, normalized.trustAssessments, normalized.signalAssessments) };
 }
@@ -116,16 +122,7 @@ function appendScoreAssessmentEvents(events: InfopunksEvent[], trustAssessments:
   const nextEvents = [...events];
   const existingIds = new Set(nextEvents.map((event) => event.id));
 
-  for (const assessment of trustAssessments) {
-    const previous = latestScoreEvent(nextEvents, 'trust_assessment', assessment.entityId);
-    if (previous && previous.payload.score === assessment.score) continue;
-    const event = scoreEvent('trust_assessment', assessment, previous);
-    if (!existingIds.has(event.id)) {
-      existingIds.add(event.id);
-      nextEvents.push(event);
-    }
-  }
-
+  // Historical trust events remain readable; observations never emit reputation deltas.
   for (const assessment of signalAssessments) {
     const previous = latestScoreEvent(nextEvents, 'signal_assessment', assessment.entityId);
     if (previous && previous.payload.score === assessment.score) continue;

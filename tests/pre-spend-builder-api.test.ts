@@ -49,7 +49,7 @@ async function postCheck(payload: Record<string, unknown>, fixedNow?: string) {
 }
 
 describe('pre-spend builder API', () => {
-  it('returns approved for a high-confidence low-risk route', async () => {
+  it('returns a blocked legacy decision for a historically successful route', async () => {
     const response = await postCheck({
       agent_id: 'agent_001',
       intent: 'price_token_quote',
@@ -60,12 +60,12 @@ describe('pre-spend builder API', () => {
     }, '2026-06-20T00:00:00.000Z');
     expect(response.statusCode).toBe(200);
     const body = response.json().data;
-    expect(body.decision).toBe('approved');
+    expect(body.decision).toBe('use_with_caution');
     expect(body.recommended_route).toBe('route_pay_sh_token_quote_01');
     expect(body.rationale.length).toBeGreaterThan(0);
   });
 
-  it('returns approved_with_warning when the cheaper market research route wins within the cost-selection threshold', async () => {
+  it('returns a blocked legacy decision for market research without a canonical judgment', async () => {
     const response = await postCheck({
       agent_id: 'agent_001',
       intent: 'buy_market_research',
@@ -76,7 +76,7 @@ describe('pre-spend builder API', () => {
     }, '2026-06-20T00:00:00.000Z');
     expect(response.statusCode).toBe(200);
     const body = response.json().data;
-    expect(body.decision).toBe('approved_with_warning');
+    expect(body.decision).toBe('use_with_caution');
     expect(body.recommended_route).toBe('route_pay_sh_market_research_01');
     expect(body.known_blockers).toEqual([
       'occasional timeout under high load',
@@ -98,6 +98,40 @@ describe('pre-spend builder API', () => {
     expect(response.statusCode).toBe(200);
     expect(response.json().data.decision).toBe('use_with_caution');
     expect(response.json().data.rationale.length).toBeGreaterThan(0);
+  });
+
+  it('runs MONITOR through the linked Proof Check before spend', async () => {
+    const response = await postCheck({
+      agent_id: 'infopunks_launch_surface',
+      intent: 'allocate_to_pltr_paired_narrative_token',
+      subject_id: 'monitor',
+      budget: 25,
+      risk_tolerance: 'low',
+      preferred_settlement: 'tokenized_pltr',
+      required_confidence: 75,
+      linked_check_id: 'monitor'
+    });
+
+    expect(response.statusCode).toBe(200);
+    const body = response.json().data;
+    expect(body.subject).toBe('monitor');
+    expect(body.intent).toBe('allocate_to_pltr_paired_narrative_token');
+    expect(body.preferred_settlement).toBe('tokenized_pltr');
+    expect(body.required_confidence).toBe(75);
+    expect(body.decision).toBe('use_with_caution');
+    expect(body.decision).not.toBe('approved');
+    expect(body.decision).not.toBe('approved');
+    expect(body.linked_check_id).toBe('check_monitor');
+    expect(body.proof_check_reference).toBe('/check/monitor');
+    expect(body.known_blockers).toEqual(expect.arrayContaining([
+      'The target is unaudited; no audit receipt is attached.',
+      'No Pay.sh paid route benchmark is attached for this spend target.',
+      'Utility is explicitly disclaimed or otherwise not substantiated by a utility commitment receipt.',
+      'The PLTR pair establishes existence, not pool depth or volatility safety; treat liquidity as thin or volatile until evidenced.',
+      'Narrative heat currently outruns evidence-ledger coverage.'
+    ]));
+    expect(body.rationale.join(' ')).toContain('Linked Proof Check check_monitor is caution.');
+    expect(body.receipt_references.length).toBeGreaterThan(0);
   });
 
   it('returns requires_human_approval for high budget or sensitive spend', async () => {
@@ -157,7 +191,7 @@ describe('pre-spend builder API', () => {
       expect(detail.statusCode).toBe(200);
       expect(detail.json().data.provider.provider_id).toBe('provider_pay_sh_quartz');
       expect(detail.json().data.receipts.length).toBeGreaterThan(0);
-      expect(detail.json().data.trust_profile.safe_for_first_attempt).toBe(true);
+      expect(detail.json().data.trust_profile.safe_for_first_attempt).toBe(false);
       await app.close();
     });
   });
@@ -232,7 +266,7 @@ describe('pre-spend builder API', () => {
     const detail = await app.inject({ method: 'GET', url: '/v1/receipts/receipt_003' });
     expect(detail.statusCode).toBe(200);
     expect(detail.json().data.receipt_id).toBe('receipt_003');
-    expect(detail.json().data.impact.should_affect_future_pre_spend_decisions).toBe(true);
+    expect(detail.json().data.impact.should_affect_future_pre_spend_decisions).toBe(false);
 
     const create = await app.inject({
       method: 'POST',
@@ -252,7 +286,7 @@ describe('pre-spend builder API', () => {
         failure_reason: null,
         validation_state: 'machine_checked',
         human_notes: [],
-        confidence_delta: 3,
+        confidence_delta: 0,
         evidence_artifact: 'artifact_token_quote_run_004'
       }
     });
@@ -355,7 +389,7 @@ describe('pre-spend builder API', () => {
         failure_reason: null,
         validation_state: 'machine_checked',
         human_notes: [],
-        confidence_delta: 4,
+        confidence_delta: 0,
         evidence_artifact: 'artifact_token_quote_run_006'
       }
     });

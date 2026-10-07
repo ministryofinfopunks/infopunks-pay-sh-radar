@@ -27,8 +27,13 @@ Render supplies `PORT`. Set `NODE_ENV=production`.
 is absent, the public terminal remains up and every admin endpoint remains
 closed (no fallback token exists).
 
-`DATABASE_URL` is required only for durable persistence and the RH Chain
-features shown in the matrix below. Do not enable their flags without it.
+`DATABASE_URL` is now required for every production startup. Production also
+requires `PAYSH_CATALOG_SOURCE=live`,
+`PAY_SH_CATALOG_URL=https://pay.sh/api/catalog` (or another valid HTTPS live
+catalog URL), and `PAYSH_ALLOW_FIXTURE_FALLBACK=false`. No fixture substitution
+is permitted. `ADMIN_TOKEN` is supported alongside `INFOPUNKS_ADMIN_TOKEN`.
+See the Railway parity procedure in `docs/rh4663-production-runbook.md`; the
+same strict bindings and readiness gate apply on either host.
 
 `RH_CHAIN_REVIEW_ADMIN_TOKEN` is required only with
 `RH_CHAIN_REVIEW_CONSOLE_ENABLED=true`. The console never falls back to the
@@ -137,7 +142,15 @@ with this migration state:
 | `20260813_008` | ABSENT |
 | `20260814_009` | ABSENT |
 
-### Required gated sequence
+### Historical restoration sequence
+
+The sequence below records the prior recovery procedure. Its memory-mode
+production steps A/B are superseded by the strict production startup gate;
+do not execute them with this release. Restore the current deployed release
+separately, then prepare a backed-up PostgreSQL target, inspect/apply pending
+migrations and verify readiness before deploying this hardened configuration.
+Keep the per-migration verification and non-destructive backup controls below.
+
 
 ```text
 A. Deploy the resilience code with `DATABASE_URL` absent.

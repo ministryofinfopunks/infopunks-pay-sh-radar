@@ -43,7 +43,7 @@ function profileFor(input: string, linkedCheckId?: string): LoopProfile {
       hypothesis: 'Machine loops need first-safe proof before they become autonomous defaults.',
       action_taken: 'Linked the input to a machine route evidence loop and preserved caution.',
       evidence_artifacts: ['artifact://loops/generated-machine-loop'],
-      score: 63,
+      score: 0, // Non-authoritative legacy intake.
       failure_reason: 'Service receipts are still partial.',
       proof_state: 'partial',
       decision_state: 'caution',
@@ -58,7 +58,7 @@ function profileFor(input: string, linkedCheckId?: string): LoopProfile {
       hypothesis: 'Receipt-backed route loops create safer default spend behavior.',
       action_taken: 'Matched the input to a pre-spend route discipline loop and linked its proof receipt.',
       evidence_artifacts: ['artifact://loops/generated-route-discipline'],
-      score: 76,
+      score: 0, // Non-authoritative legacy intake.
       failure_reason: null,
       proof_state: 'partial',
       decision_state: 'caution',
@@ -73,7 +73,7 @@ function profileFor(input: string, linkedCheckId?: string): LoopProfile {
       hypothesis: 'Loops with reliable provider proof should converge toward trust.',
       action_taken: 'Mapped the input into a provider-trust loop and reused the strongest linked proof receipt.',
       evidence_artifacts: ['artifact://loops/generated-provider-trust'],
-      score: 84,
+      score: 0, // Non-authoritative legacy intake.
       failure_reason: null,
       proof_state: 'verified',
       decision_state: 'trust',
@@ -88,7 +88,7 @@ function profileFor(input: string, linkedCheckId?: string): LoopProfile {
       hypothesis: 'Integrity loops should prevent narrative from outrunning evidence.',
       action_taken: 'Stored the claim as public memory and linked it to an unproven proof receipt.',
       evidence_artifacts: ['artifact://loops/generated-claim-integrity'],
-      score: 33,
+      score: 0, // Non-authoritative legacy intake.
       failure_reason: 'Narrative evidence remains stronger than receipt evidence.',
       proof_state: 'unproven',
       decision_state: 'unproven',
@@ -102,7 +102,7 @@ function profileFor(input: string, linkedCheckId?: string): LoopProfile {
     hypothesis: 'Loop systems improve when failure reasons become explicit public artifacts.',
     action_taken: 'Recorded the loop as a failure-memory candidate and linked it to a do-not-use-yet proof receipt.',
     evidence_artifacts: ['artifact://loops/generated-failure-memory'],
-    score: 40,
+    score: 0, // Non-authoritative legacy intake.
     failure_reason: 'The loop claim is still under-evidenced for autonomous use.',
     proof_state: 'failure_recorded',
     decision_state: 'do_not_use_yet',

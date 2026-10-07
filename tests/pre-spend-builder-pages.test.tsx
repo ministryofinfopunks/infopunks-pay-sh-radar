@@ -174,6 +174,33 @@ describe('pre-spend builder pages', () => {
     root.unmount();
   });
 
+  it('preloads MONITOR from the public spend-terminal query surface', async () => {
+    const { root, container } = await render('/spend-terminal?intent=allocate_to_pltr_paired_narrative_token&subject=monitor');
+    expect((container.querySelector('input[aria-label="intent"]') as HTMLInputElement).value).toBe('allocate_to_pltr_paired_narrative_token');
+    expect((container.querySelector('input[aria-label="preferred settlement"]') as HTMLInputElement).value).toBe('tokenized_pltr');
+
+    const form = container.querySelector('form')!;
+    await act(async () => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    const request = vi.mocked(globalThis.fetch).mock.calls
+      .map((call) => call[1])
+      .find((init) => init && typeof init === 'object' && (init as RequestInit).method === 'POST') as RequestInit | undefined;
+    expect(request).toBeTruthy();
+    expect(JSON.parse(String(request?.body))).toMatchObject({
+      intent: 'allocate_to_pltr_paired_narrative_token',
+      subject_id: 'monitor',
+      linked_check_id: 'monitor',
+      preferred_settlement: 'tokenized_pltr',
+      required_confidence: 75
+    });
+    root.unmount();
+  });
+
   it('renders developers page with SDK, API, decision states, trust copy, and public links', async () => {
     const { root, container } = await render('/developers');
     const text = container.textContent ?? '';

@@ -3,35 +3,6 @@ import { classifyProviderDossierSeverity } from './severityEngine';
 import { resolveEventCatalogGeneratedAt, resolveEventIngestedAt, resolveEventObservedAt } from '../services/eventTimestamp';
 
 const clamp = (value: number) => Math.max(0, Math.min(100, Math.round(value)));
-const weights: Record<keyof TrustAssessment['components'], number> = {
-  uptime: 0.18,
-  responseValidity: 0.16,
-  metadataQuality: 0.16,
-  pricingClarity: 0.14,
-  latency: 0.12,
-  receiptReliability: 0.14,
-  freshness: 0.1
-};
-
-function grade(score: number | null): TrustAssessment['grade'] {
-  if (score === null) return 'unknown';
-  if (score >= 90) return 'S';
-  if (score >= 80) return 'A';
-  if (score >= 70) return 'B';
-  if (score >= 55) return 'C';
-  return 'D';
-}
-
-function weightedAvailableScore(components: TrustAssessment['components']) {
-  let weighted = 0;
-  let availableWeight = 0;
-  for (const [key, value] of Object.entries(components) as [keyof TrustAssessment['components'], number | null][]) {
-    if (value === null) continue;
-    weighted += value * weights[key];
-    availableWeight += weights[key];
-  }
-  return availableWeight === 0 ? null : clamp(weighted / availableWeight);
-}
 
 function metadataQuality(provider: Provider) {
   const description = provider.description ?? '';
@@ -153,7 +124,9 @@ export function computeTrustAssessment(provider: Provider, endpoints: Endpoint[]
   };
 
   const unknowns = Object.entries(components).filter(([, value]) => value === null).map(([key]) => key);
-  const score = weightedAvailableScore(components);
+  // Catalog/monitor observations are diagnostics, never reputation authority.
+  // Verified EvaluationReceipt projections are served by receiptAuthorityService.
+  const score: number | null = null;
   const evidence: Record<string, Evidence[]> = {
     uptime: [
       ...monitorEvidence.filter((item) => item.value && typeof (item.value as Record<string, unknown>).success === 'boolean'),
@@ -186,18 +159,18 @@ export function computeTrustAssessment(provider: Provider, endpoints: Endpoint[]
     ingestedAt: provider.lastSeenAt,
     ingested_at: provider.lastSeenAt,
     source: 'infopunks:deterministic-scoring',
-    derivationReason: 'Trust score is derived from catalog evidence and monitor evidence using the existing deterministic formula.',
-    derivation_reason: 'Trust score is derived from catalog evidence and monitor evidence using the existing deterministic formula.',
+    derivationReason: 'Legacy telemetry assessment has no reputation authority; only canonical evaluations produce reputation scores.',
+    derivation_reason: 'Legacy telemetry assessment has no reputation authority; only canonical evaluations produce reputation scores.',
     confidence: (Object.keys(components).length - unknowns.length) / Object.keys(components).length,
     ...severity,
     score,
-    grade: grade(score),
+    grade: 'unknown',
     components,
     evidence,
     unknowns,
     reasoning: [
-      'Trust V1 is deterministic and only scores components with supporting events.',
-      'Safe metadata monitor evidence only affects service reachability and latency; response validity, receipt reliability, and paid execution success remain unknown without endpoint or receipt evidence.',
+      'Telemetry components are diagnostic measurements, not independently authored reputation.',
+      'Safe metadata monitor evidence only describes service reachability and latency; response validity, receipt reliability, and paid execution success remain unknown without endpoint or receipt evidence.',
       `Available evidence produced score ${score ?? 'unknown'} over ${Object.keys(components).length - unknowns.length} known components.`
     ],
     assessedAt

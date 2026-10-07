@@ -108,13 +108,13 @@ describe('pre-spend decision engine', () => {
     vi.useRealTimers();
   });
 
-  it('has a fixture for approved', () => {
+  it('keeps successful fixtures non-authoritative', () => {
     const result = makePreSpendDecision(buildRequest(), [buildContext()]);
-    expect(result.decision).toBe('approved');
+    expect(result.decision).toBe('use_with_caution');
     expect(result.rationale.length).toBeGreaterThan(0);
   });
 
-  it('has a fixture for approved_with_warning', () => {
+  it('keeps warning fixtures non-authoritative', () => {
     const result = makePreSpendDecision(buildRequest(), [
       buildContext({
         route: {
@@ -123,7 +123,7 @@ describe('pre-spend decision engine', () => {
         }
       })
     ]);
-    expect(result.decision).toBe('approved_with_warning');
+    expect(result.decision).toBe('use_with_caution');
     expect(result.rationale.join(' ')).toContain('Known blockers');
   });
 
@@ -147,7 +147,7 @@ describe('pre-spend decision engine', () => {
       })
     ]);
     expect(result.decision).toBe('use_with_caution');
-    expect(result.rationale.join(' ')).toContain('Stale receipts reduce confidence.');
+    expect(result.rationale.join(' ')).toContain('Stale receipts remain non-authoritative evidence.');
   });
 
   it('has a fixture for requires_human_approval', () => {
@@ -183,7 +183,7 @@ describe('pre-spend decision engine', () => {
     expect(result.rationale.join(' ')).toContain('No receipt, no trust');
   });
 
-  it('stale receipts reduce confidence', () => {
+  it('legacy freshness cannot mutate confidence', () => {
     const fresh = calculateConfidenceScore(buildContext());
     const stale = calculateConfidenceScore(buildContext({
       route: {
@@ -196,10 +196,11 @@ describe('pre-spend decision engine', () => {
         validation_state: 'stale'
       }]
     }));
-    expect(stale).toBeLessThan(fresh);
+    expect(stale).toBe(0);
+    expect(fresh).toBe(0);
   });
 
-  it('recent human validation increases confidence', () => {
+  it('legacy human validation cannot mutate confidence', () => {
     const machineChecked = calculateConfidenceScore(buildContext({
       provider: {
         ...buildContext().provider,
@@ -216,7 +217,8 @@ describe('pre-spend decision engine', () => {
       }]
     }));
     const humanValidated = calculateConfidenceScore(buildContext());
-    expect(humanValidated).toBeGreaterThan(machineChecked);
+    expect(humanValidated).toBe(0);
+    expect(machineChecked).toBe(0);
   });
 
   it('unresolved disputes increase risk', () => {
@@ -235,7 +237,7 @@ describe('pre-spend decision engine', () => {
     expect(order.indexOf(disputedRisk)).toBeGreaterThan(order.indexOf(baseRisk));
   });
 
-  it('required confidence affects the decision', () => {
+  it('permissive confidence cannot grant legacy approval', () => {
     const context = buildContext({
       route: {
         ...buildContext().route,
@@ -259,11 +261,11 @@ describe('pre-spend decision engine', () => {
     });
     const permissive = makePreSpendDecision(buildRequest({ required_confidence: 60 }), [context]);
     const strict = makePreSpendDecision(buildRequest({ required_confidence: 95 }), [context]);
-    expect(permissive.decision).toBe('approved_with_warning');
+    expect(permissive.decision).toBe('use_with_caution');
     expect(strict.decision).toBe('use_with_caution');
   });
 
-  it('risk tolerance affects the decision', () => {
+  it('permissive risk tolerance cannot grant legacy approval', () => {
     const riskyContext = buildContext({
       route: {
         ...buildContext().route,
@@ -277,7 +279,7 @@ describe('pre-spend decision engine', () => {
     });
     const highTolerance = makePreSpendDecision(buildRequest({ risk_tolerance: 'high' }), [riskyContext]);
     const lowTolerance = makePreSpendDecision(buildRequest({ risk_tolerance: 'low' }), [riskyContext]);
-    expect(highTolerance.decision).toBe('approved_with_warning');
+    expect(highTolerance.decision).toBe('use_with_caution');
     expect(['requires_human_approval', 'use_with_caution', 'do_not_use']).toContain(lowTolerance.decision);
     expect(lowTolerance.decision).not.toBe('approved');
   });
