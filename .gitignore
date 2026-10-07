@@ -13,3 +13,8 @@ coverage/
 # Generated launch videos / brag outputs
 brag-output-*/
 launch-assets/
+
+# Local generated output
+/output/
+/tmp/
+/artifacts/phase3.1-production-audit-2026-08-17/
