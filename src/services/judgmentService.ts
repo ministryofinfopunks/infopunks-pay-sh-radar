@@ -1,4 +1,7 @@
+import { ECONOMIC_RAILS, EconomicNetworkSchema } from '../security/economicRails';
+import type { JudgmentIssuer } from '../security/judgmentIssuer';
 import { z } from 'zod';
+import { createDerivedScoreService } from './derivedScoreService';
 import { decodePaymentSignatureHeader } from '@x402/core/http';
 import { PreSpendCheckRequestSchema, type PreSpendCheckResponse } from '../schemas/entities';
 import type { DecisionState } from './preSpendDecisionService';
@@ -29,20 +32,29 @@ export type JudgmentServiceOptions = {
   legacyCheck(input: z.infer<typeof PreSpendCheckRequestSchema>): PreSpendCheckResponse;
   observations(subject: string, intentHash: string): Promise<ObservationReceipt[]>;
   threshold: number; ttlMs: number; amount: string; gateway: JudgmentPaymentGateway | null;
+  issuer?: JudgmentIssuer | null;
   now?: () => Date;
   onTiming?: (timing: { local_ms: number; payment_ms: number; total_ms: number }) => void;
 };
 export function createJudgmentService(options: JudgmentServiceOptions) {
   const now = options.now ?? (() => new Date());
-  const authority = createReceiptAuthorityService(options.store, options.threshold);
+  const authority = createReceiptAuthorityService(options.store, options.threshold, options.issuer);
+  const scores = createDerivedScoreService(options.store, options.threshold);
   async function complete(key: string, record: JudgmentRequestRecord) {
     const result = record.response;
+    const existing = await options.store.get('judgment', result.judgment_id) as JudgmentReceipt | null;
+    const requirement = record.challenge.accepts.find(r => r.network === record.settlement!.network);
+    const network = EconomicNetworkSchema.parse(record.settlement!.network);
+    const rail = ECONOMIC_RAILS[network];
+    if (!requirement || requirement.asset.toLowerCase() !== rail.token || result.cost.asset !== rail.asset) throw new JudgmentError(409, 'settlement_asset_mismatch');
+    // Legacy receipts replay unchanged; new receipts commit the exact billing rail.
+    const payment = existing ? existing.payment : { network, asset: rail.asset, token: rail.token, amount_atomic: requirement.amount, pay_to: requirement.payTo, payer: record.settlement!.payer ?? null, verification: 'facilitator_attested' as const };
     const receipt = await authority.appendJudgment({
       judgment_id: result.judgment_id, subject_type: record.subject_type, subject_id: record.subject_id,
       intent_hash: record.intent_hash, decision: result.decision, confidence: result.confidence,
       reasons: result.reasons, cited_observation_ids: result.cited_observations,
       issued_at: result.issued_at, valid_until: result.valid_until, payment_required: true,
-      payment_receipt_ref: record.settlement!.transaction, charge: result.cost.amount
+      payment_receipt_ref: record.settlement!.transaction, charge: result.cost.amount, ...(payment ? { payment } : {})
     });
     record.response.receipt = receipt; record.state = 'complete'; await options.journal.save(key, record);
     return { status: 200, headers: { 'PAYMENT-RESPONSE': encodePaymentResponseHeader(record.settlement!) }, response: record.response, legacy: record.legacy };
@@ -91,17 +103,28 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
         let decision = sufficient && (reviewedState !== 'unknown' || veto) ? adaptDecision(state, bounded, veto) : 'insufficient_evidence' as CanonicalDecision;
         if (legacy.decision === 'do_not_use' && reviewedState !== 'do_not_use' && !veto) decision = 'insufficient_evidence';
         if (decision === 'proceed' && (confidence < Math.max(options.threshold, input.required_confidence) || legacy.requires_human_approval || legacy.known_blockers.length > 0)) decision = 'insufficient_evidence';
+        // Historical performance may veto spending only after the evidence gate passes.
+        // Positive history never grants permission or fills missing evidence.
+        const history = sufficient ? await scores.project(observations[0].subject_type, subject) : null;
+        const historyReasons: string[] = [];
+        if (history && history.score <= -10 && decision !== 'insufficient_evidence') {
+          decision = 'do_not_spend';
+          historyReasons.push('historical_execution_performance_degraded', 'derived_score_below_policy_threshold');
+          if (history.outcome_counts.contradicted > 0) historyReasons.push('contradicted_evaluation_in_history');
+        }
         const issued = at.toISOString();
         const valid = new Date(Math.min(at.getTime() + options.ttlMs, ...observations.filter(o => o.freshness_expires_at).map(o => Date.parse(o.freshness_expires_at!))));
         const response: CanonicalJudgmentResponse = {
           judgment_id: 'judgment_' + key.slice(7), decision, confidence, issued_at: issued,
           valid_until: valid.getTime() > at.getTime() ? valid.toISOString() : issued,
-          reasons: sufficient ? policies.flatMap(f => f.reasons) : ['Required fresh, scoped, live evidence is missing.'],
+          reasons: sufficient ? [...policies.flatMap(f => f.reasons), ...historyReasons] : ['Required fresh, scoped, live evidence is missing.'],
           cited_observations: sufficient ? observations.map(o => o.observation_id) : [],
-          cost: { amount: decision === 'insufficient_evidence' ? '0' : options.amount, asset: 'USDC' },
+          cost: { amount: decision === 'insufficient_evidence' ? '0' : options.amount, asset: options.gateway?.asset ?? 'USDC' },
           payment_required: decision !== 'insufficient_evidence', receipt: null
         };
         if (decision === 'insufficient_evidence') return { status: 200, headers: {}, response, legacy };
+        if (options.store.judgmentTrust?.requireSigned && !options.issuer) throw new JudgmentError(503, 'judgment_signing_unavailable');
+        if (options.issuer) { try { options.issuer.assertCanSign(issued, response.valid_until); } catch { throw new JudgmentError(503, 'judgment_signing_unavailable'); } }
         if (!options.gateway) throw new JudgmentError(503, 'judgment_payment_unavailable');
         record = await options.journal.quote(key, { request_hash: requestHash, state: 'quoted', response, legacy,
           subject_type: observations[0].subject_type, subject_id: subject, intent_hash: intentHash, challenge: await options.gateway.challenge() });
@@ -119,6 +142,8 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
       try { verified = await paymentCall(() => options.gateway!.verify(signature, requirement)); } catch { throw new JudgmentError(400, 'payment_verification_failed'); }
       if (!verified) throw new JudgmentError(400, 'invalid_payment_signature');
       if (Date.parse(record.response.valid_until) <= now().getTime()) throw new JudgmentError(409, 'judgment_quote_expired');
+      if (options.store.judgmentTrust?.requireSigned && !options.issuer) throw new JudgmentError(503, 'judgment_signing_unavailable');
+      if (options.issuer) { try { options.issuer.assertCanSign(record.response.issued_at, record.response.valid_until); } catch { throw new JudgmentError(503, 'judgment_signing_unavailable'); } }
       const paymentHash = hashCanonical(payment);
       if (!await options.journal.claim(key, paymentHash)) throw new JudgmentError(409, 'payment_already_claimed');
       record.state = 'settling'; record.payment_hash = paymentHash;

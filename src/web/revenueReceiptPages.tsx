@@ -115,11 +115,23 @@ function ReceiptCard({ receipt }: { receipt: RevenueReceipt }) {
   </article>;
 }
 
+type SettlementLedger = {
+  totals: Array<{ network: string; asset: string; revenue_atomic: string; recorded_costs_atomic: string }>;
+  revenues: Array<{ revenue_id: string; judgment_id: string; asset: string; amount_atomic: string; network: string; transaction_hash: string }>;
+};
+const atomicAmount = (value: string) => { const units = BigInt(value); return `${units / 1000000n}.${(units % 1000000n).toString().padStart(6, '0')}`; };
+
 export function RevenueReceiptsPage() {
   const [summary, setSummary] = useState<RevenueReceiptSummary | null>(null);
+  const [ledger, setLedger] = useState<SettlementLedger | null>(null);
+  const [ledgerError, setLedgerError] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    api<{ data: SettlementLedger }>('/v1/economics/revenue').then(response => {
+      if (!Array.isArray(response.data?.totals) || !Array.isArray(response.data?.revenues)) throw new Error('invalid_ledger');
+      setLedger(response.data);
+    }).catch(() => setLedgerError(true));
     api<{ data: RevenueReceiptSummary }>('/v1/revenue-receipts')
       .then((response) => setSummary(response.data))
       .catch((err) => setError(err instanceof Error ? err.message : 'revenue_receipts_unavailable'));
@@ -150,7 +162,7 @@ export function RevenueReceiptsPage() {
           </div>
         </div>
         <div className="signal-hunt-counter-grid unicorn-counter-grid" aria-label="Revenue receipt counters">
-          <article className="panel loop-counter-card"><span>receipts</span><strong>{summary?.receipts.length ?? 0}</strong></article>
+          <article className="panel loop-counter-card"><span>settled judgments</span><strong>{ledger?.revenues.length ?? '—'}</strong></article>
           <article className="panel loop-counter-card"><span>open slots</span><strong>{summary?.receipts.filter((receipt) => receipt.status === 'open_slot').length ?? 0}</strong></article>
           <article className="panel loop-counter-card"><span>templates</span><strong>{summary?.receipts.filter((receipt) => receipt.clientType === 'example').length ?? 0}</strong></article>
           <article className="panel loop-counter-card"><span>completed</span><strong>{summary?.receipts.filter((receipt) => receipt.status === 'completed').length ?? 0}</strong></article>
@@ -159,13 +171,23 @@ export function RevenueReceiptsPage() {
 
       {error && <section className="panel"><p className="route-state error">{error}</p></section>}
 
+      <section className="panel unicorn-section" aria-label="Settlement-backed revenue">
+        <div className="proof-section-head"><div><p className="eyebrow">Verified settlement</p><h2>Protocol revenue</h2></div><a href="/v1/economics/revenue">Open evidence ledger</a></div>
+        <p className="copy">Finalized judgment payments only. Templates are excluded. Recorded costs are partial; distributable surplus remains unestablished.</p>
+        {ledgerError ? <p className="route-state error">Settlement ledger unavailable.</p> : !ledger ? <p className="copy">Loading settlement ledger…</p> : <>
+          <div className="signal-hunt-counter-grid">{ledger.totals.map(total => <article className="panel loop-counter-card" key={total.network}><span>{total.asset} received</span><strong>{atomicAmount(total.revenue_atomic)}</strong><p className="copy">Recorded costs: {atomicAmount(total.recorded_costs_atomic)} {total.asset}</p></article>)}</div>
+          {!ledger.revenues.length && <p className="copy">No finalized judgment revenue has been recorded.</p>}
+          <div className="signal-hunt-grid revenue-receipt-grid">{ledger.revenues.map(receipt => <article className="panel" key={receipt.revenue_id}><h3>{atomicAmount(receipt.amount_atomic)} {receipt.asset}</h3><p className="copy">Finalized payment · signed judgment</p><a href={`/v1/receipt-spine/judgment/${encodeURIComponent(receipt.judgment_id)}`}>Judgment receipt</a><br /><a href={`${receipt.network === 'eip155:4663' ? 'https://robinhoodchain.blockscout.com' : 'https://basescan.org'}/tx/${receipt.transaction_hash}`}>Settlement transaction</a></article>)}</div>
+        </>}
+      </section>
+
       <section className="panel revenue-receipts-policy" aria-label="Use of funds policy">
         <div className="proof-section-head">
           <div>
             <p className="eyebrow">Use of Funds</p>
-            <h2>Default allocation policy</h2>
+            <h2>Illustrative work allocations</h2>
           </div>
-          <p className="panel-caption">Default split for public paid work before any receipt-specific override.</p>
+          <p className="panel-caption">Template allocations do not establish protocol surplus or authorize treasury spending.</p>
         </div>
         <div className="signal-hunt-chip-row">
           {(summary?.use_of_funds_policy ?? []).map((allocation) => <span className="copy-chip" key={allocation.bucket}>{allocation.percentage}% {titleCase(allocation.bucket)}</span>)}

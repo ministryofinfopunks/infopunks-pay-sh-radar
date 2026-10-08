@@ -23,6 +23,9 @@ export function hashCanonical(value: unknown): string {
 }
 export function computeReceiptHash(kind: ReceiptKind, receipt: Record<string, unknown>): string {
   const { receipt_hash: ignored, ...payload } = receipt;
+  // Detached issuer authentication preserves historical hashes and ancestry.
+  // Signature trust is checked separately; integrity alone never grants permission.
+  if (kind === 'judgment') delete payload.issuer_signature;
   return hashCanonical({ kind, payload });
 }
 export function verifyReceiptIntegrity(kind: ReceiptKind, raw: unknown): boolean {

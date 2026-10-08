@@ -29,7 +29,8 @@ describe('free canonical execution proof intake', () => {
   });
   it.each(['do_not_spend', 'insufficient_evidence'] as const)('rejects %s authorization', async decision => {
     const f = await setupExecution();
-    const parent = sealReceipt('judgment', { ...f.parent, judgment_id: 'negative', decision, payment_required: false, payment_receipt_ref: null, charge: '0' });
+    const { payment: ignored, ...unpaid } = f.parent;
+    const parent = sealReceipt('judgment', { ...unpaid, judgment_id: 'negative', decision, payment_required: false, payment_receipt_ref: null, charge: '0' });
     await f.store.append('judgment', parent);
     await expect(f.proofService.submit({ ...f.proof, judgment_id: parent.judgment_id })).rejects.toThrow('judgment_blocks_execution');
     expect(await f.store.list('execution')).toHaveLength(0);

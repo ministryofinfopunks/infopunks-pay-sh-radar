@@ -163,3 +163,11 @@ describe('Reflexive Radar maths and identity guards', () => {
     expect(state).toMatchObject({ mission_inventory_coverage: 'PARTIAL', tracked_mission_inventory: { status: 'INCOMPLETE', raw_pltr_units: null }, inventory_coverage: { radar_inventory_coverage_pct: null, unclassified_raw: '1000' } });
   });
 });
+
+ it('uses burn timestamps independently of mint history', () => {
+  const now = new Date('2026-10-08T15:00:00Z');
+  const burn = { event_id: 'burn', asset_id: 'pltr', event_type: 'burn' as const, raw_token_amount: '1', share_equivalent_amount: null, block: 1, tx_hash: null, timestamp: '2026-10-08T14:00:00Z', before_supply_raw: null, after_supply_raw: null, provenance: { source: 'test', source_type: 'RPC', observed_at: now.toISOString() } } as any;
+  const state = buildPltrPreflightState({ asset: { ...asset(), ticker: 'PLTR' }, supply: null, pairs: [], inventory: [], events: [burn], markets: [], now });
+  expect(state?.supply_history.time_since_last_burn_ms).toBe(3600000);
+  expect(state?.supply_history.time_since_last_mint_ms).toBeNull();
+ });

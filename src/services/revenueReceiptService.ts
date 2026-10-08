@@ -16,7 +16,7 @@ export const REVENUE_RECEIPTS_GENERATED_AT = '2026-07-06T10:00:00.000Z';
 export const REVENUE_RECEIPTS_COPY = {
   title: 'Infopunks Revenue Receipts',
   tagline: 'No receipt, no trust.',
-  subline: 'Public ledger for paid evaluations, bounties, reports, listings, studio work, and API access.',
+  subline: 'Public receipts for permission, evidence, attribution, and continuous monitoring.',
   trustLine: 'Projects can buy evaluation, not conviction.',
   warningLine: 'Template receipts are examples only. They are not real revenue.'
 } as const;

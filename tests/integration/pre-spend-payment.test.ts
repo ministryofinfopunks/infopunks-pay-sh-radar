@@ -41,7 +41,7 @@ it('cannot import a paid judgment through the internal receipt writer', async ()
   vi.stubEnv('ADMIN_TOKEN', 'reviewer');
   const f = await setupJudgment();
   const parent = (await f.service.check(request, 'verified', f.signature)).response.receipt!;
-  const { schema_version: _v, policy_version: _p, proceed_confidence_threshold: _t, parent_hashes: _h, receipt_hash: _r, ...input } = parent;
+  const { schema_version: _v, policy_version: _p, proceed_confidence_threshold: _t, parent_hashes: _h, receipt_hash: _r, payment: _billing, ...input } = parent;
   const app = await createApp();
   try {
     const result = await app.inject({ method: 'POST', url: '/internal/receipt-spine/judgment', headers: { authorization: 'Bearer reviewer' }, payload: input });
