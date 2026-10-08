@@ -13,22 +13,22 @@ import {
 const Decision = z.enum(['proceed', 'test_spend_first', 'do_not_spend', 'insufficient_evidence']);
 const Case = z.object({
   id: z.string().min(1).max(128),
-  category: z.string().min(1).max(128),
+  category: z.enum(['valid_approval', 'insufficient_evidence', 'provider_mismatch', 'stale_observation', 'manipulated_input', 'denied_action']),
   description: z.string().max(2048),
-  provenance: z.object({ source_files: z.array(z.string()), rule_ids: z.array(z.string()) }),
-  overrides: z.object({ policy: z.record(z.string(), z.unknown()).optional(), observation: z.record(z.string(), z.unknown()).optional(), legacy: z.record(z.string(), z.unknown()).optional() }),
-  expected: z.object({ decision: Decision, production_shadow_eligible: z.boolean(), payment_required: z.boolean() }),
-  challenge_text: z.string().max(4096),
-});
+  provenance: z.object({ source_files: z.array(z.string().min(1)).min(1), rule_ids: z.array(z.string().min(1)).min(1) }).strict(),
+  overrides: z.object({ policy: z.record(z.string(), z.unknown()).optional(), observation: z.record(z.string(), z.unknown()).optional(), legacy: z.record(z.string(), z.unknown()).optional() }).strict(),
+  expected: z.object({ decision: Decision, production_shadow_eligible: z.boolean(), payment_required: z.boolean() }).strict(),
+  challenge_text: z.string().min(1).max(4096),
+}).strict();
 export const QualificationCorpus = z.object({
   schema_version: z.literal('decisions-qualification-corpus.v1'),
-  label_method: z.string().min(1),
-  reviewer_status: z.string().min(1),
+  label_method: z.literal('deterministic_policy_replay'),
+  reviewer_status: z.literal('pending_external_review'),
   source_checkpoint: z.string().optional(),
   fixed_clock: z.string().optional(),
   limitations: z.array(z.string()).optional(),
   cases: z.array(Case).min(1)
-});
+}).strict();
 export type QualificationCorpus = z.infer<typeof QualificationCorpus>;
 type Decision = z.infer<typeof Decision>;
 
@@ -118,7 +118,7 @@ export async function runLiveBenchmark(options: LiveBenchmarkOptions) {
     provider_status: DecisionsResult['status']; provider_failure: DecisionsResult['failure'];
     request_sha256: string; reserved_input_tokens: number; reported_input_tokens: number | null;
     reported_output_tokens: number | null; reported_total_tokens: number | null;
-    observed_round_trip_ms: number | null; adapter_latency_ms: number; harness_overhead_ms: number;
+    observed_round_trip_ms: number | null; adapter_latency_ms: number; adapter_overhead_ms: number | null; harness_overhead_ms: number;
     estimated_provider_cost_usd: number | null; actual_provider_cost_usd: null;
   }> = [];
   let chargedOrReservedInputTokens = 0;
@@ -160,6 +160,7 @@ export async function runLiveBenchmark(options: LiveBenchmarkOptions) {
       reported_input_tokens: inputTokens, reported_output_tokens: response.usage?.output_tokens ?? null,
       reported_total_tokens: response.usage?.total_tokens ?? null,
       observed_round_trip_ms: observedRoundTripMs, adapter_latency_ms: response.accounting.latency_ms,
+      adapter_overhead_ms: observedRoundTripMs === null ? null : Math.max(0, response.accounting.latency_ms - observedRoundTripMs),
       harness_overhead_ms: Math.max(0, totalElapsedMs - response.accounting.latency_ms),
       estimated_provider_cost_usd: response.accounting.baseline_estimated_cost_usd,
       actual_provider_cost_usd: null
@@ -207,6 +208,7 @@ export async function runLiveBenchmark(options: LiveBenchmarkOptions) {
       failure_counts: Object.fromEntries([...new Set(results.map(item => item.provider_failure).filter(Boolean))].map(failure => [failure, results.filter(item => item.provider_failure === failure).length])),
       observed_round_trip_ms: latencies(results.flatMap(item => item.observed_round_trip_ms === null ? [] : [item.observed_round_trip_ms])),
       adapter_latency_ms: latencies(results.map(item => item.adapter_latency_ms)),
+      adapter_overhead_ms: latencies(results.flatMap(item => item.adapter_overhead_ms === null ? [] : [item.adapter_overhead_ms])),
       harness_overhead_ms: latencies(results.map(item => item.harness_overhead_ms)),
       internal_model_latency_ms: null,
       token_usage: { input_reported: knownUsage ? results.reduce((sum, item) => sum + item.reported_input_tokens!, 0) : null,

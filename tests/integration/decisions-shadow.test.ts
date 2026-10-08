@@ -46,3 +46,27 @@ it('runs Decisions in shadow only after verified evidence and leaves quotes, rec
     expect((await app.inject('/v1/receipt-spine/scores/route/' + input.subject_id)).json().data.score).toBe(0);
   } finally { await app.close(); }
 });
+
+it('does not invoke an injected Decisions adapter when the feature flag is disabled', async () => {
+  vi.stubEnv('ADMIN_TOKEN', 'reviewer');
+  vi.stubEnv('OPENAI_DECISIONS_SHADOW_ENABLED', 'false');
+  const fetch = vi.fn(async () => new Response('{}', { status: 200 }));
+  const adapter = new OpenAIDecisionsAdapter({ apiKey: 'test-only', fetch });
+  const fixture = await setupJudgment();
+  const app = await createApp(undefined, undefined, { judgmentGateway: fixture.gateway, decisionsAdapter: adapter });
+  const input = { ...request, intent: 'buy_market_research', subject_id: 'route_pay_sh_market_research_03' };
+  try {
+    const missing = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: input });
+    const at = new Date();
+    const seed = await app.inject({ method: 'POST', url: '/internal/receipt-spine/observation', headers: { authorization: 'Bearer reviewer' }, payload: {
+      ...observationInput(), subject_type: 'route', subject_id: input.subject_id, intent_hash: hashCanonical(input), source_type: 'reviewed_judgment_facts',
+      observed_at: at.toISOString(), ingested_at: at.toISOString(), freshness_expires_at: new Date(at.getTime() + 120000).toISOString(),
+      provenance: { catalog_source: 'live' }, payload: { ...facts, route_id: missing.json().data.recommended_route }
+    } });
+    expect(seed.statusCode).toBe(200);
+    const result = await app.inject({ method: 'POST', url: '/v1/pre-spend/check', payload: input });
+    expect(result.statusCode).toBe(402);
+    expect(result.json().decision).toBe('proceed');
+    expect(fetch).not.toHaveBeenCalled();
+  } finally { await app.close(); }
+});
