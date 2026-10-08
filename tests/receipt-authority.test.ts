@@ -11,14 +11,14 @@ import { createEvaluationReceiptRepository } from '../src/repositories/evaluatio
 import { appendChain, observationInput, judgmentInput, executionInput, evaluationInput } from './helpers/canonicalReceipts';
 
 describe('canonical receipt authority', () => {
-  it('derives scores exclusively from evaluations', async () => {
+  it('keeps bare administrative evaluations inspectable but outside score authority', async () => {
     const store = new MemoryCanonicalReceiptStore(); const service = createReceiptAuthorityService(store);
     const evaluations = createEvaluationService(store);
     const score = async () => (await service.projectScore('provider', 'provider_test')).score;
     await service.appendObservation(observationInput()); expect(await score()).toBe(0);
     await service.appendJudgment(judgmentInput()); expect(await score()).toBe(0);
     await service.appendExecution(executionInput()); expect(await score()).toBe(0);
-    await evaluations.createEvaluation(evaluationInput()); expect(await score()).toBe(5);
+    await evaluations.createEvaluation(evaluationInput()); expect(await score()).toBe(0);
     expect((await service.projectScore('provider', 'other')).score).toBe(0);
   });
   it('does not expose evaluation creation or score policy from receipt authority', () => {

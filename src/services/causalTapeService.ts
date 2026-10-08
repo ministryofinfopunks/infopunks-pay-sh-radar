@@ -59,22 +59,25 @@ export function createCausalTapeService(store: ReceiptAppendStore, journal: Judg
     }
     all.sort((a,b) => (a.acceptance?.sequence ?? 0) - (b.acceptance?.sequence ?? 0) || a.kind.localeCompare(b.kind) || a.id.localeCompare(b.id));
     const freeAttempts = await journal.listFreeAttempts?.() ?? [];
+    const quarantine = await store.listQuarantine?.() ?? [];
     const manifest = { version: 'ipx-causal-tape.v1', accepted_through: sequence,
       receipt_refs: all.map(item => ({ kind: item.kind, id: item.id, receipt_hash: item.receipt.receipt_hash,
         acceptance_sequence: item.acceptance?.sequence ?? null })),
-      free_attempt_hashes: freeAttempts.map(item => item.attempt_hash).sort() };
-    return { all, freeAttempts, manifest: { ...manifest, manifest_hash: hashCanonical(manifest) } };
+      free_attempt_hashes: freeAttempts.map(item => item.attempt_hash).sort(),
+      quarantine_refs: quarantine.map(item => ({ kind: item.receipt_kind, id: item.receipt_id, receipt_hash: item.receipt_hash, reason: item.reason })) };
+    return { all, freeAttempts, quarantine, manifest: { ...manifest, manifest_hash: hashCanonical(manifest) } };
   }
   return {
     closure,
     async page(options: { acceptedThrough?: number; cursor?: number; limit?: number; kind?: ReceiptKind }) {
-      const { all, freeAttempts, manifest } = await snapshot(options.acceptedThrough);
+      const { all, freeAttempts, quarantine, manifest } = await snapshot(options.acceptedThrough);
       const filtered = options.kind ? all.filter(item => item.kind === options.kind) : all;
       const offset = options.cursor ?? 0, limit = options.limit ?? 50;
       if (!Number.isSafeInteger(offset) || offset < 0 || !Number.isSafeInteger(limit) || limit < 1 || limit > 100) throw new Error('invalid_tape_pagination');
       const page = await Promise.all(filtered.slice(offset, offset + limit).map(async item => ({ ...item, parent_closure: await closure(item.kind, item.receipt) })));
       return { manifest, items: page, next_cursor: offset + limit < filtered.length ? String(offset + limit) : null,
         free_assessment_attempts: freeAttempts.slice(0, 100), free_attempt_next_cursor: freeAttempts.length > 100 ? '100' : null,
+        quarantined_receipts: quarantine.slice(0, 100), quarantine_count: quarantine.length,
         counters: { ancestry_complete: all.filter(item => item.ancestry_valid).length,
           verified_causal_revision: 0, independently_measured_improvement: 0 },
         coverage: { listed_receipts: filtered.length, free_attempts: freeAttempts.length, real_route_verified: false } };
