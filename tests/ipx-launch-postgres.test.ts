@@ -56,4 +56,12 @@ describe.skipIf(!url)('IPX launch PostgreSQL provenance', () => {
     await expect(pool.query('delete from ipx_solana_observations')).rejects.toThrow('append-only');
     await expect(new IpxSolanaIndexer(pool, { ...rpc, genesisHash: async () => 'different-cluster' }).scan(address)).rejects.toThrow('mainnet_required');
   });
+  it('keeps Solana/EVM identity mappings one-to-one and append-only', async () => {
+    const receipt = (payloadHash: string) => ({ payload_hash: payloadHash, payload: { evm_wallet: '0x0000000000000000000000000000000001' } });
+    await pool.query('insert into ipx_identity_mappings(policy_hash,evm_wallet,solana_wallet,nonce,payload_hash,receipt) values($1,$2,$3,$4,$5,$6)', [policy, '0x0000000000000000000000000000000001', '11111111111111111111111111111111', '0x' + '1'.repeat(64), '0x' + '2'.repeat(64), receipt('0x' + '2'.repeat(64))]);
+    await expect(pool.query('insert into ipx_identity_mappings(policy_hash,evm_wallet,solana_wallet,nonce,payload_hash,receipt) values($1,$2,$3,$4,$5,$6)', [policy, '0x0000000000000000000000000000000002', '11111111111111111111111111111111', '0x' + '3'.repeat(64), '0x' + '4'.repeat(64), receipt('0x' + '4'.repeat(64))])).rejects.toThrow();
+    await expect(pool.query('insert into ipx_identity_mappings(policy_hash,evm_wallet,solana_wallet,nonce,payload_hash,receipt) values($1,$2,$3,$4,$5,$6)', [policy, '0x0000000000000000000000000000000001', '11111111111111111111111111111112', '0x' + '5'.repeat(64), '0x' + '6'.repeat(64), receipt('0x' + '6'.repeat(64))])).rejects.toThrow();
+    await expect(pool.query('update ipx_identity_mappings set receipt=receipt')).rejects.toThrow('append-only');
+    await expect(pool.query('delete from ipx_identity_mappings')).rejects.toThrow('append-only');
+  });
 });

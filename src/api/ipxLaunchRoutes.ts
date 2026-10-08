@@ -73,7 +73,7 @@ export async function registerIpxLaunchRoutes(app: FastifyInstance, options: { p
   const fail = (reply: { code(status: number): { send(body: unknown): unknown } }, error: unknown) => {
     if (error instanceof z.ZodError) return reply.code(400).send({ error: 'invalid_ipx_request' });
     const message = error instanceof Error ? error.message : '';
-    const known = ['genesis_window_not_open','genesis_window_changed','economic_wallet_already_called','genesis_cohort_full','genesis_signature_invalid','complete_verified_cohort_required','economic_receipt_conflict','paid_judgment_required','verified_usdg_judgment_required','revenue_receipt_required'];
+    const known = ['genesis_window_not_open','genesis_window_changed','economic_wallet_already_called','genesis_cohort_full','genesis_signature_invalid','complete_verified_cohort_required','economic_receipt_conflict','paid_judgment_required','verified_usdg_judgment_required','revenue_receipt_required','identity_mapping_conflict','identity_mapping_expired'];
     return reply.code(known.includes(message) ? 409 : 503).send({ error: known.includes(message) ? message : 'ipx_launch_not_ready' });
   };
   app.get('/ipx/economy', async (_req, reply) => reply.type('text/html; charset=utf-8').header('cache-control', 'no-store').send(ipxEconomyDocument));
@@ -101,7 +101,9 @@ export async function registerIpxLaunchRoutes(app: FastifyInstance, options: { p
       const receipt = await verifyIdentityMapping(input.payload, input.evm_signature as Hex, input.solana_signature, service.policyHash);
       await verify();
       if (Date.parse(receipt.payload.expires_at) <= Date.now()) throw new Error('identity_mapping_expired');
-      await options.pool.query('insert into ipx_identity_mappings(policy_hash,evm_wallet,solana_wallet,nonce,payload_hash,receipt) values($1,$2,$3,$4,$5,$6) on conflict(policy_hash,evm_wallet) do nothing', [service.policyHash, receipt.payload.evm_wallet, receipt.payload.solana_wallet, receipt.payload.nonce, receipt.payload_hash, receipt]);
+      // Every one-to-one key is an idempotency boundary. Do not surface a raw
+      // unique-constraint failure for a conflicting Solana wallet or nonce.
+      await options.pool.query('insert into ipx_identity_mappings(policy_hash,evm_wallet,solana_wallet,nonce,payload_hash,receipt) values($1,$2,$3,$4,$5,$6) on conflict do nothing', [service.policyHash, receipt.payload.evm_wallet, receipt.payload.solana_wallet, receipt.payload.nonce, receipt.payload_hash, receipt]);
       const prior = (await options.pool.query('select receipt from ipx_identity_mappings where policy_hash=$1 and evm_wallet=$2', [service.policyHash, receipt.payload.evm_wallet])).rows[0]?.receipt;
       if (!prior || prior.payload_hash !== receipt.payload_hash) throw new Error('identity_mapping_conflict');
       return { data: prior };
