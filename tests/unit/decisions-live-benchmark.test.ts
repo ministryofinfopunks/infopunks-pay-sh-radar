@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
-import { runLiveBenchmark, validateLiveBenchmarkOptions, type QualificationCorpus, type LiveBenchmarkOptions } from '../../scripts/benchmark-decisions-live';
+import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { main, runLiveBenchmark, validateLiveBenchmarkOptions, type QualificationCorpus, type LiveBenchmarkOptions } from '../../scripts/benchmark-decisions-live';
 
 const corpus: QualificationCorpus = {
   schema_version: 'decisions-qualification-corpus.v1', label_method: 'deterministic_policy_replay',
@@ -94,5 +97,27 @@ describe('live Decisions qualification runner', () => {
     expect(() => validateLiveBenchmarkOptions({ ...options(fetch), corpus: { ...corpus,
       cases: [{ ...corpus.cases[0], overrides: { policy: { private_key: 'unsafe' } } }] } })).toThrow('sensitive_corpus_field');
     expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it('rejects an existing report path before any potentially paid request', async () => {
+    const directory = mkdtempSync(join(tmpdir(), 'decisions-benchmark-'));
+    try {
+      const corpusPath = join(directory, 'corpus.json');
+      const reportPath = join(directory, 'report.json');
+      writeFileSync(corpusPath, JSON.stringify(corpus));
+      writeFileSync(reportPath, 'previous benchmark');
+      const fetch = vi.spyOn(globalThis, 'fetch').mockImplementation(async () => { throw new Error('network_must_not_run'); });
+      await expect(main([
+        '--corpus', corpusPath, '--output', reportPath, '--max-requests', '2', '--max-input-tokens', '10000',
+        '--max-usd', '0.01', '--price-ceiling-usd-per-million-input', '1', '--timeout-ms', '1000'
+      ], {
+        DECISIONS_BENCH_ENV: 'dedicated-test', DECISIONS_BENCH_PROJECT_CAP_CONFIRMED: 'yes',
+        DECISIONS_BENCH_API_KEY: 'test-only', DECISIONS_BENCH_TEST_ENV_ID: 'isolated-test',
+        DECISIONS_BENCH_PROJECT_ID: 'isolated-project', DECISIONS_BENCH_PROJECT_HARD_LIMIT_USD: '1',
+        DECISIONS_BENCH_PROJECT_REMAINING_USD: '1'
+      })).rejects.toThrow();
+      expect(fetch).not.toHaveBeenCalled();
+      fetch.mockRestore();
+    } finally { rmSync(directory, { recursive: true, force: true }); }
   });
 });

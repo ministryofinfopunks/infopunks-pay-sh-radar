@@ -26,7 +26,7 @@ npm run benchmark:decisions-live -- \
   --timeout-ms 3000
 ```
 
-`--output` must point to a new file; the runner creates it with owner-only permissions. It will not overwrite a previous benchmark or the corpus. Do not commit a live output without reviewing its metadata and your organization's data policy. `DECISIONS_BENCH_API_KEY` is intentionally separate from the application `OPENAI_API_KEY`. The CLI requires all caps and the dedicated environment declaration before making a call. A live transport cannot be replaced with an injected mock. Test code injects a test transport and labels reports `test-double`.
+`--output` must point to a new file; the runner reserves it with owner-only permissions before the first request. It will not overwrite a previous benchmark or the corpus. An unexpected fatal error can leave an empty reserved file, preventing an accidental duplicate paid run. Do not commit a live output without reviewing its metadata and your organization's data policy. `DECISIONS_BENCH_API_KEY` is intentionally separate from the application `OPENAI_API_KEY`. The CLI requires all caps and the dedicated environment declaration before making a call. A live transport cannot be replaced with an injected mock. Test code injects a test transport and labels reports `test-double`.
 
 ## Reading the report
 

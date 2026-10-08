@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { closeSync, openSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { z } from 'zod';
@@ -243,7 +243,7 @@ export async function main(args = process.argv.slice(2), environment = process.e
   const corpus = QualificationCorpus.parse(JSON.parse(corpusText));
   if (environment.DECISIONS_BENCH_ENV !== 'dedicated-test') throw new Error('dedicated_test_environment_required');
   if (environment.DECISIONS_BENCH_PROJECT_CAP_CONFIRMED !== 'yes') throw new Error('dedicated_project_cap_confirmation_required');
-  const report = await runLiveBenchmark({
+  const options: LiveBenchmarkOptions = {
     corpus, corpusSha256: hash(corpusText), transport: 'live-openai',
     apiKey: environment.DECISIONS_BENCH_API_KEY ?? '',
     dedicatedEnvironmentId: environment.DECISIONS_BENCH_TEST_ENV_ID ?? '',
@@ -257,8 +257,16 @@ export async function main(args = process.argv.slice(2), environment = process.e
       priceCeilingUsdPerMillionInput: Number(flags.get('--price-ceiling-usd-per-million-input')),
       timeoutMs: Number(flags.get('--timeout-ms'))
     }
-  });
-  writeFileSync(outputPath, JSON.stringify(report, null, 2) + '\n', { flag: 'wx', mode: 0o600 });
+  };
+  validateLiveBenchmarkOptions(options);
+  // Reserve the report name before the first paid request so a stale output
+  // cannot trigger duplicate API usage and then fail only at write time.
+  const output = openSync(outputPath, 'wx', 0o600);
+  let report: Awaited<ReturnType<typeof runLiveBenchmark>>;
+  try {
+    report = await runLiveBenchmark(options);
+    writeFileSync(output, JSON.stringify(report, null, 2) + '\n');
+  } finally { closeSync(output); }
   process.stdout.write(`Benchmark ${report.transport}: ${report.request_count} requests; report written to ${outputPath}\n`);
 }
 
