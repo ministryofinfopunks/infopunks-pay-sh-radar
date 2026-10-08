@@ -1,0 +1,22 @@
+{
+  "candidate_sha": "d9065dc1682a22fc73c87b0d2a63bc4f0229e235",
+  "policy_hash": null,
+  "deployment_id": null,
+  "environment": "disposable_postgresql_14_local",
+  "test_files_passed": 268,
+  "tests_passed": 1895,
+  "tests_skipped": 1,
+  "foundry_passed": 6,
+  "migrations_applied": 21,
+  "backup_dump_sha256": "dd41ee5af9fa5b7148068bcbef200d0d665b919cb0ea1e243bb3e0ba5968bb29",
+  "gates": {
+    "G0": "BLOCKED",
+    "G1": "BLOCKED",
+    "G2": "BLOCKED",
+    "G3": "BLOCKED",
+    "G4": "BLOCKED",
+    "G5": "FAIL_OBSERVED_BLOCKED_CANDIDATE",
+    "G6": "BLOCKED"
+  },
+  "log_checksums_file": "docs/evidence/runs/ipx-d9065dc/checksums.sha256"
+}
