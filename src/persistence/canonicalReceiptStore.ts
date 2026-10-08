@@ -13,6 +13,11 @@ const metadata = {
   evaluation: { table: 'evaluation_receipts', id: 'evaluation_id', time: 'evaluated_at' }
 } as const;
 const receiptId = (kind: ReceiptKind, receipt: ReceiptRecord) => String((receipt as unknown as Record<string, unknown>)[metadata[kind].id]);
+function futureIssuerTime(kind: ReceiptKind, receipt: ReceiptRecord, acceptedAt: number) {
+  const body = receipt as unknown as Record<string, unknown>;
+  const fields = kind === 'observation' ? ['observed_at', 'ingested_at'] : [metadata[kind].time];
+  return fields.some(field => Date.parse(String(body[field])) > acceptedAt);
+}
 
 /** Memory is an explicit dev/test adapter; clones prevent read/return mutation. */
 export class MemoryCanonicalReceiptStore implements ReceiptAppendStore {
@@ -20,6 +25,7 @@ export class MemoryCanonicalReceiptStore implements ReceiptAppendStore {
   private readonly contexts = new Map<string, DecisionContext>();
   private readonly acceptances = new Map<string, { sequence: number; accepted_at: string }>();
   private nextSequence = 0;
+  private readonly quarantined: Array<{ receipt_kind: ReceiptKind; receipt_id: string; receipt_hash: string; reason: string }> = [];
   private queue: Promise<unknown> = Promise.resolve();
   constructor(private readonly threshold = 80, readonly judgmentTrust?: JudgmentIssuerTrust) {
     if (process.env.NODE_ENV === 'production') throw new ReceiptAuthorityError('canonical_receipts_require_postgres');
@@ -29,6 +35,7 @@ export class MemoryCanonicalReceiptStore implements ReceiptAppendStore {
   async getDecisionContext(id: string) { return structuredClone(this.contexts.get(id) ?? null); }
   async getAcceptance(kind: ReceiptKind, id: string) { return structuredClone(this.acceptances.get(kind + ':' + id) ?? null); }
   async acceptanceBoundary() { return { sequence: this.nextSequence, accepted_at: new Date().toISOString() }; }
+  async listQuarantine() { return structuredClone(this.quarantined); }
   async evaluationHistory(subjectType: string, subjectId: string, acceptedThrough?: number) {
     const evaluations = await this.list('evaluation') as EvaluationReceipt[];
     return evaluations.filter(e => acceptedThrough === undefined || (this.acceptances.get('evaluation:' + e.evaluation_id)?.sequence ?? Infinity) <= acceptedThrough);
@@ -46,7 +53,10 @@ export class MemoryCanonicalReceiptStore implements ReceiptAppendStore {
     const candidate = structuredClone(raw);
     const operation = this.queue.then(async () => {
       const receipt = receiptSchemas[kind].parse(candidate);
-      if (kind === 'evaluation' && Date.parse((receipt as EvaluationReceipt).evaluated_at) > Date.now()) throw new ReceiptAuthorityError('evaluation_future_timestamp_quarantined');
+      if (futureIssuerTime(kind, receipt, Date.now())) {
+        this.quarantined.push({ receipt_kind: kind, receipt_id: receiptId(kind, receipt), receipt_hash: receipt.receipt_hash, reason: 'future_issuer_timestamp' });
+        throw new ReceiptAuthorityError(kind + '_future_timestamp_quarantined');
+      }
       if (kind === 'judgment' && (receipt as JudgmentReceipt).proceed_confidence_threshold !== this.threshold) throw new ReceiptAuthorityError('configured_confidence_threshold_required');
       await assertReceiptAuthority(kind, receipt, this, this.threshold);
       if (kind === 'judgment' && this.judgmentTrust?.requireSigned && !this.judgmentTrust.verify(receipt as JudgmentReceipt)) throw new ReceiptAuthorityError('signed_judgment_required');
@@ -86,6 +96,10 @@ export class PostgresCanonicalReceiptStore implements ReceiptAppendStore {
   async acceptanceBoundary() {
     const result = await this.pool.query('select coalesce(max(acceptance_sequence),0) as sequence, now() as accepted_at from canonical_receipt_acceptances');
     return { sequence: Number(result.rows[0].sequence), accepted_at: new Date(result.rows[0].accepted_at).toISOString() };
+  }
+  async listQuarantine() {
+    const rows = await this.pool.query('select receipt_kind,receipt_id,receipt_hash,reason from canonical_receipt_quarantine order by quarantined_at,receipt_kind,receipt_id');
+    return rows.rows as Array<{ receipt_kind: ReceiptKind; receipt_id: string; receipt_hash: string; reason: string }>;
   }
   async getDecisionContext(id: string): Promise<DecisionContext | null> {
     const result = await this.pool.query('select context from decision_contexts where assessment_id=$1', [id]);
@@ -142,13 +156,13 @@ export class PostgresCanonicalReceiptStore implements ReceiptAppendStore {
     try {
       await client.query('begin');
       await client.query('select pg_advisory_xact_lock(4663, 20261008)');
-      if (kind === 'evaluation') {
+      {
         const clock = await client.query('select now() as accepted_at');
-        if (Date.parse((receipt as EvaluationReceipt).evaluated_at) > new Date(clock.rows[0].accepted_at).getTime()) {
+        if (futureIssuerTime(kind, receipt, new Date(clock.rows[0].accepted_at).getTime())) {
           await client.query('insert into canonical_receipt_quarantine(receipt_kind,receipt_id,receipt_hash,reason) values($1,$2,$3,$4) on conflict do nothing',
             [kind, receiptId(kind, receipt), receipt.receipt_hash, 'future_issuer_timestamp']);
           await client.query('commit');
-          throw new ReceiptAuthorityError('evaluation_future_timestamp_quarantined');
+          throw new ReceiptAuthorityError(kind + '_future_timestamp_quarantined');
         }
       }
       const inserted = await client.query(`insert into ${meta.table} (${columns.join(',')}) values (${values.map((_, index) => '$' + (index + 1)).join(',')}) on conflict (${meta.id}) do nothing returning receipt`, values);

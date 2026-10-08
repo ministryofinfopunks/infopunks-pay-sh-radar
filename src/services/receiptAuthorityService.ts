@@ -100,6 +100,7 @@ export interface ReceiptAppendStore extends ReceiptReader {
   list(kind: ReceiptKind): Promise<ReceiptRecord[]>;
   evaluationHistory?(subjectType: string, subjectId: string, acceptedThrough?: number): Promise<ReceiptRecord[]>;
   acceptanceBoundary?(): Promise<{ sequence: number; accepted_at: string }>;
+  listQuarantine?(): Promise<Array<{ receipt_kind: ReceiptKind; receipt_id: string; receipt_hash: string; reason: string }>>;
 }
 export function createReceiptAuthorityService(store: ReceiptAppendStore, threshold = 80, issuer?: JudgmentIssuer | null) {
   return {
