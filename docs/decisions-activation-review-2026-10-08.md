@@ -44,3 +44,36 @@ The live CLI was invoked without dedicated credentials. It exited before network
 5. Review the provider-neutral Jev seam separately. Obtain explicit approval before any spend influence, billing, signing, settlement or production deployment.
 
 Until these gates pass, keep `OPENAI_DECISIONS_SHADOW_ENABLED=false` and leave all payment and economic authorization flags unchanged.
+
+## Candidate change inventory
+
+The candidate is based on `dfe089bb71c6b4c52acdfb0e8e5b8cc331a13a2f`. Its committed sequence is `1088a6c` (adapter), `c1b3c4f` (corpus), `40423cd` (guarded runner), `6174a07` (output reservation), and `13da61b` (qualification and review). The final documentation commit is identified by the branch head and delivery note.
+
+The exact files changed from that base are:
+
+```text
+.env.example
+docs/decisions-activation-review-2026-10-08.md
+docs/decisions-live-qualification-runner.md
+docs/decisions-qualification-corpus.md
+docs/decisions-qualification-test-double-2026-10-08.json
+docs/decisions-shadow-benchmark-2026-10-08.json
+docs/decisions-shadow-benchmark-2026-10-08.md
+docs/openai-decisions-integration.md
+package.json
+scripts/benchmark-decisions-live.ts
+scripts/benchmark-decisions-qualification-mock.ts
+scripts/benchmark-decisions-shadow.ts
+src/api/app.ts
+src/config/env.ts
+src/services/decisionsJudgmentShadow.ts
+src/services/judgmentService.ts
+src/services/openAIDecisionsAdapter.ts
+tests/fixtures/decisions-qualification-cases.json
+tests/fixtures/decisions-shadow-cases.json
+tests/helpers/judgments.ts
+tests/integration/decisions-shadow.test.ts
+tests/unit/decisions-live-benchmark.test.ts
+tests/unit/decisions-qualification-corpus.test.ts
+tests/unit/openai-decisions-adapter.test.ts
+```
