@@ -4463,7 +4463,7 @@ export async function createApp(
   const canonicalReceiptStore = rhChainPostgresPool
     ? new PostgresCanonicalReceiptStore(rhChainPostgresPool, config.receiptProceedConfidenceThreshold, judgmentTrust)
     : new MemoryCanonicalReceiptStore(config.receiptProceedConfidenceThreshold, judgmentTrust);
-  if (rhChainPostgresPool) {
+  if (rhChainPostgresPool && config.judgmentPaymentEnabled) {
     await rhChainPostgresPool.query('select acceptance_sequence from canonical_receipt_acceptances limit 0');
     await rhChainPostgresPool.query('select request_key from free_assessment_attempts limit 0');
   }
