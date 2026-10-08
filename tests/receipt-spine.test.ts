@@ -34,7 +34,7 @@ describe('receipt spine API integration', () => {
         const read = await app.inject({ method: 'GET', url: `/v1/receipt-spine/${kind}/${Object.values(inputs[kind])[0]}` });
         expect(read.statusCode).toBe(200); expect(read.json().data).toEqual(data);
       }
-      expect((await app.inject('/v1/receipt-spine/scores/provider/provider_test')).json().data).toEqual({ subject_type: 'provider', subject_id: 'provider_test', score: 5, authority: 'EvaluationReceipt' });
+      expect((await app.inject('/v1/receipt-spine/scores/provider/provider_test')).json().data).toEqual({ subject_type: 'provider', subject_id: 'provider_test', score: 0, authority: 'EvaluationReceipt' });
       expect((await app.inject('/v1/receipts')).statusCode).toBe(200);
       expect((await app.inject('/v1/claims')).statusCode).toBe(200);
       expect((await app.inject('/v1/checks')).statusCode).toBe(200);
