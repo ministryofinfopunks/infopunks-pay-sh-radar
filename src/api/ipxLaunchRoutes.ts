@@ -8,10 +8,11 @@ import { readFileSync } from 'node:fs';
 type Hex = `0x${string}`;
 import { z } from 'zod';
 import { IpxCallRequestSchema, IpxLaunchPolicySchema } from '../schemas/ipxLaunch';
-import { IpxGenesisService, PostgresIpxGenesisStore, buildEntitlementTree } from '../services/ipxGenesisService';
-import { ipxJcs, ipxSha256 } from '../services/ipxJcs';
+import { IpxGenesisService, PostgresIpxGenesisStore, buildEntitlementTree, verifyGenesisReceipt } from '../services/ipxGenesisService';
+import { ipxSha256 } from '../services/ipxJcs';
 import { verifyIdentityMapping } from '../services/ipxIdentityMapping';
 import { IpxRevenueLedger } from '../services/ipxRevenueLedger';
+import { loadIpxIssuanceManifest } from '../services/ipxIssuanceManifest';
 import { rhProofClient } from '../security/settlementProofVerifier';
 /** Registration is additive and isolated from CALL v1 and historical paid journals. */
 export async function registerIpxLaunchRoutes(app: FastifyInstance, options: { pool: pg.Pool | null; rpc: string | null; payTo: string | null; adminToken: string | null; reconcile: (judgmentId: string) => Promise<SettledRevenue> }) {
@@ -21,10 +22,12 @@ export async function registerIpxLaunchRoutes(app: FastifyInstance, options: { p
   const client = options.rpc ? createPublicClient({ transport: http(options.rpc, { timeout: 5000, retryCount: 0 }) }) : null;
   const verify = async () => {
     if (!policy || !client) throw new Error('deployment_verifier_required');
+    const { manifest } = loadIpxIssuanceManifest(process.env.IPX_ISSUANCE_MANIFEST_PATH, policy);
     if (await client.getChainId() !== 4663) throw new Error('ipx_chain_mismatch');
     const finalized = await client.getBlock({ blockTag: 'finalized' });
     if (finalized.number === null || !finalized.hash) throw new Error('ipx_finalized_deployment_required');
-    const blockNumber = finalized.number;
+    const blockNumber = BigInt(manifest.finalized_block_number);
+    if (blockNumber > finalized.number || (await client.getBlock({ blockNumber })).hash?.toLowerCase() !== manifest.finalized_block_hash) throw new Error('ipx_manifest_block_mismatch');
     const code = await Promise.all([policy.token_contract, policy.genesis_distributor, policy.contribution_vault, policy.canonical_pltr].map(address => client.getCode({ address, blockNumber })));
     if (code.some(value => !value || value === '0x')) throw new Error('ipx_finalized_deployment_required');
     const abi = parseAbi(['function constitutionSha256() view returns (bytes32)', 'function initialSupply() view returns (uint256)', 'function token() view returns (address)', 'function allocation() view returns (uint256)', 'function allocationAmount(uint256) view returns (uint256)', 'function allocationRecipient(uint256) view returns (address)', 'function sealer() view returns (address)']);
@@ -60,7 +63,7 @@ export async function registerIpxLaunchRoutes(app: FastifyInstance, options: { p
     ]);
     const authority = policy.execution_authorities;
     if (usdg.toLowerCase() !== ECONOMIC_RAILS['eip155:4663'].token.toLowerCase() || accountant.toLowerCase() !== authority.accountant || operations.toLowerCase() !== authority.operations || router.toLowerCase() !== authority.router || firstFee !== authority.usdg_pltr_fee || secondFee !== authority.pltr_ipx_fee) throw new Error('ipx_execution_policy_mismatch');
-    if ((await client.getBlock({ blockNumber })).hash !== finalized.hash) throw new Error('ipx_deployment_block_changed');
+    if ((await client.getBlock({ blockNumber })).hash?.toLowerCase() !== manifest.finalized_block_hash) throw new Error('ipx_deployment_block_changed');
     if (!options.pool) throw new Error('storage_required');
     await options.pool.query('insert into ipx_launch_policies(policy_hash,token_contract,genesis_distributor,policy) values($1,$2,$3,$4) on conflict do nothing', [ipxSha256(policy), policy.token_contract, policy.genesis_distributor, policy]);
     const registered = (await options.pool.query('select policy_hash from ipx_launch_policies where token_contract=$1 and genesis_distributor=$2', [policy.token_contract, policy.genesis_distributor])).rows[0];
@@ -88,10 +91,14 @@ export async function registerIpxLaunchRoutes(app: FastifyInstance, options: { p
       return { data: await indexer.scan(input.address, input.page_size) };
     } catch (error) { return fail(reply, error); }
   });
-  app.get('/v1/ipx/launch', async () => ({ data: { protocol_version: 'ipx.launch.v2', chain_id: 4663, payment_asset: 'USDG', quote_asset: 'PLTR', quote_is_backing: false, historical_calls_preserved: true, call_limit: 4663, distinct_wallet_limit: 4663, economic_entitlement: 'FIXED_IPX_ALLOCATION_PER_VERIFIED_V2_CALL', state: policy ? 'CONFIGURED_REQUIRES_DEPLOYMENT_VERIFICATION' : 'AWAITING_ALLOCATION_AND_DEPLOYMENT', policy, policy_hash: policy ? ipxSha256(policy) : null, economic_flywheel_operational: false } }));
+  app.get('/v1/ipx/launch', async () => {
+    let manifestHash: string | null = null;
+    if (policy) { try { manifestHash = loadIpxIssuanceManifest(process.env.IPX_ISSUANCE_MANIFEST_PATH, policy).manifest_hash; } catch { /* incomplete terms remain visible as a blocked state */ } }
+    return { data: { protocol_version: 'ipx.launch.v2', chain_id: 4663, payment_asset: 'USDG', quote_asset: 'PLTR', quote_is_backing: false, historical_calls_preserved: true, call_limit: 4663, distinct_wallet_limit: 4663, economic_entitlement: 'FIXED_IPX_ALLOCATION_PER_VERIFIED_V2_CALL', state: !policy ? 'AWAITING_ALLOCATION_AND_DEPLOYMENT' : !manifestHash ? 'AWAITING_ISSUANCE_MANIFEST' : 'CONFIGURED_REQUIRES_DEPLOYMENT_VERIFICATION', policy, policy_hash: policy ? ipxSha256(policy) : null, issuance_manifest_hash: manifestHash, economic_flywheel_operational: false } };
+  });
   app.post('/v1/ipx/genesis/payload', async (req, reply) => { try { return { data: ready().payload(req.body) }; } catch (error) { return fail(reply, error); } });
   app.post('/v1/ipx/genesis/calls', async (req, reply) => {
-    try { const input = IpxCallRequestSchema.extend({ signature: z.string().regex(/^0x[0-9a-fA-F]{130}$/) }).parse(req.body); const { signature, ...call } = input; return reply.code(201).send({ data: await ready().call(call, signature as Hex) }); } catch (error) { return fail(reply, error); }
+    try { const service = ready(); loadIpxIssuanceManifest(process.env.IPX_ISSUANCE_MANIFEST_PATH, service.policy); const input = IpxCallRequestSchema.extend({ signature: z.string().regex(/^0x[0-9a-fA-F]{130}$/) }).parse(req.body); const { signature, ...call } = input; return reply.code(201).send({ data: await service.call(call, signature as Hex) }); } catch (error) { return fail(reply, error); }
   });
   app.get('/v1/ipx/genesis/cohort', async (_req, reply) => { try { const receipts = await ready().cohort(); return { data: { count: receipts.length, limit: 4663, receipts } }; } catch (error) { return fail(reply, error); } });
   app.post('/v1/ipx/genesis/identity-mapping', async (req, reply) => {
@@ -111,7 +118,7 @@ export async function registerIpxLaunchRoutes(app: FastifyInstance, options: { p
   });
   app.get('/internal/ipx/genesis/commitment', async (req, reply) => {
     if (!reviewer(req.headers.authorization)) return reply.code(401).send({ error: 'unauthorized' });
-    try { const service = ready(); const receipts = await service.cohort(); for (const receipt of receipts) { const { recoverMessageAddress } = await import('viem'); if (ipxJcs(receipt.payload) !== receipt.canonical_serialization || ipxSha256(receipt.payload) !== receipt.payload_hash || receipt.payload.policy_hash !== service.policyHash || receipt.payload.wallet !== receipt.wallet || (await recoverMessageAddress({ message: receipt.canonical_serialization, signature: receipt.signature })).toLowerCase() !== receipt.wallet) throw new Error('genesis_signature_invalid'); } const tree = buildEntitlementTree(service.policy, receipts); return { data: { root: tree.root, count: receipts.length, policy_hash: service.policyHash, transaction_executed: false } }; } catch (error) { return fail(reply, error); }
+    try { const service = ready(); const receipts = await service.cohort(); for (const receipt of receipts) await verifyGenesisReceipt(service.policy, receipt); const tree = buildEntitlementTree(service.policy, receipts); return { data: { root: tree.root, count: receipts.length, policy_hash: service.policyHash, transaction_executed: false } }; } catch (error) { return fail(reply, error); }
   });
   app.get('/v1/ipx/economy/receipts', async (_req, reply) => { try { if (!ledger) throw new Error('ledger_unavailable'); return { data: await ledger.list() }; } catch (error) { return fail(reply, error); } });
   app.get('/v1/ipx/economy/summary', async (_req, reply) => { try { if (!ledger) throw new Error('ledger_unavailable'); return { data: await ledger.summary() }; } catch (error) { return fail(reply, error); } });
