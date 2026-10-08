@@ -25,7 +25,7 @@ export class MemoryCanonicalReceiptStore implements ReceiptAppendStore {
   private readonly contexts = new Map<string, DecisionContext>();
   private readonly acceptances = new Map<string, { sequence: number; accepted_at: string }>();
   private nextSequence = 0;
-  private readonly quarantined: Array<{ receipt_kind: ReceiptKind; receipt_id: string; receipt_hash: string; reason: string }> = [];
+  private readonly quarantined: Array<{ receipt_kind: ReceiptKind; receipt_id: string; receipt_hash: string; reason: string; publication_sequence: number }> = [];
   private queue: Promise<unknown> = Promise.resolve();
   constructor(private readonly threshold = 80, readonly judgmentTrust?: JudgmentIssuerTrust) {
     if (process.env.NODE_ENV === 'production') throw new ReceiptAuthorityError('canonical_receipts_require_postgres');
@@ -54,7 +54,9 @@ export class MemoryCanonicalReceiptStore implements ReceiptAppendStore {
     const operation = this.queue.then(async () => {
       const receipt = receiptSchemas[kind].parse(candidate);
       if (futureIssuerTime(kind, receipt, Date.now())) {
-        this.quarantined.push({ receipt_kind: kind, receipt_id: receiptId(kind, receipt), receipt_hash: receipt.receipt_hash, reason: 'future_issuer_timestamp' });
+        if (!this.quarantined.some(item => item.receipt_kind === kind && item.receipt_id === receiptId(kind, receipt) &&
+          item.receipt_hash === receipt.receipt_hash)) this.quarantined.push({ receipt_kind: kind, receipt_id: receiptId(kind, receipt),
+          receipt_hash: receipt.receipt_hash, reason: 'future_issuer_timestamp', publication_sequence: this.quarantined.length + 1 });
         throw new ReceiptAuthorityError(kind + '_future_timestamp_quarantined');
       }
       if (kind === 'judgment' && (receipt as JudgmentReceipt).proceed_confidence_threshold !== this.threshold) throw new ReceiptAuthorityError('configured_confidence_threshold_required');
@@ -98,8 +100,9 @@ export class PostgresCanonicalReceiptStore implements ReceiptAppendStore {
     return { sequence: Number(result.rows[0].sequence), accepted_at: new Date(result.rows[0].accepted_at).toISOString() };
   }
   async listQuarantine() {
-    const rows = await this.pool.query('select receipt_kind,receipt_id,receipt_hash,reason from canonical_receipt_quarantine order by quarantined_at,receipt_kind,receipt_id');
-    return rows.rows as Array<{ receipt_kind: ReceiptKind; receipt_id: string; receipt_hash: string; reason: string }>;
+    const rows = await this.pool.query('select receipt_kind,receipt_id,receipt_hash,reason,publication_sequence from canonical_receipt_quarantine order by publication_sequence');
+    return rows.rows.map(row => ({ ...row, publication_sequence: Number(row.publication_sequence) })) as Array<{
+      receipt_kind: ReceiptKind; receipt_id: string; receipt_hash: string; reason: string; publication_sequence: number }>;
   }
   async getDecisionContext(id: string): Promise<DecisionContext | null> {
     const result = await this.pool.query('select context from decision_contexts where assessment_id=$1', [id]);

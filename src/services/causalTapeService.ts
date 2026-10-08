@@ -5,8 +5,9 @@ import { verifyReceiptChain, type ReceiptAppendStore, type ReceiptRecord } from 
 
 const kinds = ['observation', 'judgment', 'execution', 'evaluation'] as const;
 const ids = { observation: 'observation_id', judgment: 'judgment_id', execution: 'execution_id', evaluation: 'evaluation_id' } as const;
-type TapeItem = { kind: ReceiptKind; id: string; receipt: ReceiptRecord; acceptance: { sequence: number; accepted_at: string } | null;
-  ancestry_valid: boolean; label: 'qualified' | 'inspectable_nonqualifying' | 'historical_unsequenced' };
+type TapeItem = { kind: ReceiptKind; id: string; receipt: ReceiptRecord; acceptance: { sequence: number; accepted_at: string };
+  ancestry_valid: boolean; label: 'qualified' | 'inspectable_nonqualifying' };
+type PublicationBoundary = { acceptedThrough?: number; freeThrough?: number; quarantineThrough?: number };
 
 export function createCausalTapeService(store: ReceiptAppendStore, journal: JudgmentRequestRepository) {
   async function closure(kind: ReceiptKind, receipt: ReceiptRecord): Promise<Array<{ kind: ReceiptKind; receipt: ReceiptRecord; decision_context?: Awaited<ReturnType<NonNullable<ReceiptAppendStore['getDecisionContext']>>> }>> {
@@ -39,38 +40,50 @@ export function createCausalTapeService(store: ReceiptAppendStore, journal: Judg
     await visit(kind, receipt);
     return result;
   }
-  async function snapshot(acceptedThrough?: number) {
+  async function snapshot(options: PublicationBoundary = {}) {
     const boundary = await store.acceptanceBoundary?.();
     if (!boundary) throw new Error('acceptance_boundary_unavailable');
-    const sequence = acceptedThrough ?? boundary.sequence;
+    const sequence = options.acceptedThrough ?? boundary.sequence;
     if (!Number.isSafeInteger(sequence) || sequence < 0 || sequence > boundary.sequence) throw new Error('invalid_tape_boundary');
+    const allFreeAttempts = await journal.listFreeAttempts?.() ?? [];
+    const allQuarantine = await store.listQuarantine?.() ?? [];
+    // A receipt-only boundary deliberately freezes the other streams at zero.
+    // The returned three-part boundary replays the complete published manifest.
+    const freeThrough = options.freeThrough ?? (options.acceptedThrough === undefined ? (allFreeAttempts.at(-1)?.publication_sequence ?? 0) : 0);
+    const quarantineThrough = options.quarantineThrough ?? (options.acceptedThrough === undefined ? (allQuarantine.at(-1)?.publication_sequence ?? 0) : 0);
+    if (![freeThrough, quarantineThrough].every(value => Number.isSafeInteger(value) && value >= 0) ||
+      freeThrough > (allFreeAttempts.at(-1)?.publication_sequence ?? 0) ||
+      quarantineThrough > (allQuarantine.at(-1)?.publication_sequence ?? 0)) throw new Error('invalid_tape_boundary');
     const raw = await Promise.all(kinds.map(async kind => ({ kind, receipts: await store.list(kind) })));
     const all: TapeItem[] = [];
     for (const group of raw) for (const receipt of group.receipts) {
       const id = String((receipt as unknown as Record<string, unknown>)[ids[group.kind]]);
       const acceptance = await store.getAcceptance?.(group.kind, id) ?? null;
-      if (acceptance && acceptance.sequence > sequence) continue;
+      if (!acceptance) throw new Error('unsequenced_receipt_not_publishable');
+      if (acceptance.sequence > sequence) continue;
       const ancestryValid = await verifyReceiptChain(group.kind, receipt, store);
       const parent = group.kind === 'evaluation' && 'execution_id' in receipt ? await store.get('execution', receipt.execution_id) : null;
       const qualified = group.kind === 'evaluation' && 'classification' in receipt && Boolean(receipt.classification)
         && ancestryValid && parent !== null && 'score_eligibility' in parent && parent.score_eligibility?.state === 'qualifying';
       all.push({ kind: group.kind, id, receipt, acceptance, ancestry_valid: ancestryValid,
-        label: !acceptance ? 'historical_unsequenced' : qualified ? 'qualified' : 'inspectable_nonqualifying' });
+        label: qualified ? 'qualified' : 'inspectable_nonqualifying' });
     }
-    all.sort((a,b) => (a.acceptance?.sequence ?? 0) - (b.acceptance?.sequence ?? 0) || a.kind.localeCompare(b.kind) || a.id.localeCompare(b.id));
-    const freeAttempts = await journal.listFreeAttempts?.() ?? [];
-    const quarantine = await store.listQuarantine?.() ?? [];
-    const manifest = { version: 'ipx-causal-tape.v1', accepted_through: sequence,
+    all.sort((a,b) => a.acceptance.sequence - b.acceptance.sequence || a.kind.localeCompare(b.kind) || a.id.localeCompare(b.id));
+    const freeAttempts = allFreeAttempts.filter(item => item.publication_sequence <= freeThrough);
+    const quarantine = allQuarantine.filter(item => item.publication_sequence <= quarantineThrough);
+    const manifest = { version: 'ipx-causal-tape.v2', accepted_through: sequence,
+      free_attempts_through: freeThrough, quarantine_through: quarantineThrough,
       receipt_refs: all.map(item => ({ kind: item.kind, id: item.id, receipt_hash: item.receipt.receipt_hash,
-        acceptance_sequence: item.acceptance?.sequence ?? null })),
-      free_attempt_hashes: freeAttempts.map(item => item.attempt_hash).sort(),
-      quarantine_refs: quarantine.map(item => ({ kind: item.receipt_kind, id: item.receipt_id, receipt_hash: item.receipt_hash, reason: item.reason })) };
+        acceptance_sequence: item.acceptance.sequence })),
+      free_attempt_hashes: freeAttempts.map(item => ({ sequence: item.publication_sequence, hash: item.attempt_hash })),
+      quarantine_refs: quarantine.map(item => ({ sequence: item.publication_sequence, kind: item.receipt_kind,
+        id: item.receipt_id, receipt_hash: item.receipt_hash, reason: item.reason })) };
     return { all, freeAttempts, quarantine, manifest: { ...manifest, manifest_hash: hashCanonical(manifest) } };
   }
   return {
     closure,
-    async page(options: { acceptedThrough?: number; cursor?: number; limit?: number; kind?: ReceiptKind }) {
-      const { all, freeAttempts, quarantine, manifest } = await snapshot(options.acceptedThrough);
+    async page(options: PublicationBoundary & { cursor?: number; limit?: number; kind?: ReceiptKind }) {
+      const { all, freeAttempts, quarantine, manifest } = await snapshot(options);
       const filtered = options.kind ? all.filter(item => item.kind === options.kind) : all;
       const offset = options.cursor ?? 0, limit = options.limit ?? 50;
       if (!Number.isSafeInteger(offset) || offset < 0 || !Number.isSafeInteger(limit) || limit < 1 || limit > 100) throw new Error('invalid_tape_pagination');
@@ -82,9 +95,9 @@ export function createCausalTapeService(store: ReceiptAppendStore, journal: Judg
           verified_causal_revision: 0, independently_measured_improvement: 0 },
         coverage: { listed_receipts: filtered.length, free_attempts: freeAttempts.length, real_route_verified: false } };
     },
-    async attemptPage(cursor = 0, limit = 50) {
+    async attemptPage(cursor = 0, limit = 50, boundary: PublicationBoundary = {}) {
       if (!Number.isSafeInteger(cursor) || cursor < 0 || !Number.isSafeInteger(limit) || limit < 1 || limit > 100) throw new Error('invalid_tape_pagination');
-      const { freeAttempts, manifest } = await snapshot();
+      const { freeAttempts, manifest } = await snapshot(boundary);
       return { manifest_hash: manifest.manifest_hash, items: freeAttempts.slice(cursor, cursor + limit),
         next_cursor: cursor + limit < freeAttempts.length ? String(cursor + limit) : null };
     }

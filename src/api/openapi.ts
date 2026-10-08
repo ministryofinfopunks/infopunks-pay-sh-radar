@@ -1620,9 +1620,10 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       '404': errorResponse('canonical_receipt_not_found'), '503': errorResponse('decision_context_missing') }
   });
   add('get', '/v1/receipt-spine/tape', { tags: ['Pre-Spend Intelligence'], summary: 'Page the canonical causal receipt tape',
-    description: 'Returns O/J/X/E receipt pages, full parent closure and decision contexts, acceptance labels, an immutable content hash manifest, and free insufficient-evidence attempts. Synthetic records remain inspectable but never count as verified causal revisions.',
+    description: 'Returns O/J/X/E receipt pages, full parent closure and decision contexts, acceptance labels, a content hash manifest, and free insufficient-evidence attempts. Replay the exact manifest with all three returned boundaries: accepted_through, free_attempts_through and quarantine_through. Passing accepted_through alone selects a stable receipt-only view. Synthetic records remain inspectable but never count as verified causal revisions.',
     responses: { '200': { description: 'Bounded read-only causal tape and manifest.' }, '400': errorResponse('invalid_tape_request') } });
   add('get', '/v1/receipt-spine/attempts', { tags: ['Pre-Spend Intelligence'], summary: 'Page free insufficient-evidence assessment attempts',
+    description: 'The returned manifest includes three publication boundaries. Pass them back when paging to keep the attempt view fixed as new attempts arrive.',
     responses: { '200': { description: 'Append-only failed/unproven assessment attempts.' }, '400': errorResponse('invalid_attempt_pagination') } });
   add('get', '/v1/receipt-spine/witness/{j1}/{evaluation}/{j2}', { tags: ['Pre-Spend Intelligence'], summary: 'Export signed bounded causal witness',
     description: 'Exports J1, X, E, J2, frozen contexts and a same-input-minus-E counterfactual. A signature authenticates the bundle; real-route status remains unproven without independent external source review.',

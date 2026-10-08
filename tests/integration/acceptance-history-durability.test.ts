@@ -12,7 +12,8 @@ describe.skipIf(!url)('A5 PostgreSQL acceptance replay', () => {
   it('keeps a committed boundary stable across restart and rejects future issuer time', async () => {
     const db = await createCanonicalTestDatabase(url!, 'acceptance', ['20261007_011_canonical_receipt_spine', '20261007_012_judgment_requests',
       '20261007_013_execution_proof_uniqueness', '20261007_014_derived_score_projection', '20261008_018_decision_context',
-      '20261008_019_execution_score_eligibility', '20261008_020_receipt_acceptance']);
+      '20261008_019_execution_score_eligibility', '20261008_020_receipt_acceptance',
+      '20261008_021_free_assessment_attempts', '20261008_022_publication_boundaries']);
     try {
       const store = new PostgresCanonicalReceiptStore(db.pool);
       const authority = createReceiptAuthorityService(store);
@@ -30,6 +31,7 @@ describe.skipIf(!url)('A5 PostgreSQL acceptance replay', () => {
         .submit({ ...evaluationRequest, idempotency_key: 'future', output_artifact: classifiedArtifact(false) }, 'canonical-admin'))
         .rejects.toMatchObject({ code: 'evaluation_future_timestamp_quarantined' });
       expect((await db.pool.query('select count(*)::int as count from canonical_receipt_quarantine')).rows[0].count).toBe(1);
+      expect((await restored.listQuarantine()).map(item => item.publication_sequence)).toEqual([1]);
     } finally { await db.close(); }
   });
 });
