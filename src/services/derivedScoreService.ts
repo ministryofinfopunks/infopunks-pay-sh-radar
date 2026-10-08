@@ -15,7 +15,7 @@ export function createDerivedScoreService(store: ReceiptAppendStore, threshold =
         const kind = 'evaluation_id' in receipt ? 'evaluation' : 'execution_id' in receipt ? 'execution' : 'judgment_id' in receipt ? 'judgment' : 'observation';
         cache.set(kind + ':' + String((receipt as unknown as Record<string, unknown>)[ids[kind]]), receipt);
       }
-      const reader = { judgmentTrust: store.judgmentTrust, async get(kind: ReceiptKind, id: string) {
+      const reader = { judgmentTrust: store.judgmentTrust, getDecisionContext: store.getDecisionContext?.bind(store), async get(kind: ReceiptKind, id: string) {
         const key = kind + ':' + id;
         if (cache.has(key)) return cache.get(key)!;
         const receipt = await store.get(kind, id);

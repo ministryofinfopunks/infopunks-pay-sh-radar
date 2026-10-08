@@ -3,11 +3,11 @@ import type { JudgmentIssuer } from '../security/judgmentIssuer';
 import { z } from 'zod';
 import { createDerivedScoreService } from './derivedScoreService';
 import { decodePaymentSignatureHeader } from '@x402/core/http';
-import { PreSpendCheckRequestSchema, type PreSpendCheckResponse } from '../schemas/entities';
-import type { DecisionState } from './preSpendDecisionService';
+import { PreSpendCheckRequestSchema, PreSpendCheckResponseSchema, type PreSpendCheckResponse } from '../schemas/entities';
 import type { ObservationReceipt, JudgmentReceipt } from '../schemas/receipts';
-import { JudgmentFactsSchema, type CanonicalDecision, type CanonicalJudgmentResponse } from '../schemas/preSpend';
-import { hashCanonical, canonicalSerialize, verifyReceiptIntegrity } from './receiptIntegrityService';
+import { type CanonicalJudgmentResponse } from '../schemas/preSpend';
+import { hashCanonical, canonicalSerialize } from './receiptIntegrityService';
+import { assessFrozenDecision, sealDecisionContext } from './decisionContextService';
 import { createReceiptAuthorityService, type ReceiptAppendStore } from './receiptAuthorityService';
 import type { JudgmentRequestRepository, JudgmentRequestRecord } from '../repositories/judgmentRequestRepository';
 import { encodePaymentRequiredHeader, encodePaymentResponseHeader, type JudgmentPaymentGateway } from '../middleware/x402JudgmentMiddleware';
@@ -15,16 +15,7 @@ import { encodePaymentRequiredHeader, encodePaymentResponseHeader, type Judgment
 export class JudgmentError extends Error {
   constructor(readonly statusCode: number, readonly code: string) { super(code); }
 }
-/** Unknown/ambiguous legacy states never imply approval. Called only after evidence gates. */
-export function adaptDecision(state: string, bounded: boolean, veto = false): CanonicalDecision {
-  if (veto) return 'do_not_spend';
-  const mapping: Record<DecisionState, CanonicalDecision> = {
-    approved: 'proceed', approved_with_warning: bounded ? 'test_spend_first' : 'insufficient_evidence',
-    use_with_caution: bounded ? 'test_spend_first' : 'insufficient_evidence',
-    requires_human_approval: 'insufficient_evidence', do_not_use: 'do_not_spend'
-  };
-  return mapping[state as DecisionState] ?? 'insufficient_evidence';
-}
+export { adaptDecision } from './decisionContextService';
 export const judgmentExpired = (receipt: JudgmentReceipt, at = new Date()) => Date.parse(receipt.valid_until) <= at.getTime();
 export type JudgmentCheckResult = { status: number; headers: Record<string, string>; response: CanonicalJudgmentResponse; legacy: PreSpendCheckResponse };
 export type JudgmentServiceOptions = {
@@ -41,6 +32,11 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
   const authority = createReceiptAuthorityService(options.store, options.threshold, options.issuer);
   const scores = createDerivedScoreService(options.store, options.threshold);
   async function complete(key: string, record: JudgmentRequestRecord) {
+    if (record.decision_context) {
+      if (!options.store.appendDecisionContext || record.response.decision_context_hash !== record.decision_context.context_hash)
+        throw new JudgmentError(503, 'decision_context_unavailable');
+      await options.store.appendDecisionContext(record.decision_context);
+    }
     const result = record.response;
     const existing = await options.store.get('judgment', result.judgment_id) as JudgmentReceipt | null;
     const requirement = record.challenge.accepts.find(r => r.network === record.settlement!.network);
@@ -54,7 +50,8 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
       intent_hash: record.intent_hash, decision: result.decision, confidence: result.confidence,
       reasons: result.reasons, cited_observation_ids: result.cited_observations,
       issued_at: result.issued_at, valid_until: result.valid_until, payment_required: true,
-      payment_receipt_ref: record.settlement!.transaction, charge: result.cost.amount, ...(payment ? { payment } : {})
+      payment_receipt_ref: record.settlement!.transaction, charge: result.cost.amount, ...(payment ? { payment } : {}),
+      ...(record.decision_context ? { decision_context_hash: record.decision_context.context_hash } : {})
     });
     record.response.receipt = receipt; record.state = 'complete'; await options.journal.save(key, record);
     return { status: 200, headers: { 'PAYMENT-RESPONSE': encodePaymentResponseHeader(record.settlement!) }, response: record.response, legacy: record.legacy };
@@ -83,52 +80,48 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
         const intentHash = hashCanonical(input);
         const at = now();
         const observations = subject ? await options.observations(subject, intentHash) : [];
-        const facts = observations.map(o => JudgmentFactsSchema.safeParse(o.payload));
-        const sufficient = observations.length > 0 && observations.every((o, i) =>
-          verifyReceiptIntegrity('observation', o) && o.subject_id === subject && o.intent_hash === intentHash &&
-          o.subject_type === observations[0].subject_type && o.evidence_state === 'sufficient' && o.evidence_refs.length > 0 &&
-          o.source_type === 'reviewed_judgment_facts' && o.provenance.catalog_source === 'live' &&
-          o.provenance.fixture !== true && Date.parse(o.ingested_at) <= at.getTime() &&
-          o.freshness_expires_at !== null && Date.parse(o.freshness_expires_at) > at.getTime() && facts[i].success &&
-          facts[i].data!.settlement === input.preferred_settlement && facts[i].data!.max_cost <= input.budget &&
-          facts[i].data!.route_id === legacy.recommended_route);
-        const policies = facts.flatMap(f => f.success ? [f.data] : []);
-        const confidence = sufficient ? Math.min(...policies.map(f => f.confidence)) : 0;
-        const veto = policies.some(f => f.deterministic_veto || f.decision_state === 'do_not_use');
-        const bounded = sufficient && policies.every(f => f.bounded_test_allowed) && !legacy.requires_human_approval && legacy.known_blockers.length === 0;
-        // The legacy engine deliberately cannot approve from community intake. Reviewed
-        // policy facts may resolve caution, while its deterministic vetoes still win.
-        const reviewedState = policies.length && policies.every(f => f.decision_state === policies[0].decision_state) ? policies[0].decision_state : 'unknown';
-        const state = legacy.decision === 'use_with_caution' || legacy.decision === 'approved' ? reviewedState : legacy.decision;
-        let decision = sufficient && (reviewedState !== 'unknown' || veto) ? adaptDecision(state, bounded, veto) : 'insufficient_evidence' as CanonicalDecision;
-        if (legacy.decision === 'do_not_use' && reviewedState !== 'do_not_use' && !veto) decision = 'insufficient_evidence';
-        if (decision === 'proceed' && (confidence < Math.max(options.threshold, input.required_confidence) || legacy.requires_human_approval || legacy.known_blockers.length > 0)) decision = 'insufficient_evidence';
-        // Historical performance may veto spending only after the evidence gate passes.
-        // Positive history never grants permission or fills missing evidence.
-        const history = sufficient ? await scores.project(observations[0].subject_type, subject) : null;
-        const historyReasons: string[] = [];
-        if (history && history.score <= -10 && decision !== 'insufficient_evidence') {
-          decision = 'do_not_spend';
-          historyReasons.push('historical_execution_performance_degraded', 'derived_score_below_policy_threshold');
-          if (history.outcome_counts.contradicted > 0) historyReasons.push('contradicted_evaluation_in_history');
-        }
-        const issued = at.toISOString();
-        const valid = new Date(Math.min(at.getTime() + options.ttlMs, ...observations.filter(o => o.freshness_expires_at).map(o => Date.parse(o.freshness_expires_at!))));
+        const policy = { engine_version: 'pre-spend-decision.v2' as const, threshold: options.threshold,
+          veto_threshold: -10 as const, ttl_ms: options.ttlMs, amount: options.amount,
+          asset: options.gateway?.asset === 'USDG' ? 'USDG' as const : 'USDC' as const };
+        const preliminary = assessFrozenDecision(input, legacy, observations, null, at, policy);
+        const history = preliminary.decision === 'insufficient_evidence' ? null : await scores.project(observations[0].subject_type, subject);
+        const output = history ? assessFrozenDecision(input, legacy, observations, history, at, policy) : preliminary;
         const response: CanonicalJudgmentResponse = {
-          judgment_id: 'judgment_' + key.slice(7), decision, confidence, issued_at: issued,
-          valid_until: valid.getTime() > at.getTime() ? valid.toISOString() : issued,
-          reasons: sufficient ? [...policies.flatMap(f => f.reasons), ...historyReasons] : ['Required fresh, scoped, live evidence is missing.'],
-          cited_observations: sufficient ? observations.map(o => o.observation_id) : [],
-          cost: { amount: decision === 'insufficient_evidence' ? '0' : options.amount, asset: options.gateway?.asset ?? 'USDC' },
-          payment_required: decision !== 'insufficient_evidence', receipt: null
+          judgment_id: 'judgment_' + key.slice(7), decision: output.decision, confidence: output.confidence, issued_at: at.toISOString(),
+          valid_until: output.valid_until, reasons: output.reasons,
+          cited_observations: output.decision === 'insufficient_evidence' ? [] : observations.map(o => o.observation_id),
+          cost: { amount: output.decision === 'insufficient_evidence' ? '0' : options.amount, asset: policy.asset },
+          payment_required: output.decision !== 'insufficient_evidence', receipt: null
         };
-        if (decision === 'insufficient_evidence') return { status: 200, headers: {}, response, legacy };
+        if (output.decision === 'insufficient_evidence') return { status: 200, headers: {}, response, legacy };
         if (options.store.judgmentTrust?.requireSigned && !options.issuer) throw new JudgmentError(503, 'judgment_signing_unavailable');
-        if (options.issuer) { try { options.issuer.assertCanSign(issued, response.valid_until); } catch { throw new JudgmentError(503, 'judgment_signing_unavailable'); } }
+        if (options.issuer) { try { options.issuer.assertCanSign(response.issued_at, response.valid_until); } catch { throw new JudgmentError(503, 'judgment_signing_unavailable'); } }
         if (!options.gateway) throw new JudgmentError(503, 'judgment_payment_unavailable');
+        if (!history || !options.store.appendDecisionContext) throw new JudgmentError(503, 'decision_context_unavailable');
+        const evaluationRefs = await Promise.all(history.contributing_evaluation_ids.map(async evaluationId => {
+          const evaluation = await options.store.get('evaluation', evaluationId);
+          if (!evaluation || !('evaluation_id' in evaluation)) throw new JudgmentError(503, 'decision_context_dependency_missing');
+          return { evaluation_id: evaluation.evaluation_id, receipt_hash: evaluation.receipt_hash, score_delta: evaluation.score_delta };
+        }));
+        const frozenLegacy = PreSpendCheckResponseSchema.parse(legacy);
+        const context = sealDecisionContext({ version: 'pre-spend-decision-context.v1', assessment_id: response.judgment_id,
+          request: input, request_hash: requestHash, subject_type: observations[0].subject_type, subject_id: subject,
+          intent_hash: intentHash, assessed_at: response.issued_at,
+          observation_refs: observations.map(o => ({ observation_id: o.observation_id, receipt_hash: o.receipt_hash })),
+          evaluation_refs: evaluationRefs, projection_boundary: { kind: 'committed_evaluation_set.v1',
+            evaluation_refs_hash: hashCanonical(evaluationRefs), quote_assessed_at: response.issued_at },
+          score_projection: history, legacy: frozenLegacy, legacy_hash: hashCanonical(frozenLegacy),
+          policy, policy_hash: hashCanonical(policy), output });
+        response.decision_context_hash = context.context_hash;
         record = await options.journal.quote(key, { request_hash: requestHash, state: 'quoted', response, legacy,
-          subject_type: observations[0].subject_type, subject_id: subject, intent_hash: intentHash, challenge: await options.gateway.challenge() });
+          subject_type: observations[0].subject_type, subject_id: subject, intent_hash: intentHash,
+          decision_context: context, challenge: await options.gateway.challenge() });
         if (record.request_hash !== requestHash) throw new JudgmentError(409, 'idempotency_conflict');
+      }
+      if (record.decision_context) {
+        if (!options.store.appendDecisionContext || record.response.decision_context_hash !== record.decision_context.context_hash)
+          throw new JudgmentError(503, 'decision_context_unavailable');
+        await options.store.appendDecisionContext(record.decision_context);
       }
       if (Date.parse(record.response.valid_until) <= now().getTime()) throw new JudgmentError(409, 'judgment_quote_expired');
       if (!signature) return { status: 402, headers: { 'PAYMENT-REQUIRED': encodePaymentRequiredHeader(record.challenge) }, response: record.response, legacy: record.legacy };

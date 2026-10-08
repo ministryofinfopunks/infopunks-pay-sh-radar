@@ -12,8 +12,9 @@ describe('POST /v1/execute-proof', () => {
     const f = await setupExecution();
     // Reviewed internal authority can publish free judgments; paid publication
     // must go through the already-tested payment boundary.
-    const { payment: ignored, ...unpaid } = f.parent;
-    const reviewedParent = sealReceipt('judgment', { ...unpaid, payment_required: false, payment_receipt_ref: null, charge: '0' });
+    const { payment: ignored, decision_context_hash: _context, ...unpaid } = f.parent;
+    const reviewedParent = sealReceipt('judgment', { ...unpaid, schema_version: 'canonical-receipts.v1' as const,
+      policy_version: 'receipt-authority.v1', payment_required: false, payment_receipt_ref: null, charge: '0' });
     const submittedProof = await f.sign(f.proof, reviewedParent);
     const app = await createApp(undefined, undefined, { executionProofVerifier: f.verifier, judgmentGateway: f.gateway });
     try {

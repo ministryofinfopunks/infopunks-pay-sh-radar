@@ -2,11 +2,13 @@ import type pg from 'pg';
 import type { PaymentRequired, SettleResponse } from '@x402/core/types';
 import type { CanonicalJudgmentResponse } from '../schemas/preSpend';
 import type { PreSpendCheckResponse } from '../schemas/entities';
+import type { DecisionContext } from '../schemas/decisionContext';
 export type JudgmentRequestRecord = {
   request_hash: string; state: 'quoted' | 'settling' | 'settled' | 'complete';
   response: CanonicalJudgmentResponse; legacy: PreSpendCheckResponse;
   subject_type: string; subject_id: string; intent_hash: string;
   challenge: PaymentRequired; settlement?: SettleResponse; payment_hash?: string;
+  decision_context?: DecisionContext;
 };
 export interface JudgmentRequestRepository {
   get(key: string): Promise<JudgmentRequestRecord | null>;

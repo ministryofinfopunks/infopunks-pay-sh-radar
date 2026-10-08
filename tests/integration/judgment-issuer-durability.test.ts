@@ -12,7 +12,7 @@ import { request, legacy, setupJudgment } from '../helpers/judgments';
 
 describe.skipIf(!process.env.CANONICAL_RECEIPT_TEST_URL)('signed judgment PostgreSQL durability', () => {
   it('replays the original signature after rotation/reconstruction and recovers publication without charging again', async () => {
-    const database = await createCanonicalTestDatabase(process.env.CANONICAL_RECEIPT_TEST_URL!, 'judgment_issuer', ['20261007_011_canonical_receipt_spine', '20261007_012_judgment_requests', '20261007_014_derived_score_projection']);
+    const database = await createCanonicalTestDatabase(process.env.CANONICAL_RECEIPT_TEST_URL!, 'judgment_issuer', ['20261007_011_canonical_receipt_spine', '20261007_012_judgment_requests', '20261007_014_derived_score_projection', '20261008_018_decision_context']);
     const pool = database.pool;
     try {
       const f = await setupJudgment(); const original = issuerFixture(); const next = issuerFixture('key-2');

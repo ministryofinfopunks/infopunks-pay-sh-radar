@@ -4,6 +4,7 @@ import { JudgmentIssuerKeySchema } from '../security/judgmentIssuer';
 import { EconomicJobSchema, ExecutionAuthorizationSchema, EconomicOperationSchema, HarnessEventSchema } from '../schemas/economicEngine';
 import { z } from 'zod';
 import { CanonicalJudgmentResponseSchema } from '../schemas/preSpend';
+import { DecisionContextSchema } from '../schemas/decisionContext';
 import { EvaluateRequestSchema } from '../schemas/evaluate';
 import { ScoreProjectionSchema } from '../schemas/scoreProjection';
 import { EvaluationReceiptSchema } from '../schemas/receipts';
@@ -1610,6 +1611,13 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     description: 'Checks configured issuer trust, observation ancestry and assessment eligibility. A judgment receipt records assessment and never grants execution authority. Execution requires a separately signed infopunks.execution-authorization.v1 capability and the execution gate.',
     parameters: [pathParam('id', 'Canonical judgment identifier.')],
     responses: { '200': { description: 'Assessment verification status.', content: { 'application/json': { schema: z.toJSONSchema(z.object({ data: z.object({ judgment_id: z.string(), receipt_hash: z.string(), ancestry_valid: z.boolean(), issuer_signature_valid: z.boolean(), within_validity_window: z.boolean(), assessment_eligible: z.boolean(), execution_authorized: z.literal(false), authority_requires: z.literal('infopunks.execution-authorization.v1') }) }), { target: 'draft-2020-12' }) } } }, '404': errorResponse('canonical_receipt_not_found') }
+  });
+  add('get', '/v1/receipt-spine/judgment/{id}/context', {
+    tags: ['Pre-Spend Intelligence'], summary: 'Export frozen v2 judgment inputs and replay status',
+    description: 'Returns the immutable first-quote decision context for a v2 paid judgment. Replay checks committed observations, evaluations, score projection and decision rules. Historical v1 judgments have no context export.',
+    parameters: [pathParam('id', 'Canonical judgment identifier.')],
+    responses: { '200': { description: 'Frozen decision context and deterministic replay result.', content: { 'application/json': { schema: z.toJSONSchema(z.object({ data: z.object({ context: DecisionContextSchema, replay_valid: z.boolean() }) }), { target: 'draft-2020-12' }) } } },
+      '404': errorResponse('canonical_receipt_not_found'), '503': errorResponse('decision_context_missing') }
   });
   add('get', '/v1/economics/revenue', { tags: ['Revenue'], summary: 'Read finalized settlement-backed revenue and recorded costs',
     description: 'Contains verified judgment fees only; templates are excluded. Asset totals remain separate. Recorded costs may be incomplete; distributable surplus is null.',
