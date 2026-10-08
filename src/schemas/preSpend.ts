@@ -20,6 +20,6 @@ export const CanonicalJudgmentResponseSchema = z.object({
   issued_at: z.string().datetime(), valid_until: z.string().datetime(),
   reasons: z.array(z.string()), cited_observations: z.array(z.string()),
   cost: z.object({ amount: z.string(), asset: z.string() }), payment_required: z.boolean(),
-  receipt: JudgmentReceiptSchema.nullable()
+  receipt: JudgmentReceiptSchema.nullable(), decision_context_hash: z.string().regex(/^sha256:[a-f0-9]{64}$/).optional()
 });
 export type CanonicalJudgmentResponse = z.infer<typeof CanonicalJudgmentResponseSchema>;

@@ -20,7 +20,7 @@ describe.skipIf(!process.env.CANONICAL_RECEIPT_TEST_URL)('RH USDG accounting Pos
     const pool = new pg.Pool({ connectionString: process.env.CANONICAL_RECEIPT_TEST_URL, options: `-c search_path=${schema}` });
     try {
       await pool.query(`create schema ${schema}`);
-      for (const name of ['20261007_011_canonical_receipt_spine', '20261007_012_judgment_requests', '20261007_013_execution_proof_uniqueness', '20261007_014_derived_score_projection', '20261008_016_rh_usdg_accounting']) await pool.query(readFileSync(`migrations/${name}.up.sql`, 'utf8'));
+      for (const name of ['20261007_011_canonical_receipt_spine', '20261007_012_judgment_requests', '20261007_013_execution_proof_uniqueness', '20261007_014_derived_score_projection', '20261008_016_rh_usdg_accounting', '20261008_018_decision_context']) await pool.query(readFileSync(`migrations/${name}.up.sql`, 'utf8'));
       const issuer = createJudgmentIssuer(issuerFixture());
       const receipts = new PostgresCanonicalReceiptStore(pool, 80, issuer); const journal = new PostgresJudgmentRequestRepository(pool);
       const f = await setupRhUsdG({ store: receipts, journal, issuer }); const paid = await f.service.check(f.request, 'durable-rh', f.signature);

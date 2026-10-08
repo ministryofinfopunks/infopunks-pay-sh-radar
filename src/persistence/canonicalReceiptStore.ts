@@ -3,6 +3,8 @@ import type pg from 'pg';
 import { receiptSchemas, canonicalSerialize } from '../services/receiptIntegrityService';
 import { assertReceiptAuthority, ReceiptAuthorityError, type ReceiptRecord, type ReceiptAppendStore } from '../services/receiptAuthorityService';
 import type { ReceiptKind, JudgmentReceipt, EvaluationReceipt, ExecutionReceipt } from '../schemas/receipts';
+import { DecisionContextSchema, type DecisionContext } from '../schemas/decisionContext';
+import { hashCanonical } from '../services/receiptIntegrityService';
 
 const metadata = {
   observation: { table: 'observation_receipts', id: 'observation_id', time: 'observed_at' },
@@ -15,12 +17,23 @@ const receiptId = (kind: ReceiptKind, receipt: ReceiptRecord) => String((receipt
 /** Memory is an explicit dev/test adapter; clones prevent read/return mutation. */
 export class MemoryCanonicalReceiptStore implements ReceiptAppendStore {
   private readonly records = new Map<string, ReceiptRecord>();
+  private readonly contexts = new Map<string, DecisionContext>();
   private queue: Promise<unknown> = Promise.resolve();
   constructor(private readonly threshold = 80, readonly judgmentTrust?: JudgmentIssuerTrust) {
     if (process.env.NODE_ENV === 'production') throw new ReceiptAuthorityError('canonical_receipts_require_postgres');
   }
   async get(kind: ReceiptKind, id: string) { return structuredClone(this.records.get(kind + ':' + id) ?? null); }
   async list(kind: ReceiptKind) { return [...this.records.entries()].filter(([key]) => key.startsWith(kind + ':')).map(([, value]) => structuredClone(value)); }
+  async getDecisionContext(id: string) { return structuredClone(this.contexts.get(id) ?? null); }
+  async appendDecisionContext(raw: DecisionContext) {
+    const context = DecisionContextSchema.parse(raw);
+    const { context_hash, ...body } = context;
+    if (hashCanonical(body) !== context_hash) throw new ReceiptAuthorityError('decision_context_hash_invalid');
+    const existing = this.contexts.get(context.assessment_id);
+    if (existing && canonicalSerialize(existing) !== canonicalSerialize(context)) throw new ReceiptAuthorityError('decision_context_conflict');
+    if (!existing) this.contexts.set(context.assessment_id, structuredClone(context));
+    return structuredClone(existing ?? context);
+  }
   append(kind: ReceiptKind, raw: ReceiptRecord): Promise<ReceiptRecord> {
     const candidate = structuredClone(raw);
     const operation = this.queue.then(async () => {
@@ -56,6 +69,20 @@ export class MemoryCanonicalReceiptStore implements ReceiptAppendStore {
 
 export class PostgresCanonicalReceiptStore implements ReceiptAppendStore {
   constructor(private readonly pool: pg.Pool, private readonly threshold = 80, readonly judgmentTrust?: JudgmentIssuerTrust) {}
+  async getDecisionContext(id: string): Promise<DecisionContext | null> {
+    const result = await this.pool.query('select context from decision_contexts where assessment_id=$1', [id]);
+    return result.rows[0] ? DecisionContextSchema.parse(result.rows[0].context) : null;
+  }
+  async appendDecisionContext(raw: DecisionContext): Promise<DecisionContext> {
+    const context = DecisionContextSchema.parse(raw);
+    const { context_hash, ...body } = context;
+    if (hashCanonical(body) !== context_hash) throw new ReceiptAuthorityError('decision_context_hash_invalid');
+    await this.pool.query('insert into decision_contexts(assessment_id,context_hash,context) values($1,$2,$3) on conflict(assessment_id) do nothing',
+      [context.assessment_id, context_hash, canonicalSerialize(context)]);
+    const existing = await this.getDecisionContext(context.assessment_id);
+    if (!existing || canonicalSerialize(existing) !== canonicalSerialize(context)) throw new ReceiptAuthorityError('decision_context_conflict');
+    return existing;
+  }
   async get(kind: ReceiptKind, id: string): Promise<ReceiptRecord | null> {
     const meta = metadata[kind];
     const result = await this.pool.query(`select receipt from ${meta.table} where ${meta.id} = $1`, [id]);

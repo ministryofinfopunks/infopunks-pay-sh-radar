@@ -12,6 +12,7 @@ import { hasAuthoredScore } from '../schemas/evaluate';
 import { createDerivedScoreService } from '../services/derivedScoreService';
 import { createEvaluationService } from '../services/evaluationService';
 import { createJudgmentService, JudgmentError } from '../services/judgmentService';
+import { verifyDecisionContext } from '../services/decisionContextService';
 import { hashCanonical } from '../services/receiptIntegrityService';
 import { createExecutionProofService, ExecutionProofError } from '../services/executionProofService';
 import { baseProofClient, createBaseSettlementProofVerifier, type SettlementProofVerifier } from '../security/settlementProofVerifier';
@@ -4468,7 +4469,10 @@ export async function createApp(
     usdGDomain: config.judgmentNetwork === 'eip155:4663' ? await verifyUsdGMetadata(config.judgmentRhRpcUrl!) : undefined
   }) : null);
   const judgmentJournal = rhChainPostgresPool ? new PostgresJudgmentRequestRepository(rhChainPostgresPool) : new MemoryJudgmentRequestRepository();
-  if (config.judgmentPaymentEnabled) await rhChainPostgresPool!.query('select request_key from judgment_requests limit 0');
+  if (config.judgmentPaymentEnabled) {
+    await rhChainPostgresPool!.query('select request_key from judgment_requests limit 0');
+    await rhChainPostgresPool!.query('select assessment_id from decision_contexts limit 0');
+  }
   const judgments = createJudgmentService({
     store: canonicalReceiptStore, journal: judgmentJournal, gateway: judgmentGateway, issuer: judgmentIssuer,
     legacyCheck: input => preSpendIntelligence.check(input), threshold: config.receiptProceedConfidenceThreshold,
@@ -4592,6 +4596,15 @@ export async function createApp(
       ancestry_valid: ancestryValid, issuer_signature_valid: signatureValid, within_validity_window: inWindow,
       assessment_eligible: ancestryValid && signatureValid && inWindow && ['proceed', 'test_spend_first'].includes(judgment.decision),
       execution_authorized: false, authority_requires: 'infopunks.execution-authorization.v1' } };
+  });
+  app.get<{ Params: { id: string } }>('/v1/receipt-spine/judgment/:id/context', async (req, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    const receipt = await canonicalReceiptStore.get('judgment', req.params.id);
+    if (!receipt || !('judgment_id' in receipt)) return reply.code(404).send({ error: 'canonical_receipt_not_found' });
+    if (receipt.schema_version !== 'canonical-receipts.v2') return reply.code(404).send({ error: 'decision_context_not_available_for_v1' });
+    const context = await canonicalReceiptStore.getDecisionContext(receipt.judgment_id);
+    if (!context) return reply.code(503).send({ error: 'decision_context_missing' });
+    return { data: safeJsonExport({ context, replay_valid: await verifyDecisionContext(context, receipt, canonicalReceiptStore) }) };
   });
   app.get<{ Params: { kind: string; id: string } }>('/v1/receipt-spine/:kind/:id', async (req, reply) => {
     if (!['observation', 'judgment', 'execution', 'evaluation'].includes(req.params.kind)) return reply.code(404).send({ error: 'receipt_kind_not_found' });

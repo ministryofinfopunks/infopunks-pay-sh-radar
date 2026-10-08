@@ -21,7 +21,8 @@ export interface JudgmentIssuer extends JudgmentIssuerTrust {
 }
 const DOMAIN = 'infopunks.judgment-issuer.v1';
 function signingBytes(receipt: JudgmentReceipt, issuer: string, keyId: string) {
-  return Buffer.from(canonicalSerialize({ domain: DOMAIN, algorithm: 'Ed25519', issuer, key_id: keyId, receipt_hash: receipt.receipt_hash }));
+  return Buffer.from(canonicalSerialize({ domain: receipt.schema_version === 'canonical-receipts.v2' ? 'infopunks.judgment-issuer.v2' : DOMAIN,
+    algorithm: 'Ed25519', issuer, key_id: keyId, receipt_hash: receipt.receipt_hash }));
 }
 const within = (key: JudgmentIssuerKey, at: string) => !key.revoked && Date.parse(at) >= Date.parse(key.valid_from)
   && (key.valid_until === null || Date.parse(at) < Date.parse(key.valid_until));

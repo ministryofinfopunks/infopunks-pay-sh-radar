@@ -7,11 +7,13 @@ import { createReceiptAuthorityService } from '../../src/services/receiptAuthori
 
 describe.skipIf(!process.env.CANONICAL_RECEIPT_TEST_URL)('durable execution proof authority', () => {
   it('replays after restart and blocks duplicate authorization/settlement at the database', async () => {
-    const database = await createCanonicalTestDatabase(process.env.CANONICAL_RECEIPT_TEST_URL!, 'execution_proof', ['20261007_011_canonical_receipt_spine', '20261007_012_judgment_requests', '20261007_013_execution_proof_uniqueness']);
+    const database = await createCanonicalTestDatabase(process.env.CANONICAL_RECEIPT_TEST_URL!, 'execution_proof', ['20261007_011_canonical_receipt_spine', '20261007_012_judgment_requests', '20261007_013_execution_proof_uniqueness', '20261008_018_decision_context']);
     const pool = database.pool;
     try {
       const f = await setupExecution(); const store = new PostgresCanonicalReceiptStore(pool);
-      await store.append('observation', f.observation); await store.append('judgment', f.parent);
+      await store.append('observation', f.observation);
+      await store.appendDecisionContext((await f.store.getDecisionContext(f.parent.judgment_id))!);
+      await store.append('judgment', f.parent);
       const service = () => createExecutionProofService({ store: new PostgresCanonicalReceiptStore(pool), threshold: 80, verifier: f.verifier });
       const first = await service().submit(f.proof);
       expect(await service().submit(f.proof)).toEqual(first);
