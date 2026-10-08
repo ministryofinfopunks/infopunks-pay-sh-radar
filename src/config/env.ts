@@ -17,6 +17,9 @@ export type RuntimeConfig = {
   judgmentPayTo: string | null;
   judgmentResourceUrl: string | null;
   judgmentPriceUsdc: string;
+  decisionsShadowEnabled: boolean;
+  decisionsApiKey: string | null;
+  decisionsTimeoutMs: number;
   executionProofBaseRpcUrl: string | null;
   payShCatalogUrl: string | null;
   payShCatalogSource: 'live' | 'fixture';
@@ -173,6 +176,9 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
     judgmentPayTo: optionalString(env.JUDGMENT_PAY_TO),
     judgmentResourceUrl: readOptionalUrl('JUDGMENT_RESOURCE_URL', env.JUDGMENT_RESOURCE_URL),
     judgmentPriceUsdc: env.JUDGMENT_PRICE_USDC ?? '0.01',
+    decisionsShadowEnabled: readBoolean('OPENAI_DECISIONS_SHADOW_ENABLED', env.OPENAI_DECISIONS_SHADOW_ENABLED, false),
+    decisionsApiKey: optionalString(env.OPENAI_API_KEY),
+    decisionsTimeoutMs: readBoundedPositiveInteger('OPENAI_DECISIONS_TIMEOUT_MS', env.OPENAI_DECISIONS_TIMEOUT_MS, 1200, 10000),
     executionProofBaseRpcUrl: readOptionalUrl('EXECUTION_PROOF_BASE_RPC_URL', env.EXECUTION_PROOF_BASE_RPC_URL),
     payShCatalogUrl: readOptionalUrl('PAY_SH_CATALOG_URL', env.PAY_SH_CATALOG_URL),
     payShCatalogSource: readCatalogSource(env.PAYSH_CATALOG_SOURCE),
@@ -261,6 +267,7 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
   if (!/^(0|[1-9][0-9]*)(\.[0-9]{1,6})?$/.test(config.judgmentPriceUsdc) || Number(config.judgmentPriceUsdc) <= 0) throw new RuntimeConfigurationError([{ variable: 'JUDGMENT_PRICE_USDC', code: 'invalid_price' }]);
   if (env.JUDGMENT_NETWORK && env.JUDGMENT_NETWORK !== 'eip155:8453') throw new RuntimeConfigurationError([{ variable: 'JUDGMENT_NETWORK', code: 'unsupported_network' }]);
   if (config.judgmentPaymentEnabled && (!config.databaseUrl || !config.judgmentFacilitatorUrl || !config.judgmentResourceUrl || !/^0x[a-fA-F0-9]{40}$/.test(config.judgmentPayTo ?? ''))) throw new RuntimeConfigurationError([{ variable: 'JUDGMENT_PAYMENT_ENABLED', code: 'payment_configuration_incomplete' }]);
+  if (config.decisionsShadowEnabled && !config.decisionsApiKey) throw new RuntimeConfigurationError([{ variable: 'OPENAI_API_KEY', code: 'required_for_decisions_shadow' }]);
   return config;
 }
 
