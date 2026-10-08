@@ -38,6 +38,36 @@ Independent focused check at `c56ca7e`: `npx vitest run tests/decision-context.t
 
 A gate can PASS only when its evidence binds the exact frozen source SHA, policy hash where applicable, and identified deployment. A local test PASS is a local implementation result. It does not convert a real-world gate to PASS. A failing required check makes the relevant gate FAIL; absent external approval or deployment proof makes only that dependent gate BLOCKED. G6 is BLOCKED unless every prerequisite is PASS on the same tuple.
 
-## Frozen-candidate verification
+## Independent frozen-candidate check: `d9065dc` (superseded)
 
-Pending an integration SHA. Record exact commands, exit codes, skips, PostgreSQL version/port/schema scope, migration path, Foundry result, npm dependency audit, manifest hashes and counterfactual replay here after the candidate is frozen. Do not combine earlier package runs with candidate checks.
+The detached candidate checkout at `/Users/ahdilm/.codex/worktrees/ipx-frozen-verification` had exact HEAD `d9065dc1682a22fc73c87b0d2a63bc4f0229e235`. The source tree stayed clean. Checks below were run against that SHA alone. A later code fix will require a new candidate SHA and new applicable checks; none of these results transfer automatically.
+
+| Check | Independent result |
+| --- | --- |
+| Dependency install | `npm ci --ignore-scripts`: exit 0 from committed lockfile; 181 packages added. |
+| Full application suite | With `CANONICAL_RECEIPT_TEST_URL` and `ECONOMIC_ENGINE_TEST_URL` pointing to disposable PostgreSQL 14.20 on localhost:55478, `npm test`: exit 0; 268 files, 1,895 tests passed, one skipped. |
+| Skipped harness | The full-suite skip was the real backend termination case gated by `POSTGRES_RESILIENCE_TEST_URL`. Running `POSTGRES_RESILIENCE_TEST_URL=postgresql://ahdilm@127.0.0.1:55478/postgres npx vitest run tests/postgres-resilience-failure-matrix.test.ts` separately: exit 0; 16 tests passed, zero skipped. |
+| Static/build | `npm run typecheck` and `npm run build`: both exit 0. Build reports an existing large client chunk warning. |
+| Migrations | All 21 ordered `.up.sql` files applied to a fresh private schema on PostgreSQL 14.20; resulting schema had 46 tables. The schema was dropped afterward. This proves local migration ordering only. |
+| Solidity | `forge test` from `contracts`: six tests passed, no failures/skips, Solidity 0.8.30. OpenZeppelin source was copied byte-for-byte from the existing ignored local install after the pinned remote clone failed; this run does not independently attest the remote dependency commit. |
+| Dependency security | The lockfile audit reports 11 affected packages: 8 high, 2 moderate, one low, including direct runtime `fastify`. Findings require triage and reviewed disposition before independent security approval. |
+
+### Release finding V1: an accepted-boundary manifest is not stable
+
+`src/services/causalTapeService.ts:49–67` filters sequenced receipts to `acceptedThrough`, but adds **all** free attempts and quarantined receipts to the same manifest without a boundary. It also includes later `historical_unsequenced` rows. An independent probe using the real service with an empty receipt store requested `acceptedThrough: 0` twice. Adding one free attempt between reads changed `manifest_hash` from `sha256:29f5d530cacc5cb0902787aab1776a19a34dacb75f71cb0519cb7cbf9afd327c` to `sha256:0ac6061289c92363996aa8e49bae0283ad6c7e3e394f2d476709fd27e0b131fa`. The frozen accepted boundary did not change. Probe source: `/tmp/ipx-d906-manifest-probe.ts` (ephemeral, outside the repository).
+
+This defeats historical manifest reconstruction and cursor consistency as currently claimed by A6. A shared sequence/snapshot cutoff for attempts and quarantine, or a separately versioned publication boundary, must make the same historical manifest reproducible after later writes. Retest both later free attempts and later quarantines, plus unsequenced history, at the repaired SHA.
+
+### Provisional gate matrix at `d9065dc`
+
+| Gate | Verdict | Evidence / missing dependency |
+| --- | --- | --- |
+| G0 | BLOCKED | Local signed-response JSON classifier and causal witness exist, but no real independently finalized route, actual task output, reviewed signer registry or genuine O/J/X/E/J revision was supplied. Synthetic fixtures count zero. |
+| G1 | FAIL | The accepted-boundary manifest changes after a later free attempt. Public immutable publication/mirror and failed-outcome coverage are also unproven. |
+| G2 | BLOCKED | D1 records an unapproved model choice; no signed economic policy and reviewed full terms. D2 conservation scenarios are local simulations. |
+| G3 | BLOCKED | Canonical deployed instrument, bytecode/constructor and funded bidirectional venue proof are absent. |
+| G4 | BLOCKED | No independent security or legal opinions or resolution log. Dependency audit findings await triage. |
+| G5 | BLOCKED | Local migration/restart tests pass; no same-SHA production deployment identity, production migration, backup/restore and health evidence. Earlier public snapshot reported 503. |
+| G6 | BLOCKED | Required gates do not all pass on one code SHA, policy and deployment; G1 also fails at this candidate. No economic activation authorization was inferred. |
+
+The `d9065dc` candidate was superseded for repair of V1. The final matrix must be recomputed on the next frozen SHA.
