@@ -1,0 +1,29 @@
+# E1 canonical evidence readiness and release gates
+
+Baseline: `a52a6b4cc140ada3312170f068cf940bcbead8b5`. This report covers local preparation only. No historical database, immutable export, issuer registry, provider evidence, dedicated staging, or real-service spending authorization was supplied. No production write, payment, model call, or external execution occurred. The [evidence manifest](decisions-e1-evidence-manifest-v1.json) records null historical counts rather than asserting zero.
+
+## Findings and execution boundary
+
+The existing [history auditor](../scripts/audit-decisions-history.ts) reads four canonical receipt tables inside a repeatable-read, read-only PostgreSQL transaction and rejects a role with receipt-table write privileges. It checks strict schemas, content hashes, duplicate IDs, and O→J→X→E authority **for candidate executions**, including signed J when trusted public keys are supplied. It does not inspect the `judgment_observations` table directly, replay unreferenced O/J records as complete chains, establish backup immutability or export completeness, reverify original signed X submissions, or verify external service outcomes. The CLI wires no external execution/outcome callbacks. Its `verified_complete` count therefore cannot be established from the current unavailable report. For a genuine inventory, follow the [access checklist](decisions-e1-canonical-access-checklist-v1.md) and reconcile raw source counts and gaps separately.
+
+The current Evaluation service enforces internal evaluator provenance and nonempty evidence references, then derives score effects from the canonical outcome. It does not authenticate the truth of the provider result. For E1, independent outcome verification must precede any claim that an E is verified. Staging E writes may affect staging scores; no benchmark step may write production E or reputation. A valid J issuer signature authenticates its issuer, not observation truth. A verified Base USDC transfer proves settlement, not task success. A J is an assessment and does not itself grant execution permission; the separate capability and deterministic policy remain mandatory.
+
+## Gate matrix
+
+| Gate | Required evidence | Current state | Recommendation |
+| --- | --- | --- | --- |
+| E1: first verified external outcome | One genuine, complete O→J→X→E chain; verified hashes/signature/parents/time; original X proof and finalized settlement; independently inspectable provider result; independent E review; frozen-input J replay. | **Blocked.** Historical access and proof artifacts absent; prospective run has no provider, staging, approval or execution. Verified real loops: unknown historically, zero in this new cohort. | NO-GO for an E1 success claim. Prepare operator package and approved staging run. |
+| E2: safety qualification | Separate representative real-observation dataset; blinded independent labels; predeclared false-ALLOW threshold; disagreements, exclusions and confidence intervals; operational reliability. | **Not started.** Nineteen synthetic fixtures, zero independent labels, no real cohort. | NO-GO for statistical safety claims. One E1 demonstration would not satisfy E2. |
+| E3: Decisions activation | Dedicated key and isolated staging; same frozen dataset; live accuracy, unsafe approvals, latency, reliability and provider cost; independent economics review; separate activation authorization. | **Blocked.** No dedicated key or staging. Mock results are regression evidence only. Decisions remains advisory/disabled for spend authority. | NO-GO for activation, billing, or spend influence. |
+| Radar deterministic launch | Its own production migration, role, freshness, backup/replay, and deterministic-policy verification gates. | Separate from E1/E2/E3; this report supplies no production evidence. | Continue its independent launch process without treating Decisions or IPX as qualified. |
+| IPX economics | Frozen economic invariants and independent launch review. | Unchanged by this work. | No activation or migration changes. |
+
+## Exact unblockers
+
+Historical path: operator-provided immutable canonical snapshot or export with source/backup digest and coverage; dedicated read-only credentials in a secret store; independently authenticated public issuer key history; original signed X submissions and external settlement/provider artifacts; outcome-review authority and privacy approval. Prospective path: real provider meeting the supported proof profile and response-inspection requirements; isolated staging, segregated funded wallet, frozen run record, named independent reviewers, and explicit financial approval within fixed caps. E3 separately needs dedicated OpenAI credentials and staging approval; neither is required to keep E1 preparation moving.
+
+The [prospective cohort specification](decisions-e1-prospective-cohort-spec-v1.md) and [review status](decisions-e1-review-status-v1.md) provide the next executable protocol. When inputs arrive, run a new read-only historical audit or separately authorized staging experiment, freeze a new manifest version, and obtain independent sign-off. Do not reinterpret this preparation report as real-world verification.
+
+## Local validation at this checkpoint
+
+`npm run typecheck` passed. The targeted evidence-audit, independent-review, review-packet, and read-only-history tests reported 7 passed and 1 skipped; the PostgreSQL integration case was skipped because no dedicated test database was configured. A fresh invocation of `npm run audit:decisions-history` produced `data_access_status: unavailable`, null historical counts, and blocker `DECISIONS_HISTORY_READONLY_DATABASE_URL_absent`. The 19-case packet count matches the pending manifest; the manifest records zero attempts in this new cohort and no E1 verification. Documentation links and whitespace checks passed. These are local preparation checks, not live evidence or a full-suite rerun.

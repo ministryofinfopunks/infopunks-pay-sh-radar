@@ -1,0 +1,78 @@
+{
+  "schema_version": "decisions-e1-evidence-manifest.v1",
+  "baseline_commit": "a52a6b4cc140ada3312170f068cf940bcbead8b5",
+  "status": "preparation_only",
+  "e1_verified": false,
+  "historical": {
+    "source_class": "canonical_postgres_unavailable",
+    "immutable_snapshot_id": null,
+    "backup_sha256": null,
+    "issuer_trust_sha256": null,
+    "audit_report_sha256": null,
+    "receipt_counts": null,
+    "execution_classification_counts": null,
+    "independently_verified_complete_count": null
+  },
+  "prospective": {
+    "cohort_id": "e1-prospective-v1",
+    "source_class": "planned_real_service",
+    "run_record_sha256": null,
+    "operator_approval_ref": null,
+    "financial_approval_ref": null,
+    "provider_identity_ref": null,
+    "staging_environment_ref": null,
+    "approved_budget_ref": null,
+    "actual_external_attempt_count": 0,
+    "receipt_ids": {
+      "observation": null,
+      "judgment": null,
+      "execution": null,
+      "evaluation": null
+    },
+    "artifacts": {
+      "observation_source_sha256": null,
+      "frozen_policy_input_sha256": null,
+      "judgment_issuer_trust_sha256": null,
+      "signed_execution_submission_sha256": null,
+      "settlement_verification_sha256": null,
+      "provider_response_sha256": null,
+      "frozen_evaluation_rubric_sha256": null,
+      "independent_outcome_review_sha256": null,
+      "replay_report_sha256": null
+    },
+    "independent_reviewer_signoff_ref": null,
+    "outcome_classification": "not_executed"
+  },
+  "control_cases": {
+    "denied": {
+      "status": "not_run",
+      "authentic_negative_evidence_sha256": null,
+      "frozen_policy_input_sha256": null,
+      "decision_trace_sha256": null,
+      "judgment_receipt_id": null,
+      "execution_receipt_id": null,
+      "evaluation_receipt_id": null
+    },
+    "insufficient_evidence": {
+      "status": "not_run",
+      "missing_or_stale_evidence_record_sha256": null,
+      "frozen_policy_input_sha256": null,
+      "free_response_trace_sha256": null,
+      "billable_judgment_receipt_id": null,
+      "execution_receipt_id": null,
+      "evaluation_receipt_id": null
+    }
+  },
+  "synthetic_packet": {
+    "case_count": 19,
+    "source_class": "synthetic_fixture",
+    "independently_resolved_label_count": 0,
+    "verified_real_outcome_count": 0
+  },
+  "rules": [
+    "Null historical counts mean unknown, not zero.",
+    "No synthetic fixture is a verified real outcome.",
+    "E1 requires independent settlement, provider outcome, reviewer authority, and receipt replay evidence.",
+    "Corrections require a new content-addressed manifest version; do not edit a frozen version."
+  ]
+}
