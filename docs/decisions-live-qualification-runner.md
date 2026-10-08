@@ -2,6 +2,8 @@
 
 Status: **ready for an authorized dedicated test project; no live run has been made.** This runner calls the existing `OpenAIDecisionsAdapter` directly. It has no payment, receipt, budget, signing, settlement, or reputation dependency. It never enables `OPENAI_DECISIONS_SHADOW_ENABLED`. The qualification corpus is synthetic and uses deterministic policy replay labels; its `reviewer_status` travels into every report. Human review is still required before treating labels as independent operational evidence.
 
+The runner also accepts a separate `decisions-reviewed-benchmark.v1` dataset after the [independent-label protocol](decisions-independent-label-review-v1.md) is complete. Each reviewed case contains a pre-spend `model_context` and its SHA-256, while the resolved label, recorded policy decision, verified outcome, and evidence-record hashes remain scoring metadata. Only `model_context` is serialized into the provider request. Before dispatch, the runner checks request-to-observation intent and subject binding, reviewed source/fact shape, budget, route, settlement, ingestion order and freshness at the frozen judgment time. Full receipt and external outcome verification remain separate prerequisites. The CLI requires `DECISIONS_BENCH_REVIEWED_DATASET_SHA256` to equal the exact dataset file hash before a live reviewed run. A self-declared digest does not replace independent review; the external review and staging gates still apply. No reviewed historical dataset exists in this checkout because the canonical receipt database and evidence artifacts are not available.
+
 ## Safe preflight
 
 Use a dedicated OpenAI project and API key that can reach `POST /v1/decisions`, and set a hard project spend limit in OpenAI before running. Confirm the project's **remaining** budget separately. The runner's local request, token, and USD ceilings are a second guard: local token reservation uses serialized UTF-8 bytes plus 1,024 tokens per request and a configured price ceiling. Client estimates cannot enforce an account invoice cap, especially on failed calls with missing usage or changed regional and long-context prices. The external project hard limit is required. Review the [current Decisions pricing](https://developers.openai.com/api/docs/guides/decisions) and set `--price-ceiling-usd-per-million-input` above the highest rate applicable to the project; the published base is $0.10 per million uncached input tokens, with no output or cache charges.
@@ -16,6 +18,8 @@ export DECISIONS_BENCH_PROJECT_HARD_LIMIT_USD='<confirmed project hard limit>'
 export DECISIONS_BENCH_PROJECT_REMAINING_USD='<confirmed remaining project budget>'
 export DECISIONS_BENCH_PROJECT_CAP_CONFIRMED=yes
 export DECISIONS_BENCH_API_KEY='<dedicated project key from secret store>'
+# For an independently resolved historical dataset only:
+# export DECISIONS_BENCH_REVIEWED_DATASET_SHA256='<sha256 of the exact approved dataset file>'
 npm run benchmark:decisions-live -- \
   --corpus tests/fixtures/decisions-qualification-cases.json \
   --output decisions-live-local.json \

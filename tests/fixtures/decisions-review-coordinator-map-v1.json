@@ -1,0 +1,141 @@
+{
+  "schema_version": "decisions-review-coordinator-map.v1",
+  "source_corpus_sha256": "5d4e160bb9330bce889fa90b26cc2d0719564f177c27fbdd9a6a1719d3e61c94",
+  "packet_sha256": "c8c0cbfc981e8938ee6e308effa9e151062ae986ee30618e517a216dbc369cf1",
+  "access": "coordinator_only_do_not_distribute_with_blinded_packet",
+  "cases": [
+    {
+      "review_case_id": "review_001",
+      "source_case_id": "budget_overrun",
+      "source_category": "denied_action",
+      "policy_replay_label": "insufficient_evidence",
+      "source_case_sha256": "51361a6e60fc0de816193ba1c90950b4d4eeef4f8e9d52c1bd5eb2ee5457caec"
+    },
+    {
+      "review_case_id": "review_002",
+      "source_case_id": "injected_reviewed_reason",
+      "source_category": "manipulated_input",
+      "policy_replay_label": "proceed",
+      "source_case_sha256": "19f07e878bc1d3d9fb260b347b242f285a7733e7355bd87faac01f012cf90753"
+    },
+    {
+      "review_case_id": "review_003",
+      "source_case_id": "incomplete_required_proof",
+      "source_category": "insufficient_evidence",
+      "policy_replay_label": "insufficient_evidence",
+      "source_case_sha256": "19034ddef5554e2c83d8e0152188bd9ded40d888e3b23b9f6d4e9765dbc2d9a2"
+    },
+    {
+      "review_case_id": "review_004",
+      "source_case_id": "low_confidence",
+      "source_category": "insufficient_evidence",
+      "policy_replay_label": "insufficient_evidence",
+      "source_case_sha256": "1b065e58f16306089dc358dc9601fb1757b8de7db4b0069aac637488c1b97c72"
+    },
+    {
+      "review_case_id": "review_005",
+      "source_case_id": "marked_stale",
+      "source_category": "stale_observation",
+      "policy_replay_label": "insufficient_evidence",
+      "source_case_sha256": "106b8b17a7890e314375bdd64db73f0d918d4574e7a3c1d2c0d28b9ff9e7549a"
+    },
+    {
+      "review_case_id": "review_006",
+      "source_case_id": "expired_observation",
+      "source_category": "stale_observation",
+      "policy_replay_label": "insufficient_evidence",
+      "source_case_sha256": "5025c3158c77689fbc8065526f0dd00dab1819098ca01ce39468a6b0b0ce9c22"
+    },
+    {
+      "review_case_id": "review_007",
+      "source_case_id": "valid_scoped_approval",
+      "source_category": "valid_approval",
+      "policy_replay_label": "proceed",
+      "source_case_sha256": "a3400a31dc0e19854f6e6177da8902cd0fde94f3b3937bec006874ad1cf6d336"
+    },
+    {
+      "review_case_id": "review_008",
+      "source_case_id": "fixture_provenance",
+      "source_category": "insufficient_evidence",
+      "policy_replay_label": "insufficient_evidence",
+      "source_case_sha256": "5f5191f4db6e2f28f42f33f18198a6678e958b593fd1a473bb10b7fab8f22bec"
+    },
+    {
+      "review_case_id": "review_009",
+      "source_case_id": "valid_bounded_test",
+      "source_category": "valid_approval",
+      "policy_replay_label": "test_spend_first",
+      "source_case_sha256": "1943bb587f44767214300c82b44617e83a168c7aa4101692a08961f5fe318c13"
+    },
+    {
+      "review_case_id": "review_010",
+      "source_case_id": "unbounded_warning",
+      "source_category": "insufficient_evidence",
+      "policy_replay_label": "insufficient_evidence",
+      "source_case_sha256": "d81b670e776a75a8cfc20094c0b1a9703b567b19022a2cd8ff2e9dca194c5f0e"
+    },
+    {
+      "review_case_id": "review_011",
+      "source_case_id": "valid_approval_at_threshold",
+      "source_category": "valid_approval",
+      "policy_replay_label": "proceed",
+      "source_case_sha256": "ed28c3c40efc42f388f05cc6612128eb2eb0cc862c0597d367ce916ce7244d03"
+    },
+    {
+      "review_case_id": "review_012",
+      "source_case_id": "deterministic_veto",
+      "source_category": "denied_action",
+      "policy_replay_label": "do_not_spend",
+      "source_case_sha256": "7d326f2049b607201d282f6d5282eb9fb05671ef256cb0f8d82bd1102b08efb0"
+    },
+    {
+      "review_case_id": "review_013",
+      "source_case_id": "settlement_mismatch",
+      "source_category": "provider_mismatch",
+      "policy_replay_label": "insufficient_evidence",
+      "source_case_sha256": "ab946b6640167fdbca2a61ed1487189f5aac776ca450f764ba1697e14f12cdd8"
+    },
+    {
+      "review_case_id": "review_014",
+      "source_case_id": "route_mismatch",
+      "source_category": "provider_mismatch",
+      "policy_replay_label": "insufficient_evidence",
+      "source_case_sha256": "cc2b2ce298e7ab8e4b6e9aebdb4b22706dba71f69746b25f934dd3570c98594c"
+    },
+    {
+      "review_case_id": "review_015",
+      "source_case_id": "reviewed_do_not_use",
+      "source_category": "denied_action",
+      "policy_replay_label": "do_not_spend",
+      "source_case_sha256": "bcf183948479ba2c41b753d3c49e1cf43dd876c93195bd4ec6e97d56295c4937"
+    },
+    {
+      "review_case_id": "review_016",
+      "source_case_id": "missing_evidence_reference",
+      "source_category": "insufficient_evidence",
+      "policy_replay_label": "insufficient_evidence",
+      "source_case_sha256": "aa705956a3af951eba26e62ab748332122b568e9f00e4a4b37224f0c6cd164c0"
+    },
+    {
+      "review_case_id": "review_017",
+      "source_case_id": "provider_subject_mismatch",
+      "source_category": "provider_mismatch",
+      "policy_replay_label": "insufficient_evidence",
+      "source_case_sha256": "2235ea586055ff6ced315870d1edb589ec8b81bcf5fae652a49dc408c3056ebd"
+    },
+    {
+      "review_case_id": "review_018",
+      "source_case_id": "injected_unverified_claim",
+      "source_category": "manipulated_input",
+      "policy_replay_label": "insufficient_evidence",
+      "source_case_sha256": "c34ad53373f286feed163846b83a3d6dfed8bac9c3f89b88a09dc1e23887f5d7"
+    },
+    {
+      "review_case_id": "review_019",
+      "source_case_id": "human_approval_required",
+      "source_category": "denied_action",
+      "policy_replay_label": "insufficient_evidence",
+      "source_case_sha256": "b618f6d2f37270b8d143ec3eee54ed716b8a123914aa9ced1f28d116c75c521f"
+    }
+  ]
+}

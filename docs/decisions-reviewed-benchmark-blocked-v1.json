@@ -1,0 +1,12 @@
+{
+  "schema_version": "decisions-reviewed-benchmark-manifest.v1",
+  "status": "blocked_no_qualifying_historical_cases",
+  "source_inventory_sha256": "f1ec0b8ebb2546b7a4198f86b6f05d1be4bdde68fea0ca5885e90a50cd5992dc",
+  "historical_receipt_count": null,
+  "verified_historical_outcome_count": null,
+  "independently_resolved_label_count": 0,
+  "materialized_case_count": 0,
+  "live_runner_eligible": false,
+  "cases": [],
+  "reason": "Canonical receipt access, independently resolved labels, and external outcome evidence are unavailable. No synthetic case has been promoted into this dataset."
+}

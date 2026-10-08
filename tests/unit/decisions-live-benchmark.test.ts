@@ -2,7 +2,11 @@ import { describe, expect, it, vi } from 'vitest';
 import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { main, runLiveBenchmark, validateLiveBenchmarkOptions, type QualificationCorpus, type LiveBenchmarkOptions } from '../../scripts/benchmark-decisions-live';
+import { createHash } from 'node:crypto';
+import { main, runLiveBenchmark, validateLiveBenchmarkOptions, type QualificationCorpus, type ReviewedBenchmarkCorpus, type LiveBenchmarkOptions } from '../../scripts/benchmark-decisions-live';
+import { request, facts } from '../helpers/judgmentFixtures';
+import { hashCanonical } from '../../src/services/receiptIntegrityService';
+import { JudgmentFactsSchema } from '../../src/schemas/preSpend';
 
 const corpus: QualificationCorpus = {
   schema_version: 'decisions-qualification-corpus.v1', label_method: 'deterministic_policy_replay',
@@ -30,6 +34,51 @@ function options(fetch: typeof globalThis.fetch): LiveBenchmarkOptions {
 }
 
 describe('live Decisions qualification runner', () => {
+  it('keeps reviewed outcomes and recorded policy decisions outside the exact model input', async () => {
+    const model_context: ReviewedBenchmarkCorpus['cases'][number]['model_context'] = {
+      pre_spend_request: request, decision_at: '2026-10-07T00:00:02Z', recommended_route: 'route_test', observations: [{
+      receipt_hash: 'sha256:' + 'a'.repeat(64), intent_hash: hashCanonical(request), subject_type: 'provider', subject_id: 'provider_test',
+      source_type: 'reviewed_judgment_facts', provenance: { catalog_source: 'live' }, evidence_state: 'sufficient',
+      observed_at: '2026-10-07T00:00:00Z', ingested_at: '2026-10-07T00:00:01Z',
+      freshness_expires_at: '2026-10-07T01:00:00Z', evidence_refs: ['artifact://pre-spend'], payload: JudgmentFactsSchema.parse(facts)
+    }] };
+    const digest = createHash('sha256').update(JSON.stringify(model_context)).digest('hex');
+    const reviewed: ReviewedBenchmarkCorpus = { schema_version: 'decisions-reviewed-benchmark.v1',
+      label_method: 'independent_blinded_review', reviewer_status: 'resolved_external',
+      source_inventory_sha256: 'b'.repeat(64), review_protocol_version: 'decisions-independent-label-review.v1', cases: [{
+        id: 'reviewed_1', category: 'historical_verified_complete', model_context, model_input_sha256: digest,
+        expected: { decision: 'do_not_spend', production_shadow_eligible: true, payment_required: true },
+        recorded_policy_decision: 'proceed', verified_outcome: 'contradicted',
+        provenance: { source_snapshot_sha256: 'b'.repeat(64), judgment_receipt_hash: 'sha256:' + 'c'.repeat(64),
+          judgment_issued_at: '2026-10-07T00:00:02Z',
+          execution_receipt_hash: 'sha256:' + 'd'.repeat(64), evaluation_receipt_hash: 'sha256:' + 'e'.repeat(64),
+          review_record_sha256: 'f'.repeat(64), reviewer_roster_attestation_sha256: '3'.repeat(64),
+          deidentification_review_sha256: '4'.repeat(64), data_use_approval_sha256: '5'.repeat(64),
+          execution_proof_record_sha256: '1'.repeat(64), outcome_proof_record_sha256: '2'.repeat(64) }
+      }] };
+    const fetch = vi.fn<typeof globalThis.fetch>(async (_url, init) => {
+      const body = JSON.parse(String(init?.body)) as { input: string };
+      expect(body.input).toBe(JSON.stringify(model_context));
+      expect(body.input).not.toContain('contradicted');
+      expect(body.input).not.toContain('do_not_spend');
+      return new Response(JSON.stringify({ model: 'gpt-6-luna', answers: [{ type: 'choice', name: 'pre_spend_suggestion',
+        choice: 'proceed', confidence: 0.8, probabilities: [{ value: 'proceed', probability: 0.8 },
+          { value: 'test_spend_first', probability: 0.1 }, { value: 'do_not_spend', probability: 0.05 },
+          { value: 'insufficient_evidence', probability: 0.05 }] }], usage: { input_tokens: 100, output_tokens: 5, total_tokens: 105 } }), { status: 200 });
+    });
+    const config = { ...options(fetch), corpus: reviewed, limits: { ...options(fetch).limits, maxRequests: 1 } };
+    const report = await runLiveBenchmark(config);
+    expect(report.metrics.recorded_policy_false_allows_against_reviewed_labels).toBe(1);
+    expect(report.metrics.provider_proceed_on_verified_contradicted_outcomes).toBe(1);
+    expect(report.metrics.provider_accuracy_all_attempted).toBe(0);
+    expect(() => validateLiveBenchmarkOptions({ ...config, transport: 'live-openai', fetch: undefined })).toThrow('reviewed_dataset_digest_confirmation_required');
+    expect(() => validateLiveBenchmarkOptions({ ...config, corpus: { ...reviewed, cases: [{ ...reviewed.cases[0], model_input_sha256: '0'.repeat(64) }] } })).toThrow('reviewed_model_input_hash_mismatch');
+    const staleContext = { ...model_context, observations: [{ ...model_context.observations[0], freshness_expires_at: '2026-10-07T00:00:01Z' }] };
+    expect(() => validateLiveBenchmarkOptions({ ...config, corpus: { ...reviewed, cases: [{ ...reviewed.cases[0],
+      model_context: staleContext, model_input_sha256: createHash('sha256').update(JSON.stringify(staleContext)).digest('hex') }] } }))
+      .toThrow('reviewed_observation_binding_invalid');
+  });
+
   it('measures answer quality, false approvals, timing, tokens and cost without leaking credentials or raw input', async () => {
     const fetch = successfulFetch();
     const report = await runLiveBenchmark(options(fetch));

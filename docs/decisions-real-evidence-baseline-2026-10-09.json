@@ -1,0 +1,54 @@
+{
+  "schema_version": "decisions-real-evidence-baseline.v1",
+  "source_hashes": {
+    "synthetic_corpus_sha256": "5d4e160bb9330bce889fa90b26cc2d0719564f177c27fbdd9a6a1719d3e61c94",
+    "inventory_sha256": "f1ec0b8ebb2546b7a4198f86b6f05d1be4bdde68fea0ca5885e90a50cd5992dc",
+    "blinded_packet_sha256": "5c33da80b90263d361f6c6779dec2af27a38732b53a48b32fe6e2787093d9088"
+  },
+  "data_status": {
+    "historical_database_access": "unavailable",
+    "historical_receipt_counts": null,
+    "verified_historical_outcomes": null,
+    "independent_labels_received": 0
+  },
+  "synthetic_policy_replay": {
+    "case_count": 19,
+    "distribution": {
+      "proceed": 3,
+      "test_spend_first": 1,
+      "do_not_spend": 2,
+      "insufficient_evidence": 13
+    },
+    "expected_replay_agreement": {
+      "numerator": 19,
+      "denominator": 19,
+      "interpretation": "Labels were authored from the policy and verified by regression tests; this is not independent accuracy."
+    },
+    "policy_false_allows_against_independent_labels": null
+  },
+  "independent_quality": {
+    "reviewed_case_count": 0,
+    "policy_accuracy": null,
+    "policy_false_allow_count": null,
+    "policy_false_allow_rate": null,
+    "model_accuracy": null,
+    "model_false_approval_rate": null
+  },
+  "verified_outcome_quality": {
+    "eligible_execution_count": null,
+    "outcome_verified_count": null,
+    "policy_proceed_on_contradicted_outcome_count": null,
+    "model_proceed_on_contradicted_outcome_count": null
+  },
+  "live_provider": {
+    "request_count": 0,
+    "latency_p50_ms": null,
+    "latency_p95_ms": null,
+    "latency_p99_ms": null,
+    "reliability": null,
+    "token_usage": null,
+    "actual_provider_cost_usd": null
+  },
+  "recommendation": "NO_GO",
+  "reason": "No independently reviewed labels, historical receipt access, verified outcomes, dedicated API credentials, or staging environment."
+}

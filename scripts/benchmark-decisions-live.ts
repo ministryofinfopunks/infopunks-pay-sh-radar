@@ -3,6 +3,9 @@ import { closeSync, openSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { z } from 'zod';
+import { PreSpendCheckRequestSchema } from '../src/schemas/entities';
+import { JudgmentFactsSchema } from '../src/schemas/preSpend';
+import { hashCanonical } from '../src/services/receiptIntegrityService';
 import {
   OpenAIDecisionsAdapter,
   OPENAI_DECISIONS_ADAPTER_VERSION,
@@ -31,6 +34,39 @@ export const QualificationCorpus = z.object({
 }).strict();
 export type QualificationCorpus = z.infer<typeof QualificationCorpus>;
 type Decision = z.infer<typeof Decision>;
+const Digest = z.string().regex(/^[a-f0-9]{64}$/);
+const ReceiptHash = z.string().regex(/^sha256:[a-f0-9]{64}$/);
+const ReviewedCase = z.object({
+  id: z.string().min(1).max(128), category: z.literal('historical_verified_complete'),
+  model_context: z.object({
+    pre_spend_request: PreSpendCheckRequestSchema.strict(), decision_at: z.string().datetime({ offset: true }),
+    recommended_route: z.string().min(1),
+    observations: z.array(z.object({ receipt_hash: ReceiptHash, intent_hash: ReceiptHash,
+      subject_type: z.string().min(1), subject_id: z.string().min(1), source_type: z.literal('reviewed_judgment_facts'),
+      provenance: z.object({ catalog_source: z.literal('live'), fixture: z.literal(false).optional() }).strict(),
+      evidence_state: z.literal('sufficient'), observed_at: z.string().datetime({ offset: true }),
+      ingested_at: z.string().datetime({ offset: true }), freshness_expires_at: z.string().datetime({ offset: true }),
+      evidence_refs: z.array(z.string().min(1)).min(1), payload: JudgmentFactsSchema }).strict()).min(1)
+  }).strict(),
+  model_input_sha256: Digest,
+  expected: z.object({ decision: Decision, production_shadow_eligible: z.literal(true), payment_required: z.boolean() }).strict(),
+  recorded_policy_decision: Decision,
+  verified_outcome: z.enum(['confirmed', 'weakened', 'contradicted']),
+  provenance: z.object({ source_snapshot_sha256: Digest, judgment_receipt_hash: ReceiptHash,
+    judgment_issued_at: z.string().datetime({ offset: true }),
+    execution_receipt_hash: ReceiptHash, evaluation_receipt_hash: ReceiptHash, review_record_sha256: Digest,
+    reviewer_roster_attestation_sha256: Digest, deidentification_review_sha256: Digest, data_use_approval_sha256: Digest,
+    execution_proof_record_sha256: Digest, outcome_proof_record_sha256: Digest }).strict()
+}).strict();
+export const ReviewedBenchmarkCorpus = z.object({
+  schema_version: z.literal('decisions-reviewed-benchmark.v1'),
+  label_method: z.literal('independent_blinded_review'), reviewer_status: z.literal('resolved_external'),
+  source_inventory_sha256: Digest, review_protocol_version: z.literal('decisions-independent-label-review.v1'),
+  cases: z.array(ReviewedCase).min(1)
+}).strict();
+export type ReviewedBenchmarkCorpus = z.infer<typeof ReviewedBenchmarkCorpus>;
+export const BenchmarkCorpus = z.union([QualificationCorpus, ReviewedBenchmarkCorpus]);
+export type BenchmarkCorpus = z.infer<typeof BenchmarkCorpus>;
 
 export type LiveBenchmarkLimits = {
   maxRequests: number;
@@ -40,7 +76,7 @@ export type LiveBenchmarkLimits = {
   timeoutMs: number;
 };
 export type LiveBenchmarkOptions = {
-  corpus: QualificationCorpus;
+  corpus: BenchmarkCorpus;
   corpusSha256: string;
   apiKey: string;
   dedicatedEnvironmentId: string;
@@ -51,6 +87,7 @@ export type LiveBenchmarkOptions = {
   fetch?: typeof globalThis.fetch;
   now?: () => number;
   transport?: 'live-openai' | 'test-double';
+  reviewedDatasetApprovedSha256?: string;
 };
 
 const choiceValues = Decision.options;
@@ -71,8 +108,28 @@ function latencies(values: number[]) { return { p50: percentile(values, 0.50), p
 function finitePositive(value: number) { return Number.isFinite(value) && value > 0; }
 
 export function validateLiveBenchmarkOptions(options: LiveBenchmarkOptions): void {
-  QualificationCorpus.parse(options.corpus);
+  BenchmarkCorpus.parse(options.corpus);
   if (new Set(options.corpus.cases.map(item => item.id)).size !== options.corpus.cases.length) throw new Error('duplicate_case_id');
+  if (options.corpus.schema_version === 'decisions-reviewed-benchmark.v1') {
+    if (options.transport === 'live-openai' && options.reviewedDatasetApprovedSha256 !== options.corpusSha256) {
+      throw new Error('reviewed_dataset_digest_confirmation_required');
+    }
+    for (const item of options.corpus.cases) {
+      if (hash(JSON.stringify(item.model_context)) !== item.model_input_sha256) throw new Error('reviewed_model_input_hash_mismatch');
+      if (item.expected.payment_required !== (item.expected.decision !== 'insufficient_evidence')) throw new Error('reviewed_payment_label_invalid');
+      const context = item.model_context;
+      if (context.decision_at !== item.provenance.judgment_issued_at) throw new Error('reviewed_judgment_time_mismatch');
+      const requestHash = hashCanonical(context.pre_spend_request);
+      const subject = context.pre_spend_request.subject_id ?? context.recommended_route;
+      const subjectType = context.observations[0].subject_type;
+      const issued = Date.parse(context.decision_at);
+      if (context.observations.some(observation => observation.intent_hash !== requestHash || observation.subject_id !== subject || observation.subject_type !== subjectType ||
+          observation.payload.route_id !== context.recommended_route || observation.payload.settlement !== context.pre_spend_request.preferred_settlement ||
+          observation.payload.max_cost > context.pre_spend_request.budget ||
+          Date.parse(observation.observed_at) > Date.parse(observation.ingested_at) || Date.parse(observation.ingested_at) > issued ||
+          Date.parse(observation.freshness_expires_at) <= issued)) throw new Error('reviewed_observation_binding_invalid');
+    }
+  }
   const serializedCorpus = JSON.stringify(options.corpus);
   if (/-----BEGIN (?:EC |RSA |OPENSSH )?PRIVATE KEY-----|"(?:private_key|privateKey|signing_key|signingKey|api_key|apiKey)"\s*:|sk-(?:proj-)?[A-Za-z0-9_-]{20,}/i.test(serializedCorpus)) {
     throw new Error('sensitive_corpus_field');
@@ -112,8 +169,18 @@ export async function runLiveBenchmark(options: LiveBenchmarkOptions) {
   validateLiveBenchmarkOptions(options);
   const now = options.now ?? (() => performance.now());
   const transport = options.transport ?? 'test-double';
+  const reviewedCorpus = options.corpus.schema_version === 'decisions-reviewed-benchmark.v1' ? options.corpus : null;
+  const syntheticCorpus = options.corpus.schema_version === 'decisions-qualification-corpus.v1' ? options.corpus : null;
+  const reviewed = Boolean(reviewedCorpus);
+  const cases = reviewedCorpus
+    ? reviewedCorpus.cases.map(item => ({ id: item.id, category: item.category, expected: item.expected,
+      input: JSON.stringify(item.model_context), recordedPolicyDecision: item.recorded_policy_decision, verifiedOutcome: item.verified_outcome }))
+    : syntheticCorpus!.cases.map(item => ({ id: item.id, category: item.category, expected: item.expected,
+      input: JSON.stringify({ case_id: item.id, description: item.description, category: item.category,
+        observed_facts: item.overrides, challenge_text: item.challenge_text }), recordedPolicyDecision: null, verifiedOutcome: null }));
   const results: Array<{
     case_id: string; category: string; expected_decision: Decision; production_shadow_eligible: boolean;
+    recorded_policy_decision: Decision | null; verified_outcome: 'confirmed' | 'weakened' | 'contradicted' | null;
     provider_suggestion: Decision | null; provider_confidence: number | null; provider_proceed_probability: number | null;
     provider_status: DecisionsResult['status']; provider_failure: DecisionsResult['failure'];
     request_sha256: string; reserved_input_tokens: number; reported_input_tokens: number | null;
@@ -123,12 +190,9 @@ export async function runLiveBenchmark(options: LiveBenchmarkOptions) {
   }> = [];
   let chargedOrReservedInputTokens = 0;
   let stopReason: string | null = null;
-  for (const item of options.corpus.cases) {
+  for (const item of cases) {
     if (results.length >= options.limits.maxRequests) { stopReason = 'request_cap'; break; }
-    const input = JSON.stringify({
-      case_id: item.id, description: item.description, category: item.category,
-      observed_facts: item.overrides, challenge_text: item.challenge_text
-    });
+    const input = item.input;
     const request = { input, questions: [question] };
     // UTF-8 bytes plus a fixed allowance conservatively reserve local usage. The provider's
     // dedicated project hard cap is required because client estimates cannot bound a bill.
@@ -152,6 +216,7 @@ export async function runLiveBenchmark(options: LiveBenchmarkOptions) {
     results.push({
       case_id: item.id, category: item.category, expected_decision: item.expected.decision,
       production_shadow_eligible: item.expected.production_shadow_eligible,
+      recorded_policy_decision: item.recordedPolicyDecision, verified_outcome: item.verifiedOutcome,
       provider_suggestion: suggestion,
       provider_confidence: answer?.type === 'choice' ? answer.confidence : null,
       provider_proceed_probability: proceedProbability,
@@ -173,6 +238,7 @@ export async function runLiveBenchmark(options: LiveBenchmarkOptions) {
   const answered = results.filter(item => item.provider_suggestion !== null);
   const nonProceed = results.filter(item => item.expected_decision !== 'proceed');
   const unsafe = results.filter(item => item.provider_suggestion === 'proceed' && item.expected_decision !== 'proceed');
+  const recorded = results.filter(item => item.recorded_policy_decision !== null);
   const knownUsage = results.every(item => item.reported_input_tokens !== null);
   const brier = results.filter(item => item.provider_proceed_probability !== null);
   const categoryMetrics = Object.fromEntries([...new Set(results.map(item => item.category))].sort().map(category => {
@@ -185,9 +251,10 @@ export async function runLiveBenchmark(options: LiveBenchmarkOptions) {
     schema_version: 'decisions-live-qualification.v1', transport, adapter_version: OPENAI_DECISIONS_ADAPTER_VERSION,
     model: OPENAI_DECISIONS_MODEL, corpus_sha256: options.corpusSha256, corpus_schema_version: options.corpus.schema_version,
     label_method: options.corpus.label_method, reviewer_status: options.corpus.reviewer_status,
-    corpus_source_checkpoint: options.corpus.source_checkpoint ?? null,
-    corpus_fixed_clock: options.corpus.fixed_clock ?? null,
-    corpus_limitations: options.corpus.limitations ?? [],
+    corpus_source_checkpoint: syntheticCorpus?.source_checkpoint ?? null,
+    corpus_fixed_clock: syntheticCorpus?.fixed_clock ?? null,
+    corpus_limitations: syntheticCorpus?.limitations ?? [],
+    source_inventory_sha256: reviewedCorpus?.source_inventory_sha256 ?? null,
     dedicated_environment_sha256: hash(options.dedicatedEnvironmentId), dedicated_project_sha256: hash(options.dedicatedProjectId),
     limits: options.limits, project_hard_limit_usd_attested: options.projectHardLimitUsd,
     project_remaining_usd_attested: options.projectRemainingUsd,
@@ -200,9 +267,12 @@ export async function runLiveBenchmark(options: LiveBenchmarkOptions) {
       approval_suggestions_on_shadow_ineligible_cases: results.filter(item => item.provider_suggestion === 'proceed' && !item.production_shadow_eligible).length,
       host_unsafe_approvals: null,
       false_approval_rate_on_nonproceed: nonProceed.length ? unsafe.length / nonProceed.length : null,
-      deterministic_policy_disagreements: answered.filter(item => item.provider_suggestion !== item.expected_decision).length,
+      deterministic_policy_disagreements: answered.filter(item => item.provider_suggestion !== (reviewed ? item.recorded_policy_decision : item.expected_decision)).length,
       deterministic_policy_compared_count: answered.length,
       real_world_evaluator_disagreements: null,
+      recorded_policy_accuracy_against_reviewed_labels: recorded.length ? recorded.filter(item => item.recorded_policy_decision === item.expected_decision).length / recorded.length : null,
+      recorded_policy_false_allows_against_reviewed_labels: recorded.length ? recorded.filter(item => item.recorded_policy_decision === 'proceed' && item.expected_decision !== 'proceed').length : null,
+      provider_proceed_on_verified_contradicted_outcomes: reviewed ? results.filter(item => item.provider_suggestion === 'proceed' && item.verified_outcome === 'contradicted').length : null,
       brier_score_for_proceed_probability: brier.length ? brier.reduce((sum, item) => sum + (item.provider_proceed_probability! - (item.expected_decision === 'proceed' ? 1 : 0)) ** 2, 0) / brier.length : null,
       status_counts: { ok: results.filter(item => item.provider_status === 'ok').length, refused: results.filter(item => item.provider_status === 'refused').length, failed: results.filter(item => item.provider_status === 'failed').length },
       failure_counts: Object.fromEntries([...new Set(results.map(item => item.provider_failure).filter(Boolean))].map(failure => [failure, results.filter(item => item.provider_failure === failure).length])),
@@ -242,11 +312,12 @@ export async function main(args = process.argv.slice(2), environment = process.e
   const outputPath = resolve(flags.get('--output')!);
   if (corpusPath === outputPath) throw new Error('output_must_not_overwrite_corpus');
   const corpusText = readFileSync(corpusPath, 'utf8');
-  const corpus = QualificationCorpus.parse(JSON.parse(corpusText));
+  const corpus = BenchmarkCorpus.parse(JSON.parse(corpusText));
   if (environment.DECISIONS_BENCH_ENV !== 'dedicated-test') throw new Error('dedicated_test_environment_required');
   if (environment.DECISIONS_BENCH_PROJECT_CAP_CONFIRMED !== 'yes') throw new Error('dedicated_project_cap_confirmation_required');
   const options: LiveBenchmarkOptions = {
     corpus, corpusSha256: hash(corpusText), transport: 'live-openai',
+    reviewedDatasetApprovedSha256: environment.DECISIONS_BENCH_REVIEWED_DATASET_SHA256,
     apiKey: environment.DECISIONS_BENCH_API_KEY ?? '',
     dedicatedEnvironmentId: environment.DECISIONS_BENCH_TEST_ENV_ID ?? '',
     dedicatedProjectId: environment.DECISIONS_BENCH_PROJECT_ID ?? '',
