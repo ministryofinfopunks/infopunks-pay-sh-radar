@@ -13,6 +13,7 @@ import { createDerivedScoreService } from '../services/derivedScoreService';
 import { createEvaluationService } from '../services/evaluationService';
 import { createJudgmentService, JudgmentError } from '../services/judgmentService';
 import { hashCanonical } from '../services/receiptIntegrityService';
+import { inspectReceiptChain } from '../services/receiptChainInspector';
 import { createExecutionProofService, ExecutionProofError } from '../services/executionProofService';
 import { baseProofClient, createBaseSettlementProofVerifier, type SettlementProofVerifier } from '../security/settlementProofVerifier';
 import { createX402JudgmentGateway, type JudgmentPaymentGateway } from '../middleware/x402JudgmentMiddleware';
@@ -670,6 +671,8 @@ const CORS_MAX_AGE_SECONDS = 86_400;
 export type CreateAppOptions = {
   economicEngine?: EconomicEngineOverrides;
   judgmentGateway?: JudgmentPaymentGateway;
+  /** Injectable clock for deterministic protocol replay; production uses wall time. */
+  protocolNow?: () => Date;
   executionProofVerifier?: SettlementProofVerifier;
   clientDistDir?: string | null;
   rhChainSubmissionStore?: RhChainSubmissionStore;
@@ -4461,7 +4464,7 @@ export async function createApp(
     ? new PostgresCanonicalReceiptStore(rhChainPostgresPool, config.receiptProceedConfidenceThreshold, judgmentTrust)
     : new MemoryCanonicalReceiptStore(config.receiptProceedConfidenceThreshold, judgmentTrust);
   const receiptAuthority = createReceiptAuthorityService(canonicalReceiptStore, config.receiptProceedConfidenceThreshold, judgmentIssuer);
-  const evaluationService = createEvaluationService(canonicalReceiptStore, config.receiptProceedConfidenceThreshold);
+  const evaluationService = createEvaluationService(canonicalReceiptStore, config.receiptProceedConfidenceThreshold, options.protocolNow);
   const derivedScores = createDerivedScoreService(canonicalReceiptStore, config.receiptProceedConfidenceThreshold);
   const judgmentGateway = options.judgmentGateway ?? (config.judgmentPaymentEnabled ? await createX402JudgmentGateway({
     facilitatorUrl: config.judgmentFacilitatorUrl!, payTo: config.judgmentPayTo!, amount: config.judgmentPriceUsdc, resourceUrl: config.judgmentResourceUrl!, network: config.judgmentNetwork,
@@ -4473,6 +4476,7 @@ export async function createApp(
     store: canonicalReceiptStore, journal: judgmentJournal, gateway: judgmentGateway, issuer: judgmentIssuer,
     legacyCheck: input => preSpendIntelligence.check(input), threshold: config.receiptProceedConfidenceThreshold,
     ttlMs: config.judgmentTtlMs, amount: config.judgmentPriceUsdc,
+    now: options.protocolNow,
     onTiming: timing => app.log.info({ event: 'judgment_hot_path_timing', ...timing }),
     observations: async (subject, intentHash) => {
       // The latest scoped materialized policy supersedes historical snapshots.
@@ -4517,7 +4521,7 @@ export async function createApp(
     if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'unauthorized' });
     try { return { data: await accounting.recordCost(req.body) }; } catch { return reply.code(400).send({ error: 'invalid_accounting_cost' }); }
   });
-  const executionProofs = createExecutionProofService({ store: canonicalReceiptStore, threshold: config.receiptProceedConfidenceThreshold,
+  const executionProofs = createExecutionProofService({ store: canonicalReceiptStore, threshold: config.receiptProceedConfidenceThreshold, now: options.protocolNow,
     rhVerifier: rhClient ? createRhSettlementProofVerifier(rhClient) : null,
     verifier: options.executionProofVerifier ?? (executionClient ? createBaseSettlementProofVerifier(executionClient) : null) });
   await registerEconomicEngineRoutes(app, { receipts: canonicalReceiptStore, threshold: config.receiptProceedConfidenceThreshold,
@@ -4592,6 +4596,12 @@ export async function createApp(
       ancestry_valid: ancestryValid, issuer_signature_valid: signatureValid, within_validity_window: inWindow,
       assessment_eligible: ancestryValid && signatureValid && inWindow && ['proceed', 'test_spend_first'].includes(judgment.decision),
       execution_authorized: false, authority_requires: 'infopunks.execution-authorization.v1' } };
+  });
+  app.get<{ Params: { id: string } }>('/v1/receipt-spine/evaluation/:id/chain', async (req, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    const chain = await inspectReceiptChain(canonicalReceiptStore, req.params.id, config.receiptProceedConfidenceThreshold);
+    if (!chain) return reply.code(404).send({ error: 'canonical_receipt_not_found' });
+    return { data: chain };
   });
   app.get<{ Params: { kind: string; id: string } }>('/v1/receipt-spine/:kind/:id', async (req, reply) => {
     if (!['observation', 'judgment', 'execution', 'evaluation'].includes(req.params.kind)) return reply.code(404).send({ error: 'receipt_kind_not_found' });
