@@ -4,7 +4,7 @@ import { createDerivedScoreService } from '../../src/services/derivedScoreServic
 import { appendChain } from '../helpers/canonicalReceipts';
 import { createEvaluationService } from '../../src/services/evaluationService';
 import { createReceiptAuthorityService, type ReceiptAppendStore } from '../../src/services/receiptAuthorityService';
-import { evaluationInput, executionInput, judgmentInput, observationInput } from '../helpers/canonicalReceipts';
+import { evaluationInput, judgmentInput, observationInput, qualifyingExecutionInput } from '../helpers/canonicalReceipts';
 
 describe('receipt-derived projection', () => {
   it('has deterministic zero baseline, no provider dependency, counts, IDs and reproducible fingerprint', async () => {
@@ -21,7 +21,7 @@ describe('receipt-derived projection', () => {
   });
   it('causally removes the -15 contribution when isolated backing history omits that receipt', async () => {
     const backing = new MemoryCanonicalReceiptStore(); const authority = createReceiptAuthorityService(backing);
-    await authority.appendObservation(observationInput()); await authority.appendJudgment(judgmentInput()); await authority.appendExecution(executionInput());
+    await authority.appendObservation(observationInput()); await authority.appendJudgment(judgmentInput()); await authority.appendExecution(qualifyingExecutionInput());
     const evaluation = await createEvaluationService(backing).createEvaluation({ ...evaluationInput(), outcome: 'contradicted' });
     let hidden = false;
     const isolated: ReceiptAppendStore = {

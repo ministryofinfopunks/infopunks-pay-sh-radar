@@ -31,6 +31,11 @@ export function createDerivedScoreService(store: ReceiptAppendStore, threshold =
         const execution = await reader.get('execution', evaluation.execution_id) as ExecutionReceipt;
         const judgment = await reader.get('judgment', execution.judgment_id) as JudgmentReceipt;
         if (judgment.subject_type !== subjectType || judgment.subject_id !== subjectId) continue;
+        // Observability is broader than score authority. Historical/admin/synthetic receipts
+        // stay readable but have no influence unless the trusted proof gateway marked them.
+        if (execution.score_eligibility?.state !== 'qualifying' ||
+          execution.score_eligibility.intake !== 'external_proof_gateway.v1' ||
+          execution.score_eligibility.proof_profile !== execution.verification?.profile) continue;
         if (seen.has(evaluation.execution_id)) throw new ReceiptAuthorityError('duplicate_execution_evaluation');
         seen.add(evaluation.execution_id); contributing.push(evaluation);
       }

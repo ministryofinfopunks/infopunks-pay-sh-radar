@@ -1,7 +1,7 @@
 import { encodePaymentSignatureHeader } from '@x402/core/http';
 import { expect, it } from 'vitest';
 import { request, setupJudgment } from '../helpers/judgments';
-import { executionInput } from '../helpers/canonicalReceipts';
+import { executionInput, qualifyingExecutionInput } from '../helpers/canonicalReceipts';
 import { createEvaluationService } from '../../src/services/evaluationService';
 import { createDerivedScoreService } from '../../src/services/derivedScoreService';
 import { evaluationRequest } from '../helpers/evaluations';
@@ -11,7 +11,7 @@ it('durable contradicted execution causes a subsequent judgment to veto without 
   const first = await service.check(request, 'first', signature);
   expect(first.response.decision).toBe('proceed');
   expect(first.response.receipt).not.toBeNull();
-  const execution = await authority.appendExecution({ ...executionInput(), judgment_id: first.response.judgment_id });
+  const execution = await authority.appendExecution({ ...qualifyingExecutionInput(), judgment_id: first.response.judgment_id });
   setTime('2026-10-07T00:00:05Z');
   await createEvaluationService(store, 80, () => new Date('2026-10-07T00:00:04Z')).submit({ ...evaluationRequest, execution_receipt_id: execution.execution_id }, 'canonical-admin');
   expect((await createDerivedScoreService(store).project('provider', 'provider_test')).score).toBe(-15);
@@ -29,10 +29,10 @@ it.each([{ evidence_state: 'stale' }, { evidence_state: 'insufficient', evidence
   const evaluations = createEvaluationService(ready.store, 80, () => new Date('2026-10-07T00:00:04Z'));
   for (let i = 0; i < 20; i++) {
     const execution_id = 'positive_' + i;
-    await ready.authority.appendExecution({ ...executionInput(), execution_id, judgment_id: first.response.judgment_id });
+    await ready.authority.appendExecution({ ...executionInput(), execution_id, settlement_ref: `settlement_${i}`, judgment_id: first.response.judgment_id });
     await evaluations.submit({ ...evaluationRequest, execution_receipt_id: execution_id, outcome: 'confirmed', idempotency_key: execution_id }, 'canonical-admin');
   }
-  expect((await createDerivedScoreService(ready.store).project('provider', 'provider_test')).score).toBe(100);
+  expect((await createDerivedScoreService(ready.store).project('provider', 'provider_test')).score).toBe(0);
   // Same evaluated history with a newer observation representing the current failing evidence gate.
   const { createJudgmentService } = await import('../../src/services/judgmentService');
   const { schema_version, payload_hash, receipt_hash, ...current } = ready.observation;
