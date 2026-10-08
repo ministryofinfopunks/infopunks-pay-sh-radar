@@ -7,7 +7,7 @@ import { createReceiptAuthorityService } from '../../src/services/receiptAuthori
 
 describe.skipIf(!process.env.CANONICAL_RECEIPT_TEST_URL)('durable execution proof authority', () => {
   it('replays after restart and blocks duplicate authorization/settlement at the database', async () => {
-    const database = await createCanonicalTestDatabase(process.env.CANONICAL_RECEIPT_TEST_URL!, 'execution_proof', ['20261007_011_canonical_receipt_spine', '20261007_012_judgment_requests', '20261007_013_execution_proof_uniqueness', '20261008_018_decision_context']);
+    const database = await createCanonicalTestDatabase(process.env.CANONICAL_RECEIPT_TEST_URL!, 'execution_proof', ['20261007_011_canonical_receipt_spine', '20261007_012_judgment_requests', '20261007_013_execution_proof_uniqueness', '20261008_018_decision_context', '20261008_019_execution_score_eligibility']);
     const pool = database.pool;
     try {
       const f = await setupExecution(); const store = new PostgresCanonicalReceiptStore(pool);
@@ -24,6 +24,7 @@ describe.skipIf(!process.env.CANONICAL_RECEIPT_TEST_URL)('durable execution proo
       await expect(pool.query('delete from execution_receipts')).rejects.toMatchObject({ code: '55000' });
       await expect(pool.query('truncate execution_receipts cascade')).rejects.toMatchObject({ code: '55000' });
       await expectRollbackMigrationFailure(pool, '20261007_013_execution_proof_uniqueness', 'refusing to remove execution authority protections');
+      await expectRollbackMigrationFailure(pool, '20261008_019_execution_score_eligibility', 'refusing to remove qualifying execution replay protection');
     } finally { await database.close(); }
   });
 });

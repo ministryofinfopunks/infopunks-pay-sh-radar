@@ -1,0 +1,17 @@
+# IPX critical-path execution ledger
+
+Frozen integration target: pending. This ledger records evidence by commit and does not combine gate claims from different revisions.
+
+| Workstream | Status | Commit SHA | Tests | Evidence | Blocker |
+| --- | --- | --- | --- | --- | --- |
+| A1 | Complete | `cdd2500` | Focused baseline suite | `ipx-baseline-2026-10-08.md` | Baseline was dirty before isolated capture |
+| A2 | Complete | `1c06aa2` | Full suite and PostgreSQL durability | `ipx-a2-completion-2026-10-08.md` | Acceptance sequence deferred to A5 |
+| A3 | Complete | Pending commit | Focused eligibility/projection suite, typecheck, PostgreSQL durability | `ipx-a3-score-eligibility-2026-10-08.md` | Transaction log/attempt identity is unavailable in the current receipt model |
+| A4 | Pending | | | | |
+| A5 | Pending | | | | |
+| A6 / G0 / G1 | Pending | | | | Real bounded route, signer registry and public artifacts required |
+| B1 / B2 | Delegated | | | | Separate worktree |
+| C1 | Delegated | | | | Read-only discovery |
+| C2–C5 | Pending | | | | Authorized infrastructure access required |
+| D1–D4 | Delegated | | | | Economic selection/review required for activation |
+| G2–G6 | Pending | | | | Approval, venue, legal/security and production evidence required |

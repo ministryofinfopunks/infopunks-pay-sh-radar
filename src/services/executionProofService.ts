@@ -60,7 +60,8 @@ export function createExecutionProofService(options: { store: ReceiptAppendStore
         artifact_refs: proof.artifact_refs ?? [], verification: {
           profile: profile.profile, submission_hash: submissionHash,
           settlement, payload_hashes: 'externally_supplied_signed_claims' as const, status: 'externally_supplied_signed_claim' as const
-        }
+        }, score_eligibility: { state: 'qualifying' as const, intake: 'external_proof_gateway.v1' as const,
+          proof_profile: profile.profile, reason: 'finalized_settlement_and_payload_verified' }
       };
       try { return await authority.appendExecution(input); }
       catch (error) {

@@ -31,7 +31,7 @@ it('exposes strict evaluation, authenticated provenance, idempotency, and free s
     expect((await app.inject({ method: 'POST', url: '/v1/evaluate', headers, payload: evaluationRequest })).json()).toEqual(written.json());
     expect((await app.inject({ method: 'POST', url: '/v1/evaluate', headers, payload: { ...evaluationRequest, outcome: 'confirmed' } })).statusCode).toBe(409);
     const score = await app.inject('/v1/score/provider_test');
-    expect(ScoreProjectionSchema.parse(score.json().data)).toMatchObject({ score: -15, evaluation_count: 1, outcome_counts: { confirmed: 0, weakened: 0, contradicted: 1 } });
+    expect(ScoreProjectionSchema.parse(score.json().data)).toMatchObject({ score: 0, evaluation_count: 0, outcome_counts: { confirmed: 0, weakened: 0, contradicted: 0 } });
     expect(score.headers['payment-required']).toBeUndefined();
     expect((await app.inject('/v1/score/provider_test?subject_type=route')).json().data.score).toBe(0);
   } finally { await app.close(); }

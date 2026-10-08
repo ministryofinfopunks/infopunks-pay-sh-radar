@@ -58,6 +58,15 @@ export async function assertReceiptAuthority(kind: ReceiptKind, receipt: Receipt
       const rail = ECONOMIC_RAILS[execution.verification.settlement.network];
       requireAuthority(execution.verification.profile === rail.profile && execution.verification.settlement.provenance === rail.provenance && execution.settlement_rail === rail.rail && execution.cost_asset === rail.asset && execution.settlement_ref.toLowerCase() === execution.verification.settlement.transaction_hash.toLowerCase(), 'execution_settlement_identity_mismatch');
     }
+    if (execution.score_eligibility?.state === 'qualifying') {
+      requireAuthority(
+        Boolean(execution.verification)
+          && execution.score_eligibility.intake === 'external_proof_gateway.v1'
+          && execution.score_eligibility.proof_profile === execution.verification?.profile
+          && execution.score_eligibility.reason === 'finalized_settlement_and_payload_verified',
+        'execution_score_eligibility_invalid'
+      );
+    }
     const judgment = await reader.get('judgment', execution.judgment_id) as JudgmentReceipt | null;
     requireAuthority(judgment, 'judgment_not_found');
     if (!judgment) return;
