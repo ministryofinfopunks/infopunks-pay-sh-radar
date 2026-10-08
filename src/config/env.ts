@@ -21,6 +21,9 @@ export type RuntimeConfig = {
   judgmentPriceUsdc: string;
   judgmentNetwork: EconomicNetwork;
   judgmentRhRpcUrl: string | null;
+  decisionsShadowEnabled: boolean;
+  decisionsApiKey: string | null;
+  decisionsTimeoutMs: number;
   executionProofBaseRpcUrl: string | null;
   payShCatalogUrl: string | null;
   payShCatalogSource: 'live' | 'fixture';
@@ -179,6 +182,9 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
     judgmentPriceUsdc: env.JUDGMENT_PRICE_USDG ?? env.JUDGMENT_PRICE ?? env.JUDGMENT_PRICE_USDC ?? '0.01',
     judgmentNetwork: EconomicNetworkSchema.parse(env.JUDGMENT_NETWORK ?? 'eip155:4663'),
     judgmentRhRpcUrl: readOptionalUrl('JUDGMENT_RH_RPC_URL', env.JUDGMENT_RH_RPC_URL),
+    decisionsShadowEnabled: readBoolean('OPENAI_DECISIONS_SHADOW_ENABLED', env.OPENAI_DECISIONS_SHADOW_ENABLED, false),
+    decisionsApiKey: optionalString(env.OPENAI_API_KEY),
+    decisionsTimeoutMs: readBoundedPositiveInteger('OPENAI_DECISIONS_TIMEOUT_MS', env.OPENAI_DECISIONS_TIMEOUT_MS, 1200, 10000),
     executionProofBaseRpcUrl: readOptionalUrl('EXECUTION_PROOF_BASE_RPC_URL', env.EXECUTION_PROOF_BASE_RPC_URL),
     payShCatalogUrl: readOptionalUrl('PAY_SH_CATALOG_URL', env.PAY_SH_CATALOG_URL),
     payShCatalogSource: readCatalogSource(env.PAYSH_CATALOG_SOURCE),
@@ -277,6 +283,7 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
   if (config.judgmentPaymentEnabled && config.judgmentNetwork !== 'eip155:4663') throw new RuntimeConfigurationError([{ variable: 'JUDGMENT_NETWORK', code: 'new_judgments_require_usdg_4663' }]);
   if (config.judgmentPaymentEnabled && config.judgmentNetwork === 'eip155:4663' && !config.judgmentRhRpcUrl) throw new RuntimeConfigurationError([{ variable: 'JUDGMENT_RH_RPC_URL', code: 'rh_rpc_required' }]);
   if (config.judgmentPaymentEnabled && (!config.databaseUrl || !config.judgmentFacilitatorUrl || !config.judgmentResourceUrl || !/^0x[a-fA-F0-9]{40}$/.test(config.judgmentPayTo ?? ''))) throw new RuntimeConfigurationError([{ variable: 'JUDGMENT_PAYMENT_ENABLED', code: 'payment_configuration_incomplete' }]);
+  if (config.decisionsShadowEnabled && !config.decisionsApiKey) throw new RuntimeConfigurationError([{ variable: 'OPENAI_API_KEY', code: 'required_for_decisions_shadow' }]);
   return config;
 }
 

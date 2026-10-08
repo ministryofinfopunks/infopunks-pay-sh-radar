@@ -12,6 +12,8 @@ import { hasAuthoredScore } from '../schemas/evaluate';
 import { createDerivedScoreService } from '../services/derivedScoreService';
 import { createEvaluationService } from '../services/evaluationService';
 import { createJudgmentService, JudgmentError } from '../services/judgmentService';
+import { OpenAIDecisionsAdapter } from '../services/openAIDecisionsAdapter';
+import { createDecisionsJudgmentShadow } from '../services/decisionsJudgmentShadow';
 import { hashCanonical } from '../services/receiptIntegrityService';
 import { createExecutionProofService, ExecutionProofError } from '../services/executionProofService';
 import { baseProofClient, createBaseSettlementProofVerifier, type SettlementProofVerifier } from '../security/settlementProofVerifier';
@@ -670,6 +672,7 @@ const CORS_MAX_AGE_SECONDS = 86_400;
 export type CreateAppOptions = {
   economicEngine?: EconomicEngineOverrides;
   judgmentGateway?: JudgmentPaymentGateway;
+  decisionsAdapter?: OpenAIDecisionsAdapter;
   executionProofVerifier?: SettlementProofVerifier;
   clientDistDir?: string | null;
   rhChainSubmissionStore?: RhChainSubmissionStore;
@@ -4469,10 +4472,15 @@ export async function createApp(
   }) : null);
   const judgmentJournal = rhChainPostgresPool ? new PostgresJudgmentRequestRepository(rhChainPostgresPool) : new MemoryJudgmentRequestRepository();
   if (config.judgmentPaymentEnabled) await rhChainPostgresPool!.query('select request_key from judgment_requests limit 0');
+  const decisionsAdapter = config.decisionsShadowEnabled
+    ? options.decisionsAdapter ?? new OpenAIDecisionsAdapter({ apiKey: config.decisionsApiKey!, timeoutMs: config.decisionsTimeoutMs,
+      onAccounting: event => app.log.info(event) })
+    : null;
   const judgments = createJudgmentService({
     store: canonicalReceiptStore, journal: judgmentJournal, gateway: judgmentGateway, issuer: judgmentIssuer,
     legacyCheck: input => preSpendIntelligence.check(input), threshold: config.receiptProceedConfidenceThreshold,
     ttlMs: config.judgmentTtlMs, amount: config.judgmentPriceUsdc,
+    shadow: decisionsAdapter ? createDecisionsJudgmentShadow(decisionsAdapter, event => app.log.info(event)) : undefined,
     onTiming: timing => app.log.info({ event: 'judgment_hot_path_timing', ...timing }),
     observations: async (subject, intentHash) => {
       // The latest scoped materialized policy supersedes historical snapshots.

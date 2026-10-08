@@ -11,6 +11,7 @@ import { hashCanonical, canonicalSerialize, verifyReceiptIntegrity } from './rec
 import { createReceiptAuthorityService, type ReceiptAppendStore } from './receiptAuthorityService';
 import type { JudgmentRequestRepository, JudgmentRequestRecord } from '../repositories/judgmentRequestRepository';
 import { encodePaymentRequiredHeader, encodePaymentResponseHeader, type JudgmentPaymentGateway } from '../middleware/x402JudgmentMiddleware';
+import type { JudgmentShadowSample } from './decisionsJudgmentShadow';
 
 export class JudgmentError extends Error {
   constructor(readonly statusCode: number, readonly code: string) { super(code); }
@@ -35,6 +36,7 @@ export type JudgmentServiceOptions = {
   issuer?: JudgmentIssuer | null;
   now?: () => Date;
   onTiming?: (timing: { local_ms: number; payment_ms: number; total_ms: number }) => void;
+  shadow?: (sample: JudgmentShadowSample) => Promise<void>;
 };
 export function createJudgmentService(options: JudgmentServiceOptions) {
   const now = options.now ?? (() => new Date());
@@ -122,6 +124,14 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
           cost: { amount: decision === 'insufficient_evidence' ? '0' : options.amount, asset: options.gateway?.asset ?? 'USDC' },
           payment_required: decision !== 'insufficient_evidence', receipt: null
         };
+        // Shadow inference only sees reviewed, integrity-checked facts. Its result cannot
+        // enter the policy, journal, settlement, or O/J/X/E authority path.
+        if (sufficient && options.shadow) {
+          const sample: JudgmentShadowSample = { request_hash: requestHash,
+            observation_hashes: observations.map(o => o.receipt_hash), deterministic_decision: decision,
+            facts: policies };
+          try { void options.shadow(sample).catch(() => undefined); } catch { /* advisory only */ }
+        }
         if (decision === 'insufficient_evidence') return { status: 200, headers: {}, response, legacy };
         if (options.store.judgmentTrust?.requireSigned && !options.issuer) throw new JudgmentError(503, 'judgment_signing_unavailable');
         if (options.issuer) { try { options.issuer.assertCanSign(issued, response.valid_until); } catch { throw new JudgmentError(503, 'judgment_signing_unavailable'); } }
