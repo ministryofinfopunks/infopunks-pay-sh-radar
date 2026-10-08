@@ -15,7 +15,7 @@ afterEach(() => vi.unstubAllEnvs());
 describe('receipt spine API integration', () => {
   it('binds internal evaluation writes to EvaluationService, not ReceiptAuthorityService', () => {
     const source = readFileSync('src/api/app.ts', 'utf8');
-    expect(source).toContain("['evaluation', z.object(EvaluationReceiptSchema.shape).strict().omit({ schema_version: true, policy_version: true, score_delta: true, parent_hash: true, receipt_hash: true, evaluator: true, request_hash: true }), evaluationService.createEvaluation]");
+    expect(source).toContain("['evaluation', z.object(EvaluationReceiptSchema.shape).strict().omit({ schema_version: true, policy_version: true, score_delta: true, parent_hash: true, receipt_hash: true, evaluator: true, request_hash: true, classification: true, proposed_outcome: true }), evaluationService.createEvaluation]");
     expect(source).not.toContain('receiptAuthority.appendEvaluation');
   });
   it('authenticates canonical authority, appends the four levels, and retains legacy read APIs', async () => {
@@ -71,7 +71,7 @@ describe.skipIf(!testUrl)('receipt spine PostgreSQL durability', () => {
   let database: Awaited<ReturnType<typeof createCanonicalTestDatabase>>;
   let pool: pg.Pool; let store: PostgresCanonicalReceiptStore;
   beforeEach(async () => {
-    database = await createCanonicalTestDatabase(testUrl!, 'receipt_test', ['20261007_011_canonical_receipt_spine', '20261007_014_derived_score_projection']);
+    database = await createCanonicalTestDatabase(testUrl!, 'receipt_test', ['20261007_011_canonical_receipt_spine', '20261007_014_derived_score_projection', '20261008_018_decision_context', '20261008_020_receipt_acceptance']);
     pool = database.pool; store = new PostgresCanonicalReceiptStore(pool);
   });
   afterEach(async () => { await database?.close(); });
@@ -83,7 +83,7 @@ describe.skipIf(!testUrl)('receipt spine PostgreSQL durability', () => {
     expect((await pool.query('select * from judgment_observations where judgment_id=$1', ['j1'])).rows).toHaveLength(2);
     const restarted = createReceiptAuthorityService(new PostgresCanonicalReceiptStore(pool));
     expect(await restarted.replayEvaluation('e1')).toBe(true);
-    expect((await restarted.projectScore('provider', 'provider_test')).score).toBe(5);
+    expect((await restarted.projectScore('provider', 'provider_test')).score).toBe(0);
     expect(await evaluations.createEvaluation(evaluationInput())).toEqual(await store.get('evaluation', 'e1'));
   });
   it('recognizes the migrated schema and enabled immutability guards in readiness', async () => {

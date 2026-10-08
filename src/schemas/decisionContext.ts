@@ -7,7 +7,7 @@ import { CanonicalDecisionSchema } from './preSpend';
 const hash = ReceiptHashSchema;
 const id = ReceiptIdSchema;
 export const DecisionContextSchema = z.object({
-  version: z.literal('pre-spend-decision-context.v1'),
+  version: z.enum(['pre-spend-decision-context.v1', 'pre-spend-decision-context.v2']),
   assessment_id: id,
   request: PreSpendCheckRequestSchema,
   request_hash: hash,
@@ -17,8 +17,9 @@ export const DecisionContextSchema = z.object({
   assessed_at: ReceiptTimeSchema,
   observation_refs: z.array(z.object({ observation_id: id, receipt_hash: hash }).strict()).min(1),
   evaluation_refs: z.array(z.object({ evaluation_id: id, receipt_hash: hash, score_delta: z.number().finite() }).strict()),
-  projection_boundary: z.object({ kind: z.literal('committed_evaluation_set.v1'), evaluation_refs_hash: hash,
-    quote_assessed_at: ReceiptTimeSchema }).strict(),
+  projection_boundary: z.object({ kind: z.enum(['committed_evaluation_set.v1', 'accepted_sequence.v2']), evaluation_refs_hash: hash,
+    quote_assessed_at: ReceiptTimeSchema, accepted_sequence: z.number().int().nonnegative().optional(),
+    accepted_at: ReceiptTimeSchema.optional() }).strict(),
   score_projection: ScoreProjectionSchema,
   legacy: PreSpendCheckResponseSchema,
   legacy_hash: hash,

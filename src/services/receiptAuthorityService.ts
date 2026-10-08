@@ -5,6 +5,7 @@ import { hashCanonical, sealReceipt, verifyReceiptIntegrity } from './receiptInt
 import { createDerivedScoreService } from './derivedScoreService';
 import type { DecisionContext } from '../schemas/decisionContext';
 import { verifyDecisionContext } from './decisionContextService';
+import { verifyEvaluationClassification } from './evaluationClassificationService';
 
 export const RECEIPT_POLICY_VERSION = 'receipt-authority.v1';
 export const RECEIPT_POLICY_VERSION_V2 = 'receipt-authority.v2';
@@ -17,6 +18,7 @@ export interface ReceiptReader {
   readonly judgmentTrust?: JudgmentIssuerTrust;
   get(kind: ReceiptKind, id: string): Promise<ReceiptRecord | null>;
   getDecisionContext?(assessmentId: string): Promise<DecisionContext | null>;
+  getAcceptance?(kind: ReceiptKind, id: string): Promise<{ sequence: number; accepted_at: string } | null>;
 }
 const requireAuthority = (condition: unknown, code: string): void => { if (!condition) throw new ReceiptAuthorityError(code); };
 
@@ -84,6 +86,10 @@ export async function assertReceiptAuthority(kind: ReceiptKind, receipt: Receipt
   requireAuthority(execution, 'execution_not_found');
   if (!execution) return;
   await assertReceiptAuthority('execution', execution, reader, threshold);
+  if (evaluation.classification) {
+    const judgment = await reader.get('judgment', execution.judgment_id) as JudgmentReceipt | null;
+    requireAuthority(judgment && verifyEvaluationClassification(evaluation, execution, judgment), 'evaluation_classification_invalid');
+  }
   requireAuthority(evaluation.parent_hash === execution.receipt_hash, 'parent_hash_mismatch');
   requireAuthority(Date.parse(evaluation.evaluated_at) >= Date.parse(execution.executed_at), 'evaluation_before_execution');
 }
@@ -92,7 +98,8 @@ export interface ReceiptAppendStore extends ReceiptReader {
   append(kind: ReceiptKind, receipt: ReceiptRecord): Promise<ReceiptRecord>;
   appendDecisionContext?(context: DecisionContext): Promise<DecisionContext>;
   list(kind: ReceiptKind): Promise<ReceiptRecord[]>;
-  evaluationHistory?(subjectType: string, subjectId: string): Promise<ReceiptRecord[]>;
+  evaluationHistory?(subjectType: string, subjectId: string, acceptedThrough?: number): Promise<ReceiptRecord[]>;
+  acceptanceBoundary?(): Promise<{ sequence: number; accepted_at: string }>;
 }
 export function createReceiptAuthorityService(store: ReceiptAppendStore, threshold = 80, issuer?: JudgmentIssuer | null) {
   return {

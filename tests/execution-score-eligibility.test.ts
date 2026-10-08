@@ -1,10 +1,11 @@
 import { expect, it } from 'vitest';
 import { request, setupJudgment } from './helpers/judgments';
 import { setupExecution } from './helpers/executions';
-import { executionInput } from './helpers/canonicalReceipts';
+import { executionInput, classifiedArtifact, classifiedOutput } from './helpers/canonicalReceipts';
 import { evaluationRequest } from './helpers/evaluations';
 import { createEvaluationService } from '../src/services/evaluationService';
 import { createDerivedScoreService } from '../src/services/derivedScoreService';
+import { hashCanonical } from '../src/services/receiptIntegrityService';
 
 it('keeps internal examples inspectable while excluding them from score authority', async () => {
   const f = await setupJudgment();
@@ -19,9 +20,10 @@ it('keeps internal examples inspectable while excluding them from score authorit
 
 it('admits only finalized proof-gateway execution into the projection', async () => {
   const f = await setupExecution();
-  const execution = await f.proofService.submit(f.proof);
+  const proof = await f.sign({ ...f.proof, response_hash: hashCanonical(classifiedOutput(false)), status: 'failed' });
+  const execution = await f.proofService.submit(proof);
   expect(execution.score_eligibility).toMatchObject({ state: 'qualifying', intake: 'external_proof_gateway.v1', proof_profile: 'base_usdc_external.v1' });
   await createEvaluationService(f.store, 80, () => new Date('2026-10-07T00:00:05Z'))
-    .submit({ ...evaluationRequest, execution_receipt_id: execution.execution_id }, 'canonical-admin');
+    .submit({ ...evaluationRequest, execution_receipt_id: execution.execution_id, output_artifact: classifiedArtifact(false) }, 'canonical-admin');
   expect((await createDerivedScoreService(f.store).project('provider', 'provider_test')).score).toBe(-15);
 });

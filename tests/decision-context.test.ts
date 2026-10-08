@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { encodePaymentSignatureHeader } from '@x402/core/http';
 import { setupJudgment, request } from './helpers/judgments';
-import { qualifyingExecutionInput } from './helpers/canonicalReceipts';
+import { qualifyingClassifiedExecution, classifiedArtifact } from './helpers/canonicalReceipts';
 import { evaluationRequest } from './helpers/evaluations';
 import { createEvaluationService } from '../src/services/evaluationService';
 import { verifyDecisionContext } from '../src/services/decisionContextService';
@@ -42,9 +42,9 @@ describe('paid v2 decision context', () => {
   it('commits the contributing evaluation, score and fresh assessment to J2', async () => {
     const f = await setupJudgment();
     const first = await f.service.check(request, 'j1', f.signature);
-    const execution = await f.authority.appendExecution({ ...qualifyingExecutionInput(), judgment_id: first.response.judgment_id });
+    const execution = await f.authority.appendExecution({ ...qualifyingClassifiedExecution(false), judgment_id: first.response.judgment_id });
     const evaluation = await createEvaluationService(f.store, 80, () => new Date('2026-10-07T00:00:04Z'))
-      .submit({ ...evaluationRequest, execution_receipt_id: execution.execution_id }, 'canonical-admin');
+      .submit({ ...evaluationRequest, execution_receipt_id: execution.execution_id, output_artifact: classifiedArtifact(false) }, 'canonical-admin');
     f.setTime('2026-10-07T00:00:05Z');
     const quote = await f.service.check(request, 'j2');
     const context = await f.store.getDecisionContext(quote.response.judgment_id);
