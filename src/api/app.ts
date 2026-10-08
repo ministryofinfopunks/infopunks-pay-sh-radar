@@ -11,6 +11,8 @@ import { createReceiptAuthorityService, ReceiptAuthorityError } from '../service
 import { hasAuthoredScore } from '../schemas/evaluate';
 import { createDerivedScoreService } from '../services/derivedScoreService';
 import { createEvaluationService } from '../services/evaluationService';
+import { createCausalTapeService } from '../services/causalTapeService';
+import { createCausalWitnessService, CausalWitnessError } from '../services/causalWitnessService';
 import { createJudgmentService, JudgmentError } from '../services/judgmentService';
 import { verifyDecisionContext } from '../services/decisionContextService';
 import { hashCanonical } from '../services/receiptIntegrityService';
@@ -4469,6 +4471,8 @@ export async function createApp(
     usdGDomain: config.judgmentNetwork === 'eip155:4663' ? await verifyUsdGMetadata(config.judgmentRhRpcUrl!) : undefined
   }) : null);
   const judgmentJournal = rhChainPostgresPool ? new PostgresJudgmentRequestRepository(rhChainPostgresPool) : new MemoryJudgmentRequestRepository();
+  const causalTape = createCausalTapeService(canonicalReceiptStore, judgmentJournal);
+  const causalWitness = createCausalWitnessService(canonicalReceiptStore, judgmentIssuer);
   if (config.judgmentPaymentEnabled) {
     await rhChainPostgresPool!.query('select request_key from judgment_requests limit 0');
     await rhChainPostgresPool!.query('select assessment_id from decision_contexts limit 0');
@@ -4540,7 +4544,7 @@ export async function createApp(
       return reply.code(error instanceof ExecutionProofError ? error.statusCode : 503).send({ error: code });
     }
   });
-  app.post('/v1/evaluate', { bodyLimit: 16_384 }, async (req, reply) => {
+  app.post('/v1/evaluate', { bodyLimit: 160_000 }, async (req, reply) => {
     if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'evaluator_authentication_required' });
     return { data: safeJsonExport(await evaluationService.submit(req.body, 'canonical-admin')) };
   });
@@ -4605,6 +4609,26 @@ export async function createApp(
     const context = await canonicalReceiptStore.getDecisionContext(receipt.judgment_id);
     if (!context) return reply.code(503).send({ error: 'decision_context_missing' });
     return { data: safeJsonExport({ context, replay_valid: await verifyDecisionContext(context, receipt, canonicalReceiptStore) }) };
+  });
+  app.get<{ Querystring: { kind?: string; cursor?: string; limit?: string; accepted_through?: string } }>('/v1/receipt-spine/tape', async (req, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    const { kind, cursor, limit, accepted_through } = req.query;
+    if (kind && !['observation', 'judgment', 'execution', 'evaluation'].includes(kind)) return reply.code(400).send({ error: 'invalid_tape_kind' });
+    try { return { data: safeJsonExport(await causalTape.page({ ...(kind ? { kind: kind as ReceiptKind } : {}),
+      ...(cursor !== undefined ? { cursor: Number(cursor) } : {}), ...(limit !== undefined ? { limit: Number(limit) } : {}),
+      ...(accepted_through !== undefined ? { acceptedThrough: Number(accepted_through) } : {}) })) }; }
+    catch { return reply.code(400).send({ error: 'invalid_tape_request' }); }
+  });
+  app.get<{ Querystring: { cursor?: string; limit?: string } }>('/v1/receipt-spine/attempts', async (req, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    try { return { data: safeJsonExport(await causalTape.attemptPage(Number(req.query.cursor ?? 0), Number(req.query.limit ?? 50))) }; }
+    catch { return reply.code(400).send({ error: 'invalid_attempt_pagination' }); }
+  });
+  app.get<{ Params: { j1: string; evaluation: string; j2: string } }>('/v1/receipt-spine/witness/:j1/:evaluation/:j2', async (req, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    if (!judgmentIssuer?.signWitness) return reply.code(503).send({ error: 'causal_witness_signer_unavailable' });
+    try { return { data: safeJsonExport(await causalWitness.build(req.params.j1, req.params.evaluation, req.params.j2)) }; }
+    catch (error) { return reply.code(error instanceof CausalWitnessError ? 409 : 503).send({ error: error instanceof CausalWitnessError ? error.code : 'causal_witness_unavailable' }); }
   });
   app.get<{ Params: { kind: string; id: string } }>('/v1/receipt-spine/:kind/:id', async (req, reply) => {
     if (!['observation', 'judgment', 'execution', 'evaluation'].includes(req.params.kind)) return reply.code(404).send({ error: 'receipt_kind_not_found' });

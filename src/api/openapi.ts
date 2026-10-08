@@ -1619,6 +1619,15 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     responses: { '200': { description: 'Frozen decision context and deterministic replay result.', content: { 'application/json': { schema: z.toJSONSchema(z.object({ data: z.object({ context: DecisionContextSchema, replay_valid: z.boolean() }) }), { target: 'draft-2020-12' }) } } },
       '404': errorResponse('canonical_receipt_not_found'), '503': errorResponse('decision_context_missing') }
   });
+  add('get', '/v1/receipt-spine/tape', { tags: ['Pre-Spend Intelligence'], summary: 'Page the canonical causal receipt tape',
+    description: 'Returns O/J/X/E receipt pages, full parent closure and decision contexts, acceptance labels, an immutable content hash manifest, and free insufficient-evidence attempts. Synthetic records remain inspectable but never count as verified causal revisions.',
+    responses: { '200': { description: 'Bounded read-only causal tape and manifest.' }, '400': errorResponse('invalid_tape_request') } });
+  add('get', '/v1/receipt-spine/attempts', { tags: ['Pre-Spend Intelligence'], summary: 'Page free insufficient-evidence assessment attempts',
+    responses: { '200': { description: 'Append-only failed/unproven assessment attempts.' }, '400': errorResponse('invalid_attempt_pagination') } });
+  add('get', '/v1/receipt-spine/witness/{j1}/{evaluation}/{j2}', { tags: ['Pre-Spend Intelligence'], summary: 'Export signed bounded causal witness',
+    description: 'Exports J1, X, E, J2, frozen contexts and a same-input-minus-E counterfactual. A signature authenticates the bundle; real-route status remains unproven without independent external source review.',
+    parameters: [pathParam('j1', 'First judgment ID.'), pathParam('evaluation', 'Designated evaluation ID.'), pathParam('j2', 'Second judgment ID.')],
+    responses: { '200': { description: 'Signed witness bundle for offline replay.' }, '409': errorResponse('witness_replay_invalid'), '503': errorResponse('causal_witness_signer_unavailable') } });
   add('get', '/v1/economics/revenue', { tags: ['Revenue'], summary: 'Read finalized settlement-backed revenue and recorded costs',
     description: 'Contains verified judgment fees only; templates are excluded. Asset totals remain separate. Recorded costs may be incomplete; distributable surplus is null.',
     responses: { '200': { description: 'Append-only revenue/cost ledger and integer asset totals.' }, '503': errorResponse('accounting_unavailable') } });
