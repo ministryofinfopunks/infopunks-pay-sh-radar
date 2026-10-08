@@ -1,3 +1,4 @@
+import type { JudgmentIssuerTrust } from '../security/judgmentIssuer';
 import type pg from 'pg';
 import { receiptSchemas, canonicalSerialize } from '../services/receiptIntegrityService';
 import { assertReceiptAuthority, ReceiptAuthorityError, type ReceiptRecord, type ReceiptAppendStore } from '../services/receiptAuthorityService';
@@ -15,7 +16,7 @@ const receiptId = (kind: ReceiptKind, receipt: ReceiptRecord) => String((receipt
 export class MemoryCanonicalReceiptStore implements ReceiptAppendStore {
   private readonly records = new Map<string, ReceiptRecord>();
   private queue: Promise<unknown> = Promise.resolve();
-  constructor(private readonly threshold = 80) {
+  constructor(private readonly threshold = 80, readonly judgmentTrust?: JudgmentIssuerTrust) {
     if (process.env.NODE_ENV === 'production') throw new ReceiptAuthorityError('canonical_receipts_require_postgres');
   }
   async get(kind: ReceiptKind, id: string) { return structuredClone(this.records.get(kind + ':' + id) ?? null); }
@@ -26,6 +27,11 @@ export class MemoryCanonicalReceiptStore implements ReceiptAppendStore {
       const receipt = receiptSchemas[kind].parse(candidate);
       if (kind === 'judgment' && (receipt as JudgmentReceipt).proceed_confidence_threshold !== this.threshold) throw new ReceiptAuthorityError('configured_confidence_threshold_required');
       await assertReceiptAuthority(kind, receipt, this, this.threshold);
+      if (kind === 'judgment' && this.judgmentTrust?.requireSigned && !this.judgmentTrust.verify(receipt as JudgmentReceipt)) throw new ReceiptAuthorityError('signed_judgment_required');
+      if (kind === 'execution' && this.judgmentTrust?.requireSigned) {
+        const judgment = await this.get('judgment', (receipt as ExecutionReceipt).judgment_id) as JudgmentReceipt;
+        if (!this.judgmentTrust.verify(judgment)) throw new ReceiptAuthorityError('signed_judgment_required');
+      }
       const key = kind + ':' + receiptId(kind, receipt);
       const existing = this.records.get(key);
       if (existing) {
@@ -33,11 +39,11 @@ export class MemoryCanonicalReceiptStore implements ReceiptAppendStore {
         return structuredClone(existing);
       }
       if (kind === 'evaluation' && (await this.list(kind)).some((value) => (value as EvaluationReceipt).execution_id === (receipt as EvaluationReceipt).execution_id)) throw new ReceiptAuthorityError('execution_already_evaluated');
-      if (kind === 'execution' && (receipt as ExecutionReceipt).verification?.profile === 'base_usdc_external.v1') {
+      if (kind === 'execution' && Boolean((receipt as ExecutionReceipt).verification)) {
         const execution = receipt as ExecutionReceipt;
         if ((await this.list('execution')).some(raw => {
           const other = raw as ExecutionReceipt;
-          return other.verification?.profile === 'base_usdc_external.v1' && (other.judgment_id === execution.judgment_id || other.settlement_ref === execution.settlement_ref);
+          return Boolean(other.verification) && (other.judgment_id === execution.judgment_id || other.settlement_ref === execution.settlement_ref);
         })) throw new ReceiptAuthorityError('execution_authorization_already_used');
       }
       this.records.set(key, structuredClone(receipt));
@@ -49,7 +55,7 @@ export class MemoryCanonicalReceiptStore implements ReceiptAppendStore {
 }
 
 export class PostgresCanonicalReceiptStore implements ReceiptAppendStore {
-  constructor(private readonly pool: pg.Pool, private readonly threshold = 80) {}
+  constructor(private readonly pool: pg.Pool, private readonly threshold = 80, readonly judgmentTrust?: JudgmentIssuerTrust) {}
   async get(kind: ReceiptKind, id: string): Promise<ReceiptRecord | null> {
     const meta = metadata[kind];
     const result = await this.pool.query(`select receipt from ${meta.table} where ${meta.id} = $1`, [id]);
@@ -60,10 +66,25 @@ export class PostgresCanonicalReceiptStore implements ReceiptAppendStore {
     const result = await this.pool.query(`select receipt from ${meta.table} order by ${meta.time}, ${meta.id}`);
     return result.rows.map((row) => receiptSchemas[kind].parse(row.receipt));
   }
+  /** Indexed subject join retrieves the full graph in one PostgreSQL snapshot. */
+  async evaluationHistory(subjectType: string, subjectId: string): Promise<ReceiptRecord[]> {
+    const result = await this.pool.query(`select ev.receipt as evaluation, ex.receipt as execution, j.receipt as judgment,
+      (select jsonb_agg(o.receipt order by link.observation_id) from judgment_observations link
+       join observation_receipts o using (observation_id) where link.judgment_id=j.judgment_id) as observations
+      from judgment_receipts j join execution_receipts ex using (judgment_id)
+      join evaluation_receipts ev using (execution_id) where j.subject_type=$1 and j.subject_id=$2`, [subjectType, subjectId]);
+    return result.rows.flatMap(row => [receiptSchemas.evaluation.parse(row.evaluation), receiptSchemas.execution.parse(row.execution),
+      receiptSchemas.judgment.parse(row.judgment), ...(row.observations ?? []).map((raw: unknown) => receiptSchemas.observation.parse(raw))]);
+  }
   async append(kind: ReceiptKind, raw: ReceiptRecord): Promise<ReceiptRecord> {
     const receipt = receiptSchemas[kind].parse(structuredClone(raw));
     if (kind === 'judgment' && (receipt as JudgmentReceipt).proceed_confidence_threshold !== this.threshold) throw new ReceiptAuthorityError('configured_confidence_threshold_required');
     await assertReceiptAuthority(kind, receipt, this, this.threshold);
+    if (kind === 'judgment' && this.judgmentTrust?.requireSigned && !this.judgmentTrust.verify(receipt as JudgmentReceipt)) throw new ReceiptAuthorityError('signed_judgment_required');
+    if (kind === 'execution' && this.judgmentTrust?.requireSigned) {
+      const judgment = await this.get('judgment', (receipt as ExecutionReceipt).judgment_id) as JudgmentReceipt;
+      if (!this.judgmentTrust.verify(judgment)) throw new ReceiptAuthorityError('signed_judgment_required');
+    }
     const meta = metadata[kind];
     const body = receipt as unknown as Record<string, unknown>;
     const columns = [meta.id, meta.time, 'receipt_hash', 'receipt'];

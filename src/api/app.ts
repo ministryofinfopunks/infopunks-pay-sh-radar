@@ -1,4 +1,15 @@
+import { registerIpxLaunchRoutes } from './ipxLaunchRoutes';
+import { MemoryEconomicAccountingStore, PostgresEconomicAccountingStore } from '../persistence/economicAccountingStore';
+import { createEconomicAccountingService } from '../services/economicAccountingService';
+import { createReceiptAttributionService } from '../services/receiptAttributionService';
+import { rhProofClient, verifyUsdGMetadata, createRhSettlementProofVerifier } from '../security/settlementProofVerifier';
+import { pltrRegularSession } from '../services/pltrExchangeCalendar';
+import { registerEconomicEngineRoutes, type EconomicEngineOverrides } from './economicEngineRoutes';
+import { judgmentIssuerFromEnv } from '../security/judgmentIssuer';
+import { verifyReceiptChain } from '../services/receiptAuthorityService';
 import { createReceiptAuthorityService, ReceiptAuthorityError } from '../services/receiptAuthorityService';
+import { hasAuthoredScore } from '../schemas/evaluate';
+import { createDerivedScoreService } from '../services/derivedScoreService';
 import { createEvaluationService } from '../services/evaluationService';
 import { createJudgmentService, JudgmentError } from '../services/judgmentService';
 import { hashCanonical } from '../services/receiptIntegrityService';
@@ -657,6 +668,7 @@ const CORS_ALLOWED_HEADERS = ['Content-Type', 'Authorization', 'X-Requested-With
 const CORS_MAX_AGE_SECONDS = 86_400;
 
 export type CreateAppOptions = {
+  economicEngine?: EconomicEngineOverrides;
   judgmentGateway?: JudgmentPaymentGateway;
   executionProofVerifier?: SettlementProofVerifier;
   clientDistDir?: string | null;
@@ -783,7 +795,7 @@ export async function createApp(
       return observed ? { ...observed, share_equivalent_supply: observed.total_supply_units } : null;
     },
     async pltrUnderlyingReference(asset) {
-      try { const fetchedAt = new Date(); const response = await fetch(`https://api.robinhood.com/rhj/prices/${encodeURIComponent(asset.ticker)}`, { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(config.rhChainProviderTimeoutMs) }); const payload = await response.json() as { quotes?: Array<{ tokenSymbol?: string; bid?: string; ask?: string; generatedAt?: string }> }; const quote = payload.quotes?.find((item) => item.tokenSymbol === 'PLTR'); const bid = Number(quote?.bid); const ask = Number(quote?.ask); const generatedAt = quote?.generatedAt ?? null; const age = generatedAt ? fetchedAt.getTime() - Date.parse(generatedAt) : Number.POSITIVE_INFINITY; if (!response.ok || !quote || !Number.isFinite(bid) || !Number.isFinite(ask) || bid <= 0 || ask <= 0 || !generatedAt || age > 120_000) return null; const session = (() => { const day = fetchedAt.getUTCDay(); if (day === 0 || day === 6) return 'WEEKEND' as const; const minute = fetchedAt.getUTCHours() * 60 + fetchedAt.getUTCMinutes(); return minute >= 13 * 60 + 30 && minute < 20 * 60 ? 'OPEN' as const : 'CLOSED' as const; })(); return { symbol: 'PLTR' as const, bid, ask, midpoint: (bid + ask) / 2, generated_at: generatedAt, fetched_at: fetchedAt.toISOString(), freshness: 'fresh' as const, session, source: 'RHJ_PRICES' as const, methodology: 'RHJ_RAW_UNDERLYING_MIDPOINT_V1' as const };
+      try { const fetchedAt = new Date(); const response = await fetch(`https://api.robinhood.com/rhj/prices/${encodeURIComponent(asset.ticker)}`, { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(config.rhChainProviderTimeoutMs) }); const payload = await response.json() as { quotes?: Array<{ tokenSymbol?: string; bid?: string; ask?: string; generatedAt?: string }> }; const quote = payload.quotes?.find((item) => item.tokenSymbol === 'PLTR'); const bid = Number(quote?.bid); const ask = Number(quote?.ask); const generatedAt = quote?.generatedAt ?? null; const age = generatedAt ? fetchedAt.getTime() - Date.parse(generatedAt) : Number.POSITIVE_INFINITY; if (!response.ok || !quote || !Number.isFinite(bid) || !Number.isFinite(ask) || bid <= 0 || ask <= 0 || !generatedAt || age > 120_000) return null; const session = pltrRegularSession(fetchedAt); return { symbol: 'PLTR' as const, bid, ask, midpoint: (bid + ask) / 2, generated_at: generatedAt, fetched_at: fetchedAt.toISOString(), freshness: 'fresh' as const, session, source: 'RHJ_PRICES' as const, methodology: 'RHJ_RAW_UNDERLYING_MIDPOINT_V1' as const };
       } catch { return null; }
     },
     async pltrMarkets(asset, assets) {
@@ -1777,11 +1789,11 @@ export async function createApp(
     return { data: safeJsonExport(detail) };
   });
   const judgmentRateLimiter = new RhChainPublicRateLimiter(true, 60_000, 30);
-  app.post('/v1/pre-spend/check', { bodyLimit: 16_384 }, async (req, reply) => {
+  const handleJudgmentAssessment = async (req: FastifyRequest, reply: FastifyReply) => {
     const started = performance.now();
     const rate = judgmentRateLimiter.consume(req.ip);
     if (!rate.allowed) return reply.code(429).header('Retry-After', String(Math.ceil(rate.retryAfterMs / 1000))).send({ error: 'judgment_rate_limited' });
-    const parsed = PreSpendCheckRequestSchema.safeParse(req.body);
+    const parsed = (req.routeOptions.url === '/v1/decide' ? PreSpendCheckRequestSchema.strict() : PreSpendCheckRequestSchema).safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_pre_spend_check_request', details: parsed.error.flatten() });
     try {
       const key = req.headers['idempotency-key'];
@@ -1793,7 +1805,9 @@ export async function createApp(
       for (const [name, value] of Object.entries(result.headers)) if (value) reply.header(name, value);
       reply.header('Server-Timing', `judgment;dur=${(performance.now() - started).toFixed(2)}`);
       // Preserve the original SDK envelope; canonical fields are also available at the top level.
-      return reply.code(result.status).send(safeJsonExport({ ...result.response, data: { ...result.legacy, canonical_judgment: result.response } }));
+      return reply.code(result.status).send(safeJsonExport({ ...result.response,
+        ...(req.routeOptions.url === '/v1/decide' ? { execution_authorization: null, execution_authorized: false } : {}),
+        data: { ...result.legacy, canonical_judgment: result.response } }));
     } catch (error) {
       if (error instanceof JudgmentError) return reply.code(error.statusCode).send({ error: error.code });
       req.log.error({ event: 'judgment_unavailable' });
@@ -1803,7 +1817,9 @@ export async function createApp(
       reply.header('Server-Timing', `judgment;dur=${duration.toFixed(2)}`);
       req.log.info({ event: 'judgment_timing', duration_ms: duration });
     }
-  });
+  };
+  app.post('/v1/pre-spend/check', { bodyLimit: 16_384 }, handleJudgmentAssessment);
+  app.post('/v1/decide', { bodyLimit: 16_384 }, handleJudgmentAssessment);
   app.get<{ Params: { id: string } }>('/v1/providers/:id/history', async (req, reply) => {
     const provider = findProvider(store, req.params.id);
     if (!provider) return reply.code(404).send({ error: 'provider_not_found' });
@@ -4435,18 +4451,26 @@ export async function createApp(
       return { data: [], degraded: true, reason: 'search_timeout' };
     }
   }, reply));
+  const judgmentIssuer = judgmentIssuerFromEnv(process.env, config.isProduction || Boolean(process.env.JUDGMENT_ISSUER_KEYS_JSON));
+  const judgmentTrust = judgmentIssuer ?? (config.isProduction ? { requireSigned: true, verify: () => false } : undefined);
+  if (config.isProduction && config.judgmentPaymentEnabled) {
+    if (!judgmentIssuer) throw new Error('judgment_signing_unavailable');
+    judgmentIssuer.assertCanSign(new Date().toISOString(), new Date(Date.now() + config.judgmentTtlMs).toISOString());
+  }
   const canonicalReceiptStore = rhChainPostgresPool
-    ? new PostgresCanonicalReceiptStore(rhChainPostgresPool, config.receiptProceedConfidenceThreshold)
-    : new MemoryCanonicalReceiptStore(config.receiptProceedConfidenceThreshold);
-  const receiptAuthority = createReceiptAuthorityService(canonicalReceiptStore, config.receiptProceedConfidenceThreshold);
+    ? new PostgresCanonicalReceiptStore(rhChainPostgresPool, config.receiptProceedConfidenceThreshold, judgmentTrust)
+    : new MemoryCanonicalReceiptStore(config.receiptProceedConfidenceThreshold, judgmentTrust);
+  const receiptAuthority = createReceiptAuthorityService(canonicalReceiptStore, config.receiptProceedConfidenceThreshold, judgmentIssuer);
   const evaluationService = createEvaluationService(canonicalReceiptStore, config.receiptProceedConfidenceThreshold);
+  const derivedScores = createDerivedScoreService(canonicalReceiptStore, config.receiptProceedConfidenceThreshold);
   const judgmentGateway = options.judgmentGateway ?? (config.judgmentPaymentEnabled ? await createX402JudgmentGateway({
-    facilitatorUrl: config.judgmentFacilitatorUrl!, payTo: config.judgmentPayTo!, amount: config.judgmentPriceUsdc, resourceUrl: config.judgmentResourceUrl!
+    facilitatorUrl: config.judgmentFacilitatorUrl!, payTo: config.judgmentPayTo!, amount: config.judgmentPriceUsdc, resourceUrl: config.judgmentResourceUrl!, network: config.judgmentNetwork,
+    usdGDomain: config.judgmentNetwork === 'eip155:4663' ? await verifyUsdGMetadata(config.judgmentRhRpcUrl!) : undefined
   }) : null);
   const judgmentJournal = rhChainPostgresPool ? new PostgresJudgmentRequestRepository(rhChainPostgresPool) : new MemoryJudgmentRequestRepository();
   if (config.judgmentPaymentEnabled) await rhChainPostgresPool!.query('select request_key from judgment_requests limit 0');
   const judgments = createJudgmentService({
-    store: canonicalReceiptStore, journal: judgmentJournal, gateway: judgmentGateway,
+    store: canonicalReceiptStore, journal: judgmentJournal, gateway: judgmentGateway, issuer: judgmentIssuer,
     legacyCheck: input => preSpendIntelligence.check(input), threshold: config.receiptProceedConfidenceThreshold,
     ttlMs: config.judgmentTtlMs, amount: config.judgmentPriceUsdc,
     onTiming: timing => app.log.info({ event: 'judgment_hot_path_timing', ...timing }),
@@ -4463,8 +4487,41 @@ export async function createApp(
   if (executionClient && rhChainPostgresPool) await rhChainPostgresPool.query("select indexname from pg_indexes where schemaname=current_schema() and indexname in ('execution_proof_one_authorization_idx','execution_proof_one_settlement_idx')").then(result => {
     if (result.rows.length !== 2) throw new Error('execution_proof_migration_required');
   });
+  const rhClient = config.judgmentRhRpcUrl ? await rhProofClient(config.judgmentRhRpcUrl) : null;
+  if (rhClient && await rhClient.getChainId() !== 4663) throw new Error('execution_proof_rh_rpc_network_mismatch');
+  if (rhClient && rhChainPostgresPool) {
+    const indexes = await rhChainPostgresPool.query("select indexdef from pg_indexes where schemaname=current_schema() and indexname in ('execution_proof_one_authorization_idx','execution_proof_one_settlement_idx')");
+    if (indexes.rows.length !== 2 || indexes.rows.some(row => !row.indexdef.includes('rh_usdg_external.v1'))) throw new Error('rh_usdg_accounting_migration_required');
+    await rhChainPostgresPool.query('select revenue_id from settled_judgment_revenue limit 0');
+  }
+  const accountingStore = rhChainPostgresPool ? new PostgresEconomicAccountingStore(rhChainPostgresPool) : new MemoryEconomicAccountingStore();
+  const accounting = createEconomicAccountingService({ store: accountingStore, receipts: canonicalReceiptStore, journal: judgmentJournal,
+    clients: { ...(executionClient ? { 'eip155:8453': executionClient } : {}), ...(rhClient ? { 'eip155:4663': rhClient } : {}) }, merchant: config.judgmentPayTo });
+  const attribution = createReceiptAttributionService(canonicalReceiptStore);
+  app.get('/v1/economics/revenue', async (_req, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    try { return { data: await accounting.ledger() }; } catch { return reply.code(503).send({ error: 'accounting_unavailable' }); }
+  });
+  app.get('/v1/attribution', async (_req, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    return { data: await attribution.report() };
+  });
+  app.post<{ Params: { id: string } }>('/internal/economics/reconcile/:id', async (req, reply) => {
+    reply.header('Cache-Control', 'private, no-store');
+    if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'unauthorized' });
+    try { return { data: await accounting.reconcile(req.params.id) }; }
+    catch (error) { const pending = error instanceof Error && error.message === 'settlement_not_finalized'; return reply.code(pending ? 409 : 503).send({ error: pending ? 'settlement_pending_finality' : 'revenue_reconciliation_unavailable' }); }
+  });
+  app.post('/internal/economics/costs', { bodyLimit: 16_384 }, async (req, reply) => {
+    reply.header('Cache-Control', 'private, no-store');
+    if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'unauthorized' });
+    try { return { data: await accounting.recordCost(req.body) }; } catch { return reply.code(400).send({ error: 'invalid_accounting_cost' }); }
+  });
   const executionProofs = createExecutionProofService({ store: canonicalReceiptStore, threshold: config.receiptProceedConfidenceThreshold,
+    rhVerifier: rhClient ? createRhSettlementProofVerifier(rhClient) : null,
     verifier: options.executionProofVerifier ?? (executionClient ? createBaseSettlementProofVerifier(executionClient) : null) });
+  await registerEconomicEngineRoutes(app, { receipts: canonicalReceiptStore, threshold: config.receiptProceedConfidenceThreshold,
+    judgmentIssuer, pool: rhChainPostgresPool, isProduction: config.isProduction, adminToken: config.adminToken }, options.economicEngine);
   const executionProofLimiter = new RhChainPublicRateLimiter(true, 60_000, 20);
   app.post('/v1/execute-proof', { bodyLimit: 16_384 }, async (req, reply) => {
     const limit = executionProofLimiter.consume(req.ip);
@@ -4479,18 +4536,34 @@ export async function createApp(
       return reply.code(error instanceof ExecutionProofError ? error.statusCode : 503).send({ error: code });
     }
   });
+  app.post('/v1/evaluate', { bodyLimit: 16_384 }, async (req, reply) => {
+    if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'evaluator_authentication_required' });
+    return { data: safeJsonExport(await evaluationService.submit(req.body, 'canonical-admin')) };
+  });
+  // Subject routing follows the existing typed receipt-spine convention; the alias defaults to provider.
+  app.get<{ Params: { subject: string }; Querystring: { subject_type?: string } }>('/v1/score/:subject', async (req, reply) => {
+    const subjectType = req.query.subject_type ?? 'provider';
+    if (!subjectType || subjectType.length > 256 || !req.params.subject || req.params.subject.length > 256) return reply.code(400).send({ error: 'invalid_score_subject' });
+    return { data: await derivedScores.project(subjectType, req.params.subject) };
+  });
   // Canonical writes are reviewed server authority. Community intake below remains public.
   const canonicalWrites = [
     ['observation', z.object(ObservationReceiptSchema.shape).strict().omit({ schema_version: true, payload_hash: true, receipt_hash: true }), receiptAuthority.appendObservation],
-    ['judgment', z.object(JudgmentReceiptSchema.shape).strict().omit({ schema_version: true, policy_version: true, proceed_confidence_threshold: true, parent_hashes: true, receipt_hash: true }), receiptAuthority.appendJudgment],
+    ['judgment', z.object(JudgmentReceiptSchema.shape).strict().omit({ schema_version: true, policy_version: true, proceed_confidence_threshold: true, parent_hashes: true, receipt_hash: true, issuer_signature: true, payment: true }), receiptAuthority.appendJudgment],
     ['execution', z.object(ExecutionReceiptSchema.shape).strict().omit({ schema_version: true, parent_hash: true, receipt_hash: true }), receiptAuthority.appendExecution],
-    ['evaluation', z.object(EvaluationReceiptSchema.shape).strict().omit({ schema_version: true, policy_version: true, score_delta: true, parent_hash: true, receipt_hash: true }), evaluationService.createEvaluation]
+    ['evaluation', z.object(EvaluationReceiptSchema.shape).strict().omit({ schema_version: true, policy_version: true, score_delta: true, parent_hash: true, receipt_hash: true, evaluator: true, request_hash: true }), evaluationService.createEvaluation]
   ] as const;
   for (const [kind, schema, append] of canonicalWrites) {
     app.post(`/internal/receipt-spine/${kind}`, async (req, reply) => {
       if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'unauthorized' });
-      if (kind === 'evaluation' && req.body && typeof req.body === 'object' && ('score_delta' in req.body || 'scoreDelta' in req.body || 'confidence_delta' in req.body || 'confidenceDelta' in req.body)) {
+      if (kind === 'evaluation' && hasAuthoredScore(req.body)) {
         return reply.code(400).send({ error: 'score_delta_authoring_forbidden' });
+      }
+      if (kind === 'judgment' && req.body && typeof req.body === 'object') {
+        const submitted = req.body as Record<string, unknown>;
+        if (submitted.payment_required === true || (submitted.payment_receipt_ref != null) || Number(submitted.charge ?? 0) !== 0 || submitted.payment !== undefined) {
+          return reply.code(400).send({ error: 'paid_judgments_require_verified_payment_boundary' });
+        }
       }
       const parsed = schema.safeParse(req.body);
       if (!parsed.success) return reply.code(400).send({ error: 'invalid_canonical_receipt' });
@@ -4501,6 +4574,25 @@ export async function createApp(
       return { data: safeJsonExport(await (append as (input: typeof parsed.data) => Promise<unknown>)(parsed.data)) };
     });
   }
+  app.get('/v1/judgment-issuer/keys', async (_req, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    if (!judgmentIssuer) return reply.code(503).send({ error: 'judgment_issuer_unavailable' });
+    return { data: judgmentIssuer.publicKeys() };
+  });
+  app.get<{ Params: { id: string } }>('/v1/receipt-spine/judgment/:id/verify', async (req, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    const receipt = await canonicalReceiptStore.get('judgment', req.params.id);
+    if (!receipt) return reply.code(404).send({ error: 'canonical_receipt_not_found' });
+    const judgment = JudgmentReceiptSchema.parse(receipt);
+    const ancestryValid = await verifyReceiptChain('judgment', judgment, canonicalReceiptStore, config.receiptProceedConfidenceThreshold);
+    const signatureValid = judgmentIssuer?.verify(judgment) ?? false;
+    const now = Date.now();
+    const inWindow = Date.parse(judgment.issued_at) <= now && now < Date.parse(judgment.valid_until);
+    return { data: { judgment_id: judgment.judgment_id, receipt_hash: judgment.receipt_hash,
+      ancestry_valid: ancestryValid, issuer_signature_valid: signatureValid, within_validity_window: inWindow,
+      assessment_eligible: ancestryValid && signatureValid && inWindow && ['proceed', 'test_spend_first'].includes(judgment.decision),
+      execution_authorized: false, authority_requires: 'infopunks.execution-authorization.v1' } };
+  });
   app.get<{ Params: { kind: string; id: string } }>('/v1/receipt-spine/:kind/:id', async (req, reply) => {
     if (!['observation', 'judgment', 'execution', 'evaluation'].includes(req.params.kind)) return reply.code(404).send({ error: 'receipt_kind_not_found' });
     const receipt = await canonicalReceiptStore.get(req.params.kind as ReceiptKind, req.params.id);
@@ -4857,6 +4949,7 @@ export async function createApp(
     app.addHook('onClose', async () => clearInterval(timer));
   }
 
+  await registerIpxLaunchRoutes(app, { pool: rhChainPostgresPool, rpc: config.judgmentRhRpcUrl ?? config.rhChainRpcUrl, payTo: config.judgmentPayTo, adminToken: config.adminToken, reconcile: accounting.reconcile });
   return app;
 
   async function runRhChainAutomationJob(jobName: import('../services/rhChainAutomationService').RhChainAutomationJobName) {

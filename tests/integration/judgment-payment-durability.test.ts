@@ -1,6 +1,5 @@
-import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
-import { randomUUID } from 'node:crypto';
-import pg from 'pg';
+import { createCanonicalTestDatabase, expectRollbackMigrationFailure } from '../helpers/canonicalPostgres';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { PostgresJudgmentRequestRepository } from '../../src/repositories/judgmentRequestRepository';
 import { PostgresCanonicalReceiptStore } from '../../src/persistence/canonicalReceiptStore';
@@ -10,12 +9,9 @@ import { request, legacy, setupJudgment } from '../helpers/judgments';
 
 describe.skipIf(!process.env.CANONICAL_RECEIPT_TEST_URL)('durable judgment payment journal', () => {
   it('reconstructs after restart, recovers settled receipts and refuses uncertain retries', async () => {
-    const schema = 'judgment_test_' + randomUUID().replaceAll('-', '');
-    const pool = new pg.Pool({ connectionString: process.env.CANONICAL_RECEIPT_TEST_URL, options: `-c search_path=${schema}` });
+    const database = await createCanonicalTestDatabase(process.env.CANONICAL_RECEIPT_TEST_URL!, 'judgment_payment', ['20261007_011_canonical_receipt_spine', '20261007_012_judgment_requests']);
+    const pool = database.pool;
     try {
-      await pool.query(`create schema ${schema}`);
-      await pool.query(readFileSync('migrations/20261007_011_canonical_receipt_spine.up.sql', 'utf8'));
-      await pool.query(readFileSync('migrations/20261007_012_judgment_requests.up.sql', 'utf8'));
       const f = await setupJudgment(); const store = new PostgresCanonicalReceiptStore(pool);
       await store.append('observation', f.observation);
       const service = () => createJudgmentService({ store: new PostgresCanonicalReceiptStore(pool), journal: new PostgresJudgmentRequestRepository(pool), gateway: f.gateway,
@@ -43,7 +39,7 @@ describe.skipIf(!process.env.CANONICAL_RECEIPT_TEST_URL)('durable judgment payme
       await journal.quote('pending', { ...record, state: 'quoted' }); expect(await journal.claim('pending', 'sha256:'+'b'.repeat(64))).toBe(true);
       expect((await new PostgresJudgmentRequestRepository(pool).get('pending'))?.state).toBe('settling');
       await journal.quote('other', { ...record, state: 'quoted' }); expect(await journal.claim('other', 'sha256:'+'b'.repeat(64))).toBe(false);
-      await expect(pool.query(readFileSync('migrations/20261007_012_judgment_requests.down.sql', 'utf8'))).rejects.toThrow('refusing to remove nonempty payment journal');
-    } finally { await pool.end(); }
+      await expectRollbackMigrationFailure(pool, '20261007_012_judgment_requests', 'refusing to remove nonempty payment journal');
+    } finally { await database.close(); }
   });
 });

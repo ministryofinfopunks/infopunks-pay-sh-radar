@@ -1,14 +1,17 @@
+import { ECONOMIC_RAILS } from '../security/economicRails';
+import type { JudgmentIssuer, JudgmentIssuerTrust } from '../security/judgmentIssuer';
 import { CANONICAL_RECEIPT_SCHEMA_VERSION, type ObservationReceipt, type JudgmentReceipt, type ExecutionReceipt, type EvaluationReceipt, type ReceiptKind } from '../schemas/receipts';
 import { hashCanonical, sealReceipt, verifyReceiptIntegrity } from './receiptIntegrityService';
-import { EVALUATION_POLICY_VERSION, evaluationReceiptMatchesScorePolicy } from './evaluationScorePolicy';
+import { createDerivedScoreService } from './derivedScoreService';
 
 export const RECEIPT_POLICY_VERSION = 'receipt-authority.v1';
 export class ReceiptAuthorityError extends Error {
-  readonly statusCode = 400;
+  readonly statusCode: number = 400;
   constructor(readonly code: string) { super(code); this.name = 'ReceiptAuthorityError'; }
 }
 export type ReceiptRecord = ObservationReceipt | JudgmentReceipt | ExecutionReceipt | EvaluationReceipt;
 export interface ReceiptReader {
+  readonly judgmentTrust?: JudgmentIssuerTrust;
   get(kind: ReceiptKind, id: string): Promise<ReceiptRecord | null>;
 }
 const requireAuthority = (condition: unknown, code: string): void => { if (!condition) throw new ReceiptAuthorityError(code); };
@@ -22,6 +25,7 @@ export async function assertReceiptAuthority(kind: ReceiptKind, receipt: Receipt
   if (kind === 'observation') return;
   if (kind === 'judgment') {
     const judgment = receipt as JudgmentReceipt;
+    if (judgment.issuer_signature) requireAuthority(reader.judgmentTrust?.verify(judgment), 'judgment_issuer_signature_invalid');
     requireAuthority(judgment.policy_version === RECEIPT_POLICY_VERSION, 'unsupported_receipt_policy');
     for (const [index, id] of judgment.cited_observation_ids.entries()) {
       const observation = await reader.get('observation', id) as ObservationReceipt | null;
@@ -42,6 +46,10 @@ export async function assertReceiptAuthority(kind: ReceiptKind, receipt: Receipt
   }
   if (kind === 'execution') {
     const execution = receipt as ExecutionReceipt;
+    if (execution.verification) {
+      const rail = ECONOMIC_RAILS[execution.verification.settlement.network];
+      requireAuthority(execution.verification.profile === rail.profile && execution.verification.settlement.provenance === rail.provenance && execution.settlement_rail === rail.rail && execution.cost_asset === rail.asset && execution.settlement_ref.toLowerCase() === execution.verification.settlement.transaction_hash.toLowerCase(), 'execution_settlement_identity_mismatch');
+    }
     const judgment = await reader.get('judgment', execution.judgment_id) as JudgmentReceipt | null;
     requireAuthority(judgment, 'judgment_not_found');
     if (!judgment) return;
@@ -52,7 +60,9 @@ export async function assertReceiptAuthority(kind: ReceiptKind, receipt: Receipt
     return;
   }
   const evaluation = receipt as EvaluationReceipt;
-  requireAuthority(evaluation.policy_version === EVALUATION_POLICY_VERSION && evaluationReceiptMatchesScorePolicy(evaluation), 'evaluation_policy_delta_invalid');
+  // EvaluationService also depends on this authority; load its validator lazily.
+  const { assertEvaluationPolicy } = await import('./evaluationService.js');
+  assertEvaluationPolicy(evaluation);
   const execution = await reader.get('execution', evaluation.execution_id) as ExecutionReceipt | null;
   requireAuthority(execution, 'execution_not_found');
   if (!execution) return;
@@ -64,17 +74,26 @@ export async function assertReceiptAuthority(kind: ReceiptKind, receipt: Receipt
 export interface ReceiptAppendStore extends ReceiptReader {
   append(kind: ReceiptKind, receipt: ReceiptRecord): Promise<ReceiptRecord>;
   list(kind: ReceiptKind): Promise<ReceiptRecord[]>;
+  evaluationHistory?(subjectType: string, subjectId: string): Promise<ReceiptRecord[]>;
 }
-export function createReceiptAuthorityService(store: ReceiptAppendStore, threshold = 80) {
+export function createReceiptAuthorityService(store: ReceiptAppendStore, threshold = 80, issuer?: JudgmentIssuer | null) {
   return {
     async appendObservation(input: Omit<ObservationReceipt, 'schema_version' | 'payload_hash' | 'receipt_hash'>) {
       const receipt = sealReceipt('observation', { ...input, schema_version: CANONICAL_RECEIPT_SCHEMA_VERSION, payload_hash: hashCanonical(input.payload) });
       return store.append('observation', receipt) as Promise<ObservationReceipt>;
     },
-    async appendJudgment(input: Omit<JudgmentReceipt, 'schema_version' | 'policy_version' | 'proceed_confidence_threshold' | 'parent_hashes' | 'receipt_hash'>) {
+    async appendJudgment(input: Omit<JudgmentReceipt, 'schema_version' | 'policy_version' | 'proceed_confidence_threshold' | 'parent_hashes' | 'receipt_hash' | 'issuer_signature'>) {
       const parents = await Promise.all(input.cited_observation_ids.map((id) => store.get('observation', id)));
       requireAuthority(parents.every(Boolean), 'observation_not_found');
-      return store.append('judgment', sealReceipt('judgment', { ...input, schema_version: CANONICAL_RECEIPT_SCHEMA_VERSION, policy_version: RECEIPT_POLICY_VERSION, proceed_confidence_threshold: threshold, parent_hashes: parents.map((parent) => parent!.receipt_hash) })) as Promise<JudgmentReceipt>;
+      const receipt = sealReceipt('judgment', { ...input, schema_version: CANONICAL_RECEIPT_SCHEMA_VERSION, policy_version: RECEIPT_POLICY_VERSION, proceed_confidence_threshold: threshold, parent_hashes: parents.map((parent) => parent!.receipt_hash) }) as JudgmentReceipt;
+      const existing = await store.get('judgment', input.judgment_id) as JudgmentReceipt | null;
+      if (existing) {
+        requireAuthority(existing.receipt_hash === receipt.receipt_hash, 'receipt_id_conflict');
+        await assertReceiptAuthority('judgment', existing, store, threshold);
+        return existing; // Rotation/restart retries retain the original issuer signature.
+      }
+      requireAuthority(issuer || !store.judgmentTrust?.requireSigned, 'judgment_signing_unavailable');
+      return store.append('judgment', issuer ? issuer.sign(receipt) : receipt) as Promise<JudgmentReceipt>;
     },
     async appendExecution(input: Omit<ExecutionReceipt, 'schema_version' | 'parent_hash' | 'receipt_hash'>) {
       const parent = await store.get('judgment', input.judgment_id);
@@ -82,18 +101,8 @@ export function createReceiptAuthorityService(store: ReceiptAppendStore, thresho
       return store.append('execution', sealReceipt('execution', { ...input, schema_version: CANONICAL_RECEIPT_SCHEMA_VERSION, parent_hash: parent!.receipt_hash })) as Promise<ExecutionReceipt>;
     },
     async projectScore(subjectType: string, subjectId: string) {
-      let score = 0;
-      const seenExecutions = new Set<string>();
-      for (const raw of await store.list('evaluation')) {
-        const evaluation = raw as EvaluationReceipt;
-        await assertReceiptAuthority('evaluation', evaluation, store, threshold);
-        requireAuthority(!seenExecutions.has(evaluation.execution_id), 'duplicate_execution_evaluation');
-        seenExecutions.add(evaluation.execution_id);
-        const execution = await store.get('execution', evaluation.execution_id) as ExecutionReceipt;
-        const judgment = await store.get('judgment', execution.judgment_id) as JudgmentReceipt;
-        if (judgment.subject_type === subjectType && judgment.subject_id === subjectId) score += evaluation.score_delta;
-      }
-      return { subject_type: subjectType, subject_id: subjectId, score, authority: 'EvaluationReceipt' as const };
+      const projection = await createDerivedScoreService(store, threshold).project(subjectType, subjectId);
+      return { subject_type: subjectType, subject_id: subjectId, score: projection.score, authority: 'EvaluationReceipt' as const };
     },
     async replayEvaluation(id: string) {
       const evaluation = await store.get('evaluation', id);

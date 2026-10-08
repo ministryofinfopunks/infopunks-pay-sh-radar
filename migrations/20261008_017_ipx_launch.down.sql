@@ -1,0 +1,10 @@
+begin;
+do $$ begin if exists(select 1 from ipx_genesis_calls_v2) or exists(select 1 from ipx_economic_receipts) or exists(select 1 from ipx_identity_mappings) or exists(select 1 from ipx_solana_observations) or exists(select 1 from ipx_launch_policies) then raise exception 'refusing to erase IPX provenance'; end if; end $$;
+drop table ipx_launch_policies;
+drop table ipx_solana_cursors;
+drop table ipx_solana_observations;
+drop table ipx_identity_mappings;
+drop table ipx_economic_receipts;
+drop table ipx_genesis_calls_v2;
+drop function ipx_launch_append_only();
+commit;

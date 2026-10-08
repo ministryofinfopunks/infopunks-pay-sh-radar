@@ -1,5 +1,12 @@
+import { IpxCallRequestSchema } from '../schemas/ipxLaunch';
+import { IpxCostsSchema } from '../services/ipxRevenueLedger';
+import { JudgmentIssuerKeySchema } from '../security/judgmentIssuer';
+import { EconomicJobSchema, ExecutionAuthorizationSchema, EconomicOperationSchema, HarnessEventSchema } from '../schemas/economicEngine';
 import { z } from 'zod';
 import { CanonicalJudgmentResponseSchema } from '../schemas/preSpend';
+import { EvaluateRequestSchema } from '../schemas/evaluate';
+import { ScoreProjectionSchema } from '../schemas/scoreProjection';
+import { EvaluationReceiptSchema } from '../schemas/receipts';
 import { ExecuteProofRequestSchema } from '../schemas/executeProof';
 import { ExecutionReceiptSchema } from '../schemas/receipts';
 type JsonSchema = Record<string, unknown>;
@@ -16,6 +23,31 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       [method]: operation
     };
   };
+
+  const ipxEnvelope = { type: 'object', required: ['data'], properties: { data: {} } };
+  const ipxResponses = { '200': { description: 'Verified evidence or explicit pending state; no simulation is economic execution.', content: { 'application/json': { schema: ipxEnvelope } } }, '400': errorResponse('invalid_ipx_request'), '409': errorResponse('ipx_evidence_conflict'), '503': errorResponse('ipx_launch_not_ready') };
+  for (const [path, summary] of [
+    ['/v1/ipx/launch', 'IPX policy and launch activation status'],
+    ['/v1/ipx/genesis/cohort', 'Immutable v2 economically entitled call cohort'],
+    ['/v1/ipx/economy/receipts', 'Bounded economic receipt history (up to 500)'],
+    ['/v1/ipx/economy/summary', 'Economic totals across all durable receipts']
+  ]) add('get', path, { tags: ['IPX launch'], summary, responses: ipxResponses });
+  const ipxPosts: Array<[string, string, z.ZodType]> = [
+    ['/v1/ipx/genesis/payload', 'Prepare JCS payload for signing', IpxCallRequestSchema],
+    ['/v1/ipx/genesis/calls', 'Accept verified signed v2 economic call', IpxCallRequestSchema.extend({ signature: z.string().regex(/^0x[0-9a-fA-F]{130}$/) })],
+    ['/v1/ipx/genesis/identity-mapping', 'Record dual-signed Solana/EVM identity without bridging tokens', z.object({ payload: z.unknown(), evm_signature: z.string().regex(/^0x[0-9a-fA-F]{130}$/), solana_signature: z.string().max(100) }).strict()],
+    ['/internal/ipx/economy/revenue', 'Reconcile finalized USDG revenue', z.object({ judgment_id: z.string().min(1) }).strict()],
+    ['/internal/ipx/economy/contribution', 'Record reviewed contribution costs', z.object({ revenue_id: z.string().min(1), costs: IpxCostsSchema }).strict()],
+    ['/internal/ipx/economy/burn-proof', 'Verify finalized vault event and IPX supply burn', z.object({ contribution_id: z.string().min(1), transaction: z.string().regex(/^0x[0-9a-fA-F]{64}$/) }).strict()],
+    ['/internal/ipx/evidence/solana/scan', 'Collect finalized telemetry for a registered Solana watch', z.object({ address: z.string().min(32).max(44), page_size: z.number().int().min(1).max(100).default(20) }).strict()]
+  ];
+  for (const [path, summary, schema] of ipxPosts) add('post', path, {
+    tags: ['IPX launch'], summary,
+    ...(path.startsWith('/internal/') ? { parameters: [{ name: 'Authorization', in: 'header', required: true, schema: { type: 'string' }, description: 'Bearer admin token.' }] } : {}),
+    requestBody: { required: true, content: { 'application/json': { schema: z.toJSONSchema(schema, { target: 'draft-2020-12', io: 'input' }) } } },
+    responses: { ...ipxResponses, ...(path.endsWith('/calls') ? { '201': ipxResponses['200'] } : {}), ...(path.startsWith('/internal/') ? { '401': errorResponse('unauthorized') } : {}) }
+  });
+  add('get', '/internal/ipx/genesis/commitment', { tags: ['IPX launch'], summary: 'Prepare complete cohort commitment; sends no transaction', parameters: [{ name: 'Authorization', in: 'header', required: true, schema: { type: 'string' }, description: 'Bearer admin token.' }], responses: { ...ipxResponses, '401': errorResponse('unauthorized') } });
 
   add('get', '/health', {
     tags: ['System'],
@@ -1539,9 +1571,60 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     '402': { description: 'Sufficient judgment requires payment. No authoritative judgment receipt has been issued.', headers: { 'PAYMENT-REQUIRED': { required: true, schema: stringSchema() } }, content: { 'application/json': { schema: canonicalEnvelopeSchema } } },
     '400': errorResponse('invalid_payment_signature'), '409': errorResponse('idempotency_conflict'), '429': errorResponse('judgment_rate_limited'), '503': errorResponse('judgment_payment_unavailable')
   };
+  add('post', '/v1/decide', {
+    ...preSpendOperation, summary: 'Purchase a canonical economic assessment',
+    description: 'Shares the paid pre-spend Judge and payment journal, including idempotent settlement replay and free insufficient evidence. A judgment receipt records assessment only. This public facade accepts no caller-authored menus, policies, witnesses or capabilities. Execution authority is separately issued through the authenticated economic engine.',
+    responses: {
+      ...(preSpendOperation.responses as Record<string, unknown>),
+      '200': { description: 'Assessment with no execution capability.', content: { 'application/json': { schema: z.toJSONSchema(CanonicalJudgmentResponseSchema.extend({
+        data: z.record(z.string(), z.json()), execution_authorization: z.null(), execution_authorized: z.literal(false)
+      }), { target: 'draft-2020-12' }) } } }
+    }
+  });
+  add('get', '/v1/judgment-issuer/keys', {
+    tags: ['Pre-Spend Intelligence'], summary: 'Discover configured judgment issuer public keys',
+    description: 'Public Ed25519 registry, including retired keys and explicit revocation. Consumers must establish issuer/key trust independently. Private keys are never returned.',
+    responses: { '200': { description: 'Public issuer registry.', content: { 'application/json': { schema: z.toJSONSchema(z.object({ data: z.object({ issuer: z.string(), keys: z.array(JudgmentIssuerKeySchema) }) }), { target: 'draft-2020-12' }) } } }, '503': errorResponse('judgment_issuer_unavailable') }
+  });
+  add('get', '/v1/execution-authorization/keys', {
+    tags: ['Pre-Spend Intelligence'], summary: 'Discover public execution capability keys',
+    description: 'Available only when the economic engine is enabled. Keys belong to the separate infopunks.execution-authorization.v1 signature domain. Pin trust independently.',
+    responses: { '200': { description: 'Public capability signing registry.' }, '503': errorResponse('execution_authorization_issuer_unavailable') }
+  });
+  const engineWrites = [
+    ['decide', 'Assess a host-prepared bounded economic job', EconomicJobSchema],
+    ['recover-assessment', 'Recover canonical publication without another inference', z.object({ attempt_id: z.string() }).strict()],
+    ['execute', 'Consume a signed capability through the registered executor', z.object({ authorization: ExecutionAuthorizationSchema, operation: EconomicOperationSchema, delegate_id: z.string(), audience: z.string() }).strict()],
+    ['reconcile', 'Verify the original submitted economic action', z.object({ authorization_id: z.string() }).strict()],
+    ['revoke', 'Permanently revoke a capability or executor profile revision', z.object({ authorization_id: z.string().optional(), profile_id: z.string().optional(), reason: z.string() }).strict()],
+    ['trace-events', 'Record normalized host telemetry without changing reputation', z.object({ principal_id: z.string(), event: HarnessEventSchema }).strict()]
+  ] as const;
+  for (const [path, summary, schema] of engineWrites) add('post', '/internal/economic-engine/' + path, {
+    tags: ['Pre-Spend Intelligence'], summary, security: [{ bearerAuth: [] }],
+    description: 'Opt-in economic engine host endpoint. Requires ADMIN_TOKEN. Caller evidence never establishes authority; server observations and configured policies control the decision.',
+    requestBody: { required: true, content: { 'application/json': { schema: z.toJSONSchema(schema, { target: 'draft-2020-12' }) } } },
+    responses: { '200': { description: 'Persisted engine result.' }, '400': errorResponse('invalid_economic_engine_request'), '401': errorResponse('economic_engine_host_authentication_required'), '403': errorResponse('execution_capability_invalid'), '409': errorResponse('execution_pending_reconciliation'), '429': errorResponse('economic_engine_rate_limited'), '503': errorResponse('economic_engine_unavailable') }
+  });
+  add('get', '/v1/receipt-spine/judgment/{id}/verify', {
+    tags: ['Pre-Spend Intelligence'], summary: 'Verify issuer authentication and judgment ancestry',
+    description: 'Checks configured issuer trust, observation ancestry and assessment eligibility. A judgment receipt records assessment and never grants execution authority. Execution requires a separately signed infopunks.execution-authorization.v1 capability and the execution gate.',
+    parameters: [pathParam('id', 'Canonical judgment identifier.')],
+    responses: { '200': { description: 'Assessment verification status.', content: { 'application/json': { schema: z.toJSONSchema(z.object({ data: z.object({ judgment_id: z.string(), receipt_hash: z.string(), ancestry_valid: z.boolean(), issuer_signature_valid: z.boolean(), within_validity_window: z.boolean(), assessment_eligible: z.boolean(), execution_authorized: z.literal(false), authority_requires: z.literal('infopunks.execution-authorization.v1') }) }), { target: 'draft-2020-12' }) } } }, '404': errorResponse('canonical_receipt_not_found') }
+  });
+  add('get', '/v1/economics/revenue', { tags: ['Revenue'], summary: 'Read finalized settlement-backed revenue and recorded costs',
+    description: 'Contains verified judgment fees only; templates are excluded. Asset totals remain separate. Recorded costs may be incomplete; distributable surplus is null.',
+    responses: { '200': { description: 'Append-only revenue/cost ledger and integer asset totals.' }, '503': errorResponse('accounting_unavailable') } });
+  add('get', '/v1/attribution', { tags: ['Pre-Spend Intelligence'], summary: 'Reconstruct observation-to-evaluation attribution',
+    description: 'Verified receipt ancestry and policy-version outcome counts. Missing executions/evaluations are explicit. False-block rate is unmeasured; these aggregates do not establish causal drift.',
+    responses: { '200': { description: 'Reconstructable attribution report and content hash.' } } });
+  add('post', '/internal/economics/reconcile/{id}', { tags: ['Revenue'], summary: 'Recognize a finalized judgment payment once', parameters: [pathParam('id', 'Paid signed judgment identifier.')],
+    description: 'Admin bearer authentication required. Checks the payment journal, signed receipt, canonical token, merchant, payer, exact amount and RPC finalized block. Never sends a payment or retries settlement.',
+    responses: { '200': { description: 'Finalized revenue receipt or identical replay.' }, '401': errorResponse('unauthorized'), '409': errorResponse('settlement_pending_finality'), '503': errorResponse('revenue_reconciliation_unavailable') } });
+  add('post', '/internal/economics/costs', { tags: ['Revenue'], summary: 'Record an evidenced protocol cost', description: 'Admin bearer authentication required. Append-only integer atomic-unit costs with evidence references. These entries are operator attestations, not independently verified vendor invoices.',
+    responses: { '200': { description: 'Recorded cost or identical replay.' }, '400': errorResponse('invalid_accounting_cost'), '401': errorResponse('unauthorized') } });
   add('post', '/v1/execute-proof', {
     tags: ['Pre-Spend Intelligence'], summary: 'Submit external execution proof for a canonical judgment',
-    description: 'Free proof intake. Radar never purchases or calls Pay.sh here. Requires a scoped unexpired-at-execution judgment, a supported Base USDC profile, EIP-191 signer binding and finalized chain settlement. Hashes and execution status remain signed external claims. Same idempotency key and payload replay one append-only receipt; conflicts return 409. No score mutation. Solana and reference-only settlement profiles are unsupported.',
+    description: 'Free proof intake. Radar never purchases or calls Pay.sh here. Requires a scoped unexpired-at-execution judgment, a supported Base USDC or RH USDG profile, EIP-191 signer binding and finalized chain settlement. Hashes and execution status remain signed external claims. Same idempotency key and payload replay one append-only receipt; conflicts return 409. No score mutation. Solana and reference-only settlement profiles are unsupported. RH USDG uses eip155:4663, canonical USDG and finalized RPC transfer verification.',
     requestBody: { required: true, content: { 'application/json': { schema: z.toJSONSchema(ExecuteProofRequestSchema, { target: 'draft-2020-12' }) } } },
     responses: {
       '200': { description: 'Verified execution receipt, or identical replay.', content: { 'application/json': { schema: z.toJSONSchema(z.object({ data: ExecutionReceiptSchema }), { target: 'draft-2020-12' }) } } },
@@ -1549,6 +1632,23 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
       '403': errorResponse('judgment_blocks_execution'), '404': errorResponse('judgment_not_found'),
       '409': errorResponse('execution_idempotency_conflict'), '429': errorResponse('execution_proof_rate_limited'), '503': errorResponse('settlement_proof_verifier_unavailable')
     }
+  });
+  add('post', '/v1/evaluate', {
+    tags: ['Pre-Spend Intelligence'], summary: 'Evaluate a verified execution outcome',
+    description: 'Requires authenticated canonical admin provenance: evaluator type internal, id canonical-admin. External signatures are unsupported and fail closed. Score policy V1 computes confirmed +5, weakened -2, contradicted -15. Client deltas are rejected. One append-only evaluation per execution; identical idempotency retries replay, changed content returns 409.',
+    parameters: [{ name: 'Authorization', in: 'header', required: true, schema: stringSchema() }],
+    requestBody: { required: true, content: { 'application/json': { schema: z.toJSONSchema(EvaluateRequestSchema, { target: 'draft-2020-12' }) } } },
+    responses: {
+      '200': { description: 'Canonical evaluation or identical replay.', content: { 'application/json': { schema: z.toJSONSchema(z.object({ data: EvaluationReceiptSchema }), { target: 'draft-2020-12' }) } } },
+      '400': errorResponse('invalid_evaluation_request'), '401': errorResponse('evaluator_authentication_required'),
+      '403': errorResponse('evaluator_provenance_required'), '409': errorResponse('idempotency_conflict')
+    }
+  });
+  add('get', '/v1/score/{subject}', {
+    tags: ['Pre-Spend Intelligence'], summary: 'Read receipt-derived historical performance',
+    description: 'Free read; no wallet or x402 payment. Provider subject by default, optional subject_type selects another namespace. Zero baseline, unbounded sum of verified EvaluationReceipt contributions; derived-score.v1 identifies projection semantics. The projection hash commits to ordered evaluation IDs, receipt hashes, score policy versions and resulting projection. Reputation never bypasses required evidence.',
+    parameters: [pathParam('subject', 'Subject identifier.'), { name: 'subject_type', in: 'query', required: false, schema: { type: 'string', default: 'provider' } }],
+    responses: { '200': { description: 'Reconstructable projection.', content: { 'application/json': { schema: z.toJSONSchema(z.object({ data: ScoreProjectionSchema }), { target: 'draft-2020-12' }) } } }, '400': errorResponse('invalid_score_subject') }
   });
   add('get', '/v1/providers/{id}/history', {
     tags: ['Providers'],

@@ -826,7 +826,7 @@ export const RevenueReceiptSummarySchema = z.object({
   generated_at: z.string().datetime(),
   title: z.literal('Infopunks Revenue Receipts'),
   tagline: z.literal('No receipt, no trust.'),
-  subline: z.literal('Public ledger for paid evaluations, bounties, reports, listings, studio work, and API access.'),
+  subline: z.literal('Public receipts for permission, evidence, attribution, and continuous monitoring.'),
   trust_line: z.literal('Projects can buy evaluation, not conviction.'),
   warning_line: z.string(),
   use_of_funds_policy: z.array(RevenueReceiptUseOfFundsPolicySchema),
