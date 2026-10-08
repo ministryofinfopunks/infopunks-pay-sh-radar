@@ -24,7 +24,10 @@
     "simulate:ipx-pltr": "tsx scripts/run-ipx-pltr-preflight-scenarios.ts",
     "test:postgres-resilience": "vitest run tests/postgres-resilience.test.ts tests/postgres-resilience-failure-matrix.test.ts tests/health-readiness.test.ts",
     "typecheck": "tsc --noEmit",
-    "verify:production": "tsx scripts/verify-production.ts"
+    "verify:production": "tsx scripts/verify-production.ts",
+    "proof:phase5": "tsx scripts/run-phase5-closed-loop.ts",
+    "test:phase5": "vitest run tests/integration/phase5-closed-loop.test.ts tests/receipt-chain-inspector.test.ts tests/receipt-chain-inspector-page.test.tsx",
+    "validate:phase5": "tsx scripts/validate-phase5.ts"
   },
   "dependencies": {
     "@fastify/cors": "^11.2.0",
