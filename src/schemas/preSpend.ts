@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { JudgmentReceiptSchema } from './receipts';
-import { BaseExecutionProfileSchema } from './executeProof';
+import { EvmExecutionProfileSchema } from './executeProof';
 export const CanonicalDecisionSchema = z.enum(['proceed', 'test_spend_first', 'do_not_spend', 'insufficient_evidence']);
 export type CanonicalDecision = z.infer<typeof CanonicalDecisionSchema>;
 /** Reviewed materialized policy facts, never accepted from a public check request. */
@@ -9,10 +9,10 @@ export const JudgmentFactsSchema = z.object({
   required_proof_complete: z.literal(true), intent_satisfied: z.literal(true),
   constraints_satisfied: z.literal(true), confidence: z.number().min(0).max(100),
   route_id: z.string().min(1),
-  execution: BaseExecutionProfileSchema.optional(),
+  execution: EvmExecutionProfileSchema.optional(),
   decision_state: z.enum(['approved', 'approved_with_warning', 'use_with_caution', 'requires_human_approval', 'do_not_use']),
   deterministic_veto: z.boolean(), bounded_test_allowed: z.boolean(),
-  max_cost: z.number().finite().nonnegative(), asset: z.literal('USDC'),
+  max_cost: z.number().finite().nonnegative(), asset: z.enum(['USDC', 'USDG']),
   settlement: z.string().min(1), reasons: z.array(z.string().min(1).max(256)).min(1).max(20)
 }).strict();
 export const CanonicalJudgmentResponseSchema = z.object({

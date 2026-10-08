@@ -7,10 +7,11 @@ export const ExecutionReceiptSchema = z.object({
   payload_signature: z.string().min(1).nullable(), latency_ms: z.number().finite().nonnegative(),
   status: id, cost_amount: ReceiptMoneySchema, cost_asset: id,
   artifact_refs: z.array(id), parent_hash: hash, receipt_hash: hash,
+  execution_authorization: z.object({ version: z.literal('infopunks.execution-authorization.v1'), authorization_id: id, payload_hash: hash }).strict().optional(),
   verification: z.object({
-    profile: z.literal('base_usdc_external.v1'), submission_hash: hash,
-    settlement: z.object({ verified: z.literal(true), provenance: z.literal('base_rpc_finalized_usdc_transfer'),
-      network: z.literal('eip155:8453'), transaction_hash: z.string().regex(/^0x[a-f0-9]{64}$/),
+    profile: z.enum(['base_usdc_external.v1', 'rh_usdg_external.v1']), submission_hash: hash,
+    settlement: z.object({ verified: z.literal(true), provenance: z.enum(['base_rpc_finalized_usdc_transfer', 'rh_rpc_finalized_usdg_transfer']),
+      network: z.enum(['eip155:8453', 'eip155:4663']), transaction_hash: z.string().regex(/^0x[a-f0-9]{64}$/),
       block_hash: z.string().regex(/^0x[a-fA-F0-9]{64}$/), block_number: z.string().regex(/^[0-9]+$/),
       signer: z.string().regex(/^0x[a-fA-F0-9]{40}$/)
     }).strict(),

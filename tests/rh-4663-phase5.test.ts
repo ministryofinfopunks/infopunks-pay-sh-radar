@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { createApp } from '../src/api/app';
 import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
 import { MemoryRepository } from '../src/persistence/repository';
@@ -30,14 +30,19 @@ describe('4663 Phase 5 return primitives', () => {
   });
 
   it('links meaningful changes to one monotonic version and ignores generated-at-only changes', async () => {
-    let verified = 2; const events = new InMemoryFrontdoorChangeEventStore();
-    const service = new Rh4663FrontdoorService(deps({ census: async () => ({ ...(await deps().census()), verified_pair_count: verified }) as any, change_event_store: events }));
-    const first = await service.read(); const unchanged = await service.read();
-    expect(unchanged.frontdoor_version.version).toBe(first.frontdoor_version.version);
-    verified = 3; const changed = await service.read();
-    expect(changed.frontdoor_version.version).toBe(first.frontdoor_version.version + 1);
-    expect(changed.change_events.some((event) => event.frontdoor_version === changed.frontdoor_version.version && event.source_type === 'RMM_CATEGORY_CENSUS')).toBe(true);
-    expect(changed.change_events.every((event) => event.frontdoor_version >= 1)).toBe(true);
+    // This semantic-content assertion needs a stable diagnostic clock as well as deps.now.
+    // Measured source latency is included in SYSTEM fingerprints.
+    const clock = vi.spyOn(performance, 'now').mockReturnValue(0);
+    try {
+      let verified = 2; const events = new InMemoryFrontdoorChangeEventStore();
+      const service = new Rh4663FrontdoorService(deps({ census: async () => ({ ...(await deps().census()), verified_pair_count: verified }) as any, change_event_store: events }));
+      const first = await service.read(); const unchanged = await service.read();
+      expect(unchanged.frontdoor_version.version).toBe(first.frontdoor_version.version);
+      verified = 3; const changed = await service.read();
+      expect(changed.frontdoor_version.version).toBe(first.frontdoor_version.version + 1);
+      expect(changed.change_events.some((event) => event.frontdoor_version === changed.frontdoor_version.version && event.source_type === 'RMM_CATEGORY_CENSUS')).toBe(true);
+      expect(changed.change_events.every((event) => event.frontdoor_version >= 1)).toBe(true);
+    } finally { clock.mockRestore(); }
   });
 
   it('keeps personal return changes private and separate from the public version', async () => {

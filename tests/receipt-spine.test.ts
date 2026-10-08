@@ -1,7 +1,7 @@
-import { randomUUID } from 'node:crypto';
+import { createCanonicalTestDatabase } from './helpers/canonicalPostgres';
 import { readFileSync } from 'node:fs';
 import pg from 'pg';
-import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../src/api/app';
 import { emptyIntelligenceStore } from '../src/services/intelligenceStore';
 import { PostgresCanonicalReceiptStore } from '../src/persistence/canonicalReceiptStore';
@@ -9,13 +9,13 @@ import { createReceiptAuthorityService } from '../src/services/receiptAuthorityS
 import { createEvaluationService } from '../src/services/evaluationService';
 import { inspectRhChainMigrationLedger } from '../src/services/rhChainProductionReadiness';
 import { sealReceipt } from '../src/services/receiptIntegrityService';
-import { observationInput, judgmentInput, executionInput, evaluationInput } from './helpers/canonicalReceipts';
+import { appendChain, observationInput, judgmentInput, executionInput, evaluationInput } from './helpers/canonicalReceipts';
 
 afterEach(() => vi.unstubAllEnvs());
 describe('receipt spine API integration', () => {
   it('binds internal evaluation writes to EvaluationService, not ReceiptAuthorityService', () => {
     const source = readFileSync('src/api/app.ts', 'utf8');
-    expect(source).toContain("['evaluation', z.object(EvaluationReceiptSchema.shape).strict().omit({ schema_version: true, policy_version: true, score_delta: true, parent_hash: true, receipt_hash: true }), evaluationService.createEvaluation]");
+    expect(source).toContain("['evaluation', z.object(EvaluationReceiptSchema.shape).strict().omit({ schema_version: true, policy_version: true, score_delta: true, parent_hash: true, receipt_hash: true, evaluator: true, request_hash: true }), evaluationService.createEvaluation]");
     expect(source).not.toContain('receiptAuthority.appendEvaluation');
   });
   it('authenticates canonical authority, appends the four levels, and retains legacy read APIs', async () => {
@@ -68,16 +68,13 @@ describe('receipt spine API integration', () => {
 // Dedicated disposable PostgreSQL only. Each run creates its own schema; no shared data is removed.
 const testUrl = process.env.CANONICAL_RECEIPT_TEST_URL;
 describe.skipIf(!testUrl)('receipt spine PostgreSQL durability', () => {
+  let database: Awaited<ReturnType<typeof createCanonicalTestDatabase>>;
   let pool: pg.Pool; let store: PostgresCanonicalReceiptStore;
-  beforeAll(async () => {
-    const schema = 'receipt_test_' + randomUUID().replaceAll('-', '');
-    const bootstrap = new pg.Pool({ connectionString: testUrl });
-    try { await bootstrap.query(`create schema ${schema}`); } finally { await bootstrap.end(); }
-    pool = new pg.Pool({ connectionString: testUrl, options: `-c search_path=${schema}` });
-    await pool.query(readFileSync('migrations/20261007_011_canonical_receipt_spine.up.sql', 'utf8'));
-    store = new PostgresCanonicalReceiptStore(pool);
+  beforeEach(async () => {
+    database = await createCanonicalTestDatabase(testUrl!, 'receipt_test', ['20261007_011_canonical_receipt_spine', '20261007_014_derived_score_projection']);
+    pool = database.pool; store = new PostgresCanonicalReceiptStore(pool);
   });
-  afterAll(async () => { await pool?.end(); });
+  afterEach(async () => { await database?.close(); });
   it('persists multiple observation parents and replays after repository reconstruction', async () => {
     const service = createReceiptAuthorityService(store);
     const evaluations = createEvaluationService(store);
@@ -94,6 +91,7 @@ describe.skipIf(!testUrl)('receipt spine PostgreSQL durability', () => {
     expect(ledger.migrations.find((migration) => migration.id === '20261007_011')).toMatchObject({ state: 'applied', missing_tables: [], missing_indexes: [], missing_checks: [] });
   });
   it('rejects duplicate evaluation authority and mismatched parent hashes', async () => {
+    await appendChain(store);
     const service = createReceiptAuthorityService(store);
     const evaluations = createEvaluationService(store);
     await expect(evaluations.createEvaluation({ ...evaluationInput(), evaluation_id: 'e2' })).rejects.toThrow('execution_already_evaluated');
@@ -104,6 +102,7 @@ describe.skipIf(!testUrl)('receipt spine PostgreSQL durability', () => {
     }
   });
   it('blocks UPDATE, DELETE, and TRUNCATE at database level for all five tables', async () => {
+    await appendChain(store);
     for (const table of ['observation_receipts', 'judgment_receipts', 'execution_receipts', 'evaluation_receipts', 'judgment_observations']) {
       const column = table === 'judgment_observations' ? 'judgment_id' : 'receipt_hash';
       for (const sql of [`update ${table} set ${column}=${column}`, `delete from ${table}`, `truncate ${table} cascade`]) {
@@ -123,6 +122,7 @@ describe.skipIf(!testUrl)('receipt spine PostgreSQL durability', () => {
     }
   });
   it('rejects a judgment with nonexistent observation membership on transaction commit', async () => {
+    await appendChain(store);
     const original = await store.get('judgment', 'j1');
     const body = { ...original, judgment_id: 'missing_observation', cited_observation_ids: ['missing'], parent_hashes: ['sha256:' + '0'.repeat(64)] };
     const client = await pool.connect();

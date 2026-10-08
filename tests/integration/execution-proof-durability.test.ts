@@ -1,6 +1,4 @@
-import { readFileSync } from 'node:fs';
-import { randomUUID } from 'node:crypto';
-import pg from 'pg';
+import { createCanonicalTestDatabase, expectRollbackMigrationFailure } from '../helpers/canonicalPostgres';
 import { describe, expect, it } from 'vitest';
 import { setupExecution } from '../helpers/executions';
 import { PostgresCanonicalReceiptStore } from '../../src/persistence/canonicalReceiptStore';
@@ -9,11 +7,9 @@ import { createReceiptAuthorityService } from '../../src/services/receiptAuthori
 
 describe.skipIf(!process.env.CANONICAL_RECEIPT_TEST_URL)('durable execution proof authority', () => {
   it('replays after restart and blocks duplicate authorization/settlement at the database', async () => {
-    const schema = 'execution_test_' + randomUUID().replaceAll('-', '');
-    const pool = new pg.Pool({ connectionString: process.env.CANONICAL_RECEIPT_TEST_URL, options: `-c search_path=${schema}` });
+    const database = await createCanonicalTestDatabase(process.env.CANONICAL_RECEIPT_TEST_URL!, 'execution_proof', ['20261007_011_canonical_receipt_spine', '20261007_012_judgment_requests', '20261007_013_execution_proof_uniqueness']);
+    const pool = database.pool;
     try {
-      await pool.query(`create schema ${schema}`);
-      for (const name of ['011_canonical_receipt_spine', '012_judgment_requests', '013_execution_proof_uniqueness']) await pool.query(readFileSync('migrations/20261007_' + name + '.up.sql', 'utf8'));
       const f = await setupExecution(); const store = new PostgresCanonicalReceiptStore(pool);
       await store.append('observation', f.observation); await store.append('judgment', f.parent);
       const service = () => createExecutionProofService({ store: new PostgresCanonicalReceiptStore(pool), threshold: 80, verifier: f.verifier });
@@ -25,7 +21,7 @@ describe.skipIf(!process.env.CANONICAL_RECEIPT_TEST_URL)('durable execution proo
       await expect(pool.query("update execution_receipts set receipt_hash=receipt_hash")).rejects.toMatchObject({ code: '55000' });
       await expect(pool.query('delete from execution_receipts')).rejects.toMatchObject({ code: '55000' });
       await expect(pool.query('truncate execution_receipts cascade')).rejects.toMatchObject({ code: '55000' });
-      await expect(pool.query(readFileSync('migrations/20261007_013_execution_proof_uniqueness.down.sql', 'utf8'))).rejects.toThrow('refusing to remove execution authority protections');
-    } finally { await pool.end(); }
+      await expectRollbackMigrationFailure(pool, '20261007_013_execution_proof_uniqueness', 'refusing to remove execution authority protections');
+    } finally { await database.close(); }
   });
 });

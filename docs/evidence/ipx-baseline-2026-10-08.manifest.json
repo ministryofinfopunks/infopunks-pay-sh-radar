@@ -1,0 +1,541 @@
+{
+  "base_head": "55f05d6f6ac46603072662c91cb02d09ba879870",
+  "working_tree_files": [
+    {
+      "path": ".env.example",
+      "sha256": "0240e8d2a31c1f52cc5fd2c560051d404c33cd7c15a6d7ea761c7be8cfa05fe7"
+    },
+    {
+      "path": "contracts/.gitignore",
+      "sha256": "afa66272cea2a39decce405da224c241d32e91855c6b1802d915e2972131ddf4"
+    },
+    {
+      "path": "contracts/README.md",
+      "sha256": "2384d793da68d50015cb3382235c7c824853b78aac22dca2e7554d5e12e0003f"
+    },
+    {
+      "path": "contracts/foundry.toml",
+      "sha256": "2b21ea952c46166606ef0c6ed27a02ca40a3086632194bd04a94371cdb4a6808"
+    },
+    {
+      "path": "contracts/src/IPX.sol",
+      "sha256": "4775469d62060924fc267c5336ae541062a9a418a6f0ca3fade46e0d5140ffb3"
+    },
+    {
+      "path": "contracts/src/IPXContributionVault.sol",
+      "sha256": "5128c5bf452f1a58b3bdbb85266ebf736aef490ce2ef14f1d72306db3fa865f8"
+    },
+    {
+      "path": "contracts/src/IPXGenesisCalls.sol",
+      "sha256": "6aa48a21828d329a749df2268056874b885ffde412c1f232d1d74494cfbaff1b"
+    },
+    {
+      "path": "contracts/src/IPXGenesisCertificate.sol",
+      "sha256": "3c7f818e1f31678ea863ed9afc2b19369c201ef1de74534caa5328a5e5b31549"
+    },
+    {
+      "path": "contracts/src/PulseCommitment.sol",
+      "sha256": "7d2c3e90210b23b56d951834b7ce84b0ca14486bc98db8b17308707a690bd004"
+    },
+    {
+      "path": "contracts/test/IPX.t.sol",
+      "sha256": "a35c355dd9093a2874372f884304a57bfa8371fc896d51e22aae1513d2eeaacd"
+    },
+    {
+      "path": "docs/autonomous-economic-judgment-spec.md",
+      "sha256": "87254a3e557d5a74d98c6a3beaaa2ff8728a1818fbdf785300ef30c1e4f4ca3f"
+    },
+    {
+      "path": "docs/economic-engine-implementation.md",
+      "sha256": "788b9408be4f3884379a347a186db45e703b8ee73a6f4cdc945f8410ddcd8179"
+    },
+    {
+      "path": "docs/evidence/ipx-production-read-2026-10-08.json",
+      "sha256": "468d27554e73151bd8108f62dbc8beb1f3c9504fd4f00b340f1deb35be27a001"
+    },
+    {
+      "path": "docs/ipx-causal-loop-audit-2026-10-08.md",
+      "sha256": "f872434e65458738266086ab2cea5a1ce714adc07bdd9322acf8ad8fdcff2889"
+    },
+    {
+      "path": "docs/ipx-launch-implementation-2026-10-08.md",
+      "sha256": "621b12753afca5aa5f99ee7dcf70f385a5c1356d1c9ccc42c687acddc9bfbffa"
+    },
+    {
+      "path": "docs/ipx-launch-protocol-v2.md",
+      "sha256": "32cb3213f0c6044d3ac971d15af88c644593137cccf0d46350130421880630f2"
+    },
+    {
+      "path": "docs/ipx-launch-repo-audit-2026-10-07.md",
+      "sha256": "fa4e3e34b512fa2d1cc7f69b68eb3de62390ce6ab0783febd8f28c3e48a91fcc"
+    },
+    {
+      "path": "docs/ipx-pltr-economic-mechanism-v1.md",
+      "sha256": "afa41650850a49aa2330fd617711517610fce52a4031326a39f0faf2aec37526"
+    },
+    {
+      "path": "docs/phase2-canonical-judgments.md",
+      "sha256": "f4f9a74a47f05ba2ede304bb5a52c29742631ae5656804a3c0f544c6b28c9173"
+    },
+    {
+      "path": "docs/phase4-evaluation-projections.md",
+      "sha256": "8d512ab43887eb6b7dfa70e437e49b7053031e65697f31de14cdeddf1e2b159b"
+    },
+    {
+      "path": "docs/phase4.1-stabilization.md",
+      "sha256": "618e8fe7290f5dfbf30ef8ee1333a33b409238b3546ce24783ba7af56c36af3e"
+    },
+    {
+      "path": "docs/receipt-tape-v1.md",
+      "sha256": "79b11b936c5c6041967e8b874d887cba096b6b8bd6377418e8365dd850f7cf44"
+    },
+    {
+      "path": "docs/rh-usdg-settlement-accounting.md",
+      "sha256": "352800dce2c0be281f0e80434511e85ed3c782c4a2e2bcd991b34103d59e6ff9"
+    },
+    {
+      "path": "docs/signed-judgment-permission.md",
+      "sha256": "30f0727ef719c8ea8820121d0133988082c4df734dae789f29cf2f0d7059644e"
+    },
+    {
+      "path": "migrations/20261007_014_derived_score_projection.down.sql",
+      "sha256": "ab00486d1172bc1dc0c6f960a3650155b07204c7eacf7a7e1db79dc404022c48"
+    },
+    {
+      "path": "migrations/20261007_014_derived_score_projection.up.sql",
+      "sha256": "d6f033ee13d73b36477c080d3b38cc6c343cf5bf8f5c64a00373ee2573afbec3"
+    },
+    {
+      "path": "migrations/20261007_015_economic_judgment_engine.down.sql",
+      "sha256": "de0fc6838c753e588d6386a4414f49c1edf4e8a5722d228996a8574222bb8e0a"
+    },
+    {
+      "path": "migrations/20261007_015_economic_judgment_engine.up.sql",
+      "sha256": "0c0a61601c59bcb746e9179ae8695f50f25184b128c0121fd150aa0c6ee0efae"
+    },
+    {
+      "path": "migrations/20261008_016_rh_usdg_accounting.down.sql",
+      "sha256": "577367dd0552a704cae09e7c9503e9701df88fc92cf8711a7eafc1e7c1e30a7f"
+    },
+    {
+      "path": "migrations/20261008_016_rh_usdg_accounting.up.sql",
+      "sha256": "a7db94157975c95b2085ed67a038b0d750b4e37c0d13e54327fe17b4b3c334e9"
+    },
+    {
+      "path": "migrations/20261008_017_ipx_launch.down.sql",
+      "sha256": "c1a0a27871c0f039db463b1915548b483861841d35a21b65830a75357774faf9"
+    },
+    {
+      "path": "migrations/20261008_017_ipx_launch.up.sql",
+      "sha256": "77583eea4504ce611737f8f73f94172309229378bceefb21068752ee07e6f364"
+    },
+    {
+      "path": "package.json",
+      "sha256": "ba03df79886602c1d01fa3fbd3745e8b94f50372caa6f6b2aec3ef3d6f6a7024"
+    },
+    {
+      "path": "scripts/audit-ipx-causal-loop.ts",
+      "sha256": "3cd98d0062911859aab56079989b7f49a5eb9a6843c57bef24086258e9ae2cd8"
+    },
+    {
+      "path": "scripts/audit-ipx-production.ts",
+      "sha256": "0e3d13e40447473b5686cc763f4fa6cde4d3ebae304212635af6421af3ff2f52"
+    },
+    {
+      "path": "scripts/audit-phase4-score-authority.mjs",
+      "sha256": "d67bd57aefab06267ecf7e3e523bcc49448e05958268073f83f9bb50997cc212"
+    },
+    {
+      "path": "scripts/benchmark-derived-score.ts",
+      "sha256": "c45998364e4d3fe44c2591d68ed9c40cd4667d85c8466647d84f1865599ce33b"
+    },
+    {
+      "path": "scripts/setup-ipx-contracts.py",
+      "sha256": "5539a26326eb5de367af1f6d58f30ea99a6248b9396341c05668f32e8f3b1d87"
+    },
+    {
+      "path": "src/api/app.ts",
+      "sha256": "977a24dc16b315cae7917cbde018a828657588648141d555de018fb130bfeec6"
+    },
+    {
+      "path": "src/api/economicEngineRoutes.ts",
+      "sha256": "941c813004c991d2e3932dd0ff3fd2292a425fd8e1756d52584a7fc83d087600"
+    },
+    {
+      "path": "src/api/ipxLaunchRoutes.ts",
+      "sha256": "1e161165e23736f8a375b7fe6438df66b4a70b917246a37a3ddd1211ce51519c"
+    },
+    {
+      "path": "src/api/openapi.ts",
+      "sha256": "294d031a996243a610b23afe10d8aa5e1b021c5512c7e6a4512f4e335654b7a6"
+    },
+    {
+      "path": "src/config/env.ts",
+      "sha256": "33b49901b564c402a98f39770cb44f895144511a7b44583f39e61295ba5d68a3"
+    },
+    {
+      "path": "src/economicEngine.ts",
+      "sha256": "51750f1588b447e0b0fce7d0dc3924a77342277b56b496784b67a0b0a6f60bcb"
+    },
+    {
+      "path": "src/ingestion/economicEvidenceAdapters.ts",
+      "sha256": "4ef60a8a8e5e04d579b56d25c3c756d7f4dfc4c17bc48ebe35bfdfcf41f2ac76"
+    },
+    {
+      "path": "src/middleware/x402JudgmentMiddleware.ts",
+      "sha256": "d070a0b46a955ca94aa0d5ac6248e1e5c048284f08be78ec1e3ea34a48d827cb"
+    },
+    {
+      "path": "src/persistence/canonicalReceiptStore.ts",
+      "sha256": "e5537cb63e868f993c0f864a59c2f25a3c5ee7e1f9570f769e639b201fbdb167"
+    },
+    {
+      "path": "src/persistence/economicAccountingStore.ts",
+      "sha256": "0b7c189758625509cb65f7aede41bbae269d26019dbeda0fe603a8a024946d50"
+    },
+    {
+      "path": "src/persistence/economicEngineStore.ts",
+      "sha256": "8b563b92f9c108dc2c896d3335756b7833d8f0f8098af27032d6caafd807e6dc"
+    },
+    {
+      "path": "src/schemas/economicAccounting.ts",
+      "sha256": "77966921912f0b6773e15b93c2e77539b4c3899e4d33289f4963f1a8cdff55c7"
+    },
+    {
+      "path": "src/schemas/economicEngine.ts",
+      "sha256": "9149a89ab4a9eec27578c5092c39b675a349c71cc902432d062d620bd3aa5f90"
+    },
+    {
+      "path": "src/schemas/entities.ts",
+      "sha256": "6e89347562b3e8892240edb804c5d1253538db914442f4f82b86a63ba6c3b983"
+    },
+    {
+      "path": "src/schemas/evaluate.ts",
+      "sha256": "1d857f71ba0e5a60613699017a48be9d576cd293d81beda4ab0bfd5ae5692fdb"
+    },
+    {
+      "path": "src/schemas/executeProof.ts",
+      "sha256": "f3c0029f204cff474bc07d58e2c0a941b5ff9555c49423e817f3757582e6ece1"
+    },
+    {
+      "path": "src/schemas/ipxLaunch.ts",
+      "sha256": "013b6445505428415c5f1049949e9cdd221a5d8be30bb7a5d7ae0c191c8d91b2"
+    },
+    {
+      "path": "src/schemas/preSpend.ts",
+      "sha256": "04cb4913d85c07f8747ebdbe785e25982ac4c3f618b3fbbf73e8478cbc80b6b9"
+    },
+    {
+      "path": "src/schemas/receipts/evaluationReceipt.ts",
+      "sha256": "03fa00e773ae3ce91769fde7428bf2d83f6b46e93f896636fabc233a0c429dec"
+    },
+    {
+      "path": "src/schemas/receipts/executionReceipt.ts",
+      "sha256": "b1c42612f2be83e00f275cd2af118e6a47998d484dd8e06ad8587048ce2841cf"
+    },
+    {
+      "path": "src/schemas/receipts/judgmentReceipt.ts",
+      "sha256": "156f558e965f4430eb8da100364ac075a0e7c5cf171ede2628eaf45e68834780"
+    },
+    {
+      "path": "src/schemas/scoreProjection.ts",
+      "sha256": "987778fd12cf3911e589f0baf6cf1665990e067511f1eeea5156d61429b688a3"
+    },
+    {
+      "path": "src/security/economicRails.ts",
+      "sha256": "867a2d029ba3c990599b5c915881d8f7570d844eb13345c67ea32a2ded88bd46"
+    },
+    {
+      "path": "src/security/executionAuthorization.ts",
+      "sha256": "2b0385b9d218b7aa0a802ad3c33d25c9e1a453774ccadbd7e9da74743ee52f74"
+    },
+    {
+      "path": "src/security/finalizedTokenTransfer.ts",
+      "sha256": "31989f0b77eb3fa8a7b4625fc13dc643a82c789d34157ba58d8b23709559d1a4"
+    },
+    {
+      "path": "src/security/judgmentIssuer.ts",
+      "sha256": "3bc0b51f177535ff16b54ae2194c271ab321636b6b34167b83af4cdf0b61b243"
+    },
+    {
+      "path": "src/security/settlementProofVerifier.ts",
+      "sha256": "f47bb9c494e2d06ec46069ee13bf834ff974649f8a33f33a904a967f57dc2cd4"
+    },
+    {
+      "path": "src/services/derivedScoreService.ts",
+      "sha256": "bdc473f8f65c6269aa013db26536ed2055af3142ce63be3288a4a00e2463b425"
+    },
+    {
+      "path": "src/services/economicAccountingService.ts",
+      "sha256": "5ef6fe0817706ad0f0e9dda9c7c34bc33dd19f11123ca1912e10693a76158000"
+    },
+    {
+      "path": "src/services/economicExecutionGate.ts",
+      "sha256": "20e5799a3115b1323f155b7284ca3ac126e9bd55377f95f4517e675450f3f659"
+    },
+    {
+      "path": "src/services/economicJudgmentEngine.ts",
+      "sha256": "8c62ea538747fd425f7783e72c521c3c7b0ccfc147c169091bd64e390469fc20"
+    },
+    {
+      "path": "src/services/economicPrecedentService.ts",
+      "sha256": "3164a71be9c2d7602836db926356781e555e874117d5ba53a81f6a647a339bbc"
+    },
+    {
+      "path": "src/services/evaluationScorePolicy.ts",
+      "sha256": "a6c4d9799e4d55f942e46a0eaeb9b3271894aaa34099574432c7846082b31cf9"
+    },
+    {
+      "path": "src/services/evaluationService.ts",
+      "sha256": "3a9e31c1846c9d392910614f1ae44bdff54fa116688169a51c558829a40ef2ac"
+    },
+    {
+      "path": "src/services/executionProofService.ts",
+      "sha256": "15b99536af9f86ee8f7ffdb18a93202752b6ccec31d3e42a5f3a3c53e88818de"
+    },
+    {
+      "path": "src/services/ipxGenesisService.ts",
+      "sha256": "24e8cfd572903b8c3acd9a167d38a609e37554bc3a3a38355da457999bf9bdbc"
+    },
+    {
+      "path": "src/services/ipxIdentityMapping.ts",
+      "sha256": "e76e164592a4cfef26571ba037cfd569e2e97730da12f47cd8ad99161d7c2dba"
+    },
+    {
+      "path": "src/services/ipxJcs.ts",
+      "sha256": "b6b3fc707bd9c92079db69dc68ab43deb4001f2a9b094e16fab95f5271d948ab"
+    },
+    {
+      "path": "src/services/ipxMarketHours.ts",
+      "sha256": "ca1a7e670d023aa15b9863830850708cf3f2b309edc0dd45ef49a11d55ddcb5f"
+    },
+    {
+      "path": "src/services/ipxRevenueLedger.ts",
+      "sha256": "78261dfa0ac8b8bc85aeba9e8507d4ae2bfba639742b2657d0f57fc62a4f8ba1"
+    },
+    {
+      "path": "src/services/ipxSolanaIndexer.ts",
+      "sha256": "0606c2f41b429f17fb5a9512b4669ebd7a1f14fd935105520bc821c5022dd243"
+    },
+    {
+      "path": "src/services/jevWitness.ts",
+      "sha256": "ad26d56e508bed68dba54f6516c850328d45e199bc27ed266ac7035a14c8eaba"
+    },
+    {
+      "path": "src/services/judge.ts",
+      "sha256": "64b112cf39a99f12f997923e79cf48c2d373228acaf67804b9c1acf661113a39"
+    },
+    {
+      "path": "src/services/judgmentService.ts",
+      "sha256": "5a49c3977e2e1ea05842f475adef6b6816739dba391a1f6a3a65d6608e5e0ce5"
+    },
+    {
+      "path": "src/services/pltrExchangeCalendar.ts",
+      "sha256": "3b813478d7a7b3bb08ddc484382c53a54a2f3a1860831fde04111a5b808a7211"
+    },
+    {
+      "path": "src/services/receiptAttributionService.ts",
+      "sha256": "959772ba2f490b8761e6c2bf605b77a0f8caa2f136193732c1919326f7b70bfe"
+    },
+    {
+      "path": "src/services/receiptAuthorityService.ts",
+      "sha256": "33d83b8bf91f268c2beeaa54bf7a2309862171b938e72ebd4f45349ef34be33e"
+    },
+    {
+      "path": "src/services/receiptIntegrityService.ts",
+      "sha256": "14a3d4f0adb639824ee520da040907d6f4148fd0aad79198788cf4d35cc9c4ae"
+    },
+    {
+      "path": "src/services/revenueReceiptService.ts",
+      "sha256": "af77ee294add9c0ab9709eb3f42e64d5a3cc44924cd8b9f7c1155a8f19bcec92"
+    },
+    {
+      "path": "src/services/rh4663AnchorIntegrity.ts",
+      "sha256": "6c85d12941274f7273ca803b2661aaa7605209d47b356661364c963ffc99b165"
+    },
+    {
+      "path": "src/services/rh4663ResolutionService.ts",
+      "sha256": "60b12f2b9b6e750c8f49c8928cc98816fc6138867f02de736b56e4c1eff47eeb"
+    },
+    {
+      "path": "src/services/rhChainPltrPreflightService.ts",
+      "sha256": "4675fbc7dabe9d0cb240b396e8ccc3406f9be99f0c67aeb26ba7cebff913bd8e"
+    },
+    {
+      "path": "src/services/rhChainProductionReadiness.ts",
+      "sha256": "fe5a3e25e2858f99409a07ab1dae764bfc8483edd217ac616c634117966641f1"
+    },
+    {
+      "path": "src/web/ipxEconomyDocument.ts",
+      "sha256": "aea76a529852d0dd418f303c62f6ef1ee85130405a05a97e0533a2ad1d8c7916"
+    },
+    {
+      "path": "src/web/revenueReceiptPages.tsx",
+      "sha256": "9cd1eb2c7e9cee85cea593b1ead535c3c2cf9561e9055bf04e2f04782aa94f6b"
+    },
+    {
+      "path": "tests/economic-accounting-api.test.ts",
+      "sha256": "f6d95fad3ed85ac721cd238eb4b68d8b39216680219f45348d8d779e0393ae09"
+    },
+    {
+      "path": "tests/economic-engine-api.test.ts",
+      "sha256": "9660c220707f55f7d22647d18548d292d00640531c719e3f19048043dc4d8733"
+    },
+    {
+      "path": "tests/economic-evidence-adapters.test.ts",
+      "sha256": "183cd338d6e612ed06a1587bfd7090b0af09d01c48ebf6ea207ccef46958d4d4"
+    },
+    {
+      "path": "tests/economic-judgment-engine.test.ts",
+      "sha256": "72ecbd6476feed366c63e52d228cba6638e0504b1ba695e7cf5de2dea7de7d6e"
+    },
+    {
+      "path": "tests/helpers/canonicalPostgres.ts",
+      "sha256": "f08d78f04bdcf3ba39c1809c50ebb88c6f9fd44db669ef8b8201077e66b65f47"
+    },
+    {
+      "path": "tests/helpers/economicEngine.ts",
+      "sha256": "ae9a0b74a0278763d4ae88ba954eea1604590c7bda8540084d7bd5041aca95c9"
+    },
+    {
+      "path": "tests/helpers/evaluations.ts",
+      "sha256": "2f078e691a4b63e28a9e19eea2532da076cfe3d52937703bff61cbf3c254ceba"
+    },
+    {
+      "path": "tests/helpers/judgmentFixtures.ts",
+      "sha256": "1960e71cff8ec16be360dc7cec9d3f05afd540da536341d3d520eb89186029ea"
+    },
+    {
+      "path": "tests/helpers/judgmentIssuer.ts",
+      "sha256": "8c43671d5e1286810c52ee0a7d7c143204b9775255906e1c403901dafd100578"
+    },
+    {
+      "path": "tests/helpers/judgments.ts",
+      "sha256": "ab37bde51109bf8c7e25ec7f741ae3fc7771a559d3a66ef629ff4f9a3398cd32"
+    },
+    {
+      "path": "tests/helpers/rhUsdG.ts",
+      "sha256": "3134c0138e4ae0240a7c595d5a291342b6671f33139c095e2f01c39ba5e43a76"
+    },
+    {
+      "path": "tests/integration/derived-score-projection.test.ts",
+      "sha256": "9c754a40183555c80cb0068fb6d75e70e1cd741cc607bb7b06e0c0fd5a2d8c3f"
+    },
+    {
+      "path": "tests/integration/economic-engine-durability.test.ts",
+      "sha256": "a0f2647dead40e4887f5b0dc82b946e30c15115ff8e46dd8ec77ce454255e5d3"
+    },
+    {
+      "path": "tests/integration/evaluate.test.ts",
+      "sha256": "6be4947c2a3f68ffb8f5f8751b4f1082defe7446fb6c69de3a03a0a18acf70a2"
+    },
+    {
+      "path": "tests/integration/evaluation-judgment-feedback.test.ts",
+      "sha256": "11584336bf3d88647883e466a055b6b76211c673b83200e0a5a693bc88c17e8f"
+    },
+    {
+      "path": "tests/integration/execute-proof.test.ts",
+      "sha256": "d6f3c378b14766a1e5924ff46d28c45b7347cd3be7464e0647d32b836907ad8c"
+    },
+    {
+      "path": "tests/integration/execution-proof-durability.test.ts",
+      "sha256": "4953e78edf8b1b2a9f846f6db6a51efb5a65ea0ae76acd9d5c606eddf6819060"
+    },
+    {
+      "path": "tests/integration/judgment-issuer-durability.test.ts",
+      "sha256": "da72e0fc4723ca805d417f23268a91b3e3c9105ead4d822db34ad0bf9dc9c082"
+    },
+    {
+      "path": "tests/integration/judgment-payment-durability.test.ts",
+      "sha256": "1f0c624790016d4ad19f366ea393e5a0e3d04d3472487a28f5aa2cb0b4500ce3"
+    },
+    {
+      "path": "tests/integration/migration-014.test.ts",
+      "sha256": "3c7d28f06cbc784581e1234ec9cc1f9736222921d28c2298228df12a66286ac4"
+    },
+    {
+      "path": "tests/integration/pre-spend-payment.test.ts",
+      "sha256": "f5bfbcde6d8ce3ab2773e0819b635ed0bc257ee04300114d01ddaf4e868511b1"
+    },
+    {
+      "path": "tests/integration/rh-usdg-accounting-durability.test.ts",
+      "sha256": "8fde1d041707ab1a6f41fd7bd10a9c2ffc2fc404fb30b96dfa5ce6ffb2c26015"
+    },
+    {
+      "path": "tests/ipx-economy-dashboard.test.ts",
+      "sha256": "b2fbc59a6f696b5a6744f48ec048d4fad4f75558bb9fc9bff53285d13e571160"
+    },
+    {
+      "path": "tests/ipx-identity-mapping.test.ts",
+      "sha256": "ac708c7c3024ca0f66ef76178aac9de8fb1b65818a57b01b28e81ca76220d72e"
+    },
+    {
+      "path": "tests/ipx-launch-api.test.ts",
+      "sha256": "1e15e2e69090dadb5465090a7a0aa71aeba290a5cf6faa1bc57b2da1af9b4c1e"
+    },
+    {
+      "path": "tests/ipx-launch-postgres.test.ts",
+      "sha256": "fe52fd2ea9fa834b68ea4c07fa9363f3ff1157989dc1bdc8b5321471f6d630fe"
+    },
+    {
+      "path": "tests/ipx-launch.test.ts",
+      "sha256": "6be7b6a0caf303aca6a5c5e62137757d08e7b5470f8094472fa95b7d7a058820"
+    },
+    {
+      "path": "tests/ipx-revenue-ledger.test.ts",
+      "sha256": "b83aeee1d4c2fa880b94fe5a2a52b2615aef8547cea72355ff2bbb4680390093"
+    },
+    {
+      "path": "tests/judgment-issuer.test.ts",
+      "sha256": "37a6a0252b409c5fb0ba95f00da7a847278302e02687e5f4b3647675bf0df3af"
+    },
+    {
+      "path": "tests/pltr-exchange-calendar.test.ts",
+      "sha256": "6966f350322e0d1805880da92d844b389bd75a18a35f0a4926021f9aa6e97333"
+    },
+    {
+      "path": "tests/receipt-spine.test.ts",
+      "sha256": "75d19c0ffa841a2b2bd402b2d2d38e789a4d0bb29163da3ba4ae2ca729929470"
+    },
+    {
+      "path": "tests/reflexive-radar.test.ts",
+      "sha256": "f4882115af65ed52ff818e7776a521f185202511e4b79dfa8a490e1bc9842777"
+    },
+    {
+      "path": "tests/rh-4663-phase5.test.ts",
+      "sha256": "4ac3cab3b96db9fda2c4ce3142e86e69703f991e8354e69b3079228410046e04"
+    },
+    {
+      "path": "tests/rh-chain-production-readiness.test.ts",
+      "sha256": "07ef34b3f27ef2339634d609c0664544bad6e4dd4d63f7633efff89086d9c3e2"
+    },
+    {
+      "path": "tests/rh-usdg-economics.test.ts",
+      "sha256": "2ecb710e22e0956b48a320da986db7aa70024ebd2a4c24b6e79acfd18c437733"
+    },
+    {
+      "path": "tests/rh4663-anchor-integrity.test.ts",
+      "sha256": "1a1fab1fe039aefaafae1c32b32513fa89641ab57aa40157f49f5b6515bc1e48"
+    },
+    {
+      "path": "tests/security/score-authority.test.ts",
+      "sha256": "4fc955daa291adb37d3750989a771915c053713720412c1e3080ceae403fbfd7"
+    },
+    {
+      "path": "tests/unit/derived-score-service.test.ts",
+      "sha256": "0bd092bdd147565200131db110258fa4ccb13e19a88aad5d535d4ae7f4416377"
+    },
+    {
+      "path": "tests/unit/evaluation-score-policy.test.ts",
+      "sha256": "1d8a1473fead0a5e874279b149881f9231dda8e0420dac2bc1275f631fff33ea"
+    },
+    {
+      "path": "tests/unit/evaluation-service.test.ts",
+      "sha256": "1e42762a15b0957af7cded9037c0adc54db1bdb88c1a68d043eed9ea03bc5dda"
+    },
+    {
+      "path": "tests/unit/execution-proof-service.test.ts",
+      "sha256": "a9dfa031eba34b703c48477ac7b2f3794928355639978731d53c266f5e0fde0d"
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import { validateAnchorBinding, pulseCommitAbi, type AnchorExpectation } from './rh4663AnchorIntegrity';
 import type pg from 'pg';
 import {
   RH_4663_GENESIS_POLICY_HASH,
@@ -264,7 +265,7 @@ export class UnavailableRh4663ResolutionSigner implements Rh4663ResolutionSigner
 export interface Rh4663AnchorAdapter {
   readonly available: boolean;
   submit(commitment: Rh4663AcceptanceCommitment): Promise<{ transaction_hash: Hex }>;
-  confirmation(transactionHash: Hex): Promise<{ state: 'submitted' | 'confirmed' | 'failed'; block_number?: string; block_hash?: Hex; failure_code?: string }>;
+  confirmation(transactionHash: Hex, expected?: AnchorExpectation): Promise<{ state: 'submitted' | 'confirmed' | 'failed'; block_number?: string; block_hash?: Hex; failure_code?: string }>;
 }
 
 export class DisabledRh4663AnchorAdapter implements Rh4663AnchorAdapter {
@@ -285,14 +286,34 @@ export class ViemRh4663AnchorAdapter implements Rh4663AnchorAdapter {
     const [{ createWalletClient, defineChain, encodeFunctionData, http }, { privateKeyToAccount }] = await Promise.all([import('viem'), import('viem/accounts')]);
     const chain = defineChain({ id: RH_4663_CHAIN_ID, name: 'Robinhood Chain', nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 }, rpcUrls: { default: { http: [this.rpcUrl] } } }); const account = privateKeyToAccount(this.privateKey); const walletClient = createWalletClient({ account, chain, transport: http(this.rpcUrl, { timeout: 5_000, retryCount: 1 }) });
     const data = encodeFunctionData({ abi: RH_4663_ANCHOR_ABI, functionName: 'commitPulseWindow', args: [hashRh4663Canonical(commitment.window_id), commitment.root, BigInt(commitment.receipt_count), BigInt(Math.floor(Date.parse(commitment.created_at) / 1_000))] });
+    const { createPublicClient } = await import('viem');
+    const verifier = createPublicClient({ chain, transport: http(this.rpcUrl) });
+    const code = await verifier.getBytecode({ address: this.contract });
+    if (await verifier.getChainId() !== RH_4663_CHAIN_ID || !code || code === '0x') throw new Error('anchor_chain_or_contract_unverified');
     const transaction_hash = await walletClient.sendTransaction({ account, chain, to: this.contract, data, value: 0n });
     return { transaction_hash };
   }
-  async confirmation(transactionHash: Hex) {
+  async confirmation(transactionHash: Hex, expected?: AnchorExpectation) {
+    if (!expected) return { state: 'failed' as const, failure_code: 'anchor_expected_commitment_required' };
     try {
-      const { createPublicClient, defineChain, http } = await import('viem'); const chain = defineChain({ id: RH_4663_CHAIN_ID, name: 'Robinhood Chain', nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 }, rpcUrls: { default: { http: [this.rpcUrl] } } }); const publicClient = createPublicClient({ chain, transport: http(this.rpcUrl, { timeout: 5_000, retryCount: 1 }) });
+      const { createPublicClient, defineChain, http, decodeEventLog } = await import('viem'); const chain = defineChain({ id: RH_4663_CHAIN_ID, name: 'Robinhood Chain', nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 }, rpcUrls: { default: { http: [this.rpcUrl] } } }); const publicClient = createPublicClient({ chain, transport: http(this.rpcUrl, { timeout: 5_000, retryCount: 1 }) });
       const receipt = await publicClient.getTransactionReceipt({ hash: transactionHash });
       if (receipt.status === 'reverted') return { state: 'failed' as const, failure_code: 'anchor_transaction_reverted' };
+      const [chainId, tx, code, block] = await Promise.all([publicClient.getChainId(), publicClient.getTransaction({ hash: transactionHash }), publicClient.getBytecode({ address: this.contract, blockNumber: receipt.blockNumber }), publicClient.getBlock({ blockNumber: receipt.blockNumber })]);
+      const failure = validateAnchorBinding({ chainId, contract: this.contract, code, to: tx.to, receiptTo: receipt.to, calldata: tx.input, value: tx.value, expected, canonicalBlockHash: block.hash!, receiptBlockHash: receipt.blockHash });
+      if (failure) return { state: 'failed' as const, failure_code: failure };
+      const matched = receipt.logs.some(log => {
+        if (log.address.toLowerCase() !== this.contract.toLowerCase()) return false;
+        try {
+          const event = decodeEventLog({ abi: pulseCommitAbi, data: log.data, topics: log.topics });
+          return event.eventName === 'PulseWindowCommitted' && event.args.windowHash === hashRh4663Canonical(expected.window_id)
+            && event.args.acceptanceRoot === expected.acceptance_root && event.args.receiptCount === BigInt(expected.receipt_count)
+            && event.args.committedAt === BigInt(Math.floor(Date.parse(expected.commitment_timestamp) / 1000));
+        } catch { return false; }
+      });
+      if (!matched) return { state: 'failed' as const, failure_code: 'anchor_commitment_event_missing' };
+      const stored = await publicClient.readContract({ address: this.contract, abi: pulseCommitAbi, functionName: 'commitments', args: [hashRh4663Canonical(expected.window_id)], blockNumber: receipt.blockNumber });
+      if (stored[0] !== expected.acceptance_root || stored[1] !== BigInt(expected.receipt_count) || stored[2] !== BigInt(Math.floor(Date.parse(expected.commitment_timestamp) / 1000))) return { state: 'failed' as const, failure_code: 'anchor_stored_commitment_mismatch' };
       const head = await publicClient.getBlockNumber(); const depth = head >= receipt.blockNumber ? Number(head - receipt.blockNumber + 1n) : 0;
       if (depth < this.confirmations) return { state: 'submitted' as const };
       return { state: 'confirmed' as const, block_number: receipt.blockNumber.toString(), block_hash: receipt.blockHash };
@@ -580,7 +601,7 @@ export class Rh4663ResolutionService {
   private async progressAnchor(current: Rh4663AnchorRecord) {
     if (!this.anchor.available) return current;
     if (current.state === 'submitted' && current.transaction_hash) {
-      const status = await this.anchor.confirmation(current.transaction_hash); if (status.state === 'submitted') return current;
+      const status = await this.anchor.confirmation(current.transaction_hash, current); if (status.state === 'submitted') return current;
       if (status.state === 'failed') { const failed = { ...current, state: 'failed' as const, failed_at: this.now().toISOString(), failure_code: status.failure_code ?? 'anchor_transaction_failed' }; this.emit('anchor_failed', { window_id: current.window_id, transaction_hash: current.transaction_hash, failure_code: failed.failure_code }); return failed; }
       const confirmed = { ...current, state: 'confirmed' as const, block_number: status.block_number ?? null, block_hash: status.block_hash ?? null, confirmed_at: this.now().toISOString(), failure_code: null, failed_at: null }; this.emit('anchor_confirmed', { window_id: current.window_id, transaction_hash: current.transaction_hash, block_number: confirmed.block_number }); return confirmed;
     }

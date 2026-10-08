@@ -1,0 +1,50 @@
+{
+  "version": "ipx.production-read-evidence.v1",
+  "base_url": "https://radar.infopunks.fun",
+  "captured_at": "2026-10-08T04:01:16.464Z",
+  "methodology": "PUBLIC_READ_ONLY_HTTP; response hashes prove captured bytes, not deployment durability",
+  "observations": [
+    {
+      "path": "/health",
+      "observed_at": "2026-10-08T04:01:15.010Z",
+      "status": 503,
+      "content_type": "text/html; charset=utf-8",
+      "response_sha256": "e5805ccce9532a696c4103997ad9e6d34037dfac71e46dd615641cd7869b3956",
+      "selected_public_fields": {}
+    },
+    {
+      "path": "/status",
+      "observed_at": "2026-10-08T04:01:15.073Z",
+      "status": 503,
+      "content_type": "text/html; charset=utf-8",
+      "response_sha256": "e5805ccce9532a696c4103997ad9e6d34037dfac71e46dd615641cd7869b3956",
+      "selected_public_fields": {}
+    },
+    {
+      "path": "/v1/ipx/launch",
+      "observed_at": "2026-10-08T04:01:15.074Z",
+      "status": 503,
+      "content_type": "text/html; charset=utf-8",
+      "response_sha256": "e5805ccce9532a696c4103997ad9e6d34037dfac71e46dd615641cd7869b3956",
+      "selected_public_fields": {}
+    },
+    {
+      "path": "/v1/ipx/economy/summary",
+      "observed_at": "2026-10-08T04:01:15.075Z",
+      "status": 503,
+      "content_type": "text/html; charset=utf-8",
+      "response_sha256": "e5805ccce9532a696c4103997ad9e6d34037dfac71e46dd615641cd7869b3956",
+      "selected_public_fields": {}
+    },
+    {
+      "path": "/v1/radar/benchmark-summary",
+      "observed_at": "2026-10-08T04:01:15.075Z",
+      "status": 503,
+      "content_type": "text/html; charset=utf-8",
+      "response_sha256": "e5805ccce9532a696c4103997ad9e6d34037dfac71e46dd615641cd7869b3956",
+      "selected_public_fields": {}
+    }
+  ],
+  "durability_proven": false,
+  "economic_flywheel_operational_proven": false
+}

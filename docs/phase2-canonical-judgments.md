@@ -1,5 +1,7 @@
 # Canonical pre-spend judgments and x402 V2
 
+Issuer authentication is now specified in [Signed judgment permission](signed-judgment-permission.md). New production judgments require Ed25519 issuer signatures, independent of x402 payment signatures. Historical hashes and the canonical decision vocabulary remain stable.
+
 `POST /v1/pre-spend/check` remains the boundary. Canonical fields are at the top level; `data` retains the original legacy response and adds `canonical_judgment`. The SDK continues to parse legacy responses and exports the canonical types. Legacy confidence, readiness and ALLOW/DEGRADE/BLOCK annotations are diagnostic, not authorization. Execution consumers must inspect the canonical receipt and its expiry.
 
 ## Decision adapter
@@ -29,7 +31,7 @@ Insufficient evidence returns 200, `payment_required=false`, exact `cost.amount=
 
 Official x402 Foundation packages `@x402/core` and `@x402/evm` 2.28.0 supply the V2 payload codecs, resource server, exact EVM requirements and HTTP facilitator verification/settlement. See https://github.com/x402-foundation/x402. No proprietary payment verification or simulated production settlement is provided.
 
-Base mainnet USDC (`eip155:8453`, `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`) is the only configured code path. Solana is explicitly unsupported. No live settlement rail has been verified in this workspace; integration tests use an explicit test facilitator. Payments default to disabled. Enabling requires PostgreSQL, migration `20261007_012_judgment_requests.up.sql`, facilitator URL, Base recipient and resource URL. Startup fetches facilitator capabilities and rejects unsupported Base V2 exact settlement. The operator must supply an operational facilitator; mainnet funding, credentials and live settlement were not inferred or simulated.
+Base mainnet USDC (`eip155:8453`) and Robinhood Chain USDG (`eip155:4663`) are supported through an explicitly selected billing network. See [RH USDG settlement and accounting](rh-usdg-settlement-accounting.md) for canonical identities, metadata checks, the required RH migration and finality-aware revenue reconciliation. Solana is explicitly unsupported. No live settlement rail has been verified in this workspace; integration tests use an explicit test facilitator. Payments default to disabled. Enabling requires PostgreSQL, migration `20261007_012_judgment_requests.up.sql`, facilitator URL, merchant recipient and resource URL; RH additionally requires its verified RPC and accounting migration. Startup fetches facilitator capabilities and rejects unsupported selected-network V2 exact settlement. The operator must supply an operational facilitator; mainnet funding, credentials and live settlement were not inferred or simulated.
 
 Unpaid sufficient requests return 402 and standard base64 `PAYMENT-REQUIRED`. The paid retry decodes `PAYMENT-SIGNATURE`, matches its accepted requirements, invokes official facilitator verification, reserves the payment, then settles. Only successful settlement publishes a paid JudgmentReceipt and `PAYMENT-RESPONSE`. The protected internal receipt writer rejects paid flags/references/charges; paid receipts cannot be imported through that route. Its existing reviewed free-judgment authority remains available. Signatures are neither stored nor logged; only canonical payment hashes are persisted.
 

@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "exports": {
-    "./sdk": "./src/sdk.ts"
+    "./sdk": "./src/sdk.ts",
+    "./economic-engine": "./src/economicEngine.ts"
   },
   "scripts": {
     "dev": "tsx watch src/server.ts",
