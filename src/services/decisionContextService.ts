@@ -75,6 +75,9 @@ export async function verifyDecisionContext(context: DecisionContext, judgment: 
       hashCanonical(parsed.request) !== parsed.request_hash || parsed.intent_hash !== parsed.request_hash ||
       hashCanonical(parsed.legacy) !== parsed.legacy_hash || hashCanonical(parsed.policy) !== parsed.policy_hash ||
       parsed.projection_boundary.quote_assessed_at !== parsed.assessed_at ||
+      (parsed.version === 'pre-spend-decision-context.v2' &&
+        (parsed.projection_boundary.kind !== 'accepted_sequence.v2' || parsed.projection_boundary.accepted_sequence === undefined ||
+         !parsed.projection_boundary.accepted_at || Date.parse(parsed.projection_boundary.accepted_at) < Date.parse(parsed.assessed_at))) ||
       hashCanonical(parsed.evaluation_refs) !== parsed.projection_boundary.evaluation_refs_hash ||
       parsed.policy.engine_version !== 'pre-spend-decision.v2' || parsed.policy.veto_threshold !== -10 ||
       judgment.proceed_confidence_threshold !== parsed.policy.threshold ||
@@ -91,15 +94,21 @@ export async function verifyDecisionContext(context: DecisionContext, judgment: 
     for (const ref of parsed.evaluation_refs) {
       const evaluation = await store.get('evaluation', ref.evaluation_id) as EvaluationReceipt | null;
       if (!evaluation || evaluation.receipt_hash !== ref.receipt_hash || evaluation.score_delta !== ref.score_delta) return false;
+      if (parsed.version === 'pre-spend-decision-context.v2') {
+        const acceptance = await store.getAcceptance?.('evaluation', ref.evaluation_id);
+        if (!acceptance || acceptance.sequence > parsed.projection_boundary.accepted_sequence!) return false;
+      }
       evaluations.push(evaluation);
     }
     const frozen = {
       judgmentTrust: store.judgmentTrust,
       getDecisionContext: store.getDecisionContext?.bind(store),
+      getAcceptance: store.getAcceptance?.bind(store),
       get: store.get.bind(store),
       list: async (kind: 'observation' | 'judgment' | 'execution' | 'evaluation') => kind === 'evaluation' ? evaluations : []
     } as ReceiptAppendStore;
-    const projection = await createDerivedScoreService(frozen, parsed.policy.threshold).project(parsed.subject_type, parsed.subject_id);
+    const projection = await createDerivedScoreService(frozen, parsed.policy.threshold).project(parsed.subject_type, parsed.subject_id,
+      parsed.version === 'pre-spend-decision-context.v2' ? parsed.projection_boundary.accepted_sequence : undefined);
     if (canonicalSerialize(projection) !== canonicalSerialize(parsed.score_projection)) return false;
     const expected = assessFrozenDecision(parsed.request, parsed.legacy, observations, projection, new Date(parsed.assessed_at), parsed.policy);
     return canonicalSerialize(expected) === canonicalSerialize(parsed.output) &&

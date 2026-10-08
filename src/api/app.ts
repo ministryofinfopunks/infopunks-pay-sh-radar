@@ -4555,7 +4555,7 @@ export async function createApp(
     ['observation', z.object(ObservationReceiptSchema.shape).strict().omit({ schema_version: true, payload_hash: true, receipt_hash: true }), receiptAuthority.appendObservation],
     ['judgment', z.object(JudgmentReceiptSchema.shape).strict().omit({ schema_version: true, policy_version: true, proceed_confidence_threshold: true, parent_hashes: true, receipt_hash: true, issuer_signature: true, payment: true }), receiptAuthority.appendJudgment],
     ['execution', z.object(ExecutionReceiptSchema.shape).strict().omit({ schema_version: true, parent_hash: true, receipt_hash: true, score_eligibility: true }), receiptAuthority.appendExecution],
-    ['evaluation', z.object(EvaluationReceiptSchema.shape).strict().omit({ schema_version: true, policy_version: true, score_delta: true, parent_hash: true, receipt_hash: true, evaluator: true, request_hash: true }), evaluationService.createEvaluation]
+    ['evaluation', z.object(EvaluationReceiptSchema.shape).strict().omit({ schema_version: true, policy_version: true, score_delta: true, parent_hash: true, receipt_hash: true, evaluator: true, request_hash: true, classification: true, proposed_outcome: true }), evaluationService.createEvaluation]
   ] as const;
   for (const [kind, schema, append] of canonicalWrites) {
     app.post(`/internal/receipt-spine/${kind}`, async (req, reply) => {

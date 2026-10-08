@@ -84,7 +84,9 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
           veto_threshold: -10 as const, ttl_ms: options.ttlMs, amount: options.amount,
           asset: options.gateway?.asset === 'USDG' ? 'USDG' as const : 'USDC' as const };
         const preliminary = assessFrozenDecision(input, legacy, observations, null, at, policy);
-        const history = preliminary.decision === 'insufficient_evidence' ? null : await scores.project(observations[0].subject_type, subject);
+        const boundary = preliminary.decision === 'insufficient_evidence' ? null : await options.store.acceptanceBoundary?.();
+        if (preliminary.decision !== 'insufficient_evidence' && !boundary) throw new JudgmentError(503, 'acceptance_boundary_unavailable');
+        const history = preliminary.decision === 'insufficient_evidence' ? null : await scores.project(observations[0].subject_type, subject, boundary!.sequence);
         const output = history ? assessFrozenDecision(input, legacy, observations, history, at, policy) : preliminary;
         const response: CanonicalJudgmentResponse = {
           judgment_id: 'judgment_' + key.slice(7), decision: output.decision, confidence: output.confidence, issued_at: at.toISOString(),
@@ -104,12 +106,12 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
           return { evaluation_id: evaluation.evaluation_id, receipt_hash: evaluation.receipt_hash, score_delta: evaluation.score_delta };
         }));
         const frozenLegacy = PreSpendCheckResponseSchema.parse(legacy);
-        const context = sealDecisionContext({ version: 'pre-spend-decision-context.v1', assessment_id: response.judgment_id,
+        const context = sealDecisionContext({ version: 'pre-spend-decision-context.v2', assessment_id: response.judgment_id,
           request: input, request_hash: requestHash, subject_type: observations[0].subject_type, subject_id: subject,
           intent_hash: intentHash, assessed_at: response.issued_at,
           observation_refs: observations.map(o => ({ observation_id: o.observation_id, receipt_hash: o.receipt_hash })),
-          evaluation_refs: evaluationRefs, projection_boundary: { kind: 'committed_evaluation_set.v1',
-            evaluation_refs_hash: hashCanonical(evaluationRefs), quote_assessed_at: response.issued_at },
+          evaluation_refs: evaluationRefs, projection_boundary: { kind: 'accepted_sequence.v2', accepted_sequence: boundary!.sequence,
+            accepted_at: boundary!.accepted_at, evaluation_refs_hash: hashCanonical(evaluationRefs), quote_assessed_at: response.issued_at },
           score_projection: history, legacy: frozenLegacy, legacy_hash: hashCanonical(frozenLegacy),
           policy, policy_hash: hashCanonical(policy), output });
         response.decision_context_hash = context.context_hash;

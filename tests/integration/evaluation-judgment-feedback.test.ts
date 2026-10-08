@@ -1,7 +1,7 @@
 import { encodePaymentSignatureHeader } from '@x402/core/http';
 import { expect, it } from 'vitest';
 import { request, setupJudgment } from '../helpers/judgments';
-import { executionInput, qualifyingExecutionInput } from '../helpers/canonicalReceipts';
+import { executionInput, qualifyingClassifiedExecution, classifiedArtifact } from '../helpers/canonicalReceipts';
 import { createEvaluationService } from '../../src/services/evaluationService';
 import { createDerivedScoreService } from '../../src/services/derivedScoreService';
 import { evaluationRequest } from '../helpers/evaluations';
@@ -11,9 +11,9 @@ it('durable contradicted execution causes a subsequent judgment to veto without 
   const first = await service.check(request, 'first', signature);
   expect(first.response.decision).toBe('proceed');
   expect(first.response.receipt).not.toBeNull();
-  const execution = await authority.appendExecution({ ...qualifyingExecutionInput(), judgment_id: first.response.judgment_id });
+  const execution = await authority.appendExecution({ ...qualifyingClassifiedExecution(false), judgment_id: first.response.judgment_id });
   setTime('2026-10-07T00:00:05Z');
-  await createEvaluationService(store, 80, () => new Date('2026-10-07T00:00:04Z')).submit({ ...evaluationRequest, execution_receipt_id: execution.execution_id }, 'canonical-admin');
+  await createEvaluationService(store, 80, () => new Date('2026-10-07T00:00:04Z')).submit({ ...evaluationRequest, execution_receipt_id: execution.execution_id, output_artifact: classifiedArtifact(false) }, 'canonical-admin');
   expect((await createDerivedScoreService(store).project('provider', 'provider_test')).score).toBe(-15);
   const secondSignature = encodePaymentSignatureHeader({ x402Version: 2, accepted: gateway.requirements[0], payload: { signature: 'second-test-only', authorization: { nonce: 'second-test-only' } } });
   facilitator.settle = async () => ({ success: true, transaction: '0x' + 'b'.repeat(64), network: 'eip155:8453', payer: '0x' + '1'.repeat(40) });

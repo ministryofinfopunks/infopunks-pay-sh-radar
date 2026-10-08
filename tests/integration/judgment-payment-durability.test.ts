@@ -10,7 +10,7 @@ import { request, legacy, setupJudgment } from '../helpers/judgments';
 
 describe.skipIf(!process.env.CANONICAL_RECEIPT_TEST_URL)('durable judgment payment journal', () => {
   it('reconstructs after restart, recovers settled receipts and refuses uncertain retries', async () => {
-    const database = await createCanonicalTestDatabase(process.env.CANONICAL_RECEIPT_TEST_URL!, 'judgment_payment', ['20261007_011_canonical_receipt_spine', '20261007_012_judgment_requests', '20261008_018_decision_context']);
+    const database = await createCanonicalTestDatabase(process.env.CANONICAL_RECEIPT_TEST_URL!, 'judgment_payment', ['20261007_011_canonical_receipt_spine', '20261007_012_judgment_requests', '20261008_018_decision_context', '20261008_020_receipt_acceptance']);
     const pool = database.pool;
     try {
       const f = await setupJudgment(); const store = new PostgresCanonicalReceiptStore(pool);

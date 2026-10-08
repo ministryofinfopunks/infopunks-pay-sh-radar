@@ -18,6 +18,8 @@ const receiptId = (kind: ReceiptKind, receipt: ReceiptRecord) => String((receipt
 export class MemoryCanonicalReceiptStore implements ReceiptAppendStore {
   private readonly records = new Map<string, ReceiptRecord>();
   private readonly contexts = new Map<string, DecisionContext>();
+  private readonly acceptances = new Map<string, { sequence: number; accepted_at: string }>();
+  private nextSequence = 0;
   private queue: Promise<unknown> = Promise.resolve();
   constructor(private readonly threshold = 80, readonly judgmentTrust?: JudgmentIssuerTrust) {
     if (process.env.NODE_ENV === 'production') throw new ReceiptAuthorityError('canonical_receipts_require_postgres');
@@ -25,6 +27,12 @@ export class MemoryCanonicalReceiptStore implements ReceiptAppendStore {
   async get(kind: ReceiptKind, id: string) { return structuredClone(this.records.get(kind + ':' + id) ?? null); }
   async list(kind: ReceiptKind) { return [...this.records.entries()].filter(([key]) => key.startsWith(kind + ':')).map(([, value]) => structuredClone(value)); }
   async getDecisionContext(id: string) { return structuredClone(this.contexts.get(id) ?? null); }
+  async getAcceptance(kind: ReceiptKind, id: string) { return structuredClone(this.acceptances.get(kind + ':' + id) ?? null); }
+  async acceptanceBoundary() { return { sequence: this.nextSequence, accepted_at: new Date().toISOString() }; }
+  async evaluationHistory(subjectType: string, subjectId: string, acceptedThrough?: number) {
+    const evaluations = await this.list('evaluation') as EvaluationReceipt[];
+    return evaluations.filter(e => acceptedThrough === undefined || (this.acceptances.get('evaluation:' + e.evaluation_id)?.sequence ?? Infinity) <= acceptedThrough);
+  }
   async appendDecisionContext(raw: DecisionContext) {
     const context = DecisionContextSchema.parse(raw);
     const { context_hash, ...body } = context;
@@ -38,6 +46,7 @@ export class MemoryCanonicalReceiptStore implements ReceiptAppendStore {
     const candidate = structuredClone(raw);
     const operation = this.queue.then(async () => {
       const receipt = receiptSchemas[kind].parse(candidate);
+      if (kind === 'evaluation' && Date.parse((receipt as EvaluationReceipt).evaluated_at) > Date.now()) throw new ReceiptAuthorityError('evaluation_future_timestamp_quarantined');
       if (kind === 'judgment' && (receipt as JudgmentReceipt).proceed_confidence_threshold !== this.threshold) throw new ReceiptAuthorityError('configured_confidence_threshold_required');
       await assertReceiptAuthority(kind, receipt, this, this.threshold);
       if (kind === 'judgment' && this.judgmentTrust?.requireSigned && !this.judgmentTrust.verify(receipt as JudgmentReceipt)) throw new ReceiptAuthorityError('signed_judgment_required');
@@ -60,6 +69,7 @@ export class MemoryCanonicalReceiptStore implements ReceiptAppendStore {
         })) throw new ReceiptAuthorityError('execution_authorization_already_used');
       }
       this.records.set(key, structuredClone(receipt));
+      this.acceptances.set(key, { sequence: ++this.nextSequence, accepted_at: new Date().toISOString() });
       return structuredClone(receipt);
     });
     this.queue = operation.catch(() => undefined);
@@ -69,6 +79,14 @@ export class MemoryCanonicalReceiptStore implements ReceiptAppendStore {
 
 export class PostgresCanonicalReceiptStore implements ReceiptAppendStore {
   constructor(private readonly pool: pg.Pool, private readonly threshold = 80, readonly judgmentTrust?: JudgmentIssuerTrust) {}
+  async getAcceptance(kind: ReceiptKind, id: string) {
+    const result = await this.pool.query('select acceptance_sequence, accepted_at from canonical_receipt_acceptances where receipt_kind=$1 and receipt_id=$2', [kind, id]);
+    return result.rows[0] ? { sequence: Number(result.rows[0].acceptance_sequence), accepted_at: new Date(result.rows[0].accepted_at).toISOString() } : null;
+  }
+  async acceptanceBoundary() {
+    const result = await this.pool.query('select coalesce(max(acceptance_sequence),0) as sequence, now() as accepted_at from canonical_receipt_acceptances');
+    return { sequence: Number(result.rows[0].sequence), accepted_at: new Date(result.rows[0].accepted_at).toISOString() };
+  }
   async getDecisionContext(id: string): Promise<DecisionContext | null> {
     const result = await this.pool.query('select context from decision_contexts where assessment_id=$1', [id]);
     return result.rows[0] ? DecisionContextSchema.parse(result.rows[0].context) : null;
@@ -94,12 +112,14 @@ export class PostgresCanonicalReceiptStore implements ReceiptAppendStore {
     return result.rows.map((row) => receiptSchemas[kind].parse(row.receipt));
   }
   /** Indexed subject join retrieves the full graph in one PostgreSQL snapshot. */
-  async evaluationHistory(subjectType: string, subjectId: string): Promise<ReceiptRecord[]> {
+  async evaluationHistory(subjectType: string, subjectId: string, acceptedThrough?: number): Promise<ReceiptRecord[]> {
     const result = await this.pool.query(`select ev.receipt as evaluation, ex.receipt as execution, j.receipt as judgment,
       (select jsonb_agg(o.receipt order by link.observation_id) from judgment_observations link
        join observation_receipts o using (observation_id) where link.judgment_id=j.judgment_id) as observations
       from judgment_receipts j join execution_receipts ex using (judgment_id)
-      join evaluation_receipts ev using (execution_id) where j.subject_type=$1 and j.subject_id=$2`, [subjectType, subjectId]);
+      join evaluation_receipts ev using (execution_id) where j.subject_type=$1 and j.subject_id=$2
+      ${acceptedThrough === undefined ? '' : 'and exists (select 1 from canonical_receipt_acceptances a where a.receipt_kind=\'evaluation\' and a.receipt_id=ev.evaluation_id and a.acceptance_sequence <= $3)'}`,
+      acceptedThrough === undefined ? [subjectType, subjectId] : [subjectType, subjectId, acceptedThrough]);
     return result.rows.flatMap(row => [receiptSchemas.evaluation.parse(row.evaluation), receiptSchemas.execution.parse(row.execution),
       receiptSchemas.judgment.parse(row.judgment), ...(row.observations ?? []).map((raw: unknown) => receiptSchemas.observation.parse(raw))]);
   }
@@ -121,6 +141,16 @@ export class PostgresCanonicalReceiptStore implements ReceiptAppendStore {
     const client = await this.pool.connect();
     try {
       await client.query('begin');
+      await client.query('select pg_advisory_xact_lock(4663, 20261008)');
+      if (kind === 'evaluation') {
+        const clock = await client.query('select now() as accepted_at');
+        if (Date.parse((receipt as EvaluationReceipt).evaluated_at) > new Date(clock.rows[0].accepted_at).getTime()) {
+          await client.query('insert into canonical_receipt_quarantine(receipt_kind,receipt_id,receipt_hash,reason) values($1,$2,$3,$4) on conflict do nothing',
+            [kind, receiptId(kind, receipt), receipt.receipt_hash, 'future_issuer_timestamp']);
+          await client.query('commit');
+          throw new ReceiptAuthorityError('evaluation_future_timestamp_quarantined');
+        }
+      }
       const inserted = await client.query(`insert into ${meta.table} (${columns.join(',')}) values (${values.map((_, index) => '$' + (index + 1)).join(',')}) on conflict (${meta.id}) do nothing returning receipt`, values);
       if (!inserted.rows.length) {
         const existing = await client.query(`select receipt from ${meta.table} where ${meta.id}=$1`, [values[0]]);
@@ -129,6 +159,8 @@ export class PostgresCanonicalReceiptStore implements ReceiptAppendStore {
         const judgment = receipt as JudgmentReceipt;
         for (const id of judgment.cited_observation_ids) await client.query('insert into judgment_observations (judgment_id, observation_id) values ($1,$2)', [judgment.judgment_id, id]);
       }
+      if (inserted.rows.length) await client.query('insert into canonical_receipt_acceptances(receipt_kind,receipt_id,receipt_hash) values($1,$2,$3)',
+        [kind, receiptId(kind, receipt), receipt.receipt_hash]);
       await client.query('commit');
       return structuredClone(receipt);
     } catch (error) {

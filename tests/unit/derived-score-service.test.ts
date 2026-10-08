@@ -4,7 +4,7 @@ import { createDerivedScoreService } from '../../src/services/derivedScoreServic
 import { appendChain } from '../helpers/canonicalReceipts';
 import { createEvaluationService } from '../../src/services/evaluationService';
 import { createReceiptAuthorityService, type ReceiptAppendStore } from '../../src/services/receiptAuthorityService';
-import { evaluationInput, judgmentInput, observationInput, qualifyingExecutionInput } from '../helpers/canonicalReceipts';
+import { evaluationInput, judgmentInput, observationInput, qualifyingClassifiedExecution, classifiedArtifact } from '../helpers/canonicalReceipts';
 
 describe('receipt-derived projection', () => {
   it('has deterministic zero baseline, no provider dependency, counts, IDs and reproducible fingerprint', async () => {
@@ -15,14 +15,15 @@ describe('receipt-derived projection', () => {
     const { evaluation } = await appendChain(store);
     const first = await scores.project('provider', 'provider_test');
     expect(first).toMatchObject({ score: 5, evaluation_count: 1, contributing_evaluation_ids: [evaluation.evaluation_id], outcome_counts: { confirmed: 1, weakened: 0, contradicted: 0 } });
-    await createEvaluationService(store).createEvaluation(evaluationInput());
+    await expect(createEvaluationService(store).createEvaluation(evaluationInput())).rejects.toThrow('receipt_id_conflict');
     expect(await createDerivedScoreService(store).project('provider', 'provider_test')).toEqual(first);
     expect((await scores.project('provider', 'other')).score).toBe(0);
   });
   it('causally removes the -15 contribution when isolated backing history omits that receipt', async () => {
     const backing = new MemoryCanonicalReceiptStore(); const authority = createReceiptAuthorityService(backing);
-    await authority.appendObservation(observationInput()); await authority.appendJudgment(judgmentInput()); await authority.appendExecution(qualifyingExecutionInput());
-    const evaluation = await createEvaluationService(backing).createEvaluation({ ...evaluationInput(), outcome: 'contradicted' });
+    await authority.appendObservation(observationInput()); await authority.appendJudgment(judgmentInput()); await authority.appendExecution(qualifyingClassifiedExecution(false));
+    const evaluation = await createEvaluationService(backing).submit({ execution_receipt_id: 'x1', outcome: 'contradicted', evidence_refs: ['artifact://failure'],
+      evaluator: { type: 'internal', id: 'canonical-admin' }, idempotency_key: 'causal-removal', output_artifact: classifiedArtifact(false) }, 'canonical-admin');
     let hidden = false;
     const isolated: ReceiptAppendStore = {
       get: (kind, id) => hidden && kind === 'evaluation' ? Promise.resolve(null) : backing.get(kind, id),

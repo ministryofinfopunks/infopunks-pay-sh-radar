@@ -2,13 +2,14 @@ import type { EvaluationReceipt, ExecutionReceipt, JudgmentReceipt, ReceiptKind 
 import type { ScoreProjection } from '../schemas/scoreProjection';
 import { assertReceiptAuthority, ReceiptAuthorityError, type ReceiptAppendStore, type ReceiptRecord } from './receiptAuthorityService';
 import { hashCanonical } from './receiptIntegrityService';
+import { verifyEvaluationClassification } from './evaluationClassificationService';
 
 export const SCORE_PROJECTION_VERSION = 'derived-score.v1';
 /** Preserve the existing zero baseline and unbounded sum. Cache is local to a single reconstruction. */
 export function createDerivedScoreService(store: ReceiptAppendStore, threshold = 80) {
   return {
-    async project(subjectType: string, subjectId: string): Promise<ScoreProjection> {
-      const records = store.evaluationHistory ? await store.evaluationHistory(subjectType, subjectId) : await store.list('evaluation');
+    async project(subjectType: string, subjectId: string, acceptedThrough?: number): Promise<ScoreProjection> {
+      const records = store.evaluationHistory ? await store.evaluationHistory(subjectType, subjectId, acceptedThrough) : await store.list('evaluation');
       const cache = new Map<string, ReceiptRecord>();
       const ids = { observation: 'observation_id', judgment: 'judgment_id', execution: 'execution_id', evaluation: 'evaluation_id' } as const;
       for (const receipt of records) {
@@ -27,6 +28,10 @@ export function createDerivedScoreService(store: ReceiptAppendStore, threshold =
       const contributing: EvaluationReceipt[] = [];
       const seen = new Set<string>();
       for (const evaluation of evaluations) {
+        if (acceptedThrough !== undefined) {
+          const acceptance = await store.getAcceptance?.('evaluation', evaluation.evaluation_id);
+          if (!acceptance || acceptance.sequence > acceptedThrough) continue;
+        }
         await assertReceiptAuthority('evaluation', evaluation, reader, threshold);
         const execution = await reader.get('execution', evaluation.execution_id) as ExecutionReceipt;
         const judgment = await reader.get('judgment', execution.judgment_id) as JudgmentReceipt;
@@ -36,6 +41,7 @@ export function createDerivedScoreService(store: ReceiptAppendStore, threshold =
         if (execution.score_eligibility?.state !== 'qualifying' ||
           execution.score_eligibility.intake !== 'external_proof_gateway.v1' ||
           execution.score_eligibility.proof_profile !== execution.verification?.profile) continue;
+        if (!verifyEvaluationClassification(evaluation, execution, judgment)) continue;
         if (seen.has(evaluation.execution_id)) throw new ReceiptAuthorityError('duplicate_execution_evaluation');
         seen.add(evaluation.execution_id); contributing.push(evaluation);
       }

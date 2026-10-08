@@ -8,7 +8,7 @@ import { evaluationRequest, executionChain } from '../helpers/evaluations';
 
 const url = process.env.CANONICAL_RECEIPT_TEST_URL;
 async function isolated(run: (pool: pg.Pool) => Promise<void>) {
-  const database = await createCanonicalTestDatabase(url!, 'phase4', ['20261007_011_canonical_receipt_spine', '20261007_012_judgment_requests', '20261007_013_execution_proof_uniqueness', '20261007_014_derived_score_projection']);
+  const database = await createCanonicalTestDatabase(url!, 'phase4', ['20261007_011_canonical_receipt_spine', '20261007_012_judgment_requests', '20261007_013_execution_proof_uniqueness', '20261007_014_derived_score_projection', '20261008_018_decision_context', '20261008_020_receipt_acceptance']);
   try { await run(database.pool); } finally { await database.close(); }
 }
 describe.skipIf(!url)('PostgreSQL derived performance memory', () => {
@@ -18,7 +18,7 @@ describe.skipIf(!url)('PostgreSQL derived performance memory', () => {
     const results = await Promise.all([service.submit(evaluationRequest, 'canonical-admin'), createEvaluationService(new PostgresCanonicalReceiptStore(pool)).submit(evaluationRequest, 'canonical-admin')]);
     expect(results[0]).toEqual(results[1]);
     const projection = await createDerivedScoreService(store).project('provider', 'provider_test');
-    expect(projection).toMatchObject({ score: -15, evaluation_count: 1, contributing_evaluation_ids: [results[0].evaluation_id] });
+    expect(projection).toMatchObject({ score: 0, evaluation_count: 0, contributing_evaluation_ids: [] });
     expect(await createDerivedScoreService(new PostgresCanonicalReceiptStore(pool)).project('provider', 'provider_test')).toEqual(projection);
     expect((await pool.query('select count(*)::int as count from evaluation_receipts')).rows[0].count).toBe(1);
     for (const sql of ['update evaluation_receipts set receipt=receipt', 'delete from evaluation_receipts', 'truncate evaluation_receipts']) {

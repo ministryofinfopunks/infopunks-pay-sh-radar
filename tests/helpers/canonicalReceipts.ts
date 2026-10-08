@@ -27,6 +27,11 @@ export const qualifyingExecutionInput = () => ({ ...executionInput(), settlement
   score_eligibility: { state: 'qualifying' as const, intake: 'external_proof_gateway.v1' as const,
     proof_profile: 'base_usdc_external.v1' as const, reason: 'finalized_settlement_and_payload_verified' }
 });
+export const classifiedOutput = (success: boolean) => ({ task_id: 'provider_test', success, complete: success });
+export const classifiedArtifact = (success: boolean) => ({ encoding: 'base64' as const,
+  bytes: Buffer.from(JSON.stringify(classifiedOutput(success))).toString('base64'), source: 'signed_execution_response' as const });
+export const qualifyingClassifiedExecution = (success: boolean) => ({ ...qualifyingExecutionInput(),
+  response_hash: hashCanonical(classifiedOutput(success)), status: success ? 'succeeded' : 'failed' });
 export const evaluationInput = () => ({
   evaluation_id: 'e1', execution_id: 'x1', evaluated_at: '2026-10-07T00:00:04Z', outcome: 'confirmed' as const,
   reasons: ['output verified'], evidence_refs: ['artifact://evaluation_1']
@@ -36,7 +41,7 @@ export async function appendChain(store: ReceiptAppendStore) {
   const evaluations = createEvaluationService(store);
   const observation = await authority.appendObservation(observationInput());
   const judgment = await authority.appendJudgment(judgmentInput());
-  const execution = await authority.appendExecution(qualifyingExecutionInput());
-  const evaluation = await evaluations.createEvaluation(evaluationInput());
+  const execution = await authority.appendExecution(qualifyingClassifiedExecution(true));
+  const evaluation = await evaluations.createEvaluation(evaluationInput(), classifiedArtifact(true));
   return { authority, observation, judgment, execution, evaluation };
 }

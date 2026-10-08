@@ -12,7 +12,7 @@ import { request, legacy, setupJudgment } from '../helpers/judgments';
 
 describe.skipIf(!process.env.CANONICAL_RECEIPT_TEST_URL)('signed judgment PostgreSQL durability', () => {
   it('replays the original signature after rotation/reconstruction and recovers publication without charging again', async () => {
-    const database = await createCanonicalTestDatabase(process.env.CANONICAL_RECEIPT_TEST_URL!, 'judgment_issuer', ['20261007_011_canonical_receipt_spine', '20261007_012_judgment_requests', '20261007_014_derived_score_projection', '20261008_018_decision_context']);
+    const database = await createCanonicalTestDatabase(process.env.CANONICAL_RECEIPT_TEST_URL!, 'judgment_issuer', ['20261007_011_canonical_receipt_spine', '20261007_012_judgment_requests', '20261007_014_derived_score_projection', '20261008_018_decision_context', '20261008_020_receipt_acceptance']);
     const pool = database.pool;
     try {
       const f = await setupJudgment(); const original = issuerFixture(); const next = issuerFixture('key-2');
@@ -40,7 +40,7 @@ describe.skipIf(!process.env.CANONICAL_RECEIPT_TEST_URL)('signed judgment Postgr
       await authority.appendExecution({ ...executionInput(), judgment_id: paid.response.judgment_id });
       await createEvaluationService(restarted.store).createEvaluation(evaluationInput());
       expect(await authority.replayEvaluation('e1')).toBe(true);
-      expect((await authority.projectScore('provider', 'provider_test')).score).toBe(5);
+      expect((await authority.projectScore('provider', 'provider_test')).score).toBe(0);
       await expect(pool.query("update judgment_receipts set receipt = receipt - 'issuer_signature'")).rejects.toMatchObject({ code: '55000' });
     } finally { await database.close(); }
   });

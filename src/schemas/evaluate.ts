@@ -4,6 +4,7 @@ import { ReceiptIdSchema, ReceiptHashSchema } from './receipts/common';
 export const EvaluateRequestSchema = z.object({
   execution_receipt_id: ReceiptIdSchema,
   outcome: z.enum(['confirmed', 'weakened', 'contradicted']),
+  output_artifact: z.object({ encoding: z.literal('base64'), bytes: z.string().min(1).max(131072), source: z.literal('signed_execution_response') }).strict().optional(),
   evidence_refs: z.array(ReceiptIdSchema).min(1).max(32).optional(),
   reasons: z.array(ReceiptIdSchema).min(1).max(20).optional(),
   outcome_labels: z.array(ReceiptIdSchema).max(20).optional(),
