@@ -18,6 +18,8 @@ export interface JudgmentIssuer extends JudgmentIssuerTrust {
   assertCanSign(at: string, validUntil?: string): void;
   sign(receipt: JudgmentReceipt): JudgmentReceipt;
   publicKeys(): { issuer: string; keys: JudgmentIssuerKey[] };
+  signWitness?(witnessHash: string, at: string): { issuer: string; key_id: string; algorithm: 'Ed25519'; signature: string };
+  verifyWitness?(witnessHash: string, at: string, signature: { issuer: string; key_id: string; algorithm: 'Ed25519'; signature: string }): boolean;
 }
 const DOMAIN = 'infopunks.judgment-issuer.v1';
 function signingBytes(receipt: JudgmentReceipt, issuer: string, keyId: string) {
@@ -77,7 +79,22 @@ export function createJudgmentIssuer(input: {
         return signed;
       },
       verify: verifySignature,
-      publicKeys: () => ({ issuer: input.issuer, keys: structuredClone(keys) })
+      publicKeys: () => ({ issuer: input.issuer, keys: structuredClone(keys) }),
+      signWitness(witnessHash, at) {
+        assertCanSign(at);
+        const key = keys.find(k => k.key_id === input.activeKeyId)!;
+        const bytes = Buffer.from(canonicalSerialize({ domain: 'infopunks.causal-witness.v1', witness_hash: witnessHash, at }));
+        return { issuer: input.issuer, key_id: key.key_id, algorithm: 'Ed25519', signature: sign(null, bytes, privateKey!).toString('base64') };
+      },
+      verifyWitness(witnessHash, at, signature) {
+        try {
+          const key = keys.find(k => k.key_id === signature.key_id);
+          if (!key || signature.issuer !== input.issuer || signature.algorithm !== 'Ed25519' || !within(key, at)) return false;
+          const bytes = Buffer.from(canonicalSerialize({ domain: 'infopunks.causal-witness.v1', witness_hash: witnessHash, at }));
+          const signatureBytes = Buffer.from(signature.signature, 'base64');
+          return signatureBytes.toString('base64') === signature.signature && verify(null, bytes, publicKeys.get(key.key_id)!, signatureBytes);
+        } catch { return false; }
+      }
     };
   } catch { throw new Error('invalid_judgment_signing_configuration'); }
 }

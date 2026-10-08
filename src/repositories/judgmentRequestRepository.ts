@@ -3,6 +3,9 @@ import type { PaymentRequired, SettleResponse } from '@x402/core/types';
 import type { CanonicalJudgmentResponse } from '../schemas/preSpend';
 import type { PreSpendCheckResponse } from '../schemas/entities';
 import type { DecisionContext } from '../schemas/decisionContext';
+import { hashCanonical } from '../services/receiptIntegrityService';
+export type FreeAssessmentAttempt = { request_key: string; request_hash: string; assessed_at: string;
+  response: CanonicalJudgmentResponse; legacy: PreSpendCheckResponse; attempt_hash: string };
 export type JudgmentRequestRecord = {
   request_hash: string; state: 'quoted' | 'settling' | 'settled' | 'complete';
   response: CanonicalJudgmentResponse; legacy: PreSpendCheckResponse;
@@ -15,12 +18,25 @@ export interface JudgmentRequestRepository {
   quote(key: string, record: JudgmentRequestRecord): Promise<JudgmentRequestRecord>;
   claim(key: string, paymentHash: string): Promise<boolean>;
   save(key: string, record: JudgmentRequestRecord): Promise<void>;
+  getFreeAttempt?(key: string): Promise<FreeAssessmentAttempt | null>;
+  recordFreeAttempt?(attempt: Omit<FreeAssessmentAttempt, 'attempt_hash'>): Promise<FreeAssessmentAttempt>;
+  listFreeAttempts?(): Promise<FreeAssessmentAttempt[]>;
 }
 export class MemoryJudgmentRequestRepository implements JudgmentRequestRepository {
   private records = new Map<string, JudgmentRequestRecord>();
   private payments = new Set<string>();
+  private freeAttempts = new Map<string, FreeAssessmentAttempt>();
   constructor() { if (process.env.NODE_ENV === 'production') throw new Error('judgment_journal_requires_postgres'); }
   async get(key: string) { return structuredClone(this.records.get(key) ?? null); }
+  async getFreeAttempt(key: string) { return structuredClone(this.freeAttempts.get(key) ?? null); }
+  async listFreeAttempts() { return [...this.freeAttempts.values()].map(value => structuredClone(value)); }
+  async recordFreeAttempt(input: Omit<FreeAssessmentAttempt, 'attempt_hash'>) {
+    const prior = this.freeAttempts.get(input.request_key);
+    if (prior) { if (prior.request_hash !== input.request_hash) throw new Error('idempotency_conflict'); return structuredClone(prior); }
+    const attempt = { ...input, attempt_hash: hashCanonical(input) };
+    this.freeAttempts.set(input.request_key, structuredClone(attempt));
+    return attempt;
+  }
   async quote(key: string, record: JudgmentRequestRecord) {
     if (!this.records.has(key)) this.records.set(key, structuredClone(record));
     return (await this.get(key))!;
@@ -39,6 +55,20 @@ export class PostgresJudgmentRequestRepository implements JudgmentRequestReposit
   constructor(private pool: pg.Pool) {}
   async get(key: string): Promise<JudgmentRequestRecord | null> {
     return (await this.pool.query('select record from judgment_requests where request_key=$1', [key])).rows[0]?.record ?? null;
+  }
+  async getFreeAttempt(key: string): Promise<FreeAssessmentAttempt | null> {
+    return (await this.pool.query('select attempt from free_assessment_attempts where request_key=$1', [key])).rows[0]?.attempt ?? null;
+  }
+  async listFreeAttempts(): Promise<FreeAssessmentAttempt[]> {
+    return (await this.pool.query('select attempt from free_assessment_attempts order by accepted_at,request_key')).rows.map(row => row.attempt);
+  }
+  async recordFreeAttempt(input: Omit<FreeAssessmentAttempt, 'attempt_hash'>): Promise<FreeAssessmentAttempt> {
+    const attempt = { ...input, attempt_hash: hashCanonical(input) };
+    await this.pool.query('insert into free_assessment_attempts(request_key,request_hash,attempt_hash,attempt) values($1,$2,$3,$4) on conflict(request_key) do nothing',
+      [input.request_key, input.request_hash, attempt.attempt_hash, attempt]);
+    const existing = await this.getFreeAttempt(input.request_key);
+    if (!existing || existing.request_hash !== input.request_hash) throw new Error('idempotency_conflict');
+    return existing;
   }
   async quote(key: string, record: JudgmentRequestRecord) {
     await this.pool.query('insert into judgment_requests(request_key,request_hash,state,record) values($1,$2,$3,$4) on conflict(request_key) do nothing', [key, record.request_hash, record.state, record]);

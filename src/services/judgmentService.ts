@@ -70,6 +70,11 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
       if (signature && signature.length > 16384) throw new JudgmentError(400, 'payment_signature_too_large');
       const requestHash = hashCanonical(input);
       const key = hashCanonical({ agent: input.agent_id, key: suppliedKey ?? requestHash });
+      const priorFree = await options.journal.getFreeAttempt?.(key);
+      if (priorFree) {
+        if (priorFree.request_hash !== requestHash) throw new JudgmentError(409, 'idempotency_conflict');
+        return { status: 200, headers: {}, response: priorFree.response, legacy: priorFree.legacy };
+      }
       let record = await options.journal.get(key);
       if (record && record.request_hash !== requestHash) throw new JudgmentError(409, 'idempotency_conflict');
       if (record?.state === 'complete' || record?.state === 'settled') return await complete(key, record);
@@ -95,7 +100,11 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
           cost: { amount: output.decision === 'insufficient_evidence' ? '0' : options.amount, asset: policy.asset },
           payment_required: output.decision !== 'insufficient_evidence', receipt: null
         };
-        if (output.decision === 'insufficient_evidence') return { status: 200, headers: {}, response, legacy };
+        if (output.decision === 'insufficient_evidence') {
+          const attempt = await options.journal.recordFreeAttempt?.({ request_key: key, request_hash: requestHash,
+            assessed_at: response.issued_at, response, legacy });
+          return { status: 200, headers: {}, response: attempt?.response ?? response, legacy };
+        }
         if (options.store.judgmentTrust?.requireSigned && !options.issuer) throw new JudgmentError(503, 'judgment_signing_unavailable');
         if (options.issuer) { try { options.issuer.assertCanSign(response.issued_at, response.valid_until); } catch { throw new JudgmentError(503, 'judgment_signing_unavailable'); } }
         if (!options.gateway) throw new JudgmentError(503, 'judgment_payment_unavailable');

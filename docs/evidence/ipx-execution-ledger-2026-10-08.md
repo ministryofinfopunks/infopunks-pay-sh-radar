@@ -9,7 +9,7 @@ Frozen integration target: pending. This ledger records evidence by commit and d
 | A3 | Complete | `745c98c` | Focused eligibility/projection suite, typecheck, PostgreSQL durability | `ipx-a3-score-eligibility-2026-10-08.md` | Transaction log/attempt identity is unavailable in the current receipt model |
 | A4 | Implemented, validation pending frozen integration | pending | Focused classification and PostgreSQL checks | `ipx-a4-a5-completion-2026-10-08.md` | Real output provenance and independent review remain G0 gates |
 | A5 | Implemented, validation pending frozen integration | pending | Acceptance, replay and migration checks | `ipx-a4-a5-completion-2026-10-08.md` | Full frozen candidate and production role proof pending |
-| A6 / G0 / G1 | Pending | | | | Real bounded route, signer registry and public artifacts required |
+| A6 / G0 / G1 | Local proof package implemented; gates HOLD | pending | Witness, tape, free-attempt and disposable PostgreSQL tests | `ipx-a6-local-proof-2026-10-08.md` | Real bounded route, signer registry and public external artifacts required |
 | B1–B4 | Parallel package | | | | Separate worktree |
 | C1 | Delegated | | | | Read-only discovery |
 | C2–C6 | Pending or operator gated | | | | Authorized infrastructure access required |
