@@ -65,6 +65,30 @@ export function entitlement(allocation: string, ordinal: number) {
 export function entitlementLeaf(policy: IpxLaunchPolicy, receipt: IpxGenesisReceipt): Hex {
   return sha256(encodePacked(['string', 'uint256', 'address', 'uint256', 'address', 'uint256', 'bytes32'], ['ipx.genesis.entitlement.v2', 4663n, policy.genesis_distributor, BigInt(receipt.call_ordinal), receipt.wallet, BigInt(receipt.entitlement_atomic), receipt.payload_hash]));
 }
+/** Independently replays a stored v2 call before it can enter a seal commitment. */
+export async function verifyGenesisReceipt(policy: IpxLaunchPolicy, receipt: IpxGenesisReceipt) {
+  const payload = receipt.payload;
+  const accepted = Date.parse(receipt.accepted_at);
+  const window = Number.isFinite(accepted) ? getRh4663PulseWindow(new Date(accepted)) : null;
+  if (!window) throw new Error('genesis_receipt_replay_invalid');
+  let input: ReturnType<typeof IpxCallRequestSchema.parse>;
+  try { input = IpxCallRequestSchema.parse({ wallet: receipt.wallet, rotation: payload.rotation, confidence: payload.confidence, evidence_digest: payload.evidence_digest, window_id: payload.window_id }); }
+  catch { throw new Error('genesis_receipt_replay_invalid'); }
+  const expectedPayload = { version: 'ipx.genesis.call.v2', chain_id: 4663, token_contract: policy.token_contract, genesis_distributor: policy.genesis_distributor, policy_hash: ipxSha256(policy), constitution_sha256: policy.constitution_sha256, wallet: input.wallet, rotation: input.rotation, confidence: input.confidence, evidence_digest: input.evidence_digest, window_id: window.window_id, window_opens_at: window.opens_at, window_closes_at: window.closes_at, campaign_opens_at: policy.opens_at, campaign_closes_at: policy.closes_at };
+  if (accepted < Date.parse(policy.opens_at) || accepted >= Date.parse(policy.closes_at)
+    || receipt.version !== 'ipx.genesis.call.v2' || receipt.signature_verified !== true || receipt.immutable !== true
+    || receipt.wallet_ordinal !== receipt.call_ordinal || receipt.policy_hash !== ipxSha256(policy)
+    || receipt.receipt_id !== `ipx_call_v2_${receipt.payload_hash.slice(2)}`
+    || payload.version !== 'ipx.genesis.call.v2' || payload.chain_id !== 4663
+    || payload.token_contract !== policy.token_contract || payload.genesis_distributor !== policy.genesis_distributor
+    || payload.policy_hash !== receipt.policy_hash || payload.constitution_sha256 !== policy.constitution_sha256
+    || payload.wallet !== receipt.wallet || payload.window_id !== window.window_id
+    || payload.window_opens_at !== window.opens_at || payload.window_closes_at !== window.closes_at
+    || payload.campaign_opens_at !== policy.opens_at || payload.campaign_closes_at !== policy.closes_at
+    || ipxJcs(payload) !== ipxJcs(expectedPayload) || ipxJcs(payload) !== receipt.canonical_serialization || ipxSha256(payload) !== receipt.payload_hash
+    || receipt.entitlement_atomic !== entitlement(policy.allocations.genesis_calls, receipt.call_ordinal)) throw new Error('genesis_receipt_replay_invalid');
+  if ((await recoverMessageAddress({ message: receipt.canonical_serialization, signature: receipt.signature })).toLowerCase() !== receipt.wallet) throw new Error('genesis_signature_invalid');
+}
 /** Sorted SHA-256 pairs match the distributor; deterministic ordinal leaf order, duplicate last for odd levels. */
 export function buildEntitlementTree(policy: IpxLaunchPolicy, receipts: IpxGenesisReceipt[]) {
   if (receipts.length !== 4663 || receipts.some((receipt, index) => receipt.call_ordinal !== index + 1 || receipt.policy_hash !== ipxSha256(policy) || receipt.entitlement_atomic !== entitlement(policy.allocations.genesis_calls, index + 1)) || new Set(receipts.map(receipt => receipt.wallet)).size !== 4663) throw new Error('complete_verified_cohort_required');

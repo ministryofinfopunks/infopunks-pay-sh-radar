@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
+import { createHash } from 'node:crypto';
 import { privateKeyToAccount } from 'viem/accounts';
 import { ipxJcs, ipxSha256 } from '../src/services/ipxJcs';
 import { IpxLaunchPolicySchema } from '../src/schemas/ipxLaunch';
-import { IpxGenesisService, entitlement, type IpxGenesisReceipt, type IpxGenesisStore } from '../src/services/ipxGenesisService';
+import { IpxGenesisService, entitlement, verifyGenesisReceipt, type IpxGenesisReceipt, type IpxGenesisStore } from '../src/services/ipxGenesisService';
+import { validateIpxIssuanceManifest, loadIpxIssuanceManifest } from '../src/services/ipxIssuanceManifest';
 import { serializeRh4663Canonical } from '../src/services/rh4663Service';
 import { contribution } from '../src/services/ipxRevenueLedger';
 import { executablePltrMarketHours } from '../src/services/ipxMarketHours';
@@ -21,7 +23,9 @@ class TestStore implements IpxGenesisStore {
 describe('IPX launch v2', () => {
   it('adds JCS without changing v1 bytes, validates Unicode and ES number formatting', () => {
     const input = { z: 1, a: { b: 1e30, a: -0 } };
-    expect(serializeRh4663Canonical(input)).toBe('{"z":1,"a":{"b":1e+30,"a":0}}');
+    const legacyBytes = serializeRh4663Canonical(input);
+    expect(legacyBytes).toBe('{"z":1,"a":{"b":1e+30,"a":0}}');
+    expect(createHash('sha256').update(legacyBytes).digest('hex')).toBe('c3d31ccdb77f9057e2c6acf3de84241cd081f206f0f50464ac4eff687434a35c');
     expect(ipxJcs(input)).toBe('{"a":{"a":0,"b":1e+30},"z":1}');
     expect(ipxSha256({ b: 1, a: 2 })).toBe(ipxSha256({ a: 2, b: 1 }));
     expect(() => ipxJcs('\ud800')).toThrow('invalid_unicode');
@@ -31,10 +35,22 @@ describe('IPX launch v2', () => {
     const store = new TestStore(); const service = new IpxGenesisService(policy(), store, async () => {}, () => new Date('2026-10-08T12:00:00Z'));
     const built = service.payload(call()); const signature = await account.signMessage({ message: built.canonical_serialization });
     const receipt = await service.call(call(), signature); expect(receipt.call_ordinal).toBe(1); expect(receipt.entitlement_atomic).toBe('1');
+    await expect(verifyGenesisReceipt(policy(), receipt)).resolves.toBeUndefined();
+    await expect(verifyGenesisReceipt(policy(), { ...receipt, payload: { ...receipt.payload, token_contract: `0x${'f'.repeat(40)}` } })).rejects.toThrow('genesis_receipt_replay_invalid');
+    await expect(verifyGenesisReceipt(policy(), { ...receipt, wallet_ordinal: 2 })).rejects.toThrow('genesis_receipt_replay_invalid');
     expect(await service.call(call(), signature)).toEqual(receipt);
     const changed = { ...call(), confidence: 80 }; const sig = await account.signMessage({ message: service.payload(changed).canonical_serialization });
     await expect(service.call(changed, sig)).rejects.toThrow('economic_wallet_already_called');
     await expect(service.call(changed, signature)).rejects.toThrow('genesis_signature_invalid');
+  });
+  it('requires a complete policy-bound issuance manifest before any v2 call', () => {
+    const p = policy(); const reviewed = { artifact_uri: 'https://example.org/ipx/review-artifact', artifact_sha256: `0x${'a'.repeat(64)}`, reviewer: 'independent-reviewer', reviewed_at: '2026-10-08T12:00:00Z' };
+    const manifest = { version: 'ipx.issuance-manifest.v1', policy_hash: ipxSha256(p), chain_id: 4663, finalized_block_number: '100', finalized_block_hash: `0x${'b'.repeat(64)}`, deployed_contracts: { token: p.token_contract, distributor: p.genesis_distributor, vault: p.contribution_vault, pltr: p.canonical_pltr }, constitution: { ...reviewed, artifact_sha256: p.constitution_sha256 }, source_and_build: reviewed, deployed_bytecode_and_constructor: reviewed, independent_contract_review: reviewed, genesis_wallet_claim_terms: reviewed, launch_policy_and_custody: reviewed, venue_routes_and_liquidity: reviewed, x402_v2_exact_4663_usdg: reviewed, rollback_and_operator_runbook: reviewed };
+    expect(validateIpxIssuanceManifest(manifest, p).manifest_hash).toMatch(/^0x[0-9a-f]{64}$/);
+    expect(() => loadIpxIssuanceManifest(undefined, p)).toThrow('ipx_issuance_manifest_required');
+    expect(() => validateIpxIssuanceManifest({ ...manifest, genesis_wallet_claim_terms: { ...reviewed, reviewer: 'TBD' } }, p)).toThrow();
+    expect(() => validateIpxIssuanceManifest({ ...manifest, deployed_contracts: { ...manifest.deployed_contracts, token: p.contribution_vault } }, p)).toThrow('ipx_issuance_manifest_policy_mismatch');
+    expect(() => validateIpxIssuanceManifest({ ...manifest, policy_hash: `0x${'c'.repeat(64)}` }, p)).toThrow('ipx_issuance_manifest_policy_mismatch');
   });
   it('does not admit a call when the cohort lock waits beyond campaign close', async () => {
     let now = new Date('2026-10-09T23:59:59Z'); const store = new TestStore();
