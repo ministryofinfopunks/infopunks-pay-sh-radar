@@ -32,7 +32,6 @@
   "dependencies": {
     "@fastify/cors": "^11.2.0",
     "@resvg/resvg-js": "^2.6.2",
-    "@vitejs/plugin-react": "latest",
     "@x402/core": "^2.28.0",
     "@x402/evm": "^2.28.0",
     "fastify": "^5.8.5",
@@ -40,7 +39,6 @@
     "react": "latest",
     "react-dom": "latest",
     "viem": "^2.55.13",
-    "vite": "latest",
     "zod": "latest"
   },
   "devDependencies": {
@@ -48,10 +46,12 @@
     "@types/pg": "^8.20.0",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "@vitejs/plugin-react": "^6.1.2",
     "jsdom": "latest",
     "tsx": "latest",
     "typescript": "latest",
-    "vitest": "latest"
+    "vite": "^8.3.4",
+    "vitest": "^4.1.11"
   },
   "engines": {
     "node": ">=20"
