@@ -1,0 +1,68 @@
+{
+  "manifest_version": "ipx-release-evidence.v1",
+  "evidence_date": "2026-10-09",
+  "candidate": {
+    "repository": "Infopunks Pay.sh Intelligence Terminal",
+    "branch": "codex/ipx-integration-candidate",
+    "commit": "eeee995e964240e6ef2c659f18c83875c140a221",
+    "parent": "d9065dc1682a22fc73c87b0d2a63bc4f0229e235",
+    "policy_hash": null,
+    "deployment_id": null
+  },
+  "toolchain": {
+    "node": "v25.6.1",
+    "npm": "11.9.0",
+    "postgresql": "14.20",
+    "foundry": "1.5.1-stable"
+  },
+  "checks": {
+    "vitest_full_suite": { "status": "PASS", "files_passed": 268, "tests_passed": 1895, "tests_skipped": 1, "tests_total": 1896, "postgres_url": "postgresql://localhost/postgres" },
+    "postgres_resilience": { "status": "PASS", "tests_passed": 16, "tests_failed": 0 },
+    "typecheck": "PASS",
+    "lint": "PASS",
+    "production_build": { "status": "PASS", "warning": "one client chunk exceeds 500 kB" },
+    "foundry": { "status": "PASS", "tests_passed": 6, "tests_failed": 0, "dependency_provenance": "cached ignored OpenZeppelin tree; upstream pin was not freshly fetched" },
+    "migrations": { "status": "PASS", "up_migrations_applied": 22, "base_tables": 46, "publication_backfill": "PASS", "rollback_guard": "PASS" },
+    "postgres_backup_restore": { "status": "PASS", "scope": "local disposable schema", "free_attempt_hash_and_position_retained": true }
+  },
+  "migration_sha256": {
+    "20261007_011_canonical_receipt_spine.up.sql": "78759614ada801c801920410d5010f6fcb6ec1c563a1974cba836ea3c8ba551f",
+    "20261007_014_derived_score_projection.up.sql": "d6f033ee13d73b36477c080d3b38cc6c343cf5bf8f5c64a00373ee2573afbec3",
+    "20261008_017_ipx_launch.up.sql": "77583eea4504ce611737f8f73f94172309229378bceefb21068752ee07e6f364",
+    "20261008_018_decision_context.up.sql": "388aab7dcfe4b5c41052dd5213a55ee81886b769ff96fef7b1ac93b34697a815",
+    "20261008_019_execution_score_eligibility.up.sql": "22544b426e91771c9b6beded5c50d657de5d71c0cc9ff017402c7f1411471c71",
+    "20261008_020_receipt_acceptance.up.sql": "4f72db8131c5b3620254a9c8ac52e761397296ec3b581440b69f36ad7da55be7",
+    "20261008_021_free_assessment_attempts.up.sql": "64cb87863e6f6a425e60aea8145a943a39eb058d0e1dcc0368df8616a39e7989",
+    "20261008_022_publication_boundaries.up.sql": "2c39cd656076f20d3eaae6b1c6d8f4a5f9bee1b65775a93cd80a9c76fc012ca0"
+  },
+  "security_audit": {
+    "all_dependencies": { "total": 11, "high": 8, "moderate": 2, "low": 1, "critical": 0 },
+    "production_dependencies": { "total": 8, "high": 7, "moderate": 0, "low": 1, "critical": 0 }
+  },
+  "public_availability": {
+    "checked_at_utc": "2026-10-09T04:51:43Z",
+    "service_paths": ["/health", "/status", "/v1/ipx/launch", "/v1/ipx/economy/summary"],
+    "service_status": 503,
+    "routing_header": "x-render-routing: suspend",
+    "service_body_sha256": "e5805ccce9532a696c4103997ad9e6d34037dfac71e46dd615641cd7869b3956",
+    "benchmark_summary_status": 429,
+    "benchmark_summary_body_sha256": "4360661fdb0fc689b32a48e9fd150cfea05c4a34bdffe1fe47090b8a426d930d"
+  },
+  "gates": { "G0": "BLOCKED", "G1": "BLOCKED", "G2": "BLOCKED", "G3": "BLOCKED", "G4": "BLOCKED", "G5": "BLOCKED", "G6": "BLOCKED" },
+  "evidence_bundle": {
+    "directory": "runs/ipx-eeee995-2026-10-09/",
+    "checksums_file": "runs/ipx-eeee995-2026-10-09/SHA256SUMS",
+    "checksums_file_sha256": "ba0ebd758232c58de68c48b58283c9362d8a70091309c6107b1e43977aefee0b"
+  },
+  "review": {
+    "independent_replay_review": "Separate agent reproduced stable historical three-boundary manifest on the candidate; review note is documented in ipx-release-evidence-eeee995-2026-10-09.md.",
+    "signature": null,
+    "status": "independently reviewable; not cryptographically signed"
+  },
+  "authority": {
+    "production_database_mutation": false,
+    "deployment_or_service_resume": false,
+    "production_key_use": false,
+    "fund_transfer_or_economic_activation": false
+  }
+}
