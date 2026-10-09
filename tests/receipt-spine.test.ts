@@ -101,6 +101,19 @@ describe.skipIf(!testUrl)('receipt spine PostgreSQL durability', () => {
       await expect(store.append('execution', sealReceipt('execution', { ...receipt, execution_id: 'bad', parent_hash: 'sha256:' + '0'.repeat(64) }))).rejects.toThrow('parent_hash_mismatch');
     }
   });
+  it('serializes concurrent duplicate receipt writes without creating conflicting records', async () => {
+    const duplicate = observationInput('concurrent-observation');
+    const authority = createReceiptAuthorityService(store);
+    const [first, second] = await Promise.all([
+      authority.appendObservation(duplicate),
+      authority.appendObservation(duplicate)
+    ]);
+    expect(first).toEqual(second);
+    expect((await pool.query('select observation_id from observation_receipts where observation_id=$1', [duplicate.observation_id])).rows).toHaveLength(1);
+
+    const conflicting = { ...duplicate, payload: { changed: true } };
+    await expect(authority.appendObservation(conflicting)).rejects.toThrow('receipt_id_conflict');
+  });
   it('blocks UPDATE, DELETE, and TRUNCATE at database level for all five tables', async () => {
     await appendChain(store);
     for (const table of ['observation_receipts', 'judgment_receipts', 'execution_receipts', 'evaluation_receipts', 'judgment_observations']) {
