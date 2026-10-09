@@ -1,0 +1,91 @@
+{
+  "schema_version": "decisions-e1-run-freeze.v1",
+  "run_id": "e1-runway-kord-v1",
+  "status": "blocked_provider_evidence_schema_and_staging_missing",
+  "dispatch_enabled": false,
+  "external_requests_enabled": false,
+  "financial_settlement_enabled": false,
+  "openai_decisions_authorization_enabled": false,
+  "source_baseline_commit": "32bcf68104d70e478706bb8fff92c91c4b2308b9",
+  "provider": {
+    "name": "Runway Weather Oracle",
+    "endpoint": "https://runwayoracle.com/v1/oracle/v3/ord-edge",
+    "method": "GET",
+    "station": "KORD",
+    "network": "eip155:8453",
+    "asset": "USDC",
+    "maximum_service_amount": "0.05",
+    "required_quote_mode": "live_telemetry",
+    "response_schema_sha256": null,
+    "provider_request_id_field": null,
+    "provider_side_record_verification_method": null,
+    "provider_identity_independent_verification_ref": null
+  },
+  "task": {
+    "description": "Retrieve one current KORD temperature nowcast and compare it with the matching official NWS KORD observation.",
+    "success_criteria_version": "e1-kord-nowcast-rubric.v1-draft",
+    "max_observation_age_seconds": 300,
+    "max_absolute_temperature_error_f": 2,
+    "unit_conversion": "convert provider and NWS values to Fahrenheit before comparison",
+    "source_overlap_disclosed": true,
+    "reviewer_acceptance_of_source_overlap_ref": null
+  },
+  "policy": {
+    "deterministic_policy_commit": null,
+    "configuration_digest": null,
+    "feature_flag_openai_decisions": false,
+    "evidence_freshness_limit_seconds": null,
+    "max_service_cost": "0.05 USDC",
+    "max_judgment_cost": "0.25 USD equivalent on eip155:4663 USDG",
+    "max_combined_fees": "0.25 USD equivalent across eip155:8453 and eip155:4663",
+    "max_total_outlay": "0.55 USD equivalent"
+  },
+  "environment": {
+    "isolated_staging_ref": null,
+    "dedicated_postgres_ref": null,
+    "backup_restore_verification_ref": null,
+    "test_judgment_issuer_id": null,
+    "test_judgment_public_key_registry_sha256": null,
+    "production_key_separation_review_ref": null,
+    "base_rpc_verification_ref": null,
+    "judgment_rail_facilitator_ref": null
+  },
+  "approvals": {
+    "operator_identity_ref": null,
+    "operator_run_approval_ref": null,
+    "financial_approval_ref": null,
+    "provider_request_approval_ref": null,
+    "settlement_approval_ref": null,
+    "independent_blinded_reviewer_ref": null,
+    "independent_outcome_reviewer_ref": null
+  },
+  "execution_limits": {
+    "positive_attempts": 1,
+    "automatic_retries": 0,
+    "only_staging_writes": true,
+    "production_writes": false,
+    "reputation_projection_allowed": false,
+    "require_original_request_response_bytes": true,
+    "require_provider_side_delivery_record": true,
+    "require_finalized_base_usdc_transfer": true
+  },
+  "expected_artifacts": {
+    "observation_receipt_id": null,
+    "judgment_receipt_id": null,
+    "execution_receipt_id": null,
+    "evaluation_receipt_id": null,
+    "provider_original_response_sha256": null,
+    "provider_delivery_record_sha256": null,
+    "nws_observation_sha256": null,
+    "base_settlement_proof_sha256": null,
+    "independent_evaluation_review_sha256": null,
+    "replay_report_sha256": null
+  },
+  "freeze": {
+    "frozen_at": null,
+    "freeze_content_sha256": null,
+    "signed_by_operator_ref": null,
+    "signed_by_independent_reviewer_ref": null,
+    "note": "Complete the environment, provider schema, trust, policy, and approval references and freeze a new immutable version before any external request. This template authorizes no request or payment."
+  }
+}

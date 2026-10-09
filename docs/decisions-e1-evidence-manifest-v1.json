@@ -3,6 +3,28 @@
   "baseline_commit": "a52a6b4cc140ada3312170f068cf940bcbead8b5",
   "status": "preparation_only",
   "e1_verified": false,
+  "e1_checklist": {
+    "authentic_observation": false,
+    "judgment_reproduced": false,
+    "provider_side_execution_proof": false,
+    "independent_evaluation_review": false,
+    "receipt_integrity_and_replay": false,
+    "passed_count": 0,
+    "required_count": 5
+  },
+  "provider_candidate": {
+    "name": "Runway Weather Oracle",
+    "selection_status": "provisional_not_qualified",
+    "public_endpoint": "https://runwayoracle.com/v1/oracle/v3/ord-edge",
+    "payment_network": "eip155:8453",
+    "payment_asset": "USDC",
+    "published_live_price_usd": 0.05,
+    "published_degraded_price_usd": 0.01,
+    "response_schema_published": false,
+    "provider_signed_or_independently_retrievable_delivery_evidence_documented": false,
+    "endpoint_called": false,
+    "source": "https://runwayoracle.com/catalog.json"
+  },
   "historical": {
     "source_class": "canonical_postgres_unavailable",
     "immutable_snapshot_id": null,

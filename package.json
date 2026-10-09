@@ -27,6 +27,7 @@
     "benchmark:decisions-live": "tsx scripts/benchmark-decisions-live.ts",
     "benchmark:decisions-qualification-mock": "tsx scripts/benchmark-decisions-qualification-mock.ts",
     "audit:decisions-history": "tsx scripts/audit-decisions-history.ts",
+    "prepare:e1-run": "tsx scripts/prepare-e1-run.ts",
     "review:decisions-packet": "tsx scripts/build-decisions-review-packet.ts",
     "review:decisions-freeze": "tsx scripts/freeze-decisions-independent-review.ts",
     "report:decisions-real-evidence": "tsx scripts/report-decisions-real-evidence.ts",
