@@ -1,0 +1,21 @@
+captured_at_utc=2026-10-09T09:16:26Z
+
+healthz https://radar.infopunks.fun/healthz
+http_code=503 time_total=0.527230
+e5805ccce9532a696c4103997ad9e6d34037dfac71e46dd615641cd7869b3956  docs/evidence/runs/ipx-f6e2019-readonly-2026-10-09/healthz.body
+
+readyz https://radar.infopunks.fun/readyz
+http_code=503 time_total=0.390417
+e5805ccce9532a696c4103997ad9e6d34037dfac71e46dd615641cd7869b3956  docs/evidence/runs/ipx-f6e2019-readonly-2026-10-09/readyz.body
+
+health https://radar.infopunks.fun/health
+http_code=503 time_total=0.396654
+e5805ccce9532a696c4103997ad9e6d34037dfac71e46dd615641cd7869b3956  docs/evidence/runs/ipx-f6e2019-readonly-2026-10-09/health.body
+
+launch https://radar.infopunks.fun/v1/ipx/launch
+http_code=429 time_total=0.185929
+4364aa6bf5ed4fc65d5b0a1ba8a88f29bd9c5f1a79218f00480ef5faa879cdd5  docs/evidence/runs/ipx-f6e2019-readonly-2026-10-09/launch.body
+
+render-healthz https://infopunks-pay-sh-radar.onrender.com/healthz
+http_code=503 time_total=0.494746
+e5805ccce9532a696c4103997ad9e6d34037dfac71e46dd615641cd7869b3956  docs/evidence/runs/ipx-f6e2019-readonly-2026-10-09/render-healthz.body

@@ -20,11 +20,12 @@
     "fastify": "5.12.5"
   },
   "checks": {
-    "vitest_full_suite": { "status": "PASS", "files_passed": 268, "tests_passed": 1895, "tests_skipped": 1, "tests_total": 1896, "skip_reason": "Real PostgreSQL resilience test ran separately with POSTGRES_RESILIENCE_TEST_URL and passed 16/16.", "engine_caveat": "Node 25 is outside Vitest 5 declared engine range" },
-    "postgres_resilience": { "status": "PASS", "tests_passed": 16, "tests_failed": 0 },
+    "vitest_full_suite": { "status": "PASS", "files_passed": 268, "tests_passed": 1895, "tests_skipped": 1, "tests_total": 1896, "skip_reason": "Real PostgreSQL resilience test ran separately with POSTGRES_RESILIENCE_TEST_URL and passed 16/16.", "runtime": "Node v25.6.1", "engine_caveat": "Node 25 is outside Vitest 5 declared engine range" },
+    "postgres_resilience": { "status": "PASS", "tests_passed": 16, "tests_failed": 0, "runtime": "Node v25.6.1" },
     "typecheck": "PASS",
     "lint": "PASS",
     "production_build": { "status": "PASS", "warnings": ["Vite config-loader compatibility", "one client chunk exceeds 500 kB"] },
+    "node24_qualification": { "status": "PASS", "runtime": "Node v24.21.0", "full_suite": { "files_passed": 268, "tests_passed": 1896, "tests_failed": 0, "tests_skipped": 0, "runtime_database": "disposable local ipx_node24_full_20261009; dropped after test" }, "initial_unconfigured_run": { "files_passed": 257, "files_skipped": 11, "tests_passed": 1874, "tests_skipped": 22 }, "postgres_resilience": { "tests_passed": 41, "tests_failed": 0, "database": "disposable local ipx_node24_resilience_20261009; dropped after test" }, "typecheck": "PASS", "lint": "PASS", "production_build": "PASS", "warnings": ["Vite config-loader compatibility", "one client chunk exceeds 500 kB"] },
     "foundry": { "status": "PASS", "tests_passed": 6, "tests_failed": 0, "dependency_provenance": "cached ignored OpenZeppelin tree; upstream pin was not freshly fetched" },
     "migrations": { "status": "PASS", "up_migrations_applied": 22, "base_tables": 46, "publication_backfill": "PASS", "rollback_guard": "PASS" },
     "postgres_backup_restore": { "status": "PASS", "scope": "local disposable schema", "free_attempt_hash_and_position_retained": true }
@@ -51,14 +52,44 @@
     "routing_header": "x-render-routing: suspend",
     "all_bodies_sha256": "e5805ccce9532a696c4103997ad9e6d34037dfac71e46dd615641cd7869b3956"
   },
+  "public_availability_recheck": {
+    "checked_at_utc": "2026-10-09T09:16:26Z",
+    "suspended_paths": ["/healthz", "/readyz", "/health", "render-hostname:/healthz"],
+    "suspended_status": 503,
+    "suspended_body_sha256": "e5805ccce9532a696c4103997ad9e6d34037dfac71e46dd615641cd7869b3956",
+    "launch_status": 429,
+    "launch_body_sha256": "4364aa6bf5ed4fc65d5b0a1ba8a88f29bd9c5f1a79218f00480ef5faa879cdd5",
+    "artifacts": "runs/ipx-f6e2019-readonly-2026-10-09/"
+  },
+  "authoritative_chain_identities": {
+    "chain_id": 4663,
+    "usdg": "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168",
+    "weth": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+    "pltr": "0x894E1EC2D74FFE5AEF8Dc8A9e84686acCB964F2A",
+    "pltr_decimals": 18,
+    "pltr_multiplier": "1",
+    "pltr_registry_response_sha256": "f8c058b28cd8697494ff1c40574014492953fc4594b622601dcf66e6fc1944df",
+    "uniswap_v4_pool_manager": "0x8366a39cc670b4001a1121b8f6a443a643e40951",
+    "uniswap_v4_quoter": "0x8dc178efb8111bb0973dd9d722ebeff267c98f94",
+    "uniswap_v4_state_view": "0xf3334192d15450cdd385c8b70e03f9a6bd9e673b",
+    "uniswap_universal_router_2_1_2": "0x204FAca1764B154221e35c0d20aBb3c525710498",
+    "live_pool_state_quote_and_facilitator_compatibility": "BLOCKED; RPC and Blockscout returned HTTP 403; provider scheme claims are not independent qualification"
+  },
   "gates": { "G0": "BLOCKED", "G1": "BLOCKED", "G2": "BLOCKED", "G3": "BLOCKED", "G4": "BLOCKED", "G5": "BLOCKED", "G6": "BLOCKED" },
   "evidence_bundle": {
     "directory": "runs/ipx-f6e2019-2026-10-09/",
     "checksums_file": "runs/ipx-f6e2019-2026-10-09/SHA256SUMS",
-    "checksums_file_sha256": "8a35b222cfa9e02ede6ad089d563f7be11e4b24a2803b83dbe5733bc90c3a4ab"
+    "checksums_file_sha256": "8a35b222cfa9e02ede6ad089d563f7be11e4b24a2803b83dbe5733bc90c3a4ab",
+    "node24_run_directory": "runs/ipx-f6e2019-node24-2026-10-09/",
+    "node24_checksums_file_sha256": "bc9f0c9b6a32a8247b43571770511627b9367e1692d64f6d5884229dc189828b",
+    "read_only_recheck_directory": "runs/ipx-f6e2019-readonly-2026-10-09/",
+    "read_only_recheck_checksums_file_sha256": "c872f78f841ab93950d665bcf59bef1923f30ef2f0d1a9a13fe9a80c78023294",
+    "qualification_addendum_sha256": "dc18239529ffd3dc0b6f4b69ab70aa70e74f8a4cdc9cbe66dce0a431ffe33d15",
+    "qualification_checksums_file": "ipx-release-qualification-f6e2019-SHA256SUMS"
   },
   "review": {
     "independent_replay_review": "Separate agent independently reproduced the stable three-boundary publication manifest on the application source shared with this lockfile-only candidate.",
+    "independent_security_accounting_legal_review": "Packets prepared only; no independent review complete",
     "signature": null,
     "status": "independently reviewable; not cryptographically signed"
   },
