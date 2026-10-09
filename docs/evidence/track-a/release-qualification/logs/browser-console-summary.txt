@@ -1,0 +1,6 @@
+Candidate browser capture run: local server on 127.0.0.1:8788; Chromium 147 headless; six routes (/ , /solana, /4663, /spend-terminal, /receipts, /developers) × desktop 1440x1000 and mobile 390x844; screenshots after 12 seconds virtual time.
+
+Observed page JavaScript console warning on Solana desktop/mobile:
+[radar-render:pricing] malformed pricing payload, using unknown
+
+Chromium emitted shared-image mailbox errors in a developer desktop capture. These are browser headless/GPU diagnostics; no application JavaScript exception was observed in the captured console messages. This is not a per-request network log. Detailed network response capture, accessibility audit, and performance measurements were unavailable because no Playwright/CDP harness is installed.

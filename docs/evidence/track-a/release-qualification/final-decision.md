@@ -6,4 +6,4 @@ Do not deploy or activate paid judgment, economic execution, IPX, token operatio
 
 Outstanding blockers: (1) Railway staging project/service, private DB, staging-only credentials, approved revision and operator-controlled migration ledger/runner; (2) actual staging live-catalog freshness and canonical registry verification; (3) browser network-response capture plus accessibility/performance/security checks; (4) candidate browser pricing warning investigation and Reflexive NVDA registry validation; (5) staging backup/restore and rollback rehearsal; (6) external settlement/task proof and independently reviewed Evaluation evidence. The synthetic causal fixture establishes deterministic replay only and supports no real-world Level 3 improvement claim.
 
-Final frozen-SHA validation result is to be recorded after the commit that contains this report and all evidence.
+Frozen-SHA validation passed on `58b7a3cba57abacaf7b5f4e80b3bd553396a8788`; see `frozen-sha-validation.md`.
