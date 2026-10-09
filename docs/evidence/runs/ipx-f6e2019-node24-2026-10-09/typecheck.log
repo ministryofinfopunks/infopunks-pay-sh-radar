@@ -1,0 +1,5 @@
+v24.21.0
+
+> infopunks-pay-sh-radar@0.1.0 typecheck
+> tsc --noEmit
+
