@@ -1,4 +1,6 @@
-# IPX A6 local proof package — 8 October 2026
+# IPX A6 local proof package — 8 October 2026, updated for final candidate
+
+The exact integrated evidence is in `ipx-release-evidence-eeee995-2026-10-09.md`. The focused validation recorded below predates the final frozen-candidate run; use the 9 October report for current test counts and checksums.
 
 Certified claim scope: paid `/v1/pre-spend/check` only. No claim is made that the separate economic decision engine learns from O/J/X/E or that IPX token economics are live.
 
