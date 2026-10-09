@@ -1,0 +1,7 @@
+captured_at_utc=2026-10-09T09:27:17Z
+render_whoami_exit=1
+render_services_exit=1
+rpc_http_code=200
+rpc_curl_exit=0
+blockscout_http_code=403
+blockscout_curl_exit=0

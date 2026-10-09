@@ -1,0 +1,40 @@
+{
+  "schema": "ipx.economic-owner-decision.v1",
+  "candidate_sha": "f6e201963e0beaed0ec2bcc291fb07c04ca67b7b",
+  "status": "AWAITING_OWNER_DECISION",
+  "selected_model": null,
+  "allowed_choices": ["MODEL_A", "MODEL_B", "NEITHER", "HYBRID"],
+  "model_definitions": {
+    "MODEL_A": "Venue buy levy to a PLTR reserve and venue sell levy to IPX burn/lock.",
+    "MODEL_B": "Positive USDG service contribution funds PLTR purchase and IPX burn.",
+    "NEITHER": "No token economy activation; intelligence service remains non-economic.",
+    "HYBRID": "A fully specified source-level allocation across A and B, with each atomic unit assigned once."
+  },
+  "policy": {
+    "version": null,
+    "policy_hash": null,
+    "chain_id": null,
+    "deployment_id": null,
+    "permitted_assets": [],
+    "rates_bps": {},
+    "recipients": {},
+    "supply_and_allocation_rights": null,
+    "refund_holdback_cost_order": null,
+    "custody_legal_owner": null,
+    "signer_debit_upgrade_incident_authority": null,
+    "measurement_method": null,
+    "operating_limits": null,
+    "jurisdictions_and_participant_scope": null,
+    "public_disclosure_text": null
+  },
+  "approvals": {
+    "owner_name": null,
+    "owner_signature_reference": null,
+    "signed_at": null,
+    "independent_security_review_reference": null,
+    "independent_accounting_review_reference": null,
+    "independent_legal_review_reference": null
+  },
+  "activation_authorized": false,
+  "notes": "This template is not authorization. Do not infer or fill parameters from hypothetical simulations or existing code defaults."
+}

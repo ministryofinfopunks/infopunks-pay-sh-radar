@@ -1,0 +1,13 @@
+Robinhood Chain 4663 read-only observations. No transaction submission, wallet signing, or funds movement occurred.
+
+Provider used for the finalized snapshot: BlockReq public JSON-RPC https://robinhood-mainnet-rpc.blockreq.com/v1/rpc/public (keyless, read-only). It returned eth_chainId 0x1237 and finalized block 0x5026ece, hash 0xe039c3bef44bcd424b15ca740e7cbb1ffc82bfdd03cbef4678652b80f19c9495.
+
+Exact command: IPX_READONLY_RPC_URL=https://robinhood-mainnet-rpc.blockreq.com/v1/rpc/public IPX_BLOCK_TAG=finalized node docs/evidence/tools/ipx-4663-readonly-snapshot.mjs > docs/evidence/runs/ipx-f6e2019-rpc-read-2026-10-09/pinned-finalized-snapshot.json
+
+The script pins all eth_getCode and eth_call requests to the captured block hash with EIP-1898 requireCanonical=true. The snapshot records that the moving head advanced during the batch. At that finalized block, six published addresses returned non-empty code; USDG/PLTR metadata, StateView slot0/liquidity and six bidirectional Quoter simulations are recorded. These simulations do not constitute transaction execution or a live route.
+
+The proposed PoolKey is USDG 0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168, PLTR 0x894E1EC2D74FFE5AEF8Dc8A9e84686acCB964F2A, fee=10000, tickSpacing=200, hooks=zero address. Its pool ID is 0xee430ee1003e1985e1828a01b9a20dad67ad4302994fe2abb4a173de4ac54623. A matching Initialize event was captured at block 0x6c0856; raw log and receipt are retained in pool-init-block-and-receipt.json.
+
+pinned-latest-snapshot.json is an earlier official-RPC read pinned to block 0x5028f6d; official RPC did not serve finalized historical state. independent-rpc-observations.json retains an independent observation where a later latest-block USDG-to-PLTR quote was inconsistent with tick and reverse quote. That discrepancy remains open and must be reconciled before G3 closes. It is not erased or silently replaced by the finalized snapshot.
+
+The /supported evidence showed Canopy advertises exact-permit2-v2 while candidate code requires x402 v2 exact with USDG EIP-3009. Vantis documentation claims exact/EIP-3009 support, but its endpoint response was unavailable. Neither facilitator is qualified for release.

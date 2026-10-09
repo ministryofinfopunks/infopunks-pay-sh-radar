@@ -1,0 +1,298 @@
+{
+  "schema": "ipx.release-blocker-ledger.v1",
+  "updated_at_utc": "2026-10-09T09:44:00Z",
+  "candidate": {
+    "repository": "Infopunks Pay.sh Intelligence Terminal",
+    "branch": "codex/ipx-release-candidate-f6e2019",
+    "sha": "f6e201963e0beaed0ec2bcc291fb07c04ca67b7b",
+    "source_worktree_clean": true,
+    "policy_hash": null,
+    "deployment_id": null,
+    "candidate_source_changes": false
+  },
+  "qualification": {
+    "node": "v24.21.0",
+    "vitest": {
+      "files_passed": 268,
+      "tests_passed": 1896,
+      "tests_failed": 0,
+      "tests_skipped": 0
+    },
+    "postgres_resilience_readiness": {
+      "tests_passed": 41,
+      "tests_failed": 0,
+      "database_disposable": true
+    },
+    "typecheck": "PASS",
+    "lint": "PASS",
+    "build": "PASS_WITH_WARNINGS",
+    "artifact_checksums": "ipx-release-qualification-f6e2019-SHA256SUMS"
+  },
+  "gates": {
+    "G0": {
+      "status": "BLOCKED",
+      "evidence_present": [
+        "A4-A6 implementation tests",
+        "offline witness verifier",
+        "bounded synthetic witness tests"
+      ],
+      "missing": [
+        "real eligible O-J1-X-E-J2 route",
+        "genuine executor output",
+        "independently finalized outcome and settlement evidence"
+      ],
+      "synthetic_evidence_used_as_real": false
+    },
+    "G1": {
+      "status": "BLOCKED",
+      "evidence_present": [
+        "stable three-boundary manifest replay",
+        "append-only receipt/attempt/quarantine ordering tests"
+      ],
+      "missing": [
+        "external immutable mirror inclusion and consistency proof",
+        "complete externally observed real tape",
+        "independently measured improvement series"
+      ],
+      "verified_real_revision_count": 0,
+      "measured_improvement_count": 0
+    },
+    "G2": {
+      "status": "BLOCKED",
+      "evidence_present": [
+        "Model A/B/neither/hybrid decision materials",
+        "hypothetical conservation simulations"
+      ],
+      "missing": [
+        "signed owner model selection",
+        "approved parameterized policy and policy hash",
+        "independent accounting and legal review"
+      ],
+      "activation_authorized": false
+    },
+    "G3": {
+      "status": "BLOCKED",
+      "verified": [
+        "official network chain ID 4663 and published token/deployment identities",
+        "RPC chain ID 0x1237 and finalized block 0x5026ece (hash 0xe039c3bef44bcd424b15ca740e7cbb1ffc82bfdd03cbef4678652b80f19c9495)",
+        "USDG/PLTR metadata, non-empty bytecode for six published addresses, pool slot0/liquidity, and six Quoter eth_call results all queried at that finalized block hash with requireCanonical=true",
+        "matching PoolManager Initialize event at block 0x6c0856; receipt status 1; PoolKey hashes to candidate pool ID"
+      ],
+      "missing": [
+        "independent reproduction and canonical bytecode/source verification of finalized snapshot",
+        "independently qualified configured x402 facilitator compatibility and staged verify/settle behavior",
+        "authorized staging integration and bounded real-route execution; eth_call quotes are simulations and no transaction/funds moved",
+        "reconcile earlier independent pinned-latest USDG\u2192PLTR quote anomaly with later finalized snapshot and exact calldata/result decoding"
+      ],
+      "attempted_rpc_http_status": 200,
+      "rpc": {
+        "endpoint": "https://robinhood-mainnet-rpc.blockreq.com/v1/rpc/public",
+        "chain_id": "0x1237",
+        "finalized_block": {
+          "number": "0x5026ece",
+          "hash": "0xe039c3bef44bcd424b15ca740e7cbb1ffc82bfdd03cbef4678652b80f19c9495",
+          "timestamp": "0x6ac8b198"
+        },
+        "snapshot": "runs/ipx-f6e2019-rpc-read-2026-10-09/pinned-finalized-snapshot.json",
+        "snapshot_calls_pinned_by_block_hash_and_requireCanonical": true,
+        "same_head_before_after": false,
+        "pool_id": "0xee430ee1003e1985e1828a01b9a20dad67ad4302994fe2abb4a173de4ac54623",
+        "pool_init_block": "0x6c0856",
+        "pool_slot0": {
+          "sqrtPriceX96": "5624129362939806910026818149262607",
+          "tick": 223416,
+          "protocolFee": 4097000,
+          "lpFee": 10000
+        },
+        "active_liquidity": "544150599980256199",
+        "quotes_raw_atomic": {
+          "usdg_1_to_pltr": "4983701959914513",
+          "usdg_10_to_pltr": "49836961729435973",
+          "usdg_100_to_pltr": "498363830397359956",
+          "pltr_0.01_to_usdg": "1962678",
+          "pltr_0.1_to_usdg": "19626738",
+          "pltr_1_to_usdg": "196262862"
+        },
+        "quote_evidence_type": "successful eth_call simulation at exact finalized block; no transaction or funds moved",
+        "facilitator": "Canopy advertises exact-permit2-v2 while candidate requires x402 v2 exact with USDG EIP-3009; incompatible absent reviewed adapter. Vantis exact/EIP-3009 support claimed in docs but endpoint compatibility not confirmed.",
+        "independent_latest_quote_anomaly": "Preserved in runs/ipx-f6e2019-rpc-read-2026-10-09/independent-rpc-observations.json; initial USDG\u2192PLTR output conflicts with tick and reverse quote."
+      },
+      "official_rpc_historical_state": "unavailable; use finalized-state observations from BlockReq public RPC"
+    },
+    "G4": {
+      "status": "BLOCKED",
+      "evidence_present": [
+        "exact-SHA security/accounting/legal review packets"
+      ],
+      "missing": [
+        "signed independent security report and finding closure",
+        "signed accounting reconciliation",
+        "jurisdiction-specific counsel memo",
+        "approved operator/signer/custody authority map"
+      ]
+    },
+    "G5": {
+      "status": "BLOCKED",
+      "evidence_present": [
+        "Node 24 qualification",
+        "local migration/restore rehearsal",
+        "public suspension response capture",
+        "recovery/rollback runbook"
+      ],
+      "missing": [
+        "Render service ID, suspension cause/actor, event/billing history, deployed SHA and database identity",
+        "production DB role/backup/migration evidence",
+        "approved staging verification and separate explicit service resume/deploy approval"
+      ],
+      "public_status": 503,
+      "render_cli": "v2.22.0; whoami/workspace read-only queries unauthorized because token expired; no mutations attempted",
+      "production_mutation_performed": false
+    },
+    "G6": {
+      "status": "BLOCKED",
+      "requires": [
+        "G0",
+        "G1",
+        "G2",
+        "G3",
+        "G4",
+        "G5"
+      ],
+      "same_candidate_policy_deployment_reconciled": false
+    }
+  },
+  "dependencies": {
+    "B3": {
+      "status": "BLOCKED",
+      "missing": [
+        "finalized USDG merchant receipt",
+        "source-to-revenue-to-contribution-to-purchase-to-burn lineage",
+        "reviewed costs/refund/dedupe evidence"
+      ],
+      "real_transfer_authorized": false
+    },
+    "B4": {
+      "status": "BLOCKED",
+      "missing": [
+        "owner-approved policy",
+        "complete externally retrievable reviewed manifest",
+        "finalized deployed getters/bytecode and matching block"
+      ]
+    },
+    "C6": {
+      "status": "BLOCKED",
+      "depends_on": [
+        "B3",
+        "B4",
+        "G2",
+        "G3",
+        "G5"
+      ],
+      "missing": [
+        "verified recovered deployment and staging prerequisites",
+        "separate bounded live-route and transfer approval"
+      ]
+    },
+    "D5": {
+      "status": "BLOCKED",
+      "missing": [
+        "selected model/policy",
+        "reconciled source-complete economic ledger",
+        "finalized public roots",
+        "legal disclosure review",
+        "closed material findings"
+      ]
+    }
+  },
+  "approval_requests": [
+    {
+      "id": "render-read-only-access",
+      "needed_for": [
+        "G5"
+      ],
+      "request": "A named Render operator reauthenticate the CLI with `render login` (or grant a read-only role) and capture service ID/state/suspension reason/actor, event and billing history, latest build/startup logs, deployed SHA, environment variable names and set/unset state without values, database identity, latest backup identifier, and migration ledger. Do not resume or deploy during diagnosis.",
+      "approval_type": "ACCESS",
+      "performed": false
+    },
+    {
+      "id": "render-resume-or-deploy",
+      "needed_for": [
+        "G5"
+      ],
+      "request": "After root cause and target SHA are reviewed, explicitly approve resuming the named Render service or deploying one specified SHA. This does not authorize production database mutation or financial activation.",
+      "approval_type": "PRODUCTION_CHANGE",
+      "performed": false
+    },
+    {
+      "id": "economic-model-selection",
+      "needed_for": [
+        "G2",
+        "B3",
+        "B4",
+        "D5"
+      ],
+      "request": "Owner selects A, B, neither, or a fully specified hybrid, and signs the complete policy scope/parameters. All rates, allocations, custody/signers, limits, and legal terms remain unset until then.",
+      "approval_type": "POLICY_DECISION",
+      "performed": false
+    },
+    {
+      "id": "independent-reviews",
+      "needed_for": [
+        "G4"
+      ],
+      "request": "Appoint independent security, accounting, and jurisdiction-appropriate legal reviewers to report against this exact source SHA and, once selected, the same policy hash and deployment identity.",
+      "approval_type": "INDEPENDENT_REVIEW",
+      "performed": false
+    },
+    {
+      "id": "real-route-and-publication",
+      "needed_for": [
+        "G0",
+        "G1",
+        "B3",
+        "C6"
+      ],
+      "request": "After service recovery, policy review, finalized route verification, and staging rehearsal, separately approve bounded real-route spending/transfers and publication of identified witness/manifest artifacts.",
+      "approval_type": "FINANCIAL_AND_PUBLICATION",
+      "performed": false
+    },
+    {
+      "id": "staging-identity",
+      "needed_for": [
+        "G3",
+        "G5"
+      ],
+      "request": "Identify and explicitly authorize the staging deployment/database copy and non-production test identities for readiness, migration/recovery rehearsal, and facilitator verify/settle checks without production funds. Any production DB mutation requires separate approval for the exact operation.",
+      "approval_type": "STAGING_ACCESS",
+      "performed": false
+    },
+    {
+      "id": "bounded-real-route",
+      "needed_for": [
+        "G0",
+        "G3",
+        "B3",
+        "C6"
+      ],
+      "request": "After staging and policy/reviewer gates pass, approve one bounded real route specifying chain, asset, exact maximum amount, recipient/counterparty, slippage/deadline, signer, stop conditions, and reconciliation evidence. This does not authorize any other transfer.",
+      "approval_type": "FINANCIAL_ACTION",
+      "performed": false
+    },
+    {
+      "id": "witness-publication",
+      "needed_for": [
+        "G1",
+        "C6",
+        "D5"
+      ],
+      "request": "After genuine eligible causal evidence exists and the exact packet is independently checked, approve publication of the named witness/tape/manifest artifacts and external immutable mirror with specified retention and URL.",
+      "approval_type": "PUBLICATION",
+      "performed": false
+    }
+  ],
+  "final_decision": {
+    "G6": "BLOCKED",
+    "as_of_utc": "2026-10-09T09:44:00Z",
+    "basis": "G0-G5 do not independently satisfy mandatory requirements against one approved policy hash and identified deployment; real route/causal witness, independent reviews, facilitator qualification, Render diagnosis and owner policy remain outstanding."
+  }
+}

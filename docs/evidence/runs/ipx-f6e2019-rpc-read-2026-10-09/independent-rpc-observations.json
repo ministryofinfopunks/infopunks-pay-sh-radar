@@ -1,0 +1,50 @@
+{
+  "schema": "IPX_RH4663_READ_ONLY_RPC_OBSERVATION_V1",
+  "observed_at_utc": "2026-10-09T09:34Z",
+  "provider": "BlockReq public JSON-RPC endpoint",
+  "endpoint": "https://robinhood-mainnet-rpc.blockreq.com/v1/rpc/public",
+  "authorization": "No key; read-only methods only",
+  "frozen_candidate": "f6e201963e0beaed0ec2bcc291fb07c04ca67b7b",
+  "chain_id": {"method":"eth_chainId","result":"0x1237"},
+  "finalized_header": {
+    "method":"eth_getBlockByNumber(finalized,false)",
+    "observed_at_utc":"2026-10-09T09:32:01Z",
+    "number":"0x502605f",
+    "hash":"0x68cd74e6aec8137cc6cb88244d11379b7dfa68ae0820ca6800cb050f9e4122c0",
+    "parentHash":"0xbab90870f97e5e8bd87aef41f5bdc9b20a7efc14d5d90f764a92d8d02e09901f",
+    "timestamp":"0x6ac8b020",
+    "stateRoot":"0x2be6fa92a1f0c9669a81278f0de2aa15907bf8d0cf6f714db5c2ea80884a2c0d",
+    "rpc_response_sha256":"d6c763c4d930a15213471c4a3314c159dd887e92392f6b9440fc22c40e4100fa"
+  },
+  "historical_state_limit": {
+    "method":"eth_getCode at finalized height",
+    "rpc_error_code":-32601,
+    "message":"public endpoint only serves recent blocks (last 1024). Register at blockreq.com for historical / archive access."
+  },
+  "pinned_head_observations": {
+    "number":"0x50290f1",
+    "hash":"0x6b4be3161c8efd1d7f46db0cc9db22529b781edf079e9610bca04140e05d4b30",
+    "timestamp":"0x6ac8b513",
+    "pool_id":"0xee430ee1003e1985e1828a01b9a20dad67ad4302994fe2abb4a173de4ac54623",
+    "pool_key":{"currency0":"0x5fc5360d0400a0fd4f2af552add042d716f1d168","currency1":"0x894e1ec2d74ffe5aef8dc8a9e84686accb964f2a","fee":10000,"tick_spacing":200,"hooks":"0x0000000000000000000000000000000000000000"},
+    "pool_id_recomputed_match":true,
+    "stateview_getSlot0_result":"0x00000000000000000000000000000000000115251310f836fc234c8efe7bb36900000000000000000000000000000000000000000000000000000000000368ad00000000000000000000000000000000000000000000000000000000003e83e80000000000000000000000000000000000000000000000000000000000002710",
+    "stateview_getSlot0_response_sha256":"9ff4a937aeba99759e6fded4813867db3a2b9e63c0c89b87861bef32f38f7451",
+    "stateview_getLiquidity_result":"0x000000000000000000000000000000000000000000000000078d3c9761c7fea3",
+    "stateview_getLiquidity_response_sha256":"b5df5efcdfc6a7bb28facfb1883b99047e9443285d0294680ae125d514d3a9be",
+    "quoter_calls": [
+      {"direction":"USDG to PLTR","amount_in_atomic":"1000000","zeroForOne":true,"amount_out_atomic":"1274483041822028800","response_sha256":"6371684d02b581b343470e508396facf086363087626fdd8709d1be7aaea9e1a"},
+      {"direction":"USDG to PLTR","amount_in_atomic":"100000000","zeroForOne":true,"amount_out_atomic":"127446677187071591680","response_sha256":"477742a31651f7ee0cf4ce736d513521f42ecf62ac3e8f099451bd3d04febe94"},
+      {"direction":"PLTR to USDG","amount_in_atomic":"10000000000000000","zeroForOne":false,"amount_out_atomic":"1964749","response_sha256":"25c86c356c5b94875dfe85da8e5f1330deab03439116ede726ce25b66777a8e7"},
+      {"direction":"PLTR to USDG","amount_in_atomic":"1000000000000000000","zeroForOne":false,"amount_out_atomic":"196469929","response_sha256":"c1bd312ae7bb31837d7b50e0770b7947f93c288f1a5d68bd6c448151ffa2e26"}
+    ]
+  },
+  "qualification": "NOT RELEASE-GRADE: latest pinned eth_call values conflict across direction with StateView tick-derived price. Finalized historical state/code/initialize event are unavailable through the public endpoint. No signing or transfers performed.",
+  "facilitator_compatibility": {
+    "candidate_package":"@x402/core ^2.28.0, @x402/evm ^2.28.0",
+    "candidate_scheme":"ExactEvmScheme / exact / x402 v2 / eip3009",
+    "candidate_guard":"getSupportedKind(2, network, 'exact')",
+    "canopy_supported_kind":"exact-permit2-v2 on eip155:4663",
+    "conclusion":"Canopy published supported kind does not match candidate's exact scheme. Candidate should fail closed; no adapter/settlement has been verified."
+  }
+}
