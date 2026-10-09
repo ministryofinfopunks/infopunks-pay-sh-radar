@@ -1,0 +1,64 @@
+{
+  "schema_version": "decisions-e1-evidence-manifest.v2",
+  "audit_date": "2026-10-09",
+  "source_baseline_commit": "30a005bdde5d52bc9fb805106bd2985c87aa108e",
+  "qualification_commit": null,
+  "status": "preparation_only_blocked",
+  "e1_verified": false,
+  "e1_checklist": {
+    "authentic_observation": false,
+    "judgment_reproduced": false,
+    "provider_side_execution_proof": false,
+    "independent_evaluation_review": false,
+    "receipt_integrity_and_replay": false,
+    "passed_count": 0,
+    "required_count": 5
+  },
+  "historical": {
+    "canonical_database_owner": "unresolved",
+    "active_host": "unresolved",
+    "repository_declared_app_host": "Render",
+    "read_only_access": "unavailable_in_current_environment",
+    "immutable_snapshot": null,
+    "receipt_counts": null,
+    "verified_complete_count": null,
+    "note": "Missing access means unknown historical counts, not zero."
+  },
+  "provider_candidate": {
+    "name": "Runway Weather Oracle",
+    "status": "not_qualified_for_paid_run",
+    "endpoint": "https://runwayoracle.com/v1/oracle/v3/ord-edge",
+    "network": "eip155:8453",
+    "asset": "USDC",
+    "published_live_price_usd": 0.05,
+    "published_degraded_price_usd": 0.01,
+    "non_billable_routes_checked": [
+      {"url":"https://runwayoracle.com/","status":200,"sha256":"034e2b0bca68702939d1482277b20feeed5cea224a6de3dd29ed0de36d70d89f"},
+      {"url":"https://runwayoracle.com/catalog.json","status":200,"sha256":"03269e9547f27d8c3b9e8a03c4d06407d68ec3409641190c34b10b8bcf21148c"},
+      {"url":"https://runwayoracle.com/llms.txt","status":200,"sha256":"ef895b18a14b751addac921d348a33a750ef9b12db4c45f4629061449de3f971"},
+      {"url":"https://runwayoracle.com/healthz","status":200,"sha256":"6ec86f66698f4c4c6da3dea7f574618d754f974b69f65d4803872644a0747528"}
+    ],
+    "paid_endpoint_called": false,
+    "payment_attempted": false,
+    "response_schema": "unknown",
+    "provider_request_id": "unknown",
+    "provider_side_delivery_proof": "unknown",
+    "independent_provider_identity_proof": "unknown",
+    "terms_and_retention": "unknown",
+    "nws_lineage": "same station family stated by provider; independent outcome skill not established"
+  },
+  "prospective_run": {
+    "run_id": "e1-runway-kord-v1",
+    "staging": "not provisioned",
+    "external_request_authorized": false,
+    "dispatch_enabled": false,
+    "financial_settlement_enabled": false,
+    "openai_decisions_authorization_enabled": false,
+    "judgment_payment": "none; free internal staging receipt only",
+    "service_spend_cap_usdc": "0.05",
+    "network_fee_cap_usd_equivalent": "0.10",
+    "aggregate_outlay_cap_usd_equivalent": "0.15",
+    "actual_paid_attempt_count": 0,
+    "receipt_ids": {"observation":null,"judgment":null,"execution":null,"evaluation":null}
+  }
+}

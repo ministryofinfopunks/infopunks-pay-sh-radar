@@ -1,0 +1,10 @@
+{
+  "schema_version": "decisions-history-inventory.v1",
+  "data_access_status": "unavailable",
+  "source": "canonical_postgres_not_connected",
+  "receipt_counts": null,
+  "execution_states": null,
+  "verified_outcome_count": null,
+  "blocker": "DECISIONS_HISTORY_READONLY_DATABASE_URL_absent",
+  "note": "Unknown historical counts are not zero. No synthetic fixture was substituted for a historical receipt."
+}

@@ -6,7 +6,7 @@
   "external_requests_enabled": false,
   "financial_settlement_enabled": false,
   "openai_decisions_authorization_enabled": false,
-  "source_baseline_commit": "32bcf68104d70e478706bb8fff92c91c4b2308b9",
+  "source_baseline_commit": "30a005bdde5d52bc9fb805106bd2985c87aa108e",
   "provider": {
     "name": "Runway Weather Oracle",
     "endpoint": "https://runwayoracle.com/v1/oracle/v3/ord-edge",
@@ -23,7 +23,7 @@
   },
   "task": {
     "description": "Retrieve one current KORD temperature nowcast and compare it with the matching official NWS KORD observation.",
-    "success_criteria_version": "e1-kord-nowcast-rubric.v1-draft",
+    "success_criteria_version": "e1-kord-nowcast-rubric.v1",
     "max_observation_age_seconds": 300,
     "max_absolute_temperature_error_f": 2,
     "unit_conversion": "convert provider and NWS values to Fahrenheit before comparison",
@@ -36,9 +36,9 @@
     "feature_flag_openai_decisions": false,
     "evidence_freshness_limit_seconds": null,
     "max_service_cost": "0.05 USDC",
-    "max_judgment_cost": "0.25 USD equivalent on eip155:4663 USDG",
-    "max_combined_fees": "0.25 USD equivalent across eip155:8453 and eip155:4663",
-    "max_total_outlay": "0.55 USD equivalent"
+    "max_judgment_cost": "0 (unpaid internal staging Judgment)",
+    "max_combined_fees": "0.10 USD equivalent on eip155:8453 only",
+    "max_total_outlay": "0.15 USD equivalent including provider service and all network fees"
   },
   "environment": {
     "isolated_staging_ref": null,
@@ -86,6 +86,6 @@
     "freeze_content_sha256": null,
     "signed_by_operator_ref": null,
     "signed_by_independent_reviewer_ref": null,
-    "note": "Complete the environment, provider schema, trust, policy, and approval references and freeze a new immutable version before any external request. This template authorizes no request or payment."
+    "note": "Complete the environment, provider schema, trust, policy, and approval references and freeze a new immutable version before any external request. This template authorizes no request or payment. The RH/USDG facilitator is intentionally not an E1 dependency: Judgment is unpaid and internal to isolated staging."
   }
 }

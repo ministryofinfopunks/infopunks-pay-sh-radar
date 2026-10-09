@@ -49,8 +49,7 @@ function requiredRefs(root: JsonRecord): string[] {
     ['task', 'reviewer_acceptance_of_source_overlap_ref'], ['policy', 'deterministic_policy_commit'],
     ['policy', 'configuration_digest'], ['policy', 'evidence_freshness_limit_seconds'],
     ...(['isolated_staging_ref', 'dedicated_postgres_ref', 'backup_restore_verification_ref', 'test_judgment_issuer_id',
-      'test_judgment_public_key_registry_sha256', 'production_key_separation_review_ref', 'base_rpc_verification_ref',
-      'judgment_rail_facilitator_ref'].map(key => ['environment', key])),
+      'test_judgment_public_key_registry_sha256', 'production_key_separation_review_ref', 'base_rpc_verification_ref'].map(key => ['environment', key])),
     ...(['operator_identity_ref', 'operator_run_approval_ref', 'financial_approval_ref', 'provider_request_approval_ref',
       'settlement_approval_ref', 'independent_blinded_reviewer_ref', 'independent_outcome_reviewer_ref'].map(key => ['approvals', key])),
     ...(['frozen_at', 'freeze_content_sha256', 'signed_by_operator_ref', 'signed_by_independent_reviewer_ref'].map(key => ['freeze', key]))
