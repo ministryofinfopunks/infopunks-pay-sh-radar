@@ -1,6 +1,6 @@
 # IPX C-track infrastructure discovery — 8 October 2026, with 9 October update
 
-The 8 October checks below are preliminary and are not the final C1 result. Frozen-candidate C1 evidence and the current public route observation are in `ipx-release-evidence-eeee995-2026-10-09.md` and `ipx-c2-availability-and-recovery-2026-10-09.md`.
+The 8 October checks below are preliminary and are not the final C1 result. Current candidate C1 evidence and public route observations are in `ipx-release-evidence-f6e2019-2026-10-09.md` and `ipx-c2-availability-and-recovery-2026-10-09.md`.
 
 ## Scope and authority
 

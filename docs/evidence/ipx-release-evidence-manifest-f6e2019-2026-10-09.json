@@ -1,0 +1,71 @@
+{
+  "manifest_version": "ipx-release-evidence.v1",
+  "evidence_date": "2026-10-09",
+  "candidate": {
+    "repository": "Infopunks Pay.sh Intelligence Terminal",
+    "branch": "codex/ipx-release-candidate-f6e2019",
+    "commit": "f6e201963e0beaed0ec2bcc291fb07c04ca67b7b",
+    "parent": "eeee995e964240e6ef2c659f18c83875c140a221",
+    "policy_hash": null,
+    "deployment_id": null,
+    "package_lock_sha256": "ae4ca873abdbf57e4035e4de1ede401bca7585d7ad4596ca07a467d290f87094"
+  },
+  "toolchain": {
+    "node": "v25.6.1",
+    "npm": "11.9.0",
+    "postgresql": "14.20",
+    "foundry": "1.5.1-stable",
+    "vitest": "5.0.3",
+    "vite": "8.3.4",
+    "fastify": "5.12.5"
+  },
+  "checks": {
+    "vitest_full_suite": { "status": "PASS", "files_passed": 268, "tests_passed": 1895, "tests_skipped": 1, "tests_total": 1896, "skip_reason": "Real PostgreSQL resilience test ran separately with POSTGRES_RESILIENCE_TEST_URL and passed 16/16.", "engine_caveat": "Node 25 is outside Vitest 5 declared engine range" },
+    "postgres_resilience": { "status": "PASS", "tests_passed": 16, "tests_failed": 0 },
+    "typecheck": "PASS",
+    "lint": "PASS",
+    "production_build": { "status": "PASS", "warnings": ["Vite config-loader compatibility", "one client chunk exceeds 500 kB"] },
+    "foundry": { "status": "PASS", "tests_passed": 6, "tests_failed": 0, "dependency_provenance": "cached ignored OpenZeppelin tree; upstream pin was not freshly fetched" },
+    "migrations": { "status": "PASS", "up_migrations_applied": 22, "base_tables": 46, "publication_backfill": "PASS", "rollback_guard": "PASS" },
+    "postgres_backup_restore": { "status": "PASS", "scope": "local disposable schema", "free_attempt_hash_and_position_retained": true }
+  },
+  "migration_sha256": {
+    "20261007_011_canonical_receipt_spine.up.sql": "78759614ada801c801920410d5010f6fcb6ec1c563a1974cba836ea3c8ba551f",
+    "20261007_014_derived_score_projection.up.sql": "d6f033ee13d73b36477c080d3b38cc6c343cf5bf8f5c64a00373ee2573afbec3",
+    "20261008_017_ipx_launch.up.sql": "77583eea4504ce611737f8f73f94172309229378bceefb21068752ee07e6f364",
+    "20261008_018_decision_context.up.sql": "388aab7dcfe4b5c41052dd5213a55ee81886b769ff96fef7b1ac93b34697a815",
+    "20261008_019_execution_score_eligibility.up.sql": "22544b426e91771c9b6beded5c50d657de5d71c0cc9ff017402c7f1411471c71",
+    "20261008_020_receipt_acceptance.up.sql": "4f72db8131c5b3620254a9c8ac52e761397296ec3b581440b69f36ad7da55be7",
+    "20261008_021_free_assessment_attempts.up.sql": "64cb87863e6f6a425e60aea8145a943a39eb058d0e1dcc0368df8616a39e7989",
+    "20261008_022_publication_boundaries.up.sql": "2c39cd656076f20d3eaae6b1c6d8f4a5f9bee1b65775a93cd80a9c76fc012ca0"
+  },
+  "security_audit": {
+    "all_dependencies": { "total": 1, "high": 0, "moderate": 0, "low": 1, "critical": 0 },
+    "production_dependencies": { "total": 1, "high": 0, "moderate": 0, "low": 1, "critical": 0 },
+    "remaining": "esbuild local development-server file read advisory on Windows"
+  },
+  "public_availability": {
+    "checked_at_utc": ["2026-10-09T05:08:36Z", "2026-10-09T05:08:47Z"],
+    "service_paths": ["/health", "/status", "/v1/ipx/launch", "/v1/ipx/economy/summary", "/v1/radar/benchmark-summary"],
+    "service_status": 503,
+    "routing_header": "x-render-routing: suspend",
+    "all_bodies_sha256": "e5805ccce9532a696c4103997ad9e6d34037dfac71e46dd615641cd7869b3956"
+  },
+  "gates": { "G0": "BLOCKED", "G1": "BLOCKED", "G2": "BLOCKED", "G3": "BLOCKED", "G4": "BLOCKED", "G5": "BLOCKED", "G6": "BLOCKED" },
+  "evidence_bundle": {
+    "directory": "runs/ipx-f6e2019-2026-10-09/",
+    "checksums_file": "runs/ipx-f6e2019-2026-10-09/SHA256SUMS",
+    "checksums_file_sha256": "8a35b222cfa9e02ede6ad089d563f7be11e4b24a2803b83dbe5733bc90c3a4ab"
+  },
+  "review": {
+    "independent_replay_review": "Separate agent independently reproduced the stable three-boundary publication manifest on the application source shared with this lockfile-only candidate.",
+    "signature": null,
+    "status": "independently reviewable; not cryptographically signed"
+  },
+  "authority": {
+    "production_database_mutation": false,
+    "deployment_or_service_resume": false,
+    "production_key_use": false,
+    "fund_transfer_or_economic_activation": false
+  }
+}

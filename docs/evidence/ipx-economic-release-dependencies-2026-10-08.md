@@ -1,6 +1,6 @@
 # Economic release dependency register
 
-Baseline: `c56ca7e60efafb68a792223a173c2840cd274c50`; integrated candidate: `eeee995e964240e6ef2c659f18c83875c140a221`. Every item below is a dependency, not evidence of completion. Status is **HOLD** unless an exact candidate, policy and deployment are independently verified.
+Baseline: `c56ca7e60efafb68a792223a173c2840cd274c50`; current frozen candidate: `f6e201963e0beaed0ec2bcc291fb07c04ca67b7b` (lockfile security refresh over `eeee995`). Every item below is a dependency, not evidence of completion. Status is **HOLD** unless an exact candidate, policy and deployment are independently verified.
 
 | Package | Prerequisite and required evidence | Approval/authority boundary | Gate/status at `eeee995` |
 | --- | --- | --- | --- |
