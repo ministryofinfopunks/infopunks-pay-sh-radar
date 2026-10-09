@@ -1,0 +1,20 @@
+
+> infopunks-pay-sh-radar@0.1.0 smoke:backend
+> node scripts/smoke-backend.mjs
+
+{"check":"/health","method":"GET","status":200,"elapsedMs":307,"ok":true}
+{"check":"/version","method":"GET","status":200,"elapsedMs":13,"ok":true}
+{"check":"/v1/pulse","method":"GET","status":200,"elapsedMs":6,"ok":true}
+{"check":"/v1/providers","method":"GET","status":200,"elapsedMs":25,"ok":true}
+{"check":"/v1/signal-hunt","method":"GET","status":200,"elapsedMs":49,"ok":true}
+{"check":"/v1/signal-hunt/hunt_black_bull_coordination","method":"GET","status":200,"elapsedMs":22,"ok":true}
+{"check":"/v1/graph","method":"GET","status":200,"elapsedMs":46,"ok":true}
+{"check":"/v1/graph/ripples","method":"GET","status":200,"elapsedMs":4,"ok":true}
+{"check":"/v1/rh-chain","method":"GET","status":200,"elapsedMs":17,"ok":true}
+{"check":"/v1/rh-chain/daily-receipts","method":"GET","status":200,"elapsedMs":7,"ok":true}
+{"check":"/v1/rh-chain/review-queue","method":"GET","status":200,"elapsedMs":5,"ok":true}
+{"check":"/v1/rh-chain/clone-radar","method":"GET","status":200,"elapsedMs":8,"ok":true}
+{"check":"/v1/rh-chain/scouts","method":"GET","status":200,"elapsedMs":2,"ok":true}
+{"check":"/v1/rh-chain/distribution-pack","method":"GET","status":200,"elapsedMs":8,"ok":true}
+{"smoke":"backend","baseUrl":"http://127.0.0.1:8787","ok":true}
+{"check":"/v1/graph/check","method":"POST","status":200,"elapsedMs":7,"ok":true}

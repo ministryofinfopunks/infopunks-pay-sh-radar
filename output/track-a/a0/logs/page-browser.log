@@ -1,0 +1,210 @@
+[
+  {
+    "viewport": "desktop",
+    "route": "/",
+    "status": 200,
+    "title": "Infopunks Radar | Intelligence Across Solana and Robinhood Chain",
+    "errors": [],
+    "badResponses": []
+  },
+  {
+    "viewport": "desktop",
+    "route": "/spend-terminal",
+    "status": 200,
+    "title": "Pre-Spend Intelligence | Infopunks Builder",
+    "errors": [],
+    "badResponses": []
+  },
+  {
+    "viewport": "desktop",
+    "route": "/routes",
+    "status": 200,
+    "title": "Routes | Infopunks Builder",
+    "errors": [],
+    "badResponses": []
+  },
+  {
+    "viewport": "desktop",
+    "route": "/providers",
+    "status": 200,
+    "title": "Providers | Infopunks Builder",
+    "errors": [],
+    "badResponses": []
+  },
+  {
+    "viewport": "desktop",
+    "route": "/receipts",
+    "status": 200,
+    "title": "Receipts | Infopunks Builder",
+    "errors": [],
+    "badResponses": []
+  },
+  {
+    "viewport": "desktop",
+    "route": "/loops",
+    "status": 200,
+    "title": "Infopunks Radar | Intelligence Across Solana and Robinhood Chain",
+    "errors": [],
+    "badResponses": []
+  },
+  {
+    "viewport": "desktop",
+    "route": "/4663",
+    "status": 200,
+    "title": "Infopunks // 4663 | Infopunks Radar",
+    "errors": [],
+    "badResponses": []
+  },
+  {
+    "viewport": "desktop",
+    "route": "/4663/reflexive",
+    "status": 200,
+    "title": "Infopunks Radar | Intelligence Across Solana and Robinhood Chain",
+    "errors": [
+      "Failed to load resource: the server responded with a status of 409 (Conflict)"
+    ],
+    "badResponses": [
+      {
+        "status": 409,
+        "url": "http://127.0.0.1:8787/v1/4663/reflexive/audits/long-ai-nvda"
+      }
+    ]
+  },
+  {
+    "viewport": "desktop",
+    "route": "/ipx/economy",
+    "status": 200,
+    "title": "IPX Economic Memory · Infopunks",
+    "errors": [
+      "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+      "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+      "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+    ],
+    "badResponses": [
+      {
+        "status": 503,
+        "url": "http://127.0.0.1:8787/v1/ipx/genesis/cohort"
+      },
+      {
+        "status": 503,
+        "url": "http://127.0.0.1:8787/v1/ipx/economy/receipts"
+      },
+      {
+        "status": 503,
+        "url": "http://127.0.0.1:8787/v1/ipx/economy/summary"
+      }
+    ]
+  },
+  {
+    "viewport": "desktop",
+    "route": "/openapi.json",
+    "status": 200,
+    "title": "",
+    "errors": [],
+    "badResponses": []
+  },
+  {
+    "viewport": "mobile",
+    "route": "/",
+    "status": 200,
+    "title": "Infopunks Radar | Intelligence Across Solana and Robinhood Chain",
+    "errors": [],
+    "badResponses": []
+  },
+  {
+    "viewport": "mobile",
+    "route": "/spend-terminal",
+    "status": 200,
+    "title": "Pre-Spend Intelligence | Infopunks Builder",
+    "errors": [],
+    "badResponses": []
+  },
+  {
+    "viewport": "mobile",
+    "route": "/routes",
+    "status": 200,
+    "title": "Routes | Infopunks Builder",
+    "errors": [],
+    "badResponses": []
+  },
+  {
+    "viewport": "mobile",
+    "route": "/providers",
+    "status": 200,
+    "title": "Providers | Infopunks Builder",
+    "errors": [],
+    "badResponses": []
+  },
+  {
+    "viewport": "mobile",
+    "route": "/receipts",
+    "status": 200,
+    "title": "Receipts | Infopunks Builder",
+    "errors": [],
+    "badResponses": []
+  },
+  {
+    "viewport": "mobile",
+    "route": "/loops",
+    "status": 200,
+    "title": "Infopunks Radar | Intelligence Across Solana and Robinhood Chain",
+    "errors": [],
+    "badResponses": []
+  },
+  {
+    "viewport": "mobile",
+    "route": "/4663",
+    "status": 200,
+    "title": "Infopunks // 4663 | Infopunks Radar",
+    "errors": [],
+    "badResponses": []
+  },
+  {
+    "viewport": "mobile",
+    "route": "/4663/reflexive",
+    "status": 200,
+    "title": "Infopunks Radar | Intelligence Across Solana and Robinhood Chain",
+    "errors": [
+      "Failed to load resource: the server responded with a status of 409 (Conflict)"
+    ],
+    "badResponses": [
+      {
+        "status": 409,
+        "url": "http://127.0.0.1:8787/v1/4663/reflexive/audits/long-ai-nvda"
+      }
+    ]
+  },
+  {
+    "viewport": "mobile",
+    "route": "/ipx/economy",
+    "status": 200,
+    "title": "IPX Economic Memory · Infopunks",
+    "errors": [
+      "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+      "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+      "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+    ],
+    "badResponses": [
+      {
+        "status": 503,
+        "url": "http://127.0.0.1:8787/v1/ipx/genesis/cohort"
+      },
+      {
+        "status": 503,
+        "url": "http://127.0.0.1:8787/v1/ipx/economy/receipts"
+      },
+      {
+        "status": 503,
+        "url": "http://127.0.0.1:8787/v1/ipx/economy/summary"
+      }
+    ]
+  },
+  {
+    "viewport": "mobile",
+    "route": "/openapi.json",
+    "status": 200,
+    "title": "",
+    "errors": [],
+    "badResponses": []
+  }
+]

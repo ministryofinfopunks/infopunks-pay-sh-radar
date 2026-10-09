@@ -1,0 +1,130 @@
+{
+  "schema": "track-a.a0-test-results.v1",
+  "run_date_local": "2026-10-09",
+  "repository": "ministryofinfopunks/infopunks-pay-sh-radar",
+  "branch": "codex/track-a-launch-baseline",
+  "worktree": "/Users/ahdilm/.codex/worktrees/track-a-launch-baseline",
+  "source": {
+    "origin_main_sha_before_validation": "dfe089bb71c6b4c52acdfb0e8e5b8cc331a13a2f",
+    "head_sha_after_validation": "dfe089bb71c6b4c52acdfb0e8e5b8cc331a13a2f",
+    "source_changed_during_validation": false,
+    "node": "v25.6.1",
+    "npm": "11.9.0",
+    "lockfile": "package-lock.json",
+    "lockfile_sha256": "9e9cfa70a4a439e96b4324ca4fbe28726d6883c25f68cbbcd187bf357fff203c"
+  },
+  "install": {
+    "command": "npm ci",
+    "status": "passed",
+    "packages_added": 181,
+    "audit_summary": {
+      "low": 1,
+      "moderate": 2,
+      "high": 8,
+      "critical": 0
+    },
+    "log": "output/track-a/a0/logs/npm-ci.log"
+  },
+  "checks": [
+    {
+      "name": "typecheck",
+      "command": "npm run typecheck",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "output/track-a/a0/logs/typecheck.log"
+    },
+    {
+      "name": "lint",
+      "command": "npm run lint",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "output/track-a/a0/logs/lint.log"
+    },
+    {
+      "name": "full_tests",
+      "command": "npm test",
+      "status": "passed_with_skips",
+      "exit_code": 0,
+      "files_passed": 251,
+      "files_skipped": 9,
+      "tests_passed": 1855,
+      "tests_skipped": 19,
+      "log": "output/track-a/a0/logs/test.log",
+      "notes": "Database environment variables unset for this full run; dedicated DB tests are separately enabled. Node emitted localstorage-file warnings."
+    },
+    {
+      "name": "production_build",
+      "command": "npm run build",
+      "status": "passed_with_advisory",
+      "exit_code": 0,
+      "log": "output/track-a/a0/logs/build.log",
+      "notes": "Vite advisory: radarApp minified JS chunk is 1285.66 kB, above 500 kB threshold."
+    },
+    {
+      "name": "postgres_integration",
+      "command": "CANONICAL_RECEIPT_TEST_URL=postgresql:///track_a_a0_20261009 ECONOMIC_ENGINE_TEST_URL=postgresql:///track_a_a0_20261009 npm test -- tests/receipt-spine.test.ts tests/integration tests/ipx-launch-postgres.test.ts tests/ipx-revenue-ledger.test.ts",
+      "status": "passed",
+      "exit_code": 0,
+      "files_passed": 15,
+      "tests_passed": 33,
+      "tests_skipped": 0,
+      "storage": "disposable local PostgreSQL 14.20 database; tests use isolated, dropped schemas",
+      "log": "output/track-a/a0/logs/postgres-integration.log"
+    },
+    {
+      "name": "migrations_010_to_017_clean_database",
+      "command": "psql -v ON_ERROR_STOP=1 against disposable database; 010 then 011-017 in order",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "output/track-a/a0/logs/migrations-010-017.log",
+      "notes": "Clean local database, not production or historical upgrade coverage. Migration 010 had two idempotent column notices. A second clean database accepted the full ordered 001-017 chain."
+    },
+    {
+      "name": "full_ordered_migration_chain_clean_database",
+      "command": "psql against disposable local database; migrations 001-017 in documented chronological order",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "output/track-a/a0/logs/migrations-full-upgrade.log",
+      "notes": "Clean ordered schema chain from migration 001 through 017; not a populated production database or history-bearing upgrade rehearsal."
+    },
+    {
+      "name": "backend_smoke_local",
+      "command": "BACKEND_URL=http://127.0.0.1:8787 npm run smoke:backend",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "output/track-a/a0/logs/smoke-backend.log",
+      "side_effect_boundary": "localhost memory process only"
+    },
+    {
+      "name": "production_style_smoke_local",
+      "command": "SMOKE_BASE_URL=http://127.0.0.1:8787 npm run smoke:production",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "output/track-a/a0/logs/smoke-production.log",
+      "side_effect_boundary": "localhost memory process only; smoke POSTs and fixture responses are not production evidence"
+    },
+    {
+      "name": "browser_surface",
+      "command": "Chromium headless via Playwright; requested paths at 1440x1000 and 390x844",
+      "status": "completed_with_expected_fail_closed_responses",
+      "paths": 10,
+      "viewports": 2,
+      "document_http_statuses": "all 200",
+      "issues": [
+        "/4663/reflexive: GET /v1/4663/reflexive/audits/long-ai-nvda returns 409 in both viewports",
+        "/ipx/economy: three database-dependent APIs return 503 in both viewports"
+      ],
+      "results": "output/track-a/a0/page-browser-results.json",
+      "log": "output/track-a/a0/logs/page-browser.log"
+    }
+  ],
+  "side_effects": {
+    "production_accessed": false,
+    "production_config_changed": false,
+    "private_keys_accessed": false,
+    "paid_transactions_executed": false,
+    "production_database_changed": false,
+    "local_disposable_database_dropped": true
+  },
+  "production_decision": "HOLD"
+}
