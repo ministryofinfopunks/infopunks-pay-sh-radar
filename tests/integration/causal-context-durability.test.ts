@@ -14,6 +14,10 @@ import { createReceiptAuthorityService } from '../../src/services/receiptAuthori
 import { createCausalWitnessService } from '../../src/services/causalWitnessService';
 import { verifyCausalWitnessOffline } from '../../src/services/causalWitnessOfflineVerifier';
 import { verifyDecisionContext } from '../../src/services/decisionContextService';
+import pg from 'pg';
+import Fastify from 'fastify';
+import { registerDecisionViewRoutes } from '../../src/api/decisionViewRoutes';
+import { createDecisionViewService } from '../../src/services/decisionViewService';
 
 describe.skipIf(!process.env.CANONICAL_RECEIPT_TEST_URL)('durable causal decision replay', () => {
   it('reloads signed J2 context and independently replays the fixed-input evaluation counterfactual', async () => {
@@ -59,6 +63,63 @@ describe.skipIf(!process.env.CANONICAL_RECEIPT_TEST_URL)('durable causal decisio
       expect(witness.improvement_measured).toBe(false);
       expect((await verifyCausalWitnessOffline(witness)).valid).toBe(true);
       expect(await createCausalWitnessService(restored, issuer).verify(witness)).toBe(true);
+      // Reconnect through a fresh pool, then exercise the real HTTP projection against committed records.
+      const reconnectedPool = new pg.Pool({ connectionString: process.env.CANONICAL_RECEIPT_TEST_URL,
+        options: `-c search_path=${database.schema}` });
+      const reconnectedStore = new PostgresCanonicalReceiptStore(reconnectedPool, 80, issuer);
+      const api = Fastify();
+      try {
+        registerDecisionViewRoutes(api, createDecisionViewService(reconnectedStore, issuer), {
+          consume: () => ({ allowed: true, retryAfterMs: 0 })
+        });
+        const response = await api.inject(`/v1/decision-views/${j2.response.judgment_id}`);
+        expect(response.statusCode).toBe(200);
+        expect(response.headers['cache-control']).toBe('no-store');
+        expect(response.json().data.judgment.decision).toBe('do_not_spend');
+        expect(response.json().data.verification).toMatchObject({ ancestry_valid: true,
+          issuer_signature_valid: true, record_verified: true });
+        expect(response.json().data.evidence.history_commitment).toEqual({
+          status: 'committed_in_canonical_v2', hash: context?.projection_boundary.evaluation_refs_hash
+        });
+        expect(response.json().data.execution.authorized).toBe(false);
+        expect(response.body).not.toContain('catalog_source');
+        expect((await api.inject('/v1/decision-views/unknown')).statusCode).toBe(404);
+      } finally {
+        await api.close();
+        await reconnectedPool.end();
+      }
+      const incompletePool = new pg.Pool({ connectionString: process.env.CANONICAL_RECEIPT_TEST_URL,
+        options: '-c search_path=decision_view_missing_schema' });
+      const unavailableApi = Fastify();
+      try {
+        registerDecisionViewRoutes(unavailableApi,
+          createDecisionViewService(new PostgresCanonicalReceiptStore(incompletePool, 80, issuer), issuer), {
+            consume: () => ({ allowed: true, retryAfterMs: 0 })
+          });
+        const response = await unavailableApi.inject(`/v1/decision-views/${j2.response.judgment_id}`);
+        expect(response.statusCode).toBe(503);
+        expect(response.headers['cache-control']).toBe('no-store');
+      } finally {
+        await unavailableApi.close();
+        await incompletePool.end();
+      }
+      const offlineUrl = new URL(process.env.CANONICAL_RECEIPT_TEST_URL!);
+      offlineUrl.port = '1';
+      const offlinePool = new pg.Pool({ connectionString: offlineUrl.toString(),
+        connectionTimeoutMillis: 100, max: 1 });
+      const offlineApi = Fastify();
+      try {
+        registerDecisionViewRoutes(offlineApi,
+          createDecisionViewService(new PostgresCanonicalReceiptStore(offlinePool, 80, issuer), issuer), {
+            consume: () => ({ allowed: true, retryAfterMs: 0 })
+          });
+        const response = await offlineApi.inject(`/v1/decision-views/${j2.response.judgment_id}`);
+        expect(response.statusCode).toBe(503);
+        expect(response.headers['cache-control']).toBe('no-store');
+      } finally {
+        await offlineApi.close();
+        await offlinePool.end();
+      }
     } finally { await database.close(); }
   });
 });

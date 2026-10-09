@@ -8,6 +8,7 @@ import { DecisionContextSchema } from '../schemas/decisionContext';
 import { EvaluateRequestSchema } from '../schemas/evaluate';
 import { ScoreProjectionSchema } from '../schemas/scoreProjection';
 import { EvaluationReceiptSchema } from '../schemas/receipts';
+import { DecisionViewV1Schema } from '../schemas/decisionView';
 import { ExecuteProofRequestSchema } from '../schemas/executeProof';
 import { ExecutionReceiptSchema } from '../schemas/receipts';
 type JsonSchema = Record<string, unknown>;
@@ -1611,6 +1612,16 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
     description: 'Checks configured issuer trust, observation ancestry and assessment eligibility. A judgment receipt records assessment and never grants execution authority. Execution requires a separately signed infopunks.execution-authorization.v1 capability and the execution gate.',
     parameters: [pathParam('id', 'Canonical judgment identifier.')],
     responses: { '200': { description: 'Assessment verification status.', content: { 'application/json': { schema: z.toJSONSchema(z.object({ data: z.object({ judgment_id: z.string(), receipt_hash: z.string(), ancestry_valid: z.boolean(), issuer_signature_valid: z.boolean(), within_validity_window: z.boolean(), assessment_eligible: z.boolean(), execution_authorized: z.literal(false), authority_requires: z.literal('infopunks.execution-authorization.v1') }) }), { target: 'draft-2020-12' }) } } }, '404': errorResponse('canonical_receipt_not_found') }
+  });
+  add('get', '/v1/decision-views/{id}', {
+    tags: ['Pre-Spend Intelligence'], summary: 'Read a canonical judgment presentation view',
+    description: 'Returns a redacted, no-store projection of a canonical judgment and verified evidence references. This read-only view never signs, approves, pays, or authorizes execution. Historical evaluation binding is shown only when the canonical v2 context verifies; legacy v1 history is unavailable.',
+    parameters: [pathParam('id', 'Canonical judgment identifier.')],
+    responses: {
+      '200': { description: 'Validated read-only Decision View.', content: { 'application/json': { schema: z.toJSONSchema(z.object({ data: DecisionViewV1Schema }).strict(), { target: 'draft-2020-12' }) } } },
+      '404': errorResponse('canonical_judgment_not_found'),
+      '429': errorResponse('decision_view_rate_limited'), '503': errorResponse('decision_view_unavailable')
+    }
   });
   add('get', '/v1/receipt-spine/judgment/{id}/context', {
     tags: ['Pre-Spend Intelligence'], summary: 'Export frozen v2 judgment inputs and replay status',

@@ -5,6 +5,8 @@ import { createReceiptAttributionService } from '../services/receiptAttributionS
 import { rhProofClient, verifyUsdGMetadata, createRhSettlementProofVerifier } from '../security/settlementProofVerifier';
 import { pltrRegularSession } from '../services/pltrExchangeCalendar';
 import { registerEconomicEngineRoutes, type EconomicEngineOverrides } from './economicEngineRoutes';
+import { registerDecisionViewRoutes } from './decisionViewRoutes';
+import { createDecisionViewService } from '../services/decisionViewService';
 import { judgmentIssuerFromEnv } from '../security/judgmentIssuer';
 import { verifyReceiptChain } from '../services/receiptAuthorityService';
 import { createReceiptAuthorityService, ReceiptAuthorityError } from '../services/receiptAuthorityService';
@@ -4587,6 +4589,8 @@ export async function createApp(
     if (!judgmentIssuer) return reply.code(503).send({ error: 'judgment_issuer_unavailable' });
     return { data: judgmentIssuer.publicKeys() };
   });
+  registerDecisionViewRoutes(app, createDecisionViewService(canonicalReceiptStore, judgmentIssuer, config.receiptProceedConfidenceThreshold),
+    new RhChainPublicRateLimiter(true, 60_000, 60));
   app.get<{ Params: { id: string } }>('/v1/receipt-spine/judgment/:id/verify', async (req, reply) => {
     reply.header('Cache-Control', 'no-store');
     const receipt = await canonicalReceiptStore.get('judgment', req.params.id);

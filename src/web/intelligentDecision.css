@@ -1,0 +1,19 @@
+.intelligent-decision-page { width:min(100%,1024px); margin:0 auto; padding: clamp(20px,4vw,56px) 16px; }
+.intelligent-decision-panel { display:grid; gap:16px; }
+.intelligent-decision-search { display:flex; flex-wrap:wrap; align-items:center; gap:12px; }
+.intelligent-decision-search label { flex-basis:100%; font-weight:600; }
+.intelligent-decision-search input { flex:1; min-width:160px; padding:12px; border:1px solid var(--border, #64748b); border-radius:8px; color:inherit; background:transparent; }
+.intelligent-decision-card { border:1px solid currentColor; border-radius:12px; padding:clamp(14px,3vw,24px); display:grid; gap:18px; }
+.intelligent-decision-card-head { display:flex; gap:16px; flex-wrap:wrap; align-items:start; justify-content:space-between; }
+.intelligent-decision-card-head h2 { margin:6px 0 0; }
+.intelligent-decision-status { display:inline-block; border:1px solid currentColor; border-radius:7px; padding:8px 12px; font-size:.78rem; font-weight:750; letter-spacing:.04em; max-width:300px; }
+.intelligent-decision-status.qualified { border-style:double; border-width:3px; }
+.intelligent-decision-warning { border-left:3px solid currentColor; padding:12px; background:rgba(120,120,120,.08); margin:0; }
+.intelligent-decision-fields { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:16px; margin:0; }
+.intelligent-decision-fields div { min-width:0; padding:12px; border:1px solid rgba(120,120,120,.35); border-radius:8px; }
+.intelligent-decision-fields dt { font-size:.8rem; opacity:.7; }
+.intelligent-decision-fields dd { margin:4px 0 0; overflow-wrap:anywhere; font-weight:650; }
+.intelligent-decision-controls { display:flex; flex-wrap:wrap; gap:10px; }
+.intelligent-decision-evidence { display:grid; gap:12px; }
+.intelligent-decision-evidence article { padding:12px; border:1px solid rgba(120,120,120,.35); border-radius:8px; overflow-wrap:anywhere; }
+.intelligent-decision-json { max-width:100%; overflow:auto; font-size:.8rem; padding:16px; border-radius:8px; background:rgba(120,120,120,.1); }
