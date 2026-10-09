@@ -97,8 +97,24 @@ describe('radar exports', () => {
       unit: null,
       clarity: null,
       raw: null,
-      source: null
+      source: null,
+      observed_at: null,
+      catalog_generated_at: null,
+      ingested_at: null,
+      provider_id: null,
+      endpoint_id: null,
+      derivation_reason: null,
+      confidence: null,
+      evidence: []
     });
+  });
+
+  it('preserves pricing observation and evidence provenance while validating the range', () => {
+    const observed = '2026-10-09T00:00:00.000Z';
+    const evidence = [{ source: 'live_catalog', observed_at: observed, href: 'https://example.invalid/catalog' }];
+    expect(normalizePricing({ min: 0.1, max: 0.2, source: 'live_catalog', observed_at: observed, catalog_generated_at: observed, ingested_at: observed, provider_id: 'p1', endpoint_id: 'e1', evidence })).toMatchObject({ min: 0.1, max: 0.2, source: 'live_catalog', observed_at: observed, catalog_generated_at: observed, ingested_at: observed, provider_id: 'p1', endpoint_id: 'e1', evidence });
+    expect(normalizePricing({ min: -1, max: 0.2 })).toMatchObject({ min: null, max: null });
+    expect(normalizePricing({ min: 0.4, max: 0.2 })).toMatchObject({ min: null, max: null });
   });
 
   it('handles malformed schema payload safely', () => {

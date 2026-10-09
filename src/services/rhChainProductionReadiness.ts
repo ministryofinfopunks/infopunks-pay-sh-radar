@@ -38,12 +38,10 @@ export async function inspectRhChainMigrationLedger(pool: Queryable | null): Pro
   const requiredIndexes = [...new Set(RH_CHAIN_REQUIRED_MIGRATIONS.flatMap((migration) => migration.indexes))];
   if (!pool) return ledger(false, requiredTables, requiredIndexes, requiredTables, requiredIndexes, false, 'database_not_configured');
   try {
-    const [tables, indexes, vocabulary, missingChecks] = await Promise.all([
-      pool.query<{ name: string }>('select value as name from unnest($1::text[]) value where to_regclass(value) is null order by value', [requiredTables]),
-      pool.query<{ name: string }>('select value as name from unnest($1::text[]) value where not exists (select 1 from pg_indexes where schemaname = current_schema() and indexname = value) order by value', [requiredIndexes]),
-      pool.query<{ definition: string }>("select pg_get_constraintdef(oid) as definition from pg_constraint where conname='rh_chain_reviewed_classifications_primary_layer_check' limit 1"),
-      pool.query<{ name: string }>("select value as name from unnest($1::text[]) value where not exists (select 1 from pg_trigger t join pg_class c on c.oid=t.tgrelid join pg_namespace n on n.oid=c.relnamespace where t.tgname=value and n.nspname=current_schema() and t.tgenabled in ('O','A')) and not exists (select 1 from pg_constraint c join pg_namespace n on n.oid=c.connamespace where c.conname=value and n.nspname=current_schema()) order by value", [ALL_REQUIRED_CHECKS])
-    ]);
+    const tables = await pool.query<{ name: string }>('select value as name from unnest($1::text[]) value where to_regclass(value) is null order by value', [requiredTables]);
+    const indexes = await pool.query<{ name: string }>('select value as name from unnest($1::text[]) value where not exists (select 1 from pg_indexes where schemaname = current_schema() and indexname = value) order by value', [requiredIndexes]);
+    const vocabulary = await pool.query<{ definition: string }>("select pg_get_constraintdef(oid) as definition from pg_constraint where conname='rh_chain_reviewed_classifications_primary_layer_check' limit 1");
+    const missingChecks = await pool.query<{ name: string }>("select value as name from unnest($1::text[]) value where not exists (select 1 from pg_trigger t join pg_class c on c.oid=t.tgrelid join pg_namespace n on n.oid=c.relnamespace where t.tgname=value and n.nspname=current_schema() and t.tgenabled in ('O','A')) and not exists (select 1 from pg_constraint c join pg_namespace n on n.oid=c.connamespace where c.conname=value and n.nspname=current_schema()) order by value", [ALL_REQUIRED_CHECKS]);
     const missing = missingChecks.rows.map((row) => row.name);
     if (!vocabulary.rows.some((row) => row.definition.includes("'consumer'"))) missing.push('consumer_primary_layer_vocabulary');
     return ledger(true, requiredTables, requiredIndexes, tables.rows.map((row) => row.name), indexes.rows.map((row) => row.name), true, null, missing);

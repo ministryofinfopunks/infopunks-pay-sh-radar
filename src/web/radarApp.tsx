@@ -1,5 +1,6 @@
 import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { MethodologyDrawer } from './methodology';
+import { formatCatalogPrice } from './pricingDisplay';
 import { getApiBaseUrl, toApiUrl } from './apiBaseUrl';
 import {
   canClaimBenchmarkRecorded,
@@ -12352,7 +12353,7 @@ function RouteDecisionOutput({ routeResult, routePreference, selectedProvider }:
         <DossierStat label="Trust" value={routeResult.trustAssessment?.score ?? null} sub={routeResult.trustAssessment?.grade ?? 'grade unknown'} />
         <DossierStat label="Signal" value={routeResult.signalAssessment?.score ?? null} sub={routeResult.signalAssessment?.narratives[0] ?? 'narrative unknown'} />
         <DossierStat label="Endpoints" value={routeResult.bestProvider.endpointCount} sub="catalog count" />
-        <DossierStat label="Pricing" value={formatPrice(routeResult.estimatedCost ?? routeResult.bestProvider.pricing)} sub="catalog range" />
+        <DossierStat label="Pricing" value={formatPrice(routeResult.bestProvider.pricing)} sub="catalog range; route estimate is not a catalog quote" />
         <DossierStat label="Coord." value={routeResult.coordinationScore ?? null} sub="trust/signal weighted" />
       </div>
       {selectedMiss && <p className="route-state warn">Selected provider was not accepted because: {selectedMiss}</p>}
@@ -12974,19 +12975,7 @@ function openExportRoute(path: string) {
 }
 
 function formatPrice(price: unknown) {
-  if (!isRecord(price)) {
-    warnClientOnce('pricing-malformed-payload', '[radar-render:pricing] malformed pricing payload, using unknown');
-    return 'unknown';
-  }
-  const safeRange = getSafeRange(price, { min: -1, max: -1 });
-  const hasNumericRange = Number.isFinite(price.min) && Number.isFinite(price.max);
-  if (!hasNumericRange) {
-    if (typeof price.raw === 'string' && price.raw.trim()) return price.raw;
-    warnClientOnce('pricing-missing-range', '[radar-render:pricing] missing price range min/max, using unknown');
-    return 'unknown';
-  }
-  if (safeRange.min === 0 && safeRange.max === 0) return 'free';
-  return safeRange.min === safeRange.max ? `$${safeRange.min}` : `$${safeRange.min} - $${safeRange.max}`;
+  return formatCatalogPrice(price);
 }
 
 function moneyOrUnknown(value: number | null | undefined) {

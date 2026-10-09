@@ -151,14 +151,25 @@ export function normalizePricing(pricing: unknown) {
   const normalized = normalizeJson(pricing);
   if (!normalized || typeof normalized !== 'object' || Array.isArray(normalized)) return normalized;
   const raw = normalized as Record<string, unknown>;
+  const minValue = asNumberOrNull(raw.min);
+  const maxValue = asNumberOrNull(raw.max);
+  const validRange = minValue !== null && maxValue !== null && minValue >= 0 && maxValue >= 0 && minValue <= maxValue;
   return {
-    min: asNumberOrNull(raw.min),
-    max: asNumberOrNull(raw.max),
+    min: validRange ? minValue : null,
+    max: validRange ? maxValue : null,
     currency: typeof raw.currency === 'string' ? raw.currency : null,
     unit: typeof raw.unit === 'string' ? raw.unit : null,
     clarity: typeof raw.clarity === 'string' ? raw.clarity : null,
     raw: typeof raw.raw === 'string' ? raw.raw : null,
-    source: typeof raw.source === 'string' ? raw.source : null
+    source: typeof raw.source === 'string' ? raw.source : null,
+    observed_at: typeof raw.observed_at === 'string' ? raw.observed_at : typeof raw.observedAt === 'string' ? raw.observedAt : null,
+    catalog_generated_at: typeof raw.catalog_generated_at === 'string' ? raw.catalog_generated_at : typeof raw.catalogGeneratedAt === 'string' ? raw.catalogGeneratedAt : null,
+    ingested_at: typeof raw.ingested_at === 'string' ? raw.ingested_at : typeof raw.ingestedAt === 'string' ? raw.ingestedAt : null,
+    provider_id: typeof raw.provider_id === 'string' ? raw.provider_id : typeof raw.providerId === 'string' ? raw.providerId : null,
+    endpoint_id: typeof raw.endpoint_id === 'string' ? raw.endpoint_id : typeof raw.endpointId === 'string' ? raw.endpointId : null,
+    derivation_reason: typeof raw.derivation_reason === 'string' ? raw.derivation_reason : typeof raw.derivationReason === 'string' ? raw.derivationReason : null,
+    confidence: typeof raw.confidence === 'number' && Number.isFinite(raw.confidence) ? raw.confidence : null,
+    evidence: Array.isArray(raw.evidence) ? raw.evidence : []
   };
 }
 

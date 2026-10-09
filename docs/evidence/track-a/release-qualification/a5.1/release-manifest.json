@@ -1,0 +1,17 @@
+{
+  "release_track": "Track A",
+  "candidate_branch": "codex/track-a-release-candidate",
+  "starting_sha": "b25a063db886b667c81888576da9079fe30d5a6d",
+  "qualification_sha": "recorded after implementation commit in evidence follow-up",
+  "migration_sequence": "001-021",
+  "migration_report": "migration-report.json",
+  "test_report": "validation-results.md",
+  "browser_report": "browser-qa.json",
+  "staging_status": "HOLD",
+  "production_modified": false,
+  "payments_enabled": false,
+  "economic_execution_enabled": false,
+  "ipx_operations_enabled": false,
+  "track_b_included": false,
+  "real_world_level_3_claim": false
+}
