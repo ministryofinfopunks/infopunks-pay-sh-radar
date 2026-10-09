@@ -11,6 +11,10 @@ export const SCORE_POLICY_V1: ScorePolicy = Object.freeze({
     return { confirmed: 5, weakened: -2, contradicted: -15 }[outcome];
   }
 });
+export const REVIEW_ATTESTED_EVALUATION_POLICY: ScorePolicy = Object.freeze({
+  version: 'review-attested-evaluation.v1',
+  scoreDeltaForOutcome: SCORE_POLICY_V1.scoreDeltaForOutcome
+});
 export const EVALUATION_POLICY_VERSION = SCORE_POLICY_V1.version;
 export const canonicalEvaluationScorePolicy = SCORE_POLICY_V1;
 /** Replay only: preserve receipts issued before Phase 4 without rewriting history. */
@@ -19,6 +23,7 @@ const historicalPolicy: ScorePolicy = {
   scoreDeltaForOutcome: outcome => ({ confirmed: 5, weakened: -2, contradicted: -5 }[outcome])
 };
 export function evaluationReceiptMatchesScorePolicy(receipt: EvaluationReceipt) {
-  const policy = receipt.policy_version === SCORE_POLICY_V1.version ? SCORE_POLICY_V1 : historicalPolicy;
+  const policy = receipt.policy_version === REVIEW_ATTESTED_EVALUATION_POLICY.version ? REVIEW_ATTESTED_EVALUATION_POLICY
+    : receipt.policy_version === SCORE_POLICY_V1.version ? SCORE_POLICY_V1 : historicalPolicy;
   return receipt.policy_version === policy.version && receipt.score_delta === policy.scoreDeltaForOutcome(receipt.outcome);
 }

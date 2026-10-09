@@ -1,4 +1,7 @@
 import type { JudgmentIssuerTrust } from '../security/judgmentIssuer';
+import type { EvaluationReviewerTrust } from '../security/evaluationReviewerTrust';
+import { evaluationAttestationDigest } from '../security/evaluationReviewerTrust';
+import { EvaluationReviewAttestationSchema, type EvaluationReviewAttestation } from '../schemas/evaluationReviewAttestation';
 import type pg from 'pg';
 import { receiptSchemas, canonicalSerialize } from '../services/receiptIntegrityService';
 import { assertReceiptAuthority, ReceiptAuthorityError, type ReceiptRecord, type ReceiptAppendStore } from '../services/receiptAuthorityService';
@@ -15,12 +18,31 @@ const receiptId = (kind: ReceiptKind, receipt: ReceiptRecord) => String((receipt
 /** Memory is an explicit dev/test adapter; clones prevent read/return mutation. */
 export class MemoryCanonicalReceiptStore implements ReceiptAppendStore {
   private readonly records = new Map<string, ReceiptRecord>();
+  private readonly evaluationAttestations = new Map<string, EvaluationReviewAttestation>();
+  private readonly evaluationAttestationsByExecution = new Map<string, string>();
+  private readonly evaluationAttestationNonces = new Map<string, string>();
   private queue: Promise<unknown> = Promise.resolve();
-  constructor(private readonly threshold = 80, readonly judgmentTrust?: JudgmentIssuerTrust) {
+  constructor(private readonly threshold = 80, readonly judgmentTrust?: JudgmentIssuerTrust,
+    readonly evaluationReviewerTrust?: EvaluationReviewerTrust) {
     if (process.env.NODE_ENV === 'production') throw new ReceiptAuthorityError('canonical_receipts_require_postgres');
   }
   async get(kind: ReceiptKind, id: string) { return structuredClone(this.records.get(kind + ':' + id) ?? null); }
   async list(kind: ReceiptKind) { return [...this.records.entries()].filter(([key]) => key.startsWith(kind + ':')).map(([, value]) => structuredClone(value)); }
+  async getEvaluationReviewerAttestation(attestationHash: string) {
+    return structuredClone(this.evaluationAttestations.get(attestationHash) ?? null);
+  }
+  async appendEvaluationReviewerAttestation(raw: EvaluationReviewAttestation) {
+    const attestation = EvaluationReviewAttestationSchema.parse(structuredClone(raw));
+    const attestationHash = evaluationAttestationDigest(attestation);
+    const byHash = this.evaluationAttestations.get(attestationHash);
+    if (byHash) return attestationHash;
+    if (this.evaluationAttestationNonces.has(attestation.nonce)) throw new ReceiptAuthorityError('evaluation_reviewer_nonce_replayed');
+    if (this.evaluationAttestationsByExecution.has(attestation.execution_receipt_id)) throw new ReceiptAuthorityError('evaluation_reviewer_attestation_conflict');
+    this.evaluationAttestations.set(attestationHash, structuredClone(attestation));
+    this.evaluationAttestationsByExecution.set(attestation.execution_receipt_id, attestationHash);
+    this.evaluationAttestationNonces.set(attestation.nonce, attestationHash);
+    return attestationHash;
+  }
   append(kind: ReceiptKind, raw: ReceiptRecord): Promise<ReceiptRecord> {
     const candidate = structuredClone(raw);
     const operation = this.queue.then(async () => {
@@ -55,7 +77,8 @@ export class MemoryCanonicalReceiptStore implements ReceiptAppendStore {
 }
 
 export class PostgresCanonicalReceiptStore implements ReceiptAppendStore {
-  constructor(private readonly pool: pg.Pool, private readonly threshold = 80, readonly judgmentTrust?: JudgmentIssuerTrust) {}
+  constructor(private readonly pool: pg.Pool, private readonly threshold = 80, readonly judgmentTrust?: JudgmentIssuerTrust,
+    readonly evaluationReviewerTrust?: EvaluationReviewerTrust) {}
   async get(kind: ReceiptKind, id: string): Promise<ReceiptRecord | null> {
     const meta = metadata[kind];
     const result = await this.pool.query(`select receipt from ${meta.table} where ${meta.id} = $1`, [id]);
@@ -65,6 +88,32 @@ export class PostgresCanonicalReceiptStore implements ReceiptAppendStore {
     const meta = metadata[kind];
     const result = await this.pool.query(`select receipt from ${meta.table} order by ${meta.time}, ${meta.id}`);
     return result.rows.map((row) => receiptSchemas[kind].parse(row.receipt));
+  }
+  async getEvaluationReviewerAttestation(attestationHash: string): Promise<EvaluationReviewAttestation | null> {
+    const result = await this.pool.query('select attestation from evaluation_reviewer_attestations where attestation_hash=$1', [attestationHash]);
+    return result.rows[0] ? EvaluationReviewAttestationSchema.parse(result.rows[0].attestation) : null;
+  }
+  async appendEvaluationReviewerAttestation(raw: EvaluationReviewAttestation): Promise<string> {
+    const attestation = EvaluationReviewAttestationSchema.parse(structuredClone(raw));
+    const attestationHash = evaluationAttestationDigest(attestation);
+    const columns = ['attestation_hash', 'execution_id', 'reviewer_id', 'reviewer_key_id', 'nonce', 'rubric_sha256',
+      'outcome_evidence_sha256', 'verdict', 'attested_at', 'attestation'];
+    const values = [attestationHash, attestation.execution_receipt_id, attestation.reviewer_id, attestation.reviewer_key_id,
+      attestation.nonce, attestation.rubric_sha256, attestation.outcome_evidence_sha256, attestation.verdict,
+      attestation.attested_at, canonicalSerialize(attestation)];
+    try {
+      const result = await this.pool.query(`insert into evaluation_reviewer_attestations (${columns.join(',')}) values (${values.map((_, index) => '$' + (index + 1)).join(',')}) on conflict do nothing returning attestation_hash`, values);
+      if (result.rows[0]) return attestationHash;
+      const existing = await this.pool.query('select attestation_hash, nonce, attestation from evaluation_reviewer_attestations where attestation_hash=$1 or execution_id=$2 or nonce=$3', [attestationHash, attestation.execution_receipt_id, attestation.nonce]);
+      if (existing.rows.length === 1 && existing.rows[0].attestation_hash === attestationHash
+          && canonicalSerialize(existing.rows[0].attestation) === canonicalSerialize(attestation)) return attestationHash;
+      if (existing.rows.some((row) => row.nonce === attestation.nonce)) throw new ReceiptAuthorityError('evaluation_reviewer_nonce_replayed');
+      throw new ReceiptAuthorityError('evaluation_reviewer_attestation_conflict');
+    } catch (error) {
+      if (error instanceof ReceiptAuthorityError) throw error;
+      if (error && typeof error === 'object' && 'code' in error && error.code === '23503') throw new ReceiptAuthorityError('execution_not_found');
+      throw error;
+    }
   }
   /** Indexed subject join retrieves the full graph in one PostgreSQL snapshot. */
   async evaluationHistory(subjectType: string, subjectId: string): Promise<ReceiptRecord[]> {

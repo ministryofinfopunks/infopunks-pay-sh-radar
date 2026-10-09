@@ -10,23 +10,26 @@ import { createEvaluationService } from '../src/services/evaluationService';
 import { inspectRhChainMigrationLedger } from '../src/services/rhChainProductionReadiness';
 import { sealReceipt } from '../src/services/receiptIntegrityService';
 import { appendChain, observationInput, judgmentInput, executionInput, evaluationInput } from './helpers/canonicalReceipts';
+import { REVIEWER_REGISTRY, signedEvaluationAttestation } from './helpers/evaluationReview';
 
 afterEach(() => vi.unstubAllEnvs());
 describe('receipt spine API integration', () => {
-  it('binds internal evaluation writes to EvaluationService, not ReceiptAuthorityService', () => {
+  it('binds network evaluation writes to independently reviewed EvaluationService acceptance', () => {
     const source = readFileSync('src/api/app.ts', 'utf8');
-    expect(source).toContain("['evaluation', z.object(EvaluationReceiptSchema.shape).strict().omit({ schema_version: true, policy_version: true, score_delta: true, parent_hash: true, receipt_hash: true, evaluator: true, request_hash: true }), evaluationService.createEvaluation]");
+    expect(source).toContain("evaluationService.acceptReviewed(parsed.data, 'canonical-admin')");
+    expect(source).not.toContain("['evaluation', z.object(EvaluationReceiptSchema.shape)");
     expect(source).not.toContain('receiptAuthority.appendEvaluation');
   });
   it('authenticates canonical authority, appends the four levels, and retains legacy read APIs', async () => {
     vi.stubEnv('ADMIN_TOKEN', 'test-receipt-authority');
+    vi.stubEnv('EVALUATION_REVIEWER_TRUST_JSON', JSON.stringify(REVIEWER_REGISTRY));
     const app = await createApp(emptyIntelligenceStore());
     try {
       const headers = { authorization: 'Bearer test-receipt-authority' };
       const url = '/internal/receipt-spine/observation';
       expect((await app.inject({ method: 'POST', url, payload: observationInput() })).statusCode).toBe(401);
-      const inputs = { observation: observationInput(), judgment: judgmentInput(), execution: executionInput(), evaluation: evaluationInput() };
-      for (const kind of ['observation', 'judgment', 'execution', 'evaluation'] as const) {
+      const inputs = { observation: observationInput(), judgment: judgmentInput(), execution: executionInput() };
+      for (const kind of ['observation', 'judgment', 'execution'] as const) {
         const written = await app.inject({ method: 'POST', url: `/internal/receipt-spine/${kind}`, headers, payload: inputs[kind] });
         expect(written.statusCode, written.body).toBe(200);
         expect(written.headers['cache-control']).toBe('private, no-store');
@@ -34,6 +37,12 @@ describe('receipt spine API integration', () => {
         const read = await app.inject({ method: 'GET', url: `/v1/receipt-spine/${kind}/${Object.values(inputs[kind])[0]}` });
         expect(read.statusCode).toBe(200); expect(read.json().data).toEqual(data);
       }
+      const evaluation = await app.inject({ method: 'POST', url: '/internal/receipt-spine/evaluation', headers,
+        payload: { attestation: signedEvaluationAttestation() } });
+      expect(evaluation.statusCode, evaluation.body).toBe(200);
+      const evaluated = evaluation.json().data;
+      const evaluationRead = await app.inject({ method: 'GET', url: `/v1/receipt-spine/evaluation/${evaluated.evaluation_id}` });
+      expect(evaluationRead.statusCode).toBe(200); expect(evaluationRead.json().data).toEqual(evaluated);
       expect((await app.inject('/v1/receipt-spine/scores/provider/provider_test')).json().data).toEqual({ subject_type: 'provider', subject_id: 'provider_test', score: 5, authority: 'EvaluationReceipt' });
       expect((await app.inject('/v1/receipts')).statusCode).toBe(200);
       expect((await app.inject('/v1/claims')).statusCode).toBe(200);
@@ -43,6 +52,7 @@ describe('receipt spine API integration', () => {
   });
   it('rejects client-authored deltas and missing ancestry without writing', async () => {
     vi.stubEnv('ADMIN_TOKEN', 'test-receipt-authority');
+    vi.stubEnv('EVALUATION_REVIEWER_TRUST_JSON', JSON.stringify(REVIEWER_REGISTRY));
     const app = await createApp(emptyIntelligenceStore());
     try {
       const headers = { authorization: 'Bearer test-receipt-authority' };
@@ -50,13 +60,13 @@ describe('receipt spine API integration', () => {
         ['observation', { ...observationInput(), score_delta: 99 }, 'invalid_canonical_receipt'],
         ['judgment', judgmentInput(), 'observation_not_found'],
         ['execution', executionInput(), 'judgment_not_found'],
-        ['evaluation', evaluationInput(), 'execution_not_found']
+        ['evaluation', { attestation: signedEvaluationAttestation({ executionId: 'missing-execution' }) }, 'execution_not_found']
       ] as const) {
         const response = await app.inject({ method: 'POST', url: `/internal/receipt-spine/${kind}`, headers, payload });
         expect(response.statusCode, response.body).toBe(400); expect(response.json()).toEqual({ error });
       }
       for (const field of ['score_delta', 'scoreDelta', 'confidence_delta', 'confidenceDelta']) {
-        const response = await app.inject({ method: 'POST', url: '/internal/receipt-spine/evaluation', headers, payload: { ...evaluationInput(), [field]: 99 } });
+        const response = await app.inject({ method: 'POST', url: '/internal/receipt-spine/evaluation', headers, payload: { attestation: signedEvaluationAttestation(), [field]: 99 } });
         expect(response.statusCode, response.body).toBe(400);
         expect(response.json()).toEqual({ error: 'score_delta_authoring_forbidden' });
       }

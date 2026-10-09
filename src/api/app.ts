@@ -10,7 +10,9 @@ import { verifyReceiptChain } from '../services/receiptAuthorityService';
 import { createReceiptAuthorityService, ReceiptAuthorityError } from '../services/receiptAuthorityService';
 import { hasAuthoredScore } from '../schemas/evaluate';
 import { createDerivedScoreService } from '../services/derivedScoreService';
-import { createEvaluationService } from '../services/evaluationService';
+import { createEvaluationService, EvaluationServiceError } from '../services/evaluationService';
+import { evaluationReviewerTrustFromEnv } from '../security/evaluationReviewerTrust';
+import { VerifiedEvaluationSubmissionSchema } from '../schemas/evaluationReviewAttestation';
 import { createJudgmentService, JudgmentError } from '../services/judgmentService';
 import { OpenAIDecisionsAdapter } from '../services/openAIDecisionsAdapter';
 import { createDecisionsJudgmentShadow } from '../services/decisionsJudgmentShadow';
@@ -20,7 +22,7 @@ import { baseProofClient, createBaseSettlementProofVerifier, type SettlementProo
 import { createX402JudgmentGateway, type JudgmentPaymentGateway } from '../middleware/x402JudgmentMiddleware';
 import { MemoryJudgmentRequestRepository, PostgresJudgmentRequestRepository } from '../repositories/judgmentRequestRepository';
 import { MemoryCanonicalReceiptStore, PostgresCanonicalReceiptStore } from '../persistence/canonicalReceiptStore';
-import { ObservationReceiptSchema, JudgmentReceiptSchema, ExecutionReceiptSchema, EvaluationReceiptSchema, type ReceiptKind } from '../schemas/receipts';
+import { ObservationReceiptSchema, JudgmentReceiptSchema, ExecutionReceiptSchema, type ReceiptKind } from '../schemas/receipts';
 import cors from '@fastify/cors';
 import Fastify, { FastifyReply, FastifyRequest } from 'fastify';
 import { createReadStream, existsSync } from 'node:fs';
@@ -4455,16 +4457,17 @@ export async function createApp(
     }
   }, reply));
   const judgmentIssuer = judgmentIssuerFromEnv(process.env, config.isProduction || Boolean(process.env.JUDGMENT_ISSUER_KEYS_JSON));
+  const evaluationReviewerTrust = evaluationReviewerTrustFromEnv(process.env) ?? undefined;
   const judgmentTrust = judgmentIssuer ?? (config.isProduction ? { requireSigned: true, verify: () => false } : undefined);
   if (config.isProduction && config.judgmentPaymentEnabled) {
     if (!judgmentIssuer) throw new Error('judgment_signing_unavailable');
     judgmentIssuer.assertCanSign(new Date().toISOString(), new Date(Date.now() + config.judgmentTtlMs).toISOString());
   }
   const canonicalReceiptStore = rhChainPostgresPool
-    ? new PostgresCanonicalReceiptStore(rhChainPostgresPool, config.receiptProceedConfidenceThreshold, judgmentTrust)
-    : new MemoryCanonicalReceiptStore(config.receiptProceedConfidenceThreshold, judgmentTrust);
+    ? new PostgresCanonicalReceiptStore(rhChainPostgresPool, config.receiptProceedConfidenceThreshold, judgmentTrust, evaluationReviewerTrust)
+    : new MemoryCanonicalReceiptStore(config.receiptProceedConfidenceThreshold, judgmentTrust, evaluationReviewerTrust);
   const receiptAuthority = createReceiptAuthorityService(canonicalReceiptStore, config.receiptProceedConfidenceThreshold, judgmentIssuer);
-  const evaluationService = createEvaluationService(canonicalReceiptStore, config.receiptProceedConfidenceThreshold);
+  const evaluationService = createEvaluationService(canonicalReceiptStore, config.receiptProceedConfidenceThreshold, undefined, evaluationReviewerTrust);
   const derivedScores = createDerivedScoreService(canonicalReceiptStore, config.receiptProceedConfidenceThreshold);
   const judgmentGateway = options.judgmentGateway ?? (config.judgmentPaymentEnabled ? await createX402JudgmentGateway({
     facilitatorUrl: config.judgmentFacilitatorUrl!, payTo: config.judgmentPayTo!, amount: config.judgmentPriceUsdc, resourceUrl: config.judgmentResourceUrl!, network: config.judgmentNetwork,
@@ -4480,6 +4483,7 @@ export async function createApp(
     store: canonicalReceiptStore, journal: judgmentJournal, gateway: judgmentGateway, issuer: judgmentIssuer,
     legacyCheck: input => preSpendIntelligence.check(input), threshold: config.receiptProceedConfidenceThreshold,
     ttlMs: config.judgmentTtlMs, amount: config.judgmentPriceUsdc,
+    reputationProjectionEnabled: config.evaluationReputationProjectionEnabled,
     shadow: decisionsAdapter ? createDecisionsJudgmentShadow(decisionsAdapter, event => app.log.info(event)) : undefined,
     onTiming: timing => app.log.info({ event: 'judgment_hot_path_timing', ...timing }),
     observations: async (subject, intentHash) => {
@@ -4544,12 +4548,21 @@ export async function createApp(
       return reply.code(error instanceof ExecutionProofError ? error.statusCode : 503).send({ error: code });
     }
   });
-  app.post('/v1/evaluate', { bodyLimit: 16_384 }, async (req, reply) => {
-    if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'evaluator_authentication_required' });
-    return { data: safeJsonExport(await evaluationService.submit(req.body, 'canonical-admin')) };
-  });
+  const writeReviewedEvaluation = async (req: FastifyRequest, reply: FastifyReply, authError: string) => {
+    if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: authError });
+    if (hasAuthoredScore(req.body)) return reply.code(400).send({ error: 'score_delta_authoring_forbidden' });
+    const parsed = VerifiedEvaluationSubmissionSchema.safeParse(req.body);
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_evaluation_reviewer_attestation' });
+    try { return { data: safeJsonExport(await evaluationService.acceptReviewed(parsed.data, 'canonical-admin')) }; }
+    catch (error) {
+      const code = error instanceof EvaluationServiceError ? error.code : 'evaluation_review_unavailable';
+      return reply.code(error instanceof EvaluationServiceError ? error.statusCode : 503).send({ error: code });
+    }
+  };
+  app.post('/v1/evaluate', { bodyLimit: 32_768 }, async (req, reply) => writeReviewedEvaluation(req, reply, 'evaluator_authentication_required'));
   // Subject routing follows the existing typed receipt-spine convention; the alias defaults to provider.
   app.get<{ Params: { subject: string }; Querystring: { subject_type?: string } }>('/v1/score/:subject', async (req, reply) => {
+    if (!config.evaluationReputationProjectionEnabled) return reply.code(503).send({ error: 'evaluation_reputation_projection_disabled' });
     const subjectType = req.query.subject_type ?? 'provider';
     if (!subjectType || subjectType.length > 256 || !req.params.subject || req.params.subject.length > 256) return reply.code(400).send({ error: 'invalid_score_subject' });
     return { data: await derivedScores.project(subjectType, req.params.subject) };
@@ -4558,15 +4571,11 @@ export async function createApp(
   const canonicalWrites = [
     ['observation', z.object(ObservationReceiptSchema.shape).strict().omit({ schema_version: true, payload_hash: true, receipt_hash: true }), receiptAuthority.appendObservation],
     ['judgment', z.object(JudgmentReceiptSchema.shape).strict().omit({ schema_version: true, policy_version: true, proceed_confidence_threshold: true, parent_hashes: true, receipt_hash: true, issuer_signature: true, payment: true }), receiptAuthority.appendJudgment],
-    ['execution', z.object(ExecutionReceiptSchema.shape).strict().omit({ schema_version: true, parent_hash: true, receipt_hash: true }), receiptAuthority.appendExecution],
-    ['evaluation', z.object(EvaluationReceiptSchema.shape).strict().omit({ schema_version: true, policy_version: true, score_delta: true, parent_hash: true, receipt_hash: true, evaluator: true, request_hash: true }), evaluationService.createEvaluation]
+    ['execution', z.object(ExecutionReceiptSchema.shape).strict().omit({ schema_version: true, parent_hash: true, receipt_hash: true }), receiptAuthority.appendExecution]
   ] as const;
   for (const [kind, schema, append] of canonicalWrites) {
     app.post(`/internal/receipt-spine/${kind}`, async (req, reply) => {
       if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'unauthorized' });
-      if (kind === 'evaluation' && hasAuthoredScore(req.body)) {
-        return reply.code(400).send({ error: 'score_delta_authoring_forbidden' });
-      }
       if (kind === 'judgment' && req.body && typeof req.body === 'object') {
         const submitted = req.body as Record<string, unknown>;
         if (submitted.payment_required === true || (submitted.payment_receipt_ref != null) || Number(submitted.charge ?? 0) !== 0 || submitted.payment !== undefined) {
@@ -4582,6 +4591,7 @@ export async function createApp(
       return { data: safeJsonExport(await (append as (input: typeof parsed.data) => Promise<unknown>)(parsed.data)) };
     });
   }
+  app.post('/internal/receipt-spine/evaluation', { bodyLimit: 32_768 }, async (req, reply) => writeReviewedEvaluation(req, reply, 'unauthorized'));
   app.get('/v1/judgment-issuer/keys', async (_req, reply) => {
     reply.header('Cache-Control', 'no-store');
     if (!judgmentIssuer) return reply.code(503).send({ error: 'judgment_issuer_unavailable' });
@@ -4607,7 +4617,10 @@ export async function createApp(
     if (!receipt) return reply.code(404).send({ error: 'canonical_receipt_not_found' });
     return { data: safeJsonExport(receipt) };
   });
-  app.get<{ Params: { subject_type: string; subject_id: string } }>('/v1/receipt-spine/scores/:subject_type/:subject_id', async (req) => ({ data: await receiptAuthority.projectScore(req.params.subject_type, req.params.subject_id) }));
+  app.get<{ Params: { subject_type: string; subject_id: string } }>('/v1/receipt-spine/scores/:subject_type/:subject_id', async (req, reply) => {
+    if (!config.evaluationReputationProjectionEnabled) return reply.code(503).send({ error: 'evaluation_reputation_projection_disabled' });
+    return { data: await receiptAuthority.projectScore(req.params.subject_type, req.params.subject_id) };
+  });
 
   app.get('/v1/receipts', async () => ({ data: safeJsonExport({
     generated_at: new Date().toISOString(),

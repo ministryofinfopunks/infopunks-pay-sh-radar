@@ -4,7 +4,7 @@ import { JudgmentIssuerKeySchema } from '../security/judgmentIssuer';
 import { EconomicJobSchema, ExecutionAuthorizationSchema, EconomicOperationSchema, HarnessEventSchema } from '../schemas/economicEngine';
 import { z } from 'zod';
 import { CanonicalJudgmentResponseSchema } from '../schemas/preSpend';
-import { EvaluateRequestSchema } from '../schemas/evaluate';
+import { VerifiedEvaluationSubmissionSchema } from '../schemas/evaluationReviewAttestation';
 import { ScoreProjectionSchema } from '../schemas/scoreProjection';
 import { EvaluationReceiptSchema } from '../schemas/receipts';
 import { ExecuteProofRequestSchema } from '../schemas/executeProof';
@@ -1635,13 +1635,14 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   });
   add('post', '/v1/evaluate', {
     tags: ['Pre-Spend Intelligence'], summary: 'Evaluate a verified execution outcome',
-    description: 'Requires authenticated canonical admin provenance: evaluator type internal, id canonical-admin. External signatures are unsupported and fail closed. Score policy V1 computes confirmed +5, weakened -2, contradicted -15. Client deltas are rejected. One append-only evaluation per execution; identical idempotency retries replay, changed content returns 409.',
+    description: 'Requires operator authentication and an Ed25519 signature from a reviewer in the pinned evaluation reviewer trust registry. The signed attestation binds the execution, approved rubric hash, content-addressed outcome evidence, verdict, timestamp and one-time nonce. Reviewer attestation, rubric authorization, evidence digest, and execution parent are verified before the append-only Evaluation receipt is written. Client score deltas and unsigned outcomes are rejected. Score projection can be disabled in isolated staging.',
     parameters: [{ name: 'Authorization', in: 'header', required: true, schema: stringSchema() }],
-    requestBody: { required: true, content: { 'application/json': { schema: z.toJSONSchema(EvaluateRequestSchema, { target: 'draft-2020-12' }) } } },
+    requestBody: { required: true, content: { 'application/json': { schema: z.toJSONSchema(VerifiedEvaluationSubmissionSchema, { target: 'draft-2020-12' }) } } },
     responses: {
       '200': { description: 'Canonical evaluation or identical replay.', content: { 'application/json': { schema: z.toJSONSchema(z.object({ data: EvaluationReceiptSchema }), { target: 'draft-2020-12' }) } } },
-      '400': errorResponse('invalid_evaluation_request'), '401': errorResponse('evaluator_authentication_required'),
-      '403': errorResponse('evaluator_provenance_required'), '409': errorResponse('idempotency_conflict')
+      '400': errorResponse('invalid_evaluation_reviewer_attestation'), '401': errorResponse('evaluator_authentication_required'),
+      '403': errorResponse('evaluation_reviewer_signature_invalid'), '409': errorResponse('evaluation_reviewer_attestation_conflict'),
+      '503': errorResponse('evaluation_reviewer_authority_unavailable')
     }
   });
   add('get', '/v1/score/{subject}', {

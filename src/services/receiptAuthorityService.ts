@@ -3,6 +3,9 @@ import type { JudgmentIssuer, JudgmentIssuerTrust } from '../security/judgmentIs
 import { CANONICAL_RECEIPT_SCHEMA_VERSION, type ObservationReceipt, type JudgmentReceipt, type ExecutionReceipt, type EvaluationReceipt, type ReceiptKind } from '../schemas/receipts';
 import { hashCanonical, sealReceipt, verifyReceiptIntegrity } from './receiptIntegrityService';
 import { createDerivedScoreService } from './derivedScoreService';
+import type { EvaluationReviewerTrust } from '../security/evaluationReviewerTrust';
+import type { EvaluationReviewAttestation } from '../schemas/evaluationReviewAttestation';
+import { evaluationAttestationDigest, evaluationOutcomeEvidenceDigest } from '../security/evaluationReviewerTrust';
 
 export const RECEIPT_POLICY_VERSION = 'receipt-authority.v1';
 export class ReceiptAuthorityError extends Error {
@@ -12,7 +15,9 @@ export class ReceiptAuthorityError extends Error {
 export type ReceiptRecord = ObservationReceipt | JudgmentReceipt | ExecutionReceipt | EvaluationReceipt;
 export interface ReceiptReader {
   readonly judgmentTrust?: JudgmentIssuerTrust;
+  readonly evaluationReviewerTrust?: EvaluationReviewerTrust;
   get(kind: ReceiptKind, id: string): Promise<ReceiptRecord | null>;
+  getEvaluationReviewerAttestation?(attestationHash: string): Promise<EvaluationReviewAttestation | null>;
 }
 const requireAuthority = (condition: unknown, code: string): void => { if (!condition) throw new ReceiptAuthorityError(code); };
 
@@ -63,6 +68,25 @@ export async function assertReceiptAuthority(kind: ReceiptKind, receipt: Receipt
   // EvaluationService also depends on this authority; load its validator lazily.
   const { assertEvaluationPolicy } = await import('./evaluationService.js');
   assertEvaluationPolicy(evaluation);
+  if (evaluation.policy_version === 'review-attested-evaluation.v1') {
+    const signatureRef = evaluation.evaluator?.signature_ref;
+    requireAuthority(signatureRef, 'evaluation_reviewer_attestation_missing');
+    const attestation = await reader.getEvaluationReviewerAttestation?.(signatureRef!);
+    requireAuthority(attestation, 'evaluation_reviewer_attestation_missing');
+    const reviewerTrust = reader.evaluationReviewerTrust;
+    requireAuthority(reviewerTrust?.verify(attestation!), 'evaluation_reviewer_signature_invalid');
+    requireAuthority(evaluationAttestationDigest(attestation!) === signatureRef, 'evaluation_reviewer_attestation_digest_mismatch');
+    requireAuthority(attestation!.execution_receipt_id === evaluation.execution_id
+      && attestation!.verdict === evaluation.outcome
+      && attestation!.reviewer_id === evaluation.evaluator?.id
+      && Date.parse(attestation!.attested_at) <= Date.parse(evaluation.evaluated_at), 'evaluation_reviewer_attestation_binding_invalid');
+    requireAuthority(reviewerTrust!.acceptsRubric(attestation!.rubric_sha256), 'evaluation_rubric_not_authorized');
+    const sortedRefs = [...evaluation.evidence_refs].sort();
+    requireAuthority(JSON.stringify(sortedRefs) === JSON.stringify(attestation!.evidence_refs), 'evaluation_evidence_refs_mismatch');
+    requireAuthority(evaluationOutcomeEvidenceDigest({ execution_receipt_id: evaluation.execution_id,
+      rubric_sha256: attestation!.rubric_sha256, evidence_refs: sortedRefs }) === attestation!.outcome_evidence_sha256,
+    'evaluation_outcome_evidence_digest_invalid');
+  }
   const execution = await reader.get('execution', evaluation.execution_id) as ExecutionReceipt | null;
   requireAuthority(execution, 'execution_not_found');
   if (!execution) return;
@@ -74,6 +98,7 @@ export async function assertReceiptAuthority(kind: ReceiptKind, receipt: Receipt
 export interface ReceiptAppendStore extends ReceiptReader {
   append(kind: ReceiptKind, receipt: ReceiptRecord): Promise<ReceiptRecord>;
   list(kind: ReceiptKind): Promise<ReceiptRecord[]>;
+  appendEvaluationReviewerAttestation?(attestation: EvaluationReviewAttestation): Promise<string>;
   evaluationHistory?(subjectType: string, subjectId: string): Promise<ReceiptRecord[]>;
 }
 export function createReceiptAuthorityService(store: ReceiptAppendStore, threshold = 80, issuer?: JudgmentIssuer | null) {

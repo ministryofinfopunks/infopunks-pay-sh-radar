@@ -22,6 +22,21 @@ it('durable contradicted execution causes a subsequent judgment to veto without 
   expect(second.response.reasons).toEqual(expect.arrayContaining(['historical_execution_performance_degraded', 'derived_score_below_policy_threshold', 'contradicted_evaluation_in_history']));
 });
 
+it('E1 staging can disable Evaluation-derived history inside pre-spend judgments', async () => {
+  const ready = await setupJudgment();
+  const first = await ready.service.check(request, 'first-disabled', ready.signature);
+  const execution = await ready.authority.appendExecution({ ...executionInput(), judgment_id: first.response.judgment_id });
+  await createEvaluationService(ready.store, 80, () => new Date('2026-10-07T00:00:04Z'))
+    .submit({ ...evaluationRequest, execution_receipt_id: execution.execution_id, outcome: 'contradicted' }, 'canonical-admin');
+  const { createJudgmentService } = await import('../../src/services/judgmentService');
+  const disabled = createJudgmentService({ store: ready.store, journal: ready.journal, gateway: ready.gateway,
+    legacyCheck: () => first.legacy, observations: async () => [ready.observation], threshold: 80, ttlMs: 60000,
+    amount: '0.01', now: () => new Date('2026-10-07T00:00:05Z'), reputationProjectionEnabled: false });
+  const second = await disabled.check(request, 'second-disabled');
+  expect(second.response.decision).toBe('proceed');
+  expect(second.response.reasons).not.toContain('historical_execution_performance_degraded');
+});
+
 it.each([{ evidence_state: 'stale' }, { evidence_state: 'insufficient', evidence_refs: [] }, { freshness_expires_at: '2026-10-07T00:00:01Z' }])('positive history never bypasses invalid current evidence %j and remains free', async observationOverrides => {
   const ready = await setupJudgment();
   const first = await ready.service.check(request, 'history', ready.signature);

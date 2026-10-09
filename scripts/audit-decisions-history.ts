@@ -6,6 +6,8 @@ import pg from 'pg';
 import { z } from 'zod';
 import { createJudgmentIssuer, JudgmentIssuerKeySchema } from '../src/security/judgmentIssuer';
 import { auditHistoricalReceipts, type HistoricalReceipts } from '../src/services/decisionsEvidenceAudit';
+import { EvaluationReviewAttestationSchema, type EvaluationReviewAttestation } from '../src/schemas/evaluationReviewAttestation';
+import { createEvaluationReviewerTrust, EvaluationReviewerTrustRegistrySchema, type EvaluationReviewerTrust } from '../src/security/evaluationReviewerTrust';
 
 const Tables = {
   observation: { table: 'observation_receipts', id: 'observation_id' },
@@ -13,7 +15,8 @@ const Tables = {
   execution: { table: 'execution_receipts', id: 'execution_id' },
   evaluation: { table: 'evaluation_receipts', id: 'evaluation_id' }
 } as const;
-const TrustFile = z.object({ issuer: z.string().min(1), keys: z.array(JudgmentIssuerKeySchema).min(1) }).strict();
+const TrustFile = z.object({ issuer: z.string().min(1), keys: z.array(JudgmentIssuerKeySchema).min(1),
+  evaluation_reviewer_trust: EvaluationReviewerTrustRegistrySchema.optional() }).strict();
 const DEFAULT_MAX_ROWS = 10000;
 
 function parseArgs(args: string[]) {
@@ -52,8 +55,18 @@ export async function readHistoricalReceipts(url: string, schema: string, maxRow
       if (result.rows.length > maxRows) throw new Error('receipt_row_cap_exceeded');
       records[kind] = result.rows.map(row => row.receipt);
     }
+    let reviewerAttestations: EvaluationReviewAttestation[] = [];
+    try {
+      const result = await client.query<{ attestation: unknown }>(`SELECT attestation FROM "${schema}"."evaluation_reviewer_attestations" ORDER BY attested_at, attestation_hash LIMIT $1`, [maxRows + 1]);
+      if (result.rows.length > maxRows) throw new Error('reviewer_attestation_row_cap_exceeded');
+      reviewerAttestations = result.rows.map(row => EvaluationReviewAttestationSchema.parse(row.attestation));
+    } catch (error) {
+      if (!(error && typeof error === 'object' && 'code' in error && error.code === '42P01')) throw error;
+      // Older canonical databases predate reviewer attestations. Such rows cannot verify a new attested Evaluation.
+    }
     await client.query('ROLLBACK');
-    return { records, source_fingerprint_sha256: sha256(`${context.rows[0].database_name}/${schema}`), snapshot_id: context.rows[0].snapshot_id };
+    return { records, reviewer_attestations: reviewerAttestations,
+      source_fingerprint_sha256: sha256(`${context.rows[0].database_name}/${schema}`), snapshot_id: context.rows[0].snapshot_id };
   } catch (error) {
     await client.query('ROLLBACK').catch(() => undefined);
     throw error;
@@ -74,12 +87,16 @@ export async function main(args = process.argv.slice(2), environment = process.e
   } else {
     const trust = flags.trustPath ? TrustFile.parse(JSON.parse(readFileSync(flags.trustPath, 'utf8'))) : null;
     const judgmentTrust = trust ? createJudgmentIssuer({ issuer: trust.issuer, keys: trust.keys, requireSigned: true }) : undefined;
+    const evaluationReviewerTrust: EvaluationReviewerTrust | undefined = trust?.evaluation_reviewer_trust
+      ? createEvaluationReviewerTrust(trust.evaluation_reviewer_trust) : undefined;
     const source = await readHistoricalReceipts(url, flags.schema, flags.maxRows);
-    const audit = await auditHistoricalReceipts(source.records, { judgmentTrust });
+    const audit = await auditHistoricalReceipts(source.records, { judgmentTrust, evaluationReviewerTrust,
+      evaluationReviewerAttestations: source.reviewer_attestations });
     report = {
       schema_version: 'decisions-history-inventory.v1', data_access_status: 'audited',
       source: 'direct_readonly_postgres', source_fingerprint_sha256: source.source_fingerprint_sha256,
       snapshot_id: source.snapshot_id, trust_keys_provided: Boolean(judgmentTrust),
+      evaluation_reviewer_trust_provided: Boolean(evaluationReviewerTrust), evaluation_reviewer_attestation_count: source.reviewer_attestations.length,
       execution_and_outcome_external_verifiers_provided: false,
       audit
     };

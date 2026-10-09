@@ -37,6 +37,8 @@ export type JudgmentServiceOptions = {
   now?: () => Date;
   onTiming?: (timing: { local_ms: number; payment_ms: number; total_ms: number }) => void;
   shadow?: (sample: JudgmentShadowSample) => Promise<void>;
+  /** E1 staging may disable all historical Evaluation-derived score inputs. */
+  reputationProjectionEnabled?: boolean;
 };
 export function createJudgmentService(options: JudgmentServiceOptions) {
   const now = options.now ?? (() => new Date());
@@ -107,7 +109,8 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
         if (decision === 'proceed' && (confidence < Math.max(options.threshold, input.required_confidence) || legacy.requires_human_approval || legacy.known_blockers.length > 0)) decision = 'insufficient_evidence';
         // Historical performance may veto spending only after the evidence gate passes.
         // Positive history never grants permission or fills missing evidence.
-        const history = sufficient ? await scores.project(observations[0].subject_type, subject) : null;
+        const history = sufficient && options.reputationProjectionEnabled !== false
+          ? await scores.project(observations[0].subject_type, subject) : null;
         const historyReasons: string[] = [];
         if (history && history.score <= -10 && decision !== 'insufficient_evidence') {
           decision = 'do_not_spend';

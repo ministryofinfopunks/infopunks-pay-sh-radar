@@ -1,14 +1,19 @@
 import { createHash } from 'node:crypto';
 import type { JudgmentIssuerTrust } from '../security/judgmentIssuer';
+import type { EvaluationReviewerTrust } from '../security/evaluationReviewerTrust';
+import { evaluationAttestationDigest } from '../security/evaluationReviewerTrust';
+import type { EvaluationReviewAttestation } from '../schemas/evaluationReviewAttestation';
 import type { EvaluationReceipt, ExecutionReceipt, JudgmentReceipt, ObservationReceipt, ReceiptKind } from '../schemas/receipts';
 import { assertReceiptAuthority, type ReceiptReader, type ReceiptRecord } from './receiptAuthorityService';
 import { receiptSchemas, verifyReceiptIntegrity } from './receiptIntegrityService';
 
-export const DECISIONS_EVIDENCE_AUDIT_VERSION = 'decisions-evidence-audit.v1';
+export const DECISIONS_EVIDENCE_AUDIT_VERSION = 'decisions-evidence-audit.v2';
 export type HistoricalReceipts = Record<ReceiptKind, unknown[]>;
 export type EvidenceVerification = { verified: boolean; evidence_refs: string[] };
 export type HistoricalEvidenceVerifiers = {
   judgmentTrust?: JudgmentIssuerTrust;
+  evaluationReviewerTrust?: EvaluationReviewerTrust;
+  evaluationReviewerAttestations?: EvaluationReviewAttestation[];
   verifyExternalExecution?: (receipt: ExecutionReceipt) => Promise<EvidenceVerification>;
   verifyIndependentOutcome?: (receipt: EvaluationReceipt) => Promise<EvidenceVerification>;
 };
@@ -51,6 +56,8 @@ export async function auditHistoricalReceipts(raw: HistoricalReceipts, verifiers
   };
   const reader: ReceiptReader = {
     judgmentTrust: verifiers.judgmentTrust,
+    evaluationReviewerTrust: verifiers.evaluationReviewerTrust,
+    getEvaluationReviewerAttestation: async (hash) => verifiers.evaluationReviewerAttestations?.find((attestation) => evaluationAttestationDigest(attestation) === hash) ?? null,
     get: async (kind, id) => (lookup[kind] as Map<string, ReceiptRecord>).get(id) ?? null
   };
   const evaluationsByExecution = new Map<string, EvaluationReceipt[]>();
