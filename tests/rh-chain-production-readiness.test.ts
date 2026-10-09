@@ -16,7 +16,7 @@ describe('RH Chain production readiness', () => {
     const ledger = await inspectRhChainMigrationLedger(null);
     expect(ledger.database_reachable).toBe(false);
     expect(ledger.migration_runner).toBe('external_only');
-    expect(ledger.pending_migrations).toEqual(['20260719_001', '20260719_002', '20260719_003', '20260719_004', '20260719_005', '20260720_006', '20260813_007', '20260813_008', '20260814_009', '20260908_010', '20261007_011', '20261008_016']);
+    expect(ledger.pending_migrations).toEqual(['20260719_001', '20260719_002', '20260719_003', '20260719_004', '20260719_005', '20260720_006', '20260813_007', '20260813_008', '20260814_009', '20260908_010', '20261007_011', '20261007_012', '20261007_013', '20261007_014', '20261007_015', '20261008_016', '20261008_017', '20261008_018', '20261008_019', '20261008_020', '20261008_021']);
   });
 
   it('builds a provider-free readiness result from schema signatures', async () => {
@@ -34,6 +34,19 @@ describe('RH Chain production readiness', () => {
     const pool = { query: async (sql: string) => sql.includes('pg_trigger') ? { rows: [{ name: 'evaluation_receipts_immutable' }] } : sql.includes('pg_get_constraintdef') ? { rows: [{ definition: "CHECK ('consumer')" }] } : { rows: [] } } as any;
     const ledger = await inspectRhChainMigrationLedger(pool);
     expect(ledger.migrations.find((migration) => migration.id === '20261007_011')).toMatchObject({ state: 'pending', missing_checks: ['evaluation_receipts_immutable'] });
+  });
+
+  it('reports a migration unapplied when its required schema signature is absent', async () => {
+    const pool = { query: async (sql: string) => {
+      if (sql.includes('to_regclass')) return { rows: [{ name: 'decision_contexts' }] };
+      if (sql.includes('pg_get_constraintdef')) return { rows: [{ definition: "CHECK ('consumer')" }] };
+      return { rows: [] };
+    } } as any;
+    const ledger = await inspectRhChainMigrationLedger(pool);
+    expect(ledger.migrations.find((migration) => migration.id === '20261008_018')).toMatchObject({
+      state: 'pending', missing_tables: ['decision_contexts']
+    });
+    expect(ledger.pending_migrations).toContain('20261008_018');
   });
 
   it('keeps the operational readiness endpoint internal and bearer-authenticated', async () => {

@@ -15,6 +15,7 @@
     "verify:runtime-config": "node dist/server/config/verifyRuntimeConfig.js",
     "smoke:production": "tsx scripts/smoke-production.ts",
     "rh-chain:migration-status": "tsx scripts/rh-chain-migration-status.ts",
+    "migrations:validate": "tsx scripts/validate-migration-inventory.ts",
     "smoke:backend": "node scripts/smoke-backend.mjs",
     "load:4663": "node scripts/load-4663-frontdoor.mjs",
     "launch:scaffold": "python3 .agents/skills/launch/scripts/scaffold_launch_packet.py --root .",
