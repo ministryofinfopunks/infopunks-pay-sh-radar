@@ -100,49 +100,28 @@
   {
     "route": "desktop:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/providers/gemini",
+    "url": "http://127.0.0.1:4173/v1/providers/solana-foundation-alibaba-ivpd",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "desktop:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/providers/gemini/intelligence",
+    "url": "http://127.0.0.1:4173/v1/providers/solana-foundation-alibaba-ivpd/intelligence",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "desktop:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/history/providers/gemini?window=24h",
+    "url": "http://127.0.0.1:4173/v1/radar/history/providers/solana-foundation-alibaba-ivpd?window=24h",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "desktop:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/gemini",
-    "status": 200,
-    "mimeType": "application/json"
-  },
-  {
-    "route": "desktop:/solana",
-    "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/mappings",
-    "status": 200,
-    "mimeType": "application/json"
-  },
-  {
-    "route": "desktop:/solana",
-    "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/mapping-targets",
-    "status": 200,
-    "mimeType": "application/json"
-  },
-  {
-    "route": "desktop:/solana",
-    "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/history/ecosystem?window=24h",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/solana-foundation-alibaba-ivpd",
     "status": 200,
     "mimeType": "application/json"
   },
@@ -163,6 +142,13 @@
   {
     "route": "desktop:/solana",
     "kind": "response",
+    "url": "http://127.0.0.1:4173/v1/radar/mappings",
+    "status": 200,
+    "mimeType": "application/json"
+  },
+  {
+    "route": "desktop:/solana",
+    "kind": "response",
     "url": "http://127.0.0.1:4173/v1/radar/risk/ecosystem",
     "status": 200,
     "mimeType": "application/json"
@@ -170,14 +156,14 @@
   {
     "route": "desktop:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/endpoints/gemini-endpoint-1/monitor",
+    "url": "http://127.0.0.1:4173/v1/radar/mapping-targets",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "desktop:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/endpoints/gemini-endpoint-1",
+    "url": "http://127.0.0.1:4173/v1/radar/history/ecosystem?window=24h",
     "status": 200,
     "mimeType": "application/json"
   },
@@ -191,13 +177,6 @@
   {
     "route": "desktop:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/dtelecom",
-    "status": 200,
-    "mimeType": "application/json"
-  },
-  {
-    "route": "desktop:/solana",
-    "kind": "response",
     "url": "http://127.0.0.1:4173/v1/radar/agent-readiness",
     "status": 200,
     "mimeType": "application/json"
@@ -205,77 +184,112 @@
   {
     "route": "desktop:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/stableenrich",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/agentmail-email",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "desktop:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/stablestudio",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/agentres-reservations",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "desktop:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/fal",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/arkham-api",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "desktop:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/factchecktools",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/birdeye-data",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "desktop:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/gemini",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/blocksize-market-data",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "desktop:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/speech",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/brij-travel",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "desktop:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/kgsearch",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/clustly-tipping",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "desktop:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/rentcast",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/cryptorefills-shopping",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "desktop:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/stableemail",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/blockrun-blockrun",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "desktop:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/translate",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/dtelecom-voice",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "desktop:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/stableupload",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/dynamic-checkout",
+    "status": 200,
+    "mimeType": "application/json"
+  },
+  {
+    "route": "desktop:/solana",
+    "kind": "response",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/venice-ai",
+    "status": 200,
+    "mimeType": "application/json"
+  },
+  {
+    "route": "desktop:/solana",
+    "kind": "response",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/solana-foundation-alibaba-facebody",
+    "status": 200,
+    "mimeType": "application/json"
+  },
+  {
+    "route": "desktop:/solana",
+    "kind": "response",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/dripstack-research",
+    "status": 200,
+    "mimeType": "application/json"
+  },
+  {
+    "route": "desktop:/solana",
+    "kind": "response",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/solana-foundation-alibaba-imagerecog",
+    "status": 200,
+    "mimeType": "application/json"
+  },
+  {
+    "route": "desktop:/solana",
+    "kind": "response",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/solana-foundation-alibaba-imageseg",
     "status": 200,
     "mimeType": "application/json"
   },
@@ -380,20 +394,6 @@
   {
     "route": "desktop:/4663",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/4663/campaign/events",
-    "status": 202,
-    "mimeType": "application/json"
-  },
-  {
-    "route": "desktop:/4663",
-    "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/4663/campaign/events",
-    "status": 202,
-    "mimeType": "application/json"
-  },
-  {
-    "route": "desktop:/4663",
-    "kind": "response",
     "url": "http://127.0.0.1:4173/v1/4663/me?follows=%5B%5D&last_seen_my4663_event_id=frontdoor-change%3A1%3AWATCH_CASES",
     "status": 200,
     "mimeType": "application/json"
@@ -492,6 +492,13 @@
   {
     "route": "mobile:/solana",
     "kind": "response",
+    "url": "http://127.0.0.1:4173/v1/narratives",
+    "status": 200,
+    "mimeType": "application/json"
+  },
+  {
+    "route": "mobile:/solana",
+    "kind": "response",
     "url": "http://127.0.0.1:4173/v1/graph",
     "status": 200,
     "mimeType": "application/json"
@@ -506,35 +513,28 @@
   {
     "route": "mobile:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/narratives",
+    "url": "http://127.0.0.1:4173/v1/providers/solana-foundation-alibaba-ivpd",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "mobile:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/providers/gemini",
+    "url": "http://127.0.0.1:4173/v1/providers/solana-foundation-alibaba-ivpd/intelligence",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "mobile:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/providers/gemini/intelligence",
+    "url": "http://127.0.0.1:4173/v1/radar/history/providers/solana-foundation-alibaba-ivpd?window=24h",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "mobile:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/history/providers/gemini?window=24h",
-    "status": 200,
-    "mimeType": "application/json"
-  },
-  {
-    "route": "mobile:/solana",
-    "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/gemini",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/solana-foundation-alibaba-ivpd",
     "status": 200,
     "mimeType": "application/json"
   },
@@ -590,20 +590,6 @@
   {
     "route": "mobile:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/endpoints/gemini-endpoint-1/monitor",
-    "status": 200,
-    "mimeType": "application/json"
-  },
-  {
-    "route": "mobile:/solana",
-    "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/endpoints/gemini-endpoint-1",
-    "status": 200,
-    "mimeType": "application/json"
-  },
-  {
-    "route": "mobile:/solana",
-    "kind": "response",
     "url": "http://127.0.0.1:4173/v1/radar/evidence-ledger",
     "status": 200,
     "mimeType": "application/json"
@@ -618,84 +604,112 @@
   {
     "route": "mobile:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/stableenrich",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/agentmail-email",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "mobile:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/stablestudio",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/blocksize-market-data",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "mobile:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/fal",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/agentres-reservations",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "mobile:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/dtelecom",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/arkham-api",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "mobile:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/rentcast",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/birdeye-data",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "mobile:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/gemini",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/blockrun-blockrun",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "mobile:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/speech",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/clustly-tipping",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "mobile:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/kgsearch",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/cryptorefills-shopping",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "mobile:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/stableupload",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/dripstack-research",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "mobile:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/factchecktools",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/dtelecom-voice",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "mobile:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/translate",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/brij-travel",
     "status": 200,
     "mimeType": "application/json"
   },
   {
     "route": "mobile:/solana",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/stableemail",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/venice-ai",
+    "status": 200,
+    "mimeType": "application/json"
+  },
+  {
+    "route": "mobile:/solana",
+    "kind": "response",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/solana-foundation-alibaba-facebody",
+    "status": 200,
+    "mimeType": "application/json"
+  },
+  {
+    "route": "mobile:/solana",
+    "kind": "response",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/solana-foundation-alibaba-imageseg",
+    "status": 200,
+    "mimeType": "application/json"
+  },
+  {
+    "route": "mobile:/solana",
+    "kind": "response",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/solana-foundation-alibaba-imagerecog",
+    "status": 200,
+    "mimeType": "application/json"
+  },
+  {
+    "route": "mobile:/solana",
+    "kind": "response",
+    "url": "http://127.0.0.1:4173/v1/radar/risk/providers/dynamic-checkout",
     "status": 200,
     "mimeType": "application/json"
   },
@@ -800,7 +814,7 @@
   {
     "route": "mobile:/4663",
     "kind": "response",
-    "url": "http://127.0.0.1:4173/v1/4663/me?follows=%5B%5D&last_seen_my4663_event_id=frontdoor-change%3A2%3ASYSTEM",
+    "url": "http://127.0.0.1:4173/v1/4663/me?follows=%5B%5D&last_seen_my4663_event_id=frontdoor-change%3A1%3AWATCH_CASES",
     "status": 200,
     "mimeType": "application/json"
   },

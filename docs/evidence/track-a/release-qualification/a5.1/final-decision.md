@@ -2,6 +2,8 @@
 
 ## Locally qualified
 
+Candidate implementation SHA: `f27cc5cb461a897e2833bbf992d13654361bc76d`.
+
 - Candidate source branch is `codex/track-a-release-candidate`, based on expected starting SHA `b25a063db886b667c81888576da9079fe30d5a6d`.
 - PostgreSQL migration runner covers 001–021, explicit historical adoption, checksums, concurrency, failure/retry, immutable history and JSON reporting.
 - Full repository suite passed with disposable local PostgreSQL: 273 test files; 1,904 passed; 1 skipped. Typecheck, lint and production build results are recorded in the final validation report.

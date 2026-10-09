@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-10-09T05:22:52.543Z",
+  "capturedAt": "2026-10-09T05:38:27.479Z",
   "baseUrl": "http://127.0.0.1:4173",
   "results": [
     {
@@ -14,9 +14,9 @@
         "bodyHeight": 1983
       },
       "performance": {
-        "jsHeapUsedSize": 5754816,
-        "layoutDuration": 0.007515,
-        "scriptDuration": 0.00631
+        "jsHeapUsedSize": 5639944,
+        "layoutDuration": 0.01686,
+        "scriptDuration": 0.012066
       },
       "accessibilityTree": {
         "nodes": 202,
@@ -33,16 +33,16 @@
         "bodyText": "SKIP TO CONTENT\nINFOPUNKS\nRadar\nNETWORK\nSolana\n⌄\nOverview\nProviders\nRoutes\nReceipts\nBenchmarks\nExplore\n⌄\n⌕\n⌘K\n⚙\nView\n\nSOLANA RADAR\n\nProof before agent spend.\n\nRoute intelligence, provider evidence, narrative memory and machine-market infrastructure for the Solana economy.\n\nOpen Radar\nRun Preflight\n\nPay.sh is the spend rail. Radar is the evidence layer.\n\nPRE-SPEND INTELLIGENCE\n\nMost see noise.\nInfopunks finds signal.\n\nFEATURED PRODUCT SURFACES\n\nExplore Solana Radar\n\nA map of the intelligence, evidence and execution surfaces available across the Solana environment.\n\nIntelligence\n04\n\nNarrative, market and cultural signal surfaces.\n\nSignal Hunt\nEmerging signals with evidence\nNarratives\nCultural ",
         "scrollWidth": 1440,
         "innerWidth": 1440,
-        "bodyHeight": 23244
+        "bodyHeight": 22865
       },
       "performance": {
-        "jsHeapUsedSize": 14752924,
-        "layoutDuration": 0.12855,
-        "scriptDuration": 0.142953
+        "jsHeapUsedSize": 16720712,
+        "layoutDuration": 0.154509,
+        "scriptDuration": 0.129622
       },
       "accessibilityTree": {
-        "nodes": 9069,
-        "interactive": 203,
+        "nodes": 9221,
+        "interactive": 336,
         "unnamedInteractive": []
       }
     },
@@ -58,9 +58,9 @@
         "bodyHeight": 1954
       },
       "performance": {
-        "jsHeapUsedSize": 27806184,
-        "layoutDuration": 0.011857,
-        "scriptDuration": 0.041447
+        "jsHeapUsedSize": 29358496,
+        "layoutDuration": 0.012111,
+        "scriptDuration": 0.047595
       },
       "accessibilityTree": {
         "nodes": 287,
@@ -80,9 +80,9 @@
         "bodyHeight": 2094
       },
       "performance": {
-        "jsHeapUsedSize": 40939412,
-        "layoutDuration": 0.010347,
-        "scriptDuration": 0.034541
+        "jsHeapUsedSize": 42066916,
+        "layoutDuration": 0.015033,
+        "scriptDuration": 0.036693
       },
       "accessibilityTree": {
         "nodes": 495,
@@ -102,9 +102,9 @@
         "bodyHeight": 1328
       },
       "performance": {
-        "jsHeapUsedSize": 56769272,
-        "layoutDuration": 0.00855,
-        "scriptDuration": 0.037919
+        "jsHeapUsedSize": 58216028,
+        "layoutDuration": 0.008547,
+        "scriptDuration": 0.039474
       },
       "accessibilityTree": {
         "nodes": 359,
@@ -124,9 +124,9 @@
         "bodyHeight": 2468
       },
       "performance": {
-        "jsHeapUsedSize": 71599364,
-        "layoutDuration": 0.01844,
-        "scriptDuration": 0.040109
+        "jsHeapUsedSize": 73000068,
+        "layoutDuration": 0.012151,
+        "scriptDuration": 0.042646
       },
       "accessibilityTree": {
         "nodes": 748,
@@ -146,9 +146,9 @@
         "bodyHeight": 5027
       },
       "performance": {
-        "jsHeapUsedSize": 86809988,
-        "layoutDuration": 0.012533,
-        "scriptDuration": 0.035726
+        "jsHeapUsedSize": 88233144,
+        "layoutDuration": 0.011428,
+        "scriptDuration": 0.034485
       },
       "accessibilityTree": {
         "nodes": 762,
@@ -162,19 +162,19 @@
       "screenshot": "desktop-_4663.png",
       "page": {
         "title": "Infopunks // 4663 | Infopunks Radar",
-        "bodyText": "Skip to now\nINFOPUNKS\n4663\n5H\nCall\nNow\nWatch\nCall\nProof\n\nINFOPUNKS / ROBINHOOD CHAIN\n\nRobinhood Chain,\nright now.\nSignal extraction for the agentic economy. Before an agent spends, it checks Infopunks.\n\nSome research sources are temporarily unavailable. Available evidence remains shown.\n\nMY 4663\n\nFollow what matters.\nFollow the markets and research questions you care about.\nAI/NVDA\nFOLLOW\n\n1 THINGS CHANGED\n\nSince your last visit.\nFRONTDOOR\nNOW\nFrontdoor coverage changed\nSource observed unknown\n\nNOW\n\nWhat matters right now?\n5H\n\nWATCH\n\nWhat is developing?\nAll cases\n↗\n\nDEVELOPING\n\nRH Stock / Meme Map Census\nMIXED\n36D\nSHARE\nCase\n↗\n\nFALSIFICATION\n\nAI / NVDA Capital vs Flow\nMIXED\n38D\nFOLLOW\nSHARE\n",
+        "bodyText": "Skip to now\nINFOPUNKS\n4663\n5H\nCall\nNow\nWatch\nCall\nProof\n\nINFOPUNKS / ROBINHOOD CHAIN\n\nRobinhood Chain,\nright now.\nSignal extraction for the agentic economy. Before an agent spends, it checks Infopunks.\n\nSome research sources are temporarily unavailable. Available evidence remains shown.\n\nMY 4663\n\nFollow what matters.\nFollow the markets and research questions you care about.\nAI/NVDA\nFOLLOW\n\nNOW\n\nWhat matters right now?\n5H\n\nWATCH\n\nWhat is developing?\nAll cases\n↗\n\nDEVELOPING\n\nRH Stock / Meme Map Census\nMIXED\n36D\nSHARE\nCase\n↗\n\nFALSIFICATION\n\nAI / NVDA Capital vs Flow\nMIXED\n38D\nFOLLOW\nSHARE\nCase\n↗\n\nFALSIFICATION\n\nBONER / HIMS Float Stress\nWATCH\n38D\nFOLLOW\nSHARE\nCase\n↗\n\nDEVELOPING\n\nLONGX NVDAx3L\nW",
         "scrollWidth": 1440,
         "innerWidth": 1440,
-        "bodyHeight": 4055
+        "bodyHeight": 3814
       },
       "performance": {
-        "jsHeapUsedSize": 101910592,
-        "layoutDuration": 0.03573,
-        "scriptDuration": 0.054247
+        "jsHeapUsedSize": 103303388,
+        "layoutDuration": 0.032963,
+        "scriptDuration": 0.058431
       },
       "accessibilityTree": {
-        "nodes": 476,
-        "interactive": 44,
+        "nodes": 452,
+        "interactive": 43,
         "unnamedInteractive": []
       }
     },
@@ -190,9 +190,9 @@
         "bodyHeight": 3400
       },
       "performance": {
-        "jsHeapUsedSize": 116422376,
-        "layoutDuration": 0.006554,
-        "scriptDuration": 0.033477
+        "jsHeapUsedSize": 117892408,
+        "layoutDuration": 0.005197,
+        "scriptDuration": 0.035408
       },
       "accessibilityTree": {
         "nodes": 294,
@@ -212,9 +212,9 @@
         "bodyHeight": 3209
       },
       "performance": {
-        "jsHeapUsedSize": 131291260,
-        "layoutDuration": 0.00913,
-        "scriptDuration": 0.041354
+        "jsHeapUsedSize": 132709588,
+        "layoutDuration": 0.018634,
+        "scriptDuration": 0.038303
       },
       "accessibilityTree": {
         "nodes": 524,
@@ -234,9 +234,9 @@
         "bodyHeight": 2793
       },
       "performance": {
-        "jsHeapUsedSize": 131876352,
-        "layoutDuration": 0.006048,
-        "scriptDuration": 0.002667
+        "jsHeapUsedSize": 133294856,
+        "layoutDuration": 0.005814,
+        "scriptDuration": 0.002782
       },
       "accessibilityTree": {
         "nodes": 201,
@@ -253,16 +253,16 @@
         "bodyText": "SKIP TO CONTENT\nINFOPUNKS\nRadar\nNETWORK\nSolana\n⌄\nMenu\n⌄\n⌕\n⚙\n\nSOLANA RADAR\n\nProof before agent spend.\n\nRoute intelligence, provider evidence, narrative memory and machine-market infrastructure for the Solana economy.\n\nOpen Radar\nRun Preflight\n\nPay.sh is the spend rail. Radar is the evidence layer.\n\nPRE-SPEND INTELLIGENCE\n\nMost see noise.\nInfopunks finds signal.\n\nFEATURED PRODUCT SURFACES\n\nExplore Solana Radar\n\nA map of the intelligence, evidence and execution surfaces available across the Solana environment.\n\nIntelligence\n04\n\nNarrative, market and cultural signal surfaces.\n\nSignal Hunt\nEmerging signals with evidence\nNarratives\nCultural intelligence desk\nUnicorn Radar\nEarly company and project",
         "scrollWidth": 390,
         "innerWidth": 390,
-        "bodyHeight": 60778
+        "bodyHeight": 69075
       },
       "performance": {
-        "jsHeapUsedSize": 146226088,
-        "layoutDuration": 0.058945,
-        "scriptDuration": 0.117354
+        "jsHeapUsedSize": 147966536,
+        "layoutDuration": 0.060002,
+        "scriptDuration": 0.112838
       },
       "accessibilityTree": {
-        "nodes": 9208,
-        "interactive": 198,
+        "nodes": 9265,
+        "interactive": 331,
         "unnamedInteractive": []
       }
     },
@@ -278,9 +278,9 @@
         "bodyHeight": 3745
       },
       "performance": {
-        "jsHeapUsedSize": 159881996,
-        "layoutDuration": 0.008327,
-        "scriptDuration": 0.030132
+        "jsHeapUsedSize": 161553976,
+        "layoutDuration": 0.008998,
+        "scriptDuration": 0.028692
       },
       "accessibilityTree": {
         "nodes": 270,
@@ -300,9 +300,9 @@
         "bodyHeight": 4498
       },
       "performance": {
-        "jsHeapUsedSize": 175508492,
-        "layoutDuration": 0.013662,
-        "scriptDuration": 0.040306
+        "jsHeapUsedSize": 177259676,
+        "layoutDuration": 0.016707,
+        "scriptDuration": 0.038054
       },
       "accessibilityTree": {
         "nodes": 455,
@@ -322,9 +322,9 @@
         "bodyHeight": 3496
       },
       "performance": {
-        "jsHeapUsedSize": 190324068,
-        "layoutDuration": 0.012414,
-        "scriptDuration": 0.035769
+        "jsHeapUsedSize": 192088740,
+        "layoutDuration": 0.011335,
+        "scriptDuration": 0.039596
       },
       "accessibilityTree": {
         "nodes": 332,
@@ -344,9 +344,9 @@
         "bodyHeight": 6732
       },
       "performance": {
-        "jsHeapUsedSize": 205587412,
-        "layoutDuration": 0.011217,
-        "scriptDuration": 0.035977
+        "jsHeapUsedSize": 207385272,
+        "layoutDuration": 0.017745,
+        "scriptDuration": 0.0378
       },
       "accessibilityTree": {
         "nodes": 712,
@@ -366,9 +366,9 @@
         "bodyHeight": 9113
       },
       "performance": {
-        "jsHeapUsedSize": 220701040,
-        "layoutDuration": 0.042538,
-        "scriptDuration": 0.035989
+        "jsHeapUsedSize": 222602380,
+        "layoutDuration": 0.046953,
+        "scriptDuration": 0.038973
       },
       "accessibilityTree": {
         "nodes": 775,
@@ -388,9 +388,9 @@
         "bodyHeight": 4852
       },
       "performance": {
-        "jsHeapUsedSize": 235848040,
-        "layoutDuration": 0.020722,
-        "scriptDuration": 0.047107
+        "jsHeapUsedSize": 237851816,
+        "layoutDuration": 0.016351,
+        "scriptDuration": 0.044755
       },
       "accessibilityTree": {
         "nodes": 455,
@@ -410,9 +410,9 @@
         "bodyHeight": 4705
       },
       "performance": {
-        "jsHeapUsedSize": 250394040,
-        "layoutDuration": 0.006415,
-        "scriptDuration": 0.037569
+        "jsHeapUsedSize": 252383884,
+        "layoutDuration": 0.004756,
+        "scriptDuration": 0.034191
       },
       "accessibilityTree": {
         "nodes": 302,
@@ -432,9 +432,9 @@
         "bodyHeight": 6421
       },
       "performance": {
-        "jsHeapUsedSize": 265093696,
-        "layoutDuration": 0.017895,
-        "scriptDuration": 0.039733
+        "jsHeapUsedSize": 267154564,
+        "layoutDuration": 0.018573,
+        "scriptDuration": 0.042777
       },
       "accessibilityTree": {
         "nodes": 515,
@@ -545,49 +545,28 @@
     {
       "route": "desktop:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/providers/gemini",
+      "url": "http://127.0.0.1:4173/v1/providers/solana-foundation-alibaba-ivpd",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "desktop:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/providers/gemini/intelligence",
+      "url": "http://127.0.0.1:4173/v1/providers/solana-foundation-alibaba-ivpd/intelligence",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "desktop:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/history/providers/gemini?window=24h",
+      "url": "http://127.0.0.1:4173/v1/radar/history/providers/solana-foundation-alibaba-ivpd?window=24h",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "desktop:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/gemini",
-      "status": 200,
-      "mimeType": "application/json"
-    },
-    {
-      "route": "desktop:/solana",
-      "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/mappings",
-      "status": 200,
-      "mimeType": "application/json"
-    },
-    {
-      "route": "desktop:/solana",
-      "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/mapping-targets",
-      "status": 200,
-      "mimeType": "application/json"
-    },
-    {
-      "route": "desktop:/solana",
-      "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/history/ecosystem?window=24h",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/solana-foundation-alibaba-ivpd",
       "status": 200,
       "mimeType": "application/json"
     },
@@ -608,6 +587,13 @@
     {
       "route": "desktop:/solana",
       "kind": "response",
+      "url": "http://127.0.0.1:4173/v1/radar/mappings",
+      "status": 200,
+      "mimeType": "application/json"
+    },
+    {
+      "route": "desktop:/solana",
+      "kind": "response",
       "url": "http://127.0.0.1:4173/v1/radar/risk/ecosystem",
       "status": 200,
       "mimeType": "application/json"
@@ -615,14 +601,14 @@
     {
       "route": "desktop:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/endpoints/gemini-endpoint-1/monitor",
+      "url": "http://127.0.0.1:4173/v1/radar/mapping-targets",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "desktop:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/endpoints/gemini-endpoint-1",
+      "url": "http://127.0.0.1:4173/v1/radar/history/ecosystem?window=24h",
       "status": 200,
       "mimeType": "application/json"
     },
@@ -636,13 +622,6 @@
     {
       "route": "desktop:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/dtelecom",
-      "status": 200,
-      "mimeType": "application/json"
-    },
-    {
-      "route": "desktop:/solana",
-      "kind": "response",
       "url": "http://127.0.0.1:4173/v1/radar/agent-readiness",
       "status": 200,
       "mimeType": "application/json"
@@ -650,77 +629,112 @@
     {
       "route": "desktop:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/stableenrich",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/agentmail-email",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "desktop:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/stablestudio",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/agentres-reservations",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "desktop:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/fal",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/arkham-api",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "desktop:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/factchecktools",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/birdeye-data",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "desktop:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/gemini",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/blocksize-market-data",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "desktop:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/speech",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/brij-travel",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "desktop:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/kgsearch",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/clustly-tipping",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "desktop:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/rentcast",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/cryptorefills-shopping",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "desktop:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/stableemail",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/blockrun-blockrun",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "desktop:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/translate",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/dtelecom-voice",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "desktop:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/stableupload",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/dynamic-checkout",
+      "status": 200,
+      "mimeType": "application/json"
+    },
+    {
+      "route": "desktop:/solana",
+      "kind": "response",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/venice-ai",
+      "status": 200,
+      "mimeType": "application/json"
+    },
+    {
+      "route": "desktop:/solana",
+      "kind": "response",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/solana-foundation-alibaba-facebody",
+      "status": 200,
+      "mimeType": "application/json"
+    },
+    {
+      "route": "desktop:/solana",
+      "kind": "response",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/dripstack-research",
+      "status": 200,
+      "mimeType": "application/json"
+    },
+    {
+      "route": "desktop:/solana",
+      "kind": "response",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/solana-foundation-alibaba-imagerecog",
+      "status": 200,
+      "mimeType": "application/json"
+    },
+    {
+      "route": "desktop:/solana",
+      "kind": "response",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/solana-foundation-alibaba-imageseg",
       "status": 200,
       "mimeType": "application/json"
     },
@@ -825,20 +839,6 @@
     {
       "route": "desktop:/4663",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/4663/campaign/events",
-      "status": 202,
-      "mimeType": "application/json"
-    },
-    {
-      "route": "desktop:/4663",
-      "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/4663/campaign/events",
-      "status": 202,
-      "mimeType": "application/json"
-    },
-    {
-      "route": "desktop:/4663",
-      "kind": "response",
       "url": "http://127.0.0.1:4173/v1/4663/me?follows=%5B%5D&last_seen_my4663_event_id=frontdoor-change%3A1%3AWATCH_CASES",
       "status": 200,
       "mimeType": "application/json"
@@ -937,6 +937,13 @@
     {
       "route": "mobile:/solana",
       "kind": "response",
+      "url": "http://127.0.0.1:4173/v1/narratives",
+      "status": 200,
+      "mimeType": "application/json"
+    },
+    {
+      "route": "mobile:/solana",
+      "kind": "response",
       "url": "http://127.0.0.1:4173/v1/graph",
       "status": 200,
       "mimeType": "application/json"
@@ -951,35 +958,28 @@
     {
       "route": "mobile:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/narratives",
+      "url": "http://127.0.0.1:4173/v1/providers/solana-foundation-alibaba-ivpd",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "mobile:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/providers/gemini",
+      "url": "http://127.0.0.1:4173/v1/providers/solana-foundation-alibaba-ivpd/intelligence",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "mobile:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/providers/gemini/intelligence",
+      "url": "http://127.0.0.1:4173/v1/radar/history/providers/solana-foundation-alibaba-ivpd?window=24h",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "mobile:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/history/providers/gemini?window=24h",
-      "status": 200,
-      "mimeType": "application/json"
-    },
-    {
-      "route": "mobile:/solana",
-      "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/gemini",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/solana-foundation-alibaba-ivpd",
       "status": 200,
       "mimeType": "application/json"
     },
@@ -1035,20 +1035,6 @@
     {
       "route": "mobile:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/endpoints/gemini-endpoint-1/monitor",
-      "status": 200,
-      "mimeType": "application/json"
-    },
-    {
-      "route": "mobile:/solana",
-      "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/endpoints/gemini-endpoint-1",
-      "status": 200,
-      "mimeType": "application/json"
-    },
-    {
-      "route": "mobile:/solana",
-      "kind": "response",
       "url": "http://127.0.0.1:4173/v1/radar/evidence-ledger",
       "status": 200,
       "mimeType": "application/json"
@@ -1063,84 +1049,112 @@
     {
       "route": "mobile:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/stableenrich",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/agentmail-email",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "mobile:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/stablestudio",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/blocksize-market-data",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "mobile:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/fal",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/agentres-reservations",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "mobile:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/dtelecom",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/arkham-api",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "mobile:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/rentcast",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/birdeye-data",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "mobile:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/gemini",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/blockrun-blockrun",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "mobile:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/speech",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/clustly-tipping",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "mobile:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/kgsearch",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/cryptorefills-shopping",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "mobile:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/stableupload",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/dripstack-research",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "mobile:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/factchecktools",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/dtelecom-voice",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "mobile:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/translate",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/brij-travel",
       "status": 200,
       "mimeType": "application/json"
     },
     {
       "route": "mobile:/solana",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/stableemail",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/venice-ai",
+      "status": 200,
+      "mimeType": "application/json"
+    },
+    {
+      "route": "mobile:/solana",
+      "kind": "response",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/solana-foundation-alibaba-facebody",
+      "status": 200,
+      "mimeType": "application/json"
+    },
+    {
+      "route": "mobile:/solana",
+      "kind": "response",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/solana-foundation-alibaba-imageseg",
+      "status": 200,
+      "mimeType": "application/json"
+    },
+    {
+      "route": "mobile:/solana",
+      "kind": "response",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/solana-foundation-alibaba-imagerecog",
+      "status": 200,
+      "mimeType": "application/json"
+    },
+    {
+      "route": "mobile:/solana",
+      "kind": "response",
+      "url": "http://127.0.0.1:4173/v1/radar/risk/providers/dynamic-checkout",
       "status": 200,
       "mimeType": "application/json"
     },
@@ -1245,7 +1259,7 @@
     {
       "route": "mobile:/4663",
       "kind": "response",
-      "url": "http://127.0.0.1:4173/v1/4663/me?follows=%5B%5D&last_seen_my4663_event_id=frontdoor-change%3A2%3ASYSTEM",
+      "url": "http://127.0.0.1:4173/v1/4663/me?follows=%5B%5D&last_seen_my4663_event_id=frontdoor-change%3A1%3AWATCH_CASES",
       "status": 200,
       "mimeType": "application/json"
     },

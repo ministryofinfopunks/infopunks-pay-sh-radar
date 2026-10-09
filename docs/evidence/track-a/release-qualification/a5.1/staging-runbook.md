@@ -2,7 +2,7 @@
 
 ## Deployment boundary
 
-No Railway project was accessed and no service, database, credential, DNS, migration, or deployment was created or changed. Railway CLI and operator credentials were unavailable in this workspace. Deployment remains a human operator action after approval.
+No Railway project was accessed and no service, database, credential, DNS, migration, or deployment was created or changed. Railway CLI and Docker Engine were unavailable in this workspace; Railway operator credentials were also unavailable. Deployment remains a human operator action after approval.
 
 ## Proposed service topology
 
