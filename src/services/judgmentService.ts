@@ -24,6 +24,8 @@ export type JudgmentServiceOptions = {
   observations(subject: string, intentHash: string): Promise<ObservationReceipt[]>;
   threshold: number; ttlMs: number; amount: string; gateway: JudgmentPaymentGateway | null;
   issuer?: JudgmentIssuer | null;
+  /** Existing receipts replay unchanged; new production decisions cannot consume unreviewed history. */
+  requireIndependentEvaluationReview?: boolean;
   now?: () => Date;
   onTiming?: (timing: { local_ms: number; payment_ms: number; total_ms: number }) => void;
 };
@@ -92,6 +94,8 @@ export function createJudgmentService(options: JudgmentServiceOptions) {
         const boundary = preliminary.decision === 'insufficient_evidence' ? null : await options.store.acceptanceBoundary?.();
         if (preliminary.decision !== 'insufficient_evidence' && !boundary) throw new JudgmentError(503, 'acceptance_boundary_unavailable');
         const history = preliminary.decision === 'insufficient_evidence' ? null : await scores.project(observations[0].subject_type, subject, boundary!.sequence);
+        if (options.requireIndependentEvaluationReview && history?.contributing_evaluation_ids.length)
+          throw new JudgmentError(503, 'independent_evaluation_history_review_unavailable');
         const output = history ? assessFrozenDecision(input, legacy, observations, history, at, policy) : preliminary;
         const response: CanonicalJudgmentResponse = {
           judgment_id: 'judgment_' + key.slice(7), decision: output.decision, confidence: output.confidence, issued_at: at.toISOString(),

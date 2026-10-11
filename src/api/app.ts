@@ -1,3 +1,5 @@
+import { controlledStagingRequestError } from '../config/controlledStaging';
+import { timingSafeEqual } from 'node:crypto';
 import { registerIpxLaunchRoutes } from './ipxLaunchRoutes';
 import { MemoryEconomicAccountingStore, PostgresEconomicAccountingStore } from '../persistence/economicAccountingStore';
 import { createEconomicAccountingService } from '../services/economicAccountingService';
@@ -744,6 +746,12 @@ export async function createApp(
 ) {
   const config = loadRuntimeConfig();
   const app = Fastify({ logger: config.isProduction, disableRequestLogging: true });
+  app.addHook('onRequest', async (req, reply) => {
+    if (!config.controlledStaging) return;
+    const error = controlledStagingRequestError(req.method, req.routeOptions.url ?? '');
+    if (error) return reply.code(403).send({ error });
+    if (req.headers['payment-signature']) return reply.code(403).send({ error: 'controlled_staging_payment_forbidden' });
+  });
   const rh4663CampaignTelemetry = new Rh4663CampaignTelemetry();
   const rh4663FrontdoorTelemetry = new Rh4663FrontdoorTelemetry();
   const rhChainPostgresPool = config.databaseUrl
@@ -4485,6 +4493,7 @@ export async function createApp(
     store: canonicalReceiptStore, journal: judgmentJournal, gateway: judgmentGateway, issuer: judgmentIssuer,
     legacyCheck: input => preSpendIntelligence.check(input), threshold: config.receiptProceedConfidenceThreshold,
     ttlMs: config.judgmentTtlMs, amount: config.judgmentPriceUsdc,
+    requireIndependentEvaluationReview: config.isProduction || config.controlledStaging,
     onTiming: timing => app.log.info({ event: 'judgment_hot_path_timing', ...timing }),
     observations: async (subject, intentHash) => {
       // The latest scoped materialized policy supersedes historical snapshots.
@@ -4550,10 +4559,12 @@ export async function createApp(
   });
   app.post('/v1/evaluate', { bodyLimit: 160_000 }, async (req, reply) => {
     if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'evaluator_authentication_required' });
+    if (config.isProduction || config.controlledStaging) return reply.code(503).send({ error: 'independent_evaluation_review_unavailable' });
     return { data: safeJsonExport(await evaluationService.submit(req.body, 'canonical-admin')) };
   });
   // Subject routing follows the existing typed receipt-spine convention; the alias defaults to provider.
   app.get<{ Params: { subject: string }; Querystring: { subject_type?: string } }>('/v1/score/:subject', async (req, reply) => {
+    if (config.isProduction || config.controlledStaging) return reply.code(503).send({ error: 'evaluation_reputation_projection_disabled' });
     const subjectType = req.query.subject_type ?? 'provider';
     if (!subjectType || subjectType.length > 256 || !req.params.subject || req.params.subject.length > 256) return reply.code(400).send({ error: 'invalid_score_subject' });
     return { data: await derivedScores.project(subjectType, req.params.subject) };
@@ -4568,6 +4579,7 @@ export async function createApp(
   for (const [kind, schema, append] of canonicalWrites) {
     app.post(`/internal/receipt-spine/${kind}`, async (req, reply) => {
       if (!isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'unauthorized' });
+      if (kind === 'evaluation' && (config.isProduction || config.controlledStaging)) return reply.code(503).send({ error: 'independent_evaluation_review_unavailable' });
       if (kind === 'evaluation' && hasAuthoredScore(req.body)) {
         return reply.code(400).send({ error: 'score_delta_authoring_forbidden' });
       }
@@ -4651,7 +4663,10 @@ export async function createApp(
     if (!receipt) return reply.code(404).send({ error: 'canonical_receipt_not_found' });
     return { data: safeJsonExport(receipt) };
   });
-  app.get<{ Params: { subject_type: string; subject_id: string } }>('/v1/receipt-spine/scores/:subject_type/:subject_id', async (req) => ({ data: await receiptAuthority.projectScore(req.params.subject_type, req.params.subject_id) }));
+  app.get<{ Params: { subject_type: string; subject_id: string } }>('/v1/receipt-spine/scores/:subject_type/:subject_id', async (req, reply) => {
+    if (config.isProduction || config.controlledStaging) return reply.code(503).send({ error: 'evaluation_reputation_projection_disabled' });
+    return { data: await receiptAuthority.projectScore(req.params.subject_type, req.params.subject_id) };
+  });
 
   app.get('/v1/receipts', async () => ({ data: safeJsonExport({
     generated_at: new Date().toISOString(),
@@ -4659,7 +4674,8 @@ export async function createApp(
     metrics: preSpendIntelligence.getMetrics(),
     receipts: preSpendIntelligence.listReceipts()
   }) }));
-  app.post('/v1/receipts', async (req, reply) => {
+  app.post('/v1/receipts', { bodyLimit: 16_384 }, async (req, reply) => {
+    if (config.isProduction && !isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'legacy_receipt_authorization_required' });
     const parsed = PreSpendReceiptSchema.omit({ receipt_id: true, timestamp: true }).partial({ human_notes: true }).safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_pre_spend_receipt', details: parsed.error.flatten() });
     if (parsed.data.confidence_delta !== 0) return reply.code(400).send({ error: 'legacy_score_mutation_forbidden' });
@@ -4668,7 +4684,8 @@ export async function createApp(
       human_notes: parsed.data.human_notes ?? []
     })) };
   });
-  app.post('/v1/validation/submit', async (req, reply) => {
+  app.post('/v1/validation/submit', { bodyLimit: 16_384 }, async (req, reply) => {
+    if (config.isProduction && !isAdmin(config.adminToken, req.headers.authorization)) return reply.code(401).send({ error: 'legacy_validation_authorization_required' });
     const parsed = HumanValidationSubmissionSchema.safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_human_validation_submission', details: parsed.error.flatten() });
     return { data: safeJsonExport(preSpendIntelligence.submitValidation(parsed.data)) };
@@ -5219,9 +5236,15 @@ function contentTypeFor(path: string) {
   return 'application/octet-stream';
 }
 
+function constantTimeTokenEqual(expected: string | null, actual: string | undefined) {
+  if (!expected || !actual) return false;
+  const left = Buffer.from(expected), right = Buffer.from(actual);
+  return left.length === right.length && timingSafeEqual(left, right);
+}
+
 function isAdmin(adminToken: string | null, authorization: string | undefined) {
   const match = authorization?.match(/^Bearer\s+(.+)$/i);
-  return Boolean(adminToken && match?.[1] === adminToken);
+  return constantTimeTokenEqual(adminToken, match?.[1]);
 }
 
 function isRhChainReviewAdmin(reviewToken: string | null, authorization: string | undefined) {
@@ -5229,7 +5252,7 @@ function isRhChainReviewAdmin(reviewToken: string | null, authorization: string 
   // a public/admin token or an implicit allow.
   if (!reviewToken) return false;
   const match = authorization?.match(/^Bearer\s+(.+)$/i);
-  return match?.[1] === reviewToken;
+  return constantTimeTokenEqual(reviewToken, match?.[1]);
 }
 
 function rh4663CategoryFromNarrative(classes: readonly string[]) {

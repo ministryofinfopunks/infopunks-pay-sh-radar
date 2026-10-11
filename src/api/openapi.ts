@@ -1653,7 +1653,7 @@ export function createOpenApiSpec(version = '0.1.0'): OpenApiSpec {
   });
   add('post', '/v1/evaluate', {
     tags: ['Pre-Spend Intelligence'], summary: 'Evaluate a verified execution outcome',
-    description: 'Requires authenticated canonical admin provenance: evaluator type internal, id canonical-admin. External signatures are unsupported and fail closed. Score policy V1 computes confirmed +5, weakened -2, contradicted -15. Client deltas are rejected. One append-only evaluation per execution; identical idempotency retries replay, changed content returns 409.',
+    description: 'Disabled in production pending independent reviewer approval; controlled staging denies mutation routes. Development compatibility requires authenticated canonical admin provenance: evaluator type internal, id canonical-admin. External signatures are unsupported and fail closed. Score policy V1 computes confirmed +5, weakened -2, contradicted -15. Client deltas are rejected. One append-only evaluation per execution; identical idempotency retries replay, changed content returns 409.',
     parameters: [{ name: 'Authorization', in: 'header', required: true, schema: stringSchema() }],
     requestBody: { required: true, content: { 'application/json': { schema: z.toJSONSchema(EvaluateRequestSchema, { target: 'draft-2020-12' }) } } },
     responses: {

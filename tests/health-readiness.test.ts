@@ -63,6 +63,22 @@ describe('production readiness gates', () => {
       expect(JSON.stringify(response.json())).not.toContain('secret');
     } finally { await app.close(); }
   });
+  it('denies unsigned Evaluation even with admin credentials and rejects anonymous legacy writes', async () => {
+    const { store } = setup(); const app = await createApp(store);
+    try {
+      for (const url of ['/v1/evaluate', '/internal/receipt-spine/evaluation']) {
+        expect((await app.inject({ method: 'POST', url, payload: {}, headers: { authorization: 'Bearer wrong' } })).statusCode).toBe(401);
+        const denied = await app.inject({ method: 'POST', url, payload: { score_delta: 99 }, headers: { authorization: 'Bearer secret' } });
+        expect(denied.statusCode).toBe(503);
+        expect(denied.json().error).toBe('independent_evaluation_review_unavailable');
+      }
+      for (const url of ['/v1/receipts', '/v1/validation/submit']) {
+        expect((await app.inject({ method: 'POST', url, payload: {} })).statusCode).toBe(401);
+        expect((await app.inject({ method: 'POST', url, payload: {}, headers: { authorization: 'Bearer wrong' } })).statusCode).toBe(401);
+      }
+      expect((await app.inject('/v1/score/provider_test')).statusCode).toBe(503);
+    } finally { await app.close(); }
+  });
   it.each(['database', 'migrations', 'catalog', 'stale', 'generation', 'fixture', 'configuration', 'dependencies'])('keeps liveness healthy while %s blocks readiness', async (failure) => {
     const { store, query } = setup();
     if (failure === 'database') query.mockRejectedValue(new Error('database unavailable'));
