@@ -4614,19 +4614,30 @@ export async function createApp(
     if (!context) return reply.code(503).send({ error: 'decision_context_missing' });
     return { data: safeJsonExport({ context, replay_valid: await verifyDecisionContext(context, receipt, canonicalReceiptStore) }) };
   });
-  app.get<{ Querystring: { kind?: string; cursor?: string; limit?: string; accepted_through?: string } }>('/v1/receipt-spine/tape', async (req, reply) => {
+  app.get<{ Querystring: { kind?: string; cursor?: string; limit?: string; accepted_through?: string;
+    free_attempts_through?: string; quarantine_through?: string } }>('/v1/receipt-spine/tape', async (req, reply) => {
     reply.header('Cache-Control', 'no-store');
-    const { kind, cursor, limit, accepted_through } = req.query;
+    const { kind, cursor, limit, accepted_through, free_attempts_through, quarantine_through } = req.query;
     if (kind && !['observation', 'judgment', 'execution', 'evaluation'].includes(kind)) return reply.code(400).send({ error: 'invalid_tape_kind' });
     try { return { data: safeJsonExport(await causalTape.page({ ...(kind ? { kind: kind as ReceiptKind } : {}),
       ...(cursor !== undefined ? { cursor: Number(cursor) } : {}), ...(limit !== undefined ? { limit: Number(limit) } : {}),
-      ...(accepted_through !== undefined ? { acceptedThrough: Number(accepted_through) } : {}) })) }; }
-    catch { return reply.code(400).send({ error: 'invalid_tape_request' }); }
+      ...(accepted_through !== undefined ? { acceptedThrough: Number(accepted_through) } : {}),
+      ...(free_attempts_through !== undefined ? { freeThrough: Number(free_attempts_through) } : {}),
+      ...(quarantine_through !== undefined ? { quarantineThrough: Number(quarantine_through) } : {}) })) }; }
+    catch (error) { return reply.code(error instanceof Error && error.message === 'unsequenced_receipt_not_publishable' ? 503 : 400)
+      .send({ error: error instanceof Error && error.message === 'unsequenced_receipt_not_publishable'
+        ? 'tape_acceptance_history_incomplete' : 'invalid_tape_request' }); }
   });
-  app.get<{ Querystring: { cursor?: string; limit?: string } }>('/v1/receipt-spine/attempts', async (req, reply) => {
+  app.get<{ Querystring: { cursor?: string; limit?: string; accepted_through?: string;
+    free_attempts_through?: string; quarantine_through?: string } }>('/v1/receipt-spine/attempts', async (req, reply) => {
     reply.header('Cache-Control', 'no-store');
-    try { return { data: safeJsonExport(await causalTape.attemptPage(Number(req.query.cursor ?? 0), Number(req.query.limit ?? 50))) }; }
-    catch { return reply.code(400).send({ error: 'invalid_attempt_pagination' }); }
+    try { return { data: safeJsonExport(await causalTape.attemptPage(Number(req.query.cursor ?? 0), Number(req.query.limit ?? 50), {
+      ...(req.query.accepted_through !== undefined ? { acceptedThrough: Number(req.query.accepted_through) } : {}),
+      ...(req.query.free_attempts_through !== undefined ? { freeThrough: Number(req.query.free_attempts_through) } : {}),
+      ...(req.query.quarantine_through !== undefined ? { quarantineThrough: Number(req.query.quarantine_through) } : {}) })) }; }
+    catch (error) { return reply.code(error instanceof Error && error.message === 'unsequenced_receipt_not_publishable' ? 503 : 400)
+      .send({ error: error instanceof Error && error.message === 'unsequenced_receipt_not_publishable'
+        ? 'tape_acceptance_history_incomplete' : 'invalid_attempt_pagination' }); }
   });
   app.get<{ Params: { j1: string; evaluation: string; j2: string } }>('/v1/receipt-spine/witness/:j1/:evaluation/:j2', async (req, reply) => {
     reply.header('Cache-Control', 'no-store');
