@@ -1,0 +1,25 @@
+// Review template only. Not auto-loaded, planned or applied in this release.
+// Use the operator-installed Railway IaC SDK; no app dependency added.
+import { defineRailway, project, service } from 'railway/iac';
+import manifest from './railway-staging-manifest.json';
+
+export default defineRailway((ctx) => {
+  if (ctx.environment !== 'track-a-staging') throw new Error('isolated_staging_required');
+  const spec = manifest.services[0];
+  // The operator attaches the reviewed SHA/image and private database before plan.
+  // Omitting source prevents this template from following a moving GitHub branch.
+  const api = service(spec.name, {
+    start: spec.start,
+    healthcheck: spec.healthcheck.path,
+    healthcheckTimeout: spec.healthcheck.timeout_seconds,
+    replicas: 1,
+    env: {
+      ...spec.env,
+      ADMIN_TOKEN: ctx.shared.TRACK_A_STAGING_ADMIN_TOKEN,
+      DATABASE_URL: ctx.shared.TRACK_A_STAGING_DATABASE_URL,
+      PAY_SH_CATALOG_URL: ctx.shared.TRACK_A_STAGING_CATALOG_URL,
+      FRONTEND_ORIGIN: ctx.shared.TRACK_A_STAGING_FRONTEND_ORIGIN,
+    },
+  });
+  return project('infopunks-radar-track-a-staging', { resources: [api] });
+});

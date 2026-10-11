@@ -1,0 +1,134 @@
+{
+  "source_revision": "f061ab4f3cda984e17e62cedb961fe2cbd752075",
+  "node": "24.21.0",
+  "database_scope": "disposable localhost only",
+  "checks": [
+    {
+      "name": "runtime",
+      "command": [
+        "node",
+        "--version"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.052,
+      "log": "logs/runtime.txt"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 18.545,
+      "log": "logs/typecheck.txt"
+    },
+    {
+      "name": "lint",
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 23.792,
+      "log": "logs/lint.txt"
+    },
+    {
+      "name": "build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.232,
+      "log": "logs/build.txt"
+    },
+    {
+      "name": "migration-inventory",
+      "command": [
+        "npm",
+        "run",
+        "migrations:validate"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.598,
+      "log": "logs/migration-inventory.txt"
+    },
+    {
+      "name": "full-tests",
+      "command": [
+        "npm",
+        "test",
+        "--",
+        "--maxWorkers=1",
+        "--testTimeout=30000",
+        "--reporter=default",
+        "--reporter=json",
+        "--outputFile=/Users/ahdilm/.codex/worktrees/track-a-staging-rc/Infopunks Pay.sh Intelligence Terminal/docs/evidence/track-a/staging-rc-20261011/full-tests.json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 174.157,
+      "log": "logs/full-tests.txt"
+    },
+    {
+      "name": "durability-replay-negative",
+      "command": [
+        "node_modules/.bin/vitest",
+        "run",
+        "tests/integration",
+        "tests/security",
+        "tests/causal-tape-witness.test.ts",
+        "tests/acceptance-history.test.ts",
+        "tests/unit/judgment-service.test.ts",
+        "tests/unit/x402-judgment.test.ts",
+        "tests/health-readiness.test.ts",
+        "tests/postgres-resilience-failure-matrix.test.ts",
+        "--maxWorkers=1",
+        "--testTimeout=30000",
+        "--reporter=default",
+        "--reporter=json",
+        "--outputFile=/Users/ahdilm/.codex/worktrees/track-a-staging-rc/Infopunks Pay.sh Intelligence Terminal/docs/evidence/track-a/staging-rc-20261011/durability-replay-negative.json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 21.048,
+      "log": "logs/durability-replay-negative.txt"
+    },
+    {
+      "name": "audit-production",
+      "command": [
+        "npm",
+        "audit",
+        "--omit=dev",
+        "--json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.975,
+      "log": "logs/audit-production.txt"
+    },
+    {
+      "name": "audit-all",
+      "command": [
+        "npm",
+        "audit",
+        "--json"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 1.631,
+      "log": "logs/audit-all.txt"
+    },
+    {
+      "name": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.013,
+      "log": "logs/diff-check.txt"
+    }
+  ]
+}

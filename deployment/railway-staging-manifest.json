@@ -1,0 +1,96 @@
+{
+  "schema": "infopunks.track-a.controlled-staging-manifest.v1",
+  "status": "HOLD",
+  "repository": "ministryofinfopunks/infopunks-pay-sh-radar",
+  "branch": "codex/track-a-staging-rc-20261011",
+  "source_revision": "f061ab4f3cda984e17e62cedb961fe2cbd752075",
+  "qualification_record": "../docs/evidence/track-a/staging-rc-20261011/release-manifest.json",
+  "deploy_authorized": false,
+  "environment": "track-a-staging",
+  "automatic_deploy": false,
+  "services": [
+    {
+      "name": "radar-track-a-staging",
+      "replicas": 1,
+      "build": {
+        "builder": "DOCKERFILE",
+        "dockerfile": "Dockerfile",
+        "runtime": "node:24.21.0-slim",
+        "image_digest": null
+      },
+      "start": "npm start",
+      "pre_deploy": null,
+      "healthcheck": {
+        "path": "/readyz",
+        "timeout_seconds": 300
+      },
+      "restart": {
+        "policy": "ON_FAILURE",
+        "max_retries": 3
+      },
+      "env": {
+        "NODE_ENV": "production",
+        "RADAR_CONTROLLED_STAGING": "true",
+        "PORT": "10000",
+        "DATABASE_POOL_MAX": "4",
+        "PAYSH_CATALOG_SOURCE": "live",
+        "PAYSH_ALLOW_FIXTURE_FALLBACK": "false",
+        "PAYSH_BOOTSTRAP_ENABLED": "true",
+        "INGESTION_ENABLED": "true",
+        "MONITOR_MODE": "disabled",
+        "APP_VERSION": "track-a-staging-rc-20261011",
+        "JUDGMENT_PAYMENT_ENABLED": "false",
+        "MACHINE_EXECUTION_ENABLED": "false",
+        "MACHINE_DEMO_SEED": "false",
+        "ECONOMIC_ENGINE_ENABLED": "false",
+        "ECONOMIC_ENGINE_AUTHORIZATION_ENABLED": "false",
+        "ECONOMIC_ENGINE_JEV_ENABLED": "false",
+        "MONITOR_ENABLED": "false",
+        "MONITOR_ALLOW_PAID_ENDPOINTS": "false",
+        "OPENAI_DECISIONS_SHADOW_ENABLED": "false",
+        "EVALUATION_REPUTATION_PROJECTION_ENABLED": "false",
+        "IPX_PLTR_SHADOW_OBSERVATION_ENABLED": "false",
+        "IPX_PLTR_SHADOW_CAPACITY_SWEEP_ENABLED": "false",
+        "RH_CHAIN_AUTOMATION_ENABLED": "false",
+        "RH_4663_PHASE2_ENABLED": "false",
+        "RH_4663_PHASE3_ENABLED": "false",
+        "RH_4663_PHASE3_PUBLICATION_ENABLED": "false",
+        "RH_4663_AUTO_PUBLICATION_ENABLED": "false",
+        "RH_4663_EXTERNAL_DISTRIBUTION_ENABLED": "false",
+        "RH_4663_CAMPAIGN_REHEARSAL_ENABLED": "false"
+      },
+      "required_operator_bindings": {
+        "DATABASE_URL": "Private-network URL for isolated staging PostgreSQL; dedicated least-privilege runtime role",
+        "PAY_SH_CATALOG_URL": "Operator-approved live HTTPS catalog URL; never a fixture URL",
+        "FRONTEND_ORIGIN": "Operator-approved staging HTTPS origin",
+        "ADMIN_TOKEN": "Unique staging-only token required by existing readiness dependency check; controlled profile still forbids admin writes"
+      },
+      "ingress": "Restricted operator/tester access; no unrestricted public domain before access gate",
+      "mutation_profile": "Only POST /v1/pre-spend/check and /v1/decide; existing 30/minute per-process shared bound",
+      "database": {
+        "name": "radar-track-a-postgres",
+        "network": "private only",
+        "shared_with_production": false,
+        "provisioned": false,
+        "version": "Operator-pinned supported PostgreSQL version; local evidence is 14.20",
+        "backup_retention_days": 7,
+        "restore_destination": "new isolated staging database"
+      }
+    }
+  ],
+  "migrations": {
+    "ordered_sequence": "001\u2013022",
+    "historical_001_021": "byte-identical",
+    "new_022": "canonical publication boundaries",
+    "runner": "node dist/server/cli/runPostgresMigrations.js",
+    "apply": "Operator-only one-off job using staging migration role after backup and approval; never automatic deploy DDL",
+    "adopt_baselines": [
+      "017",
+      "020"
+    ],
+    "checksums": "../docs/evidence/track-a/staging-rc-20261011/migration-checksums.json"
+  },
+  "secrets_policy": "Only isolated staging DB/runtime and migration-role credentials and a unique staging admin token. No production credentials, signing keys, funded-wallet bindings, provider API keys, reviewer trust activation or launch policy.",
+  "rollback": "Hold traffic; restore previous approved staging-only guarded image or stop service on first boot. Keep additive schema; restore to new database only after reviewed recovery and replay.",
+  "railway_reference": "https://docs.railway.com/infrastructure-as-code/reference"
+}

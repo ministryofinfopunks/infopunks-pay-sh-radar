@@ -1,0 +1,17 @@
+{
+  "origin/main": "dfe089bb71c6b4c52acdfb0e8e5b8cc331a13a2f",
+  "origin/codex/track-a-release-candidate": "f6b5de64e96da4e5bacbfba39f6cdf6940d2aa79",
+  "origin/codex/radar-phase6b1-preflight": "d0d6081cbb9e965571dda53d268c9cfddf35d6b2",
+  "origin/codex/radar-phase6-integration": "b640edfafc1e30e20309d0441e1153da3688faea",
+  "codex/e1-independent-evaluation": "b9597fc0388d5f08ea1a611b50e12fcab7102fd9",
+  "codex/e1-a-durability-qualification": "b9597fc0388d5f08ea1a611b50e12fcab7102fd9",
+  "origin/codex/e1-run-freeze-qualification": "3e3cd831875ddaf8951e0cc35f5cd11abe4d3a5c",
+  "origin/codex/decisions-e1-evidence-readiness": "32bcf68104d70e478706bb8fff92c91c4b2308b9",
+  "codex/decisions-e1-evidence-readiness": "30a005bdde5d52bc9fb805106bd2985c87aa108e",
+  "origin/codex/decisions-integration-candidate": "3a93867e0d8d36be4977166bcd6fba40ac9e2325",
+  "origin/codex/decisions-labeled-corpus": "b8ea7ccaa5b7c9d96425bd0bb11a73e0288fa65d",
+  "origin/codex/decisions-live-benchmark": "ee32dbf121bc6a705910b8802bdb1b840ff56211",
+  "origin/codex/decisions-real-evidence-qualification": "a52a6b4cc140ada3312170f068cf940bcbead8b5",
+  "origin/codex/intelligent-ui-v1-review": "11bbaa4f39af9067758c33861073dcc5e0d28993",
+  "origin/codex/ipx-integration-candidate": "eeee995e964240e6ef2c659f18c83875c140a221"
+}

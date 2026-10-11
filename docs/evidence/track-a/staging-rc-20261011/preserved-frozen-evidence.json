@@ -1,0 +1,299 @@
+{
+  "base": "f6b5de64e96da4e5bacbfba39f6cdf6940d2aa79",
+  "file_count": 73,
+  "all_unchanged": true,
+  "files": [
+    {
+      "file": "artifacts/pltr-shadow-evidence-policy-v1.json",
+      "sha256": "b53b34a5fc275da5c3415181e3af3df334a491d92beca2eec2dc93c483231248"
+    },
+    {
+      "file": "docs/evidence/ipx-a2-completion-2026-10-08.md",
+      "sha256": "8e6a0c87b91546f94a6d2581c30207164030f130368e8debab4ca4a75bd86e23"
+    },
+    {
+      "file": "docs/evidence/ipx-a2-file-plan-2026-10-08.md",
+      "sha256": "df135e6fc501c7d60951e855e763ed70ee627ff15805eb79ace3953a79c27782"
+    },
+    {
+      "file": "docs/evidence/ipx-a3-score-eligibility-2026-10-08.md",
+      "sha256": "68a6f913797d42c2ca2b9b788aaaebf616cebdc18f6baf43f7c96bbffef515e7"
+    },
+    {
+      "file": "docs/evidence/ipx-a4-a5-completion-2026-10-08.md",
+      "sha256": "aebac60fb953da719f015077cb1e46241dd73bf0d8795bba37621a725e0477f7"
+    },
+    {
+      "file": "docs/evidence/ipx-a4-file-plan-2026-10-08.md",
+      "sha256": "274bd6db9eb228c99e940d77ec1375ea831ddf3048c88c0b385c016a9df98796"
+    },
+    {
+      "file": "docs/evidence/ipx-a6-local-proof-2026-10-08.md",
+      "sha256": "19e5c01ed74edd2c83247388c9f879cbe1c5ef3e8d38bf80671f363014267489"
+    },
+    {
+      "file": "docs/evidence/ipx-baseline-2026-10-08.manifest.json",
+      "sha256": "7b8cd16db96e1cfad8f46c7eeb512113321a04c221ebbaba6b96cac9480097f5"
+    },
+    {
+      "file": "docs/evidence/ipx-baseline-2026-10-08.md",
+      "sha256": "c7fa15d67cb5e9368b841c18bcc75d5d35d985d32959dbc8d40efdb769d76cee"
+    },
+    {
+      "file": "docs/evidence/ipx-execution-ledger-2026-10-08.md",
+      "sha256": "eb206af4d84d5983c2ec1f817bd11956da5028a01527acab732b1d75d94c0c93"
+    },
+    {
+      "file": "docs/evidence/ipx-production-read-2026-10-08.json",
+      "sha256": "468d27554e73151bd8108f62dbc8beb1f3c9504fd4f00b340f1deb35be27a001"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/browser-network-console.json",
+      "sha256": "595fd42938c49bdf964bab83599d1abbd08d3ac025531b718ba691092ed1426c"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/browser-qa.json",
+      "sha256": "3ce83825618acde90aabcba42308ae6677bf9bf66dd70886a1666f8bf32a676b"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/browser-qa.md",
+      "sha256": "4b1b59d091c87ea48a0be31e6b4b2c676fd969181c64b89495468228bc619749"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/data-integrity.md",
+      "sha256": "40fde651defa51b6679a7617498d0d645b893c0cc9917a0bf78f9748375593f5"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/final-decision.md",
+      "sha256": "d921847526dbaf5ee7e923188eab87713668602d40d1e83a7dd88a0d686e2ae7"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/migration-ledger.md",
+      "sha256": "9ad8fb8304d4814423a76425a81c0f26c5659617a552bb5aa6287508bf758f6b"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/migration-report.json",
+      "sha256": "82e37b9f06534715fb9c195e8077ae4fd6e5f73675989ba26935f3e527a1af64"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/release-manifest.json",
+      "sha256": "53f594381d387fb146acdedb1ee32a7763d5a1305643b46f0f320e16075e967f"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/screenshots/desktop-_4663.png",
+      "sha256": "fdd5c8bcf5276aed0adfae6cedec4fe6e4891b638eb59248f58ef1faa6db454c"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/screenshots/desktop-_4663_reflexive.png",
+      "sha256": "0f612c4688209c72cc9c13f3bb2c6a9f5e991815209bd5864dc88d73491c78be"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/screenshots/desktop-_developers.png",
+      "sha256": "97bab52fb54d0e826a65b93922542ed663619d24cdf7947b37a1737cbe39ec50"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/screenshots/desktop-_loops.png",
+      "sha256": "976e77b7dfe95394a79b279da4dc89608e45993688dacc6dab59371f796d98f6"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/screenshots/desktop-_providers.png",
+      "sha256": "2b374cc05b667078a1a57558649c99dd4873a652f1fdb3c44b7a2914b633c5bc"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/screenshots/desktop-_receipts.png",
+      "sha256": "d7a9eca0e56a76a4c7a6a44399f0923741c11b7fea2ab842164948dc346388b0"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/screenshots/desktop-_routes.png",
+      "sha256": "682ec57dcaebdef3018b9b52fb1cbea1c4828b80f9f6e2e6d45ffc09f328f5fa"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/screenshots/desktop-_solana.png",
+      "sha256": "4f377bf50046383a54780379e85e29e3eeb6e15f6cf98243980ff0646295fd79"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/screenshots/desktop-_spend-terminal.png",
+      "sha256": "2197c6426485db6f2b965f37e5ef44947cc21a56947d5b51f3db331090d67948"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/screenshots/desktop-home.png",
+      "sha256": "f0c240a8dbf1fc43b927d8630d3b7b6e43af5cc8b30361b14a8edf41896f76d0"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/screenshots/desktop-reflexive-audit-state.png",
+      "sha256": "8ed0f3925f0ad9c30bda48d5d65a1b61aab5548c4197f1701f290db7ba1ddb16"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/screenshots/mobile-_4663.png",
+      "sha256": "55cf593bbb138653dcf47f7f11333e8d69190e6ba50e20b0b60b05f245657077"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/screenshots/mobile-_4663_reflexive.png",
+      "sha256": "67a31b8b2113bc0285646bf6f5fd70c683f050f7abaaa21fd745ed9b00d57615"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/screenshots/mobile-_developers.png",
+      "sha256": "c96b75712bf182e95809e9d667e42486dfe42ffbd738fc3986184c52c6868467"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/screenshots/mobile-_loops.png",
+      "sha256": "52cc555f19492fe6f008f50667e3be62288d4ce563ac0ba3e9c83ee4c02ad15c"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/screenshots/mobile-_providers.png",
+      "sha256": "b49a3e1551891bb214558a67ea039152e855a7d533114482eb7b1448af168c5e"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/screenshots/mobile-_receipts.png",
+      "sha256": "48ff65ba3e5bb7fc25a07a734f475bcc735e5fded10a25a83d25c7b5e7424228"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/screenshots/mobile-_routes.png",
+      "sha256": "851fc825de359340681645865bf836afa647321dd5b4f8aba4627b3912965195"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/screenshots/mobile-_solana.png",
+      "sha256": "2e9a89236c3c9eba33778169875392f12ad5b3ee973693452daa38f5d7ecf84d"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/screenshots/mobile-_spend-terminal.png",
+      "sha256": "8a95e65977cc9f1cb6b94814c855a6ba20ad944b0fe1a765d4bbd447bd1e4d48"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/screenshots/mobile-home.png",
+      "sha256": "bb6f4dbb09ba662d70e8022b639718f853145a4201a734cc8079096099771362"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/screenshots/mobile-reflexive-audit-state.png",
+      "sha256": "265818fe1db7bc4b543df2caf324869b2b62f7e1aa534e42e4735f1266e91eb3"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/staging-runbook.md",
+      "sha256": "09ec6cac20ce597c4299535c992c6ba4e6d6be100f51dfe67d6e8ed88319d382"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/a5.1/validation-results.md",
+      "sha256": "e7c454f9a0eccf163d89888dd55ceb2f77e0b522f08f21cc65170d1087672b78"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/browser-defect-assessment.md",
+      "sha256": "90a7a46ee6f27288a12ffe32cfe05428bb0379c4efce45b623a0cfd5b6a85b0f"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/candidate-and-migrations.md",
+      "sha256": "5d45290930908bd27f393fc4d69393511c95cb266393bc7044f5852426dbcedf"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/causal-replay.md",
+      "sha256": "0d4c5f1524e51c120ad0fd4134e86fb7c351c148e1c38824182b08ab8f23beb8"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/decision-context-score.md",
+      "sha256": "0710e5735b2f5aadb567611e34d55327f0f4781dd48f57a01da471a0d3295696"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/final-decision.md",
+      "sha256": "f76bc6ab65d2faa82befb8c4afbebbced84b76037354c6064ab1ba5bf58f802f"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/frozen-sha-validation.md",
+      "sha256": "fb35b2f2289fbf88063aad8050a28c89a359e4d6ccb98ccbcac3e082b238d064"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/logs/browser-console-summary.txt",
+      "sha256": "35a435efbcdff84044a3b892c575702a6fe3510a75e6625a57c74d5d7835521f"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/logs/frozen-sha/full-postgres-tests.txt",
+      "sha256": "9409eb223a56dbfd780aff28f9dfa9348ed5bf5b44abb711c2242ab26cab11ff"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/logs/frozen-sha/lint.txt",
+      "sha256": "d03a558579d6c5bf7d9941dab14d20d6960b6011bd01717758fa05f6a0063285"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/logs/frozen-sha/migration-status.json",
+      "sha256": "dc151b43a6b6f212efabae84b1312645819abe78df8c8d63646a016b1d27ceb3"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/logs/frozen-sha/migration-validation.txt",
+      "sha256": "854b364da86672219cb5b5a2eb4b9fd25a8f479ab6bd3685f36dbb917a3cb987"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/logs/frozen-sha/production-build.txt",
+      "sha256": "e9cc7a2da0347d14bd0b29ae171e5048405e7d27e79ae78f703b0f6f5443f312"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/logs/frozen-sha/typecheck.txt",
+      "sha256": "8c130045816136582deedcf711e910a2396c6e4c0739b0f5719548e764414970"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/logs/migration-status.json",
+      "sha256": "dc151b43a6b6f212efabae84b1312645819abe78df8c8d63646a016b1d27ceb3"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/postgres-migrations-and-durability.md",
+      "sha256": "e3b43ad6d229ab0d9a421af08cf3e8c9eea410cb26102fc11ea2f4881cceb42a"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/remote-heads.txt",
+      "sha256": "0fad4d692771b4fefcaccdd855b56051dbd109c1e2da2cefc2385606ee4ed40b"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/screenshots/4663-desktop.png",
+      "sha256": "6ce0a911a83732ac58da1d5b90ac84d108053a073ccdd8f227b62805d592a084"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/screenshots/4663-mobile.png",
+      "sha256": "1d6c02c9872e507c7a1ce0aaf8721ff95236e80c288ac0c851be3ac3cb3d448f"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/screenshots/developers-desktop.png",
+      "sha256": "a4d1ddc650f6e0b0449ab4768e185c268c11ea133c8cb08dbe56f6e47621945f"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/screenshots/developers-mobile.png",
+      "sha256": "c96b75712bf182e95809e9d667e42486dfe42ffbd738fc3986184c52c6868467"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/screenshots/home-desktop.png",
+      "sha256": "f0c240a8dbf1fc43b927d8630d3b7b6e43af5cc8b30361b14a8edf41896f76d0"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/screenshots/home-mobile.png",
+      "sha256": "bb6f4dbb09ba662d70e8022b639718f853145a4201a734cc8079096099771362"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/screenshots/receipts-desktop.png",
+      "sha256": "d7a9eca0e56a76a4c7a6a44399f0923741c11b7fea2ab842164948dc346388b0"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/screenshots/receipts-mobile.png",
+      "sha256": "48ff65ba3e5bb7fc25a07a734f475bcc735e5fded10a25a83d25c7b5e7424228"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/screenshots/solana-desktop.png",
+      "sha256": "fa6319ecb6888e34515ea0e449b14a4287544d79e738d4cc9a2738ec18ec15af"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/screenshots/solana-mobile.png",
+      "sha256": "2e9a89236c3c9eba33778169875392f12ad5b3ee973693452daa38f5d7ecf84d"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/screenshots/spend-terminal-desktop.png",
+      "sha256": "2197c6426485db6f2b965f37e5ef44947cc21a56947d5b51f3db331090d67948"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/screenshots/spend-terminal-mobile.png",
+      "sha256": "8a95e65977cc9f1cb6b94814c855a6ba20ad944b0fe1a765d4bbd447bd1e4d48"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/staging-configuration-and-gate.md",
+      "sha256": "c65fcb79f8da8eff2267292d7e26bf55726467d79aa464508fadc97d096b64bd"
+    },
+    {
+      "file": "docs/evidence/track-a/release-qualification/test-results.md",
+      "sha256": "c5c31f76d115927827ca0804c69205ae9babdebc6fa23f4ec950721f2efe057b"
+    }
+  ]
+}
