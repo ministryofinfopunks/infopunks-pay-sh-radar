@@ -1,0 +1,174 @@
+{
+  "schema_version": "e1-a-synthetic-durability-bundle.v1",
+  "evidence_class": "synthetic test fixtures; no provider delivery or genuine outcome proof",
+  "receipts": [
+    {
+      "schema_version": "canonical-receipts.v1",
+      "observation_id": "qa_28_o",
+      "subject_type": "provider",
+      "subject_id": "provider_test",
+      "intent_hash": "sha256:8d58940e67c058dcb21311070772608ad8daf783b0bb2aea5cdc45b15a37dc98",
+      "source_type": "live_catalog",
+      "source_id": "catalog_run_1",
+      "observed_at": "2026-10-07T00:00:00Z",
+      "ingested_at": "2026-10-07T00:00:01Z",
+      "freshness_expires_at": "2026-10-08T00:00:00Z",
+      "evidence_state": "sufficient",
+      "evidence_refs": [
+        "artifact://catalog_1"
+      ],
+      "provenance": {
+        "catalog_source": "live"
+      },
+      "payload": {
+        "price": "0.01",
+        "available": true
+      },
+      "payload_hash": "sha256:b0d265a1a9c13479d447d2258d38e2d1453d6378c0f2ab551a5f9c0476a3005f",
+      "receipt_hash": "sha256:e53ed567b5f26192d5d507c32004087d7d12b035481732d6aecc7f69500cdeeb"
+    },
+    {
+      "schema_version": "canonical-receipts.v1",
+      "judgment_id": "qa_28_j",
+      "subject_type": "provider",
+      "subject_id": "provider_test",
+      "intent_hash": "sha256:8d58940e67c058dcb21311070772608ad8daf783b0bb2aea5cdc45b15a37dc98",
+      "decision": "proceed",
+      "proceed_confidence_threshold": 80,
+      "confidence": 90,
+      "reasons": [
+        "fresh live evidence"
+      ],
+      "cited_observation_ids": [
+        "qa_28_o"
+      ],
+      "issued_at": "2026-10-07T00:00:02Z",
+      "valid_until": "2026-10-07T01:00:00Z",
+      "payment_required": false,
+      "payment_receipt_ref": null,
+      "charge": "0",
+      "issuer_signature": {
+        "issuer": "e1-a-disposable-test-issuer",
+        "key_id": "key-1",
+        "algorithm": "Ed25519",
+        "signature": "p7Lvku1d7PpyIP7QBsyk312LpzVzgAVXtZ+gJ7/ln1NfbXtPXBfoMxMBKeyiw2ayZ5oOaLtZV6sdYJ0tLi29Cg=="
+      },
+      "policy_version": "receipt-authority.v1",
+      "parent_hashes": [
+        "sha256:e53ed567b5f26192d5d507c32004087d7d12b035481732d6aecc7f69500cdeeb"
+      ],
+      "receipt_hash": "sha256:08e716761f7d9307dfdb2de03a38da3ac72b24134ae4eec3414aaa6548e900ef"
+    },
+    {
+      "schema_version": "canonical-receipts.v1",
+      "execution_id": "qa_28_x",
+      "judgment_id": "qa_28_j",
+      "executed_at": "2026-10-07T00:00:03Z",
+      "settlement_rail": "test",
+      "settlement_ref": "qa_28_synthetic_settlement",
+      "request_hash": "sha256:a90b98b46e4dd97ac572d01c537afb32424b11ce9a98abd2aa5d3cf6d39ed3d7",
+      "response_hash": "sha256:38501745b144a5cb520a739fac797a27871710bf2baa103b15c36835d6e2bdc0",
+      "payload_signature": null,
+      "latency_ms": 10,
+      "status": "succeeded",
+      "cost_amount": "0.01",
+      "cost_asset": "USDC",
+      "artifact_refs": [
+        "artifact://execution_1"
+      ],
+      "parent_hash": "sha256:08e716761f7d9307dfdb2de03a38da3ac72b24134ae4eec3414aaa6548e900ef",
+      "receipt_hash": "sha256:b7b87ea4bd6060c70ca293c0e7480957b96529e80278433ebd069848c8d436a7"
+    },
+    {
+      "schema_version": "canonical-receipts.v1",
+      "evaluation_id": "evaluation_237d56c8e01114db080f50ef9b07923766c439fdfda3a8c089bc11fbe0c36620",
+      "execution_id": "qa_28_x",
+      "evaluated_at": "2026-10-07T00:00:04.000Z",
+      "outcome": "confirmed",
+      "reasons": [
+        "independently_reviewed_outcome"
+      ],
+      "evidence_refs": [
+        "sha256:91040dfaf653667533541eec9ad98a30f8046c377b4bb1468a150755c9e71dce",
+        "sha256:cb2fbb7a23af207351cd2fdb0d029523e71f893d17c4277e7e0a15f5115f539f"
+      ],
+      "policy_version": "review-attested-evaluation.v1",
+      "evaluator": {
+        "type": "independent_reviewer",
+        "id": "reviewer-alice",
+        "verification": "verified",
+        "signature_ref": "sha256:237d56c8e01114db080f50ef9b07923766c439fdfda3a8c089bc11fbe0c36620"
+      },
+      "outcome_labels": [
+        "review-attested.v1"
+      ],
+      "score_delta": 5,
+      "parent_hash": "sha256:b7b87ea4bd6060c70ca293c0e7480957b96529e80278433ebd069848c8d436a7",
+      "receipt_hash": "sha256:a34ad8a5ac1b1a32f6d28a015786f21428d56845cf89dcd5d30bb6b742880ec2"
+    }
+  ],
+  "attestation": {
+    "schema_version": "evaluation-review-attestation.v1",
+    "reviewer_id": "reviewer-alice",
+    "reviewer_key_id": "ed25519-2026-01",
+    "trust_registry_sha256": "sha256:a4cfaf2630b8e9c205df2f8152501598036fd866ed275036f9ccefa05c8bc95c",
+    "execution_receipt_id": "qa_28_x",
+    "rubric_sha256": "sha256:74174f5f43c0a837cb39af3b787ed19ccdabf229953c176b9922620bd51b2fcd",
+    "evidence_refs": [
+      "sha256:91040dfaf653667533541eec9ad98a30f8046c377b4bb1468a150755c9e71dce",
+      "sha256:cb2fbb7a23af207351cd2fdb0d029523e71f893d17c4277e7e0a15f5115f539f"
+    ],
+    "outcome_evidence_sha256": "sha256:ec0241afda47735489c739cf89b5f3ce5c26f46a85a9debed09cbf67788b877f",
+    "verdict": "confirmed",
+    "attested_at": "2026-10-07T00:00:04.000Z",
+    "nonce": "nonce_qualification_qa_28",
+    "signature": "26+qptAGMZBxyETaC0TGNYLt1F/BOOl2veKzNqtOaUvcxRJgxEtKlStdCcqY9BDTR3GDLElv9glJyru8iviSBQ=="
+  },
+  "reviewer_registry": {
+    "schema_version": "evaluation-reviewer-trust.v1",
+    "accepted_rubric_sha256s": [
+      "sha256:74174f5f43c0a837cb39af3b787ed19ccdabf229953c176b9922620bd51b2fcd"
+    ],
+    "reviewers": [
+      {
+        "reviewer_id": "reviewer-alice",
+        "keys": [
+          {
+            "key_id": "ed25519-2026-01",
+            "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAjsfkrOC7ZVtgy8YDdieRpMYo2uzh8M3437pLaNL3YCM=\n-----END PUBLIC KEY-----\n",
+            "valid_from": "2026-01-01T00:00:00.000Z",
+            "valid_until": null,
+            "revoked": false
+          }
+        ]
+      }
+    ]
+  },
+  "reviewer_registry_sha256": "sha256:a4cfaf2630b8e9c205df2f8152501598036fd866ed275036f9ccefa05c8bc95c",
+  "judgment_public_keys": {
+    "issuer": "e1-a-disposable-test-issuer",
+    "keys": [
+      {
+        "key_id": "key-1",
+        "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEADnBD0C5dDv6DwyIZ9UEkYfL3kwz5j9iWmoi9MYIlEB8=\n-----END PUBLIC KEY-----\n",
+        "valid_from": "2026-01-01T00:00:00Z",
+        "valid_until": null,
+        "revoked": false
+      }
+    ]
+  },
+  "checks": {
+    "observation_content_hash": true,
+    "judgment_content_hash": true,
+    "execution_content_hash": true,
+    "evaluation_content_hash": true,
+    "reviewer_signature": true,
+    "sidecar_digest": true,
+    "registry_digest": true,
+    "reviewer_identity": true,
+    "parent_links": true,
+    "observation_payload_hash": true,
+    "outcome_manifest_digest": true,
+    "judgment_signature": true
+  }
+}

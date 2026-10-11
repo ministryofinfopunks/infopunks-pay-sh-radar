@@ -1,0 +1,8 @@
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+NOTICE:  column "subject_id" of relation "rh4663_product_intelligence_events" already exists, skipping
+ALTER TABLE
+NOTICE:  column "share_object_id" of relation "rh4663_product_intelligence_events" already exists, skipping
+ALTER TABLE

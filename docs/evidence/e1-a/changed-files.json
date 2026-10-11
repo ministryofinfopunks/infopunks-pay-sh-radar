@@ -1,0 +1,1703 @@
+{
+  "schema_version": "e1-a-changed-files.v1",
+  "baseline": "b9597fc0388d5f08ea1a611b50e12fcab7102fd9",
+  "implementation_commit": "40eec72d15d65a603c3b206e99a324e17a560541",
+  "evidence_commit": "containing Git commit",
+  "implementation_files": 12,
+  "evidence_files": 270,
+  "files": [
+    {
+      "file": "migrations/20261011_023_evaluation_review_guardrails.down.sql",
+      "category": "implementation",
+      "commit": "40eec72d15d65a603c3b206e99a324e17a560541",
+      "sha256": "sha256:5a1164deb9fb1d60c414d794ae50531a8a4c67e28981919906ab9bf0672a2688"
+    },
+    {
+      "file": "migrations/20261011_023_evaluation_review_guardrails.up.sql",
+      "category": "implementation",
+      "commit": "40eec72d15d65a603c3b206e99a324e17a560541",
+      "sha256": "sha256:9af3ad9d521c61ea1c1a3c70ae6de81bc2872e72b3f9abbbe8d61d595c8024eb"
+    },
+    {
+      "file": "scripts/check-e1-a-migrations.mjs",
+      "category": "implementation",
+      "commit": "40eec72d15d65a603c3b206e99a324e17a560541",
+      "sha256": "sha256:2ae327e861caca88234d0fece28ccb9f6b33cf6a4535d0e676c836e74db7b9bd"
+    },
+    {
+      "file": "scripts/qualify-e1-a.mjs",
+      "category": "implementation",
+      "commit": "40eec72d15d65a603c3b206e99a324e17a560541",
+      "sha256": "sha256:ebcdc47600c4a2f5a55e5dd536fb2f969ae909078a9fac1ce0dac1f097c911c1"
+    },
+    {
+      "file": "scripts/replay-e1-a-bundle.ts",
+      "category": "implementation",
+      "commit": "40eec72d15d65a603c3b206e99a324e17a560541",
+      "sha256": "sha256:384ee9ad09fd54b9abcd1cab1a417f08311463bb1e5aeda1fa9a4f54cbf8630f"
+    },
+    {
+      "file": "src/api/app.ts",
+      "category": "implementation",
+      "commit": "40eec72d15d65a603c3b206e99a324e17a560541",
+      "sha256": "sha256:ee9c3833407d220082d4fbf71d1de2065922fd0e7ca9eb70e90a0f836be95d66"
+    },
+    {
+      "file": "src/persistence/canonicalReceiptStore.ts",
+      "category": "implementation",
+      "commit": "40eec72d15d65a603c3b206e99a324e17a560541",
+      "sha256": "sha256:bcdd0e5c32aae9fe1f69a9b96da4720198d194431482c22f14e6f36375eeb790"
+    },
+    {
+      "file": "src/security/evaluationReviewerTrust.ts",
+      "category": "implementation",
+      "commit": "40eec72d15d65a603c3b206e99a324e17a560541",
+      "sha256": "sha256:38cd5732ab102d08fc893be76c021f0200e3e4dedb292fcabaee203e4f64c7ea"
+    },
+    {
+      "file": "src/services/evaluationService.ts",
+      "category": "implementation",
+      "commit": "40eec72d15d65a603c3b206e99a324e17a560541",
+      "sha256": "sha256:cf100f4ba8132a995baf0055ec5560fbf96cefbc238c1224ef436e7d1266322b"
+    },
+    {
+      "file": "src/services/receiptAuthorityService.ts",
+      "category": "implementation",
+      "commit": "40eec72d15d65a603c3b206e99a324e17a560541",
+      "sha256": "sha256:37a8c39a1ec9ea6672078490138f73b6c5dae4d8adf4b0a39511438691000efa"
+    },
+    {
+      "file": "tests/integration/decisions-history-readonly.test.ts",
+      "category": "implementation",
+      "commit": "40eec72d15d65a603c3b206e99a324e17a560541",
+      "sha256": "sha256:8a6b91c3418d1b414a2f19cbd5a1d5e5d94172727fa6895f5b903e247991a78a"
+    },
+    {
+      "file": "tests/integration/e1-a-qualification.test.ts",
+      "category": "implementation",
+      "commit": "40eec72d15d65a603c3b206e99a324e17a560541",
+      "sha256": "sha256:1f99c53f09a4825c943535a119eec2c29354713d40cb1fe414087bcb18c5931f"
+    },
+    {
+      "file": "docs/e1-a-reviewer-authority-qualification-2026-10-11.md",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:acb2bf14977a64a8eb08ffd741890f7ad9b869e48e4915160c395112040659de"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/create-test-role.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:765856f3263dee2e267c02a0bcb675d8d1cdd8ce1daae71699266512fd8c7ac0"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/focused-tests.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:c4e7e32469957a5f245b37a400405a84baffc115dc1a791b31411c0580ec3ff1"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/initdb.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ba151145f463f9c4521fbc3f3c31ba2a848b1d56e34adddd2f3e2a90cf43ee80"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/isolation.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:185d73c49badd0f588a9427d2faf8d7b6a1d27e98a490aef920f65667d9feaf6"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/migration-20260719_001_rh_chain_market_snapshot_memory.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:5225842d2a3a93ad98ad30ddd2d8c851e74bb99c3cab2b2cf697d56126815ee6"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/migration-20260719_002_rh_chain_reviewed_classifications.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:de518565a57c5c7b25183faee8d143aa842a025fa5aec038dac0f850f9ff4e1f"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/migration-20260719_003_rh_chain_classification_layer_vocabulary.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:868701590f8d961ba83389271cbee1fbb40f61a9744876ea7aa04177f8459095"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/migration-20260719_004_rh_chain_attention_quality_receipts.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:77a26bc823b7dd1bf76f53d968de2b36e94ba7447c738326dd8f9ad177740164"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/migration-20260719_005_rh_chain_project_claims.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:0a660d08f1e40860fbdb3a750cf71cc071db051442ba3cbfa868243fbc8736c2"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/migration-20260720_006_rh_chain_reviewer_workflow.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:a7d45d98212290c1226f86b2a87a32f08f1f9dfb7d9b4506ca394483688631db"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/migration-20260813_007_infopunks_4663_phase1.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:e7015f54e16930791f656df51a5305bf1646577dd8d1a7bd0f4935d839d29582"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/migration-20260813_008_infopunks_4663_close_the_loop.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:7c799c4633287fc0454ecb9bbd5081c6ec7fae9161135cf476954b2171037a25"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/migration-20260814_009_infopunks_4663_make_the_chain_speak.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:07e5afdd830c651668287f098c73428a68b46b5e593f7fc979635d43f265331b"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/migration-20260908_010_rh4663_product_intelligence.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:99825ebfac4325821ba7aacf3bce4626fbcfe462e7b0d2b8b36ab9d2f7c16f2e"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/migration-20261007_011_canonical_receipt_spine.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:eeac47c13d9076c3d5c715d6c80b5a94e91e74ad1174f98a14f92d8b7caf2a9f"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/migration-20261007_012_judgment_requests.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ca255e4cc4afd7adc23e964e44d117648e884d1f38a18fb56044e5e7f0bd6876"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/migration-20261007_013_execution_proof_uniqueness.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:4926a45847079796eaa6dab2ca5087cdf17631f70634c9248793d4ebc72752c3"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/migration-20261007_014_derived_score_projection.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:709ed5e46c881f698969b48c6000b74ae39fae35bb0b00e9a95691352050adbd"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/migration-20261007_015_economic_judgment_engine.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:0161f74eda5f629293a29f11b4aea23f09232ef8c320bd572bfa8edc2e4220df"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/migration-20261008_016_rh_usdg_accounting.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:972165a9212d3a0af1ab17881b38db1240cdb72420412962c22e78c4840c6e32"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/migration-20261008_017_ipx_launch.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:996f6bd217bac10667241136e410fb469b63ffd9a3b94db565c8abb27f2d9afc"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/migration-20261009_018_evaluation_reviewer_attestations.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:2e9c271ffb16172d9d8e47f2584156206eb8be5934d4c4f07f3629fc230b0fff"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/postgres-version.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:3546b6c210cc5db84c1e58aee4f00f42d179140f562e60174f908775b0ee8039"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/restart-postgres.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:8db95e2a0ec84c72c6d7118a29a204a2513b26251c88fbc2e2f5eb0bd8fbbd6a"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/run.json",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:a424c659f41282fd07d4362ac35630113c269c7fafb63f8f1e96dc17810b4a96"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/schema-after-migrations.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ac59df560b54f4a174294a951e4a1646c2cc47ccf41b17b44a884322414f5ca7"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/schema-after-restart.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ac59df560b54f4a174294a951e4a1646c2cc47ccf41b17b44a884322414f5ca7"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/start-postgres.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:66afd0411ccc09366e99fdd99b85f21899c8d2d064f5835126859618802153ad"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/stop-postgres.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ca19178a35ab4153b75b494963b66ce8243e1b94c173107c87b44d09db23652d"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/synthetic-durability-bundle.json",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:e8f41f617d8ddc30c47ead45ce6642612813deef9069040f5eff4a316aaa872a"
+    },
+    {
+      "file": "docs/evidence/e1-a/adversarial-baseline/vitest.json",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:fe448c5471d36f7ec2daa4e98219a33a29b350ac8ec37c144c368fcf0a2951bd"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/baseline-tests.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:197e38a31531c9162e7a385c535022559927d8d1e0931560a9e30dacee504e4b"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/create-test-role.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:765856f3263dee2e267c02a0bcb675d8d1cdd8ce1daae71699266512fd8c7ac0"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/initdb.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:aed6ebd72872c82e1d74579ba254148d030ac2a9e006c1ff95034df246d1d1c9"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/isolation.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:185d73c49badd0f588a9427d2faf8d7b6a1d27e98a490aef920f65667d9feaf6"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/migration-20260719_001_rh_chain_market_snapshot_memory.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:5225842d2a3a93ad98ad30ddd2d8c851e74bb99c3cab2b2cf697d56126815ee6"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/migration-20260719_002_rh_chain_reviewed_classifications.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:de518565a57c5c7b25183faee8d143aa842a025fa5aec038dac0f850f9ff4e1f"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/migration-20260719_003_rh_chain_classification_layer_vocabulary.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:868701590f8d961ba83389271cbee1fbb40f61a9744876ea7aa04177f8459095"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/migration-20260719_004_rh_chain_attention_quality_receipts.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:77a26bc823b7dd1bf76f53d968de2b36e94ba7447c738326dd8f9ad177740164"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/migration-20260719_005_rh_chain_project_claims.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:0a660d08f1e40860fbdb3a750cf71cc071db051442ba3cbfa868243fbc8736c2"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/migration-20260720_006_rh_chain_reviewer_workflow.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:a7d45d98212290c1226f86b2a87a32f08f1f9dfb7d9b4506ca394483688631db"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/migration-20260813_007_infopunks_4663_phase1.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:e7015f54e16930791f656df51a5305bf1646577dd8d1a7bd0f4935d839d29582"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/migration-20260813_008_infopunks_4663_close_the_loop.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:7c799c4633287fc0454ecb9bbd5081c6ec7fae9161135cf476954b2171037a25"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/migration-20260814_009_infopunks_4663_make_the_chain_speak.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:07e5afdd830c651668287f098c73428a68b46b5e593f7fc979635d43f265331b"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/migration-20260908_010_rh4663_product_intelligence.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:99825ebfac4325821ba7aacf3bce4626fbcfe462e7b0d2b8b36ab9d2f7c16f2e"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/migration-20261007_011_canonical_receipt_spine.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:eeac47c13d9076c3d5c715d6c80b5a94e91e74ad1174f98a14f92d8b7caf2a9f"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/migration-20261007_012_judgment_requests.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ca255e4cc4afd7adc23e964e44d117648e884d1f38a18fb56044e5e7f0bd6876"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/migration-20261007_013_execution_proof_uniqueness.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:4926a45847079796eaa6dab2ca5087cdf17631f70634c9248793d4ebc72752c3"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/migration-20261007_014_derived_score_projection.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:709ed5e46c881f698969b48c6000b74ae39fae35bb0b00e9a95691352050adbd"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/migration-20261007_015_economic_judgment_engine.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:0161f74eda5f629293a29f11b4aea23f09232ef8c320bd572bfa8edc2e4220df"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/migration-20261008_016_rh_usdg_accounting.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:972165a9212d3a0af1ab17881b38db1240cdb72420412962c22e78c4840c6e32"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/migration-20261008_017_ipx_launch.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:996f6bd217bac10667241136e410fb469b63ffd9a3b94db565c8abb27f2d9afc"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/migration-20261009_018_evaluation_reviewer_attestations.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:2e9c271ffb16172d9d8e47f2584156206eb8be5934d4c4f07f3629fc230b0fff"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/postgres-version.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:3546b6c210cc5db84c1e58aee4f00f42d179140f562e60174f908775b0ee8039"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/restart-postgres.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:8db95e2a0ec84c72c6d7118a29a204a2513b26251c88fbc2e2f5eb0bd8fbbd6a"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/run.json",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:fd264a7991c9c94e432a3eeda8f8c67d87c98c9949b37557aca113f723e04d77"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/schema-after-migrations.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ac59df560b54f4a174294a951e4a1646c2cc47ccf41b17b44a884322414f5ca7"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/schema-after-restart.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ac59df560b54f4a174294a951e4a1646c2cc47ccf41b17b44a884322414f5ca7"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/start-postgres.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:66afd0411ccc09366e99fdd99b85f21899c8d2d064f5835126859618802153ad"
+    },
+    {
+      "file": "docs/evidence/e1-a/baseline/stop-postgres.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ca19178a35ab4153b75b494963b66ce8243e1b94c173107c87b44d09db23652d"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/create-test-role.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:765856f3263dee2e267c02a0bcb675d8d1cdd8ce1daae71699266512fd8c7ac0"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/focused-tests.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ccfdd9b34c15b5cdb2b691e29484d403501ee4ecc01f58c6f559d8275873d35c"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/initdb.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:2a5962568075c4e73369b64355be8bec5ef6509eed964e10f1b2b3510f0fcff6"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/isolation.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:185d73c49badd0f588a9427d2faf8d7b6a1d27e98a490aef920f65667d9feaf6"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/migration-20260719_001_rh_chain_market_snapshot_memory.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:5225842d2a3a93ad98ad30ddd2d8c851e74bb99c3cab2b2cf697d56126815ee6"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/migration-20260719_002_rh_chain_reviewed_classifications.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:de518565a57c5c7b25183faee8d143aa842a025fa5aec038dac0f850f9ff4e1f"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/migration-20260719_003_rh_chain_classification_layer_vocabulary.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:868701590f8d961ba83389271cbee1fbb40f61a9744876ea7aa04177f8459095"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/migration-20260719_004_rh_chain_attention_quality_receipts.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:77a26bc823b7dd1bf76f53d968de2b36e94ba7447c738326dd8f9ad177740164"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/migration-20260719_005_rh_chain_project_claims.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:0a660d08f1e40860fbdb3a750cf71cc071db051442ba3cbfa868243fbc8736c2"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/migration-20260720_006_rh_chain_reviewer_workflow.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:a7d45d98212290c1226f86b2a87a32f08f1f9dfb7d9b4506ca394483688631db"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/migration-20260813_007_infopunks_4663_phase1.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:e7015f54e16930791f656df51a5305bf1646577dd8d1a7bd0f4935d839d29582"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/migration-20260813_008_infopunks_4663_close_the_loop.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:7c799c4633287fc0454ecb9bbd5081c6ec7fae9161135cf476954b2171037a25"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/migration-20260814_009_infopunks_4663_make_the_chain_speak.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:07e5afdd830c651668287f098c73428a68b46b5e593f7fc979635d43f265331b"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/migration-20260908_010_rh4663_product_intelligence.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:99825ebfac4325821ba7aacf3bce4626fbcfe462e7b0d2b8b36ab9d2f7c16f2e"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/migration-20261007_011_canonical_receipt_spine.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:eeac47c13d9076c3d5c715d6c80b5a94e91e74ad1174f98a14f92d8b7caf2a9f"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/migration-20261007_012_judgment_requests.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ca255e4cc4afd7adc23e964e44d117648e884d1f38a18fb56044e5e7f0bd6876"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/migration-20261007_013_execution_proof_uniqueness.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:4926a45847079796eaa6dab2ca5087cdf17631f70634c9248793d4ebc72752c3"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/migration-20261007_014_derived_score_projection.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:709ed5e46c881f698969b48c6000b74ae39fae35bb0b00e9a95691352050adbd"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/migration-20261007_015_economic_judgment_engine.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:0161f74eda5f629293a29f11b4aea23f09232ef8c320bd572bfa8edc2e4220df"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/migration-20261008_016_rh_usdg_accounting.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:972165a9212d3a0af1ab17881b38db1240cdb72420412962c22e78c4840c6e32"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/migration-20261008_017_ipx_launch.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:996f6bd217bac10667241136e410fb469b63ffd9a3b94db565c8abb27f2d9afc"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/migration-20261009_018_evaluation_reviewer_attestations.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:2e9c271ffb16172d9d8e47f2584156206eb8be5934d4c4f07f3629fc230b0fff"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/migration-20261011_023_evaluation_review_guardrails.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:f64f8b934b578ffd14dcfead6ca2e94d9428f3e69c11bbeff213b8e265f8fc30"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/postgres-version.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:3546b6c210cc5db84c1e58aee4f00f42d179140f562e60174f908775b0ee8039"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/restart-postgres.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:8db95e2a0ec84c72c6d7118a29a204a2513b26251c88fbc2e2f5eb0bd8fbbd6a"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/run.json",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:4170387cb1349226c40c1f2ec7e0ed462d2da6328152566f98888eefc9efd447"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/schema-after-migrations.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ac59df560b54f4a174294a951e4a1646c2cc47ccf41b17b44a884322414f5ca7"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/schema-after-restart.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ac59df560b54f4a174294a951e4a1646c2cc47ccf41b17b44a884322414f5ca7"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/start-postgres.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:66afd0411ccc09366e99fdd99b85f21899c8d2d064f5835126859618802153ad"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/stop-postgres.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ca19178a35ab4153b75b494963b66ce8243e1b94c173107c87b44d09db23652d"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/synthetic-durability-bundle.json",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:a5271e79717711424c1db1e1a999cfc1787dc8113a25f9436d9540366a539698"
+    },
+    {
+      "file": "docs/evidence/e1-a/corrected-focused/vitest.json",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:e09900001965659acf709afebba25f58fafddc8b24722d42cc0b020f54396245"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/build.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:c6020d0b710727ecba62dc47cca639e972df28a25f3f1896bb233bde83388556"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/create-rollback-schema.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:185d73c49badd0f588a9427d2faf8d7b6a1d27e98a490aef920f65667d9feaf6"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/create-test-role.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:d34e90b08a005a43a7177e9b1d218c37630d205cb319d659869e802107c28b02"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/initdb.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:8a18884c331a9bbd1316f3b9db0fcf2dec3fd38b040aca68338a95b292033d15"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/isolation.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:185d73c49badd0f588a9427d2faf8d7b6a1d27e98a490aef920f65667d9feaf6"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/lint.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:d03a558579d6c5bf7d9941dab14d20d6960b6011bd01717758fa05f6a0063285"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/migration-20260719_001_rh_chain_market_snapshot_memory.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:5225842d2a3a93ad98ad30ddd2d8c851e74bb99c3cab2b2cf697d56126815ee6"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/migration-20260719_002_rh_chain_reviewed_classifications.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:de518565a57c5c7b25183faee8d143aa842a025fa5aec038dac0f850f9ff4e1f"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/migration-20260719_003_rh_chain_classification_layer_vocabulary.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:868701590f8d961ba83389271cbee1fbb40f61a9744876ea7aa04177f8459095"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/migration-20260719_004_rh_chain_attention_quality_receipts.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:77a26bc823b7dd1bf76f53d968de2b36e94ba7447c738326dd8f9ad177740164"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/migration-20260719_005_rh_chain_project_claims.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:0a660d08f1e40860fbdb3a750cf71cc071db051442ba3cbfa868243fbc8736c2"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/migration-20260720_006_rh_chain_reviewer_workflow.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:a7d45d98212290c1226f86b2a87a32f08f1f9dfb7d9b4506ca394483688631db"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/migration-20260813_007_infopunks_4663_phase1.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:e7015f54e16930791f656df51a5305bf1646577dd8d1a7bd0f4935d839d29582"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/migration-20260813_008_infopunks_4663_close_the_loop.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:7c799c4633287fc0454ecb9bbd5081c6ec7fae9161135cf476954b2171037a25"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/migration-20260814_009_infopunks_4663_make_the_chain_speak.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:07e5afdd830c651668287f098c73428a68b46b5e593f7fc979635d43f265331b"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/migration-20260908_010_rh4663_product_intelligence.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:99825ebfac4325821ba7aacf3bce4626fbcfe462e7b0d2b8b36ab9d2f7c16f2e"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/migration-20261007_011_canonical_receipt_spine.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:eeac47c13d9076c3d5c715d6c80b5a94e91e74ad1174f98a14f92d8b7caf2a9f"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/migration-20261007_012_judgment_requests.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ca255e4cc4afd7adc23e964e44d117648e884d1f38a18fb56044e5e7f0bd6876"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/migration-20261007_013_execution_proof_uniqueness.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:4926a45847079796eaa6dab2ca5087cdf17631f70634c9248793d4ebc72752c3"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/migration-20261007_014_derived_score_projection.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:709ed5e46c881f698969b48c6000b74ae39fae35bb0b00e9a95691352050adbd"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/migration-20261007_015_economic_judgment_engine.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:0161f74eda5f629293a29f11b4aea23f09232ef8c320bd572bfa8edc2e4220df"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/migration-20261008_016_rh_usdg_accounting.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:972165a9212d3a0af1ab17881b38db1240cdb72420412962c22e78c4840c6e32"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/migration-20261008_017_ipx_launch.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:996f6bd217bac10667241136e410fb469b63ffd9a3b94db565c8abb27f2d9afc"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/migration-20261009_018_evaluation_reviewer_attestations.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:2e9c271ffb16172d9d8e47f2584156206eb8be5934d4c4f07f3629fc230b0fff"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/migration-20261011_023_evaluation_review_guardrails.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:f64f8b934b578ffd14dcfead6ca2e94d9428f3e69c11bbeff213b8e265f8fc30"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/migration-compatibility.json",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ab298078e1ed3090b3f6885710e906f51b06a8a9bc6c9e5b02573374a16ee2a3"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/migration-inventory.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:b393e41210147e5164c4908e27f017ab04f35c5879951b40dd5cf5821929ce61"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/post-restart-receipt-replay.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:a7a8b665ae745d16ababfa1288208ee3d1b16fdc20723ce0d5ffaee805aeee72"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/post-restart-replay.json",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:49a3ff60bca598ede3aa02f145a271e29bb7875a657bf08cef9ac1e26fd03ff1"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/postgres-version.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:3546b6c210cc5db84c1e58aee4f00f42d179140f562e60174f908775b0ee8039"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/reapply-20261008_017_ipx_launch.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:996f6bd217bac10667241136e410fb469b63ffd9a3b94db565c8abb27f2d9afc"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/reapply-20261009_018_evaluation_reviewer_attestations.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:2e9c271ffb16172d9d8e47f2584156206eb8be5934d4c4f07f3629fc230b0fff"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/reapply-20261011_023_evaluation_review_guardrails.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:f64f8b934b578ffd14dcfead6ca2e94d9428f3e69c11bbeff213b8e265f8fc30"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/regression-tests.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:12819d7fdf479097ee82d22347e49c2cfd0b5d22f95a4fa907827cac38872970"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/restart-after-receipt-persistence.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:8db95e2a0ec84c72c6d7118a29a204a2513b26251c88fbc2e2f5eb0bd8fbbd6a"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/restart-postgres.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:8db95e2a0ec84c72c6d7118a29a204a2513b26251c88fbc2e2f5eb0bd8fbbd6a"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/rollback-20261008_016_rh_usdg_accounting.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:99a23dc30da9a592fdda592bef92845a4878208bce584d2bf9870c075ce9cfb1"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/rollback-20261008_017_ipx_launch.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:af94b97fa67f67bbeb5f2e116fd644f23dff48ecb2f2fb0ccb6297b85a628462"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/rollback-20261009_018_evaluation_reviewer_attestations.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:f79a9a5cf67b9d7dab2928bce9b883cfec52d2c21d154afc5047c9c66e480d07"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/rollback-20261011_023_evaluation_review_guardrails.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:f64102a32874d5c3f2ea200c69a81fcb73088b64780e2f07df1ee60baa4a5227"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/rollback-restored-schema.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ac59df560b54f4a174294a951e4a1646c2cc47ccf41b17b44a884322414f5ca7"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/rollback-setup-20260719_001_rh_chain_market_snapshot_memory.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:5225842d2a3a93ad98ad30ddd2d8c851e74bb99c3cab2b2cf697d56126815ee6"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/rollback-setup-20260719_002_rh_chain_reviewed_classifications.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:de518565a57c5c7b25183faee8d143aa842a025fa5aec038dac0f850f9ff4e1f"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/rollback-setup-20260719_003_rh_chain_classification_layer_vocabulary.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:868701590f8d961ba83389271cbee1fbb40f61a9744876ea7aa04177f8459095"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/rollback-setup-20260719_004_rh_chain_attention_quality_receipts.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:77a26bc823b7dd1bf76f53d968de2b36e94ba7447c738326dd8f9ad177740164"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/rollback-setup-20260719_005_rh_chain_project_claims.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:0a660d08f1e40860fbdb3a750cf71cc071db051442ba3cbfa868243fbc8736c2"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/rollback-setup-20260720_006_rh_chain_reviewer_workflow.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:a7d45d98212290c1226f86b2a87a32f08f1f9dfb7d9b4506ca394483688631db"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/rollback-setup-20260813_007_infopunks_4663_phase1.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:e7015f54e16930791f656df51a5305bf1646577dd8d1a7bd0f4935d839d29582"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/rollback-setup-20260813_008_infopunks_4663_close_the_loop.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:7c799c4633287fc0454ecb9bbd5081c6ec7fae9161135cf476954b2171037a25"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/rollback-setup-20260814_009_infopunks_4663_make_the_chain_speak.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:07e5afdd830c651668287f098c73428a68b46b5e593f7fc979635d43f265331b"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/rollback-setup-20260908_010_rh4663_product_intelligence.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:99825ebfac4325821ba7aacf3bce4626fbcfe462e7b0d2b8b36ab9d2f7c16f2e"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/rollback-setup-20261007_011_canonical_receipt_spine.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:eeac47c13d9076c3d5c715d6c80b5a94e91e74ad1174f98a14f92d8b7caf2a9f"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/rollback-setup-20261007_012_judgment_requests.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ca255e4cc4afd7adc23e964e44d117648e884d1f38a18fb56044e5e7f0bd6876"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/rollback-setup-20261007_013_execution_proof_uniqueness.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:4926a45847079796eaa6dab2ca5087cdf17631f70634c9248793d4ebc72752c3"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/rollback-setup-20261007_014_derived_score_projection.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:709ed5e46c881f698969b48c6000b74ae39fae35bb0b00e9a95691352050adbd"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/rollback-setup-20261007_015_economic_judgment_engine.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:0161f74eda5f629293a29f11b4aea23f09232ef8c320bd572bfa8edc2e4220df"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/rollback-setup-20261008_016_rh_usdg_accounting.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:972165a9212d3a0af1ab17881b38db1240cdb72420412962c22e78c4840c6e32"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/rollback-setup-20261008_017_ipx_launch.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:996f6bd217bac10667241136e410fb469b63ffd9a3b94db565c8abb27f2d9afc"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/rollback-setup-20261009_018_evaluation_reviewer_attestations.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:2e9c271ffb16172d9d8e47f2584156206eb8be5934d4c4f07f3629fc230b0fff"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/rollback-setup-20261011_023_evaluation_review_guardrails.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:f64f8b934b578ffd14dcfead6ca2e94d9428f3e69c11bbeff213b8e265f8fc30"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/run.json",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:f1b4318b4625b5d42ec3a551112ac3efa0582d3acad48f6bad8232c7afd5b2de"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/runtime-permissions.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:af75371cb2a3d807d18f7c489c29538974990768b97c4b148555802e073da1bd"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/schema-after-migrations.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ac59df560b54f4a174294a951e4a1646c2cc47ccf41b17b44a884322414f5ca7"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/schema-after-restart.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ac59df560b54f4a174294a951e4a1646c2cc47ccf41b17b44a884322414f5ca7"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/source-manifest.json",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:767d5ffb71571daf75c9831752bf6cffba49981816af47e05a75f9a40d9a3bf2"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/start-postgres.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:66afd0411ccc09366e99fdd99b85f21899c8d2d064f5835126859618802153ad"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/stop-postgres.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ca19178a35ab4153b75b494963b66ce8243e1b94c173107c87b44d09db23652d"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/synthetic-durability-bundle.json",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:190296d24e866f3a1467cbb57ecd1f3739da6d111ef4a9975c7b4879b1c52bf3"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/typecheck.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:8c130045816136582deedcf711e910a2396c6e4c0739b0f5719548e764414970"
+    },
+    {
+      "file": "docs/evidence/e1-a/initial-full-regression/vitest.json",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:a38a6153d558a73ad256848e646854f46002d85ed3caa7c127c4f96bd40caf03"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/build.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:44744bd89c70a6c7378ac14b3228f6cf0a6e9d2eab48df2827fc2012989fe0bb"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/create-rollback-schema.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:185d73c49badd0f588a9427d2faf8d7b6a1d27e98a490aef920f65667d9feaf6"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/create-test-role.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:d34e90b08a005a43a7177e9b1d218c37630d205cb319d659869e802107c28b02"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/initdb.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:6b61a30123034a815afc026a3280cb317e367137b36c61afe1da70290f83b215"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/isolation.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:185d73c49badd0f588a9427d2faf8d7b6a1d27e98a490aef920f65667d9feaf6"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/lint.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:d03a558579d6c5bf7d9941dab14d20d6960b6011bd01717758fa05f6a0063285"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/migration-20260719_001_rh_chain_market_snapshot_memory.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:5225842d2a3a93ad98ad30ddd2d8c851e74bb99c3cab2b2cf697d56126815ee6"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/migration-20260719_002_rh_chain_reviewed_classifications.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:de518565a57c5c7b25183faee8d143aa842a025fa5aec038dac0f850f9ff4e1f"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/migration-20260719_003_rh_chain_classification_layer_vocabulary.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:868701590f8d961ba83389271cbee1fbb40f61a9744876ea7aa04177f8459095"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/migration-20260719_004_rh_chain_attention_quality_receipts.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:77a26bc823b7dd1bf76f53d968de2b36e94ba7447c738326dd8f9ad177740164"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/migration-20260719_005_rh_chain_project_claims.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:0a660d08f1e40860fbdb3a750cf71cc071db051442ba3cbfa868243fbc8736c2"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/migration-20260720_006_rh_chain_reviewer_workflow.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:a7d45d98212290c1226f86b2a87a32f08f1f9dfb7d9b4506ca394483688631db"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/migration-20260813_007_infopunks_4663_phase1.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:e7015f54e16930791f656df51a5305bf1646577dd8d1a7bd0f4935d839d29582"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/migration-20260813_008_infopunks_4663_close_the_loop.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:7c799c4633287fc0454ecb9bbd5081c6ec7fae9161135cf476954b2171037a25"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/migration-20260814_009_infopunks_4663_make_the_chain_speak.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:07e5afdd830c651668287f098c73428a68b46b5e593f7fc979635d43f265331b"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/migration-20260908_010_rh4663_product_intelligence.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:99825ebfac4325821ba7aacf3bce4626fbcfe462e7b0d2b8b36ab9d2f7c16f2e"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/migration-20261007_011_canonical_receipt_spine.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:eeac47c13d9076c3d5c715d6c80b5a94e91e74ad1174f98a14f92d8b7caf2a9f"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/migration-20261007_012_judgment_requests.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ca255e4cc4afd7adc23e964e44d117648e884d1f38a18fb56044e5e7f0bd6876"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/migration-20261007_013_execution_proof_uniqueness.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:4926a45847079796eaa6dab2ca5087cdf17631f70634c9248793d4ebc72752c3"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/migration-20261007_014_derived_score_projection.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:709ed5e46c881f698969b48c6000b74ae39fae35bb0b00e9a95691352050adbd"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/migration-20261007_015_economic_judgment_engine.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:0161f74eda5f629293a29f11b4aea23f09232ef8c320bd572bfa8edc2e4220df"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/migration-20261008_016_rh_usdg_accounting.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:972165a9212d3a0af1ab17881b38db1240cdb72420412962c22e78c4840c6e32"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/migration-20261008_017_ipx_launch.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:996f6bd217bac10667241136e410fb469b63ffd9a3b94db565c8abb27f2d9afc"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/migration-20261009_018_evaluation_reviewer_attestations.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:2e9c271ffb16172d9d8e47f2584156206eb8be5934d4c4f07f3629fc230b0fff"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/migration-20261011_023_evaluation_review_guardrails.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:f64f8b934b578ffd14dcfead6ca2e94d9428f3e69c11bbeff213b8e265f8fc30"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/migration-compatibility.json",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:1d41ceea9b6e5bcba97612e2f7912873599ca0d4ea5d16ee2a95d77f5e75f698"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/migration-inventory.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:b393e41210147e5164c4908e27f017ab04f35c5879951b40dd5cf5821929ce61"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/post-restart-receipt-replay.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:a7a8b665ae745d16ababfa1288208ee3d1b16fdc20723ce0d5ffaee805aeee72"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/post-restart-replay.json",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:e170a80354dd7009e1ee01613bc506d50e4255640cd4cffe006f7447d929c0b1"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/postgres-version.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:3546b6c210cc5db84c1e58aee4f00f42d179140f562e60174f908775b0ee8039"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/reapply-20261008_017_ipx_launch.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:996f6bd217bac10667241136e410fb469b63ffd9a3b94db565c8abb27f2d9afc"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/reapply-20261009_018_evaluation_reviewer_attestations.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:2e9c271ffb16172d9d8e47f2584156206eb8be5934d4c4f07f3629fc230b0fff"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/reapply-20261011_023_evaluation_review_guardrails.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:f64f8b934b578ffd14dcfead6ca2e94d9428f3e69c11bbeff213b8e265f8fc30"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/regression-tests.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:acb858e25b56189b3127e6367ffeafd535554687479bca36f1ad7d7f2be77682"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/restart-after-receipt-persistence.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:8db95e2a0ec84c72c6d7118a29a204a2513b26251c88fbc2e2f5eb0bd8fbbd6a"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/restart-postgres.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:8db95e2a0ec84c72c6d7118a29a204a2513b26251c88fbc2e2f5eb0bd8fbbd6a"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/rollback-20261008_016_rh_usdg_accounting.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:99a23dc30da9a592fdda592bef92845a4878208bce584d2bf9870c075ce9cfb1"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/rollback-20261008_017_ipx_launch.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:af94b97fa67f67bbeb5f2e116fd644f23dff48ecb2f2fb0ccb6297b85a628462"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/rollback-20261009_018_evaluation_reviewer_attestations.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:f79a9a5cf67b9d7dab2928bce9b883cfec52d2c21d154afc5047c9c66e480d07"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/rollback-20261011_023_evaluation_review_guardrails.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:f64102a32874d5c3f2ea200c69a81fcb73088b64780e2f07df1ee60baa4a5227"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/rollback-restored-schema.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ac59df560b54f4a174294a951e4a1646c2cc47ccf41b17b44a884322414f5ca7"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/rollback-setup-20260719_001_rh_chain_market_snapshot_memory.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:5225842d2a3a93ad98ad30ddd2d8c851e74bb99c3cab2b2cf697d56126815ee6"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/rollback-setup-20260719_002_rh_chain_reviewed_classifications.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:de518565a57c5c7b25183faee8d143aa842a025fa5aec038dac0f850f9ff4e1f"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/rollback-setup-20260719_003_rh_chain_classification_layer_vocabulary.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:868701590f8d961ba83389271cbee1fbb40f61a9744876ea7aa04177f8459095"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/rollback-setup-20260719_004_rh_chain_attention_quality_receipts.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:77a26bc823b7dd1bf76f53d968de2b36e94ba7447c738326dd8f9ad177740164"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/rollback-setup-20260719_005_rh_chain_project_claims.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:0a660d08f1e40860fbdb3a750cf71cc071db051442ba3cbfa868243fbc8736c2"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/rollback-setup-20260720_006_rh_chain_reviewer_workflow.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:a7d45d98212290c1226f86b2a87a32f08f1f9dfb7d9b4506ca394483688631db"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/rollback-setup-20260813_007_infopunks_4663_phase1.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:e7015f54e16930791f656df51a5305bf1646577dd8d1a7bd0f4935d839d29582"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/rollback-setup-20260813_008_infopunks_4663_close_the_loop.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:03ddb6d30c8f172ca9f5c6cc4d8745a9c0d919786d2aa9a222a3f89eafeffd11"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/rollback-setup-20260814_009_infopunks_4663_make_the_chain_speak.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:07e5afdd830c651668287f098c73428a68b46b5e593f7fc979635d43f265331b"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/rollback-setup-20260908_010_rh4663_product_intelligence.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:99825ebfac4325821ba7aacf3bce4626fbcfe462e7b0d2b8b36ab9d2f7c16f2e"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/rollback-setup-20261007_011_canonical_receipt_spine.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:eeac47c13d9076c3d5c715d6c80b5a94e91e74ad1174f98a14f92d8b7caf2a9f"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/rollback-setup-20261007_012_judgment_requests.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ca255e4cc4afd7adc23e964e44d117648e884d1f38a18fb56044e5e7f0bd6876"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/rollback-setup-20261007_013_execution_proof_uniqueness.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:4926a45847079796eaa6dab2ca5087cdf17631f70634c9248793d4ebc72752c3"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/rollback-setup-20261007_014_derived_score_projection.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:709ed5e46c881f698969b48c6000b74ae39fae35bb0b00e9a95691352050adbd"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/rollback-setup-20261007_015_economic_judgment_engine.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:0161f74eda5f629293a29f11b4aea23f09232ef8c320bd572bfa8edc2e4220df"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/rollback-setup-20261008_016_rh_usdg_accounting.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:972165a9212d3a0af1ab17881b38db1240cdb72420412962c22e78c4840c6e32"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/rollback-setup-20261008_017_ipx_launch.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:996f6bd217bac10667241136e410fb469b63ffd9a3b94db565c8abb27f2d9afc"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/rollback-setup-20261009_018_evaluation_reviewer_attestations.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:2e9c271ffb16172d9d8e47f2584156206eb8be5934d4c4f07f3629fc230b0fff"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/rollback-setup-20261011_023_evaluation_review_guardrails.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:f64f8b934b578ffd14dcfead6ca2e94d9428f3e69c11bbeff213b8e265f8fc30"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/run.json",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:0774134bffbd97514bcb1b54d025459133d89f62a3a8591b003411696801f023"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/runtime-permissions.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:af75371cb2a3d807d18f7c489c29538974990768b97c4b148555802e073da1bd"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/schema-after-migrations.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ac59df560b54f4a174294a951e4a1646c2cc47ccf41b17b44a884322414f5ca7"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/schema-after-restart.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ac59df560b54f4a174294a951e4a1646c2cc47ccf41b17b44a884322414f5ca7"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/source-manifest.json",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:6e651daa04317108d5a976085ea57f043c8f5c2c93b0a552b6735222282bb5cf"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/start-postgres.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:66afd0411ccc09366e99fdd99b85f21899c8d2d064f5835126859618802153ad"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/stop-postgres.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ca19178a35ab4153b75b494963b66ce8243e1b94c173107c87b44d09db23652d"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/synthetic-durability-bundle.json",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:f36b6525f5291a79a3deeac97b9772c03980aab6abe2d6a7c909d64d53871826"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/typecheck.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:8c130045816136582deedcf711e910a2396c6e4c0739b0f5719548e764414970"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/vitest.json",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:a70f4e1dc1de1d01b03e51a06d794b7082ddc0c6ce9e4449236709b4adf63e26"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification-report.json",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:5911b392e3665b02edc6d36eae41c4cb1acb84a9b84ebafa9aaac6b8c2131422"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/create-test-role.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:d34e90b08a005a43a7177e9b1d218c37630d205cb319d659869e802107c28b02"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/initdb.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:7bd49718ec4533c38667cc35edcaccfa5997c4d6fbf326fd51fe0254f2decbf2"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/isolation.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:185d73c49badd0f588a9427d2faf8d7b6a1d27e98a490aef920f65667d9feaf6"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/migration-20260719_001_rh_chain_market_snapshot_memory.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:5225842d2a3a93ad98ad30ddd2d8c851e74bb99c3cab2b2cf697d56126815ee6"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/migration-20260719_002_rh_chain_reviewed_classifications.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:de518565a57c5c7b25183faee8d143aa842a025fa5aec038dac0f850f9ff4e1f"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/migration-20260719_003_rh_chain_classification_layer_vocabulary.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:868701590f8d961ba83389271cbee1fbb40f61a9744876ea7aa04177f8459095"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/migration-20260719_004_rh_chain_attention_quality_receipts.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:77a26bc823b7dd1bf76f53d968de2b36e94ba7447c738326dd8f9ad177740164"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/migration-20260719_005_rh_chain_project_claims.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:0a660d08f1e40860fbdb3a750cf71cc071db051442ba3cbfa868243fbc8736c2"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/migration-20260720_006_rh_chain_reviewer_workflow.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:a7d45d98212290c1226f86b2a87a32f08f1f9dfb7d9b4506ca394483688631db"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/migration-20260813_007_infopunks_4663_phase1.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:e7015f54e16930791f656df51a5305bf1646577dd8d1a7bd0f4935d839d29582"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/migration-20260813_008_infopunks_4663_close_the_loop.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:7c799c4633287fc0454ecb9bbd5081c6ec7fae9161135cf476954b2171037a25"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/migration-20260814_009_infopunks_4663_make_the_chain_speak.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:07e5afdd830c651668287f098c73428a68b46b5e593f7fc979635d43f265331b"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/migration-20260908_010_rh4663_product_intelligence.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:99825ebfac4325821ba7aacf3bce4626fbcfe462e7b0d2b8b36ab9d2f7c16f2e"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/migration-20261007_011_canonical_receipt_spine.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:eeac47c13d9076c3d5c715d6c80b5a94e91e74ad1174f98a14f92d8b7caf2a9f"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/migration-20261007_012_judgment_requests.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ca255e4cc4afd7adc23e964e44d117648e884d1f38a18fb56044e5e7f0bd6876"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/migration-20261007_013_execution_proof_uniqueness.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:4926a45847079796eaa6dab2ca5087cdf17631f70634c9248793d4ebc72752c3"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/migration-20261007_014_derived_score_projection.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:709ed5e46c881f698969b48c6000b74ae39fae35bb0b00e9a95691352050adbd"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/migration-20261007_015_economic_judgment_engine.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:0161f74eda5f629293a29f11b4aea23f09232ef8c320bd572bfa8edc2e4220df"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/migration-20261008_016_rh_usdg_accounting.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:972165a9212d3a0af1ab17881b38db1240cdb72420412962c22e78c4840c6e32"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/migration-20261008_017_ipx_launch.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:996f6bd217bac10667241136e410fb469b63ffd9a3b94db565c8abb27f2d9afc"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/migration-20261009_018_evaluation_reviewer_attestations.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:2e9c271ffb16172d9d8e47f2584156206eb8be5934d4c4f07f3629fc230b0fff"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/migration-20261011_023_evaluation_review_guardrails.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:f64f8b934b578ffd14dcfead6ca2e94d9428f3e69c11bbeff213b8e265f8fc30"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/postgres-version.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:3546b6c210cc5db84c1e58aee4f00f42d179140f562e60174f908775b0ee8039"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/restart-postgres.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:8db95e2a0ec84c72c6d7118a29a204a2513b26251c88fbc2e2f5eb0bd8fbbd6a"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/rollback-20261008_016_rh_usdg_accounting.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:99a23dc30da9a592fdda592bef92845a4878208bce584d2bf9870c075ce9cfb1"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/rollback-20261008_017_ipx_launch.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:af94b97fa67f67bbeb5f2e116fd644f23dff48ecb2f2fb0ccb6297b85a628462"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/rollback-20261009_018_evaluation_reviewer_attestations.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:f79a9a5cf67b9d7dab2928bce9b883cfec52d2c21d154afc5047c9c66e480d07"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/rollback-20261011_023_evaluation_review_guardrails.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:f64102a32874d5c3f2ea200c69a81fcb73088b64780e2f07df1ee60baa4a5227"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/run.json",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:62be2908911235d0a922bfb3259bce85dfc9b8cd5b5697b50a2f4a5805df8642"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/runtime-permissions.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:af75371cb2a3d807d18f7c489c29538974990768b97c4b148555802e073da1bd"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/schema-after-migrations.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ac59df560b54f4a174294a951e4a1646c2cc47ccf41b17b44a884322414f5ca7"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/schema-after-restart.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ac59df560b54f4a174294a951e4a1646c2cc47ccf41b17b44a884322414f5ca7"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/source-manifest.json",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:436210104307b6fc08161416366cfa215786e5de37632aa09f7d3b4a0ee48790"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/start-postgres.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:66afd0411ccc09366e99fdd99b85f21899c8d2d064f5835126859618802153ad"
+    },
+    {
+      "file": "docs/evidence/e1-a/rollback-boundary-observed/stop-postgres.txt",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": "sha256:ca19178a35ab4153b75b494963b66ce8243e1b94c173107c87b44d09db23652d"
+    },
+    {
+      "file": "docs/evidence/e1-a/changed-files.json",
+      "category": "qualification_evidence",
+      "commit": "containing evidence commit",
+      "sha256": null,
+      "note": "Self-hash excluded; Git commit pins this inventory."
+    }
+  ]
+}

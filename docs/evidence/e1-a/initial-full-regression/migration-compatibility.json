@@ -1,0 +1,336 @@
+{
+  "schema_version": "e1-a-migration-compatibility.v1",
+  "baseline": "b9597fc0388d5f08ea1a611b50e12fcab7102fd9",
+  "track_a_commit": "f6b5de64e96da4e5bacbfba39f6cdf6940d2aa79",
+  "branch": [
+    {
+      "file": "migrations/20260719_001_rh_chain_market_snapshot_memory.up.sql",
+      "number": 1,
+      "sha256": "sha256:ef0892b3d8113942c198be7ecaec59ce8e711a71db2f593525857d07f1afe23e"
+    },
+    {
+      "file": "migrations/20260719_002_rh_chain_reviewed_classifications.up.sql",
+      "number": 2,
+      "sha256": "sha256:2fe457ce7ed9bd6aaa6e3878bc0ca1a1ca6f3d21897c37d0c33810b91a13d63d"
+    },
+    {
+      "file": "migrations/20260719_003_rh_chain_classification_layer_vocabulary.up.sql",
+      "number": 3,
+      "sha256": "sha256:4ebab9a142c918ceeebf94e24961462bea5d2d5f518e0b640f88082d7011efc2"
+    },
+    {
+      "file": "migrations/20260719_004_rh_chain_attention_quality_receipts.up.sql",
+      "number": 4,
+      "sha256": "sha256:a28686d6505bc79d3787a890192622bbd9ab75b0b75766fd7d78337e876e7049"
+    },
+    {
+      "file": "migrations/20260719_005_rh_chain_project_claims.up.sql",
+      "number": 5,
+      "sha256": "sha256:63c4d89b45e28f7b20cef6897987d8d10b10975a67d6e55b7d764fd1a1d73127"
+    },
+    {
+      "file": "migrations/20260720_006_rh_chain_reviewer_workflow.up.sql",
+      "number": 6,
+      "sha256": "sha256:120fd922d3e408112b8f5e24b6b0fb4cc24e2286d21204c068f00c7543366a9b"
+    },
+    {
+      "file": "migrations/20260813_007_infopunks_4663_phase1.up.sql",
+      "number": 7,
+      "sha256": "sha256:f230eeb1483868d0e0910f651a128ed1ad3856e59f272576376ec64653ca9ce1"
+    },
+    {
+      "file": "migrations/20260813_008_infopunks_4663_close_the_loop.up.sql",
+      "number": 8,
+      "sha256": "sha256:f55f1dcf767ce495d0f07e18a2965f80c545ad55d9c309fc29082bd53eb487b7"
+    },
+    {
+      "file": "migrations/20260814_009_infopunks_4663_make_the_chain_speak.up.sql",
+      "number": 9,
+      "sha256": "sha256:756a804d4f8516b585c671cea4212652b4915f1e8a1f7b2a18abec9f2234717b"
+    },
+    {
+      "file": "migrations/20260908_010_rh4663_product_intelligence.up.sql",
+      "number": 10,
+      "sha256": "sha256:a5918a91827a6798fcd5c38c6c0bb2a9ef265b9baa3589452a4493275b4abca1"
+    },
+    {
+      "file": "migrations/20261007_011_canonical_receipt_spine.up.sql",
+      "number": 11,
+      "sha256": "sha256:78759614ada801c801920410d5010f6fcb6ec1c563a1974cba836ea3c8ba551f"
+    },
+    {
+      "file": "migrations/20261007_012_judgment_requests.up.sql",
+      "number": 12,
+      "sha256": "sha256:c810a9df8d663507d9bae0e76259e84c39c3ecb2b854183283bd26cd350884ed"
+    },
+    {
+      "file": "migrations/20261007_013_execution_proof_uniqueness.up.sql",
+      "number": 13,
+      "sha256": "sha256:cbd8ef09fff8461ecbffcfb0c71678ed9f46899abd758656692c36e04175b33e"
+    },
+    {
+      "file": "migrations/20261007_014_derived_score_projection.up.sql",
+      "number": 14,
+      "sha256": "sha256:d6f033ee13d73b36477c080d3b38cc6c343cf5bf8f5c64a00373ee2573afbec3"
+    },
+    {
+      "file": "migrations/20261007_015_economic_judgment_engine.up.sql",
+      "number": 15,
+      "sha256": "sha256:0c0a61601c59bcb746e9179ae8695f50f25184b128c0121fd150aa0c6ee0efae"
+    },
+    {
+      "file": "migrations/20261008_016_rh_usdg_accounting.up.sql",
+      "number": 16,
+      "sha256": "sha256:a7db94157975c95b2085ed67a038b0d750b4e37c0d13e54327fe17b4b3c334e9"
+    },
+    {
+      "file": "migrations/20261008_017_ipx_launch.up.sql",
+      "number": 17,
+      "sha256": "sha256:77583eea4504ce611737f8f73f94172309229378bceefb21068752ee07e6f364"
+    },
+    {
+      "file": "migrations/20261009_018_evaluation_reviewer_attestations.up.sql",
+      "number": 18,
+      "sha256": "sha256:4f47f03be06d399cf6d561a1b3d4faa70ab3ec171f11aa4354adfdfcfac94727"
+    },
+    {
+      "file": "migrations/20261011_023_evaluation_review_guardrails.up.sql",
+      "number": 23,
+      "sha256": "sha256:9af3ad9d521c61ea1c1a3c70ae6de81bc2872e72b3f9abbbe8d61d595c8024eb"
+    }
+  ],
+  "track_a": [
+    {
+      "file": "migrations/20260719_001_rh_chain_market_snapshot_memory.up.sql",
+      "number": 1,
+      "sha256": "sha256:ef0892b3d8113942c198be7ecaec59ce8e711a71db2f593525857d07f1afe23e"
+    },
+    {
+      "file": "migrations/20260719_002_rh_chain_reviewed_classifications.up.sql",
+      "number": 2,
+      "sha256": "sha256:2fe457ce7ed9bd6aaa6e3878bc0ca1a1ca6f3d21897c37d0c33810b91a13d63d"
+    },
+    {
+      "file": "migrations/20260719_003_rh_chain_classification_layer_vocabulary.up.sql",
+      "number": 3,
+      "sha256": "sha256:4ebab9a142c918ceeebf94e24961462bea5d2d5f518e0b640f88082d7011efc2"
+    },
+    {
+      "file": "migrations/20260719_004_rh_chain_attention_quality_receipts.up.sql",
+      "number": 4,
+      "sha256": "sha256:a28686d6505bc79d3787a890192622bbd9ab75b0b75766fd7d78337e876e7049"
+    },
+    {
+      "file": "migrations/20260719_005_rh_chain_project_claims.up.sql",
+      "number": 5,
+      "sha256": "sha256:63c4d89b45e28f7b20cef6897987d8d10b10975a67d6e55b7d764fd1a1d73127"
+    },
+    {
+      "file": "migrations/20260720_006_rh_chain_reviewer_workflow.up.sql",
+      "number": 6,
+      "sha256": "sha256:120fd922d3e408112b8f5e24b6b0fb4cc24e2286d21204c068f00c7543366a9b"
+    },
+    {
+      "file": "migrations/20260813_007_infopunks_4663_phase1.up.sql",
+      "number": 7,
+      "sha256": "sha256:f230eeb1483868d0e0910f651a128ed1ad3856e59f272576376ec64653ca9ce1"
+    },
+    {
+      "file": "migrations/20260813_008_infopunks_4663_close_the_loop.up.sql",
+      "number": 8,
+      "sha256": "sha256:f55f1dcf767ce495d0f07e18a2965f80c545ad55d9c309fc29082bd53eb487b7"
+    },
+    {
+      "file": "migrations/20260814_009_infopunks_4663_make_the_chain_speak.up.sql",
+      "number": 9,
+      "sha256": "sha256:756a804d4f8516b585c671cea4212652b4915f1e8a1f7b2a18abec9f2234717b"
+    },
+    {
+      "file": "migrations/20260908_010_rh4663_product_intelligence.up.sql",
+      "number": 10,
+      "sha256": "sha256:a5918a91827a6798fcd5c38c6c0bb2a9ef265b9baa3589452a4493275b4abca1"
+    },
+    {
+      "file": "migrations/20261007_011_canonical_receipt_spine.up.sql",
+      "number": 11,
+      "sha256": "sha256:78759614ada801c801920410d5010f6fcb6ec1c563a1974cba836ea3c8ba551f"
+    },
+    {
+      "file": "migrations/20261007_012_judgment_requests.up.sql",
+      "number": 12,
+      "sha256": "sha256:c810a9df8d663507d9bae0e76259e84c39c3ecb2b854183283bd26cd350884ed"
+    },
+    {
+      "file": "migrations/20261007_013_execution_proof_uniqueness.up.sql",
+      "number": 13,
+      "sha256": "sha256:cbd8ef09fff8461ecbffcfb0c71678ed9f46899abd758656692c36e04175b33e"
+    },
+    {
+      "file": "migrations/20261007_014_derived_score_projection.up.sql",
+      "number": 14,
+      "sha256": "sha256:d6f033ee13d73b36477c080d3b38cc6c343cf5bf8f5c64a00373ee2573afbec3"
+    },
+    {
+      "file": "migrations/20261007_015_economic_judgment_engine.up.sql",
+      "number": 15,
+      "sha256": "sha256:0c0a61601c59bcb746e9179ae8695f50f25184b128c0121fd150aa0c6ee0efae"
+    },
+    {
+      "file": "migrations/20261008_016_rh_usdg_accounting.up.sql",
+      "number": 16,
+      "sha256": "sha256:a7db94157975c95b2085ed67a038b0d750b4e37c0d13e54327fe17b4b3c334e9"
+    },
+    {
+      "file": "migrations/20261008_017_ipx_launch.up.sql",
+      "number": 17,
+      "sha256": "sha256:77583eea4504ce611737f8f73f94172309229378bceefb21068752ee07e6f364"
+    },
+    {
+      "file": "migrations/20261008_018_decision_context.up.sql",
+      "number": 18,
+      "sha256": "sha256:388aab7dcfe4b5c41052dd5213a55ee81886b769ff96fef7b1ac93b34697a815"
+    },
+    {
+      "file": "migrations/20261008_019_execution_score_eligibility.up.sql",
+      "number": 19,
+      "sha256": "sha256:22544b426e91771c9b6beded5c50d657de5d71c0cc9ff017402c7f1411471c71"
+    },
+    {
+      "file": "migrations/20261008_020_receipt_acceptance.up.sql",
+      "number": 20,
+      "sha256": "sha256:4f72db8131c5b3620254a9c8ac52e761397296ec3b581440b69f36ad7da55be7"
+    },
+    {
+      "file": "migrations/20261008_021_free_assessment_attempts.up.sql",
+      "number": 21,
+      "sha256": "sha256:64cb87863e6f6a425e60aea8145a943a39eb058d0e1dcc0368df8616a39e7989"
+    }
+  ],
+  "branch_number_uniqueness": true,
+  "up_down_pairs_present": true,
+  "shared_001_017_unchanged": true,
+  "migration_018_preserved": true,
+  "numbering_collisions": [
+    {
+      "number": 18,
+      "branch_file": "migrations/20261009_018_evaluation_reviewer_attestations.up.sql",
+      "track_a_file": "migrations/20261008_018_decision_context.up.sql"
+    }
+  ],
+  "concurrent_reservations": [
+    {
+      "number": 18,
+      "file": "migrations/20261009_018_evaluation_reviewer_attestations.up.sql",
+      "refs": [
+        "codex/e1-a-durability-qualification",
+        "codex/e1-independent-evaluation"
+      ]
+    },
+    {
+      "number": 18,
+      "file": "migrations/20261008_018_decision_context.up.sql",
+      "refs": [
+        "codex/intelligent-ui-v1-review",
+        "codex/ipx-a2-decision-context",
+        "codex/ipx-a4-a6",
+        "codex/ipx-b-invariants",
+        "codex/ipx-b-protocol-completion",
+        "codex/ipx-c1-parity",
+        "codex/ipx-d-economics",
+        "codex/ipx-d2-conservation",
+        "codex/ipx-integration-candidate",
+        "codex/ipx-release-candidate-f6e2019",
+        "codex/ipx-release-evidence",
+        "codex/ipx-release-evidence-eeee995",
+        "codex/ipx-release-evidence-f6e2019",
+        "codex/ipx-security-hardening",
+        "codex/ipx-verification-gates",
+        "codex/track-a-release-candidate",
+        "codex/track-a-staging-rc-20261011",
+        "codex/ui-sec2-receipt-access"
+      ]
+    },
+    {
+      "number": 19,
+      "file": "migrations/20261008_019_execution_score_eligibility.up.sql",
+      "refs": [
+        "codex/intelligent-ui-v1-review",
+        "codex/ipx-a2-decision-context",
+        "codex/ipx-a4-a6",
+        "codex/ipx-b-protocol-completion",
+        "codex/ipx-d2-conservation",
+        "codex/ipx-integration-candidate",
+        "codex/ipx-release-candidate-f6e2019",
+        "codex/ipx-release-evidence",
+        "codex/ipx-release-evidence-eeee995",
+        "codex/ipx-release-evidence-f6e2019",
+        "codex/ipx-security-hardening",
+        "codex/ipx-verification-gates",
+        "codex/track-a-release-candidate",
+        "codex/track-a-staging-rc-20261011",
+        "codex/ui-sec2-receipt-access"
+      ]
+    },
+    {
+      "number": 20,
+      "file": "migrations/20261008_020_receipt_acceptance.up.sql",
+      "refs": [
+        "codex/intelligent-ui-v1-review",
+        "codex/ipx-a4-a6",
+        "codex/ipx-integration-candidate",
+        "codex/ipx-release-candidate-f6e2019",
+        "codex/ipx-release-evidence",
+        "codex/ipx-release-evidence-eeee995",
+        "codex/ipx-release-evidence-f6e2019",
+        "codex/ipx-security-hardening",
+        "codex/track-a-release-candidate",
+        "codex/track-a-staging-rc-20261011",
+        "codex/ui-sec2-receipt-access"
+      ]
+    },
+    {
+      "number": 21,
+      "file": "migrations/20261008_021_free_assessment_attempts.up.sql",
+      "refs": [
+        "codex/intelligent-ui-v1-review",
+        "codex/ipx-a4-a6",
+        "codex/ipx-integration-candidate",
+        "codex/ipx-release-candidate-f6e2019",
+        "codex/ipx-release-evidence",
+        "codex/ipx-release-evidence-eeee995",
+        "codex/ipx-release-evidence-f6e2019",
+        "codex/ipx-security-hardening",
+        "codex/track-a-release-candidate",
+        "codex/track-a-staging-rc-20261011",
+        "codex/ui-sec2-receipt-access"
+      ]
+    },
+    {
+      "number": 22,
+      "file": "migrations/20261008_022_publication_boundaries.up.sql",
+      "refs": [
+        "codex/ipx-integration-candidate",
+        "codex/ipx-release-candidate-f6e2019",
+        "codex/ipx-release-evidence-eeee995",
+        "codex/ipx-release-evidence-f6e2019",
+        "codex/ipx-security-hardening",
+        "codex/track-a-staging-rc-20261011"
+      ]
+    }
+  ],
+  "reserved_gaps": [
+    19,
+    20,
+    21,
+    22
+  ],
+  "follow_up": "20261011_023_evaluation_review_guardrails",
+  "integration_decision": "NO_GO",
+  "application_conflicts": [
+    "Track A canonical-receipts.v2/decision-context authority",
+    "Track A receipt acceptance ledger and score eligibility",
+    "Evaluation reviewer trust/sidecar/policy must be explicitly reconciled with Track A; successful DDL coexistence is insufficient"
+  ],
+  "required_owner": "Track A / receipt-authority integration maintainer",
+  "production_changes": false
+}

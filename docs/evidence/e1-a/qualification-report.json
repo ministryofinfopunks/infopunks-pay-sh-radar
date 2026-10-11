@@ -1,0 +1,263 @@
+{
+  "schema_version": "e1-a-qualification-report.v1",
+  "date": "2026-10-11",
+  "baseline": "b9597fc0388d5f08ea1a611b50e12fcab7102fd9",
+  "branch": "codex/e1-a-durability-qualification",
+  "implementation_commit": "40eec72d15d65a603c3b206e99a324e17a560541",
+  "evidence_commit": "containing Git commit; resolve with git log -1 -- docs/evidence/e1-a/qualification-report.json",
+  "tested_source_sha256": "sha256:a3e4ab788b0e11c950ad247592072087ec549db3eecdcad9f0abe3b991b90bf5",
+  "source_binding": {
+    "run_began_at_baseline_with_uncommitted_fixes": true,
+    "every_tested_source_manifest_entry_matches_implementation_commit": true
+  },
+  "decision": "NO_GO",
+  "isolated_internal_authority_and_persistence": "PASS",
+  "evidence_class": "disposable PostgreSQL; synthetic fixtures only",
+  "genuine_external_loops_certified": 0,
+  "independent_human_outcome_review_performed": false,
+  "verification_independence": "separately implemented cryptographic verifier; not external human certification",
+  "tests": {
+    "total": 1965,
+    "passed": 1965,
+    "failed": 0,
+    "skipped": 0,
+    "test_files": 272,
+    "e1_a_cases": 32,
+    "e1_a_passed": 32
+  },
+  "validation": [
+    {
+      "name": "create-test-role",
+      "exit_code": 0,
+      "expected_failure": false,
+      "log": "docs/evidence/e1-a/qualification/create-test-role.txt"
+    },
+    {
+      "name": "migration-20261009_018_evaluation_reviewer_attestations",
+      "exit_code": 0,
+      "expected_failure": false,
+      "log": "docs/evidence/e1-a/qualification/migration-20261009_018_evaluation_reviewer_attestations.txt"
+    },
+    {
+      "name": "restart-postgres",
+      "exit_code": 0,
+      "expected_failure": false,
+      "log": "docs/evidence/e1-a/qualification/restart-postgres.txt"
+    },
+    {
+      "name": "schema-after-restart",
+      "exit_code": 0,
+      "expected_failure": false,
+      "log": "docs/evidence/e1-a/qualification/schema-after-restart.txt"
+    },
+    {
+      "name": "rollback-setup-20261009_018_evaluation_reviewer_attestations",
+      "exit_code": 0,
+      "expected_failure": false,
+      "log": "docs/evidence/e1-a/qualification/rollback-setup-20261009_018_evaluation_reviewer_attestations.txt"
+    },
+    {
+      "name": "rollback-20261009_018_evaluation_reviewer_attestations",
+      "exit_code": 0,
+      "expected_failure": false,
+      "log": "docs/evidence/e1-a/qualification/rollback-20261009_018_evaluation_reviewer_attestations.txt"
+    },
+    {
+      "name": "reapply-20261009_018_evaluation_reviewer_attestations",
+      "exit_code": 0,
+      "expected_failure": false,
+      "log": "docs/evidence/e1-a/qualification/reapply-20261009_018_evaluation_reviewer_attestations.txt"
+    },
+    {
+      "name": "typecheck",
+      "exit_code": 0,
+      "expected_failure": false,
+      "log": "docs/evidence/e1-a/qualification/typecheck.txt"
+    },
+    {
+      "name": "lint",
+      "exit_code": 0,
+      "expected_failure": false,
+      "log": "docs/evidence/e1-a/qualification/lint.txt"
+    },
+    {
+      "name": "build",
+      "exit_code": 0,
+      "expected_failure": false,
+      "log": "docs/evidence/e1-a/qualification/build.txt"
+    },
+    {
+      "name": "regression-tests",
+      "exit_code": 0,
+      "expected_failure": false,
+      "log": "docs/evidence/e1-a/qualification/regression-tests.txt"
+    },
+    {
+      "name": "restart-after-receipt-persistence",
+      "exit_code": 0,
+      "expected_failure": false,
+      "log": "docs/evidence/e1-a/qualification/restart-after-receipt-persistence.txt"
+    },
+    {
+      "name": "post-restart-receipt-replay",
+      "exit_code": 0,
+      "expected_failure": false,
+      "log": "docs/evidence/e1-a/qualification/post-restart-receipt-replay.txt"
+    }
+  ],
+  "postgres_version": "14.20",
+  "durability": {
+    "schema_version": "e1-a-post-restart-replay.v1",
+    "evidence_class": "synthetic test fixtures; no provider delivery or genuine outcome proof",
+    "server_restart_performed_by_runner": true,
+    "test_schema": "e1_a_bdef877645474e99aa5bcb4e2296efd2",
+    "evaluation_id": "evaluation_440133c3976d3f14af67b5eea67aa1bb96a0912ed677d869958972c6f73498b4",
+    "checks": {
+      "receipt_unchanged": true,
+      "sidecar_unchanged": true,
+      "registry_digest_unchanged": true,
+      "entire_chain_replay": true
+    },
+    "independent_verifier_checks": {
+      "observation_content_hash": true,
+      "judgment_content_hash": true,
+      "execution_content_hash": true,
+      "evaluation_content_hash": true,
+      "reviewer_signature": true,
+      "sidecar_digest": true,
+      "registry_digest": true,
+      "reviewer_identity": true,
+      "parent_links": true,
+      "observation_payload_hash": true,
+      "outcome_manifest_digest": true,
+      "judgment_signature": true
+    },
+    "real_world_outcome_verified": false
+  },
+  "migration_validation": {
+    "all_branch_up_migrations_applied": true,
+    "numbers": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      23
+    ],
+    "empty_down_up_tested": [
+      23,
+      18,
+      17
+    ],
+    "intentional_immutable_rollback_barrier": {
+      "migration": "20261008_016_rh_usdg_accounting.down.sql",
+      "status": "intentionally_irreversible",
+      "immutable_accounting_preserved": true
+    },
+    "shared_001_017_unchanged": true,
+    "original_018_preserved": true,
+    "track_a_commit": "f6b5de64e96da4e5bacbfba39f6cdf6940d2aa79",
+    "numbering_collisions": [
+      {
+        "number": 18,
+        "branch_file": "migrations/20261009_018_evaluation_reviewer_attestations.up.sql",
+        "track_a_file": "migrations/20261008_018_decision_context.up.sql"
+      }
+    ],
+    "combined_application_qualified": false
+  },
+  "controls": {
+    "disposable_cluster_removed": true,
+    "production_database_access": false,
+    "production_keys_used": false,
+    "paid_provider_calls": false,
+    "payment_or_settlement": false,
+    "deployment": false,
+    "decisions_authorization_enabled": false,
+    "e1_staging_reputation_mutation": false,
+    "test_private_keys_archived": false
+  },
+  "remaining_blockers": [
+    {
+      "id": "migration_018_collision",
+      "owner": "Track A / receipt-authority integration maintainer",
+      "required_action": "Allocate compatible migration identity without rewriting frozen history; reconcile reviewer authority with Track A acceptance and score eligibility; qualify combined migration/application path."
+    },
+    {
+      "id": "independent_review",
+      "owner": "Independent security / receipt-authority maintainer",
+      "required_action": "Review reproduced defects, corrections, and archived evidence; this agent-authored packet is not external human approval."
+    },
+    {
+      "id": "external_causal_loop",
+      "owner": "Operator and independent outcome reviewer",
+      "required_action": "Qualify provider delivery provenance; freeze real rubric and reviewer registry; obtain explicit bounded transaction authorization; acquire and independently review authentic external evidence."
+    }
+  ],
+  "release_gates": {
+    "E1_A_integration": "NO_GO",
+    "E1_A_isolated_internal_checks": "PASS",
+    "E1_B": "NO_GO",
+    "E1_C": "NO_GO",
+    "E2": "NO_GO",
+    "E3": "NO_GO"
+  },
+  "limitations": [
+    "Single-node PostgreSQL 14.20 orderly restart; no power-loss or replica qualification.",
+    "All execution/outcome fixture data synthetic; no statistical spend-safety or model performance evidence.",
+    "Database owner/superuser outside application trust boundary; SQL flags do not confer reviewer authority.",
+    "Sidecar and receipt are separate commits; interruption can leave pending sidecar; exact signed retry was verified.",
+    "Historic trust replay requires explicitly pinned registry snapshot; revocations and mismatches fail closed."
+  ],
+  "preserved_runs": [
+    "baseline",
+    "adversarial-baseline",
+    "corrected-focused",
+    "rollback-boundary-observed",
+    "initial-full-regression",
+    "qualification"
+  ],
+  "artifacts": [
+    {
+      "file": "docs/evidence/e1-a/qualification/run.json",
+      "sha256": "sha256:0774134bffbd97514bcb1b54d025459133d89f62a3a8591b003411696801f023"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/vitest.json",
+      "sha256": "sha256:a70f4e1dc1de1d01b03e51a06d794b7082ddc0c6ce9e4449236709b4adf63e26"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/source-manifest.json",
+      "sha256": "sha256:6e651daa04317108d5a976085ea57f043c8f5c2c93b0a552b6735222282bb5cf"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/migration-compatibility.json",
+      "sha256": "sha256:1d41ceea9b6e5bcba97612e2f7912873599ca0d4ea5d16ee2a95d77f5e75f698"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/synthetic-durability-bundle.json",
+      "sha256": "sha256:f36b6525f5291a79a3deeac97b9772c03980aab6abe2d6a7c909d64d53871826"
+    },
+    {
+      "file": "docs/evidence/e1-a/qualification/post-restart-replay.json",
+      "sha256": "sha256:e170a80354dd7009e1ee01613bc506d50e4255640cd4cffe006f7447d929c0b1"
+    },
+    {
+      "file": "docs/e1-a-reviewer-authority-qualification-2026-10-11.md",
+      "sha256": "sha256:acb2bf14977a64a8eb08ffd741890f7ad9b869e48e4915160c395112040659de"
+    }
+  ]
+}

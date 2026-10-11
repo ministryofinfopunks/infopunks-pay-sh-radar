@@ -1,0 +1,2 @@
+ERROR:  accounting rollback requires code/traffic rollback; retain append-only revenue, costs and RH execution uniqueness
+CONTEXT:  PL/pgSQL function inline_code_block line 1 at RAISE

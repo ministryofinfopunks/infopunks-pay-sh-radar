@@ -1,0 +1,20 @@
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE FUNCTION
+NOTICE:  trigger "rh_4663_signal_publications_immutable" for relation "rh_4663_signal_publications" does not exist, skipping
+DROP TRIGGER
+CREATE TRIGGER
+CREATE FUNCTION
+NOTICE:  trigger "rh_4663_signal_corrections_immutable" for relation "rh_4663_signal_corrections" does not exist, skipping
+DROP TRIGGER
+CREATE TRIGGER

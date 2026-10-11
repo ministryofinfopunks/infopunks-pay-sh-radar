@@ -1,0 +1,28 @@
+{
+  "schema_version": "e1-a-post-restart-replay.v1",
+  "evidence_class": "synthetic test fixtures; no provider delivery or genuine outcome proof",
+  "server_restart_performed_by_runner": true,
+  "test_schema": "e1_a_494768d668ac4a318efa46688518d445",
+  "evaluation_id": "evaluation_b238c0f9f0805ee1b8e2e4c8daf59fc7a91bb9fccb4655bb5071ba48bb8a2a56",
+  "checks": {
+    "receipt_unchanged": true,
+    "sidecar_unchanged": true,
+    "registry_digest_unchanged": true,
+    "entire_chain_replay": true
+  },
+  "independent_verifier_checks": {
+    "observation_content_hash": true,
+    "judgment_content_hash": true,
+    "execution_content_hash": true,
+    "evaluation_content_hash": true,
+    "reviewer_signature": true,
+    "sidecar_digest": true,
+    "registry_digest": true,
+    "reviewer_identity": true,
+    "parent_links": true,
+    "observation_payload_hash": true,
+    "outcome_manifest_digest": true,
+    "judgment_signature": true
+  },
+  "real_world_outcome_verified": false
+}

@@ -1,0 +1,5 @@
+
+> infopunks-pay-sh-radar@0.1.0 test
+> vitest run tests/integration/e1-a-qualification.test.ts --reporter=json --outputFile=/Users/ahdilm/.codex/worktrees/e1-a-durability-qualification/docs/evidence/e1-a/corrected-focused/vitest.json
+
+JSON report written to /Users/ahdilm/.codex/worktrees/e1-a-durability-qualification/docs/evidence/e1-a/corrected-focused/vitest.json
