@@ -156,6 +156,11 @@ export class PostgresCanonicalReceiptStore implements ReceiptAppendStore {
     } catch (error) {
       await client.query('rollback').catch(() => undefined);
       if (error && typeof error === 'object' && 'code' in error && error.code === '23505') {
+        // Concurrent identical inserts can conflict on receipt_hash before the
+        // targeted ID index. After rollback, return only the already-validated
+        // identical record; conflicting content retains the rejection path.
+        const existing = await client.query(`select receipt from ${meta.table} where ${meta.id}=$1`, [values[0]]);
+        if (existing.rows[0] && canonicalSerialize(existing.rows[0].receipt) === canonicalSerialize(receipt)) return structuredClone(receipt);
         const repeatedEvaluation = 'constraint' in error && error.constraint === 'evaluation_receipts_execution_id_key';
         throw new ReceiptAuthorityError(repeatedEvaluation ? 'execution_already_evaluated' : 'receipt_unique_conflict');
       }

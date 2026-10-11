@@ -29,6 +29,9 @@ export interface EvaluationReviewerTrust {
 }
 
 const DOMAIN = 'infopunks.evaluation-review-attestation.v1';
+// Receipt IDs may contain colons. A tuple encoding prevents cross-identity aliases.
+const keyIdentity = (reviewerId: string, keyId: string) => JSON.stringify([reviewerId, keyId]);
+const lexical = (a: string, b: string) => a < b ? -1 : a > b ? 1 : 0;
 export function evaluationAttestationSigningBytes(attestation: EvaluationReviewAttestation) {
   const { signature: _signature, ...payload } = attestation;
   return Buffer.from(canonicalSerialize({ domain: DOMAIN, algorithm: 'Ed25519', attestation: payload }));
@@ -56,16 +59,17 @@ export function createEvaluationReviewerTrust(raw: unknown): EvaluationReviewerT
       if (reviewer.keys.some((key, index) => reviewer.keys.findIndex((other) => other.key_id === key.key_id) !== index)) throw new Error();
       const keys = reviewer.keys.map((key) => {
         if (key.valid_until && Date.parse(key.valid_until) <= Date.parse(key.valid_from)) throw new Error();
+        if (!key.public_key_pem.trim().startsWith('-----BEGIN PUBLIC KEY-----')) throw new Error();
         const publicKey = createPublicKey(key.public_key_pem);
         if (publicKey.asymmetricKeyType !== 'ed25519') throw new Error();
         const publicKeyPem = publicKey.export({ type: 'spki', format: 'pem' }).toString();
-        const identity = reviewer.reviewer_id + ':' + key.key_id;
+        const identity = keyIdentity(reviewer.reviewer_id, key.key_id);
         if (publicKeys.has(identity)) throw new Error();
         publicKeys.set(identity, { reviewerId: reviewer.reviewer_id, key, object: publicKey });
         return { ...key, public_key_pem: publicKeyPem };
-      }).sort((a, b) => a.key_id.localeCompare(b.key_id));
+      }).sort((a, b) => lexical(a.key_id, b.key_id));
       return { reviewer_id: reviewer.reviewer_id, keys };
-    }).sort((a, b) => a.reviewer_id.localeCompare(b.reviewer_id));
+    }).sort((a, b) => lexical(a.reviewer_id, b.reviewer_id));
     if (new Set(normalizedReviewers.map((reviewer) => reviewer.reviewer_id)).size !== normalizedReviewers.length) throw new Error();
     const acceptedRubrics = [...new Set(registry.accepted_rubric_sha256s)].sort();
     if (acceptedRubrics.length !== registry.accepted_rubric_sha256s.length) throw new Error();
@@ -78,7 +82,7 @@ export function createEvaluationReviewerTrust(raw: unknown): EvaluationReviewerT
         try {
           const parsed = EvaluationReviewAttestationSchema.parse(rawAttestation);
           if (parsed.trust_registry_sha256 !== registrySha256 || !acceptedRubrics.includes(parsed.rubric_sha256)) return false;
-          const trusted = publicKeys.get(parsed.reviewer_id + ':' + parsed.reviewer_key_id);
+          const trusted = publicKeys.get(keyIdentity(parsed.reviewer_id, parsed.reviewer_key_id));
           if (!trusted || trusted.key.revoked || Date.parse(parsed.attested_at) < Date.parse(trusted.key.valid_from)
               || (trusted.key.valid_until !== null && Date.parse(parsed.attested_at) >= Date.parse(trusted.key.valid_until))) return false;
           const signature = Buffer.from(parsed.signature, 'base64');

@@ -19,6 +19,9 @@ export function assertEvaluationPolicy(receipt: EvaluationReceipt) {
     if (!receipt.evaluator || receipt.evaluator.verification !== 'internal' || receipt.evaluator.type !== 'internal' ||
         !['canonical-admin', 'evaluation-service'].includes(receipt.evaluator.id)) throw new EvaluationServiceError('evaluator_provenance_required');
   }
+  if (receipt.evaluator?.verification === 'verified' && receipt.policy_version !== REVIEW_ATTESTED_EVALUATION_POLICY.version) {
+    throw new EvaluationServiceError('reviewer_attestation_required', 403);
+  }
   if (receipt.policy_version === REVIEW_ATTESTED_EVALUATION_POLICY.version &&
       (!receipt.evaluator || receipt.evaluator.verification !== 'verified' || receipt.evaluator.type !== 'independent_reviewer' || !receipt.evaluator.signature_ref)) {
     throw new EvaluationServiceError('reviewer_attestation_required', 403);

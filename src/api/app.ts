@@ -4615,6 +4615,9 @@ export async function createApp(
     if (!['observation', 'judgment', 'execution', 'evaluation'].includes(req.params.kind)) return reply.code(404).send({ error: 'receipt_kind_not_found' });
     const receipt = await canonicalReceiptStore.get(req.params.kind as ReceiptKind, req.params.id);
     if (!receipt) return reply.code(404).send({ error: 'canonical_receipt_not_found' });
+    if (req.params.kind === 'evaluation' && !await verifyReceiptChain('evaluation', receipt, canonicalReceiptStore, config.receiptProceedConfidenceThreshold)) {
+      return reply.code(409).send({ error: 'evaluation_receipt_authority_invalid' });
+    }
     return { data: safeJsonExport(receipt) };
   });
   app.get<{ Params: { subject_type: string; subject_id: string } }>('/v1/receipt-spine/scores/:subject_type/:subject_id', async (req, reply) => {

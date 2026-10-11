@@ -79,7 +79,7 @@ export async function assertReceiptAuthority(kind: ReceiptKind, receipt: Receipt
     requireAuthority(attestation!.execution_receipt_id === evaluation.execution_id
       && attestation!.verdict === evaluation.outcome
       && attestation!.reviewer_id === evaluation.evaluator?.id
-      && Date.parse(attestation!.attested_at) <= Date.parse(evaluation.evaluated_at), 'evaluation_reviewer_attestation_binding_invalid');
+      && Date.parse(attestation!.attested_at) === Date.parse(evaluation.evaluated_at), 'evaluation_reviewer_attestation_binding_invalid');
     requireAuthority(reviewerTrust!.acceptsRubric(attestation!.rubric_sha256), 'evaluation_rubric_not_authorized');
     const sortedRefs = [...evaluation.evidence_refs].sort();
     requireAuthority(JSON.stringify(sortedRefs) === JSON.stringify(attestation!.evidence_refs), 'evaluation_evidence_refs_mismatch');

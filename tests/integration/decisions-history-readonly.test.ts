@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import pg from 'pg';
 import { describe, expect, it } from 'vitest';
 import { readHistoricalReceipts } from '../../scripts/audit-decisions-history';
@@ -13,16 +13,18 @@ describe.skipIf(!process.env.CANONICAL_RECEIPT_TEST_URL)('Decisions read-only hi
     const db = await createCanonicalTestDatabase(adminUrl, 'decisions_history', [
       '20261007_011_canonical_receipt_spine', '20261007_012_judgment_requests', '20261007_014_derived_score_projection'
     ]);
-    const admin = new pg.Pool({ connectionString: adminUrl });
+    // Qualification uses SCRAM and separates schema ownership from provisioning.
+    const admin = new pg.Pool({ connectionString: process.env.CANONICAL_RECEIPT_TEST_ADMIN_URL ?? adminUrl });
     const role = 'decisions_reader_' + randomUUID().replaceAll('-', '');
+    const password = randomBytes(32).toString('hex');
     try {
       await appendChain(new PostgresCanonicalReceiptStore(db.pool));
-      await admin.query(`CREATE ROLE ${role} LOGIN`);
+      await admin.query(`CREATE ROLE ${role} LOGIN PASSWORD '${password}'`);
       await admin.query(`GRANT USAGE ON SCHEMA ${db.schema} TO ${role}`);
       await admin.query(`GRANT SELECT ON ALL TABLES IN SCHEMA ${db.schema} TO ${role}`);
       const readonlyUrl = new URL(adminUrl);
       readonlyUrl.username = role;
-      readonlyUrl.password = '';
+      readonlyUrl.password = password;
       const source = await readHistoricalReceipts(readonlyUrl.toString(), db.schema, 10);
       expect(Object.fromEntries(Object.entries(source.records).map(([kind, rows]) => [kind, rows.length]))).toEqual({
         observation: 1, judgment: 1, execution: 1, evaluation: 1
